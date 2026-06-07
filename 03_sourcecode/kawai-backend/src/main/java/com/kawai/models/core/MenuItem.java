@@ -1,0 +1,12 @@
+package com.kawai.models.core;
+import jakarta.persistence.*;
+import lombok.Data;
+import java.math.BigDecimal;
+@Entity @Table(name="Menu_Items") @Data
+public class MenuItem {
+    @Id @GeneratedValue(strategy=GenerationType.IDENTITY) @Column(name="item_id") private Long id;
+    @Column(name="item_name", nullable=false) private String itemName;
+    @Column(nullable=false) private BigDecimal price;
+    @Column(nullable=false) private String category;
+    @Column(name="is_available", nullable=false) private Boolean isAvailable = true;
+}

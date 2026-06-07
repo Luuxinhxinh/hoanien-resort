@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Booking - Namia River Retreat Clone</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'namia-bg': '#f4efea',
+                        'namia-text': '#2c2c2c',
+                        'namia-footer': '#3c3530',
+                        'namia-footer-text': '#e5dfd8'
+                    },
+                    fontFamily: {
+                        'serif': ['"Playfair Display"', 'serif'],
+                        'sans': ['"Montserrat"', 'sans-serif'],
+                    },
+                    spacing: { 'section-y': '120px' }
+                }
+            }
+        }
+    </script>
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+
+        /* Custom date picker styling */
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            opacity: 0.5;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body
+    class="bg-[#fcfbf9] text-namia-text font-sans antialiased overflow-x-hidden selection:bg-namia-text selection:text-namia-bg">
+
+    <nav
+        class="fixed top-0 left-0 w-full z-50 bg-namia-bg/90 backdrop-blur-md border-b border-namia-text/10 transition-all duration-300">
+        <div class="max-w-[1440px] mx-auto px-6 py-4 flex items-center justify-between">
+            <div
+                class="hidden lg:flex items-center gap-8 text-[11px] uppercase tracking-[0.2em] font-semibold text-namia-text/80">
+                <a href="namia_living_clone.html" class="hover:text-namia-text transition-colors">Living</a>
+                <a href="namia_wellbeing_clone.html" class="hover:text-namia-text transition-colors">Wellbeing</a>
+                <a href="namia_dining_clone.html" class="hover:text-namia-text transition-colors">Dining</a>
+                <a href="namia_experiences_clone.html" class="hover:text-namia-text transition-colors">Experiences</a>
+            </div>
+
+            <div
+                class="font-serif text-2xl md:text-3xl font-medium tracking-wide text-namia-text text-center flex-1 lg:flex-none cursor-pointer">
+                NAMIA
+                <span class="block text-[10px] md:text-xs font-sans tracking-[0.3em] uppercase mt-1 opacity-70">River
+                    Retreat</span>
+            </div>
+
+            <div class="hidden lg:flex items-center gap-6 text-[11px] uppercase tracking-[0.2em] font-semibold">
+                <a href="#" class="hover:text-namia-text/70 transition-colors">Offers</a>
+                <div class="flex gap-2 text-namia-text/50">
+                    <button class="text-namia-text">EN</button> | <button
+                        class="hover:text-namia-text transition-colors">VI</button>
+                </div>
+                <a href="#" onclick="openLoginModal(); return false;"
+                    class="bg-namia-text text-namia-bg px-6 py-3 hover:bg-namia-text/80 transition-colors inline-block text-center border border-namia-text">
+                    Book Now
+                </a>
+            </div>
+
+            <button class="lg:hidden">
+                <span class="material-symbols-outlined text-3xl">menu</span>
+            </button>
+        </div>
+    </nav>
+
+    <main class="w-full pt-[100px] md:pt-[130px]">
+        <!-- Booking Search Bar -->
+        <section class="max-w-[1200px] mx-auto px-6 py-8">
+            <div
+                class="bg-white p-6 border border-namia-text/10 shadow-sm flex flex-col md:flex-row items-center gap-4">
+                <div
+                    class="w-full flex-1 flex flex-col border border-namia-text/20 px-4 py-2 hover:border-namia-text/50 transition-colors">
+                    <label class="text-[10px] uppercase tracking-[0.1em] opacity-60 font-semibold">Check-in</label>
+                    <input type="date" value="2026-06-12"
+                        class="border-none p-0 focus:ring-0 text-sm font-medium bg-transparent" />
+                </div>
+                <div
+                    class="w-full flex-1 flex flex-col border border-namia-text/20 px-4 py-2 hover:border-namia-text/50 transition-colors">
+                    <label class="text-[10px] uppercase tracking-[0.1em] opacity-60 font-semibold">Check-out</label>
+                    <input type="date" value="2026-06-15"
+                        class="border-none p-0 focus:ring-0 text-sm font-medium bg-transparent" />
+                </div>
+                <div
+                    class="w-full flex-1 flex flex-col border border-namia-text/20 px-4 py-2 hover:border-namia-text/50 transition-colors">
+                    <label class="text-[10px] uppercase tracking-[0.1em] opacity-60 font-semibold">Guests &
+                        Rooms</label>
+                    <select class="border-none p-0 focus:ring-0 text-sm font-medium bg-transparent">
+                        <option>2 Adults, 0 Children - 1 Room</option>
+                        <option>2 Adults, 1 Child - 1 Room</option>
+                        <option>4 Adults - 2 Rooms</option>
+                    </select>
+                </div>
+                <div
+                    class="w-full flex-1 flex flex-col border border-namia-text/20 px-4 py-2 hover:border-namia-text/50 transition-colors">
+                    <label class="text-[10px] uppercase tracking-[0.1em] opacity-60 font-semibold">Promo Code</label>
+                    <input type="text" placeholder="VNRESIDENT"
+                        class="border-none p-0 focus:ring-0 text-sm font-medium bg-transparent placeholder:text-namia-text" />
+                </div>
+                <button
+                    class="w-full md:w-auto bg-namia-text text-white px-8 py-4 text-[11px] uppercase tracking-[0.15em] font-semibold hover:bg-namia-text/80 transition-colors whitespace-nowrap">
+                    Update Search
+                </button>
+            </div>
+        </section>
+
+        <!-- Room Results -->
+        <section class="max-w-[1200px] mx-auto px-6 py-8 pb-32 flex flex-col lg:flex-row gap-12">
+            <!-- Filter Sidebar -->
+            <aside class="w-full lg:w-[250px] shrink-0">
+                <h3 class="font-serif text-2xl mb-6">Filter Results</h3>
+                <div class="space-y-6">
+                    <div>
+                        <h4 class="text-[11px] uppercase tracking-[0.1em] opacity-60 font-semibold mb-3">Room Type</h4>
+                        <div class="space-y-2 text-sm">
+                            <label class="flex items-center gap-3 cursor-pointer"><input type="checkbox" checked
+                                    class="form-checkbox text-namia-text focus:ring-namia-text border-namia-text/30 rounded-none" />
+                                Pool Villa</label>
+                            <label class="flex items-center gap-3 cursor-pointer"><input type="checkbox" checked
+                                    class="form-checkbox text-namia-text focus:ring-namia-text border-namia-text/30 rounded-none" />
+                                River Suite</label>
+                        </div>
+                    </div>
+                    <div class="w-full h-px bg-namia-text/10"></div>
+                    <div>
+                        <h4 class="text-[11px] uppercase tracking-[0.1em] opacity-60 font-semibold mb-3">Price Range
+                        </h4>
+                        <div class="space-y-2 text-sm">
+                            <input type="range" min="0" max="100" value="100" class="w-full accent-namia-text" />
+                            <div class="flex justify-between opacity-60 text-xs">
+                                <span>14M VND</span>
+                                <span>78M VND</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Room List -->
+            <div class="flex-1 flex flex-col gap-8">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="font-serif text-3xl">Available Rooms</h2>
+                    <span class="text-sm opacity-60">Showing 2 results</span>
+                </div>
+
+                <!-- Room Item 1 -->
+                <div
+                    class="bg-white border border-namia-text/10 flex flex-col md:flex-row overflow-hidden hover:shadow-lg transition-shadow">
+                    <div class="w-full md:w-[350px] aspect-[4/3] md:aspect-auto relative">
+                        <img src="https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                            alt="Riverside Pool Villa" class="w-full h-full object-cover" />
+                    </div>
+                    <div class="p-6 md:p-8 flex-1 flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-start mb-2">
+                                <h3 class="font-serif text-2xl">Riverside Pool Villa</h3>
+                            </div>
+                            <p class="text-sm opacity-70 mb-4 line-clamp-2">A luxurious private villa with a private
+                                plunge pool, offering serene views of the Thu Bon river.</p>
+                            <div class="flex items-center gap-4 text-[11px] uppercase tracking-[0.1em] opacity-60 mb-6">
+                                <span class="flex items-center gap-1"><span
+                                        class="material-symbols-outlined text-[16px]">square_foot</span> 120 sqm</span>
+                                <span class="flex items-center gap-1"><span
+                                        class="material-symbols-outlined text-[16px]">king_bed</span> 1 King Bed</span>
+                                <span class="flex items-center gap-1"><span
+                                        class="material-symbols-outlined text-[16px]">group</span> Up to 3</span>
+                            </div>
+                        </div>
+                        <div
+                            class="flex flex-col sm:flex-row justify-between items-end sm:items-center gap-4 pt-6 border-t border-namia-text/10">
+                            <div>
+                                <p class="text-[10px] uppercase tracking-[0.1em] opacity-60 mb-1">From</p>
+                                <p class="font-serif text-2xl">14,850,000 <span
+                                        class="text-sm font-sans opacity-70">VND</span></p>
+                                <p class="text-[10px] opacity-60 mt-1">per night, excluding taxes</p>
+                            </div>
+                            <button onclick="openLoginModal()"
+                                class="bg-namia-text text-white px-8 py-3.5 text-[11px] uppercase tracking-[0.15em] hover:bg-namia-text/80 transition-colors w-full sm:w-auto">
+                                Select Room
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Room Item 2 -->
+                <div
+                    class="bg-white border border-namia-text/10 flex flex-col md:flex-row overflow-hidden hover:shadow-lg transition-shadow">
+                    <div class="w-full md:w-[350px] aspect-[4/3] md:aspect-auto relative">
+                        <img src="https://images.unsplash.com/photo-1564013799919-ab600027ffc6?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                            alt="Garden Pool Villa" class="w-full h-full object-cover" />
+                    </div>
+                    <div class="p-6 md:p-8 flex-1 flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-start mb-2">
+                                <h3 class="font-serif text-2xl">Garden Pool Villa</h3>
+                            </div>
+                            <p class="text-sm opacity-70 mb-4 line-clamp-2">Immersed in tropical greenery, this villa
+                                provides an intimate sanctuary with its own sun deck and pool.</p>
+                            <div class="flex items-center gap-4 text-[11px] uppercase tracking-[0.1em] opacity-60 mb-6">
+                                <span class="flex items-center gap-1"><span
+                                        class="material-symbols-outlined text-[16px]">square_foot</span> 105 sqm</span>
+                                <span class="flex items-center gap-1"><span
+                                        class="material-symbols-outlined text-[16px]">king_bed</span> 1 King Bed</span>
+                                <span class="flex items-center gap-1"><span
+                                        class="material-symbols-outlined text-[16px]">group</span> Up to 2</span>
+                            </div>
+                        </div>
+                        <div
+                            class="flex flex-col sm:flex-row justify-between items-end sm:items-center gap-4 pt-6 border-t border-namia-text/10">
+                            <div>
+                                <p class="text-[10px] uppercase tracking-[0.1em] opacity-60 mb-1">From</p>
+                                <p class="font-serif text-2xl">13,200,000 <span
+                                        class="text-sm font-sans opacity-70">VND</span></p>
+                                <p class="text-[10px] opacity-60 mt-1">per night, excluding taxes</p>
+                            </div>
+                            <button onclick="openLoginModal()"
+                                class="bg-namia-text text-white px-8 py-3.5 text-[11px] uppercase tracking-[0.15em] hover:bg-namia-text/80 transition-colors w-full sm:w-auto">
+                                Select Room
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-namia-footer text-namia-footer-text py-20 px-6">
+        <div class="max-w-[1440px] mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 md:gap-8">
+            <div
+                class="lg:col-span-4 h-[250px] bg-namia-bg/10 grayscale opacity-80 hover:opacity-100 transition-opacity">
+                <div class="w-full h-full flex items-center justify-center border border-namia-footer-text/20">
+                    <span class="text-sm tracking-widest uppercase opacity-50">Map Area</span>
+                </div>
+            </div>
+            <div class="lg:col-span-4 flex flex-col items-center justify-center text-center">
+                <div class="font-serif text-4xl mb-4 text-white">NAMIA</div>
+                <div class="text-[10px] tracking-[0.3em] uppercase opacity-70 mb-8">River Retreat</div>
+                <p class="text-sm font-light opacity-60 max-w-xs">An exquisite escape where the river meets the soul.
+                </p>
+            </div>
+            <div class="lg:col-span-4 grid grid-cols-2 gap-8 text-[11px] uppercase tracking-[0.15em]">
+                <div class="flex flex-col gap-4">
+                    <h4 class="text-white font-semibold mb-2 tracking-[0.2em]">Explore</h4>
+                    <a href="namia_living_clone.html"
+                        class="opacity-70 hover:opacity-100 hover:text-white transition-colors">Living</a>
+                    <a href="namia_wellbeing_clone.html"
+                        class="opacity-70 hover:opacity-100 hover:text-white transition-colors">Wellbeing</a>
+                    <a href="namia_dining_clone.html"
+                        class="opacity-70 hover:opacity-100 hover:text-white transition-colors">Dining</a>
+                    <a href="namia_experiences_clone.html"
+                        class="opacity-70 hover:opacity-100 hover:text-white transition-colors">Experiences</a>
+                </div>
+                <div class="flex flex-col gap-4">
+                    <h4 class="text-white font-semibold mb-2 tracking-[0.2em]">Connect</h4>
+                    <a href="#" class="opacity-70 hover:opacity-100 hover:text-white transition-colors">Contact</a>
+                </div>
+            </div>
+        </div>
+        <div
+            class="max-w-[1440px] mx-auto mt-16 pt-8 border-t border-namia-footer-text/10 text-center text-[10px] uppercase tracking-[0.15em] opacity-50 flex flex-col md:flex-row justify-between gap-4">
+            <p>&copy; 2026 Namia River Retreat.</p>
+        </div>
+    </footer>
+    <!-- Login Modal -->
+    <div id="loginModal"
+        class="fixed inset-0 z-[100] bg-black/60 items-center justify-center backdrop-blur-sm transition-opacity"
+        style="display: none;">
+        <div class="bg-namia-bg w-full max-w-md p-8 relative border border-namia-text/10 shadow-2xl">
+            <button onclick="closeLoginModal()"
+                class="absolute top-4 right-4 text-namia-text/50 hover:text-namia-text transition-colors">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+            <h2 class="font-serif text-3xl mb-6 text-center text-namia-text">Đăng Nhập</h2>
+            <p class="text-sm opacity-70 text-center mb-8">Vui lòng đăng nhập để tiếp tục đặt phòng.</p>
+
+            <form class="space-y-4">
+                <div>
+                    <label
+                        class="block text-[11px] uppercase tracking-[0.1em] opacity-60 font-semibold mb-2">Email</label>
+                    <input type="email"
+                        class="w-full border border-namia-text/20 p-3 focus:ring-1 focus:ring-namia-text focus:border-namia-text bg-white text-sm"
+                        placeholder="Nhập email của bạn">
+                </div>
+                <div>
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="block text-[11px] uppercase tracking-[0.1em] opacity-60 font-semibold">Mật
+                            khẩu</label>
+                        <a href="#" class="text-[11px] text-namia-text hover:underline opacity-80">Quên mật khẩu?</a>
+                    </div>
+                    <input type="password"
+                        class="w-full border border-namia-text/20 p-3 focus:ring-1 focus:ring-namia-text focus:border-namia-text bg-white text-sm"
+                        placeholder="Nhập mật khẩu">
+                </div>
+                <button type="button"
+                    class="w-full bg-namia-text text-white py-3 text-[11px] uppercase tracking-[0.15em] font-semibold hover:bg-namia-text/80 transition-colors mt-4">
+                    Đăng Nhập
+                </button>
+            </form>
+
+            <div class="mt-6 flex items-center justify-between">
+                <hr class="w-full border-namia-text/10">
+                <span class="text-xs px-3 opacity-50 uppercase tracking-widest">Hoặc</span>
+                <hr class="w-full border-namia-text/10">
+            </div>
+
+            <button type="button"
+                class="w-full border border-namia-text/20 bg-white text-namia-text py-3 mt-6 flex items-center justify-center gap-3 hover:bg-gray-50 transition-colors text-sm font-medium">
+                <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" class="w-5 h-5">
+                Đăng nhập bằng Google
+            </button>
+
+            <p class="text-center text-sm opacity-70 mt-8">
+                Chưa có tài khoản? <a href="register.html" class="text-namia-text font-semibold hover:underline">Đăng ký
+                    ngay</a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        function openLoginModal() {
+            document.getElementById('loginModal').style.display = 'flex';
+        }
+        function closeLoginModal() {
+            document.getElementById('loginModal').style.display = 'none';
+        }
+        document.getElementById('loginModal').addEventListener('click', function (e) {
+            if (e.target.id === 'loginModal') {
+                closeLoginModal();
+            }
+        });
+    </script>
+</body>
+
+</html>
