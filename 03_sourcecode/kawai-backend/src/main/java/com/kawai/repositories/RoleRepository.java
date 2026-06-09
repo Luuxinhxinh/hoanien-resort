@@ -1,6 +1,6 @@
 package com.kawai.repositories;
 
-import com.kawai.models.core.Role;
+import com.kawai.models.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

@@ -1,7 +1,7 @@
 package com.kawai.controllers.web;
 
-import com.kawai.models.core.Account;
-import com.kawai.models.core.Customer;
+import com.kawai.models.Account;
+import com.kawai.models.Customer;
 import com.kawai.repositories.AccountRepository;
 import com.kawai.repositories.CustomerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +44,7 @@ public class ProfileController {
             customer.setFullName(fullName);
             customer.setEmail(email);
             customerRepository.save(customer);
-            redirectAttributes.addFlashAttribute("success", "Cập nhật thông tin thành công!");
+            redirectAttributes.addFlashAttribute("success", "Cáº­p nháº­t thÃ´ng tin thÃ nh cÃ´ng!");
         }
         return "redirect:/profile";
     }
@@ -61,9 +61,9 @@ public class ProfileController {
             if (passwordEncoder.matches(oldPassword, account.getPasswordHash())) {
                 account.setPasswordHash(passwordEncoder.encode(newPassword));
                 accountRepository.save(account);
-                redirectAttributes.addFlashAttribute("success", "Đổi mật khẩu thành công!");
+                redirectAttributes.addFlashAttribute("success", "Äá»•i máº­t kháº©u thÃ nh cÃ´ng!");
             } else {
-                redirectAttributes.addFlashAttribute("error", "Mật khẩu cũ không chính xác!");
+                redirectAttributes.addFlashAttribute("error", "Máº­t kháº©u cÅ© khÃ´ng chÃ­nh xÃ¡c!");
             }
         }
         return "redirect:/profile";
