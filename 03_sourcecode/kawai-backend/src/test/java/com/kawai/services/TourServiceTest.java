@@ -19,6 +19,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Collections;
 import java.util.List;
 
@@ -82,7 +83,8 @@ class TourServiceTest {
         sampleSchedule.setId(100L);
         sampleSchedule.setTour(sampleTour);
         sampleSchedule.setDepartureDate(LocalDate.of(2026, 6, 20));
-        sampleSchedule.setAvailableSlots(15);
+        sampleSchedule.setDepartureTime(LocalTime.of(9, 0));
+        sampleSchedule.setBookedSeats(15); // capacity 30 - 15 = 15 available slots
         sampleSchedule.setScheduleStatus("Open");
 
         // Khoảng ngày tìm kiếm
@@ -172,7 +174,8 @@ class TourServiceTest {
             secondSchedule.setId(101L);
             secondSchedule.setTour(secondTour);
             secondSchedule.setDepartureDate(LocalDate.of(2026, 6, 22));
-            secondSchedule.setAvailableSlots(8);
+            secondSchedule.setDepartureTime(LocalTime.of(10, 0));
+            secondSchedule.setBookedSeats(12); // capacity 20 - 12 = 8 available slots
             secondSchedule.setScheduleStatus("Open");
 
             when(tourScheduleRepository.findByDepartureDateBetweenAndScheduleStatus(
@@ -296,7 +299,8 @@ class TourServiceTest {
             secondSchedule.setId(102L);
             secondSchedule.setTour(secondTour);
             secondSchedule.setDepartureDate(LocalDate.of(2026, 6, 23));
-            secondSchedule.setAvailableSlots(10);
+            secondSchedule.setDepartureTime(LocalTime.of(14, 0));
+            secondSchedule.setBookedSeats(15); // capacity 25 - 15 = 10 available slots
             secondSchedule.setScheduleStatus("Open");
 
             when(tourScheduleRepository.findByDepartureDateBetweenAndScheduleStatus(

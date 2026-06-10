@@ -282,9 +282,9 @@ Hệ thống Backend Spring Boot bao gồm các layer:
 |-------|-----------|-----------|--------|-------------------|-------------|
 | TC-M4-001 | Tìm tour khả dụng + thời tiết | `TourServiceTest.java` | [x] | [x] `a1b2c3d` | ✅ |
 | TC-M4-002 | Weather API lỗi → vẫn trả tour | `TourServiceTest.java` | [x] | [x] `a1b2c3d` | ✅ |
-| TC-M4-003 | Đặt tour thành công | `TourBookingServiceTest.java` | [ ] | [ ] | |
-| TC-M4-004 | Tour hết slot → chặn TOUR-001 | `TourBookingServiceTest.java` | [ ] | [ ] | |
-| TC-M4-005 | Đặt tour Post to Room → Folio | | [ ] | [ ] | |
+| TC-M4-003 | Đặt tour thành công | `TourBookingServiceTest.java` | [x] | [x] `a1b2c3d` | ✅ |
+| TC-M4-004 | Tour hết slot → chặn TOUR-001 | `TourBookingServiceTest.java` | [x] | [x] `a1b2c3d` | ✅ |
+| TC-M4-005 | Đặt tour Post to Room → Folio | `TourBookingServiceTest.java` | [x] | [x] `a1b2c3d` | ✅ |
 | TC-M4-006 | Lập lịch chuyến tour | | [ ] | [ ] | |
 | TC-M4-007 | Hủy tour → hoàn tiền/đổi lịch | | [ ] | [ ] | |
 | TC-M4-008 | AI Face Scan match → PRESENT | | [ ] | [ ] | |

@@ -35,7 +35,7 @@ Trước tiên, mở file `01_SRS/UC_MASTER_TABLE.md` và `01_SRS/TRACEABILITY_M
 - BR nào liên quan? (Ví dụ: BR-TR-01)
 
 > **📝 Điền vào file:**
-> - Mở `01_SRS/TRACEABILITY_MATRIX.md`, tìm dòng UC của mình → Cập nhật cột `Trạng thái` từ `⬜` sang `🟡 IN PROGRESS`.
+> - Mở `01_SRS/TRACEABILITY_MATRIX.md`, tìm dòng UC của mình → Cập nhật cột `Class / Method` thành `[IN PROGRESS]` để đánh dấu bắt đầu thực hiện.
 
 ---
 
@@ -43,29 +43,32 @@ Trước tiên, mở file `01_SRS/UC_MASTER_TABLE.md` và `01_SRS/TRACEABILITY_M
 
 Copy prompt dưới đây vào Antigravity, thay `[...]` bằng thông tin của mình:
 
-> *"Đọc file `04_testing/MASTER_TDD_SPEC.md` phần Module [số module] của tôi — tìm kịch bản test `[MODx-TC-xxx]` tương ứng với Use Case `[UCxx]`. Dựa theo mô tả Preconditions, Test Steps và Expected Result trong đó, hãy viết class JUnit 5 Test đặt trong package `com.kawai.services`, sử dụng Mockito để mock Repository. Đặt tên method theo format `TC_Mx_xxx_moTaNgan`. Sau đó chạy `mvn test -pl 03_sourcecode/kawai-backend` để xác nhận test đang FAIL (Màu Đỏ)."*
+> *"Đọc file `04_testing/MASTER_TDD_SPEC.md` phần Module [số module] của tôi — tìm kịch bản test `[MODx-TC-xxx]` tương ứng với Use Case `[UCxx]`. Dựa theo mô tả Preconditions, Test Steps và Expected Result trong đó, hãy viết class JUnit 5 Test đặt trong package `com.kawai.services`, sử dụng Mockito để mock Repository. Đặt tên method theo format `TC_Mx_xxx_moTaNgan`. Sau đó chạy `mvn test -pl 03_sourcecode/kawai-backend` để xác nhận test đang FAIL (Màu Đỏ). Khi test đã fail đỏ, hãy tự động cập nhật file `04_testing/MASTER_TDD_SPEC.md` phần Red-Green-Refactor Tracker: tick [x] vào cột RED và điền tên file Test vừa tạo vào cột Test File."*
 
 > **📝 Điền vào file:**
-> - Mở `04_testing/MASTER_TDD_SPEC.md`, kéo xuống mục **5. Red-Green-Refactor Tracker** → Tìm dòng TC của mình → Tick `[x]` vào cột `🔴 RED confirmed`.
-> - Điền tên file Test vừa tạo vào cột `Test File` (ví dụ: `TourBookingServiceTest.java`).
+> - AI sẽ tự động mở `04_testing/MASTER_TDD_SPEC.md`, tìm dòng TC tương ứng → Tick `[x]` vào cột `🔴 RED confirmed` và điền tên file Test vừa tạo vào cột `Test File`.
 
 ---
 
 ### Bước 2: 🟢 Viết Code để Test PASS (Pha Xanh)
 
-> *"Bây giờ hãy implement code thực tế (Service, Repository, Controller) cho Use Case `[UCxx]` để làm cho toàn bộ Test vừa viết chạy PASS 100%. Tuân thủ Business Rule `[BR-xx-xx]` đã quy định trong file `01_SRS/BR_ACTOR_ROLE_TABLE.md`. Chạy `mvn test` để xác nhận Màu Xanh."*
+Copy prompt dưới đây vào Antigravity:
+
+> *"Bây giờ hãy implement code thực tế (Service, Repository, Controller) cho Use Case `[UCxx]` để làm cho toàn bộ Test vừa viết chạy PASS 100%. Tuân thủ Business Rule `[BR-xx-xx]` đã quy định trong file `01_SRS/BR_ACTOR_ROLE_TABLE.md`. Chạy `mvn test` để xác nhận Màu Xanh. Khi toàn bộ test đã pass xanh, hãy tự động cập nhật file `01_SRS/TRACEABILITY_MATRIX.md` (điền tên Class/Method thực tế tương ứng vào cột Class / Method của UC này) và cập nhật file `04_testing/MASTER_TDD_SPEC.md` phần Red-Green-Refactor Tracker (tick [x] vào cột GREEN và điền commit hash của bạn)."*
 
 > **📝 Điền vào file:**
-> - Mở `04_testing/MASTER_TDD_SPEC.md` mục **5. Red-Green-Refactor Tracker** → Tick `[x]` vào cột `🟢 GREEN` + ghi commit hash (ví dụ: `a1b2c3d`).
-> - Mở `01_SRS/TRACEABILITY_MATRIX.md` → Điền cột `Class / Method` bằng tên class và method thực tế vừa viết (ví dụ: `TourBookingService.bookTour()`).
+> - AI sẽ tự động điền cột `Class / Method` trong `01_SRS/TRACEABILITY_MATRIX.md` bằng tên Class/Method vừa viết.
+> - AI sẽ tick `[x]` vào cột `🟢 GREEN` và điền commit hash/thông tin commit tương ứng trong `04_testing/MASTER_TDD_SPEC.md`.
 
 ---
 
 ### Bước 3: 🔵 Refactor & Cập nhật toàn bộ tài liệu
 
-> *"Hãy refactor code vừa viết cho chuẩn Clean Code (đặt tên biến rõ ràng, tách method nếu quá dài, thêm JavaDoc comment). Sau đó giúp tôi cập nhật các file tài liệu sau:*
-> - *Mở `04_testing/MASTER_TDD_SPEC.md` mục 5 → Điền cột `🔵 REFACTOR note` ghi chú những gì đã cải thiện.*
-> - *Mở `04_testing/MASTER_EDS_SPEC.md` → Bổ sung API endpoint mới vào đúng mục Module của tôi (method, URL, request/response JSON, error code, authorization matrix)."*
+Copy prompt dưới đây vào Antigravity:
+
+> *"Hãy refactor code vừa viết cho chuẩn Clean Code (đặt tên biến rõ ràng, tách method nếu quá dài, thêm JavaDoc comment). Sau đó giúp tôi cập nhật các file tài liệu sau:
+> - Mở `04_testing/MASTER_TDD_SPEC.md` mục 5 → Điền cột `🔵 REFACTOR note` ghi chú những gì đã cải thiện.
+> - Mở `04_testing/MASTER_EDS_SPEC.md` → Bổ sung API endpoint mới vào đúng mục Module của tôi (method, URL, request/response JSON, error code, authorization matrix)."*
 
 > **📝 Tổng kết điền file sau cả 3 bước:**
 >
@@ -73,7 +76,7 @@ Copy prompt dưới đây vào Antigravity, thay `[...]` bằng thông tin của
 > |------|-------------|---------|
 > | `04_testing/MASTER_TDD_SPEC.md` | Mục 5: Red-Green-Refactor Tracker | `🔴 [x]` → `🟢 [x] + commit hash` → `🔵 ghi chú refactor` |
 > | `04_testing/MASTER_EDS_SPEC.md` | Mục 6+: API Specification | Endpoint, Request/Response JSON, Error Code, Auth Matrix |
-> | `01_SRS/TRACEABILITY_MATRIX.md` | Dòng UC của Module mình | Cột `Class / Method` + cột `Trạng thái` → ✅ |
+> | `01_SRS/TRACEABILITY_MATRIX.md` | Dòng UC của Module mình | Cột `Class / Method` (thay thế trạng thái bằng Class.method() thực tế) |
 
 ---
 

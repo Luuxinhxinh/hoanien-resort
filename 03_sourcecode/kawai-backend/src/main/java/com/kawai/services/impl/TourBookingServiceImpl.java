@@ -97,9 +97,10 @@ public class TourBookingServiceImpl implements TourBookingService {
         for (int i = 0; i < request.getParticipantCount(); i++) {
             TourAttendee attendee = new TourAttendee();
             attendee.setTourBooking(savedBooking);
-            attendee.setCustomer(customer);
-            attendee.setFullName(customer.getFullName());
-            attendee.setIsCheckedIn(false);
+            if (i == 0) {
+                attendee.setCustomer(customer);
+            }
+            attendee.setAttendanceStatus("Not_Show");
             attendees.add(attendee);
         }
         tourAttendeeRepository.saveAll(attendees);

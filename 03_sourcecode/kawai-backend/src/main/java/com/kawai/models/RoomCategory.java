@@ -8,4 +8,5 @@ public class RoomCategory {
     @Column(name="category_name", nullable=false) private String categoryName;
     @Column(name="base_price", nullable=false) private BigDecimal basePrice;
     @Column(nullable=false) private Integer capacity;
+    @Column(columnDefinition="TEXT") private String description;
 }
