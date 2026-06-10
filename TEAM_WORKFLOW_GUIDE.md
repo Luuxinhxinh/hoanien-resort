@@ -23,19 +23,64 @@ Dự án được chia thành 5 Module độc lập. **Nguyên tắc sống còn
 
 ---
 
-2. QUY TRÌNH PHÁT TRIỂN VỚI AI (ANTIGRAVITY) THEO CHUẨN TDD
+## 2. QUY TRÌNH PHÁT TRIỂN VỚI AI (ANTIGRAVITY) THEO CHUẨN TDD
 
-Nhóm chúng ta sẽ áp dụng phương pháp **Test-Driven Development (TDD)**. Mỗi khi bắt đầu một Tính năng (Use Case) mới, mọi người hãy mở Antigravity và thực hiện theo 3 bước sau:
+Nhóm chúng ta áp dụng phương pháp **Test-Driven Development (TDD)**. Mỗi khi bắt đầu một Use Case mới, mọi người mở Antigravity và làm theo **4 bước** dưới đây. Mỗi bước đều có hướng dẫn cụ thể **prompt cho AI** và **điền gì vào file log**.
 
-1. **Bước 1 (🔴 Viết Test trước):**
-   > *"Đọc file `04_testing/MASTER_TDD_SPEC.md` phần [Mã TC của bạn]. Hãy viết JUnit Test cho Service của tính năng này. Chạy `mvn test` để đảm bảo test đang chạy và báo lỗi (Màu Đỏ)."*
-   >
-2. **Bước 2 (🟢 Viết Code sau):**
-   > *"Bây giờ hãy implement code thực tế cho tính năng này để làm cho file Test vừa nãy chạy PASS 100% (Màu Xanh)."*
-   >
-3. **Bước 3 (🔵 Tái cấu trúc & Cập nhật Tài liệu):**
-   > *"Hãy refactor đoạn code vừa viết cho chuẩn Clean Code. Sau đó đánh dấu [x] vào TC vừa làm trong file `MASTER_TDD_SPEC.md` và cập nhật spec API tương ứng vào `MASTER_EDS_SPEC.md`."*
-   >
+### Bước 0: 📋 Xác định phạm vi (Trước khi code)
+
+Trước tiên, mở file `01_SRS/UC_MASTER_TABLE.md` và `01_SRS/TRACEABILITY_MATRIX.md` để xác định:
+- UC nào mình sẽ làm? (Ví dụ: UC20.1)
+- TC nào tương ứng? (Ví dụ: TC-M4-003, TC-M4-004)
+- BR nào liên quan? (Ví dụ: BR-TR-01)
+
+> **📝 Điền vào file:**
+> - Mở `01_SRS/TRACEABILITY_MATRIX.md`, tìm dòng UC của mình → Cập nhật cột `Trạng thái` từ `⬜` sang `🟡 IN PROGRESS`.
+
+---
+
+### Bước 1: 🔴 Viết Test trước (Pha Đỏ)
+
+Copy prompt dưới đây vào Antigravity, thay `[...]` bằng thông tin của mình:
+
+> *"Đọc file `04_testing/MASTER_TDD_SPEC.md` phần Module [số module] của tôi — tìm kịch bản test `[MODx-TC-xxx]` tương ứng với Use Case `[UCxx]`. Dựa theo mô tả Preconditions, Test Steps và Expected Result trong đó, hãy viết class JUnit 5 Test đặt trong package `com.kawai.services`, sử dụng Mockito để mock Repository. Đặt tên method theo format `TC_Mx_xxx_moTaNgan`. Sau đó chạy `mvn test -pl 03_sourcecode/kawai-backend` để xác nhận test đang FAIL (Màu Đỏ)."*
+
+> **📝 Điền vào file:**
+> - Mở `04_testing/MASTER_TDD_SPEC.md`, kéo xuống mục **5. Red-Green-Refactor Tracker** → Tìm dòng TC của mình → Tick `[x]` vào cột `🔴 RED confirmed`.
+> - Điền tên file Test vừa tạo vào cột `Test File` (ví dụ: `TourBookingServiceTest.java`).
+
+---
+
+### Bước 2: 🟢 Viết Code để Test PASS (Pha Xanh)
+
+> *"Bây giờ hãy implement code thực tế (Service, Repository, Controller) cho Use Case `[UCxx]` để làm cho toàn bộ Test vừa viết chạy PASS 100%. Tuân thủ Business Rule `[BR-xx-xx]` đã quy định trong file `01_SRS/BR_ACTOR_ROLE_TABLE.md`. Chạy `mvn test` để xác nhận Màu Xanh."*
+
+> **📝 Điền vào file:**
+> - Mở `04_testing/MASTER_TDD_SPEC.md` mục **5. Red-Green-Refactor Tracker** → Tick `[x]` vào cột `🟢 GREEN` + ghi commit hash (ví dụ: `a1b2c3d`).
+> - Mở `01_SRS/TRACEABILITY_MATRIX.md` → Điền cột `Class / Method` bằng tên class và method thực tế vừa viết (ví dụ: `TourBookingService.bookTour()`).
+
+---
+
+### Bước 3: 🔵 Refactor & Cập nhật toàn bộ tài liệu
+
+> *"Hãy refactor code vừa viết cho chuẩn Clean Code (đặt tên biến rõ ràng, tách method nếu quá dài, thêm JavaDoc comment). Sau đó giúp tôi cập nhật các file tài liệu sau:*
+> - *Mở `04_testing/MASTER_TDD_SPEC.md` mục 5 → Điền cột `🔵 REFACTOR note` ghi chú những gì đã cải thiện.*
+> - *Mở `04_testing/MASTER_EDS_SPEC.md` → Bổ sung API endpoint mới vào đúng mục Module của tôi (method, URL, request/response JSON, error code, authorization matrix)."*
+
+> **📝 Tổng kết điền file sau cả 3 bước:**
+>
+> | File | Mục cần điền | Nội dung |
+> |------|-------------|---------|
+> | `04_testing/MASTER_TDD_SPEC.md` | Mục 5: Red-Green-Refactor Tracker | `🔴 [x]` → `🟢 [x] + commit hash` → `🔵 ghi chú refactor` |
+> | `04_testing/MASTER_EDS_SPEC.md` | Mục 6+: API Specification | Endpoint, Request/Response JSON, Error Code, Auth Matrix |
+> | `01_SRS/TRACEABILITY_MATRIX.md` | Dòng UC của Module mình | Cột `Class / Method` + cột `Trạng thái` → ✅ |
+
+---
+
+### ⚠️ Lưu ý quan trọng:
+- **Mỗi lần chỉ làm 1 UC**, không ôm đồm nhiều UC cùng lúc.
+- **Chỉ điền vào dòng/khu vực của Module mình** trong các file log, tuyệt đối không sửa dòng của người khác.
+- Nếu test FAIL do phụ thuộc vào Module khác (ví dụ: cần Entity từ MOD1), hãy báo Nhóm trưởng để phối hợp.
 
 ---
 

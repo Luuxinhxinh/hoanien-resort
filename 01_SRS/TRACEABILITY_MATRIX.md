@@ -10,19 +10,19 @@
 
 ## MOD1 — Xác thực, Hồ sơ & Core Data (Sinh viên 1)
 
-| UC ID | Mô tả | Class / Method | TC ID | BR |
-|-------|-------|---------------|-------|-----|
-| UC01.1 | Đăng ký tài khoản | *(điền sau khi code)* | TC-M1-001, 002, 003 | BR-SYS-01, BR-SYS-07 |
-| UC01.2 | Đăng nhập | *(điền sau khi code)* | TC-M1-004, 005, 006 | BR-SYS-02 |
-| UC02 | Xác thực 2FA / OTP | *(điền sau khi code)* | TC-M1-007, 008, 009 | BR-SYS-02 |
-| UC03 | Đặt lại mật khẩu | *(điền sau khi code)* | TC-M1-010, 011, 012 | BR-SYS-07 |
-| UC04 | Hồ sơ cá nhân (AES-256) | *(điền sau khi code)* | TC-M1-013, 014 | BR-SYS-01 |
-| UC05.1 | Quản lý nhân viên RBAC | *(điền sau khi code)* | TC-M1-015, 016 | BR-SYS-06 |
-| UC05.2 | Audit Log | *(điền sau khi code)* | TC-M1-017 | BR-SYS-04 |
-| UC06.1 | CRUD Core Data | *(điền sau khi code)* | TC-M1-018 | — |
-| UC06.2 | Giá phòng động | *(điền sau khi code)* | TC-M1-019 | — |
-| UC07 | Ẩn danh hóa PII | *(điền sau khi code)* | TC-M1-020, 021 | BR-SYS-05 |
-| UC08 | Session Timeout | *(điền sau khi code)* | TC-M1-022 | BR-SYS-03 |
+| UC ID  | Mô tả                   | Class / Method        | TC ID               | BR                   |
+| --------| -------------------------| -----------------------| ---------------------| ----------------------|
+| UC01.1 | Đăng ký tài khoản       | *(điền sau khi code)* | TC-M1-001, 002, 003 | BR-SYS-01, BR-SYS-07 |
+| UC01.2 | Đăng nhập               | *(điền sau khi code)* | TC-M1-004, 005, 006 | BR-SYS-02            |
+| UC02   | Xác thực 2FA / OTP      | *(điền sau khi code)* | TC-M1-007, 008, 009 | BR-SYS-02            |
+| UC03   | Đặt lại mật khẩu        | *(điền sau khi code)* | TC-M1-010, 011, 012 | BR-SYS-07            |
+| UC04   | Hồ sơ cá nhân (AES-256) | *(điền sau khi code)* | TC-M1-013, 014      | BR-SYS-01            |
+| UC05.1 | Quản lý nhân viên RBAC  | *(điền sau khi code)* | TC-M1-015, 016      | BR-SYS-06            |
+| UC05.2 | Audit Log               | *(điền sau khi code)* | TC-M1-017           | BR-SYS-04            |
+| UC06.1 | CRUD Core Data          | *(điền sau khi code)* | TC-M1-018           | —                    |
+| UC06.2 | Giá phòng động          | *(điền sau khi code)* | TC-M1-019           | —                    |
+| UC07   | Ẩn danh hóa PII         | *(điền sau khi code)* | TC-M1-020, 021      | BR-SYS-05            |
+| UC08   | Session Timeout         | *(điền sau khi code)* | TC-M1-022           | BR-SYS-03            |
 
 ---
 
@@ -75,18 +75,18 @@
 
 ## MOD5 — Hóa đơn & Báo cáo (Sinh viên 5)
 
-| UC ID | Mô tả | Class / Method | TC ID | BR |
-|-------|-------|---------------|-------|-----|
-| UC24.1 | Folio dư nợ phòng | *(điền sau khi code)* | TC-M5-001 | BR-FB-01 |
-| UC24.2 | Luồng tiền nhiều đợt | *(điền sau khi code)* | TC-M5-002 | BR-FIN-06 |
-| UC24.3 | Gom hóa đơn quyết toán | *(điền sau khi code)* | TC-M5-003 | BR-FIN-01 |
-| UC24.4 | Night Audit 02:00 AM | *(điền sau khi code)* | TC-M5-004, 005 | BR-FIN-03, BR-FIN-07 |
-| UC25.1 | Thanh toán Check-out | *(điền sau khi code)* | TC-M5-006, 007, 008 | BR-FIN-01, BR-FO-09 |
-| UC25.2 | e-Invoice tự động | *(điền sau khi code)* | TC-M5-009 | — |
-| UC26.1 | Biểu đồ tài chính | *(điền sau khi code)* | TC-M5-010 | — |
-| UC26.2 | Occupancy Rate | *(điền sau khi code)* | TC-M5-011 | — |
-| UC27 | Báo cáo USALI | *(điền sau khi code)* | TC-M5-012 | BR-FIN-04 |
-| UC28 | Xuất PDF / Excel | *(điền sau khi code)* | TC-M5-013, 014 | — |
+| UC ID  | Mô tả                  | Class / Method        | TC ID               | BR                   |
+| --------| ------------------------| -----------------------| ---------------------| ----------------------|
+| UC24.1 | Folio dư nợ phòng      | *(điền sau khi code)* | TC-M5-001           | BR-FB-01             |
+| UC24.2 | Luồng tiền nhiều đợt   | *(điền sau khi code)* | TC-M5-002           | BR-FIN-06            |
+| UC24.3 | Gom hóa đơn quyết toán | *(điền sau khi code)* | TC-M5-003           | BR-FIN-01            |
+| UC24.4 | Night Audit 02:00 AM   | *(điền sau khi code)* | TC-M5-004, 005      | BR-FIN-03, BR-FIN-07 |
+| UC25.1 | Thanh toán Check-out   | *(điền sau khi code)* | TC-M5-006, 007, 008 | BR-FIN-01, BR-FO-09  |
+| UC25.2 | e-Invoice tự động      | *(điền sau khi code)* | TC-M5-009           | —                    |
+| UC26.1 | Biểu đồ tài chính      | *(điền sau khi code)* | TC-M5-010           | —                    |
+| UC26.2 | Occupancy Rate         | *(điền sau khi code)* | TC-M5-011           | —                    |
+| UC27   | Báo cáo USALI          | *(điền sau khi code)* | TC-M5-012           | BR-FIN-04            |
+| UC28   | Xuất PDF / Excel       | *(điền sau khi code)* | TC-M5-013, 014      | —                    |
 
 ---
 

@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Khám phá Tour — Kawai Retreat Resort & Hub</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        :root {
+            --primary: #2d5a27;
+            --primary-light: #4a8c42;
+            --accent: #c8a96e;
+            --bg-light: #f8f6f0;
+            --text-dark: #2c2c2c;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg-light);
+            color: var(--text-dark);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Header */
+        .page-header {
+            text-align: center;
+            padding: 3rem 0 2rem;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            border-radius: 16px;
+            margin-bottom: 2rem;
+        }
+
+        .page-header h1 {
+            font-size: 2.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        /* Search Form */
+        .search-form {
+            background: white;
+            padding: 1.5rem 2rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 1rem;
+            align-items: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .form-group {
+            flex: 1;
+            min-width: 180px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.4rem;
+            font-size: 0.9rem;
+            color: #555;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.7rem 1rem;
+            border: 1.5px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary-light);
+        }
+
+        .btn-search {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.7rem 2rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+            min-width: 140px;
+        }
+
+        .btn-search:hover {
+            background: var(--primary-light);
+            transform: translateY(-1px);
+        }
+
+        /* Results Info */
+        .results-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding: 0.5rem 0;
+        }
+
+        .results-info span {
+            font-size: 1rem;
+            color: #666;
+        }
+
+        .results-count {
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 1.2rem;
+        }
+
+        /* Tour Cards */
+        .tour-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .tour-card {
+            background: white;
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .tour-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        }
+
+        .tour-image {
+            height: 180px;
+            background: linear-gradient(135deg, var(--primary-light), var(--accent));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: white;
+            position: relative;
+        }
+
+        .tour-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: var(--accent);
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .tour-body {
+            padding: 1.25rem;
+        }
+
+        .tour-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+
+        .tour-meta {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 0.75rem;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .tour-meta span {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .tour-price {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 0.75rem 0;
+        }
+
+        .tour-slots {
+            font-size: 0.85rem;
+        }
+
+        .slots-available {
+            color: var(--primary-light);
+            font-weight: 600;
+        }
+
+        .slots-low {
+            color: #d9534f;
+            font-weight: 600;
+        }
+
+        .tour-weather {
+            margin-top: 0.75rem;
+            padding: 0.5rem 0.75rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .weather-ok {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .weather-na {
+            background: #fff3e0;
+            color: #e65100;
+        }
+
+        .btn-book {
+            display: block;
+            width: 100%;
+            margin-top: 1rem;
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0.7rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-book:hover {
+            background: #b89555;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #999;
+        }
+
+        .empty-state h3 {
+            font-size: 1.4rem;
+            margin-bottom: 0.5rem;
+            color: #666;
+        }
+
+        /* Footer */
+        .footer-note {
+            text-align: center;
+            margin-top: 3rem;
+            padding: 1.5rem;
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+
+        <!-- Header -->
+        <div class="page-header">
+            <h1>🧳 Khám phá Tour & Trải nghiệm</h1>
+            <p>Hành trình khám phá văn hóa và thiên nhiên cùng Kawai Retreat</p>
+        </div>
+
+        <!-- Search Form -->
+        <form class="search-form" th:action="@{/tours/search}" method="get">
+            <div class="form-group">
+                <label for="fromDate">Từ ngày</label>
+                <input type="date" id="fromDate" name="fromDate"
+                    th:value="${#temporals.format(fromDate, 'yyyy-MM-dd')}">
+            </div>
+            <div class="form-group">
+                <label for="toDate">Đến ngày</label>
+                <input type="date" id="toDate" name="toDate" th:value="${#temporals.format(toDate, 'yyyy-MM-dd')}">
+            </div>
+            <button type="submit" class="btn-search">🔍 Tìm kiếm</button>
+        </form>
+
+        <!-- Results -->
+        <div class="results-info" th:if="${not #lists.isEmpty(tours)}">
+            <span>Tìm thấy <strong class="results-count" th:text="${#lists.size(tours)}">0</strong> tour khả dụng</span>
+            <span
+                th:text="${#temporals.format(fromDate, 'dd/MM/yyyy')} + ' → ' + ${#temporals.format(toDate, 'dd/MM/yyyy')}">date
+                range</span>
+        </div>
+
+        <!-- Tour Grid -->
+        <div class="tour-grid" th:if="${not #lists.isEmpty(tours)}">
+            <div class="tour-card" th:each="tour : ${tours}">
+                <div class="tour-image">
+                    🏝️
+                    <span class="tour-badge" th:text="${tour.tourType}">DAY_TRIP</span>
+                </div>
+                <div class="tour-body">
+                    <div class="tour-name" th:text="${tour.tourName}">Tên tour</div>
+                    <div class="tour-meta">
+                        <span>📅 <span
+                                th:text="${#temporals.format(tour.departureDate, 'dd/MM/yyyy')}">date</span></span>
+                        <span>👥 <span th:text="${tour.maxCapacity}">30</span> chỗ</span>
+                        <span th:if="${tour.scheduleStatus} == 'Open'">✅ Còn nhận</span>
+                    </div>
+                    <div class="tour-price">
+                        <span
+                            th:text="${#numbers.formatDecimal(tour.basePrice, 0, 'COMMA', 0, 'POINT')} + '₫'">1.500.000₫</span>
+                    </div>
+                    <div class="tour-slots">
+                        <span th:classappend="${tour.availableSlots < 5} ? 'slots-low' : 'slots-available'"
+                            th:text="'Còn ' + ${tour.availableSlots} + ' chỗ trống'">15 chỗ trống</span>
+                    </div>
+
+                    <!-- Weather Info -->
+                    <div class="tour-weather" th:if="${tour.weatherAvailable}" th:classappend="'weather-ok'">
+                        🌤️ <span th:text="${tour.weatherDescription}">Sunny</span>
+                        — <span
+                            th:text="${#numbers.formatDecimal(tour.temperature, 0, 'COMMA', 1, 'POINT')} + '°C'">32.5°C</span>
+                    </div>
+                    <div class="tour-weather weather-na" th:unless="${tour.weatherAvailable}">
+                        🌡️ Thông tin thời tiết chưa khả dụng
+                    </div>
+
+                    <button class="btn-book">📋 Đặt tour ngay</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div class="empty-state" th:unless="${not #lists.isEmpty(tours)}">
+            <div style="font-size: 4rem; margin-bottom: 1rem;">🔍</div>
+            <h3>Không tìm thấy tour nào</h3>
+            <p>Thử thay đổi khoảng ngày tìm kiếm nhé!</p>
+        </div>
+
+        <div class="footer-note">
+            🌿 Kawai Retreat Resort & Hub — Trải nghiệm kỳ nghỉ trọn vẹn
+        </div>
+    </div>
+</body>
+
+</html>

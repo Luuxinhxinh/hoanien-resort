@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.kawai.services.TourServiceTest$TC_M4_001
+-------------------------------------------------------------------------------
+Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.028 s -- in com.kawai.services.TourServiceTest$TC_M4_001

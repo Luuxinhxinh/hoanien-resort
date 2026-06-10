@@ -1,5 +1,6 @@
 com\kawai\models\PaymentTransaction.class
 com\kawai\models\DailyRate.class
+com\kawai\services\interfaces\WeatherApiClient.class
 com\kawai\repositories\FolioRepository.class
 com\kawai\models\DynamicPricing.class
 com\kawai\models\Review.class
@@ -39,6 +40,7 @@ com\kawai\services\interfaces\KdsService.class
 com\kawai\controllers\web\BookingController.class
 com\kawai\repositories\InvoiceRepository.class
 com\kawai\services\impl\AuthServiceImpl.class
+com\kawai\services\interfaces\TourBookingService.class
 com\kawai\services\interfaces\RoomService.class
 com\kawai\models\Customer.class
 com\kawai\models\ConsolidatedInvoice.class
@@ -87,8 +89,11 @@ com\kawai\repositories\AccountRepository.class
 com\kawai\repositories\FolioItemRepository.class
 com\kawai\services\impl\KdsServiceImpl.class
 com\kawai\repositories\AuditLogRepository.class
+com\kawai\dto\TourSearchResult.class
+com\kawai\dto\WeatherInfo.class
 com\kawai\models\RoomBookingDetail.class
 com\kawai\security\UserDetailsServiceImpl.class
 com\kawai\models\TableReservation.class
+com\kawai\services\impl\TourBookingServiceImpl.class
 com\kawai\repositories\BookingRoomRepository.class
 com\kawai\services\impl\ReportServiceImpl.class
