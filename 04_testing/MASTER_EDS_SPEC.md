@@ -129,6 +129,83 @@ Feature: Luồng vận hành lõi tích hợp 3 Modules (Front Desk, POS, Folio)
 
 ---
 
+## 6. API Specification — UC19: Tìm kiếm Gói Tour (Module 4)
+
+### 6.1. Endpoint
+
+| Method | Path | Auth Level | Required Roles | Rate Limit | Idempotent? |
+|--------|------|------------|----------------|------------|-------------|
+| GET | `/tours/search` | Public (Guest / Customer) | Guest, Customer | 100/min | Yes |
+
+### 6.2. Request Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `fromDate` | `LocalDate` (ISO 8601) | No | Today | Ngày bắt đầu tìm kiếm (yyyy-MM-dd) |
+| `toDate` | `LocalDate` (ISO 8601) | No | `fromDate + 7 days` | Ngày kết thúc tìm kiếm (yyyy-MM-dd) |
+
+### 6.3. Response — 200 OK (Happy Path)
+
+```json
+{
+  "tours": [
+    {
+      "tourId": 1,
+      "tourName": "Vịnh Hạ Long - 1 Ngày",
+      "tourType": "DAY_TRIP",
+      "basePrice": 1500000,
+      "maxCapacity": 30,
+      "availableSlots": 15,
+      "departureDate": "2026-06-20",
+      "scheduleStatus": "Open",
+      "weatherAvailable": true,
+      "weatherDescription": "Sunny",
+      "temperature": 32.5
+    }
+  ],
+  "fromDate": "2026-06-15",
+  "toDate": "2026-06-25"
+}
+```
+
+### 6.4. Response — 200 OK (Weather API Unavailable)
+
+```json
+{
+  "tours": [
+    {
+      "tourId": 1,
+      "tourName": "Vịnh Hạ Long - 1 Ngày",
+      "tourType": "DAY_TRIP",
+      "basePrice": 1500000,
+      "maxCapacity": 30,
+      "availableSlots": 15,
+      "departureDate": "2026-06-20",
+      "scheduleStatus": "Open",
+      "weatherAvailable": false,
+      "weatherDescription": null,
+      "temperature": null
+    }
+  ],
+  "fromDate": "2026-06-15",
+  "toDate": "2026-06-25"
+}
+```
+
+### 6.5. Business Rules
+| Rule ID | Description | Implementation |
+|---------|-------------|---------------|
+| BR-TR-01 | Chỉ hiển thị lịch trình có trạng thái "Open" | `TourScheduleRepository.findByDepartureDateBetweenAndScheduleStatus(fromDate, toDate, "Open")` |
+| GRACEFUL-DEG-01 | Nếu OpenWeather API lỗi, tour vẫn hiển thị, ẩn thông tin thời tiết | `TourServiceImpl.enrichWithWeatherData()` catch RuntimeException, set `weatherAvailable = false` |
+
+### 6.6. Error Codes
+| Code | HTTP Status | Message | Trigger Condition |
+|------|-------------|---------|------------------|
+| `TOUR-001` | 400 | `fromDate must not be null` | Thiếu tham số fromDate (validation ở Service layer) |
+| `TOUR-002` | 400 | `fromDate must not be after toDate` | fromDate > toDate |
+
+---
+
 ## 7. Phương pháp Xác minh (API Verification Samples)
 
 ### 7.1. Chống Over-Booking (DB Inspection)

@@ -78,21 +78,21 @@
 
 ## 🟣 MOD5: KIỂM TOÁN ĐÊM, TÀI CHÍNH & BÁO CÁO — Sinh viên 5
 
-| UC ID | Tên Use Case | Actor | Priority | Trạng thái |
-|-------|-------------|-------|----------|------------|
-| **UC24** | **Folio Aggregation — Gom hóa đơn tự động** | | | |
-| UC24.1 | Theo dõi dư nợ phòng lẻ (Folio) | Receptionist, Customer | 🔴 P0 | ⬜ |
-| UC24.2 | Lưu vết lịch sử luồng tiền nhiều đợt (Ứng trước, trả thêm, hoàn tiền) | System | 🔴 P0 | ⬜ |
-| UC24.3 | Tổng hợp hóa đơn quyết toán (Gom phòng + ăn uống + tour thành 1 cục) | System | 🔴 P0 | ⬜ |
-| UC24.4 | Kiểm toán đêm & Chốt ngày ca trực (Tự động chạy lúc **02:00 AM**) | System | 🔴 P0 | ⬜ |
-| **UC25** | **Tất toán & e-Invoice** | | | |
-| UC25.1 | Xử lý thanh toán Check-out cuối cùng (Thu nốt tiền và cho khách rời đi) | Receptionist | 🔴 P0 | ⬜ |
-| UC25.2 | Tự động kích hoạt e-Invoice (Xuất hóa đơn điện tử gửi email khách) | System | 🟠 P1 | ⬜ |
-| **UC26** | **Dashboard Manager** | | | |
-| UC26.1 | Giám sát biểu đồ tài chính | Manager | 🟠 P1 | ⬜ |
-| UC26.2 | Xem công suất phòng & số khách đang lưu trú (Occupancy Rate) | Manager | 🟠 P1 | ⬜ |
-| UC27 | Xuất báo cáo tài chính vận hành chuẩn USALI | Manager | 🟠 P1 | ⬜ |
-| UC28 | Kết xuất file báo cáo PDF hóa đơn / Excel doanh thu | Manager | 🟡 P2 | ⬜ |
+| UC ID    | Tên Use Case                                                            | Actor                  | Priority | Trạng thái |
+| ----------| -------------------------------------------------------------------------| ------------------------| ----------| ------------|
+| **UC24** | **Folio Aggregation — Gom hóa đơn tự động**                             |                        | 　　　　 |            |
+| UC24.1   | Theo dõi dư nợ phòng lẻ (Folio)                                         | Receptionist, Customer | 🔴 P0　　| ⬜          |
+| UC24.2   | Lưu vết lịch sử luồng tiền nhiều đợt (Ứng trước, trả thêm, hoàn tiền)   | System                 | 🔴 P0　　| ⬜          |
+| UC24.3   | Tổng hợp hóa đơn quyết toán (Gom phòng + ăn uống + tour thành 1 cục)    | System                 | 🔴 P0　　| ⬜          |
+| UC24.4   | Kiểm toán đêm & Chốt ngày ca trực (Tự động chạy lúc **02:00 AM**)       | System                 | 🔴 P0　　| ⬜          |
+| **UC25** | **Tất toán & e-Invoice**                                                |                        | 　　　　 |            |
+| UC25.1   | Xử lý thanh toán Check-out cuối cùng (Thu nốt tiền và cho khách rời đi) | Receptionist           | 🔴 P0　　| ⬜          |
+| UC25.2   | Tự động kích hoạt e-Invoice (Xuất hóa đơn điện tử gửi email khách)      | System                 | 🟠 P1　　 | ⬜          |
+| **UC26** | **Dashboard Manager**                                                   |                        | 　　　　 |            |
+| UC26.1   | Giám sát biểu đồ tài chính                                              | Manager                | 🟠 P1　　 | ⬜          |
+| UC26.2   | Xem công suất phòng & số khách đang lưu trú (Occupancy Rate)            | Manager                | 🟠 P1　　 | ⬜          |
+| UC27     | Xuất báo cáo tài chính vận hành chuẩn USALI                             | Manager                | 🟠 P1　　 | ⬜          |
+| UC28     | Kết xuất file báo cáo PDF hóa đơn / Excel doanh thu                     | Manager                | 🟡 P2　　 | ⬜          |
 
 ---
 

@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.kawai.services.TourBookingServiceTest$TC_M4_004
+-------------------------------------------------------------------------------
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.064 s -- in com.kawai.services.TourBookingServiceTest$TC_M4_004

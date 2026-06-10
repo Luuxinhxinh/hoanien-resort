@@ -155,7 +155,37 @@ Hệ thống Backend Spring Boot bao gồm các layer:
 
 ### MODULE 4: ĐẶT TOUR & HỆ THỐNG PHẢN HỒI (UC19-UC23)
 
-#### MOD4-TC-001 — Điểm danh Tour AI (UC21)
+#### MOD4-TC-001 — Tìm kiếm gói tour & Tích hợp thời tiết (UC19)
+**Severity:** MEDIUM
+**CWE:** N/A
+**Feature Under Test:** `TourService.searchAvailableTours()`
+**Test File:** `03_sourcecode/kawai-backend/src/test/java/com/kawai/services/TourServiceTest.java`
+**TDD Phase:** 🟢 GREEN
+
+**Test Cases:**
+- **TC-M4-001.1:** Trả về danh sách tour khả dụng khi có lịch trình Open trong khoảng ngày + thời tiết ✅ PASS
+- **TC-M4-001.2:** Trả về danh sách rỗng khi không có tour nào trong khoảng ngày ✅ PASS
+- **TC-M4-001.3:** Trả về nhiều tour khi có nhiều lịch trình Open cùng khoảng ngày ✅ PASS
+- **TC-M4-002.1:** API thời tiết throw RuntimeException → vẫn trả tour, weatherAvailable = false ✅ PASS
+- **TC-M4-002.2:** API thời tiết trả null → vẫn trả tour, weatherAvailable = false ✅ PASS
+- **TC-M4-002.3:** 1 trong 2 tour lỗi thời tiết → tour đó ẩn thời tiết, tour kia vẫn hiển thị ✅ PASS
+
+**Preconditions:**
+* TourScheduleRepository mock trả về lịch trình Open
+* WeatherApiClient mock trả về WeatherInfo hoặc throw exception
+
+**Test Steps:**
+1. Mock repository trả về TourSchedule với trạng thái "Open"
+2. Mock WeatherApiClient trả về thời tiết hoặc ném exception
+3. Gọi `searchAvailableTours(fromDate, toDate)`
+4. Assert kết quả trả về đúng
+
+**Expected Result (PASS — hành vi đúng):**
+* Danh sách tour đầy đủ thông tin (tên, giá, chỗ trống, ngày khởi hành)
+* Thời tiết hiển thị nếu API OK, ẩn nếu API lỗi
+* Graceful degradation: không fail toàn bộ request khi weather API down
+
+#### MOD4-TC-002 — Điểm danh Tour AI (UC21)
 **Severity:** HIGH
 **Feature Under Test:** `TourService.verifyAttendance()`
 
@@ -163,7 +193,6 @@ Hệ thống Backend Spring Boot bao gồm các layer:
 1. Gửi ảnh khuôn mặt lên hệ thống.
 2. Mock `kawai-ai-service` trả về match 98% với khách A trong Manifest.
 3. Verify status trong `Tour_Attendees` của khách A chuyển sang `PRESENT`.
-
 ### MODULE 5: HÓA ĐƠN TỔNG HỢP & BIỂU ĐỒ (UC24-UC28)
 
 #### MOD5-TC-001 — Night Audit & Tự động cộng Folio (UC24)
