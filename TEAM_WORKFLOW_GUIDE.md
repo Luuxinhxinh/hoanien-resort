@@ -6,7 +6,8 @@ Dự án được chia thành 5 Module độc lập. **Nguyên tắc sống còn
 
 ### 🚫 Quy tắc giới hạn khu vực chỉnh sửa:
 1. **Thư mục Code Chính (`src/main/java/com/kawai/...`)**:
-   - Mỗi người chỉ được phép thêm/sửa/xóa các file (Entity, Service, Controller) nằm trong package tương ứng với Module của mình.
+   - Mỗi người chỉ được phép thêm/sửa/xóa các file (Service, Controller, Repository) nằm trong package tương ứng với Module của mình.
+   - **CẤM:** Tự ý sửa code trong package `models` (Entity). Các Entity ánh xạ trực tiếp với cấu trúc Database, thay đổi tùy tiện sẽ làm hỏng Database Schema của toàn dự án. Nếu cần thêm trường/sửa bảng, phải bàn bạc với Nhóm trưởng để update file DB Schema trước.
    - **CẤM:** Tự ý sửa các file cấu hình chung (`application.yml`, `pom.xml`, `SecurityConfig`, `KawaiApplication.java`, thư mục `config`). Nếu cần thêm thư viện hoặc đổi cấu hình, phải nhờ Nhóm trưởng thực hiện.
 2. **File Tài Liệu Chung (`01_SRS`, `04_testing`, DB Schema)**:
    - Các bảng tổng hợp (`UC_MASTER_TABLE`, `BR_ACTOR_ROLE_TABLE`): Chỉ xem, không tự ý thay đổi quy tắc hệ thống đã chốt.
