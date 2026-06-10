@@ -52,7 +52,7 @@
 
 | UC ID          | Tên Use Case                                                                                 | Actor         | Priority | Trạng thái |
 | -------------- | --------------------------------------------------------------------------------------------- | ------------- | -------- | ------------ |
-| **UC14** | Gọi dịch vụ phòng Room Service (Khách quét QR đặt đồ ăn mang lên)                 | Customer      | 🟠 P1    | ⬜           |
+| **UC14** | Đặt món trên web (Room Service / E-Menu trực tuyến)                                           | Customer      | 🟠 P1    | ⬜           |
 | **UC15** | Đặt trước bàn ăn tại nhà hàng                                                        | Customer      | 🟠 P1    | ⬜           |
 | **UC16** | Gọi món tại quầy Dine-In (Nhân viên POS lên đơn tại bàn)                           | F&B Staff     | 🔴 P0    | ⬜           |
 | **UC17** | **KDS bếp — Quản lý trạng thái món**                                             |               |          |              |
