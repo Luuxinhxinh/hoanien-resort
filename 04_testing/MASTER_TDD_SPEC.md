@@ -193,6 +193,7 @@ Hệ thống Backend Spring Boot bao gồm các layer:
 1. Gửi ảnh khuôn mặt lên hệ thống.
 2. Mock `kawai-ai-service` trả về match 98% với khách A trong Manifest.
 3. Verify status trong `Tour_Attendees` của khách A chuyển sang `PRESENT`.
+
 ### MODULE 5: HÓA ĐƠN TỔNG HỢP & BIỂU ĐỒ (UC24-UC28)
 
 #### MOD5-TC-001 — Night Audit & Tự động cộng Folio (UC24)

@@ -241,6 +241,33 @@ curl -X POST https://api.kawairesort.com/api/v1/pos/post-to-room \
 }
 ```
 
+### 7.3. Tạo tài khoản nhân viên mới (Quản lý RBAC) - API Call
+```bash
+# [POST] Admin tạo tài khoản nhân viên (UC05.1 - TC-M1-015)
+curl -X POST https://api.kawairesort.com/api/v1/admin/employees \
+  -H "Authorization: Bearer [ADMIN_TOKEN]" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "staff_new",
+    "password": "password123",
+    "roleId": 2,
+    "fullName": "Nguyen Van Staff",
+    "gender": "MALE",
+    "cccd": "012345678912",
+    "phone": "0987654321",
+    "email": "staff@example.com",
+    "salary": 10000000
+  }'
+
+# Expected Response (201):
+{
+  "status": "SUCCESS",
+  "employeeId": 1,
+  "accountId": 1,
+  "role": "ROLE_FB_STAFF"
+}
+```
+
 ---
 **BẢNG TỔNG HỢP PHÂN QUYỀN (Authorization Matrix)**
 | Tác vụ / Endpoint | GUEST | CUSTOMER | RECEPTIONIST | F&B STAFF | ADMIN / MANAGER |

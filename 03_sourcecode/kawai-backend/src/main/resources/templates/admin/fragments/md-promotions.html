@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!-- TABLE FRAGMENT -->
+<div th:fragment="table">
+    <div class="adm-table-wrap">
+        <table class="adm-table">
+            <thead>
+            <tr>
+                <th>Mã</th><th>Mã giảm giá</th><th>Loại</th><th>Giá trị</th><th>Đơn tối thiểu</th><th>Áp dụng cho</th><th>Lượt dùng</th><th>Hết hạn</th><th>Trạng thái</th><th style="text-align:right">Thao tác</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="row, stat : ${rows}" th:attr="data-id=${row['id']},data-entity=${row['jsonString']}">
+                <td th:attr="data-key='id',data-value=${row['id']}" th:text="${row['id']}"></td>
+                <td th:attr="data-key='code',data-value=${row['code']}">
+                    <span class="cell-code" th:text="${row['code']}"></span>
+                </td>
+                <td th:attr="data-key='type',data-value=${row['type']}">
+                    <span class="cell-badge" th:classappend="${row['__typeStyle']}" th:text="${row['type']}"></span>
+                </td>
+                <td th:attr="data-key='value',data-value=${row['value']}" th:text="${row['value']}"></td>
+                <td th:attr="data-key='minOrder',data-value=${row['minOrder']}" th:text="${row['minOrder']}"></td>
+                <td th:attr="data-key='scope',data-value=${row['scope']}">
+                    <span class="cell-badge" th:classappend="${row['__scopeStyle']}" th:text="${row['scope']}"></span>
+                </td>
+                <td th:attr="data-key='uses',data-value=${row['uses']}" th:text="${row['uses']}"></td>
+                <td th:attr="data-key='expires',data-value=${row['expires']}" th:text="${row['expires']}"></td>
+                <td th:attr="data-key='status',data-value=${row['status']}">
+                    <span class="cell-badge" th:classappend="${row['__statusStyle']}" th:text="${row['status']}"></span>
+                </td>
+                <td style="text-align:right">
+                    <div style="display:flex;align-items:center;justify-content:flex-end;gap:2px">
+                        <button class="btn-action btn-action-edit btn-edit" th:attr="data-id=${row['id']}"><i data-lucide="pencil"></i></button>
+                        <button class="btn-action btn-action-delete btn-delete" th:attr="data-id=${row['id']}"><i data-lucide="trash-2"></i></button>
+                    </div>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(rows)}"><td colspan="10" style="text-align:center;padding:48px;color:#8B7355;font-family:var(--font-serif);font-size:18px">Không có bản ghi nào</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- FORM FRAGMENT -->
+<div th:fragment="form">
+    <div class="form-fields-inner" style="display:flex;flex-direction:column;gap:20px">
+        <div class="adm-form-group"><label class="adm-form-label">Mã giảm giá <span style="color:#B45309">*</span></label><input type="text" name="code" class="adm-form-input" required></div>
+        <div class="adm-form-group"><label class="adm-form-label">Loại</label>
+            <select name="type" class="adm-form-select">
+                <option value="Phần trăm">Phần trăm</option>
+                <option value="Số tiền">Số tiền</option>
+            </select>
+        </div>
+        <div class="adm-form-group"><label class="adm-form-label">Giá trị <span style="color:#B45309">*</span></label><input type="text" name="value" class="adm-form-input" required></div>
+        <div class="adm-form-group"><label class="adm-form-label">Đơn tối thiểu</label><input type="text" name="minOrder" class="adm-form-input"></div>
+        <div class="adm-form-group"><label class="adm-form-label">Áp dụng cho</label>
+            <select name="scope" class="adm-form-select">
+                <option th:each="opt : ${formOptions['promoScopes']}" th:value="${opt}" th:text="${opt}"></option>
+            </select>
+        </div>
+        <div class="adm-form-group"><label class="adm-form-label">Lượt dùng</label><input type="text" name="uses" class="adm-form-input"></div>
+        <div class="adm-form-group"><label class="adm-form-label">Hết hạn</label><input type="text" name="expires" class="adm-form-input"></div>
+        <div class="adm-form-group"><label class="adm-form-label">Trạng thái</label>
+            <select name="status" class="adm-form-select">
+                <option value="Active">Active</option>
+                <option value="Expired">Expired</option>
+                <option value="Inactive">Inactive</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
