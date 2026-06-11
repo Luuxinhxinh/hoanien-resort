@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!-- TABLE FRAGMENT -->
+<div th:fragment="table">
+    <div class="adm-table-wrap">
+        <table class="adm-table">
+            <thead>
+            <tr>
+                <th>Mã</th><th style="width: 60px;">Ảnh</th><th>Tên món</th><th>Danh mục</th><th>Đơn giá</th><th>Trạng thái</th><th style="text-align:right">Thao tác</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="row, stat : ${rows}" th:attr="data-id=${row['id']},data-entity=${row['jsonString']}">
+                <td th:attr="data-key='id',data-value=${row['id']}" th:text="${row['id']}"></td>
+                <td>
+                    <div class="adm-table-img-cell"><img th:if="${row['image'] != null}" th:src="${row['image']}" alt="Food" />
+                        <i th:unless="${row['image'] != null}" data-lucide="image"></i>Ảnh</div>
+                </td>
+                <td th:attr="data-key='name',data-value=${row['name']}" th:text="${row['name']}"></td>
+                <td th:attr="data-key='category',data-value=${row['category']}" th:text="${row['category']}"></td>
+                <td th:attr="data-key='price',data-value=${row['price']}" th:text="${row['price']}"></td>
+                <td th:attr="data-key='status',data-value=${row['status']}">
+                    <span class="cell-badge" th:classappend="${row['__statusStyle']}" th:text="${row['status']}"></span>
+                </td>
+                <td style="text-align:right">
+                    <div class="table-actions">
+                        <button class="btn-action btn-action-edit btn-edit" th:attr="data-id=${row['id']}"><i data-lucide="pencil"></i></button>
+                        <button class="btn-action btn-action-delete btn-delete" th:attr="data-id=${row['id']}"><i data-lucide="trash-2"></i></button>
+                    </div>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(rows)}"><td colspan="7" class="empty-row-msg">Không có bản ghi nào</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- FORM FRAGMENT -->
+<div th:fragment="form">
+    <div class="form-fields-inner" style="display:flex;flex-direction:column;gap:20px">
+        <div class="adm-form-group">
+            <label class="adm-form-label">Ảnh minh họa</label>
+            <div class="upload-wrapper-outer">
+                <label class="image-upload-wrapper">
+                    <input type="file" name="imageFile" accept="image/*" onchange="handleSingleImageUpload(this)">
+                    <img src="" class="image-preview" alt="Preview">
+                    <div class="upload-placeholder">
+                        <i data-lucide="upload-cloud"></i>
+                        <div class="upload-text">Chọn ảnh</div>
+                    </div>
+                </label>
+                <div class="upload-wrapper-info">
+                    <p class="upload-wrapper-desc">
+                        Nên sử dụng ảnh vuông (1:1), kích thước tối thiểu 400x400px.<br>
+                        Định dạng hỗ trợ: JPG, PNG, WEBP. Tối đa 2MB.
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="adm-form-group">
+            <label class="adm-form-label">Bộ sưu tập ảnh (Gallery)</label>
+            <div class="gallery-upload-container">
+                <div class="hidden-inputs-container">
+                    <input type="file" name="galleryImages" accept="image/*" multiple style="display:none;" onchange="handleGalleryUpload(this)">
+                </div>
+                <div class="gallery-preview-list"></div>
+                <label class="gallery-upload-btn" onclick="this.parentElement.querySelector('.hidden-inputs-container input:last-child').click()">
+                    <i data-lucide="plus"></i>
+                    Thêm ảnh
+                </label>
+            </div>
+        </div>
+
+        <div class="adm-form-group"><label class="adm-form-label">Tên món <span style="color:#B45309">*</span></label><input type="text" name="name" class="adm-form-input" required></div>
+        <div class="adm-form-group"><label class="adm-form-label">Danh mục</label>
+            <select name="category" class="adm-form-select">
+                <option th:each="opt : ${formOptions['menuCategories']}" th:value="${opt}" th:text="${opt}"></option>
+            </select>
+        </div>
+        <div class="adm-form-group"><label class="adm-form-label">Đơn giá <span style="color:#B45309">*</span></label><input type="text" name="price" class="adm-form-input" required></div>
+        <div class="adm-form-group"><label class="adm-form-label">Trạng thái</label>
+            <select name="status" class="adm-form-select">
+                <option value="Available">Available</option>
+                <option value="Unavailable">Unavailable</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
+

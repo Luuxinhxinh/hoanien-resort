@@ -21,6 +21,7 @@
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
+replay_pid*
 
 # Maven
 target/
@@ -32,12 +33,19 @@ release.properties
 dependency-reduced-pom.xml
 buildNumber.properties
 .mvn/timing.properties
+
 # https://github.com/takari/maven-wrapper#usage-without-binary-jar
 .mvn/wrapper/maven-wrapper.jar
+
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
 
 # IDEs
 .idea/
 *.iml
+*.iws
 .vscode/
 .settings/
 .project
@@ -45,4 +53,9 @@ buildNumber.properties
 
 # OS generated files
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db

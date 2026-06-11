@@ -1,0 +1,42 @@
+package com.kawai.services.impl;
+
+import com.kawai.services.interfaces.BookingService;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+@SpringBootTest
+class BookingConcurrencyTest {
+
+    @Autowired
+    private BookingService bookingService;
+
+    @Test
+    void testConcurrentBookingShouldResultInOneSuccessAndOneFailure() throws Exception {
+        // Arrange: define same room and date parameters (placeholder values)
+        String roomId = "R101";
+        String checkIn = "2026-07-15";
+        String checkOut = "2026-07-20";
+        // Act: run two concurrent booking attempts
+        Thread threadA = new Thread(() -> {
+            try {
+                // This method does not exist yet; compilation should fail (red).
+                bookingService.createBooking(roomId, checkIn, checkOut);
+            } catch (Exception ignored) {}
+        });
+        Thread threadB = new Thread(() -> {
+            try {
+                bookingService.createBooking(roomId, checkIn, checkOut);
+            } catch (Exception ignored) {}
+        });
+        threadA.start();
+        threadB.start();
+        threadA.join();
+        threadB.join();
+        // Assert: expecting one of the calls to throw an exception (e.g., OptimisticLockException or custom ConflictException).
+        // Since implementation is missing, test will not compile, producing a RED failure as required.
+        fail("Test should not reach this point; expected compilation failure due to missing createBooking method.");
+    }
+}

@@ -1,0 +1,103 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ----------------------< com.kawai:kawai-backend >-----------------------
+[INFO] Building kawai-backend 0.0.1-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ kawai-backend ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO] Copying 15 resources from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.11.0:compile (default-compile) @ kawai-backend ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ kawai-backend ---
+[INFO] skip non existing resourceDirectory D:\SWP\su26-swp391-se2023-g2\03_sourcecode\kawai-backend\src\test\resources
+[INFO] 
+[INFO] --- compiler:3.11.0:testCompile (default-testCompile) @ kawai-backend ---
+[INFO] Changes detected - recompiling the module! :input tree
+[INFO] Compiling 3 source files with javac [debug release 17] to target\test-classes
+[INFO] 
+[INFO] --- surefire:3.1.2:test (default-test) @ kawai-backend ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.kawai.RoomServiceUC09Test
+Java HotSpot(TM) 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+WARNING: A Java agent has been loaded dynamically (C:\Users\NGOC LAN\.m2\repository\net\bytebuddy\byte-buddy-agent\1.14.12\byte-buddy-agent-1.14.12.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+[ERROR] Tests run: 3, Failures: 2, Errors: 1, Skipped: 0, Time elapsed: 1.401 s <<< FAILURE! -- in com.kawai.RoomServiceUC09Test
+[ERROR] com.kawai.RoomServiceUC09Test.TC_M2_001_searchAvailableRooms_returnsAvailableRooms -- Time elapsed: 1.334 s <<< ERROR!
+org.mockito.exceptions.misusing.UnnecessaryStubbingException: 
+
+Unnecessary stubbings detected.
+Clean & maintainable test code requires zero unnecessary code.
+Following stubbings are unnecessary (click to navigate to relevant line of code):
+  1. -> at com.kawai.RoomServiceUC09Test.TC_M2_001_searchAvailableRooms_returnsAvailableRooms(RoomServiceUC09Test.java:111)
+Please remove unnecessary stubbings or use 'lenient' strictness. More info: javadoc for UnnecessaryStubbingException class.
+	at org.mockito.junit.jupiter.MockitoExtension.afterEach(MockitoExtension.java:192)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1612)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1612)
+
+[ERROR] com.kawai.RoomServiceUC09Test.TC_M2_002b_searchAvailableRooms_allRoomsBooked_returnsEmptyList -- Time elapsed: 0.009 s <<< FAILURE!
+org.opentest4j.AssertionFailedError: Ph?i tr? danh sách r?ng vì R101 ?ã có booking ==> expected: <true> but was: <false>
+	at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:151)
+	at org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:132)
+	at org.junit.jupiter.api.AssertTrue.failNotTrue(AssertTrue.java:63)
+	at org.junit.jupiter.api.AssertTrue.assertTrue(AssertTrue.java:36)
+	at org.junit.jupiter.api.Assertions.assertTrue(Assertions.java:214)
+	at com.kawai.RoomServiceUC09Test.TC_M2_002b_searchAvailableRooms_allRoomsBooked_returnsEmptyList(RoomServiceUC09Test.java:207)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:565)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1612)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1612)
+
+[ERROR] com.kawai.RoomServiceUC09Test.TC_M2_002_searchAvailableRooms_noRooms_returnsEmptyList -- Time elapsed: 0.006 s <<< FAILURE!
+org.opentest4j.AssertionFailedError: K?t qu? không ???c null ==> expected: not <null>
+	at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:152)
+	at org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:132)
+	at org.junit.jupiter.api.AssertNotNull.failNull(AssertNotNull.java:49)
+	at org.junit.jupiter.api.AssertNotNull.assertNotNull(AssertNotNull.java:35)
+	at org.junit.jupiter.api.Assertions.assertNotNull(Assertions.java:312)
+	at com.kawai.RoomServiceUC09Test.TC_M2_002_searchAvailableRooms_noRooms_returnsEmptyList(RoomServiceUC09Test.java:176)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:565)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1612)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1612)
+
+[INFO] 
+[INFO] Results:
+[INFO] 
+[ERROR] Failures: 
+[ERROR]   RoomServiceUC09Test.TC_M2_002_searchAvailableRooms_noRooms_returnsEmptyList:176 K?t qu? không ???c null ==> expected: not <null>
+[ERROR]   RoomServiceUC09Test.TC_M2_002b_searchAvailableRooms_allRoomsBooked_returnsEmptyList:207 Ph?i tr? danh sách r?ng vì R101 ?ã có booking ==> expected: <true> but was: <false>
+[ERROR] Errors: 
+[ERROR]   RoomServiceUC09Test.TC_M2_001_searchAvailableRooms_returnsAvailableRooms » UnnecessaryStubbing 
+Unnecessary stubbings detected.
+Clean & maintainable test code requires zero unnecessary code.
+Following stubbings are unnecessary (click to navigate to relevant line of code):
+  1. -> at com.kawai.RoomServiceUC09Test.TC_M2_001_searchAvailableRooms_returnsAvailableRooms(RoomServiceUC09Test.java:111)
+Please remove unnecessary stubbings or use 'lenient' strictness. More info: javadoc for UnnecessaryStubbingException class.
+[INFO] 
+[ERROR] Tests run: 3, Failures: 2, Errors: 1, Skipped: 0
+[INFO] 
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  6.664 s
+[INFO] Finished at: 2026-06-10T18:07:35+07:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-surefire-plugin:3.1.2:test (default-test) on project kawai-backend: There are test failures.
+[ERROR] 
+[ERROR] Please refer to D:\SWP\su26-swp391-se2023-g2\03_sourcecode\kawai-backend\target\surefire-reports for the individual test results.
+[ERROR] Please refer to dump files (if any exist) [date].dump, [date]-jvmRun[N].dump and [date].dumpstream.
+[ERROR] -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException

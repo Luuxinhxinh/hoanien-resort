@@ -193,6 +193,7 @@ Hệ thống Backend Spring Boot bao gồm các layer:
 1. Gửi ảnh khuôn mặt lên hệ thống.
 2. Mock `kawai-ai-service` trả về match 98% với khách A trong Manifest.
 3. Verify status trong `Tour_Attendees` của khách A chuyển sang `PRESENT`.
+
 ### MODULE 5: HÓA ĐƠN TỔNG HỢP & BIỂU ĐỒ (UC24-UC28)
 
 #### MOD5-TC-001 — Night Audit & Tự động cộng Folio (UC24)
@@ -238,28 +239,26 @@ Hệ thống Backend Spring Boot bao gồm các layer:
 | TC-M1-022 | Session hết hạn → redirect login | | [ ] | [ ] | |
 
 ### MOD2 — Đặt phòng & Tiền sảnh (Sinh viên 2: Dũng)
-| TC ID | Mô tả ngắn | Test File | 🔴 RED | 🟢 GREEN (commit) | 🔵 REFACTOR |
-|-------|-----------|-----------|--------|-------------------|-------------|
-| TC-M2-001 | Tìm phòng trống đúng ngày | | [ ] | [ ] | |
-| TC-M2-002 | Không có phòng → danh sách rỗng | | [ ] | [ ] | |
-| TC-M2-003 | Đặt phòng thành công, tạo Folio | | [ ] | [ ] | |
-| TC-M2-004 | 2 user đặt cùng phòng → 1 thắng 1 thua | | [ ] | [ ] | |
-| TC-M2-005 | Thanh toán cọc VNPay callback | | [ ] | [ ] | |
-| TC-M2-006 | Hủy trước 48h → hoàn 100% | | [ ] | [ ] | |
-| TC-M2-007 | Hủy trong 48h → tịch thu cọc | | [ ] | [ ] | |
-| TC-M2-008 | Mã khuyến mãi hợp lệ → giảm giá | | [ ] | [ ] | |
-| TC-M2-009 | Mã hết hạn / sai → từ chối | | [ ] | [ ] | |
-| TC-M2-010 | Dashboard trả đúng trạng thái phòng | | [ ] | [ ] | |
-| TC-M2-011 | Check-in thành công → OCCUPIED | | [ ] | [ ] | |
-| TC-M2-012 | Check-in phòng DIRTY → báo lỗi | | [ ] | [ ] | |
-| TC-M2-013 | Ủy quyền Credit Limit thành công | | [ ] | [ ] | |
-| TC-M2-014 | Đổi phòng → chuyển Folio | | [ ] | [ ] | |
-| TC-M2-015 | Nâng cấp Dependent → Account | | [ ] | [ ] | |
-| TC-M2-016 | Check-out → tự động sinh lệnh dọn | | [ ] | [ ] | |
-| TC-M2-017 | HK cập nhật DIRTY → CLEAN | | [ ] | [ ] | |
-| TC-M2-018 | Lễ tân xem danh sách yêu cầu | | [ ] | [ ] | |
-| TC-M2-019 | HK tạo phiếu sửa → MAINTENANCE | | [ ] | [ ] | |
-| TC-M2-020 | MT hoàn thành → AVAILABLE | | [ ] | [ ] | |
+#### UC09 — Tìm kiếm phòng trống (RoomService)
+| TC ID | Test File | 🔴 RED confirmed | 🟢 GREEN (commit) | 🔵 REFACTOR note |
+|---|---|---|---|---|
+| TC-M2-001 | `RoomServiceUC09Test.java` | [x] | [x] | ✅ Refactored: extract methods `isRoomAvailable()`, `toSearchResult()` |
+| TC-M2-002 | `RoomServiceUC09Test.java` | [x] | [x] | ✅ Refactored: always return empty list (never null) |
+| TC-M2-002b | `RoomServiceUC09Test.java` | [x] | [x] | ✅ Refactored: filter overlapping bookings via `countOverlappingBookings()` |
+
+#### UC10 — Đặt phòng & Thanh toán cọc (BookingService)
+| TC ID | Test File | 🔴 RED confirmed | 🟢 GREEN (commit) | 🔵 REFACTOR note |
+|---|---|---|---|---|
+| TC-M2-003 | `BookingServiceUC10Test.java` | [x] | [x] | ✅ `createBooking()` returns CONFIRMED + cancellationDeadline |
+| TC-M2-004 | `BookingServiceUC10Test.java` | [x] | [x] | ✅ Concurrency: 1 CONFIRMED, 1 RoomNotAvailableException |
+| TC-M2-005 | `BookingServiceUC10Test.java` | [x] | [x] | ✅ `validateBookingDates()` throws IllegalArgumentException |
+| TC-M2-006 | `BookingServiceUC10Test.java` | [x] | [x] | ✅ `cancelBooking()` → Cancelled_Refunded + 100% refund |
+| TC-M2-007 | `BookingServiceUC10Test.java` | [x] | [x] | ✅ `cancelBooking()` → Cancelled_Forfeited + 0% refund |
+| TC-M2-008 | `BookingServiceUC10Test.java` | [x] | [x] | ✅ SUMMER10: 10% off = 9,000,000 |
+| TC-M2-008b | `BookingServiceUC10Test.java` | [x] | [x] | ✅ EARLYBIRD20: 20% off = 4,800,000 |
+| TC-M2-009a | `BookingServiceUC10Test.java` | [x] | [x] | ✅ `[ERR_PROMO_INACTIVE]` error code |
+| TC-M2-009b | `BookingServiceUC10Test.java` | [x] | [x] | ✅ `[ERR_PROMO_EXPIRED]` error code |
+| TC-M2-009c | `BookingServiceUC10Test.java` | [x] | [x] | ✅ `[ERR_PROMO_NOT_FOUND]` error code |
 
 ### MOD3 — POS Nhà hàng & F&B (Sinh viên 3: Đức)
 | TC ID | Mô tả ngắn | Test File | 🔴 RED | 🟢 GREEN (commit) | 🔵 REFACTOR |
