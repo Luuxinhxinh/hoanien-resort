@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Receptionist Dashboard - Kawai Retreat</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/receptionist/css/dashboard.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <div class="brand-logo">K</div>
+                <div class="brand-text">
+                    <h1 class="brand-title">Kawai Retreat</h1>
+                    <p class="brand-subtitle">Resort & Hub</p>
+                </div>
+            </div>
+
+            <div class="sidebar-section-title">RECEPTIONIST</div>
+
+            <nav class="sidebar-nav">
+                <a href="/receptionist/dashboard" class="nav-item active">
+                    <i class="fa-solid fa-border-all"></i>
+                    <div class="nav-text">
+                        <span class="nav-main-text">Dashboard</span>
+                        <span class="nav-sub-text">Sơ đồ phòng</span>
+                    </div>
+                    <i class="fa-solid fa-chevron-right nav-arrow"></i>
+                </a>
+                <a href="/receptionist/reservations" class="nav-item">
+                    <i class="fa-regular fa-calendar-check"></i>
+                    <div class="nav-text">
+                        <span class="nav-main-text">Reservations</span>
+                        <span class="nav-sub-text">Đặt phòng</span>
+                    </div>
+                </a>
+                <a href="/receptionist/check-in-out" class="nav-item">
+                    <i class="fa-solid fa-arrow-right-arrow-left"></i>
+                    <div class="nav-text">
+                        <span class="nav-main-text">Check-in / out</span>
+                    </div>
+                </a>
+                <a href="/receptionist/folio" class="nav-item">
+                    <i class="fa-regular fa-file-lines"></i>
+                    <div class="nav-text">
+                        <span class="nav-main-text">Folio Management</span>
+                        <span class="nav-sub-text">Quản lý hóa đơn</span>
+                    </div>
+                </a>
+                <a href="/receptionist/night-audit" class="nav-item">
+                    <i class="fa-solid fa-moon"></i>
+                    <div class="nav-text">
+                        <span class="nav-main-text">Night Audit</span>
+                        <span class="nav-sub-text">Giao ca & Báo cáo</span>
+                    </div>
+                </a>
+            </nav>
+
+            <div class="sidebar-user">
+                <div class="user-avatar">MH</div>
+                <div class="user-info">
+                    <div class="user-name">Minh Hoàng</div>
+                    <div class="user-role">Receptionist</div>
+                </div>
+                <div class="user-status"></div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="top-header">
+                <div class="header-datetime">
+                    <div class="time" id="currentTime">10:47:24 AM</div>
+                    <div class="date" id="currentDate">Wednesday, June 10, 2026</div>
+                </div>
+                
+                <div class="header-search">
+                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                    <input type="text" placeholder="Search guest, room no., phone">
+                </div>
+
+                <div class="header-actions">
+                    <button class="notification-btn">
+                        <i class="fa-regular fa-bell"></i>
+                        <span class="badge">3</span>
+                    </button>
+                    <button class="user-profile-btn">
+                        <i class="fa-solid fa-user"></i>
+                        <span>Receptionist</span>
+                    </button>
+                    <button class="logout-btn">
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                        <span>Logout</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Dashboard Content -->
+            <div class="dashboard-scroll-area">
+                <!-- Stat Cards -->
+                <div class="stat-cards-container">
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <span class="stat-title">Occupancy Rate</span>
+                            <div class="stat-icon-wrapper bg-purple-light">
+                                <i class="fa-solid fa-arrow-trend-up text-purple"></i>
+                            </div>
+                        </div>
+                        <div class="stat-value">38%</div>
+                        <div class="stat-subtitle">9/24 rooms</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <span class="stat-title">Checking In Today</span>
+                            <div class="stat-icon-wrapper bg-green-light">
+                                <i class="fa-solid fa-arrow-right-to-bracket text-green"></i>
+                            </div>
+                        </div>
+                        <div class="stat-value">5</div>
+                        <div class="stat-subtitle">Arrivals scheduled</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <span class="stat-title">Checking Out Today</span>
+                            <div class="stat-icon-wrapper bg-orange-light">
+                                <i class="fa-solid fa-arrow-right-from-bracket text-orange"></i>
+                            </div>
+                        </div>
+                        <div class="stat-value">3</div>
+                        <div class="stat-subtitle">Departures today</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <span class="stat-title">Dirty Rooms</span>
+                            <div class="stat-icon-wrapper bg-red-light">
+                                <i class="fa-solid fa-wand-magic-sparkles text-red"></i>
+                            </div>
+                        </div>
+                        <div class="stat-value">4</div>
+                        <div class="stat-subtitle">Awaiting housekeeping</div>
+                    </div>
+                </div>
+
+                <!-- Room Grid Matrix Section -->
+                <div class="room-matrix-section">
+                    <div class="room-matrix-header">
+                        <div class="matrix-title-area">
+                            <h2>Room Grid Matrix</h2>
+                            <p>Sơ đồ phòng — Live status</p>
+                        </div>
+                        <div class="matrix-filters">
+                            <div class="filter-group">
+                                <label>Type:</label>
+                                <select>
+                                    <option>All</option>
+                                    <option>Deluxe</option>
+                                    <option>Suite</option>
+                                    <option>Villa</option>
+                                </select>
+                            </div>
+                            <div class="filter-group">
+                                <label>Floor:</label>
+                                <select>
+                                    <option>All</option>
+                                    <option>Floor 1</option>
+                                </select>
+                            </div>
+                            <div class="filter-group">
+                                <label>Status:</label>
+                                <select>
+                                    <option>All</option>
+                                    <option>Available</option>
+                                    <option>Occupied</option>
+                                    <option>Housekeeping</option>
+                                    <option>Out of Order</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="matrix-legend-area">
+                        <div class="legend-items">
+                            <div class="legend-item"><span class="legend-dot dot-available"></span>Available</div>
+                            <div class="legend-item"><span class="legend-dot dot-occupied"></span>Occupied</div>
+                            <div class="legend-item"><span class="legend-dot dot-housekeeping"></span>Housekeeping</div>
+                            <div class="legend-item"><span class="legend-dot dot-ooo"></span>Out of Order</div>
+                        </div>
+                        <div class="matrix-count">Showing 24 of 24 rooms</div>
+                    </div>
+
+                    <!-- Floor 1 -->
+                    <div class="floor-section">
+                        <div class="floor-header">
+                            <span class="floor-badge">Floor 1</span>
+                            <div class="floor-line"></div>
+                            <span class="floor-count">6 rooms</span>
+                        </div>
+                        
+                        <div class="room-grid">
+                            <!-- Room 101 - Occupied -->
+                            <div class="room-card card-occupied">
+                                <div class="room-card-top">
+                                    <span class="room-number">101</span>
+                                    <span class="room-indicator"></span>
+                                </div>
+                                <div class="room-type">Deluxe</div>
+                                <div class="room-guest">Ngô Thị Ngọc Lan</div>
+                                <div class="room-footer">Out: 11/06</div>
+                            </div>
+                            
+                            <!-- Room 102 - Housekeeping -->
+                            <div class="room-card card-housekeeping">
+                                <div class="room-card-top">
+                                    <span class="room-number">102</span>
+                                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                                </div>
+                                <div class="room-type"><span class="type-badge">Deluxe</span></div>
+                                <div class="room-status-text">Needs cleaning</div>
+                            </div>
+                            
+                            <!-- Room 103 - Available -->
+                            <div class="room-card card-available">
+                                <div class="room-card-top">
+                                    <span class="room-number">103</span>
+                                    <span class="room-indicator"></span>
+                                </div>
+                                <div class="room-type"><span class="type-badge">Suite</span></div>
+                                <div class="room-status-text text-green">Ready</div>
+                            </div>
+                            
+                            <!-- Room 104 - Occupied -->
+                            <div class="room-card card-occupied">
+                                <div class="room-card-top">
+                                    <span class="room-number">104</span>
+                                    <span class="room-indicator"></span>
+                                </div>
+                                <div class="room-type">Suite</div>
+                                <div class="room-guest">Trần Văn Minh</div>
+                                <div class="room-footer">Out: 12/06</div>
+                            </div>
+                            
+                            <!-- Room 105 - Out of Order -->
+                            <div class="room-card card-ooo">
+                                <div class="room-card-top">
+                                    <span class="room-number">105</span>
+                                    <i class="fa-solid fa-wrench"></i>
+                                </div>
+                                <div class="room-type"><span class="type-badge">Deluxe</span></div>
+                                <div class="room-status-text">Maintenance</div>
+                            </div>
+                            
+                            <!-- Room 106 - Available -->
+                            <div class="room-card card-available">
+                                <div class="room-card-top">
+                                    <span class="room-number">106</span>
+                                    <span class="room-indicator"></span>
+                                </div>
+                                <div class="room-type"><span class="type-badge">Villa</span></div>
+                                <div class="room-status-text text-green">Ready</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="/receptionist/js/dashboard.js"></script>
+</body>
+</html>
