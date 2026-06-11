@@ -103,18 +103,18 @@ public class AuthAndProfileIntegrationTest {
     @Test
     public void testRoleBasedFilter() throws Exception {
         // Unauthenticated access
-        mockMvc.perform(get("/templates/admin/dashboard"))
+        mockMvc.perform(get("/admin/dashboard"))
                 .andExpect(status().is3xxRedirection()); // Redirects to login
 
         // Access with CUSTOMER role
-        mockMvc.perform(get("/templates/admin/dashboard")
+        mockMvc.perform(get("/admin/dashboard")
                 .with(org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user("guest").roles("CUSTOMER")))
                 .andExpect(status().isForbidden());
 
-        // Access with ADMIN role (will return 404 Not Found since endpoint doesn't exist, but it passed authorization)
-        mockMvc.perform(get("/templates/admin/dashboard")
-                .with(org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user("templates/admin").roles("ADMIN")))
-                .andExpect(status().isNotFound());
+        // Access with ADMIN role (authorization passes and returns 200 OK)
+        mockMvc.perform(get("/admin/dashboard")
+                .with(org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user("admin").roles("ADMIN")))
+                .andExpect(status().isOk());
     }
 
     @Test

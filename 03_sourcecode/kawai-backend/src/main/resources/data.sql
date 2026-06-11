@@ -1,21 +1,29 @@
-<<<<<<< HEAD
 -- ============================================================
 -- KAWAI RESORT & TOUR HUB — H2 Sample Data
 -- Chạy tự động sau khi Hibernate tạo schema (defer-datasource-initialization: true)
 -- ============================================================
 -- ── 1. Roles ─────────────────────────────────────────────────
-INSERT INTO Roles (role_id, role_name) VALUES (1, 'ROLE_ADMIN');
-INSERT INTO Roles (role_id, role_name) VALUES (2, 'ROLE_FNB_STAFF');
-INSERT INTO Roles (role_id, role_name) VALUES (3, 'ROLE_GUEST');
+INSERT INTO Roles (role_id, role_name) VALUES (1, 'Admin');
+INSERT INTO Roles (role_id, role_name) VALUES (2, 'Receptionist');
+INSERT INTO Roles (role_id, role_name) VALUES (3, 'F&B');
+INSERT INTO Roles (role_id, role_name) VALUES (4, 'Housekeeping');
+INSERT INTO Roles (role_id, role_name) VALUES (5, 'Manager');
+INSERT INTO Roles (role_id, role_name) VALUES (6, 'Tourguide');
+INSERT INTO Roles (role_id, role_name) VALUES (7, 'Khách VIP');
+INSERT INTO Roles (role_id, role_name) VALUES (8, 'Khách thường');
+INSERT INTO Roles (role_id, role_name) VALUES (9, 'CUSTOMER');
+INSERT INTO Roles (role_id, role_name) VALUES (10, 'ADMIN');
 -- ── 2. Accounts ──────────────────────────────────────────────
 -- Mật khẩu: "admin123" (BCrypt hash)
 INSERT INTO Accounts (account_id, username, password_hash, is_active, role_id, created_at)
-VALUES (1, 'admin', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lh3y', TRUE, 1, CURRENT_TIMESTAMP);
+VALUES (1, 'admin', '$2a$10$4bnThA4xQVw1rF2POQv78uAQll2KsUsgF32JaYiVG5d2d3Fhgk83q', TRUE, 1, CURRENT_TIMESTAMP);
 -- Mật khẩu: "staff123" (BCrypt hash)
 INSERT INTO Accounts (account_id, username, password_hash, is_active, role_id, created_at)
-VALUES (2, 'tphuong', '$2a$10$8K1p/a0dR1xqM5t1J7X6COtq4Ik1Z1K8IEjN1h1Y2v2J3e3r4s5t', TRUE, 2, CURRENT_TIMESTAMP);
+VALUES (2, 'tphuong', '$2a$10$ikP3XeXnMx/oLodhs4wqBO61AhyuE4dWtSJDJcOH7D2ii5Vrgq0bG', TRUE, 3, CURRENT_TIMESTAMP);
 INSERT INTO Accounts (account_id, username, password_hash, is_active, role_id, created_at)
-VALUES (3, 'nmquan', '$2a$10$8K1p/a0dR1xqM5t1J7X6COtq4Ik1Z1K8IEjN1h1Y2v2J3e3r4s5t', TRUE, 2, CURRENT_TIMESTAMP);
+VALUES (3, 'nmquan', '$2a$10$ikP3XeXnMx/oLodhs4wqBO61AhyuE4dWtSJDJcOH7D2ii5Vrgq0bG', TRUE, 3, CURRENT_TIMESTAMP);
+INSERT INTO Accounts (account_id, username, password_hash, is_active, role_id, created_at)
+VALUES (4, 'lelinh', '$2a$10$ikP3XeXnMx/oLodhs4wqBO61AhyuE4dWtSJDJcOH7D2ii5Vrgq0bG', TRUE, 2, CURRENT_TIMESTAMP);
 -- ── 3. Employees ─────────────────────────────────────────────
 INSERT INTO Employees (employee_id, account_id, full_name, gender, cccd, phone, email, salary)
 VALUES (1, 1, 'Nguyễn Quản Trị', 'Nam', '001234567890', '0912000001', 'admin@kawai.vn', 15000000);
@@ -23,6 +31,8 @@ INSERT INTO Employees (employee_id, account_id, full_name, gender, cccd, phone, 
 VALUES (2, 2, 'Trần Phương', 'Nữ', '001234567891', '0912000002', 'tphuong@kawai.vn', 10000000);
 INSERT INTO Employees (employee_id, account_id, full_name, gender, cccd, phone, email, salary)
 VALUES (3, 3, 'Nguyễn Minh Quân', 'Nam', '001234567892', '0912000003', 'nmquan@kawai.vn', 10000000);
+INSERT INTO Employees (employee_id, account_id, full_name, gender, cccd, phone, email, salary)
+VALUES (4, 4, 'Lê Linh', 'Nữ', '001234567893', '0912000004', 'lelinh@kawai.vn', 9000000);
 -- ── 4. Room Categories ───────────────────────────────────────
 INSERT INTO Room_Categories (category_id, category_name, base_price, capacity)
 VALUES (1, 'Deluxe Room', 2500000, 2);
@@ -275,15 +285,16 @@ VALUES (19, NULL, NULL, NULL, 'Room Service', 'Pending', 'Post to Room', FALSE, 
 INSERT INTO Food_Order_Details (detail_id, order_id, item_id, quantity, price_at_order, kot_status)
 VALUES (21, 19, 1, 2, 180000, 'Pending');
 
+ALTER TABLE Roles ALTER COLUMN role_id RESTART WITH 100;
+ALTER TABLE Accounts ALTER COLUMN account_id RESTART WITH 100;
+ALTER TABLE Employees ALTER COLUMN employee_id RESTART WITH 100;
+ALTER TABLE Room_Categories ALTER COLUMN category_id RESTART WITH 100;
+ALTER TABLE Rooms ALTER COLUMN room_id RESTART WITH 100;
+ALTER TABLE Customers ALTER COLUMN customer_id RESTART WITH 100;
+ALTER TABLE Bookings ALTER COLUMN booking_id RESTART WITH 100;
+ALTER TABLE Room_Booking_Details ALTER COLUMN detail_id RESTART WITH 100;
+ALTER TABLE Restaurant_Tables ALTER COLUMN table_id RESTART WITH 100;
+ALTER TABLE Menu_Items ALTER COLUMN item_id RESTART WITH 100;
 ALTER TABLE Food_Orders ALTER COLUMN order_id RESTART WITH 100;
 ALTER TABLE Food_Order_Details ALTER COLUMN detail_id RESTART WITH 100;
-=======
-INSERT INTO Roles (role_name) VALUES ('Admin');
-INSERT INTO Roles (role_name) VALUES ('Receptionist');
-INSERT INTO Roles (role_name) VALUES ('F&B');
-INSERT INTO Roles (role_name) VALUES ('Housekeeping');
-INSERT INTO Roles (role_name) VALUES ('Manager');
-INSERT INTO Roles (role_name) VALUES ('Tourguide');
-INSERT INTO Roles (role_name) VALUES ('Khách VIP');
-INSERT INTO Roles (role_name) VALUES ('Khách thường');
->>>>>>> origin/dev
+

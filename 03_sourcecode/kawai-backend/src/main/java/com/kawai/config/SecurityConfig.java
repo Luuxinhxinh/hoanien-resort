@@ -43,12 +43,12 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/booking", "/auth/register", "/auth/login", "/ops-login",
-                                "/h2-console/**", "/css/**", "/js/**", "/living", "/wellbeing", "/dining",
+                                "/h2-console/**", "/css/**", "/js/**", "/guest/**", "/living", "/wellbeing", "/dining",
                                 "/experiences", "/tours", "/tours/**",
                                 "/fbStaff/**", "/f&bStaff/**", "/api/menu-items/**", "/api/rooms/**", "/api/pos/**", "/error")
                         .permitAll()
-                        .requestMatchers("/admin/**").permitAll()
-                        .requestMatchers("/manager/**").permitAll()
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/manager/**").hasRole("MANAGER")
                         .requestMatchers("/staff/**").hasAnyRole("ADMIN", "STAFF")
                         .requestMatchers("/profile/**").authenticated()
                         .anyRequest().authenticated())
@@ -90,7 +90,7 @@ public class SecurityConfig {
                         redirect = "/receptionist/dashboard";
                         break;
                     } else if (role.equals("ROLE_FB_STAFF")) {
-                        redirect = "/pos/dashboard";
+                        redirect = "/fbStaff/dashboard";
                         break;
                     } else if (role.equals("ROLE_GUEST") || role.equals("ROLE_CUSTOMER")) {
                         redirect = "/";

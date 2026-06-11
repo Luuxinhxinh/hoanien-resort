@@ -23,7 +23,29 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         Account account = accountRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
 
-        GrantedAuthority authority = new SimpleGrantedAuthority(account.getRole().getRoleName());
+        String rawRole = account.getRole().getRoleName();
+        String securityRole = rawRole;
+        if (rawRole.equalsIgnoreCase("Admin")) {
+            securityRole = "ROLE_ADMIN";
+        } else if (rawRole.equalsIgnoreCase("Manager")) {
+            securityRole = "ROLE_MANAGER";
+        } else if (rawRole.equalsIgnoreCase("Receptionist")) {
+            securityRole = "ROLE_RECEPTIONIST";
+        } else if (rawRole.equalsIgnoreCase("F&B") || rawRole.equalsIgnoreCase("ROLE_FNB_STAFF") || rawRole.equalsIgnoreCase("ROLE_FB_STAFF")) {
+            securityRole = "ROLE_FB_STAFF";
+        } else if (rawRole.equalsIgnoreCase("Housekeeping")) {
+            securityRole = "ROLE_HOUSEKEEPING";
+        } else if (rawRole.equalsIgnoreCase("Tourguide")) {
+            securityRole = "ROLE_TOURGUIDE";
+        } else if (rawRole.startsWith("Khách") || rawRole.equalsIgnoreCase("ROLE_GUEST") || rawRole.equalsIgnoreCase("ROLE_CUSTOMER")) {
+            securityRole = "ROLE_GUEST";
+        } else {
+            if (!securityRole.startsWith("ROLE_")) {
+                securityRole = "ROLE_" + securityRole.toUpperCase();
+            }
+        }
+
+        GrantedAuthority authority = new SimpleGrantedAuthority(securityRole);
 
         return org.springframework.security.core.userdetails.User.builder()
                 .username(account.getUsername())

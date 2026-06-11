@@ -1,14 +1,10 @@
-﻿<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Hồ sơ của bạn</title>
-</head>
-<body>
-    <h1>Profile</h1>
-    <p th:text="${customer != null ? customer.account.username : ''}"></p>
-    
+const fs = require('fs');
+const path = require('path');
 
+const guestDir = path.join(__dirname, '03_sourcecode/kawai-backend/src/main/resources/templates/guest');
+const files = fs.readdirSync(guestDir).filter(f => f.endsWith('.html'));
+
+const animationsScript = `
     <script>
     document.addEventListener("DOMContentLoaded", () => {
         // Basic Intersection Observer for smooth reveal
@@ -36,7 +32,7 @@
         });
 
         // Sub-navigation smooth reveal
-        const subNav = document.querySelector('.fixed.top-\\[70px\\]');
+        const subNav = document.querySelector('.fixed.top-\\\\[70px\\\\]');
         if (subNav) {
             subNav.style.opacity = '0';
             subNav.style.transform = 'translateY(-10px)';
@@ -48,6 +44,21 @@
         }
     });
     </script>
+`;
 
-</body>
-</html>
+files.forEach(file => {
+    const filePath = path.join(guestDir, file);
+    let content = fs.readFileSync(filePath, 'utf8');
+
+    // Remove the external script tag
+    content = content.replace(/<script src="\/js\/animations\.js(\?v=\d+)?"\s*><\/script>/g, '');
+    content = content.replace(/<script src="\/guest\/js\/animations\.js(\?v=\d+)?"\s*><\/script>/g, '');
+
+    // Add inline script before </body>
+    if (!content.includes('IntersectionObserver')) {
+        content = content.replace(/<\/body>/g, animationsScript + '\n</body>');
+    }
+
+    fs.writeFileSync(filePath, content, 'utf8');
+    console.log(`Inlined animations into ${file}`);
+});

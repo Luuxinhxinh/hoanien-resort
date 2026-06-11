@@ -20,8 +20,8 @@
             theme: {
                 extend: {
                     colors: {
-                        'kawaii-bg': '#f4efea',         /* Warm natural beige */
-                        'kawaii-text': '#2c2c2c',       /* Soft dark charcoal */
+                        'kawaii-bg': '#f1ebe3',         /* Warm natural beige */
+                        'kawaii-text': '#3a3230',       /* Soft dark charcoal */
                         'kawaii-footer': '#3c3530',     /* Dark earthy brown */
                         'kawaii-footer-text': '#e5dfd8' /* Light beige for footer */
                     },
@@ -76,7 +76,6 @@
             <!-- Left Links -->
             <div class="hidden lg:flex items-center gap-8 text-[11px] uppercase tracking-[0.2em] font-semibold text-kawaii-text/80">
                 <a href="/living" class="hover:text-kawaii-text active:scale-95 transition-all duration-200 transition-colors">Living</a>
-                <a href="/wellbeing" class="hover:text-kawaii-text active:scale-95 transition-all duration-200 transition-colors">Wellbeing</a>
                 <a href="/dining" class="hover:text-kawaii-text active:scale-95 transition-all duration-200 transition-colors">Dining</a>
                 <a href="/experiences" class="hover:text-kawaii-text active:scale-95 transition-all duration-200 transition-colors">Experiences</a>
                 <a href="/tours" class="text-kawaii-text border-b border-kawaii-text pb-0.5">Tours</a>
@@ -405,6 +404,48 @@
                 closePreviewModal();
             }
         });
+    </script>
+
+    
+
+    <script>
+    document.addEventListener("DOMContentLoaded", () => {
+        // Basic Intersection Observer for smooth reveal
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.15
+        };
+
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('opacity-100', 'translate-y-0');
+                    entry.target.classList.remove('opacity-0', 'translate-y-8');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        // Select all major sections to animate them
+        const sections = document.querySelectorAll('main section, .feature-row, .room-grid, .room-card, .results, .site-footer');
+        sections.forEach(section => {
+            section.classList.add('transition-all', 'duration-[800ms]', 'ease-out', 'opacity-0', 'translate-y-8', 'will-change-transform');
+            observer.observe(section);
+        });
+
+        // Sub-navigation smooth reveal
+        const subNav = document.querySelector('.fixed.top-\\[70px\\]');
+        if (subNav) {
+            subNav.style.opacity = '0';
+            subNav.style.transform = 'translateY(-10px)';
+            subNav.style.transition = 'all 0.6s ease-out';
+            setTimeout(() => {
+                subNav.style.opacity = '1';
+                subNav.style.transform = 'translateY(0)';
+            }, 300);
+        }
+    });
     </script>
 
 </body>

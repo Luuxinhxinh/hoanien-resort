@@ -5,6 +5,8 @@ import com.kawai.models.Employee;
 import com.kawai.models.Role;
 import com.kawai.repositories.AccountRepository;
 import com.kawai.repositories.EmployeeRepository;
+import com.kawai.repositories.CustomerRepository;
+import com.kawai.repositories.RoleRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -34,6 +36,12 @@ public class AdminControllerTest {
 
     @MockBean
     private EmployeeRepository employeeRepository;
+
+    @MockBean
+    private CustomerRepository customerRepository;
+
+    @MockBean
+    private RoleRepository roleRepository;
 
     @Test
     public void testMasterDataAccountManagementReturnsDbData() throws Exception {
