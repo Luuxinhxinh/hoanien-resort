@@ -44,7 +44,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/booking", "/auth/register", "/auth/login", "/ops-login",
                                 "/h2-console/**", "/css/**", "/js/**", "/living", "/wellbeing", "/dining",
-                                "/experiences", "/tours", "/tours/**")
+                                "/experiences", "/tours", "/tours/**",
+                                "/fbStaff/**", "/f&bStaff/**", "/api/menu-items/**", "/api/rooms/**", "/api/pos/**", "/error")
                         .permitAll()
                         .requestMatchers("/admin/**").permitAll()
                         .requestMatchers("/manager/**").permitAll()

@@ -1,5 +1,7 @@
 package com.kawai.services.interfaces;
 
-public interface PosService {
+import java.math.BigDecimal;
 
+public interface PosService {
+    void chargeToRoom(String roomNumber, BigDecimal amount);
 }
