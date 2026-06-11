@@ -1,0 +1,177 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ----------------------< com.kawai:kawai-backend >-----------------------
+[INFO] Building kawai-backend 0.0.1-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ kawai-backend ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO] Copying 15 resources from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.11.0:compile (default-compile) @ kawai-backend ---
+[INFO] Changes detected - recompiling the module! :source
+[INFO] Compiling 100 source files with javac [debug release 17] to target\classes
+[INFO] -------------------------------------------------------------
+[ERROR] COMPILATION ERROR : 
+[INFO] -------------------------------------------------------------
+[ERROR] /D:/SWP/su26-swp391-se2023-g2/03_sourcecode/kawai-backend/src/main/java/com/kawai/controllers/web/ProfileController.java:[44,21] cannot find symbol
+  symbol:   method setFullName(java.lang.String)
+  location: variable customer of type com.kawai.models.Customer
+[ERROR] /D:/SWP/su26-swp391-se2023-g2/03_sourcecode/kawai-backend/src/main/java/com/kawai/controllers/web/ProfileController.java:[45,21] cannot find symbol
+  symbol:   method setEmail(java.lang.String)
+  location: variable customer of type com.kawai.models.Customer
+[ERROR] /D:/SWP/su26-swp391-se2023-g2/03_sourcecode/kawai-backend/src/main/java/com/kawai/controllers/web/ProfileController.java:[61,61] cannot find symbol
+  symbol:   method getPasswordHash()
+  location: variable account of type com.kawai.models.Account
+[ERROR] /D:/SWP/su26-swp391-se2023-g2/03_sourcecode/kawai-backend/src/main/java/com/kawai/controllers/web/ProfileController.java:[62,24] cannot find symbol
+  symbol:   method setPasswordHash(java.lang.String)
+  location: variable account of type com.kawai.models.Account
+[ERROR] /D:/SWP/su26-swp391-se2023-g2/03_sourcecode/kawai-backend/src/main/java/com/kawai/security/UserDetailsServiceImpl.java:[26,72] cannot find symbol
+  symbol:   method getRole()
+  location: variable account of type com.kawai.models.Account
+[ERROR] /D:/SWP/su26-swp391-se2023-g2/03_sourcecode/kawai-backend/src/main/java/com/kawai/security/UserDetailsServiceImpl.java:[32,35] cannot find symbol
+  symbol:   method getIsActive()
+  location: variable account of type com.kawai.models.Account
+[ERROR] /D:/SWP/su26-swp391-se2023-g2/03_sourcecode/kawai-backend/src/main/java/com/kawai/security/UserDetailsServiceImpl.java:[29,34] cannot find symbol
+  symbol:   method getUsername()
+  location: variable account of type com.kawai.models.Account
+[ERROR] /D:/SWP/su26-swp391-se2023-g2/03_sourcecode/kawai-backend/src/main/java/com/kawai/security/UserDetailsServiceImpl.java:[30,34] cannot find symbol
+  symbol:   method getPasswordHash()
+  location: variable account of type com.kawai.models.Account
+[ERROR] /D:/SWP/su26-swp391-se2023-g2/03_sourcecode/kawai-backend/src/main/java/com/kawai/services/impl/BookingServiceImpl.java:[116,37] cannot find symbol
+  symbol:   method getDepositAmount()
+  location: variable booking of type com.kawai.models.RoomBooking
+[ERROR] /D:/SWP/su26-swp391-se2023-g2/03_sourcecode/kawai-backend/src/main/java/com/kawai/services/impl/BookingServiceImpl.java:[117,37] cannot find symbol
+  symbol:   method getCancellationDeadline()
+  location: variable booking of type com.kawai.models.RoomBooking
+[ERROR] /D:/SWP/su26-swp391-se2023-g2/03_sourcecode/kawai-backend/src/main/java/com/kawai/services/impl/BookingServiceImpl.java:[124,20] cannot find symbol
+  symbol:   method setBookingStatus(java.lang.String)
+  location: variable booking of type com.kawai.models.RoomBooking
+[ERROR] /D:/SWP/su26-swp391-se2023-g2/03_sourcecode/kawai-backend/src/main/java/com/kawai/services/impl/BookingServiceImpl.java:[129,20] cannot find symbol
+  symbol:   method setBookingStatus(java.lang.String)
+  location: variable booking of type com.kawai.models.RoomBooking
+[ERROR] /D:/SWP/su26-swp391-se2023-g2/03_sourcecode/kawai-backend/src/main/java/com/kawai/services/impl/BookingServiceImpl.java:[151,39] cannot find symbol
+  symbol:   method getIsActive()
+  location: variable promo of type com.kawai.models.Promotion
+[ERROR] /D:/SWP/su26-swp391-se2023-g2/03_sourcecode/kawai-backend/src/main/java/com/kawai/services/impl/BookingServiceImpl.java:[156,18] cannot find symbol
+  symbol:   method getValidTo()
+  location: variable promo of type com.kawai.models.Promotion
+[ERROR] /D:/SWP/su26-swp391-se2023-g2/03_sourcecode/kawai-backend/src/main/java/com/kawai/services/impl/BookingServiceImpl.java:[161,40] cannot find symbol
+  symbol:   method getDiscountValue()
+  location: variable promo of type com.kawai.models.Promotion
+[ERROR] /D:/SWP/su26-swp391-se2023-g2/03_sourcecode/kawai-backend/src/main/java/com/kawai/controllers/web/AuthController.java:[53,20] cannot find symbol
+  symbol:   method setRoleName(java.lang.String)
+  location: variable newRole of type com.kawai.models.Role
+[ERROR] /D:/SWP/su26-swp391-se2023-g2/03_sourcecode/kawai-backend/src/main/java/com/kawai/controllers/web/AuthController.java:[59,16] cannot find symbol
+  symbol:   method setUsername(java.lang.String)
+  location: variable account of type com.kawai.models.Account
+[ERROR] /D:/SWP/su26-swp391-se2023-g2/03_sourcecode/kawai-backend/src/main/java/com/kawai/controllers/web/AuthController.java:[60,16] cannot find symbol
+  symbol:   method setPasswordHash(java.lang.String)
+  location: variable account of type com.kawai.models.Account
+[ERROR] /D:/SWP/su26-swp391-se2023-g2/03_sourcecode/kawai-backend/src/main/java/com/kawai/controllers/web/AuthController.java:[61,16] cannot find symbol
+  symbol:   method setRole(com.kawai.models.Role)
+  location: variable account of type com.kawai.models.Account
+[ERROR] /D:/SWP/su26-swp391-se2023-g2/03_sourcecode/kawai-backend/src/main/java/com/kawai/controllers/web/AuthController.java:[66,17] cannot find symbol
+  symbol:   method setAccount(com.kawai.models.Account)
+  location: variable customer of type com.kawai.models.Customer
+[ERROR] /D:/SWP/su26-swp391-se2023-g2/03_sourcecode/kawai-backend/src/main/java/com/kawai/controllers/web/AuthController.java:[67,17] cannot find symbol
+  symbol:   method setFullName(java.lang.String)
+  location: variable customer of type com.kawai.models.Customer
+[ERROR] /D:/SWP/su26-swp391-se2023-g2/03_sourcecode/kawai-backend/src/main/java/com/kawai/controllers/web/AuthController.java:[68,17] cannot find symbol
+  symbol:   method setEmail(java.lang.String)
+  location: variable customer of type com.kawai.models.Customer
+[ERROR] /D:/SWP/su26-swp391-se2023-g2/03_sourcecode/kawai-backend/src/main/java/com/kawai/controllers/web/AuthController.java:[69,17] cannot find symbol
+  symbol:   method setGender(java.lang.String)
+  location: variable customer of type com.kawai.models.Customer
+[ERROR] /D:/SWP/su26-swp391-se2023-g2/03_sourcecode/kawai-backend/src/main/java/com/kawai/controllers/web/AuthController.java:[70,17] cannot find symbol
+  symbol:   method setPhone(java.lang.String)
+  location: variable customer of type com.kawai.models.Customer
+[INFO] 24 errors 
+[INFO] -------------------------------------------------------------
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  3.718 s
+[INFO] Finished at: 2026-06-10T17:34:20+07:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.11.0:compile (default-compile) on project kawai-backend: Compilation failure: Compilation failure: 
+[ERROR] /D:/SWP/su26-swp391-se2023-g2/03_sourcecode/kawai-backend/src/main/java/com/kawai/controllers/web/ProfileController.java:[44,21] cannot find symbol
+[ERROR]   symbol:   method setFullName(java.lang.String)
+[ERROR]   location: variable customer of type com.kawai.models.Customer
+[ERROR] /D:/SWP/su26-swp391-se2023-g2/03_sourcecode/kawai-backend/src/main/java/com/kawai/controllers/web/ProfileController.java:[45,21] cannot find symbol
+[ERROR]   symbol:   method setEmail(java.lang.String)
+[ERROR]   location: variable customer of type com.kawai.models.Customer
+[ERROR] /D:/SWP/su26-swp391-se2023-g2/03_sourcecode/kawai-backend/src/main/java/com/kawai/controllers/web/ProfileController.java:[61,61] cannot find symbol
+[ERROR]   symbol:   method getPasswordHash()
+[ERROR]   location: variable account of type com.kawai.models.Account
+[ERROR] /D:/SWP/su26-swp391-se2023-g2/03_sourcecode/kawai-backend/src/main/java/com/kawai/controllers/web/ProfileController.java:[62,24] cannot find symbol
+[ERROR]   symbol:   method setPasswordHash(java.lang.String)
+[ERROR]   location: variable account of type com.kawai.models.Account
+[ERROR] /D:/SWP/su26-swp391-se2023-g2/03_sourcecode/kawai-backend/src/main/java/com/kawai/security/UserDetailsServiceImpl.java:[26,72] cannot find symbol
+[ERROR]   symbol:   method getRole()
+[ERROR]   location: variable account of type com.kawai.models.Account
+[ERROR] /D:/SWP/su26-swp391-se2023-g2/03_sourcecode/kawai-backend/src/main/java/com/kawai/security/UserDetailsServiceImpl.java:[32,35] cannot find symbol
+[ERROR]   symbol:   method getIsActive()
+[ERROR]   location: variable account of type com.kawai.models.Account
+[ERROR] /D:/SWP/su26-swp391-se2023-g2/03_sourcecode/kawai-backend/src/main/java/com/kawai/security/UserDetailsServiceImpl.java:[29,34] cannot find symbol
+[ERROR]   symbol:   method getUsername()
+[ERROR]   location: variable account of type com.kawai.models.Account
+[ERROR] /D:/SWP/su26-swp391-se2023-g2/03_sourcecode/kawai-backend/src/main/java/com/kawai/security/UserDetailsServiceImpl.java:[30,34] cannot find symbol
+[ERROR]   symbol:   method getPasswordHash()
+[ERROR]   location: variable account of type com.kawai.models.Account
+[ERROR] /D:/SWP/su26-swp391-se2023-g2/03_sourcecode/kawai-backend/src/main/java/com/kawai/services/impl/BookingServiceImpl.java:[116,37] cannot find symbol
+[ERROR]   symbol:   method getDepositAmount()
+[ERROR]   location: variable booking of type com.kawai.models.RoomBooking
+[ERROR] /D:/SWP/su26-swp391-se2023-g2/03_sourcecode/kawai-backend/src/main/java/com/kawai/services/impl/BookingServiceImpl.java:[117,37] cannot find symbol
+[ERROR]   symbol:   method getCancellationDeadline()
+[ERROR]   location: variable booking of type com.kawai.models.RoomBooking
+[ERROR] /D:/SWP/su26-swp391-se2023-g2/03_sourcecode/kawai-backend/src/main/java/com/kawai/services/impl/BookingServiceImpl.java:[124,20] cannot find symbol
+[ERROR]   symbol:   method setBookingStatus(java.lang.String)
+[ERROR]   location: variable booking of type com.kawai.models.RoomBooking
+[ERROR] /D:/SWP/su26-swp391-se2023-g2/03_sourcecode/kawai-backend/src/main/java/com/kawai/services/impl/BookingServiceImpl.java:[129,20] cannot find symbol
+[ERROR]   symbol:   method setBookingStatus(java.lang.String)
+[ERROR]   location: variable booking of type com.kawai.models.RoomBooking
+[ERROR] /D:/SWP/su26-swp391-se2023-g2/03_sourcecode/kawai-backend/src/main/java/com/kawai/services/impl/BookingServiceImpl.java:[151,39] cannot find symbol
+[ERROR]   symbol:   method getIsActive()
+[ERROR]   location: variable promo of type com.kawai.models.Promotion
+[ERROR] /D:/SWP/su26-swp391-se2023-g2/03_sourcecode/kawai-backend/src/main/java/com/kawai/services/impl/BookingServiceImpl.java:[156,18] cannot find symbol
+[ERROR]   symbol:   method getValidTo()
+[ERROR]   location: variable promo of type com.kawai.models.Promotion
+[ERROR] /D:/SWP/su26-swp391-se2023-g2/03_sourcecode/kawai-backend/src/main/java/com/kawai/services/impl/BookingServiceImpl.java:[161,40] cannot find symbol
+[ERROR]   symbol:   method getDiscountValue()
+[ERROR]   location: variable promo of type com.kawai.models.Promotion
+[ERROR] /D:/SWP/su26-swp391-se2023-g2/03_sourcecode/kawai-backend/src/main/java/com/kawai/controllers/web/AuthController.java:[53,20] cannot find symbol
+[ERROR]   symbol:   method setRoleName(java.lang.String)
+[ERROR]   location: variable newRole of type com.kawai.models.Role
+[ERROR] /D:/SWP/su26-swp391-se2023-g2/03_sourcecode/kawai-backend/src/main/java/com/kawai/controllers/web/AuthController.java:[59,16] cannot find symbol
+[ERROR]   symbol:   method setUsername(java.lang.String)
+[ERROR]   location: variable account of type com.kawai.models.Account
+[ERROR] /D:/SWP/su26-swp391-se2023-g2/03_sourcecode/kawai-backend/src/main/java/com/kawai/controllers/web/AuthController.java:[60,16] cannot find symbol
+[ERROR]   symbol:   method setPasswordHash(java.lang.String)
+[ERROR]   location: variable account of type com.kawai.models.Account
+[ERROR] /D:/SWP/su26-swp391-se2023-g2/03_sourcecode/kawai-backend/src/main/java/com/kawai/controllers/web/AuthController.java:[61,16] cannot find symbol
+[ERROR]   symbol:   method setRole(com.kawai.models.Role)
+[ERROR]   location: variable account of type com.kawai.models.Account
+[ERROR] /D:/SWP/su26-swp391-se2023-g2/03_sourcecode/kawai-backend/src/main/java/com/kawai/controllers/web/AuthController.java:[66,17] cannot find symbol
+[ERROR]   symbol:   method setAccount(com.kawai.models.Account)
+[ERROR]   location: variable customer of type com.kawai.models.Customer
+[ERROR] /D:/SWP/su26-swp391-se2023-g2/03_sourcecode/kawai-backend/src/main/java/com/kawai/controllers/web/AuthController.java:[67,17] cannot find symbol
+[ERROR]   symbol:   method setFullName(java.lang.String)
+[ERROR]   location: variable customer of type com.kawai.models.Customer
+[ERROR] /D:/SWP/su26-swp391-se2023-g2/03_sourcecode/kawai-backend/src/main/java/com/kawai/controllers/web/AuthController.java:[68,17] cannot find symbol
+[ERROR]   symbol:   method setEmail(java.lang.String)
+[ERROR]   location: variable customer of type com.kawai.models.Customer
+[ERROR] /D:/SWP/su26-swp391-se2023-g2/03_sourcecode/kawai-backend/src/main/java/com/kawai/controllers/web/AuthController.java:[69,17] cannot find symbol
+[ERROR]   symbol:   method setGender(java.lang.String)
+[ERROR]   location: variable customer of type com.kawai.models.Customer
+[ERROR] /D:/SWP/su26-swp391-se2023-g2/03_sourcecode/kawai-backend/src/main/java/com/kawai/controllers/web/AuthController.java:[70,17] cannot find symbol
+[ERROR]   symbol:   method setPhone(java.lang.String)
+[ERROR]   location: variable customer of type com.kawai.models.Customer
+[ERROR] -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException

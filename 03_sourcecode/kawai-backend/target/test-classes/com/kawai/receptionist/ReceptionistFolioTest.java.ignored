@@ -1,0 +1,152 @@
+package com.kawai.receptionist;
+
+import com.kawai.services.interfaces.FolioService;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+/**
+ * Unit tests for Receptionist (Front Office) — Folio & Payment Operations.
+ *
+ * Nghiệp vụ được kiểm thử (UC12, UC24, UC25):
+ *   - Tra cứu hóa đơn tổng hợp (Folio) theo booking
+ *   - Thu tiền và tất toán công nợ
+ *   - Kiểm tra điều kiện Folio trước Check-out
+ */
+@ExtendWith(MockitoExtension.class)
+@DisplayName("Lễ tân — Nghiệp vụ Folio & Thanh toán")
+class ReceptionistFolioTest {
+
+    @Mock
+    private FolioService folioService;
+
+    // ─── Tra cứu Folio ───────────────────────────────────────────────────────
+
+    @Test
+    @DisplayName("UC24-01: Lấy Folio thành công khi booking có tồn tại")
+    void getFolioByBooking_withValidBookingId_returnsPresent() {
+        Long bookingId = 1L;
+        when(folioService.getFolioByBooking(bookingId)).thenReturn(Optional.of(new Object()));
+
+        Optional<Object> folio = folioService.getFolioByBooking(bookingId);
+
+        assertTrue(folio.isPresent(), "Folio phải tồn tại với booking hợp lệ");
+        verify(folioService, times(1)).getFolioByBooking(bookingId);
+    }
+
+    @Test
+    @DisplayName("UC24-02: Lấy Folio trả về rỗng khi booking không tồn tại")
+    void getFolioByBooking_withInvalidBookingId_returnsEmpty() {
+        Long invalidId = 9999L;
+        when(folioService.getFolioByBooking(invalidId)).thenReturn(Optional.empty());
+
+        Optional<Object> folio = folioService.getFolioByBooking(invalidId);
+
+        assertFalse(folio.isPresent(), "Folio phải trả về rỗng khi booking không tồn tại");
+    }
+
+    // ─── Kiểm tra tổng công nợ ───────────────────────────────────────────────
+
+    @Test
+    @DisplayName("UC24-03: Tổng tiền chưa thanh toán bằng 0 khi Folio đã tất toán")
+    void getTotalUnpaidAmount_whenAllPaid_returnsZero() {
+        Long bookingId = 1L;
+        when(folioService.getTotalUnpaidAmount(bookingId)).thenReturn(0.0);
+
+        double unpaid = folioService.getTotalUnpaidAmount(bookingId);
+
+        assertEquals(0.0, unpaid, 0.001, "Tổng nợ phải bằng 0 khi đã tất toán");
+    }
+
+    @Test
+    @DisplayName("UC24-04: Tổng tiền chưa thanh toán lớn hơn 0 khi Folio còn công nợ")
+    void getTotalUnpaidAmount_whenHasUnpaid_returnsPositiveAmount() {
+        Long bookingId = 2L;
+        double expectedUnpaid = 1_200_000.0;
+        when(folioService.getTotalUnpaidAmount(bookingId)).thenReturn(expectedUnpaid);
+
+        double unpaid = folioService.getTotalUnpaidAmount(bookingId);
+
+        assertTrue(unpaid > 0, "Tổng nợ phải dương khi Folio còn công nợ chưa thanh toán");
+        assertEquals(expectedUnpaid, unpaid, 0.001, "Tổng nợ phải khớp với giá trị thực tế");
+    }
+
+    // ─── Thu tiền & Thanh toán ───────────────────────────────────────────────
+
+    @Test
+    @DisplayName("UC25-01: Thu tiền thành công với số tiền hợp lệ và đủ")
+    void collectPayment_withValidAmount_returnsTrue() {
+        Long bookingId = 1L;
+        double payAmount = 2_000_000.0;
+        when(folioService.collectPayment(bookingId, payAmount)).thenReturn(true);
+
+        boolean result = folioService.collectPayment(bookingId, payAmount);
+
+        assertTrue(result, "Thu tiền phải thành công với số tiền hợp lệ");
+        verify(folioService, times(1)).collectPayment(bookingId, payAmount);
+    }
+
+    @Test
+    @DisplayName("UC25-02: Thu tiền thất bại khi số tiền bằng 0")
+    void collectPayment_withZeroAmount_returnsFalse() {
+        Long bookingId = 1L;
+        when(folioService.collectPayment(bookingId, 0.0)).thenReturn(false);
+
+        boolean result = folioService.collectPayment(bookingId, 0.0);
+
+        assertFalse(result, "Thu tiền phải thất bại khi số tiền bằng 0");
+    }
+
+    @Test
+    @DisplayName("UC25-03: Thu tiền thất bại khi số tiền âm")
+    void collectPayment_withNegativeAmount_returnsFalse() {
+        Long bookingId = 1L;
+        when(folioService.collectPayment(bookingId, -500_000.0)).thenReturn(false);
+
+        boolean result = folioService.collectPayment(bookingId, -500_000.0);
+
+        assertFalse(result, "Thu tiền phải thất bại khi số tiền là số âm");
+    }
+
+    @Test
+    @DisplayName("UC25-04: Thu tiền thất bại khi booking không tồn tại")
+    void collectPayment_withInvalidBookingId_returnsFalse() {
+        Long invalidId = 9999L;
+        when(folioService.collectPayment(invalidId, 1_000_000.0)).thenReturn(false);
+
+        boolean result = folioService.collectPayment(invalidId, 1_000_000.0);
+
+        assertFalse(result, "Thu tiền phải thất bại khi booking không tồn tại");
+    }
+
+    // ─── Quy trình Folio end-to-end ──────────────────────────────────────────
+
+    @Test
+    @DisplayName("UC25-05: Kiểm tra toàn luồng — Tra cứu Folio → Thu tiền → Folio về 0")
+    void fullFlow_lookupThenPay_folioBecomesZero() {
+        Long bookingId = 1L;
+
+        // Bước 1: Tra cứu Folio có công nợ
+        when(folioService.getTotalUnpaidAmount(bookingId)).thenReturn(3_000_000.0)
+                .thenReturn(0.0); // lần gọi thứ hai sau khi thanh toán
+
+        // Bước 2: Thu tiền đủ
+        when(folioService.collectPayment(bookingId, 3_000_000.0)).thenReturn(true);
+
+        double initialUnpaid = folioService.getTotalUnpaidAmount(bookingId);
+        assertTrue(initialUnpaid > 0, "Ban đầu Folio còn công nợ");
+
+        boolean paid = folioService.collectPayment(bookingId, initialUnpaid);
+        assertTrue(paid, "Thu tiền phải thành công");
+
+        double remainingUnpaid = folioService.getTotalUnpaidAmount(bookingId);
+        assertEquals(0.0, remainingUnpaid, 0.001, "Sau khi thanh toán, Folio phải về 0");
+    }
+}

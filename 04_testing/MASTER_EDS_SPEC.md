@@ -208,7 +208,106 @@ Feature: Luồng vận hành lõi tích hợp 3 Modules (Front Desk, POS, Folio)
 
 ## 7. Phương pháp Xác minh (API Verification Samples)
 
-### 7.1. Chống Over-Booking (DB Inspection)
+### 7.1. UC09 — Tìm kiếm phòng trống (RoomService.searchAvailableRooms)
+
+**[POST] Tìm phòng trống**
+```bash
+# [POST] Tìm phòng trống theo khoảng ngày
+curl -X POST https://api.kawairesort.com/api/v1/rooms/search \
+  -H "Authorization: Bearer [CUSTOMER_TOKEN]" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "checkInDate": "2026-08-01",
+    "checkOutDate": "2026-08-05",
+    "categoryName": "Deluxe",
+    "minCapacity": 2
+  }'
+
+# Expected Response (200):
+{
+  "status": "SUCCESS",
+  "rooms": [
+    {
+      "roomId": 1,
+      "roomNumber": "R101",
+      "categoryName": "Deluxe",
+      "pricePerNight": 2000000,
+      "capacity": 2,
+      "checkInDate": "2026-08-01",
+      "checkOutDate": "2026-08-05"
+    }
+  ]
+}
+```
+
+**Business Rules:**
+* BR-FO-01: Chỉ hiển thị phòng không có booking trùng ngày
+* BR-FO-04: Trạng thái phòng Vacant_Clean hoặc Available
+* BR-FIN-05: Giá phòng BigDecimal scale 0, HALF_UP
+
+**Implementation:**
+* Interface: `RoomService.searchAvailableRooms(RoomSearchRequestDTO)`
+* Repository: `RoomRepository.findAll()`, `RoomBookingRepository.countOverlappingBookings()`
+
+---
+
+### 7.2. UC10 — Đặt phòng & Thanh toán cọc (BookingService)
+
+**[POST] Đặt phòng mới**
+```bash
+# [POST] Đặt phòng
+curl -X POST https://api.kawairesort.com/api/v1/bookings \
+  -H "Authorization: Bearer [CUSTOMER_TOKEN]" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "customerId": 1,
+    "roomNumber": "R101",
+    "checkInDate": "2026-08-15",
+    "checkOutDate": "2026-08-20",
+    "depositAmount": 2000000,
+    "promotionCode": "SUMMER10"
+  }'
+
+# Expected Response (201):
+{
+  "bookingId": 12345,
+  "bookingStatus": "CONFIRMED",
+  "depositAmount": 2000000,
+  "discountedPrice": 9000000,
+  "checkInDate": "2026-08-15",
+  "checkOutDate": "2026-08-20",
+  "cancellationDeadline": "2026-08-13"
+}
+```
+
+**[DELETE] Hủy booking**
+```bash
+# [DELETE] Hủy booking trước 48h
+curl -X DELETE https://api.kawairesort.com/api/v1/bookings/12345 \
+  -H "Authorization: Bearer [CUSTOMER_TOKEN]"
+
+# Expected Response (200):
+{
+  "refundAmount": 2000000,
+  "bookingStatus": "Cancelled_Refunded"
+}
+```
+
+**Business Rules:**
+* BR-DATE-01: checkOutDate > checkInDate
+* BR-FO-01: Pessimistic Locking chống overbooking
+* BR-FIN-02: Hủy trước 48h → hoàn 100%; trong 48h → tịch thu cọc
+* BR-STATUS-01: Booking tạo mới → "CONFIRMED"
+* BR-STATUS-02: Hủy trước 48h → "Cancelled_Refunded"; sau → "Cancelled_Forfeited"
+* BR-ERR-01: Exception message chứa error code `[ERR_PROMO_XXX]`
+
+**Implementation:**
+* Interface: `BookingService.createBooking()`, `BookingService.cancelBooking()`
+* Repository: `RoomBookingRepository.countOverlappingBookings()`, `PromotionRepository.findByPromoCode()`
+
+---
+
+### 7.3. Chống Over-Booking (DB Inspection)
 Mô phỏng 2 threads gọi API `/api/bookings` cùng lúc:
 ```sql
 -- Kiểm tra DB sau khi chạy JMeter Stress Test
