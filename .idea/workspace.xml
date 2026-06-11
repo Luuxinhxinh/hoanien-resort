@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="5dd151a9-eb21-4ace-8bd9-34e5719ceac9" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/03_sourcecode/kawai-backend/src/main/resources/application.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/src/main/resources/templates/f&amp;bStaff/e-menu.html" beforeDir="false" afterPath="$PROJECT_DIR$/03_sourcecode/kawai-backend/src/main/resources/templates/f&amp;bStaff/e-menu.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/src/main/resources/templates/f&amp;bStaff/order-detail.html" beforeDir="false" afterPath="$PROJECT_DIR$/03_sourcecode/kawai-backend/src/main/resources/templates/f&amp;bStaff/order-detail.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/src/main/resources/templates/f&amp;bStaff/pos-dashboard.html" beforeDir="false" afterPath="$PROJECT_DIR$/03_sourcecode/kawai-backend/src/main/resources/templates/f&amp;bStaff/pos-dashboard.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/src/main/resources/templates/f&amp;bStaff/room-service-detail.html" beforeDir="false" afterPath="$PROJECT_DIR$/03_sourcecode/kawai-backend/src/main/resources/templates/f&amp;bStaff/room-service-detail.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/src/main/resources/templates/f&amp;bStaff/room-service-management.html" beforeDir="false" afterPath="$PROJECT_DIR$/03_sourcecode/kawai-backend/src/main/resources/templates/f&amp;bStaff/room-service-management.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/src/main/resources/templates/f&amp;bStaff/table-management.html" beforeDir="false" afterPath="$PROJECT_DIR$/03_sourcecode/kawai-backend/src/main/resources/templates/f&amp;bStaff/table-management.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/application.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/KawaiApplication.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/config/SecurityConfig.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/config/WebMvcConfig.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/controllers/web/AdminController.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/controllers/web/AuthController.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/controllers/web/BookingController.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/controllers/web/PosController.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/controllers/web/ProfileController.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/controllers/web/TourController.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/dto/BookingRequest.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/dto/LoginRequest.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/dto/OrderRequest.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/dto/RegisterRequest.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/dto/TourBookingRequest.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/exceptions/GlobalExceptionHandler.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/models/core/Account.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/models/core/AuditLog.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/models/core/Booking.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/models/core/ConsolidatedInvoice.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/models/core/Customer.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/models/core/DailyRate.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/models/core/Dependent.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/models/core/DynamicPricing.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/models/core/Employee.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/models/core/FolioItem.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/models/core/FoodOrder.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/models/core/FoodOrderDetail.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/models/core/HotelOperation.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/models/core/MenuItem.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/models/core/PaymentTransaction.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/models/core/Promotion.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/models/core/RestaurantTable.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/models/core/Review.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/models/core/Role.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/models/core/Room.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/models/core/RoomBooking.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/models/core/RoomBookingDetail.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/models/core/RoomCategory.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/models/core/TableReservation.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/models/core/Tour.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/models/core/TourAttendee.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/models/core/TourBooking.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/models/core/TourSchedule.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/models/core/TourStaffAssignment.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/models/modules/Booking.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/models/modules/BookingRoom.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/models/modules/DailyRate.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/models/modules/Folio.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/models/modules/FolioItem.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/models/modules/FoodItem.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/models/modules/FoodOrder.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/models/modules/FoodOrderDetail.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/models/modules/HousekeepingTask.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/models/modules/Invoice.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/models/modules/MaintenanceRequest.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/models/modules/MenuCategory.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/models/modules/Review.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/models/modules/Room.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/models/modules/RoomType.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/models/modules/TourAttendee.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/models/modules/TourBooking.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/models/modules/TourPackage.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/models/modules/TourSchedule.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/repositories/AccountRepository.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/repositories/AuditLogRepository.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/repositories/BookingRepository.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/repositories/BookingRoomRepository.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/repositories/CustomerRepository.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/repositories/DailyRateRepository.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/repositories/DependentRepository.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/repositories/FolioItemRepository.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/repositories/FolioRepository.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/repositories/FoodItemRepository.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/repositories/FoodOrderDetailRepository.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/repositories/FoodOrderRepository.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/repositories/HousekeepingTaskRepository.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/repositories/InvoiceRepository.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/repositories/MaintenanceRequestRepository.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/repositories/MenuCategoryRepository.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/repositories/ReviewRepository.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/repositories/RoleRepository.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/repositories/RoomRepository.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/repositories/RoomTypeRepository.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/repositories/TourAttendeeRepository.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/repositories/TourBookingRepository.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/repositories/TourPackageRepository.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/repositories/TourScheduleRepository.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/repositories/UserRoleRepository.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/security/JwtUtils.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/security/UserDetailsServiceImpl.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/services/impl/AuthServiceImpl.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/services/impl/BookingServiceImpl.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/services/impl/CustomerServiceImpl.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/services/impl/FolioServiceImpl.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/services/impl/HousekeepingServiceImpl.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/services/impl/KdsServiceImpl.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/services/impl/PosServiceImpl.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/services/impl/ReportServiceImpl.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/services/impl/RoomServiceImpl.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/services/impl/TourServiceImpl.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/services/impl/UserServiceImpl.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/services/interfaces/AuthService.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/services/interfaces/BookingService.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/services/interfaces/CustomerService.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/services/interfaces/FolioService.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/services/interfaces/HousekeepingService.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/services/interfaces/KdsService.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/services/interfaces/PosService.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/services/interfaces/ReportService.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/services/interfaces/RoomService.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/services/interfaces/TourService.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/services/interfaces/UserService.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/classes/com/kawai/utils/DateUtils.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/03_sourcecode/kawai-backend/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="CopilotChats">
+    <option name="panelChat">
+      <chat>
+        <option name="activeSessionId" value="d63230f0-c607-481e-bb05-7e60279ce1de" />
+        <option name="sessions">
+          <session>
+            <option name="chatType" value="PANEL" />
+            <option name="id" value="8ed98771-9f20-42a5-9e2a-92061efa738e" />
+            <option name="modeId" value="Ask" />
+            <option name="modelType" value="builtin_family" />
+            <option name="modelValue" value="auto" />
+            <option name="targetType" value="LOCAL" />
+          </session>
+          <session>
+            <option name="chatType" value="PANEL" />
+            <option name="id" value="d63230f0-c607-481e-bb05-7e60279ce1de" />
+            <option name="modeId" value="Agent" />
+            <option name="modelType" value="builtin_family" />
+            <option name="modelValue" value="auto" />
+            <option name="targetType" value="LOCAL" />
+          </session>
+        </option>
+        <option name="type" value="PANEL" />
+      </chat>
+    </option>
+  </component>
+  <component name="CopilotPersistence">
+    <persistenceIdMap>
+      <entry key="_D:/Ky 5_SU26/SWP391/su26-swp391-se2023-g2" value="3EuMyiUwrOVEkqqNHU2vMH1OCKw" />
+    </persistenceIdMap>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 4,
+  "fromUser": false
+}]]></component>
+  <component name="ProjectId" id="3EuMyiUwrOVEkqqNHU2vMH1OCKw" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "codeWithMe.voiceChat.enabledByDefault": "false",
+    "git-widget-placeholder": "feature/mod3-fnb-staff-templates",
+    "ignore.virus.scanning.warn.message": "true",
+    "kotlin-language-version-configured": "true",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "reference.idesettings.quicklists"
+  }
+}]]></component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-30f59d01ecdd-37e91769500f-intellij.indexing.shared.core-IU-261.24374.151" />
+        <option value="bundled-js-predefined-d6986cc7102b-31caf2ab9e3c-JavaScript-IU-261.24374.151" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="5dd151a9-eb21-4ace-8bd9-34e5719ceac9" name="Changes" comment="" />
+      <created>1781024261242</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1781024261242</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="github-copilot-workspace">
+    <instructionFileLocations>
+      <option value=".github/instructions" />
+    </instructionFileLocations>
+    <promptFileLocations>
+      <option value=".github/prompts" />
+    </promptFileLocations>
+  </component>
+</project>
