@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Wellbeing - Namia River Retreat Clone</title>
+    <title>Wellbeing - Kawaii River Retreat Clone</title>
 
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 
@@ -21,10 +21,10 @@
             theme: {
                 extend: {
                     colors: {
-                        'namia-bg': '#f4efea',
-                        'namia-text': '#2c2c2c',
-                        'namia-footer': '#3c3530',
-                        'namia-footer-text': '#e5dfd8'
+                        'kawaii-bg': '#f4efea',
+                        'kawaii-text': '#2c2c2c',
+                        'kawaii-footer': '#3c3530',
+                        'kawaii-footer-text': '#e5dfd8'
                     },
                     fontFamily: {
                         'serif': ['"Playfair Display"', 'serif'],
@@ -58,39 +58,45 @@
         .material-symbols-outlined {
             font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
         }
+    
+        /* Smooth tactile button feedback */
+        button:active, a.bg-kawaii-text:active, a.bg-namia-text:active, .btn-search:active, .btn-book:active {
+            transform: scale(0.97) translateY(0.5px);
+            transition: transform 0.1s ease;
+        }
+        button, a.bg-kawaii-text, .btn-search, .btn-book {
+            transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease, opacity 0.2s ease;
+        }
+        
     </style>
 </head>
 
 <body
-    class="bg-namia-bg text-namia-text font-sans antialiased overflow-x-hidden selection:bg-namia-text selection:text-namia-bg">
+    class="bg-kawaii-bg text-kawaii-text font-sans antialiased overflow-x-hidden selection:bg-kawaii-text selection:text-kawaii-bg">
 
-    <nav
-        class="fixed top-0 left-0 w-full z-50 bg-namia-bg/90 backdrop-blur-md border-b border-namia-text/10 transition-all duration-300">
+    <nav class="fixed top-0 left-0 w-full z-50 bg-kawaii-bg/90 backdrop-blur-md border-b border-kawaii-text/10 transition-all duration-300 font-sans">
         <div class="max-w-[1440px] mx-auto px-6 py-4 flex items-center justify-between">
-            <div
-                class="hidden lg:flex items-center gap-8 text-[11px] uppercase tracking-[0.2em] font-semibold text-namia-text/80">
-                <a href="namia_living_clone.html" class="hover:text-namia-text transition-colors">Living</a>
-                <a href="namia_wellbeing_clone.html"
-                    class="text-namia-text border-b border-namia-text pb-0.5">Wellbeing</a>
-                <a href="namia_dining_clone.html" class="hover:text-namia-text transition-colors">Dining</a>
-                <a href="namia_experiences_clone.html" class="hover:text-namia-text transition-colors">Experiences</a>
+            <div class="hidden lg:flex items-center gap-8 text-[11px] uppercase tracking-[0.2em] font-semibold text-kawaii-text/80">
+                <a href="/living" class="hover:text-kawaii-text active:scale-95 transition-all duration-200 transition-colors">Living</a>
+                <a href="/wellbeing" class="text-kawaii-text border-b border-kawaii-text pb-0.5">Wellbeing</a>
+                <a href="/dining" class="hover:text-kawaii-text active:scale-95 transition-all duration-200 transition-colors">Dining</a>
+                <a href="/experiences" class="hover:text-kawaii-text active:scale-95 transition-all duration-200 transition-colors">Experiences</a>
+                <a href="/tours" class="hover:text-kawaii-text active:scale-95 transition-all duration-200 transition-colors">Tours</a>
             </div>
 
-            <div
-                class="font-serif text-2xl md:text-3xl font-medium tracking-wide text-namia-text text-center flex-1 lg:flex-none">
-                NAMIA
-                <span class="block text-[10px] md:text-xs font-sans tracking-[0.3em] uppercase mt-1 opacity-70">River
-                    Retreat</span>
+            <div class="font-serif text-2xl md:text-3xl font-medium tracking-wide text-kawaii-text text-center flex-1 lg:flex-none cursor-pointer" onclick="window.location.href='/booking'">
+                KAWAII
+                <span class="block text-[10px] md:text-xs font-sans tracking-[0.3em] uppercase mt-1 opacity-70">River Retreat</span>
             </div>
 
             <div class="hidden lg:flex items-center gap-6 text-[11px] uppercase tracking-[0.2em] font-semibold">
-                <a href="#" class="hover:text-namia-text/70 transition-colors">Offers</a>
-                <div class="flex gap-2 text-namia-text/50">
-                    <button class="text-namia-text">EN</button> | <button
-                        class="hover:text-namia-text transition-colors">VI</button>
-                </div>
-                <a href="namia_booking_clone.html"
-                    class="bg-namia-text text-namia-bg px-6 py-3 hover:bg-namia-text/80 transition-colors inline-block text-center">
+                <!-- Profile / Logout if logged in -->
+                <a href="/profile" th:if="${isLoggedIn}" class="hover:text-kawaii-text active:scale-95 transition-all duration-200 transition-colors">Profile</a>
+                <form th:action="@{/auth/logout}" method="post" th:if="${isLoggedIn}" class="inline">
+                    <button type="submit" class="hover:text-kawaii-text active:scale-95 transition-all duration-200 transition-colors uppercase tracking-[0.2em] bg-transparent border-none p-0 cursor-pointer">Logout</button>
+                </form>
+
+                <a href="/booking" class="bg-kawaii-text text-kawaii-bg px-6 py-3 hover:bg-kawaii-text/80 active:scale-[0.98] active:translate-y-[0.5px] transition-all duration-200 transition-colors inline-block text-center border border-kawaii-text">
                     Book Now
                 </a>
             </div>
@@ -101,17 +107,16 @@
         </div>
     </nav>
 
-    <div class="fixed top-[70px] md:top-[85px] left-0 w-full z-40 bg-namia-bg/95 border-b border-namia-text/10">
-        <div
-            class="max-w-[1440px] mx-auto px-6 py-3 flex justify-center gap-8 md:gap-12 text-[10px] uppercase tracking-[0.15em] font-medium text-namia-text/60 overflow-x-auto">
-            <a href="#" class="text-namia-text whitespace-nowrap">Lumina Wellbeing & Spa</a>
-            <a href="#" class="hover:text-namia-text transition-colors whitespace-nowrap">Daily Wellness Journey</a>
-            <a href="#" class="hover:text-namia-text transition-colors whitespace-nowrap">Mindful Moments</a>
+    <div class="fixed top-[70px] md:top-[85px] left-0 w-full z-40 bg-kawaii-bg/95 border-b border-kawaii-text/10 font-sans">
+        <div class="max-w-[1440px] mx-auto px-6 py-3 flex justify-center gap-8 md:gap-12 text-[10px] uppercase tracking-[0.15em] font-medium text-kawaii-text/60 overflow-x-auto">
+            <a href="#lumina" class="hover:text-kawaii-text active:scale-95 transition-all duration-200 transition-colors whitespace-nowrap">Lumina Wellbeing & Spa</a>
+            <a href="#wellness-journey" class="hover:text-kawaii-text active:scale-95 transition-all duration-200 transition-colors whitespace-nowrap">Daily Wellness Journey</a>
+            <a href="#mindful-moments" class="hover:text-kawaii-text active:scale-95 transition-all duration-200 transition-colors whitespace-nowrap">Mindful Moments</a>
         </div>
     </div>
 
     <header class="relative w-full h-[70vh] md:h-[85vh] mt-[110px] md:mt-[130px] flex items-end">
-        <div class="absolute inset-0 bg-namia-text">
+        <div class="absolute inset-0 bg-kawaii-text">
             <img src="https://images.unsplash.com/photo-1544161515-4ab6ce6db874?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80"
                 alt="Spa Wellness" class="w-full h-full object-cover opacity-60 mix-blend-overlay grayscale-[20%]" />
             <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
@@ -119,11 +124,11 @@
 
         <div class="relative z-10 w-full max-w-[1440px] mx-auto px-6 pb-16 md:pb-24">
             <div class="max-w-2xl text-white">
-                <p class="text-[10px] md:text-xs uppercase tracking-[0.2em] mb-4 opacity-80 font-medium">Namia River
+                <p class="text-[10px] md:text-xs uppercase tracking-[0.2em] mb-4 opacity-80 font-medium">Kawaii River
                     Retreat</p>
                 <h1 class="font-serif text-5xl md:text-7xl lg:text-8xl mb-6 font-medium">Wellbeing</h1>
                 <p class="text-sm md:text-base leading-relaxed opacity-90 max-w-lg font-light">
-                    A space to transform. An experience to inspire. Wellbeing at Namia bridges ancient Vietnamese
+                    A space to transform. An experience to inspire. Wellbeing at Kawaii bridges ancient Vietnamese
                     herbology wisdom with modern restorative practices.
                 </p>
             </div>
@@ -132,13 +137,13 @@
 
     <main class="w-full">
         <!-- Lumina Wellbeing & Spa Intro -->
-        <section
+        <section id="lumina"
             class="max-w-[1440px] mx-auto px-6 py-20 md:py-32 flex flex-col md:flex-row gap-12 items-start justify-between">
             <div class="w-full md:w-1/2">
                 <p class="text-[10px] uppercase tracking-[0.2em] mb-4 opacity-80 font-medium">Awaken A Sense Of</p>
                 <h2 class="font-serif text-3xl md:text-5xl mb-6">Lumina Wellbeing & Spa</h2>
             </div>
-            <div class="w-full md:w-1/2 text-namia-text/80 leading-loose text-sm md:text-base font-light">
+            <div class="w-full md:w-1/2 text-kawaii-text/80 leading-loose text-sm md:text-base font-light">
                 <p>
                     Embark on a wellness journey crafted to reconnect you with your inner peace. Our treatments draw on
                     indigenous botanicals and holistic traditions to restore balance to your body, mind, and spirit.
@@ -147,7 +152,7 @@
         </section>
 
         <!-- 3-Column Grid Pathway -->
-        <div class="max-w-[1440px] mx-auto px-6 pb-section-y">
+        <div id="wellness-journey" class="max-w-[1440px] mx-auto px-6 pb-section-y">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
                 <!-- Deep Rest -->
                 <div class="flex flex-col">
@@ -189,22 +194,22 @@
         </div>
 
         <!-- Treatments Section -->
-        <section
+        <section id="mindful-moments"
             class="max-w-[1440px] mx-auto px-6 pb-section-y flex flex-col lg:flex-row gap-12 md:gap-20 items-center">
             <div class="w-full lg:w-[50%] flex flex-col items-start">
                 <h2 class="font-serif text-3xl md:text-5xl mb-6">Treatments</h2>
-                <p class="text-namia-text/70 mb-10 font-light leading-relaxed text-sm md:text-base">
+                <p class="text-kawaii-text/70 mb-10 font-light leading-relaxed text-sm md:text-base">
                     Discover a diverse menu of therapies ranging from Vietnamese traditional massages to advanced facial
                     treatments. Each session begins with a personalized consultation to ensure the experience meets your
                     exact wellness goals.
                 </p>
                 <div class="flex gap-4 w-full sm:w-auto">
                     <button
-                        class="flex-1 sm:flex-none border border-namia-text text-namia-text px-8 py-3.5 text-[11px] uppercase tracking-[0.15em] hover:bg-namia-text hover:text-namia-bg transition-colors">
+                        class="flex-1 sm:flex-none border border-kawaii-text text-kawaii-text px-8 py-3.5 text-[11px] uppercase tracking-[0.15em] hover:bg-kawaii-text hover:text-kawaii-bg transition-colors">
                         Spa Menu
                     </button>
                     <button
-                        class="flex-1 sm:flex-none bg-namia-text text-namia-bg px-8 py-3.5 text-[11px] uppercase tracking-[0.15em] hover:bg-namia-text/80 transition-colors">
+                        class="flex-1 sm:flex-none bg-kawaii-text text-kawaii-bg px-8 py-3.5 text-[11px] uppercase tracking-[0.15em] hover:bg-kawaii-text/80 active:scale-[0.98] active:translate-y-[0.5px] transition-all duration-200 transition-colors">
                         Spa Booking
                     </button>
                 </div>
@@ -217,17 +222,17 @@
 
     </main>
 
-    <footer class="bg-namia-footer text-namia-footer-text py-20 px-6">
+    <footer class="bg-kawaii-footer text-kawaii-footer-text py-20 px-6">
         <div class="max-w-[1440px] mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 md:gap-8">
             <div
-                class="lg:col-span-4 h-[250px] bg-namia-bg/10 grayscale opacity-80 hover:opacity-100 transition-opacity">
-                <div class="w-full h-full flex items-center justify-center border border-namia-footer-text/20">
+                class="lg:col-span-4 h-[250px] bg-kawaii-bg/10 grayscale opacity-80 hover:opacity-100 transition-opacity">
+                <div class="w-full h-full flex items-center justify-center border border-kawaii-footer-text/20">
                     <span class="text-sm tracking-widest uppercase opacity-50">Map Area</span>
                 </div>
             </div>
 
             <div class="lg:col-span-4 flex flex-col items-center justify-center text-center">
-                <div class="font-serif text-4xl mb-4 text-white">NAMIA</div>
+                <div class="font-serif text-4xl mb-4 text-white">KAWAII</div>
                 <div class="text-[10px] tracking-[0.3em] uppercase opacity-70 mb-8">River Retreat</div>
                 <p class="text-sm font-light opacity-60 max-w-xs">An exquisite escape where the river meets the soul.
                 </p>
@@ -236,27 +241,26 @@
             <div class="lg:col-span-4 grid grid-cols-2 gap-8 text-[11px] uppercase tracking-[0.15em]">
                 <div class="flex flex-col gap-4">
                     <h4 class="text-white font-semibold mb-2 tracking-[0.2em]">Explore</h4>
-                    <a href="namia_living_clone.html"
-                        class="opacity-70 hover:opacity-100 hover:text-white transition-colors">Living</a>
-                    <a href="namia_wellbeing_clone.html"
-                        class="opacity-70 hover:opacity-100 hover:text-white transition-colors">Wellbeing</a>
-                    <a href="namia_dining_clone.html"
-                        class="opacity-70 hover:opacity-100 hover:text-white transition-colors">Dining</a>
-                    <a href="namia_experiences_clone.html"
-                        class="opacity-70 hover:opacity-100 hover:text-white transition-colors">Experiences</a>
-                    <a href="#" class="opacity-70 hover:opacity-100 hover:text-white transition-colors mt-4">Offers</a>
+                    <a href="/living"
+                        class="opacity-70 hover:opacity-100 hover:text-white active:scale-95 transition-all duration-200 transition-colors">Living</a>
+                    <a href="/wellbeing"
+                        class="opacity-70 hover:opacity-100 hover:text-white active:scale-95 transition-all duration-200 transition-colors">Wellbeing</a>
+                    <a href="/dining"
+                        class="opacity-70 hover:opacity-100 hover:text-white active:scale-95 transition-all duration-200 transition-colors">Dining</a>
+                    <a href="/experiences"
+                        class="opacity-70 hover:opacity-100 hover:text-white active:scale-95 transition-all duration-200 transition-colors">Experiences</a>
                 </div>
                 <div class="flex flex-col gap-4">
                     <h4 class="text-white font-semibold mb-2 tracking-[0.2em]">Connect</h4>
-                    <a href="#" class="opacity-70 hover:opacity-100 hover:text-white transition-colors">About Us</a>
-                    <a href="#" class="opacity-70 hover:opacity-100 hover:text-white transition-colors">Gallery</a>
-                    <a href="#" class="opacity-70 hover:opacity-100 hover:text-white transition-colors">Contact</a>
+                    <a href="#" class="opacity-70 hover:opacity-100 hover:text-white active:scale-95 transition-all duration-200 transition-colors">About Us</a>
+                    <a href="#" class="opacity-70 hover:opacity-100 hover:text-white active:scale-95 transition-all duration-200 transition-colors">Gallery</a>
+                    <a href="#" class="opacity-70 hover:opacity-100 hover:text-white active:scale-95 transition-all duration-200 transition-colors">Contact</a>
 
                     <h4 class="text-white font-semibold mt-6 mb-2 tracking-[0.2em]">Follow Us</h4>
                     <div class="flex gap-4">
-                        <a href="#" class="opacity-70 hover:opacity-100 hover:text-white transition-colors"><span
+                        <a href="#" class="opacity-70 hover:opacity-100 hover:text-white active:scale-95 transition-all duration-200 transition-colors"><span
                                 class="material-symbols-outlined text-[18px]">public</span></a>
-                        <a href="#" class="opacity-70 hover:opacity-100 hover:text-white transition-colors"><span
+                        <a href="#" class="opacity-70 hover:opacity-100 hover:text-white active:scale-95 transition-all duration-200 transition-colors"><span
                                 class="material-symbols-outlined text-[18px]">photo_camera</span></a>
                     </div>
                 </div>
@@ -264,11 +268,11 @@
         </div>
 
         <div
-            class="max-w-[1440px] mx-auto mt-16 pt-8 border-t border-namia-footer-text/10 text-center text-[10px] uppercase tracking-[0.15em] opacity-50 flex flex-col md:flex-row justify-between gap-4">
-            <p>&copy; 2026 Namia River Retreat. All Rights Reserved.</p>
+            class="max-w-[1440px] mx-auto mt-16 pt-8 border-t border-kawaii-footer-text/10 text-center text-[10px] uppercase tracking-[0.15em] opacity-50 flex flex-col md:flex-row justify-between gap-4">
+            <p>&copy; 2026 Kawaii River Retreat. All Rights Reserved.</p>
             <div class="flex justify-center gap-6">
-                <a href="#" class="hover:text-white transition-colors">Privacy Policy</a>
-                <a href="#" class="hover:text-white transition-colors">Terms of Use</a>
+                <a href="#" class="hover:text-white active:scale-95 transition-all duration-200 transition-colors">Privacy Policy</a>
+                <a href="#" class="hover:text-white active:scale-95 transition-all duration-200 transition-colors">Terms of Use</a>
             </div>
         </div>
     </footer>

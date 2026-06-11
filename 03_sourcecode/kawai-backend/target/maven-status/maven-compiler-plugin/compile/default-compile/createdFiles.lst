@@ -22,10 +22,10 @@ com\kawai\repositories\DependentRepository.class
 com\kawai\services\interfaces\FolioService.class
 com\kawai\repositories\MenuCategoryRepository.class
 com\kawai\repositories\RoomTypeRepository.class
+com\kawai\controllers\web\BookingController$BookingRoom.class
 com\kawai\services\impl\BookingServiceImpl.class
 com\kawai\security\JwtUtils.class
 com\kawai\services\interfaces\UserService.class
-com\kawai\controllers\web\AdminController.class
 com\kawai\services\impl\CustomerServiceImpl.class
 com\kawai\repositories\TourPackageRepository.class
 com\kawai\controllers\web\ProfileController.class
@@ -72,7 +72,6 @@ com\kawai\repositories\UserRoleRepository.class
 com\kawai\dto\TourBookingRequest.class
 com\kawai\repositories\RoomRepository.class
 com\kawai\config\SecurityConfig.class
-com\kawai\controllers\web\PosController.class
 com\kawai\models\TourStaffAssignment.class
 com\kawai\services\interfaces\ReportService.class
 com\kawai\models\Tour.class
@@ -85,6 +84,7 @@ com\kawai\utils\DateUtils.class
 com\kawai\repositories\TourAttendeeRepository.class
 com\kawai\services\impl\UserServiceImpl.class
 com\kawai\models\RestaurantTable.class
+com\kawai\services\impl\WeatherApiClientImpl.class
 com\kawai\repositories\AccountRepository.class
 com\kawai\repositories\FolioItemRepository.class
 com\kawai\services\impl\KdsServiceImpl.class
