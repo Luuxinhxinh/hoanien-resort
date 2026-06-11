@@ -1,0 +1,240 @@
+﻿<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Table Management — F&amp;B Staff | Kawai Resort</title>
+  <meta name="description" content="Màn hình Table Management cho nhân viên F&amp;B — Kawai Retreat Resort &amp; Hub" />
+
+  <!-- Google Fonts: Playfair Display + Montserrat -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Material Symbols -->
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet" />
+
+  <!-- Base CSS (Shared) -->
+  <link rel="stylesheet" th:href="@{/f&amp;bStaff/css/pos-dashboard.css}" href="../../statics/f&bStaff/css/pos-dashboard.css" />
+  <!-- Table Management specific CSS -->
+  <link rel="stylesheet" th:href="@{/f&amp;bStaff/css/table-management.css}" href="../../statics/f&bStaff/css/table-management.css" />
+</head>
+
+<body>
+
+  <!-- ============================================================
+       SIDEBAR
+       ============================================================ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="brand-name">KAWAI</div>
+      <div class="brand-sub">Resort &amp; Tour Hub</div>
+      <div class="staff-badge">
+        <span class="material-symbols-outlined" style="font-size:0.7rem;">restaurant</span> F&amp;B Staff
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Vận hành</div>
+
+      <a href="/fbStaff/dashboard" th:href="@{/fbStaff/dashboard}" class="nav-item">
+        <span class="material-symbols-outlined">dashboard</span>
+        <span>POS Dashboard</span>
+      </a>
+      <a href="/fbStaff/create-food-order" class="nav-item">
+        <span class="material-symbols-outlined">add_circle</span>
+        <span>Tạo đơn mới</span>
+      </a>
+      <a href="/fbStaff/table-management" th:href="@{/fbStaff/table-management}" class="nav-item active">
+        <span class="material-symbols-outlined">table_restaurant</span>
+        <span>Table Management</span>
+      </a>
+      <a href="/fbStaff/room-service" th:href="@{/fbStaff/room-service}" class="nav-item">
+        <span class="material-symbols-outlined">room_service</span>
+        <span>Room Service</span>
+      </a>
+      <a href="/fbStaff/emenu" th:href="@{/fbStaff/emenu}" class="nav-item">
+        <span class="material-symbols-outlined">menu_book</span>
+        <span>E-Menu</span>
+      </a>
+
+      <div class="nav-section-label">Tài chính</div>
+
+      <a href="/fbStaff/shift-report" th:href="@{/fbStaff/shift-report}" class="nav-item">
+        <span class="material-symbols-outlined">bar_chart</span>
+        <span>Báo cáo ngày</span>
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="staff-profile">
+        <div class="staff-avatar">TP</div>
+        <div>
+          <div class="staff-name" th:text="${staffName != null ? staffName : 'Trần Phương'}">Trần Phương</div>
+          <div class="staff-role">F&amp;B POS · Ca Sáng</div>
+        </div>
+        <button class="logout-btn" title="Đăng xuất" onclick="location.href='/auth/logout'">
+          <span class="material-symbols-outlined" style="font-size:1.05rem;">logout</span>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ============================================================
+       MAIN CONTENT
+       ============================================================ -->
+  <div class="main-content">
+
+    <!-- Top Header -->
+    <header class="topbar">
+      <div>
+        <div class="topbar-title">Table Management</div>
+        <div class="topbar-subtitle">Sơ đồ bàn nhà hàng · Trạng thái &amp; Đặt chỗ</div>
+      </div>
+      <div class="topbar-right">
+        <div style="position:relative;">
+          <div class="topbar-clock" id="live-clock">--:--:--</div>
+          <div class="topbar-date" id="live-date" style="position:absolute;top:calc(100% + 3px);left:0;right:0;text-align:center;white-space:nowrap;"></div>
+        </div>
+        <div class="icon-btn" title="Làm mới trang" onclick="location.reload()">
+          <span class="material-symbols-outlined">refresh</span>
+        </div>
+        <button class="btn btn-primary" id="btn-quick-dine-in" style="height:34px;padding:0 14px;">
+          <span class="material-symbols-outlined">add</span>
+          Đặt bàn mới
+        </button>
+      </div>
+    </header>
+
+    <!-- Table Management Body -->
+    <div class="dashboard-body tm-body">
+
+      <!-- Legend + Stats Bar -->
+      <div class="tm-stats-bar">
+        <div class="tm-stat-chip vacant-chip">
+          <span class="tm-chip-dot"></span>
+          <span class="tm-chip-label">Trống</span>
+          <span class="tm-chip-count" id="tm-count-vacant">0</span>
+        </div>
+        <div class="tm-stat-chip reserved-chip">
+          <span class="tm-chip-dot"></span>
+          <span class="tm-chip-label">Đã đặt</span>
+          <span class="tm-chip-count" id="tm-count-reserved">0</span>
+        </div>
+        <div class="tm-stat-chip serving-chip">
+          <span class="tm-chip-dot"></span>
+          <span class="tm-chip-label">Đang phục vụ</span>
+          <span class="tm-chip-count" id="tm-count-serving">0</span>
+        </div>
+
+        <div class="tm-stat-divider"></div>
+        <div class="tm-total-label">Tổng: <strong id="tm-total">20</strong> bàn</div>
+      </div>
+
+
+
+      <!-- Table Floor Plan -->
+      <div class="tm-floor-plan">
+
+        <!-- All Tables Floor Plan -->
+        <div class="tm-zone" style="padding-top: 10px;">
+          <div class="tm-table-grid">
+            <div class="tm-table" th:each="table : ${tables}"
+                 th:attr="data-table=${#strings.replace(table.tableNumber, 'T', '')}, 
+                          data-status=${table.tableStatus == 'Occupied' ? 'serving' : (table.tableStatus == 'Reserved' ? 'reserved' : 'vacant')}, 
+                          data-capacity=${table.capacity}">
+              <div class="tm-table-inner">
+                <div class="tm-table-num" th:text="${#strings.replace(table.tableNumber, 'T', '')}">01</div>
+                <div class="tm-table-cap">
+                  <span class="material-symbols-outlined">person</span>
+                  <span th:text="${table.capacity}">4</span>
+                </div>
+                <div class="tm-table-status-label" th:text="${table.tableStatus == 'Vacant' ? 'Trống' : (table.tableStatus == 'Occupied' ? 'Đang phục vụ' : (table.tableStatus == 'Reserved' ? 'Đã đặt' : table.tableStatus))}">Trống</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- / tm-floor-plan -->
+
+    </div><!-- / tm-body -->
+  </div><!-- / main-content -->
+
+
+  <!-- ============================================================
+       MODAL — Đặt bàn Dine-In (Table Management)
+       ============================================================ -->
+  <div class="modal-overlay" id="dineInModal">
+    <div class="modal" style="max-width:500px;">
+      <div class="modal-header">
+        <span class="material-symbols-outlined" style="color:var(--status-served-text);font-variation-settings:'FILL' 1,'wght' 500,'GRAD' 0,'opsz' 24;font-size:1.05rem;">chair</span>
+        <span class="modal-title">Tạo Đơn Dine-In</span>
+        <span class="modal-title-sub" id="dineIn-table-badge" style="font-size:0.70rem;font-weight:600;background:var(--status-served-bg);color:var(--status-served-text);border:1px solid var(--status-served-ring);padding:2px 10px;border-radius:20px;"></span>
+        <button class="modal-close" id="dineIn-close">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <form class="modal-body" id="dineInForm" onsubmit="return false;">
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:11px;">
+          <div class="form-group">
+            <label class="form-label" for="dineIn-customer">Tên khách hàng <span style="color:#b03232;">*</span></label>
+            <input type="text" class="form-input" id="dineIn-customer" placeholder="Nhập tên khách hàng" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="dineIn-table-num">Số bàn</label>
+            <input type="text" class="form-input" id="dineIn-table-num" readonly style="background:var(--bg-base);cursor:not-allowed;opacity:0.7;" />
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:11px;">
+          <div class="form-group">
+            <label class="form-label" for="dineIn-pax">Số lượng người <span style="color:#b03232;">*</span></label>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <button type="button" onclick="changePax(-1)" style="width:32px;height:32px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-secondary);cursor:pointer;font-size:1rem;font-weight:700;display:flex;align-items:center;justify-content:center;transition:var(--transition);" onmouseover="this.style.borderColor='var(--border-active)'" onmouseout="this.style.borderColor='var(--border)'">−</button>
+              <input type="number" class="form-input" id="dineIn-pax" value="2" min="1" max="20" style="text-align:center;font-weight:700;font-size:1rem;" />
+              <button type="button" onclick="changePax(1)" style="width:32px;height:32px;background:var(--namia-text);border:1px solid var(--namia-text);border-radius:var(--radius-sm);color:#fff;cursor:pointer;font-size:1rem;font-weight:700;display:flex;align-items:center;justify-content:center;">+</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="dineIn-note">Ghi chú</label>
+          <textarea class="form-input" id="dineIn-note" rows="2" placeholder="Ví dụ: Sinh nhật khách, dị ứng hải sản, cần ghế cao cho trẻ em..." style="resize:vertical;min-height:58px;"></textarea>
+        </div>
+
+        <!-- Table Info Preview -->
+        <div id="dineIn-table-info" style="background:var(--bg-base);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 14px;display:flex;gap:14px;align-items:center;">
+          <div style="width:44px;height:44px;border-radius:var(--radius-md);background:var(--status-serving-bg,rgba(30,120,70,0.10));border:2px solid var(--status-ready-ring);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <span class="material-symbols-outlined" style="font-size:1.3rem;color:var(--status-ready-text);font-variation-settings:'FILL' 1,'wght' 500,'GRAD' 0,'opsz' 24;">table_restaurant</span>
+          </div>
+          <div style="flex:1;">
+            <div style="font-size:0.80rem;font-weight:700;color:var(--text-primary);" id="dineIn-preview-name">Bàn —</div>
+            <div style="font-size:0.68rem;color:var(--text-muted);margin-top:2px;" id="dineIn-preview-detail">Sức chứa: —</div>
+          </div>
+          <span class="order-status-chip chip-ready" style="font-size:0.60rem;"><span class="dot"></span>Trống</span>
+        </div>
+
+      </form>
+
+      <div class="modal-footer">
+        <button class="btn btn-outline" id="dineIn-cancel-btn">Hủy</button>
+        <button class="btn btn-primary" id="dineIn-submit-btn">
+          <span class="material-symbols-outlined">chair</span>Xác nhận Dine-In
+        </button>
+      </div>
+    </div>
+  </div>
+  <!-- / Modal dineIn -->
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Shared POS JS -->
+  <script th:src="@{/f&amp;bStaff/js/pos-dashboard.js}" src="../../statics/f&bStaff/js/pos-dashboard.js"></script>
+  <!-- Table Management specific JS -->
+  <script th:src="@{/f&amp;bStaff/js/table-management.js}" src="../../statics/f&bStaff/js/table-management.js"></script>
+
+</body>
+</html>
+
