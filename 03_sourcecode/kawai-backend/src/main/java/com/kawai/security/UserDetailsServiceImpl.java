@@ -1,6 +1,6 @@
 package com.kawai.security;
 
-import com.kawai.models.core.Account;
+import com.kawai.models.Account;
 import com.kawai.repositories.AccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;

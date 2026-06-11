@@ -1,8 +1,8 @@
 package com.kawai.controllers.web;
 
-import com.kawai.models.core.Account;
-import com.kawai.models.core.Customer;
-import com.kawai.models.core.Role;
+import com.kawai.models.Account;
+import com.kawai.models.Customer;
+import com.kawai.models.Role;
 import com.kawai.repositories.AccountRepository;
 import com.kawai.repositories.CustomerRepository;
 import com.kawai.repositories.RoleRepository;
@@ -38,12 +38,12 @@ public class AuthController {
                            RedirectAttributes redirectAttributes) {
         
         if (accountRepository.existsByUsername(username)) {
-            redirectAttributes.addFlashAttribute("error", "Tên đăng nhập đã tồn tại!");
+            redirectAttributes.addFlashAttribute("error", "TÃªn Ä‘Äƒng nháº­p Ä‘Ã£ tá»“n táº¡i!");
             return "redirect:/booking";
         }
 
         if (customerRepository.existsByEmail(email)) {
-            redirectAttributes.addFlashAttribute("error", "Email đã tồn tại!");
+            redirectAttributes.addFlashAttribute("error", "Email Ä‘Ã£ tá»“n táº¡i!");
             return "redirect:/booking";
         }
 
@@ -70,7 +70,7 @@ public class AuthController {
         customer.setPhone(phone);
         customerRepository.save(customer);
 
-        redirectAttributes.addFlashAttribute("success", "Đăng ký thành công! Vui lòng đăng nhập.");
+        redirectAttributes.addFlashAttribute("success", "ÄÄƒng kÃ½ thÃ nh cÃ´ng! Vui lÃ²ng Ä‘Äƒng nháº­p.");
         return "redirect:/booking";
     }
 }

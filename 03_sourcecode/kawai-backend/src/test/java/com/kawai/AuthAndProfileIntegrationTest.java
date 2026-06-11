@@ -1,8 +1,8 @@
 package com.kawai;
 
-import com.kawai.models.core.Account;
-import com.kawai.models.core.Customer;
-import com.kawai.models.core.Role;
+import com.kawai.models.Account;
+import com.kawai.models.Customer;
+import com.kawai.models.Role;
 import com.kawai.repositories.AccountRepository;
 import com.kawai.repositories.CustomerRepository;
 import com.kawai.repositories.RoleRepository;
