@@ -1,5 +1,11 @@
 # BẢNG QUY TẮC KINH DOANH & PHÂN QUYỀN — KAWAI RESORT
 
+## CHANGELOG
+| Ngày | Người thực hiện | Nội dung thay đổi |
+|---|---|---|
+| 2026-06-11 | Antigravity | Xác nhận và đồng bộ các Business Rules với luồng phát triển Hybrid Organization |
+| 2026-06-09 | Antigravity | Khởi tạo bảng Quy tắc kinh doanh & Phân quyền |
+
 ---
 
 ## 1. Bộ Mã Quy Tắc Hệ Thống (System Prefix)

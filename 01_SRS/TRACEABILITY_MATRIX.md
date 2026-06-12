@@ -1,4 +1,10 @@
 # BẢNG TRUY VẾT YÊU CẦU — KAWAI RESORT (TRACEABILITY MATRIX)
+
+## CHANGELOG
+| Ngày | Người thực hiện | Nội dung thay đổi |
+|---|---|---|
+| 2026-06-11 | Antigravity | Xác nhận và đồng bộ ma trận truy vết với luồng phát triển Hybrid Organization |
+| 2026-06-09 | Antigravity | Khởi tạo ma trận truy vết yêu cầu phần mềm |
 > Ánh xạ: `UC ID` → `Class/Method` → `TC ID` → `BR ID`
 > - UC ID lấy từ `01_SRS/UC_MASTER_TABLE.md`
 > - TC ID lấy từ `04_testing/TC_MASTER_TABLE.md`

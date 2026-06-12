@@ -49,6 +49,31 @@ public class RoomServiceImpl implements RoomService {
         List<RoomSearchResponseDTO> available = new ArrayList<>();
 
         for (Room room : allRooms) {
+            // Filter out rooms under maintenance
+            String status = room.getRoomStatus();
+            if ("Maintenance".equalsIgnoreCase(status) || "OutOfService".equalsIgnoreCase(status)) {
+                continue;
+            }
+
+            RoomCategory cat = room.getCategory();
+            if (cat != null) {
+                if (request.getCategoryName() != null && !request.getCategoryName().trim().isEmpty()) {
+                    if (!cat.getCategoryName().equalsIgnoreCase(request.getCategoryName().trim())) {
+                        continue;
+                    }
+                }
+                if (request.getMinCapacity() != null) {
+                    if (cat.getCapacity() < request.getMinCapacity()) {
+                        continue;
+                    }
+                }
+                if (request.getMaxPricePerNight() != null) {
+                    if (cat.getBasePrice().compareTo(request.getMaxPricePerNight()) > 0) {
+                        continue;
+                    }
+                }
+            }
+
             if (isRoomAvailable(room.getRoomNumber(), checkIn, checkOut)) {
                 available.add(toSearchResult(room, checkIn, checkOut));
             }

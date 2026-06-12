@@ -1,156 +1,138 @@
-# KAWAI RESORT - SỔ TAY QUY TRÌNH LÀM VIỆC NHÓM (TEAM WORKFLOW GUIDE)
 
-## 1. PHÂN CÔNG VAI TRÒ & GIỚI HẠN VÙNG CODE (CODE BOUNDARIES)
+# KAWAI RESORT - SỔ TAY QUY TRÌNH LÀM VIỆC NHÓM TÍCH HỢP AI (AI-HUMAN COLLABORATIVE WORKFLOW)
 
-Dự án được chia thành 5 Module độc lập. **Nguyên tắc sống còn:** Việc ai nấy làm, code ai nấy sửa. Tuyệt đối không sửa code thuộc vùng của người khác nếu chưa được sự đồng ý.
+Tài liệu này định nghĩa quy trình phối hợp chặt chẽ giữa **Lập trình viên (Developer)**, **Trợ lý AI (Antigravity)**, và **Trưởng nhóm kỹ thuật (Tech Lead)** nhằm đảm bảo tốc độ phát triển nhanh, chất lượng code cao và Tech Lead dễ dàng giám sát tiến độ thực tế.
 
-### 🚫 Quy tắc giới hạn khu vực chỉnh sửa:
+---
+
+## 1. PHÂN CHIA VAI TRÒ & QUYỀN HẠN (RESPONSIBILITY & VERIFICATION MATRIX)
+
+Để tối đa hóa hiệu suất, các tác vụ được phân bổ rõ ràng giữa AI, Người và Tech Lead:
+
+| Giai đoạn / Tác vụ                                         | 👩‍💻 Người làm (Developer)                                 | 🤖 AI làm (Antigravity)                                                                                                                                                                                      | 👑 Tech Lead duyệt (Reviewer)                                                                              |
+| :------------------------------------------------------------- | :-------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | :---------------------------------------------------------------------------------------------------------- |
+| **1. Khởi tạo & Lên kế hoạch**                      | - Chọn Use Case cần làm từ `UC_MASTER_TABLE`.             | - Kiểm tra chéo quy tắc nghiệp vụ trong `BR_ACTOR_ROLE_TABLE`.                                                                                                                                         | - Giám sát trạng thái thông qua `TRACEABILITY_MATRIX`.                                               |
+| **2. Viết Test (Pha Đỏ 🔴)**                          | - Ra lệnh cho AI tạo test và chạy thử lệnh test.          | -**Tự động viết file JUnit Test**.`<br>`- Chạy thử test lỗi.`<br>`- **Tự động tick `🔴 RED`** vào `MASTER_TDD_SPEC.md`.                                                        | - (Không cần duyệt bước này, hệ thống tự động lưu vết).                                        |
+| **3. Viết Code (Pha Xanh 🟢)**                          | - Nhận xét, tinh chỉnh logic nghiệp vụ phức tạp của AI. | -**Tự động sinh code nghiệp vụ** đúng chuẩn.`<br>`- Chạy `mvn test` xác minh pass 100%.`<br>`- **Tự động tick `🟢 GREEN`** + điền commit hash vào `MASTER_TDD_SPEC.md`. | - (Xem báo cáo xanh của AI trên GitHub PR).                                                             |
+| **4. Tối ưu & Viết tài liệu (Pha Xanh Dương 🔵)** | - Yêu cầu AI tối ưu hóa những phần chưa ưng ý.        | -**Tự động Refactor** theo Clean Code.`<br>`- **Tự động cập nhật API** sang `MASTER_EDS_SPEC.md`.                                                                                     | - Đọc và kiểm tra chéo các API Contract trong `MASTER_EDS_SPEC.md`.                                 |
+| **5. Commit & Tạo Pull Request**                        | - Chạy git commit, push nhánh và tạo PR trên GitHub.       | - Kiểm tra lỗi bảo mật PII, kiểm tra syntax và check boundaries trước khi commit.                                                                                                                     | -**Kiểm tra & Merge PR** vào nhánh `dev` sau khi xác nhận các test case đều đã PASS xanh. |
+
+---
+
+## 2. GIỚI HẠN VÙNG CODE (CODE BOUNDARIES)
+
+**Nguyên tắc sống còn:** Việc ai nấy làm, code ai nấy sửa.
+
 1. **Thư mục Code Chính (`src/main/java/com/kawai/...`)**:
-   - Mỗi người chỉ được phép thêm/sửa/xóa các file (Service, Controller, Repository) nằm trong package tương ứng với Module của mình.
-   - **CẤM:** Tự ý sửa code trong package `models` (Entity). Các Entity ánh xạ trực tiếp với cấu trúc Database, thay đổi tùy tiện sẽ làm hỏng Database Schema của toàn dự án. Nếu cần thêm trường/sửa bảng, phải bàn bạc với Nhóm trưởng để update file DB Schema trước.
-   - **CẤM:** Tự ý sửa các file cấu hình chung (`application.yml`, `pom.xml`, `SecurityConfig`, `KawaiApplication.java`, thư mục `config`). Nếu cần thêm thư viện hoặc đổi cấu hình, phải nhờ Nhóm trưởng thực hiện.
-2. **File Tài Liệu Chung (`01_SRS`, `04_testing`, DB Schema)**:
-   - Các bảng tổng hợp (`UC_MASTER_TABLE`, `BR_ACTOR_ROLE_TABLE`): Chỉ xem, không tự ý thay đổi quy tắc hệ thống đã chốt.
-   - Các bảng tiến độ (`TRACEABILITY_MATRIX`, `TC_MASTER_TABLE`, `MASTER_TDD/EDS`): **Chỉ được điền thông tin vào hàng/khu vực tương ứng với Module của mình**. Cấm sửa/xóa dòng của người khác.
-
-### 👥 Phân công & Vùng hoạt động cụ thể:
-* **Lưu (Module 1):** Xác thực, Quản lý PII, RBAC. (Vùng code: `com.kawai.auth`, `com.kawai.profile`, `com.kawai.core`)
-* **Dũng (Module 2):** Đặt phòng, Tiền sảnh, Room Matrix. (Vùng code: `com.kawai.booking`, `com.kawai.frontdesk`)
-* **Đức (Module 3):** POS Nhà hàng, KDS, Post to Room. (Vùng code: `com.kawai.pos`, `com.kawai.fb`)
-* **Em Ngọc (Module 4):** Đặt Tour lữ hành, AI Face Scan, Đánh giá. (Vùng code: `com.kawai.tour`, `com.kawai.feedback`, AI Python Service)
-* **Em Lan (Module 5):** Hóa đơn (Folio), Kiểm toán đêm, Báo cáo. (Vùng code: `com.kawai.finance`, `com.kawai.report`)
-* **Liuxinhxinh (Tech Lead):** Nắm toàn quyền hệ thống. Quản lý thư mục `config`, file `pom.xml`### Bước 0: 📋 Xác định phạm vi (Trước khi code)
-
-Trước tiên, mở file `01_SRS/UC_MASTER_TABLE.md` và `01_SRS/TRACEABILITY_MATRIX.md` để xác định:
-- UC nào mình sẽ làm? (Ví dụ: UC20.1)
-- TC nào tương ứng? (Ví dụ: TC-M4-003, TC-M4-004)
-- BR nào liên quan? (Ví dụ: BR-TR-01)
-
-> **📝 Điền vào file:**
-> - Mở `01_SRS/TRACEABILITY_MATRIX.md`, tìm dòng UC của mình → Cập nhật cột `Class / Method` thành `[IN PROGRESS]` để đánh dấu bắt đầu thực hiện.
+   * Mỗi thành viên chỉ thêm/sửa code trong package thuộc Module được phân công.
+   * **CẤM:** Tự ý sửa các Entity trong package `models` (sẽ làm hỏng Database Schema chung). Mọi thay đổi Database Schema phải được **Tech Lead phê duyệt**.
+   * **CẤM:** Tự ý sửa các file cấu hình chung (`application.yml`, `pom.xml`, các file cấu hình bảo mật `SecurityConfig`).
+2. **Quyền sở hữu Module:**
+   * **Lưu (MOD 1):** Xác thực, 2FA, mã hóa PII. (`com.kawai.auth`, `com.kawai.profile`, `com.kawai.core`)
+   * **Dũng (MOD 2):** Đặt phòng, Tiền sảnh, Room Matrix. (`com.kawai.booking`, `com.kawai.frontdesk`)
+   * **Đức (MOD 3):** POS Nhà hàng, KDS, Post to Room. (`com.kawai.pos`, `com.kawai.fb`)
+   * **Ngọc (MOD 4):** Đặt Tour, AI Face Scan, Đánh giá. (`com.kawai.tour`, `com.kawai.feedback`, AI Python Service)
+   * **Lan (MOD 5):** Folio nợ, Kiểm toán đêm (Night Audit), Báo cáo. (`com.kawai.finance`, `com.kawai.report`)
+   * **Tech Lead:** Quản lý cấu hình chung (`config`, `pom.xml`), duyệt và merge PR.
 
 ---
 
-### Bước 1: 🔴 Viết Test trước (Pha Đỏ)
+## 3. QUY TRÌNH CODE TÍCH HỢP AI 5 BƯỚC (AI-DEVELOPMENT LIFECYCLE)
 
-Copy prompt dưới đây vào Antigravity, thay `[...]` bằng thông tin của mình:
+Lập trình viên và AI phối hợp theo luồng khép kín dưới đây. Tech Lead sẽ theo dõi qua sự thay đổi của các file tài liệu.
 
-> *"Đọc file `04_testing/MASTER_TDD_SPEC.md` phần Module [số module] của tôi — tìm kịch bản test `[MODx-TC-xxx]` tương ứng với Use Case `[UCxx]`. Dựa theo mô tả Preconditions, Test Steps và Expected Result trong đó, hãy viết class JUnit 5 Test đặt trong package `com.kawai.services`, sử dụng Mockito để mock Repository. Đặt tên method theo format `TC_Mx_xxx_moTaNgan`. Sau đó chạy `mvn test -pl 03_sourcecode/kawai-backend` để xác nhận test đang FAIL (Màu Đỏ). Khi test đã fail đỏ, hãy tự động cập nhật file `04_testing/MASTER_TDD_SPEC.md` phần Red-Green-Refactor Tracker: tick [x] vào cột RED và điền tên file Test vừa tạo vào cột Test File."*
+### Bước 1: Khởi động & Nhận diện (Developer + AI)
 
-> **📝 Điền vào file:**
-> - AI sẽ tự động mở `04_testing/MASTER_TDD_SPEC.md`, tìm dòng TC tương ứng → Tick `[x]` vào cột `🔴 RED confirmed` và điền tên file Test vừa tạo vào cột `Test File`.
+* **Developer:** Mở file `01_SRS/TRACEABILITY_MATRIX.md`, cập nhật cột `Class / Method` của UC mình chuẩn bị làm thành `[IN PROGRESS]`.
+* **Mục đích:** Tech Lead chỉ cần mở Traceability Matrix là biết ai đang code tính năng nào trong thời gian thực.
 
----
+### Bước 2: Pha Đỏ - Viết Test trước 🔴 (AI tự động hóa)
 
-### Bước 2: 🟢 Viết Code để Test PASS (Pha Xanh)
+* **Developer:** Copy-paste prompt dưới đây gửi cho AI:
 
-Copy prompt dưới đây vào Antigravity:
+  > *"Hãy đọc file `04_testing/MASTER_TDD_SPEC.md` phần Module [số module] của tôi và tìm kịch bản test `[Mã-TC]` tương ứng với Use Case `[Mã-UC]`. Dựa trên đặc tả của nó, hãy viết class JUnit 5 Test tương ứng đặt trong package test của module. Hãy mock các Repository liên quan bằng Mockito. Sau đó chạy lệnh test để xác nhận test đang FAIL (Màu đỏ). Khi test fail đỏ thành công, hãy tự động cập nhật file `04_testing/MASTER_TDD_SPEC.md`:
+  >
+  > 1. Tick `[x]` vào cột RED của `[Mã-TC]` ở bảng Red-Green-Refactor Tracker.
+  > 2. Điền tên file Test vừa tạo vào cột Test File.
+  > 3. Cập nhật bảng CHANGELOG ở đầu tài liệu: thêm dòng mới ghi ngày hôm nay, tên tôi [Tên của bạn] và nội dung 'Khởi tạo Test Case [Mã-TC] cho [Mã-UC]'."*
+  >
+* **AI thực hiện:**
 
-> *"Bây giờ hãy implement code thực tế (Service, Repository, Controller) cho Use Case `[UCxx]` để làm cho toàn bộ Test vừa viết chạy PASS 100%. Tuân thủ Business Rule `[BR-xx-xx]` đã quy định trong file `01_SRS/BR_ACTOR_ROLE_TABLE.md`. Chạy `mvn test` để xác nhận Màu Xanh. Khi toàn bộ test đã pass xanh, hãy tự động cập nhật file `01_SRS/TRACEABILITY_MATRIX.md` (điền tên Class/Method thực tế tương ứng vào cột Class / Method của UC này) và cập nhật file `04_testing/MASTER_TDD_SPEC.md` phần Red-Green-Refactor Tracker (tick [x] vào cột GREEN và điền commit hash của bạn)."*
+  1. Viết code file Test JUnit.
+  2. Chạy test và xác nhận test báo lỗi đỏ.
+  3. Cập nhật `MASTER_TDD_SPEC.md`: tick `🔴 [x]`, ghi tên file Test, và thêm dòng mới vào bảng `CHANGELOG`.
 
-> **📝 Điền vào file:**
-> - AI sẽ tự động điền cột `Class / Method` trong `01_SRS/TRACEABILITY_MATRIX.md` bằng tên Class/Method vừa viết.
-> - AI sẽ tick `[x]` vào cột `🟢 GREEN` và điền commit hash/thông tin commit tương ứng trong `04_testing/MASTER_TDD_SPEC.md`.
+### Bước 3: Pha Xanh - Viết Code nghiệp vụ 🟢 (AI thực hiện + Developer giám sát)
 
----
+* **Developer:** Copy-paste prompt dưới đây gửi cho AI:
 
-### Bước 3: 🔵 Refactor & Cập nhật toàn bộ tài liệu
+  > *"Bây giờ hãy viết code logic (Service, Repository, Controller) cho Use Case `[Mã-UC]` để làm cho test vừa viết chạy PASS 100%. Hãy tuân thủ nghiêm ngặt các Business Rule `[Mã-BR]` trong file `01_SRS/BR_ACTOR_ROLE_TABLE.md`. Chạy lệnh test của Maven để xác nhận test đã pass (Màu xanh). Khi toàn bộ test đã xanh, hãy:
+  >
+  > 1. Cập nhật file `04_testing/MASTER_TDD_SPEC.md`: tick `[x]` vào cột GREEN và điền commit hash dự kiến.
+  > 2. Cập nhật file `01_SRS/TRACEABILITY_MATRIX.md`: đổi trạng thái `[IN PROGRESS]` thành tên `Class.method()` thực tế.
+  > 3. Cập nhật bảng CHANGELOG trong `MASTER_TDD_SPEC.md`: thêm dòng mới ghi ngày hôm nay, tên tôi [Tên của bạn] và nội dung 'Implement code logic cho [Mã-UC], tất cả test case đã pass GREEN'."*
+  >
+* **AI thực hiện:**
 
-Copy prompt dưới đây vào Antigravity:
+  1. Viết logic Code.
+  2. Chạy test Maven để xác nhận PASS.
+  3. Cập nhật `MASTER_TDD_SPEC.md` (tick `🟢 [x]` và điền commit hash dự kiến, thêm dòng mới vào bảng `CHANGELOG`).
+  4. Cập nhật `01_SRS/TRACEABILITY_MATRIX.md` (điền tên Class/Method đã viết).
 
-> *"Hãy refactor code vừa viết cho chuẩn Clean Code (đặt tên biến rõ ràng, tách method nếu quá dài, thêm JavaDoc comment). Sau đó giúp tôi cập nhật các file tài liệu sau:
-> - Mở `04_testing/MASTER_TDD_SPEC.md` mục 5 → Điền cột `🔵 REFACTOR note` ghi chú những gì đã cải thiện.
-> - Mở `04_testing/MASTER_EDS_SPEC.md` → Bổ sung API endpoint mới vào đúng mục Module của tôi (method, URL, request/response JSON, error code, authorization matrix)."*
+### Bước 4: Pha Xanh Dương - Tối ưu & Tài liệu hóa 🔵 (AI thực hiện + Tech Lead kiểm tra)
 
-> **📝 Tổng kết điền file sau cả 3 bước:**
->
-> | File | Mục cần điền | Nội dung |
-> |------|-------------|---------| 
-> | `04_testing/MASTER_TDD_SPEC.md` | Mục 5: Red-Green-Refactor Tracker | `🔴 [x]` → `🟢 [x] + commit hash` → `🔵 ghi chú refactor` |
-> | `04_testing/MASTER_EDS_SPEC.md` | Mục 6+: API Specification | Endpoint, Request/Response JSON, Error Code, Auth Matrix |
-> | `01_SRS/TRACEABILITY_MATRIX.md` | Dòng UC của Module mình | Cột `Class / Method` (thay thế trạng thái bằng Class.method() thực tế) |
+* **Developer:** Copy-paste prompt dưới đây gửi cho AI:
 
----
+  > *"Hãy tiến hành refactor code vừa viết để đảm bảo sạch sẽ (Clean Code, không trùng lặp, thêm JavaDoc). Sau đó, hãy:
+  >
+  > 1. Mở `04_testing/MASTER_TDD_SPEC.md` và ghi chú tóm tắt nội dung đã tối ưu vào cột 'REFACTOR note' của Test Case này.
+  > 2. Mở `04_testing/MASTER_EDS_SPEC.md` và bổ sung thiết kế API Endpoint mới vào mục Module của tôi (bao gồm method, path, request/response JSON mẫu, error code và phân quyền).
+  > 3. Cập nhật bảng CHANGELOG ở đầu cả hai file `MASTER_TDD_SPEC.md` và `MASTER_EDS_SPEC.md`: thêm dòng mới ghi ngày hôm nay, tên tôi [Tên của bạn] và nội dung lần lượt là 'Refactor code cho [Mã-UC]' và 'Đặc tả API endpoint cho [Mã-UC] trong Module [số module]'."*
+  >
+* **AI thực hiện:**
 
-### ⚠️ Lưu ý quan trọng:
-- **Mỗi lần chỉ làm 1 UC**, không ôm đồm nhiều UC cùng lúc.
-- **Chỉ điền vào dòng/khu vực của Module mình** trong các file log, tuyệt đối không sửa dòng của người khác.
-- Nếu test FAIL do phụ thuộc vào Module khác (ví dụ: cần Entity từ MOD1), hãy báo Nhóm trưởng để phối hợp.hi chú những gì đã cải thiện.
-> - Mở `04_testing/MASTER_EDS_SPEC.md` → Bổ sung API endpoint mới vào đúng mục Module của tôi (method, URL, request/response JSON, error code, authorization matrix)."*
-
-> **📝 Tổng kết điền file sau cả 3 bước:**
->
-> | File | Mục cần điền | Nội dung |
-> |------|-------------|---------|
-> | `04_testing/MASTER_TDD_SPEC.md` | Mục 5: Red-Green-Refactor Tracker | `🔴 [x]` → `🟢 [x] + commit hash` → `🔵 ghi chú refactor` |
-> | `04_testing/MASTER_EDS_SPEC.md` | Mục 6+: API Specification | Endpoint, Request/Response JSON, Error Code, Auth Matrix |
-> | `01_SRS/TRACEABILITY_MATRIX.md` | Dòng UC của Module mình | Cột `Class / Method` (thay thế trạng thái bằng Class.method() thực tế) |
-
----
-
-### ⚠️ Lưu ý quan trọng:
-- **Mỗi lần chỉ làm 1 UC**, không ôm đồm nhiều UC cùng lúc.
-- **Chỉ điền vào dòng/khu vực của Module mình** trong các file log, tuyệt đối không sửa dòng của người khác.
-- Nếu test FAIL do phụ thuộc vào Module khác (ví dụ: cần Entity từ MOD1), hãy báo Nhóm trưởng để phối hợp.
+  1. Cải tiến cấu trúc code cho tối ưu nhất.
+  2. Ghi chú vào cột `REFACTOR note` trong `MASTER_TDD_SPEC.md`.
+  3. Viết tài liệu đặc tả API đầy đủ vào mục tương ứng trong `MASTER_EDS_SPEC.md`.
+  4. Cập nhật bảng `CHANGELOG` ở đầu cả hai file `MASTER_TDD_SPEC.md` và `MASTER_EDS_SPEC.md`.
 
 ---
 
-## 3. QUY TRÌNH QUẢN LÝ SOURCE CODE VỚI GIT
+## 4. QUY TRÌNH GIT VÀ QUẢN LÝ PULL REQUEST
 
-**Cấu trúc Nhánh (Branch):**
+### 👩‍💻 Quy trình của Lập trình viên khi kết thúc code:
 
-* `main`: Nhánh chứa bản release cuối cùng dùng để báo cáo. (Chúng ta sẽ không code trực tiếp trên nhánh này).
-* `dev`: Nhánh phát triển chung. Tất cả code hoàn thiện sẽ được ghép về đây qua Pull Request.
+1. Trước khi commit, ra lệnh cho AI:
+   > *"Hãy rà soát lại toàn bộ thay đổi của tôi. Kiểm tra xem có vi phạm Code Boundaries (sửa file cấu hình chung, sửa Entity mà chưa xin phép) hay để lộ dữ liệu nhạy cảm PII ở dạng plaintext không."*
+   >
+2. Sau khi AI xác nhận an toàn, Developer chạy các lệnh Git:
+   ```bash
+   git add .
+   git commit -m "feat(module-x): implement logic [tên tính năng] and pass [Mã-TC]"
+   git push origin feature/mod[x]-[tên-tính-năng]
+   ```
+3. Tạo Pull Request (PR) từ nhánh feature vào nhánh `dev` trên GitHub, đính kèm link đến phần Module của mình trong `MASTER_TDD_SPEC.md` để Tech Lead kiểm tra.
 
-### 👩‍💻 Dành cho Các Thành Viên (Developer Workflow)
+### 👑 Quy trình duyệt PR của Tech Lead (Tech Lead Verification):
 
-Mỗi ngày trước khi bắt đầu code, mọi người làm theo thứ tự sau:
+Tech Lead thực hiện duyệt PR theo các bước nghiêm ngặt sau:
 
-```bash
-# 1. Chuyển về nhánh dev và cập nhật code mới nhất từ team để tránh code trên bản cũ
-git checkout dev
-git pull origin dev
-
-# 2. Tạo nhánh riêng cho tính năng chuẩn bị làm (Quy tắc tên: feature/[tên-module]-[tính-năng])
-git checkout -b feature/mod2-booking
-
-# -> [BẮT ĐẦU CODE BẰNG ANTIGRAVITY VỚI 3 BƯỚC TDD] <-
-
-# 3. Khi code xong, chạy test báo Xanh 100%, tiến hành lưu lại (Commit)
-git add .
-git commit -m "feat(booking): implement logic dat phong va chong double booking"
-
-# 4. Đẩy nhánh của mình lên Github/Gitlab
-git push origin feature/mod2-booking
-```
-
-Cuối cùng, mọi người lên Github tạo một **Pull Request (PR)** từ nhánh của mình (`feature/mod2-booking`) vào nhánh `dev`, và tag Nhóm trưởng vào để review nhé.
-
-### 👑 Dành cho Nhóm trưởng (Reviewer Workflow)
-
-Quy trình duyệt code hàng ngày của Nhóm trưởng:
-
-```bash
-# 1. Cập nhật nhánh mới của thành viên về máy
-git fetch
-git checkout feature/mod2-booking
-
-# 2. Dùng Antigravity hỗ trợ review và chạy toàn bộ Test
-# Lệnh cho AI: "Hãy chạy lệnh 'mvn test'. Nếu tất cả PASS và code không phá vỡ Module khác thì báo cho tôi."
-
-# 3. Nếu mọi thứ hoạt động tốt, tiến hành ghép code vào nhánh chung
-git checkout dev
-git merge feature/mod2-booking --no-ff
-git push origin dev
-```
-
-*Ghi chú: Sau khi có code mới cập nhật lên nhánh `dev`, Nhóm trưởng sẽ thông báo vào nhóm để mọi người kịp thời chạy lệnh `git pull origin dev` cập nhật nhánh của mình.*
+1. Mở file `MASTER_TDD_SPEC.md` kiểm tra xem các test case tương ứng với PR này đã có đủ tick `🔴 RED`, `🟢 GREEN`, và commit hash khớp với PR chưa.
+2. Kiểm tra `MASTER_EDS_SPEC.md` để đảm bảo API được ghi nhận đúng chuẩn, format JSON hợp lệ.
+3. Kéo nhánh feature về máy local và chạy lệnh test toàn bộ dự án:
+   ```bash
+   mvn test
+   ```
+4. Nếu tất cả các test case đều PASS xanh và code sạch, Tech Lead merge PR vào nhánh `dev` và thông báo cho cả nhóm.
 
 ---
 
-## 4. HƯỚNG DẪN XỬ LÝ XUNG ĐỘT (MERGE CONFLICT)
+## 5. CÁCH XỬ LÝ XUNG ĐỘT CODE (MERGE CONFLICT)
 
-Sẽ có những lúc 2 người cùng sửa chung 1 file (ví dụ Entity `User.java`) và gây ra Conflict (cảnh báo đỏ khi dùng Git).
-**Cách xử lý:** Mọi người hãy bình tĩnh, **không được tự ý xóa code của bạn khác**. Hãy mở Antigravity lên và nhờ hỗ trợ:
+Khi hai thành viên cùng chỉnh sửa một file chung dẫn đến xung đột (Conflict):
 
-> *"Tôi đang bị Git Conflict ở file `User.java`. Hãy phân tích file hiện tại và giúp tôi Merge code an toàn, đảm bảo giữ lại nguyên vẹn logic của thành viên kia và thêm tính năng mới của tôi vào."*
+1. **Tuyệt đối không được tự ý xóa code của người khác.**
+2. Mở Antigravity lên và dán prompt sau:
+   > *"Tôi gặp xung đột Git tại file [đường dẫn file]. Hãy phân tích các phần code bị xung đột và thực hiện merge an toàn, giữ lại nguyên vẹn tính năng của cả hai người và đảm bảo không phá vỡ bất kỳ test case nào sẵn có."*
+   >
+3. AI sẽ tự động giải quyết conflict và chạy thử test để đảm bảo không phát sinh lỗi mới trước khi bạn commit lại.

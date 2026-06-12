@@ -12,6 +12,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.kawai.dto.RoomSearchRequestDTO;
+import com.kawai.dto.RoomSearchResponseDTO;
+import com.kawai.services.interfaces.RoomService;
+import org.springframework.web.bind.annotation.RequestParam;
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -20,11 +26,15 @@ public class RoomApiController {
 
     private final RoomRepository roomRepository;
     private final RoomBookingDetailRepository roomBookingDetailRepository;
+    private final RoomService roomService;
 
     @Autowired
-    public RoomApiController(RoomRepository roomRepository, RoomBookingDetailRepository roomBookingDetailRepository) {
+    public RoomApiController(RoomRepository roomRepository, 
+                             RoomBookingDetailRepository roomBookingDetailRepository,
+                             RoomService roomService) {
         this.roomRepository = roomRepository;
         this.roomBookingDetailRepository = roomBookingDetailRepository;
+        this.roomService = roomService;
     }
 
     @GetMapping("/{roomNumber}/info")
@@ -56,5 +66,23 @@ public class RoomApiController {
         }
 
         return ResponseEntity.ok(dto);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<RoomSearchResponseDTO>> searchRooms(
+            @RequestParam("checkIn") String checkInStr,
+            @RequestParam("checkOut") String checkOutStr,
+            @RequestParam(value = "categoryName", required = false) String categoryName,
+            @RequestParam(value = "capacity", required = false) Integer capacity) {
+        
+        LocalDate checkIn = LocalDate.parse(checkInStr);
+        LocalDate checkOut = LocalDate.parse(checkOutStr);
+
+        RoomSearchRequestDTO request = new RoomSearchRequestDTO(checkIn, checkOut);
+        request.setCategoryName(categoryName);
+        request.setMinCapacity(capacity);
+
+        List<RoomSearchResponseDTO> availableRooms = roomService.searchAvailableRooms(request);
+        return ResponseEntity.ok(availableRooms);
     }
 }

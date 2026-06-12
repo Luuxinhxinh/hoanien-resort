@@ -25,6 +25,8 @@ replay_pid*
 
 # Maven
 target/
+**/target/
+03_sourcecode/kawai-backend/target/
 pom.xml.tag
 pom.xml.releaseBackup
 pom.xml.versionsBackup

@@ -1,6 +1,12 @@
 # ĐẶC TẢ DỰ ÁN PHÁT TRIỂN PHẦN MỀM
 **HỆ THỐNG QUẢN LÝ NGHỈ DƯỠNG TÍCH HỢP KAWAI RETREAT RESORT & HUB**
 
+## CHANGELOG
+| Ngày | Người thực hiện | Nội dung thay đổi |
+|---|---|---|
+| 2026-06-11 | Antigravity | Xác nhận và định hình tài liệu đặc tả khớp luồng phát triển Hybrid Organization |
+| 2026-06-09 | Antigravity | Khởi tạo tài liệu đặc tả dự án |
+
 ---
 
 ## 1. Bài toán đặt ra & Giải pháp tổng thể

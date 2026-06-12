@@ -1,5 +1,11 @@
 # BẢNG USE CASE TỔNG HỢP — KAWAI RESORT
 
+## CHANGELOG
+| Ngày | Người thực hiện | Nội dung thay đổi |
+|---|---|---|
+| 2026-06-11 | Antigravity | Xác nhận và đồng bộ các Use Cases với luồng phát triển Hybrid Organization |
+| 2026-06-09 | Antigravity | Khởi tạo bảng Use Case tổng hợp cho 5 Module |
+
 > Dùng ID cột `UC ID` để điền vào mọi báo cáo, bảng truy vết, test case.
 
 ---

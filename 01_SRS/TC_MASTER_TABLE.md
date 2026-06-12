@@ -1,4 +1,10 @@
 # BẢNG TEST CASE TỔNG HỢP — KAWAI RESORT
+
+## CHANGELOG
+| Ngày | Người thực hiện | Nội dung thay đổi |
+|---|---|---|
+| 2026-06-11 | Antigravity | Xác nhận và đồng bộ các Test Cases tổng hợp với luồng phát triển Hybrid Organization |
+| 2026-06-09 | Antigravity | Khởi tạo bảng danh mục Test Cases tổng hợp |
 > Đây là bảng gốc chứa toàn bộ Test Case ID. Các tài liệu khác (Traceability Matrix, TDD Spec, EDS Spec) sẽ tham chiếu ID từ bảng này.
 
 ---
