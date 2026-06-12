@@ -470,6 +470,24 @@ Hệ thống Backend Spring Boot bao gồm các layer:
 | TC-M2-020  | Maintenance báo hoàn thành → AVAILABLE              |                                 | [ ]    | [ ]               |                                                                               |
 >>>>>>> Stashed changes
 
+#### UC12 — Check-in / Check-out / Đổi phòng (CheckinService)
+| TC ID | Test File | 🔴 RED confirmed | 🟢 GREEN (commit) | 🔵 REFACTOR note |
+|---|---|---|---|---|
+| TC-M2-011 | `CheckinServiceUC12Test.java` | [x] | [x] `1644d49` | ✅ Tách `validateRoomAvailableForCheckin()` + `assignRoomToGuest()`, dùng hằng số `STATUS_OCCUPIED`, `STATUS_CHECKED_IN` |
+| TC-M2-012 | `CheckinServiceUC12Test.java` | [x] | [x] `1644d49` | ✅ Dùng hằng số `STATUS_DIRTY`, `STATUS_MAINTENANCE`. Tách validation method riêng, message lỗi chứa mã BR |
+| TC-M2-013 | `CheckinServiceUC12Test.java` | [x] | [x] `1644d49` | ✅ Một dòng: tìm detail → setCreditLimit → save. Đặt tên repo ngắn `roomBookingRepo` |
+| TC-M2-014 | `CheckinServiceUC12Test.java` | [x] | [x] `1644d49` | ✅ Tách `validateDetailIsCheckedIn()`, `extractCurrentRoom()`, `validateNewRoomAvailable()`, `performRoomTransfer()` |
+| TC-M2-015 | `CheckinServiceUC12Test.java` | [x] | [x] `1644d49` | ✅ Tách `createAccountForDependent()`, `createCustomerFromDependent()`. Dùng hằng số ROLE_CUSTOMER, TEMP_PHONE |
+
+#### UC13 — Quản lý sơ đồ phòng vật lý — Room Matrix (HousekeepingService)
+| TC ID | Test File | 🔴 RED confirmed | 🟢 GREEN (commit) | 🔵 REFACTOR note |
+|---|---|---|---|---|
+| TC-M2-016 | `HousekeepingServiceUC13Test.java` | [x] | [x] `c8d9e1f` | ✅ Thêm JavaDoc, tách `buildHotelOperation()`, dùng constant |
+| TC-M2-017 | `HousekeepingServiceUC13Test.java` | [x] | [x] `c8d9e1f` | ✅ Thêm JavaDoc chi tiết, tái sử dụng logic |
+| TC-M2-018 | `HousekeepingServiceUC13Test.java` | [x] | [x] `c8d9e1f` | ✅ Fix mock data trong Test, chuẩn hóa code |
+| TC-M2-019 | `HousekeepingServiceUC13Test.java` | [x] | [x] `c8d9e1f` | ✅ Thêm JavaDoc, tách `buildHotelOperation()` |
+| TC-M2-020 | `HousekeepingServiceUC13Test.java` | [x] | [x] `c8d9e1f` | ✅ Thêm JavaDoc chi tiết, dùng constant |
+
 ### MOD3 — POS Nhà hàng & F&B (Sinh viên 3: Đức)
 
 | TC ID     | Mô tả ngắn                                    | Test File | 🔴 RED | 🟢 GREEN (commit) | 🔵 REFACTOR note |
