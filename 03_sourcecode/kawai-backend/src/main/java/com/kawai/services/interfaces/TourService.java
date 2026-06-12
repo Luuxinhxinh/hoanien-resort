@@ -2,6 +2,8 @@ package com.kawai.services.interfaces;
 
 import com.kawai.dto.TourSearchResult;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import java.time.LocalDate;
 import java.util.List;
 
@@ -42,4 +44,8 @@ public interface TourService {
      *                                  fromDate > toDate
      */
     List<TourSearchResult> searchAvailableTours(LocalDate fromDate, LocalDate toDate);
+
+    boolean verifyAttendance(Long attendeeId, MultipartFile image);
+
+    void markAttendanceManually(Long attendeeId, String status);
 }

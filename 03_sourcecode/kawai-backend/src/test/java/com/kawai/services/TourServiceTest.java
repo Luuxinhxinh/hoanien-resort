@@ -5,8 +5,10 @@ import com.kawai.dto.WeatherInfo;
 import com.kawai.models.Tour;
 import com.kawai.models.TourSchedule;
 import com.kawai.repositories.TourScheduleRepository;
+import com.kawai.repositories.TourAttendeeRepository;
 import com.kawai.services.impl.TourServiceImpl;
 import com.kawai.services.interfaces.WeatherApiClient;
+import com.kawai.services.interfaces.AIServiceClient;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -57,6 +59,12 @@ class TourServiceTest {
 
     @Mock
     private WeatherApiClient weatherApiClient;
+
+    @Mock
+    private TourAttendeeRepository tourAttendeeRepository;
+
+    @Mock
+    private AIServiceClient aiServiceClient;
 
     @InjectMocks
     private TourServiceImpl tourService;

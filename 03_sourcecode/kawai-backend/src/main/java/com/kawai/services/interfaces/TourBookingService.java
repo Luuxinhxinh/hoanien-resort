@@ -1,10 +1,7 @@
 package com.kawai.services.interfaces;
 
 import com.kawai.dto.TourBookingRequest;
-import com.kawai.dto.TourSearchResult;
-
-import java.time.LocalDate;
-import java.util.List;
+import java.math.BigDecimal;
 
 /**
  * Service interface cho UC20.1: Đặt tour du lịch.
@@ -39,4 +36,16 @@ public interface TourBookingService {
      * @throws IllegalStateException nếu tour đã hết chỗ (TOUR-001)
      */
     Long createTourBooking(TourBookingRequest request);
+
+    /**
+     * Lập lịch chuyến tour (gán nhân viên/xe).
+     * (UC20.2)
+     */
+    void scheduleTour(Long scheduleId, Long employeeId, String staffRole);
+
+    /**
+     * Hủy tour lữ hành và tính toán tiền hoàn cọc.
+     * (UC20.3)
+     */
+    BigDecimal cancelTour(Long bookingId, boolean cancelledByResort);
 }

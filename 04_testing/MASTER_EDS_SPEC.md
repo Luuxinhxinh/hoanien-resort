@@ -206,6 +206,120 @@ Feature: Luồng vận hành lõi tích hợp 3 Modules (Front Desk, POS, Folio)
 
 ---
 
+## 6.7. API Specification — UC21: Điểm danh AI Face Scan (Module 4)
+
+### 6.7.1. Endpoints
+
+| Method | Path | Auth Level | Required Roles | Rate Limit | Idempotent? |
+|--------|------|------------|----------------|------------|-------------|
+| POST | `/api/v1/tour-attendance/{attendeeId}/verify` | Protected | Tour_Guide, Admin | 50/min | No |
+| POST | `/api/v1/tour-attendance/{attendeeId}/manual` | Protected | Tour_Guide, Admin | 50/min | No |
+
+### 6.7.2. Authorization Matrix
+| Tác vụ / Endpoint | GUEST | CUSTOMER | RECEPTIONIST | F&B STAFF | ADMIN / TOUR_GUIDE |
+| --- | --- | --- | --- | --- | --- |
+| Xác thực khuôn mặt (`POST /verify`) | ❌ | ❌ | ❌ | ❌ | ✅ |
+| Điểm danh thủ công (`POST /manual`) | ❌ | ❌ | ❌ | ❌ | ✅ |
+
+### 6.7.3. Request / Response Sample
+**[POST] Xác thực AI Face Scan**
+```bash
+curl -X POST https://api.kawairesort.com/api/v1/tour-attendance/1/verify \
+  -H "Authorization: Bearer [TOUR_GUIDE_TOKEN]" \
+  -F "image=@/path/to/face.jpg"
+
+# Expected Response (200 OK):
+"Attendance verified successfully"
+
+# Expected Response (400 Bad Request):
+"Face match score below threshold"
+```
+
+**[POST] Điểm danh thủ công**
+```bash
+curl -X POST https://api.kawairesort.com/api/v1/tour-attendance/1/manual?status=PRESENT \
+  -H "Authorization: Bearer [TOUR_GUIDE_TOKEN]"
+
+# Expected Response (200 OK):
+"Attendance marked manually"
+```
+
+### 6.7.4. Error Codes & Business Rules
+| Rule/Code | HTTP Status | Message/Logic | Trigger Condition |
+|------|-------------|---------|------------------|
+| `BR-TR-02` | 200 | Cập nhật `PRESENT` | Độ trùng khớp AI >= 0.85 |
+| `ERR-AI-01` | 400 | `Face match score below threshold` | Độ trùng khớp AI < 0.85 |
+| `ERR-AI-02` | 503 | `AI Service unavailable` | Dịch vụ AI bên thứ ba bị sập |
+| `ERR-TOUR-01`| 400 | `Attendee not found` | `attendeeId` không tồn tại |
+
+## 6.8. API Specification — UC22 & UC23: Đánh giá dịch vụ & Kiểm duyệt (Module 4)
+
+### 6.8.1. Endpoints
+
+| Method | Path | Auth Level | Required Roles | Rate Limit | Idempotent? |
+|--------|------|------------|----------------|------------|-------------|
+| POST | `/api/v1/reviews/tour` | Protected | Customer | 10/min | No |
+| PUT | `/api/v1/reviews/{reviewId}/moderate` | Protected | Admin | 50/min | Yes |
+
+### 6.8.2. Authorization Matrix
+| Tác vụ / Endpoint | GUEST | CUSTOMER | RECEPTIONIST | F&B STAFF | ADMIN / TOUR_GUIDE |
+| --- | --- | --- | --- | --- | --- |
+| Gửi đánh giá tour (`POST /tour`) | ❌ | ✅ | ❌ | ❌ | ❌ |
+| Kiểm duyệt đánh giá (`PUT /{reviewId}/moderate`) | ❌ | ❌ | ❌ | ❌ | ✅ (Chỉ Admin) |
+
+### 6.8.3. Request / Response Sample
+**[POST] Gửi đánh giá Tour**
+```bash
+curl -X POST "https://api.kawairesort.com/api/v1/reviews/tour?customerId=1&tourBookingId=100&rating=5&reviewText=Excellent!" \
+  -H "Authorization: Bearer [CUSTOMER_TOKEN]"
+
+# Expected Response (200 OK):
+{
+  "id": 1,
+  "ratingService": 5,
+  "reviewText": "Excellent!",
+  "moderationStatus": "Pending",
+  "createdAt": "2026-06-12T10:00:00"
+}
+
+# Expected Response (400 Bad Request):
+"Tour is not completed yet"
+```
+
+**[PUT] Admin kiểm duyệt đánh giá**
+```bash
+curl -X PUT "https://api.kawairesort.com/api/v1/reviews/1/moderate?adminId=99&newStatus=Hidden&reason=Ngôn từ thô tục" \
+  -H "Authorization: Bearer [ADMIN_TOKEN]"
+
+# Expected Response (200 OK):
+{
+  "id": 1,
+  "ratingService": 1,
+  "reviewText": "Tệ hại",
+  "moderationStatus": "Hidden",
+  "moderationReason": "Ngôn từ thô tục",
+  "moderatedBy": {
+    "id": 99,
+    "fullName": "Admin Tran"
+  }
+}
+
+# Expected Response (400 Bad Request):
+"Moderation reason is strictly required according to BR-TR-04"
+```
+
+### 6.8.4. Error Codes & Business Rules
+| Rule/Code | HTTP Status | Message/Logic | Trigger Condition |
+|------|-------------|---------|------------------|
+| `BR-TR-03` | 400 | `Review period has expired (7 days limit)` | Quá 7 ngày từ ngày khởi hành tour |
+| `BR-TR-04` | 400 | `Moderation reason is strictly required...` | Không nhập lý do kiểm duyệt (reason rỗng/null) |
+| `ERR-REV-01`| 400 | `Customer does not own this booking` | ID khách không khớp với ID đặt tour |
+| `ERR-REV-02`| 400 | `Tour is not completed yet` | Khách đánh giá tour chưa đi |
+| `ERR-REV-03`| 400 | `Review not found` | Review ID không tồn tại |
+| `ERR-REV-04`| 400 | `Admin not found` | Admin ID không tồn tại |
+
+---
+
 ## 7. Phương pháp Xác minh (API Verification Samples)
 
 ### 7.1. UC09 — Tìm kiếm phòng trống (RoomService.searchAvailableRooms)

@@ -4,10 +4,13 @@ import com.kawai.dto.TourSearchResult;
 import com.kawai.dto.WeatherInfo;
 import com.kawai.models.Tour;
 import com.kawai.models.TourSchedule;
+import com.kawai.models.TourAttendee;
 import com.kawai.repositories.TourScheduleRepository;
+import com.kawai.repositories.TourAttendeeRepository;
 import com.kawai.services.interfaces.TourService;
 import com.kawai.services.interfaces.WeatherApiClient;
-
+import com.kawai.services.interfaces.AIServiceClient;
+import org.springframework.web.multipart.MultipartFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -44,14 +47,22 @@ public class TourServiceImpl implements TourService {
     private static final Logger LOG = LoggerFactory.getLogger(TourServiceImpl.class);
 
     private static final String SCHEDULE_STATUS_OPEN = "Open";
+    private static final double MIN_MATCH_SCORE_FOR_ATTENDANCE = 0.85; // BR-TR-02
+    private static final String ATTENDANCE_STATUS_PRESENT = "PRESENT";
 
     private final TourScheduleRepository tourScheduleRepository;
     private final WeatherApiClient weatherApiClient;
+    private final TourAttendeeRepository tourAttendeeRepository;
+    private final AIServiceClient aiServiceClient;
 
     public TourServiceImpl(TourScheduleRepository tourScheduleRepository,
-            WeatherApiClient weatherApiClient) {
+            WeatherApiClient weatherApiClient,
+            TourAttendeeRepository tourAttendeeRepository,
+            AIServiceClient aiServiceClient) {
         this.tourScheduleRepository = tourScheduleRepository;
         this.weatherApiClient = weatherApiClient;
+        this.tourAttendeeRepository = tourAttendeeRepository;
+        this.aiServiceClient = aiServiceClient;
     }
 
     @Override
@@ -136,5 +147,53 @@ public class TourServiceImpl implements TourService {
             LOG.warn("Weather API failed for date {}: {}", departureDate, e.getMessage());
             result.setWeatherAvailable(false);
         }
+    }
+
+    /**
+     * Xác thực điểm danh bằng AI Face Scan.
+     * Cập nhật trạng thái thành PRESENT nếu độ trùng khớp >= 85% (BR-TR-02).
+     *
+     * @param attendeeId ID của người tham gia tour
+     * @param image      Ảnh chụp khuôn mặt khách hàng
+     * @return true nếu điểm danh thành công, false nếu không đạt độ trùng khớp
+     * @throws IllegalArgumentException nếu không tìm thấy attendee
+     */
+    @Override
+    public boolean verifyAttendance(Long attendeeId, MultipartFile image) {
+        TourAttendee attendee = getAttendeeById(attendeeId);
+        double matchScore = aiServiceClient.verifyFaceMatch(image, attendeeId);
+        
+        if (matchScore >= MIN_MATCH_SCORE_FOR_ATTENDANCE) {
+            attendee.setStatus(ATTENDANCE_STATUS_PRESENT);
+            tourAttendeeRepository.save(attendee);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Điểm danh thủ công (Dự phòng khi AI lỗi).
+     *
+     * @param attendeeId ID của người tham gia tour
+     * @param status     Trạng thái điểm danh (VD: PRESENT, ABSENT)
+     * @throws IllegalArgumentException nếu không tìm thấy attendee
+     */
+    @Override
+    public void markAttendanceManually(Long attendeeId, String status) {
+        TourAttendee attendee = getAttendeeById(attendeeId);
+        attendee.setStatus(status);
+        tourAttendeeRepository.save(attendee);
+    }
+
+    /**
+     * Helper: Lấy thông tin người tham gia tour theo ID.
+     *
+     * @param attendeeId ID của người tham gia tour
+     * @return Entity TourAttendee
+     * @throws IllegalArgumentException nếu không tìm thấy attendee
+     */
+    private TourAttendee getAttendeeById(Long attendeeId) {
+        return tourAttendeeRepository.findById(attendeeId)
+                .orElseThrow(() -> new IllegalArgumentException("Attendee not found with ID: " + attendeeId));
     }
 }

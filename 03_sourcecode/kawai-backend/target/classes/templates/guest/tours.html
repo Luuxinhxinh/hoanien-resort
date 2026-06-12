@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Khám phá Tour - Kawaii Retreat</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    
+    <!-- Tailwind Custom Config -->
+    <script id="tailwind-config">
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'kawaii-bg': '#f1ebe3',         /* Warm natural beige */
+                        'kawaii-text': '#3a3230',       /* Soft dark charcoal */
+                        'kawaii-footer': '#3c3530',     /* Dark earthy brown */
+                        'kawaii-footer-text': '#e5dfd8' /* Light beige for footer */
+                    },
+                    fontFamily: {
+                        'serif': ['"Playfair Display"', 'serif'],
+                        'sans': ['"Montserrat"', 'sans-serif'],
+                    },
+                    spacing: {
+                        'section-y': '100px',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        /* Smooth scrolling */
+        html { scroll-behavior: smooth; }
+        
+        /* Subtle image zoom on hover for premium feel */
+        .img-hover-zoom {
+            overflow: hidden;
+        }
+        .img-hover-zoom img {
+            transition: transform 0.8s ease;
+        }
+        .img-hover-zoom:hover img {
+            transform: scale(1.05);
+        }
+
+        /* Material icons styling */
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+    
+        /* Smooth tactile button feedback */
+        button:active, a.bg-kawaii-text:active, .btn-search:active, .btn-book:active {
+            transform: scale(0.97) translateY(0.5px);
+            transition: transform 0.1s ease;
+        }
+        button, a.bg-kawaii-text, .btn-search, .btn-book {
+            transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease, opacity 0.2s ease;
+        }
+    </style>
+</head>
+
+<body class="bg-kawaii-bg text-kawaii-text font-sans antialiased overflow-x-hidden selection:bg-kawaii-text selection:text-kawaii-bg">
+
+    <!-- Sticky Navigation Bar -->
+    <nav class="fixed top-0 left-0 w-full z-50 bg-kawaii-bg/90 backdrop-blur-md border-b border-kawaii-text/10 transition-all duration-300 font-sans">
+        <div class="max-w-[1440px] mx-auto px-6 py-4 flex items-center justify-between">
+            <!-- Left Links -->
+            <div class="hidden lg:flex items-center gap-8 text-[11px] uppercase tracking-[0.2em] font-semibold text-kawaii-text/80">
+                <a href="/living" class="hover:text-kawaii-text active:scale-95 transition-all duration-200 transition-colors">Living</a>
+                <a href="/dining" class="hover:text-kawaii-text active:scale-95 transition-all duration-200 transition-colors">Dining</a>
+                <a href="/experiences" class="hover:text-kawaii-text active:scale-95 transition-all duration-200 transition-colors">Experiences</a>
+                <a href="/tours" class="text-kawaii-text border-b border-kawaii-text pb-0.5">Tours</a>
+            </div>
+            
+            <!-- Center Logo Wordmark -->
+            <div class="font-serif text-2xl md:text-3xl font-medium tracking-wide text-kawaii-text text-center flex-1 lg:flex-none cursor-pointer" onclick="window.location.href='/booking'">
+                KAWAII
+                <span class="block text-[10px] md:text-xs font-sans tracking-[0.3em] uppercase mt-1 opacity-70">River Retreat</span>
+            </div>
+            
+            <!-- Right Actions -->
+            <div class="hidden lg:flex items-center gap-6 text-[11px] uppercase tracking-[0.2em] font-semibold">
+                <!-- Profile / Logout if logged in -->
+                <a href="/profile" th:if="${isLoggedIn}" class="hover:text-kawaii-text active:scale-95 transition-all duration-200 transition-colors">Profile</a>
+                <form th:action="@{/auth/logout}" method="post" th:if="${isLoggedIn}" class="inline">
+                    <button type="submit" class="hover:text-kawaii-text active:scale-95 transition-all duration-200 transition-colors uppercase tracking-[0.2em] bg-transparent border-none p-0 cursor-pointer">Logout</button>
+                </form>
+
+                <a href="/booking" class="bg-kawaii-text text-kawaii-bg px-6 py-3 hover:bg-kawaii-text/80 active:scale-[0.98] active:translate-y-[0.5px] transition-all duration-200 transition-colors inline-block text-center border border-kawaii-text">
+                    Book Now
+                </a>
+            </div>
+            
+            <!-- Mobile Menu Toggle -->
+            <button class="lg:hidden">
+                <span class="material-symbols-outlined text-3xl">menu</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Sub-navigation under Navbar (Specific to Tours) -->
+    <div class="fixed top-[70px] md:top-[85px] left-0 w-full z-40 bg-kawaii-bg/95 border-b border-kawaii-text/10">
+        <div class="max-w-[1440px] mx-auto px-6 py-3 flex justify-center gap-8 md:gap-12 text-[10px] uppercase tracking-[0.15em] font-medium text-kawaii-text/60 overflow-x-auto">
+            <a href="#intro" class="hover:text-kawaii-text transition-colors whitespace-nowrap">Philosophy</a>
+            <a href="#signature" class="hover:text-kawaii-text transition-colors whitespace-nowrap">Signature Tours</a>
+            <a href="#booking-section" class="text-kawaii-text whitespace-nowrap">Online Booking</a>
+        </div>
+    </div>
+
+    <!-- Hero Section -->
+    <header class="relative w-full h-[60vh] md:h-[75vh] mt-[110px] md:mt-[130px] flex items-end">
+        <div class="absolute inset-0 bg-kawaii-text">
+            <!-- High quality adventure and exploration themed cover photo -->
+            <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80" 
+                 alt="Explore Hoi An River" 
+                 class="w-full h-full object-cover opacity-85"/>
+            <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/15 to-transparent"></div>
+        </div>
+        
+        <div class="relative z-10 w-full max-w-[1440px] mx-auto px-6 pb-12 md:pb-20">
+            <div class="max-w-2xl text-white">
+                <p class="text-[10px] md:text-xs uppercase tracking-[0.2em] mb-3 opacity-80 font-medium">Eco-Culture Journeys &mdash; Hoi An Heritage</p>
+                <h1 class="font-serif text-4xl md:text-6xl lg:text-7xl mb-4 font-medium leading-none">Tours & Experiences</h1>
+                <p class="text-xs md:text-sm leading-relaxed opacity-90 max-w-lg font-light">
+                    Immerse yourself in local crafts, historic architecture, and raw nature with curated excursions designed exclusively for Kawaii's guests.
+                </p>
+            </div>
+        </div>
+    </header>
+
+    <main class="w-full">
+        <!-- Intro Section -->
+        <section id="intro" class="max-w-4xl mx-auto px-6 py-16 md:py-24 text-center">
+            <h2 class="font-serif text-2xl md:text-4xl mb-6">Connect with Hoi An's Soul</h2>
+            <p class="text-kawaii-text/80 leading-relaxed text-xs md:text-sm font-light max-w-xl mx-auto">
+                Our tours go beyond standard sightseeing. We pair you with local fishermen, historic preservationists, and organic horticulturists to let you experience the authentic heart of our heritage river land.
+            </p>
+        </section>
+
+        <!-- ============ SECTION 1: SIGNATURE EXPERIENCES (PREVIEW & INTRO) ============ -->
+        <section id="signature" class="max-w-[1440px] mx-auto px-6 pb-20">
+            <div class="mb-10 text-center lg:text-left">
+                <p class="text-[9px] uppercase tracking-[0.2em] text-kawaii-text/60 mb-2">Curated Excursions</p>
+                <h2 class="font-serif text-2xl md:text-3xl">Signature Previews</h2>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Tour 1 -->
+                <div class="bg-white/40 border border-kawaii-text/5 flex flex-col group">
+                    <div class="img-hover-zoom aspect-[4/3] relative">
+                        <img src="https://images.unsplash.com/photo-1528127269322-539801943592?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
+                             alt="River Cruise" 
+                             class="w-full h-full object-cover"/>
+                        <span class="absolute top-4 left-4 bg-kawaii-text text-white text-[9px] uppercase tracking-[0.15em] px-3 py-1 font-medium">Sunset River</span>
+                    </div>
+                    <div class="p-6 flex-1 flex flex-col items-start justify-between">
+                        <div>
+                            <h3 class="font-serif text-lg mb-3">Thu Bồn River Sunset Cruise</h3>
+                            <p class="text-xs text-kawaii-text/75 leading-relaxed font-light mb-6">
+                                Drift along the calm currents as the sun sets over traditional fishing villages. Features local tea, seafood snacks, and story sharing with veteran river navigators.
+                            </p>
+                        </div>
+                        <button onclick="openPreviewModal('Thu Bồn River Sunset Cruise', 'Trải nghiệm ngắm hoàng hôn rực rỡ dọc dòng sông Thu Bồn thơ mộng trên thuyền gỗ truyền thống. Du khách sẽ được thưởng thức trà chiều organic, bánh ngọt địa phương, nghe những câu chuyện lịch sử sông nước và thả hoa đăng ước nguyện.', '2.5 Hours', 'Maximum 12 guests', 'Trà chiều, Bánh ngọt, Bảo hiểm, Hướng dẫn viên địa phương')" 
+                                class="text-[10px] uppercase tracking-[0.15em] border-b border-kawaii-text pb-0.5 hover:text-kawaii-text/60 transition-colors">
+                            Xem Chi Tiết
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tour 2 -->
+                <div class="bg-white/40 border border-kawaii-text/5 flex flex-col group">
+                    <div class="img-hover-zoom aspect-[4/3] relative">
+                        <img src="https://images.unsplash.com/photo-1559583985-c80d8ad9b29f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
+                             alt="Cycling Tour" 
+                             class="w-full h-full object-cover"/>
+                        <span class="absolute top-4 left-4 bg-kawaii-text text-white text-[9px] uppercase tracking-[0.15em] px-3 py-1 font-medium">Eco Culture</span>
+                    </div>
+                    <div class="p-6 flex-1 flex flex-col items-start justify-between">
+                        <div>
+                            <h3 class="font-serif text-lg mb-3">Cam Thanh Village Heritage Ride</h3>
+                            <p class="text-xs text-kawaii-text/75 leading-relaxed font-light mb-6">
+                                Cycle through verdant rice paddies, meeting bamboo craftsmen and exploring the coconut forest waters in a traditional bamboo basket boat.
+                            </p>
+                        </div>
+                        <button onclick="openPreviewModal('Cam Thanh Village Heritage Ride', 'Hành trình đạp xe len lỏi qua các con đường làng Cam Thanh xanh mát, tham quan xưởng thủ công mỹ nghệ tre độc đáo, đi thuyền thúng giữa rừng dừa bảy mẫu và tự tay chế biến một số món ăn truyền thống.', '4 Hours', 'Maximum 8 guests', 'Xe đạp cao cấp, Thuyền thúng, Bữa trưa bản địa, Nước uống')" 
+                                class="text-[10px] uppercase tracking-[0.15em] border-b border-kawaii-text pb-0.5 hover:text-kawaii-text/60 transition-colors">
+                            Xem Chi Tiết
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tour 3 -->
+                <div class="bg-white/40 border border-kawaii-text/5 flex flex-col group">
+                    <div class="img-hover-zoom aspect-[4/3] relative">
+                        <img src="https://images.unsplash.com/photo-1508009603885-50cf7c579365?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
+                             alt="Ancient Town Walk" 
+                             class="w-full h-full object-cover"/>
+                        <span class="absolute top-4 left-4 bg-kawaii-text text-white text-[9px] uppercase tracking-[0.15em] px-3 py-1 font-medium">Architecture</span>
+                    </div>
+                    <div class="p-6 flex-1 flex flex-col items-start justify-between">
+                        <div>
+                            <h3 class="font-serif text-lg mb-3">Hoi An Ancient Town Architecture Walk</h3>
+                            <p class="text-xs text-kawaii-text/75 leading-relaxed font-light mb-6">
+                                Walk the yellow alleys accompanied by a local architect. Enter closed-door private heritage homes and discover the blended Japanese, Chinese, and French styles.
+                            </p>
+                        </div>
+                        <button onclick="openPreviewModal('Hoi An Ancient Town Architecture Walk', 'Tour đi bộ chuyên sâu đưa bạn khám phá các kiến trúc cổ độc đáo của Hội An. Hướng dẫn viên là kiến trúc sư am hiểu lịch sử sẽ thuyết minh chi tiết về nhà cổ Tấn Ký, Chùa Cầu, các hội quán cổ kính và kết thúc bằng ly cà phê đặc sản.', '3 Hours', 'Maximum 10 guests', 'Vé tham quan phố cổ, Cà phê đặc sản, Hướng dẫn viên chuyên môn')" 
+                                class="text-[10px] uppercase tracking-[0.15em] border-b border-kawaii-text pb-0.5 hover:text-kawaii-text/60 transition-colors">
+                            Xem Chi Tiết
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ SECTION 2: ONLINE BOOKING (DYNAMIC SELECTION) ============ -->
+        <section id="booking-section" class="bg-white/50 border-t border-kawaii-text/10 py-20">
+            <div class="max-w-[1440px] mx-auto px-6">
+                
+                <div class="max-w-xl mx-auto text-center mb-12">
+                    <p class="text-[10px] uppercase tracking-[0.2em] text-kawaii-text/60 mb-2">Book Your Schedule</p>
+                    <h2 class="font-serif text-2xl md:text-3xl">Đặt Tour Trực Tuyến</h2>
+                </div>
+
+                <!-- Calendar Search Bar -->
+                <div class="max-w-4xl mx-auto mb-16">
+                    <form class="bg-kawaii-bg border border-kawaii-text/10 p-6 flex flex-col md:flex-row items-end gap-6" th:action="@{/tours/search}" method="get">
+                        <div class="flex-1 w-full">
+                            <label class="block text-[9px] uppercase tracking-[0.2em] text-kawaii-text/60 font-semibold mb-2" for="fromDate">Từ ngày</label>
+                            <input class="w-full bg-transparent border-b border-kawaii-text/20 focus:border-kawaii-text focus:ring-0 text-sm py-2 px-0 text-kawaii-text transition-colors" 
+                                   type="date" id="fromDate" name="fromDate" th:value="${#temporals.format(fromDate, 'yyyy-MM-dd')}">
+                        </div>
+                        
+                        <div class="flex-1 w-full">
+                            <label class="block text-[9px] uppercase tracking-[0.2em] text-kawaii-text/60 font-semibold mb-2" for="toDate">Đến ngày</label>
+                            <input class="w-full bg-transparent border-b border-kawaii-text/20 focus:border-kawaii-text focus:ring-0 text-sm py-2 px-0 text-kawaii-text transition-colors" 
+                                   type="date" id="toDate" name="toDate" th:value="${#temporals.format(toDate, 'yyyy-MM-dd')}">
+                        </div>
+                        
+                        <button type="submit" class="w-full md:w-auto bg-kawaii-text text-kawaii-bg px-8 py-3 text-[11px] uppercase tracking-[0.2em] font-medium hover:bg-kawaii-text/80 transition-colors btn-search active:scale-[0.98] active:translate-y-[0.5px]">
+                            Tìm kiếm
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Search Results Info -->
+                <div class="max-w-5xl mx-auto mb-8 flex justify-between items-center text-xs text-kawaii-text/60 border-b border-kawaii-text/10 pb-4" th:if="${not #lists.isEmpty(tours)}">
+                    <span>Tìm thấy <strong class="text-kawaii-text font-semibold" th:text="${#lists.size(tours)}">0</strong> lịch trình tour khả dụng</span>
+                    <span th:text="${#temporals.format(fromDate, 'dd/MM/yyyy')} + ' - ' + ${#temporals.format(toDate, 'dd/MM/yyyy')}">date range</span>
+                </div>
+
+                <!-- Dynamic Grid -->
+                <div class="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8" th:if="${not #lists.isEmpty(tours)}">
+                    
+                    <div class="bg-kawaii-bg/30 border border-kawaii-text/10 flex flex-col justify-between p-6" th:each="tour : ${tours}">
+                        
+                        <!-- Header & Badges -->
+                        <div>
+                            <div class="flex justify-between items-start mb-4">
+                                <span class="bg-kawaii-text text-white text-[9px] uppercase tracking-[0.2em] px-2 py-0.5 font-medium" th:text="${tour.tourType}">DAY_TRIP</span>
+                                <span class="text-[10px] text-green-700 bg-green-50 border border-green-200 px-2 py-0.5 font-medium" th:if="${tour.scheduleStatus} == 'Open'">Còn nhận khách</span>
+                            </div>
+                            
+                            <h3 class="font-serif text-lg md:text-xl text-kawaii-text mb-2 font-medium" th:text="${tour.tourName}">Tên Tour</h3>
+                            <p class="text-xs text-kawaii-text/70 leading-relaxed font-light mb-4" th:text="${tour.description}">Mô tả ngắn gọn về tour này và hành trình khám phá di sản.</p>
+                        </div>
+                        
+                        <!-- Metadata Grid -->
+                        <div class="grid grid-cols-2 gap-4 py-4 border-t border-b border-kawaii-text/5 my-4 text-xs font-light text-kawaii-text/80">
+                            <div>
+                                <span class="block text-[8px] uppercase tracking-[0.1em] text-kawaii-text/50">Khởi hành</span>
+                                <span class="font-medium" th:text="${#temporals.format(tour.departureDate, 'dd/MM/yyyy')}">12/06/2026</span>
+                            </div>
+                            <div>
+                                <span class="block text-[8px] uppercase tracking-[0.1em] text-kawaii-text/50">Sức chứa tối đa</span>
+                                <span th:text="${tour.maxCapacity} + ' khách'">30 khách</span>
+                            </div>
+                            <div>
+                                <span class="block text-[8px] uppercase tracking-[0.1em] text-kawaii-text/50">Trạng thái chỗ</span>
+                                <span th:classappend="${tour.availableSlots < 5} ? 'text-red-600 font-semibold' : 'text-kawaii-text'" th:text="'Còn ' + ${tour.availableSlots} + ' chỗ trống'">15 chỗ trống</span>
+                            </div>
+                            <!-- Weather dynamic status -->
+                            <div>
+                                <span class="block text-[8px] uppercase tracking-[0.1em] text-kawaii-text/50">Thời tiết dự kiến</span>
+                                <span th:if="${tour.weatherAvailable}">
+                                    ☀️ <span th:text="${tour.weatherDescription}">Sunny</span>, <span th:text="${#numbers.formatDecimal(tour.temperature, 0, 'COMMA', 1, 'POINT')} + '°C'">30°C</span>
+                                </span>
+                                <span th:unless="${tour.weatherAvailable}" class="text-kawaii-text/40 italic">Chưa cập nhật</span>
+                            </div>
+                        </div>
+
+                        <!-- Price & Action -->
+                        <div class="flex justify-between items-center mt-2">
+                            <div>
+                                <span class="block text-[8px] uppercase tracking-[0.1em] text-kawaii-text/50">Giá cơ bản</span>
+                                <span class="font-serif text-lg font-semibold text-kawaii-text" th:text="${#numbers.formatDecimal(tour.basePrice, 0, 'COMMA', 0, 'POINT')} + '₫'">1,500,000₫</span>
+                            </div>
+                            <div class="flex gap-2">
+                                <button th:onclick="openPreviewModal([[${tour.tourName}]], [[${tour.description}]], '1 Day', [[${tour.maxCapacity} + ' khách']], 'Lịch trình di chuyển khứ hồi, Hướng dẫn viên, Nước uống, Bảo hiểm')" 
+                                        class="border border-kawaii-text/30 text-kawaii-text hover:bg-kawaii-text hover:text-kawaii-bg px-4 py-2.5 text-[10px] uppercase tracking-[0.15em] transition-colors">
+                                    Chi tiết
+                                </button>
+                                <button onclick="alert('Chức năng đặt vé tour đang được liên kết với phòng nghỉ của bạn!')" 
+                                        class="bg-kawaii-text text-kawaii-bg hover:bg-kawaii-text/80 px-6 py-2.5 text-[10px] uppercase tracking-[0.15em] transition-colors btn-book active:scale-[0.98] active:translate-y-[0.5px]">
+                                    Đặt Ngay
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Empty State -->
+                <div class="max-w-md mx-auto text-center py-16" th:unless="${not #lists.isEmpty(tours)}">
+                    <span class="material-symbols-outlined text-4xl text-kawaii-text/30 mb-4">calendar_today</span>
+                    <h3 class="font-serif text-xl mb-2">Không tìm thấy lịch trình tour khả dụng</h3>
+                    <p class="text-xs text-kawaii-text/60 leading-relaxed font-light">Thử thay đổi khoảng ngày tìm kiếm của bạn để quét tìm lịch khởi hành khả dụng tiếp theo nhé.</p>
+                </div>
+
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer Note -->
+    <footer class="bg-kawaii-footer text-kawaii-footer-text py-12 border-t border-white/5">
+        <div class="max-w-[1440px] mx-auto px-6 text-center text-xs font-light tracking-wide">
+            <p class="mb-2">🌿 Kawaii Retreat Resort & Hub - Trải nghiệm kỳ nghỉ trọn vẹn tại phố cổ Hội An</p>
+            <p class="text-kawaii-footer-text/40 text-[10px]">&copy; 2026 Kawaii Retreat. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- ============ PREVIEW MODAL (TACTILE INTERACTION) ============ -->
+    <div id="previewModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 opacity-0 pointer-events-none transition-all duration-300">
+        <div class="bg-kawaii-bg border border-kawaii-text/10 max-w-lg w-full p-8 relative transform scale-95 transition-all duration-300">
+            <!-- Close Button -->
+            <button onclick="closePreviewModal()" class="absolute top-4 right-4 text-kawaii-text/50 hover:text-kawaii-text active:scale-95 transition-all">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+
+            <!-- Modal Content -->
+            <p class="text-[8px] uppercase tracking-[0.2em] text-kawaii-text/50 mb-2">Excursion Overview</p>
+            <h3 id="modalTourName" class="font-serif text-xl md:text-2xl mb-4 text-kawaii-text">Tour Name</h3>
+            
+            <p id="modalTourDescription" class="text-xs text-kawaii-text/80 leading-relaxed font-light mb-6">Description content</p>
+
+            <div class="grid grid-cols-2 gap-4 text-xs font-light text-kawaii-text/80 mb-6 py-4 border-t border-b border-kawaii-text/10">
+                <div>
+                    <span class="block text-[8px] uppercase tracking-[0.1em] text-kawaii-text/40">Thời lượng</span>
+                    <span id="modalTourDuration" class="font-medium">2.5 Hours</span>
+                </div>
+                <div>
+                    <span class="block text-[8px] uppercase tracking-[0.1em] text-kawaii-text/40">Quy mô</span>
+                    <span id="modalTourCapacity" class="font-medium">Max 12 guests</span>
+                </div>
+            </div>
+
+            <div>
+                <span class="block text-[8px] uppercase tracking-[0.1em] text-kawaii-text/40 mb-2">Bao gồm dịch vụ</span>
+                <p id="modalTourIncludes" class="text-xs font-light text-kawaii-text/70 leading-relaxed">Service items description...</p>
+            </div>
+
+            <!-- Action -->
+            <div class="mt-8 flex justify-end">
+                <button onclick="closePreviewModal()" class="bg-kawaii-text text-kawaii-bg px-6 py-2.5 text-[10px] uppercase tracking-[0.2em] hover:bg-kawaii-text/80 transition-colors btn-book">
+                    Đóng cửa sổ
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal JS Logic -->
+    <script>
+        function openPreviewModal(name, description, duration, capacity, includes) {
+            document.getElementById('modalTourName').innerText = name;
+            document.getElementById('modalTourDescription').innerText = description;
+            document.getElementById('modalTourDuration').innerText = duration;
+            document.getElementById('modalTourCapacity').innerText = capacity;
+            document.getElementById('modalTourIncludes').innerText = includes;
+
+            const modal = document.getElementById('previewModal');
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            modal.querySelector('div').classList.remove('scale-95');
+            modal.querySelector('div').classList.add('scale-100');
+        }
+
+        function closePreviewModal() {
+            const modal = document.getElementById('previewModal');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            modal.querySelector('div').classList.remove('scale-100');
+            modal.querySelector('div').classList.add('scale-95');
+        }
+
+        // Close on clicking backdrop
+        document.getElementById('previewModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closePreviewModal();
+            }
+        });
+    </script>
+
+    
+
+    <script>
+    document.addEventListener("DOMContentLoaded", () => {
+        // Basic Intersection Observer for smooth reveal
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.15
+        };
+
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('opacity-100', 'translate-y-0');
+                    entry.target.classList.remove('opacity-0', 'translate-y-8');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        // Select all major sections to animate them
+        const sections = document.querySelectorAll('main section, .feature-row, .room-grid, .room-card, .results, .site-footer');
+        sections.forEach(section => {
+            section.classList.add('transition-all', 'duration-[800ms]', 'ease-out', 'opacity-0', 'translate-y-8', 'will-change-transform');
+            observer.observe(section);
+        });
+
+        // Sub-navigation smooth reveal
+        const subNav = document.querySelector('.fixed.top-\\[70px\\]');
+        if (subNav) {
+            subNav.style.opacity = '0';
+            subNav.style.transform = 'translateY(-10px)';
+            subNav.style.transition = 'all 0.6s ease-out';
+            setTimeout(() => {
+                subNav.style.opacity = '1';
+                subNav.style.transform = 'translateY(0)';
+            }, 300);
+        }
+    });
+    </script>
+
+</body>
+</html>
