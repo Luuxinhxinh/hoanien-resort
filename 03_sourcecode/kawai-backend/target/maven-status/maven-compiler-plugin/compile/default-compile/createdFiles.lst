@@ -37,6 +37,7 @@ com\kawai\models\TourAttendee.class
 com\kawai\repositories\FoodItemRepository.class
 com\kawai\repositories\HousekeepingTaskRepository.class
 com\kawai\services\interfaces\AuthService.class
+com\kawai\dto\RoomDashboardDTO.class
 com\kawai\dto\BookingRequest.class
 com\kawai\repositories\UserRoleRepository.class
 com\kawai\dto\TourBookingRequest.class
