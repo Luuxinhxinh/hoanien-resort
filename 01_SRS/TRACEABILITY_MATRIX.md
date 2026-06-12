@@ -67,7 +67,7 @@
 | UC20.1 | Đặt tour                  | `TourBookingServiceImpl.createTourBooking()` | TC-M4-003, 004, 005 | BR-TR-01 |
 | UC20.2 | Lập lịch chuyến tour      | `TourBookingServiceImpl.scheduleTour()`      | TC-M4-006           | BR-TR-06 |
 | UC20.3 | Hủy tour do sự cố         | `TourBookingServiceImpl.cancelTour()`        | TC-M4-007           | BR-TR-05 |
-| UC21   | Điểm danh AI Face Scan    | *(điền sau khi code)*                        | TC-M4-008, 009      | BR-TR-02 |
+| UC21   | Điểm danh AI Face Scan    | `TourServiceImpl.verifyAttendance()`         | TC-M4-008, 009      | BR-TR-02 |
 | UC22   | Đánh giá dịch vụ          | *(điền sau khi code)*                        | TC-M4-010, 011      | BR-TR-03 |
 | UC23   | Kiểm duyệt đánh giá       | *(điền sau khi code)*                        | TC-M4-012           | BR-TR-04 |
 

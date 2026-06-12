@@ -77,6 +77,7 @@ D:\GitL\su26-swp391-se2023-g2\03_sourcecode\kawai-backend\src\main\java\com\kawa
 D:\GitL\su26-swp391-se2023-g2\03_sourcecode\kawai-backend\src\main\java\com\kawai\exceptions\GlobalExceptionHandler.java
 D:\GitL\su26-swp391-se2023-g2\03_sourcecode\kawai-backend\src\main\java\com\kawai\models\Role.java
 D:\GitL\su26-swp391-se2023-g2\03_sourcecode\kawai-backend\src\main\java\com\kawai\repositories\TourStaffAssignmentRepository.java
+D:\GitL\su26-swp391-se2023-g2\03_sourcecode\kawai-backend\src\main\java\com\kawai\controllers\api\TourAttendanceRestController.java
 D:\GitL\su26-swp391-se2023-g2\03_sourcecode\kawai-backend\src\main\java\com\kawai\models\TourStaffAssignment.java
 D:\GitL\su26-swp391-se2023-g2\03_sourcecode\kawai-backend\src\main\java\com\kawai\dto\CreateEmployeeDTO.java
 D:\GitL\su26-swp391-se2023-g2\03_sourcecode\kawai-backend\src\main\java\com\kawai\models\FoodOrder.java
@@ -106,6 +107,8 @@ D:\GitL\su26-swp391-se2023-g2\03_sourcecode\kawai-backend\src\main\java\com\kawa
 D:\GitL\su26-swp391-se2023-g2\03_sourcecode\kawai-backend\src\main\java\com\kawai\services\impl\CustomerServiceImpl.java
 D:\GitL\su26-swp391-se2023-g2\03_sourcecode\kawai-backend\src\main\java\com\kawai\models\Booking.java
 D:\GitL\su26-swp391-se2023-g2\03_sourcecode\kawai-backend\src\main\java\com\kawai\services\interfaces\FolioService.java
+D:\GitL\su26-swp391-se2023-g2\03_sourcecode\kawai-backend\src\main\java\com\kawai\services\impl\AIServiceClientImpl.java
+D:\GitL\su26-swp391-se2023-g2\03_sourcecode\kawai-backend\src\main\java\com\kawai\services\interfaces\AIServiceClient.java
 D:\GitL\su26-swp391-se2023-g2\03_sourcecode\kawai-backend\src\main\java\com\kawai\dto\BookingRequest.java
 D:\GitL\su26-swp391-se2023-g2\03_sourcecode\kawai-backend\src\main\java\com\kawai\repositories\InvoiceRepository.java
 D:\GitL\su26-swp391-se2023-g2\03_sourcecode\kawai-backend\src\main\java\com\kawai\controllers\web\AuthController.java

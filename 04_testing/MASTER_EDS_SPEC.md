@@ -206,6 +206,54 @@ Feature: Luồng vận hành lõi tích hợp 3 Modules (Front Desk, POS, Folio)
 
 ---
 
+## 6.7. API Specification — UC21: Điểm danh AI Face Scan (Module 4)
+
+### 6.7.1. Endpoints
+
+| Method | Path | Auth Level | Required Roles | Rate Limit | Idempotent? |
+|--------|------|------------|----------------|------------|-------------|
+| POST | `/api/v1/tour-attendance/{attendeeId}/verify` | Protected | Tour_Guide, Admin | 50/min | No |
+| POST | `/api/v1/tour-attendance/{attendeeId}/manual` | Protected | Tour_Guide, Admin | 50/min | No |
+
+### 6.7.2. Authorization Matrix
+| Tác vụ / Endpoint | GUEST | CUSTOMER | RECEPTIONIST | F&B STAFF | ADMIN / TOUR_GUIDE |
+| --- | --- | --- | --- | --- | --- |
+| Xác thực khuôn mặt (`POST /verify`) | ❌ | ❌ | ❌ | ❌ | ✅ |
+| Điểm danh thủ công (`POST /manual`) | ❌ | ❌ | ❌ | ❌ | ✅ |
+
+### 6.7.3. Request / Response Sample
+**[POST] Xác thực AI Face Scan**
+```bash
+curl -X POST https://api.kawairesort.com/api/v1/tour-attendance/1/verify \
+  -H "Authorization: Bearer [TOUR_GUIDE_TOKEN]" \
+  -F "image=@/path/to/face.jpg"
+
+# Expected Response (200 OK):
+"Attendance verified successfully"
+
+# Expected Response (400 Bad Request):
+"Face match score below threshold"
+```
+
+**[POST] Điểm danh thủ công**
+```bash
+curl -X POST https://api.kawairesort.com/api/v1/tour-attendance/1/manual?status=PRESENT \
+  -H "Authorization: Bearer [TOUR_GUIDE_TOKEN]"
+
+# Expected Response (200 OK):
+"Attendance marked manually"
+```
+
+### 6.7.4. Error Codes & Business Rules
+| Rule/Code | HTTP Status | Message/Logic | Trigger Condition |
+|------|-------------|---------|------------------|
+| `BR-TR-02` | 200 | Cập nhật `PRESENT` | Độ trùng khớp AI >= 0.85 |
+| `ERR-AI-01` | 400 | `Face match score below threshold` | Độ trùng khớp AI < 0.85 |
+| `ERR-AI-02` | 503 | `AI Service unavailable` | Dịch vụ AI bên thứ ba bị sập |
+| `ERR-TOUR-01`| 400 | `Attendee not found` | `attendeeId` không tồn tại |
+
+---
+
 ## 7. Phương pháp Xác minh (API Verification Samples)
 
 ### 7.1. UC09 — Tìm kiếm phòng trống (RoomService.searchAvailableRooms)

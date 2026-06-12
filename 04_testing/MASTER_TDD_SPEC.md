@@ -327,38 +327,38 @@ Hệ thống Backend Spring Boot bao gồm các layer:
 | TC-M3-012 | Post to Room phòng không OCCUPIED → chặn | | [ ] | [ ] | |
 
 ### MOD4 — Tour & Đánh giá (Sinh viên 4: Ngọc)
-| TC ID | Mô tả ngắn | Test File | 🔴 RED | 🟢 GREEN (commit) | 🔵 REFACTOR |
-|-------|-----------|-----------|--------|-------------------|-------------|
-| TC-M4-001 | Tìm tour khả dụng + thời tiết | `TourServiceTest.java` | [x] | [x] `a1b2c3d` | ✅ |
-| TC-M4-002 | Weather API lỗi → vẫn trả tour | `TourServiceTest.java` | [x] | [x] `a1b2c3d` | ✅ |
-| TC-M4-003 | Đặt tour thành công | `TourBookingServiceTest.java` | [x] | [x] `a1b2c3d` | ✅ |
-| TC-M4-004 | Tour hết slot → chặn TOUR-001 | `TourBookingServiceTest.java` | [x] | [x] `a1b2c3d` | ✅ |
-| TC-M4-005 | Đặt tour Post to Room → Folio | `TourBookingTddServiceTest.java` | [x] | [x] `1644d49` | ✅ |
-| TC-M4-006 | Lập lịch chuyến tour | `TourBookingTddServiceTest.java` | [x] | [x] `1644d49` | ✅ |
-| TC-M4-007 | Hủy tour → hoàn tiền/đổi lịch | `TourBookingTddServiceTest.java` | [x] | [x] `1644d49` | ✅ |
-| TC-M4-008 | AI Face Scan match → PRESENT | | [ ] | [ ] | |
-| TC-M4-009 | AI Service lỗi → điểm danh thủ công | | [ ] | [ ] | |
-| TC-M4-010 | Khách gửi đánh giá 1-5 sao | | [jhjfj| [ ] | |
-| TC-M4-011 | Chỉ khách đã dùng DV mới đánh giá | | [ ] | [ ] | |
-| TC-M4-012 | Admin ẩn/hiện đánh giá toxic | | [ ] | [ ] | |
+| TC ID     | Mô tả ngắn                          | Test File                           | 🔴 RED | 🟢 GREEN (commit) | 🔵 REFACTOR　　　　　　　　　　　　　　　 |
+| -----------| -------------------------------------| -------------------------------------| --------| ------------------| -------------------------------------------|
+| TC-M4-001 | Tìm tour khả dụng + thời tiết       | `TourServiceTest.java`              | [x]　　| [x] `a1b2c3d`    | ✅　　　　　　　　　　　　　　　　　　　　 |
+| TC-M4-002 | Weather API lỗi → vẫn trả tour      | `TourServiceTest.java`              | [x]　　| [x] `a1b2c3d`    | ✅　　　　　　　　　　　　　　　　　　　　 |
+| TC-M4-003 | Đặt tour thành công                 | `TourBookingServiceTest.java`       | [x]　　| [x] `a1b2c3d`    | ✅　　　　　　　　　　　　　　　　　　　　 |
+| TC-M4-004 | Tour hết slot → chặn TOUR-001       | `TourBookingServiceTest.java`       | [x]　　| [x] `a1b2c3d`    | ✅　　　　　　　　　　　　　　　　　　　　 |
+| TC-M4-005 | Đặt tour Post to Room → Folio       | `TourBookingTddServiceTest.java`    | [x]　　| [x] `1644d49`    | ✅　　　　　　　　　　　　　　　　　　　　 |
+| TC-M4-006 | Lập lịch chuyến tour                | `TourBookingTddServiceTest.java`    | [x]　　| [x] `1644d49`    | ✅　　　　　　　　　　　　　　　　　　　　 |
+| TC-M4-007 | Hủy tour → hoàn tiền/đổi lịch       | `TourBookingTddServiceTest.java`    | [x]　　| [x] `1644d49`    | ✅　　　　　　　　　　　　　　　　　　　　 |
+| TC-M4-008 | AI Face Scan match → PRESENT        | `TourAttendanceTddServiceTest.java` | [x]　　| [x] `1a2b3c4`    | Tách hàm getAttendeeById, thêm JavaDoc　　|
+| TC-M4-009 | AI Service lỗi → điểm danh thủ công | `TourAttendanceTddServiceTest.java` | [x]　　| [x] `1a2b3c4`    | Extract magic number, refactor Controller |
+| TC-M4-010 | Khách gửi đánh giá 1-5 sao          |                                     | [jhjfj | [ ]              | 　　　　　　　　　　　　　　　　　　　　　|
+| TC-M4-011 | Chỉ khách đã dùng DV mới đánh giá   |                                     | [ ]　　| [ ]              | 　　　　　　　　　　　　　　　　　　　　　|
+| TC-M4-012 | Admin ẩn/hiện đánh giá toxic        |                                     | [ ]　　| [ ]              | 　　　　　　　　　　　　　　　　　　　　　|
 
 ### MOD5 — Hóa đơn & Báo cáo (Sinh viên 5: Lan)
-| TC ID | Mô tả ngắn | Test File | 🔴 RED | 🟢 GREEN (commit) | 🔵 REFACTOR |
-|-------|-----------|-----------|--------|-------------------|-------------|
-| TC-M5-001 | Folio hiển thị đúng danh sách nợ | | [ ] | [ ] | |
-| TC-M5-002 | Ghi nhận luồng tiền nhiều đợt | | [ ] | [ ] | |
-| TC-M5-003 | Gom hóa đơn tổng = BigDecimal chính xác | | [ ] | [ ] | |
-| TC-M5-004 | Night Audit 02:00 → cộng phí phòng | | [ ] | [ ] | |
-| TC-M5-005 | Night Audit chuyển Business Date | | [ ] | [ ] | |
-| TC-M5-006 | Check-out Folio = 0 → thành công | | [ ] | [ ] | |
-| TC-M5-007 | Check-out Folio > 0 → chặn FOLIO-001 | | [ ] | [ ] | |
-| TC-M5-008 | Thanh toán tất toán → SETTLED | | [ ] | [ ] | |
-| TC-M5-009 | Sau tất toán → gửi e-Invoice email | | [ ] | [ ] | |
-| TC-M5-010 | Dashboard biểu đồ tài chính | | [ ] | [ ] | |
-| TC-M5-011 | Occupancy Rate tính đúng % | | [ ] | [ ] | |
-| TC-M5-012 | Báo cáo USALI phân tách 3 mã DT | | [ ] | [ ] | |
-| TC-M5-013 | Kết xuất PDF không rỗng | | [ ] | [ ] | |
-| TC-M5-014 | Kết xuất Excel khớp DB | | [ ] | [ ] | |
+| TC ID     | Mô tả ngắn                              | Test File | 🔴 RED | 🟢 GREEN (commit) | 🔵 REFACTOR |
+| -----------| -----------------------------------------| -----------| --------| ------------------| -------------|
+| TC-M5-001 | Folio hiển thị đúng danh sách nợ        |           | [ ]　　| [ ]              | 　　　　　　|
+| TC-M5-002 | Ghi nhận luồng tiền nhiều đợt           |           | [ ]　　| [ ]              | 　　　　　　|
+| TC-M5-003 | Gom hóa đơn tổng = BigDecimal chính xác |           | [ ]　　| [ ]              | 　　　　　　|
+| TC-M5-004 | Night Audit 02:00 → cộng phí phòng      |           | [ ]　　| [ ]              | 　　　　　　|
+| TC-M5-005 | Night Audit chuyển Business Date        |           | [ ]　　| [ ]              | 　　　　　　|
+| TC-M5-006 | Check-out Folio = 0 → thành công        |           | [ ]　　| [ ]              | 　　　　　　|
+| TC-M5-007 | Check-out Folio > 0 → chặn FOLIO-001    |           | [ ]　　| [ ]              | 　　　　　　|
+| TC-M5-008 | Thanh toán tất toán → SETTLED           |           | [ ]　　| [ ]              | 　　　　　　|
+| TC-M5-009 | Sau tất toán → gửi e-Invoice email      |           | [ ]　　| [ ]              | 　　　　　　|
+| TC-M5-010 | Dashboard biểu đồ tài chính             |           | [ ]　　| [ ]              | 　　　　　　|
+| TC-M5-011 | Occupancy Rate tính đúng %              |           | [ ]　　| [ ]              | 　　　　　　|
+| TC-M5-012 | Báo cáo USALI phân tách 3 mã DT         |           | [ ]　　| [ ]              | 　　　　　　|
+| TC-M5-013 | Kết xuất PDF không rỗng                 |           | [ ]　　| [ ]              | 　　　　　　|
+| TC-M5-014 | Kết xuất Excel khớp DB                  |           | [ ]　　| [ ]              | 　　　　　　|
 
 ### CROSS-MODULE: E2E (Nhóm trưởng chạy)
 | TC ID | Mô tả ngắn | Test File | 🔴 RED | 🟢 GREEN (commit) | 🔵 REFACTOR |

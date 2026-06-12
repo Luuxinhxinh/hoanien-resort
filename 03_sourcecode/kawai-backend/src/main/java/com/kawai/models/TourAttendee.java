@@ -35,4 +35,12 @@ public class TourAttendee {
     // Phá»¥c vá»¥ Ä‘iá»ƒm danh AI Face Scan
     @Column(name = "face_vector_data", columnDefinition = "TEXT")
     private String faceVectorData;
+
+    public String getStatus() {
+        return this.attendanceStatus;
+    }
+
+    public void setStatus(String status) {
+        this.attendanceStatus = status;
+    }
 }
