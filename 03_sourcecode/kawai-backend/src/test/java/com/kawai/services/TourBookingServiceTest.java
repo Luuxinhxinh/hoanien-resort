@@ -57,6 +57,12 @@ class TourBookingServiceTest {
     @Mock
     private FolioItemRepository folioItemRepository;
 
+    @Mock
+    private TourStaffAssignmentRepository tourStaffAssignmentRepository;
+
+    @Mock
+    private EmployeeRepository employeeRepository;
+
     @InjectMocks
     private TourBookingServiceImpl tourBookingService;
 
