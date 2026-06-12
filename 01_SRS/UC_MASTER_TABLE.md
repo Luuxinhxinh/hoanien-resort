@@ -64,16 +64,16 @@
 
 ## 🟢 MOD4: QUẢN LÝ LỮ HÀNH & ĐÁNH GIÁ — Sinh viên 4
 
-| UC ID          | Tên Use Case                                                                    | Actor             | Priority | Trạng thái |
-| -------------- | -------------------------------------------------------------------------------- | ----------------- | -------- | ------------ |
-| **UC19** | Tìm kiếm gói tour (Tích hợp API thời tiết)                                | Customer, Guest   | 🟠 P1    | ⬜           |
-| **UC20** | **Đặt tour & Chống Double-booking**                                     |                   |          |              |
-| UC20.1         | Duyệt & Đặt Tour du lịch                                                     | Customer          | 🔴 P0    | ⬜           |
-| UC20.2         | Lập lịch chạy các chuyến xe Tour (Điều hành xe và tài xế)             | Admin, Tour Guide | 🟠 P1    | ⬜           |
-| UC20.3         | Hủy tour do sự cố (Hoàn tiền hoặc đổi lịch cho khách)                  | Admin, Tour Guide | 🟠 P1    | ⬜           |
-| **UC21** | Điểm danh bằng AI quét mặt — Manifest & Báo sự cố (Gọi FastAPI Python) | Tour Guide        | 🟠 P1    | ⬜           |
-| **UC22** | Gửi đánh giá bằng sao (Khách feedback về phòng / tour)                   | Customer          | 🟡 P2    | ⬜           |
-| **UC23** | Kiểm duyệt đánh giá của khách (Ẩn bình luận toxic / spam)              | Admin             | 🟡 P2    | ⬜           |
+| UC ID    | Tên Use Case                                                           | Actor             | Priority | Trạng thái |
+| ----------| ------------------------------------------------------------------------| -------------------| ----------| ------------|
+| **UC19** | Tìm kiếm gói tour (Tích hợp API thời tiết)                             | Customer, Guest   | 🟠 P1　　 | ⬜          |
+| **UC20** | **Đặt tour & Chống Double-booking**                                    |                   | 　　　　 |            |
+| UC20.1   | Duyệt & Đặt Tour du lịch                                               | Customer          | 🔴 P0　　| ⬜          |
+| UC20.2   | Lập lịch chạy các chuyến xe Tour (Điều hành xe và tài xế)              | Admin, Tour Guide | 🟠 P1　　 | ⬜          |
+| UC20.3   | Hủy tour do sự cố (Hoàn tiền hoặc đổi lịch cho khách)                  | Admin, Tour Guide | 🟠 P1　　 | ⬜          |
+| **UC21** | Điểm danh bằng AI quét mặt — Manifest & Báo sự cố (Gọi FastAPI Python) | Tour Guide        | 🟠 P1　　 | ⬜          |
+| **UC22** | Gửi đánh giá bằng sao (Khách feedback về phòng / tour)                 | Customer          | 🟡 P2　　 | ⬜          |
+| **UC23** | Kiểm duyệt đánh giá của khách (Ẩn bình luận toxic / spam)              | Admin             | 🟡 P2　　 | ⬜          |
 
 ---
 

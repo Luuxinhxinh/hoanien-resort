@@ -28,6 +28,7 @@ com\kawai\services\interfaces\TourBookingService.class
 com\kawai\services\impl\RoomServiceImpl.class
 com\kawai\controllers\web\AuthController.class
 com\kawai\models\FoodOrderDetail.class
+com\kawai\controllers\api\ReviewRestController.class
 com\kawai\controllers\web\ManagerController$OccupancyRowMock.class
 com\kawai\KawaiApplication.class
 com\kawai\dto\CartItemDto.class
@@ -51,6 +52,7 @@ com\kawai\repositories\CustomerRepository.class
 com\kawai\services\impl\AIServiceClientImpl.class
 com\kawai\dto\RoomInfoDto$RoomInfoDtoBuilder.class
 com\kawai\utils\DateUtils.class
+com\kawai\services\impl\ReviewServiceImpl.class
 com\kawai\controllers\web\AdminController$RoomMock.class
 com\kawai\services\impl\WeatherApiClientImpl.class
 com\kawai\repositories\AccountRepository.class
@@ -134,6 +136,7 @@ com\kawai\services\impl\UserServiceImpl.class
 com\kawai\models\RestaurantTable.class
 com\kawai\controllers\web\ManagerController$DailyRevenueMock.class
 com\kawai\dto\RoomInfoDto.class
+com\kawai\services\interfaces\ReviewService.class
 com\kawai\repositories\RoomBookingDetailRepository.class
 com\kawai\services\impl\KdsServiceImpl.class
 com\kawai\repositories\AuditLogRepository.class

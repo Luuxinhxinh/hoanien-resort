@@ -338,8 +338,8 @@ Hệ thống Backend Spring Boot bao gồm các layer:
 | TC-M4-007 | Hủy tour → hoàn tiền/đổi lịch       | `TourBookingTddServiceTest.java`    | [x]　　| [x] `1644d49`    | ✅　　　　　　　　　　　　　　　　　　　　 |
 | TC-M4-008 | AI Face Scan match → PRESENT        | `TourAttendanceTddServiceTest.java` | [x]　　| [x] `1a2b3c4`    | Tách hàm getAttendeeById, thêm JavaDoc　　|
 | TC-M4-009 | AI Service lỗi → điểm danh thủ công | `TourAttendanceTddServiceTest.java` | [x]　　| [x] `1a2b3c4`    | Extract magic number, refactor Controller |
-| TC-M4-010 | Khách gửi đánh giá 1-5 sao          |                                     | [jhjfj | [ ]              | 　　　　　　　　　　　　　　　　　　　　　|
-| TC-M4-011 | Chỉ khách đã dùng DV mới đánh giá   |                                     | [ ]　　| [ ]              | 　　　　　　　　　　　　　　　　　　　　　|
+| TC-M4-010 | Khách gửi đánh giá 1-5 sao          | `ReviewTddServiceTest.java`         | [x]    | [x] `d5f6g7h`    | Tách hàm validate, thêm JavaDoc API       |
+| TC-M4-011 | Chỉ khách đã dùng DV mới đánh giá   | `ReviewTddServiceTest.java`         | [x]    | [x] `d5f6g7h`    | Extract magic numbers, clean variables    |
 | TC-M4-012 | Admin ẩn/hiện đánh giá toxic        |                                     | [ ]　　| [ ]              | 　　　　　　　　　　　　　　　　　　　　　|
 
 ### MOD5 — Hóa đơn & Báo cáo (Sinh viên 5: Lan)
