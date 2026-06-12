@@ -33,7 +33,7 @@
 | UC09 | Tìm phòng trống | *(điền sau khi code)* | TC-M2-001, 002 | — |
 | UC10.1 | Đặt phòng & Cọc VNPay | *(điền sau khi code)* | TC-M2-003, 004, 005, 006, 007 | BR-FO-01, BR-FO-02, BR-FIN-02 |
 | UC10.2 | Mã khuyến mãi | *(điền sau khi code)* | TC-M2-008, 009 | — |
-| UC11 | Front Desk Dashboard | *(điền sau khi code)* | TC-M2-010 | BR-FO-04 |
+| UC11 | Front Desk Dashboard | `RoomServiceImpl.getRoomDashboard()` | TC-M2-010 | BR-FO-04 |
 | UC12.1 | Check-in (quét CCCD) | *(điền sau khi code)* | TC-M2-011, 012 | BR-SYS-01, BR-FO-03, BR-FO-08, BR-FO-09 |
 | UC12.2 | Hạn mức chi tiêu | *(điền sau khi code)* | TC-M2-013 | BR-FO-06 |
 | UC12.3 | Đổi phòng | *(điền sau khi code)* | TC-M2-014 | — |

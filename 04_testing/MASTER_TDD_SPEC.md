@@ -310,6 +310,11 @@ Hệ thống Backend Spring Boot bao gồm các layer:
 | TC-M2-009b | `BookingServiceUC10Test.java` | [x]　　　　　　　| [x]              | ✅ `[ERR_PROMO_EXPIRED]` error code　　　　　　　　　　　　　 |
 | TC-M2-009c | `BookingServiceUC10Test.java` | [x]　　　　　　　| [x]              | ✅ `[ERR_PROMO_NOT_FOUND]` error code　　　　　　　　　　　　 |
 
+#### UC11 — Xem sơ đồ Matrix phòng trống (RoomService)
+| TC ID | Test File | 🔴 RED confirmed | 🟢 GREEN (commit) | 🔵 REFACTOR note |
+|---|---|---|---|---|
+| TC-M2-010 | `RoomServiceUC11Test.java` | [x] | [x] `da47c4d` | ✅ Extract `toDashboardDTO` helper method, use Java Streams, add JavaDoc |
+
 ### MOD3 — POS Nhà hàng & F&B (Sinh viên 3: Đức)
 | TC ID | Mô tả ngắn | Test File | 🔴 RED | 🟢 GREEN (commit) | 🔵 REFACTOR |
 |-------|-----------|-----------|--------|-------------------|-------------|

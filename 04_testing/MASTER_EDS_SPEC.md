@@ -365,6 +365,44 @@ curl -X POST https://api.kawairesort.com/api/v1/rooms/search \
 
 ---
 
+### 7.1.b UC11 — Xem sơ đồ Matrix phòng trống (RoomService.getRoomDashboard)
+
+**[GET] Lấy danh sách sơ đồ phòng**
+```bash
+# [GET] Lấy danh sách sơ đồ phòng Front Desk
+curl -X GET https://api.kawairesort.com/api/v1/rooms/dashboard \
+  -H "Authorization: Bearer [RECEPTIONIST_TOKEN]" \
+  -H "Content-Type: application/json"
+
+# Expected Response (200):
+{
+  "status": "SUCCESS",
+  "rooms": [
+    {
+      "roomId": 1,
+      "roomNumber": "R101",
+      "categoryName": "Deluxe River View",
+      "roomStatus": "Vacant",
+      "pricePerNight": 2800000,
+      "capacity": 2
+    }
+  ]
+}
+```
+
+**Business Rules:**
+* BR-FO-04: Trạng thái phòng phải tuân thủ nghiêm ngặt vòng đời phòng (Vacant, Occupied, Dirty, Maintenance).
+* BR-FIN-05: Giá phòng phải là `BigDecimal` scale 0, `HALF_UP`.
+
+**Error Codes:**
+* `SYS-001` (500) - `Lỗi hệ thống nội bộ`
+
+**Implementation:**
+* Interface: `RoomService.getRoomDashboard()`
+* Repository: `RoomRepository.findAll()`
+
+---
+
 ### 7.2. UC10 — Đặt phòng & Thanh toán cọc (BookingService)
 
 **[POST] Đặt phòng mới**
@@ -486,6 +524,7 @@ curl -X POST https://api.kawairesort.com/api/v1/admin/employees \
 | Tác vụ / Endpoint | GUEST | CUSTOMER | RECEPTIONIST | F&B STAFF | ADMIN / MANAGER |
 | --- | --- | --- | --- | --- | --- |
 | Đặt phòng (`POST /bookings`) | ❌ | ✅ | ✅ | ❌ | ✅ |
+| Xem sơ đồ phòng (`GET /rooms/dashboard`) | ❌ | ❌ | ✅ | ❌ | ✅ |
 | Post to Room (`POST /pos/charge`) | ❌ | ❌ | ❌ | ✅ | ✅ |
 | Night Audit (`POST /audit/run`) | ❌ | ❌ | ❌ | ❌ | ✅ |
 | Đổi mật khẩu (`PUT /users/me`) | ❌ | ✅ Own | ✅ Own | ✅ Own | ✅ All |
