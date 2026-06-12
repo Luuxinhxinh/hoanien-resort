@@ -17,4 +17,11 @@ public interface RoomService {
      * @return Danh sách phòng trống, rỗng nếu không có
      */
     List<RoomSearchResponseDTO> searchAvailableRooms(RoomSearchRequestDTO request);
+
+    /**
+     * Lấy sơ đồ phòng (Room Matrix) thời gian thực (UC11).
+     * 
+     * @return Danh sách DTO hiển thị trạng thái các phòng, rỗng nếu chưa có.
+     */
+    List<com.kawai.dto.RoomDashboardDTO> getRoomDashboard();
 }
