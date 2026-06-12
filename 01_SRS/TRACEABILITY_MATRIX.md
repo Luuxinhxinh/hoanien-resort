@@ -18,12 +18,12 @@
 
 | UC ID  | Mô tả                   | Class / Method        | TC ID               | BR                   |
 | --------| -------------------------| -----------------------| ---------------------| ----------------------|
-| UC01.1 | Đăng ký tài khoản       | *(điền sau khi code)* | TC-M1-001, 002, 003 | BR-SYS-01, BR-SYS-07 |
-| UC01.2 | Đăng nhập               | *(điền sau khi code)* | TC-M1-004, 005, 006 | BR-SYS-02            |
+| UC01.1 | Đăng ký tài khoản       | `AuthServiceImpl.register()` | TC-M1-001, 002, 003 | BR-SYS-01, BR-SYS-07 |
+| UC01.2 | Đăng nhập               | `AuthServiceImpl.login()` | TC-M1-004, 005, 006 | BR-SYS-02            |
 | UC02   | Xác thực 2FA / OTP      | *(điền sau khi code)* | TC-M1-007, 008, 009 | BR-SYS-02            |
 | UC03   | Đặt lại mật khẩu        | *(điền sau khi code)* | TC-M1-010, 011, 012 | BR-SYS-07            |
-| UC04   | Hồ sơ cá nhân (AES-256) | *(điền sau khi code)* | TC-M1-013, 014      | BR-SYS-01            |
-| UC05.1 | Quản lý nhân viên RBAC  | *(điền sau khi code)* | TC-M1-015, 016      | BR-SYS-06            |
+| UC04   | Hồ sơ cá nhân (AES-256) | `CustomerServiceImpl.updateProfile()` | TC-M1-013, 014      | BR-SYS-01            |
+| UC05.1 | Quản lý nhân viên RBAC  | `UserServiceImpl.createEmployeeAccount()` | TC-M1-015, 016      | BR-SYS-06            |
 | UC05.2 | Audit Log               | *(điền sau khi code)* | TC-M1-017           | BR-SYS-04            |
 | UC06.1 | CRUD Core Data          | *(điền sau khi code)* | TC-M1-018           | —                    |
 | UC06.2 | Giá phòng động          | *(điền sau khi code)* | TC-M1-019           | —                    |
@@ -36,11 +36,10 @@
 
 | UC ID | Mô tả | Class / Method | TC ID | BR |
 |-------|-------|---------------|-------|-----|
-| UC09 | Tìm phòng trống | *(điền sau khi code)* | TC-M2-001, 002 | — |
-| UC10.1 | Đặt phòng & Cọc VNPay | *(điền sau khi code)* | TC-M2-003, 004, 005, 006, 007 | BR-FO-01, BR-FO-02, BR-FIN-02 |
-| UC10.2 | Mã khuyến mãi | *(điền sau khi code)* | TC-M2-008, 009 | — |
-<<<<<<< HEAD
-| UC11 | Front Desk Dashboard | *(điền sau khi code)* | TC-M2-010 | BR-FO-04 |
+| UC09 | Tìm phòng trống | `RoomServiceImpl.searchAvailableRooms()` | TC-M2-001, 002 | — |
+| UC10.1 | Đặt phòng & Cọc VNPay | `BookingServiceImpl.createBooking()` | TC-M2-003, 004, 005, 006, 007 | BR-FO-01, BR-FO-02, BR-FIN-02 |
+| UC10.2 | Mã khuyến mãi | `BookingServiceImpl.applyPromoCode()` | TC-M2-008, 009 | — |
+| UC11 | Front Desk Dashboard | `RoomServiceImpl.getRoomDashboard()` | TC-M2-010 | BR-FO-04 |
 | UC12.1 | Check-in (quét CCCD) | `CheckinServiceImpl.checkIn()` | TC-M2-011, 012 | BR-SYS-01, BR-FO-03, BR-FO-08, BR-FO-09 |
 | UC12.2 | Hạn mức chi tiêu | `CheckinServiceImpl.updateCreditLimit()` | TC-M2-013 | BR-FO-06 |
 | UC12.3 | Đổi phòng | `CheckinServiceImpl.transferRoom()` | TC-M2-014 | — |
@@ -50,18 +49,6 @@
 | UC13.3 | Xem yêu cầu dọn/sửa | `HousekeepingServiceImpl.getPendingOperations()` | TC-M2-018 | BR-HK-04 |
 | UC13.4 | HK báo hỏng thiết bị | `HousekeepingServiceImpl.createMaintenanceRequest()` | TC-M2-019 | BR-HK-02 |
 | UC13.5 | MT hoàn thành bảo trì | `HousekeepingServiceImpl.completeMaintenance()` | TC-M2-020 | BR-HK-03 |
-=======
-| UC11 | Front Desk Dashboard | `RoomServiceImpl.getRoomDashboard()` | TC-M2-010 | BR-FO-04 |
-| UC12.1 | Check-in (quét CCCD) | *(điền sau khi code)* | TC-M2-011, 012 | BR-SYS-01, BR-FO-03, BR-FO-08, BR-FO-09 |
-| UC12.2 | Hạn mức chi tiêu | *(điền sau khi code)* | TC-M2-013 | BR-FO-06 |
-| UC12.3 | Đổi phòng | *(điền sau khi code)* | TC-M2-014 | — |
-| UC12.4 | Nâng cấp Dependents | *(điền sau khi code)* | TC-M2-015 | BR-FO-07 |
-| UC13.1 | Tự động lệnh dọn phòng | *(điền sau khi code)* | TC-M2-016 | BR-FO-04 |
-| UC13.2 | HK cập nhật dọn phòng | *(điền sau khi code)* | TC-M2-017 | BR-FO-04 |
-| UC13.3 | Xem yêu cầu dọn/sửa | *(điền sau khi code)* | TC-M2-018 | BR-HK-04 |
-| UC13.4 | HK báo hỏng thiết bị | *(điền sau khi code)* | TC-M2-019 | BR-HK-02 |
-| UC13.5 | MT hoàn thành bảo trì | *(điền sau khi code)* | TC-M2-020 | BR-HK-03 |
->>>>>>> 0c3447ef8295f1e483c05353a42af3905cc0c3a0
 
 ---
 
@@ -74,7 +61,7 @@
 | UC16 | POS tạo order Dine-In | *(điền sau khi code)* | TC-M3-005, 006 | BR-FB-04 |
 | UC17.1 | KDS — KOT bếp nhận đơn | *(điền sau khi code)* | TC-M3-007, 008 | BR-FB-04 |
 | UC17.2 | Báo hết món | *(điền sau khi code)* | TC-M3-009 | BR-FB-02 |
-| UC18 | Post to Room (Folio) | *(điền sau khi code)* | TC-M3-010, 011, 012 | BR-FO-06, BR-FB-01 |
+| UC18 | Post to Room (Folio) | `PosServiceImpl.chargeToRoom()` | TC-M3-010, 011, 012 | BR-FO-06, BR-FB-01 |
 
 ---
 

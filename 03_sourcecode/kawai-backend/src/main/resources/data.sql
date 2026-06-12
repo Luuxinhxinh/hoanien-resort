@@ -3,16 +3,15 @@
 -- Chạy tự động sau khi Hibernate tạo schema (defer-datasource-initialization: true)
 -- ============================================================
 -- ── 1. Roles ─────────────────────────────────────────────────
-INSERT INTO Roles (role_id, role_name) VALUES (1, 'Admin');
-INSERT INTO Roles (role_id, role_name) VALUES (2, 'Receptionist');
-INSERT INTO Roles (role_id, role_name) VALUES (3, 'F&B');
-INSERT INTO Roles (role_id, role_name) VALUES (4, 'Housekeeping');
-INSERT INTO Roles (role_id, role_name) VALUES (5, 'Manager');
-INSERT INTO Roles (role_id, role_name) VALUES (6, 'Tourguide');
-INSERT INTO Roles (role_id, role_name) VALUES (7, 'Khách VIP');
-INSERT INTO Roles (role_id, role_name) VALUES (8, 'Khách thường');
-INSERT INTO Roles (role_id, role_name) VALUES (9, 'CUSTOMER');
-INSERT INTO Roles (role_id, role_name) VALUES (10, 'ADMIN');
+INSERT INTO Roles (role_id, role_name) VALUES (1, 'ADMIN');
+INSERT INTO Roles (role_id, role_name) VALUES (2, 'RECEPTIONIST');
+INSERT INTO Roles (role_id, role_name) VALUES (3, 'F&B KITCHEN');
+INSERT INTO Roles (role_id, role_name) VALUES (4, 'F&B POS');
+INSERT INTO Roles (role_id, role_name) VALUES (5, 'HOUSEKEEPING');
+INSERT INTO Roles (role_id, role_name) VALUES (6, 'MANAGER');
+INSERT INTO Roles (role_id, role_name) VALUES (7, 'TOURGUIDE');
+INSERT INTO Roles (role_id, role_name) VALUES (8, 'CUSTOMER VIP');
+INSERT INTO Roles (role_id, role_name) VALUES (9, 'CUSTOMER NORMAL');
 -- ── 2. Accounts ──────────────────────────────────────────────
 -- Mật khẩu: "admin123" (BCrypt hash)
 INSERT INTO Accounts (account_id, username, password_hash, is_active, role_id, created_at)
@@ -298,3 +297,26 @@ ALTER TABLE Menu_Items ALTER COLUMN item_id RESTART WITH 100;
 ALTER TABLE Food_Orders ALTER COLUMN order_id RESTART WITH 100;
 ALTER TABLE Food_Order_Details ALTER COLUMN detail_id RESTART WITH 100;
 
+
+-- ── 10. Tours & Schedules ────────────────────────────────────
+INSERT INTO Tours (tour_id, tour_name, tour_type, base_price, max_capacity, description)
+VALUES (1, 'Hoi An Ancient Town Architecture Walk', 'Half-Day', 1500000, 10, 'Tour đi bộ chuyên sâu đưa bạn khám phá các kiến trúc cổ độc đáo của Hội An.');
+
+INSERT INTO Tours (tour_id, tour_name, tour_type, base_price, max_capacity, description)
+VALUES (2, 'Cam Thanh Village Heritage Ride', 'Half-Day', 1200000, 8, 'Hành trình đạp xe len lỏi qua các con đường làng Cam Thanh xanh mát.');
+
+INSERT INTO Tours (tour_id, tour_name, tour_type, base_price, max_capacity, description)
+VALUES (3, 'Thu Bồn River Sunset Cruise', 'Evening', 2500000, 12, 'Trải nghiệm ngắm hoàng hôn rực rỡ dọc dòng sông Thu Bồn thơ mộng trên thuyền gỗ truyền thống.');
+
+-- Thêm lịch trình cho vài ngày tới (dùng cứng ngày tháng sáu 2026)
+INSERT INTO Tour_Schedules (schedule_id, tour_id, departure_date, departure_time, booked_seats, schedule_status)
+VALUES (1, 1, '2026-06-14', '08:00:00', 0, 'Open');
+
+INSERT INTO Tour_Schedules (schedule_id, tour_id, departure_date, departure_time, booked_seats, schedule_status)
+VALUES (2, 2, '2026-06-15', '14:00:00', 0, 'Open');
+
+INSERT INTO Tour_Schedules (schedule_id, tour_id, departure_date, departure_time, booked_seats, schedule_status)
+VALUES (3, 3, '2026-06-15', '17:00:00', 0, 'Open');
+
+ALTER TABLE Tours ALTER COLUMN tour_id RESTART WITH 100;
+ALTER TABLE Tour_Schedules ALTER COLUMN schedule_id RESTART WITH 100;

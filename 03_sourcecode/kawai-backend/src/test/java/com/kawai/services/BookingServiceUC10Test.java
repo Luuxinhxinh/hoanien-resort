@@ -1,4 +1,4 @@
-package com.kawai;
+package com.kawai.services;
 
 import com.kawai.dto.BookingRequestDTO;
 import com.kawai.dto.BookingResponseDTO;

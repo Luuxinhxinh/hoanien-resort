@@ -26,7 +26,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class ReviewTddServiceTest {
+public class ReviewServiceUC22Test {
 
     @Mock
     private ReviewRepository reviewRepository;

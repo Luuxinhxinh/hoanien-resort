@@ -289,9 +289,55 @@
                 alert("Vui lòng chọn ít nhất 1 món ăn.");
                 return;
             }
-            alert("Đặt món thành công! Nhà bếp đang chuẩn bị.");
-            cart = [];
-            renderCart();
+
+            const nameToIdMap = {
+                'Cao Lầu Hội An': 3,
+                'Bò Wagyu Nướng Tảng': 1,
+                'Nước mót Hội An': 5,
+                'Rượu vang đỏ Dalat Premium': 4,
+                'Rượu vang đỏ': 4
+            };
+
+            const orderTypeSelect = document.getElementById('orderType').value;
+            const reqOrderType = orderTypeSelect === 'ROOM_SERVICE' ? 'room-svc' : 'dine-in';
+            const roomNumber = reqOrderType === 'room-svc' ? prompt("Nhập số phòng của bạn (ví dụ: 101):", "101") : null;
+            const tableId = reqOrderType === 'dine-in' ? 1 : null;
+            
+            if (reqOrderType === 'room-svc' && !roomNumber) return;
+
+            const items = cart.map(item => ({
+                id: nameToIdMap[item.name] || 1,
+                qty: item.qty,
+                price: item.price
+            }));
+
+            const payload = {
+                orderType: reqOrderType,
+                roomNumber: roomNumber,
+                tableId: tableId,
+                paymentType: "Pay_Later",
+                items: items
+            };
+
+            fetch('/api/pos/orders', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    alert("Đặt món thành công! Nhà bếp đang chuẩn bị.");
+                    cart = [];
+                    renderCart();
+                } else {
+                    alert("Có lỗi xảy ra: " + data.message);
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Lỗi kết nối.");
+            });
         }
     </script>
 

@@ -52,7 +52,7 @@ import static org.mockito.Mockito.*;
  */
 @ExtendWith(MockitoExtension.class)
 @DisplayName("UC19 — Tìm kiếm gói tour (TourService)")
-class TourServiceTest {
+class TourServiceUC19Test {
 
     @Mock
     private TourScheduleRepository tourScheduleRepository;

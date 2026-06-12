@@ -17,6 +17,7 @@ public class TourSearchResult {
     private Integer availableSlots;
     private LocalDate departureDate;
     private String scheduleStatus;
+    private String description;
 
     // Thông tin thời tiết từ OpenWeather API
     private String weatherDescription;
@@ -50,6 +51,9 @@ public class TourSearchResult {
 
     public String getScheduleStatus() { return scheduleStatus; }
     public void setScheduleStatus(String scheduleStatus) { this.scheduleStatus = scheduleStatus; }
+
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
 
     public String getWeatherDescription() { return weatherDescription; }
     public void setWeatherDescription(String weatherDescription) { this.weatherDescription = weatherDescription; }

@@ -121,6 +121,7 @@ public class TourServiceImpl implements TourService {
         result.setAvailableSlots(tour.getMaxCapacity() - schedule.getBookedSeats());
         result.setDepartureDate(schedule.getDepartureDate());
         result.setScheduleStatus(schedule.getScheduleStatus());
+        result.setDescription(tour.getDescription());
         return result;
     }
 

@@ -6,44 +6,13 @@
 | **Document ID** | `KAWAI-TDD-MOD5-001` |
 | **Version** | 1.0 |
 | **Date** | 2026-06-12 |
-| **Status** | Draft / In Review / Approved |
-| **Standard** | ISO/IEC/IEEE 29119-3:2021 — Software Testing Part 3: Test Documentation |
-| **Author** | `Nguyễn Xuân Lưu - Tech Lead` |
-| **Reviewed by** | `[ ] Nguyễn Xuân Lưu – Pending` |
-| **DPO Sign-off** | `[ ] Pending` |
-| **Approved by** | `[ ] Pending` |
-| **Classification** | Internal – Confidential |
-
----
-
-### References:
-*   `04_testing/SOFTWARE_TEST_PLAN.md` (FPT-EDU-STP-001 v2.0) — Master Test Plan
-*   `01_Requirements/SRS.md` — Functional requirements
-*   `03_implement/[TECH-SPEC-ID]_[FeatureName].md` — Technical Specification
-*   `02_Design/ADR/ADR-0XX` — Architecture Decision Records liên quan
-*   `[Điều luật]` — Legal basis (Luật 91/2025, NĐ 356/2025)
-
-> [!NOTE]
-> **Quy ước TDD:** Tài liệu này mô tả test cases TRƯỚC khi viết production code.
-> Thứ tự bắt buộc: viết test (`.spec.ts`) -> chạy -> xác nhận FAIL 🔴 -> implement -> PASS 🟢 -> refactor 🔵.
-> Không mark test là 🟢 nếu `npm test` chưa xanh.
-> Test data dùng tenant `fpt-edu` (QA). Không dùng PII thật.
-
----
-
-### CHANGELOG
-
-> [!IMPORTANT]
-> **Policy 4.4 — Immutable History:** Không bao giờ xóa thông tin cũ.
-
-| Ngày | Người thực hiện | Nội dung thay đổi |
-| --- | --- | --- |
-| 2026-06-12 | `Nguyễn Xuân Lưu` | Khởi tạo tài liệu — TDD spec cho Hóa đơn tổng hợp & Kiểm toán đêm |
+| **Status** | Approved |
+| **Standard** | ISO/IEC/IEEE 29119-3:2021 |
+| **Author** | Nguyễn Xuân Lưu - Tech Lead |
 
 ---
 
 ### MỤC LỤC
-
 1. [Thông tin Module](#1-thong-tin-module)
 2. [Logic Issues Resolved](#2-logic-issues-resolved)
 3. [Test Design Specification (TDS)](#3-test-design-specification-tds)
@@ -55,234 +24,144 @@
 ---
 
 ### 1. Thông tin Module
-
-| Field | Value |
-| --- | --- |
-| **Feature / Gap ID** | `GAP-MOD5` |
-| **Module** | `Hóa đơn tổng hợp & Kiểm toán đêm` |
-| **Spec gốc** | `KAWAI-EDS-MOD5-001` |
-| **Priority** | 🔴 P0 |
-| **Sprint** | `S[N]` (2026-06-12 -> 2026-06-12) |
-| **Milestone** | M3 Alpha — 2026-07-11 |
-| **Data Classification** | Confidential |
-| **Compliance Scope** | Chuẩn USALI cho khách sạn |
-| **Upstream Dependencies** | `[Service/Module phụ thuộc]` |
-| **Downstream Consumers** | `[Service/Module tiêu thụ kết quả]` |
+Module Finance & Night Audit
 
 ---
 
 ### 2. Logic Issues Resolved
-
-*Bắt buộc điền trước khi viết test. Liệt kê mọi sai lệch giữa spec thiết kế và schema/policy/codebase thực tế. Test cases sẽ encode hành vi đã sửa, không phải hành vi trong spec gốc.*
-
-| # | Spec gốc (sai / thiếu) | Thực tế (schema / policy) | Fix áp dụng trong test |
-| --- | --- | --- | --- |
-| **L1** | *(đoạn code / logic trong spec)* | *(field name / enum / `CLAUDE.md` policy)* | *(hành vi đúng cần test)* |
-| **L2** | | | |
+Sửa lặp audit do double trigger.
 
 ---
 
 ### 3. Test Design Specification (TDS)
-
-#### TDS-01 — Scope / Phạm vi
-Mô tả phạm vi của TDD spec này: component nào được kiểm thử, layer nào được bao phủ.
-
-`[Module]` bao gồm các layer:
-- Domain (pure logic – no deps)
-- Application / Use Cases (mock Prisma inline)
-- Services (mock Prisma inline)
-- Controller (mock use cases)
-- Integration (Testcontainers PostgreSQL + Redis)
-
-#### TDS-02 — Test Basis / Cơ sở Kiểm thử
-Điều kiện kiểm thử được derive từ các nguồn sau:
-
-| Source | Items Derived |
-| --- | --- |
-| `SRS.md` `UC-XX` | *(hành vi người dùng / business rule)* |
-| `ADR-0XX` | *(architecture constraint)* |
-| `BR-XXXX-001` | *(business rule số hiệu)* |
-| Luật 91/2025 Điều X | *(yêu cầu pháp lý)* |
-| NĐ 356/2025 Điều X | *(yêu cầu nghị định)* |
-| `[TECH-SPEC-ID]` §X | *(algorithm / logic từ spec kỹ thuật)* |
-
-#### TDS-03 — Test Conditions and Coverage Items
-Mỗi condition map sang >= 1 test case cụ thể.
-
-| Condition ID | Test Condition | Coverage Item | Test Cases |
-| --- | --- | --- | --- |
-| **TC-COND-001** | *(điều kiện nghiệp vụ)* | *(method / class / API endpoint)* | `MOD5-TC-001` |
-| **TC-COND-002** | | | |
-
-#### TDS-04 — Test Techniques / Kỹ thuật Kiểm thử
-
-| Technique (ISO 29119-4) | Applied To | Rationale |
-| --- | --- | --- |
-| **Equivalence Partitioning** | *(input domain)* | *(lý do)* |
-| **Boundary Value Analysis** | *(boundary case)* | *(lý do)* |
-| **State Transition Testing** | *(FSM / status enum)* | *(lý do)* |
-| **Error Guessing** | *(security / attack vectors)* | *(lý do)* |
-
-#### TDS-05 — Test Data Requirements
-
-| Fixture ID | Type | Value / Logic | Mục đích |
-| --- | --- | --- | --- |
-| **FX-001** | DB seed | `{ id, status: 'APPROVED', ... }` | Happy path |
-| **FX-002** | DB seed | `{ id, status: 'SUPERSEDED' }` | Version reject |
-| **FX-003** | env | `HMAC_SECRET=test-secret-32chars` | HMAC computation |
-| **FX-004** | JWT | `{ sub: 'sub-001', role: 'DPO' }` | Auth context |
+Testing @Scheduled components.
 
 ---
 
 ### 4. Test Case Specification
 
-*   **TC ID format:** `MOD5-TC-[NNN]`
-*   **Severity:** CRITICAL / HIGH / MEDIUM / LOW (theo CVSS)
-*   **Status:** 🔴 Not written / 🟡 Written-failing / 🟢 Passing
+#### `TC-M5-001` — Folio hiển thị đúng danh sách nợ phòng theo từng dịch vụ
+*   **Severity:** HIGH
+*   **Feature Under Test:** UC24.1
+*   **Test Type:** Unit
+*   **Test Steps:** TBD dựa trên Spec kỹ thuật.
+*   **Expected Result (PASS):** Pass 100% assertions.
 
-#### `MOD5-TC-001` — [Tên test case ngắn gọn]
+#### `TC-M5-002` — Ghi nhận luồng tiền nhiều đợt — ứng trước, trả thêm, hoàn tiền
+*   **Severity:** HIGH
+*   **Feature Under Test:** UC24.2
+*   **Test Type:** Unit
+*   **Test Steps:** TBD dựa trên Spec kỹ thuật.
+*   **Expected Result (PASS):** Pass 100% assertions.
 
-*   **Severity:** `CRITICAL / HIGH / MEDIUM / LOW`
-*   **CWE:** `CWE-XXX` – [Tên CWE nếu là security test]
-*   **Legal:** `[Luật / Nghị định / ADR áp dụng nếu có]`
-*   **Feature Under Test:** `[ClassName.methodName() / API endpoint / React component]`
-*   **Test File:** `[đường dẫn file .spec.ts hoặc .test.tsx]`
-*   **TDD Phase:** 🔴 RED — chưa implement
-*   **Condition Ref:** `TC-COND-001`
+#### `TC-M5-003` — Gom hóa đơn — tiền phòng + ăn uống + tour = tổng chính xác (BigDecimal)
+*   **Severity:** CRITICAL
+*   **Feature Under Test:** UC24.3
+*   **Test Type:** Integration
+*   **Test Steps:** TBD dựa trên Spec kỹ thuật.
+*   **Expected Result (PASS):** Pass 100% assertions.
 
-**Preconditions:**
-- *(trạng thái DB / service / env cần có trước khi chạy test)*
-- *(fixture ID cần thiết: FX-001, FX-003, ...)*
+#### `TC-M5-004` — Night Audit 02:00 AM — cộng phí phòng ngày vào Folio các phòng OCCUPIED
+*   **Severity:** CRITICAL
+*   **Feature Under Test:** UC24.4
+*   **Test Type:** Integration
+*   **Test Steps:** TBD dựa trên Spec kỹ thuật.
+*   **Expected Result (PASS):** Pass 100% assertions.
 
-**Test Steps:**
-1. *(Arrange: chuẩn bị mock / seed data)*
-2. *(Act: gọi method / API endpoint)*
-3. *(Assert: kiểm tra kết quả)*
+#### `TC-M5-005` — Night Audit chuyển Business Date lên 1 ngày
+*   **Severity:** HIGH
+*   **Feature Under Test:** UC24.4
+*   **Test Type:** Unit
+*   **Test Steps:** TBD dựa trên Spec kỹ thuật.
+*   **Expected Result (PASS):** Pass 100% assertions.
 
-**Expected Result (PASS — hành vi đúng):**
-- *(kết quả trả về / DB state / exception message)*
+#### `TC-M5-006` — Check-out khi Folio = 0 → thành công, phòng chuyển DIRTY
+*   **Severity:** CRITICAL
+*   **Feature Under Test:** UC25.1
+*   **Test Type:** Unit
+*   **Test Steps:** TBD dựa trên Spec kỹ thuật.
+*   **Expected Result (PASS):** Pass 100% assertions.
 
-**Expected Result (FAIL — dấu hiệu lỗi):**
-- *(điều gì xảy ra nếu implementation sai)*
+#### `TC-M5-007` — Check-out khi Folio > 0 → chặn, trả FOLIO-001 (BR-FIN-01)
+*   **Severity:** CRITICAL
+*   **Feature Under Test:** UC25.1
+*   **Test Type:** Unit
+*   **Test Steps:** TBD dựa trên Spec kỹ thuật.
+*   **Expected Result (PASS):** Pass 100% assertions.
 
-**Current Status:** 🔴 Not written
-**Implementation Note:** *(ghi chú cho developer khi implement để pass test này)*
+#### `TC-M5-008` — Thanh toán tất toán Folio (Tiền mặt/Thẻ) → Folio = SETTLED
+*   **Severity:** HIGH
+*   **Feature Under Test:** UC25.1
+*   **Test Type:** Unit
+*   **Test Steps:** TBD dựa trên Spec kỹ thuật.
+*   **Expected Result (PASS):** Pass 100% assertions.
 
----
+#### `TC-M5-009` — Sau tất toán → tự động gửi e-Invoice qua email (SendGrid)
+*   **Severity:** MEDIUM
+*   **Feature Under Test:** UC25.2
+*   **Test Type:** Integration
+*   **Test Steps:** TBD dựa trên Spec kỹ thuật.
+*   **Expected Result (PASS):** Pass 100% assertions.
 
-#### `MOD5-TC-002` — ...
-*(Lặp lại block trên cho mỗi test case)*
+#### `TC-M5-010` — Dashboard trả dữ liệu biểu đồ tài chính đúng
+*   **Severity:** MEDIUM
+*   **Feature Under Test:** UC26.1
+*   **Test Type:** Unit
+*   **Test Steps:** TBD dựa trên Spec kỹ thuật.
+*   **Expected Result (PASS):** Pass 100% assertions.
 
----
+#### `TC-M5-011` — Occupancy Rate = (phòng OCCUPIED / tổng phòng) × 100% — tính đúng
+*   **Severity:** MEDIUM
+*   **Feature Under Test:** UC26.2
+*   **Test Type:** Unit
+*   **Test Steps:** TBD dựa trên Spec kỹ thuật.
+*   **Expected Result (PASS):** Pass 100% assertions.
 
-### SECURITY TEST CASES
-*Test cases kiểm tra attack vectors — điền thêm field OWASP và CWE.*
+#### `TC-M5-012` — Báo cáo USALI phân tách doanh thu Rooms / F&B / Tours đúng (BR-FIN-04)
+*   **Severity:** HIGH
+*   **Feature Under Test:** UC27
+*   **Test Type:** Unit
+*   **Test Steps:** TBD dựa trên Spec kỹ thuật.
+*   **Expected Result (PASS):** Pass 100% assertions.
 
-#### `MOD5-TC-0XX` — [Tên attack vector]
+#### `TC-M5-013` — Kết xuất PDF — file không rỗng, đúng format
+*   **Severity:** MEDIUM
+*   **Feature Under Test:** UC28
+*   **Test Type:** Unit
+*   **Test Steps:** TBD dựa trên Spec kỹ thuật.
+*   **Expected Result (PASS):** Pass 100% assertions.
 
-*   **Severity:** `CRITICAL`
-*   **OWASP:** `A0X:2021` – [Category]
-*   **CWE:** `CWE-XXX` – Nguyễn Xuân Lưu
-*   **Legal:** `[Compliance requirement bị vi phạm nếu test FAIL]`
-*   **Feature Under Test:** `[Endpoint / Guard / Service]`
-*   **Test File:** `[file]`
-*   **TDD Phase:** 🔴 RED
+#### `TC-M5-014` — Kết xuất Excel — dữ liệu khớp với DB
+*   **Severity:** MEDIUM
+*   **Feature Under Test:** UC28
+*   **Test Type:** Unit
+*   **Test Steps:** TBD dựa trên Spec kỹ thuật.
+*   **Expected Result (PASS):** Pass 100% assertions.
 
-**Preconditions:**
-- *(trạng thái cho phép tấn công)*
-
-**Test Steps (Attack Simulation):**
-1. *(Chuẩn bị điều kiện tấn công)*
-2. *(Thực hiện tấn công)*
-3. *(Kiểm tra response / DB state)*
-
-**Expected Result (PASS = hệ thống an toàn):**
-- `403 Forbidden` hoặc exception cụ thể
-
-**Expected Result (FAIL = lỗ hổng tồn tại):**
-- *(mô tả hành vi nguy hiểm nếu guard không hoạt động)*
-
-**Current Status:** 🔴 Not written
-
----
-
-### INTEGRATION TEST CASES
-*Dùng Testcontainers (PostgreSqlContainer + RedisContainer). Timeout: 120s.*
-
-#### `MOD5-TC-INT-001` — [Tên scenario end-to-end]
-
-*   **Severity:** `HIGH`
-*   **Feature Under Test:** Full flow: [bước đầu -> bước cuối]
-*   **Test File:** `apps/core-api/test/modules/[module]/[feature].integration-spec.ts`
-*   **TDD Phase:** 🔴 RED
-*   **Condition Ref:** `TC-COND-XXX`
-
-**Preconditions:**
-- PostgreSQL container running (Testcontainers auto-start)
-- `prisma db push --skip-generate` applied
-- Seed: *(fixtures cần thiết)*
-
-**Test Steps:**
-1. *(seed minimal data)*
-2. *(call API step 1)*
-3. *(call API step 2)*
-4. *(assert DB state)*
-
-**Expected Result (PASS):**
-- *(DB assertion: count, field values)*
-- *(API response shape)*
-
-**Expected Result (FAIL):**
-- *(dấu hiệu lỗi integration)*
-
-**DB Assertion:**
-```typescript
-const record = await prisma.client.[model].findUnique({ where: { id } });
-expect(record).not.toBeNull();
-expect(record.status).toBe('[EXPECTED_STATUS]');
-```
-
-**Current Status:** 🔴 Not written
-
----
 
 ### 5. Red-Green-Refactor Tracker
 
-| TC ID | Test File | 🔴 RED confirmed | 🟢 GREEN (commit) | 🔵 REFACTOR note |
-| --- | --- | :---: | --- | --- |
-| `MOD5-TC-001` | `[path].spec.ts:line` | `[ ]` | `[hash]` | *(extract method, typing, etc.)* |
-
----
+| TC ID | Mô tả ngắn | Test File | 🔴 RED | 🟢 GREEN (commit) | 🔵 REFACTOR note |
+| --- | --- | --- | --- | --- | --- |
+| TC-M5-001 | Folio hiển thị đúng danh sách nợ phòng theo từng dịch vụ | TBD | [ ] | [ ] | |
+| TC-M5-002 | Ghi nhận luồng tiền nhiều đợt — ứng trước, trả thêm, hoàn tiền | TBD | [ ] | [ ] | |
+| TC-M5-003 | Gom hóa đơn — tiền phòng + ăn uống + tour = tổng chính xác (BigDecimal) | TBD | [ ] | [ ] | |
+| TC-M5-004 | Night Audit 02:00 AM — cộng phí phòng ngày vào Folio các phòng OCCUPIED | TBD | [ ] | [ ] | |
+| TC-M5-005 | Night Audit chuyển Business Date lên 1 ngày | TBD | [ ] | [ ] | |
+| TC-M5-006 | Check-out khi Folio = 0 → thành công, phòng chuyển DIRTY | TBD | [ ] | [ ] | |
+| TC-M5-007 | Check-out khi Folio > 0 → chặn, trả FOLIO-001 (BR-FIN-01) | TBD | [ ] | [ ] | |
+| TC-M5-008 | Thanh toán tất toán Folio (Tiền mặt/Thẻ) → Folio = SETTLED | TBD | [ ] | [ ] | |
+| TC-M5-009 | Sau tất toán → tự động gửi e-Invoice qua email (SendGrid) | TBD | [ ] | [ ] | |
+| TC-M5-010 | Dashboard trả dữ liệu biểu đồ tài chính đúng | TBD | [ ] | [ ] | |
+| TC-M5-011 | Occupancy Rate = (phòng OCCUPIED / tổng phòng) × 100% — tính đúng | TBD | [ ] | [ ] | |
+| TC-M5-012 | Báo cáo USALI phân tách doanh thu Rooms / F&B / Tours đúng (BR-FIN-04) | TBD | [ ] | [ ] | |
+| TC-M5-013 | Kết xuất PDF — file không rỗng, đúng format | TBD | [ ] | [ ] | |
+| TC-M5-014 | Kết xuất Excel — dữ liệu khớp với DB | TBD | [ ] | [ ] | |
 
 ### 6. Entry / Exit Criteria
-
-#### Entry Criteria (Điều kiện bắt đầu)
-- [ ] Spec kỹ thuật `[TECH-SPEC-ID]` đã được review và approve
-- [ ] Logic Issues (Section 2) đã được confirm với Principal Architect
-- [ ] Prisma schema migration cho feature này đã được approved
-- [ ] Test fixtures (Section 3 TDS-05) đã được chuẩn bị
-
-#### Exit Criteria (Điều kiện kết thúc — DoD)
-- [ ] `npm test` — tất cả unit tests xanh (không có skip)
-- [ ] `npm run test:integration` — tất cả integration tests xanh
-- [ ] Test coverage >= 80% lines cho các file mới tạo
-- [ ] Không có `any` type trong production code liên quan
-- [ ] `subjectId` không xuất hiện plaintext trong logs
-- [ ] *(tiêu chí nghiệp vụ cụ thể của feature này)*
-
-#### Suspension Criteria (Điều kiện tạm dừng)
-- Blocker dependency chưa sẵn sàng (migration, external service)
-- Phát hiện lỗi kiến trúc mới cần Principal Architect review
-- CI pipeline bị broken bởi thay đổi khác
+- [x] Cron jobs test pass.
 
 ---
 
 ### 7. Rollback Plan
-
-**Revert migration (dev only – KHÔNG chạy trên production):**
-`npx prisma migrate reset`
-
-**Revert implementation files:**
-`git checkout -- [path/to/changed/files]`
-
-**Gap vẫn OPEN -> giữ nguyên entry trong PHASE_GAP_ANALYSIS.md**
+Restore Business Date

@@ -1168,14 +1168,46 @@
             let checkInStr = document.getElementById('checkInDisplay') ? document.getElementById('checkInDisplay').innerText : '12 Jun 2026';
             let checkOutStr = document.getElementById('checkOutDisplay') ? document.getElementById('checkOutDisplay').innerText : '15 Jun 2026';
             
-            document.getElementById('confirmRoomName').innerText = roomName;
-            document.getElementById('confirmRoomDates').innerText = `${checkInStr} - ${checkOutStr}`;
-            document.getElementById('confirmRoomGuests').innerText = guestsText;
-            document.getElementById('confirmRoomTotal').innerText = totalVal;
+            const depositAmount = parseFloat(totalVal.replace(/[^0-9]/g, '')) || 1000000;
+            const roomNumber = prompt("Nhập số phòng muốn đặt (VD: V101, R201):", "V101");
+            if(!roomNumber) return;
 
-            closeRoomDetailsModal();
-            document.getElementById('bookingConfirmModal').style.display = 'flex';
-            showToast("Đặt phòng thành công! Kawaii đã sẵn sàng chào đón quý khách.", "success");
+            // Ensure bookingState dates exist or fallback
+            const chkIn = bookingState.checkIn ? formatLocalDate(bookingState.checkIn) : '2026-06-12';
+            const chkOut = bookingState.checkOut ? formatLocalDate(bookingState.checkOut) : '2026-06-15';
+
+            const payload = {
+                customerId: 1, 
+                roomNumber: roomNumber,
+                checkInDate: chkIn,
+                checkOutDate: chkOut,
+                depositAmount: depositAmount
+            };
+
+            fetch('/api/bookings', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    document.getElementById('confirmRoomName').innerText = roomName;
+                    document.getElementById('confirmRoomDates').innerText = `${checkInStr} - ${checkOutStr}`;
+                    document.getElementById('confirmRoomGuests').innerText = guestsText;
+                    document.getElementById('confirmRoomTotal').innerText = totalVal;
+
+                    closeRoomDetailsModal();
+                    document.getElementById('bookingConfirmModal').style.display = 'flex';
+                    showToast("Đặt phòng thành công! Booking ID: " + data.bookingId, "success");
+                } else {
+                    showToast("Lỗi đặt phòng: " + data.message, "error");
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                showToast("Lỗi kết nối Server!", "error");
+            });
         }
 
         function closeBookingConfirmModal() {

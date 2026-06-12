@@ -39,7 +39,7 @@ import static org.mockito.Mockito.*;
  */
 @ExtendWith(MockitoExtension.class)
 @DisplayName("UC20.1 — Đặt tour du lịch (TourBookingService)")
-class TourBookingServiceTest {
+class TourBookingServiceUC20Test {
 
     @Mock
     private TourScheduleRepository tourScheduleRepository;

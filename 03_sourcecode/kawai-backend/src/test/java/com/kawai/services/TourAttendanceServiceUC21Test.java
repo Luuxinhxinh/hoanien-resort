@@ -26,7 +26,7 @@ import static org.mockito.Mockito.*;
  */
 @ExtendWith(MockitoExtension.class)
 @DisplayName("UC21 — Tour AI Attendance TDD Test")
-public class TourAttendanceTddServiceTest {
+public class TourAttendanceServiceUC21Test {
 
     @Mock
     private TourAttendeeRepository tourAttendeeRepository;

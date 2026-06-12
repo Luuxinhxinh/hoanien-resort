@@ -41,7 +41,6 @@
 ---
 
 ## 1. Thông tin Module
-<<<<<<< Updated upstream
 | Field               | Value　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　|
 | ---------------------| --------------------------------------------------------------------|
 | Feature / Gap ID    | KAWAI-ALL-001　　　　　　　　　　　　　　　　　　　　　　　　　　　|
@@ -50,17 +49,6 @@
 | Priority            | 🔴 P0　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　|
 | Sprint              | S1 (2026-06-09 → 2026-06-23)　　　　　　　　　　　　　　　　　　　 |
 | Data Classification | Sensitive-PII / PII / Internal　　　　　　　　　　　　　　　　　　 |
-=======
-
-| Field               | Value                                                                           |
-| ------------------- | ------------------------------------------------------------------------------- |
-| Feature / Gap ID    | KAWAI-ALL-001                                                                   |
-| Module              | Hệ thống quản lý nghỉ dưỡng (Tích hợp 5 Module)                        |
-| Spec gốc           | Project_Specification.md                                                        |
-| Priority            | 🔴 P0                                                                           |
-| Sprint              | S1 (2026-06-09 → 2026-06-23)                                                   |
-| Data Classification | Sensitive-PII / PII / Internal                                                  |
->>>>>>> Stashed changes
 | Compliance Scope    | Luật Cư trú 2020, Nghị định 13/2023/NĐ-CP (Bảo vệ dữ liệu cá nhân) |
 
 ## 2. Logic Issues Resolved
@@ -246,7 +234,7 @@ Hệ thống Backend Spring Boot bao gồm các layer:
 **Severity:** MEDIUM
 **CWE:** N/A
 **Feature Under Test:** `TourService.searchAvailableTours()`
-**Test File:** `03_sourcecode/kawai-backend/src/test/java/com/kawai/services/TourServiceTest.java`
+**Test File:** `03_sourcecode/kawai-backend/src/test/java/com/kawai/services/TourServiceUC19Test.java`
 **TDD Phase:** 🟢 GREEN
 
 **Test Cases:**
@@ -287,7 +275,6 @@ Hệ thống Backend Spring Boot bao gồm các layer:
 2. Mock `kawai-ai-service` trả về match 98% với khách A trong Manifest.
 3. Verify status trong `Tour_Attendees` của khách A chuyển sang `PRESENT`.
 
-<<<<<<< Updated upstream
 #### MOD4-TC-M4-005 — Đặt tour Post to Room (UC20.1)
 **Severity:** HIGH
 **Feature Under Test:** `TourBookingService.createTourBooking()`
@@ -337,23 +324,6 @@ Hệ thống Backend Spring Boot bao gồm các layer:
 
 **Expected Result (PASS):**
 * TourBooking chuyển sang trạng thái hủy đúng và số tiền hoàn trả khớp chính sách.
-=======
-#### MOD4-TC-003 — Đặt Tour Chống Overbooking (UC20.1)
-
-**Severity:** CRITICAL
-**Feature Under Test:** `TourBookingService.bookTour()`
-**Preconditions:**
-
-* Tour chuyến đi vịnh Hạ Long ngày 18/06 còn đúng 1 slot trống cuối cùng.
-  **Test Steps:**
-
-1. Hai thread đồng thời (Khách X và Khách Y) gửi yêu cầu đặt tour này vào cùng một mili-giây.
-2. Chờ 2 thread xử lý xong.
-   **Expected Result (PASS):**
-
-* Một khách đặt thành công (slot = 0, trạng thái BOOKED).
-* Khách còn lại bị từ chối với Exception `TourFullyBookedException` (mã lỗi 409).
->>>>>>> Stashed changes
 
 ### MODULE 5: HÓA ĐƠN TỔNG HỢP & BIỂU ĐỒ (UC24-UC28)
 
@@ -400,7 +370,7 @@ Hệ thống Backend Spring Boot bao gồm các layer:
 | TC-M1-001 | Đăng ký thành công, hash BCrypt  |           | [ ]    | [ ]               |                  |
 | TC-M1-002 | Đăng ký trùng username/email      |           | [ ]    | [ ]               |                  |
 | TC-M1-003 | Đăng ký thiếu field bắt buộc    |           | [ ]    | [ ]               |                  |
-| TC-M1-004 | Đăng nhập thành công, trả JWT   |           | [ ]    | [ ]               |                  |
+| TC-M1-004 | Đăng nhập thành công, trả JWT   | AuthServiceUC01Test.java | [x]    | [x] c9d8e7f     | ✅ Integration test setup |
 | TC-M1-005 | Đăng nhập sai mật khẩu           |           | [ ]    | [ ]               |                  |
 | TC-M1-006 | Brute-force khóa sau 5 lần          |           | [ ]    | [ ]               |                  |
 | TC-M1-007 | Gửi OTP thành công                 |           | [ ]    | [ ]               |                  |
@@ -411,7 +381,7 @@ Hệ thống Backend Spring Boot bao gồm các layer:
 | TC-M1-012 | Token hết hạn / sai                 |           | [ ]    | [ ]               |                  |
 | TC-M1-013 | Cập nhật hồ sơ, CCCD mã hóa AES |           | [ ]    | [ ]               |                  |
 | TC-M1-014 | CCCD không lưu plaintext DB         |           | [ ]    | [ ]               |                  |
-| TC-M1-015 | Admin tạo tài khoản nhân viên    |           | [ ]    | [ ]               |                  |
+| TC-M1-015 | Admin tạo tài khoản nhân viên    | UserServiceUC05Test.java | [x]    | [x] c9d8e7f     | ✅ Extract to UserServiceUC05Test |
 | TC-M1-016 | Non-Admin truy cập API admin → 403  |           | [ ]    | [ ]               |                  |
 | TC-M1-017 | Audit Log ghi đủ ai/gì/lúc nào   |           | [ ]    | [ ]               |                  |
 | TC-M1-018 | Admin CRUD hạng phòng/tour          |           | [ ]    | [ ]               |                  |
@@ -422,7 +392,6 @@ Hệ thống Backend Spring Boot bao gồm các layer:
 
 ### MOD2 — Đặt phòng & Tiền sảnh (Sinh viên 2: Dũng)
 
-<<<<<<< Updated upstream
 #### UC10 — Đặt phòng & Thanh toán cọc (BookingService)
 | TC ID      | Test File                     | 🔴 RED confirmed | 🟢 GREEN (commit) | 🔵 REFACTOR note　　　　　　　　　　　　　　　　　　　　　　 |
 | ------------| -------------------------------| ------------------| ------------------| --------------------------------------------------------------|
@@ -441,52 +410,6 @@ Hệ thống Backend Spring Boot bao gồm các layer:
 | TC ID | Test File | 🔴 RED confirmed | 🟢 GREEN (commit) | 🔵 REFACTOR note |
 |---|---|---|---|---|
 | TC-M2-010 | `RoomServiceUC11Test.java` | [x] | [x] `da47c4d` | ✅ Extract `toDashboardDTO` helper method, use Java Streams, add JavaDoc |
-=======
-| TC ID      | Mô tả ngắn                                           | Test File                       | 🔴 RED | 🟢 GREEN (commit) | 🔵 REFACTOR note                                                              |
-| ---------- | ------------------------------------------------------- | ------------------------------- | ------ | ----------------- | ----------------------------------------------------------------------------- |
-| TC-M2-001  | Tìm kiếm phòng trống - còn phòng                  | `RoomServiceUC09Test.java`    | [x]    | [x]`d2a1b3c`    | ✅ Refactored: extract methods `isRoomAvailable()`, `toSearchResult()`    |
-| TC-M2-002  | Tìm phòng trống - hết phòng                        | `RoomServiceUC09Test.java`    | [x]    | [x]`d2a1b3c`    | ✅ Refactored: always return empty list (never null)                          |
-| TC-M2-002b | Tìm phòng trống - lọc phòng trùng lịch           | `RoomServiceUC09Test.java`    | [x]    | [x]`d2a1b3c`    | ✅ Refactored: filter overlapping bookings via `countOverlappingBookings()` |
-| TC-M2-003  | Đặt phòng & thanh toán - thành công               | `BookingServiceUC10Test.java` | [x]    | [x]`b3c4d5e`    | ✅`createBooking()` returns CONFIRMED + cancellationDeadline                |
-| TC-M2-004  | Tranh chấp đặt phòng đồng thời (Concurrency)     | `BookingServiceUC10Test.java` | [x]    | [x]`b3c4d5e`    | ✅ Concurrency: 1 CONFIRMED, 1 RoomNotAvailableException                      |
-| TC-M2-005  | Validate ngày đặt phòng                             | `BookingServiceUC10Test.java` | [x]    | [x]`b3c4d5e`    | ✅`validateBookingDates()` throws IllegalArgumentException                  |
-| TC-M2-006  | Hủy đặt phòng > 48h → Hoàn 100%                   | `BookingServiceUC10Test.java` | [x]    | [x]`b3c4d5e`    | ✅`cancelBooking()` → Cancelled_Refunded + 100% refund                     |
-| TC-M2-007  | Hủy đặt phòng < 48h → Phạt 100%                   | `BookingServiceUC10Test.java` | [x]    | [x]`b3c4d5e`    | ✅`cancelBooking()` → Cancelled_Forfeited + 0% refund                      |
-| TC-M2-008  | Áp dụng SUMMER10 giảm 10%                            | `BookingServiceUC10Test.java` | [x]    | [x]`b3c4d5e`    | ✅ SUMMER10: 10% off = 9,000,000                                              |
-| TC-M2-008b | Áp dụng EARLYBIRD20 giảm 20%                         | `BookingServiceUC10Test.java` | [x]    | [x]`b3c4d5e`    | ✅ EARLYBIRD20: 20% off = 4,800,000                                           |
-| TC-M2-009a | Lỗi promo chưa kích hoạt                            | `BookingServiceUC10Test.java` | [x]    | [x]`b3c4d5e`    | ✅`[ERR_PROMO_INACTIVE]` error code                                         |
-| TC-M2-009b | Lỗi promo hết hạn                                    | `BookingServiceUC10Test.java` | [x]    | [x]`b3c4d5e`    | ✅`[ERR_PROMO_EXPIRED]` error code                                          |
-| TC-M2-009c | Lỗi promo không tồn tại                             | `BookingServiceUC10Test.java` | [x]    | [x]`b3c4d5e`    | ✅`[ERR_PROMO_NOT_FOUND]` error code                                        |
-| TC-M2-010  | Dashboard sơ đồ phòng thời gian thực              |                                 | [ ]    | [ ]               |                                                                               |
-| TC-M2-011  | Check-in thành công → gán phòng & tạo Folio       |                                 | [ ]    | [ ]               |                                                                               |
-| TC-M2-012  | Check-in thất bại → phòng DIRTY/MAINTENANCE         |                                 | [ ]    | [ ]               |                                                                               |
-| TC-M2-013  | Ủy quyền hạn mức chi tiêu thành công             |                                 | [ ]    | [ ]               |                                                                               |
-| TC-M2-014  | Đổi phòng vật lý → dọn phòng cũ, chuyển Folio |                                 | [ ]    | [ ]               |                                                                               |
-| TC-M2-015  | Nâng cấp Dependent thành Customer account            |                                 | [ ]    | [ ]               |                                                                               |
-| TC-M2-016  | Check-out → tự động tạo lệnh dọn phòng          |                                 | [ ]    | [ ]               |                                                                               |
-| TC-M2-017  | Housekeeping cập nhật dọn phòng xong                |                                 | [ ]    | [ ]               |                                                                               |
-| TC-M2-018  | Lễ tân xem danh sách yêu cầu dọn/sửa             |                                 | [ ]    | [ ]               |                                                                               |
-| TC-M2-019  | Housekeeping tạo phiếu sửa chữa → MAINTENANCE      |                                 | [ ]    | [ ]               |                                                                               |
-| TC-M2-020  | Maintenance báo hoàn thành → AVAILABLE              |                                 | [ ]    | [ ]               |                                                                               |
->>>>>>> Stashed changes
-
-#### UC12 — Check-in / Check-out / Đổi phòng (CheckinService)
-| TC ID | Test File | 🔴 RED confirmed | 🟢 GREEN (commit) | 🔵 REFACTOR note |
-|---|---|---|---|---|
-| TC-M2-011 | `CheckinServiceUC12Test.java` | [x] | [x] `1644d49` | ✅ Tách `validateRoomAvailableForCheckin()` + `assignRoomToGuest()`, dùng hằng số `STATUS_OCCUPIED`, `STATUS_CHECKED_IN` |
-| TC-M2-012 | `CheckinServiceUC12Test.java` | [x] | [x] `1644d49` | ✅ Dùng hằng số `STATUS_DIRTY`, `STATUS_MAINTENANCE`. Tách validation method riêng, message lỗi chứa mã BR |
-| TC-M2-013 | `CheckinServiceUC12Test.java` | [x] | [x] `1644d49` | ✅ Một dòng: tìm detail → setCreditLimit → save. Đặt tên repo ngắn `roomBookingRepo` |
-| TC-M2-014 | `CheckinServiceUC12Test.java` | [x] | [x] `1644d49` | ✅ Tách `validateDetailIsCheckedIn()`, `extractCurrentRoom()`, `validateNewRoomAvailable()`, `performRoomTransfer()` |
-| TC-M2-015 | `CheckinServiceUC12Test.java` | [x] | [x] `1644d49` | ✅ Tách `createAccountForDependent()`, `createCustomerFromDependent()`. Dùng hằng số ROLE_CUSTOMER, TEMP_PHONE |
-
-#### UC13 — Quản lý sơ đồ phòng vật lý — Room Matrix (HousekeepingService)
-| TC ID | Test File | 🔴 RED confirmed | 🟢 GREEN (commit) | 🔵 REFACTOR note |
-|---|---|---|---|---|
-| TC-M2-016 | `HousekeepingServiceUC13Test.java` | [x] | [x] `c8d9e1f` | ✅ Thêm JavaDoc, tách `buildHotelOperation()`, dùng constant |
-| TC-M2-017 | `HousekeepingServiceUC13Test.java` | [x] | [x] `c8d9e1f` | ✅ Thêm JavaDoc chi tiết, tái sử dụng logic |
-| TC-M2-018 | `HousekeepingServiceUC13Test.java` | [x] | [x] `c8d9e1f` | ✅ Fix mock data trong Test, chuẩn hóa code |
-| TC-M2-019 | `HousekeepingServiceUC13Test.java` | [x] | [x] `c8d9e1f` | ✅ Thêm JavaDoc, tách `buildHotelOperation()` |
-| TC-M2-020 | `HousekeepingServiceUC13Test.java` | [x] | [x] `c8d9e1f` | ✅ Thêm JavaDoc chi tiết, dùng constant |
 
 ### MOD3 — POS Nhà hàng & F&B (Sinh viên 3: Đức)
 
@@ -506,21 +429,20 @@ Hệ thống Backend Spring Boot bao gồm các layer:
 | TC-M3-012 | Post to Room phòng không OCCUPIED → chặn     |           | [ ]    | [ ]               |                  |
 
 ### MOD4 — Tour & Đánh giá (Sinh viên 4: Ngọc)
-<<<<<<< Updated upstream
 | TC ID     | Mô tả ngắn                          | Test File                           | 🔴 RED | 🟢 GREEN (commit) | 🔵 REFACTOR　　　　　　　　　　　　　　　 |
 | -----------| -------------------------------------| -------------------------------------| --------| ------------------| -------------------------------------------|
-| TC-M4-001 | Tìm tour khả dụng + thời tiết       | `TourServiceTest.java`              | [x]　　| [x] `a1b2c3d`    | ✅　　　　　　　　　　　　　　　　　　　　 |
-| TC-M4-002 | Weather API lỗi → vẫn trả tour      | `TourServiceTest.java`              | [x]　　| [x] `a1b2c3d`    | ✅　　　　　　　　　　　　　　　　　　　　 |
-| TC-M4-003 | Đặt tour thành công                 | `TourBookingServiceTest.java`       | [x]　　| [x] `a1b2c3d`    | ✅　　　　　　　　　　　　　　　　　　　　 |
-| TC-M4-004 | Tour hết slot → chặn TOUR-001       | `TourBookingServiceTest.java`       | [x]　　| [x] `a1b2c3d`    | ✅　　　　　　　　　　　　　　　　　　　　 |
-| TC-M4-005 | Đặt tour Post to Room → Folio       | `TourBookingTddServiceTest.java`    | [x]　　| [x] `1644d49`    | ✅　　　　　　　　　　　　　　　　　　　　 |
-| TC-M4-006 | Lập lịch chuyến tour                | `TourBookingTddServiceTest.java`    | [x]　　| [x] `1644d49`    | ✅　　　　　　　　　　　　　　　　　　　　 |
-| TC-M4-007 | Hủy tour → hoàn tiền/đổi lịch       | `TourBookingTddServiceTest.java`    | [x]　　| [x] `1644d49`    | ✅　　　　　　　　　　　　　　　　　　　　 |
-| TC-M4-008 | AI Face Scan match → PRESENT        | `TourAttendanceTddServiceTest.java` | [x]　　| [x] `1a2b3c4`    | Tách hàm getAttendeeById, thêm JavaDoc　　|
-| TC-M4-009 | AI Service lỗi → điểm danh thủ công | `TourAttendanceTddServiceTest.java` | [x]　　| [x] `1a2b3c4`    | Extract magic number, refactor Controller |
-| TC-M4-010 | Khách gửi đánh giá 1-5 sao          | `ReviewTddServiceTest.java`         | [x]    | [x] `d5f6g7h`    | Tách hàm validate, thêm JavaDoc API       |
-| TC-M4-011 | Chỉ khách đã dùng DV mới đánh giá   | `ReviewTddServiceTest.java`         | [x]    | [x] `d5f6g7h`    | Extract magic numbers, clean variables    |
-| TC-M4-012 | Admin ẩn/hiện đánh giá toxic        | `ReviewTddServiceTest.java`         | [x]    | [x] `120739f`    | ✅ Tách hàm validateModerationReason, getReviewById, getAdminById; bổ sung JavaDoc |
+| TC-M4-001 | Tìm tour khả dụng + thời tiết       | `TourServiceUC19Test.java`              | [x]　　| [x] `a1b2c3d`    | ✅　　　　　　　　　　　　　　　　　　　　 |
+| TC-M4-002 | Weather API lỗi → vẫn trả tour      | `TourServiceUC19Test.java`              | [x]　　| [x] `a1b2c3d`    | ✅　　　　　　　　　　　　　　　　　　　　 |
+| TC-M4-003 | Đặt tour thành công                 | `TourBookingServiceUC20Test.java`       | [x]　　| [x] `a1b2c3d`    | ✅　　　　　　　　　　　　　　　　　　　　 |
+| TC-M4-004 | Tour hết slot → chặn TOUR-001       | `TourBookingServiceUC20Test.java`       | [x]　　| [x] `a1b2c3d`    | ✅　　　　　　　　　　　　　　　　　　　　 |
+| TC-M4-005 | Đặt tour Post to Room → Folio       | `TourBookingTddServiceUC20Test.java`    | [x]　　| [x] `1644d49`    | ✅　　　　　　　　　　　　　　　　　　　　 |
+| TC-M4-006 | Lập lịch chuyến tour                | `TourBookingTddServiceUC20Test.java`    | [x]　　| [x] `1644d49`    | ✅　　　　　　　　　　　　　　　　　　　　 |
+| TC-M4-007 | Hủy tour → hoàn tiền/đổi lịch       | `TourBookingTddServiceUC20Test.java`    | [x]　　| [x] `1644d49`    | ✅　　　　　　　　　　　　　　　　　　　　 |
+| TC-M4-008 | AI Face Scan match → PRESENT        | `TourAttendanceServiceUC21Test.java` | [x]　　| [x] `1a2b3c4`    | Tách hàm getAttendeeById, thêm JavaDoc　　|
+| TC-M4-009 | AI Service lỗi → điểm danh thủ công | `TourAttendanceServiceUC21Test.java` | [x]　　| [x] `1a2b3c4`    | Extract magic number, refactor Controller |
+| TC-M4-010 | Khách gửi đánh giá 1-5 sao          | `ReviewServiceUC22Test.java`         | [x]    | [x] `d5f6g7h`    | Tách hàm validate, thêm JavaDoc API       |
+| TC-M4-011 | Chỉ khách đã dùng DV mới đánh giá   | `ReviewServiceUC22Test.java`         | [x]    | [x] `d5f6g7h`    | Extract magic numbers, clean variables    |
+| TC-M4-012 | Admin ẩn/hiện đánh giá toxic        | `ReviewServiceUC22Test.java`         | [x]    | [x] `120739f`    | ✅ Tách hàm validateModerationReason, getReviewById, getAdminById; bổ sung JavaDoc |
 
 ### MOD5 — Hóa đơn & Báo cáo (Sinh viên 5: Lan)
 | TC ID     | Mô tả ngắn                              | Test File | 🔴 RED | 🟢 GREEN (commit) | 🔵 REFACTOR |
@@ -539,42 +461,6 @@ Hệ thống Backend Spring Boot bao gồm các layer:
 | TC-M5-012 | Báo cáo USALI phân tách 3 mã DT         |           | [ ]　　| [ ]              | 　　　　　　|
 | TC-M5-013 | Kết xuất PDF không rỗng                 |           | [ ]　　| [ ]              | 　　　　　　|
 | TC-M5-014 | Kết xuất Excel khớp DB                  |           | [ ]　　| [ ]              | 　　　　　　|
-=======
-
-| TC ID     | Mô tả ngắn                              | Test File                       | 🔴 RED | 🟢 GREEN (commit) | 🔵 REFACTOR note |
-| --------- | ------------------------------------------ | ------------------------------- | ------ | ----------------- | ---------------- |
-| TC-M4-001 | Tìm tour khả dụng + thời tiết         | `TourServiceTest.java`        | [x]    | [x]`a1b2c3d`    | ✅               |
-| TC-M4-002 | Weather API lỗi → vẫn trả tour         | `TourServiceTest.java`        | [x]    | [x]`a1b2c3d`    | ✅               |
-| TC-M4-003 | Đặt tour thành công                    | `TourBookingServiceTest.java` | [x]    | [x]`a1b2c3d`    | ✅               |
-| TC-M4-004 | Tour hết slot → chặn TOUR-001           | `TourBookingServiceTest.java` | [x]    | [x]`a1b2c3d`    | ✅               |
-| TC-M4-005 | Đặt tour Post to Room → Folio           | `TourBookingServiceTest.java` | [x]    | [x]`a1b2c3d`    | ✅               |
-| TC-M4-006 | Lập lịch chuyến tour                    |                                 | [ ]    | [ ]               |                  |
-| TC-M4-007 | Hủy tour → hoàn tiền/đổi lịch       |                                 | [ ]    | [ ]               |                  |
-| TC-M4-008 | AI Face Scan match → PRESENT              |                                 | [ ]    | [ ]               |                  |
-| TC-M4-009 | AI Service lỗi → điểm danh thủ công  |                                 | [ ]    | [ ]               |                  |
-| TC-M4-010 | Khách gửi đánh giá 1-5 sao            |                                 | [ ]    | [ ]               |                  |
-| TC-M4-011 | Chỉ khách đã dùng DV mới đánh giá |                                 | [ ]    | [ ]               |                  |
-| TC-M4-012 | Admin ẩn/hiện đánh giá toxic          |                                 | [ ]    | [ ]               |                  |
-
-### MOD5 — Hóa đơn & Báo cáo (Sinh viên 5: Lan)
-
-| TC ID     | Mô tả ngắn                                 | Test File | 🔴 RED | 🟢 GREEN (commit) | 🔵 REFACTOR note |
-| --------- | --------------------------------------------- | --------- | ------ | ----------------- | ---------------- |
-| TC-M5-001 | Folio hiển thị đúng danh sách nợ        |           | [ ]    | [ ]               |                  |
-| TC-M5-002 | Ghi nhận luồng tiền nhiều đợt           |           | [ ]    | [ ]               |                  |
-| TC-M5-003 | Gom hóa đơn tổng = BigDecimal chính xác |           | [ ]    | [ ]               |                  |
-| TC-M5-004 | Night Audit 02:00 → cộng phí phòng        |           | [ ]    | [ ]               |                  |
-| TC-M5-005 | Night Audit chuyển Business Date             |           | [ ]    | [ ]               |                  |
-| TC-M5-006 | Check-out Folio = 0 → thành công           |           | [ ]    | [ ]               |                  |
-| TC-M5-007 | Check-out Folio > 0 → chặn FOLIO-001        |           | [ ]    | [ ]               |                  |
-| TC-M5-008 | Thanh toán tất toán → SETTLED             |           | [ ]    | [ ]               |                  |
-| TC-M5-009 | Sau tất toán → gửi e-Invoice email        |           | [ ]    | [ ]               |                  |
-| TC-M5-010 | Dashboard biểu đồ tài chính              |           | [ ]    | [ ]               |                  |
-| TC-M5-011 | Occupancy Rate tính đúng %                 |           | [ ]    | [ ]               |                  |
-| TC-M5-012 | Báo cáo USALI phân tách 3 mã DT          |           | [ ]    | [ ]               |                  |
-| TC-M5-013 | Kết xuất PDF không rỗng                   |           | [ ]    | [ ]               |                  |
-| TC-M5-014 | Kết xuất Excel khớp DB                     |           | [ ]    | [ ]               |                  |
->>>>>>> Stashed changes
 
 ### CROSS-MODULE: E2E (Nhóm trưởng chạy)
 

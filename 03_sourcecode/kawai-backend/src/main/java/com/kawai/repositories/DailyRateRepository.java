@@ -11,6 +11,6 @@ import java.util.List;
 @Repository
 public interface DailyRateRepository extends JpaRepository<DailyRate, Long> {
 
-    @Query("SELECT d FROM DailyRate d WHERE d.effectiveDate <= :endDate AND d.expiryDate >= :startDate")
+    @Query("SELECT d FROM DailyRate d WHERE d.rateDate >= :startDate AND d.rateDate <= :endDate")
     List<DailyRate> findActiveRates(LocalDate startDate, LocalDate endDate);
 }

@@ -35,7 +35,7 @@ import static org.mockito.Mockito.*;
  */
 @ExtendWith(MockitoExtension.class)
 @DisplayName("UC20.1/UC20.2/UC20.3 — Tour Operations & Booking TDD Test")
-public class TourBookingTddServiceTest {
+public class TourBookingTddServiceUC20Test {
 
     @Mock
     private TourScheduleRepository tourScheduleRepository;

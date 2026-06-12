@@ -170,14 +170,8 @@ class CheckinServiceUC12Test {
     class TC_M2_011 {
 
         @Test
-<<<<<<< HEAD
-        @DisplayName("TC-M2-011_Check-in thành công — phòng chuyển OCCUPIED, tạo Folio")
-        void TC_M2_011_Check_in_thanh_cong_phong_chuyen_OCCUPIED_tao_Folio() {
-            fail("RED Phase");
-=======
         @DisplayName("TC-M2-011: Check-in thành công — phòng chuyển OCCUPIED, tạo Folio")
         void checkIn_Success_RoomBecomesOccupied_FolioCreated() {
->>>>>>> 0c3447ef8295f1e483c05353a42af3905cc0c3a0
             // ARRANGE
             Long bookingDetailId = 5000L;
             Long roomId = 100L;
@@ -223,14 +217,8 @@ class CheckinServiceUC12Test {
     class TC_M2_012 {
 
         @Test
-<<<<<<< HEAD
-        @DisplayName("TC-M2-012_Check-in thất bại — phòng đang DIRTY hoặc MAINTENANCE → báo lỗi - Dirty")
-        void TC_M2_012_Check_in_that_bai_phong_dang_DIRTY_hoac_MAINTENANCE_bao_loi_Dirty() {
-            fail("RED Phase");
-=======
         @DisplayName("TC-M2-012a: Check-in thất bại — phòng đang DIRTY → ném IllegalStateException")
         void checkIn_Fail_RoomDirty_ShouldThrowException() {
->>>>>>> 0c3447ef8295f1e483c05353a42af3905cc0c3a0
             // ARRANGE
             Long bookingDetailId = 5000L;
             Long roomId = 101L; // Room DIRTY
@@ -254,14 +242,8 @@ class CheckinServiceUC12Test {
         }
 
         @Test
-<<<<<<< HEAD
-        @DisplayName("TC-M2-012_Check-in thất bại — phòng đang DIRTY hoặc MAINTENANCE → báo lỗi - Maintenance")
-        void TC_M2_012_Check_in_that_bai_phong_dang_DIRTY_hoac_MAINTENANCE_bao_loi_Maintenance() {
-            fail("RED Phase");
-=======
         @DisplayName("TC-M2-012b: Check-in thất bại — phòng đang MAINTENANCE → ném IllegalStateException")
         void checkIn_Fail_RoomMaintenance_ShouldThrowException() {
->>>>>>> 0c3447ef8295f1e483c05353a42af3905cc0c3a0
             // ARRANGE
             Long bookingDetailId = 5000L;
             Long roomId = 102L; // Room MAINTENANCE
@@ -293,14 +275,8 @@ class CheckinServiceUC12Test {
     class TC_M2_013 {
 
         @Test
-<<<<<<< HEAD
-        @DisplayName("TC-M2-013_Ủy quyền hạn mức — cập nhật Credit Limit thành công")
-        void TC_M2_013_Uy_quyen_han_muc_cap_nhat_Credit_Limit_thanh_cong() {
-            fail("RED Phase");
-=======
         @DisplayName("TC-M2-013: Cập nhật Credit Limit thành công — roomBooking.creditLimit thay đổi")
         void updateCreditLimit_Success_ShouldUpdateCreditLimit() {
->>>>>>> 0c3447ef8295f1e483c05353a42af3905cc0c3a0
             // ARRANGE
             Long bookingDetailId = 5000L;
             BigDecimal newCreditLimit = new BigDecimal("8000000");
@@ -331,14 +307,8 @@ class CheckinServiceUC12Test {
     class TC_M2_014 {
 
         @Test
-<<<<<<< HEAD
-        @DisplayName("TC-M2-014_Đổi phòng — chuyển Folio sang phòng mới, phòng cũ → DIRTY")
-        void TC_M2_014_Doi_phong_chuyen_Folio_sang_phong_moi_phong_cu_DIRTY() {
-            fail("RED Phase");
-=======
         @DisplayName("TC-M2-014: Đổi phòng thành công — room gán mới, phòng cũ → Dirty")
         void transferRoom_Success_RoomTransferred_OldRoomDirty() {
->>>>>>> 0c3447ef8295f1e483c05353a42af3905cc0c3a0
             // ARRANGE
             Long bookingDetailId = 5000L;
             Long newRoomId = 101L; // Phòng mới (dùng dirtyRoom mock nhưng sẽ set Vacant_Clean)
@@ -390,14 +360,8 @@ class CheckinServiceUC12Test {
     class TC_M2_015 {
 
         @Test
-<<<<<<< HEAD
-        @DisplayName("TC-M2-015_Nâng cấp Dependent thành Customer — tạo Account mới")
-        void TC_M2_015_Nang_cap_Dependent_thanh_Customer_tao_Account_moi() {
-            fail("RED Phase");
-=======
         @DisplayName("TC-M2-015: Nâng cấp Dependent → Customer mới với Account")
         void upgradeDependentToCustomer_Success_ShouldCreateNewCustomerWithAccount() {
->>>>>>> 0c3447ef8295f1e483c05353a42af3905cc0c3a0
             // ARRANGE
             Long dependentId = 200L;
 
