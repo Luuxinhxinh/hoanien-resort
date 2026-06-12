@@ -69,7 +69,7 @@
 | UC20.3 | Hủy tour do sự cố         | `TourBookingServiceImpl.cancelTour()`        | TC-M4-007           | BR-TR-05 |
 | UC21   | Điểm danh AI Face Scan    | `TourServiceImpl.verifyAttendance()`         | TC-M4-008, 009      | BR-TR-02 |
 | UC22   | Đánh giá dịch vụ          | `ReviewServiceImpl.submitTourReview()`       | TC-M4-010, 011      | BR-TR-03 |
-| UC23   | Kiểm duyệt đánh giá       | *(điền sau khi code)*                        | TC-M4-012           | BR-TR-04 |
+| UC23   | Kiểm duyệt đánh giá       | `ReviewServiceImpl.moderateReview()`         | TC-M4-012           | BR-TR-04 |
 
 ---
 

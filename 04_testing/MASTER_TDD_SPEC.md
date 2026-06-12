@@ -340,7 +340,7 @@ Hệ thống Backend Spring Boot bao gồm các layer:
 | TC-M4-009 | AI Service lỗi → điểm danh thủ công | `TourAttendanceTddServiceTest.java` | [x]　　| [x] `1a2b3c4`    | Extract magic number, refactor Controller |
 | TC-M4-010 | Khách gửi đánh giá 1-5 sao          | `ReviewTddServiceTest.java`         | [x]    | [x] `d5f6g7h`    | Tách hàm validate, thêm JavaDoc API       |
 | TC-M4-011 | Chỉ khách đã dùng DV mới đánh giá   | `ReviewTddServiceTest.java`         | [x]    | [x] `d5f6g7h`    | Extract magic numbers, clean variables    |
-| TC-M4-012 | Admin ẩn/hiện đánh giá toxic        |                                     | [ ]　　| [ ]              | 　　　　　　　　　　　　　　　　　　　　　|
+| TC-M4-012 | Admin ẩn/hiện đánh giá toxic        | `ReviewTddServiceTest.java`         | [x]    | [x] `120739f`    | ✅ Tách hàm validateModerationReason, getReviewById, getAdminById; bổ sung JavaDoc |
 
 ### MOD5 — Hóa đơn & Báo cáo (Sinh viên 5: Lan)
 | TC ID     | Mô tả ngắn                              | Test File | 🔴 RED | 🟢 GREEN (commit) | 🔵 REFACTOR |

@@ -44,6 +44,12 @@ public class ReviewRestController {
     /**
      * API Admin kiểm duyệt đánh giá (UC23).
      * Bắt buộc phải có lý do kiểm duyệt (BR-TR-04).
+     *
+     * @param reviewId  ID của đánh giá cần kiểm duyệt (Path Variable)
+     * @param adminId   ID của Admin đang thao tác (Request Param)
+     * @param newStatus Trạng thái kiểm duyệt mới (Request Param)
+     * @param reason    Lý do kiểm duyệt (Request Param)
+     * @return 200 OK trả về Review đã kiểm duyệt, 400 Bad Request nếu lỗi logic/validation
      */
     @PutMapping("/{reviewId}/moderate")
     public ResponseEntity<?> moderateReview(

@@ -252,18 +252,20 @@ curl -X POST https://api.kawairesort.com/api/v1/tour-attendance/1/manual?status=
 | `ERR-AI-02` | 503 | `AI Service unavailable` | Dịch vụ AI bên thứ ba bị sập |
 | `ERR-TOUR-01`| 400 | `Attendee not found` | `attendeeId` không tồn tại |
 
-## 6.8. API Specification — UC22: Đánh giá dịch vụ (Module 4)
+## 6.8. API Specification — UC22 & UC23: Đánh giá dịch vụ & Kiểm duyệt (Module 4)
 
 ### 6.8.1. Endpoints
 
 | Method | Path | Auth Level | Required Roles | Rate Limit | Idempotent? |
 |--------|------|------------|----------------|------------|-------------|
 | POST | `/api/v1/reviews/tour` | Protected | Customer | 10/min | No |
+| PUT | `/api/v1/reviews/{reviewId}/moderate` | Protected | Admin | 50/min | Yes |
 
 ### 6.8.2. Authorization Matrix
 | Tác vụ / Endpoint | GUEST | CUSTOMER | RECEPTIONIST | F&B STAFF | ADMIN / TOUR_GUIDE |
 | --- | --- | --- | --- | --- | --- |
 | Gửi đánh giá tour (`POST /tour`) | ❌ | ✅ | ❌ | ❌ | ❌ |
+| Kiểm duyệt đánh giá (`PUT /{reviewId}/moderate`) | ❌ | ❌ | ❌ | ❌ | ✅ (Chỉ Admin) |
 
 ### 6.8.3. Request / Response Sample
 **[POST] Gửi đánh giá Tour**
@@ -284,12 +286,37 @@ curl -X POST "https://api.kawairesort.com/api/v1/reviews/tour?customerId=1&tourB
 "Tour is not completed yet"
 ```
 
+**[PUT] Admin kiểm duyệt đánh giá**
+```bash
+curl -X PUT "https://api.kawairesort.com/api/v1/reviews/1/moderate?adminId=99&newStatus=Hidden&reason=Ngôn từ thô tục" \
+  -H "Authorization: Bearer [ADMIN_TOKEN]"
+
+# Expected Response (200 OK):
+{
+  "id": 1,
+  "ratingService": 1,
+  "reviewText": "Tệ hại",
+  "moderationStatus": "Hidden",
+  "moderationReason": "Ngôn từ thô tục",
+  "moderatedBy": {
+    "id": 99,
+    "fullName": "Admin Tran"
+  }
+}
+
+# Expected Response (400 Bad Request):
+"Moderation reason is strictly required according to BR-TR-04"
+```
+
 ### 6.8.4. Error Codes & Business Rules
 | Rule/Code | HTTP Status | Message/Logic | Trigger Condition |
 |------|-------------|---------|------------------|
 | `BR-TR-03` | 400 | `Review period has expired (7 days limit)` | Quá 7 ngày từ ngày khởi hành tour |
+| `BR-TR-04` | 400 | `Moderation reason is strictly required...` | Không nhập lý do kiểm duyệt (reason rỗng/null) |
 | `ERR-REV-01`| 400 | `Customer does not own this booking` | ID khách không khớp với ID đặt tour |
 | `ERR-REV-02`| 400 | `Tour is not completed yet` | Khách đánh giá tour chưa đi |
+| `ERR-REV-03`| 400 | `Review not found` | Review ID không tồn tại |
+| `ERR-REV-04`| 400 | `Admin not found` | Admin ID không tồn tại |
 
 ---
 

@@ -86,18 +86,44 @@ public class ReviewServiceImpl implements ReviewService {
         }
     }
 
+    /**
+     * Admin kiểm duyệt đánh giá (UC23).
+     * Bắt buộc phải có lý do kiểm duyệt (BR-TR-04).
+     *
+     * @param reviewId  ID của đánh giá cần kiểm duyệt
+     * @param adminId   ID của Admin thực hiện kiểm duyệt
+     * @param newStatus Trạng thái mới (ví dụ: Hidden, Approved)
+     * @param reason    Lý do kiểm duyệt (không được để trống)
+     * @return Entity Review sau khi đã cập nhật
+     * @throws IllegalArgumentException nếu lý do trống hoặc không tìm thấy Review/Admin
+     */
     @Override
     public Review moderateReview(Long reviewId, Long adminId, String newStatus, String reason) {
-        Review review = reviewRepository.findById(reviewId)
-                .orElseThrow(() -> new IllegalArgumentException("Review not found"));
+        validateModerationReason(reason);
 
-        com.kawai.models.Employee admin = employeeRepository.findById(adminId)
-                .orElseThrow(() -> new IllegalArgumentException("Admin not found"));
+        Review reviewToModerate = getReviewById(reviewId);
+        com.kawai.models.Employee moderatingAdmin = getAdminById(adminId);
 
-        review.setModerationStatus(newStatus);
-        review.setModerationReason(reason);
-        review.setModeratedBy(admin);
+        reviewToModerate.setModerationStatus(newStatus);
+        reviewToModerate.setModerationReason(reason);
+        reviewToModerate.setModeratedBy(moderatingAdmin);
 
-        return reviewRepository.save(review);
+        return reviewRepository.save(reviewToModerate);
+    }
+
+    private void validateModerationReason(String reason) {
+        if (reason == null || reason.trim().isEmpty()) {
+            throw new IllegalArgumentException("Moderation reason is strictly required according to BR-TR-04");
+        }
+    }
+
+    private Review getReviewById(Long reviewId) {
+        return reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new IllegalArgumentException("Review not found with ID: " + reviewId));
+    }
+
+    private com.kawai.models.Employee getAdminById(Long adminId) {
+        return employeeRepository.findById(adminId)
+                .orElseThrow(() -> new IllegalArgumentException("Admin not found with ID: " + adminId));
     }
 }
