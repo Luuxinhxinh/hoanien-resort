@@ -43,6 +43,7 @@ com\kawai\repositories\UserRoleRepository.class
 com\kawai\dto\TourBookingRequest.class
 com\kawai\config\SecurityConfig.class
 com\kawai\models\TourStaffAssignment.class
+com\kawai\services\interfaces\CheckinService.class
 com\kawai\repositories\RestaurantTableRepository.class
 com\kawai\models\Tour.class
 com\kawai\dto\BookingRequestDTO.class
@@ -132,6 +133,7 @@ com\kawai\models\RestaurantTable.class
 com\kawai\controllers\web\ManagerController$DailyRevenueMock.class
 com\kawai\dto\RoomInfoDto.class
 com\kawai\repositories\RoomBookingDetailRepository.class
+com\kawai\services\impl\CheckinServiceImpl.class
 com\kawai\services\impl\KdsServiceImpl.class
 com\kawai\repositories\AuditLogRepository.class
 com\kawai\controllers\web\ManagerController$RevenueRowMock.class
