@@ -3,7 +3,6 @@ package com.kawai.services;
 import com.kawai.dto.TourBookingRequest;
 import com.kawai.models.*;
 import com.kawai.repositories.*;
-import com.kawai.services.interfaces.TourBookingService;
 import com.kawai.services.impl.TourBookingServiceImpl;
 
 import org.junit.jupiter.api.BeforeEach;

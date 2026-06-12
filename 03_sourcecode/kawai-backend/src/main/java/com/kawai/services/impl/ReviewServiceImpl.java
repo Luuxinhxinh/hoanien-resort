@@ -24,11 +24,13 @@ public class ReviewServiceImpl implements ReviewService {
     private final ReviewRepository reviewRepository;
     private final CustomerRepository customerRepository;
     private final TourBookingRepository tourBookingRepository;
+    private final com.kawai.repositories.EmployeeRepository employeeRepository;
 
-    public ReviewServiceImpl(ReviewRepository reviewRepository, CustomerRepository customerRepository, TourBookingRepository tourBookingRepository) {
+    public ReviewServiceImpl(ReviewRepository reviewRepository, CustomerRepository customerRepository, TourBookingRepository tourBookingRepository, com.kawai.repositories.EmployeeRepository employeeRepository) {
         this.reviewRepository = reviewRepository;
         this.customerRepository = customerRepository;
         this.tourBookingRepository = tourBookingRepository;
+        this.employeeRepository = employeeRepository;
     }
 
     /**
@@ -82,5 +84,20 @@ public class ReviewServiceImpl implements ReviewService {
                 throw new IllegalArgumentException("Review period has expired (7 days limit)");
             }
         }
+    }
+
+    @Override
+    public Review moderateReview(Long reviewId, Long adminId, String newStatus, String reason) {
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new IllegalArgumentException("Review not found"));
+
+        com.kawai.models.Employee admin = employeeRepository.findById(adminId)
+                .orElseThrow(() -> new IllegalArgumentException("Admin not found"));
+
+        review.setModerationStatus(newStatus);
+        review.setModerationReason(reason);
+        review.setModeratedBy(admin);
+
+        return reviewRepository.save(review);
     }
 }

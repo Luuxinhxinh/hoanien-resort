@@ -40,4 +40,22 @@ public class ReviewRestController {
             return ResponseEntity.badRequest().body(ex.getMessage());
         }
     }
+
+    /**
+     * API Admin kiểm duyệt đánh giá (UC23).
+     * Bắt buộc phải có lý do kiểm duyệt (BR-TR-04).
+     */
+    @PutMapping("/{reviewId}/moderate")
+    public ResponseEntity<?> moderateReview(
+            @PathVariable Long reviewId,
+            @RequestParam Long adminId,
+            @RequestParam String newStatus,
+            @RequestParam String reason) {
+        try {
+            Review moderatedReview = reviewService.moderateReview(reviewId, adminId, newStatus, reason);
+            return ResponseEntity.ok(moderatedReview);
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body(ex.getMessage());
+        }
+    }
 }

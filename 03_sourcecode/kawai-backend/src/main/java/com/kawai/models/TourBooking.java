@@ -1,7 +1,12 @@
 package com.kawai.models;
 import jakarta.persistence.*;
 import lombok.Data;
-@Entity @Table(name="Tour_Bookings") @Data
+import lombok.EqualsAndHashCode;
+
+@Entity 
+@Table(name="Tour_Bookings") 
+@Data
+@EqualsAndHashCode(callSuper=true)
 public class TourBooking extends Booking {
     @ManyToOne @JoinColumn(name="schedule_id", nullable=false) private TourSchedule schedule;
     @Column(name="participant_count", nullable=false) private Integer participantCount;

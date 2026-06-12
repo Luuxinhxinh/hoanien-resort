@@ -1,10 +1,12 @@
 package com.kawai.services;
 
 import com.kawai.models.Customer;
+import com.kawai.models.Employee;
 import com.kawai.models.Review;
 import com.kawai.models.TourBooking;
 import com.kawai.models.TourSchedule;
 import com.kawai.repositories.CustomerRepository;
+import com.kawai.repositories.EmployeeRepository;
 import com.kawai.repositories.ReviewRepository;
 import com.kawai.repositories.TourBookingRepository;
 import com.kawai.services.impl.ReviewServiceImpl;
@@ -34,6 +36,9 @@ public class ReviewTddServiceTest {
 
     @Mock
     private CustomerRepository customerRepository;
+
+    @Mock
+    private EmployeeRepository employeeRepository;
 
     @InjectMocks
     private ReviewServiceImpl reviewService;
@@ -116,5 +121,51 @@ public class ReviewTddServiceTest {
 
         assertTrue(ex.getMessage().contains("chưa hoàn thành") || ex.getMessage().contains("not completed") || ex.getMessage().contains("must be Completed"));
         verify(reviewRepository, never()).save(any(Review.class));
+    }
+
+    @Test
+    @DisplayName("TC-M4-012: Admin ẩn đánh giá toxic/spam thành công")
+    void TC_M4_012_moderateReview_AdminHidesToxicReview_Success() {
+        // Arrange
+        Long reviewId = 1L;
+        Long adminId = 99L;
+        String newStatus = "Hidden";
+        String reason = "Ngôn từ thô tục";
+
+        Review mockReview = new Review();
+        mockReview.setId(reviewId);
+        mockReview.setModerationStatus("Pending");
+
+        Employee mockAdmin = new Employee();
+        mockAdmin.setId(adminId);
+
+        when(reviewRepository.findById(reviewId)).thenReturn(Optional.of(mockReview));
+        when(employeeRepository.findById(adminId)).thenReturn(Optional.of(mockAdmin));
+        
+        Review moderatedReview = new Review();
+        moderatedReview.setId(reviewId);
+        moderatedReview.setModerationStatus(newStatus);
+        moderatedReview.setModeratedBy(mockAdmin);
+        moderatedReview.setModerationReason(reason);
+
+        when(reviewRepository.save(any(Review.class))).thenReturn(moderatedReview);
+
+        // Act
+        Review result = reviewService.moderateReview(reviewId, adminId, newStatus, reason);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(newStatus, result.getModerationStatus());
+        assertEquals(reason, result.getModerationReason());
+        assertNotNull(result.getModeratedBy());
+        assertEquals(adminId, result.getModeratedBy().getId());
+
+        ArgumentCaptor<Review> reviewCaptor = ArgumentCaptor.forClass(Review.class);
+        verify(reviewRepository).save(reviewCaptor.capture());
+        
+        Review capturedReview = reviewCaptor.getValue();
+        assertEquals(newStatus, capturedReview.getModerationStatus());
+        assertEquals(reason, capturedReview.getModerationReason());
+        assertEquals(adminId, capturedReview.getModeratedBy().getId());
     }
 }

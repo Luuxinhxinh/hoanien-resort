@@ -2,10 +2,6 @@ package com.kawai.services.interfaces;
 
 import com.kawai.dto.TourBookingRequest;
 import java.math.BigDecimal;
-import com.kawai.dto.TourSearchResult;
-
-import java.time.LocalDate;
-import java.util.List;
 
 /**
  * Service interface cho UC20.1: Đặt tour du lịch.
