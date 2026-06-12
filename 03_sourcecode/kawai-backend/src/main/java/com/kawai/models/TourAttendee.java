@@ -32,7 +32,7 @@ public class TourAttendee {
     @Column(name = "face_matched_at")
     private LocalDateTime faceMatchedAt;
 
-    // Phục vụ điểm danh AI Face Scan
+    // Phá»¥c vá»¥ Ä‘iá»ƒm danh AI Face Scan
     @Column(name = "face_vector_data", columnDefinition = "TEXT")
     private String faceVectorData;
 }
