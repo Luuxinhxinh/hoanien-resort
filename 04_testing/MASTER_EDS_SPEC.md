@@ -751,6 +751,249 @@ curl -X POST https://api.kawairesort.com/api/v1/admin/employees \
 
 ---
 
+<<<<<<< HEAD
+## 8. API Specification — UC12: Check-in / Đổi phòng / Hạn mức (Module 2 — Front Desk)
+
+### 8.1. Endpoints
+
+| Method | Path | Auth Level | Required Roles | Description |
+|--------|------|------------|----------------|-------------|
+| POST | `/api/v1/frontdesk/check-in` | Authenticated | Receptionist | Check-in khách vào phòng (UC12.1) |
+| PUT  | `/api/v1/frontdesk/booking-detail/{detailId}/credit-limit` | Authenticated | Receptionist | Cập nhật Credit Limit (UC12.2) |
+| POST | `/api/v1/frontdesk/transfer-room` | Authenticated | Receptionist | Đổi phòng cho khách (UC12.3) |
+| POST | `/api/v1/frontdesk/upgrade-dependent/{dependentId}` | Authenticated | Receptionist | Nâng cấp Dependent → Customer (UC12.4) |
+
+### 8.2. POST Check-in — Request
+
+```bash
+curl -X POST https://api.kawairesort.com/api/v1/frontdesk/check-in \
+  -H "Authorization: Bearer [RECEPTIONIST_TOKEN]" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "bookingDetailId": 5000,
+    "roomId": 100
+  }'
+```
+
+### 8.3. POST Check-in — Response 200 OK (Happy Path)
+
+```json
+{
+  "detailId": 5000,
+  "detailStatus": "CHECKED_IN",
+  "roomNumber": "R101",
+  "roomStatus": "Occupied",
+  "customerName": "Nguyen Van A",
+  "checkInDate": "2026-06-15",
+  "checkOutDate": "2026-06-20"
+}
+```
+
+### 8.4. POST Check-in — Response 400 (Validation Error)
+
+```json
+{
+  "status": "ERROR",
+  "code": "ROOM-001",
+  "message": "Phòng đang DIRTY, chưa được dọn dẹp. Không thể check-in. (BR-FO-04)"
+}
+```
+
+### 8.5. PUT Credit Limit — Request
+
+```bash
+curl -X PUT https://api.kawairesort.com/api/v1/frontdesk/booking-detail/5000/credit-limit \
+  -H "Authorization: Bearer [RECEPTIONIST_TOKEN]" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "newCreditLimit": 8000000
+  }'
+```
+
+### 8.6. PUT Credit Limit — Response 200 OK
+
+```json
+{
+  "status": "SUCCESS",
+  "bookingDetailId": 5000,
+  "newCreditLimit": 8000000
+}
+```
+
+### 8.7. POST Đổi phòng — Request
+
+```bash
+curl -X POST https://api.kawairesort.com/api/v1/frontdesk/transfer-room \
+  -H "Authorization: Bearer [RECEPTIONIST_TOKEN]" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "bookingDetailId": 5000,
+    "newRoomId": 101,
+    "reason": "Yêu cầu từ khách hàng"
+  }'
+```
+
+### 8.8. POST Đổi phòng — Response 200 OK
+
+```json
+{
+  "detailId": 5000,
+  "detailStatus": "CHECKED_IN",
+  "oldRoomNumber": "R101",
+  "newRoomNumber": "R102",
+  "oldRoomStatus": "Dirty",
+  "newRoomStatus": "Occupied"
+}
+```
+
+### 8.9. POST Nâng cấp Dependent — Response 201 Created
+
+```bash
+curl -X POST https://api.kawairesort.com/api/v1/frontdesk/upgrade-dependent/200 \
+  -H "Authorization: Bearer [RECEPTIONIST_TOKEN]"
+```
+
+### 8.10. POST Nâng cấp Dependent — Response 201 Created
+
+```json
+{
+  "status": "SUCCESS",
+  "customerId": 50,
+  "fullName": "Nguyen Thi B",
+  "email": "pending_50@kawai-resort.com",
+  "accountId": 50,
+  "role": "CUSTOMER"
+}
+```
+
+### 8.11. Business Rules
+
+| Rule ID | Description | Implementation |
+|---------|-------------|---------------|
+| BR-FO-04 | Chỉ check-in phòng Vacant_Clean → Occupied; check-out → Dirty | `CheckinServiceImpl.validateRoomAvailableForCheckin()` |
+| BR-FO-06 | Hạn mức chi tiêu phòng (Credit Limit) | `CheckinServiceImpl.updateCreditLimit()` |
+| BR-FO-07 | Giới hạn số người (nâng cấp Dependent → Customer) | `CheckinServiceImpl.upgradeDependentToCustomer()` |
+| BR-HK-03 | Chặn Check-in phòng MAINTENANCE | `CheckinServiceImpl.validateRoomAvailableForCheckin()` |
+| BR-FO-08 | Khai báo tạm trú: thu thập CCCD/Hộ chiếu | `CheckinServiceImpl.checkIn()` |
+
+### 8.12. Error Codes
+
+| Code | HTTP Status | Message | Trigger Condition |
+|------|-------------|---------|------------------|
+| `ROOM-001` | 400 | Phòng đang DIRTY — không thể check-in (BR-FO-04) | Phòng chưa được dọn dẹp |
+| `ROOM-001` | 400 | Phòng đang MAINTENANCE — không thể check-in (BR-HK-03) | Phòng đang bảo trì |
+| `ROOM-001` | 400 | Phòng mới không khả dụng (trạng thái: ...) | Phòng đích không trống khi đổi phòng |
+| `FOLIO-001` | 400 | Folio chưa thanh toán — không thể check-out | Chưa tất toán hóa đơn (BR-FIN-01) |
+
+### 8.13. Authorization Matrix (bổ sung cho Module 2)
+
+| Tác vụ / Endpoint | GUEST | CUSTOMER | RECEPTIONIST | F&B STAFF | ADMIN / MANAGER |
+| --- | --- | --- | --- | --- | --- |
+| Check-in (`POST /frontdesk/check-in`) | ❌ | ❌ | ✅ | ❌ | ✅ |
+| Update Credit Limit (`PUT /frontdesk/.../credit-limit`) | ❌ | ❌ | ✅ | ❌ | ✅ |
+| Transfer Room (`POST /frontdesk/transfer-room`) | ❌ | ❌ | ✅ | ❌ | ✅ |
+| Upgrade Dependent (`POST /frontdesk/upgrade-dependent`) | ❌ | ❌ | ✅ | ❌ | ✅ |
+
+---
+
+## 9. API Specification — UC13: Quản lý sơ đồ phòng vật lý (Module 2 — Front Desk & Housekeeping)
+
+### 9.1. Endpoints
+
+| Method | Path | Auth Level | Required Roles | Description |
+|--------|------|------------|----------------|-------------|
+| GET  | `/api/v1/housekeeping/pending` | Authenticated | Receptionist, HK_Staff | Lấy danh sách yêu cầu dọn phòng/bảo trì đang chờ xử lý (UC13.3) |
+| POST | `/api/v1/housekeeping/tasks/{taskId}/complete-clean` | Authenticated | HK_Staff | HK đánh dấu phòng đã dọn sạch, phòng chuyển Vacant_Clean (UC13.2) |
+| POST | `/api/v1/housekeeping/maintenance` | Authenticated | HK_Staff | HK báo hỏng thiết bị, phòng chuyển Maintenance (UC13.4) |
+| POST | `/api/v1/housekeeping/maintenance/{taskId}/complete` | Authenticated | Maintenance_Staff | Hoàn tất bảo trì, phòng chuyển Vacant_Clean (UC13.5) |
+
+*Lưu ý: Tác vụ tự động sinh yêu cầu dọn phòng (UC13.1) được trigger ngầm qua backend event khi khách Check-out, không gọi qua REST API riêng.*
+
+### 9.2. GET Pending Tasks — Response 200 OK
+
+```json
+{
+  "status": "SUCCESS",
+  "data": [
+    {
+      "taskId": 100,
+      "roomId": 1,
+      "roomNumber": "R101",
+      "operationalType": "CHECKOUT_CLEAN",
+      "priority": "High",
+      "status": "Pending",
+      "createdAt": "2026-06-15T10:00:00"
+    },
+    {
+      "taskId": 200,
+      "roomId": 2,
+      "roomNumber": "R102",
+      "operationalType": "MAINTENANCE",
+      "priority": "Normal",
+      "status": "Pending",
+      "notes": "Điều hòa không mát",
+      "createdAt": "2026-06-15T11:30:00"
+    }
+  ]
+}
+```
+
+### 9.3. POST Báo hỏng thiết bị — Request
+
+```bash
+curl -X POST https://api.kawairesort.com/api/v1/housekeeping/maintenance \
+  -H "Authorization: Bearer [HK_STAFF_TOKEN]" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "roomId": 102,
+    "staffId": 25,
+    "notes": "Điều hòa không mát"
+  }'
+```
+
+### 9.4. POST Báo hỏng thiết bị — Response 201 Created
+
+```json
+{
+  "taskId": 200,
+  "roomNumber": "R102",
+  "roomStatus": "Maintenance",
+  "operationalType": "MAINTENANCE",
+  "priority": "Normal",
+  "status": "Pending",
+  "notes": "Điều hòa không mát"
+}
+```
+
+### 9.5. Business Rules
+
+| Rule ID | Description | Implementation |
+|---------|-------------|---------------|
+| BR-FO-04 | Luân chuyển trạng thái phòng sang Vacant_Clean sau khi dọn / sửa xong | `HousekeepingServiceImpl.updateRoomToClean()`, `completeMaintenance()` |
+| BR-HK-02 | Báo cáo chi tiết sự cố khi tạo phiếu bảo trì | `HousekeepingServiceImpl.createMaintenanceRequest()` |
+| BR-HK-03 | Phòng có phiếu bảo trì bị khóa thành trạng thái MAINTENANCE | `HousekeepingServiceImpl.createMaintenanceRequest()` |
+
+### 9.6. Error Codes
+
+| Code | HTTP Status | Message | Trigger Condition |
+|------|-------------|---------|------------------|
+| `HK-001` | 404 | Không tìm thấy Task với ID cung cấp | taskId không tồn tại |
+| `HK-002` | 400 | Phòng không ở trạng thái hợp lệ | Ví dụ đánh dấu hoàn thành dọn nhưng phòng không DIRTY |
+
+---
+
+**BẢNG TỔNG HỢP PHÂN QUYỀN (Authorization Matrix)**
+| Tác vụ / Endpoint | GUEST | CUSTOMER | RECEPTIONIST | F&B STAFF | HK/MAINT STAFF | ADMIN / MANAGER |
+| --- | --- | --- | --- | --- | --- | --- |
+| Đặt phòng (`POST /bookings`) | ❌ | ✅ | ✅ | ❌ | ❌ | ✅ |
+| Post to Room (`POST /pos/charge`) | ❌ | ❌ | ❌ | ✅ | ❌ | ✅ |
+| Night Audit (`POST /audit/run`) | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| Check-in (`POST /frontdesk/check-in`) | ❌ | ❌ | ✅ | ❌ | ❌ | ✅ |
+| Transfer Room | ❌ | ❌ | ✅ | ❌ | ❌ | ✅ |
+| Get Pending Housekeeping Tasks | ❌ | ❌ | ✅ | ❌ | ✅ | ✅ |
+| Update Room Clean/Maintenance | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
+
+=======
 **BẢNG TỔNG HỢP PHÂN QUYỀN (Authorization Matrix)**
 <<<<<<< Updated upstream
 | Tác vụ / Endpoint | GUEST | CUSTOMER | RECEPTIONIST | F&B STAFF | ADMIN / MANAGER |
@@ -769,3 +1012,4 @@ curl -X POST https://api.kawairesort.com/api/v1/admin/employees \
 | Night Audit (`POST /audit/run`)    | ❌    | ❌       | ❌           | ❌        | ✅              |
 | Đổi mật khẩu (`PUT /users/me`) | ❌    | ✅ Own   | ✅ Own       | ✅ Own    | ✅ All          |
 >>>>>>> Stashed changes
+>>>>>>> 0c3447ef8295f1e483c05353a42af3905cc0c3a0
