@@ -9,4 +9,5 @@ public class Tour {
     @Column(name="tour_type", nullable=false) private String tourType;
     @Column(name="base_price", nullable=false) private BigDecimal basePrice;
     @Column(name="max_capacity", nullable=false) private Integer maxCapacity = 30;
+    @Column(columnDefinition="TEXT") private String description;
 }

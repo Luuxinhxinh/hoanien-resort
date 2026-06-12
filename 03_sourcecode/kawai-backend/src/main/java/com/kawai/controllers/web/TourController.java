@@ -43,6 +43,11 @@ public class TourController {
         this.tourService = tourService;
     }
 
+    @GetMapping
+    public String defaultToursRedirect() {
+        return "redirect:/tours/search";
+    }
+
     /**
      * Hiển thị danh sách tour khả dụng theo khoảng ngày.
      *
@@ -59,6 +64,7 @@ public class TourController {
     public String searchTours(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
+            java.security.Principal principal,
             Model model) {
 
         LocalDate effectiveFrom = resolveFromDate(fromDate);
@@ -66,6 +72,7 @@ public class TourController {
 
         List<TourSearchResult> tours = tourService.searchAvailableTours(effectiveFrom, effectiveTo);
 
+        model.addAttribute("isLoggedIn", principal != null);
         model.addAttribute("tours", tours);
         model.addAttribute("fromDate", effectiveFrom);
         model.addAttribute("toDate", effectiveTo);

@@ -9,4 +9,5 @@ public class MenuItem {
     @Column(nullable=false) private BigDecimal price;
     @Column(nullable=false) private String category;
     @Column(name="is_available", nullable=false) private Boolean isAvailable = true;
+    @Column(columnDefinition="TEXT") private String description;
 }

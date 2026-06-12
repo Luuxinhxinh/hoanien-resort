@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<body>
+
+    <!-- TABLE FRAGMENT -->
+    <div th:fragment="table">
+        <div class="adm-table-wrap">
+            <table class="adm-table">
+                <thead>
+                    <tr>
+                        <th>Mã</th>
+                        <th>Tên</th>
+                        <th>Loại tài khoản</th>
+                        <th>Vai trò</th>
+                        <th>Email</th>
+                        <th>Đăng nhập cuối</th>
+                        <th>Kích hoạt</th>
+                        <th style="text-align:right">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="row, stat : ${rows}" th:attr="data-id=${row['id']},data-entity=${row['jsonString']}">
+                        <td th:attr="data-key='id',data-value=${row['id']}" th:text="${row['id']}"></td>
+                        <td th:attr="data-key='name',data-value=${row['name']}" th:text="${row['name']}"></td>
+                        <td th:attr="data-key='type',data-value=${row['type']}">
+                            <span class="cell-badge" th:classappend="${row['__typeStyle']}"
+                                th:text="${row['type']}"></span>
+                        </td>
+                        <td th:attr="data-key='role',data-value=${row['role']}">
+                            <span class="cell-badge" th:classappend="${row['__roleStyle']}"
+                                th:text="${row['role']}"></span>
+                        </td>
+                        <td th:attr="data-key='email',data-value=${row['email']}" th:text="${row['email']}"></td>
+                        <td th:attr="data-key='lastLogin',data-value=${row['lastLogin']}" th:text="${row['lastLogin']}">
+                        </td>
+                        <td th:attr="data-key='status',data-value=${row['status']}">
+                            <button type="button" class="btn-toggle"
+                                th:attr="data-id=${row['id']},data-value=${row['status']}">
+                                <i th:if="${row['status'] == 'true'}" data-lucide="toggle-right"
+                                    style="color:#C9A96E"></i>
+                                <i th:unless="${row['status'] == 'true'}" data-lucide="toggle-left"
+                                    style="color:#8B7355"></i>
+                            </button>
+                        </td>
+                        <td style="text-align:right">
+                            <div style="display:flex;align-items:center;justify-content:flex-end;gap:2px">
+                                <button th:if="${row['type'] == 'Nhân viên'}"
+                                    class="btn-action btn-action-shield btn-permissions"
+                                    th:attr="data-id=${row['id']},data-name=${row['name']},data-role=${row['role']}"
+                                    title="Cấp quyền"><i data-lucide="shield"></i></button>
+                                <button class="btn-action btn-action-edit btn-edit" th:attr="data-id=${row['id']}"><i
+                                        data-lucide="pencil"></i></button>
+                                <button class="btn-action btn-action-delete btn-delete"
+                                    th:attr="data-id=${row['id']}"><i data-lucide="trash-2"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(rows)}">
+                        <td colspan="8"
+                            style="text-align:center;padding:48px;color:#8B7355;font-family:var(--font-serif);font-size:18px">
+                            Không có bản ghi nào</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- FORM FRAGMENT -->
+    <div th:fragment="form">
+        <div class="form-fields-inner" style="display:flex;flex-direction:column;gap:20px">
+            <div class="adm-form-group"><label class="adm-form-label">Tên <span
+                        style="color:#B45309">*</span></label><input type="text" name="name" class="adm-form-input"
+                    required></div>
+            <div class="adm-form-group"><label class="adm-form-label">Loại tài khoản</label>
+                <select name="type" class="adm-form-select" id="account-type-select">
+                    <option value="Nhân viên">Nhân viên</option>
+                    <option value="Khách hàng">Khách hàng</option>
+                </select>
+            </div>
+            <div class="adm-form-group"><label class="adm-form-label">Vai trò</label>
+                <select name="role" class="adm-form-select" id="account-role-select">
+                    <option th:each="r : ${staffRoles}" th:value="${r.roleName}" th:text="${r.roleName}"
+                        class="role-staff"></option>
+                    <option th:each="r : ${guestRoles}" th:value="${r.roleName}" th:text="${r.roleName}"
+                        class="role-guest" style="display:none"></option>
+                </select>
+            </div>
+            <div class="adm-form-group"><label class="adm-form-label">Email <span
+                        style="color:#B45309">*</span></label><input type="email" name="email" class="adm-form-input"
+                    required></div>
+            <div class="adm-form-group"><label class="adm-form-label">Số điện thoại</label><input type="text"
+                    name="phone" class="adm-form-input"></div>
+            <div class="adm-form-group"><label class="adm-form-label">Giới tính</label>
+                <select name="gender" class="adm-form-select">
+                    <option value="MALE">Nam</option>
+                    <option value="FEMALE">Nữ</option>
+                </select>
+            </div>
+            <div class="adm-form-group"><label class="adm-form-label">Mật khẩu (Password)</label><input type="password"
+                    name="password" class="adm-form-input"></div>
+
+            <!-- Employee specific fields (hidden by default unless type = Nhân viên) -->
+            <div class="employee-fields" id="account-employee-fields"
+                style="display:flex;flex-direction:column;gap:20px;">
+                <div class="adm-form-group"><label class="adm-form-label">Tên đăng nhập (Username) <span
+                            style="color:#B45309">*</span></label><input type="text" name="username"
+                        class="adm-form-input"></div>
+                <div class="adm-form-group"><label class="adm-form-label">Mức lương (VNĐ) <span
+                            style="color:#B45309">*</span></label><input type="number" name="salary"
+                        class="adm-form-input"></div>
+            </div>
+
+            <div class="adm-form-group"><label class="adm-form-label">Kích hoạt</label>
+                <select name="status" class="adm-form-select">
+                    <option value="true">TRUE</option>
+                    <option value="false">FALSE</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>

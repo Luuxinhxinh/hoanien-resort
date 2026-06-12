@@ -7,17 +7,28 @@ spring:
             client-id: 538898392088-lv7in7thft76gbj9dki3u6ko1itmnrda.apps.googleusercontent.com
             client-secret: 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
   datasource:
-    url: jdbc:mysql://localhost:3306/kawai_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-    driverClassName: com.mysql.cj.jdbc.Driver
-    username: root
-    password: Luu14102005@
+    url: jdbc:h2:mem:kawai_db
+    driverClassName: org.h2.Driver
+    username: sa
+    password:
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  sql:
+    init:
+      encoding: UTF-8
   jpa:
+    defer-datasource-initialization: true
     hibernate:
       ddl-auto: create
     show-sql: true
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.MySQL8Dialect
+        dialect: org.hibernate.dialect.H2Dialect
+
+  thymeleaf:
+    cache: false
 
 server:
   port: 8080

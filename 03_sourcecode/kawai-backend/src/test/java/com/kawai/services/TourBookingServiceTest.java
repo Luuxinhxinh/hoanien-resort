@@ -17,6 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -56,6 +57,12 @@ class TourBookingServiceTest {
     @Mock
     private FolioItemRepository folioItemRepository;
 
+    @Mock
+    private TourStaffAssignmentRepository tourStaffAssignmentRepository;
+
+    @Mock
+    private EmployeeRepository employeeRepository;
+
     @InjectMocks
     private TourBookingServiceImpl tourBookingService;
 
@@ -80,7 +87,8 @@ class TourBookingServiceTest {
         sampleSchedule.setId(100L);
         sampleSchedule.setTour(sampleTour);
         sampleSchedule.setDepartureDate(LocalDate.of(2026, 7, 10));
-        sampleSchedule.setAvailableSlots(20);
+        sampleSchedule.setDepartureTime(LocalTime.of(8, 0));
+        sampleSchedule.setBookedSeats(10); // capacity 30 - 10 = 20 available slots
         sampleSchedule.setScheduleStatus("Open");
 
         // Tạo Customer
@@ -179,8 +187,8 @@ class TourBookingServiceTest {
         @Test
         @DisplayName("TC-M4-004.1: Tour hết chỗ — đặt thêm bị chặn, trả IllegalStateException")
         void createTourBooking_NoAvailableSlots_ShouldThrowException() {
-            // ARRANGE: Schedule có availableSlots = 5, nhưng đã có 18 người đặt
-            sampleSchedule.setAvailableSlots(5);
+            // ARRANGE: Schedule có 5 chỗ trống (bookedSeats = 25)
+            sampleSchedule.setBookedSeats(25);
             when(tourScheduleRepository.findById(100L)).thenReturn(Optional.of(sampleSchedule));
             when(customerRepository.findById(10L)).thenReturn(Optional.of(sampleCustomer));
 

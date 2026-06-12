@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KAWAI · Đăng nhập Hệ thống</title>
+    <link rel="stylesheet" th:href="@{/admin/css/theme.css}">
+    <link rel="stylesheet" th:href="@{/admin/css/admin.css}">
+    <style>
+        /* ═══ Login Page Overrides ══════════════════════════════════════ */
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--background);
+            padding: 24px;
+        }
+
+        .ops-login-wrap {
+            width: 100%;
+            max-width: 420px;
+        }
+
+        .ops-login-card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 40px 36px;
+            border: 1px solid rgba(44, 42, 30, 0.08);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+        }
+
+        .ops-login-brand {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .ops-login-brand-dot {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(201, 169, 110, 0.20);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #C9A96E;
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+
+        .ops-login-brand h1 {
+            font-family: var(--font-serif);
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--foreground);
+            margin: 0 0 4px;
+        }
+
+        .ops-login-brand p {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin: 0;
+            font-family: var(--font-sans);
+        }
+
+        .ops-form-group {
+            margin-bottom: 20px;
+        }
+
+        .ops-form-group label {
+            display: block;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            font-weight: 600;
+            margin-bottom: 6px;
+            font-family: var(--font-sans);
+        }
+
+        .ops-form-group input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid rgba(44, 42, 30, 0.15);
+            border-radius: 8px;
+            background: white;
+            font-size: 14px;
+            font-family: var(--font-sans);
+            color: var(--foreground);
+            outline: none;
+            transition: border-color 0.15s;
+        }
+
+        .ops-form-group input:focus {
+            border-color: #C9A96E;
+            box-shadow: 0 0 0 3px rgba(201, 169, 110, 0.12);
+        }
+
+        .ops-form-group input::placeholder {
+            color: #9A9485;
+        }
+
+        .ops-btn {
+            width: 100%;
+            padding: 12px;
+            background: var(--foreground);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: background 0.15s, transform 0.1s;
+            font-family: var(--font-sans);
+        }
+
+        .ops-btn:hover {
+            background: #3D3A2E;
+        }
+
+        .ops-btn:active {
+            transform: scale(0.98);
+        }
+
+        .ops-error {
+            background: rgba(180, 60, 60, 0.08);
+            color: #8B2A2A;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-bottom: 16px;
+            display: none;
+            font-family: var(--font-sans);
+        }
+
+        .ops-error.show {
+            display: block;
+        }
+
+        .ops-login-footer {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 12px;
+            color: var(--text-muted);
+            font-family: var(--font-sans);
+        }
+
+        .ops-login-footer a {
+            color: var(--foreground);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .ops-login-footer a:hover {
+            text-decoration: underline;
+        }
+
+        .ops-login-role-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            background: rgba(44, 42, 30, 0.06);
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-bottom: 24px;
+            font-family: var(--font-sans);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="ops-login-wrap">
+        <div class="ops-login-card">
+            <!-- Brand -->
+            <div class="ops-login-brand">
+                <div class="ops-login-brand-dot">◆</div>
+                <h1>KAWAI</h1>
+                <p>Operations Hub — Đăng nhập</p>
+            </div>
+
+            <!-- Role info -->
+            <div class="ops-login-role-badge" style="display: flex; justify-content: center;">
+                <span>Hệ thống quản lý vận hành</span>
+            </div>
+
+            <!-- Error message -->
+            <div th:if="${param.error}" class="ops-error show">
+                Sai tên đăng nhập hoặc mật khẩu. Vui lòng thử lại.
+            </div>
+            <div th:if="${param.logout}" class="ops-error"
+                style="background: rgba(90,140,107,0.08); color: #2D6B4A; display: block;">
+                Bạn đã đăng xuất thành công.
+            </div>
+
+            <!-- Login Form -->
+            <form th:action="@{/auth/login}" method="post">
+                <div class="ops-form-group">
+                    <label for="username">Tên đăng nhập</label>
+                    <input type="text" id="username" name="username" placeholder="Nhập tên đăng nhập" required
+                        autofocus>
+                </div>
+                <div class="ops-form-group">
+                    <label for="password">Mật khẩu</label>
+                    <input type="password" id="password" name="password" placeholder="Nhập mật khẩu" required>
+                </div>
+                <button type="submit" class="ops-btn">Đăng nhập</button>
+            </form>
+
+            <div class="ops-login-footer">
+                <p>Quay lại <a href="/">trang chủ KAWAI</a></p>
+            </div>
+        </div>
+        <div class="ops-login-footer" style="margin-top: 16px;">
+            <p>© 2026 KAWAI Retreat Resort & Hub</p>
+        </div>
+    </div>
+</body>
+
+</html>

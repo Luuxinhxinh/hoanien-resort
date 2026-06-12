@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Nhật ký kiểm toán — Kawai Retreat Operations Hub</title>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" th:href="@{/admin/css/theme.css}" href="../../static/admin/css/theme.css"/>
+    <link rel="stylesheet" th:href="@{/admin/css/admin.css}" href="../../static/admin/css/admin.css"/>
+</head>
+<body>
+
+<!-- ═══════════════════════ SIDEBAR ═══════════════════════ -->
+<aside class="adm-sidebar">
+    <div class="adm-sidebar-logo">
+        <div class="adm-sidebar-brand">
+            <div class="adm-sidebar-dot">✦</div>
+            <span class="adm-sidebar-brand-name">Kawai Retreat</span>
+        </div>
+        <h1 class="adm-sidebar-title">Operations Hub</h1>
+    </div>
+    <nav class="adm-nav">
+        <div class="adm-nav-item">
+            <a href="/admin/dashboard" class="adm-nav-link">
+                <span class="adm-nav-icon"><i data-lucide="layout-dashboard"></i></span>
+                <span class="adm-nav-label">Tổng quan</span>
+            </a>
+        </div>
+        <div class="adm-nav-item">
+            <button id="master-data-toggle" class="adm-nav-link">
+                <span class="adm-nav-icon"><i data-lucide="database"></i></span>
+                <span class="adm-nav-label">Master Data</span>
+                <span class="adm-nav-arrow" id="master-data-arrow"><i data-lucide="chevron-right"></i></span>
+            </button>
+            <div id="master-data-submenu" class="adm-submenu">
+                <a href="/admin/master-data?tab=Room%20Categories"    class="adm-submenu-link"><i data-lucide="layers"></i> Room Categories</a>
+                <a href="/admin/master-data?tab=Rooms"                class="adm-submenu-link"><i data-lucide="bed-double"></i> Rooms</a>
+                <a href="/admin/master-data?tab=Restaurant%20Menu"    class="adm-submenu-link"><i data-lucide="utensils-crossed"></i> Restaurant Menu</a>
+                <a href="/admin/master-data?tab=Menu%20Categories"    class="adm-submenu-link"><i data-lucide="tag"></i> Menu Categories</a>
+                <a href="/admin/master-data?tab=Tour%20Categories"    class="adm-submenu-link"><i data-lucide="layers"></i> Tour Categories</a>
+                <a href="/admin/master-data?tab=Tours"                class="adm-submenu-link"><i data-lucide="map-pin"></i> Tours</a>
+                <a href="/admin/master-data?tab=Account%20Management" class="adm-submenu-link"><i data-lucide="user-cog"></i> Account Management</a>
+                <a href="/admin/master-data?tab=Promotions"           class="adm-submenu-link"><i data-lucide="ticket"></i> Promotions</a>
+                <a href="/admin/master-data?tab=Pricing%20Management" class="adm-submenu-link"><i data-lucide="database"></i> Pricing Management</a>
+            </div>
+        </div>
+        <!-- Audit Log (Active) -->
+        <div class="adm-nav-item">
+            <a href="/admin/audit-log" class="adm-nav-link active">
+                <span class="adm-nav-icon"><i data-lucide="clipboard-list"></i></span>
+                <span class="adm-nav-label">Audit Log</span>
+            </a>
+        </div>
+        <div class="adm-nav-item">
+            <a href="/admin/reviews" class="adm-nav-link">
+                <span class="adm-nav-icon"><i data-lucide="star"></i></span>
+                <span class="adm-nav-label">Review Management</span>
+            </a>
+        </div>
+    </nav>
+    <div class="adm-sidebar-footer">
+        <div class="adm-sidebar-user">
+            <div class="adm-sidebar-avatar">AD</div>
+            <div>
+                <div class="adm-sidebar-name">Admin Dũng</div>
+                <div class="adm-sidebar-role">Admin</div>
+            </div>
+        </div>
+    </div>
+</aside>
+
+<!-- ═══════════════════════ MAIN ═══════════════════════ -->
+<div class="adm-main">
+
+    <header class="adm-header">
+        <div class="adm-header-left">
+            <span class="adm-breadcrumb-site">Kawai Retreat</span>
+            <span class="adm-breadcrumb-sep">/</span>
+            <span class="adm-breadcrumb-page" style="color:#6B6558">Giám sát</span>
+            <span class="adm-breadcrumb-sep">/</span>
+            <span class="adm-breadcrumb-page">Nhật ký kiểm toán</span>
+        </div>
+        <div class="adm-header-right">
+            <button class="adm-header-icon-btn"><i data-lucide="search"></i></button>
+            <button class="adm-header-icon-btn">
+                <i data-lucide="bell"></i>
+                <span class="adm-notif-dot"></span>
+            </button>
+            <div class="adm-divider-v"></div>
+            <div class="adm-header-user-box">
+                <div class="adm-header-avatar">AD</div>
+                <span class="adm-header-username">Admin Dũng</span>
+            </div>
+            <div class="adm-divider-v"></div>
+            <a href="/logout" class="adm-header-logout"><i data-lucide="log-out" style="width:12px;height:12px"></i>Đăng xuất</a>
+        </div>
+    </header>
+
+    <main class="adm-page">
+
+        <div>
+            <p class="adm-page-eyebrow">Giám sát hoạt động</p>
+            <h1 class="adm-page-title">Nhật ký kiểm toán</h1>
+        </div>
+
+        <!-- KPI Counters -->
+        <div class="audit-kpi-grid">
+            <div class="audit-kpi-card" style="border-left: 3px solid rgba(92,74,58,0.5)">
+                <div class="audit-kpi-icon" style="background:rgba(92,74,58,0.10);color:#5C4A3A">
+                    <i data-lucide="activity"></i>
+                </div>
+                <div>
+                    <p id="counter-total" class="audit-kpi-num">0</p>
+                    <p class="audit-kpi-label">Tổng hành động</p>
+                </div>
+            </div>
+            <div class="audit-kpi-card" style="border-left: 3px solid #C9A96E">
+                <div class="audit-kpi-icon" style="background:rgba(201,169,110,0.15);color:#C9A96E">
+                    <i data-lucide="alert-triangle"></i>
+                </div>
+                <div>
+                    <p id="counter-sensitive" class="audit-kpi-num">0</p>
+                    <p class="audit-kpi-label">Hành động nhạy cảm</p>
+                </div>
+            </div>
+            <div class="audit-kpi-card" style="border-left: 3px solid #8C3C28">
+                <div class="audit-kpi-icon" style="background:rgba(140,60,40,0.10);color:#8C3C28">
+                    <i data-lucide="shield"></i>
+                </div>
+                <div>
+                    <p id="counter-critical" class="audit-kpi-num">0</p>
+                    <p class="audit-kpi-label">Hành động nghiêm trọng</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter Row -->
+        <div class="audit-filter-bar">
+            <input type="date" value="2026-06-07" id="filter-date" class="audit-date"/>
+            <div class="audit-select-wrap">
+                <select id="filter-employee" class="audit-select">
+                    <option>Tất cả nhân viên</option>
+                    <option>Admin Dũng</option>
+                    <option>Linh Nguyễn</option>
+                    <option>Minh Trần</option>
+                    <option>Hà Phạm</option>
+                    <option>Tuấn Lê</option>
+                </select>
+                <i data-lucide="chevron-down"></i>
+            </div>
+            <div class="audit-select-wrap">
+                <select id="filter-module" class="audit-select">
+                    <option>Tất cả module</option>
+                    <option>Phòng</option>
+                    <option>F&amp;B</option>
+                    <option>Tài chính</option>
+                    <option>Đặt phòng</option>
+                    <option>Tài khoản</option>
+                </select>
+                <i data-lucide="chevron-down"></i>
+            </div>
+            <div style="flex:1"></div>
+            <button id="btn-export-pdf" class="btn-export-pdf">
+                <i data-lucide="download"></i> Xuất PDF
+            </button>
+        </div>
+
+        <!-- Timeline -->
+        <div id="timeline-container" class="audit-timeline">
+            <div th:each="entry, iterStat : ${logs}"
+                 class="log-entry"
+                 th:style="${entry.severity != 'normal' ? 'background-color: ' + (entry.severity == 'sensitive' ? 'rgba(201,169,110,0.08)' : 'rgba(140,60,40,0.07)') : (iterStat.index % 2 == 0 ? 'background-color: #F5F0E8;' : 'background-color: #EDE8DF;')}"
+                 th:attr="data-employee=${entry.name},data-modules=${#strings.listJoin(entry.modules, ',')},data-severity=${entry.severity}">
+
+                <!-- Time -->
+                <span class="log-time" th:text="${entry.time}">06:45</span>
+
+                <!-- Avatar -->
+                <div class="log-avatar"
+                     th:style="'background-color: ' + (${entry.role == 'Receptionist' ? '#2D6B7A' : (entry.role == 'F&B' ? '#7A4E1A' : (entry.role == 'Housekeeping' ? '#5A3A6B' : (entry.role == 'Admin' ? '#3A3526' : '#8B7020')))})"
+                     th:text="${entry.initials}">AD</div>
+
+                <!-- Body -->
+                <div class="log-body">
+                    <div class="log-name-row">
+                        <span class="log-name" th:text="${entry.name}">Admin Dũng</span>
+                        <span class="log-role-pill"
+                              th:style="'background-color: ' + (${entry.role == 'Receptionist' ? 'rgba(45,107,122,0.15)' : (entry.role == 'F&B' ? 'rgba(122,78,26,0.15)' : (entry.role == 'Housekeeping' ? 'rgba(90,58,107,0.15)' : (entry.role == 'Admin' ? 'rgba(44,42,30,0.15)' : 'rgba(139,112,32,0.2)')))}) + '; color: ' + (${entry.role == 'Receptionist' ? '#1D5B6A' : (entry.role == 'F&B' ? '#7A4E1A' : (entry.role == 'Housekeeping' ? '#5A3A6B' : (entry.role == 'Admin' ? '#2C2A1E' : '#7A6010')))})"
+                              th:text="${entry.role}">Admin</span>
+                        <span th:if="${entry.severity != 'normal'}"
+                              class="log-severity-pill"
+                              th:style="'background-color: ' + (${entry.severity == 'sensitive' ? 'rgba(201,169,110,0.2)' : 'rgba(140,60,40,0.15)'}) + '; color: ' + (${entry.severity == 'sensitive' ? '#8B6020' : '#8C3C28'})"
+                              th:text="${entry.severity == 'sensitive' ? 'Nhạy cảm' : 'Nghiêm trọng'}">Nhạy cảm</span>
+                    </div>
+                    <p class="log-action" th:text="${entry.action}">Đăng nhập vào Operations Hub</p>
+                    <div class="log-modules">
+                        <span th:each="m : ${entry.modules}"
+                              class="log-module-tag"
+                              th:style="'background-color: ' + (${m == 'Đặt phòng' ? 'rgba(61,74,46,0.2)' : (m == 'F&B' ? 'rgba(122,78,26,0.15)' : (m == 'Tài chính' ? 'rgba(201,169,110,0.2)' : (m == 'Tài khoản' ? 'rgba(44,42,30,0.12)' : 'rgba(46,61,53,0.2)')))})"
+                              th:text="${m}">Tài khoản</span>
+                    </div>
+                </div>
+
+                <!-- IP -->
+                <span class="log-ip" th:text="${entry.ip}">192.168.1.10</span>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<script th:src="@{/admin/js/main.js}"      src="../../static/admin/js/main.js"></script>
+<script th:src="@{/admin/js/audit-log.js}" src="../../static/admin/js/audit-log.js"></script>
+</body>
+</html>
