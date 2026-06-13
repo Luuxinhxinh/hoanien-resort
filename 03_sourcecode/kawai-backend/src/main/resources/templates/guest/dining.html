@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Dining - Kawaii River Retreat Clone</title>
+    <title>Dining - Hoanien River Retreat Clone</title>
 
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
@@ -24,10 +24,10 @@
             theme: {
                 extend: {
                     colors: {
-                        'kawaii-bg': '#f1ebe3',         /* Warm natural beige */
-                        'kawaii-text': '#3a3230',       /* Soft dark charcoal */
-                        'kawaii-footer': '#3c3530',     /* Dark earthy brown */
-                        'kawaii-footer-text': '#e5dfd8' /* Light beige for footer */
+                        'hoanien-bg': '#f1ebe3',         /* Warm natural beige */
+                        'hoanien-text': '#3a3230',       /* Soft dark charcoal */
+                        'hoanien-footer': '#3c3530',     /* Dark earthy brown */
+                        'hoanien-footer-text': '#e5dfd8' /* Light beige for footer */
                     },
                     fontFamily: {
                         'serif': ['"Playfair Display"', 'serif'],
@@ -67,7 +67,7 @@
 
         /* Smooth tactile button feedback */
         button:active,
-        a.bg-kawaii-text:active,
+        a.bg-hoanien-text:active,
         a.bg-namia-text:active,
         .btn-search:active,
         .btn-book:active {
@@ -76,7 +76,7 @@
         }
 
         button,
-        a.bg-kawaii-text,
+        a.bg-hoanien-text,
         .btn-search,
         .btn-book {
             transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease, opacity 0.2s ease;
@@ -165,7 +165,7 @@
 </head>
 
 <body
-    class="bg-kawaii-bg text-kawaii-text font-sans antialiased overflow-x-hidden selection:bg-kawaii-text selection:text-kawaii-bg">
+    class="bg-hoanien-bg text-hoanien-text font-sans antialiased overflow-x-hidden selection:bg-hoanien-text selection:text-hoanien-bg">
 
     <!-- Header Wrapper -->
     <div id="header-wrapper" class="fixed top-0 left-0 w-full z-50 flex flex-col pointer-events-none">
@@ -183,7 +183,7 @@
                 <!-- Center Logo Wordmark -->
                 <div class="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 font-serif text-3xl md:text-4xl font-medium tracking-wide nav-brand text-center cursor-pointer w-max"
                     onclick="window.location.href='/booking'">
-                    KAWAII
+                    HOANIEN
                     <span class="block text-xs md:text-sm font-sans tracking-[0.3em] uppercase mt-1 opacity-70">River Retreat</span>
                 </div>
 
@@ -210,17 +210,17 @@
 
         <!-- Sub-navigation under Navbar (Specific to Dining) -->
         <div class="guest-sub-nav w-full font-sans pointer-events-auto">
-            <div class="max-w-[1440px] mx-auto px-6 py-3 flex justify-center gap-8 md:gap-12 text-xs uppercase tracking-[0.15em] font-medium text-kawaii-text/60 overflow-x-auto">
-                <a href="#restaurants" class="hover:text-kawaii-text active:scale-95 transition-all duration-200 transition-colors whitespace-nowrap">Restaurants</a>
-                <a href="#gatherings" class="hover:text-kawaii-text active:scale-95 transition-all duration-200 transition-colors whitespace-nowrap">Gatherings</a>
-                <a href="#philosophy" class="hover:text-kawaii-text active:scale-95 transition-all duration-200 transition-colors whitespace-nowrap">Philosophy</a>
+            <div class="max-w-[1440px] mx-auto px-6 py-3 flex justify-center gap-8 md:gap-12 text-xs uppercase tracking-[0.15em] font-medium text-hoanien-text/60 overflow-x-auto">
+                <a href="#restaurants" class="hover:text-hoanien-text active:scale-95 transition-all duration-200 transition-colors whitespace-nowrap">Restaurants</a>
+                <a href="#gatherings" class="hover:text-hoanien-text active:scale-95 transition-all duration-200 transition-colors whitespace-nowrap">Gatherings</a>
+                <a href="#philosophy" class="hover:text-hoanien-text active:scale-95 transition-all duration-200 transition-colors whitespace-nowrap">Philosophy</a>
             </div>
         </div>
     </div>
 
     <!-- Hero Section -->
     <header class="relative w-full h-[70vh] md:h-[85vh] flex items-end">
-        <div class="absolute inset-0 bg-kawaii-text">
+        <div class="absolute inset-0 bg-hoanien-text">
             <!-- Abstract dark placeholder image matching the organic/vegetable vibe -->
             <img src="https://images.unsplash.com/photo-1466637574441-749b8f19452f?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80"
                 alt="Fresh ingredients" class="w-full h-full object-cover opacity-85" />
@@ -243,8 +243,8 @@
     <main class="w-full">
         <!-- Intro Section -->
         <section id="philosophy" class="max-w-4xl mx-auto px-6 py-20 md:py-32 text-center">
-            <h2 class="font-serif text-3xl md:text-5xl mb-8">Dine with Kawaii</h2>
-            <p class="text-kawaii-text/80 leading-loose text-sm md:text-base font-light max-w-2xl mx-auto">
+            <h2 class="font-serif text-3xl md:text-5xl mb-8">Dine with Hoanien</h2>
+            <p class="text-hoanien-text/80 leading-loose text-sm md:text-base font-light max-w-2xl mx-auto">
                 Our culinary philosophy is rooted in deep respect for local farmers, fishermen, and artisans. Every dish
                 tells a story of the region's abundant harvest, crafted to nourish both body and soul.
             </p>
@@ -261,7 +261,7 @@
                 </div>
                 <div class="w-full lg:w-[40%] flex flex-col items-start">
                     <h2 class="font-serif text-3xl md:text-4xl mb-6">The Merchant</h2>
-                    <p class="text-kawaii-text/70 mb-8 font-light leading-relaxed text-sm">
+                    <p class="text-hoanien-text/70 mb-8 font-light leading-relaxed text-sm">
                         Inspired by the bustling trading ports of ancient Hoi An, The Merchant offers a vibrant all-day
                         dining experience. Journey through interactive kitchens showcasing authentic Vietnamese
                         delicacies and international favorites.
@@ -272,11 +272,11 @@
                     </div>
                     <div class="flex gap-4 w-full sm:w-auto">
                         <button
-                            class="flex-1 sm:flex-none bg-kawaii-text text-kawaii-bg px-8 py-3.5 text-[11px] uppercase tracking-[0.15em] hover:bg-kawaii-text/80 active:scale-[0.98] active:translate-y-[0.5px] transition-all duration-200 transition-colors">
+                            class="flex-1 sm:flex-none bg-hoanien-text text-hoanien-bg px-8 py-3.5 text-[11px] uppercase tracking-[0.15em] hover:bg-hoanien-text/80 active:scale-[0.98] active:translate-y-[0.5px] transition-all duration-200 transition-colors">
                             Book a Table
                         </button>
                         <button onclick="window.location.href='/order-food'"
-                            class="flex-1 sm:flex-none border border-kawaii-text text-kawaii-text px-8 py-3.5 text-[11px] uppercase tracking-[0.15em] hover:bg-kawaii-text hover:text-kawaii-bg transition-colors">
+                            class="flex-1 sm:flex-none border border-hoanien-text text-hoanien-text px-8 py-3.5 text-[11px] uppercase tracking-[0.15em] hover:bg-hoanien-text hover:text-hoanien-bg transition-colors">
                             Order Food
                         </button>
                     </div>
@@ -287,7 +287,7 @@
             <section class="flex flex-col-reverse lg:flex-row gap-12 md:gap-20 items-center">
                 <div class="w-full lg:w-[40%] flex flex-col items-start lg:pl-12">
                     <h2 class="font-serif text-3xl md:text-4xl mb-6">The Fisherman</h2>
-                    <p class="text-kawaii-text/70 mb-8 font-light leading-relaxed text-sm">
+                    <p class="text-hoanien-text/70 mb-8 font-light leading-relaxed text-sm">
                         Savor the catch of the day at our riverside grill. The Fisherman celebrates the rich maritime
                         heritage of the central coast, offering expertly prepared seafood in an intimate, open-air
                         setting by the Thu Bon river.
@@ -298,11 +298,11 @@
                     </div>
                     <div class="flex gap-4 w-full sm:w-auto">
                         <button
-                            class="flex-1 sm:flex-none bg-kawaii-text text-kawaii-bg px-8 py-3.5 text-[11px] uppercase tracking-[0.15em] hover:bg-kawaii-text/80 active:scale-[0.98] active:translate-y-[0.5px] transition-all duration-200 transition-colors">
+                            class="flex-1 sm:flex-none bg-hoanien-text text-hoanien-bg px-8 py-3.5 text-[11px] uppercase tracking-[0.15em] hover:bg-hoanien-text/80 active:scale-[0.98] active:translate-y-[0.5px] transition-all duration-200 transition-colors">
                             Book a Table
                         </button>
                         <button onclick="window.location.href='/order-food'"
-                            class="flex-1 sm:flex-none border border-kawaii-text text-kawaii-text px-8 py-3.5 text-[11px] uppercase tracking-[0.15em] hover:bg-kawaii-text hover:text-kawaii-bg transition-colors">
+                            class="flex-1 sm:flex-none border border-hoanien-text text-hoanien-text px-8 py-3.5 text-[11px] uppercase tracking-[0.15em] hover:bg-hoanien-text hover:text-hoanien-bg transition-colors">
                             Order Food
                         </button>
                     </div>
@@ -321,7 +321,7 @@
                 </div>
                 <div class="w-full lg:w-[40%] flex flex-col items-start">
                     <h2 class="font-serif text-3xl md:text-4xl mb-6">River Cruise</h2>
-                    <p class="text-kawaii-text/70 mb-8 font-light leading-relaxed text-sm">
+                    <p class="text-hoanien-text/70 mb-8 font-light leading-relaxed text-sm">
                         Experience the magic of Hoi An from the water. Step aboard our traditional wooden boat for a
                         sunset cocktail cruise or a romantic dinner under the stars, drifting gently along the Thu Bon
                         River.
@@ -333,7 +333,7 @@
                     </div>
                     <div class="flex gap-4 w-full sm:w-auto">
                         <button
-                            class="flex-1 sm:flex-none bg-kawaii-text text-kawaii-bg px-8 py-3.5 text-[11px] uppercase tracking-[0.15em] hover:bg-kawaii-text/80 active:scale-[0.98] active:translate-y-[0.5px] transition-all duration-200 transition-colors">
+                            class="flex-1 sm:flex-none bg-hoanien-text text-hoanien-bg px-8 py-3.5 text-[11px] uppercase tracking-[0.15em] hover:bg-hoanien-text/80 active:scale-[0.98] active:translate-y-[0.5px] transition-all duration-200 transition-colors">
                             Enquire Now
                         </button>
                     </div>
@@ -346,12 +346,12 @@
     <!-- Footer -->
 
     <!-- Footer -->
-    <footer class="bg-kawaii-footer text-kawaii-footer-text py-20 px-6 font-sans site-footer">
+    <footer class="bg-hoanien-footer text-hoanien-footer-text py-20 px-6 font-sans site-footer">
         <div class="max-w-[1440px] mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-end">
             <!-- Footer Info -->
             <div class="space-y-6">
                 <div class="font-serif text-3xl font-medium tracking-wide">
-                    KAWAII
+                    HOANIEN
                     <span class="block text-xs font-sans tracking-[0.3em] uppercase mt-2 opacity-70">River
                         Retreat</span>
                 </div>
@@ -361,15 +361,15 @@
                     Danang City, Viet Nam
                 </div>
                 <div class="text-sm opacity-80">
-                    <a href="mailto:contact@kawaiiretreat.com"
-                        class="hover:text-white transition-colors">contact@kawaiiretreat.com</a><br>
+                    <a href="mailto:contact@hoanienretreat.com"
+                        class="hover:text-white transition-colors">contact@hoanienretreat.com</a><br>
                     <a href="tel:+84123456789" class="hover:text-white transition-colors">+84 123 456 789</a>
                 </div>
             </div>
 
             <!-- Map Card -->
             <div
-                class="h-48 md:h-64 rounded-xl overflow-hidden grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all duration-500 relative group cursor-pointer border border-kawaii-footer-text/20">
+                class="h-48 md:h-64 rounded-xl overflow-hidden grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all duration-500 relative group cursor-pointer border border-hoanien-footer-text/20">
                 <iframe
                     src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3834.1105353597627!2d108.23847531536098!3d16.059758088886364!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3142177f2ced6d8b%3A0xeac35f2960fa74a4!2sDanang%2C%20Vietnam!5e0!3m2!1sen!2s!4v1655112345678!5m2!1sen!2s"
                     width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"
@@ -379,8 +379,8 @@
 
         <!-- Footer Links -->
         <div
-            class="max-w-[1440px] mx-auto mt-16 pt-8 border-t border-kawaii-footer-text/10 text-center text-[10px] uppercase tracking-[0.15em] opacity-50 flex flex-col md:flex-row justify-between gap-4">
-            <p>&copy; 2026 Kawaii River Retreat. All rights reserved.</p>
+            class="max-w-[1440px] mx-auto mt-16 pt-8 border-t border-hoanien-footer-text/10 text-center text-[10px] uppercase tracking-[0.15em] opacity-50 flex flex-col md:flex-row justify-between gap-4">
+            <p>&copy; 2026 Hoanien River Retreat. All rights reserved.</p>
             <div class="flex gap-6 justify-center md:justify-end">
                 <a href="#" class="hover:text-white transition-colors">Privacy</a>
                 <a href="#" class="hover:text-white transition-colors">Terms</a>

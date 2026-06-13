@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reservations - Kawai Retreat</title>
+    <title>Reservations - Hoanien Retreat</title>
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -21,7 +21,7 @@
             <div class="sidebar-brand">
                 <div class="brand-logo">K</div>
                 <div class="brand-text">
-                    <h1 class="brand-title">Kawai Retreat</h1>
+                    <h1 class="brand-title">Hoanien Retreat</h1>
                     <p class="brand-subtitle">Resort & Hub</p>
                 </div>
             </div>
@@ -130,41 +130,19 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>#RES-1001</td>
-                                <td>Nguyễn Văn A</td>
-                                <td>15/06/2026</td>
-                                <td>18/06/2026</td>
-                                <td>Deluxe</td>
-                                <td><span class="status-badge status-confirmed">Confirmed</span></td>
+                            <tr th:each="res : ${reservations}">
+                                <td th:text="'#RES-' + ${res.id}">#RES-1001</td>
+                                <td th:text="${res.customerName}">Nguyễn Văn A</td>
+                                <td th:text="${res.checkInDate != null ? res.checkInDate : 'N/A'}">15/06/2026</td>
+                                <td th:text="${res.checkOutDate != null ? res.checkOutDate : 'N/A'}">18/06/2026</td>
+                                <td th:text="${res.roomType != null ? res.roomType : 'Standard'}">Deluxe</td>
+                                <td>
+                                    <span class="status-badge" th:classappend="${res.status == 'Confirmed' ? 'status-confirmed' : (res.status == 'Pending' ? 'status-pending' : 'status-cancelled')}" th:text="${res.status}">Confirmed</span>
+                                </td>
                                 <td><button class="btn btn-outline btn-sm">View</button></td>
                             </tr>
-                            <tr>
-                                <td>#RES-1002</td>
-                                <td>Trần Thị B</td>
-                                <td>16/06/2026</td>
-                                <td>20/06/2026</td>
-                                <td>Suite</td>
-                                <td><span class="status-badge status-pending">Pending</span></td>
-                                <td><button class="btn btn-outline btn-sm">View</button></td>
-                            </tr>
-                            <tr>
-                                <td>#RES-1003</td>
-                                <td>Lê Hoàng C</td>
-                                <td>12/06/2026</td>
-                                <td>14/06/2026</td>
-                                <td>Villa</td>
-                                <td><span class="status-badge status-cancelled">Cancelled</span></td>
-                                <td><button class="btn btn-outline btn-sm">View</button></td>
-                            </tr>
-                            <tr>
-                                <td>#RES-1004</td>
-                                <td>Phạm Đức D</td>
-                                <td>10/06/2026</td>
-                                <td>12/06/2026</td>
-                                <td>Deluxe</td>
-                                <td><span class="status-badge status-confirmed">Confirmed</span></td>
-                                <td><button class="btn btn-outline btn-sm">View</button></td>
+                            <tr th:if="${#lists.isEmpty(reservations)}">
+                                <td colspan="7" style="text-align:center; padding:20px; color:#999;">Không có đơn đặt phòng nào.</td>
                             </tr>
                         </tbody>
                     </table>
@@ -173,5 +151,11 @@
         </main>
     </div>
     <script src="/receptionist/js/dashboard.js"></script>
+    <script>
+        // Auto-refresh every 15 seconds for real-time synchronization
+        setTimeout(function() {
+            location.reload();
+        }, 15000);
+    </script>
 </body>
 </html>

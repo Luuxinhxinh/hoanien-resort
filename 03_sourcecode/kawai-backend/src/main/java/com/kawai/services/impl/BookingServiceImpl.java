@@ -5,10 +5,17 @@ import com.kawai.dto.BookingResponseDTO;
 import com.kawai.exceptions.RoomNotAvailableException;
 import com.kawai.models.Promotion;
 import com.kawai.models.RoomBooking;
+import com.kawai.models.RoomBookingDetail;
+import com.kawai.models.Room;
+import com.kawai.models.Customer;
 import com.kawai.repositories.PromotionRepository;
 import com.kawai.repositories.RoomBookingRepository;
+import com.kawai.repositories.RoomBookingDetailRepository;
+import com.kawai.repositories.RoomRepository;
+import com.kawai.repositories.CustomerRepository;
 import com.kawai.services.interfaces.BookingService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -44,11 +51,20 @@ public class BookingServiceImpl implements BookingService {
 
     private final RoomBookingRepository roomBookingRepository;
     private final PromotionRepository promotionRepository;
+    private final RoomRepository roomRepository;
+    private final CustomerRepository customerRepository;
+    private final RoomBookingDetailRepository roomBookingDetailRepository;
 
     public BookingServiceImpl(RoomBookingRepository roomBookingRepository,
-            PromotionRepository promotionRepository) {
+            PromotionRepository promotionRepository,
+            RoomRepository roomRepository,
+            CustomerRepository customerRepository,
+            RoomBookingDetailRepository roomBookingDetailRepository) {
         this.roomBookingRepository = roomBookingRepository;
         this.promotionRepository = promotionRepository;
+        this.roomRepository = roomRepository;
+        this.customerRepository = customerRepository;
+        this.roomBookingDetailRepository = roomBookingDetailRepository;
     }
 
     // ══════════════════════════════════════════════════════════════════════
@@ -56,6 +72,7 @@ public class BookingServiceImpl implements BookingService {
     // ══════════════════════════════════════════════════════════════════════
 
     @Override
+    @Transactional
     public BookingResponseDTO createBooking(BookingRequestDTO request)
             throws RoomNotAvailableException, IllegalArgumentException {
 
@@ -84,9 +101,37 @@ public class BookingServiceImpl implements BookingService {
             discountedPrice = applyPromotion(promoCode, baseTotal);
         }
 
-        // ✅ FIX TC-M2-004: Trả "CONFIRMED" thay vì "Pending" (BR-STATUS-01)
+        Customer customer = customerRepository.findById(request.getCustomerId())
+            .orElseGet(() -> customerRepository.findAll().stream().findFirst().orElseThrow(() -> new IllegalArgumentException("Customer not found")));
+
+        Room room = roomRepository.findByRoomNumber(roomNo).orElseThrow(() -> new IllegalArgumentException("Room not found: " + roomNo));
+
+        RoomBooking booking = new RoomBooking();
+        booking.setCustomer(customer);
+        booking.setBookingDate(LocalDate.now());
+        booking.setTotalPrice(discountedPrice.setScale(0, RoundingMode.HALF_UP));
+        booking.setBookingStatus(STATUS_CONFIRMED);
+        booking.setBookingSource("Direct_Web");
+        
+        booking.setCheckInDate(checkIn);
+        booking.setCheckOutDate(checkOut);
+        booking.setDepositAmount(request.getDepositAmount());
+        booking.setCancellationDeadline(checkIn.minusDays(2));
+        booking.setPersonalPinHash("DEFAULT_PIN");
+
+        RoomBooking savedBooking = roomBookingRepository.save(booking);
+
+        RoomBookingDetail detail = new RoomBookingDetail();
+        detail.setRoomBooking(savedBooking);
+        detail.setRoom(room);
+        detail.setCategory(room.getCategory());
+        detail.setRoomCharge(baseTotal);
+        detail.setDetailStatus("Pending");
+        detail.setCustomer(customer);
+        roomBookingDetailRepository.save(detail);
+
         BookingResponseDTO response = new BookingResponseDTO();
-        response.setBookingId(System.currentTimeMillis() % 10000 + 1); // fake ID
+        response.setBookingId(savedBooking.getId());
         response.setBookingStatus(STATUS_CONFIRMED);
         response.setDepositAmount(request.getDepositAmount());
         // ✅ FIX TC-M2-008/008b: Set scale = 0 cho tiền tệ (BR-FIN-05)

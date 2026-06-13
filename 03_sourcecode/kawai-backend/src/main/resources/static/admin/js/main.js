@@ -1,4 +1,4 @@
-// Common JavaScript helper functions for Kawai Retreat Operations Hub
+// Common JavaScript helper functions for Hoanien Retreat Operations Hub
 
 // Initialize Lucide Icons after the DOM is fully loaded
 document.addEventListener("DOMContentLoaded", () => {

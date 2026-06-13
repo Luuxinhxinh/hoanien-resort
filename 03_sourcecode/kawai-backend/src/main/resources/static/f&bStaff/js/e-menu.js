@@ -1,5 +1,5 @@
 /**
- * KAWAI RESORT & TOUR HUB — F&B Staff E-Menu
+ * HOANIEN RESORT & TOUR HUB — F&B Staff E-Menu
  * e-menu.js  (statics/f&bStaff/js/)
  */
 

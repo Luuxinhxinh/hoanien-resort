@@ -20,4 +20,6 @@ public interface TourScheduleRepository extends JpaRepository<TourSchedule, Long
      */
     List<TourSchedule> findByDepartureDateBetweenAndScheduleStatus(
             LocalDate fromDate, LocalDate toDate, String scheduleStatus);
+
+    List<TourSchedule> findByTourIdAndDepartureDate(Long tourId, LocalDate departureDate);
 }

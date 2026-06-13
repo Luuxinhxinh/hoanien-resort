@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title th:text="${resort != null ? resort.name : 'Kawaii River Retreat'}">Kawaii River Retreat</title>
+    <title th:text="${resort != null ? resort.name : 'Hoanien River Retreat'}">Hoanien River Retreat</title>
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -19,10 +19,10 @@
             theme: {
                 extend: {
                     colors: {
-                        'kawaii-bg': '#f1ebe3',
-                        'kawaii-text': '#3a3230',
-                        'kawaii-footer': '#3c3530',
-                        'kawaii-footer-text': '#e5dfd8'
+                        'hoanien-bg': '#f1ebe3',
+                        'hoanien-text': '#3a3230',
+                        'hoanien-footer': '#3c3530',
+                        'hoanien-footer-text': '#e5dfd8'
                     },
                     fontFamily: {
                         'serif': ['"Playfair Display"', 'serif'],
@@ -44,11 +44,11 @@
         }
     
         /* Smooth tactile button feedback */
-        button:active, a.bg-kawaii-text:active, a.bg-namia-text:active, .btn-search:active, .btn-book:active {
+        button:active, a.bg-hoanien-text:active, a.bg-namia-text:active, .btn-search:active, .btn-book:active {
             transform: scale(0.97) translateY(0.5px);
             transition: transform 0.1s ease;
         }
-        button, a.bg-kawaii-text, .btn-search, .btn-book {
+        button, a.bg-hoanien-text, .btn-search, .btn-book {
             transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease, opacity 0.2s ease;
         }
         
@@ -61,33 +61,33 @@
 <body>
 
     <!-- ============ NAVIGATION BAR ============ -->
-    <nav class="fixed top-0 left-0 w-full z-50 bg-kawaii-bg/90 backdrop-blur-md border-b border-kawaii-text/10 transition-all duration-300 font-sans">
+    <nav class="fixed top-0 left-0 w-full z-50 bg-hoanien-bg/90 backdrop-blur-md border-b border-hoanien-text/10 transition-all duration-300 font-sans">
         <div class="max-w-[1280px] mx-auto px-6 py-4 flex items-center justify-between">
-            <div class="hidden lg:flex items-center gap-8 text-[11px] uppercase tracking-[0.2em] font-semibold text-kawaii-text/80">
-                <a href="/living" class="hover:text-kawaii-text active:scale-95 transition-all duration-200 transition-colors">Living</a>
-                <a href="/dining" class="hover:text-kawaii-text active:scale-95 transition-all duration-200 transition-colors">Dining</a>
-                <a href="/experiences" class="hover:text-kawaii-text active:scale-95 transition-all duration-200 transition-colors">Experiences</a>
-                <a href="/tours" class="hover:text-kawaii-text active:scale-95 transition-all duration-200 transition-colors">Tours</a>
+            <div class="hidden lg:flex items-center gap-8 text-[11px] uppercase tracking-[0.2em] font-semibold text-hoanien-text/80">
+                <a href="/living" class="hover:text-hoanien-text active:scale-95 transition-all duration-200 transition-colors">Living</a>
+                <a href="/dining" class="hover:text-hoanien-text active:scale-95 transition-all duration-200 transition-colors">Dining</a>
+                <a href="/experiences" class="hover:text-hoanien-text active:scale-95 transition-all duration-200 transition-colors">Experiences</a>
+                <a href="/tours" class="hover:text-hoanien-text active:scale-95 transition-all duration-200 transition-colors">Tours</a>
             </div>
 
-            <div class="font-serif text-2xl md:text-3xl font-medium tracking-wide text-kawaii-text text-center flex-1 lg:flex-none cursor-pointer" onclick="window.location.href='/booking'">
-                KAWAII
+            <div class="font-serif text-2xl md:text-3xl font-medium tracking-wide text-hoanien-text text-center flex-1 lg:flex-none cursor-pointer" onclick="window.location.href='/booking'">
+                HOANIEN
                 <span class="block text-[10px] md:text-xs font-sans tracking-[0.3em] uppercase mt-1 opacity-70">River Retreat</span>
             </div>
 
             <div class="hidden lg:flex items-center gap-6 text-[11px] uppercase tracking-[0.2em] font-semibold">
                 <!-- Profile / Logout if logged in -->
-                <a href="/profile" th:if="${isLoggedIn}" class="hover:text-kawaii-text active:scale-95 transition-all duration-200 transition-colors">Profile</a>
+                <a href="/profile" th:if="${isLoggedIn}" class="hover:text-hoanien-text active:scale-95 transition-all duration-200 transition-colors">Profile</a>
                 <form th:action="@{/auth/logout}" method="post" th:if="${isLoggedIn}" class="inline">
-                    <button type="submit" class="hover:text-kawaii-text active:scale-95 transition-all duration-200 transition-colors uppercase tracking-[0.2em] bg-transparent border-none p-0 cursor-pointer">Logout</button>
+                    <button type="submit" class="hover:text-hoanien-text active:scale-95 transition-all duration-200 transition-colors uppercase tracking-[0.2em] bg-transparent border-none p-0 cursor-pointer">Logout</button>
                 </form>
 
                 <a href="/booking" th:if="${isLoggedIn}" onclick="alert('Tính năng đặt phòng đang được phát triển!'); return false;"
-                    class="bg-kawaii-text text-kawaii-bg px-6 py-3 hover:bg-kawaii-text/80 active:scale-[0.98] active:translate-y-[0.5px] transition-all duration-200 transition-colors inline-block text-center border border-kawaii-text">
+                    class="bg-hoanien-text text-hoanien-bg px-6 py-3 hover:bg-hoanien-text/80 active:scale-[0.98] active:translate-y-[0.5px] transition-all duration-200 transition-colors inline-block text-center border border-hoanien-text">
                     Book Now
                 </a>
                 <a href="/booking" th:unless="${isLoggedIn}"
-                    class="bg-kawaii-text text-kawaii-bg px-6 py-3 hover:bg-kawaii-text/80 active:scale-[0.98] active:translate-y-[0.5px] transition-all duration-200 transition-colors inline-block text-center border border-kawaii-text">
+                    class="bg-hoanien-text text-hoanien-bg px-6 py-3 hover:bg-hoanien-text/80 active:scale-[0.98] active:translate-y-[0.5px] transition-all duration-200 transition-colors inline-block text-center border border-hoanien-text">
                     Book Now
                 </a>
             </div>
@@ -403,8 +403,8 @@
     <footer class="site-footer">
         <div class="footer-inner">
             <div class="footer-left">
-                <p class="footer-title" th:text="${resort != null ? resort.title : 'Kawaii River Retreat - Wellness Inclusive Resort, Managed by Lumina Wellbeing'}">
-                    Kawaii River Retreat - Wellness Inclusive Resort, Managed by Lumina Wellbeing</p>
+                <p class="footer-title" th:text="${resort != null ? resort.title : 'Hoanien River Retreat - Wellness Inclusive Resort, Managed by Lumina Wellbeing'}">
+                    Hoanien River Retreat - Wellness Inclusive Resort, Managed by Lumina Wellbeing</p>
                 <p class="footer-addr" th:text="${resort != null ? resort.address : '232 Tran Nhan Tong Street, Hoi An Dong Ward, Danang City, Viet Nam'}">
                     232 Tran Nhan Tong Street, Hoi An Dong Ward, Danang City, Viet Nam</p>
             </div>
@@ -420,8 +420,8 @@
 
     <!-- ============ AUTH MODAL (Login/Register) ============ -->
     <div id="authModal" class="fixed inset-0 z-[100] bg-black/60 items-center justify-center backdrop-blur-sm transition-opacity font-sans" style="display: none;">
-        <div class="bg-kawaii-bg w-full max-w-md p-8 relative border border-kawaii-text/10 shadow-2xl overflow-y-auto max-h-[90vh]">
-            <button onclick="closeAuthModal()" class="absolute top-4 right-4 text-kawaii-text/50 hover:text-kawaii-text active:scale-95 transition-all duration-200 transition-colors">
+        <div class="bg-hoanien-bg w-full max-w-md p-8 relative border border-hoanien-text/10 shadow-2xl overflow-y-auto max-h-[90vh]">
+            <button onclick="closeAuthModal()" class="absolute top-4 right-4 text-hoanien-text/50 hover:text-hoanien-text active:scale-95 transition-all duration-200 transition-colors">
                 <span class="material-symbols-outlined">close</span>
             </button>
             
@@ -435,85 +435,85 @@
 
             <!-- Login Form -->
             <div id="loginSection">
-                <h2 class="font-serif text-3xl mb-6 text-center text-kawaii-text">Đăng Nhập</h2>
+                <h2 class="font-serif text-3xl mb-6 text-center text-hoanien-text">Đăng Nhập</h2>
                 <p class="text-sm opacity-70 text-center mb-8">Vui lòng đăng nhập để tiếp tục đặt phòng.</p>
 
                 <form th:action="@{/auth/login}" method="post" class="space-y-4">
                     <div>
                         <label class="block text-[11px] uppercase tracking-[0.1em] opacity-60 font-semibold mb-2">Tên đăng nhập</label>
                         <input type="text" name="username" required
-                            class="w-full border border-kawaii-text/20 p-3 focus:ring-1 focus:ring-kawaii-text focus:border-kawaii-text bg-white text-sm"
+                            class="w-full border border-hoanien-text/20 p-3 focus:ring-1 focus:ring-hoanien-text focus:border-hoanien-text bg-white text-sm"
                             placeholder="Nhập tên đăng nhập của bạn">
                     </div>
                     <div>
                         <div class="flex justify-between items-center mb-2">
                             <label class="block text-[11px] uppercase tracking-[0.1em] opacity-60 font-semibold">Mật khẩu</label>
-                            <a href="#" class="text-[11px] text-kawaii-text hover:underline opacity-80">Quên mật khẩu?</a>
+                            <a href="#" class="text-[11px] text-hoanien-text hover:underline opacity-80">Quên mật khẩu?</a>
                         </div>
                         <input type="password" name="password" required
-                            class="w-full border border-kawaii-text/20 p-3 focus:ring-1 focus:ring-kawaii-text focus:border-kawaii-text bg-white text-sm"
+                            class="w-full border border-hoanien-text/20 p-3 focus:ring-1 focus:ring-hoanien-text focus:border-hoanien-text bg-white text-sm"
                             placeholder="Nhập mật khẩu">
                     </div>
                     <button type="submit"
-                        class="w-full bg-kawaii-text text-white py-3 text-[11px] uppercase tracking-[0.15em] font-semibold hover:bg-kawaii-text/80 active:scale-[0.98] active:translate-y-[0.5px] transition-all duration-200 transition-colors mt-4">
+                        class="w-full bg-hoanien-text text-white py-3 text-[11px] uppercase tracking-[0.15em] font-semibold hover:bg-hoanien-text/80 active:scale-[0.98] active:translate-y-[0.5px] transition-all duration-200 transition-colors mt-4">
                         Đăng Nhập
                     </button>
                 </form>
 
                 <div class="mt-6 flex items-center justify-between">
-                    <hr class="w-full border-kawaii-text/10">
+                    <hr class="w-full border-hoanien-text/10">
                     <span class="text-xs px-3 opacity-50 uppercase tracking-widest">Hoặc</span>
-                    <hr class="w-full border-kawaii-text/10">
+                    <hr class="w-full border-hoanien-text/10">
                 </div>
 
-                <a href="/oauth2/authorization/google" class="w-full border border-kawaii-text/20 bg-white text-kawaii-text py-3 mt-6 flex items-center justify-center gap-3 hover:bg-gray-50 transition-colors text-sm font-medium">
+                <a href="/oauth2/authorization/google" class="w-full border border-hoanien-text/20 bg-white text-hoanien-text py-3 mt-6 flex items-center justify-center gap-3 hover:bg-gray-50 transition-colors text-sm font-medium">
                     <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" class="w-5 h-5">
                     Đăng nhập bằng Google
                 </a>
 
                 <p class="text-center text-sm opacity-70 mt-8">
-                    Chưa có tài khoản? <a href="#" onclick="toggleAuthView('register'); return false;" class="text-kawaii-text font-semibold hover:underline">Đăng ký ngay</a>
+                    Chưa có tài khoản? <a href="#" onclick="toggleAuthView('register'); return false;" class="text-hoanien-text font-semibold hover:underline">Đăng ký ngay</a>
                 </p>
             </div>
 
             <!-- Register Form -->
             <div id="registerSection" style="display: none;">
-                <h2 class="font-serif text-3xl mb-6 text-center text-kawaii-text">Đăng Ký</h2>
+                <h2 class="font-serif text-3xl mb-6 text-center text-hoanien-text">Đăng Ký</h2>
                 <p class="text-sm opacity-70 text-center mb-8">Tạo tài khoản để trải nghiệm dịch vụ.</p>
 
                 <form th:action="@{/auth/register}" method="post" class="space-y-4">
                     <div>
                         <label class="block text-[11px] uppercase tracking-[0.1em] opacity-60 font-semibold mb-2">Họ và Tên</label>
                         <input type="text" name="fullName" required
-                            class="w-full border border-kawaii-text/20 p-3 focus:ring-1 focus:ring-kawaii-text focus:border-kawaii-text bg-white text-sm"
+                            class="w-full border border-hoanien-text/20 p-3 focus:ring-1 focus:ring-hoanien-text focus:border-hoanien-text bg-white text-sm"
                             placeholder="Nhập họ tên đầy đủ">
                     </div>
                     <div>
                         <label class="block text-[11px] uppercase tracking-[0.1em] opacity-60 font-semibold mb-2">Email</label>
                         <input type="email" name="email" required
-                            class="w-full border border-kawaii-text/20 p-3 focus:ring-1 focus:ring-kawaii-text focus:border-kawaii-text bg-white text-sm"
+                            class="w-full border border-hoanien-text/20 p-3 focus:ring-1 focus:ring-hoanien-text focus:border-hoanien-text bg-white text-sm"
                             placeholder="Nhập email của bạn">
                     </div>
                     <div>
                         <label class="block text-[11px] uppercase tracking-[0.1em] opacity-60 font-semibold mb-2">Tên đăng nhập</label>
                         <input type="text" name="username" required
-                            class="w-full border border-kawaii-text/20 p-3 focus:ring-1 focus:ring-kawaii-text focus:border-kawaii-text bg-white text-sm"
+                            class="w-full border border-hoanien-text/20 p-3 focus:ring-1 focus:ring-hoanien-text focus:border-hoanien-text bg-white text-sm"
                             placeholder="Chọn tên đăng nhập">
                     </div>
                     <div>
                         <label class="block text-[11px] uppercase tracking-[0.1em] opacity-60 font-semibold mb-2">Mật khẩu</label>
                         <input type="password" name="password" required
-                            class="w-full border border-kawaii-text/20 p-3 focus:ring-1 focus:ring-kawaii-text focus:border-kawaii-text bg-white text-sm"
+                            class="w-full border border-hoanien-text/20 p-3 focus:ring-1 focus:ring-hoanien-text focus:border-hoanien-text bg-white text-sm"
                             placeholder="Tạo mật khẩu">
                     </div>
                     <button type="submit"
-                        class="w-full bg-kawaii-text text-white py-3 text-[11px] uppercase tracking-[0.15em] font-semibold hover:bg-kawaii-text/80 active:scale-[0.98] active:translate-y-[0.5px] transition-all duration-200 transition-colors mt-4">
+                        class="w-full bg-hoanien-text text-white py-3 text-[11px] uppercase tracking-[0.15em] font-semibold hover:bg-hoanien-text/80 active:scale-[0.98] active:translate-y-[0.5px] transition-all duration-200 transition-colors mt-4">
                         Đăng Ký
                     </button>
                 </form>
 
                 <p class="text-center text-sm opacity-70 mt-8">
-                    Đã có tài khoản? <a href="#" onclick="toggleAuthView('login'); return false;" class="text-kawaii-text font-semibold hover:underline">Đăng nhập</a>
+                    Đã có tài khoản? <a href="#" onclick="toggleAuthView('login'); return false;" class="text-hoanien-text font-semibold hover:underline">Đăng nhập</a>
                 </p>
             </div>
         </div>
@@ -524,7 +524,7 @@
 
     <!-- ============ BOOKING CONFIRMATION MODAL ============ -->
     <div id="bookingConfirmModal" class="fixed inset-0 z-[100] bg-black/60 items-center justify-center backdrop-blur-sm transition-opacity font-sans" style="display: none;" onclick="closeBookingConfirmModal()">
-        <div class="bg-white w-full max-w-md p-8 relative border border-[#e7e1d5] shadow-2xl text-center" onclick="event.stopPropagation()">
+        <div class="bg-white w-full max-w-lg p-10 relative border border-[#e7e1d5] rounded-xl shadow-2xl text-center" onclick="event.stopPropagation()">
             <!-- Close Button -->
             <button onclick="closeBookingConfirmModal()" class="absolute top-4 right-4 text-gray-400 hover:text-black">
                 <span class="material-symbols-outlined">close</span>
@@ -537,10 +537,10 @@
 
             <!-- Title -->
             <h2 class="font-serif text-2xl md:text-3xl font-medium text-[#2c2a24] mb-3">Đặt Phòng Thành Công!</h2>
-            <p class="text-xs text-gray-500 mb-6">Cảm ơn bạn đã lựa chọn Kawaii River Retreat làm nơi nghỉ dưỡng.</p>
+            <p class="text-xs text-gray-500 mb-6">Cảm ơn bạn đã lựa chọn Hoanien River Retreat làm nơi nghỉ dưỡng.</p>
 
             <!-- Booking details summary box -->
-            <div class="bg-kawaii-bg p-4 rounded-xl text-left text-xs text-gray-700 space-y-2 mb-6">
+            <div class="bg-hoanien-bg p-4 rounded-xl text-left text-xs text-gray-700 space-y-2 mb-6 border border-hoanien-text/5">
                 <div class="flex justify-between">
                     <span class="text-gray-400">Loại phòng:</span>
                     <span id="confirmRoomName" class="font-semibold text-gray-900">Nipa Pool Villa</span>
@@ -553,7 +553,7 @@
                     <span class="text-gray-400">Số lượng khách:</span>
                     <span id="confirmRoomGuests" class="font-semibold text-gray-900">2 người lớn</span>
                 </div>
-                <div class="flex justify-between pt-2 border-t border-kawaii-text/10">
+                <div class="flex justify-between pt-2 border-t border-hoanien-text/10 mt-2">
                     <span class="font-semibold text-gray-900">Tổng chi phí:</span>
                     <span id="confirmRoomTotal" class="font-serif text-sm font-bold text-gray-900">₫ 46,035,000.00</span>
                 </div>
@@ -561,10 +561,10 @@
 
             <!-- Action buttons -->
             <div class="space-y-3">
-                <button onclick="goToProfile()" class="w-full bg-kawaii-text text-white py-3 text-xs font-semibold uppercase tracking-[0.15em] hover:bg-kawaii-text/90 transition-colors">
+                <button onclick="goToProfile()" class="w-full bg-hoanien-text text-white py-3 text-xs font-semibold uppercase tracking-[0.15em] hover:bg-hoanien-text/90 transition-colors rounded">
                     Xem Đơn Đặt Phòng
                 </button>
-                <button onclick="closeBookingConfirmModal()" class="w-full border border-kawaii-text/20 text-kawaii-text py-3 text-xs font-semibold uppercase tracking-[0.15em] hover:bg-kawaii-bg transition-colors">
+                <button onclick="closeBookingConfirmModal()" class="w-full border border-hoanien-text/20 text-hoanien-text py-3 text-xs font-semibold uppercase tracking-[0.15em] hover:bg-hoanien-bg transition-colors rounded">
                     Quay lại
                 </button>
             </div>
@@ -1169,8 +1169,10 @@
             let checkOutStr = document.getElementById('checkOutDisplay') ? document.getElementById('checkOutDisplay').innerText : '15 Jun 2026';
             
             const depositAmount = parseFloat(totalVal.replace(/[^0-9]/g, '')) || 1000000;
-            const roomNumber = prompt("Nhập số phòng muốn đặt (VD: V101, R201):", "V101");
-            if(!roomNumber) return;
+            
+            // Extract roomNumber from roomName e.g. "NIPA POOL VILLA - King bed (Room V101)"
+            const match = roomName.match(/\(Room (.+?)\)/);
+            const roomNumber = match ? match[1] : 'V101';
 
             // Ensure bookingState dates exist or fallback
             const chkIn = bookingState.checkIn ? formatLocalDate(bookingState.checkIn) : '2026-06-12';
@@ -1184,6 +1186,14 @@
                 depositAmount: depositAmount
             };
 
+            // Set button to loading state
+            const btn = document.querySelector('button[onclick="confirmBooking()"]');
+            if (btn) {
+                btn.dataset.originalText = btn.innerText;
+                btn.innerText = 'Đang xử lý...';
+                btn.disabled = true;
+            }
+
             fetch('/api/bookings', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -1191,7 +1201,11 @@
             })
             .then(res => res.json())
             .then(data => {
-                if (data.status === 'success') {
+                if (btn) {
+                    btn.innerText = btn.dataset.originalText;
+                    btn.disabled = false;
+                }
+                if (data.status === 'success' || data.status === 'CONFIRMED') {
                     document.getElementById('confirmRoomName').innerText = roomName;
                     document.getElementById('confirmRoomDates').innerText = `${checkInStr} - ${checkOutStr}`;
                     document.getElementById('confirmRoomGuests').innerText = guestsText;
@@ -1199,14 +1213,18 @@
 
                     closeRoomDetailsModal();
                     document.getElementById('bookingConfirmModal').style.display = 'flex';
-                    showToast("Đặt phòng thành công! Booking ID: " + data.bookingId, "success");
+                    showToast("Đặt phòng thành công! Booking ID: " + (data.bookingId || '...'), "success");
                 } else {
-                    showToast("Lỗi đặt phòng: " + data.message, "error");
+                    showToast("Lỗi đặt phòng: " + (data.message || 'Phòng đã được đặt!'), "error");
                 }
             })
             .catch(err => {
+                if (btn) {
+                    btn.innerText = btn.dataset.originalText;
+                    btn.disabled = false;
+                }
                 console.error(err);
-                showToast("Lỗi kết nối Server!", "error");
+                showToast("Lỗi kết nối Server! Vui lòng thử lại.", "error");
             });
         }
 

@@ -7,10 +7,10 @@ spring:
             client-id: 538898392088-lv7in7thft76gbj9dki3u6ko1itmnrda.apps.googleusercontent.com
             client-secret: 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
   datasource:
-    url: jdbc:h2:mem:kawai_db;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=MySQL
-    driverClassName: org.h2.Driver
-    username: sa
-    password:
+    url: jdbc:mysql://localhost:3306/kawai_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    driverClassName: com.mysql.cj.jdbc.Driver
+    username: root
+    password: Luu14102005@
   sql:
     init:
       mode: always

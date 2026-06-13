@@ -1,5 +1,5 @@
 /**
- * KAWAI RESORT & TOUR HUB — F&B Staff Shift Report
+ * HOANIEN RESORT & TOUR HUB — F&B Staff Shift Report
  * shift-report.js
  */
 

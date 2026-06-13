@@ -38,9 +38,11 @@ public class TourController {
     private static final int DEFAULT_SEARCH_DAYS = 7;
 
     private final TourService tourService;
+    private final com.kawai.repositories.CustomerRepository customerRepository;
 
-    public TourController(TourService tourService) {
+    public TourController(TourService tourService, com.kawai.repositories.CustomerRepository customerRepository) {
         this.tourService = tourService;
+        this.customerRepository = customerRepository;
     }
 
     @GetMapping
@@ -79,6 +81,30 @@ public class TourController {
 
         return "guest/tours";
     }
+
+    /**
+     * Hiển thị chi tiết tour du lịch (Đoàn tụ, Đồng nội, Di sản, Tĩnh lặng)
+     * trong một trang duy nhất.
+     */
+    @GetMapping("/detail")
+    public String tourDetail(
+            @RequestParam(name = "type", defaultValue = "doantu") String type,
+            java.security.Principal principal,
+            Model model) {
+        model.addAttribute("isLoggedIn", principal != null);
+        model.addAttribute("type", type);
+        if (principal != null) {
+            java.util.Optional<com.kawai.models.Customer> customerOpt = customerRepository.findByAccount_Username(principal.getName());
+            customerOpt.ifPresent(customer -> {
+                model.addAttribute("customerName", customer.getFullName());
+                model.addAttribute("customerEmail", customer.getEmail());
+                model.addAttribute("customerPhone", customer.getPhone());
+            });
+        }
+        return "guest/tour-detail";
+    }
+
+
 
     /**
      * Trả về {@code fromDate} nếu được cung cấp, ngược lại trả về hôm nay.

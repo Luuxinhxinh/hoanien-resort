@@ -1,5 +1,5 @@
 /**
- * KAWAI RESORT & TOUR HUB — F&B Staff POS Dashboard
+ * HOANIEN RESORT & TOUR HUB — F&B Staff POS Dashboard
  * pos-dashboard.js  (statics/f&bStaff/js/)
  */
 
