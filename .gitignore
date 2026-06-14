@@ -68,3 +68,26 @@ BOOT-INF/
 # Sensitive data
 cookies.txt
 
+# Python AI service
+__pycache__/
+*.pyc
+venv/
+.env
+
+# Gemini Agent (không cần track)
+.gemini/
+
+# Thư mục cũ (đã di chuyển sang cấu trúc mới)
+03_sourcecode/
+04_testing/
+Template_Test/
+Design_Skill/
+01_SRS/
+01_UseCaseDiagram/
+AGENTS_MEMORIES.md
+All_Diagram.drawio
+EDS_TEMPLATE_V2.0.md
+TDD_TEMPLATE_V1.md
+UseCase_Diagram_Ngoc.md
+index.html
+
