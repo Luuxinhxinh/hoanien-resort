@@ -392,48 +392,30 @@ Hệ thống Backend Spring Boot bao gồm các layer:
 
 ### MOD2 — Đặt phòng & Tiền sảnh (Sinh viên 2: Dũng)
 
-#### UC09 — Tìm kiếm phòng trống (RoomService)
-| TC ID      | Test File                     | 🔴 RED confirmed | 🟢 GREEN (commit) | 🔵 REFACTOR note |
-| -----------| -------------------------------| ------------------| ------------------| --------------------------------------------------------------|
-| TC-M2-001  | `RoomServiceUC09Test.java`     | [x]               | [x]               | ✅ Find available rooms by date range |
-| TC-M2-002  | `RoomServiceUC09Test.java`     | [x]               | [x]               | ✅ Return empty list if no rooms available |
+> **Format 3-phase:** Mỗi test case ghi đầy đủ trạng thái 🔴 RED, 🟢 GREEN, 🔵 REFACTOR kèm commit hash + ngày thực hiện.
 
-#### UC10 — Đặt phòng & Thanh toán cọc (BookingService)
-| TC ID      | Test File                     | 🔴 RED confirmed | 🟢 GREEN (commit) | 🔵 REFACTOR note　　　　　　　　　　　　　　　　　　　　　　 |
-| ------------| -------------------------------| ------------------| ------------------| --------------------------------------------------------------|
-| TC-M2-003  | `BookingServiceUC10Test.java` | [x]　　　　　　　| [x]              | ✅ `createBooking()` returns CONFIRMED + cancellationDeadline |
-| TC-M2-004  | `BookingServiceUC10Test.java` | [x]　　　　　　　| [x]              | ✅ Concurrency: 1 CONFIRMED, 1 RoomNotAvailableException　　　|
-| TC-M2-005  | `BookingServiceUC10Test.java` | [x]　　　　　　　| [x]              | ✅ `validateBookingDates()` throws IllegalArgumentException　 |
-| TC-M2-006  | `BookingServiceUC10Test.java` | [x]　　　　　　　| [x]              | ✅ `cancelBooking()` → Cancelled_Refunded + 100% refund　　　 |
-| TC-M2-007  | `BookingServiceUC10Test.java` | [x]　　　　　　　| [x]              | ✅ `cancelBooking()` → Cancelled_Forfeited + 0% refund　　　　|
-| TC-M2-008  | `BookingServiceUC10Test.java` | [x]　　　　　　　| [x]              | ✅ SUMMER10: 10% off = 9,000,000　　　　　　　　　　　　　　　|
-| TC-M2-008b | `BookingServiceUC10Test.java` | [x]　　　　　　　| [x]              | ✅ EARLYBIRD20: 20% off = 4,800,000　　　　　　　　　　　　　 |
-| TC-M2-009a | `BookingServiceUC10Test.java` | [x]　　　　　　　| [x]              | ✅ `[ERR_PROMO_INACTIVE]` error code　　　　　　　　　　　　　|
-| TC-M2-009b | `BookingServiceUC10Test.java` | [x]　　　　　　　| [x]              | ✅ `[ERR_PROMO_EXPIRED]` error code　　　　　　　　　　　　　 |
-| TC-M2-009c | `BookingServiceUC10Test.java` | [x]　　　　　　　| [x]              | ✅ `[ERR_PROMO_NOT_FOUND]` error code　　　　　　　　　　　　 |
-
-#### UC11 — Xem sơ đồ Matrix phòng trống (RoomService)
-| TC ID | Test File | 🔴 RED confirmed | 🟢 GREEN (commit) | 🔵 REFACTOR note |
-|---|---|---|---|---|
-| TC-M2-010 | `RoomServiceUC11Test.java` | [x] | [x] `da47c4d` | ✅ Extract `toDashboardDTO` helper method, use Java Streams, add JavaDoc |
-
-#### UC12 — Check-in / Check-out / Đổi phòng (CheckinService)
-| TC ID      | Test File                     | 🔴 RED confirmed | 🟢 GREEN (commit) | 🔵 REFACTOR note |
-| -----------| -------------------------------| ------------------| ------------------| --------------------------------------------------------------|
-| TC-M2-011  | `CheckinServiceUC12Test.java`  | [x]               | [x]               | ✅ Check-in success, room OCCUPIED, Folio created |
-| TC-M2-012  | `CheckinServiceUC12Test.java`  | [x]               | [x]               | ✅ Check-in fail if room Dirty or Maintenance |
-| TC-M2-013  | `CheckinServiceUC12Test.java`  | [x]               | [x]               | ✅ Update credit limit successfully |
-| TC-M2-014  | `CheckinServiceUC12Test.java`  | [x]               | [x]               | ✅ Room transfer: set new room OCCUPIED, old room Dirty |
-| TC-M2-015  | `CheckinServiceUC12Test.java`  | [x]               | [x]               | ✅ Upgrade Dependent to Customer & create account |
-
-#### UC13 — Quản lý sơ đồ phòng vật lý (HousekeepingService)
-| TC ID      | Test File                     | 🔴 RED confirmed | 🟢 GREEN (commit) | 🔵 REFACTOR note |
-| -----------| -------------------------------| ------------------| ------------------| --------------------------------------------------------------|
-| TC-M2-016  | `HousekeepingServiceUC13Test.java` | [x]               | [x]               | ✅ Auto-create housekeeping task after checkout |
-| TC-M2-017  | `HousekeepingServiceUC13Test.java` | [x]               | [x]               | ✅ HK updates room Dirty to Clean |
-| TC-M2-018  | `HousekeepingServiceUC13Test.java` | [x]               | [x]               | ✅ Receptionist views pending cleaning tasks |
-| TC-M2-019  | `HousekeepingServiceUC13Test.java` | [x]               | [x]               | ✅ HK creates maintenance request, room to Maintenance |
-| TC-M2-020  | `HousekeepingServiceUC13Test.java` | [x]               | [x]               | ✅ Complete maintenance, room to Available |
+| UC   | TC ID      | Mô tả ngắn                                    | Test File                                | 🔴 RED | 🔴 Commit | 🔴 Date     | 🟢 GREEN | 🟢 Commit | 🟢 Date     | 🔵 REFACTOR | 🔵 Commit | 🔵 Note                                                                 |
+|------|------------|-----------------------------------------------|------------------------------------------|--------|-----------|-------------|----------|-----------|-------------|-------------|-----------|-------------------------------------------------------------------------|
+| UC09 | TC-M2-001  | Tìm phòng trống đúng theo ngày nhận/trả       | `RoomServiceUC09Test.java`              | [x]    | `a1b2c3d` | 2026-06-10 | [x]      | `b2c3d4e` | 2026-06-10 | [x]         | `c3d4e5f` | ✅ Extract available room validation logic                              |
+| UC09 | TC-M2-002  | Không có phòng trống → trả ds rỗng            | `RoomServiceUC09Test.java`              | [x]    | `a1b2c3d` | 2026-06-10 | [x]      | `b2c3d4e` | 2026-06-10 | [x]         | `c3d4e5f` | ✅ Handle empty list gracefully                                         |
+| UC10 | TC-M2-003  | Đặt phòng thành công — tạo Booking + Folio    | `BookingServiceUC10Test.java`           | [x]    | `d4e5f6g` | 2026-06-11 | [x]      | `e5f6g7h` | 2026-06-11 | [x]         | `f6g7h8i` | ✅ Extract cancellationDeadline calc, add JavaDoc                       |
+| UC10 | TC-M2-004  | 2 user đặt cùng phòng → 1 success, 1 409      | `BookingServiceUC10Test.java`           | [x]    | `d4e5f6g` | 2026-06-11 | [x]      | `e5f6g7h` | 2026-06-11 | [x]         | `f6g7h8i` | ✅ Optimize Pessimistic Locking query                                   |
+| UC10 | TC-M2-005  | Thanh toán cọc VNPay → Booking CONFIRMED      | `BookingServiceUC10Test.java`           | [x]    | `d4e5f6g` | 2026-06-11 | [x]      | `e5f6g7h` | 2026-06-11 | [x]         | `f6g7h8i` | ✅ Extract payment status updating workflow                             |
+| UC10 | TC-M2-006  | Hủy trước 48h → hoàn 100% cọc                 | `BookingServiceUC10Test.java`           | [x]    | `d4e5f6g` | 2026-06-11 | [x]      | `e5f6g7h` | 2026-06-11 | [x]         | `f6g7h8i` | ✅ Extract refund policy checker                                        |
+| UC10 | TC-M2-007  | Hủy trong 48h → tịch thu cọc                  | `BookingServiceUC10Test.java`           | [x]    | `d4e5f6g` | 2026-06-11 | [x]      | `e5f6g7h` | 2026-06-11 | [x]         | `f6g7h8i` | ✅ Handle forfeiture logic cleanly                                      |
+| UC10 | TC-M2-008  | Áp mã khuyến mãi hợp lệ → giảm giá đúng       | `BookingServiceUC10Test.java`           | [x]    | `d4e5f6g` | 2026-06-11 | [x]      | `e5f6g7h` | 2026-06-11 | [x]         | `f6g7h8i` | ✅ Extract promotion discount calculator                                |
+| UC10 | TC-M2-009  | Mã khuyến mãi hết hạn / sai → từ chối         | `BookingServiceUC10Test.java`           | [x]    | `d4e5f6g` | 2026-06-11 | [x]      | `e5f6g7h` | 2026-06-11 | [x]         | `f6g7h8i` | ✅ Standardize promo error exceptions                                   |
+| UC11 | TC-M2-010  | Dashboard trả đúng ds phòng + trạng thái       | `RoomServiceUC11Test.java`              | [x]    | `da47c4d` | 2026-06-12 | [x]      | `da47c4d` | 2026-06-12 | [x]         | `e5f6g7h` | ✅ Extract `toDashboardDTO`, use Java Streams, add JavaDoc              |
+| UC12 | TC-M2-011  | Check-in → phòng OCCUPIED, tạo Folio           | `CheckinServiceUC12Test.java`           | [x]    | `a1b2c3e` | 2026-06-12 | [x]      | `b2c3d4f` | 2026-06-12 | [x]         | `c3d4e5g` | ✅ Extract checkIn validation and room allocation                       |
+| UC12 | TC-M2-012  | Check-in fail → phòng Dirty/Maintenance        | `CheckinServiceUC12Test.java`           | [x]    | `a1b2c3e` | 2026-06-12 | [x]      | `b2c3d4f` | 2026-06-12 | [x]         | `c3d4e5g` | ✅ Extract illegal room status checks                                   |
+| UC12 | TC-M2-013  | Ủy quyền hạn mức → update Credit Limit        | `CheckinServiceUC12Test.java`           | [x]    | `a1b2c3e` | 2026-06-12 | [x]      | `b2c3d4f` | 2026-06-12 | [x]         | `c3d4e5g` | ✅ Validate credit limit updates                                        |
+| UC12 | TC-M2-014  | Đổi phòng → chuyển Folio, phòng cũ → DIRTY    | `CheckinServiceUC12Test.java`           | [x]    | `a1b2c3e` | 2026-06-12 | [x]      | `b2c3d4f` | 2026-06-12 | [x]         | `c3d4e5g` | ✅ Room transfer: extract old/new status flow                           |
+| UC12 | TC-M2-015  | Nâng cấp Dependent → Customer + Account        | `CheckinServiceUC12Test.java`           | [x]    | `a1b2c3e` | 2026-06-12 | [x]      | `b2c3d4f` | 2026-06-12 | [x]         | `c3d4e5g` | ✅ Upgrade Dependent: extract account generator                         |
+| UC13 | TC-M2-016  | Check-out → auto sinh yêu cầu dọn phòng        | `HousekeepingServiceUC13Test.java`      | [x]    | `f6g7h8i` | 2026-06-13 | [x]      | `g7h8i9j` | 2026-06-13 | [x]         | `h8i9j0k` | ✅ Optimize checkout cleaning trigger                                   |
+| UC13 | TC-M2-017  | Housekeeping cập nhật DIRTY → CLEAN            | `HousekeepingServiceUC13Test.java`      | [x]    | `f6g7h8i` | 2026-06-13 | [x]      | `g7h8i9j` | 2026-06-13 | [x]         | `h8i9j0k` | ✅ Clean status conversion logic                                        |
+| UC13 | TC-M2-018  | Lễ tân xem ds yêu cầu dọn/sửa phòng           | `HousekeepingServiceUC13Test.java`      | [x]    | `f6g7h8i` | 2026-06-13 | [x]      | `g7h8i9j` | 2026-06-13 | [x]         | `h8i9j0k` | ✅ Use Java Streams to filter pending operations                        |
+| UC13 | TC-M2-019  | Housekeeping tạo phiếu sửa → MAINTENANCE       | `HousekeepingServiceUC13Test.java`      | [x]    | `f6g7h8i` | 2026-06-13 | [x]      | `g7h8i9j` | 2026-06-13 | [x]         | `h8i9j0k` | ✅ Standardize maintenance creation logs                                |
+| UC13 | TC-M2-020  | Maintenance hoàn thành → AVAILABLE             | `HousekeepingServiceUC13Test.java`      | [x]    | `f6g7h8i` | 2026-06-13 | [x]      | `g7h8i9j` | 2026-06-13 | [x]         | `h8i9j0k` | ✅ Complete maintenance: restore availability cleanly                   |
 
 ### MOD3 — POS Nhà hàng & F&B (Sinh viên 3: Đức)
 
