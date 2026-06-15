@@ -16,17 +16,16 @@
 @REM under the License.
 
 @REM -----------------------------------------------------------------------------
-@REM Apache Maven Debug Script
+@REM Apache Maven Wrapper debug script, version 3.2.0
 @REM
 @REM Environment Variable Prerequisites
 @REM
-@REM   JAVA_HOME           Must point at your Java Development Kit installation.
-@REM   MAVEN_ARGS          (Optional) Arguments passed to Maven before CLI arguments.
+@REM   JAVA_HOME           (Optional) Points to a Java installation.
 @REM   MAVEN_BATCH_ECHO    (Optional) Set to 'on' to enable the echoing of the batch commands.
 @REM   MAVEN_BATCH_PAUSE   (Optional) set to 'on' to wait for a key stroke before ending.
 @REM   MAVEN_OPTS          (Optional) Java runtime options used when Maven is executed.
 @REM   MAVEN_SKIP_RC       (Optional) Flag to disable loading of mavenrc files.
-@REM   MAVEN_DEBUG_ADDRESS (Optional) Set the debug address. Default value is 8000
+@REM   MAVEN_DEBUG_ADDRESS (Optional) Set the debug address. Default value is localhost:8000
 @REM -----------------------------------------------------------------------------
 
 @REM Begin all REM lines with '@' in case MAVEN_BATCH_ECHO is 'on'
@@ -38,8 +37,8 @@ title %0
 
 @setlocal
 
-IF "%MAVEN_DEBUG_ADDRESS%"=="" @set MAVEN_DEBUG_ADDRESS=8000
+IF "%MAVEN_DEBUG_ADDRESS%"=="" @set MAVEN_DEBUG_ADDRESS=localhost:8000
 
 @set MAVEN_DEBUG_OPTS=-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=%MAVEN_DEBUG_ADDRESS%
 
-@call "%~dp0"mvn.cmd %*
+@call "%~dp0"mvnw.cmd %*

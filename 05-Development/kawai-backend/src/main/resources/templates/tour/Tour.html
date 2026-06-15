@@ -58,7 +58,27 @@
         }
 
         .content-overlay {
-            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.7) 50%, rgba(0, 0, 0, 0.85) 100%);
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.08) 0%, rgba(0, 0, 0, 0.45) 50%, rgba(0, 0, 0, 0.6) 100%);
+        }
+
+        .hero-title-shadow {
+            text-shadow: 0 4px 30px rgba(0, 0, 0, 0.5), 0 2px 8px rgba(0, 0, 0, 0.4);
+        }
+
+        .hero-subtitle-shadow {
+            text-shadow: 0 2px 20px rgba(0, 0, 0, 0.6), 0 1px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .btn-book {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(4px);
+            transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .btn-book:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: #fbddc7;
         }
 
         .journey-overlay {
@@ -178,18 +198,24 @@
         <section class="snap-section flex flex-col items-center justify-center text-center px-6" id="intro">
             <div class="absolute inset-0 z-0">
                 <img alt="HoaNien Sanctuary Hero" class="parallax-bg w-full h-full object-cover brightness-75"
-                    src="AnhTour/DuAm.jpg">
+                    src="/AnhTour/DuAm.jpg">
                 <div class="absolute inset-0 content-overlay"></div>
             </div>
             <div class="relative z-10 faded-entry max-w-4xl px-4">
                 <span class="text-[11px] uppercase tracking-[0.5em] mb-8 block opacity-80">HOANIEN RETREAT</span>
-                <h1 class="font-headline text-5xl md:text-7xl italic mb-10 leading-tight" data-i18n="hero_title">Dư âm
+                <h1 class="font-headline text-5xl md:text-7xl italic mb-6 leading-tight hero-title-shadow"
+                    data-i18n="hero_title">Dư âm
                     tĩnh lặng</h1>
-                <p class="font-headline text-xl md:text-2xl font-light max-w-2xl mx-auto leading-relaxed opacity-90 italic"
+                <p class="font-headline text-xl md:text-2xl font-light max-w-2xl mx-auto leading-relaxed opacity-90 italic hero-subtitle-shadow"
                     data-i18n="hero_sub">
                     Hành trình chạm vào những mảnh ghép ký ức nguyên bản.</p>
-                <div class="mt-16 animate-bounce opacity-40">
-                    <span class="material-symbols-outlined text-4xl">keyboard_double_arrow_down</span>
+                <div class="mt-10 flex flex-col items-center gap-6">
+                    <a href="#journey-1"
+                        class="btn-book inline-block px-10 py-3 text-[11px] font-bold uppercase tracking-[0.4em] text-white rounded-full"
+                        data-i18n="hero_btn">Khám phá hành trình</a>
+                    <div class="animate-bounce opacity-40">
+                        <span class="material-symbols-outlined text-3xl">keyboard_double_arrow_down</span>
+                    </div>
                 </div>
             </div>
         </section>
@@ -197,12 +223,12 @@
         <section class="snap-section" id="journey-1">
             <div class="absolute inset-0">
                 <img alt="Đoàn tụ — Huế" class="w-full h-full object-cover brightness-90"
-                    src="AnhTour/z7930565882675_f94fe322fc3a06efe82eccf1e76b09e1.jpg">
+                    src="/AnhTour/z7930565882675_f94fe322fc3a06efe82eccf1e76b09e1.jpg">
                 <div class="absolute inset-0 journey-overlay"></div>
             </div>
             <div class="relative h-full flex items-center justify-center text-center px-margin-desktop">
                 <div class="max-w-3xl space-y-8">
-                    <h2 class="font-headline text-4xl md:text-6xl italic" data-i18n="j1_title">Đoàn tụ - Huế</h2>
+                    <h2 class="font-headline text-4xl md:text-[70px] italic" data-i18n="j1_title">Đoàn tụ - Huế</h2>
                     <div class="w-12 h-[1px] bg-primary mx-auto"></div>
                     <p class="font-headline text-lg md:text-2xl font-light leading-relaxed opacity-90"
                         data-i18n="j1_desc">
@@ -211,7 +237,7 @@
                         chảy thời gian bất tận.
                     </p>
                     <a class="inline-block mt-8 text-[11px] font-bold uppercase tracking-[0.4em] border-b border-white/40 pb-2 hover:border-primary hover:text-primary transition-all"
-                        href="DoanTu.html" data-i18n="j1_btn">Khám phá trải nghiệm</a>
+                        href="/tourguide/doantu" data-i18n="j1_btn">Khám phá trải nghiệm</a>
                 </div>
             </div>
         </section>
@@ -219,12 +245,12 @@
         <section class="snap-section" id="journey-2">
             <div class="absolute inset-0">
                 <img alt="Tinh Túy Đồng Nội — Quảng Nam" class="w-full h-full object-cover brightness-90"
-                    src="AnhTour/Com.jpg">
+                    src="/AnhTour/Com.jpg">
                 <div class="absolute inset-0 journey-overlay"></div>
             </div>
             <div class="relative h-full flex items-center justify-center text-center px-margin-desktop">
                 <div class="max-w-3xl space-y-8">
-                    <h2 class="font-headline text-4xl md:text-6xl italic" data-i18n="j2_title">Tinh túy đồng nội - Quảng
+                    <h2 class="font-headline text-4xl md:text-[70px] italic" data-i18n="j2_title">Tinh túy đồng nội - Quảng
                         Nam</h2>
                     <div class="w-12 h-[1px] bg-primary mx-auto"></div>
                     <p class="font-headline text-lg md:text-2xl font-light leading-relaxed opacity-90"
@@ -234,7 +260,7 @@
                         trong khoảng không tĩnh lặng.
                     </p>
                     <a class="inline-block mt-8 text-[11px] font-bold uppercase tracking-[0.4em] border-b border-white/40 pb-2 hover:border-primary hover:text-primary transition-all"
-                        href="DongNoi.html" data-i18n="j2_btn">Gói trọn hương quê</a>
+                        href="/tourguide/dongnoi" data-i18n="j2_btn">Gói trọn hương quê</a>
                 </div>
             </div>
         </section>
@@ -242,12 +268,12 @@
         <section class="snap-section" id="journey-3">
             <div class="absolute inset-0">
                 <img alt="Di sản thủ công — Ninh Bình" class="w-full h-full object-cover brightness-90"
-                    src="AnhTour/ThuCong.jpg">
+                    src="/AnhTour/ThuCong.jpg">
                 <div class="absolute inset-0 journey-overlay"></div>
             </div>
             <div class="relative h-full flex items-center justify-center text-center px-margin-desktop">
                 <div class="max-w-3xl space-y-8">
-                    <h2 class="font-headline text-4xl md:text-6xl italic" data-i18n="j3_title">Di sản thủ công - Ninh
+                    <h2 class="font-headline text-4xl md:text-[70px] italic" data-i18n="j3_title">Di sản thủ công - Ninh
                         Bình</h2>
                     <div class="w-12 h-[1px] bg-primary mx-auto"></div>
                     <p class="font-headline text-lg md:text-2xl font-light leading-relaxed opacity-90"
@@ -257,7 +283,7 @@
                         kiên nhẫn và tĩnh tại tuyệt đối.
                     </p>
                     <a class="inline-block mt-8 text-[11px] font-bold uppercase tracking-[0.4em] border-b border-white/40 pb-2 hover:border-primary hover:text-primary transition-all"
-                        href="DiSan.html" data-i18n="j3_btn">Trải nghiệm thủ công</a>
+                        href="/tourguide/disan" data-i18n="j3_btn">Trải nghiệm thủ công</a>
                 </div>
             </div>
         </section>
@@ -265,12 +291,12 @@
         <section class="snap-section" id="journey-4">
             <div class="absolute inset-0">
                 <img alt="Tĩnh lặng liên hoa — Đồng Sen Tháp Mười" class="w-full h-full object-cover brightness-90"
-                    src="AnhTour/ThapMuoi.jpg">
+                    src="/AnhTour/ThapMuoi.jpg">
                 <div class="absolute inset-0 journey-overlay"></div>
             </div>
             <div class="relative h-full flex items-center justify-center text-center px-margin-desktop">
                 <div class="max-w-3xl space-y-8">
-                    <h2 class="font-headline text-4xl md:text-6xl italic" data-i18n="j4_title">Tĩnh lặng liên hoa - Tháp
+                    <h2 class="font-headline text-4xl md:text-[70px] italic" data-i18n="j4_title">Tĩnh lặng liên hoa - Tháp
                         Mười</h2>
                     <div class="w-12 h-[1px] bg-primary mx-auto"></div>
                     <p class="font-headline text-lg md:text-2xl font-light leading-relaxed opacity-90"
@@ -280,7 +306,7 @@
                         dư âm bình yên, nhẹ nhõm vô bờ.
                     </p>
                     <a class="inline-block mt-8 text-[11px] font-bold uppercase tracking-[0.4em] border-b border-white/40 pb-2 hover:border-primary hover:text-primary transition-all"
-                        href="TinhLang.html" data-i18n="j4_btn">Tìm về tĩnh lặng</a>
+                        href="/tourguide/tinhlang" data-i18n="j4_btn">Tìm về tĩnh lặng</a>
                 </div>
             </div>
         </section>
@@ -330,6 +356,7 @@
                 nav_tinhlang: "Tĩnh Lặng",
                 hero_title: "Dư âm tĩnh lặng",
                 hero_sub: "Hành trình chạm vào những mảnh ghép ký ức nguyên bản.",
+                hero_btn: "Khám phá hành trình",
                 j1_title: "Đoàn tụ - Huế",
                 j1_desc: "Tìm về hơi ấm vẹn nguyên của lòng biết ơn và sự gắn kết. Nơi những điển tích cổ kính, nghi thức têm trầu cánh phượng và mâm cơm vị cội nguồn khơi mở cuộc sum vầy, kết nối các thế hệ trong dòng chảy thời gian bất tận.",
                 j1_btn: "Khám phá trải nghiệm",
@@ -358,6 +385,7 @@
                 nav_tinhlang: "Serenity",
                 hero_title: "Echoes of Serenity",
                 hero_sub: "A journey touching the fragments of pristine memories.",
+                hero_btn: "Discover the journey",
                 j1_title: "Reunion - Hue",
                 j1_desc: "Return to the complete warmth of gratitude and connection. Where ancient tales, betel nut ceremonies and ancestral flavors open a gathering, connecting generations in the endless flow of time.",
                 j1_btn: "Explore Experience",

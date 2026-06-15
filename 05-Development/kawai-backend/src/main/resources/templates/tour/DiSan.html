@@ -98,7 +98,7 @@
                         "caption": ["13px", { "lineHeight": "1.4", "fontWeight": "400" }],
                         "headline-lg": ["40px", { "lineHeight": "1.2", "fontWeight": "400" }],
                         "label-caps": ["12px", { "lineHeight": "1.5", "letterSpacing": "0.15em", "fontWeight": "600" }],
-                        "display-lg": ["60px", { "lineHeight": "1.1", "letterSpacing": "-0.01em", "fontWeight": "400" }],
+                        "display-lg": ["70px", { "lineHeight": "1.1", "letterSpacing": "-0.01em", "fontWeight": "400" }],
                         "headline-md": ["24px", { "lineHeight": "1.3", "fontWeight": "500" }],
                         "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
                         "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
@@ -172,7 +172,7 @@
     <header class="bg-[#fcf2e9] border-b border-primary/10 z-50 sticky top-0">
         <div
             class="flex justify-between items-center w-full px-margin-desktop py-unit max-w-container-max mx-auto h-20 relative">
-            <a href="Tour.html" class="font-headline-md text-headline-md italic text-primary">HoaNien</a>
+            <a href="/tourguide/tour" class="font-headline-md text-headline-md italic text-primary">HoaNien</a>
             <nav class="hidden md:flex space-x-12">
                 <a class="font-label-caps text-label-caps text-primary/70 hover:text-primary transition-colors duration-300"
                     data-i18n="nav1" href="#">Hành trình</a>
@@ -204,7 +204,7 @@
         <section class="w-full md:w-1/2 min-h-[50vh] md:min-h-screen relative overflow-hidden bg-primary-container">
             <div class="absolute inset-0 z-0 scale-105 transition-transform duration-[20s] ease-linear hover:scale-100">
                 <img alt="Journey Visual" class="w-full h-full object-cover opacity-80 mix-blend-overlay"
-                    src="AnhTour/z7930578251310_cb227ca09c0f3c7a04a3ab6beb933d35.jpg">
+                    src="/AnhTour/z7930578251310_cb227ca09c0f3c7a04a3ab6beb933d35.jpg">
                 <div class="absolute inset-0 bg-black opacity-50 z-10"></div>
             </div>
             <div class="relative z-20 p-margin-desktop md:p-24 flex flex-col justify-between h-full text-white">
@@ -215,7 +215,7 @@
                     </div>
                     <h1 class="font-display-lg text-display-lg leading-tight max-w-md" data-i18n="title">Di sản thủ công
                     </h1>
-                    <div class="space-y-8 mt-12 bg-white/5 backdrop-blur-sm p-10 border border-white/10 max-w-lg">
+                    <div class="space-y-8 mt-12 bg-white/5 backdrop-blur-sm p-10 border border-white/10 max-w-xl">
                         <div class="flex justify-between border-b border-white/20 pb-4">
                             <p class="font-label-caps text-label-caps opacity-60" data-i18n="dest">Điểm đến</p>
                             <p class="font-body-md text-body-md" data-i18n="dest_val">Ninh Bình</p>
@@ -228,9 +228,13 @@
                             <p class="font-label-caps text-label-caps opacity-60" data-i18n="members">Thành viên</p>
                             <p class="font-body-md text-body-md" data-i18n="members_val">02 Người lớn</p>
                         </div>
+                        <div class="flex justify-between border-b border-white/20 pb-4">
+                            <p class="font-label-caps text-label-caps opacity-60" data-i18n="weather_lbl">Thời tiết dự kiến</p>
+                            <p class="font-body-md text-body-md" data-i18n="weather_val">⛅ 30°C • Nhiều mây</p>
+                        </div>
                         <div class="flex justify-between pt-4">
                             <p class="font-label-caps text-label-caps opacity-60" data-i18n="total">Tổng cộng</p>
-                            <p class="font-headline-md text-headline-md text-gold-accent" data-i18n="total_price">
+                            <p class="font-headline-md text-headline-md text-gold-accent font-bold" data-i18n="total_price">
                                 25.000.000 VNĐ</p>
                         </div>
                     </div>
@@ -247,12 +251,12 @@
         <section
             class="w-full md:w-1/2 p-margin-mobile md:p-margin-desktop bg-background flex flex-col justify-center fade-in">
             <div class="max-w-xl mx-auto w-full">
-                <div class="mb-12 flex justify-between items-end">
-                    <h2 class="font-headline-lg text-headline-lg text-primary" data-i18n="payment_title">Thông tin đặt
+                <div class="mb-12 flex flex-col items-center justify-center space-y-3 text-center">
+                    <h2 class="font-headline-lg text-4xl md:text-5xl text-primary font-bold text-center" data-i18n="payment_title">Thông tin đặt
                         chỗ</h2>
-                    <div class="flex items-center space-x-2 text-gold-accent animate-pulse">
+                    <div class="flex items-center space-x-2 text-gold-accent animate-pulse justify-center">
                         <span class="w-2 h-2 rounded-full bg-gold-accent"></span>
-                        <p class="font-label-caps text-[11px]" data-i18n="urgency">Chỉ còn 1 chỗ cuối cùng</p>
+                        <p class="font-label-caps text-[11px] font-bold" data-i18n="urgency">Chỉ còn 1 chỗ cuối cùng</p>
                     </div>
                 </div>
                 <form class="space-y-10" id="paymentForm">
@@ -350,6 +354,8 @@
     <script>
         const translations = {
             vi: {
+                weather_lbl: "Thời tiết dự kiến",
+                weather_val: "⛅ 30°C • Nhiều mây",
                 weather: "30°C • Ninh Bình",
                 nav1: "Hành trình", nav2: "Thủ công", nav3: "Nhật ký",
                 summary: "Tóm tắt hành trình",
@@ -375,6 +381,8 @@
                 footer_priv: "Quyền riêng tư", footer_sus: "Sự bền vững", footer_media: "Truyền thông", footer_contact: "Liên hệ"
             },
             en: {
+                weather_lbl: "Expected Weather",
+                weather_val: "⛅ 30°C • Partly Cloudy",
                 weather: "30°C • Ninh Binh",
                 nav1: "Journeys", nav2: "Artisanry", nav3: "Journal",
                 summary: "Journey Summary",

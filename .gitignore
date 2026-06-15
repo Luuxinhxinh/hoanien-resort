@@ -91,3 +91,13 @@ TDD_TEMPLATE_V1.md
 UseCase_Diagram_Ngoc.md
 index.html
 
+# Maven build output
+05-Development/kawai-backend/target/
+
+# Embedded Maven binaries
+05-Development/kawai-backend/apache-maven-*/
+05-Development/kawai-backend/*.zip
+
+# Test logs and temp files
+05-Development/kawai-backend/*.txt
+05-Development/kawai-backend/*.jpg

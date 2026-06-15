@@ -4,19 +4,21 @@
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <title>Kawai Resort | Guide Portal - Điểm danh</title>
+    <title>Hòa Niên Resort | Guide Portal - Điểm danh</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-        href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Inter:wght@300;400;500;600;700&display=swap"
-        rel="stylesheet">
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Inter:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
-        rel="stylesheet">
+        rel="stylesheet" />
     <!-- face-api.js: Face Detection & Recognition Library -->
     <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
     <style>
         body {
-            background-color: #FDFBF7;
-            color: #372618;
+            background-color: #1f1b16;
+            color: #fff8f4;
             -webkit-font-smoothing: antialiased;
         }
 
@@ -229,34 +231,155 @@
             width: 0%;
             transition: width 0.3s;
         }
+
+        /* ── Navbar solid #d0bcb1 & dark text ── */
+        .guest-nav,
+        .guest-sub-nav {
+            background: transparent !important;
+            border-bottom: 1px solid rgba(58, 50, 48, 0.15) !important;
+            backdrop-filter: blur(8px) !important;
+            -webkit-backdrop-filter: blur(8px) !important;
+            transition: none !important;
+        }
+
+        .guest-nav .nav-text,
+        .guest-sub-nav .sub-nav-text {
+            color: #3a3230 !important;
+            text-shadow: none !important;
+        }
+
+        .guest-nav .nav-text-dim {
+            color: rgba(58, 50, 48, 0.75) !important;
+            text-shadow: none !important;
+        }
+
+        .guest-nav .nav-text-dim:hover,
+        .guest-sub-nav .sub-nav-text:hover {
+            color: #3a3230 !important;
+            opacity: 1 !important;
+        }
+
+        .guest-nav .nav-brand {
+            color: #3a3230 !important;
+            text-shadow: none !important;
+        }
+
+        .guest-nav .nav-btn-book {
+            background: transparent !important;
+            color: #3a3230 !important;
+            border: 1px solid rgba(58, 50, 48, 0.5) !important;
+            box-shadow: none !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .guest-nav .nav-btn-book:hover {
+            background: rgba(58, 50, 48, 0.06) !important;
+            border-color: #3a3230 !important;
+        }
+
+        .guest-nav .nav-menu-icon {
+            color: #3a3230 !important;
+            text-shadow: none !important;
+        }
+
+        /* Make text bolder and highly readable */
+        .text-on-surface-variant {
+            color: #dec1ac !important;
+            font-weight: 700 !important;
+        }
+
+        .text-primary,
+        .text-primary-fixed,
+        .font-body-md {
+            color: #fff8f4 !important;
+            font-weight: 700 !important;
+        }
+
+        .font-headline-md,
+        .font-label-caps {
+            color: #fbddc7 !important;
+            font-weight: 700 !important;
+        }
+
+        .bg-surface-container-low,
+        .bg-surface-container {
+            background-color: #28241e !important;
+            border-color: rgba(251, 221, 199, 0.25) !important;
+        }
+
+        .border-outline-variant {
+            border-color: rgba(251, 221, 199, 0.25) !important;
+        }
+
+        th,
+        td {
+            color: #fff8f4 !important;
+            font-weight: 700 !important;
+        }
+
+        p,
+        span {
+            font-weight: 600 !important;
+        }
+
+        .status-checked,
+        .status-waiting,
+        .status-absent {
+            font-weight: 700 !important;
+        }
     </style>
-    <script>
+    <script id="tailwind-config">
         tailwind.config = {
             darkMode: "class",
             theme: {
                 extend: {
-                    "colors": {
-                        "tertiary-fixed": "#e8e2d3", "surface-container-highest": "#ebe1d8",
-                        "inverse-surface": "#35302a", "secondary-container": "#f5e0c0",
-                        "primary-fixed": "#fbddc7", "primary-container": "#372618",
-                        "on-secondary-container": "#726249", "surface-container-low": "#fcf2e9",
-                        "on-background": "#1f1b16", "tertiary-fixed-dim": "#cbc6b7",
-                        "on-surface": "#1f1b16", "surface-bright": "#fff8f4", "surface": "#fff8f4",
-                        "on-surface-variant": "#4e453e", "surface-container-high": "#f1e6de",
-                        "surface-tint": "#705a49", "outline": "#80756d", "primary": "#372618",
-                        "background": "#FDFBF7", "surface-container": "#f6ece3",
-                        "outline-variant": "#d2c4bb", "on-primary-container": "#a58c79",
-                        "surface-variant": "#ebe1d8", "secondary": "#6b5c44",
-                        "champagne": "#BFAC8F", "beige-decorative": "#D3CEBF"
+                    colors: {
+                        'hoanien-bg': '#f1ebe3',
+                        'hoanien-text': '#3a3230',
+                        'hoanien-footer': '#3c3530',
+                        'hoanien-footer-text': '#e5dfd8',
+                        "primary": "#fbddc7",
+                        "surface": "#fff8f4",
+                        "on-surface": "#1f1b16",
+                        "outline-variant": "rgba(251, 221, 199, 0.2)",
+                        "tertiary-fixed": "#e8e2d3",
+                        "surface-container-highest": "#ebe1d8",
+                        "inverse-surface": "#35302a",
+                        "secondary-container": "#f5e0c0",
+                        "primary-fixed": "#fbddc7",
+                        "primary-container": "#372618",
+                        "on-secondary-container": "#726249",
+                        "surface-container-low": "#fcf2e9",
+                        "on-background": "#1f1b16",
+                        "tertiary-fixed-dim": "#cbc6b7",
+                        "surface-bright": "#fff8f4",
+                        "on-surface-variant": "#4e453e",
+                        "surface-container-high": "#f1e6de",
+                        "surface-tint": "#705a49",
+                        "outline": "#80756d",
+                        "background": "#1f1b16",
+                        "surface-container": "#f6ece3",
+                        "on-primary-container": "#a58c79",
+                        "surface-variant": "#ebe1d8",
+                        "secondary": "#6b5c44",
+                        "champagne": "#BFAC8F",
+                        "beige-decorative": "#D3CEBF"
                     },
-                    "borderRadius": { "DEFAULT": "0px", "lg": "0px", "xl": "0px", "full": "9999px" },
-                    "spacing": { "margin-desktop": "80px", "container-max": "1440px", "gutter": "24px" },
-                    "fontFamily": {
-                        "headline-lg": ["EB Garamond"], "caption": ["Inter"],
-                        "body-lg": ["Inter"], "headline-md": ["EB Garamond"],
-                        "body-md": ["Inter"], "label-caps": ["Inter"]
+                    borderRadius: { "DEFAULT": "0px", "lg": "0px", "xl": "0px", "full": "9999px" },
+                    spacing: { "margin-desktop": "80px", "container-max": "1440px", "gutter": "24px" },
+                    fontFamily: {
+                        'serif': ['"Playfair Display"', 'serif'],
+                        'sans': ['"Montserrat"', 'sans-serif'],
+                        "headline": ["EB Garamond", "serif"],
+                        "body": ["Inter", "sans-serif"],
+                        "headline-lg": ["EB Garamond"],
+                        "caption": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-md": ["EB Garamond"],
+                        "body-md": ["Inter"],
+                        "label-caps": ["Inter"]
                     },
-                    "fontSize": {
+                    fontSize: {
                         "headline-lg": ["40px", { "lineHeight": "1.2", "fontWeight": "400" }],
                         "caption": ["13px", { "lineHeight": "1.4", "fontWeight": "400" }],
                         "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
@@ -270,13 +393,77 @@
     </script>
 </head>
 
-<body class="flex flex-col min-h-screen">
+<body class="flex flex-col min-h-screen pt-36">
+    <!-- Sticky Navigation Bar -->
+    <header id="header-wrapper" class="fixed top-0 left-0 w-full z-50 flex flex-col pointer-events-none text-[#3a3230]">
+        <!-- Main Nav -->
+        <nav class="guest-nav relative w-full font-sans pointer-events-auto">
+            <div class="max-w-[1440px] mx-auto px-6 py-4 flex items-center justify-between">
+                <!-- Left Links -->
+                <div class="hidden lg:flex items-center gap-8 text-[13px] uppercase tracking-[0.2em] font-semibold">
+                    <a th:href="@{/living}"
+                        class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200">Nghỉ
+                        Dưỡng</a>
+                    <a th:href="@{/dining}"
+                        class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200">Ẩm Thực</a>
+                    <a th:href="@{/experiences}"
+                        class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200">Trải
+                        Nghiệm</a>
+                    <a th:href="@{/tours/search}" class="nav-text border-b border-current pb-0.5">Hành Trình</a>
+                </div>
+
+                <!-- Center Logo -->
+                <div class="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 font-headline text-[32px] italic tracking-tighter nav-brand text-center cursor-pointer w-max"
+                    onclick="window.location.href='/booking'">
+                    HoaNien
+                </div>
+
+                <!-- Right Actions -->
+                <div class="hidden lg:flex items-center gap-6 text-[13px] uppercase tracking-[0.2em] font-semibold">
+                    <a th:href="@{/profile}" th:if="${isLoggedIn}"
+                        class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200">Hồ Sơ</a>
+                    <form th:action="@{/auth/logout}" method="post" th:if="${isLoggedIn}" class="inline">
+                        <button type="submit"
+                            class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200 uppercase tracking-[0.2em] bg-transparent border-none p-0 cursor-pointer font-sans font-semibold">Đăng
+                            Xuất</button>
+                    </form>
+                    <a th:href="@{/booking}"
+                        class="nav-btn-book px-8 py-3.5 hover:opacity-90 active:scale-[0.98] transition-all duration-200 inline-block text-center text-[13px]">
+                        Đặt Ngay
+                    </a>
+                </div>
+
+                <button class="lg:hidden pointer-events-auto">
+                    <span class="material-symbols-outlined text-3xl nav-menu-icon">menu</span>
+                </button>
+            </div>
+        </nav>
+
+        <!-- Sub-navigation -->
+        <div class="guest-sub-nav w-full font-sans pointer-events-auto">
+            <div
+                class="max-w-[1440px] mx-auto px-6 py-3 flex justify-center gap-8 md:gap-12 text-xs uppercase tracking-[0.15em] font-medium overflow-x-auto">
+                <a th:href="@{/tours/search#journey-1}"
+                    class="sub-nav-text hover:opacity-100 active:scale-95 transition-all duration-200 whitespace-nowrap">Đoàn
+                    Tụ</a>
+                <a th:href="@{/tours/search#journey-2}"
+                    class="sub-nav-text hover:opacity-100 active:scale-95 transition-all duration-200 whitespace-nowrap">Đồng
+                    Nội</a>
+                <a th:href="@{/tours/search#journey-3}"
+                    class="sub-nav-text hover:opacity-100 active:scale-95 transition-all duration-200 whitespace-nowrap">Di
+                    Sản</a>
+                <a th:href="@{/tours/search#journey-4}"
+                    class="sub-nav-text hover:opacity-100 active:scale-95 transition-all duration-200 whitespace-nowrap">Tĩnh
+                    Lặng</a>
+            </div>
+        </div>
+    </header>
     <!-- Header -->
     <header
         class="bg-background border-b border-outline-variant flex justify-between items-center w-full px-margin-desktop py-gutter max-w-container-max mx-auto h-20">
         <div class="flex items-center gap-10">
             <a href="/tourguide/dashboard"
-                class="font-headline-md text-headline-md italic text-primary no-underline">Kawai Resort</a>
+                class="font-headline-md text-headline-md italic text-primary no-underline">Hòa Niên Resort</a>
             <nav class="hidden md:flex gap-6">
                 <a class="font-label-caps text-label-caps text-primary border-b border-primary pb-1 no-underline"
                     href="/tourguide/dashboard">
@@ -531,7 +718,7 @@
     <footer
         class="fixed bottom-0 left-0 w-full bg-background border-t border-outline-variant py-3 px-margin-desktop z-50">
         <div class="max-w-container-max mx-auto flex justify-between items-center">
-            <p class="font-caption text-[11px] text-on-surface-variant opacity-60">© 2026 Kawai Retreat Resort. AI Face
+            <p class="font-caption text-[11px] text-on-surface-variant opacity-60">© 2026 HoaNien Retreat Resort. AI Face
                 Recognition v1.0</p>
             <div class="flex items-center gap-6">
                 <div id="camera-indicator" class="flex items-center gap-2 opacity-0 transition-opacity duration-300">
@@ -555,7 +742,7 @@
 
     <script>
         // ============================================================
-        // KAWAI RESORT - AI FACE RECOGNITION (Browser-based)
+        // HOANIEN RESORT - AI FACE RECOGNITION (Browser-based)
         // Sử dụng face-api.js cho nhận diện khuôn mặt hoàn toàn trên web
         // ============================================================
 
