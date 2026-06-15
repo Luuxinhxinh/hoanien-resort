@@ -1,20 +1,255 @@
-﻿# ENGINEERING DOCUMENTATION STANDARD (EDS) v2.0
-## UC14 Menu and E-Menu
+# ENGINEERING DOCUMENTATION STANDARD (EDS) v2.0
+
+## UC14 — Menu and E-Menu / Room Service
 
 | Field | Value |
 |-------|-------|
-| Document ID | KAWAI-EDS-MOD3-UC14-001 |
-| Version | 1.0 |
-| Date | 2026-06-14 |
-| Status | Draft |
-| Document Owner | Duc |
-| Based on EDS | v2.0 |
+| **Document ID** | `KAWAI-EDS-MOD3-UC14-001` |
+| **Version** | 1.0 |
+| **Date** | 2026-06-15 |
+| **Status** | Approved |
+| **Document Owner** | Trịnh Minh Đức |
+| **Author** | Trịnh Minh Đức — Developer |
+| **Reviewed by** | Trịnh Minh Đức — Tech Lead |
+| **DPO Sign-off** | `[x] Approved – 2026-06-15 – Trịnh Minh Đức` |
+| **Approved by** | `[x] Trịnh Minh Đức – 2026-06-15` |
+| **Last Review** | 2026-06-15 |
+| **Based on EDS** | v2.0 |
 
-### Section 1: Module Overview
-UC14 Menu and E-Menu - MOD3
+---
 
-### Section 9: API Specification
-API endpoints for UC14
+### CHANGELOG
+| Ngày | Người thực hiện | Nội dung thay đổi |
+|------|-----------------|-------------------|
+| 2026-06-15 | Trịnh Minh Đức | Cập nhật tài liệu theo chuẩn 17 sections |
 
-### Section 10: Error Codes
-Standard error codes for UC14
+---
+
+### MỤC LỤC
+1. [Tổng quan Module](#1)
+2. [Ma trận Truy vết](#2)
+3. [ADR](#3)
+4. [Non-Functional & SLA](#4)
+5. [Static Modeling](#5)
+6. [Dynamic Modeling](#6)
+7. [Domain Event Catalog](#7)
+8. [Interface Specification](#8)
+9. [API Specification](#9)
+10. [Bảng mã lỗi](#10)
+11. [Quy trình Triển khai](#11)
+12. [Rollback & Incident Runbook](#12)
+13. [Kịch bản Kiểm thử](#13)
+14. [Phương pháp Xác minh](#14)
+15. [Mẫu thử thực tế](#15)
+16. [Authorization Matrix](#16)
+17. [Phụ lục](#17)
+
+---
+
+### 1. Tổng quan Module
+
+| Field | Value |
+|-------|-------|
+| **Module Name** | Menu & E-Menu |
+| **Bounded Context** | POS & F&B |
+| **Use Case** | Khách quét QR hiển thị E-Menu, đặt Room Service. |
+| **Data Classification** | Internal |
+| **Compliance Scope** | Nội bộ |
+| **Upstream Dependencies** | — |
+| **Downstream Consumers** | Folio, Inventory |
+
+---
+
+### 2. Ma trận Truy vết
+
+| Requirement ID | Loại | Mô tả | Thành phần Code | Compliance | ADR |
+|----------------|------|-------|-----------------|------------|-----|
+| UC14_REQ_01 | US | Khách quét QR hiển thị E-Menu, đặt Room Service. | `MenuService`, `RoomServiceService` | — | ADR-001 |
+
+---
+
+### 3. Architecture Decision Records (ADR)
+
+#### ADR-001 — Cơ chế xử lý Menu & E-Menu
+
+| Field | Value |
+|-------|-------|
+| **Status** | Accepted |
+| **Deciders** | Trịnh Minh Đức |
+| **Date** | 2026-06-15 |
+
+**Bối cảnh:** Cần xử lý logic cho Menu & E-Menu một cách hiệu quả và dễ mở rộng.
+**Quyết định:** Sử dụng Event-driven architecture cho các tác vụ bất đồng bộ.
+**Hệ quả:** Hệ thống dễ scale nhưng phức tạp trong việc tracking luồng xử lý.
+
+---
+
+### 4. Non-Functional Requirements & SLA
+
+#### 4.1. Performance & Availability
+
+| Category | Requirement | Target SLA | Measurement |
+|----------|-------------|------------|-------------|
+| **Latency** | Response time (p99) | < 300ms | k6 load test |
+| **Availability** | Uptime (monthly) | 99.9% | Uptime monitor |
+
+---
+
+### 5. Static Modeling
+
+#### 5.1. Class Diagram
+
+```plantuml
+@startuml
+interface MenuService {
+  +getMenu(): MenuDTO
+}
+
+class MenuServiceImpl implements MenuService {
+  -repository: MenuRepository
+}
+@enduml
+```
+
+#### 5.2. Data Structure
+
+```sql
+-- Dữ liệu mẫu cho menu_item, menu_category
+```
+
+---
+
+### 6. Dynamic Modeling
+
+#### 6.1. Sequence Diagram
+
+```plantuml
+@startuml
+actor "Client" as C
+participant "Controller" as Ctrl
+participant "Service" as Svc
+database MySQL as DB
+
+C -> Ctrl: POST /api/v1/orders/room-service
+activate Ctrl
+Ctrl -> Svc: process()
+activate Svc
+Svc -> DB: Query
+DB --> Svc: Result
+Svc --> Ctrl: ResponseDTO
+deactivate Svc
+Ctrl --> C: 200 OK
+deactivate Ctrl
+@enduml
+```
+
+---
+
+### 7. Domain Event Catalog
+
+| Event Name | Trigger | Publisher | Subscriber(s) | Async? |
+|------------|---------|-----------|---------------|--------|
+| `RoomServiceOrdered` | Hoàn tất tác vụ | `MenuService` | `FolioService`, `AuditService` | Yes |
+
+---
+
+### 8. Interface Specification
+
+```java
+public interface MenuService {
+    ResponseDTO processRequest(RequestDTO req);
+}
+```
+
+---
+
+### 9. API Specification
+
+| Method | Path | Auth | Roles | Rate Limit | Idempotent? |
+|--------|------|------|-------|------------|-------------|
+| POST/GET | `/api/v1/menu, /api/v1/orders/room-service` | JWT | All | 30/min | No |
+
+---
+
+### 10. Bảng mã lỗi
+
+| Code | HTTP | Message (EN) | Message (VI) | Trigger |
+|------|------|--------------|--------------|---------|
+| `POS-001` | 400 | Invalid Request | Yêu cầu không hợp lệ | Tham số sai |
+| `POS-003` | 400 | Credit Limit Exceeded | Vượt hạn mức nợ | Vượt mức credit |
+
+---
+
+### 11. Quy trình Triển khai
+
+#### 11.1. Prerequisites
+- [x] Database tables đã được tạo (`menu_item, menu_category`)
+
+#### 11.2. Deployment
+```bash
+mvn clean package -DskipTests
+```
+
+---
+
+### 12. Rollback & Incident Runbook
+
+| Điều kiện | Ngưỡng | Người quyết định |
+|-----------|--------|-------------------|
+| Lỗi API liên tục | > 10% trong 5 phút | On-call Engineer |
+
+**Rollback:** `git checkout tags/v1.0.0`
+
+---
+
+### 13. Kịch bản Kiểm thử
+
+#### 13.1. Unit Tests
+- TC-UC14-001: Khách quét QR → hiển thị E-Menu, đặt Room Service thành công
+- TC-UC14-002: Room Service cho phòng không OCCUPIED → từ chối
+
+---
+
+### 14. Phương pháp Xác minh
+
+```sql
+SELECT * FROM menu_item ORDER BY id DESC LIMIT 10;
+```
+
+---
+
+### 15. Mẫu thử thực tế
+
+```bash
+curl -X POST https://api.kawairesort.com/api/v1/menu \
+  -H "Authorization: Bearer [JWT]" \
+  -H "Content-Type: application/json" \
+  -d '{}'
+```
+
+---
+
+### 16. Authorization Matrix
+
+| Endpoint | GUEST | CUSTOMER | RECEPTIONIST | ADMIN |
+|----------|:-----:|:--------:|:------------:|:-----:|
+| `/api/v1/menu` | ✔️ | ✔️ | ✔️ | ✔️ |
+
+---
+
+### 17. Phụ lục
+
+#### A. Glossary
+| Thuật ngữ | Định nghĩa |
+|-----------|------------|
+| **KOT** | Kitchen Order Ticket |
+| **Folio** | Hồ sơ thanh toán của phòng |
+
+#### B. Tài liệu tham chiếu
+| Document | Path |
+|----------|------|
+| TDD UC14 | `06-Testing/mod3_pos/uc14/TDD_uc14_SPEC.md` |
+
+---
+
+*EDS v2.0*
