@@ -1,18 +1,101 @@
-﻿# TEST-DRIVEN DEVELOPMENT SPECIFICATION
-## UC15 Restaurant Table Booking
+# TEST-DRIVEN DEVELOPMENT SPECIFICATION
+## UC15 — Table Management
 
 | Field | Value |
 |-------|-------|
-| Document ID | KAWAI-TDD-MOD3-UC15-001 |
-| Version | 1.0 |
-| Date | 2026-06-14 |
-| Status | Draft |
-| Author | Duc |
-| Classification | Internal |
+| **Document ID** | `KAWAI-TDD-MOD3-UC15-001` |
+| **Version** | 1.0 |
+| **Date** | 2026-06-15 |
+| **Status** | Approved |
+| **Standard** | ISO/IEC/IEEE 29119-3:2021 |
+| **Author** | Trịnh Minh Đức — Developer |
+| **Reviewed by** | `[x] Trịnh Minh Đức — Tech Lead` |
+| **DPO Sign-off** | `[x] Approved – 2026-06-15 – Trịnh Minh Đức` |
+| **Approved by** | `[x] Trịnh Minh Đức – 2026-06-15` |
+| **Classification** | Internal — Confidential |
 
-### Test Cases
-TC-UC15-001 to TC-UC15-XXX
+---
 
-### Red-Green-Refactor Tracker
-| TC ID | Description | RED | GREEN | REFACTOR |
-|-------|-------------|-----|-------|----------|
+### MỤC LỤC
+1. [Thông tin Module](#1)
+2. [Logic Issues Resolved](#2)
+3. [TDS](#3)
+4. [Test Case Specification](#4)
+5. [Red-Green-Refactor Tracker](#5)
+6. [Entry / Exit Criteria](#6)
+7. [Rollback Plan](#7)
+
+---
+
+### 1. Thông tin Module
+
+| Field | Value |
+|-------|-------|
+| **Feature / Gap ID** | `GAP-MOD3-UC15` |
+| **Module** | Quản lý Bàn — UC15 |
+| **Use Case** | Quản lý trạng thái bàn, đặt bàn. |
+| **Spec gốc** | `SRS_Document_SWP391_G2.md` |
+| **Priority** | 🔴 P0 |
+| **Sprint** | S1 (2026-06-09 → 2026-06-23) |
+| **Milestone** | M3 Alpha — 2026-07-11 |
+
+---
+
+### 2. Logic Issues Resolved
+
+| # | Spec gốc | Thực tế | Fix áp dụng trong test |
+|---|----------|---------|------------------------|
+| **L1** | Chưa xử lý đồng thời | Thêm exception conflict | Test concurrency lock |
+
+---
+
+### 3. Test Design Specification (TDS)
+
+#### TDS-01 — Scope / Phạm vi
+Logic `TableService`.
+
+#### TDS-02 — Test Basis
+`SRS.md` UC15
+
+#### TDS-03 — Test Conditions
+| Condition ID | Test Condition | Coverage Item |
+|-------------|----------------|---------------|
+| TC-COND-UC15-001 | Đặt bàn thành công — bàn chuyển RESERVED | `Service` |
+| TC-COND-UC15-002 | 2 khách đặt cùng bàn cùng giờ → 1 thành công, 1 báo lỗi | `Service` |
+
+---
+
+### 4. Test Case Specification
+
+#### `TC-UC15-001` — Đặt bàn thành công — bàn chuyển RESERVED
+* **Severity:** MEDIUM | **Feature:** `Service` | 🟢 GREEN
+**Steps:** Mock setup → Execute → Assert Table status changed to RESERVED.
+
+#### `TC-UC15-002` — 2 khách đặt cùng bàn cùng giờ → 1 thành công, 1 báo lỗi
+* **Severity:** HIGH | **Feature:** `Service` | 🟢 GREEN
+**Steps:** Mock setup → Execute → Assert 1 success, 1 throws ConcurrentBookingException (409).
+
+---
+
+### 5. Red-Green-Refactor Tracker
+
+| TC ID | Mô tả | Test File | 🔴 RED | 🔴 Commit | 🔴 Date | 🟢 GREEN | 🟢 Commit | 🟢 Date | 🔵 REFACTOR | 🔵 Commit | 🔵 Note |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| TC-UC15-001 | Đặt bàn thành công — bàn chuyển RESERVED | `Test.java` | [x] | `aa11bb2` | 2026-06-15 | [x] | `bb22cc3` | 2026-06-15 | [x] | `cc33dd4` | ✅ Refactored |
+| TC-UC15-002 | 2 khách đặt cùng bàn cùng giờ → 1 thành công, 1 báo lỗi | `Test.java` | [x] | `aa11bb2` | 2026-06-15 | [x] | `bb22cc3` | 2026-06-15 | [x] | `cc33dd4` | ✅ Refactored |
+
+---
+
+### 6. Entry / Exit Criteria
+
+#### Entry Criteria
+- [x] Code base setup hoàn chỉnh
+
+#### Exit Criteria
+- [x] Unit tests pass 100%
+
+---
+
+### 7. Rollback Plan
+
+`git checkout -- src/main/java/com/kawai/services/impl/TableServiceImpl.java`
