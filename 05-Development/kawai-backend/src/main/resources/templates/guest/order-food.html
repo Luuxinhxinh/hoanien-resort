@@ -189,9 +189,9 @@
                         <button id="btn-cat-all"
                             class="pb-2 border-b-2 border-white text-white transition-all duration-300"
                             onclick="filterCategory('all', this)">Tất cả thực đơn</button>
-                        <button th:each="cat : ${categories}" th:text="${cat}"
+                        <button th:each="cat : ${categories}" th:text="${cat}" th:data-category="${cat}"
                             class="pb-2 border-b-2 border-transparent text-white/60 hover:text-white transition-all duration-300"
-                            th:onclick="|filterCategory('${cat}', this)|">Danh mục</button>
+                            onclick="filterCategoryFromData(this)">Danh mục</button>
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6" id="menuGrid">
@@ -568,6 +568,11 @@
             const select = document.getElementById('deliveryScheduleType').value;
             const picker = document.getElementById('exactTimePicker');
             if (picker) picker.className = (select === 'SCHEDULED') ? 'mt-2 w-full bg-white/5 border border-white/10 p-2 rounded-lg text-xs text-white focus:ring-0' : 'hidden';
+        }
+
+        function filterCategoryFromData(buttonEl) {
+            const category = buttonEl.getAttribute('data-category');
+            filterCategory(category, buttonEl);
         }
 
         function searchMenu() {
