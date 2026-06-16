@@ -10,4 +10,5 @@ public class DynamicPricing {
     @Column(name="start_date", nullable=false) private LocalDate startDate;
     @Column(name="end_date", nullable=false) private LocalDate endDate;
     @Column(name="price_modifier", nullable=false) private BigDecimal priceModifier;
+    @Column(name="reason") private String reason;
 }

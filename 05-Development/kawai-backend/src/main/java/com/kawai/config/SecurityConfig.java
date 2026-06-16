@@ -55,6 +55,7 @@ public class SecurityConfig {
                                 "/h2-console/**", "/css/**", "/js/**", "/guest/**", "/living", "/wellbeing", "/dining",
                                 "/experiences", "/tours", "/tours/**", "/profile", "/order-food", "/AnhTour/**",
                                 "/fbStaff/**", "/f&bStaff/**", "/api/menu-items/**", "/api/rooms/**", "/api/pos/**",
+                                "/api/bookings", "/api/bookings/**",
                                 "/api/tour-bookings", "/api/tour-bookings/**", "/api/faceid/**", "/error")
                         .permitAll()
 
@@ -91,6 +92,19 @@ public class SecurityConfig {
             @Override
             public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                     Authentication authentication) throws IOException, ServletException {
+                
+                String redirectTo = request.getParameter("redirect_to");
+                if (redirectTo != null && !redirectTo.trim().isEmpty()) {
+                    response.sendRedirect(redirectTo);
+                    return;
+                }
+
+                String referer = request.getHeader("Referer");
+                if (referer != null && referer.contains("/order-food")) {
+                    response.sendRedirect("/order-food");
+                    return;
+                }
+
                 String redirect = "/";
                 for (var authz : authentication.getAuthorities()) {
                     String role = authz.getAuthority();

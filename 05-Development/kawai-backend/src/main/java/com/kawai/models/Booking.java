@@ -23,8 +23,22 @@ public class Booking {
     private String bookingStatus = "Pending";
     @Column(name = "booking_source", nullable = false)
     private String bookingSource = "Direct_Web";
+
+    @ManyToOne
+    @JoinColumn(name = "applied_promotion_id")
+    private Promotion appliedPromotion;
+
+    @Version
     @Column(nullable = false)
     private Integer version = 1;
+
+    public Promotion getAppliedPromotion() {
+        return appliedPromotion;
+    }
+
+    public void setAppliedPromotion(Promotion appliedPromotion) {
+        this.appliedPromotion = appliedPromotion;
+    }
 
     public Long getId() {
         return id;

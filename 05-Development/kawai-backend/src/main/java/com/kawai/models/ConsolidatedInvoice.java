@@ -13,5 +13,6 @@ public class ConsolidatedInvoice {
     @Column(name="total_amount", nullable=false) private BigDecimal totalAmount;
     @ManyToOne @JoinColumn(name="promo_id") private Promotion promo;
     @Column(name="invoice_status", nullable=false) private String invoiceStatus = "Draft";
+    @Column(name="created_at", nullable=false) private LocalDateTime createdAt = LocalDateTime.now();
     @Column(name="issued_at", nullable=false) private LocalDateTime issuedAt = LocalDateTime.now();
 }

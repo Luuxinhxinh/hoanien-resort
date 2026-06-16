@@ -59,8 +59,8 @@ public class RoomApiController {
                     .findById(room.getCurrentBookingDetailId());
             if (detailOpt.isPresent()) {
                 RoomBookingDetail detail = detailOpt.get();
-                if (detail.getCustomer() != null) {
-                    dto.setGuestName(detail.getCustomer().getFullName());
+                if (detail.getRoomBooking() != null && detail.getRoomBooking().getBooking() != null && detail.getRoomBooking().getBooking().getCustomer() != null) {
+                    dto.setGuestName(detail.getRoomBooking().getBooking().getCustomer().getFullName());
                 }
                 dto.setLimitRemaining(detail.getSubCreditLimit());
             }

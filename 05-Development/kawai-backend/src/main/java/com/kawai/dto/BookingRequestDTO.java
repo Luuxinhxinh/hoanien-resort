@@ -10,6 +10,7 @@ public class BookingRequestDTO {
 
     private Long customerId;
     private String roomNumber;      // Ví dụ "R101"
+    private String roomCategoryName; // nullable - dùng để tự động chọn phòng trống
     private LocalDate checkInDate;
     private LocalDate checkOutDate;
     private BigDecimal depositAmount;
@@ -46,4 +47,7 @@ public class BookingRequestDTO {
 
     public String getPromotionCode()          { return promotionCode; }
     public void setPromotionCode(String v)    { promotionCode = v; }
+
+    public String getRoomCategoryName()       { return roomCategoryName; }
+    public void setRoomCategoryName(String v) { roomCategoryName = v; }
 }

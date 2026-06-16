@@ -12,7 +12,7 @@ public class RoomBookingDetail {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "booking_id", nullable = false)
+    @JoinColumn(name = "room_booking_id", nullable = false)
     private RoomBooking roomBooking;
 
     @ManyToOne
@@ -23,19 +23,17 @@ public class RoomBookingDetail {
     @JoinColumn(name = "room_id")
     private Room room;
 
-    @ManyToOne
-    @JoinColumn(name = "customer_id")
-    private Customer customer;
-
-    @ManyToOne
-    @JoinColumn(name = "dependent_id")
-    private Dependent dependent;
-
     @Column(name = "room_charge", nullable = false)
     private BigDecimal roomCharge;
 
     @Column(name = "detail_status", nullable = false)
     private String detailStatus = "Pending";
+
+    @Column(name = "bed_preference", nullable = false)
+    private String bedPreference = "KING_SIZE";
+
+    @Column(name = "special_requests", length = 500)
+    private String specialRequests;
 
     @Column(name = "is_charge_to_room_allowed", nullable = false)
     private Boolean isChargeToRoomAllowed = true;
@@ -79,22 +77,6 @@ public class RoomBookingDetail {
         this.room = v;
     }
 
-    public Customer getCustomer() {
-        return customer;
-    }
-
-    public void setCustomer(Customer v) {
-        this.customer = v;
-    }
-
-    public Dependent getDependent() {
-        return dependent;
-    }
-
-    public void setDependent(Dependent v) {
-        this.dependent = v;
-    }
-
     public BigDecimal getRoomCharge() {
         return roomCharge;
     }
@@ -109,6 +91,22 @@ public class RoomBookingDetail {
 
     public void setDetailStatus(String v) {
         this.detailStatus = v;
+    }
+
+    public String getBedPreference() {
+        return bedPreference;
+    }
+
+    public void setBedPreference(String v) {
+        this.bedPreference = v;
+    }
+
+    public String getSpecialRequests() {
+        return specialRequests;
+    }
+
+    public void setSpecialRequests(String v) {
+        this.specialRequests = v;
     }
 
     public Boolean getIsChargeToRoomAllowed() {

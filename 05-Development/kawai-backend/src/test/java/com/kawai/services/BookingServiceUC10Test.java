@@ -3,8 +3,11 @@ package com.kawai.services;
 import com.kawai.dto.BookingRequestDTO;
 import com.kawai.dto.BookingResponseDTO;
 import com.kawai.exceptions.RoomNotAvailableException;
+import com.kawai.models.Booking;
 import com.kawai.models.Promotion;
 import com.kawai.models.RoomBooking;
+import com.kawai.repositories.BookingRepository;
+import com.kawai.repositories.RoomGuestRepository;
 import com.kawai.repositories.PromotionRepository;
 import com.kawai.repositories.RoomBookingRepository;
 import com.kawai.repositories.RoomRepository;
@@ -85,6 +88,12 @@ class BookingServiceUC10Test {
         private RoomBookingRepository roomBookingRepository;
 
         @Mock
+        private BookingRepository bookingRepository;
+
+        @Mock
+        private RoomGuestRepository roomGuestRepository;
+
+        @Mock
         private PromotionRepository promotionRepository;
 
         @Mock
@@ -110,6 +119,14 @@ class BookingServiceUC10Test {
                 room.setCategory(category);
                 lenient().when(roomRepository.findByRoomNumber(any())).thenReturn(Optional.of(room));
 
+                lenient().when(bookingRepository.save(any(com.kawai.models.Booking.class))).thenAnswer(invocation -> {
+                        com.kawai.models.Booking b = invocation.getArgument(0);
+                        if (b.getId() == null) {
+                                b.setId(9999L);
+                        }
+                        return b;
+                });
+
                 lenient().when(roomBookingRepository.save(any(com.kawai.models.RoomBooking.class))).thenAnswer(invocation -> {
                         com.kawai.models.RoomBooking b = invocation.getArgument(0);
                         if (b.getId() == null) {
@@ -119,6 +136,9 @@ class BookingServiceUC10Test {
                 });
 
                 lenient().when(roomBookingDetailRepository.save(any(com.kawai.models.RoomBookingDetail.class)))
+                                .thenAnswer(invocation -> invocation.getArgument(0));
+
+                lenient().when(roomGuestRepository.save(any(com.kawai.models.RoomGuest.class)))
                                 .thenAnswer(invocation -> invocation.getArgument(0));
         }
 
@@ -333,10 +353,12 @@ class BookingServiceUC10Test {
         void TC_M2_006_cancelBooking_before48h_fullRefundAndCorrectStatus() {
                 // Arrange
                 BigDecimal depositDB = new BigDecimal("3500000");
+                Booking parentBooking = new Booking();
+                parentBooking.setBookingStatus("Pending");
                 RoomBooking booking = new RoomBooking();
+                booking.setBooking(parentBooking);
                 booking.setDepositAmount(depositDB);
                 booking.setCancellationDeadline(LocalDate.now().plusDays(3)); // còn 3 ngày → trước deadline
-                booking.setBookingStatus("Pending");
 
                 when(roomBookingRepository.findById(201L)).thenReturn(Optional.of(booking));
 
@@ -349,11 +371,11 @@ class BookingServiceUC10Test {
                                 "Hủy trước 48h phải hoàn 100% tiền cọc = 3,500,000 (BR-FIN-02)");
 
                 // 🔴 RED — FAIL: implementation set "Cancelled" thay vì "Cancelled_Refunded"
-                assertEquals("Cancelled_Refunded", booking.getBookingStatus(),
+                assertEquals("Cancelled_Refunded", booking.getBooking().getBookingStatus(),
                                 "Status sau hủy có hoàn tiền phải là 'Cancelled_Refunded' (BR-STATUS-02)");
 
                 // Verify save() được gọi để persist status mới
-                verify(roomBookingRepository, times(1)).save(booking);
+                verify(bookingRepository, times(1)).save(parentBooking);
         }
 
         // ══════════════════════════════════════════════════════════════════════════
@@ -377,10 +399,12 @@ class BookingServiceUC10Test {
         @DisplayName("TC-M2-007 | HIGH | Hủy trong 48h → hoàn 0đ + status=Cancelled_Forfeited (BR-FIN-02)")
         void TC_M2_007_cancelBooking_within48h_zeroRefundAndForfeitedStatus() {
                 // Arrange: đã qua deadline → tịch thu cọc
+                Booking parentBooking = new Booking();
+                parentBooking.setBookingStatus("Pending");
                 RoomBooking booking = new RoomBooking();
+                booking.setBooking(parentBooking);
                 booking.setDepositAmount(new BigDecimal("2000000"));
                 booking.setCancellationDeadline(LocalDate.now().minusDays(1)); // qua deadline rồi
-                booking.setBookingStatus("Pending");
 
                 when(roomBookingRepository.findById(202L)).thenReturn(Optional.of(booking));
 
@@ -393,11 +417,11 @@ class BookingServiceUC10Test {
                                 "Hủy trong 48h → tịch thu cọc hoàn về 0đ (BR-FIN-02)");
 
                 // 🔴 RED — FAIL: implementation set "Cancelled" thay vì "Cancelled_Forfeited"
-                assertEquals("Cancelled_Forfeited", booking.getBookingStatus(),
+                assertEquals("Cancelled_Forfeited", booking.getBooking().getBookingStatus(),
                                 "Status tịch thu cọc phải là 'Cancelled_Forfeited' (BR-STATUS-02)");
 
                 // Verify save() được gọi
-                verify(roomBookingRepository, times(1)).save(booking);
+                verify(bookingRepository, times(1)).save(parentBooking);
         }
 
         // ══════════════════════════════════════════════════════════════════════════

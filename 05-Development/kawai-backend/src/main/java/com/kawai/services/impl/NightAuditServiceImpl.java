@@ -1,6 +1,7 @@
 package com.kawai.services.impl;
 
 import com.kawai.models.Booking;
+import com.kawai.models.RoomBooking;
 import com.kawai.models.FolioItem;
 import com.kawai.models.RoomBookingDetail;
 import com.kawai.repositories.FolioItemRepository;
@@ -92,12 +93,13 @@ public class NightAuditServiceImpl implements NightAuditService {
         FolioItem item = new FolioItem();
         item.setRoomBookingDetail(detail);
 
-        Booking booking = detail.getRoomBooking();
+        RoomBooking roomBooking = detail.getRoomBooking();
+        Booking booking = roomBooking != null ? roomBooking.getBooking() : null;
         if (booking == null) {
             booking = new Booking(); // Fallback an toàn
         }
         item.setBooking(booking);
-        item.setPayerCustomer(detail.getCustomer());
+        item.setPayerCustomer(booking.getCustomer());
 
         item.setSourceDepartment("ROOM");
         item.setAmount(roomCharge.setScale(0, RoundingMode.HALF_UP));

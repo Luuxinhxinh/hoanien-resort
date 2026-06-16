@@ -20,7 +20,12 @@ public class BookingController {
     @Autowired
     private RoomCategoryRepository roomCategoryRepository;
     
-    @GetMapping({"/", "/booking"})
+    @GetMapping("/")
+    public String showHomePage() {
+        return "redirect:/living";
+    }
+
+    @GetMapping("/booking")
     public String showBookingPage(Principal principal, Model model, @RequestParam(name = "keyword", required = false) String keyword) {
         model.addAttribute("isLoggedIn", principal != null);
 
@@ -59,6 +64,7 @@ public class BookingController {
         );
 
         List<BookingRoom> rooms = categories.stream().map(cat -> {
+            long priceVal = cat.getBasePrice() != null ? cat.getBasePrice().longValue() : 0L;
             String priceStr = cat.getBasePrice() != null ? String.format("₫ %,d", cat.getBasePrice().longValue()) : "Contact Us";
             int capacity = cat.getCapacity() != null ? cat.getCapacity() : 2;
             String image = tempImages.get((int)(cat.getId() != null ? cat.getId() % tempImages.size() : 0));
@@ -72,7 +78,8 @@ public class BookingController {
                 40, // size
                 List.of(), // no amenities mapped yet
                 0,
-                null, null, priceStr, priceStr
+                null, null, priceStr, priceStr,
+                priceVal
             );
         }).collect(Collectors.toList());
 
@@ -122,10 +129,12 @@ public class BookingController {
         private final String discount;
         private final String price;
         private final String total;
+        private final long priceVal;
 
         public BookingRoom(String name, String image, String badge, String badgeType, boolean hasInfo,
                            int guests, int beds, int size, List<String> amenities, int moreCount,
-                           String originalPrice, String discount, String price, String total) {
+                           String originalPrice, String discount, String price, String total,
+                           long priceVal) {
             this.name = name;
             this.image = image;
             this.badge = badge;
@@ -140,6 +149,7 @@ public class BookingController {
             this.discount = discount;
             this.price = price;
             this.total = total;
+            this.priceVal = priceVal;
         }
 
         public String getName() { return name; }
@@ -156,5 +166,6 @@ public class BookingController {
         public String getDiscount() { return discount; }
         public String getPrice() { return price; }
         public String getTotal() { return total; }
+        public long getPriceVal() { return priceVal; }
     }
 }

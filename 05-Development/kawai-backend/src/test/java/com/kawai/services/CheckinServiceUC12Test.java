@@ -125,14 +125,19 @@ class CheckinServiceUC12Test {
         sampleCustomer.setLoyaltyPoints(0);
         sampleCustomer.setMembershipTier("Regular");
 
+        // Booking parent
+        Booking parentBooking = new Booking();
+        parentBooking.setId(1000L);
+        parentBooking.setCustomer(sampleCustomer);
+        parentBooking.setBookingDate(LocalDate.of(2026, 6, 10));
+        parentBooking.setTotalPrice(new BigDecimal("10000000"));
+        parentBooking.setBookingStatus("CONFIRMED");
+        parentBooking.setBookingSource("Direct_Web");
+
         // RoomBooking mẫu
         sampleRoomBooking = new RoomBooking();
         sampleRoomBooking.setId(1000L);
-        sampleRoomBooking.setCustomer(sampleCustomer);
-        sampleRoomBooking.setBookingDate(LocalDate.of(2026, 6, 10));
-        sampleRoomBooking.setTotalPrice(new BigDecimal("10000000"));
-        sampleRoomBooking.setBookingStatus("CONFIRMED");
-        sampleRoomBooking.setBookingSource("Direct_Web");
+        sampleRoomBooking.setBooking(parentBooking);
         sampleRoomBooking.setCheckInDate(LocalDate.of(2026, 6, 15));
         sampleRoomBooking.setCheckOutDate(LocalDate.of(2026, 6, 20));
         sampleRoomBooking.setDepositAmount(new BigDecimal("5000000"));
@@ -145,7 +150,6 @@ class CheckinServiceUC12Test {
         sampleBookingDetail.setRoomBooking(sampleRoomBooking);
         sampleBookingDetail.setCategory(sampleCategory);
         sampleBookingDetail.setRoom(null); // Chưa gán phòng
-        sampleBookingDetail.setCustomer(sampleCustomer);
         sampleBookingDetail.setRoomCharge(BigDecimal.ZERO);
         sampleBookingDetail.setDetailStatus("Pending");
         sampleBookingDetail.setIsChargeToRoomAllowed(true);

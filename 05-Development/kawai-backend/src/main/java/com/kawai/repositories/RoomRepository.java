@@ -3,6 +3,7 @@ package com.kawai.repositories;
 import com.kawai.models.Room;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -11,6 +12,9 @@ import java.util.Optional;
 @Repository
 public interface RoomRepository extends JpaRepository<Room, Long> {
     Optional<Room> findByRoomNumber(String roomNumber);
+
+    @Query("SELECT r FROM Room r WHERE r.category.categoryName = :categoryName")
+    List<Room> findByCategoryName(@Param("categoryName") String categoryName);
 
     @Query("SELECT r.roomStatus, COUNT(r) FROM Room r GROUP BY r.roomStatus")
     List<Object[]> countByStatus();
@@ -26,4 +30,9 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
 
     @Query("SELECT r FROM Room r WHERE r.roomStatus = 'Vacant_Clean' OR r.roomStatus = 'Vacant_Dirty'")
     List<Room> findVacant();
+
+    @Query("SELECT rbd.room FROM RoomBookingDetail rbd " +
+            "WHERE rbd.roomBooking.booking.customer.account.id = :userId " +
+            "AND rbd.roomBooking.booking.bookingStatus IN ('Confirmed', 'Checked_In')")
+    Optional<Room> findActiveRoomByUserId(@Param("userId") Long userId);
 }

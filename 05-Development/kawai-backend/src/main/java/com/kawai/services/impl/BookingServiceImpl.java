@@ -3,11 +3,15 @@ package com.kawai.services.impl;
 import com.kawai.dto.BookingRequestDTO;
 import com.kawai.dto.BookingResponseDTO;
 import com.kawai.exceptions.RoomNotAvailableException;
+import com.kawai.models.Booking;
 import com.kawai.models.Promotion;
 import com.kawai.models.RoomBooking;
 import com.kawai.models.RoomBookingDetail;
+import com.kawai.models.RoomGuest;
 import com.kawai.models.Room;
 import com.kawai.models.Customer;
+import com.kawai.repositories.BookingRepository;
+import com.kawai.repositories.RoomGuestRepository;
 import com.kawai.repositories.PromotionRepository;
 import com.kawai.repositories.RoomBookingRepository;
 import com.kawai.repositories.RoomBookingDetailRepository;
@@ -50,17 +54,23 @@ public class BookingServiceImpl implements BookingService {
     private static final String STATUS_CANCELLED_FORFEIT = "Cancelled_Forfeited";
 
     private final RoomBookingRepository roomBookingRepository;
+    private final BookingRepository bookingRepository;
+    private final RoomGuestRepository roomGuestRepository;
     private final PromotionRepository promotionRepository;
     private final RoomRepository roomRepository;
     private final CustomerRepository customerRepository;
     private final RoomBookingDetailRepository roomBookingDetailRepository;
 
     public BookingServiceImpl(RoomBookingRepository roomBookingRepository,
+            BookingRepository bookingRepository,
+            RoomGuestRepository roomGuestRepository,
             PromotionRepository promotionRepository,
             RoomRepository roomRepository,
             CustomerRepository customerRepository,
             RoomBookingDetailRepository roomBookingDetailRepository) {
         this.roomBookingRepository = roomBookingRepository;
+        this.bookingRepository = bookingRepository;
+        this.roomGuestRepository = roomGuestRepository;
         this.promotionRepository = promotionRepository;
         this.roomRepository = roomRepository;
         this.customerRepository = customerRepository;
@@ -79,15 +89,38 @@ public class BookingServiceImpl implements BookingService {
         // ✅ FIX TC-M2-005: Validate ngày check-in/check-out (BR-DATE-01)
         validateBookingDates(request.getCheckInDate(), request.getCheckOutDate());
 
-        String roomNo = request.getRoomNumber();
         LocalDate checkIn = request.getCheckInDate();
         LocalDate checkOut = request.getCheckOutDate();
+        String roomNo = request.getRoomNumber();
 
-        // Kiểm tra overbooking (BR-FO-01)
-        long overlapping = roomBookingRepository.countOverlappingBookings(roomNo, checkIn, checkOut);
-        if (overlapping > 0) {
-            throw new RoomNotAvailableException(
-                    "Room " + roomNo + " is not available for the selected dates");
+        if (roomNo == null || roomNo.trim().isEmpty()) {
+            if (request.getRoomCategoryName() != null && !request.getRoomCategoryName().trim().isEmpty()) {
+                java.util.List<Room> rooms = roomRepository.findByCategoryName(request.getRoomCategoryName());
+                if (rooms.isEmpty()) {
+                    throw new RoomNotAvailableException("No rooms found for category: " + request.getRoomCategoryName());
+                }
+                boolean found = false;
+                for (Room r : rooms) {
+                    long overlap = roomBookingRepository.countOverlappingBookings(r.getRoomNumber(), checkIn, checkOut);
+                    if (overlap == 0) {
+                        roomNo = r.getRoomNumber();
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    throw new RoomNotAvailableException("No available rooms for category " + request.getRoomCategoryName() + " on selected dates");
+                }
+            } else {
+                throw new IllegalArgumentException("Either roomNumber or roomCategoryName must be specified");
+            }
+        } else {
+            // Kiểm tra overbooking (BR-FO-01)
+            long overlapping = roomBookingRepository.countOverlappingBookings(roomNo, checkIn, checkOut);
+            if (overlapping > 0) {
+                throw new RoomNotAvailableException(
+                        "Room " + roomNo + " is not available for the selected dates");
+            }
         }
 
         // Tính giá gốc: số đêm × 2,000,000
@@ -101,34 +134,53 @@ public class BookingServiceImpl implements BookingService {
             discountedPrice = applyPromotion(promoCode, baseTotal);
         }
 
-        Customer customer = customerRepository.findById(request.getCustomerId())
-            .orElseGet(() -> customerRepository.findAll().stream().findFirst().orElseThrow(() -> new IllegalArgumentException("Customer not found")));
+        Customer customer = null;
+        if (request.getCustomerId() != null) {
+            customer = customerRepository.findById(request.getCustomerId()).orElse(null);
+        }
+        if (customer == null) {
+            customer = customerRepository.findAll().stream().findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Customer not found"));
+        }
 
-        Room room = roomRepository.findByRoomNumber(roomNo).orElseThrow(() -> new IllegalArgumentException("Room not found: " + roomNo));
+        final String finalRoomNo = roomNo;
+        Room room = roomRepository.findByRoomNumber(finalRoomNo).orElseThrow(() -> new IllegalArgumentException("Room not found: " + finalRoomNo));
 
+        // Create the base Booking entity
+        Booking parentBooking = new Booking();
+        parentBooking.setCustomer(customer);
+        parentBooking.setBookingDate(LocalDate.now());
+        parentBooking.setTotalPrice(discountedPrice.setScale(0, RoundingMode.HALF_UP));
+        parentBooking.setBookingStatus(STATUS_CONFIRMED);
+        parentBooking.setBookingSource("Direct_Web");
+        Booking savedParentBooking = bookingRepository.save(parentBooking);
+
+        // Create the RoomBooking entity
         RoomBooking booking = new RoomBooking();
-        booking.setCustomer(customer);
-        booking.setBookingDate(LocalDate.now());
-        booking.setTotalPrice(discountedPrice.setScale(0, RoundingMode.HALF_UP));
-        booking.setBookingStatus(STATUS_CONFIRMED);
-        booking.setBookingSource("Direct_Web");
-        
+        booking.setBooking(savedParentBooking);
         booking.setCheckInDate(checkIn);
         booking.setCheckOutDate(checkOut);
         booking.setDepositAmount(request.getDepositAmount());
         booking.setCancellationDeadline(checkIn.minusDays(2));
         booking.setPersonalPinHash("DEFAULT_PIN");
-
         RoomBooking savedBooking = roomBookingRepository.save(booking);
 
+        // Create RoomBookingDetail
         RoomBookingDetail detail = new RoomBookingDetail();
         detail.setRoomBooking(savedBooking);
         detail.setRoom(room);
         detail.setCategory(room.getCategory());
         detail.setRoomCharge(baseTotal);
         detail.setDetailStatus("Pending");
-        detail.setCustomer(customer);
-        roomBookingDetailRepository.save(detail);
+        RoomBookingDetail savedDetail = roomBookingDetailRepository.save(detail);
+
+        // Create primary RoomGuest
+        RoomGuest guest = new RoomGuest();
+        guest.setRoomBookingDetail(savedDetail);
+        guest.setCustomer(customer);
+        guest.setGuestType("ADULT");
+        guest.setIsPrimaryContact(true);
+        roomGuestRepository.save(guest);
 
         BookingResponseDTO response = new BookingResponseDTO();
         response.setBookingId(savedBooking.getId());
@@ -149,6 +201,7 @@ public class BookingServiceImpl implements BookingService {
     // ══════════════════════════════════════════════════════════════════════
 
     @Override
+    @Transactional
     public BigDecimal cancelBooking(Long bookingId) {
         RoomBooking booking = roomBookingRepository.findById(bookingId)
                 .orElseThrow(() -> new IllegalArgumentException("Booking not found: " + bookingId));
@@ -159,18 +212,20 @@ public class BookingServiceImpl implements BookingService {
         BigDecimal refund;
         LocalDate today = LocalDate.now();
 
+        Booking parentBooking = booking.getBooking();
+
         // ✅ FIX TC-M2-006/007: Phân biệt rõ 2 trạng thái (BR-STATUS-02)
         if (today.isBefore(deadline) || today.isEqual(deadline)) {
             // ✅ FIX TC-M2-006: "Cancelled_Refunded" cho hủy trước deadline
             refund = deposit; // hoàn 100%
-            booking.setBookingStatus(STATUS_CANCELLED_REFUND);
+            parentBooking.setBookingStatus(STATUS_CANCELLED_REFUND);
         } else {
             // ✅ FIX TC-M2-007: "Cancelled_Forfeited" cho hủy sau deadline
             refund = BigDecimal.ZERO; // tịch thu cọc
-            booking.setBookingStatus(STATUS_CANCELLED_FORFEIT);
+            parentBooking.setBookingStatus(STATUS_CANCELLED_FORFEIT);
         }
 
-        roomBookingRepository.save(booking);
+        bookingRepository.save(parentBooking);
         return refund;
     }
 

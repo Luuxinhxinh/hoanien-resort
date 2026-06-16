@@ -93,8 +93,10 @@ public class KdsServiceCustomTest {
         detail.setRoom(room);
         detail.setSubCreditLimit(new BigDecimal("1000000"));
         
+        Booking parentBooking = new Booking();
+        parentBooking.setCustomer(new Customer());
         RoomBooking roomBooking = new RoomBooking();
-        roomBooking.setCustomer(new Customer());
+        roomBooking.setBooking(parentBooking);
         detail.setRoomBooking(roomBooking);
 
         MenuItem item = new MenuItem();
@@ -129,8 +131,10 @@ public class KdsServiceCustomTest {
         detail.setRoom(room);
         detail.setSubCreditLimit(new BigDecimal("100")); // very low limit
         
+        Booking parentBooking = new Booking();
+        parentBooking.setCustomer(new Customer());
         RoomBooking roomBooking = new RoomBooking();
-        roomBooking.setCustomer(new Customer());
+        roomBooking.setBooking(parentBooking);
         detail.setRoomBooking(roomBooking);
 
         MenuItem item = new MenuItem();

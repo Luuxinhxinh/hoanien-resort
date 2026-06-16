@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Inter:wght@300;400;500;600&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Inter:wght@300;400;500;600&display=swap"
         rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
         rel="stylesheet" />
@@ -64,16 +64,15 @@
             transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease, opacity 0.2s ease;
         }
 
-        /* ── HIỆU ỨNG KÍNH TRONG SUỐT (MATTE GLASSMORPHISM) ── */
         .premium-glass-card {
-            background: rgba(241, 235, 227, 0.06) !important;
+            background: rgba(241, 235, 227, 0.05) !important;
             backdrop-filter: blur(20px) !important;
             -webkit-backdrop-filter: blur(20px) !important;
             border: 1px solid rgba(255, 255, 255, 0.08) !important;
         }
 
         .food-item-card {
-            background: rgba(255, 255, 255, 0.03);
+            background: rgba(255, 255, 255, 0.02);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.05);
@@ -82,23 +81,34 @@
 
         .food-item-card:hover {
             transform: translateY(-4px);
-            background: rgba(255, 255, 255, 0.07);
+            background: rgba(255, 255, 255, 0.06);
             border-color: rgba(255, 255, 255, 0.15);
-            box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.4);
         }
 
-        /* ĐÃ SỬA: Khóa cứng Navbar luôn ở trạng thái trong suốt mờ ảo xuyên thấu ảnh nền */
         .guest-nav {
             background: rgba(30, 26, 25, 0.4) !important;
             border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
             backdrop-filter: blur(12px) !important;
-            -webkit-backdrop-filter: blur(12px) !important;
         }
 
         .guest-nav .nav-btn-book {
             background: transparent !important;
             color: rgba(255, 255, 255, 0.8) !important;
             border: none !important;
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
         }
 
         select option {
@@ -108,46 +118,41 @@
     </style>
 </head>
 
-<body class="antialiased flex flex-col min-h-screen relative">
+<body class="antialiased flex flex-col min-h-screen relative selection:bg-white selection:text-black">
 
     <div class="fixed inset-0 w-full h-full z-0 pointer-events-none overflow-hidden">
         <img src="https://images.unsplash.com/photo-1466637574441-749b8f19452f?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80"
             alt="Culinary Canvas Background"
-            class="w-full h-full object-cover scale-105 brightness-[0.18] will-change-transform static-bg-art" />
-        <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-[#1e1a19]"></div>
+            class="w-full h-full object-cover scale-105 brightness-[0.14] static-bg-art" />
+        <div class="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-[#1e1a19]"></div>
     </div>
 
     <div id="header-wrapper" class="fixed top-0 left-0 w-full z-50 flex flex-col pointer-events-none">
         <nav class="guest-nav relative w-full font-sans pointer-events-auto">
             <div class="max-w-[1440px] mx-auto px-6 py-4 flex items-center justify-between">
                 <div class="hidden lg:flex items-center gap-8 text-[13px] uppercase tracking-[0.2em] font-semibold">
-                    <a href="/living" class="nav-text-dim hover:text-white transition-colors">Living</a>
-                    <a href="/dining" class="nav-text border-b border-current pb-0.5">Dining</a>
-                    <a href="/experiences" class="nav-text-dim hover:text-white transition-colors">Experiences</a>
-                    <a href="/tours" class="nav-text-dim hover:text-white transition-colors">Tours</a>
+                    <a href="/living" class="text-white/60 hover:text-white transition-colors">Living</a>
+                    <a href="/dining" class="text-white border-b border-current pb-0.5">Dining</a>
+                    <a href="/experiences" class="text-white/60 hover:text-white transition-colors">Experiences</a>
+                    <a href="/tours" class="text-white/60 hover:text-white transition-colors">Tours</a>
                 </div>
-
                 <div class="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 font-headline text-[32px] italic tracking-tighter text-center cursor-pointer w-max"
                     onclick="window.location.href='/'">
                     HoaNien
                 </div>
-
                 <div class="hidden lg:flex items-center gap-6 text-[13px] uppercase tracking-[0.2em] font-semibold">
-                    <a href="/profile" th:if="${isLoggedIn}"
-                        class="nav-text-dim hover:text-white transition-colors">Profile</a>
-                    <form th:action="@{/auth/logout}" method="post" th:if="${isLoggedIn}" class="inline">
+                    <a href="/profile" th:if="${session.user != null}"
+                        class="text-white/60 hover:text-white transition-colors">Profile</a>
+                    <form th:action="@{/auth/logout}" method="post" th:if="${session.user != null}" class="inline">
                         <button type="submit"
-                            class="nav-text-dim hover:text-white uppercase tracking-[0.2em] bg-transparent border-none p-0 cursor-pointer">Logout</button>
+                            class="text-white/60 hover:text-white uppercase tracking-[0.2em] bg-transparent border-none p-0 cursor-pointer">Logout</button>
                     </form>
                     <a href="/booking"
-                        class="nav-btn-book hover:opacity-100 active:scale-95 transition-all duration-200 inline-block text-[13px]">
-                        Book Now
-                    </a>
+                        class="nav-btn-book hover:opacity-100 active:scale-95 transition-all duration-200 inline-block text-[13px]">Book
+                        Now</a>
                 </div>
-
-                <button class="lg:hidden pointer-events-auto">
-                    <span class="material-symbols-outlined text-3xl">menu</span>
-                </button>
+                <button class="lg:hidden pointer-events-auto"><span
+                        class="material-symbols-outlined text-3xl">menu</span></button>
             </div>
         </nav>
     </div>
@@ -156,83 +161,79 @@
         <section class="max-w-[1440px] mx-auto feature-row">
 
             <div
-                class="text-start mb-16 border-b border-white/10 pb-8 flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
+                class="text-start mb-10 border-b border-white/10 pb-6 flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6">
                 <div>
-                    <span class="text-[10px] uppercase tracking-[0.3em] text-hoanien-bg/60 block mb-2">In-Room
-                        Gastronomy</span>
-                    <h1 class="font-serif text-4xl md:text-5xl tracking-tight text-white mb-2">In-Room Dining Experience
-                    </h1>
+                    <span class="text-[10px] uppercase tracking-[0.3em] text-hoanien-bg/60 block mb-2">In-Room &
+                        Restaurant Gastronomy</span>
+                    <h1 class="font-serif text-4xl md:text-5xl tracking-tight text-white mb-2">Ẩm Thực Thượng Hạng</h1>
                     <p class="text-xs md:text-sm text-hoanien-bg/70 max-w-xl font-light leading-relaxed">
-                        Savor curated seasonal dishes crafted by our culinary artisans, delivered straight to your
-                        private sanctuary or reserved riverside table.
+                        Trải nghiệm dịch vụ ẩm thực đẳng cấp phục vụ trực tiếp tại không gian biệt thự sanctuary tư nhân
+                        hoặc đặt món trước cho bàn tiệc ven sông của bạn.
                     </p>
+                </div>
+
+                <div class="w-full lg:w-80 relative font-sans">
+                    <span
+                        class="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40 material-symbols-outlined text-lg">search</span>
+                    <input type="text" id="menuSearchInput" onkeyup="searchMenu()"
+                        placeholder="Tìm món ăn, thức uống, từ khóa..."
+                        class="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-xs focus:ring-1 focus:ring-white focus:border-white text-white placeholder-white/30 outline-none">
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 xl:grid-cols-4 gap-12 items-start">
+            <div class="grid grid-cols-1 xl:grid-cols-4 gap-8 items-start">
 
                 <div class="xl:col-span-3">
-                    <div class="flex flex-wrap gap-6 mb-10 text-xs uppercase tracking-[0.15em] font-medium text-hoanien-bg/60 select-none"
+                    <div class="flex flex-wrap gap-4 mb-8 text-xs uppercase tracking-[0.15em] font-medium text-hoanien-bg/60 select-none border-b border-white/5 pb-2"
                         id="categoryTabs">
                         <button id="btn-cat-all"
                             class="pb-2 border-b-2 border-white text-white transition-all duration-300"
-                            onclick="filterCategory('all', this)">
-                            Tất cả thực đơn
-                        </button>
+                            onclick="filterCategory('all', this)">Tất cả thực đơn</button>
+                        <button th:each="cat : ${categories}" th:text="${cat}"
+                            class="pb-2 border-b-2 border-transparent text-white/60 hover:text-white transition-all duration-300"
+                            th:onclick="|filterCategory('${cat}', this)|">Danh mục</button>
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6" id="menuGrid">
 
                         <div th:each="item : ${menuItems}" th:data-category="${item.category}"
-                            class="food-item-card flex flex-col rounded-sm">
-                            <div
+                            class="food-item-card flex flex-col rounded-xl overflow-hidden">
+                            <div th:onclick="openItemDetail([[${item.id}]], [[${item.itemName}]], [[${item.description}]], [[${item.price}]], [[${item.allergenTags}]])"
                                 class="h-44 bg-white/5 flex items-center justify-center overflow-hidden relative group cursor-pointer border-b border-white/5">
-                                <span
-                                    class="material-symbols-outlined text-4xl text-white/20 group-hover:scale-105 transition-transform duration-700">flatware</span>
-                                <div class="absolute inset-0 bg-black/10 transition-opacity"></div>
-                            </div>
-
-                            <div class="p-6 flex flex-col flex-grow">
-                                <h3 class="font-serif text-lg leading-tight text-white mb-1.5"
-                                    th:text="${item.itemName}">Tên Món Ăn</h3>
-                                <p class="text-[11px] text-hoanien-bg/70 leading-relaxed font-light mb-6 flex-grow line-clamp-2"
-                                    th:text="${item.description}">Mô tả chi tiết nguyên liệu và hương vị truyền thống
-                                    của vùng đất Hội An...</p>
-
-                                <div class="flex items-center justify-between mt-auto pt-4 border-t border-white/5">
-                                    <span class="font-sans text-xs uppercase tracking-wider font-semibold text-white/90"
-                                        th:text="${#numbers.formatDecimal(item.price, 0, 'COMMA', 0, 'POINT')} + ' đ'">100,000
-                                        đ</span>
-                                    <button type="button"
-                                        class="border border-white/40 text-white w-8 h-8 rounded-full flex justify-center items-center hover:bg-white hover:text-hoanien-text transition-colors duration-300"
-                                        th:data-name="${item.itemName}"
-                                        th:onclick="|addToCart(${item.id}, this.dataset.name, ${item.price})|">
-                                        <span class="material-symbols-outlined text-sm pointer-events-none">add</span>
-                                    </button>
+                                <img th:src="${item.imageUrl != null ? item.imageUrl : 'https://images.unsplash.com/photo-1547592180-85f173990554?w=500&q=80'}"
+                                    alt="food image"
+                                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                                <div class="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors">
                                 </div>
                             </div>
-                        </div>
-
-                        <div th:if="${#lists.isEmpty(menuItems)}" data-category="Món chính"
-                            class="food-item-card flex flex-col rounded-sm">
-                            <div
-                                class="h-44 bg-white/5 flex items-center justify-center overflow-hidden relative group border-b border-white/5">
-                                <span class="material-symbols-outlined text-4xl text-white/20">flatware</span>
-                            </div>
-                            <div class="p-6 flex flex-col flex-grow">
-                                <h3 class="font-serif text-lg leading-tight text-white mb-1.5">Mì Quảng Gà Cung Đình
-                                </h3>
-                                <p
-                                    class="text-[11px] text-hoanien-bg/70 leading-relaxed font-light mb-6 flex-grow line-clamp-2">
-                                    Sợi mì thủ công làm từ gạo xiệc lúa mới, ăn kèm thịt gà ta thả vườn rim nghệ đậm vị
-                                    Hội An.</p>
-                                <div class="flex items-center justify-between mt-auto pt-4 border-t border-white/5">
-                                    <span
-                                        class="font-sans text-xs uppercase tracking-wider font-semibold text-white/90">145,000
+                            <div class="p-5 flex flex-col flex-grow">
+                                <div class="flex items-start justify-between gap-2 mb-1">
+                                    <h3 class="font-serif text-base leading-tight text-white hover:underline cursor-pointer"
+                                        th:text="${item.itemName}"
+                                        th:onclick="openItemDetail([[${item.id}]], [[${item.itemName}]], [[${item.description}]], [[${item.price}]], [[${item.allergenTags}]])">
+                                        Tên Món Ăn</h3>
+                                    <div class="flex gap-1 text-sm select-none"
+                                        th:title="'Cảnh báo dị ứng: ' + ${item.allergenTags != null ? item.allergenTags : 'Không có'}">
+                                        <span
+                                            th:if="${item.allergenTags != null and #strings.contains(item.allergenTags, 'Hải sản')}">🦐</span>
+                                        <span
+                                            th:if="${item.allergenTags != null and #strings.contains(item.allergenTags, 'Đậu phộng')}">🥜</span>
+                                        <span
+                                            th:if="${item.allergenTags != null and #strings.contains(item.allergenTags, 'Gluten')}">🌾</span>
+                                        <span
+                                            th:if="${item.allergenTags != null and #strings.contains(item.allergenTags, 'Sữa')}">🥛</span>
+                                    </div>
+                                </div>
+                                <p class="text-[11px] text-hoanien-bg/60 leading-relaxed font-light mb-4 line-clamp-2"
+                                    th:text="${item.description}">Mô tả món ăn lấy từ SQL...</p>
+                                <div class="flex items-center justify-between mt-auto pt-3 border-t border-white/5">
+                                    <span class="font-sans text-xs font-semibold text-white/90"
+                                        th:text="${#numbers.formatDecimal(item.price, 0, 'COMMA', 0, 'POINT')} + ' đ'">0
                                         đ</span>
-                                    <button type="button" onclick="addToCart(999, 'Mì Quảng Gà Cung Đình', 145000)"
-                                        class="border border-white/40 text-white w-8 h-8 rounded-full flex justify-center items-center hover:bg-white hover:text-hoanien-text transition-colors">
-                                        <span class="material-symbols-outlined text-sm">add</span>
+                                    <button type="button"
+                                        th:onclick="addToCart([[${item.id}]], [[${item.itemName}]], [[${item.price}]])"
+                                        class="border border-white/20 text-white w-8 h-8 rounded-full flex justify-center items-center hover:bg-white hover:text-hoanien-text transition-all shadow">
+                                        <span class="material-symbols-outlined text-sm font-bold">add</span>
                                     </button>
                                 </div>
                             </div>
@@ -243,99 +244,151 @@
 
                 <div class="xl:col-span-1 h-full">
                     <div
-                        class="premium-glass-card p-6 md:p-8 rounded-sm sticky top-[140px] shadow-2xl transition-all duration-300">
+                        class="premium-glass-card p-6 rounded-2xl sticky top-[120px] shadow-2xl transition-all border border-white/10">
+
+                        <div class="mb-5 p-3.5 bg-white/5 rounded-xl border border-white/10 text-xs font-sans">
+                            <div class="flex items-center gap-2 mb-2 text-white/40">
+                                <span class="material-symbols-outlined text-base text-emerald-500">verified_user</span>
+                                <span class="text-[10px] uppercase tracking-wider font-semibold">Đơn vị thụ hưởng
+                                    SQL</span>
+                            </div>
+
+                            <div id="optionInRoom" th:if="${currentRoom != null}"
+                                class="text-white/90 leading-relaxed font-medium">
+                                Xin chào <span class="font-bold text-white">Khách
+                                    hàng</span>, hệ thống ghi nhận bạn đang lưu trú tại <span
+                                    class="text-amber-400 font-bold"
+                                    th:text="'Phòng ' + ${currentRoom.roomNumber}">Phòng 000</span>. Món ăn sẽ được giao
+                                lên tận cửa phòng.
+                                <input type="hidden" id="posOrderType" value="ROOM_SERVICE">
+                                <input type="hidden" id="posLocationId" th:value="${currentRoom.roomNumber}">
+                            </div>
+
+                            <div id="optionRestaurant" th:if="${currentRoom == null && currentTable != null}"
+                                class="text-white/90 leading-relaxed font-medium">
+                                Quý khách có lịch dùng bữa trước tại <span class="text-emerald-400 font-bold"
+                                    th:text="'Bàn số ' + ${currentTable.tableNumber}">Bàn số 00</span> hôm nay. Đầu bếp
+                                sẽ căn giờ nấu trùng khớp thời gian check-in của bạn.
+                                <input type="hidden" id="posOrderType" value="RESTAURANT">
+                                <input type="hidden" id="posLocationId" th:value="${currentTable.id}">
+                            </div>
+
+                            <div id="optionWalkIn"
+                                th:if="${session.user != null && currentRoom == null && currentTable == null}"
+                                class="text-white/70 leading-relaxed font-light italic">
+                                Tài khoản chưa liên kết thông tin lưu trú hoặc lịch đặt bàn tiệc hôm nay.
+                                <input type="hidden" id="posOrderType" value="WALK_IN">
+                                <input type="hidden" id="posLocationId" value="Lobby">
+                            </div>
+
+                            <div id="optionNotLoggedIn" th:if="${session.user == null}"
+                                class="text-white/80 leading-relaxed font-light">
+                                Bạn chưa đăng nhập. Vui lòng đăng nhập để hệ thống ghi nhận số phòng hoặc bàn của bạn.
+                                <button type="button" onclick="showAuthModal()"
+                                    class="w-full mt-3 bg-white/10 hover:bg-white/20 text-white border border-white/20 py-2 rounded-lg text-xs font-semibold">
+                                    Đăng nhập ngay
+                                </button>
+                                <input type="hidden" id="posOrderType" value="WALK_IN">
+                                <input type="hidden" id="posLocationId" value="Lobby">
+                            </div>
+                        </div>
+
                         <h3
-                            class="font-serif text-xl mb-6 flex items-center justify-between border-b border-white/10 pb-4 text-white">
-                            <span>Hóa đơn</span>
-                            <span class="text-[10px] uppercase tracking-widest font-sans opacity-50 font-light">[
-                                Receipt ]</span>
+                            class="font-serif text-lg mb-4 flex items-center justify-between border-b border-white/5 pb-3 text-white">
+                            <span>Đơn gọi món</span>
+                            <span class="text-[10px] uppercase tracking-widest font-sans opacity-40 font-light">[ Items
+                                ]</span>
                         </h3>
 
                         <div id="cartItemsList"
-                            class="min-h-[120px] max-h-[260px] overflow-y-auto space-y-3 mb-6 pr-1 font-sans">
-                            <p class="text-xs opacity-50 italic text-center mt-4 text-white/60" id="emptyCartMsg">Chưa
-                                có món nào được chọn.</p>
+                            class="min-h-[80px] max-h-[220px] overflow-y-auto space-y-2 mb-4 pr-1 font-sans">
+                            <p class="text-xs opacity-40 italic text-center mt-4 text-white" id="emptyCartMsg">Chưa có
+                                món ăn nào được chọn.</p>
                         </div>
 
-                        <div
-                            class="border-t border-white/10 pt-4 space-y-2.5 mb-6 text-xs font-light text-hoanien-bg/80">
-                            <div class="flex justify-between">
-                                <span>Tạm tính:</span>
-                                <span id="subtotal" class="font-medium text-white">0đ</span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span>Phí dịch vụ (5%):</span>
-                                <span id="serviceFee" class="font-medium text-white">0đ</span>
-                            </div>
+                        <div class="border-t border-white/5 pt-3 space-y-2 mb-4 text-xs font-light text-hoanien-bg/70">
+                            <div class="flex justify-between"><span>Tạm tính:</span><span id="subtotal"
+                                    class="font-medium text-white">0đ</span></div>
+                            <div class="flex justify-between"><span>Phí dịch vụ (5%):</span><span id="serviceFee"
+                                    class="font-medium text-white">0đ</span></div>
                             <div
-                                class="flex justify-between text-sm font-semibold mt-3 pt-3 border-t border-white/10 text-white">
-                                <span>Tổng cộng:</span>
-                                <span id="total" class="text-white">0đ</span>
+                                class="flex justify-between text-sm font-semibold mt-2 pt-2 border-t border-white/5 text-white">
+                                <span>Tổng hóa đơn:</span><span id="total"
+                                    class="text-white text-base font-serif">0đ</span>
                             </div>
                         </div>
 
-                        <div class="space-y-4">
+                        <div class="space-y-4 pt-2 border-t border-white/5 font-sans">
                             <div>
                                 <label
-                                    class="text-[10px] uppercase tracking-wider opacity-60 font-semibold block mb-1.5 text-white/80">Hình
-                                    thức nhận món</label>
-                                <select id="orderType" onchange="toggleOrderFields()"
-                                    class="w-full bg-white/5 border border-white/10 p-3 rounded-sm focus:border-white focus:ring-0 focus:outline-none text-xs text-white">
-                                    <option value="ROOM_SERVICE">Mang lên phòng riêng</option>
-                                    <option value="RESTAURANT">Dùng tại nhà hàng</option>
+                                    class="text-[10px] uppercase tracking-wider opacity-60 font-semibold block mb-1 text-white">Thời
+                                    gian phục vụ nhận món</label>
+                                <select id="deliveryScheduleType" onchange="toggleTimePicker()"
+                                    class="w-full bg-white/5 border border-white/10 p-2.5 rounded-lg focus:ring-0 focus:border-white text-xs text-white">
+                                    <option value="NOW">Giao ngay lập tức (20-30 phút)</option>
+                                    <option value="SCHEDULED">Hẹn giờ phục vụ cụ thể</option>
                                 </select>
+                                <input type="time" id="exactTimePicker"
+                                    class="hidden mt-2 w-full bg-white/5 border border-white/10 p-2 rounded-lg text-xs text-white focus:ring-0 focus:border-white">
                             </div>
 
-                            <div id="roomField">
+                            <div>
                                 <label
-                                    class="text-[10px] uppercase tracking-wider opacity-60 font-semibold block mb-1.5 text-white/80">Số
-                                    phòng của bạn</label>
-                                <select id="roomNumberInput"
-                                    class="w-full bg-white/5 border border-white/10 p-3 rounded-sm focus:border-white focus:ring-0 focus:outline-none text-xs text-white">
-                                    <option value="">-- Chọn số phòng hiện tại --</option>
-                                    <option th:each="room : ${rooms}" th:value="${room.roomNumber}"
-                                        th:text="'Phòng ' + ${room.roomNumber} + ' (' + ${room.category.categoryName} + ')'">
-                                    </option>
-                                </select>
+                                    class="text-[10px] uppercase tracking-wider opacity-60 font-semibold block mb-1 text-white">Phương
+                                    thức tất toán</label>
+                                <div id="paymentMethodsContainer" class="grid grid-cols-1 gap-2 text-xs">
+                                    <label th:if="${currentRoom != null}"
+                                        class="flex items-center gap-2 p-2.5 bg-white/5 border border-white/10 rounded-lg cursor-pointer">
+                                        <input type="radio" name="paymentType" value="CHARGE_TO_ROOM" checked
+                                            class="text-white focus:ring-0 bg-transparent">
+                                        <div>
+                                            <span class="block font-semibold">Ký bill về phòng (Charge to Room)</span>
+                                            <span class="block text-[10px] opacity-50"
+                                                th:if="${currentCreditLimit != null}"
+                                                th:text="'Hạn mức tín dụng: ₫' + ${#numbers.formatDecimal(currentCreditLimit, 0, 'COMMA', 0, 'POINT')}">Hạn
+                                                mức: 0đ</span>
+                                        </div>
+                                    </label>
+                                    <label th:if="${currentRoom == null}"
+                                        class="flex items-center gap-2 p-2.5 bg-white/5 border border-white/10 rounded-lg cursor-pointer">
+                                        <input type="radio" name="paymentType" value="ONLINE" checked
+                                            class="text-white focus:ring-0 bg-transparent">
+                                        <span>Thanh toán trực tuyến trước qua Ví/Thẻ</span>
+                                    </label>
+                                    <label th:if="${currentRoom == null}"
+                                        class="flex items-center gap-2 p-2.5 bg-white/5 border border-white/10 rounded-lg cursor-pointer">
+                                        <input type="radio" name="paymentType" value="PAY_AT_RESTAURANT"
+                                            class="text-white focus:ring-0 bg-transparent">
+                                        <span>Thanh toán trực tiếp tại nhà hàng</span>
+                                    </label>
+                                </div>
                             </div>
 
-                            <div id="tableField" style="display: none;">
+                            <div>
                                 <label
-                                    class="text-[10px] uppercase tracking-wider opacity-60 font-semibold block mb-1.5 text-white/80">Vị
-                                    trí bàn đặt trước</label>
-                                <select id="tableNumberInput"
-                                    class="w-full bg-white/5 border border-white/10 p-3 rounded-sm focus:border-white focus:ring-0 focus:outline-none text-xs text-white">
-                                    <option th:each="table : ${tables}" th:value="${table.id}"
-                                        th:text="'Bàn ' + ${table.tableNumber} + ' (' + ${table.capacity} + ' chỗ)'">
-                                    </option>
-                                </select>
+                                    class="text-[10px] uppercase tracking-wider opacity-60 font-semibold block mb-1 text-white">Ghi
+                                    chú nhà bếp tổng quan</label>
+                                <textarea id="orderNote" placeholder="Ghi chú chung cho đơn hàng..."
+                                    class="w-full bg-white/5 border border-white/10 p-2.5 rounded-lg text-xs h-16 resize-none focus:ring-0 focus:border-white placeholder:text-white/20 text-white"></textarea>
                             </div>
 
-                            <div class="space-y-1.5">
-                                <label
-                                    class="text-[10px] uppercase tracking-wider opacity-60 font-semibold block text-white/80">Ghi
-                                    chú nhà bếp</label>
-                                <textarea id="orderNote" placeholder="Ví dụ: Không hành, ít cay, nhiều đá..."
-                                    class="w-full bg-white/5 border border-white/10 p-3 rounded-sm focus:border-white focus:ring-0 focus:outline-none text-xs h-20 resize-none font-sans placeholder:text-white/30 text-white"></textarea>
-                            </div>
-
-                            <div class="flex items-start gap-2.5 my-4">
+                            <div class="flex items-start gap-2">
                                 <input type="checkbox" id="orderConsent"
-                                    class="mt-0.5 rounded border-white/20 text-hoanien-text focus:ring-0 bg-transparent w-3.5 h-3.5"
+                                    class="mt-0.5 rounded border-white/20 text-hoanien-text focus:ring-0 bg-transparent w-3.5 h-3.5 cursor-pointer"
                                     onchange="toggleOrderButton()">
                                 <label for="orderConsent"
-                                    class="text-[10px] text-hoanien-bg/60 leading-normal select-none cursor-pointer font-light">
-                                    Tôi xác nhận số phòng/bàn chính xác và đồng ý ghi nhận chi phí vào hóa đơn tổng
-                                    phòng.
+                                    class="text-[9px] text-hoanien-bg/50 leading-normal select-none cursor-pointer font-light">
+                                    Tôi xác nhận vị trí thụ hưởng chính xác và đồng ý cấu trúc hóa đơn dịch vụ trên.
                                 </label>
                             </div>
 
                             <button id="submitOrderBtn" type="button" onclick="placeOrder()"
-                                class="w-full bg-white text-hoanien-text py-4 text-[11px] uppercase tracking-widest font-semibold hover:bg-hoanien-bg transition-colors disabled:opacity-30 disabled:cursor-not-allowed shadow-xl"
+                                class="w-full bg-white text-[#1e1a19] py-3.5 text-xs font-bold uppercase tracking-widest hover:bg-hoanien-bg transition-all rounded-xl disabled:opacity-20 disabled:cursor-not-allowed shadow-xl"
                                 disabled>
                                 Xác nhận đặt món
                             </button>
                         </div>
+
                     </div>
                 </div>
 
@@ -343,240 +396,371 @@
         </section>
     </main>
 
-    <footer class="bg-hoanien-footer text-hoanien-footer-text py-20 px-6 font-sans site-footer relative z-20 mt-auto">
-        <div class="max-w-[1440px] mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-end">
-            <div class="space-y-6">
-                <div class="font-serif text-3xl font-medium tracking-wide text-white">
-                    HOANIEN
-                    <span
-                        class="block text-xs font-sans tracking-[0.3em] uppercase mt-2 opacity-70 text-hoanien-footer-text">River
-                        Retreat</span>
+    <div id="itemDetailModal"
+        class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md"
+        style="display: none;" onclick="closeItemDetailModal()">
+        <div class="bg-[#2a2422] border border-white/10 w-full max-w-lg p-6 md:p-8 rounded-2xl relative shadow-2xl text-left font-sans"
+            onclick="event.stopPropagation()">
+            <button onclick="closeItemDetailModal()" class="absolute top-4 right-4 text-white/50 hover:text-white"><span
+                    class="material-symbols-outlined">close</span></button>
+            <div class="flex items-center gap-3 mb-2">
+                <h2 id="modalItemName" class="font-serif text-2xl text-white">Tên món ăn</h2>
+                <div id="modalAllergenIcons" class="text-lg"></div>
+            </div>
+            <p id="modalItemPrice" class="text-sm font-semibold text-white/80 mb-4">0 đ</p>
+            <div class="space-y-4">
+                <div class="bg-white/5 p-4 rounded-xl border border-white/5">
+                    <span class="block text-[10px] uppercase font-bold text-white/40 tracking-wider mb-1">Mô tả cấu trúc
+                        nguyên liệu</span>
+                    <p id="modalItemDesc" class="text-xs text-white/80 leading-relaxed font-light">Chi tiết mô tả thành
+                        phần món ăn...</p>
                 </div>
-                <div class="text-sm opacity-80 leading-relaxed max-w-sm">
-                    232 Tran Nhan Tong Street,<br>
-                    Hoi An Dong Ward,<br>
-                    Danang City, Viet Nam
-                </div>
-                <div class="text-sm opacity-80">
-                    <a href="mailto:contact@hoanienretreat.com"
-                        class="hover:text-white transition-colors">contact@hoanienretreat.com</a><br>
-                    <a href="tel:+84123456789" class="hover:text-white transition-colors">+84 123 456 789</a>
+                <div>
+                    <label class="block text-[10px] uppercase font-bold text-amber-500 tracking-wider mb-1.5">Ghi chú
+                        cho đầu bếp chế biến (Dị ứng, khẩu vị...) *</label>
+                    <textarea id="modalItemChefNote"
+                        placeholder="Ví dụ: Tôi dị ứng tôm, không ăn cay, không hành tây..."
+                        class="w-full bg-white/5 border border-white/10 p-3 rounded-lg text-xs h-24 focus:ring-1 focus:ring-white focus:border-white text-white outline-none placeholder:text-white/20"></textarea>
                 </div>
             </div>
-
-            <div
-                class="h-48 md:h-64 rounded-xl overflow-hidden grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all duration-500 relative group cursor-pointer border border-white/10">
-                <iframe
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3834.1105353597627!2d108.23847531536098!3d16.059758088886364!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3142177f2ced6d8b%3A0xeac35f2960fa74a4!2sDanang%2C%20Vietnam!5e0!3m2!1sen!2s!4v1655112345678!5m2!1sen!2s"
-                    width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"
-                    referrerpolicy="no-referrer-when-downgrade"></iframe>
+            <div class="mt-6 flex justify-end gap-3 border-t border-white/5 pt-4">
+                <button onclick="closeItemDetailModal()"
+                    class="px-4 py-2 text-xs font-semibold text-white/60 hover:text-white">Hủy bỏ</button>
+                <button id="modalAddToCartBtn"
+                    class="bg-white text-black px-6 py-2 rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-opacity-90">Thêm
+                    vào hóa đơn</button>
             </div>
         </div>
-    </footer>
+    </div>
 
-    <script>
-        let cart = [];
+    <div id="posTimelineModal"
+        class="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/70 backdrop-blur-xl"
+        style="display: none;">
+        <div
+            class="bg-[#1e1a19] border border-white/10 w-full max-w-md p-6 md:p-8 text-center relative shadow-2xl rounded-2xl font-sans">
+            <h3 class="font-serif text-xl text-white mb-2">Đơn Hàng Đã Gửi Xuống Bếp POS</h3>
+            <div
+                class="bg-white text-black p-4 rounded-xl text-left text-xs my-4 font-mono shadow-inner border-l-4 border-red-600">
+                <div class="flex justify-between border-b border-black/10 pb-1 mb-2 font-bold">
+                    <span>PHIẾU IN KITCHEN POS</span>
+                    <span id="posOrderId">#ORD-0000</span>
+                </div>
+                <div class="space-y-1">
+                    <p><span class="font-bold">Vị trí:</span> <span id="posLocation">Chưa xác định</span></p>
+                    <p><span class="font-bold">Thời gian:</span> <span id="posTimeType">Giao ngay</span></p>
+                    <div class="border-t border-dashed border-black/20 my-2 pt-1">
+                        <span class="font-bold block">Danh sách món chế biến:</span>
+                        <div id="posItemsList" class="space-y-0.5"></div>
+                    </div>
+                    <div class="mt-2 bg-red-50 p-2 rounded border border-red-200">
+                        <span class="font-bold text-red-600 block text-[10px]">⚠️ LƯU Ý DỊ ỨNG ĐẶC BIỆT (KITCHEN
+                            NOTE):</span>
+                        <p id="posKitchenNote" class="text-red-700 font-bold uppercase text-[11px]">KHÔNG CÓ GHI CHÚ</p>
+                    </div>
+                </div>
+            </div>
 
-        function toggleOrderFields() {
-            const type = document.getElementById('orderType').value;
-            if (type === 'ROOM_SERVICE') {
-                document.getElementById('roomField').style.display = 'block';
-                document.getElementById('tableField').style.display = 'none';
-            } else {
-                document.getElementById('roomField').style.display = 'none';
-                document.getElementById('tableField').style.display = 'block';
-            }
+            <div class="mt-6 text-left">
+                <span class="block text-[10px] font-bold opacity-40 uppercase tracking-widest mb-3 text-white">Tiến độ
+                    phục vụ thực tế:</span>
+                <div class="relative pl-6 space-y-4 border-l border-white/10 text-xs">
+                    <div id="tl-step1" class="relative"><span
+                            class="absolute -left-[30px] top-0 w-4 h-4 rounded-full bg-green-500 flex items-center justify-center text-[10px] text-black font-bold">✓</span><span
+                            class="font-semibold text-white">Đã tiếp nhận đơn hàng</span>
+                        <p class="text-[10px] opacity-50">Hệ thống đồng bộ dữ liệu thành công</p>
+                    </div>
+                    <div id="tl-step2" class="relative"><span id="dot-step2"
+                            class="absolute -left-[30px] top-0 w-4 h-4 rounded-full bg-amber-500 animate-ping"></span><span
+                            class="font-semibold text-white/90">Đang chế biến tại khu vực bếp tổng</span>
+                        <p class="text-[10px] opacity-50">Đầu bếp đang hoàn thiện theo ghi chú dị ứng</p>
+                    </div>
+                    <div id="tl-step3" class="relative"><span
+                            class="absolute -left-[30px] top-0 w-4 h-4 rounded-full bg-white/10"></span><span
+                            class="font-semibold text-white/40">Sẵn sàng phục vụ / Đang vận chuyển</span>
+                        <p class="text-[10px] opacity-30">Món ăn đang trên đường bưng ra</p>
+                    </div>
+                </div>
+            </div>
+            <button onclick="closeTimelineModal()"
+                class="w-full mt-6 bg-white/10 text-white border border-white/10 py-2.5 rounded-lg text-xs font-semibold uppercase tracking-wider hover:bg-white/20">Quay
+                lại trang chính</button>
+        </div>
+    </div>
+
+    <div id="authRequiredModal" th:if="${session.user == null}"
+        class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl"
+        style="display: none;">
+        <div
+            class="bg-[#f1ebe3] border border-hoanien-text/10 w-full max-w-md p-8 md:p-10 shadow-2xl relative rounded-2xl text-hoanien-text">
+            <button type="button" onclick="closeAuthModal()"
+                class="absolute top-4 right-4 text-hoanien-text/50 hover:text-hoanien-text">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+            <h2 class="font-serif text-2xl mb-2 text-center">Yêu Cầu Xác Thực</h2>
+            <p class="text-[11px] text-center opacity-60 mb-6 font-sans">Vui lòng đăng nhập tài khoản lưu trú để hệ
+                thống quét số phòng/bàn phục vụ ẩm thực.</p>
+
+            <form th:action="@{/auth/login}" method="post" class="space-y-4">
+                <input type="hidden" name="redirect_to" value="/order-food">
+                <div>
+                    <label class="block text-[10px] uppercase tracking-wider font-semibold mb-1">Tên đăng nhập /
+                        Email</label>
+                    <input type="text" name="username" required
+                        class="w-full bg-white border border-hoanien-text/10 p-3 rounded-lg text-xs focus:ring-1 focus:ring-hoanien-text focus:outline-none"
+                        placeholder="Username hoặc Email">
+                </div>
+                <div>
+                    <label class="block text-[10px] uppercase tracking-wider font-semibold mb-1">Mật khẩu</label>
+                    <input type="password" name="password" required
+                        class="w-full bg-white border border-hoanien-text/10 p-3 rounded-lg text-xs focus:ring-1 focus:ring-hoanien-text focus:outline-none"
+                        placeholder="Password">
+                </div>
+                <button type="submit"
+                    class="w-full bg-hoanien-text text-white py-3.5 text-xs uppercase tracking-widest font-semibold hover:bg-hoanien-text/90 mt-4 rounded-lg shadow-sm">Đăng
+                    Nhập Hệ Thống</button>
+            </form>
+
+            <div class="relative flex py-4 items-center">
+                <div class="flex-grow border-t border-hoanien-text/10"></div>
+                <span class="flex-shrink mx-4 text-[10px] opacity-40 uppercase tracking-widest">Hoặc</span>
+                <div class="flex-grow border-t border-hoanien-text/10"></div>
+            </div>
+
+            <a href="/oauth2/authorization/google"
+                class="w-full bg-white text-hoanien-text border border-hoanien-text/10 py-3 text-xs font-semibold rounded-lg flex items-center justify-center gap-2 hover:bg-gray-50 transition-colors shadow-sm">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" width="24" height="24" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                        d="M21.35,11.1H12v2.7h5.38c-0.24,1.28 -0.96,2.37 -2.04,3.1v2.58h3.3c1.93,-1.78 3.04,-4.4 3.04,-7.48c0,-0.61 -0.06,-1.21 -0.17,-1.8z"
+                        fill="#4285F4" />
+                    <path
+                        d="M12,20.68c2.43,0 4.47,-0.8 5.96,-2.18l-3.3,-2.58c-0.92,0.62 -2.1,0.98 -3.66,0.98c-2.35,0 -4.33,-1.58 -5.04,-3.71H2.54v2.67c1.48,2.95 4.51,4.82 8.04,4.82z"
+                        fill="#34A853" />
+                    <path d="M6.96,13.19a5.19,5.19,0,0,1,0,-3.34V7.18H2.54a8.73,8.73,0,0,0,0,8.68l4.42,-2.67z"
+                        fill="#FBBC05" />
+                    <path
+                        d="M12,6.12c1.32,0 2.51,0.45 3.45,1.35l2.58,-2.58C16.46,3.48 14.42,2.73 12,2.73c-3.53,0 -6.56,1.87 -8.04,4.82l4.42,2.67c0.71,-2.13 2.69,-3.71 5.04,-3.71z"
+                        fill="#EA4335" />
+                </svg>
+                <span>Đăng nhập với Google</span>
+            </a>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        const isLoggedIn = /*[[${isLoggedIn}]]*/ false;
+
+        // Store a modal-level itemId when detail modal opens
+        let modalCurrentItemId = null;
+
+        function showAuthModal() {
+            const modal = document.getElementById('authRequiredModal');
+            if (modal) modal.style.display = 'flex';
         }
 
-        function addToCart(id, name, price) {
-            const existing = cart.find(i => i.id === id);
-            if (existing) {
-                existing.qty++;
-            } else {
-                cart.push({ id, name, price, qty: 1 });
-            }
-            renderCart();
+        function closeAuthModal() {
+            const modal = document.getElementById('authRequiredModal');
+            if (modal) modal.style.display = 'none';
+        }
 
-            const toast = document.createElement('div');
-            toast.className = 'fixed top-24 right-5 bg-white text-hoanien-text px-5 py-3 rounded-sm shadow-2xl z-50 text-xs font-sans uppercase tracking-wider transform transition-all translate-y-0 opacity-100 font-semibold';
-            toast.innerText = 'Đã thêm ' + name;
-            document.body.appendChild(toast);
-            setTimeout(() => {
-                toast.classList.add('opacity-0', 'translate-y-[-10px]');
-                setTimeout(() => toast.remove(), 300);
-            }, 2000);
+        let cart = [];
+
+        function toggleTimePicker() {
+            const select = document.getElementById('deliveryScheduleType').value;
+            const picker = document.getElementById('exactTimePicker');
+            if (picker) picker.className = (select === 'SCHEDULED') ? 'mt-2 w-full bg-white/5 border border-white/10 p-2 rounded-lg text-xs text-white focus:ring-0' : 'hidden';
+        }
+
+        function searchMenu() {
+            const input = document.getElementById('menuSearchInput').value.toLowerCase();
+            const cards = document.querySelectorAll('.food-item-card');
+            cards.forEach(card => {
+                const name = card.querySelector('h3').innerText.toLowerCase();
+                const desc = card.querySelector('p').innerText.toLowerCase();
+                card.style.display = (name.includes(input) || desc.includes(input)) ? 'flex' : 'none';
+            });
+        }
+
+        function filterCategory(category, buttonEl) {
+            const buttons = document.querySelectorAll('#categoryTabs button');
+            buttons.forEach(btn => btn.className = 'pb-2 border-b-2 border-transparent text-white/60 transition-all duration-300');
+            buttonEl.className = 'pb-2 border-b-2 border-white text-white transition-all duration-300';
+
+            const items = document.querySelectorAll('.food-item-card');
+            items.forEach(item => {
+                const itemCat = item.getAttribute('data-category');
+                item.style.display = (category === 'all' || itemCat === category) ? 'flex' : 'none';
+            });
+        }
+
+        function openItemDetail(id, name, description, price, allergens) {
+            modalCurrentItemId = id;
+            document.getElementById('modalItemName').innerText = name;
+            document.getElementById('modalItemDesc').innerText = description;
+            document.getElementById('modalItemPrice').innerText = price.toLocaleString('vi-VN') + " đ";
+            document.getElementById('modalItemChefNote').value = '';
+
+            const iconsGrid = document.getElementById('modalAllergenIcons');
+            iconsGrid.innerHTML = '';
+            if (allergens) {
+                if (allergens.includes('Hải sản')) iconsGrid.innerHTML += '<span class="bg-white/10 p-1 rounded">🦐</span>';
+                if (allergens.includes('Đậu phộng')) iconsGrid.innerHTML += '<span class="bg-white/10 p-1 rounded">🥜</span>';
+                if (allergens.includes('Gluten')) iconsGrid.innerHTML += '<span class="bg-white/10 p-1 rounded">🌾</span>';
+                if (allergens.includes('Sữa')) iconsGrid.innerHTML += '<span class="bg-white/10 p-1 rounded">🥛</span>';
+            }
+
+            document.getElementById('modalAddToCartBtn').onclick = function () {
+                const customNote = document.getElementById('modalItemChefNote').value.trim();
+                addToCart(modalCurrentItemId, name, price, customNote);
+                closeItemDetailModal();
+            };
+            document.getElementById('itemDetailModal').style.display = 'flex';
+        }
+
+        function closeItemDetailModal() { document.getElementById('itemDetailModal').style.display = 'none'; }
+
+        function addToCart(id, name, price, chefNote) {
+            if (!chefNote) chefNote = '';
+            const existing = cart.find(i => i.name === name && i.chefNote === chefNote);
+            if (existing) { existing.qty++; } else { cart.push({ id, name, price, qty: 1, chefNote }); }
+            renderCart();
         }
 
         function updateQty(index, delta) {
             cart[index].qty += delta;
-            if (cart[index].qty <= 0) {
-                cart.splice(index, 1);
-            }
+            if (cart[index].qty <= 0) cart.splice(index, 1);
             renderCart();
         }
 
         function renderCart() {
             const container = document.getElementById('cartItemsList');
-            let html = '';
-            let subtotal = 0;
+            let html = ''; let subtotal = 0;
 
             cart.forEach((item, index) => {
-                const itemTotal = item.price * item.qty;
-                subtotal += itemTotal;
+                subtotal += (item.price * item.qty);
                 html += `
-                    <div class="flex justify-between items-center bg-white/5 p-3 border border-white/5 rounded-sm mb-2">
-                        <div class="flex-1 pr-2">
-                            <h4 class="font-medium text-white text-xs leading-tight mb-1">${item.name}</h4>
-                            <span class="text-[10px] text-white/60">${item.price.toLocaleString('vi-VN')}đ</span>
+                    <div class="bg-white/5 p-3 border border-white/5 rounded-xl mb-2 flex flex-col gap-1 text-xs">
+                        <div class="flex justify-between items-start">
+                            <div class="flex-1">
+                                <h4 class="font-semibold text-white leading-tight">${item.name}</h4>
+                                <span class="text-[10px] opacity-50">${item.price.toLocaleString('vi-VN')}đ</span>
+                            </div>
+                            <div class="flex items-center gap-2 bg-white/10 px-2 py-0.5 border border-white/5 text-[11px]">
+                                <button type="button" onclick="updateQty(${index}, -1)" class="w-3">-</button>
+                                <span class="font-semibold w-4 text-center">${item.qty}</span>
+                                <button type="button" onclick="updateQty(${index}, 1)" class="w-3">+</button>
+                            </div>
                         </div>
-                        <div class="flex items-center gap-2.5 bg-white/10 px-2 py-1 border border-white/10 text-xs text-white">
-                            <button type="button" onclick="updateQty(${index}, -1)" class="hover:opacity-60 transition-opacity font-medium w-3 text-center">-</button>
-                            <span class="font-semibold w-4 text-center">${item.qty}</span>
-                            <button type="button" onclick="updateQty(${index}, 1)" class="hover:opacity-60 transition-opacity font-medium w-3 text-center">+</button>
-                        </div>
+                        ${item.chefNote ? `<p class="text-[10px] text-amber-400 font-mono mt-1">↳ Yêu cầu: ${item.chefNote}</p>` : ''}
                     </div>
                 `;
             });
 
-            container.innerHTML = html || '<p class="text-xs opacity-50 italic text-center mt-4 text-white/40" id="emptyCartMsg">Chưa có món nào được chọn.</p>';
-
+            container.innerHTML = html || '<p class="text-xs opacity-40 italic text-center mt-4 text-white" id="emptyCartMsg">Chưa có món ăn nào được chọn.</p>';
             const fee = subtotal * 0.05;
             const total = subtotal + fee;
 
             document.getElementById('subtotal').innerText = subtotal.toLocaleString('vi-VN') + 'đ';
             document.getElementById('serviceFee').innerText = fee.toLocaleString('vi-VN') + 'đ';
             document.getElementById('total').innerText = total.toLocaleString('vi-VN') + 'đ';
+            toggleOrderButton();
         }
 
         function toggleOrderButton() {
             const chk = document.getElementById('orderConsent');
             const btn = document.getElementById('submitOrderBtn');
-            if (btn && chk) {
-                btn.disabled = !chk.checked;
-            }
+            if (btn && chk) btn.disabled = !chk.checked || cart.length === 0;
         }
 
         function placeOrder() {
-            const consentChk = document.getElementById('orderConsent');
-            if (!consentChk || !consentChk.checked) {
-                alert("Vui lòng xác nhận thông tin điều khoản hóa đơn dịch vụ.");
-                return;
-            }
-            if (cart.length === 0) {
-                alert("Vui lòng chọn ít nhất 1 món ăn trước khi xác nhận.");
+            if (cart.length === 0) return;
+
+            if (!isLoggedIn) {
+                showAuthModal();
                 return;
             }
 
-            const orderTypeSelect = document.getElementById('orderType').value;
-            const reqOrderType = orderTypeSelect === 'ROOM_SERVICE' ? 'room-svc' : 'dine-in';
-            const roomNumber = reqOrderType === 'room-svc' ? document.getElementById('roomNumberInput').value.trim() : null;
-            const tableId = reqOrderType === 'dine-in' ? parseInt(document.getElementById('tableNumberInput').value) : null;
+            // Build payload matching CreateFoodOrderRequest DTO
+            const orderTypeSelect = document.getElementById('posOrderType').value; // ROOM_SERVICE / RESTAURANT / WALK_IN
+            let apiOrderType = 'room-svc';
+            let roomNumber = '';
+            let tableId = null;
+            let paymentType = 'Pay_Later';
 
-            if (reqOrderType === 'room-svc' && !roomNumber) {
-                alert("Vui lòng chọn số phòng để nhận dịch vụ phòng.");
-                return;
+            // Read selected payment method
+            const selectedPayment = document.querySelector('input[name="paymentType"]:checked');
+            if (selectedPayment) {
+                const val = selectedPayment.value;
+                if (val === 'CHARGE_TO_ROOM') paymentType = 'CHARGE_TO_ROOM';
+                else if (val === 'ONLINE') paymentType = 'ONLINE';
+                else paymentType = 'Pay_Later';
             }
 
+            if (orderTypeSelect === 'ROOM_SERVICE') {
+                apiOrderType = 'room-svc';
+                roomNumber = document.getElementById('posLocationId').value;
+            } else if (orderTypeSelect === 'RESTAURANT') {
+                apiOrderType = 'Dine-In';
+                tableId = parseInt(document.getElementById('posLocationId').value);
+            } else {
+                apiOrderType = 'Dine-In';
+                // Walk-in: no specific table
+            }
+
+            // Combine notes
+            let combinedNotes = [];
+            cart.forEach(item => { if (item.chefNote) combinedNotes.push(item.name + ': ' + item.chefNote.toUpperCase()); });
+            const generalNote = document.getElementById('orderNote').value.trim();
+            if (generalNote) combinedNotes.push('GHI CHÚ CHUNG: ' + generalNote.toUpperCase());
+
+            // Build DTO-matching payload
             const payload = {
-                orderType: reqOrderType,
+                orderType: apiOrderType,
                 roomNumber: roomNumber,
                 tableId: tableId,
-                paymentType: "Pay_Later",
-                note: document.getElementById('orderNote').value.trim(),
-                items: cart.map(item => ({ id: item.id, qty: item.qty, price: item.price }))
+                paymentType: paymentType,
+                note: combinedNotes.join(' | '),
+                items: cart.map(function (i) { return { id: i.id, qty: i.qty, price: i.price }; })
             };
 
-            const btn = document.getElementById('submitOrderBtn');
-            btn.innerText = 'ĐANG XỬ LÝ...';
-            btn.disabled = true;
+            // Disable button & show loading state
+            const submitBtn = document.getElementById('submitOrderBtn');
+            submitBtn.disabled = true;
+            submitBtn.innerText = 'Đang xử lý...';
 
             fetch('/api/pos/orders', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             })
-                .then(res => res.json())
-                .then(data => {
-                    btn.innerText = 'XÁC NHẬN ĐẶT MÓN';
-                    btn.disabled = false;
-                    if (data.status === 'success' || data.status === 'CONFIRMED') {
-                        alert('Đặt món thành công! Đơn hàng đang được thực hiện.\nMã đơn: ' + data.orderId);
+                .then(function (resp) { return resp.json(); })
+                .then(function (data) {
+                    if (data.status === 'success') {
+                        // Show success timeline modal
+                        document.getElementById('posOrderId').innerText = '#ORD-' + data.orderId;
+                        document.getElementById('posLocation').innerText = roomNumber || 'Bàn ' + tableId || 'Quầy Lobby';
+                        document.getElementById('posKitchenNote').innerText = combinedNotes.join(' | ') || 'KHÔNG CÓ GHI CHÚ DỊ ỨNG';
+                        document.getElementById('posItemsList').innerHTML = cart.map(function (i) { return '<div>• ' + i.name + ' (x' + i.qty + ')</div>'; }).join('');
+                        document.getElementById('posTimelineModal').style.display = 'flex';
                         cart = [];
-                        document.getElementById('orderNote').value = '';
                         renderCart();
                     } else {
-                        alert('Lỗi hệ thống: ' + (data.message || 'Không thể đặt món.'));
+                        alert('Lỗi tạo đơn hàng: ' + (data.message || 'Unknown error'));
                     }
                 })
-                .catch(err => {
-                    btn.innerText = 'XÁC NHẬN ĐẶT MÓN';
-                    btn.disabled = false;
-                    alert('Lỗi kết nối Server!');
+                .catch(function (err) {
+                    alert('Lỗi kết nối đến server: ' + err.message);
+                })
+                .finally(function () {
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = 'Xác nhận đặt món';
                 });
         }
 
-        function filterCategory(category, buttonEl) {
-            const buttons = document.querySelectorAll('#categoryTabs button');
-            buttons.forEach(btn => {
-                btn.className = 'pb-2 border-b-2 border-transparent text-hoanien-bg/60 transition-all duration-300';
-            });
-            buttonEl.className = 'pb-2 border-b-2 border-white text-white transition-all duration-300';
-
-            const items = document.querySelectorAll('.food-item-card');
-            items.forEach(item => {
-                const itemCat = item.getAttribute('data-category');
-                if (category === 'all' || itemCat === category) {
-                    item.style.display = 'flex';
-                } else {
-                    item.style.display = 'none';
-                }
-            });
-        }
-
-        document.addEventListener("DOMContentLoaded", () => {
-            const items = document.querySelectorAll('.food-item-card');
-            const tabsContainer = document.getElementById('categoryTabs');
-
-            if (items.length > 0) {
-                const categories = [...new Set(Array.from(items).map(el => el.getAttribute('data-category') || 'Món đặc sản'))];
-                categories.forEach(cat => {
-                    if (!cat) return;
-                    const btn = document.createElement('button');
-                    btn.className = 'pb-2 border-b-2 border-transparent text-hoanien-bg/60 hover:text-white transition-all duration-300';
-                    btn.innerText = cat;
-                    btn.onclick = function () { filterCategory(cat, this); };
-                    tabsContainer.appendChild(btn);
-                });
-            }
+        function closeTimelineModal() {
+            document.getElementById('posTimelineModal').style.display = 'none';
+            cart = [];
             renderCart();
-        });
-    </script>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-    <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            gsap.registerPlugin(ScrollTrigger);
-
-            // Chạy Parallax mượt cho ảnh nền tĩnh phía sau
-            gsap.to('.static-bg-art', {
-                yPercent: 6,
-                ease: "none",
-                scrollTrigger: {
-                    trigger: "body",
-                    start: "top top",
-                    end: "bottom bottom",
-                    scrub: true
-                }
-            });
-
-            const cards = gsap.utils.toArray('.food-item-card');
-            if (cards.length > 0) {
-                gsap.fromTo(cards, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.6, stagger: 0.05, ease: "power2.out", scrollTrigger: { trigger: '.feature-row', start: "top 85%" } });
-            }
-
-            // ĐÃ SỬA: Loại bỏ toàn bộ logic thêm class đổi màu nền của Navbar khi cuộn chuột để giữ nó luôn trong suốt
-        });
+        }
     </script>
 </body>
 

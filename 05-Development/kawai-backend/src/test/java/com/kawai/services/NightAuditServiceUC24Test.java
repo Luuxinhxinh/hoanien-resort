@@ -1,4 +1,4 @@
-// package com.kawai.services;
+package com.kawai.services;
 
 import com.kawai.models.Booking;
 import com.kawai.models.FolioItem;

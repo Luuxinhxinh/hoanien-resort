@@ -10,4 +10,7 @@ public class MenuItem {
     @Column(nullable=false) private String category;
     @Column(name="is_available", nullable=false) private Boolean isAvailable = true;
     @Column(columnDefinition="TEXT") private String description;
+    @Column(name="image_url") private String imageUrl;
+    @Column(name="allergy_tags") private String allergenTags;
 }
+

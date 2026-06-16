@@ -26,10 +26,11 @@ public interface RoomBookingRepository extends JpaRepository<RoomBooking, Long> 
               "WHERE rbd.room.roomNumber = :roomNumber " +
               "AND rbd.roomBooking.checkInDate < :checkOut " +
               "AND rbd.roomBooking.checkOutDate > :checkIn " +
-              "AND rbd.roomBooking.bookingStatus != 'CANCELLED'")
+              "AND rbd.roomBooking.booking.bookingStatus != 'CANCELLED'")
        long countOverlappingBookings(@Param("roomNumber") String roomNumber,
                                      @Param("checkIn") LocalDate checkIn,
                                      @Param("checkOut") LocalDate checkOut);
 
-       List<RoomBooking> findByCustomer(com.kawai.models.Customer customer);
+       @Query("SELECT rb FROM RoomBooking rb WHERE rb.booking.customer = :customer")
+       List<RoomBooking> findByCustomer(@Param("customer") com.kawai.models.Customer customer);
 }

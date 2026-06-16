@@ -68,11 +68,15 @@ public class FolioServiceCustomTest {
 
     @Test
     void testPerformNightAudit() {
+        Booking parentBooking = new Booking();
+        parentBooking.setCustomer(new Customer());
+        RoomBooking roomBooking = new RoomBooking();
+        roomBooking.setBooking(parentBooking);
+
         RoomBookingDetail detail = new RoomBookingDetail();
         detail.setDetailStatus("CHECKED_IN");
         detail.setRoomCharge(new BigDecimal("500000"));
-        detail.setCustomer(new Customer());
-        detail.setRoomBooking(new RoomBooking());
+        detail.setRoomBooking(roomBooking);
 
         when(roomBookingDetailRepository.findAll()).thenReturn(Collections.singletonList(detail));
         when(employeeRepository.findById(1L)).thenReturn(Optional.empty());
@@ -103,10 +107,14 @@ public class FolioServiceCustomTest {
 
     @Test
     void testCheckOutAndSettle_ZeroBalance_Success() {
+        Booking parentBooking = new Booking();
+        parentBooking.setCustomer(new Customer());
+        RoomBooking roomBooking = new RoomBooking();
+        roomBooking.setBooking(parentBooking);
+
         RoomBookingDetail detail = new RoomBookingDetail();
         detail.setId(1L);
-        detail.setCustomer(new Customer());
-        detail.setRoomBooking(new RoomBooking());
+        detail.setRoomBooking(roomBooking);
 
         Room room = new Room();
         room.setRoomStatus("Occupied");

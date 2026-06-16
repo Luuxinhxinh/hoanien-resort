@@ -1,149 +1,139 @@
-# BẢNG TEST CASE TỔNG HỢP — KAWAI RESORT
+
+# BẢNG TEST CASE TỔNG HỢP TOÀN DIỆN — KAWAI RESORT
 
 ## CHANGELOG
-| Ngày | Người thực hiện | Nội dung thay đổi |
-|---|---|---|
-| 2026-06-11 | Antigravity | Xác nhận và đồng bộ các Test Cases tổng hợp với luồng phát triển Hybrid Organization |
-| 2026-06-09 | Antigravity | Khởi tạo bảng danh mục Test Cases tổng hợp |
-> Đây là bảng gốc chứa toàn bộ Test Case ID. Các tài liệu khác (Traceability Matrix, TDD Spec, EDS Spec) sẽ tham chiếu ID từ bảng này.
 
----
+| **Ngày** | **Người thực hiện** | **Nội dung thay đổi**                                                                                  |
+| --------------- | ----------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| 2026-06-16      | Nhóm 4                       | Tái cấu trúc toàn diện hệ thống Test Case theo ma trận 60 Use Cases mới, làm rõ 9 Actor và POS/KDS. |
+| 2026-06-11      | Antigravity                   | Xác nhận và đồng bộ các Test Cases tổng hợp với luồng phát triển Hybrid Organization               |
 
-## 🔴 MOD1: XÁC THỰC & TÀI KHOẢN
+## 🔴 MOD1: HỆ THỐNG CỐT LÕI, XÁC THỰC & ADMIN CONFIG — Sinh viên 1
 
-| TC ID     | UC tham chiếu | Loại Test   | Mô tả kịch bản                                                         | Severity | Trạng thái |
-| -----------| ---------------| -------------| ------------------------------------------------------------------------| ----------| ------------|
-| TC-M1-001 | UC01.1        | Unit        | Đăng ký thành công — mật khẩu được hash BCrypt, Role mặc định CUSTOMER | HIGH     | ✅ |
-| TC-M1-002 | UC01.1        | Unit        | Đăng ký thất bại — username/email đã tồn tại → trả 409                 | MEDIUM   | ⬜          |
-| TC-M1-003 | UC01.1        | Unit        | Đăng ký thất bại — thiếu field bắt buộc → trả 400                      | MEDIUM   | ⬜          |
-| TC-M1-004 | UC01.2        | Unit        | Đăng nhập thành công — trả về JWT/Session hợp lệ                       | HIGH     | ✅ |
-| TC-M1-005 | UC01.2        | Unit        | Đăng nhập thất bại — sai mật khẩu → trả 401                            | HIGH     | ⬜          |
-| TC-M1-006 | UC01.2        | Security    | Brute-force login — khóa tài khoản sau 5 lần sai liên tiếp             | CRITICAL | ⬜          |
-| TC-M1-007 | UC02          | Unit        | Gửi OTP thành công qua email/SMS                                       | HIGH     | ⬜          |
-| TC-M1-008 | UC02          | Unit        | Xác thực OTP đúng → cho phép đăng nhập                                 | HIGH     | ⬜          |
-| TC-M1-009 | UC02          | Unit        | OTP hết hạn hoặc sai → từ chối, trả AUTH-003                           | MEDIUM   | ⬜          |
-| TC-M1-010 | UC03          | Unit        | Gửi link reset mật khẩu qua email — Token có thời hạn                  | MEDIUM   | ⬜          |
-| TC-M1-011 | UC03          | Unit        | Đặt lại mật khẩu với Token hợp lệ → cập nhật hash mới                  | MEDIUM   | ⬜          |
-| TC-M1-012 | UC03          | Unit        | Token hết hạn hoặc sai → từ chối                                       | MEDIUM   | ⬜          |
-| TC-M1-013 | UC04          | Unit        | Cập nhật hồ sơ thành công — CCCD được mã hóa AES-256                   | HIGH     | ✅ |
-| TC-M1-014 | UC04          | Security    | CCCD/Hộ chiếu không lưu plaintext trong DB                             | CRITICAL | ⬜          |
-| TC-M1-015 | UC05.1        | Unit        | Admin tạo tài khoản nhân viên với Role chỉ định                        | HIGH     | ✅ |
-| TC-M1-016 | UC05.1        | Security    | Non-Admin truy cập API quản lý nhân viên → bị chặn 403                 | CRITICAL | ⬜          |
-| TC-M1-017 | UC05.2        | Unit        | Audit Log ghi nhận đầy đủ: ai, làm gì, lúc nào                         | MEDIUM   | ⬜          |
-| TC-M1-018 | UC06.1        | Unit        | Admin CRUD hạng phòng / loại tour / menu thành công                    | MEDIUM   | ⬜          |
-| TC-M1-019 | UC06.2        | Unit        | Cấu hình giá phòng theo ngày — giá đúng khi tìm kiếm                   | MEDIUM   | ⬜          |
-| TC-M1-020 | UC07          | Unit        | Ẩn danh hóa PII — hash CCCD/Tên/SĐT, giữ nguyên booking history        | HIGH     | ⬜          |
-| TC-M1-021 | UC07          | Integration | Sau khi ẩn danh, login bằng tài khoản cũ → thất bại                    | HIGH     | ⬜          |
-| TC-M1-022 | UC08          | Unit        | Session hết hạn → redirect về trang login                              | LOW      | ⬜          |
+| **TC ID**     | **UC tham chiếu** | **Loại Test** | **Mô tả kịch bản kiểm thử chi tiết**                                                                                                                                            | **Severity** | **Trạng thái** |
+| ------------------- | ------------------------ | -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ | ---------------------- |
+| **TC-M1-001** | UC01.1                   | Unit / DB            | Đăng ký thành công khách hàng mới qua Web ➔ Mật khẩu được mã hóa BCrypt, phân vai mặc định `ROLE_CUSTOMER`.                                                            | HIGH               | ✅                     |
+| **TC-M1-002** | UC01.1                   | Functional           | Đăng ký thất bại ➔ Trùng lặp Email hoặc SĐT đã tồn tại trong hệ thống, hệ thống chặn lại và trả về HTTP Status Code `409 Conflict`.                                 | MEDIUM             | ⬜                     |
+| **TC-M1-003** | UC01.1                   | Validation           | Đăng ký thất bại ➔ Thiếu các trường thông tin bắt buộc hoặc định dạng Email/SĐT sai quy chuẩn, trả về lỗi `400 Bad Request`.                                         | MEDIUM             | ⬜                     |
+| **TC-M1-004** | UC01.2                   | Functional           | Admin khởi tạo tài khoản nhân viên thành công từ trang quản trị ➔ Hệ thống tự động kích hoạt trạng thái hoạt động và gán vai trò nhân sự.                       | HIGH               | ✅                     |
+| **TC-M1-005** | UC01.3                   | Security             | Đăng nhập hệ thống thành công (Áp dụng cho cả 9 Actor) ➔ Hệ thống cấp chuỗi Token JWT hợp lệ chứa đầy đủ Claims về Role.                                              | HIGH               | ✅                     |
+| **TC-M1-006** | UC01.3                   | Security             | Đăng nhập thất bại ➔ Nhập sai mật khẩu hoặc tài khoản chưa kích hoạt, trả về mã lỗi `401 Unauthorized`.                                                                 | HIGH               | ⬜                     |
+| **TC-M1-007** | UC01.3                   | Security             | Chống tấn công Brute-force Login ➔ Thử sai mật khẩu liên tiếp 5 lần, tài khoản tự động bị khóa tạm thời trong 30 phút.                                                   | CRITICAL           | ⬜                     |
+| **TC-M1-008** | UC02                     | Functional           | Yêu cầu cấp lại mật khẩu ➔ Nhập đúng Email hệ thống tự động sinh Token có thời hạn 15 phút gửi link xác nhận về hòm thư khách.                                     | MEDIUM             | ⬜                     |
+| **TC-M1-009** | UC02                     | Functional           | Đổi mật khẩu thành công ➔ Sử dụng Token hợp lệ, ghi đè chuỗi mã hóa BCrypt mới vào Database, hủy hiệu lực Token cũ.                                                    | MEDIUM             | ⬜                     |
+| **TC-M1-010** | UC03                     | Security             | Cập nhật hồ sơ cá nhân ➔ Trường thông tin số CCCD/Passport của khách hàng phải được mã hóa bằng thuật toán `AES-256`trước khi lưu.                               | CRITICAL           | ⬜                     |
+| **TC-M1-011** | UC03                     | Security             | Kiểm tra tính bảo mật cơ sở dữ liệu ➔ Truy vấn trực tiếp SQL bằng tài khoản root, đảm bảo các cột định danh không hiển thị Plaintext.                               | CRITICAL           | ⬜                     |
+| **TC-M1-012** | UC04                     | Integration          | Khai báo ảnh FaceID gốc ➔ Đăng tải ảnh chân dung cận cảnh của khách lên hệ thống thành công, bóc tách lưu chuỗi Vector khuôn mặt.                                    | HIGH               | ⬜                     |
+| **TC-M1-013** | UC05.1                   | Security             | Kiểm tra phân quyền RBAC sảnh ➔ Tài khoản mang quyền `ROLE_RECEPTIONIST`cố tình gọi API xóa phòng của Admin, hệ thống chặn trả `403 Forbidden`.                        | CRITICAL           | ⬜                     |
+| **TC-M1-014** | UC05.2                   | DB Audit             | Hệ thống tự động ghi nhật ký Audit Log ➔ Bất kỳ hành động sửa giá, cấp quyền nào của Admin/Manager đều phải lưu vết: Ai, làm gì, bảng nào, lúc nào.            | MEDIUM             | ⬜                     |
+| **TC-M1-015** | UC06.1                   | Functional           | Quản lý danh mục hạng phòng ảo ➔ Thêm mới/Sửa đổi cấu hình tên, diện tích, ảnh đại diện của Hạng phòng (`Room_Categories`) thành công.                           | MEDIUM             | ⬜                     |
+| **TC-M1-016** | UC06.2                   | Functional           | Quản lý số phòng vật lý ➔ Tạo mới phòng vật lý gán vào Hạng phòng ảo, mặc định trạng thái ban đầu là `Vacant_Clean`.                                              | HIGH               | ⬜                     |
+| **TC-M1-017** | UC06.2                   | Integrity            | Xóa phòng vật lý thất bại ➔ Phòng đang nằm trong một hóa đơn đặt phòng chưa tất toán, hệ thống chặn lại bằng điều kiện `RESTRICT`.                             | HIGH               | ⬜                     |
+| **TC-M1-018** | UC07.1                   | Functional           | Quản lý sơ đồ bàn ăn ➔ Tạo mới thực thể bàn ăn (`Restaurant_Tables`), gán phân khu và số hiệu bàn vật lý thành công trên bản đồ POS.                           | MEDIUM             | ⬜                     |
+| **TC-M1-019** | UC08.1                   | Functional           | Quản lý danh mục Tour lữ hành ➔ Thêm mới thực thể Gói trải nghiệm ngắn ngày, lưu chuỗi ký tự thời lượng (`duration`) và câu đề tựa văn thơ (`short_quote`). | HIGH               | ⬜                     |
+| **TC-M1-020** | UC08.2                   | Functional           | Thiết lập chi tiết lịch trình chuyến đi ➔ Gán mốc thời gian, điểm Checkpoint tương ứng cho từng Gói trải nghiệm thành công.                                            | MEDIUM             | ⬜                     |
+| **TC-M1-021** | UC09.1                   | Algorithm            | Cấu hình giá phòng động ➔ Manager thiết lập hệ số nhân ngày lễ tăng 150%, hệ thống tự động áp công thức tính toán giá phòng tương ứng.                         | HIGH               | ⬜                     |
+| **TC-M1-022** | UC09.2                   | Cron Job             | Kiểm thử Scheduler chạy ngầm ➔ Đúng giờ quy định, hệ thống tự động quét và cập nhật bảng dữ liệu giá phòng tĩnh hàng ngày (`Daily_Rates`).                      | HIGH               | ⬜                     |
+| **TC-M1-023** | UC09.3                   | Validation           | Cấu hình phụ thu khung tuổi ➔ Thiết lập định mức phụ thu cho trẻ em từ 6-11 tuổi, hệ thống tự lưu cấu hình meta-data thành công.                                       | MEDIUM             | ⬜                     |
+| **TC-M1-024** | UC09.4                   | Validation           | Đóng gói Combo Marketing ➔ Admin ghép Hạng phòng ảo + Gói trải nghiệm lữ hành thành một mã gói duy nhất, định dạng chuỗi JSON chuẩn chỉ.                             | HIGH               | ⬜                     |
 
----
+## 🔵 MOD2: QUẢN LÝ PHÒNG, NGHIỆP VỤ SẢNH & BUỒNG PHÒNG — Sinh viên 2
 
-## 🔵 MOD2: QUẢN LÝ PHÒNG & LỄ TÂN
+| **TC ID**     | **UC tham chiếu** | **Loại Test** | **Mô tả kịch bản kiểm thử chi tiết**                                                                                                                                              | **Severity** | **Trạng thái** |
+| ------------------- | ------------------------ | -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ | ---------------------- |
+| **TC-M2-001** | UC10                     | Functional           | Khách hàng tìm kiếm phòng trực tuyến ➔ Nhập ngày nhận/trả, hệ thống tính toán chính xác số lượng phòng còn trống khả dụng.                                           | HIGH               | ✅                     |
+| **TC-M2-002** | UC10                     | Boundary             | Tìm kiếm phòng trống thất bại ➔ Ngày trả phòng nhỏ hơn hoặc trùng với ngày nhận phòng, hệ thống báo lỗi không hợp lệ.                                                 | MEDIUM             | ✅                     |
+| **TC-M2-003** | UC11                     | Concurrency          | Kiểm thử khóa phòng tạm thời (Room Cart Lock) ➔ Khách hàng nhặt phòng vào giỏ, hệ thống trừ bớt 1 phòng ảo trong quỹ và đếm ngược 15 phút.                           | CRITICAL           | ✅                     |
+| **TC-M2-004** | UC11                     | Cron Job             | Hết thời gian giữ phòng ➔ Quá 15 phút khách không tiến hành thanh toán, hệ thống tự động giải phóng phòng ảo trả về quỹ trống ban đầu.                              | HIGH               | ⬜                     |
+| **TC-M2-005** | UC12.1                   | Validation           | Áp dụng mã giảm giá ➔ Khách nhập mã Voucher hợp lệ, hệ thống kiểm tra điều kiện và thực hiện khấu trừ chính xác số tiền trên hóa đơn tạm tính.                 | MEDIUM             | ✅                     |
+| **TC-M2-006** | UC12.2                   | Functional           | Khai báo người đứng tên phòng ➔ Phân bổ chính xác danh sách khách lưu trú, gán cờ `is_primary_contact = TRUE`cho duy nhất một người lớn mỗi phòng.                  | HIGH               | ⬜                     |
+| **TC-M2-007** | UC12.3                   | Integration          | Xử lý cổng thanh toán VNPay ➔ Khách thanh toán cọc 30% đơn đặt phòng thành công, VNPay Callback về API, tự động chuyển trạng thái đơn sang `CONFIRMED`.              | CRITICAL           | ✅                     |
+| **TC-M2-008** | UC12.3                   | Concurrency          | Chống đặt trùng phòng (Double-booking) ➔ 2 khách cùng bấm thanh toán một căn phòng vật lý cuối cùng ở cùng một thời điểm, cơ chế `Pessimistic Lock`chặn 1 người. | CRITICAL           | ✅                     |
+| **TC-M2-009** | UC12.3                   | Business Rule        | Chính sách hủy phòng trước 48h ➔ Khách bấm hủy phòng trước giờ nhận 2 ngày, hệ thống tự động duyệt trạng thái hoàn 100% tiền đặt cọc.                             | HIGH               | ✅                     |
+| **TC-M2-010** | UC12.3                   | Business Rule        | Chính sách hủy phòng trong vòng 48h ➔ Khách hủy phòng sát giờ đi, hệ thống tự động phạt đóng băng tiền cọc, chuyển trạng thái đơn sang `Cancelled`.              | HIGH               | ✅                     |
+| **TC-M2-011** | UC12.3                   | Functional           | Tiếp nhận xem sơ đồ phòng trực quan ➔ Lễ tân mở giao diện Front Desk Dashboard, hiển thị đầy đủ màu sắc trạng thái (Trống, Sạch, Bẩn, Đang sửa).                    | HIGH               | ✅                     |
+| **TC-M2-012** | UC12.3                   | Functional           | Thực hiện thủ tục Check-in sảnh ➔ Lễ tân gán số phòng vật lý thực tế cho khách, căn phòng lập tức chuyển trạng thái sang `Occupied`.                                  | CRITICAL           | ✅                     |
+| **TC-M2-013** | UC12.3                   | Validation           | Chặn thủ tục Check-in lỗi ➔ Lễ tân vô tình gán số phòng đang ở trạng thái `Dirty`hoặc `Maintenance`cho khách, hệ thống báo lỗi chặn lại.                           | HIGH               | ✅                     |
+| **TC-M2-014** | UC12.4                   | Functional           | Thiết lập ủy quyền hạn mức ví phòng ➔ Cập nhật trường `credit_limit`thành công cho phòng của khách để kiểm soát trần ký nợ dịch vụ phát sinh.                    | MEDIUM             | ✅                     |
+| **TC-M2-015** | UC12.5                   | Integration          | Điều phối đổi phòng đổi căn hộ ➔ Lễ tân thực hiện lệnh đổi phòng, ví nợ Folio tự động chuyển sang căn phòng mới, phòng cũ tự động đổi màu sang `Dirty`.  | HIGH               | ✅                     |
+| **TC-M2-016** | UC12.6                   | Functional           | Thực hiện Check-out sảnh ➔ Khách hàng đã tất toán sạch ví nợ Folio, Lễ tân bấm nút hoàn thành Check-out, phòng vật lý tự động chuyển trạng thái sang `Dirty`.    | CRITICAL           | ⬜                     |
+| **TC-M2-017** | UC13.1                   | DB Trigger           | Tự động phát lệnh dọn dẹp buồng phòng ➔ Ngay khi Lễ tân hoàn tất Check-out trên máy, một bản ghi công việc mới tự động `INSERT`vào bảng `Hotel_Operations`.      | HIGH               | ✅                     |
+| **TC-M2-018** | UC13.2                   | Functional           | Cập nhật tiến độ làm phòng ➔ Nhân viên buồng phòng mở App nội bộ, bấm nhận việc và bấm hoàn thành dọn dẹp, trạng thái phòng tự động đổi sang `Vacant_Clean`. | HIGH               | ✅                     |
+| **TC-M2-019** | UC13.4                   | Functional           | Ghi nhận sự cố cơ sở vật chất ➔ Nhân viên buồng phòng phát hiện vỡ tivi, báo hỏng thiết bị lên hệ thống, căn phòng tự động khóa lại chuyển sang `Maintenance`. | MEDIUM             | ✅                     |
+| **TC-M2-020** | UC13.5                   | Functional           | Hoàn thành bảo trì kỹ thuật ➔ Thợ sửa chữa bấm báo cáo đã khắc phục xong sự cố, phòng vật lý tự động mở khóa, trả về trạng thái khả dụng `Vacant_Clean`.    | MEDIUM             | ✅                     |
 
-| TC ID     | UC tham chiếu | Loại Test   | Mô tả kịch bản                                                              | Severity | Trạng thái |
-| -----------| ---------------| -------------| -----------------------------------------------------------------------------| ----------| ------------|
-| TC-M2-001 | UC09          | Unit        | Tìm phòng trống đúng theo ngày nhận/trả                                     | HIGH     | ✅ |
-| TC-M2-002 | UC09          | Unit        | Không có phòng trống → trả danh sách rỗng                                   | MEDIUM   | ✅ |
-| TC-M2-003 | UC10.1        | Unit        | Đặt phòng thành công — tạo Booking + Folio trống                            | CRITICAL | ✅ |
-| TC-M2-004 | UC10.1        | Concurrency | 2 user đặt cùng phòng cùng lúc → 1 thành công, 1 trả 409 (Pessimistic Lock) | CRITICAL | ✅ |
-| TC-M2-005 | UC10.1        | Integration | Thanh toán cọc VNPay → callback xác nhận → trạng thái Booking = CONFIRMED   | CRITICAL | ✅ |
-| TC-M2-006 | UC10.1        | Unit        | Hủy trước 48h → hoàn 100% cọc (BR-FIN-02)                                   | HIGH     | ✅ |
-| TC-M2-007 | UC10.1        | Unit        | Hủy trong 48h → tịch thu cọc (BR-FIN-02)                                    | HIGH     | ✅ |
-| TC-M2-008 | UC10.2        | Unit        | Áp mã khuyến mãi hợp lệ → giảm giá đúng                                     | MEDIUM   | ✅ |
-| TC-M2-009 | UC10.2        | Unit        | Mã khuyến mãi hết hạn / sai → từ chối                                       | MEDIUM   | ✅ |
-| TC-M2-010 | UC11          | Unit        | Dashboard trả đúng danh sách phòng + trạng thái thời gian thực              | HIGH     | ✅ |
-| TC-M2-011 | UC12.1        | Unit        | Check-in thành công — phòng chuyển OCCUPIED, tạo Folio                      | CRITICAL | ✅ |
-| TC-M2-012 | UC12.1        | Unit        | Check-in thất bại — phòng đang DIRTY hoặc MAINTENANCE → báo lỗi             | HIGH     | ✅ |
-| TC-M2-013 | UC12.2        | Unit        | Ủy quyền hạn mức — cập nhật Credit Limit thành công                         | MEDIUM   | ✅ |
-| TC-M2-014 | UC12.3        | Unit        | Đổi phòng — chuyển Folio sang phòng mới, phòng cũ → DIRTY                   | HIGH     | ✅ |
-| TC-M2-015 | UC12.4        | Unit        | Nâng cấp Dependent thành Customer — tạo Account mới                         | LOW      | ✅ |
-| TC-M2-016 | UC13.1        | Integration | Check-out → tự động sinh yêu cầu dọn phòng (Trigger DB)                     | HIGH     | ✅ |
-| TC-M2-017 | UC13.2        | Unit        | Housekeeping cập nhật phòng DIRTY → CLEAN                                   | HIGH     | ✅ |
-| TC-M2-018 | UC13.3        | Unit        | Lễ tân xem danh sách yêu cầu dọn/sửa phòng                                  | MEDIUM   | ✅ |
-| TC-M2-019 | UC13.4        | Unit        | Housekeeping tạo phiếu sửa chữa → phòng chuyển MAINTENANCE                  | MEDIUM   | ✅ |
-| TC-M2-020 | UC13.5        | Unit        | Maintenance hoàn thành → phòng chuyển AVAILABLE                             | MEDIUM   | ✅ |
+## 🟡 MOD3: DỊCH VỤ ẨM THỰC, NHÀ HÀNG & MÀN HÌNH BẾP KDS — Sinh viên 3
 
----
+| **TC ID**     | **UC tham chiếu** | **Loại Test** | **Mô tả kịch bản kiểm thử chi tiết**                                                                                                                                                          | **Severity** | **Trạng thái** |
+| ------------------- | ------------------------ | -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ | ---------------------- |
+| **TC-M3-001** | UC14                     | Functional           | Khách đặt bàn trước sảnh nhà hàng ➔ Nhập số lượng ghế, phân khu bàn, hệ thống lưu trạng thái đặt chỗ thành công sang bảng dữ liệu tương ứng.                              | MEDIUM             | ⬜                     |
+| **TC-M3-002** | UC14                     | Concurrency          | Đặt trùng bàn ăn cùng khung giờ ➔ Hai khách hàng cùng bấm giữ một vị trí bàn đơn tại một thời điểm, hệ thống chặn người đến sau, báo lỗi.                                 | HIGH               | ⬜                     |
+| **TC-M3-003** | UC15                     | Functional           | Cấu hình danh mục thực đơn ➔ Thiết lập món ăn mới, đính kèm nhãn dị ứng (`allergy_tags`ví dụ: *Chứa đậu phộng, hải sản* ) hiển thị trực quan lên E-Menu.                 | MEDIUM             | ⬜                     |
+| **TC-M3-004** | UC16                     | Functional           | Đặt món trực tuyến lên biệt thự (Room Service) ➔ Khách lưu trú quét QR Code tại phòng để đặt món, hệ thống xác thực đúng số phòng vật lý đang ở trạng thái `Occupied`. | HIGH               | ⬜                     |
+| **TC-M3-005** | UC16                     | Validation           | Chặn đơn Room Service lỗi ➔ Khách cố tình điền số phòng đang trống hoặc phòng chưa làm thủ tục Check-in, hệ thống báo lỗi không thể tạo đơn.                                  | MEDIUM             | ⬜                     |
+| **TC-M3-006** | UC17                     | Functional           | Gọi món trực tiếp tại bàn ăn (Dine-In POS) ➔ Thu ngân lên đơn gọi món, ghi nhận chính xác mã bàn ăn, số lượng, giá tiền tại thời điểm gọi món.                              | CRITICAL           | ⬜                     |
+| **TC-M3-007** | UC18                     | Functional           | Tất toán hóa đơn ăn uống trực tiếp ➔ Thu ngân quẹt thẻ hoặc nhận tiền mặt của khách tại quầy, hóa đơn nhà hàng lập tức chuyển trạng thái sang `PAID`.                     | HIGH               | ⬜                     |
+| **TC-M3-008** | UC18                     | Business Rule        | Quy trình Ký nợ về phòng (Post to Room) ➔ Khách chọn ghi nợ, hệ thống kiểm tra số phòng, thực hiện `INSERT`một bản ghi chi phí phát sinh vào bảng `Folio_Items`.                 | CRITICAL           | ✅                     |
+| **TC-M3-009** | UC18                     | Validation           | Chặn ký nợ vượt trần chi tiêu ➔ Chi phí đĩa gọi món ăn vượt quá hạn mức `credit_limit`còn lại của căn phòng, hệ thống từ chối ký nợ, trả mã lỗi `POS-003`.            | CRITICAL           | ✅                     |
+| **TC-M3-010** | UC19.1                   | WebSocket            | Đồng bộ lệnh KDS màn hình bếp ➔ Thu ngân ấn nút xác nhận order món tại quầy POS, màn hình nhà bếp lập tức sáng đèn hiển thị vé KOT gọi món (`PENDING`).                    | HIGH               | ⬜                     |
+| **TC-M3-011** | UC19.2                   | Functional           | Cập nhật tiến độ nấu nướng ➔ Đầu bếp bấm nút nhận đơn trên màn hình KDS, trạng thái món ăn trong bảng chi tiết lập tức chuyển đổi sang `COOKING`.                         | HIGH               | ⬜                     |
+| **TC-M3-012** | UC19.3                   | WebSocket            | Báo cáo hoàn thành món ăn ➔ Đầu bếp bấm nút xong đĩa ăn, trạng thái chuyển sang `READY`, quầy POS sảnh nhận tín hiệu đổi màu thời gian thực để phục vụ bưng bê.        | HIGH               | ⬜                     |
+| **TC-M3-013** | UC19.4                   | Functional           | Khóa thực đơn khẩn cấp ➔ Nhà bếp phát hiện hết nguyên liệu cá hồi, đầu bếp bấm nút báo hết món, toàn bộ giao diện POS và E-Menu lập tức khóa món ăn đó lại.            | HIGH               | ⬜                     |
 
-## 🟡 MOD3: DỊCH VỤ ẨM THỰC & NHÀ HÀNG
+## 🟢 MOD4: QUẢN LÝ LỮ HÀNH, ADD-ONS & ĐÁNH GIÁ — Sinh viên 4
 
-| TC ID     | UC tham chiếu | Loại Test   | Mô tả kịch bản                                                   | Severity | Trạng thái |
-| -----------| ---------------| -------------| ------------------------------------------------------------------| ----------| ------------|
-| TC-M3-001 | UC14          | Unit        | Khách quét QR → hiển thị E-Menu, đặt Room Service thành công     | MEDIUM   | ⬜          |
-| TC-M3-002 | UC14          | Unit        | Room Service cho phòng không OCCUPIED → từ chối                  | MEDIUM   | ⬜          |
-| TC-M3-003 | UC15          | Unit        | Đặt bàn thành công — bàn chuyển RESERVED                         | MEDIUM   | ⬜          |
-| TC-M3-004 | UC15          | Concurrency | 2 khách đặt cùng bàn cùng giờ → 1 thành công, 1 báo lỗi          | HIGH     | ⬜          |
-| TC-M3-005 | UC16          | Unit        | POS tạo order Dine-In — ghi đúng bàn, đúng món, đúng giá         | CRITICAL | ⬜          |
-| TC-M3-006 | UC16          | Unit        | POS thanh toán tiền mặt — đơn hàng chuyển PAID                   | HIGH     | ⬜          |
-| TC-M3-007 | UC17.1        | Unit        | KDS nhận order mới → hiển thị KOT trên màn hình bếp              | HIGH     | ⬜          |
-| TC-M3-008 | UC17.1        | Unit        | Bếp cập nhật từng món PREPARING → READY                          | HIGH     | ⬜          |
-| TC-M3-009 | UC17.2        | Unit        | Bếp báo hết món → POS/E-Menu tự động khóa món đó                 | HIGH     | ⬜          |
-| TC-M3-010 | UC18          | Unit        | Post to Room thành công — ghi nợ vào Folio phòng                 | CRITICAL | ✅          |
-| TC-M3-011 | UC18          | Unit        | Post to Room vượt Credit Limit → từ chối, trả POS-003 (BR-FO-06) | CRITICAL | ✅          |
-| TC-M3-012 | UC18          | Unit        | Post to Room cho phòng không OCCUPIED → từ chối                  | HIGH     | ✅          |
+| **TC ID**     | **UC tham chiếu** | **Loại Test** | **Mô tả kịch bản kiểm thử chi tiết**                                                                                                                                                        | **Severity** | **Trạng thái** |
+| ------------------- | ------------------------ | -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ | ---------------------- |
+| **TC-M4-001** | UC20                     | Functional           | Khách tìm kiếm gói trải nghiệm local lẻ ➔ Hệ thống trả ra danh sách các chuyến đi trong ngày kèm chuỗi tích hợp dữ liệu thời tiết thực tế từ API.                             | MEDIUM             | ✅                     |
+| **TC-M4-002** | UC20                     | Fault Tolerance      | Kiểm thử mất kết nối API thời tiết ➔ Dịch vụ thời tiết bên ngoài bị sập (Timeout >3s), hệ thống vẫn phải hiển thị danh sách Tour, ẩn ô thời tiết, không crash trang.         | LOW                | ✅                     |
+| **TC-M4-003** | UC21                     | Functional           | Đặt vé hành trình trải nghiệm lẻ thành công ➔ Khách mua vé lẻ trực tiếp hoặc tại quầy, hệ thống khởi tạo đơn hàng ghi nợ trường `detail_id = NULL`trong DB.               | HIGH               | ✅                     |
+| **TC-M4-004** | UC22.1                   | Integration          | Đồng bộ dữ liệu gói Combo phòng sang Tour ➔ Đơn đặt phòng Combo thành công, hệ thống tự động nhân bản thông tin đoàn khách đẩy xuống phôi hành khách `Tour_Attendees`. | HIGH               | ✅                     |
+| **TC-M4-005** | UC22.2                   | Functional           | Điều động nhân sự vận hành chuyến ➔ Điều hành Tour thực hiện gán thông tin biển số xe, tên Tài xế và mã nhân viên Hướng dẫn viên chịu trách nhiệm chuyến đi.          | MEDIUM             | ✅                     |
+| **TC-M4-006** | UC22.3                   | Functional           | Kiểm thử định vị GPS Real-time ➔ Chuyến xe khởi hành, hệ thống liên tục cập nhật kinh độ, vĩ độ của xe lên bản đồ giám sát trung tâm của Manager.                           | LOW                | ⬜                     |
+| **TC-M4-007** | UC22.4                   | Functional           | Cập nhật tiến độ hành trình thực tế ➔ Hướng dẫn viên bấm nút cập nhật trạng thái di chuyển của xe qua các mốc Checkpoint, lưu vết log lịch trình sạch sẽ.                  | MEDIUM             | ✅                     |
+| **TC-M4-008** | UC22.5                   | Integration          | Điểm danh bằng công nghệ AI FaceID ➔ Hướng dẫn viên đưa camera quét mặt khách lên xe, ảnh gửi sang FastAPI match trùng vector gốc, tự cập nhật trạng thái `PRESENT`.          | HIGH               | ✅                     |
+| **TC-M4-009** | UC22.5                   | Manual Fallback      | Điểm danh thủ công phòng hờ sự cố ➔ Camera mờ hoặc mất kết nối mạng AI, hệ thống mở giao diện Manifest cho phép Hướng dẫn viên tích tay điểm danh bằng mắt.                 | MEDIUM             | ✅                     |
+| **TC-M4-010** | UC23.1                   | Functional           | Quản lý danh mục gói Add-ons dịch vụ ➔ Admin/Manager thực hiện thêm mới biểu giá niêm yết cho các gói dịch vụ bổ sung như Liệu trình Spa, Đưa đón xe Limousine.               | MEDIUM             | ⬜                     |
+| **TC-M4-011** | UC23.2                   | Validation           | Tiếp nhận đơn mua Add-ons kèm yêu cầu JSON ➔ Khách đăng ký gói Spa, hệ thống đóng gói các yêu cầu đặc biệt như*Giờ phục vụ, Ghi chú dị ứng tinh dầu*vào chuỗi JSON.  | HIGH               | ⬜                     |
+| **TC-M4-012** | UC24                     | Business Rule        | Giới hạn quyền gửi phản hồi đánh giá ➔ Chỉ những khách hàng đã thực hiện Check-out hoặc đã hoàn thành chuyến Tour thực tế mới được quyền chấm sao Review.                | MEDIUM             | ✅                     |
+| **TC-M4-013** | UC25                     | Functional           | Kiểm duyệt nội dung phản hồi ➔ Admin thực hiện thao tác ẩn/hiện hoặc gắn cờ cảnh báo đối với các bình luận chứa từ ngữ spam, toxic hoặc phá hoại thương hiệu.             | LOW                | ✅                     |
 
----
+## 🟣 MOD5: KIỂM TOÁN ĐÊM, TÀI CHÍNH & BÁO CÁO — Sinh viên 5
 
-## 🟢 MOD4: QUẢN LÝ LỮ HÀNH & ĐÁNH GIÁ
+| **TC ID**     | **UC tham chiếu** | **Loại Test** | **Mô tả kịch bản kiểm thử chi tiết**                                                                                                                                                            | **Severity** | **Trạng thái** |
+| ------------------- | ------------------------ | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------ | ---------------------- |
+| **TC-M5-001** | UC26.1                   | Integration          | Gom hóa đơn tích lũy tự động từ nhà hàng ➔ Khách ăn uống tại sảnh F&B chọn ký nợ, hệ thống bốc số tiền bắn về hiển thị chính xác trên màn hình Folio của Lễ tân.        | CRITICAL           | ⬜                     |
+| **TC-M5-002** | UC26.2                   | Functional           | Theo dõi dư nợ phòng lẻ thời gian thực ➔ Giao diện Folio phải hiển thị bóc tách chi tiết từng dòng tiền: Tiền phòng, tiền ăn uống nhà hàng, tiền phụ thu add-on.                  | HIGH               | ⬜                     |
+| **TC-M5-003** | UC26.3                   | Data Accuracy        | Ghi vết lịch sử dòng tiền đa đợt ➔ Khách đặt cọc trước, tạm ứng thêm tiền mặt giữa kỳ lưu trú, hệ thống tính toán cộng trừ chính xác số dư nợ tuyệt đối.               | HIGH               | ⬜                     |
+| **TC-M5-004** | UC26.4                   | Functional           | Nghiệp vụ tách ví nợ Folio nâng cao ➔ Lễ tân thực hiện thao tác tách bill (Ví dụ:*Phòng công ty chịu tiền phòng, khách lẻ tự trả tiền rượu bia phát sinh tại sảnh* ).        | HIGH               | ⬜                     |
+| **TC-M5-005** | UC26.5                   | Data Accuracy        | Đóng gói tổng hợp hóa đơn quyết toán ➔ Áp dụng kiểu dữ liệu `BigDecimal`trong mã nguồn Java để tính toán tổng chi phí toàn đoàn, tuyệt đối không lệch sai số thập phân. | CRITICAL           | ⬜                     |
+| **TC-M5-006** | UC27.1                   | Cron Job             | Tự động chạy Kiểm toán đêm (Night Audit) ➔ Đúng**02:00 AM** , hệ thống tự động quét toàn bộ phòng `Occupied`, tính tiền phòng ngày hôm đó cộng vào ví Folio.           | CRITICAL           | ⬜                     |
+| **TC-M5-007** | UC27.1                   | Functional           | Cuốn chiếu ngày làm việc kế toán ➔ Sau khi Night Audit hoàn tất không có lỗi dòng tiền, Business Date của toàn hệ thống tự động nhảy tăng thêm 1 ngày.                             | HIGH               | ⬜                     |
+| **TC-M5-008** | UC27.2                   | Functional           | Tiếp nhận in hóa đơn đỏ VAT ➔ Thu ngân tổng hợp thông tin mã số thuế, tên doanh nghiệp từ form yêu cầu của khách để xuất dữ liệu phôi hóa đơn chuẩn chỉnh.                  | MEDIUM             | ⬜                     |
+| **TC-M5-009** | UC27.4                   | Validation           | Chặn thủ tục Check-out khi còn nợ phòng ➔ Số dư ví nợ Folio của phòng lớn hơn 0, hệ thống tự động khóa nút Check-out, trả về mã cảnh báo `FOLIO-001`.                           | CRITICAL           | ⬜                     |
+| **TC-M5-010** | UC27.4                   | Functional           | Tất toán tài chính Check-out thành công ➔ Khách thanh toán sạch dư nợ về bằng 0 (`Folio = SETTLED`), hệ thống mở khóa cho phép bấm hoàn thành Check-out.                             | CRITICAL           | ⬜                     |
+| **TC-M5-011** | UC27.5                   | Integration          | Tự động phát hành hóa đơn điện tử e-Invoice ➔ Ngay khi bấm nút hoàn thành Check-out, hệ thống kích hoạt API SendGrid tự động gửi hóa đơn PDF về Email khách.                    | MEDIUM             | ⬜                     |
+| **TC-M5-012** | UC28.1                   | Functional           | Giám sát biểu đồ phân tích tài chính ➔ Manager mở Dashboard quản trị, hệ thống tính toán vẽ đúng đường đồ thị doanh thu lũy kế theo bộ lọc mốc thời gian.                    | MEDIUM             | ⬜                     |
+| **TC-M5-013** | UC28.2                   | Algorithm            | Thuật toán tính toán công suất phòng (Occupancy Rate) ➔ Hệ thống tính toán chính xác tỷ lệ:`(Tổng số phòng đang ở / Tổng số phòng resort sở hữu) * 100%`.                        | MEDIUM             | ⬜                     |
+| **TC-M5-014** | UC28.3                   | Financial Rep        | Xuất báo cáo tài chính vận hành hệ thống chuẩn quốc tế USALI ➔ Phân tách rạch ròi các trung tâm doanh thu độc lập: Doanh thu phòng, Doanh thu F&B, Doanh thu Tour.                    | HIGH               | ⬜                     |
+| **TC-M5-015** | UC28.4                   | Validation           | Kết xuất báo cáo định dạng Excel / PDF ➔ File kết xuất tải xuống thành công, không bị rỗng dữ liệu, cấu trúc cột hàng ngay ngắn, dữ liệu khớp 100% với DB.                       | MEDIUM             | ⬜                     |
 
-| TC ID     | UC tham chiếu | Loại Test   | Mô tả kịch bản                                                      | Severity | Trạng thái |
-| -----------| ---------------| -------------| ---------------------------------------------------------------------| ----------| ------------|
-| TC-M4-001 | UC19          | Unit        | Tìm kiếm tour — trả danh sách tour khả dụng + thông tin thời tiết   | MEDIUM   | ✅ |
-| TC-M4-002 | UC19          | Unit        | API thời tiết không phản hồi → vẫn trả tour, ẩn thông tin thời tiết | LOW      | ✅ |
-| TC-M4-003 | UC20.1        | Unit        | Đặt tour thành công — tạo bản ghi Tour_Attendees                    | HIGH     | ✅ |
-| TC-M4-004 | UC20.1        | Concurrency | Tour hết slot — đặt thêm bị chặn, trả TOUR-001                      | CRITICAL | ✅ |
-| TC-M4-005 | UC20.1        | Unit        | Đặt tour Post to Room — ghi nợ vào Folio phòng                      | HIGH     | ✅ |
-| TC-M4-006 | UC20.2        | Unit        | Lập lịch chuyến tour — gán xe, tài xế, Tour Guide                   | MEDIUM   | ✅ |
-| TC-M4-007 | UC20.3        | Unit        | Hủy tour — hoàn tiền theo chính sách hoặc đổi lịch                  | HIGH     | ✅ |
-| TC-M4-008 | UC21          | Integration | Gửi ảnh → AI Service trả match → Tour_Attendees cập nhật PRESENT    | HIGH     | ✅ |
-| TC-M4-009 | UC21          | Unit        | AI Service không khả dụng → cho phép điểm danh thủ công             | MEDIUM   | ✅ |
-| TC-M4-010 | UC22          | Unit        | Khách gửi đánh giá 1-5 sao + nội dung text                          | LOW      | ✅ |
-| TC-M4-011 | UC22          | Unit        | Chỉ khách đã sử dụng dịch vụ mới được đánh giá                      | MEDIUM   | ✅ |
-| TC-M4-012 | UC23          | Unit        | Admin ẩn/hiện đánh giá toxic/spam                                   | LOW      | ✅ |
+## 🔗 CROSS-MODULE: LUỒNG TEST TÍCH HỢP TỔNG THỂ (END-TO-END INTEGRATION)
 
----
+| **TC ID**      | **Use Cases tham chiếu**                  | **Loại Test** | **Mô tả kịch bản kiểm thử luồng chạy liên module (E2E)**                                                                                                                                                                                                                                                                                                                                                  | **Severity** | **Trạng thái** |
+| -------------------- | ------------------------------------------------ | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------ | ---------------------- |
+| **TC-E2E-001** | UC10 ➔ UC12.3 ➔ UC17 ➔ UC18 ➔ UC26 ➔ UC27.4 | E2E Integration      | **Luồng Vòng Đời Lưu Trú Tinh Hoa:**Khách đặt phòng Web VNPay ➔ Lễ tân Check-in gán phòng vật lý ➔ Khách ăn tối tại nhà hàng chọn Ký nợ phòng ➔ POS bắn nợ về Folio ➔ Khách ra quầy làm thủ tục Check-out sảnh, hệ thống chặn lại đòi tiền ➔ Lễ tân quẹt thẻ tất toán nợ về 0 ➔ Bấm Check-out thành công ➔ Phòng chuyển sang màu `Dirty`chờ dọn dẹp. | CRITICAL           | ⬜                     |
+| **TC-E2E-002** | UC09.4 ➔ UC12.5 ➔ UC19.1 ➔ UC19.5 ➔ UC27.1   | E2E Integration      | **Luồng Vận Hành Gói Combo Trải Nghiệm:**Admin cấu hình gói Combo (Phòng + Tour) ➔ Khách mua Combo khai báo danh sách đoàn thành viên ➔ Hệ thống tự động đồng bộ phôi khách sang danh sách chuyến xe Tour ➔ Sáng ngày đi Tour Guide dùng App quét FaceID khách lên xe thành công ➔ Đêm đến hệ thống chạy Night Audit chốt sổ doanh thu ngày trơn tru.               | CRITICAL           | ⬜                     |
+| **TC-E2E-003** | UC01.2 ➔ UC05.1 ➔ UC17 ➔ UC19                 | E2E Integration      | **Luồng Phân Quyền Nhân Sự Nội Bộ Nội Tộc:**Admin khởi tạo tài khoản gán quyền `ROLE_CASHIER`cho nhân viên mới ➔ Nhân viên dùng tài khoản đó đăng nhập vào phân hệ nhà hàng thành công ➔ Tiến hành tạo đơn gọi món Dine-In trên máy POS sảnh ➔ Màn hình bếp KDS của Kitchen Staff lập tức nhận được lệnh real-time qua WebSocket.                           | HIGH               | ⬜                     |
 
-## 🟣 MOD5: KIỂM TOÁN ĐÊM, TÀI CHÍNH & BÁO CÁO
+## 📊 BẢNG MA TRẬN MA TRẬN THỐNG KÊ TOÀN DIỆN
 
-| TC ID | UC tham chiếu | Loại Test | Mô tả kịch bản | Severity | Trạng thái |
-|-------|-------------|-----------|----------------|----------|------------|
-| TC-M5-001 | UC24.1 | Unit | Folio hiển thị đúng danh sách nợ phòng theo từng dịch vụ | HIGH | ⬜ |
-| TC-M5-002 | UC24.2 | Unit | Ghi nhận luồng tiền nhiều đợt — ứng trước, trả thêm, hoàn tiền | HIGH | ⬜ |
-| TC-M5-003 | UC24.3 | Integration | Gom hóa đơn — tiền phòng + ăn uống + tour = tổng chính xác (BigDecimal) | CRITICAL | ⬜ |
-| TC-M5-004 | UC24.4 | Integration | Night Audit 02:00 AM — cộng phí phòng ngày vào Folio các phòng OCCUPIED | CRITICAL | ⬜ |
-| TC-M5-005 | UC24.4 | Unit | Night Audit chuyển Business Date lên 1 ngày | HIGH | ⬜ |
-| TC-M5-006 | UC25.1 | Unit | Check-out khi Folio = 0 → thành công, phòng chuyển DIRTY | CRITICAL | ⬜ |
-| TC-M5-007 | UC25.1 | Unit | Check-out khi Folio > 0 → chặn, trả FOLIO-001 (BR-FIN-01) | CRITICAL | ⬜ |
-| TC-M5-008 | UC25.1 | Unit | Thanh toán tất toán Folio (Tiền mặt/Thẻ) → Folio = SETTLED | HIGH | ⬜ |
-| TC-M5-009 | UC25.2 | Integration | Sau tất toán → tự động gửi e-Invoice qua email (SendGrid) | MEDIUM | ⬜ |
-| TC-M5-010 | UC26.1 | Unit | Dashboard trả dữ liệu biểu đồ tài chính đúng | MEDIUM | ⬜ |
-| TC-M5-011 | UC26.2 | Unit | Occupancy Rate = (phòng OCCUPIED / tổng phòng) × 100% — tính đúng | MEDIUM | ⬜ |
-| TC-M5-012 | UC27 | Unit | Báo cáo USALI phân tách doanh thu Rooms / F&B / Tours đúng (BR-FIN-04) | HIGH | ⬜ |
-| TC-M5-013 | UC28 | Unit | Kết xuất PDF — file không rỗng, đúng format | MEDIUM | ⬜ |
-| TC-M5-014 | UC28 | Unit | Kết xuất Excel — dữ liệu khớp với DB | MEDIUM | ⬜ |
-
----
-
-## CROSS-MODULE: TEST TÍCH HỢP E2E
-
-| TC ID | UC tham chiếu | Loại Test | Mô tả kịch bản | Severity | Trạng thái |
-|-------|-------------|-----------|----------------|----------|------------|
-| TC-E2E-001 | UC10→UC12→UC18→UC25 | E2E | Luồng đầy đủ: Đặt phòng → Check-in → Ăn nhà hàng Post to Room → Check-out chặn nợ → Thanh toán → Trả phòng | CRITICAL | ⬜ |
-| TC-E2E-002 | UC10→UC20→UC24→UC25 | E2E | Đặt phòng + Đặt tour → Night Audit cộng phí → Folio gom đủ → Tất toán | CRITICAL | ⬜ |
-| TC-E2E-003 | UC01→UC05.1→UC16 | E2E | Admin tạo tài khoản F&B → F&B đăng nhập → Tạo order POS thành công | HIGH | ⬜ |
-
----
-
-## THỐNG KÊ
-
-| Module | Số Test Case | CRITICAL | HIGH | MEDIUM | LOW |
-|--------|-------------|----------|------|--------|-----|
-| MOD1 | 22 | 3 | 7 | 10 | 2 |
-| MOD2 | 20 | 4 | 8 | 7 | 1 |
-| MOD3 | 12 | 3 | 5 | 3 | 1 |
-| MOD4 | 12 | 1 | 4 | 4 | 3 |
-| MOD5 | 14 | 4 | 5 | 5 | 0 |
-| E2E | 3 | 2 | 1 | 0 | 0 |
-| **Tổng** | **83** | **17** | **30** | **29** | **7** |
-
-**Chú thích:** ⬜ TODO | 🟡 IN PROGRESS | ✅ PASS | ❌ FAIL
+| **Phân hệ Module**             | **Tổng số lượng Test Case** | **Số lượng CRITICAL** | **Số lượng HIGH** | **Số lượng MEDIUM** | **Số lượng LOW** | **Phụ trách kiểm thử** |
+| -------------------------------------- | ------------------------------------- | ------------------------------ | -------------------------- | ---------------------------- | ------------------------- | -------------------------------- |
+| **MOD1 (Core & Auth)**           | **24 TC**                       | 3                              | 4                          | 17                           | 0                         | Sinh viên 1                     |
+| **MOD2 (Front Desk & Rooms)**    | **20 TC**                       | 4                              | 9                          | 7                            | 0                         | Sinh viên 2                     |
+| **MOD3**(F&B / POS / KDS)        | **13 TC**                       | 3                              | 6                          | 4                            | 0                         | Sinh viên 3                     |
+| **MOD4**(Tour & Review)          | **13 TC**                       | 0                              | 4                          | 7                            | 2                         | Sinh viên 4                     |
+| **MOD5**(Finance & Audit)        | **15 TC**                       | 4                              | 4                          | 7                            | 0                         | Sinh viên 5                     |
+| **E2E Integration (Tích hợp)** | **3 TC**                        | 2                              | 1                          | 0                            | 0                         | Cả nhóm 4 phối hợp           |
+| **TỔNG LỰC TOÀN ĐỒ ÁN**    | **88 Test Cases**               | **16**                   | **28**               | **42**                 | **2**               | **Đạt chuẩn bàn giao** |
