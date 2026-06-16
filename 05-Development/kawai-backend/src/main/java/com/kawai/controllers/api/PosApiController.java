@@ -1,4 +1,4 @@
-package com.kawai.controllers;
+package com.kawai.controllers.api;
 
 import com.kawai.dto.CreateFoodOrderRequest;
 import com.kawai.dto.CartItemDto;
@@ -17,22 +17,22 @@ public class PosApiController {
 
     @Autowired
     private FoodOrderRepository foodOrderRepository;
-    
+
     @Autowired
     private FoodOrderDetailRepository foodOrderDetailRepository;
-    
+
     @Autowired
     private RoomRepository roomRepository;
-    
+
     @Autowired
     private RoomBookingDetailRepository roomBookingDetailRepository;
-    
+
     @Autowired
     private RestaurantTableRepository restaurantTableRepository;
-    
+
     @Autowired
     private FoodItemRepository foodItemRepository;
-    
+
     @Autowired
     private EmployeeRepository employeeRepository;
 
@@ -40,13 +40,14 @@ public class PosApiController {
     public ResponseEntity<?> createOrder(@RequestBody CreateFoodOrderRequest request) {
         try {
             FoodOrder order = new FoodOrder();
-            
+
             // Mapping order type
             if ("room-svc".equals(request.getOrderType())) {
                 order.setOrderType("Room Service");
                 Optional<Room> roomOpt = roomRepository.findByRoomNumber(request.getRoomNumber());
                 if (roomOpt.isPresent() && roomOpt.get().getCurrentBookingDetailId() != null) {
-                    Optional<RoomBookingDetail> detailOpt = roomBookingDetailRepository.findById(roomOpt.get().getCurrentBookingDetailId());
+                    Optional<RoomBookingDetail> detailOpt = roomBookingDetailRepository
+                            .findById(roomOpt.get().getCurrentBookingDetailId());
                     detailOpt.ifPresent(order::setRoomBookingDetail);
                 }
             } else {
@@ -93,9 +94,8 @@ public class PosApiController {
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(500).body(Map.of(
-                "error", e.getClass().getName(),
-                "message", e.getMessage() != null ? e.getMessage() : "null message"
-            ));
+                    "error", e.getClass().getName(),
+                    "message", e.getMessage() != null ? e.getMessage() : "null message"));
         }
     }
 }

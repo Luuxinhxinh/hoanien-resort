@@ -1,4 +1,4 @@
-package com.kawai.controllers;
+package com.kawai.controllers.api;
 
 import com.kawai.models.MenuItem;
 import com.kawai.repositories.FoodItemRepository;

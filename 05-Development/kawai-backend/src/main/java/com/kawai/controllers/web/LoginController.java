@@ -25,7 +25,8 @@ public class LoginController {
     public String customLogout(HttpServletRequest request, HttpServletResponse response) {
         org.springframework.security.core.Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null) {
-            new org.springframework.security.web.authentication.logout.CookieClearingLogoutHandler("JSESSIONID", "remember-me").logout(request, response, auth);
+            new org.springframework.security.web.authentication.logout.CookieClearingLogoutHandler("JSESSIONID",
+                    "remember-me").logout(request, response, auth);
             new SecurityContextLogoutHandler().logout(request, response, auth);
         }
         return "redirect:/ops-login?logout=true";
@@ -35,11 +36,13 @@ public class LoginController {
     private com.kawai.repositories.AuthorizedDeviceRepository authorizedDeviceRepository;
 
     @org.springframework.web.bind.annotation.PostMapping("/auth/login")
-    public String handleLogin(@org.springframework.web.bind.annotation.RequestParam(value = "login_type", required = false) String loginType,
-                              @org.springframework.web.bind.annotation.RequestParam(value = "device_id", required = false) String deviceId) {
-        
+    public String handleLogin(
+            @org.springframework.web.bind.annotation.RequestParam(value = "login_type", required = false) String loginType,
+            @org.springframework.web.bind.annotation.RequestParam(value = "device_id", required = false) String deviceId) {
+
         if ("ops".equals(loginType)) {
-            if (deviceId == null || deviceId.isEmpty() || !authorizedDeviceRepository.existsByDeviceCodeAndIsApprovedTrue(deviceId)) {
+            if (deviceId == null || deviceId.isEmpty()
+                    || !authorizedDeviceRepository.existsByDeviceCodeAndIsApprovedTrue(deviceId)) {
                 return "redirect:/ops-login?device_error=true";
             }
         }

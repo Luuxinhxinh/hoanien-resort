@@ -1,4 +1,4 @@
-package com.kawai.controllers;
+package com.kawai.controllers.api;
 
 import com.kawai.dto.BookingRequestDTO;
 import com.kawai.dto.BookingResponseDTO;

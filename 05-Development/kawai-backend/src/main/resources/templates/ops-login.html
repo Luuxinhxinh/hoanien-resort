@@ -18,6 +18,12 @@
             padding: 24px;
         }
 
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
         .ops-login-wrap {
             width: 100%;
             max-width: 420px;
@@ -50,11 +56,13 @@
         }
 
         .ops-login-brand h1 {
-            font-family: var(--font-serif);
-            font-size: 28px;
-            font-weight: 600;
+            font-family: "Playfair Display", "Times New Roman", Georgia, serif;
+            font-size: 32px;
+            font-weight: 500;
+            letter-spacing: 0.03em;
             color: var(--foreground);
-            margin: 0 0 4px;
+            margin: 0 0 6px;
+            text-transform: capitalize;
         }
 
         .ops-login-brand p {
@@ -79,33 +87,36 @@
             font-family: var(--font-sans);
         }
 
+        /* Đổi nền input từ trắng sang màu kem/be nhạt tinh tế */
         .ops-form-group input {
             width: 100%;
             padding: 12px 14px;
-            border: 1px solid rgba(44, 42, 30, 0.15);
+            border: 1px solid rgba(44, 42, 30, 0.12);
             border-radius: 8px;
-            background: white;
+            background: #FDFBF7;
             font-size: 14px;
             font-family: var(--font-sans);
             color: var(--foreground);
             outline: none;
-            transition: border-color 0.15s;
+            transition: all 0.2s ease;
         }
 
         .ops-form-group input:focus {
+            background: #ffffff;
             border-color: #C9A96E;
-            box-shadow: 0 0 0 3px rgba(201, 169, 110, 0.12);
+            box-shadow: 0 0 0 3px rgba(201, 169, 110, 0.15);
         }
 
         .ops-form-group input::placeholder {
             color: #9A9485;
         }
 
+        /* Nút đăng nhập đổi sang màu nâu ấm áp của thương hiệu */
         .ops-btn {
             width: 100%;
-            padding: 12px;
-            background: var(--foreground);
-            color: white;
+            padding: 13px;
+            background: #8C6A41;
+            color: #ffffff;
             border: none;
             border-radius: 8px;
             font-size: 12px;
@@ -113,16 +124,20 @@
             letter-spacing: 0.08em;
             text-transform: uppercase;
             cursor: pointer;
-            transition: background 0.15s, transform 0.1s;
+            transition: all 0.2s ease;
             font-family: var(--font-sans);
+            box-shadow: 0 2px 4px rgba(140, 106, 65, 0.15);
         }
 
+        /* Hiệu ứng hover: nút mờ nhẹ đi và đổi opacity mượt mà */
         .ops-btn:hover {
-            background: #3D3A2E;
+            background: #8C6A41;
+            opacity: 0.88;
         }
 
         .ops-btn:active {
             transform: scale(0.98);
+            opacity: 0.95;
         }
 
         .ops-error {
@@ -176,19 +191,16 @@
 <body>
     <div class="ops-login-wrap">
         <div class="ops-login-card">
-            <!-- Brand -->
             <div class="ops-login-brand">
                 <div class="ops-login-brand-dot">◆</div>
                 <h1>HOANIEN</h1>
                 <p>Operations Hub — Đăng nhập</p>
             </div>
 
-            <!-- Role info -->
             <div class="ops-login-role-badge" style="display: flex; justify-content: center;">
                 <span>Hệ thống quản lý vận hành</span>
             </div>
 
-            <!-- Error message -->
             <div th:if="${param.error}" class="ops-error show">
                 Sai tên đăng nhập hoặc mật khẩu. Vui lòng thử lại.
             </div>
@@ -197,7 +209,6 @@
                 Bạn đã đăng xuất thành công.
             </div>
 
-            <!-- Login Form -->
             <form th:action="@{/auth/login}" method="post">
                 <div class="ops-form-group">
                     <label for="username">Tên đăng nhập</label>

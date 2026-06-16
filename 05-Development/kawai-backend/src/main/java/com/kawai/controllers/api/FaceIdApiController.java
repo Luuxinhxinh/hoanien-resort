@@ -1,4 +1,4 @@
-package com.kawai.controllers;
+package com.kawai.controllers.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kawai.models.TourAttendee;
@@ -38,7 +38,8 @@ public class FaceIdApiController {
     private static final String TEMP_DIR = System.getProperty("java.io.tmpdir") + File.separator + "kawai-faceid";
     // Đường dẫn tới Python script nhận diện
     private static final String PYTHON_SCRIPT = "main.py";
-    private static final String PYTHON_WORK_DIR = System.getProperty("user.dir") + File.separator + ".." + File.separator + "kawai-ai-service";
+    private static final String PYTHON_WORK_DIR = System.getProperty("user.dir") + File.separator + ".."
+            + File.separator + "kawai-ai-service";
 
     /**
      * POST /api/faceid/scan

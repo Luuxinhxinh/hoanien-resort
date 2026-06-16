@@ -1,28 +1,29 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
 <head>
-    <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Hoanien Retreat | Dư âm tĩnh lặng</title>
-    
-    <!-- Tailwind CSS CDN -->
+
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com"/>
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-    
-    <!-- Tailwind Custom Config -->
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Inter:wght@300;400;500;600&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+
     <script id="tailwind-config">
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        'hoanien-bg': '#f1ebe3',         
-                        'hoanien-text': '#3a3230',       
-                        'hoanien-footer': '#3c3530',     
+                        'hoanien-bg': '#f1ebe3',
+                        'hoanien-text': '#3a3230',
+                        'hoanien-footer': '#3c3530',
                         'hoanien-footer-text': '#e5dfd8',
                         "primary": "#fbddc7",
                         "surface": "#fff8f4",
@@ -31,8 +32,8 @@
                     fontFamily: {
                         'serif': ['"Playfair Display"', 'serif'],
                         'sans': ['"Montserrat"', 'sans-serif'],
-                        "headline": ["EB Garamond", "serif"],
-                        "body": ["Inter", "sans-serif"]
+                        'headline': ["EB Garamond", "serif"],
+                        'body': ["Inter", "sans-serif"]
                     },
                     spacing: {
                         "margin-desktop": "80px",
@@ -44,109 +45,78 @@
             }
         }
     </script>
-    
+
     <style>
-        /* Smooth scrolling */
-        html { scroll-behavior: smooth; }
-        
+        html {
+            scroll-behavior: smooth;
+        }
+
         .material-symbols-outlined {
             font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
         }
 
-        /* ── Navbar transparent → solid on scroll ── */
-        .guest-nav, .guest-sub-nav {
-            background: transparent !important;
-            border-bottom: 1px solid transparent !important;
-            backdrop-filter: none !important;
-            -webkit-backdrop-filter: none !important;
-            transition: background-color 0.4s ease, border-color 0.4s ease, backdrop-filter 0.4s ease, -webkit-backdrop-filter 0.4s ease;
-        }
-
-        .guest-nav.scrolled {
-            background: rgba(241, 235, 227, 0.92) !important;
-            border-bottom: 1px solid rgba(58, 50, 48, 0.1) !important;
+        /* ── ĐÃ SỬA: Khóa cứng Navbar luôn trong suốt mờ ảo, không đổi nền khi cuộn ── */
+        .guest-nav {
+            background: rgba(31, 27, 22, 0.2) !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
             backdrop-filter: blur(12px) !important;
             -webkit-backdrop-filter: blur(12px) !important;
+            transition: border-color 0.4s ease;
         }
 
-        .guest-sub-nav.scrolled {
-            background: rgba(241, 235, 227, 0.95) !important;
-            border-bottom: 1px solid rgba(58, 50, 48, 0.1) !important;
+        .guest-nav .nav-text {
+            color: #fff !important;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
         }
 
-        .guest-nav .nav-text, .guest-sub-nav .sub-nav-text {
-            color: #fff;
-            transition: color 0.4s ease;
-            text-shadow: 0 1px 3px rgba(0,0,0,0.4);
+        .guest-nav .nav-text-dim,
+        .guest-sub-nav .sub-nav-text {
+            color: rgba(255, 255, 255, 0.8) !important;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+            transition: color 0.3s ease;
         }
 
-        .guest-nav .nav-text-dim {
-            color: rgba(255, 255, 255, 0.85);
-            transition: color 0.4s ease;
-            text-shadow: 0 1px 3px rgba(0,0,0,0.4);
-        }
-
-        .guest-nav.scrolled .nav-text, .guest-sub-nav.scrolled .sub-nav-text {
-            color: #3a3230;
-            text-shadow: none;
-        }
-
-        .guest-nav.scrolled .nav-text-dim {
-            color: rgba(58, 50, 48, 0.7);
-            text-shadow: none;
+        .guest-sub-nav .sub-nav-text:hover,
+        .guest-nav .nav-text-dim:hover {
+            color: #fff !important;
         }
 
         .guest-nav .nav-brand {
-            color: #fff;
-            transition: color 0.4s ease;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.4);
+            color: #fff !important;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
         }
 
-        .guest-nav.scrolled .nav-brand {
-            color: #3a3230;
-            text-shadow: none;
-        }
-
+        /* Đồng bộ cấu trúc nút Book Now dạng liên kết chữ thanh mảnh */
         .guest-nav .nav-btn-book {
-            background: #fff !important;
-            color: #3a3230 !important;
-            border: 1px solid #fff !important;
-            transition: background 0.4s ease, color 0.4s ease, border-color 0.4s ease;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            background: transparent !important;
+            color: rgba(255, 255, 255, 0.8) !important;
+            border: none !important;
+            box-shadow: none !important;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+            transition: color 0.4s ease, opacity 0.2s ease;
         }
 
-        .guest-nav.scrolled .nav-btn-book {
-            background: #3a3230 !important;
-            color: #f1ebe3 !important;
-            border: 1px solid #3a3230 !important;
-            box-shadow: none;
+        .guest-nav .nav-btn-book:hover {
+            color: #fff !important;
+            opacity: 1;
         }
 
         .guest-nav .nav-menu-icon {
-            color: #fff;
-            transition: color 0.4s ease;
-            text-shadow: 0 1px 3px rgba(0,0,0,0.4);
+            color: #fff !important;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
         }
 
-        .guest-nav.scrolled .nav-menu-icon {
-            color: #3a3230;
-            text-shadow: none;
-        }
-
-        /* Snap Scroll specific styles */
         body {
             background-color: #1f1b16;
             color: #fff8f4;
             overflow-x: hidden;
-            /* overflow-y: hidden; removed to prevent layout shift */
         }
-        
+
         .scroll-container {
             scroll-snap-type: y mandatory;
             height: 100vh;
             overflow-y: scroll;
             scroll-behavior: smooth;
-            /* add this to force scrollbar gutter and prevent layout shift */
             scrollbar-gutter: stable;
         }
 
@@ -166,6 +136,7 @@
                 opacity: 0;
                 transform: translateY(30px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -177,22 +148,23 @@
         }
 
         .content-overlay {
-            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.7) 50%, rgba(0, 0, 0, 0.85) 100%);
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.6) 50%, rgba(0, 0, 0, 0.85) 100%);
         }
 
         .journey-overlay {
-            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.7) 50%, rgba(0, 0, 0, 0.85) 100%);
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.6) 50%, rgba(0, 0, 0, 0.85) 100%);
         }
 
-        /* Standard scrollbar for scroll-container to match body scrollbar width */
         .scroll-container::-webkit-scrollbar {
             width: 14px;
         }
+
         .scroll-container::-webkit-scrollbar-track {
             background: transparent;
         }
+
         .scroll-container::-webkit-scrollbar-thumb {
-            background-color: rgba(255,255,255,0.2);
+            background-color: rgba(255, 255, 255, 0.15);
             border: 4px solid #1f1b16;
             border-radius: 8px;
         }
@@ -201,64 +173,74 @@
 
 <body class="font-body selection:bg-primary/30 text-surface bg-on-surface">
 
-    <!-- Sticky Navigation Bar -->
-    <div id="header-wrapper" class="fixed top-0 left-0 w-full z-50 flex flex-col pointer-events-none mix-blend-difference text-white">
-        <!-- Main Nav -->
+    <div id="header-wrapper" class="fixed top-0 left-0 w-full z-50 flex flex-col pointer-events-none text-white">
         <nav class="guest-nav relative w-full font-sans pointer-events-auto">
             <div class="max-w-[1440px] mx-auto px-6 py-4 flex items-center justify-between">
-                <!-- Left Links -->
                 <div class="hidden lg:flex items-center gap-8 text-[13px] uppercase tracking-[0.2em] font-semibold">
-                    <a href="/living" class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200">Living</a>
-                    <a href="/dining" class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200">Dining</a>
-                    <a href="/experiences" class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200">Experiences</a>
+                    <a href="/living"
+                        class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200">Living</a>
+                    <a href="/dining"
+                        class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200">Dining</a>
+                    <a href="/experiences"
+                        class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200">Experiences</a>
                     <a href="/tours/search" class="nav-text border-b border-current pb-0.5">Tours</a>
                 </div>
-                
-                <!-- Center Logo -->
-                <div class="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 font-headline text-[32px] italic tracking-tighter nav-brand text-center cursor-pointer w-max" onclick="window.location.href='/booking'">
+
+                <div class="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 font-headline text-[32px] italic tracking-tighter nav-brand text-center cursor-pointer w-max"
+                    onclick="window.location.href='/booking'">
                     HoaNien
                 </div>
-                
-                <!-- Right Actions -->
+
                 <div class="hidden lg:flex items-center gap-6 text-[13px] uppercase tracking-[0.2em] font-semibold">
-                    <a href="/profile" th:if="${isLoggedIn}" class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200">Profile</a>
+                    <a href="/profile" th:if="${isLoggedIn}"
+                        class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200">Profile</a>
                     <form th:action="@{/auth/logout}" method="post" th:if="${isLoggedIn}" class="inline">
-                        <button type="submit" class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200 uppercase tracking-[0.2em] bg-transparent border-none p-0 cursor-pointer">Logout</button>
+                        <button type="submit"
+                            class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200 uppercase tracking-[0.2em] bg-transparent border-none p-0 cursor-pointer">Logout</button>
                     </form>
-                    <a href="/booking" class="nav-btn-book px-8 py-3.5 hover:opacity-90 active:scale-[0.98] transition-all duration-200 inline-block text-center text-[13px]">
+                    <a href="/booking"
+                        class="nav-btn-book hover:opacity-100 active:scale-95 transition-all duration-200 inline-block text-[13px]">
                         Book Now
                     </a>
                 </div>
-                
+
                 <button class="lg:hidden pointer-events-auto">
                     <span class="material-symbols-outlined text-3xl nav-menu-icon">menu</span>
                 </button>
             </div>
         </nav>
 
-        <!-- Sub-navigation -->
         <div class="guest-sub-nav w-full font-sans pointer-events-auto">
-            <div class="max-w-[1440px] mx-auto px-6 py-3 flex justify-center gap-8 md:gap-12 text-xs uppercase tracking-[0.15em] font-medium overflow-x-auto">
-                <a href="#journey-1" class="sub-nav-text hover:opacity-100 active:scale-95 transition-all duration-200 whitespace-nowrap">Đoàn Tụ</a>
-                <a href="#journey-2" class="sub-nav-text hover:opacity-100 active:scale-95 transition-all duration-200 whitespace-nowrap">Đồng Nội</a>
-                <a href="#journey-3" class="sub-nav-text hover:opacity-100 active:scale-95 transition-all duration-200 whitespace-nowrap">Di Sản</a>
-                <a href="#journey-4" class="sub-nav-text hover:opacity-100 active:scale-95 transition-all duration-200 whitespace-nowrap">Tĩnh Lặng</a>
+            <div
+                class="max-w-[1440px] mx-auto px-6 py-3 flex justify-center gap-8 md:gap-12 text-xs uppercase tracking-[0.15em] font-medium overflow-x-auto">
+                <a href="#journey-1"
+                    class="sub-nav-text hover:opacity-100 active:scale-95 transition-all duration-200 whitespace-nowrap">Đoàn
+                    Tụ</a>
+                <a href="#journey-2"
+                    class="sub-nav-text hover:opacity-100 active:scale-95 transition-all duration-200 whitespace-nowrap">Đồng
+                    Nội</a>
+                <a href="#journey-3"
+                    class="sub-nav-text hover:opacity-100 active:scale-95 transition-all duration-200 whitespace-nowrap">Di
+                    Sản</a>
+                <a href="#journey-4"
+                    class="sub-nav-text hover:opacity-100 active:scale-95 transition-all duration-200 whitespace-nowrap">Tĩnh
+                    Lặng</a>
             </div>
         </div>
     </div>
 
-    <!-- Scroll Content -->
     <div class="scroll-container">
-        <!-- Intro -->
         <section class="snap-section flex flex-col items-center justify-center text-center px-6" id="intro">
             <div class="absolute inset-0 z-0">
-                <img alt="HoaNien Sanctuary Hero" class="parallax-bg w-full h-full object-cover brightness-75" src="/AnhTour/DuAm.jpg">
+                <img alt="HoaNien Sanctuary Hero" class="parallax-bg w-full h-full object-cover brightness-75"
+                    src="/AnhTour/DuAm.jpg">
                 <div class="absolute inset-0 content-overlay"></div>
             </div>
             <div class="relative z-10 faded-entry max-w-4xl px-4">
                 <span class="text-[11px] uppercase tracking-[0.5em] mb-8 block opacity-80">HOANIEN RETREAT</span>
                 <h1 class="font-headline text-5xl md:text-7xl italic mb-10 leading-tight">Dư âm tĩnh lặng</h1>
-                <p class="font-headline text-xl md:text-2xl font-light max-w-2xl mx-auto leading-relaxed opacity-90 italic">
+                <p
+                    class="font-headline text-xl md:text-2xl font-light max-w-2xl mx-auto leading-relaxed opacity-90 italic">
                     Hành trình chạm vào những mảnh ghép ký ức nguyên bản.
                 </p>
                 <div class="mt-16 animate-bounce opacity-40">
@@ -267,10 +249,10 @@
             </div>
         </section>
 
-        <!-- Journey 1: Đoàn Tụ -->
         <section class="snap-section" id="journey-1">
             <div class="absolute inset-0">
-                <img alt="Đoàn tụ — Huế" class="w-full h-full object-cover brightness-90" src="/AnhTour/z7930565882675_f94fe322fc3a06efe82eccf1e76b09e1.jpg">
+                <img alt="Đoàn tụ — Huế" class="w-full h-full object-cover brightness-90"
+                    src="/AnhTour/z7930565882675_f94fe322fc3a06efe82eccf1e76b09e1.jpg">
                 <div class="absolute inset-0 journey-overlay"></div>
             </div>
             <div class="relative h-full flex items-center justify-center text-center px-margin-desktop">
@@ -278,17 +260,20 @@
                     <h2 class="font-headline text-4xl md:text-6xl italic">Đoàn tụ - Huế</h2>
                     <div class="w-12 h-[1px] bg-primary mx-auto"></div>
                     <p class="font-headline text-lg md:text-2xl font-light leading-relaxed opacity-90">
-                        Tìm về hơi ấm vẹn nguyên của lòng biết ơn và sự gắn kết. Nơi những điển tích cổ kính, nghi thức têm trầu cánh phượng và mâm cơm vị cội nguồn khơi mở cuộc sum vầy.
+                        Tìm về hơi ấm vẹn nguyên của lòng biết ơn và sự gắn kết. Nơi những điển tích cổ kính, nghi thức
+                        têm trầu cánh phượng và mâm cơm vị cội nguồn khơi mở cuộc sum vầy.
                     </p>
-                    <a href="/tours/detail?type=doantu" class="inline-block mt-8 text-[11px] font-bold uppercase tracking-[0.4em] border-b border-white/40 pb-2 hover:border-primary hover:text-primary transition-all">Khám phá trải nghiệm</a>
+                    <a href="/tours/detail?type=doantu"
+                        class="inline-block mt-8 text-[11px] font-bold uppercase tracking-[0.4em] border-b border-white/40 pb-2 hover:border-primary hover:text-primary transition-all">Khám
+                        phá trải nghiệm</a>
                 </div>
             </div>
         </section>
 
-        <!-- Journey 2: Đồng Nội -->
         <section class="snap-section" id="journey-2">
             <div class="absolute inset-0">
-                <img alt="Tinh Túy Đồng Nội — Quảng Nam" class="w-full h-full object-cover brightness-90" src="/AnhTour/Com.jpg">
+                <img alt="Tinh Túy Đồng Nội — Quảng Nam" class="w-full h-full object-cover brightness-90"
+                    src="/AnhTour/Com.jpg">
                 <div class="absolute inset-0 journey-overlay"></div>
             </div>
             <div class="relative h-full flex items-center justify-center text-center px-margin-desktop">
@@ -296,17 +281,20 @@
                     <h2 class="font-headline text-4xl md:text-6xl italic">Tinh túy đồng nội - Quảng Nam</h2>
                     <div class="w-12 h-[1px] bg-primary mx-auto"></div>
                     <p class="font-headline text-lg md:text-2xl font-light leading-relaxed opacity-90">
-                        Lắng nghe nhịp điệu mộc mạc của đất mẹ và hồn quê xứ Quảng. Hành trình đánh thức mọi giác quan qua hương lúa non nếp cái hoa vàng, hơi ấm bếp củi.
+                        Lắng nghe nhịp điệu mộc mạc của đất mẹ và hồn quê xứ Quảng. Hành trình đánh thức mọi giác quan
+                        qua hương lúa non nếp cái hoa vàng, hơi ấm bếp củi.
                     </p>
-                    <a href="/tours/detail?type=dongnoi" class="inline-block mt-8 text-[11px] font-bold uppercase tracking-[0.4em] border-b border-white/40 pb-2 hover:border-primary hover:text-primary transition-all">Gói trọn hương quê</a>
+                    <a href="/tours/detail?type=dongnoi"
+                        class="inline-block mt-8 text-[11px] font-bold uppercase tracking-[0.4em] border-b border-white/40 pb-2 hover:border-primary hover:text-primary transition-all">Gói
+                        trọn hương quê</a>
                 </div>
             </div>
         </section>
 
-        <!-- Journey 3: Di Sản -->
         <section class="snap-section" id="journey-3">
             <div class="absolute inset-0">
-                <img alt="Di sản thủ công — Ninh Bình" class="w-full h-full object-cover brightness-90" src="/AnhTour/ThuCong.jpg">
+                <img alt="Di sản thủ công — Ninh Bình" class="w-full h-full object-cover brightness-90"
+                    src="/AnhTour/ThuCong.jpg">
                 <div class="absolute inset-0 journey-overlay"></div>
             </div>
             <div class="relative h-full flex items-center justify-center text-center px-margin-desktop">
@@ -314,17 +302,20 @@
                     <h2 class="font-headline text-4xl md:text-6xl italic">Di sản thủ công - Ninh Bình</h2>
                     <div class="w-12 h-[1px] bg-primary mx-auto"></div>
                     <p class="font-headline text-lg md:text-2xl font-light leading-relaxed opacity-90">
-                        Chạm vào hồn cốt của thời gian qua những tạo tác từ đôi bàn tay nghệ nhân. Khi sợi mây tre đan cài, kén vàng ươm dệt tơ và đất sét mộc hóa thành gốm quý.
+                        Chạm vào hồn cốt của thời gian qua những tạo tác từ đôi bàn tay nghệ nhân. Khi sợi mây tre đan
+                        cài, kén vàng ươm dệt tơ và đất sét mộc hóa thành gốm quý.
                     </p>
-                    <a href="/tours/detail?type=disan" class="inline-block mt-8 text-[11px] font-bold uppercase tracking-[0.4em] border-b border-white/40 pb-2 hover:border-primary hover:text-primary transition-all">Trải nghiệm thủ công</a>
+                    <a href="/tours/detail?type=disan"
+                        class="inline-block mt-8 text-[11px] font-bold uppercase tracking-[0.4em] border-b border-white/40 pb-2 hover:border-primary hover:text-primary transition-all">Trải
+                        nghiệm thủ công</a>
                 </div>
             </div>
         </section>
 
-        <!-- Journey 4: Tĩnh Lặng -->
         <section class="snap-section" id="journey-4">
             <div class="absolute inset-0">
-                <img alt="Tĩnh lặng liên hoa — Đồng Sen Tháp Mười" class="w-full h-full object-cover brightness-90" src="/AnhTour/ThapMuoi.jpg">
+                <img alt="Tĩnh lặng liên hoa — Đồng Sen Tháp Mười" class="w-full h-full object-cover brightness-90"
+                    src="/AnhTour/ThapMuoi.jpg">
                 <div class="absolute inset-0 journey-overlay"></div>
             </div>
             <div class="relative h-full flex items-center justify-center text-center px-margin-desktop">
@@ -332,40 +323,50 @@
                     <h2 class="font-headline text-4xl md:text-6xl italic">Tĩnh lặng liên hoa - Tháp Mười</h2>
                     <div class="w-12 h-[1px] bg-primary mx-auto"></div>
                     <p class="font-headline text-lg md:text-2xl font-light leading-relaxed opacity-90">
-                        Sự thanh lọc thuần khiết cho thân - tâm - trí giữa vùng sông nước mờ sương. Thả trôi mọi âu lo theo hương sen bánh tẻ ngậm sương sớm và thưởng ngụm trà nhị thanh sạch.
+                        Sự thanh lọc thuần khiết cho thân - tâm - trí giữa vùng sông nước mờ sương. Thả trôi mọi âu lo
+                        theo hương sen bánh tẻ ngậm sương sớm và thưởng ngụm trà nhị thanh sạch.
                     </p>
-                    <a href="/tours/detail?type=tinhlang" class="inline-block mt-8 text-[11px] font-bold uppercase tracking-[0.4em] border-b border-white/40 pb-2 hover:border-primary hover:text-primary transition-all">Tìm về tĩnh lặng</a>
+                    <a href="/tours/detail?type=tinhlang"
+                        class="inline-block mt-8 text-[11px] font-bold uppercase tracking-[0.4em] border-b border-white/40 pb-2 hover:border-primary hover:text-primary transition-all">Tìm
+                        về tĩnh lặng</a>
                 </div>
             </div>
         </section>
 
-        <!-- Footer inside snap -->
         <section class="snap-section bg-on-surface flex flex-col justify-between py-24">
             <div class="max-w-2xl mx-auto text-center space-y-12 px-6 pt-12">
                 <h2 class="font-headline text-4xl md:text-5xl italic">Gửi gắm tâm tình</h2>
-                <p class="opacity-70 max-w-lg mx-auto font-light">Để lại một nhịp chạm, giữ lại một dư âm cùng Hòa Niên.</p>
+                <p class="opacity-70 max-w-lg mx-auto font-light">Để lại một nhịp chạm, giữ lại một dư âm cùng Hòa Niên.
+                </p>
                 <div class="w-full flex items-center border-b border-white/20 pb-4 mt-8">
-                    <input class="bg-transparent w-full border-none focus:ring-0 text-sm italic font-headline text-white placeholder-white/30 p-0" placeholder="Địa chỉ email của bạn" type="email">
-                    <button class="text-[10px] font-bold uppercase tracking-[0.3em] ml-4 hover:text-primary transition-colors whitespace-nowrap flex-shrink-0">Đăng ký</button>
+                    <input
+                        class="bg-transparent w-full border-none focus:ring-0 text-sm italic font-headline text-white placeholder-white/30 p-0"
+                        placeholder="Địa chỉ email của bạn" type="email">
+                    <button
+                        class="text-[10px] font-bold uppercase tracking-[0.3em] ml-4 hover:text-primary transition-colors whitespace-nowrap flex-shrink-0">Đăng
+                        ký</button>
                 </div>
             </div>
             <footer class="mt-auto px-margin-desktop border-t border-white/10 pt-16 pb-8">
                 <div class="flex flex-col md:flex-row justify-between items-center gap-12">
                     <div class="text-center md:text-left">
                         <p class="font-headline text-3xl italic">HoaNien</p>
-                        <p class="text-[9px] tracking-[0.3em] text-white/40 uppercase mt-4">© 2026 HoaNien Retreat. A Quiet Luxury Travel Group.</p>
+                        <p class="text-[9px] tracking-[0.3em] text-white/40 uppercase mt-4">© 2026 HoaNien Retreat. A
+                            Quiet Luxury Travel Group.</p>
                     </div>
                     <div class="flex flex-wrap justify-center gap-10">
-                        <a class="text-[9px] font-semibold uppercase tracking-[0.25em] text-white/50 hover:text-white transition-colors" href="#">Quyền riêng tư</a>
-                        <a class="text-[9px] font-semibold uppercase tracking-[0.25em] text-white/50 hover:text-white transition-colors" href="#">Sự bền vững</a>
-                        <a class="text-[9px] font-semibold uppercase tracking-[0.25em] text-white/50 hover:text-white transition-colors" href="#">Liên hệ</a>
+                        <a class="text-[9px] font-semibold uppercase tracking-[0.25em] text-white/50 hover:text-white transition-colors"
+                            href="#">Quyền riêng tư</a>
+                        <a class="text-[9px] font-semibold uppercase tracking-[0.25em] text-white/50 hover:text-white transition-colors"
+                            href="#">Sự bền vững</a>
+                        <a class="text-[9px] font-semibold uppercase tracking-[0.25em] text-white/50 hover:text-white transition-colors"
+                            href="#">Liên hệ</a>
                     </div>
                 </div>
             </footer>
         </section>
     </div>
 
-    <!-- Scripts -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const scrollContainer = document.querySelector('.scroll-container');
@@ -373,10 +374,9 @@
             const backgrounds = document.querySelectorAll('.parallax-bg');
 
             scrollContainer.addEventListener('scroll', () => {
-                const scrollTop = scrollContainer.scrollTop;
                 const height = window.innerHeight;
 
-                // Parallax effect
+                // Parallax effect giữ nguyên cho ảnh nền mượt mà
                 backgrounds.forEach((bg, index) => {
                     const section = sections[index];
                     if (section) {
@@ -392,4 +392,5 @@
         });
     </script>
 </body>
+
 </html>
