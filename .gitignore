@@ -48,10 +48,11 @@ yarn-error.log
 .idea/
 *.iml
 *.iws
-.vscode/
-.settings/
-.project
-.classpath
+# Keep Eclipse/VSCode project config for JDT LS compatibility
+!.vscode/
+!.settings/
+!.project
+!.classpath
 
 # OS generated files
 .DS_Store
