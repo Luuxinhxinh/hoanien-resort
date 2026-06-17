@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 
 @Entity
 @Table(name = "Room_Bookings")
+@PrimaryKeyJoinColumn(name = "room_booking_id")
 public class RoomBooking extends Booking {
     @Column(name = "check_in_date", nullable = false)
     private LocalDate checkInDate;

@@ -189,7 +189,7 @@
                                     <div class="flex justify-between items-end mt-2">
                                         <div>
                                             <p class="text-[8px] uppercase tracking-widest opacity-60">Tiền cọc</p>
-                                            <p class="font-serif text-base font-semibold"><span th:text="${#numbers.formatDecimal(booking.depositAmount, 0, 'COMMA', 0, 'POINT')}">Price</span> <span class="text-[9px] font-sans">VNĐ</span></p>
+                                            <p class="font-serif text-base font-semibold"><span th:text="${booking.depositAmount != null ? #numbers.formatDecimal(booking.depositAmount, 0, 'COMMA', 0, 'POINT') : '0'}">Price</span> <span class="text-[9px] font-sans">VNĐ</span></p>
                                         </div>
                                         <div class="flex gap-2">
                                             <button th:if="${#strings.toUpperCase(booking.bookingStatus) == 'PENDING' or #strings.toUpperCase(booking.bookingStatus) == 'CONFIRMED'}" th:onclick="'cancelBooking(' + ${booking.id} + ')'" class="text-[9px] uppercase tracking-widest font-semibold border border-hoanien-text/20 bg-white px-3 py-1.5 rounded hover:bg-gray-50 transition-colors">Hủy đơn</button>
@@ -248,7 +248,7 @@
                                         <div>
                                             <p class="text-[8px] uppercase tracking-widest opacity-60">Tổng chi phí</p>
                                             <p class="font-serif text-base font-semibold">
-                                                <span th:text="${#numbers.formatDecimal(tb.tourCharge, 0, 'COMMA', 0, 'POINT')}">Price</span>
+                                                <span th:text="${tb.tourCharge != null ? #numbers.formatDecimal(tb.tourCharge, 0, 'COMMA', 0, 'POINT') : '0'}">Price</span>
                                                 <span class="text-[9px] font-sans">VNĐ</span>
                                             </p>
                                         </div>

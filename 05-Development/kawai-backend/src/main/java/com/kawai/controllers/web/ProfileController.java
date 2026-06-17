@@ -79,7 +79,7 @@ public class ProfileController {
             }
             model.addAttribute("tourBookings", tourBookings);
 
-            List<FoodOrder> foodOrders = foodOrderRepository.findByBooking_Customer(customer);
+            List<FoodOrder> foodOrders = foodOrderRepository.findByCustomer(customer);
             for (FoodOrder fo : foodOrders) {
                 if (fo.getDetails() != null) {
                     fo.getDetails().size();
@@ -139,7 +139,7 @@ public class ProfileController {
             model.addAttribute("tourBookings", tourBookings);
 
             // Fetch and initialize foodOrders
-            List<FoodOrder> foodOrders = foodOrderRepository.findByBooking_Customer(customer);
+            List<FoodOrder> foodOrders = foodOrderRepository.findByCustomer(customer);
             for (FoodOrder fo : foodOrders) {
                 if (fo.getDetails() != null) {
                     fo.getDetails().size();

@@ -208,17 +208,17 @@ INSERT INTO Bookings (booking_id, customer_id, booking_date, total_price, bookin
 (20, 5, '2026-06-12', 4500000, 'Confirmed', 'Direct_Web', NULL, 1);
 
 -- ── 13. Room Bookings (10 rows) ──────────────────────────────
-INSERT INTO Room_Bookings (room_booking_id, booking_id, check_in_date, check_out_date, deposit_amount, cancellation_deadline, credit_limit, personal_pin_hash) VALUES
-(1, 1, '2026-06-09', '2026-06-12', 1000000, '2026-06-05', 5000000, 'hash'),
-(2, 2, '2026-06-09', '2026-06-12', 1000000, '2026-06-05', 5000000, 'hash'),
-(3, 3, '2026-06-09', '2026-06-12', 2000000, '2026-06-05', 10000000, 'hash'),
-(4, 4, '2026-06-09', '2026-06-11', 1000000, '2026-06-05', 5000000, 'hash'),
-(5, 5, '2026-06-10', '2026-06-13', 1000000, '2026-06-06', 5000000, 'hash'),
-(6, 6, '2026-06-10', '2026-06-14', 1500000, '2026-06-06', 5000000, 'hash'),
-(7, 7, '2026-06-10', '2026-06-15', 1500000, '2026-06-06', 5000000, 'hash'),
-(8, 8, '2026-06-10', '2026-06-16', 3000000, '2026-06-06', 15000000, 'hash'),
-(9, 14, '2026-07-01', '2026-07-05', 1000000, '2026-06-25', 5000000, 'hash'),
-(10, 15, '2026-07-01', '2026-07-05', 1000000, '2026-06-25', 5000000, 'hash');
+INSERT INTO Room_Bookings (room_booking_id, check_in_date, check_out_date, deposit_amount, cancellation_deadline, credit_limit, personal_pin_hash) VALUES
+(1, '2026-06-09', '2026-06-12', 1000000, '2026-06-05', 5000000, 'hash'),
+(2, '2026-06-09', '2026-06-12', 1000000, '2026-06-05', 5000000, 'hash'),
+(3, '2026-06-09', '2026-06-12', 2000000, '2026-06-05', 10000000, 'hash'),
+(4, '2026-06-09', '2026-06-11', 1000000, '2026-06-05', 5000000, 'hash'),
+(5, '2026-06-10', '2026-06-13', 1000000, '2026-06-06', 5000000, 'hash'),
+(6, '2026-06-10', '2026-06-14', 1500000, '2026-06-06', 5000000, 'hash'),
+(7, '2026-06-10', '2026-06-15', 1500000, '2026-06-06', 5000000, 'hash'),
+(8, '2026-06-10', '2026-06-16', 3000000, '2026-06-06', 15000000, 'hash'),
+(14, '2026-07-01', '2026-07-05', 1000000, '2026-06-25', 5000000, 'hash'),
+(15, '2026-07-01', '2026-07-05', 1000000, '2026-06-25', 5000000, 'hash');
 
 -- ── 14. Room Booking Details (10 rows) ───────────────────────
 INSERT INTO Room_Booking_Details (detail_id, room_booking_id, category_id, room_id, room_charge, detail_status, bed_preference, special_requests, is_charge_to_room_allowed, sub_credit_limit, billing_routing_strategy) VALUES
@@ -230,8 +230,8 @@ INSERT INTO Room_Booking_Details (detail_id, room_booking_id, category_id, room_
 (6, 6, 2, 12, 3500000, 'Pending', 'KING_SIZE', NULL, TRUE, 1500000, 'BILL_TO_LEADER'),
 (7, 7, 2, 15, 3500000, 'Pending', 'KING_SIZE', NULL, TRUE, 1500000, 'BILL_TO_LEADER'),
 (8, 8, 3, 18, 8000000, 'Pending', 'KING_SIZE', NULL, TRUE, 3000000, 'BILL_TO_LEADER'),
-(9, 9, 1, 2, 2500000, 'Pending', 'KING_SIZE', NULL, TRUE, 500000, 'BILL_TO_LEADER'),
-(10, 10, 2, 4, 3500000, 'Pending', 'TWIN_BED', NULL, TRUE, 1500000, 'BILL_TO_LEADER');
+(9, 14, 1, 2, 2500000, 'Pending', 'KING_SIZE', NULL, TRUE, 500000, 'BILL_TO_LEADER'),
+(10, 15, 2, 4, 3500000, 'Pending', 'TWIN_BED', NULL, TRUE, 1500000, 'BILL_TO_LEADER');
 
 -- ── 15. Room Guests (10 rows) ────────────────────────────────
 INSERT INTO Room_Guests (guest_id, detail_id, customer_id, dependent_id, guest_type, is_primary_contact) VALUES
@@ -670,16 +670,16 @@ INSERT IGNORE INTO Bookings (booking_id, customer_id, booking_date, total_price,
 (23, 18, '2026-06-10', 16000000, 'Confirmed', 'Direct_Web', NULL, 1);
 
 -- ── 45. Test Room Bookings ───────────────────────────────────
-INSERT IGNORE INTO Room_Bookings (room_booking_id, booking_id, check_in_date, check_out_date, deposit_amount, cancellation_deadline, credit_limit, personal_pin_hash) VALUES
-(11, 21, '2026-06-14', '2026-06-20', 1000000, '2026-06-12', 8000000, 'hash'),
-(12, 22, '2026-06-15', '2026-06-18', 1500000, '2026-06-13', 10000000, 'hash'),
-(13, 23, '2026-06-10', '2026-06-16', 3000000, '2026-06-08', 15000000, 'hash');
+INSERT IGNORE INTO Room_Bookings (room_booking_id, check_in_date, check_out_date, deposit_amount, cancellation_deadline, credit_limit, personal_pin_hash) VALUES
+(21, '2026-06-14', '2026-06-20', 1000000, '2026-06-12', 8000000, 'hash'),
+(22, '2026-06-15', '2026-06-18', 1500000, '2026-06-13', 10000000, 'hash'),
+(23, '2026-06-10', '2026-06-16', 3000000, '2026-06-08', 15000000, 'hash');
 
 -- ── 46. Test Room Booking Details ────────────────────────────
 INSERT IGNORE INTO Room_Booking_Details (detail_id, room_booking_id, category_id, room_id, room_charge, detail_status, bed_preference, special_requests, is_charge_to_room_allowed, sub_credit_limit, billing_routing_strategy) VALUES
-(11, 11, 4, 6, 2000000, 'Active', 'KING_SIZE', NULL, TRUE, 500000, 'BILL_TO_LEADER'),
-(12, 12, 2, 11, 3500000, 'Active', 'KING_SIZE', NULL, TRUE, 1500000, 'BILL_TO_LEADER'),
-(13, 13, 3, 16, 8000000, 'Active', 'TWIN_BED', NULL, TRUE, 2000000, 'BILL_TO_LEADER');
+(11, 21, 4, 6, 2000000, 'Active', 'KING_SIZE', NULL, TRUE, 500000, 'BILL_TO_LEADER'),
+(12, 22, 2, 11, 3500000, 'Active', 'KING_SIZE', NULL, TRUE, 1500000, 'BILL_TO_LEADER'),
+(13, 23, 3, 16, 8000000, 'Active', 'TWIN_BED', NULL, TRUE, 2000000, 'BILL_TO_LEADER');
 
 -- ── 47. Test Room Guests ─────────────────────────────────────
 INSERT IGNORE INTO Room_Guests (guest_id, detail_id, customer_id, dependent_id, guest_type, is_primary_contact) VALUES
