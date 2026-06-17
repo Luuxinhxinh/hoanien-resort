@@ -66,6 +66,7 @@
                         <button type="submit"
                             class="hover:text-hoanien-text uppercase tracking-[0.2em] bg-transparent border-none p-0 cursor-pointer text-hoanien-text/80 transition-colors">Logout</button>
                     </form>
+                    <a href="#" onclick="openLoginModal(); return false;" th:unless="${isLoggedIn}" class="hover:text-hoanien-text transition-colors text-hoanien-text/80">Log In</a>
                     <a href="/booking"
                         class="bg-hoanien-text text-hoanien-bg px-6 py-3 hover:bg-hoanien-text/80 transition-colors inline-block border border-hoanien-text">
                         Đặt phòng
@@ -422,5 +423,7 @@
         }
     </script>
 
+
+    <div th:replace="~{guest/fragments/auth :: authModal}"></div>
 </body>
 </html>

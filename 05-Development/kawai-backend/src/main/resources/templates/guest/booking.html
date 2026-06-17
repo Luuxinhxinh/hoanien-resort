@@ -79,6 +79,7 @@
                             class="hover:text-hoanien-text active:scale-95 transition-all duration-200 transition-colors uppercase tracking-[0.2em] bg-transparent border-none p-0 cursor-pointer text-hoanien-text/80">Logout</button>
                     </form>
 
+                    <a href="#" onclick="openLoginModal(); return false;" th:unless="${isLoggedIn}" class="hover:text-hoanien-text active:scale-95 transition-all duration-200 transition-colors text-hoanien-text/80">Log In</a>
                     <a href="#roomsSection"
                         class="bg-hoanien-text text-hoanien-bg px-6 py-3 hover:bg-hoanien-text/80 active:scale-[0.98] active:translate-y-[0.5px] transition-all duration-200 transition-colors inline-block text-center border border-hoanien-text">
                         Book Now
@@ -407,127 +408,7 @@
         </div>
     </footer>
 
-    <!-- ============ AUTH MODAL (Login/Register) ============ -->
-    <div id="authModal"
-        class="fixed inset-0 z-[100] bg-black/60 items-center justify-center backdrop-blur-sm transition-opacity font-sans"
-        style="display: none;">
-        <div
-            class="bg-hoanien-bg w-full max-w-md p-8 relative border border-hoanien-text/10 shadow-2xl overflow-y-auto max-h-[90vh]">
-            <button onclick="closeAuthModal()"
-                class="absolute top-4 right-4 text-hoanien-text/50 hover:text-hoanien-text active:scale-95 transition-all duration-200 transition-colors">
-                <span class="material-symbols-outlined">close</span>
-            </button>
-
-            <!-- Flash Messages -->
-            <div th:if="${success}"
-                class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4"
-                role="alert">
-                <span class="block sm:inline" th:text="${success}"></span>
-            </div>
-            <div th:if="${error}" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4"
-                role="alert">
-                <span class="block sm:inline" th:text="${error}"></span>
-            </div>
-
-            <!-- Login Form -->
-            <div id="loginSection">
-                <h2 class="font-serif text-3xl mb-6 text-center text-hoanien-text">Đăng Nhập</h2>
-                <p class="text-sm opacity-70 text-center mb-8">Vui lòng đăng nhập để tiếp tục đặt phòng.</p>
-
-                <form th:action="@{/auth/login}" method="post" class="space-y-4">
-                    <div>
-                        <label class="block text-[11px] uppercase tracking-[0.1em] opacity-60 font-semibold mb-2">Tên
-                            đăng nhập</label>
-                        <input type="text" name="username" required
-                            class="w-full border border-hoanien-text/20 p-3 focus:ring-1 focus:ring-hoanien-text focus:border-hoanien-text bg-white text-sm"
-                            placeholder="Nhập tên đăng nhập của bạn">
-                    </div>
-                    <div>
-                        <div class="flex justify-between items-center mb-2">
-                            <label class="block text-[11px] uppercase tracking-[0.1em] opacity-60 font-semibold">Mật
-                                khẩu</label>
-                            <a href="#" class="text-[11px] text-hoanien-text hover:underline opacity-80">Quên mật
-                                khẩu?</a>
-                        </div>
-                        <input type="password" name="password" required
-                            class="w-full border border-hoanien-text/20 p-3 focus:ring-1 focus:ring-hoanien-text focus:border-hoanien-text bg-white text-sm"
-                            placeholder="Nhập mật khẩu">
-                    </div>
-                    <button type="submit"
-                        class="w-full bg-hoanien-text text-white py-3 text-[11px] uppercase tracking-[0.15em] font-semibold hover:bg-hoanien-text/80 active:scale-[0.98] active:translate-y-[0.5px] transition-all duration-200 transition-colors mt-4">
-                        Đăng Nhập
-                    </button>
-                </form>
-
-                <div class="mt-6 flex items-center justify-between">
-                    <hr class="w-full border-hoanien-text/10">
-                    <span class="text-xs px-3 opacity-50 uppercase tracking-widest">Hoặc</span>
-                    <hr class="w-full border-hoanien-text/10">
-                </div>
-
-                <a href="/auth/google-login?from=/booking"
-                    class="w-full border border-hoanien-text/20 bg-white text-hoanien-text py-3 mt-6 flex items-center justify-center gap-3 hover:bg-gray-50 transition-colors text-sm font-medium">
-                    <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" class="w-5 h-5">
-                    Đăng nhập bằng Google
-                </a>
-
-                <p class="text-center text-sm opacity-70 mt-8">
-                    Chưa có tài khoản? <a href="#" onclick="toggleAuthView('register'); return false;"
-                        class="text-hoanien-text font-semibold hover:underline">Đăng ký ngay</a>
-                </p>
-            </div>
-
-            <!-- Register Form -->
-            <div id="registerSection" style="display: none;">
-                <h2 class="font-serif text-3xl mb-6 text-center text-hoanien-text">Đăng Ký</h2>
-                <p class="text-sm opacity-70 text-center mb-8">Tạo tài khoản để trải nghiệm dịch vụ.</p>
-
-                <form th:action="@{/auth/register}" method="post" class="space-y-4">
-                    <div>
-                        <label class="block text-[11px] uppercase tracking-[0.1em] opacity-60 font-semibold mb-2">Họ và
-                            Tên</label>
-                        <input type="text" name="fullName" required
-                            class="w-full border border-hoanien-text/20 p-3 focus:ring-1 focus:ring-hoanien-text focus:border-hoanien-text bg-white text-sm"
-                            placeholder="Nhập họ tên đầy đủ">
-                    </div>
-                    <div>
-                        <label
-                            class="block text-[11px] uppercase tracking-[0.1em] opacity-60 font-semibold mb-2">Email</label>
-                        <input type="email" name="email" required
-                            class="w-full border border-hoanien-text/20 p-3 focus:ring-1 focus:ring-hoanien-text focus:border-hoanien-text bg-white text-sm"
-                            placeholder="Nhập email của bạn">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] uppercase tracking-[0.1em] opacity-60 font-semibold mb-2">Tên
-                            đăng nhập</label>
-                        <input type="text" name="username" required
-                            class="w-full border border-hoanien-text/20 p-3 focus:ring-1 focus:ring-hoanien-text focus:border-hoanien-text bg-white text-sm"
-                            placeholder="Chọn tên đăng nhập">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] uppercase tracking-[0.1em] opacity-60 font-semibold mb-2">Mật
-                            khẩu</label>
-                        <input type="password" name="password" required
-                            class="w-full border border-hoanien-text/20 p-3 focus:ring-1 focus:ring-hoanien-text focus:border-hoanien-text bg-white text-sm"
-                            placeholder="Tạo mật khẩu">
-                    </div>
-                    <button type="submit"
-                        class="w-full bg-hoanien-text text-white py-3 text-[11px] uppercase tracking-[0.15em] font-semibold hover:bg-hoanien-text/80 active:scale-[0.98] active:translate-y-[0.5px] transition-all duration-200 transition-colors mt-4">
-                        Đăng Ký
-                    </button>
-                </form>
-
-                <p class="text-center text-sm opacity-70 mt-8">
-                    Đã có tài khoản? <a href="#" onclick="toggleAuthView('login'); return false;"
-                        class="text-hoanien-text font-semibold hover:underline">Đăng nhập</a>
-                </p>
-            </div>
-        </div>
-    </div>
-
-    <!-- ============ TOAST CONTAINER ============ -->
-    <div id="toastContainer" class="fixed top-5 right-5 z-[200] flex flex-col gap-3 pointer-events-none font-sans">
-    </div>
+    <div th:replace="~{guest/fragments/auth :: authModal}"></div>
 
     <!-- Booking confirm modal removed — flow now redirects to /payment page -->
 

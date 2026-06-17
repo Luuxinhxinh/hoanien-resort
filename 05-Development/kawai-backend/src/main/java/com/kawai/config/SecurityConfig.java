@@ -201,12 +201,8 @@ public class SecurityConfig {
                         return;
                     }
 
-                    String referer = request.getHeader("Referer");
-                    if (referer != null && !referer.trim().isEmpty() && !referer.contains("/ops-login") && !referer.contains("/auth/login")) {
-                        response.sendRedirect(referer);
-                        return;
-                    }
-                    response.sendRedirect("/booking");
+                    // Redirect to /living for all customers
+                    response.sendRedirect("/living");
                 }
             }
         };

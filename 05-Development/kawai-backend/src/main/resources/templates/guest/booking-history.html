@@ -66,7 +66,8 @@
                 <form th:action="@{/auth/logout}" method="post" class="inline">
                     <button type="submit" class="hover:text-hoanien-text active:scale-95 transition-all duration-200 transition-colors uppercase tracking-[0.2em] bg-transparent border-none p-0 cursor-pointer">Logout</button>
                 </form>
-                <a href="/booking" class="bg-hoanien-text text-hoanien-bg px-6 py-3 hover:bg-hoanien-text/80 active:scale-[0.98] active:translate-y-[0.5px] transition-all duration-200 transition-colors inline-block text-center border border-hoanien-text">
+                <a href="#" onclick="openLoginModal(); return false;" th:unless="${isLoggedIn}" class="hover:text-hoanien-text active:scale-95 transition-all duration-200 transition-colors">Log In</a>
+                    <a href="/booking" class="bg-hoanien-text text-hoanien-bg px-6 py-3 hover:bg-hoanien-text/80 active:scale-[0.98] active:translate-y-[0.5px] transition-all duration-200 transition-colors inline-block text-center border border-hoanien-text">
                     Book Now
                 </a>
             </div>
@@ -562,6 +563,8 @@
             });
         }
     </script>
+
+    <div th:replace="~{guest/fragments/auth :: authModal}"></div>
 </body>
 
 </html>

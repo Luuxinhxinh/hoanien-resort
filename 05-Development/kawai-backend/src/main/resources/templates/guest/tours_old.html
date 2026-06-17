@@ -179,7 +179,8 @@
                     <button type="submit" class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200 uppercase tracking-[0.2em] bg-transparent border-none p-0 cursor-pointer">Logout</button>
                 </form>
 
-                <a href="/booking" class="nav-btn-book px-8 py-3.5 hover:opacity-90 active:scale-[0.98] active:translate-y-[0.5px] transition-all duration-200 inline-block text-center text-[13px]">
+                <a href="#" onclick="openLoginModal(); return false;" th:unless="${isLoggedIn}" class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200">Log In</a>
+                    <a href="/booking" class="nav-btn-book px-8 py-3.5 hover:opacity-90 active:scale-[0.98] active:translate-y-[0.5px] transition-all duration-200 inline-block text-center text-[13px]">
                     Book Now
                 </a>
             </div>
@@ -626,5 +627,7 @@
         });
     </script>
 
+
+    <div th:replace="~{guest/fragments/auth :: authModal}"></div>
 </body>
 </html>
