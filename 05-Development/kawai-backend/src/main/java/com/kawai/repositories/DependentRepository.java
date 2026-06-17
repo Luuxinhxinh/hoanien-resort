@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface DependentRepository extends JpaRepository<Dependent, Long> {
-
+    java.util.List<Dependent> findByCustomer(com.kawai.models.Customer customer);
 }

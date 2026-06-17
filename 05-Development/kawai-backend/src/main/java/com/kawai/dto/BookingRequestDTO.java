@@ -2,6 +2,7 @@ package com.kawai.dto;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
 /**
  * DTO dùng khi khách hàng gửi yêu cầu đặt phòng (UC10).
@@ -9,8 +10,7 @@ import java.time.LocalDate;
 public class BookingRequestDTO {
 
     private Long customerId;
-    private String roomNumber;      // Ví dụ "R101"
-    private String roomCategoryName; // nullable - dùng để tự động chọn phòng trống
+    private List<RoomSelectionDTO> roomSelections;
     private LocalDate checkInDate;
     private LocalDate checkOutDate;
     private BigDecimal depositAmount;
@@ -19,11 +19,11 @@ public class BookingRequestDTO {
     // ------- Constructors -------
     public BookingRequestDTO() {}
 
-    public BookingRequestDTO(Long customerId, String roomNumber,
+    public BookingRequestDTO(Long customerId, List<RoomSelectionDTO> roomSelections,
                               LocalDate checkInDate, LocalDate checkOutDate,
                               BigDecimal depositAmount) {
         this.customerId    = customerId;
-        this.roomNumber    = roomNumber;
+        this.roomSelections   = roomSelections;
         this.checkInDate   = checkInDate;
         this.checkOutDate  = checkOutDate;
         this.depositAmount = depositAmount;
@@ -33,8 +33,8 @@ public class BookingRequestDTO {
     public Long getCustomerId()               { return customerId; }
     public void setCustomerId(Long v)         { customerId = v; }
 
-    public String getRoomNumber()             { return roomNumber; }
-    public void setRoomNumber(String v)       { roomNumber = v; }
+    public List<RoomSelectionDTO> getRoomSelections()      { return roomSelections; }
+    public void setRoomSelections(List<RoomSelectionDTO> v){ roomSelections = v; }
 
     public LocalDate getCheckInDate()         { return checkInDate; }
     public void setCheckInDate(LocalDate v)   { checkInDate = v; }
@@ -47,7 +47,4 @@ public class BookingRequestDTO {
 
     public String getPromotionCode()          { return promotionCode; }
     public void setPromotionCode(String v)    { promotionCode = v; }
-
-    public String getRoomCategoryName()       { return roomCategoryName; }
-    public void setRoomCategoryName(String v) { roomCategoryName = v; }
 }

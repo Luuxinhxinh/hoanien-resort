@@ -13,7 +13,16 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.kawai.utils.EncryptionUtils;
 
+import com.kawai.models.RoomBooking;
+import com.kawai.models.TourBooking;
+import com.kawai.models.FoodOrder;
+import com.kawai.models.FoodOrderDetail;
+import com.kawai.models.RoomBookingDetail;
+import java.util.List;
+import java.util.Collections;
+
 import com.kawai.repositories.RoomBookingRepository;
+import com.kawai.repositories.RoomBookingDetailRepository;
 import com.kawai.repositories.TourBookingRepository;
 import com.kawai.repositories.FoodOrderRepository;
 
@@ -39,37 +48,135 @@ public class ProfileController {
     @Autowired
     private FoodOrderRepository foodOrderRepository;
 
+    @Autowired
+    private RoomBookingDetailRepository roomBookingDetailRepository;
+
+    @Autowired
+    private com.kawai.repositories.DependentRepository dependentRepository;
+
     @GetMapping
     public String viewProfile(Authentication authentication, Model model) {
+        if (authentication == null || !authentication.isAuthenticated()
+                || "anonymousUser".equals(authentication.getName())) {
+            return "redirect:/booking";
+        }
         String username = authentication.getName();
         Customer customer = customerRepository.findByAccount_Username(username).orElse(null);
         model.addAttribute("customer", customer);
-        
+
         if (customer != null) {
-            model.addAttribute("roomBookings", roomBookingRepository.findByCustomer(customer));
-            model.addAttribute("tourBookings", tourBookingRepository.findByCustomer(customer));
-            model.addAttribute("foodOrders", foodOrderRepository.findByBooking_Customer(customer));
+            List<RoomBooking> roomBookings = roomBookingRepository.findByCustomerOrderByBookingDateDesc(customer);
+            model.addAttribute("roomBookings", roomBookings);
+
+            List<TourBooking> tourBookings = tourBookingRepository.findByCustomer(customer);
+            for (TourBooking tb : tourBookings) {
+                if (tb.getSchedule() != null) {
+                    tb.getSchedule().getDepartureDate();
+                    if (tb.getSchedule().getTour() != null) {
+                        tb.getSchedule().getTour().getTourName();
+                    }
+                }
+            }
+            model.addAttribute("tourBookings", tourBookings);
+
+            List<FoodOrder> foodOrders = foodOrderRepository.findByBooking_Customer(customer);
+            for (FoodOrder fo : foodOrders) {
+                if (fo.getDetails() != null) {
+                    fo.getDetails().size();
+                    for (FoodOrderDetail detail : fo.getDetails()) {
+                        if (detail.getMenuItem() != null) {
+                            detail.getMenuItem().getItemName();
+                        }
+                    }
+                }
+            }
+            model.addAttribute("foodOrders", foodOrders);
+
+            List<com.kawai.models.Dependent> dependents = dependentRepository.findByCustomer(customer);
+            model.addAttribute("dependents", dependents);
         } else {
-            model.addAttribute("roomBookings", java.util.Collections.emptyList());
-            model.addAttribute("tourBookings", java.util.Collections.emptyList());
-            model.addAttribute("foodOrders", java.util.Collections.emptyList());
+            model.addAttribute("roomBookings", Collections.emptyList());
+            model.addAttribute("tourBookings", Collections.emptyList());
+            model.addAttribute("foodOrders", Collections.emptyList());
+            model.addAttribute("dependents", Collections.emptyList());
         }
         return "guest/profile";
     }
 
-    @GetMapping({"/update", "/edit"})
+    @GetMapping("/bookings")
+    public String viewBookingHistory(Authentication authentication, Model model) {
+        if (authentication == null || !authentication.isAuthenticated()
+                || "anonymousUser".equals(authentication.getName())) {
+            return "redirect:/booking";
+        }
+        String username = authentication.getName();
+        Customer customer = customerRepository.findByAccount_Username(username).orElse(null);
+        model.addAttribute("customer", customer);
+
+        if (customer != null) {
+            List<RoomBooking> roomBookings = roomBookingRepository.findByCustomerOrderByBookingDateDesc(customer);
+            model.addAttribute("bookings", roomBookings);
+
+            java.util.Map<Long, RoomBookingDetail> bookingFirstDetails = new java.util.HashMap<>();
+            for (RoomBooking rb : roomBookings) {
+                List<RoomBookingDetail> details = roomBookingDetailRepository.findByRoomBookingId(rb.getId());
+                if (!details.isEmpty()) {
+                    bookingFirstDetails.put(rb.getId(), details.get(0));
+                }
+            }
+            model.addAttribute("bookingFirstDetails", bookingFirstDetails);
+
+            // Fetch and initialize tourBookings
+            List<TourBooking> tourBookings = tourBookingRepository.findByCustomer(customer);
+            for (TourBooking tb : tourBookings) {
+                if (tb.getSchedule() != null) {
+                    tb.getSchedule().getDepartureDate();
+                    if (tb.getSchedule().getTour() != null) {
+                        tb.getSchedule().getTour().getTourName();
+                    }
+                }
+            }
+            model.addAttribute("tourBookings", tourBookings);
+
+            // Fetch and initialize foodOrders
+            List<FoodOrder> foodOrders = foodOrderRepository.findByBooking_Customer(customer);
+            for (FoodOrder fo : foodOrders) {
+                if (fo.getDetails() != null) {
+                    fo.getDetails().size();
+                    for (FoodOrderDetail detail : fo.getDetails()) {
+                        if (detail.getMenuItem() != null) {
+                            detail.getMenuItem().getItemName();
+                        }
+                    }
+                }
+            }
+            model.addAttribute("foodOrders", foodOrders);
+        } else {
+            model.addAttribute("bookings", Collections.emptyList());
+            model.addAttribute("bookingFirstDetails", Collections.emptyMap());
+            model.addAttribute("tourBookings", Collections.emptyList());
+            model.addAttribute("foodOrders", Collections.emptyList());
+        }
+        return "guest/booking-history";
+    }
+
+    @GetMapping({ "/update", "/edit" })
     public String redirectProfile() {
         return "redirect:/profile";
     }
 
-    @PostMapping({"/edit", "/update"})
-    public String editProfile(Authentication authentication, 
-                              @RequestParam String fullName, 
-                              @RequestParam(required = false) String email,
-                              @RequestParam(required = false) String gender,
-                              @RequestParam(required = false) String phone,
-                              @RequestParam(required = false) String cccd,
-                              RedirectAttributes redirectAttributes) {
+    @PostMapping({ "/edit", "/update" })
+    public String editProfile(Authentication authentication,
+            @RequestParam String fullName,
+            @RequestParam(required = false) String email,
+            @RequestParam(required = false) String gender,
+            @RequestParam(required = false) String phone,
+            @RequestParam(required = false) String cccd,
+            RedirectAttributes redirectAttributes) {
+        if (authentication == null || !authentication.isAuthenticated()
+                || "anonymousUser".equals(authentication.getName())) {
+            return "redirect:/booking";
+        }
         String username = authentication.getName();
         Customer customer = customerRepository.findByAccount_Username(username).orElse(null);
         if (customer != null) {
@@ -93,20 +200,79 @@ public class ProfileController {
     }
 
     @PostMapping("/change-password")
-    public String changePassword(Authentication authentication, 
-                                 @RequestParam String oldPassword,
-                                 @RequestParam String newPassword, 
-                                 RedirectAttributes redirectAttributes) {
+    public String changePassword(Authentication authentication,
+            @RequestParam String oldPassword,
+            @RequestParam String newPassword,
+            RedirectAttributes redirectAttributes) {
+        if (authentication == null || !authentication.isAuthenticated()
+                || "anonymousUser".equals(authentication.getName())) {
+            return "redirect:/booking";
+        }
         String username = authentication.getName();
         Account account = accountRepository.findByUsername(username).orElse(null);
-        
+
         if (account != null) {
             if (passwordEncoder.matches(oldPassword, account.getPasswordHash())) {
                 account.setPasswordHash(passwordEncoder.encode(newPassword));
                 accountRepository.save(account);
                 redirectAttributes.addFlashAttribute("success", "Äá»•i máº­t kháº©u thÃ nh cÃ´ng!");
             } else {
-                redirectAttributes.addFlashAttribute("error", "Máº­t kháº©u cÅ© khÃ´ng chÃ­nh xÃ¡c!");
+                redirectAttributes.addFlashAttribute("error", "Mật khẩu cũ không chính xác!");
+            }
+        }
+        return "redirect:/profile";
+    }
+
+    @PostMapping("/dependents/add")
+    public String addDependent(Authentication authentication,
+            @RequestParam String dependentName,
+            @RequestParam String gender,
+            @RequestParam String birthDate,
+            @RequestParam(required = false) String cccd,
+            RedirectAttributes redirectAttributes) {
+        if (authentication == null || !authentication.isAuthenticated()
+                || "anonymousUser".equals(authentication.getName())) {
+            return "redirect:/booking";
+        }
+        String username = authentication.getName();
+        Customer customer = customerRepository.findByAccount_Username(username).orElse(null);
+        if (customer != null) {
+            com.kawai.models.Dependent dep = new com.kawai.models.Dependent();
+            dep.setCustomer(customer);
+            dep.setDependentName(dependentName);
+            dep.setGender(gender);
+            try {
+                dep.setBirthDate(java.time.LocalDate.parse(birthDate));
+            } catch (Exception e) {
+                redirectAttributes.addFlashAttribute("error", "Ngày sinh không đúng định dạng!");
+                return "redirect:/profile";
+            }
+            if (cccd != null && !cccd.trim().isEmpty()) {
+                dep.setCccdPassportEncrypted(EncryptionUtils.encrypt(cccd.trim()));
+            }
+            dependentRepository.save(dep);
+            redirectAttributes.addFlashAttribute("success", "Thêm người đi cùng thành công!");
+        }
+        return "redirect:/profile";
+    }
+
+    @PostMapping("/dependents/delete/{id}")
+    public String deleteDependent(Authentication authentication,
+            @PathVariable Long id,
+            RedirectAttributes redirectAttributes) {
+        if (authentication == null || !authentication.isAuthenticated()
+                || "anonymousUser".equals(authentication.getName())) {
+            return "redirect:/booking";
+        }
+        String username = authentication.getName();
+        Customer customer = customerRepository.findByAccount_Username(username).orElse(null);
+        if (customer != null) {
+            com.kawai.models.Dependent dep = dependentRepository.findById(id).orElse(null);
+            if (dep != null && dep.getCustomer().getId().equals(customer.getId())) {
+                dependentRepository.delete(dep);
+                redirectAttributes.addFlashAttribute("success", "Xóa người đi cùng thành công!");
+            } else {
+                redirectAttributes.addFlashAttribute("error", "Không tìm thấy người đi cùng!");
             }
         }
         return "redirect:/profile";

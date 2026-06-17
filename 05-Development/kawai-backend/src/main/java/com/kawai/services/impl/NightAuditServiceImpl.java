@@ -94,7 +94,7 @@ public class NightAuditServiceImpl implements NightAuditService {
         item.setRoomBookingDetail(detail);
 
         RoomBooking roomBooking = detail.getRoomBooking();
-        Booking booking = roomBooking != null ? roomBooking.getBooking() : null;
+        Booking booking = roomBooking;
         if (booking == null) {
             booking = new Booking(); // Fallback an toàn
         }

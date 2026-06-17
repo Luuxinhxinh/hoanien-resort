@@ -10,4 +10,7 @@ public class Tour {
     @Column(name="base_price", nullable=false) private BigDecimal basePrice;
     @Column(name="max_capacity", nullable=false) private Integer maxCapacity = 30;
     @Column(columnDefinition="TEXT") private String description;
+    @Column(name="duration") private String duration;
+    @Column(name="short_quote") private String shortQuote;
+    @Column(name="created_at") private java.time.LocalDateTime createdAt;
 }

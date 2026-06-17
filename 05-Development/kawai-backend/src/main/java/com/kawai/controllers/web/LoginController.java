@@ -31,21 +31,4 @@ public class LoginController {
         }
         return "redirect:/ops-login?logout=true";
     }
-
-    @org.springframework.beans.factory.annotation.Autowired
-    private com.kawai.repositories.AuthorizedDeviceRepository authorizedDeviceRepository;
-
-    @org.springframework.web.bind.annotation.PostMapping("/auth/login")
-    public String handleLogin(
-            @org.springframework.web.bind.annotation.RequestParam(value = "login_type", required = false) String loginType,
-            @org.springframework.web.bind.annotation.RequestParam(value = "device_id", required = false) String deviceId) {
-
-        if ("ops".equals(loginType)) {
-            if (deviceId == null || deviceId.isEmpty()
-                    || !authorizedDeviceRepository.existsByDeviceCodeAndIsApprovedTrue(deviceId)) {
-                return "redirect:/ops-login?device_error=true";
-            }
-        }
-        return "forward:/auth/process-login";
-    }
 }

@@ -43,6 +43,12 @@ public class ProfileControllerTest {
     @MockBean
     private FoodOrderRepository foodOrderRepository;
 
+    @MockBean
+    private RoomBookingDetailRepository roomBookingDetailRepository;
+
+    @MockBean
+    private DependentRepository dependentRepository;
+
     @Test
     @WithMockUser(username = "hoangnam")
     public void testGetProfileUpdateRedirectsToProfile() throws Exception {

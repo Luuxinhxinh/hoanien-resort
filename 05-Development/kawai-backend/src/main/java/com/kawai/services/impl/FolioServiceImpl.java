@@ -41,9 +41,9 @@ public class FolioServiceImpl implements FolioService {
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy thông tin đặt phòng"));
 
         FolioItem item = new FolioItem();
-        item.setBooking(detail.getRoomBooking().getBooking());
+        item.setBooking(detail.getRoomBooking());
         item.setRoomBookingDetail(detail);
-        item.setPayerCustomer(detail.getRoomBooking().getBooking().getCustomer());
+        item.setPayerCustomer(detail.getRoomBooking().getCustomer());
         item.setSourceDepartment(department);
         item.setAmount(amount);
         item.setDescription(description);
@@ -89,9 +89,9 @@ public class FolioServiceImpl implements FolioService {
         // 2. Post room charge for each room
         for (RoomBookingDetail detail : checkedInDetails) {
             FolioItem item = new FolioItem();
-            item.setBooking(detail.getRoomBooking().getBooking());
+            item.setBooking(detail.getRoomBooking());
             item.setRoomBookingDetail(detail);
-            item.setPayerCustomer(detail.getRoomBooking().getBooking().getCustomer());
+            item.setPayerCustomer(detail.getRoomBooking().getCustomer());
             item.setSourceDepartment("Rooms");
             item.setAmount(detail.getRoomCharge());
             item.setDescription("Tiền phòng đêm " + businessDate);
@@ -141,7 +141,7 @@ public class FolioServiceImpl implements FolioService {
         // 3. Issue Consolidated Invoice
         ConsolidatedInvoice invoice = new ConsolidatedInvoice();
         invoice.setInvoiceNumber("INV-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase());
-        invoice.setBooking(detail.getRoomBooking().getBooking());
+        invoice.setBooking(detail.getRoomBooking());
         
         // Sum total charges
         List<FolioItem> items = folioItemRepository.findAll().stream()
@@ -165,7 +165,7 @@ public class FolioServiceImpl implements FolioService {
         consolidatedInvoiceRepository.save(invoice);
 
         // 4. Simulate E-Invoice sending
-        System.out.println("E-Invoice sent to " + detail.getRoomBooking().getBooking().getCustomer().getEmail() + " for invoice " + invoice.getInvoiceNumber());
+        System.out.println("E-Invoice sent to " + detail.getRoomBooking().getCustomer().getEmail() + " for invoice " + invoice.getInvoiceNumber());
 
         // 5. Audit Log
         AuditLog log = new AuditLog();

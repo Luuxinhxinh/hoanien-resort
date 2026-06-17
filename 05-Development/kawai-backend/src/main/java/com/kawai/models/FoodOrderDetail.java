@@ -10,4 +10,9 @@ public class FoodOrderDetail {
     @Column(nullable=false) private Integer quantity;
     @Column(name="price_at_order", nullable=false) private BigDecimal priceAtOrder;
     @Column(name="kot_status", nullable=false) private String kotStatus = "Pending";
+
+    public BigDecimal getTotalPrice() {
+        if (priceAtOrder == null) return BigDecimal.ZERO;
+        return priceAtOrder.multiply(new BigDecimal(quantity != null ? quantity : 0));
+    }
 }

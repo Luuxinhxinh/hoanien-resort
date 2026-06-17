@@ -2,6 +2,7 @@ package com.kawai.services;
 
 import com.kawai.dto.BookingRequestDTO;
 import com.kawai.dto.BookingResponseDTO;
+import com.kawai.dto.RoomSelectionDTO;
 import com.kawai.exceptions.RoomNotAvailableException;
 import com.kawai.models.Booking;
 import com.kawai.models.Promotion;
@@ -105,6 +106,15 @@ class BookingServiceUC10Test {
         @Mock
         private RoomBookingDetailRepository roomBookingDetailRepository;
 
+        @Mock
+        private com.kawai.services.interfaces.PaymentGatewayService paymentGatewayService;
+
+        @Mock
+        private com.kawai.services.interfaces.NotificationService notificationService;
+
+        @Mock
+        private com.kawai.repositories.PaymentTransactionRepository paymentTransactionRepository;
+
         @org.junit.jupiter.api.BeforeEach
         void setUp() {
                 com.kawai.models.Customer customer = new com.kawai.models.Customer();
@@ -114,10 +124,22 @@ class BookingServiceUC10Test {
                 com.kawai.models.RoomCategory category = new com.kawai.models.RoomCategory();
                 category.setId(1L);
                 category.setCategoryName("Deluxe");
-                com.kawai.models.Room room = new com.kawai.models.Room();
-                room.setRoomNumber(ROOM_NO);
-                room.setCategory(category);
-                lenient().when(roomRepository.findByRoomNumber(any())).thenReturn(Optional.of(room));
+                category.setBasePrice(new BigDecimal("2000000"));
+
+                lenient().when(roomRepository.findByRoomNumber(anyString())).thenAnswer(invocation -> {
+                        String rNo = invocation.getArgument(0);
+                        com.kawai.models.Room r = new com.kawai.models.Room();
+                        r.setRoomNumber(rNo);
+                        r.setCategory(category);
+                        return Optional.of(r);
+                });
+                lenient().when(roomRepository.findByRoomNumberWithLock(anyString())).thenAnswer(invocation -> {
+                        String rNo = invocation.getArgument(0);
+                        com.kawai.models.Room r = new com.kawai.models.Room();
+                        r.setRoomNumber(rNo);
+                        r.setCategory(category);
+                        return Optional.of(r);
+                });
 
                 lenient().when(bookingRepository.save(any(com.kawai.models.Booking.class))).thenAnswer(invocation -> {
                         com.kawai.models.Booking b = invocation.getArgument(0);
@@ -145,12 +167,12 @@ class BookingServiceUC10Test {
         // ── Test Fixtures ─────────────────────────────────────────────────────────
         private static final LocalDate CHECK_IN = LocalDate.of(2026, 7, 15);
         private static final LocalDate CHECK_OUT = LocalDate.of(2026, 7, 20); // 5 đêm
-        private static final BigDecimal DEPOSIT = new BigDecimal("2000000");
+        private static final BigDecimal DEPOSIT = new BigDecimal("3000000");
         private static final String ROOM_NO = "R101";
 
         /** Helper: tạo request cơ bản không có promo code. */
         private BookingRequestDTO buildRequest() {
-                return new BookingRequestDTO(1L, ROOM_NO, CHECK_IN, CHECK_OUT, DEPOSIT);
+                return new BookingRequestDTO(1L, Collections.singletonList(new RoomSelectionDTO(ROOM_NO, 2, 0)), CHECK_IN, CHECK_OUT, DEPOSIT);
         }
 
         // ══════════════════════════════════════════════════════════════════════════
@@ -180,8 +202,8 @@ class BookingServiceUC10Test {
         void TC_M2_003_createBooking_success_returnsPendingWithCancellationDeadline() throws Exception {
                 // Arrange
                 BookingRequestDTO request = buildRequest();
-                when(roomBookingRepository.countOverlappingBookings(
-                                eq(ROOM_NO), eq(CHECK_IN), eq(CHECK_OUT))).thenReturn(0L);
+                when(roomBookingRepository.countOverlappingBookingsByRoom(
+                                eq(ROOM_NO), eq(CHECK_IN), eq(CHECK_OUT), anyLong())).thenReturn(0L);
 
                 // Act
                 BookingResponseDTO result = bookingService.createBooking(request);
@@ -229,8 +251,8 @@ class BookingServiceUC10Test {
         @DisplayName("TC-M2-004 | CRITICAL | Concurrency: 2 user đặt R101 → 1 CONFIRMED, 1 nhận 409")
         void TC_M2_004_createBooking_concurrency_onlyOneConfirmed() throws Exception {
                 // Arrange: lần 1 phòng trống, lần 2 đã bị chiếm
-                when(roomBookingRepository.countOverlappingBookings(
-                                anyString(), any(LocalDate.class), any(LocalDate.class)))
+                when(roomBookingRepository.countOverlappingBookingsByRoom(
+                                anyString(), any(LocalDate.class), any(LocalDate.class), anyLong()))
                                 .thenReturn(0L) // Thread thắng
                                 .thenReturn(1L); // Thread thua
 
@@ -296,7 +318,7 @@ class BookingServiceUC10Test {
         void TC_M2_005_createBooking_checkOutEqualsCheckIn_throwsDateException() {
                 // Arrange: checkOut == checkIn (0 đêm — vô nghĩa)
                 BookingRequestDTO request = new BookingRequestDTO(
-                                1L, ROOM_NO,
+                                1L, Collections.singletonList(new RoomSelectionDTO(ROOM_NO, 2, 0)),
                                 CHECK_IN, CHECK_IN, // checkOut = checkIn → lỗi
                                 DEPOSIT);
 
@@ -316,7 +338,7 @@ class BookingServiceUC10Test {
         void TC_M2_005b_createBooking_checkOutBeforeCheckIn_throwsDateException() {
                 // Arrange: checkOut trước checkIn (ngược chiều thời gian)
                 BookingRequestDTO request = new BookingRequestDTO(
-                                1L, ROOM_NO,
+                                1L, Collections.singletonList(new RoomSelectionDTO(ROOM_NO, 2, 0)),
                                 CHECK_IN, CHECK_IN.minusDays(1), // checkOut < checkIn
                                 DEPOSIT);
 
@@ -353,29 +375,28 @@ class BookingServiceUC10Test {
         void TC_M2_006_cancelBooking_before48h_fullRefundAndCorrectStatus() {
                 // Arrange
                 BigDecimal depositDB = new BigDecimal("3500000");
-                Booking parentBooking = new Booking();
-                parentBooking.setBookingStatus("Pending");
                 RoomBooking booking = new RoomBooking();
-                booking.setBooking(parentBooking);
+                booking.setId(201L);
+                booking.setBookingStatus("Pending");
                 booking.setDepositAmount(depositDB);
                 booking.setCancellationDeadline(LocalDate.now().plusDays(3)); // còn 3 ngày → trước deadline
+                booking.setCheckInDate(LocalDate.now().plusDays(5));
 
-                when(roomBookingRepository.findById(201L)).thenReturn(Optional.of(booking));
+                when(roomBookingRepository.findByIdAndCustomerId(201L, 1L)).thenReturn(Optional.of(booking));
 
                 // Act
-                BigDecimal refund = bookingService.cancelBooking(201L);
+                BookingResponseDTO response = bookingService.cancelBooking(201L, 1L);
 
                 // Assert — hoàn tiền đúng
-                assertNotNull(refund, "Refund không được null");
-                assertEquals(depositDB, refund,
+                assertNotNull(response, "Response không được null");
+                assertEquals(depositDB, response.getDepositAmount(),
                                 "Hủy trước 48h phải hoàn 100% tiền cọc = 3,500,000 (BR-FIN-02)");
 
-                // 🔴 RED — FAIL: implementation set "Cancelled" thay vì "Cancelled_Refunded"
-                assertEquals("Cancelled_Refunded", booking.getBooking().getBookingStatus(),
+                assertEquals("Cancelled_Refunded", booking.getBookingStatus(),
                                 "Status sau hủy có hoàn tiền phải là 'Cancelled_Refunded' (BR-STATUS-02)");
 
                 // Verify save() được gọi để persist status mới
-                verify(bookingRepository, times(1)).save(parentBooking);
+                verify(roomBookingRepository, times(1)).save(booking);
         }
 
         // ══════════════════════════════════════════════════════════════════════════
@@ -399,29 +420,28 @@ class BookingServiceUC10Test {
         @DisplayName("TC-M2-007 | HIGH | Hủy trong 48h → hoàn 0đ + status=Cancelled_Forfeited (BR-FIN-02)")
         void TC_M2_007_cancelBooking_within48h_zeroRefundAndForfeitedStatus() {
                 // Arrange: đã qua deadline → tịch thu cọc
-                Booking parentBooking = new Booking();
-                parentBooking.setBookingStatus("Pending");
                 RoomBooking booking = new RoomBooking();
-                booking.setBooking(parentBooking);
+                booking.setId(202L);
+                booking.setBookingStatus("Pending");
                 booking.setDepositAmount(new BigDecimal("2000000"));
                 booking.setCancellationDeadline(LocalDate.now().minusDays(1)); // qua deadline rồi
+                booking.setCheckInDate(LocalDate.now().plusDays(1));
 
-                when(roomBookingRepository.findById(202L)).thenReturn(Optional.of(booking));
+                when(roomBookingRepository.findByIdAndCustomerId(202L, 1L)).thenReturn(Optional.of(booking));
 
                 // Act
-                BigDecimal refund = bookingService.cancelBooking(202L);
+                BookingResponseDTO response = bookingService.cancelBooking(202L, 1L);
 
                 // Assert — không hoàn tiền
-                assertNotNull(refund, "Refund không được null");
-                assertEquals(BigDecimal.ZERO, refund,
+                assertNotNull(response, "Response không được null");
+                assertEquals(BigDecimal.ZERO, response.getDepositAmount(),
                                 "Hủy trong 48h → tịch thu cọc hoàn về 0đ (BR-FIN-02)");
 
-                // 🔴 RED — FAIL: implementation set "Cancelled" thay vì "Cancelled_Forfeited"
-                assertEquals("Cancelled_Forfeited", booking.getBooking().getBookingStatus(),
+                assertEquals("Cancelled_Forfeited", booking.getBookingStatus(),
                                 "Status tịch thu cọc phải là 'Cancelled_Forfeited' (BR-STATUS-02)");
 
                 // Verify save() được gọi
-                verify(bookingRepository, times(1)).save(parentBooking);
+                verify(roomBookingRepository, times(1)).save(booking);
         }
 
         // ══════════════════════════════════════════════════════════════════════════
@@ -444,8 +464,8 @@ class BookingServiceUC10Test {
                 BookingRequestDTO request = buildRequest();
                 request.setPromotionCode("SUMMER10");
 
-                when(roomBookingRepository.countOverlappingBookings(
-                                anyString(), any(LocalDate.class), any(LocalDate.class))).thenReturn(0L);
+                when(roomBookingRepository.countOverlappingBookingsByRoom(
+                                anyString(), any(LocalDate.class), any(LocalDate.class), anyLong())).thenReturn(0L);
 
                 Promotion promo = new Promotion();
                 promo.setPromoCode("SUMMER10");
@@ -482,11 +502,11 @@ class BookingServiceUC10Test {
                 // Arrange: 3 đêm
                 LocalDate in = LocalDate.of(2026, 8, 1);
                 LocalDate out = LocalDate.of(2026, 8, 4);
-                BookingRequestDTO request = new BookingRequestDTO(1L, "R202", in, out, DEPOSIT);
+                BookingRequestDTO request = new BookingRequestDTO(1L, Collections.singletonList(new RoomSelectionDTO("R202", 2, 0)), in, out, DEPOSIT);
                 request.setPromotionCode("EARLYBIRD20");
 
-                when(roomBookingRepository.countOverlappingBookings(
-                                anyString(), any(LocalDate.class), any(LocalDate.class))).thenReturn(0L);
+                when(roomBookingRepository.countOverlappingBookingsByRoom(
+                                anyString(), any(LocalDate.class), any(LocalDate.class), anyLong())).thenReturn(0L);
 
                 Promotion promo = new Promotion();
                 promo.setPromoCode("EARLYBIRD20");
@@ -535,8 +555,8 @@ class BookingServiceUC10Test {
                 BookingRequestDTO request = buildRequest();
                 request.setPromotionCode("EXPIRED2020");
 
-                when(roomBookingRepository.countOverlappingBookings(
-                                anyString(), any(LocalDate.class), any(LocalDate.class))).thenReturn(0L);
+                when(roomBookingRepository.countOverlappingBookingsByRoom(
+                                anyString(), any(LocalDate.class), any(LocalDate.class), anyLong())).thenReturn(0L);
 
                 Promotion promo = new Promotion();
                 promo.setPromoCode("EXPIRED2020");
@@ -568,8 +588,8 @@ class BookingServiceUC10Test {
                 BookingRequestDTO request = buildRequest();
                 request.setPromotionCode("XMAS2025");
 
-                when(roomBookingRepository.countOverlappingBookings(
-                                anyString(), any(LocalDate.class), any(LocalDate.class))).thenReturn(0L);
+                when(roomBookingRepository.countOverlappingBookingsByRoom(
+                                anyString(), any(LocalDate.class), any(LocalDate.class), anyLong())).thenReturn(0L);
 
                 Promotion promo = new Promotion();
                 promo.setPromoCode("XMAS2025");
@@ -600,8 +620,8 @@ class BookingServiceUC10Test {
                 BookingRequestDTO request = buildRequest();
                 request.setPromotionCode("GHOST999");
 
-                when(roomBookingRepository.countOverlappingBookings(
-                                anyString(), any(LocalDate.class), any(LocalDate.class))).thenReturn(0L);
+                when(roomBookingRepository.countOverlappingBookingsByRoom(
+                                anyString(), any(LocalDate.class), any(LocalDate.class), anyLong())).thenReturn(0L);
                 when(promotionRepository.findByPromoCode("GHOST999"))
                                 .thenReturn(Optional.empty());
 

@@ -14,7 +14,7 @@ public class BookingResponseDTO {
     private BigDecimal discountedPrice;
     private LocalDate checkInDate;
     private LocalDate checkOutDate;
-    private LocalDate cancellationDeadline; // BR-FIN-02: checkIn - 2 ngày
+    private LocalDate cancellationDeadline;
 
     // ------- Constructors -------
     public BookingResponseDTO() {

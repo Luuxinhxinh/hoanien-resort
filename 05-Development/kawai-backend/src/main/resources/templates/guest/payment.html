@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Thanh toán — HoaNien Resort</title>
+    <meta name="description" content="Điền thông tin và hoàn tất quá trình thanh toán đặt phòng tại HoaNien Resort." />
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Montserrat:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+
+    <!-- Tailwind (for nav + auth modal, consistent with booking.html) -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'hoanien-bg': '#f1ebe3',
+                        'hoanien-text': '#3a3230',
+                        'hoanien-footer': '#3c3530',
+                        'hoanien-footer-text': '#e5dfd8'
+                    },
+                    fontFamily: {
+                        'serif':    ['"Playfair Display"', 'serif'],
+                        'sans':     ['"Montserrat"', 'sans-serif'],
+                        'headline': ['EB Garamond', 'serif'],
+                        'body':     ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <link rel="stylesheet" th:href="@{/guest/css/payment.css}" href="/guest/css/payment.css" />
+</head>
+
+<body>
+
+    <!-- ============ NAVIGATION BAR ============ -->
+    <div id="header-wrapper"
+        class="fixed top-0 left-0 w-full z-50 flex flex-col bg-hoanien-bg/90 backdrop-blur-md border-b border-hoanien-text/10">
+        <nav class="relative w-full font-sans">
+            <div class="max-w-[1440px] mx-auto px-6 py-4 flex items-center justify-between">
+                <!-- Left -->
+                <div class="hidden lg:flex items-center gap-8 text-[13px] uppercase tracking-[0.2em] font-semibold text-hoanien-text/80">
+                    <a href="/living"      class="hover:text-hoanien-text transition-colors">Living</a>
+                    <a href="/dining"      class="hover:text-hoanien-text transition-colors">Dining</a>
+                    <a href="/experiences" class="hover:text-hoanien-text transition-colors">Experiences</a>
+                    <a href="/tours/search" class="hover:text-hoanien-text transition-colors">Tours</a>
+                </div>
+
+                <!-- Logo -->
+                <div class="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 font-headline text-[32px] italic tracking-tighter text-hoanien-text text-center cursor-pointer w-max"
+                    onclick="window.location.href='/'">HoaNien</div>
+
+                <!-- Right -->
+                <div class="hidden lg:flex items-center gap-6 text-[13px] uppercase tracking-[0.2em] font-semibold">
+                    <a href="/profile" th:if="${isLoggedIn}"
+                        class="hover:text-hoanien-text transition-colors text-hoanien-text/80">Profile</a>
+                    <form th:action="@{/auth/logout}" method="post" th:if="${isLoggedIn}" class="inline">
+                        <button type="submit"
+                            class="hover:text-hoanien-text uppercase tracking-[0.2em] bg-transparent border-none p-0 cursor-pointer text-hoanien-text/80 transition-colors">Logout</button>
+                    </form>
+                    <a href="/booking"
+                        class="bg-hoanien-text text-hoanien-bg px-6 py-3 hover:bg-hoanien-text/80 transition-colors inline-block border border-hoanien-text">
+                        Đặt phòng
+                    </a>
+                </div>
+
+                <!-- Mobile -->
+                <button class="lg:hidden">
+                    <span class="material-symbols-outlined text-3xl">menu</span>
+                </button>
+            </div>
+        </nav>
+    </div>
+
+    <!-- ============ MAIN CONTENT ============ -->
+    <main class="checkout-page">
+
+        <!-- Hero heading -->
+        <div class="checkout-hero" style="text-align: center;">
+            <h1>Hoàn tất đặt phòng</h1>
+            <p>Vui lòng điền đầy đủ thông tin để hoàn tất quá trình đặt phòng của bạn.</p>
+            
+            <div id="payment-timer-container" class="hidden" style="margin-top: 1rem; display: inline-flex; align-items: center; gap: 0.5rem; background-color: #fef2f2; color: #dc2626; padding: 0.5rem 1rem; border-radius: 9999px; border: 1px solid #fecaca;">
+                <span class="material-symbols-outlined text-sm">schedule</span>
+                <span class="text-sm font-medium">Thời gian giữ phòng còn lại:</span>
+                <span id="payment-timer" class="font-bold text-lg">--:--</span>
+            </div>
+        </div>
+
+        <div class="checkout-grid">
+
+            <!-- ═══════════════ LEFT COLUMN ═══════════════ -->
+            <div class="checkout-left">
+
+                <!-- Card 1: Thông tin khách hàng -->
+                <div class="co-card">
+                    <div class="co-card-header">
+                        <h2>Thông tin khách hàng</h2>
+                    </div>
+                    <div class="co-card-body">
+                        <div class="form-grid-2">
+
+                            <!-- Họ và tên -->
+                            <div class="form-group">
+                                <label for="fieldFullName">Họ và tên <span class="req">*</span></label>
+                                <input type="text" id="fieldFullName" name="fullName"
+                                    th:value="${customer != null ? customer.fullName : ''}"
+                                    placeholder="Nguyễn Văn An"
+                                    autocomplete="name" required />
+                            </div>
+
+                            <!-- Số điện thoại -->
+                            <div class="form-group">
+                                <label for="fieldPhone">Số điện thoại <span class="req">*</span></label>
+                                <input type="tel" id="fieldPhone" name="phone"
+                                    th:value="${customer != null ? customer.phone : ''}"
+                                    placeholder="+84 901 234 567"
+                                    autocomplete="tel" required />
+                            </div>
+
+                            <!-- CCCD -->
+                            <div class="form-group">
+                                <label for="fieldCccd">CCCD / Căn cước công dân <span class="req">*</span></label>
+                                <input type="text" id="fieldCccd" name="cccd"
+                                    placeholder="012 345 678 901"
+                                    maxlength="12" required />
+                            </div>
+
+                            <!-- Email -->
+                            <div class="form-group">
+                                <label for="fieldEmail">Email <span class="req">*</span></label>
+                                <input type="email" id="fieldEmail" name="email"
+                                    th:value="${customer != null ? customer.email : ''}"
+                                    placeholder="email@example.com"
+                                    autocomplete="email" required />
+                            </div>
+
+                            <!-- Địa chỉ (full width) -->
+                            <div class="form-group full">
+                                <label for="fieldAddress">Địa chỉ</label>
+                                <input type="text" id="fieldAddress" name="address"
+                                    placeholder="123 Đường Hoa, Quận 1"
+                                    autocomplete="street-address" />
+                            </div>
+
+                            <!-- Ghi thêm (full width) -->
+                            <div class="form-group full">
+                                <label for="fieldNotes">Ghi thêm</label>
+                                <textarea id="fieldNotes" name="notes"
+                                    placeholder="Yêu cầu đặc biệt, nhận phòng sớm, bố trí phòng, v.v."></textarea>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 2: Phương thức thanh toán -->
+                <div class="co-card">
+                    <div class="co-card-header">
+                        <h2>Phương thức thanh toán</h2>
+                    </div>
+                    <div class="co-card-body">
+
+                        <!-- VNPay option -->
+                        <label class="payment-option selected" id="optVnpay" for="radioVnpay">
+                            <input type="radio" id="radioVnpay" name="paymentMethod" value="VNPAY" checked />
+                            <span class="vnpay-logo">VNPay</span>
+                            <span class="payment-label">VNPay</span>
+                            <span class="payment-check">
+                                <svg viewBox="0 0 24 24" fill="none">
+                                    <path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </span>
+                        </label>
+
+                        <!-- Security note -->
+                        <div class="payment-info">
+                            <svg viewBox="0 0 24 24" fill="none">
+                                <circle cx="12" cy="12" r="10"/>
+                                <path d="M12 8v4M12 16h.01" stroke-linecap="round"/>
+                            </svg>
+                            <span>
+                                Bạn sẽ được chuyển hướng đến cổng thanh toán an toàn sau khi nhấn "Thanh toán ngay".
+                                Giao dịch được mã hóa SSL 256-bit.
+                            </span>
+                        </div>
+
+                        <!-- Terms -->
+                        <div class="terms-row">
+                            <input type="checkbox" id="termsCheck" onchange="onTermsChange(this)" />
+                            <label for="termsCheck">
+                                Tôi đồng ý với các <a href="javascript:void(0)" onclick="openTermsModal()">điều khoản</a> và <a href="javascript:void(0)" onclick="openTermsModal()">chính sách đặt phòng</a> của HoaNien Resort.
+                            </label>
+                        </div>
+
+                        <!-- Pay button -->
+                        <button type="button" id="btnPayNow" class="btn-pay"
+                            disabled onclick="submitPayment()">
+                            THANH TOÁN NGAY
+                        </button>
+
+                    </div>
+                </div>
+
+            </div><!-- end left column -->
+
+            <!-- ═══════════════ RIGHT COLUMN: Order Summary ═══════════════ -->
+            <aside class="checkout-right">
+                <div class="order-panel">
+
+                    <!-- Dark header -->
+                    <div class="op-header">
+                        <p class="op-label">Chi tiết đơn đặt phòng</p>
+                        <p class="op-hotel" id="op-hotel-name">HoaNien Resort</p>
+                        <div class="op-rooms-list" id="op-room-badges">
+                            <!-- Populated by JS -->
+                            <span class="op-badge skeleton" style="width:100px;height:22px;">&nbsp;</span>
+                        </div>
+                    </div>
+
+                    <div class="op-body">
+
+                        <!-- Dates -->
+                        <div class="op-dates">
+                            <div class="op-date-item">
+                                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8">
+                                    <rect x="3" y="4" width="18" height="18" rx="2"/>
+                                    <path d="M3 9h18M8 2v4M16 2v4" stroke-linecap="round"/>
+                                </svg>
+                                <div>
+                                    <p class="op-date-label">Nhận phòng</p>
+                                    <p class="op-date-value" id="op-checkin-date">
+                                        <span class="skeleton" style="width:160px;height:18px;display:block;">&nbsp;</span>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="op-date-item">
+                                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8">
+                                    <rect x="3" y="4" width="18" height="18" rx="2"/>
+                                    <path d="M3 9h18M8 2v4M16 2v4" stroke-linecap="round"/>
+                                </svg>
+                                <div>
+                                    <p class="op-date-label">Trả phòng</p>
+                                    <p class="op-date-value" id="op-checkout-date">
+                                        <span class="skeleton" style="width:160px;height:18px;display:block;">&nbsp;</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Nights & Guests meta -->
+                        <div class="op-date-meta">
+                            <span>
+                                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8">
+                                    <path d="M12 2C8 2 5 6 5 10c0 6 7 12 7 12s7-6 7-12c0-4-3-8-7-8z"/>
+                                </svg>
+                                <span id="op-nights">—</span>
+                            </span>
+                            <span>
+                                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8">
+                                    <circle cx="9" cy="7" r="3"/>
+                                    <path d="M3.5 19c0-3 2.5-5 5.5-5s5.5 2 5.5 5"/>
+                                    <circle cx="17" cy="8" r="2.2"/>
+                                    <path d="M15.5 18c0-2.3 1.8-3.5 3.5-3.5"/>
+                                </svg>
+                                <span id="op-guests">—</span>
+                            </span>
+                        </div>
+
+                        <div class="op-divider"></div>
+
+                        <!-- Price breakdown -->
+                        <div class="op-price-row">
+                            <span class="label" id="op-price-label">Giá phòng</span>
+                            <span class="value" id="op-price-value">—</span>
+                        </div>
+                        <div class="op-price-row">
+                            <span class="label">Dịch vụ &amp; tiện ích</span>
+                            <span class="value" id="op-service-value">—</span>
+                        </div>
+                        <div class="op-price-row" id="op-discount-row" style="display:none;">
+                            <span class="label">Khuyến mãi</span>
+                            <span class="value discount" id="op-discount-value">—</span>
+                        </div>
+
+                        <!-- Total -->
+                        <div class="op-total-row">
+                            <span class="label">Tổng thanh toán</span>
+                            <span class="value" id="op-total-value">—</span>
+                        </div>
+                        <p class="op-vat">Đã bao gồm VAT</p>
+
+                        <!-- Deposit (30%) -->
+                        <div class="op-total-row deposit-row" style="margin-top: 8px; border-top: 1px dashed rgba(58,50,48,0.15); padding-top: 8px;">
+                            <span class="label" style="font-weight: 600; color: #c9a84c;">Tiền đặt cọc (30%)</span>
+                            <span class="value" id="op-deposit-value" style="font-size: 1.35rem; font-weight: 700; color: #c9a84c;">—</span>
+                        </div>
+
+                        <div class="op-divider"></div>
+
+                        <!-- Coupon -->
+                        <div class="op-coupon">
+                            <p class="op-coupon-label">
+                                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8">
+                                    <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" stroke-linecap="round"/>
+                                    <circle cx="7" cy="7" r="1.5" fill="currentColor" stroke="none"/>
+                                </svg>
+                                Mã giảm giá
+                            </p>
+                            <div class="op-coupon-row">
+                                <input type="text" id="couponInput" class="op-coupon-input"
+                                    placeholder="Nhập mã coupon..." autocomplete="off" />
+                                <button type="button" id="btnApplyCoupon" class="op-coupon-btn"
+                                    onclick="applyCoupon()">Áp dụng</button>
+                            </div>
+                            <p id="couponMsg" class="op-coupon-msg"></p>
+                        </div>
+
+                        <!-- SSL badge -->
+                        <div class="op-secure">
+                            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8">
+                                <path d="M12 2L3 7v5c0 5.25 3.75 10.15 9 11.25C17.25 22.15 21 17.25 21 12V7L12 2z" stroke-linecap="round"/>
+                                <path d="M9 12l2 2 4-4" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Thanh toán bảo mật · SSL 256-bit
+                        </div>
+
+                    </div><!-- op-body -->
+                </div><!-- order-panel -->
+            </aside>
+
+        </div><!-- checkout-grid -->
+    </main>
+
+    <!-- Terms & Conditions Modal -->
+    <div id="termsModal" class="tc-modal-overlay" onclick="handleOverlayClick(event)">
+        <div class="tc-modal" onclick="event.stopPropagation()">
+            <div class="tc-modal-header">
+                <h3>Điều khoản & Chính sách đặt phòng</h3>
+                <button type="button" class="tc-modal-close" onclick="closeTermsModal()">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <div class="tc-modal-body">
+                <h4>Xác nhận đặt phòng</h4>
+                <ul>
+                    <li>Tất cả đặt phòng trực tuyến yêu cầu thanh toán tiền đặt cọc để được xác nhận.</li>
+                    <li>Đơn đặt phòng sẽ được giữ trong vòng 10 phút ở trạng thái chờ thanh toán.</li>
+                    <li>Nếu không nhận được tiền đặt cọc trong thời gian này, đơn đặt phòng sẽ tự động bị hủy.</li>
+                </ul>
+                
+                <h4>Chính sách giá phòng</h4>
+                <ul>
+                    <li>Giá phòng có thể thay đổi theo mùa, thời điểm đặt phòng, chương trình khuyến mại và tình trạng phòng trống.</li>
+                    <li>Mức giá được xác nhận tại thời điểm đặt phòng sẽ được giữ nguyên cho toàn bộ thời gian lưu trú của đặt phòng đó.</li>
+                </ul>
+                
+                <h4>Chính sách thanh toán</h4>
+                <ul>
+                    <li>Khách sạn hỗ trợ thanh toán trực tuyến bằng chuyển khoản ngân hàng.</li>
+                    <li>Khoản thanh toán chỉ được xem là hoàn tất sau khi được hệ thống thanh toán hoặc bộ phận tài chính xác nhận thành công.</li>
+                </ul>
+
+                <h4>Chính sách hủy phòng và hoàn tiền</h4>
+                <ul>
+                    <li>Hủy đặt phòng từ 48 giờ trở lên trước thời điểm nhận phòng sẽ được hoàn lại 100% tiền đặt cọc.</li>
+                    <li>Hủy đặt phòng dưới 48 giờ trước thời điểm nhận phòng sẽ không được hoàn tiền.</li>
+                    <li>Khách không đến nhận phòng (No-show) sẽ không được hoàn tiền.</li>
+                    <li>Sau khi đã hoàn tất thủ tục nhận phòng (Check-in), mọi khoản thanh toán sẽ không được hoàn lại.</li>
+                </ul>
+
+                <h4>Chính sách nhận phòng và trả phòng</h4>
+                <ul>
+                    <li>Giờ nhận phòng (Check-in): từ 14:00.</li>
+                    <li>Giờ trả phòng (Check-out): trước 12:00.</li>
+                    <li>Yêu cầu nhận phòng sớm hoặc trả phòng muộn phụ thuộc vào tình trạng phòng thực tế và có thể phát sinh phụ phí.</li>
+                    <li>Người đại diện thực hiện thủ tục nhận phòng phải từ đủ 18 tuổi trở lên và xuất trình giấy tờ tùy thân hợp lệ (CCCD hoặc Hộ chiếu).</li>
+                </ul>
+
+                <h4>Dịch vụ phát sinh</h4>
+                <ul>
+                    <li>Các khoản chi tiêu phát sinh trong thời gian lưu trú (ẩm thực, dịch vụ phòng, tour, dịch vụ bổ sung...) sẽ được cộng vào hóa đơn lưu trú.</li>
+                    <li>Khách hàng phải hoàn tất mọi khoản thanh toán trước khi thực hiện thủ tục trả phòng.</li>
+                </ul>
+
+                <h4>Chính sách bảo mật thông tin</h4>
+                <ul>
+                    <li>Thông tin cá nhân của khách hàng chỉ được sử dụng cho mục đích đặt phòng, thanh toán, chăm sóc khách hàng và tuân thủ các quy định pháp luật hiện hành.</li>
+                    <li>Khách sạn cam kết áp dụng các biện pháp bảo mật phù hợp nhằm bảo vệ thông tin khách hàng và không cung cấp cho bên thứ ba trái phép, trừ trường hợp pháp luật yêu cầu.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast container -->
+    <div id="co-toast-container"></div>
+
+    <!-- Page JS -->
+    <script th:src="@{/guest/js/payment.js}" src="/guest/js/payment.js"></script>
+
+    <script>
+        function openTermsModal() {
+            document.getElementById('termsModal').classList.add('show');
+            document.body.style.overflow = 'hidden'; // Prevent background scrolling
+        }
+
+        function closeTermsModal() {
+            document.getElementById('termsModal').classList.remove('show');
+            document.body.style.overflow = '';
+        }
+
+        function handleOverlayClick(event) {
+            closeTermsModal();
+        }
+    </script>
+
+</body>
+</html>

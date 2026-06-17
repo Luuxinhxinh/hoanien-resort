@@ -6,14 +6,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title th:text="${resort != null ? resort.name : 'Hoanien River Retreat'}">Hoanien River Retreat</title>
 
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Inter:wght@300;400;500;600&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Jost:wght@300;400;500;600&family=Montserrat:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Inter:wght@300;400;500;600&display=swap"
         rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Inter:wght@300;400;500;600&display=swap"
         rel="stylesheet" />
 
+    <!-- Tailwind CSS (needed for Navigation and Auth Modal) -->
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <script id="tailwind-config">
         tailwind.config = {
@@ -28,1315 +31,516 @@
                     fontFamily: {
                         'serif': ['"Playfair Display"', 'serif'],
                         'sans': ['"Montserrat"', 'sans-serif'],
-                        'headline': ["EB Garamond", "serif"],
-                        'body': ["Inter", "sans-serif"],
-                    }
+                        "headline": ["EB Garamond", "serif"],
+                        "body": ["Inter", "sans-serif"],
+                    },
+                    spacing: { 'section-y': '120px' }
                 }
             }
         }
     </script>
 
-    <style>
-        html {
-            scroll-behavior: smooth;
-        }
-
-        body {
-            background-color: #f1ebe3;
-            color: #3a3230;
-            font-family: 'Montserrat', sans-serif;
-        }
-
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
-        }
-
-        button:active,
-        a:active {
-            transform: scale(0.97) translateY(0.5px);
-            transition: transform 0.1s ease;
-        }
-
-        button,
-        a {
-            transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease, opacity 0.2s ease;
-        }
-
-        .guest-nav {
-            background: rgba(241, 235, 227, 0.92) !important;
-            border-bottom: 1px solid rgba(58, 50, 48, 0.08) !important;
-            backdrop-filter: blur(12px) !important;
-        }
-
-        .guest-nav .nav-btn-book {
-            background: transparent !important;
-            color: rgba(58, 50, 48, 0.8) !important;
-            border: none !important;
-            box-shadow: none !important;
-        }
-
-        .search-bar-box {
-            background-color: rgba(255, 255, 255, 0.6);
-            backdrop-filter: blur(8px);
-            border: 1px solid rgba(58, 50, 48, 0.1);
-            border-radius: 1rem;
-            box-shadow: 0 4px 20px -2px rgba(58, 50, 48, 0.05);
-            position: relative;
-            z-index: 30;
-        }
-
-        .search-field-node {
-            border-radius: 0.75rem;
-            transition: background-color 0.2s ease;
-        }
-
-        .search-field-node:hover {
-            background-color: rgba(234, 228, 216, 0.5);
-        }
-
-        .filter-chip {
-            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        .room-card-premium {
-            background-color: rgba(255, 255, 255, 0.6);
-            backdrop-filter: blur(4px);
-            border: 1px solid rgba(58, 50, 48, 0.08);
-            border-radius: 1rem;
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        .room-card-premium:hover {
-            transform: translateY(-4px);
-            border-color: rgba(58, 50, 48, 0.18);
-            box-shadow: 0 15px 30px -8px rgba(58, 50, 48, 0.06);
-        }
-
-        .premium-popup-overlay {
-            backdrop-filter: blur(16px);
-            background-color: rgba(30, 26, 25, 0.4);
-        }
-
-        .premium-popup-content {
-            background-color: #f1ebe3 !important;
-            border-radius: 1rem !important;
-            border: 1px solid rgba(58, 50, 48, 0.1) !important;
-        }
-
-        .cart-sticky-bar {
-            transform: translateY(120%);
-            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        .cart-sticky-bar.active {
-            transform: translateY(0);
-        }
-    </style>
-    <link rel="stylesheet" th:href="@{/css/booking.css?v=3}" href="/css/booking.css?v=3" />
+    <!-- Actor Specific Stylesheet -->
+    <link rel="stylesheet" th:href="@{/guest/css/booking.css}" href="/guest/css/booking.css" />
 </head>
 
-<body
-    class="bg-hoanien-bg text-hoanien-text font-sans antialiased overflow-x-hidden selection:bg-hoanien-text selection:text-hoanien-bg">
+<body>
 
-    <div id="header-wrapper" class="fixed top-0 left-0 w-full z-50 flex flex-col">
+    <!-- ============ NAVIGATION BAR ============ -->
+    <div id="header-wrapper"
+        class="fixed top-0 left-0 w-full z-50 flex flex-col bg-hoanien-bg/90 backdrop-blur-md border-b border-hoanien-text/10">
         <nav class="guest-nav relative w-full font-sans">
             <div class="max-w-[1440px] mx-auto px-6 py-4 flex items-center justify-between">
+                <!-- Left Links -->
                 <div
                     class="hidden lg:flex items-center gap-8 text-[13px] uppercase tracking-[0.2em] font-semibold text-hoanien-text/80">
-                    <a href="/living" class="hover:text-hoanien-text transition-colors">Living</a>
-                    <a href="/dining" class="hover:text-hoanien-text transition-colors">Dining</a>
-                    <a href="/experiences" class="hover:text-hoanien-text transition-colors">Experiences</a>
-                    <a href="/tours" class="hover:text-hoanien-text transition-colors">Tours</a>
+                    <a href="/living"
+                        class="hover:text-hoanien-text active:scale-95 transition-all duration-200 transition-colors">Living</a>
+                    <a href="/dining"
+                        class="hover:text-hoanien-text active:scale-95 transition-all duration-200 transition-colors">Dining</a>
+                    <a href="/experiences"
+                        class="hover:text-hoanien-text active:scale-95 transition-all duration-200 transition-colors">Experiences</a>
+                    <a href="/tours/search"
+                        class="hover:text-hoanien-text active:scale-95 transition-all duration-200 transition-colors">Tours</a>
                 </div>
+
+                <!-- Center Logo -->
                 <div class="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 font-headline text-[32px] italic tracking-tighter text-hoanien-text text-center cursor-pointer w-max"
                     onclick="window.location.href='/'">
                     HoaNien
                 </div>
+
+                <!-- Right Actions -->
                 <div class="hidden lg:flex items-center gap-6 text-[13px] uppercase tracking-[0.2em] font-semibold">
                     <a href="/profile" th:if="${isLoggedIn}"
-                        class="hover:text-hoanien-text transition-colors text-hoanien-text/80">Profile</a>
+                        class="hover:text-hoanien-text active:scale-95 transition-all duration-200 transition-colors text-hoanien-text/80">Profile</a>
                     <form th:action="@{/auth/logout}" method="post" th:if="${isLoggedIn}" class="inline">
                         <button type="submit"
-                            class="hover:text-hoanien-text uppercase tracking-[0.2em] bg-transparent border-none p-0 cursor-pointer text-hoanien-text/80">Logout</button>
+                            class="hover:text-hoanien-text active:scale-95 transition-all duration-200 transition-colors uppercase tracking-[0.2em] bg-transparent border-none p-0 cursor-pointer text-hoanien-text/80">Logout</button>
                     </form>
+
                     <a href="#roomsSection"
-                        class="nav-btn-book hover:opacity-100 active:scale-95 inline-block text-center text-[13px]">Book
-                        Now</a>
+                        class="bg-hoanien-text text-hoanien-bg px-6 py-3 hover:bg-hoanien-text/80 active:scale-[0.98] active:translate-y-[0.5px] transition-all duration-200 transition-colors inline-block text-center border border-hoanien-text">
+                        Book Now
+                    </a>
                 </div>
-                <button class="lg:hidden"><span class="material-symbols-outlined text-3xl">menu</span></button>
+
+                <!-- Mobile Menu Icon -->
+                <button class="lg:hidden">
+                    <span class="material-symbols-outlined text-3xl">menu</span>
+                </button>
             </div>
         </nav>
     </div>
 
-    <header class="site-header pt-36 pb-4 px-6 relative z-40">
-        <div class="max-w-[1200px] mx-auto">
-            <div class="search-bar-box p-3 flex flex-col lg:flex-row items-center justify-between gap-3">
+    <!-- ============ HEADER / SEARCH BAR (Pushed down by Navbar) ============ -->
+    <header class="site-header" style="padding-top: 100px; padding-bottom: 20px;">
+        <div class="header-inner flex justify-center w-full">
+            <div class="search-bar relative w-full max-w-[1100px] mx-auto flex items-center justify-between">
 
-                <div class="search-field search-field-node w-full lg:w-[35%] cursor-pointer p-2 relative flex items-center gap-3 border-b lg:border-b-0 lg:border-r border-hoanien-text/10"
+                <!-- Field 1: Booking Details -->
+                <div class="search-field cursor-pointer hover:bg-[#eae4d8]/40 transition-colors relative"
                     onclick="toggleGuestsDropdown(event)">
-                    <span class="text-hoanien-text/60 material-symbols-outlined">group</span>
-                    <div class="flex flex-col">
-                        <span class="text-[10px] uppercase tracking-wider opacity-50 font-medium">Booking Details</span>
-                        <span id="guestSummaryValue" class="text-xs font-semibold"
-                            th:text="${search != null ? search.summary : '1 Phòng, 2 Người lớn'}">1 Phòng, 2 Người
-                            lớn</span>
-                    </div>
-
-                    <div id="guestsDropdown"
-                        class="absolute top-[115%] left-0 bg-white text-[#2c2a24] p-5 rounded-2xl shadow-2xl border border-[#e7e1d5] z-[60] w-80 hidden font-sans"
-                        onclick="event.stopPropagation()">
-                        <div class="space-y-4">
-                            <div class="flex items-center justify-between">
-                                <span class="block font-semibold text-sm">Số lượng phòng</span>
-                                <div class="flex items-center gap-3">
-                                    <button type="button"
-                                        class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 font-bold"
-                                        onclick="updateGuestCount('units', -1)">-</button>
-                                    <span id="unitsCount" class="w-4 text-center font-bold text-sm">1</span>
-                                    <button type="button"
-                                        class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 font-bold"
-                                        onclick="updateGuestCount('units', 1)">+</button>
-                                </div>
-                            </div>
-                            <div class="flex items-center justify-between">
-                                <span class="block font-semibold text-sm">Người lớn</span>
-                                <div class="flex items-center gap-3">
-                                    <button type="button"
-                                        class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 font-bold"
-                                        onclick="updateGuestCount('adults', -1)">-</button>
-                                    <span id="adultsCount" class="w-4 text-center font-bold text-sm">2</span>
-                                    <button type="button"
-                                        class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 font-bold"
-                                        onclick="updateGuestCount('adults', 1)">+</button>
-                                </div>
-                            </div>
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <span class="block font-semibold text-sm">Trẻ em</span>
-                                    <span class="text-[11px] text-gray-400 block">Dưới 12 tuổi</span>
-                                </div>
-                                <div class="flex items-center gap-3">
-                                    <button type="button"
-                                        class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 font-bold"
-                                        onclick="updateGuestCount('children', -1)">-</button>
-                                    <span id="childrenCount" class="w-4 text-center font-bold text-sm">0</span>
-                                    <button type="button"
-                                        class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 font-bold"
-                                        onclick="updateGuestCount('children', 1)">+</button>
-                                </div>
-                            </div>
-
-                            <div id="childrenAgesContainer" class="space-y-2 pt-2 border-t border-gray-100 hidden">
-                                <span class="block text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Độ
-                                    tuổi từng trẻ em</span>
-                                <div id="childrenAgesGrid" class="grid grid-cols-2 gap-2"></div>
-                            </div>
-
-                            <div class="pt-3 border-t border-gray-100 flex justify-end">
-                                <button type="button"
-                                    class="bg-[#3a3230] text-white px-5 py-2 rounded-lg text-xs font-semibold hover:bg-opacity-90"
-                                    onclick="applyGuests()">Xác nhận</button>
-                            </div>
-                        </div>
+                    <span class="field-icon" aria-hidden="true">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.6">
+                            <circle cx="9" cy="8" r="3.2" />
+                            <path d="M3.5 19c0-3 2.6-5 5.5-5s5.5 2 5.5 5" />
+                            <circle cx="17" cy="9" r="2.4" />
+                            <path d="M16 18.5c0-2.3 1.8-3.6 3.8-3.6" />
+                        </svg>
+                    </span>
+                    <div class="field-body">
+                        <span class="field-label">Booking Details</span>
+                        <span id="guestSummaryValue" class="field-value font-medium"
+                            th:text="${search != null ? search.summary : '1 Unit'}">1 Unit</span>
                     </div>
                 </div>
 
-                <div class="search-field search-field-node w-full lg:w-[18%] cursor-pointer p-2 relative flex items-center gap-3 border-b lg:border-b-0 lg:border-r border-hoanien-text/10"
+                <!-- Field 2: Check-in -->
+                <div class="search-field cursor-pointer hover:bg-[#eae4d8]/40 transition-colors relative"
                     onclick="toggleCalendarDropdown(event)">
-                    <span class="text-hoanien-text/60 material-symbols-outlined">calendar_today</span>
-                    <div class="flex flex-col">
-                        <span class="text-[10px] uppercase tracking-wider opacity-50 font-medium">Check-in</span>
-                        <span id="checkInValue" class="text-xs font-semibold"
+                    <span class="field-icon" aria-hidden="true">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.6">
+                            <rect x="3.5" y="5" width="17" height="15" rx="2" />
+                            <path d="M3.5 9h17M8 3v4M16 3v4" />
+                        </svg>
+                    </span>
+                    <div class="field-body">
+                        <span class="field-label">Check-in</span>
+                        <span id="checkInValue" class="field-value font-medium"
                             th:text="${search != null ? search.checkIn : '12 Jun 2026'}">12 Jun 2026</span>
                     </div>
                 </div>
 
-                <div class="hidden lg:block opacity-30 text-hoanien-text">
-                    <span class="material-symbols-outlined">arrow_right_alt</span>
+                <div class="search-arrow" aria-hidden="true">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="1.6">
+                        <path d="M4 12h15M13 6l6 6-6 6" />
+                    </svg>
                 </div>
 
-                <div class="search-field search-field-node w-full lg:w-[18%] cursor-pointer p-2 relative flex items-center gap-3 border-b lg:border-b-0 lg:border-r border-hoanien-text/10"
+                <!-- Field 3: Check-out -->
+                <div class="search-field cursor-pointer hover:bg-[#eae4d8]/40 transition-colors relative"
                     onclick="toggleCalendarDropdown(event)">
-                    <div class="flex flex-col pl-2">
-                        <span class="text-[10px] uppercase tracking-wider opacity-50 font-medium">Check-out</span>
-                        <span id="checkOutValue" class="text-xs font-semibold"
+                    <div class="field-body pl-6">
+                        <span class="field-label">Check-out</span>
+                        <span id="checkOutValue" class="field-value font-medium"
                             th:text="${search != null ? search.checkOut : '15 Jun 2026'}">15 Jun 2026</span>
                     </div>
-
-                    <div id="calendarDropdown"
-                        class="absolute top-[115%] left-0 lg:left-[-50%] mt-1 bg-white text-[#2c2a24] p-5 rounded-xl shadow-2xl border border-[#e7e1d5] z-[60] w-[350px] hidden font-sans"
-                        onclick="event.stopPropagation()">
-                        <div class="flex items-center justify-between mb-4">
-                            <button type="button" class="text-gray-500 hover:text-black" onclick="prevMonth()">
-                                <span class="material-symbols-outlined text-sm font-bold">arrow_back_ios_new</span>
-                            </button>
-                            <span id="currentMonthYear" class="font-bold text-sm text-[#3a3230]">June 2026</span>
-                            <button type="button" class="text-gray-500 hover:text-black" onclick="nextMonth()">
-                                <span class="material-symbols-outlined text-sm font-bold">arrow_forward_ios</span>
-                            </button>
-                        </div>
-                        <div class="grid grid-cols-7 gap-1 text-center text-xs font-semibold text-gray-400 mb-2">
-                            <span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span>
-                        </div>
-                        <div id="calendarDays" class="grid grid-cols-7 gap-1 text-center text-xs"></div>
-                        <div class="pt-3 border-t border-gray-100 mt-3 flex justify-between items-center">
-                            <span id="dateSelectionSummary" class="text-xs text-gray-500 font-medium">Select
-                                dates</span>
-                            <button type="button"
-                                class="bg-[#3a3230] text-white px-4 py-1.5 rounded-lg text-xs font-semibold hover:bg-opacity-90"
-                                onclick="applyDates()">Áp dụng</button>
-                        </div>
-                    </div>
                 </div>
 
-                <div class="search-field search-field-node w-full lg:w-[15%] cursor-pointer p-2 relative flex items-center gap-3"
+                <!-- Field 4: Promo Code -->
+                <div class="search-field cursor-pointer hover:bg-[#eae4d8]/40 transition-colors relative"
                     onclick="toggleCodeDropdown(event)">
-                    <span class="text-hoanien-text/60 material-symbols-outlined">style</span>
-                    <div class="flex flex-col">
-                        <span class="text-[10px] uppercase tracking-wider opacity-50 font-medium">Mã ưu đãi</span>
-                        <span id="bookingCodeValue" class="text-xs font-semibold text-hoanien-text/40">Nhập mã...</span>
+                    <span class="field-icon" aria-hidden="true">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.6">
+                            <path d="M9 12l2 2 4-4" />
+                            <circle cx="12" cy="12" r="9" />
+                        </svg>
+                    </span>
+                    <div class="field-body">
+                        <span class="field-label">Booking code</span>
+                        <span id="bookingCodeValue" class="field-value muted">Enter code</span>
                     </div>
+                </div>
 
-                    <div id="codeDropdown"
-                        class="absolute top-[115%] right-0 mt-1 bg-white text-[#2c2a24] p-5 rounded-xl shadow-2xl border border-[#e7e1d5] z-[60] w-72 hidden font-sans"
-                        onclick="event.stopPropagation()">
-                        <div class="space-y-3">
+                <!-- Search Button -->
+                <button type="button" class="search-btn" onclick="executeSearch(event)">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="1.8">
+                        <circle cx="11" cy="11" r="7" />
+                        <path d="M21 21l-4-4" />
+                    </svg>
+                    Search
+                </button>
+
+                <!-- ============ POPUPS (Absolute layout inside search-bar relative container) ============ -->
+                <!-- 1. Guests Dropdown -->
+                <div id="guestsDropdown"
+                    class="absolute top-[105%] left-0 mt-1 bg-white text-[#2c2a24] p-5 rounded-xl shadow-2xl border border-[#e7e1d5] z-50 w-80 hidden font-sans"
+                    onclick="event.stopPropagation()">
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
                             <div>
-                                <label
-                                    class="block text-[11px] font-bold text-gray-400 mb-1.5 uppercase tracking-wider">Booking
-                                    Code / Voucher</label>
-                                <input type="text" id="promoCodeInput"
-                                    class="w-full border border-[#e7e1d5] p-2.5 rounded-lg text-sm focus:outline-none"
-                                    placeholder="Enter code">
+                                <span class="block font-semibold text-sm">Units / Rooms</span>
+                                <span class="text-[11px] text-gray-400">Number of rooms required</span>
                             </div>
-                            <div class="flex justify-end gap-2.5 pt-2">
+                            <div class="flex items-center gap-3">
                                 <button type="button"
-                                    class="text-xs font-semibold text-gray-400 hover:text-black transition-colors"
-                                    onclick="clearPromoCode()">Xóa</button>
+                                    class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 font-bold"
+                                    onclick="updateGuestCount('units', -1)">-</button>
+                                <span id="unitsCount" class="w-4 text-center font-bold text-sm">1</span>
                                 <button type="button"
-                                    class="bg-[#3a3230] text-white px-4 py-1.5 rounded-lg text-xs font-semibold"
-                                    onclick="applyPromoCode()">Áp dụng</button>
+                                    class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 font-bold"
+                                    onclick="updateGuestCount('units', 1)">+</button>
                             </div>
+                        </div>
+
+                        <div class="pt-3 border-t border-gray-100 flex justify-end">
+                            <button type="button"
+                                class="bg-[#3a322b] text-[#f3efe6] px-5 py-2 rounded-lg text-xs font-semibold hover:bg-[#2c2620] transition-colors"
+                                onclick="applyGuests()">Apply</button>
                         </div>
                     </div>
                 </div>
 
-                <button type="button"
-                    class="w-full lg:w-auto bg-hoanien-text text-hoanien-bg px-7 py-3.5 text-xs font-semibold uppercase tracking-widest hover:bg-hoanien-text/90 flex items-center justify-center gap-2 rounded-xl shadow-md font-sans"
-                    onclick="executeSearch(event)">
-                    Tìm Kiếm
-                </button>
+                <!-- 2. Calendar Dropdown -->
+                <div id="calendarDropdown"
+                    class="absolute top-[105%] left-[20%] mt-1 bg-white text-[#2c2a24] p-5 rounded-xl shadow-2xl border border-[#e7e1d5] z-50 w-[350px] hidden font-sans"
+                    onclick="event.stopPropagation()">
+                    <div class="flex items-center justify-between mb-4">
+                        <button type="button" class="text-gray-500 hover:text-black" onclick="prevMonth()">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2.5">
+                                <path d="M15 18l-6-6 6-6" />
+                            </svg>
+                        </button>
+                        <span id="currentMonthYear" class="font-bold text-sm text-[#2c2a24]">June 2026</span>
+                        <button type="button" class="text-gray-500 hover:text-black" onclick="nextMonth()">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2.5">
+                                <path d="M9 18l6-6-6-6" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-7 gap-1 text-center text-xs font-semibold text-gray-400 mb-2">
+                        <span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span>
+                    </div>
+                    <div id="calendarDays" class="grid grid-cols-7 gap-1 text-center text-xs">
+                        <!-- JS populated days -->
+                    </div>
+                    <div class="pt-3 border-t border-gray-100 mt-3 flex justify-between items-center">
+                        <span id="dateSelectionSummary" class="text-xs text-gray-500 font-medium">Select dates</span>
+                        <button type="button"
+                            class="bg-[#3a322b] text-[#f3efe6] px-4 py-1.5 rounded-lg text-xs font-semibold hover:bg-[#2c2620] transition-colors"
+                            onclick="applyDates()">Apply</button>
+                    </div>
+                </div>
+
+                <!-- 3. Booking Code Dropdown -->
+                <div id="codeDropdown"
+                    class="absolute top-[105%] right-0 mt-1 bg-white text-[#2c2a24] p-5 rounded-xl shadow-2xl border border-[#e7e1d5] z-50 w-72 hidden font-sans"
+                    onclick="event.stopPropagation()">
+                    <div class="space-y-3">
+                        <div>
+                            <label
+                                class="block text-[11px] font-bold text-gray-400 mb-1.5 uppercase tracking-wider">Booking
+                                Code / Voucher</label>
+                            <input type="text" id="promoCodeInput"
+                                class="w-full border border-[#e7e1d5] p-2.5 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-[#3a322b]"
+                                placeholder="Enter code">
+                        </div>
+                        <div class="flex justify-end gap-2.5 pt-2">
+                            <button type="button"
+                                class="text-xs font-semibold text-gray-400 hover:text-black transition-colors"
+                                onclick="clearPromoCode()">Clear</button>
+                            <button type="button"
+                                class="bg-[#3a322b] text-[#f3efe6] px-4 py-1.5 rounded-lg text-xs font-semibold hover:bg-[#2c2620] transition-colors"
+                                onclick="applyPromoCode()">Apply</button>
+                        </div>
+                    </div>
+                </div>
 
             </div>
         </div>
     </header>
 
-    <!-- BỘ LỌC THUỘC TÍNH 3 TẦNG SONG SONG -->
-    <section class="max-w-[1200px] mx-auto mb-6 px-6 font-sans relative z-20">
-        <div class="bg-white/40 border border-hoanien-text/5 backdrop-blur-md p-4 rounded-2xl shadow-sm space-y-3.5">
-            <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6">
-                <span
-                    class="text-[10px] uppercase tracking-wider font-bold text-hoanien-text/50 w-24 flex items-center gap-1">
-                    <span class="material-symbols-outlined text-sm">auto_awesome_motion</span> Hạng & Gói
-                </span>
-                <div class="flex flex-wrap gap-1.5" id="categoryFilterGroup">
-                    <button type="button" data-filter="all" onclick="selectFilter('category', this)"
-                        class="filter-chip px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wider rounded-full bg-hoanien-text text-hoanien-bg shadow-sm">Tất
-                        cả phòng</button>
-                    <button type="button" data-filter="Standard" onclick="selectFilter('category', this)"
-                        class="filter-chip px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wider rounded-full bg-white text-hoanien-text/70 border border-hoanien-text/10 hover:border-hoanien-text/30">Standard</button>
-                    <button type="button" data-filter="Deluxe" onclick="selectFilter('category', this)"
-                        class="filter-chip px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wider rounded-full bg-white text-hoanien-text/70 border border-hoanien-text/10 hover:border-hoanien-text/30">Deluxe</button>
-                    <button type="button" data-filter="Villa" onclick="selectFilter('category', this)"
-                        class="filter-chip px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wider rounded-full bg-white text-hoanien-text/70 border border-hoanien-text/10 hover:border-hoanien-text/30">Villa</button>
-                    <button type="button" data-filter="Suite" onclick="selectFilter('category', this)"
-                        class="filter-chip px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wider rounded-full bg-white text-hoanien-text/70 border border-hoanien-text/10 hover:border-hoanien-text/30">Suite</button>
-                    <button type="button" id="comboFilterBtn" data-filter="combo_package"
-                        onclick="toggleComboPlan(this)"
-                        class="filter-chip px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wider rounded-full bg-white text-emerald-800 border border-emerald-800/20 hover:bg-emerald-50 flex items-center gap-1">
-                        Gói Combo Trải Nghiệm <span
-                            class="bg-emerald-800 text-white text-[8px] px-1 rounded font-mono">Gồm Tour</span>
-                    </button>
-                </div>
-            </div>
-            <div class="border-t border-hoanien-text/5"></div>
-            <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6">
-                <span
-                    class="text-[10px] uppercase tracking-wider font-bold text-hoanien-text/50 w-24 flex items-center gap-1">
-                    <span class="material-symbols-outlined text-sm">visibility</span> Hướng nhìn
-                </span>
-                <div class="flex flex-wrap gap-1.5" id="viewFilterGroup">
-                    <button type="button" data-filter="all" onclick="selectFilter('view', this)"
-                        class="filter-chip px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wider rounded-full bg-hoanien-text text-hoanien-bg shadow-sm">Tất
-                        cả hướng</button>
-                    <button type="button" data-filter="Ocean" onclick="selectFilter('view', this)"
-                        class="filter-chip px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wider rounded-full bg-white text-hoanien-text/70 border border-hoanien-text/10 hover:border-hoanien-text/30">Hướng
-                        Biển (Ocean)</button>
-                    <button type="button" data-filter="Garden" onclick="selectFilter('view', this)"
-                        class="filter-chip px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wider rounded-full bg-white text-hoanien-text/70 border border-hoanien-text/10 hover:border-hoanien-text/30">Hướng
-                        Vườn (Garden)</button>
-                    <button type="button" data-filter="River" onclick="selectFilter('view', this)"
-                        class="filter-chip px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wider rounded-full bg-white text-hoanien-text/70 border border-hoanien-text/10 hover:border-hoanien-text/30">Hướng
-                        Sông (River)</button>
-                </div>
-            </div>
-            <div class="border-t border-hoanien-text/5"></div>
-            <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6">
-                <span
-                    class="text-[10px] uppercase tracking-wider font-bold text-hoanien-text/50 w-24 flex items-center gap-1">
-                    <span class="material-symbols-outlined text-sm">king_bed</span> Kiểu giường
-                </span>
-                <div class="flex flex-wrap gap-1.5" id="bedFilterGroup">
-                    <button type="button" data-filter="all" onclick="selectFilter('bed', this)"
-                        class="filter-chip px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wider rounded-full bg-hoanien-text text-hoanien-bg shadow-sm">Tất
-                        cả giường</button>
-                    <button type="button" data-filter="King" onclick="selectFilter('bed', this)"
-                        class="filter-chip px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wider rounded-full bg-white text-hoanien-text/70 border border-hoanien-text/10 hover:border-hoanien-text/30">1
-                        Giường Lớn (King)</button>
-                    <button type="button" data-filter="Twin" onclick="selectFilter('bed', this)"
-                        class="filter-chip px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wider rounded-full bg-white text-hoanien-text/70 border border-hoanien-text/10 hover:border-hoanien-text/30">2
-                        Giường Đơn (Twin)</button>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Ô TÌM KIẾM TEXTBOX -->
-    <div class="max-w-[1100px] mx-auto mt-4 mb-4 px-6 font-sans relative z-10">
+    <!-- ============ KEYWORD SEARCH ============ -->
+    <div class="max-w-[1100px] mx-auto mt-8 mb-4 px-6 font-sans">
         <form action="/booking" method="get"
             class="flex flex-col sm:flex-row gap-4 items-center bg-white/60 p-3 rounded-2xl border border-hoanien-text/10 shadow-sm backdrop-blur-sm">
             <div class="relative w-full">
                 <span
                     class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 material-symbols-outlined">search</span>
                 <input type="text" name="keyword" th:value="${keyword}" placeholder="Tìm kiếm tên phòng, phong cách..."
-                    class="w-full bg-transparent border-none pl-12 pr-4 py-3 text-sm focus:ring-0 focus:outline-none placeholder-gray-400">
+                    class="w-full bg-transparent border-none pl-12 pr-4 py-3 text-sm focus:ring-0 focus:outline-none transition-all placeholder-gray-400">
             </div>
             <button type="submit"
-                class="w-full sm:w-auto bg-hoanien-text text-hoanien-bg px-8 py-3 rounded-xl text-xs uppercase tracking-widest font-semibold hover:bg-hoanien-text/80 transition-colors whitespace-nowrap shadow-md">Tìm
-                phòng</button>
+                class="w-full sm:w-auto bg-hoanien-text text-hoanien-bg px-8 py-3 rounded-xl text-xs uppercase tracking-widest font-semibold hover:bg-hoanien-text/80 transition-colors whitespace-nowrap shadow-md">
+                Tìm phòng
+            </button>
         </form>
     </div>
 
-    <!-- DANH SÁCH PHÒNG LƯU TRÚ -->
-    <main id="roomsSection" class="max-w-[1100px] mx-auto px-6 pb-32 font-sans">
-        <div class="room-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-
-            <!-- Vòng lặp Thymeleaf động của bạn -->
-            <article class="room-card-premium flex flex-col"
-                th:each="room : ${rooms}"
-                data-rate-type="STANDARD"
-                th:attr="data-room-name=${room.name}, data-room-image=${room.image}, data-room-beds=${room.beds}, data-room-size=${room.size}, data-room-price=${room.priceVal}">
-                <div class="room-media relative aspect-[4/3] w-full overflow-hidden group cursor-pointer"
-                    onclick="openRoomModalFromCard(this.closest('article'))">
-                    <span
-                        class="room-badge absolute top-4 left-4 z-10 text-[9px] uppercase tracking-widest px-2.5 py-1 bg-hoanien-text text-white rounded font-medium"
-                        th:if="${room.badge != null}">
-                        <span th:text="${room.badge}">Lowest Price</span>
-                    </span>
-                    <img class="room-img" th:src="${room.image}" th:alt="${room.name}"
-                        src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&q=80" />
-                </div>
-                <div class="p-6 flex flex-col flex-grow border-t border-hoanien-text/5">
-                    <h2 class="font-serif text-xl text-hoanien-text leading-tight mb-2 cursor-pointer hover:opacity-75"
-                        onclick="openRoomModalFromCard(this.closest('article'))"
-                        th:text="${room.name}">NIPA POOL VILLA - King bed</h2>
-                    <ul class="room-specs flex items-center gap-2 text-xs text-hoanien-text/60 mb-6 font-light">
-                        <li class="flex items-center gap-1.5"><span
-                                class="material-symbols-outlined text-sm">group</span><span
-                                th:text="${room.guests} + ' Người'">2 Người</span></li>
-                    </ul>
-                    <div class="room-foot mt-auto pt-5 border-t border-hoanien-text/10 flex items-end justify-between">
-                        <div class="price-block font-sans">
-                            <span class="text-[9px] uppercase tracking-wider block opacity-40 mb-0.5">Giá từ</span>
-                            <p class="text-xs font-bold text-hoanien-text"><span class="price-amount text-sm"
-                                    th:text="${room.price}">₫ 15,345,000.00</span></p>
-                        </div>
-                        <div class="flex items-center bg-hoanien-text rounded-lg text-hoanien-bg text-xs shadow-sm">
-                            <button type="button" class="px-3 py-2 font-bold hover:bg-white/10 rounded-l-lg"
-                                onclick="changeCartQtyFromCard(this.closest('article'), -1)">-</button>
-                            <span class="px-1 font-semibold min-w-6 text-center" th:id="|qty-${room.name}|">0</span>
-                            <button type="button" class="px-3 py-2 font-bold hover:bg-white/10 rounded-r-lg"
-                                onclick="changeCartQtyFromCard(this.closest('article'), 1)">+</button>
-                        </div>
-                    </div>
-                </div>
-            </article>
-        </div>
-    </main>
-
-    <!-- THANH GIỎ HÀNG NỔI (STICKY BAR) Ở ĐÁY MÀNH HÌNH CHỐT ĐƠN ĐA PHÒNG -->
-    <div id="stickyCartBar"
-        class="cart-sticky-bar fixed bottom-0 left-0 w-full z-50 bg-[#3a3230] text-[#f1ebe3] px-6 py-4 border-t border-white/10 shadow-2xl">
-        <div class="max-w-[1100px] mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
-            <div class="flex flex-col">
-                <span class="text-[10px] uppercase tracking-wider opacity-60">Gói phòng lựa chọn của bạn</span>
-                <span id="cartSummaryText" class="text-xs font-medium">Đang chọn: 0 phòng</span>
+    <!-- ============ RESULTS ============ -->
+    <main id="roomsSection" class="results">
+        <div class="results-head">
+            <div>
+                <h1 class="results-title">Available Options</h1>
             </div>
-            <div class="flex items-center gap-6">
-                <div class="text-right">
-                    <span class="text-[9px] uppercase tracking-wider opacity-40 block">Tổng chi phí tạm tính</span>
-                    <span id="cartTotalText" class="font-serif text-lg font-bold">₫ 0</span>
-                </div>
-                <button type="button" onclick="openMultiRoomFormModal()"
-                    class="bg-[#f1ebe3] text-[#3a3230] px-6 py-3 text-xs font-bold uppercase tracking-widest rounded-lg shadow-md hover:bg-opacity-90">
-                    Khai báo & Giữ phòng
+            <div class="view-toggle">
+                <button type="button" class="vt-btn" aria-label="Filters">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="1.6">
+                        <path d="M4 7h11M4 12h7M4 17h14" />
+                        <circle cx="18" cy="7" r="2" />
+                        <circle cx="14" cy="12" r="2" />
+                        <circle cx="20" cy="17" r="2" />
+                    </svg>
+                </button>
+                <button type="button" class="vt-btn" aria-label="Grid view">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="1.6">
+                        <rect x="3" y="3" width="7" height="7" />
+                        <rect x="14" y="3" width="7" height="7" />
+                        <rect x="3" y="14" width="7" height="7" />
+                        <rect x="14" y="14" width="7" height="7" />
+                    </svg>
+                </button>
+                <button type="button" class="vt-btn" aria-label="Two column view">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="1.6">
+                        <rect x="3" y="4" width="8" height="16" />
+                        <rect x="13" y="4" width="8" height="16" />
+                    </svg>
+                </button>
+                <button type="button" class="vt-btn active" aria-label="List view">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="1.6">
+                        <rect x="3" y="4" width="18" height="4" />
+                        <rect x="3" y="10" width="18" height="4" />
+                        <rect x="3" y="16" width="18" height="4" />
+                    </svg>
                 </button>
             </div>
         </div>
-    </div>
 
-    <!-- POPUP MỚI: XEM CHI TIẾT PHÒNG THUỒN TÚY (ĐÃ BỎ BƯỚC 1, BƯỚC 2 NHƯ YÊU CẦU) -->
-    <div id="pureDetailsModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 premium-popup-overlay"
-        style="display: none;" onclick="closePureDetailsModal()">
-        <div class="premium-popup-content w-full max-w-3xl overflow-hidden relative shadow-2xl bg-[#f1ebe3] border border-hoanien-text/10 rounded-2xl max-h-[85vh] flex flex-col"
-            onclick="event.stopPropagation()">
-            <button onclick="closePureDetailsModal()"
-                class="absolute top-4 right-4 z-10 w-8 h-8 rounded-full bg-white/80 hover:bg-white flex items-center justify-center text-hoanien-text/60 shadow">
-                <span class="material-symbols-outlined text-sm font-bold">close</span>
-            </button>
-            <div class="w-full h-64 md:h-80 relative overflow-hidden flex-shrink-0">
-                <img id="pureRoomImg" class="w-full h-full object-cover" src="" alt="Room luxury image">
-                <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
-                <h2 id="pureRoomName" class="absolute bottom-4 left-6 font-serif text-2xl text-white font-medium">Tên
-                    phòng luxury</h2>
-            </div>
-            <div class="p-6 md:p-8 overflow-y-auto space-y-6 bg-white flex-grow">
-                <div class="grid grid-cols-3 gap-4 text-center border-b border-hoanien-text/5 pb-4">
-                    <div class="p-2 bg-hoanien-bg/20 rounded-xl"><span
-                            class="material-symbols-outlined text-hoanien-text/60 block mb-1">bed</span><span
-                            id="pureRoomBeds" class="text-xs font-semibold text-hoanien-text">1 King Bed</span></div>
-                    <div class="p-2 bg-hoanien-bg/20 rounded-xl"><span
-                            class="material-symbols-outlined text-hoanien-text/60 block mb-1">fullscreen</span><span
-                            id="pureRoomSize" class="text-xs font-semibold text-hoanien-text">62 m²</span></div>
-                    <div class="p-2 bg-hoanien-bg/20 rounded-xl"><span
-                            class="material-symbols-outlined text-emerald-800 block mb-1">payments</span><span
-                            id="pureRoomPrice" class="text-xs font-bold text-emerald-800">₫ 0</span></div>
+        <!-- Room grid & Cart Layout -->
+        <div class="flex flex-col lg:flex-row gap-6 relative items-start">
+            <!-- Left side: Room list -->
+            <div class="flex-1 w-full min-w-0">
+                <div class="room-grid min-h-[400px]">
+                    <!-- Rooms will be dynamically loaded via JS -->
                 </div>
-                <div class="space-y-2">
-                    <h3 class="text-xs font-bold uppercase tracking-wider text-hoanien-text/40">Mô tả hạng phòng</h3>
-                    <p id="pureRoomDesc" class="text-xs text-hoanien-text/70 leading-relaxed font-light font-sans">Nội
-                        dung mô tả căn hộ...</p>
-                </div>
-                <div class="space-y-3 pt-2">
-                    <h3 class="text-xs font-bold uppercase tracking-wider text-hoanien-text/40">Tiện nghi phòng kèm theo
-                    </h3>
-                    <div
-                        class="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-2 text-[11px] font-medium text-hoanien-text/60">
-                        <div class="flex items-center gap-1.5"><span
-                                class="material-symbols-outlined text-sm text-amber-800">wifi</span> Kết nối Wi-Fi tốc
-                            độ cao</div>
-                        <div class="flex items-center gap-1.5"><span
-                                class="material-symbols-outlined text-sm text-amber-800">coffee_maker</span> Quầy
-                            Mini-bar & Cà phê Ý</div>
-                        <div class="flex items-center gap-1.5"><span
-                                class="material-symbols-outlined text-sm text-amber-800">bathtub</span> Bồn tắm nằm cao
-                            cấp</div>
-                        <div class="flex items-center gap-1.5"><span
-                                class="material-symbols-outlined text-sm text-amber-800">tv</span> Smart TV 4K truyền
-                            hình cáp</div>
-                        <div class="flex items-center gap-1.5"><span
-                                class="material-symbols-outlined text-sm text-amber-800">ac_unit</span> Điều hòa không
-                            khí trung tâm</div>
-                    </div>
+                <!-- Show More Button -->
+                <div id="showMoreContainer" class="actions-center mt-6">
+                    <button id="showMoreBtn" type="button" class="show-more" onclick="toggleShowMoreRooms()">
+                        Show more
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M6 9l6 6 6-6" />
+                        </svg>
+                    </button>
                 </div>
             </div>
-        </div>
-    </div>
+            <!-- end left side -->
 
-    <!-- MODAL KHAI BÁO THÔNG TIN LƯU TRÚ VÀ CHỐT ĐƠN (ĐƯỢC GỌI KHI BẤM NÚT TẠI THANH GIỎ HÀNG) -->
-    <div id="roomDetailsModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 premium-popup-overlay"
-        style="display: none;" onclick="closeRoomDetailsModal()">
-        <div class="premium-popup-content w-full max-w-5xl overflow-hidden relative shadow-2xl flex flex-col md:flex-row max-h-[92vh]"
-            onclick="event.stopPropagation()">
-            <button onclick="closeRoomDetailsModal()"
-                class="absolute top-4 right-4 z-10 w-8 h-8 rounded-full bg-white/80 hover:bg-white flex items-center justify-center text-hoanien-text/60 shadow">
-                <span class="material-symbols-outlined text-sm font-bold">close</span>
-            </button>
-
-            <!-- Cột trái: Tóm tắt hóa đơn -->
-            <div
-                class="w-full md:w-4/12 bg-hoanien-text/5 flex flex-col justify-between border-r border-hoanien-text/10 p-6 overflow-y-auto">
-                <div class="space-y-4">
-                    <div class="border-b border-hoanien-text/10 pb-2">
-                        <h2 class="font-serif text-base text-hoanien-text font-bold">Chi tiết hóa đơn</h2>
+            <!-- Right side: Booking Cart Summary -->
+            <aside class="w-full lg:w-[320px] flex-shrink-0 sticky top-6 z-10 hidden" id="bookingCartWrapper">
+                <div id="bookingSummaryCart"
+                    class="bg-white rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.08)] border border-[#e7e1d5] overflow-hidden font-sans transition-all">
+                    <div class="bg-[#ece6da] p-4 border-b border-[#d7ccb6]">
+                        <h3 class="font-semibold text-[#2f2a24] text-[20px] mb-1"
+                            style="font-family: 'Cormorant Garamond', serif;">Thông tin đặt phòng</h3>
+                        <p class="text-[13px] text-[#8b8478]" id="cartDatesSummary">Vui lòng chọn ngày</p>
                     </div>
-                    <div class="space-y-2.5 text-xs border-b border-hoanien-text/10 pb-4" id="invoiceDetailsList"></div>
-                    <div class="space-y-2 text-xs border-b border-hoanien-text/10 pb-4">
-                        <div class="flex justify-between text-amber-800"><span>Phụ thu trẻ em <span
-                                    id="calcChildCount">(0)</span>:</span><span id="calcChildFee"
-                                class="font-semibold">₫ 0</span></div>
-                        <div id="calcComboRow" class="flex justify-between text-emerald-800 hidden"><span>Tích hợp hành
-                                trình di sản:</span><span id="calcComboFee" class="font-semibold">₫ 0</span></div>
-                        <div id="calcAddonRow" class="flex justify-between text-indigo-800 hidden"><span>Dịch vụ add-on
-                                mua thêm:</span><span id="calcAddonFee" class="font-semibold">₫ 0</span></div>
-                    </div>
-                </div>
-                <div class="pt-4">
-                    <span class="text-[9px] uppercase tracking-wider opacity-40 block font-bold">Tổng chi phí dự kiến
-                        đơn hàng</span>
-                    <span id="detailRoomTotal" class="text-2xl font-bold text-hoanien-text font-serif">₫ 0</span>
-                </div>
-            </div>
 
-            <!-- Cột phải: Form các bước khai báo như cũ -->
-            <div
-                class="w-full md:w-8/12 p-6 md:p-8 flex flex-col justify-between overflow-y-auto max-h-[80vh] md:max-h-full bg-white">
-                <div class="space-y-6">
-                    <div>
-                        <h4 class="text-[10px] font-bold uppercase tracking-wider opacity-50 mb-3">Bước 1: Chọn gói tiện
-                            ích gia tăng (Add-ons)</h4>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            <label
-                                class="flex items-center justify-between p-3 bg-hoanien-bg/30 border border-hoanien-text/5 cursor-pointer rounded-xl hover:bg-gray-50">
-                                <div class="flex items-center gap-3">
-                                    <input type="checkbox"
-                                        class="addon-checkbox rounded border-hoanien-text/20 text-hoanien-text focus:ring-0 w-4 h-4"
-                                        data-price="1200000" onchange="calculateLiveTotal()">
-                                    <div class="text-[11px]"><span class="font-semibold block">Xe đưa đón 2
-                                            chiều</span><span class="opacity-60 font-light text-[10px]">Sân bay Đà
-                                            Nẵng</span></div>
-                                </div>
-                                <span class="text-xs font-semibold whitespace-nowrap">₫ 1,200,000</span>
-                            </label>
-                            <label
-                                class="flex items-center justify-between p-3 bg-hoanien-bg/30 border border-hoanien-text/5 cursor-pointer rounded-xl hover:bg-gray-50">
-                                <div class="flex items-center gap-3">
-                                    <input type="checkbox"
-                                        class="addon-checkbox rounded border-hoanien-text/20 text-hoanien-text focus:ring-0 w-4 h-4"
-                                        data-price="850000" onchange="calculateLiveTotal()">
-                                    <div class="text-[11px]"><span class="font-semibold block">Spa thảo mộc
-                                            60'</span><span class="opacity-60 font-light text-[10px]">Phục hồi chuyên
-                                            sâu</span></div>
-                                </div>
-                                <span class="text-xs font-semibold whitespace-nowrap">₫ 850,000</span>
-                            </label>
+                    <div class="p-0 bg-white max-h-[50vh] overflow-y-auto" id="cartItemsContainer">
+                        <!-- Items rendered by JS -->
+                        <div class="p-6 text-center text-gray-400 text-sm italic">
+                            Chưa chọn phòng nào
                         </div>
                     </div>
-                    <div>
-                        <h4 class="text-[10px] font-bold uppercase tracking-wider opacity-50 mb-3">Bước 2: Thông tin cá
-                            nhân liên hệ (Trưởng đoàn)</h4>
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 font-sans">
-                            <div><label class="block text-[10px] font-medium opacity-70 mb-1">Họ và tên *</label><input
-                                    type="text" id="leaderName" required
-                                    class="w-full border border-hoanien-text/10 p-2.5 rounded-lg text-xs focus:ring-1 focus:ring-hoanien-text focus:outline-none"
-                                    placeholder="Nguyễn Văn A"></div>
-                            <div><label class="block text-[10px] font-medium opacity-70 mb-1">Số điện thoại
-                                    *</label><input type="tel" id="leaderPhone" required
-                                    class="w-full border border-hoanien-text/10 p-2.5 rounded-lg text-xs focus:ring-1 focus:ring-hoanien-text focus:outline-none"
-                                    placeholder="0901234567"></div>
-                            <div><label class="block text-[10px] font-medium opacity-70 mb-1">Email liên hệ
-                                    *</label><input type="email" id="leaderEmail" required
-                                    class="w-full border border-hoanien-text/10 p-2.5 rounded-lg text-xs focus:ring-1 focus:ring-hoanien-text focus:outline-none"
-                                    placeholder="vi-du@gmail.com"></div>
+                    <div class="p-4 bg-[#fbf9f4] border-t border-[#e7e1d5]">
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="font-semibold text-[#2f2a24]">Tổng cộng</span>
+                            <span class="font-bold text-[#d4af37] text-lg" id="cartTotalPrice">0 VNĐ</span>
                         </div>
-                    </div>
-                    <div>
-                        <h4 class="text-[10px] font-bold uppercase tracking-wider opacity-50 mb-3">Bước 3: Khai báo phôi
-                            lưu trú & Xếp phòng giỏ hàng</h4>
-                        <div class="space-y-4">
-                            <div><label class="block text-[10px] uppercase tracking-wider opacity-60 font-bold mb-1">Số
-                                    CCCD / Hộ chiếu trưởng đoàn *</label><input type="text" id="guestIDCardInput"
-                                    required
-                                    class="w-full bg-white border border-hoanien-text/10 p-3 rounded-lg text-xs focus:ring-1 focus:ring-hoanien-text focus:outline-none"
-                                    placeholder="Nhập số giấy tờ định danh..."></div>
-                            <div id="roomAllocationWrapper" class="space-y-2"><span
-                                    class="block text-[10px] font-bold opacity-60 uppercase">Cấu hình sắp xếp cho từng
-                                    phòng vật lý trong giỏ:</span>
-                                <div id="roomAllocationGrid" class="space-y-4"></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="flex items-start gap-2.5 bg-hoanien-bg/30 p-3 rounded-lg border border-hoanien-text/5">
-                        <input type="checkbox" id="bookingConsent"
-                            class="mt-0.5 rounded border-hoanien-text/20 text-hoanien-text focus:ring-0 bg-transparent w-4 h-4"
-                            onchange="toggleDetailBookButton()">
-                        <label for="bookingConsent"
-                            class="text-[10px] text-hoanien-text/60 leading-normal font-light cursor-pointer select-none">Tôi
-                            cam kết thông tin người liên hệ, số lượng căn phòng, cơ cấu hành khách và độ tuổi của trẻ em
-                            khai báo ở trên hoàn toàn chính xác theo giấy tờ pháp lý.</label>
+                        <button type="button"
+                            class="w-full bg-[#d4af37] text-white py-3 rounded-md text-sm font-bold tracking-widest uppercase hover:bg-[#b08d29] transition-colors shadow-md disabled:opacity-50 disabled:cursor-not-allowed mb-2"
+                            id="btnCartCheckout" onclick="confirmCartBooking()" disabled>
+                            ĐẶT NGAY
+                        </button>
+                        <!-- Nút Hủy giỏ hàng -->
+                        <button type="button"
+                            class="w-full border border-[#d7ccb6] text-[#8b8478] py-2.5 rounded-md text-xs font-semibold tracking-widest uppercase hover:bg-red-50 hover:border-red-300 hover:text-red-500 transition-colors"
+                            onclick="cancelCartHold()">
+                            HỦY GIỎ PHÒNG
+                        </button>
                     </div>
                 </div>
-                <div class="pt-6 border-t border-hoanien-text/10 flex justify-end mt-4">
-                    <button id="realBookBtn" onclick="confirmBooking()" type="button"
-                        class="bg-hoanien-text text-hoanien-bg px-8 py-3.5 text-xs font-semibold uppercase tracking-widest rounded-lg disabled:opacity-30"
-                        disabled>Tiến hành giữ phòng</button>
-                </div>
-            </div>
-        </div>
-    </div>
+            </aside>
 
-    <!-- MODAL KHÓA GIỮ PHÒNG ĐẾM NGƯỢC (GIỮ NGUYÊN) -->
-    <div id="bookingPendingModal"
-        class="fixed inset-0 z-[110] flex items-center justify-center p-4 premium-popup-overlay" style="display: none;">
-        <div
-            class="bg-[#f1ebe3] border border-hoanien-text/10 w-full max-w-xl p-8 text-center relative shadow-2xl rounded-2xl max-h-[90vh] overflow-y-auto">
-            <div
-                class="w-20 h-20 rounded-full border-2 border-hoanien-text flex flex-col items-center justify-center mx-auto mb-4 bg-white shadow-sm">
-                <span id="countdownTimer"
-                    class="font-mono text-lg font-bold tracking-tight text-hoanien-text">15:00</span><span
-                    class="text-[8px] uppercase tracking-wider opacity-50 font-sans">Giữ phòng</span>
-            </div>
-            <h3 class="font-serif text-xl text-hoanien-text mb-2">Hệ thống đang khóa giữ căn hộ</h3>
-            <p class="text-xs text-hoanien-text/60 leading-relaxed mb-4 font-sans">Vui lòng cấu hình cổng thanh toán
-                trực tuyến để bảo toàn đơn phòng trước khi bộ đếm ngược kết thúc.</p>
-            <div class="text-left mb-4">
-                <span class="block text-[10px] font-bold opacity-50 uppercase mb-2">Chọn phương thức giao dịch:</span>
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
-                    <label
-                        class="flex items-center gap-2 p-2.5 bg-white border border-hoanien-text/10 rounded-lg cursor-pointer"><input
-                            type="radio" name="paymentMethod" value="QR" checked
-                            class="text-hoanien-text focus:ring-0"><span>Mã QR Ngân hàng</span></label>
-                    <label
-                        class="flex items-center gap-2 p-2.5 bg-white border border-hoanien-text/10 rounded-lg cursor-pointer"><input
-                            type="radio" name="paymentMethod" value="CARD"
-                            class="text-hoanien-text focus:ring-0"><span>Visa / Mastercard</span></label>
-                    <label
-                        class="flex items-center gap-2 p-2.5 bg-white border border-hoanien-text/10 rounded-lg cursor-pointer"><input
-                            type="radio" name="paymentMethod" value="WALLET"
-                            class="text-hoanien-text focus:ring-0"><span>Ví Momo / VNPAY</span></label>
-                </div>
-            </div>
-            <div class="text-left mb-4 border-t border-hoanien-text/10 pt-3">
-                <label class="flex items-center gap-2 text-xs text-hoanien-text/80 cursor-pointer font-medium"><input
-                        type="checkbox" id="needVAT" class="rounded text-hoanien-text/20 focus:ring-0"
-                        onchange="document.getElementById('vatForm').classList.toggle('hidden')"><span>Tôi cần xuất hóa
-                        đơn giá trị gia tăng (VAT)</span></label>
-                <div id="vatForm"
-                    class="hidden grid grid-cols-1 sm:grid-cols-3 gap-2 mt-2 bg-white/50 p-3 rounded-xl border border-hoanien-text/5">
-                    <input type="text" id="companyName" placeholder="Tên công ty..."
-                        class="p-2 border border-hoanien-text/10 text-xs rounded-lg focus:outline-none">
-                    <input type="text" id="companyTaxCode" placeholder="Mã số thuế..."
-                        class="p-2 border border-hoanien-text/10 text-xs rounded-lg focus:outline-none">
-                    <input type="text" id="companyAddress" placeholder="Địa chỉ cơ sở..."
-                        class="p-2 border border-hoanien-text/10 text-xs rounded-lg focus:outline-none col-span-1 sm:col-span-3">
-                </div>
-            </div>
-            <div
-                class="bg-white p-4 rounded-xl text-left text-xs text-hoanien-text space-y-2 mb-6 border border-hoanien-text/5 font-sans shadow-sm">
-                <div class="flex justify-between"><span class="opacity-50">Mã khóa giữ phòng:</span><span
-                        id="pendingBookingId" class="font-mono font-bold">#HN-2026</span></div>
-                <div class="flex justify-between"><span class="opacity-50">Loại căn hộ:</span><span id="pendingRoomName"
-                        class="font-medium">Nipa Pool Villa</span></div>
-                <div class="flex justify-between font-bold text-sm pt-2 border-t border-hoanien-text/5 mt-2"><span>Tổng
-                        tiền thanh toán:</span><span id="pendingTotalAmount"
-                        class="font-serif text-base text-hoanien-text">₫ 0</span></div>
-            </div>
-            <button onclick="executeSimulatedOnlinePayment()"
-                class="w-full bg-hoanien-text text-white py-3.5 text-xs font-semibold uppercase tracking-widest rounded-lg mb-3 shadow-md">Thanh
-                toán trực tuyến ngay</button>
-            <button onclick="cancelPendingLock()"
-                class="w-full border border-hoanien-text/20 text-hoanien-text py-3 text-xs font-semibold uppercase tracking-widest rounded-lg opacity-60 hover:opacity-100 transition-opacity">Hủy
-                giữ phòng</button>
         </div>
-    </div>
+    </main>
 
-    <!-- MODAL AUTH (GIỮ NGUYÊN) -->
-    <div id="authModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 premium-popup-overlay"
-        style="display: none;">
-        <div
-            class="bg-[#f1ebe3] border border-hoanien-text/10 w-full max-w-md p-8 md:p-10 shadow-2xl relative rounded-2xl max-h-[95vh] overflow-y-auto">
-            <button onclick="closeAuthModal()"
-                class="absolute top-5 right-5 text-hoanien-text/40 hover:text-hoanien-text"><span
-                    class="material-symbols-outlined">close</span></button>
-            <div id="loginSection">
-                <h2 class="font-serif text-2xl mb-2 text-hoanien-text text-center">Đăng Nhập</h2>
-                <p class="text-[11px] text-center text-hoanien-text/50 mb-6 font-sans">Chào mừng quay trở lại hệ thống
-                    của HoaNien</p>
-                <form th:action="@{/auth/login}" method="post" class="space-y-4">
-                    <div><label class="block text-[10px] uppercase tracking-wider opacity-60 font-semibold mb-1.5">Tên
-                            đăng nhập / Email</label><input type="text" name="username" required
-                            class="w-full bg-white border border-hoanien-text/10 p-3 rounded-lg text-xs focus:ring-1 focus:ring-hoanien-text focus:outline-none"
-                            placeholder="Username hoặc Email"></div>
-                    <div><label class="block text-[10px] uppercase tracking-wider opacity-60 font-semibold mb-1.5">Mật
-                            khẩu</label><input type="password" name="password" required
-                            class="w-full bg-white border border-hoanien-text/10 p-3 rounded-lg text-xs focus:ring-1 focus:ring-hoanien-text focus:outline-none"
-                            placeholder="Password"></div>
-                    <button type="submit"
-                        class="w-full bg-hoanien-text text-white py-3.5 text-xs uppercase tracking-widest font-semibold hover:bg-hoanien-text/90 mt-4 rounded-lg shadow-sm">Đăng
-                        Nhập</button>
-                </form>
-                <div class="relative flex py-4 items-center">
-                    <div class="flex-grow border-t border-hoanien-text/10"></div><span
-                        class="flex-shrink mx-4 text-[10px] text-hoanien-text/40 uppercase tracking-widest">Hoặc đăng
-                        nhập bằng</span>
-                    <div class="flex-grow border-t border-hoanien-text/10"></div>
-                </div>
-                <a href="/oauth2/authorization/google"
-                    class="w-full bg-white text-hoanien-text border border-hoanien-text/10 py-3 text-xs font-semibold rounded-lg flex items-center justify-center gap-2 hover:bg-gray-50 transition-colors shadow-sm">
-                    <svg class="w-4 h-4" viewBox="0 0 24 24" width="24" height="24" xmlns="http://www.w3.org/2000/svg">
-                        <g transform="matrix(1, 0, 0, 1, 0, 0)">
-                            <path
-                                d="M21.35,11.1H12v2.7h5.38c-0.24,1.28 -0.96,2.37 -2.04,3.1v2.58h3.3c1.93,-1.78 3.04,-4.4 3.04,-7.48c0,-0.61 -0.06,-1.21 -0.17,-1.8z"
-                                fill="#4285F4" />
-                            <path
-                                d="M12,20.68c2.43,0 4.47,-0.8 5.96,-2.18l-3.3,-2.58c-0.92,0.62 -2.1,0.98 -3.66,0.98c-2.35,0 -4.33,-1.58 -5.04,-3.71H2.54v2.67c1.48,2.95 4.51,4.82 8.04,4.82z"
-                                fill="#34A853" />
-                            <path d="M6.96,13.19a5.19,5.19,0,0,1,0,-3.34V7.18H2.54a8.73,8.73,0,0,0,0,8.68l4.42,-2.67z"
-                                fill="#FBBC05" />
-                            <path
-                                d="M12,6.12c1.32,0 2.51,0.45 3.45,1.35l2.58,-2.58C16.46,3.48 14.42,2.73 12,2.73c-3.53,0 -6.56,1.87 -8.04,4.82l4.42,2.67c0.71,-2.13 2.69,-3.71 5.04,-3.71z"
-                                fill="#EA4335" />
-                        </g>
-                    </svg><span>Tiếp tục với Google</span>
-                </a>
-                <p class="text-xs text-center text-hoanien-text/60 mt-6 font-sans">Chưa có tài khoản lưu trú? <button
-                        type="button" onclick="switchAuthMode('REGISTER')"
-                        class="text-hoanien-text font-bold underline hover:opacity-80">Đăng ký ngay</button></p>
+    <!-- ============ FOOTER ============ -->
+    <footer
+        class="w-full max-w-[1440px] mx-auto px-6 md:px-12 border-t border-hoanien-text/10 pt-16 pb-8 mt-20 font-sans">
+        <div class="flex flex-col md:flex-row justify-between items-center gap-12">
+            <div class="text-center md:text-left">
+                <p class="font-headline text-3xl italic text-hoanien-text">HoaNien</p>
+                <p class="text-[9px] tracking-[0.3em] text-hoanien-text/40 uppercase mt-4">© 2026 HoaNien Retreat. A
+                    Quiet Luxury Travel Group.</p>
             </div>
-            <div id="registerSection" style="display: none;">
-                <h2 class="font-serif text-2xl mb-2 text-hoanien-text text-center">Đăng Ký Tài Khoản</h2>
-                <p class="text-[11px] text-center text-hoanien-text/50 mb-6 font-sans">Tạo tài khoản để nhận voucher ưu
-                    đãi và tích điểm thành viên</p>
-                <form th:action="@{/auth/register}" method="post" class="space-y-3.5">
-                    <div><label class="block text-[10px] uppercase tracking-wider opacity-60 font-semibold mb-1">Tên tài
-                            khoản *</label><input type="text" name="username" required
-                            class="w-full bg-white border border-hoanien-text/10 p-2.5 rounded-lg text-xs focus:ring-1 focus:ring-hoanien-text focus:outline-none"
-                            placeholder="Nhập username"></div>
-                    <div><label class="block text-[10px] uppercase tracking-wider opacity-60 font-semibold mb-1">Địa chỉ
-                            Email *</label><input type="email" name="email" required
-                            class="w-full bg-white border border-hoanien-text/10 p-2.5 rounded-lg text-xs focus:ring-1 focus:ring-hoanien-text focus:outline-none"
-                            placeholder="vi-du@gmail.com"></div>
-                    <div><label class="block text-[10px] uppercase tracking-wider opacity-60 font-semibold mb-1">Mật
-                            khẩu *</label><input type="password" name="password" required
-                            class="w-full bg-white border border-hoanien-text/10 p-2.5 rounded-lg text-xs focus:ring-1 focus:ring-hoanien-text focus:outline-none"
-                            placeholder="Mật khẩu bảo mật"></div>
-                    <div><label class="block text-[10px] uppercase tracking-wider opacity-60 font-semibold mb-1">Xác
-                            nhận mật khẩu *</label><input type="password" name="confirmPassword" required
-                            class="w-full bg-white border border-hoanien-text/10 p-2.5 rounded-lg text-xs focus:ring-1 focus:ring-hoanien-text focus:outline-none"
-                            placeholder="Nhập lại mật khẩu"></div>
-                    <button type="submit"
-                        class="w-full bg-hoanien-text text-white py-3.5 text-xs uppercase tracking-widest font-semibold hover:bg-hoanien-text/90 mt-4 rounded-lg shadow-sm">Tạo
-                        Tài Khoản</button>
-                </form>
-                <p class="text-xs text-center text-hoanien-text/60 mt-6 font-sans">Đã có tài khoản thành viên? <button
-                        type="button" onclick="switchAuthMode('LOGIN')"
-                        class="text-hoanien-text font-bold underline hover:opacity-80">Đăng nhập</button></p>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL ĐẶT THÀNH CÔNG (GIỮ NGUYÊN) -->
-    <div id="bookingConfirmModal"
-        class="fixed inset-0 z-[100] flex items-center justify-center p-4 premium-popup-overlay" style="display: none;"
-        onclick="closeBookingConfirmModal()">
-        <div class="bg-[#f1ebe3] w-full max-w-md p-8 md:p-10 relative border border-hoanien-text/10 rounded-2xl shadow-2xl text-center"
-            onclick="event.stopPropagation()">
-            <button onclick="closeBookingConfirmModal()"
-                class="absolute top-5 right-5 text-hoanien-text/40 hover:text-hoanien-text"><span
-                    class="material-symbols-outlined">close</span></button>
-            <h2 class="font-serif text-2xl text-hoanien-text mb-1.5">Đặt Phòng Thành Công!</h2>
-            <div
-                class="bg-white p-5 rounded-xl text-left text-xs text-hoanien-text space-y-2 mb-6 shadow-sm border border-hoanien-text/5">
-                <div class="flex justify-between"><span>Trạng thái đơn:</span><span
-                        class="font-semibold text-emerald-800">Đã khóa quỹ phòng</span></div>
-                <div class="flex justify-between font-bold text-sm pt-2 border-t border-hoanien-text/5 mt-2"><span>Tổng
-                        chi phí:</span><span id="confirmRoomTotal" class="font-serif">₫ 0</span></div>
-            </div>
-            <button onclick="goToProfile()"
-                class="w-full bg-hoanien-text text-white py-3.5 text-xs font-semibold uppercase tracking-widest rounded-lg shadow-md">Xem
-                Đơn Đặt Phòng</button>
-        </div>
-    </div>
-
-    <footer class="bg-hoanien-footer text-hoanien-footer-text py-20 px-6 font-sans site-footer">
-        <div class="max-w-[1440px] mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-end">
-            <div class="space-y-6">
-                <div class="font-serif text-3xl font-medium tracking-wide">HOANIEN<span
-                        class="block text-xs font-sans tracking-[0.3em] uppercase mt-2 opacity-70">River Retreat</span>
-                </div>
-                <div class="text-sm opacity-80 leading-relaxed max-w-sm">232 Tran Nhan Tong Street,<br>Hoi An Dong
-                    Ward,<br>Danang City, Viet Nam</div>
-            </div>
-            <div
-                class="h-48 md:h-64 rounded-2xl overflow-hidden grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all duration-500 relative group border border-white/10">
-                <iframe
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3834.1105353597627!2d108.23847531536098!3d16.059758088886364!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3142177f2ced6d8b%3A0xeac35f2960fa74a4!2sDanang%2C%20Vietnam!5e0!3m2!1sen!2s!4v1655112345678!5m2!1sen!2s"
-                    width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+            <div class="flex flex-wrap justify-center gap-10">
+                <a class="text-[9px] font-semibold uppercase tracking-[0.25em] text-hoanien-text/50 hover:text-hoanien-text transition-colors"
+                    href="#">Quyền riêng tư</a>
+                <a class="text-[9px] font-semibold uppercase tracking-[0.25em] text-hoanien-text/50 hover:text-hoanien-text transition-colors"
+                    href="#">Sự bền vững</a>
+                <a class="text-[9px] font-semibold uppercase tracking-[0.25em] text-hoanien-text/50 hover:text-hoanien-text transition-colors"
+                    href="#">Liên hệ</a>
             </div>
         </div>
     </footer>
 
+    <!-- ============ AUTH MODAL (Login/Register) ============ -->
+    <div id="authModal"
+        class="fixed inset-0 z-[100] bg-black/60 items-center justify-center backdrop-blur-sm transition-opacity font-sans"
+        style="display: none;">
+        <div
+            class="bg-hoanien-bg w-full max-w-md p-8 relative border border-hoanien-text/10 shadow-2xl overflow-y-auto max-h-[90vh]">
+            <button onclick="closeAuthModal()"
+                class="absolute top-4 right-4 text-hoanien-text/50 hover:text-hoanien-text active:scale-95 transition-all duration-200 transition-colors">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+
+            <!-- Flash Messages -->
+            <div th:if="${success}"
+                class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4"
+                role="alert">
+                <span class="block sm:inline" th:text="${success}"></span>
+            </div>
+            <div th:if="${error}" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4"
+                role="alert">
+                <span class="block sm:inline" th:text="${error}"></span>
+            </div>
+
+            <!-- Login Form -->
+            <div id="loginSection">
+                <h2 class="font-serif text-3xl mb-6 text-center text-hoanien-text">Đăng Nhập</h2>
+                <p class="text-sm opacity-70 text-center mb-8">Vui lòng đăng nhập để tiếp tục đặt phòng.</p>
+
+                <form th:action="@{/auth/login}" method="post" class="space-y-4">
+                    <div>
+                        <label class="block text-[11px] uppercase tracking-[0.1em] opacity-60 font-semibold mb-2">Tên
+                            đăng nhập</label>
+                        <input type="text" name="username" required
+                            class="w-full border border-hoanien-text/20 p-3 focus:ring-1 focus:ring-hoanien-text focus:border-hoanien-text bg-white text-sm"
+                            placeholder="Nhập tên đăng nhập của bạn">
+                    </div>
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="block text-[11px] uppercase tracking-[0.1em] opacity-60 font-semibold">Mật
+                                khẩu</label>
+                            <a href="#" class="text-[11px] text-hoanien-text hover:underline opacity-80">Quên mật
+                                khẩu?</a>
+                        </div>
+                        <input type="password" name="password" required
+                            class="w-full border border-hoanien-text/20 p-3 focus:ring-1 focus:ring-hoanien-text focus:border-hoanien-text bg-white text-sm"
+                            placeholder="Nhập mật khẩu">
+                    </div>
+                    <button type="submit"
+                        class="w-full bg-hoanien-text text-white py-3 text-[11px] uppercase tracking-[0.15em] font-semibold hover:bg-hoanien-text/80 active:scale-[0.98] active:translate-y-[0.5px] transition-all duration-200 transition-colors mt-4">
+                        Đăng Nhập
+                    </button>
+                </form>
+
+                <div class="mt-6 flex items-center justify-between">
+                    <hr class="w-full border-hoanien-text/10">
+                    <span class="text-xs px-3 opacity-50 uppercase tracking-widest">Hoặc</span>
+                    <hr class="w-full border-hoanien-text/10">
+                </div>
+
+                <a href="/auth/google-login?from=/booking"
+                    class="w-full border border-hoanien-text/20 bg-white text-hoanien-text py-3 mt-6 flex items-center justify-center gap-3 hover:bg-gray-50 transition-colors text-sm font-medium">
+                    <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" class="w-5 h-5">
+                    Đăng nhập bằng Google
+                </a>
+
+                <p class="text-center text-sm opacity-70 mt-8">
+                    Chưa có tài khoản? <a href="#" onclick="toggleAuthView('register'); return false;"
+                        class="text-hoanien-text font-semibold hover:underline">Đăng ký ngay</a>
+                </p>
+            </div>
+
+            <!-- Register Form -->
+            <div id="registerSection" style="display: none;">
+                <h2 class="font-serif text-3xl mb-6 text-center text-hoanien-text">Đăng Ký</h2>
+                <p class="text-sm opacity-70 text-center mb-8">Tạo tài khoản để trải nghiệm dịch vụ.</p>
+
+                <form th:action="@{/auth/register}" method="post" class="space-y-4">
+                    <div>
+                        <label class="block text-[11px] uppercase tracking-[0.1em] opacity-60 font-semibold mb-2">Họ và
+                            Tên</label>
+                        <input type="text" name="fullName" required
+                            class="w-full border border-hoanien-text/20 p-3 focus:ring-1 focus:ring-hoanien-text focus:border-hoanien-text bg-white text-sm"
+                            placeholder="Nhập họ tên đầy đủ">
+                    </div>
+                    <div>
+                        <label
+                            class="block text-[11px] uppercase tracking-[0.1em] opacity-60 font-semibold mb-2">Email</label>
+                        <input type="email" name="email" required
+                            class="w-full border border-hoanien-text/20 p-3 focus:ring-1 focus:ring-hoanien-text focus:border-hoanien-text bg-white text-sm"
+                            placeholder="Nhập email của bạn">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] uppercase tracking-[0.1em] opacity-60 font-semibold mb-2">Tên
+                            đăng nhập</label>
+                        <input type="text" name="username" required
+                            class="w-full border border-hoanien-text/20 p-3 focus:ring-1 focus:ring-hoanien-text focus:border-hoanien-text bg-white text-sm"
+                            placeholder="Chọn tên đăng nhập">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] uppercase tracking-[0.1em] opacity-60 font-semibold mb-2">Mật
+                            khẩu</label>
+                        <input type="password" name="password" required
+                            class="w-full border border-hoanien-text/20 p-3 focus:ring-1 focus:ring-hoanien-text focus:border-hoanien-text bg-white text-sm"
+                            placeholder="Tạo mật khẩu">
+                    </div>
+                    <button type="submit"
+                        class="w-full bg-hoanien-text text-white py-3 text-[11px] uppercase tracking-[0.15em] font-semibold hover:bg-hoanien-text/80 active:scale-[0.98] active:translate-y-[0.5px] transition-all duration-200 transition-colors mt-4">
+                        Đăng Ký
+                    </button>
+                </form>
+
+                <p class="text-center text-sm opacity-70 mt-8">
+                    Đã có tài khoản? <a href="#" onclick="toggleAuthView('login'); return false;"
+                        class="text-hoanien-text font-semibold hover:underline">Đăng nhập</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ TOAST CONTAINER ============ -->
+    <div id="toastContainer" class="fixed top-5 right-5 z-[200] flex flex-col gap-3 pointer-events-none font-sans">
+    </div>
+
+    <!-- Booking confirm modal removed — flow now redirects to /payment page -->
+
+
+    <!-- Room Details Modal Removed -->
+
+    <!-- ============ INTERACTIVE AND AUTHENTICATION JAVASCRIPT ============ -->
     <script th:inline="javascript">
-        /*<![CDATA[*/
-        let currentRatePlan = 'STANDARD';
-        let countdownInterval = null;
-
-        // Nhận biến từ Spring Boot Controller an toàn qua Thymeleaf Inline
-        const isUserLoggedIn = /*[[${isLoggedIn != null ? isLoggedIn : false}]]*/ false;
-
-        const monthNamesFull = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-
-        // 🛒 KHỞI TẠO ĐỐI TƯỢNG GIỎ HÀNG
-        let roomCart = {};
-        let activeFilters = { category: 'all', view: 'all', bed: 'all' };
-
-        let bookingState = {
-            units: 1, adults: 2, children: 0,
-            checkIn: new Date(2026, 5, 12), checkOut: new Date(2026, 5, 15),
-            promoCode: '', currentCalendarMonth: 5, currentCalendarYear: 2026
-        };
-
-        function toggleGuestsDropdown(e) { e.stopPropagation(); closeAllDropdowns(); document.getElementById('guestsDropdown').classList.toggle('hidden'); }
-        function toggleCalendarDropdown(e) { e.stopPropagation(); closeAllDropdowns(); document.getElementById('calendarDropdown').classList.toggle('hidden'); renderCalendar(); }
-        function toggleCodeDropdown(e) { e.stopPropagation(); closeAllDropdowns(); document.getElementById('codeDropdown').classList.toggle('hidden'); }
-
-        function closeAllDropdowns() {
-            if (document.getElementById('guestsDropdown')) document.getElementById('guestsDropdown').classList.add('hidden');
-            if (document.getElementById('calendarDropdown')) document.getElementById('calendarDropdown').classList.add('hidden');
-            if (document.getElementById('codeDropdown')) document.getElementById('codeDropdown').classList.add('hidden');
-        }
-
-        document.addEventListener('click', function () { closeAllDropdowns(); });
-
-        function switchAuthMode(mode) {
-            const loginSec = document.getElementById('loginSection');
-            const registerSec = document.getElementById('registerSection');
-            if (mode === 'REGISTER') {
-                loginSec.style.display = 'none';
-                registerSec.style.display = 'block';
-            } else {
-                loginSec.style.display = 'block';
-                registerSec.style.display = 'none';
-            }
-        }
-
-        function selectFilter(type, element) {
-            const groupContainer = document.getElementById(`${type}FilterGroup`);
-            if (!groupContainer) return;
-
-            groupContainer.querySelectorAll('.filter-chip').forEach(btn => {
-                if (btn.id !== 'comboFilterBtn') {
-                    btn.className = "filter-chip px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wider rounded-full bg-white text-hoanien-text/70 border border-hoanien-text/10 hover:border-hoanien-text/30";
-                } else {
-                    btn.className = "filter-chip px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wider rounded-full bg-white text-emerald-800 border border-emerald-800/20 hover:bg-emerald-50 flex items-center gap-1";
-                }
-            });
-
-            if (type === 'category') {
-                currentRatePlan = 'STANDARD';
-                if (document.getElementById('comboFilterBtn')) {
-                    document.getElementById('comboFilterBtn').className = "filter-chip px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wider rounded-full bg-white text-emerald-800 border border-emerald-800/20 hover:bg-emerald-50 flex items-center gap-1";
-                }
-            }
-
-            element.className = "filter-chip px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wider rounded-full bg-hoanien-text text-hoanien-bg shadow-sm";
-            activeFilters[type] = element.getAttribute('data-filter');
-            applyAttributeFilters();
-        }
-
-        function toggleComboPlan(element) {
-            const groupContainer = document.getElementById('categoryFilterGroup');
-            if (!groupContainer) return;
-
-            groupContainer.querySelectorAll('.filter-chip').forEach(btn => {
-                btn.className = "filter-chip px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wider rounded-full bg-white text-hoanien-text/70 border border-hoanien-text/10 hover:border-hoanien-text/30";
-            });
-            element.className = "filter-chip px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wider rounded-full bg-emerald-800 text-white shadow-sm flex items-center gap-1";
-
-            currentRatePlan = 'COMBO';
-            activeFilters.category = 'all';
-            applyAttributeFilters();
-            roomCart = {};
-            updateCartUI();
-        }
-
-        function applyAttributeFilters() {
-            const targetCat = activeFilters.category.toLowerCase();
-            const targetView = activeFilters.view.toLowerCase();
-            const targetBed = activeFilters.bed.toLowerCase();
-
-            document.querySelectorAll('.room-card-premium').forEach(card => {
-                const titleEl = card.querySelector('h2');
-                if (!titleEl) return;
-
-                const roomTitle = titleEl.innerText.toLowerCase();
-                let matchesCat = (targetCat === 'all') || roomTitle.includes(targetCat);
-                let matchesView = (targetView === 'all') || roomTitle.includes(targetView);
-                let matchesBed = (targetBed === 'all') || roomTitle.includes(targetBed);
-
-                // Đã được bảo vệ an toàn trong CDATA, Thymeleaf không thể bắt lỗi cú pháp toán tử &&
-                if (matchesCat && matchesView && matchesBed) {
-                    card.style.display = 'flex';
-                } else {
-                    card.style.display = 'none';
-                }
-            });
-        }
-
-        // Bridge helpers: reads data-* attributes set by Thymeleaf on <article> elements
-        // to avoid injecting URLs (with & chars) directly into th:onclick inline literals.
-        function openRoomModalFromCard(article) {
-            const name  = article.dataset.roomName  || '';
-            const img   = article.dataset.roomImage  || '';
-            const beds  = article.dataset.roomBeds   || '1';
-            const size  = article.dataset.roomSize   || '40';
-            const price = parseInt(article.dataset.roomPrice || '0', 10);
-            const desc  = 'Căn hộ nghỉ dưỡng cao cấp sở hữu tầm nhìn đắt giá, trang bị đầy đủ nội thất sang trọng cùng ban công rộng thoáng đón gió tự nhiên.';
-            openPureDetailsModal(name, img, beds, size, price, desc);
-        }
-
-        function changeCartQtyFromCard(article, modifier) {
-            const name  = article.dataset.roomName  || '';
-            const price = parseInt(article.dataset.roomPrice || '0', 10);
-            const beds  = article.dataset.roomBeds   || '1';
-            const size  = article.dataset.roomSize   || '40';
-            const img   = article.dataset.roomImage  || '';
-            changeCartQty(name, price, modifier, beds, size, img);
-        }
-
-        function openPureDetailsModal(name, img, beds, size, price, desc) {
-
-            document.getElementById('pureRoomName').innerText = name;
-            document.getElementById('pureRoomImg').src = img;
-            document.getElementById('pureRoomBeds').innerText = beds;
-            document.getElementById('pureRoomSize').innerText = size;
-
-            // Xử lý an toàn nếu giá truyền từ DB dạng String dính chữ ₫ hoặc dấu chấm
-            let cleanPrice = typeof price === 'string' ? parseFloat(price.replace(/[^0-9]/g, '')) : price;
-            if (currentRatePlan === 'COMBO') cleanPrice += 3500000;
-
-            document.getElementById('pureRoomPrice').innerText = '₫ ' + cleanPrice.toLocaleString('vi-VN') + '/đêm';
-            document.getElementById('pureRoomDesc').innerText = desc;
-            document.getElementById('pureDetailsModal').style.display = 'flex';
-        }
-
-        function closePureDetailsModal() {
-            document.getElementById('pureDetailsModal').style.display = 'none';
-        }
-
-        function changeCartQty(name, basePrice, modifier, beds, size, img) {
-            // Chuẩn hóa ép kiểu giá tiền về dạng Number để tránh lỗi cộng chuỗi bậy bạ ngoài sảnh Local
-            let cleanPrice = typeof basePrice === 'string' ? parseFloat(basePrice.replace(/[^0-9]/g, '')) : basePrice;
-
-            if (!roomCart[name]) {
-                roomCart[name] = { name: name, price: cleanPrice, qty: 0, beds: beds, size: size, image: img };
-            }
-
-            roomCart[name].qty += modifier;
-            if (roomCart[name].qty <= 0) delete roomCart[name];
-
-            const qtyLabel = document.getElementById(`qty-${name}`);
-            if (qtyLabel) qtyLabel.innerText = roomCart[name] ? roomCart[name].qty : 0;
-
-            updateCartUI();
-        }
-
-        function updateCartUI() {
-            let totalRooms = 0;
-            let totalPrice = 0;
-
-            for (let key in roomCart) {
-                totalRooms += roomCart[key].qty;
-                let singleRoomPrice = roomCart[key].price;
-                if (currentRatePlan === 'COMBO') singleRoomPrice += 3500000;
-                totalPrice += singleRoomPrice * roomCart[key].qty;
-            }
-
-            const bar = document.getElementById('stickyCartBar');
-            if (totalRooms > 0) {
-                bar.classList.add('active');
-                document.getElementById('cartSummaryText').innerText = `Đang chọn: ${totalRooms} phòng (${Object.keys(roomCart).length} loại khác nhau)`;
-                document.getElementById('cartTotalText').innerText = '₫ ' + totalPrice.toLocaleString('vi-VN');
-            } else {
-                if (bar) bar.classList.remove('active');
-            }
-
-            bookingState.units = totalRooms > 0 ? totalRooms : 1;
-            if (document.getElementById('unitsCount')) document.getElementById('unitsCount').innerText = bookingState.units;
-            applyGuests();
-        }
-
-        function openMultiRoomFormModal() {
-            const invoiceList = document.getElementById('invoiceDetailsList');
-            const allocationGrid = document.getElementById('roomAllocationGrid');
-            if (!invoiceList || !allocationGrid) return;
-
-            invoiceList.innerHTML = '';
-            allocationGrid.innerHTML = '';
-
-            let roomIndex = 1;
-            for (let key in roomCart) {
-                const item = roomCart[key];
-                let displayedPrice = item.price;
-                if (currentRatePlan === 'COMBO') displayedPrice += 3500000;
-
-                const invDiv = document.createElement('div');
-                invDiv.className = "flex justify-between";
-                invDiv.innerHTML = `<span>${item.qty}x ${item.name}:</span><span class="font-semibold">₫ ${(displayedPrice * item.qty).toLocaleString('vi-VN')}</span>`;
-                invoiceList.appendChild(invDiv);
-
-                for (let q = 0; q < item.qty; q++) {
-                    const block = document.createElement('div');
-                    block.className = "p-4 bg-hoanien-bg/20 border border-hoanien-text/5 rounded-xl space-y-3 text-xs";
-                    block.innerHTML = `
-                        <div class="flex justify-between font-bold border-b border-hoanien-text/10 pb-1.5 text-hoanien-text">
-                            <span>Phòng #${roomIndex} — ${item.name}</span>
-                            <span class="opacity-60 font-normal font-mono">${item.size} | ${item.beds}</span>
-                        </div>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            <div>
-                                <label class="block text-[10px] opacity-60 font-semibold uppercase">Kiểu giường (Đã khóa theo cấu hình)</label>
-                                <input type="text" class="w-full bg-hoanien-text/5 border border-hoanien-text/10 p-2 rounded text-[11px] font-medium" value="${item.beds}" disabled>
-                            </div>
-                            <div>
-                                <label class="block text-[10px] opacity-60 font-semibold uppercase">Yêu cầu đặc biệt tại phòng</label>
-                                <input type="text" placeholder="Trang trí hoa tươi, giờ nhận phòng..." class="w-full bg-white border border-hoanien-text/10 p-2 rounded text-[11px] focus:outline-none">
-                            </div>
-                        </div>
-                    `;
-                    allocationGrid.appendChild(block);
-                    roomIndex++;
-                }
-            }
-
-            calculateLiveTotal();
-            document.getElementById('roomDetailsModal').style.display = 'flex';
-        }
-
-        function calculateLiveTotal() {
-            let baseTotal = 0;
-            for (let key in roomCart) {
-                let singlePrice = roomCart[key].price;
-                if (currentRatePlan === 'COMBO') singlePrice += 3500000;
-                baseTotal += singlePrice * roomCart[key].qty;
-            }
-
-            let childFee = 0;
-            document.querySelectorAll('.child-age-select').forEach(select => { if (parseInt(select.value) >= 5) childFee += 850000; });
-
-            let addonFee = 0;
-            document.querySelectorAll('.addon-checkbox').forEach(chk => { if (chk.checked) addonFee += parseFloat(chk.getAttribute('data-price')); });
-
-            let finalTotal = baseTotal + childFee + addonFee;
-
-            if (document.getElementById('calcChildCount')) document.getElementById('calcChildCount').innerText = `(${bookingState.children})`;
-            if (document.getElementById('calcChildFee')) document.getElementById('calcChildFee').innerText = '₫ ' + childFee.toLocaleString('vi-VN');
-
-            if (addonFee > 0) {
-                if (document.getElementById('calcAddonRow')) document.getElementById('calcAddonRow').classList.remove('hidden');
-                if (document.getElementById('calcAddonFee')) document.getElementById('calcAddonFee').innerText = '₫ ' + addonFee.toLocaleString('vi-VN');
-            } else {
-                if (document.getElementById('calcAddonRow')) document.getElementById('calcAddonRow').classList.add('hidden');
-            }
-
-            if (document.getElementById('detailRoomTotal')) document.getElementById('detailRoomTotal').innerText = '₫ ' + finalTotal.toLocaleString('vi-VN');
-        }
-
-        function confirmBooking() {
-            if (!isUserLoggedIn) { closeRoomDetailsModal(); document.getElementById('authModal').style.display = 'flex'; return; }
-            if (!document.getElementById('leaderName').value.trim() || !document.getElementById('leaderPhone').value.trim() || !document.getElementById('guestIDCardInput').value.trim()) {
-                alert("Vui lòng hoàn thành đầy đủ thông tin bắt buộc (*).");
-                return;
-            }
-
-            let keys = Object.keys(roomCart);
-            if (document.getElementById('pendingRoomName')) document.getElementById('pendingRoomName').innerText = `${keys[0]} và ${keys.length - 1} loại phòng khác`;
-            if (document.getElementById('pendingTotalAmount')) document.getElementById('pendingTotalAmount').innerText = document.getElementById('detailRoomTotal').innerText;
-
-            document.getElementById('roomDetailsModal').style.display = 'none';
-            document.getElementById('bookingPendingModal').style.display = 'flex';
-            startLockCountdown(15 * 60);
-        }
-
-        function updateGuestCount(type, val) {
-            if (type === 'adults') bookingState.adults = Math.max(1, bookingState.adults + val);
-            else if (type === 'children') {
-                bookingState.children = Math.max(0, bookingState.children + val);
-                const container = document.getElementById('childrenAgesContainer');
-                const grid = document.getElementById('childrenAgesGrid');
-
-                if (bookingState.children > 0) {
-                    if (container) container.classList.remove('hidden');
-                    let gridHtml = '';
-                    for (let i = 0; i < bookingState.children; i++) {
-                        gridHtml += `
-                            <select class="child-age-select w-full bg-white border border-hoanien-text/10 p-2 text-[11px] rounded focus:outline-none" onchange="calculateLiveTotal()">
-                                <option value="2">2 tuổi</option>
-                                <option value="5">5 tuổi (Phụ thu)</option>
-                                <option value="9">9 tuổi (Phụ thu)</option>
-                            </select>
-                        `;
-                    }
-                    if (grid) grid.innerHTML = gridHtml;
-                } else {
-                    if (container) container.classList.add('hidden');
-                    if (grid) grid.innerHTML = '';
-                }
-            }
-            if (document.getElementById('adultsCount')) document.getElementById('adultsCount').innerText = bookingState.adults;
-            if (document.getElementById('childrenCount')) document.getElementById('childrenCount').innerText = bookingState.children;
-            applyGuests();
-        }
-
-        function applyGuests() {
-            let summary = `${bookingState.units} Phòng, ${bookingState.adults} Người lớn`;
-            if (bookingState.children > 0) summary += `, ${bookingState.children} Trẻ em`;
-            if (document.getElementById('guestSummaryValue')) document.getElementById('guestSummaryValue').innerText = summary;
-            closeAllDropdowns();
-        }
-
-        function renderCalendar() {
-            const month = bookingState.currentCalendarMonth; const year = bookingState.currentCalendarYear;
-            if (document.getElementById('currentMonthYear')) document.getElementById('currentMonthYear').innerText = `${monthNamesFull[month]} ${year}`;
-            const firstDayIndex = new Date(year, month, 1).getDay();
-            const lastDay = new Date(year, month + 1, 0).getDate();
-            const prevLastDay = new Date(year, month, 0).getDate();
-
-            let daysHtml = '';
-            for (let i = firstDayIndex; i > 0; i--) { daysHtml += `<span class="py-2 text-hoanien-text/20 font-medium">${prevLastDay - i + 1}</span>`; }
-            for (let day = 1; day <= lastDay; day++) {
-                const currentDate = new Date(year, month, day);
-                let classes = "py-2 cursor-pointer rounded-sm hover:bg-white/40 transition-colors relative font-semibold text-center text-xs ";
-                if (bookingState.checkIn && currentDate.getTime() === bookingState.checkIn.getTime() || bookingState.checkOut && currentDate.getTime() === bookingState.checkOut.getTime()) {
-                    classes += "bg-hoanien-text text-hoanien-bg";
-                } else if (bookingState.checkIn && bookingState.checkOut && currentDate > bookingState.checkIn && currentDate < bookingState.checkOut) {
-                    classes += "bg-white/50 text-hoanien-text";
-                } else { classes += "text-hoanien-text/80"; }
-                daysHtml += `<button type="button" class="${classes}" onclick="selectCalendarDate(${day})">${day}</button>`;
-            }
-            if (document.getElementById('calendarDays')) document.getElementById('calendarDays').innerHTML = daysHtml;
-            updateDateSelectionSummary();
-        }
-
-        function selectCalendarDate(day) {
-            const date = new Date(bookingState.currentCalendarYear, bookingState.currentCalendarMonth, day);
-            if (!bookingState.checkIn || (bookingState.checkIn && bookingState.checkOut)) {
-                bookingState.checkIn = date; bookingState.checkOut = null;
-            } else if (bookingState.checkIn && !bookingState.checkOut) {
-                if (date < bookingState.checkIn) bookingState.checkIn = date; else bookingState.checkOut = date;
-            }
-            renderCalendar();
-        }
-
-        function updateDateSelectionSummary() {
-            const summaryLabel = document.getElementById('dateSelectionSummary');
-            if (!summaryLabel) return;
-            if (bookingState.checkIn && bookingState.checkOut) {
-                const diffDays = Math.ceil(Math.abs(bookingState.checkOut - bookingState.checkIn) / (1000 * 60 * 60 * 24));
-                summaryLabel.innerText = `${formatDateString(bookingState.checkIn)} - ${formatDateString(bookingState.checkOut)} (${diffDays} Đêm)`;
-            } else if (bookingState.checkIn) { summaryLabel.innerText = `In: ${formatDateString(bookingState.checkIn)}`; }
-        }
-
-        function formatDateString(date) { return `${date.getDate()} ${monthNamesFull[date.getMonth()].substring(0, 3)} ${date.getFullYear()}`; }
-        function prevMonth() { bookingState.currentCalendarMonth--; if (bookingState.currentCalendarMonth < 0) { bookingState.currentCalendarMonth = 11; bookingState.currentCalendarYear--; } renderCalendar(); }
-        function nextMonth() { bookingState.currentCalendarMonth++; if (bookingState.currentCalendarMonth > 11) { bookingState.currentCalendarMonth = 0; bookingState.currentCalendarYear++; } renderCalendar(); }
-        function applyDates() { if (bookingState.checkIn && bookingState.checkOut) { document.getElementById('checkInValue').innerText = formatDateString(bookingState.checkIn); document.getElementById('checkOutValue').innerText = formatDateString(bookingState.checkOut); closeAllDropdowns(); } }
-
-        function startLockCountdown(duration) {
-            clearInterval(countdownInterval);
-            let timer = duration, minutes, seconds;
-            countdownInterval = setInterval(() => {
-                minutes = parseInt(timer / 60, 10); seconds = parseInt(timer % 60, 10);
-                minutes = minutes < 10 ? "0" + minutes : minutes; seconds = seconds < 10 ? "0" + seconds : seconds;
-                if (document.getElementById('countdownTimer')) document.getElementById('countdownTimer').innerText = minutes + ":" + seconds;
-                if (--timer < 0) { clearInterval(countdownInterval); cancelPendingLock(); }
-            }, 1000);
-        }
-
-        function formatDateToISO(date) {
-            let d = new Date(date),
-                month = '' + (d.getMonth() + 1),
-                day = '' + d.getDate(),
-                year = d.getFullYear();
-
-            if (month.length < 2) month = '0' + month;
-            if (day.length < 2) day = '0' + day;
-
-            return [year, month, day].join('-');
-        }
-
-        function executeSimulatedOnlinePayment() {
-            let keys = Object.keys(roomCart);
-            if (keys.length === 0) {
-                alert("Giỏ hàng của bạn đang trống!");
-                return;
-            }
-
-            // Show processing status
-            const payBtn = document.querySelector('#bookingPendingModal button[onclick="executeSimulatedOnlinePayment()"]');
-            if (payBtn) {
-                payBtn.disabled = true;
-                payBtn.innerText = "Đang xử lý...";
-            }
-
-            let promises = [];
-            for (let name in roomCart) {
-                let item = roomCart[name];
-                for (let i = 0; i < item.qty; i++) {
-                    let requestBody = {
-                        checkInDate: formatDateToISO(bookingState.checkIn),
-                        checkOutDate: formatDateToISO(bookingState.checkOut),
-                        roomCategoryName: item.name,
-                        depositAmount: 1000000, // Tiền đặt cọc mặc định 1 triệu
-                        promotionCode: bookingState.promoCode || null
-                    };
-                    
-                    promises.push(
-                        fetch('/api/bookings', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Accept': 'application/json'
-                            },
-                            body: JSON.stringify(requestBody)
-                        }).then(response => {
-                            if (!response.ok) {
-                                return response.json().then(err => {
-                                    throw new Error(err.message || "Lỗi lưu dữ liệu đặt phòng");
-                                });
-                            }
-                            return response.json();
-                        })
-                    );
-                }
-            }
-
-            Promise.all(promises)
-                .then(results => {
-                    clearInterval(countdownInterval);
-                    document.getElementById('bookingPendingModal').style.display = 'none';
-                    
-                    if (document.getElementById('confirmRoomName')) {
-                        document.getElementById('confirmRoomName').innerText = `${keys[0]}` + (keys.length > 1 ? ` & ${keys.length - 1} hạng phòng khác` : '');
-                    }
-                    if (document.getElementById('confirmRoomTotal')) {
-                        document.getElementById('confirmRoomTotal').innerText = document.getElementById('pendingTotalAmount').innerText;
-                    }
-                    
-                    // Show final booking confirmation
-                    document.getElementById('bookingConfirmModal').style.display = 'flex';
-                    
-                    // Clear shopping cart
-                    roomCart = {};
-                    updateCartUI();
-                })
-                .catch(error => {
-                    alert("Đặt phòng thất bại: " + error.message);
-                })
-                .finally(() => {
-                    if (payBtn) {
-                        payBtn.disabled = false;
-                        payBtn.innerText = "Thanh toán trực tuyến ngay";
-                    }
-                });
-        }
-
-        function cancelPendingLock() { clearInterval(countdownInterval); document.getElementById('bookingPendingModal').style.display = 'none'; }
-        function closeRoomDetailsModal() { document.getElementById('roomDetailsModal').style.display = 'none'; }
-        function closeBookingConfirmModal() { document.getElementById('bookingConfirmModal').style.display = 'none'; }
-        function closeAuthModal() { document.getElementById('authModal').style.display = 'none'; }
-
-        function toggleDetailBookButton() {
-            const chk = document.getElementById('bookingConsent');
-            const btn = document.getElementById('realBookBtn');
-            if (btn && chk) btn.disabled = !chk.checked;
-        }
-
-        function clearPromoCode() { document.getElementById('promoCodeInput').value = ''; }
-        function applyPromoCode() { alert("Mã giảm giá đã được áp dụng!"); closeAllDropdowns(); }
-        function goToProfile() { window.location.href = '/profile'; }
-        /*]]>*/
+        // Global variables from Thymeleaf model
+        const isUserLoggedIn = /*[[${isLoggedIn}]]*/ false;
     </script>
+    <script src="/guest/js/booking.js"></script>
+
 </body>
 
 </html>

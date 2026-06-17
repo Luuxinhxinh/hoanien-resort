@@ -49,7 +49,7 @@ public class AuthServiceCustomTest {
         when(accountRepository.existsByUsername("testuser")).thenReturn(false);
         when(customerRepository.existsByEmail("test@example.com")).thenReturn(false);
         when(passwordEncoder.encode("Password123")).thenReturn("hashedPass");
-        when(roleRepository.findByRoleName("CUSTOMER")).thenReturn(Optional.of(new Role()));
+        when(roleRepository.findByRoleName("CUSTOMER NORMAL")).thenReturn(Optional.of(new Role()));
 
         Account savedAccount = new Account();
         savedAccount.setId(1L);

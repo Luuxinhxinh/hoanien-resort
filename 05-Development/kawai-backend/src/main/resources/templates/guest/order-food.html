@@ -86,16 +86,106 @@
             box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.4);
         }
 
+        /* ── Navbar Đồng Bộ Hoàn Hảo Từ Trang Living ── */
         .guest-nav {
-            background: rgba(30, 26, 25, 0.4) !important;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+            background: transparent !important;
+            border-bottom: 1px solid transparent !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            transition: background-color 0.4s ease, border-color 0.4s ease, backdrop-filter 0.4s ease, -webkit-backdrop-filter 0.4s ease;
+        }
+
+        .guest-nav.scrolled {
+            background: rgba(30, 26, 25, 0.92) !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
             backdrop-filter: blur(12px) !important;
+            -webkit-backdrop-filter: blur(12px) !important;
+        }
+
+        .guest-nav .nav-text {
+            color: #fff;
+            transition: color 0.4s ease;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+        }
+
+        .guest-nav .nav-text-dim {
+            color: rgba(255, 255, 255, 0.7);
+            transition: color 0.4s ease;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+        }
+
+        .guest-nav.scrolled .nav-text {
+            color: #f1ebe3;
+            text-shadow: none;
+        }
+
+        .guest-nav.scrolled .nav-text-dim {
+            color: rgba(241, 235, 227, 0.8);
+            text-shadow: none;
+        }
+
+        .guest-nav .nav-brand {
+            color: #fff;
+            transition: color 0.4s ease;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+        }
+
+        .guest-nav.scrolled .nav-brand {
+            color: #f1ebe3;
+            text-shadow: none;
         }
 
         .guest-nav .nav-btn-book {
             background: transparent !important;
-            color: rgba(255, 255, 255, 0.8) !important;
+            color: rgba(255, 255, 255, 0.7) !important;
             border: none !important;
+            box-shadow: none !important;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+            transition: color 0.4s ease, opacity 0.2s ease;
+        }
+
+        .guest-nav.scrolled .nav-btn-book {
+            background: transparent !important;
+            color: rgba(241, 235, 227, 0.8) !important;
+            border: none !important;
+            box-shadow: none !important;
+            text-shadow: none;
+        }
+
+        .guest-nav .nav-btn-book:hover {
+            color: #fff !important;
+            opacity: 1;
+        }
+
+        .guest-nav.scrolled .nav-btn-book:hover {
+            color: #f1ebe3 !important;
+            opacity: 1;
+        }
+
+        .guest-nav .nav-menu-icon {
+            color: #fff;
+            transition: color 0.4s ease;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+        }
+
+        .guest-nav.scrolled .nav-menu-icon {
+            color: #f1ebe3;
+            text-shadow: none;
+        }
+
+        .meka-underline {
+            position: relative;
+        }
+
+        .meka-underline::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: 2px;
+            width: 30%;
+            height: 1px;
+            background-color: #f1ebe3;
+            opacity: 0.4;
         }
 
         ::-webkit-scrollbar {
@@ -131,28 +221,37 @@
         <nav class="guest-nav relative w-full font-sans pointer-events-auto">
             <div class="max-w-[1440px] mx-auto px-6 py-4 flex items-center justify-between">
                 <div class="hidden lg:flex items-center gap-8 text-[13px] uppercase tracking-[0.2em] font-semibold">
-                    <a href="/living" class="text-white/60 hover:text-white transition-colors">Living</a>
-                    <a href="/dining" class="text-white border-b border-current pb-0.5">Dining</a>
-                    <a href="/experiences" class="text-white/60 hover:text-white transition-colors">Experiences</a>
-                    <a href="/tours" class="text-white/60 hover:text-white transition-colors">Tours</a>
+                    <a href="/living"
+                        class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200">Living</a>
+                    <a href="/dining" class="nav-text border-b border-current pb-0.5">Dining</a>
+                    <a href="/experiences"
+                        class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200">Experiences</a>
+                    <a href="/tours"
+                        class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200">Tours</a>
                 </div>
-                <div class="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 font-headline text-[32px] italic tracking-tighter text-center cursor-pointer w-max"
+
+                <div class="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 font-headline text-[32px] italic tracking-tighter nav-brand text-center cursor-pointer w-max"
                     onclick="window.location.href='/'">
                     HoaNien
                 </div>
+
                 <div class="hidden lg:flex items-center gap-6 text-[13px] uppercase tracking-[0.2em] font-semibold">
                     <a href="/profile" th:if="${session.user != null}"
-                        class="text-white/60 hover:text-white transition-colors">Profile</a>
+                        class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200">Profile</a>
                     <form th:action="@{/auth/logout}" method="post" th:if="${session.user != null}" class="inline">
                         <button type="submit"
-                            class="text-white/60 hover:text-white uppercase tracking-[0.2em] bg-transparent border-none p-0 cursor-pointer">Logout</button>
+                            class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200 uppercase tracking-[0.2em] bg-transparent border-none p-0 cursor-pointer">Logout</button>
                     </form>
+
                     <a href="/booking"
-                        class="nav-btn-book hover:opacity-100 active:scale-95 transition-all duration-200 inline-block text-[13px]">Book
-                        Now</a>
+                        class="nav-btn-book hover:opacity-100 active:scale-95 transition-all duration-200 inline-block text-[13px]">
+                        Book Now
+                    </a>
                 </div>
-                <button class="lg:hidden pointer-events-auto"><span
-                        class="material-symbols-outlined text-3xl">menu</span></button>
+
+                <button class="lg:hidden pointer-events-auto">
+                    <span class="material-symbols-outlined text-3xl nav-menu-icon">menu</span>
+                </button>
             </div>
         </nav>
     </div>
@@ -195,7 +294,6 @@
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6" id="menuGrid">
-
                         <div th:each="item : ${menuItems}" th:data-category="${item.category}"
                             class="food-item-card flex flex-col rounded-xl overflow-hidden">
                             <div th:onclick="openItemDetail([[${item.id}]], [[${item.itemName}]], [[${item.description}]], [[${item.price}]], [[${item.allergenTags}]])"
@@ -225,7 +323,7 @@
                                     </div>
                                 </div>
                                 <p class="text-[11px] text-hoanien-bg/60 leading-relaxed font-light mb-4 line-clamp-2"
-                                    th:text="${item.description}">Mô tả món ăn lấy từ SQL...</p>
+                                    th:text="${item.description}">Mô tả món ăn...</p>
                                 <div class="flex items-center justify-between mt-auto pt-3 border-t border-white/5">
                                     <span class="font-sans text-xs font-semibold text-white/90"
                                         th:text="${#numbers.formatDecimal(item.price, 0, 'COMMA', 0, 'POINT')} + ' đ'">0
@@ -238,7 +336,6 @@
                                 </div>
                             </div>
                         </div>
-
                     </div>
                 </div>
 
@@ -255,9 +352,8 @@
 
                             <div id="optionInRoom" th:if="${currentRoom != null}"
                                 class="text-white/90 leading-relaxed font-medium">
-                                Xin chào <span class="font-bold text-white">Khách
-                                    hàng</span>, hệ thống ghi nhận bạn đang lưu trú tại <span
-                                    class="text-amber-400 font-bold"
+                                Xin chào <span class="font-bold text-white">Khách hàng</span>, hệ thống ghi nhận bạn
+                                đang lưu trú tại <span class="text-amber-400 font-bold"
                                     th:text="'Phòng ' + ${currentRoom.roomNumber}">Phòng 000</span>. Món ăn sẽ được giao
                                 lên tận cửa phòng.
                                 <input type="hidden" id="posOrderType" value="ROOM_SERVICE">
@@ -321,26 +417,13 @@
                         <div class="space-y-4 pt-2 border-t border-white/5 font-sans">
                             <div>
                                 <label
-                                    class="text-[10px] uppercase tracking-wider opacity-60 font-semibold block mb-1 text-white">Thời
-                                    gian phục vụ nhận món</label>
-                                <select id="deliveryScheduleType" onchange="toggleTimePicker()"
-                                    class="w-full bg-white/5 border border-white/10 p-2.5 rounded-lg focus:ring-0 focus:border-white text-xs text-white">
-                                    <option value="NOW">Giao ngay lập tức (20-30 phút)</option>
-                                    <option value="SCHEDULED">Hẹn giờ phục vụ cụ thể</option>
-                                </select>
-                                <input type="time" id="exactTimePicker"
-                                    class="hidden mt-2 w-full bg-white/5 border border-white/10 p-2 rounded-lg text-xs text-white focus:ring-0 focus:border-white">
-                            </div>
-
-                            <div>
-                                <label
                                     class="text-[10px] uppercase tracking-wider opacity-60 font-semibold block mb-1 text-white">Phương
                                     thức tất toán</label>
                                 <div id="paymentMethodsContainer" class="grid grid-cols-1 gap-2 text-xs">
                                     <label th:if="${currentRoom != null}"
-                                        class="flex items-center gap-2 p-2.5 bg-white/5 border border-white/10 rounded-lg cursor-pointer">
+                                        class="flex items-center gap-2 p-2.5 bg-white/5 border border-white/10 rounded-lg cursor-pointer hover:bg-white/10 transition-colors">
                                         <input type="radio" name="paymentType" value="CHARGE_TO_ROOM" checked
-                                            class="text-white focus:ring-0 bg-transparent">
+                                            class="text-white focus:ring-0 bg-transparent" onchange="renderCart()">
                                         <div>
                                             <span class="block font-semibold">Ký bill về phòng (Charge to Room)</span>
                                             <span class="block text-[10px] opacity-50"
@@ -349,17 +432,21 @@
                                                 mức: 0đ</span>
                                         </div>
                                     </label>
-                                    <label th:if="${currentRoom == null}"
-                                        class="flex items-center gap-2 p-2.5 bg-white/5 border border-white/10 rounded-lg cursor-pointer">
-                                        <input type="radio" name="paymentType" value="ONLINE" checked
-                                            class="text-white focus:ring-0 bg-transparent">
-                                        <span>Thanh toán trực tuyến trước qua Ví/Thẻ</span>
+                                    <label class="flex items-center gap-2 p-2.5 bg-white/5 border border-white/10 rounded-lg cursor-pointer hover:bg-white/10 transition-colors">
+                                        <input type="radio" name="paymentType" value="ONLINE" th:checked="${currentRoom == null}"
+                                            class="text-white focus:ring-0 bg-transparent" onchange="renderCart()">
+                                        <div>
+                                            <span class="block font-semibold text-white/90">Thanh toán trực tuyến trước qua Ví/Thẻ</span>
+                                            <span class="block text-[10px] text-emerald-400">Giảm ngay 2% phí dịch vụ ẩm thực</span>
+                                        </div>
                                     </label>
-                                    <label th:if="${currentRoom == null}"
-                                        class="flex items-center gap-2 p-2.5 bg-white/5 border border-white/10 rounded-lg cursor-pointer">
+                                    <label class="flex items-center gap-2 p-2.5 bg-white/5 border border-white/10 rounded-lg cursor-pointer hover:bg-white/10 transition-colors">
                                         <input type="radio" name="paymentType" value="PAY_AT_RESTAURANT"
-                                            class="text-white focus:ring-0 bg-transparent">
-                                        <span>Thanh toán trực tiếp tại nhà hàng</span>
+                                            class="text-white focus:ring-0 bg-transparent" onchange="renderCart()">
+                                        <div>
+                                            <span class="block font-semibold text-white/90">Thanh toán trực tiếp khi nhận hàng</span>
+                                            <span class="block text-[10px] opacity-50">Tiền mặt, thẻ ngân hàng hoặc chuyển khoản tại chỗ</span>
+                                        </div>
                                     </label>
                                 </div>
                             </div>
@@ -413,11 +500,11 @@
                     <span class="block text-[10px] uppercase font-bold text-white/40 tracking-wider mb-1">Mô tả cấu trúc
                         nguyên liệu</span>
                     <p id="modalItemDesc" class="text-xs text-white/80 leading-relaxed font-light">Chi tiết mô tả thành
-                        phần món ăn...</p>
+                        phần...</p>
                 </div>
                 <div>
                     <label class="block text-[10px] uppercase font-bold text-amber-500 tracking-wider mb-1.5">Ghi chú
-                        cho đầu bếp chế biến (Dị ứng, khẩu vị...) *</label>
+                        cho đầu bếp chế biến *</label>
                     <textarea id="modalItemChefNote"
                         placeholder="Ví dụ: Tôi dị ứng tôm, không ăn cay, không hành tây..."
                         class="w-full bg-white/5 border border-white/10 p-3 rounded-lg text-xs h-24 focus:ring-1 focus:ring-white focus:border-white text-white outline-none placeholder:text-white/20"></textarea>
@@ -447,14 +534,13 @@
                 </div>
                 <div class="space-y-1">
                     <p><span class="font-bold">Vị trí:</span> <span id="posLocation">Chưa xác định</span></p>
-                    <p><span class="font-bold">Thời gian:</span> <span id="posTimeType">Giao ngay</span></p>
+                    <p><span class="font-bold">Thời gian:</span> <span>Giao ngay lập tức</span></p>
                     <div class="border-t border-dashed border-black/20 my-2 pt-1">
                         <span class="font-bold block">Danh sách món chế biến:</span>
                         <div id="posItemsList" class="space-y-0.5"></div>
                     </div>
                     <div class="mt-2 bg-red-50 p-2 rounded border border-red-200">
-                        <span class="font-bold text-red-600 block text-[10px]">⚠️ LƯU Ý DỊ ỨNG ĐẶC BIỆT (KITCHEN
-                            NOTE):</span>
+                        <span class="font-bold text-red-600 block text-[10px]">⚠️ LƯU Ý DỊ ỨNG ĐẶC BIỆT:</span>
                         <p id="posKitchenNote" class="text-red-700 font-bold uppercase text-[11px]">KHÔNG CÓ GHI CHÚ</p>
                     </div>
                 </div>
@@ -484,6 +570,178 @@
             <button onclick="closeTimelineModal()"
                 class="w-full mt-6 bg-white/10 text-white border border-white/10 py-2.5 rounded-lg text-xs font-semibold uppercase tracking-wider hover:bg-white/20">Quay
                 lại trang chính</button>
+        </div>
+    </div>
+
+    <!-- Online Payment Modal -->
+    <div id="onlinePaymentModal"
+        class="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl"
+        style="display: none;">
+        <div
+            class="bg-[#1e1a19] border border-white/10 w-full max-w-lg p-6 md:p-8 rounded-2xl relative shadow-2xl text-left font-sans flex flex-col max-h-[90vh] overflow-y-auto">
+            
+            <button onclick="closeOnlinePaymentModal()" class="absolute top-4 right-4 text-white/50 hover:text-white">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+            
+            <div class="mb-4">
+                <span class="text-[10px] uppercase tracking-[0.2em] text-emerald-400 block mb-1">Cổng thanh toán an toàn</span>
+                <h3 class="font-serif text-2xl text-white">Thực hiện thanh toán</h3>
+            </div>
+
+            <!-- Transaction Info -->
+            <div class="bg-white/5 p-4 rounded-xl border border-white/5 mb-5 flex justify-between items-center text-xs">
+                <div>
+                    <span class="block text-white/40 text-[10px] uppercase font-bold tracking-wider">Số tiền cần thanh toán</span>
+                    <span id="payModalTotal" class="text-xl font-serif text-white font-semibold">0 đ</span>
+                </div>
+                <div class="text-right">
+                    <span class="block text-white/40 text-[10px] uppercase font-bold tracking-wider">Hạn thanh toán</span>
+                    <span id="paymentTimer" class="text-sm font-mono text-amber-400 font-bold">05:00</span>
+                </div>
+            </div>
+
+            <!-- Payment Methods Tabs -->
+            <div class="flex border-b border-white/10 mb-4 text-xs font-semibold select-none">
+                <button id="payTab-qr" onclick="switchPayTab('qr')" class="flex-1 py-2 text-center border-b-2 border-white text-white">
+                    VietQR Chuyển Khoản
+                </button>
+                <button id="payTab-card" onclick="switchPayTab('card')" class="flex-1 py-2 text-center border-b-2 border-transparent text-white/40 hover:text-white">
+                    Thẻ Quốc Tế
+                </button>
+                <button id="payTab-wallet" onclick="switchPayTab('wallet')" class="flex-1 py-2 text-center border-b-2 border-transparent text-white/40 hover:text-white">
+                    Ví MoMo/ZaloPay
+                </button>
+            </div>
+
+            <!-- Tab Content: VietQR -->
+            <div id="payContent-qr" class="space-y-4">
+                <div class="flex flex-col md:flex-row items-center gap-6 bg-white/5 p-4 rounded-xl border border-white/5">
+                    <div class="w-40 h-40 bg-white p-2 rounded-lg flex items-center justify-center shadow-lg relative group">
+                        <img id="vietqrImage" src="" alt="VietQR Code" class="w-full h-full object-contain">
+                    </div>
+                    <div class="flex-1 text-xs space-y-2 text-white/80">
+                        <div class="flex justify-between border-b border-white/5 pb-1">
+                            <span class="opacity-50">Ngân hàng:</span>
+                            <span class="font-semibold text-white">VietinBank (ICB)</span>
+                        </div>
+                        <div class="flex justify-between border-b border-white/5 pb-1">
+                            <span class="opacity-50">Số tài khoản:</span>
+                            <span class="font-mono font-semibold text-white flex items-center gap-1">
+                                101872893892
+                                <button onclick="copyToClipboard('101872893892')" class="text-emerald-400 hover:underline text-[10px]">Copy</button>
+                            </span>
+                        </div>
+                        <div class="flex justify-between border-b border-white/5 pb-1">
+                            <span class="opacity-50">Tên thụ hưởng:</span>
+                            <span class="font-semibold text-white uppercase text-[11px]">HOANIEN RIVER RETREAT</span>
+                        </div>
+                        <div class="flex justify-between border-b border-white/5 pb-1">
+                            <span class="opacity-50">Nội dung chuyển khoản:</span>
+                            <span class="font-mono font-semibold text-amber-400 flex items-center gap-1">
+                                <span id="vietqrMsg">HNFOOD ORD</span>
+                                <button onclick="copyToClipboard(document.getElementById('vietqrMsg').innerText)" class="text-emerald-400 hover:underline text-[10px]">Copy</button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-[10px] text-white/40 text-center italic">
+                    * Mở ứng dụng ngân hàng quét mã VietQR để thanh toán tự động điền số tiền và nội dung.
+                </div>
+                <button onclick="verifyVietQRPayment()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-3 text-xs font-bold uppercase tracking-wider rounded-xl shadow-lg transition-all flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined text-sm">verified</span>
+                    Xác nhận đã chuyển khoản
+                </button>
+            </div>
+
+            <!-- Tab Content: Credit Card -->
+            <div id="payContent-card" class="space-y-4" style="display: none;">
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-[10px] uppercase tracking-wider opacity-60 font-semibold mb-1 text-white">Số thẻ ngân hàng</label>
+                        <input type="text" id="cardNo" placeholder="4111 2222 3333 4444" 
+                            class="w-full bg-white/5 border border-white/10 p-2.5 rounded-lg text-xs text-white focus:ring-1 focus:ring-white placeholder:text-white/20">
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[10px] uppercase tracking-wider opacity-60 font-semibold mb-1 text-white">Ngày hết hạn (MM/YY)</label>
+                            <input type="text" id="cardExpiry" placeholder="12/28" 
+                                class="w-full bg-white/5 border border-white/10 p-2.5 rounded-lg text-xs text-white focus:ring-1 focus:ring-white placeholder:text-white/20">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] uppercase tracking-wider opacity-60 font-semibold mb-1 text-white">Mã bảo mật CVV</label>
+                            <input type="password" id="cardCvv" placeholder="***" maxlength="3"
+                                class="w-full bg-white/5 border border-white/10 p-2.5 rounded-lg text-xs text-white focus:ring-1 focus:ring-white placeholder:text-white/20">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] uppercase tracking-wider opacity-60 font-semibold mb-1 text-white">Tên chủ thẻ (Không dấu)</label>
+                        <input type="text" id="cardHolder" placeholder="NGUYEN VAN A" 
+                            class="w-full bg-white/5 border border-white/10 p-2.5 rounded-lg text-xs text-white focus:ring-1 focus:ring-white placeholder:text-white/20">
+                    </div>
+                </div>
+                <button onclick="processCardPayment()" class="w-full bg-white hover:bg-white/95 text-black py-3 text-xs font-bold uppercase tracking-wider rounded-xl shadow-lg transition-all flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined text-sm">credit_card</span>
+                    Thanh toán bằng thẻ
+                </button>
+            </div>
+
+            <!-- Tab Content: E-Wallet -->
+            <div id="payContent-wallet" class="space-y-4" style="display: none;">
+                <div class="grid grid-cols-2 gap-3">
+                    <button onclick="selectWallet('momo')" class="flex flex-col items-center justify-center p-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all group">
+                        <span class="text-3xl mb-2 group-hover:scale-110 transition-transform">💗</span>
+                        <span class="text-xs font-bold text-white">Ví MoMo</span>
+                        <span class="text-[9px] opacity-40">Giao dịch tức thời</span>
+                    </button>
+                    <button onclick="selectWallet('zalopay')" class="flex flex-col items-center justify-center p-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all group">
+                        <span class="text-3xl mb-2 group-hover:scale-110 transition-transform">💚</span>
+                        <span class="text-xs font-bold text-white">ZaloPay</span>
+                        <span class="text-[9px] opacity-40">Miễn phí thanh toán</span>
+                    </button>
+                </div>
+                <div id="walletDetailArea" class="bg-white/5 p-4 rounded-xl border border-white/5 text-center text-xs space-y-3" style="display: none;">
+                    <p class="text-white/80">Bạn đã chọn thanh toán qua <span id="selectedWalletName" class="font-bold text-emerald-400">Ví MoMo</span></p>
+                    <div class="mx-auto w-36 h-36 bg-white p-2 rounded-lg flex items-center justify-center">
+                        <img id="walletQrImage" src="https://images.unsplash.com/photo-1571867424488-4565932edb41?w=300&q=80" alt="Wallet QR" class="w-full h-full object-cover animate-pulse">
+                    </div>
+                    <button onclick="verifyWalletPayment()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-2.5 text-xs font-bold uppercase tracking-wider rounded-lg shadow transition-all">
+                        Xác nhận đã quét ví
+                    </button>
+                </div>
+            </div>
+
+            <!-- Processing / Overlay Simulation Screen inside Modal -->
+            <div id="paySimulationOverlay" class="absolute inset-0 bg-[#1e1a19]/95 flex flex-col items-center justify-center p-6 text-center z-50 rounded-2xl" style="display: none;">
+                <div class="relative w-16 h-16 mb-4">
+                    <!-- Circular Spinner -->
+                    <div class="absolute inset-0 border-4 border-white/10 rounded-full"></div>
+                    <div class="absolute inset-0 border-4 border-t-emerald-500 rounded-full animate-spin"></div>
+                </div>
+                <h4 id="simStatusText" class="font-serif text-lg text-white mb-2">Đang kết nối cổng thanh toán...</h4>
+                <p id="simSubText" class="text-xs text-white/50 max-w-xs leading-relaxed">Vui lòng không tắt hoặc tải lại trang web.</p>
+            </div>
+
+            <!-- Simulated OTP Section (For Card) inside Modal -->
+            <div id="otpVerificationSection" class="absolute inset-0 bg-[#1e1a19]/98 flex flex-col items-center justify-center p-6 text-center z-50 rounded-2xl" style="display: none;">
+                <span class="material-symbols-outlined text-4xl text-amber-400 mb-2">sms</span>
+                <h4 class="font-serif text-lg text-white mb-1">Xác thực giao dịch OTP</h4>
+                <p class="text-xs text-white/60 mb-4 max-w-xs leading-relaxed">
+                    Mã OTP (gồm 6 chữ số) đã được gửi đến số điện thoại đăng ký thẻ. Vui lòng nhập để hoàn tất.
+                </p>
+                <div class="mb-4">
+                    <input type="text" id="otpCode" placeholder="123456" maxlength="6"
+                        class="bg-white/5 border border-white/10 p-3 rounded-lg text-center tracking-[0.5em] text-lg font-mono text-white focus:ring-1 focus:ring-emerald-500 outline-none w-44">
+                </div>
+                <div class="flex gap-3 justify-center w-full max-w-xs">
+                    <button onclick="cancelOtp()" class="flex-1 border border-white/10 hover:bg-white/5 text-white py-2 rounded-lg text-xs">Hủy bỏ</button>
+                    <button onclick="submitOtp()" class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white py-2 rounded-lg text-xs font-bold">Xác thực</button>
+                </div>
+                <div class="text-[10px] text-white/40 mt-3">
+                    Mã thử nghiệm mặc định: <span class="font-bold font-mono text-emerald-400">123456</span>
+                </div>
+            </div>
+
         </div>
     </div>
 
@@ -526,7 +784,7 @@
                 <div class="flex-grow border-t border-hoanien-text/10"></div>
             </div>
 
-            <a href="/oauth2/authorization/google"
+            <a href="/auth/google-login?from=/order-food"
                 class="w-full bg-white text-hoanien-text border border-hoanien-text/10 py-3 text-xs font-semibold rounded-lg flex items-center justify-center gap-2 hover:bg-gray-50 transition-colors shadow-sm">
                 <svg class="w-4 h-4" viewBox="0 0 24 24" width="24" height="24" xmlns="http://www.w3.org/2000/svg">
                     <path
@@ -547,10 +805,11 @@
     </div>
 
     <script th:inline="javascript">
-        const isLoggedIn = /*[[${isLoggedIn}]]*/ false;
+        /* SỬA LỖI: Đồng bộ kiểm tra đăng nhập trực tiếp từ HTTP Session tránh xung đột dữ liệu client */
+        const isLoggedIn = /*[[${session.user != null}]]*/ false;
 
-        // Store a modal-level itemId when detail modal opens
         let modalCurrentItemId = null;
+        let cart = [];
 
         function showAuthModal() {
             const modal = document.getElementById('authRequiredModal');
@@ -560,19 +819,6 @@
         function closeAuthModal() {
             const modal = document.getElementById('authRequiredModal');
             if (modal) modal.style.display = 'none';
-        }
-
-        let cart = [];
-
-        function toggleTimePicker() {
-            const select = document.getElementById('deliveryScheduleType').value;
-            const picker = document.getElementById('exactTimePicker');
-            if (picker) picker.className = (select === 'SCHEDULED') ? 'mt-2 w-full bg-white/5 border border-white/10 p-2 rounded-lg text-xs text-white focus:ring-0' : 'hidden';
-        }
-
-        function filterCategoryFromData(buttonEl) {
-            const category = buttonEl.getAttribute('data-category');
-            filterCategory(category, buttonEl);
         }
 
         function searchMenu() {
@@ -585,6 +831,12 @@
             });
         }
 
+        function filterCategoryFromData(buttonEl) {
+            const category = buttonEl.getAttribute('data-category');
+            filterCategory(category, buttonEl);
+        }
+
+        amp = {};
         function filterCategory(category, buttonEl) {
             const buttons = document.querySelectorAll('#categoryTabs button');
             buttons.forEach(btn => btn.className = 'pb-2 border-b-2 border-transparent text-white/60 transition-all duration-300');
@@ -636,6 +888,9 @@
             renderCart();
         }
 
+        let pendingOrderPayload = null;
+        let paymentTimerInterval = null;
+
         function renderCart() {
             const container = document.getElementById('cartItemsList');
             let html = ''; let subtotal = 0;
@@ -661,11 +916,23 @@
             });
 
             container.innerHTML = html || '<p class="text-xs opacity-40 italic text-center mt-4 text-white" id="emptyCartMsg">Chưa có món ăn nào được chọn.</p>';
-            const fee = subtotal * 0.05;
+            
+            // Check selected payment type for discount
+            const selectedPayment = document.querySelector('input[name="paymentType"]:checked');
+            let feePercent = 0.05;
+            if (selectedPayment && selectedPayment.value === 'ONLINE') {
+                feePercent = 0.03; // 2% discount on service fee
+            }
+            
+            const fee = subtotal * feePercent;
             const total = subtotal + fee;
 
             document.getElementById('subtotal').innerText = subtotal.toLocaleString('vi-VN') + 'đ';
-            document.getElementById('serviceFee').innerText = fee.toLocaleString('vi-VN') + 'đ';
+            if (selectedPayment && selectedPayment.value === 'ONLINE') {
+                document.getElementById('serviceFee').innerHTML = `${fee.toLocaleString('vi-VN')}đ <span class="text-[9px] text-emerald-400 font-normal ml-1">(Đã giảm 2%)</span>`;
+            } else {
+                document.getElementById('serviceFee').innerText = fee.toLocaleString('vi-VN') + 'đ';
+            }
             document.getElementById('total').innerText = total.toLocaleString('vi-VN') + 'đ';
             toggleOrderButton();
         }
@@ -684,14 +951,12 @@
                 return;
             }
 
-            // Build payload matching CreateFoodOrderRequest DTO
-            const orderTypeSelect = document.getElementById('posOrderType').value; // ROOM_SERVICE / RESTAURANT / WALK_IN
+            const orderTypeSelect = document.getElementById('posOrderType').value;
             let apiOrderType = 'room-svc';
             let roomNumber = '';
             let tableId = null;
             let paymentType = 'Pay_Later';
 
-            // Read selected payment method
             const selectedPayment = document.querySelector('input[name="paymentType"]:checked');
             if (selectedPayment) {
                 const val = selectedPayment.value;
@@ -708,16 +973,13 @@
                 tableId = parseInt(document.getElementById('posLocationId').value);
             } else {
                 apiOrderType = 'Dine-In';
-                // Walk-in: no specific table
             }
 
-            // Combine notes
             let combinedNotes = [];
             cart.forEach(item => { if (item.chefNote) combinedNotes.push(item.name + ': ' + item.chefNote.toUpperCase()); });
             const generalNote = document.getElementById('orderNote').value.trim();
             if (generalNote) combinedNotes.push('GHI CHÚ CHUNG: ' + generalNote.toUpperCase());
 
-            // Build DTO-matching payload
             const payload = {
                 orderType: apiOrderType,
                 roomNumber: roomNumber,
@@ -727,7 +989,22 @@
                 items: cart.map(function (i) { return { id: i.id, qty: i.qty, price: i.price }; })
             };
 
-            // Disable button & show loading state
+            pendingOrderPayload = payload;
+
+            if (paymentType === 'ONLINE') {
+                let subtotal = 0;
+                cart.forEach(item => { subtotal += (item.price * item.qty); });
+                const fee = subtotal * 0.03;
+                const total = subtotal + fee;
+                openOnlinePaymentModal(total);
+            } else {
+                submitOrderPayloadAfterPayment();
+            }
+        }
+
+        function submitOrderPayloadAfterPayment() {
+            if (!pendingOrderPayload) return;
+
             const submitBtn = document.getElementById('submitOrderBtn');
             submitBtn.disabled = true;
             submitBtn.innerText = 'Đang xử lý...';
@@ -735,19 +1012,19 @@
             fetch('/api/pos/orders', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
+                body: JSON.stringify(pendingOrderPayload)
             })
                 .then(function (resp) { return resp.json(); })
                 .then(function (data) {
                     if (data.status === 'success') {
-                        // Show success timeline modal
                         document.getElementById('posOrderId').innerText = '#ORD-' + data.orderId;
-                        document.getElementById('posLocation').innerText = roomNumber || 'Bàn ' + tableId || 'Quầy Lobby';
-                        document.getElementById('posKitchenNote').innerText = combinedNotes.join(' | ') || 'KHÔNG CÓ GHI CHÚ DỊ ỨNG';
+                        document.getElementById('posLocation').innerText = pendingOrderPayload.roomNumber || (pendingOrderPayload.tableId ? 'Bàn ' + pendingOrderPayload.tableId : '') || 'Quầy Lobby';
+                        document.getElementById('posKitchenNote').innerText = pendingOrderPayload.note || 'KHÔNG CÓ GHI CHÚ DỊ ỨNG';
                         document.getElementById('posItemsList').innerHTML = cart.map(function (i) { return '<div>• ' + i.name + ' (x' + i.qty + ')</div>'; }).join('');
                         document.getElementById('posTimelineModal').style.display = 'flex';
                         cart = [];
                         renderCart();
+                        closeOnlinePaymentModal();
                     } else {
                         alert('Lỗi tạo đơn hàng: ' + (data.message || 'Unknown error'));
                     }
@@ -761,11 +1038,183 @@
                 });
         }
 
+        function openOnlinePaymentModal(totalAmount) {
+            document.getElementById('payModalTotal').innerText = totalAmount.toLocaleString('vi-VN') + ' đ';
+            
+            // Generate VietQR
+            const description = encodeURIComponent(`HNFOOD ORD ${Math.floor(Date.now() / 1000)}`);
+            document.getElementById('vietqrMsg').innerText = `HNFOOD ORD ${Math.floor(Date.now() / 1000)}`;
+            const qrUrl = `https://img.vietqr.io/image/vietinbank-101872893892-compact2.png?amount=${totalAmount}&addInfo=${description}&accountName=HOANIEN%20RIVER%20RETREAT`;
+            document.getElementById('vietqrImage').src = qrUrl;
+
+            // Reset inputs
+            document.getElementById('cardNo').value = '';
+            document.getElementById('cardExpiry').value = '';
+            document.getElementById('cardCvv').value = '';
+            document.getElementById('cardHolder').value = '';
+            document.getElementById('otpCode').value = '';
+            document.getElementById('walletDetailArea').style.display = 'none';
+            document.getElementById('paySimulationOverlay').style.display = 'none';
+            document.getElementById('otpVerificationSection').style.display = 'none';
+            
+            // Switch to QR tab by default
+            switchPayTab('qr');
+
+            // Show modal
+            document.getElementById('onlinePaymentModal').style.display = 'flex';
+
+            // Start countdown timer (5 mins)
+            let duration = 300;
+            const timerEl = document.getElementById('paymentTimer');
+            timerEl.innerText = "05:00";
+            
+            if (paymentTimerInterval) clearInterval(paymentTimerInterval);
+            paymentTimerInterval = setInterval(() => {
+                duration--;
+                if (duration <= 0) {
+                    clearInterval(paymentTimerInterval);
+                    alert("Thời hạn thanh toán đã hết. Vui lòng thử lại!");
+                    closeOnlinePaymentModal();
+                    return;
+                }
+                const mins = Math.floor(duration / 60).toString().padStart(2, '0');
+                const secs = (duration % 60).toString().padStart(2, '0');
+                timerEl.innerText = `${mins}:${secs}`;
+            }, 1000);
+        }
+
+        function closeOnlinePaymentModal() {
+            document.getElementById('onlinePaymentModal').style.display = 'none';
+            if (paymentTimerInterval) {
+                clearInterval(paymentTimerInterval);
+                paymentTimerInterval = null;
+            }
+        }
+
+        function switchPayTab(tab) {
+            const tabs = ['qr', 'card', 'wallet'];
+            tabs.forEach(t => {
+                const btn = document.getElementById(`payTab-${t}`);
+                const content = document.getElementById(`payContent-${t}`);
+                if (t === tab) {
+                    btn.className = "flex-1 py-2 text-center border-b-2 border-white text-white";
+                    content.style.display = "block";
+                } else {
+                    btn.className = "flex-1 py-2 text-center border-b-2 border-transparent text-white/40 hover:text-white";
+                    content.style.display = "none";
+                }
+            });
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert("Đã sao chép: " + text);
+            }).catch(err => {
+                console.error("Lỗi copy: ", err);
+            });
+        }
+
+        function showSimulationOverlay(statusText, subText, delay, callback) {
+            const overlay = document.getElementById('paySimulationOverlay');
+            document.getElementById('simStatusText').innerText = statusText;
+            document.getElementById('simSubText').innerText = subText;
+            overlay.style.display = 'flex';
+
+            setTimeout(() => {
+                overlay.style.display = 'none';
+                if (callback) callback();
+            }, delay);
+        }
+
+        function verifyVietQRPayment() {
+            showSimulationOverlay(
+                "Đang kiểm tra giao dịch...", 
+                "Hệ thống đang truy vấn biến động số dư VietinBank...", 
+                2000, 
+                () => {
+                    alert("Thanh toán thành công qua VietQR!");
+                    submitOrderPayloadAfterPayment();
+                }
+            );
+        }
+
+        function processCardPayment() {
+            const cardNo = document.getElementById('cardNo').value.trim();
+            const cardExpiry = document.getElementById('cardExpiry').value.trim();
+            const cardCvv = document.getElementById('cardCvv').value.trim();
+            const cardHolder = document.getElementById('cardHolder').value.trim();
+
+            if (!cardNo || !cardExpiry || !cardCvv || !cardHolder) {
+                alert("Vui lòng điền đầy đủ thông tin thẻ!");
+                return;
+            }
+
+            showSimulationOverlay(
+                "Đang kết nối tổ chức thẻ...", 
+                "Đang xác thực thông tin thẻ quốc tế...", 
+                1500, 
+                () => {
+                    // Show OTP section
+                    document.getElementById('otpVerificationSection').style.display = 'flex';
+                }
+            );
+        }
+
+        function cancelOtp() {
+            document.getElementById('otpVerificationSection').style.display = 'none';
+        }
+
+        function submitOtp() {
+            const code = document.getElementById('otpCode').value.trim();
+            if (code !== '123456') {
+                alert("Mã OTP không hợp lệ! Vui lòng thử lại với mã 123456.");
+                return;
+            }
+
+            document.getElementById('otpVerificationSection').style.display = 'none';
+            showSimulationOverlay(
+                "Đang hoàn tất thanh toán...", 
+                "Giao dịch đã được duyệt. Đang tạo đơn hàng...", 
+                1500, 
+                () => {
+                    alert("Thanh toán thẻ thành công!");
+                    submitOrderPayloadAfterPayment();
+                }
+            );
+        }
+
+        function selectWallet(wallet) {
+            const name = wallet === 'momo' ? 'Ví MoMo' : 'ZaloPay';
+            document.getElementById('selectedWalletName').innerText = name;
+            document.getElementById('walletDetailArea').style.display = 'block';
+        }
+
+        function verifyWalletPayment() {
+            showSimulationOverlay(
+                "Đang xác nhận thanh toán...", 
+                "Chờ xác thực phản hồi từ ứng dụng ví...", 
+                1800, 
+                () => {
+                    alert("Thanh toán qua ví điện tử thành công!");
+                    submitOrderPayloadAfterPayment();
+                }
+            );
+        }
+
         function closeTimelineModal() {
             document.getElementById('posTimelineModal').style.display = 'none';
             cart = [];
             renderCart();
         }
+
+        /* ── Hiệu Ứng Cuộn Đổi Màu Cho Navbar Gốc ── */
+        document.addEventListener("DOMContentLoaded", () => {
+            const guestNav = document.querySelector('.guest-nav');
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 60) guestNav.classList.add('scrolled');
+                else guestNav.classList.remove('scrolled');
+            }, { passive: true });
+        });
     </script>
 </body>
 

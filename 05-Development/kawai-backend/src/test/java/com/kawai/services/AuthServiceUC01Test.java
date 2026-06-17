@@ -74,7 +74,7 @@ public class AuthServiceUC01Test {
                 Account account = accountRepository.findByUsername("testuser").orElse(null);
                 assertNotNull(account);
                 assertTrue(passwordEncoder.matches("testpass", account.getPasswordHash()));
-                assertEquals("CUSTOMER", account.getRole().getRoleName());
+                assertEquals("CUSTOMER NORMAL", account.getRole().getRoleName());
 
                 Customer customer = customerRepository.findByAccount_Username("testuser").orElse(null);
                 assertNotNull(customer);
@@ -92,7 +92,7 @@ public class AuthServiceUC01Test {
                 // Test login
                 mockMvc.perform(formLogin("/auth/login").user("loginuser").password("loginpass"))
                                 .andExpect(status().is3xxRedirection())
-                                .andExpect(redirectedUrl("/"));
+                                .andExpect(redirectedUrl("/booking"));
 
                 // Test logout
                 mockMvc.perform(logout("/auth/logout"))

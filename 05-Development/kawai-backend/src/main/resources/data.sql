@@ -9,11 +9,11 @@ INSERT INTO Roles (role_id, role_name) VALUES (2, 'RECEPTIONIST');
 INSERT INTO Roles (role_id, role_name) VALUES (3, 'F&B KITCHEN');
 INSERT INTO Roles (role_id, role_name) VALUES (4, 'F&B POS');
 INSERT INTO Roles (role_id, role_name) VALUES (5, 'HOUSEKEEPING');
-INSERT INTO Roles (role_id, role_name) VALUES (6, 'MANAGER');
-INSERT INTO Roles (role_id, role_name) VALUES (7, 'TOURGUIDE');
-INSERT INTO Roles (role_id, role_name) VALUES (8, 'CUSTOMER VIP');
-INSERT INTO Roles (role_id, role_name) VALUES (9, 'CUSTOMER NORMAL');
-INSERT INTO Roles (role_id, role_name) VALUES (10, 'SPA_STAFF');
+INSERT INTO Roles (role_id, role_name) VALUES (6, 'MAINTAINER');
+INSERT INTO Roles (role_id, role_name) VALUES (7, 'MANAGER');
+INSERT INTO Roles (role_id, role_name) VALUES (8, 'TOURGUIDE');
+INSERT INTO Roles (role_id, role_name) VALUES (9, 'CUSTOMER VIP');
+INSERT INTO Roles (role_id, role_name) VALUES (10, 'CUSTOMER NORMAL');
 
 -- ── 2. Accounts (20 rows) ────────────────────────────────────
 -- password hash for 'admin123': $2a$10$4bnThA4xQVw1rF2POQv78uAQll2KsUsgF32JaYiVG5d2d3Fhgk83q
@@ -37,8 +37,8 @@ INSERT INTO Accounts (account_id, username, password_hash, is_active, role_id, c
 (16, 'housekeep1', '$2a$10$ikP3XeXnMx/oLodhs4wqBO61AhyuE4dWtSJDJcOH7D2ii5Vrgq0bG', TRUE, 5, CURRENT_TIMESTAMP),
 (17, 'housekeep2', '$2a$10$ikP3XeXnMx/oLodhs4wqBO61AhyuE4dWtSJDJcOH7D2ii5Vrgq0bG', TRUE, 5, CURRENT_TIMESTAMP),
 (18, 'pos1', '$2a$10$ikP3XeXnMx/oLodhs4wqBO61AhyuE4dWtSJDJcOH7D2ii5Vrgq0bG', TRUE, 4, CURRENT_TIMESTAMP),
-(19, 'manager1', '$2a$10$4bnThA4xQVw1rF2POQv78uAQll2KsUsgF32JaYiVG5d2d3Fhgk83q', TRUE, 6, CURRENT_TIMESTAMP),
-(20, 'spa1', '$2a$10$ikP3XeXnMx/oLodhs4wqBO61AhyuE4dWtSJDJcOH7D2ii5Vrgq0bG', TRUE, 10, CURRENT_TIMESTAMP);
+(19, 'manager1', '$2a$10$4bnThA4xQVw1rF2POQv78uAQll2KsUsgF32JaYiVG5d2d3Fhgk83q', TRUE, 7, CURRENT_TIMESTAMP),
+(20, 'spa1', '$2a$10$ikP3XeXnMx/oLodhs4wqBO61AhyuE4dWtSJDJcOH7D2ii5Vrgq0bG', TRUE, 6, CURRENT_TIMESTAMP);
 
 -- ── 3. Employees (10 rows) ───────────────────────────────────
 INSERT INTO Employees (employee_id, account_id, full_name, gender, cccd, phone, email, salary) VALUES 
@@ -131,7 +131,19 @@ INSERT INTO Rooms (room_id, room_number, category_id, room_status, current_booki
 (17, '310', 3, 'Vacant_Dirty', NULL),
 (18, '311', 3, 'Occupied', NULL),
 (19, '312', 3, 'Vacant_Clean', NULL),
-(20, '314', 3, 'Vacant_Clean', NULL);
+(20, '314', 3, 'Vacant_Clean', NULL),
+(21, '401', 4, 'Vacant_Clean', NULL),
+(22, '402', 4, 'Vacant_Clean', NULL),
+(23, '501', 5, 'Vacant_Clean', NULL),
+(24, '601', 6, 'Vacant_Clean', NULL),
+(25, '602', 6, 'Vacant_Clean', NULL),
+(26, '701', 7, 'Vacant_Clean', NULL),
+(27, '702', 7, 'Vacant_Clean', NULL),
+(28, '801', 8, 'Vacant_Clean', NULL),
+(29, '802', 8, 'Vacant_Clean', NULL),
+(30, '901', 9, 'Vacant_Clean', NULL),
+(31, '1001', 10, 'Vacant_Clean', NULL),
+(32, '1002', 10, 'Vacant_Clean', NULL);
 
 -- ── 9. Dynamic Pricing (10 rows) ─────────────────────────────
 INSERT INTO Dynamic_Pricing (price_id, category_id, start_date, end_date, price_modifier, reason) VALUES 
@@ -574,17 +586,17 @@ INSERT INTO Tour_Bookings (booking_id, schedule_id, participant_count, tour_char
 (5, 5, 2, 2400000, FALSE);
 
 -- ── 37. Tour Attendees (10 rows) ─────────────────────────────
-INSERT INTO Tour_Attendees (attendee_id, tour_booking_id, customer_id, dependent_id, detail_id, attendance_status, face_matched_at, face_vector_data) VALUES 
-(1, 9, 1, NULL, 1, 'Not_Show', NULL, NULL),
-(2, 10, 2, NULL, 2, 'Not_Show', NULL, NULL),
-(3, 11, 9, NULL, NULL, 'Not_Show', NULL, NULL),
-(4, 12, 10, NULL, NULL, 'Not_Show', NULL, NULL),
-(5, 13, 11, NULL, NULL, 'Not_Show', NULL, NULL),
-(6, 1, 1, NULL, 1, 'Not_Show', NULL, NULL),
-(7, 2, 2, NULL, 2, 'Not_Show', NULL, NULL),
-(8, 3, 3, NULL, 3, 'Not_Show', NULL, NULL),
-(9, 4, 4, NULL, 4, 'Not_Show', NULL, NULL),
-(10, 5, 5, NULL, 5, 'Not_Show', NULL, NULL);
+INSERT INTO Tour_Attendees (attendee_id, tour_booking_id, customer_id, dependent_id, attendance_status, face_matched_at, face_vector_data) VALUES 
+(1, 9, 1, NULL, 'Not_Show', NULL, NULL),
+(2, 10, 2, NULL, 'Not_Show', NULL, NULL),
+(3, 11, 9, NULL, 'Not_Show', NULL, NULL),
+(4, 12, 10, NULL, 'Not_Show', NULL, NULL),
+(5, 13, 11, NULL, 'Not_Show', NULL, NULL),
+(6, 1, 1, NULL, 'Not_Show', NULL, NULL),
+(7, 2, 2, NULL, 'Not_Show', NULL, NULL),
+(8, 3, 3, NULL, 'Not_Show', NULL, NULL),
+(9, 4, 4, NULL, 'Not_Show', NULL, NULL),
+(10, 5, 5, NULL, 'Not_Show', NULL, NULL);
 
 -- ── 38. Checkpoint Attendance (10 rows) ──────────────────────
 INSERT INTO Checkpoint_Attendance (checkpoint_id, schedule_id, attendee_id, detail_id, scan_status, scanned_by_staff_id) VALUES 
@@ -600,17 +612,17 @@ INSERT INTO Checkpoint_Attendance (checkpoint_id, schedule_id, attendee_id, deta
 (10, 6, 10, 5, 'PENDING', 5);
 
 -- ── 39. Reviews (10 rows) ────────────────────────────────────
-INSERT INTO Reviews (review_id, customer_id, room_booking_detail_id, tour_booking_id, rating_service, review_text, moderation_status, moderated_by, moderation_reason) VALUES 
-(1, 1, 1, NULL, 5, 'Phòng Nipa Villa tuyệt hảo, mát mẻ, nhân viên buồng dọn rất sạch.', 'Approved', 4, 'Đánh giá tích cực hợp lệ'),
-(2, 2, 2, NULL, 4, 'Phòng River Villa đẹp, view sông thơ mộng, đồ ăn room service hơi chậm.', 'Approved', 4, 'Đánh giá xây dựng hợp lệ'),
-(3, 3, 3, NULL, 5, 'Khóa tu Wellness Retreats giúp tôi tịnh tâm, phục hồi sức khoẻ rất nhiều.', 'Approved', 4, 'Đánh giá tốt chất lượng cao'),
-(4, 4, 4, NULL, 4, 'Phòng 104 sạch sẽ, bồn tắm rộng rãi, decor buồng cưới rất tỉ mỉ.', 'Approved', 4, 'Đánh giá tốt'),
-(5, 5, 5, NULL, 5, 'Rất hài lòng với kỳ nghỉ tại resort, bãi cỏ xanh ngát, đồ ăn buffet ngon.', 'Approved', 4, 'Đánh giá tốt'),
-(6, 6, 6, NULL, 4, 'Cảnh quan xanh mát, phòng 207 view hồ bơi rộng rãi tuyệt vời.', 'Approved', 4, 'Đánh giá tốt'),
-(7, 7, 7, NULL, 5, 'Hội An Tour do HDV Hướng Dẫn thuyết minh rất sinh động, xe đi êm.', 'Approved', 4, 'Đánh giá tốt'),
-(8, 8, 8, NULL, 5, 'Bữa tối Wagyu tại nhà hàng cực ngon, thịt mềm mọng sốt tiêu thơm.', 'Approved', 4, 'Đánh giá tốt'),
-(9, 12, 9, NULL, 5, 'Dịch vụ spa rose massage body rất chuyên nghiệp thoải mái.', 'Approved', 4, 'Đánh giá tốt'),
-(10, 13, 10, NULL, 4, 'Lịch trình trơn tru, nhân viên thân thiện hiếu khách nhiệt tình.', 'Approved', 4, 'Đánh giá tốt');
+INSERT INTO Reviews (review_id, customer_id, room_booking_detail_id, tour_booking_id, rating_service, review_text, moderation_status, moderated_by, moderation_reason, created_at) VALUES 
+(1, 1, 1, NULL, 5, 'Phòng Nipa Villa tuyệt hảo, mát mẻ, nhân viên buồng dọn rất sạch.', 'Approved', 4, 'Đánh giá tích cực hợp lệ', CURRENT_TIMESTAMP),
+(2, 2, 2, NULL, 4, 'Phòng River Villa đẹp, view sông thơ mộng, đồ ăn room service hơi chậm.', 'Approved', 4, 'Đánh giá xây dựng hợp lệ', CURRENT_TIMESTAMP),
+(3, 3, 3, NULL, 5, 'Khóa tu Wellness Retreats giúp tôi tịnh tâm, phục hồi sức khoẻ rất nhiều.', 'Approved', 4, 'Đánh giá tốt chất lượng cao', CURRENT_TIMESTAMP),
+(4, 4, 4, NULL, 4, 'Phòng 104 sạch sẽ, bồn tắm rộng rãi, decor buồng cưới rất tỉ mỉ.', 'Approved', 4, 'Đánh giá tốt', CURRENT_TIMESTAMP),
+(5, 5, 5, NULL, 5, 'Rất hài lòng với kỳ nghỉ tại resort, bãi cỏ xanh ngát, đồ ăn buffet ngon.', 'Approved', 4, 'Đánh giá tốt', CURRENT_TIMESTAMP),
+(6, 6, 6, NULL, 4, 'Cảnh quan xanh mát, phòng 207 view hồ bơi rộng rãi tuyệt vời.', 'Approved', 4, 'Đánh giá tốt', CURRENT_TIMESTAMP),
+(7, 7, 7, NULL, 5, 'Hội An Tour do HDV Hướng Dẫn thuyết minh rất sinh động, xe đi êm.', 'Approved', 4, 'Đánh giá tốt', CURRENT_TIMESTAMP),
+(8, 8, 8, NULL, 5, 'Bữa tối Wagyu tại nhà hàng cực ngon, thịt mềm mọng sốt tiêu thơm.', 'Approved', 4, 'Đánh giá tốt', CURRENT_TIMESTAMP),
+(9, 12, 9, NULL, 5, 'Dịch vụ spa rose massage body rất chuyên nghiệp thoải mái.', 'Approved', 4, 'Đánh giá tốt', CURRENT_TIMESTAMP),
+(10, 13, 10, NULL, 4, 'Lịch trình trơn tru, nhân viên thân thiện hiếu khách nhiệt tình.', 'Approved', 4, 'Đánh giá tốt', CURRENT_TIMESTAMP);
 
 -- ── 40. Authorized Devices (10 rows) ─────────────────────────
 INSERT INTO Authorized_Devices (device_code, is_approved) VALUES 
@@ -626,33 +638,75 @@ INSERT INTO Authorized_Devices (device_code, is_approved) VALUES
 ('HN-DEV-LAPTOP010', true);
 
 -- ── 41. Audit Logs (10 rows) ─────────────────────────────────
-INSERT INTO Audit_Logs (log_id, account_id, action, table_name, record_id, old_value, new_value, ip_address) VALUES 
-(1, 1, 'UPDATE_ROOM_STATUS', 'Rooms', 1, 'Vacant_Clean', 'Occupied', '192.168.1.10'),
-(2, 1, 'CREATE_BOOKING', 'Bookings', 14, NULL, 'New Booking Created', '192.168.1.10'),
-(3, 4, 'CHECKIN_GUEST', 'Room_Guests', 1, NULL, 'Guest Checked In Room 101', '192.168.1.15'),
-(4, 2, 'ORDER_FOOD', 'Food_Orders', 19, NULL, 'New Room Service Order Created', '192.168.1.22'),
-(5, 4, 'APPROVE_DEVICE', 'Authorized_Devices', 2, 'false', 'true', '192.168.1.10'),
-(6, 13, 'START_TOUR', 'Run_Itinerary_Status', 1, 'NOT_STARTED', 'COMPLETED', '192.168.1.5'),
-(7, 4, 'MODERATE_REVIEW', 'Reviews', 1, 'Pending', 'Approved', '192.168.1.10'),
-(8, 1, 'CREATE_PROMOTION', 'Promotions', 10, NULL, 'Promo SPARELAX added', '192.168.1.10'),
-(9, 4, 'UPDATE_INVOICE', 'Consolidated_Invoices', 1, 'Draft', 'Settled', '192.168.1.10'),
-(10, 4, 'ADD_FOLIO_ITEM', 'Folio_Items', 1, NULL, 'Folio Spa added to room 101', '192.168.1.10');
+INSERT INTO Audit_Logs (log_id, account_id, action, table_name, record_id, old_value, new_value, ip_address, timestamp) VALUES 
+(1, 1, 'UPDATE_ROOM_STATUS', 'Rooms', 1, 'Vacant_Clean', 'Occupied', '192.168.1.10', CURRENT_TIMESTAMP),
+(2, 1, 'CREATE_BOOKING', 'Bookings', 14, NULL, 'New Booking Created', '192.168.1.10', CURRENT_TIMESTAMP),
+(3, 4, 'CHECKIN_GUEST', 'Room_Guests', 1, NULL, 'Guest Checked In Room 101', '192.168.1.15', CURRENT_TIMESTAMP),
+(4, 2, 'ORDER_FOOD', 'Food_Orders', 19, NULL, 'New Room Service Order Created', '192.168.1.22', CURRENT_TIMESTAMP),
+(5, 4, 'APPROVE_DEVICE', 'Authorized_Devices', 2, 'false', 'true', '192.168.1.10', CURRENT_TIMESTAMP),
+(6, 13, 'START_TOUR', 'Run_Itinerary_Status', 1, 'NOT_STARTED', 'COMPLETED', '192.168.1.5', CURRENT_TIMESTAMP),
+(7, 4, 'MODERATE_REVIEW', 'Reviews', 1, 'Pending', 'Approved', '192.168.1.10', CURRENT_TIMESTAMP),
+(8, 1, 'CREATE_PROMOTION', 'Promotions', 10, NULL, 'Promo SPARELAX added', '192.168.1.10', CURRENT_TIMESTAMP),
+(9, 4, 'UPDATE_INVOICE', 'Consolidated_Invoices', 1, 'Draft', 'Settled', '192.168.1.10', CURRENT_TIMESTAMP),
+(10, 4, 'ADD_FOLIO_ITEM', 'Folio_Items', 1, NULL, 'Folio Spa added to room 101', '192.168.1.10', CURRENT_TIMESTAMP);
 
--- ── Reset Auto-Increment Sequences ───────────────────────────
-ALTER TABLE Roles ALTER COLUMN role_id RESTART WITH 100;
-ALTER TABLE Accounts ALTER COLUMN account_id RESTART WITH 100;
-ALTER TABLE Employees ALTER COLUMN employee_id RESTART WITH 100;
-ALTER TABLE Room_Categories ALTER COLUMN category_id RESTART WITH 100;
-ALTER TABLE Rooms ALTER COLUMN room_id RESTART WITH 100;
-ALTER TABLE Customers ALTER COLUMN customer_id RESTART WITH 100;
-ALTER TABLE Bookings ALTER COLUMN booking_id RESTART WITH 100;
-ALTER TABLE Room_Bookings ALTER COLUMN room_booking_id RESTART WITH 100;
-ALTER TABLE Room_Booking_Details ALTER COLUMN detail_id RESTART WITH 100;
-ALTER TABLE Room_Guests ALTER COLUMN guest_id RESTART WITH 100;
-ALTER TABLE Restaurant_Tables ALTER COLUMN table_id RESTART WITH 100;
-ALTER TABLE Menu_Items ALTER COLUMN item_id RESTART WITH 100;
-ALTER TABLE Food_Orders ALTER COLUMN order_id RESTART WITH 100;
-ALTER TABLE Food_Order_Details ALTER COLUMN detail_id RESTART WITH 100;
-ALTER TABLE Tours ALTER COLUMN tour_id RESTART WITH 100;
-ALTER TABLE Tour_Schedules ALTER COLUMN schedule_id RESTART WITH 100;
-ALTER TABLE Tour_Attendees ALTER COLUMN attendee_id RESTART WITH 100;
+-- ── 42. Test Accounts cho khách đăng nhập test ───────────────
+-- password: admin123  |  hash: $2a$10$4bnThA4xQVw1rF2POQv78uAQll2KsUsgF32JaYiVG5d2d3Fhgk83q
+INSERT IGNORE INTO Accounts (account_id, username, password_hash, is_active, role_id, created_at) VALUES
+(21, 'testguest1', '$2a$10$4bnThA4xQVw1rF2POQv78uAQll2KsUsgF32JaYiVG5d2d3Fhgk83q', TRUE, 10, CURRENT_TIMESTAMP),
+(22, 'testguest2', '$2a$10$4bnThA4xQVw1rF2POQv78uAQll2KsUsgF32JaYiVG5d2d3Fhgk83q', TRUE, 10, CURRENT_TIMESTAMP),
+(23, 'testguest3', '$2a$10$4bnThA4xQVw1rF2POQv78uAQll2KsUsgF32JaYiVG5d2d3Fhgk83q', TRUE, 10, CURRENT_TIMESTAMP);
+
+-- ── 43. Test Customers liên kết Account ──────────────────────
+INSERT IGNORE INTO Customers (customer_id, account_id, full_name, gender, cccd_passport_encrypted, phone, email, loyalty_points, membership_tier) VALUES
+(16, 21, 'Nguyễn Minh Test', 'Nam', 'CCCD_TEST01', '0911000001', 'testguest1@test.com', 50, 'Regular'),
+(17, 22, 'Trần Thị Test', 'Nữ', 'CCCD_TEST02', '0911000002', 'testguest2@test.com', 100, 'Silver'),
+(18, 23, 'Lê Văn Test', 'Nam', 'CCCD_TEST03', '0911000003', 'testguest3@test.com', 200, 'Gold');
+
+-- ── 44. Test Bookings (Confirmed + Checked_In) ──────────────
+INSERT IGNORE INTO Bookings (booking_id, customer_id, booking_date, total_price, booking_status, booking_source, applied_promotion_id, version) VALUES
+(21, 16, '2026-06-14', 5000000, 'Checked_In', 'Direct_Web', NULL, 1),
+(22, 17, '2026-06-15', 7000000, 'Checked_In', 'Direct_Web', NULL, 1),
+(23, 18, '2026-06-10', 16000000, 'Confirmed', 'Direct_Web', NULL, 1);
+
+-- ── 45. Test Room Bookings ───────────────────────────────────
+INSERT IGNORE INTO Room_Bookings (room_booking_id, booking_id, check_in_date, check_out_date, deposit_amount, cancellation_deadline, credit_limit, personal_pin_hash) VALUES
+(11, 21, '2026-06-14', '2026-06-20', 1000000, '2026-06-12', 8000000, 'hash'),
+(12, 22, '2026-06-15', '2026-06-18', 1500000, '2026-06-13', 10000000, 'hash'),
+(13, 23, '2026-06-10', '2026-06-16', 3000000, '2026-06-08', 15000000, 'hash');
+
+-- ── 46. Test Room Booking Details ────────────────────────────
+INSERT IGNORE INTO Room_Booking_Details (detail_id, room_booking_id, category_id, room_id, room_charge, detail_status, bed_preference, special_requests, is_charge_to_room_allowed, sub_credit_limit, billing_routing_strategy) VALUES
+(11, 11, 4, 6, 2000000, 'Active', 'KING_SIZE', NULL, TRUE, 500000, 'BILL_TO_LEADER'),
+(12, 12, 2, 11, 3500000, 'Active', 'KING_SIZE', NULL, TRUE, 1500000, 'BILL_TO_LEADER'),
+(13, 13, 3, 16, 8000000, 'Active', 'TWIN_BED', NULL, TRUE, 2000000, 'BILL_TO_LEADER');
+
+-- ── 47. Test Room Guests ─────────────────────────────────────
+INSERT IGNORE INTO Room_Guests (guest_id, detail_id, customer_id, dependent_id, guest_type, is_primary_contact) VALUES
+(11, 11, 16, NULL, 'ADULT', TRUE),
+(12, 12, 17, NULL, 'ADULT', TRUE),
+(13, 13, 18, NULL, 'ADULT', TRUE);
+
+-- ── 48. Cập nhật Rooms hiện tại đang được test guest ở ──────
+UPDATE Rooms SET current_booking_detail_id = 11, room_status = 'Occupied' WHERE room_id = 6;
+UPDATE Rooms SET current_booking_detail_id = 12, room_status = 'Occupied' WHERE room_id = 11;
+UPDATE Rooms SET current_booking_detail_id = 13, room_status = 'Occupied' WHERE room_id = 16;
+
+-- ── Reset Auto-Increment Sequences (MySQL syntax) ────────────
+ALTER TABLE Roles AUTO_INCREMENT = 100;
+ALTER TABLE Accounts AUTO_INCREMENT = 100;
+ALTER TABLE Employees AUTO_INCREMENT = 100;
+ALTER TABLE Room_Categories AUTO_INCREMENT = 100;
+ALTER TABLE Rooms AUTO_INCREMENT = 100;
+ALTER TABLE Customers AUTO_INCREMENT = 100;
+ALTER TABLE Bookings AUTO_INCREMENT = 100;
+ALTER TABLE Room_Bookings AUTO_INCREMENT = 100;
+ALTER TABLE Room_Booking_Details AUTO_INCREMENT = 100;
+ALTER TABLE Room_Guests AUTO_INCREMENT = 100;
+ALTER TABLE Restaurant_Tables AUTO_INCREMENT = 100;
+ALTER TABLE Menu_Items AUTO_INCREMENT = 100;
+ALTER TABLE Food_Orders AUTO_INCREMENT = 100;
+ALTER TABLE Food_Order_Details AUTO_INCREMENT = 100;
+ALTER TABLE Tours AUTO_INCREMENT = 100;
+ALTER TABLE Tour_Schedules AUTO_INCREMENT = 100;
+ALTER TABLE Tour_Attendees AUTO_INCREMENT = 100;

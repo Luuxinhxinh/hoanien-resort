@@ -13,6 +13,10 @@ import java.util.Optional;
 public interface RoomRepository extends JpaRepository<Room, Long> {
     Optional<Room> findByRoomNumber(String roomNumber);
 
+    @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT r FROM Room r WHERE r.roomNumber = :roomNumber")
+    Optional<Room> findByRoomNumberWithLock(@Param("roomNumber") String roomNumber);
+
     @Query("SELECT r FROM Room r WHERE r.category.categoryName = :categoryName")
     List<Room> findByCategoryName(@Param("categoryName") String categoryName);
 
@@ -32,7 +36,7 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
     List<Room> findVacant();
 
     @Query("SELECT rbd.room FROM RoomBookingDetail rbd " +
-            "WHERE rbd.roomBooking.booking.customer.account.id = :userId " +
-            "AND rbd.roomBooking.booking.bookingStatus IN ('Confirmed', 'Checked_In')")
+            "WHERE rbd.roomBooking.customer.account.id = :userId " +
+            "AND rbd.roomBooking.bookingStatus IN ('Confirmed', 'Checked_In')")
     Optional<Room> findActiveRoomByUserId(@Param("userId") Long userId);
 }

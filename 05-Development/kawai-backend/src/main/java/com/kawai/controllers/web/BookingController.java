@@ -19,6 +19,9 @@ public class BookingController {
 
     @Autowired
     private RoomCategoryRepository roomCategoryRepository;
+
+    @Autowired
+    private com.kawai.repositories.CustomerRepository customerRepository;
     
     @GetMapping("/")
     public String showHomePage() {
@@ -28,6 +31,15 @@ public class BookingController {
     @GetMapping("/booking")
     public String showBookingPage(Principal principal, Model model, @RequestParam(name = "keyword", required = false) String keyword) {
         model.addAttribute("isLoggedIn", principal != null);
+
+        if (principal != null) {
+            java.util.Optional<com.kawai.models.Customer> customerOpt = customerRepository.findByAccount_Username(principal.getName());
+            customerOpt.ifPresent(customer -> {
+                model.addAttribute("customerName", customer.getFullName());
+                model.addAttribute("customerEmail", customer.getEmail());
+                model.addAttribute("customerPhone", customer.getPhone());
+            });
+        }
 
         // ---- Search summary ----
         model.addAttribute("search", Map.of(
@@ -67,7 +79,7 @@ public class BookingController {
             long priceVal = cat.getBasePrice() != null ? cat.getBasePrice().longValue() : 0L;
             String priceStr = cat.getBasePrice() != null ? String.format("₫ %,d", cat.getBasePrice().longValue()) : "Contact Us";
             int capacity = cat.getCapacity() != null ? cat.getCapacity() : 2;
-            String image = tempImages.get((int)(cat.getId() != null ? cat.getId() % tempImages.size() : 0));
+            String image = cat.getCoverImgUrl() != null ? cat.getCoverImgUrl() : tempImages.get((int)(cat.getId() != null ? cat.getId() % tempImages.size() : 0));
             
             return new BookingRoom(
                 cat.getCategoryName(),

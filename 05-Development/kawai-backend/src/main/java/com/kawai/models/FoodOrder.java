@@ -17,4 +17,29 @@ public class FoodOrder {
 
     @OneToMany(mappedBy = "foodOrder", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private java.util.List<FoodOrderDetail> details;
+
+    public java.math.BigDecimal getTotalAmount() {
+        if (details == null || details.isEmpty()) {
+            return java.math.BigDecimal.ZERO;
+        }
+        java.math.BigDecimal total = java.math.BigDecimal.ZERO;
+        for (FoodOrderDetail detail : details) {
+            java.math.BigDecimal price = detail.getPriceAtOrder();
+            if (price == null) {
+                price = detail.getMenuItem() != null ? detail.getMenuItem().getPrice() : java.math.BigDecimal.ZERO;
+            }
+            if (price == null) {
+                price = java.math.BigDecimal.ZERO;
+            }
+            total = total.add(price.multiply(java.math.BigDecimal.valueOf(detail.getQuantity() != null ? detail.getQuantity() : 1)));
+        }
+        
+        // Add room service fee if applicable (10%)
+        if ("RoomService".equalsIgnoreCase(orderType) || "Room Service".equalsIgnoreCase(orderType)) {
+            java.math.BigDecimal fee = total.multiply(new java.math.BigDecimal("0.10"));
+            total = total.add(fee);
+        }
+        
+        return total;
+    }
 }

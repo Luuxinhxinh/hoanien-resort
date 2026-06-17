@@ -6,49 +6,19 @@ import java.math.BigDecimal;
 
 @Entity
 @Table(name = "Room_Bookings")
-public class RoomBooking {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "room_booking_id")
-    private Long id;
-
-    @ManyToOne
-    @JoinColumn(name = "booking_id", nullable = false)
-    private Booking booking;
-
+public class RoomBooking extends Booking {
     @Column(name = "check_in_date", nullable = false)
     private LocalDate checkInDate;
-
     @Column(name = "check_out_date", nullable = false)
     private LocalDate checkOutDate;
-
     @Column(name = "deposit_amount", nullable = false)
     private BigDecimal depositAmount;
-
     @Column(name = "cancellation_deadline", nullable = false)
     private LocalDate cancellationDeadline;
-
     @Column(name = "credit_limit", nullable = false)
     private BigDecimal creditLimit = new BigDecimal("5000000.00");
-
     @Column(name = "personal_pin_hash", nullable = false)
     private String personalPinHash;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Booking getBooking() {
-        return booking;
-    }
-
-    public void setBooking(Booking booking) {
-        this.booking = booking;
-    }
 
     public LocalDate getCheckInDate() {
         return checkInDate;

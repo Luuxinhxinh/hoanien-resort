@@ -36,3 +36,10 @@ logging:
     org.springframework.web: DEBUG
     org.hibernate.SQL: DEBUG
     org.hibernate.orm.jdbc.bind: TRACE
+
+vnpay:
+  tmn-code: 77G0NGGT
+  hash-secret: 4JVVJ2NUMIMEWODNGA3CR8DV52L5PKII
+  pay-url: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
+  return-url: http://localhost:8080/api/v1/payments/vnpay-return
+  api-version: 2.1.0

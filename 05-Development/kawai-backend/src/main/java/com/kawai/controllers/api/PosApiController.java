@@ -36,10 +36,34 @@ public class PosApiController {
     @Autowired
     private EmployeeRepository employeeRepository;
 
+    @Autowired
+    private AccountRepository accountRepository;
+
+    @Autowired
+    private CustomerRepository customerRepository;
+
+    @Autowired
+    private RoomBookingRepository roomBookingRepository;
+
     @PostMapping("/orders")
-    public ResponseEntity<?> createOrder(@RequestBody CreateFoodOrderRequest request) {
+    public ResponseEntity<?> createOrder(@RequestBody CreateFoodOrderRequest request, java.security.Principal principal) {
         try {
             FoodOrder order = new FoodOrder();
+
+            Account userAccount = null;
+            if (principal != null) {
+                String identifier = principal.getName();
+                if (principal instanceof org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken) {
+                    org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken oauthToken = 
+                        (org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken) principal;
+                    identifier = oauthToken.getPrincipal().getAttribute("email");
+                }
+                if (identifier != null) {
+                    userAccount = accountRepository.findByUsername(identifier).orElse(null);
+                }
+            }
+
+            Booking activeBooking = null;
 
             // Mapping order type
             if ("room-svc".equals(request.getOrderType())) {
@@ -48,7 +72,13 @@ public class PosApiController {
                 if (roomOpt.isPresent() && roomOpt.get().getCurrentBookingDetailId() != null) {
                     Optional<RoomBookingDetail> detailOpt = roomBookingDetailRepository
                             .findById(roomOpt.get().getCurrentBookingDetailId());
-                    detailOpt.ifPresent(order::setRoomBookingDetail);
+                    if (detailOpt.isPresent()) {
+                        RoomBookingDetail detail = detailOpt.get();
+                        order.setRoomBookingDetail(detail);
+                        if (detail.getRoomBooking() != null) {
+                            activeBooking = detail.getRoomBooking();
+                        }
+                    }
                 }
             } else {
                 order.setOrderType("Dine In");
@@ -58,9 +88,32 @@ public class PosApiController {
                 }
             }
 
+            // Fallback: if activeBooking is still null, look up user's active/latest booking
+            if (activeBooking == null && userAccount != null) {
+                Customer customer = customerRepository.findByAccount_Username(userAccount.getUsername()).orElse(null);
+                if (customer != null) {
+                    java.util.List<RoomBooking> rbs = roomBookingRepository.findByCustomerOrderByBookingDateDesc(customer);
+                    if (!rbs.isEmpty()) {
+                        activeBooking = rbs.stream()
+                            .filter(rb -> "Checked_In".equals(rb.getBookingStatus()) || 
+                                           "Confirmed".equals(rb.getBookingStatus()))
+                            .findFirst()
+                            .orElse(rbs.get(rbs.size() - 1));
+                    }
+                }
+            }
+
+            if (activeBooking != null) {
+                order.setBooking(activeBooking);
+            }
+
             order.setOrderStatus("Pending");
             order.setPaymentType(request.getPaymentType() != null ? request.getPaymentType() : "Pay_Later");
-            order.setIsPaidInPos(false);
+            if ("ONLINE".equalsIgnoreCase(request.getPaymentType())) {
+                order.setIsPaidInPos(true);
+            } else {
+                order.setIsPaidInPos(false);
+            }
             order.setNote(request.getNote());
 
             // Mock createdByStaff to Employee ID 2 (Trần Phương)

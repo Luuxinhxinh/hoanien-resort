@@ -784,13 +784,47 @@
             const lang = document.documentElement.lang || 'vi';
             const tourInfo = tourData[currentTour];
 
-            const fullName = document.getElementById('fullName').value;
-            const email = document.getElementById('email').value;
-            const phone = document.getElementById('phone').value;
+            const fullName = document.getElementById('fullName').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const phone = document.getElementById('phone').value.trim();
             const departureDate = document.getElementById('departureDate').value;
             const participantCount = parseInt(document.getElementById('participantCount').value) || 1;
             const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
-            const roomNumber = document.getElementById('roomNumber') ? document.getElementById('roomNumber').value : null;
+            const roomNumber = document.getElementById('roomNumber') ? document.getElementById('roomNumber').value.trim() : null;
+
+            // 1. Validate Full Name
+            const nameRegex = /^[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂÂÊÔƠƯưăâêôơư\s]{2,}(?:\s+[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂÂÊÔƠƯưăâêôơư\s]+)+$/;
+            if (!nameRegex.test(fullName)) {
+                alert(lang === 'vi' ? 'Họ và tên không hợp lệ. Vui lòng nhập cả họ và tên (tối thiểu 2 từ, chỉ chứa chữ và khoảng trắng).' : 'Invalid Full Name. Please enter at least 2 words containing letters and spaces only.');
+                return;
+            }
+
+            // 2. Validate Phone Number
+            const phoneRegex = /^(0[35789])[0-9]{8}$/;
+            if (!phoneRegex.test(phone)) {
+                alert(lang === 'vi' ? 'Số điện thoại không hợp lệ. Vui lòng nhập số điện thoại Việt Nam (10 chữ số, bắt đầu bằng 03, 05, 07, 08 hoặc 09).' : 'Invalid phone number. Please enter a valid Vietnamese phone number (10 digits starting with 03, 05, 07, 08, 09).');
+                return;
+            }
+
+            // 3. Validate Email
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                alert(lang === 'vi' ? 'Email không đúng định dạng. Vui lòng nhập lại.' : 'Invalid email format. Please enter a valid email.');
+                return;
+            }
+
+            // 4. Validate Room Number if post-to-room is selected
+            if (paymentMethod === 'post-room') {
+                if (!roomNumber) {
+                    alert(lang === 'vi' ? 'Vui lòng điền số phòng để ghi nợ dịch vụ.' : 'Please fill in your room number to charge to room.');
+                    return;
+                }
+                const roomRegex = /^[0-9]+$/;
+                if (!roomRegex.test(roomNumber)) {
+                    alert(lang === 'vi' ? 'Số phòng không hợp lệ. Vui lòng chỉ nhập số.' : 'Invalid room number. Please enter digits only.');
+                    return;
+                }
+            }
 
             const btn = this.querySelector('button[type="submit"]');
             const originalText = btn.innerHTML;
@@ -898,6 +932,15 @@
         // Initialize view
         document.addEventListener('DOMContentLoaded', () => {
             renderTour();
+            if (customerName && document.getElementById('fullName')) {
+                document.getElementById('fullName').value = customerName;
+            }
+            if (customerEmail && document.getElementById('email')) {
+                document.getElementById('email').value = customerEmail;
+            }
+            if (customerPhone && document.getElementById('phone')) {
+                document.getElementById('phone').value = customerPhone;
+            }
         });
     </script>
 </body>

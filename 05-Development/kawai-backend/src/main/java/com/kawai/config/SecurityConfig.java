@@ -1,10 +1,13 @@
 package com.kawai.config;
 
 import java.io.IOException;
-
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
+import com.kawai.models.Account;
+import com.kawai.services.impl.CustomOAuth2UserService;
+import com.kawai.services.impl.OAuthAccountService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -24,6 +27,18 @@ public class SecurityConfig {
     @Autowired
     private UserDetailsService userDetailsService;
 
+    @Autowired
+    private com.kawai.repositories.AuthorizedDeviceRepository authorizedDeviceRepository;
+
+    @Autowired
+    private com.kawai.repositories.AccountRepository accountRepository;
+
+    @Autowired
+    private CustomOAuth2UserService customOAuth2UserService;
+
+    @Autowired
+    private OAuthAccountService oAuthAccountService;
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -42,24 +57,20 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        // --- 🟨 CẤU HÌNH BẢO MẬT: CHẶN ĐĂNG NHẬP STAFF TỪ IP LẠ ---
-                        // Chỉ máy nằm trong mạng nội bộ (ví dụ: 192.168.1.0 đến 192.168.1.255) mới được
-                        // truy cập cổng ops-login
-                        // Thay vì dùng .hasIpAddress("192.168.1.0/24")
                         .requestMatchers("/ops-login")
                         .access(new org.springframework.security.web.access.expression.WebExpressionAuthorizationManager(
                                 "hasIpAddress('192.168.1.0/24')"))
 
-                        // Các URL public còn lại của hệ thống (giữ nguyên của bạn)
-                        .requestMatchers("/", "/booking", "/auth/register", "/auth/login",
+                        .requestMatchers("/", "/booking", "/auth/register", "/auth/login", "/auth/check-session",
+                                "/auth/google-login",
                                 "/h2-console/**", "/css/**", "/js/**", "/guest/**", "/living", "/wellbeing", "/dining",
                                 "/experiences", "/tours", "/tours/**", "/profile", "/order-food", "/AnhTour/**",
                                 "/fbStaff/**", "/f&bStaff/**", "/api/menu-items/**", "/api/rooms/**", "/api/pos/**",
                                 "/api/bookings", "/api/bookings/**",
-                                "/api/tour-bookings", "/api/tour-bookings/**", "/api/faceid/**", "/error")
+                                "/api/tour-bookings", "/api/tour-bookings/**", "/api/faceid/**", "/error",
+                                "/api/v1/payments/vnpay-return", "/api/v1/payments/vnpay-ipn")
                         .permitAll()
 
-                        // Phân quyền các Role hệ thống (giữ nguyên của bạn)
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/manager/**").hasRole("MANAGER")
                         .requestMatchers("/staff/**").hasAnyRole("ADMIN", "STAFF")
@@ -68,22 +79,107 @@ public class SecurityConfig {
                         .anyRequest().authenticated())
 
                 .headers(headers -> headers.frameOptions(frame -> frame.disable()))
+
                 .formLogin(form -> form
                         .loginPage("/ops-login")
                         .loginProcessingUrl("/auth/login")
                         .successHandler(roleBasedSuccessHandler())
-                        .failureUrl("/ops-login?error=true")
+                        .failureHandler(authenticationFailureHandler())
                         .permitAll())
+
                 .oauth2Login(oauth2 -> oauth2
                         .loginPage("/booking")
-                        .defaultSuccessUrl("/", true))
+                        .userInfoEndpoint(userInfo -> userInfo
+                                .userService(customOAuth2UserService))
+                        .successHandler((request, response, authentication) -> {
+                            org.springframework.security.oauth2.core.user.OAuth2User oauthUser = (org.springframework.security.oauth2.core.user.OAuth2User) authentication
+                                    .getPrincipal();
+
+                            String email = oauthUser.getAttribute("email");
+                            String fullName = oauthUser.getAttribute("name");
+
+                            if (email != null) {
+                                // Đảm bảo account tồn tại qua service tách riêng có @Transactional
+                                Account account = oAuthAccountService.findOrCreateOAuthAccount(email, fullName);
+                                if (account != null) {
+                                    request.getSession().setAttribute("user", account);
+                                }
+                            }
+
+                            // Redirect về trang trước đó (Cookie/Session/Referer), nếu không có thì về /booking
+                            String savedRequest = null;
+                            jakarta.servlet.http.Cookie[] cookies = request.getCookies();
+                            if (cookies != null) {
+                                for (jakarta.servlet.http.Cookie cookie : cookies) {
+                                    if ("OAUTH2_REDIRECT_URI".equals(cookie.getName())) {
+                                        savedRequest = cookie.getValue();
+                                        // Clear the cookie
+                                        cookie.setMaxAge(0);
+                                        cookie.setPath("/");
+                                        response.addCookie(cookie);
+                                        break;
+                                    }
+                                }
+                            }
+
+                            if (savedRequest == null) {
+                                jakarta.servlet.http.HttpSession session = request.getSession(false);
+                                savedRequest = (session != null)
+                                    ? (String) session.getAttribute("OAUTH2_REDIRECT_URI") : null;
+                                if (savedRequest != null && session != null) {
+                                    session.removeAttribute("OAUTH2_REDIRECT_URI");
+                                }
+                            }
+
+                            if (savedRequest != null && !savedRequest.trim().isEmpty()) {
+                                response.sendRedirect(savedRequest);
+                            } else {
+                                String referer = request.getHeader("Referer");
+                                if (referer != null && !referer.trim().isEmpty()
+                                        && !referer.contains("/oauth2/")
+                                        && !referer.contains("/login")) {
+                                    response.sendRedirect(referer);
+                                } else {
+                                    response.sendRedirect("/booking");
+                                }
+                            }
+                        }))
+
                 .logout(logout -> logout
                         .logoutUrl("/auth/logout")
-                        .logoutSuccessUrl("/")
+                        .logoutSuccessHandler(logoutSuccessHandler())
                         .permitAll());
 
         http.authenticationProvider(authenticationProvider());
         return http.build();
+    }
+
+    @Bean
+    public org.springframework.security.web.authentication.AuthenticationFailureHandler authenticationFailureHandler() {
+        return (request, response, exception) -> {
+            String referer = request.getHeader("Referer");
+            if (referer != null && !referer.trim().isEmpty() && !referer.contains("/ops-login")) {
+                if (referer.contains("?")) {
+                    response.sendRedirect(referer + "&login_error=true");
+                } else {
+                    response.sendRedirect(referer + "?login_error=true");
+                }
+            } else {
+                response.sendRedirect("/ops-login?error=true");
+            }
+        };
+    }
+
+    @Bean
+    public org.springframework.security.web.authentication.logout.LogoutSuccessHandler logoutSuccessHandler() {
+        return (request, response, authentication) -> {
+            String referer = request.getHeader("Referer");
+            if (referer != null && !referer.trim().isEmpty()) {
+                response.sendRedirect(referer);
+            } else {
+                response.sendRedirect("/");
+            }
+        };
     }
 
     @Bean
@@ -92,43 +188,75 @@ public class SecurityConfig {
             @Override
             public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                     Authentication authentication) throws IOException, ServletException {
-                
-                String redirectTo = request.getParameter("redirect_to");
-                if (redirectTo != null && !redirectTo.trim().isEmpty()) {
-                    response.sendRedirect(redirectTo);
-                    return;
-                }
 
-                String referer = request.getHeader("Referer");
-                if (referer != null && referer.contains("/order-food")) {
-                    response.sendRedirect("/order-food");
-                    return;
-                }
-
-                String redirect = "/";
+                boolean isOpsUser = false;
                 for (var authz : authentication.getAuthorities()) {
                     String role = authz.getAuthority();
-                    if (role.equals("ROLE_ADMIN")) {
-                        redirect = "/admin/dashboard";
-                        break;
-                    } else if (role.equals("ROLE_MANAGER")) {
-                        redirect = "/manager/dashboard";
-                        break;
-                    } else if (role.equals("ROLE_RECEPTIONIST") || role.equals("ROLE_STAFF")) {
-                        redirect = "/receptionist/dashboard";
-                        break;
-                    } else if (role.equals("ROLE_FB_STAFF")) {
-                        redirect = "/fbStaff/dashboard";
-                        break;
-                    } else if (role.equals("ROLE_TOURGUIDE")) {
-                        redirect = "/tourguide/dashboard";
-                        break;
-                    } else if (role.equals("ROLE_GUEST") || role.equals("ROLE_CUSTOMER")) {
-                        redirect = "/";
+                    if (role.equals("ROLE_ADMIN") || role.equals("ROLE_MANAGER") ||
+                            role.equals("ROLE_RECEPTIONIST") || role.equals("ROLE_STAFF") ||
+                            role.equals("ROLE_FB_STAFF") || role.equals("ROLE_TOURGUIDE")) {
+                        isOpsUser = true;
                         break;
                     }
                 }
-                response.sendRedirect(redirect);
+
+                if (isOpsUser) {
+                    String deviceId = request.getParameter("device_id");
+                    if (deviceId == null || deviceId.trim().isEmpty()
+                            || !authorizedDeviceRepository.existsByDeviceCodeAndIsApprovedTrue(deviceId)) {
+                        new org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler()
+                                .logout(request, response, authentication);
+                        response.sendRedirect("/ops-login?device_error=true");
+                        return;
+                    }
+
+                    String redirectTo = request.getParameter("redirect_to");
+                    if (redirectTo != null && !redirectTo.trim().isEmpty()) {
+                        response.sendRedirect(redirectTo);
+                        return;
+                    }
+
+                    String redirect = "/";
+                    for (var authz : authentication.getAuthorities()) {
+                        String role = authz.getAuthority();
+                        if (role.equals("ROLE_ADMIN")) {
+                            redirect = "/admin/dashboard";
+                            break;
+                        } else if (role.equals("ROLE_MANAGER")) {
+                            redirect = "/manager/dashboard";
+                            break;
+                        } else if (role.equals("ROLE_RECEPTIONIST") || role.equals("ROLE_STAFF")) {
+                            redirect = "/receptionist/dashboard";
+                            break;
+                        } else if (role.equals("ROLE_FB_STAFF")) {
+                            redirect = "/fbStaff/dashboard";
+                            break;
+                        } else if (role.equals("ROLE_TOURGUIDE")) {
+                            redirect = "/tourguide/dashboard";
+                            break;
+                        }
+                    }
+                    response.sendRedirect(redirect);
+                } else {
+                    // Normal Customer / Guest
+                    Account account = accountRepository.findByUsername(authentication.getName()).orElse(null);
+                    if (account != null) {
+                        request.getSession().setAttribute("user", account);
+                    }
+
+                    String redirectTo = request.getParameter("redirect_to");
+                    if (redirectTo != null && !redirectTo.trim().isEmpty()) {
+                        response.sendRedirect(redirectTo);
+                        return;
+                    }
+
+                    String referer = request.getHeader("Referer");
+                    if (referer != null && !referer.trim().isEmpty() && !referer.contains("/ops-login") && !referer.contains("/auth/login")) {
+                        response.sendRedirect(referer);
+                        return;
+                    }
+                    response.sendRedirect("/booking");
+                }
             }
         };
     }

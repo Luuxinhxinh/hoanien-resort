@@ -125,19 +125,14 @@ class CheckinServiceUC12Test {
         sampleCustomer.setLoyaltyPoints(0);
         sampleCustomer.setMembershipTier("Regular");
 
-        // Booking parent
-        Booking parentBooking = new Booking();
-        parentBooking.setId(1000L);
-        parentBooking.setCustomer(sampleCustomer);
-        parentBooking.setBookingDate(LocalDate.of(2026, 6, 10));
-        parentBooking.setTotalPrice(new BigDecimal("10000000"));
-        parentBooking.setBookingStatus("CONFIRMED");
-        parentBooking.setBookingSource("Direct_Web");
-
         // RoomBooking mẫu
         sampleRoomBooking = new RoomBooking();
         sampleRoomBooking.setId(1000L);
-        sampleRoomBooking.setBooking(parentBooking);
+        sampleRoomBooking.setCustomer(sampleCustomer);
+        sampleRoomBooking.setBookingDate(LocalDate.of(2026, 6, 10));
+        sampleRoomBooking.setTotalPrice(new BigDecimal("10000000"));
+        sampleRoomBooking.setBookingStatus("CONFIRMED");
+        sampleRoomBooking.setBookingSource("Direct_Web");
         sampleRoomBooking.setCheckInDate(LocalDate.of(2026, 6, 15));
         sampleRoomBooking.setCheckOutDate(LocalDate.of(2026, 6, 20));
         sampleRoomBooking.setDepositAmount(new BigDecimal("5000000"));

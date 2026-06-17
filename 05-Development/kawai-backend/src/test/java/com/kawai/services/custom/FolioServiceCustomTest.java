@@ -68,10 +68,8 @@ public class FolioServiceCustomTest {
 
     @Test
     void testPerformNightAudit() {
-        Booking parentBooking = new Booking();
-        parentBooking.setCustomer(new Customer());
         RoomBooking roomBooking = new RoomBooking();
-        roomBooking.setBooking(parentBooking);
+        roomBooking.setCustomer(new Customer());
 
         RoomBookingDetail detail = new RoomBookingDetail();
         detail.setDetailStatus("CHECKED_IN");
@@ -107,10 +105,8 @@ public class FolioServiceCustomTest {
 
     @Test
     void testCheckOutAndSettle_ZeroBalance_Success() {
-        Booking parentBooking = new Booking();
-        parentBooking.setCustomer(new Customer());
         RoomBooking roomBooking = new RoomBooking();
-        roomBooking.setBooking(parentBooking);
+        roomBooking.setCustomer(new Customer());
 
         RoomBookingDetail detail = new RoomBookingDetail();
         detail.setId(1L);

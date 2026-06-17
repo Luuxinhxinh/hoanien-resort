@@ -191,8 +191,8 @@ public class KdsServiceImpl implements KdsService {
             folioItem.setSourceDepartment("POS");
             folioItem.setAmount(total);
             folioItem.setDescription("Ăn uống Room Service - Order #" + order.getId());
-            folioItem.setPayerCustomer(roomDetail.getRoomBooking().getBooking().getCustomer());
-            folioItem.setBooking(roomDetail.getRoomBooking().getBooking());
+            folioItem.setPayerCustomer(roomDetail.getRoomBooking().getCustomer());
+            folioItem.setBooking(roomDetail.getRoomBooking());
             folioItemRepository.save(folioItem);
         }
 

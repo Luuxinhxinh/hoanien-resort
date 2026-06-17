@@ -45,13 +45,37 @@ public class RoomServiceImpl implements RoomService {
         LocalDate checkIn = request.getCheckInDate();
         LocalDate checkOut = request.getCheckOutDate();
 
+        // ── Input Validation ───────────────────────────────────────────────
+        if (checkIn == null || checkOut == null) {
+            throw new IllegalArgumentException("Check-in and check-out dates must not be null");
+        }
+        if (checkIn.isBefore(LocalDate.now())) {
+            throw new IllegalArgumentException("Check-in date cannot be in the past");
+        }
+        if (checkIn.isAfter(checkOut) || checkIn.equals(checkOut)) {
+            throw new IllegalArgumentException("Check-in date must be before check-out date");
+        }
+        if (request.getMinCapacity() != null && request.getMinCapacity() < 0) {
+            throw new IllegalArgumentException("Min capacity must be non-negative");
+        }
+        if (request.getMaxPricePerNight() != null
+                && request.getMaxPricePerNight().compareTo(java.math.BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Max price per night must be non-negative");
+        }
+        if (request.getPage() != null && request.getPage() < 0) {
+            throw new IllegalArgumentException("Page index must be non-negative");
+        }
+        if (request.getSize() != null && request.getSize() <= 0) {
+            throw new IllegalArgumentException("Page size must be positive");
+        }
+
         List<Room> allRooms = roomRepository.findAll();
         List<RoomSearchResponseDTO> available = new ArrayList<>();
 
         for (Room room : allRooms) {
-            // Filter out rooms under maintenance
+            // Filter out rooms under maintenance, out of service, or currently occupied
             String status = room.getRoomStatus();
-            if ("Maintenance".equalsIgnoreCase(status) || "OutOfService".equalsIgnoreCase(status)) {
+            if ("Maintenance".equalsIgnoreCase(status) || "OutOfService".equalsIgnoreCase(status) || "Occupied".equalsIgnoreCase(status)) {
                 continue;
             }
 
@@ -78,12 +102,24 @@ public class RoomServiceImpl implements RoomService {
                 available.add(toSearchResult(room, checkIn, checkOut));
             }
         }
+
+        // ── Pagination ─────────────────────────────────────────────────────
+        if (request.getPage() != null && request.getSize() != null) {
+            int page = request.getPage();
+            int size = request.getSize();
+            return available.stream()
+                    .skip((long) page * size)
+                    .limit(size)
+                    .toList();
+        }
+
         return available;
     }
 
     /**
      * Lấy sơ đồ phòng (Room Matrix) thời gian thực cho Front Desk Dashboard.
-     * Cung cấp cái nhìn tổng quan về trạng thái phòng, giá trị và thông tin cơ bản (UC11).
+     * Cung cấp cái nhìn tổng quan về trạng thái phòng, giá trị và thông tin cơ bản
+     * (UC11).
      * 
      * @return Danh sách RoomDashboardDTO, rỗng nếu không có dữ liệu
      */
@@ -138,6 +174,19 @@ public class RoomServiceImpl implements RoomService {
             dto.setCategoryName(cat.getCategoryName());
             dto.setPricePerNight(cat.getBasePrice().setScale(0, java.math.RoundingMode.HALF_UP));
             dto.setCapacity(cat.getCapacity());
+
+            dto.setBaseAdults(cat.getBaseAdults());
+            dto.setBaseChildren(cat.getBaseChildren());
+            dto.setMaxAdults(cat.getMaxAdults());
+            dto.setMaxChildren(cat.getMaxChildren());
+            dto.setExtraAdultSurcharge(cat.getExtraAdultSurcharge());
+            dto.setExtraChildSurcharge(cat.getExtraChildSurcharge());
+
+            dto.setDescription(cat.getDescription());
+            dto.setBeds(null);
+            dto.setSize(null);
+            dto.setView(null);
+            dto.setAmenities(new java.util.ArrayList<>());
         }
         return dto;
     }

@@ -2,6 +2,7 @@ package com.kawai.services.interfaces;
 
 import com.kawai.dto.BookingRequestDTO;
 import com.kawai.dto.BookingResponseDTO;
+import com.kawai.dto.BookingDetailResponseDTO;
 import com.kawai.exceptions.RoomNotAvailableException;
 
 import java.math.BigDecimal;
@@ -38,5 +39,22 @@ public interface BookingService {
      * @param bookingId ID của booking cần hủy
      * @return Số tiền hoàn lại (0 nếu hủy trong 48h — BR-FIN-02)
      */
-    BigDecimal cancelBooking(Long bookingId);
+    BookingResponseDTO cancelBooking(Long bookingId, Long customerId);
+
+    /**
+     * Lấy chi tiết booking (UC10.1).
+     */
+    BookingDetailResponseDTO getBookingDetail(Long bookingId, Long customerId);
+
+    /**
+     * Áp dụng mã coupon cho booking (UC10.2).
+     */
+    BigDecimal applyCoupon(Long bookingId, String couponCode, Long customerId);
+
+    /**
+     * Xác nhận thanh toán và cập nhật thông tin khách hàng (UC10).
+     */
+    void confirmBooking(Long bookingId, Long customerId, String fullName, String phone, String email, String cccd, String notes);
+
+
 }

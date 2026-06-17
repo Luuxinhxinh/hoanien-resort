@@ -22,6 +22,57 @@ public class RoomCategory {
 
     @Column(columnDefinition = "TEXT")
     private String description;
+    @Column(name = "base_adults", nullable = false)
+    private Integer baseAdults = 2;
+
+    @Column(name = "base_children", nullable = false)
+    private Integer baseChildren = 0;
+
+    @Column(name = "max_adults", nullable = false)
+    private Integer maxAdults = 2;
+
+    @Column(name = "max_children", nullable = false)
+    private Integer maxChildren = 1;
+    @Column(name = "cover_img_url", length = 500)
+    private String coverImgUrl;
+
+    @Column(name = "extra_adult_surcharge")
+    private BigDecimal extraAdultSurcharge;
+
+    @Column(name = "extra_child_surcharge")
+    private BigDecimal extraChildSurcharge;
+
+    public Integer getBaseAdults() {
+        return baseAdults;
+    }
+
+    public void setBaseAdults(Integer baseAdults) {
+        this.baseAdults = baseAdults;
+    }
+
+    public Integer getBaseChildren() {
+        return baseChildren;
+    }
+
+    public void setBaseChildren(Integer baseChildren) {
+        this.baseChildren = baseChildren;
+    }
+
+    public Integer getMaxAdults() {
+        return maxAdults;
+    }
+
+    public void setMaxAdults(Integer maxAdults) {
+        this.maxAdults = maxAdults;
+    }
+
+    public Integer getMaxChildren() {
+        return maxChildren;
+    }
+
+    public void setMaxChildren(Integer maxChildren) {
+        this.maxChildren = maxChildren;
+    }
 
     public Long getId() {
         return id;
@@ -61,5 +112,29 @@ public class RoomCategory {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getCoverImgUrl() {
+        return coverImgUrl;
+    }
+
+    public void setCoverImgUrl(String coverImgUrl) {
+        this.coverImgUrl = coverImgUrl;
+    }
+
+    public BigDecimal getExtraAdultSurcharge() {
+        return extraAdultSurcharge;
+    }
+
+    public void setExtraAdultSurcharge(BigDecimal extraAdultSurcharge) {
+        this.extraAdultSurcharge = extraAdultSurcharge;
+    }
+
+    public BigDecimal getExtraChildSurcharge() {
+        return extraChildSurcharge;
+    }
+
+    public void setExtraChildSurcharge(BigDecimal extraChildSurcharge) {
+        this.extraChildSurcharge = extraChildSurcharge;
     }
 }

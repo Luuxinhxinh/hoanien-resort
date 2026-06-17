@@ -35,7 +35,8 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public boolean register(String username, String password, String email, String fullName, String gender, String phone) {
+    public boolean register(String username, String password, String email, String fullName, String gender,
+            String phone) {
         if (accountRepository.existsByUsername(username) || customerRepository.existsByEmail(email)) {
             return false;
         }
@@ -44,9 +45,9 @@ public class AuthServiceImpl implements AuthService {
             throw new IllegalArgumentException("AUTH-001: Mật khẩu không đủ mạnh");
         }
 
-        Role customerRole = roleRepository.findByRoleName("CUSTOMER").orElseGet(() -> {
+        Role customerRole = roleRepository.findByRoleName("CUSTOMER NORMAL").orElseGet(() -> {
             Role newRole = new Role();
-            newRole.setRoleName("CUSTOMER");
+            newRole.setRoleName("CUSTOMER NORMAL");
             return roleRepository.save(newRole);
         });
 
@@ -98,7 +99,8 @@ public class AuthServiceImpl implements AuthService {
                 account.setLockoutTime(LocalDateTime.now().plusMinutes(15));
             }
             accountRepository.save(account);
-            writeAuditLog(account, "LOGIN_FAIL", "Accounts", account.getId(), null, "Login failed. Attempt: " + attempts);
+            writeAuditLog(account, "LOGIN_FAIL", "Accounts", account.getId(), null,
+                    "Login failed. Attempt: " + attempts);
             return false;
         }
     }
@@ -136,7 +138,8 @@ public class AuthServiceImpl implements AuthService {
             account.setTwoFactorCode(null);
             account.setTwoFactorExpiry(null);
             accountRepository.save(account);
-            writeAuditLog(account, "VERIFY_OTP_SUCCESS", "Accounts", account.getId(), null, "OTP verified successfully");
+            writeAuditLog(account, "VERIFY_OTP_SUCCESS", "Accounts", account.getId(), null,
+                    "OTP verified successfully");
             return true;
         } else {
             writeAuditLog(account, "VERIFY_OTP_FAIL", "Accounts", account.getId(), null, "OTP verification failed");
@@ -172,7 +175,8 @@ public class AuthServiceImpl implements AuthService {
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Token reset hết hạn hoặc không hợp lệ"));
 
-        if (account.getResetPasswordExpiry() == null || account.getResetPasswordExpiry().isBefore(LocalDateTime.now())) {
+        if (account.getResetPasswordExpiry() == null
+                || account.getResetPasswordExpiry().isBefore(LocalDateTime.now())) {
             throw new IllegalStateException("Token reset hết hạn hoặc không hợp lệ");
         }
 
@@ -190,24 +194,30 @@ public class AuthServiceImpl implements AuthService {
         account.setResetPasswordExpiry(null);
         accountRepository.save(account);
 
-        writeAuditLog(account, "RESET_PASSWORD_SUCCESS", "Accounts", account.getId(), oldHash, "Password reset successfully");
+        writeAuditLog(account, "RESET_PASSWORD_SUCCESS", "Accounts", account.getId(), oldHash,
+                "Password reset successfully");
         return true;
     }
 
     private boolean isValidPassword(String password) {
-        if (password == null || password.length() < 8) return false;
+        if (password == null || password.length() < 8)
+            return false;
         boolean hasUpper = false;
         boolean hasLower = false;
         boolean hasDigit = false;
         for (char c : password.toCharArray()) {
-            if (Character.isUpperCase(c)) hasUpper = true;
-            if (Character.isLowerCase(c)) hasLower = true;
-            if (Character.isDigit(c)) hasDigit = true;
+            if (Character.isUpperCase(c))
+                hasUpper = true;
+            if (Character.isLowerCase(c))
+                hasLower = true;
+            if (Character.isDigit(c))
+                hasDigit = true;
         }
         return hasUpper && hasLower && hasDigit;
     }
 
-    private void writeAuditLog(Account account, String action, String tableName, Long recordId, String oldValue, String newValue) {
+    private void writeAuditLog(Account account, String action, String tableName, Long recordId, String oldValue,
+            String newValue) {
         AuditLog log = new AuditLog();
         log.setAccount(account);
         log.setAction(action);

@@ -28,6 +28,8 @@ public class Promotion {
     private Integer currentUses = 0;
     @Column(name = "is_active", nullable = false)
     private Boolean isActive = true;
+    @Column(name = "description", length = 1000)
+    private String description;
 
     public Long getId() {
         return id;
@@ -99,5 +101,13 @@ public class Promotion {
 
     public void setIsActive(Boolean v) {
         this.isActive = v;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

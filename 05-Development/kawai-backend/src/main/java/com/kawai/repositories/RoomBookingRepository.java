@@ -10,8 +10,13 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
+import com.kawai.models.Customer;
+
 @Repository
 public interface RoomBookingRepository extends JpaRepository<RoomBooking, Long> {
+       List<RoomBooking> findByCustomerOrderByBookingDateDesc(Customer customer);
+
+       java.util.Optional<RoomBooking> findByIdAndCustomerId(Long id, Long customerId);
 
        @Query("SELECT COALESCE(SUM(rb.depositAmount), 0) FROM RoomBooking rb WHERE rb.checkInDate >= :since")
        BigDecimal totalDepositsSince(LocalDate since);
@@ -23,14 +28,33 @@ public interface RoomBookingRepository extends JpaRepository<RoomBooking, Long> 
        List<RoomBooking> findCheckOutsBetween(@Param("start") LocalDate start, @Param("end") LocalDate end);
 
        @Query("SELECT COUNT(rbd) FROM RoomBookingDetail rbd " +
-              "WHERE rbd.room.roomNumber = :roomNumber " +
-              "AND rbd.roomBooking.checkInDate < :checkOut " +
-              "AND rbd.roomBooking.checkOutDate > :checkIn " +
-              "AND rbd.roomBooking.booking.bookingStatus != 'CANCELLED'")
+                     "WHERE rbd.room.roomNumber = :roomNumber " +
+                     "AND rbd.roomBooking.checkInDate < :checkOut " +
+                     "AND rbd.roomBooking.checkOutDate > :checkIn " +
+                     "AND rbd.roomBooking.bookingStatus != 'CANCELLED'")
        long countOverlappingBookings(@Param("roomNumber") String roomNumber,
-                                     @Param("checkIn") LocalDate checkIn,
-                                     @Param("checkOut") LocalDate checkOut);
+                     @Param("checkIn") LocalDate checkIn,
+                     @Param("checkOut") LocalDate checkOut);
 
-       @Query("SELECT rb FROM RoomBooking rb WHERE rb.booking.customer = :customer")
-       List<RoomBooking> findByCustomer(@Param("customer") com.kawai.models.Customer customer);
+       /**
+        * Đếm booking trùng ngày cho 1 phòng cụ thể, bỏ qua booking của chính mình
+        * (excludeBookingId).
+        * Dùng trong createBooking() để kiểm tra phòng đã bị booking/HOLD bởi người
+        * khác chưa.
+        * Status HOLD và CONFIRMED đều được đếm (chỉ bỏ CANCELLED).
+        */
+       @Query("SELECT COUNT(rbd) FROM RoomBookingDetail rbd " +
+                     "WHERE rbd.room.roomNumber = :roomNumber " +
+                     "AND rbd.roomBooking.checkInDate < :checkOut " +
+                     "AND rbd.roomBooking.checkOutDate > :checkIn " +
+                     "AND rbd.roomBooking.bookingStatus != 'CANCELLED' " +
+                     "AND rbd.roomBooking.id != :excludeBookingId")
+       long countOverlappingBookingsByRoom(
+                     @Param("roomNumber") String roomNumber,
+                     @Param("checkIn") LocalDate checkIn,
+                     @Param("checkOut") LocalDate checkOut,
+                     @Param("excludeBookingId") Long excludeBookingId);
+
+       @Query("SELECT rb FROM RoomBooking rb WHERE rb.bookingStatus = 'HOLD' AND rb.holdExpiresAt <= :now")
+       List<RoomBooking> findStaleHolds(@Param("now") java.time.LocalDateTime now);
 }

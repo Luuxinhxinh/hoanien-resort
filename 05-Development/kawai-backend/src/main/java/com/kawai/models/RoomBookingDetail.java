@@ -44,6 +44,19 @@ public class RoomBookingDetail {
     @Column(name = "billing_routing_strategy", nullable = false)
     private String billingRoutingStrategy = "BILL_TO_LEADER";
 
+    @Column(name = "number_of_adults")
+    private Integer numberOfAdults;
+
+    @Column(name = "number_of_children")
+    private Integer numberOfChildren;
+
+    @Column(name = "extra_surcharge")
+    private BigDecimal extraSurcharge;
+
+    @ManyToOne
+    @JoinColumn(name = "customer_id")
+    private Customer customer;
+
     // Getters and Setters
     public Long getId() {
         return id;
@@ -131,5 +144,37 @@ public class RoomBookingDetail {
 
     public void setBillingRoutingStrategy(String v) {
         this.billingRoutingStrategy = v;
+    }
+
+    public Integer getNumberOfAdults() {
+        return numberOfAdults;
+    }
+
+    public void setNumberOfAdults(Integer numberOfAdults) {
+        this.numberOfAdults = numberOfAdults;
+    }
+
+    public Integer getNumberOfChildren() {
+        return numberOfChildren;
+    }
+
+    public void setNumberOfChildren(Integer numberOfChildren) {
+        this.numberOfChildren = numberOfChildren;
+    }
+
+    public BigDecimal getExtraSurcharge() {
+        return extraSurcharge;
+    }
+
+    public void setExtraSurcharge(BigDecimal extraSurcharge) {
+        this.extraSurcharge = extraSurcharge;
+    }
+
+    public Customer getCustomer() {
+        return customer;
+    }
+
+    public void setCustomer(Customer customer) {
+        this.customer = customer;
     }
 }

@@ -65,6 +65,7 @@ public class GuestServicesIntegrationTest {
     @Test
     void testEditProfile_WithNewCccd_ShouldEncrypt() {
         when(authentication.getName()).thenReturn("guest_user");
+        when(authentication.isAuthenticated()).thenReturn(true);
         when(customerRepository.findByAccount_Username("guest_user")).thenReturn(Optional.of(mockCustomer));
 
         String result = profileController.editProfile(
@@ -92,6 +93,7 @@ public class GuestServicesIntegrationTest {
     void testEditProfile_WithPlaceholderCccd_ShouldNotEncryptOrChange() {
         mockCustomer.setCccdPassportEncrypted(EncryptionUtils.encrypt("123456789012"));
         when(authentication.getName()).thenReturn("guest_user");
+        when(authentication.isAuthenticated()).thenReturn(true);
         when(customerRepository.findByAccount_Username("guest_user")).thenReturn(Optional.of(mockCustomer));
 
         String result = profileController.editProfile(
