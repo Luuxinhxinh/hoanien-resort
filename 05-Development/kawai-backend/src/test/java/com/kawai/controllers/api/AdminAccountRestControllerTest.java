@@ -10,6 +10,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.security.core.userdetails.UserDetailsService;
 
 import java.math.BigDecimal;
 
@@ -32,6 +33,25 @@ public class AdminAccountRestControllerTest {
 
     @MockBean
     private com.kawai.repositories.RoleRepository roleRepository;
+
+    // SecurityConfig dependencies
+    @MockBean
+    private UserDetailsService userDetailsService;
+
+    @MockBean
+    private com.kawai.repositories.AuthorizedDeviceRepository authorizedDeviceRepository;
+
+    @MockBean
+    private com.kawai.repositories.AccountRepository accountRepository;
+
+    @MockBean
+    private com.kawai.services.impl.CustomOAuth2UserService customOAuth2UserService;
+
+    @MockBean
+    private com.kawai.services.impl.OAuthAccountService oAuthAccountService;
+
+    @MockBean
+    private com.kawai.config.OAuth2SuccessHandler oAuth2SuccessHandler;
 
     @Autowired
     private ObjectMapper objectMapper;

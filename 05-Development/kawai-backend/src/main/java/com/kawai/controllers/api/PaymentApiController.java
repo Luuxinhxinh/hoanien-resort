@@ -1,4 +1,4 @@
-package com.kawai.controllers;
+package com.kawai.controllers.api;
 
 import com.kawai.services.interfaces.VnPayService;
 import org.springframework.beans.factory.annotation.Autowired;

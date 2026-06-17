@@ -537,7 +537,7 @@
     <!-- ============ INTERACTIVE AND AUTHENTICATION JAVASCRIPT ============ -->
     <script th:inline="javascript">
         // Global variables from Thymeleaf model
-        const isUserLoggedIn = /*[[${isLoggedIn}]]*/ false;
+        const isUserLoggedIn = [[${isLoggedIn}]];
     </script>
     <script src="/guest/js/booking.js"></script>
 

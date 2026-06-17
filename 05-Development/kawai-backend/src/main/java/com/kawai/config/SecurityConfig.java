@@ -39,6 +39,9 @@ public class SecurityConfig {
     @Autowired
     private OAuthAccountService oAuthAccountService;
 
+    @Autowired
+    private OAuth2SuccessHandler oAuth2SuccessHandler;
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -88,71 +91,10 @@ public class SecurityConfig {
                         .permitAll())
 
                 .oauth2Login(oauth2 -> oauth2
-                        .loginPage("/booking")
-                        .userInfoEndpoint(userInfo -> userInfo
-                                .userService(customOAuth2UserService))
-                        .successHandler((request, response, authentication) -> {
-                            org.springframework.security.oauth2.core.user.OAuth2User oauthUser = (org.springframework.security.oauth2.core.user.OAuth2User) authentication
-                                    .getPrincipal();
-
-                            String email = oauthUser.getAttribute("email");
-                            String fullName = oauthUser.getAttribute("name");
-
-                            if (email != null) {
-                                // Đảm bảo account tồn tại qua service tách riêng có @Transactional
-                                Account account = oAuthAccountService.findOrCreateOAuthAccount(email, fullName);
-                                if (account != null) {
-                                    request.getSession().setAttribute("user", account);
-                                }
-                            }
-
-                            // Redirect về trang trước đó (Cookie/Session/Referer), nếu không có thì về /booking
-                            String savedRequest = null;
-                            jakarta.servlet.http.Cookie[] cookies = request.getCookies();
-                            System.out.println(">>> OAuth2 Success Handler triggered. All cookies:");
-                            if (cookies != null) {
-                                for (jakarta.servlet.http.Cookie cookie : cookies) {
-                                    System.out.println("  Cookie: " + cookie.getName() + " = " + cookie.getValue());
-                                    if ("OAUTH2_REDIRECT_URI".equals(cookie.getName())) {
-                                        savedRequest = cookie.getValue();
-                                        System.out.println("  Found OAUTH2_REDIRECT_URI cookie: " + savedRequest);
-                                        // Clear the cookie
-                                        cookie.setMaxAge(0);
-                                        cookie.setPath("/");
-                                        response.addCookie(cookie);
-                                    }
-                                }
-                            }
-
-                            if (savedRequest == null) {
-                                jakarta.servlet.http.HttpSession session = request.getSession(false);
-                                savedRequest = (session != null)
-                                    ? (String) session.getAttribute("OAUTH2_REDIRECT_URI") : null;
-                                System.out.println("  Session check for OAUTH2_REDIRECT_URI: " + savedRequest);
-                                if (savedRequest != null && session != null) {
-                                    session.removeAttribute("OAUTH2_REDIRECT_URI");
-                                }
-                            }
-
-                            System.out.println("  Final savedRequest decided: " + savedRequest);
-
-                            if (savedRequest != null && !savedRequest.trim().isEmpty()) {
-                                System.out.println("  Redirecting to savedRequest: " + savedRequest);
-                                response.sendRedirect(savedRequest);
-                            } else {
-                                String referer = request.getHeader("Referer");
-                                System.out.println("  Referer header: " + referer);
-                                if (referer != null && !referer.trim().isEmpty()
-                                        && !referer.contains("/oauth2/")
-                                        && !referer.contains("/login")) {
-                                    System.out.println("  Redirecting to Referer: " + referer);
-                                    response.sendRedirect(referer);
-                                } else {
-                                    System.out.println("  Redirecting to default /booking");
-                                    response.sendRedirect("/booking");
-                                }
-                            }
-                        }))
+                         .loginPage("/booking")
+                         .userInfoEndpoint(userInfo -> userInfo
+                                 .userService(customOAuth2UserService))
+                         .successHandler(oAuth2SuccessHandler))
 
                 .logout(logout -> logout
                         .logoutUrl("/auth/logout")

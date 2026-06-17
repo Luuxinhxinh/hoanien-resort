@@ -85,17 +85,19 @@ INSERT INTO Dependents (dependent_id, customer_id, dependent_name, birth_date, g
 (10, 13, 'Nguyễn Thanh Hà', '2022-12-25', 'Nữ', NULL);
 
 -- ── 6. Room Categories (10 rows) ─────────────────────────────
-INSERT INTO Room_Categories (category_id, category_name, cover_img_url, base_price, capacity, description) VALUES 
-(1, 'Nipa Pool Villa', 'https://images.unsplash.com/photo-1540541338287-41700207dee6', 2500000, 2, 'Villa thanh tịnh bên hồ sen thơm mát.'),
-(2, 'River Pool Villa', 'https://images.unsplash.com/photo-1566073771259-6a8506099945', 3500000, 3, 'Villa cao cấp ven sông Thu Bồn lộng gió.'),
-(3, 'Wellness Retreats', 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4', 8000000, 4, 'Hành trình tĩnh lặng, chăm sóc sức khoẻ toàn diện.'),
-(4, 'Garden View Suite', 'https://images.unsplash.com/photo-1578683010236-d716f9a3f461', 2000000, 2, 'Suite hướng vườn nhiệt đới xanh mướt.'),
-(5, 'Presidential Ocean Suite', 'https://images.unsplash.com/photo-1590490360182-c33d57733427', 15000000, 6, 'Hạng phòng cao cấp bậc nhất hướng biển.'),
-(6, 'Ocean View Bungalow', 'https://images.unsplash.com/photo-1582719508461-905c673771fd', 3000000, 2, 'Bungalow bãi cát đón gió biển tươi mát.'),
-(7, 'Family Connecting Room', 'https://images.unsplash.com/photo-1568495248636-6432b97bd949', 4500000, 5, 'Phòng thông nhau phù hợp cho cả gia đình.'),
-(8, 'Superior Mountain View', 'https://images.unsplash.com/photo-1596394516093-501ba68a0ba6', 1800000, 2, 'Phòng hướng núi thanh tịnh bình yên.'),
-(9, 'Luxury Penthouse', 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688', 12000000, 4, 'Căn hộ tầng mái đẳng cấp ngắm toàn cảnh resort.'),
-(10, 'Cozy Studio Room', 'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af', 1500000, 2, 'Phòng Studio nhỏ gọn, đầy đủ tiện nghi.');
+-- Columns: category_id, category_name, cover_img_url, base_price, capacity, description,
+--          base_adults, base_children, max_adults, max_children, extra_adult_surcharge, extra_child_surcharge
+INSERT INTO Room_Categories (category_id, category_name, cover_img_url, base_price, capacity, description, base_adults, base_children, max_adults, max_children, extra_adult_surcharge, extra_child_surcharge) VALUES 
+(1,  'Nipa Pool Villa',          'https://images.unsplash.com/photo-1540541338287-41700207dee6', 2500000,  2, 'Villa thanh tịnh bên hồ sen thơm mát.',             2, 0, 3, 1, 500000,  250000),
+(2,  'River Pool Villa',         'https://images.unsplash.com/photo-1566073771259-6a8506099945', 3500000,  3, 'Villa cao cấp ven sông Thu Bồn lộng gió.',          2, 0, 3, 2, 600000,  300000),
+(3,  'Wellness Retreats',        'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4', 8000000,  4, 'Hành trình tĩnh lặng, chăm sóc sức khoẻ toàn diện.', 2, 0, 4, 2, 1000000, 500000),
+(4,  'Garden View Suite',        'https://images.unsplash.com/photo-1578683010236-d716f9a3f461', 2000000,  2, 'Suite hướng vườn nhiệt đới xanh mướt.',             2, 0, 3, 1, 400000,  200000),
+(5,  'Presidential Ocean Suite', 'https://images.unsplash.com/photo-1590490360182-c33d57733427', 15000000, 6, 'Hạng phòng cao cấp bậc nhất hướng biển.',           4, 0, 6, 3, 2000000, 1000000),
+(6,  'Ocean View Bungalow',      'https://images.unsplash.com/photo-1582719508461-905c673771fd', 3000000,  2, 'Bungalow bãi cát đón gió biển tươi mát.',           2, 0, 3, 1, 600000,  300000),
+(7,  'Family Connecting Room',   'https://images.unsplash.com/photo-1568495248636-6432b97bd949', 4500000,  5, 'Phòng thông nhau phù hợp cho cả gia đình.',         2, 2, 4, 4, 500000,  250000),
+(8,  'Superior Mountain View',   'https://images.unsplash.com/photo-1596394516093-501ba68a0ba6', 1800000,  2, 'Phòng hướng núi thanh tịnh bình yên.',              2, 0, 2, 1, 350000,  150000),
+(9,  'Luxury Penthouse',         'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688', 12000000, 4, 'Căn hộ tầng mái đẳng cấp ngắm toàn cảnh resort.',  2, 0, 4, 2, 1500000, 750000),
+(10, 'Cozy Studio Room',         'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af', 1500000,  2, 'Phòng Studio nhỏ gọn, đầy đủ tiện nghi.',          2, 0, 2, 1, 300000,  150000);
 
 -- ── 7. Room Surcharges (10 rows) ─────────────────────────────
 INSERT INTO Room_Surcharges (surcharge_id, category_id, surcharge_type, age_from, age_to, price_modifier, is_active) VALUES 
@@ -205,7 +207,12 @@ INSERT INTO Bookings (booking_id, customer_id, booking_date, total_price, bookin
 (17, 15, '2026-06-12', 2000000, 'Confirmed', 'Direct_Web', NULL, 1),
 (18, 3, '2026-06-12', 15000000, 'Confirmed', 'Direct_Web', NULL, 1),
 (19, 4, '2026-06-12', 3000000, 'Confirmed', 'Direct_Web', NULL, 1),
-(20, 5, '2026-06-12', 4500000, 'Confirmed', 'Direct_Web', NULL, 1);
+(20, 5, '2026-06-12', 4500000, 'Confirmed', 'Direct_Web', NULL, 1),
+(24, 1, '2026-06-01', 3000000, 'Confirmed', 'Direct_Web', NULL, 1),
+(25, 2, '2026-06-02', 1200000, 'Confirmed', 'Direct_Web', NULL, 1),
+(26, 3, '2026-06-03', 5400000, 'Confirmed', 'Direct_Web', NULL, 1),
+(27, 4, '2026-06-04', 2500000, 'Confirmed', 'OTA', NULL, 1),
+(28, 5, '2026-06-05', 2400000, 'Confirmed', 'Direct_Web', NULL, 1);
 
 -- ── 13. Room Bookings (10 rows) ──────────────────────────────
 INSERT INTO Room_Bookings (room_booking_id, check_in_date, check_out_date, deposit_amount, cancellation_deadline, credit_limit, personal_pin_hash) VALUES
@@ -579,11 +586,11 @@ INSERT INTO Tour_Bookings (booking_id, schedule_id, participant_count, tour_char
 (11, 5, 1, 1200000, FALSE),
 (12, 5, 1, 1200000, FALSE),
 (13, 5, 1, 1200000, FALSE),
-(1, 1, 2, 3000000, FALSE),
-(2, 2, 1, 1200000, FALSE),
-(3, 3, 3, 5400000, FALSE),
-(4, 4, 1, 2500000, FALSE),
-(5, 5, 2, 2400000, FALSE);
+(24, 1, 2, 3000000, FALSE),
+(25, 2, 1, 1200000, FALSE),
+(26, 3, 3, 5400000, FALSE),
+(27, 4, 1, 2500000, FALSE),
+(28, 5, 2, 2400000, FALSE);
 
 -- ── 37. Tour Attendees (10 rows) ─────────────────────────────
 INSERT INTO Tour_Attendees (attendee_id, tour_booking_id, customer_id, dependent_id, attendance_status, face_matched_at, face_vector_data) VALUES 
@@ -592,11 +599,11 @@ INSERT INTO Tour_Attendees (attendee_id, tour_booking_id, customer_id, dependent
 (3, 11, 9, NULL, 'Not_Show', NULL, NULL),
 (4, 12, 10, NULL, 'Not_Show', NULL, NULL),
 (5, 13, 11, NULL, 'Not_Show', NULL, NULL),
-(6, 1, 1, NULL, 'Not_Show', NULL, NULL),
-(7, 2, 2, NULL, 'Not_Show', NULL, NULL),
-(8, 3, 3, NULL, 'Not_Show', NULL, NULL),
-(9, 4, 4, NULL, 'Not_Show', NULL, NULL),
-(10, 5, 5, NULL, 'Not_Show', NULL, NULL);
+(6, 24, 1, NULL, 'Not_Show', NULL, NULL),
+(7, 25, 2, NULL, 'Not_Show', NULL, NULL),
+(8, 26, 3, NULL, 'Not_Show', NULL, NULL),
+(9, 27, 4, NULL, 'Not_Show', NULL, NULL),
+(10, 28, 5, NULL, 'Not_Show', NULL, NULL);
 
 -- ── 38. Checkpoint Attendance (10 rows) ──────────────────────
 INSERT INTO Checkpoint_Attendance (checkpoint_id, schedule_id, attendee_id, detail_id, scan_status, scanned_by_staff_id) VALUES 

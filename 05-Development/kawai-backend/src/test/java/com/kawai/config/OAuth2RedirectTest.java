@@ -4,13 +4,20 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockHttpSession;
-import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.test.web.servlet.MockMvc;
 
 import jakarta.servlet.http.Cookie;
+import java.util.Collections;
+import java.util.Map;
 
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oauth2Login;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -20,6 +27,9 @@ public class OAuth2RedirectTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private OAuth2SuccessHandler oAuth2SuccessHandler;
 
     @Test
     public void testGoogleLoginEndpointSetsCookieAndRedirects() throws Exception {
@@ -32,30 +42,49 @@ public class OAuth2RedirectTest {
 
     @Test
     public void testOAuth2SuccessHandlerRedirectsToCookieTarget() throws Exception {
-        mockMvc.perform(get("/login/oauth2/code/google")
-                        .cookie(new Cookie("OAUTH2_REDIRECT_URI", "/order-food"))
-                        .with(oauth2Login()
-                                .attributes(attrs -> {
-                                    attrs.put("email", "test@example.com");
-                                    attrs.put("name", "Test User");
-                                })))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/order-food"));
+        SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_USER");
+        OAuth2User principal = new DefaultOAuth2User(
+                Collections.singleton(authority),
+                Map.of("email", "test@example.com", "name", "Test User"),
+                "name"
+        );
+        OAuth2AuthenticationToken authentication = new OAuth2AuthenticationToken(
+                principal,
+                Collections.singleton(authority),
+                "google"
+        );
+
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        request.setCookies(new Cookie("OAUTH2_REDIRECT_URI", "/order-food"));
+
+        oAuth2SuccessHandler.onAuthenticationSuccess(request, response, authentication);
+
+        assertEquals("/order-food", response.getRedirectedUrl());
     }
 
     @Test
     public void testOAuth2SuccessHandlerRedirectsToSessionTarget() throws Exception {
+        SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_USER");
+        OAuth2User principal = new DefaultOAuth2User(
+                Collections.singleton(authority),
+                Map.of("email", "test@example.com", "name", "Test User"),
+                "name"
+        );
+        OAuth2AuthenticationToken authentication = new OAuth2AuthenticationToken(
+                principal,
+                Collections.singleton(authority),
+                "google"
+        );
+
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        MockHttpServletResponse response = new MockHttpServletResponse();
         MockHttpSession session = new MockHttpSession();
         session.setAttribute("OAUTH2_REDIRECT_URI", "/order-food");
+        request.setSession(session);
 
-        mockMvc.perform(get("/login/oauth2/code/google")
-                        .session(session)
-                        .with(oauth2Login()
-                                .attributes(attrs -> {
-                                    attrs.put("email", "test@example.com");
-                                    attrs.put("name", "Test User");
-                                })))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/order-food"));
+        oAuth2SuccessHandler.onAuthenticationSuccess(request, response, authentication);
+
+        assertEquals("/order-food", response.getRedirectedUrl());
     }
 }
