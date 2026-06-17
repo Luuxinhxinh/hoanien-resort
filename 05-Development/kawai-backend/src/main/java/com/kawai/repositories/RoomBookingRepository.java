@@ -15,6 +15,7 @@ import com.kawai.models.Customer;
 @Repository
 public interface RoomBookingRepository extends JpaRepository<RoomBooking, Long> {
        List<RoomBooking> findByCustomerOrderByBookingDateDesc(Customer customer);
+       List<RoomBooking> findByCustomerOrderByIdDesc(Customer customer);
 
        java.util.Optional<RoomBooking> findByIdAndCustomerId(Long id, Long customerId);
 

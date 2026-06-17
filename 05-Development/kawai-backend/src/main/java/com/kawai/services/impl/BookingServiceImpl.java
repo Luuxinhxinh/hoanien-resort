@@ -259,10 +259,10 @@ public class BookingServiceImpl implements BookingService {
         savedHold.setTotalPrice(discountedPrice.setScale(0, RoundingMode.HALF_UP));
         savedHold.setDepositAmount(depositVal);
         savedHold.setPersonalPinHash("DEFAULT_PIN");
-        savedHold.setBookingStatus("CONFIRMED");
+        savedHold.setBookingStatus("HOLD");
         RoomBooking savedBooking = roomBookingRepository.save(savedHold);
 
-        log.info("[SOFT_LOCK] CONFIRMED initialized: bookingId={}", savedBooking.getId());
+        log.info("[SOFT_LOCK] HOLD initialized (awaiting payment): bookingId={}", savedBooking.getId());
 
         for (int i = 0; i < roomsToBook.size(); i++) {
             Room room = roomsToBook.get(i);
@@ -286,7 +286,7 @@ public class BookingServiceImpl implements BookingService {
 
         BookingResponseDTO response = new BookingResponseDTO();
         response.setBookingId(savedBooking.getId());
-        response.setBookingStatus("CONFIRMED");
+        response.setBookingStatus("HOLD");
         response.setDepositAmount(depositVal);
         response.setDiscountedPrice(discountedPrice.setScale(0, RoundingMode.HALF_UP));
         response.setCheckInDate(checkIn);
@@ -398,6 +398,16 @@ public class BookingServiceImpl implements BookingService {
                 || "CANCELLED".equals(booking.getBookingStatus())
                 || (booking.getBookingStatus() != null && booking.getBookingStatus().toUpperCase().startsWith("CANCEL"))) {
             throw new BusinessException("BKG-005", "Invalid booking status");
+        }
+
+        if ("HOLD".equals(booking.getBookingStatus()) || "PENDING".equals(booking.getBookingStatus())) {
+            booking.setBookingStatus("CANCELLED");
+            roomBookingRepository.save(booking);
+            BookingResponseDTO response = new BookingResponseDTO();
+            response.setBookingId(bookingId);
+            response.setBookingStatus("CANCELLED");
+            response.setDepositAmount(BigDecimal.ZERO);
+            return response;
         }
 
         LocalDateTime checkInTime = booking.getCheckInDate().atTime(14, 0);

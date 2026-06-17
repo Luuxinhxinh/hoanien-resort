@@ -69,17 +69,8 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
             System.out.println("  Redirecting to savedRequest: " + savedRequest);
             response.sendRedirect(savedRequest);
         } else {
-            String referer = request.getHeader("Referer");
-            System.out.println("  Referer header: " + referer);
-            if (referer != null && !referer.trim().isEmpty()
-                    && !referer.contains("/oauth2/")
-                    && !referer.contains("/login")) {
-                System.out.println("  Redirecting to Referer: " + referer);
-                response.sendRedirect(referer);
-            } else {
-                System.out.println("  Redirecting to default /booking");
-                response.sendRedirect("/booking");
-            }
+            System.out.println("  Redirecting to default /living");
+            response.sendRedirect("/living");
         }
     }
 }

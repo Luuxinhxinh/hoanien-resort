@@ -1020,7 +1020,8 @@ function toggleShowMoreRooms() {
 document.addEventListener("DOMContentLoaded", function () {
     const hasError = document.querySelector('.bg-red-100');
     const hasSuccess = document.querySelector('.bg-green-100');
-    if (hasError || hasSuccess) {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (hasError || hasSuccess || urlParams.get('login') === 'true') {
         openLoginModal();
     }
 

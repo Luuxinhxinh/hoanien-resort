@@ -54,6 +54,9 @@ public class ProfileController {
     @Autowired
     private com.kawai.repositories.DependentRepository dependentRepository;
 
+    @Autowired
+    private com.kawai.repositories.PaymentTransactionRepository paymentTransactionRepository;
+
     @GetMapping
     public String viewProfile(Authentication authentication, Model model) {
         if (authentication == null || !authentication.isAuthenticated()
@@ -65,7 +68,18 @@ public class ProfileController {
         model.addAttribute("customer", customer);
 
         if (customer != null) {
-            List<RoomBooking> roomBookings = roomBookingRepository.findByCustomerOrderByBookingDateDesc(customer);
+            List<RoomBooking> roomBookings = roomBookingRepository.findByCustomerOrderByIdDesc(customer)
+                    .stream()
+                    .filter(b -> {
+                        if ("HOLD".equalsIgnoreCase(b.getBookingStatus())) {
+                            return false;
+                        }
+                        if (b.getBookingStatus() != null && b.getBookingStatus().toUpperCase().startsWith("CANCEL")) {
+                            return paymentTransactionRepository.existsByBookingIdAndStatus(b.getId(), com.kawai.models.PaymentStatus.SUCCESS);
+                        }
+                        return true;
+                    })
+                    .collect(java.util.stream.Collectors.toList());
             model.addAttribute("roomBookings", roomBookings);
 
             List<TourBooking> tourBookings = tourBookingRepository.findByCustomer(customer);
@@ -114,7 +128,18 @@ public class ProfileController {
         model.addAttribute("customer", customer);
 
         if (customer != null) {
-            List<RoomBooking> roomBookings = roomBookingRepository.findByCustomerOrderByBookingDateDesc(customer);
+            List<RoomBooking> roomBookings = roomBookingRepository.findByCustomerOrderByIdDesc(customer)
+                    .stream()
+                    .filter(b -> {
+                        if ("HOLD".equalsIgnoreCase(b.getBookingStatus())) {
+                            return false;
+                        }
+                        if (b.getBookingStatus() != null && b.getBookingStatus().toUpperCase().startsWith("CANCEL")) {
+                            return paymentTransactionRepository.existsByBookingIdAndStatus(b.getId(), com.kawai.models.PaymentStatus.SUCCESS);
+                        }
+                        return true;
+                    })
+                    .collect(java.util.stream.Collectors.toList());
             model.addAttribute("bookings", roomBookings);
 
             java.util.Map<Long, RoomBookingDetail> bookingFirstDetails = new java.util.HashMap<>();
