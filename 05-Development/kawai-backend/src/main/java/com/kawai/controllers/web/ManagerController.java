@@ -77,11 +77,19 @@ public class ManagerController {
         BigDecimal revFnb = BigDecimal.ZERO;
         try {
             revRoom = roomBookingRepository.totalDepositsSince(LocalDate.now().minusDays(30));
+            if (revRoom == null) {
+                revRoom = BigDecimal.ZERO;
+            }
         } catch (Exception e) {
+            revRoom = BigDecimal.ZERO;
         }
         try {
             revFnb = foodOrderRepository.totalCompletedRevenue();
+            if (revFnb == null) {
+                revFnb = BigDecimal.ZERO;
+            }
         } catch (Exception e) {
+            revFnb = BigDecimal.ZERO;
         }
         long revTour = 0;
         try {
