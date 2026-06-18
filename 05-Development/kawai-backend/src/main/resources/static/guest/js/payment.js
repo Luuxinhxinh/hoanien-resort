@@ -20,25 +20,7 @@ function getBookingIdFromUrl() {
 
 // ── Toast ────────────────────────────────────────────────────────────────────
 
-function coToast(msg, type = 'success') {
-    const container = document.getElementById('co-toast-container');
-    if (!container) return;
-    const el = document.createElement('div');
-    el.className = `co-toast ${type}`;
-    el.innerHTML = `
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="${type === 'success' ? '#2e7d3a' : '#c0392b'}" stroke-width="2.5">
-            ${type === 'success'
-            ? '<path d="M20 6L9 17l-5-5"/>'
-            : '<path d="M18 6L6 18M6 6l12 12"/>'}
-        </svg>
-        <span>${msg}</span>`;
-    container.appendChild(el);
-    requestAnimationFrame(() => el.classList.add('show'));
-    setTimeout(() => {
-        el.classList.remove('show');
-        setTimeout(() => el.remove(), 350);
-    }, 4000);
-}
+// ---------------- TOAST NOTIFICATION DELETED (using utils.js) ----------------
 
 // ── Format helpers ───────────────────────────────────────────────────────────
 
@@ -53,10 +35,7 @@ function formatVnDate(dateStr) {
     return `${VI_DAYS[d.getDay()]}, ${d.getDate()} ${VI_MONTHS[d.getMonth()]} ${d.getFullYear()}`;
 }
 
-function fmtVnd(amount) {
-    if (amount == null) return '—';
-    return Number(amount).toLocaleString('vi-VN') + ' ₫';
-}
+// ---------------- FORMATTING DELETED (using utils.js) ----------------
 
 function nightsBetween(checkIn, checkOut) {
     if (!checkIn || !checkOut) return 0;
@@ -80,7 +59,7 @@ async function loadBookingDetail(bookingId) {
         const res = await fetch(`/api/bookings/${bookingId}`);
         if (!res.ok) {
             if (res.status === 404) {
-                coToast('Không tìm thấy đơn đặt phòng. Vui lòng quay lại.', 'error');
+                showToast('Không tìm thấy đơn đặt phòng. Vui lòng quay lại.', 'error');
                 setTimeout(() => window.location.href = '/booking', 2000);
                 return;
             }
@@ -90,7 +69,7 @@ async function loadBookingDetail(bookingId) {
         renderOrderSummary(bookingData);
     } catch (e) {
         console.error('loadBookingDetail error:', e);
-        coToast('Không thể tải thông tin đặt phòng. Vui lòng thử lại.', 'error');
+        showToast('Không thể tải thông tin đặt phòng. Vui lòng thử lại.', 'error');
     }
 }
 
@@ -125,13 +104,13 @@ function renderOrderSummary(data) {
     const total = data.totalAmount || 0;
 
     const nightLabel = nights > 0 && basePrice > 0
-        ? `(${nights} đêm × ${fmtVnd(basePrice / (nights || 1))})`
+        ? `(${nights} đêm × ${formatCurrencyWithSymbol(basePrice / (nights || 1))})`
         : '';
 
     setText('op-price-label', `Giá phòng ${nightLabel}`);
-    setText('op-price-value', fmtVnd(basePrice));
-    setText('op-service-value', fmtVnd(servicesFee));
-    setText('op-discount-value', promotion > 0 ? `- ${fmtVnd(promotion)}` : '0 ₫');
+    setText('op-price-value', formatCurrencyWithSymbol(basePrice));
+    setText('op-service-value', formatCurrencyWithSymbol(servicesFee));
+    setText('op-discount-value', promotion > 0 ? `- ${formatCurrencyWithSymbol(promotion)}` : '0 ₫');
 
     const discountEl = document.getElementById('op-discount-value');
     if (discountEl) discountEl.className = 'value' + (promotion > 0 ? ' discount' : '');
@@ -141,18 +120,18 @@ function renderOrderSummary(data) {
     if (discountRow) discountRow.style.display = promotion > 0 ? 'flex' : 'none';
 
     // Total
-    setText('op-total-value', fmtVnd(total));
+    setText('op-total-value', formatCurrencyWithSymbol(total));
 
     // Deposit (30% cọc calculated on backend)
     const deposit = data.depositAmount || 0;
-    setText('op-deposit-value', fmtVnd(deposit));
+    setText('op-deposit-value', formatCurrencyWithSymbol(deposit));
 
     // Update submit button text with amount
     const btnPay = document.getElementById('btnPayNow');
     if (btnPay) {
         btnPay.setAttribute('data-amount', deposit);
         if (!btnPay.classList.contains('loading')) {
-            btnPay.textContent = `THANH TOÁN ĐẶT CỌC: ${fmtVnd(deposit)}`;
+            btnPay.textContent = `THANH TOÁN ĐẶT CỌC: ${formatCurrencyWithSymbol(deposit)}`;
         }
     }
 
@@ -163,7 +142,7 @@ function renderOrderSummary(data) {
     if (data.bookingStatus === 'CANCELLED' || (data.bookingStatus === 'HOLD' && data.remainingHoldSeconds <= 0)) {
         if (timerContainer) timerContainer.classList.add('hidden');
         if (btnPay) btnPay.disabled = true;
-        coToast('Đơn đặt phòng đã bị hủy do quá hạn thanh toán.', 'error');
+        showToast('Đơn đặt phòng đã bị hủy do quá hạn thanh toán.', 'error');
         isPaymentSubmitted = true; // Prevent unload warning
         setTimeout(() => window.location.href = '/booking', 2500);
         return;
@@ -189,7 +168,7 @@ function startPaymentTimer(seconds, timerEl) {
             timerEl.textContent = '00:00';
             const btnPayNow = document.getElementById('btnPayNow');
             if (btnPayNow) btnPayNow.disabled = true;
-            coToast('Đã hết thời gian thanh toán! Đơn phòng đã bị hủy.', 'error');
+            showToast('Đã hết thời gian thanh toán! Đơn phòng đã bị hủy.', 'error');
             isPaymentSubmitted = true; // Prevent unload warning
             setTimeout(() => window.location.href = '/booking', 2500);
             return;
@@ -232,7 +211,7 @@ async function applyCoupon() {
 
         if (res.ok && data.status === 'success') {
             appliedCoupon = { code, discountAmount: data.discountAmount };
-            showCouponMsg(`Áp dụng thành công! Giảm ${fmtVnd(data.discountAmount)}`, true);
+            showCouponMsg(`Áp dụng thành công! Giảm ${formatCurrencyWithSymbol(data.discountAmount)}`, true);
             // Reload booking detail to get updated totals
             await loadBookingDetail(bookingId);
         } else {
@@ -274,7 +253,7 @@ function validateForm() {
     for (const f of fields) {
         const el = document.getElementById(f.id);
         if (!el || !el.value.trim()) {
-            coToast(`Vui lòng điền ${f.label}`, 'error');
+            showToast(`Vui lòng điền ${f.label}`, 'error');
             el?.focus();
             return false;
         }
@@ -282,7 +261,7 @@ function validateForm() {
     // Email format
     const email = document.getElementById('fieldEmail')?.value?.trim();
     if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        coToast('Email không hợp lệ.', 'error');
+        showToast('Email không hợp lệ.', 'error');
         return false;
     }
     return true;
@@ -294,7 +273,7 @@ async function submitPayment() {
     if (!validateForm()) return;
 
     const bookingId = getBookingIdFromUrl();
-    if (!bookingId) { coToast('Không xác định được đơn đặt phòng.', 'error'); return; }
+    if (!bookingId) { showToast('Không xác định được đơn đặt phòng.', 'error'); return; }
 
     const btn = document.getElementById('btnPayNow');
     btn.disabled = true;
@@ -326,26 +305,26 @@ async function submitPayment() {
                 // Redirect đến VNPay
                 window.location.href = data.paymentUrl;
             } else {
-                coToast('Đặt phòng thành công!', 'success');
+                showToast('Đặt phòng thành công!', 'success');
                 setTimeout(() => window.location.href = '/profile', 1500);
             }
         } else {
-            coToast(data.message || 'Có lỗi xảy ra. Vui lòng thử lại.', 'error');
+            showToast(data.message || 'Có lỗi xảy ra. Vui lòng thử lại.', 'error');
             btn.disabled = false;
             btn.classList.remove('loading');
             const depAmount = btn.getAttribute('data-amount');
-            btn.textContent = depAmount ? `THANH TOÁN ĐẶT CỌC: ${fmtVnd(depAmount)}` : 'THANH TOÁN NGAY';
+            btn.textContent = depAmount ? `THANH TOÁN ĐẶT CỌC: ${formatCurrencyWithSymbol(depAmount)}` : 'THANH TOÁN NGAY';
             // Re-check terms
             const cb = document.getElementById('termsCheck');
             if (cb?.checked) btn.classList.add('active');
         }
     } catch (e) {
         console.error(e);
-        coToast('Lỗi kết nối Server! Vui lòng thử lại.', 'error');
+        showToast('Lỗi kết nối Server! Vui lòng thử lại.', 'error');
         btn.disabled = false;
         btn.classList.remove('loading');
         const depAmount = btn.getAttribute('data-amount');
-        btn.textContent = depAmount ? `THANH TOÁN ĐẶT CỌC: ${fmtVnd(depAmount)}` : 'THANH TOÁN NGAY';
+        btn.textContent = depAmount ? `THANH TOÁN ĐẶT CỌC: ${formatCurrencyWithSymbol(depAmount)}` : 'THANH TOÁN NGAY';
         const cb = document.getElementById('termsCheck');
         if (cb?.checked) btn.classList.add('active');
     }
@@ -358,7 +337,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (!bookingId) {
         // Không có bookingId → không có gì để thanh toán
-        coToast('Không tìm thấy đơn đặt phòng. Đang chuyển về trang đặt phòng...', 'error');
+        showToast('Không tìm thấy đơn đặt phòng. Đang chuyển về trang đặt phòng...', 'error');
         setTimeout(() => window.location.href = '/booking', 2500);
         return;
     }

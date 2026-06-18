@@ -29,11 +29,14 @@ public class RoomServiceImpl implements RoomService {
 
     private final RoomRepository roomRepository;
     private final RoomBookingRepository roomBookingRepository;
+    private final com.kawai.repositories.RoomCategoryRepository roomCategoryRepository;
 
     public RoomServiceImpl(RoomRepository roomRepository,
-            RoomBookingRepository roomBookingRepository) {
+            RoomBookingRepository roomBookingRepository,
+            com.kawai.repositories.RoomCategoryRepository roomCategoryRepository) {
         this.roomRepository = roomRepository;
         this.roomBookingRepository = roomBookingRepository;
+        this.roomCategoryRepository = roomCategoryRepository;
     }
 
     /**
@@ -69,37 +72,37 @@ public class RoomServiceImpl implements RoomService {
             throw new IllegalArgumentException("Page size must be positive");
         }
 
-        List<Room> allRooms = roomRepository.findAll();
+        List<RoomCategory> allCategories = roomCategoryRepository.findAll();
         List<RoomSearchResponseDTO> available = new ArrayList<>();
+        int minRooms = request.getMinRooms() != null ? request.getMinRooms() : 1;
 
-        for (Room room : allRooms) {
-            // Filter out rooms under maintenance, out of service, or currently occupied
-            String status = room.getRoomStatus();
-            if ("Maintenance".equalsIgnoreCase(status) || "OutOfService".equalsIgnoreCase(status) || "Occupied".equalsIgnoreCase(status)) {
-                continue;
+        for (RoomCategory cat : allCategories) {
+            if (request.getCategoryName() != null && !request.getCategoryName().trim().isEmpty()) {
+                if (!cat.getCategoryName().equalsIgnoreCase(request.getCategoryName().trim())) {
+                    continue;
+                }
             }
-
-            RoomCategory cat = room.getCategory();
-            if (cat != null) {
-                if (request.getCategoryName() != null && !request.getCategoryName().trim().isEmpty()) {
-                    if (!cat.getCategoryName().equalsIgnoreCase(request.getCategoryName().trim())) {
-                        continue;
-                    }
+            if (request.getMinCapacity() != null) {
+                if (cat.getCapacity() < request.getMinCapacity()) {
+                    continue;
                 }
-                if (request.getMinCapacity() != null) {
-                    if (cat.getCapacity() < request.getMinCapacity()) {
-                        continue;
-                    }
-                }
-                if (request.getMaxPricePerNight() != null) {
-                    if (cat.getBasePrice().compareTo(request.getMaxPricePerNight()) > 0) {
-                        continue;
-                    }
+            }
+            if (request.getMaxPricePerNight() != null) {
+                if (cat.getBasePrice().compareTo(request.getMaxPricePerNight()) > 0) {
+                    continue;
                 }
             }
 
-            if (isRoomAvailable(room.getRoomNumber(), checkIn, checkOut)) {
-                available.add(toSearchResult(room, checkIn, checkOut));
+            long totalRooms = roomRepository.countActiveRoomsByCategoryName(cat.getCategoryName());
+            long overlapping = roomBookingRepository.countOverlappingBookingsByCategoryWithoutExclude(cat.getCategoryName(), checkIn, checkOut);
+            long availableCount = totalRooms - overlapping;
+
+            if (availableCount >= minRooms) {
+                for (int i = 1; i <= availableCount; i++) {
+                    RoomSearchResponseDTO dto = toSearchResult(cat, checkIn, checkOut, "DUMMY_" + cat.getCategoryName() + "_" + i);
+                    dto.setAvailableCount((int) availableCount);
+                    available.add(dto);
+                }
             }
         }
 
@@ -178,16 +181,16 @@ public class RoomServiceImpl implements RoomService {
         return dto;
     }
 
-    private RoomSearchResponseDTO toSearchResult(Room room,
+    private RoomSearchResponseDTO toSearchResult(RoomCategory cat,
             LocalDate checkIn,
-            LocalDate checkOut) {
+            LocalDate checkOut,
+            String dummyRoomNumber) {
         RoomSearchResponseDTO dto = new RoomSearchResponseDTO();
-        dto.setRoomId(room.getId());
-        dto.setRoomNumber(room.getRoomNumber());
+        dto.setRoomId(cat.getId()); // Use category ID as roomId for frontend compatibility if needed
+        dto.setRoomNumber(dummyRoomNumber);
         dto.setCheckInDate(checkIn);
         dto.setCheckOutDate(checkOut);
 
-        RoomCategory cat = room.getCategory();
         if (cat != null) {
             dto.setCategoryName(cat.getCategoryName());
             dto.setPricePerNight(cat.getBasePrice().setScale(0, java.math.RoundingMode.HALF_UP));

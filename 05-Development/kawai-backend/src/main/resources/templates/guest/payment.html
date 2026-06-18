@@ -7,34 +7,7 @@
     <title>Thanh toán — HoaNien Resort</title>
     <meta name="description" content="Điền thông tin và hoàn tất quá trình thanh toán đặt phòng tại HoaNien Resort." />
 
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Montserrat:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
-
-    <!-- Tailwind (for nav + auth modal, consistent with booking.html) -->
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <script id="tailwind-config">
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'hoanien-bg': '#f1ebe3',
-                        'hoanien-text': '#3a3230',
-                        'hoanien-footer': '#3c3530',
-                        'hoanien-footer-text': '#e5dfd8'
-                    },
-                    fontFamily: {
-                        'serif':    ['"Playfair Display"', 'serif'],
-                        'sans':     ['"Montserrat"', 'sans-serif'],
-                        'headline': ['EB Garamond', 'serif'],
-                        'body':     ['Inter', 'sans-serif'],
-                    }
-                }
-            }
-        }
-    </script>
+    <th:block th:replace="~{guest/fragments/common-head :: head}"></th:block>
 
     <link rel="stylesheet" th:href="@{/guest/css/payment.css}" href="/guest/css/payment.css" />
 </head>
@@ -405,6 +378,7 @@
     <div id="co-toast-container"></div>
 
     <!-- Page JS -->
+    <script src="/guest/js/utils.js"></script>
     <script th:src="@{/guest/js/payment.js}" src="/guest/js/payment.js"></script>
 
     <script>

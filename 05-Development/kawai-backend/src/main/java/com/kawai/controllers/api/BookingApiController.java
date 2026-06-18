@@ -76,7 +76,7 @@ public class BookingApiController {
                     response.getDepositAmount(),
                     cancellationDeadlineLDT,
                     "Đặt phòng thành công!");
-            // ✅ Trả về tổng chính thức từ backend (bao gồm phụ thu + khuyến mãi)
+            // Trả về tổng chính thức từ backend (bao gồm phụ thu + khuyến mãi)
             apiResponse.setDiscountedPrice(response.getDiscountedPrice());
 
             // TẠO URL THANH TOÁN VNPAY VÀ TRẢ VỀ CHO FRONTEND
