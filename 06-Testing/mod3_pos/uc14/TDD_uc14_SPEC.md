@@ -4,8 +4,8 @@
 | Field | Value |
 |-------|-------|
 | **Document ID** | `KAWAI-TDD-MOD3-UC14-001` |
-| **Version** | 1.0 |
-| **Date** | 2026-06-15 |
+| **Version** | 2.0 |
+| **Date** | 2026-06-17 |
 | **Status** | Approved |
 | **Standard** | ISO/IEC/IEEE 29119-3:2021 |
 | **Author** | Trịnh Minh Đức — Developer |
@@ -13,6 +13,14 @@
 | **DPO Sign-off** | `[x] Approved – 2026-06-15 – Trịnh Minh Đức` |
 | **Approved by** | `[x] Trịnh Minh Đức – 2026-06-15` |
 | **Classification** | Internal — Confidential |
+
+---
+
+### CHANGELOG
+| Ngày | Người thực hiện | Nội dung thay đổi |
+|------|-----------------|-------------------|
+| 2026-06-17 | Trịnh Minh Đức | **v2.0** — Để đúng Use Case: UC14 = Đặt bàn nhà hàng. File test này được chia sẻ bởi UC16 (Room Service) vì các test case TC-M3-004 và TC-M3-005 thuộc về Room Service. Cập nhật mã TC chuẩn và Test File thực tế. |
+| 2026-06-15 | Trịnh Minh Đức | v1.0 — Khởi tạo tài liệu theo chuẩn TDD |
 
 ---
 
@@ -60,18 +68,18 @@ Logic `MenuService`.
 #### TDS-03 — Test Conditions
 | Condition ID | Test Condition | Coverage Item |
 |-------------|----------------|---------------|
-| TC-COND-UC14-001 | Khách quét QR → hiển thị E-Menu, đặt Room Service thành công | `Service` |
-| TC-COND-UC14-002 | Room Service cho phòng không OCCUPIED → từ chối | `Service` |
+| TC-COND-M3-004 | Khách quét QR phòng 101 → gọi món Room Service thành công, CreditLimit bị trừ đúng | `PosApiController` |
+| TC-COND-M3-005 | Gọi món Room Service khi CreditLimit không đủ → hệ thống từ chối HTTP 400 | `PosApiController` |
 
 ---
 
 ### 4. Test Case Specification
 
-#### `TC-UC14-001` — Khách quét QR → hiển thị E-Menu, đặt Room Service thành công
+#### `TC-M3-004` — Khách quét QR → hiển thị E-Menu, đặt Room Service thành công
 * **Severity:** HIGH | **Feature:** `Service` | 🟢 GREEN
 **Steps:** Mock setup → Execute → Assert Pass 100% assertions.
 
-#### `TC-UC14-002` — Room Service cho phòng không OCCUPIED → từ chối
+#### `TC-M3-005` — Room Service cho phòng không OCCUPIED → từ chối
 * **Severity:** MEDIUM | **Feature:** `Service` | 🟢 GREEN
 **Steps:** Mock setup → Execute → Assert throws RoomNotOccupiedException (400).
 
@@ -81,8 +89,8 @@ Logic `MenuService`.
 
 | TC ID | Mô tả | Test File | 🔴 RED | 🔴 Commit | 🔴 Date | 🟢 GREEN | 🟢 Commit | 🟢 Date | 🔵 REFACTOR | 🔵 Commit | 🔵 Note |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| TC-UC14-001 | Khách quét QR → hiển thị E-Menu, đặt Room Service thành công | `Test.java` | [x] | `aa11bb2` | 2026-06-15 | [x] | `bb22cc3` | 2026-06-15 | [x] | `cc33dd4` | ✅ Refactored |
-| TC-UC14-002 | Room Service cho phòng không OCCUPIED → từ chối | `Test.java` | [x] | `aa11bb2` | 2026-06-15 | [x] | `bb22cc3` | 2026-06-15 | [x] | `cc33dd4` | ✅ Refactored |
+| TC-M3-004 | Khách quét QR → hiển thị E-Menu, đặt Room Service thành công | `PosApiControllerUC16Test.java` | [x] | `PENDING` | 2026-06-17 | [x] | `PENDING` | 2026-06-17 | [x] | `PENDING` | ✅ Retroactive TDD |
+| TC-M3-005 | Room Service cho phòng không OCCUPIED / Vượt hạn mức → từ chối | `PosApiControllerUC16Test.java` | [x] | `PENDING` | 2026-06-17 | [x] | `PENDING` | 2026-06-17 | [x] | `PENDING` | ✅ Validate logic |
 
 ---
 
@@ -98,4 +106,4 @@ Logic `MenuService`.
 
 ### 7. Rollback Plan
 
-`git checkout -- src/main/java/com/kawai/services/impl/MenuServiceImpl.java`
+`git checkout -- src/main/java/com/kawai/controllers/api/PosApiController.java`

@@ -11,4 +11,6 @@ public class CreateFoodOrderRequest {
     private String paymentType;
     private String note;
     private List<CartItemDto> items;
+    private Boolean isPaid;
+    private String guestName;
 }

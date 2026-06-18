@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 
 <head>
@@ -127,7 +127,7 @@
         </div>
 
         <div class="tm-stat-divider"></div>
-        <div class="tm-total-label">Tổng: <strong id="tm-total">20</strong> bàn</div>
+        <div class="tm-total-label">Tổng: <strong id="tm-total" th:text="${tables.size()}">20</strong> bàn</div>
       </div>
 
 
@@ -141,7 +141,8 @@
             <div class="tm-table" th:each="table : ${tables}"
                  th:attr="data-table=${#strings.replace(table.tableNumber, 'T', '')}, 
                           data-status=${table.tableStatus == 'Occupied' ? 'serving' : (table.tableStatus == 'Reserved' ? 'reserved' : 'vacant')}, 
-                          data-capacity=${table.capacity}">
+                          data-capacity=${table.capacity},
+                          data-orderid=${tableActiveOrderMap.get(table.id)}">
               <div class="tm-table-inner">
                 <div class="tm-table-num" th:text="${#strings.replace(table.tableNumber, 'T', '')}">01</div>
                 <div class="tm-table-cap">

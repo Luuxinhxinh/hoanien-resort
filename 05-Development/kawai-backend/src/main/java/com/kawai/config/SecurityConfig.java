@@ -152,16 +152,14 @@ public class SecurityConfig {
                 }
 
                 if (isOpsUser) {
-                    /* TEMPORARILY DISABLED FOR LOCAL TESTING
-                    String deviceId = request.getParameter("device_id");
-                    if (deviceId == null || deviceId.trim().isEmpty()
-                            || !authorizedDeviceRepository.existsByDeviceCodeAndIsApprovedTrue(deviceId)) {
-                        new org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler()
-                                .logout(request, response, authentication);
-                        response.sendRedirect("/ops-login?device_error=true");
-                        return;
-                    }
-                    */
+                    // String deviceId = request.getParameter("device_id");
+                    // if (deviceId == null || deviceId.trim().isEmpty()
+                    //         || !authorizedDeviceRepository.existsByDeviceCodeAndIsApprovedTrue(deviceId)) {
+                    //     new org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler()
+                    //             .logout(request, response, authentication);
+                    //     response.sendRedirect("/ops-login?device_error=true");
+                    //     return;
+                    // }
 
                     String redirectTo = request.getParameter("redirect_to");
                     if (redirectTo != null && !redirectTo.trim().isEmpty()) {

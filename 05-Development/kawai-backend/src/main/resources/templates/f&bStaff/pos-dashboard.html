@@ -242,48 +242,26 @@
           <!-- LIST: TABLE ORDERS -->
           <div class="orders-list" id="list-table" style="display:none;">
 
-            <!-- Table Order #1 -->
-            <div class="order-card" data-status="serving" data-order="RES-105" onclick="location.href='/fbStaff/order-detail?id=RES-105&type=table'">
+            <div class="order-card" 
+                 th:each="order : ${foodOrders}" 
+                 th:if="${order.orderType == 'Dine-In' or order.orderType == 'Table'}"
+                 th:data-status="${order.orderStatus == 'Preparing' ? 'serving' : #strings.toLowerCase(order.orderStatus)}" 
+                 th:data-order="${'ORD-' + order.id}" 
+                 th:onclick="|location.href='/fbStaff/order-detail?id=' + ${order.id} + '&type=table'|">
               <div class="order-card-top">
                 <div class="order-type-icon dine-in"><span class="material-symbols-outlined">table_restaurant</span></div>
                 <div class="order-meta">
-                  <div class="order-table">Bàn 01 • Indochine</div>
-                  <div class="order-guest">Nguyễn Minh Quân • 4 khách</div>
+                  <div class="order-table" th:text="${'Bàn ' + (order.table != null ? order.table.tableNumber : '?')}">Bàn 01</div>
+                  <div class="order-guest" th:text="${order.createdByStaff != null ? 'NV: ' + order.createdByStaff.fullName : '--'}">NV: Trần Phương</div>
                 </div>
-                <span class="order-status-chip chip-cooking"><span class="dot"></span>Serving</span>
+                <span class="order-status-chip" 
+                      th:classappend="${order.orderStatus == 'Pending' ? 'chip-pending' : (order.orderStatus == 'Preparing' ? 'chip-cooking' : (order.orderStatus == 'Served' ? 'chip-served' : (order.orderStatus == 'Ready' ? 'chip-ready' : 'chip-ready')))}" >
+                  <span class="dot"></span><span th:text="${order.orderStatus == 'Preparing' ? 'Serving' : order.orderStatus}">Serving</span>
+                </span>
               </div>
               <div class="order-card-bottom">
-                <span class="order-time"><span class="material-symbols-outlined">schedule</span>19:34</span>
-              </div>
-            </div>
-
-            <!-- Table Order #2 -->
-            <div class="order-card" data-status="pending" data-order="RES-106" onclick="location.href='/fbStaff/order-detail?id=RES-106&type=table'">
-              <div class="order-card-top">
-                <div class="order-type-icon dine-in"><span class="material-symbols-outlined">book_online</span></div>
-                <div class="order-meta">
-                  <div class="order-table">Bàn 06 • Đã đặt</div>
-                  <div class="order-guest">Lê Văn Hùng • 8 khách</div>
-                </div>
-                <span class="order-status-chip chip-pending"><span class="dot"></span>Pending</span>
-              </div>
-              <div class="order-card-bottom">
-                <span class="order-time"><span class="material-symbols-outlined">schedule</span>20:30</span>
-              </div>
-            </div>
-
-            <!-- Table Order #3 -->
-            <div class="order-card" data-status="completed" data-order="RES-102" style="opacity:0.6;" onclick="location.href='/fbStaff/order-detail?id=RES-102&type=table'">
-              <div class="order-card-top">
-                 <div class="order-type-icon dine-in"><span class="material-symbols-outlined">task_alt</span></div>
-                 <div class="order-meta">
-                   <div class="order-table">Bàn 08 • Trống</div>
-                   <div class="order-guest">--</div>
-                 </div>
-                 <span class="order-status-chip chip-ready"><span class="dot"></span>Completed</span>
-              </div>
-              <div class="order-card-bottom">
-                <span class="order-time"><span class="material-symbols-outlined">schedule</span>18:15</span>
+                <span class="order-time"><span class="material-symbols-outlined">schedule</span>Mới</span>
+                <span class="order-amount" th:text="${order.details != null ? order.details.size() + ' món' : '0 món'}">2 món</span>
               </div>
             </div>
 

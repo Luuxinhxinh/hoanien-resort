@@ -51,14 +51,33 @@ public class PosController {
     }
 
     @GetMapping("/create-food-order")
-    public String createFoodOrder() {
+    public String createFoodOrder(Model model) {
+        List<RestaurantTable> tables = restaurantTableRepository.findAll();
+        List<RestaurantTable> vacantTables = tables.stream().filter(t -> "Vacant".equalsIgnoreCase(t.getTableStatus())).toList();
+        model.addAttribute("vacantTables", vacantTables);
+        
+        model.addAttribute("menuItems", getMappedMenuItems());
         return "f&bStaff/create-food-order";
     }
 
     @GetMapping("/table-management")
     public String tableManagement(Model model) {
         List<RestaurantTable> tables = restaurantTableRepository.findAll();
+        
+        List<FoodOrder> activeOrders = foodOrderRepository.findAll().stream()
+                .filter(o -> ("Dine-In".equalsIgnoreCase(o.getOrderType()) || "Dine In".equalsIgnoreCase(o.getOrderType()) || "Table".equalsIgnoreCase(o.getOrderType()))
+                        && ("Pending".equalsIgnoreCase(o.getOrderStatus()) || "Preparing".equalsIgnoreCase(o.getOrderStatus()) || "Served".equalsIgnoreCase(o.getOrderStatus())))
+                .toList();
+
+        Map<Long, Long> tableActiveOrderMap = new HashMap<>();
+        for (FoodOrder order : activeOrders) {
+            if (order.getTable() != null) {
+                tableActiveOrderMap.put(order.getTable().getId(), order.getId());
+            }
+        }
+        
         model.addAttribute("tables", tables);
+        model.addAttribute("tableActiveOrderMap", tableActiveOrderMap);
         return "f&bStaff/table-management";
     }
 
@@ -74,6 +93,11 @@ public class PosController {
 
     @GetMapping("/emenu")
     public String emenu(Model model) {
+        model.addAttribute("menuItems", getMappedMenuItems());
+        return "f&bStaff/e-menu";
+    }
+
+    private List<Map<String, Object>> getMappedMenuItems() {
         List<MenuItem> rawItems = foodItemRepository.findAll();
         List<Map<String, Object>> mappedItems = new ArrayList<>();
 
@@ -140,9 +164,7 @@ public class PosController {
 
             mappedItems.add(map);
         }
-
-        model.addAttribute("menuItems", mappedItems);
-        return "f&bStaff/e-menu";
+        return mappedItems;
     }
 
     @GetMapping("/shift-report")
@@ -151,7 +173,26 @@ public class PosController {
     }
 
     @GetMapping("/order-detail")
-    public String orderDetail() {
+    public String orderDetail(@org.springframework.web.bind.annotation.RequestParam("id") String idParam, Model model) {
+        try {
+            String cleanId = idParam.replace("ORD-", "").replace("RES-", "");
+            Long id = Long.parseLong(cleanId);
+            foodOrderRepository.findById(id).ifPresent(order -> {
+                String extractedGuestName = "";
+                String realNote = order.getNote();
+                if (realNote != null && realNote.startsWith("GUEST:")) {
+                    int pipeIndex = realNote.indexOf("|");
+                    if (pipeIndex != -1) {
+                        extractedGuestName = realNote.substring(6, pipeIndex);
+                        order.setNote(realNote.substring(pipeIndex + 1));
+                    }
+                }
+                model.addAttribute("extractedGuestName", extractedGuestName);
+                model.addAttribute("foodOrder", order);
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return "f&bStaff/order-detail";
     }
 }

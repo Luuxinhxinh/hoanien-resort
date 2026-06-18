@@ -26,6 +26,8 @@
 
 | Ngày      | Người thực hiện | Nội dung thay đổi                                                                                                                                  |
 | ---------- | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2026-06-17 | Đức                | Thực hiện Retroactive TDD cho UC17 (Dine-In POS), 4/4 test case pass GREEN 100% |
+| 2026-06-17 | Đức                | Thực hiện Retroactive TDD cho UC16 (PosApiController), pass RED và GREEN 100% |
 | 2026-06-11 | Lưu                | Cập nhật đầy đủ 20 test case Module 2, chuẩn hóa cấu trúc bảng tracker cho cả 5 Module và bổ sung test case mẫu chi tiết cho 5 Module |
 | 2026-06-09 | Lưu                | Khởi tạo tài liệu — Master TDD spec cho toàn bộ 5 Module Kawai Resort                                                                          |
 
@@ -425,13 +427,13 @@ Hệ thống Backend Spring Boot bao gồm các layer:
 | TC-M3-002 | Room Service phòng không OCCUPIED → từ chối |           | [ ]    | [ ]               |                  |
 | TC-M3-003 | Đặt bàn thành công → RESERVED              |           | [ ]    | [ ]               |                  |
 | TC-M3-004 | 2 khách đặt cùng bàn → 1 thắng            |           | [ ]    | [ ]               |                  |
-| TC-M3-005 | POS tạo order đúng bàn/món/giá             |           | [ ]    | [ ]               |                  |
-| TC-M3-006 | POS thanh toán → PAID                          |           | [ ]    | [ ]               |                  |
+| TC-M3-005 | POS tạo order đúng bàn/món/giá             | `PosApiControllerUC17Test` | [x]    | [x] `PENDING`     | ✅ Verify priceAtOrder snapshot  |
+| TC-M3-006 | POS thanh toán → PAID                          | `PosApiControllerUC17Test` | [x]    | [x] `PENDING`     | ✅ isPaidInPos = true            |
 | TC-M3-007 | KDS nhận order mới hiển thị KOT              |           | [ ]    | [ ]               |                  |
 | TC-M3-008 | Bếp cập nhật PREPARING → READY               |           | [ ]    | [ ]               |                  |
 | TC-M3-009 | Bếp báo hết món → POS/E-Menu khóa          |           | [ ]    | [ ]               |                  |
-| TC-M3-010 | Post to Room thành công → ghi Folio           |           | [ ]    | [ ]               |                  |
-| TC-M3-011 | Post to Room vượt Credit Limit → chặn        |           | [ ]    | [ ]               |                  |
+| TC-M3-010 | Post to Room thành công → ghi Folio           | `PosApiControllerUC16Test` | [x]    | [x] `PENDING`     | ✅ Extract deduction logic       |
+| TC-M3-011 | Post to Room vượt Credit Limit → chặn        | `PosApiControllerUC16Test` | [x]    | [x] `PENDING`     | ✅ Validate limit constraints    |
 | TC-M3-012 | Post to Room phòng không OCCUPIED → chặn     |           | [ ]    | [ ]               |                  |
 
 ### MOD4 — Tour & Đánh giá (Sinh viên 4: Ngọc)

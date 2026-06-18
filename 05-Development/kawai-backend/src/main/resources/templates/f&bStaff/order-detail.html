@@ -135,7 +135,13 @@
         <div class="info-grid" th:if="${foodOrder != null || tableOrder != null}">
           <div class="info-box">
             <div class="info-label">Khách hàng / NV tạo</div>
-            <div class="info-value" id="info-customer" th:text="${foodOrder != null && foodOrder.createdByStaff != null ? foodOrder.createdByStaff.fullName : (tableOrder != null && tableOrder.customer != null ? tableOrder.customer.fullName : '')}">Nguyễn Minh Quân</div>
+            <div class="info-value" id="info-customer">
+              <span th:text="${foodOrder != null ? 
+                             ((foodOrder.orderType == 'Room Service' || foodOrder.orderType == 'RoomService') && foodOrder.booking != null && foodOrder.booking.customer != null ? foodOrder.booking.customer.fullName : 
+                              (extractedGuestName != null && !extractedGuestName.isEmpty() ? extractedGuestName : 'Khách lẻ')) 
+                           : (tableOrder != null && tableOrder.customer != null ? tableOrder.customer.fullName : 'Khách lẻ')}">Khách lẻ</span>
+              <span th:if="${foodOrder != null && foodOrder.createdByStaff != null}" th:text="' / NV: ' + ${foodOrder.createdByStaff.fullName}" style="color:var(--text-muted);font-size:0.85em;"> / NV: Trần Phương</span>
+            </div>
           </div>
           <div class="info-box" id="box-service-type">
             <div class="info-label">Hình thức</div>
@@ -212,14 +218,15 @@
         </div>
 
         <!-- COMMON NOTES -->
-        <div class="order-notes" id="order-notes" style="display:none;">
-          <strong>Yêu cầu đặc biệt:</strong> <span id="note-content"></span>
+        <div class="order-notes" id="order-notes" th:style="${foodOrder != null && foodOrder.note != null && !foodOrder.note.isEmpty() ? 'display:block;' : 'display:none;'}">
+          <strong>Yêu cầu đặc biệt:</strong> <span id="note-content" th:text="${foodOrder != null ? foodOrder.note : ''}"></span>
         </div>
 
         <!-- ACTION BUTTONS -->
         <div class="detail-actions" th:if="${foodOrder != null || tableOrder != null}">
           <button class="btn btn-outline btn-danger" id="btn-cancel"><span class="material-symbols-outlined">close</span> Hủy đơn</button>
           <div style="margin-left:auto; display:flex; gap:10px;">
+            <button class="btn btn-primary" id="btn-pay" th:if="${foodOrder != null && !foodOrder.isPaidInPos && foodOrder.orderStatus != 'PAID' && foodOrder.orderType != 'Room Service' && foodOrder.orderType != 'RoomService'}" style="background-color: var(--status-ready-text); border-color: var(--status-ready-text);" th:onclick="|payOrder(${foodOrder.id})|"><span class="material-symbols-outlined">payments</span> Thanh toán</button>
             <button class="btn btn-outline" id="btn-print"><span class="material-symbols-outlined">print</span> In hóa đơn</button>
             <button class="btn btn-primary" id="btn-action"><span class="material-symbols-outlined">check</span> <span id="btn-action-lbl" th:text="${foodOrder != null ? 'Cập nhật món' : 'Xác nhận khách đến'}">Hoàn thành</span></button>
           </div>
@@ -234,6 +241,25 @@
   </div>
 
   <script th:src="@{/f&amp;bStaff/js/order-detail.js}" src="../../statics/f&bStaff/js/order-detail.js"></script>
+  <script>
+    function payOrder(id) {
+      if(!confirm("Bạn có chắc chắn muốn thanh toán đơn hàng này?")) return;
+      const btn = document.getElementById('btn-pay');
+      if (btn) { btn.disabled = true; btn.innerHTML = 'Đang xử lý...'; }
+      fetch('/api/pos/orders/' + id + '/pay', {
+        method: 'POST'
+      }).then(res => {
+        if(!res.ok) throw new Error('API Error');
+        return res.json();
+      }).then(data => {
+        alert("Thanh toán thành công! Trạng thái đã chuyển sang PAID.");
+        window.location.reload();
+      }).catch(err => {
+        alert("Lỗi thanh toán: " + err.message);
+        if (btn) { btn.disabled = false; btn.innerHTML = '<span class="material-symbols-outlined">payments</span> Thanh toán'; }
+      });
+    }
+  </script>
 </body>
 </html>
 
