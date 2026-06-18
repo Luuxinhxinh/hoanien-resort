@@ -2,6 +2,7 @@ package com.kawai.dto;
 
 public class RoomSelectionDTO {
     private String roomNumber;
+    private String categoryName;
     private Integer numberOfAdults;
     private Integer numberOfChildren;
 
@@ -14,12 +15,27 @@ public class RoomSelectionDTO {
         this.numberOfChildren = numberOfChildren;
     }
 
+    public RoomSelectionDTO(String roomNumber, String categoryName, Integer numberOfAdults, Integer numberOfChildren) {
+        this.roomNumber = roomNumber;
+        this.categoryName = categoryName;
+        this.numberOfAdults = numberOfAdults;
+        this.numberOfChildren = numberOfChildren;
+    }
+
     public String getRoomNumber() {
         return roomNumber;
     }
 
     public void setRoomNumber(String roomNumber) {
         this.roomNumber = roomNumber;
+    }
+
+    public String getCategoryName() {
+        return categoryName;
+    }
+
+    public void setCategoryName(String categoryName) {
+        this.categoryName = categoryName;
     }
 
     public Integer getNumberOfAdults() {

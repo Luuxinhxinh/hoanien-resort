@@ -275,9 +275,9 @@ function renderRoomResults(roomsData) {
     let html = '';
     categoryList.forEach(room => {
         const priceVal = room.pricePerNight;
-        const formattedPrice = priceVal.toLocaleString('vi-VN');
+        const formattedPrice = formatCurrencyVND(priceVal);
         const totalVal = priceVal * diffDays;
-        const formattedTotal = totalVal.toLocaleString('vi-VN');
+        const formattedTotal = formatCurrencyVND(totalVal);
 
         const badge = getRoomBadge(priceVal);
         const badgeHtml = badge ? `
@@ -419,8 +419,9 @@ function executeSearch(e) {
 
     const checkInStr = formatLocalDate(bookingState.checkIn);
     const checkOutStr = formatLocalDate(bookingState.checkOut);
+    const units = bookingState.units || 1;
 
-    fetch(`/api/rooms/search?checkIn=${checkInStr}&checkOut=${checkOutStr}`)
+    fetch(`/api/rooms/search?checkIn=${checkInStr}&checkOut=${checkOutStr}&minRooms=${units}`)
         .then(async response => {
             if (!response.ok) {
                 let errorMsg = 'Có lỗi xảy ra khi tìm kiếm phòng trống!';
@@ -572,51 +573,11 @@ function triggerLoginFromDetail() {
     openLoginModal();
 }
 
-// ---------------- TOAST NOTIFICATION ----------------
-function showToast(message, type = 'success') {
-    const container = document.getElementById('toastContainer');
-    if (!container) return;
-    const toast = document.createElement('div');
-    toast.className = `min-w-[320px] max-w-md bg-white border-l-4 shadow-xl p-4 flex items-center justify-between pointer-events-auto transform translate-y-[-20px] opacity-0 transition-all duration-300 ${type === 'success' ? 'border-green-600 text-green-800' : 'border-red-600 text-red-800'
-        }`;
-
-    const icon = type === 'success' ? 'check_circle' : 'error';
-    toast.innerHTML = `
-        <div class="flex items-center gap-3">
-            <span class="material-symbols-outlined text-xl ${type === 'success' ? 'text-green-600' : 'text-red-600'}">${icon}</span>
-            <span class="text-sm font-medium text-[#2c2a24]">${message}</span>
-        </div>
-        <button onclick="this.parentElement.remove()" class="text-gray-400 hover:text-gray-600 active:scale-95 ml-4 flex items-center">
-            <span class="material-symbols-outlined text-sm">close</span>
-        </button>
-    `;
-
-    container.appendChild(toast);
-
-    // Animate in
-    setTimeout(() => {
-        toast.classList.remove('translate-y-[-20px]', 'opacity-0');
-    }, 50);
-
-    // Auto dismiss after 4 seconds
-    setTimeout(() => {
-        toast.classList.add('opacity-0', 'translate-y-[-20px]');
-        setTimeout(() => {
-            toast.remove();
-        }, 300);
-    }, 4000);
-}
-
-// ---------------- BOOKING CONFIRMATION MODAL LOGIC ----------------
-
 /**
- * Validates booking data before submission.
+ * Validates check-in and check-out dates.
  * Returns null if valid, or an error message string if invalid.
  */
-function validateBookingData(roomNumbers, checkIn, checkOut) {
-    if (!roomNumbers || roomNumbers.length === 0) {
-        return 'Không xác định được phòng cần đặt. Vui lòng thử lại.';
-    }
+function validateBookingDates(checkIn, checkOut) {
     if (!checkIn || !checkOut) {
         return 'Vui lòng chọn ngày check-in và check-out trước khi đặt phòng.';
     }
@@ -624,18 +585,6 @@ function validateBookingData(roomNumbers, checkIn, checkOut) {
         return 'Ngày check-out phải sau ngày check-in.';
     }
     return null;
-}
-
-/**
- * Creates booking payload from validated data.
- */
-function createBookingPayload(roomNumbers, checkIn, checkOut, promoCode) {
-    return {
-        roomNumbers: roomNumbers,
-        checkInDate: formatLocalDate(checkIn),
-        checkOutDate: formatLocalDate(checkOut),
-        promotionCode: promoCode || null
-    };
 }
 
 // ---------------- CART LOGIC ----------------
@@ -669,7 +618,7 @@ function updateCartUI() {
                     <div class="flex justify-between items-start mb-2">
                         <div class="pr-6">
                             <h4 class="font-semibold text-sm text-[#2f2a24] leading-tight">${catName}</h4>
-                            <p class="text-xs text-[#8b8478] mt-1">${data.quantity} Phòng x ${data.pricePerNight.toLocaleString('vi-VN')} VNĐ/đêm</p>
+                            <p class="text-xs text-[#8b8478] mt-1">${data.quantity} Phòng x ${formatCurrencyVND(data.pricePerNight)} VNĐ/đêm</p>
                             <p class="text-[10px] text-[#a59f93] mt-0.5">Khách: ${data.adultsPerRoom} NL, ${data.childrenPerRoom} TE / phòng</p>
                         </div>
                         <button type="button" class="text-gray-400 hover:text-red-500 absolute top-4 right-4" onclick="removeCartItem('${catName}')">
@@ -678,10 +627,10 @@ function updateCartUI() {
                     </div>
                     <div class="flex justify-between items-center mt-2">
                         <span class="text-[10px] text-gray-400 italic">Ước tính</span>
-                        <span class="text-xs font-medium text-[#2f2a24]">${data.estimatedTotal.toLocaleString('vi-VN')} VNĐ</span>
+                        <span class="text-xs font-medium text-[#2f2a24]">${formatCurrencyVND(data.estimatedTotal)} VNĐ</span>
                     </div>
-                </div>
-            `;
+                </div>`
+                ;
             container.insertAdjacentHTML('beforeend', itemHTML);
         }
     }
@@ -697,7 +646,7 @@ function updateCartUI() {
         // Dừng timer khi giỏ trống
         stopCartHoldTimer();
     } else {
-        cartTotalPrice.innerHTML = totalCartPrice.toLocaleString('vi-VN') + " VNĐ <span class='text-[10px] text-gray-400 font-normal normal-case'>(ước tính)</span>";
+        cartTotalPrice.innerHTML = formatCurrencyVND(totalCartPrice) + " VNĐ <span class='text-[10px] text-gray-400 font-normal normal-case'>(ước tính)</span>";
         btnCheckout.disabled = false;
         cartWrapper.classList.remove('hidden');
     }
@@ -786,7 +735,7 @@ function handleSelectRoomClick(button) {
     const checkIn = bookingState.checkIn;
     const checkOut = bookingState.checkOut;
 
-    const validationError = validateBookingData(["dummy"], checkIn, checkOut);
+    const validationError = validateBookingDates(checkIn, checkOut);
     if (validationError) {
         showToast(validationError, 'error');
         return;
@@ -796,8 +745,6 @@ function handleSelectRoomClick(button) {
     const diffTime = Math.abs(checkOut - checkIn);
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) || 1;
 
-    // ✅ Frontend chỉ lưu thông tin để hiển thị ÆƯỚC TÍNH và gửi lên backend.
-    // Mọi tính toán chính xác (giá, phụ thu, khuyến mãi) do BACKEND xử lý.
     const estimatedBaseTotal = pricePerNight * quantity * diffDays;
 
     selectedRoomsCart[categoryName] = {
@@ -810,13 +757,8 @@ function handleSelectRoomClick(button) {
         estimatedTotal: estimatedBaseTotal,
         diffDays
     };
-
-    // Bắt đầu timer khi thêm phòng đầu tiên vào giỏ
     startCartHoldTimer();
-
     updateCartUI();
-
-    // Show Cart if not visible
     const cartWrapper = document.getElementById('bookingCartWrapper');
     if (cartWrapper) {
         cartWrapper.classList.remove('hidden');
@@ -845,6 +787,7 @@ function confirmCartBooking() {
         totalRoomsCount += item.roomNumbers.length;
         item.roomNumbers.forEach(roomNo => {
             roomSelections.push({
+                categoryName: catName,
                 roomNumber: roomNo,
                 numberOfAdults: item.adultsPerRoom,
                 numberOfChildren: item.childrenPerRoom
@@ -861,7 +804,7 @@ function confirmCartBooking() {
 
     const checkIn = bookingState.checkIn;
     const checkOut = bookingState.checkOut;
-    
+
     const payload = {
         roomSelections: roomSelections,
         checkInDate: formatLocalDate(checkIn),
@@ -909,7 +852,7 @@ function confirmCartBooking() {
             btnCheckout.innerText = originalText;
             btnCheckout.disabled = false;
             console.error(err);
-            showToast('Lỗi kết nối Server! Vui lòng thử lại.', 'error');
+            showToast(err.message || 'Lỗi kết nối Server! Vui lòng thử lại.', 'error');
         });
 }
 
@@ -1016,7 +959,7 @@ function toggleShowMoreRooms() {
     }
 }
 
-// ── DOM Initializations ───────────────────────────────────────────────────
+// -- DOM Initializations --
 document.addEventListener("DOMContentLoaded", function () {
     const hasError = document.querySelector('.bg-red-100');
     const hasSuccess = document.querySelector('.bg-green-100');

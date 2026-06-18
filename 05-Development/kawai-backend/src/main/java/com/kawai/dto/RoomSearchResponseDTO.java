@@ -16,6 +16,7 @@ public class RoomSearchResponseDTO {
     private Integer capacity;
     private LocalDate checkInDate;
     private LocalDate checkOutDate;
+    private Integer availableCount;
 
     private Integer baseAdults;
     private Integer baseChildren;
@@ -87,6 +88,14 @@ public class RoomSearchResponseDTO {
 
     public void setCheckOutDate(LocalDate v) {
         this.checkOutDate = v;
+    }
+
+    public Integer getAvailableCount() {
+        return availableCount;
+    }
+
+    public void setAvailableCount(Integer availableCount) {
+        this.availableCount = availableCount;
     }
 
     public Integer getBaseAdults() {

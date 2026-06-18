@@ -12,6 +12,7 @@ public class RoomSearchRequestDTO {
     private LocalDate checkOutDate;
     private String categoryName; // nullable: lọc theo hạng phòng
     private Integer minCapacity; // nullable: số khách tối thiểu
+    private Integer minRooms;    // nullable: số phòng trống tối thiểu
     private BigDecimal maxPricePerNight; // nullable: giá tối đa mỗi đêm
 
     public RoomSearchRequestDTO() {
@@ -61,6 +62,14 @@ public class RoomSearchRequestDTO {
 
     public void setMaxPricePerNight(BigDecimal v) {
         this.maxPricePerNight = v;
+    }
+
+    public Integer getMinRooms() {
+        return minRooms;
+    }
+
+    public void setMinRooms(Integer minRooms) {
+        this.minRooms = minRooms;
     }
 
     private Integer page;
