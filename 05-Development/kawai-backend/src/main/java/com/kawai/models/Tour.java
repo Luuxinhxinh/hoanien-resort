@@ -13,4 +13,5 @@ public class Tour {
     @Column(name="duration") private String duration;
     @Column(name="short_quote") private String shortQuote;
     @Column(name="created_at") private java.time.LocalDateTime createdAt;
+    @Column(name="is_active", nullable=false) private Boolean isActive = true;
 }

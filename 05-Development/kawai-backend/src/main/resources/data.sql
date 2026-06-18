@@ -87,17 +87,17 @@ INSERT INTO Dependents (dependent_id, customer_id, dependent_name, birth_date, g
 -- ── 6. Room Categories (10 rows) ─────────────────────────────
 -- Columns: category_id, category_name, cover_img_url, base_price, capacity, description,
 --          base_adults, base_children, max_adults, max_children, extra_adult_surcharge, extra_child_surcharge
-INSERT INTO Room_Categories (category_id, category_name, cover_img_url, base_price, capacity, description, base_adults, base_children, max_adults, max_children, extra_adult_surcharge, extra_child_surcharge) VALUES 
-(1,  'Nipa Pool Villa',          'https://images.unsplash.com/photo-1540541338287-41700207dee6', 2500000,  2, 'Villa thanh tịnh bên hồ sen thơm mát.',             2, 0, 3, 1, 500000,  250000),
-(2,  'River Pool Villa',         'https://images.unsplash.com/photo-1566073771259-6a8506099945', 3500000,  3, 'Villa cao cấp ven sông Thu Bồn lộng gió.',          2, 0, 3, 2, 600000,  300000),
-(3,  'Wellness Retreats',        'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4', 8000000,  4, 'Hành trình tĩnh lặng, chăm sóc sức khoẻ toàn diện.', 2, 0, 4, 2, 1000000, 500000),
-(4,  'Garden View Suite',        'https://images.unsplash.com/photo-1578683010236-d716f9a3f461', 2000000,  2, 'Suite hướng vườn nhiệt đới xanh mướt.',             2, 0, 3, 1, 400000,  200000),
-(5,  'Presidential Ocean Suite', 'https://images.unsplash.com/photo-1590490360182-c33d57733427', 15000000, 6, 'Hạng phòng cao cấp bậc nhất hướng biển.',           4, 0, 6, 3, 2000000, 1000000),
-(6,  'Ocean View Bungalow',      'https://images.unsplash.com/photo-1582719508461-905c673771fd', 3000000,  2, 'Bungalow bãi cát đón gió biển tươi mát.',           2, 0, 3, 1, 600000,  300000),
-(7,  'Family Connecting Room',   'https://images.unsplash.com/photo-1568495248636-6432b97bd949', 4500000,  5, 'Phòng thông nhau phù hợp cho cả gia đình.',         2, 2, 4, 4, 500000,  250000),
-(8,  'Superior Mountain View',   'https://images.unsplash.com/photo-1596394516093-501ba68a0ba6', 1800000,  2, 'Phòng hướng núi thanh tịnh bình yên.',              2, 0, 2, 1, 350000,  150000),
-(9,  'Luxury Penthouse',         'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688', 12000000, 4, 'Căn hộ tầng mái đẳng cấp ngắm toàn cảnh resort.',  2, 0, 4, 2, 1500000, 750000),
-(10, 'Cozy Studio Room',         'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af', 1500000,  2, 'Phòng Studio nhỏ gọn, đầy đủ tiện nghi.',          2, 0, 2, 1, 300000,  150000);
+INSERT INTO Room_Categories (category_id, category_name, cover_img_url, base_price, capacity, description, base_adults, base_children, max_adults, max_children, extra_adult_surcharge, extra_child_surcharge, is_active) VALUES 
+(1,  'Nipa Pool Villa',          'https://images.unsplash.com/photo-1540541338287-41700207dee6', 2500000,  2, 'Villa thanh tịnh bên hồ sen thơm mát.',             2, 0, 3, 1, 500000,  250000, TRUE),
+(2,  'River Pool Villa',         'https://images.unsplash.com/photo-1566073771259-6a8506099945', 3500000,  3, 'Villa cao cấp ven sông Thu Bồn lộng gió.',          2, 0, 3, 2, 600000,  300000, TRUE),
+(3,  'Wellness Retreats',        'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4', 8000000,  4, 'Hành trình tĩnh lặng, chăm sóc sức khoẻ toàn diện.', 2, 0, 4, 2, 1000000, 500000, TRUE),
+(4,  'Garden View Suite',        'https://images.unsplash.com/photo-1578683010236-d716f9a3f461', 2000000,  2, 'Suite hướng vườn nhiệt đới xanh mướt.',             2, 0, 3, 1, 400000,  200000, TRUE),
+(5,  'Presidential Ocean Suite', 'https://images.unsplash.com/photo-1590490360182-c33d57733427', 15000000, 6, 'Hạng phòng cao cấp bậc nhất hướng biển.',           4, 0, 6, 3, 2000000, 1000000, TRUE),
+(6,  'Ocean View Bungalow',      'https://images.unsplash.com/photo-1582719508461-905c673771fd', 3000000,  2, 'Bungalow bãi cát đón gió biển tươi mát.',           2, 0, 3, 1, 600000,  300000, TRUE),
+(7,  'Family Connecting Room',   'https://images.unsplash.com/photo-1568495248636-6432b97bd949', 4500000,  5, 'Phòng thông nhau phù hợp cho cả gia đình.',         2, 2, 4, 4, 500000,  250000, TRUE),
+(8,  'Superior Mountain View',   'https://images.unsplash.com/photo-1596394516093-501ba68a0ba6', 1800000,  2, 'Phòng hướng núi thanh tịnh bình yên.',              2, 0, 2, 1, 350000,  150000, TRUE),
+(9,  'Luxury Penthouse',         'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688', 12000000, 4, 'Căn hộ tầng mái đẳng cấp ngắm toàn cảnh resort.',  2, 0, 4, 2, 1500000, 750000, TRUE),
+(10, 'Cozy Studio Room',         'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af', 1500000,  2, 'Phòng Studio nhỏ gọn, đầy đủ tiện nghi.',          2, 0, 2, 1, 300000,  150000, TRUE);
 
 -- ── 7. Room Surcharges (10 rows) ─────────────────────────────
 INSERT INTO Room_Surcharges (surcharge_id, category_id, surcharge_type, age_from, age_to, price_modifier, is_active) VALUES 
@@ -112,40 +112,58 @@ INSERT INTO Room_Surcharges (surcharge_id, category_id, surcharge_type, age_from
 (9, 5, 'EXTRA_ADULT_BED', 12, 100, 2000000, TRUE),
 (10, 6, 'EXTRA_ADULT_BED', 12, 100, 600000, TRUE);
 
--- ── 8. Rooms (20 rows) ───────────────────────────────────────
+-- ── 8. Rooms (50 rows) ───────────────────────────────────────
 INSERT INTO Rooms (room_id, room_number, category_id, room_status, current_booking_detail_id) VALUES 
 (1, '101', 1, 'Occupied', NULL),
 (2, '102', 1, 'Vacant_Clean', NULL),
-(3, '204', 2, 'Occupied', NULL),
-(4, '205', 2, 'Vacant_Dirty', NULL),
-(5, '308', 3, 'Occupied', NULL),
-(6, '103', 1, 'Vacant_Clean', NULL),
-(7, '104', 1, 'Occupied', NULL),
-(8, '105', 1, 'Vacant_Dirty', NULL),
-(9, '106', 1, 'Occupied', NULL),
-(10, '107', 1, 'Vacant_Clean', NULL),
-(11, '206', 2, 'Vacant_Clean', NULL),
-(12, '207', 2, 'Occupied', NULL),
-(13, '208', 2, 'Vacant_Dirty', NULL),
-(14, '209', 2, 'Vacant_Clean', NULL),
-(15, '210', 2, 'Occupied', NULL),
-(16, '309', 3, 'Vacant_Clean', NULL),
-(17, '310', 3, 'Vacant_Dirty', NULL),
-(18, '311', 3, 'Occupied', NULL),
-(19, '312', 3, 'Vacant_Clean', NULL),
-(20, '314', 3, 'Vacant_Clean', NULL),
-(21, '401', 4, 'Vacant_Clean', NULL),
-(22, '402', 4, 'Vacant_Clean', NULL),
-(23, '501', 5, 'Vacant_Clean', NULL),
-(24, '601', 6, 'Vacant_Clean', NULL),
-(25, '602', 6, 'Vacant_Clean', NULL),
-(26, '701', 7, 'Vacant_Clean', NULL),
-(27, '702', 7, 'Vacant_Clean', NULL),
-(28, '801', 8, 'Vacant_Clean', NULL),
-(29, '802', 8, 'Vacant_Clean', NULL),
-(30, '901', 9, 'Vacant_Clean', NULL),
-(31, '1001', 10, 'Vacant_Clean', NULL),
-(32, '1002', 10, 'Vacant_Clean', NULL);
+(3, '103', 1, 'Vacant_Dirty', NULL),
+(4, '104', 1, 'Vacant_Clean', NULL),
+(5, '105', 1, 'Occupied', NULL),
+(6, '106', 4, 'Vacant_Clean', NULL),
+(7, '107', 4, 'Vacant_Dirty', NULL),
+(8, '108', 4, 'Occupied', NULL),
+(9, '109', 4, 'Vacant_Clean', NULL),
+(10, '110', 4, 'Vacant_Clean', NULL),
+(11, '201', 2, 'Occupied', NULL),
+(12, '202', 2, 'Vacant_Clean', NULL),
+(13, '203', 2, 'Vacant_Dirty', NULL),
+(14, '204', 2, 'Vacant_Clean', NULL),
+(15, '205', 2, 'Occupied', NULL),
+(16, '206', 10, 'Vacant_Clean', NULL),
+(17, '207', 10, 'Vacant_Dirty', NULL),
+(18, '208', 10, 'Occupied', NULL),
+(19, '209', 10, 'Vacant_Clean', NULL),
+(20, '210', 10, 'Vacant_Clean', NULL),
+(21, '301', 7, 'Occupied', NULL),
+(22, '302', 7, 'Vacant_Clean', NULL),
+(23, '303', 7, 'Vacant_Dirty', NULL),
+(24, '304', 7, 'Vacant_Clean', NULL),
+(25, '305', 7, 'Occupied', NULL),
+(26, '306', 8, 'Vacant_Clean', NULL),
+(27, '307', 8, 'Vacant_Dirty', NULL),
+(28, '308', 8, 'Occupied', NULL),
+(29, '309', 8, 'Vacant_Clean', NULL),
+(30, '310', 8, 'Vacant_Clean', NULL),
+(31, '401', 6, 'Occupied', NULL),
+(32, '402', 6, 'Vacant_Clean', NULL),
+(33, '403', 6, 'Vacant_Dirty', NULL),
+(34, '404', 6, 'Vacant_Clean', NULL),
+(35, '405', 6, 'Occupied', NULL),
+(36, '406', 3, 'Vacant_Clean', NULL),
+(37, '407', 3, 'Vacant_Dirty', NULL),
+(38, '408', 3, 'Occupied', NULL),
+(39, '409', 3, 'Vacant_Clean', NULL),
+(40, '410', 3, 'Vacant_Clean', NULL),
+(41, '501', 5, 'Occupied', NULL),
+(42, '502', 5, 'Vacant_Clean', NULL),
+(43, '503', 5, 'Vacant_Dirty', NULL),
+(44, '504', 5, 'Vacant_Clean', NULL),
+(45, '505', 5, 'Occupied', NULL),
+(46, '506', 9, 'Vacant_Clean', NULL),
+(47, '507', 9, 'Vacant_Dirty', NULL),
+(48, '508', 9, 'Occupied', NULL),
+(49, '509', 9, 'Vacant_Clean', NULL),
+(50, '510', 9, 'Vacant_Clean', NULL);
 
 -- ── 9. Dynamic Pricing (10 rows) ─────────────────────────────
 INSERT INTO Dynamic_Pricing (price_id, category_id, start_date, end_date, price_modifier, reason) VALUES 
@@ -307,7 +325,7 @@ INSERT INTO Menu_Items (item_id, item_name, price, category, is_available, descr
 (2, 'Gỏi Cuốn Tôm Thịt', 95000, 'Khai vị', TRUE, 'Gỏi cuốn tôm thịt tươi ngon kèm rau sống và tương đậu phộng.', 'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=500&q=80', 'Đậu phộng, Hải sản'),
 (3, 'Chả Giò Hải Sản', 110000, 'Khai vị', TRUE, 'Chả giò chiên giòn nhân hải sản tươi sống.', 'https://images.unsplash.com/photo-1608897013039-887f21d8c804?w=500&q=80', 'Hải sản'),
 (4, 'Salad Cá Hồi Xông Khói', 150000, 'Khai vị', TRUE, 'Salad rau xanh tươi mát kết hợp cá hồi xông khói nhập khẩu.', 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500&q=80', 'Hải sản'),
-(5, 'Súp Hải Sản Măng Tây', 130000, 'Khai vị', TRUE, 'Súp hải sản nấu cùng măng tây tươi ngon ngọt.', 'https://images.unsplash.com/photo-1605902711831-8b11abb0e23c?w=500&q=80', 'Hải sản'),
+(5, 'Súp Hải Sản Măng Tây', 130000, 'Khai vị', TRUE, 'Súp hải sản nấu cùng măng tây tươi ngon ngọt.', 'https://images.pexels.com/photos/5266187/pexels-photo-5266187.jpeg?auto=compress&cs=tinysrgb&w=500', 'Hải sản'),
 (6, 'Bánh Mì Bơ Tỏi', 65000, 'Khai vị', TRUE, 'Bánh mì Pháp nướng giòn phết bơ tỏi thơm lừng.', 'https://images.unsplash.com/photo-1598373182133-52452f7691ef?w=500&q=80', 'Gluten, Sữa'),
 (7, 'Nem Chua Rán', 75000, 'Khai vị', TRUE, 'Nem chua rán giòn rụm chấm tương ớt.', 'https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?w=500&q=80', NULL),
 (8, 'Hoành Thánh Chiên Giòn', 85000, 'Khai vị', TRUE, 'Hoành thánh chiên giòn nhân tôm thịt.', 'https://images.unsplash.com/photo-1563245372-f21724e3856d?w=500&q=80', 'Gluten, Hải sản'),
@@ -333,9 +351,9 @@ INSERT INTO Menu_Items (item_id, item_name, price, category, is_available, descr
 (28, 'Nước Cam Tươi Ép Lạnh', 95000, 'Đồ uống', TRUE, 'Nước cam tươi nguyên chất ép lạnh.', 'https://images.unsplash.com/photo-1600271886742-f049cd451bba?w=500&q=80', NULL),
 (29, 'Cà Phê Phin Việt Nam', 55000, 'Đồ uống', TRUE, 'Cà phê phin Việt Nam đậm đà truyền thống.', 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=500&q=80', NULL),
 (30, 'Trà Đào Cam Sả', 65000, 'Đồ uống', TRUE, 'Trà đào cam sả tươi mát giải nhiệt.', 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=500&q=80', NULL),
-(31, 'Sinh Tố Bơ', 75000, 'Đồ uống', TRUE, 'Sinh tố bơ tươi xay nhuyễn béo ngậy.', 'https://images.unsplash.com/photo-1563531555-d62cf34b8d50?w=500&q=80', 'Sữa'),
-(32, 'Mojito Chanh Bạc Hà', 85000, 'Đồ uống', TRUE, 'Mojito không cồn chanh bạc hà tươi mát.', 'https://images.unsplash.com/photo-1544252890-c3e95e867389?w=500&q=80', NULL),
-(33, 'Bia Heineken', 45000, 'Đồ uống', TRUE, 'Bia Heineken nhập khẩu lạnh.', 'https://images.unsplash.com/photo-1586994930637-0c0f2ff4a3f0?w=500&q=80', 'Gluten'),
+(31, 'Sinh Tố Bơ', 75000, 'Đồ uống', TRUE, 'Sinh tố bơ tươi xay nhuyễn béo ngậy.', 'https://images.pexels.com/photos/4033105/pexels-photo-4033105.jpeg?auto=compress&cs=tinysrgb&w=500', 'Sữa'),
+(32, 'Mojito Chanh Bạc Hà', 85000, 'Đồ uống', TRUE, 'Mojito không cồn chanh bạc hà tươi mát.', 'https://images.pexels.com/photos/1232152/pexels-photo-1232152.jpeg?auto=compress&cs=tinysrgb&w=500', NULL),
+(33, 'Bia Heineken', 45000, 'Đồ uống', TRUE, 'Bia Heineken nhập khẩu lạnh.', 'https://images.pexels.com/photos/1089930/pexels-photo-1089930.jpeg?auto=compress&cs=tinysrgb&w=500', 'Gluten'),
 (34, 'Nước Khoáng Evian', 40000, 'Đồ uống', TRUE, 'Nước khoáng Evian Pháp.', 'https://images.unsplash.com/photo-1563227812-0ea4c22e6cc8?w=500&q=80', NULL);
 
 -- ── 19. Food Orders (19 rows) ────────────────────────────────
@@ -463,17 +481,17 @@ INSERT INTO Payment_Transactions (transaction_id, invoice_id, booking_id, amount
 (10, 10, 15, 1000000, 'Deposit', 'VNPAY', 'SUCCESS', 'TXN-0010-DEP', '2026-06-16 14:06:00');
 
 -- ── 27. Tours (10 rows) ──────────────────────────────────────
-INSERT INTO Tours (tour_id, tour_name, tour_type, duration, base_price, max_capacity, short_quote, description, created_at) VALUES 
-(1, 'Đoàn tụ - Huế', 'Full-Day', '12 Giờ', 1500000, 20, 'Tìm về hơi ấm vẹn nguyên của lòng biết ơn và sự gắn kết.', 'Hành trình di sản cố đô Huế trải nghiệm văn hoá ẩm thực cung đình Huế.', CURRENT_TIMESTAMP),
-(2, 'Tinh túy đồng nội - Quảng Nam', 'Half-Day', '6 Giờ', 1200000, 15, 'Lắng nghe nhịp điệu mộc mạc của đất mẹ và hồn quê xứ Quảng.', 'Tham quan phố cổ Hội An, làng rau Trà Quế và làng gốm Thanh Hà.', CURRENT_TIMESTAMP),
-(3, 'Di sản thủ công - Ninh Bình', 'Half-Day', '5 Giờ', 1800000, 15, 'Chạm vào hồn cốt của thời gian qua những tạo tác từ đôi bàn tay nghệ nhân.', 'Khám phá đầm Vân Long và làng nghề thêu ren truyền thống Văn Lâm.', CURRENT_TIMESTAMP),
-(4, 'Tĩnh lặng liên hoa - Tháp Mười', 'Full-Day', '10 Giờ', 2500000, 10, 'Sự thanh lọc thuần khiết cho thân - tâm - trí giữa vùng sông nước mờ sương.', 'Đi xuồng ba lá ngắm sen nở rộ Đồng Tháp Mười thiền định thư thái.', CURRENT_TIMESTAMP),
-(5, 'Huyền thoại vịnh xanh - Hạ Long', 'Half-Day', '4 Giờ', 1000000, 30, 'Du thuyền sang trọng ngắm kỳ quan thiên nhiên thế giới.', 'Lướt sóng vịnh Bắc Bộ ngắm động Thiên Cung hoành tráng.', CURRENT_TIMESTAMP),
-(6, 'Bình yên bản nhỏ - Sapa', 'Full-Day', '8 Giờ', 1300000, 20, 'Gặp gỡ nụ cười hồn hậu vùng cao mây phủ.', 'Leo ruộng bậc thang bản Cát Cát trải nghiệm văn hoá đồng bào H’mông.', CURRENT_TIMESTAMP),
-(7, 'Nhịp đập hoang dã - Cát Tiên', 'Full-Day', '14 Giờ', 2200000, 12, 'Lắng nghe tiếng gọi rừng xanh thẳm huyền bí.', 'Xem thú ban đêm rừng Nam Cát Tiên ngắm chim muông kì thú.', CURRENT_TIMESTAMP),
-(8, 'Bình minh cồn cát - Mũi Né', 'Half-Day', '5 Giờ', 900000, 15, 'Trượt cát đón mặt trời mọc rực rỡ.', 'Khám phá Đồi Cát Trắng, Đồi Cát Đỏ Mũi Né bằng xe địa hình ATV.', CURRENT_TIMESTAMP),
-(9, 'Sóng hát san hô - Phú Quốc', 'Half-Day', '6 Giờ', 1400000, 25, 'Hoà mình vào làn nước xanh lục bảo óng ánh.', 'Lặn cano 4 đảo ngắm san hô thiên nhiên rực rỡ Phú Quốc.', CURRENT_TIMESTAMP),
-(10, 'Hương sắc miệt vườn - Cần Thơ', 'Half-Day', '5 Giờ', 800000, 20, 'Ngọt lịm trái chín trĩu cành miền Tây sông nước.', 'Đi chợ nổi Cái Răng thưởng thức bữa sáng trên ghe thuyền mộc mạc.', CURRENT_TIMESTAMP);
+INSERT INTO Tours (tour_id, tour_name, tour_type, duration, base_price, max_capacity, short_quote, description, created_at, is_active) VALUES 
+(1, 'Đoàn tụ - Huế', 'Full-Day', '12 Giờ', 1500000, 20, 'Tìm về hơi ấm vẹn nguyên của lòng biết ơn và sự gắn kết.', 'Hành trình di sản cố đô Huế trải nghiệm văn hoá ẩm thực cung đình Huế.', CURRENT_TIMESTAMP, TRUE),
+(2, 'Tinh túy đồng nội - Quảng Nam', 'Half-Day', '6 Giờ', 1200000, 15, 'Lắng nghe nhịp điệu mộc mạc của đất mẹ và hồn quê xứ Quảng.', 'Tham quan phố cổ Hội An, làng rau Trà Quế và làng gốm Thanh Hà.', CURRENT_TIMESTAMP, TRUE),
+(3, 'Di sản thủ công - Ninh Bình', 'Half-Day', '5 Giờ', 1800000, 15, 'Chạm vào hồn cốt của thời gian qua những tạo tác từ đôi bàn tay nghệ nhân.', 'Khám phá đầm Vân Long và làng nghề thêu ren truyền thống Văn Lâm.', CURRENT_TIMESTAMP, TRUE),
+(4, 'Tĩnh lặng liên hoa - Tháp Mười', 'Full-Day', '10 Giờ', 2500000, 10, 'Sự thanh lọc thuần khiết cho thân - tâm - trí giữa vùng sông nước mờ sương.', 'Đi xuồng ba lá ngắm sen nở rộ Đồng Tháp Mười thiền định thư thái.', CURRENT_TIMESTAMP, TRUE),
+(5, 'Huyền thoại vịnh xanh - Hạ Long', 'Half-Day', '4 Giờ', 1000000, 30, 'Du thuyền sang trọng ngắm kỳ quan thiên nhiên thế giới.', 'Lướt sóng vịnh Bắc Bộ ngắm động Thiên Cung hoành tráng.', CURRENT_TIMESTAMP, TRUE),
+(6, 'Bình yên bản nhỏ - Sapa', 'Full-Day', '8 Giờ', 1300000, 20, 'Gặp gỡ nụ cười hồn hậu vùng cao mây phủ.', 'Leo ruộng bậc thang bản Cát Cát trải nghiệm văn hoá đồng bào H’mông.', CURRENT_TIMESTAMP, TRUE),
+(7, 'Nhịp đập hoang dã - Cát Tiên', 'Full-Day', '14 Giờ', 2200000, 12, 'Lắng nghe tiếng gọi rừng xanh thẳm huyền bí.', 'Xem thú ban đêm rừng Nam Cát Tiên ngắm chim muông kì thú.', CURRENT_TIMESTAMP, TRUE),
+(8, 'Bình minh cồn cát - Mũi Né', 'Half-Day', '5 Giờ', 900000, 15, 'Trượt cát đón mặt trời mọc rực rỡ.', 'Khám phá Đồi Cát Trắng, Đồi Cát Đỏ Mũi Né bằng xe địa hình ATV.', CURRENT_TIMESTAMP, TRUE),
+(9, 'Sóng hát san hô - Phú Quốc', 'Half-Day', '6 Giờ', 1400000, 25, 'Hoà mình vào làn nước xanh lục bảo óng ánh.', 'Lặn cano 4 đảo ngắm san hô thiên nhiên rực rỡ Phú Quốc.', CURRENT_TIMESTAMP, TRUE),
+(10, 'Hương sắc miệt vườn - Cần Thơ', 'Half-Day', '5 Giờ', 800000, 20, 'Ngọt lịm trái chín trĩu cành miền Tây sông nước.', 'Đi chợ nổi Cái Răng thưởng thức bữa sáng trên ghe thuyền mộc mạc.', CURRENT_TIMESTAMP, TRUE);
 
 -- ── 28. Tour Images (10 rows) ────────────────────────────────
 INSERT INTO Tour_Images (image_id, tour_id, image_url, is_primary) VALUES 

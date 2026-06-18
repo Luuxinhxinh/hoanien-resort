@@ -52,12 +52,12 @@ public class AuthController {
         }
 
         if (accountRepository.existsByUsername(username)) {
-            redirectAttributes.addFlashAttribute("error", "Tên đăng nhập đã tồn tại!");
+            redirectAttributes.addFlashAttribute("authError", "Tên đăng nhập đã tồn tại!");
             return "redirect:" + redirectPath;
         }
 
         if (customerRepository.existsByEmail(email)) {
-            redirectAttributes.addFlashAttribute("error", "Email này đã được sử dụng!");
+            redirectAttributes.addFlashAttribute("authError", "Email này đã được sử dụng!");
             return "redirect:" + redirectPath;
         }
 
@@ -86,7 +86,7 @@ public class AuthController {
         customer.setPhone(phone != null && !phone.trim().isEmpty() ? phone : "0000000000");
         customerRepository.save(customer);
 
-        redirectAttributes.addFlashAttribute("success", "Đăng ký thành công! Vui lòng đăng nhập.");
+        redirectAttributes.addFlashAttribute("authSuccess", "Đăng ký thành công! Vui lòng đăng nhập.");
         return "redirect:" + redirectPath;
     }
 

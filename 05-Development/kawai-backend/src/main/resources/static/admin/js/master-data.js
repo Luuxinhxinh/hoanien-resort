@@ -41,7 +41,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Add new button
     const addBtn = document.getElementById("btn-add-new");
-    if (addBtn) addBtn.addEventListener("click", openAddModal);
+    if (addBtn) {
+        if (activeTab === "Rooms") {
+            addBtn.style.display = "none";
+        } else {
+            addBtn.addEventListener("click", openAddModal);
+        }
+    }
 
     // Modal close buttons (all buttons with .btn-close-modal)
     document.querySelectorAll(".btn-close-modal").forEach(btn => {
@@ -183,6 +189,48 @@ function openAddModal() {
     openModal("entity-modal");
 }
 
+window.deleteRow = function(id) {
+    if (!confirm('Bạn có chắc chắn muốn xóa mục này?')) return;
+
+    let apiPath = '';
+    switch(activeTab) {
+        case 'Room Categories': apiPath = 'room-categories'; break;
+        case 'Rooms': apiPath = 'rooms'; break;
+        case 'Restaurant Menu': apiPath = 'menu-items'; break;
+        case 'Menu Categories': apiPath = 'menu-categories'; break;
+        case 'Tour Categories': apiPath = 'tour-categories'; break;
+        case 'Tours': apiPath = 'tours'; break;
+        case 'Promotions': apiPath = 'promotions'; break;
+        case 'Pricing Management': apiPath = 'pricing'; break;
+        case 'Bookings': apiPath = 'bookings'; break;
+        case 'F&B Orders': apiPath = 'fnb-orders'; break;
+        case 'Tour Schedules': apiPath = 'tour-schedules'; break;
+        case 'Account Management': apiPath = 'accounts'; break;
+        default: apiPath = 'generic';
+    }
+
+    let endpoint = `/admin/api/v1/${apiPath}/${id}`;
+
+    fetch(endpoint, {
+        method: 'DELETE',
+    }).then(res => {
+        if (!res.ok) {
+            return res.text().then(text => {
+                try {
+                    const err = JSON.parse(text);
+                    throw new Error(err.error || err.message || "Lỗi API: " + res.status);
+                } catch (e) {
+                    throw new Error(text || "Lỗi API: " + res.status);
+                }
+            });
+        }
+        alert('Xóa thành công!');
+        window.location.reload();
+    }).catch(err => {
+        alert('Có lỗi xảy ra khi xóa: ' + err.message);
+    });
+};
+
 function openEditModal(id) {
     editingRowId = id;
     const title = document.getElementById("modal-title");
@@ -219,11 +267,45 @@ function openEditModal(id) {
                 if (input.type === "checkbox") {
                     input.checked = (value === "true" || value === true);
                 } else {
-                    input.value = value;
+                    let v = value;
+                    if (typeof v === 'string' && v.includes('VNĐ')) {
+                        v = v.replace(' VNĐ', '');
+                        if (v.endsWith('M')) {
+                            v = (parseFloat(v.replace('M', '').replace(',', '.')) * 1000000).toString();
+                        } else {
+                            v = v.replace(/\./g, '');
+                        }
+                    }
+                    input.value = v;
                 }
             }
         }
-        form.dataset.action = `/admin/api/v1/accounts/${id}`;
+        
+        if (activeTab === "Rooms") {
+            const nameInput = form.elements['name'];
+            if (nameInput) {
+                nameInput.readOnly = true;
+                nameInput.style.backgroundColor = '#f3f4f6';
+                nameInput.style.pointerEvents = 'none';
+            }
+        }
+        let apiPath = '';
+        switch(activeTab) {
+            case 'Room Categories': apiPath = 'room-categories'; break;
+            case 'Rooms': apiPath = 'rooms'; break;
+            case 'Restaurant Menu': apiPath = 'menu-items'; break;
+            case 'Menu Categories': apiPath = 'menu-categories'; break;
+            case 'Tour Categories': apiPath = 'tour-categories'; break;
+            case 'Tours': apiPath = 'tours'; break;
+            case 'Promotions': apiPath = 'promotions'; break;
+            case 'Pricing Management': apiPath = 'pricing'; break;
+            case 'Bookings': apiPath = 'bookings'; break;
+            case 'F&B Orders': apiPath = 'fnb-orders'; break;
+            case 'Tour Schedules': apiPath = 'tour-schedules'; break;
+            case 'Account Management': apiPath = 'accounts'; break;
+            default: apiPath = 'generic';
+        }
+        form.dataset.action = `/admin/api/v1/${apiPath}/${id}`;
         form.dataset.method = "PUT";
     }
 
@@ -247,9 +329,25 @@ function handleFormSubmit(event) {
     let endpoint = form.dataset.action || '';
     let method = form.dataset.method || 'POST';
 
-    // Fallback for Account Management tab if data-action wasn't explicitly set
-    if (activeTab === "Account Management" && !endpoint) {
-        endpoint = isEdit ? `/admin/api/v1/accounts/${editingRowId}` : '/admin/api/v1/accounts';
+    // Fallback for missing action
+    if (!endpoint) {
+        let apiPath = '';
+        switch(activeTab) {
+            case 'Room Categories': apiPath = 'room-categories'; break;
+            case 'Rooms': apiPath = 'rooms'; break;
+            case 'Restaurant Menu': apiPath = 'menu-items'; break;
+            case 'Menu Categories': apiPath = 'menu-categories'; break;
+            case 'Tour Categories': apiPath = 'tour-categories'; break;
+            case 'Tours': apiPath = 'tours'; break;
+            case 'Promotions': apiPath = 'promotions'; break;
+            case 'Pricing Management': apiPath = 'pricing'; break;
+            case 'Bookings': apiPath = 'bookings'; break;
+            case 'F&B Orders': apiPath = 'fnb-orders'; break;
+            case 'Tour Schedules': apiPath = 'tour-schedules'; break;
+            case 'Account Management': apiPath = 'accounts'; break;
+            default: apiPath = 'generic';
+        }
+        endpoint = isEdit ? `/admin/api/v1/${apiPath}/${editingRowId}` : `/admin/api/v1/${apiPath}`;
     }
 
     if (endpoint) {
@@ -266,7 +364,16 @@ function handleFormSubmit(event) {
             body: JSON.stringify(payload)
         })
             .then(res => {
-                if (!res.ok) throw new Error("Lỗi API: " + res.status);
+                if (!res.ok) {
+                    return res.text().then(text => {
+                        try {
+                            const err = JSON.parse(text);
+                            throw new Error(err.error || err.message || "Lỗi API: " + res.status);
+                        } catch (e) {
+                            throw new Error(text || "Lỗi API: " + res.status);
+                        }
+                    });
+                }
                 return res.json();
             })
             .then(data => {
@@ -441,9 +548,6 @@ function handleSavePermissions() {
 }
 // ─────────────────────────────────────────────────────────────────────────────
 // ACCOUNT TOGGLE STATUS
-// Cập nhật UI ngay (optimistic). Khi backend sẵn sàng:
-//   1. Uncomment phần fetch() bên dưới
-//   2. Xóa phần "// Cập nhật UI" phía trên fetch (để tránh double-update)
 // ─────────────────────────────────────────────────────────────────────────────
 
 document.addEventListener("click", (e) => {
@@ -451,23 +555,82 @@ document.addEventListener("click", (e) => {
     if (!btn) return;
 
     const id = btn.dataset.id;
-    const current = btn.dataset.value === "true";
-    const next = !current;
-
-    // ── Cập nhật UI ngay (không cần API) ─────────────────────────────────────
-    btn.dataset.value = String(next);
-
-    const icon = btn.querySelector("i");
-    if (icon) {
-        icon.setAttribute("data-lucide", next ? "toggle-right" : "toggle-left");
-        icon.className = `w-[22px] h-[22px] ${next ? "text-[#C9A96E]" : "text-[#8B7355]"}`;
-        if (typeof lucide !== "undefined") lucide.createIcons();
+    // Account toggle value could be string 'true' or 'Active' etc
+    let current = btn.dataset.value;
+    let next;
+    
+    // For accounts:
+    if (current === "true" || current === "false") {
+        next = current === "true" ? "false" : "true";
+    } else if (current === "Active" || current === "Inactive") {
+        next = current === "Active" ? "Inactive" : "Active";
+    } else if (current === "Available" || current === "Unavailable") {
+        next = current === "Available" ? "Unavailable" : "Available";
+    } else {
+        next = "true";
     }
 
-    // Đồng bộ data-value trên <td> để edit modal đọc đúng
-    const td = btn.closest("td[data-key]");
-    if (td) td.dataset.value = String(next);
+    let apiPath = '';
+    switch(activeTab) {
+        case 'Room Categories': apiPath = 'room-categories'; break;
+        case 'Menu Categories': apiPath = 'menu-categories'; break;
+        case 'Restaurant Menu': apiPath = 'menu-items'; break;
+        case 'Tour Categories': apiPath = 'tour-categories'; break;
+        case 'Tours': apiPath = 'tours'; break;
+        case 'Promotions': apiPath = 'promotions'; break;
+        case 'Pricing Management': apiPath = 'pricing'; break;
+        case 'Account Management': apiPath = 'accounts'; break;
+        default: return; // No toggle supported
+    }
 
+    const endpoint = `/admin/api/v1/${apiPath}/${id}/toggle`;
+    
+    // Convert to boolean for API payload
+    const boolValue = (next === "true" || next === "Active" || next === "Available");
+
+    fetch(endpoint, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: boolValue })
+    })
+    .then(res => {
+        if (!res.ok) throw new Error("Toggle failed");
+        return res.json();
+    })
+    .then(data => {
+        // Cập nhật UI ngay
+        btn.dataset.value = next;
+        
+        // Update styling by recreating the i tag for lucide
+        const iconName = boolValue ? "toggle-right" : "toggle-left";
+        const iconColor = boolValue ? "color:#C9A96E" : "color:#8B7355";
+        btn.innerHTML = `<i data-lucide="${iconName}" style="${iconColor}"></i>`;
+        if (typeof lucide !== "undefined") lucide.createIcons();
+
+        // update the data-value on the td containing the badge
+        const tr = btn.closest("tr");
+        if (tr) {
+            const td = tr.querySelector("td[data-key='status']");
+            if (td) td.dataset.value = next;
+            
+            const badge = tr.querySelector(".cell-badge");
+            if (badge) {
+                badge.textContent = next;
+                badge.classList.remove("badge-success", "badge-warning", "badge-danger", "badge-info", "badge-default");
+                if (next === "Active" || next === "Available" || next === "true") {
+                    badge.classList.add("badge-success");
+                } else {
+                    badge.classList.add("badge-warning");
+                }
+            }
+        }
+        
+        if (typeof showToast === "function") showToast("Cập nhật trạng thái thành công!", "success");
+    })
+    .catch(err => {
+        console.error("Toggle API Error: ", err);
+        alert("Lỗi khi cập nhật trạng thái");
+    });
 });
 
 // ─────────────────────────────────────────────────────────────────────────────

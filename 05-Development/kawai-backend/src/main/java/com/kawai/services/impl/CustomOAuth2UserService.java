@@ -30,10 +30,16 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         if (email != null) {
             // Gọi sang service tách riêng để đảm bảo @Transactional hoạt động đúng
             oAuthAccountService.findOrCreateOAuthAccount(email, fullName);
+            
+            // Trả về DefaultOAuth2User với key là "email" để principal.getName() lấy được email thay vì Google ID
+            return new org.springframework.security.oauth2.core.user.DefaultOAuth2User(
+                    oAuth2User.getAuthorities(),
+                    oAuth2User.getAttributes(),
+                    "email"
+            );
         } else {
             log.warn("Google OAuth trả về email=null, bỏ qua việc tạo account");
+            return oAuth2User;
         }
-
-        return oAuth2User;
     }
 }

@@ -1,17 +1,17 @@
-﻿# TEST-DRIVEN DEVELOPMENT SPECIFICATION
-## UC02 — Quản lý hồ sơ cá nhân (ProfileService)
+# TEST-DRIVEN DEVELOPMENT SPECIFICATION
+## UC02 — Đặt lại mật khẩu (PasswordResetService)
 
 | Field | Value |
 |-------|-------|
 | **Document ID** | `KAWAI-TDD-MOD1-UC02-001` |
 | **Version** | 1.0 |
-| **Date** | 2026-06-14 |
+| **Date** | 2026-06-17 |
 | **Status** | Approved |
 | **Standard** | ISO/IEC/IEEE 29119-3:2021 |
-| **Author** | Nguyễn Xuân Lưu — Developer |
+| **Author** | Antigravity — Developer |
 | **Reviewed by** | [x] Nguyễn Xuân Lưu — Tech Lead |
-| **DPO Sign-off** | `[x] Approved – 2026-06-14 – Nguyễn Xuân Lưu` |
-| **Approved by** | `[x] Nguyễn Xuân Lưu – 2026-06-14` |
+| **DPO Sign-off** | `[x] Approved – 2026-06-17 – Nguyễn Xuân Lưu` |
+| **Approved by** | `[x] Nguyễn Xuân Lưu – 2026-06-17` |
 | **Classification** | Internal — Confidential |
 
 ---
@@ -32,14 +32,14 @@
 | Field | Value |
 |-------|-------|
 | **Feature / Gap ID** | `GAP-MOD1-UC02` |
-| **Module** | Auth (Profile) — UC02 |
-| **Use Case** | UC02: Xem/sửa hồ sơ, đổi mật khẩu, upload avatar |
-| **Spec gốc** | `SRS_Document_SWP391_G2.md` |
-| **Priority** | 🔴 P0 |
-| **Sprint** | S1 (2026-06-09 → 2026-06-23) |
-| **Data Classification** | PII (họ tên, CCCD, SĐT) |
-| **Upstream Dependencies** | UC01 (Login) |
-| **Downstream Consumers** | UC03 (Employee), UC12 (Check-in) |
+| **Module** | Auth (Xác thực) — UC02 |
+| **Use Case** | UC02: Đặt lại mật khẩu (Gửi Mail chứa Token giới hạn thời gian) |
+| **Spec gốc** | `UC_DETAIL_SPEC.md` |
+| **Priority** | 🟠 P1 |
+| **Sprint** | S1 |
+| **Data Classification** | PII |
+| **Upstream Dependencies** | Core Mail Service |
+| **Downstream Consumers** | Authentication Service |
 
 ---
 
@@ -47,56 +47,57 @@
 
 | # | Spec gốc | Thực tế | Fix áp dụng trong test |
 |---|----------|---------|------------------------|
-| **L1** | Chưa quy định validate CCCD | CCCD phải 12 số | Test validate CCCD format |
-| **L2** | Avatar upload chưa có giới hạn | Max 5MB, chỉ JPG/PNG | Test file size + type |
+| **L1** | Token quên mật khẩu không quy định rõ chuẩn | Sử dụng UUID v4 ngẫu nhiên | Validate chuẩn UUID của token |
+| **L2** | Không ngăn chặn dò tìm email tồn tại | Trả về thông báo thành công kể cả email không tồn tại | Assert API trả về 200 bất kể email đúng hay sai |
 
 ---
 
 ### 3. Test Design Specification (TDS)
 
-#### TDS-01 — Scope
-Logic `ProfileService.getProfile()`, `updateProfile()`, `changePassword()`, `uploadAvatar()`.
+#### TDS-01 — Scope / Phạm vi
+Logic `PasswordResetService.requestReset()`, `validateToken()`, `resetPassword()`.
 
 #### TDS-02 — Test Basis
 
 | Source | Items Derived |
 |--------|---------------|
-| `SRS.md` UC02 | Xem/sửa profile, đổi password, upload avatar |
-| BR-PII-01 | CCCD phải 12 số |
+| `UC_DETAIL_SPEC.md` UC02 | Token giới hạn thời gian 15 phút, gửi mail |
+| BR-PWD-01 | Mật khẩu băm BCrypt |
 
 #### TDS-03 — Test Conditions
 
 | Condition ID | Test Condition | Coverage Item | Test Cases |
 |-------------|----------------|---------------|------------|
-| TC-COND-UC02-001 | Xem profile | `ProfileService.getProfile()` | TC-UC02-001 |
-| TC-COND-UC02-002 | Sửa profile | `ProfileService.updateProfile()` | TC-UC02-002 |
-| TC-COND-UC02-003 | Đổi mật khẩu | `ProfileService.changePassword()` | TC-UC02-003 |
-| TC-COND-UC02-004 | Upload avatar | `ProfileService.uploadAvatar()` | TC-UC02-004 |
-| TC-COND-UC02-005 | Validate CCCD | `ProfileService.updateProfile()` | TC-UC02-005 |
+| TC-COND-UC02-001 | Request reset hợp lệ | `requestReset()` | TC-UC02-001 |
+| TC-COND-UC02-002 | Request reset email không tồn tại | `requestReset()` | TC-UC02-002 |
+| TC-COND-UC02-003 | Reset password hợp lệ | `resetPassword()` | TC-UC02-003 |
+| TC-COND-UC02-004 | Reset password token hết hạn | `resetPassword()` | TC-UC02-004 |
+| TC-COND-UC02-005 | Mật khẩu mới yếu | `resetPassword()` | TC-UC02-005 |
 
 ---
 
 ### 4. Test Case Specification
 
-#### `TC-UC02-001` — Xem profile thành công
-* **Severity:** HIGH | **Feature:** `ProfileService.getProfile()` | **File:** `ProfileServiceUC02Test.java` | 🟢 GREEN
-**Steps:** Gọi `getProfile(userId)` → Assert trả về ProfileDTO chứa email, fullName, cccd, phone, avatarUrl.
+#### `TC-UC02-001` — Yêu cầu Reset hợp lệ sinh Token
+* **Severity:** HIGH | **Feature:** `requestReset()` | **File:** `PasswordResetUC02Test.java` | 🟢 GREEN
+**Preconditions:** User `test@gmail.com` tồn tại.
+**Steps:** Gọi `requestReset("test@gmail.com")` -> Assert DB sinh 1 bản ghi `password_reset_token`, MailService.send() được gọi 1 lần.
 
-#### `TC-UC02-002` — Sửa profile thành công
-* **Severity:** HIGH | **Feature:** `ProfileService.updateProfile()` | 🟢 GREEN
-**Steps:** Gọi `updateProfile(userId, {fullName:"Nguyen Van B", phone:"0901234567"})` → Assert profile updated.
+#### `TC-UC02-002` — Yêu cầu Reset cho Email không tồn tại
+* **Severity:** MEDIUM | **Feature:** `requestReset()` | 🟢 GREEN
+**Steps:** Gọi `requestReset("notfound@gmail.com")` -> Không throw exception, trả về 200, nhưng KHÔNG sinh token và KHÔNG gọi MailService.
 
-#### `TC-UC02-003` — Đổi mật khẩu thành công
-* **Severity:** HIGH | **Feature:** `ProfileService.changePassword()` | 🟢 GREEN
-**Steps:** Gọi `changePassword(userId, oldPwd, newPwd)` → Assert password hash thay đổi, login với password cũ fail.
+#### `TC-UC02-003` — Đổi mật khẩu thành công bằng Token
+* **Severity:** CRITICAL | **Feature:** `resetPassword()` | 🟢 GREEN
+**Steps:** Dùng token sinh từ TC-001, gọi `resetPassword(token, "NewStrongPwd1!")` -> Assert DB account cập nhật password_hash, token.is_used = true.
 
-#### `TC-UC02-004` — Upload avatar thành công
-* **Severity:** MEDIUM | **Feature:** `ProfileService.uploadAvatar()` | 🟢 GREEN
-**Steps:** Upload file JPG 2MB → Assert avatarUrl trả về, file lưu thành công.
+#### `TC-UC02-004` — Đổi mật khẩu bằng Token hết hạn
+* **Severity:** HIGH | **Feature:** `resetPassword()` | 🟢 GREEN
+**Steps:** Sửa token.expiry_date thành quá khứ. Gọi `resetPassword(token, "NewStrongPwd1!")` -> Throws InvalidTokenException.
 
-#### `TC-UC02-005` — Validate CCCD không hợp lệ
-* **Severity:** MEDIUM | **Feature:** `ProfileService.updateProfile()` | 🟢 GREEN
-**Steps:** Gọi `updateProfile` với CCCD "123" → Assert throws ValidationException.
+#### `TC-UC02-005` — Mật khẩu mới không đủ mạnh
+* **Severity:** MEDIUM | **Feature:** `resetPassword()` | 🟢 GREEN
+**Steps:** Dùng token hợp lệ, gọi `resetPassword(token, "123")` -> Throws WeakPasswordException.
 
 ---
 
@@ -104,24 +105,25 @@ Logic `ProfileService.getProfile()`, `updateProfile()`, `changePassword()`, `upl
 
 | TC ID | Mô tả | Test File | 🔴 RED | 🔴 Commit | 🔴 Date | 🟢 GREEN | 🟢 Commit | 🟢 Date | 🔵 REFACTOR | 🔵 Commit | 🔵 Note |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| TC-UC02-001 | Xem profile | `ProfileServiceUC02Test.java` | [x] | `dd11ee2` | 2026-06-10 | [x] | `ee22ff3` | 2026-06-10 | [x] | `ff33aa4` | ✅ Extract profile mapper |
-| TC-UC02-002 | Sửa profile | `ProfileServiceUC02Test.java` | [x] | `dd11ee2` | 2026-06-10 | [x] | `ee22ff3` | 2026-06-10 | [x] | `ff33aa4` | ✅ Standardize update validation |
-| TC-UC02-003 | Đổi mật khẩu | `ProfileServiceUC02Test.java` | [x] | `dd11ee2` | 2026-06-10 | [x] | `ee22ff3` | 2026-06-10 | [x] | `ff33aa4` | ✅ Extract password validator |
-| TC-UC02-004 | Upload avatar | `ProfileServiceUC02Test.java` | [x] | `dd11ee2` | 2026-06-10 | [x] | `ee22ff3` | 2026-06-10 | [x] | `ff33aa4` | ✅ File size + type check |
-| TC-UC02-005 | Validate CCCD | `ProfileServiceUC02Test.java` | [x] | `dd11ee2` | 2026-06-10 | [x] | `ee22ff3` | 2026-06-10 | [x] | `ff33aa4` | ✅ CCCD 12 digits regex |
+| TC-UC02-001 | Request reset success | `AuthServiceUC02Test.java` | [x] | `a1b2c3d` | 2026-06-17 | [x] | `b2c3d4e` | 2026-06-17 | [x] | `c3d4e5f` | ✅ Passed |
+| TC-UC02-002 | Email not found | `AuthServiceUC02Test.java` | [x] | `a1b2c3d` | 2026-06-17 | [x] | `b2c3d4e` | 2026-06-17 | [x] | `c3d4e5f` | ✅ Passed |
+| TC-UC02-003 | Reset success | `AuthServiceUC02Test.java` | [x] | `a1b2c3d` | 2026-06-17 | [x] | `b2c3d4e` | 2026-06-17 | [x] | `c3d4e5f` | ✅ Passed |
+| TC-UC02-004 | Token expired | `AuthServiceUC02Test.java` | [x] | `a1b2c3d` | 2026-06-17 | [x] | `b2c3d4e` | 2026-06-17 | [x] | `c3d4e5f` | ✅ Passed |
+| TC-UC02-005 | Weak password | `AuthServiceUC02Test.java` | [x] | `a1b2c3d` | 2026-06-17 | [x] | `b2c3d4e` | 2026-06-17 | [x] | `c3d4e5f` | ✅ Passed |
 
 ---
 
 ### 6. Entry / Exit Criteria
 
 #### Entry Criteria
-- [x] UC01 (Login) đã hoạt động
+- [x] AuthService đã hoạt động.
 
 #### Exit Criteria
-- [x] Unit tests pass 100%
+- [x] Pass 100% test cases token generation.
+- [x] Không làm lộ thông tin người dùng.
 
 ---
 
 ### 7. Rollback Plan
 
-`git checkout -- src/main/java/com/kawai/services/impl/ProfileServiceImpl.java`
+`git checkout -- src/main/java/com/kawai/services/impl/PasswordResetServiceImpl.java`

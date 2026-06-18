@@ -55,14 +55,21 @@ public class TourServiceImpl implements TourService {
     private final TourAttendeeRepository tourAttendeeRepository;
     private final AIServiceClient aiServiceClient;
 
+    private final com.kawai.repositories.TourRepository tourRepository;
+    private final com.kawai.repositories.TourItineraryRepository tourItineraryRepository;
+
     public TourServiceImpl(TourScheduleRepository tourScheduleRepository,
             WeatherApiClient weatherApiClient,
             TourAttendeeRepository tourAttendeeRepository,
-            AIServiceClient aiServiceClient) {
+            AIServiceClient aiServiceClient,
+            com.kawai.repositories.TourRepository tourRepository,
+            com.kawai.repositories.TourItineraryRepository tourItineraryRepository) {
         this.tourScheduleRepository = tourScheduleRepository;
         this.weatherApiClient = weatherApiClient;
         this.tourAttendeeRepository = tourAttendeeRepository;
         this.aiServiceClient = aiServiceClient;
+        this.tourRepository = tourRepository;
+        this.tourItineraryRepository = tourItineraryRepository;
     }
 
     @Override
@@ -196,5 +203,61 @@ public class TourServiceImpl implements TourService {
     private TourAttendee getAttendeeById(Long attendeeId) {
         return tourAttendeeRepository.findById(attendeeId)
                 .orElseThrow(() -> new IllegalArgumentException("Attendee not found with ID: " + attendeeId));
+    }
+
+    // UC08: Core Data CRUD
+
+    @Override
+    @org.springframework.transaction.annotation.Transactional
+    public Tour updateTour(Long tourId, java.math.BigDecimal newPrice) {
+        // Check if there are active schedules
+        long activeSchedules = tourScheduleRepository.findAll().stream()
+                .filter(s -> s.getTour() != null && s.getTour().getId().equals(tourId) && "Open".equalsIgnoreCase(s.getScheduleStatus()))
+                .count();
+
+        if (activeSchedules > 0) {
+            throw new IllegalStateException("ResourceInUseException: Cannot update price of a tour with active schedules");
+        }
+
+        Tour tour = tourRepository.findById(tourId)
+                .orElseThrow(() -> new IllegalArgumentException("Tour not found"));
+        tour.setBasePrice(newPrice);
+        return tourRepository.save(tour);
+    }
+
+    @Override
+    @org.springframework.transaction.annotation.Transactional
+    public void updateItineraries(Long tourId, List<com.kawai.models.TourItinerary> newItineraries) {
+        Tour tour = tourRepository.findById(tourId)
+                .orElseThrow(() -> new IllegalArgumentException("Tour not found"));
+        
+        // Delete old
+        tourItineraryRepository.deleteByTourId(tourId);
+        
+        // Insert new
+        if (newItineraries != null) {
+            for (com.kawai.models.TourItinerary it : newItineraries) {
+                it.setTour(tour);
+                tourItineraryRepository.save(it);
+            }
+        }
+    }
+
+    @Override
+    @org.springframework.transaction.annotation.Transactional
+    public void softDeleteTour(Long tourId) {
+        // Check if there are active schedules
+        long activeSchedules = tourScheduleRepository.findAll().stream()
+                .filter(s -> s.getTour() != null && s.getTour().getId().equals(tourId) && "Open".equalsIgnoreCase(s.getScheduleStatus()))
+                .count();
+
+        if (activeSchedules > 0) {
+            throw new IllegalStateException("ResourceInUseException: Cannot delete a tour with active schedules");
+        }
+
+        Tour tour = tourRepository.findById(tourId)
+                .orElseThrow(() -> new IllegalArgumentException("Tour not found"));
+        tour.setIsActive(false);
+        tourRepository.save(tour);
     }
 }

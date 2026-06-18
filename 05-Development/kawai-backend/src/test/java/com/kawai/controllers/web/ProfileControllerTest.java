@@ -49,6 +49,25 @@ public class ProfileControllerTest {
     @MockBean
     private DependentRepository dependentRepository;
 
+    // SecurityConfig dependencies
+    @MockBean
+    private org.springframework.security.core.userdetails.UserDetailsService userDetailsService;
+
+    @MockBean
+    private com.kawai.repositories.AuthorizedDeviceRepository authorizedDeviceRepository;
+
+    @MockBean
+    private com.kawai.services.impl.CustomOAuth2UserService customOAuth2UserService;
+
+    @MockBean
+    private com.kawai.services.impl.OAuthAccountService oAuthAccountService;
+
+    @MockBean
+    private com.kawai.config.OAuth2SuccessHandler oAuth2SuccessHandler;
+
+    @MockBean
+    private com.kawai.repositories.PaymentTransactionRepository paymentTransactionRepository;
+
     @Test
     @WithMockUser(username = "hoangnam")
     public void testGetProfileUpdateRedirectsToProfile() throws Exception {

@@ -1,19 +1,19 @@
 # ENGINEERING DOCUMENTATION STANDARD (EDS) v2.0
 
-## UC04 — Quản lý Master Data (MasterDataService)
+## UC04 — Đăng tải & Trích xuất dữ liệu khuôn mặt FaceID
 
 | Field | Value |
 |-------|-------|
 | **Document ID** | `KAWAI-EDS-MOD1-UC04-001` |
 | **Version** | 1.0 |
-| **Date** | 2026-06-14 |
+| **Date** | 2026-06-17 |
 | **Status** | Approved |
 | **Document Owner** | Nguyễn Xuân Lưu |
-| **Author** | Nguyễn Xuân Lưu — Developer |
+| **Author** | Antigravity — System Agent |
 | **Reviewed by** | Nguyễn Xuân Lưu — Tech Lead |
-| **DPO Sign-off** | `[x] Approved – 2026-06-14 – Nguyễn Xuân Lưu` |
-| **Approved by** | `[x] Nguyễn Xuân Lưu – 2026-06-14` |
-| **Last Review** | 2026-06-14 |
+| **DPO Sign-off** | `[x] Approved – 2026-06-17 – Nguyễn Xuân Lưu` |
+| **Approved by** | `[x] Nguyễn Xuân Lưu – 2026-06-17` |
+| **Last Review** | 2026-06-17 |
 | **Based on EDS** | v2.0 |
 
 ---
@@ -21,7 +21,7 @@
 ### CHANGELOG
 | Ngày | Người thực hiện | Nội dung thay đổi |
 |------|-----------------|-------------------|
-| 2026-06-14 | Nguyễn Xuân Lưu | Tạo tài liệu lần đầu |
+| 2026-06-17 | Antigravity | Cập nhật cấu trúc 17 phần cho UC04 FaceID |
 
 ---
 
@@ -50,13 +50,13 @@
 
 | Field | Value |
 |-------|-------|
-| **Module Name** | Quản lý Master Data (UC04) |
-| **Bounded Context** | Reference Data Management |
-| **Use Case** | UC04: Admin CRUD hạng phòng, loại tour, menu — dữ liệu tham chiếu cho toàn hệ thống |
-| **Data Classification** | Internal |
-| **Compliance Scope** | N/A |
-| **Upstream Dependencies** | UC01 (Auth — JWT required) |
-| **Downstream Consumers** | UC08 (Price Config), UC09/UC10 (Booking) |
+| **Module Name** | Đăng tải FaceID (UC04) |
+| **Bounded Context** | Face Recognition |
+| **Use Case** | UC04: Khách/Lễ tân tải ảnh, trích xuất Vector qua AI Service |
+| **Data Classification** | Biometric Data (PII Cấp độ cao) |
+| **Compliance Scope** | Nghị định 13/2023/NĐ-CP (Bảo mật sinh trắc học) |
+| **Upstream Dependencies** | `kawai-ai-service` (Python/FastAPI) |
+| **Downstream Consumers** | Hệ thống Check-in điểm danh Tour (MOD4) |
 
 ---
 
@@ -64,29 +64,25 @@
 
 | Requirement ID | Loại | Mô tả | Thành phần Code | Compliance | ADR |
 |----------------|------|-------|-----------------|------------|-----|
-| UC04.1 | US | CRUD Room Category | `MasterDataService.crudRoomCategory()` | — | ADR-004 |
-| UC04.2 | US | CRUD Room Type | `MasterDataService.crudRoomType()` | — | — |
-| UC04.3 | US | CRUD Promotion | `MasterDataService.crudPromotion()` | — | — |
-| BR-MD-01 | BR | Tên category/type phải unique | `MasterDataServiceImpl.validateUniqueName()` | — | — |
-| BR-MD-02 | BR | Không xóa category đang có phòng active | `MasterDataServiceImpl.checkDependencies()` | — | — |
+| UC04.1 | US | Đăng tải ảnh chân dung | `FaceIdApiController.uploadFace()` | NĐ 13/2023 | ADR-004 |
+| UC04.2 | US | Gọi AI trích xuất Vector | `AiServiceClient.extractFeatures()` | — | — |
+| UC04.3 | US | Lưu chuỗi JSON 128 số | `CustomerService.saveFaceVector()` | — | — |
 
 ---
 
 ### 3. Architecture Decision Records (ADR)
 
-#### ADR-004 — Master Data Immutable Audit Trail
+#### ADR-004 — Face Recognition Integration Strategy
 
 | Field | Value |
 |-------|-------|
 | **Status** | Accepted |
 | **Deciders** | Nguyễn Xuân Lưu |
-| **Date** | 2026-06-10 |
+| **Date** | 2026-06-17 |
 
-**Bối cảnh:** Master data thay đổi ảnh hưởng toàn bộ hệ thống booking và pricing. Cần đảm bảo truy vết mọi thay đổi.
-
-**Quyết định:** Mọi thay đổi master data đều được ghi audit log. Soft-delete thay vì hard-delete. Không cho phép xóa category/type khi còn phòng/tour đang sử dụng.
-
-**Hệ quả:** Tăng tính toàn vẹn dữ liệu, nhưng cần thêm logic kiểm tra dependencies trước khi xóa.
+**Bối cảnh:** Cần xử lý ảnh bằng các thư viện AI (dlib, OpenCV) vốn chạy tốt nhất trên Python, nhưng backend chính là Java Spring Boot.
+**Quyết định:** Viết một AI Microservice độc lập bằng Python (FastAPI). Java Backend sẽ gọi REST API chuyển ảnh sang Python lấy kết quả mảng Vector 128 số. Không lưu trữ ảnh gốc trên DB (để tuân thủ GDPR/PII), chỉ lưu mảng số JSON.
+**Hệ quả:** Tăng độ phức tạp khi deploy (cần 2 container), độ trễ call qua lại. Nhưng giúp tách bạch nghiệp vụ và dễ mở rộng.
 
 ---
 
@@ -96,16 +92,15 @@
 
 | Category | Requirement | Target SLA | Measurement |
 |----------|-------------|------------|-------------|
-| **Latency** | Master data API (p99) | < 200ms | k6 load test |
-| **Availability** | Uptime (monthly) | 99.9% | Uptime monitor |
-| **Caching** | Category list | Cache 5 phút | Redis TTL |
+| **Latency** | Upload & Extract | < 3000ms | Load test (AI delay) |
+| **Availability** | Uptime AI Service | 99% | Uptime monitor |
 
 #### 4.2. Security
 
 | Category | Requirement | Target | Verification |
 |----------|-------------|--------|-------------|
-| **Access** | ADMIN only cho CUD, ADMIN + RECEPTIONIST cho Read | RBAC | Integration test |
-| **Unique** | Tên category/type unique | DB constraint | Unit test |
+| **Storage** | Ảnh gốc | Không lưu DB | Code Review |
+| **Data Format** | Vector | JSON String | Unit test |
 
 ---
 
@@ -115,120 +110,72 @@
 
 ```plantuml
 @startuml
-interface MasterDataService {
-  +getRoomCategories(): List<RoomCategoryDTO>
-  +createRoomCategory(req: CreateRoomCategoryRequest): RoomCategoryDTO
-  +updateRoomCategory(id: Long, req: UpdateRoomCategoryRequest): RoomCategoryDTO
-  +deleteRoomCategory(id: Long): void
-  +getRoomTypes(): List<RoomTypeDTO>
-  +getPromotions(): List<PromotionDTO>
-  +createPromotion(req: CreatePromotionRequest): PromotionDTO
+interface AiServiceClient {
+  +extractFeatures(file: MultipartFile): List<Float>
 }
 
-class MasterDataServiceImpl implements MasterDataService {
-  -roomCategoryRepository: RoomCategoryRepository
-  -roomTypeRepository: RoomTypeRepository
-  -promotionRepository: PromotionRepository
+class FaceIdApiController {
+  -aiServiceClient: AiServiceClient
+  -customerService: CustomerService
+  +uploadFace(file: MultipartFile): void
 }
 
-class RoomCategoryDTO {
-  +id: Long
-  +name: String
-  +description: String
-  +maxOccupancy: Integer
-  +basePrice: BigDecimal
-  +isActive: Boolean
+class CustomerService {
+  +saveFaceVector(customerId: Long, vector: List<Float>): void
 }
 
-class PromotionDTO {
-  +id: Long
-  +name: String
-  +discountPercent: Integer
-  +startDate: LocalDate
-  +endDate: LocalDate
-  +isActive: Boolean
-}
-
-MasterDataServiceImpl ..> RoomCategoryRepository : uses
-MasterDataServiceImpl ..> RoomTypeRepository : uses
-MasterDataServiceImpl ..> PromotionRepository : uses
+FaceIdApiController ..> AiServiceClient : uses
+FaceIdApiController ..> CustomerService : uses
 @enduml
 ```
 
 #### 5.2. Data Structure
 
 ```sql
-CREATE TABLE room_categories (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) UNIQUE NOT NULL,
-    description TEXT,
-    max_occupancy INT NOT NULL DEFAULT 2,
-    base_price DECIMAL(12,2) NOT NULL,
-    is_active BOOLEAN DEFAULT TRUE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
-
-CREATE TABLE promotions (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    discount_percent INT NOT NULL CHECK (discount_percent BETWEEN 1 AND 100),
-    start_date DATE NOT NULL,
-    end_date DATE NOT NULL,
-    is_active BOOLEAN DEFAULT TRUE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+-- Cập nhật bảng customers
+ALTER TABLE customers ADD COLUMN face_vector_data TEXT;
 ```
 
 ---
 
 ### 6. Dynamic Modeling
 
-#### 6.1. Sequence Diagram — Happy Path: Create Room Category
+#### 6.1. Sequence Diagram — Happy Path: Upload Face
 
 ```plantuml
 @startuml
-actor "Admin" as A
-participant "MasterDataController" as Ctrl
-participant "MasterDataServiceImpl" as Svc
+actor "Customer" as C
+participant "FaceIdApiController" as Ctrl
+participant "AiServiceClient" as Ai
+participant "Python AI Server" as Py
+participant "CustomerService" as Svc
 database MySQL as DB
 
-A -> Ctrl: POST /api/v1/master-data/room-categories\n{name, description, maxOccupancy, basePrice}
+C -> Ctrl: POST /api/v1/customer/face-upload\n(multipart/form-data)
 activate Ctrl
-Ctrl -> Svc: createRoomCategory(req)
+Ctrl -> Ai: extractFeatures(file)
+activate Ai
+Ai -> Py: POST /extract-features (Image)
+activate Py
+Py -> Py: Run dlib/OpenCV
+Py --> Ai: 200 OK [0.1, -0.5, ...]
+deactivate Py
+Ai --> Ctrl: List<Float>
+deactivate Ai
+Ctrl -> Svc: saveFaceVector(customerId, vectorList)
 activate Svc
-Svc -> DB: SELECT COUNT(*) WHERE name=:name
-DB --> Svc: 0 (unique)
-Svc -> DB: INSERT INTO room_categories(...)
-DB --> Svc: Category created
-Svc --> Ctrl: RoomCategoryDTO
+Svc -> Svc: JSON.stringify(vectorList)
+Svc -> DB: UPDATE customers SET face_vector_data = ...
+Svc --> Ctrl: void
 deactivate Svc
-Ctrl --> A: 201 Created\n{roomCategory}
+Ctrl --> C: 200 OK
 deactivate Ctrl
 @enduml
 ```
 
-#### 6.2. Sequence Diagram — Error: Delete category đang sử dụng
+#### 6.2. State Machine
 
-```plantuml
-@startuml
-actor "Admin" as A
-participant "MasterDataController" as Ctrl
-participant "MasterDataServiceImpl" as Svc
-database MySQL as DB
-
-A -> Ctrl: DELETE /api/v1/master-data/room-categories/3
-activate Ctrl
-Ctrl -> Svc: deleteRoomCategory(3)
-activate Svc
-Svc -> DB: SELECT COUNT(*) FROM rooms WHERE category_id=3 AND is_active=TRUE
-DB --> Svc: 5 (has active rooms)
-Svc --> Ctrl: throws DependencyException
-deactivate Svc
-Ctrl --> A: 409 Conflict\n{"code":"MD-003"}
-deactivate Ctrl
-@enduml
-```
+*(Không có State Machine phức tạp)*
 
 ---
 
@@ -236,32 +183,16 @@ deactivate Ctrl
 
 | Event Name | Trigger | Publisher | Subscriber(s) | Async? |
 |------------|---------|-----------|---------------|--------|
-| `RoomCategoryCreated` | Tạo hạng phòng | `MasterDataService` | `AuditService` | Yes |
-| `RoomCategoryUpdated` | Sửa hạng phòng | `MasterDataService` | `AuditService`, `CacheService` | Yes |
-| `PromotionCreated` | Tạo khuyến mãi | `MasterDataService` | `AuditService`, `NotificationService` | Yes |
+| `FaceDataRegistered` | Vector lưu thành công | `CustomerService` | `AuditService` | Yes |
 
 ---
 
 ### 8. Interface Specification
 
 ```java
-// MasterDataService.java
-// @version 1.0
-
-public interface MasterDataService {
-    List<RoomCategoryDTO> getRoomCategories();
-    RoomCategoryDTO createRoomCategory(CreateRoomCategoryRequest req)
-        throws DuplicateNameException, ValidationException;
-    RoomCategoryDTO updateRoomCategory(Long id, UpdateRoomCategoryRequest req)
-        throws CategoryNotFoundException, DuplicateNameException;
-    void deleteRoomCategory(Long id)
-        throws CategoryNotFoundException, DependencyException;
-
-    List<RoomTypeDTO> getRoomTypes();
-
-    List<PromotionDTO> getPromotions();
-    PromotionDTO createPromotion(CreatePromotionRequest req)
-        throws ValidationException;
+// AiServiceClient.java
+public interface AiServiceClient {
+    List<Float> extractFeatures(MultipartFile file) throws AiServiceException, NoFaceDetectedException;
 }
 ```
 
@@ -271,17 +202,12 @@ public interface MasterDataService {
 
 | Method | Path | Auth | Roles | Rate Limit | Idempotent? |
 |--------|------|------|-------|------------|-------------|
-| GET | `/api/v1/master-data/room-categories` | JWT | ADMIN, RECEPTIONIST | 60/min | Yes |
-| POST | `/api/v1/master-data/room-categories` | JWT | ADMIN | 20/min | No |
-| PUT | `/api/v1/master-data/room-categories/{id}` | JWT | ADMIN | 20/min | No |
-| DELETE | `/api/v1/master-data/room-categories/{id}` | JWT | ADMIN | 10/min | Yes |
-| GET | `/api/v1/master-data/promotions` | JWT | ADMIN, RECEPTIONIST | 60/min | Yes |
-| POST | `/api/v1/master-data/promotions` | JWT | ADMIN | 20/min | No |
+| POST | `/api/v1/customer/face-upload` | JWT | CUSTOMER, RECEPTIONIST | 5/min | No |
 
-**POST `/api/v1/master-data/room-categories`**
-*Request:* `{"name":"Deluxe Ocean View","description":"Phòng view biển cao cấp","maxOccupancy":3,"basePrice":2500000}`
-*Response 201:* `{"id":4,"name":"Deluxe Ocean View","basePrice":2500000,"isActive":true}`
-*Response 409:* `{"error":{"code":"MD-002","message":"Category name already exists"}}`
+**POST `/api/v1/customer/face-upload`**
+*Request:* Form-data chứa `file` (Ảnh JPG/PNG < 5MB).
+*Response 200:* `{"message": "Face data registered successfully."}`
+*Response 400:* `{"error": {"code": "FACE-001", "message": "No face detected in the image"}}`
 
 ---
 
@@ -289,29 +215,23 @@ public interface MasterDataService {
 
 | Code | HTTP | Message (EN) | Message (VI) | Trigger |
 |------|------|--------------|--------------|---------|
-| `MD-001` | 400 | Invalid master data | Dữ liệu không hợp lệ | Thiếu required field |
-| `MD-002` | 409 | Name already exists | Tên đã tồn tại | Trùng tên category/type |
-| `MD-003` | 409 | Cannot delete — has dependencies | Không thể xóa — đang có dữ liệu phụ thuộc | Category đang có phòng active |
-| `MD-004` | 404 | Master data not found | Không tìm thấy dữ liệu | ID không tồn tại |
+| `FACE-001` | 400 | No face detected | Không phát hiện khuôn mặt | Python service báo lỗi |
+| `FACE-002` | 400 | Multiple faces detected | Phát hiện nhiều khuôn mặt | Khách up ảnh nhóm |
+| `FACE-003` | 503 | AI Service unavailable | Dịch vụ nhận diện bận | Không gọi được Python |
 
 ---
 
 ### 11. Quy trình Triển khai
 
 #### 11.1. Prerequisites
-- [x] Database đã có bảng room_categories, promotions
-- [x] UC01 (Auth) đã hoạt động
+- [x] Triển khai thành công `kawai-ai-service` tại cổng 8000.
+- [x] Config URL `ai.service.url=http://localhost:8000` trong `application.yml`.
 
 #### 11.2. Deployment
 ```bash
+# Backend Java
 mvn clean package -DskipTests
-java -jar target/kawai-backend-1.0.jar --spring.profiles.active=staging
-```
-
-#### 11.3. Verification
-```bash
-curl -X GET http://localhost:8080/api/v1/master-data/room-categories \
-  -H "Authorization: Bearer [JWT_ADMIN]"
+java -jar target/kawai-backend-1.0.jar
 ```
 
 ---
@@ -320,34 +240,29 @@ curl -X GET http://localhost:8080/api/v1/master-data/room-categories \
 
 | Điều kiện | Ngưỡng | Người quyết định |
 |-----------|--------|-------------------|
-| Master data CRUD fail | > 5% trong 5 phút | On-call Engineer |
-| Data integrity issue | Bất kỳ case nào | Tech Lead |
+| Python Service sập | Timeout liên tục | On-call Engineer |
 
-**Rollback:** `git checkout tags/v1.0.0 && mvn clean package`
+**Rollback:** Disable API Face Upload, hệ thống sẽ tự fallback về check-in tay ở MOD4.
 
 ---
 
 ### 13. Kịch bản Kiểm thử
 
-**[Policy]** Test Data: SYNTHETIC. ❌ KHÔNG dùng Production data.
-
 #### 13.1. Unit Tests
-- TC-UNIT-UC04-001: CRUD Room Category thành công
-- TC-UNIT-UC04-002: CRUD Room Type thành công
-- TC-UNIT-UC04-003: Create Promotion thành công
-- TC-UNIT-UC04-004: Duplicate name → 409
-- TC-UNIT-UC04-005: Delete category có dependency → 409
+- TC-UNIT-UC04-001: Extract success -> Trả về array 128 số.
+- TC-UNIT-UC04-002: Lỗi No Face -> Bắn NoFaceDetectedException.
+- TC-UNIT-UC04-003: Lưu array Float -> Convert JSON chuỗi dài.
 
 #### 13.2. E2E Tests
-- TC-E2E-UC04-001: Admin login → Create Category → Update → Delete flow
+- TC-E2E-UC04-001: Upload ảnh -> Call Python Mock -> DB cập nhật JSON.
 
 ---
 
 ### 14. Phương pháp Xác minh
 
 ```sql
-SELECT id, name, base_price, is_active FROM room_categories ORDER BY id;
-SELECT id, name, discount_percent, start_date, end_date FROM promotions WHERE is_active = TRUE;
+SELECT face_vector_data FROM customers WHERE id = :customerId;
+-- Kết quả mong đợi: Chuỗi '[0.0123, -0.456, ...]'
 ```
 
 ---
@@ -355,25 +270,9 @@ SELECT id, name, discount_percent, start_date, end_date FROM promotions WHERE is
 ### 15. Mẫu thử thực tế
 
 ```bash
-# List room categories
-curl -X GET https://api.kawairesort.com/api/v1/master-data/room-categories \
-  -H "Authorization: Bearer [JWT_ADMIN]"
-
-# Create room category
-curl -X POST https://api.kawairesort.com/api/v1/master-data/room-categories \
-  -H "Authorization: Bearer [JWT_ADMIN]" \
-  -H "Content-Type: application/json" \
-  -d '{"name":"Deluxe Ocean View","description":"Phòng view biển cao cấp","maxOccupancy":3,"basePrice":2500000}'
-
-# Update room category
-curl -X PUT https://api.kawairesort.com/api/v1/master-data/room-categories/4 \
-  -H "Authorization: Bearer [JWT_ADMIN]" \
-  -H "Content-Type: application/json" \
-  -d '{"name":"Premium Ocean View","basePrice":3000000}'
-
-# Delete room category
-curl -X DELETE https://api.kawairesort.com/api/v1/master-data/room-categories/4 \
-  -H "Authorization: Bearer [JWT_ADMIN]"
+curl -X POST https://api.kawairesort.com/api/v1/customer/face-upload \
+  -H "Authorization: Bearer [JWT]" \
+  -F "file=@/path/to/my_face.jpg"
 ```
 
 ---
@@ -382,12 +281,7 @@ curl -X DELETE https://api.kawairesort.com/api/v1/master-data/room-categories/4 
 
 | Endpoint | GUEST | CUSTOMER | RECEPTIONIST | ADMIN |
 |----------|:-----:|:--------:|:------------:|:-----:|
-| GET `/api/v1/master-data/room-categories` | ❌ | ❌ | ✔️ | ✔️ |
-| POST `/api/v1/master-data/room-categories` | ❌ | ❌ | ❌ | ✔️ |
-| PUT `/api/v1/master-data/room-categories/{id}` | ❌ | ❌ | ❌ | ✔️ |
-| DELETE `/api/v1/master-data/room-categories/{id}` | ❌ | ❌ | ❌ | ✔️ |
-| GET `/api/v1/master-data/promotions` | ❌ | ❌ | ✔️ | ✔️ |
-| POST `/api/v1/master-data/promotions` | ❌ | ❌ | ❌ | ✔️ |
+| POST `/face-upload` | ❌ | Own | ✔️ (Hỗ trợ khách) | ❌ |
 
 ---
 
@@ -396,16 +290,13 @@ curl -X DELETE https://api.kawairesort.com/api/v1/master-data/room-categories/4 
 #### A. Glossary
 | Thuật ngữ | Định nghĩa |
 |-----------|------------|
-| **Master Data** | Dữ liệu tham chiếu dùng chung cho toàn hệ thống (hạng phòng, khuyến mãi...) |
-| **Room Category** | Hạng phòng (Standard, Deluxe, Suite...) |
-| **Promotion** | Chương trình khuyến mãi với discount % |
+| **Vector** | Mảng số đại diện cho các điểm nút trên khuôn mặt |
+| **FastAPI** | Framework Python chạy AI backend |
 
 #### B. Tài liệu tham chiếu
 | Document | Path |
 |----------|------|
 | TDD UC04 | `06-Testing/mod1_auth/uc04/TDD_UC04_SPEC.md` |
-| ADR-004 | `06-Testing/MASTER_EDS_SPEC.md` |
 
 ---
-
 *EDS v2.0*

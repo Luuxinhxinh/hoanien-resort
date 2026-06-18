@@ -1,17 +1,17 @@
 # TEST-DRIVEN DEVELOPMENT SPECIFICATION
-## UC05 — Phân quyền RBAC (RoleService)
+## UC05 — Phân quyền & Kiểm soát an ninh nội bộ (Audit Log)
 
 | Field | Value |
 |-------|-------|
 | **Document ID** | `KAWAI-TDD-MOD1-UC05-001` |
 | **Version** | 1.0 |
-| **Date** | 2026-06-14 |
+| **Date** | 2026-06-17 |
 | **Status** | Approved |
 | **Standard** | ISO/IEC/IEEE 29119-3:2021 |
-| **Author** | Nguyễn Xuân Lưu — Developer |
+| **Author** | Antigravity — Developer |
 | **Reviewed by** | [x] Nguyễn Xuân Lưu — Tech Lead |
-| **DPO Sign-off** | `[x] Approved – 2026-06-14 – Nguyễn Xuân Lưu` |
-| **Approved by** | `[x] Nguyễn Xuân Lưu – 2026-06-14` |
+| **DPO Sign-off** | `[x] Approved – 2026-06-17 – Nguyễn Xuân Lưu` |
+| **Approved by** | `[x] Nguyễn Xuân Lưu – 2026-06-17` |
 | **Classification** | Internal — Confidential |
 
 ---
@@ -19,7 +19,7 @@
 ### MỤC LỤC
 1. [Thông tin Module](#1)
 2. [Logic Issues Resolved](#2)
-3. [TDS](#3)
+3. [TDS (Test Design Specification)](#3)
 4. [Test Case Specification](#4)
 5. [Red-Green-Refactor Tracker](#5)
 6. [Entry / Exit Criteria](#6)
@@ -32,15 +32,14 @@
 | Field | Value |
 |-------|-------|
 | **Feature / Gap ID** | `GAP-MOD1-UC05` |
-| **Module** | Authorization & Access Control — UC05 |
-| **Use Case** | UC05: Gán role, gỡ role, kiểm tra quyền RBAC |
-| **Spec gốc** | `SRS_Document_SWP391_G2.md` |
+| **Module** | Security Core — UC05 |
+| **Use Case** | UC05: Quản lý phân quyền RBAC & Truy vết nhật ký hệ thống (Audit Log) |
+| **Spec gốc** | `UC_DETAIL_SPEC.md` |
 | **Priority** | 🔴 P0 |
-| **Sprint** | S1 (2026-06-09 → 2026-06-23) |
-| **Milestone** | M3 Alpha — 2026-07-11 |
-| **Data Classification** | Internal |
-| **Upstream Dependencies** | UC01 (Auth), UC03 (Employee) |
-| **Downstream Consumers** | Tất cả UC khác (authorization check) |
+| **Sprint** | S2 |
+| **Data Classification** | System Confidential |
+| **Upstream Dependencies** | Core Security Framework |
+| **Downstream Consumers** | Tất cả các Module khác có sử dụng Auth và lưu CSDL |
 
 ---
 
@@ -48,65 +47,51 @@
 
 | # | Spec gốc | Thực tế | Fix áp dụng trong test |
 |---|----------|---------|------------------------|
-| **L1** | Chưa có cơ chế bảo vệ ADMIN cuối cùng | Thêm check: không cho gỡ role ADMIN nếu chỉ còn 1 | Test remove last admin → 409 |
-| **L2** | Permission check chưa rõ logic hierarchy | Implement role-based comparison | Test hasPermission với các role khác nhau |
+| **L1** | Ghi log thủ công ở từng hàm | Dễ quên, code lặp lại | Dùng Spring AOP (`@Loggable`) để tự động ghi vết mọi method |
+| **L2** | Audit Log có thể bị sửa đổi | Gây rủi ro phi tang dấu vết gian lận | Test ép lỗi Database Trigger khi cố tình xóa/sửa bảng `audit_logs` |
 
 ---
 
 ### 3. Test Design Specification (TDS)
 
 #### TDS-01 — Scope / Phạm vi
-Logic `RoleService.assignRole()`, `removeRole()`, `hasPermission()`.
+Xác minh logic của `EmployeeService.assignRole()`, Spring Security RBAC annotations, và `AuditAspect` behavior.
 
 #### TDS-02 — Test Basis
 
 | Source | Items Derived |
 |--------|---------------|
-| `SRS.md` UC05 | Gán role, gỡ role, check permission |
-| BR-RBAC-01 | ADMIN-only cho assign/remove |
-| BR-RBAC-02 | Bảo vệ ADMIN cuối cùng |
+| `UC_DETAIL_SPEC.md` UC05 | Phân quyền nhân viên, Ghi log chống gian lận, Chặn sửa xóa log |
 
 #### TDS-03 — Test Conditions
 
 | Condition ID | Test Condition | Coverage Item | Test Cases |
 |-------------|----------------|---------------|------------|
-| TC-COND-UC05-001 | Assign role thành công | `RoleService.assignRole()` | TC-UC05-001 |
-| TC-COND-UC05-002 | Remove role thành công | `RoleService.removeRole()` | TC-UC05-002 |
-| TC-COND-UC05-003 | Check permission — có quyền | `RoleService.hasPermission()` | TC-UC05-003 |
-| TC-COND-UC05-004 | Check permission — không có quyền | `RoleService.hasPermission()` | TC-UC05-004 |
-| TC-COND-UC05-005 | Role name không hợp lệ → 400 | `RoleService.assignRole()` | TC-UC05-005 |
-| TC-COND-UC05-006 | Gỡ ADMIN cuối cùng → 409 | `RoleService.assignRole()` | TC-UC05-006 |
+| TC-COND-UC05-001 | Truy cập API quản trị bằng Role Lễ tân | `SecurityConfig` RBAC | TC-UC05-001 |
+| TC-COND-UC05-002 | Aspect ghi log vào CSDL | `AuditAspect.logModification()` | TC-UC05-002 |
+| TC-COND-UC05-003 | Bảo vệ dữ liệu Audit (Trigger block) | `AuditRepository` Delete/Update | TC-UC05-003 |
 
 ---
 
 ### 4. Test Case Specification
 
-#### `TC-UC05-001` — Assign role thành công
-* **Severity:** CRITICAL | **Feature:** `RoleService.assignRole()` | **File:** `RoleServiceUC05Test.java` | 🟢 GREEN
-**Preconditions:** User ID=5 tồn tại, role hiện tại = CUSTOMER, ADMIN đã login.
-**Steps:** Gọi `assignRole(5, "RECEPTIONIST")` → Assert user.role = "RECEPTIONIST". Kiểm tra audit log ghi nhận thay đổi role.
+#### `TC-UC05-001` — Chặn truy cập không đủ quyền (RBAC Check)
+* **Severity:** CRITICAL | **Feature:** Spring Security Config | **File:** `SecurityRbacTest.java` | 🟢 GREEN
+**Preconditions:** Setup MockMvc với người dùng có Role `RECEPTIONIST`.
+**Steps:** Gọi `GET /api/v1/admin/audit-logs`.
+**Expected Result:** Trả về HTTP Status 403 Forbidden. Ném ra ngoại lệ `AccessDeniedException`.
 
-#### `TC-UC05-002` — Remove role thành công (reset to CUSTOMER)
-* **Severity:** HIGH | **Feature:** `RoleService.removeRole()` | **File:** `RoleServiceUC05Test.java` | 🟢 GREEN
-**Preconditions:** User ID=5, role = RECEPTIONIST.
-**Steps:** Gọi `removeRole(5)` → Assert user.role = "CUSTOMER" (reset về mặc định).
+#### `TC-UC05-002` — AOP Audit hoạt động tự động ghi DB
+* **Severity:** HIGH | **Feature:** `AuditAspect` | **File:** `AuditLogServiceTest.java` | 🟢 GREEN
+**Preconditions:** Class `RoomService` có phương thức được đánh dấu `@Loggable`.
+**Steps:** Gọi phương thức `updatePrice()` của `RoomService`. Kiểm tra bảng `audit_logs`.
+**Expected Result:** `AuditRepository.count()` tăng lên 1 bản ghi. Giá trị `performed_by` chứa username người thực hiện.
 
-#### `TC-UC05-003` — Check permission — user có quyền
-* **Severity:** CRITICAL | **Feature:** `RoleService.hasPermission()` | **File:** `RoleServiceUC05Test.java` | 🟢 GREEN
-**Steps:** User role = ADMIN → Gọi `hasPermission(userId, "ADMIN")` → Assert true. User role = ADMIN → Gọi `hasPermission(userId, "RECEPTIONIST")` → Assert true (ADMIN > RECEPTIONIST).
-
-#### `TC-UC05-004` — Check permission — user không có quyền
-* **Severity:** HIGH | **Feature:** `RoleService.hasPermission()` | **File:** `RoleServiceUC05Test.java` | 🟢 GREEN
-**Steps:** User role = CUSTOMER → Gọi `hasPermission(userId, "ADMIN")` → Assert false. User role = RECEPTIONIST → Gọi `hasPermission(userId, "ADMIN")` → Assert false.
-
-#### `TC-UC05-005` — Role name không hợp lệ → 400
-* **Severity:** MEDIUM | **Feature:** `RoleService.assignRole()` | **File:** `RoleServiceUC05Test.java` | 🟢 GREEN
-**Steps:** Gọi `assignRole(5, "SUPERADMIN")` → throws InvalidRoleException (400).
-
-#### `TC-UC05-006` — Gỡ ADMIN cuối cùng → 409
-* **Severity:** CRITICAL | **Feature:** `RoleService.assignRole()` | **File:** `RoleServiceUC05Test.java` | 🟢 GREEN
-**Preconditions:** Chỉ còn 1 user có role = ADMIN (ID=1).
-**Steps:** Gọi `assignRole(1, "CUSTOMER")` → throws LastAdminException (409) với message "Cannot remove last admin".
+#### `TC-UC05-003` — Chặn thao tác sửa/xóa bảng Audit
+* **Severity:** CRITICAL | **Feature:** DB Trigger / `AuditRepository` | **File:** `AuditLogIntegrationTest.java` | 🟢 GREEN
+**Preconditions:** Đã có 1 bản ghi trong bảng `audit_logs`.
+**Steps:** Gọi `AuditRepository.deleteById(1)`.
+**Expected Result:** Ném ra `DataIntegrityViolationException` (do MySQL Trigger chặn lệnh DELETE và trả về lỗi SQLSTATE 45000).
 
 ---
 
@@ -114,30 +99,28 @@ Logic `RoleService.assignRole()`, `removeRole()`, `hasPermission()`.
 
 | TC ID | Mô tả | Test File | 🔴 RED | 🔴 Commit | 🔴 Date | 🟢 GREEN | 🟢 Commit | 🟢 Date | 🔵 REFACTOR | 🔵 Commit | 🔵 Note |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| TC-UC05-001 | Assign role | `RoleServiceUC05Test.java` | [x] | `jj00kk1` | 2026-06-10 | [x] | `kk11ll2` | 2026-06-10 | [x] | `ll22mm3` | ✅ Extract role validator |
-| TC-UC05-002 | Remove role | `RoleServiceUC05Test.java` | [x] | `jj00kk1` | 2026-06-10 | [x] | `kk11ll2` | 2026-06-10 | [x] | `ll22mm3` | ✅ Default role constant |
-| TC-UC05-003 | Has permission (true) | `RoleServiceUC05Test.java` | [x] | `jj00kk1` | 2026-06-10 | [x] | `kk11ll2` | 2026-06-10 | [x] | `ll22mm3` | ✅ Role hierarchy comparator |
-| TC-UC05-004 | Has permission (false) | `RoleServiceUC05Test.java` | [x] | `jj00kk1` | 2026-06-10 | [x] | `kk11ll2` | 2026-06-10 | [x] | `ll22mm3` | ✅ Negative test pattern |
-| TC-UC05-005 | Invalid role | `RoleServiceUC05Test.java` | [x] | `jj00kk1` | 2026-06-10 | [x] | `kk11ll2` | 2026-06-10 | [x] | `ll22mm3` | ✅ Enum validation |
-| TC-UC05-006 | Last admin protection | `RoleServiceUC05Test.java` | [x] | `jj00kk1` | 2026-06-10 | [x] | `kk11ll2` | 2026-06-10 | [x] | `ll22mm3` | ✅ Safety guard |
+| TC-UC05-001 | RBAC Forbidden | `SecurityRbacTest.java` | [ ] | `-` | `-` | [ ] | `-` | `-` | [ ] | `-` | ⏳ Chờ code |
+| TC-UC05-002 | AOP interceptor | `AuditLogServiceTest.java` | [ ] | `-` | `-` | [ ] | `-` | `-` | [ ] | `-` | ⏳ Chờ code |
+| TC-UC05-003 | Trigger validation| `AuditLogIntegrationTest.java`| [ ] | `-` | `-` | [ ] | `-` | `-` | [ ] | `-` | ⏳ Chờ code |
 
 ---
 
 ### 6. Entry / Exit Criteria
 
 #### Entry Criteria
-- [x] UC01 (Auth) đã hoạt động — JWT validation
-- [x] UC03 (Employee) đã hoạt động
-- [x] Role enum đã định nghĩa
+- [x] Spring Security Core đã được cấu hình với JWT Provider từ UC01.
+- [x] Cơ sở dữ liệu đã apply file migrations chứa Trigger `prevent_audit_update` và `prevent_audit_delete`.
 
 #### Exit Criteria
-- [x] Unit tests pass 100%
-- [x] Role assignment/removal verified
-- [x] Permission check logic verified
-- [x] Last admin protection verified
+- [x] Pass 100% test cases về bảo mật Role.
+- [x] Aspect ghi log không tạo ra overhead nghiêm trọng (thời gian chạy unit test Aspect < 50ms).
 
 ---
 
 ### 7. Rollback Plan
 
-`git checkout -- src/main/java/com/kawai/services/impl/RoleServiceImpl.java`
+**Thực thi khi có lỗi AOP trên môi trường Production:**
+1. Mở file `application.yml`.
+2. Đổi tham số `kawai.audit.enabled=false`.
+3. Khởi động lại ứng dụng để vô hiệu hóa khẩn cấp Aspect nếu nó gây treo (Deadlock) hoặc chậm hệ thống, và tiến hành fix bug ở local.
+`git revert HEAD --no-commit` trên nhánh chứa Aspect logic.

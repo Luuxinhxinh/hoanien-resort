@@ -8,7 +8,7 @@
         <table class="adm-table">
             <thead>
             <tr>
-                <th>Mã</th><th>Tên hạng phòng</th><th>Số phòng</th><th>Giá cơ bản / đêm</th><th>Trạng thái</th><th style="text-align:right">Thao tác</th>
+                <th>Mã</th><th>Tên hạng phòng</th><th>Số phòng</th><th>Giá cơ bản / đêm</th><th>Trạng thái</th><th style="text-align:center;">Kích hoạt</th><th style="text-align:right">Thao tác</th>
             </tr>
             </thead>
             <tbody>
@@ -19,6 +19,12 @@
                 <td th:attr="data-key='price',data-value=${row['price']}" th:text="${row['price']}"></td>
                 <td th:attr="data-key='status',data-value=${row['status']}">
                     <span class="cell-badge" th:classappend="${row['__statusStyle']}" th:text="${row['status']}"></span>
+                </td>
+                <td style="text-align:center;">
+                    <button type="button" class="btn-toggle" th:attr="data-id=${row['id']},data-value=${row['status']}">
+                        <i th:if="${row['status'] == 'Active' || row['status'] == 'Available' || row['status'] == 'true'}" data-lucide="toggle-right" style="color:#C9A96E"></i>
+                        <i th:unless="${row['status'] == 'Active' || row['status'] == 'Available' || row['status'] == 'true'}" data-lucide="toggle-left" style="color:#8B7355"></i>
+                    </button>
                 </td>
                 <td style="text-align:right">
                     <div style="display:flex;align-items:center;justify-content:flex-end;gap:2px">
@@ -37,14 +43,18 @@
 <div th:fragment="form">
     <div class="form-fields-inner" style="display:flex;flex-direction:column;gap:20px">
         <div class="adm-form-group"><label class="adm-form-label">Tên hạng phòng <span style="color:#B45309">*</span></label><input type="text" name="name" class="adm-form-input" required></div>
-        <div class="adm-form-group"><label class="adm-form-label">Số phòng <span style="color:#B45309">*</span></label><input type="number" name="rooms" class="adm-form-input" required></div>
+        <div class="adm-form-group"><label class="adm-form-label">Sức chứa tối đa (Khách) <span style="color:#B45309">*</span></label><input type="number" name="rooms" class="adm-form-input" required></div>
         <div class="adm-form-group"><label class="adm-form-label">Giá cơ bản / đêm <span style="color:#B45309">*</span></label><input type="text" name="price" class="adm-form-input" required></div>
-        <div class="adm-form-group"><label class="adm-form-label">Trạng thái</label>
-            <select name="status" class="adm-form-select">
-                <option value="Active">Active</option>
-                <option value="Inactive">Inactive</option>
-            </select>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+            <div class="adm-form-group"><label class="adm-form-label">NL tiêu chuẩn</label><input type="number" name="baseAdults" class="adm-form-input"></div>
+            <div class="adm-form-group"><label class="adm-form-label">TE tiêu chuẩn</label><input type="number" name="baseChildren" class="adm-form-input"></div>
+            <div class="adm-form-group"><label class="adm-form-label">NL tối đa</label><input type="number" name="maxAdults" class="adm-form-input"></div>
+            <div class="adm-form-group"><label class="adm-form-label">TE tối đa</label><input type="number" name="maxChildren" class="adm-form-input"></div>
+            <div class="adm-form-group"><label class="adm-form-label">Phụ thu NL (VNĐ)</label><input type="text" name="extraAdultSurcharge" class="adm-form-input"></div>
+            <div class="adm-form-group"><label class="adm-form-label">Phụ thu TE (VNĐ)</label><input type="text" name="extraChildSurcharge" class="adm-form-input"></div>
         </div>
+        <div class="adm-form-group"><label class="adm-form-label">Mô tả hạng phòng</label><textarea name="description" class="adm-form-input" rows="3"></textarea></div>
+        <div class="adm-form-group"><label class="adm-form-label">Link ảnh đại diện</label><input type="text" name="coverImgUrl" class="adm-form-input"></div>
     </div>
 </div>
 

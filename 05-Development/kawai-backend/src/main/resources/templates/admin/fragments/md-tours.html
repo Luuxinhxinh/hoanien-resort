@@ -8,7 +8,7 @@
         <table class="adm-table">
             <thead>
             <tr>
-                <th>Mã</th><th style="width: 60px;">Ảnh</th><th>Tên tour</th><th>Danh mục</th><th>Thời gian</th><th>Giá / người</th><th>Trạng thái</th><th style="text-align:right">Thao tác</th>
+                <th>Mã</th><th style="width: 60px;">Ảnh</th><th>Tên tour</th><th>Danh mục</th><th>Thời gian</th><th>Giá / người</th><th>Trạng thái</th><th style="text-align:center;">Kích hoạt</th><th style="text-align:right">Thao tác</th>
             </tr>
             </thead>
             <tbody>
@@ -24,6 +24,12 @@
                 <td th:attr="data-key='price',data-value=${row['price']}" th:text="${row['price']}"></td>
                 <td th:attr="data-key='status',data-value=${row['status']}">
                     <span class="cell-badge" th:classappend="${row['__statusStyle']}" th:text="${row['status']}"></span>
+                </td>
+                <td style="text-align:center;">
+                    <button type="button" class="btn-toggle" th:attr="data-id=${row['id']},data-value=${row['status']}">
+                        <i th:if="${row['status'] == 'Active' || row['status'] == 'Available' || row['status'] == 'true'}" data-lucide="toggle-right" style="color:#C9A96E"></i>
+                        <i th:unless="${row['status'] == 'Active' || row['status'] == 'Available' || row['status'] == 'true'}" data-lucide="toggle-left" style="color:#8B7355"></i>
+                    </button>
                 </td>
                 <td style="text-align:right">
                     <div class="table-actions">
@@ -82,16 +88,13 @@
             </select>
         </div>
         <div class="adm-form-group"><label class="adm-form-label">Thời gian</label><input type="text" name="duration" class="adm-form-input"></div>
+        <div class="adm-form-group"><label class="adm-form-label">Số khách tối đa</label><input type="number" name="maxCapacity" class="adm-form-input"></div>
         <div class="adm-form-group"><label class="adm-form-label">Giá / người <span style="color:#B45309">*</span></label><input type="text" name="price" class="adm-form-input" required></div>
-        <div class="adm-form-group"><label class="adm-form-label">Trạng thái</label>
-            <select name="status" class="adm-form-select">
-                <option value="Active">Active</option>
-                <option value="Inactive">Inactive</option>
-            </select>
-        </div>
+        <div class="adm-form-group"><label class="adm-form-label">Slogan ngắn (Short Quote)</label><input type="text" name="shortQuote" class="adm-form-input"></div>
+        <div class="adm-form-group"><label class="adm-form-label">Mô tả Tour</label><textarea name="description" class="adm-form-input" rows="3"></textarea></div>
+        <div class="adm-form-group"><label class="adm-form-label">Link ảnh đại diện</label><input type="text" name="imageUrl" class="adm-form-input"></div>
     </div>
 </div>
 
 </body>
 </html>
-

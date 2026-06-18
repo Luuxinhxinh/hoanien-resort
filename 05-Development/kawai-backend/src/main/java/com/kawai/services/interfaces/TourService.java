@@ -48,4 +48,9 @@ public interface TourService {
     boolean verifyAttendance(Long attendeeId, MultipartFile image);
 
     void markAttendanceManually(Long attendeeId, String status);
+
+    // UC08: Core Data CRUD
+    com.kawai.models.Tour updateTour(Long tourId, java.math.BigDecimal newPrice);
+    void updateItineraries(Long tourId, List<com.kawai.models.TourItinerary> newItineraries);
+    void softDeleteTour(Long tourId);
 }

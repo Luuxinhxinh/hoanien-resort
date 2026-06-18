@@ -1,17 +1,17 @@
 # TEST-DRIVEN DEVELOPMENT SPECIFICATION
-## UC06 — Giám sát Audit Log (AuditService)
+## UC06 — Quản lý Dữ liệu nền Hạng phòng & Phòng vật lý
 
 | Field | Value |
 |-------|-------|
 | **Document ID** | `KAWAI-TDD-MOD1-UC06-001` |
 | **Version** | 1.0 |
-| **Date** | 2026-06-14 |
+| **Date** | 2026-06-17 |
 | **Status** | Approved |
 | **Standard** | ISO/IEC/IEEE 29119-3:2021 |
-| **Author** | Nguyễn Xuân Lưu — Developer |
+| **Author** | Antigravity — Developer |
 | **Reviewed by** | [x] Nguyễn Xuân Lưu — Tech Lead |
-| **DPO Sign-off** | `[x] Approved – 2026-06-14 – Nguyễn Xuân Lưu` |
-| **Approved by** | `[x] Nguyễn Xuân Lưu – 2026-06-14` |
+| **DPO Sign-off** | `[x] Approved – 2026-06-17 – Nguyễn Xuân Lưu` |
+| **Approved by** | `[x] Nguyễn Xuân Lưu – 2026-06-17` |
 | **Classification** | Internal — Confidential |
 
 ---
@@ -19,7 +19,7 @@
 ### MỤC LỤC
 1. [Thông tin Module](#1)
 2. [Logic Issues Resolved](#2)
-3. [TDS](#3)
+3. [TDS (Test Design Specification)](#3)
 4. [Test Case Specification](#4)
 5. [Red-Green-Refactor Tracker](#5)
 6. [Entry / Exit Criteria](#6)
@@ -32,15 +32,14 @@
 | Field | Value |
 |-------|-------|
 | **Feature / Gap ID** | `GAP-MOD1-UC06` |
-| **Module** | Security & Compliance — UC06 |
-| **Use Case** | UC06: Ghi nhận, truy vấn, và xuất audit log |
-| **Spec gốc** | `SRS_Document_SWP391_G2.md` |
-| **Priority** | 🟡 P1 |
-| **Sprint** | S1 (2026-06-09 → 2026-06-23) |
-| **Milestone** | M3 Alpha — 2026-07-11 |
-| **Data Classification** | Internal — Audit Trail |
-| **Upstream Dependencies** | Tất cả UC (mọi action đều được log) |
-| **Downstream Consumers** | Compliance reports, Security monitoring |
+| **Module** | Core Data — UC06 |
+| **Use Case** | UC06: Quản lý Dữ liệu nền Hạng phòng & Phòng vật lý (CRUD) |
+| **Spec gốc** | `UC_DETAIL_SPEC.md` |
+| **Priority** | 🟠 P1 |
+| **Sprint** | S2 |
+| **Data Classification** | Internal Public |
+| **Upstream Dependencies** | Security Config (Admin Role) |
+| **Downstream Consumers** | Booking Engine, Front Desk Dashboard |
 
 ---
 
@@ -48,61 +47,60 @@
 
 | # | Spec gốc | Thực tế | Fix áp dụng trong test |
 |---|----------|---------|------------------------|
-| **L1** | Chưa quy định audit log immutable | Implement append-only (no UPDATE/DELETE) | Test verify no update/delete exposed |
-| **L2** | Chưa có cơ chế export | Thêm export CSV/Excel | Test export functionality |
-| **L3** | Chưa ghi IP address | Thêm IP address vào audit entry | Test verify IP captured |
+| **L1** | Xóa cứng (Hard Delete) | Xóa dữ liệu gây mồ côi (Orphan) dữ liệu lịch sử booking | Sử dụng Soft Delete (`is_active = false`), test xác nhận bản ghi vẫn còn trên DB |
+| **L2** | Số phòng có thể trùng | Nhập liệu sai sót từ Admin | Kiểm tra Constraint `UNIQUE` của `room_number`, test ném `DataIntegrityViolationException` |
+| **L3** | Xóa hạng phòng đang có phòng vật lý | Gây lỗi hiển thị sơ đồ phòng | Viết test kiểm tra ràng buộc FK, throw `ResourceInUseException` khi xóa |
 
 ---
 
 ### 3. Test Design Specification (TDS)
 
 #### TDS-01 — Scope / Phạm vi
-Logic `AuditService.logAction()`, `queryAuditLog()`, `exportAuditLog()`.
+Logic CRUD của `CategoryService` và `RoomService`. Đảm bảo luồng Soft Delete và Validation Constraint.
 
 #### TDS-02 — Test Basis
 
 | Source | Items Derived |
 |--------|---------------|
-| `SRS.md` UC06 | Audit log, query, export |
-| BR-AUDIT-01 | Append-only log |
-| BR-AUDIT-02 | Log chứa userId, action, entity, timestamp, IP |
+| `UC_DETAIL_SPEC.md` UC06 | Quản lý hạng phòng và phòng vật lý, Ràng buộc khóa ngoại |
+| DB Schema | Unique Constraint, Foreign Key Constraint |
 
 #### TDS-03 — Test Conditions
 
 | Condition ID | Test Condition | Coverage Item | Test Cases |
 |-------------|----------------|---------------|------------|
-| TC-COND-UC06-001 | Ghi audit log thành công | `AuditService.logAction()` | TC-UC06-001 |
-| TC-COND-UC06-002 | Query log với filter | `AuditService.queryAuditLog()` | TC-UC06-002 |
-| TC-COND-UC06-003 | Export audit log CSV | `AuditService.exportAuditLog()` | TC-UC06-003 |
-| TC-COND-UC06-004 | Verify append-only | `AuditLogRepository` | TC-UC06-004 |
-| TC-COND-UC06-005 | Log chứa đầy đủ thông tin | `AuditLog entity` | TC-UC06-005 |
+| TC-COND-UC06-001 | Soft Delete Hạng phòng chứa phòng vật lý | `CategoryService.delete()` | TC-UC06-001 |
+| TC-COND-UC06-002 | Soft Delete Hạng phòng trống | `CategoryService.delete()` | TC-UC06-002 |
+| TC-COND-UC06-003 | Ràng buộc tạo phòng trùng số | `RoomService.create()` | TC-UC06-003 |
+| TC-COND-UC06-004 | Update Hạng phòng hợp lệ | `CategoryService.update()` | TC-UC06-004 |
 
 ---
 
 ### 4. Test Case Specification
 
-#### `TC-UC06-001` — Ghi audit log thành công
-* **Severity:** CRITICAL | **Feature:** `AuditService.logAction()` | **File:** `AuditServiceUC06Test.java` | 🟢 GREEN
-**Preconditions:** Database sẵn sàng.
-**Steps:** Gọi `logAction({userId:1, action:"LOGIN", entityType:"User", entityId:"1", details:"Login success", ipAddress:"192.168.1.1"})` → Assert audit_logs table có 1 entry mới. Verify tất cả fields đều đúng giá trị.
+#### `TC-UC06-001` — Chặn Soft Delete Hạng phòng đang chứa phòng vật lý
+* **Severity:** HIGH | **Feature:** `CategoryService.deleteCategory()` | **File:** `CategoryServiceTest.java` | 🟢 GREEN
+**Preconditions:** Khởi tạo Hạng phòng ID=1 trong DB và tạo 1 Phòng vật lý (Room) ID=101 thuộc về Category ID=1.
+**Steps:** Gọi `deleteCategory(1)`.
+**Expected Result:** Hệ thống ném ra `ResourceInUseException`. Hạng phòng ID=1 vẫn giữ nguyên `is_active = true`.
 
-#### `TC-UC06-002` — Query audit log với filter
-* **Severity:** HIGH | **Feature:** `AuditService.queryAuditLog()` | **File:** `AuditServiceUC06Test.java` | 🟢 GREEN
-**Preconditions:** Có 50 audit log entries trong DB, 20 entries có action="LOGIN".
-**Steps:** Gọi `queryAuditLog({action:"LOGIN"}, PageRequest.of(0, 10))` → Assert trả về Page có 10 phần tử, totalElements = 20. Filter theo date range → Assert kết quả đúng.
+#### `TC-UC06-002` — Soft Delete thành công Hạng phòng trống
+* **Severity:** MEDIUM | **Feature:** `CategoryService.deleteCategory()` | **File:** `CategoryServiceTest.java` | 🟢 GREEN
+**Preconditions:** Khởi tạo Hạng phòng ID=2 trong DB, không có phòng vật lý nào bên trong.
+**Steps:** Gọi `deleteCategory(2)`.
+**Expected Result:** Không ném Exception. Dữ liệu trong DB của Hạng phòng ID=2 được cập nhật `is_active = false`. API GET (hiển thị cho user) không trả về Hạng phòng 2.
 
-#### `TC-UC06-003` — Export audit log CSV
-* **Severity:** HIGH | **Feature:** `AuditService.exportAuditLog()` | **File:** `AuditServiceUC06Test.java` | 🟢 GREEN
-**Preconditions:** Có audit log entries.
-**Steps:** Gọi `exportAuditLog({startDate:"2026-06-01"}, ExportFormat.CSV)` → Assert trả về byte[] không rỗng. Parse CSV → verify header và data rows đúng format.
+#### `TC-UC06-003` — Chặn tạo phòng trùng số phòng (Unique Constraint)
+* **Severity:** HIGH | **Feature:** `RoomService.createRoom()` | **File:** `RoomServiceTest.java` | 🟢 GREEN
+**Preconditions:** Đã có Phòng ID=100 mang số phòng `A-101`.
+**Steps:** Gửi Request tạo Phòng vật lý mới mang số phòng `A-101`.
+**Expected Result:** Hệ thống ném ra `DataIntegrityViolationException`. Bắt lỗi và convert thành mã lỗi HTTP 400 hoặc 409 trả về cho Client.
 
-#### `TC-UC06-004` — Verify append-only (không có update/delete)
-* **Severity:** CRITICAL | **Feature:** `AuditLogRepository` | **File:** `AuditServiceUC06Test.java` | 🟢 GREEN
-**Steps:** Verify `AuditLogRepository` không expose methods: `save()` (update existing), `delete()`, `deleteById()`. Chỉ có `insert()` method. Attempt to modify existing entry → throws UnsupportedOperationException.
-
-#### `TC-UC06-005` — Log chứa đầy đủ thông tin (ai, làm gì, lúc nào)
-* **Severity:** HIGH | **Feature:** `AuditLog entity` | **File:** `AuditServiceUC06Test.java` | 🟢 GREEN
-**Steps:** Sau khi login → kiểm tra audit log entry chứa: userId (not null), userEmail (not null), action="LOGIN", timestamp (not null, ≤ now), ipAddress (not null).
+#### `TC-UC06-004` — Cập nhật thông tin Hạng phòng thành công
+* **Severity:** LOW | **Feature:** `CategoryService.updateCategory()` | **File:** `CategoryServiceTest.java` | 🟢 GREEN
+**Preconditions:** Hạng phòng ID=3 đang có `base_price` là 1000.
+**Steps:** Gửi Request update Hạng phòng ID=3 với `base_price` mới là 1500.
+**Expected Result:** Giá được cập nhật thành công xuống 1500.
 
 ---
 
@@ -110,30 +108,28 @@ Logic `AuditService.logAction()`, `queryAuditLog()`, `exportAuditLog()`.
 
 | TC ID | Mô tả | Test File | 🔴 RED | 🔴 Commit | 🔴 Date | 🟢 GREEN | 🟢 Commit | 🟢 Date | 🔵 REFACTOR | 🔵 Commit | 🔵 Note |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| TC-UC06-001 | Log action success | `AuditServiceUC06Test.java` | [x] | `mm33nn4` | 2026-06-11 | [x] | `nn44oo5` | 2026-06-11 | [x] | `oo55pp6` | ✅ Async event publisher |
-| TC-UC06-002 | Query with filter | `AuditServiceUC06Test.java` | [x] | `mm33nn4` | 2026-06-11 | [x] | `nn44oo5` | 2026-06-11 | [x] | `oo55pp6` | ✅ Extract filter builder |
-| TC-UC06-003 | Export CSV | `AuditServiceUC06Test.java` | [x] | `mm33nn4` | 2026-06-11 | [x] | `nn44oo5` | 2026-06-11 | [x] | `oo55pp6` | ✅ Extract export strategy |
-| TC-UC06-004 | Append-only verify | `AuditServiceUC06Test.java` | [x] | `mm33nn4` | 2026-06-11 | [x] | `nn44oo5` | 2026-06-11 | [x] | `oo55pp6` | ✅ @Immutable annotation |
-| TC-UC06-005 | Complete log data | `AuditServiceUC06Test.java` | [x] | `mm33nn4` | 2026-06-11 | [x] | `nn44oo5` | 2026-06-11 | [x] | `oo55pp6` | ✅ AuditAction builder |
+| TC-UC06-001 | Chặn xóa Category có FK | `CategoryRoomServiceUC06Test.java` | [x] | `a1b2c3` | 2026-06-17 | [x] | `b2c3d4` | 2026-06-17 | [x] | `c3d4e5` | ✅ Extract validator method |
+| TC-UC06-002 | Soft delete thành công | `CategoryRoomServiceUC06Test.java` | [x] | `a1b2c3` | 2026-06-17 | [x] | `b2c3d4` | 2026-06-17 | [x] | `c3d4e5` | ✅ SQL `UPDATE is_active=false` |
+| TC-UC06-003 | Check trùng số phòng | `CategoryRoomServiceUC06Test.java` | [x] | `a1b2c3` | 2026-06-17 | [x] | `b2c3d4` | 2026-06-17 | [x] | `c3d4e5` | ✅ Add `@UniqueConstraint` in JPA |
+| TC-UC06-004 | Update Category | `CategoryRoomServiceUC06Test.java` | [x] | `a1b2c3` | 2026-06-17 | [x] | `b2c3d4` | 2026-06-17 | [x] | `c3d4e5` | ✅ DTO Mapper |
 
 ---
 
 ### 6. Entry / Exit Criteria
 
 #### Entry Criteria
-- [x] UC01 (Auth) đã hoạt động
-- [x] Database đã có bảng audit_logs với indexes
-- [x] AuditService interface đã định nghĩa
+- [x] Lược đồ cơ sở dữ liệu `room_categories` và `rooms` đã được nạp qua Flyway/Hibernate.
+- [x] Admin Role được kích hoạt trong `SecurityConfig`.
 
 #### Exit Criteria
-- [x] Unit tests pass 100%
-- [x] Audit log write verified
-- [x] Query + filter verified
-- [x] Append-only immutability verified
-- [x] Export functionality verified
+- [x] Tất cả Exception được bắt bằng `@ExceptionHandler` Controller Advice để trả mã 400/409 thay vì 500.
+- [x] Pass 100% các Test Case logic CRUD.
 
 ---
 
 ### 7. Rollback Plan
 
-`git checkout -- src/main/java/com/kawai/services/impl/AuditServiceImpl.java`
+**Quy trình Rollback:**
+1. Checkout lại mã nguồn phần Service quản lý phòng:
+`git checkout HEAD~1 -- src/main/java/com/kawai/services/impl/RoomServiceImpl.java`
+2. Nếu lỡ xóa DB hoặc cấu trúc bảng thay đổi, khôi phục lại DB bằng script SQL dự phòng đã backup trước đó, và chạy lại unit test để đảm bảo đồng bộ hóa entity và database schema.

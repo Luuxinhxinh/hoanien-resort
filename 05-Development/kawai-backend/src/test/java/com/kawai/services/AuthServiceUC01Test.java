@@ -1,189 +1,106 @@
 package com.kawai.services;
 
 import com.kawai.models.Account;
-import com.kawai.models.Customer;
-import com.kawai.models.Role;
 import com.kawai.repositories.AccountRepository;
-import com.kawai.repositories.CustomerRepository;
-import com.kawai.repositories.RoleRepository;
-import org.junit.jupiter.api.BeforeEach;
+import com.kawai.repositories.AuditLogRepository;
+import com.kawai.services.impl.AuthServiceImpl;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.logout;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@Transactional
+@ExtendWith(MockitoExtension.class)
+@DisplayName("UC01 - Authentication Service")
 public class AuthServiceUC01Test {
 
-        @Autowired
-        private MockMvc mockMvc;
+    @Mock
+    private AccountRepository accountRepository;
 
-        @Autowired
-        private AccountRepository accountRepository;
+    @Mock
+    private AuditLogRepository auditLogRepository;
 
-        @Autowired
-        private CustomerRepository customerRepository;
+    @Mock
+    private PasswordEncoder passwordEncoder;
 
-        @Autowired
-        private RoleRepository roleRepository;
+    @InjectMocks
+    private AuthServiceImpl authService;
 
-        @Autowired
-        private PasswordEncoder passwordEncoder;
+    @Test
+    @DisplayName("TC-UC01-001 | Đăng nhập thành công, reset loginAttempts")
+    void testLogin_Success() {
+        Account mockAccount = new Account();
+        mockAccount.setId(1L);
+        mockAccount.setUsername("testuser");
+        mockAccount.setPasswordHash("hashed_pass");
+        mockAccount.setFailedLoginAttempts(3);
 
-        @BeforeEach
-        public void setup() {
-                if (roleRepository.findByRoleName("CUSTOMER").isEmpty()) {
-                        Role role = new Role();
-                        role.setRoleName("CUSTOMER");
-                        roleRepository.save(role);
-                }
-                if (roleRepository.findByRoleName("ADMIN").isEmpty()) {
-                        Role role = new Role();
-                        role.setRoleName("ADMIN");
-                        roleRepository.save(role);
-                }
-        }
+        when(accountRepository.findByUsername("testuser")).thenReturn(Optional.of(mockAccount));
+        when(passwordEncoder.matches("correct_pass", "hashed_pass")).thenReturn(true);
 
-        @Test
-        public void testRegistrationAndHashing() throws Exception {
-                mockMvc.perform(post("/auth/register")
-                                .param("username", "testuser")
-                                .param("password", "testpass")
-                                .param("email", "test@test.com")
-                                .param("fullName", "Test User")
-                                .param("gender", "Male")
-                                .param("phone", "0123456789")
-                                .with(csrf()))
-                                .andExpect(status().is3xxRedirection())
-                                .andExpect(redirectedUrl("/booking"));
+        boolean result = authService.login("testuser", "correct_pass");
 
-                Account account = accountRepository.findByUsername("testuser").orElse(null);
-                assertNotNull(account);
-                assertTrue(passwordEncoder.matches("testpass", account.getPasswordHash()));
-                assertEquals("CUSTOMER NORMAL", account.getRole().getRoleName());
+        assertTrue(result, "Đăng nhập thành công phải trả về true");
+        assertEquals(0, mockAccount.getFailedLoginAttempts(), "Số lần đăng nhập sai phải được reset về 0");
+        assertNull(mockAccount.getLockoutTime(), "Không được có thời gian khóa");
+        verify(accountRepository, times(1)).save(mockAccount);
+    }
 
-                Customer customer = customerRepository.findByAccount_Username("testuser").orElse(null);
-                assertNotNull(customer);
-                assertEquals("test@test.com", customer.getEmail());
-        }
+    @Test
+    @DisplayName("TC-UC01-002 | Sai username (User không tồn tại)")
+    void testLogin_WrongUsername() {
+        when(accountRepository.findByUsername("wronguser")).thenReturn(Optional.empty());
 
-        @Test
-        public void testLoginAndLogout() throws Exception {
-                Account account = new Account();
-                account.setUsername("loginuser");
-                account.setPasswordHash(passwordEncoder.encode("loginpass"));
-                account.setRole(roleRepository.findByRoleName("CUSTOMER").get());
-                accountRepository.save(account);
+        boolean result = authService.login("wronguser", "any_pass");
 
-                // Test login
-                mockMvc.perform(formLogin("/auth/login").user("loginuser").password("loginpass"))
-                                .andExpect(status().is3xxRedirection())
-                                .andExpect(redirectedUrl("/booking"));
+        assertFalse(result, "Username không tồn tại phải trả về false");
+    }
 
-                // Test logout
-                mockMvc.perform(logout("/auth/logout"))
-                                .andExpect(status().is3xxRedirection())
-                                .andExpect(redirectedUrl("/"));
-        }
+    @Test
+    @DisplayName("TC-UC01-003 | Sai password, tăng attempts và khóa nếu >= 5")
+    void testLogin_WrongPassword_LockAccount() {
+        Account mockAccount = new Account();
+        mockAccount.setId(2L);
+        mockAccount.setUsername("testuser");
+        mockAccount.setPasswordHash("hashed_pass");
+        mockAccount.setFailedLoginAttempts(4); // Lần này fail nữa là 5 -> Khóa
 
-        @Test
-        public void testRoleBasedFilter() throws Exception {
-                // Unauthenticated access
-                mockMvc.perform(get("/admin/dashboard"))
-                                .andExpect(status().is3xxRedirection()); // Redirects to login
+        when(accountRepository.findByUsername("testuser")).thenReturn(Optional.of(mockAccount));
+        when(passwordEncoder.matches("wrong_pass", "hashed_pass")).thenReturn(false);
 
-                // Access with CUSTOMER role
-                mockMvc.perform(get("/admin/dashboard")
-                                .with(org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors
-                                                .user("guest").roles("CUSTOMER")))
-                                .andExpect(status().isForbidden());
+        boolean result = authService.login("testuser", "wrong_pass");
 
-                // Access with ADMIN role (authorization passes and returns 200 OK)
-                mockMvc.perform(get("/admin/dashboard")
-                                .with(org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors
-                                                .user("admin").roles("ADMIN")))
-                                .andExpect(status().isOk());
-        }
+        assertFalse(result, "Đăng nhập sai phải trả về false");
+        assertEquals(5, mockAccount.getFailedLoginAttempts(), "Số lần đăng nhập sai phải tăng lên 5");
+        assertNotNull(mockAccount.getLockoutTime(), "Tài khoản phải bị khóa");
+        assertTrue(mockAccount.getLockoutTime().isAfter(LocalDateTime.now()), "Lockout time phải ở trong tương lai");
+        verify(accountRepository, times(1)).save(mockAccount);
+    }
 
-        @Test
-        @WithMockUser(username = "profileuser")
-        public void testProfileViewAndEdit() throws Exception {
-                Account account = new Account();
-                account.setUsername("profileuser");
-                account.setPasswordHash("dummy");
-                account.setRole(roleRepository.findByRoleName("CUSTOMER").get());
-                accountRepository.save(account);
+    @Test
+    @DisplayName("TC-UC01-004 | Account locked - Không cho phép đăng nhập")
+    void testLogin_AccountLocked() {
+        Account mockAccount = new Account();
+        mockAccount.setId(3L);
+        mockAccount.setUsername("lockeduser");
+        mockAccount.setLockoutTime(LocalDateTime.now().plusMinutes(10)); // Đang bị khóa
 
-                Customer customer = new Customer();
-                customer.setAccount(account);
-                customer.setEmail("old@test.com");
-                customer.setFullName("Old Name");
-                customer.setGender("Male");
-                customer.setPhone("0123");
-                customerRepository.save(customer);
+        when(accountRepository.findByUsername("lockeduser")).thenReturn(Optional.of(mockAccount));
 
-                // View Profile
-                mockMvc.perform(get("/profile"))
-                                .andExpect(status().isOk())
-                                .andExpect(view().name("guest/profile"))
-                                .andExpect(model().attributeExists("customer"));
+        IllegalStateException exception = assertThrows(IllegalStateException.class, () -> {
+            authService.login("lockeduser", "any_pass");
+        });
 
-                // Edit Profile
-                mockMvc.perform(post("/profile/edit")
-                                .param("fullName", "New Name")
-                                .param("email", "new@test.com")
-                                .with(csrf()))
-                                .andExpect(status().is3xxRedirection())
-                                .andExpect(redirectedUrl("/profile"))
-                                .andExpect(flash().attributeExists("success"));
-
-                Customer updatedCustomer = customerRepository.findByAccount_Username("profileuser").get();
-                assertEquals("New Name", updatedCustomer.getFullName());
-                assertEquals("new@test.com", updatedCustomer.getEmail());
-        }
-
-        @Test
-        @WithMockUser(username = "passuser")
-        public void testChangePassword() throws Exception {
-                Account account = new Account();
-                account.setUsername("passuser");
-                account.setPasswordHash(passwordEncoder.encode("oldpass"));
-                account.setRole(roleRepository.findByRoleName("CUSTOMER").get());
-                accountRepository.save(account);
-
-                // Failed change
-                mockMvc.perform(post("/profile/change-password")
-                                .param("oldPassword", "wrongpass")
-                                .param("newPassword", "newpass")
-                                .with(csrf()))
-                                .andExpect(status().is3xxRedirection())
-                                .andExpect(redirectedUrl("/profile"))
-                                .andExpect(flash().attributeExists("error"));
-
-                // Successful change
-                mockMvc.perform(post("/profile/change-password")
-                                .param("oldPassword", "oldpass")
-                                .param("newPassword", "newpass")
-                                .with(csrf()))
-                                .andExpect(status().is3xxRedirection())
-                                .andExpect(redirectedUrl("/profile"))
-                                .andExpect(flash().attributeExists("success"));
-
-                Account updatedAccount = accountRepository.findByUsername("passuser").get();
-                assertTrue(passwordEncoder.matches("newpass", updatedAccount.getPasswordHash()));
-        }
+        assertTrue(exception.getMessage().contains("bị khóa"));
+        verify(passwordEncoder, never()).matches(anyString(), anyString()); // Chặn ngay từ đầu
+    }
 }

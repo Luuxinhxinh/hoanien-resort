@@ -66,6 +66,16 @@
                     <a th:href="@{/admin/master-data(tab='Pricing Management')}" class="adm-submenu-link"
                         th:classappend="${activeTab == 'Pricing Management'} ? ' sub-active' : ''">
                         <i data-lucide="database"></i> Pricing Management</a>
+                    <div class="adm-nav-divider" style="height:1px; background:rgba(44,42,30,0.1); margin:8px 0"></div>
+                    <a th:href="@{/admin/master-data(tab='Bookings')}" class="adm-submenu-link"
+                        th:classappend="${activeTab == 'Bookings'} ? ' sub-active' : ''">
+                        <i data-lucide="calendar-check"></i> Bookings</a>
+                    <a th:href="@{/admin/master-data(tab='F&B Orders')}" class="adm-submenu-link"
+                        th:classappend="${activeTab == 'F&B Orders'} ? ' sub-active' : ''">
+                        <i data-lucide="coffee"></i> F&B Orders</a>
+                    <a th:href="@{/admin/master-data(tab='Tour Schedules')}" class="adm-submenu-link"
+                        th:classappend="${activeTab == 'Tour Schedules'} ? ' sub-active' : ''">
+                        <i data-lucide="map"></i> Tour Schedules</a>
                 </div>
             </div>
             <div class="adm-nav-item">
@@ -83,10 +93,10 @@
         </nav>
         <div class="adm-sidebar-footer">
             <div class="adm-sidebar-user">
-                <div class="adm-sidebar-avatar">AD</div>
+                <div class="adm-sidebar-avatar" th:text="${#strings.substring(#authentication.name, 0, 2).toUpperCase()}">AD</div>
                 <div>
-                    <div class="adm-sidebar-name">Admin Dũng</div>
-                    <div class="adm-sidebar-role">Admin</div>
+                    <div class="adm-sidebar-name" th:text="${#authentication.name}">Admin Dũng</div>
+                    <div class="adm-sidebar-role" th:text="${#authentication.authorities != null and !#authentication.authorities.isEmpty() ? #strings.replace(#authentication.authorities[0].authority, 'ROLE_', '') : 'User'}">Admin</div>
                 </div>
             </div>
         </div>
@@ -104,15 +114,10 @@
                 <span class="adm-breadcrumb-page" th:text="${activeTab}">Room Categories</span>
             </div>
             <div class="adm-header-right">
-                <button class="adm-header-icon-btn"><i data-lucide="search"></i></button>
-                <button class="adm-header-icon-btn">
-                    <i data-lucide="bell"></i>
-                    <span class="adm-notif-dot"></span>
-                </button>
                 <div class="adm-divider-v"></div>
                 <div class="adm-header-user-box">
-                    <div class="adm-header-avatar">AD</div>
-                    <span class="adm-header-username">Admin Dũng</span>
+                    <div class="adm-header-avatar" th:text="${#strings.substring(#authentication.name, 0, 2).toUpperCase()}">AD</div>
+                    <span class="adm-header-username" th:text="${#authentication.name}">Admin Dũng</span>
                 </div>
                 <div class="adm-divider-v"></div>
                 <a href="/logout" class="adm-header-logout"><i data-lucide="log-out"
@@ -177,6 +182,15 @@
                     <div th:case="'Pricing Management'">
                         <div th:replace="~{admin/fragments/md-pricing-management :: table}"></div>
                     </div>
+                    <div th:case="'Bookings'">
+                        <div th:replace="~{admin/fragments/md-bookings :: table}"></div>
+                    </div>
+                    <div th:case="'F&amp;B Orders'">
+                        <div th:replace="~{admin/fragments/md-fnb-orders :: table}"></div>
+                    </div>
+                    <div th:case="'Tour Schedules'">
+                        <div th:replace="~{admin/fragments/md-tour-schedules :: table}"></div>
+                    </div>
                 </div>
 
                 <!-- Pagination footer -->
@@ -184,9 +198,6 @@
                     <span class="md-pagination-info" id="pagination-info"
                         th:text="'Hiển thị ' + ${totalRows} + ' / ' + ${totalRows} + ' bản ghi'">Hiển thị 0 / 0 bản
                         ghi</span>
-                    <div class="md-pagination-pages" id="pagination-pages">
-                        <button class="md-page-btn">1</button>
-                    </div>
                 </div>
             </div>
 
@@ -231,6 +242,15 @@
                     <div th:case="'Pricing Management'">
                         <div th:replace="~{admin/fragments/md-pricing-management :: form}"></div>
                     </div>
+                    <div th:case="'Bookings'">
+                        <div th:replace="~{admin/fragments/md-bookings :: form}"></div>
+                    </div>
+                    <div th:case="'F&amp;B Orders'">
+                        <div th:replace="~{admin/fragments/md-fnb-orders :: form}"></div>
+                    </div>
+                    <div th:case="'Tour Schedules'">
+                        <div th:replace="~{admin/fragments/md-tour-schedules :: form}"></div>
+                    </div>
                 </div>
                 <div class="adm-modal-footer" style="margin-top:16px">
                     <button type="button" class="btn-close-modal adm-btn adm-btn-ghost"
@@ -260,24 +280,7 @@
         </div>
     </div>
 
-    <!-- ════════ PERMISSIONS MODAL ════════ -->
-    <div id="permissions-modal" class="adm-modal-backdrop hidden">
-        <div class="adm-modal-box adm-modal-box-perm" onclick="event.stopPropagation()">
-            <div class="adm-modal-header">
-                <h2 id="permissions-modal-title" class="adm-modal-title adm-modal-title-sm">Cấp quyền tài khoản</h2>
-                <button class="btn-close-modal adm-modal-close" data-modal="permissions-modal"><i
-                        data-lucide="x"></i></button>
-            </div>
-            <div class="adm-modal-body" style="overflow-y:auto">
-                <p class="adm-modal-desc" id="permissions-desc">Quản lý quyền truy cập cho nhân viên.</p>
-                <div style="display:flex;flex-direction:column;gap:12px" id="permissions-list"></div>
-                <div class="adm-modal-footer" style="margin-top:8px">
-                    <button class="btn-close-modal adm-btn adm-btn-ghost" data-modal="permissions-modal">Hủy</button>
-                    <button id="btn-save-permissions" class="btn-save-perm">Lưu quyền</button>
-                </div>
-            </div>
-        </div>
-    </div>
+
 
     <!-- Inject form options -->
     <script th:inline="javascript">

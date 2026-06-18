@@ -1,32 +1,48 @@
-﻿# ENGINEERING DOCUMENTATION STANDARD (EDS) v2.0
+# ENGINEERING DOCUMENTATION STANDARD (EDS) v2.0
 
-## UC02 — Quản lý hồ sơ cá nhân (ProfileService)
+## UC02 — Đặt lại mật khẩu (PasswordResetService)
 
 | Field | Value |
 |-------|-------|
 | **Document ID** | `KAWAI-EDS-MOD1-UC02-001` |
 | **Version** | 1.0 |
-| **Date** | 2026-06-14 |
+| **Date** | 2026-06-17 |
 | **Status** | Approved |
 | **Document Owner** | Nguyễn Xuân Lưu |
-| **Author** | Nguyễn Xuân Lưu — Developer |
+| **Author** | Antigravity — System Agent |
 | **Reviewed by** | Nguyễn Xuân Lưu — Tech Lead |
-| **DPO Sign-off** | `[x] Approved – 2026-06-14` |
-| **Approved by** | `[x] Nguyễn Xuân Lưu – 2026-06-14` |
-| **Last Review** | 2026-06-14 |
+| **DPO Sign-off** | `[x] Approved – 2026-06-17 – Nguyễn Xuân Lưu` |
+| **Approved by** | `[x] Nguyễn Xuân Lưu – 2026-06-17` |
+| **Last Review** | 2026-06-17 |
 | **Based on EDS** | v2.0 |
 
 ---
 
 ### CHANGELOG
-| Ngày | Người thực hiện | Nội dung |
-|------|-----------------|----------|
-| 2026-06-14 | Nguyễn Xuân Lưu | Tạo tài liệu lần đầu |
+| Ngày | Người thực hiện | Nội dung thay đổi |
+|------|-----------------|-------------------|
+| 2026-06-17 | Antigravity | Cập nhật cấu trúc 17 phần chi tiết theo đúng thiết kế UC02 - Đặt lại mật khẩu qua Email |
 
 ---
 
 ### MỤC LỤC
-1-17 sections
+1. [Tổng quan Module](#1)
+2. [Ma trận Truy vết](#2)
+3. [ADR](#3)
+4. [Non-Functional & SLA](#4)
+5. [Static Modeling](#5)
+6. [Dynamic Modeling](#6)
+7. [Domain Event Catalog](#7)
+8. [Interface Specification](#8)
+9. [API Specification](#9)
+10. [Bảng mã lỗi](#10)
+11. [Quy trình Triển khai](#11)
+12. [Rollback & Incident Runbook](#12)
+13. [Kịch bản Kiểm thử](#13)
+14. [Phương pháp Xác minh](#14)
+15. [Mẫu thử thực tế](#15)
+16. [Authorization Matrix](#16)
+17. [Phụ lục](#17)
 
 ---
 
@@ -34,49 +50,59 @@
 
 | Field | Value |
 |-------|-------|
-| **Module Name** | Quản lý hồ sơ cá nhân (UC02) |
+| **Module Name** | Đặt lại mật khẩu (UC02) |
 | **Bounded Context** | Auth & Identity |
-| **Use Case** | UC02: Xem/sửa hồ sơ, đổi mật khẩu, upload avatar |
-| **Data Classification** | PII (họ tên, CCCD, SĐT) |
-| **Compliance** | Nghị định 13/2023/NĐ-CP |
-| **Upstream** | UC01 (Login) |
-| **Downstream** | UC03 (Employee), UC12 (Check-in) |
+| **Use Case** | UC02: Quên mật khẩu, sinh Token, gửi Email, Reset Password |
+| **Data Classification** | PII (email, password hash) |
+| **Compliance Scope** | Nghị định 13/2023/NĐ-CP |
+| **Upstream Dependencies** | Mail Service |
+| **Downstream Consumers** | Authentication Service |
 
 ---
 
-### 2. Traceability Matrix
+### 2. Ma trận Truy vết
 
-| Requirement ID | Loại | Mô tả | Code Component | Compliance | ADR |
-|----------------|------|-------|----------------|------------|-----|
-| UC02.1 | US | Xem profile | `ProfileService.getProfile()` | — | — |
-| UC02.2 | US | Sửa profile | `ProfileService.updateProfile()` | Nghị định 13/2023 | — |
-| UC02.3 | US | Đổi mật khẩu | `ProfileService.changePassword()` | — | — |
-| UC02.4 | US | Upload avatar | `ProfileService.uploadAvatar()` | — | — |
-| BR-PII-01 | BR | CCCD phải 12 số | `ProfileServiceImpl.validateCCCD()` | — | — |
+| Requirement ID | Loại | Mô tả | Thành phần Code | Compliance | ADR |
+|----------------|------|-------|-----------------|------------|-----|
+| UC02.1 | US | Yêu cầu quên mật khẩu | `PasswordResetService.requestReset()` | Nghị định 13/2023 | ADR-002 |
+| UC02.2 | US | Validate mã token | `PasswordResetService.validateToken()` | — | — |
+| UC02.3 | US | Cập nhật mật khẩu mới | `PasswordResetService.resetPassword()` | — | — |
+| BR-PWD-01 | BR | Token hết hạn 15 phút | `PasswordResetService.requestReset()` | — | — |
 
 ---
 
-### 3. ADR
+### 3. Architecture Decision Records (ADR)
 
-#### ADR-002 — PII Encryption at Rest
+#### ADR-002 — Password Reset Strategy
 
 | Field | Value |
 |-------|-------|
 | **Status** | Accepted |
-| **Date** | 2026-06-10 |
+| **Deciders** | Nguyễn Xuân Lưu |
+| **Date** | 2026-06-17 |
 
-**Decision:** CCCD, SĐT được mã hóa AES-256 trước khi lưu DB.
+**Bối cảnh:** Cần cung cấp quy trình an toàn cho người dùng khi quên mật khẩu.
+**Quyết định:** Sử dụng UUID cho token, gửi qua email, thời hạn 15 phút. Mật khẩu mới được băm bằng BCrypt (cost = 10).
+**Hệ quả:** Tránh brute-force đoán mã token. Cần tích hợp với SMTP Server nội bộ hoặc SendGrid.
 
 ---
 
-### 4. Non-Functional & SLA
+### 4. Non-Functional Requirements & SLA
 
-| Category | Requirement | Target SLA |
-|----------|-------------|------------|
-| **Latency** | API response p99 | < 200ms |
-| **Availability** | Uptime | 99.9% |
-| **Security** | CCCD encrypted | AES-256 |
-| **File** | Avatar max 5MB, JPG/PNG | — |
+#### 4.1. Performance & Availability
+
+| Category | Requirement | Target SLA | Measurement |
+|----------|-------------|------------|-------------|
+| **Latency** | Request reset (p99) | < 500ms (Async Email) | k6 load test |
+| **Availability** | Uptime (monthly) | 99.9% | Uptime monitor |
+
+#### 4.2. Security
+
+| Category | Requirement | Target | Verification |
+|----------|-------------|--------|-------------|
+| **Encryption** | Password | bcrypt | Unit test |
+| **Token** | Expiry | 15 min | Unit test |
+| **Rate Limit** | Request reset spam | Max 3 requests / 10 min | Integration test |
 
 ---
 
@@ -86,41 +112,43 @@
 
 ```plantuml
 @startuml
-interface ProfileService {
-  +getProfile(userId: Long): ProfileDTO
-  +updateProfile(userId: Long, req: UpdateProfileRequest): ProfileDTO
-  +changePassword(userId: Long, oldPwd: String, newPwd: String): void
-  +uploadAvatar(userId: Long, file: MultipartFile): String
+interface PasswordResetService {
+  +requestReset(email: String): void
+  +validateToken(token: String): boolean
+  +resetPassword(token: String, newPassword: String): void
 }
 
-class ProfileServiceImpl implements ProfileService {
+class PasswordResetServiceImpl implements PasswordResetService {
   -userRepository: UserRepository
-  -encryptionService: EncryptionService
-  -storageService: StorageService
+  -tokenRepository: ResetTokenRepository
+  -mailService: MailService
+  -passwordEncoder: BCryptPasswordEncoder
 }
 
-class ProfileDTO {
+class ResetToken {
   +id: Long
-  +email: String
-  +fullName: String
-  +cccd: String
-  +phone: String
-  +avatarUrl: String
+  +userId: Long
+  +token: String
+  +expiryDate: LocalDateTime
+  +isUsed: boolean
 }
+
+PasswordResetServiceImpl ..> UserRepository : uses
+PasswordResetServiceImpl ..> ResetTokenRepository : uses
+PasswordResetServiceImpl ..> MailService : uses
 @enduml
 ```
 
 #### 5.2. Data Structure
 
 ```sql
-CREATE TABLE customer (
+CREATE TABLE password_reset_token (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    email VARCHAR(255) UNIQUE NOT NULL,
-    full_name VARCHAR(100),
-    cccd_encrypted VARBINARY(255),
-    phone_encrypted VARBINARY(255),
-    avatar_url VARCHAR(500),
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    user_id BIGINT NOT NULL,
+    token VARCHAR(255) NOT NULL UNIQUE,
+    expiry_date TIMESTAMP NOT NULL,
+    is_used BOOLEAN DEFAULT FALSE,
+    FOREIGN KEY (user_id) REFERENCES user_account(id)
 );
 ```
 
@@ -128,32 +156,57 @@ CREATE TABLE customer (
 
 ### 6. Dynamic Modeling
 
-#### 6.1. Sequence Diagram — Happy Path
+#### 6.1. Sequence Diagram — Happy Path: Reset Password
 
 ```plantuml
 @startuml
 actor "User" as U
-participant "ProfileController" as Ctrl
-participant "ProfileServiceImpl" as Svc
+participant "AuthController" as Ctrl
+participant "PasswordResetService" as Svc
 database MySQL as DB
+participant "MailService" as Mail
 
-U -> Ctrl: GET /api/v1/profile
+U -> Ctrl: POST /api/v1/auth/forgot-password\n{email}
 activate Ctrl
-Ctrl -> Svc: getProfile(userId)
+Ctrl -> Svc: requestReset(email)
 activate Svc
-Svc -> DB: SELECT * FROM customer WHERE id=:userId
-DB --> Svc: Customer (encrypted CCCD, phone)
-Svc -> Svc: decrypt(cccd, phone)
-Svc --> Ctrl: ProfileDTO
+Svc -> DB: SELECT id FROM user_account WHERE email=:email
+DB --> Svc: UserID
+Svc -> Svc: Generate UUID Token\nExpiry = Now + 15m
+Svc -> DB: INSERT INTO password_reset_token
+Svc -> Mail: sendResetEmail(email, token) (Async)
+Svc --> Ctrl: void
 deactivate Svc
-Ctrl --> U: 200 OK {profile}
+Ctrl --> U: 200 OK
+deactivate Ctrl
+
+U -> Ctrl: POST /api/v1/auth/reset-password\n{token, newPassword}
+activate Ctrl
+Ctrl -> Svc: resetPassword(token, newPassword)
+activate Svc
+Svc -> DB: SELECT * FROM password_reset_token WHERE token=:token
+DB --> Svc: Token Info
+Svc -> Svc: check expiry and isUsed
+Svc -> DB: UPDATE user_account SET password_hash = bcrypt(newPassword)
+Svc -> DB: UPDATE password_reset_token SET is_used = TRUE
+Svc --> Ctrl: void
+deactivate Svc
+Ctrl --> U: 200 OK
 deactivate Ctrl
 @enduml
 ```
 
 #### 6.2. State Machine
 
-UC02 không có state machine riêng. Profile data thay đổi nhưng không có flow trạng thái.
+```plantuml
+@startuml
+[*] --> GENERATED : requestReset()
+GENERATED --> EXPIRED : Sau 15 phút
+GENERATED --> USED : resetPassword() thành công
+USED --> [*]
+EXPIRED --> [*]
+@enduml
+```
 
 ---
 
@@ -161,24 +214,22 @@ UC02 không có state machine riêng. Profile data thay đổi nhưng không có
 
 | Event Name | Trigger | Publisher | Subscriber(s) | Async? |
 |------------|---------|-----------|---------------|--------|
-| `ProfileUpdated` | Sửa profile | `ProfileService` | `AuditService` | Yes |
-| `PasswordChanged` | Đổi password | `ProfileService` | `NotificationService` | Yes |
+| `PasswordResetRequested` | User quên mật khẩu | `PasswordResetService` | `MailService`, `AuditService` | Yes |
+| `PasswordResetCompleted` | Đổi MK thành công | `PasswordResetService` | `AuditService` | Yes |
 
 ---
 
 ### 8. Interface Specification
 
 ```java
-// ProfileService.java
+// PasswordResetService.java
 // @version 1.0
 
-public interface ProfileService {
-    ProfileDTO getProfile(Long userId);
-    ProfileDTO updateProfile(Long userId, UpdateProfileRequest req);
-    void changePassword(Long userId, String oldPwd, String newPwd)
-        throws InvalidPasswordException;
-    String uploadAvatar(Long userId, MultipartFile file)
-        throws FileSizeException, FileTypeException;
+public interface PasswordResetService {
+    void requestReset(String email) throws UserNotFoundException;
+    boolean validateToken(String token);
+    void resetPassword(String token, String newPassword) 
+        throws InvalidTokenException, WeakPasswordException;
 }
 ```
 
@@ -188,18 +239,17 @@ public interface ProfileService {
 
 | Method | Path | Auth | Roles | Rate Limit | Idempotent? |
 |--------|------|------|-------|------------|-------------|
-| GET | `/api/v1/profile` | JWT | All | 60/min | Yes |
-| PUT | `/api/v1/profile` | JWT | All | 30/min | No |
-| POST | `/api/v1/profile/change-password` | JWT | All | 10/min | No |
-| POST | `/api/v1/profile/avatar` | JWT | All | 10/min | No |
+| POST | `/api/v1/auth/forgot-password` | None | All | 3/10min | Yes |
+| POST | `/api/v1/auth/reset-password` | None | All | 5/min | No |
 
-**PUT `/api/v1/profile`**
-*Request:* `{"fullName":"Nguyen Van B","cccd":"123456789012","phone":"0901234567"}`
-*Response 200:* `{"id":1,"fullName":"Nguyen Van B","cccd":"****789012","phone":"****4567"}`
+**POST `/api/v1/auth/forgot-password`**
+*Request:* `{"email": "customer@gmail.com"}`
+*Response 200:* `{"message": "If the email exists, a reset link has been sent."}`
 
-**POST `/api/v1/profile/change-password`**
-*Request:* `{"oldPassword":"123456","newPassword":"abcdef"}`
-*Response 200:* `{"message":"Password changed successfully"}`
+**POST `/api/v1/auth/reset-password`**
+*Request:* `{"token": "uuid-v4-string", "newPassword": "NewStrongPassword123!"}`
+*Response 200:* `{"message": "Password has been successfully reset."}`
+*Response 400:* `{"error": {"code": "AUTH-012", "message": "Invalid or expired token"}}`
 
 ---
 
@@ -207,19 +257,29 @@ public interface ProfileService {
 
 | Code | HTTP | Message (EN) | Message (VI) | Trigger |
 |------|------|--------------|--------------|---------|
-| `AUTH-006` | 400 | Invalid CCCD format | CCCD phải 12 số | CCCD sai format |
-| `AUTH-007` | 400 | Invalid password | Sai mật khẩu hiện tại | Old password sai |
-| `AUTH-008` | 400 | Password too weak | Mật khẩu quá yếu | newPwd < 8 chars |
-| `AUTH-009` | 400 | Invalid file type | File không hợp lệ | Không phải JPG/PNG |
-| `AUTH-010` | 413 | File too large | File quá lớn | > 5MB |
+| `AUTH-011` | 400 | Weak password | Mật khẩu quá yếu | Không đủ 8 ký tự, chữ/số |
+| `AUTH-012` | 400 | Invalid or expired token | Token không hợp lệ hoặc đã hết hạn | Sai token hoặc quá 15 phút |
+| `AUTH-013` | 429 | Too many requests | Gửi quá nhiều yêu cầu | Spam forgot-password |
 
 ---
 
-### 11. Deployment
+### 11. Quy trình Triển khai
 
+#### 11.1. Prerequisites
+- [x] Database đã có bảng `password_reset_token`
+- [x] Cấu hình SMTP server trong `application-prod.yml`
+
+#### 11.2. Deployment
 ```bash
 mvn clean package -DskipTests
 java -jar target/kawai-backend-1.0.jar --spring.profiles.active=staging
+```
+
+#### 11.3. Verification
+```bash
+curl -X POST http://localhost:8080/api/v1/auth/forgot-password \
+  -H "Content-Type: application/json" \
+  -d '{"email":"test@gmail.com"}'
 ```
 
 ---
@@ -228,7 +288,8 @@ java -jar target/kawai-backend-1.0.jar --spring.profiles.active=staging
 
 | Điều kiện | Ngưỡng | Người quyết định |
 |-----------|--------|-------------------|
-| Profile update fail | > 5% trong 5 phút | On-call Engineer |
+| Mail fail liên tục | > 5 lỗi SMTP / phút | On-call Engineer |
+| DB Timeout | > 5s cho việc check token | Tech Lead |
 
 **Rollback:** `git checkout tags/v1.0.0 && mvn clean package`
 
@@ -239,22 +300,21 @@ java -jar target/kawai-backend-1.0.jar --spring.profiles.active=staging
 **[Policy]** Test Data: SYNTHETIC. ❌ KHÔNG dùng Production PII.
 
 #### 13.1. Unit Tests
-- TC-UNIT-UC02-001: Get profile success
-- TC-UNIT-UC02-002: Update profile success
-- TC-UNIT-UC02-003: Change password success
-- TC-UNIT-UC02-004: Upload avatar success
-- TC-UNIT-UC02-005: Invalid CCCD → ValidationException
+- TC-UNIT-UC02-001: Request reset cho email tồn tại -> Sinh token, gọi MailService
+- TC-UNIT-UC02-002: Request reset cho email KHÔNG tồn tại -> Im lặng (Bảo mật enum)
+- TC-UNIT-UC02-003: Reset password với token hợp lệ -> Đổi MK
+- TC-UNIT-UC02-004: Reset password với token quá 15 phút -> Báo lỗi AUTH-012
+- TC-UNIT-UC02-005: Reset password mật khẩu yếu -> Báo lỗi AUTH-011
 
 #### 13.2. E2E Tests
-- TC-E2E-UC02-001: Login → Get profile → Update → Verify
+- TC-E2E-UC02-001: Quên MK -> Nhận Email -> Click Link -> Đổi MK -> Login lại
 
 ---
 
-### 14. Verification
+### 14. Phương pháp Xác minh
 
 ```sql
-SELECT id, email, full_name, cccd_encrypted IS NOT NULL as cccd_encrypted
-FROM customer WHERE id = :userId;
+SELECT token, expiry_date, is_used FROM password_reset_token WHERE user_id = :userId;
 ```
 
 ---
@@ -262,21 +322,15 @@ FROM customer WHERE id = :userId;
 ### 15. Mẫu thử thực tế
 
 ```bash
-# Get profile
-curl -X GET https://api.kawairesort.com/api/v1/profile \
-  -H "Authorization: Bearer [JWT]"
-
-# Update profile
-curl -X PUT https://api.kawairesort.com/api/v1/profile \
-  -H "Authorization: Bearer [JWT]" \
+# Yêu cầu đổi mật khẩu
+curl -X POST https://api.kawairesort.com/api/v1/auth/forgot-password \
   -H "Content-Type: application/json" \
-  -d '{"fullName":"Nguyen Van B","cccd":"123456789012","phone":"0901234567"}'
+  -d '{"email":"test@gmail.com"}'
 
-# Change password
-curl -X POST https://api.kawairesort.com/api/v1/profile/change-password \
-  -H "Authorization: Bearer [JWT]" \
+# Cập nhật mật khẩu mới
+curl -X POST https://api.kawairesort.com/api/v1/auth/reset-password \
   -H "Content-Type: application/json" \
-  -d '{"oldPassword":"123456","newPassword":"abcdef"}'
+  -d '{"token":"550e8400-e29b-41d4-a716-446655440000","newPassword":"MyNewPassword1!"}'
 ```
 
 ---
@@ -285,10 +339,8 @@ curl -X POST https://api.kawairesort.com/api/v1/profile/change-password \
 
 | Endpoint | GUEST | CUSTOMER | RECEPTIONIST | ADMIN |
 |----------|:-----:|:--------:|:------------:|:-----:|
-| GET `/api/v1/profile` | ❌ | Own | Own | All |
-| PUT `/api/v1/profile` | ❌ | Own | Own | All |
-| POST `/api/v1/profile/change-password` | ❌ | Own | Own | Own |
-| POST `/api/v1/profile/avatar` | ❌ | Own | Own | Own |
+| POST `/api/v1/auth/forgot-password` | ✔️ | ✔️ | ✔️ | ✔️ |
+| POST `/api/v1/auth/reset-password` | ✔️ | ✔️ | ✔️ | ✔️ |
 
 ---
 
@@ -297,14 +349,14 @@ curl -X POST https://api.kawairesort.com/api/v1/profile/change-password \
 #### A. Glossary
 | Thuật ngữ | Định nghĩa |
 |-----------|------------|
-| **CCCD** | Căn cước công dân — 12 số |
-| **PII** | Personally Identifiable Information |
-| **Avatar** | Ảnh đại diện người dùng |
+| **Token** | Chuỗi UUID sinh ngẫu nhiên dùng 1 lần |
+| **SMTP** | Giao thức gửi email |
 
 #### B. Tài liệu tham chiếu
 | Document | Path |
 |----------|------|
 | TDD UC02 | `06-Testing/mod1_auth/uc02/TDD_UC02_SPEC.md` |
+| SRS Detail | `02-Requirement/UC_DETAIL_SPEC.md` |
 
 ---
 

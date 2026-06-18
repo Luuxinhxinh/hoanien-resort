@@ -63,7 +63,9 @@ public class OrderFoodController {
 
         // 1. Tải thực đơn (Áp dụng chung cho cả Guest và Member)
         try {
-            allItems = foodItemRepository.findAll();
+            allItems = foodItemRepository.findAll().stream()
+                    .filter(item -> Boolean.TRUE.equals(item.getIsAvailable()))
+                    .collect(Collectors.toList());
             categories = allItems.stream()
                     .map(MenuItem::getCategory)
                     .filter(Objects::nonNull)

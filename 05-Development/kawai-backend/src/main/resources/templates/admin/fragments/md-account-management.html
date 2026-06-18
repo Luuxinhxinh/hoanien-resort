@@ -45,10 +45,6 @@
                         </td>
                         <td style="text-align:right">
                             <div style="display:flex;align-items:center;justify-content:flex-end;gap:2px">
-                                <button th:if="${row['type'] == 'Nhân viên'}"
-                                    class="btn-action btn-action-shield btn-permissions"
-                                    th:attr="data-id=${row['id']},data-name=${row['name']},data-role=${row['role']}"
-                                    title="Cấp quyền"><i data-lucide="shield"></i></button>
                                 <button class="btn-action btn-action-edit btn-edit" th:attr="data-id=${row['id']}"><i
                                         data-lucide="pencil"></i></button>
                                 <button class="btn-action btn-action-delete btn-delete"
@@ -111,12 +107,7 @@
                         class="adm-form-input"></div>
             </div>
 
-            <div class="adm-form-group"><label class="adm-form-label">Kích hoạt</label>
-                <select name="status" class="adm-form-select">
-                    <option value="true">TRUE</option>
-                    <option value="false">FALSE</option>
-                </select>
-            </div>
+
         </div>
     </div>
 

@@ -135,6 +135,24 @@ public class RoomServiceImpl implements RoomService {
                 .toList();
     }
 
+    @Override
+    public Room createRoom(String roomNumber, Long categoryId) {
+        // Check for duplicate room number (Unique Constraint validation)
+        boolean exists = roomRepository.findAll().stream()
+                .anyMatch(r -> r.getRoomNumber().equalsIgnoreCase(roomNumber));
+        if (exists) {
+            throw new org.springframework.dao.DataIntegrityViolationException("Duplicate entry '" + roomNumber + "' for key 'room_number'");
+        }
+
+        Room room = new Room();
+        room.setRoomNumber(roomNumber);
+        RoomCategory category = new RoomCategory();
+        category.setId(categoryId);
+        room.setCategory(category);
+        room.setRoomStatus("Available");
+        return roomRepository.save(room);
+    }
+
     // ── Private helpers ────────────────────────────────────────────────────
 
     private boolean isRoomAvailable(String roomNumber, LocalDate checkIn, LocalDate checkOut) {

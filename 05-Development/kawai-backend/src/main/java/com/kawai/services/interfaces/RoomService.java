@@ -24,4 +24,6 @@ public interface RoomService {
      * @return Danh sách DTO hiển thị trạng thái các phòng, rỗng nếu chưa có.
      */
     List<com.kawai.dto.RoomDashboardDTO> getRoomDashboard();
+
+    com.kawai.models.Room createRoom(String roomNumber, Long categoryId);
 }

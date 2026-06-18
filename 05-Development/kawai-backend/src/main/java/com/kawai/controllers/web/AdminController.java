@@ -70,7 +70,7 @@ public class AdminController {
     model.addAttribute("todayLabel", "Overview — " + dateLabel);
 
     List<Room> allRooms = roomRepository.findAll();
-    List<RoomMock> rooms = allRooms.stream().map(r -> {
+    Map<String, List<RoomMock>> roomsByFloor = allRooms.stream().map(r -> {
       String status = switch (r.getRoomStatus()) {
         case "Vacant_Clean", "Vacant_Dirty" -> "vacant";
         case "Occupied" -> "occupied";
@@ -78,8 +78,14 @@ public class AdminController {
         default -> "dirty";
       };
       return new RoomMock(r.getRoomNumber(), status);
-    }).collect(Collectors.toList());
-    model.addAttribute("rooms", rooms);
+    }).collect(Collectors.groupingBy(r -> {
+        String rn = r.getRoomNumber();
+        if (rn != null && rn.length() >= 3) {
+            return "Tầng " + rn.substring(0, rn.length() - 2);
+        }
+        return "Tầng trệt";
+    }, TreeMap::new, Collectors.toList()));
+    model.addAttribute("roomsByFloor", roomsByFloor);
 
     List<ActivityMock> activities = new ArrayList<>();
     try {
@@ -112,12 +118,32 @@ public class AdminController {
   }
 
   // =========================================================================
+  // Operations (Bookings, F&B, Tours)
+  // =========================================================================
+
+  @GetMapping("/bookings")
+  public String bookings() {
+    return "admin/bookings";
+  }
+
+  @GetMapping("/fnb-orders")
+  public String fnbOrders() {
+    return "admin/fnb-orders";
+  }
+
+  @GetMapping("/tour-schedules")
+  public String tourSchedules() {
+    return "admin/tour-schedules";
+  }
+
+  // =========================================================================
   // Master Data
   // =========================================================================
 
   private static final List<String> MD_TABS = Arrays.asList(
       "Room Categories", "Rooms", "Restaurant Menu", "Menu Categories",
-      "Tour Categories", "Tours", "Account Management", "Promotions", "Pricing Management");
+      "Tour Categories", "Tours", "Account Management", "Promotions", "Pricing Management",
+      "Bookings", "F&B Orders", "Tour Schedules");
 
   @GetMapping("/master-data")
   public String masterData(@RequestParam(value = "tab", defaultValue = "Room Categories") String tab, Model model) {
@@ -161,6 +187,15 @@ public class AdminController {
           col("lastLogin", "Đăng nhập cuối", "text"), col("status", "Kích hoạt", "toggle"));
       case "Pricing Management" -> List.of(col("id", "Mã", "text"), col("roomCategory", "Hạng phòng", "text"),
           col("date", "Ngày", "text"), col("price", "Giá / đêm", "text"));
+      case "Bookings" -> List.of(col("id", "Mã Booking", "text"), col("customer", "Khách hàng", "text"),
+          col("room", "Phòng", "text"), col("checkIn", "Ngày Check-in", "text"),
+          col("checkOut", "Ngày Check-out", "text"), col("status", "Trạng thái", "badge"));
+      case "F&B Orders" -> List.of(col("id", "Mã Đơn", "text"), col("table", "Bàn/Phòng", "text"),
+          col("items", "Chi tiết món", "text"), col("total", "Tổng tiền", "text"),
+          col("status", "Trạng thái", "badge"));
+      case "Tour Schedules" -> List.of(col("id", "Mã Lịch", "text"), col("tour", "Tên Tour", "text"),
+          col("date", "Ngày khởi hành", "text"), col("capacity", "Sĩ số", "text"),
+          col("status", "Trạng thái", "badge"));
       default -> Collections.emptyList();
     };
   }
@@ -170,8 +205,14 @@ public class AdminController {
       case "Room Categories" -> {
         List<Map<String, String>> r = new ArrayList<>();
         for (RoomCategory cat : roomCategoryRepository.findAll()) {
-          r.add(r("id", "RC-" + cat.getId(), "name", cat.getCategoryName(), "rooms", "0", "price",
-              formatVnd(cat.getBasePrice()), "status", "Active", "__statusStyle", bs("Active")));
+          r.add(r("id", "RC-" + cat.getId(), "name", cat.getCategoryName(), "rooms", String.valueOf(cat.getCapacity()), "price",
+              formatVnd(cat.getBasePrice()), "status", cat.getIsActive() != null && !cat.getIsActive() ? "Inactive" : "Active", "__statusStyle", bs(cat.getIsActive() != null && !cat.getIsActive() ? "Inactive" : "Active"),
+              "description", cat.getDescription() != null ? cat.getDescription() : "",
+              "coverImgUrl", cat.getCoverImgUrl() != null ? cat.getCoverImgUrl() : "",
+              "baseAdults", String.valueOf(cat.getBaseAdults()), "baseChildren", String.valueOf(cat.getBaseChildren()),
+              "maxAdults", String.valueOf(cat.getMaxAdults()), "maxChildren", String.valueOf(cat.getMaxChildren()),
+              "extraAdultSurcharge", cat.getExtraAdultSurcharge() != null ? cat.getExtraAdultSurcharge().toString() : "0",
+              "extraChildSurcharge", cat.getExtraChildSurcharge() != null ? cat.getExtraChildSurcharge().toString() : "0"));
         }
         yield r;
       }
@@ -183,7 +224,7 @@ public class AdminController {
             case "Vacant_Dirty" -> "Dirty";
             default -> room.getRoomStatus();
           };
-          r.add(r("id", "R-" + room.getRoomNumber(), "name", "Phòng " + room.getRoomNumber(), "category",
+          r.add(r("id", "RM-" + room.getId(), "name", room.getRoomNumber(), "category",
               room.getCategory() != null ? room.getCategory().getCategoryName() : "N/A", "status", st, "__statusStyle",
               bs(st)));
         }
@@ -193,9 +234,11 @@ public class AdminController {
         List<Map<String, String>> r = new ArrayList<>();
         for (MenuItem item : foodItemRepository.findAll()) {
           String st = item.getIsAvailable() != null && item.getIsAvailable() ? "Available" : "Unavailable";
-          r.add(r("id", "M-" + item.getId(), "name", item.getItemName(), "category",
+          r.add(r("id", "MI-" + item.getId(), "name", item.getItemName(), "category",
               item.getCategory() != null ? item.getCategory() : "Khác", "price", formatVnd(item.getPrice()), "status",
-              st, "__statusStyle", bs(st)));
+              st, "__statusStyle", bs(st),
+              "description", item.getDescription() != null ? item.getDescription() : "",
+              "imageUrl", item.getImageUrl() != null ? item.getImageUrl() : ""));
         }
         yield r;
       }
@@ -219,24 +262,30 @@ public class AdminController {
       }
       case "Tours" -> {
         List<Map<String, String>> r = new ArrayList<>();
-        for (Tour tour : tourRepository.findAll())
+        for (Tour tour : tourRepository.findAll()) {
+          String st = tour.getIsActive() != null && tour.getIsActive() ? "Active" : "Inactive";
           r.add(r("id", "T-" + tour.getId(), "name",
               tour.getTourName() != null ? tour.getTourName() : "Tour #" + tour.getId(), "category",
               tour.getTourType() != null ? tour.getTourType() : "Khác", "price",
-              tour.getBasePrice() != null ? formatVnd(tour.getBasePrice()) : "-", "status", "Active", "__statusStyle",
-              bs("Active")));
+              tour.getBasePrice() != null ? formatVnd(tour.getBasePrice()) : "-", "status", st, "__statusStyle",
+              bs(st),
+              "description", tour.getDescription() != null ? tour.getDescription() : "",
+              "duration", tour.getDuration() != null ? tour.getDuration() : "",
+              "maxCapacity", tour.getMaxCapacity() != null ? String.valueOf(tour.getMaxCapacity()) : "0",
+              "shortQuote", tour.getShortQuote() != null ? tour.getShortQuote() : ""));
+        }
         yield r;
       }
       case "Promotions" -> {
         List<Map<String, String>> r = new ArrayList<>();
         for (Promotion promo : promotionRepository.findAll()) {
-          String st = "Active";
+          String st = promo.getIsActive() != null && !promo.getIsActive() ? "Inactive" : "Active";
           String expires = promo.getValidTo() != null
               ? promo.getValidTo().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
               : "-";
           if (promo.getValidTo() != null && promo.getValidTo().isBefore(LocalDate.now()))
             st = "Expired";
-          r.add(r("id", "PRO-" + promo.getId(), "code", promo.getPromoCode() != null ? promo.getPromoCode() : "-",
+          r.add(r("id", "PR-" + promo.getId(), "code", promo.getPromoCode() != null ? promo.getPromoCode() : "-",
               "type", promo.getDiscountType() != null ? promo.getDiscountType() : "Phần trăm", "__typeStyle",
               bs(promo.getDiscountType() != null ? promo.getDiscountType() : "Phần trăm"),
               "value", promo.getDiscountValue() != null ? formatVnd(promo.getDiscountValue()) : "-",
@@ -244,7 +293,12 @@ public class AdminController {
               "uses",
               (promo.getCurrentUses() != null ? promo.getCurrentUses() : 0) + "/"
                   + (promo.getMaxUses() != null ? promo.getMaxUses() : 0),
-              "expires", expires, "status", st, "__statusStyle", bs(st)));
+              "expires", expires, "status", st, "__statusStyle", bs(st),
+              "description", promo.getDescription() != null ? promo.getDescription() : "",
+              "comboConfig", promo.getComboConfig() != null ? promo.getComboConfig() : "",
+              "validFrom", promo.getValidFrom() != null ? promo.getValidFrom().format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm")) : "",
+              "validTo", promo.getValidTo() != null ? promo.getValidTo().toString() : "",
+              "maxUses", promo.getMaxUses() != null ? String.valueOf(promo.getMaxUses()) : "0"));
         }
         yield r;
       }
@@ -278,6 +332,32 @@ public class AdminController {
               rate.getRateDate() != null ? rate.getRateDate().toString() : "", "price",
               rate.getComputedPrice() != null ? formatVnd(rate.getComputedPrice()) : "-"));
         }
+        yield r;
+      }
+      case "Bookings" -> {
+        List<Map<String, String>> r = new ArrayList<>();
+        for (Booking b : bookingRepository.findAll()) {
+            r.add(r("id", "BK-" + b.getId(), "customer", b.getCustomer() != null ? b.getCustomer().getFullName() : "-",
+                "room", "N/A", // Room is usually in BookingDetails
+                "checkIn", b.getBookingDate() != null ? b.getBookingDate().toString() : "-",
+                "checkOut", "-", 
+                "status", b.getBookingStatus() != null ? b.getBookingStatus() : "Pending",
+                "__statusStyle", bs(b.getBookingStatus() != null ? b.getBookingStatus() : "Pending")));
+        }
+        yield r;
+      }
+      case "F&B Orders" -> {
+        List<Map<String, String>> r = new ArrayList<>();
+        // Mocking F&B orders logic for now until F&B repo is ready
+        r.add(r("id", "FB-1001", "table", "Bàn T12", "items", "2x Phở Bò, 1x Trà", "total", formatVnd(250000), "status", "Pending", "__statusStyle", bs("Pending")));
+        r.add(r("id", "FB-1002", "table", "Bàn T04", "items", "1x Combo BBQ", "total", formatVnd(1200000), "status", "Cooking", "__statusStyle", bs("Cooking")));
+        yield r;
+      }
+      case "Tour Schedules" -> {
+        List<Map<String, String>> r = new ArrayList<>();
+        // Mocking Tour Schedules logic for now
+        r.add(r("id", "TS-2001", "tour", "Khám phá văn hóa Tây Bắc", "date", "25/06/2026", "capacity", "18/30", "status", "Open", "__statusStyle", bs("Open")));
+        r.add(r("id", "TS-2002", "tour", "Trekking Dã ngoại", "date", "20/06/2026", "capacity", "20/20", "status", "Closed", "__statusStyle", bs("Closed")));
         yield r;
       }
       default -> Collections.emptyList();

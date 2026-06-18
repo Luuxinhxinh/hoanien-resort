@@ -1,19 +1,19 @@
 # ENGINEERING DOCUMENTATION STANDARD (EDS) v2.0
 
-## UC06 — Giám sát Audit Log (AuditService)
+## UC06 — Quản lý Dữ liệu nền Hạng phòng & Phòng vật lý
 
 | Field | Value |
 |-------|-------|
 | **Document ID** | `KAWAI-EDS-MOD1-UC06-001` |
 | **Version** | 1.0 |
-| **Date** | 2026-06-14 |
+| **Date** | 2026-06-17 |
 | **Status** | Approved |
 | **Document Owner** | Nguyễn Xuân Lưu |
-| **Author** | Nguyễn Xuân Lưu — Developer |
+| **Author** | Antigravity — System Agent |
 | **Reviewed by** | Nguyễn Xuân Lưu — Tech Lead |
-| **DPO Sign-off** | `[x] Approved – 2026-06-14 – Nguyễn Xuân Lưu` |
-| **Approved by** | `[x] Nguyễn Xuân Lưu – 2026-06-14` |
-| **Last Review** | 2026-06-14 |
+| **DPO Sign-off** | `[x] Approved – 2026-06-17` |
+| **Approved by** | `[x] Nguyễn Xuân Lưu` |
+| **Last Review** | 2026-06-17 |
 | **Based on EDS** | v2.0 |
 
 ---
@@ -21,7 +21,7 @@
 ### CHANGELOG
 | Ngày | Người thực hiện | Nội dung thay đổi |
 |------|-----------------|-------------------|
-| 2026-06-14 | Nguyễn Xuân Lưu | Tạo tài liệu lần đầu |
+| 2026-06-17 | Antigravity | Cập nhật cấu trúc 17 phần cho UC06 CRUD Hạng phòng & Phòng |
 
 ---
 
@@ -50,64 +50,46 @@
 
 | Field | Value |
 |-------|-------|
-| **Module Name** | Giám sát Audit Log (UC06) |
-| **Bounded Context** | Security & Compliance |
-| **Use Case** | UC06: Ghi nhận, truy vấn, và xuất audit log — ai làm gì, lúc nào |
-| **Data Classification** | Internal — Audit Trail |
-| **Compliance Scope** | GDPR Art.5.1(d), ISO 27001 |
-| **Upstream Dependencies** | Tất cả UC (mọi action đều được log) |
-| **Downstream Consumers** | Compliance reports, Security monitoring |
+| **Module Name** | Cấu hình dữ liệu nền (UC06) |
+| **Bounded Context** | Core Data |
+| **Use Case** | UC06.1 CRUD Hạng phòng ảo, UC06.2 CRUD Phòng vật lý |
+| **Data Classification** | Internal Public |
+| **Upstream Dependencies** | RBAC/Admin Auth |
+| **Downstream Consumers** | Tìm kiếm phòng, Booking, Dashboard sơ đồ |
 
 ---
 
 ### 2. Ma trận Truy vết
 
-| Requirement ID | Loại | Mô tả | Thành phần Code | Compliance | ADR |
-|----------------|------|-------|-----------------|------------|-----|
-| UC06.1 | US | Ghi audit log tự động | `AuditService.logAction()` | ISO 27001 | ADR-006 |
-| UC06.2 | US | Truy vấn audit log (filter, phân trang) | `AuditService.queryAuditLog()` | GDPR Art.5.1(d) | — |
-| UC06.3 | US | Xuất audit log (CSV/Excel) | `AuditService.exportAuditLog()` | — | — |
-| BR-AUDIT-01 | BR | Audit log là append-only, không cho sửa/xóa | `AuditLogRepository` (no update/delete) | ISO 27001 | ADR-006 |
-| BR-AUDIT-02 | BR | Log phải chứa: userId, action, entity, timestamp, IP | `AuditLog entity` | — | — |
+| Requirement ID | Loại | Mô tả | Thành phần Code |
+|----------------|------|-------|-----------------|
+| UC06.1 | US | Quản lý `Room_Categories` | `CategoryService.createCategory()` |
+| UC06.2 | US | Quản lý `Rooms` vật lý | `RoomService.createRoom()` |
+| BR-DEL-01 | BR | Chặn xóa nếu có Booking | `CategoryService.deleteCategory()` |
 
 ---
 
 ### 3. Architecture Decision Records (ADR)
 
-#### ADR-006 — Append-Only Audit Log
+#### ADR-006 — Soft Delete vs Hard Delete for Core Data
 
 | Field | Value |
 |-------|-------|
 | **Status** | Accepted |
 | **Deciders** | Nguyễn Xuân Lưu |
-| **Date** | 2026-06-10 |
+| **Date** | 2026-06-17 |
 
-**Bối cảnh:** Audit log phải đảm bảo tính toàn vẹn dữ liệu, không cho phép thay đổi hoặc xóa log đã ghi.
-
-**Quyết định:** Audit log table chỉ có INSERT, không có UPDATE/DELETE. Repository không expose update/delete methods. Sử dụng @Immutable annotation trên entity.
-
-**Hệ quả:** Data tăng theo thời gian, cần chiến lược archiving (sau 1 năm). Trade-off: storage vs compliance.
+**Quyết định:** Sử dụng Soft Delete (`is_active = false`) cho cả `Room_Categories` và `Rooms` thay vì lệnh `DELETE` cứng.
+**Hệ quả:** Dữ liệu lịch sử Booking không bị mồ côi (orphan), dễ khôi phục. Các API GET thông thường sẽ mặc định thêm `WHERE is_active = true`.
 
 ---
 
 ### 4. Non-Functional Requirements & SLA
 
-#### 4.1. Performance & Availability
-
-| Category | Requirement | Target SLA | Measurement |
-|----------|-------------|------------|-------------|
-| **Latency** | Log write (p99) | < 50ms | k6 load test |
-| **Latency** | Query with filter (p99) | < 500ms | k6 load test |
-| **Availability** | Uptime (monthly) | 99.9% | Uptime monitor |
-| **Retention** | Log retention | 365 ngày | DB archiving |
-
-#### 4.2. Security
-
-| Category | Requirement | Target | Verification |
-|----------|-------------|--------|-------------|
-| **Immutability** | Append-only | No UPDATE/DELETE | Unit test |
-| **Access** | ADMIN only cho query/export | RBAC | Integration test |
-| **Integrity** | Log không bị tamper | Checksum | Unit test |
+| Category | Requirement | Target SLA |
+|----------|-------------|------------|
+| **Latency** | Cache Read | < 50ms |
+| **Consistency**| FK Check | Tuyệt đối (Database level) |
 
 ---
 
@@ -117,111 +99,72 @@
 
 ```plantuml
 @startuml
-interface AuditService {
-  +logAction(action: AuditAction): void
-  +queryAuditLog(filter: AuditFilter, pageable: Pageable): Page<AuditLogDTO>
-  +exportAuditLog(filter: AuditFilter, format: ExportFormat): byte[]
+interface CategoryService {
+  +createCategory(req: CategoryReq): CategoryDTO
+  +updateCategory(id: Long, req: CategoryReq): CategoryDTO
+  +deleteCategory(id: Long): void
 }
 
-class AuditServiceImpl implements AuditService {
-  -auditLogRepository: AuditLogRepository
-  -exportService: ExportService
+interface RoomService {
+  +createRoom(req: RoomReq): RoomDTO
+  +updateRoom(id: Long, req: RoomReq): RoomDTO
+  +deleteRoom(id: Long): void
 }
 
-class AuditLog {
-  +id: Long
-  +userId: Long
-  +userEmail: String
-  +action: String
-  +entityType: String
-  +entityId: String
-  +details: String
-  +ipAddress: String
-  +timestamp: LocalDateTime
-}
+class CategoryServiceImpl implements CategoryService
+class RoomServiceImpl implements RoomService
 
-class AuditFilter {
-  +userId: Long
-  +action: String
-  +entityType: String
-  +startDate: LocalDateTime
-  +endDate: LocalDateTime
-}
-
-class AuditLogDTO {
-  +id: Long
-  +userEmail: String
-  +action: String
-  +entityType: String
-  +details: String
-  +timestamp: LocalDateTime
-}
-
-AuditServiceImpl ..> AuditLogRepository : uses
-AuditServiceImpl ..> ExportService : uses
+CategoryServiceImpl ..> CategoryRepository
+RoomServiceImpl ..> RoomRepository
 @enduml
 ```
 
 #### 5.2. Data Structure
 
 ```sql
-CREATE TABLE audit_logs (
+CREATE TABLE room_categories (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    user_id BIGINT,
-    user_email VARCHAR(255),
-    action VARCHAR(100) NOT NULL,
-    entity_type VARCHAR(100),
-    entity_id VARCHAR(100),
-    details TEXT,
-    ip_address VARCHAR(45),
-    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_audit_user (user_id),
-    INDEX idx_audit_action (action),
-    INDEX idx_audit_timestamp (timestamp)
+    name VARCHAR(100) NOT NULL,
+    base_price DECIMAL(10,2) NOT NULL,
+    max_adults INT,
+    max_children INT,
+    is_active BOOLEAN DEFAULT TRUE
 );
 
--- NOTE: Không có UPDATE hoặc DELETE trigger trên bảng này
+CREATE TABLE rooms (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    category_id BIGINT,
+    room_number VARCHAR(20) UNIQUE NOT NULL,
+    floor_level INT,
+    is_active BOOLEAN DEFAULT TRUE,
+    FOREIGN KEY (category_id) REFERENCES room_categories(id)
+);
 ```
 
 ---
 
 ### 6. Dynamic Modeling
 
-#### 6.1. Sequence Diagram — Happy Path: Log Action (async)
+#### Sequence Diagram: Delete Category
 
 ```plantuml
 @startuml
-participant "AnyService" as Svc
-participant "AuditServiceImpl" as Audit
-database MySQL as DB
+actor Admin
+participant CategoryController
+participant CategoryService
+database MySQL
 
-Svc ->> Audit: logAction({userId, action, entity, details, ip})
-activate Audit
-Audit -> DB: INSERT INTO audit_logs(...)
-DB --> Audit: OK
-deactivate Audit
-@enduml
-```
-
-#### 6.2. Sequence Diagram — Query Audit Log
-
-```plantuml
-@startuml
-actor "Admin" as A
-participant "AuditController" as Ctrl
-participant "AuditServiceImpl" as Svc
-database MySQL as DB
-
-A -> Ctrl: GET /api/v1/audit-logs?action=LOGIN&startDate=2026-06-01
-activate Ctrl
-Ctrl -> Svc: queryAuditLog(filter, pageable)
-activate Svc
-Svc -> DB: SELECT * FROM audit_logs WHERE action=:action AND timestamp>=:startDate
-DB --> Svc: List<AuditLog>
-Svc --> Ctrl: Page<AuditLogDTO>
-deactivate Svc
-Ctrl --> A: 200 OK\n{content: [...], totalElements: 150}
-deactivate Ctrl
+Admin -> CategoryController: DELETE /api/categories/1
+activate CategoryController
+CategoryController -> CategoryService: delete(1)
+activate CategoryService
+CategoryService -> MySQL: SELECT COUNT(*) FROM rooms WHERE category_id=1
+MySQL --> CategoryService: count = 0
+CategoryService -> MySQL: UPDATE room_categories SET is_active=false WHERE id=1
+CategoryService --> CategoryController: void
+deactivate CategoryService
+CategoryController --> Admin: 200 OK
+deactivate CategoryController
 @enduml
 ```
 
@@ -231,24 +174,18 @@ deactivate Ctrl
 
 | Event Name | Trigger | Publisher | Subscriber(s) | Async? |
 |------------|---------|-----------|---------------|--------|
-| `AuditLogCreated` | Mọi action trong hệ thống | Tất cả services | `AuditService` | Yes |
-| `AuditExportRequested` | Admin xuất report | `AuditService` | `ExportService` | Yes |
+| `RoomCreated` | Tạo phòng mới | `RoomService` | `AuditService` | Yes |
+| `CategoryDeactivated` | Xóa hạng phòng | `CategoryService` | `AuditService` | Yes |
 
 ---
 
 ### 8. Interface Specification
 
 ```java
-// AuditService.java
-// @version 1.0
-
-public interface AuditService {
-    void logAction(AuditAction action);
-
-    Page<AuditLogDTO> queryAuditLog(AuditFilter filter, Pageable pageable);
-
-    byte[] exportAuditLog(AuditFilter filter, ExportFormat format)
-        throws ExportException;
+// CategoryService.java
+public interface CategoryService {
+    CategoryDTO create(CategoryReq req);
+    void deactivate(Long categoryId) throws ResourceInUseException;
 }
 ```
 
@@ -256,26 +193,16 @@ public interface AuditService {
 
 ### 9. API Specification
 
-| Method | Path | Auth | Roles | Rate Limit | Idempotent? |
-|--------|------|------|-------|------------|-------------|
-| GET | `/api/v1/audit-logs` | JWT | ADMIN | 30/min | Yes |
-| GET | `/api/v1/audit-logs/export` | JWT | ADMIN | 5/min | Yes |
+| Method | Path | Auth | Roles |
+|--------|------|------|-------|
+| POST | `/api/v1/admin/categories` | JWT | ADMIN, MANAGER |
+| PUT | `/api/v1/admin/categories/{id}`| JWT | ADMIN, MANAGER |
+| DELETE | `/api/v1/admin/categories/{id}`| JWT | ADMIN |
+| POST | `/api/v1/admin/rooms` | JWT | ADMIN, MANAGER |
 
-**GET `/api/v1/audit-logs?action=LOGIN&startDate=2026-06-01&page=0&size=20`**
-*Response 200:*
-```json
-{
-  "content": [
-    {"id":1,"userEmail":"admin@kawai.com","action":"LOGIN","details":"Login success","timestamp":"2026-06-14T10:00:00"},
-    {"id":2,"userEmail":"staff@kawai.com","action":"LOGIN","details":"Login failed - wrong password","timestamp":"2026-06-14T10:05:00"}
-  ],
-  "totalElements": 150,
-  "totalPages": 8
-}
-```
-
-**GET `/api/v1/audit-logs/export?format=CSV&startDate=2026-06-01`**
-*Response 200:* File download (CSV)
+**POST `/api/v1/admin/categories`**
+*Request:* `{"name": "Deluxe Sea View", "basePrice": 1500000, "maxAdults": 2}`
+*Response 200:* DTO của category.
 
 ---
 
@@ -283,74 +210,39 @@ public interface AuditService {
 
 | Code | HTTP | Message (EN) | Message (VI) | Trigger |
 |------|------|--------------|--------------|---------|
-| `AUDIT-001` | 400 | Invalid date range | Khoảng ngày không hợp lệ | startDate > endDate |
-| `AUDIT-002` | 404 | No audit logs found | Không tìm thấy log | Filter trống kết quả |
-| `AUDIT-003` | 500 | Export failed | Xuất file thất bại | File generation error |
-| `AUDIT-004` | 403 | Insufficient permissions | Không có quyền | Non-ADMIN truy cập |
+| `CORE-001` | 409 | Category in use | Đang có phòng thuộc hạng này | Xóa hạng phòng khi vẫn còn Room vật lý |
+| `CORE-002` | 409 | Room in use | Phòng đang có khách | Xóa/Vô hiệu hóa phòng có Booking Pending/Confirmed |
 
 ---
 
 ### 11. Quy trình Triển khai
 
-#### 11.1. Prerequisites
-- [x] Database đã có bảng audit_logs với indexes
-- [x] UC01 (Auth) đã hoạt động
-
-#### 11.2. Deployment
 ```bash
 mvn clean package -DskipTests
-java -jar target/kawai-backend-1.0.jar --spring.profiles.active=staging
-```
-
-#### 11.3. Verification
-```bash
-curl -X GET http://localhost:8080/api/v1/audit-logs \
-  -H "Authorization: Bearer [JWT_ADMIN]"
+java -jar target/kawai-backend.jar
 ```
 
 ---
 
 ### 12. Rollback & Incident Runbook
 
-| Điều kiện | Ngưỡng | Người quyết định |
-|-----------|--------|-------------------|
-| Audit log write fail | Bất kỳ case nào | Tech Lead |
-| Export timeout | > 30s | On-call Engineer |
-
-**Rollback:** `git checkout tags/v1.0.0 && mvn clean package`
+**Incident:** Xóa nhầm hạng phòng.
+**Runbook:** Admin có thể bật lại bằng cách gọi `PUT /api/v1/admin/categories/{id}/activate`.
 
 ---
 
 ### 13. Kịch bản Kiểm thử
 
-**[Policy]** Test Data: SYNTHETIC. ❌ KHÔNG dùng Production data.
-
-#### 13.1. Unit Tests
-- TC-UNIT-UC06-001: Log action ghi thành công
-- TC-UNIT-UC06-002: Query audit log với filter
-- TC-UNIT-UC06-003: Export audit log CSV
-- TC-UNIT-UC06-004: Verify append-only (no update/delete)
-
-#### 13.2. E2E Tests
-- TC-E2E-UC06-001: Login → Trigger action → Query audit log → Verify entry
+- TC-UNIT-UC06-001: Xóa Category đang rỗng -> OK
+- TC-UNIT-UC06-002: Xóa Category đang chứa phòng -> CORE-001
+- TC-UNIT-UC06-003: Vô hiệu hóa phòng vật lý đang có booking -> CORE-002
 
 ---
 
 ### 14. Phương pháp Xác minh
 
 ```sql
--- Verify audit log entries
-SELECT id, user_email, action, entity_type, details, timestamp
-FROM audit_logs
-WHERE action = :action AND timestamp >= :startDate
-ORDER BY timestamp DESC
-LIMIT 20;
-
--- Verify append-only (count should never decrease)
-SELECT COUNT(*) FROM audit_logs;
-
--- Verify specific user audit trail
-SELECT * FROM audit_logs WHERE user_id = :userId ORDER BY timestamp DESC;
+SELECT * FROM room_categories WHERE is_active = true;
 ```
 
 ---
@@ -358,18 +250,8 @@ SELECT * FROM audit_logs WHERE user_id = :userId ORDER BY timestamp DESC;
 ### 15. Mẫu thử thực tế
 
 ```bash
-# Query audit logs
-curl -X GET "https://api.kawairesort.com/api/v1/audit-logs?action=LOGIN&page=0&size=20" \
-  -H "Authorization: Bearer [JWT_ADMIN]"
-
-# Query by date range
-curl -X GET "https://api.kawairesort.com/api/v1/audit-logs?startDate=2026-06-01&endDate=2026-06-14" \
-  -H "Authorization: Bearer [JWT_ADMIN]"
-
-# Export CSV
-curl -X GET "https://api.kawairesort.com/api/v1/audit-logs/export?format=CSV&startDate=2026-06-01" \
-  -H "Authorization: Bearer [JWT_ADMIN]" \
-  -o audit_report.csv
+curl -X DELETE https://api.kawairesort.com/api/v1/admin/categories/1 \
+  -H "Authorization: Bearer [JWT]"
 ```
 
 ---
@@ -378,26 +260,12 @@ curl -X GET "https://api.kawairesort.com/api/v1/audit-logs/export?format=CSV&sta
 
 | Endpoint | GUEST | CUSTOMER | RECEPTIONIST | ADMIN |
 |----------|:-----:|:--------:|:------------:|:-----:|
-| GET `/api/v1/audit-logs` | ❌ | ❌ | ❌ | ✔️ |
-| GET `/api/v1/audit-logs/export` | ❌ | ❌ | ❌ | ✔️ |
+| POST `/admin/categories` | ❌ | ❌ | ❌ | ✔️ |
 
 ---
 
-### PHỤ LỤC
-
-#### A. Glossary
-| Thuật ngữ | Định nghĩa |
-|-----------|------------|
-| **Audit Log** | Nhật ký ghi lại mọi hành động trong hệ thống |
-| **Append-only** | Chỉ cho thêm mới, không cho sửa/xóa |
-| **Compliance** | Tuân thủ quy định pháp luật (GDPR, ISO 27001) |
-
-#### B. Tài liệu tham chiếu
-| Document | Path |
-|----------|------|
-| TDD UC06 | `06-Testing/mod1_auth/uc06/TDD_UC06_SPEC.md` |
-| ADR-006 | `06-Testing/MASTER_EDS_SPEC.md` |
+### 17. Phụ lục
+- **Tham chiếu:** TDD UC06
 
 ---
-
 *EDS v2.0*

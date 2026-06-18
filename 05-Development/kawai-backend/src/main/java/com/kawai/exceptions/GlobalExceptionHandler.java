@@ -13,8 +13,15 @@ public class GlobalExceptionHandler {
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     @ExceptionHandler(Exception.class)
-    public ModelAndView handleError(HttpServletRequest request, Exception ex) {
+    public Object handleError(HttpServletRequest request, Exception ex) {
         log.error("Lỗi khi truy cập {}: {}", request.getRequestURI(), ex.getMessage(), ex);
+
+        // If it's an API request, return JSON instead of HTML
+        if (request.getRequestURI().startsWith("/api/") || request.getRequestURI().startsWith("/admin/api/")) {
+            return org.springframework.http.ResponseEntity
+                    .status(org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(java.util.Map.of("error", ex.getMessage(), "type", ex.getClass().getSimpleName()));
+        }
 
         ModelAndView mav = new ModelAndView();
         mav.addObject("errorMessage", ex.getMessage());

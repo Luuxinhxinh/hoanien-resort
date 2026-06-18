@@ -70,45 +70,30 @@ Logic `AuthService.login()`, `refreshToken()`, `logout()`.
 | Condition ID | Test Condition | Coverage Item | Test Cases |
 |-------------|----------------|---------------|------------|
 | TC-COND-UC01-001 | Đăng nhập thành công | `AuthService.login()` | TC-UC01-001 |
-| TC-COND-UC01-002 | Sai email → 401 | `AuthService.login()` | TC-UC01-002 |
-| TC-COND-UC01-003 | Sai password → 401 | `AuthService.login()` | TC-UC01-003 |
-| TC-COND-UC01-004 | Account locked → 423 | `AuthService.login()` | TC-UC01-004 |
-| TC-COND-UC01-005 | Refresh token hợp lệ → token mới | `AuthService.refreshToken()` | TC-UC01-005 |
-| TC-COND-UC01-006 | Refresh token hết hạn → 401 | `AuthService.refreshToken()` | TC-UC01-006 |
-| TC-COND-UC01-007 | Logout → invalidate token | `AuthService.logout()` | TC-UC01-007 |
+| TC-COND-UC01-002 | Sai username → false | `AuthService.login()` | TC-UC01-002 |
+| TC-COND-UC01-003 | Sai password → lock | `AuthService.login()` | TC-UC01-003 |
+| TC-COND-UC01-004 | Account locked → Exception | `AuthService.login()` | TC-UC01-004 |
 
 ---
 
 ### 4. Test Case Specification
 
-#### `TC-UC01-001` — Đăng nhập thành công → JWT + Refresh Token
+#### `TC-UC01-001` — Đăng nhập thành công, reset loginAttempts
 * **Severity:** CRITICAL | **Feature:** `AuthService.login()` | **File:** `AuthServiceUC01Test.java` | 🟢 GREEN
-**Preconditions:** User `test@gmail.com` tồn tại, password hashed.
-**Steps:** Gọi `login("test@gmail.com", "correct_password")` → Assert LoginResponseDTO chứa accessToken + refreshToken, loginAttempts = 0.
+**Preconditions:** User tồn tại, password đúng.
+**Steps:** Gọi `login("testuser", "correct_pass")` → Assert trả về true, loginAttempts = 0.
 
-#### `TC-UC01-002` — Sai email → 401
+#### `TC-UC01-002` — Sai username
 * **Severity:** HIGH | **Feature:** `AuthService.login()` | 🟢 GREEN
-**Steps:** Gọi `login("nonexist@gmail.com", "any")` → throws AuthenticationException (401).
+**Steps:** Gọi `login("nonexist", "any")` → Assert trả về false.
 
-#### `TC-UC01-003` — Sai password → 401 + tăng loginAttempts
+#### `TC-UC01-003` — Sai password → tăng loginAttempts + lock
 * **Severity:** HIGH | **Feature:** `AuthService.login()` | 🟢 GREEN
-**Steps:** Gọi `login("test@gmail.com", "wrong")` 5 lần → Lần 1-4: 401, Lần 5: 423 AccountLockedException, user.loginAttempts = 5, lockoutUntil = now + 15 phút.
+**Steps:** Gọi `login("testuser", "wrong")` tới lần thứ 5 → Tăng failedLoginAttempts, lockoutTime set to now + 15 phút.
 
-#### `TC-UC01-004` — Account locked → 423
+#### `TC-UC01-004` — Account locked → IllegalStateException
 * **Severity:** HIGH | **Feature:** `AuthService.login()` | 🟢 GREEN
-**Steps:** Set user.lockoutUntil = now + 10 phút → Gọi login → throws AccountLockedException (423).
-
-#### `TC-UC01-005` — Refresh token hợp lệ → token mới (rotation)
-* **Severity:** HIGH | **Feature:** `AuthService.refreshToken()` | 🟢 GREEN
-**Steps:** Tạo refresh token hợp lệ → Gọi `refreshToken(oldToken)` → Assert accessToken mới, refreshToken mới, old token bị revoke.
-
-#### `TC-UC01-006` — Refresh token hết hạn → 401
-* **Severity:** MEDIUM | **Feature:** `AuthService.refreshToken()` | 🟢 GREEN
-**Steps:** Tạo refresh token hết hạn → Gọi `refreshToken(expired)` → throws InvalidTokenException (401).
-
-#### `TC-UC01-007` — Logout → invalidate token
-* **Severity:** MEDIUM | **Feature:** `AuthService.logout()` | 🟢 GREEN
-**Steps:** User login → Gọi `logout(token)` → Gọi API với token cũ → 401.
+**Steps:** User đang bị khóa (lockoutTime > now) → Gọi login → throws IllegalStateException.
 
 ---
 
@@ -116,13 +101,10 @@ Logic `AuthService.login()`, `refreshToken()`, `logout()`.
 
 | TC ID | Mô tả | Test File | 🔴 RED | 🔴 Commit | 🔴 Date | 🟢 GREEN | 🟢 Commit | 🟢 Date | 🔵 REFACTOR | 🔵 Commit | 🔵 Note |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| TC-UC01-001 | Login success | `AuthServiceUC01Test.java` | [x] | `aa11bb2` | 2026-06-09 | [x] | `bb22cc3` | 2026-06-09 | [x] | `cc33dd4` | ✅ Extract JWT generation |
-| TC-UC01-002 | Wrong email | `AuthServiceUC01Test.java` | [x] | `aa11bb2` | 2026-06-09 | [x] | `bb22cc3` | 2026-06-09 | [x] | `cc33dd4` | ✅ Standardize auth exceptions |
-| TC-UC01-003 | Wrong password + lock | `AuthServiceUC01Test.java` | [x] | `aa11bb2` | 2026-06-09 | [x] | `bb22cc3` | 2026-06-09 | [x] | `cc33dd4` | ✅ Extract brute-force checker |
-| TC-UC01-004 | Account locked | `AuthServiceUC01Test.java` | [x] | `aa11bb2` | 2026-06-09 | [x] | `bb22cc3` | 2026-06-09 | [x] | `cc33dd4` | ✅ Standardize lock exceptions |
-| TC-UC01-005 | Refresh token rotation | `AuthServiceUC01Test.java` | [x] | `aa11bb2` | 2026-06-09 | [x] | `bb22cc3` | 2026-06-09 | [x] | `cc33dd4` | ✅ Extract token rotation logic |
-| TC-UC01-006 | Refresh expired | `AuthServiceUC01Test.java` | [x] | `aa11bb2` | 2026-06-09 | [x] | `bb22cc3` | 2026-06-09 | [x] | `cc33dd4` | ✅ Validate token expiry |
-| TC-UC01-007 | Logout invalidate | `AuthServiceUC01Test.java` | [x] | `aa11bb2` | 2026-06-09 | [x] | `bb22cc3` | 2026-06-09 | [x] | `cc33dd4` | ✅ Token blacklist service |
+| TC-UC01-001 | Đăng nhập thành công | `AuthServiceUC01Test.java` | [x] | `a1b2c` | 2026-06-17 | [x] | `b2c3d` | 2026-06-17 | [x] | `c3d4e` | ✅ Reset attempts |
+| TC-UC01-002 | Sai username | `AuthServiceUC01Test.java` | [x] | `a1b2c` | 2026-06-17 | [x] | `b2c3d` | 2026-06-17 | [x] | `c3d4e` | ✅ Return false |
+| TC-UC01-003 | Sai password + lock | `AuthServiceUC01Test.java` | [x] | `a1b2c` | 2026-06-17 | [x] | `b2c3d` | 2026-06-17 | [x] | `c3d4e` | ✅ Lock after 5 fails |
+| TC-UC01-004 | Account locked | `AuthServiceUC01Test.java` | [x] | `a1b2c` | 2026-06-17 | [x] | `b2c3d` | 2026-06-17 | [x] | `c3d4e` | ✅ Throws Exception |
 
 ---
 

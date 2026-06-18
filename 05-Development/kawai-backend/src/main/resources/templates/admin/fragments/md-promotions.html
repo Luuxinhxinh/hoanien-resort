@@ -30,6 +30,12 @@
                 <td th:attr="data-key='status',data-value=${row['status']}">
                     <span class="cell-badge" th:classappend="${row['__statusStyle']}" th:text="${row['status']}"></span>
                 </td>
+                <td style="text-align:center;">
+                    <button type="button" class="btn-toggle" th:attr="data-id=${row['id']},data-value=${row['status']}">
+                        <i th:if="${row['status'] == 'Active' || row['status'] == 'Available' || row['status'] == 'true'}" data-lucide="toggle-right" style="color:#C9A96E"></i>
+                        <i th:unless="${row['status'] == 'Active' || row['status'] == 'Available' || row['status'] == 'true'}" data-lucide="toggle-left" style="color:#8B7355"></i>
+                    </button>
+                </td>
                 <td style="text-align:right">
                     <div style="display:flex;align-items:center;justify-content:flex-end;gap:2px">
                         <button class="btn-action btn-action-edit btn-edit" th:attr="data-id=${row['id']}"><i data-lucide="pencil"></i></button>
@@ -48,27 +54,17 @@
     <div class="form-fields-inner" style="display:flex;flex-direction:column;gap:20px">
         <div class="adm-form-group"><label class="adm-form-label">Mã giảm giá <span style="color:#B45309">*</span></label><input type="text" name="code" class="adm-form-input" required></div>
         <div class="adm-form-group"><label class="adm-form-label">Loại</label>
-            <select name="type" class="adm-form-select">
+            <select name="discountType" class="adm-form-select">
                 <option value="Phần trăm">Phần trăm</option>
                 <option value="Số tiền">Số tiền</option>
             </select>
         </div>
         <div class="adm-form-group"><label class="adm-form-label">Giá trị <span style="color:#B45309">*</span></label><input type="text" name="value" class="adm-form-input" required></div>
-        <div class="adm-form-group"><label class="adm-form-label">Đơn tối thiểu</label><input type="text" name="minOrder" class="adm-form-input"></div>
-        <div class="adm-form-group"><label class="adm-form-label">Áp dụng cho</label>
-            <select name="scope" class="adm-form-select">
-                <option th:each="opt : ${formOptions['promoScopes']}" th:value="${opt}" th:text="${opt}"></option>
-            </select>
-        </div>
-        <div class="adm-form-group"><label class="adm-form-label">Lượt dùng</label><input type="text" name="uses" class="adm-form-input"></div>
-        <div class="adm-form-group"><label class="adm-form-label">Hết hạn</label><input type="text" name="expires" class="adm-form-input"></div>
-        <div class="adm-form-group"><label class="adm-form-label">Trạng thái</label>
-            <select name="status" class="adm-form-select">
-                <option value="Active">Active</option>
-                <option value="Expired">Expired</option>
-                <option value="Inactive">Inactive</option>
-            </select>
-        </div>
+        <div class="adm-form-group"><label class="adm-form-label">Ngày bắt đầu</label><input type="datetime-local" name="validFrom" class="adm-form-input"></div>
+        <div class="adm-form-group"><label class="adm-form-label">Ngày hết hạn</label><input type="date" name="validTo" class="adm-form-input"></div>
+        <div class="adm-form-group"><label class="adm-form-label">Số lượt dùng tối đa</label><input type="number" name="maxUses" class="adm-form-input"></div>
+        <div class="adm-form-group"><label class="adm-form-label">Cấu hình Combo</label><input type="text" name="comboConfig" class="adm-form-input" placeholder="Ví dụ: ROOM+FB"></div>
+        <div class="adm-form-group"><label class="adm-form-label">Mô tả Khuyến Mãi</label><textarea name="description" class="adm-form-input" rows="3"></textarea></div>
     </div>
 </div>
 

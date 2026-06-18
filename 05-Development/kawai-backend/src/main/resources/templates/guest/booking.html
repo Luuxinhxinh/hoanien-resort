@@ -71,19 +71,21 @@
                 </div>
 
                 <!-- Right Actions -->
-                <div class="hidden lg:flex items-center gap-6 text-[13px] uppercase tracking-[0.2em] font-semibold">
+                <div
+                    class="hidden lg:flex items-center gap-6 text-[13px] uppercase tracking-[0.2em] font-semibold text-hoanien-text/80">
                     <a href="/profile" th:if="${isLoggedIn}"
-                        class="hover:text-hoanien-text active:scale-95 transition-all duration-200 transition-colors text-hoanien-text/80">Profile</a>
+                        class="hover:text-hoanien-text active:scale-95 transition-all duration-200 transition-colors">Profile</a>
                     <form th:action="@{/auth/logout}" method="post" th:if="${isLoggedIn}" class="inline">
                         <button type="submit"
-                            class="hover:text-hoanien-text active:scale-95 transition-all duration-200 transition-colors uppercase tracking-[0.2em] bg-transparent border-none p-0 cursor-pointer text-hoanien-text/80">Logout</button>
+                            class="hover:text-hoanien-text active:scale-95 transition-all duration-200 transition-colors uppercase tracking-[0.2em] bg-transparent border-none p-0 cursor-pointer">Logout</button>
                     </form>
 
-                    <a href="#" onclick="openLoginModal(); return false;" th:unless="${isLoggedIn}" class="hover:text-hoanien-text active:scale-95 transition-all duration-200 transition-colors text-hoanien-text/80">Log In</a>
+                    <a href="#" onclick="openLoginModal(); return false;" th:unless="${isLoggedIn}"
+                        class="hover:text-hoanien-text active:scale-95 transition-all duration-200 transition-colors">Log
+                        In</a>
                     <a href="#roomsSection"
-                        class="bg-hoanien-text text-hoanien-bg px-6 py-3 hover:bg-hoanien-text/80 active:scale-[0.98] active:translate-y-[0.5px] transition-all duration-200 transition-colors inline-block text-center border border-hoanien-text">
-                        Book Now
-                    </a>
+                        class="hover:text-hoanien-text active:scale-95 transition-all duration-200 transition-colors inline-block border-b border-hoanien-text pb-0.5 text-hoanien-text">Book
+                        Now</a>
                 </div>
 
                 <!-- Mobile Menu Icon -->
@@ -418,7 +420,7 @@
     <!-- ============ INTERACTIVE AND AUTHENTICATION JAVASCRIPT ============ -->
     <script th:inline="javascript">
         // Global variables from Thymeleaf model
-        const isUserLoggedIn = [[${isLoggedIn}]];
+        const isUserLoggedIn = [[${ isLoggedIn }]];
     </script>
     <script src="/guest/js/booking.js"></script>
 

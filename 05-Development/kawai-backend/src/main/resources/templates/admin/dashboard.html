@@ -72,10 +72,10 @@
     <!-- Footer -->
     <div class="adm-sidebar-footer">
         <div class="adm-sidebar-user">
-            <div class="adm-sidebar-avatar">AD</div>
+            <div class="adm-sidebar-avatar" th:text="${#strings.substring(#authentication.name, 0, 2).toUpperCase()}">AD</div>
             <div>
-                <div class="adm-sidebar-name">Admin Dũng</div>
-                <div class="adm-sidebar-role">Admin</div>
+                <div class="adm-sidebar-name" th:text="${#authentication.name}">Admin Dũng</div>
+                <div class="adm-sidebar-role" th:text="${#authentication.authorities != null and !#authentication.authorities.isEmpty() ? #strings.replace(#authentication.authorities[0].authority, 'ROLE_', '') : 'User'}">Admin</div>
             </div>
         </div>
     </div>
@@ -99,8 +99,8 @@
             </button>
             <div class="adm-divider-v"></div>
             <div class="adm-header-user-box">
-                <div class="adm-header-avatar">AD</div>
-                <span class="adm-header-username">Admin Dũng</span>
+                <div class="adm-header-avatar" th:text="${#strings.substring(#authentication.name, 0, 2).toUpperCase()}">AD</div>
+                <span class="adm-header-username" th:text="${#authentication.name}">Admin Dũng</span>
             </div>
             <div class="adm-divider-v"></div>
             <a href="/logout" class="adm-header-logout"><i data-lucide="log-out" style="width:12px;height:12px"></i>Đăng xuất</a>
@@ -192,13 +192,16 @@
                     </div>
                 </div>
             </div>
-            <div class="adm-room-matrix-wrap">
-                <div id="room-matrix" class="adm-room-matrix">
-                    <div th:each="room : ${rooms}"
-                         class="adm-room-cell"
-                         th:style="'background-color:' + ${room.bgColor}">
-                        <span class="adm-room-number" th:text="${room.roomNumber}">101</span>
-                        <div class="adm-room-dot" th:style="'background-color:' + ${room.dotColor}"></div>
+            <div class="adm-room-matrix-wrap" style="display:flex; flex-direction:column; gap:24px;">
+                <div th:each="floorEntry : ${roomsByFloor}" class="adm-floor-group">
+                    <h3 class="adm-floor-title" th:text="${floorEntry.key}" style="margin-bottom:12px; font-size:14px; font-weight:600; color:#5c5a4d; border-bottom:1px solid #e2ddce; padding-bottom:4px;">Tầng</h3>
+                    <div class="adm-room-matrix">
+                        <div th:each="room : ${floorEntry.value}"
+                             class="adm-room-cell"
+                             th:style="'background-color:' + ${room.bgColor}">
+                            <span class="adm-room-number" th:text="${room.roomNumber}">101</span>
+                            <div class="adm-room-dot" th:style="'background-color:' + ${room.dotColor}"></div>
+                        </div>
                     </div>
                 </div>
             </div>

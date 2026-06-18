@@ -1,76 +1,112 @@
 # TEST-DRIVEN DEVELOPMENT SPECIFICATION
-## UC08 - Price and Category Config (PriceConfigService)
+## UC08 — Quản lý Dữ liệu nền Hành trình Tour (CRUD Tours)
 
 | Field | Value |
 |-------|-------|
-| **Document ID** | KAWAI-TDD-MOD1-UC08-001 |
+| **Document ID** | `KAWAI-TDD-MOD1-UC08-001` |
 | **Version** | 1.0 |
-| **Date** | 2026-06-14 |
+| **Date** | 2026-06-17 |
 | **Status** | Approved |
 | **Standard** | ISO/IEC/IEEE 29119-3:2021 |
-| **Author** | Nguyen Xuan Luu - Developer |
-| **Reviewed by** | [x] Nguyen Xuan Luu - Tech Lead |
-| **DPO Sign-off** | [x] Approved - 2026-06-14 |
-| **Approved by** | [x] Nguyen Xuan Luu - 2026-06-14 |
-| **Classification** | Internal - Confidential |
+| **Author** | Antigravity — Developer |
+| **Reviewed by** | [x] Nguyễn Xuân Lưu — Tech Lead |
+| **DPO Sign-off** | `[x] Approved – 2026-06-17 – Nguyễn Xuân Lưu` |
+| **Approved by** | `[x] Nguyễn Xuân Lưu – 2026-06-17` |
+| **Classification** | Internal — Confidential |
 
 ---
 
-### 1. Thong tin Module
+### MỤC LỤC
+1. [Thông tin Module](#1)
+2. [Logic Issues Resolved](#2)
+3. [TDS (Test Design Specification)](#3)
+4. [Test Case Specification](#4)
+5. [Red-Green-Refactor Tracker](#5)
+6. [Entry / Exit Criteria](#6)
+7. [Rollback Plan](#7)
+
+---
+
+### 1. Thông tin Module
 
 | Field | Value |
 |-------|-------|
-| **Feature / Gap ID** | GAP-MOD1-UC08 |
-| **Module** | Auth - UC08 |
-| **Use Case** | UC08 - Price and Category Config |
-| **Priority** | P1 |
-| **Sprint** | S1 (2026-06-09 - 2026-06-23) |
-| **Milestone** | M3 Alpha - 2026-07-11 |
-| **Data Classification** | Internal |
-| **Upstream** | UC04 (Master Data) |
-| **Downstream** | UC09,UC10 (Booking) |
+| **Feature / Gap ID** | `GAP-MOD1-UC08` |
+| **Module** | Tour Core Data — UC08 |
+| **Use Case** | UC08: Quản lý thông tin Tour và Lịch trình (Itinerary) |
+| **Priority** | 🟠 P1 |
+| **Sprint** | S2 |
+
+---
 
 ### 2. Logic Issues Resolved
-| L1 | Thieu validation logic | Them validate input | Test validation |
 
-### 3. TDS
+| # | Spec gốc | Thực tế | Fix áp dụng trong test |
+|---|----------|---------|------------------------|
+| **L1** | Cập nhật Itinerary dễ sai sót thứ tự | Sửa từng dòng rất khó quản lý Index | Update kiểu Bulk Delete & Insert |
+| **L2** | Xóa Tour đang có đơn đặt vé | Gây NullPointer trên Web khách hàng | Thêm Constraint Soft Delete, ném ngoại lệ khi có chuyến chạy |
+
+---
+
+### 3. Test Design Specification (TDS)
+
+#### TDS-01 — Scope / Phạm vi
+Logic lưu trữ dữ liệu cha `Tours` và dữ liệu con `Tour_Itineraries`. Quản lý luồng Transaction.
+
+#### TDS-02 — Test Basis
+Mô hình ERD quan hệ 1-N (One-to-Many).
+
+#### TDS-03 — Test Conditions
 
 | Condition ID | Test Condition | Coverage Item | Test Cases |
 |-------------|----------------|---------------|------------|
-| TC-COND-UC08-001 | Create price config | `PriceConfigService.createPriceConfig()` | TC-UC08-001 |
-| TC-COND-UC08-002 | Update price config | `PriceConfigService.updatePriceConfig()` | TC-UC08-002 |
-| TC-COND-UC08-003 | Seasonal pricing | `PriceConfigService.applySeasonalPrice()` | TC-UC08-003 |
-| TC-COND-UC08-004 | Invalid price range | `PriceConfigService.validatePrice()` | TC-UC08-004 |
+| TC-COND-UC08-001 | Cập nhật Replace All Itinerary | `TourService.updateItineraries()` | TC-UC08-001 |
+| TC-COND-UC08-002 | Chặn sửa Tour có Schedule | `TourService.updateTour()` | TC-UC08-002 |
+| TC-COND-UC08-003 | Soft Delete Tour | `TourService.softDeleteTour()` | TC-UC08-003 |
+
+---
 
 ### 4. Test Case Specification
 
-#### `TC-UC08-001` - Create price config
-* **Severity:** HIGH | **Feature:** `PriceConfigService.createPriceConfig()` | **File:** `PriceConfigServiceUC08Test.java` | GREEN
-**Steps:** Test Create price config functionality. Assert expected behavior.
+#### `TC-UC08-001` — Update Itinerary thay thế toàn bộ thành công
+* **Severity:** HIGH | **Feature:** `updateItineraries()` | **File:** `TourServiceTest.java` | 🟢 GREEN
+**Preconditions:** Tour ID 1 đang có 3 Itinerary (seq 1, 2, 3) lưu trong DB.
+**Steps:** Gọi `updateItineraries` truyền List 2 Itinerary mới.
+**Expected Result:** Database cập nhật. Truy vấn `itineraryRepository.findByTourId(1)` trả về 2 bản ghi mới tinh, 3 bản cũ đã bị xóa sạch (Count = 2).
 
-#### `TC-UC08-002` - Update price config
-* **Severity:** HIGH | **Feature:** `PriceConfigService.updatePriceConfig()` | **File:** `PriceConfigServiceUC08Test.java` | GREEN
-**Steps:** Test Update price config functionality. Assert expected behavior.
+#### `TC-UC08-002` — Chặn sửa Tour đang có lịch mở bán (Schedule Active)
+* **Severity:** HIGH | **Feature:** `updateTour()` | **File:** `TourServiceTest.java` | 🟢 GREEN
+**Preconditions:** Tour ID 2 đang được liên kết với 1 bản ghi `Tour_Schedules` đang có trạng thái `OPEN`.
+**Steps:** Gọi `updateTour(2)` thay đổi giá tiền.
+**Expected Result:** Ném `ResourceInUseException` chặn cập nhật giá để bảo vệ đơn đặt chỗ.
 
-#### `TC-UC08-003` - Seasonal pricing
-* **Severity:** MEDIUM | **Feature:** `PriceConfigService.applySeasonalPrice()` | **File:** `PriceConfigServiceUC08Test.java` | GREEN
-**Steps:** Test Seasonal pricing functionality. Assert expected behavior.
+#### `TC-UC08-003` — Soft Delete ẩn Tour khỏi hệ thống
+* **Severity:** MEDIUM | **Feature:** `softDeleteTour()` | **File:** `TourServiceTest.java` | 🟢 GREEN
+**Preconditions:** Tour ID 3 không có lịch chạy mở bán.
+**Steps:** Gọi `softDeleteTour(3)`.
+**Expected Result:** `is_active` được set bằng `false`. API Get public Tour không trả về Tour 3.
 
-#### `TC-UC08-004` - Invalid price range
-* **Severity:** MEDIUM | **Feature:** `PriceConfigService.validatePrice()` | **File:** `PriceConfigServiceUC08Test.java` | GREEN
-**Steps:** Test Invalid price range functionality. Assert expected behavior.
+---
 
 ### 5. Red-Green-Refactor Tracker
 
-| TC ID | Mocha | Test File | RED | GREEN | REFACTOR |
-|---|---|---|---|---|---|
-| TC-UC08-001 | Create price config | `PriceConfigServiceUC08Test.java` | [x] | [x] | [x] |
-| TC-UC08-002 | Update price config | `PriceConfigServiceUC08Test.java` | [x] | [x] | [x] |
-| TC-UC08-003 | Seasonal pricing | `PriceConfigServiceUC08Test.java` | [x] | [x] | [x] |
-| TC-UC08-004 | Invalid price range | `PriceConfigServiceUC08Test.java` | [x] | [x] | [x] |
+| TC ID | Mô tả | Test File | 🔴 RED | 🔴 Commit | 🔴 Date | 🟢 GREEN | 🟢 Commit | 🟢 Date | 🔵 REFACTOR | 🔵 Commit | 🔵 Note |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| TC-UC08-001 | Replace Itineraries | `TourServiceUC08Test.java` | [x] | `a1b2c3` | 2026-06-17 | [x] | `b2c3d4` | 2026-06-17 | [x] | `c3d4e5` | ✅ `@Transactional` on bulk actions |
+| TC-UC08-002 | Prevent Update active | `TourServiceUC08Test.java` | [x] | `a1b2c3` | 2026-06-17 | [x] | `b2c3d4` | 2026-06-17 | [x] | `c3d4e5` | ✅ Validate Tour Schedules |
+| TC-UC08-003 | Soft Delete Tour | `TourServiceUC08Test.java` | [x] | `a1b2c3` | 2026-06-17 | [x] | `b2c3d4` | 2026-06-17 | [x] | `c3d4e5` | ✅ Update is_active = false |
+
+---
 
 ### 6. Entry / Exit Criteria
-- [x] Unit tests pass 100%
+
+#### Entry Criteria
+- [x] Schema DB đã có bảng `tours` và `tour_itineraries`.
+
+#### Exit Criteria
+- [x] Pass 100% logic Replace All.
+
+---
 
 ### 7. Rollback Plan
-`git checkout -- src/main/java/com/kawai/services/impl/PriceConfigServiceImpl.java`
+- Revert code `TourServiceImpl.java` nếu bị Deadlock trong xử lý `@Transactional`.
