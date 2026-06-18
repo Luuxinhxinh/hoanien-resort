@@ -109,10 +109,15 @@ document.querySelectorAll('.tm-table').forEach(table => {
     if (this.dataset.status === 'vacant') {
       openDineInModal(this);
     } else if (this.dataset.status === 'serving') {
-      const guest = this.dataset.guest || '—';
-      const pax   = this.dataset.pax   || '—';
-      const time  = this.dataset.time  || '—';
-      if (typeof showToast === 'function') showToast('info', `Bàn ${this.dataset.table} — Đang phục vụ`, `${guest} · ${pax} khách · từ ${time}`);
+      const orderId = this.dataset.orderid;
+      if (orderId) {
+        window.location.href = `/fbStaff/order-detail?id=${orderId}&type=table`;
+      } else {
+        const guest = this.dataset.guest || '—';
+        const pax   = this.dataset.pax   || '—';
+        const time  = this.dataset.time  || '—';
+        if (typeof showToast === 'function') showToast('info', `Bàn ${this.dataset.table} — Đang phục vụ`, `${guest} · ${pax} khách · từ ${time}`);
+      }
     } else if (this.dataset.status === 'reserved') {
       const guest = this.dataset.guest || '—';
       const time  = this.dataset.time  || '—';
