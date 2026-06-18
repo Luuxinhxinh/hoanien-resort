@@ -5,7 +5,7 @@ spring:
         registration:
           google:
             client-id: 538898392088-lv7in7thft76gbj9dki3u6ko1itmnrda.apps.googleusercontent.com
-            client-secret: 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
+            client-secret: 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
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/kawai_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true}
     driverClassName: com.mysql.cj.jdbc.Driver

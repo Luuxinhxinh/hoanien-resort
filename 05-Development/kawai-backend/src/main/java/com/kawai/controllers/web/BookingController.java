@@ -28,8 +28,12 @@ public class BookingController {
         model.addAttribute("isLoggedIn", principal != null);
 
         if (principal != null) {
+            String username = principal.getName();
             Optional<Customer> customerOpt = customerRepository
-                    .findByAccount_Username(principal.getName());
+                    .findByAccount_Username(username);
+            if (customerOpt.isEmpty()) {
+                customerOpt = customerRepository.findByEmail(username);
+            }
             customerOpt.ifPresent(customer -> {
                 model.addAttribute("customerName", customer.getFullName());
                 model.addAttribute("customerEmail", customer.getEmail());

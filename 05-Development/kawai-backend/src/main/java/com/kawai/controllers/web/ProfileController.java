@@ -64,7 +64,8 @@ public class ProfileController {
             return "redirect:/booking";
         }
         String username = authentication.getName();
-        Customer customer = customerRepository.findByAccount_Username(username).orElse(null);
+        Customer customer = customerRepository.findByAccount_Username(username)
+                .orElseGet(() -> customerRepository.findByEmail(username).orElse(null));
         model.addAttribute("customer", customer);
 
         if (customer != null) {
@@ -75,7 +76,8 @@ public class ProfileController {
                             return false;
                         }
                         if (b.getBookingStatus() != null && b.getBookingStatus().toUpperCase().startsWith("CANCEL")) {
-                            return paymentTransactionRepository.existsByBookingIdAndStatus(b.getId(), com.kawai.models.PaymentStatus.SUCCESS);
+                            return paymentTransactionRepository.existsByBookingIdAndStatus(b.getId(),
+                                    com.kawai.models.PaymentStatus.SUCCESS);
                         }
                         return true;
                     })
@@ -124,7 +126,8 @@ public class ProfileController {
             return "redirect:/booking";
         }
         String username = authentication.getName();
-        Customer customer = customerRepository.findByAccount_Username(username).orElse(null);
+        Customer customer = customerRepository.findByAccount_Username(username)
+                .orElseGet(() -> customerRepository.findByEmail(username).orElse(null));
         model.addAttribute("customer", customer);
 
         if (customer != null) {
@@ -135,7 +138,8 @@ public class ProfileController {
                             return false;
                         }
                         if (b.getBookingStatus() != null && b.getBookingStatus().toUpperCase().startsWith("CANCEL")) {
-                            return paymentTransactionRepository.existsByBookingIdAndStatus(b.getId(), com.kawai.models.PaymentStatus.SUCCESS);
+                            return paymentTransactionRepository.existsByBookingIdAndStatus(b.getId(),
+                                    com.kawai.models.PaymentStatus.SUCCESS);
                         }
                         return true;
                     })
@@ -203,7 +207,8 @@ public class ProfileController {
             return "redirect:/booking";
         }
         String username = authentication.getName();
-        Customer customer = customerRepository.findByAccount_Username(username).orElse(null);
+        Customer customer = customerRepository.findByAccount_Username(username)
+                .orElseGet(() -> customerRepository.findByEmail(username).orElse(null));
         if (customer != null) {
             customer.setFullName(fullName);
             if (email != null && !email.trim().isEmpty()) {
@@ -260,7 +265,8 @@ public class ProfileController {
             return "redirect:/booking";
         }
         String username = authentication.getName();
-        Customer customer = customerRepository.findByAccount_Username(username).orElse(null);
+        Customer customer = customerRepository.findByAccount_Username(username)
+                .orElseGet(() -> customerRepository.findByEmail(username).orElse(null));
         if (customer != null) {
             com.kawai.models.Dependent dep = new com.kawai.models.Dependent();
             dep.setCustomer(customer);
@@ -290,7 +296,8 @@ public class ProfileController {
             return "redirect:/booking";
         }
         String username = authentication.getName();
-        Customer customer = customerRepository.findByAccount_Username(username).orElse(null);
+        Customer customer = customerRepository.findByAccount_Username(username)
+                .orElseGet(() -> customerRepository.findByEmail(username).orElse(null));
         if (customer != null) {
             com.kawai.models.Dependent dep = dependentRepository.findById(id).orElse(null);
             if (dep != null && dep.getCustomer().getId().equals(customer.getId())) {
