@@ -7,6 +7,8 @@ import com.kawai.models.RoomBookingDetail;
 import com.kawai.repositories.FolioItemRepository;
 import com.kawai.repositories.RoomBookingDetailRepository;
 import com.kawai.services.interfaces.NightAuditService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +24,8 @@ import java.util.List;
  */
 @Service
 public class NightAuditServiceImpl implements NightAuditService {
+
+    private static final Logger logger = LoggerFactory.getLogger(NightAuditServiceImpl.class);
 
     private final FolioItemRepository folioItemRepository;
     private final RoomBookingDetailRepository roomBookingDetailRepository;
@@ -72,17 +76,22 @@ public class NightAuditServiceImpl implements NightAuditService {
     @Override
     @Transactional
     public void runNightAudit(LocalDate auditDate) {
-        // Tìm các phòng đang OCCUPIED
-        List<RoomBookingDetail> occupiedRooms = roomBookingDetailRepository.findByDetailStatus("OCCUPIED");
+        // Tìm các phòng đang ở trạng thái Checked_In
+        List<RoomBookingDetail> checkedInRooms = roomBookingDetailRepository.findByDetailStatus("Checked_In");
 
-        for (RoomBookingDetail detail : occupiedRooms) {
+        for (RoomBookingDetail detail : checkedInRooms) {
             FolioItem item = createRoomChargeItem(detail, auditDate);
+            if (item == null) {
+                // Dữ liệu thiếu Booking hợp lệ -> bỏ qua, không tạo charge sai lệch
+                continue;
+            }
             folioItemRepository.save(item);
         }
     }
 
     /**
      * Helper: Tạo FolioItem tiền phòng cho một phòng đang OCCUPIED.
+     * Trả về null nếu dữ liệu thiếu Booking hợp lệ (cần Manager xử lý thủ công).
      */
     private FolioItem createRoomChargeItem(RoomBookingDetail detail, LocalDate auditDate) {
         BigDecimal roomCharge = detail.getRoomCharge();
@@ -90,17 +99,19 @@ public class NightAuditServiceImpl implements NightAuditService {
             roomCharge = BigDecimal.ZERO;
         }
 
-        FolioItem item = new FolioItem();
-        item.setRoomBookingDetail(detail);
-
         RoomBooking roomBooking = detail.getRoomBooking();
         Booking booking = roomBooking;
-        if (booking == null) {
-            booking = new Booking(); // Fallback an toàn
+
+        if (booking == null || booking.getId() == null) {
+            logger.error("[NIGHT AUDIT] RoomBookingDetail id={} thiếu Booking hợp lệ, bỏ qua tạo room charge.",
+                    detail.getId());
+            return null;
         }
+
+        FolioItem item = new FolioItem();
+        item.setRoomBookingDetail(detail);
         item.setBooking(booking);
         item.setPayerCustomer(booking.getCustomer());
-
         item.setSourceDepartment("ROOM");
         item.setAmount(roomCharge.setScale(0, RoundingMode.HALF_UP));
         item.setDescription("Room Charge - Night " + auditDate.toString());

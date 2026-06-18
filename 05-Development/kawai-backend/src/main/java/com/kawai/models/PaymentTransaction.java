@@ -29,6 +29,10 @@ public class PaymentTransaction {
     @Column(nullable = false)
     private PaymentStatus status;
 
+    private String transactionType; // e.g., DEPOSIT, FINAL_PAYMENT, REFUND
+    private String paymentMethod; // e.g., CASH, VNPAY, CREDIT_CARD
+    private String gatewayStatus; // e.g., SUCCESS, PENDING, FAILED
+
     private String transactionRef; // internal: bookingId_timestamp
 
     private String vnpTransactionNo; // [NEW] Mã giao dịch do VNPAY trả về (vnp_TransactionNo)

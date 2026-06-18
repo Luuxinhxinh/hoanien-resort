@@ -1,94 +1,236 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
-<head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Xuất báo cáo — Hoanien Manager Portal</title>
-<script src="https://unpkg.com/lucide@latest"></script>
-<link rel="stylesheet" th:href="@{/manager/css/dashboard.css}" href="../../static/manager/css/dashboard.css"/>
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Xuất báo cáo — Hoanien Manager Portal</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" th:href="@{/manager/css/dashboard.css}" href="../../static/manager/css/dashboard.css" />
 </head>
+
 <body>
-<aside class="mgr-sidebar">
-    <div class="mgr-sidebar-logo"><div class="mgr-logo-brand"><div class="mgr-logo-dot">✦</div><span class="mgr-logo-label">Hoanien Retreat</span></div><h1 class="mgr-portal-title">Manager Portal</h1><div class="mgr-role-chip"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Quản lý</div></div>
-    <nav class="mgr-nav">
-        <div class="mgr-nav-item"><a href="/manager/dashboard" class="mgr-nav-link"><svg class="mgr-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg><span style="flex:1">Tổng quan</span></a></div>
-        <div class="mgr-nav-item"><button class="mgr-nav-link" onclick="toggleSubmenu('sub-finance','arr-finance')"><svg class="mgr-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" x2="12" y1="2" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg><span style="flex:1">Báo cáo Tài chính</span><svg class="mgr-nav-arrow" id="arr-finance" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></button><div class="mgr-submenu" id="sub-finance"><a href="/manager/revenue/daily" class="mgr-submenu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>Doanh thu theo ngày</a><a href="/manager/revenue/monthly" class="mgr-submenu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>Doanh thu theo tháng</a><a href="/manager/revenue/yearly" class="mgr-submenu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><rect width="4" height="5" x="7" y="14" rx="1"/><rect width="4" height="10" x="15" y="9" rx="1"/></svg>Doanh thu theo năm</a></div></div>
-        <div class="mgr-nav-item"><button class="mgr-nav-link" onclick="toggleSubmenu('sub-analytics','arr-analytics')"><svg class="mgr-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18.7 8 13 13.7 8.7 9.4l-5 5"/></svg><span style="flex:1">Biểu đồ Phân tích</span><svg class="mgr-nav-arrow" id="arr-analytics" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></button><div class="mgr-submenu" id="sub-analytics"><a href="/manager/analytics/occupancy" class="mgr-submenu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9Z"/><path d="M3 11h18"/></svg>Tỷ lệ lấp đầy phòng</a><a href="/manager/analytics/tour" class="mgr-submenu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg>Tỷ lệ tour</a><a href="/manager/analytics/food" class="mgr-submenu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg>Tỷ lệ các món ăn</a><a href="/manager/analytics/stay" class="mgr-submenu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Thời gian lưu trú TB</a></div></div>
-        <!-- Xuất báo cáo ACTIVE -->
-        <div class="mgr-nav-item"><a href="/manager/export" class="mgr-nav-link active"><svg class="mgr-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg><span style="flex:1">Xuất báo cáo</span></a></div>
-    </nav>
-    <div class="mgr-sidebar-footer"><div class="mgr-sidebar-user"><div class="mgr-sidebar-avatar">MG</div><div><div class="mgr-sidebar-name">Manager Dũng</div><div class="mgr-sidebar-role">Quản lý</div></div></div><a href="/admin/dashboard" class="mgr-switch-btn"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 2.1l4 4-4 4"/><path d="M3 12.2v-2a4 4 0 0 1 4-4h12.8"/><path d="M7 21.9l-4-4 4-4"/><path d="M21 11.8v2a4 4 0 0 1-4 4H4.2"/></svg>Chuyển vai trò</a></div>
-</aside>
-
-<div class="mgr-main">
-    <header class="mgr-header">
-        <div class="mgr-header-left"><span style="color:#4A4740;font-size:12px">MANAGER</span><span class="mgr-breadcrumb-sep">/</span><span style="color:#C9A96E;font-size:12px;font-weight:500">Xuất báo cáo</span></div>
-        <div class="mgr-header-right"><button class="mgr-header-icon-btn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></button><button class="mgr-header-icon-btn" style="position:relative"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg><span class="mgr-notif-dot"></span></button><div class="mgr-header-user-box"><div class="mgr-header-avatar">MG</div><span class="mgr-header-username">Manager Dũng</span></div><div class="mgr-divider-v"></div><a href="/logout" class="mgr-header-logout"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>Đăng xuất</a></div>
-    </header>
-    <main class="mgr-page">
-        <div><p class="mgr-page-eyebrow" th:text="${todayLabel}">Thứ Ba, 9 tháng 6, 2026</p><h1 class="mgr-page-title">Xuất báo cáo</h1></div>
-
-        <!-- Export Form -->
-        <div class="mgr-export-card">
-            <div class="mgr-section-title">Tạo báo cáo mới</div>
-            <div class="mgr-section-subtitle" style="margin-top:4px">Chọn loại báo cáo, khoảng thời gian và định dạng file xuất</div>
-
-            <div class="mgr-export-grid">
-                <div class="mgr-form-group">
-                    <label class="mgr-form-label">Loại báo cáo</label>
-                    <select class="mgr-form-select" id="export-type">
-                        <option value="revenue">Doanh thu tổng hợp</option>
-                        <option value="room">Báo cáo phòng</option>
-                        <option value="fnb">Báo cáo F&amp;B</option>
-                        <option value="tour">Báo cáo Tour</option>
-                        <option value="occupancy">Tỷ lệ lấp đầy</option>
-                        <option value="stay">Thời gian lưu trú</option>
-                    </select>
-                </div>
-                <div class="mgr-form-group">
-                    <label class="mgr-form-label">Từ ngày</label>
-                    <input type="date" class="mgr-form-input" id="export-from"/>
-                </div>
-                <div class="mgr-form-group">
-                    <label class="mgr-form-label">Đến ngày</label>
-                    <input type="date" class="mgr-form-input" id="export-to"/>
-                </div>
-                <button class="mgr-export-btn" id="btn-export" onclick="handleExport()">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
-                    Xuất báo cáo
-                </button>
+    <aside class="mgr-sidebar">
+        <div class="mgr-sidebar-logo">
+            <div class="mgr-logo-brand">
+                <span class="mgr-logo-label">Hoa Nien Retreat</span>
             </div>
+            <h1 class="mgr-portal-title">Manager Portal</h1>
 
-            <div class="mgr-export-formats">
-                <button class="mgr-format-chip active" id="fmt-xlsx" onclick="selectFormat('xlsx')">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Excel (.xlsx)
-                </button>
-                <button class="mgr-format-chip" id="fmt-pdf" onclick="selectFormat('pdf')">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>PDF (.pdf)
-                </button>
-                <button class="mgr-format-chip" id="fmt-csv" onclick="selectFormat('csv')">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>CSV (.csv)
-                </button>
+        </div>
+        <nav class="mgr-nav">
+            <div class="mgr-nav-item"><a href="/manager/dashboard" class="mgr-nav-link"><svg class="mgr-nav-icon"
+                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect width="7" height="9" x="3" y="3" rx="1" />
+                        <rect width="7" height="5" x="14" y="3" rx="1" />
+                        <rect width="7" height="9" x="14" y="12" rx="1" />
+                        <rect width="7" height="5" x="3" y="16" rx="1" />
+                    </svg><span style="flex:1">Tổng quan</span></a></div>
+            <div class="mgr-nav-item"><button class="mgr-nav-link"
+                    onclick="toggleSubmenu('sub-finance','arr-finance')"><svg class="mgr-nav-icon" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="12" x2="12" y1="2" y2="22" />
+                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                    </svg><span style="flex:1">Báo cáo Tài chính</span><svg class="mgr-nav-arrow" id="arr-finance"
+                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="m9 18 6-6-6-6" />
+                    </svg></button>
+                <div class="mgr-submenu" id="sub-finance"><a href="/manager/revenue/daily" class="mgr-submenu-link"><svg
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect width="18" height="18" x="3" y="4" rx="2" />
+                            <line x1="16" x2="16" y1="2" y2="6" />
+                            <line x1="8" x2="8" y1="2" y2="6" />
+                            <line x1="3" x2="21" y1="10" y2="10" />
+                        </svg>Doanh thu theo ngày</a><a href="/manager/revenue/monthly" class="mgr-submenu-link"><svg
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 3v18h18" />
+                            <path d="m19 9-5 5-4-4-3 3" />
+                        </svg>Doanh thu theo tháng</a><a href="/manager/revenue/yearly" class="mgr-submenu-link"><svg
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 3v18h18" />
+                            <rect width="4" height="5" x="7" y="14" rx="1" />
+                            <rect width="4" height="10" x="15" y="9" rx="1" />
+                        </svg>Doanh thu theo năm</a></div>
+            </div>
+            <div class="mgr-nav-item"><button class="mgr-nav-link"
+                    onclick="toggleSubmenu('sub-analytics','arr-analytics')"><svg class="mgr-nav-icon"
+                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 3v18h18" />
+                        <path d="M18.7 8 13 13.7 8.7 9.4l-5 5" />
+                    </svg><span style="flex:1">Biểu đồ Phân tích</span><svg class="mgr-nav-arrow" id="arr-analytics"
+                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="m9 18 6-6-6-6" />
+                    </svg></button>
+                <div class="mgr-submenu" id="sub-analytics"><a href="/manager/analytics/occupancy"
+                        class="mgr-submenu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M3 9a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9Z" />
+                            <path d="M3 11h18" />
+                        </svg>Tỷ lệ lấp đầy phòng</a><a href="/manager/analytics/tour" class="mgr-submenu-link"><svg
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 11l19-9-9 19-2-8-8-2z" />
+                        </svg>Tỷ lệ tour</a><a href="/manager/analytics/food" class="mgr-submenu-link"><svg
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2" />
+                            <path d="M7 2v20" />
+                            <path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7" />
+                        </svg>Tỷ lệ các món ăn</a><a href="/manager/analytics/stay" class="mgr-submenu-link"><svg
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10" />
+                            <polyline points="12 6 12 12 16 14" />
+                        </svg>Thời gian lưu trú TB</a></div>
+            </div>
+            <!-- Xuất báo cáo ACTIVE -->
+            <div class="mgr-nav-item"><a href="/manager/export" class="mgr-nav-link active"><svg class="mgr-nav-icon"
+                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        <polyline points="7 10 12 15 17 10" />
+                        <line x1="12" x2="12" y1="15" y2="3" />
+                    </svg><span style="flex:1">Xuất báo cáo</span></a></div>
+        </nav>
+        <div class="mgr-sidebar-footer">
+            <div class="mgr-sidebar-user">
+                <div class="mgr-sidebar-avatar">MG</div>
+                <div>
+                    <div class="mgr-sidebar-name">Manager </div>
+                    <div class="mgr-sidebar-role">Quản lý</div>
+                </div>
             </div>
         </div>
+    </aside>
 
-        <!-- History Table -->
-        <div class="mgr-section-card">
-            <div class="mgr-section-title" style="margin-bottom:4px">Lịch sử xuất báo cáo</div>
-            <div class="mgr-section-subtitle" style="margin-bottom:16px">Các báo cáo đã xuất trước đó</div>
-            <table class="mgr-table">
-                <thead><tr><th>Tên báo cáo</th><th>Định dạng</th><th>Ngày xuất</th><th>Người xuất</th><th>Dung lượng</th><th></th></tr></thead>
-                <tbody>
-                    <tr th:each="h : ${history}">
-                        <td th:text="${h.reportName}">Doanh thu tháng 5/2026</td>
-                        <td><span style="padding:2px 8px;border-radius:4px;background:rgba(201,169,110,0.12);color:#C9A96E;font-size:11px;font-weight:500" th:text="${h.format}">Excel</span></td>
-                        <td th:text="${h.exportedAt}">01/06/2026 09:15</td>
-                        <td th:text="${h.exportedBy}">Manager Dũng</td>
-                        <td th:text="${h.fileSize}">2.4 MB</td>
-                        <td><button onclick="alert('Download: '+this.closest('tr').querySelector('td').textContent)" style="padding:4px 10px;border-radius:5px;border:1px solid rgba(201,169,110,0.3);background:transparent;color:#C9A96E;font-size:11px;cursor:pointer;">Tải lại</button></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </main>
-</div>
-<script th:src="@{/manager/js/export.js}" src="../../static/manager/js/export.js"></script>
-</body></html>
+    <div class="mgr-main">
+        <header class="mgr-header">
+            <div class="mgr-header-left">
+                <button class="mgr-header-icon-btn mgr-sidebar-toggle"
+                    onclick="document.body.classList.toggle('sidebar-hidden')">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="3" y1="12" x2="21" y2="12" />
+                        <line x1="3" y1="6" x2="21" y2="6" />
+                        <line x1="3" y1="18" x2="21" y2="18" />
+                    </svg>
+                </button><span style="color:#4A4740;font-size:12px">MANAGER</span><span
+                    class="mgr-breadcrumb-sep">/</span><span style="color:#C9A96E;font-size:12px;font-weight:500">Xuất
+                    báo cáo</span>
+            </div>
+            <div class="mgr-header-right">
+                <button class="mgr-header-icon-btn" style="position:relative"><svg width="15" height="15"
+                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+                        <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+                    </svg><span class="mgr-notif-dot"></span></button>
+                <div class="mgr-header-user-box">
+                    <div class="mgr-header-avatar">MG</div><span class="mgr-header-username">Manager </span>
+                </div>
+                <div class="mgr-divider-v"></div><a href="/logout" class="mgr-header-logout"><svg width="12" height="12"
+                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                        <polyline points="16 17 21 12 16 7" />
+                        <line x1="21" x2="9" y1="12" y2="12" />
+                    </svg>Đăng xuất</a>
+            </div>
+        </header>
+        <main class="mgr-page">
+            <div>
+                <p class="mgr-page-eyebrow" th:text="${todayLabel}">Thứ Ba, 9 tháng 6, 2026</p>
+                <h1 class="mgr-page-title">Xuất báo cáo</h1>
+            </div>
+
+            <!-- Export Form -->
+            <div class="mgr-export-card">
+                <div class="mgr-section-title">Tạo báo cáo mới</div>
+                <div class="mgr-section-subtitle" style="margin-top:4px">Chọn loại báo cáo, khoảng thời gian và định
+                    dạng file xuất</div>
+
+                <div class="mgr-export-grid">
+                    <div class="mgr-form-group">
+                        <label class="mgr-form-label">Loại báo cáo</label>
+                        <select class="mgr-form-select" id="export-type">
+                            <option value="revenue">Doanh thu tổng hợp</option>
+                            <option value="room">Báo cáo phòng</option>
+                            <option value="fnb">Báo cáo F&amp;B</option>
+                            <option value="tour">Báo cáo Tour</option>
+                            <option value="occupancy">Tỷ lệ lấp đầy</option>
+                            <option value="stay">Thời gian lưu trú</option>
+                        </select>
+                    </div>
+                    <div class="mgr-form-group">
+                        <label class="mgr-form-label">Từ ngày</label>
+                        <input type="date" class="mgr-form-input" id="export-from" />
+                    </div>
+                    <div class="mgr-form-group">
+                        <label class="mgr-form-label">Đến ngày</label>
+                        <input type="date" class="mgr-form-input" id="export-to" />
+                    </div>
+                    <button class="mgr-export-btn" id="btn-export" onclick="handleExport()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                            <polyline points="7 10 12 15 17 10" />
+                            <line x1="12" x2="12" y1="15" y2="3" />
+                        </svg>
+                        Xuất báo cáo
+                    </button>
+                </div>
+
+                <div class="mgr-export-formats">
+                    <button class="mgr-format-chip active" id="fmt-xlsx" onclick="selectFormat('xlsx')">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                            <polyline points="14 2 14 8 20 8" />
+                        </svg>Excel (.xlsx)
+                    </button>
+                    <button class="mgr-format-chip" id="fmt-pdf" onclick="selectFormat('pdf')">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                            <polyline points="14 2 14 8 20 8" />
+                        </svg>PDF (.pdf)
+                    </button>
+                    <button class="mgr-format-chip" id="fmt-csv" onclick="selectFormat('csv')">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                            <polyline points="14 2 14 8 20 8" />
+                        </svg>CSV (.csv)
+                    </button>
+                </div>
+            </div>
+
+            <!-- History Table -->
+            <div class="mgr-section-card">
+                <div class="mgr-section-title" style="margin-bottom:4px">Lịch sử xuất báo cáo</div>
+                <div class="mgr-section-subtitle" style="margin-bottom:16px">Các báo cáo đã xuất trước đó</div>
+                <table class="mgr-table">
+                    <thead>
+                        <tr>
+                            <th>Tên báo cáo</th>
+                            <th>Định dạng</th>
+                            <th>Ngày xuất</th>
+                            <th>Người xuất</th>
+                            <th>Dung lượng</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="h : ${history}">
+                            <td th:text="${h.reportName}">Doanh thu tháng 5/2026</td>
+                            <td><span
+                                    style="padding:2px 8px;border-radius:4px;background:rgba(201,169,110,0.12);color:#C9A96E;font-size:11px;font-weight:500"
+                                    th:text="${h.format}">Excel</span></td>
+                            <td th:text="${h.exportedAt}">01/06/2026 09:15</td>
+                            <td th:text="${h.exportedBy}">Manager </td>
+                            <td th:text="${h.fileSize}">2.4 MB</td>
+                            <td><button onclick="alert('Download: '+this.closest('tr').querySelector('td').textContent)"
+                                    style="padding:4px 10px;border-radius:5px;border:1px solid rgba(201,169,110,0.3);background:transparent;color:#C9A96E;font-size:11px;cursor:pointer;">Tải
+                                    lại</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+    <script th:src="@{/manager/js/export.js}" src="../../static/manager/js/export.js"></script>
+</body>
+
+</html>

@@ -93,7 +93,6 @@ public class TourBookingServiceImpl implements TourBookingService {
                 booking.setBookingStatus("Confirmed");
                 booking.setBookingSource("Direct_Web");
                 booking.setTotalPrice(totalPrice);
-                booking.setTourCharge(totalPrice);
 
                 TourBooking savedBooking = tourBookingRepository.save(booking);
                 LOG.info("Created tour booking {} for schedule {} ({} pax)",

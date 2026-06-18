@@ -325,7 +325,7 @@ INSERT INTO Menu_Items (item_id, item_name, price, category, is_available, descr
 (2, 'Gỏi Cuốn Tôm Thịt', 95000, 'Khai vị', TRUE, 'Gỏi cuốn tôm thịt tươi ngon kèm rau sống và tương đậu phộng.', 'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=500&q=80', 'Đậu phộng, Hải sản'),
 (3, 'Chả Giò Hải Sản', 110000, 'Khai vị', TRUE, 'Chả giò chiên giòn nhân hải sản tươi sống.', 'https://images.unsplash.com/photo-1608897013039-887f21d8c804?w=500&q=80', 'Hải sản'),
 (4, 'Salad Cá Hồi Xông Khói', 150000, 'Khai vị', TRUE, 'Salad rau xanh tươi mát kết hợp cá hồi xông khói nhập khẩu.', 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500&q=80', 'Hải sản'),
-(5, 'Súp Hải Sản Măng Tây', 130000, 'Khai vị', TRUE, 'Súp hải sản nấu cùng măng tây tươi ngon ngọt.', 'https://images.pexels.com/photos/5266187/pexels-photo-5266187.jpeg?auto=compress&cs=tinysrgb&w=500', 'Hải sản'),
+(5, 'Súp Hải Sản Măng Tây', 130000, 'Khai vị', TRUE, 'Súp hải sản nấu cùng măng tây tươi ngon ngọt.', 'https://images.unsplash.com/photo-1605902711831-8b11abb0e23c?w=500&q=80', 'Hải sản'),
 (6, 'Bánh Mì Bơ Tỏi', 65000, 'Khai vị', TRUE, 'Bánh mì Pháp nướng giòn phết bơ tỏi thơm lừng.', 'https://images.unsplash.com/photo-1598373182133-52452f7691ef?w=500&q=80', 'Gluten, Sữa'),
 (7, 'Nem Chua Rán', 75000, 'Khai vị', TRUE, 'Nem chua rán giòn rụm chấm tương ớt.', 'https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?w=500&q=80', NULL),
 (8, 'Hoành Thánh Chiên Giòn', 85000, 'Khai vị', TRUE, 'Hoành thánh chiên giòn nhân tôm thịt.', 'https://images.unsplash.com/photo-1563245372-f21724e3856d?w=500&q=80', 'Gluten, Hải sản'),
@@ -351,9 +351,9 @@ INSERT INTO Menu_Items (item_id, item_name, price, category, is_available, descr
 (28, 'Nước Cam Tươi Ép Lạnh', 95000, 'Đồ uống', TRUE, 'Nước cam tươi nguyên chất ép lạnh.', 'https://images.unsplash.com/photo-1600271886742-f049cd451bba?w=500&q=80', NULL),
 (29, 'Cà Phê Phin Việt Nam', 55000, 'Đồ uống', TRUE, 'Cà phê phin Việt Nam đậm đà truyền thống.', 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=500&q=80', NULL),
 (30, 'Trà Đào Cam Sả', 65000, 'Đồ uống', TRUE, 'Trà đào cam sả tươi mát giải nhiệt.', 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=500&q=80', NULL),
-(31, 'Sinh Tố Bơ', 75000, 'Đồ uống', TRUE, 'Sinh tố bơ tươi xay nhuyễn béo ngậy.', 'https://images.pexels.com/photos/4033105/pexels-photo-4033105.jpeg?auto=compress&cs=tinysrgb&w=500', 'Sữa'),
-(32, 'Mojito Chanh Bạc Hà', 85000, 'Đồ uống', TRUE, 'Mojito không cồn chanh bạc hà tươi mát.', 'https://images.pexels.com/photos/1232152/pexels-photo-1232152.jpeg?auto=compress&cs=tinysrgb&w=500', NULL),
-(33, 'Bia Heineken', 45000, 'Đồ uống', TRUE, 'Bia Heineken nhập khẩu lạnh.', 'https://images.pexels.com/photos/1089930/pexels-photo-1089930.jpeg?auto=compress&cs=tinysrgb&w=500', 'Gluten'),
+(31, 'Sinh Tố Bơ', 75000, 'Đồ uống', TRUE, 'Sinh tố bơ tươi xay nhuyễn béo ngậy.', 'https://images.unsplash.com/photo-1563531555-d62cf34b8d50?w=500&q=80', 'Sữa'),
+(32, 'Mojito Chanh Bạc Hà', 85000, 'Đồ uống', TRUE, 'Mojito không cồn chanh bạc hà tươi mát.', 'https://images.unsplash.com/photo-1544252890-c3e95e867389?w=500&q=80', NULL),
+(33, 'Bia Heineken', 45000, 'Đồ uống', TRUE, 'Bia Heineken nhập khẩu lạnh.', 'https://images.unsplash.com/photo-1586994930637-0c0f2ff4a3f0?w=500&q=80', 'Gluten'),
 (34, 'Nước Khoáng Evian', 40000, 'Đồ uống', TRUE, 'Nước khoáng Evian Pháp.', 'https://images.unsplash.com/photo-1563227812-0ea4c22e6cc8?w=500&q=80', NULL);
 
 -- ── 19. Food Orders (19 rows) ────────────────────────────────
