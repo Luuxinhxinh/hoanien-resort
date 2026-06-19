@@ -33,4 +33,10 @@ public interface FoodOrderRepository extends JpaRepository<FoodOrder, Long> {
            "OR rbd.customer = :customer " +
            "OR rb.customer = :customer")
     List<FoodOrder> findByCustomer(@org.springframework.data.repository.query.Param("customer") com.kawai.models.Customer customer);
+
+    @Query("SELECT COALESCE(SUM(d.priceAtOrder * d.quantity), 0) FROM FoodOrderDetail d WHERE d.foodOrder.orderTime >= :startOfDay AND d.foodOrder.orderTime < :endOfDay AND d.foodOrder.orderStatus = 'Completed'")
+    BigDecimal revenueOnDate(@org.springframework.data.repository.query.Param("startOfDay") java.time.LocalDateTime startOfDay, @org.springframework.data.repository.query.Param("endOfDay") java.time.LocalDateTime endOfDay);
+
+    @Query("SELECT COALESCE(SUM(d.priceAtOrder * d.quantity), 0) FROM FoodOrderDetail d WHERE d.foodOrder.orderTime >= :start AND d.foodOrder.orderTime <= :end AND d.foodOrder.orderStatus = 'Completed'")
+    BigDecimal revenueBetween(@org.springframework.data.repository.query.Param("start") java.time.LocalDateTime start, @org.springframework.data.repository.query.Param("end") java.time.LocalDateTime end);
 }

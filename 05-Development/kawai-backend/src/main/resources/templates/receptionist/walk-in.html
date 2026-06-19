@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Check-in / Check-out - Hoanien Retreat</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/receptionist/css/dashboard.css">
+    <link rel="stylesheet" href="/receptionist/css/pages.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <div class="brand-logo">◆</div>
+                <div class="brand-text">
+                    <h1 class="brand-title">Hoanien Retreat</h1>
+                    <p class="brand-subtitle">Resort & Hub</p>
+                </div>
+            </div>
+
+            <div class="sidebar-section-title">RECEPTIONIST</div>
+
+            <nav class="sidebar-nav">
+                <a href="/receptionist/dashboard" class="nav-item">
+                    <i class="fa-solid fa-border-all"></i>
+                    <div class="nav-text">
+                        <span class="nav-main-text">Room Matrix</span>
+                        <span class="nav-sub-text">Sơ đồ phòng</span>
+                    </div>
+                    <i class="fa-solid fa-chevron-right nav-arrow"></i>
+                </a>
+
+                <a href="/receptionist/walk-in" class="nav-item active">
+                    <i class="fa-solid fa-person-walking-luggage"></i>
+                    <div class="nav-text">
+                        <span class="nav-main-text">Walk-In</span>
+                        <span class="nav-sub-text">Khách vãng lai</span>
+                    </div>
+                </a>
+                <a href="/receptionist/check-in" class="nav-item">
+                    <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                    <div class="nav-text">
+                        <span class="nav-main-text">Check-in</span>
+                        <span class="nav-sub-text">Nhận phòng</span>
+                    </div>
+                </a>
+                <a href="/receptionist/folio" class="nav-item">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                    <div class="nav-text">
+                        <span class="nav-main-text">Check-out / Folio</span>
+                        <span class="nav-sub-text">Trả phòng & Hóa đơn</span>
+                    </div>
+                </a>
+                <a href="/receptionist/night-audit" class="nav-item">
+                    <i class="fa-solid fa-moon"></i>
+                    <div class="nav-text">
+                        <span class="nav-main-text">Night Audit</span>
+                        <span class="nav-sub-text">Giao ca & Báo cáo</span>
+                    </div>
+                </a>
+            </nav>
+
+            <div class="sidebar-user">
+                <div class="user-avatar">MH</div>
+                <div class="user-info">
+                    <div class="user-name">Minh Hoàng</div>
+                    <div class="user-role">Receptionist</div>
+                </div>
+                <div class="user-status"></div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="top-header">
+                <div class="header-datetime">
+                    <div class="date" id="currentDate" th:text="${todayLabel}">Wednesday, June 10, 2026</div>
+                </div>
+
+                <div class="header-actions">
+                    <button class="notification-btn">
+                        <i class="fa-regular fa-bell"></i>
+                        <span class="badge">3</span>
+                    </button>
+                    <button class="user-profile-btn">
+                        <i class="fa-solid fa-user"></i>
+                        <span>Receptionist</span>
+                    </button>
+                    <button class="logout-btn">
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                        <span>Logout</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <div class="dashboard-scroll-area">
+                <div class="page-header">
+                    <h2 class="page-title">Walk-In Registration</h2>
+                </div>
+
+                <!-- Step 1: Room Selection -->
+                <div class="form-container" style="background: white; padding: 24px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 24px;">
+                    <h3 style="margin-top: 0; margin-bottom: 16px; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; color: #1e293b;">Step 1: Check Availability & Assign Room</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px;">
+                        <div>
+                            <label style="display: block; font-weight: 500; margin-bottom: 8px;">Expected Checkout Date</label>
+                            <input type="date" id="checkoutDate" class="form-control" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 4px; background: white;">
+                        </div>
+                        <div>
+                            <label style="display: block; font-weight: 500; margin-bottom: 8px;">Room Type</label>
+                            <select id="walkInTypeSelect" class="form-control" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 4px;" onchange="updateWalkInAvailableRooms()">
+                                <option value="">-- Select Type --</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="display: block; font-weight: 500; margin-bottom: 8px;">Assign Physical Room <span style="color:red">*</span></label>
+                            <select id="walkInPhysicalRoomSelect" class="form-control" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 4px;" onchange="unlockStep2()">
+                                <option value="">-- Select Type First --</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Customer Identification / Creation (Initially disabled) -->
+                <div class="form-container" id="step2Container" style="background: white; padding: 24px; border-radius: 8px; border: 1px solid #e2e8f0; opacity: 0.5; pointer-events: none; transition: all 0.3s ease;">
+                    <h3 style="margin-top: 0; margin-bottom: 16px; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; color: #1e293b;">Step 2: Guest Information</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 24px;">
+                        <div>
+                            <label style="display: block; font-weight: 500; margin-bottom: 8px;">Phone Number <span style="color:red">*</span></label>
+                            <input type="text" id="guestPhone" class="form-control" placeholder="Enter phone number" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 4px;">
+                        </div>
+                        <div>
+                            <label style="display: block; font-weight: 500; margin-bottom: 8px;">Identity (ID/Passport) <span style="color:red">*</span></label>
+                            <input type="text" id="guestId" class="form-control" placeholder="ID/Passport Number" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 4px;">
+                        </div>
+                        <div>
+                            <label style="display: block; font-weight: 500; margin-bottom: 8px;">Guest Full Name <span style="color:red">*</span></label>
+                            <input type="text" id="guestName" class="form-control" placeholder="Enter guest name" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 4px;">
+                        </div>
+                        <div>
+                            <label style="display: block; font-weight: 500; margin-bottom: 8px;">Email Address</label>
+                            <input type="email" id="guestEmail" class="form-control" placeholder="Enter email" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 4px;">
+                        </div>
+                    </div>
+                    <div style="margin-top: 16px; display: flex; gap: 12px; align-items: center;">
+                        <button type="button" class="btn btn-outline" onclick="mockSearchGuest()"><i class="fa-solid fa-magnifying-glass"></i> Check Existing</button>
+                        <button type="button" class="btn btn-primary" onclick="mockCreateGuest()"><i class="fa-solid fa-user-plus"></i> Create Profile & Account</button>
+                        <span id="guestStatusMsg" style="color: #16a34a; font-weight: 500; display: none; background: #dcfce7; padding: 8px 12px; border-radius: 4px;"><i class="fa-solid fa-check-circle"></i> Guest verified! (ID: <span id="mockCustomerId"></span>)</span>
+                    </div>
+
+                    <div style="margin-top: 32px; padding-top: 16px; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end;">
+                        <button type="button" class="btn btn-primary" id="completeBtn" style="opacity: 0.5; pointer-events: none;" onclick="mockCompleteCheckIn()"><i class="fa-solid fa-check-double"></i> Complete Walk-In Check-in</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="/receptionist/js/dashboard.js"></script>
+    <script th:inline="javascript">
+        const roomInventory = /*[[${roomInventory}]]*/ {};
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const typeSelect = document.getElementById('walkInTypeSelect');
+            for (const category in roomInventory) {
+                const opt = document.createElement('option');
+                opt.value = category;
+                opt.innerText = category;
+                typeSelect.appendChild(opt);
+            }
+        });
+
+        function updateWalkInAvailableRooms() {
+            const typeSelect = document.getElementById('walkInTypeSelect');
+            const roomSelect = document.getElementById('walkInPhysicalRoomSelect');
+            roomSelect.innerHTML = '<option value="">-- Select Physical Room --</option>';
+
+            const selectedType = typeSelect.value;
+            if (!selectedType) return;
+
+            const available = roomInventory[selectedType] || [];
+            available.forEach(r => {
+                const opt = document.createElement('option');
+                opt.value = r;
+                opt.innerText = r + ' (' + selectedType + ')';
+                roomSelect.appendChild(opt);
+            });
+        }
+
+        function unlockStep2() {
+            const roomSelect = document.getElementById('walkInPhysicalRoomSelect');
+            if(roomSelect.value) {
+                const step2 = document.getElementById('step2Container');
+                step2.style.opacity = '1';
+                step2.style.pointerEvents = 'auto';
+                step2.style.border = '1px solid #bae6fd';
+                step2.style.boxShadow = '0 0 10px rgba(2,132,199,0.1)';
+            }
+        }
+        
+        function unlockFinalButton(customerId) {
+            document.getElementById('guestStatusMsg').style.display = 'inline-block';
+            document.getElementById('mockCustomerId').innerText = customerId;
+            const completeBtn = document.getElementById('completeBtn');
+            completeBtn.style.opacity = '1';
+            completeBtn.style.pointerEvents = 'auto';
+        }
+
+        function mockSearchGuest() {
+            const phone = document.getElementById('guestPhone').value;
+            if (!phone) {
+                alert("Please enter phone number to check.");
+                return;
+            }
+            // Mocking API call
+            setTimeout(() => {
+                document.getElementById('guestName').value = "Nguyễn Văn A (Khách cũ)";
+                document.getElementById('guestId').value = "012345678910";
+                document.getElementById('guestEmail').value = "nguyenvana@example.com";
+                unlockFinalButton("CUST-998");
+            }, 500);
+        }
+
+        function mockCreateGuest() {
+            const name = document.getElementById('guestName').value;
+            const phone = document.getElementById('guestPhone').value;
+            const id = document.getElementById('guestId').value;
+            const email = document.getElementById('guestEmail').value;
+            if (!name || !phone || !id) {
+                alert("Please fill all required guest fields (*).");
+                return;
+            }
+            // Mocking API call
+            setTimeout(() => {
+                unlockFinalButton("CUST-NEW");
+                alert("Hồ sơ và Tài khoản đã được tạo thành công! (Mật khẩu mặc định đã được gửi/set up)");
+            }, 500);
+        }
+
+        function mockCompleteCheckIn() {
+            const room = document.getElementById('walkInPhysicalRoomSelect').value;
+            if (!room) {
+                alert("Please assign a physical room!");
+                return;
+            }
+            alert("Check-in hoàn tất cho khách (ID: " + document.getElementById('mockCustomerId').innerText + ") tại phòng " + room);
+            // Reload page or reset logic would go here
+            location.reload();
+        }
+    </script>
+</body>
+</html>

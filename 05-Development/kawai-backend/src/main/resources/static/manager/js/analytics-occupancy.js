@@ -15,9 +15,9 @@ Chart.defaults.plugins.tooltip.cornerRadius=8;
 document.addEventListener('DOMContentLoaded',()=>{
     const ctx=document.getElementById('chart-occ-line');
     if(!ctx)return;
-    const vals=[72,75,78,80,82,85,88,91,89,87,85,83,80,78,76,79,82,85,88,92,94,90,87,84,81,79,77,80,83,86];
-    const labels=Array.from({length:30},(_,i)=>i%5===0?`${i+1}/06`:'');
-    new Chart(ctx,{type:'line',data:{labels,datasets:[{label:'Occupancy',data:vals,borderColor:C_ROOM,backgroundColor:'rgba(201,169,110,0.08)',borderWidth:2,pointRadius:0,pointHoverRadius:4,tension:0.4,fill:true}]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:{callbacks:{title:i=>`Ngày ${i[0].dataIndex+1}/06`,label:c=>` Lấp đầy: ${c.parsed.y}%`}}},scales:{x:{grid:{display:false},border:{display:false},ticks:{color:C_TICK,maxRotation:0}},y:{min:60,max:100,grid:{color:C_GRID},border:{display:false},ticks:{color:C_TICK,callback:v=>v+'%',stepSize:10}}}}});
+    const vals=window.chartOccVals||[72,75,78,80,82,85,88,91,89,87,85,83,80,78,76,79,82,85,88,92,94,90,87,84,81,79,77,80,83,86];
+    const labels=window.chartOccLabels||Array.from({length:30},(_,i)=>i%5===0?`${i+1}/06`:'');
+    new Chart(ctx,{type:'line',data:{labels,datasets:[{label:'Occupancy',data:vals,borderColor:C_ROOM,backgroundColor:'rgba(201,169,110,0.08)',borderWidth:2,pointRadius:0,pointHoverRadius:4,tension:0.4,fill:true}]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:{callbacks:{title:i=>`Ngày ${i[0].dataIndex+1}/06`,label:c=>` Lấp đầy: ${c.parsed.y}%`}}},scales:{x:{grid:{display:false},border:{display:false},ticks:{color:C_TICK,maxRotation:0}},y:{min:0,max:100,grid:{color:C_GRID},border:{display:false},ticks:{color:C_TICK,callback:v=>v+'%',stepSize:10}}}}});
 });
 
 function toggleSubmenu(id,arrowId){

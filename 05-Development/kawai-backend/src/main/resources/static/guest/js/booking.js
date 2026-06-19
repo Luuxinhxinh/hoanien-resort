@@ -421,7 +421,15 @@ function executeSearch(e) {
     const checkOutStr = formatLocalDate(bookingState.checkOut);
     const units = bookingState.units || 1;
 
-    fetch(`/api/rooms/search?checkIn=${checkInStr}&checkOut=${checkOutStr}&minRooms=${units}`)
+    const keywordInput = document.querySelector('input[name="keyword"]');
+    const keyword = keywordInput ? keywordInput.value.trim() : '';
+
+    let url = `/api/rooms/search?checkIn=${checkInStr}&checkOut=${checkOutStr}&minRooms=${units}`;
+    if (keyword) {
+        url += `&categoryName=${encodeURIComponent(keyword)}`;
+    }
+
+    fetch(url)
         .then(async response => {
             if (!response.ok) {
                 let errorMsg = 'Có lỗi xảy ra khi tìm kiếm phòng trống!';

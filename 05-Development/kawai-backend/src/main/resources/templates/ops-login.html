@@ -210,6 +210,7 @@
             </div>
 
             <form th:action="@{/auth/login}" method="post">
+                <input type="hidden" name="device_id" value="HN-DEV-LAPTOP002">
                 <div class="ops-form-group">
                     <label for="username">Tên đăng nhập</label>
                     <input type="text" id="username" name="username" placeholder="Nhập tên đăng nhập" required

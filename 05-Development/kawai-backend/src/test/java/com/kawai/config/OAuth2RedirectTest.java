@@ -25,66 +25,62 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 public class OAuth2RedirectTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+        @Autowired
+        private MockMvc mockMvc;
 
-    @Autowired
-    private OAuth2SuccessHandler oAuth2SuccessHandler;
+        @Autowired
+        private OAuth2SuccessHandler oAuth2SuccessHandler;
 
-    @Test
-    public void testGoogleLoginEndpointSetsCookieAndRedirects() throws Exception {
-        mockMvc.perform(get("/auth/google-login").param("from", "/order-food"))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/oauth2/authorization/google"))
-                .andExpect(cookie().value("OAUTH2_REDIRECT_URI", "/order-food"))
-                .andExpect(cookie().path("OAUTH2_REDIRECT_URI", "/"));
-    }
+        @Test
+        public void testGoogleLoginEndpointSetsCookieAndRedirects() throws Exception {
+                mockMvc.perform(get("/auth/google-login").param("from", "/order-food"))
+                                .andExpect(status().is3xxRedirection())
+                                .andExpect(redirectedUrl("/oauth2/authorization/google"))
+                                .andExpect(cookie().value("OAUTH2_REDIRECT_URI", "/order-food"))
+                                .andExpect(cookie().path("OAUTH2_REDIRECT_URI", "/"));
+        }
 
-    @Test
-    public void testOAuth2SuccessHandlerRedirectsToCookieTarget() throws Exception {
-        SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_USER");
-        OAuth2User principal = new DefaultOAuth2User(
-                Collections.singleton(authority),
-                Map.of("email", "test@example.com", "name", "Test User"),
-                "name"
-        );
-        OAuth2AuthenticationToken authentication = new OAuth2AuthenticationToken(
-                principal,
-                Collections.singleton(authority),
-                "google"
-        );
+        @Test
+        public void testOAuth2SuccessHandlerRedirectsToCookieTarget() throws Exception {
+                SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_USER");
+                OAuth2User principal = new DefaultOAuth2User(
+                                Collections.singleton(authority),
+                                Map.of("email", "test@example.com", "name", "Test User"),
+                                "name");
+                OAuth2AuthenticationToken authentication = new OAuth2AuthenticationToken(
+                                principal,
+                                Collections.singleton(authority),
+                                "google");
 
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        MockHttpServletResponse response = new MockHttpServletResponse();
-        request.setCookies(new Cookie("OAUTH2_REDIRECT_URI", "/order-food"));
+                MockHttpServletRequest request = new MockHttpServletRequest();
+                MockHttpServletResponse response = new MockHttpServletResponse();
+                request.setCookies(new Cookie("OAUTH2_REDIRECT_URI", "/order-food"));
 
-        oAuth2SuccessHandler.onAuthenticationSuccess(request, response, authentication);
+                oAuth2SuccessHandler.onAuthenticationSuccess(request, response, authentication);
 
-        assertEquals("/order-food", response.getRedirectedUrl());
-    }
+                assertEquals("/order-food", response.getRedirectedUrl());
+        }
 
-    @Test
-    public void testOAuth2SuccessHandlerRedirectsToSessionTarget() throws Exception {
-        SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_USER");
-        OAuth2User principal = new DefaultOAuth2User(
-                Collections.singleton(authority),
-                Map.of("email", "test@example.com", "name", "Test User"),
-                "name"
-        );
-        OAuth2AuthenticationToken authentication = new OAuth2AuthenticationToken(
-                principal,
-                Collections.singleton(authority),
-                "google"
-        );
+        @Test
+        public void testOAuth2SuccessHandlerRedirectsToSessionTarget() throws Exception {
+                SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_USER");
+                OAuth2User principal = new DefaultOAuth2User(
+                                Collections.singleton(authority),
+                                Map.of("email", "test@example.com", "name", "Test User"),
+                                "name");
+                OAuth2AuthenticationToken authentication = new OAuth2AuthenticationToken(
+                                principal,
+                                Collections.singleton(authority),
+                                "google");
 
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        MockHttpServletResponse response = new MockHttpServletResponse();
-        MockHttpSession session = new MockHttpSession();
-        session.setAttribute("OAUTH2_REDIRECT_URI", "/order-food");
-        request.setSession(session);
+                MockHttpServletRequest request = new MockHttpServletRequest();
+                MockHttpServletResponse response = new MockHttpServletResponse();
+                MockHttpSession session = new MockHttpSession();
+                session.setAttribute("OAUTH2_REDIRECT_URI", "/order-food");
+                request.setSession(session);
 
-        oAuth2SuccessHandler.onAuthenticationSuccess(request, response, authentication);
+                oAuth2SuccessHandler.onAuthenticationSuccess(request, response, authentication);
 
-        assertEquals("/order-food", response.getRedirectedUrl());
-    }
+                assertEquals("/order-food", response.getRedirectedUrl());
+        }
 }

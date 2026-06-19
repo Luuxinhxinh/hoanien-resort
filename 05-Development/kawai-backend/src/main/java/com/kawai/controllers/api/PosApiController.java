@@ -72,7 +72,10 @@ public class PosApiController {
             if ("room-svc".equals(request.getOrderType())) {
                 order.setOrderType("Room Service");
                 Optional<Room> roomOpt = roomRepository.findByRoomNumber(request.getRoomNumber());
-                if (roomOpt.isPresent() && roomOpt.get().getCurrentBookingDetailId() != null) {
+                if (roomOpt.isEmpty()) {
+                    return ResponseEntity.status(400).body(Map.of("status", "error", "message", "Phòng không tồn tại!"));
+                }
+                if (roomOpt.get().getCurrentBookingDetailId() != null) {
                     Optional<RoomBookingDetail> detailOpt = roomBookingDetailRepository
                             .findById(roomOpt.get().getCurrentBookingDetailId());
                     if (detailOpt.isPresent()) {
@@ -87,7 +90,11 @@ public class PosApiController {
                 order.setOrderType("Dine In");
                 if (request.getTableId() != null) {
                     Optional<RestaurantTable> tableOpt = restaurantTableRepository.findById(request.getTableId());
-                    tableOpt.ifPresent(order::setTable);
+                    if (tableOpt.isPresent()) {
+                        order.setTable(tableOpt.get());
+                    } else {
+                        return ResponseEntity.status(400).body(Map.of("status", "error", "message", "Bàn ăn không tồn tại!"));
+                    }
                 }
             }
 
@@ -162,6 +169,8 @@ public class PosApiController {
                         if (itemDto.getPrice() != null && itemDto.getQty() != null) {
                             subtotal = subtotal.add(itemDto.getPrice().multiply(new BigDecimal(itemDto.getQty())));
                         }
+                    } else {
+                        return ResponseEntity.status(400).body(Map.of("status", "error", "message", "Món ăn không tồn tại!"));
                     }
                 }
             }

@@ -22,7 +22,13 @@ public class ReceptionistController {
     private final RoomRepository roomRepository;
     private final BookingRepository bookingRepository;
     private final RoomBookingRepository roomBookingRepository;
+    private final RoomBookingDetailRepository roomBookingDetailRepository;
     private final RestaurantTableRepository restaurantTableRepository;
+
+    @org.springframework.web.bind.annotation.ModelAttribute("todayLabel")
+    public String getTodayLabel() {
+        return LocalDate.now().format(DateTimeFormatter.ofPattern("EEEE, dd/MM/yyyy", new Locale("vi")));
+    }
 
     @GetMapping("/dashboard")
     public String dashboard(Model model) {
@@ -51,22 +57,22 @@ public class ReceptionistController {
         model.addAttribute("checkoutsToday", checkoutsToday);
 
         // Room Matrix from DB
-        List<Map<String, Object>> rooms = new ArrayList<>();
+        Map<String, List<Map<String, Object>>> categorizedRooms = new LinkedHashMap<>();
         try {
             for (Room r : roomRepository.findAll()) {
                 Map<String, Object> m = new HashMap<>();
                 m.put("roomNumber", r.getRoomNumber());
                 m.put("status", r.getRoomStatus());
-                m.put("category", r.getCategory() != null ? r.getCategory().getCategoryName() : "");
-                rooms.add(m);
+                String catName = r.getCategory() != null ? r.getCategory().getCategoryName() : "Uncategorized";
+                m.put("category", catName);
+
+                categorizedRooms.computeIfAbsent(catName, k -> new ArrayList<>()).add(m);
             }
         } catch (Exception e) {
         }
-        model.addAttribute("rooms", rooms);
+        model.addAttribute("categorizedRooms", categorizedRooms);
+        model.addAttribute("rooms", new ArrayList<>()); // fallback for isEmpty check
 
-        // Today label
-        String today = LocalDate.now().format(DateTimeFormatter.ofPattern("EEEE, dd/MM/yyyy", new Locale("vi")));
-        model.addAttribute("todayLabel", today);
         return "receptionist/dashboard";
     }
 
@@ -89,14 +95,119 @@ public class ReceptionistController {
         return "receptionist/reservations";
     }
 
-    @GetMapping("/check-in-out")
-    public String checkInOut(Model model) {
-        return "receptionist/check-in-out";
+    @GetMapping("/walk-in")
+    public String walkIn(Model model) {
+        Map<String, List<String>> inventory = new HashMap<>();
+        try {
+            for (Room r : roomRepository.findVacant()) {
+                String cat = r.getCategory() != null ? r.getCategory().getCategoryName() : "Other";
+                inventory.computeIfAbsent(cat, k -> new ArrayList<>()).add(r.getRoomNumber());
+            }
+        } catch (Exception e) {
+        }
+        model.addAttribute("roomInventory", inventory);
+        return "receptionist/walk-in";
+    }
+
+    @GetMapping("/check-in")
+    public String checkIn(@org.springframework.web.bind.annotation.RequestParam(defaultValue = "1") int page,
+            @org.springframework.web.bind.annotation.RequestParam(required = false) String keyword,
+            Model model) {
+        List<Map<String, Object>> arrivals = new ArrayList<>();
+        try {
+            for (Booking b : bookingRepository.findConfirmed()) {
+                List<RoomBookingDetail> details = roomBookingDetailRepository.findByRoomBookingId(b.getId());
+                if (details == null || details.isEmpty()) {
+                    continue; // Skip bookings without room details (e.g., restaurant bookings)
+                }
+
+                String guestName = b.getCustomer() != null ? b.getCustomer().getFullName() : "Khách";
+                String phone = b.getCustomer() != null ? b.getCustomer().getPhone() : "";
+                String cccd = b.getCustomer() != null ? b.getCustomer().getCccdPassportEncrypted() : "";
+
+                if (keyword != null && !keyword.trim().isEmpty()) {
+                    String kw = keyword.trim().toLowerCase();
+                    boolean match = guestName.toLowerCase().contains(kw) ||
+                            phone.toLowerCase().contains(kw) ||
+                            cccd.toLowerCase().contains(kw);
+                    if (!match)
+                        continue;
+                }
+
+                Map<String, Object> map = new HashMap<>();
+                map.put("id", b.getId());
+                map.put("guestName", guestName);
+                map.put("phone", phone);
+                map.put("cccd", cccd);
+                map.put("bookingDate",
+                        b.getBookingDate() != null
+                                ? b.getBookingDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+                                : "");
+
+                // Construct Room Summary from RoomBookingDetail
+                String roomSummary = "N/A";
+                try {
+                    Map<String, Long> categoryCount = details.stream()
+                            .filter(d -> d.getCategory() != null)
+                            .collect(Collectors.groupingBy(d -> d.getCategory().getCategoryName(),
+                                    Collectors.counting()));
+
+                    roomSummary = categoryCount.entrySet().stream()
+                            .map(entry -> entry.getValue() + "x " + entry.getKey())
+                            .collect(Collectors.joining(", "));
+                } catch (Exception e) {
+                }
+
+                map.put("roomSummary", roomSummary);
+                arrivals.add(map);
+            }
+        } catch (Exception e) {
+        }
+
+        // Pagination logic
+        int pageSize = 10;
+        int totalItems = arrivals.size();
+        int totalPages = (int) Math.ceil((double) totalItems / pageSize);
+        if (totalPages == 0)
+            totalPages = 1;
+        if (page < 1)
+            page = 1;
+        if (page > totalPages)
+            page = totalPages;
+
+        int startItem = (page - 1) * pageSize;
+        List<Map<String, Object>> pagedArrivals = new ArrayList<>();
+        if (totalItems >= startItem) {
+            int toIndex = Math.min(startItem + pageSize, totalItems);
+            pagedArrivals = arrivals.subList(startItem, toIndex);
+        }
+
+        model.addAttribute("arrivals", pagedArrivals);
+        model.addAttribute("pendingArrivalsCount", totalItems);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", totalPages);
+
+        Map<String, List<String>> inventory = new HashMap<>();
+        try {
+            for (Room r : roomRepository.findVacant()) {
+                String cat = r.getCategory() != null ? r.getCategory().getCategoryName() : "Other";
+                inventory.computeIfAbsent(cat, k -> new ArrayList<>()).add(r.getRoomNumber());
+            }
+        } catch (Exception e) {
+        }
+        model.addAttribute("roomInventory", inventory);
+
+        return "receptionist/check-in";
     }
 
     @GetMapping("/folio")
     public String folio(Model model) {
         return "receptionist/folio";
+    }
+
+    @GetMapping("/folio/detail")
+    public String folioDetail(Model model) {
+        return "receptionist/folio-detail";
     }
 
     @GetMapping("/night-audit")

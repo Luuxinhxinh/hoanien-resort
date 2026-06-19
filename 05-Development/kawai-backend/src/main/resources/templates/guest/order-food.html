@@ -342,7 +342,7 @@
 
                 <div class="xl:col-span-1 h-full">
                     <div
-                        class="premium-glass-card p-6 rounded-2xl sticky top-[120px] shadow-2xl transition-all border border-white/10">
+                        class="premium-glass-card p-6 rounded-2xl sticky top-[120px] shadow-2xl transition-all border border-white/10 max-h-[calc(100vh-140px)] overflow-y-auto">
 
                         <div class="mb-5 p-3.5 bg-white/5 rounded-xl border border-white/10 text-xs font-sans">
                             <div class="flex items-center gap-2 mb-2 text-white/40">
@@ -428,7 +428,9 @@
                                         <div>
                                             <span class="block font-semibold">Ký bill về phòng (Charge to Room)</span>
                                             <span class="block text-[10px] opacity-50"
+                                                id="currentCreditLimitDisplay"
                                                 th:if="${currentCreditLimit != null}"
+                                                th:data-limit="${currentCreditLimit}"
                                                 th:text="'Hạn mức tín dụng: ₫' + ${#numbers.formatDecimal(currentCreditLimit, 0, 'COMMA', 0, 'POINT')}">Hạn
                                                 mức: 0đ</span>
                                         </div>
@@ -1023,6 +1025,21 @@
                         document.getElementById('posKitchenNote').innerText = pendingOrderPayload.note || 'KHÔNG CÓ GHI CHÚ DỊ ỨNG';
                         document.getElementById('posItemsList').innerHTML = cart.map(function (i) { return '<div>• ' + i.name + ' (x' + i.qty + ')</div>'; }).join('');
                         document.getElementById('posTimelineModal').style.display = 'flex';
+                        
+                        if (pendingOrderPayload.paymentType === 'CHARGE_TO_ROOM') {
+                            const limitDisplay = document.getElementById('currentCreditLimitDisplay');
+                            if (limitDisplay) {
+                                let currentLimit = parseFloat(limitDisplay.getAttribute('data-limit'));
+                                let subtotal = 0;
+                                cart.forEach(item => { subtotal += (item.price * item.qty); });
+                                const fee = subtotal * 0.05;
+                                const total = subtotal + fee;
+                                currentLimit -= total;
+                                limitDisplay.setAttribute('data-limit', currentLimit);
+                                limitDisplay.innerText = 'Hạn mức tín dụng: ₫' + currentLimit.toLocaleString('vi-VN');
+                            }
+                        }
+
                         cart = [];
                         renderCart();
                         closeOnlinePaymentModal();
