@@ -13,6 +13,8 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.kawai.models.PaymentStatus;
+
 @Service
 public class PaymentServiceImpl implements PaymentService {
 
@@ -25,7 +27,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     @Transactional
-    public PaymentTransaction recordPayment(ConsolidatedInvoice invoice, Booking booking, BigDecimal amount, String type, String method, String status, String ref) {
+    public PaymentTransaction recordPayment(ConsolidatedInvoice invoice, Booking booking, BigDecimal amount, String type, String method, PaymentStatus status, String ref) {
         PaymentTransaction tx = new PaymentTransaction();
         if (invoice != null) {
             tx.setInvoice(invoice);
@@ -40,7 +42,8 @@ public class PaymentServiceImpl implements PaymentService {
         tx.setAmount(amount);
         tx.setTransactionType(type); // e.g., DEPOSIT, FINAL_PAYMENT, REFUND
         tx.setPaymentMethod(method); // e.g., CASH, VNPAY, CREDIT_CARD
-        tx.setGatewayStatus(status); // e.g., SUCCESS, PENDING, FAILED
+        tx.setStatus(status);        // Ghi vào trường Enum chuẩn xác
+        tx.setGatewayStatus(status.name()); // Backup vào String để tương thích code cũ (nếu có)
         tx.setTransactionRef(ref);
         tx.setCreatedAt(LocalDateTime.now());
         
