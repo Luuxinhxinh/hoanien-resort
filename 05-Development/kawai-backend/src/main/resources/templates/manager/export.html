@@ -218,7 +218,7 @@
                             <td><span
                                     style="padding:2px 8px;border-radius:4px;background:rgba(201,169,110,0.12);color:#C9A96E;font-size:11px;font-weight:500"
                                     th:text="${h.format}">Excel</span></td>
-                            <td th:text="${h.exportedAt}">01/06/2026 09:15</td>
+                            <td th:text="${#temporals.format(h.exportedAt, 'dd/MM/yyyy HH:mm')}">01/06/2026 09:15</td>
                             <td th:text="${h.exportedBy}">Manager </td>
                             <td th:text="${h.fileSize}">2.4 MB</td>
                             <td><button onclick="alert('Download: '+this.closest('tr').querySelector('td').textContent)"

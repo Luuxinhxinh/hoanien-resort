@@ -14,7 +14,7 @@ public class FoodOrder {
     @ManyToOne @JoinColumn(name="created_by_staff_id", nullable=false) private Employee createdByStaff;
     @ManyToOne @JoinColumn(name="kitchen_processed_by_id") private Employee kitchenProcessedBy;
     @Column(name="note", length=500) private String note;
-
+    @Column(name="order_time", nullable=false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP") private java.time.LocalDateTime orderTime = java.time.LocalDateTime.now();
     @OneToMany(mappedBy = "foodOrder", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private java.util.List<FoodOrderDetail> details;
 

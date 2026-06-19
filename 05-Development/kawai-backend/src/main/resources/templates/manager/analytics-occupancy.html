@@ -202,7 +202,13 @@
                             <div class="mgr-chart-subtitle">Tỷ lệ lấp đầy phòng theo từng ngày trong tháng</div>
                         </div>
                     </div>
-                    <div class="mgr-chart-canvas-wrap" style="height:240px"><canvas id="chart-occ-line"></canvas></div>
+                    <div class="mgr-chart-canvas-wrap" style="height:240px">
+                        <canvas id="chart-occ-line"></canvas>
+                        <script th:inline="javascript">
+                            window.chartOccVals = /*[[${chartOccVals}]]*/ [72,75,78,80,82,85,88,91,89,87,85,83,80,78,76,79,82,85,88,92,94,90,87,84,81,79,77,80,83,86];
+                            window.chartOccLabels = /*[[${chartOccLabels}]]*/ [];
+                        </script>
+                    </div>
                 </div>
                 <div class="mgr-chart-card">
                     <div class="mgr-chart-header">

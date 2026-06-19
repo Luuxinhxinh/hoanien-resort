@@ -284,27 +284,27 @@ UPDATE Rooms SET current_booking_detail_id = 9 WHERE room_id = 2;
 UPDATE Rooms SET current_booking_detail_id = 10 WHERE room_id = 4;
 
 -- ── 16. Restaurant Tables (20 rows) ──────────────────────────
-INSERT INTO Restaurant_Tables (table_id, table_number, capacity, table_status) VALUES 
-(1, 'T01', 4, 'Occupied'),
-(2, 'T02', 2, 'Vacant'),
-(3, 'T03', 6, 'Occupied'),
-(4, 'T04', 4, 'Reserved'),
-(5, 'T05', 8, 'Vacant'),
-(6, 'T06', 4, 'Vacant'),
-(7, 'T07', 2, 'Occupied'),
-(8, 'T08', 4, 'Reserved'),
-(9, 'T09', 10, 'Vacant'),
-(10, 'T10', 2, 'Vacant'),
-(11, 'T11', 4, 'Occupied'),
-(12, 'T12', 6, 'Vacant'),
-(13, 'T13', 4, 'Vacant'),
-(14, 'T14', 8, 'Reserved'),
-(15, 'T15', 2, 'Occupied'),
-(16, 'T16', 4, 'Vacant'),
-(17, 'T17', 4, 'Vacant'),
-(18, 'T18', 6, 'Occupied'),
-(19, 'T19', 2, 'Vacant'),
-(20, 'T20', 12, 'Reserved');
+INSERT INTO Restaurant_Tables (table_id, table_number, capacity, table_status, is_active) VALUES 
+(1, 'T01', 4, 'Occupied', TRUE),
+(2, 'T02', 2, 'Vacant', TRUE),
+(3, 'T03', 6, 'Occupied', TRUE),
+(4, 'T04', 4, 'Reserved', TRUE),
+(5, 'T05', 8, 'Vacant', TRUE),
+(6, 'T06', 4, 'Vacant', TRUE),
+(7, 'T07', 2, 'Occupied', TRUE),
+(8, 'T08', 4, 'Reserved', TRUE),
+(9, 'T09', 10, 'Vacant', TRUE),
+(10, 'T10', 2, 'Vacant', TRUE),
+(11, 'T11', 4, 'Occupied', TRUE),
+(12, 'T12', 6, 'Vacant', TRUE),
+(13, 'T13', 4, 'Vacant', TRUE),
+(14, 'T14', 8, 'Reserved', TRUE),
+(15, 'T15', 2, 'Occupied', TRUE),
+(16, 'T16', 4, 'Vacant', TRUE),
+(17, 'T17', 4, 'Vacant', TRUE),
+(18, 'T18', 6, 'Occupied', TRUE),
+(19, 'T19', 2, 'Vacant', TRUE),
+(20, 'T20', 12, 'Reserved', TRUE);
 
 -- ── 17. Table Reservations (10 rows) ─────────────────────────
 INSERT INTO Table_Reservations (reservation_id, customer_id, table_id, reserve_date, reserve_time, deposit_amount, status) VALUES 
@@ -735,3 +735,24 @@ ALTER TABLE Food_Order_Details AUTO_INCREMENT = 100;
 ALTER TABLE Tours AUTO_INCREMENT = 100;
 ALTER TABLE Tour_Schedules AUTO_INCREMENT = 100;
 ALTER TABLE Tour_Attendees AUTO_INCREMENT = 100;
+
+-- ── 49. Export History (Mock Data) ───────────────────────────
+INSERT IGNORE INTO Export_History (id, report_name, format, exported_at, exported_by, file_size) VALUES
+(1, 'Doanh thu tháng 5/2026', 'Excel', '2026-06-01 09:15:00', 'Manager ', '2.4 MB'),
+(2, 'Tỷ lệ lấp đầy Q2', 'PDF', '2026-05-30 14:30:00', 'Manager ', '1.1 MB'),
+(3, 'Báo cáo tour tháng 4', 'CSV', '2026-05-02 10:00:00', 'Manager ', '320 KB'),
+(4, 'Doanh thu năm 2025', 'Excel', '2026-01-15 08:45:00', 'Manager ', '5.8 MB');
+
+-- ── 50. Mock Data for YoY Comparison (Năm 2025) ───────────────────────────
+INSERT INTO Bookings (booking_id, customer_id, booking_date, total_price, booking_status, booking_source, applied_promotion_id, version) VALUES
+(991, 1, '2025-06-01', 65000000, 'Confirmed', 'Direct_Web', NULL, 1),
+(992, 2, '2025-06-05', 45000000, 'Confirmed', 'OTA', NULL, 1);
+
+INSERT INTO Room_Bookings (room_booking_id, check_in_date, check_out_date, deposit_amount, cancellation_deadline, credit_limit, personal_pin_hash) VALUES
+(991, '2025-06-10', '2025-06-15', 5000000, '2025-06-05', 10000000, 'hash');
+
+INSERT INTO Room_Booking_Details (detail_id, room_booking_id, category_id, room_id, room_charge, detail_status, bed_preference, special_requests, is_charge_to_room_allowed, sub_credit_limit, billing_routing_strategy) VALUES
+(991, 991, 1, 1, 65000000, 'Checked_Out', 'KING_SIZE', NULL, TRUE, 500000, 'BILL_TO_LEADER');
+
+INSERT INTO Tour_Bookings (booking_id, schedule_id, participant_count, tour_charge, is_walk_in_tour) VALUES 
+(992, 1, 4, 45000000, FALSE);

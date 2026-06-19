@@ -22,6 +22,7 @@ import com.kawai.services.interfaces.EmailService;
 import com.kawai.services.interfaces.InvoicePdfService;
 import com.kawai.services.interfaces.PaymentService;
 import com.kawai.models.PaymentTransaction;
+import com.kawai.models.PaymentStatus;
 import java.util.UUID;
 import java.time.LocalDateTime;
 
@@ -153,19 +154,21 @@ public class FolioRestController {
         invoice.setSubtotalBeforeVat(subtotal);
         invoice.setVatAmount(vat);
         invoice.setTotalAmount(finalBalance);
-        invoice.setInvoiceStatus("Paid");
+        String initialInvoiceStatus = "CASH".equalsIgnoreCase(paymentMethod) ? "Paid" : "Unpaid";
+        invoice.setInvoiceStatus(initialInvoiceStatus);
         invoice.setIssuedAt(LocalDateTime.now());
         consolidatedInvoiceRepository.save(invoice);
 
         // 4. Ghi nhận Payment Transaction (nếu có thanh toán)
         if (paymentAmount.compareTo(BigDecimal.ZERO) > 0) {
+            PaymentStatus initialStatus = "CASH".equalsIgnoreCase(paymentMethod) ? PaymentStatus.SUCCESS : PaymentStatus.PENDING;
             paymentService.recordPayment(
                 invoice, 
                 detail.getRoomBooking(), 
                 paymentAmount, 
                 "FINAL_PAYMENT", 
                 paymentMethod, 
-                "SUCCESS", 
+                initialStatus, 
                 "TXN-" + System.currentTimeMillis()
             );
         }

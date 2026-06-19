@@ -37,6 +37,9 @@ public class VnPayServiceImpl implements VnPayService {
     @Autowired
     private PaymentTransactionRepository paymentTransactionRepository;
 
+    @Autowired
+    private com.kawai.repositories.ConsolidatedInvoiceRepository consolidatedInvoiceRepository;
+
     @Override
     @Transactional
     public String createPaymentUrl(Long bookingId, String ipAddress) {
@@ -164,6 +167,13 @@ public class VnPayServiceImpl implements VnPayService {
 
             if ("PENDING".equals(booking.getBookingStatus()) || "HOLD".equals(booking.getBookingStatus())) {
                 booking.setBookingStatus("CONFIRMED");
+            }
+            
+            // Tự động chuyển trạng thái Hóa Đơn sang PAID
+            if (txn.getInvoice() != null) {
+                com.kawai.models.ConsolidatedInvoice invoice = txn.getInvoice();
+                invoice.setInvoiceStatus("Paid");
+                consolidatedInvoiceRepository.save(invoice);
             }
         } else {
             txn.setStatus(PaymentStatus.FAILED);
