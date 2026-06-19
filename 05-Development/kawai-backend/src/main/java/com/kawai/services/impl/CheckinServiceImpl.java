@@ -75,6 +75,14 @@ public class CheckinServiceImpl implements CheckinService {
         @Transactional
         public RoomBookingDetail checkIn(Long bookingDetailId, Long roomId) {
                 RoomBookingDetail detail = findBookingDetail(bookingDetailId);
+                
+                if (STATUS_CHECKED_IN.equalsIgnoreCase(detail.getDetailStatus())) {
+                        throw new IllegalStateException("BookingDetail đã CHECKED_IN không được check-in lại");
+                }
+                if (!"CONFIRMED".equalsIgnoreCase(detail.getRoomBooking().getBookingStatus())) {
+                        throw new IllegalStateException("Booking chưa CONFIRMED không được phép check-in");
+                }
+                
                 Room room = findRoom(roomId);
 
                 validateRoomAvailableForCheckin(room);
@@ -105,6 +113,10 @@ public class CheckinServiceImpl implements CheckinService {
                         throw new IllegalStateException(
                                         "ROOM-001: Phòng đang MAINTENANCE, đang bảo trì. Không thể check-in. (BR-HK-03)");
                 }
+                if (STATUS_OCCUPIED.equalsIgnoreCase(status)) {
+                        throw new IllegalStateException(
+                                        "ROOM-001: Phòng đang Occupied, không thể check-in. (MOD2-002)");
+                }
         }
 
         // ========================================================================
@@ -114,6 +126,9 @@ public class CheckinServiceImpl implements CheckinService {
         @Override
         @Transactional
         public void updateCreditLimit(Long bookingDetailId, BigDecimal newCreditLimit) {
+                if (newCreditLimit.compareTo(BigDecimal.ZERO) < 0) {
+                        throw new IllegalArgumentException("Credit Limit âm không hợp lệ (MOD2-001)");
+                }
                 RoomBookingDetail detail = findBookingDetail(bookingDetailId);
                 detail.getRoomBooking().setCreditLimit(newCreditLimit);
                 roomBookingRepo.save(detail.getRoomBooking());

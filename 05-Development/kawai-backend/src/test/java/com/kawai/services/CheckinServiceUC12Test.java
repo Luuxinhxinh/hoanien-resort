@@ -23,33 +23,61 @@ import static org.mockito.Mockito.*;
 
 /**
  * ================================================================
- * KAWAI RESORT — TDD Unit Test cho CheckinService (UC12)
+ * KAWAI RESORT — TDD Unit Test cho CheckinService (UC12 / SRS UC-13)
  * ================================================================
  *
- * Test Case tham chiếu:
- * - TC-M2-011 (UC12.1): Check-in thành công — phòng chuyển OCCUPIED, tạo Folio
- * - TC-M2-012 (UC12.1): Check-in thất bại — phòng đang DIRTY hoặc MAINTENANCE →
- * báo lỗi
- * - TC-M2-013 (UC12.2): Ủy quyền hạn mức — cập nhật Credit Limit thành công
- * - TC-M2-014 (UC12.3): Đổi phòng — chuyển Folio sang phòng mới, phòng cũ →
- * DIRTY
- * - TC-M2-015 (UC12.4): Nâng cấp Dependent thành Customer — tạo Account mới
+ * Tham chiếu tài liệu:
+ *   - SRS §2.1.12  : UC-12 View Expected Arrivals Matrix
+ *   - SRS §2.1.13  : UC-13 Check-In & Allocate Physical Rooms  ← nguồn gốc gap analysis
+ *   - EDS §13      : Kịch bản kiểm thử (KAWAI-EDS-MOD2-UC12-001)
+ *   - TDD §4       : Test Case Specification (KAWAI-TDD-MOD2-UC12-001)
+ *
+ * ── Test Cases hiện có (đã GREEN) ────────────────────────────────
+ *   TC-M2-011  (UC12.1) Check-in thành công — phòng → OCCUPIED, tạo Folio
+ *   TC-M2-012a (UC12.1) Check-in thất bại — phòng DIRTY → exception
+ *   TC-M2-012b (UC12.1) Check-in thất bại — phòng MAINTENANCE → exception
+ *   TC-M2-013  (UC12.2) Cập nhật Credit Limit thành công
+ *   TC-M2-014  (UC12.3) Đổi phòng — phòng cũ → DIRTY, phòng mới → OCCUPIED
+ *   TC-M2-015  (UC12.4) Nâng cấp Dependent → Customer + Account
+ *
+ * ── Test Cases bổ sung (gap từ SRS UC-13) ────────────────────────
+ *   TC-M2-016  (UC12.1) BookingDetail không tồn tại → exception
+ *   TC-M2-017  (UC12.1) Room không tồn tại → exception
+ *   TC-M2-018  (UC12.1) Booking chưa CONFIRMED (Pending) → exception
+ *   TC-M2-019  (UC12.1) BookingDetail đã CHECKED_IN → exception (idempotency guard)
+ *   TC-M2-020  (UC12.1) Phòng đang Occupied → không được check-in
+ *   TC-M2-021  (UC12.3) Đổi phòng — phòng mới không phải Vacant_Clean → exception
+ *   TC-M2-022  (UC12.3) Đổi phòng — bookingDetail chưa gán phòng cũ → exception
+ *   TC-M2-023  (UC12.2) updateCreditLimit — giá trị âm → exception (validation)
+ *   TC-M2-024  (UC12.2) updateCreditLimit — bookingDetail không tồn tại → exception
+ *   TC-M2-025  (UC12.4) upgradeDependent — dependent không tồn tại → exception
+ *   TC-M2-026  (UC12.4) upgradeDependent — role CUSTOMER không có trong hệ thống → exception
  *
  * Business Rules liên quan:
- * - BR-FO-04: Luân chuyển trạng thái phòng (Vacant_Clean → Occupied → Dirty)
- * - BR-FO-06: Hạn mức chi tiêu phòng (Credit Limit)
- * - BR-FO-08: Khai báo tạm trú
- * - BR-HK-03: Chặn Check-in phòng đang bảo trì
+ *   BR-FO-03: Ràng buộc tuổi check-in ≥18
+ *   BR-FO-04: Luân chuyển trạng thái phòng (Vacant_Clean → Occupied → Dirty)
+ *   BR-FO-06: Hạn mức chi tiêu phòng (Credit Limit)
+ *   BR-FO-07: Dependent Validation
+ *   BR-FO-08: Khai báo tạm trú (thu thập CCCD/Hộ chiếu)
+ *   BR-HK-03: Chặn check-in phòng đang bảo trì
  *
- * TDD Phase: 🔴 RED — Test được viết TRƯỚC khi implement production code.
- * Service hiện tại ném UnsupportedOperationException.
+ * EDS Error Codes:
+ *   MOD2-001 : Validation failed (dữ liệu không hợp lệ)
+ *   MOD2-002 : Room not available (phòng Dirty/Maintenance/Occupied)
+ *   MOD2-003 : Booking/Entity not found
+ *
+ * TDD Phase: 🔴 RED → 🟢 GREEN
+ *   Các test TC-M2-016..026 được viết TRƯỚC khi implement production code.
+ *   Service chưa implement sẽ ném UnsupportedOperationException hoặc NoSuchElementException.
  *
  * @see com.kawai.services.interfaces.CheckinService
  * @see com.kawai.services.impl.CheckinServiceImpl
  */
 @ExtendWith(MockitoExtension.class)
-@DisplayName("UC12 — Check-in / Check-out / Đổi phòng (CheckinService)")
+@DisplayName("UC12/UC13 — Check-in / Check-out / Đổi phòng (CheckinService)")
 class CheckinServiceUC12Test {
+
+    // ===== Mocks =====
 
     @Mock
     private RoomBookingDetailRepository roomBookingDetailRepository;
@@ -77,12 +105,15 @@ class CheckinServiceUC12Test {
 
     // ===== Test Data Fixtures =====
 
-    private Room sampleRoom;
-    private Room dirtyRoom;
-    private Room maintenanceRoom;
+    private Room sampleRoom;           // Vacant_Clean — sẵn sàng check-in
+    private Room dirtyRoom;            // Dirty
+    private Room maintenanceRoom;      // Maintenance
+    private Room occupiedRoom;         // Occupied — đang có khách
     private RoomCategory sampleCategory;
     private RoomBooking sampleRoomBooking;
     private RoomBookingDetail sampleBookingDetail;
+    private RoomBookingDetail checkedInDetail; // detail đã CHECKED_IN rồi
+    private RoomBookingDetail unassignedDetail;// detail chưa gán phòng
     private Customer sampleCustomer;
     private Dependent sampleDependent;
 
@@ -94,26 +125,33 @@ class CheckinServiceUC12Test {
         sampleCategory.setCategoryName("Deluxe");
         sampleCategory.setBasePrice(new BigDecimal("2000000"));
 
-        // Room mẫu — Vacant_Clean (sẵn sàng Check-in)
+        // Room Vacant_Clean — sẵn sàng check-in
         sampleRoom = new Room();
         sampleRoom.setId(100L);
         sampleRoom.setRoomNumber("R101");
         sampleRoom.setCategory(sampleCategory);
         sampleRoom.setRoomStatus("Vacant_Clean");
 
-        // Room DIRTY (chưa dọn)
+        // Room DIRTY
         dirtyRoom = new Room();
         dirtyRoom.setId(101L);
         dirtyRoom.setRoomNumber("R102");
         dirtyRoom.setCategory(sampleCategory);
         dirtyRoom.setRoomStatus("Dirty");
 
-        // Room MAINTENANCE (đang sửa chữa)
+        // Room MAINTENANCE
         maintenanceRoom = new Room();
         maintenanceRoom.setId(102L);
         maintenanceRoom.setRoomNumber("R103");
         maintenanceRoom.setCategory(sampleCategory);
         maintenanceRoom.setRoomStatus("Maintenance");
+
+        // Room OCCUPIED — đang có khách khác
+        occupiedRoom = new Room();
+        occupiedRoom.setId(103L);
+        occupiedRoom.setRoomNumber("R104");
+        occupiedRoom.setCategory(sampleCategory);
+        occupiedRoom.setRoomStatus("Occupied");
 
         // Customer mẫu
         sampleCustomer = new Customer();
@@ -125,7 +163,7 @@ class CheckinServiceUC12Test {
         sampleCustomer.setLoyaltyPoints(0);
         sampleCustomer.setMembershipTier("Regular");
 
-        // RoomBooking mẫu
+        // RoomBooking CONFIRMED (điều kiện hợp lệ để check-in)
         sampleRoomBooking = new RoomBooking();
         sampleRoomBooking.setId(1000L);
         sampleRoomBooking.setCustomer(sampleCustomer);
@@ -139,7 +177,7 @@ class CheckinServiceUC12Test {
         sampleRoomBooking.setCreditLimit(new BigDecimal("5000000"));
         sampleRoomBooking.setPersonalPinHash("hashed_pin_123");
 
-        // RoomBookingDetail mẫu
+        // BookingDetail Pending — chưa gán phòng
         sampleBookingDetail = new RoomBookingDetail();
         sampleBookingDetail.setId(5000L);
         sampleBookingDetail.setRoomBooking(sampleRoomBooking);
@@ -150,6 +188,29 @@ class CheckinServiceUC12Test {
         sampleBookingDetail.setIsChargeToRoomAllowed(true);
         sampleBookingDetail.setSubCreditLimit(new BigDecimal("5000000"));
         sampleBookingDetail.setBillingRoutingStrategy("BILL_TO_LEADER");
+
+        // BookingDetail đã CHECKED_IN (dùng cho idempotency test)
+        checkedInDetail = new RoomBookingDetail();
+        checkedInDetail.setId(5001L);
+        checkedInDetail.setRoomBooking(sampleRoomBooking);
+        checkedInDetail.setCategory(sampleCategory);
+        checkedInDetail.setRoom(sampleRoom);
+        checkedInDetail.setRoomCharge(new BigDecimal("2000000"));
+        checkedInDetail.setDetailStatus("CHECKED_IN");
+        checkedInDetail.setIsChargeToRoomAllowed(true);
+        checkedInDetail.setSubCreditLimit(new BigDecimal("5000000"));
+        checkedInDetail.setBillingRoutingStrategy("BILL_TO_LEADER");
+
+        // BookingDetail chưa gán phòng (room = null) dùng cho transferRoom guard test
+        unassignedDetail = new RoomBookingDetail();
+        unassignedDetail.setId(5002L);
+        unassignedDetail.setRoomBooking(sampleRoomBooking);
+        unassignedDetail.setCategory(sampleCategory);
+        unassignedDetail.setRoom(null); // Không có phòng cũ
+        unassignedDetail.setDetailStatus("Pending");
+        unassignedDetail.setIsChargeToRoomAllowed(true);
+        unassignedDetail.setSubCreditLimit(new BigDecimal("5000000"));
+        unassignedDetail.setBillingRoutingStrategy("BILL_TO_LEADER");
 
         // Dependent mẫu
         sampleDependent = new Dependent();
@@ -163,13 +224,15 @@ class CheckinServiceUC12Test {
 
     // ================================================================
     // TC-M2-011: Check-in thành công — phòng chuyển OCCUPIED, tạo Folio
+    // Ref: SRS UC-13 Normal Flow step 4, 7, 8
+    //      EDS TC-UNIT-UC12-001 | TDD TC-UC12-001
     // ================================================================
     @Nested
     @DisplayName("TC-M2-011: Check-in thành công — phòng chuyển OCCUPIED, tạo Folio")
     class TC_M2_011 {
 
         @Test
-        @DisplayName("TC-M2-011: Check-in thành công — phòng chuyển OCCUPIED, tạo Folio")
+        @DisplayName("TC-M2-011: Check-in thành công — detail→CHECKED_IN, room→Occupied")
         void checkIn_Success_RoomBecomesOccupied_FolioCreated() {
             // ARRANGE
             Long bookingDetailId = 5000L;
@@ -198,7 +261,7 @@ class CheckinServiceUC12Test {
             assertEquals(sampleRoom, result.getRoom(),
                     "Phòng phải được gán cho booking detail");
             assertEquals("Occupied", sampleRoom.getRoomStatus(),
-                    "Trạng thái phòng phải chuyển sang Occupied");
+                    "Trạng thái phòng phải chuyển sang Occupied (BR-FO-04)");
 
             // Verify interactions
             verify(roomBookingDetailRepository).findById(bookingDetailId);
@@ -209,18 +272,21 @@ class CheckinServiceUC12Test {
     }
 
     // ================================================================
-    // TC-M2-012: Check-in thất bại — phòng đang DIRTY hoặc MAINTENANCE → báo lỗi
+    // TC-M2-012: Check-in thất bại — phòng DIRTY / MAINTENANCE → báo lỗi
+    // Ref: SRS UC-13 Preconditions "available clean physical room"
+    //      EDS §6.2, §10 (MOD2-002) | TDD TC-UC12-002
+    //      BR-FO-04, BR-HK-03
     // ================================================================
     @Nested
-    @DisplayName("TC-M2-012: Check-in thất bại — phòng DIRTY/MAINTENANCE → báo lỗi")
+    @DisplayName("TC-M2-012: Check-in thất bại — phòng DIRTY/MAINTENANCE → exception")
     class TC_M2_012 {
 
         @Test
-        @DisplayName("TC-M2-012a: Check-in thất bại — phòng đang DIRTY → ném IllegalStateException")
+        @DisplayName("TC-M2-012a: Check-in thất bại — phòng DIRTY → IllegalStateException")
         void checkIn_Fail_RoomDirty_ShouldThrowException() {
             // ARRANGE
             Long bookingDetailId = 5000L;
-            Long roomId = 101L; // Room DIRTY
+            Long roomId = 101L; // dirtyRoom
 
             when(roomBookingDetailRepository.findById(bookingDetailId))
                     .thenReturn(Optional.of(sampleBookingDetail));
@@ -231,21 +297,21 @@ class CheckinServiceUC12Test {
             IllegalStateException exception = assertThrows(
                     IllegalStateException.class,
                     () -> checkinService.checkIn(bookingDetailId, roomId),
-                    "Phòng DIRTY phải ném IllegalStateException (BR-FO-04, ROOM-001)");
-            assertTrue(exception.getMessage().contains("DIRTY") || exception.getMessage().contains("dirty"),
-                    "Thông báo lỗi phải chứa thông tin về trạng thái DIRTY");
+                    "Phòng DIRTY phải ném IllegalStateException (BR-FO-04, MOD2-002)");
+            assertTrue(exception.getMessage().toLowerCase().contains("dirty"),
+                    "Message lỗi phải chứa thông tin trạng thái DIRTY");
 
-            // Verify KHÔNG gọi save vì check-in bị từ chối
+            // Verify: KHÔNG ghi DB vì check-in bị từ chối
             verify(roomBookingDetailRepository, never()).save(any());
             verify(roomRepository, never()).save(any());
         }
 
         @Test
-        @DisplayName("TC-M2-012b: Check-in thất bại — phòng đang MAINTENANCE → ném IllegalStateException")
+        @DisplayName("TC-M2-012b: Check-in thất bại — phòng MAINTENANCE → IllegalStateException")
         void checkIn_Fail_RoomMaintenance_ShouldThrowException() {
             // ARRANGE
             Long bookingDetailId = 5000L;
-            Long roomId = 102L; // Room MAINTENANCE
+            Long roomId = 102L; // maintenanceRoom
 
             when(roomBookingDetailRepository.findById(bookingDetailId))
                     .thenReturn(Optional.of(sampleBookingDetail));
@@ -256,11 +322,10 @@ class CheckinServiceUC12Test {
             IllegalStateException exception = assertThrows(
                     IllegalStateException.class,
                     () -> checkinService.checkIn(bookingDetailId, roomId),
-                    "Phòng MAINTENANCE phải ném IllegalStateException (BR-HK-03, ROOM-001)");
-            assertTrue(exception.getMessage().contains("MAINTENANCE") || exception.getMessage().contains("maintenance"),
-                    "Thông báo lỗi phải chứa thông tin về trạng thái MAINTENANCE");
+                    "Phòng MAINTENANCE phải ném IllegalStateException (BR-HK-03, MOD2-002)");
+            assertTrue(exception.getMessage().toLowerCase().contains("maintenance"),
+                    "Message lỗi phải chứa thông tin trạng thái MAINTENANCE");
 
-            // Verify KHÔNG gọi save
             verify(roomBookingDetailRepository, never()).save(any());
             verify(roomRepository, never()).save(any());
         }
@@ -268,13 +333,15 @@ class CheckinServiceUC12Test {
 
     // ================================================================
     // TC-M2-013: Ủy quyền hạn mức — cập nhật Credit Limit thành công
+    // Ref: SRS UC-14 step 5; EDS §8.1 updateCreditLimit() | TDD TC-UC12-003
+    //      BR-FO-06
     // ================================================================
     @Nested
     @DisplayName("TC-M2-013: Ủy quyền hạn mức — cập nhật Credit Limit thành công")
     class TC_M2_013 {
 
         @Test
-        @DisplayName("TC-M2-013: Cập nhật Credit Limit thành công — roomBooking.creditLimit thay đổi")
+        @DisplayName("TC-M2-013: updateCreditLimit thành công — roomBooking.creditLimit đổi sang giá trị mới")
         void updateCreditLimit_Success_ShouldUpdateCreditLimit() {
             // ARRANGE
             Long bookingDetailId = 5000L;
@@ -290,7 +357,7 @@ class CheckinServiceUC12Test {
 
             // ASSERT
             assertEquals(newCreditLimit, sampleRoomBooking.getCreditLimit(),
-                    "Credit Limit phải được cập nhật thành giá trị mới");
+                    "Credit Limit phải được cập nhật thành giá trị mới (BR-FO-06)");
 
             // Verify interactions
             verify(roomBookingDetailRepository).findById(bookingDetailId);
@@ -299,26 +366,28 @@ class CheckinServiceUC12Test {
     }
 
     // ================================================================
-    // TC-M2-014: Đổi phòng — chuyển Folio sang phòng mới, phòng cũ → DIRTY
+    // TC-M2-014: Đổi phòng — phòng cũ → DIRTY, phòng mới → OCCUPIED
+    // Ref: SRS UC-14 AF-1; EDS §5.2 SQL Transfer; TDD TC-UC12-004
+    //      BR-FO-04 (state machine)
     // ================================================================
     @Nested
-    @DisplayName("TC-M2-014: Đổi phòng — chuyển Folio sang phòng mới, phòng cũ → DIRTY")
+    @DisplayName("TC-M2-014: Đổi phòng — phòng cũ DIRTY, phòng mới OCCUPIED")
     class TC_M2_014 {
 
         @Test
-        @DisplayName("TC-M2-014: Đổi phòng thành công — room gán mới, phòng cũ → Dirty")
+        @DisplayName("TC-M2-014: transferRoom thành công — room mới Occupied, room cũ Dirty")
         void transferRoom_Success_RoomTransferred_OldRoomDirty() {
             // ARRANGE
             Long bookingDetailId = 5000L;
-            Long newRoomId = 101L; // Phòng mới (dùng dirtyRoom mock nhưng sẽ set Vacant_Clean)
+            Long newRoomId = 200L;
 
             Room newRoom = new Room();
-            newRoom.setId(101L);
-            newRoom.setRoomNumber("R102");
+            newRoom.setId(200L);
+            newRoom.setRoomNumber("R201");
             newRoom.setCategory(sampleCategory);
-            newRoom.setRoomStatus("Vacant_Clean"); // Phòng mới sẵn sàng
+            newRoom.setRoomStatus("Vacant_Clean"); // phòng mới sẵn sàng
 
-            // Giả sử booking detail đang ở phòng R101
+            // Giả sử detail đang ở phòng R101 đã check-in
             sampleBookingDetail.setRoom(sampleRoom);
             sampleBookingDetail.setDetailStatus("CHECKED_IN");
 
@@ -343,23 +412,25 @@ class CheckinServiceUC12Test {
             assertEquals("Dirty", sampleRoom.getRoomStatus(),
                     "Phòng cũ phải chuyển sang Dirty (BR-FO-04)");
 
-            // Verify interactions
+            // Verify: lưu cả 2 phòng
             verify(roomBookingDetailRepository).findById(bookingDetailId);
             verify(roomRepository).findById(newRoomId);
             verify(roomBookingDetailRepository).save(any(RoomBookingDetail.class));
-            verify(roomRepository, times(2)).save(any(Room.class)); // Lưu cả phòng cũ và mới
+            verify(roomRepository, times(2)).save(any(Room.class));
         }
     }
 
     // ================================================================
-    // TC-M2-015: Nâng cấp Dependent thành Customer — tạo Account mới
+    // TC-M2-015: Nâng cấp Dependent → Customer + Account
+    // Ref: SRS UC-14; EDS §8.1 upgradeDependent(); TDD TC-UC12-005
+    //      BR-FO-07 (Dependent Validation)
     // ================================================================
     @Nested
-    @DisplayName("TC-M2-015: Nâng cấp Dependent thành Customer — tạo Account mới")
+    @DisplayName("TC-M2-015: Nâng cấp Dependent → Customer + Account mới")
     class TC_M2_015 {
 
         @Test
-        @DisplayName("TC-M2-015: Nâng cấp Dependent → Customer mới với Account")
+        @DisplayName("TC-M2-015: upgradeDependentToCustomer thành công — Customer + Account được tạo")
         void upgradeDependentToCustomer_Success_ShouldCreateNewCustomerWithAccount() {
             // ARRANGE
             Long dependentId = 200L;
@@ -393,9 +464,9 @@ class CheckinServiceUC12Test {
             assertEquals("Nguyen Thi B", result.getFullName(),
                     "Tên Customer phải khớp với tên Dependent");
             assertEquals("FEMALE", result.getGender(),
-                    "Giới tính phải khớp");
+                    "Giới tính phải khớp với Dependent");
             assertNotNull(result.getAccount(),
-                    "Customer mới phải có Account được tạo");
+                    "Customer mới phải có Account được tạo (BR-FO-07)");
             assertEquals("CUSTOMER", result.getAccount().getRole().getRoleName(),
                     "Role của Account phải là CUSTOMER");
 
@@ -404,6 +475,424 @@ class CheckinServiceUC12Test {
             verify(roleRepository).findByRoleName("CUSTOMER");
             verify(accountRepository).save(any(Account.class));
             verify(customerRepository).save(any(Customer.class));
+        }
+    }
+
+    // ================================================================
+    // ── PHẦN BỔ SUNG — GAP TỪ SRS §2.1.13 ─────────────────────────
+    // ================================================================
+
+    // ================================================================
+    // TC-M2-016: BookingDetail không tồn tại → exception
+    // Ref: SRS UC-13 Preconditions "Guest has a valid confirmed reservation"
+    //      EDS §10 MOD2-003 | Gap: không có test cho trường hợp not found
+    // ================================================================
+    @Nested
+    @DisplayName("TC-M2-016 [GAP]: checkIn — bookingDetail không tồn tại → exception")
+    class TC_M2_016 {
+
+        @Test
+        @DisplayName("TC-M2-016: checkIn với bookingDetailId không tồn tại → exception (MOD2-003)")
+        void checkIn_BookingDetailNotFound_ShouldThrowException() {
+            // ARRANGE
+            Long nonExistentDetailId = 9999L;
+            Long roomId = 100L;
+
+            when(roomBookingDetailRepository.findById(nonExistentDetailId))
+                    .thenReturn(Optional.empty());
+
+            // ACT & ASSERT
+            // Kỳ vọng: service ném IllegalArgumentException hoặc RuntimeException
+            // khi bookingDetailId không tồn tại (EDS MOD2-003)
+            assertThrows(
+                    RuntimeException.class,
+                    () -> checkinService.checkIn(nonExistentDetailId, roomId),
+                    "BookingDetail không tồn tại phải ném RuntimeException (MOD2-003)");
+
+            // Verify: KHÔNG gọi roomRepository vì đã fail sớm
+            verify(roomRepository, never()).findById(any());
+            verify(roomBookingDetailRepository, never()).save(any());
+        }
+    }
+
+    // ================================================================
+    // TC-M2-017: Room không tồn tại → exception
+    // Ref: SRS UC-13 step 4 "assigns an available clean physical room"
+    //      EDS §10 MOD2-003 | Gap: không có test cho room not found
+    // ================================================================
+    @Nested
+    @DisplayName("TC-M2-017 [GAP]: checkIn — room không tồn tại → exception")
+    class TC_M2_017 {
+
+        @Test
+        @DisplayName("TC-M2-017: checkIn với roomId không tồn tại → exception (MOD2-003)")
+        void checkIn_RoomNotFound_ShouldThrowException() {
+            // ARRANGE
+            Long bookingDetailId = 5000L;
+            Long nonExistentRoomId = 8888L;
+
+            when(roomBookingDetailRepository.findById(bookingDetailId))
+                    .thenReturn(Optional.of(sampleBookingDetail));
+            when(roomRepository.findById(nonExistentRoomId))
+                    .thenReturn(Optional.empty());
+
+            // ACT & ASSERT
+            assertThrows(
+                    RuntimeException.class,
+                    () -> checkinService.checkIn(bookingDetailId, nonExistentRoomId),
+                    "Room không tồn tại phải ném RuntimeException (MOD2-003)");
+
+            verify(roomBookingDetailRepository, never()).save(any());
+            verify(roomRepository, never()).save(any());
+        }
+    }
+
+    // ================================================================
+    // TC-M2-018: Booking chưa CONFIRMED (Pending) → exception
+    // Ref: SRS UC-13 Preconditions "Reservation status is eligible for check-in"
+    //      Gap: EDS/TDD không có test kiểm tra booking status
+    // ================================================================
+    @Nested
+    @DisplayName("TC-M2-018 [GAP]: checkIn — booking status Pending → exception")
+    class TC_M2_018 {
+
+        @Test
+        @DisplayName("TC-M2-018: checkIn với booking Pending → exception (chưa đủ điều kiện)")
+        void checkIn_BookingNotConfirmed_ShouldThrowException() {
+            // ARRANGE
+            Long bookingDetailId = 5000L;
+            Long roomId = 100L;
+
+            // Đặt booking về Pending — chưa hoàn thành đặt cọc
+            sampleRoomBooking.setBookingStatus("Pending");
+
+            when(roomBookingDetailRepository.findById(bookingDetailId))
+                    .thenReturn(Optional.of(sampleBookingDetail));
+
+            // ACT & ASSERT
+            IllegalStateException exception = assertThrows(
+                    IllegalStateException.class,
+                    () -> checkinService.checkIn(bookingDetailId, roomId),
+                    "Booking chưa CONFIRMED không được phép check-in");
+            assertTrue(
+                    exception.getMessage().toLowerCase().contains("confirmed")
+                    || exception.getMessage().toLowerCase().contains("pending"),
+                    "Message lỗi phải đề cập đến trạng thái booking không hợp lệ");
+
+            verify(roomBookingDetailRepository, never()).save(any());
+            verify(roomRepository, never()).save(any());
+        }
+    }
+
+    // ================================================================
+    // TC-M2-019: BookingDetail đã CHECKED_IN → idempotency guard
+    // Ref: SRS UC-13 Postconditions "Room status is updated to Occupied"
+    //      Gap: không có guard chống double check-in
+    // ================================================================
+    @Nested
+    @DisplayName("TC-M2-019 [GAP]: checkIn — detail đã CHECKED_IN → exception (idempotency guard)")
+    class TC_M2_019 {
+
+        @Test
+        @DisplayName("TC-M2-019: checkIn với detail đã CHECKED_IN → exception (double check-in guard)")
+        void checkIn_DetailAlreadyCheckedIn_ShouldThrowException() {
+            // ARRANGE
+            Long bookingDetailId = 5001L; // checkedInDetail
+            Long roomId = 100L;
+
+            when(roomBookingDetailRepository.findById(bookingDetailId))
+                    .thenReturn(Optional.of(checkedInDetail));
+            // Không cần mock roomRepository — service nên fail trước
+
+            // ACT & ASSERT
+            IllegalStateException exception = assertThrows(
+                    IllegalStateException.class,
+                    () -> checkinService.checkIn(bookingDetailId, roomId),
+                    "BookingDetail đã CHECKED_IN không được check-in lại (idempotency guard)");
+            assertTrue(
+                    exception.getMessage().toLowerCase().contains("checked_in")
+                    || exception.getMessage().toLowerCase().contains("already"),
+                    "Message lỗi phải đề cập đến trạng thái đã check-in");
+
+            verify(roomBookingDetailRepository, never()).save(any());
+        }
+    }
+
+    // ================================================================
+    // TC-M2-020: Phòng đang Occupied → không được check-in (guard bổ sung)
+    // Ref: SRS UC-13 Preconditions "available clean physical room"
+    //      EDS Invariant: DIRTY/MAINTENANCE không được phép check-in
+    //      Gap: Occupied cũng cần bị chặn nhưng chưa có test
+    // ================================================================
+    @Nested
+    @DisplayName("TC-M2-020 [GAP]: checkIn — phòng Occupied → exception (MOD2-002)")
+    class TC_M2_020 {
+
+        @Test
+        @DisplayName("TC-M2-020: checkIn vào phòng đang Occupied → IllegalStateException")
+        void checkIn_RoomOccupied_ShouldThrowException() {
+            // ARRANGE
+            Long bookingDetailId = 5000L;
+            Long roomId = 103L; // occupiedRoom
+
+            when(roomBookingDetailRepository.findById(bookingDetailId))
+                    .thenReturn(Optional.of(sampleBookingDetail));
+            when(roomRepository.findById(roomId))
+                    .thenReturn(Optional.of(occupiedRoom));
+
+            // ACT & ASSERT
+            IllegalStateException exception = assertThrows(
+                    IllegalStateException.class,
+                    () -> checkinService.checkIn(bookingDetailId, roomId),
+                    "Phòng đang Occupied không được check-in (MOD2-002)");
+            assertTrue(
+                    exception.getMessage().toLowerCase().contains("occupied"),
+                    "Message lỗi phải đề cập trạng thái Occupied");
+
+            verify(roomBookingDetailRepository, never()).save(any());
+            verify(roomRepository, never()).save(any());
+        }
+    }
+
+    // ================================================================
+    // TC-M2-021: transferRoom — phòng mới không phải Vacant_Clean → exception
+    // Ref: SRS UC-13 "Physical allocation restricted to Vacant_Clean rooms"
+    //      EDS §6.3 State Machine; Gap: TDD chỉ test happy path transferRoom
+    // ================================================================
+    @Nested
+    @DisplayName("TC-M2-021 [GAP]: transferRoom — phòng mới không Vacant_Clean → exception")
+    class TC_M2_021 {
+
+        @Test
+        @DisplayName("TC-M2-021a: transferRoom sang phòng Dirty → exception")
+        void transferRoom_NewRoomDirty_ShouldThrowException() {
+            // ARRANGE
+            Long bookingDetailId = 5000L;
+            Long newRoomId = 101L; // dirtyRoom
+
+            sampleBookingDetail.setRoom(sampleRoom);
+            sampleBookingDetail.setDetailStatus("CHECKED_IN");
+
+            when(roomBookingDetailRepository.findById(bookingDetailId))
+                    .thenReturn(Optional.of(sampleBookingDetail));
+            when(roomRepository.findById(newRoomId))
+                    .thenReturn(Optional.of(dirtyRoom));
+
+            // ACT & ASSERT
+            IllegalStateException exception = assertThrows(
+                    IllegalStateException.class,
+                    () -> checkinService.transferRoom(bookingDetailId, newRoomId),
+                    "Đổi sang phòng Dirty phải ném IllegalStateException (MOD2-002)");
+            assertTrue(
+                    exception.getMessage().toLowerCase().contains("dirty")
+                    || exception.getMessage().toLowerCase().contains("available"),
+                    "Message lỗi phải chỉ rõ phòng mới không khả dụng");
+
+            // Phòng cũ KHÔNG được đổi trạng thái
+            assertEquals("Vacant_Clean", sampleRoom.getRoomStatus(),
+                    "Phòng cũ không được bị ảnh hưởng khi transfer thất bại");
+            verify(roomRepository, never()).save(any());
+        }
+
+        @Test
+        @DisplayName("TC-M2-021b: transferRoom sang phòng Occupied → exception")
+        void transferRoom_NewRoomOccupied_ShouldThrowException() {
+            // ARRANGE
+            Long bookingDetailId = 5000L;
+            Long newRoomId = 103L; // occupiedRoom
+
+            sampleBookingDetail.setRoom(sampleRoom);
+            sampleBookingDetail.setDetailStatus("CHECKED_IN");
+
+            when(roomBookingDetailRepository.findById(bookingDetailId))
+                    .thenReturn(Optional.of(sampleBookingDetail));
+            when(roomRepository.findById(newRoomId))
+                    .thenReturn(Optional.of(occupiedRoom));
+
+            // ACT & ASSERT
+            assertThrows(
+                    IllegalStateException.class,
+                    () -> checkinService.transferRoom(bookingDetailId, newRoomId),
+                    "Đổi sang phòng Occupied phải ném IllegalStateException (MOD2-002)");
+
+            verify(roomRepository, never()).save(any());
+        }
+    }
+
+    // ================================================================
+    // TC-M2-022: transferRoom — detail chưa gán phòng cũ → exception
+    // Ref: EDS §6.1 Sequence: transfer giả định phòng cũ tồn tại
+    //      Gap: không có guard cho case phòng cũ = null
+    // ================================================================
+    @Nested
+    @DisplayName("TC-M2-022 [GAP]: transferRoom — detail chưa có phòng cũ → exception")
+    class TC_M2_022 {
+
+        @Test
+        @DisplayName("TC-M2-022: transferRoom khi detail chưa gán phòng → exception")
+        void transferRoom_NoCurrentRoom_ShouldThrowException() {
+            // ARRANGE
+            Long bookingDetailId = 5002L; // unassignedDetail (room = null)
+            Long newRoomId = 100L;
+
+            when(roomBookingDetailRepository.findById(bookingDetailId))
+                    .thenReturn(Optional.of(unassignedDetail));
+
+            // ACT & ASSERT
+            assertThrows(
+                    RuntimeException.class,
+                    () -> checkinService.transferRoom(bookingDetailId, newRoomId),
+                    "transferRoom khi chưa có phòng cũ phải ném exception");
+
+            verify(roomRepository, never()).save(any());
+        }
+    }
+
+    // ================================================================
+    // TC-M2-023: updateCreditLimit — giá trị âm → validation exception
+    // Ref: EDS §4.2 Data Integrity; Gap: không có validation cho credit limit âm
+    //      BR-FO-06: Hạn mức chi tiêu phòng (Credit Limit)
+    // ================================================================
+    @Nested
+    @DisplayName("TC-M2-023 [GAP]: updateCreditLimit — giá trị âm → exception (MOD2-001)")
+    class TC_M2_023 {
+
+        @Test
+        @DisplayName("TC-M2-023: updateCreditLimit với giá trị âm → exception (MOD2-001)")
+        void updateCreditLimit_NegativeValue_ShouldThrowException() {
+            // ARRANGE
+            Long bookingDetailId = 5000L;
+            BigDecimal negativeCreditLimit = new BigDecimal("-1000000");
+
+            // ACT & ASSERT
+            IllegalArgumentException exception = assertThrows(
+                    IllegalArgumentException.class,
+                    () -> checkinService.updateCreditLimit(bookingDetailId, negativeCreditLimit),
+                    "Credit Limit âm phải ném IllegalArgumentException (MOD2-001)");
+            assertTrue(
+                    exception.getMessage().toLowerCase().contains("âm")
+                    || exception.getMessage().toLowerCase().contains("negative")
+                    || exception.getMessage().toLowerCase().contains("limit"),
+                    "Message lỗi phải giải thích giá trị không hợp lệ");
+
+            // Verify: không lưu gì vì bị reject ở validation
+            verify(roomBookingRepository, never()).save(any());
+        }
+
+        @Test
+        @DisplayName("TC-M2-023b: updateCreditLimit với zero → được phép (edge case)")
+        void updateCreditLimit_ZeroValue_ShouldSucceed() {
+            // ARRANGE — giá trị 0 có thể hợp lệ (reset hạn mức)
+            Long bookingDetailId = 5000L;
+            BigDecimal zeroCreditLimit = BigDecimal.ZERO;
+
+            when(roomBookingDetailRepository.findById(bookingDetailId))
+                    .thenReturn(Optional.of(sampleBookingDetail));
+            when(roomBookingRepository.save(any(RoomBooking.class)))
+                    .thenAnswer(invocation -> invocation.getArgument(0));
+
+            // ACT — zero credit limit KHÔNG nên ném exception
+            assertDoesNotThrow(
+                    () -> checkinService.updateCreditLimit(bookingDetailId, zeroCreditLimit),
+                    "Credit Limit = 0 là hợp lệ (vô hiệu hóa charge-to-room)");
+
+            assertEquals(BigDecimal.ZERO, sampleRoomBooking.getCreditLimit(),
+                    "Credit Limit phải được set về 0");
+        }
+    }
+
+    // ================================================================
+    // TC-M2-024: updateCreditLimit — bookingDetail không tồn tại → exception
+    // Ref: EDS §10 MOD2-003 | Gap: chỉ test happy path updateCreditLimit
+    // ================================================================
+    @Nested
+    @DisplayName("TC-M2-024 [GAP]: updateCreditLimit — bookingDetail không tồn tại → exception")
+    class TC_M2_024 {
+
+        @Test
+        @DisplayName("TC-M2-024: updateCreditLimit với ID không tồn tại → exception (MOD2-003)")
+        void updateCreditLimit_DetailNotFound_ShouldThrowException() {
+            // ARRANGE
+            Long nonExistentDetailId = 9999L;
+            BigDecimal newCreditLimit = new BigDecimal("3000000");
+
+            when(roomBookingDetailRepository.findById(nonExistentDetailId))
+                    .thenReturn(Optional.empty());
+
+            // ACT & ASSERT
+            assertThrows(
+                    RuntimeException.class,
+                    () -> checkinService.updateCreditLimit(nonExistentDetailId, newCreditLimit),
+                    "BookingDetail không tồn tại phải ném RuntimeException (MOD2-003)");
+
+            verify(roomBookingRepository, never()).save(any());
+        }
+    }
+
+    // ================================================================
+    // TC-M2-025: upgradeDependent — dependent không tồn tại → exception
+    // Ref: SRS UC-14 AF-2 "guest không nằm trong danh sách đăng ký"
+    //      EDS §10 MOD2-003 | Gap: chỉ test happy path upgradeDependent
+    // ================================================================
+    @Nested
+    @DisplayName("TC-M2-025 [GAP]: upgradeDependent — dependent không tồn tại → exception")
+    class TC_M2_025 {
+
+        @Test
+        @DisplayName("TC-M2-025: upgradeDependentToCustomer với ID không tồn tại → exception (MOD2-003)")
+        void upgradeDependent_DependentNotFound_ShouldThrowException() {
+            // ARRANGE
+            Long nonExistentDependentId = 9999L;
+
+            when(dependentRepository.findById(nonExistentDependentId))
+                    .thenReturn(Optional.empty());
+
+            // ACT & ASSERT
+            assertThrows(
+                    RuntimeException.class,
+                    () -> checkinService.upgradeDependentToCustomer(nonExistentDependentId),
+                    "Dependent không tồn tại phải ném RuntimeException (MOD2-003)");
+
+            // Verify: không tạo account hay customer vì dependent không tồn tại
+            verify(accountRepository, never()).save(any());
+            verify(customerRepository, never()).save(any());
+        }
+    }
+
+    // ================================================================
+    // TC-M2-026: upgradeDependent — role CUSTOMER không có → exception
+    // Ref: SRS §1.4.3 Non-UI: Dependent_Account_Auto_Generation
+    //      Gap: nếu DB thiếu role CUSTOMER hệ thống phải fail có kiểm soát
+    // ================================================================
+    @Nested
+    @DisplayName("TC-M2-026 [GAP]: upgradeDependent — role CUSTOMER không tìm thấy → exception")
+    class TC_M2_026 {
+
+        @Test
+        @DisplayName("TC-M2-026: upgradeDependentToCustomer khi role CUSTOMER vắng mặt trong DB → exception")
+        void upgradeDependent_CustomerRoleNotFound_ShouldThrowException() {
+            // ARRANGE
+            Long dependentId = 200L;
+
+            when(dependentRepository.findById(dependentId))
+                    .thenReturn(Optional.of(sampleDependent));
+            // Role CUSTOMER bị thiếu trong DB (lỗi cấu hình)
+            when(roleRepository.findByRoleName("CUSTOMER"))
+                    .thenReturn(Optional.empty());
+
+            // ACT & ASSERT
+            IllegalArgumentException exception = assertThrows(
+                    IllegalArgumentException.class,
+                    () -> checkinService.upgradeDependentToCustomer(dependentId),
+                    "Role CUSTOMER không tồn tại phải ném IllegalArgumentException (cấu hình hệ thống)");
+            assertTrue(
+                    exception.getMessage().toLowerCase().contains("role")
+                    || exception.getMessage().toLowerCase().contains("customer"),
+                    "Message lỗi phải đề cập đến thiếu role CUSTOMER");
+
+            // Verify: không tạo account/customer vì thiếu role
+            verify(accountRepository, never()).save(any());
+            verify(customerRepository, never()).save(any());
         }
     }
 }
