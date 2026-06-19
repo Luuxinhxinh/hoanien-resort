@@ -19,7 +19,7 @@
         <!-- Sidebar -->
         <aside class="sidebar">
             <div class="sidebar-brand">
-                <div class="brand-logo">K</div>
+                <div class="brand-logo">◆</div>
                 <div class="brand-text">
                     <h1 class="brand-title">Hoanien Retreat</h1>
                     <p class="brand-subtitle">Resort & Hub</p>
@@ -32,29 +32,31 @@
                 <a href="/receptionist/dashboard" class="nav-item">
                     <i class="fa-solid fa-border-all"></i>
                     <div class="nav-text">
-                        <span class="nav-main-text">Dashboard</span>
+                        <span class="nav-main-text">Room Matrix</span>
                         <span class="nav-sub-text">Sơ đồ phòng</span>
                     </div>
                     <i class="fa-solid fa-chevron-right nav-arrow"></i>
                 </a>
-                <a href="/receptionist/reservations" class="nav-item">
-                    <i class="fa-regular fa-calendar-check"></i>
+
+                <a href="/receptionist/walk-in" class="nav-item">
+                    <i class="fa-solid fa-person-walking-luggage"></i>
                     <div class="nav-text">
-                        <span class="nav-main-text">Reservations</span>
-                        <span class="nav-sub-text">Đặt phòng</span>
+                        <span class="nav-main-text">Walk-In</span>
+                        <span class="nav-sub-text">Khách vãng lai</span>
                     </div>
                 </a>
-                <a href="/receptionist/check-in-out" class="nav-item">
-                    <i class="fa-solid fa-arrow-right-arrow-left"></i>
+                <a href="/receptionist/check-in" class="nav-item">
+                    <i class="fa-solid fa-arrow-right-to-bracket"></i>
                     <div class="nav-text">
-                        <span class="nav-main-text">Check-in / out</span>
+                        <span class="nav-main-text">Check-in</span>
+                        <span class="nav-sub-text">Nhận phòng</span>
                     </div>
                 </a>
                 <a href="/receptionist/folio" class="nav-item">
-                    <i class="fa-regular fa-file-lines"></i>
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
                     <div class="nav-text">
-                        <span class="nav-main-text">Folio Management</span>
-                        <span class="nav-sub-text">Quản lý hóa đơn</span>
+                        <span class="nav-main-text">Check-out / Folio</span>
+                        <span class="nav-sub-text">Trả phòng & Hóa đơn</span>
                     </div>
                 </a>
                 <a href="/receptionist/night-audit" class="nav-item active">
@@ -81,8 +83,7 @@
             <!-- Header -->
             <header class="top-header">
                 <div class="header-datetime">
-                    <div class="time" id="currentTime">10:47:24 AM</div>
-                    <div class="date" id="currentDate">Wednesday, June 10, 2026</div>
+                    <div class="date" id="currentDate" th:text="${todayLabel}">Wednesday, June 10, 2026</div>
                 </div>
                 
                 <div class="header-search">

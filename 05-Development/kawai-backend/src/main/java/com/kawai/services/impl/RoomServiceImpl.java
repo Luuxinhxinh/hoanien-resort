@@ -78,7 +78,8 @@ public class RoomServiceImpl implements RoomService {
 
         for (RoomCategory cat : allCategories) {
             if (request.getCategoryName() != null && !request.getCategoryName().trim().isEmpty()) {
-                if (!cat.getCategoryName().equalsIgnoreCase(request.getCategoryName().trim())) {
+                String searchCategoryName = request.getCategoryName().trim().toLowerCase();
+                if (!cat.getCategoryName().toLowerCase().contains(searchCategoryName)) {
                     continue;
                 }
             }
@@ -94,12 +95,14 @@ public class RoomServiceImpl implements RoomService {
             }
 
             long totalRooms = roomRepository.countActiveRoomsByCategoryName(cat.getCategoryName());
-            long overlapping = roomBookingRepository.countOverlappingBookingsByCategoryWithoutExclude(cat.getCategoryName(), checkIn, checkOut);
+            long overlapping = roomBookingRepository
+                    .countOverlappingBookingsByCategoryWithoutExclude(cat.getCategoryName(), checkIn, checkOut);
             long availableCount = totalRooms - overlapping;
 
             if (availableCount >= minRooms) {
                 for (int i = 1; i <= availableCount; i++) {
-                    RoomSearchResponseDTO dto = toSearchResult(cat, checkIn, checkOut, "DUMMY_" + cat.getCategoryName() + "_" + i);
+                    RoomSearchResponseDTO dto = toSearchResult(cat, checkIn, checkOut,
+                            "DUMMY_" + cat.getCategoryName() + "_" + i);
                     dto.setAvailableCount((int) availableCount);
                     available.add(dto);
                 }
@@ -144,7 +147,8 @@ public class RoomServiceImpl implements RoomService {
         boolean exists = roomRepository.findAll().stream()
                 .anyMatch(r -> r.getRoomNumber().equalsIgnoreCase(roomNumber));
         if (exists) {
-            throw new org.springframework.dao.DataIntegrityViolationException("Duplicate entry '" + roomNumber + "' for key 'room_number'");
+            throw new org.springframework.dao.DataIntegrityViolationException(
+                    "Duplicate entry '" + roomNumber + "' for key 'room_number'");
         }
 
         Room room = new Room();

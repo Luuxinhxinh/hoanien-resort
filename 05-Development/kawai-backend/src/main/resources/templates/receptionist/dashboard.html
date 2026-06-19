@@ -12,6 +12,20 @@
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/receptionist/css/dashboard.css">
+    <style>
+        .room-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 16px;
+            max-height: 142px;
+            /* Height of exactly one card row */
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Removed .room-grid.expanded max-height hack */
+    </style>
+
 </head>
 
 <body>
@@ -19,7 +33,7 @@
         <!-- Sidebar -->
         <aside class="sidebar">
             <div class="sidebar-brand">
-                <div class="brand-logo">K</div>
+                <div class="brand-logo">◆</div>
                 <div class="brand-text">
                     <h1 class="brand-title">Hoanien Retreat</h1>
                     <p class="brand-subtitle">Resort & Hub</p>
@@ -32,29 +46,31 @@
                 <a href="/receptionist/dashboard" class="nav-item active">
                     <i class="fa-solid fa-border-all"></i>
                     <div class="nav-text">
-                        <span class="nav-main-text">Dashboard</span>
+                        <span class="nav-main-text">Room Matrix</span>
                         <span class="nav-sub-text">Sơ đồ phòng</span>
                     </div>
                     <i class="fa-solid fa-chevron-right nav-arrow"></i>
                 </a>
-                <a href="/receptionist/reservations" class="nav-item">
-                    <i class="fa-regular fa-calendar-check"></i>
+
+                <a href="/receptionist/walk-in" class="nav-item">
+                    <i class="fa-solid fa-person-walking-luggage"></i>
                     <div class="nav-text">
-                        <span class="nav-main-text">Reservations</span>
-                        <span class="nav-sub-text">Đặt phòng</span>
+                        <span class="nav-main-text">Walk-In</span>
+                        <span class="nav-sub-text">Khách vãng lai</span>
                     </div>
                 </a>
-                <a href="/receptionist/check-in-out" class="nav-item">
-                    <i class="fa-solid fa-arrow-right-arrow-left"></i>
+                <a href="/receptionist/check-in" class="nav-item">
+                    <i class="fa-solid fa-arrow-right-to-bracket"></i>
                     <div class="nav-text">
-                        <span class="nav-main-text">Check-in / out</span>
+                        <span class="nav-main-text">Check-in</span>
+                        <span class="nav-sub-text">Nhận phòng</span>
                     </div>
                 </a>
                 <a href="/receptionist/folio" class="nav-item">
-                    <i class="fa-regular fa-file-lines"></i>
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
                     <div class="nav-text">
-                        <span class="nav-main-text">Folio Management</span>
-                        <span class="nav-sub-text">Quản lý hóa đơn</span>
+                        <span class="nav-main-text">Check-out / Folio</span>
+                        <span class="nav-sub-text">Trả phòng & Hóa đơn</span>
                     </div>
                 </a>
                 <a href="/receptionist/night-audit" class="nav-item">
@@ -81,13 +97,7 @@
             <!-- Header -->
             <header class="top-header">
                 <div class="header-datetime">
-                    <div class="time" id="currentTime">--:--:--</div>
-                    <div class="date" th:text="${todayLabel}">Wednesday, June 10, 2026</div>
-                </div>
-
-                <div class="header-search">
-                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                    <input type="text" placeholder="Search guest, room no., phone">
+                    <div class="date" id="currentDate" th:text="${todayLabel}">Wednesday, June 10, 2026</div>
                 </div>
 
                 <div class="header-actions">
@@ -170,24 +180,27 @@
 
                     <div class="matrix-legend-area">
                         <div class="legend-items">
-                            <div class="legend-item"><span class="legend-dot dot-available"></span>Available</div>
-                            <div class="legend-item"><span class="legend-dot dot-occupied"></span>Occupied</div>
-                            <div class="legend-item"><span class="legend-dot dot-housekeeping"></span>Housekeeping</div>
-                            <div class="legend-item"><span class="legend-dot dot-ooo"></span>Out of Order</div>
+                            <div class="legend-item" onclick="toggleFilter('card-available', this)" style="cursor: pointer; transition: opacity 0.3s;"><span class="legend-dot dot-available"></span>Available</div>
+                            <div class="legend-item" onclick="toggleFilter('card-occupied', this)" style="cursor: pointer; transition: opacity 0.3s;"><span class="legend-dot dot-occupied"></span>Occupied</div>
+                            <div class="legend-item" onclick="toggleFilter('card-housekeeping', this)" style="cursor: pointer; transition: opacity 0.3s;"><span class="legend-dot dot-housekeeping"></span>Housekeeping</div>
+                            <div class="legend-item" onclick="toggleFilter('card-ooo', this)" style="cursor: pointer; transition: opacity 0.3s;"><span class="legend-dot dot-ooo"></span>Maintenance</div>
                         </div>
                         <div class="matrix-count" th:text="${#lists.size(rooms)} + ' rooms'">Showing rooms</div>
                     </div>
 
-                    <!-- Room Grid - all rooms in one grid -->
-                    <div class="floor-section">
-                        <div class="floor-header">
-                            <span class="floor-badge">All Rooms</span>
-                            <div class="floor-line"></div>
-                            <span class="floor-count" th:text="${#lists.size(rooms)} + ' rooms'"></span>
+                    <!-- Room Grid - grouped by category -->
+                    <div th:each="entry : ${categorizedRooms}" class="floor-section">
+                        <div class="floor-header" onclick="toggleCategory(this)"
+                            style="cursor: pointer; display: flex; align-items: center;">
+                            <span class="floor-badge" th:text="${entry.key}">Category Name</span>
+                            <div class="floor-line" style="flex-grow: 1;"></div>
+                            <span class="floor-count" th:text="${#lists.size(entry.value)} + ' rooms'"></span>
+                            <i class="fa-solid fa-chevron-down toggle-icon"
+                                style="transition: transform 0.3s; margin-left: 12px; color: #8b8b8b;"></i>
                         </div>
 
                         <div class="room-grid">
-                            <div th:each="room : ${rooms}" class="room-card"
+                            <div th:each="room : ${entry.value}" class="room-card"
                                 th:classappend="${room.status} == 'Occupied' ? 'card-occupied' : (${room.status} == 'Vacant_Dirty' ? 'card-housekeeping' : (${room.status} == 'Maintenance' ? 'card-ooo' : 'card-available'))">
                                 <div class="room-card-top">
                                     <span class="room-number" th:text="${room.roomNumber}"></span>
@@ -209,7 +222,7 @@
                     </div>
 
                     <!-- Fallback when no data -->
-                    <div th:if="${#lists.isEmpty(rooms)}" style="padding:40px;text-align:center;color:#999;">
+                    <div th:if="${categorizedRooms.size() == 0}" style="padding:40px;text-align:center;color:#999;">
                         <i class="fa-solid fa-bed" style="font-size:48px;margin-bottom:16px;display:block;"></i>
                         <p>Chưa có dữ liệu phòng từ database.</p>
                     </div>
@@ -218,12 +231,6 @@
         </main>
     </div>
     <script src="/receptionist/js/dashboard.js"></script>
-    <script>
-        // Auto-refresh every 15 seconds for real-time synchronization
-        setTimeout(function() {
-            location.reload();
-        }, 15000);
-    </script>
 </body>
 
 </html>
