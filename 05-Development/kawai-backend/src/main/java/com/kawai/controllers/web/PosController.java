@@ -108,6 +108,7 @@ public class PosController {
             map.put("desc", item.getDescription() != null ? item.getDescription() : "");
             map.put("price", item.getPrice());
             map.put("catLabel", item.getCategory());
+            map.put("imageUrl", item.getImageUrl());
 
             // Determine category slug
             String cat = "starter";

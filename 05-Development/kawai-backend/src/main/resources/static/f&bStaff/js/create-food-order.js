@@ -171,11 +171,13 @@ document.addEventListener('DOMContentLoaded', () => {
       const currentQty = state.cart[item.id] ? state.cart[item.id].qty : 0;
       return `
         <div class="food-card ${isOut ? 'disabled' : ''}" data-name="${item.name}" data-cat="${item.cat}">
-          <div class="food-img-wrapper" style="--food-bg: linear-gradient(135deg, ${item.bgFrom}, ${item.bgTo}); --food-icon-color: ${item.iconColor};">
+          <div class="food-img-wrapper" style="${item.imageUrl ? `background-image: url('${item.imageUrl}'); background-size: cover; background-position: center;` : `--food-bg: linear-gradient(135deg, ${item.bgFrom}, ${item.bgTo}); --food-icon-color: ${item.iconColor};`}">
+            ${item.imageUrl ? '' : `
             <div class="food-icon-bg"></div>
             <div class="food-icon-wrapper">
               <span class="material-symbols-outlined">${item.icon}</span>
             </div>
+            `}
             ${isOut ? '<span class="food-stock-badge out-of-stock">Hết món</span>' : ''}
           </div>
           <div class="food-details">

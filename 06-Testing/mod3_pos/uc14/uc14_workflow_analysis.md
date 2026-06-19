@@ -1022,3 +1022,79 @@ Logic này phục vụ việc ký gửi hóa đơn POS thành một mục nợ (
 | **ghi chú Bếp** | Trường `note` đơn giản | Ghép từ `chefNote` từng món + `generalNote`, uppercase, ngăn cách `\|` |
 | **Modal xác nhận** | Không đề cập | `posTimelineModal` — KOT receipt + timeline 3 bước |
 | **Guard chưa đăng nhập** | `SecurityConfig.permitAll()` | JS: `if (!isLoggedIn) { showAuthModal(); return; }` |
+
+---
+
+## 10. Phân tích Mã nguồn — Các bản vá và Nâng cấp UI/UX (UC-17 Room Service)
+
+Trong quá trình hoàn thiện luồng UC-17 (Order Food Online), hai nâng cấp quan trọng đã được thực hiện để nâng cao trải nghiệm người dùng (UX) và bảo vệ toàn vẹn dữ liệu.
+
+### 10.1 Cập nhật Hạn mức Tín dụng Động (Dynamic Credit Limit Update)
+
+**File:** src/main/resources/templates/guest/order-food.html
+
+Vấn đề trước đó: Sau khi khách hàng đặt món thành công theo hình thức "Ký bill về phòng", hạn mức tín dụng hiển thị trên màn hình vẫn giữ nguyên giá trị cũ cho đến khi khách tải lại trang.
+Giải pháp: Cập nhật hạn mức ngay trên giao diện bằng JavaScript ngay sau khi có phản hồi success từ API.
+
+`javascript
+1.  if (pendingOrderPayload.paymentType === 'CHARGE_TO_ROOM') {
+2.      const limitDisplay = document.getElementById('currentCreditLimitDisplay');
+3.      if (limitDisplay) {
+4.          let currentLimit = parseFloat(limitDisplay.getAttribute('data-limit'));
+5.          let subtotal = 0;
+6.          cart.forEach(item => { subtotal += (item.price * item.qty); });
+7.          const fee = subtotal * 0.05;
+8.          const total = subtotal + fee;
+9.          
+10.         currentLimit -= total; // Trừ thẳng vào hạn mức hiện tại
+11.         limitDisplay.setAttribute('data-limit', currentLimit);
+12.         limitDisplay.innerText = 'Hạn mức tín dụng: ₫' + currentLimit.toLocaleString('vi-VN');
+13.     }
+14. }
+`
+
+**Giải thích từng dòng:**
+- **Dòng 1:** Kiểm tra nếu đơn hàng vừa đặt sử dụng phương thức CHARGE_TO_ROOM.
+- **Dòng 2-4:** Lấy thẻ HTML hiển thị hạn mức (currentCreditLimitDisplay) và đọc giá trị hạn mức gốc lưu trong thuộc tính data-limit.
+- **Dòng 5-8:** Tính toán lại tổng tiền của đơn hàng (Subtotal + 5% Phí phục vụ). Logic này tương đồng với logic Backend.
+- **Dòng 10-12:** Trừ tổng tiền đơn hàng khỏi hạn mức hiện tại (currentLimit). Sau đó, cập nhật lại thuộc tính data-limit và hiển thị chuỗi text mới ra màn hình bằng .toLocaleString('vi-VN'). Thao tác này mang lại trải nghiệm liền mạch, không cần tải lại trang.
+
+### 10.2 Tách biệt Cuộn trang (Independent Scrolling Layout)
+
+**File:** src/main/resources/templates/guest/order-food.html
+
+Vấn đề: Ban đầu, toàn bộ trang dùng một thanh cuộn chung. Khi khách hàng cuộn xuống xem thực đơn dài, phần "Giỏ hàng và Thanh toán" bên phải cũng bị trôi theo và biến mất khỏi màn hình, khiến họ không thể nhấn nút "Xác nhận đặt món".
+Giải pháp: Áp dụng CSS để cố định chiều cao của 2 cột (Menu và Giỏ hàng) và cho phép chúng cuộn độc lập (overflow-y-auto).
+
+`html
+<!-- Cột trái: Danh sách Menu -->
+<div class="lg:w-2/3 lg:max-h-[calc(100vh-100px)] overflow-y-auto pr-2">
+    ... (Danh sách món ăn) ...
+</div>
+
+<!-- Cột phải: Form thông tin đơn hàng và Thanh toán -->
+<div class="lg:w-1/3 mt-6 lg:mt-0 lg:max-h-[calc(100vh-100px)] overflow-y-auto pl-2">
+    ... (Giỏ hàng, Phương thức thanh toán, Nút Đặt món) ...
+</div>
+`
+
+**Giải thích:**
+- lg:max-h-[calc(100vh-100px)]: Trên màn hình lớn (lg), giới hạn chiều cao tối đa của cột bằng chiều cao của cửa sổ trình duyệt trừ đi phần Header/Padding (100px).
+- overflow-y-auto: Cho phép cột tự động xuất hiện thanh cuộn dọc bên trong nội bộ nó khi nội dung tràn ra khỏi max-h quy định.
+- Bằng cách áp dụng cho cả cột trái và cột phải, người dùng có thể cuộn phần Menu thoải mái trong khi phần Giỏ hàng vẫn giữ cố định trên màn hình, giúp thao tác bấm đặt món dễ dàng.
+
+### 10.3 Pessimistic Locking để Chống Vượt Hạn Mức (Concurrency Control)
+
+**File:** src/main/java/com/kawai/repositories/RoomRepository.java
+
+Vấn đề: Nếu 2 thiết bị cùng đặt món cùng lúc cho 1 phòng, hệ thống có thể đọc hạn mức tín dụng song song và cho phép tạo 2 đơn hàng vượt quá hạn mức thực tế.
+Giải pháp: Bổ sung Cơ chế Pessimistic Lock (Khóa bi quan) vào RoomRepository.
+
+`java
+1.  @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
+2.  @Query("SELECT r FROM Room r WHERE r.roomNumber = :roomNumber")
+3.  Optional<Room> findByRoomNumberWithLock(@Param("roomNumber") String roomNumber);
+`
+
+**Giải thích:**
+- **Dòng 1:** @Lock(PESSIMISTIC_WRITE) yêu cầu Hibernate phát ra câu lệnh SELECT ... FOR UPDATE xuống cơ sở dữ liệu. Dòng dữ liệu của phòng sẽ bị khóa tạm thời. Nếu có một transaction (giao dịch) khác cố gắng đọc phòng này để tính tiền, transaction thứ hai sẽ phải xếp hàng chờ cho đến khi transaction đầu tiên trừ tiền xong và giải phóng khóa. Việc này đảm bảo độ chính xác tuyệt đối của CreditLimit trong môi trường đa luồng.
