@@ -20,6 +20,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.security.test.context.support.WithMockUser;
 
 @WebMvcTest(AdminController.class)
 @AutoConfigureMockMvc(addFilters = false)
@@ -81,6 +82,7 @@ public class AdminControllerTest {
     private com.kawai.config.OAuth2SuccessHandler oAuth2SuccessHandler;
 
     @Test
+    @WithMockUser(username="admin", roles={"ADMIN"})
     public void testMasterDataAccountManagementReturnsDbData() throws Exception {
         // Arrange
         Role role = new Role();

@@ -79,7 +79,8 @@ public class CheckinServiceImpl implements CheckinService {
                 if (STATUS_CHECKED_IN.equalsIgnoreCase(detail.getDetailStatus())) {
                         throw new IllegalStateException("BookingDetail đã CHECKED_IN không được check-in lại");
                 }
-                if (!"CONFIRMED".equalsIgnoreCase(detail.getRoomBooking().getBookingStatus())) {
+                String bookingStatus = detail.getRoomBooking().getBookingStatus();
+                if (!"CONFIRMED".equalsIgnoreCase(bookingStatus) && !"Checked_In".equalsIgnoreCase(bookingStatus)) {
                         throw new IllegalStateException("Booking chưa CONFIRMED không được phép check-in");
                 }
                 
@@ -101,6 +102,13 @@ public class CheckinServiceImpl implements CheckinService {
 
                 roomBookingDetailRepo.save(detail);
                 roomRepo.save(room);
+
+                // Cập nhật trạng thái của toàn bộ Booking sang Checked_In để xóa khỏi danh sách Arrivals
+                RoomBooking parent = detail.getRoomBooking();
+                if (parent != null && "CONFIRMED".equalsIgnoreCase(parent.getBookingStatus())) {
+                        parent.setBookingStatus("Checked_In");
+                        roomBookingRepo.save(parent);
+                }
         }
 
         private void validateRoomAvailableForCheckin(Room room) {

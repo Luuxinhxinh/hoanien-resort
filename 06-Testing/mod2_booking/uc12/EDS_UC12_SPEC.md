@@ -67,7 +67,7 @@
 | UC12.1 | US | Check-in guest → phòng OCCUPIED + tạo Folio | `CheckinService.processCheckIn()` | Nghị định 13/2023 | — |
 | UC12.2 | US | Ủy quyền hạn mức — update Credit Limit | `CheckinService.updateCreditLimit()` | — | — |
 | UC12.3 | US | Đổi phòng — chuyển Folio, phòng cũ DIRTY | `CheckinService.transferRoom()` | — | ADR-001 |
-| UC12.4 | US | Nâng cấp Dependent → Customer + Account mới | `CheckinService.upgradeDependent()` | — | — |
+
 
 ---
 
@@ -125,7 +125,7 @@ interface CheckinService {
   +processCheckOut(bookingId: Long): CheckOutResponseDTO
   +transferRoom(bookingId: Long, newRoomId: Long): void
   +updateCreditLimit(bookingId: Long, newLimit: BigDecimal): void
-  +upgradeDependent(dependentId: Long): void
+
 }
 
 class CheckinServiceImpl implements CheckinService {
@@ -293,8 +293,7 @@ public interface CheckinService {
     /** Cập nhật hạn mức tín dụng */
     void updateCreditLimit(Long bookingId, BigDecimal newLimit);
 
-    /** Nâng cấp Dependent thành Customer + tạo Account */
-    void upgradeDependent(Long dependentId);
+
 }
 ```
 

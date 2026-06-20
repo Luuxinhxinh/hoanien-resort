@@ -128,6 +128,11 @@ class BookingServiceUC10Test {
                 category.setId(1L);
                 category.setCategoryName("Deluxe");
                 category.setBasePrice(new BigDecimal("2000000"));
+                category.setBaseAdults(2);
+                category.setBaseChildren(0);
+
+                lenient().when(roomCategoryRepository.findByCategoryNameWithLock(anyString())).thenReturn(Optional.of(category));
+                lenient().when(roomRepository.countActiveRoomsByCategoryName(anyString())).thenReturn(10L);
 
                 lenient().when(roomCategoryRepository.findByCategoryNameWithLock(anyString())).thenAnswer(invocation -> {
                         String catName = invocation.getArgument(0);
@@ -193,7 +198,7 @@ class BookingServiceUC10Test {
 
         /** Helper: tạo request cơ bản không có promo code. */
         private BookingRequestDTO buildRequest() {
-                return new BookingRequestDTO(1L, Collections.singletonList(new RoomSelectionDTO(ROOM_NO, 2, 0)), CHECK_IN, CHECK_OUT, DEPOSIT);
+                return new BookingRequestDTO(1L, Collections.singletonList(new RoomSelectionDTO(ROOM_NO, "Deluxe", 2, 0)), CHECK_IN, CHECK_OUT, DEPOSIT);
         }
 
         // ══════════════════════════════════════════════════════════════════════════
@@ -223,8 +228,8 @@ class BookingServiceUC10Test {
         void TC_M2_003_createBooking_success_returnsPendingWithCancellationDeadline() throws Exception {
                 // Arrange
                 BookingRequestDTO request = buildRequest();
-                when(roomBookingRepository.countOverlappingBookingsByRoom(
-                                eq(ROOM_NO), eq(CHECK_IN), eq(CHECK_OUT), anyLong())).thenReturn(0L);
+                when(roomBookingRepository.countOverlappingBookingsByCategory(
+                                anyString(), eq(CHECK_IN), eq(CHECK_OUT), anyLong())).thenReturn(0L);
 
                 // Act
                 BookingResponseDTO result = bookingService.createBooking(request);
@@ -232,8 +237,8 @@ class BookingServiceUC10Test {
                 // Assert — fields cơ bản
                 assertNotNull(result, "Response không được null");
                 assertNotNull(result.getBookingId(), "BookingId phải được sinh ra");
-                assertEquals("CONFIRMED", result.getBookingStatus(),
-                                "Trạng thái vừa tạo phải là CONFIRMED (BR-STATUS-01)");
+                assertEquals("HOLD", result.getBookingStatus(),
+                                "Trạng thái vừa tạo phải là HOLD (Soft Lock)");
                 assertEquals(DEPOSIT, result.getDepositAmount(), "Tiền cọc phải khớp request");
                 assertEquals(CHECK_IN, result.getCheckInDate(), "CheckIn phải khớp");
                 assertEquals(CHECK_OUT, result.getCheckOutDate(), "CheckOut phải khớp");
@@ -272,10 +277,10 @@ class BookingServiceUC10Test {
         @DisplayName("TC-M2-004 | CRITICAL | Concurrency: 2 user đặt R101 → 1 CONFIRMED, 1 nhận 409")
         void TC_M2_004_createBooking_concurrency_onlyOneConfirmed() throws Exception {
                 // Arrange: lần 1 phòng trống, lần 2 đã bị chiếm
-                when(roomBookingRepository.countOverlappingBookingsByRoom(
+                when(roomBookingRepository.countOverlappingBookingsByCategory(
                                 anyString(), any(LocalDate.class), any(LocalDate.class), anyLong()))
                                 .thenReturn(0L) // Thread thắng
-                                .thenReturn(1L); // Thread thua
+                                .thenReturn(10L); // Thread thua (10 phòng - 10 overlap = 0 available)
 
                 AtomicInteger successCount = new AtomicInteger(0);
                 AtomicInteger conflictCount = new AtomicInteger(0);
@@ -313,8 +318,8 @@ class BookingServiceUC10Test {
                 assertEquals(1, conflictCount.get(), "Đúng 1 user nhận 409 Conflict");
 
                 // 🔴 RED — FAIL: implementation trả "Pending" thay vì "CONFIRMED"
-                assertEquals("CONFIRMED", successStatus.get(),
-                                "Booking thành công sau lock phải chuyển ngay sang CONFIRMED (BR-STATUS-01)");
+                assertEquals("HOLD", successStatus.get(),
+                                "Booking thành công sau lock phải là HOLD");
         }
 
         // ══════════════════════════════════════════════════════════════════════════
@@ -485,7 +490,7 @@ class BookingServiceUC10Test {
                 BookingRequestDTO request = buildRequest();
                 request.setPromotionCode("SUMMER10");
 
-                when(roomBookingRepository.countOverlappingBookingsByRoom(
+                when(roomBookingRepository.countOverlappingBookingsByCategory(
                                 anyString(), any(LocalDate.class), any(LocalDate.class), anyLong())).thenReturn(0L);
 
                 Promotion promo = new Promotion();
@@ -523,10 +528,10 @@ class BookingServiceUC10Test {
                 // Arrange: 3 đêm
                 LocalDate in = LocalDate.of(2026, 8, 1);
                 LocalDate out = LocalDate.of(2026, 8, 4);
-                BookingRequestDTO request = new BookingRequestDTO(1L, Collections.singletonList(new RoomSelectionDTO("R202", 2, 0)), in, out, DEPOSIT);
+                BookingRequestDTO request = new BookingRequestDTO(1L, Collections.singletonList(new RoomSelectionDTO("R202", "Deluxe", 2, 0)), in, out, DEPOSIT);
                 request.setPromotionCode("EARLYBIRD20");
 
-                when(roomBookingRepository.countOverlappingBookingsByRoom(
+                when(roomBookingRepository.countOverlappingBookingsByCategory(
                                 anyString(), any(LocalDate.class), any(LocalDate.class), anyLong())).thenReturn(0L);
 
                 Promotion promo = new Promotion();
@@ -576,7 +581,7 @@ class BookingServiceUC10Test {
                 BookingRequestDTO request = buildRequest();
                 request.setPromotionCode("EXPIRED2020");
 
-                when(roomBookingRepository.countOverlappingBookingsByRoom(
+                when(roomBookingRepository.countOverlappingBookingsByCategory(
                                 anyString(), any(LocalDate.class), any(LocalDate.class), anyLong())).thenReturn(0L);
 
                 Promotion promo = new Promotion();
@@ -609,7 +614,7 @@ class BookingServiceUC10Test {
                 BookingRequestDTO request = buildRequest();
                 request.setPromotionCode("XMAS2025");
 
-                when(roomBookingRepository.countOverlappingBookingsByRoom(
+                when(roomBookingRepository.countOverlappingBookingsByCategory(
                                 anyString(), any(LocalDate.class), any(LocalDate.class), anyLong())).thenReturn(0L);
 
                 Promotion promo = new Promotion();
@@ -641,7 +646,7 @@ class BookingServiceUC10Test {
                 BookingRequestDTO request = buildRequest();
                 request.setPromotionCode("GHOST999");
 
-                when(roomBookingRepository.countOverlappingBookingsByRoom(
+                when(roomBookingRepository.countOverlappingBookingsByCategory(
                                 anyString(), any(LocalDate.class), any(LocalDate.class), anyLong())).thenReturn(0L);
                 when(promotionRepository.findByPromoCode("GHOST999"))
                                 .thenReturn(Optional.empty());

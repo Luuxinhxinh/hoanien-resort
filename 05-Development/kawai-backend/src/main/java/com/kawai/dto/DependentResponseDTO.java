@@ -1,0 +1,50 @@
+package com.kawai.dto;
+
+import java.time.LocalDate;
+
+/**
+ * DTO trả về sau khi đăng ký Dependent thành công (UC16).
+ * status: "REGISTERED" | "AUTHORIZED"
+ */
+public class DependentResponseDTO {
+
+    private Long dependentId;
+    private String fullName;
+    private LocalDate dateOfBirth;
+    private String status; // REGISTERED | AUTHORIZED
+
+    public DependentResponseDTO() {
+    }
+
+    public Long getDependentId() {
+        return dependentId;
+    }
+
+    public void setDependentId(Long dependentId) {
+        this.dependentId = dependentId;
+    }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
+    public LocalDate getDateOfBirth() {
+        return dateOfBirth;
+    }
+
+    public void setDateOfBirth(LocalDate dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+}

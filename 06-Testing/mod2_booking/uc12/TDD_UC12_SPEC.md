@@ -38,7 +38,7 @@
 | TC-COND-UC12-002 | Check-in fail (phòng Dirty) | `CheckinService.processCheckIn()` | TC-UC12-002 |
 | TC-COND-UC12-003 | Update Credit Limit | `CheckinService.updateCreditLimit()` | TC-UC12-003 |
 | TC-COND-UC12-004 | Đổi phòng | `CheckinService.transferRoom()` | TC-UC12-004 |
-| TC-COND-UC12-005 | Upgrade Dependent | `CheckinService.upgradeDependent()` | TC-UC12-005 |
+
 
 ### 4. Test Case Specification
 
@@ -58,9 +58,6 @@
 * **Severity:** HIGH | **Feature:** UC12.3 | 🟢 GREEN
 **Steps:** transferRoom(bookingId, newRoomId) → phòng cũ DIRTY, phòng mới OCCUPIED
 
-#### TC-UC12-005 — Nâng cấp Dependent → Customer + Account
-* **Severity:** LOW | **Feature:** UC12.4 | 🟢 GREEN
-**Steps:** upgradeDependent(dependentId) → Account/Customer mới được tạo
 
 ### 5. Red-Green-Refactor Tracker
 | TC ID | Test File | 🔴 RED | 🔴 Commit | 🔴 Date | 🟢 GREEN | 🟢 Commit | 🟢 Date | 🔵 REFACTOR | 🔵 Commit | 🔵 Note |
@@ -69,7 +66,7 @@
 | TC-UC12-002 | `CheckinServiceUC12Test.java` | [x] | `a1b2c3e` | 2026-06-12 | [x] | `b2c3d4f` | 2026-06-12 | [x] | `c3d4e5g` | ✅ Illegal room status checks |
 | TC-UC12-003 | `CheckinServiceUC12Test.java` | [x] | `a1b2c3e` | 2026-06-12 | [x] | `b2c3d4f` | 2026-06-12 | [x] | `c3d4e5g` | ✅ Validate credit limit updates |
 | TC-UC12-004 | `CheckinServiceUC12Test.java` | [x] | `a1b2c3e` | 2026-06-12 | [x] | `b2c3d4f` | 2026-06-12 | [x] | `c3d4e5g` | ✅ Room transfer extract |
-| TC-UC12-005 | `CheckinServiceUC12Test.java` | [x] | `a1b2c3e` | 2026-06-12 | [x] | `b2c3d4f` | 2026-06-12 | [x] | `c3d4e5g` | ✅ Account generator extract |
+
 
 ### 6. Rollback Plan
 `git checkout -- src/main/java/com/kawai/services/impl/CheckinServiceImpl.java`
