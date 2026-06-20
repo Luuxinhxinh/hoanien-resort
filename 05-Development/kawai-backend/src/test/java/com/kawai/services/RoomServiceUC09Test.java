@@ -57,6 +57,9 @@ class RoomServiceUC09Test {
         @Mock
         private RoomBookingRepository roomBookingRepository;
 
+        @Mock
+        private com.kawai.repositories.RoomCategoryRepository roomCategoryRepository;
+
         // ── Test Fixtures ─────────────────────────────────────────────────────────
         private static final LocalDate CHECK_IN = LocalDate.of(2026, 8, 1);
         private static final LocalDate CHECK_OUT = LocalDate.of(2026, 8, 5);
@@ -102,13 +105,25 @@ class RoomServiceUC09Test {
                 // Arrange
                 RoomSearchRequestDTO request = new RoomSearchRequestDTO(CHECK_IN, CHECK_OUT);
 
-                Room room1 = createRoom(1L, "R101", "Deluxe", new BigDecimal("2000000"), 2);
-                Room room2 = createRoom(2L, "R201", "Suite", new BigDecimal("3500000"), 4);
-                List<Room> allRooms = Arrays.asList(room1, room2);
+                RoomCategory cat1 = new RoomCategory();
+                cat1.setId(1L);
+                cat1.setCategoryName("Deluxe");
+                cat1.setBasePrice(new BigDecimal("2000000"));
+                cat1.setCapacity(2);
+                
+                RoomCategory cat2 = new RoomCategory();
+                cat2.setId(2L);
+                cat2.setCategoryName("Suite");
+                cat2.setBasePrice(new BigDecimal("3500000"));
+                cat2.setCapacity(4);
 
-                when(roomRepository.findAll()).thenReturn(allRooms);
-                // Không có booking nào overlapping
-                when(roomBookingRepository.countOverlappingBookings(anyString(), any(), any()))
+                when(roomCategoryRepository.findAll()).thenReturn(Arrays.asList(cat1, cat2));
+                when(roomRepository.countActiveRoomsByCategoryName("Deluxe")).thenReturn(1L);
+                when(roomRepository.countActiveRoomsByCategoryName("Suite")).thenReturn(1L);
+                
+                when(roomBookingRepository.countOverlappingBookingsByCategoryWithoutExclude(eq("Deluxe"), any(), any()))
+                                .thenReturn(0L);
+                when(roomBookingRepository.countOverlappingBookingsByCategoryWithoutExclude(eq("Suite"), any(), any()))
                                 .thenReturn(0L);
 
                 // Act
@@ -118,25 +133,23 @@ class RoomServiceUC09Test {
                 assertNotNull(result, "Danh sách kết quả không được null");
                 assertEquals(2, result.size(), "Phải trả 2 phòng trống");
 
-                // Verify phòng R101
+                // Verify phòng Deluxe
                 RoomSearchResponseDTO r1 = result.stream()
-                                .filter(r -> "R101".equals(r.getRoomNumber()))
+                                .filter(r -> "Deluxe".equals(r.getCategoryName()))
                                 .findFirst().orElse(null);
-                assertNotNull(r1, "R101 phải có trong kết quả");
-                assertEquals("Deluxe", r1.getCategoryName(), "Category của R101 phải là Deluxe");
+                assertNotNull(r1, "Deluxe phải có trong kết quả");
                 assertEquals(new BigDecimal("2000000"), r1.getPricePerNight(),
-                                "Giá R101 phải là 2,000,000/đêm");
-                assertEquals(Integer.valueOf(2), r1.getCapacity(), "Sức chứa R101 phải là 2");
+                                "Giá Deluxe phải là 2,000,000/đêm");
+                assertEquals(Integer.valueOf(2), r1.getCapacity(), "Sức chứa Deluxe phải là 2");
 
-                // Verify phòng R201
+                // Verify phòng Suite
                 RoomSearchResponseDTO r2 = result.stream()
-                                .filter(r -> "R201".equals(r.getRoomNumber()))
+                                .filter(r -> "Suite".equals(r.getCategoryName()))
                                 .findFirst().orElse(null);
-                assertNotNull(r2, "R201 phải có trong kết quả");
-                assertEquals("Suite", r2.getCategoryName(), "Category của R201 phải là Suite");
+                assertNotNull(r2, "Suite phải có trong kết quả");
                 assertEquals(new BigDecimal("3500000"), r2.getPricePerNight(),
-                                "Giá R201 phải là 3,500,000/đêm");
-                assertEquals(Integer.valueOf(4), r2.getCapacity(), "Sức chứa R201 phải là 4");
+                                "Giá Suite phải là 3,500,000/đêm");
+                assertEquals(Integer.valueOf(4), r2.getCapacity(), "Sức chứa Suite phải là 4");
 
                 // Verify dates
                 assertEquals(CHECK_IN, r1.getCheckInDate(), "CheckIn phải được set");
@@ -166,13 +179,12 @@ class RoomServiceUC09Test {
                 // Arrange
                 RoomSearchRequestDTO request = new RoomSearchRequestDTO(CHECK_IN, CHECK_OUT);
 
-                when(roomRepository.findAll()).thenReturn(Collections.emptyList());
+                when(roomCategoryRepository.findAll()).thenReturn(Collections.emptyList());
 
                 // Act
                 List<RoomSearchResponseDTO> result = roomService.searchAvailableRooms(request);
 
                 // Assert
-                // 🔴 RED — FAIL: nếu trả về null thay vì empty list
                 assertNotNull(result, "Kết quả không được null");
                 assertTrue(result.isEmpty(), "Danh sách phải rỗng khi không có phòng nào");
         }
@@ -193,10 +205,16 @@ class RoomServiceUC09Test {
                 // Arrange
                 RoomSearchRequestDTO request = new RoomSearchRequestDTO(CHECK_IN, CHECK_OUT);
 
-                Room room1 = createRoom(1L, "R101", "Deluxe", new BigDecimal("2000000"), 2);
-                when(roomRepository.findAll()).thenReturn(Arrays.asList(room1));
-                // R101 bị overlapping booking
-                when(roomBookingRepository.countOverlappingBookings(eq("R101"), any(), any()))
+                RoomCategory cat1 = new RoomCategory();
+                cat1.setId(1L);
+                cat1.setCategoryName("Deluxe");
+                cat1.setBasePrice(new BigDecimal("2000000"));
+                cat1.setCapacity(2);
+
+                when(roomCategoryRepository.findAll()).thenReturn(Arrays.asList(cat1));
+                when(roomRepository.countActiveRoomsByCategoryName("Deluxe")).thenReturn(1L);
+                
+                when(roomBookingRepository.countOverlappingBookingsByCategoryWithoutExclude(eq("Deluxe"), any(), any()))
                                 .thenReturn(1L);
 
                 // Act
@@ -204,6 +222,6 @@ class RoomServiceUC09Test {
 
                 // Assert
                 assertNotNull(result, "Kết quả không được null");
-                assertTrue(result.isEmpty(), "Phải trả danh sách rỗng vì R101 đã có booking");
+                assertTrue(result.isEmpty(), "Phải trả danh sách rỗng vì Deluxe đã có booking");
         }
 }

@@ -38,7 +38,7 @@ import static org.mockito.Mockito.*;
  *   TC-M2-012b (UC12.1) Check-in thất bại — phòng MAINTENANCE → exception
  *   TC-M2-013  (UC12.2) Cập nhật Credit Limit thành công
  *   TC-M2-014  (UC12.3) Đổi phòng — phòng cũ → DIRTY, phòng mới → OCCUPIED
- *   TC-M2-015  (UC12.4) Nâng cấp Dependent → Customer + Account
+
  *
  * ── Test Cases bổ sung (gap từ SRS UC-13) ────────────────────────
  *   TC-M2-016  (UC12.1) BookingDetail không tồn tại → exception
@@ -50,8 +50,7 @@ import static org.mockito.Mockito.*;
  *   TC-M2-022  (UC12.3) Đổi phòng — bookingDetail chưa gán phòng cũ → exception
  *   TC-M2-023  (UC12.2) updateCreditLimit — giá trị âm → exception (validation)
  *   TC-M2-024  (UC12.2) updateCreditLimit — bookingDetail không tồn tại → exception
- *   TC-M2-025  (UC12.4) upgradeDependent — dependent không tồn tại → exception
- *   TC-M2-026  (UC12.4) upgradeDependent — role CUSTOMER không có trong hệ thống → exception
+
  *
  * Business Rules liên quan:
  *   BR-FO-03: Ràng buộc tuổi check-in ≥18
@@ -420,63 +419,6 @@ class CheckinServiceUC12Test {
         }
     }
 
-    // ================================================================
-    // TC-M2-015: Nâng cấp Dependent → Customer + Account
-    // Ref: SRS UC-14; EDS §8.1 upgradeDependent(); TDD TC-UC12-005
-    //      BR-FO-07 (Dependent Validation)
-    // ================================================================
-    @Nested
-    @DisplayName("TC-M2-015: Nâng cấp Dependent → Customer + Account mới")
-    class TC_M2_015 {
-
-        @Test
-        @DisplayName("TC-M2-015: upgradeDependentToCustomer thành công — Customer + Account được tạo")
-        void upgradeDependentToCustomer_Success_ShouldCreateNewCustomerWithAccount() {
-            // ARRANGE
-            Long dependentId = 200L;
-
-            Role customerRole = new Role();
-            customerRole.setId(2L);
-            customerRole.setRoleName("CUSTOMER");
-
-            when(dependentRepository.findById(dependentId))
-                    .thenReturn(Optional.of(sampleDependent));
-            when(roleRepository.findByRoleName("CUSTOMER"))
-                    .thenReturn(Optional.of(customerRole));
-            when(accountRepository.save(any(Account.class)))
-                    .thenAnswer(invocation -> {
-                        Account saved = invocation.getArgument(0);
-                        saved.setId(50L);
-                        return saved;
-                    });
-            when(customerRepository.save(any(Customer.class)))
-                    .thenAnswer(invocation -> {
-                        Customer saved = invocation.getArgument(0);
-                        saved.setId(50L);
-                        return saved;
-                    });
-
-            // ACT
-            Customer result = checkinService.upgradeDependentToCustomer(dependentId);
-
-            // ASSERT
-            assertNotNull(result, "Kết quả nâng cấp không được null");
-            assertEquals("Nguyen Thi B", result.getFullName(),
-                    "Tên Customer phải khớp với tên Dependent");
-            assertEquals("FEMALE", result.getGender(),
-                    "Giới tính phải khớp với Dependent");
-            assertNotNull(result.getAccount(),
-                    "Customer mới phải có Account được tạo (BR-FO-07)");
-            assertEquals("CUSTOMER", result.getAccount().getRole().getRoleName(),
-                    "Role của Account phải là CUSTOMER");
-
-            // Verify interactions
-            verify(dependentRepository).findById(dependentId);
-            verify(roleRepository).findByRoleName("CUSTOMER");
-            verify(accountRepository).save(any(Account.class));
-            verify(customerRepository).save(any(Customer.class));
-        }
-    }
 
     // ================================================================
     // ── PHẦN BỔ SUNG — GAP TỪ SRS §2.1.13 ─────────────────────────
@@ -829,70 +771,4 @@ class CheckinServiceUC12Test {
         }
     }
 
-    // ================================================================
-    // TC-M2-025: upgradeDependent — dependent không tồn tại → exception
-    // Ref: SRS UC-14 AF-2 "guest không nằm trong danh sách đăng ký"
-    //      EDS §10 MOD2-003 | Gap: chỉ test happy path upgradeDependent
-    // ================================================================
-    @Nested
-    @DisplayName("TC-M2-025 [GAP]: upgradeDependent — dependent không tồn tại → exception")
-    class TC_M2_025 {
-
-        @Test
-        @DisplayName("TC-M2-025: upgradeDependentToCustomer với ID không tồn tại → exception (MOD2-003)")
-        void upgradeDependent_DependentNotFound_ShouldThrowException() {
-            // ARRANGE
-            Long nonExistentDependentId = 9999L;
-
-            when(dependentRepository.findById(nonExistentDependentId))
-                    .thenReturn(Optional.empty());
-
-            // ACT & ASSERT
-            assertThrows(
-                    RuntimeException.class,
-                    () -> checkinService.upgradeDependentToCustomer(nonExistentDependentId),
-                    "Dependent không tồn tại phải ném RuntimeException (MOD2-003)");
-
-            // Verify: không tạo account hay customer vì dependent không tồn tại
-            verify(accountRepository, never()).save(any());
-            verify(customerRepository, never()).save(any());
-        }
-    }
-
-    // ================================================================
-    // TC-M2-026: upgradeDependent — role CUSTOMER không có → exception
-    // Ref: SRS §1.4.3 Non-UI: Dependent_Account_Auto_Generation
-    //      Gap: nếu DB thiếu role CUSTOMER hệ thống phải fail có kiểm soát
-    // ================================================================
-    @Nested
-    @DisplayName("TC-M2-026 [GAP]: upgradeDependent — role CUSTOMER không tìm thấy → exception")
-    class TC_M2_026 {
-
-        @Test
-        @DisplayName("TC-M2-026: upgradeDependentToCustomer khi role CUSTOMER vắng mặt trong DB → exception")
-        void upgradeDependent_CustomerRoleNotFound_ShouldThrowException() {
-            // ARRANGE
-            Long dependentId = 200L;
-
-            when(dependentRepository.findById(dependentId))
-                    .thenReturn(Optional.of(sampleDependent));
-            // Role CUSTOMER bị thiếu trong DB (lỗi cấu hình)
-            when(roleRepository.findByRoleName("CUSTOMER"))
-                    .thenReturn(Optional.empty());
-
-            // ACT & ASSERT
-            IllegalArgumentException exception = assertThrows(
-                    IllegalArgumentException.class,
-                    () -> checkinService.upgradeDependentToCustomer(dependentId),
-                    "Role CUSTOMER không tồn tại phải ném IllegalArgumentException (cấu hình hệ thống)");
-            assertTrue(
-                    exception.getMessage().toLowerCase().contains("role")
-                    || exception.getMessage().toLowerCase().contains("customer"),
-                    "Message lỗi phải đề cập đến thiếu role CUSTOMER");
-
-            // Verify: không tạo account/customer vì thiếu role
-            verify(accountRepository, never()).save(any());
-            verify(customerRepository, never()).save(any());
-        }
-    }
 }

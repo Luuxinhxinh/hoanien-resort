@@ -18,4 +18,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     @Query("SELECT b FROM Booking b WHERE b.bookingStatus = 'Confirmed'")
     List<Booking> findConfirmed();
+
+    @Query("SELECT b FROM Booking b WHERE b.bookingStatus = 'Checked_In'")
+    List<Booking> findCheckedIn();
 }
