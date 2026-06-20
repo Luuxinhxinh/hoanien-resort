@@ -44,8 +44,7 @@ public interface RoomBookingRepository extends JpaRepository<RoomBooking, Long> 
                      "AND rbd.roomBooking.checkOutDate > :checkIn " +
                      "AND rbd.roomBooking.bookingStatus != 'CANCELLED' " +
                      "AND rbd.roomBooking.id != :excludeBookingId")
-       long countOverlappingBookingsByRoom(
-                     @Param("roomNumber") String roomNumber,
+       long countOverlappingBookingsByRoom(@Param("roomNumber") String roomNumber,
                      @Param("checkIn") LocalDate checkIn,
                      @Param("checkOut") LocalDate checkOut,
                      @Param("excludeBookingId") Long excludeBookingId);

@@ -105,6 +105,10 @@
                                 <span class="material-symbols-outlined text-base">restaurant</span>
                                 Gọi món
                             </button>
+                            <button onclick="switchTab('tables')" id="tabBtn-tables" class="pb-3 border-b-2 border-transparent opacity-60 hover:opacity-100 transition-opacity font-medium flex items-center gap-2">
+                                <span class="material-symbols-outlined text-base">table_restaurant</span>
+                                Đặt bàn
+                            </button>
                         </div>
 
                         <!-- 1. ROOM BOOKINGS SECTION -->
@@ -279,6 +283,48 @@
                             </div>
                         </div>
 
+                        <!-- 4. TABLE RESERVATIONS SECTION -->
+                        <div id="section-tables" class="hidden space-y-4">
+                            <h3 class="font-serif text-xl mb-4">Lịch sử đặt bàn</h3>
+
+                            <div th:if="${tableReservations == null or tableReservations.empty}" class="text-center py-8 opacity-50 border border-dashed border-hoanien-text/30 rounded-lg">
+                                <span class="material-symbols-outlined text-4xl mb-2">table_bar</span>
+                                <p class="text-sm">Bạn chưa có đơn đặt bàn nào.</p>
+                            </div>
+
+                            <div th:each="tr : ${tableReservations}" class="flex flex-col gap-3 p-4 border border-hoanien-text/10 rounded-lg bg-white/30 hover:bg-white/50 transition-colors">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <div class="flex items-center gap-2">
+                                            <span class="inline-block text-[9px] bg-hoanien-text/5 text-hoanien-text px-1.5 py-0.5 rounded font-medium" th:text="'#HN-TABLE-' + ${tr.id}">#HN-TABLE...</span>
+                                            <span class="text-[10px] font-medium opacity-70" th:text="'Bàn ' + ${tr.table.id}">Bàn</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex flex-col items-end gap-1">
+                                        <span th:if="${tr.status == 'Pending'}" class="text-[9px] bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full font-medium">Chờ xác nhận</span>
+                                        <span th:if="${tr.status == 'Confirmed'}" class="text-[9px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">Đã xác nhận</span>
+                                        <span th:if="${tr.status == 'Cancelled'}" class="text-[9px] bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-medium">Đã hủy</span>
+                                    </div>
+                                </div>
+
+                                <div class="border-t border-b border-hoanien-text/5 py-2 text-xs space-y-1">
+                                    <div class="flex justify-between">
+                                        <span class="opacity-80 flex items-center gap-1"><span class="material-symbols-outlined text-[13px]">calendar_today</span> Ngày sử dụng</span>
+                                        <span class="font-medium" th:text="${#temporals.format(tr.reserveDate, 'dd/MM/yyyy')}">Date</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="opacity-80 flex items-center gap-1"><span class="material-symbols-outlined text-[13px]">schedule</span> Thời gian</span>
+                                        <span class="font-medium" th:text="${#temporals.format(tr.reserveTime, 'HH:mm')} + ' - ' + ${#temporals.format(tr.endTime, 'HH:mm')}">Time</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="opacity-80 flex items-center gap-1"><span class="material-symbols-outlined text-[13px]">group</span> Số lượng khách</span>
+                                        <span class="font-medium" th:text="${tr.partySize + ' người'}">Size</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>
@@ -408,18 +454,18 @@
             gsap.fromTo('.site-header', { opacity: 0, y: -20 }, { opacity: 1, y: 0, duration: 1.2, ease: "power2.out" });
         });
 
-        // Tab Switching Logic
         function switchTab(tabId) {
             // Hide all sections
             document.getElementById('section-rooms').classList.add('hidden');
             document.getElementById('section-tours').classList.add('hidden');
             document.getElementById('section-food').classList.add('hidden');
+            document.getElementById('section-tables').classList.add('hidden');
 
             // Reset tab button styles
-            const btns = ['rooms', 'tours', 'food'];
+            const btns = ['rooms', 'tours', 'food', 'tables'];
             btns.forEach(b => {
                 const el = document.getElementById('tabBtn-' + b);
-                el.className = "pb-3 border-b-2 border-transparent opacity-60 hover:opacity-100 transition-opacity font-medium flex items-center gap-2";
+                if (el) el.className = "pb-3 border-b-2 border-transparent opacity-60 hover:opacity-100 transition-opacity font-medium flex items-center gap-2";
             });
 
             // Show active section
@@ -432,6 +478,9 @@
             } else if (tabId === 'food') {
                 document.getElementById('section-food').classList.remove('hidden');
                 document.getElementById('tabBtn-food').className = "pb-3 border-b-2 border-hoanien-text font-semibold text-hoanien-text flex items-center gap-2";
+            } else if (tabId === 'tables') {
+                document.getElementById('section-tables').classList.remove('hidden');
+                document.getElementById('tabBtn-tables').className = "pb-3 border-b-2 border-hoanien-text font-semibold text-hoanien-text flex items-center gap-2";
             }
         }
 
