@@ -73,10 +73,99 @@
 /* ============================================================
    TABLE MANAGEMENT — Floor Plan
    ============================================================ */
+.tm-container {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
 .tm-floor-plan {
   display: flex;
   flex-direction: column;
   gap: 22px;
+  flex: 1; /* Takes full width normally */
+  transition: flex 0.3s ease;
+}
+
+/* When split is active */
+.tm-container.split-active .tm-floor-plan {
+  flex: 0 0 65%; /* Shrinks to 65% */
+}
+
+.tm-side-panel {
+  display: none;
+  flex: 0 0 calc(35% - 20px);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: 20px;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.tm-container.split-active .tm-side-panel {
+  display: flex;
+  animation: slideInRight 0.3s ease forwards;
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.side-panel-header {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 15px;
+}
+.side-panel-header h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem;
+  color: var(--text-primary);
+  margin: 0 0 5px 0;
+}
+.side-panel-header div {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.side-panel-schedule h4 {
+  font-size: 0.95rem;
+  margin: 0 0 12px 0;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.schedule-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 250px;
+  overflow-y: auto;
+}
+
+.schedule-item {
+  background: var(--bg-base);
+  border-left: 3px solid var(--status-served-text);
+  padding: 10px 12px;
+  border-radius: 4px;
+}
+.schedule-item-time {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--status-served-text);
+  margin-bottom: 4px;
+}
+.schedule-item-detail {
+  font-size: 0.85rem;
+  color: var(--text-primary);
+}
+
+.side-panel-action {
+  border-top: 1px solid var(--border);
+  padding-top: 15px;
 }
 
 .tm-zone {
@@ -213,7 +302,13 @@
   color: var(--status-served-text);
 }
 .tm-table[data-status="reserved"] .tm-table-status-label {
-  background: rgba(60,80,160,0.12);
+  background: rgba(14,60,110,0.15);
+}
+.tm-table.selected-table {
+  border: 2px solid var(--text-primary);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lift);
+  background: rgba(14,60,110,0.18);
 }
 
 .tm-table[data-status="cleaning"] {

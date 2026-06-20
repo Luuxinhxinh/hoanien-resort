@@ -166,9 +166,22 @@
               <label class="form-label">Chọn Bàn / Khu vực</label>
               <select class="form-control">
                 <option value="">-- Chọn Bàn --</option>
-                <option th:each="table : ${vacantTables}" 
-                        th:value="${table.id}" 
-                        th:text="'Bàn ' + ${#strings.replace(table.tableNumber, 'T', '')} + ' - Sức chứa: ' + ${table.capacity}"></option>
+                <optgroup label="Bàn Sẵn Sàng (Trống / Đang dọn)">
+                  <option th:each="table : ${vacantTables}" 
+                          th:value="${table.id}" 
+                          th:text="'Bàn ' + ${#strings.replace(table.tableNumber, 'T', '')} + ' - Sức chứa: ' + ${table.capacity} + ' (' + ${tableAvailabilityText.get(table.id)} + ')'"></option>
+                </optgroup>
+                <optgroup label="Bàn Đã Đặt (Reserved)">
+                  <option th:each="table : ${reservedTables}" 
+                          th:value="${table.id}" 
+                          th:text="'Bàn ' + ${#strings.replace(table.tableNumber, 'T', '')} + ' - Sức chứa: ' + ${table.capacity} + ' (' + ${tableAvailabilityText.get(table.id)} + ')'"></option>
+                </optgroup>
+                <optgroup label="Bàn Đang Bận">
+                  <option th:each="table : ${occupiedTables}" 
+                          th:value="${table.id}" 
+                          th:text="'Bàn ' + ${#strings.replace(table.tableNumber, 'T', '')} + ' - Đang phục vụ khách'" 
+                          disabled></option>
+                </optgroup>
               </select>
             </div>
 

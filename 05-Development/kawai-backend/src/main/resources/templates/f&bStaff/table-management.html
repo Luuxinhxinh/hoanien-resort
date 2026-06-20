@@ -108,39 +108,20 @@
     <!-- Table Management Body -->
     <div class="dashboard-body tm-body">
 
-      <!-- Legend + Stats Bar -->
-      <div class="tm-stats-bar">
-        <div class="tm-stat-chip vacant-chip">
-          <span class="tm-chip-dot"></span>
-          <span class="tm-chip-label">Trống</span>
-          <span class="tm-chip-count" id="tm-count-vacant">0</span>
-        </div>
-        <div class="tm-stat-chip reserved-chip">
-          <span class="tm-chip-dot"></span>
-          <span class="tm-chip-label">Đã đặt</span>
-          <span class="tm-chip-count" id="tm-count-reserved">0</span>
-        </div>
-        <div class="tm-stat-chip serving-chip">
-          <span class="tm-chip-dot"></span>
-          <span class="tm-chip-label">Đang phục vụ</span>
-          <span class="tm-chip-count" id="tm-count-serving">0</span>
-        </div>
-
-        <div class="tm-stat-divider"></div>
-        <div class="tm-total-label">Tổng: <strong id="tm-total" th:text="${tables.size()}">20</strong> bàn</div>
-      </div>
 
 
-
-      <!-- Table Floor Plan -->
-      <div class="tm-floor-plan">
+      <!-- Table Floor Plan & Side Panel Container -->
+      <div class="tm-container">
+      
+        <div class="tm-floor-plan">
 
         <!-- All Tables Floor Plan -->
         <div class="tm-zone" style="padding-top: 10px;">
           <div class="tm-table-grid">
             <div class="tm-table" th:each="table : ${tables}"
-                 th:attr="data-table=${#strings.replace(table.tableNumber, 'T', '')}, 
-                          data-status=${table.tableStatus == 'Occupied' ? 'serving' : (table.tableStatus == 'Reserved' ? 'reserved' : 'vacant')}, 
+                 th:attr="data-id=${table.id},
+                          data-table=${#strings.replace(table.tableNumber, 'T', '')}, 
+                          data-status='reserved', 
                           data-capacity=${table.capacity},
                           data-orderid=${tableActiveOrderMap.get(table.id)}">
               <div class="tm-table-inner">
@@ -149,13 +130,30 @@
                   <span class="material-symbols-outlined">person</span>
                   <span th:text="${table.capacity}">4</span>
                 </div>
-                <div class="tm-table-status-label" th:text="${table.tableStatus == 'Vacant' ? 'Trống' : (table.tableStatus == 'Occupied' ? 'Đang phục vụ' : (table.tableStatus == 'Reserved' ? 'Đã đặt' : table.tableStatus))}">Trống</div>
               </div>
             </div>
           </div>
         </div>
 
       </div><!-- / tm-floor-plan -->
+
+        <!-- Side Panel (Lịch trình bàn) -->
+        <aside class="tm-side-panel" id="tm-side-panel">
+          <div class="side-panel-header">
+            <h3 id="panel-table-name">Bàn --</h3>
+            <div id="panel-table-cap">Sức chứa: --</div>
+          </div>
+          
+          <div class="side-panel-schedule" style="flex:1;">
+            <h4>Lịch trình hôm nay</h4>
+            <div id="panel-schedule-list" class="schedule-list" style="max-height: calc(100vh - 250px);">
+              <!-- Rendered via JS -->
+              <div style="color:var(--text-muted);font-size:0.8rem;text-align:center;padding:20px 0;">Chọn bàn để xem lịch</div>
+            </div>
+          </div>
+        </aside>
+
+      </div><!-- / tm-container -->
 
     </div><!-- / tm-body -->
   </div><!-- / main-content -->
