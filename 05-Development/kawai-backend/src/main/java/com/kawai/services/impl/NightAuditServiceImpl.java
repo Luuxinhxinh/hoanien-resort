@@ -76,8 +76,8 @@ public class NightAuditServiceImpl implements NightAuditService {
     @Override
     @Transactional
     public void runNightAudit(LocalDate auditDate) {
-        // Tìm các phòng đang ở trạng thái Checked_In
-        List<RoomBookingDetail> checkedInRooms = roomBookingDetailRepository.findByDetailStatus("Checked_In");
+        // Tìm các phòng đang ở trạng thái OCCUPIED
+        List<RoomBookingDetail> checkedInRooms = roomBookingDetailRepository.findByDetailStatus("OCCUPIED");
 
         for (RoomBookingDetail detail : checkedInRooms) {
             FolioItem item = createRoomChargeItem(detail, auditDate);

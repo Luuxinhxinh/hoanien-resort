@@ -23,6 +23,8 @@ public class MasterDataApiController {
     private final BookingRepository bookingRepository;
 
     @PostMapping("/{entityType}")
+    @org.springframework.transaction.annotation.Transactional
+    @com.kawai.utils.LogActivity(action = "Tạo mới dữ liệu Master Data", module = "Master Data")
     public ResponseEntity<?> createEntity(@PathVariable String entityType, @RequestBody Map<String, Object> payload) {
         System.out.println("========== CREATE ENTITY API HIT! Type: " + entityType + " ==========");
         System.out.println("Payload: " + payload);
@@ -309,6 +311,8 @@ public class MasterDataApiController {
     }
 
     @DeleteMapping("/{entityType}/{id}")
+    @org.springframework.transaction.annotation.Transactional
+    @com.kawai.utils.LogActivity(action = "Xóa dữ liệu Master Data", module = "Master Data")
     public ResponseEntity<?> deleteEntity(@PathVariable String entityType, @PathVariable String id) {
         System.out.println("========== DELETE ENTITY API HIT! Type: " + entityType + " | ID: " + id + " ==========");
 
@@ -358,6 +362,59 @@ public class MasterDataApiController {
                     break;
             }
             return ResponseEntity.ok(Map.of("message", "Deleted successfully"));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PatchMapping("/{entityType}/{id}/toggle")
+    @org.springframework.transaction.annotation.Transactional
+    @com.kawai.utils.LogActivity(action = "Đổi trạng thái Kích hoạt/Vô hiệu hoá", module = "Master Data")
+    public ResponseEntity<?> toggleEntityStatus(@PathVariable String entityType, @PathVariable String id, @RequestBody Map<String, Boolean> payload) {
+        System.out.println("========== TOGGLE ENTITY API HIT! Type: " + entityType + " | ID: " + id + " ==========");
+        try {
+            String rawId = id;
+            if (id.startsWith("RC-") || id.startsWith("RM-") || id.startsWith("MI-") || id.startsWith("T-")
+                    || id.startsWith("PR-")) {
+                rawId = id.substring(id.indexOf("-") + 1);
+            }
+            Long entityId = Long.parseLong(rawId);
+            Boolean newStatus = payload.get("status");
+
+            switch (entityType) {
+                case "room-categories":
+                    roomCategoryRepository.findById(entityId).ifPresent(rc -> {
+                        rc.setIsActive(newStatus);
+                        roomCategoryRepository.save(rc);
+                    });
+                    break;
+                case "rooms":
+                    roomRepository.findById(entityId).ifPresent(room -> {
+                        room.setRoomStatus(newStatus ? "Occupied" : "OutOfOrder"); // Example status
+                        roomRepository.save(room);
+                    });
+                    break;
+                case "menu-items":
+                    foodItemRepository.findById(entityId).ifPresent(item -> {
+                        item.setIsAvailable(newStatus);
+                        foodItemRepository.save(item);
+                    });
+                    break;
+                case "tours":
+                    tourRepository.findById(entityId).ifPresent(tour -> {
+                        tour.setIsActive(newStatus);
+                        tourRepository.save(tour);
+                    });
+                    break;
+                case "promotions":
+                    promotionRepository.findById(entityId).ifPresent(promo -> {
+                        promo.setIsActive(newStatus);
+                        promotionRepository.save(promo);
+                    });
+                    break;
+            }
+            return ResponseEntity.ok(Map.of("message", "Toggled successfully"));
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", e.getMessage()));

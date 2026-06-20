@@ -2,7 +2,11 @@ package com.kawai.models;
 
 import jakarta.persistence.*;
 
+import org.hibernate.envers.NotAudited;
+import org.hibernate.envers.Audited;
+
 @Entity
+@Audited
 @Table(name = "Rooms")
 public class Room {
     @Id
@@ -16,6 +20,7 @@ public class Room {
     private RoomCategory category;
     @Column(name = "room_status", nullable = false)
     private String roomStatus = "Vacant_Clean";
+    @NotAudited
     @Column(name = "current_booking_detail_id")
     private Long currentBookingDetailId;
 

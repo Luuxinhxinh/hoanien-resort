@@ -3,7 +3,10 @@ package com.kawai.models;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 
+import org.hibernate.envers.Audited;
+
 @Entity
+@Audited
 @Table(name = "Room_Categories")
 public class RoomCategory {
     @Id

@@ -151,15 +151,16 @@ public class SecurityConfig {
                     }
                 }
 
+                String deviceId = request.getParameter("device_id");
+                boolean isFromOpsPortal = (deviceId != null);
+
                 if (isOpsUser) {
-                    // String deviceId = request.getParameter("device_id");
-                    // if (deviceId == null || deviceId.trim().isEmpty()
-                    //         || !authorizedDeviceRepository.existsByDeviceCodeAndIsApprovedTrue(deviceId)) {
-                    //     new org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler()
-                    //             .logout(request, response, authentication);
-                    //     response.sendRedirect("/ops-login?device_error=true");
-                    //     return;
-                    // }
+                    if (!isFromOpsPortal) {
+                        new org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler()
+                                .logout(request, response, authentication);
+                        response.sendRedirect("/booking?login_error=true");
+                        return;
+                    }
 
                     String redirectTo = request.getParameter("redirect_to");
                     if (redirectTo != null && !redirectTo.trim().isEmpty()) {
@@ -190,6 +191,13 @@ public class SecurityConfig {
                     response.sendRedirect(redirect);
                 } else {
                     // Normal Customer / Guest
+                    if (isFromOpsPortal) {
+                        new org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler()
+                                .logout(request, response, authentication);
+                        response.sendRedirect("/ops-login?error=true");
+                        return;
+                    }
+
                     Account account = accountRepository.findByUsername(authentication.getName()).orElse(null);
                     if (account != null) {
                         request.getSession().setAttribute("user", account);

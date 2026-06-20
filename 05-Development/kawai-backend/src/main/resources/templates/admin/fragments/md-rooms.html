@@ -22,7 +22,7 @@
                 <td style="text-align:right">
                     <div style="display:flex;align-items:center;justify-content:flex-end;gap:2px">
                         <button class="btn-action btn-action-edit btn-edit" th:attr="data-id=${row['id']}"><i data-lucide="pencil"></i></button>
-                        <button class="btn-action btn-action-delete btn-delete" th:attr="data-id=${row['id']}"><i data-lucide="trash-2"></i></button>
+                        <button class="btn-action" style="color: #6B8C42; background: rgba(107, 140, 66, 0.1);" title="Xem lịch sử" onclick="openAuditModal(this.getAttribute('data-id'), 'rooms')" th:attr="data-id=${row['id']}"><i data-lucide="file-clock"></i></button>
                     </div>
                 </td>
             </tr>

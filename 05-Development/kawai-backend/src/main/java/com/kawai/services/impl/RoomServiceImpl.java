@@ -72,11 +72,22 @@ public class RoomServiceImpl implements RoomService {
             throw new IllegalArgumentException("Page size must be positive");
         }
 
-        List<RoomCategory> allCategories = roomCategoryRepository.findAll();
-        List<RoomSearchResponseDTO> available = new ArrayList<>();
-        int minRooms = request.getMinRooms() != null ? request.getMinRooms() : 1;
+        List<Room> allRooms = roomRepository.findAll();
+        if (allRooms == null) {
+            allRooms = new ArrayList<>();
+        }
 
-        for (RoomCategory cat : allCategories) {
+        List<Room> availableRooms = new ArrayList<>();
+        for (Room room : allRooms) {
+            if (!isRoomAvailable(room.getRoomNumber(), checkIn, checkOut)) {
+                continue;
+            }
+
+            RoomCategory cat = room.getCategory();
+            if (cat == null) {
+                continue;
+            }
+
             if (request.getCategoryName() != null && !request.getCategoryName().trim().isEmpty()) {
                 String searchCategoryName = request.getCategoryName().trim().toLowerCase();
                 if (!cat.getCategoryName().toLowerCase().contains(searchCategoryName)) {
@@ -89,24 +100,30 @@ public class RoomServiceImpl implements RoomService {
                 }
             }
             if (request.getMaxPricePerNight() != null) {
-                if (cat.getBasePrice().compareTo(request.getMaxPricePerNight()) > 0) {
+                if (cat.getBasePrice() != null && cat.getBasePrice().compareTo(request.getMaxPricePerNight()) > 0) {
                     continue;
                 }
             }
 
-            long totalRooms = roomRepository.countActiveRoomsByCategoryName(cat.getCategoryName());
-            long overlapping = roomBookingRepository
-                    .countOverlappingBookingsByCategoryWithoutExclude(cat.getCategoryName(), checkIn, checkOut);
-            long availableCount = totalRooms - overlapping;
+            availableRooms.add(room);
+        }
 
-            if (availableCount >= minRooms) {
-                for (int i = 1; i <= availableCount; i++) {
-                    RoomSearchResponseDTO dto = toSearchResult(cat, checkIn, checkOut,
-                            "DUMMY_" + cat.getCategoryName() + "_" + i);
-                    dto.setAvailableCount((int) availableCount);
-                    available.add(dto);
-                }
-            }
+        // Đếm số phòng trống theo từng hạng phòng để set availableCount
+        java.util.Map<String, Long> categoryCounts = availableRooms.stream()
+                .filter(r -> r.getCategory() != null)
+                .collect(java.util.stream.Collectors.groupingBy(
+                        r -> r.getCategory().getCategoryName(),
+                        java.util.stream.Collectors.counting()
+                ));
+
+        List<RoomSearchResponseDTO> available = new ArrayList<>();
+        for (Room room : availableRooms) {
+            RoomCategory cat = room.getCategory();
+            RoomSearchResponseDTO dto = toSearchResult(cat, checkIn, checkOut, room.getRoomNumber());
+            dto.setRoomId(room.getId());
+            long count = categoryCounts.getOrDefault(cat.getCategoryName(), 0L);
+            dto.setAvailableCount((int) count);
+            available.add(dto);
         }
 
         // ── Pagination ─────────────────────────────────────────────────────
@@ -137,8 +154,8 @@ public class RoomServiceImpl implements RoomService {
         }
 
         return allRooms.stream()
-                .map(this::toDashboardDTO)
-                .toList();
+                .map(room -> toDashboardDTO(room))
+                .collect(java.util.stream.Collectors.toList());
     }
 
     @Override

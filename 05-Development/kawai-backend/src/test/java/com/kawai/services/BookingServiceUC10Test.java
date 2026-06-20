@@ -115,6 +115,9 @@ class BookingServiceUC10Test {
         @Mock
         private com.kawai.repositories.PaymentTransactionRepository paymentTransactionRepository;
 
+        @Mock
+        private com.kawai.repositories.RoomCategoryRepository roomCategoryRepository;
+
         @org.junit.jupiter.api.BeforeEach
         void setUp() {
                 com.kawai.models.Customer customer = new com.kawai.models.Customer();
@@ -125,6 +128,24 @@ class BookingServiceUC10Test {
                 category.setId(1L);
                 category.setCategoryName("Deluxe");
                 category.setBasePrice(new BigDecimal("2000000"));
+
+                lenient().when(roomCategoryRepository.findByCategoryNameWithLock(anyString())).thenAnswer(invocation -> {
+                        String catName = invocation.getArgument(0);
+                        com.kawai.models.RoomCategory cat = new com.kawai.models.RoomCategory();
+                        cat.setId(1L);
+                        cat.setCategoryName(catName);
+                        cat.setBasePrice(new BigDecimal("2000000"));
+                        return Optional.of(cat);
+                });
+
+                lenient().when(roomRepository.countActiveRoomsByCategoryName(anyString())).thenReturn(1L);
+                lenient().when(roomBookingRepository.countOverlappingBookingsByCategory(anyString(), any(), any(), anyLong()))
+                        .thenAnswer(invocation -> {
+                                LocalDate in = invocation.getArgument(1);
+                                LocalDate out = invocation.getArgument(2);
+                                Long holdId = invocation.getArgument(3);
+                                return roomBookingRepository.countOverlappingBookingsByRoom(ROOM_NO, in, out, holdId);
+                        });
 
                 lenient().when(roomRepository.findByRoomNumber(anyString())).thenAnswer(invocation -> {
                         String rNo = invocation.getArgument(0);

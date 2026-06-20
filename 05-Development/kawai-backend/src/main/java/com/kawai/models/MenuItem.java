@@ -2,7 +2,12 @@ package com.kawai.models;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.math.BigDecimal;
-@Entity @Table(name="Menu_Items") @Data
+import org.hibernate.envers.Audited;
+
+@Entity 
+@Audited 
+@Table(name="Menu_Items") 
+@Data
 public class MenuItem {
     @Id @GeneratedValue(strategy=GenerationType.IDENTITY) @Column(name="item_id") private Long id;
     @Column(name="item_name", nullable=false) private String itemName;

@@ -29,6 +29,11 @@ public class BookingController {
 
         if (principal != null) {
             String username = principal.getName();
+            if (principal instanceof org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken) {
+                org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken oauthToken = 
+                    (org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken) principal;
+                username = oauthToken.getPrincipal().getAttribute("email");
+            }
             Optional<Customer> customerOpt = customerRepository
                     .findByAccount_Username(username);
             if (customerOpt.isEmpty()) {

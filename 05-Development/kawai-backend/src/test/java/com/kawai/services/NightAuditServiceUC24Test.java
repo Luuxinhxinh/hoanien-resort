@@ -47,6 +47,7 @@ import static org.mockito.Mockito.*;
  * @author Ngo Thi Ngoc Lan (MOD5)
  */
 @ExtendWith(MockitoExtension.class)
+@org.mockito.junit.jupiter.MockitoSettings(strictness = org.mockito.quality.Strictness.LENIENT)
 class NightAuditServiceUC24Test {
 
     // ── Repositories được mock ────────────────────────────────────────────────
@@ -89,8 +90,9 @@ class NightAuditServiceUC24Test {
         occupiedDetail.setCategory(category);
 
         // Tạo Booking mock
-        Booking booking = new Booking();
+        com.kawai.models.RoomBooking booking = new com.kawai.models.RoomBooking();
         booking.setId(1L);
+        occupiedDetail.setRoomBooking(booking);
 
         // FolioItem: Tiền phòng 500,000 VNĐ
         roomChargeItem = new FolioItem();

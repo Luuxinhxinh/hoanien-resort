@@ -29,6 +29,18 @@ import java.math.BigDecimal;
 @RequestMapping("/api/bookings")
 public class BookingApiController {
 
+    private String extractUsername(Principal principal) {
+        if (principal instanceof org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken) {
+            org.springframework.security.oauth2.core.user.OAuth2User oauthUser = 
+                ((org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken) principal).getPrincipal();
+            String email = oauthUser.getAttribute("email");
+            if (email != null) {
+                return email;
+            }
+        }
+        return principal.getName();
+    }
+
     private static final Logger log = LoggerFactory.getLogger(BookingApiController.class);
 
     @Autowired
@@ -55,7 +67,7 @@ public class BookingApiController {
         }
 
         try {
-            String username = principal.getName();
+            String username = extractUsername(principal);
             Customer customer = customerRepository.findByAccount_Username(username)
                     .orElseGet(() -> customerRepository.findByEmail(username).orElse(null));
             if (customer == null) {
@@ -108,7 +120,7 @@ public class BookingApiController {
         }
 
         try {
-            String username = principal.getName();
+            String username = extractUsername(principal);
             Customer customer = customerRepository.findByAccount_Username(username)
                     .orElseGet(() -> customerRepository.findByEmail(username).orElse(null));
             if (customer == null) {
@@ -151,7 +163,7 @@ public class BookingApiController {
                     .body(Map.of("message", "Quý khách cần đăng nhập để thực hiện thao tác này!"));
         }
         try {
-            String username = principal.getName();
+            String username = extractUsername(principal);
             Customer customer = customerRepository.findByAccount_Username(username)
                     .orElseGet(() -> customerRepository.findByEmail(username).orElse(null));
             if (customer == null) {
@@ -177,7 +189,7 @@ public class BookingApiController {
             return ResponseEntity.status(401).body(Map.of("status", "error", "message", "Quý khách cần đăng nhập!"));
         }
         try {
-            String username = principal.getName();
+            String username = extractUsername(principal);
             Customer customer = customerRepository.findByAccount_Username(username)
                     .orElseGet(() -> customerRepository.findByEmail(username).orElse(null));
             if (customer == null) {
@@ -209,7 +221,7 @@ public class BookingApiController {
             return ResponseEntity.status(401).body(Map.of("status", "error", "message", "Quý khách cần đăng nhập!"));
         }
         try {
-            String username = principal.getName();
+            String username = extractUsername(principal);
             Customer customer = customerRepository.findByAccount_Username(username)
                     .orElseGet(() -> customerRepository.findByEmail(username).orElse(null));
             if (customer == null) {

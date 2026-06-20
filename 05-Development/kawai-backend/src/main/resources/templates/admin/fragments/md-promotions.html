@@ -39,8 +39,7 @@
                 <td style="text-align:right">
                     <div style="display:flex;align-items:center;justify-content:flex-end;gap:2px">
                         <button class="btn-action btn-action-edit btn-edit" th:attr="data-id=${row['id']}"><i data-lucide="pencil"></i></button>
-                        <button class="btn-action btn-action-delete btn-delete" th:attr="data-id=${row['id']}"><i data-lucide="trash-2"></i></button>
-                    </div>
+</div>
                 </td>
             </tr>
             <tr th:if="${#lists.isEmpty(rows)}"><td colspan="10" style="text-align:center;padding:48px;color:#8B7355;font-family:var(--font-serif);font-size:18px">Không có bản ghi nào</td></tr>

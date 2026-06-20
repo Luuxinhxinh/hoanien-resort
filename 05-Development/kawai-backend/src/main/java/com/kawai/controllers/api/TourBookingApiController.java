@@ -53,7 +53,15 @@ public class TourBookingApiController {
             // 1. Find or create Customer
             Customer customer = null;
             if (principal != null) {
-                customer = customerRepository.findByAccount_Username(principal.getName()).orElse(null);
+                String identifier = principal.getName();
+                if (principal instanceof org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken) {
+                    org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken oauthToken = 
+                        (org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken) principal;
+                    identifier = oauthToken.getPrincipal().getAttribute("email");
+                }
+                if (identifier != null) {
+                    customer = customerRepository.findByAccount_Username(identifier).orElse(null);
+                }
             }
             if (customer == null) {
                 // Try finding by email

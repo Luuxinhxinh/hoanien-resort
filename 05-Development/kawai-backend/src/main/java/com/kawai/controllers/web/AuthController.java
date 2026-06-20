@@ -6,6 +6,7 @@ import com.kawai.models.Role;
 import com.kawai.repositories.AccountRepository;
 import com.kawai.repositories.CustomerRepository;
 import com.kawai.repositories.RoleRepository;
+import com.kawai.services.interfaces.AuthService;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -30,6 +31,9 @@ public class AuthController {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private AuthService authService;
 
     @PostMapping("/register")
     public String register(@RequestParam String username,
@@ -91,8 +95,10 @@ public class AuthController {
     }
 
     /**
-     * Endpoint trung gian: lưu trang hiện tại vào session trước khi redirect sang Google OAuth.
-     * Giúp OAuth2 success handler biết cần quay lại trang nào sau khi đăng nhập thành công.
+     * Endpoint trung gian: lưu trang hiện tại vào session trước khi redirect sang
+     * Google OAuth.
+     * Giúp OAuth2 success handler biết cần quay lại trang nào sau khi đăng nhập
+     * thành công.
      */
     @GetMapping("/google-login")
     public String googleLogin(
@@ -108,18 +114,80 @@ public class AuthController {
             try {
                 java.net.URI uri = new java.net.URI(referer);
                 redirectAfter = uri.getPath();
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) {
+            }
         }
 
         session.setAttribute("OAUTH2_REDIRECT_URI", redirectAfter);
 
-        // Also save to a cookie to bypass Spring Security session fixation/invalidation issues
-        jakarta.servlet.http.Cookie redirectCookie = new jakarta.servlet.http.Cookie("OAUTH2_REDIRECT_URI", redirectAfter);
+        // Also save to a cookie to bypass Spring Security session fixation/invalidation
+        // issues
+        jakarta.servlet.http.Cookie redirectCookie = new jakarta.servlet.http.Cookie("OAUTH2_REDIRECT_URI",
+                redirectAfter);
         redirectCookie.setPath("/");
         redirectCookie.setMaxAge(300); // 5 minutes
         response.addCookie(redirectCookie);
 
         return "redirect:/oauth2/authorization/google";
+    }
+
+    // ── QUÊN MẬT KHẨU ──
+    @GetMapping("/forgot-password")
+    public String forgotPasswordPage() {
+        return "auth/forgot-password";
+    }
+
+    @PostMapping("/forgot-password")
+    public String forgotPassword(@RequestParam String email,
+            RedirectAttributes redirectAttributes) {
+        try {
+            String token = authService.requestPasswordReset(email);
+            // Lưu token vào session để hiển thị link reset (demo)
+            // Trong thực tế sẽ gửi email chứa link
+            redirectAttributes.addFlashAttribute("resetToken", token);
+            redirectAttributes.addFlashAttribute("authSuccess",
+                    "Yêu cầu đặt lại mật khẩu đã được gửi. Vui lòng kiểm tra email.");
+        } catch (Exception e) {
+            // Không lộ thông tin email tồn tại hay không
+            redirectAttributes.addFlashAttribute("authSuccess",
+                    "Nếu email tồn tại trong hệ thống, link đặt lại mật khẩu đã được gửi.");
+        }
+        return "redirect:/auth/forgot-password";
+    }
+
+    @GetMapping("/reset-password")
+    public String resetPasswordPage(@RequestParam(required = false) String token,
+            RedirectAttributes redirectAttributes) {
+        if (token == null || token.trim().isEmpty()) {
+            redirectAttributes.addFlashAttribute("authError", "Token không hợp lệ.");
+            return "redirect:/auth/login";
+        }
+        return "auth/reset-password";
+    }
+
+    @PostMapping("/reset-password")
+    public String resetPassword(@RequestParam String token,
+            @RequestParam String newPassword,
+            @RequestParam String confirmPassword,
+            RedirectAttributes redirectAttributes) {
+        if (!newPassword.equals(confirmPassword)) {
+            redirectAttributes.addFlashAttribute("authError", "Mật khẩu xác nhận không khớp.");
+            return "redirect:/auth/reset-password?token=" + token;
+        }
+        try {
+            boolean result = authService.resetPassword(token, newPassword);
+            if (result) {
+                redirectAttributes.addFlashAttribute("authSuccess",
+                        "Đặt lại mật khẩu thành công! Vui lòng đăng nhập.");
+                return "redirect:/auth/login";
+            } else {
+                redirectAttributes.addFlashAttribute("authError", "Đặt lại mật khẩu thất bại.");
+                return "redirect:/auth/reset-password?token=" + token;
+            }
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            redirectAttributes.addFlashAttribute("authError", e.getMessage());
+            return "redirect:/auth/reset-password?token=" + token;
+        }
     }
 
     // ── ENDPOINT KIỂM TRA SESSION ĐÃ ĐƯỢC CHUẨN HÓA ──

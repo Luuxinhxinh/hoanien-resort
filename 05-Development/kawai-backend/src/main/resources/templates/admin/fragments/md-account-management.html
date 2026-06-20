@@ -47,9 +47,7 @@
                             <div style="display:flex;align-items:center;justify-content:flex-end;gap:2px">
                                 <button class="btn-action btn-action-edit btn-edit" th:attr="data-id=${row['id']}"><i
                                         data-lucide="pencil"></i></button>
-                                <button class="btn-action btn-action-delete btn-delete"
-                                    th:attr="data-id=${row['id']}"><i data-lucide="trash-2"></i></button>
-                            </div>
+</div>
                         </td>
                     </tr>
                     <tr th:if="${#lists.isEmpty(rows)}">

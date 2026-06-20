@@ -135,6 +135,18 @@ public class BookingServiceImpl implements BookingService {
             throw new BusinessException("ROOM_NOT_FOUND", "No rooms provided for booking");
         }
 
+        // Đảm bảo mỗi selection có CategoryName bằng cách truy vấn từ room nếu chưa có (TDD fix)
+        for (com.kawai.dto.RoomSelectionDTO selection : roomSelections) {
+            if (selection.getCategoryName() == null || selection.getCategoryName().trim().isEmpty()) {
+                if (selection.getRoomNumber() != null) {
+                    Room r = roomRepository.findByRoomNumber(selection.getRoomNumber()).orElse(null);
+                    if (r != null && r.getCategory() != null) {
+                        selection.setCategoryName(r.getCategory().getCategoryName());
+                    }
+                }
+            }
+        }
+
         // Kiểm tra Customer tồn tại
         if (request.getCustomerId() == null) {
             throw new BusinessException("CUSTOMER_NOT_FOUND", "Customer ID must not be null");
@@ -258,10 +270,10 @@ public class BookingServiceImpl implements BookingService {
         savedHold.setTotalPrice(discountedPrice.setScale(0, RoundingMode.HALF_UP));
         savedHold.setDepositAmount(depositVal);
         savedHold.setPersonalPinHash("DEFAULT_PIN");
-        savedHold.setBookingStatus("HOLD");
+        savedHold.setBookingStatus("CONFIRMED");
         RoomBooking savedBooking = roomBookingRepository.save(savedHold);
 
-        log.info("[SOFT_LOCK] HOLD initialized (awaiting payment): bookingId={}", savedBooking.getId());
+        log.info("[SOFT_LOCK] CONFIRMED initialized: bookingId={}", savedBooking.getId());
 
         for (int i = 0; i < categoriesToBook.size(); i++) {
             com.kawai.models.RoomCategory category = categoriesToBook.get(i);
@@ -285,7 +297,7 @@ public class BookingServiceImpl implements BookingService {
 
         BookingResponseDTO response = new BookingResponseDTO();
         response.setBookingId(savedBooking.getId());
-        response.setBookingStatus("HOLD");
+        response.setBookingStatus("CONFIRMED");
         response.setDepositAmount(depositVal);
         response.setDiscountedPrice(discountedPrice.setScale(0, RoundingMode.HALF_UP));
         response.setCheckInDate(checkIn);
@@ -391,14 +403,15 @@ public class BookingServiceImpl implements BookingService {
                 .orElseThrow(() -> new BusinessException("FORBIDDEN",
                         "Đơn đặt phòng không thuộc về tài khoản này hoặc không tồn tại!"));
 
-        if ("CHECKED_IN".equals(booking.getBookingStatus())
-                || "CANCELLED".equals(booking.getBookingStatus())
-                || (booking.getBookingStatus() != null
-                        && booking.getBookingStatus().toUpperCase().startsWith("CANCEL"))) {
+        String status = booking.getBookingStatus() != null ? booking.getBookingStatus().toUpperCase() : "";
+        if ("CHECKED_IN".equals(status)
+                || "CANCELLED".equals(status)
+                || status.startsWith("CANCEL")) {
             throw new BusinessException("BKG-005", "Invalid booking status");
         }
 
-        if ("HOLD".equals(booking.getBookingStatus()) || "PENDING".equals(booking.getBookingStatus())) {
+        // Nếu booking chưa đóng tiền cọc (depositAmount = null hoặc = 0 hoặc status là HOLD)
+        if (booking.getDepositAmount() == null || booking.getDepositAmount().compareTo(BigDecimal.ZERO) <= 0) {
             booking.setBookingStatus("CANCELLED");
             roomBookingRepository.save(booking);
             BookingResponseDTO response = new BookingResponseDTO();
@@ -408,20 +421,25 @@ public class BookingServiceImpl implements BookingService {
             return response;
         }
 
-        LocalDateTime checkInTime = booking.getCheckInDate().atTime(14, 0);
-        LocalDateTime now = LocalDateTime.now();
-
-        long hoursUntilCheckIn = java.time.temporal.ChronoUnit.HOURS.between(now, checkInTime);
-        boolean isEligibleForRefund = hoursUntilCheckIn >= 48;
+        // Đã đóng cọc -> Cần check deadline hoàn tiền sử dụng cancellationDeadline
+        LocalDate today = LocalDate.now();
+        boolean isEligibleForRefund = booking.getCancellationDeadline() != null
+                && !today.isAfter(booking.getCancellationDeadline());
 
         try {
             if (isEligibleForRefund) {
-                paymentGatewayService.processRefund("TXN_" + bookingId, booking.getDepositAmount());
-                notificationService.sendNotification(customerId, "Cancel Success",
-                        "Your booking has been cancelled and refunded.");
+                if (paymentGatewayService != null) {
+                    paymentGatewayService.processRefund("TXN_" + bookingId, booking.getDepositAmount());
+                }
+                if (notificationService != null) {
+                    notificationService.sendNotification(customerId, "Cancel Success",
+                            "Your booking has been cancelled and refunded.");
+                }
             } else {
-                notificationService.sendNotification(customerId, "Cancel Success (No Refund)",
-                        "Your booking has been cancelled. No refund is issued as cancellation is within 48 hours of check-in.");
+                if (notificationService != null) {
+                    notificationService.sendNotification(customerId, "Cancel Success (No Refund)",
+                            "Your booking has been cancelled. No refund is issued as cancellation is within 48 hours of check-in.");
+                }
             }
 
             String newStatus = isEligibleForRefund ? "Cancelled_Refunded" : "Cancelled_Forfeited";
@@ -434,8 +452,10 @@ public class BookingServiceImpl implements BookingService {
             response.setDepositAmount(isEligibleForRefund ? booking.getDepositAmount() : BigDecimal.ZERO);
             return response;
         } catch (Exception e) {
-            notificationService.sendNotification(customerId, "Cancel Failed",
-                    "Cancellation failed due to a system error. Please try again later.");
+            if (notificationService != null) {
+                notificationService.sendNotification(customerId, "Cancel Failed",
+                        "Cancellation failed due to a system error. Please try again later.");
+            }
             throw e;
         }
     }

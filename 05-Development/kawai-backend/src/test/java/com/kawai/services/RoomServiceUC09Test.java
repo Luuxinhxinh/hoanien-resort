@@ -57,6 +57,9 @@ class RoomServiceUC09Test {
         @Mock
         private RoomBookingRepository roomBookingRepository;
 
+        @Mock
+        private com.kawai.repositories.RoomCategoryRepository roomCategoryRepository;
+
         // ── Test Fixtures ─────────────────────────────────────────────────────────
         private static final LocalDate CHECK_IN = LocalDate.of(2026, 8, 1);
         private static final LocalDate CHECK_OUT = LocalDate.of(2026, 8, 5);

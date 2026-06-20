@@ -30,6 +30,18 @@ import com.kawai.repositories.FoodOrderRepository;
 @RequestMapping("/profile")
 public class ProfileController {
 
+    private String extractUsername(Authentication authentication) {
+        if (authentication instanceof org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken) {
+            org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken oauthToken = 
+                (org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken) authentication;
+            String email = oauthToken.getPrincipal().getAttribute("email");
+            if (email != null) {
+                return email;
+            }
+        }
+        return authentication.getName();
+    }
+
     @Autowired
     private AccountRepository accountRepository;
 
@@ -63,7 +75,7 @@ public class ProfileController {
                 || "anonymousUser".equals(authentication.getName())) {
             return "redirect:/booking";
         }
-        String username = authentication.getName();
+        String username = extractUsername(authentication);
         Customer customer = customerRepository.findByAccount_Username(username)
                 .orElseGet(() -> customerRepository.findByEmail(username).orElse(null));
         model.addAttribute("customer", customer);
@@ -125,7 +137,7 @@ public class ProfileController {
                 || "anonymousUser".equals(authentication.getName())) {
             return "redirect:/booking";
         }
-        String username = authentication.getName();
+        String username = extractUsername(authentication);
         Customer customer = customerRepository.findByAccount_Username(username)
                 .orElseGet(() -> customerRepository.findByEmail(username).orElse(null));
         model.addAttribute("customer", customer);
@@ -206,7 +218,7 @@ public class ProfileController {
                 || "anonymousUser".equals(authentication.getName())) {
             return "redirect:/booking";
         }
-        String username = authentication.getName();
+        String username = extractUsername(authentication);
         Customer customer = customerRepository.findByAccount_Username(username)
                 .orElseGet(() -> customerRepository.findByEmail(username).orElse(null));
         if (customer != null) {
@@ -238,7 +250,7 @@ public class ProfileController {
                 || "anonymousUser".equals(authentication.getName())) {
             return "redirect:/booking";
         }
-        String username = authentication.getName();
+        String username = extractUsername(authentication);
         Account account = accountRepository.findByUsername(username).orElse(null);
 
         if (account != null) {
@@ -264,7 +276,7 @@ public class ProfileController {
                 || "anonymousUser".equals(authentication.getName())) {
             return "redirect:/booking";
         }
-        String username = authentication.getName();
+        String username = extractUsername(authentication);
         Customer customer = customerRepository.findByAccount_Username(username)
                 .orElseGet(() -> customerRepository.findByEmail(username).orElse(null));
         if (customer != null) {
@@ -295,7 +307,7 @@ public class ProfileController {
                 || "anonymousUser".equals(authentication.getName())) {
             return "redirect:/booking";
         }
-        String username = authentication.getName();
+        String username = extractUsername(authentication);
         Customer customer = customerRepository.findByAccount_Username(username)
                 .orElseGet(() -> customerRepository.findByEmail(username).orElse(null));
         if (customer != null) {

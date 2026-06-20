@@ -558,24 +558,164 @@ document.addEventListener("click", (e) => {
     if (!btn) return;
 
     const id = btn.dataset.id;
-    const current = btn.dataset.value === "true";
+    const val = btn.dataset.value;
+    const current = (val === "true" || val === "Active" || val === "Available" || val === "Occupied");
     const next = !current;
 
     // ── Cập nhật UI ngay (không cần API) ─────────────────────────────────────
     btn.dataset.value = String(next);
 
-    const icon = btn.querySelector("i");
-    if (icon) {
-        icon.setAttribute("data-lucide", next ? "toggle-right" : "toggle-left");
-        icon.className = `w-[22px] h-[22px] ${next ? "text-[#C9A96E]" : "text-[#8B7355]"}`;
-        if (typeof lucide !== "undefined") lucide.createIcons();
-    }
+    btn.innerHTML = `<i data-lucide="${next ? 'toggle-right' : 'toggle-left'}" class="w-[22px] h-[22px] ${next ? 'text-[#C9A96E]' : 'text-[#8B7355]'}"></i>`;
+    if (typeof lucide !== "undefined") lucide.createIcons();
 
     // Đồng bộ data-value trên <td> để edit modal đọc đúng
     const td = btn.closest("td[data-key]");
-    if (td) td.dataset.value = String(next);
+    if (td) {
+        td.dataset.value = String(next);
+    }
+
+    // Cập nhật text và màu của badge
+    const tr = btn.closest("tr");
+    if (tr) {
+        const statusTd = tr.querySelector('td[data-key="status"]');
+        if (statusTd) {
+            statusTd.dataset.value = String(next);
+            const badge = statusTd.querySelector('.cell-badge');
+            if (badge) {
+                // Xoá class màu cũ
+                badge.className = badge.className.replace(/badge-[a-z]+/g, '').trim();
+
+                const currentText = badge.innerText.trim();
+                let newText = currentText;
+                let newClass = "badge-gray";
+
+                if (currentText === "Active" || currentText === "Inactive") {
+                    newText = next ? "Active" : "Inactive";
+                    newClass = next ? "badge-green" : "badge-gray";
+                } else if (currentText === "Available" || currentText === "Unavailable") {
+                    newText = next ? "Available" : "Unavailable";
+                    newClass = next ? "badge-green" : "badge-yellow";
+                } else if (currentText === "Vacant" || currentText === "Maintenance" || currentText === "Dirty" || currentText === "Occupied") {
+                    newText = next ? "Vacant" : "Maintenance";
+                    newClass = next ? "badge-brown" : "badge-dark";
+                } else if (currentText === "true" || currentText === "false") {
+                    newText = String(next);
+                    newClass = next ? "badge-green" : "badge-gray";
+                }
+
+                badge.innerText = newText;
+                badge.classList.add(newClass);
+            }
+        }
+    }
+
+    let apiPath = '';
+    switch (activeTab) {
+        case 'Room Categories': apiPath = 'room-categories'; break;
+        case 'Rooms': apiPath = 'rooms'; break;
+        case 'Restaurant Menu': apiPath = 'menu-items'; break;
+        case 'Menu Categories': apiPath = 'menu-categories'; break;
+        case 'Tour Categories': apiPath = 'tour-categories'; break;
+        case 'Tours': apiPath = 'tours'; break;
+        case 'Promotions': apiPath = 'promotions'; break;
+        case 'Account Management': apiPath = 'accounts'; break;
+        default: return;
+    }
+
+    fetch(`/admin/api/v1/${apiPath}/${id}/toggle`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: next })
+    }).catch(err => {
+        console.error("Lỗi khi toggle: ", err);
+    });
 
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Audit History Modal (file-clock button)
+// ─────────────────────────────────────────────────────────────────────────────
+function openAuditModal(entityId, tableName) {
+    const modal = document.getElementById("audit-history-modal");
+    if (!modal) return;
+
+    const contentEl = document.getElementById("audit-history-content");
+    if (contentEl) {
+        contentEl.innerHTML = '<div style="text-align:center;padding:40px;color:#8B7355"><i data-lucide="loader" style="width:24px;height:24px;animation:spin 1s linear infinite;display:inline-block"></i><p style="margin-top:12px">Đang tải lịch sử...</p></div>';
+        if (typeof lucide !== "undefined") lucide.createIcons();
+    }
+
+    openModal("audit-history-modal");
+
+    // Extract numeric ID from prefixed ID (e.g., "RM-1" -> "1")
+    const numericId = entityId.replace(/^[A-Za-z]+-/, '');
+    // Fetch audit history from server
+    fetch(`/admin/api/v1/audit/${encodeURIComponent(tableName)}/${encodeURIComponent(numericId)}/history`)
+        .then(res => {
+            if (!res.ok) throw new Error("Lỗi tải lịch sử: " + res.status);
+            return res.json();
+        })
+        .then(data => {
+            if (!contentEl) return;
+            if (!data || data.length === 0) {
+                contentEl.innerHTML = '<div style="text-align:center;padding:40px;color:#8B7355;font-style:italic">Chưa có lịch sử thay đổi cho bản ghi này.</div>';
+                return;
+            }
+            let html = '';
+            data.forEach((entry, idx) => {
+                const revNum = entry.revisionNumber || idx + 1;
+                const timestamp = entry.timestamp || '--';
+                const username = entry.username || 'System';
+                const action = entry.action || 'UPDATE';
+                const changes = entry.changes || {};
+                let changesHtml = '';
+                for (const [field, vals] of Object.entries(changes)) {
+                    changesHtml += `<div style="margin-bottom:4px"><strong>${field}:</strong> "${vals.old || ''}" → "${vals.new || ''}"</div>`;
+                }
+                if (!changesHtml) changesHtml = '<em style="color:#aaa">Không có chi tiết thay đổi</em>';
+
+                html += `
+                    <div class="history-item">
+                        <div class="history-meta">
+                            <span class="history-rev">#${revNum} — ${action}</span>
+                            <span>${timestamp}</span>
+                        </div>
+                        <div style="font-size:13px;color:#6B6558;margin-bottom:8px">Bởi: ${username}</div>
+                        <div class="history-data">${changesHtml}</div>
+                        <div style="text-align: right; margin-top: 8px;">
+                            <button type="button" class="btn-rollback" style="padding: 4px 10px; background: #8C3C28; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold;" onclick="rollbackEntity('${tableName}', '${numericId}', ${revNum})">
+                                Phục hồi về bản này
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            contentEl.innerHTML = html;
+            if (typeof lucide !== "undefined") lucide.createIcons();
+        })
+        .catch(err => {
+            if (contentEl) {
+                contentEl.innerHTML = `<div style="text-align:center;padding:40px;color:#8C3C28"><p>${err.message}</p></div>`;
+            }
+        });
+}
+
+window.rollbackEntity = function(entityType, id, revisionId) {
+    if (!confirm(`Bạn có chắc chắn muốn phục hồi bản ghi này về phiên bản #${revisionId}? Hành động này sẽ thay đổi dữ liệu hiện tại.`)) return;
+    
+    fetch(`/admin/api/v1/audit/${encodeURIComponent(entityType)}/${encodeURIComponent(id)}/rollback/${revisionId}`, {
+        method: 'POST'
+    })
+    .then(res => res.json().then(data => ({ status: res.status, ok: res.ok, body: data })))
+    .then(res => {
+        if (!res.ok) throw new Error(res.body.error || "Lỗi phục hồi");
+        alert('Phục hồi thành công!');
+        window.location.reload();
+    })
+    .catch(err => {
+        alert('Có lỗi xảy ra: ' + err.message);
+    });
+};
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Image Upload Handlers

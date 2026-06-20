@@ -114,4 +114,31 @@ public class AdminAccountRestController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", e.getMessage()));
         }
     }
+
+    @PatchMapping("/accounts/{id}/toggle")
+    public ResponseEntity<?> toggleAccountStatus(@PathVariable String id, @RequestBody Map<String, Boolean> payload) {
+        System.out.println("========== TOGGLE ACCOUNT API HIT! ID: " + id + " ==========");
+        try {
+            Boolean newStatus = payload.get("status");
+            if (id.startsWith("E-")) {
+                Long empId = Long.parseLong(id.substring(2));
+                // We need to fetch and save, but for brevity, maybe userService has a method?
+                // Let's get the account directly from the employee.
+                // Assuming we can just do a partial update.
+                Map<String, String> updatePayload = Map.of("isActive", String.valueOf(newStatus));
+                userService.updateEmployeeAccount(empId, updatePayload);
+            } else if (id.startsWith("C-")) {
+                Long cusId = Long.parseLong(id.substring(2));
+                Map<String, String> updatePayload = Map.of("isActive", String.valueOf(newStatus));
+                userService.updateCustomerAccount(cusId, updatePayload);
+            } else {
+                 return ResponseEntity.badRequest().body(Map.of("error", "Invalid ID format"));
+            }
+            return ResponseEntity.ok(Map.of("message", "Toggled successfully"));
+        } catch (Exception e) {
+            System.out.println("========== ERROR IN API: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", e.getMessage()));
+        }
+    }
 }

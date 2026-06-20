@@ -93,10 +93,15 @@
         </nav>
         <div class="adm-sidebar-footer">
             <div class="adm-sidebar-user">
-                <div class="adm-sidebar-avatar" th:text="${#strings.substring(#authentication.name, 0, 2).toUpperCase()}">AD</div>
+                <div class="adm-sidebar-avatar"
+                    th:text="${#authentication != null ? #strings.substring(#authentication.name, 0, 2).toUpperCase() : 'AD'}">
+                    AD</div>
                 <div>
-                    <div class="adm-sidebar-name" th:text="${#authentication.name}">Admin Dũng</div>
-                    <div class="adm-sidebar-role" th:text="${#authentication.authorities != null and !#authentication.authorities.isEmpty() ? #strings.replace(#authentication.authorities[0].authority, 'ROLE_', '') : 'User'}">Admin</div>
+                    <div class="adm-sidebar-name"
+                        th:text="${#authentication != null ? #authentication.name : 'Admin Dũng'}">Admin Dũng</div>
+                    <div class="adm-sidebar-role"
+                        th:text="${#authentication != null and #authentication.authorities != null and !#authentication.authorities.isEmpty() ? #strings.replace(#authentication.authorities[0].authority, 'ROLE_', '') : 'Admin'}">
+                        Admin</div>
                 </div>
             </div>
         </div>
@@ -116,8 +121,11 @@
             <div class="adm-header-right">
                 <div class="adm-divider-v"></div>
                 <div class="adm-header-user-box">
-                    <div class="adm-header-avatar" th:text="${#strings.substring(#authentication.name, 0, 2).toUpperCase()}">AD</div>
-                    <span class="adm-header-username" th:text="${#authentication.name}">Admin Dũng</span>
+                    <div class="adm-header-avatar"
+                        th:text="${#authentication != null ? #strings.substring(#authentication.name, 0, 2).toUpperCase() : 'AD'}">
+                        AD</div>
+                    <span class="adm-header-username"
+                        th:text="${#authentication != null ? #authentication.name : 'Admin Dũng'}">Admin Dũng</span>
                 </div>
                 <div class="adm-divider-v"></div>
                 <a href="/logout" class="adm-header-logout"><i data-lucide="log-out"
@@ -280,7 +288,83 @@
         </div>
     </div>
 
+    <!-- ════════ HISTORY / AUDIT MODAL ════════ -->
+    <div id="audit-history-modal" class="adm-modal-backdrop hidden">
+        <div class="adm-modal-box adm-modal-box-lg" onclick="event.stopPropagation()">
+            <div class="adm-modal-header">
+                <h2 class="adm-modal-title">Lịch sử thay đổi dữ liệu</h2>
+                <button class="btn-close-modal adm-modal-close" data-modal="audit-history-modal"><i
+                        data-lucide="x"></i></button>
+            </div>
+            <div class="adm-modal-body-p">
+                <p class="adm-modal-desc">Theo dõi các thay đổi của bản ghi này qua các phiên bản (Revision).</p>
+                <div id="audit-history-content"
+                    style="margin-top:20px; max-height:400px; overflow-y:auto; padding-right:10px;">
+                </div>
+            </div>
+        </div>
+    </div>
 
+    <style>
+        .history-item {
+            border-left: 2px solid #C9A96E;
+            padding-left: 16px;
+            margin-bottom: 24px;
+            position: relative;
+        }
+
+        .history-item::before {
+            content: '';
+            position: absolute;
+            left: -6px;
+            top: 0;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #C9A96E;
+            border: 2px solid #F5F0E8;
+        }
+
+        .history-meta {
+            font-size: 13px;
+            color: #8B7355;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .history-rev {
+            font-weight: 600;
+            color: #5C4A3A;
+        }
+
+        .history-data {
+            background: rgba(92, 74, 58, 0.03);
+            border: 1px solid rgba(92, 74, 58, 0.08);
+            border-radius: 6px;
+            padding: 12px;
+            font-family: monospace;
+            font-size: 12px;
+            color: #5C4A3A;
+            word-break: break-all;
+        }
+
+        .btn-rollback {
+            background: #8C3C28;
+            color: white;
+            border: none;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-rollback:hover {
+            background: #7A3020;
+        }
+    </style>
 
     <!-- Inject form options -->
     <script th:inline="javascript">
@@ -291,7 +375,7 @@
     </script>
 
     <script th:src="@{/admin/js/main.js}" src="../../static/admin/js/main.js"></script>
-    <script th:src="@{/admin/js/master-data.js}" src="../../static/admin/js/master-data.js"></script>
+    <script th:src="@{/admin/js/master-data.js?v=7}" src="../../static/admin/js/master-data.js"></script>
     <script th:src="@{/admin/js/admin-images.js}" src="../../static/admin/js/admin-images.js"></script>
 </body>
 

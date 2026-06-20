@@ -94,7 +94,13 @@ public class TourController {
         model.addAttribute("isLoggedIn", principal != null);
         model.addAttribute("type", type);
         if (principal != null) {
-            java.util.Optional<com.kawai.models.Customer> customerOpt = customerRepository.findByAccount_Username(principal.getName());
+            String username = principal.getName();
+            if (principal instanceof org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken) {
+                org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken oauthToken = 
+                    (org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken) principal;
+                username = oauthToken.getPrincipal().getAttribute("email");
+            }
+            java.util.Optional<com.kawai.models.Customer> customerOpt = customerRepository.findByAccount_Username(username);
             customerOpt.ifPresent(customer -> {
                 model.addAttribute("customerName", customer.getFullName());
                 model.addAttribute("customerEmail", customer.getEmail());

@@ -77,7 +77,8 @@ public class OAuthAccountService {
         customer.setFullName(fullName != null ? fullName : "Khách hàng Google");
         customer.setEmail(email);
         customer.setGender("Other");
-        customer.setPhone("G-" + System.currentTimeMillis());
+        customer.setPhone("N/A");
+        customer.setCccdPassportEncrypted(null);
         customerRepository.save(customer);
         log.info("Đã tạo Customer mới: id={}, email={}", customer.getId(), email);
 

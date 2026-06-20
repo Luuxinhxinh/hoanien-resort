@@ -5,7 +5,10 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import org.hibernate.envers.Audited;
+
 @Entity
+@Audited
 @Table(name = "Promotions")
 public class Promotion {
     @Id

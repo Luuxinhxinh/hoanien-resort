@@ -16,8 +16,8 @@
                 role="alert">
                 <span class="block sm:inline" th:text="${authSuccess}"></span>
             </div>
-            <div th:if="${authError}" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4"
-                role="alert">
+            <div th:if="${authError}"
+                class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
                 <span class="block sm:inline" th:text="${authError}"></span>
             </div>
 
@@ -29,7 +29,7 @@
                 <form th:action="@{/auth/login}" method="post" class="space-y-4">
                     <!-- Get the current URL so we can redirect back after login! -->
                     <input type="hidden" name="redirect_to" class="redirect-input">
-                    
+
                     <div>
                         <label class="block text-[11px] uppercase tracking-[0.1em] opacity-60 font-semibold mb-2">Tên
                             đăng nhập</label>
@@ -41,7 +41,8 @@
                         <div class="flex justify-between items-center mb-2">
                             <label class="block text-[11px] uppercase tracking-[0.1em] opacity-60 font-semibold">Mật
                                 khẩu</label>
-                            <a href="#" class="text-[11px] text-hoanien-text hover:underline opacity-80">Quên mật
+                            <a href="/auth/forgot-password"
+                                class="text-[11px] text-hoanien-text hover:underline opacity-80">Quên mật
                                 khẩu?</a>
                         </div>
                         <input type="password" name="password" required
@@ -128,7 +129,7 @@
     <script>
         function openLoginModal() {
             const m = document.getElementById('authModal');
-            if(m) {
+            if (m) {
                 m.style.display = 'flex';
                 document.getElementById('loginSection').style.display = 'block';
                 document.getElementById('registerSection').style.display = 'none';
@@ -136,7 +137,7 @@
         }
         function openRegisterModal() {
             const m = document.getElementById('authModal');
-            if(m) {
+            if (m) {
                 m.style.display = 'flex';
                 document.getElementById('loginSection').style.display = 'none';
                 document.getElementById('registerSection').style.display = 'block';
@@ -144,7 +145,7 @@
         }
         function closeAuthModal() {
             const m = document.getElementById('authModal');
-            if(m) m.style.display = 'none';
+            if (m) m.style.display = 'none';
         }
         function toggleAuthView(view) {
             if (view === 'login') {
@@ -155,7 +156,7 @@
                 document.getElementById('registerSection').style.display = 'block';
             }
         }
-        
+
         document.addEventListener("DOMContentLoaded", function () {
             const hasError = document.querySelector('#authModal .bg-red-100');
             const hasSuccess = document.querySelector('#authModal .bg-green-100');
