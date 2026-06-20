@@ -135,7 +135,8 @@ public class BookingServiceImpl implements BookingService {
             throw new BusinessException("ROOM_NOT_FOUND", "No rooms provided for booking");
         }
 
-        // Đảm bảo mỗi selection có CategoryName bằng cách truy vấn từ room nếu chưa có (TDD fix)
+        // Đảm bảo mỗi selection có CategoryName bằng cách truy vấn từ room nếu chưa có
+        // (TDD fix)
         for (com.kawai.dto.RoomSelectionDTO selection : roomSelections) {
             if (selection.getCategoryName() == null || selection.getCategoryName().trim().isEmpty()) {
                 if (selection.getRoomNumber() != null) {
@@ -167,6 +168,7 @@ public class BookingServiceImpl implements BookingService {
         // SOFT LOCK: Tạo RoomBooking(status="HOLD") trước khi tính tiền
         // ══════════════════════════════════════════════════════════════════
         // Tạo một HOLD booking placeholder trước
+
         RoomBooking holdBooking = new RoomBooking();
         holdBooking.setCustomer(customer);
         holdBooking.setBookingDate(LocalDate.now());
@@ -270,10 +272,10 @@ public class BookingServiceImpl implements BookingService {
         savedHold.setTotalPrice(discountedPrice.setScale(0, RoundingMode.HALF_UP));
         savedHold.setDepositAmount(depositVal);
         savedHold.setPersonalPinHash("DEFAULT_PIN");
-        savedHold.setBookingStatus("CONFIRMED");
+        savedHold.setBookingStatus(STATUS_HOLD);
         RoomBooking savedBooking = roomBookingRepository.save(savedHold);
 
-        log.info("[SOFT_LOCK] CONFIRMED initialized: bookingId={}", savedBooking.getId());
+        log.info("[SOFT_LOCK] HOLD updated with details: bookingId={}", savedBooking.getId());
 
         for (int i = 0; i < categoriesToBook.size(); i++) {
             com.kawai.models.RoomCategory category = categoriesToBook.get(i);
@@ -297,7 +299,7 @@ public class BookingServiceImpl implements BookingService {
 
         BookingResponseDTO response = new BookingResponseDTO();
         response.setBookingId(savedBooking.getId());
-        response.setBookingStatus("CONFIRMED");
+        response.setBookingStatus(STATUS_HOLD);
         response.setDepositAmount(depositVal);
         response.setDiscountedPrice(discountedPrice.setScale(0, RoundingMode.HALF_UP));
         response.setCheckInDate(checkIn);
@@ -410,7 +412,8 @@ public class BookingServiceImpl implements BookingService {
             throw new BusinessException("BKG-005", "Invalid booking status");
         }
 
-        // Nếu booking chưa đóng tiền cọc (depositAmount = null hoặc = 0 hoặc status là HOLD)
+        // Nếu booking chưa đóng tiền cọc (depositAmount = null hoặc = 0 hoặc status là
+        // HOLD)
         if (booking.getDepositAmount() == null || booking.getDepositAmount().compareTo(BigDecimal.ZERO) <= 0) {
             booking.setBookingStatus("CANCELLED");
             roomBookingRepository.save(booking);
