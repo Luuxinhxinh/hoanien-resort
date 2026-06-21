@@ -1,222 +1,247 @@
-# ENGINEERING DOCUMENTATION STANDARD (EDS) v2.0
-
-## UC25 — Thanh toán & Check-out
+# ENGINEERING DESIGN SPECIFICATION (EDS)
 
 | Field | Value |
-|-------|-------|
-| **Document ID** | `KAWAI-EDS-MOD5-UC25-001` |
+| --- | --- |
+| **Document ID** | `KAWAI-MOD5-EDS-UC25` |
 | **Version** | 1.0 |
-| **Date** | 2026-06-15 |
+| **Date** | 2026-06-21 |
 | **Status** | Approved |
-| **Document Owner** | Ngô Thị Ngọc Lan |
-| **Author** | Nguyễn Xuân Lưu — Tech Lead |
-| **Reviewed by** | Nguyễn Xuân Lưu — Tech Lead |
-| **DPO Sign-off** | `[x] Approved – 2026-06-15 – Nguyễn Xuân Lưu` |
-| **Approved by** | `[x] Nguyễn Xuân Lưu – 2026-06-15` |
-| **Last Review** | 2026-06-15 |
+| **Document Owner** | `Antigravity AI` |
+| **Author** | `Antigravity AI` |
+| **Reviewed by** | `Ngô Thị Ngọc Lan` |
+| **DPO Sign-off** | `[x] N/A` |
+| **Approved by** | `Ngô Thị Ngọc Lan` |
+| **Last Review** | 2026-06-21 |
 | **Based on EDS** | v2.0 |
 
 ---
 
-### CHANGELOG
-| Ngày | Người thực hiện | Nội dung thay đổi |
-|------|-----------------|-------------------|
-| 2026-06-15 | Nguyễn Xuân Lưu | Tạo tài liệu thiết kế chi tiết UC25 |
+## 1. Tổng quan Module
+
+| Category | Description |
+| --- | --- |
+| **Module Name** | `MOD5 - Finance & Reports` |
+| **Bounded Context** | Payment & Transaction Recording (UC25) |
+| **Data Classification** | Internal / Highly Financial |
+| **Compliance Scope** | Kiểm toán thu chi, Báo cáo dòng tiền |
+| **Upstream Dependencies** | `Checkout (UC22)` |
+| **Downstream Consumers** | `Revenue Reports` |
 
 ---
 
-### MỤC LỤC
-1. [Tổng quan Module](#1)
-2. [Ma trận Truy vết](#2)
-3. [ADR](#3)
-4. [Non-Functional & SLA](#4)
-5. [Static Modeling](#5)
-6. [Dynamic Modeling](#6)
-7. [Domain Event Catalog](#7)
-8. [Interface Specification](#8)
-9. [API Specification](#9)
-10. [Bảng mã lỗi](#10)
-11. [Quy trình Triển khai](#11)
-12. [Rollback & Incident Runbook](#12)
-13. [Kịch bản Kiểm thử](#13)
-14. [Phương pháp Xác minh](#14)
-15. [Mẫu thử thực tế](#15)
-16. [Authorization Matrix](#16)
-17. [Phụ lục](#17)
+## 2. Ma trận Truy vết (Traceability Matrix)
+
+| Requirement ID | Spec Version | Implemented Component | Status |
+| --- | --- | --- | --- |
+| `UC25.1` | v1.0 | `PaymentServiceImpl.recordPayment` | 🟢 DONE |
+| `UC25.2` | v1.0 | `PaymentServiceImpl.getPaymentsByBookingId` | 🟢 DONE |
 
 ---
 
-### 1. Tổng quan Module
+## 3. Architecture Decision Records (ADR)
 
-| Field | Value |
-|-------|-------|
-| **Module Name** | Thanh toán & Check-out (UC25) |
-| **Bounded Context** | Payment & Invoicing |
-| **Use Case** | UC25: Thanh toán hóa đơn, thực hiện Check-out, Gửi e-Invoice |
-| **Data Classification** | Financial, PII (Email, Tên khách) |
-| **Compliance Scope** | Hóa đơn điện tử |
-| **Upstream Dependencies** | Folio (UC24) |
-| **Downstream Consumers** | Email Service |
+*   **ADR-003: Quản lý Trạng thái Giao dịch Payment**
+    *   *Context:* Cần ghi nhận chính xác dòng tiền thu vào (Tiền mặt, VNPay, Thẻ).
+    *   *Decision:* Sử dụng `PaymentTransaction` table với status enum (SUCCESS, FAILED, PENDING). Fallback status được lưu dưới dạng chuỗi `gatewayStatus`.
+    *   *Consequences:* Dễ dàng trace lại giao dịch nếu Gateway (VNPay) bị lỗi.
 
 ---
 
-### 2. Ma trận Truy vết
+## 4. Non-Functional Requirements & SLA
 
-| Requirement ID | Loại | Mô tả | Thành phần Code | Compliance | ADR |
-|----------------|------|-------|-----------------|------------|-----|
-| UC25.1 | US | Checkout khi Folio=0 hoặc thanh toán để Checkout | `FolioService.checkout()` | — | ADR-003 |
-| UC25.2 | US | Tự động gửi e-Invoice qua Email | `InvoiceService.sendEmail()` | — | — |
-| BR-FIN-01 | BR | Không cho checkout nếu Folio > 0 | `FolioService.checkout()` | — | — |
+#### 4.1. Performance & Latency
+| Metric | Target | Measurement Method |
+| --- | --- | --- |
+| **API Latency (p95)** | < 200ms | APM |
+| **Throughput** | 50 req/s | JMeter |
 
----
+#### 4.2. Reliability
+| Metric | Target | Failover Strategy |
+| --- | --- | --- |
+| **Availability** | 99.9% | Database Replication |
+| **Data Durability** | RPO = 0 | Write-Ahead Logs (WAL) |
 
-### 3. Architecture Decision Records (ADR)
+#### 4.3. Security
+| Category | Requirement | Target | Verification Method |
+| --- | --- | --- | --- |
+| **Data Integrity** | Không thể sửa giao dịch | Immutable Logic | Code Review |
 
-#### ADR-003 — Sử dụng Async cho luồng Gửi Email e-Invoice
-**Bối cảnh:** Gửi email Invoice có thể mất thời gian (1-3s), làm block luồng Checkout của nhân viên.
-**Quyết định:** Bắn Domain Event `FolioSettled` và xử lý gửi email ở `@Async` event listener.
-**Hệ quả:** API Checkout phản hồi nhanh, nếu gửi mail thất bại có thể retry sau mà không rollback việc thanh toán.
-
----
-
-### 4. Non-Functional Requirements & SLA
-
-#### 4.1. Performance & Availability
-| Category | Requirement | Target SLA | Measurement |
-|----------|-------------|------------|-------------|
-| **Latency** | Checkout processing | < 500ms | APM |
-| **Latency** | Email send latency | < 2s (Async) | Queue Metric |
-
-#### 4.2. Security
-- Không lưu toàn bộ số thẻ tín dụng nếu thanh toán qua thẻ, chỉ lưu mã giao dịch (Transaction Ref).
+#### 4.4. Scalability & Capacity Planning
+Tải dự kiến `10,000` tx/tháng. Bảng PaymentTransaction có thể Partition theo năm nếu phình to.
 
 ---
 
-### 5. Static Modeling
+## 5. Static Modeling (Mô hình Tĩnh)
 
-#### 5.1. Class Diagram
+#### 5.1. Class Diagram (PlantUML)
+
 ```plantuml
 @startuml
-class CheckoutController {
-  +checkout(reservationId: Long)
+class PaymentServiceImpl {
+  + recordPayment(Invoice, Booking, BigDecimal, String, String, PaymentStatus, String): PaymentTransaction
+  + getPaymentsByBookingId(Long): List<PaymentTransaction>
 }
-
-class FolioService {
-  +checkout(reservationId: Long)
+class PaymentTransaction {
+  - amount: BigDecimal
+  - transactionType: String
+  - paymentMethod: String
+  - status: PaymentStatus
 }
-
-class InvoiceService {
-  +generatePdf(folioId: Long): byte[]
-  +sendEmail(email: String, pdf: byte[])
-}
-
-CheckoutController -> FolioService
-FolioService ..> InvoiceService : Async Event
+PaymentServiceImpl --> PaymentTransaction
 @enduml
 ```
 
-#### 5.2. Data Structure
-Bảng `payment_transaction` lưu lịch sử thanh toán thẻ/tiền mặt.
-
 ---
 
-### 6. Dynamic Modeling
+## 6. Dynamic Modeling (Mô hình Động)
 
-#### 6.1. Sequence Diagram — Checkout & Invoice
+#### 6.1. Sequence Diagram — Happy Path (PlantUML)
+
 ```plantuml
 @startuml
-actor Receptionist as R
-participant FolioService as FS
-participant ReservationService as RS
-participant EventPublisher as EP
-participant InvoiceListener as IL
+participant "FolioRestController" as Controller
+participant "PaymentServiceImpl" as Service
+database "Database" as DB
 
-R -> FS: checkout(reservationId)
-FS -> FS: check balance == 0
-FS -> RS: update status to CHECKED_OUT
-FS -> EP: publish(FolioSettledEvent)
-FS --> R: 200 OK
-... Async ...
-EP -> IL: onFolioSettled()
-IL -> IL: generate PDF
-IL -> MailServer: Send Email
+Controller -> Service: recordPayment(invoice, booking, amount, ...)
+activate Service
+Service -> Service: Validate Invoice != null
+Service -> DB: paymentTransactionRepository.save(tx)
+DB --> Service: PaymentTransaction
+Service --> Controller: PaymentTransaction
+deactivate Service
 @enduml
 ```
 
-#### 6.2. State Machine
-Reservation: OCCUPIED -> CHECKED_OUT.
-Folio: ACTIVE -> SETTLED.
+#### 6.2. Sequence Diagram — Error Path (PlantUML)
 
----
+```plantuml
+@startuml
+participant "FolioRestController" as Controller
+participant "PaymentServiceImpl" as Service
 
-### 7. Domain Event Catalog
+Controller -> Service: recordPayment(null, booking, amount, ...)
+activate Service
+Service -> Service: Validate Invoice
+Service --> Controller: throw IllegalArgumentException
+deactivate Service
+@enduml
+```
 
-| Event Name | Trigger | Publisher | Subscriber(s) | Async? |
-|------------|---------|-----------|---------------|--------|
-| `FolioSettled` | Checkout xong | `FolioService` | `InvoiceListener` | Yes |
-
----
-
-### 8. Interface Specification
-
-```java
-public interface FolioService {
-    void processPayment(Long folioId, PaymentDTO payment) throws PaymentException;
-    void checkout(Long reservationId) throws UnsettledFolioException;
-}
+#### 6.3. State Machine (Vòng đời Giao dịch)
+```plantuml
+@startuml
+[*] --> PENDING : Khởi tạo Payment
+PENDING --> SUCCESS : Gateway trả về OK / Đưa tiền mặt
+PENDING --> FAILED : Gateway từ chối / Hủy
+SUCCESS --> [*]
+FAILED --> [*]
+@enduml
 ```
 
 ---
 
-### 9. API Specification
+## 7. Domain Event Catalog
 
-| Method | Path | Auth | Roles |
-|--------|------|------|-------|
-| POST | `/api/v1/folios/{id}/pay` | JWT | RECEPTIONIST |
-| POST | `/api/v1/reservations/{id}/checkout`| JWT | RECEPTIONIST |
+#### 7.1. Events Published (Phát ra)
+- `PaymentRecorded`: Phát ra khi lưu DB thành công.
 
----
-
-### 10. Bảng mã lỗi
-
-| Code | HTTP | Message (EN) | Message (VI) | Trigger |
-|------|------|--------------|--------------|---------|
-| `FOLIO-001` | 422 | Unsettled folio | Chưa thanh toán hết | Checkout khi Balance > 0 |
-| `FIN-003` | 400 | Invalid amount | Số tiền không hợp lệ | Trả nhiều hơn Balance |
+#### 7.2. Events Consumed (Tiêu thụ)
+- `CheckoutRequested`: Kích hoạt hàm `recordPayment`.
 
 ---
 
-### 11. Quy trình Triển khai
-- Đảm bảo API Key SendGrid đã config trong `application.yml`.
+## 8. Interface Specification (Đặc tả Giao diện)
+Không áp dụng (Logic core).
 
 ---
 
-### 12. Rollback & Incident Runbook
-- Nếu Checkout lỗi: Hoàn tác trạng thái Reservation về OCCUPIED.
+## 9. API Specification (Đặc tả API)
+Không áp dụng (Hàm internal được gọi bởi Controller khác).
 
 ---
 
-### 13. Kịch bản Kiểm thử
-- TC-UNIT-UC25-001: Checkout thành công khi Balance = 0.
-- TC-UNIT-UC25-002: Báo lỗi FOLIO-001 khi checkout Balance > 0.
-- TC-INT-UC25-001: Gửi email bất đồng bộ được trigger.
+## 10. Bảng mã lỗi (Error Codes)
+
+| HTTP Code | Nội dung | Giải pháp |
+| --- | --- | --- |
+| `500` | `Invoice cannot be null for payment transaction` | Gắn Invoice vào trước khi gọi. |
 
 ---
 
-### 14. Phương pháp Xác minh
-Xác minh bảng `payment_transaction` và trạng thái `reservation`.
+## 11. Quy trình Triển khai (Step-by-Step)
+
+#### 11.1. Prerequisites
+- [x] Đã khởi tạo schema bảng `Payment_Transactions`.
+
+#### 11.2. Pre-Migration Checklist
+- [x] N/A.
+
+#### 11.3. Implementation Steps
+1. Deploy `PaymentServiceImpl.java`.
+
+#### 11.4. Deployment Checklist
+- [x] Lịch sử thanh toán được ghi nhận đúng sau khi Checkout.
 
 ---
 
-### 15. Mẫu thử thực tế
-`curl -X POST /api/v1/reservations/1/checkout -H "Authorization: Bearer [TOKEN]"`
+## 12. Rollback & Incident Runbook
+
+#### 12.1. Rollback Trigger (Điều kiện Revert)
+- Lưu sai số tiền, Method bị NULL.
+
+#### 12.2. Rollback Steps
+- Revert file `PaymentServiceImpl`.
+
+#### 12.3. Notification Protocol
+- `"🚨 [UC25] Lỗi ghi nhận dòng tiền"` báo về Kế toán trưởng.
+
+#### 12.4. Post-Incident Review (PIR)
+- Thực hiện review trong vòng 24h.
 
 ---
 
-### 16. Authorization Matrix
-- Checkout & Pay chỉ dành cho nhân viên (RECEPTIONIST, ADMIN).
+## 13. Kịch bản Kiểm thử Chi tiết
+
+#### 13.1. Unit Tests
+- **TC-UNIT-01:** Truyền Invoice null -> Quăng lỗi `IllegalArgumentException`.
+- **TC-UNIT-02:** Truyền đầy đủ dữ liệu -> Trả về object lưu trữ thành công.
+
+#### 13.2. Integration Tests
+- **TC-INT-01:** Test lưu xuống DB có sinh tự động `createdAt` hay không.
+
+#### 13.3. E2E / Security Tests
+- **TC-E2E-01:** Đảm bảo không thể sửa lại (Update) một transaction đã SUCCESS.
 
 ---
 
-### 17. Phụ lục
-- **e-Invoice**: Hóa đơn điện tử PDF.
+## 14. Phương pháp Xác minh (Verification)
+
+#### 14.1. Database Verification
+```sql
+SELECT * FROM payment_transactions WHERE booking_id = [ID] ORDER BY created_at DESC;
+```
+
+#### 14.2. Log / Audit Verification
+Không cấu hình log riêng biệt.
+
+---
+
+## 15. Mẫu thử thực tế (API Verification Samples)
+Không áp dụng.
+
+---
+
+## 16. Bảng tổng hợp phân quyền (Authorization Matrix)
+Không áp dụng.
+
+---
+
+## 17. Phụ lục
+
+#### A. Thuật ngữ
+- **Payment Transaction:** Lịch sử ghi nhận từng lần thu tiền/trả tiền.
+- **Gateway Status:** Chuỗi trả về từ bên thứ 3 (ví dụ: `00` của VNPay).
+
+#### B. Tài liệu tham chiếu
+- `EDS_TEMPLATE_V2.0.md`

@@ -277,8 +277,8 @@ class BookingServiceUC10Test {
         @DisplayName("TC-M2-004 | CRITICAL | Concurrency: 2 user đặt R101 → 1 CONFIRMED, 1 nhận 409")
         void TC_M2_004_createBooking_concurrency_onlyOneConfirmed() throws Exception {
                 // Arrange: lần 1 phòng trống, lần 2 đã bị chiếm
-                when(roomBookingRepository.countOverlappingBookingsByCategory(
-                                anyString(), any(LocalDate.class), any(LocalDate.class), anyLong()))
+                when(roomBookingRepository.countOverlappingBookingsByRoom(
+                                anyString(), any(LocalDate.class), any(LocalDate.class), any(Long.class)))
                                 .thenReturn(0L) // Thread thắng
                                 .thenReturn(10L); // Thread thua (10 phòng - 10 overlap = 0 available)
 

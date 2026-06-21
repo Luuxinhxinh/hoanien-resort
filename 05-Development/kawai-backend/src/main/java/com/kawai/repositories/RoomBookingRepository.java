@@ -50,11 +50,23 @@ public interface RoomBookingRepository extends JpaRepository<RoomBooking, Long> 
                      @Param("excludeBookingId") Long excludeBookingId);
 
        /**
+        * Đếm booking trùng ngày cho 1 phòng cụ thể, bỏ qua booking của chính mình
+        * (excludeBookingId).
         * Dùng trong createBooking() để kiểm tra phòng đã bị booking/HOLD bởi người
         * khác chưa.
         * Status HOLD và CONFIRMED đều được đếm (chỉ bỏ CANCELLED).
         */
-
+       @Query("SELECT COUNT(rbd) FROM RoomBookingDetail rbd " +
+                     "WHERE rbd.room.roomNumber = :roomNumber " +
+                     "AND rbd.roomBooking.checkInDate < :checkOut " +
+                     "AND rbd.roomBooking.checkOutDate > :checkIn " +
+                     "AND rbd.roomBooking.bookingStatus != 'CANCELLED' " +
+                     "AND rbd.roomBooking.id != :excludeBookingId")
+       long countOverlappingBookingsByRoom(
+                     @Param("roomNumber") String roomNumber,
+                     @Param("checkIn") LocalDate checkIn,
+                     @Param("checkOut") LocalDate checkOut,
+                     @Param("excludeBookingId") Long excludeBookingId);
        @Query("SELECT rb FROM RoomBooking rb WHERE rb.bookingStatus = 'HOLD' AND rb.holdExpiresAt <= :now")
        List<RoomBooking> findStaleHolds(@Param("now") java.time.LocalDateTime now);
 

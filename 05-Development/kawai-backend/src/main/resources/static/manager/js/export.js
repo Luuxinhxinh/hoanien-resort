@@ -7,13 +7,13 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function setDefaultDates() {
-    const today    = new Date();
+    const today = new Date();
     const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
-    const fmt      = d => d.toISOString().split('T')[0];
-    const fromEl   = document.getElementById('export-from');
-    const toEl     = document.getElementById('export-to');
+    const fmt = d => d.toISOString().split('T')[0];
+    const fromEl = document.getElementById('export-from');
+    const toEl = document.getElementById('export-to');
     if (fromEl) fromEl.value = fmt(firstDay);
-    if (toEl)   toEl.value   = fmt(today);
+    if (toEl) toEl.value = fmt(today);
 }
 
 function selectFormat(fmt) {
@@ -26,7 +26,7 @@ function selectFormat(fmt) {
 function handleExport() {
     const type = document.getElementById('export-type')?.value || 'revenue';
     const from = document.getElementById('export-from')?.value;
-    const to   = document.getElementById('export-to')?.value;
+    const to = document.getElementById('export-to')?.value;
 
     if (!from || !to) {
         alert('Vui lòng chọn khoảng thời gian trước khi xuất báo cáo.');
@@ -38,12 +38,12 @@ function handleExport() {
     }
 
     const typeLabels = {
-        revenue:   'Doanh thu tổng hợp',
-        room:      'Báo cáo phòng',
-        fnb:       'Báo cáo F&B',
-        tour:      'Báo cáo Tour',
+        revenue: 'Doanh thu tổng hợp',
+        room: 'Báo cáo phòng',
+        fnb: 'Báo cáo F&B',
+        tour: 'Báo cáo Tour',
         occupancy: 'Tỷ lệ lấp đầy',
-        stay:      'Thời gian lưu trú'
+        stay: 'Thời gian lưu trú'
     };
     const label = typeLabels[type] || type;
 
