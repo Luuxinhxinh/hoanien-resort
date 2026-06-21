@@ -65,15 +65,16 @@ public class SecurityConfig {
                         // org.springframework.security.web.access.expression.WebExpressionAuthorizationManager(
                         // "hasIpAddress('192.168.1.0/24')"))
 
-                        .requestMatchers("/", "/booking", "/auth/register", "/auth/login", "/auth/check-session",
-                                "/auth/google-login", "/auth/forgot-password", "/auth/reset-password",
-                                "/auth/verify-otp", "/auth/resend-otp",
-                                "/h2-console/**", "/css/**", "/js/**", "/guest/**", "/living", "/wellbeing", "/dining",
+                        .requestMatchers("/", "/booking", "/auth/login", "/auth/check-session",
+                                "/auth/google-login", "/api/v1/auth/**",
+                                "/h2-console/**", "/css/**", "/js/**", "/guest/**", "/uploads/**", "/api/v1/upload",
+                                "/living", "/wellbeing", "/dining",
                                 "/experiences", "/tours", "/tours/**", "/profile", "/order-food", "/AnhTour/**",
-                                "/fbStaff/**", "/f&bStaff/**", "/api/menu-items/**", "/api/rooms/**", "/api/v1/tables/**", "/api/pos/**",
+                                "/fbStaff/**", "/f&bStaff/**", "/api/menu-items/**", "/api/rooms/**",
+                                "/api/v1/tables/**", "/api/pos/**",
                                 "/api/bookings", "/api/bookings/**",
                                 "/api/tour-bookings", "/api/tour-bookings/**", "/api/faceid/**", "/error",
-                                "/api/v1/payments/vnpay-return", "/api/v1/payments/vnpay-ipn", 
+                                "/api/v1/payments/vnpay-return", "/api/v1/payments/vnpay-ipn",
                                 "/api/v1/payments/food-order/**", "/book-table")
                         .permitAll()
 
@@ -161,7 +162,17 @@ public class SecurityConfig {
                     if (!isFromOpsPortal) {
                         new org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler()
                                 .logout(request, response, authentication);
-                        response.sendRedirect("/booking?login_error=true");
+
+                        String referer = request.getHeader("Referer");
+                        if (referer != null && !referer.trim().isEmpty() && !referer.contains("/ops-login")) {
+                            if (referer.contains("?")) {
+                                response.sendRedirect(referer + "&login_error=true");
+                            } else {
+                                response.sendRedirect(referer + "?login_error=true");
+                            }
+                        } else {
+                            response.sendRedirect("/booking?login_error=true");
+                        }
                         return;
                     }
 

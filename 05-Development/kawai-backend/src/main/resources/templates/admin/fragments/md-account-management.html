@@ -15,7 +15,6 @@
                         <th>Vai trò</th>
                         <th>Email</th>
                         <th>Đăng nhập cuối</th>
-                        <th>Kích hoạt</th>
                         <th style="text-align:right">Thao tác</th>
                     </tr>
                 </thead>
@@ -34,24 +33,22 @@
                         <td th:attr="data-key='email',data-value=${row['email']}" th:text="${row['email']}"></td>
                         <td th:attr="data-key='lastLogin',data-value=${row['lastLogin']}" th:text="${row['lastLogin']}">
                         </td>
-                        <td th:attr="data-key='status',data-value=${row['status']}">
-                            <button type="button" class="btn-toggle"
-                                th:attr="data-id=${row['id']},data-value=${row['status']}">
-                                <i th:if="${row['status'] == 'true'}" data-lucide="toggle-right"
-                                    style="color:#C9A96E"></i>
-                                <i th:unless="${row['status'] == 'true'}" data-lucide="toggle-left"
-                                    style="color:#8B7355"></i>
-                            </button>
-                        </td>
                         <td style="text-align:right">
-                            <div style="display:flex;align-items:center;justify-content:flex-end;gap:2px">
+                            <div style="display:flex;align-items:center;justify-content:flex-end;gap:8px">
+                                <button type="button" class="btn-toggle"
+                                    th:attr="data-id=${row['id']},data-value=${row['status']}">
+                                    <i th:if="${row['status'] == 'true'}" data-lucide="toggle-right"
+                                        style="color:#C9A96E"></i>
+                                    <i th:unless="${row['status'] == 'true'}" data-lucide="toggle-left"
+                                        style="color:#8B7355"></i>
+                                </button>
                                 <button class="btn-action btn-action-edit btn-edit" th:attr="data-id=${row['id']}"><i
                                         data-lucide="pencil"></i></button>
-</div>
+                            </div>
                         </td>
                     </tr>
                     <tr th:if="${#lists.isEmpty(rows)}">
-                        <td colspan="8"
+                        <td colspan="7"
                             style="text-align:center;padding:48px;color:#8B7355;font-family:var(--font-serif);font-size:18px">
                             Không có bản ghi nào</td>
                     </tr>

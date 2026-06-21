@@ -44,33 +44,38 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     public boolean register(String username, String password, String email, String fullName, String gender,
             String phone) {
-        if (accountRepository.existsByUsername(username) || customerRepository.existsByEmail(email)) {
-            return false;
+        if (accountRepository.existsByUsername(username)) {
+            throw new IllegalArgumentException("Tên đăng nhập đã tồn tại!");
+        }
+        if (customerRepository.existsByEmail(email)) {
+            throw new IllegalArgumentException("Email này đã được sử dụng!");
         }
 
         if (!isValidPassword(password)) {
-            throw new IllegalArgumentException("AUTH-001: Mật khẩu không đủ mạnh");
+            throw new IllegalArgumentException("Mật khẩu phải có ít nhất 6 ký tự.");
         }
 
-        Role customerRole = roleRepository.findByRoleName("CUSTOMER NORMAL").orElseGet(() -> {
-            Role newRole = new Role();
-            newRole.setRoleName("CUSTOMER NORMAL");
-            return roleRepository.save(newRole);
-        });
+        Role customerRole = roleRepository.findByRoleName("CUSTOMER NORMAL")
+                .or(() -> roleRepository.findByRoleName("CUSTOMER"))
+                .orElseGet(() -> {
+                    Role newRole = new Role();
+                    newRole.setRoleName("CUSTOMER");
+                    return roleRepository.save(newRole);
+                });
 
         Account account = new Account();
         account.setUsername(username);
         account.setPasswordHash(passwordEncoder.encode(password));
         account.setRole(customerRole);
-        account.setIsActive(true);
+        account.setIsActive(false); // Chờ xác thực OTP
         account = accountRepository.save(account);
 
         Customer customer = new Customer();
         customer.setAccount(account);
-        customer.setFullName(fullName);
+        customer.setFullName(fullName != null && !fullName.trim().isEmpty() ? fullName : username);
         customer.setEmail(email);
-        customer.setGender(gender);
-        customer.setPhone(phone);
+        customer.setGender(gender != null ? gender : "Other");
+        customer.setPhone(phone != null && !phone.trim().isEmpty() ? phone : "0000000000");
         customerRepository.save(customer);
 
         writeAuditLog(account, "REGISTER", "Accounts", account.getId(), null, "Registered account " + username);
@@ -151,6 +156,7 @@ public class AuthServiceImpl implements AuthService {
         if (account.getTwoFactorCode().equals(code)) {
             account.setTwoFactorCode(null);
             account.setTwoFactorExpiry(null);
+            account.setIsActive(true); // <--- Kích hoạt tài khoản
             accountRepository.save(account);
             writeAuditLog(account, "VERIFY_OTP_SUCCESS", "Accounts", account.getId(), null,
                     "OTP verified successfully");
@@ -172,18 +178,17 @@ public class AuthServiceImpl implements AuthService {
             throw new IllegalArgumentException("Account not associated with email");
         }
 
-        String token = UUID.randomUUID().toString();
-        account.setResetPasswordToken(token);
+        String otp = String.format("%06d", 100000 + random.nextInt(900000));
+        account.setResetPasswordToken(otp);
         account.setResetPasswordExpiry(LocalDateTime.now().plusMinutes(15));
         accountRepository.save(account);
 
-        writeAuditLog(account, "RESET_PASSWORD_REQUEST", "Accounts", account.getId(), null, "Reset token: " + token);
+        writeAuditLog(account, "RESET_PASSWORD_REQUEST", "Accounts", account.getId(), null, "Reset OTP: " + otp);
 
-        // Gửi email chứa link đặt lại mật khẩu
-        String resetLink = baseUrl + "/auth/reset-password?token=" + token;
-        emailService.sendPasswordResetEmail(customer.getEmail(), resetLink, customer.getFullName());
+        // Gửi email chứa OTP đặt lại mật khẩu
+        emailService.sendPasswordResetEmail(customer.getEmail(), otp, customer.getFullName());
 
-        return token;
+        return otp;
     }
 
     @Override

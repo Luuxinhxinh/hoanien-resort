@@ -118,7 +118,7 @@ public class EmailServiceImpl implements EmailService {
                 "</body></html>";
     }
 
-    private String buildPasswordResetEmail(String fullName, String resetLink) {
+    private String buildPasswordResetEmail(String fullName, String otpCode) {
         return "<!DOCTYPE html>" +
                 "<html><body style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;'>"
                 +
@@ -130,14 +130,13 @@ public class EmailServiceImpl implements EmailService {
                 "<div style='background: #f9f6f1; padding: 30px; border-radius: 10px; margin-top: 20px;'>" +
                 "<h2 style='color: #2c2416;'>Đặt lại mật khẩu</h2>" +
                 "<p style='color: #5c4a32;'>Kính gửi <strong>" + fullName + "</strong>,</p>" +
-                "<p style='color: #5c4a32;'>Chúng tôi nhận được yêu cầu đặt lại mật khẩu cho tài khoản của bạn. Click vào link bên dưới để tiếp tục:</p>"
+                "<p style='color: #5c4a32;'>Chúng tôi nhận được yêu cầu đặt lại mật khẩu cho tài khoản của bạn. Vui lòng nhập mã xác thực (OTP) dưới đây để tiến hành đặt lại mật khẩu:</p>"
                 +
-                "<div style='text-align: center; margin: 30px 0;'>" +
-                "<a href='" + resetLink
-                + "' style='background: #8B5E3C; color: white; padding: 14px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;'>Đặt lại mật khẩu</a>"
+                "<div style='background: white; padding: 20px; border-radius: 8px; text-align: center; margin: 20px 0;'>"
                 +
+                "<h1 style='color: #8B5E3C; font-size: 36px; letter-spacing: 8px; margin: 0;'>" + otpCode + "</h1>" +
                 "</div>" +
-                "<p style='color: #8B7355; font-size: 14px;'>Link này có hiệu lực trong 15 phút. Vui lòng không chia sẻ link này với người khác.</p>"
+                "<p style='color: #8B7355; font-size: 14px;'>Mã OTP có hiệu lực trong 15 phút. Vui lòng không chia sẻ mã này với người khác.</p>"
                 +
                 "<p style='color: #8B7355; font-size: 14px;'>Nếu bạn không yêu cầu đặt lại mật khẩu, vui lòng bỏ qua email này.</p>"
                 +

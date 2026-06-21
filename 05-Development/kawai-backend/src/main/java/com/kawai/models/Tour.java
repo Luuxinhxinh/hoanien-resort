@@ -16,6 +16,7 @@ public class Tour {
     @Column(name="max_capacity", nullable=false) private Integer maxCapacity = 30;
     @Column(columnDefinition="TEXT") private String description;
     @Column(name="duration") private String duration;
+    @Column(name="image_url", length = 500) private String imageUrl;
     @Column(name="short_quote") private String shortQuote;
     @Column(name="created_at") private java.time.LocalDateTime createdAt;
     @Column(name="is_active", nullable=false) private Boolean isActive = true;

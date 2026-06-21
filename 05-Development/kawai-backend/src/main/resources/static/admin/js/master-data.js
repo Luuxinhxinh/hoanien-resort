@@ -184,6 +184,21 @@ function openAddModal() {
             typeSelect.style.backgroundColor = '#f3f4f6';
         }
     }
+    
+    // Ensure all potentially readonly inputs are reset
+    const nameInput = form.elements['name'];
+    if (nameInput) {
+        nameInput.readOnly = false;
+        nameInput.style.backgroundColor = '';
+        nameInput.style.pointerEvents = 'auto';
+    }
+    
+    const usernameInput = form.elements['username'];
+    if (usernameInput) {
+        usernameInput.readOnly = false;
+        usernameInput.style.backgroundColor = '';
+        usernameInput.style.pointerEvents = 'auto';
+    }
 
     initAccountFormToggles();
     openModal("entity-modal");
@@ -276,6 +291,24 @@ function openEditModal(id) {
                             v = v.replace(/\./g, '');
                         }
                     }
+                    
+                    // Xử lý thông minh cho thẻ SELECT: Nếu value cũ (đã khóa) không có trong danh sách Active, thì thêm nó vào tạm thời
+                    if (input.tagName === 'SELECT' && v) {
+                        let optionExists = false;
+                        for (let i = 0; i < input.options.length; i++) {
+                            if (input.options[i].value === v) {
+                                optionExists = true;
+                                break;
+                            }
+                        }
+                        if (!optionExists) {
+                            const opt = document.createElement('option');
+                            opt.value = v;
+                            opt.textContent = v + " (Đã khóa)";
+                            input.appendChild(opt);
+                        }
+                    }
+                    
                     input.value = v;
                 }
             }
@@ -287,6 +320,15 @@ function openEditModal(id) {
                 nameInput.readOnly = true;
                 nameInput.style.backgroundColor = '#f3f4f6';
                 nameInput.style.pointerEvents = 'none';
+            }
+        }
+        
+        if (activeTab === "Account Management") {
+            const usernameInput = form.elements['username'];
+            if (usernameInput) {
+                usernameInput.readOnly = true;
+                usernameInput.style.backgroundColor = '#f3f4f6';
+                usernameInput.style.pointerEvents = 'none';
             }
         }
         let apiPath = '';
@@ -358,10 +400,40 @@ function handleFormSubmit(event) {
             payload[cb.name] = cb.checked;
         });
 
-        fetch(endpoint, {
-            method: method,
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
+        // HACK: Xử lý Upload Ảnh trước khi đẩy Data lên Server
+        const imageFileInput = form.querySelector('input[name="imageFile"]');
+        let uploadPromise = Promise.resolve();
+
+        if (imageFileInput && imageFileInput.files && imageFileInput.files.length > 0) {
+            submitBtn.textContent = 'Đang tải ảnh lên...';
+            const fileData = new FormData();
+            fileData.append('file', imageFileInput.files[0]);
+            
+            uploadPromise = fetch('/api/v1/upload', {
+                method: 'POST',
+                body: fileData
+            })
+            .then(res => {
+                if (!res.ok) throw new Error('Lỗi khi tải ảnh lên Server');
+                return res.json();
+            })
+            .then(data => {
+                // Đè URL ảnh nội bộ vào trường imageUrl để lưu Database
+                payload.imageUrl = data.url;
+            });
+        }
+
+        uploadPromise.then(() => {
+            // Loại bỏ các Object File ra khỏi payload để tránh lỗi khi Convert JSON
+            delete payload.imageFile;
+            delete payload.galleryImages;
+            
+            submitBtn.textContent = 'Đang lưu dữ liệu...';
+            return fetch(endpoint, {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
         })
             .then(res => {
                 if (!res.ok) {
@@ -632,90 +704,7 @@ document.addEventListener("click", (e) => {
 
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Audit History Modal (file-clock button)
-// ─────────────────────────────────────────────────────────────────────────────
-function openAuditModal(entityId, tableName) {
-    const modal = document.getElementById("audit-history-modal");
-    if (!modal) return;
-
-    const contentEl = document.getElementById("audit-history-content");
-    if (contentEl) {
-        contentEl.innerHTML = '<div style="text-align:center;padding:40px;color:#8B7355"><i data-lucide="loader" style="width:24px;height:24px;animation:spin 1s linear infinite;display:inline-block"></i><p style="margin-top:12px">Đang tải lịch sử...</p></div>';
-        if (typeof lucide !== "undefined") lucide.createIcons();
-    }
-
-    openModal("audit-history-modal");
-
-    // Extract numeric ID from prefixed ID (e.g., "RM-1" -> "1")
-    const numericId = entityId.replace(/^[A-Za-z]+-/, '');
-    // Fetch audit history from server
-    fetch(`/admin/api/v1/audit/${encodeURIComponent(tableName)}/${encodeURIComponent(numericId)}/history`)
-        .then(res => {
-            if (!res.ok) throw new Error("Lỗi tải lịch sử: " + res.status);
-            return res.json();
-        })
-        .then(data => {
-            if (!contentEl) return;
-            if (!data || data.length === 0) {
-                contentEl.innerHTML = '<div style="text-align:center;padding:40px;color:#8B7355;font-style:italic">Chưa có lịch sử thay đổi cho bản ghi này.</div>';
-                return;
-            }
-            let html = '';
-            data.forEach((entry, idx) => {
-                const revNum = entry.revisionNumber || idx + 1;
-                const timestamp = entry.timestamp || '--';
-                const username = entry.username || 'System';
-                const action = entry.action || 'UPDATE';
-                const changes = entry.changes || {};
-                let changesHtml = '';
-                for (const [field, vals] of Object.entries(changes)) {
-                    changesHtml += `<div style="margin-bottom:4px"><strong>${field}:</strong> "${vals.old || ''}" → "${vals.new || ''}"</div>`;
-                }
-                if (!changesHtml) changesHtml = '<em style="color:#aaa">Không có chi tiết thay đổi</em>';
-
-                html += `
-                    <div class="history-item">
-                        <div class="history-meta">
-                            <span class="history-rev">#${revNum} — ${action}</span>
-                            <span>${timestamp}</span>
-                        </div>
-                        <div style="font-size:13px;color:#6B6558;margin-bottom:8px">Bởi: ${username}</div>
-                        <div class="history-data">${changesHtml}</div>
-                        <div style="text-align: right; margin-top: 8px;">
-                            <button type="button" class="btn-rollback" style="padding: 4px 10px; background: #8C3C28; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold;" onclick="rollbackEntity('${tableName}', '${numericId}', ${revNum})">
-                                Phục hồi về bản này
-                            </button>
-                        </div>
-                    </div>
-                `;
-            });
-            contentEl.innerHTML = html;
-            if (typeof lucide !== "undefined") lucide.createIcons();
-        })
-        .catch(err => {
-            if (contentEl) {
-                contentEl.innerHTML = `<div style="text-align:center;padding:40px;color:#8C3C28"><p>${err.message}</p></div>`;
-            }
-        });
-}
-
-window.rollbackEntity = function(entityType, id, revisionId) {
-    if (!confirm(`Bạn có chắc chắn muốn phục hồi bản ghi này về phiên bản #${revisionId}? Hành động này sẽ thay đổi dữ liệu hiện tại.`)) return;
-    
-    fetch(`/admin/api/v1/audit/${encodeURIComponent(entityType)}/${encodeURIComponent(id)}/rollback/${revisionId}`, {
-        method: 'POST'
-    })
-    .then(res => res.json().then(data => ({ status: res.status, ok: res.ok, body: data })))
-    .then(res => {
-        if (!res.ok) throw new Error(res.body.error || "Lỗi phục hồi");
-        alert('Phục hồi thành công!');
-        window.location.reload();
-    })
-    .catch(err => {
-        alert('Có lỗi xảy ra: ' + err.message);
-    });
-};
+// Audit functions moved to audit-log.js
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Image Upload Handlers

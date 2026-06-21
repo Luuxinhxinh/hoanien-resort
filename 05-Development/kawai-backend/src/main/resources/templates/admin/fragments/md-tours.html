@@ -15,8 +15,12 @@
             <tr th:each="row, stat : ${rows}" th:attr="data-id=${row['id']},data-entity=${row['jsonString']}">
                 <td th:attr="data-key='id',data-value=${row['id']}" th:text="${row['id']}"></td>
                 <td>
-                    <div class="adm-table-img-cell"> <img th:if="${row['image'] != null}" th:src="${row['image']}" alt="Tour" />
-                        <i th:unless="${row['image'] != null}" data-lucide="image"></i>Ảnh                   </div>
+                    <div class="adm-table-img-cell">
+                        <img th:if="${row['imageUrl'] != null && row['imageUrl'] != ''}" th:src="${row['imageUrl']}" alt="Tour" />
+                        <th:block th:unless="${row['imageUrl'] != null && row['imageUrl'] != ''}">
+                            <i data-lucide="image"></i>Ảnh
+                        </th:block>
+                    </div>
                 </td>
                 <td th:attr="data-key='name',data-value=${row['name']}" th:text="${row['name']}"></td>
                 <td th:attr="data-key='category',data-value=${row['category']}" th:text="${row['category']}"></td>
@@ -66,32 +70,21 @@
             </div>
         </div>
         
-        <div class="adm-form-group">
-            <label class="adm-form-label">Bộ sưu tập ảnh (Gallery)</label>
-            <div class="gallery-upload-container">
-                <div class="hidden-inputs-container">
-                    <input type="file" name="galleryImages" accept="image/*" multiple style="display:none;" onchange="handleGalleryUpload(this)">
-                </div>
-                <div class="gallery-preview-list"></div>
-                <label class="gallery-upload-btn" onclick="this.parentElement.querySelector('.hidden-inputs-container input:last-child').click()">
-                    <i data-lucide="plus"></i>
-                    Thêm ảnh
-                </label>
-            </div>
-        </div>
-        
         <div class="adm-form-group"><label class="adm-form-label">Tên tour <span style="color:#B45309">*</span></label><input type="text" name="name" class="adm-form-input" required></div>
         <div class="adm-form-group"><label class="adm-form-label">Danh mục</label>
-            <select name="category" class="adm-form-select">
-                <option th:each="opt : ${formOptions['tourCategories']}" th:value="${opt}" th:text="${opt}"></option>
-            </select>
+            <input type="text" name="category" list="tour-category-list" class="adm-form-input" placeholder="Chọn hoặc nhập danh mục mới..." required>
+            <datalist id="tour-category-list">
+                <option th:each="opt : ${formOptions['tourCategories']}" th:value="${opt}"></option>
+            </datalist>
         </div>
         <div class="adm-form-group"><label class="adm-form-label">Thời gian</label><input type="text" name="duration" class="adm-form-input"></div>
         <div class="adm-form-group"><label class="adm-form-label">Số khách tối đa</label><input type="number" name="maxCapacity" class="adm-form-input"></div>
         <div class="adm-form-group"><label class="adm-form-label">Giá / người <span style="color:#B45309">*</span></label><input type="text" name="price" class="adm-form-input" required></div>
         <div class="adm-form-group"><label class="adm-form-label">Slogan ngắn (Short Quote)</label><input type="text" name="shortQuote" class="adm-form-input"></div>
         <div class="adm-form-group"><label class="adm-form-label">Mô tả Tour</label><textarea name="description" class="adm-form-input" rows="3"></textarea></div>
-        <div class="adm-form-group"><label class="adm-form-label">Link ảnh đại diện</label><input type="text" name="imageUrl" class="adm-form-input"></div>
+        
+        <!-- Trường imageUrl được ẩn đi, JS sẽ tự động gán Link sau khi Upload file ảnh thành công -->
+        <input type="hidden" name="imageUrl">
     </div>
 </div>
 

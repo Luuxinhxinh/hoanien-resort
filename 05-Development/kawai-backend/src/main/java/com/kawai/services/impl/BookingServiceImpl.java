@@ -180,6 +180,20 @@ public class BookingServiceImpl implements BookingService {
         holdBooking.setCancellationDeadline(checkIn.minusDays(2));
         holdBooking.setPersonalPinHash("HOLD_PENDING");
         holdBooking.setHoldExpiresAt(LocalDateTime.now().plusMinutes(HOLD_TTL_MINUTES));
+
+        BigDecimal creditLimit = new BigDecimal("5000000.00"); // Mặc định 5 triệu
+        if (customer.getMembershipTier() != null) {
+            String tier = customer.getMembershipTier().toUpperCase();
+            if (tier.contains("SILVER")) {
+                creditLimit = new BigDecimal("10000000.00"); // 10 triệu
+            } else if (tier.contains("GOLD")) {
+                creditLimit = new BigDecimal("20000000.00"); // 20 triệu
+            } else if (tier.contains("DIAMOND")) {
+                creditLimit = new BigDecimal("50000000.00"); // 50 triệu
+            }
+        }
+        holdBooking.setCreditLimit(creditLimit);
+
         RoomBooking savedHold = roomBookingRepository.save(holdBooking);
         roomBookingRepository.flush();
 

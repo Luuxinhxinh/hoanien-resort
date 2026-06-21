@@ -180,6 +180,11 @@ public class PosApiController {
             // Deduct credit limit for CHARGE_TO_ROOM
             if ("CHARGE_TO_ROOM".equalsIgnoreCase(request.getPaymentType()) && activeBooking != null && activeBooking instanceof RoomBooking) {
                 RoomBooking roomBooking = (RoomBooking) activeBooking;
+                
+                if (!"Checked_In".equalsIgnoreCase(roomBooking.getBookingStatus())) {
+                    return ResponseEntity.status(400).body(Map.of("status", "error", "message", "Tài khoản hoặc phòng chưa thực hiện Check-in, không thể ghi nợ hạn mức!"));
+                }
+
                 BigDecimal feePercent = new BigDecimal("0.05");
                 BigDecimal fee = subtotal.multiply(feePercent);
                 BigDecimal totalAmount = subtotal.add(fee);

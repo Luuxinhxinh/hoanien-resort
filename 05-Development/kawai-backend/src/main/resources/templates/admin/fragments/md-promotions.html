@@ -8,7 +8,7 @@
         <table class="adm-table">
             <thead>
             <tr>
-                <th>Mã</th><th>Mã giảm giá</th><th>Loại</th><th>Giá trị</th><th>Đơn tối thiểu</th><th>Áp dụng cho</th><th>Lượt dùng</th><th>Hết hạn</th><th>Trạng thái</th><th style="text-align:right">Thao tác</th>
+                <th>Mã</th><th>Mã giảm giá</th><th>Loại</th><th>Giá trị</th><th>Áp dụng cho</th><th>Lượt dùng</th><th>Hết hạn</th><th>Trạng thái</th><th style="text-align:right">Thao tác</th>
             </tr>
             </thead>
             <tbody>
@@ -21,7 +21,6 @@
                     <span class="cell-badge" th:classappend="${row['__typeStyle']}" th:text="${row['type']}"></span>
                 </td>
                 <td th:attr="data-key='value',data-value=${row['value']}" th:text="${row['value']}"></td>
-                <td th:attr="data-key='minOrder',data-value=${row['minOrder']}" th:text="${row['minOrder']}"></td>
                 <td th:attr="data-key='scope',data-value=${row['scope']}">
                     <span class="cell-badge" th:classappend="${row['__scopeStyle']}" th:text="${row['scope']}"></span>
                 </td>
@@ -42,7 +41,7 @@
 </div>
                 </td>
             </tr>
-            <tr th:if="${#lists.isEmpty(rows)}"><td colspan="10" style="text-align:center;padding:48px;color:#8B7355;font-family:var(--font-serif);font-size:18px">Không có bản ghi nào</td></tr>
+            <tr th:if="${#lists.isEmpty(rows)}"><td colspan="9" style="text-align:center;padding:48px;color:#8B7355;font-family:var(--font-serif);font-size:18px">Không có bản ghi nào</td></tr>
             </tbody>
         </table>
     </div>
