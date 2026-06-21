@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reservations - Hoanien Retreat</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/receptionist/css/dashboard.css">
+    <link rel="stylesheet" href="/receptionist/css/pages.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <div class="brand-logo">◆</div>
+                <div class="brand-text">
+                    <h1 class="brand-title">Hoanien Retreat</h1>
+                    <p class="brand-subtitle">Resort & Hub</p>
+                </div>
+            </div>
+
+            <div class="sidebar-section-title">RECEPTIONIST</div>
+
+            <nav class="sidebar-nav">
+                <a href="/receptionist/dashboard" class="nav-item">
+                    <i class="fa-solid fa-border-all"></i>
+                    <div class="nav-text">
+                        <span class="nav-main-text">Room Matrix</span>
+                        <span class="nav-sub-text">Sơ đồ phòng</span>
+                    </div>
+                    <i class="fa-solid fa-chevron-right nav-arrow"></i>
+                </a>
+
+                <a href="/receptionist/walk-in" class="nav-item">
+                    <i class="fa-solid fa-person-walking-luggage"></i>
+                    <div class="nav-text">
+                        <span class="nav-main-text">Walk-In</span>
+                        <span class="nav-sub-text">Khách vãng lai</span>
+                    </div>
+                </a>
+                <a href="/receptionist/check-in" class="nav-item">
+                    <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                    <div class="nav-text">
+                        <span class="nav-main-text">Check-in</span>
+                        <span class="nav-sub-text">Nhận phòng</span>
+                    </div>
+                </a>
+                <a href="/receptionist/folio" class="nav-item">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                    <div class="nav-text">
+                        <span class="nav-main-text">Check-out / Folio</span>
+                        <span class="nav-sub-text">Trả phòng & Hóa đơn</span>
+                    </div>
+                </a>
+                <a href="/receptionist/night-audit" class="nav-item">
+                    <i class="fa-solid fa-moon"></i>
+                    <div class="nav-text">
+                        <span class="nav-main-text">Night Audit</span>
+                        <span class="nav-sub-text">Giao ca & Báo cáo</span>
+                    </div>
+                </a>
+            </nav>
+
+            <div class="sidebar-user">
+                <div class="user-avatar">MH</div>
+                <div class="user-info">
+                    <div class="user-name">Minh Hoàng</div>
+                    <div class="user-role">Receptionist</div>
+                </div>
+                <div class="user-status"></div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="top-header">
+                <div class="header-datetime">
+                    <div class="date" id="currentDate">Wednesday, June 10, 2026</div>
+                </div>
+                
+                <div class="header-search">
+                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                    <input type="text" placeholder="Search guest, room no., phone">
+                </div>
+
+                <div class="header-actions">
+                    <button class="notification-btn">
+                        <i class="fa-regular fa-bell"></i>
+                        <span class="badge">3</span>
+                    </button>
+                    <button class="user-profile-btn">
+                        <i class="fa-solid fa-user"></i>
+                        <span>Receptionist</span>
+                    </button>
+                    <button class="logout-btn">
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                        <span>Logout</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <div class="dashboard-scroll-area">
+                <div class="page-header">
+                    <h2 class="page-title">Reservations (Lịch đặt phòng)</h2>
+                    <div class="page-actions">
+                        <button class="btn btn-outline"><i class="fa-solid fa-filter"></i> Filter</button>
+                        <button class="btn btn-primary"><i class="fa-solid fa-plus"></i> New Booking</button>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Booking ID</th>
+                                <th>Guest Name</th>
+                                <th>Check-in</th>
+                                <th>Check-out</th>
+                                <th>Room Type</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="res : ${reservations}">
+                                <td th:text="'#RES-' + ${res.id}">#RES-1001</td>
+                                <td th:text="${res.customerName}">Nguyễn Văn A</td>
+                                <td th:text="${res.checkInDate != null ? res.checkInDate : 'N/A'}">15/06/2026</td>
+                                <td th:text="${res.checkOutDate != null ? res.checkOutDate : 'N/A'}">18/06/2026</td>
+                                <td th:text="${res.roomType != null ? res.roomType : 'Standard'}">Deluxe</td>
+                                <td>
+                                    <span class="status-badge" th:classappend="${res.status == 'Confirmed' ? 'status-confirmed' : (res.status == 'Pending' ? 'status-pending' : 'status-cancelled')}" th:text="${res.status}">Confirmed</span>
+                                </td>
+                                <td><button class="btn btn-outline btn-sm">View</button></td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(reservations)}">
+                                <td colspan="7" style="text-align:center; padding:20px; color:#999;">Không có đơn đặt phòng nào.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="/receptionist/js/dashboard.js"></script>
+    <script>
+        // Auto-refresh every 15 seconds for real-time synchronization
+        setTimeout(function() {
+            location.reload();
+        }, 15000);
+    </script>
+</body>
+</html>

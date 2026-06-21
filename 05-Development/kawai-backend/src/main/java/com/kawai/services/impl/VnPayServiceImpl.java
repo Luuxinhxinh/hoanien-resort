@@ -5,7 +5,9 @@ import com.kawai.exceptions.BusinessException;
 import com.kawai.models.Booking;
 import com.kawai.models.PaymentStatus;
 import com.kawai.models.PaymentTransaction;
+import com.kawai.models.FoodOrder;
 import com.kawai.models.RoomBooking;
+import com.kawai.repositories.FoodOrderRepository;
 import com.kawai.repositories.PaymentTransactionRepository;
 import com.kawai.repositories.RoomBookingRepository;
 import com.kawai.services.interfaces.VnPayService;
@@ -39,6 +41,9 @@ public class VnPayServiceImpl implements VnPayService {
 
     @Autowired
     private com.kawai.repositories.ConsolidatedInvoiceRepository consolidatedInvoiceRepository;
+
+    @Autowired
+    private FoodOrderRepository foodOrderRepository;
 
     @Override
     @Transactional
@@ -115,6 +120,78 @@ public class VnPayServiceImpl implements VnPayService {
 
     @Override
     @Transactional
+    public String createPaymentUrlForFoodOrder(Long orderId, String ipAddress) {
+        FoodOrder foodOrder = foodOrderRepository.findById(orderId)
+                .orElseThrow(() -> new BusinessException("ORDER_NOT_FOUND", "Không tìm thấy thông tin đơn món"));
+
+        // 1. Tạo PaymentTransaction status = INIT
+        PaymentTransaction txn = new PaymentTransaction();
+        txn.setFoodOrder(foodOrder);
+        txn.setAmount(foodOrder.getTotalAmount());
+        txn.setStatus(PaymentStatus.INIT);
+        txn.setTransactionType("FOOD_ORDER");
+        txn.setPaymentMethod("VNPAY");
+        txn.setCreatedAt(LocalDateTime.now());
+
+        // 2. Sinh transactionRef mới
+        String transactionRef = "FOOD_" + orderId + "_" + System.currentTimeMillis();
+        txn.setTransactionRef(transactionRef);
+        paymentTransactionRepository.save(txn);
+
+        // 3. Build params VNPay
+        long amountVal = foodOrder.getTotalAmount().multiply(new BigDecimal("100")).setScale(0, RoundingMode.HALF_UP).longValue();
+        String createDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+
+        Map<String, String> vnp_Params = new HashMap<>();
+        vnp_Params.put("vnp_Version", vnPayConfig.getApiVersion());
+        vnp_Params.put("vnp_Command", "pay");
+        vnp_Params.put("vnp_TmnCode", vnPayConfig.getTmnCode());
+        vnp_Params.put("vnp_Amount", String.valueOf(amountVal));
+        vnp_Params.put("vnp_CurrCode", "VND");
+        vnp_Params.put("vnp_TxnRef", transactionRef);
+        vnp_Params.put("vnp_OrderInfo", "Thanh toan don goi mon " + orderId);
+        vnp_Params.put("vnp_OrderType", "250000");
+        vnp_Params.put("vnp_Locale", "vn");
+        vnp_Params.put("vnp_ReturnUrl", vnPayConfig.getReturnUrl());
+        vnp_Params.put("vnp_IpAddr", ipAddress);
+        vnp_Params.put("vnp_CreateDate", createDate);
+
+        // 4. Lọc null/empty, sắp xếp và build hashData & query
+        List<String> fieldNames = new ArrayList<>(vnp_Params.keySet());
+        java.util.Collections.sort(fieldNames);
+        StringBuilder hashData = new StringBuilder();
+        StringBuilder query = new StringBuilder();
+        java.util.Iterator<String> itr = fieldNames.iterator();
+        while (itr.hasNext()) {
+            String fieldName = itr.next();
+            String fieldValue = vnp_Params.get(fieldName);
+            if ((fieldValue != null) && (fieldValue.length() > 0)) {
+                try {
+                    hashData.append(fieldName);
+                    hashData.append('=');
+                    hashData.append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII.toString()));
+                    query.append(URLEncoder.encode(fieldName, StandardCharsets.US_ASCII.toString()));
+                    query.append('=');
+                    query.append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII.toString()));
+                    if (itr.hasNext()) {
+                        query.append('&');
+                        hashData.append('&');
+                    }
+                } catch (java.io.UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        String queryUrl = query.toString();
+        String vnp_SecureHash = VnPayUtil.hmacSHA512(vnPayConfig.getHashSecret(), hashData.toString());
+        queryUrl += "&vnp_SecureHash=" + vnp_SecureHash;
+
+        return vnPayConfig.getPayUrl() + "?" + queryUrl;
+    }
+
+    @Override
+    @Transactional
     public Map<String, String> verifyIpn(Map<String, String> params) {
         Map<String, String> response = new HashMap<>();
 
@@ -165,8 +242,17 @@ public class VnPayServiceImpl implements VnPayService {
             txn.setStatus(PaymentStatus.SUCCESS);
             txn.setPaidAt(LocalDateTime.now());
 
-            if ("PENDING".equals(booking.getBookingStatus()) || "HOLD".equals(booking.getBookingStatus())) {
-                booking.setBookingStatus("CONFIRMED");
+            if ("FOOD_ORDER".equals(txn.getTransactionType())) {
+                FoodOrder foodOrder = txn.getFoodOrder();
+                if (foodOrder != null) {
+                    foodOrder.setOrderStatus("PAID");
+                    foodOrder.setIsPaidInPos(true);
+                    foodOrderRepository.save(foodOrder);
+                }
+            } else if (booking != null) {
+                if ("PENDING".equals(booking.getBookingStatus()) || "HOLD".equals(booking.getBookingStatus())) {
+                    booking.setBookingStatus("CONFIRMED");
+                }
             }
             
             // Tự động chuyển trạng thái Hóa Đơn sang PAID

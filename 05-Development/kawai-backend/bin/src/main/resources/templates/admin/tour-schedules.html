@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Quản lý Lịch khởi hành Tour — Hoanien Retreat</title>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" th:href="@{/admin/css/theme.css}" href="../../static/admin/css/theme.css"/>
+    <link rel="stylesheet" th:href="@{/admin/css/admin.css}" href="../../static/admin/css/admin.css"/>
+    <style>
+        .tour-status-open { background: #d4edda; color: #155724; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; }
+        .tour-status-closed { background: #f8d7da; color: #721c24; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; }
+        .tour-status-inprogress { background: #cce5ff; color: #004085; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; }
+        
+        .tour-list { display: flex; flex-direction: column; gap: 16px; }
+        .tour-row { background: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .tour-info { display: flex; flex-direction: column; gap: 4px; flex: 2; }
+        .tour-name { font-weight: 600; font-size: 16px; color: #111827; }
+        .tour-meta { font-size: 13px; color: #6b7280; display: flex; align-items: center; gap: 12px; }
+        
+        .tour-stats { flex: 1; display: flex; align-items: center; gap: 20px; }
+        .stat-box { display: flex; flex-direction: column; align-items: center; }
+        .stat-val { font-weight: 700; font-size: 18px; color: #111827; }
+        .stat-lbl { font-size: 12px; color: #6b7280; }
+        
+        .tour-actions { flex: 1; display: flex; justify-content: flex-end; gap: 8px; }
+        .capacity-bar-wrap { width: 100px; height: 6px; background: #e5e7eb; border-radius: 3px; overflow: hidden; margin-top: 4px; }
+        .capacity-bar { height: 100%; background: #10b981; }
+        .capacity-bar.full { background: #ef4444; }
+    </style>
+</head>
+<body>
+
+<aside class="adm-sidebar">
+    <div class="adm-sidebar-logo">
+        <div class="adm-sidebar-brand">
+            <div class="adm-sidebar-dot">✦</div>
+            <span class="adm-sidebar-brand-name">Hoanien Retreat</span>
+        </div>
+        <h1 class="adm-sidebar-title">Operations Hub</h1>
+    </div>
+
+    <nav class="adm-nav">
+        <div class="adm-nav-item">
+            <a href="/admin/dashboard" class="adm-nav-link">
+                <span class="adm-nav-icon"><i data-lucide="layout-dashboard"></i></span>
+                <span class="adm-nav-label">Tổng quan</span>
+            </a>
+        </div>
+        
+        <div class="adm-nav-item">
+            <a href="/admin/bookings" class="adm-nav-link">
+                <span class="adm-nav-icon"><i data-lucide="calendar-check"></i></span>
+                <span class="adm-nav-label">Quản lý Đặt phòng</span>
+            </a>
+        </div>
+        <div class="adm-nav-item">
+            <a href="/admin/fnb-orders" class="adm-nav-link">
+                <span class="adm-nav-icon"><i data-lucide="coffee"></i></span>
+                <span class="adm-nav-label">Order Nhà hàng</span>
+            </a>
+        </div>
+        <div class="adm-nav-item">
+            <a href="/admin/tour-schedules" class="adm-nav-link active">
+                <span class="adm-nav-icon"><i data-lucide="map"></i></span>
+                <span class="adm-nav-label">Lịch trình Tour</span>
+            </a>
+        </div>
+    </nav>
+</aside>
+
+<div class="adm-main">
+    <header class="adm-header">
+        <div class="adm-header-left">
+            <span class="adm-breadcrumb-site">Operations</span>
+            <span class="adm-breadcrumb-sep">/</span>
+            <span class="adm-breadcrumb-page">Lịch trình Tour</span>
+        </div>
+        <div class="adm-header-right">
+            <div class="adm-header-user-box">
+                <div class="adm-header-avatar">AD</div>
+                <span class="adm-header-username">Admin Dũng</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="adm-page">
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px;">
+            <div>
+                <p class="adm-page-eyebrow">Tour & Activity Operations</p>
+                <h1 class="adm-page-title">Quản lý Lịch khởi hành Tour</h1>
+            </div>
+            <div>
+                <button class="adm-btn adm-btn-primary"><i data-lucide="calendar-plus" style="width: 16px;"></i> Mở bán Lịch mới</button>
+            </div>
+        </div>
+
+        <div class="tour-list">
+            <!-- Active Tour -->
+            <div class="tour-row">
+                <div class="tour-info">
+                    <div class="tour-name">Khám phá văn hóa Tây Bắc 3N2Đ</div>
+                    <div class="tour-meta">
+                        <span><i data-lucide="calendar" style="width: 14px;"></i> Khởi hành: 25/06/2026</span>
+                        <span><i data-lucide="map-pin" style="width: 14px;"></i> Hướng dẫn viên: TBD</span>
+                    </div>
+                </div>
+                
+                <div class="tour-stats">
+                    <div class="stat-box">
+                        <span class="stat-lbl">Trạng thái</span>
+                        <span class="tour-status-open" style="margin-top: 4px;">ĐANG MỞ BÁN</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-lbl">Sĩ số (18/30)</span>
+                        <div class="capacity-bar-wrap">
+                            <div class="capacity-bar" style="width: 60%;"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tour-actions">
+                    <button class="adm-btn adm-btn-ghost">Danh sách khách</button>
+                    <button class="adm-btn adm-btn-ghost" style="color: #ef4444;">Đóng chốt</button>
+                </div>
+            </div>
+
+            <!-- Full Tour -->
+            <div class="tour-row">
+                <div class="tour-info">
+                    <div class="tour-name">Trekking Dã ngoại Cuối tuần</div>
+                    <div class="tour-meta">
+                        <span><i data-lucide="calendar" style="width: 14px;"></i> Khởi hành: 20/06/2026</span>
+                        <span><i data-lucide="map-pin" style="width: 14px;"></i> Hướng dẫn viên: Nguyễn C</span>
+                    </div>
+                </div>
+                
+                <div class="tour-stats">
+                    <div class="stat-box">
+                        <span class="stat-lbl">Trạng thái</span>
+                        <span class="tour-status-closed" style="margin-top: 4px;">FULL CHỖ</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-lbl">Sĩ số (20/20)</span>
+                        <div class="capacity-bar-wrap">
+                            <div class="capacity-bar full" style="width: 100%;"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tour-actions">
+                    <button class="adm-btn adm-btn-ghost">Danh sách khách</button>
+                </div>
+            </div>
+            
+            <!-- In Progress Tour -->
+            <div class="tour-row">
+                <div class="tour-info">
+                    <div class="tour-name">Tham quan Nông trại Hữu cơ</div>
+                    <div class="tour-meta">
+                        <span><i data-lucide="calendar" style="width: 14px;"></i> Khởi hành: Hôm nay</span>
+                        <span><i data-lucide="map-pin" style="width: 14px;"></i> Đang chạy (Day 1/1)</span>
+                    </div>
+                </div>
+                
+                <div class="tour-stats">
+                    <div class="stat-box">
+                        <span class="stat-lbl">Trạng thái</span>
+                        <span class="tour-status-inprogress" style="margin-top: 4px;">ĐANG DIỄN RA</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-lbl">Sĩ số (15/15)</span>
+                        <div class="capacity-bar-wrap">
+                            <div class="capacity-bar full" style="width: 100%;"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tour-actions">
+                    <button class="adm-btn adm-btn-primary" style="background:#004085; border-color: #004085;">Điểm danh AI</button>
+                </div>
+            </div>
+
+        </div>
+    </main>
+</div>
+
+<script>
+    lucide.createIcons();
+</script>
+</body>
+</html>

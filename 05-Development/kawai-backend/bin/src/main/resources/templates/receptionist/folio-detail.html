@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Folio Detail - Hoanien Retreat</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/receptionist/css/dashboard.css">
+    <link rel="stylesheet" href="/receptionist/css/pages.css">
+    <style>
+        .folio-container {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+            margin-top: 24px;
+            align-items: start;
+        }
+
+        .folio-header-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+
+        .guest-profile {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .guest-avatar {
+            width: 56px;
+            height: 56px;
+            background: #c19b6c;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 500;
+        }
+
+        .guest-info h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            color: #2c3e50;
+            margin: 0 0 4px 0;
+        }
+
+        .guest-info p {
+            color: #7f8c8d;
+            font-size: 0.95rem;
+            margin: 0;
+        }
+
+        .status-pill {
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            background: #fff8e1;
+            color: #c19b6c;
+            border: 1px solid #f6e5c0;
+        }
+
+        .alert-box {
+            background: #fff5f5;
+            border: 1px solid #fed7d7;
+            color: #c53030;
+            padding: 16px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+            font-weight: 500;
+        }
+
+        .charge-card {
+            background: #fdfbf7;
+            border: 1px solid #e8e4db;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .charge-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e8e4db;
+            padding-bottom: 16px;
+            margin-bottom: 16px;
+        }
+
+        .charge-title {
+            font-weight: 600;
+            color: #c19b6c;
+            letter-spacing: 1px;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+        }
+
+        .charge-total {
+            font-weight: 600;
+            color: #7f8c8d;
+            font-size: 1.1rem;
+        }
+
+        .charge-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .charge-table th {
+            text-align: left;
+            color: #95a5a6;
+            font-weight: 500;
+            font-size: 0.85rem;
+            padding-bottom: 12px;
+            text-transform: uppercase;
+        }
+
+        .charge-table td {
+            padding: 12px 0;
+            color: #34495e;
+            border-bottom: 1px solid #f4f1ea;
+        }
+
+        .charge-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .charge-table td.amount {
+            text-align: right;
+            font-weight: 600;
+        }
+
+        .bill-summary-card {
+            background: #fdfbf7;
+            border: 1px solid #e8e4db;
+            border-radius: 12px;
+            padding: 24px;
+            position: sticky;
+            top: 24px;
+        }
+
+        .bill-summary-card h3 {
+            margin: 0 0 24px 0;
+            color: #2c3e50;
+            font-size: 1.2rem;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            color: #7f8c8d;
+        }
+
+        .summary-row.total-row {
+            border-top: 1px solid #e8e4db;
+            padding-top: 16px;
+            margin-top: 16px;
+        }
+
+        .summary-row.outstanding-row {
+            align-items: center;
+            margin-top: 24px;
+        }
+
+        .summary-row.outstanding-row .label {
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 1.1rem;
+        }
+
+        .summary-row.outstanding-row .amount {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.2rem;
+            color: #c19b6c;
+        }
+
+        .promo-input {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+
+        .promo-input input {
+            flex: 1;
+            padding: 10px 16px;
+            border: 1px solid #e8e4db;
+            border-radius: 6px;
+            background: #f4f1ea;
+            outline: none;
+            color: #34495e;
+        }
+
+        .btn-apply {
+            background: transparent;
+            border: 1px solid #c19b6c;
+            color: #c19b6c;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn-apply:hover {
+            background: #c19b6c;
+            color: white;
+        }
+
+        .btn-checkout {
+            width: 100%;
+            background: #c19b6c;
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 16px;
+        }
+
+        .btn-checkout:hover {
+            background: #a8875d;
+        }
+
+        .btn-pay-partial {
+            background: white;
+            border: 1px solid #c19b6c;
+            color: #c19b6c;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+            margin-left: 16px;
+        }
+
+        .btn-pay-partial:hover {
+            background: #c19b6c;
+            color: white;
+        }
+
+        .back-link {
+            color: #7f8c8d;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 24px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .back-link:hover {
+            color: #c19b6c;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <div class="brand-logo">◆</div>
+                <div class="brand-text">
+                    <h1 class="brand-title">Hoanien Retreat</h1>
+                    <p class="brand-subtitle">Resort & Hub</p>
+                </div>
+            </div>
+
+            <div class="sidebar-section-title">RECEPTIONIST</div>
+
+            <nav class="sidebar-nav">
+                <a href="/receptionist/dashboard" class="nav-item">
+                    <i class="fa-solid fa-border-all"></i>
+                    <div class="nav-text">
+                        <span class="nav-main-text">Room Matrix</span>
+                        <span class="nav-sub-text">Sơ đồ phòng</span>
+                    </div>
+                </a>
+                <a href="/receptionist/walk-in" class="nav-item">
+                    <i class="fa-solid fa-person-walking-luggage"></i>
+                    <div class="nav-text">
+                        <span class="nav-main-text">Walk-In</span>
+                        <span class="nav-sub-text">Khách vãng lai</span>
+                    </div>
+                </a>
+                <a href="/receptionist/check-in" class="nav-item">
+                    <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                    <div class="nav-text">
+                        <span class="nav-main-text">Check-in</span>
+                        <span class="nav-sub-text">Nhận phòng</span>
+                    </div>
+                </a>
+                <a href="/receptionist/folio" class="nav-item active">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                    <div class="nav-text">
+                        <span class="nav-main-text">Check-out / Folio</span>
+                        <span class="nav-sub-text">Trả phòng & Hóa đơn</span>
+                    </div>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-header">
+                <div class="header-datetime">
+                    <div class="date" id="currentDate" th:text="${todayLabel}">Wednesday, June 10, 2026</div>
+                </div>
+                <div class="header-actions">
+                    <button class="user-profile-btn">
+                        <i class="fa-solid fa-user"></i>
+                        <span>Receptionist</span>
+                    </button>
+                </div>
+            </header>
+
+            <div class="dashboard-scroll-area" style="padding: 32px 40px;">
+                <a href="/receptionist/folio" class="back-link"><i class="fa-solid fa-arrow-left"></i> Back to Folio List</a>
+                
+                <div class="folio-header-top">
+                    <div class="guest-profile">
+                        <div class="guest-avatar">N</div>
+                        <div class="guest-info">
+                            <h2>Nguyễn Thị Lan</h2>
+                            <p>Room 201 • 2026-06-13 &rarr; 2026-06-16</p>
+                        </div>
+                    </div>
+                    <div class="status-pill">Active Stay</div>
+                </div>
+
+                <div class="folio-container">
+                    <div class="folio-left">
+                        <!-- ROOM CHARGES -->
+                        <div class="charge-card">
+                            <div class="charge-card-header">
+                                <div class="charge-title">ROOM CHARGES</div>
+                                <div style="display: flex; align-items: center;">
+                                    <div class="charge-total">23.400.000 ₫</div>
+                                    <button class="btn-pay-partial" onclick="payPartial('Room', '23.400.000 ₫')"><i class="fa-solid fa-wallet"></i> Thanh toán riêng</button>
+                                </div>
+                            </div>
+                            <table class="charge-table">
+                                <thead>
+                                    <tr>
+                                        <th>DESCRIPTION</th>
+                                        <th>DATE</th>
+                                        <th style="text-align: right;">AMOUNT</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Room Charge – Premier Suite</td>
+                                        <td>2026-06-13</td>
+                                        <td class="amount">7.800.000 ₫</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Room Charge – Premier Suite</td>
+                                        <td>2026-06-14</td>
+                                        <td class="amount">7.800.000 ₫</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Room Charge – Premier Suite</td>
+                                        <td>2026-06-15</td>
+                                        <td class="amount">7.800.000 ₫</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- F&B CHARGES -->
+                        <div class="charge-card">
+                            <div class="charge-card-header">
+                                <div class="charge-title">F&B CHARGES</div>
+                                <div style="display: flex; align-items: center;">
+                                    <div class="charge-total">2.970.000 ₫</div>
+                                    <button class="btn-pay-partial" onclick="payPartial('F&B', '2.970.000 ₫')"><i class="fa-solid fa-wallet"></i> Thanh toán riêng</button>
+                                </div>
+                            </div>
+                            <table class="charge-table">
+                                <thead>
+                                    <tr>
+                                        <th>DESCRIPTION</th>
+                                        <th>DATE</th>
+                                        <th style="text-align: right;">AMOUNT</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Breakfast (×2)</td>
+                                        <td>2026-06-14</td>
+                                        <td class="amount">650.000 ₫</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Dinner – Riverside Restaurant</td>
+                                        <td>2026-06-14</td>
+                                        <td class="amount">1.200.000 ₫</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Spa Treatment</td>
+                                        <td>2026-06-15</td>
+                                        <td class="amount">800.000 ₫</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Minibar Charges</td>
+                                        <td>2026-06-15</td>
+                                        <td class="amount">320.000 ₫</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- TOUR CHARGES -->
+                        <div class="charge-card">
+                            <div class="charge-card-header">
+                                <div class="charge-title">TOUR CHARGES</div>
+                                <div style="display: flex; align-items: center;">
+                                    <div class="charge-total">1.500.000 ₫</div>
+                                    <button class="btn-pay-partial" onclick="payPartial('Tour', '1.500.000 ₫')"><i class="fa-solid fa-wallet"></i> Thanh toán riêng</button>
+                                </div>
+                            </div>
+                            <table class="charge-table">
+                                <thead>
+                                    <tr>
+                                        <th>DESCRIPTION</th>
+                                        <th>DATE</th>
+                                        <th style="text-align: right;">AMOUNT</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Kayak Tour – Sunrise Mekong</td>
+                                        <td>2026-06-15</td>
+                                        <td class="amount">1.500.000 ₫</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- LATE CHECK-OUT FEE -->
+                        <div class="charge-card">
+                            <div class="charge-card-header" style="border-bottom: none; padding-bottom: 0; margin-bottom: 0;">
+                                <div class="charge-title" style="text-transform: none;">+ Late Check-out Fee (after 12:00)</div>
+                                <div style="display: flex; align-items: center;">
+                                    <div class="charge-total" style="color: #c19b6c;">500.000 ₫</div>
+                                    <button class="btn-pay-partial" onclick="payPartial('Late Fee', '500.000 ₫')"><i class="fa-solid fa-wallet"></i> Thanh toán riêng</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- OTHER CHARGES -->
+                        <div class="charge-card">
+                            <div class="charge-card-header" style="border-bottom: none; margin-bottom: 0;">
+                                <div class="charge-title">OTHER CHARGES (Damages, Services...)</div>
+                                <div style="display: flex; align-items: center;">
+                                    <div class="charge-total" id="otherChargeTotal">0 ₫</div>
+                                    <button class="btn-pay-partial" onclick="toggleAddChargeForm()"><i class="fa-solid fa-plus"></i> Add Charge</button>
+                                </div>
+                            </div>
+                            
+                            <!-- Add Charge Form -->
+                            <div id="addChargeForm" style="display: none; padding-top: 16px; border-top: 1px solid #e8e4db; margin-top: 16px;">
+                                <div style="display: flex; gap: 12px; margin-bottom: 0;">
+                                    <input type="text" placeholder="Description (e.g. Broken glass)" style="flex: 2; padding: 10px; border: 1px solid #e8e4db; border-radius: 6px; outline: none;">
+                                    <input type="number" placeholder="Amount (VND)" style="flex: 1; padding: 10px; border: 1px solid #e8e4db; border-radius: 6px; outline: none;">
+                                    <button class="btn-apply" style="background: #2c3e50; border-color: #2c3e50; color: white;" onclick="toggleAddChargeForm()">Save</button>
+                                </div>
+                            </div>
+
+                            <table class="charge-table" id="otherChargeTable" style="display: none; margin-top: 16px;">
+                                <thead>
+                                    <tr>
+                                        <th>DESCRIPTION</th>
+                                        <th>DATE</th>
+                                        <th style="text-align: right;">AMOUNT</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+
+                    <!-- BILL SUMMARY -->
+                    <div class="folio-right">
+                        <div class="bill-summary-card" id="billSummaryCard">
+                            <h3 id="billTitle">Bill Summary</h3>
+                            
+                            <div id="billDetails">
+                                <div class="summary-row" id="row-room">
+                                    <span>Room</span>
+                                    <span>23.400.000 ₫</span>
+                                </div>
+                                <div class="summary-row" id="row-fb">
+                                    <span>F&B</span>
+                                    <span>2.970.000 ₫</span>
+                                </div>
+                                <div class="summary-row" id="row-tour">
+                                    <span>Tour</span>
+                                    <span>1.500.000 ₫</span>
+                                </div>
+                                <div class="summary-row" id="row-latefee" style="color: #c19b6c;">
+                                    <span>Late Fee</span>
+                                    <span>500.000 ₫</span>
+                                </div>
+
+                                <div id="promoSection">
+                                    <div style="font-size: 0.9rem; color: #7f8c8d; margin: 24px 0 8px 0;">Apply Promotion</div>
+                                    <div class="promo-input">
+                                        <input type="text" placeholder="Voucher code">
+                                        <button class="btn-apply">Apply</button>
+                                    </div>
+                                </div>
+
+                                <div class="summary-row total-row" id="row-deposit">
+                                    <span>Pre-paid Deposit</span>
+                                    <span>-8.511.000 ₫</span>
+                                </div>
+                            </div>
+
+                            <div class="summary-row outstanding-row">
+                                <span class="label">Outstanding</span>
+                                <span class="amount" id="outstandingAmount">19.859.000 ₫</span>
+                            </div>
+
+                            <button class="btn-checkout" id="btnProceed">Proceed to Payment</button>
+                            
+                            <div style="text-align: center; margin-top: 16px; display: none;" id="backToTotalWrap">
+                                <a href="#" id="btnBackToTotal" style="color: #7f8c8d; text-decoration: none; font-size: 0.9rem; font-weight: 500;"><i class="fa-solid fa-arrow-left"></i> Back to Total Bill</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Store default HTML content to restore later
+        const defaultBillDetails = document.getElementById('billDetails').innerHTML;
+        const defaultOutstanding = "19.859.000 ₫";
+        
+        function payPartial(type, amountStr) {
+            // Update Title
+            document.getElementById('billTitle').innerText = type + " Payment";
+            
+            // Build specific rows
+            let html = `
+                <div class="summary-row">
+                    <span>${type} Total</span>
+                    <span>${amountStr}</span>
+                </div>
+            `;
+            
+            // Update the DOM
+            document.getElementById('billDetails').innerHTML = html;
+            document.getElementById('outstandingAmount').innerText = amountStr;
+            document.getElementById('btnProceed').innerText = "Pay " + type;
+            
+            // Show the "Back" button
+            document.getElementById('backToTotalWrap').style.display = "block";
+            
+            // Scroll to bill if on small screen (optional, but good UX)
+            document.getElementById('billSummaryCard').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        // Reset to total bill
+        document.getElementById('btnBackToTotal').addEventListener('click', function(e) {
+            e.preventDefault();
+            document.getElementById('billTitle').innerText = "Bill Summary";
+            document.getElementById('billDetails').innerHTML = defaultBillDetails;
+            document.getElementById('outstandingAmount').innerText = defaultOutstanding;
+            document.getElementById('btnProceed').innerText = "Proceed to Payment";
+            this.parentElement.style.display = "none";
+        });
+        function toggleAddChargeForm() {
+            var form = document.getElementById('addChargeForm');
+            if (form.style.display === 'none') {
+                form.style.display = 'block';
+            } else {
+                form.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>

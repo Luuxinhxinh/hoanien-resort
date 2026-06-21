@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Order Detail — F&amp;B Staff | Hoanien Resort</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet" />
+  
+  <link rel="stylesheet" th:href="@{/f&amp;bStaff/css/pos-dashboard.css}" href="../../statics/f&bStaff/css/pos-dashboard.css" />
+  <link rel="stylesheet" th:href="@{/f&amp;bStaff/css/order-detail.css}" href="../../statics/f&bStaff/css/order-detail.css" />
+</head>
+<body>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="brand-name">HOANIEN</div>
+      <div class="brand-sub">Resort &amp; Tour Hub</div>
+      <div class="staff-badge">
+        <span class="material-symbols-outlined" style="font-size:0.7rem;">restaurant</span> F&amp;B Staff
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Vận hành</div>
+
+      <a href="/fbStaff/dashboard" th:href="@{/fbStaff/dashboard}" class="nav-item active">
+        <span class="material-symbols-outlined">dashboard</span>
+        <span>POS Dashboard</span>
+      </a>
+      <a href="/fbStaff/create-food-order" class="nav-item">
+        <span class="material-symbols-outlined">add_circle</span>
+        <span>Tạo đơn mới</span>
+      </a>
+      <a href="/fbStaff/table-management" th:href="@{/fbStaff/table-management}" class="nav-item">
+        <span class="material-symbols-outlined">table_restaurant</span>
+        <span>Table Management</span>
+      </a>
+      <a href="/fbStaff/room-service" th:href="@{/fbStaff/room-service}" class="nav-item">
+        <span class="material-symbols-outlined">room_service</span>
+        <span>Room Service</span>
+      </a>
+      <a href="/fbStaff/emenu" th:href="@{/fbStaff/emenu}" class="nav-item">
+        <span class="material-symbols-outlined">menu_book</span>
+        <span>E-Menu</span>
+      </a>
+
+      <div class="nav-section-label">Tài chính</div>
+
+      <a href="/fbStaff/shift-report" th:href="@{/fbStaff/shift-report}" class="nav-item">
+        <span class="material-symbols-outlined">bar_chart</span>
+        <span>Báo cáo ca</span>
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="staff-profile">
+        <div class="staff-avatar">TP</div>
+        <div>
+          <div class="staff-name" th:text="${staffName != null ? staffName : 'Trần Phương'}">Trần Phương</div>
+          <div class="staff-role">F&amp;B POS · Ca Sáng</div>
+        </div>
+        <button class="logout-btn" title="Đăng xuất" onclick="location.href='/auth/logout'">
+          <span class="material-symbols-outlined" style="font-size:1.05rem;">logout</span>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <div class="main-content">
+    <header class="topbar">
+      <div>
+        <div class="topbar-title">Chi tiết Đơn hàng</div>
+        <div class="topbar-subtitle">Thông tin, trạng thái &amp; hóa đơn</div>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-outline" onclick="location.href='pos-dashboard.html'">
+          <span class="material-symbols-outlined">arrow_back</span>
+          Quay lại
+        </button>
+      </div>
+    </header>
+
+    <div class="dashboard-body detail-wrapper">
+      
+      <!-- Toggle Mock View (For Demo only) -->
+      <div class="demo-toggle" style="margin-bottom: 20px; background:var(--bg-card); padding:10px 15px; border-radius:var(--radius-md); border:1px dashed var(--namia-text); display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+        <strong style="color:var(--text-secondary); font-size:0.8rem;">DEMO NAV:</strong>
+        <button class="btn btn-sm btn-outline" onclick="window.location.href='/fbStaff/order-detail?type=food&id=ORD-001'">Food Order (Dine-in)</button>
+        <button class="btn btn-sm btn-outline" onclick="window.location.href='/fbStaff/order-detail?type=food&id=ORD-002&mode=room'">Food Order (Room Svc)</button>
+        <button class="btn btn-sm btn-outline" onclick="window.location.href='/fbStaff/order-detail?type=table&id=RES-105'">Table Reservation</button>
+      </div>
+
+      <div class="detail-card">
+        
+        <!-- HEADER -->
+        <div class="detail-header" th:if="${foodOrder != null || tableOrder != null}">
+          <div class="dh-left">
+            <h2 id="order-id" th:text="${foodOrder != null ? 'ORD-' + foodOrder.id : 'RES-' + tableOrder.id}">ORD-000</h2>
+            <div class="dh-meta">
+              <span id="order-type-badge" class="type-badge" th:text="${foodOrder != null ? foodOrder.orderType : 'Table Reservation'}">Food Order</span>
+              <span id="order-date"><span class="material-symbols-outlined">calendar_today</span> <span id="val-date" th:text="${tableOrder != null ? tableOrder.reserveDate : 'Mới tạo'}">Mới tạo</span></span>
+            </div>
+          </div>
+          <div class="dh-right">
+            <span id="order-status-chip" class="order-status-chip" 
+                  th:with="status=${foodOrder != null ? foodOrder.orderStatus : tableOrder.status}"
+                  th:classappend="${status == 'Pending' ? 'chip-pending' : (status == 'Serving' || status == 'Preparing' ? 'chip-cooking' : 'chip-ready')}" 
+                  style="font-size:0.8rem; padding:6px 14px;">
+              <span class="dot"></span><span th:text="${status}">Processing</span>
+            </span>
+          </div>
+        </div>
+
+        <!-- STATUS TRACKER -->
+        <div class="status-tracker" id="status-tracker" th:if="${foodOrder != null || tableOrder != null}">
+          <div class="step completed" id="step-1">
+            <div class="step-icon"><span class="material-symbols-outlined">receipt_long</span></div>
+            <div class="step-label">Created</div>
+          </div>
+          <div class="step" th:classappend="${foodOrder.orderStatus == 'Preparing' || foodOrder.orderStatus == 'Ready' || foodOrder.orderStatus == 'Served' ? 'completed' : 'active'}" id="step-2">
+            <div class="step-icon"><span class="material-symbols-outlined">skillet</span></div>
+            <div class="step-label" id="lbl-step-2">Processing</div>
+          </div>
+          <div class="step" th:classappend="${(foodOrder != null && foodOrder.orderStatus == 'Served') || (tableOrder != null && tableOrder.status == 'Completed') ? 'completed' : ''}" id="step-3">
+            <div class="step-icon"><span class="material-symbols-outlined" id="icon-step-3" th:text="${tableOrder != null ? 'done_all' : 'room_service'}">room_service</span></div>
+            <div class="step-label" id="lbl-step-3" th:text="${tableOrder != null ? 'Completed' : 'Served'}">Served</div>
+          </div>
+        </div>
+
+        <!-- INFO GRID -->
+        <div class="info-grid" th:if="${foodOrder != null || tableOrder != null}">
+          <div class="info-box">
+            <div class="info-label">Khách hàng / NV tạo</div>
+            <div class="info-value" id="info-customer">
+              <span th:text="${foodOrder != null ? 
+                             ((foodOrder.orderType == 'Room Service' || foodOrder.orderType == 'RoomService') && foodOrder.booking != null && foodOrder.booking.customer != null ? foodOrder.booking.customer.fullName : 
+                              (extractedGuestName != null && !extractedGuestName.isEmpty() ? extractedGuestName : 'Khách lẻ')) 
+                           : (tableOrder != null && tableOrder.customer != null ? tableOrder.customer.fullName : 'Khách lẻ')}">Khách lẻ</span>
+              <span th:if="${foodOrder != null && foodOrder.createdByStaff != null}" th:text="' / NV: ' + ${foodOrder.createdByStaff.fullName}" style="color:var(--text-muted);font-size:0.85em;"> / NV: Trần Phương</span>
+            </div>
+          </div>
+          <div class="info-box" id="box-service-type">
+            <div class="info-label">Hình thức</div>
+            <div class="info-value" id="info-service" th:text="${foodOrder != null ? foodOrder.orderType : 'Dine-In'}">Dine-In</div>
+          </div>
+          <div class="info-box" id="box-location">
+            <div class="info-label" id="lbl-location">Bàn / Phòng</div>
+            <div class="info-value" id="info-location" th:text="${foodOrder != null ? (foodOrder.orderType == 'Room Service' ? 'Room Service' : 'Bàn ' + (foodOrder.table != null ? foodOrder.table.tableNumber : '?')) : 'Bàn ' + (tableOrder.table != null ? tableOrder.table.tableNumber : '?')}">Bàn 05</div>
+          </div>
+          <div class="info-box">
+            <div class="info-label" id="lbl-pax">Thanh toán / Pax</div>
+            <div class="info-value" id="info-pax" th:text="${foodOrder != null ? (foodOrder.isPaidInPos ? 'Đã thanh toán' : 'Chưa (' + foodOrder.paymentType + ')') : tableOrder.pax + ' người'}"></div>
+          </div>
+        </div>
+
+        <!-- DYNAMIC BODY: FOOD ORDER -->
+        <div id="body-food-order" th:if="${foodOrder != null}">
+          <h3 class="section-heading">Danh sách món ăn</h3>
+          <table class="detail-table">
+            <thead>
+              <tr>
+                <th style="width:60px; text-align:center;">SL</th>
+                <th>Món ăn</th>
+                <th style="text-align:right;">Đơn giá</th>
+                <th style="text-align:right;">Trạng thái</th>
+              </tr>
+            </thead>
+            <tbody id="food-items-tbody">
+              <tr th:each="detail : ${foodOrder.details}">
+                <td style="text-align:center; font-weight:600;" th:text="${detail.quantity}">1</td>
+                <td th:text="${detail.menuItem != null ? detail.menuItem.itemName : 'Món ăn'}">Món ăn</td>
+                <td style="text-align:right;" th:text="${detail.priceAtOrder + '₫'}">0₫</td>
+                <td style="text-align:right; font-weight:600;" th:text="${detail.kotStatus}">Chờ</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="order-summary">
+            <div class="summary-row total">
+              <span>Tổng số món:</span>
+              <span id="food-total" th:text="${foodOrder.details.size()}">0</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- DYNAMIC BODY: TABLE RESERVATION -->
+        <div id="body-table-order" th:if="${tableOrder != null}">
+          <h3 class="section-heading">Chi tiết đặt bàn</h3>
+          <div class="table-res-details">
+            <div class="trd-row">
+              <span class="trd-label">Mã đặt bàn (ID):</span>
+              <span class="trd-value" th:text="${'RES-' + tableOrder.id}">RES-1</span>
+            </div>
+            <div class="trd-row">
+              <span class="trd-label">Tên khách hàng:</span>
+              <span class="trd-value" th:text="${tableOrder.customer != null ? tableOrder.customer.fullName : 'N/A'}">Tên khách hàng</span>
+            </div>
+            <div class="trd-row">
+              <span class="trd-label">Bàn đã đặt:</span>
+              <span class="trd-value" id="tbl-numbers" th:text="${tableOrder.table != null ? 'Bàn ' + tableOrder.table.tableNumber : 'Bàn'}">Bàn 01</span>
+            </div>
+            <div class="trd-row">
+              <span class="trd-label">Số lượng người tham gia:</span>
+              <span class="trd-value" th:text="${tableOrder.pax + ' người'}">4 người</span>
+            </div>
+            <div class="trd-row">
+              <span class="trd-label">Thời gian sử dụng:</span>
+              <span class="trd-value" th:text="${tableOrder.reserveTime}">19:30</span>
+            </div>
+            <div class="trd-row">
+              <span class="trd-label">Ngày sử dụng:</span>
+              <span class="trd-value" th:text="${tableOrder.reserveDate}">Hôm nay</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- COMMON NOTES -->
+        <div class="order-notes" id="order-notes" th:style="${foodOrder != null && foodOrder.note != null && !foodOrder.note.isEmpty() ? 'display:block;' : 'display:none;'}">
+          <strong>Yêu cầu đặc biệt:</strong> <span id="note-content" th:text="${foodOrder != null ? foodOrder.note : ''}"></span>
+        </div>
+
+        <!-- ACTION BUTTONS -->
+        <div class="detail-actions" th:if="${foodOrder != null || tableOrder != null}">
+          <button class="btn btn-outline btn-danger" id="btn-cancel"><span class="material-symbols-outlined">close</span> Hủy đơn</button>
+          <div style="margin-left:auto; display:flex; gap:10px;">
+            <button class="btn btn-primary" id="btn-pay" th:if="${foodOrder != null && !foodOrder.isPaidInPos && foodOrder.orderStatus != 'PAID' && foodOrder.orderType != 'Room Service' && foodOrder.orderType != 'RoomService'}" style="background-color: var(--status-ready-text); border-color: var(--status-ready-text);" th:onclick="|payOrder(${foodOrder.id})|"><span class="material-symbols-outlined">payments</span> Thanh toán</button>
+            <button class="btn btn-outline" id="btn-print"><span class="material-symbols-outlined">print</span> In hóa đơn</button>
+            <button class="btn btn-primary" id="btn-action"><span class="material-symbols-outlined">check</span> <span id="btn-action-lbl" th:text="${foodOrder != null ? 'Cập nhật món' : 'Xác nhận khách đến'}">Hoàn thành</span></button>
+          </div>
+        </div>
+
+        <div th:if="${foodOrder == null && tableOrder == null}">
+           <p style="text-align:center; padding: 40px; color: var(--text-muted);">Không tìm thấy thông tin đơn hàng. Vui lòng quay lại màn hình Dashboard.</p>
+        </div>
+
+      </div><!-- / detail-card -->
+    </div><!-- / detail-wrapper -->
+  </div>
+
+  <script th:src="@{/f&amp;bStaff/js/order-detail.js}" src="../../statics/f&bStaff/js/order-detail.js"></script>
+  <script>
+    function payOrder(id) {
+      if(!confirm("Bạn có chắc chắn muốn thanh toán đơn hàng này?")) return;
+      const btn = document.getElementById('btn-pay');
+      if (btn) { btn.disabled = true; btn.innerHTML = 'Đang xử lý...'; }
+      fetch('/api/pos/orders/' + id + '/pay', {
+        method: 'POST'
+      }).then(res => {
+        if(!res.ok) throw new Error('API Error');
+        return res.json();
+      }).then(data => {
+        alert("Thanh toán thành công! Trạng thái đã chuyển sang PAID.");
+        window.location.reload();
+      }).catch(err => {
+        alert("Lỗi thanh toán: " + err.message);
+        if (btn) { btn.disabled = false; btn.innerHTML = '<span class="material-symbols-outlined">payments</span> Thanh toán'; }
+      });
+    }
+  </script>
+</body>
+</html>
+

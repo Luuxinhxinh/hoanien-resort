@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!-- TABLE FRAGMENT -->
+<div th:fragment="table">
+    <div class="adm-table-wrap">
+        <table class="adm-table">
+            <thead>
+            <tr>
+                <th>Mã</th><th>Tên loại Tour</th><th>Số Tour</th><th>Trạng thái</th><th style="text-align:right">Thao tác</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="row, stat : ${rows}" th:attr="data-id=${row['id']},data-entity=${row['jsonString']}">
+                <td th:attr="data-key='id',data-value=${row['id']}" th:text="${row['id']}"></td>
+                <td th:attr="data-key='name',data-value=${row['name']}" th:text="${row['name']}"></td>
+                <td th:attr="data-key='tours',data-value=${row['tours']}" th:text="${row['tours']}"></td>
+                <td th:attr="data-key='status',data-value=${row['status']}">
+                    <span class="cell-badge" th:classappend="${row['__statusStyle']}" th:text="${row['status']}"></span>
+                </td>
+                <td style="text-align:center;">
+                    <button type="button" class="btn-toggle" th:attr="data-id=${row['id']},data-value=${row['status']}">
+                        <i th:if="${row['status'] == 'Active' || row['status'] == 'Available' || row['status'] == 'true'}" data-lucide="toggle-right" style="color:#C9A96E"></i>
+                        <i th:unless="${row['status'] == 'Active' || row['status'] == 'Available' || row['status'] == 'true'}" data-lucide="toggle-left" style="color:#8B7355"></i>
+                    </button>
+                </td>
+                <td style="text-align:right">
+                    <div style="display:flex;align-items:center;justify-content:flex-end;gap:2px">
+                        <button class="btn-action btn-action-edit btn-edit" th:attr="data-id=${row['id']}"><i data-lucide="pencil"></i></button>
+</div>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(rows)}"><td colspan="5" style="text-align:center;padding:48px;color:#8B7355;font-family:var(--font-serif);font-size:18px">Không có bản ghi nào</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- FORM FRAGMENT -->
+<div th:fragment="form">
+    <div class="form-fields-inner" style="display:flex;flex-direction:column;gap:20px">
+        <div class="adm-form-group"><label class="adm-form-label">Tên loại Tour <span style="color:#B45309">*</span></label><input type="text" name="name" class="adm-form-input" required></div>
+        <div class="adm-form-group"><label class="adm-form-label">Số Tour</label><input type="number" name="tours" class="adm-form-input"></div>
+    </div>
+</div>
+
+</body>
+</html>
