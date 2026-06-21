@@ -76,9 +76,6 @@ public class BookingServiceImpl implements BookingService {
 
     private static final BigDecimal BASE_ROOM_PRICE = new BigDecimal("2000000"); // 2tr/đêm
     private static final String STATUS_HOLD = "HOLD";
-    private static final String STATUS_CONFIRMED = "CONFIRMED";
-
-    /** HOLD tự động hết hạn sau 10 phút nếu chưa thanh toán (Scheduler dọn) */
     private static final int HOLD_TTL_MINUTES = 10;
 
     private final RoomBookingRepository roomBookingRepository;
@@ -313,20 +310,11 @@ public class BookingServiceImpl implements BookingService {
      * Scheduler chạy mỗi 60 giây, tìm các HOLD đã quá 10 phút (holdExpiresAt ≤
      * now).
      * Chuyển chúng sang CANCELLED để giải phóng phòng cho user khác.
-     *
-     * Case thực tế:
-     * - User tạo booking nhưng đóng trình duyệt giữa chừng
-     * - Server crash sau khi INSERT HOLD nhưng trước khi commit
-     * - Lỗi network khi gọi payment gateway
-     *
-     * Trong luồng bình thường:
-     * HOLD → CONFIRMED xảy ra trong milliseconds → Scheduler sẽ không tìm thấy gì
      */
     @Scheduled(fixedDelay = 60_000) // Chạy mỗi 60 giây
     @Transactional
     public void cleanupStaleHolds() {
         LocalDateTime now = LocalDateTime.now();
-        // findStaleHolds(now) → WHERE bookingStatus='HOLD' AND holdExpiresAt <= now
         List<RoomBooking> staleHolds = roomBookingRepository.findStaleHolds(now);
         if (!staleHolds.isEmpty()) {
             staleHolds.forEach(h -> {
@@ -374,10 +362,21 @@ public class BookingServiceImpl implements BookingService {
                     "Promotion code '" + promoCode + "' has expired [ERR_PROMO_EXPIRED]");
         }
 
-        BigDecimal discountRate = promo.getDiscountValue();
-        BigDecimal discountAmount = baseTotal.multiply(discountRate)
-                .divide(new BigDecimal("100"), 2, RoundingMode.HALF_UP);
-        return baseTotal.subtract(discountAmount);
+        BigDecimal discountValue = promo.getDiscountValue();
+        BigDecimal finalPrice;
+
+        if (discountValue.compareTo(new BigDecimal("100")) <= 0) {
+            BigDecimal discountAmount = baseTotal.multiply(discountValue)
+                    .divide(new BigDecimal("100"), 2, RoundingMode.HALF_UP);
+            finalPrice = baseTotal.subtract(discountAmount);
+        } else {
+            finalPrice = baseTotal.subtract(discountValue);
+        }
+        if (finalPrice.compareTo(BigDecimal.ZERO) < 0) {
+            finalPrice = BigDecimal.ZERO;
+        }
+
+        return finalPrice;
     }
 
     // ══════════════════════════════════════════════════════════════════════

@@ -38,17 +38,6 @@ public interface RoomBookingRepository extends JpaRepository<RoomBooking, Long> 
                      @Param("checkIn") LocalDate checkIn,
                      @Param("checkOut") LocalDate checkOut);
 
-       @Query("SELECT COUNT(rbd) FROM RoomBookingDetail rbd " +
-                     "WHERE rbd.room.roomNumber = :roomNumber " +
-                     "AND rbd.roomBooking.checkInDate < :checkOut " +
-                     "AND rbd.roomBooking.checkOutDate > :checkIn " +
-                     "AND rbd.roomBooking.bookingStatus != 'CANCELLED' " +
-                     "AND rbd.roomBooking.id != :excludeBookingId")
-       long countOverlappingBookingsByRoom(@Param("roomNumber") String roomNumber,
-                     @Param("checkIn") LocalDate checkIn,
-                     @Param("checkOut") LocalDate checkOut,
-                     @Param("excludeBookingId") Long excludeBookingId);
-
        /**
         * Đếm booking trùng ngày cho 1 phòng cụ thể, bỏ qua booking của chính mình
         * (excludeBookingId).
@@ -67,6 +56,7 @@ public interface RoomBookingRepository extends JpaRepository<RoomBooking, Long> 
                      @Param("checkIn") LocalDate checkIn,
                      @Param("checkOut") LocalDate checkOut,
                      @Param("excludeBookingId") Long excludeBookingId);
+
        @Query("SELECT rb FROM RoomBooking rb WHERE rb.bookingStatus = 'HOLD' AND rb.holdExpiresAt <= :now")
        List<RoomBooking> findStaleHolds(@Param("now") java.time.LocalDateTime now);
 
@@ -74,9 +64,9 @@ public interface RoomBookingRepository extends JpaRepository<RoomBooking, Long> 
        java.sql.Date findPeakOccupancyDate();
 
        @Query("SELECT COUNT(DISTINCT rbd.room.id) FROM RoomBookingDetail rbd " +
-              "WHERE rbd.roomBooking.checkInDate <= :date " +
-              "AND rbd.roomBooking.checkOutDate > :date " +
-              "AND rbd.roomBooking.bookingStatus IN ('Confirmed', 'Checked_In')")
+                     "WHERE rbd.roomBooking.checkInDate <= :date " +
+                     "AND rbd.roomBooking.checkOutDate > :date " +
+                     "AND rbd.roomBooking.bookingStatus IN ('Confirmed', 'Checked_In')")
        Integer countOccupiedRoomsOnDate(@Param("date") LocalDate date);
 
        @Query("SELECT SUM(b.totalPrice) FROM RoomBooking b WHERE b.bookingDate = :date AND b.bookingStatus IN ('Confirmed', 'Checked_In', 'Checked_Out')")

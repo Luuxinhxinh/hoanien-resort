@@ -131,26 +131,30 @@ class BookingServiceUC10Test {
                 category.setBaseAdults(2);
                 category.setBaseChildren(0);
 
-                lenient().when(roomCategoryRepository.findByCategoryNameWithLock(anyString())).thenReturn(Optional.of(category));
+                lenient().when(roomCategoryRepository.findByCategoryNameWithLock(anyString()))
+                                .thenReturn(Optional.of(category));
                 lenient().when(roomRepository.countActiveRoomsByCategoryName(anyString())).thenReturn(10L);
 
-                lenient().when(roomCategoryRepository.findByCategoryNameWithLock(anyString())).thenAnswer(invocation -> {
-                        String catName = invocation.getArgument(0);
-                        com.kawai.models.RoomCategory cat = new com.kawai.models.RoomCategory();
-                        cat.setId(1L);
-                        cat.setCategoryName(catName);
-                        cat.setBasePrice(new BigDecimal("2000000"));
-                        return Optional.of(cat);
-                });
+                lenient().when(roomCategoryRepository.findByCategoryNameWithLock(anyString()))
+                                .thenAnswer(invocation -> {
+                                        String catName = invocation.getArgument(0);
+                                        com.kawai.models.RoomCategory cat = new com.kawai.models.RoomCategory();
+                                        cat.setId(1L);
+                                        cat.setCategoryName(catName);
+                                        cat.setBasePrice(new BigDecimal("2000000"));
+                                        return Optional.of(cat);
+                                });
 
                 lenient().when(roomRepository.countActiveRoomsByCategoryName(anyString())).thenReturn(1L);
-                lenient().when(roomBookingRepository.countOverlappingBookingsByCategory(anyString(), any(), any(), anyLong()))
-                        .thenAnswer(invocation -> {
-                                LocalDate in = invocation.getArgument(1);
-                                LocalDate out = invocation.getArgument(2);
-                                Long holdId = invocation.getArgument(3);
-                                return roomBookingRepository.countOverlappingBookingsByRoom(ROOM_NO, in, out, holdId);
-                        });
+                lenient().when(roomBookingRepository.countOverlappingBookingsByCategory(anyString(), any(), any(),
+                                anyLong()))
+                                .thenAnswer(invocation -> {
+                                        LocalDate in = invocation.getArgument(1);
+                                        LocalDate out = invocation.getArgument(2);
+                                        Long holdId = invocation.getArgument(3);
+                                        return roomBookingRepository.countOverlappingBookingsByRoom(ROOM_NO, in, out,
+                                                        holdId);
+                                });
 
                 lenient().when(roomRepository.findByRoomNumber(anyString())).thenAnswer(invocation -> {
                         String rNo = invocation.getArgument(0);
@@ -175,13 +179,14 @@ class BookingServiceUC10Test {
                         return b;
                 });
 
-                lenient().when(roomBookingRepository.save(any(com.kawai.models.RoomBooking.class))).thenAnswer(invocation -> {
-                        com.kawai.models.RoomBooking b = invocation.getArgument(0);
-                        if (b.getId() == null) {
-                                b.setId(12345L);
-                        }
-                        return b;
-                });
+                lenient().when(roomBookingRepository.save(any(com.kawai.models.RoomBooking.class)))
+                                .thenAnswer(invocation -> {
+                                        com.kawai.models.RoomBooking b = invocation.getArgument(0);
+                                        if (b.getId() == null) {
+                                                b.setId(12345L);
+                                        }
+                                        return b;
+                                });
 
                 lenient().when(roomBookingDetailRepository.save(any(com.kawai.models.RoomBookingDetail.class)))
                                 .thenAnswer(invocation -> invocation.getArgument(0));
@@ -198,7 +203,9 @@ class BookingServiceUC10Test {
 
         /** Helper: tạo request cơ bản không có promo code. */
         private BookingRequestDTO buildRequest() {
-                return new BookingRequestDTO(1L, Collections.singletonList(new RoomSelectionDTO(ROOM_NO, "Deluxe", 2, 0)), CHECK_IN, CHECK_OUT, DEPOSIT);
+                return new BookingRequestDTO(1L,
+                                Collections.singletonList(new RoomSelectionDTO(ROOM_NO, "Deluxe", 2, 0)), CHECK_IN,
+                                CHECK_OUT, DEPOSIT);
         }
 
         // ══════════════════════════════════════════════════════════════════════════
@@ -528,7 +535,9 @@ class BookingServiceUC10Test {
                 // Arrange: 3 đêm
                 LocalDate in = LocalDate.of(2026, 8, 1);
                 LocalDate out = LocalDate.of(2026, 8, 4);
-                BookingRequestDTO request = new BookingRequestDTO(1L, Collections.singletonList(new RoomSelectionDTO("R202", "Deluxe", 2, 0)), in, out, DEPOSIT);
+                BookingRequestDTO request = new BookingRequestDTO(1L,
+                                Collections.singletonList(new RoomSelectionDTO("R202", "Deluxe", 2, 0)), in, out,
+                                DEPOSIT);
                 request.setPromotionCode("EARLYBIRD20");
 
                 when(roomBookingRepository.countOverlappingBookingsByCategory(
