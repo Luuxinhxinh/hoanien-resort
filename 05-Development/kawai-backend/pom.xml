@@ -99,6 +99,13 @@
             <scope>runtime</scope>
         </dependency>
 
+        <!-- SendGrid Email Service -->
+        <dependency>
+            <groupId>com.sendgrid</groupId>
+            <artifactId>sendgrid-java</artifactId>
+            <version>4.9.3</version>
+        </dependency>
+
         <!-- Lombok (to reduce boilerplate) -->
         <dependency>
             <groupId>org.projectlombok</groupId>

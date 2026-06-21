@@ -126,7 +126,9 @@
     <div id="toastContainer" class="fixed top-5 right-5 z-[200] flex flex-col gap-3 pointer-events-none font-sans">
     </div>
 
-    <script>
+    <script th:inline="javascript">
+        const isUserLoggedIn = /*[[${session.user != null}]]*/ false;
+
         function openLoginModal() {
             const m = document.getElementById('authModal');
             if (m) {
@@ -161,9 +163,48 @@
             const hasError = document.querySelector('#authModal .bg-red-100');
             const hasSuccess = document.querySelector('#authModal .bg-green-100');
             const urlParams = new URLSearchParams(window.location.search);
-            if (hasError || hasSuccess || urlParams.get('login') === 'true' || urlParams.get('login_error') === 'true') {
+
+            // Xóa tham số login để tránh popup lặp lại
+            let shouldOpenModal = false;
+            if (typeof isUserLoggedIn !== 'undefined' && isUserLoggedIn) {
+                if (urlParams.has('login') || urlParams.has('login_error')) {
+                    urlParams.delete('login');
+                    urlParams.delete('login_error');
+                    const qs = urlParams.toString();
+                    const newUrl = window.location.pathname + (qs ? '?' + qs : '');
+                    window.history.replaceState({}, document.title, newUrl);
+                }
+            } else {
+                if (hasError || hasSuccess || urlParams.get('login') === 'true' || urlParams.get('login_error') === 'true') {
+                    shouldOpenModal = true;
+                }
+            }
+
+            if (shouldOpenModal) {
                 openLoginModal();
             }
+
+            // Mở register form nếu có lỗi đăng ký
+            if (urlParams.get('register') === 'true') {
+                openRegisterModal();
+            }
+
+            // Tạo cleanUrl để redirect (không mang theo login params)
+            const cleanParams = new URLSearchParams(window.location.search);
+            cleanParams.delete('login');
+            cleanParams.delete('login_error');
+            const cleanQs = cleanParams.toString();
+            const cleanUrl = window.location.pathname + (cleanQs ? '?' + cleanQs : '');
+
+            // Populate redirect_to fields
+            const redirectInputs = document.querySelectorAll('.redirect-input');
+            redirectInputs.forEach(input => input.value = cleanUrl);
+
+            // Update Google login link
+            const googleLinks = document.querySelectorAll('a[href^="/auth/google-login"]');
+            googleLinks.forEach(link => {
+                link.href = '/auth/google-login?from=' + encodeURIComponent(cleanUrl);
+            });
         });
     </script>
 </div>

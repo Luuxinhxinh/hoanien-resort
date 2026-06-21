@@ -57,12 +57,14 @@ public class AuthController {
 
         if (accountRepository.existsByUsername(username)) {
             redirectAttributes.addFlashAttribute("authError", "Tên đăng nhập đã tồn tại!");
-            return "redirect:" + redirectPath;
+            redirectAttributes.addFlashAttribute("showRegister", true);
+            return "redirect:" + redirectPath + "?register=true";
         }
 
         if (customerRepository.existsByEmail(email)) {
             redirectAttributes.addFlashAttribute("authError", "Email này đã được sử dụng!");
-            return "redirect:" + redirectPath;
+            redirectAttributes.addFlashAttribute("showRegister", true);
+            return "redirect:" + redirectPath + "?register=true";
         }
 
         // Assign default role (CUSTOMER NORMAL or CUSTOMER)
@@ -74,11 +76,12 @@ public class AuthController {
                     return roleRepository.save(newRole);
                 });
 
-        // Create Account
+        // Create Account (chưa active cho đến khi verify OTP)
         Account account = new Account();
         account.setUsername(username);
         account.setPasswordHash(passwordEncoder.encode(password));
         account.setRole(customerRole);
+        account.setIsActive(false);
         account = accountRepository.save(account);
 
         // Create Customer
@@ -90,8 +93,18 @@ public class AuthController {
         customer.setPhone(phone != null && !phone.trim().isEmpty() ? phone : "0000000000");
         customerRepository.save(customer);
 
-        redirectAttributes.addFlashAttribute("authSuccess", "Đăng ký thành công! Vui lòng đăng nhập.");
-        return "redirect:" + redirectPath;
+        // Gửi OTP xác nhận đăng ký
+        try {
+            authService.generate2FaOtp(username);
+            redirectAttributes.addFlashAttribute("authSuccess",
+                    "Đăng ký thành công! Vui lòng kiểm tra email để xác thực OTP.");
+            return "redirect:/auth/verify-otp?username=" + username;
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("authError",
+                    "Đăng ký thành công nhưng không thể gửi email xác thực. Vui lòng thử lại.");
+            redirectAttributes.addFlashAttribute("showRegister", true);
+            return "redirect:" + redirectPath + "?register=true";
+        }
     }
 
     /**
@@ -131,6 +144,53 @@ public class AuthController {
         return "redirect:/oauth2/authorization/google";
     }
 
+    // ── XÁC THỰC OTP ĐĂNG KÝ ──
+    @GetMapping("/verify-otp")
+    public String verifyOtpPage(@RequestParam String username,
+            RedirectAttributes redirectAttributes) {
+        if (username == null || username.trim().isEmpty()) {
+            redirectAttributes.addFlashAttribute("authError", "Thiếu thông tin người dùng.");
+            return "redirect:/auth/login";
+        }
+        return "auth/verify-otp";
+    }
+
+    @PostMapping("/verify-otp")
+    public String verifyOtp(@RequestParam String username,
+            @RequestParam String otpCode,
+            RedirectAttributes redirectAttributes) {
+        try {
+            boolean isValid = authService.verify2FaOtp(username, otpCode);
+            if (isValid) {
+                redirectAttributes.addFlashAttribute("authSuccess",
+                        "Xác thực OTP thành công! Tài khoản đã được kích hoạt. Vui lòng đăng nhập.");
+                return "redirect:/booking?login=true";
+            } else {
+                redirectAttributes.addFlashAttribute("authError", "Mã OTP không hợp lệ.");
+                return "redirect:/auth/verify-otp?username=" + username;
+            }
+        } catch (IllegalStateException e) {
+            redirectAttributes.addFlashAttribute("authError", e.getMessage());
+            return "redirect:/auth/verify-otp?username=" + username;
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("authError", "Có lỗi xảy ra. Vui lòng thử lại.");
+            return "redirect:/auth/verify-otp?username=" + username;
+        }
+    }
+
+    @GetMapping("/resend-otp")
+    public String resendOtp(@RequestParam String username,
+            RedirectAttributes redirectAttributes) {
+        try {
+            String otp = authService.generate2FaOtp(username);
+            redirectAttributes.addFlashAttribute("authSuccess",
+                    "Mã OTP mới đã được gửi đến email của bạn.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("authError", "Không thể gửi OTP. Vui lòng thử lại.");
+        }
+        return "redirect:/auth/verify-otp?username=" + username;
+    }
+
     // ── QUÊN MẬT KHẨU ──
     @GetMapping("/forgot-password")
     public String forgotPasswordPage() {
@@ -141,10 +201,7 @@ public class AuthController {
     public String forgotPassword(@RequestParam String email,
             RedirectAttributes redirectAttributes) {
         try {
-            String token = authService.requestPasswordReset(email);
-            // Lưu token vào session để hiển thị link reset (demo)
-            // Trong thực tế sẽ gửi email chứa link
-            redirectAttributes.addFlashAttribute("resetToken", token);
+            authService.requestPasswordReset(email);
             redirectAttributes.addFlashAttribute("authSuccess",
                     "Yêu cầu đặt lại mật khẩu đã được gửi. Vui lòng kiểm tra email.");
         } catch (Exception e) {
@@ -160,7 +217,7 @@ public class AuthController {
             RedirectAttributes redirectAttributes) {
         if (token == null || token.trim().isEmpty()) {
             redirectAttributes.addFlashAttribute("authError", "Token không hợp lệ.");
-            return "redirect:/auth/login";
+            return "redirect:/booking?login=true";
         }
         return "auth/reset-password";
     }
@@ -179,7 +236,7 @@ public class AuthController {
             if (result) {
                 redirectAttributes.addFlashAttribute("authSuccess",
                         "Đặt lại mật khẩu thành công! Vui lòng đăng nhập.");
-                return "redirect:/auth/login";
+                return "redirect:/booking?login=true";
             } else {
                 redirectAttributes.addFlashAttribute("authError", "Đặt lại mật khẩu thất bại.");
                 return "redirect:/auth/reset-password?token=" + token;

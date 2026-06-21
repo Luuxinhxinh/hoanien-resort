@@ -61,11 +61,13 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/ops-login", "/admin-backdoor").permitAll()
-                        // .access(new org.springframework.security.web.access.expression.WebExpressionAuthorizationManager(
-                        //         "hasIpAddress('192.168.1.0/24')"))
+                        // .access(new
+                        // org.springframework.security.web.access.expression.WebExpressionAuthorizationManager(
+                        // "hasIpAddress('192.168.1.0/24')"))
 
                         .requestMatchers("/", "/booking", "/auth/register", "/auth/login", "/auth/check-session",
-                                "/auth/google-login",
+                                "/auth/google-login", "/auth/forgot-password", "/auth/reset-password",
+                                "/auth/verify-otp", "/auth/resend-otp",
                                 "/h2-console/**", "/css/**", "/js/**", "/guest/**", "/living", "/wellbeing", "/dining",
                                 "/experiences", "/tours", "/tours/**", "/profile", "/order-food", "/AnhTour/**",
                                 "/fbStaff/**", "/f&bStaff/**", "/api/menu-items/**", "/api/rooms/**", "/api/pos/**",
@@ -91,10 +93,10 @@ public class SecurityConfig {
                         .permitAll())
 
                 .oauth2Login(oauth2 -> oauth2
-                         .loginPage("/booking")
-                         .userInfoEndpoint(userInfo -> userInfo
-                                 .userService(customOAuth2UserService))
-                         .successHandler(oAuth2SuccessHandler))
+                        .loginPage("/booking")
+                        .userInfoEndpoint(userInfo -> userInfo
+                                .userService(customOAuth2UserService))
+                        .successHandler(oAuth2SuccessHandler))
 
                 .logout(logout -> logout
                         .logoutUrl("/auth/logout")

@@ -24,6 +24,8 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
         format_sql: true
+        jdbc:
+          time_zone: Asia/Ho_Chi_Minh
 
   thymeleaf:
     cache: false
@@ -43,3 +45,11 @@ vnpay:
   pay-url: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
   return-url: http://localhost:8080/api/v1/payments/vnpay-return
   api-version: 2.1.0
+
+sendgrid:
+  api-key: ${SENDGRID_API_KEY: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}
+  from-email: hoanien.00@gmail.com
+
+
+app:
+  base-url: http://localhost:8080

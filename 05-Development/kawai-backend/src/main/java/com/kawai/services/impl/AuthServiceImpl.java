@@ -3,6 +3,7 @@ package com.kawai.services.impl;
 import com.kawai.models.*;
 import com.kawai.repositories.*;
 import com.kawai.services.interfaces.AuthService;
+import com.kawai.services.interfaces.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -30,6 +31,12 @@ public class AuthServiceImpl implements AuthService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private EmailService emailService;
+
+    @org.springframework.beans.factory.annotation.Value("${app.base-url:http://localhost:8080}")
+    private String baseUrl;
 
     private final Random random = new Random();
 
@@ -117,6 +124,13 @@ public class AuthServiceImpl implements AuthService {
         accountRepository.save(account);
 
         writeAuditLog(account, "GENERATE_OTP", "Accounts", account.getId(), null, "OTP generated: " + otp);
+
+        // Gửi email OTP xác nhận đăng ký
+        Customer customer = customerRepository.findByAccount_Username(username).orElse(null);
+        if (customer != null && customer.getEmail() != null) {
+            emailService.sendRegistrationOtpEmail(customer.getEmail(), otp, customer.getFullName());
+        }
+
         return otp;
     }
 
@@ -164,6 +178,11 @@ public class AuthServiceImpl implements AuthService {
         accountRepository.save(account);
 
         writeAuditLog(account, "RESET_PASSWORD_REQUEST", "Accounts", account.getId(), null, "Reset token: " + token);
+
+        // Gửi email chứa link đặt lại mật khẩu
+        String resetLink = baseUrl + "/auth/reset-password?token=" + token;
+        emailService.sendPasswordResetEmail(customer.getEmail(), resetLink, customer.getFullName());
+
         return token;
     }
 
@@ -200,20 +219,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     private boolean isValidPassword(String password) {
-        if (password == null || password.length() < 8)
-            return false;
-        boolean hasUpper = false;
-        boolean hasLower = false;
-        boolean hasDigit = false;
-        for (char c : password.toCharArray()) {
-            if (Character.isUpperCase(c))
-                hasUpper = true;
-            if (Character.isLowerCase(c))
-                hasLower = true;
-            if (Character.isDigit(c))
-                hasDigit = true;
-        }
-        return hasUpper && hasLower && hasDigit;
+        return password != null && password.length() >= 6;
     }
 
     private void writeAuditLog(Account account, String action, String tableName, Long recordId, String oldValue,

@@ -76,7 +76,6 @@ public class BookingServiceImpl implements BookingService {
 
     private static final BigDecimal BASE_ROOM_PRICE = new BigDecimal("2000000"); // 2tr/đêm
     private static final String STATUS_HOLD = "HOLD";
-    private static final String STATUS_CONFIRMED = "CONFIRMED";
 
     /** HOLD tự động hết hạn sau 10 phút nếu chưa thanh toán (Scheduler dọn) */
     private static final int HOLD_TTL_MINUTES = 10;
