@@ -1,0 +1,502 @@
+﻿<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Báo cáo ngày — F&amp;B Staff | Hoanien Resort</title>
+  <meta name="description" content="Màn hình Báo cáo ngày cho nhân viên F&amp;B — Hoanien Retreat Resort &amp; Hub" />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Material Symbols -->
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet" />
+
+  <!-- Base POS CSS -->
+  <link rel="stylesheet" th:href="@{/f&amp;bStaff/css/pos-dashboard.css}" href="../../statics/f&bStaff/css/pos-dashboard.css" />
+  <!-- Shift Report CSS -->
+  <link rel="stylesheet" th:href="@{/f&amp;bStaff/css/shift-report.css}" href="../../statics/f&bStaff/css/shift-report.css" />
+</head>
+
+<body>
+
+  <!-- ============================================================
+       SIDEBAR
+       ============================================================ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="brand-name">HOANIEN</div>
+      <div class="brand-sub">Resort &amp; Tour Hub</div>
+      <div class="staff-badge">
+        <span class="material-symbols-outlined" style="font-size:0.7rem;font-variation-settings:'FILL' 1,'wght' 500,'GRAD' 0,'opsz' 24;">restaurant</span>
+        F&amp;B Staff
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Vận hành</div>
+
+      <a href="/fbStaff/dashboard" th:href="@{/fbStaff/dashboard}" class="nav-item">
+        <span class="material-symbols-outlined">dashboard</span>
+        <span>POS Dashboard</span>
+      </a>
+      <a href="/fbStaff/create-food-order" class="nav-item">
+        <span class="material-symbols-outlined">add_circle</span>
+        <span>Tạo đơn mới</span>
+      </a>
+      <a href="/fbStaff/table-management" th:href="@{/fbStaff/table-management}" class="nav-item">
+        <span class="material-symbols-outlined">table_restaurant</span>
+        <span>Table Management</span>
+      </a>
+      <a href="/fbStaff/room-service" th:href="@{/fbStaff/room-service}" class="nav-item">
+        <span class="material-symbols-outlined">room_service</span>
+        <span>Room Service</span>
+      </a>
+      <a href="/fbStaff/emenu" th:href="@{/fbStaff/emenu}" class="nav-item">
+        <span class="material-symbols-outlined">menu_book</span>
+        <span>E-Menu</span>
+      </a>
+
+      <div class="nav-section-label">Tài chính</div>
+
+      <a href="/fbStaff/shift-report" th:href="@{/fbStaff/shift-report}" class="nav-item active">
+        <span class="material-symbols-outlined">bar_chart</span>
+        <span>Báo cáo ngày</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="staff-profile">
+        <div class="staff-avatar">TP</div>
+        <div>
+          <div class="staff-name" th:text="${staffName != null ? staffName : 'Trần Phương'}">Trần Phương</div>
+          <div class="staff-role">F&amp;B POS · Ca Sáng</div>
+        </div>
+        <button class="logout-btn" title="Đăng xuất" onclick="location.href='/auth/logout'">
+          <span class="material-symbols-outlined" style="font-size:1.05rem;">logout</span>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ============================================================
+       MAIN CONTENT
+       ============================================================ -->
+  <div class="main-content">
+
+    <!-- Topbar -->
+    <header class="topbar">
+      <div>
+        <div class="topbar-title">Báo cáo ngày</div>
+        <div class="topbar-subtitle">F&amp;B Daily Report · Ngày hiện tại</div>
+      </div>
+      <div class="topbar-right">
+        <div style="position:relative;">
+          <div class="topbar-clock" id="live-clock">--:--:--</div>
+          <div class="topbar-date" id="live-date" style="position:absolute;top:calc(100% + 3px);left:0;right:0;text-align:center;white-space:nowrap;"></div>
+        </div>
+
+        <div class="icon-btn" title="Thông báo">
+          <span class="material-symbols-outlined">notifications</span>
+        </div>
+
+
+
+        <button class="btn btn-primary" onclick="window.print()" style="height:34px;padding:0 14px;gap:6px;">
+          <span class="material-symbols-outlined">print</span>
+          In báo cáo
+        </button>
+      </div>
+    </header>
+
+    <!-- Dashboard Body -->
+    <div class="dashboard-body sr-wrapper">
+
+
+
+      <!-- ===================================================
+           SECTION 1: ORDER STATISTICS
+           =================================================== -->
+      <div class="sr-section-header">
+        <span class="material-symbols-outlined">receipt_long</span>
+        <h2>Order Statistics</h2>
+        <span class="sr-section-sub">Thống kê đơn hàng trong ngày</span>
+      </div>
+
+      <div class="sr-stats-grid" id="order-stats-grid">
+
+        <div class="sr-stat-card accent-default" onclick="openOrdersModal('all')">
+          <div class="sr-stat-icon" style="background:rgba(44,44,44,0.07);color:#2c2c2c;">
+            <span class="material-symbols-outlined">receipt_long</span>
+          </div>
+          <div class="sr-stat-body">
+            <div class="sr-stat-label">Total Orders</div>
+            <div class="sr-stat-value" id="stat-total-orders">125</div>
+          </div>
+          <div class="sr-stat-trend up">
+            <span class="material-symbols-outlined">trending_up</span> +12 vs ngày hôm qua
+          </div>
+        </div>
+
+        <div class="sr-stat-card accent-blue" onclick="openOrdersModal('dine-in')">
+          <div class="sr-stat-icon" style="background:var(--status-served-bg);color:var(--status-served-text);">
+            <span class="material-symbols-outlined">restaurant</span>
+          </div>
+          <div class="sr-stat-body">
+            <div class="sr-stat-label">Dine-In Orders</div>
+            <div class="sr-stat-value" id="stat-dine-in">80</div>
+          </div>
+          <div class="sr-stat-sub">64% tổng đơn</div>
+        </div>
+
+        <div class="sr-stat-card accent-purple" onclick="openOrdersModal('room-service')">
+          <div class="sr-stat-icon" style="background:var(--status-roomsvc-bg);color:var(--status-roomsvc-text);">
+            <span class="material-symbols-outlined">room_service</span>
+          </div>
+          <div class="sr-stat-body">
+            <div class="sr-stat-label">Room Service</div>
+            <div class="sr-stat-value" id="stat-room-svc">45</div>
+          </div>
+          <div class="sr-stat-sub">36% tổng đơn</div>
+        </div>
+
+        <div class="sr-stat-card accent-green" onclick="openOrdersModal('served')">
+          <div class="sr-stat-icon" style="background:var(--status-ready-bg);color:var(--status-ready-text);">
+            <span class="material-symbols-outlined">check_circle</span>
+          </div>
+          <div class="sr-stat-body">
+            <div class="sr-stat-label">Served Orders</div>
+            <div class="sr-stat-value" id="stat-served">110</div>
+          </div>
+          <div class="sr-stat-sub">88% tỷ lệ hoàn thành</div>
+        </div>
+
+        <div class="sr-stat-card accent-red" onclick="openOrdersModal('cancelled')">
+          <div class="sr-stat-icon" style="background:rgba(190,50,50,0.09);color:#b83232;">
+            <span class="material-symbols-outlined">cancel</span>
+          </div>
+          <div class="sr-stat-body">
+            <div class="sr-stat-label">Cancelled Orders</div>
+            <div class="sr-stat-value" id="stat-cancelled">5</div>
+          </div>
+          <div class="sr-stat-sub">4% tỷ lệ hủy</div>
+        </div>
+
+      </div>
+
+      <!-- ===================================================
+           SECTION 2: TABLE STATISTICS
+           =================================================== -->
+      <div class="sr-section-header">
+        <span class="material-symbols-outlined">table_restaurant</span>
+        <h2>Table Statistics</h2>
+        <span class="sr-section-sub">Tình trạng phục vụ bàn trong ngày</span>
+      </div>
+
+      <div class="sr-two-col">
+
+        <!-- Table Stats Cards -->
+        <div class="sr-table-stats">
+          <div class="sr-stats-grid-5">
+
+            <div class="sr-stat-card-sm" onclick="openTablesModal('all')">
+              <div class="sr-stat-icon-sm" style="background:rgba(44,44,44,0.07);color:#2c2c2c;">
+                <span class="material-symbols-outlined">table_restaurant</span>
+              </div>
+              <div class="sr-stat-label">Total Tables</div>
+              <div class="sr-stat-value-sm" id="stat-total-tables">28</div>
+            </div>
+
+            <div class="sr-stat-card-sm" onclick="openTablesModal('Occupied')">
+              <div class="sr-stat-icon-sm" style="background:var(--status-cooking-bg);color:var(--status-cooking-text);">
+                <span class="material-symbols-outlined">person</span>
+              </div>
+              <div class="sr-stat-label">Occupied</div>
+              <div class="sr-stat-value-sm" id="stat-occupied-tables">6</div>
+            </div>
+
+            <div class="sr-stat-card-sm" onclick="openTablesModal('Available')">
+              <div class="sr-stat-icon-sm" style="background:var(--status-ready-bg);color:var(--status-ready-text);">
+                <span class="material-symbols-outlined">event_available</span>
+              </div>
+              <div class="sr-stat-label">Available</div>
+              <div class="sr-stat-value-sm" id="stat-available-tables">10</div>
+            </div>
+
+            <div class="sr-stat-card-sm" onclick="openTablesModal('Reserved')">
+              <div class="sr-stat-icon-sm" style="background:var(--status-pending-bg);color:var(--status-pending-text);">
+                <span class="material-symbols-outlined">book_online</span>
+              </div>
+              <div class="sr-stat-label">Reserved</div>
+              <div class="sr-stat-value-sm" id="stat-reserved-tables">4</div>
+            </div>
+
+            <div class="sr-stat-card-sm" onclick="openTablesModal('Completed')">
+              <div class="sr-stat-icon-sm" style="background:var(--status-served-bg);color:var(--status-served-text);">
+                <span class="material-symbols-outlined">task_alt</span>
+              </div>
+              <div class="sr-stat-label">Completed</div>
+              <div class="sr-stat-value-sm" id="stat-completed-tables">8</div>
+            </div>
+
+          </div>
+
+          <!-- Table Utilization Progress Bars -->
+          <div class="table-util-card">
+            <div class="table-util-title">Tỷ lệ sử dụng bàn</div>
+            <div class="util-row">
+              <div class="util-label">
+                <span class="util-dot" style="background:var(--status-cooking-text);"></span>
+                <span>Occupied</span>
+              </div>
+              <div class="util-bar-wrap">
+                <div class="util-bar" style="width:30%; background:var(--status-cooking-text);"></div>
+              </div>
+              <span class="util-pct">30%</span>
+            </div>
+            <div class="util-row">
+              <div class="util-label">
+                <span class="util-dot" style="background:var(--status-ready-text);"></span>
+                <span>Available</span>
+              </div>
+              <div class="util-bar-wrap">
+                <div class="util-bar" style="width:50%; background:var(--status-ready-text);"></div>
+              </div>
+              <span class="util-pct">50%</span>
+            </div>
+            <div class="util-row">
+              <div class="util-label">
+                <span class="util-dot" style="background:var(--status-pending-text);"></span>
+                <span>Reserved</span>
+              </div>
+              <div class="util-bar-wrap">
+                <div class="util-bar" style="width:20%; background:var(--status-pending-text);"></div>
+              </div>
+              <span class="util-pct">20%</span>
+            </div>
+            <div class="util-row">
+              <div class="util-label">
+                <span class="util-dot" style="background:var(--status-served-text);"></span>
+                <span>Completed</span>
+              </div>
+              <div class="util-bar-wrap">
+                <div class="util-bar" style="width:64%; background:var(--status-served-text);"></div>
+              </div>
+              <span class="util-pct">64%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===================================================
+             SECTION 3: REVENUE SUMMARY
+             =================================================== -->
+        <div class="sr-revenue-panel">
+          <div class="sr-section-header" style="margin-bottom: 16px;">
+            <span class="material-symbols-outlined">payments</span>
+            <h2>Revenue Summary</h2>
+            <span class="sr-section-sub">Doanh thu trong ngày</span>
+          </div>
+
+          <div class="revenue-cards">
+            <div class="revenue-card">
+              <div class="rev-card-icon" style="background:var(--status-served-bg);color:var(--status-served-text);">
+                <span class="material-symbols-outlined">restaurant</span>
+              </div>
+              <div class="rev-card-body">
+                <div class="rev-label">Dine-In Revenue</div>
+                <div class="rev-value">8.500.000₫</div>
+              </div>
+              <div class="rev-pct-badge">78.7%</div>
+            </div>
+
+            <div class="revenue-card">
+              <div class="rev-card-icon" style="background:var(--status-roomsvc-bg);color:var(--status-roomsvc-text);">
+                <span class="material-symbols-outlined">room_service</span>
+              </div>
+              <div class="rev-card-body">
+                <div class="rev-label">Room Service Revenue</div>
+                <div class="rev-value">2.300.000₫</div>
+              </div>
+              <div class="rev-pct-badge">21.3%</div>
+            </div>
+
+            <div class="revenue-card total-revenue">
+              <div class="rev-card-icon total" style="background:rgba(44,44,44,0.10);color:#2c2c2c;">
+                <span class="material-symbols-outlined">account_balance_wallet</span>
+              </div>
+              <div class="rev-card-body">
+                <div class="rev-label total-lbl">Total Revenue</div>
+                <div class="rev-value total-val">10.800.000₫</div>
+              </div>
+              <div class="rev-trend up">
+                <span class="material-symbols-outlined">trending_up</span>
+                +8.5% vs ngày hôm qua
+              </div>
+            </div>
+          </div>
+
+          <!-- Simple Revenue Bar Chart -->
+          <div class="revenue-chart-card">
+            <div class="chart-title">Doanh thu theo giờ</div>
+            <div class="bar-chart" id="revenue-bar-chart">
+              <!-- Rendered by JS -->
+            </div>
+          </div>
+        </div>
+
+      </div><!-- / sr-two-col -->
+
+      <!-- ===================================================
+           SECTION 4: ORDERS LIST
+           =================================================== -->
+      <div class="sr-section-header" style="margin-top: 8px;">
+        <span class="material-symbols-outlined">list_alt</span>
+        <h2>Orders List</h2>
+        <span class="sr-section-sub">Tất cả đơn hàng trong ngày</span>
+      </div>
+
+      <!-- Filter / Search Bar -->
+      <div class="sr-filter-bar">
+        <div class="sr-search-box">
+          <span class="material-symbols-outlined">search</span>
+          <input type="text" id="order-search" placeholder="Tìm Order ID, tên khách, số phòng/bàn..." autocomplete="off" />
+        </div>
+        <div class="sr-filter-group">
+          <select class="sr-select" id="filter-status">
+            <option value="all">Tất cả trạng thái</option>
+            <option value="pending">Pending</option>
+            <option value="preparing">Preparing</option>
+            <option value="served">Served</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+          <select class="sr-select" id="filter-type">
+            <option value="all">Tất cả loại đơn</option>
+            <option value="dine-in">Dine-In</option>
+            <option value="room-service">Room Service</option>
+          </select>
+          <button class="btn btn-sm btn-outline" id="btn-sort-time" title="Sắp xếp theo thời gian">
+            <span class="material-symbols-outlined">swap_vert</span>
+            Mới nhất
+          </button>
+        </div>
+      </div>
+
+      <!-- Orders Table -->
+      <div class="table-card">
+        <table class="sr-table" id="orders-table">
+          <thead>
+            <tr>
+              <th class="col-id">Order ID</th>
+              <th>Loại đơn</th>
+              <th>Bàn / Phòng</th>
+              <th>Khách hàng</th>
+              <th>Giờ đặt</th>
+              <th>Trạng thái</th>
+              <th class="col-amount">Tổng tiền</th>
+              <th>Thao tác</th>
+            </tr>
+          </thead>
+          <tbody id="orders-tbody">
+            <!-- Rendered by JS -->
+          </tbody>
+        </table>
+
+        <!-- Empty State -->
+        <div class="sr-empty" id="table-empty" style="display:none;">
+          <span class="material-symbols-outlined" style="font-size:2.5rem;color:var(--text-muted);">search_off</span>
+          <p>Không tìm thấy đơn hàng phù hợp.</p>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination">
+          <div class="page-info" id="page-info">Hiển thị 1–10 trên 125 đơn hàng</div>
+          <div class="page-controls">
+            <button class="btn btn-sm btn-outline" id="btn-prev" disabled>
+              <span class="material-symbols-outlined">chevron_left</span> Previous
+            </button>
+            <div class="page-numbers" id="page-numbers"></div>
+            <button class="btn btn-sm btn-outline" id="btn-next">
+              Next <span class="material-symbols-outlined">chevron_right</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- / sr-wrapper -->
+
+    <!-- ===================================================
+         MODALS
+         =================================================== -->
+    <!-- Modal Danh sách Đơn hàng -->
+    <div class="modal-backdrop" id="orders-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
+      <div class="modal-content" style="background:var(--bg-card); width:900px; max-width:95%; border-radius:var(--radius-lg); padding:20px; box-shadow:var(--shadow-lift);">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+          <div>
+            <h3 id="orders-modal-title" style="margin:0; font-family:'Playfair Display', serif; font-size: 1.2rem; color: var(--text-primary);">Danh sách đơn hàng</h3>
+            <span id="orders-modal-subtitle" style="font-size: 0.8rem; color: var(--text-muted);"></span>
+          </div>
+          <button onclick="document.getElementById('orders-modal').style.display='none'" style="background:none; border:none; cursor:pointer;"><span class="material-symbols-outlined">close</span></button>
+        </div>
+        <div style="max-height:60vh; overflow-y:auto; border: 1px solid var(--border); border-radius: var(--radius-md);">
+          <table class="sr-table" style="width:100%;">
+            <thead>
+              <tr>
+                <th class="col-id">Order ID</th>
+                <th>Loại đơn</th>
+                <th>Bàn / Phòng</th>
+                <th>Giờ đặt</th>
+                <th>Trạng thái</th>
+                <th class="col-amount">Tổng tiền</th>
+                <th>Thao tác</th>
+              </tr>
+            </thead>
+            <tbody id="orders-modal-tbody">
+              <!-- Rendered by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Danh sách Bàn -->
+    <div class="modal-backdrop" id="tables-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
+      <div class="modal-content" style="background:var(--bg-card); width:700px; max-width:95%; border-radius:var(--radius-lg); padding:20px; box-shadow:var(--shadow-lift);">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+          <div>
+            <h3 id="tables-modal-title" style="margin:0; font-family:'Playfair Display', serif; font-size: 1.2rem; color: var(--text-primary);">Danh sách bàn</h3>
+            <span id="tables-modal-subtitle" style="font-size: 0.8rem; color: var(--text-muted);"></span>
+          </div>
+          <button onclick="document.getElementById('tables-modal').style.display='none'" style="background:none; border:none; cursor:pointer;"><span class="material-symbols-outlined">close</span></button>
+        </div>
+        <div style="max-height:60vh; overflow-y:auto; border: 1px solid var(--border); border-radius: var(--radius-md);">
+          <table class="sr-table" style="width:100%;">
+            <thead>
+              <tr>
+                <th>Bàn</th>
+                <th>Sức chứa</th>
+                <th>Khu vực</th>
+                <th>Trạng thái</th>
+              </tr>
+            </thead>
+            <tbody id="tables-modal-tbody">
+              <!-- Rendered by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- / main-content -->
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Scripts -->
+  <script th:src="@{/f&amp;bStaff/js/shift-report.js}" src="../../statics/f&bStaff/js/shift-report.js"></script>
+
+</body>
+</html>
+

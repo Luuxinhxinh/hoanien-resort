@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Master Data Management — Hoanien Retreat Operations Hub</title>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" th:href="@{/admin/css/theme.css}" href="../../static/admin/css/theme.css" />
+    <link rel="stylesheet" th:href="@{/admin/css/admin.css}" href="../../static/admin/css/admin.css" />
+    <link rel="stylesheet" th:href="@{/admin/css/admin-images.css}" href="../../static/admin/css/admin-images.css" />
+</head>
+
+
+<body th:attr="data-active-tab=${activeTab}">
+
+    <!-- ══════════════════════ SIDEBAR ══════════════════════ -->
+    <aside class="adm-sidebar">
+        <div class="adm-sidebar-logo">
+            <div class="adm-sidebar-brand">
+                <div class="adm-sidebar-dot">✧</div>
+                <span class="adm-sidebar-brand-name">Hoanien Retreat</span>
+            </div>
+            <h1 class="adm-sidebar-title">Operations Hub</h1>
+        </div>
+        <nav class="adm-nav">
+            <div class="adm-nav-item">
+                <a href="/admin/dashboard" class="adm-nav-link">
+                    <span class="adm-nav-icon"><i data-lucide="layout-dashboard"></i></span>
+                    <span class="adm-nav-label">Tổng quan</span>
+                </a>
+            </div>
+            <!-- Master Data (Active) — submenu always open on this page -->
+            <div class="adm-nav-item">
+                <button id="master-data-toggle" class="adm-nav-link active">
+                    <span class="adm-nav-icon"><i data-lucide="database"></i></span>
+                    <span class="adm-nav-label">Master Data</span>
+                    <span class="adm-nav-arrow open" id="master-data-arrow"><i data-lucide="chevron-down"></i></span>
+                </button>
+                <div id="master-data-submenu" class="adm-submenu open">
+                    <a th:href="@{/admin/master-data(tab='Room Categories')}" class="adm-submenu-link"
+                        th:classappend="${activeTab == 'Room Categories'} ? ' sub-active' : ''">
+                        <i data-lucide="layers"></i> Room Categories</a>
+                    <a th:href="@{/admin/master-data(tab='Rooms')}" class="adm-submenu-link"
+                        th:classappend="${activeTab == 'Rooms'} ? ' sub-active' : ''">
+                        <i data-lucide="bed-double"></i> Rooms</a>
+                    <a th:href="@{/admin/master-data(tab='Restaurant Menu')}" class="adm-submenu-link"
+                        th:classappend="${activeTab == 'Restaurant Menu'} ? ' sub-active' : ''">
+                        <i data-lucide="utensils-crossed"></i> Restaurant Menu</a>
+                    <a th:href="@{/admin/master-data(tab='Menu Categories')}" class="adm-submenu-link"
+                        th:classappend="${activeTab == 'Menu Categories'} ? ' sub-active' : ''">
+                        <i data-lucide="tag"></i> Menu Categories</a>
+                    <a th:href="@{/admin/master-data(tab='Tour Categories')}" class="adm-submenu-link"
+                        th:classappend="${activeTab == 'Tour Categories'} ? ' sub-active' : ''">
+                        <i data-lucide="layers"></i> Tour Categories</a>
+                    <a th:href="@{/admin/master-data(tab='Tours')}" class="adm-submenu-link"
+                        th:classappend="${activeTab == 'Tours'} ? ' sub-active' : ''">
+                        <i data-lucide="map-pin"></i> Tours</a>
+                    <a th:href="@{/admin/master-data(tab='Account Management')}" class="adm-submenu-link"
+                        th:classappend="${activeTab == 'Account Management'} ? ' sub-active' : ''">
+                        <i data-lucide="user-cog"></i> Account Management</a>
+                    <a th:href="@{/admin/master-data(tab='Promotions')}" class="adm-submenu-link"
+                        th:classappend="${activeTab == 'Promotions'} ? ' sub-active' : ''">
+                        <i data-lucide="ticket"></i> Promotions</a>
+                    <a th:href="@{/admin/master-data(tab='Pricing Management')}" class="adm-submenu-link"
+                        th:classappend="${activeTab == 'Pricing Management'} ? ' sub-active' : ''">
+                        <i data-lucide="database"></i> Pricing Management</a>
+                    <div class="adm-nav-divider" style="height:1px; background:rgba(44,42,30,0.1); margin:8px 0"></div>
+                    <a th:href="@{/admin/master-data(tab='Bookings')}" class="adm-submenu-link"
+                        th:classappend="${activeTab == 'Bookings'} ? ' sub-active' : ''">
+                        <i data-lucide="calendar-check"></i> Bookings</a>
+                    <a th:href="@{/admin/master-data(tab='F&B Orders')}" class="adm-submenu-link"
+                        th:classappend="${activeTab == 'F&B Orders'} ? ' sub-active' : ''">
+                        <i data-lucide="coffee"></i> F&B Orders</a>
+                    <a th:href="@{/admin/master-data(tab='Tour Schedules')}" class="adm-submenu-link"
+                        th:classappend="${activeTab == 'Tour Schedules'} ? ' sub-active' : ''">
+                        <i data-lucide="map"></i> Tour Schedules</a>
+                </div>
+            </div>
+            <div class="adm-nav-item">
+                <a href="/admin/audit-log" class="adm-nav-link">
+                    <span class="adm-nav-icon"><i data-lucide="clipboard-list"></i></span>
+                    <span class="adm-nav-label">Audit Log</span>
+                </a>
+            </div>
+            <div class="adm-nav-item">
+                <a href="/admin/reviews" class="adm-nav-link">
+                    <span class="adm-nav-icon"><i data-lucide="star"></i></span>
+                    <span class="adm-nav-label">Review Management</span>
+                </a>
+            </div>
+        </nav>
+        <div class="adm-sidebar-footer">
+            <div class="adm-sidebar-user">
+                <div class="adm-sidebar-avatar"
+                    th:text="${#authentication != null ? #strings.substring(#authentication.name, 0, 2).toUpperCase() : 'AD'}">
+                    AD</div>
+                <div>
+                    <div class="adm-sidebar-name"
+                        th:text="${#authentication != null ? #authentication.name : 'Admin Dũng'}">Admin Dũng</div>
+                    <div class="adm-sidebar-role"
+                        th:text="${#authentication != null and #authentication.authorities != null and !#authentication.authorities.isEmpty() ? #strings.replace(#authentication.authorities[0].authority, 'ROLE_', '') : 'Admin'}">
+                        Admin</div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- ══════════════════════ MAIN ══════════════════════ -->
+    <div class="adm-main">
+
+        <header class="adm-header">
+            <div class="adm-header-left">
+                <span class="adm-breadcrumb-site">Hoanien Retreat</span>
+                <span class="adm-breadcrumb-sep">/</span>
+                <span class="adm-breadcrumb-page" style="color:#6B6558">Master Data</span>
+                <span class="adm-breadcrumb-sep">/</span>
+                <span class="adm-breadcrumb-page" th:text="${activeTab}">Room Categories</span>
+            </div>
+            <div class="adm-header-right">
+                <div class="adm-divider-v"></div>
+                <div class="adm-header-user-box">
+                    <div class="adm-header-avatar"
+                        th:text="${#authentication != null ? #strings.substring(#authentication.name, 0, 2).toUpperCase() : 'AD'}">
+                        AD</div>
+                    <span class="adm-header-username"
+                        th:text="${#authentication != null ? #authentication.name : 'Admin Dũng'}">Admin Dũng</span>
+                </div>
+                <div class="adm-divider-v"></div>
+                <a href="/logout" class="adm-header-logout"><i data-lucide="log-out"
+                        style="width:12px;height:12px"></i>Đăng xuất</a>
+            </div>
+        </header>
+
+        <main class="adm-page">
+
+            <div>
+                <p class="adm-page-eyebrow">Cấu hình hệ thống</p>
+                <h1 class="adm-page-title">Master Data Management</h1>
+            </div>
+
+            <!-- Tab Navigation -->
+            <div class="md-tabs">
+                <a th:each="tab : ${tabs}" th:href="@{/admin/master-data(tab=${tab})}" class="md-tab-link"
+                    th:classappend="${tab == activeTab} ? ' active' : ''" th:text="${tab}">Tab</a>
+            </div>
+
+            <!-- Table Card -->
+            <div class="md-table-card">
+
+                <!-- Toolbar -->
+                <div class="md-toolbar">
+                    <div class="adm-search-wrap">
+                        <span class="adm-search-icon"><i data-lucide="search"></i></span>
+                        <input type="text" id="search-input" placeholder="Tìm kiếm..." class="adm-search-input"
+                            style="width:260px" />
+                    </div>
+                    <button id="btn-add-new" class="adm-btn adm-btn-primary">
+                        <i data-lucide="plus" style="width:15px;height:15px"></i> Thêm mới
+                    </button>
+                </div>
+
+                <!-- Table -->
+                <div th:switch="${activeTab}">
+                    <div th:case="'Room Categories'">
+                        <div th:replace="~{admin/fragments/md-room-categories :: table}"></div>
+                    </div>
+                    <div th:case="'Rooms'">
+                        <div th:replace="~{admin/fragments/md-rooms :: table}"></div>
+                    </div>
+                    <div th:case="'Restaurant Menu'">
+                        <div th:replace="~{admin/fragments/md-restaurant-menu :: table}"></div>
+                    </div>
+                    <div th:case="'Menu Categories'">
+                        <div th:replace="~{admin/fragments/md-menu-categories :: table}"></div>
+                    </div>
+                    <div th:case="'Tour Categories'">
+                        <div th:replace="~{admin/fragments/md-tour-categories :: table}"></div>
+                    </div>
+                    <div th:case="'Tours'">
+                        <div th:replace="~{admin/fragments/md-tours :: table}"></div>
+                    </div>
+                    <div th:case="'Account Management'">
+                        <div th:replace="~{admin/fragments/md-account-management :: table}"></div>
+                    </div>
+                    <div th:case="'Promotions'">
+                        <div th:replace="~{admin/fragments/md-promotions :: table}"></div>
+                    </div>
+                    <div th:case="'Pricing Management'">
+                        <div th:replace="~{admin/fragments/md-pricing-management :: table}"></div>
+                    </div>
+                    <div th:case="'Bookings'">
+                        <div th:replace="~{admin/fragments/md-bookings :: table}"></div>
+                    </div>
+                    <div th:case="'F&amp;B Orders'">
+                        <div th:replace="~{admin/fragments/md-fnb-orders :: table}"></div>
+                    </div>
+                    <div th:case="'Tour Schedules'">
+                        <div th:replace="~{admin/fragments/md-tour-schedules :: table}"></div>
+                    </div>
+                </div>
+
+                <!-- Pagination footer -->
+                <div class="md-pagination-footer">
+                    <span class="md-pagination-info" id="pagination-info"
+                        th:text="'Hiển thị ' + ${totalRows} + ' / ' + ${totalRows} + ' bản ghi'">Hiển thị 0 / 0 bản
+                        ghi</span>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- ════════ ADD/EDIT MODAL ════════ -->
+    <div id="entity-modal" class="adm-modal-backdrop hidden">
+        <div class="adm-modal-box adm-modal-box-lg" onclick="event.stopPropagation()">
+            <div class="adm-modal-header">
+                <h2 id="modal-title" class="adm-modal-title">Thêm mới</h2>
+                <button class="btn-close-modal adm-modal-close" data-modal="entity-modal"><i
+                        data-lucide="x"></i></button>
+            </div>
+            <form id="entity-form" class="adm-modal-body">
+                <div id="modal-form-fields" style="display:flex;flex-direction:column;gap:20px"
+                    th:switch="${activeTab}">
+                    <div th:case="'Room Categories'">
+                        <div th:replace="~{admin/fragments/md-room-categories :: form}"></div>
+                    </div>
+                    <div th:case="'Rooms'">
+                        <div th:replace="~{admin/fragments/md-rooms :: form}"></div>
+                    </div>
+                    <div th:case="'Restaurant Menu'">
+                        <div th:replace="~{admin/fragments/md-restaurant-menu :: form}"></div>
+                    </div>
+                    <div th:case="'Menu Categories'">
+                        <div th:replace="~{admin/fragments/md-menu-categories :: form}"></div>
+                    </div>
+                    <div th:case="'Tour Categories'">
+                        <div th:replace="~{admin/fragments/md-tour-categories :: form}"></div>
+                    </div>
+                    <div th:case="'Tours'">
+                        <div th:replace="~{admin/fragments/md-tours :: form}"></div>
+                    </div>
+                    <div th:case="'Account Management'">
+                        <div th:replace="~{admin/fragments/md-account-management :: form}"></div>
+                    </div>
+                    <div th:case="'Promotions'">
+                        <div th:replace="~{admin/fragments/md-promotions :: form}"></div>
+                    </div>
+                    <div th:case="'Pricing Management'">
+                        <div th:replace="~{admin/fragments/md-pricing-management :: form}"></div>
+                    </div>
+                    <div th:case="'Bookings'">
+                        <div th:replace="~{admin/fragments/md-bookings :: form}"></div>
+                    </div>
+                    <div th:case="'F&amp;B Orders'">
+                        <div th:replace="~{admin/fragments/md-fnb-orders :: form}"></div>
+                    </div>
+                    <div th:case="'Tour Schedules'">
+                        <div th:replace="~{admin/fragments/md-tour-schedules :: form}"></div>
+                    </div>
+                </div>
+                <div class="adm-modal-footer" style="margin-top:16px">
+                    <button type="button" class="btn-close-modal adm-btn adm-btn-ghost"
+                        data-modal="entity-modal">Hủy</button>
+                    <button type="submit" class="adm-btn adm-btn-primary">Lưu</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ════════ DELETE MODAL ════════ -->
+    <div id="delete-modal" class="adm-modal-backdrop hidden">
+        <div class="adm-modal-box adm-modal-box-md" onclick="event.stopPropagation()">
+            <div class="adm-modal-header">
+                <h2 class="adm-modal-title adm-modal-title-sm">Xác nhận xóa</h2>
+                <button class="btn-close-modal adm-modal-close" data-modal="delete-modal"><i
+                        data-lucide="x"></i></button>
+            </div>
+            <div class="adm-modal-body-p">
+                <p class="adm-modal-desc">Bạn có chắc chắn muốn xóa bản ghi này không? Hành động này không thể hoàn tác.
+                </p>
+                <div class="adm-modal-footer">
+                    <button class="btn-close-modal adm-btn adm-btn-ghost" data-modal="delete-modal">Hủy</button>
+                    <button id="btn-confirm-delete" class="btn-delete-confirm">Xóa</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ════════ HISTORY / AUDIT MODAL ════════ -->
+    <div id="audit-history-modal" class="adm-modal-backdrop hidden">
+        <div class="adm-modal-box adm-modal-box-lg" onclick="event.stopPropagation()">
+            <div class="adm-modal-header">
+                <h2 class="adm-modal-title">Lịch sử thay đổi dữ liệu</h2>
+                <button class="btn-close-modal adm-modal-close" data-modal="audit-history-modal"><i
+                        data-lucide="x"></i></button>
+            </div>
+            <div class="adm-modal-body-p">
+                <p class="adm-modal-desc">Theo dõi các thay đổi của bản ghi này qua các phiên bản (Revision).</p>
+                <div id="audit-history-content"
+                    style="margin-top:20px; max-height:400px; overflow-y:auto; padding-right:10px;">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .history-item {
+            border-left: 2px solid #C9A96E;
+            padding-left: 16px;
+            margin-bottom: 24px;
+            position: relative;
+        }
+
+        .history-item::before {
+            content: '';
+            position: absolute;
+            left: -6px;
+            top: 0;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #C9A96E;
+            border: 2px solid #F5F0E8;
+        }
+
+        .history-meta {
+            font-size: 13px;
+            color: #8B7355;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .history-rev {
+            font-weight: 600;
+            color: #5C4A3A;
+        }
+
+        .history-data {
+            background: rgba(92, 74, 58, 0.03);
+            border: 1px solid rgba(92, 74, 58, 0.08);
+            border-radius: 6px;
+            padding: 12px;
+            font-family: monospace;
+            font-size: 12px;
+            color: #5C4A3A;
+            word-break: break-all;
+        }
+
+        .btn-rollback {
+            background: #8C3C28;
+            color: white;
+            border: none;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-rollback:hover {
+            background: #7A3020;
+        }
+    </style>
+
+    <!-- Inject form options -->
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        window.HOANIEN_FORM_OPTIONS = /*[[${formOptions}]]*/ {};
+
+        <!-- Inline form submission override removed to prevent duplicate API calls. Logic is now handled entirely in master-data.js -->/*]]>*/
+    </script>
+
+    <script th:src="@{/admin/js/main.js}" src="../../static/admin/js/main.js"></script>
+    <script th:src="@{/admin/js/master-data.js?v=7}" src="../../static/admin/js/master-data.js"></script>
+    <script th:src="@{/admin/js/admin-images.js}" src="../../static/admin/js/admin-images.js"></script>
+</body>
+
+</html>

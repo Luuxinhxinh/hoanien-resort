@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html class="light" lang="vi" style="">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>HoaNien | Dư âm tĩnh lặng</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Inter:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet">
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+
+        body {
+            background-color: #1f1b16;
+            color: #fff8f4;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        .scroll-container {
+            scroll-snap-type: y mandatory;
+            height: 100vh;
+            overflow-y: scroll;
+            scroll-behavior: smooth;
+        }
+
+        .snap-section {
+            scroll-snap-align: start;
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .faded-entry {
+            animation: fadeIn 2.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .parallax-bg {
+            transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .content-overlay {
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.08) 0%, rgba(0, 0, 0, 0.45) 50%, rgba(0, 0, 0, 0.6) 100%);
+        }
+
+        .hero-title-shadow {
+            text-shadow: 0 4px 30px rgba(0, 0, 0, 0.5), 0 2px 8px rgba(0, 0, 0, 0.4);
+        }
+
+        .hero-subtitle-shadow {
+            text-shadow: 0 2px 20px rgba(0, 0, 0, 0.6), 0 1px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .btn-book {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(4px);
+            transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .btn-book:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: #fbddc7;
+        }
+
+        .journey-overlay {
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.7) 50%, rgba(0, 0, 0, 0.85) 100%);
+        }
+
+        .letter-spacing-widest {
+            letter-spacing: 0.4em;
+        }
+
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        .scroll-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Hide scrollbar for IE, Edge and Firefox */
+        .scroll-container {
+            -ms-overflow-style: none;
+            /* IE and Edge */
+            scrollbar-width: none;
+            /* Firefox */
+        }
+
+        .lang-btn {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .lang-btn:hover {
+            color: #fbddc7;
+        }
+
+        .lang-btn.active {
+            color: #fbddc7;
+            font-weight: 700;
+        }
+    </style>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary": "#fbddc7",
+                        "surface": "#fff8f4",
+                        "on-surface": "#1f1b16",
+                        "outline-variant": "rgba(251, 221, 199, 0.2)"
+                    },
+                    "spacing": {
+                        "margin-desktop": "80px",
+                        "section-gap": "160px",
+                        "container-max": "1440px",
+                        "unit": "8px"
+                    },
+                    "fontFamily": {
+                        "headline": ["EB Garamond", "serif"],
+                        "body": ["Inter", "sans-serif"]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="font-body selection:bg-primary/30">
+    <header class="fixed top-0 left-0 w-full z-50 mix-blend-difference">
+        <div
+            class="max-w-container-max mx-auto px-margin-desktop h-24 flex items-center justify-between relative text-white">
+            <nav class="hidden lg:flex items-center gap-12 w-1/3">
+                <a class="text-[10px] font-semibold uppercase tracking-[0.3em] hover:text-primary transition-colors"
+                    href="#journey-1" data-i18n="nav_doantu">Đoàn Tụ</a>
+                <a class="text-[10px] font-semibold uppercase tracking-[0.3em] hover:text-primary transition-colors"
+                    href="#journey-2" data-i18n="nav_dongnoi">Đồng Nội</a>
+            </nav>
+
+            <div class="absolute left-1/2 -translate-x-1/2">
+                <a class="font-headline text-[32px] italic tracking-tighter" href="#">HoaNien</a>
+            </div>
+
+            <div class="hidden lg:flex items-center justify-end gap-6 w-1/3">
+                <nav class="flex items-center gap-8">
+                    <a class="text-[10px] font-semibold uppercase tracking-[0.3em] hover:text-primary transition-colors"
+                        href="#journey-3" data-i18n="nav_disan">Di Sản</a>
+                    <a class="text-[10px] font-semibold uppercase tracking-[0.3em] hover:text-primary transition-colors"
+                        href="#journey-4" data-i18n="nav_tinhlang">Tĩnh Lặng</a>
+                </nav>
+                <div class="flex items-center gap-3 pl-4 border-l border-white/20">
+                    <span class="lang-btn active text-[10px] font-semibold uppercase tracking-[0.1em]" data-lang="vi"
+                        onclick="switchLang('vi')">VI</span>
+                    <span class="text-[10px] text-white/30">|</span>
+                    <span class="lang-btn text-[10px] font-semibold uppercase tracking-[0.1em]" data-lang="en"
+                        onclick="switchLang('en')">EN</span>
+                </div>
+                <a class="hover:text-primary transition-colors duration-300 flex items-center justify-center pt-1"
+                    href="#login" title="Đăng nhập">
+                    <span class="material-symbols-outlined text-[24px]">person</span>
+                </a>
+            </div>
+
+            <div class="lg:hidden flex items-center gap-3">
+                <div class="flex items-center gap-2 mr-2">
+                    <span class="lang-btn active text-[10px] font-semibold uppercase tracking-[0.1em]" data-lang="vi"
+                        onclick="switchLang('vi')">VI</span>
+                    <span class="text-[10px] text-white/30">|</span>
+                    <span class="lang-btn text-[10px] font-semibold uppercase tracking-[0.1em]" data-lang="en"
+                        onclick="switchLang('en')">EN</span>
+                </div>
+                <a class="hover:text-primary transition-colors flex items-center pt-1" href="#login">
+                    <span class="material-symbols-outlined text-[24px]">person</span>
+                </a>
+                <span class="material-symbols-outlined" data-icon="menu">menu</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="scroll-container">
+        <section class="snap-section flex flex-col items-center justify-center text-center px-6" id="intro">
+            <div class="absolute inset-0 z-0">
+                <img alt="HoaNien Sanctuary Hero" class="parallax-bg w-full h-full object-cover brightness-75"
+                    src="/AnhTour/DuAm.jpg">
+                <div class="absolute inset-0 content-overlay"></div>
+            </div>
+            <div class="relative z-10 faded-entry max-w-4xl px-4">
+                <span class="text-[11px] uppercase tracking-[0.5em] mb-8 block opacity-80">HOANIEN RETREAT</span>
+                <h1 class="font-headline text-5xl md:text-7xl italic mb-6 leading-tight hero-title-shadow"
+                    data-i18n="hero_title">Dư âm
+                    tĩnh lặng</h1>
+                <p class="font-headline text-xl md:text-2xl font-light max-w-2xl mx-auto leading-relaxed opacity-90 italic hero-subtitle-shadow"
+                    data-i18n="hero_sub">
+                    Hành trình chạm vào những mảnh ghép ký ức nguyên bản.</p>
+                <div class="mt-10 flex flex-col items-center gap-6">
+                    <a href="#journey-1"
+                        class="btn-book inline-block px-10 py-3 text-[11px] font-bold uppercase tracking-[0.4em] text-white rounded-full"
+                        data-i18n="hero_btn">Khám phá hành trình</a>
+                    <div class="animate-bounce opacity-40">
+                        <span class="material-symbols-outlined text-3xl">keyboard_double_arrow_down</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="snap-section" id="journey-1">
+            <div class="absolute inset-0">
+                <img alt="Đoàn tụ — Huế" class="w-full h-full object-cover brightness-90"
+                    src="/AnhTour/z7930565882675_f94fe322fc3a06efe82eccf1e76b09e1.jpg">
+                <div class="absolute inset-0 journey-overlay"></div>
+            </div>
+            <div class="relative h-full flex items-center justify-center text-center px-margin-desktop">
+                <div class="max-w-3xl space-y-8">
+                    <h2 class="font-headline text-4xl md:text-[70px] italic" data-i18n="j1_title">Đoàn tụ - Huế</h2>
+                    <div class="w-12 h-[1px] bg-primary mx-auto"></div>
+                    <p class="font-headline text-lg md:text-2xl font-light leading-relaxed opacity-90"
+                        data-i18n="j1_desc">
+                        Tìm về hơi ấm vẹn nguyên của lòng biết ơn và sự gắn kết. Nơi những điển tích cổ kính, nghi thức
+                        têm trầu cánh phượng và mâm cơm vị cội nguồn khơi mở cuộc sum vầy, kết nối các thế hệ trong dòng
+                        chảy thời gian bất tận.
+                    </p>
+                    <a class="inline-block mt-8 text-[11px] font-bold uppercase tracking-[0.4em] border-b border-white/40 pb-2 hover:border-primary hover:text-primary transition-all"
+                        href="/tourguide/doantu" data-i18n="j1_btn">Khám phá trải nghiệm</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="snap-section" id="journey-2">
+            <div class="absolute inset-0">
+                <img alt="Tinh Túy Đồng Nội — Quảng Nam" class="w-full h-full object-cover brightness-90"
+                    src="/AnhTour/Com.jpg">
+                <div class="absolute inset-0 journey-overlay"></div>
+            </div>
+            <div class="relative h-full flex items-center justify-center text-center px-margin-desktop">
+                <div class="max-w-3xl space-y-8">
+                    <h2 class="font-headline text-4xl md:text-[70px] italic" data-i18n="j2_title">Tinh túy đồng nội - Quảng
+                        Nam</h2>
+                    <div class="w-12 h-[1px] bg-primary mx-auto"></div>
+                    <p class="font-headline text-lg md:text-2xl font-light leading-relaxed opacity-90"
+                        data-i18n="j2_desc">
+                        Lắng nghe nhịp điệu mộc mạc của đất mẹ và hồn quê xứ Quảng. Hành trình đánh thức mọi giác quan
+                        qua hương lúa non nếp cái hoa vàng, hơi ấm bếp củi rực hồng và tiếng chày giã cốm mộc ngân dài
+                        trong khoảng không tĩnh lặng.
+                    </p>
+                    <a class="inline-block mt-8 text-[11px] font-bold uppercase tracking-[0.4em] border-b border-white/40 pb-2 hover:border-primary hover:text-primary transition-all"
+                        href="/tourguide/dongnoi" data-i18n="j2_btn">Gói trọn hương quê</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="snap-section" id="journey-3">
+            <div class="absolute inset-0">
+                <img alt="Di sản thủ công — Ninh Bình" class="w-full h-full object-cover brightness-90"
+                    src="/AnhTour/ThuCong.jpg">
+                <div class="absolute inset-0 journey-overlay"></div>
+            </div>
+            <div class="relative h-full flex items-center justify-center text-center px-margin-desktop">
+                <div class="max-w-3xl space-y-8">
+                    <h2 class="font-headline text-4xl md:text-[70px] italic" data-i18n="j3_title">Di sản thủ công - Ninh
+                        Bình</h2>
+                    <div class="w-12 h-[1px] bg-primary mx-auto"></div>
+                    <p class="font-headline text-lg md:text-2xl font-light leading-relaxed opacity-90"
+                        data-i18n="j3_desc">
+                        Chạm vào hồn cốt của thời gian qua những tạo tác từ đôi bàn tay nghệ nhân. Khi sợi mây tre đan
+                        cài, kén vàng ươm dệt tơ và đất sét mộc hóa thành gốm quý, đó cũng là lúc tâm trí ta tìm thấy sự
+                        kiên nhẫn và tĩnh tại tuyệt đối.
+                    </p>
+                    <a class="inline-block mt-8 text-[11px] font-bold uppercase tracking-[0.4em] border-b border-white/40 pb-2 hover:border-primary hover:text-primary transition-all"
+                        href="/tourguide/disan" data-i18n="j3_btn">Trải nghiệm thủ công</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="snap-section" id="journey-4">
+            <div class="absolute inset-0">
+                <img alt="Tĩnh lặng liên hoa — Đồng Sen Tháp Mười" class="w-full h-full object-cover brightness-90"
+                    src="/AnhTour/ThapMuoi.jpg">
+                <div class="absolute inset-0 journey-overlay"></div>
+            </div>
+            <div class="relative h-full flex items-center justify-center text-center px-margin-desktop">
+                <div class="max-w-3xl space-y-8">
+                    <h2 class="font-headline text-4xl md:text-[70px] italic" data-i18n="j4_title">Tĩnh lặng liên hoa - Tháp
+                        Mười</h2>
+                    <div class="w-12 h-[1px] bg-primary mx-auto"></div>
+                    <p class="font-headline text-lg md:text-2xl font-light leading-relaxed opacity-90"
+                        data-i18n="j4_desc">
+                        Sự thanh lọc thuần khiết cho thân - tâm - trí giữa vùng sông nước mờ sương. Thả trôi mọi âu lo
+                        theo hương sen bánh tẻ ngậm sương sớm và thưởng ngụm trà nhị thanh sạch, để lại trong lòng một
+                        dư âm bình yên, nhẹ nhõm vô bờ.
+                    </p>
+                    <a class="inline-block mt-8 text-[11px] font-bold uppercase tracking-[0.4em] border-b border-white/40 pb-2 hover:border-primary hover:text-primary transition-all"
+                        href="/tourguide/tinhlang" data-i18n="j4_btn">Tìm về tĩnh lặng</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="snap-section bg-on-surface flex flex-col justify-between py-24">
+            <div class="max-w-2xl mx-auto text-center space-y-12 px-6 pt-12">
+                <h2 class="font-headline text-4xl md:text-5xl italic" data-i18n="footer_title">Gửi gắm tâm tình</h2>
+                <p class="opacity-70 max-w-lg mx-auto font-light" data-i18n="footer_sub">Để lại một nhịp chạm, giữ lại
+                    một dư âm cùng Hòa Niên.</p>
+                <div class="w-full flex items-center border-b border-white/20 pb-4 mt-8">
+                    <input
+                        class="bg-transparent w-full border-none focus:ring-0 text-sm italic font-headline text-white placeholder-white/30 p-0"
+                        placeholder="Địa chỉ email của bạn" data-i18n="footer_placeholder" type="email">
+                    <button
+                        class="text-[10px] font-bold uppercase tracking-[0.3em] ml-4 hover:text-primary transition-colors whitespace-nowrap flex-shrink-0"
+                        data-i18n="footer_btn">Đăng ký</button>
+                </div>
+            </div>
+            <footer class="mt-auto px-margin-desktop border-t border-white/10 pt-16 pb-8">
+                <div class="flex flex-col md:flex-row justify-between items-center gap-12">
+                    <div class="text-center md:text-left">
+                        <p class="font-headline text-3xl italic">HoaNien</p>
+                        <p class="text-[9px] tracking-[0.3em] text-white/40 uppercase mt-4">© 2026 HoaNien Retreat. A
+                            Quiet Luxury Travel Group.</p>
+                    </div>
+                    <div class="flex flex-wrap justify-center gap-10">
+                        <a class="text-[9px] font-semibold uppercase tracking-[0.25em] text-white/50 hover:text-white transition-colors"
+                            href="#" data-i18n="footer_priv">Quyền riêng tư</a>
+                        <a class="text-[9px] font-semibold uppercase tracking-[0.25em] text-white/50 hover:text-white transition-colors"
+                            href="#" data-i18n="footer_sus">Sự bền vững</a>
+                        <a class="text-[9px] font-semibold uppercase tracking-[0.25em] text-white/50 hover:text-white transition-colors"
+                            href="#" data-i18n="footer_media">Truyền thông</a>
+                        <a class="text-[9px] font-semibold uppercase tracking-[0.25em] text-white/50 hover:text-white transition-colors"
+                            href="#" data-i18n="footer_contact">Liên hệ</a>
+                    </div>
+                </div>
+            </footer>
+        </section>
+    </div>
+
+    <script>
+        const translations = {
+            vi: {
+                nav_doantu: "Đoàn Tụ",
+                nav_dongnoi: "Đồng Nội",
+                nav_disan: "Di Sản",
+                nav_tinhlang: "Tĩnh Lặng",
+                hero_title: "Dư âm tĩnh lặng",
+                hero_sub: "Hành trình chạm vào những mảnh ghép ký ức nguyên bản.",
+                hero_btn: "Khám phá hành trình",
+                j1_title: "Đoàn tụ - Huế",
+                j1_desc: "Tìm về hơi ấm vẹn nguyên của lòng biết ơn và sự gắn kết. Nơi những điển tích cổ kính, nghi thức têm trầu cánh phượng và mâm cơm vị cội nguồn khơi mở cuộc sum vầy, kết nối các thế hệ trong dòng chảy thời gian bất tận.",
+                j1_btn: "Khám phá trải nghiệm",
+                j2_title: "Tinh túy đồng nội - Quảng Nam",
+                j2_desc: "Lắng nghe nhịp điệu mộc mạc của đất mẹ và hồn quê xứ Quảng. Hành trình đánh thức mọi giác quan qua hương lúa non nếp cái hoa vàng, hơi ấm bếp củi rực hồng và tiếng chày giã cốm mộc ngân dài trong khoảng không tĩnh lặng.",
+                j2_btn: "Gói trọn hương quê",
+                j3_title: "Di sản thủ công - Ninh Bình",
+                j3_desc: "Chạm vào hồn cốt của thời gian qua những tạo tác từ đôi bàn tay nghệ nhân. Khi sợi mây tre đan cài, kén vàng ươm dệt tơ và đất sét mộc hóa thành gốm quý, đó cũng là lúc tâm trí ta tìm thấy sự kiên nhẫn và tĩnh tại tuyệt đối.",
+                j3_btn: "Trải nghiệm thủ công",
+                j4_title: "Tĩnh lặng liên hoa - Tháp Mười",
+                j4_desc: "Sự thanh lọc thuần khiết cho thân - tâm - trí giữa vùng sông nước mờ sương. Thả trôi mọi âu lo theo hương sen bánh tẻ ngậm sương sớm và thưởng ngụm trà nhị thanh sạch, để lại trong lòng một dư âm bình yên, nhẹ nhõm vô bờ.",
+                j4_btn: "Tìm về tĩnh lặng",
+                footer_title: "Gửi gắm tâm tình",
+                footer_sub: "Để lại một nhịp chạm, giữ lại một dư âm cùng Hòa Niên.",
+                footer_placeholder: "Địa chỉ email của bạn",
+                footer_btn: "Đăng ký",
+                footer_priv: "Quyền riêng tư",
+                footer_sus: "Sự bền vững",
+                footer_media: "Truyền thông",
+                footer_contact: "Liên hệ"
+            },
+            en: {
+                nav_doantu: "Reunion",
+                nav_dongnoi: "Countryside",
+                nav_disan: "Heritage",
+                nav_tinhlang: "Serenity",
+                hero_title: "Echoes of Serenity",
+                hero_sub: "A journey touching the fragments of pristine memories.",
+                hero_btn: "Discover the journey",
+                j1_title: "Reunion - Hue",
+                j1_desc: "Return to the complete warmth of gratitude and connection. Where ancient tales, betel nut ceremonies and ancestral flavors open a gathering, connecting generations in the endless flow of time.",
+                j1_btn: "Explore Experience",
+                j2_title: "Countryside Essence - Quang Nam",
+                j2_desc: "Listen to the rustic rhythm of motherland and Quang's rural soul. A journey awakening all senses through young rice fragrance, warm firewood stoves and the resonating sound of pounding mortar echoing in silent space.",
+                j2_btn: "Book Journey",
+                j3_title: "Craft Heritage - Ninh Binh",
+                j3_desc: "Touch the essence of time through creations from artisan hands. When rattan weaves, golden cocoons spin silk, and clay transforms into precious pottery, our minds find patience and absolute stillness.",
+                j3_btn: "Craft Experience",
+                j4_title: "Lotus Serenity - Thap Muoi",
+                j4_desc: "Pure purification for body - mind - spirit amidst misty water region. Drift away all worries with early dew lotus fragrance and savor pure tea, leaving behind a peaceful, lighthearted echo.",
+                j4_btn: "Find Serenity",
+                footer_title: "Share Your Heart",
+                footer_sub: "Leave a touch, keep an echo with HoaNien.",
+                footer_placeholder: "Your email address",
+                footer_btn: "Subscribe",
+                footer_priv: "Privacy Policy",
+                footer_sus: "Sustainability",
+                footer_media: "Media",
+                footer_contact: "Contact"
+            }
+        };
+
+        function switchLang(lang) {
+            // Update active state on buttons
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.lang === lang);
+            });
+
+            // Update all elements with data-i18n
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.dataset.i18n;
+                if (translations[lang] && translations[lang][key]) {
+                    if (el.placeholder !== undefined) {
+                        el.placeholder = translations[lang][key];
+                    } else {
+                        el.textContent = translations[lang][key];
+                    }
+                }
+            });
+
+            // Update html lang attribute
+            document.documentElement.lang = lang;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const scrollContainer = document.querySelector('.scroll-container');
+            const sections = document.querySelectorAll('.snap-section');
+            const backgrounds = document.querySelectorAll('.parallax-bg');
+
+            scrollContainer.addEventListener('scroll', () => {
+                const scrollTop = scrollContainer.scrollTop;
+                const height = window.innerHeight;
+
+                backgrounds.forEach((bg, index) => {
+                    const section = sections[index];
+                    if (section) {
+                        const rect = section.getBoundingClientRect();
+                        if (rect.top < height && rect.bottom > 0) {
+                            const speed = 0.15;
+                            const yPos = -(rect.top * speed);
+                            bg.style.transform = `translateY(${yPos}px) scale(1.1)`;
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>

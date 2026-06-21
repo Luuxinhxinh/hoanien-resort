@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Quản lý đánh giá — Hoanien Retreat Operations Hub</title>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" th:href="@{/admin/css/theme.css}" href="../../static/admin/css/theme.css"/>
+    <link rel="stylesheet" th:href="@{/admin/css/admin.css}" href="../../static/admin/css/admin.css"/>
+</head>
+<body>
+
+<!-- ═══════════════════════ SIDEBAR ═══════════════════════ -->
+<aside class="adm-sidebar">
+    <div class="adm-sidebar-logo">
+        <div class="adm-sidebar-brand">
+            <div class="adm-sidebar-dot">✦</div>
+            <span class="adm-sidebar-brand-name">Hoanien Retreat</span>
+        </div>
+        <h1 class="adm-sidebar-title">Operations Hub</h1>
+    </div>
+    <nav class="adm-nav">
+        <div class="adm-nav-item">
+            <a href="/admin/dashboard" class="adm-nav-link">
+                <span class="adm-nav-icon"><i data-lucide="layout-dashboard"></i></span>
+                <span class="adm-nav-label">Tổng quan</span>
+            </a>
+        </div>
+        <div class="adm-nav-item">
+            <button id="master-data-toggle" class="adm-nav-link">
+                <span class="adm-nav-icon"><i data-lucide="database"></i></span>
+                <span class="adm-nav-label">Master Data</span>
+                <span class="adm-nav-arrow" id="master-data-arrow"><i data-lucide="chevron-right"></i></span>
+            </button>
+            <div id="master-data-submenu" class="adm-submenu">
+                <a href="/admin/master-data?tab=Room+Categories"    class="adm-submenu-link"><i data-lucide="layers"></i> Room Categories</a>
+                <a href="/admin/master-data?tab=Rooms"              class="adm-submenu-link"><i data-lucide="bed-double"></i> Rooms</a>
+                <a href="/admin/master-data?tab=Restaurant+Menu"    class="adm-submenu-link"><i data-lucide="utensils-crossed"></i> Restaurant Menu</a>
+                <a href="/admin/master-data?tab=Menu+Categories"    class="adm-submenu-link"><i data-lucide="tag"></i> Menu Categories</a>
+                <a href="/admin/master-data?tab=Tour+Categories"    class="adm-submenu-link"><i data-lucide="layers"></i> Tour Categories</a>
+                <a href="/admin/master-data?tab=Tours"              class="adm-submenu-link"><i data-lucide="map-pin"></i> Tours</a>
+                <a href="/admin/master-data?tab=Account+Management" class="adm-submenu-link"><i data-lucide="user-cog"></i> Account Management</a>
+                <a href="/admin/master-data?tab=Promotions"         class="adm-submenu-link"><i data-lucide="ticket"></i> Promotions</a>
+                <a href="/admin/master-data?tab=Pricing+Management" class="adm-submenu-link"><i data-lucide="database"></i> Pricing Management</a>
+            </div>
+        </div>
+        <div class="adm-nav-item">
+            <a href="/admin/audit-log" class="adm-nav-link">
+                <span class="adm-nav-icon"><i data-lucide="clipboard-list"></i></span>
+                <span class="adm-nav-label">Audit Log</span>
+            </a>
+        </div>
+        <!-- Reviews (Active) -->
+        <div class="adm-nav-item">
+            <a href="/admin/reviews" class="adm-nav-link active">
+                <span class="adm-nav-icon"><i data-lucide="star"></i></span>
+                <span class="adm-nav-label">Review Management</span>
+            </a>
+        </div>
+    </nav>
+    <div class="adm-sidebar-footer">
+        <div class="adm-sidebar-user">
+            <div class="adm-sidebar-avatar">AD</div>
+            <div>
+                <div class="adm-sidebar-name">Admin Dũng</div>
+                <div class="adm-sidebar-role">Admin</div>
+            </div>
+        </div>
+    </div>
+</aside>
+
+<!-- ═══════════════════════ MAIN ═══════════════════════ -->
+<div class="adm-main">
+
+    <!-- Header -->
+    <header class="adm-header">
+        <div class="adm-header-left">
+            <span class="adm-breadcrumb-site">Hoanien Retreat</span>
+            <span class="adm-breadcrumb-sep">/</span>
+            <span class="adm-breadcrumb-page" style="color:#6B6558">Phản hồi</span>
+            <span class="adm-breadcrumb-sep">/</span>
+            <span class="adm-breadcrumb-page">Quản lý đánh giá</span>
+        </div>
+        <div class="adm-header-right">
+            <button class="adm-header-icon-btn"><i data-lucide="search"></i></button>
+            <button class="adm-header-icon-btn">
+                <i data-lucide="bell"></i>
+                <span class="adm-notif-dot"></span>
+            </button>
+            <div class="adm-divider-v"></div>
+            <div class="adm-header-user-box">
+                <div class="adm-header-avatar">AD</div>
+                <span class="adm-header-username">Admin Dũng</span>
+            </div>
+            <div class="adm-divider-v"></div>
+            <a href="/logout" class="adm-header-logout"><i data-lucide="log-out" style="width:12px;height:12px"></i>Đăng xuất</a>
+        </div>
+    </header>
+
+    <!-- Page Content -->
+    <main class="adm-page">
+
+        <!-- Page Title -->
+        <div>
+            <p class="adm-page-eyebrow">Phản hồi khách hàng</p>
+            <h1 class="adm-page-title">Quản lý đánh giá</h1>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="adm-filter-bar">
+            <!-- Service type -->
+            <div class="filter-group" id="filter-type-group">
+                <button id="typebtn-All"  class="adm-filter-chip filter-btn-type filter-btn-active"  data-type="All">Tất cả</button>
+                <button id="typebtn-Room" class="adm-filter-chip filter-btn-type filter-btn-inactive" data-type="Room">Phòng</button>
+                <button id="typebtn-Dish" class="adm-filter-chip filter-btn-type filter-btn-inactive" data-type="Dish">Món ăn</button>
+                <button id="typebtn-Tour" class="adm-filter-chip filter-btn-type filter-btn-inactive" data-type="Tour">Tour</button>
+            </div>
+
+            <div class="filter-sep"></div>
+
+            <!-- Rating -->
+            <div class="filter-group" id="filter-rating-group">
+                <button id="ratebtn-All" class="adm-filter-chip filter-btn-rating filter-btn-active"  data-rating="All">Tất cả ★</button>
+                <button id="ratebtn-5"   class="adm-filter-chip filter-btn-rating filter-btn-inactive" data-rating="5">5 ★</button>
+                <button id="ratebtn-4"   class="adm-filter-chip filter-btn-rating filter-btn-inactive" data-rating="4">4 ★</button>
+                <button id="ratebtn-3"   class="adm-filter-chip filter-btn-rating filter-btn-inactive" data-rating="3">3 ★</button>
+                <button id="ratebtn-2"   class="adm-filter-chip filter-btn-rating filter-btn-inactive" data-rating="2">2 ★</button>
+                <button id="ratebtn-1"   class="adm-filter-chip filter-btn-rating filter-btn-inactive" data-rating="1">1 ★</button>
+            </div>
+
+            <div class="filter-sep"></div>
+
+            <!-- Status -->
+            <div class="filter-group" id="filter-status-group">
+                <button id="statusbtn-All"     class="adm-filter-chip filter-btn-status filter-btn-active"  data-status="All">Tất cả</button>
+                <button id="statusbtn-Visible" class="adm-filter-chip filter-btn-status filter-btn-inactive" data-status="Visible">Hiển thị</button>
+                <button id="statusbtn-Hidden"  class="adm-filter-chip filter-btn-status filter-btn-inactive" data-status="Hidden">Đã ẩn</button>
+            </div>
+
+            <div style="flex:1"></div>
+
+            <span class="adm-page-eyebrow" style="letter-spacing:0;text-transform:none;font-size:14px;margin:0"
+                  id="review-counter-label" th:text="${reviewCount} + ' đánh giá'">8 đánh giá</span>
+        </div>
+
+        <!-- Review Cards Grid -->
+        <div class="reviews-grid" id="reviews-grid">
+            <div th:each="review : ${reviews}"
+                 class="review-card"
+                 th:attr="data-id=${review.id},data-type=${review.serviceType},data-rating=${review.rating},data-visible=${review.visible}"
+                 th:style="${review.visible} ? 'opacity:1' : 'opacity:0.78;border-color:rgba(140,60,40,0.2)'">
+
+                <!-- Header -->
+                <div class="review-card-header">
+                    <div class="review-card-meta">
+                        <div class="review-avatar" th:text="${review.initials}">HY</div>
+                        <div>
+                            <p class="review-guest-name" th:text="${review.guest}">Haruto Y.</p>
+                            <div class="review-stars">
+                                <span th:each="i : ${#numbers.sequence(1, 5)}">
+                                    <svg viewBox="0 0 24 24"
+                                         th:attr="fill=${i <= review.rating ? '#C9A96E' : 'none'},stroke=${i <= review.rating ? '#C9A96E' : 'rgba(201,176,122,0.3)'}"
+                                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                                    </svg>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="review-badges">
+                        <span class="review-type-badge"
+                              th:style="'background-color:' + ${review.serviceTypeBg} + ';color:' + ${review.serviceTypeColor}"
+                              th:text="${review.serviceTypeLabel}">Phòng</span>
+                        <span th:if="${review.visible}" class="review-vis-badge review-visible">
+                            <i data-lucide="check"></i> Hiển thị
+                        </span>
+                        <span th:unless="${review.visible}" class="review-vis-badge review-hidden-badge">
+                            <i data-lucide="eye-off"></i> Đã ẩn
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Service name -->
+                <p class="review-service" th:text="${review.service}">Deluxe River View Room</p>
+
+                <!-- Review text -->
+                <div>
+                    <p class="review-text" th:text="${review.text}" th:attr="data-full-text=${review.text}">Review text...</p>
+                    <button class="review-read-more hidden">Xem thêm</button>
+                </div>
+
+                <!-- Date + Audit trail -->
+                <div>
+                    <p class="review-date" th:text="'Đăng ngày ' + ${review.date}">Đăng ngày 05/06/2026</p>
+                    <p th:if="${!review.visible and review.hiddenBy != null}"
+                       class="review-audit-trail"
+                       th:text="'Ẩn bởi ' + ${review.hiddenBy} + ' ngày ' + ${review.hiddenDate} + ' — ' + ${review.hiddenReason}">
+                        Ẩn bởi Admin Dũng...
+                    </p>
+                    <p th:if="${review.visible}" class="review-audit-trail hidden"></p>
+                </div>
+
+                <!-- Actions -->
+                <div class="review-footer">
+                    <button th:if="${review.visible}"
+                            class="btn-hide-review"
+                            th:attr="data-id=${review.id},data-text=${review.text},data-guest=${review.guest},data-service=${review.service}">
+                        <i data-lucide="eye-off"></i> Ẩn đánh giá
+                    </button>
+                    <button th:unless="${review.visible}"
+                            class="btn-restore-review"
+                            th:attr="data-id=${review.id}">
+                        <i data-lucide="eye"></i> Khôi phục hiển thị
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<!-- Hide Reason Modal -->
+<div id="hide-reason-modal" class="adm-modal-backdrop hidden">
+    <div class="adm-modal-box" onclick="event.stopPropagation()">
+        <div class="adm-modal-header">
+            <h3 class="adm-modal-title">Ẩn đánh giá</h3>
+            <button id="btn-close-hide-modal" class="adm-modal-close"><i data-lucide="x"></i></button>
+        </div>
+        <div class="adm-modal-body">
+            <div class="modal-review-preview">
+                <p id="hide-modal-text" class="modal-review-text">"Review text..."</p>
+                <p id="hide-modal-meta" class="modal-review-meta">— Guest · Service</p>
+            </div>
+            <div>
+                <label class="modal-label">Lý do ẩn <span>*</span></label>
+                <textarea id="hide-reason-textarea" rows="3"
+                          placeholder="VD: Nội dung spam, đánh giá giả mạo, đang điều tra..."
+                          class="modal-textarea"></textarea>
+            </div>
+        </div>
+        <div class="adm-modal-footer">
+            <button id="btn-cancel-hide" class="adm-btn adm-btn-ghost">Huỷ</button>
+            <button id="btn-submit-hide" disabled
+                    class="btn-submit-hide"
+                    style="background:rgba(201,169,110,0.40);color:#1A1814;">
+                <i data-lucide="eye-off"></i> Xác nhận ẩn
+            </button>
+        </div>
+    </div>
+</div>
+
+<script th:src="@{/admin/js/main.js}"    src="../../static/admin/js/main.js"></script>
+<script th:src="@{/admin/js/reviews.js}" src="../../static/admin/js/reviews.js"></script>
+</body>
+</html>

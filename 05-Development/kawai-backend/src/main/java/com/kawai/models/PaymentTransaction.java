@@ -15,9 +15,13 @@ public class PaymentTransaction {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @JoinColumn(name = "booking_id", nullable = false)
-    @ManyToOne(optional = false)
+    @JoinColumn(name = "booking_id", nullable = true)
+    @ManyToOne(optional = true)
     private Booking booking;
+
+    @JoinColumn(name = "food_order_id", nullable = true)
+    @ManyToOne(optional = true)
+    private FoodOrder foodOrder;
 
     @JoinColumn(name = "invoice_id", nullable = true)
     @ManyToOne(optional = true)

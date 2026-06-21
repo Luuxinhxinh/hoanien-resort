@@ -1,0 +1,155 @@
+/* book-table.css */
+
+body {
+    background-color: #1e1a19;
+    color: #f1ebe3;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+}
+
+button:active,
+.nav-btn-book:active,
+.table-card:active {
+    transform: scale(0.97) translateY(0.5px);
+    transition: transform 0.1s ease;
+}
+
+button,
+.nav-btn-book,
+.table-card {
+    transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease, opacity 0.4s ease, box-shadow 0.2s ease, filter 0.4s ease;
+}
+
+.table-disabled {
+    opacity: 0.3 !important;
+    filter: grayscale(0.8) !important;
+    pointer-events: none !important;
+}
+
+.premium-glass-card {
+    background: rgba(241, 235, 227, 0.05);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.table-card:hover {
+    transform: translateY(-4px);
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.4);
+}
+
+/* ── Navbar Đồng Bộ Hoàn Hảo Từ Trang Order Food ── */
+.guest-nav {
+    background: transparent;
+    border-bottom: 1px solid transparent;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    transition: background-color 0.4s ease, border-color 0.4s ease, backdrop-filter 0.4s ease, -webkit-backdrop-filter 0.4s ease;
+}
+
+.guest-nav.scrolled {
+    background: rgba(30, 26, 25, 0.92) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+}
+
+.guest-nav .nav-text {
+    color: #fff;
+    transition: color 0.4s ease;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+.guest-nav .nav-text-dim {
+    color: rgba(255, 255, 255, 0.7);
+    transition: color 0.4s ease;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+.guest-nav.scrolled .nav-text {
+    color: #f1ebe3;
+    text-shadow: none;
+}
+
+.guest-nav.scrolled .nav-text-dim {
+    color: rgba(241, 235, 227, 0.8);
+    text-shadow: none;
+}
+
+.guest-nav .nav-brand {
+    color: #fff;
+    transition: color 0.4s ease;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+.guest-nav.scrolled .nav-brand {
+    color: #f1ebe3;
+    text-shadow: none;
+}
+
+.guest-nav .nav-btn-book {
+    background: transparent !important;
+    color: rgba(255, 255, 255, 0.7) !important;
+    border: none !important;
+    box-shadow: none !important;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+    transition: color 0.4s ease, opacity 0.2s ease;
+}
+
+.guest-nav.scrolled .nav-btn-book {
+    background: transparent !important;
+    color: rgba(241, 235, 227, 0.8) !important;
+    border: none !important;
+    box-shadow: none !important;
+    text-shadow: none;
+}
+
+.guest-nav .nav-btn-book:hover {
+    color: #fff !important;
+    opacity: 1;
+}
+
+.guest-nav.scrolled .nav-btn-book:hover {
+    color: #f1ebe3 !important;
+    opacity: 1;
+}
+
+.guest-nav .nav-menu-icon {
+    color: #fff;
+    transition: color 0.4s ease;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+.guest-nav.scrolled .nav-menu-icon {
+    color: #f1ebe3;
+    text-shadow: none;
+}
+
+::-webkit-scrollbar {
+    width: 5px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    opacity: 0.5;
+    cursor: pointer;
+}
+input[type="date"]::-webkit-calendar-picker-indicator:hover,
+input[type="time"]::-webkit-calendar-picker-indicator:hover {
+    opacity: 0.8;
+}
