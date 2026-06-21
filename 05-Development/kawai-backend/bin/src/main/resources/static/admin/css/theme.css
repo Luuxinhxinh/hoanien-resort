@@ -1,0 +1,25 @@
+/*
+ * theme.css — Hoanien Retreat Admin
+ * Chỉ chứa: @import fonts + CSS Custom Properties (:root).
+ * Mọi style thực tế đều nằm trong admin.css.
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&family=DM+Sans:wght@300;400;500;600&family=Inter:wght@400;500;600;700&display=swap');
+
+/* ═══ CSS Custom Properties ══════════════════════════════════════ */
+:root {
+    /* Colours */
+    --background:   #EDE8DF;
+    --foreground:   #2C2A1E;
+    --card:         #F5F0E8;
+    --primary:      #C9A96E;
+    --dark-bg:      #1A1814;
+    --text-muted:   #8B7355;
+    --text-dark:    #2C2A1E;
+    --border-light: rgba(44,42,30,0.12);
+
+    /* Fonts */
+    --font-serif: 'Cormorant Garamond', serif;
+    --font-sans:  'DM Sans', sans-serif;
+    --font-mono:  'Inter', sans-serif;
+}

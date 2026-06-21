@@ -577,176 +577,7 @@
     </div>
 
     <!-- Online Payment Modal -->
-    <div id="onlinePaymentModal"
-        class="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl"
-        style="display: none;">
-        <div
-            class="bg-[#1e1a19] border border-white/10 w-full max-w-lg p-6 md:p-8 rounded-2xl relative shadow-2xl text-left font-sans flex flex-col max-h-[90vh] overflow-y-auto">
-            
-            <button onclick="closeOnlinePaymentModal()" class="absolute top-4 right-4 text-white/50 hover:text-white">
-                <span class="material-symbols-outlined">close</span>
-            </button>
-            
-            <div class="mb-4">
-                <span class="text-[10px] uppercase tracking-[0.2em] text-emerald-400 block mb-1">Cổng thanh toán an toàn</span>
-                <h3 class="font-serif text-2xl text-white">Thực hiện thanh toán</h3>
-            </div>
-
-            <!-- Transaction Info -->
-            <div class="bg-white/5 p-4 rounded-xl border border-white/5 mb-5 flex justify-between items-center text-xs">
-                <div>
-                    <span class="block text-white/40 text-[10px] uppercase font-bold tracking-wider">Số tiền cần thanh toán</span>
-                    <span id="payModalTotal" class="text-xl font-serif text-white font-semibold">0 đ</span>
-                </div>
-                <div class="text-right">
-                    <span class="block text-white/40 text-[10px] uppercase font-bold tracking-wider">Hạn thanh toán</span>
-                    <span id="paymentTimer" class="text-sm font-mono text-amber-400 font-bold">05:00</span>
-                </div>
-            </div>
-
-            <!-- Payment Methods Tabs -->
-            <div class="flex border-b border-white/10 mb-4 text-xs font-semibold select-none">
-                <button id="payTab-qr" onclick="switchPayTab('qr')" class="flex-1 py-2 text-center border-b-2 border-white text-white">
-                    VietQR Chuyển Khoản
-                </button>
-                <button id="payTab-card" onclick="switchPayTab('card')" class="flex-1 py-2 text-center border-b-2 border-transparent text-white/40 hover:text-white">
-                    Thẻ Quốc Tế
-                </button>
-                <button id="payTab-wallet" onclick="switchPayTab('wallet')" class="flex-1 py-2 text-center border-b-2 border-transparent text-white/40 hover:text-white">
-                    Ví MoMo/ZaloPay
-                </button>
-            </div>
-
-            <!-- Tab Content: VietQR -->
-            <div id="payContent-qr" class="space-y-4">
-                <div class="flex flex-col md:flex-row items-center gap-6 bg-white/5 p-4 rounded-xl border border-white/5">
-                    <div class="w-40 h-40 bg-white p-2 rounded-lg flex items-center justify-center shadow-lg relative group">
-                        <img id="vietqrImage" src="" alt="VietQR Code" class="w-full h-full object-contain">
-                    </div>
-                    <div class="flex-1 text-xs space-y-2 text-white/80">
-                        <div class="flex justify-between border-b border-white/5 pb-1">
-                            <span class="opacity-50">Ngân hàng:</span>
-                            <span class="font-semibold text-white">VietinBank (ICB)</span>
-                        </div>
-                        <div class="flex justify-between border-b border-white/5 pb-1">
-                            <span class="opacity-50">Số tài khoản:</span>
-                            <span class="font-mono font-semibold text-white flex items-center gap-1">
-                                101872893892
-                                <button onclick="copyToClipboard('101872893892')" class="text-emerald-400 hover:underline text-[10px]">Copy</button>
-                            </span>
-                        </div>
-                        <div class="flex justify-between border-b border-white/5 pb-1">
-                            <span class="opacity-50">Tên thụ hưởng:</span>
-                            <span class="font-semibold text-white uppercase text-[11px]">HOANIEN RIVER RETREAT</span>
-                        </div>
-                        <div class="flex justify-between border-b border-white/5 pb-1">
-                            <span class="opacity-50">Nội dung chuyển khoản:</span>
-                            <span class="font-mono font-semibold text-amber-400 flex items-center gap-1">
-                                <span id="vietqrMsg">HNFOOD ORD</span>
-                                <button onclick="copyToClipboard(document.getElementById('vietqrMsg').innerText)" class="text-emerald-400 hover:underline text-[10px]">Copy</button>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-                <div class="text-[10px] text-white/40 text-center italic">
-                    * Mở ứng dụng ngân hàng quét mã VietQR để thanh toán tự động điền số tiền và nội dung.
-                </div>
-                <button onclick="verifyVietQRPayment()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-3 text-xs font-bold uppercase tracking-wider rounded-xl shadow-lg transition-all flex items-center justify-center gap-2">
-                    <span class="material-symbols-outlined text-sm">verified</span>
-                    Xác nhận đã chuyển khoản
-                </button>
-            </div>
-
-            <!-- Tab Content: Credit Card -->
-            <div id="payContent-card" class="space-y-4" style="display: none;">
-                <div class="space-y-3">
-                    <div>
-                        <label class="block text-[10px] uppercase tracking-wider opacity-60 font-semibold mb-1 text-white">Số thẻ ngân hàng</label>
-                        <input type="text" id="cardNo" placeholder="4111 2222 3333 4444" 
-                            class="w-full bg-white/5 border border-white/10 p-2.5 rounded-lg text-xs text-white focus:ring-1 focus:ring-white placeholder:text-white/20">
-                    </div>
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-[10px] uppercase tracking-wider opacity-60 font-semibold mb-1 text-white">Ngày hết hạn (MM/YY)</label>
-                            <input type="text" id="cardExpiry" placeholder="12/28" 
-                                class="w-full bg-white/5 border border-white/10 p-2.5 rounded-lg text-xs text-white focus:ring-1 focus:ring-white placeholder:text-white/20">
-                        </div>
-                        <div>
-                            <label class="block text-[10px] uppercase tracking-wider opacity-60 font-semibold mb-1 text-white">Mã bảo mật CVV</label>
-                            <input type="password" id="cardCvv" placeholder="***" maxlength="3"
-                                class="w-full bg-white/5 border border-white/10 p-2.5 rounded-lg text-xs text-white focus:ring-1 focus:ring-white placeholder:text-white/20">
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-[10px] uppercase tracking-wider opacity-60 font-semibold mb-1 text-white">Tên chủ thẻ (Không dấu)</label>
-                        <input type="text" id="cardHolder" placeholder="NGUYEN VAN A" 
-                            class="w-full bg-white/5 border border-white/10 p-2.5 rounded-lg text-xs text-white focus:ring-1 focus:ring-white placeholder:text-white/20">
-                    </div>
-                </div>
-                <button onclick="processCardPayment()" class="w-full bg-white hover:bg-white/95 text-black py-3 text-xs font-bold uppercase tracking-wider rounded-xl shadow-lg transition-all flex items-center justify-center gap-2">
-                    <span class="material-symbols-outlined text-sm">credit_card</span>
-                    Thanh toán bằng thẻ
-                </button>
-            </div>
-
-            <!-- Tab Content: E-Wallet -->
-            <div id="payContent-wallet" class="space-y-4" style="display: none;">
-                <div class="grid grid-cols-2 gap-3">
-                    <button onclick="selectWallet('momo')" class="flex flex-col items-center justify-center p-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all group">
-                        <span class="text-3xl mb-2 group-hover:scale-110 transition-transform">💗</span>
-                        <span class="text-xs font-bold text-white">Ví MoMo</span>
-                        <span class="text-[9px] opacity-40">Giao dịch tức thời</span>
-                    </button>
-                    <button onclick="selectWallet('zalopay')" class="flex flex-col items-center justify-center p-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all group">
-                        <span class="text-3xl mb-2 group-hover:scale-110 transition-transform">💚</span>
-                        <span class="text-xs font-bold text-white">ZaloPay</span>
-                        <span class="text-[9px] opacity-40">Miễn phí thanh toán</span>
-                    </button>
-                </div>
-                <div id="walletDetailArea" class="bg-white/5 p-4 rounded-xl border border-white/5 text-center text-xs space-y-3" style="display: none;">
-                    <p class="text-white/80">Bạn đã chọn thanh toán qua <span id="selectedWalletName" class="font-bold text-emerald-400">Ví MoMo</span></p>
-                    <div class="mx-auto w-36 h-36 bg-white p-2 rounded-lg flex items-center justify-center">
-                        <img id="walletQrImage" src="https://images.unsplash.com/photo-1571867424488-4565932edb41?w=300&q=80" alt="Wallet QR" class="w-full h-full object-cover animate-pulse">
-                    </div>
-                    <button onclick="verifyWalletPayment()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-2.5 text-xs font-bold uppercase tracking-wider rounded-lg shadow transition-all">
-                        Xác nhận đã quét ví
-                    </button>
-                </div>
-            </div>
-
-            <!-- Processing / Overlay Simulation Screen inside Modal -->
-            <div id="paySimulationOverlay" class="absolute inset-0 bg-[#1e1a19]/95 flex flex-col items-center justify-center p-6 text-center z-50 rounded-2xl" style="display: none;">
-                <div class="relative w-16 h-16 mb-4">
-                    <!-- Circular Spinner -->
-                    <div class="absolute inset-0 border-4 border-white/10 rounded-full"></div>
-                    <div class="absolute inset-0 border-4 border-t-emerald-500 rounded-full animate-spin"></div>
-                </div>
-                <h4 id="simStatusText" class="font-serif text-lg text-white mb-2">Đang kết nối cổng thanh toán...</h4>
-                <p id="simSubText" class="text-xs text-white/50 max-w-xs leading-relaxed">Vui lòng không tắt hoặc tải lại trang web.</p>
-            </div>
-
-            <!-- Simulated OTP Section (For Card) inside Modal -->
-            <div id="otpVerificationSection" class="absolute inset-0 bg-[#1e1a19]/98 flex flex-col items-center justify-center p-6 text-center z-50 rounded-2xl" style="display: none;">
-                <span class="material-symbols-outlined text-4xl text-amber-400 mb-2">sms</span>
-                <h4 class="font-serif text-lg text-white mb-1">Xác thực giao dịch OTP</h4>
-                <p class="text-xs text-white/60 mb-4 max-w-xs leading-relaxed">
-                    Mã OTP (gồm 6 chữ số) đã được gửi đến số điện thoại đăng ký thẻ. Vui lòng nhập để hoàn tất.
-                </p>
-                <div class="mb-4">
-                    <input type="text" id="otpCode" placeholder="123456" maxlength="6"
-                        class="bg-white/5 border border-white/10 p-3 rounded-lg text-center tracking-[0.5em] text-lg font-mono text-white focus:ring-1 focus:ring-emerald-500 outline-none w-44">
-                </div>
-                <div class="flex gap-3 justify-center w-full max-w-xs">
-                    <button onclick="cancelOtp()" class="flex-1 border border-white/10 hover:bg-white/5 text-white py-2 rounded-lg text-xs">Hủy bỏ</button>
-                    <button onclick="submitOtp()" class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white py-2 rounded-lg text-xs font-bold">Xác thực</button>
-                </div>
-                <div class="text-[10px] text-white/40 mt-3">
-                    Mã thử nghiệm mặc định: <span class="font-bold font-mono text-emerald-400">123456</span>
-                </div>
-            </div>
-
-        </div>
-    </div>
+    <!-- VNPay integration replaced virtual payment modal -->
 
     <div id="authRequiredModal" th:if="${session.user == null}"
         class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl"
@@ -995,14 +826,9 @@
             pendingOrderPayload = payload;
 
             if (paymentType === 'ONLINE') {
-                let subtotal = 0;
-                cart.forEach(item => { subtotal += (item.price * item.qty); });
-                const fee = subtotal * 0.03;
-                const total = subtotal + fee;
-                openOnlinePaymentModal(total);
-            } else {
-                submitOrderPayloadAfterPayment();
+                pendingOrderPayload.paymentType = 'VNPAY';
             }
+            submitOrderPayloadAfterPayment();
         }
 
         function submitOrderPayloadAfterPayment() {
@@ -1020,6 +846,32 @@
                 .then(function (resp) { return resp.json(); })
                 .then(function (data) {
                     if (data.status === 'success') {
+                        if (pendingOrderPayload.paymentType === 'VNPAY') {
+                            fetch('/api/v1/payments/food-order/' + data.orderId + '/vnpay')
+                                .then(r => r.text())
+                                .then(text => {
+                                    let res;
+                                    try {
+                                        res = JSON.parse(text);
+                                    } catch (e) {
+                                        res = { error: text };
+                                    }
+                                    if (res.url) {
+                                        window.location.href = res.url;
+                                    } else {
+                                        alert('Lỗi lấy URL thanh toán VNPay: ' + (res.error || res.message || JSON.stringify(res)));
+                                        submitBtn.disabled = false;
+                                        submitBtn.innerText = 'Xác nhận đặt món';
+                                    }
+                                })
+                                .catch(err => {
+                                    alert('Lỗi kết nối VNPay: ' + err);
+                                    submitBtn.disabled = false;
+                                    submitBtn.innerText = 'Xác nhận đặt món';
+                                });
+                            return;
+                        }
+
                         document.getElementById('posOrderId').innerText = '#ORD-' + data.orderId;
                         document.getElementById('posLocation').innerText = pendingOrderPayload.roomNumber || (pendingOrderPayload.tableId ? 'Bàn ' + pendingOrderPayload.tableId : '') || 'Quầy Lobby';
                         document.getElementById('posKitchenNote').innerText = pendingOrderPayload.note || 'KHÔNG CÓ GHI CHÚ DỊ ỨNG';
@@ -1042,181 +894,17 @@
 
                         cart = [];
                         renderCart();
-                        closeOnlinePaymentModal();
                     } else {
                         alert('Lỗi tạo đơn hàng: ' + (data.message || 'Unknown error'));
+                        submitBtn.disabled = false;
+                        submitBtn.innerText = 'Xác nhận đặt món';
                     }
                 })
                 .catch(function (err) {
                     alert('Lỗi kết nối đến server: ' + err.message);
-                })
-                .finally(function () {
                     submitBtn.disabled = false;
                     submitBtn.innerText = 'Xác nhận đặt món';
                 });
-        }
-
-        function openOnlinePaymentModal(totalAmount) {
-            document.getElementById('payModalTotal').innerText = totalAmount.toLocaleString('vi-VN') + ' đ';
-            
-            // Generate VietQR
-            const description = encodeURIComponent(`HNFOOD ORD ${Math.floor(Date.now() / 1000)}`);
-            document.getElementById('vietqrMsg').innerText = `HNFOOD ORD ${Math.floor(Date.now() / 1000)}`;
-            const qrUrl = `https://img.vietqr.io/image/vietinbank-101872893892-compact2.png?amount=${totalAmount}&addInfo=${description}&accountName=HOANIEN%20RIVER%20RETREAT`;
-            document.getElementById('vietqrImage').src = qrUrl;
-
-            // Reset inputs
-            document.getElementById('cardNo').value = '';
-            document.getElementById('cardExpiry').value = '';
-            document.getElementById('cardCvv').value = '';
-            document.getElementById('cardHolder').value = '';
-            document.getElementById('otpCode').value = '';
-            document.getElementById('walletDetailArea').style.display = 'none';
-            document.getElementById('paySimulationOverlay').style.display = 'none';
-            document.getElementById('otpVerificationSection').style.display = 'none';
-            
-            // Switch to QR tab by default
-            switchPayTab('qr');
-
-            // Show modal
-            document.getElementById('onlinePaymentModal').style.display = 'flex';
-
-            // Start countdown timer (5 mins)
-            let duration = 300;
-            const timerEl = document.getElementById('paymentTimer');
-            timerEl.innerText = "05:00";
-            
-            if (paymentTimerInterval) clearInterval(paymentTimerInterval);
-            paymentTimerInterval = setInterval(() => {
-                duration--;
-                if (duration <= 0) {
-                    clearInterval(paymentTimerInterval);
-                    alert("Thời hạn thanh toán đã hết. Vui lòng thử lại!");
-                    closeOnlinePaymentModal();
-                    return;
-                }
-                const mins = Math.floor(duration / 60).toString().padStart(2, '0');
-                const secs = (duration % 60).toString().padStart(2, '0');
-                timerEl.innerText = `${mins}:${secs}`;
-            }, 1000);
-        }
-
-        function closeOnlinePaymentModal() {
-            document.getElementById('onlinePaymentModal').style.display = 'none';
-            if (paymentTimerInterval) {
-                clearInterval(paymentTimerInterval);
-                paymentTimerInterval = null;
-            }
-        }
-
-        function switchPayTab(tab) {
-            const tabs = ['qr', 'card', 'wallet'];
-            tabs.forEach(t => {
-                const btn = document.getElementById(`payTab-${t}`);
-                const content = document.getElementById(`payContent-${t}`);
-                if (t === tab) {
-                    btn.className = "flex-1 py-2 text-center border-b-2 border-white text-white";
-                    content.style.display = "block";
-                } else {
-                    btn.className = "flex-1 py-2 text-center border-b-2 border-transparent text-white/40 hover:text-white";
-                    content.style.display = "none";
-                }
-            });
-        }
-
-        function copyToClipboard(text) {
-            navigator.clipboard.writeText(text).then(() => {
-                alert("Đã sao chép: " + text);
-            }).catch(err => {
-                console.error("Lỗi copy: ", err);
-            });
-        }
-
-        function showSimulationOverlay(statusText, subText, delay, callback) {
-            const overlay = document.getElementById('paySimulationOverlay');
-            document.getElementById('simStatusText').innerText = statusText;
-            document.getElementById('simSubText').innerText = subText;
-            overlay.style.display = 'flex';
-
-            setTimeout(() => {
-                overlay.style.display = 'none';
-                if (callback) callback();
-            }, delay);
-        }
-
-        function verifyVietQRPayment() {
-            showSimulationOverlay(
-                "Đang kiểm tra giao dịch...", 
-                "Hệ thống đang truy vấn biến động số dư VietinBank...", 
-                2000, 
-                () => {
-                    alert("Thanh toán thành công qua VietQR!");
-                    submitOrderPayloadAfterPayment();
-                }
-            );
-        }
-
-        function processCardPayment() {
-            const cardNo = document.getElementById('cardNo').value.trim();
-            const cardExpiry = document.getElementById('cardExpiry').value.trim();
-            const cardCvv = document.getElementById('cardCvv').value.trim();
-            const cardHolder = document.getElementById('cardHolder').value.trim();
-
-            if (!cardNo || !cardExpiry || !cardCvv || !cardHolder) {
-                alert("Vui lòng điền đầy đủ thông tin thẻ!");
-                return;
-            }
-
-            showSimulationOverlay(
-                "Đang kết nối tổ chức thẻ...", 
-                "Đang xác thực thông tin thẻ quốc tế...", 
-                1500, 
-                () => {
-                    // Show OTP section
-                    document.getElementById('otpVerificationSection').style.display = 'flex';
-                }
-            );
-        }
-
-        function cancelOtp() {
-            document.getElementById('otpVerificationSection').style.display = 'none';
-        }
-
-        function submitOtp() {
-            const code = document.getElementById('otpCode').value.trim();
-            if (code !== '123456') {
-                alert("Mã OTP không hợp lệ! Vui lòng thử lại với mã 123456.");
-                return;
-            }
-
-            document.getElementById('otpVerificationSection').style.display = 'none';
-            showSimulationOverlay(
-                "Đang hoàn tất thanh toán...", 
-                "Giao dịch đã được duyệt. Đang tạo đơn hàng...", 
-                1500, 
-                () => {
-                    alert("Thanh toán thẻ thành công!");
-                    submitOrderPayloadAfterPayment();
-                }
-            );
-        }
-
-        function selectWallet(wallet) {
-            const name = wallet === 'momo' ? 'Ví MoMo' : 'ZaloPay';
-            document.getElementById('selectedWalletName').innerText = name;
-            document.getElementById('walletDetailArea').style.display = 'block';
-        }
-
-        function verifyWalletPayment() {
-            showSimulationOverlay(
-                "Đang xác nhận thanh toán...", 
-                "Chờ xác thực phản hồi từ ứng dụng ví...", 
-                1800, 
-                () => {
-                    alert("Thanh toán qua ví điện tử thành công!");
-                    submitOrderPayloadAfterPayment();
-                }
-            );
         }
 
         function closeTimelineModal() {
@@ -1232,6 +920,16 @@
                 if (window.scrollY > 60) guestNav.classList.add('scrolled');
                 else guestNav.classList.remove('scrolled');
             }, { passive: true });
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const paymentStatus = urlParams.get('payment');
+            if (paymentStatus === 'success') {
+                alert('Thanh toán đơn hàng qua VNPay thành công! Món ăn sẽ sớm được phục vụ.');
+                window.history.replaceState({}, document.title, window.location.pathname);
+            } else if (paymentStatus === 'failed') {
+                alert('Thanh toán thất bại hoặc đã bị hủy!');
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
         });
     </script>
 

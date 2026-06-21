@@ -127,26 +127,9 @@
                                 <th>Action</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="folioTableBody">
                             <tr>
-                                <td>FOL-5091</td>
-                                <td>101</td>
-                                <td>Ngô Thị Ngọc Lan</td>
-                                <td>$350.00</td>
-                                <td>$100.00</td>
-                                <td><strong class="text-red">$250.00</strong></td>
-                                <td><span class="status-badge status-pending">Open</span></td>
-                                <td><a href="/receptionist/folio/detail" class="btn btn-outline btn-sm" style="text-decoration:none;">View Details</a></td>
-                            </tr>
-                            <tr>
-                                <td>FOL-5092</td>
-                                <td>104</td>
-                                <td>Trần Văn Minh</td>
-                                <td>$420.00</td>
-                                <td>$420.00</td>
-                                <td><strong>$0.00</strong></td>
-                                <td><span class="status-badge status-confirmed">Settled</span></td>
-                                <td><button class="btn btn-outline btn-sm">Receipt</button></td>
+                                <td colspan="8" style="text-align: center;">Loading...</td>
                             </tr>
                         </tbody>
                     </table>
@@ -155,5 +138,49 @@
         </main>
     </div>
     <script src="/receptionist/js/dashboard.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchActiveFolios();
+        });
+
+        function fetchActiveFolios() {
+            fetch('/api/folios/active')
+                .then(response => response.json())
+                .then(data => {
+                    const tbody = document.getElementById('folioTableBody');
+                    tbody.innerHTML = ''; // Clear loading
+                    
+                    if (!data || data.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="8" style="text-align: center;">No active folios found.</td></tr>';
+                        return;
+                    }
+
+                    data.forEach(folio => {
+                        const tr = document.createElement('tr');
+                        
+                        const formatCurrency = (val) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(val);
+                        
+                        let balanceClass = folio.balance > 0 ? 'text-red' : '';
+                        
+                        tr.innerHTML = `
+                            <td>${folio.folioNo}</td>
+                            <td>${folio.roomNumber}</td>
+                            <td>${folio.guestName}</td>
+                            <td>${formatCurrency(folio.totalCharges)}</td>
+                            <td>${formatCurrency(folio.totalPayments)}</td>
+                            <td><strong class="${balanceClass}">${formatCurrency(folio.balance)}</strong></td>
+                            <td><span class="status-badge status-pending">${folio.status}</span></td>
+                            <td><a href="/receptionist/folio/detail?id=${folio.roomBookingDetailId}" class="btn btn-outline btn-sm" style="text-decoration:none; white-space: nowrap;">View Details</a></td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                })
+                .catch(error => {
+                    console.error("Error fetching active folios:", error);
+                    const tbody = document.getElementById('folioTableBody');
+                    tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: red;">Error loading data.</td></tr>';
+                });
+        }
+    </script>
 </body>
 </html>

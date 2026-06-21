@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Quản lý Order Nhà hàng (F&B) — Hoanien Retreat</title>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" th:href="@{/admin/css/theme.css}" href="../../static/admin/css/theme.css"/>
+    <link rel="stylesheet" th:href="@{/admin/css/admin.css}" href="../../static/admin/css/admin.css"/>
+    <style>
+        .order-status-pending { background: #fff3cd; color: #856404; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; }
+        .order-status-cooking { background: #cce5ff; color: #004085; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; }
+        .order-status-served { background: #d4edda; color: #155724; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; }
+        
+        .fnb-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
+        .fnb-order-card { background: white; border: 1px solid #e5e7eb; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; flex-direction: column; overflow: hidden; }
+        .fnb-order-header { padding: 12px 16px; background: #f9fafb; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center; }
+        .fnb-table-badge { background: #111827; color: white; padding: 4px 10px; border-radius: 20px; font-weight: 700; font-size: 14px; }
+        .fnb-order-time { font-size: 12px; color: #6b7280; display: flex; align-items: center; gap: 4px; }
+        .fnb-order-body { padding: 16px; flex: 1; }
+        .fnb-item-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
+        .fnb-item-row { display: flex; justify-content: space-between; align-items: flex-start; font-size: 14px; }
+        .fnb-item-qty { font-weight: 700; color: #059669; min-width: 24px; }
+        .fnb-item-name { flex: 1; font-weight: 500; color: #1f2937; }
+        .fnb-item-note { font-size: 12px; color: #ef4444; margin-top: 2px; }
+        .fnb-order-footer { padding: 12px 16px; border-top: 1px dashed #e5e7eb; display: flex; justify-content: space-between; align-items: center; background: #fafafa; }
+        .fnb-btn-action { padding: 6px 12px; border-radius: 6px; font-weight: 600; font-size: 13px; cursor: pointer; border: none; }
+        .btn-cook { background: #3b82f6; color: white; }
+        .btn-serve { background: #10b981; color: white; }
+    </style>
+</head>
+<body>
+
+<aside class="adm-sidebar">
+    <div class="adm-sidebar-logo">
+        <div class="adm-sidebar-brand">
+            <div class="adm-sidebar-dot">✦</div>
+            <span class="adm-sidebar-brand-name">Hoanien Retreat</span>
+        </div>
+        <h1 class="adm-sidebar-title">Operations Hub</h1>
+    </div>
+
+    <nav class="adm-nav">
+        <div class="adm-nav-item">
+            <a href="/admin/dashboard" class="adm-nav-link">
+                <span class="adm-nav-icon"><i data-lucide="layout-dashboard"></i></span>
+                <span class="adm-nav-label">Tổng quan</span>
+            </a>
+        </div>
+        
+        <div class="adm-nav-item">
+            <a href="/admin/bookings" class="adm-nav-link">
+                <span class="adm-nav-icon"><i data-lucide="calendar-check"></i></span>
+                <span class="adm-nav-label">Quản lý Đặt phòng</span>
+            </a>
+        </div>
+        <div class="adm-nav-item">
+            <a href="/admin/fnb-orders" class="adm-nav-link active">
+                <span class="adm-nav-icon"><i data-lucide="coffee"></i></span>
+                <span class="adm-nav-label">Order Nhà hàng</span>
+            </a>
+        </div>
+        <div class="adm-nav-item">
+            <a href="/admin/tour-schedules" class="adm-nav-link">
+                <span class="adm-nav-icon"><i data-lucide="map"></i></span>
+                <span class="adm-nav-label">Lịch trình Tour</span>
+            </a>
+        </div>
+    </nav>
+</aside>
+
+<div class="adm-main">
+    <header class="adm-header">
+        <div class="adm-header-left">
+            <span class="adm-breadcrumb-site">Operations</span>
+            <span class="adm-breadcrumb-sep">/</span>
+            <span class="adm-breadcrumb-page">Order Nhà hàng</span>
+        </div>
+        <div class="adm-header-right">
+            <button class="adm-header-icon-btn"><i data-lucide="search"></i></button>
+            <div class="adm-header-user-box">
+                <div class="adm-header-avatar">AD</div>
+                <span class="adm-header-username">Admin Dũng</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="adm-page">
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px;">
+            <div>
+                <p class="adm-page-eyebrow">F&B Operations (Live view)</p>
+                <h1 class="adm-page-title">Quản lý Order Nhà hàng</h1>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button class="adm-btn adm-btn-ghost"><i data-lucide="filter" style="width: 16px;"></i> Lọc trạng thái</button>
+                <button class="adm-btn adm-btn-primary"><i data-lucide="plus" style="width: 16px;"></i> POS Order</button>
+            </div>
+        </div>
+
+        <div class="fnb-grid">
+            <!-- PENDING Order -->
+            <div class="fnb-order-card" style="border-left: 4px solid #f59e0b;">
+                <div class="fnb-order-header">
+                    <span class="fnb-table-badge">Bàn T12</span>
+                    <span class="fnb-order-time"><i data-lucide="clock" style="width: 14px;"></i> Vừa xong</span>
+                </div>
+                <div class="fnb-order-body">
+                    <ul class="fnb-item-list">
+                        <li class="fnb-item-row">
+                            <span class="fnb-item-qty">x2</span>
+                            <div class="fnb-item-name">Phở Bò Kobe
+                                <div class="fnb-item-note">Ít bánh, nhiều hành</div>
+                            </div>
+                        </li>
+                        <li class="fnb-item-row">
+                            <span class="fnb-item-qty">x1</span>
+                            <div class="fnb-item-name">Trà sen dừa</div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="fnb-order-footer">
+                    <span class="order-status-pending">CHỜ CHẾ BIẾN</span>
+                    <button class="fnb-btn-action btn-cook">Nhận nấu</button>
+                </div>
+            </div>
+
+            <!-- COOKING Order -->
+            <div class="fnb-order-card" style="border-left: 4px solid #3b82f6;">
+                <div class="fnb-order-header">
+                    <span class="fnb-table-badge">Bàn T04</span>
+                    <span class="fnb-order-time"><i data-lucide="clock" style="width: 14px;"></i> 10 phút trước</span>
+                </div>
+                <div class="fnb-order-body">
+                    <ul class="fnb-item-list">
+                        <li class="fnb-item-row">
+                            <span class="fnb-item-qty">x4</span>
+                            <div class="fnb-item-name">Combo Nướng Hải Sản</div>
+                        </li>
+                        <li class="fnb-item-row">
+                            <span class="fnb-item-qty">x4</span>
+                            <div class="fnb-item-name">Bia Heineken</div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="fnb-order-footer">
+                    <span class="order-status-cooking">ĐANG NẤU</span>
+                    <button class="fnb-btn-action btn-serve">Xong (Mang món)</button>
+                </div>
+            </div>
+
+            <!-- SERVED Order -->
+            <div class="fnb-order-card" style="border-left: 4px solid #10b981; opacity: 0.8;">
+                <div class="fnb-order-header">
+                    <span class="fnb-table-badge" style="background:#4b5563">Bàn T08</span>
+                    <span class="fnb-order-time"><i data-lucide="check-circle-2" style="width: 14px;"></i> Đã xong</span>
+                </div>
+                <div class="fnb-order-body">
+                    <ul class="fnb-item-list">
+                        <li class="fnb-item-row">
+                            <span class="fnb-item-qty" style="color:#6b7280">x1</span>
+                            <div class="fnb-item-name" style="text-decoration: line-through; color: #6b7280;">Bò lúc lắc</div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="fnb-order-footer">
+                    <span class="order-status-served">ĐÃ LÊN MÓN</span>
+                    <span style="font-weight: 700; font-size: 14px; color: #374151;">350,000đ</span>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    lucide.createIcons();
+</script>
+</body>
+</html>

@@ -70,10 +70,11 @@ public class SecurityConfig {
                                 "/auth/verify-otp", "/auth/resend-otp",
                                 "/h2-console/**", "/css/**", "/js/**", "/guest/**", "/living", "/wellbeing", "/dining",
                                 "/experiences", "/tours", "/tours/**", "/profile", "/order-food", "/AnhTour/**",
-                                "/fbStaff/**", "/f&bStaff/**", "/api/menu-items/**", "/api/rooms/**", "/api/pos/**",
+                                "/fbStaff/**", "/f&bStaff/**", "/api/menu-items/**", "/api/rooms/**", "/api/v1/tables/**", "/api/pos/**",
                                 "/api/bookings", "/api/bookings/**",
                                 "/api/tour-bookings", "/api/tour-bookings/**", "/api/faceid/**", "/error",
-                                "/api/v1/payments/vnpay-return", "/api/v1/payments/vnpay-ipn")
+                                "/api/v1/payments/vnpay-return", "/api/v1/payments/vnpay-ipn", 
+                                "/api/v1/payments/food-order/**", "/book-table")
                         .permitAll()
 
                         .requestMatchers("/admin/**").hasRole("ADMIN")

@@ -75,4 +75,15 @@ public class BookingController {
         return "guest/experiences";
     }
 
+    @Autowired
+    private com.kawai.repositories.RestaurantTableRepository restaurantTableRepository;
+
+    @GetMapping("/book-table")
+    public String showTableBookingPage(Principal principal, Model model) {
+        model.addAttribute("isLoggedIn", principal != null);
+        java.util.List<com.kawai.models.RestaurantTable> tables = restaurantTableRepository.findAll();
+        model.addAttribute("tables", tables);
+        return "guest/book-table";
+    }
+
 }

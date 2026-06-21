@@ -135,6 +135,10 @@
                 m.style.display = 'flex';
                 document.getElementById('loginSection').style.display = 'block';
                 document.getElementById('registerSection').style.display = 'none';
+                
+                document.querySelectorAll('.redirect-input').forEach(input => {
+                    input.value = window.location.pathname + window.location.search;
+                });
             }
         }
         function openRegisterModal() {
@@ -143,6 +147,10 @@
                 m.style.display = 'flex';
                 document.getElementById('loginSection').style.display = 'none';
                 document.getElementById('registerSection').style.display = 'block';
+
+                document.querySelectorAll('.redirect-input').forEach(input => {
+                    input.value = window.location.pathname + window.location.search;
+                });
             }
         }
         function closeAuthModal() {

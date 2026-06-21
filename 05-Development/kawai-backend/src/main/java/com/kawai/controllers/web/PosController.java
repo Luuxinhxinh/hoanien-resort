@@ -12,6 +12,11 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.kawai.models.TableReservation;
+import com.kawai.repositories.TableReservationRepository;
+
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -29,6 +34,9 @@ public class PosController {
 
     @Autowired
     private FoodItemRepository foodItemRepository;
+
+    @Autowired
+    private TableReservationRepository tableReservationRepository;
 
     @GetMapping({"/dashboard", ""})
     public String dashboard(Model model) {
@@ -53,9 +61,56 @@ public class PosController {
     @GetMapping("/create-food-order")
     public String createFoodOrder(Model model) {
         List<RestaurantTable> tables = restaurantTableRepository.findAll();
-        List<RestaurantTable> vacantTables = tables.stream().filter(t -> "Vacant".equalsIgnoreCase(t.getTableStatus())).toList();
-        model.addAttribute("vacantTables", vacantTables);
         
+        List<RestaurantTable> vacantTables = tables.stream()
+                .filter(t -> "Vacant".equalsIgnoreCase(t.getTableStatus()) || "Cleaning".equalsIgnoreCase(t.getTableStatus()))
+                .toList();
+                
+        List<RestaurantTable> reservedTables = tables.stream()
+                .filter(t -> "Reserved".equalsIgnoreCase(t.getTableStatus()))
+                .toList();
+                
+        List<RestaurantTable> occupiedTables = tables.stream()
+                .filter(t -> "Occupied".equalsIgnoreCase(t.getTableStatus()))
+                .toList();
+
+        Map<Long, String> tableAvailabilityText = new HashMap<>();
+        LocalDate today = LocalDate.now();
+        LocalTime now = LocalTime.now();
+
+        for (RestaurantTable table : vacantTables) {
+            List<TableReservation> reservations = tableReservationRepository.findByTable_IdAndReserveDateOrderByReserveTimeAsc(table.getId(), today);
+            String availability = "Trống cả ngày";
+            for (TableReservation res : reservations) {
+                if (("Confirmed".equalsIgnoreCase(res.getStatus()) || "Pending".equalsIgnoreCase(res.getStatus())) 
+                        && res.getReserveTime().isAfter(now)) {
+                    availability = "Trống đến " + res.getReserveTime().toString();
+                    break;
+                }
+            }
+            if ("Cleaning".equalsIgnoreCase(table.getTableStatus())) {
+                availability = "Đang dọn - " + availability;
+            }
+            tableAvailabilityText.put(table.getId(), availability);
+        }
+        for (RestaurantTable table : reservedTables) {
+            List<TableReservation> reservations = tableReservationRepository.findByTable_IdAndReserveDateOrderByReserveTimeAsc(table.getId(), today);
+            String availability = "Trống cả ngày";
+            for (TableReservation res : reservations) {
+                if (("Confirmed".equalsIgnoreCase(res.getStatus()) || "Pending".equalsIgnoreCase(res.getStatus())) 
+                        && res.getReserveTime().isAfter(now)) {
+                    availability = "Trống đến " + res.getReserveTime().toString();
+                    break;
+                }
+            }
+            tableAvailabilityText.put(table.getId(), availability);
+        }
+        
+        model.addAttribute("vacantTables", vacantTables);
+        model.addAttribute("reservedTables", reservedTables);
+        model.addAttribute("occupiedTables", occupiedTables);
+        model.addAttribute("tableAvailabilityText", tableAvailabilityText);
+
         model.addAttribute("menuItems", getMappedMenuItems());
         return "f&bStaff/create-food-order";
     }

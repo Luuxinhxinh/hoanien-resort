@@ -125,6 +125,8 @@ public class PosApiController {
                 order.setPaymentType(request.getPaymentType() != null ? request.getPaymentType() : "Pay_Later");
                 if ("ONLINE".equalsIgnoreCase(request.getPaymentType())) {
                     order.setIsPaidInPos(true);
+                } else if ("VNPAY".equalsIgnoreCase(request.getPaymentType())) {
+                    order.setIsPaidInPos(false);
                 } else {
                     order.setIsPaidInPos(false);
                 }

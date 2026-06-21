@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html class="light" lang="vi">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Hòa Niên Resort | Guide Portal - Điểm danh</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Inter:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <!-- face-api.js: Face Detection & Recognition Library -->
+    <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+    <style>
+        body {
+            background-color: #1f1b16;
+            color: #fff8f4;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .camera-container {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 4/3;
+            background: #1a1510;
+            overflow: hidden;
+        }
+
+        .camera-container video,
+        .camera-container canvas {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .scan-line {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #BFAC8F, transparent);
+            position: absolute;
+            width: 100%;
+            top: 0;
+            animation: scan 2.5s ease-in-out infinite;
+            z-index: 20;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .scan-line.active {
+            opacity: 1;
+        }
+
+        @keyframes scan {
+
+            0%,
+            100% {
+                top: 5%;
+            }
+
+            50% {
+                top: 95%;
+            }
+        }
+
+        .corner-mark {
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            z-index: 20;
+        }
+
+        .corner-mark.tl {
+            top: 16px;
+            left: 16px;
+            border-top: 2px solid #BFAC8F;
+            border-left: 2px solid #BFAC8F;
+        }
+
+        .corner-mark.tr {
+            top: 16px;
+            right: 16px;
+            border-top: 2px solid #BFAC8F;
+            border-right: 2px solid #BFAC8F;
+        }
+
+        .corner-mark.bl {
+            bottom: 16px;
+            left: 16px;
+            border-bottom: 2px solid #BFAC8F;
+            border-left: 2px solid #BFAC8F;
+        }
+
+        .corner-mark.br {
+            bottom: 16px;
+            right: 16px;
+            border-bottom: 2px solid #BFAC8F;
+            border-right: 2px solid #BFAC8F;
+        }
+
+        .face-frame {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 180px;
+            height: 220px;
+            border: 2px dashed rgba(191, 172, 143, 0.5);
+            border-radius: 50% 50% 45% 45%;
+            z-index: 15;
+            transition: border-color 0.3s;
+        }
+
+        .face-frame.scanning {
+            border-color: #BFAC8F;
+            animation: pulse-frame 1.5s ease-in-out infinite;
+        }
+
+        .face-frame.matched {
+            border-color: #166534;
+            border-style: solid;
+        }
+
+        .face-frame.failed {
+            border-color: #991b1b;
+            border-style: solid;
+        }
+
+        @keyframes pulse-frame {
+
+            0%,
+            100% {
+                opacity: 0.5;
+            }
+
+            50% {
+                opacity: 1;
+            }
+        }
+
+        .faded-entry {
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+
+        .faded-entry-delay-1 {
+            animation-delay: 0.1s;
+            opacity: 0;
+        }
+
+        .faded-entry-delay-2 {
+            animation-delay: 0.2s;
+            opacity: 0;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 3px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #D3CEBF;
+            border-radius: 4px;
+        }
+
+        .result-flash {
+            animation: flashResult 0.5s ease-out;
+        }
+
+        @keyframes flashResult {
+            0% {
+                transform: scale(0.95);
+                opacity: 0;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .status-checked {
+            background: #f0fdf4;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+
+        .status-waiting {
+            background: #fefce8;
+            color: #854d0e;
+            border: 1px solid #fde68a;
+        }
+
+        .status-absent {
+            background: #fef2f2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .model-loading .loading-bar {
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        /* ── Navbar solid #d0bcb1 & dark text ── */
+        .guest-nav,
+        .guest-sub-nav {
+            background: transparent !important;
+            border-bottom: 1px solid rgba(58, 50, 48, 0.15) !important;
+            backdrop-filter: blur(8px) !important;
+            -webkit-backdrop-filter: blur(8px) !important;
+            transition: none !important;
+        }
+
+        .guest-nav .nav-text,
+        .guest-sub-nav .sub-nav-text {
+            color: #3a3230 !important;
+            text-shadow: none !important;
+        }
+
+        .guest-nav .nav-text-dim {
+            color: rgba(58, 50, 48, 0.75) !important;
+            text-shadow: none !important;
+        }
+
+        .guest-nav .nav-text-dim:hover,
+        .guest-sub-nav .sub-nav-text:hover {
+            color: #3a3230 !important;
+            opacity: 1 !important;
+        }
+
+        .guest-nav .nav-brand {
+            color: #3a3230 !important;
+            text-shadow: none !important;
+        }
+
+        .guest-nav .nav-btn-book {
+            background: transparent !important;
+            color: #3a3230 !important;
+            border: 1px solid rgba(58, 50, 48, 0.5) !important;
+            box-shadow: none !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .guest-nav .nav-btn-book:hover {
+            background: rgba(58, 50, 48, 0.06) !important;
+            border-color: #3a3230 !important;
+        }
+
+        .guest-nav .nav-menu-icon {
+            color: #3a3230 !important;
+            text-shadow: none !important;
+        }
+
+        /* Make text bolder and highly readable */
+        .text-on-surface-variant {
+            color: #dec1ac !important;
+            font-weight: 700 !important;
+        }
+
+        .text-primary,
+        .text-primary-fixed,
+        .font-body-md {
+            color: #fff8f4 !important;
+            font-weight: 700 !important;
+        }
+
+        .font-headline-md,
+        .font-label-caps {
+            color: #fbddc7 !important;
+            font-weight: 700 !important;
+        }
+
+        .bg-surface-container-low,
+        .bg-surface-container {
+            background-color: #28241e !important;
+            border-color: rgba(251, 221, 199, 0.25) !important;
+        }
+
+        .border-outline-variant {
+            border-color: rgba(251, 221, 199, 0.25) !important;
+        }
+
+        th,
+        td {
+            color: #fff8f4 !important;
+            font-weight: 700 !important;
+        }
+
+        p,
+        span {
+            font-weight: 600 !important;
+        }
+
+        .status-checked,
+        .status-waiting,
+        .status-absent {
+            font-weight: 700 !important;
+        }
+    </style>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        'hoanien-bg': '#f1ebe3',
+                        'hoanien-text': '#3a3230',
+                        'hoanien-footer': '#3c3530',
+                        'hoanien-footer-text': '#e5dfd8',
+                        "primary": "#fbddc7",
+                        "surface": "#fff8f4",
+                        "on-surface": "#1f1b16",
+                        "outline-variant": "rgba(251, 221, 199, 0.2)",
+                        "tertiary-fixed": "#e8e2d3",
+                        "surface-container-highest": "#ebe1d8",
+                        "inverse-surface": "#35302a",
+                        "secondary-container": "#f5e0c0",
+                        "primary-fixed": "#fbddc7",
+                        "primary-container": "#372618",
+                        "on-secondary-container": "#726249",
+                        "surface-container-low": "#fcf2e9",
+                        "on-background": "#1f1b16",
+                        "tertiary-fixed-dim": "#cbc6b7",
+                        "surface-bright": "#fff8f4",
+                        "on-surface-variant": "#4e453e",
+                        "surface-container-high": "#f1e6de",
+                        "surface-tint": "#705a49",
+                        "outline": "#80756d",
+                        "background": "#1f1b16",
+                        "surface-container": "#f6ece3",
+                        "on-primary-container": "#a58c79",
+                        "surface-variant": "#ebe1d8",
+                        "secondary": "#6b5c44",
+                        "champagne": "#BFAC8F",
+                        "beige-decorative": "#D3CEBF"
+                    },
+                    borderRadius: { "DEFAULT": "0px", "lg": "0px", "xl": "0px", "full": "9999px" },
+                    spacing: { "margin-desktop": "80px", "container-max": "1440px", "gutter": "24px" },
+                    fontFamily: {
+                        'serif': ['"Playfair Display"', 'serif'],
+                        'sans': ['"Montserrat"', 'sans-serif'],
+                        "headline": ["EB Garamond", "serif"],
+                        "body": ["Inter", "sans-serif"],
+                        "headline-lg": ["EB Garamond"],
+                        "caption": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-md": ["EB Garamond"],
+                        "body-md": ["Inter"],
+                        "label-caps": ["Inter"]
+                    },
+                    fontSize: {
+                        "headline-lg": ["40px", { "lineHeight": "1.2", "fontWeight": "400" }],
+                        "caption": ["13px", { "lineHeight": "1.4", "fontWeight": "400" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "1.3", "fontWeight": "500" }],
+                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "label-caps": ["12px", { "lineHeight": "1.5", "letterSpacing": "0.15em", "fontWeight": "600" }]
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+
+<body class="flex flex-col min-h-screen pt-36">
+    <!-- Sticky Navigation Bar -->
+    <header id="header-wrapper" class="fixed top-0 left-0 w-full z-50 flex flex-col pointer-events-none text-[#3a3230]">
+        <!-- Main Nav -->
+        <nav class="guest-nav relative w-full font-sans pointer-events-auto">
+            <div class="max-w-[1440px] mx-auto px-6 py-4 flex items-center justify-between">
+                <!-- Left Links -->
+                <div class="hidden lg:flex items-center gap-8 text-[13px] uppercase tracking-[0.2em] font-semibold">
+                    <a th:href="@{/living}"
+                        class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200">Nghỉ
+                        Dưỡng</a>
+                    <a th:href="@{/dining}"
+                        class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200">Ẩm Thực</a>
+                    <a th:href="@{/experiences}"
+                        class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200">Trải
+                        Nghiệm</a>
+                    <a th:href="@{/tours/search}" class="nav-text border-b border-current pb-0.5">Hành Trình</a>
+                </div>
+
+                <!-- Center Logo -->
+                <div class="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 font-headline text-[32px] italic tracking-tighter nav-brand text-center cursor-pointer w-max"
+                    onclick="window.location.href='/booking'">
+                    HoaNien
+                </div>
+
+                <!-- Right Actions -->
+                <div class="hidden lg:flex items-center gap-6 text-[13px] uppercase tracking-[0.2em] font-semibold">
+                    <a th:href="@{/profile}" th:if="${isLoggedIn}"
+                        class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200">Hồ Sơ</a>
+                    <form th:action="@{/auth/logout}" method="post" th:if="${isLoggedIn}" class="inline">
+                        <button type="submit"
+                            class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200 uppercase tracking-[0.2em] bg-transparent border-none p-0 cursor-pointer font-sans font-semibold">Đăng
+                            Xuất</button>
+                    </form>
+                    <a th:href="@{/booking}"
+                        class="nav-btn-book px-8 py-3.5 hover:opacity-90 active:scale-[0.98] transition-all duration-200 inline-block text-center text-[13px]">
+                        Đặt Ngay
+                    </a>
+                </div>
+
+                <button class="lg:hidden pointer-events-auto">
+                    <span class="material-symbols-outlined text-3xl nav-menu-icon">menu</span>
+                </button>
+            </div>
+        </nav>
+
+        <!-- Sub-navigation -->
+        <div class="guest-sub-nav w-full font-sans pointer-events-auto">
+            <div
+                class="max-w-[1440px] mx-auto px-6 py-3 flex justify-center gap-8 md:gap-12 text-xs uppercase tracking-[0.15em] font-medium overflow-x-auto">
+                <a th:href="@{/tours/search#journey-1}"
+                    class="sub-nav-text hover:opacity-100 active:scale-95 transition-all duration-200 whitespace-nowrap">Đoàn
+                    Tụ</a>
+                <a th:href="@{/tours/search#journey-2}"
+                    class="sub-nav-text hover:opacity-100 active:scale-95 transition-all duration-200 whitespace-nowrap">Đồng
+                    Nội</a>
+                <a th:href="@{/tours/search#journey-3}"
+                    class="sub-nav-text hover:opacity-100 active:scale-95 transition-all duration-200 whitespace-nowrap">Di
+                    Sản</a>
+                <a th:href="@{/tours/search#journey-4}"
+                    class="sub-nav-text hover:opacity-100 active:scale-95 transition-all duration-200 whitespace-nowrap">Tĩnh
+                    Lặng</a>
+            </div>
+        </div>
+    </header>
+    <!-- Header -->
+    <header
+        class="bg-background border-b border-outline-variant flex justify-between items-center w-full px-margin-desktop py-gutter max-w-container-max mx-auto h-20">
+        <div class="flex items-center gap-10">
+            <a href="/tourguide/dashboard"
+                class="font-headline-md text-headline-md italic text-primary no-underline">Hòa Niên Resort</a>
+            <nav class="hidden md:flex gap-6">
+                <a class="font-label-caps text-label-caps text-primary border-b border-primary pb-1 no-underline"
+                    href="/tourguide/dashboard">
+                    <span class="material-symbols-outlined text-[14px] align-middle mr-1">dashboard</span>Tổng quan
+                </a>
+                <a class="font-label-caps text-label-caps text-on-surface-variant hover:text-primary transition-colors duration-300 no-underline"
+                    href="/tourguide/tour">
+                    <span class="material-symbols-outlined text-[14px] align-middle mr-1">route</span>Lịch trình
+                </a>
+                <a class="font-label-caps text-label-caps text-on-surface-variant hover:text-primary transition-colors duration-300 no-underline"
+                    href="#manifest-section">
+                    <span class="material-symbols-outlined text-[14px] align-middle mr-1">group</span>Hành khách
+                </a>
+                <a class="font-label-caps text-label-caps text-on-surface-variant hover:text-primary transition-colors duration-300 no-underline"
+                    href="#faceid-section">
+                    <span class="material-symbols-outlined text-[14px] align-middle mr-1">face</span>Quét FaceID
+                </a>
+            </nav>
+        </div>
+        <div class="flex items-center gap-4">
+            <div class="text-right">
+                <p class="font-label-caps text-[11px] text-on-surface-variant">Hướng dẫn viên</p>
+                <p class="font-body-md text-body-md text-primary font-medium"
+                    th:text="${username != null ? username : 'Guide'}">Guide</p>
+            </div>
+            <div class="w-10 h-10 bg-surface-container-highest overflow-hidden flex items-center justify-center">
+                <span class="material-symbols-outlined text-[20px] text-on-surface-variant">person</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow flex w-full max-w-container-max mx-auto px-margin-desktop py-8 gap-6"
+        style="padding-bottom: 100px;">
+        <!-- Left: Tour Info -->
+        <section class="w-1/4 flex flex-col faded-entry">
+            <div class="mb-6 p-5 bg-primary text-white">
+                <div class="flex items-center gap-2 mb-3">
+                    <span class="material-symbols-outlined text-champagne text-[18px]">tour</span>
+                    <span class="font-label-caps text-[10px] tracking-widest text-champagne">LỊCH TRÌNH HÔM NAY</span>
+                </div>
+                <h2 class="font-headline-md text-[20px] text-white leading-tight mb-2"
+                    th:text="${tourName != null ? tourName : 'Chưa có tour'}">Chưa có tour</h2>
+                <div class="flex items-center gap-4 mt-3">
+                    <div class="flex items-center gap-1">
+                        <span class="material-symbols-outlined text-champagne text-[14px]">schedule</span>
+                        <span class="font-caption text-[12px] text-champagne"
+                            th:text="${departureTime != null ? departureTime : '--:--'}">--:--</span>
+                    </div>
+                    <div class="flex items-center gap-1">
+                        <span class="material-symbols-outlined text-champagne text-[14px]">calendar_today</span>
+                        <span class="font-caption text-[12px] text-champagne"
+                            th:text="${departureDate != null ? departureDate : ''}"></span>
+                    </div>
+                </div>
+                <div class="mt-3 pt-3 border-t border-white/20 flex items-center justify-between">
+                    <span class="font-caption text-[12px] text-champagne/80">Sức chứa</span>
+                    <span class="font-label-caps text-[12px] text-white"
+                        th:text="${maxCapacity != null ? maxCapacity + ' khách' : 'N/A'}">N/A</span>
+                </div>
+            </div>
+            <!-- Progress -->
+            <div class="mb-6 p-4 bg-surface-container-low border border-outline-variant">
+                <span class="font-label-caps text-[11px] text-on-surface-variant tracking-widest">TIẾN ĐỘ ĐIỂM
+                    DANH</span>
+                <div class="flex items-baseline gap-1 mt-2 mb-3">
+                    <span class="font-headline-md text-[28px] text-primary" th:text="${checkedInCount}">0</span>
+                    <span class="font-body-md text-on-surface-variant">/</span>
+                    <span class="font-body-md text-on-surface-variant" th:text="${totalAttendees}">0</span>
+                    <span class="font-caption text-[12px] text-on-surface-variant ml-1">khách</span>
+                </div>
+                <div class="w-full bg-surface-container-highest h-1.5 overflow-hidden">
+                    <div class="bg-primary h-full transition-all duration-500"
+                        th:style="'width: ' + (${totalAttendees} > 0 ? ${checkedInCount * 100 / totalAttendees} : 0) + '%'">
+                    </div>
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-3 mb-6">
+                <div class="p-3 bg-surface-container-low border border-outline-variant text-center">
+                    <span class="material-symbols-outlined text-[20px] text-green-800 block mb-1">check_circle</span>
+                    <span class="font-headline-md text-[20px] text-primary block" th:text="${checkedInCount}">0</span>
+                    <span class="font-caption text-[10px] text-on-surface-variant">Đã check-in</span>
+                </div>
+                <div class="p-3 bg-surface-container-low border border-outline-variant text-center">
+                    <span class="material-symbols-outlined text-[20px] text-champagne block mb-1">pending</span>
+                    <span class="font-headline-md text-[20px] text-primary block"
+                        th:text="${totalAttendees - checkedInCount}">0</span>
+                    <span class="font-caption text-[10px] text-on-surface-variant">Chờ điểm danh</span>
+                </div>
+            </div>
+            <div th:if="${#lists.isEmpty(attendees)}" class="p-4 bg-yellow-50 border border-yellow-200 text-center">
+                <span class="material-symbols-outlined text-[24px] text-yellow-600 block mb-2">info</span>
+                <p class="font-body-md text-[13px] text-yellow-800">Không có khách đăng ký tour hôm nay.</p>
+            </div>
+            <!-- AI Model Status -->
+            <div id="model-status-card" class="p-3 bg-surface-container-low border border-outline-variant">
+                <div class="flex items-center gap-2 mb-2">
+                    <span class="material-symbols-outlined text-[14px] text-on-surface-variant">psychology</span>
+                    <span class="font-label-caps text-[10px] text-on-surface-variant tracking-widest">AI MODEL</span>
+                </div>
+                <div id="model-status-text" class="font-caption text-[12px] text-on-surface-variant">Đang tải model...
+                </div>
+                <div class="w-full bg-surface-container-highest h-1 mt-2 overflow-hidden">
+                    <div id="model-loading-bar" class="bg-champagne h-full transition-all duration-300"
+                        style="width: 0%"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Middle: Guest Manifest -->
+        <section id="manifest-section"
+            class="w-2/5 flex flex-col faded-entry faded-entry-delay-1 border-x border-outline-variant px-5">
+            <div class="flex justify-between items-end mb-6">
+                <div>
+                    <h2 class="font-label-caps text-label-caps text-primary tracking-widest uppercase">Danh sách hành
+                        khách</h2>
+                    <p class="font-caption text-[11px] text-on-surface-variant mt-1">
+                        <span th:text="${checkedInCount}">0</span> đã điểm danh / <span
+                            th:text="${totalAttendees}">0</span> khách
+                    </p>
+                </div>
+            </div>
+            <div class="flex-grow overflow-y-auto custom-scrollbar">
+                <table class="w-full text-left border-collapse" th:if="${!#lists.isEmpty(attendees)}">
+                    <thead>
+                        <tr class="border-b border-outline-variant">
+                            <th class="py-3 font-label-caps text-[10px] text-on-surface-variant w-8">#</th>
+                            <th class="py-3 font-label-caps text-[10px] text-on-surface-variant">Tên khách hàng</th>
+                            <th class="py-3 font-label-caps text-[10px] text-on-surface-variant text-center">Trạng thái
+                            </th>
+                            <th class="py-3 font-label-caps text-[10px] text-on-surface-variant text-right">Mã</th>
+                        </tr>
+                    </thead>
+                    <tbody class="font-body-md text-body-md text-primary">
+                        <tr th:each="attendee, iter : ${attendees}"
+                            class="border-b border-surface-container transition-colors duration-200 hover:bg-surface-container-low"
+                            th:id="'row-attendee-' + ${attendee.id}">
+                            <td class="py-4 text-[12px] text-on-surface-variant font-label-caps"
+                                th:text="${iter.index + 1}">1</td>
+                            <td class="py-4">
+                                <div class="flex items-center gap-3">
+                                    <div
+                                        class="w-9 h-9 bg-surface-container-highest overflow-hidden flex items-center justify-center flex-shrink-0">
+                                        <span
+                                            class="material-symbols-outlined text-[16px] text-on-surface-variant">person</span>
+                                    </div>
+                                    <div>
+                                        <p class="font-medium text-[14px]"
+                                            th:text="${attendee.customer != null ? attendee.customer.fullName : (attendee.dependent != null ? attendee.dependent.dependentName : 'Ẩn danh')}">
+                                            Tên khách</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="py-4 text-center">
+                                <span th:if="${attendee.status == 'Checked_In'}"
+                                    class="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-label-caps status-checked">
+                                    <span class="material-symbols-outlined text-[12px]">check</span> Đã điểm danh
+                                </span>
+                                <span th:if="${attendee.status == 'Not_Show'}"
+                                    class="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-label-caps status-waiting">
+                                    <span class="w-1.5 h-1.5 bg-yellow-500 rounded-full animate-pulse"></span> Chờ
+                                    FaceID
+                                </span>
+                                <span th:if="${attendee.status != 'Checked_In' && attendee.status != 'Not_Show'}"
+                                    class="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-label-caps status-absent"
+                                    th:text="${attendee.status}"></span>
+                            </td>
+                            <td class="py-4 text-right font-label-caps text-[10px] text-on-surface-variant opacity-50"
+                                th:text="'KR-' + ${1000 + attendee.id}">KR-1001</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div th:if="${#lists.isEmpty(attendees)}"
+                    class="flex flex-col items-center justify-center py-16 text-center">
+                    <span class="material-symbols-outlined text-[48px] text-beige-decorative mb-4">groups</span>
+                    <p class="font-body-md text-on-surface-variant">Chưa có hành khách nào</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Right: FaceID Camera -->
+        <section id="faceid-section" class="w-1/3 flex flex-col faded-entry faded-entry-delay-2 pl-5">
+            <h2 class="font-label-caps text-label-caps text-primary mb-5 tracking-widest uppercase">Điểm danh FaceID
+            </h2>
+            <!-- Camera -->
+            <div class="camera-container" id="camera-container">
+                <video id="camera-video" autoplay playsinline muted
+                    class="absolute inset-0 w-full h-full object-cover"></video>
+                <canvas id="camera-canvas" class="hidden"></canvas>
+                <img id="captured-image" class="absolute inset-0 w-full h-full object-cover hidden" alt="Captured">
+                <div class="absolute inset-0 border-[16px] border-background/80 z-10 pointer-events-none"></div>
+                <div class="corner-mark tl"></div>
+                <div class="corner-mark tr"></div>
+                <div class="corner-mark bl"></div>
+                <div class="corner-mark br"></div>
+                <div class="face-frame" id="face-frame"></div>
+                <div class="scan-line" id="scan-line"></div>
+                <div id="camera-placeholder"
+                    class="absolute inset-0 flex flex-col items-center justify-center z-5 bg-surface-container">
+                    <span class="material-symbols-outlined text-[48px] text-beige-decorative mb-3">photo_camera</span>
+                    <p class="font-body-md text-[13px] text-on-surface-variant">Nhấn "Bật Camera" để bắt đầu</p>
+                </div>
+                <div class="absolute bottom-3 left-1/2 -translate-x-1/2 z-30 bg-primary/90 px-4 py-2 flex items-center gap-2 pointer-events-none"
+                    id="scan-status-bar">
+                    <span class="material-symbols-outlined text-champagne text-[16px]"
+                        style="font-variation-settings: 'FILL' 1;" id="scan-status-icon">face</span>
+                    <span id="scan-status-label" class="font-label-caps text-[10px] tracking-widest text-white">SẴN
+                        SÀNG</span>
+                </div>
+            </div>
+            <!-- Result Card -->
+            <div id="scan-result-card" class="mt-4 p-4 bg-beige-decorative/10 border border-beige-decorative hidden">
+                <div class="result-flash">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="font-label-caps text-[10px] text-on-surface-variant tracking-widest">KẾT QUẢ GẦN
+                            NHẤT</span>
+                        <span id="result-badge"
+                            class="font-label-caps text-[10px] px-2 py-0.5 bg-green-800 text-white">THÀNH CÔNG</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-white overflow-hidden flex items-center justify-center flex-shrink-0">
+                            <span id="result-icon"
+                                class="material-symbols-outlined text-[20px] text-green-800">check_circle</span>
+                        </div>
+                        <div>
+                            <p id="result-name" class="font-body-md text-[14px] text-primary font-medium">--</p>
+                            <p id="result-detail" class="font-caption text-[11px] text-on-surface-variant">--</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Buttons -->
+            <div class="mt-auto space-y-3 pt-4">
+                <button id="btn-camera" onclick="toggleCamera()"
+                    class="w-full border border-primary py-3 font-label-caps text-[11px] text-primary hover:bg-primary hover:text-white transition-all duration-300 flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined text-[16px]" id="camera-icon">videocam</span>
+                    <span id="camera-btn-label">BẬT CAMERA</span>
+                </button>
+                <button id="btn-scan" onclick="captureAndScan()" disabled
+                    class="w-full py-3 font-label-caps text-[11px] transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed bg-primary text-white hover:bg-primary-container">
+                    <span class="material-symbols-outlined text-[16px]">center_focus_strong</span>
+                    CHỤP ẢNH & QUÉT
+                </button>
+                <button id="btn-reset" onclick="resetCamera()" disabled
+                    class="w-full border border-outline-variant py-2.5 font-label-caps text-[11px] text-on-surface-variant hover:border-primary hover:text-primary transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-30 disabled:cursor-not-allowed">
+                    <span class="material-symbols-outlined text-[14px]">refresh</span> ĐẶT LẠI
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer
+        class="fixed bottom-0 left-0 w-full bg-background border-t border-outline-variant py-3 px-margin-desktop z-50">
+        <div class="max-w-container-max mx-auto flex justify-between items-center">
+            <p class="font-caption text-[11px] text-on-surface-variant opacity-60">© 2026 HoaNien Retreat Resort. AI Face
+                Recognition v1.0</p>
+            <div class="flex items-center gap-6">
+                <div id="camera-indicator" class="flex items-center gap-2 opacity-0 transition-opacity duration-300">
+                    <span class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+                    <span class="font-caption text-[10px] text-red-600">CAMERA ĐANG BẬT</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Toast -->
+    <div id="toast" class="fixed top-24 right-8 z-[110] hidden">
+        <div class="bg-primary text-white px-6 py-4 flex items-center gap-3 shadow-xl max-w-sm faded-entry">
+            <span class="material-symbols-outlined text-champagne text-[20px]" id="toast-icon">info</span>
+            <div>
+                <p class="font-body-md text-[13px] font-medium" id="toast-title">Thông báo</p>
+                <p class="font-caption text-[11px] opacity-80" id="toast-message">Nội dung</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================================
+        // HOANIEN RESORT - AI FACE RECOGNITION (Browser-based)
+        // Sử dụng face-api.js cho nhận diện khuôn mặt hoàn toàn trên web
+        // ============================================================
+
+        const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.12/model/';
+        const FACE_MATCH_THRESHOLD = 0.6; // Ngưỡng khoảng cách (thấp hơn = chính xác hơn)
+        const MIN_CONFIDENCE = 85; // % tin cậy tối thiểu theo BR-TR-02
+
+        let cameraStream = null;
+        let cameraActive = false;
+        let isScanning = false;
+        let modelsLoaded = false;
+        let referenceDescriptors = []; // [{name, descriptor, imageUrl}]
+
+        // ==================== MODEL LOADING ====================
+        async function loadModels() {
+            const statusText = document.getElementById('model-status-text');
+            const loadingBar = document.getElementById('model-loading-bar');
+
+            try {
+                statusText.textContent = 'Đang tải Face Detector (SSD)...';
+                loadingBar.style.width = '20%';
+                await faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL);
+
+                statusText.textContent = 'Đang tải Face Landmark...';
+                loadingBar.style.width = '50%';
+                await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
+
+                statusText.textContent = 'Đang tải Face Recognition...';
+                loadingBar.style.width = '80%';
+                await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
+
+                modelsLoaded = true;
+                loadingBar.style.width = '100%';
+                statusText.textContent = '✓ Model sẵn sàng';
+                statusText.className = 'font-caption text-[12px] text-green-800 font-medium';
+
+                // Load reference faces
+                await loadReferenceFaces();
+            } catch (err) {
+                console.error('Model loading error:', err);
+                loadingBar.style.width = '0%';
+                statusText.textContent = '✗ Lỗi tải model - Fallback mode';
+                statusText.className = 'font-caption text-[12px] text-red-800';
+                // Don't block the UI - allow manual verification
+            }
+        }
+
+        async function loadReferenceFaces() {
+            try {
+                const response = await fetch('/api/faceid/references');
+                const refs = await response.json();
+
+                for (const ref of refs) {
+                    try {
+                        const img = await loadImage(ref.imageUrl);
+                        const detection = await faceapi
+                            .detectSingleFace(img, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.5 }))
+                            .withFaceLandmarks()
+                            .withFaceDescriptor();
+
+                        if (detection) {
+                            referenceDescriptors.push({
+                                name: ref.name,
+                                descriptor: detection.descriptor,
+                                imageUrl: ref.imageUrl
+                            });
+                            console.log(`✓ Loaded reference: ${ref.name}`);
+                        } else {
+                            console.warn(`⚠ No face found in reference image: ${ref.name}`);
+                        }
+                    } catch (e) {
+                        console.warn(`Failed to load reference for ${ref.name}:`, e);
+                    }
+                }
+                console.log(`Loaded ${referenceDescriptors.length} reference faces`);
+            } catch (err) {
+                console.error('Failed to load reference faces:', err);
+            }
+        }
+
+        function loadImage(src) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.crossOrigin = 'anonymous';
+                img.onload = () => resolve(img);
+                img.onerror = reject;
+                img.src = src;
+            });
+        }
+
+        // ==================== CAMERA ====================
+        async function toggleCamera() {
+            if (cameraActive) { stopCamera(); } else { await startCamera(); }
+        }
+
+        async function startCamera() {
+            try {
+                cameraStream = await navigator.mediaDevices.getUserMedia({
+                    video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: 'user' }
+                });
+                const video = document.getElementById('camera-video');
+                video.srcObject = cameraStream;
+                await video.play();
+                cameraActive = true;
+                document.getElementById('camera-placeholder').classList.add('hidden');
+                document.getElementById('btn-camera').className = 'w-full border border-red-600 py-3 font-label-caps text-[11px] text-red-600 hover:bg-red-600 hover:text-white transition-all duration-300 flex items-center justify-center gap-2';
+                document.getElementById('camera-icon').textContent = 'videocam_off';
+                document.getElementById('camera-btn-label').textContent = 'TẮT CAMERA';
+                document.getElementById('btn-scan').disabled = false;
+                document.getElementById('btn-scan').classList.remove('disabled:opacity-40', 'disabled:cursor-not-allowed');
+                document.getElementById('camera-indicator').style.opacity = '1';
+                document.getElementById('scan-status-label').textContent = 'SẴN SÀNG QUÉT';
+                document.getElementById('scan-status-icon').textContent = 'face';
+                document.getElementById('captured-image').classList.add('hidden');
+                document.getElementById('btn-reset').disabled = true;
+            } catch (err) {
+                console.error('Camera error:', err);
+                showToast('error', 'Không thể truy cập camera', 'Cho phép camera trong trình duyệt.');
+            }
+        }
+
+        function stopCamera() {
+            if (cameraStream) { cameraStream.getTracks().forEach(t => t.stop()); cameraStream = null; }
+            cameraActive = false;
+            document.getElementById('camera-video').srcObject = null;
+            document.getElementById('camera-placeholder').classList.remove('hidden');
+            document.getElementById('btn-camera').className = 'w-full border border-primary py-3 font-label-caps text-[11px] text-primary hover:bg-primary hover:text-white transition-all duration-300 flex items-center justify-center gap-2';
+            document.getElementById('camera-icon').textContent = 'videocam';
+            document.getElementById('camera-btn-label').textContent = 'BẬT CAMERA';
+            document.getElementById('btn-scan').disabled = true;
+            document.getElementById('btn-scan').classList.add('disabled:opacity-40', 'disabled:cursor-not-allowed');
+            document.getElementById('camera-indicator').style.opacity = '0';
+        }
+
+        function resetCamera() {
+            document.getElementById('captured-image').classList.add('hidden');
+            document.getElementById('captured-image').src = '';
+            document.getElementById('camera-video').classList.remove('hidden');
+            document.getElementById('btn-reset').disabled = true;
+            document.getElementById('scan-result-card').classList.add('hidden');
+            document.getElementById('face-frame').className = 'face-frame';
+            document.getElementById('scan-status-label').textContent = 'SẴN SÀNG QUÉT';
+            document.getElementById('scan-status-icon').textContent = 'face';
+            document.getElementById('scan-line').classList.remove('active');
+        }
+
+        // ==================== FACE SCAN ====================
+        async function captureAndScan() {
+            if (!cameraActive || isScanning) return;
+            isScanning = true;
+
+            const video = document.getElementById('camera-video');
+            const canvas = document.getElementById('camera-canvas');
+            const capturedImg = document.getElementById('captured-image');
+            const scanLine = document.getElementById('scan-line');
+            const faceFrame = document.getElementById('face-frame');
+            const statusLabel = document.getElementById('scan-status-label');
+            const statusIcon = document.getElementById('scan-status-icon');
+            const btnScan = document.getElementById('btn-scan');
+            const btnReset = document.getElementById('btn-reset');
+
+            // Capture frame
+            canvas.width = video.videoWidth || 640;
+            canvas.height = video.videoHeight || 480;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const imageData = canvas.toDataURL('image/jpeg', 0.9);
+
+            // Show captured image
+            capturedImg.src = imageData;
+            capturedImg.classList.remove('hidden');
+            video.classList.add('hidden');
+
+            // Scanning animation
+            statusLabel.textContent = 'ĐANG QUÉT...';
+            statusIcon.textContent = 'sync';
+            statusIcon.style.animation = 'spin 1s linear infinite';
+            scanLine.classList.add('active');
+            faceFrame.className = 'face-frame scanning';
+            btnScan.disabled = true;
+
+            let matchResult = null;
+
+            try {
+                if (modelsLoaded && referenceDescriptors.length > 0) {
+                    // === FACE-API.JS RECOGNITION (Client-side) ===
+                    const img = await loadImage(imageData);
+                    const detection = await faceapi
+                        .detectSingleFace(img, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.5 }))
+                        .withFaceLandmarks()
+                        .withFaceDescriptor();
+
+                    if (detection) {
+                        let bestDistance = Infinity;
+                        let bestName = null;
+
+                        for (const ref of referenceDescriptors) {
+                            const distance = faceapi.euclideanDistance(detection.descriptor, ref.descriptor);
+                            console.log(`Distance to ${ref.name}: ${distance.toFixed(4)}`);
+                            if (distance < bestDistance) {
+                                bestDistance = distance;
+                                bestName = ref.name;
+                            }
+                        }
+
+                        let confidence;
+                        if (bestDistance <= FACE_MATCH_THRESHOLD) {
+                            confidence = 100.0 - (bestDistance / FACE_MATCH_THRESHOLD) * 15.0;
+                        } else {
+                            confidence = Math.max(0.0, 85.0 - ((bestDistance - FACE_MATCH_THRESHOLD) / (1.0 - FACE_MATCH_THRESHOLD)) * 85.0);
+                        }
+                        console.log(`Best match: ${bestName}, distance: ${bestDistance.toFixed(4)}, confidence: ${confidence.toFixed(1)}%`);
+
+                        if (bestDistance < FACE_MATCH_THRESHOLD && confidence >= MIN_CONFIDENCE) {
+                            matchResult = { name: bestName, confidence: confidence };
+                        }
+                    }
+                } else {
+                    // === FALLBACK: Gửi ảnh lên server xử lý ===
+                    const response = await fetch('/api/faceid/scan', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ image: imageData })
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                        matchResult = { name: data.name, confidence: 100 };
+                    }
+                }
+            } catch (err) {
+                console.error('Face scan error:', err);
+            }
+
+            // Stop scanning animation
+            scanLine.classList.remove('active');
+            statusIcon.style.animation = '';
+
+            if (matchResult) {
+                // === SUCCESS ===
+                faceFrame.className = 'face-frame matched';
+                statusLabel.textContent = 'ĐÃ XÁC THỰC';
+                statusIcon.textContent = 'check_circle';
+                showScanResult(true, matchResult.name, `Tin cậy: ${matchResult.confidence.toFixed(1)}%`);
+                showToast('success', 'Điểm danh thành công', matchResult.name + ' đã được xác thực.');
+
+                // Gửi kết quả lên server để cập nhật DB
+                try {
+                    await fetch('/api/faceid/verify', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ name: matchResult.name })
+                    });
+                } catch (e) {
+                    console.warn('Failed to update server:', e);
+                }
+
+                setTimeout(() => { window.location.reload(); }, 2500);
+            } else {
+                // === FAILED ===
+                faceFrame.className = 'face-frame failed';
+                statusLabel.textContent = 'KHÔNG KHỚP';
+                statusIcon.textContent = 'error';
+                showScanResult(false, null, 'Không nhận diện được khuôn mặt. Thử lại.');
+                setTimeout(() => { faceFrame.className = 'face-frame'; }, 3000);
+            }
+
+            isScanning = false;
+            btnScan.disabled = false;
+            btnReset.disabled = false;
+        }
+
+        function showScanResult(success, name, detail) {
+            const card = document.getElementById('scan-result-card');
+            const badge = document.getElementById('result-badge');
+            const icon = document.getElementById('result-icon');
+            card.classList.remove('hidden');
+            if (success) {
+                badge.textContent = 'THÀNH CÔNG';
+                badge.className = 'font-label-caps text-[10px] px-2 py-0.5 bg-green-800 text-white';
+                icon.textContent = 'check_circle';
+                icon.className = 'material-symbols-outlined text-[20px] text-green-800';
+                document.getElementById('result-name').textContent = name;
+                document.getElementById('result-detail').textContent = detail;
+            } else {
+                badge.textContent = 'THẤT BẠI';
+                badge.className = 'font-label-caps text-[10px] px-2 py-0.5 bg-red-800 text-white';
+                icon.textContent = 'cancel';
+                icon.className = 'material-symbols-outlined text-[20px] text-red-800';
+                document.getElementById('result-name').textContent = 'Không nhận diện được';
+                document.getElementById('result-detail').textContent = detail;
+            }
+        }
+
+        // ==================== TOAST ====================
+        function showToast(type, title, message) {
+            const toast = document.getElementById('toast');
+            const icon = document.getElementById('toast-icon');
+            document.getElementById('toast-title').textContent = title;
+            document.getElementById('toast-message').textContent = message;
+            icon.textContent = type === 'success' ? 'check_circle' : 'error';
+            icon.className = type === 'success'
+                ? 'material-symbols-outlined text-green-300 text-[20px]'
+                : 'material-symbols-outlined text-red-300 text-[20px]';
+            toast.classList.remove('hidden');
+            setTimeout(() => { toast.classList.add('hidden'); }, 4000);
+        }
+
+        // ==================== INIT ====================
+        document.addEventListener('DOMContentLoaded', function () {
+            loadModels();
+        });
+    </script>
+</body>
+
+</html>

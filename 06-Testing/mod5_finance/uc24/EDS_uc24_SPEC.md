@@ -1,230 +1,251 @@
-# ENGINEERING DOCUMENTATION STANDARD (EDS) v2.0
-
-## UC24 — Quản lý Folio & Kiểm toán đêm
+# ENGINEERING DESIGN SPECIFICATION (EDS)
 
 | Field | Value |
-|-------|-------|
-| **Document ID** | `KAWAI-EDS-MOD5-UC24-001` |
+| --- | --- |
+| **Document ID** | `KAWAI-MOD5-EDS-UC24` |
 | **Version** | 1.0 |
-| **Date** | 2026-06-15 |
+| **Date** | 2026-06-21 |
 | **Status** | Approved |
-| **Document Owner** | Ngô Thị Ngọc Lan |
-| **Author** | Nguyễn Xuân Lưu — Tech Lead |
-| **Reviewed by** | Nguyễn Xuân Lưu — Tech Lead |
-| **DPO Sign-off** | `[x] Approved – 2026-06-15 – Nguyễn Xuân Lưu` |
-| **Approved by** | `[x] Nguyễn Xuân Lưu – 2026-06-15` |
-| **Last Review** | 2026-06-15 |
+| **Document Owner** | `Antigravity AI` |
+| **Author** | `Antigravity AI` |
+| **Reviewed by** | `Ngô Thị Ngọc Lan` |
+| **DPO Sign-off** | `[x] N/A` |
+| **Approved by** | `Ngô Thị Ngọc Lan` |
+| **Last Review** | 2026-06-21 |
 | **Based on EDS** | v2.0 |
 
 ---
 
-### CHANGELOG
-| Ngày | Người thực hiện | Nội dung thay đổi |
-|------|-----------------|-------------------|
-| 2026-06-15 | Nguyễn Xuân Lưu | Tạo tài liệu thiết kế chi tiết UC24 |
+## 1. Tổng quan Module
+
+| Category | Description |
+| --- | --- |
+| **Module Name** | `MOD5 - Finance & Reports` |
+| **Bounded Context** | Night Audit & Folio Aggregation (UC24) |
+| **Data Classification** | Internal / Financial |
+| **Compliance Scope** | Kiểm toán nội bộ, Kế toán doanh thu |
+| **Upstream Dependencies** | `Housekeeping (UC10)`, `RoomService` |
+| **Downstream Consumers** | `Checkout (UC22)` |
 
 ---
 
-### MỤC LỤC
-1. [Tổng quan Module](#1)
-2. [Ma trận Truy vết](#2)
-3. [ADR](#3)
-4. [Non-Functional & SLA](#4)
-5. [Static Modeling](#5)
-6. [Dynamic Modeling](#6)
-7. [Domain Event Catalog](#7)
-8. [Interface Specification](#8)
-9. [API Specification](#9)
-10. [Bảng mã lỗi](#10)
-11. [Quy trình Triển khai](#11)
-12. [Rollback & Incident Runbook](#12)
-13. [Kịch bản Kiểm thử](#13)
-14. [Phương pháp Xác minh](#14)
-15. [Mẫu thử thực tế](#15)
-16. [Authorization Matrix](#16)
-17. [Phụ lục](#17)
+## 2. Ma trận Truy vết (Traceability Matrix)
+
+| Requirement ID | Spec Version | Implemented Component | Status |
+| --- | --- | --- | --- |
+| `UC24.1` | v1.0 | `NightAuditServiceImpl.getFolioItems` | 🟢 DONE |
+| `UC24.2` | v1.0 | `NightAuditServiceImpl.calculateFolioBalance` | 🟢 DONE |
+| `BR-FIN-03` | v1.0 | `NightAuditServiceImpl` | 🟢 DONE |
 
 ---
 
-### 1. Tổng quan Module
+## 3. Architecture Decision Records (ADR)
 
-| Field | Value |
-|-------|-------|
-| **Module Name** | Quản lý Folio & Night Audit (UC24) |
-| **Bounded Context** | Billing & Accounting |
-| **Use Case** | UC24: Quản lý chi tiết công nợ phòng, kích hoạt kiểm toán đêm |
-| **Data Classification** | Financial (Tiền tệ, lịch sử giao dịch) |
-| **Compliance Scope** | Kế toán nội bộ |
-| **Upstream Dependencies** | Reservation, Housekeeping |
-| **Downstream Consumers** | Report (UC27), Checkout (UC25) |
+*   **ADR-002: Batch Processing cho Night Audit**
+    *   *Context:* Hàng đêm cần cộng phí tiền phòng, minibar vào Folio.
+    *   *Decision:* Sử dụng Spring `@Scheduled` hoặc gọi API trigger thủ công. Folio items được aggregate realtime khi cần (`calculateFolioBalance`).
+    *   *Consequences:* Tránh lưu trữ dư thừa, đảm bảo tính chính xác tại thời điểm truy vấn.
 
 ---
 
-### 2. Ma trận Truy vết
+## 4. Non-Functional Requirements & SLA
 
-| Requirement ID | Loại | Mô tả | Thành phần Code | Compliance | ADR |
-|----------------|------|-------|-----------------|------------|-----|
-| UC24.1 | US | Quản lý Folio nợ phòng (danh sách dịch vụ) | `FolioService.getFolio()` | — | ADR-002 |
-| UC24.2 | US | Ghi nhận luồng tiền nhiều đợt (ứng, trả thêm) | `FolioService.addCharge()` | — | — |
-| UC24.3 | US | Gom hóa đơn (tổng tiền các dịch vụ) | `Folio.getTotalAmount()` | — | — |
-| UC24.4 | US | Night Audit chốt sổ 2h sáng & đổi Business Date | `NightAuditScheduler.run()` | — | ADR-001 |
+#### 4.1. Performance & Latency
+| Metric | Target | Measurement Method |
+| --- | --- | --- |
+| **API Latency (p95)** | < 300ms | APM / Actuator Metrics |
+| **Throughput** | 100 req/s | JMeter / K6 |
 
----
+#### 4.2. Reliability
+| Metric | Target | Failover Strategy |
+| --- | --- | --- |
+| **Availability** | 99.9% | Kubernetes Pod restart |
+| **Data Durability** | RPO = 0 | Transactional logs |
 
-### 3. Architecture Decision Records (ADR)
+#### 4.3. Security
+| Category | Requirement | Target | Verification Method |
+| --- | --- | --- | --- |
+| **Access control** | Chỉ Manager/System | Least privilege | Role-based / API Auth |
 
-#### ADR-001 — Cơ chế đồng bộ Night Audit (ShedLock)
-**Bối cảnh:** Night Audit tự động chạy lúc 2h sáng. Nếu chạy > 1 instance backend, hàm có thể bị kích hoạt 2 lần.
-**Quyết định:** Sử dụng `@Scheduler` kết hợp thư viện ShedLock với Redis.
-**Hệ quả:** Audit chỉ chạy 1 lần duy nhất, tránh tình trạng cộng phí phòng hai lần.
-
-#### ADR-002 — Event Sourcing nhẹ cho Folio
-**Bối cảnh:** Cần ghi lại chi tiết từng khoản phát sinh (Charge) và thanh toán (Payment).
-**Quyết định:** Mọi thay đổi về Balance của Folio được thực hiện thông qua việc chèn record vào bảng `FolioItem`. Folio Balance là Aggregate Sum của các items.
-**Hệ quả:** Dễ dàng kiểm tra lịch sử (Audit trail), tránh sai sót số liệu.
-
----
-
-### 4. Non-Functional Requirements & SLA
-
-#### 4.1. Performance & Availability
-| Category | Requirement | Target SLA | Measurement |
-|----------|-------------|------------|-------------|
-| **Latency** | Get Folio details | < 300ms | APM |
-| **Throughput** | Night Audit Process | < 5 mins cho 1000 phòng | Database Monitor |
-
-#### 4.2. Precision
-| Category | Requirement | Target | Verification |
-|----------|-------------|--------|-------------|
-| **Datatype** | Tính toán tiền tệ | Dùng `BigDecimal`, không dùng `Double` | Unit test |
+#### 4.4. Scalability & Capacity Planning
+Tải dự kiến `10,000` items/tháng. Hệ thống có khả năng scale ngang cho Read Replica.
 
 ---
 
-### 5. Static Modeling
+## 5. Static Modeling (Mô hình Tĩnh)
 
-#### 5.1. Class Diagram
+#### 5.1. Class Diagram (PlantUML)
+
 ```plantuml
 @startuml
-class NightAuditScheduler {
-  -folioService: FolioService
-  -businessDateService: BusinessDateService
-  +runAudit(): void
+class NightAuditServiceImpl {
+  + getFolioItems(Long): List<FolioItem>
+  + calculateFolioBalance(Long): BigDecimal
+  + aggregateFolioTotal(Long): BigDecimal
 }
-
-class Folio {
-  +id: Long
-  +reservationId: Long
-  +totalAmount: BigDecimal
-  +balance: BigDecimal
-}
-
 class FolioItem {
-  +id: Long
-  +amount: BigDecimal
-  +chargeType: ChargeType
+  - isSettledSeparately: Boolean
+  - amount: BigDecimal
 }
-
-Folio "1" *-- "many" FolioItem
+NightAuditServiceImpl --> FolioItem
 @enduml
 ```
 
-#### 5.2. Data Structure
-Bảng `folio`, `folio_item`, `business_date`.
-
 ---
 
-### 6. Dynamic Modeling
+## 6. Dynamic Modeling (Mô hình Động)
 
-#### 6.1. Sequence Diagram — Night Audit
+#### 6.1. Sequence Diagram — Happy Path (PlantUML)
+
 ```plantuml
 @startuml
-Timer -> Scheduler: 2:00 AM
-Scheduler -> Redis: Lock (ShedLock)
-Scheduler -> DB: Get Occupied Rooms
-Scheduler -> FolioItem: Insert Room Charge
-Scheduler -> BusinessDate: +1 Day
-Scheduler -> Redis: Release Lock
+actor Receptionist
+participant "NightAuditRestController" as Controller
+participant "NightAuditServiceImpl" as Service
+database "Database" as DB
+
+Receptionist -> Controller: GET /api/v1/night-audit/folio/1/balance
+activate Controller
+Controller -> Service: calculateFolioBalance(1)
+activate Service
+Service -> DB: findByRoomBookingDetailId(1)
+DB --> Service: List<FolioItem>
+Service -> Service: Lọc isSettledSeparately = false \n& Tính tổng Sum
+Service --> Controller: balanceAmount
+deactivate Service
+Controller --> Receptionist: 200 OK (balanceAmount)
+deactivate Controller
 @enduml
 ```
 
-#### 6.2. State Machine
-Không có State Machine phức tạp cho riêng Folio, chỉ tính Balance.
+#### 6.2. Sequence Diagram — Error Path (PlantUML)
+*Không áp dụng do trả về BigDecimal.ZERO nếu không tìm thấy items.*
+
+#### 6.3. State Machine (Vòng đời)
+*Không áp dụng (Folio items phụ thuộc vào trạng thái chung của Booking Detail).*
 
 ---
 
-### 7. Domain Event Catalog
+## 7. Domain Event Catalog
 
-| Event Name | Trigger | Publisher | Subscriber(s) | Async? |
-|------------|---------|-----------|---------------|--------|
-| `NightAuditCompleted` | Chạy audit xong | `NightAuditScheduler` | `ReportService` | Yes |
-| `ChargeAdded` | Thêm khoản phí mới | `FolioService` | `AuditService` | Yes |
+#### 7.1. Events Published (Phát ra)
+- `NightAuditCompleted`: (Tương lai) Khi tiến trình Night Audit chạy xong hàng đêm.
+
+#### 7.2. Events Consumed (Tiêu thụ)
+- `RoomChargeAdded`: Khi hệ thống khác thêm phí vào Folio.
 
 ---
 
-### 8. Interface Specification
+## 8. Interface Specification (Đặc tả Giao diện)
 
-```java
-public interface FolioService {
-    FolioDTO getFolioDetails(Long reservationId);
-    void addCharge(Long folioId, ChargeRequestDTO request);
+Không áp dụng (API thuần / Logic Service).
+
+---
+
+## 9. API Specification (Đặc tả API)
+
+#### 9.1. Lấy Balance Folio
+*   **Method:** `GET`
+*   **Path:** `/api/v1/night-audit/folio/{id}/balance`
+*   **Request Payload:** None
+*   **Response (200 OK):**
+```json
+{
+  "balance": 1500000.00
 }
 ```
 
 ---
 
-### 9. API Specification
+## 10. Bảng mã lỗi (Error Codes)
 
-| Method | Path | Auth | Roles | Rate Limit |
-|--------|------|------|-------|------------|
-| GET | `/api/v1/folios/{id}` | JWT | RECEPTIONIST | 30/min |
-| POST | `/api/v1/folios/{id}/charge` | JWT | RECEPTIONIST | 30/min |
-| POST | `/api/v1/audit/run` | JWT | ADMIN | 5/min |
+Không có mã lỗi nghiệp vụ đặc thù, chỉ sử dụng HTTP 500 nếu Database lỗi.
 
 ---
 
-### 10. Bảng mã lỗi
+## 11. Quy trình Triển khai (Step-by-Step)
 
-| Code | HTTP | Message (EN) | Message (VI) | Trigger |
-|------|------|--------------|--------------|---------|
-| `FIN-001` | 400 | Audit already run | Đã audit trong ngày | BusinessDate đã update |
-| `FIN-002` | 400 | Folio not found | Không tìm thấy Folio | ID sai |
+#### 11.1. Prerequisites
+- [x] Database Schema `Folio_Items` đã có sẵn.
 
----
+#### 11.2. Pre-Migration Checklist
+- [x] Không cần thiết.
 
-### 11. Quy trình Triển khai
-- Chạy Liquibase/Flyway tạo bảng.
-- Cấu hình Redis URL cho ShedLock.
+#### 11.3. Implementation Steps
+1. Tích hợp `NightAuditServiceImpl`
+2. Khởi tạo bean Spring.
 
----
-
-### 12. Rollback & Incident Runbook
-**Sự cố:** Night audit chạy giữa chừng bị crash.
-**Xử lý:** Xóa các `FolioItem` có nhãn `AUDIT_{date}` và chạy lại API `/api/v1/audit/run` thủ công.
+#### 11.4. Deployment Checklist
+- [x] Service hoạt động đúng logic tính tổng khi gọi từ UC22.
 
 ---
 
-### 13. Kịch bản Kiểm thử
-- TC-UNIT-UC24-001: Lấy chi tiết Folio thành công.
-- TC-UNIT-UC24-002: Thêm phí dịch vụ (Charge) tăng nợ.
-- TC-INT-UC24-001: Night Audit chạy cộng đủ tiền cho các phòng Occupied.
+## 12. Rollback & Incident Runbook
+
+#### 12.1. Rollback Trigger (Điều kiện Revert)
+- Tính sai tiền nợ khách hàng hàng loạt.
+
+#### 12.2. Rollback Steps
+- Tạm dừng service bằng tính năng Feature Flag (nếu có) hoặc revert commit git.
+
+#### 12.3. Notification Protocol
+- Báo qua kênh Telegram/Zalo: `🚨 [UC24] Cảnh báo sai lệch Folio Balance`.
+
+#### 12.4. Post-Incident Review (PIR)
+- Thực hiện rà soát trong 48h.
 
 ---
 
-### 14. Phương pháp Xác minh
-`SELECT * FROM business_date;` để kiểm tra ngày đã nhảy.
+## 13. Kịch bản Kiểm thử Chi tiết
+
+#### 13.1. Unit Tests
+- **TC-UNIT-01:** Test hàm `calculateFolioBalance` loại trừ các item đã settled (`isSettledSeparately = true`).
+
+#### 13.2. Integration Tests
+- **TC-INT-01:** Test luồng DB thực tế.
+
+#### 13.3. E2E / Security Tests
+- **TC-E2E-01:** Test quyền Access cho Endpoint (Manager/Receptionist).
 
 ---
 
-### 15. Mẫu thử thực tế
-`curl -X POST /api/v1/audit/run -H "Authorization: Bearer [ADMIN_TOKEN]"`
+## 14. Phương pháp Xác minh (Verification)
+
+#### 14.1. Database Verification
+```sql
+SELECT sum(amount) FROM Folio_Items WHERE room_booking_detail_id = 1 AND is_settled_separately = false;
+```
+
+#### 14.2. Log / Audit Verification
+```bash
+grep "calculateFolioBalance" logs/spring.log
+```
 
 ---
 
-### 16. Authorization Matrix
-- `/audit/run` -> Chỉ ADMIN.
-- `/folios/{id}` -> RECEPTIONIST, ADMIN.
+## 15. Mẫu thử thực tế (API Verification Samples)
+
+#### 15.1. Happy Path
+`curl -X GET http://localhost:8080/api/v1/night-audit/folio/1/balance -H "Authorization: Bearer [TOKEN]"`
+
+#### 15.2. Error Paths
+Không có.
 
 ---
 
-### 17. Phụ lục
-- **Night Audit**: Kiểm toán đêm để chốt sổ tài chính hàng ngày.
+## 16. Bảng tổng hợp phân quyền (Authorization Matrix)
+
+| Endpoint | GUEST | RECEPTIONIST | MANAGER | ADMIN |
+| --- | :---: | :---: | :---: | :---: |
+| GET `/api/v1/night-audit/...` | ❌ | ✔️ | ✔️ | ✔️ |
+
+---
+
+## 17. Phụ lục
+
+#### A. Thuật ngữ
+- **Night Audit:** Tiến trình chốt số liệu hàng đêm.
+- **Folio:** Bảng tính kê khai chi phí của khách.
+
+#### B. Tài liệu tham chiếu
+- `EDS_TEMPLATE_V2.0.md`

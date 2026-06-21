@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Dashboard — Hoanien Retreat Operations Hub</title>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" th:href="@{/admin/css/theme.css}"  href="../../static/admin/css/theme.css"/>
+    <link rel="stylesheet" th:href="@{/admin/css/admin.css}"  href="../../static/admin/css/admin.css"/>
+</head>
+<body>
+
+<!-- ═══════════════════════ SIDEBAR ═══════════════════════ -->
+<aside class="adm-sidebar">
+    <!-- Logo -->
+    <div class="adm-sidebar-logo">
+        <div class="adm-sidebar-brand">
+            <div class="adm-sidebar-dot">✦</div>
+            <span class="adm-sidebar-brand-name">Hoanien Retreat</span>
+        </div>
+        <h1 class="adm-sidebar-title">Operations Hub</h1>
+    </div>
+
+    <!-- Nav -->
+    <nav class="adm-nav">
+        <!-- Dashboard (Active) -->
+        <div class="adm-nav-item">
+            <a href="/admin/dashboard" class="adm-nav-link active">
+                <span class="adm-nav-icon"><i data-lucide="layout-dashboard"></i></span>
+                <span class="adm-nav-label">Tổng quan</span>
+            </a>
+        </div>
+
+        <!-- Master Data -->
+        <div class="adm-nav-item">
+            <button id="master-data-toggle" class="adm-nav-link">
+                <span class="adm-nav-icon"><i data-lucide="database"></i></span>
+                <span class="adm-nav-label">Master Data</span>
+                <span class="adm-nav-arrow" id="master-data-arrow"><i data-lucide="chevron-right"></i></span>
+            </button>
+            <div id="master-data-submenu" class="adm-submenu">
+                <a href="/admin/master-data?tab=Room%20Categories" class="adm-submenu-link"><i data-lucide="layers"></i> Room Categories</a>
+                <a href="/admin/master-data?tab=Rooms"             class="adm-submenu-link"><i data-lucide="bed-double"></i> Rooms</a>
+                <a href="/admin/master-data?tab=Restaurant%20Menu" class="adm-submenu-link"><i data-lucide="utensils-crossed"></i> Restaurant Menu</a>
+                <a href="/admin/master-data?tab=Menu%20Categories" class="adm-submenu-link"><i data-lucide="tag"></i> Menu Categories</a>
+                <a href="/admin/master-data?tab=Tour%20Categories" class="adm-submenu-link"><i data-lucide="layers"></i> Tour Categories</a>
+                <a href="/admin/master-data?tab=Tours"             class="adm-submenu-link"><i data-lucide="map-pin"></i> Tours</a>
+                <a href="/admin/master-data?tab=Account%20Management" class="adm-submenu-link"><i data-lucide="user-cog"></i> Account Management</a>
+                <a href="/admin/master-data?tab=Promotions"        class="adm-submenu-link"><i data-lucide="ticket"></i> Promotions</a>
+                <a href="/admin/master-data?tab=Pricing%20Management" class="adm-submenu-link"><i data-lucide="database"></i> Pricing Management</a>
+            </div>
+        </div>
+
+        <!-- Audit Log -->
+        <div class="adm-nav-item">
+            <a href="/admin/audit-log" class="adm-nav-link">
+                <span class="adm-nav-icon"><i data-lucide="clipboard-list"></i></span>
+                <span class="adm-nav-label">Audit Log</span>
+            </a>
+        </div>
+
+        <!-- Reviews -->
+        <div class="adm-nav-item">
+            <a href="/admin/reviews" class="adm-nav-link">
+                <span class="adm-nav-icon"><i data-lucide="star"></i></span>
+                <span class="adm-nav-label">Review Management</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Footer -->
+    <div class="adm-sidebar-footer">
+        <div class="adm-sidebar-user">
+            <div class="adm-sidebar-avatar" th:text="${#authentication != null ? #strings.substring(#authentication.name, 0, 2).toUpperCase() : 'AD'}">AD</div>
+            <div>
+                <div class="adm-sidebar-name" th:text="${#authentication != null ? #authentication.name : 'Admin Dũng'}">Admin Dũng</div>
+                <div class="adm-sidebar-role" th:text="${#authentication != null and #authentication.authorities != null and !#authentication.authorities.isEmpty() ? #strings.replace(#authentication.authorities[0].authority, 'ROLE_', '') : 'User'}">Admin</div>
+            </div>
+        </div>
+    </div>
+</aside>
+
+<!-- ═══════════════════════ MAIN ═══════════════════════ -->
+<div class="adm-main">
+
+    <!-- Header -->
+    <header class="adm-header">
+        <div class="adm-header-left">
+            <span class="adm-breadcrumb-site">Hoanien Retreat</span>
+            <span class="adm-breadcrumb-sep">/</span>
+            <span class="adm-breadcrumb-page">Dashboard</span>
+        </div>
+        <div class="adm-header-right">
+            <button class="adm-header-icon-btn" id="btn-header-search"><i data-lucide="search"></i></button>
+            <button class="adm-header-icon-btn" id="btn-header-bell">
+                <i data-lucide="bell"></i>
+                <span class="adm-notif-dot"></span>
+            </button>
+            <div class="adm-divider-v"></div>
+            <div class="adm-header-user-box">
+                <div class="adm-header-avatar" th:text="${#authentication != null ? #strings.substring(#authentication.name, 0, 2).toUpperCase() : 'AD'}">AD</div>
+                <span class="adm-header-username" th:text="${#authentication != null ? #authentication.name : 'Admin Dũng'}">Admin Dũng</span>
+            </div>
+            <div class="adm-divider-v"></div>
+            <a href="/logout" class="adm-header-logout"><i data-lucide="log-out" style="width:12px;height:12px"></i>Đăng xuất</a>
+        </div>
+    </header>
+
+    <!-- Page Content -->
+    <main class="adm-page">
+
+        <!-- Page Title -->
+        <div>
+            <p class="adm-page-eyebrow" th:text="${todayLabel}">Overview — Thứ Hai, 9 tháng 6, 2026</p>
+            <h1 class="adm-page-title">Dashboard</h1>
+        </div>
+
+        <!-- KPI Row -->
+        <div class="adm-kpi-grid">
+
+            <!-- Tỷ lệ lấp phòng -->
+            <div class="adm-kpi-card">
+                <div class="adm-kpi-top">
+                    <span class="adm-kpi-label">Tỷ lệ lấp phòng</span>
+                    <div class="adm-kpi-icon"><i data-lucide="trending-up"></i></div>
+                </div>
+                <div class="adm-kpi-bottom">
+                    <span class="adm-kpi-value" th:text="${occupancyRate} + '%'">83%</span>
+                    <span class="adm-kpi-note"
+                          th:text="${occupiedRooms} + ' / ' + ${totalRooms} + ' phòng đang có khách'">
+                        83 / 100 phòng đang có khách
+                    </span>
+                </div>
+            </div>
+
+            <!-- Khách đang ở -->
+            <div class="adm-kpi-card">
+                <div class="adm-kpi-top">
+                    <span class="adm-kpi-label">Khách đang ở</span>
+                    <div class="adm-kpi-icon"><i data-lucide="users"></i></div>
+                </div>
+                <div class="adm-kpi-bottom">
+                    <span class="adm-kpi-value" th:text="${currentGuests}">150</span>
+                    <span class="adm-kpi-note"
+                          th:text="'Trên ' + ${occupiedRooms} + ' phòng đang sử dụng'">
+                        Trên 83 phòng đang sử dụng
+                    </span>
+                </div>
+            </div>
+
+            <!-- Bảo trì chờ xử lý -->
+            <div class="adm-kpi-card">
+                <div class="adm-kpi-top">
+                    <span class="adm-kpi-label">Bảo trì chờ xử lý</span>
+                    <div class="adm-kpi-icon"><i data-lucide="wrench"></i></div>
+                </div>
+                <div class="adm-kpi-bottom">
+                    <span class="adm-kpi-value" th:text="${pendingMaintenance}">3</span>
+                    <span class="adm-kpi-note"
+                          th:text="${urgentMaintenance} + ' khẩn cấp / ' + ${normalMaintenance} + ' thông thường'">
+                        2 khẩn cấp / 1 thông thường
+                    </span>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Room Status Matrix -->
+        <div class="adm-card">
+            <div class="adm-card-header">
+                <div>
+                    <h2 class="adm-section-title">Room Status Matrix</h2>
+                    <p class="adm-section-subtitle" th:text="${totalRooms} + ' phòng · 10 tầng'">100 phòng · 10 tầng</p>
+                </div>
+                <div class="adm-legend">
+                    <div class="adm-legend-item">
+                        <div class="adm-legend-dot" style="background:#6B8C42"></div>
+                        <span class="adm-legend-label">Có khách</span>
+                    </div>
+                    <div class="adm-legend-item">
+                        <div class="adm-legend-dot" style="background:#5A8C6B"></div>
+                        <span class="adm-legend-label">Trống</span>
+                    </div>
+                    <div class="adm-legend-item">
+                        <div class="adm-legend-dot" style="background:#C9A96E"></div>
+                        <span class="adm-legend-label">Chưa dọn</span>
+                    </div>
+                    <div class="adm-legend-item">
+                        <div class="adm-legend-dot" style="background:#7A7A9A"></div>
+                        <span class="adm-legend-label">Bảo trì</span>
+                    </div>
+                </div>
+            </div>
+            <div class="adm-room-matrix-wrap" style="display:flex; flex-direction:column; gap:24px;">
+                <div th:each="floorEntry : ${roomsByFloor}" class="adm-floor-group">
+                    <h3 class="adm-floor-title" th:text="${floorEntry.key}" style="margin-bottom:12px; font-size:14px; font-weight:600; color:#5c5a4d; border-bottom:1px solid #e2ddce; padding-bottom:4px;">Tầng</h3>
+                    <div class="adm-room-matrix">
+                        <div th:each="room : ${floorEntry.value}"
+                             class="adm-room-cell"
+                             th:style="'background-color:' + ${room.bgColor}">
+                            <span class="adm-room-number" th:text="${room.roomNumber}">101</span>
+                            <div class="adm-room-dot" th:style="'background-color:' + ${room.dotColor}"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Grid: Activity + Checkout -->
+        <div class="adm-bottom-grid">
+
+            <!-- Recent Activity (3/5) -->
+            <div class="adm-card">
+                <h2 class="adm-section-title" style="margin-bottom:20px">Hoạt động gần đây</h2>
+                <div class="adm-activity-list">
+                    <div th:each="activity : ${activities}" class="adm-activity-item">
+                        <span class="adm-activity-time" th:text="${activity.time}">08:42</span>
+                        <div class="adm-activity-avatar"
+                             th:style="'background-color:' + ${activity.avatarBg}"
+                             th:text="${activity.initials}">LN</div>
+                        <div class="adm-activity-body">
+                            <div class="adm-activity-name-row">
+                                <span class="adm-activity-name" th:text="${activity.name}">Linh Nguyễn</span>
+                                <span class="adm-role-pill"
+                                      th:style="'background-color:' + ${activity.roleBadgeBg} + '; color:' + ${activity.roleBadgeColor}"
+                                      th:text="${activity.role}">Receptionist</span>
+                            </div>
+                            <p class="adm-activity-action" th:text="${activity.action}">Check-in khách #1204</p>
+                        </div>
+                        <span class="adm-activity-badge" th:text="${activity.badgeLabel}">Booking</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tonight's Checkouts (2/5) -->
+            <div class="adm-card">
+                <h2 class="adm-section-title">Trả phòng tối nay</h2>
+                <p class="adm-section-subtitle" style="margin-bottom:20px"
+                   th:text="${checkoutCount} + ' khách trả phòng'">4 khách trả phòng</p>
+                <div class="adm-checkout-list">
+                    <div th:each="checkout, iterStat : ${checkouts}"
+                         class="adm-checkout-row"
+                         th:classappend="${iterStat.odd} ? ' odd' : ''">
+                        <div class="adm-checkout-left">
+                            <span class="adm-room-tag" th:text="${checkout.roomNumber}">102</span>
+                            <span class="adm-checkout-guest" th:text="${checkout.guestName}">Mr. Haruto Yamamoto</span>
+                        </div>
+                        <span th:if="${checkout.paid}"   class="adm-badge-paid">Đã thanh toán</span>
+                        <span th:unless="${checkout.paid}" class="adm-badge-pending">Chờ thanh toán</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+</div>
+
+<script th:src="@{/admin/js/main.js}"      src="../../static/admin/js/main.js"></script>
+<script th:src="@{/admin/js/dashboard.js}" src="../../static/admin/js/dashboard.js"></script>
+</body>
+</html>

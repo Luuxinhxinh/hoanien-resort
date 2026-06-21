@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title th:text="${resort != null ? resort.name : 'Hoanien River Retreat'}">Hoanien River Retreat</title>
+
+    <!-- Thêm Common Head -->
+    <th:block th:replace="~{guest/fragments/common-head :: head}"></th:block>
+
+    <!-- Actor Specific Stylesheet -->
+    <link rel="stylesheet" th:href="@{/guest/css/booking.css}" href="/guest/css/booking.css" />
+</head>
+
+<body>
+
+    <!-- ============ NAVIGATION BAR ============ -->
+    <div id="header-wrapper"
+        class="fixed top-0 left-0 w-full z-50 flex flex-col bg-hoanien-bg/90 backdrop-blur-md border-b border-hoanien-text/10">
+        <nav class="guest-nav relative w-full font-sans">
+            <div class="max-w-[1440px] mx-auto px-6 py-4 flex items-center justify-between">
+                <!-- Left Links -->
+                <div
+                    class="hidden lg:flex items-center gap-8 text-[13px] uppercase tracking-[0.2em] font-semibold text-hoanien-text/80">
+                    <a href="/living"
+                        class="hover:text-hoanien-text active:scale-95 transition-all duration-200 transition-colors">Living</a>
+                    <a href="/dining"
+                        class="hover:text-hoanien-text active:scale-95 transition-all duration-200 transition-colors">Dining</a>
+                    <a href="/experiences"
+                        class="hover:text-hoanien-text active:scale-95 transition-all duration-200 transition-colors">Experiences</a>
+                    <a href="/tours/search"
+                        class="hover:text-hoanien-text active:scale-95 transition-all duration-200 transition-colors">Tours</a>
+                </div>
+
+                <!-- Center Logo -->
+                <div class="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 font-headline text-[32px] italic tracking-tighter text-hoanien-text text-center cursor-pointer w-max"
+                    onclick="window.location.href='/'">
+                    HoaNien
+                </div>
+
+                <!-- Right Actions -->
+                <div
+                    class="hidden lg:flex items-center gap-6 text-[13px] uppercase tracking-[0.2em] font-semibold text-hoanien-text/80">
+                    <a href="/profile" th:if="${isLoggedIn}"
+                        class="hover:text-hoanien-text active:scale-95 transition-all duration-200 transition-colors">Profile</a>
+                    <form th:action="@{/auth/logout}" method="post" th:if="${isLoggedIn}" class="inline">
+                        <button type="submit"
+                            class="hover:text-hoanien-text active:scale-95 transition-all duration-200 transition-colors uppercase tracking-[0.2em] bg-transparent border-none p-0 cursor-pointer">Logout</button>
+                    </form>
+
+                    <a href="#" onclick="openLoginModal(); return false;" th:unless="${isLoggedIn}"
+                        class="hover:text-hoanien-text active:scale-95 transition-all duration-200 transition-colors">Log
+                        In</a>
+                    <a href="#roomsSection"
+                        class="hover:text-hoanien-text active:scale-95 transition-all duration-200 transition-colors inline-block border-b border-hoanien-text pb-0.5 text-hoanien-text">Book
+                        Now</a>
+                </div>
+
+                <!-- Mobile Menu Icon -->
+                <button class="lg:hidden">
+                    <span class="material-symbols-outlined text-3xl">menu</span>
+                </button>
+            </div>
+        </nav>
+    </div>
+
+    <!-- ============ HEADER / SEARCH BAR (Pushed down by Navbar) ============ -->
+    <header class="site-header" style="padding-top: 100px; padding-bottom: 20px;">
+        <div class="header-inner flex justify-center w-full">
+            <div class="search-bar relative w-full max-w-[1100px] mx-auto flex items-center justify-between">
+
+                <!-- Field 1: Booking Details -->
+                <div class="search-field cursor-pointer hover:bg-[#eae4d8]/40 transition-colors relative"
+                    onclick="toggleGuestsDropdown(event)">
+                    <span class="field-icon" aria-hidden="true">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.6">
+                            <circle cx="9" cy="8" r="3.2" />
+                            <path d="M3.5 19c0-3 2.6-5 5.5-5s5.5 2 5.5 5" />
+                            <circle cx="17" cy="9" r="2.4" />
+                            <path d="M16 18.5c0-2.3 1.8-3.6 3.8-3.6" />
+                        </svg>
+                    </span>
+                    <div class="field-body">
+                        <span class="field-label">Booking Details</span>
+                        <span id="guestSummaryValue" class="field-value font-medium"
+                            th:text="${search != null ? search.summary : '1 Unit'}">1 Unit</span>
+                    </div>
+                </div>
+
+                <!-- Field 2: Check-in -->
+                <div class="search-field cursor-pointer hover:bg-[#eae4d8]/40 transition-colors relative"
+                    onclick="toggleCalendarDropdown(event)">
+                    <span class="field-icon" aria-hidden="true">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.6">
+                            <rect x="3.5" y="5" width="17" height="15" rx="2" />
+                            <path d="M3.5 9h17M8 3v4M16 3v4" />
+                        </svg>
+                    </span>
+                    <div class="field-body">
+                        <span class="field-label">Check-in</span>
+                        <span id="checkInValue" class="field-value font-medium"
+                            th:text="${search != null ? search.checkIn : '12 Jun 2026'}">12 Jun 2026</span>
+                    </div>
+                </div>
+
+                <div class="search-arrow" aria-hidden="true">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="1.6">
+                        <path d="M4 12h15M13 6l6 6-6 6" />
+                    </svg>
+                </div>
+
+                <!-- Field 3: Check-out -->
+                <div class="search-field cursor-pointer hover:bg-[#eae4d8]/40 transition-colors relative"
+                    onclick="toggleCalendarDropdown(event)">
+                    <div class="field-body pl-6">
+                        <span class="field-label">Check-out</span>
+                        <span id="checkOutValue" class="field-value font-medium"
+                            th:text="${search != null ? search.checkOut : '15 Jun 2026'}">15 Jun 2026</span>
+                    </div>
+                </div>
+
+                <!-- Field 4: Promo Code -->
+                <div class="search-field cursor-pointer hover:bg-[#eae4d8]/40 transition-colors relative"
+                    onclick="toggleCodeDropdown(event)">
+                    <span class="field-icon" aria-hidden="true">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.6">
+                            <path d="M9 12l2 2 4-4" />
+                            <circle cx="12" cy="12" r="9" />
+                        </svg>
+                    </span>
+                    <div class="field-body">
+                        <span class="field-label">Booking code</span>
+                        <span id="bookingCodeValue" class="field-value muted">Enter code</span>
+                    </div>
+                </div>
+
+                <!-- Search Button -->
+                <button type="button" class="search-btn" onclick="executeSearch(event)">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="1.8">
+                        <circle cx="11" cy="11" r="7" />
+                        <path d="M21 21l-4-4" />
+                    </svg>
+                    Search
+                </button>
+
+                <!-- ============ POPUPS (Absolute layout inside search-bar relative container) ============ -->
+                <!-- 1. Guests Dropdown -->
+                <div id="guestsDropdown"
+                    class="absolute top-[105%] left-0 mt-1 bg-white text-[#2c2a24] p-5 rounded-xl shadow-2xl border border-[#e7e1d5] z-50 w-80 hidden font-sans"
+                    onclick="event.stopPropagation()">
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <span class="block font-semibold text-sm">Units / Rooms</span>
+                                <span class="text-[11px] text-gray-400">Number of rooms required</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <button type="button"
+                                    class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 font-bold"
+                                    onclick="updateGuestCount('units', -1)">-</button>
+                                <span id="unitsCount" class="w-4 text-center font-bold text-sm">1</span>
+                                <button type="button"
+                                    class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 font-bold"
+                                    onclick="updateGuestCount('units', 1)">+</button>
+                            </div>
+                        </div>
+
+                        <div class="pt-3 border-t border-gray-100 flex justify-end">
+                            <button type="button"
+                                class="bg-[#3a322b] text-[#f3efe6] px-5 py-2 rounded-lg text-xs font-semibold hover:bg-[#2c2620] transition-colors"
+                                onclick="applyGuests()">Apply</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Calendar Dropdown -->
+                <div id="calendarDropdown"
+                    class="absolute top-[105%] left-[20%] mt-1 bg-white text-[#2c2a24] p-5 rounded-xl shadow-2xl border border-[#e7e1d5] z-50 w-[350px] hidden font-sans"
+                    onclick="event.stopPropagation()">
+                    <div class="flex items-center justify-between mb-4">
+                        <button type="button" class="text-gray-500 hover:text-black" onclick="prevMonth()">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2.5">
+                                <path d="M15 18l-6-6 6-6" />
+                            </svg>
+                        </button>
+                        <span id="currentMonthYear" class="font-bold text-sm text-[#2c2a24]">June 2026</span>
+                        <button type="button" class="text-gray-500 hover:text-black" onclick="nextMonth()">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2.5">
+                                <path d="M9 18l6-6-6-6" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-7 gap-1 text-center text-xs font-semibold text-gray-400 mb-2">
+                        <span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span>
+                    </div>
+                    <div id="calendarDays" class="grid grid-cols-7 gap-1 text-center text-xs">
+                        <!-- JS populated days -->
+                    </div>
+                    <div class="pt-3 border-t border-gray-100 mt-3 flex justify-between items-center">
+                        <span id="dateSelectionSummary" class="text-xs text-gray-500 font-medium">Select dates</span>
+                        <button type="button"
+                            class="bg-[#3a322b] text-[#f3efe6] px-4 py-1.5 rounded-lg text-xs font-semibold hover:bg-[#2c2620] transition-colors"
+                            onclick="applyDates()">Apply</button>
+                    </div>
+                </div>
+
+                <!-- 3. Booking Code Dropdown -->
+                <div id="codeDropdown"
+                    class="absolute top-[105%] right-0 mt-1 bg-white text-[#2c2a24] p-5 rounded-xl shadow-2xl border border-[#e7e1d5] z-50 w-72 hidden font-sans"
+                    onclick="event.stopPropagation()">
+                    <div class="space-y-3">
+                        <div>
+                            <label
+                                class="block text-[11px] font-bold text-gray-400 mb-1.5 uppercase tracking-wider">Booking
+                                Code / Voucher</label>
+                            <input type="text" id="promoCodeInput"
+                                class="w-full border border-[#e7e1d5] p-2.5 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-[#3a322b]"
+                                placeholder="Enter code">
+                        </div>
+                        <div class="flex justify-end gap-2.5 pt-2">
+                            <button type="button"
+                                class="text-xs font-semibold text-gray-400 hover:text-black transition-colors"
+                                onclick="clearPromoCode()">Clear</button>
+                            <button type="button"
+                                class="bg-[#3a322b] text-[#f3efe6] px-4 py-1.5 rounded-lg text-xs font-semibold hover:bg-[#2c2620] transition-colors"
+                                onclick="applyPromoCode()">Apply</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </header>
+
+    <!-- ============ KEYWORD SEARCH ============ -->
+    <div class="max-w-[1100px] mx-auto mt-8 mb-4 px-6 font-sans">
+        <form action="/booking" method="get"
+            class="flex flex-col sm:flex-row gap-4 items-center bg-white/60 p-3 rounded-2xl border border-hoanien-text/10 shadow-sm backdrop-blur-sm">
+            <div class="relative w-full">
+                <span
+                    class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 material-symbols-outlined">search</span>
+                <input type="text" name="keyword" th:value="${keyword}" placeholder="Tìm kiếm tên phòng, phong cách..."
+                    class="w-full bg-transparent border-none pl-12 pr-4 py-3 text-sm focus:ring-0 focus:outline-none transition-all placeholder-gray-400">
+            </div>
+            <button type="submit"
+                class="w-full sm:w-auto bg-hoanien-text text-hoanien-bg px-8 py-3 rounded-xl text-xs uppercase tracking-widest font-semibold hover:bg-hoanien-text/80 transition-colors whitespace-nowrap shadow-md">
+                Tìm phòng
+            </button>
+        </form>
+    </div>
+
+    <!-- ============ RESULTS ============ -->
+    <main id="roomsSection" class="results">
+        <div class="results-head">
+            <div>
+                <h1 class="results-title">Available Options</h1>
+            </div>
+            <div class="view-toggle">
+                <button type="button" class="vt-btn" aria-label="Filters">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="1.6">
+                        <path d="M4 7h11M4 12h7M4 17h14" />
+                        <circle cx="18" cy="7" r="2" />
+                        <circle cx="14" cy="12" r="2" />
+                        <circle cx="20" cy="17" r="2" />
+                    </svg>
+                </button>
+                <button type="button" class="vt-btn" aria-label="Grid view">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="1.6">
+                        <rect x="3" y="3" width="7" height="7" />
+                        <rect x="14" y="3" width="7" height="7" />
+                        <rect x="3" y="14" width="7" height="7" />
+                        <rect x="14" y="14" width="7" height="7" />
+                    </svg>
+                </button>
+                <button type="button" class="vt-btn" aria-label="Two column view">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="1.6">
+                        <rect x="3" y="4" width="8" height="16" />
+                        <rect x="13" y="4" width="8" height="16" />
+                    </svg>
+                </button>
+                <button type="button" class="vt-btn active" aria-label="List view">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="1.6">
+                        <rect x="3" y="4" width="18" height="4" />
+                        <rect x="3" y="10" width="18" height="4" />
+                        <rect x="3" y="16" width="18" height="4" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Room grid & Cart Layout -->
+        <div class="flex flex-col lg:flex-row gap-6 relative items-start">
+            <!-- Left side: Room list -->
+            <div class="flex-1 w-full min-w-0">
+                <div class="room-grid min-h-[400px]">
+                    <!-- Rooms will be dynamically loaded via JS -->
+                </div>
+                <!-- Show More Button -->
+                <div id="showMoreContainer" class="actions-center mt-6">
+                    <button id="showMoreBtn" type="button" class="show-more" onclick="toggleShowMoreRooms()">
+                        Show more
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M6 9l6 6 6-6" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <!-- end left side -->
+
+            <!-- Right side: Booking Cart Summary -->
+            <aside class="w-full lg:w-[320px] flex-shrink-0 sticky top-6 z-10 hidden" id="bookingCartWrapper">
+                <div id="bookingSummaryCart"
+                    class="bg-white rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.08)] border border-[#e7e1d5] overflow-hidden font-sans transition-all">
+                    <div class="bg-[#ece6da] p-4 border-b border-[#d7ccb6]">
+                        <h3 class="font-semibold text-[#2f2a24] text-[20px] mb-1"
+                            style="font-family: 'Cormorant Garamond', serif;">Thông tin đặt phòng</h3>
+                        <p class="text-[13px] text-[#8b8478]" id="cartDatesSummary">Vui lòng chọn ngày</p>
+                    </div>
+
+                    <div class="p-0 bg-white max-h-[50vh] overflow-y-auto" id="cartItemsContainer">
+                        <!-- Items rendered by JS -->
+                        <div class="p-6 text-center text-gray-400 text-sm italic">
+                            Chưa chọn phòng nào
+                        </div>
+                    </div>
+                    <div class="p-4 bg-[#fbf9f4] border-t border-[#e7e1d5]">
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="font-semibold text-[#2f2a24]">Tổng cộng</span>
+                            <span class="font-bold text-[#d4af37] text-lg" id="cartTotalPrice">0 VNĐ</span>
+                        </div>
+                        <button type="button"
+                            class="w-full bg-[#d4af37] text-white py-3 rounded-md text-sm font-bold tracking-widest uppercase hover:bg-[#b08d29] transition-colors shadow-md disabled:opacity-50 disabled:cursor-not-allowed mb-2"
+                            id="btnCartCheckout" onclick="confirmCartBooking()" disabled>
+                            ĐẶT NGAY
+                        </button>
+                        <!-- Nút Hủy giỏ hàng -->
+                        <button type="button"
+                            class="w-full border border-[#d7ccb6] text-[#8b8478] py-2.5 rounded-md text-xs font-semibold tracking-widest uppercase hover:bg-red-50 hover:border-red-300 hover:text-red-500 transition-colors"
+                            onclick="cancelCartHold()">
+                            HỦY GIỎ PHÒNG
+                        </button>
+                    </div>
+                </div>
+            </aside>
+
+        </div>
+    </main>
+
+    <!-- ============ FOOTER ============ -->
+    <footer
+        class="w-full max-w-[1440px] mx-auto px-6 md:px-12 border-t border-hoanien-text/10 pt-16 pb-8 mt-20 font-sans">
+        <div class="flex flex-col md:flex-row justify-between items-center gap-12">
+            <div class="text-center md:text-left">
+                <p class="font-headline text-3xl italic text-hoanien-text">HoaNien</p>
+                <p class="text-[9px] tracking-[0.3em] text-hoanien-text/40 uppercase mt-4">© 2026 HoaNien Retreat. A
+                    Quiet Luxury Travel Group.</p>
+            </div>
+            <div class="flex flex-wrap justify-center gap-10">
+                <a class="text-[9px] font-semibold uppercase tracking-[0.25em] text-hoanien-text/50 hover:text-hoanien-text transition-colors"
+                    href="#">Quyền riêng tư</a>
+                <a class="text-[9px] font-semibold uppercase tracking-[0.25em] text-hoanien-text/50 hover:text-hoanien-text transition-colors"
+                    href="#">Sự bền vững</a>
+                <a class="text-[9px] font-semibold uppercase tracking-[0.25em] text-hoanien-text/50 hover:text-hoanien-text transition-colors"
+                    href="#">Liên hệ</a>
+            </div>
+        </div>
+    </footer>
+
+    <div th:replace="~{guest/fragments/auth :: authModal}"></div>
+
+    <!-- Booking confirm modal removed — flow now redirects to /payment page -->
+
+
+    <!-- Room Details Modal Removed -->
+
+    <!-- ============ INTERACTIVE AND AUTHENTICATION JAVASCRIPT ============ -->
+    <script th:inline="javascript">
+        // Global variables from Thymeleaf model
+        const isUserLoggedIn = /*[[${isLoggedIn}]]*/ false;
+    </script>
+    <script src="/guest/js/utils.js"></script>
+    <script src="/guest/js/booking.js"></script>
+
+</body>
+
+</html>
