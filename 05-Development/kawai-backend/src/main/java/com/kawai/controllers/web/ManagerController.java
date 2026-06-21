@@ -38,7 +38,6 @@ public class ManagerController {
         return LocalDate.now().format(DateTimeFormatter.ofPattern("EEEE, d 'tháng' M, yyyy", new Locale("vi")));
     }
 
-    private static final long MOCK_TOTAL_ROOMS = 100;
 
     // ── Helper: format tiền ──
     private static String fmt(BigDecimal val) {
@@ -59,12 +58,15 @@ public class ManagerController {
     @GetMapping({ "/dashboard", "/" })
     public String dashboard(Model model) {
         model.addAttribute("todayLabel", todayLabel());
-        long totalRooms = MOCK_TOTAL_ROOMS;
+        long totalRooms = 1; // fallback tránh chia 0
         long occupied = 0;
         try {
             occupied = roomRepository.findOccupied().size();
-            totalRooms = roomRepository.countTotalRooms();
-        } catch (Exception e) {}
+            long dbTotal = roomRepository.countTotalRooms();
+            if (dbTotal > 0) totalRooms = dbTotal;
+        } catch (Exception e) {
+            System.err.println("[ManagerController] Cannot fetch room count: " + e.getMessage());
+        }
         
         long occupancyRate = totalRooms > 0 ? Math.round((double) occupied / totalRooms * 100) : 0;
         model.addAttribute("occupancyRate", occupancyRate);

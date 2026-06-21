@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,7 +8,9 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
+        rel="stylesheet">
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Custom CSS -->
@@ -267,11 +270,13 @@
             font-weight: 500;
             transition: color 0.2s;
         }
+
         .back-link:hover {
             color: #c19b6c;
         }
     </style>
 </head>
+
 <body>
     <div class="app-container">
         <!-- Sidebar -->
@@ -333,8 +338,9 @@
             </header>
 
             <div class="dashboard-scroll-area" style="padding: 32px 40px;">
-                <a href="/receptionist/folio" class="back-link"><i class="fa-solid fa-arrow-left"></i> Back to Folio List</a>
-                
+                <a href="/receptionist/folio" class="back-link"><i class="fa-solid fa-arrow-left"></i> Back to Folio
+                    List</a>
+
                 <div class="folio-header-top">
                     <div class="guest-profile">
                         <div class="guest-avatar">N</div>
@@ -354,7 +360,8 @@
                                 <div class="charge-title">ROOM CHARGES</div>
                                 <div style="display: flex; align-items: center;">
                                     <div class="charge-total">23.400.000 ₫</div>
-                                    <button class="btn-pay-partial" onclick="payPartial('Room', '23.400.000 ₫')"><i class="fa-solid fa-wallet"></i> Thanh toán riêng</button>
+                                    <button class="btn-pay-partial" onclick="payPartial('Room', '23.400.000 ₫')"><i
+                                            class="fa-solid fa-wallet"></i> Thanh toán riêng</button>
                                 </div>
                             </div>
                             <table class="charge-table">
@@ -391,7 +398,8 @@
                                 <div class="charge-title">F&B CHARGES</div>
                                 <div style="display: flex; align-items: center;">
                                     <div class="charge-total">2.970.000 ₫</div>
-                                    <button class="btn-pay-partial" onclick="payPartial('F&B', '2.970.000 ₫')"><i class="fa-solid fa-wallet"></i> Thanh toán riêng</button>
+                                    <button class="btn-pay-partial" onclick="payPartial('F&B', '2.970.000 ₫')"><i
+                                            class="fa-solid fa-wallet"></i> Thanh toán riêng</button>
                                 </div>
                             </div>
                             <table class="charge-table">
@@ -433,7 +441,8 @@
                                 <div class="charge-title">TOUR CHARGES</div>
                                 <div style="display: flex; align-items: center;">
                                     <div class="charge-total">1.500.000 ₫</div>
-                                    <button class="btn-pay-partial" onclick="payPartial('Tour', '1.500.000 ₫')"><i class="fa-solid fa-wallet"></i> Thanh toán riêng</button>
+                                    <button class="btn-pay-partial" onclick="payPartial('Tour', '1.500.000 ₫')"><i
+                                            class="fa-solid fa-wallet"></i> Thanh toán riêng</button>
                                 </div>
                             </div>
                             <table class="charge-table">
@@ -456,11 +465,14 @@
 
                         <!-- LATE CHECK-OUT FEE -->
                         <div class="charge-card">
-                            <div class="charge-card-header" style="border-bottom: none; padding-bottom: 0; margin-bottom: 0;">
-                                <div class="charge-title" style="text-transform: none;">+ Late Check-out Fee (after 12:00)</div>
+                            <div class="charge-card-header"
+                                style="border-bottom: none; padding-bottom: 0; margin-bottom: 0;">
+                                <div class="charge-title" style="text-transform: none;">+ Late Check-out Fee (after
+                                    12:00)</div>
                                 <div style="display: flex; align-items: center;">
                                     <div class="charge-total" style="color: #c19b6c;">500.000 ₫</div>
-                                    <button class="btn-pay-partial" onclick="payPartial('Late Fee', '500.000 ₫')"><i class="fa-solid fa-wallet"></i> Thanh toán riêng</button>
+                                    <button class="btn-pay-partial" onclick="payPartial('Late Fee', '500.000 ₫')"><i
+                                            class="fa-solid fa-wallet"></i> Thanh toán riêng</button>
                                 </div>
                             </div>
                         </div>
@@ -471,16 +483,22 @@
                                 <div class="charge-title">OTHER CHARGES (Damages, Services...)</div>
                                 <div style="display: flex; align-items: center;">
                                     <div class="charge-total" id="otherChargeTotal">0 ₫</div>
-                                    <button class="btn-pay-partial" onclick="toggleAddChargeForm()"><i class="fa-solid fa-plus"></i> Add Charge</button>
+                                    <button class="btn-pay-partial" onclick="toggleAddChargeForm()"><i
+                                            class="fa-solid fa-plus"></i> Add Charge</button>
                                 </div>
                             </div>
-                            
+
                             <!-- Add Charge Form -->
-                            <div id="addChargeForm" style="display: none; padding-top: 16px; border-top: 1px solid #e8e4db; margin-top: 16px;">
+                            <div id="addChargeForm"
+                                style="display: none; padding-top: 16px; border-top: 1px solid #e8e4db; margin-top: 16px;">
                                 <div style="display: flex; gap: 12px; margin-bottom: 0;">
-                                    <input type="text" placeholder="Description (e.g. Broken glass)" style="flex: 2; padding: 10px; border: 1px solid #e8e4db; border-radius: 6px; outline: none;">
-                                    <input type="number" placeholder="Amount (VND)" style="flex: 1; padding: 10px; border: 1px solid #e8e4db; border-radius: 6px; outline: none;">
-                                    <button class="btn-apply" style="background: #2c3e50; border-color: #2c3e50; color: white;" onclick="toggleAddChargeForm()">Save</button>
+                                    <input type="text" placeholder="Description (e.g. Broken glass)"
+                                        style="flex: 2; padding: 10px; border: 1px solid #e8e4db; border-radius: 6px; outline: none;">
+                                    <input type="number" placeholder="Amount (VND)"
+                                        style="flex: 1; padding: 10px; border: 1px solid #e8e4db; border-radius: 6px; outline: none;">
+                                    <button class="btn-apply"
+                                        style="background: #2c3e50; border-color: #2c3e50; color: white;"
+                                        onclick="toggleAddChargeForm()">Save</button>
                                 </div>
                             </div>
 
@@ -503,7 +521,7 @@
                     <div class="folio-right">
                         <div class="bill-summary-card" id="billSummaryCard">
                             <h3 id="billTitle">Bill Summary</h3>
-                            
+
                             <div id="billDetails">
                                 <div class="summary-row" id="row-room">
                                     <span>Room</span>
@@ -523,7 +541,8 @@
                                 </div>
 
                                 <div id="promoSection">
-                                    <div style="font-size: 0.9rem; color: #7f8c8d; margin: 24px 0 8px 0;">Apply Promotion</div>
+                                    <div style="font-size: 0.9rem; color: #7f8c8d; margin: 24px 0 8px 0;">Apply
+                                        Promotion</div>
                                     <div class="promo-input">
                                         <input type="text" placeholder="Voucher code">
                                         <button class="btn-apply">Apply</button>
@@ -542,9 +561,11 @@
                             </div>
 
                             <button class="btn-checkout" id="btnProceed">Proceed to Payment</button>
-                            
+
                             <div style="text-align: center; margin-top: 16px; display: none;" id="backToTotalWrap">
-                                <a href="#" id="btnBackToTotal" style="color: #7f8c8d; text-decoration: none; font-size: 0.9rem; font-weight: 500;"><i class="fa-solid fa-arrow-left"></i> Back to Total Bill</a>
+                                <a href="#" id="btnBackToTotal"
+                                    style="color: #7f8c8d; text-decoration: none; font-size: 0.9rem; font-weight: 500;"><i
+                                        class="fa-solid fa-arrow-left"></i> Back to Total Bill</a>
                             </div>
                         </div>
                     </div>
@@ -554,36 +575,152 @@
     </div>
 
     <script>
-        // Store default HTML content to restore later
-        const defaultBillDetails = document.getElementById('billDetails').innerHTML;
-        const defaultOutstanding = "19.859.000 ₫";
-        
-        function payPartial(type, amountStr) {
-            // Update Title
-            document.getElementById('billTitle').innerText = type + " Payment";
+        // Fetch data from API
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const id = urlParams.get('id');
+            if (id && id !== 'undefined') {
+                fetchFolioData(id);
+            } else {
+                alert("Lỗi: Không tìm thấy ID phòng! Vui lòng quay lại danh sách và F5 tải lại trang.");
+            }
+        });
+
+        function fetchFolioData(id) {
+            fetch(`/api/folios/room/${id}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        try {
+                            renderFolio(data);
+                        } catch (e) {
+                            console.error("Render Error:", e);
+                            alert("Lỗi khi vẽ giao diện: " + e.message);
+                        }
+                    } else {
+                        alert("Error from API: " + data.message);
+                    }
+                })
+                .catch(err => {
+                    console.error("Fetch Error:", err);
+                    alert("Lỗi tải dữ liệu: " + err.message + "\n(Vui lòng mở F12 Console để xem chi tiết)");
+                });
+        }
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+        }
+
+        function renderFolio(data) {
+            // Group items by department
+            const items = data.items || [];
+            const groups = {};
+            let total = 0;
+
+            items.forEach(item => {
+                const dep = item.sourceDepartment || 'OTHER';
+                if (!groups[dep]) {
+                    groups[dep] = { total: 0, items: [] };
+                }
+                groups[dep].items.push(item);
+                if (!item.isSettledSeparately) {
+                    groups[dep].total += item.amount;
+                    total += item.amount;
+                }
+            });
+
+            // Render Left Cards
+            let leftHtml = '';
+            let rightSummaryHtml = '';
             
-            // Build specific rows
+            for (const [dep, group] of Object.entries(groups)) {
+                leftHtml += `
+                    <div class="charge-card">
+                        <div class="charge-card-header">
+                            <div class="charge-title">${dep} CHARGES</div>
+                            <div style="display: flex; align-items: center;">
+                                <div class="charge-total">${formatCurrency(group.total)}</div>
+                                <button class="btn-pay-partial" onclick="payPartial('${dep}', '${formatCurrency(group.total)}')"><i class="fa-solid fa-wallet"></i> Thanh toán riêng</button>
+                            </div>
+                        </div>
+                        <table class="charge-table">
+                            <thead>
+                                <tr>
+                                    <th>DESCRIPTION</th>
+                                    <th style="text-align: right;">AMOUNT</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${group.items.map(i => `
+                                    <tr>
+                                        <td>${i.description} ${i.isSettledSeparately ? '(Đã thanh toán riêng)' : ''}</td>
+                                        <td class="amount" style="${i.isSettledSeparately ? 'text-decoration: line-through;' : ''}">${formatCurrency(i.amount)}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+
+                rightSummaryHtml += `
+                    <div class="summary-row">
+                        <span>${dep}</span>
+                        <span>${formatCurrency(group.total)}</span>
+                    </div>
+                `;
+            }
+
+            document.querySelector('.folio-left').innerHTML = leftHtml;
+            document.getElementById('billDetails').innerHTML = rightSummaryHtml;
+            document.getElementById('outstandingAmount').innerText = formatCurrency(data.currentBalance);
+            
+            // Set guest info
+            document.querySelector('.guest-info h2').innerText = data.guestName || ("Folio #" + data.roomBookingDetailId);
+            
+            const avatarLetter = data.guestName ? data.guestName.charAt(0).toUpperCase() : "N";
+            document.querySelector('.guest-avatar').innerText = avatarLetter;
+            
+            const roomNum = data.roomNumber || "N/A";
+            let subtitleHtml = `Room ${roomNum} • 2026-06-13 → 2026-06-16`;
+            
+            if (data.subCreditLimit && data.subCreditLimit > 0) {
+                const availableCredit = data.subCreditLimit - data.currentBalance;
+                const creditColor = availableCredit < 0 ? 'red' : '#27ae60';
+                subtitleHtml += `<br><span style="font-size: 0.9em; margin-top: 4px; display: inline-block;">
+                    Credit Limit: ${formatCurrency(data.subCreditLimit)} | Available: <strong style="color: ${creditColor}">${formatCurrency(availableCredit)}</strong>
+                </span>`;
+            }
+            
+            document.querySelector('.guest-info p').innerHTML = subtitleHtml;
+        }
+
+        let defaultBillDetails = "";
+        let defaultOutstanding = "";
+
+        function payPartial(type, amountStr) {
+            if (!defaultBillDetails) {
+                defaultBillDetails = document.getElementById('billDetails').innerHTML;
+                defaultOutstanding = document.getElementById('outstandingAmount').innerText;
+            }
+
+            document.getElementById('billTitle').innerText = type + " Payment";
+
             let html = `
                 <div class="summary-row">
                     <span>${type} Total</span>
                     <span>${amountStr}</span>
                 </div>
             `;
-            
-            // Update the DOM
+
             document.getElementById('billDetails').innerHTML = html;
             document.getElementById('outstandingAmount').innerText = amountStr;
             document.getElementById('btnProceed').innerText = "Pay " + type;
-            
-            // Show the "Back" button
+
             document.getElementById('backToTotalWrap').style.display = "block";
-            
-            // Scroll to bill if on small screen (optional, but good UX)
             document.getElementById('billSummaryCard').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
 
-        // Reset to total bill
-        document.getElementById('btnBackToTotal').addEventListener('click', function(e) {
+        document.getElementById('btnBackToTotal').addEventListener('click', function (e) {
             e.preventDefault();
             document.getElementById('billTitle').innerText = "Bill Summary";
             document.getElementById('billDetails').innerHTML = defaultBillDetails;
@@ -591,14 +728,7 @@
             document.getElementById('btnProceed').innerText = "Proceed to Payment";
             this.parentElement.style.display = "none";
         });
-        function toggleAddChargeForm() {
-            var form = document.getElementById('addChargeForm');
-            if (form.style.display === 'none') {
-                form.style.display = 'block';
-            } else {
-                form.style.display = 'none';
-            }
-        }
     </script>
 </body>
+
 </html>

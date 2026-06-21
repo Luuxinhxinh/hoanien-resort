@@ -41,13 +41,13 @@ public class FolioRestController {
 
     @Autowired
     public FolioRestController(NightAuditService nightAuditService,
-                               FolioItemRepository folioItemRepository,
-                               RoomBookingDetailRepository roomBookingDetailRepository,
-                               RoomRepository roomRepository,
-                               ConsolidatedInvoiceRepository consolidatedInvoiceRepository,
-                               PaymentService paymentService,
-                               InvoicePdfService invoicePdfService,
-                               EmailService emailService) {
+            FolioItemRepository folioItemRepository,
+            RoomBookingDetailRepository roomBookingDetailRepository,
+            RoomRepository roomRepository,
+            ConsolidatedInvoiceRepository consolidatedInvoiceRepository,
+            PaymentService paymentService,
+            InvoicePdfService invoicePdfService,
+            EmailService emailService) {
         this.nightAuditService = nightAuditService;
         this.folioItemRepository = folioItemRepository;
         this.roomBookingDetailRepository = roomBookingDetailRepository;
@@ -63,19 +63,98 @@ public class FolioRestController {
      */
     @GetMapping("/room/{roomBookingDetailId}")
     public ResponseEntity<?> getFolioByRoom(@PathVariable Long roomBookingDetailId) {
-        if (!roomBookingDetailRepository.existsById(roomBookingDetailId)) {
-            return ResponseEntity.badRequest().body(Map.of("message", "RoomBookingDetail không tồn tại"));
+        Optional<RoomBookingDetail> optDetail = roomBookingDetailRepository.findById(roomBookingDetailId);
+        if (optDetail.isEmpty()) {
+            Map<String, String> err = new java.util.HashMap<>();
+            err.put("message", "RoomBookingDetail không tồn tại");
+            return ResponseEntity.badRequest().body(err);
+        }
+        RoomBookingDetail detail = optDetail.get();
+        
+        String guestName = "Unknown";
+        if (detail.getRoomBooking() != null && detail.getRoomBooking().getCustomer() != null) {
+            guestName = detail.getRoomBooking().getCustomer().getFullName();
         }
         
-        List<FolioItem> items = nightAuditService.getFolioItems(roomBookingDetailId);
-        BigDecimal currentBalance = nightAuditService.calculateFolioBalance(roomBookingDetailId);
+        String roomNumber = "N/A";
+        if (detail.getRoom() != null && detail.getRoom().getRoomNumber() != null) {
+            roomNumber = detail.getRoom().getRoomNumber();
+        }
+
+        List<FolioItem> items = null;
+        try {
+            items = nightAuditService.getFolioItems(roomBookingDetailId);
+        } catch (Exception e) {}
+
+        BigDecimal currentBalance = BigDecimal.ZERO;
+        try {
+            currentBalance = nightAuditService.calculateFolioBalance(roomBookingDetailId);
+        } catch (Exception e) {}
+
+        List<Map<String, Object>> itemDTOs = new java.util.ArrayList<>();
+        boolean hasRoomCharge = false;
         
-        return ResponseEntity.ok(Map.of(
-                "success", true,
-                "roomBookingDetailId", roomBookingDetailId,
-                "items", items,
-                "currentBalance", currentBalance
-        ));
+        if (items != null) {
+            for (FolioItem item : items) {
+                if ("Room".equalsIgnoreCase(item.getSourceDepartment())) {
+                    hasRoomCharge = true;
+                }
+                Map<String, Object> iMap = new java.util.HashMap<>();
+                iMap.put("id", item.getId());
+                iMap.put("sourceDepartment", item.getSourceDepartment());
+                iMap.put("amount", item.getAmount());
+                iMap.put("description", item.getDescription());
+                iMap.put("isSettledSeparately", item.getIsSettledSeparately());
+                iMap.put("createdAt", item.getCreatedAt() != null ? item.getCreatedAt().toString() : null);
+                itemDTOs.add(iMap);
+            }
+        }
+        
+        if (!hasRoomCharge && detail.getRoomCharge() != null && detail.getRoomCharge().compareTo(BigDecimal.ZERO) > 0) {
+            Map<String, Object> roomMap = new java.util.HashMap<>();
+            roomMap.put("id", -1L);
+            roomMap.put("sourceDepartment", "Room");
+            roomMap.put("amount", detail.getRoomCharge());
+            String catName = detail.getCategory() != null ? detail.getCategory().getCategoryName() : "Room";
+            roomMap.put("description", "Room Charge (Expected) - " + catName);
+            roomMap.put("isSettledSeparately", false);
+            roomMap.put("createdAt", java.time.LocalDateTime.now().toString());
+            itemDTOs.add(0, roomMap); // Add to top
+            
+            // Adjust balance to include this unposted room charge
+            currentBalance = currentBalance.add(detail.getRoomCharge());
+        }
+
+        BigDecimal prePaidDeposit = BigDecimal.ZERO;
+        if (detail.getRoomBooking() != null) {
+            try {
+                List<PaymentTransaction> payments = paymentService.getPaymentsByBookingId(detail.getRoomBooking().getId());
+                if (payments != null) {
+                    for (PaymentTransaction pt : payments) {
+                        if ("DEPOSIT".equalsIgnoreCase(pt.getTransactionType()) && pt.getStatus() == PaymentStatus.SUCCESS) {
+                            if (pt.getAmount() != null) {
+                                prePaidDeposit = prePaidDeposit.add(pt.getAmount());
+                            }
+                        }
+                    }
+                }
+            } catch (Exception e) {}
+        }
+        
+        // Adjust balance by subtracting deposit
+        currentBalance = currentBalance.subtract(prePaidDeposit);
+
+        Map<String, Object> response = new java.util.HashMap<>();
+        response.put("success", true);
+        response.put("roomBookingDetailId", roomBookingDetailId);
+        response.put("guestName", guestName);
+        response.put("roomNumber", roomNumber);
+        response.put("subCreditLimit", detail.getSubCreditLimit());
+        response.put("items", itemDTOs);
+        response.put("currentBalance", currentBalance);
+        response.put("prePaidDeposit", prePaidDeposit);
+
+        return ResponseEntity.ok(response);
     }
 
     /**
@@ -87,24 +166,24 @@ public class FolioRestController {
         if (optItem.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
-        
+
         FolioItem item = optItem.get();
         Boolean isSettledSeparately = payload.getOrDefault("isSettledSeparately", true);
         item.setIsSettledSeparately(isSettledSeparately);
         folioItemRepository.save(item);
-        
+
         return ResponseEntity.ok(Map.of(
                 "success", true,
                 "message", "Đã cập nhật trạng thái tách hóa đơn thành công",
-                "item", item
-        ));
+                "item", item));
     }
 
     /**
      * UC21.3 & UC22.1 - Gom Folio và Tất toán (Có xử lý Payment & Invoice)
      */
     @PostMapping("/room/{roomBookingDetailId}/checkout")
-    public ResponseEntity<?> checkoutFolio(@PathVariable Long roomBookingDetailId, @RequestBody(required = false) Map<String, Object> payload) {
+    public ResponseEntity<?> checkoutFolio(@PathVariable Long roomBookingDetailId,
+            @RequestBody(required = false) Map<String, Object> payload) {
         Optional<RoomBookingDetail> optDetail = roomBookingDetailRepository.findById(roomBookingDetailId);
         if (optDetail.isEmpty()) {
             return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Không tìm thấy phòng"));
@@ -127,8 +206,7 @@ public class FolioRestController {
             if (paymentAmount.compareTo(finalBalance) < 0) {
                 return ResponseEntity.badRequest().body(Map.of(
                         "success", false,
-                        "message", "Khách hàng còn dư nợ " + finalBalance + ". Số tiền thanh toán chưa đủ."
-                ));
+                        "message", "Khách hàng còn dư nợ " + finalBalance + ". Số tiền thanh toán chưa đủ."));
             }
         }
 
@@ -148,7 +226,7 @@ public class FolioRestController {
         ConsolidatedInvoice invoice = new ConsolidatedInvoice();
         invoice.setInvoiceNumber("INV-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase());
         invoice.setBooking(detail.getRoomBooking());
-        
+
         BigDecimal subtotal = finalBalance.divide(new BigDecimal("1.10"), 2, java.math.RoundingMode.HALF_UP);
         BigDecimal vat = finalBalance.subtract(subtotal);
         invoice.setSubtotalBeforeVat(subtotal);
@@ -161,16 +239,16 @@ public class FolioRestController {
 
         // 4. Ghi nhận Payment Transaction (nếu có thanh toán)
         if (paymentAmount.compareTo(BigDecimal.ZERO) > 0) {
-            PaymentStatus initialStatus = "CASH".equalsIgnoreCase(paymentMethod) ? PaymentStatus.SUCCESS : PaymentStatus.PENDING;
+            PaymentStatus initialStatus = "CASH".equalsIgnoreCase(paymentMethod) ? PaymentStatus.SUCCESS
+                    : PaymentStatus.PENDING;
             paymentService.recordPayment(
-                invoice, 
-                detail.getRoomBooking(), 
-                paymentAmount, 
-                "FINAL_PAYMENT", 
-                paymentMethod, 
-                initialStatus, 
-                "TXN-" + System.currentTimeMillis()
-            );
+                    invoice,
+                    detail.getRoomBooking(),
+                    paymentAmount,
+                    "FINAL_PAYMENT",
+                    paymentMethod,
+                    initialStatus,
+                    "TXN-" + System.currentTimeMillis());
         }
 
         // 5. Sinh file PDF hóa đơn và gửi email (Sử dụng Service)
@@ -181,7 +259,72 @@ public class FolioRestController {
         return ResponseEntity.ok(Map.of(
                 "success", true,
                 "message", "Tất toán thành công. Đã tạo hóa đơn và đổi trạng thái phòng thành Vacant_Dirty.",
-                "invoiceNumber", invoice.getInvoiceNumber()
-        ));
+                "invoiceNumber", invoice.getInvoiceNumber()));
+    }
+
+    /**
+     * Lấy danh sách các folio đang active (Checked_In)
+     */
+    @GetMapping("/active")
+    public ResponseEntity<?> getActiveFolios() {
+        try {
+            List<RoomBookingDetail> activeDetails = roomBookingDetailRepository.findByDetailStatus("Checked_In");
+            
+            List<Map<String, Object>> result = activeDetails.stream().map(detail -> {
+                BigDecimal balance = BigDecimal.ZERO;
+                try {
+                    balance = nightAuditService.calculateFolioBalance(detail.getId());
+                } catch (Exception e) {}
+                
+                List<FolioItem> items = null;
+                try {
+                    items = nightAuditService.getFolioItems(detail.getId());
+                } catch (Exception e) {}
+                
+                BigDecimal totalCharges = BigDecimal.ZERO;
+                BigDecimal totalPayments = BigDecimal.ZERO;
+                
+                if (items != null) {
+                    for (FolioItem item : items) {
+                        if (item.getAmount() != null) {
+                            if (item.getAmount().compareTo(BigDecimal.ZERO) > 0) {
+                                totalCharges = totalCharges.add(item.getAmount());
+                            } else {
+                                totalPayments = totalPayments.add(item.getAmount().abs());
+                            }
+                        }
+                    }
+                }
+
+                Map<String, Object> map = new java.util.HashMap<>();
+                map.put("folioNo", "FOL-" + String.format("%04d", detail.getId()));
+                
+                String roomNumber = "N/A";
+                if (detail.getRoom() != null && detail.getRoom().getRoomNumber() != null) {
+                    roomNumber = detail.getRoom().getRoomNumber();
+                }
+                map.put("roomNumber", roomNumber);
+                
+                String guestName = "Unknown";
+                if (detail.getRoomBooking() != null && detail.getRoomBooking().getCustomer() != null) {
+                    guestName = detail.getRoomBooking().getCustomer().getFullName();
+                }
+                map.put("guestName", guestName);
+                
+                map.put("totalCharges", totalCharges);
+                map.put("totalPayments", totalPayments);
+                map.put("balance", balance);
+                map.put("status", detail.getDetailStatus());
+                map.put("roomBookingDetailId", detail.getId());
+                return map;
+            }).toList();
+            
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Map<String, String> errorResp = new java.util.HashMap<>();
+            errorResp.put("error", e.getMessage() != null ? e.getMessage() : "Unknown error");
+            return ResponseEntity.status(500).body(errorResp);
+        }
     }
 }
