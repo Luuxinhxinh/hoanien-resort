@@ -45,9 +45,15 @@
                                 class="text-[11px] text-hoanien-text hover:underline opacity-80">Quên mật
                                 khẩu?</a>
                         </div>
-                        <input type="password" name="password" required
-                            class="w-full border border-hoanien-text/20 p-3 focus:ring-1 focus:ring-hoanien-text focus:border-hoanien-text bg-white text-sm"
-                            placeholder="Nhập mật khẩu">
+                        <div class="relative">
+                            <input type="password" name="password" id="loginPassword" required
+                                class="w-full border border-hoanien-text/20 p-3 pr-10 focus:ring-1 focus:ring-hoanien-text focus:border-hoanien-text bg-white text-sm"
+                                placeholder="Nhập mật khẩu">
+                            <button type="button" onclick="togglePasswordVisibility('loginPassword', this)"
+                                class="absolute right-3 top-1/2 -translate-y-1/2 text-hoanien-text/50 hover:text-hoanien-text focus:outline-none flex items-center justify-center">
+                                <span class="material-symbols-outlined text-[20px]">visibility</span>
+                            </button>
+                        </div>
                     </div>
                     <button type="submit"
                         class="w-full bg-hoanien-text text-white py-3 text-[11px] uppercase tracking-[0.15em] font-semibold hover:bg-hoanien-text/80 active:scale-[0.98] active:translate-y-[0.5px] transition-all duration-200 transition-colors mt-4">
@@ -65,6 +71,12 @@
                     class="w-full border border-hoanien-text/20 bg-white text-hoanien-text py-3 mt-6 flex items-center justify-center gap-3 hover:bg-gray-50 transition-colors text-sm font-medium">
                     <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" class="w-5 h-5">
                     Đăng nhập bằng Google
+                </a>
+
+                <a href="/ops-login"
+                    class="w-full border border-hoanien-text/20 bg-white text-hoanien-text py-3 mt-3 flex items-center justify-center gap-3 hover:bg-gray-50 transition-colors text-sm font-medium">
+                    <span class="material-symbols-outlined text-[20px]">admin_panel_settings</span>
+                    Đăng nhập nội bộ (Admin / Staff / Guide)
                 </a>
 
                 <p class="text-center text-sm opacity-70 mt-8">
@@ -104,9 +116,15 @@
                     <div>
                         <label class="block text-[11px] uppercase tracking-[0.1em] opacity-60 font-semibold mb-2">Mật
                             khẩu</label>
-                        <input type="password" name="password" required
-                            class="w-full border border-hoanien-text/20 p-3 focus:ring-1 focus:ring-hoanien-text focus:border-hoanien-text bg-white text-sm"
-                            placeholder="Tạo mật khẩu">
+                        <div class="relative">
+                            <input type="password" name="password" id="registerPassword" required
+                                class="w-full border border-hoanien-text/20 p-3 pr-10 focus:ring-1 focus:ring-hoanien-text focus:border-hoanien-text bg-white text-sm"
+                                placeholder="Tạo mật khẩu">
+                            <button type="button" onclick="togglePasswordVisibility('registerPassword', this)"
+                                class="absolute right-3 top-1/2 -translate-y-1/2 text-hoanien-text/50 hover:text-hoanien-text focus:outline-none flex items-center justify-center">
+                                <span class="material-symbols-outlined text-[20px]">visibility</span>
+                            </button>
+                        </div>
                     </div>
                     <button type="submit"
                         class="w-full bg-hoanien-text text-white py-3 text-[11px] uppercase tracking-[0.15em] font-semibold hover:bg-hoanien-text/80 active:scale-[0.98] active:translate-y-[0.5px] transition-all duration-200 transition-colors mt-4">
@@ -127,6 +145,20 @@
     </div>
 
     <script>
+        function togglePasswordVisibility(inputId, btnEl) {
+            const input = document.getElementById(inputId);
+            const icon = btnEl.querySelector('.material-symbols-outlined');
+            if (input && icon) {
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    icon.textContent = 'visibility_off';
+                } else {
+                    input.type = 'password';
+                    icon.textContent = 'visibility';
+                }
+            }
+        }
+
         function openLoginModal() {
             const m = document.getElementById('authModal');
             if (m) {

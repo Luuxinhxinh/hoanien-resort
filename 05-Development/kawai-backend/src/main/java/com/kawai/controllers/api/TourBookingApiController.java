@@ -125,11 +125,23 @@ public class TourBookingApiController {
             // 4. Create Tour Booking
             Long bookingId = tourBookingService.createTourBooking(request);
 
-            return ResponseEntity.ok(Map.of(
-                    "status", "success",
-                    "bookingId", bookingId,
-                    "message", "Đặt tour thành công!"
-            ));
+            // Build detailed success payload with customer info
+            Map<String, Object> responsePayload = new java.util.HashMap<>();
+            responsePayload.put("status", "success");
+            responsePayload.put("bookingId", bookingId);
+            responsePayload.put("message", "Đặt tour thành công!");
+            responsePayload.put("tourName", tour.getTourName());
+            java.math.BigDecimal totalPrice = tour.getBasePrice().multiply(java.math.BigDecimal.valueOf(participantCount));
+            responsePayload.put("totalPrice", totalPrice);
+            responsePayload.put("paymentMethod", paymentMethod);
+            responsePayload.put("depositAmount", totalPrice.multiply(new java.math.BigDecimal("0.3")));
+            responsePayload.put("roomNumber", roomNumber);
+            if (customer != null) {
+                responsePayload.put("customerName", customer.getFullName());
+                responsePayload.put("customerEmail", customer.getEmail());
+                responsePayload.put("customerPhone", customer.getPhone());
+            }
+            return ResponseEntity.ok(responsePayload);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(400).body(Map.of(

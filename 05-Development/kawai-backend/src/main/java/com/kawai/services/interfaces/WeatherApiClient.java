@@ -22,4 +22,13 @@ public interface WeatherApiClient {
      * @throws RuntimeException nếu API không phản hồi hoặc lỗi kết nối
      */
     WeatherInfo getWeatherForDate(LocalDate date);
+
+    /**
+     * Lấy thông tin thời tiết cho một ngày và địa điểm cụ thể.
+     *
+     * @param date ngày cần lấy thời tiết
+     * @param location địa điểm (tỉnh/thành phố) cần lấy thời tiết
+     * @return WeatherInfo chứa mô tả và nhiệt độ, hoặc null nếu không lấy được
+     */
+    WeatherInfo getWeatherForDateAndLocation(LocalDate date, String location);
 }
