@@ -31,7 +31,7 @@ INSERT INTO Accounts (account_id, username, password_hash, is_active, role_id, c
 (10, 'mylinh', '$2a$10$4bnThA4xQVw1rF2POQv78uAQll2KsUsgF32JaYiVG5d2d3Fhgk83q', TRUE, 9, CURRENT_TIMESTAMP),
 (11, 'hoanganh', '$2a$10$4bnThA4xQVw1rF2POQv78uAQll2KsUsgF32JaYiVG5d2d3Fhgk83q', TRUE, 8, CURRENT_TIMESTAMP),
 (12, 'vuhung', '$2a$10$4bnThA4xQVw1rF2POQv78uAQll2KsUsgF32JaYiVG5d2d3Fhgk83q', TRUE, 8, CURRENT_TIMESTAMP),
-(13, 'tourguide', '$2a$10$4bnThA4xQVw1rF2POQv78uAQll2KsUsgF32JaYiVG5d2d3Fhgk83q', TRUE, 7, CURRENT_TIMESTAMP),
+(13, 'NguynNgoc', '$2a$10$ikP3XeXnMx/oLodhs4wqBO61AhyuE4dWtSJDJcOH7D2ii5Vrgq0bG', TRUE, 8, CURRENT_TIMESTAMP),
 (14, 'guide2', '$2a$10$ikP3XeXnMx/oLodhs4wqBO61AhyuE4dWtSJDJcOH7D2ii5Vrgq0bG', TRUE, 7, CURRENT_TIMESTAMP),
 (15, 'guide3', '$2a$10$ikP3XeXnMx/oLodhs4wqBO61AhyuE4dWtSJDJcOH7D2ii5Vrgq0bG', TRUE, 7, CURRENT_TIMESTAMP),
 (16, 'housekeep1', '$2a$10$ikP3XeXnMx/oLodhs4wqBO61AhyuE4dWtSJDJcOH7D2ii5Vrgq0bG', TRUE, 5, CURRENT_TIMESTAMP),
@@ -511,10 +511,10 @@ INSERT INTO Payment_Transactions (transaction_id, invoice_id, booking_id, amount
 
 -- ── 27. Tours (10 rows) ──────────────────────────────────────
 INSERT INTO Tours (tour_id, tour_name, tour_type, duration, base_price, max_capacity, short_quote, description, created_at, is_active) VALUES 
-(1, 'Đoàn tụ - Huế', 'Full-Day', '12 Giờ', 1500000, 20, 'Tìm về hơi ấm vẹn nguyên của lòng biết ơn và sự gắn kết.', 'Hành trình di sản cố đô Huế trải nghiệm văn hoá ẩm thực cung đình Huế.', CURRENT_TIMESTAMP, TRUE),
-(2, 'Tinh túy đồng nội - Quảng Nam', 'Half-Day', '6 Giờ', 1200000, 15, 'Lắng nghe nhịp điệu mộc mạc của đất mẹ và hồn quê xứ Quảng.', 'Tham quan phố cổ Hội An, làng rau Trà Quế và làng gốm Thanh Hà.', CURRENT_TIMESTAMP, TRUE),
-(3, 'Di sản thủ công - Ninh Bình', 'Half-Day', '5 Giờ', 1800000, 15, 'Chạm vào hồn cốt của thời gian qua những tạo tác từ đôi bàn tay nghệ nhân.', 'Khám phá đầm Vân Long và làng nghề thêu ren truyền thống Văn Lâm.', CURRENT_TIMESTAMP, TRUE),
-(4, 'Tĩnh lặng liên hoa - Tháp Mười', 'Full-Day', '10 Giờ', 2500000, 10, 'Sự thanh lọc thuần khiết cho thân - tâm - trí giữa vùng sông nước mờ sương.', 'Đi xuồng ba lá ngắm sen nở rộ Đồng Tháp Mười thiền định thư thái.', CURRENT_TIMESTAMP, TRUE),
+(1, 'Đoàn tụ - Huế', 'doantu', '12 Giờ', 5000000, 20, 'Tìm về hơi ấm vẹn nguyên của lòng biết ơn và sự gắn kết.', 'Hành trình di sản cố đô Huế trải nghiệm văn hoá ẩm thực cung đình Huế.', CURRENT_TIMESTAMP, TRUE),
+(2, 'Tinh túy đồng nội - Quảng Nam', 'dongnoi', '6 Giờ', 7000000, 15, 'Lắng nghe nhịp điệu mộc mạc của đất mẹ và hồn quê xứ Quảng.', 'Tham quan phố cổ Hội An, làng rau Trà Quế và làng gốm Thanh Hà.', CURRENT_TIMESTAMP, TRUE),
+(3, 'Di sản thủ công - Ninh Bình', 'disan', '5 Giờ', 5000000, 15, 'Chạm vào hồn cốt của thời gian qua những tạo tác từ đôi bàn tay nghệ nhân.', 'Khám phá đầm Vân Long và làng nghề thêu ren truyền thống Văn Lâm.', CURRENT_TIMESTAMP, TRUE),
+(4, 'Tĩnh lặng liên hoa - Tháp Mười', 'tinhlang', '10 Giờ', 7000000, 10, 'Sự thanh lọc thuần khiết cho thân - tâm - trí giữa vùng sông nước mờ sương.', 'Đi xuồng ba lá ngắm sen nở rộ Đồng Tháp Mười thiền định thư thái.', CURRENT_TIMESTAMP, TRUE),
 (5, 'Huyền thoại vịnh xanh - Hạ Long', 'Half-Day', '4 Giờ', 1000000, 30, 'Du thuyền sang trọng ngắm kỳ quan thiên nhiên thế giới.', 'Lướt sóng vịnh Bắc Bộ ngắm động Thiên Cung hoành tráng.', CURRENT_TIMESTAMP, TRUE),
 (6, 'Bình yên bản nhỏ - Sapa', 'Full-Day', '8 Giờ', 1300000, 20, 'Gặp gỡ nụ cười hồn hậu vùng cao mây phủ.', 'Leo ruộng bậc thang bản Cát Cát trải nghiệm văn hoá đồng bào H’mông.', CURRENT_TIMESTAMP, TRUE),
 (7, 'Nhịp đập hoang dã - Cát Tiên', 'Full-Day', '14 Giờ', 2200000, 12, 'Lắng nghe tiếng gọi rừng xanh thẳm huyền bí.', 'Xem thú ban đêm rừng Nam Cát Tiên ngắm chim muông kì thú.', CURRENT_TIMESTAMP, TRUE),

@@ -39,10 +39,17 @@ public class TourController {
 
     private final TourService tourService;
     private final com.kawai.repositories.CustomerRepository customerRepository;
+    private final com.kawai.repositories.TourRepository tourRepository;
+    private final com.kawai.services.interfaces.WeatherApiClient weatherApiClient;
 
-    public TourController(TourService tourService, com.kawai.repositories.CustomerRepository customerRepository) {
+    public TourController(TourService tourService, 
+                          com.kawai.repositories.CustomerRepository customerRepository, 
+                          com.kawai.repositories.TourRepository tourRepository,
+                          com.kawai.services.interfaces.WeatherApiClient weatherApiClient) {
         this.tourService = tourService;
         this.customerRepository = customerRepository;
+        this.tourRepository = tourRepository;
+        this.weatherApiClient = weatherApiClient;
     }
 
     @GetMapping
@@ -93,6 +100,26 @@ public class TourController {
             Model model) {
         model.addAttribute("isLoggedIn", principal != null);
         model.addAttribute("type", type);
+        
+        com.kawai.models.Tour tour = tourRepository.findFirstByTourTypeAndIsActiveTrueOrderByIdDesc(type).orElse(null);
+        if (tour == null) {
+            tour = tourRepository.findByTourType(type).orElse(null);
+        }
+        if (tour != null) {
+            model.addAttribute("dynamicPrice", tour.getBasePrice());
+        }
+
+        String[] tourTypes = {"doantu", "dongnoi", "disan", "tinhlang"};
+        for (String tType : tourTypes) {
+            com.kawai.models.Tour activeTour = tourRepository.findFirstByTourTypeAndIsActiveTrueOrderByIdDesc(tType).orElse(null);
+            if (activeTour == null) {
+                activeTour = tourRepository.findByTourType(tType).orElse(null);
+            }
+            if (activeTour != null) {
+                model.addAttribute("dbTour_" + tType, activeTour);
+            }
+        }
+
         if (principal != null) {
             String username = principal.getName();
             if (principal instanceof org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken) {
@@ -110,7 +137,17 @@ public class TourController {
         return "guest/tour-detail";
     }
 
-
+    /**
+     * API lấy thông tin thời tiết thực tế từ wttr.in cho giao diện.
+     */
+    @GetMapping("/api/weather")
+    @org.springframework.web.bind.annotation.ResponseBody
+    public com.kawai.dto.WeatherInfo getWeather(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            @RequestParam(required = false, defaultValue = "Hue") String location) {
+        if (date == null) date = LocalDate.now();
+        return weatherApiClient.getWeatherForDateAndLocation(date, location);
+    }
 
     /**
      * Trả về {@code fromDate} nếu được cung cấp, ngược lại trả về hôm nay.

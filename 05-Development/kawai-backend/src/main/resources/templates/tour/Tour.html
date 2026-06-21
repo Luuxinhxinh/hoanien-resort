@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html class="light" lang="vi" style="">
+<html class="light" lang="vi" xmlns:th="http://www.thymeleaf.org" style="">
 
 <head>
     <meta charset="utf-8">
@@ -144,52 +144,99 @@
 </head>
 
 <body class="font-body selection:bg-primary/30">
-    <header class="fixed top-0 left-0 w-full z-50 mix-blend-difference">
+    <header class="fixed top-0 left-0 w-full z-50">
         <div
             class="max-w-container-max mx-auto px-margin-desktop h-24 flex items-center justify-between relative text-white">
-            <nav class="hidden lg:flex items-center gap-12 w-1/3">
+            <nav class="hidden lg:flex items-center gap-12 w-1/3 mix-blend-difference">
                 <a class="text-[10px] font-semibold uppercase tracking-[0.3em] hover:text-primary transition-colors"
                     href="#journey-1" data-i18n="nav_doantu">Đoàn Tụ</a>
                 <a class="text-[10px] font-semibold uppercase tracking-[0.3em] hover:text-primary transition-colors"
                     href="#journey-2" data-i18n="nav_dongnoi">Đồng Nội</a>
             </nav>
 
-            <div class="absolute left-1/2 -translate-x-1/2">
+            <div class="absolute left-1/2 -translate-x-1/2 mix-blend-difference">
                 <a class="font-headline text-[32px] italic tracking-tighter" href="#">HoaNien</a>
             </div>
 
             <div class="hidden lg:flex items-center justify-end gap-6 w-1/3">
-                <nav class="flex items-center gap-8">
+                <nav class="flex items-center gap-8 mix-blend-difference">
                     <a class="text-[10px] font-semibold uppercase tracking-[0.3em] hover:text-primary transition-colors"
                         href="#journey-3" data-i18n="nav_disan">Di Sản</a>
                     <a class="text-[10px] font-semibold uppercase tracking-[0.3em] hover:text-primary transition-colors"
                         href="#journey-4" data-i18n="nav_tinhlang">Tĩnh Lặng</a>
                 </nav>
-                <div class="flex items-center gap-3 pl-4 border-l border-white/20">
+                <div class="flex items-center gap-3 pl-4 border-l border-white/20 mix-blend-difference">
                     <span class="lang-btn active text-[10px] font-semibold uppercase tracking-[0.1em]" data-lang="vi"
                         onclick="switchLang('vi')">VI</span>
                     <span class="text-[10px] text-white/30">|</span>
                     <span class="lang-btn text-[10px] font-semibold uppercase tracking-[0.1em]" data-lang="en"
                         onclick="switchLang('en')">EN</span>
                 </div>
-                <a class="hover:text-primary transition-colors duration-300 flex items-center justify-center pt-1"
-                    href="#login" title="Đăng nhập">
-                    <span class="material-symbols-outlined text-[24px]">person</span>
-                </a>
+                <!-- Desktop View -->
+                <!-- Settings Button for Tour Guide Info -->
+                <button th:if="${username != null}" onclick="openGuideSettingsModal(event)" class="hover:text-primary transition-colors duration-300 flex items-center justify-center pt-1 focus:outline-none mix-blend-difference mr-2" title="Cài đặt thông tin hướng dẫn viên">
+                    <span class="material-symbols-outlined text-[24px]">settings</span>
+                </button>
+                <div class="relative inline-block text-left" th:if="${username != null}">
+                    <button onclick="toggleProfileDropdown(event)" class="hover:text-primary transition-colors duration-300 flex items-center justify-center pt-1 focus:outline-none mix-blend-difference" title="Tài khoản">
+                        <span class="material-symbols-outlined text-[24px]">person</span>
+                    </button>
+                    <div id="profileDropdown" class="hidden absolute right-0 mt-2 w-56 bg-[#f1ebe3] border border-[#3a3230]/20 shadow-lg text-[#3a3230] font-sans z-[100] rounded">
+                        <div class="p-4 border-b border-[#3a3230]/10 text-left">
+                            <p class="text-[10px] uppercase tracking-wider text-[#3a3230]/60 font-semibold">Tài khoản</p>
+                            <p class="font-medium text-sm mt-1 text-[#3a3230] font-semibold" th:text="${username}">Guide</p>
+                            <p class="text-[11px] text-[#3a3230]/80 mt-0.5">Vai trò: Hướng dẫn viên</p>
+                        </div>
+                        <div class="p-2 text-left">
+                            <form th:action="@{/auth/logout}" method="post" class="w-full">
+                                <button type="submit" class="w-full text-left px-3 py-2 text-xs text-red-700 hover:bg-[#3a3230]/5 transition-colors font-bold uppercase tracking-wider">Đăng xuất</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="relative inline-block text-left" th:unless="${username != null}">
+                    <button onclick="openRegisterModal()" class="hover:text-primary transition-colors duration-300 flex items-center justify-center pt-1 focus:outline-none mix-blend-difference" title="Đăng ký">
+                        <span class="material-symbols-outlined text-[24px]">person</span>
+                    </button>
+                </div>
             </div>
 
             <div class="lg:hidden flex items-center gap-3">
-                <div class="flex items-center gap-2 mr-2">
+                <div class="flex items-center gap-2 mr-2 mix-blend-difference">
                     <span class="lang-btn active text-[10px] font-semibold uppercase tracking-[0.1em]" data-lang="vi"
                         onclick="switchLang('vi')">VI</span>
                     <span class="text-[10px] text-white/30">|</span>
                     <span class="lang-btn text-[10px] font-semibold uppercase tracking-[0.1em]" data-lang="en"
                         onclick="switchLang('en')">EN</span>
                 </div>
-                <a class="hover:text-primary transition-colors flex items-center pt-1" href="#login">
-                    <span class="material-symbols-outlined text-[24px]">person</span>
-                </a>
-                <span class="material-symbols-outlined" data-icon="menu">menu</span>
+                <!-- Mobile View -->
+                <!-- Settings Button for Tour Guide Info (Mobile) -->
+                <button th:if="${username != null}" onclick="openGuideSettingsModal(event)" class="hover:text-primary transition-colors flex items-center pt-1 focus:outline-none mix-blend-difference mr-2" title="Cài đặt thông tin hướng dẫn viên">
+                    <span class="material-symbols-outlined text-[24px]">settings</span>
+                </button>
+                <div class="relative inline-block text-left" th:if="${username != null}">
+                    <button onclick="toggleProfileDropdownMobile(event)" class="hover:text-primary transition-colors flex items-center pt-1 focus:outline-none mix-blend-difference" title="Tài khoản">
+                        <span class="material-symbols-outlined text-[24px]">person</span>
+                    </button>
+                    <div id="profileDropdownMobile" class="hidden absolute right-0 mt-2 w-56 bg-[#f1ebe3] border border-[#3a3230]/20 shadow-lg text-[#3a3230] font-sans z-[100] rounded">
+                        <div class="p-4 border-b border-[#3a3230]/10 text-left">
+                            <p class="text-[10px] uppercase tracking-wider text-[#3a3230]/60 font-semibold">Tài khoản</p>
+                            <p class="font-medium text-sm mt-1 text-[#3a3230] font-semibold" th:text="${username}">Guide</p>
+                            <p class="text-[11px] text-[#3a3230]/80 mt-0.5">Vai trò: Hướng dẫn viên</p>
+                        </div>
+                        <div class="p-2 text-left">
+                            <form th:action="@{/auth/logout}" method="post" class="w-full">
+                                <button type="submit" class="w-full text-left px-3 py-2 text-xs text-red-700 hover:bg-[#3a3230]/5 transition-colors font-bold uppercase tracking-wider">Đăng xuất</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="relative inline-block text-left" th:unless="${username != null}">
+                    <button onclick="openRegisterModal()" class="hover:text-primary transition-colors flex items-center pt-1 focus:outline-none mix-blend-difference" title="Đăng ký">
+                        <span class="material-symbols-outlined text-[24px]">person</span>
+                    </button>
+                </div>
+                <span class="material-symbols-outlined mix-blend-difference" data-icon="menu">menu</span>
             </div>
         </div>
     </header>
@@ -228,7 +275,7 @@
             </div>
             <div class="relative h-full flex items-center justify-center text-center px-margin-desktop">
                 <div class="max-w-3xl space-y-8">
-                    <h2 class="font-headline text-4xl md:text-[70px] italic" data-i18n="j1_title">Đoàn tụ - Huế</h2>
+                    <h2 class="font-headline text-4xl md:text-[70px] italic whitespace-nowrap" data-i18n="j1_title">Đoàn tụ - Huế</h2>
                     <div class="w-12 h-[1px] bg-primary mx-auto"></div>
                     <p class="font-headline text-lg md:text-2xl font-light leading-relaxed opacity-90"
                         data-i18n="j1_desc">
@@ -250,8 +297,7 @@
             </div>
             <div class="relative h-full flex items-center justify-center text-center px-margin-desktop">
                 <div class="max-w-3xl space-y-8">
-                    <h2 class="font-headline text-4xl md:text-[70px] italic" data-i18n="j2_title">Tinh túy đồng nội - Quảng
-                        Nam</h2>
+                    <h2 class="font-headline text-3xl md:text-[55px] italic whitespace-nowrap" data-i18n="j2_title">Tinh túy đồng nội - Quảng Nam</h2>
                     <div class="w-12 h-[1px] bg-primary mx-auto"></div>
                     <p class="font-headline text-lg md:text-2xl font-light leading-relaxed opacity-90"
                         data-i18n="j2_desc">
@@ -273,8 +319,7 @@
             </div>
             <div class="relative h-full flex items-center justify-center text-center px-margin-desktop">
                 <div class="max-w-3xl space-y-8">
-                    <h2 class="font-headline text-4xl md:text-[70px] italic" data-i18n="j3_title">Di sản thủ công - Ninh
-                        Bình</h2>
+                    <h2 class="font-headline text-3xl md:text-[55px] italic whitespace-nowrap" data-i18n="j3_title">Di sản thủ công - Ninh Bình</h2>
                     <div class="w-12 h-[1px] bg-primary mx-auto"></div>
                     <p class="font-headline text-lg md:text-2xl font-light leading-relaxed opacity-90"
                         data-i18n="j3_desc">
@@ -296,8 +341,7 @@
             </div>
             <div class="relative h-full flex items-center justify-center text-center px-margin-desktop">
                 <div class="max-w-3xl space-y-8">
-                    <h2 class="font-headline text-4xl md:text-[70px] italic" data-i18n="j4_title">Tĩnh lặng liên hoa - Tháp
-                        Mười</h2>
+                    <h2 class="font-headline text-3xl md:text-[55px] italic whitespace-nowrap" data-i18n="j4_title">Tĩnh lặng liên hoa - Tháp Mười</h2>
                     <div class="w-12 h-[1px] bg-primary mx-auto"></div>
                     <p class="font-headline text-lg md:text-2xl font-light leading-relaxed opacity-90"
                         data-i18n="j4_desc">
@@ -453,7 +497,137 @@
                 });
             });
         });
+
+        function toggleProfileDropdown(e) {
+            e.stopPropagation();
+            const dropdown = document.getElementById('profileDropdown');
+            if (dropdown) dropdown.classList.toggle('hidden');
+            const dropdownMobile = document.getElementById('profileDropdownMobile');
+            if (dropdownMobile) dropdownMobile.classList.add('hidden');
+        }
+        function toggleProfileDropdownMobile(e) {
+            e.stopPropagation();
+            const dropdownMobile = document.getElementById('profileDropdownMobile');
+            if (dropdownMobile) dropdownMobile.classList.toggle('hidden');
+            const dropdown = document.getElementById('profileDropdown');
+            if (dropdown) dropdown.classList.add('hidden');
+        }
+        document.addEventListener('click', () => {
+            const dropdown = document.getElementById('profileDropdown');
+            if (dropdown) dropdown.classList.add('hidden');
+            const dropdownMobile = document.getElementById('profileDropdownMobile');
+            if (dropdownMobile) dropdownMobile.classList.add('hidden');
+        });
+
+        function openGuideSettingsModal(e) {
+            e.stopPropagation();
+            const modal = document.getElementById('guideSettingsModal');
+            if (modal) modal.classList.remove('hidden');
+        }
+
+        function closeGuideSettingsModal() {
+            const modal = document.getElementById('guideSettingsModal');
+            if (modal) modal.classList.add('hidden');
+        }
     </script>
+    
+    <!-- Guide Settings Modal -->
+    <div id="guideSettingsModal" class="fixed inset-0 z-[150] hidden flex items-center justify-center bg-black/60 backdrop-blur-sm">
+        <div class="bg-[#fdfbf7] w-full max-w-lg p-8 border border-[#3a3230]/20 shadow-2xl relative text-[#372618]">
+            <button onclick="closeGuideSettingsModal()" class="absolute top-4 right-4 text-[#372618]/60 hover:text-[#372618] transition-colors focus:outline-none">
+                <span class="material-symbols-outlined text-2xl">close</span>
+            </button>
+            <h3 class="font-headline-md text-2xl text-primary font-bold mb-2 border-b border-[#3a3230]/10 pb-3">Thông tin hướng dẫn viên</h3>
+            
+            <!-- Read / Update / Delete Form (If employee exists) -->
+            <div th:if="${employee != null}">
+                <form th:action="@{/tourguide/profile/update}" method="post" class="space-y-4 mt-4">
+                    <input type="hidden" name="redirectUrl" th:value="${requestUri}"/>
+                    
+                    <div class="space-y-1">
+                        <label class="font-label-caps text-[10px] text-outline uppercase block text-left">Họ và tên</label>
+                        <input name="fullName" required th:value="${employee.fullName}" class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-primary focus:border-primary transition-all text-left"/>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="font-label-caps text-[10px] text-outline uppercase block text-left">Giới tính</label>
+                        <select name="gender" class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-primary focus:border-primary transition-all text-left">
+                            <option value="Male" th:selected="${employee.gender == 'Male'}">Nam</option>
+                            <option value="Female" th:selected="${employee.gender == 'Female'}">Nữ</option>
+                            <option value="Other" th:selected="${employee.gender == 'Other'}">Khác</option>
+                        </select>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="font-label-caps text-[10px] text-outline uppercase block text-left">Số CCCD</label>
+                        <input name="cccd" required th:value="${employee.cccd}" class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-primary focus:border-primary transition-all text-left"/>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="font-label-caps text-[10px] text-outline uppercase block text-left">Số điện thoại</label>
+                        <input name="phone" required th:value="${employee.phone}" class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-primary focus:border-primary transition-all text-left"/>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="font-label-caps text-[10px] text-outline uppercase block text-left">Email</label>
+                        <input name="email" type="email" required th:value="${employee.email}" class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-primary focus:border-primary transition-all text-left"/>
+                    </div>
+                    <div class="space-y-1 text-left">
+                        <label class="font-label-caps text-[10px] text-outline uppercase block text-left">Mức lương cứng</label>
+                        <p class="font-body-md text-primary font-semibold" th:text="${#numbers.formatDecimal(employee.salary, 0, 'COMMA', 0, 'POINT') + ' VNĐ'}">0 VNĐ</p>
+                    </div>
+                    
+                    <div class="pt-4 flex gap-4">
+                        <button type="submit" class="flex-grow py-3 bg-primary text-background font-label-caps text-[11px] hover:bg-primary/95 transition-all tracking-wider font-semibold">
+                            CẬP NHẬT
+                        </button>
+                    </div>
+                </form>
+                <form th:action="@{/tourguide/profile/delete}" method="post" class="mt-2 text-left">
+                    <input type="hidden" name="redirectUrl" th:value="${requestUri}"/>
+                    <button type="submit" onclick="return confirm('Bạn có chắc chắn muốn xóa hồ sơ này không?')" class="w-full py-2 border border-red-600 text-red-600 hover:bg-red-50 font-label-caps text-[10px] font-bold tracking-wider transition-all">
+                        XÓA HỒ SƠ HƯỚNG DẪN VIÊN
+                    </button>
+                </form>
+            </div>
+            
+            <!-- Create Form (If employee does not exist) -->
+            <div th:if="${employee == null}">
+                <p class="text-sm text-[#3a3230]/80 mb-4 text-left">Bạn chưa thiết lập hồ sơ hướng dẫn viên. Hãy nhập thông tin bên dưới để tạo mới.</p>
+                <form th:action="@{/tourguide/profile/create}" method="post" class="space-y-4">
+                    <input type="hidden" name="redirectUrl" th:value="${requestUri}"/>
+                    
+                    <div class="space-y-1">
+                        <label class="font-label-caps text-[10px] text-outline uppercase block text-left">Họ và tên</label>
+                        <input name="fullName" required placeholder="Nguyễn Văn A" class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-primary focus:border-primary transition-all text-left"/>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="font-label-caps text-[10px] text-outline uppercase block text-left">Giới tính</label>
+                        <select name="gender" class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-primary focus:border-primary transition-all text-left">
+                            <option value="Male">Nam</option>
+                            <option value="Female">Nữ</option>
+                            <option value="Other">Khác</option>
+                        </select>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="font-label-caps text-[10px] text-outline uppercase block text-left">Số CCCD</label>
+                        <input name="cccd" required placeholder="012345678912" class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-primary focus:border-primary transition-all text-left"/>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="font-label-caps text-[10px] text-outline uppercase block text-left">Số điện thoại</label>
+                        <input name="phone" required placeholder="0987654321" class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-primary focus:border-primary transition-all text-left"/>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="font-label-caps text-[10px] text-outline uppercase block text-left">Email</label>
+                        <input name="email" type="email" required placeholder="guide@example.com" class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-primary focus:border-primary transition-all text-left"/>
+                    </div>
+                    
+                    <div class="pt-4">
+                        <button type="submit" class="w-full py-3 bg-gold-accent text-white font-label-caps text-[11px] hover:bg-gold-accent/90 transition-all tracking-wider font-semibold">
+                            TẠO HỒ SƠ
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div th:replace="~{guest/fragments/auth :: authModal}"></div>
 </body>
 
 </html>

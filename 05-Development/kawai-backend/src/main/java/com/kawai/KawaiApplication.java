@@ -11,3 +11,4 @@ public class KawaiApplication {
         SpringApplication.run(KawaiApplication.class, args);
     }
 }
+
