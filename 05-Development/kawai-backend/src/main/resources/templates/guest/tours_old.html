@@ -174,12 +174,12 @@
             <!-- Right Actions -->
             <div class="hidden lg:flex items-center gap-6 text-[13px] uppercase tracking-[0.2em] font-semibold">
                 <!-- Profile / Logout if logged in -->
-                <a href="/profile" th:if="${isLoggedIn}" class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200">Profile</a>
-                <form th:action="@{/auth/logout}" method="post" th:if="${isLoggedIn}" class="inline">
+                <a href="/profile" th:if="${session.user != null}" class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200">Profile</a>
+                <form th:action="@{/auth/logout}" method="post" th:if="${session.user != null}" class="inline">
                     <button type="submit" class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200 uppercase tracking-[0.2em] bg-transparent border-none p-0 cursor-pointer">Logout</button>
                 </form>
 
-                <a href="#" onclick="openLoginModal(); return false;" th:unless="${isLoggedIn}" class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200">Log In</a>
+                <a href="#" onclick="openLoginModal(); return false;" th:unless="${session.user != null}" class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200">Log In</a>
                     <a href="/booking" class="nav-btn-book px-8 py-3.5 hover:opacity-90 active:scale-[0.98] active:translate-y-[0.5px] transition-all duration-200 inline-block text-center text-[13px]">
                     Book Now
                 </a>

@@ -71,9 +71,9 @@
             </div>
             <div class="adm-form-group"><label class="adm-form-label">Vai trò</label>
                 <select name="role" class="adm-form-select" id="account-role-select">
-                    <option th:each="r : ${staffRoles}" th:value="${r.roleName}" th:text="${r.roleName}"
+                    <option th:each="r : ${staffRoles}" th:value="${r}" th:text="${r}"
                         class="role-staff"></option>
-                    <option th:each="r : ${guestRoles}" th:value="${r.roleName}" th:text="${r.roleName}"
+                    <option th:each="r : ${guestRoles}" th:value="${r}" th:text="${r}"
                         class="role-guest" style="display:none"></option>
                 </select>
             </div>
@@ -82,14 +82,17 @@
                     required></div>
             <div class="adm-form-group"><label class="adm-form-label">Số điện thoại</label><input type="text"
                     name="phone" class="adm-form-input"></div>
+            <div class="adm-form-group"><label class="adm-form-label">CCCD / Passport</label><input type="text"
+                    name="cccd" class="adm-form-input"></div>
             <div class="adm-form-group"><label class="adm-form-label">Giới tính</label>
                 <select name="gender" class="adm-form-select">
-                    <option value="MALE">Nam</option>
-                    <option value="FEMALE">Nữ</option>
+                    <option value="Nam">Nam</option>
+                    <option value="Nữ">Nữ</option>
                 </select>
             </div>
-            <div class="adm-form-group"><label class="adm-form-label">Mật khẩu (Password)</label><input type="password"
-                    name="password" class="adm-form-input"></div>
+            <div class="adm-form-group"><label class="adm-form-label">Mật khẩu (Password)</label>
+                <input type="password" name="password" class="adm-form-input" placeholder="Bỏ trống nếu không muốn đổi">
+            </div>
 
             <!-- Employee specific fields (hidden by default unless type = Nhân viên) -->
             <div class="employee-fields" id="account-employee-fields"

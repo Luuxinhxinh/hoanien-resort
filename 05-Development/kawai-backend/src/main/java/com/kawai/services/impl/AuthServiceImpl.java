@@ -13,6 +13,9 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
+import java.util.Map;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -35,6 +38,9 @@ public class AuthServiceImpl implements AuthService {
     @Autowired
     private EmailService emailService;
 
+    @Autowired
+    private WorkflowRepository workflowRepository;
+
     @org.springframework.beans.factory.annotation.Value("${app.base-url:http://localhost:8080}")
     private String baseUrl;
 
@@ -44,41 +50,70 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     public boolean register(String username, String password, String email, String fullName, String gender,
             String phone) {
-        if (accountRepository.existsByUsername(username)) {
-            throw new IllegalArgumentException("Tên đăng nhập đã tồn tại!");
-        }
-        if (customerRepository.existsByEmail(email)) {
-            throw new IllegalArgumentException("Email này đã được sử dụng!");
-        }
-
+        
         if (!isValidPassword(password)) {
             throw new IllegalArgumentException("Mật khẩu phải có ít nhất 6 ký tự.");
         }
 
-        Role customerRole = roleRepository.findByRoleName("CUSTOMER NORMAL")
-                .or(() -> roleRepository.findByRoleName("CUSTOMER"))
-                .orElseGet(() -> {
-                    Role newRole = new Role();
-                    newRole.setRoleName("CUSTOMER");
-                    return roleRepository.save(newRole);
-                });
+        Account accountToUse = null;
+        Customer customerToUse = null;
 
-        Account account = new Account();
-        account.setUsername(username);
-        account.setPasswordHash(passwordEncoder.encode(password));
-        account.setRole(customerRole);
-        account.setIsActive(false); // Chờ xác thực OTP
-        account = accountRepository.save(account);
+        Optional<Account> existingAccOpt = accountRepository.findByUsername(username);
+        if (existingAccOpt.isPresent()) {
+            Account acc = existingAccOpt.get();
+            if (acc.getIsActive() != null && acc.getIsActive()) {
+                throw new IllegalArgumentException("Tên đăng nhập đã tồn tại!");
+            } else {
+                accountToUse = acc;
+            }
+        }
 
-        Customer customer = new Customer();
-        customer.setAccount(account);
-        customer.setFullName(fullName != null && !fullName.trim().isEmpty() ? fullName : username);
-        customer.setEmail(email);
-        customer.setGender(gender != null ? gender : "Other");
-        customer.setPhone(phone != null && !phone.trim().isEmpty() ? phone : "0000000000");
-        customerRepository.save(customer);
+        Optional<Customer> existingCustOpt = customerRepository.findByEmail(email);
+        if (existingCustOpt.isPresent()) {
+            Customer cust = existingCustOpt.get();
+            Account custAcc = cust.getAccount();
+            if (custAcc != null && custAcc.getIsActive() != null && custAcc.getIsActive()) {
+                throw new IllegalArgumentException("Email này đã được sử dụng!");
+            } else if (custAcc != null && (custAcc.getIsActive() == null || !custAcc.getIsActive())) {
+                if (accountToUse != null && !custAcc.getId().equals(accountToUse.getId())) {
+                    throw new IllegalArgumentException("Email này đang chờ xác thực cho một tên đăng nhập khác!");
+                }
+                accountToUse = custAcc;
+                customerToUse = cust;
+            }
+        }
 
-        writeAuditLog(account, "REGISTER", "Accounts", account.getId(), null, "Registered account " + username);
+        if (accountToUse == null) {
+            accountToUse = new Account();
+            accountToUse.setUsername(username);
+            Role customerRole = roleRepository.findByRoleName("CUSTOMER NORMAL")
+                    .or(() -> roleRepository.findByRoleName("CUSTOMER"))
+                    .orElseGet(() -> {
+                        Role newRole = new Role();
+                        newRole.setRoleName("CUSTOMER");
+                        return roleRepository.save(newRole);
+                    });
+            accountToUse.setRole(customerRole);
+        } else {
+            accountToUse.setUsername(username);
+        }
+
+        accountToUse.setPasswordHash(passwordEncoder.encode(password));
+        accountToUse.setIsActive(false); // Chờ xác thực OTP
+        accountToUse = accountRepository.save(accountToUse);
+
+        if (customerToUse == null) {
+            customerToUse = customerRepository.findByAccount_Username(accountToUse.getUsername()).orElse(new Customer());
+        }
+        
+        customerToUse.setAccount(accountToUse);
+        customerToUse.setFullName(fullName != null && !fullName.trim().isEmpty() ? fullName : username);
+        customerToUse.setEmail(email);
+        customerToUse.setGender(gender != null ? gender : "Other");
+        customerToUse.setPhone(phone != null && !phone.trim().isEmpty() ? phone : "0000000000");
+        customerRepository.save(customerToUse);
+
+        writeAuditLog(accountToUse, "REGISTER", "Accounts", accountToUse.getId(), null, "Registered account " + username);
 
         return true;
     }
@@ -93,8 +128,30 @@ public class AuthServiceImpl implements AuthService {
 
         Account account = optAcc.get();
 
+        int maxAttempts = 5; // default
+        int lockMinutes = 15; // default
+
+        try {
+            Optional<Workflow> activeWfOpt = workflowRepository.findByTriggerEventAndIsActive("ACCOUNT_SECURITY", true).stream().findFirst();
+            if (activeWfOpt.isPresent()) {
+                Workflow wf = activeWfOpt.get();
+                if (wf.getConditionsJson() != null && !wf.getConditionsJson().trim().isEmpty()) {
+                    ObjectMapper mapper = new ObjectMapper();
+                    Map<String, Object> conds = mapper.readValue(wf.getConditionsJson(), new TypeReference<Map<String, Object>>() {});
+                    if (conds.containsKey("failed_login_attempts")) {
+                        maxAttempts = Integer.parseInt(conds.get("failed_login_attempts").toString());
+                    }
+                    if (conds.containsKey("lockout_time_minutes")) {
+                        lockMinutes = Integer.parseInt(conds.get("lockout_time_minutes").toString());
+                    }
+                }
+            }
+        } catch (Exception e) {
+            // fallback
+        }
+
         if (account.getLockoutTime() != null && account.getLockoutTime().isAfter(LocalDateTime.now())) {
-            throw new IllegalStateException("AUTH-005: Tài khoản bị khóa do nhập sai quá 5 lần");
+            throw new IllegalStateException("AUTH-005: Tài khoản bị khóa do nhập sai quá " + maxAttempts + " lần");
         }
 
         if (passwordEncoder.matches(password, account.getPasswordHash())) {
@@ -107,8 +164,9 @@ public class AuthServiceImpl implements AuthService {
             int attempts = account.getFailedLoginAttempts() != null ? account.getFailedLoginAttempts() : 0;
             attempts++;
             account.setFailedLoginAttempts(attempts);
-            if (attempts >= 5) {
-                account.setLockoutTime(LocalDateTime.now().plusMinutes(15));
+            if (attempts >= maxAttempts) {
+                account.setLockoutTime(LocalDateTime.now().plusMinutes(lockMinutes));
+                account.setIsActive(false);
             }
             accountRepository.save(account);
             writeAuditLog(account, "LOGIN_FAIL", "Accounts", account.getId(), null,

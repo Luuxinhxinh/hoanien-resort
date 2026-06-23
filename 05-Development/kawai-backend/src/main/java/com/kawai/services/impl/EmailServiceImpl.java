@@ -146,4 +146,22 @@ public class EmailServiceImpl implements EmailService {
                 "</div>" +
                 "</body></html>";
     }
+
+    @Override
+    public void sendSlaWarningEmail(String toEmail, String taskName, int pendingMinutes, String roomNumber) {
+        String subject = "[SLA Warning] Nhiệm vụ chưa nhận việc quá hạn - KAWAI Resort";
+        String htmlContent = "<!DOCTYPE html><html><body>" +
+                "<h2>CẢNH BÁO SLA QUÁ HẠN NHẬN VIỆC</h2>" +
+                "<p>Kính gửi Supervisor,</p>" +
+                "<p>Hệ thống phát hiện nhiệm vụ sau đã quá hạn thời gian nhận việc theo quy định:</p>" +
+                "<ul>" +
+                "<li><strong>Nhiệm vụ:</strong> " + taskName + "</li>" +
+                "<li><strong>Phòng:</strong> " + (roomNumber != null ? roomNumber : "N/A") + "</li>" +
+                "<li><strong>Thời gian chờ:</strong> " + pendingMinutes + " phút (Vượt ngưỡng quy định)</li>" +
+                "</ul>" +
+                "<p>Vui lòng đăng nhập hệ thống Admin để điều phối và xử lý ngay lập tức.</p>" +
+                "<br/><p>Trân trọng,<br/>Kawai Operational Workflow Engine</p>" +
+                "</body></html>";
+        sendEmail(toEmail, subject, htmlContent);
+    }
 }

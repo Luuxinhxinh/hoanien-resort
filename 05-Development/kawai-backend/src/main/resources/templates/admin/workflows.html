@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Cấu hình quy trình tự động — Hoanien Retreat Operations Hub</title>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" th:href="@{/admin/css/theme.css}" href="../../static/admin/css/theme.css"/>
+    <link rel="stylesheet" th:href="@{/admin/css/admin.css}" href="../../static/admin/css/admin.css"/>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            gold: '#C9A96E',
+                            goldDark: '#A88A52',
+                            bgDark: '#1A1813',
+                            cardDark: '#24211A',
+                            borderDark: '#3A352A'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom overrides to match premium theme.css */
+        body {
+            background-color: #FAF9F6;
+            color: #2C2A24;
+        }
+        .workflow-card {
+            background: #FFFFFF;
+            border: 1px solid rgba(201, 169, 110, 0.15);
+            box-shadow: 0 4px 20px rgba(44, 42, 36, 0.04);
+            border-radius: 8px;
+        }
+        .workflow-table-hdr {
+            background: rgba(201, 169, 110, 0.05);
+            border-bottom: 1px solid rgba(201, 169, 110, 0.15);
+        }
+    </style>
+</head>
+<body>
+
+<!-- ═══════════════════════ SIDEBAR ═══════════════════════ -->
+<aside th:replace="~{admin/fragments/sidebar :: sidebar('workflows', '')}"></aside>
+
+<!-- ═══════════════════════ MAIN ═══════════════════════ -->
+<div class="adm-main">
+
+    <header class="adm-header">
+        <div class="adm-header-left">
+            <span class="adm-breadcrumb-site">Hoanien Retreat</span>
+            <span class="adm-breadcrumb-sep">/</span>
+            <span class="adm-breadcrumb-page" style="color:#6B6558">Luồng vận hành</span>
+            <span class="adm-breadcrumb-sep">/</span>
+            <span class="adm-breadcrumb-page">Kích hoạt luồng</span>
+        </div>
+        <div class="adm-header-right">
+            <button class="adm-header-icon-btn"><i data-lucide="search"></i></button>
+            <button class="adm-header-icon-btn">
+                <i data-lucide="bell"></i>
+                <span class="adm-notif-dot"></span>
+            </button>
+            <div class="adm-divider-v"></div>
+            <div class="adm-header-user-box">
+                <div class="adm-header-avatar">AD</div>
+                <span class="adm-header-username">Admin Dũng</span>
+            </div>
+            <div class="adm-divider-v"></div>
+            <a href="/logout" class="adm-header-logout"><i data-lucide="log-out" style="width:12px;height:12px"></i>Đăng xuất</a>
+        </div>
+    </header>
+
+    <main class="adm-page p-6 max-w-7xl mx-auto">
+        <div class="mb-6">
+            <p class="adm-page-eyebrow text-xs tracking-widest text-[#A88A52] uppercase font-bold">Quy trình tự động hóa</p>
+            <h1 class="text-2xl font-semibold tracking-tight text-[#2C2A24] font-serif">Workflow Engine</h1>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 mt-6">
+            <!-- LEFT PANEL: WORKFLOW LIST (col-span-7) -->
+            <div class="lg:col-span-7 space-y-6">
+                <div class="workflow-card p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <div>
+                            <h2 class="text-md font-semibold text-[#2C2A24] font-serif">Danh sách luồng quy trình</h2>
+                            <p class="text-xs text-[#8A8576]">Các kịch bản tự động hóa vận hành được cấu hình trong hệ thống</p>
+                        </div>
+                        <span id="workflow-count-badge" class="px-2 py-0.5 bg-brand-gold/10 text-brand-goldDark text-xs font-bold rounded-full">0 active</span>
+                    </div>
+
+                    <!-- Workflow Grid Table -->
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="workflow-table-hdr text-xs font-bold text-[#8A8576] uppercase tracking-wider">
+                                    <th class="py-3 px-4">Tên quy trình</th>
+                                    <th class="py-3 px-4">Sự kiện kích hoạt</th>
+                                    <th class="py-3 px-4 text-center">Trạng thái</th>
+                                    <th class="py-3 px-4 text-right">Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody id="workflow-list-body" class="divide-y divide-brand-gold/10 text-sm text-[#4E4A3F]">
+                                <!-- Dynamically Rendered -->
+                                <tr>
+                                    <td colspan="4" class="py-8 text-center text-xs text-[#8A8576]">Đang tải dữ liệu quy trình...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT PANEL: RULE BUILDER FORM (col-span-5) -->
+            <div class="lg:col-span-5">
+                <div class="workflow-card p-6 sticky top-6">
+                    <h2 id="form-title" class="text-md font-semibold text-[#2C2A24] font-serif mb-1">Cấu hình quy trình mới</h2>
+                    <p class="text-xs text-[#8A8576] mb-6">Thiết lập điều kiện lọc và hành động tương ứng cho các sự kiện</p>
+
+                    <form id="workflow-form" class="space-y-5" onsubmit="saveWorkflow(event)">
+                        <input type="hidden" id="workflow-id" name="id" value=""/>
+
+                        <!-- Workflow Name -->
+                        <div>
+                            <label class="block text-xs font-bold text-[#6B6558] uppercase tracking-wider mb-2">Tên cấu hình quy trình</label>
+                            <input type="text" id="workflow-name" name="workflowName" placeholder="Ví dụ: Tự động khóa phòng báo hỏng" required
+                                   class="w-full px-3 py-2 border border-brand-gold/20 rounded focus:outline-none focus:ring-1 focus:ring-brand-gold text-sm bg-white"/>
+                        </div>
+
+                        <!-- Trigger Event Dropdown -->
+                        <div>
+                            <label class="block text-xs font-bold text-[#6B6558] uppercase tracking-wider mb-2">KHI SỰ KIỆN NÀY XẢY RA</label>
+                            <select id="trigger-event" name="triggerEvent" onchange="onTriggerChange()" required
+                                    class="w-full px-3 py-2 border border-brand-gold/20 rounded focus:outline-none focus:ring-1 focus:ring-brand-gold text-sm bg-white">
+                                <option value="" disabled selected>-- Chọn sự kiện kích hoạt --</option>
+                                <option value="ROOM_REPORT_DAMAGE">Nhân viên buồng phòng báo hỏng phòng (ROOM_REPORT_DAMAGE)</option>
+                                <option value="PROMOTION_EXCEEDED">Lễ tân áp dụng mã giảm giá vượt ngưỡng (PROMOTION_EXCEEDED)</option>
+                            </select>
+                        </div>
+
+                        <!-- Dynamic Conditions Section -->
+                        <div id="conditions-section" class="hidden p-4 bg-brand-gold/5 rounded border border-brand-gold/15">
+                            <label class="block text-xs font-bold text-[#6B6558] uppercase tracking-wider mb-2">ĐIỀU KIỆN (NẾU CÓ)</label>
+                            
+                            <!-- Case: PROMOTION_EXCEEDED -->
+                            <div id="cond-promo-exceeded" class="hidden space-y-3">
+                                <div class="flex items-center gap-2 text-sm text-[#4E4A3F]">
+                                    <span>Ngưỡng giảm giá vượt quá</span>
+                                    <input type="number" id="cond-threshold-pct" placeholder="15" min="1" max="100"
+                                           class="w-16 px-2 py-1 border border-brand-gold/25 rounded text-center focus:outline-none focus:ring-1 focus:ring-brand-gold text-sm bg-white"/>
+                                    <span>%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Actions Section -->
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center">
+                                <label class="block text-xs font-bold text-[#6B6558] uppercase tracking-wider">THÌ TỰ ĐỘNG THỰC HIỆN CÁC HÀNH ĐỘNG</label>
+                                <button type="button" onclick="addActionRow()" class="text-xs font-bold text-[#A88A52] hover:text-brand-gold flex items-center gap-1">
+                                    <i data-lucide="plus" class="w-3.5 h-3.5"></i> Thêm hành động
+                                </button>
+                            </div>
+
+                            <div id="actions-container" class="space-y-3">
+                                <!-- Dynamic Action Rows -->
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="flex justify-end gap-3 pt-4 border-t border-brand-gold/10">
+                            <button type="button" onclick="resetForm()" class="px-4 py-2 border border-brand-gold/20 text-[#8A8576] hover:bg-brand-gold/5 rounded text-xs font-bold tracking-wider uppercase">
+                                Nhập mới
+                            </button>
+                            <button type="submit" class="px-4 py-2 bg-brand-gold hover:bg-brand-goldDark text-white rounded text-xs font-bold tracking-wider uppercase shadow-sm">
+                                Lưu quy trình
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div id="toast-container" class="fixed bottom-5 right-5 z-50 space-y-2"></div>
+
+<script>
+    // Initialize Lucide Icons
+    lucide.createIcons();
+
+    // Workflows List State
+    let workflows = [];
+
+    // On Load
+    document.addEventListener("DOMContentLoaded", () => {
+        loadWorkflows();
+    });
+
+    // Fetch and Load Workflows
+    async function loadWorkflows() {
+        try {
+            const res = await fetch("/admin/api/v1/workflows");
+            if (!res.ok) throw new Error("Không thể tải danh sách quy trình");
+            workflows = await res.json();
+            renderWorkflows();
+        } catch (err) {
+            showToast(err.message, "error");
+        }
+    }
+
+    // Render Table
+    function renderWorkflows() {
+        const tbody = document.getElementById("workflow-list-body");
+        const badge = document.getElementById("workflow-count-badge");
+        
+        if (workflows.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" class="py-8 text-center text-xs text-[#8A8576]">Chưa có quy trình tự động nào được thiết lập.</td></tr>`;
+            badge.innerText = "0 active";
+            return;
+        }
+
+        let activeCount = workflows.filter(w => w.isActive).length;
+        badge.innerText = `${activeCount} active`;
+
+        tbody.innerHTML = workflows.map(w => {
+            const eventLabel = w.triggerEvent === 'ROOM_REPORT_DAMAGE' 
+                ? '<span class="px-2 py-0.5 bg-blue-50 text-blue-700 rounded border border-blue-200 text-[11px] font-bold">Báo hỏng phòng</span>' 
+                : '<span class="px-2 py-0.5 bg-purple-50 text-purple-700 rounded border border-purple-200 text-[11px] font-bold">Giảm giá vượt ngưỡng</span>';
+
+            const activeClass = w.isActive 
+                ? 'bg-brand-gold' 
+                : 'bg-gray-200';
+            
+            const handleTranslateX = w.isActive
+                ? 'translate-x-4'
+                : 'translate-x-0';
+
+            return `
+                <tr class="hover:bg-brand-gold/[0.02] transition">
+                    <td class="py-4 px-4 font-semibold text-[#2C2A24]">${escapeHtml(w.workflowName)}</td>
+                    <td class="py-4 px-4">${eventLabel}</td>
+                    <td class="py-4 px-4 text-center">
+                        <button onclick="toggleWorkflowStatus(${w.id})" class="relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none ${activeClass}">
+                            <span class="inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${handleTranslateX} ml-1"></span>
+                        </button>
+                    </td>
+                    <td class="py-4 px-4 text-right space-x-2">
+                        <button onclick="editWorkflow(${w.id})" class="text-[#A88A52] hover:text-brand-gold font-medium inline-flex items-center gap-0.5" title="Chỉnh sửa">
+                            <i data-lucide="edit-2" class="w-3.5 h-3.5"></i> Sửa
+                        </button>
+                        <button onclick="deleteWorkflow(${w.id})" class="text-red-600 hover:text-red-800 font-medium inline-flex items-center gap-0.5 ml-2" title="Xóa">
+                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Xóa
+                        </button>
+                    </td>
+                </tr>
+            `;
+        }).join("");
+        
+        lucide.createIcons();
+    }
+
+    // Toggle Trigger Event View
+    function onTriggerChange() {
+        const select = document.getElementById("trigger-event");
+        const val = select.value;
+        
+        const condSection = document.getElementById("conditions-section");
+        const condPromo = document.getElementById("cond-promo-exceeded");
+
+        condSection.classList.add("hidden");
+        condPromo.classList.add("hidden");
+
+        if (val === "PROMOTION_EXCEEDED") {
+            condSection.classList.remove("hidden");
+            condPromo.classList.remove("hidden");
+        } else if (val === "ROOM_REPORT_DAMAGE") {
+            // Auto populate actions for Report Damage if empty to guide the user
+            const actionsContainer = document.getElementById("actions-container");
+            if (actionsContainer.children.length === 0) {
+                addActionRow("UPDATE_ROOM_STATUS", "Maintenance");
+                addActionRow("CREATE_OPERATION_TASK", "Maintenance");
+            }
+        }
+    }
+
+    // Dynamic Action Rows builder
+    function addActionRow(actionType = "", actionValue = "") {
+        const container = document.getElementById("actions-container");
+        const rowId = 'action-row-' + Date.now() + Math.random().toString(36).substr(2, 5);
+        
+        const rowDiv = document.createElement("div");
+        rowDiv.id = rowId;
+        rowDiv.className = "flex items-center gap-2 p-3 bg-[#FAF9F6] rounded border border-brand-gold/10 action-item-row";
+        
+        rowDiv.innerHTML = `
+            <div class="flex-1 space-y-2">
+                <select onchange="onActionTypeChange('${rowId}')" class="w-full px-2 py-1 border border-brand-gold/25 rounded text-sm bg-white action-type-select">
+                    <option value="" disabled selected>-- Chọn hành động --</option>
+                    <option value="UPDATE_ROOM_STATUS" ${actionType === "UPDATE_ROOM_STATUS" ? "selected" : ""}>Cập nhật trạng thái phòng thành...</option>
+                    <option value="CREATE_OPERATION_TASK" ${actionType === "CREATE_OPERATION_TASK" ? "selected" : ""}>Tạo nhiệm vụ vận hành giao cho đội...</option>
+                </select>
+
+                <div class="action-value-container">
+                    <!-- Loaded dynamically based on action type selection -->
+                </div>
+            </div>
+            <button type="button" onclick="removeActionRow('${rowId}')" class="text-red-500 hover:text-red-700 p-1" title="Xóa hành động">
+                <i data-lucide="trash-2" class="w-4 h-4"></i>
+            </button>
+        `;
+        
+        container.appendChild(rowDiv);
+        lucide.createIcons();
+
+        // Trigger change to load options
+        onActionTypeChange(rowId, actionValue);
+    }
+
+    function onActionTypeChange(rowId, defaultValue = "") {
+        const row = document.getElementById(rowId);
+        if (!row) return;
+
+        const typeSelect = row.querySelector(".action-type-select");
+        const valContainer = row.querySelector(".action-value-container");
+        const type = typeSelect.value;
+
+        valContainer.innerHTML = "";
+
+        if (type === "UPDATE_ROOM_STATUS") {
+            valContainer.innerHTML = `
+                <select class="w-full px-2 py-1 border border-brand-gold/20 rounded text-sm bg-white action-val-input">
+                    <option value="Maintenance" ${defaultValue === "Maintenance" ? "selected" : ""}>Maintenance (Bảo trì)</option>
+                    <option value="Vacant_Clean" ${defaultValue === "Vacant_Clean" ? "selected" : ""}>Vacant Clean (Trống sạch)</option>
+                    <option value="Dirty" ${defaultValue === "Dirty" ? "selected" : ""}>Dirty (Phòng bẩn)</option>
+                </select>
+            `;
+        } else if (type === "CREATE_OPERATION_TASK") {
+            valContainer.innerHTML = `
+                <select class="w-full px-2 py-1 border border-brand-gold/20 rounded text-sm bg-white action-val-input">
+                    <option value="Maintenance" ${defaultValue === "Maintenance" ? "selected" : ""}>Đội bảo trì (Maintenance)</option>
+                    <option value="Housekeeping" ${defaultValue === "Housekeeping" ? "selected" : ""}>Đội buồng phòng (Housekeeping)</option>
+                </select>
+            `;
+        }
+    }
+
+    function removeActionRow(rowId) {
+        const row = document.getElementById(rowId);
+        if (row) {
+            row.remove();
+        }
+    }
+
+    // Save Workflow (Submit Handler)
+    async function saveWorkflow(e) {
+        e.preventDefault();
+        
+        const id = document.getElementById("workflow-id").value;
+        const name = document.getElementById("workflow-name").value;
+        const triggerEvent = document.getElementById("trigger-event").value;
+
+        // Construct Conditions Object
+        const conditions = {};
+        if (triggerEvent === "PROMOTION_EXCEEDED") {
+            const thresholdInput = document.getElementById("cond-threshold-pct").value;
+            if (thresholdInput) {
+                conditions.threshold_pct_gt = parseInt(thresholdInput, 10);
+            }
+        }
+
+        // Construct Actions List
+        const actions = [];
+        const actionRows = document.querySelectorAll(".action-item-row");
+        actionRows.forEach(row => {
+            const type = row.querySelector(".action-type-select").value;
+            const valInput = row.querySelector(".action-val-input");
+            if (type && valInput) {
+                actions.push({
+                    type: type,
+                    value: valInput.value
+                });
+            }
+        });
+
+        const payload = {
+            id: id ? id : null,
+            workflowName: name,
+            triggerEvent: triggerEvent,
+            conditionsJson: conditions,
+            actionsJson: actions,
+            isActive: true
+        };
+
+        try {
+            const res = await fetch("/admin/api/v1/workflows", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (!res.ok) {
+                const errData = await res.json();
+                throw new Error(errData.error || "Không thể lưu quy trình");
+            }
+
+            showToast(id ? "Cập nhật quy trình thành công" : "Tạo quy trình thành công", "success");
+            resetForm();
+            loadWorkflows();
+        } catch (err) {
+            showToast(err.message, "error");
+        }
+    }
+
+    // Toggle Workflow Active Status
+    async function toggleWorkflowStatus(id) {
+        try {
+            const res = await fetch(`/admin/api/v1/workflows/${id}/toggle`, {
+                method: "PATCH"
+            });
+            if (!res.ok) throw new Error("Không thể thay đổi trạng thái quy trình");
+            const data = await res.json();
+            
+            // Update local state without reloading
+            workflows = workflows.map(w => w.id === id ? { ...w, isActive: data.isActive } : w);
+            renderWorkflows();
+            showToast("Đã thay đổi trạng thái quy trình", "success");
+        } catch (err) {
+            showToast(err.message, "error");
+        }
+    }
+
+    // Edit button click handler
+    function editWorkflow(id) {
+        const w = workflows.find(item => item.id === id);
+        if (!w) return;
+
+        document.getElementById("form-title").innerText = "Chỉnh sửa quy trình";
+        document.getElementById("workflow-id").value = w.id;
+        document.getElementById("workflow-name").value = w.workflowName;
+        document.getElementById("trigger-event").value = w.triggerEvent;
+        
+        onTriggerChange();
+
+        // Load conditions
+        if (w.conditionsJson) {
+            try {
+                const cond = JSON.parse(w.conditionsJson);
+                if (cond.threshold_pct_gt) {
+                    document.getElementById("cond-threshold-pct").value = cond.threshold_pct_gt;
+                }
+            } catch (e) {
+                console.error("Error parsing conditions_json", e);
+            }
+        }
+
+        // Load Actions
+        const container = document.getElementById("actions-container");
+        container.innerHTML = "";
+        if (w.actionsJson) {
+            try {
+                const actionsList = JSON.parse(w.actionsJson);
+                actionsList.forEach(act => {
+                    addActionRow(act.type, act.value);
+                });
+            } catch (e) {
+                console.error("Error parsing actions_json", e);
+            }
+        }
+    }
+
+    // Delete Workflow
+    async function deleteWorkflow(id) {
+        if (!confirm("Bạn có chắc chắn muốn xóa quy trình này?")) return;
+
+        try {
+            const res = await fetch(`/admin/api/v1/workflows/${id}`, {
+                method: "DELETE"
+            });
+            if (!res.ok) throw new Error("Không thể xóa quy trình");
+            
+            showToast("Đã xóa quy trình thành công", "success");
+            loadWorkflows();
+        } catch (err) {
+            showToast(err.message, "error");
+        }
+    }
+
+    // Reset Form to Default empty values
+    function resetForm() {
+        document.getElementById("form-title").innerText = "Cấu hình quy trình mới";
+        document.getElementById("workflow-id").value = "";
+        document.getElementById("workflow-form").reset();
+        document.getElementById("actions-container").innerHTML = "";
+        onTriggerChange();
+    }
+
+    // Premium Toast feedback alerts
+    function showToast(msg, type = "info") {
+        const container = document.getElementById("toast-container");
+        const toast = document.createElement("div");
+        toast.className = `flex items-center gap-3 px-4 py-3 rounded shadow-md border text-sm transition-all duration-300 transform translate-y-2 opacity-0`;
+        
+        if (type === "success") {
+            toast.className += " bg-emerald-50 border-emerald-200 text-emerald-800";
+            toast.innerHTML = `<i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600"></i> <span>${msg}</span>`;
+        } else if (type === "error") {
+            toast.className += " bg-rose-50 border-rose-200 text-rose-800";
+            toast.innerHTML = `<i data-lucide="alert-octagon" class="w-4 h-4 text-rose-600"></i> <span>${msg}</span>`;
+        } else {
+            toast.className += " bg-brand-gold/10 border-brand-gold/25 text-[#4E4A3F]";
+            toast.innerHTML = `<i data-lucide="info" class="w-4 h-4 text-brand-gold"></i> <span>${msg}</span>`;
+        }
+
+        container.appendChild(toast);
+        lucide.createIcons();
+
+        // Animate in
+        setTimeout(() => {
+            toast.classList.remove("translate-y-2", "opacity-0");
+        }, 10);
+
+        // Animate out and remove
+        setTimeout(() => {
+            toast.classList.add("translate-y-2", "opacity-0");
+            setTimeout(() => {
+                toast.remove();
+            }, 300);
+        }, 4000);
+    }
+
+    // Safe escape helper
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/&/g, "&amp;")
+                  .replace(/</g, "&lt;")
+                  .replace(/>/g, "&gt;")
+                  .replace(/"/g, "&quot;")
+                  .replace(/'/g, "&#039;");
+    }
+</script>
+
+</body>
+</html>

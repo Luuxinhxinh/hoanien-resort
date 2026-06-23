@@ -17,8 +17,8 @@
     <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
     <style>
         body {
-            background-color: #1f1b16;
-            color: #fff8f4;
+            background-color: #fdfbf7;
+            color: #372618;
             -webkit-font-smoothing: antialiased;
         }
 
@@ -284,36 +284,36 @@
 
         /* Make text bolder and highly readable */
         .text-on-surface-variant {
-            color: #dec1ac !important;
+            color: #866D57 !important;
             font-weight: 700 !important;
         }
 
         .text-primary,
         .text-primary-fixed,
         .font-body-md {
-            color: #fff8f4 !important;
+            color: #372618 !important;
             font-weight: 700 !important;
         }
 
         .font-headline-md,
         .font-label-caps {
-            color: #fbddc7 !important;
+            color: #866D57 !important;
             font-weight: 700 !important;
         }
 
         .bg-surface-container-low,
         .bg-surface-container {
-            background-color: #28241e !important;
-            border-color: rgba(251, 221, 199, 0.25) !important;
+            background-color: #fcf2e9 !important;
+            border-color: rgba(134, 109, 87, 0.2) !important;
         }
 
         .border-outline-variant {
-            border-color: rgba(251, 221, 199, 0.25) !important;
+            border-color: rgba(134, 109, 87, 0.15) !important;
         }
 
         th,
         td {
-            color: #fff8f4 !important;
+            color: #372618 !important;
             font-weight: 700 !important;
         }
 
@@ -341,7 +341,7 @@
                         "primary": "#fbddc7",
                         "surface": "#fff8f4",
                         "on-surface": "#1f1b16",
-                        "outline-variant": "rgba(251, 221, 199, 0.2)",
+                        "outline-variant": "rgba(134, 109, 87, 0.15)",
                         "tertiary-fixed": "#e8e2d3",
                         "surface-container-highest": "#ebe1d8",
                         "inverse-surface": "#35302a",
@@ -357,7 +357,7 @@
                         "surface-container-high": "#f1e6de",
                         "surface-tint": "#705a49",
                         "outline": "#80756d",
-                        "background": "#1f1b16",
+                        "background": "#fdfbf7",
                         "surface-container": "#f6ece3",
                         "on-primary-container": "#a58c79",
                         "surface-variant": "#ebe1d8",
@@ -393,71 +393,7 @@
     </script>
 </head>
 
-<body class="flex flex-col min-h-screen pt-36">
-    <!-- Sticky Navigation Bar -->
-    <header id="header-wrapper" class="fixed top-0 left-0 w-full z-50 flex flex-col pointer-events-none text-[#3a3230]">
-        <!-- Main Nav -->
-        <nav class="guest-nav relative w-full font-sans pointer-events-auto">
-            <div class="max-w-[1440px] mx-auto px-6 py-4 flex items-center justify-between">
-                <!-- Left Links -->
-                <div class="hidden lg:flex items-center gap-8 text-[13px] uppercase tracking-[0.2em] font-semibold">
-                    <a th:href="@{/living}"
-                        class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200">Nghỉ
-                        Dưỡng</a>
-                    <a th:href="@{/dining}"
-                        class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200">Ẩm Thực</a>
-                    <a th:href="@{/experiences}"
-                        class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200">Trải
-                        Nghiệm</a>
-                    <a th:href="@{/tours/search}" class="nav-text border-b border-current pb-0.5">Hành Trình</a>
-                </div>
-
-                <!-- Center Logo -->
-                <div class="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 font-headline text-[32px] italic tracking-tighter nav-brand text-center cursor-pointer w-max"
-                    onclick="window.location.href='/booking'">
-                    HoaNien
-                </div>
-
-                <!-- Right Actions -->
-                <div class="hidden lg:flex items-center gap-6 text-[13px] uppercase tracking-[0.2em] font-semibold">
-                    <a th:href="@{/profile}" th:if="${isLoggedIn}"
-                        class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200">Hồ Sơ</a>
-                    <form th:action="@{/auth/logout}" method="post" th:if="${isLoggedIn}" class="inline">
-                        <button type="submit"
-                            class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200 uppercase tracking-[0.2em] bg-transparent border-none p-0 cursor-pointer font-sans font-semibold">Đăng
-                            Xuất</button>
-                    </form>
-                    <a th:href="@{/booking}"
-                        class="nav-btn-book px-8 py-3.5 hover:opacity-90 active:scale-[0.98] transition-all duration-200 inline-block text-center text-[13px]">
-                        Đặt Ngay
-                    </a>
-                </div>
-
-                <button class="lg:hidden pointer-events-auto">
-                    <span class="material-symbols-outlined text-3xl nav-menu-icon">menu</span>
-                </button>
-            </div>
-        </nav>
-
-        <!-- Sub-navigation -->
-        <div class="guest-sub-nav w-full font-sans pointer-events-auto">
-            <div
-                class="max-w-[1440px] mx-auto px-6 py-3 flex justify-center gap-8 md:gap-12 text-xs uppercase tracking-[0.15em] font-medium overflow-x-auto">
-                <a th:href="@{/tours/search#journey-1}"
-                    class="sub-nav-text hover:opacity-100 active:scale-95 transition-all duration-200 whitespace-nowrap">Đoàn
-                    Tụ</a>
-                <a th:href="@{/tours/search#journey-2}"
-                    class="sub-nav-text hover:opacity-100 active:scale-95 transition-all duration-200 whitespace-nowrap">Đồng
-                    Nội</a>
-                <a th:href="@{/tours/search#journey-3}"
-                    class="sub-nav-text hover:opacity-100 active:scale-95 transition-all duration-200 whitespace-nowrap">Di
-                    Sản</a>
-                <a th:href="@{/tours/search#journey-4}"
-                    class="sub-nav-text hover:opacity-100 active:scale-95 transition-all duration-200 whitespace-nowrap">Tĩnh
-                    Lặng</a>
-            </div>
-        </div>
-    </header>
+<body class="flex flex-col min-h-screen pt-4">
     <!-- Header -->
     <header
         class="bg-background border-b border-outline-variant flex justify-between items-center w-full px-margin-desktop py-gutter max-w-container-max mx-auto h-20">
@@ -484,13 +420,26 @@
             </nav>
         </div>
         <div class="flex items-center gap-4">
-            <div class="text-right">
-                <p class="font-label-caps text-[11px] text-on-surface-variant">Hướng dẫn viên</p>
-                <p class="font-body-md text-body-md text-primary font-medium"
-                    th:text="${username != null ? username : 'Guide'}">Guide</p>
-            </div>
-            <div class="w-10 h-10 bg-surface-container-highest overflow-hidden flex items-center justify-center">
-                <span class="material-symbols-outlined text-[20px] text-on-surface-variant">person</span>
+            <!-- Settings Button for Tour Guide Info -->
+            <button onclick="openGuideSettingsModal(event)" class="hover:text-primary transition-colors duration-300 flex items-center justify-center focus:outline-none mr-2" title="Cài đặt thông tin hướng dẫn viên">
+                <span class="material-symbols-outlined text-[24px] text-primary">settings</span>
+            </button>
+            <div class="relative inline-block text-left">
+                <button onclick="toggleProfileDropdown(event)" class="hover:text-primary transition-colors duration-300 flex items-center justify-center focus:outline-none" title="Tài khoản">
+                    <span class="material-symbols-outlined text-[24px] text-primary">person</span>
+                </button>
+                <div id="profileDropdown" class="hidden absolute right-0 mt-2 w-56 bg-[#f1ebe3] border border-[#3a3230]/20 shadow-lg text-[#3a3230] font-sans z-[100] rounded">
+                    <div class="p-4 border-b border-[#3a3230]/10 text-left">
+                        <p class="text-[10px] uppercase tracking-wider text-[#3a3230]/60 font-semibold">Tài khoản</p>
+                        <p class="font-medium text-sm mt-1 text-[#3a3230] font-semibold" th:text="${username}">Guide</p>
+                        <p class="text-[11px] text-[#3a3230]/80 mt-0.5">Vai trò: Hướng dẫn viên</p>
+                    </div>
+                    <div class="p-2 text-left">
+                        <form th:action="@{/auth/logout}" method="post" class="w-full">
+                            <button type="submit" class="w-full text-left px-3 py-2 text-xs text-red-700 hover:bg-[#3a3230]/5 transition-colors font-bold uppercase tracking-wider">Đăng xuất</button>
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
     </header>
@@ -499,7 +448,7 @@
         style="padding-bottom: 100px;">
         <!-- Left: Tour Info -->
         <section class="w-1/4 flex flex-col faded-entry">
-            <div class="mb-6 p-5 bg-primary text-white">
+            <div class="mb-6 p-5 bg-[#3a3230] text-white">
                 <div class="flex items-center gap-2 mb-3">
                     <span class="material-symbols-outlined text-champagne text-[18px]">tour</span>
                     <span class="font-label-caps text-[10px] tracking-widest text-champagne">LỊCH TRÌNH HÔM NAY</span>
@@ -535,7 +484,7 @@
                     <span class="font-caption text-[12px] text-on-surface-variant ml-1">khách</span>
                 </div>
                 <div class="w-full bg-surface-container-highest h-1.5 overflow-hidden">
-                    <div class="bg-primary h-full transition-all duration-500"
+                    <div class="bg-[#866D57] h-full transition-all duration-500"
                         th:style="'width: ' + (${totalAttendees} > 0 ? ${checkedInCount * 100 / totalAttendees} : 0) + '%'">
                     </div>
                 </div>
@@ -697,17 +646,17 @@
             <!-- Buttons -->
             <div class="mt-auto space-y-3 pt-4">
                 <button id="btn-camera" onclick="toggleCamera()"
-                    class="w-full border border-primary py-3 font-label-caps text-[11px] text-primary hover:bg-primary hover:text-white transition-all duration-300 flex items-center justify-center gap-2">
+                    class="w-full border border-[#3a3230] py-3 font-label-caps text-[11px] text-[#3a3230] hover:bg-[#3a3230]/5 transition-all duration-300 flex items-center justify-center gap-2">
                     <span class="material-symbols-outlined text-[16px]" id="camera-icon">videocam</span>
                     <span id="camera-btn-label">BẬT CAMERA</span>
                 </button>
                 <button id="btn-scan" onclick="captureAndScan()" disabled
-                    class="w-full py-3 font-label-caps text-[11px] transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed bg-primary text-white hover:bg-primary-container">
+                    class="w-full py-3 font-label-caps text-[11px] transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed bg-[#3a3230] text-[#fff8f4] hover:bg-[#1f1b16]">
                     <span class="material-symbols-outlined text-[16px]">center_focus_strong</span>
                     CHỤP ẢNH & QUÉT
                 </button>
                 <button id="btn-reset" onclick="resetCamera()" disabled
-                    class="w-full border border-outline-variant py-2.5 font-label-caps text-[11px] text-on-surface-variant hover:border-primary hover:text-primary transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-30 disabled:cursor-not-allowed">
+                    class="w-full border border-outline-variant py-2.5 font-label-caps text-[11px] text-on-surface-variant hover:border-primary-container hover:text-primary-container transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-30 disabled:cursor-not-allowed">
                     <span class="material-symbols-outlined text-[14px]">refresh</span> ĐẶT LẠI
                 </button>
             </div>
@@ -1050,11 +999,130 @@
             setTimeout(() => { toast.classList.add('hidden'); }, 4000);
         }
 
+        function toggleProfileDropdown(e) {
+            e.stopPropagation();
+            const dropdown = document.getElementById('profileDropdown');
+            if (dropdown) dropdown.classList.toggle('hidden');
+        }
+
+        document.addEventListener('click', () => {
+            const dropdown = document.getElementById('profileDropdown');
+            if (dropdown) dropdown.classList.add('hidden');
+        });
+
+        function openGuideSettingsModal(e) {
+            e.stopPropagation();
+            const modal = document.getElementById('guideSettingsModal');
+            if (modal) modal.classList.remove('hidden');
+        }
+
+        function closeGuideSettingsModal() {
+            const modal = document.getElementById('guideSettingsModal');
+            if (modal) modal.classList.add('hidden');
+        }
+
         // ==================== INIT ====================
         document.addEventListener('DOMContentLoaded', function () {
             loadModels();
         });
     </script>
+    
+    <!-- Guide Settings Modal -->
+    <div id="guideSettingsModal" class="fixed inset-0 z-[150] hidden flex items-center justify-center bg-black/60 backdrop-blur-sm">
+        <div class="bg-[#fdfbf7] w-full max-w-lg p-8 border border-[#3a3230]/20 shadow-2xl relative text-[#372618]">
+            <button onclick="closeGuideSettingsModal()" class="absolute top-4 right-4 text-[#372618]/60 hover:text-[#372618] transition-colors focus:outline-none">
+                <span class="material-symbols-outlined text-2xl">close</span>
+            </button>
+            <h3 class="font-headline-md text-2xl text-primary font-bold mb-2 border-b border-[#3a3230]/10 pb-3">Thông tin hướng dẫn viên</h3>
+            
+            <!-- Read / Update / Delete Form (If employee exists) -->
+            <div th:if="${employee != null}">
+                <form th:action="@{/tourguide/profile/update}" method="post" class="space-y-4 mt-4">
+                    <input type="hidden" name="redirectUrl" th:value="${requestUri}"/>
+                    
+                    <div class="space-y-1">
+                        <label class="font-label-caps text-[10px] text-outline uppercase block text-left">Họ và tên</label>
+                        <input name="fullName" required th:value="${employee.fullName}" class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-primary focus:border-primary transition-all text-left"/>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="font-label-caps text-[10px] text-outline uppercase block text-left">Giới tính</label>
+                        <select name="gender" class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-primary focus:border-primary transition-all text-left">
+                            <option value="Male" th:selected="${employee.gender == 'Male'}">Nam</option>
+                            <option value="Female" th:selected="${employee.gender == 'Female'}">Nữ</option>
+                            <option value="Other" th:selected="${employee.gender == 'Other'}">Khác</option>
+                        </select>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="font-label-caps text-[10px] text-outline uppercase block text-left">Số CCCD</label>
+                        <input name="cccd" required th:value="${employee.cccd}" class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-primary focus:border-primary transition-all text-left"/>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="font-label-caps text-[10px] text-outline uppercase block text-left">Số điện thoại</label>
+                        <input name="phone" required th:value="${employee.phone}" class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-primary focus:border-primary transition-all text-left"/>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="font-label-caps text-[10px] text-outline uppercase block text-left">Email</label>
+                        <input name="email" type="email" required th:value="${employee.email}" class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-primary focus:border-primary transition-all text-left"/>
+                    </div>
+                    <div class="space-y-1 text-left">
+                        <label class="font-label-caps text-[10px] text-outline uppercase block text-left">Mức lương cứng</label>
+                        <p class="font-body-md text-primary font-semibold" th:text="${#numbers.formatDecimal(employee.salary, 0, 'COMMA', 0, 'POINT') + ' VNĐ'}">0 VNĐ</p>
+                    </div>
+                    
+                    <div class="pt-4 flex gap-4">
+                        <button type="submit" class="flex-grow py-3 bg-primary text-background font-label-caps text-[11px] hover:bg-primary/95 transition-all tracking-wider font-semibold">
+                            CẬP NHẬT
+                        </button>
+                    </div>
+                </form>
+                <form th:action="@{/tourguide/profile/delete}" method="post" class="mt-2 text-left">
+                    <input type="hidden" name="redirectUrl" th:value="${requestUri}"/>
+                    <button type="submit" onclick="return confirm('Bạn có chắc chắn muốn xóa hồ sơ này không?')" class="w-full py-2 border border-red-600 text-red-600 hover:bg-red-50 font-label-caps text-[10px] font-bold tracking-wider transition-all">
+                        XÓA HỒ SƠ HƯỚNG DẪN VIÊN
+                    </button>
+                </form>
+            </div>
+            
+            <!-- Create Form (If employee does not exist) -->
+            <div th:if="${employee == null}">
+                <p class="text-sm text-[#3a3230]/80 mb-4 text-left">Bạn chưa thiết lập hồ sơ hướng dẫn viên. Hãy nhập thông tin bên dưới để tạo mới.</p>
+                <form th:action="@{/tourguide/profile/create}" method="post" class="space-y-4">
+                    <input type="hidden" name="redirectUrl" th:value="${requestUri}"/>
+                    
+                    <div class="space-y-1">
+                        <label class="font-label-caps text-[10px] text-outline uppercase block text-left">Họ và tên</label>
+                        <input name="fullName" required placeholder="Nguyễn Văn A" class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-primary focus:border-primary transition-all text-left"/>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="font-label-caps text-[10px] text-outline uppercase block text-left">Giới tính</label>
+                        <select name="gender" class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-primary focus:border-primary transition-all text-left">
+                            <option value="Male">Nam</option>
+                            <option value="Female">Nữ</option>
+                            <option value="Other">Khác</option>
+                        </select>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="font-label-caps text-[10px] text-outline uppercase block text-left">Số CCCD</label>
+                        <input name="cccd" required placeholder="012345678912" class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-primary focus:border-primary transition-all text-left"/>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="font-label-caps text-[10px] text-outline uppercase block text-left">Số điện thoại</label>
+                        <input name="phone" required placeholder="0987654321" class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-primary focus:border-primary transition-all text-left"/>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="font-label-caps text-[10px] text-outline uppercase block text-left">Email</label>
+                        <input name="email" type="email" required placeholder="guide@example.com" class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-primary focus:border-primary transition-all text-left"/>
+                    </div>
+                    
+                    <div class="pt-4">
+                        <button type="submit" class="w-full py-3 bg-gold-accent text-white font-label-caps text-[11px] hover:bg-gold-accent/90 transition-all tracking-wider font-semibold">
+                            TẠO HỒ SƠ
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>

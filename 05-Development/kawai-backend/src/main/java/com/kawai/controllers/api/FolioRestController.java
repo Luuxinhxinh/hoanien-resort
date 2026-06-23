@@ -30,6 +30,9 @@ import java.time.LocalDateTime;
 @RequestMapping("/api/folios")
 public class FolioRestController {
 
+    @Autowired
+    private com.kawai.services.interfaces.WorkflowEngineService workflowEngineService;
+
     private final NightAuditService nightAuditService;
     private final FolioItemRepository folioItemRepository;
     private final RoomBookingDetailRepository roomBookingDetailRepository;
@@ -214,12 +217,26 @@ public class FolioRestController {
         detail.setDetailStatus("Checked_Out");
         roomBookingDetailRepository.save(detail);
 
-        // 2. Thay đổi trạng thái phòng vật lý qua Dirty
+        // 2. Thay đổi trạng thái phòng vật lý qua Dirty (hoặc theo cấu hình workflow)
         Room room = detail.getRoom();
         if (room != null) {
-            room.setRoomStatus("Vacant_Dirty");
-            room.setCurrentBookingDetailId(null);
-            roomRepository.save(room);
+            boolean triggered = false;
+            try {
+                workflowEngineService.triggerEvent("ROOM_CHECKOUT", Map.of(
+                    "room_id", room.getId(),
+                    "booking_id", detail.getRoomBooking().getId(),
+                    "booking_detail_id", detail.getId()
+                ));
+                triggered = true;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            if (!triggered) {
+                room.setRoomStatus("Vacant_Dirty");
+                room.setCurrentBookingDetailId(null);
+                roomRepository.save(room);
+            }
         }
 
         // 3. Tạo hóa đơn tổng (Consolidated Invoice)

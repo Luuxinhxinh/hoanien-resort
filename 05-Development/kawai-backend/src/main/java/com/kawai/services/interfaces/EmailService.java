@@ -29,4 +29,9 @@ public interface EmailService {
      * @param fullName  Tên người dùng
      */
     void sendPasswordResetEmail(String toEmail, String resetLink, String fullName);
+
+    /**
+     * Gửi email cảnh báo SLA cho supervisor
+     */
+    void sendSlaWarningEmail(String toEmail, String taskName, int pendingMinutes, String roomNumber);
 }

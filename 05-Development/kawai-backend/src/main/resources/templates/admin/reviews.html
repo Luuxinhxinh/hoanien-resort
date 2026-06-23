@@ -12,63 +12,8 @@
 <body>
 
 <!-- ═══════════════════════ SIDEBAR ═══════════════════════ -->
-<aside class="adm-sidebar">
-    <div class="adm-sidebar-logo">
-        <div class="adm-sidebar-brand">
-            <div class="adm-sidebar-dot">✦</div>
-            <span class="adm-sidebar-brand-name">Hoanien Retreat</span>
-        </div>
-        <h1 class="adm-sidebar-title">Operations Hub</h1>
-    </div>
-    <nav class="adm-nav">
-        <div class="adm-nav-item">
-            <a href="/admin/dashboard" class="adm-nav-link">
-                <span class="adm-nav-icon"><i data-lucide="layout-dashboard"></i></span>
-                <span class="adm-nav-label">Tổng quan</span>
-            </a>
-        </div>
-        <div class="adm-nav-item">
-            <button id="master-data-toggle" class="adm-nav-link">
-                <span class="adm-nav-icon"><i data-lucide="database"></i></span>
-                <span class="adm-nav-label">Master Data</span>
-                <span class="adm-nav-arrow" id="master-data-arrow"><i data-lucide="chevron-right"></i></span>
-            </button>
-            <div id="master-data-submenu" class="adm-submenu">
-                <a href="/admin/master-data?tab=Room+Categories"    class="adm-submenu-link"><i data-lucide="layers"></i> Room Categories</a>
-                <a href="/admin/master-data?tab=Rooms"              class="adm-submenu-link"><i data-lucide="bed-double"></i> Rooms</a>
-                <a href="/admin/master-data?tab=Restaurant+Menu"    class="adm-submenu-link"><i data-lucide="utensils-crossed"></i> Restaurant Menu</a>
-                <a href="/admin/master-data?tab=Menu+Categories"    class="adm-submenu-link"><i data-lucide="tag"></i> Menu Categories</a>
-                <a href="/admin/master-data?tab=Tour+Categories"    class="adm-submenu-link"><i data-lucide="layers"></i> Tour Categories</a>
-                <a href="/admin/master-data?tab=Tours"              class="adm-submenu-link"><i data-lucide="map-pin"></i> Tours</a>
-                <a href="/admin/master-data?tab=Account+Management" class="adm-submenu-link"><i data-lucide="user-cog"></i> Account Management</a>
-                <a href="/admin/master-data?tab=Promotions"         class="adm-submenu-link"><i data-lucide="ticket"></i> Promotions</a>
-                <a href="/admin/master-data?tab=Pricing+Management" class="adm-submenu-link"><i data-lucide="database"></i> Pricing Management</a>
-            </div>
-        </div>
-        <div class="adm-nav-item">
-            <a href="/admin/audit-log" class="adm-nav-link">
-                <span class="adm-nav-icon"><i data-lucide="clipboard-list"></i></span>
-                <span class="adm-nav-label">Audit Log</span>
-            </a>
-        </div>
-        <!-- Reviews (Active) -->
-        <div class="adm-nav-item">
-            <a href="/admin/reviews" class="adm-nav-link active">
-                <span class="adm-nav-icon"><i data-lucide="star"></i></span>
-                <span class="adm-nav-label">Review Management</span>
-            </a>
-        </div>
-    </nav>
-    <div class="adm-sidebar-footer">
-        <div class="adm-sidebar-user">
-            <div class="adm-sidebar-avatar">AD</div>
-            <div>
-                <div class="adm-sidebar-name">Admin Dũng</div>
-                <div class="adm-sidebar-role">Admin</div>
-            </div>
-        </div>
-    </div>
-</aside>
+<aside th:replace="~{admin/fragments/sidebar :: sidebar('reviews', '')}"></aside>
+
 
 <!-- ═══════════════════════ MAIN ═══════════════════════ -->
 <div class="adm-main">

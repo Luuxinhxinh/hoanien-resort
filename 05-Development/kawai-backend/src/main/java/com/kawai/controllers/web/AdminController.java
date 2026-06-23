@@ -67,7 +67,7 @@ public class AdminController {
 
   private static final List<String> MD_TABS = Arrays.asList(
       "Room Categories", "Rooms", "Restaurant Menu",
-      "Tours", "Account Management", "Promotions", "Pricing Management",
+      "Tours", "Account Management", "Role Management", "Promotions", "Pricing Management",
       "Bookings", "F&B Orders", "Tour Schedules");
 
   @GetMapping("/master-data")
@@ -106,5 +106,10 @@ public class AdminController {
     model.addAttribute("reviews", reviews);
     model.addAttribute("reviewCount", reviews.size());
     return "admin/reviews";
+  }
+
+  @GetMapping("/workflows")
+  public String workflows(Model model) {
+    return "admin/workflows";
   }
 }

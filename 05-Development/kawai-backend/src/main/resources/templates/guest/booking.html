@@ -42,14 +42,14 @@
                 <!-- Right Actions -->
                 <div
                     class="hidden lg:flex items-center gap-6 text-[13px] uppercase tracking-[0.2em] font-semibold text-hoanien-text/80">
-                    <a href="/profile" th:if="${isLoggedIn}"
+                    <a href="/profile" th:if="${session.user != null}"
                         class="hover:text-hoanien-text active:scale-95 transition-all duration-200 transition-colors">Profile</a>
-                    <form th:action="@{/auth/logout}" method="post" th:if="${isLoggedIn}" class="inline">
+                    <form th:action="@{/auth/logout}" method="post" th:if="${session.user != null}" class="inline">
                         <button type="submit"
                             class="hover:text-hoanien-text active:scale-95 transition-all duration-200 transition-colors uppercase tracking-[0.2em] bg-transparent border-none p-0 cursor-pointer">Logout</button>
                     </form>
 
-                    <a href="#" onclick="openLoginModal(); return false;" th:unless="${isLoggedIn}"
+                    <a href="#" onclick="openLoginModal(); return false;" th:unless="${session.user != null}"
                         class="hover:text-hoanien-text active:scale-95 transition-all duration-200 transition-colors">Log
                         In</a>
                     <a href="#roomsSection"
@@ -389,7 +389,7 @@
     <!-- ============ INTERACTIVE AND AUTHENTICATION JAVASCRIPT ============ -->
     <script th:inline="javascript">
         // Global variables from Thymeleaf model
-        const isUserLoggedIn = /*[[${isLoggedIn}]]*/ false;
+        const isUserLoggedIn = /*[[${session.user != null}]]*/ false;
     </script>
     <script src="/guest/js/utils.js"></script>
     <script src="/guest/js/booking.js"></script>

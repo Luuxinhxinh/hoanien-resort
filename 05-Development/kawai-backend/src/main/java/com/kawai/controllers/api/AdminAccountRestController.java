@@ -71,17 +71,18 @@ public class AdminAccountRestController {
                 dto.setPassword(payload.get("password"));
                 dto.setPhone(payload.get("phone"));
                 dto.setCccd(payload.get("cccd"));
-                dto.setGender(payload.get("gender"));
+                dto.setGender(payload.get("gender") != null ? payload.get("gender") : "Nam");
                 String salaryStr = payload.get("salary");
                 dto.setSalary(salaryStr != null && !salaryStr.isEmpty() ? new BigDecimal(salaryStr) : BigDecimal.ZERO);
                 
                 Employee emp = userService.createEmployeeAccount(dto);
                 return ResponseEntity.status(HttpStatus.CREATED).body(emp);
             } else {
-                dto.setUsername(payload.get("email").split("@")[0]);
-                dto.setPassword("123");
-                dto.setPhone("");
-                dto.setGender("MALE");
+                dto.setUsername(payload.get("username") != null && !payload.get("username").isEmpty() ? payload.get("username") : payload.get("email").split("@")[0]);
+                dto.setPassword(payload.get("password") != null && !payload.get("password").isEmpty() ? payload.get("password") : "123456");
+                dto.setPhone(payload.get("phone"));
+                dto.setCccd(payload.get("cccd"));
+                dto.setGender(payload.get("gender") != null ? payload.get("gender") : "Nam");
                 
                 Customer cus = userService.createCustomerAccount(dto);
                 return ResponseEntity.status(HttpStatus.CREATED).body(cus);
@@ -122,14 +123,11 @@ public class AdminAccountRestController {
             Boolean newStatus = payload.get("status");
             if (id.startsWith("E-")) {
                 Long empId = Long.parseLong(id.substring(2));
-                // We need to fetch and save, but for brevity, maybe userService has a method?
-                // Let's get the account directly from the employee.
-                // Assuming we can just do a partial update.
-                Map<String, String> updatePayload = Map.of("isActive", String.valueOf(newStatus));
+                Map<String, String> updatePayload = Map.of("status", String.valueOf(newStatus));
                 userService.updateEmployeeAccount(empId, updatePayload);
             } else if (id.startsWith("C-")) {
                 Long cusId = Long.parseLong(id.substring(2));
-                Map<String, String> updatePayload = Map.of("isActive", String.valueOf(newStatus));
+                Map<String, String> updatePayload = Map.of("status", String.valueOf(newStatus));
                 userService.updateCustomerAccount(cusId, updatePayload);
             } else {
                  return ResponseEntity.badRequest().body(Map.of("error", "Invalid ID format"));
@@ -137,6 +135,28 @@ public class AdminAccountRestController {
             return ResponseEntity.ok(Map.of("message", "Toggled successfully"));
         } catch (Exception e) {
             System.out.println("========== ERROR IN API: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @DeleteMapping("/accounts/{id}")
+    public ResponseEntity<?> deleteAccount(@PathVariable String id) {
+        System.out.println("========== DELETE ACCOUNT API HIT! ID: " + id + " ==========");
+        try {
+            // Soft delete by disabling the account
+            if (id.startsWith("E-")) {
+                Long empId = Long.parseLong(id.substring(2));
+                userService.updateEmployeeAccount(empId, Map.of("status", "false"));
+            } else if (id.startsWith("C-")) {
+                Long cusId = Long.parseLong(id.substring(2));
+                userService.updateCustomerAccount(cusId, Map.of("status", "false"));
+            } else {
+                return ResponseEntity.badRequest().body(Map.of("error", "Invalid ID format"));
+            }
+            return ResponseEntity.ok(Map.of("message", "Deleted successfully"));
+        } catch (Exception e) {
+            System.out.println("========== ERROR IN DELETE API: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", e.getMessage()));
         }

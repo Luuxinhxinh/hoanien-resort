@@ -36,6 +36,15 @@ public class Promotion {
     @Column(name = "combo_config", columnDefinition = "TEXT")
     private String comboConfig;
 
+    @Column(name = "max_discount_value_vnd")
+    private BigDecimal maxDiscountValueVnd;
+
+    @Column(name = "max_uses_per_customer")
+    private Integer maxUsesPerCustomer;
+
+    @Column(name = "manager_approval_threshold_pct")
+    private Integer managerApprovalThresholdPct;
+
     public String getComboConfig() {
         return comboConfig;
     }
@@ -122,5 +131,29 @@ public class Promotion {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public BigDecimal getMaxDiscountValueVnd() {
+        return maxDiscountValueVnd;
+    }
+
+    public void setMaxDiscountValueVnd(BigDecimal maxDiscountValueVnd) {
+        this.maxDiscountValueVnd = maxDiscountValueVnd;
+    }
+
+    public Integer getMaxUsesPerCustomer() {
+        return maxUsesPerCustomer;
+    }
+
+    public void setMaxUsesPerCustomer(Integer maxUsesPerCustomer) {
+        this.maxUsesPerCustomer = maxUsesPerCustomer;
+    }
+
+    public Integer getManagerApprovalThresholdPct() {
+        return managerApprovalThresholdPct;
+    }
+
+    public void setManagerApprovalThresholdPct(Integer managerApprovalThresholdPct) {
+        this.managerApprovalThresholdPct = managerApprovalThresholdPct;
     }
 }

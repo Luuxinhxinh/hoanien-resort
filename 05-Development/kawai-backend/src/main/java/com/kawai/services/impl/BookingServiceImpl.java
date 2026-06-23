@@ -10,17 +10,23 @@ import com.kawai.models.RoomBooking;
 import com.kawai.models.RoomBookingDetail;
 import com.kawai.models.Room;
 import com.kawai.models.Customer;
+import com.kawai.models.Workflow;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kawai.repositories.PromotionRepository;
 import com.kawai.repositories.RoomBookingRepository;
 import com.kawai.repositories.RoomBookingDetailRepository;
 import com.kawai.repositories.RoomRepository;
 import com.kawai.repositories.CustomerRepository;
+import com.kawai.repositories.WorkflowRepository;
 import com.kawai.repositories.PaymentTransactionRepository;
 import com.kawai.services.interfaces.BookingService;
 import com.kawai.models.PaymentTransaction;
 import com.kawai.models.PaymentStatus;
+import com.kawai.services.interfaces.WorkflowEngineService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,6 +39,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 /**
  * ═══════════════════════════════════════════════════════════════════════════
@@ -79,6 +87,15 @@ public class BookingServiceImpl implements BookingService {
 
     /** HOLD tự động hết hạn sau 10 phút nếu chưa thanh toán (Scheduler dọn) */
     private static final int HOLD_TTL_MINUTES = 10;
+
+    @Autowired
+    private WorkflowEngineService workflowEngineService;
+
+    @Autowired
+    private com.kawai.repositories.BookingRepository bookingRepository;
+
+    @Autowired
+    private WorkflowRepository workflowRepository;
 
     private final RoomBookingRepository roomBookingRepository;
     private final PromotionRepository promotionRepository;
@@ -272,7 +289,7 @@ public class BookingServiceImpl implements BookingService {
         // Xử lý promotion code (UC10.2)
         String promoCode = request.getPromotionCode();
         if (promoCode != null && !promoCode.isBlank()) {
-            discountedPrice = applyPromotion(promoCode, totalBaseTotal);
+            discountedPrice = applyPromotion(promoCode, totalBaseTotal, request.getCustomerId());
         }
 
         // Tính toán tiền đặt cọc ở backend (30% cọc mặc định), không tin tưởng giá trị
@@ -287,6 +304,28 @@ public class BookingServiceImpl implements BookingService {
         savedHold.setPersonalPinHash("DEFAULT_PIN");
         savedHold.setBookingStatus(STATUS_HOLD);
         RoomBooking savedBooking = roomBookingRepository.save(savedHold);
+
+        // Gọi Workflow Engine để kiểm tra nếu áp dụng mã giảm giá vượt ngưỡng
+        if (promoCode != null && !promoCode.isBlank()) {
+            try {
+                Promotion promo = promotionRepository.findByPromoCode(promoCode).orElse(null);
+                if (promo != null) {
+                    BigDecimal pct = "Percentage".equalsIgnoreCase(promo.getDiscountType()) 
+                        ? promo.getDiscountValue() 
+                        : (totalBaseTotal.compareTo(BigDecimal.ZERO) > 0 
+                            ? promo.getDiscountValue().multiply(new BigDecimal("100")).divide(totalBaseTotal, 2, RoundingMode.HALF_UP) 
+                            : BigDecimal.ZERO);
+                    
+                    workflowEngineService.triggerEvent("PROMOTION_EXCEEDED", java.util.Map.of(
+                        "promo_id", promo.getId(),
+                        "input_discount_pct", pct.doubleValue(),
+                        "booking_id", savedBooking.getId()
+                    ));
+                }
+            } catch (Exception e) {
+                log.error("Failed to trigger PROMOTION_EXCEEDED workflow in createBooking", e);
+            }
+        }
 
         log.info("[SOFT_LOCK] HOLD updated with details: bookingId={}", savedBooking.getId());
 
@@ -326,20 +365,11 @@ public class BookingServiceImpl implements BookingService {
      * Scheduler chạy mỗi 60 giây, tìm các HOLD đã quá 10 phút (holdExpiresAt ≤
      * now).
      * Chuyển chúng sang CANCELLED để giải phóng phòng cho user khác.
-     *
-     * Case thực tế:
-     * - User tạo booking nhưng đóng trình duyệt giữa chừng
-     * - Server crash sau khi INSERT HOLD nhưng trước khi commit
-     * - Lỗi network khi gọi payment gateway
-     *
-     * Trong luồng bình thường:
-     * HOLD → CONFIRMED xảy ra trong milliseconds → Scheduler sẽ không tìm thấy gì
      */
     @Scheduled(fixedDelay = 60_000) // Chạy mỗi 60 giây
     @Transactional
     public void cleanupStaleHolds() {
         LocalDateTime now = LocalDateTime.now();
-        // findStaleHolds(now) → WHERE bookingStatus='HOLD' AND holdExpiresAt <= now
         List<RoomBooking> staleHolds = roomBookingRepository.findStaleHolds(now);
         if (!staleHolds.isEmpty()) {
             staleHolds.forEach(h -> {
@@ -372,7 +402,7 @@ public class BookingServiceImpl implements BookingService {
      * FIX TC-M2-009a/b/c: Exception message chứa error code [ERR_PROMO_XXX]
      * (BR-ERR-01)
      */
-    private BigDecimal applyPromotion(String promoCode, BigDecimal baseTotal) {
+    private BigDecimal applyPromotion(String promoCode, BigDecimal baseTotal, Long customerId) {
         Promotion promo = promotionRepository.findByPromoCode(promoCode)
                 .orElseThrow(() -> new IllegalArgumentException(
                         "Promotion code '" + promoCode + "' does not exist [ERR_PROMO_NOT_FOUND]"));
@@ -387,10 +417,53 @@ public class BookingServiceImpl implements BookingService {
                     "Promotion code '" + promoCode + "' has expired [ERR_PROMO_EXPIRED]");
         }
 
-        BigDecimal discountRate = promo.getDiscountValue();
-        BigDecimal discountAmount = baseTotal.multiply(discountRate)
-                .divide(new BigDecimal("100"), 2, RoundingMode.HALF_UP);
-        return baseTotal.subtract(discountAmount);
+        BigDecimal discountValue = promo.getDiscountValue();
+        BigDecimal discountAmount;
+
+        if (discountValue.compareTo(new BigDecimal("100")) <= 0) {
+            discountAmount = baseTotal.multiply(discountValue)
+                    .divide(new BigDecimal("100"), 2, RoundingMode.HALF_UP);
+        } else {
+            discountAmount = discountValue;
+        }
+
+        // Anti-Fraud check from Workflow Engine
+        List<Workflow> activeWorkflows = workflowRepository.findByTriggerEventAndIsActive("PROMOTION_EXCEEDED", true);
+        ObjectMapper mapper = new ObjectMapper();
+        for (Workflow w : activeWorkflows) {
+            try {
+                if (w.getConditionsJson() != null && !w.getConditionsJson().trim().isEmpty()) {
+                    Map<String, Object> conds = mapper.readValue(w.getConditionsJson(), new TypeReference<Map<String, Object>>() {});
+                    
+                    // 1. max_discount_value_vnd
+                    if (conds.containsKey("max_discount_value_vnd")) {
+                        BigDecimal maxVal = new BigDecimal(conds.get("max_discount_value_vnd").toString());
+                        if (discountAmount.compareTo(maxVal) > 0) {
+                            throw new IllegalArgumentException("Mã giảm giá vượt quá hạn mức tối đa cho phép (" + maxVal + " VND) [ERR_PROMO_LIMIT_EXCEEDED]");
+                        }
+                    }
+
+                    // 2. max_uses_per_customer
+                    if (conds.containsKey("max_uses_per_customer") && customerId != null) {
+                        int maxUses = Integer.parseInt(conds.get("max_uses_per_customer").toString());
+                        long uses = bookingRepository.countByCustomerIdAndPromoCode(customerId, promoCode);
+                        if (uses >= maxUses) {
+                            throw new IllegalArgumentException("Khách hàng đã vượt quá số lần sử dụng mã giảm giá này (" + maxUses + " lần) [ERR_PROMO_USAGE_EXCEEDED]");
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                if (e instanceof IllegalArgumentException) throw (IllegalArgumentException) e;
+                log.error("Failed executing anti-fraud conditions evaluation", e);
+            }
+        }
+
+        BigDecimal finalPrice = baseTotal.subtract(discountAmount);
+        if (finalPrice.compareTo(BigDecimal.ZERO) < 0) {
+            finalPrice = BigDecimal.ZERO;
+        }
+
+        return finalPrice;
     }
 
     // ══════════════════════════════════════════════════════════════════════
@@ -561,7 +634,7 @@ public class BookingServiceImpl implements BookingService {
         }
         BigDecimal totalBaseTotal = baseRoomPrice.add(servicesFee);
 
-        BigDecimal discountedPrice = applyPromotion(couponCode, totalBaseTotal);
+        BigDecimal discountedPrice = applyPromotion(couponCode, totalBaseTotal, customerId);
         BigDecimal discountAmount = totalBaseTotal.subtract(discountedPrice);
 
         booking.setTotalPrice(discountedPrice.setScale(0, RoundingMode.HALF_UP));
@@ -573,6 +646,26 @@ public class BookingServiceImpl implements BookingService {
                                                                                                                      // final
                                                                                                                      // price
         roomBookingRepository.save(booking);
+
+        // Gọi Workflow Engine để kiểm tra nếu áp dụng mã giảm giá vượt ngưỡng
+        try {
+            Promotion promo = promotionRepository.findByPromoCode(couponCode).orElse(null);
+            if (promo != null) {
+                BigDecimal pct = "Percentage".equalsIgnoreCase(promo.getDiscountType()) 
+                    ? promo.getDiscountValue() 
+                    : (totalBaseTotal.compareTo(BigDecimal.ZERO) > 0 
+                        ? promo.getDiscountValue().multiply(new BigDecimal("100")).divide(totalBaseTotal, 2, RoundingMode.HALF_UP) 
+                        : BigDecimal.ZERO);
+                
+                workflowEngineService.triggerEvent("PROMOTION_EXCEEDED", java.util.Map.of(
+                    "promo_id", promo.getId(),
+                    "input_discount_pct", pct.doubleValue(),
+                    "booking_id", booking.getId()
+                ));
+            }
+        } catch (Exception e) {
+            log.error("Failed to trigger PROMOTION_EXCEEDED workflow in applyCoupon", e);
+        }
 
         return discountAmount.setScale(0, RoundingMode.HALF_UP);
     }

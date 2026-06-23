@@ -78,7 +78,7 @@ function applyFilters() {
         const modMatch = modFilter === "Tất cả module" || mods.includes(modFilter);
 
         if (empMatch && modMatch) {
-            entry.style.display = "flex";
+            entry.style.display = "";
             entry.style.cursor = "pointer";
             
             // Add click listener to open modal using actual record data
@@ -228,14 +228,37 @@ function renderMockDiff(contentEl, tableName) {
     const html = `
         <div class="history-item">
             <div class="history-meta">
-                <span class="history-rev">#1204 — Cập nhật dữ liệu</span>
+                <span class="history-rev">#1204 — Cập nhật dữ liệu (Mẫu)</span>
                 <span>Vừa xong</span>
             </div>
-            <div style="font-size:13px;color:#6B6558;margin-bottom:8px">Bởi: Admin Dũng</div>
-            <div class="history-data">
-                <div style="margin-bottom:6px"><strong>Giá cơ bản / đêm:</strong> <span class="diff-old">1,500,000 VNĐ</span> <i data-lucide="arrow-right" class="diff-arrow" style="width:14px;height:14px;display:inline-block;vertical-align:middle"></i> <span class="diff-new">1,800,000 VNĐ</span></div>
-                <div style="margin-bottom:6px"><strong>Mô tả:</strong> <span class="diff-old">Phòng view biển</span> <i data-lucide="arrow-right" class="diff-arrow" style="width:14px;height:14px;display:inline-block;vertical-align:middle"></i> <span class="diff-new">Phòng view biển có ban công</span></div>
-                <div style="margin-bottom:6px"><strong>Trạng thái:</strong> <span>Active</span></div>
+            <div style="font-size:13px;color:#6B6558;margin-bottom:12px">Bởi: <strong>Admin Dũng</strong></div>
+            <div style="overflow-x:auto;">
+                <table style="width: 100%; border-collapse: collapse; border: 1px solid rgba(44,42,30,0.1); border-radius: 6px; overflow: hidden; background: #fff;">
+                    <thead>
+                        <tr style="background: #EDE8DF; color: #5C4A3A; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700;">
+                            <th style="padding: 8px 12px; text-align: left; width: 30%;">Thuộc tính</th>
+                            <th style="padding: 8px 12px; text-align: left; width: 35%;">Giá trị cũ</th>
+                            <th style="padding: 8px 12px; text-align: left; width: 35%;">Giá trị mới</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="border-bottom: 1px solid rgba(44,42,30,0.06); font-size: 13px;">
+                            <td style="padding: 10px 12px; font-weight: 600; color: #6B6558;">Giá cơ bản / đêm</td>
+                            <td style="padding: 10px 12px; background: rgba(140,60,40,0.05); color: #8C3C28; text-decoration: line-through;">1,500,000 VNĐ</td>
+                            <td style="padding: 10px 12px; background: rgba(46,90,59,0.05); color: #2E5A3B; font-weight: 600;">1,800,000 VNĐ</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid rgba(44,42,30,0.06); font-size: 13px;">
+                            <td style="padding: 10px 12px; font-weight: 600; color: #6B6558;">Mô tả</td>
+                            <td style="padding: 10px 12px; background: rgba(140,60,40,0.05); color: #8C3C28; text-decoration: line-through;">Phòng view biển</td>
+                            <td style="padding: 10px 12px; background: rgba(46,90,59,0.05); color: #2E5A3B; font-weight: 600;">Phòng view biển có ban công</td>
+                        </tr>
+                        <tr style="font-size: 13px;">
+                            <td style="padding: 10px 12px; font-weight: 600; color: #6B6558;">Trạng thái</td>
+                            <td style="padding: 10px 12px; background: rgba(140,60,40,0.05); color: #8C3C28; text-decoration: line-through;">Inactive</td>
+                            <td style="padding: 10px 12px; background: rgba(46,90,59,0.05); color: #2E5A3B; font-weight: 600;">Active</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     `;
@@ -251,11 +274,39 @@ function renderDiffHtml(contentEl, data, tableName, numericId) {
         const username = entry.username || 'System';
         const action = entry.action || 'UPDATE';
         const changes = entry.changes || {};
-        let changesHtml = '';
+        
+        let changesRows = '';
         for (const [field, vals] of Object.entries(changes)) {
-            changesHtml += `<div style="margin-bottom:6px"><strong>${field}:</strong> <span class="diff-old">${vals.old || ''}</span> <i data-lucide="arrow-right" class="diff-arrow" style="width:14px;height:14px;display:inline-block;vertical-align:middle"></i> <span class="diff-new">${vals.new || ''}</span></div>`;
+            changesRows += `
+                <tr style="border-bottom: 1px solid rgba(44,42,30,0.06); font-size: 13px;">
+                    <td style="padding: 10px 12px; font-weight: 600; color: #6B6558;">${field}</td>
+                    <td style="padding: 10px 12px; background: rgba(140,60,40,0.05); color: #8C3C28; text-decoration: line-through;">${vals.old || '-'}</td>
+                    <td style="padding: 10px 12px; background: rgba(46,90,59,0.05); color: #2E5A3B; font-weight: 600;">${vals.new || '-'}</td>
+                </tr>
+            `;
         }
-        if (!changesHtml) changesHtml = '<em style="color:#aaa">Không thay đổi dữ liệu lõi</em>';
+        
+        let tableHtml = '';
+        if (changesRows) {
+            tableHtml = `
+                <div style="overflow-x:auto;">
+                    <table style="width: 100%; border-collapse: collapse; border: 1px solid rgba(44,42,30,0.1); border-radius: 6px; overflow: hidden; background: #fff;">
+                        <thead>
+                            <tr style="background: #EDE8DF; color: #5C4A3A; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700;">
+                                <th style="padding: 8px 12px; text-align: left; width: 30%;">Thuộc tính</th>
+                                <th style="padding: 8px 12px; text-align: left; width: 35%;">Giá trị cũ</th>
+                                <th style="padding: 8px 12px; text-align: left; width: 35%;">Giá trị mới</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${changesRows}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        } else {
+            tableHtml = '<em style="color:#8B7355; font-size: 13px;">Không phát hiện thay đổi dữ liệu lõi</em>';
+        }
 
         html += `
             <div class="history-item">
@@ -263,8 +314,8 @@ function renderDiffHtml(contentEl, data, tableName, numericId) {
                     <span class="history-rev">#${revNum} — ${action}</span>
                     <span>${timestamp}</span>
                 </div>
-                <div style="font-size:13px;color:#6B6558;margin-bottom:8px">Bởi: ${username}</div>
-                <div class="history-data">${changesHtml}</div>
+                <div style="font-size:13px;color:#6B6558;margin-bottom:12px">Bởi: <strong>${username}</strong></div>
+                ${tableHtml}
             </div>
         `;
     });

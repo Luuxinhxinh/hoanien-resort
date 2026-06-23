@@ -19,6 +19,7 @@ public class MasterDataServiceImpl implements MasterDataService {
     private final TourRepository tourRepository;
     private final PromotionRepository promotionRepository;
     private final BookingRepository bookingRepository;
+    private final RoleRepository roleRepository;
 
     @Override
     @Transactional
@@ -121,8 +122,24 @@ public class MasterDataServiceImpl implements MasterDataService {
                 promo.setValidFrom(java.time.LocalDateTime.now());
                 promo.setValidTo(java.time.LocalDate.now().plusYears(1));
                 promo.setMaxUses(100);
+                
+                if (payload.get("maxDiscountValueVnd") != null && !payload.get("maxDiscountValueVnd").toString().isEmpty()) {
+                    promo.setMaxDiscountValueVnd(new java.math.BigDecimal(payload.get("maxDiscountValueVnd").toString().replaceAll("[^\\d.]", "")));
+                }
+                if (payload.get("maxUsesPerCustomer") != null && !payload.get("maxUsesPerCustomer").toString().isEmpty()) {
+                    promo.setMaxUsesPerCustomer(Integer.parseInt(payload.get("maxUsesPerCustomer").toString()));
+                }
+                if (payload.get("managerApprovalThresholdPct") != null && !payload.get("managerApprovalThresholdPct").toString().isEmpty()) {
+                    promo.setManagerApprovalThresholdPct(Integer.parseInt(payload.get("managerApprovalThresholdPct").toString()));
+                }
+
                 promo.setIsActive(payload.get("status") == null || "Active".equals(payload.get("status")));
                 promotionRepository.save(promo);
+                break;
+            case "roles":
+                Role newRole = new Role();
+                newRole.setRoleName((String) payload.get("name"));
+                roleRepository.save(newRole);
                 break;
         }
         return payload;
@@ -133,7 +150,7 @@ public class MasterDataServiceImpl implements MasterDataService {
     public Map<String, Object> updateEntity(String entityType, String id, Map<String, Object> payload) throws Exception {
         String rawId = id;
         if (id.startsWith("RC-") || id.startsWith("RM-") || id.startsWith("MI-") || id.startsWith("T-")
-                || id.startsWith("PR-")) {
+                || id.startsWith("PR-") || id.startsWith("RL-")) {
             rawId = id.substring(id.indexOf("-") + 1);
         }
         Long entityId = Long.parseLong(rawId);
@@ -275,6 +292,22 @@ public class MasterDataServiceImpl implements MasterDataService {
                     if (payload.get("validTo") != null && !payload.get("validTo").toString().isEmpty())
                         promo.setValidTo(java.time.LocalDate.parse(payload.get("validTo").toString()));
 
+                    if (payload.get("maxDiscountValueVnd") != null && !payload.get("maxDiscountValueVnd").toString().isEmpty()) {
+                        promo.setMaxDiscountValueVnd(new java.math.BigDecimal(payload.get("maxDiscountValueVnd").toString().replaceAll("[^\\d.]", "")));
+                    } else {
+                        promo.setMaxDiscountValueVnd(null);
+                    }
+                    if (payload.get("maxUsesPerCustomer") != null && !payload.get("maxUsesPerCustomer").toString().isEmpty()) {
+                        promo.setMaxUsesPerCustomer(Integer.parseInt(payload.get("maxUsesPerCustomer").toString()));
+                    } else {
+                        promo.setMaxUsesPerCustomer(null);
+                    }
+                    if (payload.get("managerApprovalThresholdPct") != null && !payload.get("managerApprovalThresholdPct").toString().isEmpty()) {
+                        promo.setManagerApprovalThresholdPct(Integer.parseInt(payload.get("managerApprovalThresholdPct").toString()));
+                    } else {
+                        promo.setManagerApprovalThresholdPct(null);
+                    }
+
                     if (promo.getValidFrom() != null && promo.getValidTo() != null) {
                         if (promo.getValidFrom().toLocalDate().isAfter(promo.getValidTo())) {
                             throw new IllegalArgumentException("Ngày bắt đầu không được lớn hơn ngày kết thúc!");
@@ -285,6 +318,16 @@ public class MasterDataServiceImpl implements MasterDataService {
                     promotionRepository.save(promo);
                 }
                 break;
+            case "roles":
+                Role role = roleRepository.findById(entityId).orElse(null);
+                if (role != null) {
+                    if ("Admin".equalsIgnoreCase(role.getRoleName())) {
+                        throw new IllegalArgumentException("Không thể sửa vai trò Admin");
+                    }
+                    role.setRoleName((String) payload.get("name"));
+                    roleRepository.save(role);
+                }
+                break;
         }
         return payload;
     }
@@ -293,7 +336,7 @@ public class MasterDataServiceImpl implements MasterDataService {
     @Transactional
     public void deleteEntity(String entityType, String id) throws Exception {
         String rawId = id;
-        if (id.startsWith("RC-") || id.startsWith("RM-") || id.startsWith("MI-") || id.startsWith("T-") || id.startsWith("PR-")) {
+        if (id.startsWith("RC-") || id.startsWith("RM-") || id.startsWith("MI-") || id.startsWith("T-") || id.startsWith("PR-") || id.startsWith("RL-")) {
             rawId = id.substring(id.indexOf("-") + 1);
         }
         Long entityId = Long.parseLong(rawId);
@@ -329,6 +372,14 @@ public class MasterDataServiceImpl implements MasterDataService {
                     promotionRepository.save(promo);
                 });
                 break;
+            case "roles":
+                roleRepository.findById(entityId).ifPresent(r -> {
+                    if ("Admin".equalsIgnoreCase(r.getRoleName())) {
+                        throw new IllegalArgumentException("Không thể xóa vai trò Admin");
+                    }
+                    roleRepository.delete(r);
+                });
+                break;
         }
     }
 
@@ -336,7 +387,7 @@ public class MasterDataServiceImpl implements MasterDataService {
     @Transactional
     public void toggleEntityStatus(String entityType, String id, Boolean newStatus) throws Exception {
         String rawId = id;
-        if (id.startsWith("RC-") || id.startsWith("RM-") || id.startsWith("MI-") || id.startsWith("T-") || id.startsWith("PR-")) {
+        if (id.startsWith("RC-") || id.startsWith("RM-") || id.startsWith("MI-") || id.startsWith("T-") || id.startsWith("PR-") || id.startsWith("RL-")) {
             rawId = id.substring(id.indexOf("-") + 1);
         }
         Long entityId = Long.parseLong(rawId);
@@ -371,6 +422,9 @@ public class MasterDataServiceImpl implements MasterDataService {
                     promo.setIsActive(newStatus);
                     promotionRepository.save(promo);
                 });
+                break;
+            case "roles":
+                // Roles don't have isActive flag currently, so just ignore or throw error
                 break;
         }
     }

@@ -64,13 +64,31 @@ public class AdminViewServiceImpl implements AdminViewService {
     public Map<String, List<RoomMock>> getRoomsByFloor() {
         List<Room> allRooms = roomRepository.findAll();
         return allRooms.stream().map(r -> {
-            String status = switch (r.getRoomStatus() == null ? "" : r.getRoomStatus()) {
-                case "Vacant_Clean", "Vacant_Dirty" -> "vacant";
-                case "Occupied" -> "occupied";
-                case "Maintenance" -> "maintenance";
-                default -> "dirty";
-            };
-            return new RoomMock(r.getRoomNumber(), status);
+            String status = "vacant";
+            String issue = "";
+            String dbStatus = r.getRoomStatus() == null ? "Vacant_Clean" : r.getRoomStatus();
+            
+            if ("Occupied".equalsIgnoreCase(dbStatus)) {
+                status = "occupied";
+            } else if ("Vacant_Dirty".equalsIgnoreCase(dbStatus)) {
+                status = "dirty";
+            } else if ("Maintenance".equalsIgnoreCase(dbStatus)) {
+                status = "broken";
+                issue = "Hỏng khóa cửa";
+            } else {
+                status = "vacant";
+            }
+            
+            // Inject some mock broken rooms for rich operation hub preview
+            if ("103".equals(r.getRoomNumber())) {
+                status = "broken";
+                issue = "Hỏng điều hòa";
+            } else if ("207".equals(r.getRoomNumber())) {
+                status = "broken";
+                issue = "Hỏng vòi sen";
+            }
+            
+            return new RoomMock(r.getRoomNumber(), status, issue);
         }).collect(Collectors.groupingBy(r -> {
             String rn = r.getRoomNumber();
             if (rn != null && rn.length() >= 3) {
@@ -121,6 +139,7 @@ public class AdminViewServiceImpl implements AdminViewService {
             case "Tours" -> List.of(col("id", "Mã", "text"), col("name", "Tên tour", "text"), col("category", "Danh mục", "text"), col("price", "Giá / người", "text"), col("status", "Trạng thái", "badge"));
             case "Promotions" -> List.of(col("id", "Mã", "text"), col("code", "Mã giảm giá", "code"), col("type", "Loại", "badge"), col("value", "Giá trị", "text"), col("minOrder", "Đơn tối thiểu", "text"), col("scope", "Áp dụng cho", "badge"), col("uses", "Lượt dùng", "text"), col("expires", "Hết hạn", "text"), col("status", "Trạng thái", "badge"));
             case "Account Management" -> List.of(col("id", "Mã", "text"), col("name", "Tên", "text"), col("type", "Loại tài khoản", "badge"), col("role", "Vai trò", "badge"), col("email", "Email", "text"), col("lastLogin", "Đăng nhập cuối", "text"), col("status", "Kích hoạt", "toggle"));
+            case "Role Management" -> List.of(col("id", "Mã", "text"), col("name", "Tên vai trò", "text"));
             case "Pricing Management" -> List.of(col("id", "Mã", "text"), col("roomCategory", "Hạng phòng", "text"), col("date", "Ngày", "text"), col("price", "Giá / đêm", "text"));
             case "Bookings" -> List.of(col("id", "Mã Booking", "text"), col("customer", "Khách hàng", "text"), col("room", "Phòng", "text"), col("checkIn", "Ngày Check-in", "text"), col("checkOut", "Ngày Check-out", "text"), col("status", "Trạng thái", "badge"));
             case "F&B Orders" -> List.of(col("id", "Mã Đơn", "text"), col("table", "Bàn/Phòng", "text"), col("items", "Chi tiết món", "text"), col("total", "Tổng tiền", "text"), col("status", "Trạng thái", "badge"));
@@ -216,7 +235,10 @@ public class AdminViewServiceImpl implements AdminViewService {
                     "comboConfig", promo.getComboConfig() != null ? promo.getComboConfig() : "",
                     "validFrom", promo.getValidFrom() != null ? promo.getValidFrom().format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm")) : "",
                     "validTo", promo.getValidTo() != null ? promo.getValidTo().toString() : "",
-                    "maxUses", promo.getMaxUses() != null ? String.valueOf(promo.getMaxUses()) : "0"));
+                    "maxUses", promo.getMaxUses() != null ? String.valueOf(promo.getMaxUses()) : "0",
+                    "maxDiscountValueVnd", promo.getMaxDiscountValueVnd() != null ? promo.getMaxDiscountValueVnd().toString() : "",
+                    "maxUsesPerCustomer", promo.getMaxUsesPerCustomer() != null ? promo.getMaxUsesPerCustomer().toString() : "",
+                    "managerApprovalThresholdPct", promo.getManagerApprovalThresholdPct() != null ? promo.getManagerApprovalThresholdPct().toString() : ""));
                 }
                 yield r;
             }
@@ -226,12 +248,49 @@ public class AdminViewServiceImpl implements AdminViewService {
                     for (Employee e : employeeRepository.findAll()) {
                         String rn = e.getAccount() != null && e.getAccount().getRole() != null ? e.getAccount().getRole().getRoleName() : "Nhân viên";
                         boolean isActive = e.getAccount() != null && e.getAccount().getIsActive();
-                        rows.add(r("id", "E-" + e.getId(), "name", e.getFullName(), "type", "Nhân viên", "__typeStyle", bs("Nhân viên"), "role", rn, "__roleStyle", bs(rn), "email", e.getEmail() != null ? e.getEmail() : "-", "lastLogin", "--", "status", isActive ? "true" : "false", "username", e.getAccount() != null ? e.getAccount().getUsername() : "", "phone", e.getPhone() != null ? e.getPhone() : ""));
+                        rows.add(r("id", "E-" + e.getId(), 
+                            "name", e.getFullName(), 
+                            "type", "Nhân viên", 
+                            "__typeStyle", bs("Nhân viên"), 
+                            "role", rn, 
+                            "__roleStyle", bs(rn), 
+                            "email", e.getEmail() != null ? e.getEmail() : "-", 
+                            "lastLogin", "--", 
+                            "status", isActive ? "true" : "false", 
+                            "username", e.getAccount() != null ? e.getAccount().getUsername() : "", 
+                            "phone", e.getPhone() != null ? e.getPhone() : "",
+                            "gender", e.getGender() != null ? e.getGender() : "MALE",
+                            "cccd", e.getCccd() != null ? e.getCccd() : "",
+                            "salary", e.getSalary() != null ? e.getSalary().toString() : "0"
+                        ));
                     }
                     for (Customer c : customerRepository.findAll()) {
                         String rn = c.getAccount() != null && c.getAccount().getRole() != null ? c.getAccount().getRole().getRoleName() : "Khách thường";
                         boolean isActive = c.getAccount() != null && c.getAccount().getIsActive();
-                        rows.add(r("id", "C-" + c.getId(), "name", c.getFullName(), "type", "Khách hàng", "__typeStyle", bs("Khách hàng"), "role", rn, "__roleStyle", bs(rn), "email", c.getEmail() != null ? c.getEmail() : "-", "lastLogin", "--", "status", isActive ? "true" : "false"));
+                        rows.add(r("id", "C-" + c.getId(), 
+                            "name", c.getFullName(), 
+                            "type", "Khách hàng", 
+                            "__typeStyle", bs("Khách hàng"), 
+                            "role", rn, 
+                            "__roleStyle", bs(rn), 
+                            "email", c.getEmail() != null ? c.getEmail() : "-", 
+                            "lastLogin", "--", 
+                            "status", isActive ? "true" : "false",
+                            "username", c.getAccount() != null ? c.getAccount().getUsername() : "",
+                            "phone", c.getPhone() != null ? c.getPhone() : "",
+                            "gender", c.getGender() != null ? c.getGender() : "MALE",
+                            "cccd", c.getCccdPassportEncrypted() != null ? c.getCccdPassportEncrypted() : "",
+                            "salary", ""
+                        ));
+                    }
+                } catch (Exception e) {}
+                yield rows;
+            }
+            case "Role Management" -> {
+                List<Map<String, String>> rows = new ArrayList<>();
+                try {
+                    for (Role role : roleRepository.findAll()) {
+                        rows.add(r("id", "RL-" + role.getId(), "name", role.getRoleName()));
                     }
                 } catch (Exception e) {}
                 yield rows;

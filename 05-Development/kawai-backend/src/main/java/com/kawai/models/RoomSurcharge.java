@@ -10,7 +10,6 @@ public class RoomSurcharge {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "surcharge_id")
     private Long id;
-
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
     private RoomCategory category;

@@ -198,13 +198,13 @@
                 </div>
 
                 <div class="hidden lg:flex items-center gap-6 text-[13px] uppercase tracking-[0.2em] font-semibold">
-                    <a href="/profile" th:if="${isLoggedIn}"
+                    <a href="/profile" th:if="${session.user != null}"
                         class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200">Profile</a>
-                    <form th:action="@{/auth/logout}" method="post" th:if="${isLoggedIn}" class="inline">
+                    <form th:action="@{/auth/logout}" method="post" th:if="${session.user != null}" class="inline">
                         <button type="submit"
                             class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200 uppercase tracking-[0.2em] bg-transparent border-none p-0 cursor-pointer">Logout</button>
                     </form>
-                    <a href="#" onclick="openLoginModal(); return false;" th:unless="${isLoggedIn}" class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200">Log In</a>
+                    <a href="#" onclick="openLoginModal(); return false;" th:unless="${session.user != null}" class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200">Log In</a>
                     <a href="/booking"
                         class="nav-btn-book hover:opacity-100 active:scale-95 transition-all duration-200 inline-block text-[13px]">
                         Book Now
@@ -218,7 +218,7 @@
         </nav>
     </div>
 
-    <header class="relative w-full h-[70vh] md:h-[85vh] flex items-end">
+    <header class="relative w-full h-screen flex items-end">
         <div class="absolute inset-0 bg-hoanien-text overflow-hidden">
             <img src="https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1800&q=80"
                 alt="Luxury Haven" class="w-full h-full object-cover brightness-[0.75]" />

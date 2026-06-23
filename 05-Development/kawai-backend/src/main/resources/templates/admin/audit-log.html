@@ -12,63 +12,8 @@
 <body>
 
 <!-- ═══════════════════════ SIDEBAR ═══════════════════════ -->
-<aside class="adm-sidebar">
-    <div class="adm-sidebar-logo">
-        <div class="adm-sidebar-brand">
-            <div class="adm-sidebar-dot">✦</div>
-            <span class="adm-sidebar-brand-name">Hoanien Retreat</span>
-        </div>
-        <h1 class="adm-sidebar-title">Operations Hub</h1>
-    </div>
-    <nav class="adm-nav">
-        <div class="adm-nav-item">
-            <a href="/admin/dashboard" class="adm-nav-link">
-                <span class="adm-nav-icon"><i data-lucide="layout-dashboard"></i></span>
-                <span class="adm-nav-label">Tổng quan</span>
-            </a>
-        </div>
-        <div class="adm-nav-item">
-            <button id="master-data-toggle" class="adm-nav-link">
-                <span class="adm-nav-icon"><i data-lucide="database"></i></span>
-                <span class="adm-nav-label">Master Data</span>
-                <span class="adm-nav-arrow" id="master-data-arrow"><i data-lucide="chevron-right"></i></span>
-            </button>
-            <div id="master-data-submenu" class="adm-submenu">
-                <a href="/admin/master-data?tab=Room%20Categories"    class="adm-submenu-link"><i data-lucide="layers"></i> Room Categories</a>
-                <a href="/admin/master-data?tab=Rooms"                class="adm-submenu-link"><i data-lucide="bed-double"></i> Rooms</a>
-                <a href="/admin/master-data?tab=Restaurant%20Menu"    class="adm-submenu-link"><i data-lucide="utensils-crossed"></i> Restaurant Menu</a>
-                <a href="/admin/master-data?tab=Menu%20Categories"    class="adm-submenu-link"><i data-lucide="tag"></i> Menu Categories</a>
-                <a href="/admin/master-data?tab=Tour%20Categories"    class="adm-submenu-link"><i data-lucide="layers"></i> Tour Categories</a>
-                <a href="/admin/master-data?tab=Tours"                class="adm-submenu-link"><i data-lucide="map-pin"></i> Tours</a>
-                <a href="/admin/master-data?tab=Account%20Management" class="adm-submenu-link"><i data-lucide="user-cog"></i> Account Management</a>
-                <a href="/admin/master-data?tab=Promotions"           class="adm-submenu-link"><i data-lucide="ticket"></i> Promotions</a>
-                <a href="/admin/master-data?tab=Pricing%20Management" class="adm-submenu-link"><i data-lucide="database"></i> Pricing Management</a>
-            </div>
-        </div>
-        <!-- Audit Log (Active) -->
-        <div class="adm-nav-item">
-            <a href="/admin/audit-log" class="adm-nav-link active">
-                <span class="adm-nav-icon"><i data-lucide="clipboard-list"></i></span>
-                <span class="adm-nav-label">Audit Log</span>
-            </a>
-        </div>
-        <div class="adm-nav-item">
-            <a href="/admin/reviews" class="adm-nav-link">
-                <span class="adm-nav-icon"><i data-lucide="star"></i></span>
-                <span class="adm-nav-label">Review Management</span>
-            </a>
-        </div>
-    </nav>
-    <div class="adm-sidebar-footer">
-        <div class="adm-sidebar-user">
-            <div class="adm-sidebar-avatar">AD</div>
-            <div>
-                <div class="adm-sidebar-name">Admin Dũng</div>
-                <div class="adm-sidebar-role">Admin</div>
-            </div>
-        </div>
-    </div>
-</aside>
+<aside th:replace="~{admin/fragments/sidebar :: sidebar('audit-log', '')}"></aside>
+
 
 <!-- ═══════════════════════ MAIN ═══════════════════════ -->
 <div class="adm-main">
@@ -166,51 +111,96 @@
             </button>
         </div>
 
-        <!-- Timeline -->
-        <div id="timeline-container" class="audit-timeline">
-            <div th:each="entry, iterStat : ${logs}"
-                 class="log-entry"
-                 th:style="${entry.severity != 'normal' ? 'background-color: ' + (entry.severity == 'sensitive' ? 'rgba(201,169,110,0.08)' : 'rgba(140,60,40,0.07)') : (iterStat.index % 2 == 0 ? 'background-color: #F5F0E8;' : 'background-color: #EDE8DF;')}"
-                 th:attr="data-employee=${entry.name},data-modules=${#strings.listJoin(entry.modules, ',')},data-severity=${entry.severity},data-record-id=${entry.recordId},data-raw-table=${entry.rawTableName}">
-
-                <!-- Time -->
-                <span class="log-time" th:text="${entry.time}">06:45</span>
-
-                <!-- Avatar -->
-                <div class="log-avatar"
-                     th:style="'background-color: ' + (${entry.role == 'Receptionist' ? '#2D6B7A' : (entry.role == 'F&B' ? '#7A4E1A' : (entry.role == 'Housekeeping' ? '#5A3A6B' : (entry.role == 'Admin' ? '#3A3526' : '#8B7020')))})"
-                     th:text="${entry.initials}">AD</div>
-
-                <!-- Body -->
-                <div class="log-body">
-                    <div class="log-name-row">
-                        <span class="log-name" th:text="${entry.name}">Admin Dũng</span>
-                        <span class="log-role-pill"
-                              th:style="'background-color: ' + (${entry.role == 'Receptionist' ? 'rgba(45,107,122,0.15)' : (entry.role == 'F&B' ? 'rgba(122,78,26,0.15)' : (entry.role == 'Housekeeping' ? 'rgba(90,58,107,0.15)' : (entry.role == 'Admin' ? 'rgba(44,42,30,0.15)' : 'rgba(139,112,32,0.2)')))}) + '; color: ' + (${entry.role == 'Receptionist' ? '#1D5B6A' : (entry.role == 'F&B' ? '#7A4E1A' : (entry.role == 'Housekeeping' ? '#5A3A6B' : (entry.role == 'Admin' ? '#2C2A1E' : '#7A6010')))})"
-                              th:text="${entry.role}">Admin</span>
-                        <span th:if="${entry.severity != 'normal'}"
-                              class="log-severity-pill"
-                              th:style="'background-color: ' + (${entry.severity == 'sensitive' ? 'rgba(201,169,110,0.2)' : 'rgba(140,60,40,0.15)'}) + '; color: ' + (${entry.severity == 'sensitive' ? '#8B6020' : '#8C3C28'})"
-                              th:text="${entry.severity == 'sensitive' ? 'Nhạy cảm' : 'Nghiêm trọng'}">Nhạy cảm</span>
-                    </div>
-                    <p class="log-action" th:text="${entry.action}">Đăng nhập vào Operations Hub</p>
-                    <div class="log-modules">
-                        <span th:each="m : ${entry.modules}"
-                              class="log-module-tag"
-                              th:style="'background-color: ' + (${m == 'Đặt phòng' ? 'rgba(61,74,46,0.2)' : (m == 'F&B' ? 'rgba(122,78,26,0.15)' : (m == 'Tài chính' ? 'rgba(201,169,110,0.2)' : (m == 'Tài khoản' ? 'rgba(44,42,30,0.12)' : 'rgba(46,61,53,0.2)')))})"
-                              th:text="${m}">Tài khoản</span>
-                    </div>
-                </div>
-
-                <!-- IP -->
-                <span class="log-ip" th:text="${entry.ip}">192.168.1.10</span>
+        <!-- Timeline Table -->
+        <div class="adm-card" style="margin-top: 24px;">
+            <div class="adm-table-wrap">
+                <table class="adm-table">
+                    <thead>
+                        <tr>
+                            <th>Thời gian</th>
+                            <th>Tác nhân</th>
+                            <th>Thao tác</th>
+                            <th>Đối tượng tác động</th>
+                            <th style="text-align:right">So sánh thay đổi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="timeline-container">
+                        <tr th:each="entry, iterStat : ${logs}" 
+                            class="log-entry"
+                            th:style="${entry.severity != 'normal' ? 'background-color: ' + (entry.severity == 'sensitive' ? 'rgba(201,169,110,0.08)' : 'rgba(140,60,40,0.07)') : ''}"
+                            th:attr="data-employee=${entry.name},data-modules=${#strings.listJoin(entry.modules, ',')},data-severity=${entry.severity},data-record-id=${entry.recordId},data-raw-table=${entry.rawTableName}">
+                            
+                            <!-- Cột 1: Thời gian -->
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <i data-lucide="clock" style="width: 14px; height: 14px; color: #8B7355;"></i>
+                                    <span class="log-time" th:text="${entry.time}" style="font-family: var(--font-mono); font-weight: 600; color: #2C2A1E;">06:45</span>
+                                </div>
+                                <div style="font-size: 10px; color: #8B7355; margin-top: 2px;" th:text="${entry.ip}">192.168.1.10</div>
+                            </td>
+                            
+                            <!-- Cột 2: Tác nhân -->
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <div class="log-avatar" 
+                                         th:style="'background-color: ' + (${entry.role == 'Receptionist' ? '#2D6B7A' : (entry.role == 'F&B' ? '#7A4E1A' : (entry.role == 'Housekeeping' ? '#5A3A6B' : (entry.role == 'Admin' ? '#3A3526' : '#8B7020')))}) + '; width: 28px; height: 28px; border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700;'"
+                                         th:text="${entry.initials}">AD</div>
+                                    <div>
+                                        <div class="log-name" th:text="${entry.name}" style="font-weight: 600; color: #2C2A1E; font-size: 13px;">Admin Dũng</div>
+                                        <div style="display: flex; gap: 4px; align-items: center; margin-top: 2px;">
+                                            <span class="log-role-pill"
+                                                  th:style="'background-color: ' + (${entry.role == 'Receptionist' ? 'rgba(45,107,122,0.15)' : (entry.role == 'F&B' ? 'rgba(122,78,26,0.15)' : (entry.role == 'Housekeeping' ? 'rgba(90,58,107,0.15)' : (entry.role == 'Admin' ? 'rgba(44,42,30,0.15)' : 'rgba(139,112,32,0.2)')))}) + '; color: ' + (${entry.role == 'Receptionist' ? '#1D5B6A' : (entry.role == 'F&B' ? '#7A4E1A' : (entry.role == 'Housekeeping' ? '#5A3A6B' : (entry.role == 'Admin' ? '#2C2A1E' : '#7A6010')))}) + '; font-size: 9.5px; padding: 1px 6px; border-radius: 4px; font-weight: 600;'"
+                                                  th:text="${entry.role}">Admin</span>
+                                            <span th:if="${entry.severity != 'normal'}"
+                                                  class="log-severity-pill"
+                                                  th:style="'background-color: ' + (${entry.severity == 'sensitive' ? 'rgba(201,169,110,0.2)' : 'rgba(140,60,40,0.15)'}) + '; color: ' + (${entry.severity == 'sensitive' ? '#8B6020' : '#8C3C28'}) + '; font-size: 9.5px; padding: 1px 6px; border-radius: 4px; font-weight: 600;'"
+                                                  th:text="${entry.severity == 'sensitive' ? 'Nhạy cảm' : 'Nghiêm trọng'}">Nhạy cảm</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            
+                            <!-- Cột 3: Thao tác -->
+                            <td>
+                                <div style="display: flex; flex-direction: column; gap: 4px;">
+                                    <span class="log-action" th:text="${entry.action}" style="font-weight: 600; color: #2C2A1E; font-size: 13px;">UPDATE</span>
+                                    <div class="log-modules" style="display: flex; gap: 4px; flex-wrap: wrap;">
+                                        <span th:each="m : ${entry.modules}"
+                                              class="log-module-tag"
+                                              th:style="'background-color: ' + (${m == 'Đặt phòng' ? 'rgba(61,74,46,0.12)' : (m == 'F&B' ? 'rgba(122,78,26,0.12)' : (m == 'Tài chính' ? 'rgba(201,169,110,0.15)' : (m == 'Tài khoản' ? 'rgba(44,42,30,0.1)' : 'rgba(46,61,53,0.12)')))}) + '; font-size: 9.5px; padding: 1px 6px; border-radius: 4px; color: #5C4A3A; font-weight: 600;'"
+                                              th:text="${m}">Tài khoản</span>
+                                    </div>
+                                </div>
+                            </td>
+                            
+                            <!-- Cột 4: Đối tượng tác động -->
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <i data-lucide="database" style="width: 14px; height: 14px; color: #8B7355;"></i>
+                                    <span th:text="${entry.rawTableName} + ' #' + ${entry.recordId}" style="font-family: var(--font-mono); font-size: 12px; color: #2C2A1E; font-weight: 600;">Room #101</span>
+                                </div>
+                            </td>
+                            
+                            <!-- Cột 5: So sánh thay đổi -->
+                            <td style="text-align:right">
+                                <button type="button" class="adm-btn adm-btn-primary btn-view-diff" style="padding: 6px 12px; font-size: 12px; border-radius: 6px; display: inline-flex; align-items: center; gap: 6px; background-color: #C9A96E; border: none; color: white; cursor: pointer; font-weight: 600;">
+                                    <i data-lucide="git-diff" style="width:14px; height:14px;"></i>
+                                    Xem Diffs
+                                </button>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(logs)}">
+                            <td colspan="5" style="text-align:center; padding:48px; color:#8B7355; font-family:var(--font-serif); font-size:18px">Không có bản ghi nào</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
 
     </main>
     <!-- ════════ HISTORY / AUDIT MODAL ════════ -->
     <div id="audit-history-modal" class="adm-modal-backdrop hidden" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; justify-content:center; align-items:center;">
-        <div class="adm-modal-box adm-modal-box-lg" onclick="event.stopPropagation()" style="background:#FDFBF7; width:600px; border-radius:8px; padding:24px; max-height:90vh; display:flex; flex-direction:column;">
+        <div class="adm-modal-box adm-modal-box-lg" onclick="event.stopPropagation()" style="background:#FDFBF7; width:750px; max-width:95%; border-radius:8px; padding:24px; max-height:90vh; display:flex; flex-direction:column;">
             <div class="adm-modal-header" style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #E5E0D8; padding-bottom:16px;">
                 <h2 class="adm-modal-title" style="margin:0; font-family:var(--font-serif); font-size:20px; color:#3A3526;">Chi tiết thay đổi dữ liệu (Diff)</h2>
                 <button class="btn-close-modal adm-modal-close" data-modal="audit-history-modal" style="background:none; border:none; cursor:pointer;"><i data-lucide="x"></i></button>

@@ -15,4 +15,8 @@ public interface TourRepository extends JpaRepository<Tour, Long> {
     
     @Query("SELECT DISTINCT t.tourType FROM Tour t")
     List<String> findDistinctCategories();
+
+    java.util.Optional<Tour> findByTourType(String tourType);
+
+    java.util.Optional<Tour> findFirstByTourTypeAndIsActiveTrueOrderByIdDesc(String tourType);
 }

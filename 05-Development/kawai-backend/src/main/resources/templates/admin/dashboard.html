@@ -12,74 +12,8 @@
 <body>
 
 <!-- ═══════════════════════ SIDEBAR ═══════════════════════ -->
-<aside class="adm-sidebar">
-    <!-- Logo -->
-    <div class="adm-sidebar-logo">
-        <div class="adm-sidebar-brand">
-            <div class="adm-sidebar-dot">✦</div>
-            <span class="adm-sidebar-brand-name">Hoanien Retreat</span>
-        </div>
-        <h1 class="adm-sidebar-title">Operations Hub</h1>
-    </div>
+<aside th:replace="~{admin/fragments/sidebar :: sidebar('dashboard', '')}"></aside>
 
-    <!-- Nav -->
-    <nav class="adm-nav">
-        <!-- Dashboard (Active) -->
-        <div class="adm-nav-item">
-            <a href="/admin/dashboard" class="adm-nav-link active">
-                <span class="adm-nav-icon"><i data-lucide="layout-dashboard"></i></span>
-                <span class="adm-nav-label">Tổng quan</span>
-            </a>
-        </div>
-
-        <!-- Master Data -->
-        <div class="adm-nav-item">
-            <button id="master-data-toggle" class="adm-nav-link">
-                <span class="adm-nav-icon"><i data-lucide="database"></i></span>
-                <span class="adm-nav-label">Master Data</span>
-                <span class="adm-nav-arrow" id="master-data-arrow"><i data-lucide="chevron-right"></i></span>
-            </button>
-            <div id="master-data-submenu" class="adm-submenu">
-                <a href="/admin/master-data?tab=Room%20Categories" class="adm-submenu-link"><i data-lucide="layers"></i> Room Categories</a>
-                <a href="/admin/master-data?tab=Rooms"             class="adm-submenu-link"><i data-lucide="bed-double"></i> Rooms</a>
-                <a href="/admin/master-data?tab=Restaurant%20Menu" class="adm-submenu-link"><i data-lucide="utensils-crossed"></i> Restaurant Menu</a>
-                <a href="/admin/master-data?tab=Menu%20Categories" class="adm-submenu-link"><i data-lucide="tag"></i> Menu Categories</a>
-                <a href="/admin/master-data?tab=Tour%20Categories" class="adm-submenu-link"><i data-lucide="layers"></i> Tour Categories</a>
-                <a href="/admin/master-data?tab=Tours"             class="adm-submenu-link"><i data-lucide="map-pin"></i> Tours</a>
-                <a href="/admin/master-data?tab=Account%20Management" class="adm-submenu-link"><i data-lucide="user-cog"></i> Account Management</a>
-                <a href="/admin/master-data?tab=Promotions"        class="adm-submenu-link"><i data-lucide="ticket"></i> Promotions</a>
-                <a href="/admin/master-data?tab=Pricing%20Management" class="adm-submenu-link"><i data-lucide="database"></i> Pricing Management</a>
-            </div>
-        </div>
-
-        <!-- Audit Log -->
-        <div class="adm-nav-item">
-            <a href="/admin/audit-log" class="adm-nav-link">
-                <span class="adm-nav-icon"><i data-lucide="clipboard-list"></i></span>
-                <span class="adm-nav-label">Audit Log</span>
-            </a>
-        </div>
-
-        <!-- Reviews -->
-        <div class="adm-nav-item">
-            <a href="/admin/reviews" class="adm-nav-link">
-                <span class="adm-nav-icon"><i data-lucide="star"></i></span>
-                <span class="adm-nav-label">Review Management</span>
-            </a>
-        </div>
-    </nav>
-
-    <!-- Footer -->
-    <div class="adm-sidebar-footer">
-        <div class="adm-sidebar-user">
-            <div class="adm-sidebar-avatar" th:text="${#authentication != null ? #strings.substring(#authentication.name, 0, 2).toUpperCase() : 'AD'}">AD</div>
-            <div>
-                <div class="adm-sidebar-name" th:text="${#authentication != null ? #authentication.name : 'Admin Dũng'}">Admin Dũng</div>
-                <div class="adm-sidebar-role" th:text="${#authentication != null and #authentication.authorities != null and !#authentication.authorities.isEmpty() ? #strings.replace(#authentication.authorities[0].authority, 'ROLE_', '') : 'User'}">Admin</div>
-            </div>
-        </div>
-    </div>
-</aside>
 
 <!-- ═══════════════════════ MAIN ═══════════════════════ -->
 <div class="adm-main">
@@ -170,37 +104,46 @@
         <div class="adm-card">
             <div class="adm-card-header">
                 <div>
-                    <h2 class="adm-section-title">Room Status Matrix</h2>
-                    <p class="adm-section-subtitle" th:text="${totalRooms} + ' phòng · 10 tầng'">100 phòng · 10 tầng</p>
+                    <h2 class="adm-section-title">Sơ đồ phòng & Điều phối liên bộ phận</h2>
+                    <p class="adm-section-subtitle" th:text="${totalRooms} + ' phòng hoạt động · Sắp xếp theo tầng'">100 phòng · 10 tầng</p>
                 </div>
                 <div class="adm-legend">
                     <div class="adm-legend-item">
-                        <div class="adm-legend-dot" style="background:#6B8C42"></div>
-                        <span class="adm-legend-label">Có khách</span>
+                        <div class="adm-legend-dot" style="background:#9CA3AF"></div>
+                        <span class="adm-legend-label">Trống (Xám)</span>
                     </div>
                     <div class="adm-legend-item">
-                        <div class="adm-legend-dot" style="background:#5A8C6B"></div>
-                        <span class="adm-legend-label">Trống</span>
+                        <div class="adm-legend-dot" style="background:#3B82F6"></div>
+                        <span class="adm-legend-label">Có khách (Xanh Dương)</span>
                     </div>
                     <div class="adm-legend-item">
-                        <div class="adm-legend-dot" style="background:#C9A96E"></div>
-                        <span class="adm-legend-label">Chưa dọn</span>
+                        <div class="adm-legend-dot" style="background:#F59E0B"></div>
+                        <span class="adm-legend-label">Bẩn/Cần dọn (Vàng)</span>
                     </div>
                     <div class="adm-legend-item">
-                        <div class="adm-legend-dot" style="background:#7A7A9A"></div>
-                        <span class="adm-legend-label">Bảo trì</span>
+                        <div class="adm-legend-dot" style="background:#EF4444"></div>
+                        <span class="adm-legend-label">HỎNG (Đỏ)</span>
                     </div>
                 </div>
             </div>
             <div class="adm-room-matrix-wrap" style="display:flex; flex-direction:column; gap:24px;">
                 <div th:each="floorEntry : ${roomsByFloor}" class="adm-floor-group">
                     <h3 class="adm-floor-title" th:text="${floorEntry.key}" style="margin-bottom:12px; font-size:14px; font-weight:600; color:#5c5a4d; border-bottom:1px solid #e2ddce; padding-bottom:4px;">Tầng</h3>
-                    <div class="adm-room-matrix">
+                    <div class="adm-room-matrix" style="grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));">
                         <div th:each="room : ${floorEntry.value}"
                              class="adm-room-cell"
-                             th:style="'background-color:' + ${room.bgColor}">
-                            <span class="adm-room-number" th:text="${room.roomNumber}">101</span>
-                            <div class="adm-room-dot" th:style="'background-color:' + ${room.dotColor}"></div>
+                             th:style="'background-color:' + ${room.bgColor} + '; color:' + ${room.textColor} + '; border: 1px solid ' + ${room.dotColor} + '; position: relative; min-height: 68px; padding: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center;'"
+                             th:title="${room.status == 'broken' ? 'Hệ thống Sửa chữa - Ghi chú: ' + room.issueDescription : room.statusLabel}">
+                            <span class="adm-room-number" th:text="${room.roomNumber}" th:style="'color:' + ${room.textColor} + '; font-weight:700; font-size:14px;'">101</span>
+                            <span class="adm-room-status-lbl" th:text="${room.statusLabel}" th:style="'color:' + ${room.textColor} + '; font-size:9.5px; opacity:0.85; font-weight:600;'">Trống</span>
+                            
+                            <!-- Maintenance Action details -->
+                            <span th:if="${room.status == 'broken'}" th:text="${room.issueDescription}" style="font-size: 8.5px; color: #B91C1C; font-weight: 700; text-align: center; margin-top: 4px; line-height: 1.1;">Hỏng điều hòa</span>
+                            
+                            <!-- Housekeeping Action link indicator -->
+                            <span th:if="${room.status == 'dirty'}" style="font-size: 8px; color: #92400E; font-weight: 700; text-align: center; margin-top: 4px; line-height: 1.1; text-transform: uppercase;">-> Housekeeping</span>
+                            
+                            <div class="adm-room-dot" th:style="'background-color:' + ${room.dotColor} + '; position: absolute; top: 6px; right: 6px; width: 6px; height: 6px; border-radius: 50%;'"></div>
                         </div>
                     </div>
                 </div>
@@ -252,6 +195,61 @@
                 </div>
             </div>
 
+        </div>
+
+        <!-- Automation Engine Timeline -->
+        <div class="adm-card" style="margin-top: 24px;">
+            <div class="adm-card-header" style="border-bottom: 1px solid rgba(44,42,30,0.08); padding-bottom: 12px; margin-bottom: 16px;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <i data-lucide="activity" style="color: #C9A96E; width: 20px; height: 20px;"></i>
+                    <h2 class="adm-section-title" style="font-size: 18px;">Nhật ký lệnh tự động (Automation Engine Timeline)</h2>
+                </div>
+                <span class="badge-green" style="padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; display: flex; align-items: center; gap: 6px; background-color: rgba(45,107,122,0.1); color: #1D5B6A;">
+                    <span class="status-indicator-dot" style="width: 6px; height: 6px; border-radius: 50%; background-color: #1D5B6A; display: inline-block; animation: pulse 1.5s infinite;"></span>
+                    Active (Real-time)
+                </span>
+            </div>
+            <div class="automation-timeline-list" style="display: flex; flex-direction: column; gap: 12px; max-height: 220px; overflow-y: auto; padding-right: 6px;">
+                <div class="automation-item" style="display: flex; align-items: flex-start; gap: 12px; padding: 10px 14px; background: rgba(239,68,68,0.04); border-left: 3px solid #EF4444; border-radius: 4px;">
+                    <span class="auto-time" style="font-family: var(--font-mono); font-size: 11px; color: #EF4444; font-weight: 600; margin-top: 2px;">15:40</span>
+                    <div style="flex: 1;">
+                        <p style="margin: 0; font-size: 13px; font-weight: 600; color: #2C2A1E;">[15:40] Phòng 103 báo hỏng -> Đã tự động tạo Task cho Đội Sửa Chữa</p>
+                        <p style="margin: 2px 0 0 0; font-size: 11px; color: #8B7355;">Thiết bị hỏng: Điều hòa nhiệt độ phòng ngủ. Nhân viên kỹ thuật Phạm Quốc Bảo đã được chỉ định lập tức.</p>
+                    </div>
+                    <span class="badge-red" style="font-size: 9px; padding: 2px 6px; border-radius: 3px; background-color: rgba(239,68,68,0.15); color: #EF4444; font-weight:600;">MAINTENANCE</span>
+                </div>
+                <div class="automation-item" style="display: flex; align-items: flex-start; gap: 12px; padding: 10px 14px; background: rgba(201,169,110,0.05); border-left: 3px solid #C9A96E; border-radius: 4px;">
+                    <span class="auto-time" style="font-family: var(--font-mono); font-size: 11px; color: #8B7355; margin-top: 2px;">15:15</span>
+                    <div style="flex: 1;">
+                        <p style="margin: 0; font-size: 13px; font-weight: 600; color: #2C2A1E;">[15:15] Phòng 203 chuyển trạng thái [Bẩn] -> Kích hoạt lệnh dọn phòng tự động</p>
+                        <p style="margin: 2px 0 0 0; font-size: 11px; color: #8B7355;">Đã khởi tạo công việc làm sạch phòng và điều phối nhân viên buồng phòng Lê Văn Tám xử lý.</p>
+                    </div>
+                    <span class="badge-yellow" style="font-size: 9px; padding: 2px 6px; border-radius: 3px; background-color: rgba(201,169,110,0.15); color: #8B6010; font-weight:600;">HOUSEKEEPING</span>
+                </div>
+                <div class="automation-item" style="display: flex; align-items: flex-start; gap: 12px; padding: 10px 14px; background: rgba(45,107,122,0.05); border-left: 3px solid #1D5B6A; border-radius: 4px;">
+                    <span class="auto-time" style="font-family: var(--font-mono); font-size: 11px; color: #8B7355; margin-top: 2px;">14:30</span>
+                    <div style="flex: 1;">
+                        <p style="margin: 0; font-size: 13px; font-weight: 600; color: #2C2A1E;">[14:30] Đơn F&B #FB-1002 hoàn tất chuẩn bị tại Bếp -> Thông báo giao nhận</p>
+                        <p style="margin: 2px 0 0 0; font-size: 11px; color: #8B7355;">Gửi thông báo đẩy đến Tablet của nhân viên phục vụ bàn ăn khu vực T04 để nhận món từ quầy bếp.</p>
+                    </div>
+                    <span class="badge-blue" style="font-size: 9px; padding: 2px 6px; border-radius: 3px; background-color: rgba(45,107,122,0.15); color: #1D5B6A; font-weight:600;">ROOM SERVICE</span>
+                </div>
+                <div class="automation-item" style="display: flex; align-items: flex-start; gap: 12px; padding: 10px 14px; background: rgba(90,140,107,0.05); border-left: 3px solid #2D6B4A; border-radius: 4px;">
+                    <span class="auto-time" style="font-family: var(--font-mono); font-size: 11px; color: #8B7355; margin-top: 2px;">13:00</span>
+                    <div style="flex: 1;">
+                        <p style="margin: 0; font-size: 13px; font-weight: 600; color: #2C2A1E;">[13:00] Tour Tây Bắc #TS-2002 đạt giới hạn sĩ số 20/20 -> Tự động đóng đăng ký</p>
+                        <p style="margin: 2px 0 0 0; font-size: 11px; color: #8B7355;">Khóa đăng ký bổ sung, kích hoạt lịch trình vận hành và gửi SMS hướng dẫn cho toàn bộ hành khách.</p>
+                    </div>
+                    <span class="badge-green" style="font-size: 9px; padding: 2px 6px; border-radius: 3px; background-color: rgba(90,140,107,0.15); color: #2D6B4A; font-weight:600;">TOUR SYSTEM</span>
+                </div>
+            </div>
+            <style>
+                @keyframes pulse {
+                    0% { transform: scale(0.9); opacity: 0.5; }
+                    50% { transform: scale(1.1); opacity: 1; }
+                    100% { transform: scale(0.9); opacity: 0.5; }
+                }
+            </style>
         </div>
 
     </main>

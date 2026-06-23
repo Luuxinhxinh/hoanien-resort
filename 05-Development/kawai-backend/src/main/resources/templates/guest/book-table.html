@@ -70,14 +70,14 @@
                 </div>
 
                 <div class="hidden lg:flex items-center gap-6 text-[13px] uppercase tracking-[0.2em] font-semibold">
-                    <a href="/profile" th:if="${isLoggedIn}"
+                    <a href="/profile" th:if="${session.user != null}"
                         class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200">Profile</a>
-                    <form th:action="@{/auth/logout}" method="post" th:if="${isLoggedIn}" class="inline">
+                    <form th:action="@{/auth/logout}" method="post" th:if="${session.user != null}" class="inline">
                         <button type="submit"
                             class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200 uppercase tracking-[0.2em] bg-transparent border-none p-0 cursor-pointer">Logout</button>
                     </form>
 
-                    <a href="#" onclick="openLoginModal(); return false;" th:unless="${isLoggedIn}" class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200">Log In</a>
+                    <a href="#" onclick="openLoginModal(); return false;" th:unless="${session.user != null}" class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200">Log In</a>
                     <a href="/booking"
                         class="nav-btn-book hover:opacity-100 active:scale-95 transition-all duration-200 inline-block text-[13px]">
                         Book Now
@@ -236,7 +236,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script th:inline="javascript">
-        const IS_LOGGED_IN = /*[[${isLoggedIn}]]*/ false;
+        const IS_LOGGED_IN = /*[[${session.user != null}]]*/ false;
     </script>
     <script th:src="@{/guest/js/book-table.js}"></script>
     <div th:replace="~{guest/fragments/auth :: authModal}"></div>

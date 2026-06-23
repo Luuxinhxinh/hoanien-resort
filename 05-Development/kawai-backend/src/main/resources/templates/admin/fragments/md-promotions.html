@@ -63,6 +63,25 @@
         <div class="adm-form-group"><label class="adm-form-label">Số lượt dùng tối đa</label><input type="number" name="maxUses" class="adm-form-input"></div>
         <div class="adm-form-group"><label class="adm-form-label">Cấu hình Combo</label><input type="text" name="comboConfig" class="adm-form-input" placeholder="Ví dụ: ROOM+FB"></div>
         <div class="adm-form-group"><label class="adm-form-label">Mô tả Khuyến Mãi</label><textarea name="description" class="adm-form-input" rows="3"></textarea></div>
+        
+        <!-- Thiết lập hạn mức bảo mật (Security Threshold Settings) -->
+        <div style="border-top: 1px solid rgba(44,42,30,0.1); padding-top: 16px; margin-top: 8px;">
+            <h3 style="font-size: 14px; font-weight: 700; color: #8B7355; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.05em;">Thiết lập hạn mức bảo mật (Anti-Fraud)</h3>
+            <div style="display: flex; flex-direction: column; gap: 16px;">
+                <div class="adm-form-group">
+                    <label class="adm-form-label">Hạn mức giảm tối đa (VND)</label>
+                    <input type="number" name="maxDiscountValueVnd" class="adm-form-input" placeholder="Ví dụ: 1000000" min="0">
+                </div>
+                <div class="adm-form-group">
+                    <label class="adm-form-label">Giới hạn lượt dùng tối đa / Khách hàng</label>
+                    <input type="number" name="maxUsesPerCustomer" class="adm-form-input" placeholder="Ví dụ: 1" min="1">
+                </div>
+                <div class="adm-form-group">
+                    <label class="adm-form-label">Ngưỡng duyệt của Quản lý (%)</label>
+                    <input type="number" name="managerApprovalThresholdPct" class="adm-form-input" placeholder="Ví dụ: 25" min="0" max="100">
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 

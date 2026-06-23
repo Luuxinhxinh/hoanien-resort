@@ -345,6 +345,7 @@ function openEditModal(id) {
             case 'F&B Orders': apiPath = 'fnb-orders'; break;
             case 'Tour Schedules': apiPath = 'tour-schedules'; break;
             case 'Account Management': apiPath = 'accounts'; break;
+            case 'Role Management': apiPath = 'roles'; break;
             default: apiPath = 'generic';
         }
         form.dataset.action = `/admin/api/v1/${apiPath}/${id}`;
@@ -387,6 +388,7 @@ function handleFormSubmit(event) {
             case 'F&B Orders': apiPath = 'fnb-orders'; break;
             case 'Tour Schedules': apiPath = 'tour-schedules'; break;
             case 'Account Management': apiPath = 'accounts'; break;
+            case 'Role Management': apiPath = 'roles'; break;
             default: apiPath = 'generic';
         }
         endpoint = isEdit ? `/admin/api/v1/${apiPath}/${editingRowId}` : `/admin/api/v1/${apiPath}`;
@@ -691,6 +693,7 @@ document.addEventListener("click", (e) => {
         case 'Tours': apiPath = 'tours'; break;
         case 'Promotions': apiPath = 'promotions'; break;
         case 'Account Management': apiPath = 'accounts'; break;
+        case 'Role Management': apiPath = 'roles'; break;
         default: return;
     }
 

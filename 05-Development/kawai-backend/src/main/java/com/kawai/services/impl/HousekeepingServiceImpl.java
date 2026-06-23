@@ -7,7 +7,11 @@ import com.kawai.repositories.EmployeeRepository;
 import com.kawai.repositories.HousekeepingTaskRepository;
 import com.kawai.repositories.MaintenanceRequestRepository;
 import com.kawai.repositories.RoomRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.kawai.services.interfaces.HousekeepingService;
+import com.kawai.services.interfaces.WorkflowEngineService;
+import com.kawai.repositories.WorkflowRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +32,8 @@ import java.util.List;
 @Service
 public class HousekeepingServiceImpl implements HousekeepingService {
 
+    private static final Logger log = LoggerFactory.getLogger(HousekeepingServiceImpl.class);
+
     private static final String OPERATION_CLEAN = "CHECKOUT_CLEAN";
     private static final String OPERATION_MAINTENANCE = "MAINTENANCE";
     private static final String STATUS_PENDING = "Pending";
@@ -38,6 +44,12 @@ public class HousekeepingServiceImpl implements HousekeepingService {
     private static final String STATUS_VACANT_DIRTY = "Vacant_Dirty";
     private static final String STATUS_VACANT_CLEAN = "Vacant_Clean";
     private static final String STATUS_MAINTENANCE = "Maintenance";
+
+    @Autowired
+    private WorkflowEngineService workflowEngineService;
+
+    @Autowired
+    private WorkflowRepository workflowRepository;
 
     private final HousekeepingTaskRepository housekeepingTaskRepo;
     private final MaintenanceRequestRepository maintenanceRequestRepo;
@@ -139,6 +151,33 @@ public class HousekeepingServiceImpl implements HousekeepingService {
     @Override
     @Transactional
     public HotelOperation createMaintenanceRequest(Long roomId, Long staffId, String notes) {
+        List<com.kawai.models.Workflow> activeWorkflows = workflowRepository.findByTriggerEventAndIsActive("ROOM_REPORT_DAMAGE", true);
+        if (!activeWorkflows.isEmpty()) {
+            Room room = findRoomById(roomId);
+            Employee staff = findEmployeeById(staffId);
+            
+            // Execute the automated workflows
+            try {
+                workflowEngineService.triggerEvent("ROOM_REPORT_DAMAGE", java.util.Map.of(
+                    "room_id", roomId,
+                    "staff_id", staffId,
+                    "notes", notes != null ? notes : ""
+                ));
+            } catch (Exception e) {
+                log.error("Failed executing workflow engine trigger for ROOM_REPORT_DAMAGE", e);
+            }
+
+            // Return the created task
+            return maintenanceRequestRepo.findAll().stream()
+                .filter(t -> t.getRoom().getId().equals(roomId) && "Maintenance".equals(t.getOperationalType()))
+                .sorted((t1, t2) -> t2.getCreatedAt().compareTo(t1.getCreatedAt()))
+                .findFirst()
+                .orElseGet(() -> {
+                    HotelOperation task = buildHotelOperation(room, staff, OPERATION_MAINTENANCE, "Normal", notes);
+                    return maintenanceRequestRepo.save(task);
+                });
+        }
+
         Room room = findRoomById(roomId);
         Employee staff = findEmployeeById(staffId);
 

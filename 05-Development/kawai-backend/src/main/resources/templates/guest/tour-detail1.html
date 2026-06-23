@@ -186,13 +186,13 @@
                         <span class="lang-btn text-[10px] font-semibold uppercase tracking-[0.1em]" data-lang="en"
                             onclick="switchLang('en')">EN</span>
                     </div>
-                    <a href="/profile" th:if="${isLoggedIn}" class="nav-text-dim" data-i18n="nav_profile">Hồ Sơ</a>
-                    <form th:action="@{/auth/logout}" method="post" th:if="${isLoggedIn}" class="inline">
+                    <a href="/profile" th:if="${session.user != null}" class="nav-text-dim" data-i18n="nav_profile">Hồ Sơ</a>
+                    <form th:action="@{/auth/logout}" method="post" th:if="${session.user != null}" class="inline">
                         <button type="submit"
                             class="nav-text-dim uppercase tracking-[0.2em] bg-transparent border-none p-0 cursor-pointer font-sans font-semibold"
                             data-i18n="nav_logout">Đăng Xuất</button>
                     </form>
-                    <a href="#" onclick="openLoginModal(); return false;" th:unless="${isLoggedIn}" class="nav-text-dim">Log In</a>
+                    <a href="#" onclick="openLoginModal(); return false;" th:unless="${session.user != null}" class="nav-text-dim">Log In</a>
                     <a href="/booking" class="nav-btn-book px-8 py-3.5 text-center text-[13px]"
                         data-i18n="nav_book_now">Đặt Ngay</a>
                 </div>

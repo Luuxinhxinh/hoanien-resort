@@ -73,26 +73,60 @@ public interface AdminViewService {
     }
 
     @Data
-    @AllArgsConstructor
     class RoomMock {
         private String roomNumber;
         private String status;
+        private String issueDescription;
+
+        public RoomMock(String roomNumber, String status) {
+            this.roomNumber = roomNumber;
+            this.status = status;
+            this.issueDescription = "";
+        }
+
+        public RoomMock(String roomNumber, String status, String issueDescription) {
+            this.roomNumber = roomNumber;
+            this.status = status;
+            this.issueDescription = issueDescription;
+        }
 
         public String getBgColor() {
             return switch (status) {
-                case "vacant" -> "#2E3D35";
-                case "dirty" -> "#4A3A1A";
-                case "maintenance" -> "#2E2E35";
-                default -> "#3D4A2E";
+                case "vacant" -> "#E5E7EB";
+                case "occupied" -> "#DBEAFE";
+                case "dirty" -> "#FEF3C7";
+                case "broken" -> "#FEE2E2";
+                default -> "#E5E7EB";
             };
         }
 
         public String getDotColor() {
             return switch (status) {
-                case "vacant" -> "#5A8C6B";
-                case "dirty" -> "#C9A96E";
-                case "maintenance" -> "#7A7A9A";
-                default -> "#6B8C42";
+                case "vacant" -> "#9CA3AF";
+                case "occupied" -> "#3B82F6";
+                case "dirty" -> "#F59E0B";
+                case "broken" -> "#EF4444";
+                default -> "#9CA3AF";
+            };
+        }
+
+        public String getTextColor() {
+            return switch (status) {
+                case "vacant" -> "#374151";
+                case "occupied" -> "#1E40AF";
+                case "dirty" -> "#92400E";
+                case "broken" -> "#991B1B";
+                default -> "#374151";
+            };
+        }
+
+        public String getStatusLabel() {
+            return switch (status) {
+                case "vacant" -> "Trống";
+                case "occupied" -> "Có Khách";
+                case "dirty" -> "Bẩn";
+                case "broken" -> "HỎNG";
+                default -> "Trống";
             };
         }
     }
