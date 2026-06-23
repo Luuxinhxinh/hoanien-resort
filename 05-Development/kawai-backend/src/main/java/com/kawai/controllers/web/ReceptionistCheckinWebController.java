@@ -40,6 +40,7 @@ public class ReceptionistCheckinWebController {
     }
 
     @PostMapping("/complete")
+    @org.springframework.transaction.annotation.Transactional(rollbackFor = Exception.class)
     public String completeCheckin(@ModelAttribute CheckinSubmitFormDTO form, RedirectAttributes redirectAttributes) {
         log.info("Bắt đầu xử lý Form Check-in bulk. BookingId: {}, Số phòng gán: {}, Số người đi kèm: {}",
                 form.getBookingId(),
@@ -59,32 +60,65 @@ public class ReceptionistCheckinWebController {
                         "Bạn chưa chọn phòng vật lý nào để giao cho khách!");
             }
 
-            // Bước 1: Giao từng phòng (Mapping room -> detail)
-            int roomIndex = 0;
-
-            for (com.kawai.models.RoomBookingDetail detail : details) {
-                if ("CHECKED_IN".equalsIgnoreCase(detail.getDetailStatus())) {
-                    continue; // Bỏ qua phòng đã giao
+            // Lọc ra các detail chưa check-in để đem đi gán
+            java.util.List<com.kawai.models.RoomBookingDetail> pendingDetails = new java.util.ArrayList<>();
+            for (com.kawai.models.RoomBookingDetail d : details) {
+                if (!"CHECKED_IN".equalsIgnoreCase(d.getDetailStatus())) {
+                    pendingDetails.add(d);
                 }
-                if (roomIndex >= form.getAssignedRoomNumbers().size()) {
-                    break; // Đã giao hết các phòng khách chọn trên UI
-                }
+            }
 
-                String roomNumber = form.getAssignedRoomNumbers().get(roomIndex);
+            if (form.getAssignedRoomNumbers() == null) {
+                form.setAssignedRoomNumbers(new java.util.ArrayList<>());
+            }
+            form.getAssignedRoomNumbers().removeIf(String::isEmpty);
+
+            if (form.getAssignedRoomNumbers().size() != pendingDetails.size()) {
+                throw new com.kawai.exceptions.BusinessException("CHECKIN-005",
+                        "Bạn phải phân đủ " + pendingDetails.size() + " phòng trước khi hoàn tất Check-in!");
+            }
+
+            // Bước 1: Giao từng phòng (Mapping room -> detail có cùng hạng phòng)
+            java.util.Map<String, Long> roomNumberToDetailIdMap = new java.util.HashMap<>();
+
+            for (String roomNumber : form.getAssignedRoomNumbers()) {
                 com.kawai.models.Room room = roomRepo.findByRoomNumber(roomNumber)
                         .orElseThrow(() -> new com.kawai.exceptions.BusinessException("CHECKIN-003",
                                 "Không tìm thấy phòng số " + roomNumber));
 
-                // Gọi service lõi để Check-in 1 phòng bằng roomId thực sự
-                checkinService.checkIn(detail.getId(), room.getId());
+                // Tìm detail có cùng Category với phòng vật lý này
+                com.kawai.models.RoomBookingDetail matchedDetail = null;
+                for (com.kawai.models.RoomBookingDetail d : pendingDetails) {
+                    if (d.getCategory().getId().equals(room.getCategory().getId())) {
+                        matchedDetail = d;
+                        break;
+                    }
+                }
 
-                roomIndex++;
+                if (matchedDetail == null) {
+                    throw new com.kawai.exceptions.BusinessException("CHECKIN-004",
+                            "Phòng " + roomNumber + " thuộc hạng " + room.getCategory().getCategoryName() + " không khớp với bất kỳ hạng phòng nào đang chờ check-in của đơn này!");
+                }
+
+                // Xóa detail đã được gán khỏi danh sách chờ để không bị gán trùng
+                pendingDetails.remove(matchedDetail);
+
+                // Gọi service lõi để Check-in 1 phòng bằng roomId thực sự
+                checkinService.checkIn(matchedDetail.getId(), room.getId());
+                roomNumberToDetailIdMap.put(roomNumber, matchedDetail.getId());
             }
 
             // Bước 2: THÊM NGƯỜI ĐI KÈM
             if (form.getDependents() != null) {
                 for (com.kawai.dto.DependentRegistrationDTO dependentDTO : form.getDependents()) {
                     if (dependentDTO != null && dependentDTO.getFullName() != null && !dependentDTO.getFullName().trim().isEmpty()) {
+                        // Nếu lễ tân gán dependent vào 1 phòng vật lý cụ thể, ta set detailId tương ứng
+                        if (dependentDTO.getAssignedPhysicalRoomNumber() != null && !dependentDTO.getAssignedPhysicalRoomNumber().isEmpty()) {
+                            Long detailId = roomNumberToDetailIdMap.get(dependentDTO.getAssignedPhysicalRoomNumber());
+                            if (detailId != null) {
+                                dependentDTO.setRoomBookingDetailId(detailId);
+                            }
+                        }
                         dependentService.registerDependent(form.getBookingId(), dependentDTO);
                     }
                 }
@@ -95,13 +129,15 @@ public class ReceptionistCheckinWebController {
             return "redirect:/receptionist/check-in"; // Redirect về trang danh sách check-in
 
         } catch (BusinessException e) {
+            org.springframework.transaction.interceptor.TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             log.error("Lỗi nghiệp vụ khi Check-in: {}", e.getMessage());
             // Thất bại: Gửi thông báo lỗi và redirect lại trang form cũ
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
             return "redirect:/receptionist/check-in";
         } catch (Exception e) {
+            org.springframework.transaction.interceptor.TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             log.error("Lỗi hệ thống khi Check-in: ", e);
-            redirectAttributes.addFlashAttribute("errorMessage", "Lỗi hệ thống! Vui lòng thử lại.");
+            redirectAttributes.addFlashAttribute("errorMessage", "Lỗi hệ thống! Vui lòng thử lại. Chi tiết: " + e.toString());
             return "redirect:/receptionist/check-in";
         }
     }

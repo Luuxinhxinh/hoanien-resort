@@ -8,13 +8,32 @@ import java.time.LocalDate;
  */
 public class DependentRegistrationDTO {
 
+    private Long dependentId;
+    private Long roomBookingDetailId;
     private String fullName;
     private LocalDate dateOfBirth;
-    private String cccd;       // Raw CCCD — sẽ mã hoá AES-256 trong Service (BR-SYS-01)
+    private String cccd;
     private String gender;
-    private String contactInfo; // Optional
+    private String contactInfo;
+    private String assignedPhysicalRoomNumber;
 
     public DependentRegistrationDTO() {
+    }
+
+    public Long getDependentId() {
+        return dependentId;
+    }
+
+    public void setDependentId(Long dependentId) {
+        this.dependentId = dependentId;
+    }
+
+    public Long getRoomBookingDetailId() {
+        return roomBookingDetailId;
+    }
+
+    public void setRoomBookingDetailId(Long roomBookingDetailId) {
+        this.roomBookingDetailId = roomBookingDetailId;
     }
 
     public String getFullName() {
@@ -55,5 +74,13 @@ public class DependentRegistrationDTO {
 
     public void setContactInfo(String contactInfo) {
         this.contactInfo = contactInfo;
+    }
+
+    public String getAssignedPhysicalRoomNumber() {
+        return assignedPhysicalRoomNumber;
+    }
+
+    public void setAssignedPhysicalRoomNumber(String assignedPhysicalRoomNumber) {
+        this.assignedPhysicalRoomNumber = assignedPhysicalRoomNumber;
     }
 }

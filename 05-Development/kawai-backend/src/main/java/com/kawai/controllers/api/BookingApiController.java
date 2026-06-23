@@ -31,8 +31,8 @@ public class BookingApiController {
 
     private String extractUsername(Principal principal) {
         if (principal instanceof org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken) {
-            org.springframework.security.oauth2.core.user.OAuth2User oauthUser = 
-                ((org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken) principal).getPrincipal();
+            org.springframework.security.oauth2.core.user.OAuth2User oauthUser = ((org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken) principal)
+                    .getPrincipal();
             String email = oauthUser.getAttribute("email");
             if (email != null) {
                 return email;
@@ -41,19 +41,11 @@ public class BookingApiController {
         return principal.getName();
     }
 
-    private static final Logger log = LoggerFactory.getLogger(BookingApiController.class);
-
     @Autowired
     private BookingService bookingService;
 
     @Autowired
     private CustomerRepository customerRepository;
-
-    @Autowired
-    private RoomBookingRepository roomBookingRepository;
-
-    @Autowired
-    private PaymentTransactionRepository paymentTransactionRepository;
 
     @Autowired
     private com.kawai.services.interfaces.VnPayService vnPayService;
@@ -246,7 +238,6 @@ public class BookingApiController {
                 String paymentUrl = vnPayService.createPaymentUrl(bookingId, request.getRemoteAddr());
                 response.put("paymentUrl", paymentUrl);
             }
-
             return ResponseEntity.ok(response);
         } catch (BusinessException e) {
             return ResponseEntity.status(400).body(Map.of("status", "error", "message", e.getMessage()));

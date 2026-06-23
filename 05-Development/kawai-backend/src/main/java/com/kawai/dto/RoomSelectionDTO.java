@@ -5,6 +5,7 @@ public class RoomSelectionDTO {
     private String categoryName;
     private Integer numberOfAdults;
     private Integer numberOfChildren;
+    private java.util.List<Integer> childrenAges;
 
     public RoomSelectionDTO() {
     }
@@ -52,5 +53,13 @@ public class RoomSelectionDTO {
 
     public void setNumberOfChildren(Integer numberOfChildren) {
         this.numberOfChildren = numberOfChildren;
+    }
+
+    public java.util.List<Integer> getChildrenAges() {
+        return childrenAges;
+    }
+
+    public void setChildrenAges(java.util.List<Integer> childrenAges) {
+        this.childrenAges = childrenAges;
     }
 }

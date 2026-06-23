@@ -75,7 +75,7 @@ public class CheckinServiceImpl implements CheckinService {
         @Transactional
         public RoomBookingDetail checkIn(Long bookingDetailId, Long roomId) {
                 RoomBookingDetail detail = findBookingDetail(bookingDetailId);
-                
+
                 if (STATUS_CHECKED_IN.equalsIgnoreCase(detail.getDetailStatus())) {
                         throw new IllegalStateException("BookingDetail đã CHECKED_IN không được check-in lại");
                 }
@@ -83,7 +83,7 @@ public class CheckinServiceImpl implements CheckinService {
                 if (!"CONFIRMED".equalsIgnoreCase(bookingStatus) && !"Checked_In".equalsIgnoreCase(bookingStatus)) {
                         throw new IllegalStateException("Booking chưa CONFIRMED không được phép check-in");
                 }
-                
+
                 Room room = findRoom(roomId);
 
                 validateRoomAvailableForCheckin(room);
@@ -103,11 +103,23 @@ public class CheckinServiceImpl implements CheckinService {
                 roomBookingDetailRepo.save(detail);
                 roomRepo.save(room);
 
-                // Cập nhật trạng thái của toàn bộ Booking sang Checked_In để xóa khỏi danh sách Arrivals
+                // Cập nhật trạng thái của toàn bộ Booking sang Checked_In
                 RoomBooking parent = detail.getRoomBooking();
                 if (parent != null && "CONFIRMED".equalsIgnoreCase(parent.getBookingStatus())) {
-                        parent.setBookingStatus("Checked_In");
-                        roomBookingRepo.save(parent);
+                        java.util.List<RoomBookingDetail> allDetails = roomBookingDetailRepo
+                                        .findByRoomBookingId(parent.getId());
+                        boolean allCheckedIn = true;
+                        for (RoomBookingDetail d : allDetails) {
+                                if (!d.getId().equals(detail.getId())
+                                                && !STATUS_CHECKED_IN.equalsIgnoreCase(d.getDetailStatus())) {
+                                        allCheckedIn = false;
+                                        break;
+                                }
+                        }
+                        if (allCheckedIn) {
+                                parent.setBookingStatus("Checked_In");
+                                roomBookingRepo.save(parent);
+                        }
                 }
         }
 

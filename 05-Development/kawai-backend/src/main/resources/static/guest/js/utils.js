@@ -56,12 +56,8 @@ window.showToast = function(message, type = 'success') {
 
 // ── Formatting Utilities ──────────────────────────────────────────────────────
 
-window.formatCurrencyVND = function(amount) {
+window.formatCurrency = function(amount, withSymbol = false) {
     if (amount == null) return '—';
-    return Number(amount).toLocaleString('vi-VN');
-};
-
-window.formatCurrencyWithSymbol = function(amount) {
-    if (amount == null) return '—';
-    return Number(amount).toLocaleString('vi-VN') + ' ₫';
+    const val = Number(amount).toLocaleString('vi-VN');
+    return withSymbol ? val + ' ₫' : val;
 };

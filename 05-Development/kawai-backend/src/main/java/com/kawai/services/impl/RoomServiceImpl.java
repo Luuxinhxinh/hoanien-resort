@@ -77,53 +77,74 @@ public class RoomServiceImpl implements RoomService {
             allRooms = new ArrayList<>();
         }
 
-        List<Room> availableRooms = new ArrayList<>();
-        for (Room room : allRooms) {
-            if (!isRoomAvailable(room.getRoomNumber(), checkIn, checkOut)) {
-                continue;
-            }
+        // Group rooms by category
+        java.util.Map<Long, List<Room>> roomsByCatId = allRooms.stream()
+                .filter(r -> r.getCategory() != null)
+                .collect(java.util.stream.Collectors.groupingBy(r -> r.getCategory().getId()));
 
-            RoomCategory cat = room.getCategory();
-            if (cat == null) {
-                continue;
-            }
+        List<RoomCategory> allCategories = roomCategoryRepository.findAll();
+        List<RoomSearchResponseDTO> available = new ArrayList<>();
+        boolean isTodayOrPast = !checkIn.isAfter(LocalDate.now());
 
+        for (RoomCategory cat : allCategories) {
+            // Apply filters
             if (request.getCategoryName() != null && !request.getCategoryName().trim().isEmpty()) {
                 String searchCategoryName = request.getCategoryName().trim().toLowerCase();
                 if (!cat.getCategoryName().toLowerCase().contains(searchCategoryName)) {
                     continue;
                 }
             }
-            if (request.getMinCapacity() != null) {
-                if (cat.getCapacity() < request.getMinCapacity()) {
-                    continue;
-                }
+            if (request.getMinCapacity() != null && cat.getCapacity() < request.getMinCapacity()) {
+                continue;
             }
-            if (request.getMaxPricePerNight() != null) {
-                if (cat.getBasePrice() != null && cat.getBasePrice().compareTo(request.getMaxPricePerNight()) > 0) {
-                    continue;
-                }
+            if (request.getMaxPricePerNight() != null && cat.getBasePrice() != null
+                    && cat.getBasePrice().compareTo(request.getMaxPricePerNight()) > 0) {
+                continue;
             }
 
-            availableRooms.add(room);
-        }
+            List<Room> roomsInCat = roomsByCatId.getOrDefault(cat.getId(), new ArrayList<>());
+            if (roomsInCat.isEmpty()) {
+                continue;
+            }
 
-        // Đếm số phòng trống theo từng hạng phòng để set availableCount
-        java.util.Map<String, Long> categoryCounts = availableRooms.stream()
-                .filter(r -> r.getCategory() != null)
-                .collect(java.util.stream.Collectors.groupingBy(
-                        r -> r.getCategory().getCategoryName(),
-                        java.util.stream.Collectors.counting()
-                ));
+            // Count total overlapping bookings for this category
+            long overlappingBookings = roomBookingRepository.countOverlappingBookingsByCategoryWithoutExclude(
+                    cat.getCategoryName(), checkIn, checkOut);
 
-        List<RoomSearchResponseDTO> available = new ArrayList<>();
-        for (Room room : availableRooms) {
-            RoomCategory cat = room.getCategory();
-            RoomSearchResponseDTO dto = toSearchResult(cat, checkIn, checkOut, room.getRoomNumber());
-            dto.setRoomId(room.getId());
-            long count = categoryCounts.getOrDefault(cat.getCategoryName(), 0L);
-            dto.setAvailableCount((int) count);
-            available.add(dto);
+            long calculatedAvailable = roomsInCat.size() - overlappingBookings;
+
+            // Handle physical status constraints (BR-FO-04)
+            if (isTodayOrPast) {
+                // If checking in today, we cannot book rooms that are physically Occupied or in
+                // Maintenance.
+                long physicallyAvailableToday = roomsInCat.stream()
+                        .filter(r -> !"Occupied".equalsIgnoreCase(r.getRoomStatus())
+                                && !"Maintenance".equalsIgnoreCase(r.getRoomStatus()))
+                        .count();
+                calculatedAvailable = Math.min(calculatedAvailable, physicallyAvailableToday);
+            } else {
+                // If future, Maintenance rooms might still be excluded
+                long physicallyAvailableFuture = roomsInCat.stream()
+                        .filter(r -> !"Maintenance".equalsIgnoreCase(r.getRoomStatus()))
+                        .count();
+                calculatedAvailable = Math.min(calculatedAvailable, physicallyAvailableFuture);
+            }
+
+            if (request.getMinRooms() != null && calculatedAvailable < request.getMinRooms()) {
+                continue;
+            }
+
+            if (calculatedAvailable > 0) {
+                // Generate 'calculatedAvailable' DTOs with dummy room numbers so the frontend
+                // can group them properly
+                for (int i = 0; i < calculatedAvailable; i++) {
+                    String dummyRoomNumber = cat.getCategoryName().replaceAll("\\s+", "") + "-" + (i + 1);
+                    RoomSearchResponseDTO dto = toSearchResult(cat, checkIn, checkOut, dummyRoomNumber);
+                    dto.setRoomId(cat.getId()); // Use category ID for frontend compatibility
+                    dto.setAvailableCount((int) calculatedAvailable);
+                    available.add(dto);
+                }
+            }
         }
 
         // ── Pagination ─────────────────────────────────────────────────────

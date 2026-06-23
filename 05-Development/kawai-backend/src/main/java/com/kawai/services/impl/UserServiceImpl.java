@@ -62,6 +62,12 @@ public class UserServiceImpl implements UserService {
         employee.setAccount(account);
         employee.setFullName(dto.getFullName());
         employee.setGender(dto.getGender());
+        if (dto.getPhone() != null && !com.kawai.utils.ValidationUtils.isValidPhone(dto.getPhone())) {
+            throw new IllegalArgumentException("Invalid phone number format");
+        }
+        if (dto.getCccd() != null && !com.kawai.utils.ValidationUtils.isValidDocument(dto.getCccd())) {
+            throw new IllegalArgumentException("Invalid CCCD format");
+        }
         employee.setCccd(dto.getCccd());
         employee.setPhone(dto.getPhone());
         employee.setEmail(dto.getEmail());
@@ -93,6 +99,9 @@ public class UserServiceImpl implements UserService {
         customer.setAccount(account);
         customer.setFullName(dto.getFullName());
         customer.setGender(dto.getGender());
+        if (dto.getPhone() != null && !com.kawai.utils.ValidationUtils.isValidPhone(dto.getPhone())) {
+            throw new IllegalArgumentException("Invalid phone number format");
+        }
         customer.setPhone(dto.getPhone());
         customer.setEmail(dto.getEmail());
         return customerRepository.save(customer);
@@ -106,8 +115,20 @@ public class UserServiceImpl implements UserService {
 
         if (payload.containsKey("name")) employee.setFullName(payload.get("name"));
         if (payload.containsKey("email")) employee.setEmail(payload.get("email"));
-        if (payload.containsKey("phone")) employee.setPhone(payload.get("phone"));
-        if (payload.containsKey("cccd")) employee.setCccd(payload.get("cccd"));
+        if (payload.containsKey("phone")) {
+            String phone = payload.get("phone");
+            if (!com.kawai.utils.ValidationUtils.isValidPhone(phone)) {
+                throw new IllegalArgumentException("Invalid phone number format");
+            }
+            employee.setPhone(phone);
+        }
+        if (payload.containsKey("cccd")) {
+            String cccd = payload.get("cccd");
+            if (!com.kawai.utils.ValidationUtils.isValidDocument(cccd)) {
+                throw new IllegalArgumentException("Invalid CCCD format");
+            }
+            employee.setCccd(cccd);
+        }
         if (payload.containsKey("gender")) employee.setGender(payload.get("gender"));
         if (payload.containsKey("salary") && !payload.get("salary").isEmpty()) {
             employee.setSalary(new java.math.BigDecimal(payload.get("salary")));
@@ -141,7 +162,13 @@ public class UserServiceImpl implements UserService {
 
         if (payload.containsKey("name")) customer.setFullName(payload.get("name"));
         if (payload.containsKey("email")) customer.setEmail(payload.get("email"));
-        if (payload.containsKey("phone")) customer.setPhone(payload.get("phone"));
+        if (payload.containsKey("phone")) {
+            String phone = payload.get("phone");
+            if (!com.kawai.utils.ValidationUtils.isValidPhone(phone)) {
+                throw new IllegalArgumentException("Invalid phone number format");
+            }
+            customer.setPhone(phone);
+        }
         if (payload.containsKey("gender")) customer.setGender(payload.get("gender"));
 
         Account account = customer.getAccount();
