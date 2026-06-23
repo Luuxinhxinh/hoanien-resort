@@ -2,8 +2,8 @@ package com.kawai.models;
 
 import jakarta.persistence.*;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "Bookings")
@@ -35,6 +35,7 @@ public class Booking {
     private Integer version = 1;
 
     public Promotion getAppliedPromotion() {
+
         return appliedPromotion;
     }
 

@@ -250,10 +250,6 @@ function renderRoomResults(roomsData) {
                 pricePerNight: room.pricePerNight,
                 capacity: room.capacity,
                 description: room.description,
-                beds: room.beds,
-                size: room.size,
-                view: room.view,
-                amenities: room.amenities,
                 baseAdults: room.baseAdults,
                 baseChildren: room.baseChildren,
                 maxAdults: room.maxAdults,
@@ -275,9 +271,9 @@ function renderRoomResults(roomsData) {
     let html = '';
     categoryList.forEach(room => {
         const priceVal = room.pricePerNight;
-        const formattedPrice = formatCurrencyVND(priceVal);
+        const formattedPrice = formatCurrency(priceVal);
         const totalVal = priceVal * diffDays;
-        const formattedTotal = formatCurrencyVND(totalVal);
+        const formattedTotal = formatCurrency(totalVal);
 
         const badge = getRoomBadge(priceVal);
         const badgeHtml = badge ? `
@@ -299,7 +295,7 @@ function renderRoomResults(roomsData) {
         html += `
             <article class="room-card flex flex-col h-full">
                 <!-- Image / carousel -->
-                <div class="room-media relative">
+                <div class="room-media relative cursor-pointer hover:opacity-90 transition-opacity" onclick="openRoomInfoModal('${room.categoryName}', '${roomImage}', '${room.capacity}', '${(room.description || '').replace(/'/g, "\\'").replace(/\n/g, '\\n')}', ${room.baseAdults || 0}, ${room.baseChildren || 0}, ${room.maxAdults || 0}, ${room.maxChildren || 0}, ${room.extraAdultSurcharge || 0}, ${room.extraChildSurcharge || 0})">
                     ${badgeHtml}
                     <img class="room-img" src="${roomImage}" alt="${room.categoryName}"/>
 
@@ -307,13 +303,6 @@ function renderRoomResults(roomsData) {
                     <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-black/50 text-white px-3 py-1.5 rounded-full text-[11px] font-bold tracking-widest backdrop-blur-md shadow-lg z-10 uppercase border border-white/20 whitespace-nowrap pointer-events-none">
                         Còn ${availableCount} trống
                     </div>
-
-                    <button type="button" class="carousel-btn prev" aria-label="Previous photo">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 6l-6 6 6 6"/></svg>
-                    </button>
-                    <button type="button" class="carousel-btn next" aria-label="Next photo">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
-                    </button>
 
                     <div class="media-foot">
                         <span class="media-ic" aria-hidden="true">
@@ -457,114 +446,42 @@ function executeSearch(e) {
 }
 
 // ---------------- ROOM DETAIL MODAL LOGIC ----------------
-function handleSelectRoomClick(button) {
-    const name = button.getAttribute('data-name') || 'Room';
-    const image = button.getAttribute('data-image');
-    const badge = button.getAttribute('data-badge');
-    const badgeType = button.getAttribute('data-badge-type');
-    const guests = button.getAttribute('data-guests');
-    const total = button.getAttribute('data-total');
-
-    const desc = button.getAttribute('data-desc') || '';
-    const beds = button.getAttribute('data-beds') || '';
-    const size = button.getAttribute('data-size') || '';
-    const view = button.getAttribute('data-view') || '';
-    const amenitiesStr = button.getAttribute('data-amenities') || '';
-    const amenities = amenitiesStr ? amenitiesStr.split(',') : [];
-
+function openRoomInfoModal(name, image, capacity, description, baseAdults, baseChildren, maxAdults, maxChildren, extraAdultSurcharge, extraChildSurcharge) {
     document.getElementById('detailRoomName').innerText = name;
     document.getElementById('detailRoomImg').src = image;
 
+    document.getElementById('detailRoomGuests').innerText = capacity + ' Người / phòng';
+    document.getElementById('detailRoomTotal').innerText = ''; 
+
+    document.getElementById('detailRoomDesc').innerText = description || 'Không có mô tả chi tiết cho phòng này.';
+
+    document.getElementById('detailRoomBaseAdults').innerText = baseAdults;
+    document.getElementById('detailRoomBaseChildren').innerText = baseChildren;
+    document.getElementById('detailRoomMaxAdults').innerText = maxAdults;
+    document.getElementById('detailRoomMaxChildren').innerText = maxChildren;
+    document.getElementById('detailRoomSurchargeAdult').innerText = formatCurrency(extraAdultSurcharge) + ' VNĐ';
+    document.getElementById('detailRoomSurchargeChild').innerText = formatCurrency(extraChildSurcharge) + ' VNĐ';
+
     const badgeEl = document.getElementById('detailRoomBadge');
-    if (badge && badge !== 'null' && badge !== '') {
-        badgeEl.innerText = badge;
-        badgeEl.style.display = 'inline-block';
-        if (badgeType === 'tip') {
-            badgeEl.className = 'inline-block px-3 py-1 rounded text-xs font-semibold text-white mb-3 bg-[#5a4837]';
-        } else {
-            badgeEl.className = 'inline-block px-3 py-1 rounded text-xs font-semibold text-white mb-3 bg-[#6e7869]';
-        }
-    } else {
-        badgeEl.style.display = 'none';
-    }
-
-    document.getElementById('detailRoomGuests').innerText = `${guests} Guest${guests > 1 ? 's' : ''}`;
-    document.getElementById('detailRoomTotal').innerText = total;
-
-    document.getElementById('detailRoomDesc').innerText = desc;
-
-    function isValEmpty(val) {
-        return !val || val === 'null' || val === 0 || val === '0' || val === '' || val === 'undefined';
-    }
+    if (badgeEl) badgeEl.style.display = 'none';
 
     const bedsEl = document.getElementById('detailRoomBeds');
-    if (bedsEl) {
-        if (isValEmpty(beds)) {
-            bedsEl.parentElement.style.display = 'none';
-        } else {
-            bedsEl.parentElement.style.display = 'flex';
-            bedsEl.innerText = beds;
-        }
-    }
-
-    const sizeEl = document.getElementById('detailRoomSize');
-    if (sizeEl) {
-        if (isValEmpty(size)) {
-            sizeEl.parentElement.style.display = 'none';
-        } else {
-            sizeEl.parentElement.style.display = 'flex';
-            sizeEl.innerText = size;
-        }
-    }
-
-    const viewEl = document.getElementById('detailRoomView');
-    if (viewEl) {
-        if (isValEmpty(view)) {
-            viewEl.parentElement.style.display = 'none';
-        } else {
-            viewEl.parentElement.style.display = 'flex';
-            viewEl.innerText = view;
-        }
-    }
-
     if (bedsEl && bedsEl.parentElement && bedsEl.parentElement.parentElement) {
-        const specsContainer = bedsEl.parentElement.parentElement;
-        if (isValEmpty(beds) && isValEmpty(size) && isValEmpty(view)) {
-            specsContainer.style.display = 'none';
-        } else {
-            specsContainer.style.display = 'grid';
-        }
+        bedsEl.parentElement.parentElement.style.display = 'none';
     }
 
     const amenitiesHeader = document.querySelector('#detailRoomAmenities') ? document.querySelector('#detailRoomAmenities').previousElementSibling : null;
     const amenitiesList = document.getElementById('detailRoomAmenities');
     if (amenitiesList) {
-        if (!amenities || amenities.length === 0 || (amenities.length === 1 && isValEmpty(amenities[0]))) {
-            amenitiesList.style.display = 'none';
-            if (amenitiesHeader) amenitiesHeader.style.display = 'none';
-        } else {
-            amenitiesList.style.display = 'grid';
-            if (amenitiesHeader) amenitiesHeader.style.display = 'block';
-            amenitiesList.innerHTML = amenities.map(a => `
-                <li class="flex items-center gap-1.5">
-                    <span class="material-symbols-outlined text-[14px] text-green-600">check_circle</span>
-                    <span>${a}</span>
-                </li>
-            `).join('');
-        }
+        amenitiesList.style.display = 'none';
+        if (amenitiesHeader) amenitiesHeader.style.display = 'none';
     }
 
     const container = document.getElementById('detailBookButtonContainer');
-    if (typeof isUserLoggedIn !== 'undefined' && isUserLoggedIn) {
+    if (container) {
         container.innerHTML = `
-            <button onclick="confirmBooking()" type="button" class="bg-[#3a322b] text-[#f3efe6] px-6 py-3 rounded-lg text-sm font-semibold hover:bg-[#2c2620] transition-colors">
-                Book Now
-            </button>
-        `;
-    } else {
-        container.innerHTML = `
-            <button onclick="triggerLoginFromDetail()" type="button" class="bg-[#3a322b] text-[#f3efe6] px-6 py-3 rounded-lg text-sm font-semibold hover:bg-[#2c2620] transition-colors">
-                Book Now
+            <button onclick="closeRoomDetailsModal()" type="button" class="bg-gray-200 text-gray-800 px-6 py-3 rounded-lg text-sm font-semibold hover:bg-gray-300 transition-colors">
+                Đóng
             </button>
         `;
     }
@@ -626,7 +543,7 @@ function updateCartUI() {
                     <div class="flex justify-between items-start mb-2">
                         <div class="pr-6">
                             <h4 class="font-semibold text-sm text-[#2f2a24] leading-tight">${catName}</h4>
-                            <p class="text-xs text-[#8b8478] mt-1">${data.quantity} Phòng x ${formatCurrencyVND(data.pricePerNight)} VNĐ/đêm</p>
+                            <p class="text-xs text-[#8b8478] mt-1">${data.quantity} Phòng x ${formatCurrency(data.pricePerNight)} VNĐ/đêm</p>
                             <p class="text-[10px] text-[#a59f93] mt-0.5">Khách: ${data.adultsPerRoom} NL, ${data.childrenPerRoom} TE / phòng</p>
                         </div>
                         <button type="button" class="text-gray-400 hover:text-red-500 absolute top-4 right-4" onclick="removeCartItem('${catName}')">
@@ -635,7 +552,7 @@ function updateCartUI() {
                     </div>
                     <div class="flex justify-between items-center mt-2">
                         <span class="text-[10px] text-gray-400 italic">Ước tính</span>
-                        <span class="text-xs font-medium text-[#2f2a24]">${formatCurrencyVND(data.estimatedTotal)} VNĐ</span>
+                        <span class="text-xs font-medium text-[#2f2a24]">${formatCurrency(data.estimatedTotal)} VNĐ</span>
                     </div>
                 </div>`
                 ;
@@ -654,7 +571,7 @@ function updateCartUI() {
         // Dừng timer khi giỏ trống
         stopCartHoldTimer();
     } else {
-        cartTotalPrice.innerHTML = formatCurrencyVND(totalCartPrice) + " VNĐ <span class='text-[10px] text-gray-400 font-normal normal-case'>(ước tính)</span>";
+        cartTotalPrice.innerHTML = formatCurrency(totalCartPrice) + " VNĐ <span class='text-[10px] text-gray-400 font-normal normal-case'>(ước tính)</span>";
         btnCheckout.disabled = false;
         cartWrapper.classList.remove('hidden');
     }
@@ -789,10 +706,8 @@ function confirmCartBooking() {
     btnCheckout.innerText = "ĐANG XỬ LÝ...";
 
     let roomSelections = [];
-    let totalRoomsCount = 0;
     for (const catName in selectedRoomsCart) {
         const item = selectedRoomsCart[catName];
-        totalRoomsCount += item.roomNumbers.length;
         item.roomNumbers.forEach(roomNo => {
             roomSelections.push({
                 categoryName: catName,
@@ -994,10 +909,7 @@ document.addEventListener("DOMContentLoaded", function () {
         applyDates();
         executeSearch({ preventDefault: () => { }, stopPropagation: () => { } });
     }, 100);
-});
-
-// ── Intersection Observer reveal animations ───────────────────────────────
-document.addEventListener("DOMContentLoaded", () => {
+    // ── Intersection Observer reveal animations ───────────────────────────────
     const observerOptions = {
         root: null,
         rootMargin: '0px',

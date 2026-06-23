@@ -56,6 +56,7 @@ public class VnPayServiceImpl implements VnPayService {
         txn.setBooking(booking);
         txn.setAmount(booking.getDepositAmount());
         txn.setStatus(PaymentStatus.INIT);
+        txn.setTransactionType("ROOM_BOOKING");
         txn.setCreatedAt(LocalDateTime.now());
 
         // 2. Sinh transactionRef mới
@@ -139,7 +140,8 @@ public class VnPayServiceImpl implements VnPayService {
         paymentTransactionRepository.save(txn);
 
         // 3. Build params VNPay
-        long amountVal = foodOrder.getTotalAmount().multiply(new BigDecimal("100")).setScale(0, RoundingMode.HALF_UP).longValue();
+        long amountVal = foodOrder.getTotalAmount().multiply(new BigDecimal("100")).setScale(0, RoundingMode.HALF_UP)
+                .longValue();
         String createDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
 
         Map<String, String> vnp_Params = new HashMap<>();
@@ -249,12 +251,12 @@ public class VnPayServiceImpl implements VnPayService {
                     foodOrder.setIsPaidInPos(true);
                     foodOrderRepository.save(foodOrder);
                 }
-            } else if (booking != null) {
+            } else if ("ROOM_BOOKING".equals(txn.getTransactionType()) && booking != null) {
                 if ("PENDING".equals(booking.getBookingStatus()) || "HOLD".equals(booking.getBookingStatus())) {
                     booking.setBookingStatus("CONFIRMED");
                 }
             }
-            
+
             // Tự động chuyển trạng thái Hóa Đơn sang PAID
             if (txn.getInvoice() != null) {
                 com.kawai.models.ConsolidatedInvoice invoice = txn.getInvoice();
