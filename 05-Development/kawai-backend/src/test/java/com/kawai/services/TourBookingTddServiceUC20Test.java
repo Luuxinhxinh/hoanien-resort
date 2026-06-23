@@ -58,6 +58,9 @@ public class TourBookingTddServiceUC20Test {
     @Mock
     private EmployeeRepository employeeRepository;
 
+    @Mock
+    private RoomBookingDetailRepository roomBookingDetailRepository;
+
     @InjectMocks
     private TourBookingServiceImpl tourBookingService;
 
@@ -72,6 +75,7 @@ public class TourBookingTddServiceUC20Test {
         request.setCustomerId(10L);
         request.setParticipantCount(2);
         request.setPostToRoom(true);
+        request.setRoomBookingDetailId(50L);
 
         Tour tour = new Tour();
         tour.setId(1L);
@@ -87,8 +91,12 @@ public class TourBookingTddServiceUC20Test {
         Customer customer = new Customer();
         customer.setId(10L);
 
+        RoomBookingDetail roomDetail = new RoomBookingDetail();
+        roomDetail.setId(50L);
+
         when(tourScheduleRepository.findById(100L)).thenReturn(Optional.of(schedule));
         when(customerRepository.findById(10L)).thenReturn(Optional.of(customer));
+        when(roomBookingDetailRepository.findById(50L)).thenReturn(Optional.of(roomDetail));
         when(tourBookingRepository.countByScheduleAndBookingStatus(schedule, "Confirmed")).thenReturn(2);
 
         TourBooking savedBooking = new TourBooking();

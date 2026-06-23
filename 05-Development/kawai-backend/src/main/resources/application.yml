@@ -28,8 +28,35 @@ spring:
   thymeleaf:
     cache: false
 
+  # ─── Email (SMTP Gmail) ───────────────────────────────────────────
+  # Để gửi email, anh cần:
+  # 1. Bật 2-Step Verification trên Gmail
+  # 2. Tạo App Password tại: Google Account → Security → App Passwords
+  # 3. Set env variables: MAIL_USERNAME và MAIL_PASSWORD
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME:ngocnguyenthuy999@gmail.com}
+    password: ${MAIL_PASSWORD:uywcaynxxegnbzvk}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+        debug: false
+    default-encoding: UTF-8
+
 server:
   port: 8080
+
+# ─── App custom config ────────────────────────────────────────────────
+app:
+  mail:
+    from-name: "Hòa Niên Retreat & Resort"
+    resort-phone: "1900 xxxx"
+    resort-website: "https://hoaniensorretreat.vn"
 
 logging:
   level:
@@ -42,4 +69,4 @@ vnpay:
   hash-secret: 4JVVJ2NUMIMEWODNGA3CR8DV52L5PKII
   pay-url: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
   return-url: http://localhost:8080/api/v1/payments/vnpay-return
-  api-version: 2.1.0
+  api-version: 2.1.0

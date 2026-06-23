@@ -24,7 +24,7 @@ import os
 # ============================================================
 # CONFIGURATION
 # ============================================================
-FACE_MATCH_TOLERANCE = 0.55  # Ngưỡng tolerance (thấp hơn = chặt hơn, mặc định face_recognition là 0.6)
+FACE_MATCH_TOLERANCE = 0.45  # Ngưỡng tolerance (thấp hơn = chặt hơn, mặc định face_recognition là 0.6)
 MIN_FACE_MATCH_SCORE = 85    # Tỷ lệ % tối thiểu theo BR-TR-02
 
 today_str = datetime.now().strftime("%Y-%m-%d")
@@ -42,8 +42,8 @@ def parse_guest_list(json_str):
     except Exception as e:
         print(f"Lỗi parse JSON: {e}", file=sys.stderr)
         return [
-            {"customer_id": 1, "name": "Lê Hoàng Nam", "image_path": "me.jpg", "tour_date": today_str},
-            {"customer_id": 2, "name": "Nguyễn Văn An", "image_path": "ngoclon.jpg", "tour_date": today_str},
+            {"customer_id": 1, "name": "Nguyễn Xuân Lưu", "image_path": "luuham.jpg", "tour_date": today_str},
+            {"customer_id": 2, "name": "Ngọc Thị", "image_path": "lgok.jpg", "tour_date": today_str},
         ]
 
 
@@ -52,18 +52,24 @@ def load_known_faces(guest_list):
     known_encodings = []
     known_names = []
 
-    # Hardcoded check-in image for "Lê Hoàng Nam"
-    hardcoded_path = r"D:\SWP391\su26-swp391-se2023-g2\03_sourcecode\kawai-backend\me.jpg"
-    if os.path.exists(hardcoded_path):
-        try:
-            image = face_recognition.load_image_file(hardcoded_path)
-            encodings = face_recognition.face_encodings(image)
-            if encodings:
-                known_encodings.append(encodings[0])
-                known_names.append("Lê Hoàng Nam")
-                print(f"✓ [HARDCODED] Đã nạp ảnh nhận diện: Lê Hoàng Nam ({hardcoded_path})")
-        except Exception as e:
-            print(f"Lỗi khi nạp ảnh cứng: {e}", file=sys.stderr)
+    # Hardcoded check-in image for "Nguyễn Xuân Lưu"
+    hardcoded_paths = [
+        os.path.join("..", "kawai-backend", "src", "main", "resources", "static", "AnhTour", "luuham.jpg"),
+        os.path.join("..", "kawai-backend", "luuham.jpg"),
+        "luuham.jpg"
+    ]
+    for h_path in hardcoded_paths:
+        if os.path.exists(h_path):
+            try:
+                image = face_recognition.load_image_file(h_path)
+                encodings = face_recognition.face_encodings(image)
+                if encodings:
+                    known_encodings.append(encodings[0])
+                    known_names.append("Nguyễn Xuân Lưu")
+                    print(f"✓ [HARDCODED] Đã nạp ảnh nhận diện: Nguyễn Xuân Lưu ({h_path})")
+                    break
+            except Exception as e:
+                print(f"Lỗi khi nạp ảnh cứng {h_path}: {e}", file=sys.stderr)
 
     for record in guest_list:
         if record.get("tour_date") == today_str:
@@ -71,14 +77,18 @@ def load_known_faces(guest_list):
             name = record["name"]
 
             # Bỏ qua nếu đã được nạp qua ảnh cứng để tránh trùng lặp
-            if name == "Lê Hoàng Nam" and any(n == "Lê Hoàng Nam" for n in known_names):
+            if name == "Nguyễn Xuân Lưu" and any(n == "Nguyễn Xuân Lưu" for n in known_names):
                 continue
 
-            # Nếu path tương đối và không tồn tại, thử tìm trong thư mục kawai-backend
+            # Nếu path tương đối và không tồn tại, thử tìm trong thư mục kawai-backend hoặc static resources
             if not os.path.isabs(image_path) and not os.path.exists(image_path):
-                alt_path = os.path.join("..", "kawai-backend", image_path)
+                alt_path = os.path.join("..", "kawai-backend", "src", "main", "resources", "static", "AnhTour", image_path)
                 if os.path.exists(alt_path):
                     image_path = alt_path
+                else:
+                    alt_path = os.path.join("..", "kawai-backend", image_path)
+                    if os.path.exists(alt_path):
+                        image_path = alt_path
 
             if not os.path.exists(image_path):
                 print(f"Cảnh báo: Không tìm thấy ảnh {image_path} cho {name}", file=sys.stderr)
@@ -259,10 +269,10 @@ def main():
 
     # 1. Parse danh sách khách
     if not json_args:
-        # Tạo dữ liệu test mặc định trỏ tới me.jpg và ngoclon.jpg tại thư mục làm việc hiện tại
+        # Tạo dữ liệu test mặc định trỏ tới luuham.jpg và lgok.jpg tại thư mục làm việc hiện tại
         json_args = json.dumps([
-            {"customer_id": 1, "name": "Lê Hoàng Nam", "image_path": "me.jpg", "tour_date": today_str},
-            {"customer_id": 2, "name": "Nguyễn Văn An", "image_path": "ngoclon.jpg", "tour_date": today_str},
+            {"customer_id": 1, "name": "Nguyễn Xuân Lưu", "image_path": "luuham.jpg", "tour_date": today_str},
+            {"customer_id": 2, "name": "Ngọc Thị", "image_path": "lgok.jpg", "tour_date": today_str},
         ])
 
     guest_list = parse_guest_list(json_args)

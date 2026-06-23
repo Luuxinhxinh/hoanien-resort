@@ -55,8 +55,8 @@ INSERT INTO Employees (employee_id, account_id, full_name, gender, cccd, phone, 
 
 -- ── 4. Customers (15 rows) ───────────────────────────────────
 INSERT INTO Customers (customer_id, account_id, full_name, gender, cccd_passport_encrypted, phone, email, loyalty_points, membership_tier) VALUES 
-(1, 5, 'Lê Hoàng Nam', 'Nam', 'CCCD_101', '090101', 'nam101@test.com', 100, 'Regular'),
-(2, 6, 'Nguyễn Văn An', 'Nam', 'CCCD_204', '090204', 'an204@test.com', 200, 'Silver'),
+(1, 5, 'Nguyễn Xuân Lưu', 'Nam', 'CCCD_101', '090101', 'nam101@test.com', 100, 'Regular'),
+(2, 6, 'Ngọc Thị', 'Nam', 'CCCD_204', '090204', 'an204@test.com', 200, 'Silver'),
 (3, 7, 'Phạm Tuấn', 'Nam', 'CCCD_308', '090308', 'tuan308@test.com', 500, 'Gold'),
 (4, 8, 'Trần Thị Bích', 'Nữ', 'CCCD_104', '090104', 'bich104@test.com', 50, 'Regular'),
 (5, 9, 'Lê Quang', 'Nam', 'CCCD_106', '090106', 'quang106@test.com', 0, 'Regular'),
