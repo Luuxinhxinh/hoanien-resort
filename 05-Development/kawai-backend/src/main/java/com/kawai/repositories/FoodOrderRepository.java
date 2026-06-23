@@ -39,4 +39,7 @@ public interface FoodOrderRepository extends JpaRepository<FoodOrder, Long> {
 
     @Query("SELECT COALESCE(SUM(d.priceAtOrder * d.quantity), 0) FROM FoodOrderDetail d WHERE d.foodOrder.orderTime >= :start AND d.foodOrder.orderTime <= :end AND d.foodOrder.orderStatus = 'Completed'")
     BigDecimal revenueBetween(@org.springframework.data.repository.query.Param("start") java.time.LocalDateTime start, @org.springframework.data.repository.query.Param("end") java.time.LocalDateTime end);
+
+    @Query("SELECT fo FROM FoodOrder fo WHERE fo.table.id = :tableId AND fo.isPaidInPos = false AND fo.orderStatus != 'Cancelled' ORDER BY fo.orderTime DESC")
+    List<FoodOrder> findActiveOrdersByTable(@org.springframework.data.repository.query.Param("tableId") Long tableId);
 }
