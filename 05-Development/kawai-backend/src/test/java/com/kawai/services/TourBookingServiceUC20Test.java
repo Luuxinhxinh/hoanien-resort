@@ -62,6 +62,9 @@ class TourBookingServiceUC20Test {
     @Mock
     private EmployeeRepository employeeRepository;
 
+    @Mock
+    private RoomBookingDetailRepository roomBookingDetailRepository;
+
     @InjectMocks
     private TourBookingServiceImpl tourBookingService;
 
@@ -247,8 +250,12 @@ class TourBookingServiceUC20Test {
             validRequest.setPostToRoom(true);
             validRequest.setRoomBookingDetailId(50L);
 
+            RoomBookingDetail sampleDetail = new RoomBookingDetail();
+            sampleDetail.setId(50L);
+
             when(tourScheduleRepository.findById(100L)).thenReturn(Optional.of(sampleSchedule));
             when(customerRepository.findById(10L)).thenReturn(Optional.of(sampleCustomer));
+            when(roomBookingDetailRepository.findById(50L)).thenReturn(Optional.of(sampleDetail));
             when(tourBookingRepository.countByScheduleAndBookingStatus(sampleSchedule, "Confirmed"))
                     .thenReturn(0);
 
@@ -303,6 +310,75 @@ class TourBookingServiceUC20Test {
             assertNotNull(bookingId);
 
             // Verify FolioItem KHÔNG được gọi
+            verify(folioItemRepository, never()).save(any(FolioItem.class));
+        }
+
+        @Test
+        @DisplayName("TC-M4-005.3: Đặt tour Post to Room nhưng không cung cấp phòng — lỗi TOUR-004")
+        void createTourBooking_PostToRoom_NullRoomId_ShouldThrowTOUR004() {
+            // ARRANGE: postToRoom=true nhưng roomBookingDetailId=null → phải throw TOUR-004
+            validRequest.setPostToRoom(true);
+            validRequest.setRoomBookingDetailId(null);
+
+            when(tourScheduleRepository.findById(100L)).thenReturn(Optional.of(sampleSchedule));
+            when(customerRepository.findById(10L)).thenReturn(Optional.of(sampleCustomer));
+            when(tourBookingRepository.countByScheduleAndBookingStatus(sampleSchedule, "Confirmed"))
+                    .thenReturn(0);
+
+            TourBooking savedBooking = new TourBooking();
+            savedBooking.setId(500L);
+            savedBooking.setSchedule(sampleSchedule);
+            savedBooking.setParticipantCount(3);
+            savedBooking.setBookingStatus("Confirmed");
+            savedBooking.setTotalPrice(new BigDecimal("4500000"));
+            when(tourBookingRepository.save(any(TourBooking.class))).thenReturn(savedBooking);
+            when(tourAttendeeRepository.saveAll(anyList())).thenReturn(null);
+
+            // ACT & ASSERT
+            IllegalStateException exception = assertThrows(
+                    IllegalStateException.class,
+                    () -> tourBookingService.createTourBooking(validRequest),
+                    "Phải throw IllegalStateException khi postToRoom=true nhưng roomBookingDetailId=null");
+
+            assertTrue(exception.getMessage().contains("TOUR-004"),
+                    "Exception message phải chứa mã lỗi TOUR-004. Actual: " + exception.getMessage());
+
+            // Verify: FolioItem KHÔNG được tạo
+            verify(folioItemRepository, never()).save(any(FolioItem.class));
+        }
+
+        @Test
+        @DisplayName("TC-M4-005.4: Đặt tour Post to Room với phòng không tồn tại trong DB — lỗi TOUR-005")
+        void createTourBooking_PostToRoom_RoomNotFound_ShouldThrowTOUR005() {
+            // ARRANGE: roomBookingDetailId=99L nhưng không tồn tại trong DB → phải throw TOUR-005
+            validRequest.setPostToRoom(true);
+            validRequest.setRoomBookingDetailId(99L);
+
+            when(tourScheduleRepository.findById(100L)).thenReturn(Optional.of(sampleSchedule));
+            when(customerRepository.findById(10L)).thenReturn(Optional.of(sampleCustomer));
+            when(tourBookingRepository.countByScheduleAndBookingStatus(sampleSchedule, "Confirmed"))
+                    .thenReturn(0);
+            when(roomBookingDetailRepository.findById(99L)).thenReturn(Optional.empty());
+
+            TourBooking savedBooking = new TourBooking();
+            savedBooking.setId(600L);
+            savedBooking.setSchedule(sampleSchedule);
+            savedBooking.setParticipantCount(3);
+            savedBooking.setBookingStatus("Confirmed");
+            savedBooking.setTotalPrice(new BigDecimal("4500000"));
+            when(tourBookingRepository.save(any(TourBooking.class))).thenReturn(savedBooking);
+            when(tourAttendeeRepository.saveAll(anyList())).thenReturn(null);
+
+            // ACT & ASSERT
+            IllegalStateException exception = assertThrows(
+                    IllegalStateException.class,
+                    () -> tourBookingService.createTourBooking(validRequest),
+                    "Phải throw IllegalStateException khi RoomBookingDetail ID=99 không tồn tại");
+
+            assertTrue(exception.getMessage().contains("TOUR-005"),
+                    "Exception message phải chứa mã lỗi TOUR-005. Actual: " + exception.getMessage());
+
+            // Verify: FolioItem KHÔNG được tạo
             verify(folioItemRepository, never()).save(any(FolioItem.class));
         }
     }

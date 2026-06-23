@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Xác nhận đặt tour thành công</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Cabrito Didone', Georgia, 'Times New Roman', serif;
+      background: #F0D2DE;
+      color: #71557A;
+    }
+
+    .wrapper {
+      max-width: 620px;
+      margin: 32px auto;
+      background: #ffffff;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 24px rgba(113, 85, 122, 0.15);
+    }
+
+    /* Header */
+    .header {
+      background: #71557A;
+      padding: 40px 32px;
+      text-align: center;
+    }
+
+    .header .logo-text {
+      font-family: 'Halminton Grand', Georgia, 'Times New Roman', serif;
+      font-size: 26px;
+      font-weight: 700;
+      color: #F0D2DE;
+      letter-spacing: 2px;
+    }
+
+    .header .logo-sub {
+      font-size: 12px;
+      color: rgba(240, 210, 222, 0.7);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+
+    /* Hero */
+    .hero {
+      background: linear-gradient(135deg, #71557A 0%, #82668C 100%);
+      padding: 36px 32px;
+      text-align: center;
+    }
+
+    .hero .icon {
+      font-size: 52px;
+      margin-bottom: 12px;
+    }
+
+    .hero h1 {
+      font-size: 22px;
+      font-weight: 700;
+      color: #F0D2DE;
+      margin-bottom: 6px;
+    }
+
+    .hero p {
+      font-size: 14px;
+      color: rgba(240, 210, 222, 0.85);
+    }
+
+    /* Body */
+    .body {
+      padding: 32px;
+    }
+
+    .greeting {
+      font-size: 16px;
+      color: #71557A;
+      margin-bottom: 20px;
+    }
+
+    .greeting strong {
+      color: #71557A;
+    }
+
+    /* Booking Card */
+    .booking-card {
+      background: #fdf8fa;
+      border: 1.5px solid #F0D2DE;
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 24px;
+    }
+
+    .booking-card-header {
+      background: #71557A;
+      padding: 14px 20px;
+    }
+
+    .booking-card-header span {
+      color: #F0D2DE;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .booking-card-header .booking-id {
+      float: right;
+      color: #F0D2DE;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .booking-card-body {
+      padding: 20px;
+    }
+
+    /* Info Row */
+    .info-row {
+      display: flex;
+      align-items: baseline;
+      padding: 8px 0;
+      border-bottom: 1px solid #F0D2DE;
+      font-size: 14px;
+      color: #71557A;
+    }
+
+    .info-row:last-child {
+      border-bottom: none;
+    }
+
+    .info-label {
+      font-weight: 600;
+      color: #71557A;
+      white-space: nowrap;
+      margin-right: 4px;
+    }
+
+    .info-label::after {
+      content: ':';
+    }
+
+    .info-value {
+      font-weight: 400;
+      color: #82668C;
+    }
+
+    .info-value.highlight {
+      font-weight: 600;
+      color: #71557A;
+    }
+
+    .info-value.success {
+      color: #38a169;
+      font-weight: 600;
+    }
+
+    /* Section title */
+    .section-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #927a9b;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+      margin-top: 24px;
+    }
+
+    /* Payment badge */
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 99px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .badge-direct {
+      background: #F0D2DE;
+      color: #71557A;
+    }
+
+    .badge-room {
+      background: #fcf2f5;
+      color: #82668C;
+    }
+
+    /* Total box */
+    .total-box {
+      background: linear-gradient(135deg, #71557A, #82668C);
+      border-radius: 10px;
+      padding: 20px 24px;
+      margin: 24px 0;
+      text-align: center;
+    }
+
+    .total-box .total-label {
+      color: rgba(240, 210, 222, 0.85);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .total-box .total-amount {
+      color: #F0D2DE;
+      font-size: 28px;
+      font-weight: 700;
+      margin-top: 4px;
+    }
+
+    .total-box .total-note {
+      color: rgba(240, 210, 222, 0.7);
+      font-size: 11px;
+      margin-top: 4px;
+    }
+
+    /* Note box */
+    .note-box {
+      background: #fcf2f5;
+      border-left: 4px solid #71557A;
+      border-radius: 6px;
+      padding: 14px 16px;
+      margin-bottom: 24px;
+      font-size: 13px;
+      color: #82668C;
+    }
+
+    .note-box .note-title {
+      display: block;
+      margin-bottom: 6px;
+      color: #71557A;
+    }
+
+    /* Footer */
+    .footer {
+      background: #71557A;
+      padding: 28px 32px;
+      text-align: center;
+    }
+
+    .footer p {
+      color: #dfd5e2;
+      font-size: 12px;
+      line-height: 1.8;
+    }
+
+    .footer a {
+      color: #F0D2DE;
+      text-decoration: none;
+    }
+
+    .footer .divider {
+      height: 1px;
+      background: #82668C;
+      margin: 16px 0;
+    }
+
+    .footer .resort-name {
+      font-family: 'Halminton Grand', Georgia, 'Times New Roman', serif;
+      color: #F0D2DE;
+      font-weight: 700;
+      font-size: 14px;
+      margin-bottom: 6px;
+    }
+
+    @media (max-width: 480px) {
+      .body {
+        padding: 20px;
+      }
+
+      .info-row {
+        flex-direction: column;
+        gap: 2px;
+      }
+
+      .info-value {
+        text-align: left;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrapper">
+
+    <!-- Header -->
+    <div class="header">
+      <div class="logo-text">HÒA NIÊN RETREAT & RESORT</div>
+    </div>
+
+    <!-- Hero -->
+    <div class="hero">
+      <h1>Đặt Tour Thành Công!</h1>
+      <p>Cảm ơn Quý khách đã trao niềm tin và lựa chọn dịch vụ của chúng tôi</p>
+    </div>
+
+    <!-- Body -->
+    <div class="body">
+      <p class="greeting">
+        Xin chào, <strong th:text="${customerName}">Nguyễn Văn A</strong>!<br /><br />
+        Chúng tôi rất hân hạnh xác nhận yêu cầu đặt tour của Quý khách đã được ghi nhận thành công. Quý khách vui lòng
+        lưu lại email này để thuận tiện tra cứu thông tin hành trình khi cần thiết.
+      </p>
+
+      <!-- Booking Info Card -->
+      <div class="booking-card">
+        <div class="booking-card-header">
+          <span>Thông tin đặt tour</span>
+          <span class="booking-id" th:text="'#' + ${bookingId}">#12345</span>
+        </div>
+        <div class="booking-card-body">
+          <div class="info-row">
+            <span class="info-label">Tên tour:</span>
+            <span class="info-value highlight" th:text="${tourName}">Vịnh Hạ Long 1 Ngày</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Ngày khởi hành:</span>
+            <span class="info-value" th:text="${departureDate}">10/07/2026</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Giờ khởi hành:</span>
+            <span class="info-value" th:text="${departureTime}">08:00</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Số người tham gia:</span>
+            <span class="info-value" th:text="${participantCount} + ' người'">3 người</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Trạng thái:</span>
+            <span class="info-value success">Đã xác nhận</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Thanh toán:</span>
+            <span class="info-value" th:if="${!postToRoom}">Thanh toán trực tiếp</span>
+            <span class="info-value" th:if="${postToRoom}">Ghi nợ vào phòng</span>
+          </div>
+          <div class="info-row" th:if="${postToRoom and roomDetail != null}">
+            <span class="info-label">Phòng ghi nợ:</span>
+            <span class="info-value" th:text="'Phòng ' + ${roomDetail}">Phòng 201</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Ngày đặt:</span>
+            <span class="info-value" th:text="${bookingDate}">22/06/2026</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Total -->
+      <div class="total-box">
+        <div class="total-label">Tổng chi phí</div>
+        <div class="total-amount" th:text="${totalPrice}">4.500.000 ₫</div>
+        <div class="total-note" th:if="${postToRoom}">Sẽ được ghi vào hóa đơn phòng khi trả phòng</div>
+        <div class="total-note" th:if="${!postToRoom}">Vui lòng thanh toán trực tiếp tại quầy lễ tân</div>
+      </div>
+
+      <!-- Note -->
+      <div class="note-box">
+        <strong class="note-title">Lưu ý để hành trình thêm trọn vẹn:</strong>
+        • <strong>Thời gian:</strong> Quý khách vui lòng có mặt tại điểm đón trước giờ khởi hành ít nhất <strong>15
+          phút</strong> để đảm
+        bảo lịch trình khởi hành đúng dự kiến.<br />
+        • <strong>Giấy tờ tùy thân:</strong> Quý khách vui lòng mang theo <strong>CCCD hoặc Hộ chiếu</strong> để thực
+        hiện các thủ tục
+        cần thiết.<br />
+        • <strong>Chính sách hoàn hủy:</strong> Trong trường hợp Quý khách thay đổi kế hoạch và cần hủy dịch vụ. Quý
+        khách hãy hủy dịch vụ trong
+        vòng <strong>24 giờ trước giờ khởi hành</strong>, chúng tôi xin phép <strong>hoàn lại 50%</strong> chi
+        phí.<br />
+        • <strong>Hỗ trợ thay đổi:</strong> Nếu cần điều chỉnh thông tin đặt dịch vụ, Quý khách vui lòng liên hệ bộ phận
+        Lễ tân hoặc gọi đến tổng đài <strong th:text="${resortPhone}">1900 xxxx</strong> để được hỗ trợ nhanh chóng
+        nhất.
+      </div>
+
+      <p style="font-size:14px; color:#82668C; line-height:1.8;">
+        Chúng tôi rất vinh hạnh được đồng hành cùng Quý khách trong hành trình sắp tới.
+        Sự hài lòng của Quý khách chính là tâm huyết của chúng tôi. Vì vậy, nếu có bất kỳ điều gì cần được hỗ trợ để
+        hành trình thêm ý nghĩa, xin Quý khách đừng ngần ngại chia sẻ cùng chúng tôi.<br /><br />
+        Trân trọng,<br />
+        <strong>Đội ngũ Tour &amp; Hospitality</strong><br />
+        <em>Hòa Niên Retreat & Resort</em>
+      </p>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <div class="resort-name">Hòa Niên Retreat & Resort</div>
+      <p>
+        📞 <span th:text="${resortPhone}">1900 xxxx</span> &nbsp;|&nbsp;
+        🌐 <a th:href="${resortWebsite}" th:text="${resortWebsite}">hoaniensorretreat.vn</a>
+      </p>
+      <div class="divider"></div>
+      <p>
+        Email này được gửi tự động - vui lòng không phản hồi.<br />
+        © 2026 Hòa Niên Retreat & Resort. Bảo lưu mọi quyền.
+      </p>
+    </div>
+
+  </div>
+</body>
+
+</html>
