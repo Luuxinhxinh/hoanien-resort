@@ -60,13 +60,13 @@ public class VnPayServiceImpl implements VnPayService {
     private FoodOrderRepository foodOrderRepository;
 
     @Autowired
-    private com.kawai.repositories.RoomBookingDetailRepository roomBookingDetailRepository;
-
-    @Autowired
     private com.kawai.services.interfaces.FolioService folioService;
 
     @Autowired
-    private com.kawai.repositories.RoomRepository roomRepository;
+    private EmailService emailService;
+
+    @Autowired
+    private InvoicePdfService invoicePdfService;
 
     @Override
     @Transactional
@@ -190,7 +190,8 @@ public class VnPayServiceImpl implements VnPayService {
             for (String fieldName : fieldNames) {
                 String fieldValue = vnp_Params.get(fieldName);
                 if (fieldValue != null && fieldValue.length() > 0) {
-                    hashData.append(fieldName).append('=').append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII.toString()));
+                    hashData.append(fieldName).append('=')
+                            .append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII.toString()));
                     query.append(URLEncoder.encode(fieldName, StandardCharsets.US_ASCII.toString())).append('=')
                             .append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII.toString()));
                     query.append('&');
@@ -396,16 +397,19 @@ public class VnPayServiceImpl implements VnPayService {
                     foodOrderRepository.save(foodOrder);
                 }
             } else if ("ROOM_BOOKING".equals(txn.getTransactionType()) && booking != null) {
-                if ("WALK_IN".equals(booking.getBookingSource()) && "Pending_Payment".equals(booking.getBookingStatus())) {
+                if ("WALK_IN".equals(booking.getBookingSource())
+                        && "Pending_Payment".equals(booking.getBookingStatus())) {
                     booking.setBookingStatus("Checked_In");
                     // Update detail status as well
                     if (booking instanceof com.kawai.models.RoomBooking) {
-                        java.util.List<com.kawai.models.RoomBookingDetail> details = roomBookingDetailRepository.findByRoomBookingId(booking.getId());
+                        java.util.List<com.kawai.models.RoomBookingDetail> details = roomBookingDetailRepository
+                                .findByRoomBookingId(booking.getId());
                         for (com.kawai.models.RoomBookingDetail detail : details) {
                             if ("Pending_Payment".equals(detail.getDetailStatus())) {
                                 detail.setDetailStatus("Checked_In");
                                 // Thêm FolioItem cọc VNPay
-                                folioService.addFolioItem(detail.getId(), "FRONT_DESK", txn.getAmount().negate(), "Tiền cọc Walk-in (Chuyển khoản VNPay)");
+                                folioService.addFolioItem(detail.getId(), "FRONT_DESK", txn.getAmount().negate(),
+                                        "Tiền cọc Walk-in (Chuyển khoản VNPay)");
                             }
                         }
                         roomBookingDetailRepository.saveAll(details);
@@ -414,7 +418,7 @@ public class VnPayServiceImpl implements VnPayService {
                     booking.setBookingStatus("Confirmed");
                 }
             }
-            
+
             // Xử lý checkout phòng nếu giao dịch xuất phát từ Folio
             if (txnRef != null && txnRef.startsWith("FOLIO_")) {
                 try {
@@ -456,10 +460,12 @@ public class VnPayServiceImpl implements VnPayService {
             }
         } else {
             txn.setStatus(PaymentStatus.FAILED);
-            if (booking != null && "WALK_IN".equals(booking.getBookingSource()) && "Pending_Payment".equals(booking.getBookingStatus())) {
+            if (booking != null && "WALK_IN".equals(booking.getBookingSource())
+                    && "Pending_Payment".equals(booking.getBookingStatus())) {
                 booking.setBookingStatus("Cancelled");
                 if (booking instanceof com.kawai.models.RoomBooking) {
-                    java.util.List<com.kawai.models.RoomBookingDetail> details = roomBookingDetailRepository.findByRoomBookingId(booking.getId());
+                    java.util.List<com.kawai.models.RoomBookingDetail> details = roomBookingDetailRepository
+                            .findByRoomBookingId(booking.getId());
                     for (com.kawai.models.RoomBookingDetail detail : details) {
                         detail.setDetailStatus("Cancelled");
                         if (detail.getRoom() != null) {

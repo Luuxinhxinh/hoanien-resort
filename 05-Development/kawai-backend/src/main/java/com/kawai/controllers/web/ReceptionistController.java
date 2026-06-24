@@ -304,73 +304,7 @@ public class ReceptionistController {
         return "receptionist/in-house";
     }
 
-    @GetMapping("/in-house")
-    public String inHouse(@org.springframework.web.bind.annotation.RequestParam(defaultValue = "1") int page, Model model) {
-        int pageSize = 10;
-        List<Booking> allInHouseBookings = bookingRepository.findCheckedIn();
-        int totalInHouseItems = allInHouseBookings.size();
-        int totalInHousePages = (int) Math.ceil((double) totalInHouseItems / pageSize);
-        if (totalInHousePages == 0) totalInHousePages = 1;
 
-        int inHousePage = page;
-        if (inHousePage < 1) inHousePage = 1;
-        if (inHousePage > totalInHousePages) inHousePage = totalInHousePages;
-
-        int startInHouseItem = (inHousePage - 1) * pageSize;
-        List<Booking> pagedInHouseBookings = new ArrayList<>();
-        if (totalInHouseItems >= startInHouseItem) {
-            int toIndex = Math.min(startInHouseItem + pageSize, totalInHouseItems);
-            pagedInHouseBookings = allInHouseBookings.subList(startInHouseItem, toIndex);
-        }
-
-        List<Map<String, Object>> pagedInHouse = new ArrayList<>();
-        for (Booking b : pagedInHouseBookings) {
-            List<RoomBookingDetail> details = roomBookingDetailRepository.findByRoomBookingId(b.getId());
-            if (details == null || details.isEmpty()) continue;
-
-            String guestName = b.getCustomer() != null ? b.getCustomer().getFullName() : "Unknown";
-            String phone = b.getCustomer() != null ? b.getCustomer().getPhone() : "";
-
-            Map<String, Object> map = new HashMap<>();
-            map.put("id", b.getId());
-            map.put("guestName", guestName);
-            map.put("phone", phone);
-
-            String checkInStr = "";
-            String checkOutStr = "";
-            if (b instanceof RoomBooking) {
-                RoomBooking rb = (RoomBooking) b;
-                checkInStr = rb.getCheckInDate() != null ? rb.getCheckInDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "";
-                checkOutStr = rb.getCheckOutDate() != null ? rb.getCheckOutDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "";
-            }
-            map.put("checkInDate", checkInStr);
-            map.put("checkOutDate", checkOutStr);
-
-            int roomCount = (int) details.stream().filter(d -> d.getRoom() != null).count();
-            List<com.kawai.dto.DependentResponseDTO> deps = dependentService.getGuestListByBooking(b.getId());
-            map.put("dependents", deps);
-
-            int guestCount = 1 + deps.size();
-            String bookingScale = roomCount + " Phòng, " + guestCount + " Khách";
-            map.put("bookingScale", bookingScale);
-
-            String roomSummary = details.stream()
-                    .filter(d -> d.getRoom() != null)
-                    .map(d -> d.getRoom().getRoomNumber() + " (" + (d.getCategory() != null ? d.getCategory().getCategoryName() : "Unknown") + ")")
-                    .collect(Collectors.joining(", "));
-            if (roomSummary.isEmpty()) roomSummary = "N/A";
-            map.put("roomSummary", roomSummary);
-
-            pagedInHouse.add(map);
-        }
-
-        model.addAttribute("inHouseBookings", pagedInHouse);
-        model.addAttribute("totalInHouseCount", totalInHouseItems);
-        model.addAttribute("currentInHousePage", inHousePage);
-        model.addAttribute("totalInHousePages", totalInHousePages);
-
-        return "receptionist/in-house";
-    }
 
     @GetMapping("/folio")
     public String folio(Model model) {
