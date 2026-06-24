@@ -13,6 +13,7 @@ import com.kawai.utils.EncryptionUtils;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -61,6 +62,7 @@ public class WalkInCheckInServiceImpl implements WalkInCheckInService {
     private final com.kawai.repositories.RoomGuestRepository roomGuestRepository;
     private final com.kawai.repositories.RoleRepository roleRepository;
     private final com.kawai.services.interfaces.FolioService folioService;
+    private final PasswordEncoder passwordEncoder;
     private static final int ADULT_AGE_THRESHOLD = 18;
     private static final String CCCD_PATTERN = "\\d{12}";
 
@@ -74,7 +76,8 @@ public class WalkInCheckInServiceImpl implements WalkInCheckInService {
             com.kawai.repositories.RoomSurchargeRepository roomSurchargeRepository,
             com.kawai.repositories.RoomGuestRepository roomGuestRepository,
             com.kawai.repositories.RoleRepository roleRepository,
-            com.kawai.services.interfaces.FolioService folioService) {
+            com.kawai.services.interfaces.FolioService folioService,
+            PasswordEncoder passwordEncoder) {
         this.roomRepository = roomRepository;
         this.roomBookingRepository = roomBookingRepository;
         this.roomBookingDetailRepository = roomBookingDetailRepository;
@@ -85,6 +88,7 @@ public class WalkInCheckInServiceImpl implements WalkInCheckInService {
         this.roomGuestRepository = roomGuestRepository;
         this.roleRepository = roleRepository;
         this.folioService = folioService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     /**
@@ -122,64 +126,105 @@ public class WalkInCheckInServiceImpl implements WalkInCheckInService {
             }
 
             // ── Step 7: Tạo RoomBooking ──────────────────────────────────────
-            RoomBooking booking = buildRoomBooking(request, room, customer, category);
+            RoomBooking booking = buildRoomBooking(request, customer);
             booking = roomBookingRepository.save(booking);
 
-            // ── Step 8: Tạo RoomBookingDetail với extra surcharge ─────────────
-            RoomBookingDetail detail = buildRoomBookingDetail(request, booking, room, category,
-                    guestCount, extraSurcharge);
-            roomBookingDetailRepository.save(detail);
-            room.setRoomStatus("Occupied");
-            roomRepository.save(room);
+            BigDecimal totalDeposit = request.getDepositAmount() != null ? request.getDepositAmount() : BigDecimal.ZERO;
+            booking.setDepositAmount(totalDeposit);
 
-            // ── Step 10: Residence Reporting (Dependent records) ────────────
-            for (DependentRegistrationDTO dto : companions) {
-                Dependent d = new Dependent();
-                d.setCustomer(customer);
-                d.setDependentName(dto.getFullName());
-                d.setBirthDate(dto.getDateOfBirth());
-                d.setGender(dto.getGender() != null ? dto.getGender() : "Khác");
-                if (dto.getCccd() != null && !dto.getCccd().isBlank()) {
-                    d.setCccdPassportEncrypted(EncryptionUtils.encrypt(dto.getCccd()));
+            BigDecimal bookingTotalPrice = BigDecimal.ZERO;
+            boolean isFirstRoom = true;
+            String firstRoomNumber = "";
+
+            for (com.kawai.dto.walkin.WalkInRoomSelectionDTO selection : request.getRoomSelections()) {
+                // ── Step 2 & 3: Lock và validate phòng ──────────────────────────
+                Room room = findAndValidateRoom(selection.getRoomId());
+                if (isFirstRoom) {
+                    firstRoomNumber = room.getRoomNumber();
                 }
-                Dependent savedDep = dependentRepository.save(d);
+                RoomCategory category = room.getCategory();
 
-                // Tạo liên kết RoomGuest
-                RoomGuest rg = new RoomGuest();
-                rg.setRoomBookingDetail(detail);
-                rg.setDependent(savedDep);
+                // ── Step 4: Guests Classification & Surcharge Preview ───────
+                List<DependentRegistrationDTO> companions = selection.getAccompaniedGuests() != null
+                        ? selection.getAccompaniedGuests()
+                        : Collections.emptyList();
 
-                int age = 18;
-                if (savedDep.getBirthDate() != null) {
-                    age = Period.between(savedDep.getBirthDate(), LocalDate.now()).getYears();
+                List<Integer> childAges = new java.util.ArrayList<>();
+                LocalDate primaryDob = isFirstRoom ? request.getDateOfBirth() : null;
+                
+                GuestCount guestCount = classifyGuests(primaryDob, companions, childAges);
+                BigDecimal extraSurcharge = validateAndCalculateSurcharge(guestCount, category, childAges);
+
+                // ── Step 8: Tạo RoomBookingDetail với extra surcharge ─────────────
+                RoomBookingDetail detail = buildRoomBookingDetail(request, booking, room, category,
+                        guestCount, extraSurcharge);
+                roomBookingDetailRepository.save(detail);
+
+                // Cập nhật giá booking master
+                long nights = java.time.temporal.ChronoUnit.DAYS.between(booking.getCheckInDate(), booking.getCheckOutDate());
+                if (nights <= 0) nights = 1;
+                
+                BigDecimal detailRoomCharge = detail.getRoomCharge() != null ? detail.getRoomCharge() : BigDecimal.ZERO;
+                BigDecimal detailSurcharge = detail.getExtraSurcharge() != null ? detail.getExtraSurcharge() : BigDecimal.ZERO;
+                
+                BigDecimal totalDetailCharge = detailRoomCharge.add(detailSurcharge).multiply(BigDecimal.valueOf(nights));
+                bookingTotalPrice = bookingTotalPrice.add(totalDetailCharge);
+
+                room.setRoomStatus("Occupied");
+                roomRepository.save(room);
+
+                // ── Step 10: Residence Reporting (Dependent records) ────────────
+                for (DependentRegistrationDTO dto : companions) {
+                    Dependent d = new Dependent();
+                    d.setCustomer(customer);
+                    d.setDependentName(dto.getFullName());
+                    d.setBirthDate(dto.getDateOfBirth());
+                    d.setGender(dto.getGender() != null ? dto.getGender() : "Khác");
+                    if (dto.getCccd() != null && !dto.getCccd().isBlank()) {
+                        d.setCccdPassportEncrypted(EncryptionUtils.encrypt(dto.getCccd()));
+                    }
+                    Dependent savedDep = dependentRepository.save(d);
+
+                    // Tạo liên kết RoomGuest
+                    RoomGuest rg = new RoomGuest();
+                    rg.setRoomBookingDetail(detail);
+                    rg.setDependent(savedDep);
+
+                    int age = 18;
+                    if (savedDep.getBirthDate() != null) {
+                        age = Period.between(savedDep.getBirthDate(), LocalDate.now()).getYears();
+                    }
+                    rg.setGuestType(age < 12 ? "CHILD" : "ADULT");
+                    roomGuestRepository.save(rg);
                 }
-                rg.setGuestType(age < 12 ? "CHILD" : "ADULT");
-                roomGuestRepository.save(rg);
+
+                // ── Step 11: Payment & Folio Initialization ──────────────────────
+                if (isFirstRoom && totalDeposit.compareTo(BigDecimal.ZERO) > 0) {
+                    String paymentMethod = request.getPaymentMethod() != null ? request.getPaymentMethod() : "Tiền mặt";
+                    if (!"Chuyển khoản".equalsIgnoreCase(paymentMethod)) {
+                        folioService.addFolioItem(detail.getId(), "FRONT_DESK", totalDeposit.negate(),
+                                "Tiền cọc Walk-in (" + paymentMethod + ")");
+                    }
+                }
+                
+                isFirstRoom = false;
             }
 
-            // ── Step 11: Payment & Folio Initialization ──────────────────────
-            BigDecimal deposit = request.getDepositAmount() != null ? request.getDepositAmount() : BigDecimal.ZERO;
-            if (deposit.compareTo(BigDecimal.ZERO) > 0) {
-                booking.setDepositAmount(deposit);
-                roomBookingRepository.save(booking);
-
-                String paymentMethod = request.getPaymentMethod() != null ? request.getPaymentMethod() : "Tiền mặt";
-                // Chỉ ghi nhận FolioItem cọc nếu trả Tiền mặt. Nếu VNPay (Chuyển khoản), sẽ ghi
-                // nhận khi callback thành công.
-                if (!"Chuyển khoản".equalsIgnoreCase(paymentMethod)) {
-                    folioService.addFolioItem(detail.getId(), "FRONT_DESK", deposit.negate(),
-                            "Tiền cọc Walk-in (" + paymentMethod + ")");
-                }
-            }
+            booking.setTotalPrice(bookingTotalPrice);
+            roomBookingRepository.save(booking);
 
             // ── Build & Return Response ──────────────────────────────────────
             WalkInCheckInResponse response = new WalkInCheckInResponse();
             response.setBookingId(booking.getId());
-            response.setRoomNumber(room.getRoomNumber());
+            response.setRoomNumber(request.getRoomSelections().size() > 1 ? firstRoomNumber + " (+ " + (request.getRoomSelections().size() - 1) + " rooms)" : firstRoomNumber);
             response.setBookingStatus(booking.getBookingStatus());
             response.setCustomerId(customer.getId());
             response.setNewCustomer(isNewCustomerHolder[0]);
-            response.setAccompaniedGuestCount(companions.size());
+            
+            int totalCompanions = request.getRoomSelections().stream()
+                .mapToInt(s -> s.getAccompaniedGuests() != null ? s.getAccompaniedGuests().size() : 0)
+                .sum();
+            response.setAccompaniedGuestCount(totalCompanions);
             if (newAccount != null) {
                 response.setNewAccountUsername(newAccount.getUsername());
                 response.setNewAccountPassword(newAccount.getPasswordHash());
@@ -228,32 +273,44 @@ public class WalkInCheckInServiceImpl implements WalkInCheckInService {
      */
     @Override
     public WalkInSurchargeResponse calculateSurchargePreview(WalkInCheckInRequest request) {
-        Room room = roomRepository.findById(request.getRoomId())
-                .orElseThrow(
-                        () -> new BusinessException("MOD2-UC14-004", "Room not found for ID: " + request.getRoomId()));
-        RoomCategory category = room.getCategory();
-
-        List<DependentRegistrationDTO> companions = request.getAccompaniedGuests() != null
-                ? request.getAccompaniedGuests()
-                : Collections.emptyList();
-
-        List<Integer> childAges = new java.util.ArrayList<>();
-        GuestCount guestCount = classifyGuests(request.getDateOfBirth(), companions, childAges);
-
-        BigDecimal extraSurcharge = BigDecimal.ZERO;
-        try {
-            extraSurcharge = validateAndCalculateSurcharge(guestCount, category, childAges);
-        } catch (BusinessException ex) {
-            // Re-throw để Frontend biết là lỗi (VD: Quá sức chứa Hard Limit)
-            throw ex;
+        if (request.getRoomSelections() == null || request.getRoomSelections().isEmpty()) {
+            throw new BusinessException("MOD2-UC14-015", "Không có phòng nào được chọn.");
         }
 
-        String msg = "Phụ thu dự tính: " + extraSurcharge + "/đêm";
-        if (extraSurcharge.compareTo(BigDecimal.ZERO) == 0) {
-            msg = "Miễn phí phụ thu (số khách nằm trong sức chứa tiêu chuẩn)";
+        BigDecimal totalExtraSurcharge = BigDecimal.ZERO;
+        BigDecimal totalBasePricePerNight = BigDecimal.ZERO;
+        int totalAdults = 0;
+        int totalChildren = 0;
+
+        boolean isFirstRoom = true;
+
+        for (com.kawai.dto.walkin.WalkInRoomSelectionDTO selection : request.getRoomSelections()) {
+            Room room = roomRepository.findById(selection.getRoomId())
+                    .orElseThrow(() -> new BusinessException("MOD2-UC14-004", "Room not found for ID: " + selection.getRoomId()));
+            RoomCategory category = room.getCategory();
+            totalBasePricePerNight = totalBasePricePerNight.add(category.getBasePrice() != null ? category.getBasePrice() : BigDecimal.ZERO);
+
+            List<DependentRegistrationDTO> companions = selection.getAccompaniedGuests() != null
+                    ? selection.getAccompaniedGuests()
+                    : Collections.emptyList();
+
+            List<Integer> childAges = new java.util.ArrayList<>();
+            
+            LocalDate primaryDob = isFirstRoom ? request.getDateOfBirth() : null;
+            isFirstRoom = false;
+
+            GuestCount guestCount = classifyGuests(primaryDob, companions, childAges);
+            totalAdults += guestCount.adults;
+            totalChildren += guestCount.children;
+
+            try {
+                BigDecimal roomSurcharge = validateAndCalculateSurcharge(guestCount, category, childAges);
+                totalExtraSurcharge = totalExtraSurcharge.add(roomSurcharge);
+            } catch (BusinessException ex) {
+                throw new BusinessException(ex.getErrorCode(), "Phòng " + room.getRoomNumber() + ": " + ex.getMessage());
+            }
         }
 
-        // Calculate nights
         java.time.LocalDate checkIn = request.getCheckInDate() != null ? request.getCheckInDate()
                 : java.time.LocalDate.now();
         java.time.LocalDate checkOut = request.getCheckOutDate() != null ? request.getCheckOutDate()
@@ -262,16 +319,19 @@ public class WalkInCheckInServiceImpl implements WalkInCheckInService {
         if (nights <= 0)
             nights = 1;
 
-        BigDecimal basePricePerNight = category.getBasePrice() != null ? category.getBasePrice() : BigDecimal.ZERO;
-        BigDecimal totalBaseRoomPrice = basePricePerNight.multiply(BigDecimal.valueOf(nights));
-        BigDecimal totalSurcharge = extraSurcharge.multiply(BigDecimal.valueOf(nights));
-        BigDecimal totalCharge = totalBaseRoomPrice.add(totalSurcharge);
+        BigDecimal totalBaseRoomPrice = totalBasePricePerNight.multiply(BigDecimal.valueOf(nights));
+        BigDecimal totalSurchargeAllNights = totalExtraSurcharge.multiply(BigDecimal.valueOf(nights));
+        BigDecimal totalCharge = totalBaseRoomPrice.add(totalSurchargeAllNights);
 
-        // For Walk-in, deposit is 30% of total charge
+        String msg = "Phụ thu dự tính: " + totalExtraSurcharge + "/đêm";
+        if (totalExtraSurcharge.compareTo(BigDecimal.ZERO) == 0) {
+            msg = "Miễn phí phụ thu (số khách nằm trong sức chứa tiêu chuẩn)";
+        }
+
         BigDecimal suggestedDeposit = totalCharge.multiply(new BigDecimal("0.3")).setScale(0,
                 java.math.RoundingMode.HALF_UP);
 
-        return new WalkInSurchargeResponse(totalSurcharge, guestCount.adults, guestCount.children, msg,
+        return new WalkInSurchargeResponse(totalSurchargeAllNights, totalAdults, totalChildren, msg,
                 totalBaseRoomPrice, totalCharge, suggestedDeposit);
     }
 
@@ -446,7 +506,7 @@ public class WalkInCheckInServiceImpl implements WalkInCheckInService {
 
         // Mật khẩu mặc định là 123456 cho khách Walk-in chưa có tài khoản
         String defaultPassword = "123456";
-        account.setPasswordHash(defaultPassword);
+        account.setPasswordHash(passwordEncoder.encode(defaultPassword));
         account.setIsActive(true);
 
         com.kawai.models.Role role = roleRepository.findByRoleName("CUSTOMER NORMAL")
@@ -463,8 +523,7 @@ public class WalkInCheckInServiceImpl implements WalkInCheckInService {
     /**
      * Tạo RoomBooking entity với trạng thái CHECKED_IN và bookingSource=WALK_IN.
      */
-    private RoomBooking buildRoomBooking(WalkInCheckInRequest req, Room room,
-            Customer customer, RoomCategory category) {
+    private RoomBooking buildRoomBooking(WalkInCheckInRequest req, Customer customer) {
         RoomBooking booking = new RoomBooking();
         booking.setCustomer(customer);
         booking.setBookingDate(LocalDate.now());

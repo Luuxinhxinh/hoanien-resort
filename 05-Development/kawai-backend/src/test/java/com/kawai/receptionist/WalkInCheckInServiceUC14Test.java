@@ -20,6 +20,7 @@ import com.kawai.repositories.RoomSurchargeRepository;
 import com.kawai.dto.walkin.WalkInCheckInRequest;
 import com.kawai.dto.walkin.WalkInCheckInResponse;
 import com.kawai.dto.DependentRegistrationDTO;
+import com.kawai.dto.walkin.WalkInRoomSelectionDTO;
 import com.kawai.services.interfaces.WalkInCheckInService;
 import com.kawai.services.impl.WalkInCheckInServiceImpl;
 
@@ -34,6 +35,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -128,6 +130,8 @@ class WalkInCheckInServiceUC14Test {
         private com.kawai.repositories.RoleRepository roleRepository;
         @Mock
         private com.kawai.services.interfaces.FolioService folioService;
+        @Mock
+        private PasswordEncoder passwordEncoder;
 
         // ── Test Data Constants (SYNTHETIC) ──────────────────────────────────────
         private static final String CCCD_NEW_GUEST = "001234567890"; // TC-M2-021
@@ -187,7 +191,12 @@ class WalkInCheckInServiceUC14Test {
                 req.setEmail("nguyen.test@kawai.synthetic");
                 req.setCheckInDate(LocalDate.now());
                 req.setCheckOutDate(LocalDate.now().plusDays(2));
-                req.setRoomId(roomId);
+                WalkInRoomSelectionDTO selection = new WalkInRoomSelectionDTO();
+                selection.setRoomId(roomId);
+                selection.setAccompaniedGuests(new ArrayList<>());
+                List<WalkInRoomSelectionDTO> selections = new ArrayList<>();
+                selections.add(selection);
+                req.setRoomSelections(selections);
                 return req;
         }
 
@@ -225,6 +234,7 @@ class WalkInCheckInServiceUC14Test {
                 });
                 lenient().when(roomGuestRepository.save(any(com.kawai.models.RoomGuest.class)))
                                 .thenAnswer(inv -> inv.getArgument(0));
+                lenient().when(passwordEncoder.encode(anyString())).thenReturn("mocked_hash_123456");
         }
 
         // ══════════════════════════════════════════════════════════════════════════
@@ -537,7 +547,7 @@ class WalkInCheckInServiceUC14Test {
                 companion.setCccd("001234567893");
 
                 WalkInCheckInRequest request = buildRequest(CCCD_WITH_COMPANION, ROOM_309, 2);
-                request.setAccompaniedGuests(List.of(companion));
+                request.getRoomSelections().get(0).setAccompaniedGuests(List.of(companion));
 
                 WalkInCheckInResponse response = walkInCheckInService.createWalkInBookingAndCheckIn(request);
 
@@ -635,7 +645,7 @@ class WalkInCheckInServiceUC14Test {
                 c1.setDateOfBirth(LocalDate.now().minusYears(25)); // Adult
                 DependentRegistrationDTO c2 = new DependentRegistrationDTO();
                 c2.setDateOfBirth(LocalDate.now().minusYears(30)); // Adult
-                request.setAccompaniedGuests(List.of(c1, c2));
+                request.getRoomSelections().get(0).setAccompaniedGuests(List.of(c1, c2));
 
                 WalkInCheckInResponse response = walkInCheckInService.createWalkInBookingAndCheckIn(request);
 
@@ -682,7 +692,7 @@ class WalkInCheckInServiceUC14Test {
                         d.setDateOfBirth(LocalDate.now().minusYears(20)); // Adult
                         companions.add(d);
                 }
-                request.setAccompaniedGuests(companions);
+                request.getRoomSelections().get(0).setAccompaniedGuests(companions);
 
                 BusinessException ex = assertThrows(BusinessException.class,
                                 () -> walkInCheckInService.createWalkInBookingAndCheckIn(request));
