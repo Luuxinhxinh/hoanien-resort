@@ -147,28 +147,59 @@ public class DependentServiceImpl implements DependentService {
             RoomBookingDetail detail = roomBookingDetailRepository.findById(dto.getRoomBookingDetailId())
                     .orElseThrow(() -> new BusinessException("MOD2-019", "RoomBookingDetail not found"));
 
-            // Tính tuổi
-            int age = 18; // Default adult
+            com.kawai.models.RoomCategory category = detail.getCategory();
+            int maxAdults = category.getMaxAdults() != null ? category.getMaxAdults() : category.getCapacity();
+            int maxChildren = category.getMaxChildren() != null ? category.getMaxChildren() : 2;
+            int baseAdults = category.getBaseAdults() != null ? category.getBaseAdults() : category.getCapacity();
+            int baseChildren = category.getBaseChildren() != null ? category.getBaseChildren() : 0;
+
+            int currentAdults = detail.getNumberOfAdults() != null ? detail.getNumberOfAdults() : 0;
+            int currentChildren = detail.getNumberOfChildren() != null ? detail.getNumberOfChildren() : 0;
+            int age = 18;
             if (saved.getBirthDate() != null) {
                 age = Period.between(saved.getBirthDate(), LocalDate.now()).getYears();
             }
 
-            // Lấy phụ thu
-            java.util.Optional<RoomSurcharge> surchargeOpt = roomSurchargeRepository
-                    .findSurchargeForAge(detail.getCategory(), age);
+            boolean isAdult = age >= 18; // 18 is ADULT_AGE_THRESHOLD
             java.math.BigDecimal extraFee = java.math.BigDecimal.ZERO;
-            if (surchargeOpt.isPresent()) {
-                extraFee = surchargeOpt.get().getPriceModifier();
-                if (booking instanceof com.kawai.models.RoomBooking) {
-                    com.kawai.models.RoomBooking rb = (com.kawai.models.RoomBooking) booking;
-                    if (rb.getCheckInDate() != null && rb.getCheckOutDate() != null) {
-                        long nights = java.time.temporal.ChronoUnit.DAYS.between(rb.getCheckInDate(), rb.getCheckOutDate());
-                        if (nights > 0) {
-                            extraFee = extraFee.multiply(java.math.BigDecimal.valueOf(nights));
-                        }
+
+            if (isAdult) {
+                currentAdults++;
+                if (currentAdults > maxAdults) {
+                    throw new BusinessException("MOD2-020",
+                            "Number of guests exceeds maximum room capacity. Max adults: " + maxAdults);
+                }
+                if (currentAdults > baseAdults && category.getExtraAdultSurcharge() != null) {
+                    extraFee = category.getExtraAdultSurcharge();
+                }
+            } else {
+                currentChildren++;
+                if (currentChildren > maxChildren) {
+                    throw new BusinessException("MOD2-021",
+                            "Number of guests exceeds maximum room capacity. Max children: " + maxChildren);
+                }
+                if (currentChildren > baseChildren) {
+                    java.util.Optional<RoomSurcharge> surchargeOpt = roomSurchargeRepository
+                            .findSurchargeForAge(category, age);
+                    if (surchargeOpt.isPresent()) {
+                        extraFee = surchargeOpt.get().getPriceModifier();
                     }
                 }
             }
+
+            if (extraFee.compareTo(java.math.BigDecimal.ZERO) > 0) {
+                if (booking.getCheckInDate() != null && booking.getCheckOutDate() != null) {
+                    long nights = java.time.temporal.ChronoUnit.DAYS.between(booking.getCheckInDate(),
+                            booking.getCheckOutDate());
+                    if (nights > 0) {
+                        extraFee = extraFee.multiply(java.math.BigDecimal.valueOf(nights));
+                    }
+                }
+            }
+
+            // Cập nhật lại số lượng khách thực tế trong phòng
+            detail.setNumberOfAdults(currentAdults);
+            detail.setNumberOfChildren(currentChildren);
 
             // Cộng phụ thu vào detail và booking
             if (extraFee.compareTo(java.math.BigDecimal.ZERO) > 0) {
@@ -176,7 +207,6 @@ public class DependentServiceImpl implements DependentService {
                     detail.setExtraSurcharge(java.math.BigDecimal.ZERO);
                 }
                 detail.setExtraSurcharge(detail.getExtraSurcharge().add(extraFee));
-                roomBookingDetailRepository.save(detail);
 
                 booking.setTotalPrice(booking.getTotalPrice().add(extraFee));
                 bookingRepository.save(booking);
@@ -184,6 +214,8 @@ public class DependentServiceImpl implements DependentService {
                 log.info("[UC16] Added extra fee: {} for dependent {} in detail {}", extraFee, saved.getId(),
                         detail.getId());
             }
+
+            roomBookingDetailRepository.save(detail);
 
             // Tạo RoomGuest
             RoomGuest rg = new RoomGuest();

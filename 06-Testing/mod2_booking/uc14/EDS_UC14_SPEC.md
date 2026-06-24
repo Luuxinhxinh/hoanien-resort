@@ -66,7 +66,7 @@ Mô tả chức năng Walk-in Guest Check-in: xử lý khách đến khách sạ
 | **Data Classification**   | Sensitive-PII (CCCD/Passport, Ngày sinh, SĐT, Địa chỉ)         |
 | **Compliance Scope**      | Luật cư trú 2020, Luật du lịch 2017, Nghị định 13/2023      |
 | **Upstream Dependencies** | `Module 1 (Auth)` — Xác thực Lễ tân (ROLE_RECEPTIONIST)      |
-| **Downstream Consumers**  | `ResidenceReportingService` — Đăng ký tạm trú (best-effort) |
+
 | **Primary Actor**         | Receptionist                                                        |
 | **Secondary Actors**      | System, Customer                                                    |
 
@@ -78,7 +78,7 @@ Mô tả chức năng Walk-in Guest Check-in: xử lý khách đến khách sạ
 - ✅ Kiểm tra phòng trống (Vacant_Clean)
 - ✅ Tạo Reservation + Assign room
 - ✅ Check-in (cập nhật trạng thái Booking, Room)
-- ✅ Kích hoạt Temporary Residence Reporting (best-effort)
+
 
 **Ngoài phạm vi UC-14 (xử lý bởi module khác):**
 
@@ -105,7 +105,7 @@ Mô tả chức năng Walk-in Guest Check-in: xử lý khách đến khách sạ
 | BR-UC14-04     | Business Rule  | Mỗi booking phải được gán vào 1 phòng vật lý cụ thể (RoomBookingDetail)                                                | `RoomBookingDetailRepository.save()`                        | Quy trình nghiệp vụ             | —             |
 | BR-UC14-05     | Business Rule  | Trạng thái booking phải chuyển sang `Checked_In` sau check-in thành công                                                   | `WalkInCheckInService.updateStatusToCheckedIn()`            | Quy trình nghiệp vụ             | —             |
 | BR-UC14-06     | Business Rule  | Thông tin nhận dạng khách phải được lưu trữ bảo mật theo chính sách bảo mật hệ thống (uỷ thác CustomerService) | `CustomerService.saveGuestIdentity()`                       | Nghị định 13/2023/NĐ-CP        | —             |
-| BR-UC14-07     | Business Rule  | Tất cả khách lưu trú phải được đăng ký tạm trú (best-effort, không block check-in)                                  | `ResidenceReportingService.registerTemporaryResidence()`    | Luật cư trú 2020                | ADR-UC14-004   |
+
 | BR-UC14-08     | Business Rule  | System tự động tạo Customer Account cho khách Walk-in mới (uỷ thác AccountService)                                         | `AccountService.autoCreateAccount(customer)`                | Quy trình nghiệp vụ             | —             |
 | BR-UC14-09     | Business Rule  | Account được tạo với default credentials theo chính sách hệ thống (password do Auth module quản lý)                     | `AccountService.autoCreateAccount(customer)` *(nội bộ)* | Auth Module policy                 | —             |
 | BR-UC14-10     | Business Rule  | Customer Account phải được link với Reservation ngay sau khi tạo                                                             | `RoomBooking.setAccountId(account.getId())`                 | Quy trình nghiệp vụ             | —             |
@@ -162,7 +162,7 @@ Sử dụng `@Lock(LockModeType.PESSIMISTIC_WRITE)` khi query phòng trong `find
 Toàn bộ Walk-in flow cốt lõi (findOrCreateCustomer → autoCreateAccount → createBooking → assignRoom → updateStatuses) được bọc trong 1 `@Transactional`. Bất kỳ bước nào thất bại → rollback toàn bộ. Không được phép partial commit.
 
 > [!IMPORTANT]
-> `ResidenceReportingService` được gọi SAU khi `@Transactional` commit — **không nằm trong transaction boundary**. Failure của reporting không rollback booking. Xem ADR-UC14-004.
+
 
 > [!NOTE]
 > `FolioService` **không được gọi** trong UC-14. Folio được Account module khởi tạo sẵn khi tạo account — UC-14 chỉ cần link Booking với account_id có sẵn.
@@ -567,7 +567,7 @@ end note
 | Event Name                       | Trigger                         | Publisher                     | Subscriber(s)           | Payload Schema               | Async? |
 | -------------------------------- | ------------------------------- | ----------------------------- | ----------------------- | ---------------------------- | ------ |
 | `RoomCheckedIn`                | Phòng chuyển sang OCCUPIED    | `WalkInCheckInServiceImpl`  | `HousekeepingService` | `RoomCheckedInEvent`       | Yes    |
-| `TemporaryResidenceRegistered` | Đăng ký tạm trú hoàn tất | `ResidenceReportingService` | `AuditLogService`     | `ResidenceRegisteredEvent` | Yes    |
+
 
 > [!NOTE]
 > **`WalkInCheckInCompleted` — FolioService subscriber đã bị xóa (v1.2):** Folio được tạo trực tiếp trong transaction thông qua `FolioService.initializeFolio()`. Không cần event để trigger FolioService sau khi commit.

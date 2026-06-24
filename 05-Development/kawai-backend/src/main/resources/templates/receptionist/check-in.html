@@ -63,6 +63,14 @@
                         <span class="nav-sub-text">Trả phòng & Hóa đơn</span>
                     </div>
                 </a>
+                <a href="/receptionist/in-house" class="nav-item">
+                    <i class="fa-solid fa-bed"></i>
+                    <div class="nav-text">
+                        <span class="nav-main-text">Khách lưu trú</span>
+                        <span class="nav-sub-text">Quản lý khách in-house</span>
+                    </div>
+                </a>
+                <!--
                 <a href="/receptionist/night-audit" class="nav-item">
                     <i class="fa-solid fa-moon"></i>
                     <div class="nav-text">
@@ -70,6 +78,7 @@
                         <span class="nav-sub-text">Giao ca & Báo cáo</span>
                     </div>
                 </a>
+                -->
             </nav>
 
             <div class="sidebar-user">
@@ -132,19 +141,10 @@
                 </div>
 
                 <div class="page-header">
-                    <h2 class="page-title">Check-in / In-House</h2>
+                    <h2 class="page-title">Check-in (Chờ nhận phòng)</h2>
                 </div>
 
-                <!-- Tabs -->
-                <div class="tabs-container"
-                    style="margin-bottom: 20px; border-bottom: 1px solid #e2e8f0; display: flex; gap: 20px;">
-                    <button type="button" id="tabBtnArrivals" class="tab-btn" onclick="switchTab('arrivals')"
-                        style="padding: 10px 16px; border:none; background:none; font-weight: 500; font-size: 15px; color: #2563eb; border-bottom: 2px solid #2563eb; cursor: pointer;">Arrivals
-                        (Đang chờ)</button>
-                    <button type="button" id="tabBtnInHouse" class="tab-btn" onclick="switchTab('inhouse')"
-                        style="padding: 10px 16px; border:none; background:none; font-weight: 500; font-size: 15px; color: #64748b; border-bottom: 2px solid transparent; cursor: pointer;">In-House
-                        Guests (Đang lưu trú)</button>
-                </div>
+
 
                 <div class="split-layout" style="display: block;">
                     <!-- Tab 1: Arrivals -->
@@ -211,113 +211,13 @@
                         </div>
                     </div> <!-- End Tab 1 -->
 
-                    <!-- Tab 2: In-House Guests -->
-                    <div id="tabContentInHouse" class="split-section" style="display: none;">
-                        <div class="split-title"
-                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                            <span>Khách đang lưu trú</span>
-                            <span class="status-badge" style="background:#dcfce7; color:#166534;"
-                                th:text="${#lists.size(inHouseBookings)} + ' Checked-in'"></span>
-                        </div>
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Main Guest</th>
-                                    <th>Check-in Date</th>
-                                    <th>Check-out Date</th>
-                                    <th>Quy mô lưu trú</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr th:if="${#lists.isEmpty(inHouseBookings)}">
-                                    <td colspan="5" style="text-align: center;">Chưa có khách lưu trú</td>
-                                </tr>
-                                <tr th:each="arr : ${inHouseBookings}">
-                                    <td style="color: #0f172a; font-weight: 500;" th:text="${arr.guestName}"></td>
-                                    <td th:text="${arr.checkInDate}" style="color: #4b5563; font-weight: 500;"></td>
-                                    <td th:text="${arr.checkOutDate}" style="color: #4b5563;"></td>
-                                    <td><span class="status-badge" style="background: #e0f2fe; color: #0284c7;"
-                                            th:text="${arr.bookingScale}"></span></td>
-                                    <td>
-                                        <button class="btn btn-primary btn-sm"
-                                            th:attr="onclick=|openInHouseModal('${arr.guestName}', '${arr.phone}', '${arr.roomSummary}', 'deps-${arr.id}')|">Chi
-                                            tiết</button>
-                                        <!-- Hidden data for dependents -->
-                                        <div th:id="'deps-' + ${arr.id}" style="display:none;">
-                                            <ul style="padding-left: 20px; margin:0; color:#475569; font-size:14px;">
-                                                <li th:if="${#lists.isEmpty(arr.dependents)}">Không có người đi kèm</li>
-                                                <li th:each="dep : ${arr.dependents}"
-                                                    th:text="${dep.fullName} + ' (Sinh: ' + ${dep.dateOfBirth} + ')'">
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
 
-                        <!-- Pagination cho In-House -->
-                        <div class="pagination"
-                            style="display: flex; justify-content: flex-end; align-items: center; gap: 1rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #e5e7eb;">
-                            <a th:href="@{/receptionist/check-in(page=${currentInHousePage - 1}, keyword=${param.keyword}, tab='inhouse')}"
-                                th:style="'padding: 0.5rem 1rem; border: 1px solid #e5e7eb; border-radius: 6px; text-decoration: none; color: #374151;' + (${currentInHousePage == 1} ? ' opacity: 0.5; pointer-events: none;' : '')">Previous</a>
-
-                            <span style="color: #6b7280; font-size: 0.875rem;">Page <span
-                                    th:text="${currentInHousePage}">1</span>
-                                of <span th:text="${totalInHousePages}">1</span></span>
-
-                            <a th:href="@{/receptionist/check-in(page=${currentInHousePage + 1}, keyword=${param.keyword}, tab='inhouse')}"
-                                th:style="'padding: 0.5rem 1rem; border: 1px solid #e5e7eb; border-radius: 6px; text-decoration: none; color: #374151;' + (${currentInHousePage == totalInHousePages} ? ' opacity: 0.5; pointer-events: none;' : '')">Next</a>
-                        </div>
-                    </div> <!-- End Tab 2 -->
                 </div>
             </div>
         </main>
     </div>
 
-    <!-- In-House Details Modal -->
-    <div id="inHouseModal" class="modal-overlay"
-        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;">
-        <div class="modal-content"
-            style="background: white; width: 600px; max-width: 90%; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); padding: 24px; display: flex; flex-direction: column;">
-            <div
-                style="display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid #e2e8f0; padding-bottom: 16px; margin-bottom: 16px;">
-                <h3 style="margin: 0; color: #0f172a; font-size: 18px;">Chi tiết Đơn lưu trú</h3>
-                <i class="fa-solid fa-xmark" style="cursor: pointer; color: #64748b; font-size: 18px;"
-                    onclick="closeInHouseModal()"></i>
-            </div>
 
-            <div style="display:flex; flex-direction:column; gap: 16px;">
-                <div>
-                    <span
-                        style="font-weight: 500; color: #475569; font-size:13px; display:block; margin-bottom: 4px;">Chủ
-                        đơn (Main Guest)</span>
-                    <div id="modalInHouseGuestName" style="color: #0f172a; font-weight: 500; font-size:15px;"></div>
-                    <div id="modalInHousePhone" style="color: #64748b; font-size:13px;"></div>
-                </div>
-                <div>
-                    <span
-                        style="font-weight: 500; color: #475569; font-size:13px; display:block; margin-bottom: 4px;">Phòng
-                        đã gán</span>
-                    <div id="modalInHouseRooms" style="color: #0284c7; font-weight: 500; font-size:14px;"></div>
-                </div>
-                <div>
-                    <span
-                        style="font-weight: 500; color: #475569; font-size:13px; display:block; margin-bottom: 4px;">Danh
-                        sách người phụ thuộc</span>
-                    <div id="modalInHouseDependents"
-                        style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px;">
-                    </div>
-                </div>
-            </div>
-
-            <div style="margin-top: 24px; display:flex; justify-content:flex-end;">
-                <button type="button" class="action-btn outline" onclick="closeInHouseModal()"
-                    style="padding: 10px 24px;">Đóng</button>
-            </div>
-        </div>
-    </div>
 
     <!-- Check-in Modal -->
     <div id="checkinModal" class="modal-overlay"
@@ -498,370 +398,8 @@
         const roomInventory = /*[[${roomInventory}]]*/ {};
         const assignedRooms = [];
 
-        // Kiểm tra URL xem đang ở tab nào
-        document.addEventListener('DOMContentLoaded', () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            const activeTab = urlParams.get('tab');
-            if (activeTab === 'inhouse') {
-                switchTab('inhouse');
-            } else {
-                switchTab('arrivals');
-            }
-        });
-
-        function updateAvailableRooms() {
-            const typeSelect = document.getElementById('bookTypeSelect');
-            const roomSelect = document.getElementById('physicalRoomSelect');
-            roomSelect.innerHTML = '<option value="">-- Select Room --</option>';
-
-            const selectedType = typeSelect.value;
-            if (!selectedType) return;
-
-            const inventoryForType = roomInventory[selectedType] || [];
-            const available = inventoryForType.filter(r => !assignedRooms.some(a => a.room === r));
-
-            if (available.length === 0) {
-                return; // Giữ lại dropdown mặc định "-- Select Room --" mà không hiện lỗi
-            }
-
-            available.forEach(r => {
-                const opt = document.createElement('option');
-                opt.value = r;
-                opt.innerText = r;
-                roomSelect.appendChild(opt);
-            });
-        }
-
-        function assignRoom() {
-            const typeSelect = document.getElementById('bookTypeSelect');
-            const roomSelect = document.getElementById('physicalRoomSelect');
-            const selectedType = typeSelect.value;
-            const selectedRoom = roomSelect.value;
-
-            if (!selectedType || !selectedRoom) return;
-
-            const selectedOption = typeSelect.options[typeSelect.selectedIndex];
-            let pending = parseInt(selectedOption.getAttribute('data-pending'));
-
-            if (pending > 0) {
-                assignedRooms.push({ type: selectedType, room: selectedRoom });
-
-                pending--;
-                selectedOption.setAttribute('data-pending', pending);
-                selectedOption.innerText = `${selectedType} (${pending} pending)`;
-
-                if (pending === 0) {
-                    selectedOption.disabled = true;
-                    typeSelect.value = '';
-                }
-
-                updateAvailableRooms();
-                renderAssignedRooms();
-            }
-        }
-
-        function removeAssignedRoom(roomNumber) {
-            const index = assignedRooms.findIndex(a => a.room === roomNumber);
-            if (index > -1) {
-                const type = assignedRooms[index].type;
-                assignedRooms.splice(index, 1);
-
-                // restore pending count
-                const typeSelect = document.getElementById('bookTypeSelect');
-                for (let i = 0; i < typeSelect.options.length; i++) {
-                    if (typeSelect.options[i].value === type) {
-                        let pending = parseInt(typeSelect.options[i].getAttribute('data-pending')) + 1;
-                        typeSelect.options[i].setAttribute('data-pending', pending);
-                        typeSelect.options[i].innerText = `${type} (${pending} pending)`;
-                        typeSelect.options[i].disabled = false;
-                        break;
-                    }
-                }
-
-                updateAvailableRooms();
-                renderAssignedRooms();
-            }
-        }
-
-        // Tab Switching Logic
-        function switchTab(tabName) {
-            console.log("Switching to tab: " + tabName);
-            if (tabName === 'arrivals') {
-                document.getElementById('tabContentArrivals').style.display = 'block';
-                document.getElementById('tabContentInHouse').style.display = 'none';
-                document.getElementById('tabBtnArrivals').style.color = '#2563eb';
-                document.getElementById('tabBtnArrivals').style.borderBottom = '2px solid #2563eb';
-                document.getElementById('tabBtnInHouse').style.color = '#64748b';
-                document.getElementById('tabBtnInHouse').style.borderBottom = '2px solid transparent';
-            } else {
-                document.getElementById('tabContentArrivals').style.display = 'none';
-                document.getElementById('tabContentInHouse').style.display = 'block';
-                document.getElementById('tabBtnInHouse').style.color = '#2563eb';
-                document.getElementById('tabBtnInHouse').style.borderBottom = '2px solid #2563eb';
-                document.getElementById('tabBtnArrivals').style.color = '#64748b';
-                document.getElementById('tabBtnArrivals').style.borderBottom = '2px solid transparent';
-            }
-        }
-
-        // In-House Details Modal Logic
-        function openInHouseModal(guestName, phone, roomSummary, depsDivId) {
-            document.getElementById('modalInHouseGuestName').innerText = guestName;
-            document.getElementById('modalInHousePhone').innerText = phone ? 'SĐT: ' + phone : '';
-            document.getElementById('modalInHouseRooms').innerText = roomSummary;
-
-            // Lấy nội dung HTML của div ẩn chứa danh sách dependents và gán vào modal
-            const depsHtml = document.getElementById(depsDivId).innerHTML;
-            document.getElementById('modalInHouseDependents').innerHTML = depsHtml;
-
-            document.getElementById('inHouseModal').style.display = 'flex';
-        }
-
-        function closeInHouseModal() {
-            document.getElementById('inHouseModal').style.display = 'none';
-        }
-
-        function renderAssignedRooms() {
-            const container = document.getElementById('assignedRoomsList');
-            container.innerHTML = '';
-
-            // Xóa các hidden input cũ
-            document.querySelectorAll('input[name="assignedRoomNumbers"]').forEach(el => el.remove());
-
-            assignedRooms.forEach(a => {
-                const badge = document.createElement('span');
-                badge.className = 'status-badge';
-                badge.style.cssText = 'background:#e0f2fe; color:#0284c7; display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; font-size: 13px; border: 1px solid #bae6fd;';
-                badge.innerHTML = `${a.room} (${a.type}) <i class="fa-solid fa-xmark" style="cursor:pointer;" onclick="removeAssignedRoom('${a.room}')"></i>`;
-                container.appendChild(badge);
-
-                // Thêm hidden input cho mảng phòng
-                const hiddenInput = document.createElement('input');
-                hiddenInput.type = 'hidden';
-                hiddenInput.name = 'assignedRoomNumbers';
-                hiddenInput.value = a.room;
-                document.getElementById('checkinFormWrapper').appendChild(hiddenInput);
-            });
-
-            // Cập nhật lại dropdown Chọn phòng cho Người phụ thuộc
-            const depRoomSelect = document.getElementById('depRoom');
-            depRoomSelect.innerHTML = '<option value="">-- Select Room --</option>';
-            assignedRooms.forEach(a => {
-                const opt = document.createElement('option');
-                opt.value = a.room;
-                opt.innerText = `${a.room} (${a.type})`;
-                depRoomSelect.appendChild(opt);
-            });
-        }
-
-
-
-        function openCheckinModal(bookingId, guestName, phone, cccd, roomSummary, depsDivId) {
-            // Gán bookingId vào form submit hidden input
-            document.getElementById('submitBookingId').value = bookingId;
-            const dependentsListContainer = document.getElementById('dependentsList');
-            dependentsListContainer.innerHTML = '';
-            depIndexCounter = 0; // Reset index khách kèm
-            // Lấy danh sách khách kèm hiện có
-            if (depsDivId) {
-                const depsDiv = document.getElementById(depsDivId);
-                if (depsDiv) {
-                    const items = depsDiv.querySelectorAll('li');
-                    items.forEach(li => {
-                        const name = li.getAttribute('data-name');
-                        const dob = li.getAttribute('data-dob');
-                        const dependentId = li.getAttribute('data-id');
-                        // Hiển thị tất cả các khách, bao gồm cả những khách chưa có tên (Stub từ Đặt phòng online)
-                        const displayName = name ? name : '(Chưa cập nhật)';
-                        addDependentRow(displayName, '', dob || '', dependentId);
-                    });
-                }
-            }
-
-            if (dependentsListContainer.children.length === 0) {
-                dependentsListContainer.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 16px; color: #94a3b8; font-size: 13px;">No group members added yet</td></tr>';
-            }
-
-            document.getElementById('modalGuestName').value = guestName || '';
-            document.getElementById('modalGuestPhone').value = phone || '';
-            document.getElementById('modalGuestCccd').value = cccd || '';
-            document.getElementById('modalRoom').innerText = roomSummary || '';
-
-            // reset assignment state
-            assignedRooms.length = 0;
-            renderAssignedRooms();
-
-            const typeSelect = document.getElementById('bookTypeSelect');
-            typeSelect.innerHTML = '<option value="">-- Select Type --</option>';
-            typeSelect.value = '';
-
-            if (roomSummary && roomSummary !== 'N/A' && roomSummary !== 'Pending Details') {
-                const parts = roomSummary.split(',');
-                parts.forEach(part => {
-                    const match = part.trim().match(/^(\d+)x\s+(.+)$/);
-                    if (match) {
-                        const count = parseInt(match[1]);
-                        const category = match[2];
-                        const opt = document.createElement('option');
-                        opt.value = category;
-                        opt.setAttribute('data-pending', count);
-                        opt.innerText = `${category} (${count} pending)`;
-                        typeSelect.appendChild(opt);
-                    }
-                });
-            } else {
-                // Fallback if no specific booked types are found
-                for (const category in roomInventory) {
-                    const opt = document.createElement('option');
-                    opt.value = category;
-                    opt.setAttribute('data-pending', 1);
-                    opt.innerText = `${category} (1 pending)`;
-                    typeSelect.appendChild(opt);
-                }
-            }
-            updateAvailableRooms();
-
-            document.getElementById('checkinModal').style.display = 'flex';
-        }
-
-        function closeCheckinModal() {
-            document.getElementById('checkinModal').style.display = 'none';
-        }
-
-        let depIndexCounter = 0;
-
-        function addDependent() {
-            const name = document.getElementById('depName').value;
-            const id = document.getElementById('depId').value;
-            const dob = document.getElementById('depDob').value;
-            const roomId = document.getElementById('depRoom').value;
-            if (!name || !dob) {
-                alert('Please fill Name and Date of Birth!');
-                return;
-            }
-            if (!roomId) {
-                alert('Please assign the guest to a room!');
-                return;
-            }
-
-            // Kiểm tra ngày sinh không được ở tương lai
-            const todayStr = new Date().toISOString().split('T')[0];
-            if (dob > todayStr) {
-                alert('Ngày sinh không được vượt quá ngày hiện tại!');
-                return;
-            }
-            if (dob < '1900-01-01') {
-                alert('Ngày sinh không hợp lệ!');
-                return;
-            }
-
-            // Kiểm tra CCCD/Passport nếu có nhập
-            if (id) {
-                const isNumericOnly = /^\d+$/.test(id);
-                if (isNumericOnly) {
-                    if (id.length !== 12) {
-                        alert('Số CCCD không hợp lệ! Nếu chỉ nhập số, CCCD phải gồm đúng 12 chữ số.');
-                        return;
-                    }
-                } else {
-                    const isValidPassport = /^[A-Za-z0-9]{6,15}$/.test(id);
-                    if (!isValidPassport) {
-                        alert('Số Passport không hợp lệ! Passport phải từ 6-15 ký tự chữ và số.');
-                        return;
-                    }
-                }
-            }
-
-            const depId = document.getElementById('depId').getAttribute('data-dependent-id');
-            const parsedDepId = (depId && depId !== 'null' && depId !== '') ? depId : null;
-
-            addDependentRow(name, id, dob, parsedDepId, roomId);
-
-            document.getElementById('depName').value = '';
-            document.getElementById('depId').value = '';
-            document.getElementById('depId').removeAttribute('data-dependent-id');
-            document.getElementById('depDob').value = '';
-            document.getElementById('depRoom').value = '';
-        }
-
-        function addDependentRow(name, cccd, dob, dependentId, assignedPhysicalRoomNumber) {
-            const tbody = document.getElementById('dependentsList');
-            // remove empty message if present
-            if (tbody.children.length === 1 && tbody.children[0].innerText.includes('No group members')) {
-                tbody.innerHTML = '';
-            }
-
-            const tr = document.createElement('tr');
-            tr.style.borderBottom = '1px solid #e2e8f0';
-            let hiddenIdInput = dependentId ? `<input type="hidden" name="dependents[${depIndexCounter}].dependentId" value="${dependentId}" />` : '';
-            let hiddenRoomInput = assignedPhysicalRoomNumber ? `<input type="hidden" name="dependents[${depIndexCounter}].assignedPhysicalRoomNumber" value="${assignedPhysicalRoomNumber}" />` : '';
-
-            let depIdArg = dependentId ? `'${dependentId}'` : 'null';
-            let roomIdArg = assignedPhysicalRoomNumber ? `'${assignedPhysicalRoomNumber}'` : 'null';
-
-            tr.innerHTML = `
-                <td style="padding: 8px; font-size: 14px;">
-                    ${name}
-                    ${hiddenIdInput}
-                    ${hiddenRoomInput}
-                    <input type="hidden" name="dependents[${depIndexCounter}].fullName" value="${name}" />
-                </td>
-                <td style="padding: 8px; font-size: 14px;">
-                    ${cccd}
-                    <input type="hidden" name="dependents[${depIndexCounter}].cccd" value="${cccd}" />
-                </td>
-                <td style="padding: 8px; font-size: 14px;">
-                    ${dob}
-                    <input type="hidden" name="dependents[${depIndexCounter}].dateOfBirth" value="${dob}" />
-                    <input type="hidden" name="dependents[${depIndexCounter}].gender" value="Other" />
-                </td>
-                <td style="padding: 8px;">
-                    <button type="button" class="btn btn-outline btn-sm" style="color: #3b82f6; border-color: #3b82f6; padding: 4px 8px; margin-right: 4px;" title="Edit" onclick="editDependentRow(this, '${name}', '${cccd}', '${dob}', ${depIdArg}, ${roomIdArg})"><i class="fa-solid fa-pen"></i></button>
-                    <button type="button" class="btn btn-outline btn-sm" style="color: #ef4444; border-color: #ef4444; padding: 4px 8px;" title="Delete" onclick="this.closest('tr').remove()"><i class="fa-solid fa-trash"></i></button>
-                </td>
-            `;
-            tbody.appendChild(tr);
-
-            depIndexCounter++;
-        }
-
-        function editDependentRow(btn, name, cccd, dob, depId, roomId) {
-            document.getElementById('depName').value = name === '(Chưa cập nhật)' ? '' : name;
-            document.getElementById('depId').value = cccd;
-            document.getElementById('depDob').value = dob;
-            if (roomId) {
-                document.getElementById('depRoom').value = roomId;
-            } else {
-                document.getElementById('depRoom').value = '';
-            }
-
-            // Set attributes to track which dependent is being edited
-            if (depId) {
-                document.getElementById('depId').setAttribute('data-dependent-id', depId);
-            } else {
-                document.getElementById('depId').removeAttribute('data-dependent-id');
-            }
-
-            // Mở rộng danh sách nếu đang bị thu gọn để tiện xem
-            const wrapper = document.getElementById('dependentsTableWrapper');
-            if (wrapper.style.display === 'none') {
-                toggleDependentsList();
-            }
-
-            btn.closest('tr').remove();
-        }
-
-        function toggleDependentsList() {
-            const wrapper = document.getElementById('dependentsTableWrapper');
-            const btn = document.getElementById('toggleDependentsBtn');
-            if (wrapper.style.display === 'none') {
-                wrapper.style.display = 'block';
-                btn.innerHTML = '<i class="fa-solid fa-chevron-up"></i> Thu gọn';
-            } else {
-                wrapper.style.display = 'none';
-                btn.innerHTML = '<i class="fa-solid fa-chevron-down"></i> Hiện hết';
-            }
-        }
     </script>
+    <script src="/receptionist/js/checkin.js"></script>
 </body>
 
 </html>

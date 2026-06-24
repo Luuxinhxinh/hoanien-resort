@@ -73,6 +73,14 @@
                         <span class="nav-sub-text">Trả phòng & Hóa đơn</span>
                     </div>
                 </a>
+                <a href="/receptionist/in-house" class="nav-item">
+                    <i class="fa-solid fa-bed"></i>
+                    <div class="nav-text">
+                        <span class="nav-main-text">Khách lưu trú</span>
+                        <span class="nav-sub-text">Quản lý khách in-house</span>
+                    </div>
+                </a>
+                <!--
                 <a href="/receptionist/night-audit" class="nav-item">
                     <i class="fa-solid fa-moon"></i>
                     <div class="nav-text">
@@ -80,6 +88,7 @@
                         <span class="nav-sub-text">Giao ca & Báo cáo</span>
                     </div>
                 </a>
+                -->
             </nav>
 
             <div class="sidebar-user">
@@ -185,7 +194,7 @@
                             <div class="legend-item" onclick="toggleFilter('card-housekeeping', this)" style="cursor: pointer; transition: opacity 0.3s;"><span class="legend-dot dot-housekeeping"></span>Housekeeping</div>
                             <div class="legend-item" onclick="toggleFilter('card-ooo', this)" style="cursor: pointer; transition: opacity 0.3s;"><span class="legend-dot dot-ooo"></span>Maintenance</div>
                         </div>
-                        <div class="matrix-count" th:text="${#lists.size(rooms)} + ' rooms'">Showing rooms</div>
+                        <div class="matrix-count" th:text="${#maps.size(categorizedRooms)} + ' categories'">Showing rooms</div>
                     </div>
 
                     <!-- Room Grid - grouped by category -->
@@ -201,21 +210,21 @@
 
                         <div class="room-grid">
                             <div th:each="room : ${entry.value}" class="room-card"
-                                th:classappend="${room.status} == 'Occupied' ? 'card-occupied' : (${room.status} == 'Vacant_Dirty' ? 'card-housekeeping' : (${room.status} == 'Maintenance' ? 'card-ooo' : 'card-available'))">
+                                th:classappend="${#strings.equalsIgnoreCase(room.status, 'Occupied')} ? 'card-occupied' : (${#strings.equalsIgnoreCase(room.status, 'Vacant_Dirty')} ? 'card-housekeeping' : (${#strings.equalsIgnoreCase(room.status, 'Maintenance')} ? 'card-ooo' : 'card-available'))">
                                 <div class="room-card-top">
                                     <span class="room-number" th:text="${room.roomNumber}"></span>
-                                    <span class="room-indicator" th:if="${room.status} == 'Occupied'"></span>
-                                    <i class="fa-solid fa-wand-magic-sparkles" th:if="${room.status} == 'Vacant_Dirty'"
+                                    <span class="room-indicator" th:if="${#strings.equalsIgnoreCase(room.status, 'Occupied')}"></span>
+                                    <i class="fa-solid fa-wand-magic-sparkles" th:if="${#strings.equalsIgnoreCase(room.status, 'Vacant_Dirty')}"
                                         style="color:#c9a96e;font-size:14px;"></i>
-                                    <i class="fa-solid fa-wrench" th:if="${room.status} == 'Maintenance'"
+                                    <i class="fa-solid fa-wrench" th:if="${#strings.equalsIgnoreCase(room.status, 'Maintenance')}"
                                         style="color:#7a7a9a;font-size:14px;"></i>
-                                    <span class="room-indicator" th:if="${room.status} == 'Vacant_Clean'"></span>
+                                    <span class="room-indicator" th:if="${#strings.equalsIgnoreCase(room.status, 'Vacant_Clean')}"></span>
                                 </div>
                                 <div class="room-type">
                                     <span class="type-badge" th:text="${room.category}"></span>
                                 </div>
                                 <div class="room-status-text"
-                                    th:text="${room.status == 'Vacant_Clean' ? 'Ready' : (room.status == 'Vacant_Dirty' ? 'Needs cleaning' : (room.status == 'Maintenance' ? 'Maintenance' : (room.status == 'Occupied' ? 'Occupied' : room.status)))}">
+                                    th:text="${#strings.equalsIgnoreCase(room.status, 'Vacant_Clean') ? 'Ready' : (#strings.equalsIgnoreCase(room.status, 'Vacant_Dirty') ? 'Needs cleaning' : (#strings.equalsIgnoreCase(room.status, 'Maintenance') ? 'Maintenance' : (#strings.equalsIgnoreCase(room.status, 'Occupied') ? 'Occupied' : room.status)))}">
                                 </div>
                             </div>
                         </div>

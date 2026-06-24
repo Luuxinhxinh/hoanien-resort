@@ -451,7 +451,7 @@ function openRoomInfoModal(name, image, capacity, description, baseAdults, baseC
     document.getElementById('detailRoomImg').src = image;
 
     document.getElementById('detailRoomGuests').innerText = capacity + ' Người / phòng';
-    document.getElementById('detailRoomTotal').innerText = ''; 
+    document.getElementById('detailRoomTotal').innerText = '';
 
     document.getElementById('detailRoomDesc').innerText = description || 'Không có mô tả chi tiết cho phòng này.';
 
@@ -493,10 +493,7 @@ function closeRoomDetailsModal() {
     document.getElementById('roomDetailsModal').style.display = 'none';
 }
 
-function triggerLoginFromDetail() {
-    closeRoomDetailsModal();
-    openLoginModal();
-}
+
 
 /**
  * Validates check-in and check-out dates.
@@ -778,26 +775,6 @@ function confirmCartBooking() {
             showToast(err.message || 'Lỗi kết nối Server! Vui lòng thử lại.', 'error');
         });
 }
-
-
-function closeBookingConfirmModal() {
-    document.getElementById('bookingConfirmModal').style.display = 'none';
-}
-
-function goToProfile() {
-    window.location.href = '/profile';
-}
-
-// Close modal when clicking outside
-const confirmModal = document.getElementById('bookingConfirmModal');
-if (confirmModal) {
-    confirmModal.addEventListener('click', function (e) {
-        if (e.target.id === 'bookingConfirmModal') {
-            closeBookingConfirmModal();
-        }
-    });
-}
-
 // ---------------- AUTH MODAL LOGIC ----------------
 function openLoginModal() {
     document.getElementById('authModal').style.display = 'flex';

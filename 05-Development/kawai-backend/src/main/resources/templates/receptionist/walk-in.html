@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,13 +8,16 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
+        rel="stylesheet">
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Custom CSS -->
     <link rel="stylesheet" href="/receptionist/css/dashboard.css">
     <link rel="stylesheet" href="/receptionist/css/pages.css">
 </head>
+
 <body>
     <div class="app-container">
         <!-- Sidebar -->
@@ -59,6 +63,14 @@
                         <span class="nav-sub-text">Trả phòng & Hóa đơn</span>
                     </div>
                 </a>
+                <a href="/receptionist/in-house" class="nav-item">
+                    <i class="fa-solid fa-bed"></i>
+                    <div class="nav-text">
+                        <span class="nav-main-text">Khách lưu trú</span>
+                        <span class="nav-sub-text">Quản lý khách in-house</span>
+                    </div>
+                </a>
+                <!--
                 <a href="/receptionist/night-audit" class="nav-item">
                     <i class="fa-solid fa-moon"></i>
                     <div class="nav-text">
@@ -66,6 +78,7 @@
                         <span class="nav-sub-text">Giao ca & Báo cáo</span>
                     </div>
                 </a>
+                -->
             </nav>
 
             <div class="sidebar-user">
@@ -109,22 +122,32 @@
                 </div>
 
                 <!-- Step 1: Room Selection -->
-                <div class="form-container" style="background: white; padding: 24px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 24px;">
-                    <h3 style="margin-top: 0; margin-bottom: 16px; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; color: #1e293b;">Step 1: Check Availability & Assign Room</h3>
+                <div class="form-container"
+                    style="background: white; padding: 24px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 24px;">
+                    <h3
+                        style="margin-top: 0; margin-bottom: 16px; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; color: #1e293b;">
+                        Step 1: Check Availability & Assign Room</h3>
                     <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px;">
                         <div>
-                            <label style="display: block; font-weight: 500; margin-bottom: 8px;">Expected Checkout Date</label>
-                            <input type="date" id="checkoutDate" class="form-control" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 4px; background: white;">
+                            <label style="display: block; font-weight: 500; margin-bottom: 8px;">Expected Checkout
+                                Date</label>
+                            <input type="date" id="checkoutDate" class="form-control"
+                                style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 4px; background: white;">
                         </div>
                         <div>
                             <label style="display: block; font-weight: 500; margin-bottom: 8px;">Room Type</label>
-                            <select id="walkInTypeSelect" class="form-control" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 4px;" onchange="updateWalkInAvailableRooms()">
+                            <select id="walkInTypeSelect" class="form-control"
+                                style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 4px;"
+                                onchange="updateWalkInAvailableRooms()">
                                 <option value="">-- Select Type --</option>
                             </select>
                         </div>
                         <div>
-                            <label style="display: block; font-weight: 500; margin-bottom: 8px;">Assign Physical Room <span style="color:red">*</span></label>
-                            <select id="walkInPhysicalRoomSelect" class="form-control" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 4px;" onchange="unlockStep2()">
+                            <label style="display: block; font-weight: 500; margin-bottom: 8px;">Assign Physical Room
+                                <span style="color:red">*</span></label>
+                            <select id="walkInPhysicalRoomSelect" class="form-control"
+                                style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 4px;"
+                                onchange="unlockStep2()">
                                 <option value="">-- Select Type First --</option>
                             </select>
                         </div>
@@ -132,34 +155,235 @@
                 </div>
 
                 <!-- Step 2: Customer Identification / Creation (Initially disabled) -->
-                <div class="form-container" id="step2Container" style="background: white; padding: 24px; border-radius: 8px; border: 1px solid #e2e8f0; opacity: 0.5; pointer-events: none; transition: all 0.3s ease;">
-                    <h3 style="margin-top: 0; margin-bottom: 16px; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; color: #1e293b;">Step 2: Guest Information</h3>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 24px;">
+                <div class="form-container" id="step2Container"
+                    style="background: white; padding: 24px; border-radius: 8px; border: 1px solid #e2e8f0; opacity: 0.5; pointer-events: none; transition: all 0.3s ease;">
+                    <h3
+                        style="margin-top: 0; margin-bottom: 16px; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; color: #1e293b;">
+                        Step 2: Guest Information</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 1fr; gap: 24px;">
                         <div>
-                            <label style="display: block; font-weight: 500; margin-bottom: 8px;">Phone Number <span style="color:red">*</span></label>
-                            <input type="text" id="guestPhone" class="form-control" placeholder="Enter phone number" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 4px;">
+                            <label style="display: block; font-weight: 500; margin-bottom: 8px;">Phone Number <span
+                                    style="color:red">*</span></label>
+                            <input type="text" id="guestPhone" class="form-control" placeholder="Enter phone number"
+                                style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 4px;">
                         </div>
                         <div>
-                            <label style="display: block; font-weight: 500; margin-bottom: 8px;">Identity (ID/Passport) <span style="color:red">*</span></label>
-                            <input type="text" id="guestId" class="form-control" placeholder="ID/Passport Number" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 4px;">
+                            <label style="display: block; font-weight: 500; margin-bottom: 8px;">Identity (ID/Passport)
+                                <span style="color:red">*</span></label>
+                            <input type="text" id="guestId" class="form-control" placeholder="ID/Passport Number"
+                                style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 4px;">
                         </div>
                         <div>
-                            <label style="display: block; font-weight: 500; margin-bottom: 8px;">Guest Full Name <span style="color:red">*</span></label>
-                            <input type="text" id="guestName" class="form-control" placeholder="Enter guest name" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 4px;">
+                            <label style="display: block; font-weight: 500; margin-bottom: 8px;">Guest Full Name <span
+                                    style="color:red">*</span></label>
+                            <input type="text" id="guestName" class="form-control" placeholder="Enter guest name"
+                                style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 4px;">
+                        </div>
+                        <div>
+                            <label style="display: block; font-weight: 500; margin-bottom: 8px;">Date of Birth <span
+                                    style="color:red">*</span></label>
+                            <input type="date" id="guestDob" class="form-control"
+                                style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 4px;">
                         </div>
                         <div>
                             <label style="display: block; font-weight: 500; margin-bottom: 8px;">Email Address</label>
-                            <input type="email" id="guestEmail" class="form-control" placeholder="Enter email" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 4px;">
+                            <input type="email" id="guestEmail" class="form-control" placeholder="Enter email"
+                                style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 4px;">
                         </div>
                     </div>
                     <div style="margin-top: 16px; display: flex; gap: 12px; align-items: center;">
-                        <button type="button" class="btn btn-outline" onclick="mockSearchGuest()"><i class="fa-solid fa-magnifying-glass"></i> Check Existing</button>
-                        <button type="button" class="btn btn-primary" onclick="mockCreateGuest()"><i class="fa-solid fa-user-plus"></i> Create Profile & Account</button>
-                        <span id="guestStatusMsg" style="color: #16a34a; font-weight: 500; display: none; background: #dcfce7; padding: 8px 12px; border-radius: 4px;"><i class="fa-solid fa-check-circle"></i> Guest verified! (ID: <span id="mockCustomerId"></span>)</span>
+                        <button type="button" class="btn btn-secondary" onclick="searchCustomer()"><i
+                                class="fa-solid fa-search"></i> Check Existing</button>
+                        <button type="button" class="btn btn-primary" onclick="validateNewCustomer()"><i
+                                class="fa-solid fa-user-plus"></i> Create Profile & Account</button>
+                        <span id="guestStatusMsg"
+                            style="color: #16a34a; font-weight: 500; display: none; background: #dcfce7; padding: 8px 12px; border-radius: 4px;"><i
+                                class="fa-solid fa-check-circle"></i> Guest verified! (ID: <span
+                                id="mockCustomerId"></span>)</span>
+                    </div>
+                </div>
+
+                <!-- Step 3: Accompanied Guests -->
+                <div class="form-container" id="step3Container"
+                    style="background: white; padding: 24px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 24px; opacity: 0.5; pointer-events: none; transition: all 0.3s ease;">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px;">
+                        <h3 style="margin: 0; color: #1e293b;">Step 3: Accompanied Guests (Optional)</h3>
                     </div>
 
-                    <div style="margin-top: 32px; padding-top: 16px; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end;">
-                        <button type="button" class="btn btn-primary" id="completeBtn" style="opacity: 0.5; pointer-events: none;" onclick="mockCompleteCheckIn()"><i class="fa-solid fa-check-double"></i> Complete Walk-In Check-in</button>
+                    <div id="dependentsTableWrapper" style="margin-bottom: 16px;">
+                        <table class="data-table" style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="background: #f8fafc; border-bottom: 1px solid #e2e8f0;">
+                                    <th style="padding: 8px; text-align: left; font-weight: 500; font-size: 13px;">Họ và
+                                        tên</th>
+                                    <th style="padding: 8px; text-align: left; font-weight: 500; font-size: 13px;">Ngày
+                                        sinh</th>
+                                    <th style="padding: 8px; text-align: left; font-weight: 500; font-size: 13px;">CCCD
+                                    </th>
+                                    <th style="padding: 8px; text-align: left; font-weight: 500; font-size: 13px;">Giới
+                                        tính</th>
+                                    <th style="padding: 8px; text-align: left; font-weight: 500; font-size: 13px;">Hành
+                                        động</th>
+                                </tr>
+                            </thead>
+                            <tbody id="accompaniedGuestsList">
+                                <tr>
+                                    <td colspan="5"
+                                        style="text-align:center; padding: 16px; color: #94a3b8; font-size: 13px;">Chưa
+                                        có khách đi kèm</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div
+                        style="background: #f8fafc; padding: 16px; border-radius: 6px; border: 1px dashed #cbd5e1; margin-bottom: 16px;">
+                        <h5 style="margin-top: 0; margin-bottom: 12px; font-weight: 500; font-size: 14px;">Thêm người đi
+                            kèm</h5>
+                        <div
+                            style="display: grid; grid-template-columns: 2fr 2fr 2fr 1fr auto; gap: 12px; align-items: end;">
+                            <div>
+                                <label style="display: block; font-size: 13px; margin-bottom: 4px;">Họ và tên <span
+                                        style="color:red">*</span></label>
+                                <input type="text" id="depName"
+                                    style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;"
+                                    placeholder="Nhập họ tên">
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 13px; margin-bottom: 4px;">Ngày sinh <span
+                                        style="color:red">*</span></label>
+                                <input type="date" id="depDob"
+                                    style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px; background: white;">
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 13px; margin-bottom: 4px;">CCCD (Tuỳ
+                                    chọn)</label>
+                                <input type="text" id="depId"
+                                    style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;"
+                                    placeholder="12 số">
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 13px; margin-bottom: 4px;">Giới tính</label>
+                                <select id="depGender"
+                                    style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px; background: white;">
+                                    <option value="Nam">Nam</option>
+                                    <option value="Nữ">Nữ</option>
+                                    <option value="Khác">Khác</option>
+                                </select>
+                            </div>
+                            <div>
+                                <button type="button" class="btn btn-outline btn-sm" onclick="addAccompaniedGuest()"
+                                    style="height: 35px; padding: 0 16px;"><i class="fa-solid fa-plus"></i>
+                                    Thêm</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div
+                        style="margin-top: 32px; padding-top: 16px; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end;">
+                        <button type="button" class="btn btn-primary" id="continueToPaymentBtn"
+                            style="opacity: 0.5; pointer-events: none;" onclick="showPaymentStep()"><i
+                                class="fa-solid fa-arrow-right"></i> Tiếp tục đến Thanh toán</button>
+                    </div>
+                </div>
+
+                <!-- Step 4: Deposit & Payment -->
+                <div class="form-container" id="step4Container"
+                    style="background: white; padding: 24px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 24px; display: none;">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px;">
+                        <h3 style="margin: 0; color: #1e293b;">Step 4: Deposit & Payment</h3>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;">
+                        <!-- Payment Summary -->
+                        <div style="background: #f8fafc; padding: 16px; border-radius: 6px; border: 1px solid #e2e8f0;">
+                            <h4 style="margin-top: 0; margin-bottom: 16px; color: #334155; font-size: 15px;">Tóm tắt chi
+                                phí dự kiến</h4>
+                            <div
+                                style="display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 14px;">
+                                <span style="color: #64748b;" id="summaryBasePriceLabel">Tiền phòng cơ bản:</span>
+                                <span id="summaryBasePrice" style="font-weight: 500;">0 VNĐ</span>
+                            </div>
+                            <div
+                                style="display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 14px;">
+                                <span style="color: #64748b;">Phụ thu (Thêm khách):</span>
+                                <span id="summarySurcharge" style="font-weight: 500;">0 VNĐ</span>
+                            </div>
+                            <div style="height: 1px; background: #cbd5e1; margin: 12px 0;"></div>
+                            <div
+                                style="display: flex; justify-content: space-between; font-size: 16px; font-weight: 600; color: #0f172a;">
+                                <span>Tổng cộng:</span>
+                                <span id="summaryTotal" style="color: #e11d48;">0 VNĐ</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div style="margin-bottom: 16px;">
+                                <label style="display: block; font-weight: 500; margin-bottom: 8px;">Mức thu tiền phòng
+                                    <span style="color:red">*</span></label>
+                                <div style="display: flex; gap: 20px; margin-bottom: 12px;">
+                                    <label style="font-weight: 500; cursor: pointer;">
+                                        <input type="radio" name="paymentOption" value="100" onchange="updateWalkInDeposit()" checked> Thanh toán tất (100%)
+                                    </label>
+                                    <label style="font-weight: 500; cursor: pointer;">
+                                        <input type="radio" name="paymentOption" value="30" onchange="updateWalkInDeposit()"> Đặt cọc (30%)
+                                    </label>
+                                </div>
+                                <label style="display: block; font-weight: 500; margin-bottom: 8px;">Số tiền thu (VNĐ)</label>
+                                <input type="text" id="depositAmountDisplay" class="form-control"
+                                    style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 16px; font-weight: 600; color: #0f172a; background-color: #f8fafc;"
+                                    readonly>
+                                <input type="hidden" id="depositAmount" value="0">
+                                <small style="color: #64748b; display: block; margin-top: 6px;"><i
+                                        class="fa-solid fa-circle-info"></i> Khách có thể chọn thanh toán 100% hoặc cọc 30%.</small>
+                            </div>
+
+                            <div style="margin-bottom: 16px;">
+                                <label style="display: block; font-weight: 500; margin-bottom: 8px;">Phương thức thanh
+                                    toán <span style="color:red">*</span></label>
+                                <select id="paymentMethod" class="form-control"
+                                    style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 15px;">
+                                    <option value="Tiền mặt">Tiền mặt (Cash)</option>
+                                    <option value="Chuyển khoản">Chuyển khoản (VNPay)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; justify-content: flex-end; gap: 12px;">
+                        <button type="button" class="btn btn-secondary" onclick="backToStep3()"><i
+                                class="fa-solid fa-arrow-left"></i> Quay lại</button>
+                        <button type="button" class="btn btn-primary" id="completeBtn" onclick="submitCheckIn()"><i
+                                class="fa-solid fa-check-double"></i> Complete Walk-In Check-in</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Success Modal -->
+            <div id="successModal"
+                style="display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); align-items: center; justify-content: center;">
+                <div
+                    style="background-color: white; padding: 24px; border-radius: 8px; width: 400px; max-width: 90%; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                    <h3 style="margin-top: 0; color: #16a34a; display: flex; align-items: center; gap: 8px;">
+                        <i class="fa-solid fa-circle-check"></i> Check-in Thành Công!
+                    </h3>
+                    <p id="modalMessage"
+                        style="color: #475569; margin-bottom: 16px; line-height: 1.5; font-size: 0.95em;"></p>
+                    <div id="modalAccountInfo"
+                        style="display: none; background: #f8fafc; padding: 12px; border: 1px dashed #cbd5e1; border-radius: 6px; margin-bottom: 20px;">
+                        <p
+                            style="margin: 0 0 8px 0; font-size: 0.85em; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">
+                            Tài khoản Khách mới</p>
+                        <div style="font-weight: 600; color: #0f172a; margin-bottom: 6px; font-size: 1.1em;">Username:
+                            <span id="modalUsername" style="color: #0284c7;"></span></div>
+                        <div style="font-weight: 600; color: #0f172a; font-size: 1.1em;">Password: <span
+                                id="modalPassword" style="color: #e11d48;"></span></div>
+                    </div>
+                    <div style="text-align: right;">
+                        <button type="button" id="modalCloseBtn" onclick="closeModalAndRedirect()" class="btn btn-primary"
+                            style="padding: 8px 24px;">Đóng & Về trang chủ</button>
                     </div>
                 </div>
             </div>
@@ -167,95 +391,11 @@
     </div>
     <script src="/receptionist/js/dashboard.js"></script>
     <script th:inline="javascript">
+        // Biến này phải giữ lại trong file HTML vì cần Thymeleaf render dữ liệu từ Server
         const roomInventory = /*[[${roomInventory}]]*/ {};
-
-        document.addEventListener('DOMContentLoaded', () => {
-            const typeSelect = document.getElementById('walkInTypeSelect');
-            for (const category in roomInventory) {
-                const opt = document.createElement('option');
-                opt.value = category;
-                opt.innerText = category;
-                typeSelect.appendChild(opt);
-            }
-        });
-
-        function updateWalkInAvailableRooms() {
-            const typeSelect = document.getElementById('walkInTypeSelect');
-            const roomSelect = document.getElementById('walkInPhysicalRoomSelect');
-            roomSelect.innerHTML = '<option value="">-- Select Physical Room --</option>';
-
-            const selectedType = typeSelect.value;
-            if (!selectedType) return;
-
-            const available = roomInventory[selectedType] || [];
-            available.forEach(r => {
-                const opt = document.createElement('option');
-                opt.value = r;
-                opt.innerText = r + ' (' + selectedType + ')';
-                roomSelect.appendChild(opt);
-            });
-        }
-
-        function unlockStep2() {
-            const roomSelect = document.getElementById('walkInPhysicalRoomSelect');
-            if(roomSelect.value) {
-                const step2 = document.getElementById('step2Container');
-                step2.style.opacity = '1';
-                step2.style.pointerEvents = 'auto';
-                step2.style.border = '1px solid #bae6fd';
-                step2.style.boxShadow = '0 0 10px rgba(2,132,199,0.1)';
-            }
-        }
-        
-        function unlockFinalButton(customerId) {
-            document.getElementById('guestStatusMsg').style.display = 'inline-block';
-            document.getElementById('mockCustomerId').innerText = customerId;
-            const completeBtn = document.getElementById('completeBtn');
-            completeBtn.style.opacity = '1';
-            completeBtn.style.pointerEvents = 'auto';
-        }
-
-        function mockSearchGuest() {
-            const phone = document.getElementById('guestPhone').value;
-            if (!phone) {
-                alert("Please enter phone number to check.");
-                return;
-            }
-            // Mocking API call
-            setTimeout(() => {
-                document.getElementById('guestName').value = "Nguyễn Văn A (Khách cũ)";
-                document.getElementById('guestId').value = "012345678910";
-                document.getElementById('guestEmail').value = "nguyenvana@example.com";
-                unlockFinalButton("CUST-998");
-            }, 500);
-        }
-
-        function mockCreateGuest() {
-            const name = document.getElementById('guestName').value;
-            const phone = document.getElementById('guestPhone').value;
-            const id = document.getElementById('guestId').value;
-            const email = document.getElementById('guestEmail').value;
-            if (!name || !phone || !id) {
-                alert("Please fill all required guest fields (*).");
-                return;
-            }
-            // Mocking API call
-            setTimeout(() => {
-                unlockFinalButton("CUST-NEW");
-                alert("Hồ sơ và Tài khoản đã được tạo thành công! (Mật khẩu mặc định đã được gửi/set up)");
-            }, 500);
-        }
-
-        function mockCompleteCheckIn() {
-            const room = document.getElementById('walkInPhysicalRoomSelect').value;
-            if (!room) {
-                alert("Please assign a physical room!");
-                return;
-            }
-            alert("Check-in hoàn tất cho khách (ID: " + document.getElementById('mockCustomerId').innerText + ") tại phòng " + room);
-            // Reload page or reset logic would go here
-            location.reload();
-        }
     </script>
+    <!-- Tách toàn bộ logic JS ra file riêng -->
+    <script src="/receptionist/js/walkin.js"></script>
 </body>
+
 </html>

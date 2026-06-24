@@ -1,0 +1,538 @@
+package com.kawai.services.impl;
+
+import com.kawai.dto.DependentRegistrationDTO;
+
+import com.kawai.dto.walkin.WalkInCheckInRequest;
+import com.kawai.dto.walkin.WalkInCheckInResponse;
+import com.kawai.dto.walkin.WalkInSurchargeResponse;
+import com.kawai.exceptions.BusinessException;
+import com.kawai.models.*;
+import com.kawai.repositories.*;
+import com.kawai.services.interfaces.WalkInCheckInService;
+import com.kawai.utils.EncryptionUtils;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.Period;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
+
+/**
+ * ═══════════════════════════════════════════════════════════════════════════════
+ * WalkInCheckInServiceImpl — UC-14: Walk-in Guest Check-in
+ * MODULE 2: Đặt phòng & Tiền sảnh vận hành
+ * ═══════════════════════════════════════════════════════════════════════════════
+ *
+ * Implements toàn bộ 16 bước của luồng Walk-in Check-in theo TDD_UC14_SPEC.md.
+ * Tuân thủ ADR-UC14-003 (ACID Transaction) và ADR-UC14-002 (Pessimistic Lock).
+ *
+ * Business Rules:
+ * BR-UC14-01 : CCCD bắt buộc đúng format 12 chữ số (nếu được cung cấp)
+ * BR-UC14-02 : Phòng phải Vacant_Clean
+ * BR-UC14-03 : Booking được tạo trong 1 @Transactional
+ * BR-UC14-05 : Booking status → CHECKED_IN
+ * BR-UC14-08 : Tự động tạo Account cho khách mới
+ * BR-UC14-09 : Default password được gán
+ * BR-UC14-10 : Account phải link với Reservation
+ *
+ * Capacity Rules (Soft/Hard Limit):
+ * - Người lớn: >= 18 tuổi
+ * - Trẻ em : < 18 tuổi
+ * - Soft Limit: adults > baseAdults hoặc children > baseChildren → tính extra
+ * surcharge
+ * - Hard Limit: adults > maxAdults hoặc children > maxChildren → reject
+ * (MOD2-UC14-009)
+ */
+@Service
+public class WalkInCheckInServiceImpl implements WalkInCheckInService {
+
+    // ── Dependency Injection ─────────────────────────────────────────────────
+    private final RoomRepository roomRepository;
+    private final RoomBookingRepository roomBookingRepository;
+    private final RoomBookingDetailRepository roomBookingDetailRepository;
+    private final CustomerRepository customerRepository;
+    private final AccountRepository accountRepository;
+    private final DependentRepository dependentRepository;
+    private final RoomSurchargeRepository roomSurchargeRepository;
+    private final com.kawai.repositories.RoomGuestRepository roomGuestRepository;
+    private final com.kawai.repositories.RoleRepository roleRepository;
+    private final com.kawai.services.interfaces.FolioService folioService;
+    private static final int ADULT_AGE_THRESHOLD = 18;
+    private static final String CCCD_PATTERN = "\\d{12}";
+
+    public WalkInCheckInServiceImpl(
+            RoomRepository roomRepository,
+            RoomBookingRepository roomBookingRepository,
+            RoomBookingDetailRepository roomBookingDetailRepository,
+            CustomerRepository customerRepository,
+            AccountRepository accountRepository,
+            DependentRepository dependentRepository,
+            com.kawai.repositories.RoomSurchargeRepository roomSurchargeRepository,
+            com.kawai.repositories.RoomGuestRepository roomGuestRepository,
+            com.kawai.repositories.RoleRepository roleRepository,
+            com.kawai.services.interfaces.FolioService folioService) {
+        this.roomRepository = roomRepository;
+        this.roomBookingRepository = roomBookingRepository;
+        this.roomBookingDetailRepository = roomBookingDetailRepository;
+        this.customerRepository = customerRepository;
+        this.accountRepository = accountRepository;
+        this.dependentRepository = dependentRepository;
+        this.roomSurchargeRepository = roomSurchargeRepository;
+        this.roomGuestRepository = roomGuestRepository;
+        this.roleRepository = roleRepository;
+        this.folioService = folioService;
+    }
+
+    /**
+     * Thực hiện toàn bộ luồng Walk-in Check-in trong 1 ACID Transaction.
+     * ADR-UC14-003: Toàn bộ walk-in flow là 1 @Transactional.
+     */
+    @Override
+    @Transactional
+    public WalkInCheckInResponse createWalkInBookingAndCheckIn(WalkInCheckInRequest request) {
+        try {
+            // ── Step 1: Validate thông tin định danh ─────────────────────────
+            validateIdentification(request);
+
+            // ── Step 2 & 3: Lock và validate phòng ──────────────────────────
+            Room room = findAndValidateRoom(request.getRoomId());
+            RoomCategory category = room.getCategory();
+
+            // ── Step 4: Guests Classification & Surcharge Preview ───────
+            List<DependentRegistrationDTO> companions = request.getAccompaniedGuests() != null
+                    ? request.getAccompaniedGuests()
+                    : Collections.emptyList();
+
+            List<Integer> childAges = new java.util.ArrayList<>();
+            GuestCount guestCount = classifyGuests(request.getDateOfBirth(), companions, childAges);
+            BigDecimal extraSurcharge = validateAndCalculateSurcharge(guestCount, category, childAges);
+
+            // ── Step 5: Find-or-Create Customer ─────────────────────────────
+            boolean[] isNewCustomerHolder = { false };
+            Customer customer = findOrCreateCustomer(request, isNewCustomerHolder);
+
+            // ── Step 6: Auto-create Account nếu khách mới (BR-08/09) ────────
+            com.kawai.models.Account newAccount = null;
+            if (isNewCustomerHolder[0]) {
+                newAccount = autoCreateAccount(customer, request.getEmail());
+            }
+
+            // ── Step 7: Tạo RoomBooking ──────────────────────────────────────
+            RoomBooking booking = buildRoomBooking(request, room, customer, category);
+            booking = roomBookingRepository.save(booking);
+
+            // ── Step 8: Tạo RoomBookingDetail với extra surcharge ─────────────
+            RoomBookingDetail detail = buildRoomBookingDetail(request, booking, room, category,
+                    guestCount, extraSurcharge);
+            roomBookingDetailRepository.save(detail);
+            room.setRoomStatus("Occupied");
+            roomRepository.save(room);
+
+            // ── Step 10: Residence Reporting (Dependent records) ────────────
+            for (DependentRegistrationDTO dto : companions) {
+                Dependent d = new Dependent();
+                d.setCustomer(customer);
+                d.setDependentName(dto.getFullName());
+                d.setBirthDate(dto.getDateOfBirth());
+                d.setGender(dto.getGender() != null ? dto.getGender() : "Khác");
+                if (dto.getCccd() != null && !dto.getCccd().isBlank()) {
+                    d.setCccdPassportEncrypted(EncryptionUtils.encrypt(dto.getCccd()));
+                }
+                Dependent savedDep = dependentRepository.save(d);
+
+                // Tạo liên kết RoomGuest
+                RoomGuest rg = new RoomGuest();
+                rg.setRoomBookingDetail(detail);
+                rg.setDependent(savedDep);
+
+                int age = 18;
+                if (savedDep.getBirthDate() != null) {
+                    age = Period.between(savedDep.getBirthDate(), LocalDate.now()).getYears();
+                }
+                rg.setGuestType(age < 12 ? "CHILD" : "ADULT");
+                roomGuestRepository.save(rg);
+            }
+
+            // ── Step 11: Payment & Folio Initialization ──────────────────────
+            BigDecimal deposit = request.getDepositAmount() != null ? request.getDepositAmount() : BigDecimal.ZERO;
+            if (deposit.compareTo(BigDecimal.ZERO) > 0) {
+                booking.setDepositAmount(deposit);
+                roomBookingRepository.save(booking);
+
+                String paymentMethod = request.getPaymentMethod() != null ? request.getPaymentMethod() : "Tiền mặt";
+                // Chỉ ghi nhận FolioItem cọc nếu trả Tiền mặt. Nếu VNPay (Chuyển khoản), sẽ ghi
+                // nhận khi callback thành công.
+                if (!"Chuyển khoản".equalsIgnoreCase(paymentMethod)) {
+                    folioService.addFolioItem(detail.getId(), "FRONT_DESK", deposit.negate(),
+                            "Tiền cọc Walk-in (" + paymentMethod + ")");
+                }
+            }
+
+            // ── Build & Return Response ──────────────────────────────────────
+            WalkInCheckInResponse response = new WalkInCheckInResponse();
+            response.setBookingId(booking.getId());
+            response.setRoomNumber(room.getRoomNumber());
+            response.setBookingStatus(booking.getBookingStatus());
+            response.setCustomerId(customer.getId());
+            response.setNewCustomer(isNewCustomerHolder[0]);
+            response.setAccompaniedGuestCount(companions.size());
+            if (newAccount != null) {
+                response.setNewAccountUsername(newAccount.getUsername());
+                response.setNewAccountPassword(newAccount.getPasswordHash());
+            }
+
+            return response;
+
+        } catch (BusinessException ex) {
+            // Re-throw BusinessException trực tiếp (đã có errorCode + message)
+            throw ex;
+        } catch (Exception ex) {
+            // Bất kỳ lỗi không mong muốn nào → MOD2-UC14-005, rollback toàn bộ
+            throw new BusinessException("MOD2-UC14-005",
+                    "Walk-in check-in failed. Transaction rolled back: " + ex.getMessage());
+        }
+    }
+
+    @Override
+    @Transactional
+    public void cancelPendingWalkIn(Long bookingId) {
+        RoomBooking booking = roomBookingRepository.findById(bookingId)
+                .orElseThrow(() -> new BusinessException("MOD2-UC14-012", "Booking not found"));
+
+        if (!"WALK_IN".equals(booking.getBookingSource()) || !"Pending_Payment".equals(booking.getBookingStatus())) {
+            throw new BusinessException("MOD2-UC14-013",
+                    "Only Walk-in bookings with Pending_Payment can be cancelled via this API");
+        }
+
+        booking.setBookingStatus("Cancelled");
+        List<com.kawai.models.RoomBookingDetail> details = roomBookingDetailRepository.findByRoomBookingId(bookingId);
+        for (com.kawai.models.RoomBookingDetail detail : details) {
+            detail.setDetailStatus("Cancelled");
+            if (detail.getRoom() != null) {
+                com.kawai.models.Room room = detail.getRoom();
+                room.setRoomStatus("Vacant_Clean");
+                roomRepository.save(room);
+            }
+        }
+        roomBookingDetailRepository.saveAll(details);
+        roomBookingRepository.save(booking);
+    }
+
+    /**
+     * Tính toán số khách (dựa trên tuổi) và số tiền phụ thu dự kiến.
+     * API này được gọi riêng biệt bởi frontend để preview giá trước khi check-in.
+     */
+    @Override
+    public WalkInSurchargeResponse calculateSurchargePreview(WalkInCheckInRequest request) {
+        Room room = roomRepository.findById(request.getRoomId())
+                .orElseThrow(
+                        () -> new BusinessException("MOD2-UC14-004", "Room not found for ID: " + request.getRoomId()));
+        RoomCategory category = room.getCategory();
+
+        List<DependentRegistrationDTO> companions = request.getAccompaniedGuests() != null
+                ? request.getAccompaniedGuests()
+                : Collections.emptyList();
+
+        List<Integer> childAges = new java.util.ArrayList<>();
+        GuestCount guestCount = classifyGuests(request.getDateOfBirth(), companions, childAges);
+
+        BigDecimal extraSurcharge = BigDecimal.ZERO;
+        try {
+            extraSurcharge = validateAndCalculateSurcharge(guestCount, category, childAges);
+        } catch (BusinessException ex) {
+            // Re-throw để Frontend biết là lỗi (VD: Quá sức chứa Hard Limit)
+            throw ex;
+        }
+
+        String msg = "Phụ thu dự tính: " + extraSurcharge + "/đêm";
+        if (extraSurcharge.compareTo(BigDecimal.ZERO) == 0) {
+            msg = "Miễn phí phụ thu (số khách nằm trong sức chứa tiêu chuẩn)";
+        }
+
+        // Calculate nights
+        java.time.LocalDate checkIn = request.getCheckInDate() != null ? request.getCheckInDate()
+                : java.time.LocalDate.now();
+        java.time.LocalDate checkOut = request.getCheckOutDate() != null ? request.getCheckOutDate()
+                : java.time.LocalDate.now().plusDays(1);
+        long nights = java.time.temporal.ChronoUnit.DAYS.between(checkIn, checkOut);
+        if (nights <= 0)
+            nights = 1;
+
+        BigDecimal basePricePerNight = category.getBasePrice() != null ? category.getBasePrice() : BigDecimal.ZERO;
+        BigDecimal totalBaseRoomPrice = basePricePerNight.multiply(BigDecimal.valueOf(nights));
+        BigDecimal totalSurcharge = extraSurcharge.multiply(BigDecimal.valueOf(nights));
+        BigDecimal totalCharge = totalBaseRoomPrice.add(totalSurcharge);
+
+        // For Walk-in, deposit is 30% of total charge
+        BigDecimal suggestedDeposit = totalCharge.multiply(new BigDecimal("0.3")).setScale(0,
+                java.math.RoundingMode.HALF_UP);
+
+        return new WalkInSurchargeResponse(totalSurcharge, guestCount.adults, guestCount.children, msg,
+                totalBaseRoomPrice, totalCharge, suggestedDeposit);
+    }
+
+    private void validateIdentification(WalkInCheckInRequest req) {
+        // Validate dateOfBirth
+        if (req.getDateOfBirth() == null) {
+            throw new BusinessException("MOD2-UC14-001", "Date of birth is required");
+        }
+
+        // Validate CCCD format (nếu có) — 12 chữ số
+        String cccd = req.getCccd();
+        if (cccd != null && !cccd.isBlank() && !cccd.matches(CCCD_PATTERN)) {
+            throw new BusinessException("MOD2-UC14-003",
+                    "Invalid identification document: CCCD must be 12 digits");
+        }
+    }
+
+    /**
+     * Lock phòng bằng Pessimistic Lock và validate trạng thái (Step 2 & 3).
+     */
+    private Room findAndValidateRoom(Long roomId) {
+        Room room = roomRepository.findByIdWithPessimisticLock(roomId)
+                .orElseThrow(() -> new BusinessException("MOD2-UC14-004",
+                        "No available rooms found for the requested room ID: " + roomId));
+
+        if (!"Vacant_Clean".equals(room.getRoomStatus())) {
+            throw new BusinessException("MOD2-UC14-006",
+                    "Selected room is not available for check-in. Current status: " + room.getRoomStatus());
+        }
+        return room;
+    }
+
+    /**
+     * Phân loại số lượng người lớn và trẻ em từ khách chính và danh sách đi kèm.
+     */
+    private GuestCount classifyGuests(LocalDate primaryDob, List<DependentRegistrationDTO> companions,
+            List<Integer> childAges) {
+        int adults = 0;
+        int children = 0;
+
+        // Phân loại khách chính
+        if (primaryDob != null) {
+            int age = Period.between(primaryDob, LocalDate.now()).getYears();
+            if (age >= ADULT_AGE_THRESHOLD)
+                adults++;
+            else {
+                children++;
+                childAges.add(age);
+            }
+        } else {
+            adults++;
+        }
+        for (DependentRegistrationDTO dto : companions) {
+            if (dto.getDateOfBirth() != null) {
+                int age = Period.between(dto.getDateOfBirth(), LocalDate.now()).getYears();
+                if (age >= ADULT_AGE_THRESHOLD)
+                    adults++;
+                else {
+                    children++;
+                    childAges.add(age);
+                }
+            } else {
+                adults++; // Fallback
+            }
+        }
+        return new GuestCount(adults, children);
+    }
+
+    /**
+     * Validate số khách theo Soft/Hard Limit và tính phụ thu nếu vượt base
+     * capacity.
+     */
+    private BigDecimal validateAndCalculateSurcharge(GuestCount count, RoomCategory category, List<Integer> childAges) {
+        int maxAdults = category.getMaxAdults() != null ? category.getMaxAdults() : category.getCapacity();
+        int maxChildren = category.getMaxChildren() != null ? category.getMaxChildren() : 2;
+        int baseAdults = category.getBaseAdults() != null ? category.getBaseAdults() : category.getCapacity();
+        int baseChildren = category.getBaseChildren() != null ? category.getBaseChildren() : 0;
+
+        // Hard Limit check
+        if (count.adults > maxAdults || count.children > maxChildren) {
+            throw new BusinessException("MOD2-UC14-009",
+                    "Number of guests exceeds maximum room capacity. " +
+                            "Max adults: " + maxAdults + ", max children: " + maxChildren);
+        }
+
+        // Tính extra surcharge cho người lớn và trẻ em vượt base capacity
+        BigDecimal surcharge = BigDecimal.ZERO;
+
+        int extraAdults = Math.max(0, count.adults - baseAdults);
+
+        if (extraAdults > 0 && category.getExtraAdultSurcharge() != null) {
+            surcharge = surcharge.add(
+                    category.getExtraAdultSurcharge().multiply(BigDecimal.valueOf(extraAdults)));
+        }
+
+        int chargeableChildrenCount = Math.max(0, count.children - baseChildren);
+        if (chargeableChildrenCount > 0) {
+            Collections.sort(childAges); // Ưu tiên trẻ em nhỏ tuổi được miễn phí (baseChildren)
+            int skipCount = Math.max(0, count.children - chargeableChildrenCount);
+
+            for (int i = skipCount; i < childAges.size(); i++) {
+                int age = childAges.get(i);
+                BigDecimal childSurcharge = roomSurchargeRepository.findSurchargeForAge(category, age)
+                        .map(RoomSurcharge::getPriceModifier)
+                        .orElse(BigDecimal.ZERO);
+                surcharge = surcharge.add(childSurcharge);
+            }
+        }
+
+        return surcharge;
+    }
+
+    /**
+     * Find-or-Create Customer profile.
+     */
+    private Customer findOrCreateCustomer(WalkInCheckInRequest req, boolean[] isNewCustomerHolder) {
+        if (req.getCccd() == null || req.getCccd().isBlank()) {
+            // Không có CCCD → tạo khách mới ngay
+            isNewCustomerHolder[0] = true;
+            return createNewCustomer(req, null);
+        }
+
+        // Encrypt CCCD để tìm kiếm
+        final String encryptedCccd = EncryptionUtils.encrypt(req.getCccd());
+
+        // Tìm khách cũ qua CCCD encrypted — effectively final trong lambda
+        return customerRepository.findByCccdPassportEncrypted(encryptedCccd)
+                .orElseGet(() -> {
+                    isNewCustomerHolder[0] = true;
+                    return createNewCustomer(req, encryptedCccd);
+                });
+    }
+
+    /**
+     * Tạo Customer mới và lưu vào DB.
+     */
+    private Customer createNewCustomer(WalkInCheckInRequest req, String encryptedCccd) {
+        if (req.getEmail() != null && !req.getEmail().isBlank()) {
+            if (customerRepository.existsByEmail(req.getEmail())) {
+                throw new BusinessException("MOD2-UC14-010", "Email '" + req.getEmail()
+                        + "' đã được đăng ký cho một tài khoản khác. Vui lòng sử dụng chức năng tìm kiếm (Check Existing) hoặc dùng Email khác.");
+            }
+        }
+        if (req.getPhone() != null && !req.getPhone().isBlank()) {
+            if (customerRepository.findByPhone(req.getPhone()).isPresent()) {
+                throw new BusinessException("MOD2-UC14-011", "Số điện thoại '" + req.getPhone()
+                        + "' đã được đăng ký cho một tài khoản khác. Vui lòng sử dụng chức năng tìm kiếm (Check Existing) hoặc dùng số khác.");
+            }
+        }
+
+        Customer customer = new Customer();
+        customer.setFullName(req.getFullName());
+        customer.setPhone(req.getPhone() != null ? req.getPhone() : "");
+        customer.setEmail(req.getEmail() != null ? req.getEmail() : "guest_" + UUID.randomUUID() + "@kawai.auto");
+        customer.setGender(req.getGender() != null ? req.getGender() : "Unknown");
+        customer.setCccdPassportEncrypted(encryptedCccd);
+        return customerRepository.save(customer);
+    }
+
+    /**
+     * Tự động tạo Account cho khách mới (BR-08/09).
+     * BR-09: Default password hash không null.
+     * BR-10: Account được link vào Customer.
+     */
+    private com.kawai.models.Account autoCreateAccount(Customer customer, String email) {
+        com.kawai.models.Account account = new com.kawai.models.Account();
+        // Username = prefix của email hoặc random nếu không có email
+        String username = (email != null && !email.isBlank() && email.contains("@"))
+                ? email.split("@")[0]
+                : "walkin_" + UUID.randomUUID().toString().substring(0, 8);
+        account.setUsername(username);
+
+        // Mật khẩu mặc định là 123456 cho khách Walk-in chưa có tài khoản
+        String defaultPassword = "123456";
+        account.setPasswordHash(defaultPassword);
+        account.setIsActive(true);
+
+        com.kawai.models.Role role = roleRepository.findByRoleName("CUSTOMER NORMAL")
+                .orElseGet(() -> roleRepository.findByRoleName("CUSTOMER").orElse(null));
+        if (role != null) {
+            account.setRole(role);
+        }
+
+        com.kawai.models.Account savedAccount = accountRepository.save(account);
+        customer.setAccount(savedAccount);
+        return savedAccount;
+    }
+
+    /**
+     * Tạo RoomBooking entity với trạng thái CHECKED_IN và bookingSource=WALK_IN.
+     */
+    private RoomBooking buildRoomBooking(WalkInCheckInRequest req, Room room,
+            Customer customer, RoomCategory category) {
+        RoomBooking booking = new RoomBooking();
+        booking.setCustomer(customer);
+        booking.setBookingDate(LocalDate.now());
+        String paymentMethod = req.getPaymentMethod() != null ? req.getPaymentMethod() : "";
+        if (paymentMethod.equalsIgnoreCase("VNPay") || paymentMethod.equalsIgnoreCase("Chuyển khoản")) {
+            booking.setBookingStatus("Pending_Payment");
+        } else {
+            booking.setBookingStatus("Checked_In");
+        }
+        booking.setBookingSource("WALK_IN");
+        booking.setCheckInDate(req.getCheckInDate() != null ? req.getCheckInDate() : LocalDate.now());
+        booking.setCheckOutDate(req.getCheckOutDate() != null ? req.getCheckOutDate() : LocalDate.now().plusDays(1));
+        booking.setTotalPrice(category.getBasePrice() != null ? category.getBasePrice() : BigDecimal.ZERO);
+        booking.setDepositAmount(BigDecimal.ZERO);
+        booking.setCancellationDeadline(LocalDate.now());
+        // Personal PIN Hash — default là UUID ngắn (trong production sẽ là input từ
+        // khách)
+        booking.setPersonalPinHash(UUID.randomUUID().toString().substring(0, 8));
+        return booking;
+    }
+
+    /**
+     * Tạo RoomBookingDetail với trạng thái CHECKED_IN và extra surcharge đã tính.
+     */
+    private RoomBookingDetail buildRoomBookingDetail(WalkInCheckInRequest req, RoomBooking booking, Room room,
+            RoomCategory category, GuestCount guestCount, BigDecimal extraSurcharge) {
+        RoomBookingDetail detail = new RoomBookingDetail();
+        detail.setRoomBooking(booking);
+        detail.setRoom(room);
+        detail.setCategory(category);
+        String paymentMethod = req.getPaymentMethod() != null ? req.getPaymentMethod() : "";
+        if (paymentMethod.equalsIgnoreCase("VNPay") || paymentMethod.equalsIgnoreCase("Chuyển khoản")) {
+            detail.setDetailStatus("Pending_Payment");
+        } else {
+            detail.setDetailStatus("Checked_In");
+        }
+        detail.setRoomCharge(category.getBasePrice() != null ? category.getBasePrice() : BigDecimal.ZERO);
+        detail.setNumberOfAdults(guestCount.adults);
+        detail.setNumberOfChildren(guestCount.children);
+        detail.setExtraSurcharge(extraSurcharge.compareTo(BigDecimal.ZERO) > 0 ? extraSurcharge : null);
+        return detail;
+    }
+
+    @Override
+    public java.util.Optional<com.kawai.models.Customer> searchCustomer(String keyword) {
+        if (keyword == null || keyword.isBlank())
+            return java.util.Optional.empty();
+
+        java.util.Optional<com.kawai.models.Customer> byPhone = customerRepository.findByPhone(keyword);
+        if (byPhone.isPresent()) {
+            return byPhone;
+        }
+        try {
+            String encryptedCccd = com.kawai.utils.EncryptionUtils.encrypt(keyword);
+            return customerRepository.findByCccdPassportEncrypted(encryptedCccd);
+        } catch (Exception e) {
+            return java.util.Optional.empty();
+        }
+    }
+
+    private static class GuestCount {
+        final int adults;
+        final int children;
+
+        GuestCount(int adults, int children) {
+            this.adults = adults;
+            this.children = children;
+        }
+    }
+
+}
