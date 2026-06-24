@@ -171,7 +171,7 @@ public class ReceptionistController {
             String phone = b.getCustomer() != null ? b.getCustomer().getPhone() : "";
             String cccdEnc = b.getCustomer() != null ? b.getCustomer().getCccdPassportEncrypted() : "";
             String cccd = "";
-            if (!cccdEnc.isEmpty()) {
+            if (cccdEnc != null && !cccdEnc.isEmpty()) {
                 try {
                     cccd = com.kawai.utils.EncryptionUtils.decrypt(cccdEnc);
                 } catch (Exception e) {
