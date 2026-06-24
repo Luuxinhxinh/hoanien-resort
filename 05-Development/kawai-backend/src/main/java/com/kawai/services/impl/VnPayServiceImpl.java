@@ -213,7 +213,7 @@ public class VnPayServiceImpl implements VnPayService {
 
     @Override
     @Transactional
-    public String createPaymentUrlForFoodOrder(Long orderId, String ipAddress) {
+    public String createPaymentUrlForFoodOrder(Long orderId, String ipAddress, String source) {
         FoodOrder foodOrder = foodOrderRepository.findById(orderId)
                 .orElseThrow(() -> new BusinessException("ORDER_NOT_FOUND", "Không tìm thấy thông tin đơn món"));
 
@@ -228,6 +228,9 @@ public class VnPayServiceImpl implements VnPayService {
 
         // 2. Sinh transactionRef mới
         String transactionRef = "FOOD_" + orderId + "_" + System.currentTimeMillis();
+        if ("profile".equalsIgnoreCase(source)) {
+            transactionRef += "_PROFILE";
+        }
         txn.setTransactionRef(transactionRef);
         paymentTransactionRepository.save(txn);
 
@@ -392,7 +395,9 @@ public class VnPayServiceImpl implements VnPayService {
             if ("FOOD_ORDER".equals(txn.getTransactionType())) {
                 FoodOrder foodOrder = txn.getFoodOrder();
                 if (foodOrder != null) {
-                    foodOrder.setOrderStatus("PAID");
+                    if ("AWAITING_PAYMENT".equalsIgnoreCase(foodOrder.getOrderStatus())) {
+                        foodOrder.setOrderStatus("Pending");
+                    }
                     foodOrder.setIsPaidInPos(true);
                     foodOrderRepository.save(foodOrder);
                 }

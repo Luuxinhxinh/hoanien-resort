@@ -6,8 +6,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.ui.Model;
 import java.security.Principal;
 
+import org.springframework.security.access.prepost.PreAuthorize;
+
 @Controller
 @RequestMapping("/tourguide")
+@PreAuthorize("hasAnyAuthority('OP_TOUR', 'ROLE_ADMIN', 'ROLE_MANAGER')")
 public class TourGuideController {
 
     @org.springframework.beans.factory.annotation.Autowired

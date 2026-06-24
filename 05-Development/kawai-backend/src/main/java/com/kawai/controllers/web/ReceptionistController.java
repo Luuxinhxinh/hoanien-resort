@@ -14,9 +14,12 @@ import java.util.stream.Collectors;
 import com.kawai.repositories.*;
 import com.kawai.models.*;
 
+import org.springframework.security.access.prepost.PreAuthorize;
+
 @Controller
 @RequestMapping("/receptionist")
 @AllArgsConstructor
+@PreAuthorize("hasAnyAuthority('OP_BOOKING', 'ROLE_ADMIN', 'ROLE_MANAGER')")
 public class ReceptionistController {
 
     private final RoomRepository roomRepository;

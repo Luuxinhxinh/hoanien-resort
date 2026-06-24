@@ -18,9 +18,12 @@ import java.util.stream.Collectors;
 import com.kawai.repositories.*;
 import com.kawai.models.*;
 
+import org.springframework.security.access.prepost.PreAuthorize;
+
 @Controller
 @RequestMapping("/manager")
 @AllArgsConstructor
+@PreAuthorize("hasAnyAuthority('OP_ANALYTICS', 'ROLE_ADMIN', 'ROLE_MANAGER')")
 public class ManagerController {
 
     private final RoomRepository roomRepository;

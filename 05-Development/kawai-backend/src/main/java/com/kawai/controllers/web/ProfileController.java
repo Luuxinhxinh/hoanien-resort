@@ -96,7 +96,16 @@ public class ProfileController {
                         return true;
                     })
                     .collect(java.util.stream.Collectors.toList());
-            model.addAttribute("roomBookings", roomBookings);
+            model.addAttribute("bookings", roomBookings);
+
+            java.util.Map<Long, RoomBookingDetail> bookingFirstDetails = new java.util.HashMap<>();
+            for (RoomBooking rb : roomBookings) {
+                List<RoomBookingDetail> details = roomBookingDetailRepository.findByRoomBookingId(rb.getId());
+                if (!details.isEmpty()) {
+                    bookingFirstDetails.put(rb.getId(), details.get(0));
+                }
+            }
+            model.addAttribute("bookingFirstDetails", bookingFirstDetails);
 
             List<TourBooking> tourBookings = tourBookingRepository.findByCustomer(customer);
             for (TourBooking tb : tourBookings) {
@@ -129,7 +138,8 @@ public class ProfileController {
                     .findByCustomerOrderByIdDesc(customer);
             model.addAttribute("tableReservations", tableReservations);
         } else {
-            model.addAttribute("roomBookings", Collections.emptyList());
+            model.addAttribute("bookings", Collections.emptyList());
+            model.addAttribute("bookingFirstDetails", Collections.emptyMap());
             model.addAttribute("tourBookings", Collections.emptyList());
             model.addAttribute("foodOrders", Collections.emptyList());
             model.addAttribute("dependents", Collections.emptyList());

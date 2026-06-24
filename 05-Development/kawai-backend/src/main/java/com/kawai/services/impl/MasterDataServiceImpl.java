@@ -139,9 +139,10 @@ public class MasterDataServiceImpl implements MasterDataService {
             case "roles":
                 Role newRole = new Role();
                 newRole.setRoleName((String) payload.get("name"));
-                if (payload.get("permissions") != null) {
-                    newRole.setPermissions(payload.get("permissions").toString());
-                }
+                String permStr = payload.get("permissions") != null && !payload.get("permissions").toString().trim().isEmpty()
+                    ? payload.get("permissions").toString()
+                    : com.kawai.security.RolePermissionConstants.getDefaultPermissionsFor((String) payload.get("name"));
+                newRole.setPermissions(permStr);
                 roleRepository.save(newRole);
                 break;
         }

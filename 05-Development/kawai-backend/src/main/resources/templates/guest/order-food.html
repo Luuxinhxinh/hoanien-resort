@@ -380,7 +380,7 @@
                             <div id="optionNotLoggedIn" th:if="${session.user == null}"
                                 class="text-white/80 leading-relaxed font-light">
                                 Bạn chưa đăng nhập. Vui lòng đăng nhập để hệ thống ghi nhận số phòng hoặc bàn của bạn.
-                                <button type="button" onclick="showAuthModal()"
+                                <button type="button" onclick="openLoginModal()"
                                     class="w-full mt-3 bg-white/10 hover:bg-white/20 text-white border border-white/20 py-2 rounded-lg text-xs font-semibold">
                                     Đăng nhập ngay
                                 </button>
@@ -583,64 +583,6 @@
     <!-- Online Payment Modal -->
     <!-- VNPay integration replaced virtual payment modal -->
 
-    <div id="authRequiredModal" th:if="${session.user == null}"
-        class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl"
-        style="display: none;">
-        <div
-            class="bg-[#f1ebe3] border border-hoanien-text/10 w-full max-w-md p-8 md:p-10 shadow-2xl relative rounded-2xl text-hoanien-text">
-            <button type="button" onclick="closeAuthModal()"
-                class="absolute top-4 right-4 text-hoanien-text/50 hover:text-hoanien-text">
-                <span class="material-symbols-outlined">close</span>
-            </button>
-            <h2 class="font-serif text-2xl mb-2 text-center">Yêu Cầu Xác Thực</h2>
-            <p class="text-[11px] text-center opacity-60 mb-6 font-sans">Vui lòng đăng nhập tài khoản lưu trú để hệ
-                thống quét số phòng/bàn phục vụ ẩm thực.</p>
-
-            <form th:action="@{/auth/login}" method="post" class="space-y-4">
-                <input type="hidden" name="redirect_to" value="/order-food">
-                <div>
-                    <label class="block text-[10px] uppercase tracking-wider font-semibold mb-1">Tên đăng nhập /
-                        Email</label>
-                    <input type="text" name="username" required
-                        class="w-full bg-white border border-hoanien-text/10 p-3 rounded-lg text-xs focus:ring-1 focus:ring-hoanien-text focus:outline-none"
-                        placeholder="Username hoặc Email">
-                </div>
-                <div>
-                    <label class="block text-[10px] uppercase tracking-wider font-semibold mb-1">Mật khẩu</label>
-                    <input type="password" name="password" required
-                        class="w-full bg-white border border-hoanien-text/10 p-3 rounded-lg text-xs focus:ring-1 focus:ring-hoanien-text focus:outline-none"
-                        placeholder="Password">
-                </div>
-                <button type="submit"
-                    class="w-full bg-hoanien-text text-white py-3.5 text-xs uppercase tracking-widest font-semibold hover:bg-hoanien-text/90 mt-4 rounded-lg shadow-sm">Đăng
-                    Nhập Hệ Thống</button>
-            </form>
-
-            <div class="relative flex py-4 items-center">
-                <div class="flex-grow border-t border-hoanien-text/10"></div>
-                <span class="flex-shrink mx-4 text-[10px] opacity-40 uppercase tracking-widest">Hoặc</span>
-                <div class="flex-grow border-t border-hoanien-text/10"></div>
-            </div>
-
-            <a href="/auth/google-login?from=/order-food"
-                class="w-full bg-white text-hoanien-text border border-hoanien-text/10 py-3 text-xs font-semibold rounded-lg flex items-center justify-center gap-2 hover:bg-gray-50 transition-colors shadow-sm">
-                <svg class="w-4 h-4" viewBox="0 0 24 24" width="24" height="24" xmlns="http://www.w3.org/2000/svg">
-                    <path
-                        d="M21.35,11.1H12v2.7h5.38c-0.24,1.28 -0.96,2.37 -2.04,3.1v2.58h3.3c1.93,-1.78 3.04,-4.4 3.04,-7.48c0,-0.61 -0.06,-1.21 -0.17,-1.8z"
-                        fill="#4285F4" />
-                    <path
-                        d="M12,20.68c2.43,0 4.47,-0.8 5.96,-2.18l-3.3,-2.58c-0.92,0.62 -2.1,0.98 -3.66,0.98c-2.35,0 -4.33,-1.58 -5.04,-3.71H2.54v2.67c1.48,2.95 4.51,4.82 8.04,4.82z"
-                        fill="#34A853" />
-                    <path d="M6.96,13.19a5.19,5.19,0,0,1,0,-3.34V7.18H2.54a8.73,8.73,0,0,0,0,8.68l4.42,-2.67z"
-                        fill="#FBBC05" />
-                    <path
-                        d="M12,6.12c1.32,0 2.51,0.45 3.45,1.35l2.58,-2.58C16.46,3.48 14.42,2.73 12,2.73c-3.53,0 -6.56,1.87 -8.04,4.82l4.42,2.67c0.71,-2.13 2.69,-3.71 5.04,-3.71z"
-                        fill="#EA4335" />
-                </svg>
-                <span>Đăng nhập với Google</span>
-            </a>
-        </div>
-    </div>
 
     <script th:inline="javascript">
         /* SỬA LỖI: Đồng bộ kiểm tra đăng nhập trực tiếp từ HTTP Session tránh xung đột dữ liệu client */
@@ -649,15 +591,7 @@
         let modalCurrentItemId = null;
         let cart = [];
 
-        function showAuthModal() {
-            const modal = document.getElementById('authRequiredModal');
-            if (modal) modal.style.display = 'flex';
-        }
 
-        function closeAuthModal() {
-            const modal = document.getElementById('authRequiredModal');
-            if (modal) modal.style.display = 'none';
-        }
 
         function searchMenu() {
             const input = document.getElementById('menuSearchInput').value.toLowerCase();
@@ -786,7 +720,7 @@
             if (cart.length === 0) return;
 
             if (!isLoggedIn) {
-                showAuthModal();
+                openLoginModal();
                 return;
             }
 

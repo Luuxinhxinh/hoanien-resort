@@ -8,8 +8,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import org.springframework.security.access.prepost.PreAuthorize;
+
 @Controller
 @RequestMapping("/fbStaff")
+@PreAuthorize("hasAnyAuthority('OP_FNB', 'ROLE_ADMIN', 'ROLE_MANAGER')")
 public class PosController {
 
     @Autowired

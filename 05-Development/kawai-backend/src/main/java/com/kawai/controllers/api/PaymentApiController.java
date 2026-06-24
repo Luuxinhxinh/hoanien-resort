@@ -39,7 +39,11 @@ public class PaymentApiController {
         System.err.println("[VNPay Return] rspCode=" + rspCode + " | txnRef=" + txnRef);
 
         if (txnRef != null && txnRef.startsWith("FOOD_")) {
-            redirectUrl = "/order-food?payment=" + ("00".equals(rspCode) ? "success" : "failed");
+            if (txnRef.endsWith("_PROFILE")) {
+                redirectUrl = "/profile/bookings?payment=" + ("00".equals(rspCode) ? "success" : "failed");
+            } else {
+                redirectUrl = "/order-food?payment=" + ("00".equals(rspCode) ? "success" : "failed");
+            }
         } else if (txnRef != null && (txnRef.startsWith("TXN-") || txnRef.startsWith("FOLIO_"))) {
             redirectUrl = "/receptionist/folio?payment=" + ("00".equals(rspCode) ? "success" : "failed");
         } else if (txnRef != null && txnRef.startsWith("WALKIN_")) {
@@ -55,9 +59,11 @@ public class PaymentApiController {
     }
 
     @GetMapping("/food-order/{orderId}/vnpay")
-    public ResponseEntity<?> vnpayFoodOrder(@PathVariable Long orderId, HttpServletRequest request) {
+    public ResponseEntity<?> vnpayFoodOrder(@PathVariable Long orderId, 
+                                            @RequestParam(required = false) String from,
+                                            HttpServletRequest request) {
         try {
-            String paymentUrl = vnPayService.createPaymentUrlForFoodOrder(orderId, request.getRemoteAddr());
+            String paymentUrl = vnPayService.createPaymentUrlForFoodOrder(orderId, request.getRemoteAddr(), from);
             return ResponseEntity.ok(Map.of("url", paymentUrl));
         } catch (Exception e) {
             e.printStackTrace();

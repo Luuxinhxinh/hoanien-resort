@@ -11,20 +11,20 @@
     <!-- Nav -->
     <nav class="adm-nav">
         <!-- 1. Master Data Group -->
-        <div class="adm-nav-group-title" style="padding: 10px 16px 4px 16px; font-size: 10.5px; font-weight: 700; color: #C9A96E; text-transform: uppercase; letter-spacing: 0.12em; font-family: var(--font-sans);">Master Data</div>
-        <div class="adm-nav-item">
+        <div sec:authorize="hasAnyAuthority('OP_MASTER_DATA', 'OP_ROOM', 'OP_FNB', 'ROLE_ADMIN', 'OP_TOUR')" class="adm-nav-group-title" style="padding: 10px 16px 4px 16px; font-size: 10.5px; font-weight: 700; color: #C9A96E; text-transform: uppercase; letter-spacing: 0.12em; font-family: var(--font-sans);">Master Data</div>
+        <div sec:authorize="hasAnyAuthority('OP_MASTER_DATA', 'OP_ROOM', 'ROLE_ADMIN')" class="adm-nav-item">
             <a href="/admin/master-data?tab=Rooms" class="adm-nav-link" th:classappend="${activePage == 'master-data' && (activeTab == 'Rooms' || activeTab == 'Room Categories' || activeTab == 'Pricing Management')} ? 'active' : ''">
                 <span class="adm-nav-icon"><i data-lucide="bed-double"></i></span>
                 <span class="adm-nav-label">Phòng & Vị trí</span>
             </a>
         </div>
-        <div class="adm-nav-item">
+        <div sec:authorize="hasAnyAuthority('OP_MASTER_DATA', 'OP_FNB', 'ROLE_ADMIN')" class="adm-nav-item">
             <a href="/admin/master-data?tab=Restaurant Menu" class="adm-nav-link" th:classappend="${activePage == 'master-data' && (activeTab == 'Restaurant Menu' || activeTab == 'Menu Categories' || activeTab == 'F&B Orders')} ? 'active' : ''">
                 <span class="adm-nav-icon"><i data-lucide="utensils-crossed"></i></span>
                 <span class="adm-nav-label">Menu & Nhà hàng</span>
             </a>
         </div>
-        <div class="adm-nav-item">
+        <div sec:authorize="hasAnyAuthority('OP_MASTER_DATA', 'OP_TOUR', 'ROLE_ADMIN')" class="adm-nav-item">
             <a href="/admin/master-data?tab=Tours" class="adm-nav-link" th:classappend="${activePage == 'master-data' && (activeTab == 'Tours' || activeTab == 'Tour Categories' || activeTab == 'Tour Schedules')} ? 'active' : ''">
                 <span class="adm-nav-icon"><i data-lucide="map"></i></span>
                 <span class="adm-nav-label">Tour & Lịch trình</span>
@@ -32,8 +32,8 @@
         </div>
 
         <!-- 2. Luồng Vận Hành Group -->
-        <div class="adm-nav-group-title" style="padding: 12px 16px 4px 16px; font-size: 10.5px; font-weight: 700; color: #C9A96E; text-transform: uppercase; letter-spacing: 0.12em; font-family: var(--font-sans);">Luồng vận hành</div>
-        <div class="adm-nav-item">
+        <div sec:authorize="hasAnyAuthority('OP_WORKFLOW', 'ROLE_ADMIN')" class="adm-nav-group-title" style="padding: 12px 16px 4px 16px; font-size: 10.5px; font-weight: 700; color: #C9A96E; text-transform: uppercase; letter-spacing: 0.12em; font-family: var(--font-sans);">Luồng vận hành</div>
+        <div sec:authorize="hasAnyAuthority('OP_WORKFLOW', 'ROLE_ADMIN')" class="adm-nav-item">
             <a href="/admin/workflows" class="adm-nav-link" th:classappend="${activePage == 'workflows'} ? 'active' : ''">
                 <span class="adm-nav-icon"><i data-lucide="play-circle"></i></span>
                 <span class="adm-nav-label">Kích hoạt luồng</span>
@@ -47,14 +47,14 @@
         </div>
 
         <!-- 3. Bảo Mật & Hệ Thống Group -->
-        <div class="adm-nav-group-title" style="padding: 12px 16px 4px 16px; font-size: 10.5px; font-weight: 700; color: #C9A96E; text-transform: uppercase; letter-spacing: 0.12em; font-family: var(--font-sans);">Bảo mật & Hệ thống</div>
-        <div class="adm-nav-item">
+        <div sec:authorize="hasAnyAuthority('OP_AUDIT_LOG', 'OP_MAINTENANCE', 'ROLE_ADMIN')" class="adm-nav-group-title" style="padding: 12px 16px 4px 16px; font-size: 10.5px; font-weight: 700; color: #C9A96E; text-transform: uppercase; letter-spacing: 0.12em; font-family: var(--font-sans);">Bảo mật & Hệ thống</div>
+        <div sec:authorize="hasAuthority('ROLE_ADMIN')" class="adm-nav-item">
             <a href="/admin/master-data?tab=Role Management" class="adm-nav-link" th:classappend="${activePage == 'master-data' && activeTab == 'Role Management'} ? 'active' : ''">
                 <span class="adm-nav-icon"><i data-lucide="key-round"></i></span>
                 <span class="adm-nav-label">Phân quyền RBAC</span>
             </a>
         </div>
-        <div class="adm-nav-item">
+        <div sec:authorize="hasAnyAuthority('OP_AUDIT_LOG', 'ROLE_ADMIN')" class="adm-nav-item">
             <a href="/admin/audit-log" class="adm-nav-link" th:classappend="${activePage == 'audit-log'} ? 'active' : ''">
                 <span class="adm-nav-icon"><i data-lucide="clipboard-list"></i></span>
                 <span class="adm-nav-label">Audit Log</span>
@@ -68,14 +68,14 @@
         </div>
 
         <!-- 4. Khách Hàng & Ưu Đãi Group -->
-        <div class="adm-nav-group-title" style="padding: 12px 16px 4px 16px; font-size: 10.5px; font-weight: 700; color: #C9A96E; text-transform: uppercase; letter-spacing: 0.12em; font-family: var(--font-sans);">Khách hàng & Ưu đãi</div>
-        <div class="adm-nav-item">
+        <div sec:authorize="hasAnyAuthority('OP_CRM', 'OP_PROMOTIONS', 'ROLE_ADMIN')" class="adm-nav-group-title" style="padding: 12px 16px 4px 16px; font-size: 10.5px; font-weight: 700; color: #C9A96E; text-transform: uppercase; letter-spacing: 0.12em; font-family: var(--font-sans);">Khách hàng & Ưu đãi</div>
+        <div sec:authorize="hasAnyAuthority('OP_CRM', 'ROLE_ADMIN')" class="adm-nav-item">
             <a href="/admin/master-data?tab=Account Management" class="adm-nav-link" th:classappend="${activePage == 'master-data' && activeTab == 'Account Management'} ? 'active' : ''">
                 <span class="adm-nav-icon"><i data-lucide="user-square-2"></i></span>
                 <span class="adm-nav-label">Hồ sơ CRM</span>
             </a>
         </div>
-        <div class="adm-nav-item">
+        <div sec:authorize="hasAnyAuthority('OP_PROMOTIONS', 'ROLE_ADMIN')" class="adm-nav-item">
             <a href="/admin/master-data?tab=Promotions" class="adm-nav-link" th:classappend="${activePage == 'master-data' && activeTab == 'Promotions'} ? 'active' : ''">
                 <span class="adm-nav-icon"><i data-lucide="ticket"></i></span>
                 <span class="adm-nav-label">Cấu hình Giảm giá</span>

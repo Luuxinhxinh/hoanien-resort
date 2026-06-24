@@ -277,6 +277,21 @@ function openEditModal(id) {
         }
 
         for (const [key, value] of Object.entries(entityData)) {
+            if (key === 'permissions') {
+                const hiddenInput = document.getElementById('hidden-permissions-input');
+                if (hiddenInput) hiddenInput.value = value || '';
+                
+                const perms = value ? value.split(',').map(s => s.trim()) : [];
+                form.querySelectorAll('.perm-checkbox').forEach(cb => {
+                    cb.checked = perms.includes(cb.value);
+                });
+                continue;
+            }
+
+            if (key === 'name' && activeTab === 'Role Management') {
+                // Will handle below after all keys are processed
+            }
+
             const input = form.elements[key];
             if (input) {
                 if (input.type === "checkbox") {
@@ -312,6 +327,12 @@ function openEditModal(id) {
                     input.value = v;
                 }
             }
+        }
+
+        // After populating all fields, filter permission checkboxes for Role Management
+        if (activeTab === 'Role Management') {
+            const nameInput = form.querySelector('[name="name"]');
+            if (nameInput && nameInput.value) filterPermissionsByRole(nameInput.value);
         }
 
         if (activeTab === "Rooms") {
@@ -399,8 +420,17 @@ function handleFormSubmit(event) {
         const payload = Object.fromEntries(formData.entries());
         // Fix checkbox booleans
         form.querySelectorAll('input[type="checkbox"]').forEach(cb => {
-            payload[cb.name] = cb.checked;
+            if (!cb.classList.contains('perm-checkbox')) {
+                payload[cb.name] = cb.checked;
+            }
         });
+        
+        // Aggregate permission checkboxes into the hidden input
+        const permCheckboxes = form.querySelectorAll('.perm-checkbox');
+        if (permCheckboxes.length > 0) {
+            const selectedPerms = Array.from(permCheckboxes).filter(cb => cb.checked).map(cb => cb.value);
+            payload['permissions'] = selectedPerms.join(',');
+        }
 
         // HACK: Xử lý Upload Ảnh trước khi đẩy Data lên Server
         const imageFileInput = form.querySelector('input[name="imageFile"]');
@@ -779,3 +809,128 @@ function handleGalleryUpload(input) {
 function removeGalleryItem(btn, inputId, fileIndex) {
     btn.parentElement.remove();
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// RBAC: Permission filter & auto-suggest for Role Management
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Bộ quyền TỐI ĐA mà từng loại vai trò được phép có.
+ * Admin có thể tước bớt, nhưng KHÔNG được cấp vượt trần này.
+ */
+const ROLE_CEILINGS = {
+    admin:        ['DASHBOARD','MASTER_DATA','AUDIT_LOG','REVIEWS','BOOKING','FNB','HOUSEKEEPING','MAINTENANCE','WORKFLOW','CRM','PROMOTIONS','NIGHT_AUDIT','TOUR','ANALYTICS'],
+    manager:      ['DASHBOARD','BOOKING','FNB','TOUR','HOUSEKEEPING','MAINTENANCE','NIGHT_AUDIT','ANALYTICS','REVIEWS','CRM','PROMOTIONS','WORKFLOW'],
+    receptionist: ['DASHBOARD','BOOKING','HOUSEKEEPING','NIGHT_AUDIT','REVIEWS'],
+    'f&b':        ['DASHBOARD','FNB'],
+    fnb:          ['DASHBOARD','FNB'],
+    kitchen:      ['DASHBOARD','FNB'],
+    'thu ngan':   ['DASHBOARD','FNB'],
+    housekeeping: ['DASHBOARD','HOUSEKEEPING'],
+    tourguide:    ['DASHBOARD','TOUR'],
+    'tour guide': ['DASHBOARD','TOUR'],
+    'tour':       ['DASHBOARD','TOUR'],
+};
+
+/**
+ * Quyền mặc định được CHECKED sẵn khi tạo role mới.
+ * Giống ceiling — dùng luôn cho đơn giản.
+ */
+const ROLE_PRESETS = ROLE_CEILINGS;
+
+/**
+ * Lọc và hiển thị CHỈ các checkbox phù hợp với vai trò này.
+ * Các checkbox nằm ngoài ceiling bị ẩn hoàn toàn (không thể chọn nhầm).
+ */
+function filterPermissionsByRole(roleName) {
+    const name = (roleName || '').toLowerCase().trim();
+
+    let ceiling = null;
+    for (const [key, perms] of Object.entries(ROLE_CEILINGS)) {
+        if (name.includes(key)) {
+            ceiling = perms;
+            break;
+        }
+    }
+
+    // Fallback: nếu không nhận ra tên role → show tất cả (trường hợp Admin tạo role mới)
+    if (!ceiling) ceiling = ROLE_CEILINGS['admin'];
+
+    document.querySelectorAll('.perm-checkbox').forEach(cb => {
+        const label = cb.closest('label');
+        const wrapper = label ? label.parentElement : null;
+
+        if (ceiling.includes(cb.value)) {
+            // Quyền nằm trong ceiling → hiển thị
+            if (label) label.style.display = '';
+            if (wrapper && wrapper.tagName !== 'DIV') wrapper.style.display = '';
+        } else {
+            // Quyền vượt trần → ẩn đi & uncheck
+            cb.checked = false;
+            if (label) label.style.display = 'none';
+        }
+    });
+
+    // Ẩn section header nếu không có checkbox nào visible trong đó
+    document.querySelectorAll('.perm-section-title').forEach(title => {
+        const section = title.nextElementSibling;
+        if (section) {
+            const visibleCount = section.querySelectorAll('label:not([style*="none"])').length;
+            title.style.display = visibleCount === 0 ? 'none' : '';
+            section.style.display = visibleCount === 0 ? 'none' : '';
+        }
+    });
+}
+
+/**
+ * Nút "Gợi ý tự động" — đọc tên role, check tất cả quyền trong ceiling.
+ */
+function suggestPermissions() {
+    const nameInput = document.getElementById('role-name-input');
+    if (!nameInput) return;
+    const name = nameInput.value.trim();
+    if (!name) { alert('Vui lòng nhập tên vai trò trước!'); return; }
+
+    // Filter trước để ẩn quyền không phù hợp
+    filterPermissionsByRole(name);
+
+    // Sau đó check tất cả những checkbox còn visible
+    let count = 0;
+    document.querySelectorAll('.perm-checkbox').forEach(cb => {
+        const label = cb.closest('label');
+        if (label && label.style.display !== 'none') {
+            cb.checked = true;
+            count++;
+        }
+    });
+
+    if (typeof showToast === 'function') {
+        showToast('Đã gợi ý ' + count + ' quyền cho vai trò "' + name + '"!', 'success');
+    }
+}
+
+// Khi modal "Thêm mới" (add) mở cho Role Management → reset về show all ban đầu
+document.addEventListener('DOMContentLoaded', () => {
+    const addBtn = document.querySelector('.btn-add-new');
+    if (addBtn) {
+        addBtn.addEventListener('click', () => {
+            // Delay nhỏ để DOM render form trước
+            setTimeout(() => {
+                const activeTabEl = document.querySelector('.tab-btn.active');
+                if (activeTabEl && activeTabEl.textContent.trim() === 'Role Management') {
+                    // Show tất cả checkboxes khi tạo mới
+                    document.querySelectorAll('.perm-checkbox').forEach(cb => {
+                        const label = cb.closest('label');
+                        if (label) label.style.display = '';
+                    });
+                    document.querySelectorAll('.perm-section-title').forEach(t => {
+                        t.style.display = '';
+                        const s = t.nextElementSibling;
+                        if (s) s.style.display = '';
+                    });
+                }
+            }, 100);
+        });
+    }
+});
+

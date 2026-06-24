@@ -157,16 +157,18 @@ public class PosServiceImpl implements PosService {
         }
 
         if (Boolean.TRUE.equals(request.getIsPaid())) {
-            order.setOrderStatus("PAID");
+            order.setOrderStatus("Pending");
             order.setIsPaidInPos(true);
         } else {
-            order.setOrderStatus("Pending");
             order.setPaymentType(request.getPaymentType() != null ? request.getPaymentType() : "Pay_Later");
-            if ("ONLINE".equalsIgnoreCase(request.getPaymentType())) {
-                order.setIsPaidInPos(true);
-            } else if ("VNPAY".equalsIgnoreCase(request.getPaymentType())) {
+            if ("VNPAY".equalsIgnoreCase(request.getPaymentType())) {
+                order.setOrderStatus("AWAITING_PAYMENT");
                 order.setIsPaidInPos(false);
+            } else if ("ONLINE".equalsIgnoreCase(request.getPaymentType())) {
+                order.setOrderStatus("Pending");
+                order.setIsPaidInPos(true);
             } else {
+                order.setOrderStatus("Pending");
                 order.setIsPaidInPos(false);
             }
         }
@@ -234,7 +236,9 @@ public class PosServiceImpl implements PosService {
     public FoodOrder payOrder(Long id) {
         FoodOrder order = foodOrderRepository.findById(id)
                 .orElseThrow(() -> new BusinessException("POS-006", "Đơn hàng không tồn tại"));
-        order.setOrderStatus("PAID");
+        if ("AWAITING_PAYMENT".equalsIgnoreCase(order.getOrderStatus())) {
+             order.setOrderStatus("Pending");
+        }
         order.setIsPaidInPos(true);
 
         // Do NOT automatically change table status to "Cleaning" after payment.

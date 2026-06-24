@@ -47,6 +47,7 @@ public class FolioRestController {
     private final VnPayService vnPayService;
     private final com.kawai.repositories.RoomBookingRepository roomBookingRepository;
     private final com.kawai.repositories.PromotionRepository promotionRepository;
+    private final com.kawai.repositories.CustomerRepository customerRepository;
 
     @Autowired
     public FolioRestController(NightAuditService nightAuditService,
@@ -59,7 +60,8 @@ public class FolioRestController {
             EmailService emailService,
             VnPayService vnPayService,
             com.kawai.repositories.RoomBookingRepository roomBookingRepository,
-            com.kawai.repositories.PromotionRepository promotionRepository) {
+            com.kawai.repositories.PromotionRepository promotionRepository,
+            com.kawai.repositories.CustomerRepository customerRepository) {
         this.nightAuditService = nightAuditService;
         this.folioItemRepository = folioItemRepository;
         this.roomBookingDetailRepository = roomBookingDetailRepository;
@@ -71,6 +73,7 @@ public class FolioRestController {
         this.emailService = emailService;
         this.vnPayService = vnPayService;
         this.promotionRepository = promotionRepository;
+        this.customerRepository = customerRepository;
     }
 
     /**
@@ -540,6 +543,34 @@ public class FolioRestController {
                 String pdfPath = invoicePdfService.generateInvoicePdf(invoice);
                 String customerEmail = detail.getRoomBooking().getCustomer().getEmail();
                 emailService.sendInvoiceEmail(customerEmail, invoice, pdfPath);
+
+                // 5.1 Cộng điểm Loyalty (1 điểm = 10,000 VNĐ chi tiêu)
+                if (paymentAmount.compareTo(BigDecimal.ZERO) > 0) {
+                    com.kawai.models.Customer customer = detail.getRoomBooking().getCustomer();
+                    if (customer != null) {
+                        int pointsEarned = paymentAmount.divide(new BigDecimal("10000"), 0, java.math.RoundingMode.DOWN)
+                                .intValue();
+                        if (pointsEarned > 0) {
+                            int currentPoints = customer.getLoyaltyPoints() != null ? customer.getLoyaltyPoints() : 0;
+                            int newPoints = currentPoints + pointsEarned;
+                            customer.setLoyaltyPoints(newPoints);
+
+                            // Auto upgrade tier based on new points
+                            String newTier = "Regular";
+                            if (newPoints >= 20000)
+                                newTier = "Diamond";
+                            else if (newPoints >= 5000)
+                                newTier = "Gold";
+                            else if (newPoints >= 1000)
+                                newTier = "Silver";
+
+                            customer.setMembershipTier(newTier);
+                            customerRepository.save(customer);
+                            System.out.println("[LOYALTY] Khách " + customer.getFullName() + " vừa nhận " + pointsEarned
+                                    + " điểm. Tổng: " + newPoints + " (" + newTier + ")");
+                        }
+                    }
+                }
             }
 
             // 6. Trả về URL thanh toán VNPay nếu phương thức là VNPAY
