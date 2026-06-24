@@ -63,9 +63,6 @@ public class KdsServiceImpl implements KdsService {
         res.setDepositAmount(depositAmount != null ? depositAmount : BigDecimal.ZERO);
         res.setStatus("Pending");
 
-        table.setTableStatus("Reserved");
-        restaurantTableRepository.save(table);
-
         return tableReservationRepository.save(res);
     }
 
@@ -93,11 +90,6 @@ public class KdsServiceImpl implements KdsService {
                 res.setStatus("Hủy do quá hạn");
                 tableReservationRepository.save(res);
 
-                RestaurantTable table = res.getTable();
-                if (table != null) {
-                    table.setTableStatus("Vacant");
-                    restaurantTableRepository.save(table);
-                }
             }
         }
     }

@@ -179,8 +179,7 @@
                 <optgroup label="Bàn Đang Bận">
                   <option th:each="table : ${occupiedTables}" 
                           th:value="${table.id}" 
-                          th:text="'Bàn ' + ${#strings.replace(table.tableNumber, 'T', '')} + ' - Đang phục vụ khách'" 
-                          disabled></option>
+                          th:text="'Bàn ' + ${#strings.replace(table.tableNumber, 'T', '')} + ' - Đang phục vụ khách'"></option>
                 </optgroup>
               </select>
             </div>

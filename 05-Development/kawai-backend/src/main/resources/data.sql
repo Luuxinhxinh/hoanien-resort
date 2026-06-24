@@ -283,25 +283,25 @@ UPDATE Rooms SET current_booking_detail_id = 10 WHERE room_id = 4;
 -- ── 16. Restaurant Tables (20 rows) ──────────────────────────
 INSERT INTO Restaurant_Tables (table_id, table_number, capacity, table_status, is_active) VALUES 
 (1, 'T01', 4, 'Occupied', TRUE),
-(2, 'T02', 2, 'Vacant', TRUE),
+(2, 'T02', 2, 'Available', TRUE),
 (3, 'T03', 6, 'Occupied', TRUE),
-(4, 'T04', 4, 'Reserved', TRUE),
-(5, 'T05', 8, 'Vacant', TRUE),
-(6, 'T06', 4, 'Vacant', TRUE),
+(4, 'T04', 4, 'Available', TRUE),
+(5, 'T05', 8, 'Available', TRUE),
+(6, 'T06', 4, 'Available', TRUE),
 (7, 'T07', 2, 'Occupied', TRUE),
-(8, 'T08', 4, 'Reserved', TRUE),
-(9, 'T09', 10, 'Vacant', TRUE),
-(10, 'T10', 2, 'Vacant', TRUE),
+(8, 'T08', 4, 'Available', TRUE),
+(9, 'T09', 10, 'Available', TRUE),
+(10, 'T10', 2, 'Available', TRUE),
 (11, 'T11', 4, 'Occupied', TRUE),
-(12, 'T12', 6, 'Vacant', TRUE),
-(13, 'T13', 4, 'Vacant', TRUE),
-(14, 'T14', 8, 'Reserved', TRUE),
+(12, 'T12', 6, 'Available', TRUE),
+(13, 'T13', 4, 'Available', TRUE),
+(14, 'T14', 8, 'Available', TRUE),
 (15, 'T15', 2, 'Occupied', TRUE),
-(16, 'T16', 4, 'Vacant', TRUE),
-(17, 'T17', 4, 'Vacant', TRUE),
+(16, 'T16', 4, 'Available', TRUE),
+(17, 'T17', 4, 'Available', TRUE),
 (18, 'T18', 6, 'Occupied', TRUE),
-(19, 'T19', 2, 'Vacant', TRUE),
-(20, 'T20', 12, 'Reserved', TRUE);
+(19, 'T19', 2, 'Available', TRUE),
+(20, 'T20', 12, 'Available', TRUE);
 
 
 -- ── 17. Table Reservations (10 rows) ─────────────────────────
@@ -384,24 +384,24 @@ INSERT INTO Menu_Items (item_id, item_name, price, category, is_available, descr
 
 -- ── 19. Food Orders (19 rows) ────────────────────────────────
 INSERT INTO Food_Orders (order_id, booking_id, room_booking_detail_id, table_id, order_type, order_status, payment_type, is_paid_in_pos, created_by_staff_id, kitchen_processed_by_id) VALUES 
-(1, NULL, NULL, 1, 'Dine-In', 'Preparing', 'Pay at Counter', FALSE, 2, 3),
+(1, NULL, NULL, 1, 'Dine-In', 'Completed', 'Pay at Counter', TRUE, 2, 3),
 (2, NULL, NULL, NULL, 'Room Service', 'Pending', 'Post to Room', FALSE, 2, NULL),
-(3, NULL, NULL, 3, 'Dine-In', 'Served', 'Pay at Counter', TRUE, 2, 3),
-(4, NULL, NULL, 2, 'Dine-In', 'Pending', 'Pay at Counter', FALSE, 2, NULL),
-(5, NULL, NULL, 4, 'Dine-In', 'Served', 'Post to Room', TRUE, 2, 3),
-(6, NULL, NULL, 5, 'Dine-In', 'Ready', 'Pay at Counter', FALSE, 3, 2),
+(3, NULL, NULL, 3, 'Dine-In', 'Completed', 'Pay at Counter', TRUE, 2, 3),
+(4, NULL, NULL, 2, 'Dine-In', 'Completed', 'Pay at Counter', TRUE, 2, NULL),
+(5, NULL, NULL, 4, 'Dine-In', 'Completed', 'Post to Room', TRUE, 2, 3),
+(6, NULL, NULL, 5, 'Dine-In', 'Completed', 'Pay at Counter', TRUE, 3, 2),
 (7, NULL, NULL, NULL, 'Takeaway', 'Completed', 'Pay at Counter', TRUE, 2, 3),
-(8, NULL, NULL, 7, 'Dine-In', 'Preparing', 'Pay at Counter', FALSE, 3, 2),
+(8, NULL, NULL, 7, 'Dine-In', 'Completed', 'Pay at Counter', TRUE, 3, 2),
 (9, NULL, NULL, NULL, 'Room Service', 'Pending', 'Post to Room', FALSE, 2, NULL),
-(10, NULL, NULL, 9, 'Dine-In', 'Served', 'Pay at Counter', TRUE, 3, 2),
-(11, NULL, NULL, 11, 'Dine-In', 'Pending', 'Pay at Counter', FALSE, 2, NULL),
+(10, NULL, NULL, 9, 'Dine-In', 'Completed', 'Pay at Counter', TRUE, 3, 2),
+(11, NULL, NULL, 11, 'Dine-In', 'Completed', 'Pay at Counter', TRUE, 2, NULL),
 (12, NULL, NULL, 12, 'Dine-In', 'Completed', 'Pay at Counter', TRUE, 3, 2),
 (13, NULL, NULL, NULL, 'Room Service', 'Ready', 'Post to Room', FALSE, 2, 3),
-(14, NULL, NULL, 14, 'Dine-In', 'Preparing', 'Pay at Counter', FALSE, 2, 3),
-(15, NULL, NULL, 15, 'Dine-In', 'Served', 'Pay at Counter', TRUE, 3, 2),
-(16, NULL, NULL, 16, 'Dine-In', 'Pending', 'Pay at Counter', FALSE, 2, NULL),
+(14, NULL, NULL, 14, 'Dine-In', 'Completed', 'Pay at Counter', TRUE, 2, 3),
+(15, NULL, NULL, 15, 'Dine-In', 'Completed', 'Pay at Counter', TRUE, 3, 2),
+(16, NULL, NULL, 16, 'Dine-In', 'Completed', 'Pay at Counter', TRUE, 2, NULL),
 (17, NULL, NULL, NULL, 'Takeaway', 'Completed', 'Pay at Counter', TRUE, 3, 2),
-(18, NULL, NULL, 18, 'Dine-In', 'Preparing', 'Pay at Counter', FALSE, 2, 3),
+(18, NULL, NULL, 18, 'Dine-In', 'Completed', 'Pay at Counter', TRUE, 2, 3),
 (19, NULL, NULL, NULL, 'Room Service', 'Pending', 'Post to Room', FALSE, 2, NULL);
 
 -- ── 20. Food Order Details (21 rows) ─────────────────────────

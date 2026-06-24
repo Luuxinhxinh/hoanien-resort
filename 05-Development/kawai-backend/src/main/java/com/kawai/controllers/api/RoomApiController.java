@@ -61,6 +61,7 @@ public class RoomApiController {
                 RoomBookingDetail detail = detailOpt.get();
                 if (detail.getRoomBooking() != null && detail.getRoomBooking().getCustomer() != null) {
                     dto.setGuestName(detail.getRoomBooking().getCustomer().getFullName());
+                    dto.setCustomerId(detail.getRoomBooking().getCustomer().getId());
                 }
                 dto.setLimitRemaining(detail.getSubCreditLimit());
             }
@@ -87,5 +88,40 @@ public class RoomApiController {
 
         List<RoomSearchResponseDTO> availableRooms = roomService.searchAvailableRooms(request);
         return ResponseEntity.ok(availableRooms);
+    }
+    @GetMapping("/by-cccd")
+    public ResponseEntity<RoomInfoDto> getRoomInfoByCccd(@RequestParam("cccd") String cccd) {
+        if (cccd == null || cccd.trim().isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+        
+        List<Room> occupiedRooms = roomRepository.findOccupiedRoomsByCustomerCccd(cccd.trim());
+        if (occupiedRooms.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        
+        Room room = occupiedRooms.get(0);
+        
+        RoomInfoDto dto = RoomInfoDto.builder()
+                .roomNumber(room.getRoomNumber())
+                .status(room.getRoomStatus())
+                .occupied(true)
+                .build();
+                
+        if (room.getCurrentBookingDetailId() != null) {
+            Optional<RoomBookingDetail> detailOpt = roomBookingDetailRepository.findById(room.getCurrentBookingDetailId());
+            if (detailOpt.isPresent()) {
+                RoomBookingDetail detail = detailOpt.get();
+                if (detail.getCustomer() != null) {
+                    dto.setGuestName(detail.getCustomer().getFullName());
+                    dto.setCustomerId(detail.getCustomer().getId());
+                } else if (detail.getRoomBooking() != null && detail.getRoomBooking().getCustomer() != null) {
+                    dto.setGuestName(detail.getRoomBooking().getCustomer().getFullName());
+                    dto.setCustomerId(detail.getRoomBooking().getCustomer().getId());
+                }
+            }
+        }
+        
+        return ResponseEntity.ok(dto);
     }
 }

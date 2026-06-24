@@ -1,28 +1,246 @@
 package com.kawai.services.impl;
 
+import com.kawai.dto.CartItemDto;
+import com.kawai.dto.CreateFoodOrderRequest;
 import com.kawai.exceptions.BusinessException;
-import com.kawai.models.FolioItem;
-import com.kawai.models.Room;
-import com.kawai.models.RoomBookingDetail;
-import com.kawai.repositories.FolioItemRepository;
-import com.kawai.repositories.RoomBookingDetailRepository;
-import com.kawai.repositories.RoomRepository;
+import com.kawai.models.*;
+import com.kawai.repositories.*;
 import com.kawai.services.interfaces.PosService;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.Optional;
 
+@Service
+@Transactional
 public class PosServiceImpl implements PosService {
 
     private final RoomRepository roomRepository;
     private final RoomBookingDetailRepository roomBookingDetailRepository;
     private final FolioItemRepository folioItemRepository;
+    private final FoodOrderRepository foodOrderRepository;
+    private final FoodOrderDetailRepository foodOrderDetailRepository;
+    private final RestaurantTableRepository restaurantTableRepository;
+    private final FoodItemRepository foodItemRepository;
+    private final EmployeeRepository employeeRepository;
+    private final AccountRepository accountRepository;
+    private final CustomerRepository customerRepository;
+    private final RoomBookingRepository roomBookingRepository;
+    private final TableReservationRepository tableReservationRepository;
 
     public PosServiceImpl(RoomRepository roomRepository,
             RoomBookingDetailRepository roomBookingDetailRepository,
-            FolioItemRepository folioItemRepository) {
+            FolioItemRepository folioItemRepository,
+            FoodOrderRepository foodOrderRepository,
+            FoodOrderDetailRepository foodOrderDetailRepository,
+            RestaurantTableRepository restaurantTableRepository,
+            FoodItemRepository foodItemRepository,
+            EmployeeRepository employeeRepository,
+            AccountRepository accountRepository,
+            CustomerRepository customerRepository,
+            RoomBookingRepository roomBookingRepository,
+            TableReservationRepository tableReservationRepository) {
         this.roomRepository = roomRepository;
         this.roomBookingDetailRepository = roomBookingDetailRepository;
         this.folioItemRepository = folioItemRepository;
+        this.foodOrderRepository = foodOrderRepository;
+        this.foodOrderDetailRepository = foodOrderDetailRepository;
+        this.restaurantTableRepository = restaurantTableRepository;
+        this.foodItemRepository = foodItemRepository;
+        this.employeeRepository = employeeRepository;
+        this.accountRepository = accountRepository;
+        this.customerRepository = customerRepository;
+        this.roomBookingRepository = roomBookingRepository;
+        this.tableReservationRepository = tableReservationRepository;
+    }
+
+    @Override
+    public FoodOrder createOrder(CreateFoodOrderRequest request, String userIdentifier) {
+        FoodOrder order = new FoodOrder();
+
+        Account userAccount = null;
+        if (userIdentifier != null) {
+            userAccount = accountRepository.findByUsername(userIdentifier).orElse(null);
+        }
+
+        Booking activeBooking = null;
+
+        if ("room-svc".equals(request.getOrderType())) {
+            order.setOrderType("Room Service");
+            Room room = roomRepository.findByRoomNumber(request.getRoomNumber())
+                    .orElseThrow(() -> new BusinessException("POS-001", "Phòng không tồn tại!"));
+            
+            if (room.getCurrentBookingDetailId() != null) {
+                Optional<RoomBookingDetail> detailOpt = roomBookingDetailRepository
+                        .findById(room.getCurrentBookingDetailId());
+                if (detailOpt.isPresent()) {
+                    RoomBookingDetail detail = detailOpt.get();
+                    order.setRoomBookingDetail(detail);
+                    if (detail.getRoomBooking() != null) {
+                        activeBooking = detail.getRoomBooking();
+                    }
+                }
+            }
+        } else {
+            order.setOrderType("Dine In");
+            if (request.getTableId() != null) {
+                // Check if there is already an active order for this table
+                List<FoodOrder> activeOrders = foodOrderRepository.findActiveOrdersByTable(request.getTableId());
+                if (!activeOrders.isEmpty()) {
+                    FoodOrder existingOrder = activeOrders.get(0);
+                    if (request.getItems() != null && !request.getItems().isEmpty()) {
+                        addItemsToOrder(existingOrder.getId(), request.getItems());
+                    }
+                    return foodOrderRepository.findById(existingOrder.getId()).orElse(existingOrder);
+                }
+
+                RestaurantTable table = restaurantTableRepository.findById(request.getTableId())
+                        .orElseThrow(() -> new BusinessException("POS-002", "Bàn ăn không tồn tại!"));
+                
+                if ("Cleaning".equalsIgnoreCase(table.getTableStatus()) || "Out_of_service".equalsIgnoreCase(table.getTableStatus())) {
+                    throw new BusinessException("POS-007", "Bàn đang được dọn hoặc bảo trì, không thể tạo hóa đơn!");
+                }
+                
+                if ("Available".equalsIgnoreCase(table.getTableStatus())) {
+                    java.time.LocalDate today = java.time.LocalDate.now();
+                    java.time.LocalTime now = java.time.LocalTime.now();
+                    
+                    java.time.LocalDateTime currentDT = java.time.LocalDateTime.now();
+                    
+                    List<TableReservation> reservations = tableReservationRepository.findByTable_IdAndReserveDateOrderByReserveTimeAsc(table.getId(), today);
+                    for (TableReservation res : reservations) {
+                        if ("Confirmed".equalsIgnoreCase(res.getStatus()) || "Pending".equalsIgnoreCase(res.getStatus())) {
+                            java.time.LocalDateTime resStartDT = java.time.LocalDateTime.of(today, res.getReserveTime());
+                            java.time.LocalDateTime resEndDT;
+                            if (res.getEndTime() != null) {
+                                resEndDT = java.time.LocalDateTime.of(today, res.getEndTime());
+                                if (resEndDT.isBefore(resStartDT)) {
+                                    resEndDT = resEndDT.plusDays(1);
+                                }
+                            } else {
+                                resEndDT = resStartDT.plusHours(2);
+                            }
+                            
+                            if (currentDT.isAfter(resStartDT.minusHours(2)) && currentDT.isBefore(resEndDT)) {
+                                throw new BusinessException("POS-008", "Bàn đã có khách đặt trước trong thời gian tới!");
+                            }
+                        }
+                    }
+                }
+                
+                table.setTableStatus("Occupied");
+                restaurantTableRepository.save(table);
+                
+                order.setTable(table);
+            }
+        }
+
+        if (activeBooking == null && userAccount != null) {
+            Customer customer = customerRepository.findByAccount_Username(userAccount.getUsername()).orElse(null);
+            if (customer != null) {
+                List<RoomBooking> rbs = roomBookingRepository
+                        .findByCustomerOrderByBookingDateDesc(customer);
+                if (!rbs.isEmpty()) {
+                    activeBooking = rbs.stream()
+                            .filter(rb -> "Checked_In".equals(rb.getBookingStatus()) ||
+                                    "Confirmed".equals(rb.getBookingStatus()))
+                            .findFirst()
+                            .orElse(rbs.get(rbs.size() - 1));
+                }
+            }
+        }
+
+        if (activeBooking != null) {
+            order.setBooking(activeBooking);
+        }
+
+        if (Boolean.TRUE.equals(request.getIsPaid())) {
+            order.setOrderStatus("PAID");
+            order.setIsPaidInPos(true);
+        } else {
+            order.setOrderStatus("Pending");
+            order.setPaymentType(request.getPaymentType() != null ? request.getPaymentType() : "Pay_Later");
+            if ("ONLINE".equalsIgnoreCase(request.getPaymentType())) {
+                order.setIsPaidInPos(true);
+            } else if ("VNPAY".equalsIgnoreCase(request.getPaymentType())) {
+                order.setIsPaidInPos(false);
+            } else {
+                order.setIsPaidInPos(false);
+            }
+        }
+
+        String finalNote = "";
+        if (request.getGuestName() != null && !request.getGuestName().trim().isEmpty()) {
+            finalNote = "GUEST:" + request.getGuestName().trim() + "|";
+        }
+        if (request.getNote() != null) {
+            finalNote += request.getNote();
+        }
+        order.setNote(finalNote);
+
+        Optional<Employee> empOpt = employeeRepository.findById(2L);
+        if (empOpt.isPresent()) {
+            order.setCreatedByStaff(empOpt.get());
+        } else {
+            employeeRepository.findAll().stream().findFirst().ifPresent(order::setCreatedByStaff);
+        }
+
+        FoodOrder savedOrder = foodOrderRepository.save(order);
+
+        BigDecimal subtotal = BigDecimal.ZERO;
+
+        if (request.getItems() != null) {
+            for (CartItemDto itemDto : request.getItems()) {
+                MenuItem menuItem = foodItemRepository.findById(itemDto.getId())
+                        .orElseThrow(() -> new BusinessException("POS-004", "Món ăn không tồn tại!"));
+                
+                FoodOrderDetail detail = new FoodOrderDetail();
+                detail.setFoodOrder(savedOrder);
+                detail.setMenuItem(menuItem);
+                detail.setQuantity(itemDto.getQty());
+                detail.setPriceAtOrder(itemDto.getPrice());
+                detail.setKotStatus("Pending");
+                foodOrderDetailRepository.save(detail);
+
+                if (itemDto.getPrice() != null && itemDto.getQty() != null) {
+                    subtotal = subtotal.add(itemDto.getPrice().multiply(new BigDecimal(itemDto.getQty())));
+                }
+            }
+        }
+
+        if ("CHARGE_TO_ROOM".equalsIgnoreCase(request.getPaymentType()) && activeBooking != null
+                && activeBooking instanceof RoomBooking) {
+            RoomBooking roomBooking = (RoomBooking) activeBooking;
+            BigDecimal feePercent = new BigDecimal("0.05");
+            BigDecimal fee = subtotal.multiply(feePercent);
+            BigDecimal totalAmount = subtotal.add(fee);
+
+            BigDecimal currentLimit = roomBooking.getCreditLimit() != null ? roomBooking.getCreditLimit()
+                    : BigDecimal.ZERO;
+            if (currentLimit.compareTo(totalAmount) >= 0) {
+                roomBooking.setCreditLimit(currentLimit.subtract(totalAmount));
+                roomBookingRepository.save(roomBooking);
+            } else {
+                throw new BusinessException("POS-005", "Hạn mức tín dụng của phòng không đủ để thanh toán!");
+            }
+        }
+
+        return savedOrder;
+    }
+
+    @Override
+    public FoodOrder payOrder(Long id) {
+        FoodOrder order = foodOrderRepository.findById(id)
+                .orElseThrow(() -> new BusinessException("POS-006", "Đơn hàng không tồn tại"));
+        order.setOrderStatus("PAID");
+        order.setIsPaidInPos(true);
+
+        // Do NOT automatically change table status to "Cleaning" after payment.
+        // It stays "Occupied" until staff explicitly changes it.
+
+        return foodOrderRepository.save(order);
     }
 
     @Override
@@ -64,5 +282,54 @@ public class PosServiceImpl implements PosService {
         folioItem.setDescription("Ký gửi hóa đơn từ nhà hàng");
 
         folioItemRepository.save(folioItem);
+    }
+
+    @Override
+    @org.springframework.transaction.annotation.Transactional
+    public void addItemsToOrder(Long orderId, java.util.List<com.kawai.dto.CartItemDto> items) {
+        if (items == null || items.isEmpty()) {
+            throw new com.kawai.exceptions.BusinessException("POS-001", "Đơn hàng trống — không có món");
+        }
+
+        FoodOrder order = foodOrderRepository.findById(orderId)
+                .orElseThrow(() -> new com.kawai.exceptions.BusinessException("POS-002", "Không tìm thấy đơn hàng"));
+
+        if ("Room Service".equalsIgnoreCase(order.getOrderType()) || "RoomService".equalsIgnoreCase(order.getOrderType())) {
+            throw new com.kawai.exceptions.BusinessException("POS-005", "Không hỗ trợ gọi thêm món cho đơn Room Service. Vui lòng tạo đơn mới.");
+        }
+
+        if (Boolean.TRUE.equals(order.getIsPaidInPos()) || "PAID".equalsIgnoreCase(order.getOrderStatus()) || "Cancelled".equalsIgnoreCase(order.getOrderStatus())) {
+            throw new com.kawai.exceptions.BusinessException("POS-006", "Đơn hàng đã thanh toán hoặc bị hủy, không thể thêm món.");
+        }
+
+        java.util.List<FoodOrderDetail> newDetails = new java.util.ArrayList<>();
+        for (com.kawai.dto.CartItemDto item : items) {
+            MenuItem menuItem = foodItemRepository.findById(item.getId())
+                    .orElseThrow(() -> new com.kawai.exceptions.BusinessException("POS-003", "Món ăn không tồn tại: ID " + item.getId()));
+
+            if (Boolean.FALSE.equals(menuItem.getIsAvailable())) {
+                throw new com.kawai.exceptions.BusinessException("POS-004", "Món đã hết — không thể order: " + menuItem.getItemName());
+            }
+
+            FoodOrderDetail detail = new FoodOrderDetail();
+            detail.setFoodOrder(order);
+            detail.setMenuItem(menuItem);
+            detail.setQuantity(item.getQty());
+            detail.setPriceAtOrder(menuItem.getPrice());
+            detail.setKotStatus("Pending");
+
+            newDetails.add(foodOrderDetailRepository.save(detail));
+        }
+
+        // if details collection is initialized, we can add to it
+        if (order.getDetails() != null) {
+            order.getDetails().addAll(newDetails);
+        } else {
+            order.setDetails(newDetails);
+        }
+        
+        // Reset order status to pending so kitchen sees new items
+        order.setOrderStatus("Pending");
+        foodOrderRepository.save(order);
     }
 }
