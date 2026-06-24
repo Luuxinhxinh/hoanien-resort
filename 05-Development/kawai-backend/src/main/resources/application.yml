@@ -1,4 +1,3 @@
-
 spring:
   security:
     oauth2:
@@ -11,7 +10,7 @@ spring:
     url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/kawai_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true}
     driverClassName: com.mysql.cj.jdbc.Driver
     username: ${SPRING_DATASOURCE_USERNAME:root}
-    password: ${SPRING_DATASOURCE_PASSWORD:123456}
+    password: ${SPRING_DATASOURCE_PASSWORD:12345678}
   sql:
     init:
       mode: always
@@ -28,23 +27,6 @@ spring:
 
   thymeleaf:
     cache: false
-
-server:
-  port: 8080
-
-logging:
-  level:
-    org.springframework.web: DEBUG
-    org.hibernate.SQL: DEBUG
-    org.hibernate.orm.jdbc.bind: TRACE
-
-vnpay:
-  tmn-code: 77G0NGGT
-  hash-secret: 4JVVJ2NUMIMEWODNGA3CR8DV52L5PKII
-  pay-url: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
-  return-url: http://localhost:8080/api/v1/payments/vnpay-return
-  api-version: 2.1.0
-
 
   # ─── Email (SMTP Gmail) ───────────────────────────────────────────
   # Để gửi email, anh cần:
@@ -66,6 +48,21 @@ vnpay:
         debug: false
     default-encoding: UTF-8
 
+server:
+  port: 8080
+
+logging:
+  level:
+    org.springframework.web: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE
+
+vnpay:
+  tmn-code: 77G0NGGT
+  hash-secret: 4JVVJ2NUMIMEWODNGA3CR8DV52L5PKII
+  pay-url: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
+  return-url: http://localhost:8080/api/v1/payments/vnpay-return
+  api-version: 2.1.0
 
 # ─── App custom config ────────────────────────────────────────────────
 app:
@@ -73,6 +70,3 @@ app:
     from-name: "Hòa Niên Retreat & Resort"
     resort-phone: "1900 xxxx"
     resort-website: "https://hoaniensorretreat.vn"
-
-
-

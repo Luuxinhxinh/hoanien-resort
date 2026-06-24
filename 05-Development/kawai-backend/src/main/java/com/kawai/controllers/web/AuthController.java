@@ -160,7 +160,7 @@ public class AuthController {
             RedirectAttributes redirectAttributes) {
         if (token == null || token.trim().isEmpty()) {
             redirectAttributes.addFlashAttribute("authError", "Token không hợp lệ.");
-            return "redirect:/auth/login";
+            return "redirect:/ops-login";
         }
         return "auth/reset-password";
     }
@@ -179,7 +179,7 @@ public class AuthController {
             if (result) {
                 redirectAttributes.addFlashAttribute("authSuccess",
                         "Đặt lại mật khẩu thành công! Vui lòng đăng nhập.");
-                return "redirect:/auth/login";
+                return "redirect:/ops-login";
             } else {
                 redirectAttributes.addFlashAttribute("authError", "Đặt lại mật khẩu thất bại.");
                 return "redirect:/auth/reset-password?token=" + token;

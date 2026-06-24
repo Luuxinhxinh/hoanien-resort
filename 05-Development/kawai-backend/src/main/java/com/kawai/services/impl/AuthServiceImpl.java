@@ -31,6 +31,12 @@ public class AuthServiceImpl implements AuthService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private EmployeeRepository employeeRepository;
+
+    @Autowired
+    private TourEmailService tourEmailService;
+
     private final Random random = new Random();
 
     @Override
@@ -154,12 +160,25 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public String requestPasswordReset(String email) {
-        Customer customer = customerRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("Email không tồn tại"));
+        Account account = null;
+        String username = "";
 
-        Account account = customer.getAccount();
+        Optional<Customer> optCustomer = customerRepository.findByEmail(email);
+        if (optCustomer.isPresent()) {
+            Customer customer = optCustomer.get();
+            account = customer.getAccount();
+            username = customer.getFullName() != null ? customer.getFullName() : customer.getAccount().getUsername();
+        } else {
+            Optional<Employee> optEmployee = employeeRepository.findByEmail(email);
+            if (optEmployee.isPresent()) {
+                Employee employee = optEmployee.get();
+                account = employee.getAccount();
+                username = employee.getFullName();
+            }
+        }
+
         if (account == null) {
-            throw new IllegalArgumentException("Account not associated with email");
+            throw new IllegalArgumentException("Email không tồn tại");
         }
 
         String token = UUID.randomUUID().toString();
@@ -168,6 +187,9 @@ public class AuthServiceImpl implements AuthService {
         accountRepository.save(account);
 
         writeAuditLog(account, "RESET_PASSWORD_REQUEST", "Accounts", account.getId(), null, "Reset token: " + token);
+
+        tourEmailService.sendPasswordResetEmail(email, username, token);
+
         return token;
     }
 
