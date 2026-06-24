@@ -14,5 +14,6 @@ import org.hibernate.envers.RevisionEntity;
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class CustomRevisionEntity extends DefaultRevisionEntity {
+    @jakarta.persistence.Column(columnDefinition = "TEXT")
     private String username;
 }

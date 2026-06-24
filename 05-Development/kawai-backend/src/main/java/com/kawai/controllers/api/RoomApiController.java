@@ -95,7 +95,14 @@ public class RoomApiController {
             return ResponseEntity.badRequest().build();
         }
         
-        List<Room> occupiedRooms = roomRepository.findOccupiedRoomsByCustomerCccd(cccd.trim());
+        String encryptedCccd = cccd.trim();
+        try {
+            encryptedCccd = com.kawai.utils.EncryptionUtils.encrypt(cccd.trim());
+        } catch (Exception e) {
+            // Keep original if encryption fails
+        }
+        
+        List<Room> occupiedRooms = roomRepository.findOccupiedRoomsByCustomerCccd(encryptedCccd);
         if (occupiedRooms.isEmpty()) {
             return ResponseEntity.notFound().build();
         }

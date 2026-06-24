@@ -88,7 +88,8 @@ public class ReceptionistController {
                 int baseChildren = c.getBaseChildren() != null ? c.getBaseChildren() : 0;
                 java.text.NumberFormat formatter = java.text.NumberFormat.getInstance(new java.util.Locale("vi", "VN"));
                 String priceStr = c.getBasePrice() != null ? formatter.format(c.getBasePrice()) : "0";
-                cat = c.getCategoryName() + " - " + priceStr + " VNĐ/đêm (Tiêu chuẩn: " + baseAdults + " NL, " + baseChildren + " TE)";
+                cat = c.getCategoryName() + " - " + priceStr + " VNĐ/đêm (Tiêu chuẩn: " + baseAdults + " NL, "
+                        + baseChildren + " TE)";
             }
             Map<String, Object> roomInfo = new HashMap<>();
             roomInfo.put("id", r.getId());
@@ -173,7 +174,7 @@ public class ReceptionistController {
             String phone = b.getCustomer() != null ? b.getCustomer().getPhone() : "";
             String cccdEnc = b.getCustomer() != null ? b.getCustomer().getCccdPassportEncrypted() : "";
             String cccd = "";
-            if (!cccdEnc.isEmpty()) {
+            if (cccdEnc != null && !cccdEnc.isEmpty()) {
                 try {
                     cccd = com.kawai.utils.EncryptionUtils.decrypt(cccdEnc);
                 } catch (Exception e) {
@@ -303,11 +304,8 @@ public class ReceptionistController {
         model.addAttribute("totalInHouseCount", totalInHouseItems);
         model.addAttribute("currentInHousePage", inHousePage);
         model.addAttribute("totalInHousePages", totalInHousePages);
-
         return "receptionist/in-house";
     }
-
-
 
     @GetMapping("/folio")
     public String folio(Model model) {
@@ -318,7 +316,6 @@ public class ReceptionistController {
     public String folioDetail(Model model) {
         return "receptionist/folio-detail";
     }
-
 
     @GetMapping("/night-audit")
     public String nightAudit(Model model) {

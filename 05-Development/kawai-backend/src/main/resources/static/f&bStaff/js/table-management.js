@@ -454,7 +454,7 @@ function buildTimeAxis() {
 
 function getBlockClass(status) {
   switch ((status || '').toLowerCase()) {
-    case 'confirmed': return 'tl-block-confirmed';
+    case 'confirmed': return 'tl-block-pending';
     case 'seated':    return 'tl-block-seated';
     case 'completed': return 'tl-block-completed';
     case 'cancelled': return 'tl-block-cancelled';
