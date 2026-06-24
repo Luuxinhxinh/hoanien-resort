@@ -37,8 +37,7 @@ INSERT INTO Accounts (account_id, username, password_hash, is_active, role_id, c
 (16, 'housekeep1', '$2a$10$ikP3XeXnMx/oLodhs4wqBO61AhyuE4dWtSJDJcOH7D2ii5Vrgq0bG', TRUE, 5, CURRENT_TIMESTAMP),
 (17, 'housekeep2', '$2a$10$ikP3XeXnMx/oLodhs4wqBO61AhyuE4dWtSJDJcOH7D2ii5Vrgq0bG', TRUE, 5, CURRENT_TIMESTAMP),
 (18, 'pos1', '$2a$10$ikP3XeXnMx/oLodhs4wqBO61AhyuE4dWtSJDJcOH7D2ii5Vrgq0bG', TRUE, 4, CURRENT_TIMESTAMP),
-(19, 'manager1', '$2a$10$4bnThA4xQVw1rF2POQv78uAQll2KsUsgF32JaYiVG5d2d3Fhgk83q', TRUE, 7, CURRENT_TIMESTAMP),
-(20, 'spa1', '$2a$10$ikP3XeXnMx/oLodhs4wqBO61AhyuE4dWtSJDJcOH7D2ii5Vrgq0bG', TRUE, 6, CURRENT_TIMESTAMP);
+(19, 'manager1', '$2a$10$4bnThA4xQVw1rF2POQv78uAQll2KsUsgF32JaYiVG5d2d3Fhgk83q', TRUE, 7, CURRENT_TIMESTAMP);
 
 -- ── 3. Employees (10 rows) ───────────────────────────────────
 INSERT INTO Employees (employee_id, account_id, full_name, gender, cccd, phone, email, salary) VALUES 
@@ -50,8 +49,7 @@ INSERT INTO Employees (employee_id, account_id, full_name, gender, cccd, phone, 
 (6, 14, 'Phạm Quốc Bảo', 'Nam', '001234567895', '0912000006', 'pqbao@hoanien.vn', 8500000),
 (7, 15, 'Trần Thu Hà', 'Nữ', '001234567896', '0912000007', 'ttha@hoanien.vn', 8500000),
 (8, 16, 'Lê Văn Tám', 'Nam', '001234567897', '0912000008', 'lvtam@hoanien.vn', 7000000),
-(9, 17, 'Nguyễn Thị Hoa', 'Nữ', '001234567898', '0912000009', 'nthoa@hoanien.vn', 7000000),
-(10, 20, 'Vũ Hải Yến', 'Nữ', '001234567899', '0912000010', 'vhyen@hoanien.vn', 7500000);
+(9, 17, 'Nguyễn Thị Hoa', 'Nữ', '001234567898', '0912000009', 'nthoa@hoanien.vn', 7000000);
 
 -- ── 4. Customers (15 rows) ───────────────────────────────────
 INSERT INTO Customers (customer_id, account_id, full_name, gender, cccd_passport_encrypted, phone, email, loyalty_points, membership_tier) VALUES 
@@ -114,54 +112,54 @@ INSERT INTO Room_Surcharges (surcharge_id, category_id, surcharge_type, age_from
 
 -- ── 8. Rooms (50 rows) ───────────────────────────────────────
 INSERT INTO Rooms (room_id, room_number, category_id, room_status, current_booking_detail_id) VALUES 
-(1, '101', 1, 'Occupied', NULL),
+(1, '101', 1, 'Occupied', 1),
 (2, '102', 1, 'Vacant_Clean', NULL),
-(3, '103', 1, 'Vacant_Dirty', NULL),
+(3, '103', 1, 'Occupied', 2),
 (4, '104', 1, 'Vacant_Clean', NULL),
-(5, '105', 1, 'Occupied', NULL),
+(5, '105', 1, 'Occupied', 3),
 (6, '106', 4, 'Vacant_Clean', NULL),
-(7, '107', 4, 'Vacant_Dirty', NULL),
-(8, '108', 4, 'Occupied', NULL),
+(7, '107', 4, 'Vacant_Clean', NULL),
+(8, '108', 4, 'Vacant_Clean', NULL),
 (9, '109', 4, 'Vacant_Clean', NULL),
 (10, '110', 4, 'Vacant_Clean', NULL),
-(11, '201', 2, 'Occupied', NULL),
+(11, '201', 2, 'Vacant_Clean', NULL),
 (12, '202', 2, 'Vacant_Clean', NULL),
-(13, '203', 2, 'Vacant_Dirty', NULL),
+(13, '203', 2, 'Vacant_Clean', NULL),
 (14, '204', 2, 'Vacant_Clean', NULL),
-(15, '205', 2, 'Occupied', NULL),
+(15, '205', 2, 'Occupied', 7),
 (16, '206', 10, 'Vacant_Clean', NULL),
-(17, '207', 10, 'Vacant_Dirty', NULL),
-(18, '208', 10, 'Occupied', NULL),
+(17, '207', 10, 'Vacant_Clean', NULL),
+(18, '208', 10, 'Occupied', 8),
 (19, '209', 10, 'Vacant_Clean', NULL),
 (20, '210', 10, 'Vacant_Clean', NULL),
-(21, '301', 7, 'Occupied', NULL),
+(21, '301', 7, 'Vacant_Clean', NULL),
 (22, '302', 7, 'Vacant_Clean', NULL),
-(23, '303', 7, 'Vacant_Dirty', NULL),
+(23, '303', 7, 'Vacant_Clean', NULL),
 (24, '304', 7, 'Vacant_Clean', NULL),
-(25, '305', 7, 'Occupied', NULL),
+(25, '305', 7, 'Vacant_Clean', NULL),
 (26, '306', 8, 'Vacant_Clean', NULL),
-(27, '307', 8, 'Vacant_Dirty', NULL),
-(28, '308', 8, 'Occupied', NULL),
+(27, '307', 8, 'Vacant_Clean', NULL),
+(28, '308', 8, 'Vacant_Clean', NULL),
 (29, '309', 8, 'Vacant_Clean', NULL),
 (30, '310', 8, 'Vacant_Clean', NULL),
-(31, '401', 6, 'Occupied', NULL),
+(31, '401', 6, 'Vacant_Clean', NULL),
 (32, '402', 6, 'Vacant_Clean', NULL),
-(33, '403', 6, 'Vacant_Dirty', NULL),
+(33, '403', 6, 'Vacant_Clean', NULL),
 (34, '404', 6, 'Vacant_Clean', NULL),
-(35, '405', 6, 'Occupied', NULL),
+(35, '405', 6, 'Vacant_Clean', NULL),
 (36, '406', 3, 'Vacant_Clean', NULL),
-(37, '407', 3, 'Vacant_Dirty', NULL),
-(38, '408', 3, 'Occupied', NULL),
+(37, '407', 3, 'Vacant_Clean', NULL),
+(38, '408', 3, 'Vacant_Clean', NULL),
 (39, '409', 3, 'Vacant_Clean', NULL),
 (40, '410', 3, 'Vacant_Clean', NULL),
-(41, '501', 5, 'Occupied', NULL),
+(41, '501', 5, 'Vacant_Clean', NULL),
 (42, '502', 5, 'Vacant_Clean', NULL),
-(43, '503', 5, 'Vacant_Dirty', NULL),
+(43, '503', 5, 'Vacant_Clean', NULL),
 (44, '504', 5, 'Vacant_Clean', NULL),
-(45, '505', 5, 'Occupied', NULL),
+(45, '505', 5, 'Vacant_Clean', NULL),
 (46, '506', 9, 'Vacant_Clean', NULL),
-(47, '507', 9, 'Vacant_Dirty', NULL),
-(48, '508', 9, 'Occupied', NULL),
+(47, '507', 9, 'Vacant_Clean', NULL),
+(48, '508', 9, 'Vacant_Clean', NULL),
 (49, '509', 9, 'Vacant_Clean', NULL),
 (50, '510', 9, 'Vacant_Clean', NULL);
 
@@ -201,8 +199,7 @@ INSERT INTO Promotions (promo_id, promo_code, discount_type, discount_value, val
 (6, 'HONEYMOON', 'FIXED_AMOUNT', 500000.00, '2026-01-01 00:00:00', '2026-12-31 23:59:59', 100, 2, TRUE, 'Gói trăng mật ngọt ngào giảm ngay 500k.'),
 (7, 'FESTIVE15', 'PERCENTAGE', 15.00, '2026-12-20 00:00:00', '2027-01-05 23:59:59', 1000, 0, TRUE, 'Chào đón giáng sinh và năm mới.'),
 (8, 'VOUCHER100K', 'FIXED_AMOUNT', 100000.00, '2026-01-01 00:00:00', '2026-12-31 23:59:59', 10000, 300, TRUE, 'Voucher 100k cho khách hàng thân thiết.'),
-(9, 'EARLYBIRD', 'PERCENTAGE', 8.00, '2026-01-01 00:00:00', '2026-12-31 23:59:59', 2000, 50, TRUE, 'Đặt trước 30 ngày hưởng ngay ưu đãi 8%.'),
-(10, 'SPARELAX', 'FIXED_AMOUNT', 150000.00, '2026-01-01 00:00:00', '2026-12-31 23:59:59', 500, 12, TRUE, 'Tặng 150k trải nghiệm liệu trình Spa cao cấp.');
+(9, 'EARLYBIRD', 'PERCENTAGE', 8.00, '2026-01-01 00:00:00', '2026-12-31 23:59:59', 2000, 50, TRUE, 'Đặt trước 30 ngày hưởng ngay ưu đãi 8%.');
 
 -- ── 12. Bookings (20 rows) ───────────────────────────────────
 INSERT INTO Bookings (booking_id, customer_id, booking_date, total_price, booking_status, booking_source, applied_promotion_id, version) VALUES
@@ -249,12 +246,12 @@ INSERT INTO Room_Bookings (room_booking_id, check_in_date, check_out_date, depos
 INSERT INTO Room_Booking_Details (detail_id, room_booking_id, category_id, room_id, room_charge, detail_status, bed_preference, special_requests, is_charge_to_room_allowed, sub_credit_limit, billing_routing_strategy) VALUES
 (1, 1, 1, 1, 2500000, 'Checked_In', 'KING_SIZE', NULL, TRUE, 500000, 'BILL_TO_LEADER'),
 (2, 2, 2, 3, 3500000, 'Checked_In', 'KING_SIZE', NULL, TRUE, 1500000, 'BILL_TO_LEADER'),
-(3, 3, 3, 5, 8000000, 'Pending', 'KING_SIZE', NULL, TRUE, 2000000, 'BILL_TO_LEADER'),
+(3, 3, 3, 5, 8000000, 'Checked_In', 'KING_SIZE', NULL, TRUE, 2000000, 'BILL_TO_LEADER'),
 (4, 4, 1, 7, 2500000, 'Pending', 'KING_SIZE', NULL, TRUE, 500000, 'BILL_TO_LEADER'),
 (5, 5, 1, 9, 2500000, 'Pending', 'KING_SIZE', NULL, TRUE, 500000, 'BILL_TO_LEADER'),
 (6, 6, 2, 12, 3500000, 'Pending', 'KING_SIZE', NULL, TRUE, 1500000, 'BILL_TO_LEADER'),
-(7, 7, 2, 15, 3500000, 'Pending', 'KING_SIZE', NULL, TRUE, 1500000, 'BILL_TO_LEADER'),
-(8, 8, 3, 18, 8000000, 'Pending', 'KING_SIZE', NULL, TRUE, 3000000, 'BILL_TO_LEADER'),
+(7, 7, 2, 15, 3500000, 'Checked_In', 'KING_SIZE', NULL, TRUE, 1500000, 'BILL_TO_LEADER'),
+(8, 8, 3, 18, 8000000, 'Checked_In', 'KING_SIZE', NULL, TRUE, 3000000, 'BILL_TO_LEADER'),
 (9, 14, 1, 2, 2500000, 'Pending', 'KING_SIZE', NULL, TRUE, 500000, 'BILL_TO_LEADER'),
 (10, 15, 2, 4, 3500000, 'Pending', 'TWIN_BED', NULL, TRUE, 1500000, 'BILL_TO_LEADER');
 
@@ -434,12 +431,9 @@ INSERT INTO Food_Order_Details (detail_id, order_id, menu_item_id, quantity, pri
 -- ── 21. Hotel Services (10 rows) ─────────────────────────────
 INSERT INTO Hotel_Services (service_id, service_name, base_price, source_department, is_available, description) VALUES 
 (1, 'Đón tiễn sân bay bằng xe Limousine', 800000, 'TRANSPORTATION', TRUE, 'Xe Limousine 9 chỗ đón đưa sân bay sang trọng.'),
-(2, 'Liệu trình hoa hồng cổ hồng Spa', 1200000, 'SPA', TRUE, 'Massage body và đắp mặt nạ bằng cánh hoa hồng cổ organic.'),
 (3, 'Giặt sấy quần áo lấy nhanh', 150000, 'LAUNDRY', TRUE, 'Giặt hấp sấy khô quần áo giao trả trong 4 giờ.'),
 (4, 'Decor phòng tân hôn lãng mạn', 500000, 'FLORIST', TRUE, 'Trang trí phòng bằng hoa tươi hồng đỏ và nến thơm nồng nàn.'),
 (5, 'Thuê xe máy tay ga tự lái', 200000, 'TRANSPORTATION', TRUE, 'Thuê xe ga Honda Vision 110cc tự lái khám phá đảo ngọc.'),
-(6, 'Xông hơi khô đá nóng thảo dược', 300000, 'SPA', TRUE, 'Phòng xông sauna đá muối Himalaya thải độc tố.'),
-(7, 'Tẩy tế bào chết bằng bã cafe', 450000, 'SPA', TRUE, 'Liệu pháp massage chà dưỡng toàn thân thư giãn.'),
 (8, 'Giặt khô đồ vest/đầm dạ hội', 250000, 'LAUNDRY', TRUE, 'Giặt khô là hơi đồ vest và váy cưới cao cấp.'),
 (9, 'Bó hoa tươi chúc mừng sinh nhật', 600000, 'FLORIST', TRUE, 'Bó hoa hướng dương kết hợp hoa hồng tươi rực rỡ.'),
 (10, 'Thuê xe ô tô 7 chỗ kèm tài xế', 1500000, 'TRANSPORTATION', TRUE, 'Thuê xe Toyota Fortuner đi tham quan đảo trọn ngày.');
@@ -472,15 +466,12 @@ INSERT INTO Hotel_Operations (task_id, room_id, staff_id, supervisor_id, operati
 
 -- ── 24. Folio Items (10 rows) ────────────────────────────────
 INSERT INTO Folio_Items (folio_item_id, booking_id, room_booking_detail_id, payer_customer_id, source_department, amount, description, is_settled_separately, created_by_staff_id, created_at, signature_img_url) VALUES 
-(1, 1, 1, 1, 'SPA', 1200000, 'Gói massage hoa hồng cổ hồng', FALSE, 4, CURRENT_TIMESTAMP, NULL),
 (2, 1, 1, 1, 'F&B', 180000, 'Súp Bí Đỏ Truffle Room Service', FALSE, 2, CURRENT_TIMESTAMP, NULL),
 (3, 2, 2, 2, 'TRANSPORTATION', 800000, 'Xe đón tiễn Limousine sân bay', FALSE, 4, CURRENT_TIMESTAMP, NULL),
-(4, 3, 3, 3, 'SPA', 600000, 'Xông hơi đá muối Himalaya x2', FALSE, 10, CURRENT_TIMESTAMP, NULL),
 (5, 4, 4, 4, 'LAUNDRY', 150000, 'Giặt sấy quần áo lấy nhanh', FALSE, 4, CURRENT_TIMESTAMP, NULL),
 (6, 5, 5, 5, 'TRANSPORTATION', 200000, 'Thuê xe máy Honda Vision tự lái', FALSE, 4, CURRENT_TIMESTAMP, NULL),
 (7, 6, 6, 6, 'F&B', 350000, 'Lẩu Thái Hải Sản tại phòng', FALSE, 2, CURRENT_TIMESTAMP, NULL),
 (8, 7, 7, 7, 'FLORIST', 500000, 'Trang trí phòng trăng mật', FALSE, 4, CURRENT_TIMESTAMP, NULL),
-(9, 8, 8, 8, 'SPA', 450000, 'Tẩy da chết toàn thân bã cafe', FALSE, 10, CURRENT_TIMESTAMP, NULL),
 (10, 14, 9, 12, 'TRANSPORTATION', 800000, 'Đón tiễn sân bay Limousine', FALSE, 4, CURRENT_TIMESTAMP, NULL);
 
 -- ── 25. Consolidated Invoices (10 rows) ──────────────────────
@@ -675,7 +666,6 @@ INSERT INTO Reviews (review_id, customer_id, room_booking_detail_id, tour_bookin
 (6, 6, 6, NULL, 4, 'Cảnh quan xanh mát, phòng 207 view hồ bơi rộng rãi tuyệt vời.', 'Approved', 4, 'Đánh giá tốt', CURRENT_TIMESTAMP),
 (7, 7, 7, NULL, 5, 'Hội An Tour do HDV Hướng Dẫn thuyết minh rất sinh động, xe đi êm.', 'Approved', 4, 'Đánh giá tốt', CURRENT_TIMESTAMP),
 (8, 8, 8, NULL, 5, 'Bữa tối Wagyu tại nhà hàng cực ngon, thịt mềm mọng sốt tiêu thơm.', 'Approved', 4, 'Đánh giá tốt', CURRENT_TIMESTAMP),
-(9, 12, 9, NULL, 5, 'Dịch vụ spa rose massage body rất chuyên nghiệp thoải mái.', 'Approved', 4, 'Đánh giá tốt', CURRENT_TIMESTAMP),
 (10, 13, 10, NULL, 4, 'Lịch trình trơn tru, nhân viên thân thiện hiếu khách nhiệt tình.', 'Approved', 4, 'Đánh giá tốt', CURRENT_TIMESTAMP);
 
 -- ── 40. Authorized Devices (10 rows) ─────────────────────────
@@ -700,9 +690,7 @@ INSERT INTO Audit_Logs (log_id, account_id, action, table_name, record_id, old_v
 (5, 4, 'APPROVE_DEVICE', 'Authorized_Devices', 2, 'false', 'true', '192.168.1.10', CURRENT_TIMESTAMP),
 (6, 13, 'START_TOUR', 'Run_Itinerary_Status', 1, 'NOT_STARTED', 'COMPLETED', '192.168.1.5', CURRENT_TIMESTAMP),
 (7, 4, 'MODERATE_REVIEW', 'Reviews', 1, 'Pending', 'Approved', '192.168.1.10', CURRENT_TIMESTAMP),
-(8, 1, 'CREATE_PROMOTION', 'Promotions', 10, NULL, 'Promo SPARELAX added', '192.168.1.10', CURRENT_TIMESTAMP),
-(9, 4, 'UPDATE_INVOICE', 'Consolidated_Invoices', 1, 'Draft', 'Settled', '192.168.1.10', CURRENT_TIMESTAMP),
-(10, 4, 'ADD_FOLIO_ITEM', 'Folio_Items', 1, NULL, 'Folio Spa added to room 101', '192.168.1.10', CURRENT_TIMESTAMP);
+(9, 4, 'UPDATE_INVOICE', 'Consolidated_Invoices', 1, 'Draft', 'Settled', '192.168.1.10', CURRENT_TIMESTAMP);
 
 -- ── 42. Test Accounts cho khách đăng nhập test ───────────────
 -- password: admin123  |  hash: $2a$10$4bnThA4xQVw1rF2POQv78uAQll2KsUsgF32JaYiVG5d2d3Fhgk83q
@@ -745,6 +733,50 @@ INSERT IGNORE INTO Room_Guests (guest_id, detail_id, customer_id, dependent_id, 
 UPDATE Rooms SET current_booking_detail_id = 11, room_status = 'Occupied' WHERE room_id = 6;
 UPDATE Rooms SET current_booking_detail_id = 12, room_status = 'Occupied' WHERE room_id = 11;
 UPDATE Rooms SET current_booking_detail_id = 13, room_status = 'Occupied' WHERE room_id = 16;
+
+-- ── 51. Lê Hoàng Nam đặt 3 phòng 1 lượt ─────────────────────────────────────
+-- RoomBooking IS-A Booking (Table-Per-Class Inheritance):
+--   room_booking_id = booking_id (cùng một PK, bản ghi cha trong Bookings, con trong Room_Bookings)
+-- Nam đặt 3 phòng riêng, check-in 2026-06-25, check-out 2026-06-28
+
+-- Bước 1: 3 bản ghi Bookings (bảng cha) — mỗi cái là 1 phòng của Nam
+INSERT IGNORE INTO Bookings (booking_id, customer_id, booking_date, total_price, booking_status, booking_source, applied_promotion_id, version) VALUES
+(50, 1, '2026-06-22', 4500000, 'Confirmed', 'Direct_Web', NULL, 1),
+(51, 1, '2026-06-22', 4500000, 'Confirmed', 'Direct_Web', NULL, 1),
+(52, 1, '2026-06-22', 4500000, 'Confirmed', 'Direct_Web', NULL, 1);
+
+-- Bước 2: 3 bản ghi Room_Bookings (bảng con) với cùng ID → kế thừa từ Bookings
+INSERT IGNORE INTO Room_Bookings (room_booking_id, check_in_date, check_out_date, deposit_amount, cancellation_deadline, credit_limit, personal_pin_hash) VALUES
+(50, '2026-06-25', '2026-06-28', 1000000, '2026-06-23', 6000000, 'hash'),
+(51, '2026-06-25', '2026-06-28', 1000000, '2026-06-23', 6000000, 'hash'),
+(52, '2026-06-25', '2026-06-28', 1000000, '2026-06-23', 6000000, 'hash');
+
+-- Bước 3: 3 Room_Booking_Details — phòng 301, 302, 303 (Family Connecting Room, category_id=7)
+INSERT IGNORE INTO Room_Booking_Details (detail_id, room_booking_id, category_id, room_id, room_charge, detail_status, bed_preference, special_requests, is_charge_to_room_allowed, sub_credit_limit, billing_routing_strategy, customer_id) VALUES
+(50, 50, 7, 21, 4500000, 'Checked_In', 'KING_SIZE', 'Cần thêm giường phụ cho trẻ em', TRUE, 1000000, 'BILL_TO_LEADER', 1),
+(51, 51, 7, 22, 4500000, 'Checked_In', 'TWIN_BED', NULL,                              TRUE, 1000000, 'BILL_TO_LEADER', 2),
+(52, 52, 7, 23, 4500000, 'Checked_In', 'TWIN_BED', 'Tầng cao, view đẹp',              TRUE, 1000000, 'BILL_TO_LEADER', 3);
+
+-- Cập nhật trạng thái và gán current_booking cho 3 phòng này
+UPDATE Rooms SET current_booking_detail_id = 50, room_status = 'Occupied' WHERE room_id = 21;
+UPDATE Rooms SET current_booking_detail_id = 51, room_status = 'Occupied' WHERE room_id = 22;
+UPDATE Rooms SET current_booking_detail_id = 52, room_status = 'Occupied' WHERE room_id = 23;
+
+-- Bước 4: Room Guests — Mỗi phòng 1 người đại diện (Lê Hoàng Nam, Nguyễn Văn An, Phạm Tuấn)
+INSERT IGNORE INTO Room_Guests (guest_id, detail_id, customer_id, dependent_id, guest_type, is_primary_contact) VALUES
+(50, 50, 1,    NULL, 'ADULT', TRUE),
+(51, 50, NULL,    1, 'CHILD', FALSE),
+(52, 50, NULL,    2, 'CHILD', FALSE),
+(53, 51, 2,    NULL, 'ADULT', TRUE),
+(54, 52, 3,    NULL, 'ADULT', TRUE);
+
+-- Bước 5: Thêm Folio Items (Fake dịch vụ sử dụng) cho 3 phòng của Lê Hoàng Nam
+INSERT IGNORE INTO Folio_Items (folio_item_id, booking_id, room_booking_detail_id, payer_customer_id, source_department, amount, description, is_settled_separately, created_by_staff_id, created_at) VALUES 
+(50, 50, 50, 1, 'F&B', 850000, 'Ăn tối tại nhà hàng - Set menu', FALSE, 2, CURRENT_TIMESTAMP),
+(51, 50, 50, 1, 'LAUNDRY', 120000, 'Giặt sấy quần áo', FALSE, 4, CURRENT_TIMESTAMP),
+(52, 51, 51, 1, 'F&B', 150000, 'Đồ uống minibar - Phòng 302', FALSE, 2, CURRENT_TIMESTAMP),
+(53, 51, 51, 1, 'SPA', 800000, 'Massage thư giãn 60 phút', FALSE, 3, CURRENT_TIMESTAMP),
+(54, 52, 52, 1, 'TRANSPORTATION', 350000, 'Thuê xe máy 2 ngày', FALSE, 4, CURRENT_TIMESTAMP);
 
 -- ── Reset Auto-Increment Sequences (MySQL syntax) ────────────
 ALTER TABLE Roles AUTO_INCREMENT = 100;

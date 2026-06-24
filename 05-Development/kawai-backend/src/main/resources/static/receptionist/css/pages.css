@@ -47,6 +47,25 @@
     background-color: #f9f9f9;
 }
 
+.btn-view {
+    background-color: rgba(201, 169, 110, 0.1);
+    color: #946f38;
+    border: 1px solid rgba(201, 169, 110, 0.3);
+    border-radius: 20px;
+    padding: 6px 12px;
+    font-size: 13px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-view:hover {
+    background-color: #946f38;
+    color: white;
+    border-color: #946f38;
+}
+
 /* Data Table */
 .table-container {
     background-color: #ffffff;

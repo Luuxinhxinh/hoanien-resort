@@ -117,9 +117,7 @@
                     <table class="data-table">
                         <thead>
                             <tr>
-                                <th>Folio No.</th>
-                                <th>Room</th>
-                                <th>Guest Name</th>
+                                <th>Representative / Booker</th>
                                 <th>Total Charges</th>
                                 <th>Total Payments</th>
                                 <th>Balance</th>
@@ -163,14 +161,14 @@
                         let balanceClass = folio.balance > 0 ? 'text-red' : '';
                         
                         tr.innerHTML = `
-                            <td>${folio.folioNo}</td>
-                            <td>${folio.roomNumber}</td>
-                            <td>${folio.guestName}</td>
+                            <td>
+                                <div style="font-weight: 500;"><i class="fa-solid fa-user-tie" style="color: #c19b6c; font-size: 0.8rem; margin-right: 4px;"></i> ${folio.bookerName}</div>
+                            </td>
                             <td>${formatCurrency(folio.totalCharges)}</td>
                             <td>${formatCurrency(folio.totalPayments)}</td>
-                            <td><strong class="${balanceClass}">${formatCurrency(folio.balance)}</strong></td>
-                            <td><span class="status-badge status-pending">${folio.status}</span></td>
-                            <td><a href="/receptionist/folio/detail?id=${folio.roomBookingDetailId}" class="btn btn-outline btn-sm" style="text-decoration:none; white-space: nowrap;">View Details</a></td>
+                            <td><strong class="${balanceClass}" style="font-size: 1.05rem;">${formatCurrency(folio.balance)}</strong></td>
+                            <td><span class="status-badge status-pending" style="text-transform: capitalize;">${folio.status.toLowerCase()}</span></td>
+                            <td><a href="/receptionist/folio/detail?id=${folio.roomBookingDetailId}" class="btn btn-view" style="text-decoration:none; white-space: nowrap; background: #2c3e50; color: white;">View Details</a></td>
                         `;
                         tbody.appendChild(tr);
                     });
