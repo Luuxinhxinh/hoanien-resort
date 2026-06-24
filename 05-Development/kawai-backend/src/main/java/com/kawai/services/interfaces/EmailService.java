@@ -34,4 +34,9 @@ public interface EmailService {
      * Gửi email cảnh báo SLA cho supervisor
      */
     void sendSlaWarningEmail(String toEmail, String taskName, int pendingMinutes, String roomNumber);
+
+    /**
+     * Gửi email tùy chỉnh từ Workflow Engine
+     */
+    void sendCustomWorkflowEmail(String fromEmail, String toEmail, String subject, String htmlContent);
 }

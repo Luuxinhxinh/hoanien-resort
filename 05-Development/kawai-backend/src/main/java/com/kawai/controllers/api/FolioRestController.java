@@ -43,7 +43,7 @@ public class FolioRestController {
     private final ConsolidatedInvoiceRepository consolidatedInvoiceRepository;
     private final PaymentService paymentService;
     private final InvoicePdfService invoicePdfService;
-    private final EmailService emailService;
+    private final org.springframework.context.ApplicationEventPublisher eventPublisher;
     private final VnPayService vnPayService;
     private final com.kawai.repositories.RoomBookingRepository roomBookingRepository;
     private final com.kawai.repositories.PromotionRepository promotionRepository;
@@ -57,7 +57,7 @@ public class FolioRestController {
             ConsolidatedInvoiceRepository consolidatedInvoiceRepository,
             PaymentService paymentService,
             InvoicePdfService invoicePdfService,
-            EmailService emailService,
+            org.springframework.context.ApplicationEventPublisher eventPublisher,
             VnPayService vnPayService,
             com.kawai.repositories.RoomBookingRepository roomBookingRepository,
             com.kawai.repositories.PromotionRepository promotionRepository,
@@ -70,7 +70,7 @@ public class FolioRestController {
         this.consolidatedInvoiceRepository = consolidatedInvoiceRepository;
         this.paymentService = paymentService;
         this.invoicePdfService = invoicePdfService;
-        this.emailService = emailService;
+        this.eventPublisher = eventPublisher;
         this.vnPayService = vnPayService;
         this.promotionRepository = promotionRepository;
         this.customerRepository = customerRepository;
@@ -516,7 +516,11 @@ public class FolioRestController {
             if ("Paid".equalsIgnoreCase(invoice.getInvoiceStatus())) {
                 String pdfPath = invoicePdfService.generateInvoicePdf(invoice);
                 String customerEmail = detail.getRoomBooking().getCustomer().getEmail();
-                emailService.sendInvoiceEmail(customerEmail, invoice, pdfPath);
+                
+                Map<String, Object> ctx = new java.util.HashMap<>();
+                ctx.put("invoice", invoice);
+                ctx.put("pdfPath", pdfPath);
+                eventPublisher.publishEvent(new com.kawai.events.SystemEmailEvent(this, customerEmail, "Hóa đơn điện tử - HOANIEN", "invoice", ctx));
 
                 // 5.1 Cộng điểm Loyalty (1 điểm = 10,000 VNĐ chi tiêu)
                 if (paymentAmount.compareTo(BigDecimal.ZERO) > 0) {

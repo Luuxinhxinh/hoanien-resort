@@ -63,7 +63,7 @@ public class VnPayServiceImpl implements VnPayService {
     private com.kawai.services.interfaces.FolioService folioService;
 
     @Autowired
-    private EmailService emailService;
+    private org.springframework.context.ApplicationEventPublisher eventPublisher;
 
     @Autowired
     private InvoicePdfService invoicePdfService;
@@ -457,7 +457,10 @@ public class VnPayServiceImpl implements VnPayService {
                 try {
                     String pdfPath = invoicePdfService.generateInvoicePdf(invoice);
                     if (booking != null && booking.getCustomer() != null && booking.getCustomer().getEmail() != null) {
-                        emailService.sendInvoiceEmail(booking.getCustomer().getEmail(), invoice, pdfPath);
+                        Map<String, Object> ctx = new java.util.HashMap<>();
+                        ctx.put("invoice", invoice);
+                        ctx.put("pdfPath", pdfPath);
+                        eventPublisher.publishEvent(new com.kawai.events.SystemEmailEvent(this, booking.getCustomer().getEmail(), "Hóa đơn điện tử - HOANIEN", "invoice", ctx));
                     }
                 } catch (Exception e) {
                     System.err.println("Lỗi khi sinh PDF hoặc gửi Email cho hóa đơn VNPay: " + e.getMessage());

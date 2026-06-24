@@ -49,26 +49,26 @@
 
     <!-- ============ NAVIGATION BAR ============ -->
     <nav class="fixed top-0 left-0 w-full z-50 bg-hoanien-bg/90 backdrop-blur-md border-b border-hoanien-text/10 transition-all duration-300 font-sans site-header">
-        <div class="max-w-[1280px] mx-auto px-6 py-4 flex items-center justify-between relative">
-            <div class="hidden lg:flex items-center gap-8 text-[13px] uppercase tracking-[0.2em] font-semibold text-hoanien-text/80">
-                <a href="/living" class="hover:text-hoanien-text active:scale-95 transition-all duration-200 transition-colors">Living</a>
-                <a href="/dining" class="hover:text-hoanien-text active:scale-95 transition-all duration-200 transition-colors">Dining</a>
-                <a href="/experiences" class="hover:text-hoanien-text active:scale-95 transition-all duration-200 transition-colors">Experiences</a>
-                <a href="/tours/search" class="hover:text-hoanien-text active:scale-95 transition-all duration-200 transition-colors">Tours</a>
+        <div class="max-w-[1440px] mx-auto px-6 py-4 flex items-center justify-between relative">
+            <div class="hidden lg:flex items-center gap-8 text-[13px] uppercase tracking-[0.2em] font-semibold text-hoanien-text/60">
+                <a href="/living" class="hover:text-hoanien-text hover:opacity-100 active:scale-95 transition-all duration-200">Living</a>
+                <a href="/dining" class="hover:text-hoanien-text hover:opacity-100 active:scale-95 transition-all duration-200">Dining</a>
+                <a href="/experiences" class="hover:text-hoanien-text hover:opacity-100 active:scale-95 transition-all duration-200">Experiences</a>
+                <a href="/tours" class="hover:text-hoanien-text hover:opacity-100 active:scale-95 transition-all duration-200">Tours</a>
             </div>
 
             <div class="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 font-headline text-[32px] italic tracking-tighter text-hoanien-text text-center cursor-pointer w-max" onclick="window.location.href='/'">
                 HoaNien
             </div>
 
-            <div class="hidden lg:flex items-center gap-6 text-[13px] uppercase tracking-[0.2em] font-semibold text-hoanien-text/80">
-                <a href="/profile" class="hover:text-hoanien-text active:scale-95 transition-all duration-200 transition-colors border-b border-hoanien-text pb-0.5 text-hoanien-text">Profile</a>
+            <div class="hidden lg:flex items-center gap-6 text-[13px] uppercase tracking-[0.2em] font-semibold text-hoanien-text/60">
+                <a href="/profile" class="text-hoanien-text border-b border-hoanien-text pb-0.5 active:scale-95 transition-all duration-200">Profile</a>
                 <form th:action="@{/auth/logout}" method="post" class="inline">
-                    <button type="submit" class="hover:text-hoanien-text active:scale-95 transition-all duration-200 transition-colors uppercase tracking-[0.2em] bg-transparent border-none p-0 cursor-pointer">Logout</button>
+                    <button type="submit" class="hover:text-hoanien-text hover:opacity-100 active:scale-95 transition-all duration-200 bg-transparent border-none p-0 cursor-pointer uppercase tracking-[0.2em]">Logout</button>
                 </form>
-                <a href="/booking" class="hover:text-hoanien-text active:scale-95 transition-all duration-200 transition-colors inline-block">Book Now</a>
+                <a href="/booking" class="hover:text-hoanien-text hover:opacity-100 active:scale-95 transition-all duration-200 inline-block">Book Now</a>
             </div>
-            <button class="lg:hidden"><span class="material-symbols-outlined text-3xl">menu</span></button>
+            <button class="lg:hidden text-hoanien-text"><span class="material-symbols-outlined text-3xl">menu</span></button>
         </div>
     </nav>
 

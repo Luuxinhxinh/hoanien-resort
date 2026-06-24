@@ -374,6 +374,12 @@ function renderMockDiff(contentEl, tableName, timeStr, ipStr, empStr) {
     let mockRows = '';
     let mockAction = "Cập nhật dữ liệu (Mẫu)";
     
+    if (tableName === 'accounts' || tableName === 'account') {
+        contentEl.innerHTML = '<div style="text-align:center;padding:40px;color:#8B7355"><i data-lucide="info" style="width:24px;height:24px;display:inline-block;margin-bottom:12px;"></i><p>Chưa có dữ liệu theo dõi thay đổi (Audit) cho bản ghi này do tính năng kiểm toán mới được bật.</p></div>';
+        if (typeof lucide !== "undefined") lucide.createIcons();
+        return;
+    }
+
     if (tableName === 'menu-items' || tableName.includes('menu')) {
         mockAction = "Thay đổi trạng thái phục vụ (Mẫu)";
         mockRows = `

@@ -26,7 +26,9 @@ public class WorkflowEngineServiceImpl implements WorkflowEngineService {
     private final PromotionRepository promotionRepository;
     private final BookingRepository bookingRepository;
     private final ObjectMapper objectMapper;
-    private final EmailService emailService;
+    private final org.springframework.context.ApplicationEventPublisher eventPublisher;
+
+
 
     @Override
     @Transactional
@@ -115,6 +117,28 @@ public class WorkflowEngineServiceImpl implements WorkflowEngineService {
                                 roomRepository.save(room);
                                 System.out.println("Dynamic Action: Updated Room " + room.getRoomNumber() + " status to " + statusValue);
                             });
+                        }
+                    } else if ("SEND_EMAIL".equals(type)) {
+                        String sender = (String) action.get("sender_email");
+                        String target = (String) action.get("target_email");
+                        String subject = (String) action.get("email_subject");
+                        String bodyHtml = (String) action.get("email_body_html");
+                        
+                        if (target != null && subject != null && bodyHtml != null) {
+                            // Basic payload replacement for placeholders like {{email}}
+                            for(Map.Entry<String, Object> entry : payload.entrySet()) {
+                                if (entry.getValue() != null) {
+                                    String placeholder = "{{" + entry.getKey() + "}}";
+                                    String val = entry.getValue().toString();
+                                    target = target.replace(placeholder, val);
+                                    subject = subject.replace(placeholder, val);
+                                    bodyHtml = bodyHtml.replace(placeholder, val);
+                                }
+                            }
+                            Map<String, Object> ctx = new java.util.HashMap<>();
+                            ctx.put("fromEmail", sender);
+                            ctx.put("htmlContent", bodyHtml);
+                            eventPublisher.publishEvent(new com.kawai.events.SystemEmailEvent(this, target, subject, "custom-workflow", ctx));
                         }
                     }
                 }
@@ -355,7 +379,11 @@ public class WorkflowEngineServiceImpl implements WorkflowEngineService {
                         try {
                             String taskName = op.getOperationalType() + " Task (ID: " + op.getId() + ")";
                             String roomNum = op.getRoom() != null ? op.getRoom().getRoomNumber() : "N/A";
-                            emailService.sendSlaWarningEmail(supervisor.getEmail(), taskName, maxPendingMinutes, roomNum);
+                            Map<String, Object> ctx = new java.util.HashMap<>();
+                            ctx.put("taskName", taskName);
+                            ctx.put("pendingMinutes", maxPendingMinutes);
+                            ctx.put("roomNumber", roomNum);
+                            eventPublisher.publishEvent(new com.kawai.events.SystemEmailEvent(this, supervisor.getEmail(), "SLA Warning", "sla-warning", ctx));
                             System.out.println("SLA Warning sent to: " + supervisor.getEmail() + " for task ID: " + op.getId());
                         } catch (Exception e) {
                             System.err.println("Failed to send SLA warning email: " + e.getMessage());

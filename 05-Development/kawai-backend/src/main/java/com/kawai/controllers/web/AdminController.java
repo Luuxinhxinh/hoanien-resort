@@ -16,10 +16,14 @@ import com.kawai.services.interfaces.AdminViewService;
 
 @Controller
 @RequestMapping("/admin")
-@AllArgsConstructor
+@lombok.RequiredArgsConstructor
 public class AdminController {
 
   private final AdminViewService adminViewService;
+  private final com.kawai.repositories.AuthorizedDeviceRepository authorizedDeviceRepository;
+
+  @org.springframework.beans.factory.annotation.Value("${sendgrid.from-email:noreply@kawai-resort.com}")
+  private String defaultFromEmail;
 
   // =========================================================================
   // Dashboard
@@ -134,6 +138,20 @@ public class AdminController {
   @PreAuthorize("hasAnyAuthority('OP_WORKFLOW', 'ROLE_ADMIN')")
   @GetMapping("/workflows")
   public String workflows(Model model) {
+    model.addAttribute("defaultFromEmail", defaultFromEmail);
     return "admin/workflows";
+  }
+
+  @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+  @GetMapping("/cronjobs")
+  public String cronjobs(Model model) {
+    return "admin/cronjobs";
+  }
+
+  @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+  @GetMapping("/devices")
+  public String devices(Model model) {
+    model.addAttribute("devices", authorizedDeviceRepository.findAll());
+    return "admin/devices";
   }
 }

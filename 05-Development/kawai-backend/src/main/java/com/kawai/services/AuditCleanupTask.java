@@ -20,9 +20,16 @@ public class AuditCleanupTask {
      * Chạy vào lúc 2:00 sáng mỗi ngày.
      * Xóa tất cả các bản ghi AuditLog cũ hơn 90 ngày để tránh đầy Database.
      */
-    @Scheduled(cron = "0 0 2 * * ?")
+    private LocalDateTime lastRun;
+
+    public String getLastRunTime() {
+        return lastRun != null ? java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss").format(lastRun) : "Chưa chạy lần nào";
+    }
+
+    // Scheduled dynamically in DynamicJobConfig
     @Transactional
     public void cleanupOldAuditLogs() {
+        this.lastRun = LocalDateTime.now();
         LocalDateTime cutoffDate = LocalDateTime.now().minusDays(90);
         log.info("Bắt đầu dọn dẹp các bản ghi AuditLog cũ hơn: {}", cutoffDate);
         

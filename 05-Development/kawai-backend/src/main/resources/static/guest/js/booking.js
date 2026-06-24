@@ -804,30 +804,7 @@ function confirmCartBooking() {
         });
 }
 // ---------------- AUTH MODAL LOGIC ----------------
-function openLoginModal() {
-    document.getElementById('authModal').style.display = 'flex';
-    toggleAuthView('login');
-}
-function closeAuthModal() {
-    document.getElementById('authModal').style.display = 'none';
-}
-function toggleAuthView(view) {
-    if (view === 'login') {
-        document.getElementById('loginSection').style.display = 'block';
-        document.getElementById('registerSection').style.display = 'none';
-    } else {
-        document.getElementById('loginSection').style.display = 'none';
-        document.getElementById('registerSection').style.display = 'block';
-    }
-}
-const authModalEl = document.getElementById('authModal');
-if (authModalEl) {
-    authModalEl.addEventListener('click', function (e) {
-        if (e.target.id === 'authModal') {
-            closeAuthModal();
-        }
-    });
-}
+// Note: Auth modal logic (openLoginModal, closeAuthModal, toggleAuthView) has been migrated to the auth.html fragment.
 
 let showAllRooms = false;
 function initRoomsPagination() {

@@ -3,8 +3,11 @@ package com.kawai.models;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
+import org.hibernate.envers.Audited;
+
 @Entity
 @Table(name = "Accounts")
+@Audited
 public class Account {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,6 +21,7 @@ public class Account {
     private Boolean isActive = true;
     @ManyToOne
     @JoinColumn(name = "role_id", nullable = false)
+    @org.hibernate.envers.Audited(targetAuditMode = org.hibernate.envers.RelationTargetAuditMode.NOT_AUDITED)
     private Role role;
     @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();

@@ -89,6 +89,35 @@ public class EmailServiceImpl implements EmailService {
         }
     }
 
+    @Override
+    public void sendCustomWorkflowEmail(String customFromEmail, String toEmail, String subject, String htmlContent) {
+        if (sendGridApiKey == null || sendGridApiKey.isBlank()) {
+            logger.warn("[SENDGRID] API_KEY chưa được cấu hình. Custom Workflow Email không được gửi.");
+            logger.info("[SENDGRID MOCK] From: {}, To: {}, Subject: {}", customFromEmail, toEmail, subject);
+            logger.info("[SENDGRID MOCK CONTENT]: \n{}", htmlContent);
+            return;
+        }
+
+        try {
+            String finalFrom = (customFromEmail != null && !customFromEmail.trim().isEmpty()) ? customFromEmail : fromEmail;
+            Email from = new Email(finalFrom);
+            Email to = new Email(toEmail);
+            Content content = new Content("text/html", htmlContent);
+            Mail mail = new Mail(from, subject, to, content);
+
+            SendGrid sg = new SendGrid(sendGridApiKey);
+            Request request = new Request();
+            request.setMethod(Method.POST);
+            request.setEndpoint("mail/send");
+            request.setBody(mail.build());
+
+            Response response = sg.api(request);
+            logger.info("[SENDGRID] Custom Workflow Email sent from {} to {} - Status: {}", finalFrom, toEmail, response.getStatusCode());
+        } catch (IOException e) {
+            logger.error("[SENDGRID] Lỗi gửi custom workflow email tới {}: {}", toEmail, e.getMessage());
+        }
+    }
+
     private String buildRegistrationOtpEmail(String fullName, String otpCode) {
         return "<!DOCTYPE html>" +
                 "<html><body style=\"font-family: 'Times New Roman', Times, serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #FAFAFA;\">" +

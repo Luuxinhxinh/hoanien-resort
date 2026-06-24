@@ -25,6 +25,9 @@ public class AuditApiController {
 
     private Class<?> getEntityClass(String entityType) {
         switch (entityType) {
+            case "accounts":
+            case "account":
+                return com.kawai.models.Account.class;
             case "rooms":
                 return Room.class;
             case "room-categories":
@@ -35,6 +38,7 @@ public class AuditApiController {
                 return Tour.class;
             case "promotions":
                 return Promotion.class;
+
             default:
                 return null;
         }

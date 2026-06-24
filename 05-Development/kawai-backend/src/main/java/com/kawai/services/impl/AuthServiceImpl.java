@@ -36,10 +36,13 @@ public class AuthServiceImpl implements AuthService {
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    private EmailService emailService;
+    private org.springframework.context.ApplicationEventPublisher eventPublisher;
 
     @Autowired
     private WorkflowRepository workflowRepository;
+
+    @Autowired
+    private com.kawai.services.interfaces.WorkflowEngineService workflowEngineService;
 
     @org.springframework.beans.factory.annotation.Value("${app.base-url:http://localhost:8080}")
     private String baseUrl;
@@ -202,10 +205,22 @@ public class AuthServiceImpl implements AuthService {
 
         writeAuditLog(account, "GENERATE_OTP", "Accounts", account.getId(), null, "OTP generated: " + otp);
 
-        // Gửi email OTP xác nhận đăng ký
+        // Gửi email OTP xác nhận đăng ký qua Workflow Engine nếu có cấu hình, ngược lại dùng fallback
         Customer customer = customerRepository.findByAccount_Username(username).orElse(null);
         if (customer != null && customer.getEmail() != null) {
-            emailService.sendRegistrationOtpEmail(customer.getEmail(), otp, customer.getFullName());
+            boolean hasActiveWorkflow = workflowRepository.findByTriggerEventAndIsActive("USER_REGISTRATION_OTP", true).size() > 0;
+            if (hasActiveWorkflow) {
+                Map<String, Object> payload = new java.util.HashMap<>();
+                payload.put("email", customer.getEmail());
+                payload.put("fullName", customer.getFullName());
+                payload.put("otpCode", otp);
+                workflowEngineService.triggerEvent("USER_REGISTRATION_OTP", payload);
+            } else {
+                Map<String, Object> ctx = new java.util.HashMap<>();
+                ctx.put("otpCode", otp);
+                ctx.put("fullName", customer.getFullName());
+                eventPublisher.publishEvent(new com.kawai.events.SystemEmailEvent(this, customer.getEmail(), "Xác nhận đăng ký", "registration-otp", ctx));
+            }
         }
 
         return otp;
@@ -270,8 +285,20 @@ public class AuthServiceImpl implements AuthService {
 
         writeAuditLog(account, "RESET_PASSWORD_REQUEST", "Accounts", account.getId(), null, "Reset OTP: " + otp);
 
-        // Gửi email chứa OTP đặt lại mật khẩu
-        emailService.sendPasswordResetEmail(email, otp, username);
+        // Gửi email chứa OTP đặt lại mật khẩu qua Workflow Engine hoặc fallback
+        boolean hasActiveWorkflow = workflowRepository.findByTriggerEventAndIsActive("USER_PASSWORD_RESET", true).size() > 0;
+        if (hasActiveWorkflow) {
+            Map<String, Object> payload = new java.util.HashMap<>();
+            payload.put("email", email);
+            payload.put("fullName", username);
+            payload.put("otpCode", otp);
+            workflowEngineService.triggerEvent("USER_PASSWORD_RESET", payload);
+        } else {
+            Map<String, Object> ctx = new java.util.HashMap<>();
+            ctx.put("resetLink", otp);
+            ctx.put("fullName", username);
+            eventPublisher.publishEvent(new com.kawai.events.SystemEmailEvent(this, email, "Đặt lại mật khẩu", "password-reset", ctx));
+        }
 
         return otp;
     }

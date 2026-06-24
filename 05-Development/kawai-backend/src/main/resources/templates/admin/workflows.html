@@ -80,7 +80,7 @@
     <main class="adm-page p-6 max-w-7xl mx-auto">
         <div class="mb-6">
             <p class="adm-page-eyebrow text-xs tracking-widest text-[#A88A52] uppercase font-bold">Quy trình tự động hóa</p>
-            <h1 class="text-2xl font-semibold tracking-tight text-[#2C2A24] font-serif">Workflow Engine</h1>
+            <h1 class="text-2xl font-semibold tracking-tight text-[#2C2A24] font-sans">Workflow Engine</h1>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 mt-6">
@@ -108,7 +108,7 @@
             <div class="lg:col-span-7">
                 <div class="workflow-card sticky top-6 bg-white shadow-lg border border-brand-gold/20 rounded-xl overflow-hidden">
                     <div class="p-5 border-b border-brand-gold/15 bg-white">
-                        <h2 id="form-title" class="text-md font-bold text-[#2C2A24] font-serif">Thiết lập cấu hình quy trình</h2>
+                        <h2 id="form-title" class="text-md font-bold text-[#2C2A24] font-sans">Thiết lập cấu hình quy trình</h2>
                     </div>
 
                     <form id="workflow-form" class="space-y-6 p-6 bg-[#FAF9F6]" onsubmit="saveWorkflow(event)">
@@ -138,11 +138,23 @@
                                 <select id="trigger-event" name="triggerEvent" onchange="onTriggerChange()" required
                                         class="w-full px-3 py-2.5 border border-[#c0c8cb] rounded text-sm bg-white focus:outline-none focus:ring-1 focus:ring-brand-gold font-medium text-[#2C2A24]">
                                     <option value="" disabled selected>-- Chọn sự kiện kích hoạt --</option>
-                                    <option value="ROOM_REPORT_DAMAGE">Nhân viên buồng phòng báo hỏng phòng (ROOM_REPORT_DAMAGE)</option>
-                                    <option value="PROMOTION_EXCEEDED">Lễ tân áp dụng mã giảm giá vượt ngưỡng (PROMOTION_EXCEEDED)</option>
-                                    <option value="ROOM_CHECKOUT">Tự động dọn phòng khi khách Check-out (ROOM_CHECKOUT)</option>
-                                    <option value="SLA_ESCALATE">Cảnh báo SLA việc chưa nhận quá hạn (SLA_ESCALATE)</option>
-                                    <option value="ACCOUNT_SECURITY">Cấu hình bảo mật khóa tài khoản (ACCOUNT_SECURITY)</option>
+                                    
+                                    <optgroup label="Tự động hóa Email & Thông báo">
+                                        <option value="USER_REGISTRATION_OTP">Gửi mã OTP xác nhận đăng ký (USER_REGISTRATION_OTP)</option>
+                                        <option value="USER_PASSWORD_RESET">Gửi liên kết đặt lại mật khẩu (USER_PASSWORD_RESET)</option>
+                                        <option value="INVOICE_GENERATED">Gửi hóa đơn điện tử cho khách (INVOICE_GENERATED)</option>
+                                    </optgroup>
+
+                                    <optgroup label="Vận hành & SLA Khách sạn">
+                                        <option value="ROOM_REPORT_DAMAGE">Nhân viên buồng phòng báo hỏng phòng (ROOM_REPORT_DAMAGE)</option>
+                                        <option value="ROOM_CHECKOUT">Tự động dọn phòng khi khách Check-out (ROOM_CHECKOUT)</option>
+                                        <option value="SLA_ESCALATE">Cảnh báo SLA việc chưa nhận quá hạn (SLA_ESCALATE)</option>
+                                    </optgroup>
+
+                                    <optgroup label="Bảo mật & Quản lý rủi ro">
+                                        <option value="ACCOUNT_SECURITY">Cấu hình bảo mật khóa tài khoản (ACCOUNT_SECURITY)</option>
+                                        <option value="PROMOTION_EXCEEDED">Lễ tân áp dụng mã giảm giá vượt ngưỡng (PROMOTION_EXCEEDED)</option>
+                                    </optgroup>
                                 </select>
                             </div>
 
@@ -228,6 +240,10 @@
 <!-- TOAST CONTAINER -->
 <div id="toast-container" class="fixed bottom-5 right-5 z-50 space-y-2"></div>
 
+<script th:inline="javascript">
+    const globalDefaultFromEmail = /*[[${defaultFromEmail}]]*/ '';
+</script>
+
 <script>
     // Initialize Lucide Icons
     lucide.createIcons();
@@ -287,6 +303,8 @@
                 eventLabel = '<span class="px-2 py-0.5 bg-amber-50 text-amber-700 rounded border border-amber-200 text-[11px] font-bold">SLA_ESCALATE</span>';
             } else if (w.triggerEvent === 'ACCOUNT_SECURITY') {
                 eventLabel = '<span class="px-2 py-0.5 bg-rose-50 text-rose-700 rounded border border-rose-200 text-[11px] font-bold">ACCOUNT_SECURITY</span>';
+            } else if (w.triggerEvent === 'USER_REGISTRATION_OTP' || w.triggerEvent === 'USER_PASSWORD_RESET' || w.triggerEvent === 'INVOICE_GENERATED') {
+                eventLabel = `<span class="px-2 py-0.5 bg-indigo-50 text-indigo-700 rounded border border-indigo-200 text-[11px] font-bold">${escapeHtml(w.triggerEvent)}</span>`;
             } else {
                 eventLabel = `<span class="px-2 py-0.5 bg-gray-50 text-gray-700 rounded border border-gray-200 text-[11px] font-bold">${escapeHtml(w.triggerEvent)}</span>`;
             }
@@ -364,6 +382,11 @@
                 addActionRow("UPDATE_ROOM_STATUS", "Vacant_Dirty");
                 addActionRow("CREATE_OPERATION_TASK", "Housekeeping", "Normal");
             }
+        } else if (val === "USER_REGISTRATION_OTP" || val === "USER_PASSWORD_RESET" || val === "INVOICE_GENERATED") {
+            const actionsContainer = document.getElementById("actions-container");
+            if (actionsContainer.children.length === 0) {
+                addActionRow("SEND_EMAIL", "");
+            }
         }
     }
 
@@ -382,6 +405,7 @@
                     <option value="" disabled selected>-- Chọn hành động --</option>
                     <option value="UPDATE_ROOM_STATUS" ${actionType === "UPDATE_ROOM_STATUS" ? "selected" : ""}>Cập nhật trạng thái phòng thành...</option>
                     <option value="CREATE_OPERATION_TASK" ${actionType === "CREATE_OPERATION_TASK" ? "selected" : ""}>Tạo nhiệm vụ vận hành...</option>
+                    <option value="SEND_EMAIL" ${actionType === "SEND_EMAIL" ? "selected" : ""}>Gửi Email thông báo tự động...</option>
                 </select>
                 <button type="button" onclick="removeActionRow('${rowId}')" class="text-red-500 hover:text-red-700 p-1.5 ml-2 hover:bg-red-50 rounded transition-all" title="Xóa hành động">
                     <i data-lucide="trash-2" class="w-4 h-4"></i>
@@ -454,6 +478,59 @@
                 </select>
                 ${extraFields}
             `;
+        } else if (type === "SEND_EMAIL") {
+            const trigger = document.getElementById("trigger-event").value;
+            let defaultTarget = "{{customer.email}}";
+            let defaultSubject = "HOANIEN - Thông báo";
+            let defaultHtml = "";
+
+            if (trigger === "USER_PASSWORD_RESET") {
+                defaultTarget = "{{email}}";
+                defaultSubject = "HOANIEN - Yêu cầu khôi phục mật khẩu";
+                defaultHtml = `<!DOCTYPE html>
+<html>
+<body style="font-family: 'Times New Roman', Times, serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #FAFAFA;">
+<div style="background: linear-gradient(135deg, #1A1A1A 0%, #2C2C2C 100%); padding: 40px 30px; text-align: center; border-radius: 8px 8px 0 0;">
+    <h1 style="color: #D4AF37; margin: 0; font-size: 32px; letter-spacing: 6px; font-weight: 400;">HOANIEN</h1>
+    <p style="color: #E0E0E0; margin-top: 8px; font-weight: 300; font-size: 14px; letter-spacing: 2px; font-style: italic;">Retreat & Resort</p>
+</div>
+<div style="background: #FFFFFF; padding: 40px 30px; border-left: 1px solid #EAEAEA; border-right: 1px solid #EAEAEA; border-bottom: 1px solid #EAEAEA; border-radius: 0 0 8px 8px;">
+    <div style="text-align: center; margin-bottom: 30px;">
+        <span style="display: inline-block; padding: 6px 16px; background-color: #FFF5F5; border: 1px solid #C5A0A0; color: #8A4B4B; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; border-radius: 20px;">Khôi phục mật khẩu</span>
+    </div>
+    <p style="color: #333333; font-size: 16px; line-height: 1.6; margin-bottom: 20px;">Kính gửi Quý khách <strong style="color: #1A1A1A;">{{fullName}}</strong>,</p>
+    <p style="color: #555555; font-size: 15px; line-height: 1.8;"><i>HOANIEN Retreat & Resort</i> đã nhận được yêu cầu đặt lại mật khẩu cho tài khoản của Quý khách. Để đảm bảo tính bảo mật, xin vui lòng sử dụng mã xác nhận dưới đây để thiết lập lại mật khẩu:</p>
+    <div style="background: #FDFBF7; padding: 30px; border-radius: 8px; text-align: center; margin: 35px 0; border: 1px solid #E8E0D5;">
+        <h1 style="color: #8A4B4B; font-size: 42px; letter-spacing: 14px; margin: 0; font-family: 'Courier New', Courier, monospace; font-weight: 300;">{{otpCode}}</h1>
+    </div>
+    <p style="color: #888888; font-size: 13px; margin-bottom: 5px; font-style: italic;">* Mã xác nhận này chỉ có hiệu lực trong vòng <strong>15 phút</strong>.</p>
+</div>
+</body>
+</html>`;
+            }
+
+            valContainer.innerHTML = `
+                <div class="space-y-3 mt-2 border-t border-[#eaedff] pt-3">
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[10px] font-bold text-[#6B6558] mb-1">EMAIL NGƯỜI GỬI (TÙY CHỌN)</label>
+                            <input type="email" value="${globalDefaultFromEmail}" class="w-full px-2 py-1.5 border border-[#c0c8cb] rounded text-[11px] bg-white focus:outline-none focus:ring-1 focus:ring-brand-gold action-sender-email font-medium text-[#2C2A24]" />
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-[#6B6558] mb-1">EMAIL NGƯỜI NHẬN</label>
+                            <input type="text" value="${defaultTarget}" class="w-full px-2 py-1.5 border border-[#c0c8cb] rounded text-[11px] bg-white focus:outline-none focus:ring-1 focus:ring-brand-gold action-target-email font-medium text-[#2C2A24]" />
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-[#6B6558] mb-1">TIÊU ĐỀ EMAIL</label>
+                        <input type="text" value="${defaultSubject}" class="w-full px-2 py-1.5 border border-[#c0c8cb] rounded text-[11px] bg-white focus:outline-none focus:ring-1 focus:ring-brand-gold action-email-subject font-medium text-[#2C2A24]" />
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-[#6B6558] mb-1">NỘI DUNG EMAIL (HỖ TRỢ HTML & BIẾN)</label>
+                        <textarea rows="6" class="w-full px-2 py-1.5 border border-[#c0c8cb] rounded text-[11px] bg-white focus:outline-none focus:ring-1 focus:ring-brand-gold action-email-html font-medium text-[#2C2A24]">${defaultHtml}</textarea>
+                    </div>
+                </div>
+            `;
         }
     }
 
@@ -503,10 +580,10 @@
             const type = typeSelect ? typeSelect.value : null;
             const valInput = row.querySelector(".action-val-input");
             
-            if (type && valInput) {
+            if (type) {
                 const actionObj = {
                     type: type,
-                    value: valInput.value
+                    value: valInput ? valInput.value : ""
                 };
 
                 // Capture priority and supervisor_id if present
@@ -517,6 +594,17 @@
                 const supervisorSelect = row.querySelector(".action-supervisor-input");
                 if (supervisorSelect && supervisorSelect.value) {
                     actionObj.supervisor_id = parseInt(supervisorSelect.value, 10);
+                }
+
+                if (type === "SEND_EMAIL") {
+                    const sender = row.querySelector(".action-sender-email");
+                    const target = row.querySelector(".action-target-email");
+                    const subject = row.querySelector(".action-email-subject");
+                    const html = row.querySelector(".action-email-html");
+                    if (sender) actionObj.sender_email = sender.value;
+                    if (target) actionObj.target_email = target.value;
+                    if (subject) actionObj.email_subject = subject.value;
+                    if (html) actionObj.email_body_html = html.value;
                 }
 
                 actions.push(actionObj);
@@ -613,6 +701,22 @@
                 const actionsList = typeof w.actionsJson === 'string' ? JSON.parse(w.actionsJson) : w.actionsJson;
                 actionsList.forEach(act => {
                     addActionRow(act.type, act.value, act.priority || "High", act.supervisor_id || "");
+                    
+                    // Delay slightly to let the DOM render the newly added action row before filling in SEND_EMAIL fields
+                    setTimeout(() => {
+                        const rows = document.querySelectorAll(".action-item-row");
+                        const currentRow = rows[rows.length - 1]; // The last one added
+                        if (act.type === "SEND_EMAIL" && currentRow) {
+                            const sender = currentRow.querySelector(".action-sender-email");
+                            const target = currentRow.querySelector(".action-target-email");
+                            const subject = currentRow.querySelector(".action-email-subject");
+                            const html = currentRow.querySelector(".action-email-html");
+                            if (sender && act.sender_email) sender.value = act.sender_email;
+                            if (target && act.target_email) target.value = act.target_email;
+                            if (subject && act.email_subject) subject.value = act.email_subject;
+                            if (html && act.email_body_html) html.value = act.email_body_html;
+                        }
+                    }, 50);
                 });
             } catch (e) {
                 console.error("Error parsing actions_json", e);
