@@ -101,20 +101,6 @@ public class WalkInCheckInServiceImpl implements WalkInCheckInService {
         try {
             // ── Step 1: Validate thông tin định danh ─────────────────────────
             validateIdentification(request);
-
-            // ── Step 2 & 3: Lock và validate phòng ──────────────────────────
-            Room room = findAndValidateRoom(request.getRoomId());
-            RoomCategory category = room.getCategory();
-
-            // ── Step 4: Guests Classification & Surcharge Preview ───────
-            List<DependentRegistrationDTO> companions = request.getAccompaniedGuests() != null
-                    ? request.getAccompaniedGuests()
-                    : Collections.emptyList();
-
-            List<Integer> childAges = new java.util.ArrayList<>();
-            GuestCount guestCount = classifyGuests(request.getDateOfBirth(), companions, childAges);
-            BigDecimal extraSurcharge = validateAndCalculateSurcharge(guestCount, category, childAges);
-
             // ── Step 5: Find-or-Create Customer ─────────────────────────────
             boolean[] isNewCustomerHolder = { false };
             Customer customer = findOrCreateCustomer(request, isNewCustomerHolder);
@@ -151,7 +137,7 @@ public class WalkInCheckInServiceImpl implements WalkInCheckInService {
 
                 List<Integer> childAges = new java.util.ArrayList<>();
                 LocalDate primaryDob = isFirstRoom ? request.getDateOfBirth() : null;
-                
+
                 GuestCount guestCount = classifyGuests(primaryDob, companions, childAges);
                 BigDecimal extraSurcharge = validateAndCalculateSurcharge(guestCount, category, childAges);
 
@@ -161,13 +147,17 @@ public class WalkInCheckInServiceImpl implements WalkInCheckInService {
                 roomBookingDetailRepository.save(detail);
 
                 // Cập nhật giá booking master
-                long nights = java.time.temporal.ChronoUnit.DAYS.between(booking.getCheckInDate(), booking.getCheckOutDate());
-                if (nights <= 0) nights = 1;
-                
+                long nights = java.time.temporal.ChronoUnit.DAYS.between(booking.getCheckInDate(),
+                        booking.getCheckOutDate());
+                if (nights <= 0)
+                    nights = 1;
+
                 BigDecimal detailRoomCharge = detail.getRoomCharge() != null ? detail.getRoomCharge() : BigDecimal.ZERO;
-                BigDecimal detailSurcharge = detail.getExtraSurcharge() != null ? detail.getExtraSurcharge() : BigDecimal.ZERO;
-                
-                BigDecimal totalDetailCharge = detailRoomCharge.add(detailSurcharge).multiply(BigDecimal.valueOf(nights));
+                BigDecimal detailSurcharge = detail.getExtraSurcharge() != null ? detail.getExtraSurcharge()
+                        : BigDecimal.ZERO;
+
+                BigDecimal totalDetailCharge = detailRoomCharge.add(detailSurcharge)
+                        .multiply(BigDecimal.valueOf(nights));
                 bookingTotalPrice = bookingTotalPrice.add(totalDetailCharge);
 
                 room.setRoomStatus("Occupied");
@@ -206,7 +196,7 @@ public class WalkInCheckInServiceImpl implements WalkInCheckInService {
                                 "Tiền cọc Walk-in (" + paymentMethod + ")");
                     }
                 }
-                
+
                 isFirstRoom = false;
             }
 
@@ -216,14 +206,16 @@ public class WalkInCheckInServiceImpl implements WalkInCheckInService {
             // ── Build & Return Response ──────────────────────────────────────
             WalkInCheckInResponse response = new WalkInCheckInResponse();
             response.setBookingId(booking.getId());
-            response.setRoomNumber(request.getRoomSelections().size() > 1 ? firstRoomNumber + " (+ " + (request.getRoomSelections().size() - 1) + " rooms)" : firstRoomNumber);
+            response.setRoomNumber(request.getRoomSelections().size() > 1
+                    ? firstRoomNumber + " (+ " + (request.getRoomSelections().size() - 1) + " rooms)"
+                    : firstRoomNumber);
             response.setBookingStatus(booking.getBookingStatus());
             response.setCustomerId(customer.getId());
             response.setNewCustomer(isNewCustomerHolder[0]);
-            
+
             int totalCompanions = request.getRoomSelections().stream()
-                .mapToInt(s -> s.getAccompaniedGuests() != null ? s.getAccompaniedGuests().size() : 0)
-                .sum();
+                    .mapToInt(s -> s.getAccompaniedGuests() != null ? s.getAccompaniedGuests().size() : 0)
+                    .sum();
             response.setAccompaniedGuestCount(totalCompanions);
             if (newAccount != null) {
                 response.setNewAccountUsername(newAccount.getUsername());
@@ -286,16 +278,18 @@ public class WalkInCheckInServiceImpl implements WalkInCheckInService {
 
         for (com.kawai.dto.walkin.WalkInRoomSelectionDTO selection : request.getRoomSelections()) {
             Room room = roomRepository.findById(selection.getRoomId())
-                    .orElseThrow(() -> new BusinessException("MOD2-UC14-004", "Room not found for ID: " + selection.getRoomId()));
+                    .orElseThrow(() -> new BusinessException("MOD2-UC14-004",
+                            "Room not found for ID: " + selection.getRoomId()));
             RoomCategory category = room.getCategory();
-            totalBasePricePerNight = totalBasePricePerNight.add(category.getBasePrice() != null ? category.getBasePrice() : BigDecimal.ZERO);
+            totalBasePricePerNight = totalBasePricePerNight
+                    .add(category.getBasePrice() != null ? category.getBasePrice() : BigDecimal.ZERO);
 
             List<DependentRegistrationDTO> companions = selection.getAccompaniedGuests() != null
                     ? selection.getAccompaniedGuests()
                     : Collections.emptyList();
 
             List<Integer> childAges = new java.util.ArrayList<>();
-            
+
             LocalDate primaryDob = isFirstRoom ? request.getDateOfBirth() : null;
             isFirstRoom = false;
 
@@ -307,7 +301,8 @@ public class WalkInCheckInServiceImpl implements WalkInCheckInService {
                 BigDecimal roomSurcharge = validateAndCalculateSurcharge(guestCount, category, childAges);
                 totalExtraSurcharge = totalExtraSurcharge.add(roomSurcharge);
             } catch (BusinessException ex) {
-                throw new BusinessException(ex.getErrorCode(), "Phòng " + room.getRoomNumber() + ": " + ex.getMessage());
+                throw new BusinessException(ex.getErrorCode(),
+                        "Phòng " + room.getRoomNumber() + ": " + ex.getMessage());
             }
         }
 
@@ -536,7 +531,7 @@ public class WalkInCheckInServiceImpl implements WalkInCheckInService {
         booking.setBookingSource("WALK_IN");
         booking.setCheckInDate(req.getCheckInDate() != null ? req.getCheckInDate() : LocalDate.now());
         booking.setCheckOutDate(req.getCheckOutDate() != null ? req.getCheckOutDate() : LocalDate.now().plusDays(1));
-        booking.setTotalPrice(category.getBasePrice() != null ? category.getBasePrice() : BigDecimal.ZERO);
+        booking.setTotalPrice(BigDecimal.ZERO);
         booking.setDepositAmount(BigDecimal.ZERO);
         booking.setCancellationDeadline(LocalDate.now());
         // Personal PIN Hash — default là UUID ngắn (trong production sẽ là input từ
