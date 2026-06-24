@@ -12,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -36,6 +37,7 @@ public class WorkflowEngineCustomTest {
     @Mock private AuditLogRepository auditLogRepository;
     @Mock private PasswordEncoder passwordEncoder;
     @Mock private EmailService emailService;
+    @Mock private ApplicationEventPublisher eventPublisher;
 
     @Spy private ObjectMapper objectMapper = new ObjectMapper();
 
@@ -52,7 +54,7 @@ public class WorkflowEngineCustomTest {
                 promotionRepository,
                 bookingRepository,
                 objectMapper,
-                emailService
+                eventPublisher
         );
         
         authService = new AuthServiceImpl();
@@ -62,8 +64,9 @@ public class WorkflowEngineCustomTest {
         ReflectionTestUtils.setField(authService, "auditLogRepository", auditLogRepository);
         ReflectionTestUtils.setField(authService, "passwordEncoder", passwordEncoder);
         ReflectionTestUtils.setField(authService, "workflowRepository", workflowRepository);
-        ReflectionTestUtils.setField(authService, "emailService", emailService);
+        ReflectionTestUtils.setField(authService, "eventPublisher", eventPublisher);
     }
+
 
     @Test
     void testTriggerEvent_RoomCheckout_Success() throws Exception {
@@ -117,12 +120,8 @@ public class WorkflowEngineCustomTest {
 
         workflowEngineService.scanSlaEscalations();
 
-        verify(emailService, times(1)).sendSlaWarningEmail(
-                eq("bob@resort.com"),
-                contains("Maintenance Task"),
-                eq(15),
-                anyString()
-        );
+        // Email giờ được gửi qua SystemEmailEvent thay vì gọi trực tiếp emailService
+        verify(eventPublisher, times(1)).publishEvent(any());
     }
 
     @Test

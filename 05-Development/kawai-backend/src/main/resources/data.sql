@@ -60,14 +60,7 @@ INSERT INTO Customers (customer_id, account_id, full_name, gender, cccd_passport
 (5, 9, 'Lê Quang', 'Nam', 'CCCD_106', '090106', 'quang106@test.com', 0, 'Regular'),
 (6, 10, 'Đỗ Mỹ Linh', 'Nữ', 'CCCD_207', '090207', 'linh207@test.com', 150, 'Silver'),
 (7, 11, 'Hoàng Anh', 'Nam', 'CCCD_210', '090210', 'anh210@test.com', 300, 'Gold'),
-(8, 12, 'Vũ Hùng', 'Nam', 'CCCD_311', '090311', 'hung311@test.com', 800, 'Platinum'),
-(9, NULL, 'Lưu Đình Đức', 'Nam', 'CCCD_DEMO1', '0909990001', 'duc@test.com', 0, 'Regular'),
-(10, NULL, 'Nguyễn Minh Đức', 'Nam', 'CCCD_DEMO2', '0909990002', 'duc2@test.com', 0, 'Regular'),
-(11, NULL, 'Trần Thị Mai', 'Nữ', 'CCCD_DEMO3', '0909990003', 'mai@test.com', 0, 'Regular'),
-(12, NULL, 'Phạm Hùng Anh', 'Nam', 'CCCD_DEMO4', '0909990004', 'phanh@test.com', 0, 'Regular'),
-(13, NULL, 'Nguyễn Thanh Sơn', 'Nam', 'CCCD_DEMO5', '0909990005', 'ntson@test.com', 0, 'Regular'),
-(14, NULL, 'Vũ Thị Thảo', 'Nữ', 'CCCD_DEMO6', '0909990006', 'vtthao@test.com', 0, 'Regular'),
-(15, NULL, 'Đoàn Minh Khang', 'Nam', 'CCCD_DEMO7', '0909990007', 'dmkhang@test.com', 0, 'Regular');
+(8, 12, 'Vũ Hùng', 'Nam', 'CCCD_311', '090311', 'hung311@test.com', 800, 'Platinum');
 
 -- ── 5. Dependents (10 rows) ──────────────────────────────────
 INSERT INTO Dependents (dependent_id, customer_id, dependent_name, birth_date, gender, cccd_passport_encrypted) VALUES 
@@ -78,9 +71,7 @@ INSERT INTO Dependents (dependent_id, customer_id, dependent_name, birth_date, g
 (5, 4, 'Trần An Nhiên', '2019-11-01', 'Nữ', NULL),
 (6, 6, 'Nguyễn Mỹ Anh', '2017-02-14', 'Nữ', NULL),
 (7, 7, 'Hoàng Minh Khôi', '2014-06-25', 'Nam', NULL),
-(8, 8, 'Vũ Gia Bảo', '2013-08-30', 'Nam', NULL),
-(9, 12, 'Phạm Ngọc Trâm', '2021-10-05', 'Nữ', NULL),
-(10, 13, 'Nguyễn Thanh Hà', '2022-12-25', 'Nữ', NULL);
+(8, 8, 'Vũ Gia Bảo', '2013-08-30', 'Nam', NULL);
 
 -- ── 6. Room Categories (10 rows) ─────────────────────────────
 -- Columns: category_id, category_name, cover_img_url, base_price, capacity, description,
@@ -213,13 +204,6 @@ INSERT INTO Bookings (booking_id, customer_id, booking_date, total_price, bookin
 (8, 8, '2026-06-08', 16000000, 'Confirmed', 'Direct_Web', NULL, 1),
 (9, 1, '2026-06-10', 1200000, 'Confirmed', 'Direct_Web', NULL, 1),
 (10, 2, '2026-06-10', 1200000, 'Confirmed', 'Direct_Web', NULL, 1),
-(11, 9, '2026-06-12', 1200000, 'Confirmed', 'Direct_Web', NULL, 1),
-(12, 10, '2026-06-12', 1200000, 'Confirmed', 'Direct_Web', NULL, 1),
-(13, 11, '2026-06-12', 1200000, 'Confirmed', 'Direct_Web', NULL, 1),
-(14, 12, '2026-06-12', 2500000, 'Confirmed', 'Direct_Web', NULL, 1),
-(15, 13, '2026-06-12', 3500000, 'Confirmed', 'Direct_Web', NULL, 1),
-(16, 14, '2026-06-12', 8000000, 'Confirmed', 'Direct_Web', NULL, 1),
-(17, 15, '2026-06-12', 2000000, 'Confirmed', 'Direct_Web', NULL, 1),
 (18, 3, '2026-06-12', 15000000, 'Confirmed', 'Direct_Web', NULL, 1),
 (19, 4, '2026-06-12', 3000000, 'Confirmed', 'Direct_Web', NULL, 1),
 (20, 5, '2026-06-12', 4500000, 'Confirmed', 'Direct_Web', NULL, 1),
@@ -238,9 +222,7 @@ INSERT INTO Room_Bookings (room_booking_id, check_in_date, check_out_date, depos
 (5, '2026-06-10', '2026-06-13', 1000000, '2026-06-06', 5000000, 'hash'),
 (6, '2026-06-10', '2026-06-14', 1500000, '2026-06-06', 5000000, 'hash'),
 (7, '2026-06-10', '2026-06-15', 1500000, '2026-06-06', 5000000, 'hash'),
-(8, '2026-06-10', '2026-06-16', 3000000, '2026-06-06', 15000000, 'hash'),
-(14, '2026-07-01', '2026-07-05', 1000000, '2026-06-25', 5000000, 'hash'),
-(15, '2026-07-01', '2026-07-05', 1000000, '2026-06-25', 5000000, 'hash');
+(8, '2026-06-10', '2026-06-16', 3000000, '2026-06-06', 15000000, 'hash');
 
 -- ── 14. Room Booking Details (10 rows) ───────────────────────
 INSERT INTO Room_Booking_Details (detail_id, room_booking_id, category_id, room_id, room_charge, detail_status, bed_preference, special_requests, is_charge_to_room_allowed, sub_credit_limit, billing_routing_strategy) VALUES
@@ -251,9 +233,7 @@ INSERT INTO Room_Booking_Details (detail_id, room_booking_id, category_id, room_
 (5, 5, 1, 9, 2500000, 'Pending', 'KING_SIZE', NULL, TRUE, 500000, 'BILL_TO_LEADER'),
 (6, 6, 2, 12, 3500000, 'Pending', 'KING_SIZE', NULL, TRUE, 1500000, 'BILL_TO_LEADER'),
 (7, 7, 2, 15, 3500000, 'Checked_In', 'KING_SIZE', NULL, TRUE, 1500000, 'BILL_TO_LEADER'),
-(8, 8, 3, 18, 8000000, 'Checked_In', 'KING_SIZE', NULL, TRUE, 3000000, 'BILL_TO_LEADER'),
-(9, 14, 1, 2, 2500000, 'Pending', 'KING_SIZE', NULL, TRUE, 500000, 'BILL_TO_LEADER'),
-(10, 15, 2, 4, 3500000, 'Pending', 'TWIN_BED', NULL, TRUE, 1500000, 'BILL_TO_LEADER');
+(8, 8, 3, 18, 8000000, 'Checked_In', 'KING_SIZE', NULL, TRUE, 3000000, 'BILL_TO_LEADER');
 
 -- ── 15. Room Guests (10 rows) ────────────────────────────────
 INSERT INTO Room_Guests (guest_id, detail_id, customer_id, dependent_id, guest_type, is_primary_contact) VALUES
@@ -261,12 +241,9 @@ INSERT INTO Room_Guests (guest_id, detail_id, customer_id, dependent_id, guest_t
 (2, 2, 2, NULL, 'ADULT', TRUE),
 (3, 3, 3, NULL, 'ADULT', TRUE),
 (4, 4, 4, NULL, 'ADULT', TRUE),
-(5, 5, 5, NULL, 'ADULT', TRUE),
 (6, 6, 6, NULL, 'ADULT', TRUE),
 (7, 7, 7, NULL, 'ADULT', TRUE),
-(8, 8, 8, NULL, 'ADULT', TRUE),
-(9, 9, 12, NULL, 'ADULT', TRUE),
-(10, 10, 13, NULL, 'ADULT', TRUE);
+(8, 8, 8, NULL, 'ADULT', TRUE);
 
 -- Update Room's current booking detail links
 UPDATE Rooms SET current_booking_detail_id = 1 WHERE room_id = 1;
@@ -277,8 +254,6 @@ UPDATE Rooms SET current_booking_detail_id = 5 WHERE room_id = 9;
 UPDATE Rooms SET current_booking_detail_id = 6 WHERE room_id = 12;
 UPDATE Rooms SET current_booking_detail_id = 7 WHERE room_id = 15;
 UPDATE Rooms SET current_booking_detail_id = 8 WHERE room_id = 18;
-UPDATE Rooms SET current_booking_detail_id = 9 WHERE room_id = 2;
-UPDATE Rooms SET current_booking_detail_id = 10 WHERE room_id = 4;
 
 -- ── 16. Restaurant Tables (20 rows) ──────────────────────────
 INSERT INTO Restaurant_Tables (table_id, table_number, capacity, table_status, is_active) VALUES 
@@ -314,10 +289,6 @@ INSERT INTO Table_Reservations (reservation_id, customer_id, table_id, reserve_d
 (6, 6, 20, '2026-06-14', '20:00:00', '22:00:00', 300000, 'Confirmed'),
 (7, 7, 7, '2026-06-13', '21:00:00', '23:00:00', 100000, 'Confirmed'),
 (8, 8, 15, '2026-06-13', '20:30:00', '22:30:00', 100000, 'Confirmed'),
-(9, 12, 11, '2026-06-13', '19:00:00', '21:00:00', 100000, 'Confirmed'),
-(10, 13, 18, '2026-06-13', '18:00:00', '20:00:00', 150000, 'Confirmed'),
-(11, 14, 1, '2026-06-20', '18:00:00', '20:00:00', 100000, 'Confirmed'),
-(12, 15, 2, '2026-06-20', '19:00:00', '21:00:00', 150000, 'Confirmed'),
 (13, 1, 3, '2026-06-20', '12:00:00', '14:00:00', 100000, 'Confirmed'),
 (14, 2, 4, '2026-06-20', '20:00:00', '22:30:00', 200000, 'Pending'),
 (15, 3, 5, '2026-06-21', '08:00:00', '10:00:00', 150000, 'Confirmed'),
@@ -326,13 +297,6 @@ INSERT INTO Table_Reservations (reservation_id, customer_id, table_id, reserve_d
 (18, 6, 8, '2026-06-22', '18:30:00', '20:30:00', 100000, 'Pending'),
 (19, 7, 9, '2026-06-22', '20:00:00', '22:00:00', 300000, 'Confirmed'),
 (20, 8, 10, '2026-06-23', '09:00:00', '11:00:00', 100000, 'Confirmed'),
-(21, 9, 11, '2026-06-23', '12:00:00', '14:00:00', 150000, 'Confirmed'),
-(22, 10, 12, '2026-06-24', '18:00:00', '21:00:00', 200000, 'Pending'),
-(23, 11, 13, '2026-06-24', '19:30:00', '21:30:00', 100000, 'Confirmed'),
-(24, 12, 14, '2026-06-25', '11:00:00', '13:00:00', 300000, 'Confirmed'),
-(25, 13, 15, '2026-06-25', '20:00:00', '22:00:00', 100000, 'Confirmed'),
-(26, 14, 16, '2026-06-26', '18:00:00', '20:00:00', 100000, 'Confirmed'),
-(27, 15, 17, '2026-06-26', '19:00:00', '21:00:00', 100000, 'Pending'),
 (28, 1, 18, '2026-06-27', '08:30:00', '10:30:00', 150000, 'Confirmed'),
 (29, 2, 19, '2026-06-27', '12:30:00', '14:30:00', 100000, 'Confirmed'),
 (30, 3, 20, '2026-06-28', '19:00:00', '21:00:00', 400000, 'Confirmed'),
@@ -340,10 +304,7 @@ INSERT INTO Table_Reservations (reservation_id, customer_id, table_id, reserve_d
 (32, 5, 2, '2026-06-29', '18:00:00', '20:30:00', 100000, 'Confirmed'),
 (33, 6, 3, '2026-06-29', '19:00:00', '21:00:00', 100000, 'Confirmed'),
 (34, 7, 4, '2026-06-30', '11:00:00', '13:00:00', 200000, 'Confirmed'),
-(35, 8, 5, '2026-06-30', '18:30:00', '20:30:00', 150000, 'Confirmed'),
-(36, 9, 6, '2026-07-01', '12:00:00', '14:00:00', 100000, 'Pending'),
-(37, 10, 7, '2026-07-01', '18:00:00', '20:00:00', 100000, 'Confirmed'),
-(38, 11, 8, '2026-07-01', '19:00:00', '21:00:00', 100000, 'Confirmed');
+(35, 8, 5, '2026-06-30', '18:30:00', '20:30:00', 150000, 'Confirmed');
 
 -- ── 18. Menu Items (34 rows) ─────────────────────────────────
 INSERT INTO Menu_Items (item_id, item_name, price, category, is_available, description, image_url, allergy_tags) VALUES 
@@ -416,13 +377,6 @@ INSERT INTO Food_Order_Details (detail_id, order_id, menu_item_id, quantity, pri
 (8, 6, 16, 1, 350000, 'Ready'),
 (9, 7, 28, 2, 95000, 'Served'),
 (10, 8, 4, 1, 150000, 'Preparing'),
-(11, 9, 10, 1, 520000, 'Pending'),
-(12, 10, 12, 3, 85000, 'Served'),
-(13, 11, 22, 2, 65000, 'Pending'),
-(14, 12, 33, 5, 45000, 'Served'),
-(15, 13, 30, 1, 65000, 'Ready'),
-(16, 14, 15, 2, 180000, 'Preparing'),
-(17, 15, 34, 4, 40000, 'Served'),
 (18, 16, 5, 2, 130000, 'Pending'),
 (19, 17, 18, 1, 210000, 'Served'),
 (20, 18, 9, 2, 850000, 'Preparing'),
@@ -444,12 +398,9 @@ INSERT INTO Booking_Services (booking_service_id, booking_id, service_id, quanti
 (2, 2, 2, 2, 1200000, '2026-06-10 16:00:00', 'PENDING', NULL),
 (3, 3, 4, 1, 500000, '2026-06-09 10:00:00', 'COMPLETED', '{"card_note": "Happy Anniversary"}'),
 (4, 4, 3, 3, 150000, '2026-06-10 09:00:00', 'COMPLETED', NULL),
-(5, 5, 5, 1, 200000, '2026-06-11 08:00:00', 'PENDING', NULL),
 (6, 6, 6, 2, 300000, '2026-06-11 15:00:00', 'COMPLETED', NULL),
 (7, 7, 7, 1, 450000, '2026-06-12 10:00:00', 'PENDING', NULL),
-(8, 8, 8, 2, 250000, '2026-06-11 11:00:00', 'COMPLETED', NULL),
-(9, 14, 1, 1, 800000, '2026-07-01 15:00:00', 'PENDING', '{"flight_number": "QH224"}'),
-(10, 15, 9, 1, 600000, '2026-07-02 09:00:00', 'PENDING', '{"card_note": "Happy Birthday Leader Nam"}');
+(8, 8, 8, 2, 250000, '2026-06-11 11:00:00', 'COMPLETED', NULL);
 
 -- ── 23. Hotel Operations (10 rows) ───────────────────────────
 INSERT INTO Hotel_Operations (task_id, room_id, staff_id, supervisor_id, operational_type, priority, status, created_at, started_at, completed_at, notes) VALUES 
@@ -471,8 +422,7 @@ INSERT INTO Folio_Items (folio_item_id, booking_id, room_booking_detail_id, paye
 (5, 4, 4, 4, 'LAUNDRY', 150000, 'Giặt sấy quần áo lấy nhanh', FALSE, 4, CURRENT_TIMESTAMP, NULL),
 (6, 5, 5, 5, 'TRANSPORTATION', 200000, 'Thuê xe máy Honda Vision tự lái', FALSE, 4, CURRENT_TIMESTAMP, NULL),
 (7, 6, 6, 6, 'F&B', 350000, 'Lẩu Thái Hải Sản tại phòng', FALSE, 2, CURRENT_TIMESTAMP, NULL),
-(8, 7, 7, 7, 'FLORIST', 500000, 'Trang trí phòng trăng mật', FALSE, 4, CURRENT_TIMESTAMP, NULL),
-(10, 14, 9, 12, 'TRANSPORTATION', 800000, 'Đón tiễn sân bay Limousine', FALSE, 4, CURRENT_TIMESTAMP, NULL);
+(8, 7, 7, 7, 'FLORIST', 500000, 'Trang trí phòng trăng mật', FALSE, 4, CURRENT_TIMESTAMP, NULL);
 
 -- ── 25. Consolidated Invoices (10 rows) ──────────────────────
 INSERT INTO Consolidated_Invoices (invoice_id, invoice_number, booking_id, subtotal_before_vat, vat_amount, total_amount, promo_id, invoice_status, created_at, issued_at) VALUES 
@@ -483,9 +433,7 @@ INSERT INTO Consolidated_Invoices (invoice_id, invoice_number, booking_id, subto
 (5, 'INV-2026-0005', 5, 4500000, 450000, 4950000, NULL, 'Settled', '2026-06-13 12:00:00', '2026-06-13 12:15:00'),
 (6, 'INV-2026-0006', 6, 6300000, 630000, 6930000, NULL, 'Settled', '2026-06-14 11:00:00', '2026-06-14 11:20:00'),
 (7, 'INV-2026-0007', 7, 6300000, 630000, 6930000, 3, 'Settled', '2026-06-15 10:00:00', '2026-06-15 10:15:00'),
-(8, 'INV-2026-0008', 8, 14400000, 1440000, 15840000, NULL, 'Settled', '2026-06-16 11:00:00', '2026-06-16 11:30:00'),
-(9, 'INV-2026-0009', 14, 2272727, 227273, 2500000, NULL, 'Draft', '2026-06-16 14:00:00', '2026-06-16 14:00:00'),
-(10, 'INV-2026-0010', 15, 3181818, 318182, 3500000, NULL, 'Draft', '2026-06-16 14:00:00', '2026-06-16 14:00:00');
+(8, 'INV-2026-0008', 8, 14400000, 1440000, 15840000, NULL, 'Settled', '2026-06-16 11:00:00', '2026-06-16 11:30:00');
 
 -- ── 26. Payment Transactions (10 rows) ───────────────────────
 INSERT INTO Payment_Transactions (transaction_id, invoice_id, booking_id, amount, transaction_type, payment_method, gateway_status, transaction_ref, created_at) VALUES 
@@ -493,12 +441,9 @@ INSERT INTO Payment_Transactions (transaction_id, invoice_id, booking_id, amount
 (2, 2, 2, 6930000, 'Checkout_Settlement', 'VNPAY', 'SUCCESS', 'TXN-0002-SUCCESS', '2026-06-12 12:15:00'),
 (3, 3, 3, 15840000, 'Checkout_Settlement', 'VNPAY', 'SUCCESS', 'TXN-0003-SUCCESS', '2026-06-12 13:10:00'),
 (4, 4, 4, 4950000, 'Checkout_Settlement', 'BANK_TRANSFER', 'SUCCESS', 'TXN-0004-SUCCESS', '2026-06-11 10:30:00'),
-(5, 5, 5, 4950000, 'Checkout_Settlement', 'VNPAY', 'SUCCESS', 'TXN-0005-SUCCESS', '2026-06-13 12:15:00'),
 (6, 6, 6, 6930000, 'Checkout_Settlement', 'CASH', 'SUCCESS', 'TXN-0006-SUCCESS', '2026-06-14 11:20:00'),
 (7, 7, 7, 6930000, 'Checkout_Settlement', 'VNPAY', 'SUCCESS', 'TXN-0007-SUCCESS', '2026-06-15 10:15:00'),
-(8, 8, 8, 15840000, 'Checkout_Settlement', 'VNPAY', 'SUCCESS', 'TXN-0008-SUCCESS', '2026-06-16 11:30:00'),
-(9, 9, 14, 1000000, 'Deposit', 'VNPAY', 'SUCCESS', 'TXN-0009-DEP', '2026-06-16 14:05:00'),
-(10, 10, 15, 1000000, 'Deposit', 'VNPAY', 'SUCCESS', 'TXN-0010-DEP', '2026-06-16 14:06:00');
+(8, 8, 8, 15840000, 'Checkout_Settlement', 'VNPAY', 'SUCCESS', 'TXN-0008-SUCCESS', '2026-06-16 11:30:00');
 
 -- ── 27. Tours (10 rows) ──────────────────────────────────────
 INSERT INTO Tours (tour_id, tour_name, tour_type, duration, base_price, max_capacity, short_quote, description, created_at, is_active) VALUES 
@@ -619,11 +564,6 @@ INSERT INTO Run_Itinerary_Status (run_status_id, schedule_id, detail_id, actual_
 
 -- ── 36. Tour Bookings (10 rows) ──────────────────────────────
 INSERT INTO Tour_Bookings (booking_id, schedule_id, participant_count, tour_charge, is_walk_in_tour) VALUES 
-(9, 5, 1, 1200000, FALSE),
-(10, 5, 1, 1200000, FALSE),
-(11, 5, 1, 1200000, FALSE),
-(12, 5, 1, 1200000, FALSE),
-(13, 5, 1, 1200000, FALSE),
 (24, 1, 2, 3000000, FALSE),
 (25, 2, 1, 1200000, FALSE),
 (26, 3, 3, 5400000, FALSE),
@@ -632,11 +572,6 @@ INSERT INTO Tour_Bookings (booking_id, schedule_id, participant_count, tour_char
 
 -- ── 37. Tour Attendees (10 rows) ─────────────────────────────
 INSERT INTO Tour_Attendees (attendee_id, tour_booking_id, customer_id, dependent_id, attendance_status, face_matched_at, face_vector_data) VALUES 
-(1, 9, 1, NULL, 'Not_Show', NULL, NULL),
-(2, 10, 2, NULL, 'Not_Show', NULL, NULL),
-(3, 11, 9, NULL, 'Not_Show', NULL, NULL),
-(4, 12, 10, NULL, 'Not_Show', NULL, NULL),
-(5, 13, 11, NULL, 'Not_Show', NULL, NULL),
 (6, 24, 1, NULL, 'Not_Show', NULL, NULL),
 (7, 25, 2, NULL, 'Not_Show', NULL, NULL),
 (8, 26, 3, NULL, 'Not_Show', NULL, NULL),
@@ -645,11 +580,6 @@ INSERT INTO Tour_Attendees (attendee_id, tour_booking_id, customer_id, dependent
 
 -- ── 38. Checkpoint Attendance (10 rows) ──────────────────────
 INSERT INTO Checkpoint_Attendance (checkpoint_id, schedule_id, attendee_id, detail_id, scan_status, scanned_by_staff_id) VALUES 
-(1, 5, 1, 2, 'SUCCESS', 5),
-(2, 5, 2, 2, 'SUCCESS', 5),
-(3, 5, 3, 2, 'SUCCESS', 5),
-(4, 5, 4, 2, 'SUCCESS', 5),
-(5, 5, 5, 2, 'SUCCESS', 5),
 (6, 1, 6, 1, 'PENDING', 7),
 (7, 2, 7, 2, 'PENDING', 5),
 (8, 3, 8, 3, 'PENDING', 6),
@@ -662,11 +592,9 @@ INSERT INTO Reviews (review_id, customer_id, room_booking_detail_id, tour_bookin
 (2, 2, 2, NULL, 4, 'Phòng River Villa đẹp, view sông thơ mộng, đồ ăn room service hơi chậm.', 'Approved', 4, 'Đánh giá xây dựng hợp lệ', CURRENT_TIMESTAMP),
 (3, 3, 3, NULL, 5, 'Khóa tu Wellness Retreats giúp tôi tịnh tâm, phục hồi sức khoẻ rất nhiều.', 'Approved', 4, 'Đánh giá tốt chất lượng cao', CURRENT_TIMESTAMP),
 (4, 4, 4, NULL, 4, 'Phòng 104 sạch sẽ, bồn tắm rộng rãi, decor buồng cưới rất tỉ mỉ.', 'Approved', 4, 'Đánh giá tốt', CURRENT_TIMESTAMP),
-(5, 5, 5, NULL, 5, 'Rất hài lòng với kỳ nghỉ tại resort, bãi cỏ xanh ngát, đồ ăn buffet ngon.', 'Approved', 4, 'Đánh giá tốt', CURRENT_TIMESTAMP),
 (6, 6, 6, NULL, 4, 'Cảnh quan xanh mát, phòng 207 view hồ bơi rộng rãi tuyệt vời.', 'Approved', 4, 'Đánh giá tốt', CURRENT_TIMESTAMP),
 (7, 7, 7, NULL, 5, 'Hội An Tour do HDV Hướng Dẫn thuyết minh rất sinh động, xe đi êm.', 'Approved', 4, 'Đánh giá tốt', CURRENT_TIMESTAMP),
-(8, 8, 8, NULL, 5, 'Bữa tối Wagyu tại nhà hàng cực ngon, thịt mềm mọng sốt tiêu thơm.', 'Approved', 4, 'Đánh giá tốt', CURRENT_TIMESTAMP),
-(10, 13, 10, NULL, 4, 'Lịch trình trơn tru, nhân viên thân thiện hiếu khách nhiệt tình.', 'Approved', 4, 'Đánh giá tốt', CURRENT_TIMESTAMP);
+(8, 8, 8, NULL, 5, 'Bữa tối Wagyu tại nhà hàng cực ngon, thịt mềm mọng sốt tiêu thơm.', 'Approved', 4, 'Đánh giá tốt', CURRENT_TIMESTAMP);
 
 -- ── 40. Authorized Devices (10 rows) ─────────────────────────
 INSERT INTO Authorized_Devices (device_code, is_approved) VALUES 
@@ -692,47 +620,8 @@ INSERT INTO Audit_Logs (log_id, account_id, action, table_name, record_id, old_v
 (7, 4, 'MODERATE_REVIEW', 'Reviews', 1, 'Pending', 'Approved', '192.168.1.10', CURRENT_TIMESTAMP),
 (9, 4, 'UPDATE_INVOICE', 'Consolidated_Invoices', 1, 'Draft', 'Settled', '192.168.1.10', CURRENT_TIMESTAMP);
 
--- ── 42. Test Accounts cho khách đăng nhập test ───────────────
--- password: admin123  |  hash: $2a$10$4bnThA4xQVw1rF2POQv78uAQll2KsUsgF32JaYiVG5d2d3Fhgk83q
-INSERT IGNORE INTO Accounts (account_id, username, password_hash, is_active, role_id, created_at) VALUES
-(21, 'testguest1', '$2a$10$4bnThA4xQVw1rF2POQv78uAQll2KsUsgF32JaYiVG5d2d3Fhgk83q', TRUE, 10, CURRENT_TIMESTAMP),
-(22, 'testguest2', '$2a$10$4bnThA4xQVw1rF2POQv78uAQll2KsUsgF32JaYiVG5d2d3Fhgk83q', TRUE, 10, CURRENT_TIMESTAMP),
-(23, 'testguest3', '$2a$10$4bnThA4xQVw1rF2POQv78uAQll2KsUsgF32JaYiVG5d2d3Fhgk83q', TRUE, 10, CURRENT_TIMESTAMP);
 
--- ── 43. Test Customers liên kết Account ──────────────────────
-INSERT IGNORE INTO Customers (customer_id, account_id, full_name, gender, cccd_passport_encrypted, phone, email, loyalty_points, membership_tier) VALUES
-(16, 21, 'Nguyễn Minh Test', 'Nam', 'CCCD_TEST01', '0911000001', 'testguest1@test.com', 50, 'Regular'),
-(17, 22, 'Trần Thị Test', 'Nữ', 'CCCD_TEST02', '0911000002', 'testguest2@test.com', 100, 'Silver'),
-(18, 23, 'Lê Văn Test', 'Nam', 'CCCD_TEST03', '0911000003', 'testguest3@test.com', 200, 'Gold');
 
--- ── 44. Test Bookings (Confirmed + Checked_In) ──────────────
-INSERT IGNORE INTO Bookings (booking_id, customer_id, booking_date, total_price, booking_status, booking_source, applied_promotion_id, version) VALUES
-(21, 16, '2026-06-14', 5000000, 'Checked_In', 'Direct_Web', NULL, 1),
-(22, 17, '2026-06-15', 7000000, 'Checked_In', 'Direct_Web', NULL, 1),
-(23, 18, '2026-06-10', 16000000, 'Confirmed', 'Direct_Web', NULL, 1);
-
--- ── 45. Test Room Bookings ───────────────────────────────────
-INSERT IGNORE INTO Room_Bookings (room_booking_id, check_in_date, check_out_date, deposit_amount, cancellation_deadline, credit_limit, personal_pin_hash) VALUES
-(21, '2026-06-14', '2026-06-20', 1000000, '2026-06-12', 8000000, 'hash'),
-(22, '2026-06-15', '2026-06-18', 1500000, '2026-06-13', 10000000, 'hash'),
-(23, '2026-06-10', '2026-06-16', 3000000, '2026-06-08', 15000000, 'hash');
-
--- ── 46. Test Room Booking Details ────────────────────────────
-INSERT IGNORE INTO Room_Booking_Details (detail_id, room_booking_id, category_id, room_id, room_charge, detail_status, bed_preference, special_requests, is_charge_to_room_allowed, sub_credit_limit, billing_routing_strategy) VALUES
-(11, 21, 4, 6, 2000000, 'Active', 'KING_SIZE', NULL, TRUE, 500000, 'BILL_TO_LEADER'),
-(12, 22, 2, 11, 3500000, 'Active', 'KING_SIZE', NULL, TRUE, 1500000, 'BILL_TO_LEADER'),
-(13, 23, 3, 16, 8000000, 'Active', 'TWIN_BED', NULL, TRUE, 2000000, 'BILL_TO_LEADER');
-
--- ── 47. Test Room Guests ─────────────────────────────────────
-INSERT IGNORE INTO Room_Guests (guest_id, detail_id, customer_id, dependent_id, guest_type, is_primary_contact) VALUES
-(11, 11, 16, NULL, 'ADULT', TRUE),
-(12, 12, 17, NULL, 'ADULT', TRUE),
-(13, 13, 18, NULL, 'ADULT', TRUE);
-
--- ── 48. Cập nhật Rooms hiện tại đang được test guest ở ──────
-UPDATE Rooms SET current_booking_detail_id = 11, room_status = 'Occupied' WHERE room_id = 6;
-UPDATE Rooms SET current_booking_detail_id = 12, room_status = 'Occupied' WHERE room_id = 11;
-UPDATE Rooms SET current_booking_detail_id = 13, room_status = 'Occupied' WHERE room_id = 16;
 
 -- ── 51. Lê Hoàng Nam đặt 3 phòng 1 lượt ─────────────────────────────────────
 -- RoomBooking IS-A Booking (Table-Per-Class Inheritance):

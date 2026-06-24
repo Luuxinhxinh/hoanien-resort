@@ -159,7 +159,7 @@ public class AdminViewServiceImpl implements AdminViewService {
             case "Account Management" ->
                 List.of(col("id", "Mã", "text"), col("name", "Tên", "text"), col("type", "Loại tài khoản", "badge"),
                         col("role", "Vai trò", "badge"), col("email", "Email", "text"),
-                        col("lastLogin", "Đăng nhập cuối", "text"), col("status", "Kích hoạt", "toggle"));
+                        col("status", "Kích hoạt", "toggle"));
             case "Role Management" -> List.of(col("id", "Mã", "text"), col("name", "Tên vai trò", "text"), col("permissions", "Quyền hạn", "text"));
             case "Pricing Management" -> List.of(col("id", "Mã", "text"), col("roomCategory", "Hạng phòng", "text"),
                     col("date", "Ngày", "text"), col("price", "Giá / đêm", "text"));
@@ -323,7 +323,6 @@ public class AdminViewServiceImpl implements AdminViewService {
                                 "role", rn,
                                 "__roleStyle", bs(rn),
                                 "email", e.getEmail() != null ? e.getEmail() : "-",
-                                "lastLogin", "--",
                                 "status", isActive ? "true" : "false",
                                 "username", e.getAccount() != null ? e.getAccount().getUsername() : "",
                                 "phone", e.getPhone() != null ? e.getPhone() : "",
@@ -343,7 +342,6 @@ public class AdminViewServiceImpl implements AdminViewService {
                                 "role", rn,
                                 "__roleStyle", bs(rn),
                                 "email", c.getEmail() != null ? c.getEmail() : "-",
-                                "lastLogin", "--",
                                 "status", isActive ? "true" : "false",
                                 "username", c.getAccount() != null ? c.getAccount().getUsername() : "",
                                 "phone", c.getPhone() != null ? c.getPhone() : "",
