@@ -90,7 +90,7 @@ public class FolioRestControllerUC21Test {
         assertTrue((Boolean) body.get("success"));
         assertEquals("Nguyen Van A", body.get("guestName"));
         assertEquals("101", body.get("roomNumber"));
-        assertEquals(new BigDecimal("1650000.00"), body.get("currentBalance"));
+        assertEquals(new BigDecimal("550000.00"), body.get("currentBalance"));
 
         @SuppressWarnings("unchecked")
         List<Map<String, Object>> items = (List<Map<String, Object>>) body.get("items");

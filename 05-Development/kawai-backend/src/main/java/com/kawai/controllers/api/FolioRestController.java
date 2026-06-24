@@ -84,10 +84,10 @@ public class FolioRestController {
                     .body(Map.of("success", false, "message", "RoomBookingDetail không tồn tại"));
         }
         RoomBookingDetail detail = optDetail.get();
-        if (detail.getRoomBooking() == null || detail.getRoomBooking().getCustomer() == null) {
-            return ResponseEntity.ok(Map.of("success", false, "message", "Không có thông tin khách hàng"));
+        if (detail.getRoomBooking() == null) {
+            return ResponseEntity.ok(Map.of("success", false, "message", "Không có thông tin Booking"));
         }
-        Long customerId = detail.getRoomBooking().getCustomer().getId();
+        Long bookingId = detail.getRoomBooking().getId();
 
         List<RoomBookingDetail> allActive = roomBookingDetailRepository.findByDetailStatus("Checked_In");
         List<Map<String, Object>> rooms = new java.util.ArrayList<>();
@@ -95,69 +95,55 @@ public class FolioRestController {
         BigDecimal groupTotalCharges = BigDecimal.ZERO;
         BigDecimal groupBalance = BigDecimal.ZERO;
 
-        java.util.Set<Long> uniqueBookingIds = new java.util.HashSet<>();
-
         for (RoomBookingDetail d : allActive) {
-            if (d.getRoomBooking() != null && d.getRoomBooking().getCustomer() != null) {
-                if (d.getRoomBooking().getCustomer().getId().equals(customerId)) {
-                    uniqueBookingIds.add(d.getRoomBooking().getId());
+            if (d.getRoomBooking() != null && d.getRoomBooking().getId().equals(bookingId)) {
+                Map<String, Object> rMap = new java.util.HashMap<>();
+                rMap.put("id", d.getId());
+                rMap.put("roomNumber", d.getRoom() != null ? d.getRoom().getRoomNumber() : "N/A");
+                rooms.add(rMap);
 
-                    Map<String, Object> rMap = new java.util.HashMap<>();
-                    rMap.put("id", d.getId());
-                    rMap.put("roomNumber", d.getRoom() != null ? d.getRoom().getRoomNumber() : "N/A");
-                    rooms.add(rMap);
+                boolean hasRoomCharge = false;
 
-                    boolean hasRoomCharge = false;
+                // Calculate balance for this room (excludes split items by default inside service)
+                try {
+                    BigDecimal roomBal = nightAuditService.calculateFolioBalance(d.getId());
+                    groupBalance = groupBalance.add(roomBal);
+                } catch (Exception e) {
+                }
 
-                    // Calculate balance for this room (excludes split items by default inside
-                    // service)
-                    try {
-                        BigDecimal roomBal = nightAuditService.calculateFolioBalance(d.getId());
-                        groupBalance = groupBalance.add(roomBal);
-                    } catch (Exception e) {
-                    }
-
-                    // Calculate charges
-                    try {
-                        List<FolioItem> items = nightAuditService.getFolioItems(d.getId());
-                        if (items != null) {
-                            for (FolioItem item : items) {
-                                if (Boolean.TRUE.equals(item.getIsSettledSeparately())) {
-                                    continue; // Exclude split items!
-                                }
-                                if ("Room".equalsIgnoreCase(item.getSourceDepartment())) {
-                                    hasRoomCharge = true;
-                                }
-                                if (item.getAmount() != null && item.getAmount().compareTo(BigDecimal.ZERO) > 0) {
-                                    groupTotalCharges = groupTotalCharges.add(item.getAmount());
-                                }
+                // Calculate charges
+                try {
+                    List<FolioItem> items = nightAuditService.getFolioItems(d.getId());
+                    if (items != null) {
+                        for (FolioItem item : items) {
+                            if (Boolean.TRUE.equals(item.getIsSettledSeparately())) {
+                                continue; // Exclude split items!
+                            }
+                            if ("Room".equalsIgnoreCase(item.getSourceDepartment())) {
+                                hasRoomCharge = true;
+                            }
+                            if (item.getAmount() != null && item.getAmount().compareTo(BigDecimal.ZERO) > 0) {
+                                groupTotalCharges = groupTotalCharges.add(item.getAmount());
                             }
                         }
-                    } catch (Exception e) {
                     }
-
-                    if (!hasRoomCharge && d.getRoomCharge() != null
-                            && d.getRoomCharge().compareTo(BigDecimal.ZERO) > 0) {
-                        groupBalance = groupBalance.add(d.getRoomCharge());
-                        groupTotalCharges = groupTotalCharges.add(d.getRoomCharge());
-                    }
+                } catch (Exception e) {
                 }
+
             }
         }
 
         BigDecimal totalPayments = BigDecimal.ZERO;
-        for (Long bId : uniqueBookingIds) {
-            try {
-                List<PaymentTransaction> payments = paymentService.getPaymentsByBookingId(bId);
-                if (payments != null) {
-                    for (PaymentTransaction pt : payments) {
-                        if (pt.getStatus() == PaymentStatus.SUCCESS && pt.getAmount() != null) {
-                            totalPayments = totalPayments.add(pt.getAmount());
-                        }
+        try {
+            List<PaymentTransaction> payments = paymentService.getPaymentsByBookingId(bookingId);
+            if (payments != null) {
+                for (PaymentTransaction pt : payments) {
+                    if (pt.getStatus() == PaymentStatus.SUCCESS && pt.getAmount() != null) {
+                        totalPayments = totalPayments.add(pt.getAmount());
                     }
                 }
-            } catch (Exception e) {
             }
+        } catch (Exception e) {
         }
 
         groupBalance = groupBalance.multiply(new BigDecimal("1.10")).subtract(totalPayments);
@@ -235,20 +221,6 @@ public class FolioRestController {
             }
         }
 
-        if (!hasRoomCharge && detail.getRoomCharge() != null && detail.getRoomCharge().compareTo(BigDecimal.ZERO) > 0) {
-            Map<String, Object> roomMap = new java.util.HashMap<>();
-            roomMap.put("id", -detail.getId());
-            roomMap.put("sourceDepartment", "Room");
-            roomMap.put("amount", detail.getRoomCharge());
-            String catName = detail.getCategory() != null ? detail.getCategory().getCategoryName() : "Room";
-            roomMap.put("description", "Room Charge (Expected) - " + catName);
-            roomMap.put("isSettledSeparately", false);
-            roomMap.put("createdAt", java.time.LocalDateTime.now().toString());
-            itemDTOs.add(0, roomMap); // Add to top
-
-            // Adjust balance to include this unposted room charge
-            currentBalance = currentBalance.add(detail.getRoomCharge());
-        }
 
         BigDecimal totalPayments = BigDecimal.ZERO;
         if (detail.getRoomBooking() != null) {
@@ -297,6 +269,7 @@ public class FolioRestController {
         response.put("items", itemDTOs);
         response.put("currentBalance", currentBalance);
         response.put("prePaidDeposit", totalPayments);
+        response.put("roomCharge", detail.getRoomCharge() != null ? detail.getRoomCharge() : BigDecimal.ZERO);
 
         return ResponseEntity.ok(response);
     }
@@ -357,6 +330,7 @@ public class FolioRestController {
             }
             RoomBookingDetail detail = optDetail.get();
             com.kawai.models.RoomBooking booking = detail.getRoomBooking();
+
 
             // Auto-post Room Charge if it hasn't been posted yet
             List<FolioItem> items = nightAuditService.getFolioItems(roomBookingDetailId);
@@ -582,23 +556,6 @@ public class FolioRestController {
                 totalCharges = totalCharges.add(roomBal);
             } catch (Exception e) {
             }
-            // Room charges (unposted expected charge)
-            boolean hasRoomCharge = false;
-            try {
-                List<FolioItem> items = nightAuditService.getFolioItems(d.getId());
-                if (items != null) {
-                    for (FolioItem item : items) {
-                        if ("Room".equalsIgnoreCase(item.getSourceDepartment())) {
-                            hasRoomCharge = true;
-                            break;
-                        }
-                    }
-                }
-            } catch (Exception e) {
-            }
-            if (!hasRoomCharge && d.getRoomCharge() != null && d.getRoomCharge().compareTo(BigDecimal.ZERO) > 0) {
-                totalCharges = totalCharges.add(d.getRoomCharge());
-            }
         }
 
         // Subtract all successful payments
@@ -629,22 +586,21 @@ public class FolioRestController {
         try {
             List<RoomBookingDetail> activeDetails = roomBookingDetailRepository.findByDetailStatus("Checked_In");
 
-            // Group by Booker/Customer ID
-            Map<Long, List<RoomBookingDetail>> groupedByCustomer = activeDetails.stream()
-                    .filter(d -> d.getRoomBooking() != null && d.getRoomBooking().getCustomer() != null)
-                    .collect(java.util.stream.Collectors.groupingBy(d -> d.getRoomBooking().getCustomer().getId()));
+            // Group by Booking ID instead of Customer ID
+            Map<Long, List<RoomBookingDetail>> groupedByBooking = activeDetails.stream()
+                    .filter(d -> d.getRoomBooking() != null)
+                    .collect(java.util.stream.Collectors.groupingBy(d -> d.getRoomBooking().getId()));
 
             List<Map<String, Object>> result = new java.util.ArrayList<>();
 
-            for (Map.Entry<Long, List<RoomBookingDetail>> entry : groupedByCustomer.entrySet()) {
-                Long customerId = entry.getKey();
+            for (Map.Entry<Long, List<RoomBookingDetail>> entry : groupedByBooking.entrySet()) {
+                Long bookingId = entry.getKey();
                 List<RoomBookingDetail> details = entry.getValue();
 
                 BigDecimal groupTotalCharges = BigDecimal.ZERO;
                 BigDecimal groupTotalPayments = BigDecimal.ZERO;
                 BigDecimal groupBalance = BigDecimal.ZERO;
                 List<String> roomNumbers = new java.util.ArrayList<>();
-                java.util.Set<Long> uniqueBookingIds = new java.util.HashSet<>();
 
                 String bookerName = "Unknown";
                 if (!details.isEmpty() && details.get(0).getRoomBooking().getCustomer() != null) {
@@ -654,9 +610,6 @@ public class FolioRestController {
                 for (RoomBookingDetail detail : details) {
                     if (detail.getRoom() != null && detail.getRoom().getRoomNumber() != null) {
                         roomNumbers.add(detail.getRoom().getRoomNumber());
-                    }
-                    if (detail.getRoomBooking() != null) {
-                        uniqueBookingIds.add(detail.getRoomBooking().getId());
                     }
 
                     BigDecimal balance = BigDecimal.ZERO;
@@ -692,27 +645,20 @@ public class FolioRestController {
                         }
                     }
 
-                    if (!hasRoomCharge && detail.getRoomCharge() != null
-                            && detail.getRoomCharge().compareTo(BigDecimal.ZERO) > 0) {
-                        groupBalance = groupBalance.add(detail.getRoomCharge());
-                        groupTotalCharges = groupTotalCharges.add(detail.getRoomCharge());
-                    }
                 }
 
-                // Sum all successful payments across all bookings of this group
+                // Sum all successful payments for this booking
                 BigDecimal totalPayments = BigDecimal.ZERO;
-                for (Long bookingId : uniqueBookingIds) {
-                    try {
-                        List<PaymentTransaction> payments = paymentService.getPaymentsByBookingId(bookingId);
-                        if (payments != null) {
-                            for (PaymentTransaction pt : payments) {
-                                if (pt.getStatus() == PaymentStatus.SUCCESS && pt.getAmount() != null) {
-                                    totalPayments = totalPayments.add(pt.getAmount());
-                                }
+                try {
+                    List<PaymentTransaction> payments = paymentService.getPaymentsByBookingId(bookingId);
+                    if (payments != null) {
+                        for (PaymentTransaction pt : payments) {
+                            if (pt.getStatus() == PaymentStatus.SUCCESS && pt.getAmount() != null) {
+                                totalPayments = totalPayments.add(pt.getAmount());
                             }
                         }
-                    } catch (Exception e) {
                     }
+                } catch (Exception e) {
                 }
 
                 groupBalance = groupBalance.multiply(new BigDecimal("1.10")).subtract(totalPayments);
@@ -724,8 +670,7 @@ public class FolioRestController {
 
                 Map<String, Object> map = new java.util.HashMap<>();
 
-                Long representativeBookingId = uniqueBookingIds.isEmpty() ? 0L : uniqueBookingIds.iterator().next();
-                map.put("folioNo", "BKG-" + String.format("%04d", representativeBookingId));
+                map.put("folioNo", "BKG-" + String.format("%04d", bookingId));
                 map.put("roomNumber", String.join(", ", roomNumbers));
                 map.put("bookerName", bookerName);
                 map.put("totalCharges", groupTotalCharges);

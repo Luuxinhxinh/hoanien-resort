@@ -762,8 +762,6 @@
             <div class="payment-methods">
                 <div class="method-btn active" onclick="selectPaymentMethod('CASH')" id="btn-method-CASH"><i
                         class="fa-solid fa-money-bill"></i> Tiền mặt</div>
-                <div class="method-btn" onclick="selectPaymentMethod('BANK_TRANSFER')" id="btn-method-BANK_TRANSFER"><i
-                        class="fa-solid fa-building-columns"></i> Chuyển khoản</div>
                 <div class="method-btn" onclick="selectPaymentMethod('VNPAY')" id="btn-method-VNPAY"><i
                         class="fa-solid fa-qrcode"></i> VNPay</div>
             </div>
@@ -962,6 +960,15 @@
                     originalGroups[dep].total += item.amount;
                     originalTotal += item.amount;
                 });
+
+                // Add expected room charge only to Right Pane (Consolidated Bill) if not already posted
+                const hasPostedRoomCharge = items.some(item => 'room' === (item.sourceDepartment || '').toLowerCase());
+                if (!hasPostedRoomCharge && data.roomCharge && data.roomCharge > 0) {
+                    const dep = 'Room';
+                    if (!originalGroups[dep]) originalGroups[dep] = { total: 0 };
+                    originalGroups[dep].total += data.roomCharge;
+                    originalTotal += data.roomCharge;
+                }
 
                 const roomId = data.roomBookingDetailId || index;
                 const isFirst = index === 0;

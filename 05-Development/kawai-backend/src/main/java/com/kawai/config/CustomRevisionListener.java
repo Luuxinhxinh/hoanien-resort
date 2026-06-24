@@ -11,7 +11,7 @@ public class CustomRevisionListener implements RevisionListener {
     @Override
     public void newRevision(Object revisionEntity) {
         CustomRevisionEntity customRevisionEntity = (CustomRevisionEntity) revisionEntity;
-        
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
             Object principal = authentication.getPrincipal();
