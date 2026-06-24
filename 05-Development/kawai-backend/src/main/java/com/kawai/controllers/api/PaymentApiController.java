@@ -40,6 +40,8 @@ public class PaymentApiController {
 
         if (txnRef != null && txnRef.startsWith("FOOD_")) {
             redirectUrl = "/order-food?payment=" + ("00".equals(rspCode) ? "success" : "failed");
+        } else if (txnRef != null && (txnRef.startsWith("TXN-") || txnRef.startsWith("FOLIO_"))) {
+            redirectUrl = "/receptionist/folio?payment=" + ("00".equals(rspCode) ? "success" : "failed");
         } else if (txnRef != null && txnRef.startsWith("WALKIN_")) {
             redirectUrl = "/receptionist/in-house?payment=" + ("00".equals(rspCode) ? "success" : "failed");
             System.err.println("[VNPay Return] -> Redirecting to in-house (WALKIN_ prefix)");
