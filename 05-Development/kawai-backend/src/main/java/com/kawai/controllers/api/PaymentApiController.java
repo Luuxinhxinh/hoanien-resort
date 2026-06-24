@@ -33,6 +33,8 @@ public class PaymentApiController {
         String redirectUrl;
         if (txnRef != null && txnRef.startsWith("FOOD_")) {
             redirectUrl = "/order-food?payment=" + ("00".equals(rspCode) ? "success" : "failed");
+        } else if (txnRef != null && (txnRef.startsWith("TXN-") || txnRef.startsWith("FOLIO_"))) {
+            redirectUrl = "/receptionist/folio?payment=" + ("00".equals(rspCode) ? "success" : "failed");
         } else {
             redirectUrl = "/profile/bookings?payment=" + ("00".equals(rspCode) ? "success" : "failed");
         }

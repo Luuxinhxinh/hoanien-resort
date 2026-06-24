@@ -325,6 +325,7 @@ public class ReceptionistController {
         return "receptionist/folio-detail";
     }
 
+
     @GetMapping("/night-audit")
     public String nightAudit(Model model) {
         return "receptionist/night-audit";

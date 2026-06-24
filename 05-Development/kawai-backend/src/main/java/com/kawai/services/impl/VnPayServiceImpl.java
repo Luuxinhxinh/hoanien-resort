@@ -7,10 +7,16 @@ import com.kawai.models.PaymentStatus;
 import com.kawai.models.PaymentTransaction;
 import com.kawai.models.FoodOrder;
 import com.kawai.models.RoomBooking;
+import com.kawai.models.RoomBookingDetail;
+import com.kawai.models.Room;
 import com.kawai.repositories.FoodOrderRepository;
 import com.kawai.repositories.PaymentTransactionRepository;
 import com.kawai.repositories.RoomBookingRepository;
+import com.kawai.repositories.RoomBookingDetailRepository;
+import com.kawai.repositories.RoomRepository;
 import com.kawai.services.interfaces.VnPayService;
+import com.kawai.services.interfaces.EmailService;
+import com.kawai.services.interfaces.InvoicePdfService;
 import com.kawai.utils.VnPayUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -40,10 +46,22 @@ public class VnPayServiceImpl implements VnPayService {
     private PaymentTransactionRepository paymentTransactionRepository;
 
     @Autowired
+    private RoomBookingDetailRepository roomBookingDetailRepository;
+
+    @Autowired
+    private RoomRepository roomRepository;
+
+    @Autowired
     private com.kawai.repositories.ConsolidatedInvoiceRepository consolidatedInvoiceRepository;
 
     @Autowired
     private FoodOrderRepository foodOrderRepository;
+
+    @Autowired
+    private EmailService emailService;
+
+    @Autowired
+    private InvoicePdfService invoicePdfService;
 
     @Override
     @Transactional
@@ -194,6 +212,59 @@ public class VnPayServiceImpl implements VnPayService {
 
     @Override
     @Transactional
+    public String createPaymentUrlFromTransaction(PaymentTransaction txn, String ipAddress) {
+        long amountVal = txn.getAmount().multiply(new BigDecimal("100")).setScale(0, RoundingMode.HALF_UP).longValue();
+        String createDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+
+        Map<String, String> vnp_Params = new HashMap<>();
+        vnp_Params.put("vnp_Version", vnPayConfig.getApiVersion());
+        vnp_Params.put("vnp_Command", "pay");
+        vnp_Params.put("vnp_TmnCode", vnPayConfig.getTmnCode());
+        vnp_Params.put("vnp_Amount", String.valueOf(amountVal));
+        vnp_Params.put("vnp_CurrCode", "VND");
+        vnp_Params.put("vnp_TxnRef", txn.getTransactionRef());
+        vnp_Params.put("vnp_OrderInfo", "Thanh toan hoa don folio");
+        vnp_Params.put("vnp_OrderType", "250000");
+        vnp_Params.put("vnp_Locale", "vn");
+        vnp_Params.put("vnp_ReturnUrl", vnPayConfig.getReturnUrl());
+        vnp_Params.put("vnp_IpAddr", ipAddress);
+        vnp_Params.put("vnp_CreateDate", createDate);
+
+        List<String> fieldNames = new ArrayList<>(vnp_Params.keySet());
+        java.util.Collections.sort(fieldNames);
+        StringBuilder hashData = new StringBuilder();
+        StringBuilder query = new StringBuilder();
+        java.util.Iterator<String> itr = fieldNames.iterator();
+        while (itr.hasNext()) {
+            String fieldName = itr.next();
+            String fieldValue = vnp_Params.get(fieldName);
+            if ((fieldValue != null) && (fieldValue.length() > 0)) {
+                try {
+                    hashData.append(fieldName);
+                    hashData.append('=');
+                    hashData.append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII.toString()));
+                    query.append(URLEncoder.encode(fieldName, StandardCharsets.US_ASCII.toString()));
+                    query.append('=');
+                    query.append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII.toString()));
+                    if (itr.hasNext()) {
+                        query.append('&');
+                        hashData.append('&');
+                    }
+                } catch (java.io.UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        String queryUrl = query.toString();
+        String vnp_SecureHash = VnPayUtil.hmacSHA512(vnPayConfig.getHashSecret(), hashData.toString());
+        queryUrl += "&vnp_SecureHash=" + vnp_SecureHash;
+
+        return vnPayConfig.getPayUrl() + "?" + queryUrl;
+    }
+
+    @Override
+    @Transactional
     public Map<String, String> verifyIpn(Map<String, String> params) {
         Map<String, String> response = new HashMap<>();
 
@@ -256,12 +327,45 @@ public class VnPayServiceImpl implements VnPayService {
                     booking.setBookingStatus("CONFIRMED");
                 }
             }
+            
+            // Xử lý checkout phòng nếu giao dịch xuất phát từ Folio
+            if (txnRef != null && txnRef.startsWith("FOLIO_")) {
+                try {
+                    String[] parts = txnRef.split("_");
+                    if (parts.length >= 2) {
+                        Long detailId = Long.parseLong(parts[1]);
+                        RoomBookingDetail detail = roomBookingDetailRepository.findById(detailId).orElse(null);
+                        if (detail != null) {
+                            detail.setDetailStatus("Checked_Out");
+                            roomBookingDetailRepository.save(detail);
+
+                            Room room = detail.getRoom();
+                            if (room != null) {
+                                room.setRoomStatus("Vacant_Dirty");
+                                room.setCurrentBookingDetailId(null);
+                                roomRepository.save(room);
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    System.err.println("Lỗi khi chuyển trạng thái phòng trong IPN: " + e.getMessage());
+                }
+            }
 
             // Tự động chuyển trạng thái Hóa Đơn sang PAID
             if (txn.getInvoice() != null) {
                 com.kawai.models.ConsolidatedInvoice invoice = txn.getInvoice();
                 invoice.setInvoiceStatus("Paid");
                 consolidatedInvoiceRepository.save(invoice);
+
+                try {
+                    String pdfPath = invoicePdfService.generateInvoicePdf(invoice);
+                    if (booking != null && booking.getCustomer() != null && booking.getCustomer().getEmail() != null) {
+                        emailService.sendInvoiceEmail(booking.getCustomer().getEmail(), invoice, pdfPath);
+                    }
+                } catch (Exception e) {
+                    System.err.println("Lỗi khi sinh PDF hoặc gửi Email cho hóa đơn VNPay: " + e.getMessage());
+                }
             }
         } else {
             txn.setStatus(PaymentStatus.FAILED);

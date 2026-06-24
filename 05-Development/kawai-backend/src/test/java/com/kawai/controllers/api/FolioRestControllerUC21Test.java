@@ -43,6 +43,10 @@ public class FolioRestControllerUC21Test {
     private InvoicePdfService invoicePdfService;
     @Mock
     private EmailService emailService;
+    @Mock
+    private RoomBookingRepository roomBookingRepository;
+    @Mock
+    private VnPayService vnPayService;
 
     @InjectMocks
     private FolioRestController folioRestController;
@@ -55,13 +59,13 @@ public class FolioRestControllerUC21Test {
         RoomBookingDetail mockDetail = new RoomBookingDetail();
         mockDetail.setId(detailId);
         mockDetail.setRoomCharge(new BigDecimal("1000000"));
-        
+
         RoomBooking mockBooking = new RoomBooking();
         Customer mockCustomer = new Customer();
         mockCustomer.setFullName("Nguyen Van A");
         mockBooking.setCustomer(mockCustomer);
         mockDetail.setRoomBooking(mockBooking);
-        
+
         Room mockRoom = new Room();
         mockRoom.setRoomNumber("101");
         mockDetail.setRoom(mockRoom);
@@ -86,8 +90,8 @@ public class FolioRestControllerUC21Test {
         assertTrue((Boolean) body.get("success"));
         assertEquals("Nguyen Van A", body.get("guestName"));
         assertEquals("101", body.get("roomNumber"));
-        assertEquals(new BigDecimal("1500000"), body.get("currentBalance"));
-        
+        assertEquals(new BigDecimal("1650000.00"), body.get("currentBalance"));
+
         @SuppressWarnings("unchecked")
         List<Map<String, Object>> items = (List<Map<String, Object>>) body.get("items");
         assertTrue(items.size() >= 1);
@@ -116,7 +120,7 @@ public class FolioRestControllerUC21Test {
         Map<String, Object> body = (Map<String, Object>) response.getBody();
         assertNotNull(body);
         assertTrue((Boolean) body.get("success"));
-        
+
         verify(folioItemRepository, times(1)).save(mockItem);
         assertTrue(mockItem.getIsSettledSeparately());
     }
@@ -128,11 +132,11 @@ public class FolioRestControllerUC21Test {
         Long detailId = 1L;
         RoomBookingDetail mockDetail = new RoomBookingDetail();
         mockDetail.setId(detailId);
-        
+
         Room mockRoom = new Room();
         mockRoom.setRoomNumber("101");
         mockDetail.setRoom(mockRoom);
-        
+
         RoomBooking mockBooking = new RoomBooking();
         Customer mockCustomer = new Customer();
         mockCustomer.setEmail("test@gmail.com");
@@ -144,11 +148,11 @@ public class FolioRestControllerUC21Test {
         when(invoicePdfService.generateInvoicePdf(any())).thenReturn("path/to/invoice.pdf");
 
         Map<String, Object> payload = new HashMap<>();
-        payload.put("paymentAmount", 1000000);
+        payload.put("paymentAmount", 1100000);
         payload.put("paymentMethod", "CASH");
 
         // Act
-        ResponseEntity<?> response = folioRestController.checkoutFolio(detailId, payload);
+        ResponseEntity<?> response = folioRestController.checkoutFolio(detailId, payload, null);
 
         // Assert
         assertTrue(response.getStatusCode().is2xxSuccessful());
@@ -156,14 +160,15 @@ public class FolioRestControllerUC21Test {
         Map<String, Object> body = (Map<String, Object>) response.getBody();
         assertNotNull(body);
         assertTrue((Boolean) body.get("success"));
-        
+
         assertEquals("Checked_Out", mockDetail.getDetailStatus());
         assertEquals("Vacant_Dirty", mockRoom.getRoomStatus());
-        
+
         verify(roomBookingDetailRepository, times(1)).save(mockDetail);
         verify(roomRepository, times(1)).save(mockRoom);
         verify(consolidatedInvoiceRepository, times(1)).save(any(ConsolidatedInvoice.class));
-        verify(paymentService, times(1)).recordPayment(any(), any(), eq(new BigDecimal("1000000")), anyString(), eq("CASH"), eq(PaymentStatus.SUCCESS), anyString());
+        verify(paymentService, times(1)).recordPayment(any(), any(), eq(new BigDecimal("1100000")), anyString(),
+                eq("CASH"), eq(PaymentStatus.SUCCESS), anyString());
     }
 
     @Test
@@ -182,7 +187,7 @@ public class FolioRestControllerUC21Test {
         payload.put("paymentMethod", "CASH");
 
         // Act
-        ResponseEntity<?> response = folioRestController.checkoutFolio(detailId, payload);
+        ResponseEntity<?> response = folioRestController.checkoutFolio(detailId, payload, null);
 
         // Assert
         assertTrue(response.getStatusCode().is4xxClientError());
@@ -191,7 +196,7 @@ public class FolioRestControllerUC21Test {
         assertNotNull(body);
         assertFalse((Boolean) body.get("success"));
         assertTrue(body.get("message").toString().contains("Số tiền thanh toán chưa đủ"));
-        
+
         // Ensure no state changes
         verify(roomBookingDetailRepository, never()).save(any());
         verify(consolidatedInvoiceRepository, never()).save(any());
