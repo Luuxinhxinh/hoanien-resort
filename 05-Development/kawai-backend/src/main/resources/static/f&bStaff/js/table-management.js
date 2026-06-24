@@ -594,6 +594,15 @@ function showBlockPopup(e, res, table) {
   document.getElementById('tl-popup-pax').textContent   = `${res.partySize || '?'} người`;
   document.getElementById('tl-popup-status').textContent = res.status;
 
+  const reasonRow = document.getElementById('tl-popup-reason-row');
+  const reasonSpan = document.getElementById('tl-popup-reason');
+  if (res.status === 'Cancelled' && res.specialRequests) {
+    reasonSpan.textContent = res.specialRequests;
+    reasonRow.style.display = 'flex';
+  } else {
+    reasonRow.style.display = 'none';
+  }
+
   const actions = document.getElementById('tl-popup-actions');
   actions.innerHTML = '';
 

@@ -296,6 +296,10 @@
       <span class="material-symbols-outlined">fiber_manual_record</span>
       <span id="tl-popup-status">--</span>
     </div>
+    <div class="tl-popup-row" id="tl-popup-reason-row" style="display:none; color: #c0392b; align-items:flex-start;">
+      <span class="material-symbols-outlined" style="font-size:1.1rem; margin-top:2px;">info</span>
+      <span id="tl-popup-reason" style="font-size:0.75rem; line-height:1.4;">--</span>
+    </div>
     <div class="tl-popup-actions" id="tl-popup-actions"></div>
   </div>
 
@@ -447,7 +451,7 @@
 
   <!-- Modal CCCD Check-in -->
   <div class="modal-overlay" id="cccdCheckInModal">
-    <div class="modal-content" style="max-width: 400px;">
+    <div class="modal" style="max-width: 400px;">
       <div class="modal-header">
         <div class="modal-title" style="display:flex;align-items:center;gap:8px;">
           <span class="material-symbols-outlined" style="color:var(--namia-text);">badge</span>
@@ -458,7 +462,7 @@
         </button>
       </div>
 
-      <div class="modal-body" style="padding: 20px;">
+      <div class="modal-body">
         <input type="hidden" id="cccdCheckIn-resId" />
         <input type="hidden" id="cccdCheckIn-tableId" />
 

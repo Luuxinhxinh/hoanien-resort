@@ -800,7 +800,7 @@
   border-style: dashed;
   color: #c0392b;
   opacity: 0.8;
-  pointer-events: none;
+  cursor: pointer;
 }
 
 .tl-block-cancelled .tl-block-name {
