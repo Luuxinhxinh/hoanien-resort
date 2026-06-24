@@ -44,7 +44,16 @@ public class OAuthAccountService {
             return null;
         }
 
-        // Nếu đã có account rồi thì trả về luôn
+        // Ưu tiên tìm Customer theo email vì email trong Customer là duy nhất.
+        // Nếu user đã đăng ký tay (username khác email) rồi login bằng Google,
+        // việc này sẽ trả về đúng tài khoản đó thay vì cố tạo mới và gây lỗi 500.
+        Customer existingCustomer = customerRepository.findByEmail(email).orElse(null);
+        if (existingCustomer != null) {
+            log.info("OAuth login: tìm thấy Customer đã tồn tại theo email={}, trả về Account tương ứng", email);
+            return existingCustomer.getAccount();
+        }
+
+        // Fallback: Tìm Account theo username
         Account existing = accountRepository.findByUsername(email).orElse(null);
         if (existing != null) {
             log.info("OAuth login: tìm thấy account đã tồn tại cho email={}", email);

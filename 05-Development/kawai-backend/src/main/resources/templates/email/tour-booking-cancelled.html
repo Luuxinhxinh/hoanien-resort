@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Thông báo hủy tour</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Cabrito Didone', Georgia, 'Times New Roman', serif; background: #F0D2DE; color: #71557A; }
+    .wrapper { max-width: 620px; margin: 32px auto; background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 24px rgba(113,85,122,0.15); }
+
+    .header { background: #71557A; padding: 40px 32px; text-align: center; }
+    .header .logo-text { font-family: 'Halminton Grand', Georgia, 'Times New Roman', serif; font-size: 26px; font-weight: 700; color: #F0D2DE; letter-spacing: 2px; }
+    .header .logo-sub { font-size: 12px; color: rgba(240,210,222,0.7); letter-spacing: 3px; text-transform: uppercase; margin-top: 4px; }
+
+    .hero { background: linear-gradient(135deg, #71557A 0%, #82668C 100%); padding: 36px 32px; text-align: center; }
+    .hero .icon { font-size: 52px; margin-bottom: 12px; }
+    .hero h1 { font-size: 22px; font-weight: 700; color: #F0D2DE; margin-bottom: 6px; }
+    .hero p { font-size: 14px; color: rgba(240,210,222,0.85); }
+
+    .body { padding: 32px; }
+    .greeting { font-size: 16px; color: #71557A; margin-bottom: 20px; }
+    .greeting strong { color: #71557A; }
+
+    .booking-card { background: #fdf8fa; border: 1.5px solid #F0D2DE; border-radius: 12px; overflow: hidden; margin-bottom: 24px; }
+    .booking-card-header { background: #71557A; padding: 14px 20px; }
+    .booking-card-header span { color: #F0D2DE; font-size: 13px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; }
+    .booking-card-header .booking-id { float: right; color: #F0D2DE; font-weight: 700; font-size: 14px; }
+    .booking-card-body { padding: 20px; }
+
+    .info-row { display: flex; align-items: baseline; padding: 8px 0; border-bottom: 1px solid #F0D2DE; font-size: 14px; color: #71557A; }
+    .info-row:last-child { border-bottom: none; }
+    .info-label { font-weight: 600; color: #71557A; white-space: nowrap; margin-right: 4px; }
+    .info-label::after { content: ':'; }
+    .info-value { font-weight: 400; color: #82668C; }
+    .info-value.highlight { font-weight: 600; color: #71557A; }
+    .info-value.cancelled { color: #c53030; font-weight: 600; }
+    .info-value.refund { color: #38a169; font-weight: 600; }
+
+    .refund-box { border-radius: 10px; padding: 20px 24px; margin: 24px 0; text-align: center; }
+    .refund-box.full { background: linear-gradient(135deg, #276749, #38a169); }
+    .refund-box.partial { background: linear-gradient(135deg, #71557A, #82668C); }
+    .refund-box .refund-label { color: rgba(240, 210, 222, 0.85); font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
+    .refund-box .refund-amount { color: #F0D2DE; font-size: 28px; font-weight: 700; margin-top: 6px; }
+    .refund-box .refund-note { color: rgba(240, 210, 222, 0.75); font-size: 12px; margin-top: 6px; }
+
+    .reason-box { background: #fcf2f5; border-left: 4px solid #71557A; border-radius: 6px; padding: 14px 16px; margin-bottom: 24px; font-size: 13px; color: #82668C; }
+    .reason-box strong { display: block; margin-bottom: 4px; color: #71557A; }
+
+    .footer { background: #71557A; padding: 28px 32px; text-align: center; }
+    .footer p { color: #dfd5e2; font-size: 12px; line-height: 1.8; }
+    .footer a { color: #F0D2DE; text-decoration: none; }
+    .footer .divider { height: 1px; background: #82668C; margin: 16px 0; }
+    .footer .resort-name { font-family: 'Halminton Grand', Georgia, 'Times New Roman', serif; color: #F0D2DE; font-weight: 700; font-size: 14px; margin-bottom: 6px; }
+  </style>
+</head>
+<body>
+<div class="wrapper">
+
+  <div class="header">
+    <div class="logo-text">🏝 HÒA NIÊN RETREAT & RESORT</div>
+    <div class="logo-sub">Tour &amp; Hospitality</div>
+  </div>
+
+  <div class="hero">
+    <div class="icon">❌</div>
+    <h1>Thông Báo Hủy Tour</h1>
+    <p>Tour của bạn đã được hủy theo yêu cầu</p>
+  </div>
+
+  <div class="body">
+    <p class="greeting">
+      Xin chào, <strong th:text="${customerName}">Nguyễn Văn A</strong>!<br/><br/>
+      Chúng tôi xác nhận rằng yêu cầu hủy tour của bạn đã được xử lý thành công.
+    </p>
+
+    <div class="booking-card">
+      <div class="booking-card-header">
+        <span>Chi tiết tour đã hủy</span>
+        <span class="booking-id" th:text="'#' + ${bookingId}">#12345</span>
+      </div>
+      <div class="booking-card-body">
+        <div class="info-row">
+          <span class="info-label">Tên tour:</span>
+          <span class="info-value highlight" th:text="${tourName}">Vịnh Hạ Long 1 Ngày</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Ngày khởi hành:</span>
+          <span class="info-value" th:text="${departureDate}">10/07/2026</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Số người:</span>
+          <span class="info-value" th:text="${participantCount} + ' người'">3 người</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Tổng tiền gốc:</span>
+          <span class="info-value" th:text="${totalPrice}">4.500.000 ₫</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Trạng thái:</span>
+          <span class="info-value cancelled">❌ Đã hủy</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Lý do hủy:</span>
+          <span class="info-value">
+            <span th:if="${cancelledByResort}">Hủy do Resort (sự cố bất khả kháng)</span>
+            <span th:if="${!cancelledByResort}">Khách hàng chủ động hủy</span>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Refund box: Full refund (resort cancelled) -->
+    <div class="refund-box full" th:if="${cancelledByResort}">
+      <div class="refund-label">Số tiền hoàn trả (100%)</div>
+      <div class="refund-amount" th:text="${refundAmount}">4.500.000 ₫</div>
+      <div class="refund-note">Sẽ được hoàn trả trong vòng 3–5 ngày làm việc</div>
+    </div>
+
+    <!-- Refund box: Partial refund (customer cancelled) -->
+    <div class="refund-box partial" th:if="${!cancelledByResort}">
+      <div class="refund-label">Số tiền hoàn trả (50% theo chính sách)</div>
+      <div class="refund-amount" th:text="${refundAmount}">2.250.000 ₫</div>
+      <div class="refund-note">Phí hủy 50% áp dụng khi hủy trong vòng 24h trước tour</div>
+    </div>
+
+    <!-- Reason box -->
+    <div class="reason-box" th:if="${cancelledByResort}">
+      <strong>ℹ️ Lý do từ phía Resort</strong>
+      Chúng tôi thành thật xin lỗi vì sự bất tiện này. Resort sẽ hoàn trả 100% chi phí.
+      Chúng tôi rất mong được phục vụ bạn trong lần đến tiếp theo.
+    </div>
+    <div class="reason-box" th:if="${!cancelledByResort}">
+      <strong>📋 Chính sách hủy tour</strong>
+      Theo điều khoản dịch vụ, hủy tour trong vòng 24h trước giờ khởi hành sẽ được hoàn lại 50% chi phí.
+      Phí hủy 50% còn lại (= <span th:text="${forfeitAmount}">2.250.000 ₫</span>) sẽ được giữ lại.
+    </div>
+
+    <p style="font-size:14px; color:#82668C; line-height:1.8;">
+      Nếu bạn muốn đặt lại tour hoặc cần thêm thông tin, vui lòng liên hệ với chúng tôi.<br/><br/>
+      Trân trọng,<br/>
+      <strong>Đội ngũ Tour &amp; Hospitality</strong><br/>
+      <em>Hòa Niên Retreat & Resort</em>
+    </p>
+  </div>
+
+  <div class="footer">
+    <div class="resort-name">🏝 Hòa Niên Retreat & Resort</div>
+    <p>
+      📞 <span th:text="${resortPhone}">1900 xxxx</span> &nbsp;|&nbsp;
+      🌐 <a th:href="${resortWebsite}" th:text="${resortWebsite}">hoaniensorretreat.vn</a>
+    </p>
+    <div class="divider"></div>
+    <p>
+      Email này được gửi tự động — vui lòng không reply trực tiếp.<br/>
+      © 2026 Hòa Niên Retreat & Resort. Bảo lưu mọi quyền.
+    </p>
+  </div>
+
+</div>
+</body>
+</html>

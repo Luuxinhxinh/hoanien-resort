@@ -82,11 +82,20 @@
                     <div th:case="'Restaurant Menu'">
                         <div th:replace="~{admin/fragments/md-restaurant-menu :: table}"></div>
                     </div>
+                    <div th:case="'Menu Categories'">
+                        <div th:replace="~{admin/fragments/md-menu-categories :: table}"></div>
+                    </div>
+                    <div th:case="'Tour Categories'">
+                        <div th:replace="~{admin/fragments/md-tour-categories :: table}"></div>
+                    </div>
                     <div th:case="'Tours'">
                         <div th:replace="~{admin/fragments/md-tours :: table}"></div>
                     </div>
                     <div th:case="'Account Management'">
                         <div th:replace="~{admin/fragments/md-account-management :: table}"></div>
+                    </div>
+                    <div th:case="'Role Management'">
+                        <div th:replace="~{admin/fragments/md-role-management :: table}"></div>
                     </div>
                     <div th:case="'Promotions'">
                         <div th:replace="~{admin/fragments/md-promotions :: table}"></div>
@@ -136,11 +145,20 @@
                     <div th:case="'Restaurant Menu'">
                         <div th:replace="~{admin/fragments/md-restaurant-menu :: form}"></div>
                     </div>
+                    <div th:case="'Menu Categories'">
+                        <div th:replace="~{admin/fragments/md-menu-categories :: form}"></div>
+                    </div>
+                    <div th:case="'Tour Categories'">
+                        <div th:replace="~{admin/fragments/md-tour-categories :: form}"></div>
+                    </div>
                     <div th:case="'Tours'">
                         <div th:replace="~{admin/fragments/md-tours :: form}"></div>
                     </div>
                     <div th:case="'Account Management'">
                         <div th:replace="~{admin/fragments/md-account-management :: form}"></div>
+                    </div>
+                    <div th:case="'Role Management'">
+                        <div th:replace="~{admin/fragments/md-role-management :: form}"></div>
                     </div>
                     <div th:case="'Promotions'">
                         <div th:replace="~{admin/fragments/md-promotions :: form}"></div>

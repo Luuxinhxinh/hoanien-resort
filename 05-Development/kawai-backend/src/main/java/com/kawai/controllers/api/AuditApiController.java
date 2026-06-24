@@ -21,6 +21,7 @@ import java.util.*;
 public class AuditApiController {
 
     private final EntityManager entityManager;
+    private final javax.sql.DataSource dataSource;
 
     private Class<?> getEntityClass(String entityType) {
         switch (entityType) {
@@ -168,11 +169,85 @@ public class AuditApiController {
                 }
             }
 
-            entityManager.merge(currentEntity);
             entityManager.flush();
             return ResponseEntity.ok(Map.of("message", "Rollback successful"));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", "Rollback failed: " + e.getMessage()));
+        }
+    }
+
+    @PostMapping("/backup")
+    @com.kawai.utils.LogActivity(action = "Sao lưu dữ liệu", module = "Hệ thống Audit")
+    public ResponseEntity<?> backupDatabase() {
+        try {
+            java.io.File backupDir = new java.io.File("backups");
+            if (!backupDir.exists()) {
+                backupDir.mkdirs();
+            }
+
+            String backupFileName = "Hoanien_Backup_" + java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss")) + ".sql";
+            java.io.File backupFile = new java.io.File(backupDir, backupFileName);
+
+            // Execute real database dump using pure JDBC
+            try (java.sql.Connection conn = dataSource.getConnection();
+                 java.io.PrintWriter writer = new java.io.PrintWriter(new java.io.OutputStreamWriter(new java.io.FileOutputStream(backupFile), java.nio.charset.StandardCharsets.UTF_8))) {
+                 
+                writer.println("-- Hoanien Retreat Database Backup (Java JDBC Dumper)");
+                writer.println("-- Generated automatically at: " + java.time.LocalDateTime.now().toString());
+                writer.println("-- ------------------------------------------------------");
+                writer.println("SET FOREIGN_KEY_CHECKS=0;\n");
+                
+                java.sql.DatabaseMetaData metaData = conn.getMetaData();
+                try (java.sql.ResultSet tables = metaData.getTables(conn.getCatalog(), null, "%", new String[]{"TABLE"})) {
+                    while (tables.next()) {
+                        String tableName = tables.getString("TABLE_NAME");
+                        writer.println("-- Data for table `" + tableName + "`");
+                        
+                        try (java.sql.Statement stmt = conn.createStatement();
+                             java.sql.ResultSet rs = stmt.executeQuery("SELECT * FROM `" + tableName + "`")) {
+                             
+                            java.sql.ResultSetMetaData rsmd = rs.getMetaData();
+                            int columnCount = rsmd.getColumnCount();
+                            
+                            while (rs.next()) {
+                                StringBuilder sql = new StringBuilder("INSERT INTO `" + tableName + "` VALUES (");
+                                for (int i = 1; i <= columnCount; i++) {
+                                    Object value = rs.getObject(i);
+                                    if (value == null) {
+                                        sql.append("NULL");
+                                    } else if (value instanceof Number) {
+                                        sql.append(value);
+                                    } else if (value instanceof Boolean) {
+                                        sql.append(((Boolean)value) ? "1" : "0");
+                                    } else {
+                                        String strVal = value.toString()
+                                            .replace("\\", "\\\\")
+                                            .replace("'", "\\'")
+                                            .replace("\n", "\\n")
+                                            .replace("\r", "\\r");
+                                        sql.append("'").append(strVal).append("'");
+                                    }
+                                    if (i < columnCount) sql.append(", ");
+                                }
+                                sql.append(");\n");
+                                writer.print(sql.toString());
+                            }
+                        } catch (Exception ignored) {
+                            // Skip views or inaccessible tables
+                        }
+                        writer.println("\n");
+                    }
+                }
+                writer.println("SET FOREIGN_KEY_CHECKS=1;");
+            }
+
+            String absolutePath = backupFile.getAbsolutePath();
+            return ResponseEntity.ok(Map.of(
+                "success", true, 
+                "message", "Dữ liệu thực tế đã được trích xuất thành công vào file:\n" + absolutePath
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Sao lưu thất bại: " + e.getMessage()));
         }
     }
 }

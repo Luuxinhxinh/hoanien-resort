@@ -29,6 +29,11 @@
                 <span class="material-symbols-outlined text-[18px]">error</span>
                 <span>Tài khoản hoặc mật khẩu không đúng.</span>
             </div>
+            <!-- Show Spring Security login error -->
+            <div th:if="${param.login_error != null}"
+                class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+                <span class="block sm:inline">Sai tên đăng nhập hoặc mật khẩu! (Hoặc tài khoản không được phép đăng nhập tại đây)</span>
+            </div>
 
             <!-- Login Form -->
             <div id="loginSection">
@@ -56,7 +61,7 @@
                         <div class="flex justify-between items-center mb-2 ml-1">
                             <label class="block text-[10px] uppercase tracking-[0.15em] text-[#3a3230]/70 font-bold">Mật
                                 khẩu</label>
-                            <a href="#" onclick="toggleAuthView('forgotPassword'); return false;"
+                            <a href="#" onclick="event.preventDefault(); toggleAuthView('forgotPassword');"
                                 class="text-[11px] text-[#3a3230]/80 hover:text-[#3a3230] italic transition-colors">Quên mật
                                 khẩu?</a>
                         </div>
@@ -282,7 +287,10 @@
                 toggleAuthView('register');
 
                 document.querySelectorAll('.redirect-input').forEach(input => {
-                    input.value = window.location.pathname + window.location.search;
+                    const url = new URL(window.location.href);
+                    url.searchParams.delete('login_error');
+                    url.searchParams.delete('login');
+                    input.value = url.pathname + url.search;
                 });
             }
         }

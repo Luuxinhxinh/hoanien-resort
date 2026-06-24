@@ -15,13 +15,13 @@ public class Dependent {
     @JoinColumn(name = "customer_id", nullable = false)
     private Customer customer;
 
-    @Column(name = "dependent_name", nullable = false)
+    @Column(name = "dependent_name")
     private String dependentName;
 
     @Column(name = "birth_date", nullable = false)
     private LocalDate birthDate;
 
-    @Column(nullable = false)
+    @Column
     private String gender;
 
     @Column(name = "cccd_passport_encrypted")

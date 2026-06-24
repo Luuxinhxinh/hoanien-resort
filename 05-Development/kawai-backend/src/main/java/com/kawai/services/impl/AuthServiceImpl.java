@@ -67,6 +67,9 @@ public class AuthServiceImpl implements AuthService {
                 accountToUse = acc;
             }
         }
+        if (phone != null && !phone.trim().isEmpty() && !com.kawai.utils.ValidationUtils.isValidPhone(phone)) {
+            throw new IllegalArgumentException("Invalid phone number format (Must be 10 digits starting with 0)");
+        }
 
         Optional<Customer> existingCustOpt = customerRepository.findByEmail(email);
         if (existingCustOpt.isPresent()) {

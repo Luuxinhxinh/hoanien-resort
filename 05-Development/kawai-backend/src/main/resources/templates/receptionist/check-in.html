@@ -173,15 +173,24 @@
                                         th:data-id="${arr.id}" th:data-name="${arr.guestName}"
                                         th:data-phone="${arr.phone}" th:data-cccd="${arr.cccd}"
                                         th:data-room="${arr.roomSummary}"
-                                        onclick="openCheckinModal(this.getAttribute('data-id'), this.getAttribute('data-name'), this.getAttribute('data-phone'), this.getAttribute('data-cccd'), this.getAttribute('data-room'))"
+                                        th:attr="onclick=|openCheckinModal('${arr.id}', '${arr.guestName}', '${arr.phone}', '${arr.cccd}', '${arr.roomSummary}', 'deps-arr-${arr.id}')|"
                                         th:text="${arr.guestName}"></td>
                                     <td th:text="${arr.bookingDate}" style="color: #4b5563;"></td>
                                     <td><span th:text="${arr.roomSummary}"></span></td>
-                                    <td><button class="btn btn-primary btn-sm" th:data-id="${arr.id}"
+                                    <td>
+                                        <button class="btn btn-primary btn-sm" th:data-id="${arr.id}"
                                             th:data-name="${arr.guestName}" th:data-phone="${arr.phone}"
                                             th:data-cccd="${arr.cccd}" th:data-room="${arr.roomSummary}"
-                                            onclick="openCheckinModal(this.getAttribute('data-id'), this.getAttribute('data-name'), this.getAttribute('data-phone'), this.getAttribute('data-cccd'), this.getAttribute('data-room'))">Assign
+                                            th:attr="onclick=|openCheckinModal('${arr.id}', '${arr.guestName}', '${arr.phone}', '${arr.cccd}', '${arr.roomSummary}', 'deps-arr-${arr.id}')|">Assign
                                             & Check-in</button>
+                                        <!-- Hidden data for dependents -->
+                                        <div th:id="'deps-arr-' + ${arr.id}" style="display:none;">
+                                            <ul>
+                                                <li th:each="dep : ${arr.dependents}" th:data-name="${dep.fullName}"
+                                                    th:data-dob="${dep.dateOfBirth}" th:data-id="${dep.dependentId}">
+                                                </li>
+                                            </ul>
+                                        </div>
                                     </td>
                                 </tr>
                             </tbody>
@@ -396,39 +405,51 @@
 
                 <!-- Dependents Section -->
                 <div>
-                    <h4
-                        style="margin-top: 0; margin-bottom: 12px; font-weight: 600; color: #334155; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px;">
-                        Group Members & Room Assignment</h4>
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px;">
+                        <h3 style="font-size: 16px; font-weight: 600; color: #1e293b; margin: 0;">Group Members &amp;
+                            Room Assignment</h3>
+                        <button type="button" class="btn btn-sm btn-ghost" onclick="toggleDependentsList()"
+                            id="toggleDependentsBtn"
+                            style="color: #64748b; background: none; border: none; cursor: pointer;">
+                            <i class="fa-solid fa-chevron-up"></i> Thu gọn
+                        </button>
+                    </div>
 
-                    <table class="data-table" style="margin-bottom: 16px; width: 100%; border-collapse: collapse;"
-                        id="dependentsTable">
-                        <thead>
-                            <tr style="background: #f8fafc; border-bottom: 1px solid #e2e8f0;">
-                                <th style="padding: 8px; text-align: left; font-weight: 500; font-size: 13px;">Full Name
-                                </th>
-                                <th style="padding: 8px; text-align: left; font-weight: 500; font-size: 13px;">
-                                    CCCD</th>
-                                <th style="padding: 8px; text-align: left; font-weight: 500; font-size: 13px;">Date of
-                                    Birth
-                                </th>
-                                <th style="padding: 8px; text-align: left; font-weight: 500; font-size: 13px;">Action
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody id="dependentsList">
-                            <tr>
-                                <td colspan="4"
-                                    style="text-align:center; padding: 16px; color: #94a3b8; font-size: 13px;">No
-                                    group members added yet</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <div id="dependentsTableWrapper" style="overflow: hidden; transition: all 0.3s ease-in-out;">
+                        <table class="data-table" style="margin-bottom: 16px; width: 100%; border-collapse: collapse;"
+                            id="dependentsTable">
+                            <thead>
+                                <tr style="background: #f8fafc; border-bottom: 1px solid #e2e8f0;">
+                                    <th style="padding: 8px; text-align: left; font-weight: 500; font-size: 13px;">Full
+                                        Name
+                                    </th>
+                                    <th style="padding: 8px; text-align: left; font-weight: 500; font-size: 13px;">
+                                        CCCD</th>
+                                    <th style="padding: 8px; text-align: left; font-weight: 500; font-size: 13px;">Date
+                                        of
+                                        Birth
+                                    </th>
+                                    <th style="padding: 8px; text-align: left; font-weight: 500; font-size: 13px;">
+                                        Action
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody id="dependentsList">
+                                <tr>
+                                    <td colspan="4"
+                                        style="text-align:center; padding: 16px; color: #94a3b8; font-size: 13px;">No
+                                        group members added yet</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
 
                     <div style="background: #f8fafc; padding: 16px; border-radius: 6px; border: 1px dashed #cbd5e1;">
                         <h5 style="margin-top: 0; margin-bottom: 12px; font-weight: 500; font-size: 14px;">Add Group
                             Member</h5>
                         <div
-                            style="display: grid; grid-template-columns: 2fr 2fr 2fr auto; gap: 12px; align-items: end;">
+                            style="display: grid; grid-template-columns: 2fr 2fr 2fr 2fr auto; gap: 12px; align-items: end;">
                             <div>
                                 <label style="display: block; font-size: 13px; margin-bottom: 4px;">Full Name</label>
                                 <input type="text" id="depName"
@@ -440,6 +461,14 @@
                                 <input type="text" id="depId"
                                     style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;"
                                     placeholder="ID">
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 13px; margin-bottom: 4px;">Assign to
+                                    Room</label>
+                                <select id="depRoom"
+                                    style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px; background: white;">
+                                    <option value="">-- Select Room --</option>
+                                </select>
                             </div>
                             <div>
                                 <label style="display: block; font-size: 13px; margin-bottom: 4px;">Date of
@@ -612,15 +641,45 @@
                 hiddenInput.value = a.room;
                 document.getElementById('checkinFormWrapper').appendChild(hiddenInput);
             });
+
+            // Cập nhật lại dropdown Chọn phòng cho Người phụ thuộc
+            const depRoomSelect = document.getElementById('depRoom');
+            depRoomSelect.innerHTML = '<option value="">-- Select Room --</option>';
+            assignedRooms.forEach(a => {
+                const opt = document.createElement('option');
+                opt.value = a.room;
+                opt.innerText = `${a.room} (${a.type})`;
+                depRoomSelect.appendChild(opt);
+            });
         }
 
 
 
-        function openCheckinModal(bookingId, guestName, phone, cccd, roomSummary) {
+        function openCheckinModal(bookingId, guestName, phone, cccd, roomSummary, depsDivId) {
             // Gán bookingId vào form submit hidden input
             document.getElementById('submitBookingId').value = bookingId;
-            document.getElementById('dependentsList').innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 16px; color: #94a3b8; font-size: 13px;">No group members added yet</td></tr>';
+            const dependentsListContainer = document.getElementById('dependentsList');
+            dependentsListContainer.innerHTML = '';
             depIndexCounter = 0; // Reset index khách kèm
+            // Lấy danh sách khách kèm hiện có
+            if (depsDivId) {
+                const depsDiv = document.getElementById(depsDivId);
+                if (depsDiv) {
+                    const items = depsDiv.querySelectorAll('li');
+                    items.forEach(li => {
+                        const name = li.getAttribute('data-name');
+                        const dob = li.getAttribute('data-dob');
+                        const dependentId = li.getAttribute('data-id');
+                        // Hiển thị tất cả các khách, bao gồm cả những khách chưa có tên (Stub từ Đặt phòng online)
+                        const displayName = name ? name : '(Chưa cập nhật)';
+                        addDependentRow(displayName, '', dob || '', dependentId);
+                    });
+                }
+            }
+
+            if (dependentsListContainer.children.length === 0) {
+                dependentsListContainer.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 16px; color: #94a3b8; font-size: 13px;">No group members added yet</td></tr>';
+            }
 
             document.getElementById('modalGuestName').value = guestName || '';
             document.getElementById('modalGuestPhone').value = phone || '';
@@ -674,23 +733,57 @@
             const name = document.getElementById('depName').value;
             const id = document.getElementById('depId').value;
             const dob = document.getElementById('depDob').value;
-            if (!name || !id || !dob) {
-                alert('Please fill all fields!');
+            const roomId = document.getElementById('depRoom').value;
+            if (!name || !dob) {
+                alert('Please fill Name and Date of Birth!');
+                return;
+            }
+            if (!roomId) {
+                alert('Please assign the guest to a room!');
                 return;
             }
 
-            // Kiểm tra ngày sinh không được ở tương lai bằng cách so sánh chuỗi YYYY-MM-DD
-            const todayObj = new Date();
-            const year = todayObj.getFullYear();
-            const month = String(todayObj.getMonth() + 1).padStart(2, '0');
-            const day = String(todayObj.getDate()).padStart(2, '0');
-            const todayStr = `${year}-${month}-${day}`;
-
+            // Kiểm tra ngày sinh không được ở tương lai
+            const todayStr = new Date().toISOString().split('T')[0];
             if (dob > todayStr) {
                 alert('Ngày sinh không được vượt quá ngày hiện tại!');
                 return;
             }
+            if (dob < '1900-01-01') {
+                alert('Ngày sinh không hợp lệ!');
+                return;
+            }
 
+            // Kiểm tra CCCD/Passport nếu có nhập
+            if (id) {
+                const isNumericOnly = /^\d+$/.test(id);
+                if (isNumericOnly) {
+                    if (id.length !== 12) {
+                        alert('Số CCCD không hợp lệ! Nếu chỉ nhập số, CCCD phải gồm đúng 12 chữ số.');
+                        return;
+                    }
+                } else {
+                    const isValidPassport = /^[A-Za-z0-9]{6,15}$/.test(id);
+                    if (!isValidPassport) {
+                        alert('Số Passport không hợp lệ! Passport phải từ 6-15 ký tự chữ và số.');
+                        return;
+                    }
+                }
+            }
+
+            const depId = document.getElementById('depId').getAttribute('data-dependent-id');
+            const parsedDepId = (depId && depId !== 'null' && depId !== '') ? depId : null;
+
+            addDependentRow(name, id, dob, parsedDepId, roomId);
+
+            document.getElementById('depName').value = '';
+            document.getElementById('depId').value = '';
+            document.getElementById('depId').removeAttribute('data-dependent-id');
+            document.getElementById('depDob').value = '';
+            document.getElementById('depRoom').value = '';
+        }
+
+        function addDependentRow(name, cccd, dob, dependentId, assignedPhysicalRoomNumber) {
             const tbody = document.getElementById('dependentsList');
             // remove empty message if present
             if (tbody.children.length === 1 && tbody.children[0].innerText.includes('No group members')) {
@@ -699,14 +792,22 @@
 
             const tr = document.createElement('tr');
             tr.style.borderBottom = '1px solid #e2e8f0';
+            let hiddenIdInput = dependentId ? `<input type="hidden" name="dependents[${depIndexCounter}].dependentId" value="${dependentId}" />` : '';
+            let hiddenRoomInput = assignedPhysicalRoomNumber ? `<input type="hidden" name="dependents[${depIndexCounter}].assignedPhysicalRoomNumber" value="${assignedPhysicalRoomNumber}" />` : '';
+
+            let depIdArg = dependentId ? `'${dependentId}'` : 'null';
+            let roomIdArg = assignedPhysicalRoomNumber ? `'${assignedPhysicalRoomNumber}'` : 'null';
+
             tr.innerHTML = `
                 <td style="padding: 8px; font-size: 14px;">
                     ${name}
+                    ${hiddenIdInput}
+                    ${hiddenRoomInput}
                     <input type="hidden" name="dependents[${depIndexCounter}].fullName" value="${name}" />
                 </td>
                 <td style="padding: 8px; font-size: 14px;">
-                    ${id}
-                    <input type="hidden" name="dependents[${depIndexCounter}].cccd" value="${id}" />
+                    ${cccd}
+                    <input type="hidden" name="dependents[${depIndexCounter}].cccd" value="${cccd}" />
                 </td>
                 <td style="padding: 8px; font-size: 14px;">
                     ${dob}
@@ -714,16 +815,51 @@
                     <input type="hidden" name="dependents[${depIndexCounter}].gender" value="Other" />
                 </td>
                 <td style="padding: 8px;">
-                    <button type="button" class="btn btn-outline btn-sm" style="color: #ef4444; border-color: #ef4444; padding: 4px 8px;" onclick="this.closest('tr').remove()"><i class="fa-solid fa-trash"></i></button>
+                    <button type="button" class="btn btn-outline btn-sm" style="color: #3b82f6; border-color: #3b82f6; padding: 4px 8px; margin-right: 4px;" title="Edit" onclick="editDependentRow(this, '${name}', '${cccd}', '${dob}', ${depIdArg}, ${roomIdArg})"><i class="fa-solid fa-pen"></i></button>
+                    <button type="button" class="btn btn-outline btn-sm" style="color: #ef4444; border-color: #ef4444; padding: 4px 8px;" title="Delete" onclick="this.closest('tr').remove()"><i class="fa-solid fa-trash"></i></button>
                 </td>
             `;
             tbody.appendChild(tr);
 
             depIndexCounter++;
+        }
 
-            document.getElementById('depName').value = '';
-            document.getElementById('depId').value = '';
-            document.getElementById('depDob').value = '';
+        function editDependentRow(btn, name, cccd, dob, depId, roomId) {
+            document.getElementById('depName').value = name === '(Chưa cập nhật)' ? '' : name;
+            document.getElementById('depId').value = cccd;
+            document.getElementById('depDob').value = dob;
+            if (roomId) {
+                document.getElementById('depRoom').value = roomId;
+            } else {
+                document.getElementById('depRoom').value = '';
+            }
+
+            // Set attributes to track which dependent is being edited
+            if (depId) {
+                document.getElementById('depId').setAttribute('data-dependent-id', depId);
+            } else {
+                document.getElementById('depId').removeAttribute('data-dependent-id');
+            }
+
+            // Mở rộng danh sách nếu đang bị thu gọn để tiện xem
+            const wrapper = document.getElementById('dependentsTableWrapper');
+            if (wrapper.style.display === 'none') {
+                toggleDependentsList();
+            }
+
+            btn.closest('tr').remove();
+        }
+
+        function toggleDependentsList() {
+            const wrapper = document.getElementById('dependentsTableWrapper');
+            const btn = document.getElementById('toggleDependentsBtn');
+            if (wrapper.style.display === 'none') {
+                wrapper.style.display = 'block';
+                btn.innerHTML = '<i class="fa-solid fa-chevron-up"></i> Thu gọn';
+            } else {
+                wrapper.style.display = 'none';
+                btn.innerHTML = '<i class="fa-solid fa-chevron-down"></i> Hiện hết';
+            }
         }
     </script>
 </body>

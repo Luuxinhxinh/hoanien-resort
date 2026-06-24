@@ -4,20 +4,36 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public interface AdminViewService {
 
     Map<String, Object> getDashboardMetrics();
+
     Map<String, List<RoomMock>> getRoomsByFloor();
+
     List<ActivityMock> getRecentActivities();
+
     List<CheckoutMock> getCheckouts();
-    
+
     List<MasterDataColumn> getMasterDataColumns(String tab);
+
     List<Map<String, String>> getMasterDataRows(String tab);
+
     Map<String, List<String>> getFormOptions();
-    
+
     List<AuditLogMock> getAuditLogs();
+
     List<ReviewMock> getReviews();
+
+    // New methods for audit log filters
+    default Set<String> getAuditEmployees() {
+        return Set.of();
+    }
+
+    default Set<String> getAuditModules() {
+        return Set.of();
+    }
 
     // ================= DTOs =================
     @Data
@@ -181,7 +197,6 @@ public interface AdminViewService {
     }
 
     @Data
-    @AllArgsConstructor
     class AuditLogMock {
         private String time;
         private String name;
@@ -193,5 +208,22 @@ public interface AdminViewService {
         private String severity;
         private Long recordId;
         private String rawTableName;
+        private String date; // YYYY-MM-DD format for filtering
+
+        public AuditLogMock(String time, String name, String initials, String role, String action,
+                List<String> modules, String ip, String severity, Long recordId,
+                String rawTableName, String date) {
+            this.time = time;
+            this.name = name;
+            this.initials = initials;
+            this.role = role;
+            this.action = action;
+            this.modules = modules;
+            this.ip = ip;
+            this.severity = severity;
+            this.recordId = recordId;
+            this.rawTableName = rawTableName;
+            this.date = date;
+        }
     }
 }

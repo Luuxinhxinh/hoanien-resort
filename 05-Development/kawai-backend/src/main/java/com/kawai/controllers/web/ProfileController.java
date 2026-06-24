@@ -32,8 +32,7 @@ public class ProfileController {
 
     private String extractUsername(Authentication authentication) {
         if (authentication instanceof org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken) {
-            org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken oauthToken = 
-                (org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken) authentication;
+            org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken oauthToken = (org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken) authentication;
             String email = oauthToken.getPrincipal().getAttribute("email");
             if (email != null) {
                 return email;
@@ -126,7 +125,8 @@ public class ProfileController {
             List<com.kawai.models.Dependent> dependents = dependentRepository.findByCustomer(customer);
             model.addAttribute("dependents", dependents);
 
-            List<com.kawai.models.TableReservation> tableReservations = tableReservationRepository.findByCustomerOrderByIdDesc(customer);
+            List<com.kawai.models.TableReservation> tableReservations = tableReservationRepository
+                    .findByCustomerOrderByIdDesc(customer);
             model.addAttribute("tableReservations", tableReservations);
         } else {
             model.addAttribute("roomBookings", Collections.emptyList());
@@ -200,7 +200,8 @@ public class ProfileController {
             }
             model.addAttribute("foodOrders", foodOrders);
 
-            List<com.kawai.models.TableReservation> tableReservations = tableReservationRepository.findByCustomerOrderByIdDesc(customer);
+            List<com.kawai.models.TableReservation> tableReservations = tableReservationRepository
+                    .findByCustomerOrderByIdDesc(customer);
             model.addAttribute("tableReservations", tableReservations);
         } else {
             model.addAttribute("bookings", Collections.emptyList());
@@ -240,10 +241,20 @@ public class ProfileController {
             if (gender != null) {
                 customer.setGender(gender);
             }
-            if (phone != null) {
+            if (phone != null && !phone.trim().isEmpty()) {
+                if (!com.kawai.utils.ValidationUtils.isValidPhone(phone)) {
+                    redirectAttributes.addFlashAttribute("error",
+                            "Số điện thoại không hợp lệ (Phải gồm 10 số và bắt đầu bằng 0)");
+                    return "redirect:/profile";
+                }
                 customer.setPhone(phone);
             }
             if (cccd != null && !cccd.trim().isEmpty() && !"********".equals(cccd)) {
+                if (!com.kawai.utils.ValidationUtils.isValidDocument(cccd)) {
+                    redirectAttributes.addFlashAttribute("error",
+                            "CCCD/Passport không hợp lệ (Phải là CCCD 12 số, hoặc Passport 8-12 ký tự có chứa chữ cái)");
+                    return "redirect:/profile";
+                }
                 customer.setCccdPassportEncrypted(EncryptionUtils.encrypt(cccd.trim()));
             }
             customerRepository.save(customer);
@@ -302,6 +313,11 @@ public class ProfileController {
                 return "redirect:/profile";
             }
             if (cccd != null && !cccd.trim().isEmpty()) {
+                if (!com.kawai.utils.ValidationUtils.isValidCccd(cccd)) {
+                    redirectAttributes.addFlashAttribute("error",
+                            "CCCD/Passport của người đi cùng không hợp lệ (Phải là CCCD 12 số, hoặc Passport 8-12 ký tự có chứa chữ cái)");
+                    return "redirect:/profile";
+                }
                 dep.setCccdPassportEncrypted(EncryptionUtils.encrypt(cccd.trim()));
             }
             dependentRepository.save(dep);

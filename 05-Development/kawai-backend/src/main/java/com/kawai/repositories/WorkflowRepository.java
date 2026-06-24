@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface WorkflowRepository extends JpaRepository<Workflow, Long> {
     List<Workflow> findByTriggerEventAndIsActive(String triggerEvent, Boolean isActive);
+    boolean existsByWorkflowNameIgnoreCase(String workflowName);
 }

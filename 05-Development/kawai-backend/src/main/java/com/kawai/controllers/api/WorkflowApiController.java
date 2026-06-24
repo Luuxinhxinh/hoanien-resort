@@ -18,6 +18,18 @@ public class WorkflowApiController {
 
     private final WorkflowRepository workflowRepository;
     private final ObjectMapper objectMapper;
+    private final com.kawai.repositories.EmployeeRepository employeeRepository;
+
+    @GetMapping("/employees")
+    public ResponseEntity<?> getEmployeesForWorkflow() {
+        List<Map<String, Object>> list = employeeRepository.findAll().stream()
+                .map(emp -> Map.of(
+                        "id", (Object) emp.getId(),
+                        "fullName", (Object) (emp.getFullName() + " (" + (emp.getAccount() != null && emp.getAccount().getRole() != null ? emp.getAccount().getRole().getRoleName() : "N/A") + ")")
+                ))
+                .toList();
+        return ResponseEntity.ok(list);
+    }
 
     @GetMapping
     public ResponseEntity<List<Workflow>> getAllWorkflows() {
@@ -34,17 +46,25 @@ public class WorkflowApiController {
                 workflow = workflowRepository.findById(id).orElse(new Workflow());
             }
 
-            String name = (String) payload.get("workflowName");
+            String name = payload.get("workflowName") != null ? ((String) payload.get("workflowName")).trim() : null;
             String triggerEvent = (String) payload.get("triggerEvent");
             Object conditionsObj = payload.get("conditionsJson");
             Object actionsObj = payload.get("actionsJson");
             Boolean isActive = (Boolean) payload.get("isActive");
 
-            if (name == null || name.trim().isEmpty()) {
+            if (name == null || name.isEmpty()) {
                 return ResponseEntity.badRequest().body(Map.of("error", "Workflow name is required"));
             }
             if (triggerEvent == null || triggerEvent.trim().isEmpty()) {
                 return ResponseEntity.badRequest().body(Map.of("error", "Trigger event is required"));
+            }
+
+            // Check for duplicate workflow name
+            if (workflowRepository.existsByWorkflowNameIgnoreCase(name)) {
+                // If it's a new workflow, or an existing workflow with a changed name
+                if (workflow.getId() == null || !workflow.getWorkflowName().equalsIgnoreCase(name)) {
+                    return ResponseEntity.badRequest().body(Map.of("error", "Tên quy trình đã tồn tại. Vui lòng chọn tên khác."));
+                }
             }
 
             workflow.setWorkflowName(name);

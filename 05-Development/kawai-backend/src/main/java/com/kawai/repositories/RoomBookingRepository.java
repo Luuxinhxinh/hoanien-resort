@@ -14,6 +14,9 @@ import com.kawai.models.Customer;
 
 @Repository
 public interface RoomBookingRepository extends JpaRepository<RoomBooking, Long> {
+       @Query("SELECT COUNT(rb) FROM RoomBooking rb WHERE rb.checkInDate = :date AND rb.bookingStatus = 'Confirmed'")
+       long countCheckInsOnDate(@Param("date") LocalDate date);
+
        List<RoomBooking> findByCustomerOrderByBookingDateDesc(Customer customer);
 
        List<RoomBooking> findByCustomerOrderByIdDesc(Customer customer);

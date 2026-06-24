@@ -65,18 +65,34 @@ public class AdminController {
   // Master Data
   // =========================================================================
 
-  private static final List<String> MD_TABS = Arrays.asList(
-      "Room Categories", "Rooms", "Restaurant Menu",
-      "Tours", "Account Management", "Role Management", "Promotions", "Pricing Management",
-      "Bookings", "F&B Orders", "Tour Schedules");
-
   @GetMapping("/master-data")
   public String masterData(@RequestParam(value = "tab", defaultValue = "Room Categories") String tab, Model model) {
-    if (!MD_TABS.contains(tab)) {
-      tab = "Rooms";
+    List<String> roomsGroup = Arrays.asList("Room Categories", "Rooms", "Pricing Management", "Bookings");
+    List<String> fnbGroup = Arrays.asList("Menu Categories", "Restaurant Menu", "F&B Orders");
+    List<String> tourGroup = Arrays.asList("Tour Categories", "Tours", "Tour Schedules");
+    List<String> rbacGroup = Arrays.asList("Role Management");
+    List<String> crmGroup = Arrays.asList("Account Management");
+    List<String> promoGroup = Arrays.asList("Promotions");
+
+    List<String> currentTabs;
+    if (roomsGroup.contains(tab)) {
+        currentTabs = roomsGroup;
+    } else if (fnbGroup.contains(tab)) {
+        currentTabs = fnbGroup;
+    } else if (tourGroup.contains(tab)) {
+        currentTabs = tourGroup;
+    } else if (rbacGroup.contains(tab)) {
+        currentTabs = rbacGroup;
+    } else if (crmGroup.contains(tab)) {
+        currentTabs = crmGroup;
+    } else if (promoGroup.contains(tab)) {
+        currentTabs = promoGroup;
+    } else {
+        currentTabs = roomsGroup;
+        tab = "Room Categories";
     }
 
-    model.addAttribute("tabs", MD_TABS);
+    model.addAttribute("tabs", currentTabs);
     model.addAttribute("activeTab", tab);
 
     model.addAttribute("columns", adminViewService.getMasterDataColumns(tab));
@@ -97,6 +113,8 @@ public class AdminController {
   @GetMapping("/audit-log")
   public String auditLog(Model model) {
     model.addAttribute("logs", adminViewService.getAuditLogs());
+    model.addAttribute("employees", adminViewService.getAuditEmployees());
+    model.addAttribute("modules", adminViewService.getAuditModules());
     return "admin/audit-log";
   }
 

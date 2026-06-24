@@ -1,233 +1,281 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
 <head>
-    <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Nhật ký kiểm toán — Hoanien Retreat Operations Hub</title>
 
     <script src="https://unpkg.com/lucide@latest"></script>
-    <link rel="stylesheet" th:href="@{/admin/css/theme.css}" href="../../static/admin/css/theme.css"/>
-    <link rel="stylesheet" th:href="@{/admin/css/admin.css}" href="../../static/admin/css/admin.css"/>
+    <link rel="stylesheet" th:href="@{/admin/css/theme.css}" href="../../static/admin/css/theme.css" />
+    <link rel="stylesheet" th:href="@{/admin/css/admin.css}" href="../../static/admin/css/admin.css" />
 </head>
+
 <body>
 
-<!-- ═══════════════════════ SIDEBAR ═══════════════════════ -->
-<aside th:replace="~{admin/fragments/sidebar :: sidebar('audit-log', '')}"></aside>
+    <!-- ═══════════════════════ SIDEBAR ═══════════════════════ -->
+    <aside th:replace="~{admin/fragments/sidebar :: sidebar('audit-log', '')}"></aside>
 
 
-<!-- ═══════════════════════ MAIN ═══════════════════════ -->
-<div class="adm-main">
+    <!-- ═══════════════════════ MAIN ═══════════════════════ -->
+    <div class="adm-main">
 
-    <header class="adm-header">
-        <div class="adm-header-left">
-            <span class="adm-breadcrumb-site">Hoanien Retreat</span>
-            <span class="adm-breadcrumb-sep">/</span>
-            <span class="adm-breadcrumb-page" style="color:#6B6558">Giám sát</span>
-            <span class="adm-breadcrumb-sep">/</span>
-            <span class="adm-breadcrumb-page">Nhật ký kiểm toán</span>
-        </div>
-        <div class="adm-header-right">
-            <button class="adm-header-icon-btn"><i data-lucide="search"></i></button>
-            <button class="adm-header-icon-btn">
-                <i data-lucide="bell"></i>
-                <span class="adm-notif-dot"></span>
-            </button>
-            <div class="adm-divider-v"></div>
-            <div class="adm-header-user-box">
-                <div class="adm-header-avatar">AD</div>
-                <span class="adm-header-username">Admin Dũng</span>
+        <header class="adm-header">
+            <div class="adm-header-left">
+                <span class="adm-breadcrumb-site">Hoanien Retreat</span>
+                <span class="adm-breadcrumb-sep">/</span>
+                <span class="adm-breadcrumb-page" style="color:#6B6558">Giám sát</span>
+                <span class="adm-breadcrumb-sep">/</span>
+                <span class="adm-breadcrumb-page">Nhật ký kiểm toán</span>
             </div>
-            <div class="adm-divider-v"></div>
-            <a href="/logout" class="adm-header-logout"><i data-lucide="log-out" style="width:12px;height:12px"></i>Đăng xuất</a>
-        </div>
-    </header>
-
-    <main class="adm-page">
-
-        <div>
-            <p class="adm-page-eyebrow">Giám sát hoạt động</p>
-            <h1 class="adm-page-title">Nhật ký kiểm toán</h1>
-        </div>
-
-        <!-- KPI Counters -->
-        <div class="audit-kpi-grid">
-            <div class="audit-kpi-card" style="border-left: 3px solid rgba(92,74,58,0.5)">
-                <div class="audit-kpi-icon" style="background:rgba(92,74,58,0.10);color:#5C4A3A">
-                    <i data-lucide="activity"></i>
+            <div class="adm-header-right">
+                <button class="adm-header-icon-btn"><i data-lucide="search"></i></button>
+                <button class="adm-header-icon-btn">
+                    <i data-lucide="bell"></i>
+                    <span class="adm-notif-dot"></span>
+                </button>
+                <div class="adm-divider-v"></div>
+                <div class="adm-header-user-box">
+                    <div class="adm-header-avatar">AD</div>
+                    <span class="adm-header-username">Admin Dũng</span>
                 </div>
-                <div>
-                    <p id="counter-total" class="audit-kpi-num">0</p>
-                    <p class="audit-kpi-label">Tổng hành động</p>
-                </div>
+                <div class="adm-divider-v"></div>
+                <a href="/logout" class="adm-header-logout"><i data-lucide="log-out"
+                        style="width:12px;height:12px"></i>Đăng xuất</a>
             </div>
-            <div class="audit-kpi-card" style="border-left: 3px solid #C9A96E">
-                <div class="audit-kpi-icon" style="background:rgba(201,169,110,0.15);color:#C9A96E">
-                    <i data-lucide="alert-triangle"></i>
-                </div>
-                <div>
-                    <p id="counter-sensitive" class="audit-kpi-num">0</p>
-                    <p class="audit-kpi-label">Hành động nhạy cảm</p>
-                </div>
-            </div>
-            <div class="audit-kpi-card" style="border-left: 3px solid #8C3C28">
-                <div class="audit-kpi-icon" style="background:rgba(140,60,40,0.10);color:#8C3C28">
-                    <i data-lucide="shield"></i>
-                </div>
-                <div>
-                    <p id="counter-critical" class="audit-kpi-num">0</p>
-                    <p class="audit-kpi-label">Hành động nghiêm trọng</p>
-                </div>
-            </div>
-        </div>
+        </header>
 
-        <!-- Filter Row -->
-        <div class="audit-filter-bar">
-            <input type="date" value="2026-06-07" id="filter-date" class="audit-date"/>
-            <div class="audit-select-wrap">
-                <select id="filter-employee" class="audit-select">
-                    <option>Tất cả nhân viên</option>
-                    <option>Admin Dũng</option>
-                    <option>Linh Nguyễn</option>
-                    <option>Minh Trần</option>
-                    <option>Hà Phạm</option>
-                    <option>Tuấn Lê</option>
-                </select>
-                <i data-lucide="chevron-down"></i>
-            </div>
-            <div class="audit-select-wrap">
-                <select id="filter-module" class="audit-select">
-                    <option>Tất cả module</option>
-                    <option>Phòng</option>
-                    <option>F&amp;B</option>
-                    <option>Tài chính</option>
-                    <option>Đặt phòng</option>
-                    <option>Tài khoản</option>
-                </select>
-                <i data-lucide="chevron-down"></i>
-            </div>
-            <div style="flex:1"></div>
-            <button id="btn-export-pdf" class="btn-export-pdf">
-                <i data-lucide="download"></i> Xuất PDF
-            </button>
-        </div>
+        <main class="adm-page">
 
-        <!-- Timeline Table -->
-        <div class="adm-card" style="margin-top: 24px;">
-            <div class="adm-table-wrap">
-                <table class="adm-table">
-                    <thead>
-                        <tr>
-                            <th>Thời gian</th>
-                            <th>Tác nhân</th>
-                            <th>Thao tác</th>
-                            <th>Đối tượng tác động</th>
-                            <th style="text-align:right">So sánh thay đổi</th>
-                        </tr>
-                    </thead>
-                    <tbody id="timeline-container">
-                        <tr th:each="entry, iterStat : ${logs}" 
-                            class="log-entry"
-                            th:style="${entry.severity != 'normal' ? 'background-color: ' + (entry.severity == 'sensitive' ? 'rgba(201,169,110,0.08)' : 'rgba(140,60,40,0.07)') : ''}"
-                            th:attr="data-employee=${entry.name},data-modules=${#strings.listJoin(entry.modules, ',')},data-severity=${entry.severity},data-record-id=${entry.recordId},data-raw-table=${entry.rawTableName}">
-                            
-                            <!-- Cột 1: Thời gian -->
-                            <td>
-                                <div style="display: flex; align-items: center; gap: 8px;">
-                                    <i data-lucide="clock" style="width: 14px; height: 14px; color: #8B7355;"></i>
-                                    <span class="log-time" th:text="${entry.time}" style="font-family: var(--font-mono); font-weight: 600; color: #2C2A1E;">06:45</span>
-                                </div>
-                                <div style="font-size: 10px; color: #8B7355; margin-top: 2px;" th:text="${entry.ip}">192.168.1.10</div>
-                            </td>
-                            
-                            <!-- Cột 2: Tác nhân -->
-                            <td>
-                                <div style="display: flex; align-items: center; gap: 10px;">
-                                    <div class="log-avatar" 
-                                         th:style="'background-color: ' + (${entry.role == 'Receptionist' ? '#2D6B7A' : (entry.role == 'F&B' ? '#7A4E1A' : (entry.role == 'Housekeeping' ? '#5A3A6B' : (entry.role == 'Admin' ? '#3A3526' : '#8B7020')))}) + '; width: 28px; height: 28px; border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700;'"
-                                         th:text="${entry.initials}">AD</div>
-                                    <div>
-                                        <div class="log-name" th:text="${entry.name}" style="font-weight: 600; color: #2C2A1E; font-size: 13px;">Admin Dũng</div>
-                                        <div style="display: flex; gap: 4px; align-items: center; margin-top: 2px;">
-                                            <span class="log-role-pill"
-                                                  th:style="'background-color: ' + (${entry.role == 'Receptionist' ? 'rgba(45,107,122,0.15)' : (entry.role == 'F&B' ? 'rgba(122,78,26,0.15)' : (entry.role == 'Housekeeping' ? 'rgba(90,58,107,0.15)' : (entry.role == 'Admin' ? 'rgba(44,42,30,0.15)' : 'rgba(139,112,32,0.2)')))}) + '; color: ' + (${entry.role == 'Receptionist' ? '#1D5B6A' : (entry.role == 'F&B' ? '#7A4E1A' : (entry.role == 'Housekeeping' ? '#5A3A6B' : (entry.role == 'Admin' ? '#2C2A1E' : '#7A6010')))}) + '; font-size: 9.5px; padding: 1px 6px; border-radius: 4px; font-weight: 600;'"
-                                                  th:text="${entry.role}">Admin</span>
-                                            <span th:if="${entry.severity != 'normal'}"
-                                                  class="log-severity-pill"
-                                                  th:style="'background-color: ' + (${entry.severity == 'sensitive' ? 'rgba(201,169,110,0.2)' : 'rgba(140,60,40,0.15)'}) + '; color: ' + (${entry.severity == 'sensitive' ? '#8B6020' : '#8C3C28'}) + '; font-size: 9.5px; padding: 1px 6px; border-radius: 4px; font-weight: 600;'"
-                                                  th:text="${entry.severity == 'sensitive' ? 'Nhạy cảm' : 'Nghiêm trọng'}">Nhạy cảm</span>
+            <div>
+                <p class="adm-page-eyebrow">Giám sát hoạt động</p>
+                <h1 class="adm-page-title">Nhật ký kiểm toán</h1>
+            </div>
+
+            <!-- Filter Row -->
+            <div class="audit-filter-bar">
+                <input type="date" id="filter-date" class="audit-date" />
+                <div class="audit-select-wrap">
+                    <select id="filter-role" class="audit-select">
+                        <option>Tất cả vai trò</option>
+                    </select>
+                    <i data-lucide="chevron-down"></i>
+                </div>
+                <div class="audit-select-wrap">
+                    <select id="filter-employee" class="audit-select">
+                        <option>Tất cả tài khoản</option>
+                    </select>
+                    <i data-lucide="chevron-down"></i>
+                </div>
+                <div style="flex:1"></div>
+                <button id="btn-sort-order" class="btn-export-pdf"
+                    style="margin-right: 12px; background: transparent; border: 1px solid #C9A96E; color: #8B7355;"
+                    onclick="toggleSortOrder()">
+                    <i data-lucide="arrow-down" style="width:14px;height:14px;"></i> Mới nhất trước
+                </button>
+                <button id="btn-export-pdf" class="btn-export-pdf" style="margin-right: 12px;">
+                    <i data-lucide="download"></i> Xuất PDF
+                </button>
+                <button id="btn-backup-data" class="btn-export-pdf" onclick="backupData()">
+                    <i data-lucide="database"></i> Backup Dữ Liệu
+                </button>
+            </div>
+
+            <!-- Timeline Table -->
+            <div class="adm-card" style="margin-top: 24px;">
+                <div class="audit-table-wrap">
+                    <table class="audit-table">
+                        <thead>
+                            <tr>
+                                <th>Thời gian</th>
+                                <th>Tác nhân</th>
+                                <th>Thao tác</th>
+                                <th>Đối tượng tác động</th>
+                                <th class="text-right">So sánh thay đổi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="timeline-container">
+                            <tr th:each="entry : ${logs}" class="log-entry" th:data-employee="${entry.name}"
+                                th:data-role="${entry.role}" th:data-date="${entry.date}"
+                                th:data-raw-table="${entry.rawTableName}" th:data-record-id="${entry.recordId}"
+                                th:data-ip="${entry.ip}">
+                                <!-- Cột 1: Thời gian -->
+                                <td>
+                                    <div class="flex items-center gap-2">
+                                        <i data-lucide="clock" style="width: 14px; height: 14px; color: #8B7355;"></i>
+                                        <span class="log-time"
+                                            th:text="${entry.date} + ' ' + ${entry.time}">06:45</span>
+                                    </div>
+                                </td>
+
+                                <!-- Cột 2: Tác nhân -->
+                                <td>
+                                    <div class="flex items-center gap-3">
+                                        <div class="log-avatar" style="background-color: #3A3526;"
+                                            th:text="${entry.initials}">AD</div>
+                                        <div>
+                                            <div class="log-name" th:text="${entry.name}">Admin Dũng</div>
+                                            <div class="flex items-center gap-2" style="margin-top: 2px;">
+                                                <span class="log-role-pill"
+                                                    style="background-color: rgba(44,42,30,0.15); color: #2C2A1E;"
+                                                    th:text="${entry.role}">Admin</span>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            </td>
-                            
-                            <!-- Cột 3: Thao tác -->
-                            <td>
-                                <div style="display: flex; flex-direction: column; gap: 4px;">
-                                    <span class="log-action" th:text="${entry.action}" style="font-weight: 600; color: #2C2A1E; font-size: 13px;">UPDATE</span>
-                                    <div class="log-modules" style="display: flex; gap: 4px; flex-wrap: wrap;">
-                                        <span th:each="m : ${entry.modules}"
-                                              class="log-module-tag"
-                                              th:style="'background-color: ' + (${m == 'Đặt phòng' ? 'rgba(61,74,46,0.12)' : (m == 'F&B' ? 'rgba(122,78,26,0.12)' : (m == 'Tài chính' ? 'rgba(201,169,110,0.15)' : (m == 'Tài khoản' ? 'rgba(44,42,30,0.1)' : 'rgba(46,61,53,0.12)')))}) + '; font-size: 9.5px; padding: 1px 6px; border-radius: 4px; color: #5C4A3A; font-weight: 600;'"
-                                              th:text="${m}">Tài khoản</span>
-                                    </div>
-                                </div>
-                            </td>
-                            
-                            <!-- Cột 4: Đối tượng tác động -->
-                            <td>
-                                <div style="display: flex; align-items: center; gap: 6px;">
-                                    <i data-lucide="database" style="width: 14px; height: 14px; color: #8B7355;"></i>
-                                    <span th:text="${entry.rawTableName} + ' #' + ${entry.recordId}" style="font-family: var(--font-mono); font-size: 12px; color: #2C2A1E; font-weight: 600;">Room #101</span>
-                                </div>
-                            </td>
-                            
-                            <!-- Cột 5: So sánh thay đổi -->
-                            <td style="text-align:right">
-                                <button type="button" class="adm-btn adm-btn-primary btn-view-diff" style="padding: 6px 12px; font-size: 12px; border-radius: 6px; display: inline-flex; align-items: center; gap: 6px; background-color: #C9A96E; border: none; color: white; cursor: pointer; font-weight: 600;">
-                                    <i data-lucide="git-diff" style="width:14px; height:14px;"></i>
-                                    Xem Diffs
-                                </button>
-                            </td>
-                        </tr>
-                        <tr th:if="${#lists.isEmpty(logs)}">
-                            <td colspan="5" style="text-align:center; padding:48px; color:#8B7355; font-family:var(--font-serif); font-size:18px">Không có bản ghi nào</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
+                                </td>
 
-    </main>
-    <!-- ════════ HISTORY / AUDIT MODAL ════════ -->
-    <div id="audit-history-modal" class="adm-modal-backdrop hidden" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; justify-content:center; align-items:center;">
-        <div class="adm-modal-box adm-modal-box-lg" onclick="event.stopPropagation()" style="background:#FDFBF7; width:750px; max-width:95%; border-radius:8px; padding:24px; max-height:90vh; display:flex; flex-direction:column;">
-            <div class="adm-modal-header" style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #E5E0D8; padding-bottom:16px;">
-                <h2 class="adm-modal-title" style="margin:0; font-family:var(--font-serif); font-size:20px; color:#3A3526;">Chi tiết thay đổi dữ liệu (Diff)</h2>
-                <button class="btn-close-modal adm-modal-close" data-modal="audit-history-modal" style="background:none; border:none; cursor:pointer;"><i data-lucide="x"></i></button>
+                                <!-- Cột 3: Thao tác -->
+                                <td>
+                                    <div class="flex-col flex gap-1">
+                                        <span class="log-action" th:text="${entry.action}">UPDATE</span>
+                                        <div class="log-modules">
+                                            <span th:each="m : ${entry.modules}" class="log-module-tag"
+                                                th:text="${m}">Module</span>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <!-- Cột 4: Đối tượng tác động -->
+                                <td>
+                                    <div class="flex items-center gap-2">
+                                        <i data-lucide="database"
+                                            style="width: 14px; height: 14px; color: #8B7355;"></i>
+                                        <span class="log-object"
+                                            th:text="${entry.rawTableName} + ' #' + ${entry.recordId}">Room
+                                            #101</span>
+                                    </div>
+                                </td>
+
+                                <!-- Cột 5: So sánh thay đổi -->
+                                <td class="text-right">
+                                    <button type="button" class="log-btn btn-view-diff" style="float: right;">
+                                        <i data-lucide="eye" style="width:14px; height:14px;"></i>
+                                        Xem Diffs
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(logs)}">
+                                <td colspan="5"
+                                    style="text-align:center; padding:48px; color:#8B7355; font-family:var(--font-serif); font-size:18px">
+                                    Không có bản ghi nào</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
-            <div class="adm-modal-body-p" style="padding-top:16px;">
-                <p class="adm-modal-desc" style="color:#6B6558; font-size:14px;">Theo dõi các thay đổi của bản ghi này qua các phiên bản (Revision).</p>
-                <div id="audit-history-content" style="margin-top:20px; max-height:400px; overflow-y:auto; padding-right:10px;">
-                    <!-- Content injected by JS -->
+
+        </main>
+        <!-- ════════ HISTORY / AUDIT MODAL ════════ -->
+        <div id="audit-history-modal" class="adm-modal-backdrop hidden"
+            style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; justify-content:center; align-items:center;">
+            <div class="adm-modal-box adm-modal-box-lg" onclick="event.stopPropagation()"
+                style="background:#FDFBF7; width:750px; max-width:95%; border-radius:8px; padding:24px; max-height:90vh; display:flex; flex-direction:column;">
+                <div class="adm-modal-header"
+                    style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #E5E0D8; padding-bottom:16px;">
+                    <h2 class="adm-modal-title"
+                        style="margin:0; font-family:var(--font-serif); font-size:20px; color:#3A3526;">Chi tiết thay
+                        đổi dữ liệu (Diff)</h2>
+                    <button class="btn-close-modal adm-modal-close" data-modal="audit-history-modal"
+                        style="background:none; border:none; cursor:pointer;"><i data-lucide="x"></i></button>
+                </div>
+                <div class="adm-modal-body-p" style="padding-top:16px;">
+                    <p class="adm-modal-desc" style="color:#6B6558; font-size:14px;">Theo dõi các thay đổi của bản ghi
+                        này qua các phiên bản (Revision).</p>
+                    <div id="audit-history-content"
+                        style="margin-top:20px; max-height:400px; overflow-y:auto; padding-right:10px;">
+                        <!-- Content injected by JS -->
+                    </div>
                 </div>
             </div>
         </div>
+
+        <style>
+            .log-btn {
+                background: #FDFBF7;
+                border: 1px solid #E5E0D8;
+                color: #6B6558;
+                padding: 6px 12px;
+                border-radius: 6px;
+                font-size: 13px;
+                font-weight: 500;
+                cursor: pointer;
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                transition: all 0.2s ease;
+            }
+
+            .log-btn:hover {
+                background: #F5F0E8;
+                border-color: #C9A96E;
+                color: #5C4A3A;
+            }
+
+            .history-item {
+                border-left: 2px solid #C9A96E;
+                padding-left: 16px;
+                margin-bottom: 24px;
+                position: relative;
+            }
+
+            .history-item::before {
+                content: '';
+                position: absolute;
+                left: -6px;
+                top: 0;
+                width: 10px;
+                height: 10px;
+                border-radius: 50%;
+                background: #C9A96E;
+                border: 2px solid #F5F0E8;
+            }
+
+            .history-meta {
+                font-size: 13px;
+                color: #8B7355;
+                margin-bottom: 8px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .history-rev {
+                font-weight: 600;
+                color: #5C4A3A;
+            }
+
+            .history-data {
+                background: rgba(92, 74, 58, 0.03);
+                border: 1px solid rgba(92, 74, 58, 0.08);
+                border-radius: 6px;
+                padding: 12px;
+                font-family: monospace;
+                font-size: 13px;
+                color: #5C4A3A;
+                word-break: break-all;
+            }
+
+            .diff-old {
+                color: #8C3C28;
+                text-decoration: line-through;
+                margin-right: 8px;
+            }
+
+            .diff-new {
+                color: #2E5A3B;
+                font-weight: 500;
+            }
+
+            .diff-arrow {
+                color: #8B7355;
+                margin-right: 8px;
+            }
+        </style>
+
     </div>
 
-    <style>
-        .history-item { border-left: 2px solid #C9A96E; padding-left: 16px; margin-bottom: 24px; position: relative; }
-        .history-item::before { content: ''; position: absolute; left: -6px; top: 0; width: 10px; height: 10px; border-radius: 50%; background: #C9A96E; border: 2px solid #F5F0E8; }
-        .history-meta { font-size: 13px; color: #8B7355; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
-        .history-rev { font-weight: 600; color: #5C4A3A; }
-        .history-data { background: rgba(92, 74, 58, 0.03); border: 1px solid rgba(92, 74, 58, 0.08); border-radius: 6px; padding: 12px; font-family: monospace; font-size: 13px; color: #5C4A3A; word-break: break-all; }
-        .diff-old { color: #8C3C28; text-decoration: line-through; margin-right: 8px; }
-        .diff-new { color: #2E5A3B; font-weight: 500; }
-        .diff-arrow { color: #8B7355; margin-right: 8px; }
-    </style>
-
-</div>
-
-<script th:src="@{/admin/js/main.js}"      src="../../static/admin/js/main.js"></script>
-<script th:src="@{/admin/js/audit-log.js}" src="../../static/admin/js/audit-log.js"></script>
+    <script th:src="@{/admin/js/main.js}" src="../../static/admin/js/main.js"></script>
+    <script th:src="@{/admin/js/audit-log.js}" src="../../static/admin/js/audit-log.js"></script>
 </body>
+
 </html>

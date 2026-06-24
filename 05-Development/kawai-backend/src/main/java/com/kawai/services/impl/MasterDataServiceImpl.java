@@ -387,41 +387,93 @@ public class MasterDataServiceImpl implements MasterDataService {
     @Transactional
     public void toggleEntityStatus(String entityType, String id, Boolean newStatus) throws Exception {
         String rawId = id;
-        if (id.startsWith("RC-") || id.startsWith("RM-") || id.startsWith("MI-") || id.startsWith("T-") || id.startsWith("PR-") || id.startsWith("RL-")) {
+        if (id.contains("-")) {
             rawId = id.substring(id.indexOf("-") + 1);
         }
-        Long entityId = Long.parseLong(rawId);
+        Long entityId = null;
+        try {
+            entityId = Long.parseLong(rawId);
+        } catch (NumberFormatException e) {
+            // ignore
+        }
 
         switch (entityType) {
             case "room-categories":
-                roomCategoryRepository.findById(entityId).ifPresent(rc -> {
-                    rc.setIsActive(newStatus);
-                    roomCategoryRepository.save(rc);
-                });
+                if (entityId != null) {
+                    roomCategoryRepository.findById(entityId).ifPresent(rc -> {
+                        rc.setIsActive(newStatus);
+                        roomCategoryRepository.save(rc);
+                        // Cascade
+                        roomRepository.findAll().stream()
+                            .filter(r -> r.getCategory() != null && r.getCategory().getId().equals(rc.getId()))
+                            .forEach(r -> {
+                                r.setRoomStatus(newStatus ? "Vacant_Clean" : "OutOfOrder");
+                                roomRepository.save(r);
+                            });
+                    });
+                }
                 break;
             case "rooms":
-                roomRepository.findById(entityId).ifPresent(room -> {
-                    room.setRoomStatus(newStatus ? "Occupied" : "OutOfOrder");
-                    roomRepository.save(room);
-                });
+                if (entityId != null) {
+                    roomRepository.findById(entityId).ifPresent(room -> {
+                        room.setRoomStatus(newStatus ? "Occupied" : "OutOfOrder");
+                        roomRepository.save(room);
+                    });
+                }
                 break;
             case "menu-items":
-                foodItemRepository.findById(entityId).ifPresent(item -> {
-                    item.setIsAvailable(newStatus);
-                    foodItemRepository.save(item);
-                });
+                if (entityId != null) {
+                    foodItemRepository.findById(entityId).ifPresent(item -> {
+                        item.setIsAvailable(newStatus);
+                        foodItemRepository.save(item);
+                    });
+                }
+                break;
+            case "menu-categories":
+                if (entityId != null) {
+                    int idx = entityId.intValue() - 1;
+                    java.util.List<String> cats = foodItemRepository.findDistinctCategories();
+                    if (cats != null && idx >= 0 && idx < cats.size()) {
+                        String catName = cats.get(idx);
+                        foodItemRepository.findAll().stream()
+                            .filter(f -> catName.equals(f.getCategory()))
+                            .forEach(f -> {
+                                f.setIsAvailable(newStatus);
+                                foodItemRepository.save(f);
+                            });
+                    }
+                }
                 break;
             case "tours":
-                tourRepository.findById(entityId).ifPresent(tour -> {
-                    tour.setIsActive(newStatus);
-                    tourRepository.save(tour);
-                });
+                if (entityId != null) {
+                    tourRepository.findById(entityId).ifPresent(tour -> {
+                        tour.setIsActive(newStatus);
+                        tourRepository.save(tour);
+                    });
+                }
+                break;
+            case "tour-categories":
+                if (entityId != null) {
+                    int idx = entityId.intValue() - 1;
+                    java.util.List<String> cats = tourRepository.findDistinctCategories();
+                    if (cats != null && idx >= 0 && idx < cats.size()) {
+                        String catName = cats.get(idx);
+                        tourRepository.findAll().stream()
+                            .filter(t -> catName.equals(t.getTourType()))
+                            .forEach(t -> {
+                                t.setIsActive(newStatus);
+                                tourRepository.save(t);
+                            });
+                    }
+                }
                 break;
             case "promotions":
-                promotionRepository.findById(entityId).ifPresent(promo -> {
-                    promo.setIsActive(newStatus);
-                    promotionRepository.save(promo);
-                });
+                if (entityId != null) {
+                    promotionRepository.findById(entityId).ifPresent(promo -> {
+                        promo.setIsActive(newStatus);
+                        promotionRepository.save(promo);
+                    });
+                }
                 break;
             case "roles":
                 // Roles don't have isActive flag currently, so just ignore or throw error

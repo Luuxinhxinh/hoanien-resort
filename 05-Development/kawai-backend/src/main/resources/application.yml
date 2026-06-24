@@ -35,8 +35,36 @@ spring:
       max-file-size: 10MB
       max-request-size: 10MB
 
+  # ─── Email (SMTP Gmail) ───────────────────────────────────────────
+  # Để gửi email, anh cần:
+  # 1. Bật 2-Step Verification trên Gmail
+  # 2. Tạo App Password tại: Google Account → Security → App Passwords
+  # 3. Set env variables: MAIL_USERNAME và MAIL_PASSWORD
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME:ngocnguyenthuy999@gmail.com}
+    password: ${MAIL_PASSWORD:uywcaynxxegnbzvk}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+        debug: false
+    default-encoding: UTF-8
+
 server:
   port: 8080
+
+# ─── App custom config ────────────────────────────────────────────────
+app:
+  mail:
+    from-name: "Hòa Niên Retreat & Resort"
+    resort-phone: "1900 xxxx"
+    resort-website: "https://hoaniensorretreat.vn"
+  base-url: ${APP_BASE_URL:http://localhost:8080}
 
 logging:
   level:
@@ -52,9 +80,7 @@ vnpay:
   api-version: 2.1.0
 
 sendgrid:
-  api-key: ${SENDGRID_API_KEY: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}
+  api-key: ${SENDGRID_API_KEY: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}
   from-email: hoanien.00@gmail.com
 
 
-app:
-  base-url: http://localhost:8080
