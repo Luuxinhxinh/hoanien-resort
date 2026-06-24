@@ -418,7 +418,7 @@ public class VnPayServiceImpl implements VnPayService {
                     booking.setBookingStatus("Confirmed");
                 }
             }
-            
+
             // Xử lý checkout phòng nếu giao dịch xuất phát từ Folio
             if (txnRef != null && txnRef.startsWith("FOLIO_")) {
                 try {

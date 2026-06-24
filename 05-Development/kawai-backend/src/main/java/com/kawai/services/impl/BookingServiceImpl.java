@@ -327,17 +327,17 @@ public class BookingServiceImpl implements BookingService {
             try {
                 Promotion promo = promotionRepository.findByPromoCode(promoCode).orElse(null);
                 if (promo != null) {
-                    BigDecimal pct = "Percentage".equalsIgnoreCase(promo.getDiscountType()) 
-                        ? promo.getDiscountValue() 
-                        : (totalBaseTotal.compareTo(BigDecimal.ZERO) > 0 
-                            ? promo.getDiscountValue().multiply(new BigDecimal("100")).divide(totalBaseTotal, 2, RoundingMode.HALF_UP) 
-                            : BigDecimal.ZERO);
-                    
+                    BigDecimal pct = "Percentage".equalsIgnoreCase(promo.getDiscountType())
+                            ? promo.getDiscountValue()
+                            : (totalBaseTotal.compareTo(BigDecimal.ZERO) > 0
+                                    ? promo.getDiscountValue().multiply(new BigDecimal("100")).divide(totalBaseTotal, 2,
+                                            RoundingMode.HALF_UP)
+                                    : BigDecimal.ZERO);
+
                     workflowEngineService.triggerEvent("PROMOTION_EXCEEDED", java.util.Map.of(
-                        "promo_id", promo.getId(),
-                        "input_discount_pct", pct.doubleValue(),
-                        "booking_id", savedBooking.getId()
-                    ));
+                            "promo_id", promo.getId(),
+                            "input_discount_pct", pct.doubleValue(),
+                            "booking_id", savedBooking.getId()));
                 }
             } catch (Exception e) {
                 log.error("Failed to trigger PROMOTION_EXCEEDED workflow in createBooking", e);
@@ -486,13 +486,16 @@ public class BookingServiceImpl implements BookingService {
         for (Workflow w : activeWorkflows) {
             try {
                 if (w.getConditionsJson() != null && !w.getConditionsJson().trim().isEmpty()) {
-                    Map<String, Object> conds = mapper.readValue(w.getConditionsJson(), new TypeReference<Map<String, Object>>() {});
-                    
+                    Map<String, Object> conds = mapper.readValue(w.getConditionsJson(),
+                            new TypeReference<Map<String, Object>>() {
+                            });
+
                     // 1. max_discount_value_vnd
                     if (conds.containsKey("max_discount_value_vnd")) {
                         BigDecimal maxVal = new BigDecimal(conds.get("max_discount_value_vnd").toString());
                         if (discountAmount.compareTo(maxVal) > 0) {
-                            throw new IllegalArgumentException("Mã giảm giá vượt quá hạn mức tối đa cho phép (" + maxVal + " VND) [ERR_PROMO_LIMIT_EXCEEDED]");
+                            throw new IllegalArgumentException("Mã giảm giá vượt quá hạn mức tối đa cho phép (" + maxVal
+                                    + " VND) [ERR_PROMO_LIMIT_EXCEEDED]");
                         }
                     }
 
@@ -501,12 +504,14 @@ public class BookingServiceImpl implements BookingService {
                         int maxUses = Integer.parseInt(conds.get("max_uses_per_customer").toString());
                         long uses = bookingRepository.countByCustomerIdAndPromoCode(customerId, promoCode);
                         if (uses >= maxUses) {
-                            throw new IllegalArgumentException("Khách hàng đã vượt quá số lần sử dụng mã giảm giá này (" + maxUses + " lần) [ERR_PROMO_USAGE_EXCEEDED]");
+                            throw new IllegalArgumentException("Khách hàng đã vượt quá số lần sử dụng mã giảm giá này ("
+                                    + maxUses + " lần) [ERR_PROMO_USAGE_EXCEEDED]");
                         }
                     }
                 }
             } catch (Exception e) {
-                if (e instanceof IllegalArgumentException) throw (IllegalArgumentException) e;
+                if (e instanceof IllegalArgumentException)
+                    throw (IllegalArgumentException) e;
                 log.error("Failed executing anti-fraud conditions evaluation", e);
             }
         }
@@ -704,17 +709,17 @@ public class BookingServiceImpl implements BookingService {
         try {
             Promotion promo = promotionRepository.findByPromoCode(couponCode).orElse(null);
             if (promo != null) {
-                BigDecimal pct = "Percentage".equalsIgnoreCase(promo.getDiscountType()) 
-                    ? promo.getDiscountValue() 
-                    : (totalBaseTotal.compareTo(BigDecimal.ZERO) > 0 
-                        ? promo.getDiscountValue().multiply(new BigDecimal("100")).divide(totalBaseTotal, 2, RoundingMode.HALF_UP) 
-                        : BigDecimal.ZERO);
-                
+                BigDecimal pct = "Percentage".equalsIgnoreCase(promo.getDiscountType())
+                        ? promo.getDiscountValue()
+                        : (totalBaseTotal.compareTo(BigDecimal.ZERO) > 0
+                                ? promo.getDiscountValue().multiply(new BigDecimal("100")).divide(totalBaseTotal, 2,
+                                        RoundingMode.HALF_UP)
+                                : BigDecimal.ZERO);
+
                 workflowEngineService.triggerEvent("PROMOTION_EXCEEDED", java.util.Map.of(
-                    "promo_id", promo.getId(),
-                    "input_discount_pct", pct.doubleValue(),
-                    "booking_id", booking.getId()
-                ));
+                        "promo_id", promo.getId(),
+                        "input_discount_pct", pct.doubleValue(),
+                        "booking_id", booking.getId()));
             }
         } catch (Exception e) {
             log.error("Failed to trigger PROMOTION_EXCEEDED workflow in applyCoupon", e);
@@ -749,7 +754,8 @@ public class BookingServiceImpl implements BookingService {
         customer.setEmail(email);
         if (cccd != null && !cccd.equals("********") && !cccd.trim().isEmpty()) {
             if (!com.kawai.utils.ValidationUtils.isValidDocument(cccd)) {
-                throw new BusinessException("INVALID_CCCD", "CCCD/Passport không hợp lệ (Phải là CCCD 12 số, hoặc Passport 8-12 ký tự có chứa chữ cái)");
+                throw new BusinessException("INVALID_CCCD",
+                        "CCCD/Passport không hợp lệ (Phải là CCCD 12 số, hoặc Passport 8-12 ký tự có chứa chữ cái)");
             }
             customer.setCccdPassportEncrypted(com.kawai.utils.EncryptionUtils.encrypt(cccd.trim()));
         }

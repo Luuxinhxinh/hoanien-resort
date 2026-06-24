@@ -101,6 +101,7 @@ public class WalkInCheckInServiceImpl implements WalkInCheckInService {
         try {
             // ── Step 1: Validate thông tin định danh ─────────────────────────
             validateIdentification(request);
+
             // ── Step 5: Find-or-Create Customer ─────────────────────────────
             boolean[] isNewCustomerHolder = { false };
             Customer customer = findOrCreateCustomer(request, isNewCustomerHolder);
