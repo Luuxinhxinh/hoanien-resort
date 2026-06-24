@@ -65,7 +65,7 @@ public class SecurityConfig {
                         //         "hasIpAddress('192.168.1.0/24')"))
 
                         .requestMatchers("/", "/booking", "/auth/register", "/auth/login", "/auth/check-session",
-                                "/auth/google-login",
+                                "/auth/google-login", "/auth/forgot-password", "/auth/reset-password",
                                 "/h2-console/**", "/css/**", "/js/**", "/guest/**", "/living", "/wellbeing", "/dining",
                                 "/experiences", "/tours", "/tours/**", "/profile", "/order-food", "/AnhTour/**",
                                 "/fbStaff/**", "/f&bStaff/**", "/api/menu-items/**", "/api/rooms/**", "/api/v1/tables/**", "/api/pos/**",

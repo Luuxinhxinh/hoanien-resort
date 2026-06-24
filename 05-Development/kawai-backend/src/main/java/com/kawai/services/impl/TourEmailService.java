@@ -171,6 +171,34 @@ public class TourEmailService {
                     booking.getId(), e.getMessage(), e);
         }
     }
+    /**
+     * Gửi email yêu cầu đặt lại mật khẩu.
+     * Gửi bất đồng bộ (@Async).
+     */
+    @Async
+    public void sendPasswordResetEmail(String toEmail, String username, String token) {
+        if (toEmail == null || toEmail.isBlank()) {
+            LOG.warn("Bỏ qua gửi email reset password: email rỗng");
+            return;
+        }
+
+        try {
+            String resetLink = resortWebsite + "/auth/reset-password?token=" + token;
+
+            Context ctx = new Context(new Locale("vi", "VN"));
+            ctx.setVariable("username", username);
+            ctx.setVariable("resetLink", resetLink);
+            ctx.setVariable("resortPhone", resortPhone);
+            ctx.setVariable("resortWebsite", resortWebsite);
+
+            String html = templateEngine.process("email/reset-password-mail", ctx);
+            sendHtmlEmail(toEmail, "Yêu cầu đặt lại mật khẩu | Hòa Niên Retreat & Resort", html);
+
+            LOG.info("Gửi email reset password thành công → {}", toEmail);
+        } catch (Exception e) {
+            LOG.error("Lỗi khi gửi email reset password cho {}: {}", toEmail, e.getMessage(), e);
+        }
+    }
 
     // ─── Internal helper ──────────────────────────────────────────────────
 
