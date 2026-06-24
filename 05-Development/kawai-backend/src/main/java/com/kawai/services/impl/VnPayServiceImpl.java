@@ -29,9 +29,11 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.io.UnsupportedEncodingException;
 
 @Service
 public class VnPayServiceImpl implements VnPayService {
@@ -58,10 +60,13 @@ public class VnPayServiceImpl implements VnPayService {
     private FoodOrderRepository foodOrderRepository;
 
     @Autowired
-    private EmailService emailService;
+    private com.kawai.repositories.RoomBookingDetailRepository roomBookingDetailRepository;
 
     @Autowired
-    private InvoicePdfService invoicePdfService;
+    private com.kawai.services.interfaces.FolioService folioService;
+
+    @Autowired
+    private com.kawai.repositories.RoomRepository roomRepository;
 
     @Override
     @Transactional
@@ -134,6 +139,74 @@ public class VnPayServiceImpl implements VnPayService {
         String vnp_SecureHash = VnPayUtil.hmacSHA512(vnPayConfig.getHashSecret(), hashData.toString());
         queryUrl += "&vnp_SecureHash=" + vnp_SecureHash;
 
+        return vnPayConfig.getPayUrl() + "?" + queryUrl;
+    }
+
+    @Override
+    @Transactional
+    public String createPaymentUrlForWalkIn(Long bookingId, String ipAddress) {
+        RoomBooking booking = roomBookingRepository.findById(bookingId)
+                .orElseThrow(() -> new BusinessException("BOOKING_NOT_FOUND", "Không tìm thấy thông tin đặt phòng"));
+
+        // 1. Tạo PaymentTransaction status = INIT
+        PaymentTransaction txn = new PaymentTransaction();
+        txn.setBooking(booking);
+        txn.setAmount(booking.getDepositAmount());
+        txn.setStatus(PaymentStatus.INIT);
+        txn.setTransactionType("ROOM_BOOKING");
+        txn.setCreatedAt(LocalDateTime.now());
+
+        // 2. Sinh transactionRef mới với tiền tố WALKIN_
+        String transactionRef = "WALKIN_" + bookingId + "_" + System.currentTimeMillis();
+        txn.setTransactionRef(transactionRef);
+        paymentTransactionRepository.save(txn);
+
+        // 3. Build params VNPay
+        long amountVal = booking.getDepositAmount().multiply(new BigDecimal("100")).setScale(0, RoundingMode.HALF_UP)
+                .longValue();
+        String createDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+
+        Map<String, String> vnp_Params = new HashMap<>();
+        vnp_Params.put("vnp_Version", vnPayConfig.getApiVersion());
+        vnp_Params.put("vnp_Command", "pay");
+        vnp_Params.put("vnp_TmnCode", vnPayConfig.getTmnCode());
+        vnp_Params.put("vnp_Amount", String.valueOf(amountVal));
+        vnp_Params.put("vnp_CurrCode", "VND");
+        vnp_Params.put("vnp_TxnRef", transactionRef);
+        vnp_Params.put("vnp_OrderInfo", "Thanh toan dat coc phong " + bookingId);
+        vnp_Params.put("vnp_OrderType", "250000");
+        vnp_Params.put("vnp_Locale", "vn");
+        vnp_Params.put("vnp_ReturnUrl", vnPayConfig.getReturnUrl());
+        vnp_Params.put("vnp_IpAddr", ipAddress);
+        vnp_Params.put("vnp_CreateDate", createDate);
+
+        // Build query string
+        List<String> fieldNames = new ArrayList<>(vnp_Params.keySet());
+        Collections.sort(fieldNames);
+        StringBuilder hashData = new StringBuilder();
+        StringBuilder query = new StringBuilder();
+
+        try {
+            for (String fieldName : fieldNames) {
+                String fieldValue = vnp_Params.get(fieldName);
+                if (fieldValue != null && fieldValue.length() > 0) {
+                    hashData.append(fieldName).append('=').append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII.toString()));
+                    query.append(URLEncoder.encode(fieldName, StandardCharsets.US_ASCII.toString())).append('=')
+                            .append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII.toString()));
+                    query.append('&');
+                    hashData.append('&');
+                }
+            }
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
+
+        query.setLength(query.length() - 1);
+        hashData.setLength(hashData.length() - 1);
+
+        String vnp_SecureHash = VnPayUtil.hmacSHA512(vnPayConfig.getHashSecret(), hashData.toString());
+        query.append("&vnp_SecureHash=").append(vnp_SecureHash);
+        String queryUrl = query.toString();
         return vnPayConfig.getPayUrl() + "?" + queryUrl;
     }
 
@@ -323,8 +396,22 @@ public class VnPayServiceImpl implements VnPayService {
                     foodOrderRepository.save(foodOrder);
                 }
             } else if ("ROOM_BOOKING".equals(txn.getTransactionType()) && booking != null) {
-                if ("PENDING".equals(booking.getBookingStatus()) || "HOLD".equals(booking.getBookingStatus())) {
-                    booking.setBookingStatus("CONFIRMED");
+                if ("WALK_IN".equals(booking.getBookingSource()) && "Pending_Payment".equals(booking.getBookingStatus())) {
+                    booking.setBookingStatus("Checked_In");
+                    // Update detail status as well
+                    if (booking instanceof com.kawai.models.RoomBooking) {
+                        java.util.List<com.kawai.models.RoomBookingDetail> details = roomBookingDetailRepository.findByRoomBookingId(booking.getId());
+                        for (com.kawai.models.RoomBookingDetail detail : details) {
+                            if ("Pending_Payment".equals(detail.getDetailStatus())) {
+                                detail.setDetailStatus("Checked_In");
+                                // Thêm FolioItem cọc VNPay
+                                folioService.addFolioItem(detail.getId(), "FRONT_DESK", txn.getAmount().negate(), "Tiền cọc Walk-in (Chuyển khoản VNPay)");
+                            }
+                        }
+                        roomBookingDetailRepository.saveAll(details);
+                    }
+                } else if ("Pending".equals(booking.getBookingStatus()) || "HOLD".equals(booking.getBookingStatus())) {
+                    booking.setBookingStatus("Confirmed");
                 }
             }
             
@@ -369,6 +456,21 @@ public class VnPayServiceImpl implements VnPayService {
             }
         } else {
             txn.setStatus(PaymentStatus.FAILED);
+            if (booking != null && "WALK_IN".equals(booking.getBookingSource()) && "Pending_Payment".equals(booking.getBookingStatus())) {
+                booking.setBookingStatus("Cancelled");
+                if (booking instanceof com.kawai.models.RoomBooking) {
+                    java.util.List<com.kawai.models.RoomBookingDetail> details = roomBookingDetailRepository.findByRoomBookingId(booking.getId());
+                    for (com.kawai.models.RoomBookingDetail detail : details) {
+                        detail.setDetailStatus("Cancelled");
+                        if (detail.getRoom() != null) {
+                            com.kawai.models.Room room = detail.getRoom();
+                            room.setRoomStatus("Vacant_Clean");
+                            roomRepository.save(room);
+                        }
+                    }
+                    roomBookingDetailRepository.saveAll(details);
+                }
+            }
         }
 
         paymentTransactionRepository.save(txn);

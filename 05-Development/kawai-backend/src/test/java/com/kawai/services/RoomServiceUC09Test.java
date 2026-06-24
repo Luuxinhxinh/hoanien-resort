@@ -212,9 +212,9 @@ class RoomServiceUC09Test {
                 cat1.setCapacity(2);
 
                 when(roomCategoryRepository.findAll()).thenReturn(Arrays.asList(cat1));
-                when(roomRepository.countActiveRoomsByCategoryName("Deluxe")).thenReturn(1L);
+                lenient().when(roomRepository.countActiveRoomsByCategoryName("Deluxe")).thenReturn(1L);
                 
-                when(roomBookingRepository.countOverlappingBookingsByCategoryWithoutExclude(eq("Deluxe"), any(), any()))
+                lenient().when(roomBookingRepository.countOverlappingBookingsByCategoryWithoutExclude(eq("Deluxe"), any(), any()))
                                 .thenReturn(1L);
 
                 // Act

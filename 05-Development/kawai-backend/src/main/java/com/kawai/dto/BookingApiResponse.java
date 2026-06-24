@@ -16,20 +16,13 @@ public class BookingApiResponse {
     public BookingApiResponse() {
     }
 
-    public BookingApiResponse(String status, String bookingStatus, Long bookingId, BigDecimal depositAmount, LocalDateTime cancellationDeadline, String message) {
+    public BookingApiResponse(String status, String bookingStatus, Long bookingId, BigDecimal depositAmount,
+            LocalDateTime cancellationDeadline, String message) {
         this.status = status;
         this.bookingStatus = bookingStatus;
         this.bookingId = bookingId;
         this.depositAmount = depositAmount;
         this.cancellationDeadline = cancellationDeadline;
-        this.message = message;
-    }
-
-    public BookingApiResponse(String status, String bookingStatus, Long bookingId, BigDecimal depositAmount, String message) {
-        this.status = status;
-        this.bookingStatus = bookingStatus;
-        this.bookingId = bookingId;
-        this.depositAmount = depositAmount;
         this.message = message;
     }
 

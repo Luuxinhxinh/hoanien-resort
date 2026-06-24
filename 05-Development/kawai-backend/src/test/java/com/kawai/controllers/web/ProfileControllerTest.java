@@ -49,6 +49,9 @@ public class ProfileControllerTest {
     @MockBean
     private DependentRepository dependentRepository;
 
+    @MockBean
+    private TableReservationRepository tableReservationRepository;
+
     // SecurityConfig dependencies
     @MockBean
     private org.springframework.security.core.userdetails.UserDetailsService userDetailsService;

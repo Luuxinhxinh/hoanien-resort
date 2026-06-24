@@ -168,6 +168,7 @@ class VnPayPaymentUCTest {
         PaymentTransaction txn = new PaymentTransaction();
         txn.setAmount(new BigDecimal("150000"));
         txn.setStatus(PaymentStatus.INIT);
+        txn.setTransactionType("ROOM_BOOKING");
 
         RoomBooking booking = new RoomBooking();
         booking.setBookingStatus("PENDING");

@@ -8,21 +8,12 @@ import com.kawai.models.Customer;
 import com.kawai.repositories.CustomerRepository;
 import com.kawai.services.interfaces.BookingService;
 import com.kawai.exceptions.BusinessException;
-import com.kawai.models.RoomBooking;
-import com.kawai.models.PaymentTransaction;
-import com.kawai.models.PaymentStatus;
-import com.kawai.repositories.RoomBookingRepository;
-import com.kawai.repositories.PaymentTransactionRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.Map;
-import java.util.HashMap;
 import java.math.BigDecimal;
 
 @RestController
@@ -41,6 +32,17 @@ public class BookingApiController {
         return principal.getName();
     }
 
+    private Customer resolveCurrentCustomer(Principal principal) {
+        String username = extractUsername(principal);
+        Customer customer = customerRepository.findByAccount_Username(username)
+                .orElseGet(() -> customerRepository.findByEmail(username).orElse(null));
+        if (customer == null) {
+            throw new BusinessException("CUSTOMER_NOT_FOUND",
+                    "Không tìm thấy thông tin khách hàng cho tài khoản: " + username);
+        }
+        return customer;
+    }
+
     @Autowired
     private BookingService bookingService;
 
@@ -55,17 +57,11 @@ public class BookingApiController {
             jakarta.servlet.http.HttpServletRequest httpRequest) {
         if (principal == null) {
             return ResponseEntity.status(401).body(new BookingApiResponse(
-                    "error", null, null, null, "Quý khách cần đăng nhập để thực hiện đặt phòng!"));
+                    "error", null, null, null, null, "Quý khách cần đăng nhập để thực hiện đặt phòng!"));
         }
 
         try {
-            String username = extractUsername(principal);
-            Customer customer = customerRepository.findByAccount_Username(username)
-                    .orElseGet(() -> customerRepository.findByEmail(username).orElse(null));
-            if (customer == null) {
-                throw new BusinessException("CUSTOMER_NOT_FOUND",
-                        "Không tìm thấy thông tin khách hàng cho tài khoản: " + username);
-            }
+            Customer customer = resolveCurrentCustomer(principal);
 
             // Gán customerId lấy từ user đang đăng nhập
             request.setCustomerId(customer.getId());
@@ -95,11 +91,11 @@ public class BookingApiController {
             return ResponseEntity.ok(apiResponse);
         } catch (BusinessException e) {
             return ResponseEntity.status(400).body(new BookingApiResponse(
-                    "error", null, null, null, e.getMessage()));
+                    "error", null, null, null, null, e.getMessage()));
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(400).body(new BookingApiResponse(
-                    "error", null, null, null,
+                    "error", null, null, null, null,
                     e.getMessage() != null ? e.getMessage() : "Đã xảy ra lỗi không xác định"));
         }
     }
@@ -108,17 +104,11 @@ public class BookingApiController {
     public ResponseEntity<?> cancelBooking(Principal principal, @PathVariable Long bookingId) {
         if (principal == null) {
             return ResponseEntity.status(401).body(new BookingApiResponse(
-                    "error", null, null, null, "Quý khách cần đăng nhập để thực hiện thao tác này!"));
+                    "error", null, null, null, null, "Quý khách cần đăng nhập để thực hiện thao tác này!"));
         }
 
         try {
-            String username = extractUsername(principal);
-            Customer customer = customerRepository.findByAccount_Username(username)
-                    .orElseGet(() -> customerRepository.findByEmail(username).orElse(null));
-            if (customer == null) {
-                throw new BusinessException("CUSTOMER_NOT_FOUND",
-                        "Không tìm thấy thông tin khách hàng cho tài khoản: " + username);
-            }
+            Customer customer = resolveCurrentCustomer(principal);
 
             BookingResponseDTO response = bookingService.cancelBooking(bookingId, customer.getId());
 
@@ -136,14 +126,14 @@ public class BookingApiController {
                     msg));
         } catch (com.kawai.exceptions.PaymentGatewayException e) {
             return ResponseEntity.status(500).body(new BookingApiResponse(
-                    "error", null, null, null, e.getMessage()));
+                    "error", null, null, null, null, e.getMessage()));
         } catch (BusinessException e) {
             return ResponseEntity.status(400).body(new BookingApiResponse(
-                    "error", null, null, null, e.getMessage()));
+                    "error", null, null, null, null, e.getMessage()));
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(500).body(new BookingApiResponse(
-                    "error", null, null, null,
+                    "error", null, null, null, null,
                     e.getMessage() != null ? e.getMessage() : "Đã xảy ra lỗi không xác định"));
         }
     }
@@ -155,13 +145,7 @@ public class BookingApiController {
                     .body(Map.of("message", "Quý khách cần đăng nhập để thực hiện thao tác này!"));
         }
         try {
-            String username = extractUsername(principal);
-            Customer customer = customerRepository.findByAccount_Username(username)
-                    .orElseGet(() -> customerRepository.findByEmail(username).orElse(null));
-            if (customer == null) {
-                throw new BusinessException("CUSTOMER_NOT_FOUND",
-                        "Không tìm thấy thông tin khách hàng cho tài khoản: " + username);
-            }
+            Customer customer = resolveCurrentCustomer(principal);
 
             BookingDetailResponseDTO detail = bookingService.getBookingDetail(bookingId, customer.getId());
             return ResponseEntity.ok(detail);
@@ -181,12 +165,7 @@ public class BookingApiController {
             return ResponseEntity.status(401).body(Map.of("status", "error", "message", "Quý khách cần đăng nhập!"));
         }
         try {
-            String username = extractUsername(principal);
-            Customer customer = customerRepository.findByAccount_Username(username)
-                    .orElseGet(() -> customerRepository.findByEmail(username).orElse(null));
-            if (customer == null) {
-                throw new BusinessException("CUSTOMER_NOT_FOUND", "Không tìm thấy thông tin khách hàng");
-            }
+            Customer customer = resolveCurrentCustomer(principal);
 
             String couponCode = payload.get("couponCode");
             BigDecimal discountAmount = bookingService.applyCoupon(bookingId, couponCode, customer.getId());
@@ -213,12 +192,7 @@ public class BookingApiController {
             return ResponseEntity.status(401).body(Map.of("status", "error", "message", "Quý khách cần đăng nhập!"));
         }
         try {
-            String username = extractUsername(principal);
-            Customer customer = customerRepository.findByAccount_Username(username)
-                    .orElseGet(() -> customerRepository.findByEmail(username).orElse(null));
-            if (customer == null) {
-                throw new BusinessException("CUSTOMER_NOT_FOUND", "Không tìm thấy thông tin khách hàng");
-            }
+            Customer customer = resolveCurrentCustomer(principal);
 
             String fullName = (String) payload.get("fullName");
             String phone = (String) payload.get("phone");

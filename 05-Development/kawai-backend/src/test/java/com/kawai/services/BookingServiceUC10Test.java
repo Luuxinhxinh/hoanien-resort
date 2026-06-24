@@ -118,6 +118,9 @@ class BookingServiceUC10Test {
         @Mock
         private com.kawai.repositories.RoomCategoryRepository roomCategoryRepository;
 
+        @Mock
+        private com.kawai.repositories.DependentRepository dependentRepository;
+
         @org.junit.jupiter.api.BeforeEach
         void setUp() {
                 com.kawai.models.Customer customer = new com.kawai.models.Customer();
@@ -192,6 +195,9 @@ class BookingServiceUC10Test {
                                 .thenAnswer(invocation -> invocation.getArgument(0));
 
                 lenient().when(roomGuestRepository.save(any(com.kawai.models.RoomGuest.class)))
+                                .thenAnswer(invocation -> invocation.getArgument(0));
+
+                lenient().when(dependentRepository.save(any(com.kawai.models.Dependent.class)))
                                 .thenAnswer(invocation -> invocation.getArgument(0));
         }
 
@@ -590,8 +596,6 @@ class BookingServiceUC10Test {
                 BookingRequestDTO request = buildRequest();
                 request.setPromotionCode("EXPIRED2020");
 
-                when(roomBookingRepository.countOverlappingBookingsByCategory(
-                                anyString(), any(LocalDate.class), any(LocalDate.class), anyLong())).thenReturn(0L);
 
                 Promotion promo = new Promotion();
                 promo.setPromoCode("EXPIRED2020");
@@ -623,8 +627,6 @@ class BookingServiceUC10Test {
                 BookingRequestDTO request = buildRequest();
                 request.setPromotionCode("XMAS2025");
 
-                when(roomBookingRepository.countOverlappingBookingsByCategory(
-                                anyString(), any(LocalDate.class), any(LocalDate.class), anyLong())).thenReturn(0L);
 
                 Promotion promo = new Promotion();
                 promo.setPromoCode("XMAS2025");
@@ -655,8 +657,7 @@ class BookingServiceUC10Test {
                 BookingRequestDTO request = buildRequest();
                 request.setPromotionCode("GHOST999");
 
-                when(roomBookingRepository.countOverlappingBookingsByCategory(
-                                anyString(), any(LocalDate.class), any(LocalDate.class), anyLong())).thenReturn(0L);
+
                 when(promotionRepository.findByPromoCode("GHOST999"))
                                 .thenReturn(Optional.empty());
 
