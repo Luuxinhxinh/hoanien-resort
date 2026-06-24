@@ -319,7 +319,6 @@ public class BookingServiceImpl implements BookingService {
         // ══════════════════════════════════════════════════════════════════
         savedHold.setTotalPrice(discountedPrice.setScale(0, RoundingMode.HALF_UP));
         savedHold.setDepositAmount(depositVal);
-        savedHold.setPersonalPinHash("DEFAULT_PIN");
         savedHold.setBookingStatus(STATUS_HOLD);
         RoomBooking savedBooking = roomBookingRepository.save(savedHold);
 

@@ -17,6 +17,43 @@
     <link rel="stylesheet" href="/receptionist/css/dashboard.css">
     <link rel="stylesheet" href="/receptionist/css/pages.css">
     <style>
+        .room-tabs-container {
+            margin-top: 24px;
+        }
+
+        .room-tabs {
+            display: flex;
+            gap: 8px;
+            border-bottom: 1px solid #e8e4db;
+            padding-bottom: 0;
+            margin-bottom: 24px;
+        }
+
+        .room-tab {
+            padding: 12px 24px;
+            border-radius: 8px 8px 0 0;
+            cursor: pointer;
+            font-weight: 500;
+            color: #7f8c8d;
+            background: #fdfbf7;
+            border: 1px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .room-tab.active {
+            color: #c19b6c;
+            background: white;
+            border: 1px solid #e8e4db;
+            border-bottom-color: white;
+            margin-bottom: -1px;
+            z-index: 10;
+            position: relative;
+        }
+
+        .room-tab:hover:not(.active) {
+            background: #f4f1ea;
+        }
+
         .folio-container {
             display: grid;
             grid-template-columns: 2fr 1fr;
@@ -152,8 +189,12 @@
             border: 1px solid #e8e4db;
             border-radius: 12px;
             padding: 24px;
+        }
+
+        .folio-right {
             position: sticky;
             top: 24px;
+            align-self: start;
         }
 
         .bill-summary-card h3 {
@@ -274,10 +315,267 @@
         .back-link:hover {
             color: #c19b6c;
         }
+
+        .item-settled {
+            opacity: 0.6;
+        }
+
+        .item-settled td.amount {
+            text-decoration: line-through;
+            color: #95a5a6;
+        }
+
+        .custom-checkbox {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #c19b6c;
+        }
+
+        .floating-action-bar {
+            position: fixed;
+            bottom: 32px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 16px 24px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            z-index: 100;
+            border: 1px solid #e8e4db;
+        }
+
+        .fab-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn-route {
+            background: #2980b9;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-route:hover {
+            background: #2471a3;
+        }
+
+        .split-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .split-modal-content {
+            background: white;
+            padding: 32px;
+            border-radius: 12px;
+            width: 400px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-top: 24px;
+        }
+
+        /* Payment Modal */
+        .payment-modal-content {
+            background: white;
+            padding: 32px;
+            border-radius: 12px;
+            width: 450px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            text-align: left;
+        }
+
+        .payment-amount-display {
+            font-size: 2.5rem;
+            color: #c19b6c;
+            font-family: 'Playfair Display', serif;
+            text-align: center;
+            margin: 16px 0 24px;
+            font-weight: 700;
+        }
+
+        .payment-methods {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .method-btn {
+            padding: 12px;
+            border: 1px solid #e8e4db;
+            border-radius: 8px;
+            background: #faf9f7;
+            cursor: pointer;
+            text-align: center;
+            font-weight: 500;
+            color: #34495e;
+            transition: all 0.2s;
+        }
+
+        .method-btn.active {
+            border-color: #c19b6c;
+            background: #fdfbf7;
+            color: #c19b6c;
+            box-shadow: 0 0 0 1px #c19b6c;
+        }
+
+        .payment-input-group {
+            margin-bottom: 16px;
+        }
+
+        .payment-input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            color: #7f8c8d;
+        }
+
+        .payment-input-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #e8e4db;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            outline: none;
+            box-sizing: border-box;
+        }
+
+        .change-due {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        /* Success Modal */
+        .success-icon {
+            font-size: 64px;
+            color: #27ae60;
+            margin-bottom: 16px;
+        }
+
+        .automation-list {
+            text-align: left;
+            margin: 24px 0;
+            background: #f8f9fa;
+            padding: 16px;
+            border-radius: 8px;
+        }
+
+        .automation-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+            font-size: 0.95rem;
+            color: #2c3e50;
+        }
+
+        .automation-item i {
+            color: #27ae60;
+        }
+
+        /* Print Styles */
+        @media print {
+            body>*:not(#printableInvoice) {
+                display: none !important;
+            }
+
+            #printableInvoice {
+                display: block !important;
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                background: white;
+            }
+        }
     </style>
 </head>
 
 <body>
+    <!-- Printable Invoice Structure -->
+    <div id="printableInvoice"
+        style="display: none; background: white; color: black; font-family: 'Times New Roman', serif; padding: 40px; font-size: 14px;">
+        <div style="text-align: center; border-bottom: 2px solid #000; padding-bottom: 20px; margin-bottom: 30px;">
+            <h1 style="margin: 0; font-size: 28px; text-transform: uppercase; letter-spacing: 2px;">Hoanien Retreat</h1>
+            <p style="margin: 5px 0 0;">123 Nguyen Van Linh, Da Nang, Vietnam</p>
+            <p style="margin: 0;">Tel: +84 236 3123 456 | Email: info@hoanien.vn</p>
+            <h2 style="margin: 20px 0 0; font-size: 22px; letter-spacing: 1px;">GUEST INVOICE</h2>
+        </div>
+
+        <table style="width: 100%; margin-bottom: 30px; font-size: 14px;">
+            <tr>
+                <td style="width: 60%;"><strong>Guest Name:</strong> <span id="printGuestName">Customer</span></td>
+                <td style="width: 40%;"><strong>Invoice No:</strong> <span id="printInvoiceNumber"></span></td>
+            </tr>
+            <tr>
+                <td><strong>Room No:</strong> <span id="printRoomNumber"></span></td>
+                <td><strong>Date:</strong> <span id="printInvoiceDate"></span></td>
+            </tr>
+        </table>
+
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">
+            <thead>
+                <tr style="border-bottom: 1px solid #000;">
+                    <th style="text-align: left; padding: 10px 0;">Description</th>
+                    <th style="text-align: right; padding: 10px 0;">Amount</th>
+                </tr>
+            </thead>
+            <tbody id="printInvoiceItems">
+            </tbody>
+            <tfoot>
+                <tr style="border-top: 1px solid #000;">
+                    <td style="text-align: right; padding: 10px 0;"><strong>Subtotal:</strong></td>
+                    <td style="text-align: right; padding: 10px 0;" id="printSubtotal"></td>
+                </tr>
+                <tr>
+                    <td style="text-align: right; padding: 5px 0;"><strong>VAT (10%):</strong></td>
+                    <td style="text-align: right; padding: 5px 0;" id="printVat"></td>
+                </tr>
+                <tr>
+                    <td style="text-align: right; padding: 10px 0; font-size: 18px;"><strong>TOTAL:</strong></td>
+                    <td style="text-align: right; padding: 10px 0; font-size: 18px;"><strong id="printTotal"></strong>
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+
+        <div style="text-align: center; margin-top: 50px; font-style: italic; color: #555;">
+            <p>Thank you for choosing Hoanien Retreat. We hope to welcome you back soon!</p>
+            <p style="font-size: 12px; margin-top: 20px;">Powered by Kawai PMS</p>
+        </div>
+    </div>
+
     <div class="app-container">
         <!-- Sidebar -->
         <aside class="sidebar">
@@ -320,6 +618,13 @@
                         <span class="nav-sub-text">Trả phòng & Hóa đơn</span>
                     </div>
                 </a>
+                <a href="/receptionist/in-house" class="nav-item">
+                    <i class="fa-solid fa-bed"></i>
+                    <div class="nav-text">
+                        <span class="nav-main-text">Khách lưu trú</span>
+                        <span class="nav-sub-text">Quản lý khách in-house</span>
+                    </div>
+                </a>
             </nav>
         </aside>
 
@@ -341,258 +646,255 @@
                 <a href="/receptionist/folio" class="back-link"><i class="fa-solid fa-arrow-left"></i> Back to Folio
                     List</a>
 
-                <div class="folio-header-top">
+                <div class="folio-header-top" id="guestHeader" style="display: none; margin-top: 16px;">
                     <div class="guest-profile">
-                        <div class="guest-avatar">N</div>
+                        <div class="guest-avatar" id="guestAvatar">N</div>
                         <div class="guest-info">
-                            <h2>Nguyễn Thị Lan</h2>
-                            <p>Room 201 • 2026-06-13 &rarr; 2026-06-16</p>
+                            <h2 id="guestName" style="margin-bottom: 4px;">Đang tải...</h2>
+                            <p><i class="fa-solid fa-door-open"></i> Phòng: <strong id="roomNumber">--</strong>
+                                &nbsp;|&nbsp; <i class="fa-regular fa-calendar"></i> Lưu trú: <span
+                                    id="stayDates">--</span></p>
                         </div>
                     </div>
-                    <div class="status-pill">Active Stay</div>
+                    <div style="display: flex; flex-direction: column; gap: 8px; align-items: flex-end;">
+                        <div class="status-pill" id="bookerPill"
+                            style="background-color: #f8f9fa; color: #2c3e50; border: 1px solid #e2e8f0; font-weight: 500; display: none;">
+                            <i class="fa-solid fa-user-tie"></i> Đặt bởi: <span id="bookerName">--</span></div>
+                        <div class="status-pill" id="groupTotalPill"
+                            style="background-color: #fff3e0; color: #d35400; border: 1px solid #ffe0b2; font-weight: 600; display: none;">
+                            <i class="fa-solid fa-file-invoice-dollar"></i> Tổng nợ đoàn: <span id="groupTotalAmount">0
+                                ₫</span></div>
+                    </div>
                 </div>
 
-                <div class="folio-container">
-                    <div class="folio-left">
-                        <!-- ROOM CHARGES -->
-                        <div class="charge-card">
-                            <div class="charge-card-header">
-                                <div class="charge-title">ROOM CHARGES</div>
-                                <div style="display: flex; align-items: center;">
-                                    <div class="charge-total">23.400.000 ₫</div>
-                                    <button class="btn-pay-partial" onclick="payPartial('Room', '23.400.000 ₫')"><i
-                                            class="fa-solid fa-wallet"></i> Thanh toán riêng</button>
-                                </div>
-                            </div>
-                            <table class="charge-table">
-                                <thead>
-                                    <tr>
-                                        <th>DESCRIPTION</th>
-                                        <th>DATE</th>
-                                        <th style="text-align: right;">AMOUNT</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>Room Charge – Premier Suite</td>
-                                        <td>2026-06-13</td>
-                                        <td class="amount">7.800.000 ₫</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Room Charge – Premier Suite</td>
-                                        <td>2026-06-14</td>
-                                        <td class="amount">7.800.000 ₫</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Room Charge – Premier Suite</td>
-                                        <td>2026-06-15</td>
-                                        <td class="amount">7.800.000 ₫</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <!-- F&B CHARGES -->
-                        <div class="charge-card">
-                            <div class="charge-card-header">
-                                <div class="charge-title">F&B CHARGES</div>
-                                <div style="display: flex; align-items: center;">
-                                    <div class="charge-total">2.970.000 ₫</div>
-                                    <button class="btn-pay-partial" onclick="payPartial('F&B', '2.970.000 ₫')"><i
-                                            class="fa-solid fa-wallet"></i> Thanh toán riêng</button>
-                                </div>
-                            </div>
-                            <table class="charge-table">
-                                <thead>
-                                    <tr>
-                                        <th>DESCRIPTION</th>
-                                        <th>DATE</th>
-                                        <th style="text-align: right;">AMOUNT</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>Breakfast (×2)</td>
-                                        <td>2026-06-14</td>
-                                        <td class="amount">650.000 ₫</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Dinner – Riverside Restaurant</td>
-                                        <td>2026-06-14</td>
-                                        <td class="amount">1.200.000 ₫</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Spa Treatment</td>
-                                        <td>2026-06-15</td>
-                                        <td class="amount">800.000 ₫</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Minibar Charges</td>
-                                        <td>2026-06-15</td>
-                                        <td class="amount">320.000 ₫</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <!-- TOUR CHARGES -->
-                        <div class="charge-card">
-                            <div class="charge-card-header">
-                                <div class="charge-title">TOUR CHARGES</div>
-                                <div style="display: flex; align-items: center;">
-                                    <div class="charge-total">1.500.000 ₫</div>
-                                    <button class="btn-pay-partial" onclick="payPartial('Tour', '1.500.000 ₫')"><i
-                                            class="fa-solid fa-wallet"></i> Thanh toán riêng</button>
-                                </div>
-                            </div>
-                            <table class="charge-table">
-                                <thead>
-                                    <tr>
-                                        <th>DESCRIPTION</th>
-                                        <th>DATE</th>
-                                        <th style="text-align: right;">AMOUNT</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>Kayak Tour – Sunrise Mekong</td>
-                                        <td>2026-06-15</td>
-                                        <td class="amount">1.500.000 ₫</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <!-- LATE CHECK-OUT FEE -->
-                        <div class="charge-card">
-                            <div class="charge-card-header"
-                                style="border-bottom: none; padding-bottom: 0; margin-bottom: 0;">
-                                <div class="charge-title" style="text-transform: none;">+ Late Check-out Fee (after
-                                    12:00)</div>
-                                <div style="display: flex; align-items: center;">
-                                    <div class="charge-total" style="color: #c19b6c;">500.000 ₫</div>
-                                    <button class="btn-pay-partial" onclick="payPartial('Late Fee', '500.000 ₫')"><i
-                                            class="fa-solid fa-wallet"></i> Thanh toán riêng</button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- OTHER CHARGES -->
-                        <div class="charge-card">
-                            <div class="charge-card-header" style="border-bottom: none; margin-bottom: 0;">
-                                <div class="charge-title">OTHER CHARGES (Damages, Services...)</div>
-                                <div style="display: flex; align-items: center;">
-                                    <div class="charge-total" id="otherChargeTotal">0 ₫</div>
-                                    <button class="btn-pay-partial" onclick="toggleAddChargeForm()"><i
-                                            class="fa-solid fa-plus"></i> Add Charge</button>
-                                </div>
-                            </div>
-
-                            <!-- Add Charge Form -->
-                            <div id="addChargeForm"
-                                style="display: none; padding-top: 16px; border-top: 1px solid #e8e4db; margin-top: 16px;">
-                                <div style="display: flex; gap: 12px; margin-bottom: 0;">
-                                    <input type="text" placeholder="Description (e.g. Broken glass)"
-                                        style="flex: 2; padding: 10px; border: 1px solid #e8e4db; border-radius: 6px; outline: none;">
-                                    <input type="number" placeholder="Amount (VND)"
-                                        style="flex: 1; padding: 10px; border: 1px solid #e8e4db; border-radius: 6px; outline: none;">
-                                    <button class="btn-apply"
-                                        style="background: #2c3e50; border-color: #2c3e50; color: white;"
-                                        onclick="toggleAddChargeForm()">Save</button>
-                                </div>
-                            </div>
-
-                            <table class="charge-table" id="otherChargeTable" style="display: none; margin-top: 16px;">
-                                <thead>
-                                    <tr>
-                                        <th>DESCRIPTION</th>
-                                        <th>DATE</th>
-                                        <th style="text-align: right;">AMOUNT</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                </tbody>
-                            </table>
-                        </div>
-
+                <div class="folio-container" id="folioContainer" style="display: none; margin-top: 24px;">
+                    <div class="folio-left" id="allRoomsContainer">
+                        <!-- Content dynamically rendered by JS -->
                     </div>
 
                     <!-- BILL SUMMARY -->
                     <div class="folio-right">
-                        <div class="bill-summary-card" id="billSummaryCard">
-                            <h3 id="billTitle">Bill Summary</h3>
+                        <!-- HÓA ĐƠN GỐC -->
+                        <div class="bill-summary-card" id="originalBillCard">
+                            <h3 id="billTitle">Hóa đơn tổng</h3>
+                            <div id="originalBillDetails"></div>
 
-                            <div id="billDetails">
-                                <div class="summary-row" id="row-room">
-                                    <span>Room</span>
-                                    <span>23.400.000 ₫</span>
+                            <div id="promoSection">
+                                <div style="font-size: 0.9rem; color: #7f8c8d; margin: 24px 0 8px 0;">Apply Promotion </div>
+                                <div class="promo-input">
+                                    <input type="text" placeholder="Voucher code" id="groupPromoInput">
+                                    <button class="btn-apply" onclick="applyGroupPromo()">Apply</button>
                                 </div>
-                                <div class="summary-row" id="row-fb">
-                                    <span>F&B</span>
-                                    <span>2.970.000 ₫</span>
-                                </div>
-                                <div class="summary-row" id="row-tour">
-                                    <span>Tour</span>
-                                    <span>1.500.000 ₫</span>
-                                </div>
-                                <div class="summary-row" id="row-latefee" style="color: #c19b6c;">
-                                    <span>Late Fee</span>
-                                    <span>500.000 ₫</span>
-                                </div>
+                            </div>
 
-                                <div id="promoSection">
-                                    <div style="font-size: 0.9rem; color: #7f8c8d; margin: 24px 0 8px 0;">Apply
-                                        Promotion</div>
-                                    <div class="promo-input">
-                                        <input type="text" placeholder="Voucher code">
-                                        <button class="btn-apply">Apply</button>
-                                    </div>
-                                </div>
+                            <div class="summary-row total-row" id="row-promo" style="display: none; color: #e67e22; border-top: 1px dashed #cbd5e1; padding-top: 12px; margin-top: 12px;">
+                                <span>Khuyến mãi (<span id="promoLabel">0%</span>)</span>
+                                <span id="promoAmount">-0 ₫</span>
+                            </div>
 
-                                <div class="summary-row total-row" id="row-deposit">
-                                    <span>Pre-paid Deposit</span>
-                                    <span>-8.511.000 ₫</span>
-                                </div>
+                            <div class="summary-row total-row" id="row-deposit" style="display: none;">
+                                <span>Pre-paid Deposit</span>
+                                <span id="prePaidAmount">-0 ₫</span>
                             </div>
 
                             <div class="summary-row outstanding-row">
                                 <span class="label">Outstanding</span>
-                                <span class="amount" id="outstandingAmount">19.859.000 ₫</span>
+                                <span class="amount" id="originalOutstandingAmount">0 ₫</span>
                             </div>
 
-                            <button class="btn-checkout" id="btnProceed">Proceed to Payment</button>
-
-                            <div style="text-align: center; margin-top: 16px; display: none;" id="backToTotalWrap">
-                                <a href="#" id="btnBackToTotal"
-                                    style="color: #7f8c8d; text-decoration: none; font-size: 0.9rem; font-weight: 500;"><i
-                                        class="fa-solid fa-arrow-left"></i> Back to Total Bill</a>
-                            </div>
+                            <button class="btn-checkout" id="btnProceedOriginal"
+                                onclick="openPaymentModal(globalOriginalOutstanding, true)">Thanh toán HĐ Gốc</button>
                         </div>
+
                     </div>
                 </div>
             </div>
         </main>
     </div>
+    </div>
+
+    <!-- Room Bill Modal (Floating Bill) -->
+    <div id="roomBillModal" class="split-modal-overlay" style="display: none;">
+        <div class="split-modal-content bill-summary-card" style="max-width: 450px; padding: 24px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <h3 id="roomBillTitle"
+                    style="margin: 0; font-family: 'Playfair Display', serif; color: #2c3e50; font-size: 1.4rem;">Hóa
+                    đơn phòng</h3>
+                <button onclick="closeRoomBillModal()"
+                    style="background: transparent; border: none; font-size: 1.2rem; cursor: pointer; color: #7f8c8d;"><i
+                        class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div id="roomBillDetails" style="margin-bottom: 24px;">
+                <!-- dynamic content -->
+            </div>
+
+            <div id="roomPromoSection">
+                <div style="font-size: 0.9rem; color: #7f8c8d; margin: 24px 0 8px 0;">Apply Promotion</div>
+                <div class="promo-input">
+                    <input type="text" placeholder="Voucher code" id="roomPromoInput">
+                    <button class="btn-apply" onclick="applyRoomPromo()">Apply</button>
+                </div>
+            </div>
+
+            <div class="summary-row total-row" id="row-room-promo" style="display: none; color: #e67e22; border-top: 1px dashed #cbd5e1; padding-top: 12px; margin-top: 12px;">
+                <span>Khuyến mãi (<span id="roomPromoLabel">0%</span>)</span>
+                <span id="roomPromoAmount">-0 ₫</span>
+            </div>
+
+            <div class="summary-row outstanding-row">
+                <span class="label">Outstanding</span>
+                <span class="amount" id="roomBillOutstandingAmount">0 ₫</span>
+            </div>
+
+            <button class="btn-checkout" id="btnProceedRoomBill" style="width: 100%; margin-top: 16px;">Thanh toán phòng này</button>
+        </div>
+    </div>
+
+    <!-- Payment Modal -->
+    <div id="paymentModal" class="split-modal-overlay" style="display: none;">
+        <div class="payment-modal-content">
+            <h3 style="margin: 0; color: #2c3e50; text-align: center;">Xử lý Thanh toán</h3>
+            <div class="payment-amount-display" id="paymentTotalAmount">0 ₫</div>
+
+            <label style="display:block; margin-bottom: 8px; font-size: 0.9rem; color: #7f8c8d;">Phương thức thanh
+                toán</label>
+            <div class="payment-methods">
+                <div class="method-btn active" onclick="selectPaymentMethod('CASH')" id="btn-method-CASH"><i
+                        class="fa-solid fa-money-bill"></i> Tiền mặt</div>
+                <div class="method-btn" onclick="selectPaymentMethod('BANK_TRANSFER')" id="btn-method-BANK_TRANSFER"><i
+                        class="fa-solid fa-building-columns"></i> Chuyển khoản</div>
+                <div class="method-btn" onclick="selectPaymentMethod('VNPAY')" id="btn-method-VNPAY"><i
+                        class="fa-solid fa-qrcode"></i> VNPay</div>
+            </div>
+
+            <div id="cashInputSection">
+                <div class="payment-input-group">
+                    <label>Số tiền khách đưa (Tendered Amount)</label>
+                    <input type="number" id="tenderedAmount" placeholder="Nhập số tiền..." onkeyup="calculateChange()">
+                </div>
+                <div class="change-due">
+                    <span>Tiền thừa trả khách:</span>
+                    <span id="changeDueAmount" style="color: #27ae60;">0 ₫</span>
+                </div>
+            </div>
+
+            <div class="modal-actions" style="margin-top: 0;">
+                <button class="btn-apply" style="flex:1;" onclick="closePaymentModal()">Hủy</button>
+                <button class="btn-checkout" id="btnConfirmPayment" style="margin: 0; flex:1;"
+                    onclick="processPayment()">Xác nhận Thanh toán</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success & Automation Modal -->
+    <div id="successModal" class="split-modal-overlay" style="display: none;">
+        <div class="split-modal-content" style="text-align: center;">
+            <div class="success-icon"><i class="fa-solid fa-circle-check"></i></div>
+            <h3 style="margin-bottom: 8px; color: #2c3e50;">Thanh toán thành công</h3>
+            <p style="color: #7f8c8d; margin: 0;">Hóa đơn <strong id="successInvoiceId">#INV-XXX</strong></p>
+
+            <div class="automation-list">
+                <div
+                    style="font-weight: 600; margin-bottom: 12px; font-size: 0.85rem; text-transform: uppercase; color: #7f8c8d;">
+                    Hệ thống đã tự động xử lý:</div>
+                <div class="automation-item"><i class="fa-solid fa-check"></i> Dư nợ Folio đã quy về 0 ₫</div>
+                <div class="automation-item"><i class="fa-solid fa-check"></i> Trạng thái phòng cập nhật: Vacant_Dirty
+                </div>
+                <div class="automation-item"><i class="fa-solid fa-check"></i> Đã gửi e-Invoice tới email khách hàng
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn-apply" onclick="window.print()"><i class="fa-solid fa-print"></i> In biên lai
+                    giấy</button>
+                <button class="btn-checkout" style="margin: 0;"
+                    onclick="window.location.href='/receptionist/folio'">Hoàn tất & Đóng</button>
+            </div>
+        </div>
+    </div>
 
     <script>
-        // Fetch data from API
-        document.addEventListener('DOMContentLoaded', function() {
+        let currentFolioData = null;
+        let selectedItemIds = [];
+        let currentRoomBookingDetailId = null;
+        let bookingGroupData = null;
+        let globalOriginalOutstanding = 0;
+        let globalSplitOutstanding = 0;
+        let currentPaymentAmount = 0;
+        let selectedPaymentMethod = 'CASH';
+        let roomSummaryMap = {}; // Thêm biến lưu summary từng phòng
+        let globalOriginalTotal = 0; // Thêm biến lưu tổng tiền hóa đơn tổng trước VAT
+        let globalPrePaidDeposit = 0;
+        let appliedGroupPromoCode = null;
+        let appliedGroupPromoType = null;
+        let appliedGroupPromoDiscount = 0;
+
+        document.addEventListener('DOMContentLoaded', function () {
             const urlParams = new URLSearchParams(window.location.search);
             const id = urlParams.get('id');
             if (id && id !== 'undefined') {
-                fetchFolioData(id);
+                currentRoomBookingDetailId = id;
+                fetchBookingGroup(id);
             } else {
                 alert("Lỗi: Không tìm thấy ID phòng! Vui lòng quay lại danh sách và F5 tải lại trang.");
             }
         });
 
+        function fetchBookingGroup(id) {
+            fetch(`/api/folios/booking-group/${id}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        bookingGroupData = data;
+
+                        if (data.rooms && data.rooms.length > 1) {
+                            const formatCurrency = (val) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(val);
+                            document.getElementById('groupTotalPill').style.display = 'block';
+                            document.getElementById('groupTotalAmount').innerText = formatCurrency(data.groupBalance || 0);
+                        } else {
+                            document.getElementById('groupTotalPill').style.display = 'none';
+                        }
+
+                        const promises = data.rooms.map(room =>
+                            fetch(`/api/folios/room/${room.id}`).then(res => res.json())
+                        );
+
+                        Promise.all(promises).then(results => {
+                            document.getElementById('folioContainer').style.display = 'grid';
+                            document.getElementById('guestHeader').style.display = 'flex';
+
+                            const validResult = results.find(r => r.success);
+                            if (validResult) {
+                                renderGuestInfo(validResult, data.rooms.length);
+                            }
+
+                            renderGroupFolio(results);
+                        }).catch(err => {
+                            console.error(err);
+                            alert("Lỗi tải dữ liệu các phòng");
+                        });
+                    } else {
+                        fetchFolioData(id);
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    fetchFolioData(id);
+                });
+        }
+
+        // Keep this for fallback
         function fetchFolioData(id) {
             fetch(`/api/folios/room/${id}`)
                 .then(res => res.json())
                 .then(data => {
                     if (data.success) {
                         try {
-                            renderFolio(data);
+                            document.getElementById('folioContainer').style.display = 'grid';
+                            document.getElementById('guestHeader').style.display = 'flex';
+                            renderGuestInfo(data, 1);
+                            renderGroupFolio([data]);
                         } catch (e) {
                             console.error("Render Error:", e);
                             alert("Lỗi khi vẽ giao diện: " + e.message);
@@ -603,7 +905,7 @@
                 })
                 .catch(err => {
                     console.error("Fetch Error:", err);
-                    alert("Lỗi tải dữ liệu: " + err.message + "\n(Vui lòng mở F12 Console để xem chi tiết)");
+                    alert("Lỗi tải dữ liệu: " + err.message + "\\n(Vui lòng mở F12 Console để xem chi tiết)");
                 });
         }
 
@@ -611,123 +913,564 @@
             return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
         }
 
-        function renderFolio(data) {
-            // Group items by department
-            const items = data.items || [];
-            const groups = {};
-            let total = 0;
+        function renderGuestInfo(data, roomCount) {
+            document.querySelector('.guest-info h2').innerText = data.bookerName || data.guestName || "Khách hàng";
+            const bookerNameEl = document.getElementById('bookerName');
+            if (bookerNameEl) {
+                bookerNameEl.innerText = data.bookerName || "Unknown";
+            }
 
-            items.forEach(item => {
-                const dep = item.sourceDepartment || 'OTHER';
-                if (!groups[dep]) {
-                    groups[dep] = { total: 0, items: [] };
-                }
-                groups[dep].items.push(item);
-                if (!item.isSettledSeparately) {
-                    groups[dep].total += item.amount;
-                    total += item.amount;
-                }
-            });
+            const displayNameForAvatar = data.bookerName || data.guestName || "N";
+            const avatarLetter = displayNameForAvatar.charAt(0).toUpperCase();
+            document.querySelector('.guest-avatar').innerText = avatarLetter;
 
-            // Render Left Cards
+            const roomNum = roomCount > 1 ? `Đoàn ${roomCount} phòng` : (data.roomNumber || "N/A");
+            const checkIn = data.checkInDate || "N/A";
+            const checkOut = data.checkOutDate || "N/A";
+            let subtitleHtml = `${roomNum} &nbsp;|&nbsp; ${checkIn} &rarr; ${checkOut}`;
+
+            document.querySelector('.guest-info p').innerHTML = subtitleHtml;
+        }
+
+        function renderGroupFolio(results) {
+            const originalGroups = {};
+            let originalTotal = 0;
+            const splitGroups = {};
+            let splitTotal = 0;
+
+            let totalPrePaid = 0;
             let leftHtml = '';
-            let rightSummaryHtml = '';
-            
-            for (const [dep, group] of Object.entries(groups)) {
+
+            results.forEach((data, index) => {
+                if (!data.success) return;
+
+                const items = data.items || [];
+                const allGroups = {};
+                let roomTotal = 0;
+
+                items.forEach(item => {
+                    const dep = item.sourceDepartment || 'OTHER';
+
+                    // For Left Pane (grouped by room)
+                    if (!allGroups[dep]) allGroups[dep] = { items: [] };
+                    allGroups[dep].items.push(item);
+
+                    roomTotal += item.amount;
+
+                    // For Right Pane (aggregated)
+                    if (!originalGroups[dep]) originalGroups[dep] = { total: 0 };
+                    originalGroups[dep].total += item.amount;
+                    originalTotal += item.amount;
+                });
+
+                const roomId = data.roomBookingDetailId || index;
+                const isFirst = index === 0;
+
+                // Build Room Card HTML
                 leftHtml += `
-                    <div class="charge-card">
-                        <div class="charge-card-header">
-                            <div class="charge-title">${dep} CHARGES</div>
-                            <div style="display: flex; align-items: center;">
-                                <div class="charge-total">${formatCurrency(group.total)}</div>
-                                <button class="btn-pay-partial" onclick="payPartial('${dep}', '${formatCurrency(group.total)}')"><i class="fa-solid fa-wallet"></i> Thanh toán riêng</button>
+                <div style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; margin-bottom: 24px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+                    <div style="background: #f8fafc; padding: 16px 20px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="toggleRoomDetail('room-detail-${roomId}')">
+                        <div>
+                            <h4 style="margin: 0 0 4px 0; font-size: 1.1rem; color: #2c3e50;"><i class="fa-solid fa-door-open"></i> Phòng ${data.roomNumber || 'N/A'}</h4>
+                            <div style="font-size: 0.9rem; color: #7f8c8d;"><i class="fa-solid fa-user" style="margin-right: 4px;"></i> Đại diện phòng: <strong style="color: #2c3e50;">${data.guestName || 'Unknown'}</strong></div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 16px;">
+                            <span style="font-weight: 600; color: #c19b6c; font-size: 1.1rem;">${formatCurrency(roomTotal * 1.1)}</span>
+                            <button class="btn btn-secondary" style="margin: 0; padding: 6px 12px; font-size: 0.85rem; background: white; border: 1px solid #cbd5e1; border-radius: 6px; cursor: pointer; transition: background 0.2s;">
+                                <i class="fa-solid fa-eye"></i> View Detail
+                            </button>
+                        </div>
+                    </div>
+                    <div id="room-detail-${roomId}" style="padding: 16px 20px; display: none; background: #faf9f7;">`;
+
+                for (const [dep, group] of Object.entries(allGroups)) {
+                    const availableItems = group.items.filter(i => !i.isSettledSeparately);
+                    const depSafe = roomId + '_' + dep.replace(/[^a-zA-Z0-9]/g, '');
+
+                    leftHtml += `
+                        <div class="charge-card" style="box-shadow: none; border: 1px solid #edf2f7; margin-bottom: 16px;">
+                            <div class="charge-card-header" style="background: #fdfdfd; padding: 12px 16px; margin-bottom: 0;">
+                                <div class="charge-title" style="display: flex; align-items: center; gap: 12px; text-transform: uppercase;">
+                                    ${dep} CHARGES
+                                </div>
+                            </div>
+                            <div style="padding: 0 16px;">
+                                <table class="charge-table">
+                                    <thead>
+                                        <tr>
+                                            <th>DESCRIPTION</th>
+                                            <th style="text-align: right;">AMOUNT</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${group.items.map(i => {
+                        const isSplit = i.isSettledSeparately;
+                        const trClass = isSplit ? 'item-settled' : '';
+                        const dateStr = i.createdAt && i.createdAt.length >= 10 ? i.createdAt.substring(0, 10) : '';
+                        return `
+                                            <tr class="${trClass}">
+                                                <td>
+                                                    ${i.description} 
+                                                    ${dateStr ? `<div style="font-size: 0.8rem; color: #95a5a6;">${dateStr}</div>` : ''}
+                                                    ${isSplit ? '<span style="color:#e74c3c; font-size: 0.8rem; font-weight: 500;">(Đã tách)</span>' : ''}
+                                                </td>
+                                                <td class="amount">${formatCurrency(i.amount)}</td>
+                                            </tr>`;
+                    }).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>`;
+                }
+
+                roomSummaryMap[roomId] = {
+                    roomNumber: data.roomNumber || 'N/A',
+                    total: roomTotal * 1.1,
+                    prePaidDeposit: data.prePaidDeposit || 0,
+                    currentBalance: data.currentBalance || 0,
+                    detailStatus: data.detailStatus || 'Checked_In',
+                    summary: {},
+                    appliedPromoCode: null,
+                    appliedPromoType: null,
+                    appliedPromoDiscount: 0
+                };
+                for (const [dep, group] of Object.entries(allGroups)) {
+                    roomSummaryMap[roomId].summary[dep] = group.items.reduce((sum, i) => sum + i.amount, 0);
+                }
+
+                leftHtml += `
+                        <div style="display: flex; flex-direction: column; gap: 8px; width: 100%; border-top: 1px solid #e2e8f0; padding-top: 16px; margin-top: 16px;">
+                            <div style="display: flex; justify-content: space-between; font-size: 0.95rem; color: #7f8c8d;">
+                                <span>Subtotal (trước thuế):</span>
+                                <span>${formatCurrency(roomTotal)}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-size: 0.95rem; color: #7f8c8d;">
+                                <span>VAT (10%):</span>
+                                <span>${formatCurrency(roomTotal * 0.1)}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px; padding-top: 8px; border-top: 1px dashed #cbd5e1;">
+                                <span style="font-weight: 600; color: #2c3e50; font-size: 1.1rem;">Tổng cộng phòng ${data.roomNumber || 'N/A'}:</span>
+                                <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 12px;">
+                                    <span style="font-family: 'Playfair Display', serif; font-size: 1.5rem; color: #c19b6c; font-weight: 700;">${formatCurrency(roomTotal * 1.1)}</span>
+                                    <button onclick="openPaymentModalForRoom('${roomId}', ${roomTotal * 1.1})" class="btn btn-primary" style="padding: 8px 16px; font-size: 0.9rem; background: #2c3e50; color: white; border: none; border-radius: 6px; cursor: pointer; transition: background 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                        <i class="fa-solid fa-credit-card"></i> Thanh toán riêng phòng này
+                                    </button>
+                                </div>
                             </div>
                         </div>
-                        <table class="charge-table">
-                            <thead>
-                                <tr>
-                                    <th>DESCRIPTION</th>
-                                    <th style="text-align: right;">AMOUNT</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${group.items.map(i => `
-                                    <tr>
-                                        <td>${i.description} ${i.isSettledSeparately ? '(Đã thanh toán riêng)' : ''}</td>
-                                        <td class="amount" style="${i.isSettledSeparately ? 'text-decoration: line-through;' : ''}">${formatCurrency(i.amount)}</td>
-                                    </tr>
-                                `).join('')}
-                            </tbody>
-                        </table>
                     </div>
-                `;
+                </div>`;
+            });
 
-                rightSummaryHtml += `
+            document.getElementById('allRoomsContainer').innerHTML = leftHtml;
+
+            // 2. Render Right Pane (Original Bill - Now Total Bill)
+            let rightOriginalHtml = '';
+            for (const [dep, group] of Object.entries(originalGroups)) {
+                rightOriginalHtml += `
                     <div class="summary-row">
                         <span>${dep}</span>
                         <span>${formatCurrency(group.total)}</span>
                     </div>
                 `;
             }
-
-            document.querySelector('.folio-left').innerHTML = leftHtml;
-            document.getElementById('billDetails').innerHTML = rightSummaryHtml;
-            document.getElementById('outstandingAmount').innerText = formatCurrency(data.currentBalance);
-            
-            // Set guest info
-            document.querySelector('.guest-info h2').innerText = data.guestName || ("Folio #" + data.roomBookingDetailId);
-            
-            const avatarLetter = data.guestName ? data.guestName.charAt(0).toUpperCase() : "N";
-            document.querySelector('.guest-avatar').innerText = avatarLetter;
-            
-            const roomNum = data.roomNumber || "N/A";
-            let subtitleHtml = `Room ${roomNum} • 2026-06-13 → 2026-06-16`;
-            
-            if (data.subCreditLimit && data.subCreditLimit > 0) {
-                const availableCredit = data.subCreditLimit - data.currentBalance;
-                const creditColor = availableCredit < 0 ? 'red' : '#27ae60';
-                subtitleHtml += `<br><span style="font-size: 0.9em; margin-top: 4px; display: inline-block;">
-                    Credit Limit: ${formatCurrency(data.subCreditLimit)} | Available: <strong style="color: ${creditColor}">${formatCurrency(availableCredit)}</strong>
-                </span>`;
+            if (Object.keys(originalGroups).length > 0) {
+                const vatAmount = originalTotal * 0.1;
+                rightOriginalHtml += `
+                    <div class="summary-row" style="border-top: 1px dashed #cbd5e1; padding-top: 8px; margin-top: 8px;">
+                        <span>VAT (10%)</span>
+                        <span>${formatCurrency(vatAmount)}</span>
+                    </div>
+                `;
+            } else {
+                rightOriginalHtml = '<div class="summary-row" style="justify-content:center; color:#95a5a6;">Không có mục nào</div>';
             }
-            
-            document.querySelector('.guest-info p').innerHTML = subtitleHtml;
-        }
+            document.getElementById('originalBillDetails').innerHTML = rightOriginalHtml;
 
-        let defaultBillDetails = "";
-        let defaultOutstanding = "";
+            // 4. Calculate Final Balances
+            // Deposit from group API if available, else first result's deposit. (They all share same booking)
+            globalPrePaidDeposit = bookingGroupData ? (bookingGroupData.groupTotalPayments || 0) : (results.length > 0 ? (results[0].prePaidDeposit || 0) : 0);
 
-        function payPartial(type, amountStr) {
-            if (!defaultBillDetails) {
-                defaultBillDetails = document.getElementById('billDetails').innerHTML;
-                defaultOutstanding = document.getElementById('outstandingAmount').innerText;
+            if (globalPrePaidDeposit > 0) {
+                document.getElementById('row-deposit').style.display = 'flex';
+                document.getElementById('prePaidAmount').innerText = "-" + formatCurrency(globalPrePaidDeposit);
+            } else {
+                document.getElementById('row-deposit').style.display = 'none';
             }
 
-            document.getElementById('billTitle').innerText = type + " Payment";
-
-            let html = `
-                <div class="summary-row">
-                    <span>${type} Total</span>
-                    <span>${amountStr}</span>
-                </div>
-            `;
-
-            document.getElementById('billDetails').innerHTML = html;
-            document.getElementById('outstandingAmount').innerText = amountStr;
-            document.getElementById('btnProceed').innerText = "Pay " + type;
-
-            document.getElementById('backToTotalWrap').style.display = "block";
-            document.getElementById('billSummaryCard').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            globalOriginalTotal = originalTotal;
+            updateGroupOutstandingDisplay();
+            globalSplitOutstanding = splitTotal;
         }
 
-        document.getElementById('btnBackToTotal').addEventListener('click', function (e) {
-            e.preventDefault();
-            document.getElementById('billTitle').innerText = "Bill Summary";
-            document.getElementById('billDetails').innerHTML = defaultBillDetails;
-            document.getElementById('outstandingAmount').innerText = defaultOutstanding;
-            document.getElementById('btnProceed').innerText = "Proceed to Payment";
-            this.parentElement.style.display = "none";
-        });
+        function toggleRoomDetail(elementId) {
+            const detailDiv = document.getElementById(elementId);
+            if (detailDiv.style.display === 'none') {
+                detailDiv.style.display = 'block';
+            } else {
+                detailDiv.style.display = 'none';
+            }
+        }
+
+
+        // --- PAYMENT & SUCCESS LOGIC ---
+        let currentPaymentRoomId = null;
+
+        function openPaymentModalForRoom(roomId, amount) {
+            const roomInfo = roomSummaryMap[roomId];
+            if (!roomInfo) return;
+
+            currentPaymentRoomId = roomId;
+            document.getElementById('roomBillTitle').innerText = 'Hóa đơn phòng ' + roomInfo.roomNumber;
+
+            let html = '';
+            let roomSubtotal = 0;
+            for (const [dep, amt] of Object.entries(roomInfo.summary)) {
+                roomSubtotal += amt;
+                html += `
+                    <div class="summary-row">
+                        <span>${dep}</span>
+                        <span>${formatCurrency(amt)}</span>
+                    </div>
+                `;
+            }
+            if (roomSubtotal > 0) {
+                const roomVat = roomSubtotal * 0.1;
+                html += `
+                    <div class="summary-row" style="border-top: 1px dashed #cbd5e1; padding-top: 8px; margin-top: 8px;">
+                        <span>VAT (10%)</span>
+                        <span>${formatCurrency(roomVat)}</span>
+                    </div>
+                `;
+            } else if (Object.keys(roomInfo.summary).length === 0) {
+                html = '<div class="summary-row" style="justify-content:center; color:#95a5a6;">Không có mục nào</div>';
+            }
+
+            let depositUsed = roomInfo.prePaidDeposit || 0;
+
+            if (depositUsed > 0) {
+                html += `
+                    <div class="summary-row total-row" style="color: #27ae60; border-top: 1px dashed #cbd5e1; padding-top: 12px; margin-top: 12px;">
+                        <span>Pre-paid Deposit</span>
+                        <span>-${formatCurrency(depositUsed)}</span>
+                    </div>
+                `;
+            }
+
+            document.getElementById('roomBillDetails').innerHTML = html;
+
+            // Load and display applied promo if any
+            document.getElementById('roomPromoInput').value = roomInfo.appliedPromoCode || '';
+            if (roomInfo.appliedPromoCode) {
+                document.getElementById('row-room-promo').style.display = 'flex';
+                if (roomInfo.appliedPromoType === 'FIXED_AMOUNT') {
+                    document.getElementById('roomPromoLabel').innerText = 'Cố định';
+                } else {
+                    const discountPercent = Math.round((roomInfo.appliedPromoDiscount / roomInfo.total) * 100);
+                    document.getElementById('roomPromoLabel').innerText = discountPercent + '%';
+                }
+                document.getElementById('roomPromoAmount').innerText = "-" + formatCurrency(roomInfo.appliedPromoDiscount);
+            } else {
+                document.getElementById('row-room-promo').style.display = 'none';
+            }
+
+            updateRoomOutstandingDisplay(roomId);
+
+            const btn = document.getElementById('btnProceedRoomBill');
+            if (roomInfo.detailStatus === 'Checked_Out') {
+                btn.style.display = 'none';
+                document.getElementById('roomPromoSection').style.display = 'none';
+            } else {
+                btn.style.display = 'block';
+                document.getElementById('roomPromoSection').style.display = 'block';
+                btn.innerText = 'Thanh toán phòng ' + roomInfo.roomNumber;
+            }
+
+            document.getElementById('roomBillModal').style.display = 'flex';
+        }
+
+        function closeRoomBillModal() {
+            document.getElementById('roomBillModal').style.display = 'none';
+        }
+
+        function openPaymentModal(amount, isGroup = false) {
+            if (isGroup) {
+                currentPaymentRoomId = null;
+            }
+            currentPaymentAmount = amount;
+            document.getElementById('paymentTotalAmount').innerText = formatCurrency(amount);
+            document.getElementById('paymentModal').style.display = 'flex';
+            selectPaymentMethod('CASH'); // default
+            document.getElementById('tenderedAmount').value = '';
+            calculateChange();
+        }
+
+        function closePaymentModal() {
+            document.getElementById('paymentModal').style.display = 'none';
+        }
+
+        function selectPaymentMethod(method) {
+            selectedPaymentMethod = method;
+            document.querySelectorAll('.method-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('btn-method-' + method).classList.add('active');
+
+            if (method === 'CASH') {
+                document.getElementById('cashInputSection').style.display = 'block';
+                calculateChange();
+            } else {
+                document.getElementById('cashInputSection').style.display = 'none';
+                document.getElementById('btnConfirmPayment').disabled = false;
+                document.getElementById('btnConfirmPayment').style.opacity = '1';
+            }
+        }
+
+        function calculateChange() {
+            if (selectedPaymentMethod !== 'CASH') return;
+
+            const tendered = parseFloat(document.getElementById('tenderedAmount').value) || 0;
+            const btnConfirm = document.getElementById('btnConfirmPayment');
+
+            if (tendered >= currentPaymentAmount || currentPaymentAmount === 0) {
+                const change = tendered - currentPaymentAmount;
+                document.getElementById('changeDueAmount').innerText = formatCurrency(change);
+                document.getElementById('changeDueAmount').style.color = '#27ae60';
+                btnConfirm.disabled = false;
+                btnConfirm.style.opacity = '1';
+            } else {
+                document.getElementById('changeDueAmount').innerText = "Chưa đủ";
+                document.getElementById('changeDueAmount').style.color = '#e74c3c';
+                btnConfirm.disabled = true;
+                btnConfirm.style.opacity = '0.5';
+            }
+        }
+
+        function updateGroupOutstandingDisplay() {
+            let totalWithVat = globalOriginalTotal * 1.1;
+            let outstanding = totalWithVat - appliedGroupPromoDiscount - globalPrePaidDeposit;
+            if (outstanding < 0) outstanding = 0;
+            globalOriginalOutstanding = outstanding;
+            document.getElementById('originalOutstandingAmount').innerText = formatCurrency(outstanding);
+            
+            const btn = document.getElementById('btnProceedOriginal');
+            if (btn) {
+                btn.onclick = function() {
+                    openPaymentModal(globalOriginalOutstanding, true);
+                };
+            }
+        }
+
+        function applyGroupPromo() {
+            const code = document.getElementById('groupPromoInput').value.trim();
+            if (!code) {
+                alert("Vui lòng nhập mã giảm giá");
+                return;
+            }
+            const totalWithVat = globalOriginalTotal * 1.1;
+            fetch(`/api/folios/promo/validate?code=${encodeURIComponent(code)}&amount=${totalWithVat}`)
+                .then(res => {
+                    if (!res.ok) {
+                        throw new Error("HTTP error " + res.status);
+                    }
+                    return res.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        appliedGroupPromoCode = data.promoCode;
+                        appliedGroupPromoType = data.discountType;
+                        appliedGroupPromoDiscount = data.discountAmount;
+
+                        document.getElementById('row-promo').style.display = 'flex';
+                        if (data.discountType === 'FIXED_AMOUNT') {
+                            document.getElementById('promoLabel').innerText = 'Cố định';
+                        } else {
+                            document.getElementById('promoLabel').innerText = data.discountValue + '%';
+                        }
+                        document.getElementById('promoAmount').innerText = "-" + formatCurrency(data.discountAmount);
+
+                        updateGroupOutstandingDisplay();
+                        alert("Áp dụng mã giảm giá thành công!");
+                    } else {
+                        alert("Lỗi: " + (data.message || "Mã không hợp lệ hoặc đã hết hạn"));
+                        resetGroupPromo();
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert("Lỗi khi kết nối hệ thống kiểm tra mã giảm giá (Có thể ứng dụng Spring Boot cần được khởi động lại)");
+                    resetGroupPromo();
+                });
+        }
+
+        function resetGroupPromo() {
+            appliedGroupPromoCode = null;
+            appliedGroupPromoType = null;
+            appliedGroupPromoDiscount = 0;
+            document.getElementById('row-promo').style.display = 'none';
+            document.getElementById('groupPromoInput').value = '';
+            updateGroupOutstandingDisplay();
+        }
+
+        function applyRoomPromo() {
+            if (!currentPaymentRoomId) return;
+            const roomInfo = roomSummaryMap[currentPaymentRoomId];
+            if (!roomInfo) return;
+
+            const code = document.getElementById('roomPromoInput').value.trim();
+            if (!code) {
+                alert("Vui lòng nhập mã giảm giá");
+                return;
+            }
+
+            fetch(`/api/folios/promo/validate?code=${encodeURIComponent(code)}&amount=${roomInfo.total}`)
+                .then(res => {
+                    if (!res.ok) {
+                        throw new Error("HTTP error " + res.status);
+                    }
+                    return res.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        roomInfo.appliedPromoCode = data.promoCode;
+                        roomInfo.appliedPromoType = data.discountType;
+                        roomInfo.appliedPromoDiscount = data.discountAmount;
+
+                        document.getElementById('row-room-promo').style.display = 'flex';
+                        if (data.discountType === 'FIXED_AMOUNT') {
+                            document.getElementById('roomPromoLabel').innerText = 'Cố định';
+                        } else {
+                            document.getElementById('roomPromoLabel').innerText = data.discountValue + '%';
+                        }
+                        document.getElementById('roomPromoAmount').innerText = "-" + formatCurrency(data.discountAmount);
+
+                        updateRoomOutstandingDisplay(currentPaymentRoomId);
+                        alert("Áp dụng mã giảm giá thành công!");
+                    } else {
+                        alert("Lỗi: " + (data.message || "Mã không hợp lệ hoặc đã hết hạn"));
+                        resetRoomPromo(currentPaymentRoomId);
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert("Lỗi khi kết nối hệ thống kiểm tra mã giảm giá (Có thể ứng dụng Spring Boot cần được khởi động lại)");
+                    resetRoomPromo(currentPaymentRoomId);
+                });
+        }
+
+        function resetRoomPromo(roomId) {
+            const roomInfo = roomSummaryMap[roomId];
+            if (!roomInfo) return;
+            roomInfo.appliedPromoCode = null;
+            roomInfo.appliedPromoType = null;
+            roomInfo.appliedPromoDiscount = 0;
+            document.getElementById('row-room-promo').style.display = 'none';
+            document.getElementById('roomPromoInput').value = '';
+            updateRoomOutstandingDisplay(roomId);
+        }
+
+        function updateRoomOutstandingDisplay(roomId) {
+            const roomInfo = roomSummaryMap[roomId];
+            if (!roomInfo) return;
+
+            let roomOutstanding = roomInfo.total - roomInfo.appliedPromoDiscount - roomInfo.prePaidDeposit;
+            if (roomOutstanding < 0) roomOutstanding = 0;
+
+            document.getElementById('roomBillOutstandingAmount').innerText = formatCurrency(roomOutstanding);
+
+            const btn = document.getElementById('btnProceedRoomBill');
+            if (btn) {
+                btn.onclick = function () {
+                    closeRoomBillModal();
+                    currentPaymentRoomId = roomId;
+                    openPaymentModal(roomOutstanding, false);
+                };
+            }
+        }
+
+        async function processPayment() {
+            const btnConfirm = document.getElementById('btnConfirmPayment');
+            btnConfirm.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang xử lý...';
+            btnConfirm.disabled = true;
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const roomId = currentPaymentRoomId || urlParams.get('id');
+
+            const promoCode = currentPaymentRoomId ? 
+                (roomSummaryMap[currentPaymentRoomId] ? roomSummaryMap[currentPaymentRoomId].appliedPromoCode : null) : 
+                appliedGroupPromoCode;
+
+            const bodyPayload = {
+                paymentAmount: currentPaymentAmount,
+                paymentMethod: selectedPaymentMethod
+            };
+            if (promoCode) {
+                bodyPayload.promoCode = promoCode;
+            }
+
+            try {
+                const res = await fetch(`/api/folios/room/${roomId}/checkout`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(bodyPayload)
+                });
+                const data = await res.json();
+
+                if (data.success || res.ok) {
+                    if (data.paymentUrl) {
+                        window.location.href = data.paymentUrl;
+                    } else {
+                        closePaymentModal();
+                        showSuccessModal(data);
+                    }
+                } else {
+                    alert("Lỗi: " + (data.message || "Không thể thanh toán"));
+                    btnConfirm.innerHTML = 'Xác nhận Thanh toán';
+                    btnConfirm.disabled = false;
+                }
+            } catch (err) {
+                alert("Lỗi kết nối: " + err);
+                btnConfirm.innerHTML = 'Xác nhận Thanh toán';
+                btnConfirm.disabled = false;
+            }
+        }
+
+        function showSuccessModal(data) {
+            const invoiceNo = "INV-" + (data.invoiceId || Math.floor(Math.random() * 10000 + 1000));
+            document.getElementById('successInvoiceId').innerText = "#" + invoiceNo;
+
+            // Build Printable Invoice
+            document.getElementById('printInvoiceNumber').innerText = invoiceNo;
+            document.getElementById('printInvoiceDate').innerText = new Date().toLocaleDateString('vi-VN');
+
+            if (currentFolioData) {
+                const isSplit = (currentPaymentAmount === globalSplitOutstanding);
+                const itemsToPrint = isSplit ?
+                    currentFolioData.items.filter(i => selectedItemIds.includes(i.id)) :
+                    currentFolioData.items.filter(i => i.status !== 'Settled');
+
+                document.getElementById('printRoomNumber').innerText = itemsToPrint.length > 0 ? itemsToPrint[0].roomName : 'N/A';
+
+                let tbodyHtml = '';
+                itemsToPrint.forEach(item => {
+                    tbodyHtml += `
+                        <tr>
+                            <td style="padding: 8px 0; border-bottom: 1px dashed #ccc;">${item.description}</td>
+                            <td style="padding: 8px 0; border-bottom: 1px dashed #ccc; text-align: right;">${formatCurrency(item.amount)}</td>
+                        </tr>
+                    `;
+                });
+                document.getElementById('printInvoiceItems').innerHTML = tbodyHtml;
+
+                const total = currentPaymentAmount;
+                const subtotal = total / 1.1;
+                const vat = total - subtotal;
+
+                document.getElementById('printSubtotal').innerText = formatCurrency(subtotal);
+                document.getElementById('printVat').innerText = formatCurrency(vat);
+                document.getElementById('printTotal').innerText = formatCurrency(total);
+            }
+
+            document.getElementById('successModal').style.display = 'flex';
+        }
     </script>
 </body>
 

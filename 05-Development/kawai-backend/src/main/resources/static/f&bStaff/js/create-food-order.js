@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (state.orderType === 'dine-in') {
         dineInFields.style.display = 'grid';
         roomSvcFields.style.display = 'none';
-        
+
         // Show normal payment options
         paymentSection.innerHTML = `
           <label class="form-label">Thanh toán</label>
@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         dineInFields.style.display = 'none';
         roomSvcFields.style.display = 'grid';
-        
+
         // Show charge to room info
         paymentSection.innerHTML = `
           <label class="form-label">Thanh toán</label>
@@ -73,17 +73,17 @@ document.addEventListener('DOMContentLoaded', () => {
   let roomSearchTimeout = null;
   roomInput.addEventListener('input', (e) => {
     const val = e.target.value.trim().toUpperCase();
-    
+
     // Clear previous timeout
     if (roomSearchTimeout) clearTimeout(roomSearchTimeout);
-    
+
     if (!val) {
       roomInfo.style.display = 'none';
       state.roomOccupied = false;
       validateCheckout();
       return;
     }
-    
+
     // Debounce API call
     roomSearchTimeout = setTimeout(() => {
       fetch(`/api/rooms/${val}/info`)
@@ -100,10 +100,10 @@ document.addEventListener('DOMContentLoaded', () => {
             state.roomOccupied = true;
             document.getElementById('roomStatusBadge').className = 'status-badge status-occupied';
             document.getElementById('roomStatusBadge').textContent = 'Occupied';
-            
-            if(state.orderType === 'room-svc') {
-                const limitDisplay = document.querySelector('.room-charge-info .rc-val:last-child');
-                if(limitDisplay) limitDisplay.textContent = formatMoney(state.roomLimit);
+
+            if (state.orderType === 'room-svc') {
+              const limitDisplay = document.querySelector('.room-charge-info .rc-val:last-child');
+              if (limitDisplay) limitDisplay.textContent = formatMoney(state.roomLimit);
             }
           } else {
             showVacant();
@@ -137,20 +137,20 @@ document.addEventListener('DOMContentLoaded', () => {
   function filterFoods() {
     const query = searchInput.value.toLowerCase();
     const activeCat = document.querySelector('.cat-pill.active').dataset.cat;
-    
+
     document.querySelectorAll('.food-card').forEach(card => {
       const name = card.dataset.name.toLowerCase();
       const cat = card.dataset.cat;
       const matchesSearch = name.includes(query);
       const matchesCat = activeCat === 'all' || cat === activeCat;
-      
+
       card.style.display = (matchesSearch && matchesCat) ? 'flex' : 'none';
     });
   }
 
   // --- DYNAMIC RENDERING ---
   function getCatLabel(cat) {
-    switch(cat) {
+    switch (cat) {
       case 'starter': return 'Khai vị';
       case 'main': return 'Món chính';
       case 'dessert': return 'Tráng miệng';
@@ -165,7 +165,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function renderFoodGrid() {
     const grid = document.getElementById('food-grid');
-    if(!grid) return;
+    if (!grid) return;
     grid.innerHTML = MENU_ITEMS.map(item => {
       const isOut = item.status === 'out-of-stock';
       const currentQty = state.cart[item.id] ? state.cart[item.id].qty : 0;
@@ -198,27 +198,27 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // --- CART LOGIC ---
-  window.changeQty = function(btn, delta, id, name, price) {
+  window.changeQty = function (btn, delta, id, name, price) {
     // If out of stock, do nothing
     const card = btn.closest('.food-card');
-    if(card && card.classList.contains('disabled')) return;
+    if (card && card.classList.contains('disabled')) return;
 
     if (!state.cart[id]) {
       state.cart[id] = { id, name, price, qty: 0 };
     }
-    
+
     const newQty = state.cart[id].qty + delta;
     if (newQty < 0) return;
-    
+
     state.cart[id].qty = newQty;
     if (newQty === 0) {
       delete state.cart[id];
     }
-    
+
     // Update input display
     const display = btn.parentElement.querySelector('.qty-value');
     display.textContent = newQty;
-    
+
     renderCart();
   };
 
@@ -226,9 +226,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const items = Object.values(state.cart);
     let subtotal = 0;
     let totalQty = 0;
-    
+
     cartList.innerHTML = '';
-    
+
     if (items.length === 0) {
       cartList.appendChild(emptyMsg);
       emptyMsg.style.display = 'block';
@@ -237,7 +237,7 @@ document.addEventListener('DOMContentLoaded', () => {
       items.forEach(item => {
         subtotal += item.price * item.qty;
         totalQty += item.qty;
-        
+
         const div = document.createElement('div');
         div.className = 'cart-item';
         div.innerHTML = `
@@ -253,15 +253,15 @@ document.addEventListener('DOMContentLoaded', () => {
         cartList.appendChild(div);
       });
     }
-    
+
     const vat = subtotal * state.vatRate;
     const total = subtotal + vat;
-    
+
     countEl.textContent = totalQty;
     subtotalEl.textContent = formatMoney(subtotal);
     vatEl.textContent = formatMoney(vat);
     totalEl.textContent = formatMoney(total);
-    
+
     state.currentTotal = total;
     validateCheckout();
   }
@@ -269,12 +269,12 @@ document.addEventListener('DOMContentLoaded', () => {
   function validateCheckout() {
     let isValid = true;
     const items = Object.values(state.cart);
-    
+
     // Condition 1: Must have items
     if (items.length === 0) {
       isValid = false;
     }
-    
+
     // Condition 2: Room Service checks
     if (state.orderType === 'room-svc') {
       if (!state.roomOccupied) {
@@ -289,15 +289,29 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       limitWarning.style.display = 'none';
     }
-    
+
     btnSendKitchen.disabled = !isValid;
+  }
+
+  // --- PREFILL FROM URL PARAMS ---
+  const urlParams = new URLSearchParams(window.location.search);
+  const tableIdParam = urlParams.get('tableId');
+  const customerNameParam = urlParams.get('customerName');
+
+  if (tableIdParam) {
+    const tableSelect = document.querySelector('#fields-dine-in select');
+    if (tableSelect) tableSelect.value = tableIdParam;
+  }
+  if (customerNameParam) {
+    const guestInput = document.getElementById('guestNameInput');
+    if (guestInput) guestInput.value = customerNameParam;
   }
 
   // --- INIT ---
   renderFoodGrid();
-  
+
   // Expose send logic
-  window.sendToKitchen = function() {
+  window.sendToKitchen = function () {
     const tableSelect = document.querySelector('#fields-dine-in select');
     const guestInput = document.getElementById('guestNameInput');
     const dineInNote = document.getElementById('dineInNoteInput');
@@ -326,19 +340,23 @@ document.addEventListener('DOMContentLoaded', () => {
       },
       body: JSON.stringify(payload)
     })
-    .then(res => {
-      if (!res.ok) throw new Error('API Error');
-      return res.json();
-    })
-    .then(data => {
-      alert("Đã sinh Kitchen Order Ticket (KOT) và chuyển xuống bếp!");
-      window.location.href = "/fbStaff/dashboard";
-    })
-    .catch(err => {
-      alert("Lỗi khi tạo đơn: " + err.message);
-      btnSendKitchen.disabled = false;
-      btnSendKitchen.textContent = 'Gửi xuống Bếp (KOT)';
-    });
+      .then(res => {
+        if (!res.ok) {
+          return res.json().then(errData => {
+            throw new Error(errData.message || 'API Error');
+          });
+        }
+        return res.json();
+      })
+      .then(data => {
+        alert("Đã sinh Kitchen Order Ticket (KOT) và chuyển xuống bếp!");
+        window.location.href = "/fbStaff/dashboard";
+      })
+      .catch(err => {
+        alert("Lỗi khi tạo đơn: " + err.message);
+        btnSendKitchen.disabled = false;
+        btnSendKitchen.textContent = 'Gửi xuống Bếp (KOT)';
+      });
   }
 
 

@@ -18,6 +18,9 @@ public class PaymentApiController {
     @Autowired
     private VnPayService vnPayService;
 
+    @Autowired
+    private com.kawai.repositories.PaymentTransactionRepository paymentTransactionRepository;
+
     @GetMapping("/vnpay-return")
     public ResponseEntity<Void> vnpayReturn(@RequestParam Map<String, String> queryParams) {
         String rspCode = queryParams.get("vnp_ResponseCode");
@@ -30,12 +33,24 @@ public class PaymentApiController {
         }
 
         String txnRef = queryParams.get("vnp_TxnRef");
-        String redirectUrl;
+        String redirectUrl = "/profile/bookings?payment=" + ("00".equals(rspCode) ? "success" : "failed");
+
+        // DEBUG: log để kiểm tra
+        System.err.println("[VNPay Return] rspCode=" + rspCode + " | txnRef=" + txnRef);
+
         if (txnRef != null && txnRef.startsWith("FOOD_")) {
             redirectUrl = "/order-food?payment=" + ("00".equals(rspCode) ? "success" : "failed");
+        } else if (txnRef != null && (txnRef.startsWith("TXN-") || txnRef.startsWith("FOLIO_"))) {
+            redirectUrl = "/receptionist/folio?payment=" + ("00".equals(rspCode) ? "success" : "failed");
+        } else if (txnRef != null && txnRef.startsWith("WALKIN_")) {
+            redirectUrl = "/receptionist/in-house?payment=" + ("00".equals(rspCode) ? "success" : "failed");
+            System.err.println("[VNPay Return] -> Redirecting to in-house (WALKIN_ prefix)");
         } else {
-            redirectUrl = "/profile/bookings?payment=" + ("00".equals(rspCode) ? "success" : "failed");
+            System.err.println("[VNPay Return] -> Defaulting to profile (Customer Booking)");
         }
+
+        System.err.println("[VNPay Return] -> Final redirectUrl=" + redirectUrl);
+        
         return ResponseEntity.status(HttpStatus.FOUND).location(URI.create(redirectUrl)).build();
     }
 

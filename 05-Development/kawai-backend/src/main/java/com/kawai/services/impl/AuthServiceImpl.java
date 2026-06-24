@@ -44,13 +44,19 @@ public class AuthServiceImpl implements AuthService {
     @org.springframework.beans.factory.annotation.Value("${app.base-url:http://localhost:8080}")
     private String baseUrl;
 
+    @Autowired
+    private EmployeeRepository employeeRepository;
+
+    @Autowired
+    private TourEmailService tourEmailService;
+
     private final Random random = new Random();
 
     @Override
     @Transactional
     public boolean register(String username, String password, String email, String fullName, String gender,
             String phone) {
-        
+
         if (!isValidPassword(password)) {
             throw new IllegalArgumentException("Mật khẩu phải có ít nhất 6 ký tự.");
         }
@@ -106,9 +112,10 @@ public class AuthServiceImpl implements AuthService {
         accountToUse = accountRepository.save(accountToUse);
 
         if (customerToUse == null) {
-            customerToUse = customerRepository.findByAccount_Username(accountToUse.getUsername()).orElse(new Customer());
+            customerToUse = customerRepository.findByAccount_Username(accountToUse.getUsername())
+                    .orElse(new Customer());
         }
-        
+
         customerToUse.setAccount(accountToUse);
         customerToUse.setFullName(fullName != null && !fullName.trim().isEmpty() ? fullName : username);
         customerToUse.setEmail(email);
@@ -116,7 +123,8 @@ public class AuthServiceImpl implements AuthService {
         customerToUse.setPhone(phone != null && !phone.trim().isEmpty() ? phone : "0000000000");
         customerRepository.save(customerToUse);
 
-        writeAuditLog(accountToUse, "REGISTER", "Accounts", accountToUse.getId(), null, "Registered account " + username);
+        writeAuditLog(accountToUse, "REGISTER", "Accounts", accountToUse.getId(), null,
+                "Registered account " + username);
 
         return true;
     }
@@ -135,12 +143,15 @@ public class AuthServiceImpl implements AuthService {
         int lockMinutes = 15; // default
 
         try {
-            Optional<Workflow> activeWfOpt = workflowRepository.findByTriggerEventAndIsActive("ACCOUNT_SECURITY", true).stream().findFirst();
+            Optional<Workflow> activeWfOpt = workflowRepository.findByTriggerEventAndIsActive("ACCOUNT_SECURITY", true)
+                    .stream().findFirst();
             if (activeWfOpt.isPresent()) {
                 Workflow wf = activeWfOpt.get();
                 if (wf.getConditionsJson() != null && !wf.getConditionsJson().trim().isEmpty()) {
                     ObjectMapper mapper = new ObjectMapper();
-                    Map<String, Object> conds = mapper.readValue(wf.getConditionsJson(), new TypeReference<Map<String, Object>>() {});
+                    Map<String, Object> conds = mapper.readValue(wf.getConditionsJson(),
+                            new TypeReference<Map<String, Object>>() {
+                            });
                     if (conds.containsKey("failed_login_attempts")) {
                         maxAttempts = Integer.parseInt(conds.get("failed_login_attempts").toString());
                     }
@@ -231,12 +242,25 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public String requestPasswordReset(String email) {
-        Customer customer = customerRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("Email không tồn tại"));
+        Account account = null;
+        String username = "";
 
-        Account account = customer.getAccount();
+        Optional<Customer> optCustomer = customerRepository.findByEmail(email);
+        if (optCustomer.isPresent()) {
+            Customer customer = optCustomer.get();
+            account = customer.getAccount();
+            username = customer.getFullName() != null ? customer.getFullName() : customer.getAccount().getUsername();
+        } else {
+            Optional<Employee> optEmployee = employeeRepository.findByEmail(email);
+            if (optEmployee.isPresent()) {
+                Employee employee = optEmployee.get();
+                account = employee.getAccount();
+                username = employee.getFullName();
+            }
+        }
+
         if (account == null) {
-            throw new IllegalArgumentException("Account not associated with email");
+            throw new IllegalArgumentException("Email không tồn tại");
         }
 
         String otp = String.format("%06d", 100000 + random.nextInt(900000));

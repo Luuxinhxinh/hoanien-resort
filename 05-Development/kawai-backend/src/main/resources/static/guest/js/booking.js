@@ -470,7 +470,7 @@ function openRoomInfoModal(name, image, capacity, description, baseAdults, baseC
     document.getElementById('detailRoomImg').src = image;
 
     document.getElementById('detailRoomGuests').innerText = capacity + ' Người / phòng';
-    document.getElementById('detailRoomTotal').innerText = ''; 
+    document.getElementById('detailRoomTotal').innerText = '';
 
     document.getElementById('detailRoomDesc').innerText = description || 'Không có mô tả chi tiết cho phòng này.';
 
@@ -512,10 +512,7 @@ function closeRoomDetailsModal() {
     document.getElementById('roomDetailsModal').style.display = 'none';
 }
 
-function triggerLoginFromDetail() {
-    closeRoomDetailsModal();
-    openLoginModal();
-}
+
 
 /**
  * Validates check-in and check-out dates.
@@ -786,7 +783,7 @@ function confirmCartBooking() {
                     cartHoldConfirmedBookingId = data.bookingId;
                     sessionStorage.removeItem('kawai_cart');
                     sessionStorage.removeItem('kawai_bookingState');
-                
+
                     showToast('Đặt phòng thành công! Đang chuyển đến trang thanh toán...', 'success');
 
                     // ✅ Redirect sang trang thanh toán với bookingId
@@ -805,27 +802,23 @@ function confirmCartBooking() {
             showToast(err.message || 'Lỗi kết nối Server! Vui lòng thử lại.', 'error');
         });
 }
-
-
-function closeBookingConfirmModal() {
-    document.getElementById('bookingConfirmModal').style.display = 'none';
+// ---------------- AUTH MODAL LOGIC ----------------
+function openLoginModal() {
+    document.getElementById('authModal').style.display = 'flex';
+    toggleAuthView('login');
 }
-
-function goToProfile() {
-    window.location.href = '/profile';
+function closeAuthModal() {
+    document.getElementById('authModal').style.display = 'none';
 }
-
-// Close modal when clicking outside
-const confirmModal = document.getElementById('bookingConfirmModal');
-if (confirmModal) {
-    confirmModal.addEventListener('click', function (e) {
-        if (e.target.id === 'bookingConfirmModal') {
-            closeBookingConfirmModal();
-        }
-    });
+function toggleAuthView(view) {
+    if (view === 'login') {
+        document.getElementById('loginSection').style.display = 'block';
+        document.getElementById('registerSection').style.display = 'none';
+    } else {
+        document.getElementById('loginSection').style.display = 'none';
+        document.getElementById('registerSection').style.display = 'block';
+    }
 }
-
-// AUTH MODAL LOGIC has been moved to auth.html
 const authModalEl = document.getElementById('authModal');
 if (authModalEl) {
     authModalEl.addEventListener('click', function (e) {

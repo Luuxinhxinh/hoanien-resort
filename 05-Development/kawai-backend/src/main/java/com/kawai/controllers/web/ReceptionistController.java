@@ -23,7 +23,6 @@ public class ReceptionistController {
     private final BookingRepository bookingRepository;
     private final RoomBookingRepository roomBookingRepository;
     private final RoomBookingDetailRepository roomBookingDetailRepository;
-    private final RestaurantTableRepository restaurantTableRepository;
     private final com.kawai.services.interfaces.DependentService dependentService;
 
     @org.springframework.web.bind.annotation.ModelAttribute("todayLabel")
@@ -46,7 +45,6 @@ public class ReceptionistController {
         model.addAttribute("totalRooms", totalRooms);
         model.addAttribute("occupiedRooms", occupied);
         model.addAttribute("dirtyRooms", dirty);
-        model.addAttribute("currentGuests", occupied * 2);
 
         long pendingCheckIns = 0, checkoutsToday = 0;
         try {
@@ -72,33 +70,27 @@ public class ReceptionistController {
         } catch (Exception e) {
         }
         model.addAttribute("categorizedRooms", categorizedRooms);
-        model.addAttribute("rooms", new ArrayList<>()); // fallback for isEmpty check
 
         return "receptionist/dashboard";
     }
 
-    @GetMapping("/reservations")
-    public String reservations(Model model) {
-        List<Map<String, Object>> reservations = new ArrayList<>();
-        for (Booking b : bookingRepository.findConfirmed()) {
-            Map<String, Object> m = new HashMap<>();
-            m.put("id", b.getId());
-            m.put("customerName", b.getCustomer() != null ? b.getCustomer().getFullName() : "Khách");
-            m.put("totalPrice", b.getTotalPrice() != null ? b.getTotalPrice().toString() : "0");
-            m.put("status", b.getBookingStatus());
-            reservations.add(m);
-        }
-        model.addAttribute("reservations", reservations);
-        model.addAttribute("reservationCount", reservations.size());
-        return "receptionist/reservations";
-    }
-
     @GetMapping("/walk-in")
     public String walkIn(Model model) {
-        Map<String, List<String>> inventory = new HashMap<>();
+        Map<String, List<Map<String, Object>>> inventory = new HashMap<>();
         for (Room r : roomRepository.findVacant()) {
-            String cat = r.getCategory() != null ? r.getCategory().getCategoryName() : "Other";
-            inventory.computeIfAbsent(cat, k -> new ArrayList<>()).add(r.getRoomNumber());
+            String cat = "Other";
+            if (r.getCategory() != null) {
+                RoomCategory c = r.getCategory();
+                int baseAdults = c.getBaseAdults() != null ? c.getBaseAdults() : c.getCapacity();
+                int baseChildren = c.getBaseChildren() != null ? c.getBaseChildren() : 0;
+                java.text.NumberFormat formatter = java.text.NumberFormat.getInstance(new java.util.Locale("vi", "VN"));
+                String priceStr = c.getBasePrice() != null ? formatter.format(c.getBasePrice()) : "0";
+                cat = c.getCategoryName() + " - " + priceStr + " VNĐ/đêm (Tiêu chuẩn: " + baseAdults + " NL, " + baseChildren + " TE)";
+            }
+            Map<String, Object> roomInfo = new HashMap<>();
+            roomInfo.put("id", r.getId());
+            roomInfo.put("number", r.getRoomNumber());
+            inventory.computeIfAbsent(cat, k -> new ArrayList<>()).add(roomInfo);
         }
         model.addAttribute("roomInventory", inventory);
         return "receptionist/walk-in";
@@ -216,8 +208,27 @@ public class ReceptionistController {
             pagedArrivals.add(map);
         }
 
-        // --- IN-HOUSE GUESTS (ĐÃ CHECK-IN) ---
-        pageSize = 10;
+        // In-house logic has been moved to /in-house
+
+        model.addAttribute("arrivals", pagedArrivals);
+        model.addAttribute("pendingArrivalsCount", totalItems);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", totalPages);
+
+        Map<String, List<String>> inventory = new HashMap<>();
+        for (Room r : roomRepository.findVacant()) {
+            String cat = r.getCategory() != null ? r.getCategory().getCategoryName() : "Other";
+            inventory.computeIfAbsent(cat, k -> new ArrayList<>()).add(r.getRoomNumber());
+        }
+        model.addAttribute("roomInventory", inventory);
+
+        return "receptionist/check-in";
+    }
+
+    @GetMapping("/in-house")
+    public String inHouse(@org.springframework.web.bind.annotation.RequestParam(defaultValue = "1") int page,
+            Model model) {
+        int pageSize = 10;
         List<Booking> allInHouseBookings = bookingRepository.findCheckedIn();
         int totalInHouseItems = allInHouseBookings.size();
         int totalInHousePages = (int) Math.ceil((double) totalInHouseItems / pageSize);
@@ -240,9 +251,8 @@ public class ReceptionistController {
         List<Map<String, Object>> pagedInHouse = new ArrayList<>();
         for (Booking b : pagedInHouseBookings) {
             List<RoomBookingDetail> details = roomBookingDetailRepository.findByRoomBookingId(b.getId());
-            if (details == null || details.isEmpty()) {
+            if (details == null || details.isEmpty())
                 continue;
-            }
 
             String guestName = b.getCustomer() != null ? b.getCustomer().getFullName() : "Unknown";
             String phone = b.getCustomer() != null ? b.getCustomer().getPhone() : "";
@@ -266,54 +276,35 @@ public class ReceptionistController {
             map.put("checkInDate", checkInStr);
             map.put("checkOutDate", checkOutStr);
 
-            // Tính toán Quy mô đơn (Số lượng phòng và số lượng khách)
             int roomCount = (int) details.stream().filter(d -> d.getRoom() != null).count();
-
-            // Lấy danh sách người phụ thuộc
             List<com.kawai.dto.DependentResponseDTO> deps = dependentService.getGuestListByBooking(b.getId());
             map.put("dependents", deps);
 
-            int guestCount = 1 + deps.size(); // 1 Chủ đơn + số người phụ thuộc
+            int guestCount = 1 + deps.size();
             String bookingScale = roomCount + " Phòng, " + guestCount + " Khách";
             map.put("bookingScale", bookingScale);
 
-            // roomSummary vẫn giữ để truyền vào Modal Chi tiết
             String roomSummary = details.stream()
                     .filter(d -> d.getRoom() != null)
                     .map(d -> d.getRoom().getRoomNumber() + " ("
                             + (d.getCategory() != null ? d.getCategory().getCategoryName() : "Unknown") + ")")
                     .collect(Collectors.joining(", "));
-
-            if (roomSummary.isEmpty()) {
+            if (roomSummary.isEmpty())
                 roomSummary = "N/A";
-            }
-
             map.put("roomSummary", roomSummary);
 
             pagedInHouse.add(map);
         }
-
-        // --- Xóa logic Pagination cũ bị trùng ---
 
         model.addAttribute("inHouseBookings", pagedInHouse);
         model.addAttribute("totalInHouseCount", totalInHouseItems);
         model.addAttribute("currentInHousePage", inHousePage);
         model.addAttribute("totalInHousePages", totalInHousePages);
 
-        model.addAttribute("arrivals", pagedArrivals);
-        model.addAttribute("pendingArrivalsCount", totalItems);
-        model.addAttribute("currentPage", page);
-        model.addAttribute("totalPages", totalPages);
-
-        Map<String, List<String>> inventory = new HashMap<>();
-        for (Room r : roomRepository.findVacant()) {
-            String cat = r.getCategory() != null ? r.getCategory().getCategoryName() : "Other";
-            inventory.computeIfAbsent(cat, k -> new ArrayList<>()).add(r.getRoomNumber());
-        }
-        model.addAttribute("roomInventory", inventory);
-
-        return "receptionist/check-in";
+        return "receptionist/in-house";
     }
+
+
 
     @GetMapping("/folio")
     public String folio(Model model) {
@@ -324,6 +315,7 @@ public class ReceptionistController {
     public String folioDetail(Model model) {
         return "receptionist/folio-detail";
     }
+
 
     @GetMapping("/night-audit")
     public String nightAudit(Model model) {

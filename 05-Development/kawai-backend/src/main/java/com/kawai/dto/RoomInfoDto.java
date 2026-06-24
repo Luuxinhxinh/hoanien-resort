@@ -16,5 +16,6 @@ public class RoomInfoDto {
     private String status;
     private boolean occupied;
     private String guestName;
+    private Long customerId;
     private BigDecimal limitRemaining;
 }

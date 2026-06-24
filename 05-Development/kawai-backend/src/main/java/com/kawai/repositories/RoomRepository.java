@@ -20,6 +20,10 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
     @Query("SELECT r FROM Room r WHERE r.category.categoryName = :categoryName")
     List<Room> findByCategoryName(@Param("categoryName") String categoryName);
 
+    @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT r FROM Room r WHERE r.id = :id")
+    Optional<Room> findByIdWithPessimisticLock(@Param("id") Long id);
+
     @Query("SELECT r.roomStatus, COUNT(r) FROM Room r GROUP BY r.roomStatus")
     List<Object[]> countByStatus();
 
@@ -42,4 +46,12 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
 
     @Query("SELECT COUNT(r) FROM Room r WHERE r.category.categoryName = :categoryName AND r.roomStatus != 'Maintenance'")
     long countActiveRoomsByCategoryName(@Param("categoryName") String categoryName);
+
+    @Query("SELECT r FROM Room r JOIN RoomBookingDetail rbd ON r.currentBookingDetailId = rbd.id " +
+            "LEFT JOIN rbd.roomBooking rb " +
+            "LEFT JOIN rbd.customer rbdc " +
+            "LEFT JOIN rb.customer rbc " +
+            "WHERE (rbdc.cccdPassportEncrypted = :cccd OR rbc.cccdPassportEncrypted = :cccd) " +
+            "AND r.roomStatus = 'Occupied'")
+    List<Room> findOccupiedRoomsByCustomerCccd(@Param("cccd") String cccd);
 }

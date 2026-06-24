@@ -1,138 +1,35 @@
 package com.kawai.controllers.web;
 
-import com.kawai.models.FoodOrder;
-import com.kawai.models.MenuItem;
-import com.kawai.models.RestaurantTable;
-import com.kawai.repositories.FoodItemRepository;
-import com.kawai.repositories.FoodOrderRepository;
-import com.kawai.repositories.RestaurantTableRepository;
+import com.kawai.services.interfaces.PosWebFacadeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-
-import com.kawai.models.TableReservation;
-import com.kawai.repositories.TableReservationRepository;
-
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 @RequestMapping("/fbStaff")
 public class PosController {
 
     @Autowired
-    private FoodOrderRepository foodOrderRepository;
-
-    @Autowired
-    private RestaurantTableRepository restaurantTableRepository;
-
-    @Autowired
-    private FoodItemRepository foodItemRepository;
-
-    @Autowired
-    private TableReservationRepository tableReservationRepository;
+    private PosWebFacadeService posWebFacadeService;
 
     @GetMapping({"/dashboard", ""})
     public String dashboard(Model model) {
-        List<FoodOrder> foodOrders = foodOrderRepository.findAll();
-        List<RestaurantTable> tables = restaurantTableRepository.findAll();
-
-        long totalTables = tables.size();
-        long occupiedTables = tables.stream().filter(t -> "Occupied".equalsIgnoreCase(t.getTableStatus())).count();
-        long activeOrders = foodOrders.stream().filter(o -> "Pending".equalsIgnoreCase(o.getOrderStatus()) || "Preparing".equalsIgnoreCase(o.getOrderStatus()) || "Ready".equalsIgnoreCase(o.getOrderStatus())).count();
-        long pendingRoomServices = foodOrders.stream().filter(o -> "Room Service".equalsIgnoreCase(o.getOrderType()) && "Pending".equalsIgnoreCase(o.getOrderStatus())).count();
-
-        model.addAttribute("foodOrders", foodOrders);
-        model.addAttribute("tables", tables);
-        model.addAttribute("totalTables", totalTables);
-        model.addAttribute("occupiedTables", occupiedTables);
-        model.addAttribute("activeOrders", activeOrders);
-        model.addAttribute("pendingRoomServices", pendingRoomServices);
-
+        model.addAllAttributes(posWebFacadeService.getDashboardData());
         return "f&bStaff/pos-dashboard";
     }
 
     @GetMapping("/create-food-order")
     public String createFoodOrder(Model model) {
-        List<RestaurantTable> tables = restaurantTableRepository.findAll();
-        
-        List<RestaurantTable> vacantTables = tables.stream()
-                .filter(t -> "Vacant".equalsIgnoreCase(t.getTableStatus()) || "Cleaning".equalsIgnoreCase(t.getTableStatus()))
-                .toList();
-                
-        List<RestaurantTable> reservedTables = tables.stream()
-                .filter(t -> "Reserved".equalsIgnoreCase(t.getTableStatus()))
-                .toList();
-                
-        List<RestaurantTable> occupiedTables = tables.stream()
-                .filter(t -> "Occupied".equalsIgnoreCase(t.getTableStatus()))
-                .toList();
-
-        Map<Long, String> tableAvailabilityText = new HashMap<>();
-        LocalDate today = LocalDate.now();
-        LocalTime now = LocalTime.now();
-
-        for (RestaurantTable table : vacantTables) {
-            List<TableReservation> reservations = tableReservationRepository.findByTable_IdAndReserveDateOrderByReserveTimeAsc(table.getId(), today);
-            String availability = "Trống cả ngày";
-            for (TableReservation res : reservations) {
-                if (("Confirmed".equalsIgnoreCase(res.getStatus()) || "Pending".equalsIgnoreCase(res.getStatus())) 
-                        && res.getReserveTime().isAfter(now)) {
-                    availability = "Trống đến " + res.getReserveTime().toString();
-                    break;
-                }
-            }
-            if ("Cleaning".equalsIgnoreCase(table.getTableStatus())) {
-                availability = "Đang dọn - " + availability;
-            }
-            tableAvailabilityText.put(table.getId(), availability);
-        }
-        for (RestaurantTable table : reservedTables) {
-            List<TableReservation> reservations = tableReservationRepository.findByTable_IdAndReserveDateOrderByReserveTimeAsc(table.getId(), today);
-            String availability = "Trống cả ngày";
-            for (TableReservation res : reservations) {
-                if (("Confirmed".equalsIgnoreCase(res.getStatus()) || "Pending".equalsIgnoreCase(res.getStatus())) 
-                        && res.getReserveTime().isAfter(now)) {
-                    availability = "Trống đến " + res.getReserveTime().toString();
-                    break;
-                }
-            }
-            tableAvailabilityText.put(table.getId(), availability);
-        }
-        
-        model.addAttribute("vacantTables", vacantTables);
-        model.addAttribute("reservedTables", reservedTables);
-        model.addAttribute("occupiedTables", occupiedTables);
-        model.addAttribute("tableAvailabilityText", tableAvailabilityText);
-
-        model.addAttribute("menuItems", getMappedMenuItems());
+        model.addAllAttributes(posWebFacadeService.getCreateFoodOrderData());
         return "f&bStaff/create-food-order";
     }
 
     @GetMapping("/table-management")
     public String tableManagement(Model model) {
-        List<RestaurantTable> tables = restaurantTableRepository.findAll();
-        
-        List<FoodOrder> activeOrders = foodOrderRepository.findAll().stream()
-                .filter(o -> ("Dine-In".equalsIgnoreCase(o.getOrderType()) || "Dine In".equalsIgnoreCase(o.getOrderType()) || "Table".equalsIgnoreCase(o.getOrderType()))
-                        && ("Pending".equalsIgnoreCase(o.getOrderStatus()) || "Preparing".equalsIgnoreCase(o.getOrderStatus()) || "Served".equalsIgnoreCase(o.getOrderStatus())))
-                .toList();
-
-        Map<Long, Long> tableActiveOrderMap = new HashMap<>();
-        for (FoodOrder order : activeOrders) {
-            if (order.getTable() != null) {
-                tableActiveOrderMap.put(order.getTable().getId(), order.getId());
-            }
-        }
-        
-        model.addAttribute("tables", tables);
-        model.addAttribute("tableActiveOrderMap", tableActiveOrderMap);
+        model.addAllAttributes(posWebFacadeService.getTableManagementData());
         return "f&bStaff/table-management";
     }
 
@@ -148,79 +45,8 @@ public class PosController {
 
     @GetMapping("/emenu")
     public String emenu(Model model) {
-        model.addAttribute("menuItems", getMappedMenuItems());
+        model.addAttribute("menuItems", posWebFacadeService.getMappedMenuItems());
         return "f&bStaff/e-menu";
-    }
-
-    private List<Map<String, Object>> getMappedMenuItems() {
-        List<MenuItem> rawItems = foodItemRepository.findAll();
-        List<Map<String, Object>> mappedItems = new ArrayList<>();
-
-        for (MenuItem item : rawItems) {
-            Map<String, Object> map = new HashMap<>();
-            map.put("id", item.getId());
-            map.put("name", item.getItemName());
-            map.put("desc", item.getDescription() != null ? item.getDescription() : "");
-            map.put("price", item.getPrice());
-            map.put("catLabel", item.getCategory());
-            map.put("imageUrl", item.getImageUrl());
-
-            // Determine category slug
-            String cat = "starter";
-            String category = item.getCategory() != null ? item.getCategory().toLowerCase() : "";
-            if (category.contains("khai vị")) {
-                cat = "starter";
-            } else if (category.contains("chính")) {
-                cat = "main";
-            } else if (category.contains("tráng miệng")) {
-                cat = "dessert";
-            } else if (category.contains("uống")) {
-                cat = "drink";
-            } else if (category.contains("salad")) {
-                cat = "salad";
-            } else {
-                cat = category;
-            }
-            map.put("cat", cat);
-
-            map.put("status", item.getIsAvailable() ? "available" : "out-of-stock");
-
-            // Set UI backgrounds and icons based on category
-            if ("starter".equals(cat)) {
-                map.put("bgFrom", "#fff4eb");
-                map.put("bgTo", "#ffe8d6");
-                map.put("icon", "set_meal");
-                map.put("iconColor", "#e27221");
-            } else if ("main".equals(cat)) {
-                map.put("bgFrom", "#fbebeb");
-                map.put("bgTo", "#f7d5d5");
-                map.put("icon", "outdoor_grill");
-                map.put("iconColor", "#be3131");
-            } else if ("dessert".equals(cat)) {
-                map.put("bgFrom", "#fbf0f6");
-                map.put("bgTo", "#f7dceb");
-                map.put("icon", "cake");
-                map.put("iconColor", "#be318a");
-            } else if ("drink".equals(cat)) {
-                map.put("bgFrom", "#eaf5fb");
-                map.put("bgTo", "#d3eafd");
-                map.put("icon", "local_bar");
-                map.put("iconColor", "#218be2");
-            } else if ("salad".equals(cat)) {
-                map.put("bgFrom", "#ebfbf0");
-                map.put("bgTo", "#d6f7dc");
-                map.put("icon", "eco");
-                map.put("iconColor", "#21be55");
-            } else {
-                map.put("bgFrom", "#f5f5f5");
-                map.put("bgTo", "#e0e0e0");
-                map.put("icon", "restaurant");
-                map.put("iconColor", "#757575");
-            }
-
-            mappedItems.add(map);
-        }
-        return mappedItems;
     }
 
     @GetMapping("/shift-report")
@@ -229,23 +55,9 @@ public class PosController {
     }
 
     @GetMapping("/order-detail")
-    public String orderDetail(@org.springframework.web.bind.annotation.RequestParam("id") String idParam, Model model) {
+    public String orderDetail(@RequestParam("id") String idParam, Model model) {
         try {
-            String cleanId = idParam.replace("ORD-", "").replace("RES-", "");
-            Long id = Long.parseLong(cleanId);
-            foodOrderRepository.findById(id).ifPresent(order -> {
-                String extractedGuestName = "";
-                String realNote = order.getNote();
-                if (realNote != null && realNote.startsWith("GUEST:")) {
-                    int pipeIndex = realNote.indexOf("|");
-                    if (pipeIndex != -1) {
-                        extractedGuestName = realNote.substring(6, pipeIndex);
-                        order.setNote(realNote.substring(pipeIndex + 1));
-                    }
-                }
-                model.addAttribute("extractedGuestName", extractedGuestName);
-                model.addAttribute("foodOrder", order);
-            });
+            model.addAllAttributes(posWebFacadeService.getOrderDetailData(idParam));
         } catch (Exception e) {
             e.printStackTrace();
         }
