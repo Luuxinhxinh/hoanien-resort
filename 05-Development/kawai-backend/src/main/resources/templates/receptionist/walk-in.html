@@ -145,12 +145,31 @@
                         <div>
                             <label style="display: block; font-weight: 500; margin-bottom: 8px;">Assign Physical Room
                                 <span style="color:red">*</span></label>
-                            <select id="walkInPhysicalRoomSelect" class="form-control"
-                                style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 4px;"
-                                onchange="unlockStep2()">
-                                <option value="">-- Select Type First --</option>
-                            </select>
+                            <div style="display: flex; gap: 10px;">
+                                <select id="walkInPhysicalRoomSelect" class="form-control"
+                                    style="flex: 1; padding: 10px; border: 1px solid #cbd5e1; border-radius: 4px;">
+                                    <option value="">-- Select Type First --</option>
+                                </select>
+                                <button type="button" onclick="addRoomToCart()" class="btn btn-primary" style="padding: 10px 16px;"><i class="fa-solid fa-plus"></i> Thêm</button>
+                            </div>
                         </div>
+                    </div>
+                    
+                    <!-- Room Cart -->
+                    <div id="roomCartContainer" style="margin-top: 20px; display: none; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 16px;">
+                        <h4 style="margin-top: 0; margin-bottom: 12px; color: #1e293b; font-size: 15px;"><i class="fa-solid fa-bed" style="color: #3b82f6;"></i> Các phòng đã chọn</h4>
+                        <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; background: white;">
+                            <thead>
+                                <tr style="background: #f1f5f9; border-bottom: 1px solid #cbd5e1;">
+                                    <th style="padding: 10px 16px;">Số phòng</th>
+                                    <th style="padding: 10px 16px;">Hạng phòng</th>
+                                    <th style="padding: 10px 16px;">Giá tiền</th>
+                                    <th style="padding: 10px 16px; text-align: right;">Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody id="roomCartBody">
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
@@ -273,6 +292,11 @@
                                 </select>
                             </div>
                             <div>
+                                <label style="display: block; font-size: 13px; margin-bottom: 4px;">Xếp vào phòng <span style="color:red">*</span></label>
+                                <select id="depRoom" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;">
+                                </select>
+                            </div>
+                            <div>
                                 <button type="button" class="btn btn-outline btn-sm" onclick="addAccompaniedGuest()"
                                     style="height: 35px; padding: 0 16px;"><i class="fa-solid fa-plus"></i>
                                     Thêm</button>
@@ -299,23 +323,29 @@
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;">
                         <!-- Payment Summary -->
                         <div style="background: #f8fafc; padding: 16px; border-radius: 6px; border: 1px solid #e2e8f0;">
-                            <h4 style="margin-top: 0; margin-bottom: 16px; color: #334155; font-size: 15px;">Tóm tắt chi
-                                phí dự kiến</h4>
+                            <h4 style="margin-top: 0; margin-bottom: 16px; color: #334155; font-size: 15px;">Tóm tắt chi phí dự kiến</h4>
+                            
+                            <!-- Bổ sung phần breakdown phòng ở đây -->
+                            <div id="summaryRoomBreakdown" style="margin-bottom: 12px;">
+                            </div>
+                            
+                            <div style="height: 1px; background: #e2e8f0; margin: 12px 0;"></div>
+
                             <div
-                                style="display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 14px;">
-                                <span style="color: #64748b;" id="summaryBasePriceLabel">Tiền phòng cơ bản:</span>
+                                style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px;">
+                                <span style="color: #64748b;" id="summaryBasePriceLabel">Tổng tiền phòng:</span>
                                 <span id="summaryBasePrice" style="font-weight: 500;">0 VNĐ</span>
                             </div>
                             <div
                                 style="display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 14px;">
-                                <span style="color: #64748b;">Phụ thu (Thêm khách):</span>
+                                <span style="color: #64748b;">Tổng phụ thu (Thêm khách):</span>
                                 <span id="summarySurcharge" style="font-weight: 500;">0 VNĐ</span>
                             </div>
                             <div style="height: 1px; background: #cbd5e1; margin: 12px 0;"></div>
                             <div
-                                style="display: flex; justify-content: space-between; font-size: 16px; font-weight: 600; color: #0f172a;">
+                                style="display: flex; justify-content: space-between; font-size: 15px; font-weight: 500; color: #334155;">
                                 <span>Tổng cộng:</span>
-                                <span id="summaryTotal" style="color: #e11d48;">0 VNĐ</span>
+                                <span id="summaryTotal" style="color: #e11d48; font-weight: 600;">0 VNĐ</span>
                             </div>
                         </div>
 
@@ -325,19 +355,23 @@
                                     <span style="color:red">*</span></label>
                                 <div style="display: flex; gap: 20px; margin-bottom: 12px;">
                                     <label style="font-weight: 500; cursor: pointer;">
-                                        <input type="radio" name="paymentOption" value="100" onchange="updateWalkInDeposit()" checked> Thanh toán tất (100%)
+                                        <input type="radio" name="paymentOption" value="100"
+                                            onchange="updateWalkInDeposit()" checked> Thanh toán tất (100%)
                                     </label>
                                     <label style="font-weight: 500; cursor: pointer;">
-                                        <input type="radio" name="paymentOption" value="30" onchange="updateWalkInDeposit()"> Đặt cọc (30%)
+                                        <input type="radio" name="paymentOption" value="30"
+                                            onchange="updateWalkInDeposit()"> Đặt cọc (30%)
                                     </label>
                                 </div>
-                                <label style="display: block; font-weight: 500; margin-bottom: 8px;">Số tiền thu (VNĐ)</label>
+                                <label style="display: block; font-weight: 500; margin-bottom: 8px;">Số tiền thu
+                                    (VNĐ)</label>
                                 <input type="text" id="depositAmountDisplay" class="form-control"
                                     style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 16px; font-weight: 600; color: #0f172a; background-color: #f8fafc;"
                                     readonly>
                                 <input type="hidden" id="depositAmount" value="0">
                                 <small style="color: #64748b; display: block; margin-top: 6px;"><i
-                                        class="fa-solid fa-circle-info"></i> Khách có thể chọn thanh toán 100% hoặc cọc 30%.</small>
+                                        class="fa-solid fa-circle-info"></i> Khách có thể chọn thanh toán 100% hoặc cọc
+                                    30%.</small>
                             </div>
 
                             <div style="margin-bottom: 16px;">
@@ -377,13 +411,14 @@
                             style="margin: 0 0 8px 0; font-size: 0.85em; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">
                             Tài khoản Khách mới</p>
                         <div style="font-weight: 600; color: #0f172a; margin-bottom: 6px; font-size: 1.1em;">Username:
-                            <span id="modalUsername" style="color: #0284c7;"></span></div>
+                            <span id="modalUsername" style="color: #0284c7;"></span>
+                        </div>
                         <div style="font-weight: 600; color: #0f172a; font-size: 1.1em;">Password: <span
                                 id="modalPassword" style="color: #e11d48;"></span></div>
                     </div>
                     <div style="text-align: right;">
-                        <button type="button" id="modalCloseBtn" onclick="closeModalAndRedirect()" class="btn btn-primary"
-                            style="padding: 8px 24px;">Đóng & Về trang chủ</button>
+                        <button type="button" id="modalCloseBtn" onclick="closeModalAndRedirect()"
+                            class="btn btn-primary" style="padding: 8px 24px;">Đóng & Về trang chủ</button>
                     </div>
                 </div>
             </div>

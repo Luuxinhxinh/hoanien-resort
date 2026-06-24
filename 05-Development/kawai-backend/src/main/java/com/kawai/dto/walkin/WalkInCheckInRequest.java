@@ -18,16 +18,14 @@ public class WalkInCheckInRequest {
     private String email;
     private String gender;
 
+    // ── Khách đi kèm và Danh sách phòng ──────────────────────────────────────
+    private List<WalkInRoomSelectionDTO> roomSelections;
+
     // ── Thông tin đặt phòng ──────────────────────────────────────────────────
-    private Long roomId;
     private LocalDate checkInDate;
     private LocalDate checkOutDate;
-
     private java.math.BigDecimal depositAmount;
     private String paymentMethod;
-
-    // ── Khách đi kèm (optional) ──────────────────────────────────────────────
-    private List<DependentRegistrationDTO> accompaniedGuests;
 
     // ── Getters & Setters ────────────────────────────────────────────────────
     public String getFullName() {
@@ -78,12 +76,12 @@ public class WalkInCheckInRequest {
         this.gender = v;
     }
 
-    public Long getRoomId() {
-        return roomId;
+    public List<WalkInRoomSelectionDTO> getRoomSelections() {
+        return roomSelections;
     }
 
-    public void setRoomId(Long v) {
-        this.roomId = v;
+    public void setRoomSelections(List<WalkInRoomSelectionDTO> v) {
+        this.roomSelections = v;
     }
 
     public LocalDate getCheckInDate() {
@@ -100,15 +98,6 @@ public class WalkInCheckInRequest {
 
     public void setCheckOutDate(LocalDate v) {
         this.checkOutDate = v;
-    }
-
-
-    public List<DependentRegistrationDTO> getAccompaniedGuests() {
-        return accompaniedGuests;
-    }
-
-    public void setAccompaniedGuests(List<DependentRegistrationDTO> v) {
-        this.accompaniedGuests = v;
     }
 
     public java.math.BigDecimal getDepositAmount() {

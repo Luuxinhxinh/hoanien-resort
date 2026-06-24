@@ -20,7 +20,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const month = String(localDate.getMonth() + 1).padStart(2, '0');
     const day = String(localDate.getDate()).padStart(2, '0');
     todayStrGlobal = `${year}-${month}-${day}`;
-    if (checkoutDateInput) checkoutDateInput.min = todayStrGlobal;
+    if (checkoutDateInput) {
+        checkoutDateInput.min = todayStrGlobal;
+        checkoutDateInput.addEventListener('change', () => {
+            if (document.getElementById('step4Container').style.display === 'block') {
+                showPaymentStep();
+            }
+        });
+    }
     if (guestDobInput) guestDobInput.max = todayStrGlobal;
     if (depDobInput) depDobInput.max = todayStrGlobal;
 });
@@ -40,14 +47,24 @@ function updateWalkInAvailableRooms() {
         const roomId = r.id !== undefined ? r.id : r;
         const roomNum = r.number !== undefined ? r.number : r;
         opt.value = roomId;
-        opt.innerText = roomNum + ' (' + selectedType + ')';
+        opt.innerText = 'Phòng ' + roomNum;
+
+        opt.dataset.roomNum = roomNum;
+
+        const catParts = selectedType.split(' - ');
+        opt.dataset.category = catParts[0];
+        if (catParts.length > 1) {
+            opt.dataset.price = catParts[1].split(' (')[0];
+        } else {
+            opt.dataset.price = '';
+        }
+
         roomSelect.appendChild(opt);
     });
 }
 
 function unlockStep2() {
-    const roomSelect = document.getElementById('walkInPhysicalRoomSelect');
-    if (roomSelect.value) {
+    if (walkInCart.length > 0) {
         const step2 = document.getElementById('step2Container');
         step2.style.opacity = '1';
         step2.style.pointerEvents = 'auto';
@@ -61,6 +78,89 @@ function unlockStep2() {
             step3.style.border = '1px solid #bae6fd';
         }
     }
+}
+
+let walkInCart = [];
+
+function addRoomToCart() {
+    const select = document.getElementById('walkInPhysicalRoomSelect');
+    const roomId = select.value;
+    if (!roomId) return;
+
+    const selectedOpt = select.options[select.selectedIndex];
+    const roomNum = selectedOpt.dataset.roomNum;
+    const category = selectedOpt.dataset.category;
+    const price = selectedOpt.dataset.price;
+
+    if (walkInCart.find(r => r.roomId == roomId)) {
+        alert("Phòng này đã có trong danh sách!");
+        return;
+    }
+
+    walkInCart.push({ roomId: parseInt(roomId), roomNum, category, price });
+    renderRoomCart();
+    unlockStep2();
+
+    if (document.getElementById('step4Container').style.display === 'block') {
+        showPaymentStep();
+    }
+}
+
+function removeRoomFromCart(index) {
+    const r = walkInCart[index];
+    walkInCart.splice(index, 1);
+
+    walkInDependents = walkInDependents.filter(d => d.roomId != r.roomId);
+    renderAccompaniedGuests();
+    renderRoomCart();
+
+    if (walkInCart.length === 0) {
+        document.getElementById('step2Container').style.opacity = '0.5';
+        document.getElementById('step2Container').style.pointerEvents = 'none';
+        const step3 = document.getElementById('step3Container');
+        if (step3) {
+            step3.style.opacity = '0.5';
+            step3.style.pointerEvents = 'none';
+        }
+        document.getElementById('step4Container').style.display = 'none';
+        document.getElementById('continueToPaymentBtn').parentElement.style.display = 'flex';
+    } else if (document.getElementById('step4Container').style.display === 'block') {
+        showPaymentStep();
+    }
+}
+
+function renderRoomCart() {
+    const container = document.getElementById('roomCartContainer');
+    const body = document.getElementById('roomCartBody');
+    const depRoomSelect = document.getElementById('depRoom');
+
+    body.innerHTML = '';
+    depRoomSelect.innerHTML = '<option value="">-- Chọn phòng --</option>';
+
+    if (walkInCart.length === 0) {
+        container.style.display = 'none';
+        return;
+    }
+
+    container.style.display = 'block';
+    walkInCart.forEach((room, index) => {
+        const tr = document.createElement('tr');
+        tr.style.borderBottom = '1px dashed #e2e8f0';
+        tr.innerHTML = `
+            <td style="padding: 10px 16px; font-weight: 500;">${room.roomNum}</td>
+            <td style="padding: 10px 16px;">${room.category}</td>
+            <td style="padding: 10px 16px; font-weight: 500; color: #16a34a;">${room.price}</td>
+            <td style="padding: 10px 16px; text-align: right;">
+                <button type="button" class="btn btn-sm btn-outline" style="color: #ef4444; border-color: #fca5a5;" onclick="removeRoomFromCart(${index})"><i class="fa-solid fa-trash"></i></button>
+            </td>
+        `;
+        body.appendChild(tr);
+
+        const opt = document.createElement('option');
+        opt.value = room.roomId;
+        opt.innerText = room.roomNum;
+        depRoomSelect.appendChild(opt);
+    });
 }
 
 function unlockFinalButton(customerId) {
@@ -161,9 +261,8 @@ function validateNewCustomer() {
 }
 
 function showPaymentStep() {
-    const roomId = document.getElementById('walkInPhysicalRoomSelect').value;
-    if (!roomId) {
-        alert("Vui lòng chọn phòng để Check-in!");
+    if (walkInCart.length === 0) {
+        alert("Vui lòng chọn ít nhất 1 phòng để Check-in!");
         return;
     }
     const checkOutDate = document.getElementById('checkoutDate').value;
@@ -177,12 +276,19 @@ function showPaymentStep() {
     const localNow = new Date();
     const checkInStr = `${localNow.getFullYear()}-${String(localNow.getMonth() + 1).padStart(2, '0')}-${String(localNow.getDate()).padStart(2, '0')}`;
 
+    // Format payload
+    const roomSelections = walkInCart.map(r => {
+        return {
+            roomId: r.roomId,
+            accompaniedGuests: walkInDependents.filter(d => d.roomId == r.roomId)
+        };
+    });
+
     const payload = {
-        roomId: parseInt(roomId),
+        roomSelections: roomSelections,
         checkInDate: checkInStr,
         checkOutDate: checkOutDate,
-        dateOfBirth: dob,
-        accompaniedGuests: walkInDependents
+        dateOfBirth: dob
     };
 
     fetch('/api/receptionist/walkin/calculate-surcharge', {
@@ -209,7 +315,24 @@ function showPaymentStep() {
 
             const formatter = new Intl.NumberFormat('vi-VN');
             const labelEl = document.getElementById('summaryBasePriceLabel');
-            if (labelEl) labelEl.innerText = `Tiền phòng cho (${nights} đêm):`;
+            if (labelEl) labelEl.innerText = `Tổng tiền phòng (${nights} đêm):`;
+
+            const breakdownContainer = document.getElementById('summaryRoomBreakdown');
+            if (breakdownContainer) {
+                breakdownContainer.innerHTML = '';
+                walkInCart.forEach(r => {
+                    const row = document.createElement('div');
+                    row.style.display = 'flex';
+                    row.style.justifyContent = 'space-between';
+                    row.style.marginBottom = '6px';
+                    row.style.fontSize = '13px';
+                    row.innerHTML = `
+                        <span style="color: #475569;"><i class="fa-solid fa-bed" style="font-size: 11px; margin-right: 6px; color: #94a3b8;"></i>Phòng ${r.roomNum} (${r.category})</span>
+                        <span style="font-weight: 500; color: #334155;">${r.price || ''}</span>
+                    `;
+                    breakdownContainer.appendChild(row);
+                });
+            }
 
             document.getElementById('summaryBasePrice').innerText = formatter.format(data.baseRoomPrice || 0) + ' VNĐ';
             document.getElementById('summarySurcharge').innerText = formatter.format(data.surchargeAmount || 0) + ' VNĐ';
@@ -247,9 +370,8 @@ function backToStep3() {
 }
 
 function submitCheckIn() {
-    const roomId = document.getElementById('walkInPhysicalRoomSelect').value;
-    if (!roomId) {
-        alert("Vui lòng chọn phòng để Check-in!");
+    if (walkInCart.length === 0) {
+        alert("Vui lòng chọn ít nhất 1 phòng để Check-in!");
         return;
     }
 
@@ -279,8 +401,15 @@ function submitCheckIn() {
     const localNow = new Date();
     const checkInStr = `${localNow.getFullYear()}-${String(localNow.getMonth() + 1).padStart(2, '0')}-${String(localNow.getDate()).padStart(2, '0')}`;
 
+    const roomSelections = walkInCart.map(r => {
+        return {
+            roomId: r.roomId,
+            accompaniedGuests: walkInDependents.filter(d => d.roomId == r.roomId)
+        };
+    });
+
     const payload = {
-        roomId: parseInt(roomId),
+        roomSelections: roomSelections,
         checkInDate: checkInStr,
         checkOutDate: checkOutDate,
         fullName: name,
@@ -420,7 +549,7 @@ function renderAccompaniedGuests() {
         const tr = document.createElement('tr');
         tr.style.borderBottom = '1px dashed #e2e8f0';
         tr.innerHTML = `
-            <td style="padding: 12px 8px;">${dep.fullName}</td>
+            <td style="padding: 12px 8px;">${dep.fullName} <br><span style="font-size: 11px; color: #3b82f6;">(Phòng ${dep.roomNum})</span></td>
             <td style="padding: 12px 8px;">${dep.dateOfBirth}</td>
             <td style="padding: 12px 8px;">${dep.cccd || '-'}</td>
             <td style="padding: 12px 8px;">${dep.gender}</td>
@@ -440,8 +569,12 @@ function addAccompaniedGuest() {
     const cccd = document.getElementById('depId').value;
     const gender = document.getElementById('depGender').value;
 
-    if (!name || !dob) {
-        alert('Vui lòng nhập Họ tên và Ngày sinh cho người đi kèm!');
+    const roomSelect = document.getElementById('depRoom');
+    const roomId = roomSelect.value;
+    const roomNum = roomId ? roomSelect.options[roomSelect.selectedIndex].text : '';
+
+    if (!name || !dob || !roomId) {
+        alert('Vui lòng nhập đầy đủ Họ tên, Ngày sinh và Chọn phòng xếp cho người đi kèm!');
         return;
     }
 
@@ -463,7 +596,9 @@ function addAccompaniedGuest() {
         fullName: name,
         dateOfBirth: dob,
         cccd: cccd || null,
-        gender: gender
+        gender: gender,
+        roomId: roomId,
+        roomNum: roomNum
     });
 
     // Clear form
@@ -471,11 +606,20 @@ function addAccompaniedGuest() {
     document.getElementById('depDob').value = '';
     document.getElementById('depId').value = '';
     document.getElementById('depGender').value = 'Nam';
+    document.getElementById('depRoom').value = '';
 
     renderAccompaniedGuests();
+
+    if (document.getElementById('step4Container').style.display === 'block') {
+        showPaymentStep();
+    }
 }
 
 function removeAccompaniedGuest(index) {
     walkInDependents.splice(index, 1);
     renderAccompaniedGuests();
+
+    if (document.getElementById('step4Container').style.display === 'block') {
+        showPaymentStep();
+    }
 }
