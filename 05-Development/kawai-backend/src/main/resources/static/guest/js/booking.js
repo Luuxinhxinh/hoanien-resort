@@ -781,8 +781,9 @@ function confirmCartBooking() {
                 // Lưu bookingId để dùng nếu user huỷ giỏ
                 if (data && data.bookingId) {
                     cartHoldConfirmedBookingId = data.bookingId;
-                    sessionStorage.removeItem('kawai_cart');
-                    sessionStorage.removeItem('kawai_bookingState');
+                    // Không xóa giỏ hàng ngay lập tức để giữ đơn nếu khách quay lại
+                    // sessionStorage.removeItem('kawai_cart');
+                    // sessionStorage.removeItem('kawai_bookingState');
 
                     showToast('Đặt phòng thành công! Đang chuyển đến trang thanh toán...', 'success');
 

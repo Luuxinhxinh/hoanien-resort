@@ -160,7 +160,7 @@ public class AdminViewServiceImpl implements AdminViewService {
                 List.of(col("id", "Mã", "text"), col("name", "Tên", "text"), col("type", "Loại tài khoản", "badge"),
                         col("role", "Vai trò", "badge"), col("email", "Email", "text"),
                         col("lastLogin", "Đăng nhập cuối", "text"), col("status", "Kích hoạt", "toggle"));
-            case "Role Management" -> List.of(col("id", "Mã", "text"), col("name", "Tên vai trò", "text"));
+            case "Role Management" -> List.of(col("id", "Mã", "text"), col("name", "Tên vai trò", "text"), col("permissions", "Quyền hạn", "text"));
             case "Pricing Management" -> List.of(col("id", "Mã", "text"), col("roomCategory", "Hạng phòng", "text"),
                     col("date", "Ngày", "text"), col("price", "Giá / đêm", "text"));
             case "Bookings" -> List.of(col("id", "Mã Booking", "text"), col("customer", "Khách hàng", "text"),
@@ -359,7 +359,7 @@ public class AdminViewServiceImpl implements AdminViewService {
                 List<Map<String, String>> rows = new ArrayList<>();
                 try {
                     for (Role role : roleRepository.findAll()) {
-                        rows.add(r("id", "RL-" + role.getId(), "name", role.getRoleName()));
+                        rows.add(r("id", "RL-" + role.getId(), "name", role.getRoleName(), "permissions", role.getPermissions() != null ? role.getPermissions() : ""));
                     }
                 } catch (Exception e) {
                 }

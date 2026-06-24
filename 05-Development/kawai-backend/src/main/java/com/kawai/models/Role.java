@@ -24,6 +24,17 @@ public class Role {
         return roleName;
     }
 
+    @Column(name = "permissions", columnDefinition = "TEXT")
+    private String permissions;
+
+    public String getPermissions() {
+        return permissions;
+    }
+
+    public void setPermissions(String permissions) {
+        this.permissions = permissions;
+    }
+
     public void setRoleName(String v) {
         this.roleName = v;
     }

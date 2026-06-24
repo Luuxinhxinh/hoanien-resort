@@ -113,14 +113,18 @@ public class SecurityConfig {
     public org.springframework.security.web.authentication.AuthenticationFailureHandler authenticationFailureHandler() {
         return (request, response, exception) -> {
             String referer = request.getHeader("Referer");
+            String errorType = "invalid";
+            if (exception instanceof org.springframework.security.authentication.DisabledException || exception instanceof org.springframework.security.authentication.LockedException) {
+                errorType = "locked";
+            }
             if (referer != null && !referer.trim().isEmpty() && !referer.contains("/ops-login")) {
                 if (referer.contains("?")) {
-                    response.sendRedirect(referer + "&login_error=true");
+                    response.sendRedirect(referer + "&login_error=true&error_type=" + errorType);
                 } else {
-                    response.sendRedirect(referer + "?login_error=true");
+                    response.sendRedirect(referer + "?login_error=true&error_type=" + errorType);
                 }
             } else {
-                response.sendRedirect("/ops-login?error=true");
+                response.sendRedirect("/ops-login?error=true&error_type=" + errorType);
             }
         };
     }
@@ -130,7 +134,13 @@ public class SecurityConfig {
         return (request, response, authentication) -> {
             String referer = request.getHeader("Referer");
             if (referer != null && !referer.trim().isEmpty()) {
-                response.sendRedirect(referer);
+                if (referer.contains("/admin") || referer.contains("/manager") || referer.contains("/receptionist") || referer.contains("/fbStaff") || referer.contains("/tourguide") || referer.contains("/ops-login")) {
+                    response.sendRedirect("/ops-login");
+                } else if (referer.contains("/payment") || referer.contains("/profile")) {
+                    response.sendRedirect("/booking");
+                } else {
+                    response.sendRedirect(referer);
+                }
             } else {
                 response.sendRedirect("/");
             }

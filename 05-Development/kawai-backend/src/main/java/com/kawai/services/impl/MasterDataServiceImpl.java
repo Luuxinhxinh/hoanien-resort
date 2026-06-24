@@ -139,6 +139,9 @@ public class MasterDataServiceImpl implements MasterDataService {
             case "roles":
                 Role newRole = new Role();
                 newRole.setRoleName((String) payload.get("name"));
+                if (payload.get("permissions") != null) {
+                    newRole.setPermissions(payload.get("permissions").toString());
+                }
                 roleRepository.save(newRole);
                 break;
         }
@@ -325,6 +328,9 @@ public class MasterDataServiceImpl implements MasterDataService {
                         throw new IllegalArgumentException("Không thể sửa vai trò Admin");
                     }
                     role.setRoleName((String) payload.get("name"));
+                    if (payload.get("permissions") != null) {
+                        role.setPermissions(payload.get("permissions").toString());
+                    }
                     roleRepository.save(role);
                 }
                 break;

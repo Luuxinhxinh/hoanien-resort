@@ -475,12 +475,6 @@ public class FolioRestController {
                         roomRepository.save(room);
                     }
                 }
-                Room room = detail.getRoom();
-                if (room != null) {
-                    room.setRoomStatus("Vacant_Dirty");
-                    room.setCurrentBookingDetailId(null);
-                    roomRepository.save(room);
-                }
             }
 
             // 3. Tạo hóa đơn tổng (Consolidated Invoice) hoặc cập nhật nếu đã có

@@ -23,6 +23,14 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         Account account = accountRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
 
+        // Auto-unlock if lockout time has passed
+        if (account.getLockoutTime() != null && account.getLockoutTime().isBefore(java.time.LocalDateTime.now())) {
+            account.setLockoutTime(null);
+            account.setFailedLoginAttempts(0);
+            account.setIsActive(true);
+            accountRepository.save(account);
+        }
+
         String rawRole = account.getRole().getRoleName();
         String securityRole = rawRole;
         if (rawRole.equalsIgnoreCase("Admin")) {
@@ -45,12 +53,20 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             }
         }
 
-        GrantedAuthority authority = new SimpleGrantedAuthority(securityRole);
+        java.util.List<org.springframework.security.core.GrantedAuthority> authorities = new java.util.ArrayList<>();
+        authorities.add(new org.springframework.security.core.authority.SimpleGrantedAuthority(securityRole));
+        
+        if (account.getRole() != null && account.getRole().getPermissions() != null && !account.getRole().getPermissions().trim().isEmpty()) {
+            String[] perms = account.getRole().getPermissions().split(",");
+            for (String p : perms) {
+                authorities.add(new org.springframework.security.core.authority.SimpleGrantedAuthority("OP_" + p.trim().toUpperCase()));
+            }
+        }
 
         return org.springframework.security.core.userdetails.User.builder()
                 .username(account.getUsername())
                 .password(account.getPasswordHash())
-                .authorities(Collections.singletonList(authority))
+                .authorities(authorities)
                 .disabled(!account.getIsActive())
                 .build();
     }

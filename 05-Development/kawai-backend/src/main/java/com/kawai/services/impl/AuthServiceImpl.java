@@ -271,7 +271,7 @@ public class AuthServiceImpl implements AuthService {
         writeAuditLog(account, "RESET_PASSWORD_REQUEST", "Accounts", account.getId(), null, "Reset OTP: " + otp);
 
         // Gửi email chứa OTP đặt lại mật khẩu
-        emailService.sendPasswordResetEmail(customer.getEmail(), otp, customer.getFullName());
+        emailService.sendPasswordResetEmail(email, otp, username);
 
         return otp;
     }

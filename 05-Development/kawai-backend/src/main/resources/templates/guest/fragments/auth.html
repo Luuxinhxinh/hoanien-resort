@@ -523,7 +523,11 @@
                             btn.disabled = false;
                             if (response.redirected) {
                                 if (response.url.includes('error=true') || response.url.includes('login_error')) {
-                                    showToast('Lỗi Đăng Nhập', 'Tên đăng nhập hoặc mật khẩu không chính xác.', 'error');
+                                    if (response.url.includes('error_type=locked')) {
+                                        showToast('Tài Khoản Bị Khóa', 'Tài khoản của bạn đã bị khóa do đăng nhập sai nhiều lần. Vui lòng thử lại sau 15 phút.', 'error');
+                                    } else {
+                                        showToast('Lỗi Đăng Nhập', 'Tên đăng nhập hoặc mật khẩu không chính xác.', 'error');
+                                    }
                                 } else {
                                     showToast('Thành công', 'Đăng nhập thành công!', 'success');
                                     setTimeout(() => window.location.href = response.url, 1000);
