@@ -11,6 +11,9 @@ import java.util.List;
 public class CheckinSubmitFormDTO {
 
     private Long bookingId;
+    private String guestName;
+    private String phone;
+    private String cccd;
     private List<String> assignedRoomNumbers = new ArrayList<>();
 
     // Danh sách người đi kèm, form frontend gửi lên dạng dependents[0].fullName,
@@ -26,6 +29,30 @@ public class CheckinSubmitFormDTO {
 
     public void setBookingId(Long bookingId) {
         this.bookingId = bookingId;
+    }
+
+    public String getGuestName() {
+        return guestName;
+    }
+
+    public void setGuestName(String guestName) {
+        this.guestName = guestName;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getCccd() {
+        return cccd;
+    }
+
+    public void setCccd(String cccd) {
+        this.cccd = cccd;
     }
 
     public List<String> getAssignedRoomNumbers() {

@@ -83,6 +83,18 @@ function renderAssignedRooms() {
     // Xóa các hidden input cũ
     document.querySelectorAll('input[name="assignedRoomNumbers"]').forEach(el => el.remove());
 
+    // Cập nhật label hiển thị phòng của Master Customer
+    const masterLabel = document.getElementById('masterCustomerRoomLabel');
+    if (masterLabel) {
+        if (assignedRooms.length > 0) {
+            masterLabel.innerText = `(Phòng: ${assignedRooms[0].room})`;
+            masterLabel.style.color = '#059669'; // text-emerald-600
+        } else {
+            masterLabel.innerText = `(Chưa phân phòng)`;
+            masterLabel.style.color = '#d97706'; // text-amber-600
+        }
+    }
+
     assignedRooms.forEach(a => {
         const badge = document.createElement('span');
         badge.className = 'status-badge';
@@ -190,6 +202,7 @@ function addDependent() {
     const id = document.getElementById('depId').value;
     const dob = document.getElementById('depDob').value;
     const roomId = document.getElementById('depRoom').value;
+    const isPrimary = document.getElementById('depIsPrimary').checked;
     if (!name || !dob) {
         alert('Please fill Name and Date of Birth!');
         return;
@@ -197,6 +210,29 @@ function addDependent() {
     if (!roomId) {
         alert('Please assign the guest to a room!');
         return;
+    }
+
+    if (isPrimary) {
+        if (assignedRooms.length > 0 && roomId === assignedRooms[0].room) {
+            alert(`Phòng ${roomId} đã được chỉ định cho khách chính đứng đầu! Vui lòng không chọn người đi kèm làm người đứng đầu cho phòng này.`);
+            return;
+        }
+
+        const primaryInputs = document.querySelectorAll(`input[name$=".isPrimaryContact"][value="true"]`);
+        let conflict = false;
+        primaryInputs.forEach(input => {
+            const row = input.closest('tr');
+            if (row && row.style.display !== 'none') { // Bỏ qua dòng đang edit (ẩn)
+                const roomInput = row.querySelector(`input[name$=".assignedPhysicalRoomNumber"]`);
+                if (roomInput && roomInput.value === roomId) {
+                    conflict = true;
+                }
+            }
+        });
+        if (conflict) {
+            alert(`Phòng này đã có người đứng đầu! Vui lòng chọn người khác hoặc bỏ chọn người đứng đầu cũ.`);
+            return;
+        }
     }
 
     // Kiểm tra ngày sinh không được ở tương lai
@@ -229,17 +265,22 @@ function addDependent() {
 
     const depId = document.getElementById('depId').getAttribute('data-dependent-id');
     const parsedDepId = (depId && depId !== 'null' && depId !== '') ? depId : null;
+    const editingRow = document.querySelector('.editing-row');
+    if (editingRow) {
+        editingRow.remove();
+    }
 
-    addDependentRow(name, id, dob, parsedDepId, roomId);
+    addDependentRow(name, id, dob, parsedDepId, roomId, isPrimary);
 
     document.getElementById('depName').value = '';
     document.getElementById('depId').value = '';
     document.getElementById('depId').removeAttribute('data-dependent-id');
     document.getElementById('depDob').value = '';
     document.getElementById('depRoom').value = '';
+    document.getElementById('depIsPrimary').checked = false;
 }
 
-function addDependentRow(name, cccd, dob, dependentId, assignedPhysicalRoomNumber) {
+function addDependentRow(name, cccd, dob, dependentId, assignedPhysicalRoomNumber, isPrimary = false) {
     const tbody = document.getElementById('dependentsList');
     // remove empty message if present
     if (tbody.children.length === 1 && tbody.children[0].innerText.includes('No group members')) {
@@ -250,15 +291,20 @@ function addDependentRow(name, cccd, dob, dependentId, assignedPhysicalRoomNumbe
     tr.style.borderBottom = '1px solid #e2e8f0';
     let hiddenIdInput = dependentId ? `<input type="hidden" name="dependents[${depIndexCounter}].dependentId" value="${dependentId}" />` : '';
     let hiddenRoomInput = assignedPhysicalRoomNumber ? `<input type="hidden" name="dependents[${depIndexCounter}].assignedPhysicalRoomNumber" value="${assignedPhysicalRoomNumber}" />` : '';
+    let hiddenPrimaryInput = `<input type="hidden" name="dependents[${depIndexCounter}].isPrimaryContact" value="${isPrimary ? 'true' : 'false'}" />`;
 
     let depIdArg = dependentId ? `'${dependentId}'` : 'null';
     let roomIdArg = assignedPhysicalRoomNumber ? `'${assignedPhysicalRoomNumber}'` : 'null';
+    let roleBadge = isPrimary ? `<span style="display:inline-block; margin-top: 4px; padding: 2px 6px; background: #fef3c7; color: #d97706; border-radius: 4px; font-size: 11px; font-weight: 600;"><i class="fa-solid fa-star"></i> Đứng đầu</span>` : `<span style="font-size: 13px; color: #64748b;">Thành viên</span>`;
+    let roomDisplay = assignedPhysicalRoomNumber ? `<span style="font-weight: 500; color: #334155;">Phòng ${assignedPhysicalRoomNumber}</span><br>` : '';
+    let finalRoleDisplay = `${roomDisplay}${roleBadge}`;
 
     tr.innerHTML = `
         <td style="padding: 8px; font-size: 14px;">
             ${name}
             ${hiddenIdInput}
             ${hiddenRoomInput}
+            ${hiddenPrimaryInput}
             <input type="hidden" name="dependents[${depIndexCounter}].fullName" value="${name}" />
         </td>
         <td style="padding: 8px; font-size: 14px;">
@@ -266,12 +312,15 @@ function addDependentRow(name, cccd, dob, dependentId, assignedPhysicalRoomNumbe
             <input type="hidden" name="dependents[${depIndexCounter}].cccd" value="${cccd}" />
         </td>
         <td style="padding: 8px; font-size: 14px;">
+            ${finalRoleDisplay}
+        </td>
+        <td style="padding: 8px; font-size: 14px;">
             ${dob}
             <input type="hidden" name="dependents[${depIndexCounter}].dateOfBirth" value="${dob}" />
             <input type="hidden" name="dependents[${depIndexCounter}].gender" value="Other" />
         </td>
         <td style="padding: 8px;">
-            <button type="button" class="btn btn-outline btn-sm" style="color: #3b82f6; border-color: #3b82f6; padding: 4px 8px; margin-right: 4px;" title="Edit" onclick="editDependentRow(this, '${name}', '${cccd}', '${dob}', ${depIdArg}, ${roomIdArg})"><i class="fa-solid fa-pen"></i></button>
+            <button type="button" class="btn btn-outline btn-sm" style="color: #3b82f6; border-color: #3b82f6; padding: 4px 8px; margin-right: 4px;" title="Edit" onclick="editDependentRow(this, '${name}', '${cccd}', '${dob}', ${depIdArg}, ${roomIdArg}, ${isPrimary})"><i class="fa-solid fa-pen"></i></button>
             <button type="button" class="btn btn-outline btn-sm" style="color: #ef4444; border-color: #ef4444; padding: 4px 8px;" title="Delete" onclick="this.closest('tr').remove()"><i class="fa-solid fa-trash"></i></button>
         </td>
     `;
@@ -280,22 +329,24 @@ function addDependentRow(name, cccd, dob, dependentId, assignedPhysicalRoomNumbe
     depIndexCounter++;
 }
 
-function editDependentRow(btn, name, cccd, dob, depId, roomId) {
-    document.getElementById('depName').value = name === '(Chưa cập nhật)' ? '' : name;
-    document.getElementById('depId').value = cccd;
-    document.getElementById('depDob').value = dob;
-    if (roomId) {
-        document.getElementById('depRoom').value = roomId;
-    } else {
-        document.getElementById('depRoom').value = '';
+function editDependentRow(btn, name, cccd, dob, depId, roomId, isPrimary) {
+    // Phục hồi dòng đang edit dang dở (nếu khách click sửa liên tục mà quên bấm Add)
+    const editingRow = document.querySelector('.editing-row');
+    if (editingRow) {
+        editingRow.classList.remove('editing-row');
+        editingRow.style.display = 'table-row';
     }
 
-    // Set attributes to track which dependent is being edited
+    document.getElementById('depName').value = name !== 'null' ? name : '';
+    document.getElementById('depId').value = cccd !== 'null' ? cccd : '';
     if (depId) {
         document.getElementById('depId').setAttribute('data-dependent-id', depId);
     } else {
         document.getElementById('depId').removeAttribute('data-dependent-id');
     }
+    document.getElementById('depDob').value = dob !== 'null' ? dob : '';
+    document.getElementById('depRoom').value = roomId !== 'null' ? roomId : '';
+    document.getElementById('depIsPrimary').checked = isPrimary;
 
     // Mở rộng danh sách nếu đang bị thu gọn để tiện xem
     const wrapper = document.getElementById('dependentsTableWrapper');
@@ -303,7 +354,10 @@ function editDependentRow(btn, name, cccd, dob, depId, roomId) {
         toggleDependentsList();
     }
 
-    btn.closest('tr').remove();
+    // Thay vì xóa luôn, ta chỉ ẩn nó đi và đánh dấu
+    const tr = btn.closest('tr');
+    tr.classList.add('editing-row');
+    tr.style.display = 'none';
 }
 
 function toggleDependentsList() {
@@ -317,3 +371,40 @@ function toggleDependentsList() {
         btn.innerHTML = '<i class="fa-solid fa-chevron-down"></i> Hiện hết';
     }
 }
+
+document.getElementById('checkinFormWrapper').addEventListener('submit', function (e) {
+    if (assignedRooms.length === 0) {
+        return;
+    }
+
+    const assignedRoomNumbers = assignedRooms.map(r => r.room);
+    
+    // Master customer đứng đầu phòng đầu tiên
+    const masterRoom = assignedRoomNumbers[0];
+    
+    // Kiểm tra các phòng còn lại xem đã có đủ người đứng đầu chưa
+    const primaryInputs = document.querySelectorAll(`input[name$=".isPrimaryContact"][value="true"]`);
+    const primaryRooms = [];
+    primaryInputs.forEach(input => {
+        const row = input.closest('tr');
+        if (row && !row.classList.contains('editing-row')) {
+            const roomInput = row.querySelector(`input[name$=".assignedPhysicalRoomNumber"]`);
+            if (roomInput && roomInput.value) {
+                primaryRooms.push(roomInput.value);
+            }
+        }
+    });
+
+    const missingRooms = [];
+    for (let i = 1; i < assignedRoomNumbers.length; i++) {
+        const room = assignedRoomNumbers[i];
+        if (!primaryRooms.includes(room)) {
+            missingRooms.push(room);
+        }
+    }
+
+    if (missingRooms.length > 0) {
+        e.preventDefault();
+        alert(`Thiếu người đứng đầu cho phòng: ${missingRooms.join(', ')}. Vui lòng chọn 1 người phụ thuộc làm người đứng đầu cho mỗi phòng này trước khi hoàn tất Check-in!`);
+    }
+});

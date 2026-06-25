@@ -16,7 +16,15 @@ public class DependentRegistrationDTO {
     private String gender;
     private String contactInfo;
     private String assignedPhysicalRoomNumber;
+    private Boolean isPrimaryContact = false;
 
+    public Boolean getIsPrimaryContact() {
+        return isPrimaryContact;
+    }
+
+    public void setIsPrimaryContact(Boolean isPrimaryContact) {
+        this.isPrimaryContact = isPrimaryContact;
+    }
     public DependentRegistrationDTO() {
     }
 

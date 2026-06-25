@@ -311,6 +311,22 @@ function renderRoomResults(roomsData) {
             quantityOptions += `<option value="${i}">${i} Phòng</option>`;
         }
 
+        // Generate initial child age selects if baseChildren > 0
+        let childrenAgesHtml = '';
+        const initialChildren = room.baseChildren || 0;
+        if (initialChildren > 0) {
+            for (let c = 0; c < initialChildren; c++) {
+                childrenAgesHtml += `
+                    <div class="flex flex-col flex-1 min-w-[60px]">
+                        <span class="text-[9px] text-gray-400 mb-1 uppercase tracking-widest text-center">Tuổi TE ${c+1}</span>
+                        <select class="child-age-select w-full border border-gray-200 rounded-md p-1.5 text-xs bg-gray-50 text-[#3a322b] font-medium text-center focus:outline-none focus:border-[#3a322b]">
+                            ${Array.from({length: 18}, (_, i) => '<option value="' + i + '">' + i + ' tuổi</option>').join('')}
+                        </select>
+                    </div>
+                `;
+            }
+        }
+
         html += `
             <article class="room-card flex flex-col h-full">
                 <!-- Image / carousel -->
@@ -371,9 +387,13 @@ function renderRoomResults(roomsData) {
                                     </div>
                                     <div class="flex flex-col flex-1 justify-end">
                                         <span class="text-[10px] text-gray-500 mb-1.5 font-bold uppercase tracking-widest text-center">Trẻ em</span>
-                                        <input type="number" min="0" max="${(room.maxChildren || 2) + 2}" value="${room.baseChildren || 0}" class="children-input w-full border border-gray-200 rounded-lg p-2 text-sm bg-gray-50 text-[#3a322b] font-bold text-center focus:outline-none focus:border-[#3a322b] transition-all" />
+                                        <input type="number" min="0" max="${(room.maxChildren || 2) + 2}" value="${room.baseChildren || 0}" class="children-input w-full border border-gray-200 rounded-lg p-2 text-sm bg-gray-50 text-[#3a322b] font-bold text-center focus:outline-none focus:border-[#3a322b] transition-all" oninput="renderChildAges(this)" />
                                     </div>
                                 </div>
+                            </div>
+                            <!-- Khu vực chọn tuổi trẻ em -->
+                            <div class="children-ages-container flex gap-2 flex-wrap mt-1">
+                                ${childrenAgesHtml}
                             </div>
                             
                             <!-- Dưới cùng: Nút Select Room -->
@@ -398,6 +418,29 @@ function renderRoomResults(roomsData) {
     });
     grid.innerHTML = html;
     initRoomsPagination();
+}
+
+function renderChildAges(inputElem) {
+    const container = inputElem.closest('.booking-action-block').querySelector('.children-ages-container');
+    let count = parseInt(inputElem.value, 10);
+    if (isNaN(count) || count < 0) count = 0;
+    
+    // Retain previous selections if possible
+    const existingSelects = Array.from(container.querySelectorAll('.child-age-select')).map(s => s.value);
+    
+    let html = '';
+    for (let c = 0; c < count; c++) {
+        let prevVal = existingSelects[c] !== undefined ? existingSelects[c] : 0;
+        html += `
+            <div class="flex flex-col flex-1 min-w-[60px]">
+                <span class="text-[9px] text-gray-400 mb-1 uppercase tracking-widest text-center">Tuổi TE ${c+1}</span>
+                <select class="child-age-select w-full border border-gray-200 rounded-md p-1.5 text-xs bg-gray-50 text-[#3a322b] font-medium text-center focus:outline-none focus:border-[#3a322b]">
+                    ${Array.from({length: 18}, (_, i) => '<option value="' + i + '" ' + (i == prevVal ? 'selected' : '') + '>' + i + ' tuổi</option>').join('')}
+                </select>
+            </div>
+        `;
+    }
+    container.innerHTML = html;
 }
 
 // ---------------- SEARCH SIMULATION ----------------
@@ -673,6 +716,10 @@ function handleSelectRoomClick(button) {
     const quantity = parseInt(selectEl.value, 10);
     const adultsPerRoom = adultsInput ? parseInt(adultsInput.value, 10) : baseAdults;
     const childrenPerRoom = childrenInput ? parseInt(childrenInput.value, 10) : baseChildren;
+    
+    // Thu thập danh sách tuổi của trẻ em
+    const ageSelects = bookingActionBlock.querySelectorAll('.child-age-select');
+    const childrenAges = Array.from(ageSelects).map(s => parseInt(s.value, 10));
 
     if (quantity === 0) return;
 
@@ -696,6 +743,7 @@ function handleSelectRoomClick(button) {
         pricePerNight,
         adultsPerRoom,
         childrenPerRoom,
+        childrenAges,
         roomNumbers,
         // Chỉ lưu ước tính để hiển thị trước khi backend xác nhận
         estimatedTotal: estimatedBaseTotal,
@@ -734,7 +782,8 @@ function confirmCartBooking() {
                 categoryName: catName,
                 roomNumber: roomNo,
                 numberOfAdults: item.adultsPerRoom,
-                numberOfChildren: item.childrenPerRoom
+                numberOfChildren: item.childrenPerRoom,
+                childrenAges: item.childrenAges
             });
         });
     }

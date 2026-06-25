@@ -12,6 +12,8 @@ public class DependentResponseDTO {
     private String fullName;
     private LocalDate dateOfBirth;
     private String status; // REGISTERED | AUTHORIZED
+    private Boolean isPrimaryContact;
+    private String assignedRoom;
 
     public DependentResponseDTO() {
     }
@@ -46,5 +48,21 @@ public class DependentResponseDTO {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public Boolean getIsPrimaryContact() {
+        return isPrimaryContact;
+    }
+
+    public void setIsPrimaryContact(Boolean isPrimaryContact) {
+        this.isPrimaryContact = isPrimaryContact;
+    }
+
+    public String getAssignedRoom() {
+        return assignedRoom;
+    }
+
+    public void setAssignedRoom(String assignedRoom) {
+        this.assignedRoom = assignedRoom;
     }
 }

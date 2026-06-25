@@ -100,12 +100,10 @@
                 </div>
 
                 <div class="header-search">
-                    <form action="/receptionist/check-in" method="get"
-                        style="display: flex; align-items: center; width: 100%;">
+                    <form action="/receptionist/check-in" method="get">
                         <i class="fa-solid fa-magnifying-glass search-icon"></i>
                         <input type="text" name="keyword" th:value="${param.keyword}"
-                            placeholder="Search guest, room no., phone"
-                            style="border: none; background: transparent; outline: none; width: 100%;">
+                            placeholder="Search guest, room no., phone" style="border-radius: 20px;" />
                     </form>
                 </div>
 
@@ -239,25 +237,22 @@
                 <div style="margin-bottom: 24px;">
                     <h4
                         style="margin-top: 0; margin-bottom: 12px; font-weight: 600; color: #334155; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px;">
-                        Main Guest Information (Booking)</h4>
+                        Main Guest Information (Booking) <span id="masterCustomerRoomLabel" style="font-size: 13px; font-weight: 500; color: #d97706; margin-left: 12px;">(Chưa phân phòng)</span></h4>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-                        <div><label style="display: block; color:#64748b; font-size: 13px; margin-bottom: 4px;">Full
-                                Name</label>
-                            <input type="text" id="modalGuestName"
+                        <div><label style="display: block; color:#64748b; font-size: 13px; margin-bottom: 4px;">Full Name</label>
+                            <input type="text" id="modalGuestName" name="guestName"
                                 style="width: 100%; padding: 6px 8px; border: 1px solid #cbd5e1; border-radius: 4px; font-weight: 500; font-family: inherit;"
-                                value="" readonly>
+                                value="">
                         </div>
-                        <div><label style="display: block; color:#64748b; font-size: 13px; margin-bottom: 4px;">Phone
-                                Number</label>
-                            <input type="text" id="modalGuestPhone"
+                        <div><label style="display: block; color:#64748b; font-size: 13px; margin-bottom: 4px;">Phone Number</label>
+                            <input type="text" id="modalGuestPhone" name="phone"
                                 style="width: 100%; padding: 6px 8px; border: 1px solid #cbd5e1; border-radius: 4px; font-weight: 500; font-family: inherit;"
-                                value="" readonly>
+                                value="">
                         </div>
-                        <div><label style="display: block; color:#64748b; font-size: 13px; margin-bottom: 4px;">Identity
-                                (CCCD/Passport)</label>
-                            <input type="text" id="modalGuestCccd"
+                        <div><label style="display: block; color:#64748b; font-size: 13px; margin-bottom: 4px;">Identity (CCCD/Passport)</label>
+                            <input type="text" id="modalGuestCccd" name="cccd"
                                 style="width: 100%; padding: 6px 8px; border: 1px solid #cbd5e1; border-radius: 4px; font-weight: 500; font-family: inherit;"
-                                value="" readonly>
+                                value="">
                         </div>
                         <div><label style="color:#64748b; font-size: 13px;">Booked Room Types</label>
                             <div style="font-weight: 500; color: #0284c7;" id="modalRoom"></div>
@@ -326,6 +321,9 @@
                                     </th>
                                     <th style="padding: 8px; text-align: left; font-weight: 500; font-size: 13px;">
                                         CCCD</th>
+                                    <th style="padding: 8px; text-align: left; font-weight: 500; font-size: 13px;">
+                                        Phòng & Vai trò
+                                    </th>
                                     <th style="padding: 8px; text-align: left; font-weight: 500; font-size: 13px;">Date
                                         of
                                         Birth
@@ -349,7 +347,7 @@
                         <h5 style="margin-top: 0; margin-bottom: 12px; font-weight: 500; font-size: 14px;">Add Group
                             Member</h5>
                         <div
-                            style="display: grid; grid-template-columns: 2fr 2fr 2fr 2fr auto; gap: 12px; align-items: end;">
+                            style="display: grid; grid-template-columns: 2fr 2fr 2fr 2fr auto auto; gap: 12px; align-items: end;">
                             <div>
                                 <label style="display: block; font-size: 13px; margin-bottom: 4px;">Full Name</label>
                                 <input type="text" id="depName"
@@ -375,6 +373,11 @@
                                     Birth</label>
                                 <input type="date" id="depDob"
                                     style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px; background: white;">
+                            </div>
+                            <div style="display: flex; flex-direction: column; justify-content: flex-end; padding-bottom: 4px;">
+                                <label style="display: flex; align-items: center; gap: 4px; font-size: 13px; cursor: pointer; color: #334155;">
+                                    <input type="checkbox" id="depIsPrimary" style="width: 16px; height: 16px;"> Đứng đầu phòng
+                                </label>
                             </div>
                             <div>
                                 <button type="button" class="btn btn-outline btn-sm" onclick="addDependent()"

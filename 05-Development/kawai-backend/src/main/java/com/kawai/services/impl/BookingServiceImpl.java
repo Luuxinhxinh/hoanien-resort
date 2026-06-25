@@ -744,20 +744,32 @@ public class BookingServiceImpl implements BookingService {
         Customer customer = customerRepository.findById(customerId)
                 .orElseThrow(() -> new BusinessException("CUSTOMER_NOT_FOUND", "Không tìm thấy thông tin khách hàng!"));
 
-        // Cập nhật thông tin khách hàng từ form
-        customer.setFullName(fullName);
-        if (!com.kawai.utils.ValidationUtils.isValidPhone(phone)) {
-            throw new BusinessException("INVALID_PHONE",
-                    "Số điện thoại không hợp lệ (Phải gồm 10 số và bắt đầu bằng 0)");
+        // Cập nhật thông tin khách hàng từ form NẾU họ chưa có thông tin trong profile
+        if (customer.getFullName() == null || customer.getFullName().trim().isEmpty()) {
+            customer.setFullName(fullName);
         }
-        customer.setPhone(phone);
-        customer.setEmail(email);
+        
+        if (customer.getPhone() == null || customer.getPhone().trim().isEmpty()) {
+            if (!com.kawai.utils.ValidationUtils.isValidPhone(phone)) {
+                throw new BusinessException("INVALID_PHONE",
+                        "Số điện thoại không hợp lệ (Phải gồm 10 số và bắt đầu bằng 0)");
+            }
+            customer.setPhone(phone);
+        }
+        
+        if (customer.getEmail() == null || customer.getEmail().trim().isEmpty()) {
+            customer.setEmail(email);
+        }
+        
         if (cccd != null && !cccd.equals("********") && !cccd.trim().isEmpty()) {
             if (!com.kawai.utils.ValidationUtils.isValidDocument(cccd)) {
                 throw new BusinessException("INVALID_CCCD",
                         "CCCD/Passport không hợp lệ (Phải là CCCD 12 số, hoặc Passport 8-12 ký tự có chứa chữ cái)");
             }
-            customer.setCccdPassportEncrypted(com.kawai.utils.EncryptionUtils.encrypt(cccd.trim()));
+            // Chỉ cập nhật nếu profile chưa có cccd
+            if (customer.getCccdPassportEncrypted() == null || customer.getCccdPassportEncrypted().isEmpty()) {
+                customer.setCccdPassportEncrypted(com.kawai.utils.EncryptionUtils.encrypt(cccd.trim()));
+            }
         }
         customerRepository.save(customer);
 

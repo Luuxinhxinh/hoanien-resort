@@ -398,6 +398,27 @@ function submitCheckIn() {
     // Xác thực lại thông tin khách hàng trước khi gửi API (để tránh user sửa data sau khi Unlock)
     if (!validateGuestInfo()) return;
 
+    // Master customer đứng đầu phòng đầu tiên
+    const masterRoomId = walkInCart[0].roomId;
+
+    // Kiểm tra các phòng còn lại xem đã có đủ người đứng đầu chưa
+    const primaryRoomIds = walkInDependents.filter(d => d.isPrimaryContact).map(d => d.roomId);
+
+    const missingRooms = [];
+    for (let i = 1; i < walkInCart.length; i++) {
+        const room = walkInCart[i];
+        // roomId của walkInCart lưu dưới dạng string vì get từ select option,
+        // dep.roomId cũng string
+        if (!primaryRoomIds.includes(String(room.roomId))) {
+            missingRooms.push(room.roomNum);
+        }
+    }
+
+    if (missingRooms.length > 0) {
+        alert(`Thiếu người đứng đầu cho phòng: ${missingRooms.join(', ')}. Vui lòng quay lại Step 3 và chọn 1 người đi kèm làm người đứng đầu cho mỗi phòng này trước khi hoàn tất!`);
+        return;
+    }
+
     const localNow = new Date();
     const checkInStr = `${localNow.getFullYear()}-${String(localNow.getMonth() + 1).padStart(2, '0')}-${String(localNow.getDate()).padStart(2, '0')}`;
 
@@ -541,17 +562,22 @@ function renderAccompaniedGuests() {
     list.innerHTML = '';
 
     if (walkInDependents.length === 0) {
-        list.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 16px; color: #94a3b8; font-size: 13px;">Chưa có khách đi kèm</td></tr>';
+        list.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 16px; color: #94a3b8; font-size: 13px;">Chưa có khách đi kèm</td></tr>';
         return;
     }
 
     walkInDependents.forEach((dep, index) => {
+        const roleBadge = dep.isPrimaryContact ? `<span style="display:inline-block; padding: 2px 6px; background: #fef3c7; color: #d97706; border-radius: 4px; font-size: 11px; font-weight: 600;"><i class="fa-solid fa-star"></i> Đứng đầu</span>` : `<span style="font-size: 13px; color: #64748b;">Thành viên</span>`;
+        const roomDisplay = dep.roomNum ? `<span style="font-weight: 500; color: #334155;">Phòng ${dep.roomNum}</span><br>` : '';
+        const finalRoleDisplay = `${roomDisplay}${roleBadge}`;
+
         const tr = document.createElement('tr');
         tr.style.borderBottom = '1px dashed #e2e8f0';
         tr.innerHTML = `
-            <td style="padding: 12px 8px;">${dep.fullName} <br><span style="font-size: 11px; color: #3b82f6;">(Phòng ${dep.roomNum})</span></td>
+            <td style="padding: 12px 8px;">${dep.fullName}</td>
             <td style="padding: 12px 8px;">${dep.dateOfBirth}</td>
             <td style="padding: 12px 8px;">${dep.cccd || '-'}</td>
+            <td style="padding: 12px 8px;">${finalRoleDisplay}</td>
             <td style="padding: 12px 8px;">${dep.gender}</td>
             <td style="padding: 12px 8px;">
                 <button type="button" class="btn btn-sm" style="background: #fee2e2; color: #ef4444; border: 1px solid #fca5a5; padding: 4px 8px;" onclick="removeAccompaniedGuest(${index})">
@@ -568,6 +594,7 @@ function addAccompaniedGuest() {
     const dob = document.getElementById('depDob').value;
     const cccd = document.getElementById('depId').value;
     const gender = document.getElementById('depGender').value;
+    const isPrimary = document.getElementById('depIsPrimary').checked;
 
     const roomSelect = document.getElementById('depRoom');
     const roomId = roomSelect.value;
@@ -576,6 +603,20 @@ function addAccompaniedGuest() {
     if (!name || !dob || !roomId) {
         alert('Vui lòng nhập đầy đủ Họ tên, Ngày sinh và Chọn phòng xếp cho người đi kèm!');
         return;
+    }
+
+    if (isPrimary) {
+        if (walkInCart.length > 0 && roomId == walkInCart[0].roomId) {
+            alert(`Phòng ${roomNum} đã được chỉ định cho khách chính đứng đầu! Vui lòng không chọn người đi kèm làm người đứng đầu cho phòng này.`);
+            return;
+        }
+
+        // Kiểm tra xem phòng này đã có người đứng đầu chưa
+        const conflict = walkInDependents.some(dep => dep.roomId === roomId && dep.isPrimaryContact);
+        if (conflict) {
+            alert(`Phòng ${roomNum} đã có người đứng đầu! Vui lòng chọn người khác hoặc bỏ chọn người đứng đầu cũ.`);
+            return;
+        }
     }
 
     const todayStr = new Date().toISOString().split('T')[0];
@@ -598,7 +639,8 @@ function addAccompaniedGuest() {
         cccd: cccd || null,
         gender: gender,
         roomId: roomId,
-        roomNum: roomNum
+        roomNum: roomNum,
+        isPrimaryContact: isPrimary
     });
 
     // Clear form
@@ -607,6 +649,7 @@ function addAccompaniedGuest() {
     document.getElementById('depId').value = '';
     document.getElementById('depGender').value = 'Nam';
     document.getElementById('depRoom').value = '';
+    document.getElementById('depIsPrimary').checked = false;
 
     renderAccompaniedGuests();
 
@@ -621,5 +664,17 @@ function removeAccompaniedGuest(index) {
 
     if (document.getElementById('step4Container').style.display === 'block') {
         showPaymentStep();
+    }
+}
+
+function toggleWalkInDependents() {
+    const wrapper = document.getElementById('dependentsTableWrapper');
+    const btn = document.getElementById('toggleWalkInDependentsBtn');
+    if (wrapper.style.display === 'none') {
+        wrapper.style.display = 'block';
+        btn.innerHTML = '<i class="fa-solid fa-chevron-up"></i> Thu gọn';
+    } else {
+        wrapper.style.display = 'none';
+        btn.innerHTML = '<i class="fa-solid fa-chevron-down"></i> Hiện hết';
     }
 }
