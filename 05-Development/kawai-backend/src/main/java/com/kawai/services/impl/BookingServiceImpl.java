@@ -508,6 +508,29 @@ public class BookingServiceImpl implements BookingService {
                                     + maxUses + " lần) [ERR_PROMO_USAGE_EXCEEDED]");
                         }
                     }
+                    // 3. threshold_pct_gt (Chặn cứng đối với Khách hàng tự thao tác)
+                    if (conds.containsKey("threshold_pct_gt")) {
+                        BigDecimal thresholdVal = new BigDecimal(conds.get("threshold_pct_gt").toString());
+                        BigDecimal pct = "Percentage".equalsIgnoreCase(promo.getDiscountType())
+                                ? promo.getDiscountValue()
+                                : (baseTotal.compareTo(BigDecimal.ZERO) > 0
+                                        ? promo.getDiscountValue().multiply(new BigDecimal("100")).divide(baseTotal, 2, RoundingMode.HALF_UP)
+                                        : BigDecimal.ZERO);
+                        
+                        if (pct.compareTo(thresholdVal) > 0) {
+                            org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+                            boolean isStaff = auth != null && auth.getAuthorities().stream().anyMatch(a -> {
+                                String r = a.getAuthority();
+                                return r.equals("ROLE_ADMIN") || r.equals("ROLE_MANAGER") || r.equals("ROLE_RECEPTIONIST") || r.equals("ROLE_STAFF");
+                            });
+
+                            if (!isStaff) {
+                                throw new IllegalArgumentException("Mã giảm giá vượt quá mức cho phép đối với khách tự đặt ("
+                                        + thresholdVal + "%). Vui lòng liên hệ Lễ tân để được hỗ trợ đền bù. [ERR_PROMO_THRESHOLD_EXCEEDED]");
+                            }
+                            // Nếu là Staff -> Cho qua để hệ thống bắt vào luồng Workflow Treo chờ duyệt.
+                        }
+                    }
                 }
             } catch (Exception e) {
                 if (e instanceof IllegalArgumentException)

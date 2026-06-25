@@ -81,7 +81,7 @@ public class TourController {
 
         List<TourSearchResult> tours = tourService.searchAvailableTours(effectiveFrom, effectiveTo);
 
-        model.addAttribute("isLoggedIn", principal != null);
+        model.addAttribute("isLoggedIn", com.kawai.utils.SecurityUtils.isCustomerLoggedIn(principal));
         model.addAttribute("tours", tours);
         model.addAttribute("fromDate", effectiveFrom);
         model.addAttribute("toDate", effectiveTo);
@@ -98,7 +98,7 @@ public class TourController {
             @RequestParam(name = "type", defaultValue = "doantu") String type,
             java.security.Principal principal,
             Model model) {
-        model.addAttribute("isLoggedIn", principal != null);
+        model.addAttribute("isLoggedIn", com.kawai.utils.SecurityUtils.isCustomerLoggedIn(principal));
         model.addAttribute("type", type);
         
         com.kawai.models.Tour tour = tourRepository.findFirstByTourTypeAndIsActiveTrueOrderByIdDesc(type).orElse(null);
@@ -120,7 +120,7 @@ public class TourController {
             }
         }
 
-        if (principal != null) {
+        if (com.kawai.utils.SecurityUtils.isCustomerLoggedIn(principal)) {
             String username = principal.getName();
             if (principal instanceof org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken) {
                 org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken oauthToken = 

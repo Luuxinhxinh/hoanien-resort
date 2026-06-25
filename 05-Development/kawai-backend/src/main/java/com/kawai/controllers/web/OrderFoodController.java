@@ -59,7 +59,7 @@ public class OrderFoodController {
         Room currentRoom = null;
         RestaurantTable currentTable = null;
         BigDecimal currentCreditLimit = null;
-        boolean isLoggedIn = (principal != null);
+        boolean isLoggedIn = com.kawai.utils.SecurityUtils.isCustomerLoggedIn(principal);
 
         // 1. Tải thực đơn (Áp dụng chung cho cả Guest và Member)
         try {

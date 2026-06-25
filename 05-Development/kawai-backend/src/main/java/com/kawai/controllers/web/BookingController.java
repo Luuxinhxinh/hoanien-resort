@@ -25,9 +25,9 @@ public class BookingController {
     @GetMapping("/booking")
     public String showBookingPage(Principal principal, Model model,
             @RequestParam(name = "keyword", required = false) String keyword) {
-        model.addAttribute("isLoggedIn", principal != null);
+        model.addAttribute("isLoggedIn", com.kawai.utils.SecurityUtils.isCustomerLoggedIn(principal));
 
-        if (principal != null) {
+        if (com.kawai.utils.SecurityUtils.isCustomerLoggedIn(principal)) {
             String username = principal.getName();
             if (principal instanceof org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken) {
                 org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken oauthToken = 
@@ -53,25 +53,25 @@ public class BookingController {
 
     @GetMapping("/living")
     public String showLivingPage(Principal principal, Model model) {
-        model.addAttribute("isLoggedIn", principal != null);
+        model.addAttribute("isLoggedIn", com.kawai.utils.SecurityUtils.isCustomerLoggedIn(principal));
         return "guest/living";
     }
 
     @GetMapping("/wellbeing")
     public String showWellbeingPage(Principal principal, Model model) {
-        model.addAttribute("isLoggedIn", principal != null);
+        model.addAttribute("isLoggedIn", com.kawai.utils.SecurityUtils.isCustomerLoggedIn(principal));
         return "guest/wellbeing";
     }
 
     @GetMapping("/dining")
     public String showDiningPage(Principal principal, Model model) {
-        model.addAttribute("isLoggedIn", principal != null);
+        model.addAttribute("isLoggedIn", com.kawai.utils.SecurityUtils.isCustomerLoggedIn(principal));
         return "guest/dining";
     }
 
     @GetMapping("/experiences")
     public String showExperiencesPage(Principal principal, Model model) {
-        model.addAttribute("isLoggedIn", principal != null);
+        model.addAttribute("isLoggedIn", com.kawai.utils.SecurityUtils.isCustomerLoggedIn(principal));
         return "guest/experiences";
     }
 
@@ -80,7 +80,7 @@ public class BookingController {
 
     @GetMapping("/book-table")
     public String showTableBookingPage(Principal principal, Model model) {
-        model.addAttribute("isLoggedIn", principal != null);
+        model.addAttribute("isLoggedIn", com.kawai.utils.SecurityUtils.isCustomerLoggedIn(principal));
         java.util.List<com.kawai.models.RestaurantTable> tables = restaurantTableRepository.findAll();
         model.addAttribute("tables", tables);
         return "guest/book-table";

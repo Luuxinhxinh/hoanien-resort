@@ -25,21 +25,35 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 public class WorkflowEngineCustomTest {
 
-    @Mock private WorkflowRepository workflowRepository;
-    @Mock private RoomRepository roomRepository;
-    @Mock private EmployeeRepository employeeRepository;
-    @Mock private HotelOperationRepository hotelOperationRepository;
-    @Mock private PromotionRepository promotionRepository;
-    @Mock private BookingRepository bookingRepository;
-    @Mock private AccountRepository accountRepository;
-    @Mock private CustomerRepository customerRepository;
-    @Mock private RoleRepository roleRepository;
-    @Mock private AuditLogRepository auditLogRepository;
-    @Mock private PasswordEncoder passwordEncoder;
-    @Mock private EmailService emailService;
-    @Mock private ApplicationEventPublisher eventPublisher;
+    @Mock
+    private WorkflowRepository workflowRepository;
+    @Mock
+    private RoomRepository roomRepository;
+    @Mock
+    private EmployeeRepository employeeRepository;
+    @Mock
+    private HotelOperationRepository hotelOperationRepository;
+    @Mock
+    private PromotionRepository promotionRepository;
+    @Mock
+    private BookingRepository bookingRepository;
+    @Mock
+    private AccountRepository accountRepository;
+    @Mock
+    private CustomerRepository customerRepository;
+    @Mock
+    private RoleRepository roleRepository;
+    @Mock
+    private AuditLogRepository auditLogRepository;
+    @Mock
+    private PasswordEncoder passwordEncoder;
+    @Mock
+    private EmailService emailService;
+    @Mock
+    private ApplicationEventPublisher eventPublisher;
 
-    @Spy private ObjectMapper objectMapper = new ObjectMapper();
+    @Spy
+    private ObjectMapper objectMapper = new ObjectMapper();
 
     private WorkflowEngineServiceImpl workflowEngineService;
     private AuthServiceImpl authService;
@@ -54,9 +68,8 @@ public class WorkflowEngineCustomTest {
                 promotionRepository,
                 bookingRepository,
                 objectMapper,
-                eventPublisher
-        );
-        
+                eventPublisher);
+
         authService = new AuthServiceImpl();
         ReflectionTestUtils.setField(authService, "accountRepository", accountRepository);
         ReflectionTestUtils.setField(authService, "customerRepository", customerRepository);
@@ -67,7 +80,6 @@ public class WorkflowEngineCustomTest {
         ReflectionTestUtils.setField(authService, "eventPublisher", eventPublisher);
     }
 
-
     @Test
     void testTriggerEvent_RoomCheckout_Success() throws Exception {
         Workflow wf = new Workflow();
@@ -75,7 +87,8 @@ public class WorkflowEngineCustomTest {
         wf.setTriggerEvent("ROOM_CHECKOUT");
         wf.setIsActive(true);
         wf.setConditionsJson("{}");
-        wf.setActionsJson("[{\"type\":\"UPDATE_ROOM_STATUS\",\"value\":\"Vacant_Dirty\"},{\"type\":\"CREATE_OPERATION_TASK\",\"value\":\"Housekeeping\"}]");
+        wf.setActionsJson(
+                "[{\"type\":\"UPDATE_ROOM_STATUS\",\"value\":\"Vacant_Dirty\"},{\"type\":\"CREATE_OPERATION_TASK\",\"value\":\"Housekeeping\"}]");
 
         Room room = new Room();
         room.setId(10L);

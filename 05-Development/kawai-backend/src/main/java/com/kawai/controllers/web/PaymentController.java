@@ -34,7 +34,7 @@ public class PaymentController {
             Authentication authentication,
             Model model) {
 
-        boolean isLoggedIn = principal != null;
+        boolean isLoggedIn = com.kawai.utils.SecurityUtils.isCustomerLoggedIn(principal);
         model.addAttribute("isLoggedIn", isLoggedIn);
         model.addAttribute("bookingId", bookingId);
 

@@ -73,8 +73,7 @@ public class ProfileController {
 
     @GetMapping
     public String viewProfile(Authentication authentication, Model model) {
-        if (authentication == null || !authentication.isAuthenticated()
-                || "anonymousUser".equals(authentication.getName())) {
+        if (!com.kawai.utils.SecurityUtils.isCustomerLoggedIn(authentication)) {
             return "redirect:/booking";
         }
         String username = extractUsername(authentication);
@@ -150,8 +149,7 @@ public class ProfileController {
 
     @GetMapping("/bookings")
     public String viewBookingHistory(Authentication authentication, Model model) {
-        if (authentication == null || !authentication.isAuthenticated()
-                || "anonymousUser".equals(authentication.getName())) {
+        if (!com.kawai.utils.SecurityUtils.isCustomerLoggedIn(authentication)) {
             return "redirect:/booking";
         }
         String username = extractUsername(authentication);
@@ -236,8 +234,7 @@ public class ProfileController {
             @RequestParam(required = false) String phone,
             @RequestParam(required = false) String cccd,
             RedirectAttributes redirectAttributes) {
-        if (authentication == null || !authentication.isAuthenticated()
-                || "anonymousUser".equals(authentication.getName())) {
+        if (!com.kawai.utils.SecurityUtils.isCustomerLoggedIn(authentication)) {
             return "redirect:/booking";
         }
         String username = extractUsername(authentication);
@@ -278,8 +275,7 @@ public class ProfileController {
             @RequestParam String oldPassword,
             @RequestParam String newPassword,
             RedirectAttributes redirectAttributes) {
-        if (authentication == null || !authentication.isAuthenticated()
-                || "anonymousUser".equals(authentication.getName())) {
+        if (!com.kawai.utils.SecurityUtils.isCustomerLoggedIn(authentication)) {
             return "redirect:/booking";
         }
         String username = extractUsername(authentication);
@@ -304,8 +300,7 @@ public class ProfileController {
             @RequestParam String birthDate,
             @RequestParam(required = false) String cccd,
             RedirectAttributes redirectAttributes) {
-        if (authentication == null || !authentication.isAuthenticated()
-                || "anonymousUser".equals(authentication.getName())) {
+        if (!com.kawai.utils.SecurityUtils.isCustomerLoggedIn(authentication)) {
             return "redirect:/booking";
         }
         String username = extractUsername(authentication);
@@ -340,8 +335,7 @@ public class ProfileController {
     public String deleteDependent(Authentication authentication,
             @PathVariable Long id,
             RedirectAttributes redirectAttributes) {
-        if (authentication == null || !authentication.isAuthenticated()
-                || "anonymousUser".equals(authentication.getName())) {
+        if (!com.kawai.utils.SecurityUtils.isCustomerLoggedIn(authentication)) {
             return "redirect:/booking";
         }
         String username = extractUsername(authentication);
