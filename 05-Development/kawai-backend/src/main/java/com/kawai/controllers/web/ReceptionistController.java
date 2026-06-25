@@ -14,12 +14,9 @@ import java.util.stream.Collectors;
 import com.kawai.repositories.*;
 import com.kawai.models.*;
 
-import org.springframework.security.access.prepost.PreAuthorize;
-
 @Controller
 @RequestMapping("/receptionist")
 @AllArgsConstructor
-@PreAuthorize("hasAnyAuthority('OP_BOOKING', 'ROLE_ADMIN', 'ROLE_MANAGER')")
 public class ReceptionistController {
 
     private final RoomRepository roomRepository;
@@ -27,6 +24,7 @@ public class ReceptionistController {
     private final RoomBookingRepository roomBookingRepository;
     private final RoomBookingDetailRepository roomBookingDetailRepository;
     private final com.kawai.services.interfaces.DependentService dependentService;
+    private final com.kawai.services.interfaces.CheckinService checkinService;
 
     @org.springframework.web.bind.annotation.ModelAttribute("todayLabel")
     public String getTodayLabel() {
@@ -103,6 +101,7 @@ public class ReceptionistController {
     @GetMapping("/check-in")
     public String checkIn(@org.springframework.web.bind.annotation.RequestParam(defaultValue = "1") int page,
             @org.springframework.web.bind.annotation.RequestParam(required = false) String keyword,
+            @org.springframework.web.bind.annotation.RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate dateFilter,
             Model model) {
         List<Booking> allConfirmed = bookingRepository.findConfirmed();
         List<Booking> filteredArrivals = new ArrayList<>();
@@ -112,9 +111,20 @@ public class ReceptionistController {
             for (Booking b : allConfirmed) {
                 if (!(b instanceof RoomBooking))
                     continue;
+                RoomBooking rb = (RoomBooking) b;
+
+                // Filter by keyword
                 if (!matchesKeyword(b, keyword)) {
                     continue;
                 }
+
+                // Filter by dateFilter if provided
+                if (dateFilter != null) {
+                    if (rb.getCheckInDate() == null || !rb.getCheckInDate().equals(dateFilter)) {
+                        continue;
+                    }
+                }
+
                 filteredArrivals.add(b);
             }
         }
@@ -174,6 +184,18 @@ public class ReceptionistController {
                             ? b.getBookingDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
                             : "");
 
+            if (b instanceof RoomBooking) {
+                RoomBooking rb = (RoomBooking) b;
+                map.put("checkInDate", rb.getCheckInDate() != null
+                        ? rb.getCheckInDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+                        : "N/A");
+                map.put("isExpired",
+                        rb.getCheckInDate() != null && rb.getCheckInDate().isBefore(java.time.LocalDate.now()));
+            } else {
+                map.put("checkInDate", "N/A");
+                map.put("isExpired", false);
+            }
+
             String roomSummary = "N/A";
             Map<String, Long> categoryCount = details.stream()
                     .filter(d -> d.getCategory() != null)
@@ -200,6 +222,10 @@ public class ReceptionistController {
         model.addAttribute("pendingArrivalsCount", totalItems);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", totalPages);
+        model.addAttribute("keyword", keyword);
+        if (dateFilter != null) {
+            model.addAttribute("dateFilter", dateFilter.toString());
+        }
 
         Map<String, List<String>> inventory = new HashMap<>();
         for (Room r : roomRepository.findVacant()) {
@@ -298,6 +324,62 @@ public class ReceptionistController {
         model.addAttribute("totalInHouseCount", totalInHouseItems);
         model.addAttribute("currentInHousePage", inHousePage);
         model.addAttribute("totalInHousePages", totalInHousePages);
+        model.addAttribute("keyword", keyword);
+
+        // Fetch cancelled bookings
+        List<Booking> allCancelledRaw = bookingRepository.findCancelledBookings();
+        List<Booking> allCancelled = new ArrayList<>();
+        if (allCancelledRaw != null) {
+            for (Booking b : allCancelledRaw) {
+                if (!matchesKeyword(b, keyword))
+                    continue;
+                allCancelled.add(b);
+            }
+        }
+        // Sắp xếp đơn Hủy mới nhất lên đầu (Id giảm dần)
+        allCancelled.sort(java.util.Comparator.comparing(Booking::getId).reversed());
+
+        List<Map<String, Object>> mappedCancelled = new ArrayList<>();
+        for (Booking b : allCancelled) {
+            List<RoomBookingDetail> details = roomBookingDetailRepository.findByRoomBookingId(b.getId());
+            if (details == null || details.isEmpty())
+                continue;
+            String guestName = b.getCustomer() != null ? b.getCustomer().getFullName() : "Unknown";
+            String phone = b.getCustomer() != null ? b.getCustomer().getPhone() : "";
+            Map<String, Object> map = new HashMap<>();
+            map.put("id", b.getId());
+            map.put("guestName", guestName);
+            map.put("phone", phone);
+            map.put("status", b.getBookingStatus());
+
+            String checkInStr = "";
+            String checkOutStr = "";
+            if (b instanceof RoomBooking) {
+                RoomBooking rb = (RoomBooking) b;
+                checkInStr = rb.getCheckInDate() != null
+                        ? rb.getCheckInDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+                        : "";
+                checkOutStr = rb.getCheckOutDate() != null
+                        ? rb.getCheckOutDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+                        : "";
+            }
+            map.put("checkInDate", checkInStr);
+            map.put("checkOutDate", checkOutStr);
+
+            int roomCount = (int) details.stream().filter(d -> d.getRoom() != null).count();
+            String roomSummary = details.stream()
+                    .filter(d -> d.getRoom() != null)
+                    .map(d -> d.getRoom().getRoomNumber() + " ("
+                            + (d.getCategory() != null ? d.getCategory().getCategoryName() : "Unknown") + ")")
+                    .collect(Collectors.joining(", "));
+            if (roomSummary.isEmpty())
+                roomSummary = "N/A";
+            map.put("roomSummary", roomSummary);
+
+            mappedCancelled.add(map);
+        }
+        model.addAttribute("cancelledBookings", mappedCancelled);
+
         return "receptionist/in-house";
     }
 
@@ -314,6 +396,19 @@ public class ReceptionistController {
     @GetMapping("/night-audit")
     public String nightAudit(Model model) {
         return "receptionist/night-audit";
+    }
+
+    @org.springframework.web.bind.annotation.PostMapping("/check-in/cancel-no-show/{id}")
+    public String cancelNoShow(@org.springframework.web.bind.annotation.PathVariable Long id,
+            org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+        try {
+            checkinService.markAsNoShow(id);
+            redirectAttributes.addFlashAttribute("successMessage",
+                    "Đã đánh dấu hủy thành công và giải phóng phòng!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Lỗi: " + e.getMessage());
+        }
+        return "redirect:/receptionist/check-in";
     }
 
     private boolean matchesKeyword(Booking b, String keyword) {

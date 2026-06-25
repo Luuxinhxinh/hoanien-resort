@@ -130,7 +130,7 @@
                                 <p class="text-sm">Bạn chưa có đơn đặt phòng nào.</p>
                             </div>
 
-                            <div th:each="booking : ${bookings}" class="booking-item flex flex-col md:flex-row gap-4 p-4 border border-hoanien-text/10 rounded-lg bg-white/30 hover:bg-white/50 transition-colors" th:data-status="${#strings.toUpperCase(booking.bookingStatus)}" th:classappend="${#strings.toUpperCase(booking.bookingStatus) == 'CANCELLED' ? 'opacity-70' : ''}">
+                            <div th:each="booking : ${bookings}" class="booking-item flex flex-col md:flex-row gap-4 p-4 border border-hoanien-text/10 rounded-lg bg-white/30 hover:bg-white/50 transition-colors" th:data-status="${#strings.toUpperCase(booking.bookingStatus)}" th:classappend="${#strings.toUpperCase(booking.bookingStatus).startsWith('CANCEL') ? 'opacity-70' : ''}">
                                 <div class="w-full md:w-[120px] h-[80px] shrink-0 rounded-md overflow-hidden bg-gray-100">
                                     <img th:src="${'https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'}" alt="Room Image" class="w-full h-full object-cover" />
                                 </div>
@@ -145,10 +145,10 @@
                                             <span th:if="${#strings.toUpperCase(booking.bookingStatus) == 'PENDING'}" class="text-[10px] bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full font-medium whitespace-nowrap flex items-center gap-1">
                                                 <span class="w-1.5 h-1.5 rounded-full bg-yellow-600"></span> Chờ xử lý
                                             </span>
-                                            <span th:if="${#strings.toUpperCase(booking.bookingStatus) == 'CANCELLED'}" class="text-[10px] bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-medium whitespace-nowrap flex items-center gap-1">
+                                            <span th:if="${#strings.toUpperCase(booking.bookingStatus).startsWith('CANCEL')}" class="text-[10px] bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-medium whitespace-nowrap flex items-center gap-1">
                                                 <span class="w-1.5 h-1.5 rounded-full bg-red-600"></span> Đã hủy
                                             </span>
-                                            <span th:unless="${#lists.contains({'CONFIRMED', 'PENDING', 'CANCELLED'}, #strings.toUpperCase(booking.bookingStatus))}" class="text-[10px] bg-gray-200 text-gray-600 px-2 py-0.5 rounded-full font-medium whitespace-nowrap flex items-center gap-1">
+                                            <span th:unless="${#lists.contains({'CONFIRMED', 'PENDING'}, #strings.toUpperCase(booking.bookingStatus)) or #strings.toUpperCase(booking.bookingStatus).startsWith('CANCEL')}" class="text-[10px] bg-gray-200 text-gray-600 px-2 py-0.5 rounded-full font-medium whitespace-nowrap flex items-center gap-1">
                                                 <span class="w-1.5 h-1.5 rounded-full bg-gray-500"></span> <span th:text="${booking.bookingStatus}">Trạng thái</span>
                                             </span>
                                         </div>
@@ -167,7 +167,7 @@
                                             <p class="font-serif text-base font-semibold"><span th:text="${booking.depositAmount != null ? #numbers.formatDecimal(booking.depositAmount, 0, 'COMMA', 0, 'POINT') : '0'}">Price</span> <span class="text-[9px] font-sans">VNĐ</span></p>
                                         </div>
                                         <div class="flex gap-2">
-                                            <button th:if="${#strings.toUpperCase(booking.bookingStatus) == 'PENDING' or #strings.toUpperCase(booking.bookingStatus) == 'CONFIRMED'}" th:onclick="'cancelBooking(' + ${booking.id} + ')'" class="text-[9px] uppercase tracking-widest font-semibold border border-hoanien-text/20 bg-white px-3 py-1.5 rounded hover:bg-gray-50 transition-colors">Hủy đơn</button>
+                                            <button th:if="${#strings.toUpperCase(booking.bookingStatus) == 'CONFIRMED'}" th:onclick="'cancelBooking(' + ${booking.id} + ')'" class="text-[9px] uppercase tracking-widest font-semibold border border-hoanien-text/20 bg-white px-3 py-1.5 rounded hover:bg-gray-50 transition-colors">Hủy đơn</button>
                                             <button type="button" th:onclick="'viewBookingDetails(' + ${booking.id} + ')'" class="text-[9px] uppercase tracking-widest font-semibold bg-hoanien-text text-hoanien-bg px-3 py-1.5 rounded hover:bg-hoanien-text/90 transition-colors">Chi tiết</button>
                                         </div>
                                     </div>
@@ -184,7 +184,7 @@
                                 <p class="text-sm">Bạn chưa có đơn đặt tour nào.</p>
                             </div>
 
-                            <div th:each="tb : ${tourBookings}" class="flex flex-col md:flex-row gap-4 p-4 border border-hoanien-text/10 rounded-lg bg-white/30 hover:bg-white/50 transition-colors">
+                            <div th:each="tb : ${tourBookings}" class="flex flex-col md:flex-row gap-4 p-4 border border-hoanien-text/10 rounded-lg bg-white/30 hover:bg-white/50 transition-colors" th:data-status="${#strings.toUpperCase(tb.bookingStatus)}" th:classappend="${#strings.toUpperCase(tb.bookingStatus).startsWith('CANCEL') ? 'opacity-70' : ''}">
                                 <div class="w-full md:w-[120px] h-[80px] shrink-0 rounded-md overflow-hidden bg-gray-100 flex items-center justify-center">
                                     <span class="material-symbols-outlined text-3xl opacity-40">tour</span>
                                 </div>
@@ -199,10 +199,10 @@
                                             <span th:if="${#strings.toUpperCase(tb.bookingStatus) == 'PENDING'}" class="text-[10px] bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full font-medium flex items-center gap-1">
                                                 <span class="w-1.5 h-1.5 rounded-full bg-yellow-600"></span> Chờ xử lý
                                             </span>
-                                            <span th:if="${#strings.toUpperCase(tb.bookingStatus) == 'CANCELLED'}" class="text-[10px] bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-medium flex items-center gap-1">
+                                            <span th:if="${#strings.toUpperCase(tb.bookingStatus).startsWith('CANCEL')}" class="text-[10px] bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-medium flex items-center gap-1">
                                                 <span class="w-1.5 h-1.5 rounded-full bg-red-600"></span> Đã hủy
                                             </span>
-                                            <span th:unless="${#lists.contains({'CONFIRMED', 'PENDING', 'CANCELLED'}, #strings.toUpperCase(tb.bookingStatus))}" class="text-[10px] bg-gray-200 text-gray-600 px-2 py-0.5 rounded-full font-medium flex items-center gap-1">
+                                            <span th:unless="${#lists.contains({'CONFIRMED', 'PENDING'}, #strings.toUpperCase(tb.bookingStatus)) or #strings.toUpperCase(tb.bookingStatus).startsWith('CANCEL')}" class="text-[10px] bg-gray-200 text-gray-600 px-2 py-0.5 rounded-full font-medium flex items-center gap-1">
                                                 <span class="w-1.5 h-1.5 rounded-full bg-gray-500"></span> <span th:text="${tb.bookingStatus}">Trạng thái</span>
                                             </span>
                                         </div>
@@ -372,7 +372,7 @@
                         <span id="detailTotal" class="font-bold"></span>
                     </div>
                     <div class="flex justify-between text-hoanien-text/60 text-xs mt-1">
-                        <span>Đã cọc:</span>
+                        <span>Tiền cọc:</span>
                         <span id="detailDeposit"></span>
                     </div>
                 </div>
@@ -573,7 +573,7 @@
                         item.style.display = 'none';
                     }
                 } else if (filterValue === 'cancelled') {
-                    if (status === 'CANCELLED') {
+                    if (status.startsWith('CANCEL')) {
                         item.style.display = 'flex';
                     } else {
                         item.style.display = 'none';

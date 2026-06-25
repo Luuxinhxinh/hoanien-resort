@@ -293,7 +293,7 @@
                                     <div class="flex items-center gap-3">
                                         <p class="font-serif text-base md:text-lg font-semibold"><span th:text="${booking.depositAmount != null ? #numbers.formatDecimal(booking.depositAmount, 0, 'COMMA', 0, 'POINT') : '0'}">0</span><span class="text-[9px] font-sans ml-1 text-hoanien-text/70">VNĐ</span></p>
                                         <div class="h-4 w-px bg-hoanien-text/20"></div>
-                                        <button th:if="${#strings.toUpperCase(booking.bookingStatus) == 'PENDING' or #strings.toUpperCase(booking.bookingStatus) == 'CONFIRMED'}" type="button" th:onclick="'cancelBooking(' + ${booking.id} + ')'" class="text-xs opacity-60 hover:opacity-100 hover:text-red-600 transition-colors" title="Hủy đơn"><span class="material-symbols-outlined text-[18px]">cancel</span></button>
+                                        <button th:if="${#strings.toUpperCase(booking.bookingStatus) == 'CONFIRMED'}" type="button" th:onclick="'cancelBooking(' + ${booking.id} + ')'" class="text-xs opacity-60 hover:opacity-100 hover:text-red-600 transition-colors" title="Hủy đơn"><span class="material-symbols-outlined text-[18px]">cancel</span></button>
                                         <button type="button" th:onclick="'viewBookingDetails(' + ${booking.id} + ')'" class="text-[11px] font-semibold hover:text-hoanien-text/70 transition-colors uppercase tracking-wider" title="Chi tiết">Chi tiết</button>
                                     </div>
                                 </div>
@@ -516,7 +516,7 @@
                         <span id="detailTotal" class="font-bold"></span>
                     </div>
                     <div class="flex justify-between text-hoanien-text/60 text-xs mt-1">
-                        <span>Đã cọc:</span>
+                        <span>Tiền cọc:</span>
                         <span id="detailDeposit"></span>
                     </div>
                 </div>

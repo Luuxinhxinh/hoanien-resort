@@ -85,10 +85,11 @@ public class ProfileController {
             List<RoomBooking> roomBookings = roomBookingRepository.findByCustomerOrderByIdDesc(customer)
                     .stream()
                     .filter(b -> {
-                        if ("HOLD".equalsIgnoreCase(b.getBookingStatus())) {
+                        String status = b.getBookingStatus() != null ? b.getBookingStatus().toUpperCase() : "";
+                        if (status.startsWith("PENDING") || status.equals("Pending_Payment")) {
                             return false;
                         }
-                        if (b.getBookingStatus() != null && b.getBookingStatus().toUpperCase().startsWith("CANCEL")) {
+                        if (status.startsWith("CANCEL")) {
                             return paymentTransactionRepository.existsByBookingIdAndStatus(b.getId(),
                                     com.kawai.models.PaymentStatus.SUCCESS);
                         }
@@ -106,7 +107,19 @@ public class ProfileController {
             }
             model.addAttribute("bookingFirstDetails", bookingFirstDetails);
 
-            List<TourBooking> tourBookings = tourBookingRepository.findByCustomer(customer);
+            List<TourBooking> tourBookings = tourBookingRepository.findByCustomer(customer).stream()
+                    .filter(tb -> {
+                        String status = tb.getBookingStatus() != null ? tb.getBookingStatus().toUpperCase() : "";
+                        if (status.startsWith("PENDING")) {
+                            return false;
+                        }
+                        if (status.startsWith("CANCEL")) {
+                            return paymentTransactionRepository.existsByBookingIdAndStatus(tb.getId(),
+                                    com.kawai.models.PaymentStatus.SUCCESS);
+                        }
+                        return true;
+                    })
+                    .collect(java.util.stream.Collectors.toList());
             for (TourBooking tb : tourBookings) {
                 if (tb.getSchedule() != null) {
                     tb.getSchedule().getDepartureDate();
@@ -161,10 +174,11 @@ public class ProfileController {
             List<RoomBooking> roomBookings = roomBookingRepository.findByCustomerOrderByIdDesc(customer)
                     .stream()
                     .filter(b -> {
-                        if ("HOLD".equalsIgnoreCase(b.getBookingStatus())) {
+                        String status = b.getBookingStatus() != null ? b.getBookingStatus().toUpperCase() : "";
+                        if (status.startsWith("PENDING") || status.equals("Pending_Payment")) {
                             return false;
                         }
-                        if (b.getBookingStatus() != null && b.getBookingStatus().toUpperCase().startsWith("CANCEL")) {
+                        if (status.startsWith("CANCEL")) {
                             return paymentTransactionRepository.existsByBookingIdAndStatus(b.getId(),
                                     com.kawai.models.PaymentStatus.SUCCESS);
                         }
@@ -182,8 +196,19 @@ public class ProfileController {
             }
             model.addAttribute("bookingFirstDetails", bookingFirstDetails);
 
-            // Fetch and initialize tourBookings
-            List<TourBooking> tourBookings = tourBookingRepository.findByCustomer(customer);
+            List<TourBooking> tourBookings = tourBookingRepository.findByCustomer(customer).stream()
+                    .filter(tb -> {
+                        String status = tb.getBookingStatus() != null ? tb.getBookingStatus().toUpperCase() : "";
+                        if (status.startsWith("PENDING")) {
+                            return false;
+                        }
+                        if (status.startsWith("CANCEL")) {
+                            return paymentTransactionRepository.existsByBookingIdAndStatus(tb.getId(),
+                                    com.kawai.models.PaymentStatus.SUCCESS);
+                        }
+                        return true;
+                    })
+                    .collect(java.util.stream.Collectors.toList());
             for (TourBooking tb : tourBookings) {
                 if (tb.getSchedule() != null) {
                     tb.getSchedule().getDepartureDate();
@@ -195,7 +220,9 @@ public class ProfileController {
             model.addAttribute("tourBookings", tourBookings);
 
             // Fetch and initialize foodOrders
-            List<FoodOrder> foodOrders = foodOrderRepository.findByCustomer(customer);
+            List<FoodOrder> foodOrders = foodOrderRepository.findByCustomer(customer).stream()
+                    .filter(fo -> fo.getOrderStatus() == null || !fo.getOrderStatus().toUpperCase().startsWith("PENDING"))
+                    .collect(java.util.stream.Collectors.toList());
             for (FoodOrder fo : foodOrders) {
                 if (fo.getDetails() != null) {
                     fo.getDetails().size();
@@ -209,7 +236,9 @@ public class ProfileController {
             model.addAttribute("foodOrders", foodOrders);
 
             List<com.kawai.models.TableReservation> tableReservations = tableReservationRepository
-                    .findByCustomerOrderByIdDesc(customer);
+                    .findByCustomerOrderByIdDesc(customer).stream()
+                    .filter(tr -> tr.getStatus() == null || !tr.getStatus().toUpperCase().startsWith("PENDING"))
+                    .collect(java.util.stream.Collectors.toList());
             model.addAttribute("tableReservations", tableReservations);
         } else {
             model.addAttribute("bookings", Collections.emptyList());

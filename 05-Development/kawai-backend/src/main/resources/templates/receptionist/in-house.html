@@ -144,7 +144,7 @@
 
 
 
-                <div class="split-layout" style="display: block;">
+                <div class="split-layout" style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
 
 
                     <!-- Tab 2: In-House Guests -->
@@ -208,6 +208,41 @@
                                 th:style="'padding: 0.5rem 1rem; border: 1px solid #e5e7eb; border-radius: 6px; text-decoration: none; color: #374151;' + (${currentInHousePage == totalInHousePages} ? ' opacity: 0.5; pointer-events: none;' : '')">Next</a>
                         </div>
                     </div> <!-- End Tab 2 -->
+
+                    <!-- Tab 3: Cancelled/No-Show Guests -->
+                    <div id="tabContentCancelled" class="split-section" style="display: block;">
+                        <div class="split-title"
+                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                            <span>Đơn đã Hủy / No-Show</span>
+                            <span class="status-badge" style="background:#fee2e2; color:#991b1b;"
+                                th:text="${#lists.size(cancelledBookings)} + ' Cancelled'"></span>
+                        </div>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Main Guest</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th>Phòng</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:if="${#lists.isEmpty(cancelledBookings)}">
+                                    <td colspan="4" style="text-align: center;">Không có đơn hủy</td>
+                                </tr>
+                                <tr th:each="arr : ${cancelledBookings}">
+                                    <td style="color: #2563eb; font-weight: 500;"
+                                        th:text="${arr.guestName}"></td>
+                                    <td th:text="${arr.checkInDate}"></td>
+                                    <td>
+                                        <span class="status-badge" th:text="${arr.status}" 
+                                            th:style="${#strings.equalsIgnoreCase(arr.status, 'NO-SHOW')} ? 'background:#fef3c7; color:#d97706;' : 'background:#fee2e2; color:#991b1b;'"></span>
+                                    </td>
+                                    <td th:text="${arr.roomSummary}" style="color: #4b5563;"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div> <!-- End Tab 3 -->
                 </div>
             </div>
         </main>
