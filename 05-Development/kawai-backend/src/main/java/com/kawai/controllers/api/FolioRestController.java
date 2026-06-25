@@ -766,8 +766,17 @@ public class FolioRestController {
                 List<String> roomNumbers = new java.util.ArrayList<>();
 
                 String bookerName = "Unknown";
-                if (!details.isEmpty() && details.get(0).getRoomBooking().getCustomer() != null) {
-                    bookerName = details.get(0).getRoomBooking().getCustomer().getFullName();
+                String phoneNumber = "N/A";
+                String checkOutDateStr = "N/A";
+
+                if (!details.isEmpty()) {
+                    if (details.get(0).getRoomBooking().getCustomer() != null) {
+                        bookerName = details.get(0).getRoomBooking().getCustomer().getFullName();
+                        phoneNumber = details.get(0).getRoomBooking().getCustomer().getPhone();
+                    }
+                    if (details.get(0).getRoomBooking().getCheckOutDate() != null) {
+                        checkOutDateStr = details.get(0).getRoomBooking().getCheckOutDate().toString();
+                    }
                 }
 
                 for (RoomBookingDetail detail : details) {
@@ -844,6 +853,8 @@ public class FolioRestController {
                 map.put("totalCharges", groupTotalCharges);
                 map.put("totalPayments", groupTotalPayments);
                 map.put("balance", groupBalance);
+                map.put("phoneNumber", phoneNumber);
+                map.put("checkOutDate", checkOutDateStr);
                 map.put("status", "Checked_In");
 
                 if (!details.isEmpty()) {
