@@ -457,21 +457,9 @@
         return res.json();
       }).then(data => {
         if (tableId && tableId !== 'null' && tableId !== null) {
-          if (confirm("Thanh toán thành công!\nKhách đã rời đi chưa? Bạn có muốn tự động dọn bàn này về trạng thái TRỐNG (Available) không?")) {
-            fetch('/api/v1/tables/' + tableId + '/status?status=Available', { method: 'PUT' })
-              .then(res => {
-                if (!res.ok) {
-                    return res.json().then(err => { throw new Error(err.message || 'Lỗi cập nhật trạng thái bàn'); });
-                }
-                alert("Đã cập nhật bàn thành Trống.");
-                window.location.reload();
-              })
-              .catch((e) => {
-                alert("Lỗi khi dọn bàn: " + e.message);
-                window.location.reload();
-              });
-            return;
-          }
+          alert("Thanh toán thành công! Bàn đã tự động chuyển sang trạng thái Đang Dọn Dẹp (Cleaning).");
+          window.location.reload();
+          return;
         }
         alert("Thanh toán thành công! Trạng thái đã chuyển sang PAID.");
         window.location.reload();
