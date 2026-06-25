@@ -68,12 +68,13 @@ public class SecurityConfig {
                         // org.springframework.security.web.access.expression.WebExpressionAuthorizationManager(
                         // "hasIpAddress('192.168.1.0/24')"))
 
-                        .requestMatchers("/", "/booking", "/auth/login", "/auth/check-session",
-                                "/auth/google-login", "/api/v1/auth/**",
+                        .requestMatchers("/", "/booking", "/auth/register", "/auth/login", "/auth/check-session",
+                                "/auth/google-login", "/auth/forgot-password", "/auth/reset-password", "/auth/manual-logout",
+                                "/api/v1/auth/**",
                                 "/h2-console/**", "/css/**", "/js/**", "/guest/**", "/uploads/**", "/api/v1/upload",
                                 "/living", "/wellbeing", "/dining",
                                 "/experiences", "/tours", "/tours/**", "/profile", "/order-food", "/AnhTour/**",
-                                "/fbStaff/**", "/f&bStaff/**", "/api/menu-items/**", "/api/rooms/**",
+                                "/fbStaff/**", "/f&bStaff/**", "/kitchenStaff/**", "/api/menu-items/**", "/api/rooms/**",
                                 "/api/v1/tables/**", "/api/pos/**",
                                 "/api/bookings", "/api/bookings/**",
                                 "/api/tour-bookings", "/api/tour-bookings/**", "/api/faceid/**", "/error",
@@ -137,7 +138,7 @@ public class SecurityConfig {
         return (request, response, authentication) -> {
             String referer = request.getHeader("Referer");
             if (referer != null && !referer.trim().isEmpty()) {
-                if (referer.contains("/admin") || referer.contains("/manager") || referer.contains("/receptionist") || referer.contains("/fbStaff") || referer.contains("/tourguide") || referer.contains("/ops-login")) {
+                if (referer.contains("/admin") || referer.contains("/manager") || referer.contains("/receptionist") || referer.contains("/fbStaff") || referer.contains("/kitchenStaff") || referer.contains("/tourguide") || referer.contains("/ops-login")) {
                     response.sendRedirect("/ops-login");
                 } else if (referer.contains("/payment") || referer.contains("/profile")) {
                     response.sendRedirect("/booking");

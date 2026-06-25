@@ -7,7 +7,7 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Cabrito Didone', Georgia, 'Times New Roman', serif; background: #F0D2DE; color: #71557A; }
-    .wrapper { max-width: 620px; margin: 32px auto; background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 24px rgba(113,85,122,0.15); }
+    .wrapper { max-width: 620px; margin: 32px auto; background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(8px); border-radius: 16px; overflow: hidden; box-shadow: 0 4px 24px rgba(113,85,122,0.15); }
 
     .header { background: #71557A; padding: 40px 32px; text-align: center; }
     .header .logo-text { font-family: 'Halminton Grand', Georgia, 'Times New Roman', serif; font-size: 26px; font-weight: 700; color: #F0D2DE; letter-spacing: 2px; }
@@ -54,7 +54,7 @@
     .footer .resort-name { font-family: 'Halminton Grand', Georgia, 'Times New Roman', serif; color: #F0D2DE; font-weight: 700; font-size: 14px; margin-bottom: 6px; }
   </style>
 </head>
-<body>
+<body th:style="'font-family: \'Cabrito Didone\', Georgia, \'Times New Roman\', serif; background: #F0D2DE url(\'' + ${bgUrl} + '\') no-repeat center center fixed; background-size: cover; color: #71557A;'">
 <div class="wrapper">
 
   <div class="header">

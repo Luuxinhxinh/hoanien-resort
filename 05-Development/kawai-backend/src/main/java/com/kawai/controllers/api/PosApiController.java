@@ -67,6 +67,7 @@ public class PosApiController {
                     "message", e.getMessage() != null ? e.getMessage() : "null message"));
         }
     }
+
     @PutMapping("/orders/{id}/status")
     public ResponseEntity<?> updateOrderStatus(@PathVariable Long id, @RequestParam String status) {
         try {

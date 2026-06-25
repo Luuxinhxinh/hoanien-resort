@@ -64,6 +64,15 @@ public class TourEmailService {
      */
     @Async
     public void sendBookingConfirmation(TourBooking booking, Customer customer) {
+        sendBookingConfirmation(booking, customer, false, null);
+    }
+
+    /**
+     * Gửi email xác nhận đặt tour thành công với thông tin ghi nợ vào phòng.
+     * Gửi bất đồng bộ (@Async) — không block response HTTP.
+     */
+    @Async
+    public void sendBookingConfirmation(TourBooking booking, Customer customer, boolean postToRoom, String roomDetail) {
         if (customer == null || customer.getEmail() == null || customer.getEmail().isBlank()) {
             LOG.warn("Bỏ qua gửi email xác nhận: customer {} không có email",
                     customer != null ? customer.getId() : "null");
@@ -93,11 +102,11 @@ public class TourEmailService {
             ctx.setVariable("participantCount", booking.getParticipantCount());
             ctx.setVariable("totalPrice", formatVnd(booking.getTotalPrice()));
             ctx.setVariable("bookingDate", LocalDate.now().format(DATE_FMT));
-            ctx.setVariable("postToRoom",
-                    booking.getIsWalkInTour() != null && Boolean.FALSE.equals(booking.getIsWalkInTour()));
-            ctx.setVariable("roomDetail", null); // Có thể mở rộng sau
+            ctx.setVariable("postToRoom", postToRoom);
+            ctx.setVariable("roomDetail", roomDetail);
             ctx.setVariable("resortPhone", resortPhone);
             ctx.setVariable("resortWebsite", resortWebsite);
+            ctx.setVariable("bgUrl", "https://i.ibb.co/99JSj0SF/BREmail.png");
 
             String html = templateEngine.process("email/tour-booking-confirmation", ctx);
 
@@ -154,6 +163,7 @@ public class TourEmailService {
             ctx.setVariable("cancelledByResort", cancelledByResort);
             ctx.setVariable("resortPhone", resortPhone);
             ctx.setVariable("resortWebsite", resortWebsite);
+            ctx.setVariable("bgUrl", "https://i.ibb.co/99JSj0SF/BREmail.png");
 
             String html = templateEngine.process("email/tour-booking-cancelled", ctx);
 
@@ -171,6 +181,7 @@ public class TourEmailService {
                     booking.getId(), e.getMessage(), e);
         }
     }
+
     /**
      * Gửi email yêu cầu đặt lại mật khẩu.
      * Gửi bất đồng bộ (@Async).
@@ -210,6 +221,17 @@ public class TourEmailService {
         helper.setTo(to);
         helper.setSubject(subject);
         helper.setText(htmlBody, true); // true = HTML
+
+        try {
+            org.springframework.core.io.ClassPathResource res = new org.springframework.core.io.ClassPathResource(
+                    "static/images/email-bg.png");
+            if (res.exists()) {
+                helper.addInline("emailBg", res);
+            }
+        } catch (Exception e) {
+            LOG.error("Failed to add inline image to email: {}", e.getMessage(), e);
+        }
+
         mailSender.send(message);
     }
 

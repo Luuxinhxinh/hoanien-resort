@@ -262,10 +262,15 @@
                             data-i18n="nav_logout">Đăng Xuất</button>
                     </form>
 
-                    <a th:href="@{/booking}"
+                    <a th:href="@{/booking}" th:if="${isLoggedIn}"
                         class="nav-btn-book px-8 py-3.5 hover:opacity-90 active:scale-[0.98] transition-all duration-200 inline-block text-center text-[13px]"
                         data-i18n="nav_book_now">
                         Đặt Ngay
+                    </a>
+                    <a href="#" onclick="openLoginModal(); return false;" th:unless="${isLoggedIn}"
+                        class="nav-btn-book px-8 py-3.5 hover:opacity-90 active:scale-[0.98] transition-all duration-200 inline-block text-center text-[13px]"
+                        data-i18n="nav_login">
+                        Đăng nhập
                     </a>
                 </div>
 
@@ -670,6 +675,7 @@
                 nav_profile: "Hồ Sơ",
                 nav_logout: "Đăng Xuất",
                 nav_book_now: "Đặt Ngay",
+                nav_login: "Đăng nhập",
                 nav_doantu: "Đoàn Tụ",
                 nav_dongnoi: "Đồng Nội",
                 nav_disan: "Di Sản",
@@ -714,6 +720,7 @@
                 nav_profile: "Profile",
                 nav_logout: "Logout",
                 nav_book_now: "Book Now",
+                nav_login: "Login",
                 nav_doantu: "Reunion",
                 nav_dongnoi: "Countryside",
                 nav_disan: "Heritage",
@@ -897,6 +904,10 @@
         // Initialize view
         document.addEventListener('DOMContentLoaded', () => {
             renderTour();
+            if (document.getElementById('departureDate')) {
+                const todayStr = new Date().toISOString().split('T')[0];
+                document.getElementById('departureDate').value = todayStr;
+            }
         });
     </script>
 </body>

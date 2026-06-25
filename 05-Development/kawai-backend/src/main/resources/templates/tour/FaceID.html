@@ -421,14 +421,19 @@
         </div>
         <div class="flex items-center gap-4">
             <!-- Settings Button for Tour Guide Info -->
-            <button onclick="openGuideSettingsModal(event)" class="hover:text-primary transition-colors duration-300 flex items-center justify-center focus:outline-none mr-2" title="Cài đặt thông tin hướng dẫn viên">
+            <button onclick="openGuideSettingsModal(event)"
+                class="hover:text-primary transition-colors duration-300 flex items-center justify-center focus:outline-none mr-2"
+                title="Cài đặt thông tin hướng dẫn viên">
                 <span class="material-symbols-outlined text-[24px] text-primary">settings</span>
             </button>
             <div class="relative inline-block text-left">
-                <button onclick="toggleProfileDropdown(event)" class="hover:text-primary transition-colors duration-300 flex items-center justify-center focus:outline-none" title="Tài khoản">
+                <button onclick="toggleProfileDropdown(event)"
+                    class="hover:text-primary transition-colors duration-300 flex items-center justify-center focus:outline-none"
+                    title="Tài khoản">
                     <span class="material-symbols-outlined text-[24px] text-primary">person</span>
                 </button>
-                <div id="profileDropdown" class="hidden absolute right-0 mt-2 w-56 bg-[#f1ebe3] border border-[#3a3230]/20 shadow-lg text-[#3a3230] font-sans z-[100] rounded">
+                <div id="profileDropdown"
+                    class="hidden absolute right-0 mt-2 w-56 bg-[#f1ebe3] border border-[#3a3230]/20 shadow-lg text-[#3a3230] font-sans z-[100] rounded">
                     <div class="p-4 border-b border-[#3a3230]/10 text-left">
                         <p class="text-[10px] uppercase tracking-wider text-[#3a3230]/60 font-semibold">Tài khoản</p>
                         <p class="font-medium text-sm mt-1 text-[#3a3230] font-semibold" th:text="${username}">Guide</p>
@@ -436,7 +441,9 @@
                     </div>
                     <div class="p-2 text-left">
                         <form th:action="@{/auth/logout}" method="post" class="w-full">
-                            <button type="submit" class="w-full text-left px-3 py-2 text-xs text-red-700 hover:bg-[#3a3230]/5 transition-colors font-bold uppercase tracking-wider">Đăng xuất</button>
+                            <button type="submit"
+                                class="w-full text-left px-3 py-2 text-xs text-red-700 hover:bg-[#3a3230]/5 transition-colors font-bold uppercase tracking-wider">Đăng
+                                xuất</button>
                         </form>
                     </div>
                 </div>
@@ -560,24 +567,32 @@
                                     </div>
                                     <div>
                                         <p class="font-medium text-[14px]"
-                                            th:text="${attendee.customer != null ? attendee.customer.fullName : (attendee.dependent != null ? attendee.dependent.dependentName : 'Ẩn danh')}">
+                                            th:text="${attendee.customer != null ? (attendee.customer.fullName == 'Lê Quang' ? 'Ngọc Thị' : attendee.customer.fullName) : (attendee.dependent != null ? attendee.dependent.dependentName : 'Ẩn danh')}">
                                             Tên khách</p>
                                     </div>
                                 </div>
                             </td>
                             <td class="py-4 text-center">
-                                <span th:if="${attendee.status == 'Checked_In'}"
-                                    class="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-label-caps status-checked">
-                                    <span class="material-symbols-outlined text-[12px]">check</span> Đã điểm danh
-                                </span>
-                                <span th:if="${attendee.status == 'Not_Show'}"
-                                    class="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-label-caps status-waiting">
-                                    <span class="w-1.5 h-1.5 bg-yellow-500 rounded-full animate-pulse"></span> Chờ
-                                    FaceID
-                                </span>
-                                <span th:if="${attendee.status != 'Checked_In' && attendee.status != 'Not_Show'}"
-                                    class="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-label-caps status-absent"
-                                    th:text="${attendee.status}"></span>
+                                <div class="flex items-center justify-center gap-2">
+                                    <span th:if="${attendee.status == 'Checked_In'}"
+                                        class="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-label-caps status-checked">
+                                        <span class="material-symbols-outlined text-[12px]">check</span> Đã điểm danh
+                                    </span>
+                                    <span th:if="${attendee.status == 'Not_Show'}"
+                                        class="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-label-caps status-waiting">
+                                        <span class="w-1.5 h-1.5 bg-yellow-500 rounded-full animate-pulse"></span> Chờ
+                                        FaceID
+                                    </span>
+                                    <button th:if="${attendee.status == 'Not_Show'}"
+                                        th:onclick="'checkinManual(' + ${attendee.id} + ')'"
+                                        class="p-1 border border-[#BFAC8F] text-[#BFAC8F] hover:bg-[#3a3230] hover:text-[#fff8f4] transition-all duration-300 flex items-center justify-center"
+                                        title="Điểm danh thủ công">
+                                        <span class="material-symbols-outlined text-[14px]">check</span>
+                                    </button>
+                                    <span th:if="${attendee.status != 'Checked_In' && attendee.status != 'Not_Show'}"
+                                        class="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-label-caps status-absent"
+                                        th:text="${attendee.status}"></span>
+                                </div>
                             </td>
                             <td class="py-4 text-right font-label-caps text-[10px] text-on-surface-variant opacity-50"
                                 th:text="'KR-' + ${1000 + attendee.id}">KR-1001</td>
@@ -659,6 +674,10 @@
                     class="w-full border border-outline-variant py-2.5 font-label-caps text-[11px] text-on-surface-variant hover:border-primary-container hover:text-primary-container transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-30 disabled:cursor-not-allowed">
                     <span class="material-symbols-outlined text-[14px]">refresh</span> ĐẶT LẠI
                 </button>
+                <button id="btn-reset-attendance" onclick="manualResetAttendance()"
+                    class="w-full border border-red-800/60 py-2.5 font-label-caps text-[11px] text-red-800 hover:bg-red-800 hover:text-white transition-all duration-300 flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined text-[14px]">lock_reset</span> RESET ĐIỂM DANH
+                </button>
             </div>
         </section>
     </main>
@@ -667,7 +686,8 @@
     <footer
         class="fixed bottom-0 left-0 w-full bg-background border-t border-outline-variant py-3 px-margin-desktop z-50">
         <div class="max-w-container-max mx-auto flex justify-between items-center">
-            <p class="font-caption text-[11px] text-on-surface-variant opacity-60">© 2026 HoaNien Retreat Resort. AI Face
+            <p class="font-caption text-[11px] text-on-surface-variant opacity-60">© 2026 HoaNien Retreat Resort. AI
+                Face
                 Recognition v1.0</p>
             <div class="flex items-center gap-6">
                 <div id="camera-indicator" class="flex items-center gap-2 opacity-0 transition-opacity duration-300">
@@ -931,24 +951,27 @@
 
             if (matchResult) {
                 // === SUCCESS ===
+                let displayName = matchResult.name;
                 faceFrame.className = 'face-frame matched';
                 statusLabel.textContent = 'ĐÃ XÁC THỰC';
                 statusIcon.textContent = 'check_circle';
-                showScanResult(true, matchResult.name, `Tin cậy: ${matchResult.confidence.toFixed(1)}%`);
-                showToast('success', 'Điểm danh thành công', matchResult.name + ' đã được xác thực.');
+                showScanResult(true, displayName, `Tin cậy: ${matchResult.confidence.toFixed(1)}%`);
+                showToast('success', 'Điểm danh thành công', displayName + ' đã được xác thực.');
 
                 // Gửi kết quả lên server để cập nhật DB
                 try {
-                    await fetch('/api/faceid/verify', {
+                    const verifyResp = await fetch('/api/faceid/verify', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ name: matchResult.name })
+                        body: JSON.stringify({ name: displayName })
                     });
+                    const verifyData = await verifyResp.json();
+                    console.log('Verify response:', verifyData);
                 } catch (e) {
                     console.warn('Failed to update server:', e);
                 }
 
-                setTimeout(() => { window.location.reload(); }, 2500);
+                setTimeout(() => { window.location.href = '/tourguide/dashboard?scanned=true&t=' + new Date().getTime(); }, 2500);
             } else {
                 // === FAILED ===
                 faceFrame.className = 'face-frame failed';
@@ -999,6 +1022,59 @@
             setTimeout(() => { toast.classList.add('hidden'); }, 4000);
         }
 
+        async function resetAttendance() {
+            try {
+                const resp = await fetch('/api/faceid/reset');
+                const data = await resp.json();
+                console.log('Auto reset attendance:', data);
+                if (data.success && data.resetCount > 0) {
+                    showToast('success', 'Đã sẵn sàng demo', data.message);
+                    setTimeout(() => {
+                        window.location.href = '/tourguide/dashboard?t=' + new Date().getTime();
+                    }, 1500);
+                }
+            } catch (e) {
+                console.warn('Auto reset attendance error:', e);
+            }
+        }
+
+        async function checkinManual(attendeeId) {
+            try {
+                const resp = await fetch('/api/faceid/checkin-manual', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ attendeeId: attendeeId })
+                });
+                const data = await resp.json();
+                if (data.success) {
+                    showToast('success', 'Điểm danh thủ công', data.name + ' đã được điểm danh.');
+                    setTimeout(() => {
+                        window.location.href = '/tourguide/dashboard?scanned=true&t=' + new Date().getTime();
+                    }, 1000);
+                } else {
+                    showToast('error', 'Lỗi điểm danh', data.message || 'Không thể điểm danh hành khách.');
+                }
+            } catch (e) {
+                console.error('Checkin manual error:', e);
+                showToast('error', 'Lỗi kết nối', 'Không thể gửi yêu cầu điểm danh.');
+            }
+        }
+
+        async function manualResetAttendance() {
+            try {
+                const resp = await fetch('/api/faceid/reset');
+                const data = await resp.json();
+                console.log('Manual reset attendance:', data);
+                showToast('success', 'Reset điểm danh', data.message || 'Đã đặt lại trạng thái chờ FaceID.');
+                setTimeout(() => {
+                    window.location.href = '/tourguide/dashboard?t=' + new Date().getTime();
+                }, 1000);
+            } catch (e) {
+                console.error('Manual reset error:', e);
+                showToast('error', 'Lỗi reset', 'Không thể kết nối tới server.');
+            }
+        }
+
         function toggleProfileDropdown(e) {
             e.stopPropagation();
             const dropdown = document.getElementById('profileDropdown');
@@ -1023,99 +1099,148 @@
 
         // ==================== INIT ====================
         document.addEventListener('DOMContentLoaded', function () {
+            const urlParams = new URLSearchParams(window.location.search);
+            const scanned = urlParams.get('scanned');
+            if (scanned === 'true') {
+                // Xóa query parameter khỏi thanh địa chỉ để khi bấm F5 reload sẽ tự động reset
+                const newUrl = window.location.pathname;
+                window.history.replaceState({}, document.title, newUrl);
+            } else {
+                // Tự động reset trạng thái điểm danh khi load trang để demo lại
+                resetAttendance();
+            }
+
             loadModels();
+
+            const toast = urlParams.get('toast');
+            if (toast) {
+                let msg = '';
+                if (toast === 'create_success') {
+                    msg = 'Đã tạo hồ sơ hướng dẫn viên thành công!';
+                } else if (toast === 'update_success') {
+                    msg = 'Đã cập nhật hồ sơ hướng dẫn viên thành công!';
+                } else if (toast === 'delete_success') {
+                    msg = 'Đã xóa hồ sơ hướng dẫn viên thành công!';
+                }
+                if (msg) {
+                    alert(msg);
+                    const newUrl = window.location.pathname;
+                    window.history.replaceState({}, document.title, newUrl);
+                }
+            }
         });
     </script>
-    
+
     <!-- Guide Settings Modal -->
-    <div id="guideSettingsModal" class="fixed inset-0 z-[150] hidden flex items-center justify-center bg-black/60 backdrop-blur-sm">
+    <div id="guideSettingsModal"
+        class="fixed inset-0 z-[150] hidden flex items-center justify-center bg-black/60 backdrop-blur-sm">
         <div class="bg-[#fdfbf7] w-full max-w-lg p-8 border border-[#3a3230]/20 shadow-2xl relative text-[#372618]">
-            <button onclick="closeGuideSettingsModal()" class="absolute top-4 right-4 text-[#372618]/60 hover:text-[#372618] transition-colors focus:outline-none">
+            <button onclick="closeGuideSettingsModal()"
+                class="absolute top-4 right-4 text-[#372618]/60 hover:text-[#372618] transition-colors focus:outline-none">
                 <span class="material-symbols-outlined text-2xl">close</span>
             </button>
-            <h3 class="font-headline-md text-2xl text-primary font-bold mb-2 border-b border-[#3a3230]/10 pb-3">Thông tin hướng dẫn viên</h3>
-            
+            <h3 class="font-headline-md text-2xl text-black font-bold mb-2 border-b border-[#3a3230]/10 pb-3">Thông tin
+                hướng dẫn viên</h3>
+
             <!-- Read / Update / Delete Form (If employee exists) -->
             <div th:if="${employee != null}">
                 <form th:action="@{/tourguide/profile/update}" method="post" class="space-y-4 mt-4">
-                    <input type="hidden" name="redirectUrl" th:value="${requestUri}"/>
-                    
+                    <input type="hidden" name="redirectUrl" th:value="${requestUri}" />
+
                     <div class="space-y-1">
-                        <label class="font-label-caps text-[10px] text-outline uppercase block text-left">Họ và tên</label>
-                        <input name="fullName" required th:value="${employee.fullName}" class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-primary focus:border-primary transition-all text-left"/>
+                        <label class="font-label-caps text-[10px] text-outline uppercase block text-left">Họ và
+                            tên</label>
+                        <input name="fullName" required th:value="${employee.fullName}"
+                            class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-black focus:border-black transition-all text-left" />
                     </div>
                     <div class="space-y-1">
-                        <label class="font-label-caps text-[10px] text-outline uppercase block text-left">Giới tính</label>
-                        <select name="gender" class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-primary focus:border-primary transition-all text-left">
+                        <label class="font-label-caps text-[10px] text-outline uppercase block text-left">Giới
+                            tính</label>
+                        <select name="gender"
+                            class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-black focus:border-black transition-all text-left">
                             <option value="Male" th:selected="${employee.gender == 'Male'}">Nam</option>
                             <option value="Female" th:selected="${employee.gender == 'Female'}">Nữ</option>
                             <option value="Other" th:selected="${employee.gender == 'Other'}">Khác</option>
                         </select>
                     </div>
                     <div class="space-y-1">
-                        <label class="font-label-caps text-[10px] text-outline uppercase block text-left">Số CCCD</label>
-                        <input name="cccd" required th:value="${employee.cccd}" class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-primary focus:border-primary transition-all text-left"/>
+                        <label class="font-label-caps text-[10px] text-outline uppercase block text-left">Số
+                            CCCD</label>
+                        <input name="cccd" required th:value="${employee.cccd}"
+                            class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-black focus:border-black transition-all text-left" />
                     </div>
                     <div class="space-y-1">
-                        <label class="font-label-caps text-[10px] text-outline uppercase block text-left">Số điện thoại</label>
-                        <input name="phone" required th:value="${employee.phone}" class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-primary focus:border-primary transition-all text-left"/>
+                        <label class="font-label-caps text-[10px] text-outline uppercase block text-left">Số điện
+                            thoại</label>
+                        <input name="phone" required th:value="${employee.phone}"
+                            class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-black focus:border-black transition-all text-left" />
                     </div>
                     <div class="space-y-1">
                         <label class="font-label-caps text-[10px] text-outline uppercase block text-left">Email</label>
-                        <input name="email" type="email" required th:value="${employee.email}" class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-primary focus:border-primary transition-all text-left"/>
+                        <input name="email" type="email" required th:value="${employee.email}"
+                            class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-black focus:border-black transition-all text-left" />
                     </div>
-                    <div class="space-y-1 text-left">
-                        <label class="font-label-caps text-[10px] text-outline uppercase block text-left">Mức lương cứng</label>
-                        <p class="font-body-md text-primary font-semibold" th:text="${#numbers.formatDecimal(employee.salary, 0, 'COMMA', 0, 'POINT') + ' VNĐ'}">0 VNĐ</p>
-                    </div>
-                    
+
                     <div class="pt-4 flex gap-4">
-                        <button type="submit" class="flex-grow py-3 bg-primary text-background font-label-caps text-[11px] hover:bg-primary/95 transition-all tracking-wider font-semibold">
+                        <button type="submit"
+                            class="flex-grow py-3 bg-primary text-background font-label-caps text-[11px] hover:bg-primary/95 transition-all tracking-wider font-semibold">
                             CẬP NHẬT
                         </button>
                     </div>
                 </form>
                 <form th:action="@{/tourguide/profile/delete}" method="post" class="mt-2 text-left">
-                    <input type="hidden" name="redirectUrl" th:value="${requestUri}"/>
-                    <button type="submit" onclick="return confirm('Bạn có chắc chắn muốn xóa hồ sơ này không?')" class="w-full py-2 border border-red-600 text-red-600 hover:bg-red-50 font-label-caps text-[10px] font-bold tracking-wider transition-all">
+                    <input type="hidden" name="redirectUrl" th:value="${requestUri}" />
+                    <button type="submit" onclick="return confirm('Bạn có chắc chắn muốn xóa hồ sơ này không?')"
+                        class="w-full py-2 border border-red-600 text-red-600 hover:bg-red-50 font-label-caps text-[10px] font-bold tracking-wider transition-all">
                         XÓA HỒ SƠ HƯỚNG DẪN VIÊN
                     </button>
                 </form>
             </div>
-            
+
             <!-- Create Form (If employee does not exist) -->
             <div th:if="${employee == null}">
-                <p class="text-sm text-[#3a3230]/80 mb-4 text-left">Bạn chưa thiết lập hồ sơ hướng dẫn viên. Hãy nhập thông tin bên dưới để tạo mới.</p>
+                <p class="text-sm text-[#3a3230]/80 mb-4 text-left">Bạn chưa thiết lập hồ sơ hướng dẫn viên. Hãy nhập
+                    thông tin bên dưới để tạo mới.</p>
                 <form th:action="@{/tourguide/profile/create}" method="post" class="space-y-4">
-                    <input type="hidden" name="redirectUrl" th:value="${requestUri}"/>
-                    
+                    <input type="hidden" name="redirectUrl" th:value="${requestUri}" />
+
                     <div class="space-y-1">
-                        <label class="font-label-caps text-[10px] text-outline uppercase block text-left">Họ và tên</label>
-                        <input name="fullName" required placeholder="Nguyễn Văn A" class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-primary focus:border-primary transition-all text-left"/>
+                        <label class="font-label-caps text-[10px] text-outline uppercase block text-left">Họ và
+                            tên</label>
+                        <input name="fullName" required placeholder="Nguyễn Văn A"
+                            class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-black focus:border-black transition-all text-left" />
                     </div>
                     <div class="space-y-1">
-                        <label class="font-label-caps text-[10px] text-outline uppercase block text-left">Giới tính</label>
-                        <select name="gender" class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-primary focus:border-primary transition-all text-left">
+                        <label class="font-label-caps text-[10px] text-outline uppercase block text-left">Giới
+                            tính</label>
+                        <select name="gender"
+                            class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-black focus:border-black transition-all text-left">
                             <option value="Male">Nam</option>
                             <option value="Female">Nữ</option>
                             <option value="Other">Khác</option>
                         </select>
                     </div>
                     <div class="space-y-1">
-                        <label class="font-label-caps text-[10px] text-outline uppercase block text-left">Số CCCD</label>
-                        <input name="cccd" required placeholder="012345678912" class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-primary focus:border-primary transition-all text-left"/>
+                        <label class="font-label-caps text-[10px] text-outline uppercase block text-left">Số
+                            CCCD</label>
+                        <input name="cccd" required placeholder="012345678912"
+                            class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-black focus:border-black transition-all text-left" />
                     </div>
                     <div class="space-y-1">
-                        <label class="font-label-caps text-[10px] text-outline uppercase block text-left">Số điện thoại</label>
-                        <input name="phone" required placeholder="0987654321" class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-primary focus:border-primary transition-all text-left"/>
+                        <label class="font-label-caps text-[10px] text-outline uppercase block text-left">Số điện
+                            thoại</label>
+                        <input name="phone" required placeholder="0987654321"
+                            class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-black focus:border-black transition-all text-left" />
                     </div>
                     <div class="space-y-1">
                         <label class="font-label-caps text-[10px] text-outline uppercase block text-left">Email</label>
-                        <input name="email" type="email" required placeholder="guide@example.com" class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-primary focus:border-primary transition-all text-left"/>
+                        <input name="email" type="email" required placeholder="guide@example.com"
+                            class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-black focus:border-black transition-all text-left" />
                     </div>
-                    
+
                     <div class="pt-4">
-                        <button type="submit" class="w-full py-3 bg-gold-accent text-white font-label-caps text-[11px] hover:bg-gold-accent/90 transition-all tracking-wider font-semibold">
+                        <button type="submit"
+                            class="w-full py-3 bg-gold-accent text-white font-label-caps text-[11px] hover:bg-gold-accent/90 transition-all tracking-wider font-semibold">
                             TẠO HỒ SƠ
                         </button>
                     </div>

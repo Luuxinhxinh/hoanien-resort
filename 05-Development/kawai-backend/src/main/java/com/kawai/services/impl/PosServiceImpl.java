@@ -255,10 +255,12 @@ public class PosServiceImpl implements PosService {
                     tableReservationRepository.save(res);
                 }
             }
+            
+            // Tự động chuyển bàn sang Cleaning
+            table.setTableStatus("Cleaning");
+            table.setCleaningStartTime(java.time.LocalDateTime.now());
+            restaurantTableRepository.save(table);
         }
-
-        // Do NOT automatically change table status to "Cleaning" after payment.
-        // It stays "Occupied" until staff explicitly changes it.
 
         return foodOrderRepository.save(order);
     }

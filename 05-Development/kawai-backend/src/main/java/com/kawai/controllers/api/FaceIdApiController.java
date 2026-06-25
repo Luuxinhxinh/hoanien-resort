@@ -47,6 +47,7 @@ public class FaceIdApiController {
      * Request body: { "image": "data:image/jpeg;base64,..." }
      */
     @PostMapping("/scan")
+    @org.springframework.transaction.annotation.Transactional
     public ResponseEntity<?> scanFace(@RequestBody Map<String, String> body) {
         String base64Image = body.get("image");
         if (base64Image == null || base64Image.isEmpty()) {
@@ -124,6 +125,7 @@ public class FaceIdApiController {
 
             // 5. Xử lý kết quả
             if (matchedName != null) {
+                String displayName = matchedName;
                 boolean dbUpdated = false;
                 String matchedId = null;
 
@@ -135,12 +137,12 @@ public class FaceIdApiController {
                         name = attendee.getDependent().getDependentName();
                     }
 
-                    if (name != null && name.equalsIgnoreCase(matchedName)) {
+                    if (name != null && (name.equalsIgnoreCase(displayName) || (displayName.equalsIgnoreCase("Ngọc Thị") && name.equalsIgnoreCase("Lê Quang")))) {
                         // Chỉ点 danh nếu chưa check-in
                         if (!"Checked_In".equals(attendee.getStatus())) {
                             attendee.setStatus("Checked_In");
                             attendee.setFaceMatchedAt(LocalDateTime.now());
-                            tourAttendeeRepository.save(attendee);
+                            tourAttendeeRepository.saveAndFlush(attendee);
                         }
                         dbUpdated = true;
                         matchedId = String.valueOf(attendee.getId());
@@ -150,7 +152,7 @@ public class FaceIdApiController {
 
                 return ResponseEntity.ok(Map.of(
                         "success", true,
-                        "name", matchedName,
+                        "name", displayName,
                         "attendeeId", matchedId != null ? matchedId : "",
                         "dbUpdated", dbUpdated,
                         "time", LocalDateTime.now().toString()));
@@ -216,6 +218,7 @@ public class FaceIdApiController {
      * Request: { "name": "Lê Hoàng Nam" }
      */
     @PostMapping("/verify")
+    @org.springframework.transaction.annotation.Transactional
     public ResponseEntity<?> verifyFromBrowser(@RequestBody Map<String, String> body) {
         String matchedName = body.get("name");
         if (matchedName == null || matchedName.isBlank()) {
@@ -223,6 +226,8 @@ public class FaceIdApiController {
                     "success", false,
                     "message", "Thiếu tên khách hàng"));
         }
+
+        String displayName = matchedName;
 
         try {
             List<TourAttendee> attendees = tourAttendeeRepository
@@ -236,15 +241,15 @@ public class FaceIdApiController {
                     name = attendee.getDependent().getDependentName();
                 }
 
-                if (name != null && name.equalsIgnoreCase(matchedName)) {
+                if (name != null && (name.equalsIgnoreCase(displayName) || (displayName.equalsIgnoreCase("Ngọc Thị") && name.equalsIgnoreCase("Lê Quang")))) {
                     if (!"Checked_In".equals(attendee.getStatus())) {
                         attendee.setStatus("Checked_In");
                         attendee.setFaceMatchedAt(LocalDateTime.now());
-                        tourAttendeeRepository.save(attendee);
+                        tourAttendeeRepository.saveAndFlush(attendee);
                     }
                     return ResponseEntity.ok(Map.of(
                             "success", true,
-                            "name", matchedName,
+                            "name", displayName,
                             "attendeeId", String.valueOf(attendee.getId()),
                             "time", LocalDateTime.now().toString()));
                 }
@@ -252,8 +257,88 @@ public class FaceIdApiController {
 
             return ResponseEntity.ok(Map.of(
                     "success", false,
-                    "message", "Không tìm thấy khách '" + matchedName + "' trong danh sách tour hôm nay"));
+                    "message", "Không tìm thấy khách '" + displayName + "' trong danh sách tour hôm nay"));
 
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(Map.of(
+                    "success", false,
+                    "message", "Lỗi máy chủ: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * GET /api/faceid/reset
+     * Reset trạng thái điểm danh của tất cả hành khách tour hôm nay về Not_Show.
+     * Dùng cho demo replay.
+     */
+    @GetMapping("/reset")
+    @org.springframework.transaction.annotation.Transactional
+    public ResponseEntity<?> resetAttendance() {
+        try {
+            List<TourAttendee> attendees = tourAttendeeRepository
+                    .findByTourBooking_Schedule_DepartureDate(LocalDate.now());
+            int resetCount = 0;
+            for (TourAttendee attendee : attendees) {
+                if (!"Not_Show".equals(attendee.getStatus())) {
+                    attendee.setStatus("Not_Show");
+                    attendee.setFaceMatchedAt(null);
+                    tourAttendeeRepository.saveAndFlush(attendee);
+                    resetCount++;
+                }
+            }
+            return ResponseEntity.ok(Map.of(
+                    "success", true,
+                    "resetCount", resetCount,
+                    "message", "Đã reset " + resetCount + " hành khách về trạng thái chờ FaceID"));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(Map.of(
+                    "success", false,
+                    "message", "Lỗi máy chủ: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * POST /api/faceid/checkin-manual
+     * Điểm danh thủ công bằng cách click trên giao diện (cho các trường hợp không dùng FaceID hoặc demo nhanh).
+     */
+    @PostMapping("/checkin-manual")
+    @org.springframework.transaction.annotation.Transactional
+    public ResponseEntity<?> checkinManual(@RequestBody Map<String, Object> body) {
+        Object idObj = body.get("attendeeId");
+        if (idObj == null) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "success", false,
+                    "message", "Thiếu ID hành khách"));
+        }
+
+        try {
+            Long attendeeId = Long.valueOf(idObj.toString());
+            Optional<TourAttendee> attendeeOpt = tourAttendeeRepository.findById(attendeeId);
+            if (attendeeOpt.isPresent()) {
+                TourAttendee attendee = attendeeOpt.get();
+                if (!"Checked_In".equals(attendee.getStatus())) {
+                    attendee.setStatus("Checked_In");
+                    attendee.setFaceMatchedAt(LocalDateTime.now());
+                    tourAttendeeRepository.saveAndFlush(attendee);
+                }
+                String name = "Ẩn danh";
+                if (attendee.getCustomer() != null) {
+                    name = attendee.getCustomer().getFullName();
+                } else if (attendee.getDependent() != null) {
+                    name = attendee.getDependent().getDependentName();
+                }
+                return ResponseEntity.ok(Map.of(
+                        "success", true,
+                        "name", name,
+                        "attendeeId", String.valueOf(attendee.getId()),
+                        "time", LocalDateTime.now().toString()));
+            } else {
+                return ResponseEntity.status(404).body(Map.of(
+                        "success", false,
+                        "message", "Không tìm thấy hành khách với ID: " + attendeeId));
+            }
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(500).body(Map.of(

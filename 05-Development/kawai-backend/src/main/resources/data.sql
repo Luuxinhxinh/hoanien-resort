@@ -57,7 +57,7 @@ INSERT INTO Customers (customer_id, account_id, full_name, gender, cccd_passport
 (2, 6, 'Ngọc Thị', 'Nam', 'CCCD_204', '090204', 'an204@test.com', 200, 'Silver'),
 (3, 7, 'Phạm Tuấn', 'Nam', 'CCCD_308', '090308', 'tuan308@test.com', 500, 'Gold'),
 (4, 8, 'Trần Thị Bích', 'Nữ', 'CCCD_104', '090104', 'bich104@test.com', 50, 'Regular'),
-(5, 9, 'Lê Quang', 'Nam', 'CCCD_106', '090106', 'quang106@test.com', 0, 'Regular'),
+(5, 9, 'Ngọc Thị', 'Nữ', 'CCCD_106', '090106', 'quang106@test.com', 0, 'Regular'),
 (6, 10, 'Đỗ Mỹ Linh', 'Nữ', 'CCCD_207', '090207', 'linh207@test.com', 150, 'Silver'),
 (7, 11, 'Hoàng Anh', 'Nam', 'CCCD_210', '090210', 'anh210@test.com', 300, 'Gold'),
 (8, 12, 'Vũ Hùng', 'Nam', 'CCCD_311', '090311', 'hung311@test.com', 800, 'Platinum'),
@@ -267,6 +267,21 @@ INSERT INTO Room_Guests (guest_id, detail_id, customer_id, dependent_id, guest_t
 (8, 8, 8, NULL, 'ADULT', TRUE),
 (9, 9, 12, NULL, 'ADULT', TRUE),
 (10, 10, 13, NULL, 'ADULT', TRUE);
+
+-- Force update tphuong to POS role in case DB already exists
+UPDATE Accounts SET role_id = 4 WHERE username = 'tphuong';
+
+-- Restore hoangnam password back to admin123 (was accidentally changed to staff123)
+UPDATE Accounts SET password_hash = '$2a$10$4bnThA4xQVw1rF2POQv78uAQll2KsUsgF32JaYiVG5d2d3Fhgk83q' WHERE username = 'hoangnam';
+
+-- Delete tmduc account and customer record
+DELETE FROM Customers WHERE account_id = 98;
+DELETE FROM Accounts WHERE username = 'tmduc';
+
+-- Add ducbeo account if not exists (safe insert)
+INSERT IGNORE INTO Accounts (account_id, username, password_hash, is_active, role_id, created_at)
+VALUES (99, 'ducbeo', '$2a$10$ikP3XeXnMx/oLodhs4wqBO61AhyuE4dWtSJDJcOH7D2ii5Vrgq0bG', TRUE, 3, CURRENT_TIMESTAMP);
+
 
 -- Update Room's current booking detail links
 UPDATE Rooms SET current_booking_detail_id = 1 WHERE room_id = 1;
