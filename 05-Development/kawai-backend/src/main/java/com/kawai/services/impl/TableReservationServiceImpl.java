@@ -54,15 +54,18 @@ public class TableReservationServiceImpl implements TableReservationService {
             List<TableReservation> reservations = tableReservationRepository.findByTable_IdAndReserveDateOrderByReserveTimeAsc(table.getId(), date);
             boolean isAvailable = true;
             for (TableReservation res : reservations) {
-                if ("Confirmed".equalsIgnoreCase(res.getStatus()) || "Pending".equalsIgnoreCase(res.getStatus())) {
+                if ("Confirmed".equalsIgnoreCase(res.getStatus()) || "Pending".equalsIgnoreCase(res.getStatus()) || "Seated".equalsIgnoreCase(res.getStatus()) || "Completed".equalsIgnoreCase(res.getStatus())) {
                     java.time.LocalDateTime rStartDT = java.time.LocalDateTime.of(date, res.getReserveTime());
                     java.time.LocalDateTime rEndDT;
                     if (res.getEndTime() != null) {
                         rEndDT = java.time.LocalDateTime.of(date, res.getEndTime());
                         if (rEndDT.isBefore(rStartDT)) rEndDT = rEndDT.plusDays(1);
                     } else {
-                        rEndDT = rStartDT.plusHours(2);
+                        rEndDT = rStartDT.plusHours(1);
                     }
+                    
+                    // Add 15 minutes buffer time
+                    rEndDT = rEndDT.plusMinutes(15);
                     
                     java.time.LocalDateTime startDT = java.time.LocalDateTime.of(date, start);
                     java.time.LocalDateTime endDT;
@@ -70,7 +73,7 @@ public class TableReservationServiceImpl implements TableReservationService {
                         endDT = java.time.LocalDateTime.of(date, end);
                         if (endDT.isBefore(startDT)) endDT = endDT.plusDays(1);
                     } else {
-                        endDT = startDT.plusHours(2);
+                        endDT = startDT.plusHours(1);
                     }
 
                     if (rStartDT.isBefore(endDT) && rEndDT.isAfter(startDT)) {
@@ -107,18 +110,30 @@ public class TableReservationServiceImpl implements TableReservationService {
             throw new BusinessException("TABLE-002", "Party size exceeds table capacity");
         }
 
+        if (request.getEndTime() != null) {
+            java.time.LocalDateTime newStartDT = java.time.LocalDateTime.of(request.getReserveDate(), request.getStartTime());
+            java.time.LocalDateTime newEndDT = java.time.LocalDateTime.of(request.getReserveDate(), request.getEndTime());
+            if (newEndDT.isBefore(newStartDT)) newEndDT = newEndDT.plusDays(1);
+            if (java.time.Duration.between(newStartDT, newEndDT).toMinutes() < 30) {
+                throw new BusinessException("TABLE-006", "Thời gian đặt bàn tối thiểu là 30 phút.");
+            }
+        }
+
         List<TableReservation> existingReservations = tableReservationRepository.findByTable_IdAndReserveDateOrderByReserveTimeAsc(table.getId(), request.getReserveDate());
 
         for (TableReservation res : existingReservations) {
-            if ("Confirmed".equalsIgnoreCase(res.getStatus()) || "Pending".equalsIgnoreCase(res.getStatus())) {
+            if ("Confirmed".equalsIgnoreCase(res.getStatus()) || "Pending".equalsIgnoreCase(res.getStatus()) || "Seated".equalsIgnoreCase(res.getStatus()) || "Completed".equalsIgnoreCase(res.getStatus())) {
                 java.time.LocalDateTime existingStartDT = java.time.LocalDateTime.of(request.getReserveDate(), res.getReserveTime());
                 java.time.LocalDateTime existingEndDT;
                 if (res.getEndTime() != null) {
                     existingEndDT = java.time.LocalDateTime.of(request.getReserveDate(), res.getEndTime());
                     if (existingEndDT.isBefore(existingStartDT)) existingEndDT = existingEndDT.plusDays(1);
                 } else {
-                    existingEndDT = existingStartDT.plusHours(2);
+                    existingEndDT = existingStartDT.plusHours(1);
                 }
+
+                // Add 15 minutes buffer time
+                existingEndDT = existingEndDT.plusMinutes(15);
 
                 java.time.LocalDateTime newStartDT = java.time.LocalDateTime.of(request.getReserveDate(), request.getStartTime());
                 java.time.LocalDateTime newEndDT;
@@ -126,7 +141,7 @@ public class TableReservationServiceImpl implements TableReservationService {
                     newEndDT = java.time.LocalDateTime.of(request.getReserveDate(), request.getEndTime());
                     if (newEndDT.isBefore(newStartDT)) newEndDT = newEndDT.plusDays(1);
                 } else {
-                    newEndDT = newStartDT.plusHours(2);
+                    newEndDT = newStartDT.plusHours(1);
                 }
 
                 if (existingStartDT.isBefore(newEndDT) && existingEndDT.isAfter(newStartDT)) {
@@ -205,7 +220,7 @@ public class TableReservationServiceImpl implements TableReservationService {
             map.put("id", res.getId());
             map.put("reserveDate", res.getReserveDate().toString());
             map.put("reserveTime", res.getReserveTime().toString());
-            map.put("endTime", res.getEndTime() != null ? res.getEndTime().toString() : res.getReserveTime().plusHours(2).toString());
+            map.put("endTime", res.getEndTime() != null ? res.getEndTime().toString() : res.getReserveTime().plusHours(1).toString());
             map.put("partySize", res.getPartySize());
             map.put("status", res.getStatus());
             map.put("specialRequests", res.getSpecialRequests());
@@ -244,7 +259,7 @@ public class TableReservationServiceImpl implements TableReservationService {
                 resMap.put("reserveTime", res.getReserveTime().toString());
                 resMap.put("endTime", res.getEndTime() != null
                         ? res.getEndTime().toString()
-                        : res.getReserveTime().plusHours(2).toString());
+                        : res.getReserveTime().plusHours(1).toString());
                 resMap.put("partySize", res.getPartySize());
                 resMap.put("status", res.getStatus());
                 resMap.put("specialRequests", res.getSpecialRequests());

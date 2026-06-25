@@ -44,7 +44,7 @@
       </a>
       <a href="/fbStaff/create-food-order" class="nav-item">
         <span class="material-symbols-outlined">add_circle</span>
-        <span>Tạo đơn mới</span>
+        <span>New Order</span>
       </a>
       <a href="/fbStaff/table-management" th:href="@{/fbStaff/table-management}" class="nav-item">
         <span class="material-symbols-outlined">table_restaurant</span>
@@ -54,10 +54,7 @@
         <span class="material-symbols-outlined">room_service</span>
         <span>Room Service</span>
       </a>
-      <a href="/fbStaff/emenu" class="nav-item" th:href="@{/fbStaff/emenu}">
-        <span class="material-symbols-outlined">menu_book</span>
-        <span>E-Menu</span>
-      </a>
+
 
 
       <div class="nav-section-label">Tài chính</div>
@@ -76,9 +73,11 @@
           <div class="staff-name" th:text="${staffName != null ? staffName : 'Trần Phương'}">Trần Phương</div>
           <div class="staff-role">F&amp;B POS · Ca Sáng</div>
         </div>
-        <button class="logout-btn" title="Đăng xuất" onclick="location.href='/auth/logout'">
-          <span class="material-symbols-outlined" style="font-size:1.05rem;">logout</span>
-        </button>
+        <form action="/auth/manual-logout" method="post" style="display:inline-block; margin:0;">
+          <button type="submit" class="logout-btn" title="Đăng xuất">
+            <span class="material-symbols-outlined" style="font-size:1.05rem;">logout</span>
+          </button>
+        </form>
       </div>
     </div>
   </aside>
@@ -101,21 +100,17 @@
           <div class="topbar-date" id="live-date" style="position:absolute;top:calc(100% + 3px);left:0;right:0;text-align:center;white-space:nowrap;"></div>
         </div>
 
-        <div class="icon-btn" title="Thông báo">
-          <span class="material-symbols-outlined">notifications</span>
-          <span class="notif-dot"></span>
-        </div>
-
         <div class="icon-btn" title="Làm mới" onclick="location.reload()">
           <span class="material-symbols-outlined">refresh</span>
         </div>
 
-        <!-- Primary button — black like homepage "Book Now" -->
-        <a href="/fbStaff/create-food-order" class="btn btn-primary" style="height:34px;padding:0 14px;text-decoration:none;">
-          <span class="material-symbols-outlined">add</span>
-          Đơn mới
-          <span style="font-size:0.58rem;opacity:0.6;margin-left:2px;">[N]</span>
-        </a>
+        <!-- Primary button changed to Logout -->
+        <form action="/auth/manual-logout" method="post" style="display:inline-block; margin:0;">
+          <button type="submit" class="btn btn-primary" style="height:34px;padding:0 14px;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:4px;font-family:inherit;font-size:0.75rem;font-weight:600;letter-spacing:0.04em;">
+            <span class="material-symbols-outlined" style="font-size:1rem;">logout</span>
+            Đăng xuất
+          </button>
+        </form>
       </div>
     </header>
 
@@ -188,7 +183,7 @@
             <div class="filter-pills" id="filters-food">
               <button class="pill active" data-filter="all">Tất cả</button>
               <button class="pill" data-filter="pending">Pending</button>
-              <button class="pill" data-filter="cooking">Processing</button>
+              <button class="pill" data-filter="preparing">Processing</button>
               <button class="pill" data-filter="ready">Ready / Served</button>
               <button class="pill" data-filter="cancelled">Cancelled</button>
             </div>
@@ -221,7 +216,7 @@
                 </div>
                 <span class="order-status-chip chip-pending" 
                       th:classappend="${order.orderStatus == 'Pending' ? 'chip-pending' : (order.orderStatus == 'Preparing' ? 'chip-cooking' : (order.orderStatus == 'Served' ? 'chip-served' : (order.orderStatus == 'Ready' ? 'chip-ready' : '')))}" >
-                  <span class="dot"></span><span th:text="${order.orderStatus}">Pending</span>
+                  <span class="dot"></span><span th:text="${order.orderStatus == 'Preparing' ? 'Processing' : (order.orderStatus == 'Ready' ? 'Complete' : order.orderStatus)}">Processing</span>
                 </span>
               </div>
               <div class="order-items" style="display:none;">
@@ -256,7 +251,7 @@
                 </div>
                 <span class="order-status-chip" 
                       th:classappend="${order.orderStatus == 'Pending' ? 'chip-pending' : (order.orderStatus == 'Preparing' ? 'chip-cooking' : (order.orderStatus == 'Served' ? 'chip-served' : (order.orderStatus == 'Ready' ? 'chip-ready' : 'chip-ready')))}" >
-                  <span class="dot"></span><span th:text="${order.orderStatus == 'Preparing' ? 'Serving' : order.orderStatus}">Serving</span>
+                  <span class="dot"></span><span th:text="${order.orderStatus == 'Preparing' ? 'Processing' : (order.orderStatus == 'Ready' ? 'Complete' : order.orderStatus)}">Processing</span>
                 </span>
               </div>
               <div class="order-card-bottom">
@@ -296,9 +291,46 @@
   <!-- POS Dashboard JS — statics/f&bStaff/js/ -->
   <script th:src="@{/f&amp;bStaff/js/pos-dashboard.js}" src="../../statics/f&bStaff/js/pos-dashboard.js"></script>
   <script>
-      // Auto-refresh every 15 seconds for real-time synchronization
-      setTimeout(function() {
-          location.reload();
+      // Background refresh every 15 seconds
+      function bindOrderCardEvents() {
+          document.querySelectorAll('.order-card').forEach(card => {
+              card.onclick = function(e) {
+                  // Only if we're not clicking the card body (to expand items)
+                  // Wait, pos-dashboard.js handles clicks via redirecting via th:onclick
+                  // actually the th:onclick in HTML already does location.href
+              };
+          });
+      }
+
+      setInterval(function() {
+          fetch(location.href)
+              .then(res => res.text())
+              .then(html => {
+                  const parser = new DOMParser();
+                  const doc = parser.parseFromString(html, 'text/html');
+                  
+                  // Update KPIs
+                  const newKpi = doc.querySelector('.kpi-boxes');
+                  if (newKpi) document.querySelector('.kpi-boxes').innerHTML = newKpi.innerHTML;
+
+                  // Update Food Orders
+                  const newFoodList = doc.querySelector('#list-food');
+                  if (newFoodList) document.querySelector('#list-food').innerHTML = newFoodList.innerHTML;
+
+                  // Update Table Orders
+                  const newTableList = doc.querySelector('#list-table');
+                  if (newTableList) document.querySelector('#list-table').innerHTML = newTableList.innerHTML;
+
+                  // Re-apply active filter
+                  let activePills = document.querySelectorAll('.filter-pills:not([style*="display: none"]) .pill.active');
+                  if (activePills.length === 0) activePills = document.querySelectorAll('.filter-pills .pill.active');
+                  
+                  if (activePills.length > 0) {
+                      // Trigger click to re-filter the newly loaded DOM elements
+                      activePills.forEach(pill => pill.click());
+                  }
+              })
+              .catch(err => console.error('Background refresh failed:', err));
       }, 15000);
   </script>
 </body>

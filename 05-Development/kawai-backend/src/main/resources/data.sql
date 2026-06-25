@@ -20,8 +20,9 @@ INSERT INTO Roles (role_id, role_name) VALUES (10, 'CUSTOMER NORMAL');
 -- password hash for 'staff123': $2a$10$ikP3XeXnMx/oLodhs4wqBO61AhyuE4dWtSJDJcOH7D2ii5Vrgq0bG
 INSERT INTO Accounts (account_id, username, password_hash, is_active, role_id, created_at) VALUES 
 (1, 'admin', '$2b$10$oakn3nxfdAIk//HHAna4puEgDjGKdZI.Znk2/YByT893WJ9dlXKKe', TRUE, 1, CURRENT_TIMESTAMP),
-(2, 'tphuong', '$2a$10$ikP3XeXnMx/oLodhs4wqBO61AhyuE4dWtSJDJcOH7D2ii5Vrgq0bG', TRUE, 3, CURRENT_TIMESTAMP),
+(2, 'tphuong', '$2a$10$ikP3XeXnMx/oLodhs4wqBO61AhyuE4dWtSJDJcOH7D2ii5Vrgq0bG', TRUE, 4, CURRENT_TIMESTAMP),
 (3, 'nmquan', '$2a$10$ikP3XeXnMx/oLodhs4wqBO61AhyuE4dWtSJDJcOH7D2ii5Vrgq0bG', TRUE, 3, CURRENT_TIMESTAMP),
+(99, 'ducbeo', '$2a$10$ikP3XeXnMx/oLodhs4wqBO61AhyuE4dWtSJDJcOH7D2ii5Vrgq0bG', TRUE, 3, CURRENT_TIMESTAMP),
 (4, 'lelinh', '$2a$10$ikP3XeXnMx/oLodhs4wqBO61AhyuE4dWtSJDJcOH7D2ii5Vrgq0bG', TRUE, 2, CURRENT_TIMESTAMP),
 (5, 'hoangnam', '$2a$10$4bnThA4xQVw1rF2POQv78uAQll2KsUsgF32JaYiVG5d2d3Fhgk83q', TRUE, 9, CURRENT_TIMESTAMP),
 (6, 'vanan', '$2a$10$4bnThA4xQVw1rF2POQv78uAQll2KsUsgF32JaYiVG5d2d3Fhgk83q', TRUE, 9, CURRENT_TIMESTAMP),
@@ -244,6 +245,21 @@ INSERT INTO Room_Guests (guest_id, detail_id, customer_id, dependent_id, guest_t
 (6, 6, 6, NULL, 'ADULT', TRUE),
 (7, 7, 7, NULL, 'ADULT', TRUE),
 (8, 8, 8, NULL, 'ADULT', TRUE);
+
+-- Force update tphuong to POS role in case DB already exists
+UPDATE Accounts SET role_id = 4 WHERE username = 'tphuong';
+
+-- Restore hoangnam password back to admin123 (was accidentally changed to staff123)
+UPDATE Accounts SET password_hash = '$2a$10$4bnThA4xQVw1rF2POQv78uAQll2KsUsgF32JaYiVG5d2d3Fhgk83q' WHERE username = 'hoangnam';
+
+-- Delete tmduc account and customer record
+DELETE FROM Customers WHERE account_id = 98;
+DELETE FROM Accounts WHERE username = 'tmduc';
+
+-- Add ducbeo account if not exists (safe insert)
+INSERT IGNORE INTO Accounts (account_id, username, password_hash, is_active, role_id, created_at)
+VALUES (99, 'ducbeo', '$2a$10$ikP3XeXnMx/oLodhs4wqBO61AhyuE4dWtSJDJcOH7D2ii5Vrgq0bG', TRUE, 3, CURRENT_TIMESTAMP);
+
 
 -- Update Room's current booking detail links
 UPDATE Rooms SET current_booking_detail_id = 1 WHERE room_id = 1;

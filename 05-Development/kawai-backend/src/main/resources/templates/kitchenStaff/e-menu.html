@@ -16,7 +16,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet" />
 
   <!-- E-Menu CSS -->
-  <link rel="stylesheet" th:href="@{/f&amp;bStaff/css/e-menu.css}" href="../../statics/f&bStaff/css/e-menu.css" />
+  <link rel="stylesheet" th:href="@{/kitchenStaff/css/e-menu.css}" href="../../statics/kitchenStaff/css/e-menu.css" />
 </head>
 
 <body>
@@ -30,46 +30,26 @@
       <div class="brand-sub">Resort &amp; Tour Hub</div>
       <div class="staff-badge">
         <span class="material-symbols-outlined" style="font-size:0.7rem;font-variation-settings:'FILL' 1,'wght' 500,'GRAD' 0,'opsz' 24;">restaurant</span>
-        F&amp;B Staff
+        Kitchen Staff
       </div>
     </div>
     <nav class="sidebar-nav">
       <div class="nav-section-label">Vận hành</div>
-
-      <a href="/fbStaff/dashboard" th:href="@{/fbStaff/dashboard}" class="nav-item">
-        <span class="material-symbols-outlined">dashboard</span>
-        <span>POS Dashboard</span>
+      <a href="/kitchenStaff/kitchen" class="nav-item">
+        <span class="material-symbols-outlined">kitchen</span>
+        <span>KDS Dashboard</span>
       </a>
-      <a href="/fbStaff/create-food-order" class="nav-item">
-        <span class="material-symbols-outlined">add_circle</span>
-        <span>Tạo đơn mới</span>
-      </a>
-      <a href="/fbStaff/table-management" th:href="@{/fbStaff/table-management}" class="nav-item">
-        <span class="material-symbols-outlined">table_restaurant</span>
-        <span>Table Management</span>
-      </a>
-      <a href="/fbStaff/room-service" th:href="@{/fbStaff/room-service}" class="nav-item">
-        <span class="material-symbols-outlined">room_service</span>
-        <span>Room Service</span>
-      </a>
-      <a href="/fbStaff/emenu" th:href="@{/fbStaff/emenu}" class="nav-item active">
+      <a href="/kitchenStaff/emenu" th:href="@{/kitchenStaff/emenu}" class="nav-item active">
         <span class="material-symbols-outlined">menu_book</span>
         <span>E-Menu</span>
-      </a>
-
-      <div class="nav-section-label">Tài chính</div>
-
-      <a href="/fbStaff/shift-report" th:href="@{/fbStaff/shift-report}" class="nav-item">
-        <span class="material-symbols-outlined">bar_chart</span>
-        <span>Báo cáo ngày</span>
       </a>
     </nav>
     <div class="sidebar-footer">
       <div class="staff-profile">
-        <div class="staff-avatar">TP</div>
+        <div class="staff-avatar">KS</div>
         <div>
-          <div class="staff-name" th:text="${staffName != null ? staffName : 'Trần Phương'}">Trần Phương</div>
-          <div class="staff-role">F&amp;B POS · Ca Sáng</div>
+          <div class="staff-name" th:text="${staffName != null ? staffName : 'Nhân viên bếp'}">Nhân viên Bếp</div>
+          <div class="staff-role">Nhà Bếp</div>
         </div>
         <button class="logout-btn" title="Đăng xuất" onclick="location.href='/auth/logout'">
           <span class="material-symbols-outlined" style="font-size:1.05rem;">logout</span>
@@ -203,7 +183,7 @@
   <script th:inline="javascript">
     window.SERVER_MENU_ITEMS = /*[[${menuItems}]]*/ [];
   </script>
-  <script th:src="@{/f&amp;bStaff/js/e-menu.js}" src="../../statics/f&bStaff/js/e-menu.js"></script>
+  <script th:src="@{/kitchenStaff/js/e-menu.js}" src="../../statics/kitchenStaff/js/e-menu.js"></script>
 
 </body>
 </html>

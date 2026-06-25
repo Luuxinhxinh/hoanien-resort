@@ -33,7 +33,7 @@ public class ReservationCleanupTask {
         
         List<TableReservation> pendingReservations = tableReservationRepository.findByReserveDate(today).stream()
             .filter(res -> "Confirmed".equalsIgnoreCase(res.getStatus()) || "Pending".equalsIgnoreCase(res.getStatus()))
-            .filter(res -> res.getReserveTime() != null && res.getReserveTime().plusMinutes(30).isBefore(now))
+            .filter(res -> res.getReserveTime() != null && res.getReserveTime().plusMinutes(15).isBefore(now))
             .collect(Collectors.toList());
             
         for (TableReservation res : pendingReservations) {

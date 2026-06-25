@@ -10,4 +10,6 @@ public interface PosService {
     com.kawai.models.FoodOrder payOrder(Long id);
     
     void addItemsToOrder(Long orderId, java.util.List<com.kawai.dto.CartItemDto> items);
+
+    void updateOrderStatus(Long orderId, String status);
 }

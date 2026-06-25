@@ -45,7 +45,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             securityRole = "ROLE_HOUSEKEEPING";
         } else if (rawRole.equalsIgnoreCase("Tourguide")) {
             securityRole = "ROLE_TOURGUIDE";
-        } else if (rawRole.startsWith("Khách") || rawRole.equalsIgnoreCase("ROLE_GUEST") || rawRole.equalsIgnoreCase("ROLE_CUSTOMER")) {
+        } else if (rawRole.startsWith("Khách") || rawRole.equalsIgnoreCase("ROLE_GUEST") 
+                || rawRole.equalsIgnoreCase("ROLE_CUSTOMER") 
+                || rawRole.toUpperCase().startsWith("CUSTOMER")) {
             securityRole = "ROLE_GUEST";
         } else {
             if (!securityRole.startsWith("ROLE_")) {

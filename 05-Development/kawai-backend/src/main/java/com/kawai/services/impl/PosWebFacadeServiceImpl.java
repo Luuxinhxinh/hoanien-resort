@@ -39,8 +39,9 @@ public class PosWebFacadeServiceImpl implements PosWebFacadeService {
     @Override
     public Map<String, Object> getDashboardData() {
         List<FoodOrder> foodOrders = foodOrderRepository.findAll();
+        java.util.Collections.reverse(foodOrders); // Đơn mới hiển thị trước
         List<RestaurantTable> tables = restaurantTableRepository.findAll();
-
+        
         long totalTables = tables.size();
         long occupiedTables = tables.stream().filter(t -> "Occupied".equalsIgnoreCase(t.getTableStatus())).count();
         long activeOrders = foodOrders.stream().filter(o -> "Pending".equalsIgnoreCase(o.getOrderStatus()) || "Preparing".equalsIgnoreCase(o.getOrderStatus()) || "Ready".equalsIgnoreCase(o.getOrderStatus())).count();
@@ -236,6 +237,16 @@ public class PosWebFacadeServiceImpl implements PosWebFacadeService {
         
         data.put("menuItems", getMappedMenuItems());
         
+        return data;
+    }
+
+    @Override
+    public Map<String, Object> getKitchenData() {
+        Map<String, Object> data = new HashMap<>();
+        List<FoodOrder> orders = foodOrderRepository.findAll().stream()
+                .filter(o -> "Pending".equalsIgnoreCase(o.getOrderStatus()) || "Preparing".equalsIgnoreCase(o.getOrderStatus()))
+                .toList();
+        data.put("orders", orders);
         return data;
     }
 }

@@ -10,6 +10,38 @@ document.addEventListener('DOMContentLoaded', () => {
     roomOccupied: false
   };
 
+  // --- TABLE ID MAPPING ---
+  const tableInputText = document.getElementById('tableSelectText');
+  const tableHiddenId = document.getElementById('tableSelect');
+
+  if (tableInputText && tableHiddenId) {
+    tableInputText.addEventListener('input', () => {
+      const val = tableInputText.value.trim();
+      const options = document.querySelectorAll('#tableDatalist option');
+      let foundId = val; // fallback
+      options.forEach(opt => {
+        if (opt.value === val) {
+          foundId = opt.getAttribute('data-id');
+        }
+      });
+      tableHiddenId.value = foundId;
+    });
+  }
+
+  // --- PARSE URL PARAMS ---
+  const urlParams = new URLSearchParams(window.location.search);
+  const preselectTableId = urlParams.get('tableId');
+  if (preselectTableId && tableInputText && tableHiddenId) {
+    tableHiddenId.value = preselectTableId;
+    // Tìm tableNumber tương ứng với tableId để hiển thị
+    const option = document.querySelector(`#tableDatalist option[data-id="${preselectTableId}"]`);
+    if (option) {
+      tableInputText.value = option.value;
+    } else {
+      tableInputText.value = preselectTableId;
+    }
+  }
+
   // --- ELEMENTS ---
   const typeBtns = document.querySelectorAll('.type-btn');
   const dineInFields = document.getElementById('fields-dine-in');
@@ -294,14 +326,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // --- PREFILL FROM URL PARAMS ---
-  const urlParams = new URLSearchParams(window.location.search);
-  const tableIdParam = urlParams.get('tableId');
-  const customerNameParam = urlParams.get('customerName');
+  // Note: the prefill is already handled at the top of the file using tableSelectText & tableSelect
 
-  if (tableIdParam) {
-    const tableSelect = document.querySelector('#fields-dine-in select');
-    if (tableSelect) tableSelect.value = tableIdParam;
-  }
+  const customerNameParam = urlParams.get('customerName');
   if (customerNameParam) {
     const guestInput = document.getElementById('guestNameInput');
     if (guestInput) guestInput.value = customerNameParam;
@@ -312,7 +339,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Expose send logic
   window.sendToKitchen = function () {
-    const tableSelect = document.querySelector('#fields-dine-in select');
+    const tableSelect = document.getElementById('tableSelect');
     const guestInput = document.getElementById('guestNameInput');
     const dineInNote = document.getElementById('dineInNoteInput');
     const roomSvcNote = document.getElementById('roomSvcNoteInput');
