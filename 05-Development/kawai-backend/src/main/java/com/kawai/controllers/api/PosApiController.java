@@ -67,4 +67,16 @@ public class PosApiController {
                     "message", e.getMessage() != null ? e.getMessage() : "null message"));
         }
     }
+    @PutMapping("/orders/{id}/status")
+    public ResponseEntity<?> updateOrderStatus(@PathVariable Long id, @RequestParam String status) {
+        try {
+            posService.updateOrderStatus(id, status);
+            return ResponseEntity.ok().body(Map.of("status", "success", "message", "Cập nhật trạng thái thành công"));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(400).body(Map.of(
+                    "error", e.getClass().getName(),
+                    "message", e.getMessage() != null ? e.getMessage() : "null message"));
+        }
+    }
 }

@@ -33,7 +33,7 @@
       </a>
       <a href="/fbStaff/create-food-order" class="nav-item">
         <span class="material-symbols-outlined">add_circle</span>
-        <span>Tạo đơn mới</span>
+        <span>New Order</span>
       </a>
       <a href="/fbStaff/table-management" th:href="@{/fbStaff/table-management}" class="nav-item">
         <span class="material-symbols-outlined">table_restaurant</span>
@@ -43,10 +43,7 @@
         <span class="material-symbols-outlined">room_service</span>
         <span>Room Service</span>
       </a>
-      <a href="/fbStaff/emenu" th:href="@{/fbStaff/emenu}" class="nav-item">
-        <span class="material-symbols-outlined">menu_book</span>
-        <span>E-Menu</span>
-      </a>
+
 
       <div class="nav-section-label">Tài chính</div>
 
@@ -110,7 +107,7 @@
                   th:with="status=${foodOrder != null ? foodOrder.orderStatus : tableOrder.status}"
                   th:classappend="${status == 'Pending' ? 'chip-pending' : (status == 'Serving' || status == 'Preparing' ? 'chip-cooking' : 'chip-ready')}" 
                   style="font-size:0.8rem; padding:6px 14px;">
-              <span class="dot"></span><span th:text="${status}">Processing</span>
+              <span class="dot"></span><span th:text="${status == 'Preparing' ? 'Processing' : (status == 'Ready' ? 'Complete' : status)}">Processing</span>
             </span>
           </div>
         </div>
@@ -121,13 +118,17 @@
             <div class="step-icon"><span class="material-symbols-outlined">receipt_long</span></div>
             <div class="step-label">Created</div>
           </div>
-          <div class="step" th:classappend="${foodOrder.orderStatus == 'Preparing' || foodOrder.orderStatus == 'Ready' || foodOrder.orderStatus == 'Served' ? 'completed' : 'active'}" id="step-2">
+          <div class="step" th:classappend="${foodOrder != null ? (foodOrder.orderStatus == 'Preparing' || foodOrder.orderStatus == 'Ready' || foodOrder.orderStatus == 'Served' ? 'completed' : 'active') : 'completed'}" id="step-2">
             <div class="step-icon"><span class="material-symbols-outlined">skillet</span></div>
             <div class="step-label" id="lbl-step-2">Processing</div>
           </div>
-          <div class="step" th:classappend="${(foodOrder != null && foodOrder.orderStatus == 'Served') || (tableOrder != null && tableOrder.status == 'Completed') ? 'completed' : ''}" id="step-3">
-            <div class="step-icon"><span class="material-symbols-outlined" id="icon-step-3" th:text="${tableOrder != null ? 'done_all' : 'room_service'}">room_service</span></div>
-            <div class="step-label" id="lbl-step-3" th:text="${tableOrder != null ? 'Completed' : 'Served'}">Served</div>
+          <div class="step" th:if="${foodOrder != null}" th:classappend="${foodOrder.orderStatus == 'Ready' || foodOrder.orderStatus == 'Served' ? 'completed' : ''}" id="step-3">
+            <div class="step-icon"><span class="material-symbols-outlined">check_circle</span></div>
+            <div class="step-label">Complete</div>
+          </div>
+          <div class="step" th:classappend="${(foodOrder != null && foodOrder.orderStatus == 'Served') || (tableOrder != null && tableOrder.status == 'Completed') ? 'completed' : ''}" th:id="${foodOrder != null ? 'step-4' : 'step-3'}">
+            <div class="step-icon"><span class="material-symbols-outlined" id="icon-step-4" th:text="${tableOrder != null ? 'done_all' : 'room_service'}">room_service</span></div>
+            <div class="step-label" id="lbl-step-4" th:text="${tableOrder != null ? 'Completed' : 'Served'}">Served</div>
           </div>
         </div>
 
@@ -173,8 +174,11 @@
               <tr th:each="detail : ${foodOrder.details}">
                 <td style="text-align:center; font-weight:600;" th:text="${detail.quantity}">1</td>
                 <td th:text="${detail.menuItem != null ? detail.menuItem.itemName : 'Món ăn'}">Món ăn</td>
-                <td style="text-align:right;" th:text="${detail.priceAtOrder + '₫'}">0₫</td>
-                <td style="text-align:right; font-weight:600;" th:text="${detail.kotStatus}">Chờ</td>
+                <td style="text-align:right;" th:text="${#numbers.formatDecimal(detail.priceAtOrder, 0, 'COMMA', 0, 'POINT')} + '₫'">0₫</td>
+                <td style="text-align:right; font-weight:600;">
+                  <span th:text="${detail.kotStatus == 'Preparing' ? 'Processing' : (detail.kotStatus == 'Ready' ? 'Complete' : detail.kotStatus)}" th:style="${detail.kotStatus == 'Served' ? 'color: var(--status-ready-text);' : ''}">Chờ</span>
+                  <span th:if="${detail.kotStatus == 'Served'}" class="material-symbols-outlined" style="color: var(--status-ready-text); font-size: 1.1rem; vertical-align: bottom; margin-left: 2px;">check</span>
+                </td>
               </tr>
             </tbody>
           </table>
@@ -182,6 +186,10 @@
             <div class="summary-row total">
               <span>Tổng số món:</span>
               <span id="food-total" th:text="${foodOrder.details.size()}">0</span>
+            </div>
+            <div class="summary-row total" style="margin-top: 10px; font-size: 1.2rem; color: var(--text-dark);">
+              <span>Tổng cộng:</span>
+              <span id="food-total-amount" th:text="${#numbers.formatDecimal(foodOrder.totalAmount, 0, 'COMMA', 0, 'POINT')} + '₫'">0₫</span>
             </div>
           </div>
         </div>
@@ -229,7 +237,20 @@
             <button class="btn btn-primary" id="btn-addon" th:if="${foodOrder != null && foodOrder.orderStatus != 'PAID'}" onclick="openAddonModal()" style="background-color: #ff9800; border-color: #ff9800; color: white;"><span class="material-symbols-outlined">add</span> Gọi thêm món</button>
             <button class="btn btn-primary" id="btn-pay" th:if="${foodOrder != null && !foodOrder.isPaidInPos && foodOrder.orderStatus != 'PAID' && foodOrder.orderType != 'Room Service' && foodOrder.orderType != 'RoomService'}" style="background-color: var(--status-ready-text); border-color: var(--status-ready-text);" th:onclick="|payOrder(${foodOrder.id}, ${foodOrder.table != null ? foodOrder.table.id : 'null'})|"><span class="material-symbols-outlined">payments</span> Thanh toán</button>
             <button class="btn btn-outline" id="btn-print"><span class="material-symbols-outlined">print</span> In hóa đơn</button>
-            <button class="btn btn-primary" id="btn-action"><span class="material-symbols-outlined">check</span> <span id="btn-action-lbl" th:text="${foodOrder != null ? 'Đã phục vụ' : 'Xác nhận khách đến'}">Hoàn thành</span></button>
+            <button class="btn btn-primary" id="btn-action-food"
+                    th:if="${foodOrder != null}"
+                    th:disabled="${foodOrder.orderStatus != 'Ready'}"
+                    th:style="${foodOrder.orderStatus != 'Ready' ? 'opacity: 0.5; cursor: not-allowed;' : ''}"
+                    th:onclick="|markAsServed(${foodOrder.id})|">
+              <span class="material-symbols-outlined">check</span> 
+              <span>Đã phục vụ</span>
+            </button>
+            <button class="btn btn-primary" id="btn-action-table"
+                    th:if="${tableOrder != null && tableOrder.status != 'Completed' && tableOrder.status != 'Cancelled'}"
+                    th:onclick="|confirmTable(${tableOrder.id})|">
+              <span class="material-symbols-outlined">check</span> 
+              <span>Xác nhận khách đến</span>
+            </button>
           </div>
         </div>
 
@@ -293,10 +314,17 @@
         grid.innerHTML = '';
         if (!window.SERVER_MENU_ITEMS) return;
         window.SERVER_MENU_ITEMS.forEach(item => {
+            const isOut = item.status === 'out-of-stock';
             const card = document.createElement('div');
             card.className = 'food-card';
-            card.style.cssText = `background: ${item.bgFrom}; border-radius: 8px; padding: 10px; cursor: pointer; text-align: center; border: 1px solid #eee;`;
-            card.onclick = () => addToAddonCart(item);
+            
+            if (isOut) {
+                card.style.cssText = `background: ${item.bgFrom}; border-radius: 8px; padding: 10px; text-align: center; border: 1px solid #eee; opacity: 0.5; cursor: not-allowed; position: relative; filter: grayscale(1);`;
+                card.onclick = () => { /* do nothing */ };
+            } else {
+                card.style.cssText = `background: ${item.bgFrom}; border-radius: 8px; padding: 10px; cursor: pointer; text-align: center; border: 1px solid #eee; position: relative;`;
+                card.onclick = () => addToAddonCart(item);
+            }
             
             card.innerHTML = `
                 <div style="font-size:2rem; color:${item.iconColor}; margin-bottom:10px;">
@@ -304,6 +332,7 @@
                 </div>
                 <div style="font-weight:600; font-size:0.9rem; margin-bottom:5px;">${item.name}</div>
                 <div style="color:var(--text-muted); font-size:0.85rem;">${item.price.toLocaleString('vi-VN')}₫</div>
+                ${isOut ? '<div style="position:absolute; top:5px; right:5px; background:#dc3545; color:white; font-size:0.65rem; padding:2px 6px; border-radius:10px; font-weight:bold;">Hết món</div>' : ''}
             `;
             grid.appendChild(card);
         });
@@ -390,6 +419,33 @@
         });
     }
 
+    function markAsServed(id) {
+        if (!confirm("Xác nhận đã phục vụ món cho khách?")) return;
+        
+        const btn = document.getElementById('btn-action-food');
+        if (btn) { btn.disabled = true; btn.querySelector('span:nth-child(2)').innerText = 'Đang xử lý...'; }
+        
+        fetch('/api/pos/orders/' + id + '/status?status=Served', {
+            method: 'PUT'
+        })
+        .then(res => {
+            if(!res.ok) return res.json().then(e => { throw new Error(e.message) });
+            return res.json();
+        })
+        .then(data => {
+            alert('Đã cập nhật trạng thái thành Served!');
+            window.location.reload();
+        })
+        .catch(err => {
+            alert('Lỗi: ' + err.message);
+            if (btn) { btn.disabled = false; btn.querySelector('span:nth-child(2)').innerText = 'Đã phục vụ'; }
+        });
+    }
+
+    function confirmTable(id) {
+        alert("Chức năng xác nhận khách đến bàn đang được phát triển.");
+    }
+
     function payOrder(id, tableId) {
       if(!confirm("Bạn có chắc chắn muốn thanh toán đơn hàng này?")) return;
       const btn = document.getElementById('btn-pay');
@@ -424,6 +480,25 @@
         if (btn) { btn.disabled = false; btn.innerHTML = '<span class="material-symbols-outlined">payments</span> Thanh toán'; }
       });
     }
+
+    // Reload ngầm (Background refresh) mỗi 15 giây
+    setInterval(function() {
+        // Tạm dừng refresh nếu đang mở popup gọi món (tránh mất dữ liệu đang chọn)
+        const modal = document.getElementById('addonModal');
+        if (modal && modal.style.display !== 'none') return;
+        
+        fetch(location.href)
+            .then(res => res.text())
+            .then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const newWrapper = doc.querySelector('.detail-wrapper');
+                if (newWrapper) {
+                    document.querySelector('.detail-wrapper').innerHTML = newWrapper.innerHTML;
+                }
+            })
+            .catch(err => console.error('Background refresh failed:', err));
+    }, 15000);
   </script>
 </body>
 </html>

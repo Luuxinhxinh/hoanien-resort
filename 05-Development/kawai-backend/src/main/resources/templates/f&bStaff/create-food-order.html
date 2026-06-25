@@ -60,7 +60,7 @@
         style="display: flex; align-items: center; gap: 11px; padding: 10px 22px; color: #ffffff; text-decoration: none; font-size: 0.80rem; font-weight: 500; border-left: 3px solid #ffffff; background: rgba(255,255,255,0.09);">
         <span class="material-symbols-outlined"
           style="font-size: 1.1rem; font-variation-settings: 'FILL' 1;">add_circle</span>
-        <span>Tạo đơn mới</span>
+        <span>New Order</span>
       </a>
       <a href="/fbStaff/table-management" th:href="@{/fbStaff/table-management}" class="nav-item"
         style="display: flex; align-items: center; gap: 11px; padding: 10px 22px; color: rgba(229,223,216,0.70); text-decoration: none; font-size: 0.80rem; font-weight: 500; border-left: 3px solid transparent;">
@@ -72,11 +72,7 @@
         <span class="material-symbols-outlined" style="font-size: 1.1rem;">room_service</span>
         <span>Room Service</span>
       </a>
-      <a href="/fbStaff/emenu" class="nav-item" th:href="@{/fbStaff/emenu}"
-        style="display: flex; align-items: center; gap: 11px; padding: 10px 22px; color: rgba(229,223,216,0.70); text-decoration: none; font-size: 0.80rem; font-weight: 500; border-left: 3px solid transparent;">
-        <span class="material-symbols-outlined" style="font-size: 1.1rem;">menu_book</span>
-        <span>E-Menu</span>
-      </a>
+
 
       <div class="nav-section-label"
         style="font-size: 0.58rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.22em; color: var(--text-sidebar-muted); padding: 20px 22px 5px;">
@@ -116,7 +112,7 @@
     <!-- Top Header Bar -->
     <header class="topbar" id="main-topbar">
       <div>
-        <div class="topbar-title">Tạo Đơn Mới</div>
+        <div class="topbar-title">New Order</div>
         <div class="topbar-subtitle">POS Order Creation</div>
       </div>
       <div class="topbar-right">
@@ -138,13 +134,7 @@
         <!-- 1. Order Info -->
         <div class="order-info-panel">
           <div class="info-header">
-            <div class="order-meta">
-              <div><span class="material-symbols-outlined">tag</span> <strong
-                  style="color:var(--text-primary)">ORD-TBD</strong></div>
-              <div><span class="material-symbols-outlined">schedule</span> Hôm nay, <span id="currentTime">19:45</span>
-              </div>
-              <div><span class="material-symbols-outlined">person</span> Trần Phương</div>
-            </div>
+
 
             <div class="order-type-toggle">
               <button class="type-btn active" data-type="dine-in">
@@ -163,25 +153,20 @@
               <input type="text" class="form-control" id="guestNameInput" placeholder="Nhập tên khách hàng..." />
             </div>
             <div class="form-group">
-              <label class="form-label">Chọn Bàn / Khu vực</label>
-              <select class="form-control">
-                <option value="">-- Chọn Bàn --</option>
-                <optgroup label="Bàn Sẵn Sàng (Trống / Đang dọn)">
+              <label class="form-label">Bàn / Khu vực</label>
+              <input type="text" class="form-control" id="tableSelectText" placeholder="Nhập số bàn (VD: 06)..." autocomplete="off" />
+              <datalist id="tableDatalist">
                   <option th:each="table : ${vacantTables}" 
-                          th:value="${table.id}" 
-                          th:text="'Bàn ' + ${#strings.replace(table.tableNumber, 'T', '')} + ' - Sức chứa: ' + ${table.capacity} + ' (' + ${tableAvailabilityText.get(table.id)} + ')'"></option>
-                </optgroup>
-                <optgroup label="Bàn Đã Đặt (Reserved)">
+                          th:value="${#strings.replace(table.tableNumber, 'T', '')}" 
+                          th:data-id="${table.id}"></option>
                   <option th:each="table : ${reservedTables}" 
-                          th:value="${table.id}" 
-                          th:text="'Bàn ' + ${#strings.replace(table.tableNumber, 'T', '')} + ' - Sức chứa: ' + ${table.capacity} + ' (' + ${tableAvailabilityText.get(table.id)} + ')'"></option>
-                </optgroup>
-                <optgroup label="Bàn Đang Bận">
+                          th:value="${#strings.replace(table.tableNumber, 'T', '')}" 
+                          th:data-id="${table.id}"></option>
                   <option th:each="table : ${occupiedTables}" 
-                          th:value="${table.id}" 
-                          th:text="'Bàn ' + ${#strings.replace(table.tableNumber, 'T', '')} + ' - Đang phục vụ khách'"></option>
-                </optgroup>
-              </select>
+                          th:value="${#strings.replace(table.tableNumber, 'T', '')}" 
+                          th:data-id="${table.id}"></option>
+              </datalist>
+              <input type="hidden" id="tableSelect" />
             </div>
 
             <div class="form-group" style="grid-column: span 2;">

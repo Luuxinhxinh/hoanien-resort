@@ -60,4 +60,13 @@ public class AuthController {
             return "❌ KIỂM TRA: Session TRỐNG RỖNG (Bạn chưa đăng nhập hoặc chưa được nạp dữ liệu thành công)!";
         }
     }
+
+    @PostMapping("/manual-logout")
+    public String manualLogout(jakarta.servlet.http.HttpServletRequest request, jakarta.servlet.http.HttpServletResponse response) {
+        org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null) {
+            new org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler().logout(request, response, auth);
+        }
+        return "redirect:/ops-login";
+    }
 }

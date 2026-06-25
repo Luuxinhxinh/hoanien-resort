@@ -82,10 +82,14 @@ function renderMenu() {
 
       <!-- Image area -->
       <div class="menu-card-image">
+        ${item.imageUrl && item.imageUrl.trim() !== '' ? `
+        <img src="${item.imageUrl}" alt="${item.name}" class="real-food-image" />
+        ` : `
         <div class="food-icon-bg" style="background: linear-gradient(135deg, ${item.bgFrom}, ${item.bgTo});"></div>
         <div class="food-icon-wrapper">
           <span class="material-symbols-outlined" style="color:${item.iconColor};">${item.icon}</span>
         </div>
+        `}
         <div class="avail-badge ${statusClass(item.status)}">
           <span class="badge-dot"></span>
           ${statusLabel(item.status)}

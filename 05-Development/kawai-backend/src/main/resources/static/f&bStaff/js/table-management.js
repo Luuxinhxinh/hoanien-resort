@@ -30,7 +30,11 @@ function formatDateVN(dateStr) {
 }
 
 function todayISO() {
-  return new Date().toISOString().split('T')[0];
+  const d = new Date();
+  const yyyy = d.getFullYear();
+  const mm   = String(d.getMonth() + 1).padStart(2, '0');
+  const dd   = String(d.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
 }
 
 // ─────────────────────────────────────────────
@@ -170,14 +174,7 @@ fpPopup && fpPopup.addEventListener('click', e => e.stopPropagation());
 // ─────────────────────────────────────────────
 function openDineInModal(tableId, tableNum) {
   fpPopup.classList.remove('open');
-  const modal = document.getElementById('dineInModal');
-  if (!modal) return;
-  document.getElementById('dineIn-table-num').value       = tableNum;
-  document.getElementById('dineIn-preview-name').textContent = `Bàn ${tableNum}`;
-  document.getElementById('dineIn-table-badge').textContent  = `Bàn ${tableNum}`;
-  selectedTableId = tableId;
-  modal.style.display = 'flex';
-  setTimeout(() => modal.querySelector('input:not([readonly])').focus(), 50);
+  window.location.href = `/fbStaff/create-food-order?tableId=${tableId}`;
 }
 
 // Wire existing close/submit buttons if they exist
@@ -201,10 +198,10 @@ if (dineInSubmit) {
     dineInSubmit.innerHTML = '<span class="material-symbols-outlined">sync</span> Đang tạo...';
 
     try {
-      const res = await fetch('/api/pos/orders/dine-in', {
+      const res = await fetch('/api/pos/orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tableId: selectedTableId, customerName, pax, note })
+        body: JSON.stringify({ tableId: selectedTableId, guestName: customerName, orderType: 'Dine In', note: note, items: [] })
       });
       if (!res.ok) { const e = await res.json(); throw new Error(e.message); }
       const data = await res.json();
@@ -676,7 +673,7 @@ function initTimeline() {
 document.getElementById('tl-prev-day') && document.getElementById('tl-prev-day').addEventListener('click', () => {
   const d = new Date(tlCurrentDate + 'T00:00:00');
   d.setDate(d.getDate() - 1);
-  tlCurrentDate = d.toISOString().split('T')[0];
+  tlCurrentDate = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
   document.getElementById('tl-date-input').value = tlCurrentDate;
   renderTimeline(tlCurrentDate);
 });
@@ -684,7 +681,7 @@ document.getElementById('tl-prev-day') && document.getElementById('tl-prev-day')
 document.getElementById('tl-next-day') && document.getElementById('tl-next-day').addEventListener('click', () => {
   const d = new Date(tlCurrentDate + 'T00:00:00');
   d.setDate(d.getDate() + 1);
-  tlCurrentDate = d.toISOString().split('T')[0];
+  tlCurrentDate = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
   document.getElementById('tl-date-input').value = tlCurrentDate;
   renderTimeline(tlCurrentDate);
 });
