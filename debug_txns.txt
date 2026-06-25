@@ -1,0 +1,4 @@
+Booking ID: 993
+TxID: 1, Amount: 4350000.00, Type: ROOM_BOOKING, Status: INIT, Method: null
+TxID: 2, Amount: 4350000.00, Type: ROOM_BOOKING, Status: SUCCESS, Method: null
+TxID: 9, Amount: 7700000.00, Type: FINAL_PAYMENT, Status: SUCCESS, Method: CASH
