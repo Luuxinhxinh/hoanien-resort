@@ -161,7 +161,14 @@ public class TourBookingServiceImpl implements TourBookingService {
 
                 // 7. Gửi email xác nhận đặt tour (bất đồng bộ, không block)
                 if (tourEmailService != null) {
-                        tourEmailService.sendBookingConfirmation(savedBooking, customer);
+                        String roomNumber = null;
+                        if (request.isPostToRoom() && request.getRoomBookingDetailId() != null) {
+                                RoomBookingDetail detail = roomBookingDetailRepository.findById(request.getRoomBookingDetailId()).orElse(null);
+                                if (detail != null && detail.getRoom() != null) {
+                                        roomNumber = detail.getRoom().getRoomNumber();
+                                }
+                        }
+                        tourEmailService.sendBookingConfirmation(savedBooking, customer, request.isPostToRoom(), roomNumber);
                 }
 
                 return savedBooking.getId();

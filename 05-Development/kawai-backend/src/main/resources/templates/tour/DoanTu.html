@@ -648,6 +648,24 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             fetchWeather('Hue');
+            
+            const urlParams = new URLSearchParams(window.location.search);
+            const toast = urlParams.get('toast');
+            if (toast) {
+                let msg = '';
+                if (toast === 'create_success') {
+                    msg = 'Đã tạo hồ sơ hướng dẫn viên thành công!';
+                } else if (toast === 'update_success') {
+                    msg = 'Đã cập nhật hồ sơ hướng dẫn viên thành công!';
+                } else if (toast === 'delete_success') {
+                    msg = 'Đã xóa hồ sơ hướng dẫn viên thành công!';
+                }
+                if (msg) {
+                    alert(msg);
+                    const newUrl = window.location.pathname;
+                    window.history.replaceState({}, document.title, newUrl);
+                }
+            }
         });
     </script>
 
@@ -659,7 +677,7 @@
                 class="absolute top-4 right-4 text-[#372618]/60 hover:text-[#372618] transition-colors focus:outline-none">
                 <span class="material-symbols-outlined text-2xl">close</span>
             </button>
-            <h3 class="font-headline-md text-2xl text-primary font-bold mb-2 border-b border-[#3a3230]/10 pb-3">Thông
+            <h3 class="font-headline-md text-2xl text-black font-bold mb-2 border-b border-[#3a3230]/10 pb-3">Thông
                 tin hướng dẫn viên</h3>
 
             <!-- Read / Update / Delete Form (If employee exists) -->
@@ -671,13 +689,13 @@
                         <label class="font-label-caps text-[10px] text-outline uppercase block text-left">Họ và
                             tên</label>
                         <input name="fullName" required th:value="${employee.fullName}"
-                            class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-primary focus:border-primary transition-all text-left" />
+                            class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-black focus:border-black transition-all text-left" />
                     </div>
                     <div class="space-y-1">
                         <label class="font-label-caps text-[10px] text-outline uppercase block text-left">Giới
                             tính</label>
                         <select name="gender"
-                            class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-primary focus:border-primary transition-all text-left">
+                            class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-black focus:border-black transition-all text-left">
                             <option value="Male" th:selected="${employee.gender == 'Male'}">Nam</option>
                             <option value="Female" th:selected="${employee.gender == 'Female'}">Nữ</option>
                             <option value="Other" th:selected="${employee.gender == 'Other'}">Khác</option>
@@ -687,25 +705,18 @@
                         <label class="font-label-caps text-[10px] text-outline uppercase block text-left">Số
                             CCCD</label>
                         <input name="cccd" required th:value="${employee.cccd}"
-                            class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-primary focus:border-primary transition-all text-left" />
+                            class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-black focus:border-black transition-all text-left" />
                     </div>
                     <div class="space-y-1">
                         <label class="font-label-caps text-[10px] text-outline uppercase block text-left">Số điện
                             thoại</label>
                         <input name="phone" required th:value="${employee.phone}"
-                            class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-primary focus:border-primary transition-all text-left" />
+                            class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-black focus:border-black transition-all text-left" />
                     </div>
                     <div class="space-y-1">
                         <label class="font-label-caps text-[10px] text-outline uppercase block text-left">Email</label>
                         <input name="email" type="email" required th:value="${employee.email}"
-                            class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-primary focus:border-primary transition-all text-left" />
-                    </div>
-                    <div class="space-y-1 text-left">
-                        <label class="font-label-caps text-[10px] text-outline uppercase block text-left">Mức lương
-                            cứng</label>
-                        <p class="font-body-md text-primary font-semibold"
-                            th:text="${#numbers.formatDecimal(employee.salary, 0, 'COMMA', 0, 'POINT') + ' VNĐ'}">0 VNĐ
-                        </p>
+                            class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-black focus:border-black transition-all text-left" />
                     </div>
 
                     <div class="pt-4 flex gap-4">
@@ -735,13 +746,13 @@
                         <label class="font-label-caps text-[10px] text-outline uppercase block text-left">Họ và
                             tên</label>
                         <input name="fullName" required placeholder="Nguyễn Văn A"
-                            class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-primary focus:border-primary transition-all text-left" />
+                            class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-black focus:border-black transition-all text-left" />
                     </div>
                     <div class="space-y-1">
                         <label class="font-label-caps text-[10px] text-outline uppercase block text-left">Giới
                             tính</label>
                         <select name="gender"
-                            class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-primary focus:border-primary transition-all text-left">
+                            class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-black focus:border-black transition-all text-left">
                             <option value="Male">Nam</option>
                             <option value="Female">Nữ</option>
                             <option value="Other">Khác</option>
@@ -751,18 +762,18 @@
                         <label class="font-label-caps text-[10px] text-outline uppercase block text-left">Số
                             CCCD</label>
                         <input name="cccd" required placeholder="012345678912"
-                            class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-primary focus:border-primary transition-all text-left" />
+                            class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-black focus:border-black transition-all text-left" />
                     </div>
                     <div class="space-y-1">
                         <label class="font-label-caps text-[10px] text-outline uppercase block text-left">Số điện
                             thoại</label>
                         <input name="phone" required placeholder="0987654321"
-                            class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-primary focus:border-primary transition-all text-left" />
+                            class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-black focus:border-black transition-all text-left" />
                     </div>
                     <div class="space-y-1">
                         <label class="font-label-caps text-[10px] text-outline uppercase block text-left">Email</label>
                         <input name="email" type="email" required placeholder="guide@example.com"
-                            class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-primary focus:border-primary transition-all text-left" />
+                            class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-black focus:border-black transition-all text-left" />
                     </div>
 
                     <div class="pt-4">
