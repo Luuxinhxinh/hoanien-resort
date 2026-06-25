@@ -63,7 +63,9 @@ public class TourGuideController {
                 employeeRepository.save(employee);
             }
         }
-        return "redirect:" + redirectUrl;
+        String cleanUrl = redirectUrl.replaceAll("[&?]toast=[^&]*", "");
+        String separator = cleanUrl.contains("?") ? "&" : "?";
+        return "redirect:" + cleanUrl + separator + "toast=create_success";
     }
 
     @org.springframework.web.bind.annotation.PostMapping("/profile/update")
@@ -86,7 +88,9 @@ public class TourGuideController {
                 employeeRepository.save(employee);
             });
         }
-        return "redirect:" + redirectUrl;
+        String cleanUrl = redirectUrl.replaceAll("[&?]toast=[^&]*", "");
+        String separator = cleanUrl.contains("?") ? "&" : "?";
+        return "redirect:" + cleanUrl + separator + "toast=update_success";
     }
 
     @org.springframework.web.bind.annotation.PostMapping("/profile/delete")
@@ -99,31 +103,51 @@ public class TourGuideController {
                 employeeRepository.delete(employee);
             });
         }
-        return "redirect:" + redirectUrl;
+        String cleanUrl = redirectUrl.replaceAll("[&?]toast=[^&]*", "");
+        String separator = cleanUrl.contains("?") ? "&" : "?";
+        return "redirect:" + cleanUrl + separator + "toast=delete_success";
     }
     @GetMapping("/dashboard")
-    public String dashboard(Principal principal, Model model) {
+    @org.springframework.transaction.annotation.Transactional
+    public String dashboard(
+            @org.springframework.web.bind.annotation.RequestParam(value = "scanned", required = false) String scanned,
+            Principal principal,
+            Model model) {
         model.addAttribute("isLoggedIn", principal != null);
         if (principal != null) {
             model.addAttribute("username", principal.getName());
         }
         java.time.LocalDate today = java.time.LocalDate.now();
         
+        // Luôn đảm bảo luôn có tour test FaceID (schedule ID = 5) khởi hành hôm nay để demo
+        java.util.List<com.kawai.models.TourSchedule> schedules = tourScheduleRepository.findAll();
+        if (!schedules.isEmpty()) {
+            com.kawai.models.TourSchedule targetSchedule = schedules.stream()
+                    .filter(s -> s.getId() != null && s.getId() == 5L)
+                    .findFirst()
+                    .orElse(schedules.get(0));
+            if (!today.equals(targetSchedule.getDepartureDate())) {
+                targetSchedule.setDepartureDate(today);
+                tourScheduleRepository.saveAndFlush(targetSchedule);
+            }
+        }
+
         java.util.List<com.kawai.models.TourAttendee> attendees = tourAttendeeRepository
                 .findByTourBooking_Schedule_DepartureDate(today);
-        
-        // Đảm bảo luôn có tour và khách của hôm nay để test FaceID
-        if (attendees.isEmpty()) {
-            java.util.List<com.kawai.models.TourSchedule> schedules = tourScheduleRepository.findAll();
-            if (!schedules.isEmpty()) {
-                com.kawai.models.TourSchedule targetSchedule = schedules.stream()
-                        .filter(s -> s.getId() != null && s.getId() == 5L)
-                        .findFirst()
-                        .orElse(schedules.get(0));
-                targetSchedule.setDepartureDate(today);
-                tourScheduleRepository.save(targetSchedule);
-                
-                // Truy vấn lại
+
+        // Nếu không phải là load sau khi quét thành công (scanned == true), tự động reset trạng thái chờ FaceID
+        if (!"true".equals(scanned)) {
+            boolean didReset = false;
+            for (com.kawai.models.TourAttendee attendee : attendees) {
+                if (!"Not_Show".equals(attendee.getStatus())) {
+                    attendee.setStatus("Not_Show");
+                    attendee.setFaceMatchedAt(null);
+                    tourAttendeeRepository.saveAndFlush(attendee);
+                    didReset = true;
+                }
+            }
+            if (didReset) {
+                // Re-query to get updated statuses for the model
                 attendees = tourAttendeeRepository.findByTourBooking_Schedule_DepartureDate(today);
             }
         }

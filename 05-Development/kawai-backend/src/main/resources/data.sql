@@ -58,7 +58,7 @@ INSERT INTO Customers (customer_id, account_id, full_name, gender, cccd_passport
 (2, 6, 'Ngọc Thị', 'Nam', 'CCCD_204', '090204', 'an204@test.com', 200, 'Silver'),
 (3, 7, 'Phạm Tuấn', 'Nam', 'CCCD_308', '090308', 'tuan308@test.com', 500, 'Gold'),
 (4, 8, 'Trần Thị Bích', 'Nữ', 'CCCD_104', '090104', 'bich104@test.com', 50, 'Regular'),
-(5, 9, 'Lê Quang', 'Nam', 'CCCD_106', '090106', 'quang106@test.com', 0, 'Regular'),
+(5, 9, 'Ngọc Thị', 'Nữ', 'CCCD_106', '090106', 'quang106@test.com', 0, 'Regular'),
 (6, 10, 'Đỗ Mỹ Linh', 'Nữ', 'CCCD_207', '090207', 'linh207@test.com', 150, 'Silver'),
 (7, 11, 'Hoàng Anh', 'Nam', 'CCCD_210', '090210', 'anh210@test.com', 300, 'Gold'),
 (8, 12, 'Vũ Hùng', 'Nam', 'CCCD_311', '090311', 'hung311@test.com', 800, 'Platinum');
