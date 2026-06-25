@@ -3,11 +3,15 @@ package com.kawai.models;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.envers.Audited;
 
 @Entity
 @Audited
 @Table(name = "Room_Categories")
+@Getter
+@Setter
 public class RoomCategory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -48,107 +52,26 @@ public class RoomCategory {
     @Column(name = "is_active", nullable = false)
     private Boolean isActive = true;
 
-    public Boolean getIsActive() {
-        return isActive;
-    }
+    // --- NEW ATTRIBUTES FOR ROOM DISPLAY ---
+    @Column(name = "bed_type", length = 100)
+    private String bedType; // VD: "1 Giường King 2m2", "2 Giường Đơn 1m2"
 
-    public void setIsActive(Boolean isActive) {
-        this.isActive = isActive;
-    }
+    @Column(name = "room_size")
+    private Integer roomSize; // Diện tích (m2)
 
-    public Integer getBaseAdults() {
-        return baseAdults;
-    }
+    @Column(name = "view_type", length = 100)
+    private String viewType; // Hướng nhìn (VD: "Hướng Biển", "Hướng Vườn")
 
-    public void setBaseAdults(Integer baseAdults) {
-        this.baseAdults = baseAdults;
-    }
+    @Column(name = "has_bathtub")
+    private Boolean hasBathtub = false;
 
-    public Integer getBaseChildren() {
-        return baseChildren;
-    }
+    @Column(name = "has_balcony")
+    private Boolean hasBalcony = false;
 
-    public void setBaseChildren(Integer baseChildren) {
-        this.baseChildren = baseChildren;
-    }
+    @Column(name = "complimentary_services", length = 255)
+    private String complimentaryServices; // VD: "2 chai nước suối, Trà & Cà phê"
 
-    public Integer getMaxAdults() {
-        return maxAdults;
-    }
+    @Column(name = "has_free_breakfast")
+    private Boolean hasFreeBreakfast = false;
 
-    public void setMaxAdults(Integer maxAdults) {
-        this.maxAdults = maxAdults;
-    }
-
-    public Integer getMaxChildren() {
-        return maxChildren;
-    }
-
-    public void setMaxChildren(Integer maxChildren) {
-        this.maxChildren = maxChildren;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getCategoryName() {
-        return categoryName;
-    }
-
-    public void setCategoryName(String categoryName) {
-        this.categoryName = categoryName;
-    }
-
-    public BigDecimal getBasePrice() {
-        return basePrice;
-    }
-
-    public void setBasePrice(BigDecimal basePrice) {
-        this.basePrice = basePrice;
-    }
-
-    public Integer getCapacity() {
-        return capacity;
-    }
-
-    public void setCapacity(Integer capacity) {
-        this.capacity = capacity;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getCoverImgUrl() {
-        return coverImgUrl;
-    }
-
-    public void setCoverImgUrl(String coverImgUrl) {
-        this.coverImgUrl = coverImgUrl;
-    }
-
-    public BigDecimal getExtraAdultSurcharge() {
-        return extraAdultSurcharge;
-    }
-
-    public void setExtraAdultSurcharge(BigDecimal extraAdultSurcharge) {
-        this.extraAdultSurcharge = extraAdultSurcharge;
-    }
-
-    public BigDecimal getExtraChildSurcharge() {
-        return extraChildSurcharge;
-    }
-
-    public void setExtraChildSurcharge(BigDecimal extraChildSurcharge) {
-        this.extraChildSurcharge = extraChildSurcharge;
-    }
 }

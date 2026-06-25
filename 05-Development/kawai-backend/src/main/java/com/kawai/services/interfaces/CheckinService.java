@@ -19,37 +19,23 @@ public interface CheckinService {
 
     /**
      * Check-in khách vào phòng (UC12.1).
-     *
-     * @param bookingDetailId ID chi tiết booking cần check-in
-     * @param roomId          ID phòng vật lý sẽ gán cho khách
-     * @return RoomBookingDetail đã cập nhật trạng thái
-     * @throws IllegalStateException nếu phòng đang DIRTY hoặc MAINTENANCE
      */
     RoomBookingDetail checkIn(Long bookingDetailId, Long roomId);
 
     /**
      * Ủy quyền hạn mức chi tiêu cho phòng (UC12.2).
-     *
-     * @param bookingDetailId ID chi tiết booking
-     * @param newCreditLimit  hạn mức mới
      */
     void updateCreditLimit(Long bookingDetailId, BigDecimal newCreditLimit);
 
     /**
+     * BR-FO-09: Xử lý tự động đánh dấu No-Show cho khách không đến
+     */
+    void markAsNoShow(Long bookingId);
+
+    /**
      * Đổi phòng vật lý cho khách đang lưu trú (UC12.3).
-     *
-     * @param bookingDetailId ID chi tiết booking
-     * @param newRoomId       ID phòng mới
-     * @return RoomBookingDetail đã chuyển sang phòng mới
-     * @throws IllegalStateException nếu phòng mới không khả dụng
      */
     RoomBookingDetail transferRoom(Long bookingDetailId, Long newRoomId);
 
-    /**
-     * Nâng cấp Dependent thành Customer (UC12.4).
-     *
-     * @param dependentId ID người phụ thuộc
-     * @return Customer mới được tạo từ thông tin Dependent
-     */
     Customer upgradeDependentToCustomer(Long dependentId);
 }

@@ -54,7 +54,8 @@ public interface BookingService {
     /**
      * Xác nhận thanh toán và cập nhật thông tin khách hàng (UC10).
      */
-    void confirmBooking(Long bookingId, Long customerId, String fullName, String phone, String email, String cccd, String notes);
+    void confirmBooking(Long bookingId, Long customerId, String fullName, String phone, String email,
+            String cccd, String notes, String paymentMethod);
 
 
 }

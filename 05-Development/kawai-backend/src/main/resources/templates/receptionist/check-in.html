@@ -102,6 +102,7 @@
                 <div class="header-search">
                     <form action="/receptionist/check-in" method="get">
                         <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                        <input type="hidden" name="dateFilter" th:if="${dateFilter != null}" th:value="${dateFilter}" />
                         <input type="text" name="keyword" th:value="${param.keyword}"
                             placeholder="Search guest, room no., phone" style="border-radius: 20px;" />
                     </form>
@@ -149,7 +150,25 @@
                     <div id="tabContentArrivals" class="split-section" style="display: block;">
                         <div class="split-title"
                             style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                            <span>Arrivals (Đến)</span>
+                            <div style="display: flex; align-items: center; gap: 15px;">
+                                <span>Arrivals (Đến)</span>
+                                <form action="/receptionist/check-in" method="get"
+                                    style="display: flex; align-items: center; gap: 8px; margin: 0;">
+                                    <input type="hidden" name="keyword" th:if="${keyword != null}"
+                                        th:value="${keyword}" />
+                                    <input type="date" name="dateFilter" th:value="${dateFilter}"
+                                        onchange="this.form.submit()"
+                                        style="background: #2a2d34; border: 1px solid #4b5563; color: white; border-radius: 6px; padding: 8px 12px; font-size: 14px; min-width: 150px; outline: none; cursor: pointer; transition: border-color 0.2s;"
+                                        onfocus="this.style.borderColor='#fb923c'"
+                                        onblur="this.style.borderColor='#4b5563'" />
+                                    <a th:if="${dateFilter != null}"
+                                        th:href="@{/receptionist/check-in(keyword=${keyword})}"
+                                        style="color: #ef4444; text-decoration: none; font-size: 14px; padding: 8px; display: flex; align-items: center; justify-content: center; background: #374151; border-radius: 6px; transition: background 0.2s;"
+                                        title="Xóa bộ lọc ngày" onmouseover="this.style.background='#4b5563'"
+                                        onmouseout="this.style.background='#374151'"><i
+                                            class="fa-solid fa-xmark"></i></a>
+                                </form>
+                            </div>
                             <span class="status-badge status-pending"
                                 th:text="${pendingArrivalsCount} + ' Expected'"></span>
                         </div>
@@ -157,14 +176,15 @@
                             <thead>
                                 <tr>
                                     <th>Guest</th>
+                                    <th>Phone</th>
+                                    <th>Check-in Date</th>
                                     <th>Booking Date</th>
-                                    <th>Room</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr th:if="${#lists.isEmpty(arrivals)}">
-                                    <td colspan="4" style="text-align: center;">No arrivals today</td>
+                                    <td colspan="5" style="text-align: center;">No arrivals today</td>
                                 </tr>
                                 <tr th:each="arr : ${arrivals}">
                                     <td style="cursor: pointer; color: #2563eb; font-weight: 500;"
@@ -173,14 +193,26 @@
                                         th:data-room="${arr.roomSummary}"
                                         th:attr="onclick=|openCheckinModal('${arr.id}', '${arr.guestName}', '${arr.phone}', '${arr.cccd}', '${arr.roomSummary}', 'deps-arr-${arr.id}')|"
                                         th:text="${arr.guestName}"></td>
+                                    <td th:text="${arr.phone}"></td>
+                                    <td th:text="${arr.checkInDate}"></td>
                                     <td th:text="${arr.bookingDate}" style="color: #4b5563;"></td>
-                                    <td><span th:text="${arr.roomSummary}"></span></td>
                                     <td>
-                                        <button class="btn btn-primary btn-sm" th:data-id="${arr.id}"
-                                            th:data-name="${arr.guestName}" th:data-phone="${arr.phone}"
-                                            th:data-cccd="${arr.cccd}" th:data-room="${arr.roomSummary}"
-                                            th:attr="onclick=|openCheckinModal('${arr.id}', '${arr.guestName}', '${arr.phone}', '${arr.cccd}', '${arr.roomSummary}', 'deps-arr-${arr.id}')|">Assign
-                                            & Check-in</button>
+                                        <div th:if="${arr.isExpired == false}">
+                                            <button class="btn btn-primary btn-sm" th:data-id="${arr.id}"
+                                                th:data-name="${arr.guestName}" th:data-phone="${arr.phone}"
+                                                th:data-cccd="${arr.cccd}" th:data-room="${arr.roomSummary}"
+                                                th:attr="onclick=|openCheckinModal('${arr.id}', '${arr.guestName}', '${arr.phone}', '${arr.cccd}', '${arr.roomSummary}', 'deps-arr-${arr.id}')|">Assign
+                                                & Check-in</button>
+                                        </div>
+                                        <div th:if="${arr.isExpired == true}">
+                                            <form
+                                                th:action="@{/receptionist/check-in/cancel-no-show/{id}(id=${arr.id})}"
+                                                method="post"
+                                                onsubmit="return confirm('Xác nhận hủy đơn quá hạn này và đánh dấu No-Show?');">
+                                                <button type="submit" class="btn btn-primary btn-sm" style="background-color: #ef4444; border-color: #ef4444; color: white;">Hủy
+                                                    (No-Show)</button>
+                                            </form>
+                                        </div>
                                         <!-- Hidden data for dependents -->
                                         <div th:id="'deps-arr-' + ${arr.id}" style="display:none;">
                                             <ul>
@@ -237,19 +269,24 @@
                 <div style="margin-bottom: 24px;">
                     <h4
                         style="margin-top: 0; margin-bottom: 12px; font-weight: 600; color: #334155; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px;">
-                        Main Guest Information (Booking) <span id="masterCustomerRoomLabel" style="font-size: 13px; font-weight: 500; color: #d97706; margin-left: 12px;">(Chưa phân phòng)</span></h4>
+                        Main Guest Information (Booking) <span id="masterCustomerRoomLabel"
+                            style="font-size: 13px; font-weight: 500; color: #d97706; margin-left: 12px;">(Chưa phân
+                            phòng)</span></h4>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-                        <div><label style="display: block; color:#64748b; font-size: 13px; margin-bottom: 4px;">Full Name</label>
+                        <div><label style="display: block; color:#64748b; font-size: 13px; margin-bottom: 4px;">Full
+                                Name</label>
                             <input type="text" id="modalGuestName" name="guestName"
                                 style="width: 100%; padding: 6px 8px; border: 1px solid #cbd5e1; border-radius: 4px; font-weight: 500; font-family: inherit;"
                                 value="">
                         </div>
-                        <div><label style="display: block; color:#64748b; font-size: 13px; margin-bottom: 4px;">Phone Number</label>
+                        <div><label style="display: block; color:#64748b; font-size: 13px; margin-bottom: 4px;">Phone
+                                Number</label>
                             <input type="text" id="modalGuestPhone" name="phone"
                                 style="width: 100%; padding: 6px 8px; border: 1px solid #cbd5e1; border-radius: 4px; font-weight: 500; font-family: inherit;"
                                 value="">
                         </div>
-                        <div><label style="display: block; color:#64748b; font-size: 13px; margin-bottom: 4px;">Identity (CCCD/Passport)</label>
+                        <div><label style="display: block; color:#64748b; font-size: 13px; margin-bottom: 4px;">Identity
+                                (CCCD/Passport)</label>
                             <input type="text" id="modalGuestCccd" name="cccd"
                                 style="width: 100%; padding: 6px 8px; border: 1px solid #cbd5e1; border-radius: 4px; font-weight: 500; font-family: inherit;"
                                 value="">
@@ -374,9 +411,12 @@
                                 <input type="date" id="depDob"
                                     style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px; background: white;">
                             </div>
-                            <div style="display: flex; flex-direction: column; justify-content: flex-end; padding-bottom: 4px;">
-                                <label style="display: flex; align-items: center; gap: 4px; font-size: 13px; cursor: pointer; color: #334155;">
-                                    <input type="checkbox" id="depIsPrimary" style="width: 16px; height: 16px;"> Đứng đầu phòng
+                            <div
+                                style="display: flex; flex-direction: column; justify-content: flex-end; padding-bottom: 4px;">
+                                <label
+                                    style="display: flex; align-items: center; gap: 4px; font-size: 13px; cursor: pointer; color: #334155;">
+                                    <input type="checkbox" id="depIsPrimary" style="width: 16px; height: 16px;"> Đứng
+                                    đầu phòng
                                 </label>
                             </div>
                             <div>
