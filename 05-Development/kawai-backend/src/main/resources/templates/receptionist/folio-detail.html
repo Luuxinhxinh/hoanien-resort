@@ -692,8 +692,8 @@
                                 <span id="promoAmount">-0 ₫</span>
                             </div>
 
-                            <div class="summary-row total-row" id="row-deposit" style="display: none;">
-                                <span>Pre-paid Deposit</span>
+                            <div class="summary-row total-row" id="row-deposit" style="display: none; color: #27ae60;">
+                                <span>Tiền cọc (Deposit)</span>
                                 <span id="prePaidAmount">-0 ₫</span>
                             </div>
 
@@ -824,6 +824,7 @@
         let roomSummaryMap = {}; // Thêm biến lưu summary từng phòng
         let globalOriginalTotal = 0; // Thêm biến lưu tổng tiền hóa đơn tổng trước VAT
         let globalPrePaidDeposit = 0;
+        let globalOtherPayments = 0;
         let appliedGroupPromoCode = null;
         let appliedGroupPromoType = null;
         let appliedGroupPromoDiscount = 0;
@@ -848,8 +849,7 @@
 
                         if (data.rooms && data.rooms.length > 1) {
                             const formatCurrency = (val) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(val);
-                            document.getElementById('groupTotalPill').style.display = 'block';
-                            document.getElementById('groupTotalAmount').innerText = formatCurrency(data.groupBalance || 0);
+                            document.getElementById('groupTotalPill').style.display = 'none';
                         } else {
                             document.getElementById('groupTotalPill').style.display = 'none';
                         }
@@ -931,13 +931,10 @@
         }
 
         function renderGroupFolio(results) {
-            const originalGroups = {};
-            let originalTotal = 0;
-            const splitGroups = {};
-            let splitTotal = 0;
-
-            let totalPrePaid = 0;
             let leftHtml = '';
+            let originalGroups = {};
+            let originalTotal = 0;
+            let splitTotal = 0;
 
             results.forEach((data, index) => {
                 if (!data.success) return;
@@ -949,25 +946,42 @@
                 items.forEach(item => {
                     const dep = item.sourceDepartment || 'OTHER';
 
-                    // For Left Pane (grouped by room)
-                    if (!allGroups[dep]) allGroups[dep] = { items: [] };
-                    allGroups[dep].items.push(item);
+                    const isRoom = dep.toLowerCase() === 'room';
 
-                    roomTotal += item.amount;
+                    // For Left Pane (grouped by room) - include incidental charges only, exclude room cost
+                    if (item.amount > 0 && !isRoom) {
+                        if (!allGroups[dep]) allGroups[dep] = { items: [] };
+                        allGroups[dep].items.push(item);
+                        roomTotal += item.amount;
+                    }
 
-                    // For Right Pane (aggregated)
-                    if (!originalGroups[dep]) originalGroups[dep] = { total: 0 };
-                    originalGroups[dep].total += item.amount;
-                    originalTotal += item.amount;
+                    // For Right Pane (aggregated) - Separate positive charges from negative deposits/payments
+                    if (item.amount > 0) {
+                        const isSettled = item.isSettledSeparately || (data.detailStatus === 'Checked_Out' && !isRoom);
+                        if (!isSettled) {
+                            if (!originalGroups[dep]) originalGroups[dep] = { total: 0 };
+                            originalGroups[dep].total += item.amount;
+                            originalTotal += item.amount;
+                        }
+                    } else {
+                        // Negative amount represents deposit/payment
+                        if (typeof window.folioNegatives === 'undefined') {
+                            window.folioNegatives = 0;
+                        }
+                        window.folioNegatives += Math.abs(item.amount);
+                    }
                 });
 
-                // Add expected room charge only to Right Pane (Consolidated Bill) if not already posted
+                // Add expected room charge to Left Pane and Right Pane if not already posted
                 const hasPostedRoomCharge = items.some(item => 'room' === (item.sourceDepartment || '').toLowerCase());
                 if (!hasPostedRoomCharge && data.roomCharge && data.roomCharge > 0) {
                     const dep = 'Room';
+                    // Right Pane
                     if (!originalGroups[dep]) originalGroups[dep] = { total: 0 };
                     originalGroups[dep].total += data.roomCharge;
                     originalTotal += data.roomCharge;
+
+                    // DO NOT add Room Charge to Left Pane (individual room folio)
                 }
 
                 const roomId = data.roomBookingDetailId || index;
@@ -977,96 +991,107 @@
                 leftHtml += `
                 <div style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; margin-bottom: 24px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
                     <div style="background: #f8fafc; padding: 16px 20px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="toggleRoomDetail('room-detail-${roomId}')">
-                        <div>
-                            <h4 style="margin: 0 0 4px 0; font-size: 1.1rem; color: #2c3e50;"><i class="fa-solid fa-door-open"></i> Phòng ${data.roomNumber || 'N/A'}</h4>
-                            <div style="font-size: 0.9rem; color: #7f8c8d;"><i class="fa-solid fa-user" style="margin-right: 4px;"></i> Đại diện phòng: <strong style="color: #2c3e50;">${data.guestName || 'Unknown'}</strong></div>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 16px;">
-                            <span style="font-weight: 600; color: #c19b6c; font-size: 1.1rem;">${formatCurrency(roomTotal * 1.1)}</span>
-                            <button class="btn btn-secondary" style="margin: 0; padding: 6px 12px; font-size: 0.85rem; background: white; border: 1px solid #cbd5e1; border-radius: 6px; cursor: pointer; transition: background 0.2s;">
-                                <i class="fa-solid fa-eye"></i> View Detail
-                            </button>
-                        </div>
-                    </div>
-                    <div id="room-detail-${roomId}" style="padding: 16px 20px; display: none; background: #faf9f7;">`;
+                         <div>
+                             <h4 style="margin: 0 0 4px 0; font-size: 1.1rem; color: #2c3e50;"><i class="fa-solid fa-door-open"></i> Phòng ${data.roomNumber || 'N/A'}</h4>
+                             <div style="font-size: 0.9rem; color: #7f8c8d;">
+                                 <i class="fa-solid fa-user" style="margin-right: 4px;"></i> Đại diện phòng: <strong style="color: #2c3e50;">${data.guestName || 'Unknown'}</strong>
+                                 ${data.detailStatus === 'Checked_Out' ? '<span class="status-badge" style="background-color: #d1fae5; color: #065f46; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; margin-left: 8px; font-weight: 600;">Đã trả phòng (Checked-out)</span>' : ''}
+                             </div>
+                         </div>
+                         <div style="display: flex; align-items: center; gap: 16px;">
+                             <span style="font-weight: 600; color: #c19b6c; font-size: 1.1rem;">${formatCurrency(roomTotal * 1.1)}</span>
+                             <button class="btn btn-secondary" style="margin: 0; padding: 6px 12px; font-size: 0.85rem; background: white; border: 1px solid #cbd5e1; border-radius: 6px; cursor: pointer; transition: background 0.2s;">
+                                 <i class="fa-solid fa-eye"></i> View Detail
+                             </button>
+                         </div>
+                     </div>
+                     <div id="room-detail-${roomId}" style="padding: 16px 20px; display: none; background: #faf9f7;">
+                         <div style="margin-bottom: 16px; background: #fdfbf7; border: 1px solid #e8e4db; border-radius: 8px; padding: 12px 16px; display: flex; align-items: center; gap: 8px; font-size: 0.95rem; color: #7f8c8d;">
+                             <i class="fa-solid fa-credit-card" style="color: #c19b6c;"></i>
+                             <span>Hạn mức chi tiêu (Credit Limit): <strong style="color: #2c3e50;">${formatCurrency(data.subCreditLimit || 0)}</strong></span>
+                         </div>`;
 
-                for (const [dep, group] of Object.entries(allGroups)) {
-                    const availableItems = group.items.filter(i => !i.isSettledSeparately);
-                    const depSafe = roomId + '_' + dep.replace(/[^a-zA-Z0-9]/g, '');
+                 for (const [dep, group] of Object.entries(allGroups)) {
+                     const availableItems = group.items.filter(i => !i.isSettledSeparately);
+                     const depSafe = roomId + '_' + dep.replace(/[^a-zA-Z0-9]/g, '');
 
-                    leftHtml += `
-                        <div class="charge-card" style="box-shadow: none; border: 1px solid #edf2f7; margin-bottom: 16px;">
-                            <div class="charge-card-header" style="background: #fdfdfd; padding: 12px 16px; margin-bottom: 0;">
-                                <div class="charge-title" style="display: flex; align-items: center; gap: 12px; text-transform: uppercase;">
-                                    ${dep} CHARGES
-                                </div>
-                            </div>
-                            <div style="padding: 0 16px;">
-                                <table class="charge-table">
-                                    <thead>
-                                        <tr>
-                                            <th>DESCRIPTION</th>
-                                            <th style="text-align: right;">AMOUNT</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        ${group.items.map(i => {
-                        const isSplit = i.isSettledSeparately;
-                        const trClass = isSplit ? 'item-settled' : '';
-                        const dateStr = i.createdAt && i.createdAt.length >= 10 ? i.createdAt.substring(0, 10) : '';
-                        return `
-                                            <tr class="${trClass}">
-                                                <td>
-                                                    ${i.description} 
-                                                    ${dateStr ? `<div style="font-size: 0.8rem; color: #95a5a6;">${dateStr}</div>` : ''}
-                                                    ${isSplit ? '<span style="color:#e74c3c; font-size: 0.8rem; font-weight: 500;">(Đã tách)</span>' : ''}
-                                                </td>
-                                                <td class="amount">${formatCurrency(i.amount)}</td>
-                                            </tr>`;
-                    }).join('')}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>`;
-                }
+                     leftHtml += `
+                         <div class="charge-card" style="box-shadow: none; border: 1px solid #edf2f7; margin-bottom: 16px;">
+                             <div class="charge-card-header" style="background: #fdfdfd; padding: 12px 16px; margin-bottom: 0;">
+                                 <div class="charge-title" style="display: flex; align-items: center; gap: 12px; text-transform: uppercase;">
+                                     ${dep} CHARGES
+                                 </div>
+                             </div>
+                             <div style="padding: 0 16px;">
+                                 <table class="charge-table">
+                                     <thead>
+                                         <tr>
+                                             <th>DESCRIPTION</th>
+                                             <th style="text-align: right;">AMOUNT</th>
+                                         </tr>
+                                     </thead>
+                                     <tbody>
+                                         ${group.items.map(i => {
+                         const isSplit = i.isSettledSeparately;
+                         const trClass = isSplit ? 'item-settled' : '';
+                         const dateStr = i.createdAt && i.createdAt.length >= 10 ? i.createdAt.substring(0, 10) : '';
+                         return `
+                                             <tr class="${trClass}">
+                                                 <td>
+                                                     ${i.description} 
+                                                     ${dateStr ? `<div style="font-size: 0.8rem; color: #95a5a6;">${dateStr}</div>` : ''}
+                                                     ${isSplit ? '<span style="color:#e74c3c; font-size: 0.8rem; font-weight: 500;">(Đã tách)</span>' : ''}
+                                                 </td>
+                                                 <td class="amount">${formatCurrency(i.amount)}</td>
+                                             </tr>`;
+                     }).join('')}
+                                     </tbody>
+                                 </table>
+                             </div>
+                         </div>`;
+                 }
 
-                roomSummaryMap[roomId] = {
-                    roomNumber: data.roomNumber || 'N/A',
-                    total: roomTotal * 1.1,
-                    prePaidDeposit: data.prePaidDeposit || 0,
-                    currentBalance: data.currentBalance || 0,
-                    detailStatus: data.detailStatus || 'Checked_In',
-                    summary: {},
-                    appliedPromoCode: null,
-                    appliedPromoType: null,
-                    appliedPromoDiscount: 0
-                };
-                for (const [dep, group] of Object.entries(allGroups)) {
-                    roomSummaryMap[roomId].summary[dep] = group.items.reduce((sum, i) => sum + i.amount, 0);
-                }
+                 roomSummaryMap[roomId] = {
+                     roomNumber: data.roomNumber || 'N/A',
+                     total: roomTotal * 1.1,
+                     prePaidDeposit: data.prePaidDeposit || 0,
+                     currentBalance: data.currentBalance || 0,
+                     detailStatus: data.detailStatus || 'Checked_In',
+                     summary: {},
+                     appliedPromoCode: null,
+                     appliedPromoType: null,
+                     appliedPromoDiscount: 0
+                 };
+                 for (const [dep, group] of Object.entries(allGroups)) {
+                     roomSummaryMap[roomId].summary[dep] = group.items.reduce((sum, i) => sum + i.amount, 0);
+                 }
 
-                leftHtml += `
-                        <div style="display: flex; flex-direction: column; gap: 8px; width: 100%; border-top: 1px solid #e2e8f0; padding-top: 16px; margin-top: 16px;">
-                            <div style="display: flex; justify-content: space-between; font-size: 0.95rem; color: #7f8c8d;">
-                                <span>Subtotal (trước thuế):</span>
-                                <span>${formatCurrency(roomTotal)}</span>
-                            </div>
-                            <div style="display: flex; justify-content: space-between; font-size: 0.95rem; color: #7f8c8d;">
-                                <span>VAT (10%):</span>
-                                <span>${formatCurrency(roomTotal * 0.1)}</span>
-                            </div>
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px; padding-top: 8px; border-top: 1px dashed #cbd5e1;">
-                                <span style="font-weight: 600; color: #2c3e50; font-size: 1.1rem;">Tổng cộng phòng ${data.roomNumber || 'N/A'}:</span>
-                                <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 12px;">
-                                    <span style="font-family: 'Playfair Display', serif; font-size: 1.5rem; color: #c19b6c; font-weight: 700;">${formatCurrency(roomTotal * 1.1)}</span>
-                                    <button onclick="openPaymentModalForRoom('${roomId}', ${roomTotal * 1.1})" class="btn btn-primary" style="padding: 8px 16px; font-size: 0.9rem; background: #2c3e50; color: white; border: none; border-radius: 6px; cursor: pointer; transition: background 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                                        <i class="fa-solid fa-credit-card"></i> Thanh toán riêng phòng này
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>`;
+                 leftHtml += `
+                         <div style="display: flex; flex-direction: column; gap: 8px; width: 100%; border-top: 1px solid #e2e8f0; padding-top: 16px; margin-top: 16px;">
+                             <div style="display: flex; justify-content: space-between; font-size: 0.95rem; color: #7f8c8d;">
+                                 <span>Subtotal (trước thuế):</span>
+                                 <span>${formatCurrency(roomTotal)}</span>
+                             </div>
+                             <div style="display: flex; justify-content: space-between; font-size: 0.95rem; color: #7f8c8d;">
+                                 <span>VAT (10%):</span>
+                                 <span>${formatCurrency(roomTotal * 0.1)}</span>
+                             </div>
+                             <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px; padding-top: 8px; border-top: 1px dashed #cbd5e1;">
+                                 <span style="font-weight: 600; color: #2c3e50; font-size: 1.1rem;">Tổng cộng phòng ${data.roomNumber || 'N/A'}:</span>
+                                 <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 12px;">
+                                     <span style="font-family: 'Playfair Display', serif; font-size: 1.5rem; color: #c19b6c; font-weight: 700;">${formatCurrency(roomTotal * 1.1)}</span>
+                                     ${data.detailStatus !== 'Checked_Out' ? `
+                                     <button onclick="openPaymentModalForRoom('${roomId}', ${roomTotal * 1.1})" class="btn btn-primary" style="padding: 8px 16px; font-size: 0.9rem; background: #2c3e50; color: white; border: none; border-radius: 6px; cursor: pointer; transition: background 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                         <i class="fa-solid fa-credit-card"></i> Thanh toán riêng phòng này
+                                     </button>
+                                     ` : `
+                                     <span style="color: #27ae60; font-weight: 600;"><i class="fa-solid fa-circle-check"></i> Đã thanh toán</span>
+                                     `}
+                                 </div>
+                             </div>
+                         </div>
+                     </div>
+                 `;
             });
 
             document.getElementById('allRoomsContainer').innerHTML = leftHtml;
@@ -1096,7 +1121,8 @@
 
             // 4. Calculate Final Balances
             // Deposit from group API if available, else first result's deposit. (They all share same booking)
-            globalPrePaidDeposit = bookingGroupData ? (bookingGroupData.groupTotalPayments || 0) : (results.length > 0 ? (results[0].prePaidDeposit || 0) : 0);
+            globalPrePaidDeposit = bookingGroupData ? (bookingGroupData.prePaidDeposit || 0) : (results.length > 0 ? (results[0].prePaidDeposit || 0) : 0);
+            globalOtherPayments = bookingGroupData ? (bookingGroupData.otherPayments || 0) : (results.length > 0 ? (results[0].otherPayments || 0) : 0);
 
             if (globalPrePaidDeposit > 0) {
                 document.getElementById('row-deposit').style.display = 'flex';
@@ -1104,6 +1130,8 @@
             } else {
                 document.getElementById('row-deposit').style.display = 'none';
             }
+
+
 
             globalOriginalTotal = originalTotal;
             updateGroupOutstandingDisplay();
@@ -1153,16 +1181,7 @@
                 html = '<div class="summary-row" style="justify-content:center; color:#95a5a6;">Không có mục nào</div>';
             }
 
-            let depositUsed = roomInfo.prePaidDeposit || 0;
 
-            if (depositUsed > 0) {
-                html += `
-                    <div class="summary-row total-row" style="color: #27ae60; border-top: 1px dashed #cbd5e1; padding-top: 12px; margin-top: 12px;">
-                        <span>Pre-paid Deposit</span>
-                        <span>-${formatCurrency(depositUsed)}</span>
-                    </div>
-                `;
-            }
 
             document.getElementById('roomBillDetails').innerHTML = html;
 
@@ -1378,7 +1397,7 @@
             const roomInfo = roomSummaryMap[roomId];
             if (!roomInfo) return;
 
-            let roomOutstanding = roomInfo.total - roomInfo.appliedPromoDiscount - roomInfo.prePaidDeposit;
+            let roomOutstanding = roomInfo.total - roomInfo.appliedPromoDiscount;
             if (roomOutstanding < 0) roomOutstanding = 0;
 
             document.getElementById('roomBillOutstandingAmount').innerText = formatCurrency(roomOutstanding);
@@ -1407,7 +1426,8 @@
 
             const bodyPayload = {
                 paymentAmount: currentPaymentAmount,
-                paymentMethod: selectedPaymentMethod
+                paymentMethod: selectedPaymentMethod,
+                isGroup: currentPaymentRoomId === null
             };
             if (promoCode) {
                 bodyPayload.promoCode = promoCode;
