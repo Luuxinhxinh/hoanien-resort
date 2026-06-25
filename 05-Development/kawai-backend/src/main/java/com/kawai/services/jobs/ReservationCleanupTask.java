@@ -9,20 +9,40 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
+import com.kawai.models.RestaurantTable;
+import com.kawai.repositories.RestaurantTableRepository;
 
 @Component
 public class ReservationCleanupTask {
 
     private final TableReservationRepository tableReservationRepository;
+    private final RestaurantTableRepository restaurantTableRepository;
 
-    public ReservationCleanupTask(TableReservationRepository tableReservationRepository) {
+    public ReservationCleanupTask(TableReservationRepository tableReservationRepository, RestaurantTableRepository restaurantTableRepository) {
         this.tableReservationRepository = tableReservationRepository;
+        this.restaurantTableRepository = restaurantTableRepository;
     }
 
     private java.time.LocalDateTime lastRun;
 
     public String getLastRunTime() {
         return lastRun != null ? java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss").format(lastRun) : "Chưa chạy lần nào";
+    }
+
+    @Scheduled(cron = "0 * * * * *") // Run every minute
+    public void cleanupTables() {
+        List<RestaurantTable> cleaningTables = restaurantTableRepository.findAll().stream()
+                .filter(t -> "Cleaning".equalsIgnoreCase(t.getTableStatus()) && t.getCleaningStartTime() != null)
+                .collect(Collectors.toList());
+
+        java.time.LocalDateTime now = java.time.LocalDateTime.now();
+        for (RestaurantTable table : cleaningTables) {
+            if (table.getCleaningStartTime().plusMinutes(10).isBefore(now)) {
+                table.setTableStatus("Available");
+                table.setCleaningStartTime(null);
+                restaurantTableRepository.save(table);
+            }
+        }
     }
 
     // Scheduled dynamically in DynamicJobConfig
@@ -33,7 +53,20 @@ public class ReservationCleanupTask {
         
         List<TableReservation> pendingReservations = tableReservationRepository.findByReserveDate(today).stream()
             .filter(res -> "Confirmed".equalsIgnoreCase(res.getStatus()) || "Pending".equalsIgnoreCase(res.getStatus()))
-            .filter(res -> res.getReserveTime() != null && res.getReserveTime().plusMinutes(15).isBefore(now))
+            .filter(res -> {
+                if (res.getReserveTime() == null) return false;
+                int holdMinutes = 0;
+                String notes = res.getSpecialRequests();
+                if (notes != null) {
+                    java.util.regex.Matcher m = java.util.regex.Pattern.compile("\\[HELD: (\\d+)m\\]").matcher(notes);
+                    if (m.find()) {
+                        try {
+                            holdMinutes = Integer.parseInt(m.group(1));
+                        } catch (Exception ignored) {}
+                    }
+                }
+                return res.getReserveTime().plusMinutes(15 + holdMinutes).isBefore(now);
+            })
             .collect(Collectors.toList());
             
         for (TableReservation res : pendingReservations) {

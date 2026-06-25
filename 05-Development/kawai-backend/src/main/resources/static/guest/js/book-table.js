@@ -112,17 +112,75 @@ async function checkAvailability() {
     }
 }
 
+// ── Custom confirm dialog for missing endTime ──────────────────────────────
+function showEndTimeConfirm(onConfirm) {
+    document.getElementById('endTimeConfirmModal').style.display = 'flex';
+    // Store callback
+    window._endTimeConfirmCallback = onConfirm;
+}
+
+function confirmEndTimeAuto() {
+    document.getElementById('endTimeConfirmModal').style.display = 'none';
+    if (typeof window._endTimeConfirmCallback === 'function') {
+        window._endTimeConfirmCallback();
+        window._endTimeConfirmCallback = null;
+    }
+}
+
+function cancelEndTimeAuto() {
+    document.getElementById('endTimeConfirmModal').style.display = 'none';
+    window._endTimeConfirmCallback = null;
+    // Re-focus endTime input so guest can fill it in
+    const endTimeInput = document.getElementById('endTime');
+    if (endTimeInput && !endTimeInput.disabled) {
+        endTimeInput.focus();
+        if (flatpickrEndTime) flatpickrEndTime.open();
+    }
+}
+
 // Handle form submission
 document.getElementById('bookingForm').addEventListener('submit', async function(e) {
     e.preventDefault();
-    
+
     const tableId = document.getElementById('tableId').value;
     const reserveDate = document.getElementById('reserveDate').value;
     const startTime = document.getElementById('startTime').value;
-    const endTime = document.getElementById('endTime').value;
+    let endTime = document.getElementById('endTime').value;
     const partySize = document.getElementById('partySize').value;
     const specialRequests = document.getElementById('specialRequests').value;
 
+    // Validate required fields (except endTime)
+    if (!reserveDate || !startTime) {
+        alert('Vui lòng nhập đầy đủ Ngày sử dụng và Giờ bắt đầu.');
+        return;
+    }
+
+    // If endTime is missing → show custom confirm
+    if (!endTime) {
+        showEndTimeConfirm(async () => {
+            // Auto-calculate endTime = startTime + 1 hour
+            const [h, m] = startTime.split(':').map(Number);
+            const autoEnd = new Date(2000, 0, 1, h + 1, m);
+            const autoEndStr = String(autoEnd.getHours()).padStart(2, '0') + ':' + String(autoEnd.getMinutes()).padStart(2, '0');
+
+            // Set it visually on the flatpickr
+            if (flatpickrEndTime) flatpickrEndTime.setDate(autoEndStr);
+            document.getElementById('endTime').value = autoEndStr;
+
+            await submitReservation(tableId, reserveDate, startTime, autoEndStr, partySize, specialRequests);
+        });
+        return;
+    }
+
+    if (startTime >= endTime) {
+        alert('Giờ kết thúc phải lớn hơn Giờ bắt đầu.');
+        return;
+    }
+
+    await submitReservation(tableId, reserveDate, startTime, endTime, partySize, specialRequests);
+});
+
+async function submitReservation(tableId, reserveDate, startTime, endTime, partySize, specialRequests) {
     const payload = {
         tableId: parseInt(tableId),
         reserveDate: reserveDate,
@@ -133,15 +191,15 @@ document.getElementById('bookingForm').addEventListener('submit', async function
     };
 
     try {
-        const response = await fetch('/api/v1/tables/reservations', { 
-            method: 'POST', 
+        const response = await fetch('/api/v1/tables/reservations', {
+            method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload) 
+            body: JSON.stringify(payload)
         });
 
         if (!response.ok) {
             const errorMsg = await response.text();
-            alert("Lỗi đặt bàn: " + errorMsg);
+            alert('Lỗi đặt bàn: ' + errorMsg);
             return;
         }
 
@@ -150,10 +208,10 @@ document.getElementById('bookingForm').addEventListener('submit', async function
         document.getElementById('successModal').style.display = 'flex';
         checkAvailability(); // Refresh table status
     } catch (error) {
-        console.error("Failed to submit reservation:", error);
-        alert("Đã có lỗi xảy ra. Vui lòng thử lại.");
+        console.error('Failed to submit reservation:', error);
+        alert('Đã có lỗi xảy ra. Vui lòng thử lại.');
     }
-});
+}
 
 // Scroll effect for navbar (though it's set to solid initially, we keep the logic)
 const guestNav = document.querySelector('.guest-nav');

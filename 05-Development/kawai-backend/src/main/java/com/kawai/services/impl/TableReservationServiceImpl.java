@@ -119,6 +119,16 @@ public class TableReservationServiceImpl implements TableReservationService {
             }
         }
 
+        // Check physical status for immediate bookings (within 2 hours of now)
+        if (request.getReserveDate().equals(LocalDate.now())) {
+            if ("Occupied".equalsIgnoreCase(table.getTableStatus()) || "Cleaning".equalsIgnoreCase(table.getTableStatus())) {
+                java.time.LocalDateTime startDateTime = java.time.LocalDateTime.of(request.getReserveDate(), request.getStartTime());
+                if (startDateTime.isBefore(java.time.LocalDateTime.now().plusHours(2))) {
+                    throw new BusinessException("TABLE-007", "Bàn hiện đang " + ("Cleaning".equalsIgnoreCase(table.getTableStatus()) ? "dọn dẹp" : "có khách") + ". Không thể đặt trước cho khoảng thời gian trong vòng 2 giờ tới.");
+                }
+            }
+        }
+
         List<TableReservation> existingReservations = tableReservationRepository.findByTable_IdAndReserveDateOrderByReserveTimeAsc(table.getId(), request.getReserveDate());
 
         for (TableReservation res : existingReservations) {
@@ -291,5 +301,33 @@ public class TableReservationServiceImpl implements TableReservationService {
             table.setTableStatus("Occupied");
             restaurantTableRepository.save(table);
         }
+    }
+
+    @Override
+    public TableReservation holdReservation(Long reservationId, int holdMinutes) {
+        if (holdMinutes < 0 || holdMinutes > 30) {
+            throw new BusinessException("RES-003", "Thời gian giữ bàn phải từ 0 đến 30 phút.");
+        }
+        TableReservation res = tableReservationRepository.findById(reservationId)
+                .orElseThrow(() -> new BusinessException("RES-001", "Không tìm thấy thông tin đặt bàn"));
+        
+        if (!"Confirmed".equalsIgnoreCase(res.getStatus()) && !"Pending".equalsIgnoreCase(res.getStatus())) {
+            throw new BusinessException("RES-004", "Trạng thái đặt bàn không hợp lệ để giữ bàn");
+        }
+        
+        String currentNotes = res.getSpecialRequests();
+        if (currentNotes == null) {
+            currentNotes = "";
+        }
+        
+        // Loại bỏ chuỗi giữ bàn cũ nếu có
+        currentNotes = currentNotes.replaceAll("\\[HELD: \\d+m\\]", "").trim();
+        
+        if (holdMinutes > 0) {
+            currentNotes = (currentNotes + " [HELD: " + holdMinutes + "m]").trim();
+        }
+        
+        res.setSpecialRequests(currentNotes.isEmpty() ? null : currentNotes);
+        return tableReservationRepository.save(res);
     }
 }

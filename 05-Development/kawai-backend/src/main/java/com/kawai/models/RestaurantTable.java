@@ -8,4 +8,5 @@ public class RestaurantTable {
     @Column(nullable=false) private Integer capacity;
     @Column(name="table_status", nullable=false) private String tableStatus = "Available";
     @Column(name="is_active", nullable=false) private Boolean isActive = true;
+    @Column(name="cleaning_start_time") private java.time.LocalDateTime cleaningStartTime;
 }

@@ -605,6 +605,10 @@ function showBlockPopup(e, res, table) {
 
   if (res.status === 'Confirmed' || res.status === 'Pending') {
     actions.innerHTML = `
+      <button class="btn btn-outline" style="font-size:0.75rem;height:30px;padding:0 10px;margin-right:5px;"
+        onclick="openHoldModal(${res.id})">
+        <span class="material-symbols-outlined">timer</span>Giữ bàn
+      </button>
       <button class="btn btn-primary" style="font-size:0.75rem;height:30px;padding:0 10px;"
         onclick="openCccdCheckInModal(${res.id}, ${table.tableId})">
         <span class="material-symbols-outlined">how_to_reg</span>Check-in
@@ -801,6 +805,73 @@ function submitCccdCheckIn() {
   const tableId = document.getElementById('cccdCheckIn-tableId').value;
   closeCccdCheckInModal();
   handleCheckIn(resId, tableId);
+}
+
+// ─────────────────────────────────────────────
+// HOLD RESERVATION MODAL LOGIC
+// ─────────────────────────────────────────────
+function openHoldModal(resId) {
+  tlPopup.classList.remove('open');
+  document.getElementById('hold-resId').value = resId;
+  const holdMinutesInput = document.getElementById('hold-minutes');
+  holdMinutesInput.value = '';
+  
+  if (!holdMinutesInput._flatpickr) {
+    flatpickr(holdMinutesInput, {
+      enableTime: true,
+      noCalendar: true,
+      time_24hr: true,
+      defaultDate: "00:15",
+      minTime: "00:00",
+      maxTime: "00:30",
+      minuteIncrement: 1,
+      onOpen: function(selectedDates, dateStr, instance) {
+        if (instance.calendarContainer) {
+          instance.calendarContainer.classList.add('hide-hours');
+        }
+      }
+    });
+  }
+  
+  document.getElementById('holdModal').style.display = 'flex';
+}
+
+async function submitHoldReservation() {
+  const resId = document.getElementById('hold-resId').value;
+  const timeStr = document.getElementById('hold-minutes').value;
+  if (!timeStr) {
+    tmShowToast('error', 'Lỗi', 'Vui lòng chọn số phút');
+    return;
+  }
+  
+  const holdMinutes = parseInt(timeStr.split(':')[1], 10);
+  if (isNaN(holdMinutes) || holdMinutes < 0 || holdMinutes > 30) {
+    tmShowToast('error', 'Lỗi', 'Số phút không hợp lệ');
+    return;
+  }
+  
+  const btn = document.getElementById('hold-submit');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="material-symbols-outlined">sync</span> Đang xử lý...';
+  
+  try {
+    const res = await fetch(`/api/v1/tables/reservations/${resId}/hold`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ holdMinutes })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'Lỗi hệ thống');
+    
+    tmShowToast('success', 'Thành công', data.message);
+    document.getElementById('holdModal').style.display = 'none';
+    if (tlInitialized) renderTimeline(tlCurrentDate);
+  } catch (err) {
+    tmShowToast('error', 'Lỗi', err.message);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<span class="material-symbols-outlined">save</span>Xác nhận';
+  }
 }
 
 // ─────────────────────────────────────────────

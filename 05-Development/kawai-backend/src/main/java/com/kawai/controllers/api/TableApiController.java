@@ -76,6 +76,17 @@ public class TableApiController {
         }
     }
 
+    @PutMapping("/reservations/{id}/hold")
+    public ResponseEntity<?> holdReservation(@PathVariable("id") Long reservationId, @RequestBody Map<String, Integer> payload) {
+        try {
+            Integer holdMinutes = payload.getOrDefault("holdMinutes", 0);
+            tableReservationService.holdReservation(reservationId, holdMinutes);
+            return ResponseEntity.ok(Map.of("message", "Đã giữ bàn thành công"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", e.getMessage()));
+        }
+    }
+
     @PutMapping("/{id}/status")
     public ResponseEntity<?> updateTableStatus(@PathVariable("id") Long tableId, @RequestParam("status") String status) {
         try {
