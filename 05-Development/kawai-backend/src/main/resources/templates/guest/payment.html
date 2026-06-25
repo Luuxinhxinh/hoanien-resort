@@ -20,9 +20,10 @@
         <nav class="relative w-full font-sans">
             <div class="max-w-[1440px] mx-auto px-6 py-4 flex items-center justify-between">
                 <!-- Left -->
-                <div class="hidden lg:flex items-center gap-8 text-[13px] uppercase tracking-[0.2em] font-semibold text-hoanien-text/80">
-                    <a href="/living"      class="hover:text-hoanien-text transition-colors">Living</a>
-                    <a href="/dining"      class="hover:text-hoanien-text transition-colors">Dining</a>
+                <div
+                    class="hidden lg:flex items-center gap-8 text-[13px] uppercase tracking-[0.2em] font-semibold text-hoanien-text/80">
+                    <a href="/living" class="hover:text-hoanien-text transition-colors">Living</a>
+                    <a href="/dining" class="hover:text-hoanien-text transition-colors">Dining</a>
                     <a href="/experiences" class="hover:text-hoanien-text transition-colors">Experiences</a>
                     <a href="/tours/search" class="hover:text-hoanien-text transition-colors">Tours</a>
                 </div>
@@ -33,13 +34,14 @@
 
                 <!-- Right -->
                 <div class="hidden lg:flex items-center gap-6 text-[13px] uppercase tracking-[0.2em] font-semibold">
-                    <a href="/profile" th:if="${session.user != null}"
+                    <a href="/profile" th:if="${isLoggedIn}"
                         class="hover:text-hoanien-text transition-colors text-hoanien-text/80">Profile</a>
-                    <form th:action="@{/auth/logout}" method="post" th:if="${session.user != null}" class="inline">
+                    <form th:action="@{/auth/logout}" method="post" th:if="${isLoggedIn}" class="inline">
                         <button type="submit"
                             class="hover:text-hoanien-text uppercase tracking-[0.2em] bg-transparent border-none p-0 cursor-pointer text-hoanien-text/80 transition-colors">Logout</button>
                     </form>
-                    <a href="#" onclick="openLoginModal(); return false;" th:unless="${session.user != null}" class="hover:text-hoanien-text transition-colors text-hoanien-text/80">Log In</a>
+                    <a href="#" onclick="openLoginModal(); return false;" th:unless="${isLoggedIn}"
+                        class="hover:text-hoanien-text transition-colors text-hoanien-text/80">Log In</a>
                     <a href="/booking"
                         class="bg-hoanien-text text-hoanien-bg px-6 py-3 hover:bg-hoanien-text/80 transition-colors inline-block border border-hoanien-text">
                         Đặt phòng
@@ -61,8 +63,9 @@
         <div class="checkout-hero" style="text-align: center;">
             <h1>Hoàn tất đặt phòng</h1>
             <p>Vui lòng điền đầy đủ thông tin để hoàn tất quá trình đặt phòng của bạn.</p>
-            
-            <div id="payment-timer-container" class="hidden" style="margin-top: 1rem; display: inline-flex; align-items: center; gap: 0.5rem; background-color: #fef2f2; color: #dc2626; padding: 0.5rem 1rem; border-radius: 9999px; border: 1px solid #fecaca;">
+
+            <div id="payment-timer-container" class="hidden"
+                style="margin-top: 1rem; display: inline-flex; align-items: center; gap: 0.5rem; background-color: #fef2f2; color: #dc2626; padding: 0.5rem 1rem; border-radius: 9999px; border: 1px solid #fecaca;">
                 <span class="material-symbols-outlined text-sm">schedule</span>
                 <span class="text-sm font-medium">Thời gian giữ phòng còn lại:</span>
                 <span id="payment-timer" class="font-bold text-lg">--:--</span>
@@ -87,8 +90,9 @@
                                 <label for="fieldFullName">Họ và tên <span class="req">*</span></label>
                                 <input type="text" id="fieldFullName" name="fullName"
                                     th:value="${customer != null ? customer.fullName : ''}"
-                                    placeholder="Nguyễn Văn An"
-                                    autocomplete="name" required />
+                                    th:readonly="${customer != null && customer.fullName != null && !customer.fullName.isEmpty()}"
+                                    th:classappend="${customer != null && customer.fullName != null && !customer.fullName.isEmpty() ? 'readonly-field' : ''}"
+                                    placeholder="Nguyễn Văn An" autocomplete="name" required />
                             </div>
 
                             <!-- Số điện thoại -->
@@ -96,26 +100,24 @@
                                 <label for="fieldPhone">Số điện thoại <span class="req">*</span></label>
                                 <input type="tel" id="fieldPhone" name="phone"
                                     th:value="${customer != null ? customer.phone : ''}"
-                                    placeholder="+84 901 234 567"
-                                    autocomplete="tel" required />
+                                    th:readonly="${customer != null && customer.phone != null && !customer.phone.isEmpty()}"
+                                    th:classappend="${customer != null && customer.phone != null && !customer.phone.isEmpty() ? 'readonly-field' : ''}"
+                                    placeholder="+84 901 234 567" autocomplete="tel" required />
                             </div>
-
-
-
                             <!-- Email -->
                             <div class="form-group">
                                 <label for="fieldEmail">Email <span class="req">*</span></label>
                                 <input type="email" id="fieldEmail" name="email"
                                     th:value="${customer != null ? customer.email : ''}"
-                                    placeholder="email@example.com"
-                                    autocomplete="email" required />
+                                    th:readonly="${customer != null && customer.email != null && !customer.email.isEmpty()}"
+                                    th:classappend="${customer != null && customer.email != null && !customer.email.isEmpty() ? 'readonly-field' : ''}"
+                                    placeholder="email@example.com" autocomplete="email" required />
                             </div>
 
                             <!-- Địa chỉ (full width) -->
                             <div class="form-group full">
                                 <label for="fieldAddress">Địa chỉ</label>
-                                <input type="text" id="fieldAddress" name="address"
-                                    placeholder="123 Đường Hoa, Quận 1"
+                                <input type="text" id="fieldAddress" name="address" placeholder="123 Đường Hoa, Quận 1"
                                     autocomplete="street-address" />
                             </div>
 
@@ -144,7 +146,7 @@
                             <span class="payment-label">VNPay</span>
                             <span class="payment-check">
                                 <svg viewBox="0 0 24 24" fill="none">
-                                    <path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round" />
                                 </svg>
                             </span>
                         </label>
@@ -152,8 +154,8 @@
                         <!-- Security note -->
                         <div class="payment-info">
                             <svg viewBox="0 0 24 24" fill="none">
-                                <circle cx="12" cy="12" r="10"/>
-                                <path d="M12 8v4M12 16h.01" stroke-linecap="round"/>
+                                <circle cx="12" cy="12" r="10" />
+                                <path d="M12 8v4M12 16h.01" stroke-linecap="round" />
                             </svg>
                             <span>
                                 Bạn sẽ được chuyển hướng đến cổng thanh toán an toàn sau khi nhấn "Thanh toán ngay".
@@ -165,13 +167,14 @@
                         <div class="terms-row">
                             <input type="checkbox" id="termsCheck" onchange="onTermsChange(this)" />
                             <label for="termsCheck">
-                                Tôi đồng ý với các <a href="javascript:void(0)" onclick="openTermsModal()">điều khoản</a> và <a href="javascript:void(0)" onclick="openTermsModal()">chính sách đặt phòng</a> của HoaNien Resort.
+                                Tôi đồng ý với các <a href="javascript:void(0)" onclick="openTermsModal()">điều
+                                    khoản</a> và <a href="javascript:void(0)" onclick="openTermsModal()">chính sách đặt
+                                    phòng</a> của HoaNien Resort.
                             </label>
                         </div>
 
                         <!-- Pay button -->
-                        <button type="button" id="btnPayNow" class="btn-pay"
-                            disabled onclick="submitPayment()">
+                        <button type="button" id="btnPayNow" class="btn-pay" disabled onclick="submitPayment()">
                             THANH TOÁN NGAY
                         </button>
 
@@ -200,25 +203,27 @@
                         <div class="op-dates">
                             <div class="op-date-item">
                                 <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8">
-                                    <rect x="3" y="4" width="18" height="18" rx="2"/>
-                                    <path d="M3 9h18M8 2v4M16 2v4" stroke-linecap="round"/>
+                                    <rect x="3" y="4" width="18" height="18" rx="2" />
+                                    <path d="M3 9h18M8 2v4M16 2v4" stroke-linecap="round" />
                                 </svg>
                                 <div>
                                     <p class="op-date-label">Nhận phòng</p>
                                     <p class="op-date-value" id="op-checkin-date">
-                                        <span class="skeleton" style="width:160px;height:18px;display:block;">&nbsp;</span>
+                                        <span class="skeleton"
+                                            style="width:160px;height:18px;display:block;">&nbsp;</span>
                                     </p>
                                 </div>
                             </div>
                             <div class="op-date-item">
                                 <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8">
-                                    <rect x="3" y="4" width="18" height="18" rx="2"/>
-                                    <path d="M3 9h18M8 2v4M16 2v4" stroke-linecap="round"/>
+                                    <rect x="3" y="4" width="18" height="18" rx="2" />
+                                    <path d="M3 9h18M8 2v4M16 2v4" stroke-linecap="round" />
                                 </svg>
                                 <div>
                                     <p class="op-date-label">Trả phòng</p>
                                     <p class="op-date-value" id="op-checkout-date">
-                                        <span class="skeleton" style="width:160px;height:18px;display:block;">&nbsp;</span>
+                                        <span class="skeleton"
+                                            style="width:160px;height:18px;display:block;">&nbsp;</span>
                                     </p>
                                 </div>
                             </div>
@@ -228,16 +233,16 @@
                         <div class="op-date-meta">
                             <span>
                                 <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8">
-                                    <path d="M12 2C8 2 5 6 5 10c0 6 7 12 7 12s7-6 7-12c0-4-3-8-7-8z"/>
+                                    <path d="M12 2C8 2 5 6 5 10c0 6 7 12 7 12s7-6 7-12c0-4-3-8-7-8z" />
                                 </svg>
                                 <span id="op-nights">—</span>
                             </span>
                             <span>
                                 <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8">
-                                    <circle cx="9" cy="7" r="3"/>
-                                    <path d="M3.5 19c0-3 2.5-5 5.5-5s5.5 2 5.5 5"/>
-                                    <circle cx="17" cy="8" r="2.2"/>
-                                    <path d="M15.5 18c0-2.3 1.8-3.5 3.5-3.5"/>
+                                    <circle cx="9" cy="7" r="3" />
+                                    <path d="M3.5 19c0-3 2.5-5 5.5-5s5.5 2 5.5 5" />
+                                    <circle cx="17" cy="8" r="2.2" />
+                                    <path d="M15.5 18c0-2.3 1.8-3.5 3.5-3.5" />
                                 </svg>
                                 <span id="op-guests">—</span>
                             </span>
@@ -267,9 +272,11 @@
                         <p class="op-vat">Đã bao gồm VAT</p>
 
                         <!-- Deposit (30%) -->
-                        <div class="op-total-row deposit-row" style="margin-top: 8px; border-top: 1px dashed rgba(58,50,48,0.15); padding-top: 8px;">
+                        <div class="op-total-row deposit-row"
+                            style="margin-top: 8px; border-top: 1px dashed rgba(58,50,48,0.15); padding-top: 8px;">
                             <span class="label" style="font-weight: 600; color: #c9a84c;">Tiền đặt cọc (30%)</span>
-                            <span class="value" id="op-deposit-value" style="font-size: 1.35rem; font-weight: 700; color: #c9a84c;">—</span>
+                            <span class="value" id="op-deposit-value"
+                                style="font-size: 1.35rem; font-weight: 700; color: #c9a84c;">—</span>
                         </div>
 
                         <div class="op-divider"></div>
@@ -278,8 +285,10 @@
                         <div class="op-coupon">
                             <p class="op-coupon-label">
                                 <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8">
-                                    <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" stroke-linecap="round"/>
-                                    <circle cx="7" cy="7" r="1.5" fill="currentColor" stroke="none"/>
+                                    <path
+                                        d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"
+                                        stroke-linecap="round" />
+                                    <circle cx="7" cy="7" r="1.5" fill="currentColor" stroke="none" />
                                 </svg>
                                 Mã giảm giá
                             </p>
@@ -295,8 +304,9 @@
                         <!-- SSL badge -->
                         <div class="op-secure">
                             <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8">
-                                <path d="M12 2L3 7v5c0 5.25 3.75 10.15 9 11.25C17.25 22.15 21 17.25 21 12V7L12 2z" stroke-linecap="round"/>
-                                <path d="M9 12l2 2 4-4" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M12 2L3 7v5c0 5.25 3.75 10.15 9 11.25C17.25 22.15 21 17.25 21 12V7L12 2z"
+                                    stroke-linecap="round" />
+                                <path d="M9 12l2 2 4-4" stroke-linecap="round" stroke-linejoin="round" />
                             </svg>
                             Thanh toán bảo mật · SSL 256-bit
                         </div>
@@ -324,45 +334,55 @@
                     <li>Đơn đặt phòng sẽ được giữ trong vòng 10 phút ở trạng thái chờ thanh toán.</li>
                     <li>Nếu không nhận được tiền đặt cọc trong thời gian này, đơn đặt phòng sẽ tự động bị hủy.</li>
                 </ul>
-                
+
                 <h4>Chính sách giá phòng</h4>
                 <ul>
-                    <li>Giá phòng có thể thay đổi theo mùa, thời điểm đặt phòng, chương trình khuyến mại và tình trạng phòng trống.</li>
-                    <li>Mức giá được xác nhận tại thời điểm đặt phòng sẽ được giữ nguyên cho toàn bộ thời gian lưu trú của đặt phòng đó.</li>
+                    <li>Giá phòng có thể thay đổi theo mùa, thời điểm đặt phòng, chương trình khuyến mại và tình trạng
+                        phòng trống.</li>
+                    <li>Mức giá được xác nhận tại thời điểm đặt phòng sẽ được giữ nguyên cho toàn bộ thời gian lưu trú
+                        của đặt phòng đó.</li>
                 </ul>
-                
+
                 <h4>Chính sách thanh toán</h4>
                 <ul>
                     <li>Khách sạn hỗ trợ thanh toán trực tuyến bằng chuyển khoản ngân hàng.</li>
-                    <li>Khoản thanh toán chỉ được xem là hoàn tất sau khi được hệ thống thanh toán hoặc bộ phận tài chính xác nhận thành công.</li>
+                    <li>Khoản thanh toán chỉ được xem là hoàn tất sau khi được hệ thống thanh toán hoặc bộ phận tài
+                        chính xác nhận thành công.</li>
                 </ul>
 
                 <h4>Chính sách hủy phòng và hoàn tiền</h4>
                 <ul>
-                    <li>Hủy đặt phòng từ 48 giờ trở lên trước thời điểm nhận phòng sẽ được hoàn lại 100% tiền đặt cọc.</li>
+                    <li>Hủy đặt phòng từ 48 giờ trở lên trước thời điểm nhận phòng sẽ được hoàn lại 100% tiền đặt cọc.
+                    </li>
                     <li>Hủy đặt phòng dưới 48 giờ trước thời điểm nhận phòng sẽ không được hoàn tiền.</li>
                     <li>Khách không đến nhận phòng (No-show) sẽ không được hoàn tiền.</li>
-                    <li>Sau khi đã hoàn tất thủ tục nhận phòng (Check-in), mọi khoản thanh toán sẽ không được hoàn lại.</li>
+                    <li>Sau khi đã hoàn tất thủ tục nhận phòng (Check-in), mọi khoản thanh toán sẽ không được hoàn lại.
+                    </li>
                 </ul>
 
                 <h4>Chính sách nhận phòng và trả phòng</h4>
                 <ul>
                     <li>Giờ nhận phòng (Check-in): từ 14:00.</li>
                     <li>Giờ trả phòng (Check-out): trước 12:00.</li>
-                    <li>Yêu cầu nhận phòng sớm hoặc trả phòng muộn phụ thuộc vào tình trạng phòng thực tế và có thể phát sinh phụ phí.</li>
-                    <li>Người đại diện thực hiện thủ tục nhận phòng phải từ đủ 18 tuổi trở lên và xuất trình giấy tờ tùy thân hợp lệ (CCCD hoặc Hộ chiếu).</li>
+                    <li>Yêu cầu nhận phòng sớm hoặc trả phòng muộn phụ thuộc vào tình trạng phòng thực tế và có thể phát
+                        sinh phụ phí.</li>
+                    <li>Người đại diện thực hiện thủ tục nhận phòng phải từ đủ 18 tuổi trở lên và xuất trình giấy tờ tùy
+                        thân hợp lệ (CCCD hoặc Hộ chiếu).</li>
                 </ul>
 
                 <h4>Dịch vụ phát sinh</h4>
                 <ul>
-                    <li>Các khoản chi tiêu phát sinh trong thời gian lưu trú (ẩm thực, dịch vụ phòng, tour, dịch vụ bổ sung...) sẽ được cộng vào hóa đơn lưu trú.</li>
+                    <li>Các khoản chi tiêu phát sinh trong thời gian lưu trú (ẩm thực, dịch vụ phòng, tour, dịch vụ bổ
+                        sung...) sẽ được cộng vào hóa đơn lưu trú.</li>
                     <li>Khách hàng phải hoàn tất mọi khoản thanh toán trước khi thực hiện thủ tục trả phòng.</li>
                 </ul>
 
                 <h4>Chính sách bảo mật thông tin</h4>
                 <ul>
-                    <li>Thông tin cá nhân của khách hàng chỉ được sử dụng cho mục đích đặt phòng, thanh toán, chăm sóc khách hàng và tuân thủ các quy định pháp luật hiện hành.</li>
-                    <li>Khách sạn cam kết áp dụng các biện pháp bảo mật phù hợp nhằm bảo vệ thông tin khách hàng và không cung cấp cho bên thứ ba trái phép, trừ trường hợp pháp luật yêu cầu.</li>
+                    <li>Thông tin cá nhân của khách hàng chỉ được sử dụng cho mục đích đặt phòng, thanh toán, chăm sóc
+                        khách hàng và tuân thủ các quy định pháp luật hiện hành.</li>
+                    <li>Khách sạn cam kết áp dụng các biện pháp bảo mật phù hợp nhằm bảo vệ thông tin khách hàng và
+                        không cung cấp cho bên thứ ba trái phép, trừ trường hợp pháp luật yêu cầu.</li>
                 </ul>
             </div>
         </div>
@@ -394,4 +414,5 @@
 
     <div th:replace="~{guest/fragments/auth :: authModal}"></div>
 </body>
+
 </html>

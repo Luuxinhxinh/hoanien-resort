@@ -100,12 +100,10 @@
                 </div>
 
                 <div class="header-search">
-                    <form action="/receptionist/in-house" method="get"
-                        style="display: flex; align-items: center; width: 100%;">
+                    <form action="/receptionist/in-house" method="get">
                         <i class="fa-solid fa-magnifying-glass search-icon"></i>
                         <input type="text" name="keyword" th:value="${param.keyword}"
-                            placeholder="Search guest, room no., phone"
-                            style="border: none; background: transparent; outline: none; width: 100%;">
+                            placeholder="Search guest, room no., phone" />
                     </form>
                 </div>
 
@@ -185,8 +183,9 @@
                                         <div th:id="'deps-' + ${arr.id}" style="display:none;">
                                             <ul style="padding-left: 20px; margin:0; color:#475569; font-size:14px;">
                                                 <li th:if="${#lists.isEmpty(arr.dependents)}">Không có người đi kèm</li>
-                                                <li th:each="dep : ${arr.dependents}"
-                                                    th:text="${dep.fullName} + ' (Sinh: ' + ${dep.dateOfBirth} + ')'">
+                                                <li th:each="dep : ${arr.dependents}">
+                                                    <span th:text="${dep.fullName} + ' (Sinh: ' + ${dep.dateOfBirth} + ')'"></span>
+                                                    <span th:if="${dep.isPrimaryContact}" style="background-color: #fef08a; color: #854d0e; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; margin-left: 8px;" th:text="'Đứng đầu ' + (${dep.assignedRoom != null ? 'phòng ' + dep.assignedRoom : ''})">Đứng đầu</span>
                                                 </li>
                                             </ul>
                                         </div>

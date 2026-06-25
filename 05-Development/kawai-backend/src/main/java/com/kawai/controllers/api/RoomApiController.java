@@ -89,6 +89,7 @@ public class RoomApiController {
         List<RoomSearchResponseDTO> availableRooms = roomService.searchAvailableRooms(request);
         return ResponseEntity.ok(availableRooms);
     }
+
     @GetMapping("/by-cccd")
     public ResponseEntity<RoomInfoDto> getRoomInfoByCccd(@RequestParam("cccd") String cccd) {
         if (cccd == null || cccd.trim().isEmpty()) {
@@ -106,17 +107,16 @@ public class RoomApiController {
         if (occupiedRooms.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
-        
         Room room = occupiedRooms.get(0);
-        
         RoomInfoDto dto = RoomInfoDto.builder()
                 .roomNumber(room.getRoomNumber())
                 .status(room.getRoomStatus())
                 .occupied(true)
                 .build();
-                
+
         if (room.getCurrentBookingDetailId() != null) {
-            Optional<RoomBookingDetail> detailOpt = roomBookingDetailRepository.findById(room.getCurrentBookingDetailId());
+            Optional<RoomBookingDetail> detailOpt = roomBookingDetailRepository
+                    .findById(room.getCurrentBookingDetailId());
             if (detailOpt.isPresent()) {
                 RoomBookingDetail detail = detailOpt.get();
                 if (detail.getCustomer() != null) {
@@ -128,7 +128,7 @@ public class RoomApiController {
                 }
             }
         }
-        
+
         return ResponseEntity.ok(dto);
     }
 }

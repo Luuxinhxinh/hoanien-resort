@@ -164,7 +164,17 @@ public class WalkInCheckInServiceImpl implements WalkInCheckInService {
                 room.setRoomStatus("Occupied");
                 roomRepository.save(room);
 
-                // ── Step 10: Residence Reporting (Dependent records) ────────────
+                // ── Step 10: Residence Reporting (Master Customer & Dependents) ───────
+                if (isFirstRoom) {
+                    // Cố định Master Customer LUÔN LÀ người đứng đầu phòng đầu tiên
+                    RoomGuest masterGuest = new RoomGuest();
+                    masterGuest.setRoomBookingDetail(detail);
+                    masterGuest.setCustomer(customer);
+                    masterGuest.setGuestType("ADULT");
+                    masterGuest.setIsPrimaryContact(true);
+                    roomGuestRepository.saveAndFlush(masterGuest);
+                }
+
                 for (DependentRegistrationDTO dto : companions) {
                     Dependent d = new Dependent();
                     d.setCustomer(customer);
@@ -176,17 +186,30 @@ public class WalkInCheckInServiceImpl implements WalkInCheckInService {
                     }
                     Dependent savedDep = dependentRepository.save(d);
 
-                    // Tạo liên kết RoomGuest
+                    // Tạo liên kết RoomGuest cho người đi kèm
                     RoomGuest rg = new RoomGuest();
                     rg.setRoomBookingDetail(detail);
                     rg.setDependent(savedDep);
+                    // Nếu là phòng 1, cưỡng chế không cho khách đi kèm làm Đứng đầu (vì Master Guest đã gánh).
+                    rg.setIsPrimaryContact(isFirstRoom ? false : (dto.getIsPrimaryContact() != null ? dto.getIsPrimaryContact() : false));
 
                     int age = 18;
                     if (savedDep.getBirthDate() != null) {
                         age = Period.between(savedDep.getBirthDate(), LocalDate.now()).getYears();
                     }
                     rg.setGuestType(age < 12 ? "CHILD" : "ADULT");
-                    roomGuestRepository.save(rg);
+                    roomGuestRepository.saveAndFlush(rg);
+                }
+
+                // Backend Validation: Kiểm tra số lượng primary contact của phòng này phải đúng
+                // bằng 1
+                java.util.List<RoomGuest> guests = roomGuestRepository.findByRoomBookingDetailId(detail.getId());
+                long primaryCount = guests.stream()
+                        .filter(g -> Boolean.TRUE.equals(g.getIsPrimaryContact()))
+                        .count();
+                if (primaryCount != 1) {
+                    throw new BusinessException("CHECKIN-006",
+                            "Phòng " + room.getRoomNumber() + " phải có đúng 1 người đứng đầu!");
                 }
 
                 // ── Step 11: Payment & Folio Initialization ──────────────────────
@@ -220,7 +243,7 @@ public class WalkInCheckInServiceImpl implements WalkInCheckInService {
             response.setAccompaniedGuestCount(totalCompanions);
             if (newAccount != null) {
                 response.setNewAccountUsername(newAccount.getUsername());
-                response.setNewAccountPassword(newAccount.getPasswordHash());
+                response.setNewAccountPassword("123456"); // Show plain-text default password
             }
 
             return response;

@@ -143,7 +143,7 @@ public class DependentServiceImpl implements DependentService {
 
         // 6.5. Nếu là Khách mới thêm tại lễ tân -> Liên kết vào RoomBookingDetail và
         // Tính phụ thu
-        if (dto.getDependentId() == null && dto.getRoomBookingDetailId() != null) {
+        if (dto.getRoomBookingDetailId() != null) {
             RoomBookingDetail detail = roomBookingDetailRepository.findById(dto.getRoomBookingDetailId())
                     .orElseThrow(() -> new BusinessException("MOD2-019", "RoomBookingDetail not found"));
 
@@ -163,66 +163,75 @@ public class DependentServiceImpl implements DependentService {
             boolean isAdult = age >= 18; // 18 is ADULT_AGE_THRESHOLD
             java.math.BigDecimal extraFee = java.math.BigDecimal.ZERO;
 
-            if (isAdult) {
-                currentAdults++;
-                if (currentAdults > maxAdults) {
-                    throw new BusinessException("MOD2-020",
-                            "Number of guests exceeds maximum room capacity. Max adults: " + maxAdults);
-                }
-                if (currentAdults > baseAdults && category.getExtraAdultSurcharge() != null) {
-                    extraFee = category.getExtraAdultSurcharge();
-                }
-            } else {
-                currentChildren++;
-                if (currentChildren > maxChildren) {
-                    throw new BusinessException("MOD2-021",
-                            "Number of guests exceeds maximum room capacity. Max children: " + maxChildren);
-                }
-                if (currentChildren > baseChildren) {
-                    java.util.Optional<RoomSurcharge> surchargeOpt = roomSurchargeRepository
-                            .findSurchargeForAge(category, age);
-                    if (surchargeOpt.isPresent()) {
-                        extraFee = surchargeOpt.get().getPriceModifier();
+            if (dto.getDependentId() == null) {
+                if (isAdult) {
+                    currentAdults++;
+                    if (currentAdults > maxAdults) {
+                        throw new BusinessException("MOD2-020",
+                                "Number of guests exceeds maximum room capacity. Max adults: " + maxAdults);
+                    }
+                    if (currentAdults > baseAdults && category.getExtraAdultSurcharge() != null) {
+                        extraFee = category.getExtraAdultSurcharge();
+                    }
+                } else {
+                    currentChildren++;
+                    if (currentChildren > maxChildren) {
+                        throw new BusinessException("MOD2-021",
+                                "Number of guests exceeds maximum room capacity. Max children: " + maxChildren);
+                    }
+                    if (currentChildren > baseChildren) {
+                        java.util.Optional<RoomSurcharge> surchargeOpt = roomSurchargeRepository
+                                .findSurchargeForAge(category, age);
+                        if (surchargeOpt.isPresent()) {
+                            extraFee = surchargeOpt.get().getPriceModifier();
+                        }
                     }
                 }
-            }
 
-            if (extraFee.compareTo(java.math.BigDecimal.ZERO) > 0) {
-                if (booking.getCheckInDate() != null && booking.getCheckOutDate() != null) {
-                    long nights = java.time.temporal.ChronoUnit.DAYS.between(booking.getCheckInDate(),
-                            booking.getCheckOutDate());
-                    if (nights > 0) {
-                        extraFee = extraFee.multiply(java.math.BigDecimal.valueOf(nights));
+                if (extraFee.compareTo(java.math.BigDecimal.ZERO) > 0) {
+                    if (booking.getCheckInDate() != null && booking.getCheckOutDate() != null) {
+                        long nights = java.time.temporal.ChronoUnit.DAYS.between(booking.getCheckInDate(),
+                                booking.getCheckOutDate());
+                        if (nights > 0) {
+                            extraFee = extraFee.multiply(java.math.BigDecimal.valueOf(nights));
+                        }
                     }
                 }
-            }
 
-            // Cập nhật lại số lượng khách thực tế trong phòng
-            detail.setNumberOfAdults(currentAdults);
-            detail.setNumberOfChildren(currentChildren);
+                // Cập nhật lại số lượng khách thực tế trong phòng
+                detail.setNumberOfAdults(currentAdults);
+                detail.setNumberOfChildren(currentChildren);
 
-            // Cộng phụ thu vào detail và booking
-            if (extraFee.compareTo(java.math.BigDecimal.ZERO) > 0) {
-                if (detail.getExtraSurcharge() == null) {
-                    detail.setExtraSurcharge(java.math.BigDecimal.ZERO);
+                // Cộng phụ thu vào detail và booking
+                if (extraFee.compareTo(java.math.BigDecimal.ZERO) > 0) {
+                    if (detail.getExtraSurcharge() == null) {
+                        detail.setExtraSurcharge(java.math.BigDecimal.ZERO);
+                    }
+                    detail.setExtraSurcharge(detail.getExtraSurcharge().add(extraFee));
+
+                    booking.setTotalPrice(booking.getTotalPrice().add(extraFee));
+                    bookingRepository.save(booking);
+
+                    log.info("[UC16] Added extra fee: {} for dependent {} in detail {}", extraFee, saved.getId(),
+                            detail.getId());
                 }
-                detail.setExtraSurcharge(detail.getExtraSurcharge().add(extraFee));
 
-                booking.setTotalPrice(booking.getTotalPrice().add(extraFee));
-                bookingRepository.save(booking);
-
-                log.info("[UC16] Added extra fee: {} for dependent {} in detail {}", extraFee, saved.getId(),
-                        detail.getId());
+                roomBookingDetailRepository.save(detail);
             }
 
-            roomBookingDetailRepository.save(detail);
-
-            // Tạo RoomGuest
-            RoomGuest rg = new RoomGuest();
+            // Tạo hoặc cập nhật RoomGuest
+            RoomGuest rg = null;
+            if (dto.getDependentId() != null) {
+                rg = roomGuestRepository.findByDependentId(saved.getId()).orElse(null);
+            }
+            if (rg == null) {
+                rg = new RoomGuest();
+            }
             rg.setRoomBookingDetail(detail);
             rg.setDependent(saved);
             rg.setGuestType(age < 12 ? "CHILD" : "ADULT");
-            roomGuestRepository.save(rg);
+            rg.setIsPrimaryContact(dto.getIsPrimaryContact() != null ? dto.getIsPrimaryContact() : false);
+            roomGuestRepository.saveAndFlush(rg);
         }
 
         log.info("[UC16] Dependent registered: bookingId={}, dependentId={}", bookingId, saved.getId());
@@ -232,7 +241,6 @@ public class DependentServiceImpl implements DependentService {
         response.setDependentId(saved.getId());
         response.setFullName(dto.getFullName());
         response.setDateOfBirth(dto.getDateOfBirth());
-        response.setStatus("REGISTERED");
 
         return response;
     }
@@ -254,8 +262,8 @@ public class DependentServiceImpl implements DependentService {
         for (RoomBookingDetail detail : details) {
             List<RoomGuest> guests = roomGuestRepository.findByRoomBookingDetailId(detail.getId());
             for (RoomGuest guest : guests) {
-                // Skip the primary contact because they are shown on the left panel
-                if (Boolean.TRUE.equals(guest.getIsPrimaryContact())) {
+                // Bỏ qua Chủ đơn (Customer) vì đã hiển thị ở phần thông tin chung.
+                if (guest.getCustomer() != null) {
                     continue;
                 }
 
@@ -269,7 +277,10 @@ public class DependentServiceImpl implements DependentService {
                     dto.setFullName(null);
                     dto.setDateOfBirth(null);
                 }
-                dto.setStatus("PENDING");
+                dto.setIsPrimaryContact(guest.getIsPrimaryContact());
+                if (detail.getRoom() != null) {
+                    dto.setAssignedRoom(detail.getRoom().getRoomNumber());
+                }
                 result.add(dto);
             }
         }

@@ -203,14 +203,14 @@ INSERT INTO Promotions (promo_id, promo_code, discount_type, discount_value, val
 
 -- ── 12. Bookings (20 rows) ───────────────────────────────────
 INSERT INTO Bookings (booking_id, customer_id, booking_date, total_price, booking_status, booking_source, applied_promotion_id, version) VALUES
-(1, 1, '2026-06-01', 5000000, 'Confirmed', 'Direct_Web', 1, 1),
-(2, 2, '2026-06-02', 7000000, 'Confirmed', 'Direct_Web', NULL, 1),
-(3, 3, '2026-06-03', 16000000, 'Confirmed', 'OTA', NULL, 1),
+(1, 1, '2026-06-01', 5000000, 'Checked_In', 'Direct_Web', 1, 1),
+(2, 2, '2026-06-02', 7000000, 'Checked_In', 'Direct_Web', NULL, 1),
+(3, 3, '2026-06-03', 16000000, 'Checked_In', 'OTA', NULL, 1),
 (4, 4, '2026-06-04', 5000000, 'Confirmed', 'OTA', 2, 1),
 (5, 5, '2026-06-05', 5000000, 'Confirmed', 'Direct_Web', NULL, 1),
 (6, 6, '2026-06-06', 7000000, 'Confirmed', 'OTA', NULL, 1),
-(7, 7, '2026-06-07', 7000000, 'Confirmed', 'Direct_Web', 3, 1),
-(8, 8, '2026-06-08', 16000000, 'Confirmed', 'Direct_Web', NULL, 1),
+(7, 7, '2026-06-07', 7000000, 'Checked_In', 'Direct_Web', 3, 1),
+(8, 8, '2026-06-08', 16000000, 'Checked_In', 'Direct_Web', NULL, 1),
 (9, 1, '2026-06-10', 1200000, 'Confirmed', 'Direct_Web', NULL, 1),
 (10, 2, '2026-06-10', 1200000, 'Confirmed', 'Direct_Web', NULL, 1),
 (11, 9, '2026-06-12', 1200000, 'Confirmed', 'Direct_Web', NULL, 1),
@@ -741,9 +741,9 @@ UPDATE Rooms SET current_booking_detail_id = 13, room_status = 'Occupied' WHERE 
 
 -- Bước 1: 3 bản ghi Bookings (bảng cha) — mỗi cái là 1 phòng của Nam
 INSERT IGNORE INTO Bookings (booking_id, customer_id, booking_date, total_price, booking_status, booking_source, applied_promotion_id, version) VALUES
-(50, 1, '2026-06-22', 4500000, 'Confirmed', 'Direct_Web', NULL, 1),
-(51, 1, '2026-06-22', 4500000, 'Confirmed', 'Direct_Web', NULL, 1),
-(52, 1, '2026-06-22', 4500000, 'Confirmed', 'Direct_Web', NULL, 1);
+(50, 1, '2026-06-22', 4500000, 'Checked_In', 'Direct_Web', NULL, 1),
+(51, 1, '2026-06-22', 4500000, 'Checked_In', 'Direct_Web', NULL, 1),
+(52, 1, '2026-06-22', 4500000, 'Checked_In', 'Direct_Web', NULL, 1);
 
 -- Bước 2: 3 bản ghi Room_Bookings (bảng con) với cùng ID → kế thừa từ Bookings
 INSERT IGNORE INTO Room_Bookings (room_booking_id, check_in_date, check_out_date, deposit_amount, cancellation_deadline, credit_limit, personal_pin_hash) VALUES

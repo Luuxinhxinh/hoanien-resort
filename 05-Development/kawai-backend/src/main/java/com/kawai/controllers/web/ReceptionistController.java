@@ -109,26 +109,8 @@ public class ReceptionistController {
             for (Booking b : allConfirmed) {
                 if (!(b instanceof RoomBooking))
                     continue;
-
-                if (keyword != null && !keyword.trim().isEmpty()) {
-                    String guestName = b.getCustomer() != null ? b.getCustomer().getFullName() : "";
-                    String phone = b.getCustomer() != null ? b.getCustomer().getPhone() : "";
-                    String cccdEnc = b.getCustomer() != null ? b.getCustomer().getCccdPassportEncrypted() : "";
-                    String cccd = "";
-                    if (!cccdEnc.isEmpty()) {
-                        try {
-                            cccd = com.kawai.utils.EncryptionUtils.decrypt(cccdEnc);
-                        } catch (Exception e) {
-                            cccd = cccdEnc;
-                        }
-                    }
-
-                    String kw = keyword.trim().toLowerCase();
-                    boolean match = guestName.toLowerCase().contains(kw) ||
-                            phone.toLowerCase().contains(kw) ||
-                            cccd.toLowerCase().contains(kw);
-                    if (!match)
-                        continue;
+                if (!matchesKeyword(b, keyword)) {
+                    continue;
                 }
                 filteredArrivals.add(b);
             }
@@ -228,9 +210,21 @@ public class ReceptionistController {
 
     @GetMapping("/in-house")
     public String inHouse(@org.springframework.web.bind.annotation.RequestParam(defaultValue = "1") int page,
+            @org.springframework.web.bind.annotation.RequestParam(required = false) String keyword,
             Model model) {
         int pageSize = 10;
-        List<Booking> allInHouseBookings = bookingRepository.findCheckedIn();
+        List<Booking> allInHouseBookingsRaw = bookingRepository.findCheckedIn();
+        List<Booking> allInHouseBookings = new ArrayList<>();
+
+        if (allInHouseBookingsRaw != null) {
+            for (Booking b : allInHouseBookingsRaw) {
+                if (!matchesKeyword(b, keyword)) {
+                    continue;
+                }
+                allInHouseBookings.add(b);
+            }
+        }
+
         int totalInHouseItems = allInHouseBookings.size();
         int totalInHousePages = (int) Math.ceil((double) totalInHouseItems / pageSize);
         if (totalInHousePages == 0)
@@ -317,5 +311,27 @@ public class ReceptionistController {
     @GetMapping("/night-audit")
     public String nightAudit(Model model) {
         return "receptionist/night-audit";
+    }
+
+    private boolean matchesKeyword(Booking b, String keyword) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return true;
+        }
+        String guestName = b.getCustomer() != null ? b.getCustomer().getFullName() : "";
+        String phone = b.getCustomer() != null ? b.getCustomer().getPhone() : "";
+        String cccdEnc = b.getCustomer() != null ? b.getCustomer().getCccdPassportEncrypted() : "";
+        String cccd = "";
+        if (cccdEnc != null && !cccdEnc.isEmpty()) {
+            try {
+                cccd = com.kawai.utils.EncryptionUtils.decrypt(cccdEnc);
+            } catch (Exception e) {
+                cccd = cccdEnc;
+            }
+        }
+
+        String kw = keyword.trim().toLowerCase();
+        return guestName.toLowerCase().contains(kw) ||
+                phone.toLowerCase().contains(kw) ||
+                cccd.toLowerCase().contains(kw);
     }
 }
