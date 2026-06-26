@@ -85,6 +85,12 @@ public class PosServiceImpl implements PosService {
             }
         } else {
             order.setOrderType("Dine In");
+            
+            java.time.LocalTime orderTime = java.time.LocalTime.now();
+            if (orderTime.isAfter(java.time.LocalTime.of(22, 59)) || orderTime.isBefore(java.time.LocalTime.of(8, 0))) {
+                throw new BusinessException("POS-009", "Nhà hàng không nhận khách ăn tại bàn trong khung giờ từ 23:00 đến 08:00 sáng. Quý khách vui lòng sử dụng dịch vụ gọi món lên phòng.");
+            }
+
             if (request.getTableId() != null) {
                 // Check if there is already an active order for this table
                 List<FoodOrder> activeOrders = foodOrderRepository.findActiveOrdersByTable(request.getTableId());

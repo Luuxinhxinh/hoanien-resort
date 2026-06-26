@@ -172,8 +172,17 @@ document.getElementById('bookingForm').addEventListener('submit', async function
         return;
     }
 
-    if (startTime >= endTime) {
-        alert('Giờ kết thúc phải lớn hơn Giờ bắt đầu.');
+    const [startH, startM] = startTime.split(':').map(Number);
+    const [endH, endM] = endTime.split(':').map(Number);
+    let startMins = startH * 60 + startM;
+    let endMins = endH * 60 + endM;
+    
+    if (endMins <= startMins) {
+        endMins += 24 * 60;
+    }
+    
+    if (endMins - startMins > 12 * 60) {
+        alert('Thời gian đặt bàn quá dài hoặc giờ kết thúc không hợp lệ.');
         return;
     }
 
@@ -198,7 +207,11 @@ async function submitReservation(tableId, reserveDate, startTime, endTime, party
         });
 
         if (!response.ok) {
-            const errorMsg = await response.text();
+            let errorMsg = await response.text();
+            try {
+                const parsed = JSON.parse(errorMsg);
+                if (parsed.message) errorMsg = parsed.message;
+            } catch (e) {}
             alert('Lỗi đặt bàn: ' + errorMsg);
             return;
         }
