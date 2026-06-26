@@ -692,9 +692,16 @@
                                 <span id="promoAmount">-0 ₫</span>
                             </div>
 
-                            <div class="summary-row total-row" id="row-deposit" style="display: none; color: #27ae60;">
+                            <div class="summary-row total-row" id="row-deposit"
+                                style="display: none; color: #27ae60; border-top: 1px dashed #cbd5e1; padding-top: 12px; margin-top: 12px;">
                                 <span>Tiền cọc (Deposit)</span>
                                 <span id="prePaidAmount">-0 ₫</span>
+                            </div>
+
+                            <div class="summary-row total-row" id="row-other-payments"
+                                style="display: none; color: #2980b9; padding-top: 8px;">
+                                <span>Đã thanh toán (Paid)</span>
+                                <span id="otherPaymentsAmount">-0 ₫</span>
                             </div>
 
                             <div class="summary-row outstanding-row">
@@ -1131,6 +1138,13 @@
                 document.getElementById('row-deposit').style.display = 'none';
             }
 
+            if (globalOtherPayments > 0) {
+                document.getElementById('row-other-payments').style.display = 'flex';
+                document.getElementById('otherPaymentsAmount').innerText = "-" + formatCurrency(globalOtherPayments);
+            } else {
+                document.getElementById('row-other-payments').style.display = 'none';
+            }
+
 
 
             globalOriginalTotal = originalTotal;
@@ -1272,16 +1286,22 @@
 
         function updateGroupOutstandingDisplay() {
             let totalWithVat = globalOriginalTotal * 1.1;
-            let outstanding = totalWithVat - appliedGroupPromoDiscount - globalPrePaidDeposit;
+            let outstanding = totalWithVat - appliedGroupPromoDiscount - globalPrePaidDeposit - globalOtherPayments;
             if (outstanding < 0) outstanding = 0;
             globalOriginalOutstanding = outstanding;
             document.getElementById('originalOutstandingAmount').innerText = formatCurrency(outstanding);
             
             const btn = document.getElementById('btnProceedOriginal');
             if (btn) {
-                btn.onclick = function() {
-                    openPaymentModal(globalOriginalOutstanding, true);
-                };
+                const allCheckedOut = Object.values(roomSummaryMap).every(r => r.detailStatus === 'Checked_Out');
+                if (allCheckedOut) {
+                    btn.style.display = 'none';
+                } else {
+                    btn.style.display = 'block';
+                    btn.onclick = function() {
+                        openPaymentModal(globalOriginalOutstanding, true);
+                    };
+                }
             }
         }
 
