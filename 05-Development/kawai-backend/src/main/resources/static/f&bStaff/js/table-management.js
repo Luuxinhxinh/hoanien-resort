@@ -367,8 +367,14 @@ if (rmSubmit) {
       endTime = minutesToHHMM(timeToMinutes(startTime) + 120);
     }
 
-    if (timeToMinutes(endTime) <= timeToMinutes(startTime)) {
-      tmShowToast('error', 'Sai giờ', 'Giờ kết thúc phải sau giờ bắt đầu');
+    let startMins = timeToMinutes(startTime);
+    let endMins = timeToMinutes(endTime);
+    if (endMins <= startMins) {
+      endMins += 24 * 60;
+    }
+
+    if (endMins - startMins > 12 * 60) {
+      tmShowToast('error', 'Sai giờ', 'Thời gian đặt bàn quá dài hoặc giờ kết thúc không hợp lệ');
       return;
     }
 
