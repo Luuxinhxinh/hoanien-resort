@@ -501,7 +501,7 @@ public class FolioRestController {
                 }
             }
 
-            boolean isVnPay = "VNPAY".equalsIgnoreCase(paymentMethod);
+            boolean isVnPay = "VNPAY".equalsIgnoreCase(paymentMethod) && paymentAmount.compareTo(BigDecimal.ZERO) > 0;
 
             // 1 & 2. Thay đổi trạng thái phòng (CHỈ làm ngay nếu KHÔNG PHẢI VNPAY)
             if (!isVnPay) {

@@ -288,6 +288,21 @@ INSERT IGNORE INTO Accounts (account_id, username, password_hash, is_active, rol
 VALUES (99, 'ducbeo', '$2a$10$ikP3XeXnMx/oLodhs4wqBO61AhyuE4dWtSJDJcOH7D2ii5Vrgq0bG', TRUE, 3, CURRENT_TIMESTAMP);
 
 
+-- Force update tphuong to POS role in case DB already exists
+UPDATE Accounts SET role_id = 4 WHERE username = 'tphuong';
+
+-- Restore hoangnam password back to admin123 (was accidentally changed to staff123)
+UPDATE Accounts SET password_hash = '$2a$10$4bnThA4xQVw1rF2POQv78uAQll2KsUsgF32JaYiVG5d2d3Fhgk83q' WHERE username = 'hoangnam';
+
+-- Delete tmduc account and customer record
+DELETE FROM Customers WHERE account_id = 98;
+DELETE FROM Accounts WHERE username = 'tmduc';
+
+-- Add ducbeo account if not exists (safe insert)
+INSERT IGNORE INTO Accounts (account_id, username, password_hash, is_active, role_id, created_at)
+VALUES (99, 'ducbeo', '$2a$10$ikP3XeXnMx/oLodhs4wqBO61AhyuE4dWtSJDJcOH7D2ii5Vrgq0bG', TRUE, 3, CURRENT_TIMESTAMP);
+
+
 -- Update Room's current booking detail links
 UPDATE Rooms SET current_booking_detail_id = 1 WHERE room_id = 1;
 UPDATE Rooms SET current_booking_detail_id = 2 WHERE room_id = 3;
