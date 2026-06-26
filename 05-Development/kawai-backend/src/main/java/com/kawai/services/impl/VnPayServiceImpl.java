@@ -102,11 +102,19 @@ public class VnPayServiceImpl implements VnPayService {
         vnp_Params.put("vnp_OrderInfo", "Thanh toan dat coc phong " + bookingId);
         vnp_Params.put("vnp_OrderType", "250000");
         vnp_Params.put("vnp_Locale", "vn");
-        vnp_Params.put("vnp_ReturnUrl", vnPayConfig.getReturnUrl());
+
+        String returnUrl = vnPayConfig.getReturnUrl();
+        if (returnUrl.contains("?")) {
+            returnUrl += "&bId=" + bookingId;
+        } else {
+            returnUrl += "?bId=" + bookingId;
+        }
+        vnp_Params.put("vnp_ReturnUrl", returnUrl);
+
         vnp_Params.put("vnp_IpAddr", ipAddress);
         vnp_Params.put("vnp_CreateDate", createDate);
 
-        String expireDate = LocalDateTime.now().plusMinutes(1).format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+        String expireDate = LocalDateTime.now().plusMinutes(2).format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
         vnp_Params.put("vnp_ExpireDate", expireDate);
 
         // 4. Lọc null/empty, sắp xếp và build hashData & query
@@ -436,7 +444,7 @@ public class VnPayServiceImpl implements VnPayService {
                     booking.setBookingStatus("Confirmed");
                 }
             }
-            
+
             // Xử lý checkout phòng nếu giao dịch xuất phát từ Folio
             if (txnRef != null && txnRef.startsWith("FOLIO_")) {
                 try {
@@ -445,7 +453,8 @@ public class VnPayServiceImpl implements VnPayService {
                         Long detailId = Long.parseLong(parts[2]);
                         RoomBookingDetail detail = roomBookingDetailRepository.findById(detailId).orElse(null);
                         if (detail != null && detail.getRoomBooking() != null) {
-                            java.util.List<RoomBookingDetail> details = roomBookingDetailRepository.findByRoomBookingId(detail.getRoomBooking().getId());
+                            java.util.List<RoomBookingDetail> details = roomBookingDetailRepository
+                                    .findByRoomBookingId(detail.getRoomBooking().getId());
                             for (RoomBookingDetail d : details) {
                                 if ("Checked_In".equals(d.getDetailStatus())) {
                                     d.setDetailStatus("Checked_Out");

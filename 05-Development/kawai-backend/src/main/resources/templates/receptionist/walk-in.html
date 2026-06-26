@@ -139,7 +139,7 @@
                         <div>
                             <label style="display: block; font-weight: 500; margin-bottom: 8px;">Expected Checkout
                                 Date</label>
-                            <input type="date" id="checkoutDate" class="form-control"
+                            <input type="date" id="checkoutDate" class="form-control" th:min="${todayStr}"
                                 style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 4px; background: white;">
                         </div>
                         <div>
@@ -165,13 +165,17 @@
                     
                     <!-- Room Cart -->
                     <div id="roomCartContainer" style="margin-top: 20px; display: none; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 16px;">
-                        <h4 style="margin-top: 0; margin-bottom: 12px; color: #1e293b; font-size: 15px;"><i class="fa-solid fa-bed" style="color: #3b82f6;"></i> Các phòng đã chọn</h4>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <h4 style="margin: 0; color: #1e293b; font-size: 15px;"><i class="fa-solid fa-bed" style="color: #3b82f6;"></i> Các phòng đã chọn</h4>
+                            <span style="font-size: 14px; font-weight: 600; color: #64748b; display: none;" id="remainingCreditWrapper">Hạn mức tổng còn lại: <span id="remainingCreditDisplay" style="color: #16a34a;">5,000,000 VND</span></span>
+                        </div>
                         <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; background: white;">
                             <thead>
                                 <tr style="background: #f1f5f9; border-bottom: 1px solid #cbd5e1;">
                                     <th style="padding: 10px 16px;">Số phòng</th>
                                     <th style="padding: 10px 16px;">Hạng phòng</th>
                                     <th style="padding: 10px 16px;">Giá tiền</th>
+                                    <th id="creditLimitHeader" style="padding: 10px 16px; display: none;">Hạn mức (Credit Limit)</th>
                                     <th style="padding: 10px 16px; text-align: right;">Hành động</th>
                                 </tr>
                             </thead>
@@ -438,7 +442,7 @@
                                 id="modalPassword" style="color: #e11d48;"></span></div>
                     </div>
                     <div style="text-align: right;">
-                        <button type="button" id="modalCloseBtn" onclick="closeModalAndRedirect()"
+                        <button type="button" id="modalCloseBtn" onclick="defaultModalClose()"
                             class="btn btn-primary" style="padding: 8px 24px;">Đóng & Về trang chủ</button>
                     </div>
                 </div>

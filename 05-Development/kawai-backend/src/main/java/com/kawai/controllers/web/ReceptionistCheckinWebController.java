@@ -113,7 +113,29 @@ public class ReceptionistCheckinWebController {
             }
             form.getAssignedRoomNumbers().removeIf(String::isEmpty);
 
-            if (form.getAssignedRoomNumbers().size() != pendingDetails.size()) {
+            java.math.BigDecimal totalRequested = java.math.BigDecimal.ZERO;
+            if (form.getAllocatedCreditLimits() != null) {
+                for (java.math.BigDecimal limit : form.getAllocatedCreditLimits()) {
+                    if (limit != null) totalRequested = totalRequested.add(limit);
+                }
+            }
+            java.math.BigDecimal existingUsed = java.math.BigDecimal.ZERO;
+            for (com.kawai.models.RoomBookingDetail d : details) {
+                if (!pendingDetails.contains(d) && d.getSubCreditLimit() != null) {
+                    existingUsed = existingUsed.add(d.getSubCreditLimit());
+                }
+            }
+            // RoomBooking extends Booking — cast an toàn vì bookingRepo dùng JOINED inheritance
+            com.kawai.models.RoomBooking roomBooking = (com.kawai.models.RoomBooking) booking;
+            java.math.BigDecimal masterCreditLimit = roomBooking.getCreditLimit() != null
+                    ? roomBooking.getCreditLimit()
+                    : new java.math.BigDecimal("5000000.00");
+            if (existingUsed.add(totalRequested).compareTo(masterCreditLimit) > 0) {
+                throw new com.kawai.exceptions.BusinessException("CHECKIN-007",
+                        "Tổng hạn mức cấp cho các phòng vượt quá hạn mức của tài khoản (Master: " + masterCreditLimit + ")");
+            }
+
+              if (form.getAssignedRoomNumbers().size() != pendingDetails.size()) {
                 throw new com.kawai.exceptions.BusinessException("CHECKIN-005",
                         "Bạn phải phân đủ " + pendingDetails.size() + " phòng trước khi hoàn tất Check-in!");
             }
@@ -145,7 +167,12 @@ public class ReceptionistCheckinWebController {
                 pendingDetails.remove(matchedDetail);
 
                 // Gọi service lõi để Check-in 1 phòng bằng roomId thực sự
-                checkinService.checkIn(matchedDetail.getId(), room.getId());
+                java.math.BigDecimal allocatedLimit = null;
+                int roomIdx = form.getAssignedRoomNumbers().indexOf(roomNumber);
+                if (form.getAllocatedCreditLimits() != null && roomIdx < form.getAllocatedCreditLimits().size()) {
+                    allocatedLimit = form.getAllocatedCreditLimits().get(roomIdx);
+                }
+                checkinService.checkIn(matchedDetail.getId(), room.getId(), allocatedLimit);
                 roomNumberToDetailIdMap.put(roomNumber, matchedDetail.getId());
             }
             if (form.getAssignedRoomNumbers() != null && !form.getAssignedRoomNumbers().isEmpty()) {
@@ -245,9 +272,3 @@ public class ReceptionistCheckinWebController {
         }
     }
 }
-
-//
-//
-//
-//
-//

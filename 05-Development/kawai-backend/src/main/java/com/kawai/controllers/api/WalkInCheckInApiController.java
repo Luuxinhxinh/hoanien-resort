@@ -44,7 +44,8 @@ public class WalkInCheckInApiController {
 
         if (PAYMENT_METHOD_VNPAY.equals(request.getPaymentMethod()) && request.getDepositAmount() != null
                 && request.getDepositAmount().compareTo(java.math.BigDecimal.ZERO) > 0) {
-            String paymentUrl = vnPayService.createPaymentUrlForWalkIn(response.getBookingId(), httpRequest.getRemoteAddr());
+            String paymentUrl = vnPayService.createPaymentUrlForWalkIn(response.getBookingId(),
+                    httpRequest.getRemoteAddr());
             response.setPaymentUrl(paymentUrl);
         }
 
@@ -60,7 +61,6 @@ public class WalkInCheckInApiController {
             return ResponseEntity.badRequest()
                     .body(java.util.Map.of("message", "Vui lòng nhập từ khóa tìm kiếm (SĐT hoặc CCCD)"));
         }
-
         java.util.Optional<com.kawai.models.Customer> customerOpt = walkInCheckInService.searchCustomer(keyword);
         if (customerOpt.isPresent()) {
             com.kawai.models.Customer c = customerOpt.get();
@@ -69,7 +69,7 @@ public class WalkInCheckInApiController {
                 try {
                     cccd = com.kawai.utils.EncryptionUtils.decrypt(c.getCccdPassportEncrypted());
                 } catch (Exception e) {
-                    cccd = "Lỗi giải mã";
+                    cccd = c.getCccdPassportEncrypted();
                 }
             }
             return ResponseEntity.ok(java.util.Map.of(

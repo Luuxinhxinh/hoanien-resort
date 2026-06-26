@@ -60,8 +60,14 @@ async function loadBookingDetail(bookingId) {
         bookingData = await res.json();
         
         const currentStatus = (bookingData.bookingStatus || '').toUpperCase();
-        if (currentStatus === 'PENDING' || currentStatus === 'PENDING_PAYMENT') {
+        if (currentStatus === 'PENDING' || currentStatus === 'PENDING_PAYMENT' || currentStatus === 'CANCELLED') {
             canAbandonCheckout = true;
+            
+            if (currentStatus === 'CANCELLED') {
+                setTimeout(() => {
+                    showToast('Đơn của bạn đã quá hạn thanh toán. Vui lòng thử thanh toán lại để giữ phòng nếu còn trống.', 'error');
+                }, 500);
+            }
         } else {
             canAbandonCheckout = false;
             isPaymentSubmitted = true; // prevent unload events
@@ -71,7 +77,7 @@ async function loadBookingDetail(bookingId) {
             if (container) container.style.display = 'none';
             
             // Redirect based on status
-            if (currentStatus === 'CONFIRMED') {
+            if (currentStatus === 'CONFIRMED' || currentStatus === 'CHECKED_IN' || currentStatus === 'CHECKED_OUT') {
                 window.location.replace('/profile');
             } else {
                 window.location.replace('/booking');

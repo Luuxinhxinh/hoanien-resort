@@ -1,6 +1,6 @@
 // Global Booking
 let selectedRoomsCart = {};
-
+let cartHoldConfirmedBookingId = null;
 
 const today = new Date();
 const defaultCheckOut = new Date(today);
@@ -11,7 +11,7 @@ let bookingState = {
     units: 1,
     checkIn: today,
     checkOut: defaultCheckOut,
-    promoCode: '',
+    priceFilter: 'all',
     currentCalendarMonth: today.getMonth(),
     currentCalendarYear: today.getFullYear()
 };
@@ -63,27 +63,32 @@ function applyGuests() {
     closeAllDropdowns();
 }
 
-// ---------------- PROMO CODE LOGIC ----------------
-function toggleCodeDropdown(e) {
+// ---------------- PRICE FILTER LOGIC ----------------
+function togglePriceDropdown(e) {
     e.stopPropagation();
     closeAllDropdowns();
-    document.getElementById('codeDropdown').classList.toggle('hidden');
+    document.getElementById('priceDropdown').classList.toggle('hidden');
 }
 
-function applyPromoCode() {
-    const val = document.getElementById('promoCodeInput').value.trim();
-    bookingState.promoCode = val;
-    const label = document.getElementById('bookingCodeValue');
-    if (val) {
-        label.innerText = val;
+function applyPriceFilter() {
+    const selectedRadio = document.querySelector('input[name="priceFilter"]:checked');
+    if (selectedRadio) {
+        bookingState.priceFilter = selectedRadio.value;
+        const label = document.getElementById('priceFilterValue');
         label.classList.remove('muted');
         label.classList.add('text-[#2c2a24]', 'font-semibold');
-    } else {
-        label.innerText = 'Enter code';
-        label.classList.add('muted');
-        label.classList.remove('text-[#2c2a24]', 'font-semibold');
+
+        switch (selectedRadio.value) {
+            case 'under_5': label.innerText = 'Dưới 5tr'; break;
+            case '5_to_10': label.innerText = '5tr - 10tr'; break;
+            case 'over_10': label.innerText = 'Trên 10tr'; break;
+            default:
+                label.innerText = 'Tất cả';
+                label.classList.add('muted');
+                label.classList.remove('text-[#2c2a24]', 'font-semibold');
+                break;
+        }
     }
-    closeAllDropdowns();
 }
 
 // ---------------- CALENDAR DROPDOWN LOGIC ----------------
@@ -191,20 +196,16 @@ function applyDates() {
     }
 }
 
-function clearPromoCode() {
-    document.getElementById('promoCodeInput').value = '';
-    applyPromoCode();
-}
-
 function closeAllDropdowns() {
     document.getElementById('guestsDropdown').classList.add('hidden');
     document.getElementById('calendarDropdown').classList.add('hidden');
-    document.getElementById('codeDropdown').classList.add('hidden');
+    const priceDropdown = document.getElementById('priceDropdown');
+    if (priceDropdown) priceDropdown.classList.add('hidden');
 }
 
 // Close dropdowns on outside click
 document.addEventListener('click', function (e) {
-    if (!e.target.closest('.search-field') && !e.target.closest('.search-btn') && !e.target.closest('#guestsDropdown') && !e.target.closest('#calendarDropdown') && !e.target.closest('#codeDropdown')) {
+    if (!e.target.closest('.search-field') && !e.target.closest('.search-btn') && !e.target.closest('#guestsDropdown') && !e.target.closest('#calendarDropdown') && !e.target.closest('#priceDropdown')) {
         closeAllDropdowns();
     }
 });
@@ -218,28 +219,38 @@ function formatLocalDate(date) {
     return `${yyyy}-${mm}-${dd}`;
 }
 
-function getRoomImage(categoryName) {
-    if (!categoryName) return "https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=800&q=80";
+function getRoomImages(categoryName) {
+    if (!categoryName) return ["https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=800&q=80"];
     const nameLower = categoryName.toLowerCase();
     if (nameLower.includes("nipa pool villa") || nameLower.includes("nipa")) {
-        return "https://images.unsplash.com/photo-1590490360182-c33d57733427?w=800&q=80";
+        return [
+            "https://images.unsplash.com/photo-1590490360182-c33d57733427?w=800&q=80",
+            "https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?w=800&q=80",
+            "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&q=80"
+        ];
     } else if (nameLower.includes("river pool villa") || nameLower.includes("river")) {
-        return "https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=800&q=80";
+        return [
+            "https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=800&q=80",
+            "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=800&q=80",
+            "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800&q=80"
+        ];
     } else if (nameLower.includes("wellness retreats") || nameLower.includes("wellness retreat") || nameLower.includes("wellness")) {
-        return "https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=800&q=80";
+        return [
+            "https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=800&q=80",
+            "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=800&q=80",
+            "https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=800&q=80"
+        ];
     } else {
-        return "https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=800&q=80";
+        return [
+            "https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=800&q=80",
+            "https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?w=800&q=80",
+            "https://images.unsplash.com/photo-1571501443899-2a9c3722a8a8?w=800&q=80"
+        ];
     }
 }
 
-function getRoomBadge(price) {
-    if (price < 18000000) {
-        return { text: "Giá Tốt Nhất", type: "price", icon: "&#127991;" };
-    }
-    if (price > 19000000) {
-        return { text: "Gợi Ý", type: "tip", icon: "&#9728;" };
-    }
-    return null;
+function getRoomImage(categoryName) {
+    return getRoomImages(categoryName)[0];
 }
 
 function renderRoomResults(roomsData) {
@@ -277,17 +288,6 @@ function renderRoomResults(roomsData) {
     categoryList.forEach(room => {
         const priceVal = room.pricePerNight;
         const formattedPrice = formatCurrency(priceVal);
-        const totalVal = priceVal * diffDays;
-        const formattedTotal = formatCurrency(totalVal);
-
-        const badge = getRoomBadge(priceVal);
-        const badgeHtml = badge ? `
-            <span class="room-badge ${badge.type === 'tip' ? 'badge-tip' : 'badge-price'}">
-                <span class="badge-ic" aria-hidden="true">${badge.icon}</span>
-                <span>${badge.text}</span>
-            </span>
-        ` : '';
-
         const roomImage = getRoomImage(room.categoryName);
         const availableCount = room.roomNumbers.length;
 
@@ -318,7 +318,6 @@ function renderRoomResults(roomsData) {
             <article class="room-card flex flex-col h-full">
                 <!-- Image / carousel -->
                 <div class="room-media relative cursor-pointer hover:opacity-90 transition-opacity" onclick="openRoomInfoModal('${roomJson}')">
-                    ${badgeHtml}
                     <img class="room-img" src="${roomImage}" alt="${room.categoryName}"/>
 
                     <!-- CÒN X TRỐNG - Góc trên bên trái -->
@@ -405,6 +404,13 @@ function renderRoomResults(roomsData) {
     });
     grid.innerHTML = html;
     initRoomsPagination();
+    if (typeof scrollObserver !== 'undefined') {
+        const sections = grid.querySelectorAll('.room-card');
+        sections.forEach(section => {
+            section.classList.add('transition-all', 'duration-[800ms]', 'ease-out', 'opacity-0', 'translate-y-8', 'will-change-transform');
+            scrollObserver.observe(section);
+        });
+    }
 }
 
 function renderChildAges(inputElem) {
@@ -483,6 +489,18 @@ function executeSearch(e) {
             spinner.remove();
             grid.style.opacity = '1';
             grid.style.pointerEvents = 'auto';
+
+            // Lọc kết quả theo bộ lọc giá (nếu có)
+            if (bookingState.priceFilter && bookingState.priceFilter !== 'all') {
+                data = data.filter(room => {
+                    const price = room.pricePerNight;
+                    if (bookingState.priceFilter === 'under_5') return price < 5000000;
+                    if (bookingState.priceFilter === '5_to_10') return price >= 5000000 && price <= 10000000;
+                    if (bookingState.priceFilter === 'over_10') return price > 10000000;
+                    return true;
+                });
+            }
+
             renderRoomResults(data);
         })
         .catch(err => {
@@ -495,12 +513,57 @@ function executeSearch(e) {
 }
 
 // ---------------- ROOM DETAIL MODAL LOGIC ----------------
+let currentRoomImages = [];
+let currentRoomImageIndex = 0;
+
+const checkIconSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+const starIconSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>';
+
+function prevRoomDetailImage(e) {
+    if (e) e.stopPropagation();
+    if (currentRoomImages.length <= 1) return;
+    currentRoomImageIndex = (currentRoomImageIndex - 1 + currentRoomImages.length) % currentRoomImages.length;
+    document.getElementById('detailRoomImg').src = currentRoomImages[currentRoomImageIndex];
+}
+
+function nextRoomDetailImage(e) {
+    if (e) e.stopPropagation();
+    if (currentRoomImages.length <= 1) return;
+    currentRoomImageIndex = (currentRoomImageIndex + 1) % currentRoomImages.length;
+    document.getElementById('detailRoomImg').src = currentRoomImages[currentRoomImageIndex];
+}
+
 function openRoomInfoModal(roomJsonStr) {
     const room = JSON.parse(decodeURIComponent(roomJsonStr));
-    const image = getRoomImage(room.categoryName);
+
+    // TODO: SAU NÀY LẤY ẢNH TỪ DATABASE / LOCAL
+    // Nếu API trả về mảng link ảnh trong thuộc tính `room.images` (hoặc tên khác tuỳ bạn đặt trong Backend),
+    // bạn chỉ cần thay đổi dòng bên dưới thành:
+    // currentRoomImages = (room.images && room.images.length > 0) ? room.images : getRoomImages(room.categoryName);
+    currentRoomImages = getRoomImages(room.categoryName);
+
+    // Preload ảnh để chuyển slide mượt mà không bị delay do tải mạng
+    if (currentRoomImages && currentRoomImages.length > 1) {
+        currentRoomImages.forEach(src => {
+            const img = new Image();
+            img.src = src;
+        });
+    }
+
+    currentRoomImageIndex = 0;
 
     document.getElementById('detailRoomName').innerText = room.categoryName;
-    document.getElementById('detailRoomImg').src = image;
+    document.getElementById('detailRoomImg').src = currentRoomImages[currentRoomImageIndex];
+
+    const prevBtn = document.getElementById('prevRoomImageBtn');
+    const nextBtn = document.getElementById('nextRoomImageBtn');
+    if (currentRoomImages.length > 1) {
+        if (prevBtn) prevBtn.classList.remove('hidden');
+        if (nextBtn) nextBtn.classList.remove('hidden');
+    } else {
+        if (prevBtn) prevBtn.classList.add('hidden');
+        if (nextBtn) nextBtn.classList.add('hidden');
+    }
 
     document.getElementById('detailRoomGuests').innerText = room.capacity + ' Người';
     document.getElementById('detailRoomTotal').innerText = 'Trống ' + room.availableCount + ' phòng';
@@ -526,10 +589,10 @@ function openRoomInfoModal(roomJsonStr) {
 
     const amenitiesListEl = document.getElementById('detailRoomAmenitiesList');
     if (amenitiesListEl) {
-        amenitiesListEl.innerHTML = '';
-        
+        let amenitiesHtml = '';
+
         const addAmenity = (text, iconSvg) => {
-            amenitiesListEl.innerHTML += `
+            amenitiesHtml += `
                 <li class="flex items-center gap-1.5 bg-[#d4af37]/10 text-[#a38015] px-3 py-1.5 rounded-full font-medium border border-[#d4af37]/20">
                     <span class="w-3.5 h-3.5 flex items-center justify-center">${iconSvg}</span>
                     <span>${text}</span>
@@ -537,19 +600,18 @@ function openRoomInfoModal(roomJsonStr) {
             `;
         };
 
-        const checkIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
-        const starIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>';
+        if (room.hasBathtub) addAmenity('Bồn tắm', checkIconSvg);
+        if (room.hasBalcony) addAmenity('Ban công', checkIconSvg);
+        if (room.hasFreeBreakfast) addAmenity('Bao gồm bữa sáng', starIconSvg);
 
-        if (room.hasBathtub) addAmenity('Bồn tắm', checkIcon);
-        if (room.hasBalcony) addAmenity('Ban công', checkIcon);
-        if (room.hasFreeBreakfast) addAmenity('Bao gồm bữa sáng', starIcon);
-        
         if (room.complimentaryServices) {
             const services = room.complimentaryServices.split(',');
             services.forEach(s => {
-                if (s.trim()) addAmenity(s.trim(), starIcon);
+                if (s.trim()) addAmenity(s.trim(), starIconSvg);
             });
         }
+
+        amenitiesListEl.innerHTML = amenitiesHtml;
     }
 
     const container = document.getElementById('detailBookButtonContainer');
@@ -563,12 +625,12 @@ function openRoomInfoModal(roomJsonStr) {
 
     const modal = document.getElementById('roomDetailsModal');
     const modalContent = document.getElementById('roomDetailsModalContent');
-    
+
     // Show modal container
     modal.style.display = 'flex';
     // Force reflow
     void modal.offsetWidth;
-    
+
     // Animate in
     modal.classList.remove('opacity-0');
     modalContent.classList.remove('scale-95', 'opacity-0');
@@ -578,12 +640,12 @@ function openRoomInfoModal(roomJsonStr) {
 function closeRoomDetailsModal() {
     const modal = document.getElementById('roomDetailsModal');
     const modalContent = document.getElementById('roomDetailsModalContent');
-    
+
     // Animate out
     modal.classList.add('opacity-0');
     modalContent.classList.remove('scale-100', 'opacity-100');
     modalContent.classList.add('scale-95', 'opacity-0');
-    
+
     // Wait for animation to finish before hiding
     setTimeout(() => {
         modal.style.display = 'none';
@@ -805,7 +867,7 @@ function confirmCartBooking() {
         roomSelections: roomSelections,
         checkInDate: formatLocalDate(checkIn),
         checkOutDate: formatLocalDate(checkOut),
-        promotionCode: bookingState.promoCode || null
+        promotionCode: null
     };
 
     fetch('/api/bookings', {
@@ -939,6 +1001,23 @@ function toggleShowMoreRooms() {
     }
 }
 
+// ── Intersection Observer reveal animations ───────────────────────────────
+const observerOptions = {
+    root: null,
+    rootMargin: '0px',
+    threshold: 0.15
+};
+
+const scrollObserver = new IntersectionObserver((entries, observer) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('opacity-100', 'translate-y-0');
+            entry.target.classList.remove('opacity-0', 'translate-y-8');
+            observer.unobserve(entry.target);
+        }
+    });
+}, observerOptions);
+
 // -- DOM Initializations --
 document.addEventListener("DOMContentLoaded", function () {
     restoreCartFromStorage();
@@ -969,27 +1048,10 @@ document.addEventListener("DOMContentLoaded", function () {
         applyDates();
         executeSearch({ preventDefault: () => { }, stopPropagation: () => { } });
     }, 100);
-    // ── Intersection Observer reveal animations ───────────────────────────────
-    const observerOptions = {
-        root: null,
-        rootMargin: '0px',
-        threshold: 0.15
-    };
-
-    const observer = new IntersectionObserver((entries, observer) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('opacity-100', 'translate-y-0');
-                entry.target.classList.remove('opacity-0', 'translate-y-8');
-                observer.unobserve(entry.target);
-            }
-        });
-    }, observerOptions);
-
-    const sections = document.querySelectorAll('main section, .feature-row, .room-grid, .room-card, .results, .site-footer');
+    const sections = document.querySelectorAll('main section, .feature-row, .room-grid, .results, .site-footer');
     sections.forEach(section => {
         section.classList.add('transition-all', 'duration-[800ms]', 'ease-out', 'opacity-0', 'translate-y-8', 'will-change-transform');
-        observer.observe(section);
+        scrollObserver.observe(section);
     });
 
     const subNav = document.querySelector('.fixed.top-\\[70px\\]');

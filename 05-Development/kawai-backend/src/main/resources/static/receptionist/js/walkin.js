@@ -81,6 +81,32 @@ function unlockStep2() {
 }
 
 let walkInCart = [];
+let masterCreditLimit = 0;
+let isGuestVerified = false;
+
+function updateCreditLimitDisplay() {
+    let totalAllocated = 0;
+    walkInCart.forEach(r => totalAllocated += (r.allocatedCreditLimit || 0));
+    let remaining = masterCreditLimit - totalAllocated;
+    let displayEl = document.getElementById('remainingCreditDisplay');
+    if(displayEl) {
+        displayEl.innerText = remaining.toLocaleString() + ' VND';
+        if(remaining < 0) {
+            displayEl.style.color = 'red';
+        } else {
+            displayEl.style.color = '#16a34a';
+        }
+    }
+}
+
+function handleCreditInput(input, index) {
+    let val = parseFloat(input.value) || 0;
+    walkInCart[index].allocatedCreditLimit = val;
+    updateCreditLimitDisplay();
+    // Cảnh báo real-time nếu tổng hạn mức vượt quá
+    const totalAllocated = walkInCart.reduce((s, r) => s + (r.allocatedCreditLimit || 0), 0);
+    input.style.borderColor = totalAllocated > masterCreditLimit ? '#ef4444' : '#cbd5e1';
+}
 
 function addRoomToCart() {
     const select = document.getElementById('walkInPhysicalRoomSelect');
@@ -143,13 +169,31 @@ function renderRoomCart() {
     }
 
     container.style.display = 'block';
+    const remainingCreditWrapper = document.getElementById('remainingCreditWrapper');
+    const creditLimitHeader = document.getElementById('creditLimitHeader');
+    if (isGuestVerified) {
+        if (remainingCreditWrapper) remainingCreditWrapper.style.display = 'inline';
+        if (creditLimitHeader) creditLimitHeader.style.display = 'table-cell';
+    } else {
+        if (remainingCreditWrapper) remainingCreditWrapper.style.display = 'none';
+        if (creditLimitHeader) creditLimitHeader.style.display = 'none';
+    }
+
     walkInCart.forEach((room, index) => {
         const tr = document.createElement('tr');
         tr.style.borderBottom = '1px dashed #e2e8f0';
+        
+        const creditCell = isGuestVerified 
+            ? `<td style="padding: 10px 16px;">
+                <input type="number" class="form-control room-credit-input" data-index="${index}" value="${room.allocatedCreditLimit || ''}" min="0" oninput="handleCreditInput(this, ${index})" style="width:120px; padding: 6px; border: 1px solid #cbd5e1; border-radius: 4px;">
+               </td>` 
+            : `<td style="display: none;"></td>`;
+
         tr.innerHTML = `
             <td style="padding: 10px 16px; font-weight: 500;">${room.roomNum}</td>
             <td style="padding: 10px 16px;">${room.category}</td>
             <td style="padding: 10px 16px; font-weight: 500; color: #16a34a;">${room.price}</td>
+            ${creditCell}
             <td style="padding: 10px 16px; text-align: right;">
                 <button type="button" class="btn btn-sm btn-outline" style="color: #ef4444; border-color: #fca5a5;" onclick="removeRoomFromCart(${index})"><i class="fa-solid fa-trash"></i></button>
             </td>
@@ -161,6 +205,7 @@ function renderRoomCart() {
         opt.innerText = room.roomNum;
         depRoomSelect.appendChild(opt);
     });
+    updateCreditLimitDisplay();
 }
 
 function unlockFinalButton(customerId) {
@@ -196,6 +241,15 @@ function searchCustomer() {
             document.getElementById('guestName').value = data.fullName || '';
             document.getElementById('guestId').value = data.cccd || '';
             document.getElementById('guestEmail').value = data.email || '';
+            if (data.creditLimit !== undefined && data.creditLimit !== null) {
+                masterCreditLimit = data.creditLimit;
+            } else {
+                masterCreditLimit = 5000000;
+            }
+            
+            isGuestVerified = true;
+            renderRoomCart();
+            updateCreditLimitDisplay();
             if (data.dateOfBirth) {
                 document.getElementById('guestDob').value = data.dateOfBirth;
             }
@@ -253,6 +307,11 @@ function validateGuestInfo() {
 function validateNewCustomer() {
     if (!validateGuestInfo()) return;
 
+    masterCreditLimit = 5000000; // Mặc định 5 triệu cho khách vãng lai mới
+    isGuestVerified = true;
+    renderRoomCart();
+    updateCreditLimitDisplay();
+
     unlockFinalButton("NEW-GUEST");
     document.getElementById('guestStatusMsg').innerHTML = `<i class="fa-solid fa-info-circle"></i> Sẵn sàng Check-in (Tài khoản sẽ được tạo tự động)`;
     document.getElementById('guestStatusMsg').style.display = 'inline-block';
@@ -277,12 +336,7 @@ function showPaymentStep() {
     const checkInStr = `${localNow.getFullYear()}-${String(localNow.getMonth() + 1).padStart(2, '0')}-${String(localNow.getDate()).padStart(2, '0')}`;
 
     // Format payload
-    const roomSelections = walkInCart.map(r => {
-        return {
-            roomId: r.roomId,
-            accompaniedGuests: walkInDependents.filter(d => d.roomId == r.roomId)
-        };
-    });
+    const roomSelections = buildRoomSelections();
 
     const payload = {
         roomSelections: roomSelections,
@@ -422,12 +476,7 @@ function submitCheckIn() {
     const localNow = new Date();
     const checkInStr = `${localNow.getFullYear()}-${String(localNow.getMonth() + 1).padStart(2, '0')}-${String(localNow.getDate()).padStart(2, '0')}`;
 
-    const roomSelections = walkInCart.map(r => {
-        return {
-            roomId: r.roomId,
-            accompaniedGuests: walkInDependents.filter(d => d.roomId == r.roomId)
-        };
-    });
+    const roomSelections = buildRoomSelections();
 
     const payload = {
         roomSelections: roomSelections,
@@ -550,9 +599,19 @@ function submitCheckIn() {
         });
 }
 
-function closeModalAndRedirect() {
+// Hàm đóng modal mặc định (khi onclick trong HTML chưa bị override bởi submitCheckIn)
+function defaultModalClose() {
     document.getElementById('successModal').style.display = 'none';
     window.location.href = "/receptionist/dashboard";
+}
+
+// Hàm trung gian — trích ra từ showPaymentStep() và submitCheckIn() để tránh lặp code
+function buildRoomSelections() {
+    return walkInCart.map(r => ({
+        roomId: r.roomId,
+        allocatedCreditLimit: r.allocatedCreditLimit || 0,
+        accompaniedGuests: walkInDependents.filter(d => d.roomId == r.roomId)
+    }));
 }
 
 let walkInDependents = [];

@@ -99,6 +99,9 @@ class CheckinServiceUC12Test {
     @Mock
     private DependentRepository dependentRepository;
 
+    @Mock
+    private MembershipTierRepository membershipTierRepository;
+
     @InjectMocks
     private CheckinServiceImpl checkinService;
 
@@ -160,7 +163,10 @@ class CheckinServiceUC12Test {
         sampleCustomer.setPhone("0987654321");
         sampleCustomer.setEmail("nguyenvana@email.com");
         sampleCustomer.setLoyaltyPoints(0);
-        sampleCustomer.setMembershipTier("Regular");
+        MembershipTier mockTier = new MembershipTier();
+        mockTier.setTierName("Regular");
+        mockTier.setCreditLimit(new BigDecimal("5000000.00"));
+        sampleCustomer.setMembershipTier(mockTier);
 
         // RoomBooking CONFIRMED (điều kiện hợp lệ để check-in)
         sampleRoomBooking = new RoomBooking();
@@ -251,7 +257,7 @@ class CheckinServiceUC12Test {
                     .thenAnswer(invocation -> invocation.getArgument(0));
 
             // ACT
-            RoomBookingDetail result = checkinService.checkIn(bookingDetailId, roomId);
+            RoomBookingDetail result = checkinService.checkIn(bookingDetailId, roomId, java.math.BigDecimal.ZERO);
 
             // ASSERT
             assertNotNull(result, "Kết quả check-in không được null");
@@ -295,7 +301,7 @@ class CheckinServiceUC12Test {
             // ACT & ASSERT
             IllegalStateException exception = assertThrows(
                     IllegalStateException.class,
-                    () -> checkinService.checkIn(bookingDetailId, roomId),
+                    () -> checkinService.checkIn(bookingDetailId, roomId, java.math.BigDecimal.ZERO),
                     "Phòng DIRTY phải ném IllegalStateException (BR-FO-04, MOD2-002)");
             assertTrue(exception.getMessage().toLowerCase().contains("dirty"),
                     "Message lỗi phải chứa thông tin trạng thái DIRTY");
@@ -320,7 +326,7 @@ class CheckinServiceUC12Test {
             // ACT & ASSERT
             IllegalStateException exception = assertThrows(
                     IllegalStateException.class,
-                    () -> checkinService.checkIn(bookingDetailId, roomId),
+                    () -> checkinService.checkIn(bookingDetailId, roomId, java.math.BigDecimal.ZERO),
                     "Phòng MAINTENANCE phải ném IllegalStateException (BR-HK-03, MOD2-002)");
             assertTrue(exception.getMessage().toLowerCase().contains("maintenance"),
                     "Message lỗi phải chứa thông tin trạng thái MAINTENANCE");
@@ -344,23 +350,26 @@ class CheckinServiceUC12Test {
         void updateCreditLimit_Success_ShouldUpdateCreditLimit() {
             // ARRANGE
             Long bookingDetailId = 5000L;
-            BigDecimal newCreditLimit = new BigDecimal("8000000");
+            BigDecimal newCreditLimit = new BigDecimal("3000000"); // <= master limit (5,000,000)
 
             when(roomBookingDetailRepository.findById(bookingDetailId))
                     .thenReturn(Optional.of(sampleBookingDetail));
-            when(roomBookingRepository.save(any(RoomBooking.class)))
+            when(roomBookingDetailRepository.findByRoomBookingId(sampleRoomBooking.getId()))
+                    .thenReturn(java.util.Collections.singletonList(sampleBookingDetail));
+            when(roomBookingDetailRepository.save(any(RoomBookingDetail.class)))
                     .thenAnswer(invocation -> invocation.getArgument(0));
 
             // ACT
             checkinService.updateCreditLimit(bookingDetailId, newCreditLimit);
 
             // ASSERT
-            assertEquals(newCreditLimit, sampleRoomBooking.getCreditLimit(),
-                    "Credit Limit phải được cập nhật thành giá trị mới (BR-FO-06)");
+            assertEquals(newCreditLimit, sampleBookingDetail.getSubCreditLimit(),
+                    "Credit Limit của phòng (subCreditLimit) phải được cập nhật thành giá trị mới (BR-FO-06)");
 
             // Verify interactions
             verify(roomBookingDetailRepository).findById(bookingDetailId);
-            verify(roomBookingRepository).save(any(RoomBooking.class));
+            verify(roomBookingDetailRepository).findByRoomBookingId(sampleRoomBooking.getId());
+            verify(roomBookingDetailRepository).save(any(RoomBookingDetail.class));
         }
     }
 
@@ -448,7 +457,7 @@ class CheckinServiceUC12Test {
             // khi bookingDetailId không tồn tại (EDS MOD2-003)
             assertThrows(
                     RuntimeException.class,
-                    () -> checkinService.checkIn(nonExistentDetailId, roomId),
+                    () -> checkinService.checkIn(nonExistentDetailId, roomId, java.math.BigDecimal.ZERO),
                     "BookingDetail không tồn tại phải ném RuntimeException (MOD2-003)");
 
             // Verify: KHÔNG gọi roomRepository vì đã fail sớm
@@ -481,7 +490,7 @@ class CheckinServiceUC12Test {
             // ACT & ASSERT
             assertThrows(
                     RuntimeException.class,
-                    () -> checkinService.checkIn(bookingDetailId, nonExistentRoomId),
+                    () -> checkinService.checkIn(bookingDetailId, nonExistentRoomId, java.math.BigDecimal.ZERO),
                     "Room không tồn tại phải ném RuntimeException (MOD2-003)");
 
             verify(roomBookingDetailRepository, never()).save(any());
@@ -514,7 +523,7 @@ class CheckinServiceUC12Test {
             // ACT & ASSERT
             IllegalStateException exception = assertThrows(
                     IllegalStateException.class,
-                    () -> checkinService.checkIn(bookingDetailId, roomId),
+                    () -> checkinService.checkIn(bookingDetailId, roomId, java.math.BigDecimal.ZERO),
                     "Booking chưa CONFIRMED không được phép check-in");
             assertTrue(
                     exception.getMessage().toLowerCase().contains("confirmed")
@@ -549,7 +558,7 @@ class CheckinServiceUC12Test {
             // ACT & ASSERT
             IllegalStateException exception = assertThrows(
                     IllegalStateException.class,
-                    () -> checkinService.checkIn(bookingDetailId, roomId),
+                    () -> checkinService.checkIn(bookingDetailId, roomId, java.math.BigDecimal.ZERO),
                     "BookingDetail đã CHECKED_IN không được check-in lại (idempotency guard)");
             assertTrue(
                     exception.getMessage().toLowerCase().contains("checked_in")
@@ -585,7 +594,7 @@ class CheckinServiceUC12Test {
             // ACT & ASSERT
             IllegalStateException exception = assertThrows(
                     IllegalStateException.class,
-                    () -> checkinService.checkIn(bookingDetailId, roomId),
+                    () -> checkinService.checkIn(bookingDetailId, roomId, java.math.BigDecimal.ZERO),
                     "Phòng đang Occupied không được check-in (MOD2-002)");
             assertTrue(
                     exception.getMessage().toLowerCase().contains("occupied"),
@@ -730,7 +739,9 @@ class CheckinServiceUC12Test {
 
             when(roomBookingDetailRepository.findById(bookingDetailId))
                     .thenReturn(Optional.of(sampleBookingDetail));
-            when(roomBookingRepository.save(any(RoomBooking.class)))
+            when(roomBookingDetailRepository.findByRoomBookingId(sampleRoomBooking.getId()))
+                    .thenReturn(java.util.Collections.singletonList(sampleBookingDetail));
+            when(roomBookingDetailRepository.save(any(RoomBookingDetail.class)))
                     .thenAnswer(invocation -> invocation.getArgument(0));
 
             // ACT — zero credit limit KHÔNG nên ném exception
@@ -738,8 +749,8 @@ class CheckinServiceUC12Test {
                     () -> checkinService.updateCreditLimit(bookingDetailId, zeroCreditLimit),
                     "Credit Limit = 0 là hợp lệ (vô hiệu hóa charge-to-room)");
 
-            assertEquals(BigDecimal.ZERO, sampleRoomBooking.getCreditLimit(),
-                    "Credit Limit phải được set về 0");
+            assertEquals(BigDecimal.ZERO, sampleBookingDetail.getSubCreditLimit(),
+                    "Credit Limit của phòng phải được set về 0");
         }
     }
 
@@ -833,6 +844,41 @@ class CheckinServiceUC12Test {
             });
             assertTrue(ex.getMessage().contains("Chỉ có thể hủy No-Show với đơn đã Confirmed"));
             verify(roomBookingRepository, never()).save(any(RoomBooking.class));
+        }
+    }
+
+    // ================================================================
+    // TC-M2-026: updateCreditLimit — Tổng hạn mức phòng vượt master customer limit → [MOD2-UC14-016]
+    // Ref: TDD UC12 | Gap: Phân tiền cho phòng phải <= tổng hạn mức tổng
+    // ================================================================
+    @Nested
+    @DisplayName("TC-M2-026 [NEW]: updateCreditLimit — Tổng hạn mức phòng vượt master customer limit")
+    class TC_M2_026 {
+
+        @Test
+        @DisplayName("TC-M2-026: updateCreditLimit với giá trị làm tổng hạn mức phòng vượt tổng hạn mức tài khoản tổng -> exception")
+        void updateCreditLimit_ExceedsMasterLimit_ShouldThrowException() {
+            // ARRANGE
+            Long bookingDetailId = 5000L;
+            BigDecimal newCreditLimit = new BigDecimal("6000000"); // Master limit is 5000000
+
+            // Giả lập lấy ra detail
+            when(roomBookingDetailRepository.findById(bookingDetailId))
+                    .thenReturn(Optional.of(sampleBookingDetail));
+            
+            // Giả lập lấy danh sách các detail của booking này (chỉ có detail hiện tại)
+            when(roomBookingDetailRepository.findByRoomBookingId(sampleBookingDetail.getRoomBooking().getId()))
+                    .thenReturn(java.util.Collections.singletonList(sampleBookingDetail));
+
+            // ACT & ASSERT
+            com.kawai.exceptions.BusinessException exception = assertThrows(
+                    com.kawai.exceptions.BusinessException.class,
+                    () -> checkinService.updateCreditLimit(bookingDetailId, newCreditLimit),
+                    "Phân bổ vượt hạn mức tổng phải ném BusinessException (MOD2-UC14-016)"
+            );
+            assertEquals("MOD2-UC14-016", exception.getErrorCode());
+
+            verify(roomBookingDetailRepository, never()).save(any());
         }
     }
 

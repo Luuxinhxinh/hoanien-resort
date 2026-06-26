@@ -15,6 +15,7 @@ public class CheckinSubmitFormDTO {
     private String phone;
     private String cccd;
     private List<String> assignedRoomNumbers = new ArrayList<>();
+    private List<java.math.BigDecimal> allocatedCreditLimits = new ArrayList<>();
 
     // Danh sách người đi kèm, form frontend gửi lên dạng dependents[0].fullName,
     // dependents[1].fullName...
@@ -54,6 +55,9 @@ public class CheckinSubmitFormDTO {
     public void setCccd(String cccd) {
         this.cccd = cccd;
     }
+
+    public List<java.math.BigDecimal> getAllocatedCreditLimits() { return allocatedCreditLimits; }
+    public void setAllocatedCreditLimits(List<java.math.BigDecimal> allocatedCreditLimits) { this.allocatedCreditLimits = allocatedCreditLimits; }
 
     public List<String> getAssignedRoomNumbers() {
         return assignedRoomNumbers;

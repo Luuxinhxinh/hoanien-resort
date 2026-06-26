@@ -61,6 +61,7 @@ public class WalkInCheckInServiceImpl implements WalkInCheckInService {
     private final RoomSurchargeRepository roomSurchargeRepository;
     private final com.kawai.repositories.RoomGuestRepository roomGuestRepository;
     private final com.kawai.repositories.RoleRepository roleRepository;
+    private final com.kawai.repositories.MembershipTierRepository membershipTierRepository;
     private final com.kawai.services.interfaces.FolioService folioService;
     private final PasswordEncoder passwordEncoder;
     private static final int ADULT_AGE_THRESHOLD = 18;
@@ -76,6 +77,7 @@ public class WalkInCheckInServiceImpl implements WalkInCheckInService {
             com.kawai.repositories.RoomSurchargeRepository roomSurchargeRepository,
             com.kawai.repositories.RoomGuestRepository roomGuestRepository,
             com.kawai.repositories.RoleRepository roleRepository,
+            com.kawai.repositories.MembershipTierRepository membershipTierRepository,
             com.kawai.services.interfaces.FolioService folioService,
             PasswordEncoder passwordEncoder) {
         this.roomRepository = roomRepository;
@@ -87,6 +89,7 @@ public class WalkInCheckInServiceImpl implements WalkInCheckInService {
         this.roomSurchargeRepository = roomSurchargeRepository;
         this.roomGuestRepository = roomGuestRepository;
         this.roleRepository = roleRepository;
+        this.membershipTierRepository = membershipTierRepository;
         this.folioService = folioService;
         this.passwordEncoder = passwordEncoder;
     }
@@ -102,6 +105,25 @@ public class WalkInCheckInServiceImpl implements WalkInCheckInService {
             // ── Step 1: Validate thông tin định danh ─────────────────────────
             validateIdentification(request);
 
+            // ── Pre-Validation: Validate phòng và capacity trước khi lưu bất kỳ dữ liệu
+            // nào ──
+            boolean isFirstForValidation = true;
+            BigDecimal totalAllocatedCreditLimit = BigDecimal.ZERO;
+            for (com.kawai.dto.walkin.WalkInRoomSelectionDTO selection : request.getRoomSelections()) {
+                if (selection.getAllocatedCreditLimit() != null) {
+                    totalAllocatedCreditLimit = totalAllocatedCreditLimit.add(selection.getAllocatedCreditLimit());
+                }
+                Room room = findAndValidateRoom(selection.getRoomId());
+                List<DependentRegistrationDTO> companions = selection.getAccompaniedGuests() != null
+                        ? selection.getAccompaniedGuests()
+                        : Collections.emptyList();
+                List<Integer> childAges = new java.util.ArrayList<>();
+                LocalDate primaryDob = isFirstForValidation ? request.getDateOfBirth() : null;
+                GuestCount guestCount = classifyGuests(primaryDob, companions, childAges);
+                validateAndCalculateSurcharge(guestCount, room.getCategory(), childAges);
+                isFirstForValidation = false;
+            }
+
             // ── Step 5: Find-or-Create Customer ─────────────────────────────
             boolean[] isNewCustomerHolder = { false };
             Customer customer = findOrCreateCustomer(request, isNewCustomerHolder);
@@ -110,6 +132,16 @@ public class WalkInCheckInServiceImpl implements WalkInCheckInService {
             com.kawai.models.Account newAccount = null;
             if (isNewCustomerHolder[0]) {
                 newAccount = autoCreateAccount(customer, request.getEmail());
+            }
+
+            // Validate Total Allocated Credit Limit
+            BigDecimal masterCreditLimit = (customer.getMembershipTier() != null && customer.getMembershipTier().getCreditLimit() != null) 
+                    ? customer.getMembershipTier().getCreditLimit() 
+                    : new BigDecimal("5000000.00");
+            if (totalAllocatedCreditLimit.compareTo(masterCreditLimit) > 0) {
+                throw new BusinessException("MOD2-UC14-016",
+                        "Tổng hạng mức của các phòng cộng lại (" + totalAllocatedCreditLimit
+                                + ") vượt quá tổng hạng mức của tài khoản tổng (" + masterCreditLimit + ").");
             }
 
             // ── Step 7: Tạo RoomBooking ──────────────────────────────────────
@@ -145,6 +177,9 @@ public class WalkInCheckInServiceImpl implements WalkInCheckInService {
                 // ── Step 8: Tạo RoomBookingDetail với extra surcharge ─────────────
                 RoomBookingDetail detail = buildRoomBookingDetail(request, booking, room, category,
                         guestCount, extraSurcharge);
+                detail.setSubCreditLimit(
+                        selection.getAllocatedCreditLimit() != null ? selection.getAllocatedCreditLimit()
+                                : BigDecimal.ZERO);
                 roomBookingDetailRepository.save(detail);
 
                 // Cập nhật giá booking master
@@ -190,8 +225,10 @@ public class WalkInCheckInServiceImpl implements WalkInCheckInService {
                     RoomGuest rg = new RoomGuest();
                     rg.setRoomBookingDetail(detail);
                     rg.setDependent(savedDep);
-                    // Nếu là phòng 1, cưỡng chế không cho khách đi kèm làm Đứng đầu (vì Master Guest đã gánh).
-                    rg.setIsPrimaryContact(isFirstRoom ? false : (dto.getIsPrimaryContact() != null ? dto.getIsPrimaryContact() : false));
+                    // Nếu là phòng 1, cưỡng chế không cho khách đi kèm làm Đứng đầu (vì Master
+                    // Guest đã gánh).
+                    rg.setIsPrimaryContact(isFirstRoom ? false
+                            : (dto.getIsPrimaryContact() != null ? dto.getIsPrimaryContact() : false));
 
                     int age = 18;
                     if (savedDep.getBirthDate() != null) {
@@ -203,10 +240,12 @@ public class WalkInCheckInServiceImpl implements WalkInCheckInService {
 
                 // Backend Validation: Kiểm tra số lượng primary contact của phòng này phải đúng
                 // bằng 1
-                java.util.List<RoomGuest> guests = roomGuestRepository.findByRoomBookingDetailId(detail.getId());
-                long primaryCount = guests.stream()
-                        .filter(g -> Boolean.TRUE.equals(g.getIsPrimaryContact()))
-                        .count();
+                long primaryCount = isFirstRoom ? 1 : 0;
+                for (DependentRegistrationDTO dto : companions) {
+                    if (!isFirstRoom && Boolean.TRUE.equals(dto.getIsPrimaryContact())) {
+                        primaryCount++;
+                    }
+                }
                 if (primaryCount != 1) {
                     throw new BusinessException("CHECKIN-006",
                             "Phòng " + room.getRoomNumber() + " phải có đúng 1 người đứng đầu!");
@@ -376,7 +415,7 @@ public class WalkInCheckInServiceImpl implements WalkInCheckInService {
                 .orElseThrow(() -> new BusinessException("MOD2-UC14-004",
                         "No available rooms found for the requested room ID: " + roomId));
 
-        if (!"Vacant_Clean".equals(room.getRoomStatus())) {
+        if (!"Vacant_Clean".equalsIgnoreCase(room.getRoomStatus()) && !"Vacant_Dirty".equalsIgnoreCase(room.getRoomStatus())) {
             throw new BusinessException("MOD2-UC14-006",
                     "Selected room is not available for check-in. Current status: " + room.getRoomStatus());
         }
@@ -507,6 +546,7 @@ public class WalkInCheckInServiceImpl implements WalkInCheckInService {
         customer.setEmail(req.getEmail() != null ? req.getEmail() : "guest_" + UUID.randomUUID() + "@kawai.auto");
         customer.setGender(req.getGender() != null ? req.getGender() : "Unknown");
         customer.setCccdPassportEncrypted(encryptedCccd);
+        customer.setMembershipTier(membershipTierRepository.findByTierNameIgnoreCase("Regular").orElse(null));
         return customerRepository.save(customer);
     }
 
@@ -558,8 +598,10 @@ public class WalkInCheckInServiceImpl implements WalkInCheckInService {
         booking.setTotalPrice(BigDecimal.ZERO);
         booking.setDepositAmount(BigDecimal.ZERO);
         booking.setCancellationDeadline(LocalDate.now());
-        // Personal PIN Hash — default là UUID ngắn (trong production sẽ là input từ
-        // khách)
+        booking.setCreditLimit(
+                (customer.getMembershipTier() != null && customer.getMembershipTier().getCreditLimit() != null)
+                        ? customer.getMembershipTier().getCreditLimit()
+                        : new BigDecimal("5000000.00"));
         booking.setPersonalPinHash(UUID.randomUUID().toString().substring(0, 8));
         return booking;
     }

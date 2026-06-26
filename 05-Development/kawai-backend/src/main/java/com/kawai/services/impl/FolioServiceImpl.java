@@ -133,7 +133,7 @@ public class FolioServiceImpl implements FolioService {
         // 2. Update Room status -> Dirty (BR-FO-04)
         Room room = detail.getRoom();
         if (room != null) {
-            room.setRoomStatus("Dirty");
+            room.setRoomStatus("Vacant_Dirty");
             room.setCurrentBookingDetailId(null);
             roomRepository.save(room);
         }

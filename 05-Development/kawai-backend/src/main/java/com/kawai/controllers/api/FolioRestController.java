@@ -48,6 +48,7 @@ public class FolioRestController {
     private final com.kawai.repositories.RoomBookingRepository roomBookingRepository;
     private final com.kawai.repositories.PromotionRepository promotionRepository;
     private final com.kawai.repositories.CustomerRepository customerRepository;
+    private final com.kawai.repositories.MembershipTierRepository membershipTierRepository;
 
     @Autowired
     public FolioRestController(NightAuditService nightAuditService,
@@ -61,7 +62,8 @@ public class FolioRestController {
             VnPayService vnPayService,
             com.kawai.repositories.RoomBookingRepository roomBookingRepository,
             com.kawai.repositories.PromotionRepository promotionRepository,
-            com.kawai.repositories.CustomerRepository customerRepository) {
+            com.kawai.repositories.CustomerRepository customerRepository,
+            com.kawai.repositories.MembershipTierRepository membershipTierRepository) {
         this.nightAuditService = nightAuditService;
         this.folioItemRepository = folioItemRepository;
         this.roomBookingDetailRepository = roomBookingDetailRepository;
@@ -74,6 +76,7 @@ public class FolioRestController {
         this.vnPayService = vnPayService;
         this.promotionRepository = promotionRepository;
         this.customerRepository = customerRepository;
+        this.membershipTierRepository = membershipTierRepository;
     }
 
     /**
@@ -654,7 +657,7 @@ public class FolioRestController {
                             else if (newPoints >= 1000)
                                 newTier = "Silver";
 
-                            customer.setMembershipTier(newTier);
+                            customer.setMembershipTier(membershipTierRepository.findByTierNameIgnoreCase(newTier).orElse(null));
                             customerRepository.save(customer);
                             System.out.println("[LOYALTY] Khách " + customer.getFullName() + " vừa nhận " + pointsEarned
                                     + " điểm. Tổng: " + newPoints + " (" + newTier + ")");

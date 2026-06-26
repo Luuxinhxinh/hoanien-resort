@@ -2,19 +2,19 @@
 
 ## UC-14: Walk-in Guest Check-in — Đặc tả Kỹ thuật & Hiện thực hóa
 
-| Field                    | Value                                                                         |
-| ------------------------ | ----------------------------------------------------------------------------- |
-| **Document ID**    | `KAWAI-EDS-MOD2-UC14-001`                                                   |
-| **Version**        | 1.2                                                                           |
-| **Date**           | 2026-06-19                                                                    |
-| **Status**         | Approved                                                                      |
-| **Document Owner** | Chu Xuân Dũng                                                               |
-| **Author**         | Chu Xuân Dũng                                                               |
-| **Reviewed by**    | [ ] Nguyễn Xuân Lưu — Tech Lead — Pending                                |
+| Field                    | Value                                                                       |
+| ------------------------ | --------------------------------------------------------------------------- |
+| **Document ID**    | `KAWAI-EDS-MOD2-UC14-001`                                                 |
+| **Version**        | 1.2                                                                         |
+| **Date**           | 2026-06-19                                                                  |
+| **Status**         | Approved                                                                    |
+| **Document Owner** | Chu Xuân Dũng                                                             |
+| **Author**         | Chu Xuân Dũng                                                             |
+| **Reviewed by**    | [ ] Nguyễn Xuân Lưu — Tech Lead — Pending                              |
 | **DPO Sign-off**   | [ ] Pending*(bắt buộc — module xử lý PII: CCCD, Passport, Ngày sinh)* |
-| **Approved by**    | [ ] Pending                                                                   |
-| **Last Review**    | 2026-06-19                                                                    |
-| **Based on EDS**   | v2.0                                                                          |
+| **Approved by**    | [ ] Pending                                                                 |
+| **Last Review**    | 2026-06-19                                                                  |
+| **Based on EDS**   | v2.0                                                                        |
 
 ---
 
@@ -25,9 +25,10 @@
 
 | Ngày      | Người thực hiện | Nội dung thay đổi                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | ---------- | ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2026-06-26 | Chu Xuân Dũng         | **v1.3** — Thêm chức năng chia hạng mức cho từng phòng dựa trên tổng hạng mức tài khoản tổng (BR-UC14-11). Cập nhật DTO `WalkInCheckInRequest` và `WalkInRoomSelectionDTO`.                                                                                                                                                                                                                                                                     |
 | 2026-06-19 | Chu Xuân Dũng     | Xóa Folio khỏi UC-14: Folio được Account module setup sẵn khi tạo account — UC-14 không cần initializeFolio(). Xóa: FolioService dependency, folioId khỏi Response DTO/API sample, Folio assertion khỏi test, Folio check khỏi DB verification, Downstream Consumer Finance/Folio. Cập nhật ADR-UC14-003, Sequence Diagram, Service Interface.                                                                                                               |
 | 2026-06-19 | Chu Xuân Dũng     | Scope reduction: xóa ADR-UC14-001 (AES/Key detail → Security Module), xóa creditLimit khỏi DTO/API, xóa MOD2-UC14-008 (age≥18 không có trong SRS), sửa Sequence Diagram (ResidenceReporting sau COMMIT), refactor Event Catalog (xóa FolioService subscriber, xóa PaymentReceived), đơn giản hóa ADR-UC14-004, xóa PII-specific rollback SQL, xóa TC-M2-027 khỏi deployment checklist, bổ sung BR-UC14-09 đơn giản (password do Auth module quản lý) |
-| 2026-06-19 | Antigravity Agent   | Refactor scope: bổ sung BR-08/09/10 vào Traceability Matrix, thêm ADR-UC14-004 (Residence Reporting Option B), cập nhật NFR §4.3 (PII test → Security Suite), thêm MOD2-UC14-009, cập nhật Integration Test §13 (loại bỏ POS/F&B)                                                                                                                                                                                                                               |
+| 2026-06-19 | AI Agent   | Refactor scope: bổ sung BR-08/09/10 vào Traceability Matrix, thêm ADR-UC14-004 (Residence Reporting Option B), cập nhật NFR §4.3 (PII test → Security Suite), thêm MOD2-UC14-009, cập nhật Integration Test §13 (loại bỏ POS/F&B)                                                                                                                                                                                                                               |
 | 2026-06-19 | Chu Xuân Dũng     | Tạo tài liệu lần đầu — EDS đầy đủ 17 section cho UC-14 Walk-in Guest Check-in theo chuẩn v2.0                                                                                                                                                                                                                                                                                                                                                                    |
 
 ---
@@ -58,14 +59,14 @@
 
 Mô tả chức năng Walk-in Guest Check-in: xử lý khách đến khách sạn không có đặt phòng trước. Luồng gộp 2 tác vụ trong 1 giao dịch: Tạo đặt phòng mới + Check-in ngay lập tức.
 
-| Field                           | Value                                                               |
-| ------------------------------- | ------------------------------------------------------------------- |
-| **Module Name**           | `Walk-in Guest Check-in (UC-14)`                                  |
-| **Parent Module**         | `MOD2 — Đặt phòng & Tiền sảnh vận hành`                   |
-| **Bounded Context**       | `Front Desk Operations`                                           |
-| **Data Classification**   | Sensitive-PII (CCCD/Passport, Ngày sinh, SĐT, Địa chỉ)         |
-| **Compliance Scope**      | Luật cư trú 2020, Luật du lịch 2017, Nghị định 13/2023      |
-| **Upstream Dependencies** | `Module 1 (Auth)` — Xác thực Lễ tân (ROLE_RECEPTIONIST)      |
+| Field                           | Value                                                          |
+| ------------------------------- | -------------------------------------------------------------- |
+| **Module Name**           | `Walk-in Guest Check-in (UC-14)`                             |
+| **Parent Module**         | `MOD2 — Đặt phòng & Tiền sảnh vận hành`              |
+| **Bounded Context**       | `Front Desk Operations`                                      |
+| **Data Classification**   | Sensitive-PII (CCCD/Passport, Ngày sinh, SĐT, Địa chỉ)    |
+| **Compliance Scope**      | Luật cư trú 2020, Luật du lịch 2017, Nghị định 13/2023 |
+| **Upstream Dependencies** | `Module 1 (Auth)` — Xác thực Lễ tân (ROLE_RECEPTIONIST) |
 
 | **Primary Actor**         | Receptionist                                                        |
 | **Secondary Actors**      | System, Customer                                                    |
@@ -78,7 +79,6 @@ Mô tả chức năng Walk-in Guest Check-in: xử lý khách đến khách sạ
 - ✅ Kiểm tra phòng trống (Vacant_Clean)
 - ✅ Tạo Reservation + Assign room
 - ✅ Check-in (cập nhật trạng thái Booking, Room)
-
 
 **Ngoài phạm vi UC-14 (xử lý bởi module khác):**
 
@@ -97,18 +97,19 @@ Mô tả chức năng Walk-in Guest Check-in: xử lý khách đến khách sạ
 > [!NOTE]
 > **Policy:** Không viết code nếu không biết code đó phục vụ Rule nào.
 
-| Requirement ID | Loại (BR/ADR) | Mô tả yêu cầu                                                                                                                  | Thành phần Code                                             | Compliance Target                  | ADR liên quan |
-| -------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- | ---------------------------------- | -------------- |
-| BR-UC14-01     | Business Rule  | Walk-in guest phải cung cấp CCCD/Passport hợp lệ (đúng format) trước khi check-in                                          | `WalkInCheckInService.validateIdentity()`                   | Luật cư trú 2020                | —             |
-| BR-UC14-02     | Business Rule  | Check-in chỉ thực hiện được khi phòng chỉ định là `Vacant_Clean` và số khách ≤ capacity                           | `RoomRepository.findByIdWithPessimisticLock()`              | Luật du lịch 2017                | ADR-UC14-002   |
-| BR-UC14-03     | Business Rule  | Phải tạo Booking record TRƯỚC khi check-in trong cùng 1 transaction                                                           | `WalkInCheckInService.createBookingAndCheckIn()`            | Quy trình nghiệp vụ khách sạn | ADR-UC14-003   |
-| BR-UC14-04     | Business Rule  | Mỗi booking phải được gán vào 1 phòng vật lý cụ thể (RoomBookingDetail)                                                | `RoomBookingDetailRepository.save()`                        | Quy trình nghiệp vụ             | —             |
-| BR-UC14-05     | Business Rule  | Trạng thái booking phải chuyển sang `Checked_In` sau check-in thành công                                                   | `WalkInCheckInService.updateStatusToCheckedIn()`            | Quy trình nghiệp vụ             | —             |
-| BR-UC14-06     | Business Rule  | Thông tin nhận dạng khách phải được lưu trữ bảo mật theo chính sách bảo mật hệ thống (uỷ thác CustomerService) | `CustomerService.saveGuestIdentity()`                       | Nghị định 13/2023/NĐ-CP        | —             |
+| Requirement ID | Loại (BR/ADR) | Mô tả yêu cầu                                                                                                                  | Thành phần Code                                  | Compliance Target                  | ADR liên quan |
+| -------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------- | ---------------------------------- | -------------- |
+| BR-UC14-01     | Business Rule  | Walk-in guest phải cung cấp CCCD/Passport hợp lệ (đúng format) trước khi check-in                                          | `WalkInCheckInService.validateIdentity()`        | Luật cư trú 2020                | —             |
+| BR-UC14-02     | Business Rule  | Check-in chỉ thực hiện được khi phòng chỉ định là`Vacant_Clean` và số khách ≤ capacity                            | `RoomRepository.findByIdWithPessimisticLock()`   | Luật du lịch 2017                | ADR-UC14-002   |
+| BR-UC14-03     | Business Rule  | Phải tạo Booking record TRƯỚC khi check-in trong cùng 1 transaction                                                           | `WalkInCheckInService.createBookingAndCheckIn()` | Quy trình nghiệp vụ khách sạn | ADR-UC14-003   |
+| BR-UC14-04     | Business Rule  | Mỗi booking phải được gán vào 1 phòng vật lý cụ thể (RoomBookingDetail)                                                | `RoomBookingDetailRepository.save()`             | Quy trình nghiệp vụ             | —             |
+| BR-UC14-05     | Business Rule  | Trạng thái booking phải chuyển sang`Checked_In` sau check-in thành công                                                    | `WalkInCheckInService.updateStatusToCheckedIn()` | Quy trình nghiệp vụ             | —             |
+| BR-UC14-06     | Business Rule  | Thông tin nhận dạng khách phải được lưu trữ bảo mật theo chính sách bảo mật hệ thống (uỷ thác CustomerService) | `CustomerService.saveGuestIdentity()`            | Nghị định 13/2023/NĐ-CP        | —             |
 
 | BR-UC14-08     | Business Rule  | System tự động tạo Customer Account cho khách Walk-in mới (uỷ thác AccountService)                                         | `AccountService.autoCreateAccount(customer)`                | Quy trình nghiệp vụ             | —             |
 | BR-UC14-09     | Business Rule  | Account được tạo với default credentials theo chính sách hệ thống (password do Auth module quản lý)                     | `AccountService.autoCreateAccount(customer)` *(nội bộ)* | Auth Module policy                 | —             |
 | BR-UC14-10     | Business Rule  | Customer Account phải được link với Reservation ngay sau khi tạo                                                             | `RoomBooking.setAccountId(account.getId())`                 | Quy trình nghiệp vụ             | —             |
+| BR-UC14-11     | Business Rule  | Tổng hạng mức chia cho các phòng không được vượt quá tổng hạng mức của tài khoản tổng master customer                        | `sum(allocatedCreditLimit) <= totalCreditLimit`             | Data Integrity                     | —             |
 | BR-CONCUR-01   | ADR            | Chống overbooking: 2 lễ tân không thể check-in cùng 1 phòng đồng thời                                                    | `RoomRepository.findByIdWithPessimisticLock()`              | Data Integrity                     | ADR-UC14-002   |
 | BR-ATOMIC-01   | ADR            | Toàn bộ walk-in (tạo Customer + Account + Booking + CheckIn) là 1 transaction nguyên vẹn                                     | `@Transactional` annotation trên service method            | Data Integrity / ACID              | ADR-UC14-003   |
 
@@ -163,7 +164,6 @@ Toàn bộ Walk-in flow cốt lõi (findOrCreateCustomer → autoCreateAccount �
 
 > [!IMPORTANT]
 
-
 > [!NOTE]
 > `FolioService` **không được gọi** trong UC-14. Folio được Account module khởi tạo sẵn khi tạo account — UC-14 chỉ cần link Booking với account_id có sẵn.
 
@@ -210,10 +210,10 @@ Chọn **Best-Effort, Non-Blocking:**
 
 #### 4.2. Data Integrity & Retention
 
-| Category              | Requirement                    | Target  | Verification Method                                    | Compliance Basis     |
-| --------------------- | ------------------------------ | ------- | ------------------------------------------------------ | -------------------- |
-| **ACID**        | Walk-in transaction toàn vẹn | RPO = 0 | `@Transactional` + TC-M2-025                         | Luật du lịch 2017  |
-| **Durability**  | Audit log walk-in operations   | 7 năm  | DB backup policy                                       | Nghị định 13/2023 |
+| Category              | Requirement                    | Target  | Verification Method                                  | Compliance Basis     |
+| --------------------- | ------------------------------ | ------- | ---------------------------------------------------- | -------------------- |
+| **ACID**        | Walk-in transaction toàn vẹn | RPO = 0 | `@Transactional` + TC-M2-025                       | Luật du lịch 2017  |
+| **Durability**  | Audit log walk-in operations   | 7 năm  | DB backup policy                                     | Nghị định 13/2023 |
 | **PII Storage** | Guest identity securely stored | 100%    | CustomerService Security Suite*(ngoài scope UC-14)* | Nghị định 13/2023 |
 
 #### 4.3. Security (UC-14 Scope)
@@ -246,7 +246,15 @@ package "Walk-in Check-in" {
       +checkOutDate: LocalDate
       +numberOfGuests: Integer
       +roomId: Long
+      +totalCreditLimit: BigDecimal
       +accompaniedGuests: List<DependentDTO>
+      +roomSelections: List<WalkInRoomSelectionDTO>
+    }
+  
+    class WalkInRoomSelectionDTO {
+      +roomId: Long
+      +allocatedCreditLimit: BigDecimal
+      +accompaniedGuests: List<DependentRegistrationDTO>
     }
 
     class WalkInCheckInResponse {
@@ -564,10 +572,9 @@ end note
 
 #### 7.1. Events Published (Phát ra) — UC-14
 
-| Event Name                       | Trigger                         | Publisher                     | Subscriber(s)           | Payload Schema               | Async? |
-| -------------------------------- | ------------------------------- | ----------------------------- | ----------------------- | ---------------------------- | ------ |
-| `RoomCheckedIn`                | Phòng chuyển sang OCCUPIED    | `WalkInCheckInServiceImpl`  | `HousekeepingService` | `RoomCheckedInEvent`       | Yes    |
-
+| Event Name        | Trigger                      | Publisher                    | Subscriber(s)           | Payload Schema         | Async? |
+| ----------------- | ---------------------------- | ---------------------------- | ----------------------- | ---------------------- | ------ |
+| `RoomCheckedIn` | Phòng chuyển sang OCCUPIED | `WalkInCheckInServiceImpl` | `HousekeepingService` | `RoomCheckedInEvent` | Yes    |
 
 > [!NOTE]
 > **`WalkInCheckInCompleted` — FolioService subscriber đã bị xóa (v1.2):** Folio được tạo trực tiếp trong transaction thông qua `FolioService.initializeFolio()`. Không cần event để trigger FolioService sau khi commit.
@@ -793,26 +800,26 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
 | Rule ID      | Description                                                 | Implementation                                                              |
 | ------------ | ----------------------------------------------------------- | --------------------------------------------------------------------------- |
 | BR-UC14-01   | CCCD bắt buộc, đúng format 12 chữ số                  | `@Pattern(regexp = "^\\d{12}$")` + Service validation                     |
-| BR-UC14-02   | Phòng phải `Vacant_Clean` tại thời điểm lock        | `assertRoomStatus(room, "Vacant_Clean")` sau khi acquire Pessimistic Lock |
+| BR-UC14-02   | Phòng phải`Vacant_Clean` tại thời điểm lock         | `assertRoomStatus(room, "Vacant_Clean")` sau khi acquire Pessimistic Lock |
 | BR-UC14-02   | Số khách ≤ room capacity                                 | `assertCapacity(room, numberOfGuests)` — trả lỗi MOD2-UC14-009         |
-| BR-UC14-05   | Walk-in booking status =`CHECKED_IN` (không qua Pending) | Hardcode `bookingStatus = "CHECKED_IN"` trong service                     |
+| BR-UC14-05   | Walk-in booking status =`CHECKED_IN` (không qua Pending) | Hardcode`bookingStatus = "CHECKED_IN"` trong service                      |
 | BR-CONCUR-01 | Pessimistic Lock trên Room entity                          | `@Lock(PESSIMISTIC_WRITE)` trong RoomRepository                           |
-| BR-ATOMIC-01 | Toàn bộ walk-in là 1 `@Transactional`                  | `@Transactional` trên `createWalkInBookingAndCheckIn()`                |
+| BR-ATOMIC-01 | Toàn bộ walk-in là 1`@Transactional`                   | `@Transactional` trên `createWalkInBookingAndCheckIn()`                |
 
 ---
 
 ### 10. Bảng mã lỗi (Error Codes)
 
-| Code              | HTTP Status | Message (EN)                                         | Message (VI)                                          | Trigger Condition                                                    |
-| ----------------- | ----------- | ---------------------------------------------------- | ----------------------------------------------------- | -------------------------------------------------------------------- |
-| `MOD2-UC14-001` | 400         | `Required field missing`                           | Thiếu thông tin bắt buộc                          | `fullName`, `cccd`, `checkInDate`, `roomId` bị null/blank   |
-| `MOD2-UC14-002` | 400         | `Invalid date range`                               | Ngày trả phòng phải sau ngày nhận phòng        | `checkOutDate <= checkInDate`                                      |
-| `MOD2-UC14-003` | 400         | `Invalid identification document`                  | CCCD/Passport không hợp lệ                         | CCCD không đúng format 12 số, hoặc null                         |
-| `MOD2-UC14-004` | 409         | `No available rooms for the requested period`      | Không có phòng trống                              | Không có `Vacant_Clean` room / phòng chỉ định đã bị đặt |
-| `MOD2-UC14-005` | 500         | `Walk-in check-in failed. Transaction rolled back` | Lỗi hệ thống — giao dịch đã rollback           | Bất kỳ RuntimeException nào trong `@Transactional`              |
-| `MOD2-UC14-006` | 409         | `Selected room is not available for check-in`      | Phòng không sẵn sàng (Dirty/Maintenance/Occupied) | Room status không phải `Vacant_Clean`                            |
-| `MOD2-UC14-007` | 403         | `Insufficient permissions`                         | Không có quyền thực hiện Walk-in                 | Token không có `ROLE_RECEPTIONIST`                               |
-| `MOD2-UC14-009` | 400         | `Number of guests exceeds room capacity`           | Số khách vượt sức chứa của phòng              | `numberOfGuests > room.capacity`                                   |
+| Code              | HTTP Status | Message (EN)                                         | Message (VI)                                          | Trigger Condition                                                   |
+| ----------------- | ----------- | ---------------------------------------------------- | ----------------------------------------------------- | ------------------------------------------------------------------- |
+| `MOD2-UC14-001` | 400         | `Required field missing`                           | Thiếu thông tin bắt buộc                          | `fullName`, `cccd`, `checkInDate`, `roomId` bị null/blank  |
+| `MOD2-UC14-002` | 400         | `Invalid date range`                               | Ngày trả phòng phải sau ngày nhận phòng        | `checkOutDate <= checkInDate`                                     |
+| `MOD2-UC14-003` | 400         | `Invalid identification document`                  | CCCD/Passport không hợp lệ                         | CCCD không đúng format 12 số, hoặc null                        |
+| `MOD2-UC14-004` | 409         | `No available rooms for the requested period`      | Không có phòng trống                              | Không có`Vacant_Clean` room / phòng chỉ định đã bị đặt |
+| `MOD2-UC14-005` | 500         | `Walk-in check-in failed. Transaction rolled back` | Lỗi hệ thống — giao dịch đã rollback           | Bất kỳ RuntimeException nào trong`@Transactional`              |
+| `MOD2-UC14-006` | 409         | `Selected room is not available for check-in`      | Phòng không sẵn sàng (Dirty/Maintenance/Occupied) | Room status không phải`Vacant_Clean`                            |
+| `MOD2-UC14-007` | 403         | `Insufficient permissions`                         | Không có quyền thực hiện Walk-in                 | Token không có`ROLE_RECEPTIONIST`                               |
+| `MOD2-UC14-009` | 400         | `Number of guests exceeds room capacity`           | Số khách vượt sức chứa của phòng              | `numberOfGuests > room.capacity`                                  |
 
 > [!NOTE]
 > **MOD2-UC14-008 đã bị xóa (v1.2):** Validation `age >= 18` không có trong SRS UC-14. Nếu có yêu cầu này từ Business thì phải tạo Business Requirement chính thức trước khi bổ sung lại.
@@ -933,10 +940,10 @@ WHERE rb.booking_source = 'WALK_IN'
 
 #### 12.3. Notification Protocol
 
-| Thời điểm         | Người nhận | Kênh               | Template                                                   |
-| -------------------- | ------------- | ------------------- | ---------------------------------------------------------- |
-| Ngay khi phát hiện | On-call team  | Slack `#incident` | `"🚨 [UC14-WALKIN] Double booking / Partial commit [X]"` |
-| Trong 24 giờ        | Management    | Email               | Báo cáo chi tiết sự cố và biện pháp khắc phục    |
+| Thời điểm         | Người nhận | Kênh              | Template                                                   |
+| -------------------- | ------------- | ------------------ | ---------------------------------------------------------- |
+| Ngay khi phát hiện | On-call team  | Slack`#incident` | `"🚨 [UC14-WALKIN] Double booking / Partial commit [X]"` |
+| Trong 24 giờ        | Management    | Email              | Báo cáo chi tiết sự cố và biện pháp khắc phục    |
 
 ---
 
