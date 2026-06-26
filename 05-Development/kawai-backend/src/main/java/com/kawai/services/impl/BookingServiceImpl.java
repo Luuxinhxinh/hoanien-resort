@@ -68,8 +68,6 @@ import java.util.HashMap;
  * Race condition prevention:
  * - H2/MySQL đều dùng Row-level lock khi INSERT trong cùng transaction
  * - @Transactional đảm bảo atomic: HOLD + CONFIRM hoặc không có gì
- * - Scheduler dọn HOLD cũ (> 10 phút) đề phòng crash/timeout
- *
  * Business Rules:
  * BR-FO-01 : Chống overbooking
  * BR-DATE-01: checkOutDate > checkInDate
@@ -83,10 +81,6 @@ public class BookingServiceImpl implements BookingService {
     private static final Logger log = LoggerFactory.getLogger(BookingServiceImpl.class);
 
     private static final BigDecimal BASE_ROOM_PRICE = new BigDecimal("2000000"); // 2tr/đêm
-    private static final String STATUS_HOLD = "HOLD";
-
-    /** HOLD tự động hết hạn sau 10 phút nếu chưa thanh toán (Scheduler dọn) */
-    private static final int HOLD_TTL_MINUTES = 10;
 
     @Autowired
     private WorkflowEngineService workflowEngineService;
@@ -191,22 +185,22 @@ public class BookingServiceImpl implements BookingService {
         java.util.List<java.util.List<Integer>> childrenAgesList = new java.util.ArrayList<>();
 
         // ══════════════════════════════════════════════════════════════════
-        // SOFT LOCK: Tạo RoomBooking(status="HOLD") trước khi tính tiền
+        // STEP 1: Tạo RoomBooking(status="Pending") — chưa trừ phòng
+        // Phòng chỉ bị trừ khi user ấn "THANH TOÁN ĐẶT CỌC" → confirmBooking()
+        // → HOLD + holdExpiresAt = now+1 phút (đúng timeout VNPay)
         // ══════════════════════════════════════════════════════════════════
-        // Tạo một HOLD booking placeholder trước
 
         RoomBooking holdBooking = new RoomBooking();
         holdBooking.setCustomer(customer);
         holdBooking.setBookingDate(LocalDate.now());
         holdBooking.setTotalPrice(BigDecimal.ZERO);
-        holdBooking.setBookingStatus(STATUS_HOLD);
+        holdBooking.setBookingStatus("Pending");
         holdBooking.setBookingSource("Direct_Web");
         holdBooking.setCheckInDate(checkIn);
         holdBooking.setCheckOutDate(checkOut);
         holdBooking.setDepositAmount(BigDecimal.ZERO);
         holdBooking.setCancellationDeadline(checkIn.minusDays(2));
         holdBooking.setPersonalPinHash("HOLD_PENDING");
-        holdBooking.setHoldExpiresAt(LocalDateTime.now().plusMinutes(HOLD_TTL_MINUTES));
 
         BigDecimal creditLimit = new BigDecimal("5000000.00"); // Mặc định 5 triệu
         if (customer.getMembershipTier() != null) {
@@ -238,24 +232,15 @@ public class BookingServiceImpl implements BookingService {
             String catName = entry.getKey();
             java.util.List<com.kawai.dto.RoomSelectionDTO> selections = entry.getValue();
             int requestedQty = selections.size();
-
-            // Áp dụng Pessimistic Lock (Khóa dòng chống overbooking) trên Hạng Phòng
-            com.kawai.models.RoomCategory category = roomCategoryRepository.findByCategoryNameWithLock(catName)
+            com.kawai.models.RoomCategory category = roomCategoryRepository.findByCategoryName(catName)
                     .orElseThrow(() -> new BusinessException("CATEGORY_NOT_FOUND", "Category not found: " + catName));
 
             // Tính toán số phòng không bị trùng
-            long totalRooms = roomRepository.countActiveRoomsByCategoryName(catName);
-            long overlapping = roomBookingRepository.countOverlappingBookingsByCategory(catName, checkIn, checkOut,
-                    savedHold.getId());
-            long available = totalRooms - overlapping;
-
+            long available = calculateAvailableRooms(catName, checkIn, checkOut);
             if (available < requestedQty) {
-                // Throw exception → @Transactional ROLLBACK → HOLD bị xóa tự động
                 throw new RoomNotAvailableException(
                         "Hạng phòng " + catName + " chỉ còn trống " + available + " phòng.");
             }
-
-            // Lấy giá hạng phòng từ database
             BigDecimal pricePerNight = category.getBasePrice() != null ? category.getBasePrice() : BASE_ROOM_PRICE;
             BigDecimal baseTotal = pricePerNight.multiply(BigDecimal.valueOf(nights));
 
@@ -316,13 +301,12 @@ public class BookingServiceImpl implements BookingService {
 
         // Tính toán tiền đặt cọc ở backend (30% cọc mặc định)
         BigDecimal depositVal = discountedPrice.multiply(new BigDecimal("0.3")).setScale(0, RoundingMode.HALF_UP);
-
-        // ══════════════════════════════════════════════════════════════════
-        // Cập nhật giá thực và chuyển trạng thái sang CONFIRMED
+        // Cập nhật giá thực, giữ nguyên status "Pending"
+        // Phòng chưa bị trừ — chỉ trừ khi confirmBooking() chuyển sang HOLD
         // ══════════════════════════════════════════════════════════════════
         savedHold.setTotalPrice(discountedPrice.setScale(0, RoundingMode.HALF_UP));
         savedHold.setDepositAmount(depositVal);
-        savedHold.setBookingStatus(STATUS_HOLD);
+        savedHold.setBookingStatus("Pending");
         RoomBooking savedBooking = roomBookingRepository.save(savedHold);
 
         // Gọi Workflow Engine để kiểm tra nếu áp dụng mã giảm giá vượt ngưỡng
@@ -415,7 +399,7 @@ public class BookingServiceImpl implements BookingService {
 
         BookingResponseDTO response = new BookingResponseDTO();
         response.setBookingId(savedBooking.getId());
-        response.setBookingStatus(STATUS_HOLD);
+        response.setBookingStatus("Pending");
         response.setDepositAmount(depositVal);
         response.setDiscountedPrice(discountedPrice.setScale(0, RoundingMode.HALF_UP));
         response.setCheckInDate(checkIn);
@@ -426,15 +410,14 @@ public class BookingServiceImpl implements BookingService {
     }
 
     /**
-     * Scheduler chạy mỗi 60 giây, tìm các HOLD đã quá 10 phút (holdExpiresAt ≤
-     * now).
-     * Chuyển chúng sang CANCELLED để giải phóng phòng cho user khác.
+     * Scheduler chạy mỗi 60 giây, tìm các HOLD đã hết hạn (holdExpiresAt ≤ now)
+     * và chuyển sang CANCELLED để giải phóng phòng.
      */
-    @Scheduled(fixedDelay = 60_000) // Chạy mỗi 60 giây
+    @Scheduled(fixedDelay = 60_000)
     @Transactional
     public void cleanupStaleHolds() {
         LocalDateTime now = LocalDateTime.now();
-        List<RoomBooking> staleHolds = roomBookingRepository.findStaleHolds(now);
+        List<RoomBooking> staleHolds = roomBookingRepository.findByBookingStatusAndHoldExpiresAtBefore("Pending_Payment", now);
         if (!staleHolds.isEmpty()) {
             staleHolds.forEach(h -> {
                 h.setBookingStatus("CANCELLED");
@@ -445,15 +428,15 @@ public class BookingServiceImpl implements BookingService {
                                 h.getCustomer().getId(),
                                 "Hủy đơn phòng tự động",
                                 "Đơn đặt phòng #" + h.getId()
-                                        + " của quý khách đã bị hủy tự động do quá hạn 10 phút chờ thanh toán.");
+                                        + " của quý khách đã bị hủy tự động do quá hạn chờ thanh toán.");
                     } catch (Exception e) {
                         log.error("Failed to send cancellation notification for booking {}", h.getId(), e);
                     }
                 }
             });
             roomBookingRepository.saveAll(staleHolds);
-            log.warn("[SOFT_LOCK] Auto-cancelled {} expired HOLD booking(s) after {} min TTL at {}",
-                    staleHolds.size(), HOLD_TTL_MINUTES, now);
+            log.warn("[SOFT_LOCK] Auto-cancelled {} expired HOLD booking(s) at {}",
+                    staleHolds.size(), now);
         }
     }
 
@@ -588,9 +571,11 @@ public class BookingServiceImpl implements BookingService {
             throw new BusinessException("BKG-005", "Invalid booking status");
         }
 
-        // Nếu booking chưa đóng tiền cọc (depositAmount = null hoặc = 0 hoặc status là
-        // HOLD)
-        if (booking.getDepositAmount() == null || booking.getDepositAmount().compareTo(BigDecimal.ZERO) <= 0) {
+        // Nếu booking chưa đóng tiền cọc (depositAmount = null hoặc = 0)
+        // HOẶC đang ở trạng thái HOLD (chưa thanh toán thực tế dù depositAmount đã được
+        // tính sẵn)
+        if (booking.getDepositAmount() == null || booking.getDepositAmount().compareTo(BigDecimal.ZERO) <= 0
+                || "Pending_Payment".equalsIgnoreCase(booking.getBookingStatus())) {
             booking.setBookingStatus("CANCELLED");
             roomBookingRepository.save(booking);
             BookingResponseDTO response = new BookingResponseDTO();
@@ -761,9 +746,9 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    @Transactional
+    @Transactional(isolation = org.springframework.transaction.annotation.Isolation.READ_COMMITTED)
     public void confirmBooking(Long bookingId, Long customerId, String fullName, String phone, String email,
-            String cccd, String notes) {
+            String cccd, String notes, String paymentMethod) {
         RoomBooking booking = roomBookingRepository.findByIdAndCustomerId(bookingId, customerId)
                 .orElseThrow(() -> new BusinessException("FORBIDDEN",
                         "Đơn đặt phòng không thuộc về tài khoản này hoặc không tồn tại!"));
@@ -776,11 +761,62 @@ public class BookingServiceImpl implements BookingService {
         Customer customer = customerRepository.findById(customerId)
                 .orElseThrow(() -> new BusinessException("CUSTOMER_NOT_FOUND", "Không tìm thấy thông tin khách hàng!"));
 
+        // ══════════════════════════════════════════════════════════════════
+        // SOFT LOCK: User ấn "THANH TOÁN ĐẶT CỌC" → chuyển Pending → HOLD
+        // holdExpiresAt = now + 1 phút (khớp timeout VNPay)
+        // Sau 1 phút không thanh toán → scheduler huỷ → phòng được giải phóng
+        // ══════════════════════════════════════════════════════════════════
+        if ("Pending".equalsIgnoreCase(booking.getBookingStatus())) {
+            // Validate lại phòng trước khi chốt HOLD
+            // Dùng excludeBookingId: booking hiện tại là Pending nên không bị đếm,
+            // nhưng dùng exclude rõ ràng để an toàn trong mọi trường hợp
+            java.util.List<RoomBookingDetail> details = roomBookingDetailRepository.findByRoomBookingId(bookingId);
+            java.util.Map<String, Long> categoryCountMap = details.stream()
+                    .collect(java.util.stream.Collectors.groupingBy(d -> d.getCategory().getCategoryName(),
+                            java.util.stream.Collectors.counting()));
+
+            for (java.util.Map.Entry<String, Long> entry : categoryCountMap.entrySet()) {
+                String catName = entry.getKey();
+                long requestedQty = entry.getValue();
+                // Pessimistic lock on RoomCategory
+                roomCategoryRepository.findByCategoryNameWithLock(catName)
+                        .orElseThrow(
+                                () -> new BusinessException("CATEGORY_NOT_FOUND", "Category not found: " + catName));
+
+                long available = calculateAvailableRooms(catName, booking.getCheckInDate(), booking.getCheckOutDate());
+                if (available < requestedQty) {
+                    throw new BusinessException("ROOM_UNAVAILABLE",
+                            "Rất tiếc, hạng phòng " + catName + " đã hết phòng trống. Vui lòng chọn lại!");
+                }
+            }
+            // Set status based on payment method
+            if ("VNPAY".equalsIgnoreCase(paymentMethod)) {
+                booking.setBookingStatus("Pending_Payment");
+                booking.setHoldExpiresAt(LocalDateTime.now().plusMinutes(1));
+                log.info("[SOFT_LOCK] Pending→Pending_Payment: bookingId={}, holdExpiresAt={}",
+                        bookingId, booking.getHoldExpiresAt());
+            } else {
+                booking.setBookingStatus("Confirmed");
+                booking.setHoldExpiresAt(null);
+                log.info("Pending→Confirmed: bookingId={}", bookingId);
+            }
+        } else if ("Pending_Payment".equalsIgnoreCase(booking.getBookingStatus())) {
+            // User thử lại VNPay (ví dụ back lại trang payment) → refresh timer
+            if ("VNPAY".equalsIgnoreCase(paymentMethod)) {
+                booking.setHoldExpiresAt(LocalDateTime.now().plusMinutes(1));
+                log.info("[SOFT_LOCK] Pending_Payment refreshed: bookingId={}, holdExpiresAt={}",
+                        bookingId, booking.getHoldExpiresAt());
+            } else {
+                booking.setBookingStatus("Confirmed");
+                booking.setHoldExpiresAt(null);
+            }
+        }
+
         // Cập nhật thông tin khách hàng từ form NẾU họ chưa có thông tin trong profile
         if (customer.getFullName() == null || customer.getFullName().trim().isEmpty()) {
             customer.setFullName(fullName);
         }
-        
+
         if (customer.getPhone() == null || customer.getPhone().trim().isEmpty()) {
             if (!com.kawai.utils.ValidationUtils.isValidPhone(phone)) {
                 throw new BusinessException("INVALID_PHONE",
@@ -788,11 +824,11 @@ public class BookingServiceImpl implements BookingService {
             }
             customer.setPhone(phone);
         }
-        
+
         if (customer.getEmail() == null || customer.getEmail().trim().isEmpty()) {
             customer.setEmail(email);
         }
-        
+
         if (cccd != null && !cccd.equals("********") && !cccd.trim().isEmpty()) {
             if (!com.kawai.utils.ValidationUtils.isValidDocument(cccd)) {
                 throw new BusinessException("INVALID_CCCD",
@@ -809,6 +845,7 @@ public class BookingServiceImpl implements BookingService {
         booking.setNotes(notes);
         roomBookingRepository.save(booking);
     }
+
 
     @Override
     @Transactional(readOnly = true)
@@ -857,6 +894,29 @@ public class BookingServiceImpl implements BookingService {
             }
         }
         return result;
+    }
+
+    private long calculateAvailableRooms(String catName, java.time.LocalDate checkIn, java.time.LocalDate checkOut) {
+        boolean isTodayOrPast = !checkIn.isAfter(java.time.LocalDate.now());
+        java.util.List<com.kawai.models.Room> roomsInCat = roomRepository.findByCategoryName(catName);
+
+        if (isTodayOrPast) {
+            long physicallyAvailableToday = roomsInCat.stream()
+                    .filter(r -> !"Occupied".equalsIgnoreCase(r.getRoomStatus())
+                            && !"Maintenance".equalsIgnoreCase(r.getRoomStatus()))
+                    .count();
+            
+            long overlappingNotCheckedIn = roomBookingRepository.countOverlappingNotCheckedIn(catName, checkIn, checkOut);
+                    
+            return physicallyAvailableToday - overlappingNotCheckedIn;
+        } else {
+            long physicallyAvailableFuture = roomsInCat.stream()
+                    .filter(r -> !"Maintenance".equalsIgnoreCase(r.getRoomStatus()))
+                    .count();
+            long overlappingBookings = roomBookingRepository.countOverlappingBookingsByCategoryWithoutExclude(catName, checkIn, checkOut);
+            return Math.min(roomsInCat.size() - overlappingBookings, physicallyAvailableFuture);
+        }
+
     }
 
 }

@@ -11,38 +11,34 @@ import java.util.Optional;
 
 @Repository
 public interface RoomRepository extends JpaRepository<Room, Long> {
-    Optional<Room> findByRoomNumber(String roomNumber);
+        Optional<Room> findByRoomNumber(String roomNumber);
 
-    @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
-    @Query("SELECT r FROM Room r WHERE r.roomNumber = :roomNumber")
-    Optional<Room> findByRoomNumberWithLock(@Param("roomNumber") String roomNumber);
+        @Query("SELECT r FROM Room r WHERE r.category.categoryName = :categoryName")
+        List<Room> findByCategoryName(@Param("categoryName") String categoryName);
 
-    @Query("SELECT r FROM Room r WHERE r.category.categoryName = :categoryName")
-    List<Room> findByCategoryName(@Param("categoryName") String categoryName);
+        @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
+        @Query("SELECT r FROM Room r WHERE r.id = :id")
+        Optional<Room> findByIdWithPessimisticLock(@Param("id") Long id);
 
-    @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
-    @Query("SELECT r FROM Room r WHERE r.id = :id")
-    Optional<Room> findByIdWithPessimisticLock(@Param("id") Long id);
+        @Query("SELECT r.roomStatus, COUNT(r) FROM Room r GROUP BY r.roomStatus")
+        List<Object[]> countByStatus();
 
-    @Query("SELECT r.roomStatus, COUNT(r) FROM Room r GROUP BY r.roomStatus")
-    List<Object[]> countByStatus();
+        @Query("SELECT COUNT(r) FROM Room r")
+        long countTotalRooms();
 
-    @Query("SELECT COUNT(r) FROM Room r")
-    long countTotalRooms();
+        @Query("SELECT r.category.categoryName, COUNT(r) FROM Room r GROUP BY r.category.categoryName")
+        List<Object[]> countByCategory();
 
-    @Query("SELECT r.category.categoryName, COUNT(r) FROM Room r GROUP BY r.category.categoryName")
-    List<Object[]> countByCategory();
+        @Query("SELECT r FROM Room r WHERE r.roomStatus = 'Occupied'")
+        List<Room> findOccupied();
 
-    @Query("SELECT r FROM Room r WHERE r.roomStatus = 'Occupied'")
-    List<Room> findOccupied();
+        @Query("SELECT r FROM Room r WHERE r.roomStatus = 'Vacant_Clean'")
+        List<Room> findVacant();
 
-    @Query("SELECT r FROM Room r WHERE r.roomStatus = 'Vacant_Clean'")
-    List<Room> findVacant();
-
-    @Query("SELECT rbd.room FROM RoomBookingDetail rbd " +
-            "WHERE rbd.roomBooking.customer.account.id = :userId " +
-            "AND rbd.roomBooking.bookingStatus IN ('Confirmed', 'Checked_In')")
-    Optional<Room> findActiveRoomByUserId(@Param("userId") Long userId);
+        @Query("SELECT rbd.room FROM RoomBookingDetail rbd " +
+                        "WHERE rbd.roomBooking.customer.account.id = :userId " +
+                        "AND rbd.roomBooking.bookingStatus IN ('Confirmed', 'Checked_In')")
+        Optional<Room> findActiveRoomByUserId(@Param("userId") Long userId);
 
     @Query("SELECT rbd.room FROM RoomBookingDetail rbd " +
             "WHERE rbd.roomBooking.customer.account.id = :userId " +

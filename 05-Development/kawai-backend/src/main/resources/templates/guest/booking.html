@@ -349,73 +349,101 @@
 
     <!-- ============ ROOM DETAILS MODAL ============ -->
     <div id="roomDetailsModal"
-        class="fixed inset-0 z-[100] items-center justify-center bg-black/60 backdrop-blur-sm font-sans transition-opacity duration-300 overflow-y-auto py-10"
+        class="fixed inset-0 z-[100] items-center justify-center bg-[#1a1814]/80 backdrop-blur-md font-sans transition-all duration-500 overflow-y-auto py-10 opacity-0"
         style="display: none;">
-        <div class="bg-white rounded-2xl w-[95%] max-w-6xl shadow-2xl relative mx-auto h-auto overflow-hidden">
+        <div id="roomDetailsModalContent" class="bg-white rounded-3xl w-[95%] max-w-5xl shadow-[0_20px_50px_rgba(0,0,0,0.4)] relative mx-auto h-auto overflow-hidden transform scale-95 transition-all duration-500 opacity-0">
             <!-- Close Button -->
             <button type="button"
-                class="absolute top-4 right-4 bg-white/50 hover:bg-gray-100 rounded-full p-2 z-10 transition-colors shadow-sm"
+                class="absolute top-5 right-5 bg-white/80 hover:bg-white text-gray-800 rounded-full p-2.5 z-20 transition-all duration-300 shadow-md hover:shadow-xl hover:rotate-90 backdrop-blur-md"
                 onclick="closeRoomDetailsModal()">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2c2a24" stroke-width="2">
-                    <path d="M18 6L6 18M6 6l12 12" />
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
                 </svg>
             </button>
 
             <div class="flex flex-col md:flex-row">
                 <!-- Left: Image -->
-                <div class="md:w-1/2 relative h-[250px] md:h-auto min-h-[300px]">
+                <div class="md:w-[45%] relative h-[300px] md:h-auto min-h-[400px]">
                     <img id="detailRoomImg" src="" alt="Room"
-                        class="w-full h-full object-cover rounded-t-2xl md:rounded-tr-none md:rounded-l-2xl" />
+                        class="w-full h-full object-cover" />
+                    <!-- Gradient Overlay -->
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none"></div>
+                    <div class="absolute bottom-8 left-8 right-8 pointer-events-none">
+                        <h2 id="detailRoomName" class="text-3xl md:text-4xl font-serif text-white mb-4 drop-shadow-lg">Room Name</h2>
+                        <div class="flex items-center gap-3 text-white/90 text-sm font-medium tracking-wide">
+                            <span id="detailRoomGuests" class="bg-white/20 backdrop-blur-md px-4 py-1.5 rounded-full border border-white/30 shadow-sm">2 Guests</span>
+                            <span id="detailRoomTotal" class="text-[#d4af37] font-bold bg-[#1a1814]/60 backdrop-blur-md px-4 py-1.5 rounded-full border border-[#d4af37]/40 shadow-sm"></span>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Right: Content -->
-                <div class="md:w-1/2 p-6 md:p-8 flex flex-col">
-                    <h2 id="detailRoomName" class="text-3xl font-headline text-[#3a322b] italic mb-2">Room Name</h2>
-
-                    <div class="flex gap-4 text-sm text-gray-500 mb-6 font-semibold uppercase tracking-wider">
-                        <span id="detailRoomGuests">2 Guests</span>
-                        <span>•</span>
-                        <div><span id="detailRoomTotal" class="text-[#d4af37]"></span> Available</div>
+                <div class="md:w-[55%] p-8 md:p-10 flex flex-col bg-[#fcfbf9]">
+                    
+                    <div class="mb-8">
+                        <h3 class="text-[11px] font-bold text-gray-400 uppercase tracking-[0.25em] mb-3">Tổng quan</h3>
+                        <p id="detailRoomDesc" class="text-gray-600 text-[13px] leading-relaxed text-justify">
+                            Description
+                        </p>
                     </div>
 
-                    <p id="detailRoomDesc" class="text-gray-600 text-sm leading-relaxed mb-6">
-                        Description
-                    </p>
-
-                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6 pt-6 border-t border-gray-100">
-                        <div>
-                            <span class="block text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">Người
-                                lớn (Tiêu chuẩn)</span>
-                            <span id="detailRoomBaseAdults" class="text-sm font-medium text-[#2c2a24]"></span>
+                    <!-- NEW PROPERTIES GRID -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8" id="detailRoomProperties">
+                        <div class="flex flex-col items-center justify-center p-4 bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+                            <span class="text-[#d4af37] mb-2"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4v16M2 8h18a2 2 0 0 1 2 2v10M2 17h20M6 8v9M14 8v9"/></svg></span>
+                            <span class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">Giường</span>
+                            <span id="detailRoomBedType" class="text-xs font-semibold text-gray-800 text-center">Tiêu chuẩn</span>
                         </div>
-                        <div>
-                            <span class="block text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">Trẻ
-                                em (Tiêu chuẩn)</span>
-                            <span id="detailRoomBaseChildren" class="text-sm font-medium text-[#2c2a24]"></span>
+                        <div class="flex flex-col items-center justify-center p-4 bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+                            <span class="text-[#d4af37] mb-2"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h16v16H4zM4 12h16M12 4v16"/></svg></span>
+                            <span class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">Diện tích</span>
+                            <span id="detailRoomSize" class="text-xs font-semibold text-gray-800 text-center">Tiêu chuẩn</span>
                         </div>
-                        <div>
-                            <span class="block text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">Người
-                                lớn (Tối đa)</span>
-                            <span id="detailRoomMaxAdults" class="text-sm font-medium text-[#2c2a24]"></span>
-                        </div>
-                        <div>
-                            <span class="block text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">Trẻ
-                                em (Tối đa)</span>
-                            <span id="detailRoomMaxChildren" class="text-sm font-medium text-[#2c2a24]"></span>
-                        </div>
-                        <div>
-                            <span class="block text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">Phụ
-                                thu (Người lớn)</span>
-                            <span id="detailRoomSurchargeAdult" class="text-sm font-medium text-[#d4af37]"></span>
-                        </div>
-                        <div>
-                            <span class="block text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">Phụ
-                                thu (Trẻ em)</span>
-                            <span id="detailRoomSurchargeChild" class="text-sm font-medium text-[#d4af37]"></span>
+                        <div class="flex flex-col items-center justify-center p-4 bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+                            <span class="text-[#d4af37] mb-2"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></span>
+                            <span class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">Hướng nhìn</span>
+                            <span id="detailRoomView" class="text-xs font-semibold text-gray-800 text-center">Tiêu chuẩn</span>
                         </div>
                     </div>
 
-                    <div class="mt-auto pt-6 border-t border-gray-100 flex justify-end" id="detailBookButtonContainer">
+                    <!-- AMENITIES LIST -->
+                    <div class="mb-8">
+                        <h3 class="text-[11px] font-bold text-gray-400 uppercase tracking-[0.25em] mb-4">Tiện ích đặc biệt</h3>
+                        <ul id="detailRoomAmenitiesList" class="flex flex-wrap gap-2 text-xs">
+                            <!-- JS populated -->
+                        </ul>
+                    </div>
+
+                    <!-- CAPACITIES & SURCHARGES -->
+                    <div class="bg-white rounded-2xl border border-gray-100 p-6 mb-6 shadow-sm relative overflow-hidden">
+                        <div class="absolute top-0 left-0 w-1 h-full bg-[#d4af37]"></div>
+                        <h3 class="text-[11px] font-bold text-gray-400 uppercase tracking-[0.25em] mb-4 border-b border-gray-50 pb-3">Quy định lưu trú</h3>
+                        <div class="grid grid-cols-2 gap-y-4 gap-x-6">
+                            <div class="flex flex-col gap-1">
+                                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Sức chứa tiêu chuẩn</span>
+                                <span class="text-xs font-semibold text-gray-800">
+                                    <span id="detailRoomBaseAdults"></span> NL, <span id="detailRoomBaseChildren"></span> TE
+                                </span>
+                            </div>
+                            <div class="flex flex-col gap-1">
+                                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Sức chứa tối đa</span>
+                                <span class="text-xs font-semibold text-gray-800">
+                                    <span id="detailRoomMaxAdults"></span> NL, <span id="detailRoomMaxChildren"></span> TE
+                                </span>
+                            </div>
+                            <div class="flex flex-col gap-1">
+                                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Phụ thu (NL)</span>
+                                <span id="detailRoomSurchargeAdult" class="text-xs font-bold text-[#d4af37]"></span>
+                            </div>
+                            <div class="flex flex-col gap-1">
+                                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Phụ thu (TE)</span>
+                                <span id="detailRoomSurchargeChild" class="text-xs font-bold text-[#d4af37]"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-auto pt-4 flex justify-end" id="detailBookButtonContainer">
                         <!-- JS populates this -->
                     </div>
                 </div>

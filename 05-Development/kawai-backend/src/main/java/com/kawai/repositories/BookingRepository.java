@@ -24,4 +24,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     @Query("SELECT COUNT(b) FROM Booking b WHERE b.customer.id = :customerId AND b.appliedPromotion.promoCode = :promoCode AND b.bookingStatus != 'CANCELLED'")
     long countByCustomerIdAndPromoCode(@org.springframework.data.repository.query.Param("customerId") Long customerId, @org.springframework.data.repository.query.Param("promoCode") String promoCode);
+
+    @Query("SELECT b FROM Booking b WHERE LOWER(b.bookingStatus) LIKE '%cancel%' OR LOWER(b.bookingStatus) = 'no-show'")
+    List<Booking> findCancelledBookings();
 }

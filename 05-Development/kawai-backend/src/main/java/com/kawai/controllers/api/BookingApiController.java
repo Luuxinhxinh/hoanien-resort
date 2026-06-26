@@ -91,12 +91,6 @@ public class BookingApiController {
             // Trả về tổng chính thức từ backend (bao gồm phụ thu + khuyến mãi)
             apiResponse.setDiscountedPrice(response.getDiscountedPrice());
 
-            // TẠO URL THANH TOÁN VNPAY VÀ TRẢ VỀ CHO FRONTEND
-            if (response.getBookingId() != null) {
-                String paymentUrl = vnPayService.createPaymentUrl(response.getBookingId(), httpRequest.getRemoteAddr());
-                apiResponse.setPaymentUrl(paymentUrl);
-            }
-
             return ResponseEntity.ok(apiResponse);
         } catch (BusinessException e) {
             return ResponseEntity.status(400).body(new BookingApiResponse(
@@ -211,7 +205,8 @@ public class BookingApiController {
 
             String paymentMethod = (String) payload.get("paymentMethod");
 
-            bookingService.confirmBooking(bookingId, customer.getId(), fullName, phone, email, cccd, notes);
+            // 2. Chốt booking: Xác nhận available, gắn thông tin khách, chuyển sang Pending_Payment hoặc Confirmed
+            bookingService.confirmBooking(bookingId, customer.getId(), fullName, phone, email, cccd, notes, paymentMethod);
 
             Map<String, Object> response = new java.util.HashMap<>();
             response.put("status", "success");

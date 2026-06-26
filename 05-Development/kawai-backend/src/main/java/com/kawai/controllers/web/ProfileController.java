@@ -99,10 +99,11 @@ public class ProfileController {
             
             List<RoomBooking> roomBookings = uniqueBookings.stream()
                     .filter(b -> {
-                        if ("HOLD".equalsIgnoreCase(b.getBookingStatus())) {
+                        String status = b.getBookingStatus() != null ? b.getBookingStatus().toUpperCase() : "";
+                        if (status.startsWith("PENDING") || status.equals("Pending_Payment")) {
                             return false;
                         }
-                        if (b.getBookingStatus() != null && b.getBookingStatus().toUpperCase().startsWith("CANCEL")) {
+                        if (status.startsWith("CANCEL")) {
                             return paymentTransactionRepository.existsByBookingIdAndStatus(b.getId(),
                                     com.kawai.models.PaymentStatus.SUCCESS);
                         }
@@ -143,7 +144,19 @@ public class ProfileController {
             model.addAttribute("visibleDetailsMap", visibleDetailsMap);
             model.addAttribute("remainingLimits", remainingLimits);
 
-            List<TourBooking> tourBookings = tourBookingRepository.findByCustomer(customer);
+            List<TourBooking> tourBookings = tourBookingRepository.findByCustomer(customer).stream()
+                    .filter(tb -> {
+                        String status = tb.getBookingStatus() != null ? tb.getBookingStatus().toUpperCase() : "";
+                        if (status.startsWith("PENDING")) {
+                            return false;
+                        }
+                        if (status.startsWith("CANCEL")) {
+                            return paymentTransactionRepository.existsByBookingIdAndStatus(tb.getId(),
+                                    com.kawai.models.PaymentStatus.SUCCESS);
+                        }
+                        return true;
+                    })
+                    .collect(java.util.stream.Collectors.toList());
             for (TourBooking tb : tourBookings) {
                 if (tb.getSchedule() != null) {
                     tb.getSchedule().getDepartureDate();
@@ -190,6 +203,7 @@ public class ProfileController {
         if (!com.kawai.utils.SecurityUtils.isCustomerLoggedIn(authentication)) {
             return "redirect:/booking";
         }
+
         
         String redirectUrl = "redirect:/profile#bookings";
         if (paymentStatus != null) {

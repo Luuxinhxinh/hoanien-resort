@@ -106,6 +106,9 @@ public class VnPayServiceImpl implements VnPayService {
         vnp_Params.put("vnp_IpAddr", ipAddress);
         vnp_Params.put("vnp_CreateDate", createDate);
 
+        String expireDate = LocalDateTime.now().plusMinutes(1).format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+        vnp_Params.put("vnp_ExpireDate", expireDate);
+
         // 4. Lọc null/empty, sắp xếp và build hashData & query
         List<String> fieldNames = new ArrayList<>(vnp_Params.keySet());
         java.util.Collections.sort(fieldNames);
@@ -180,6 +183,9 @@ public class VnPayServiceImpl implements VnPayService {
         vnp_Params.put("vnp_IpAddr", ipAddress);
         vnp_Params.put("vnp_CreateDate", createDate);
 
+        String expireDate = LocalDateTime.now().plusMinutes(5).format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+        vnp_Params.put("vnp_ExpireDate", expireDate);
+
         // Build query string
         List<String> fieldNames = new ArrayList<>(vnp_Params.keySet());
         Collections.sort(fieldNames);
@@ -253,6 +259,9 @@ public class VnPayServiceImpl implements VnPayService {
         vnp_Params.put("vnp_IpAddr", ipAddress);
         vnp_Params.put("vnp_CreateDate", createDate);
 
+        String expireDate = LocalDateTime.now().plusMinutes(5).format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+        vnp_Params.put("vnp_ExpireDate", expireDate);
+
         // 4. Lọc null/empty, sắp xếp và build hashData & query
         List<String> fieldNames = new ArrayList<>(vnp_Params.keySet());
         java.util.Collections.sort(fieldNames);
@@ -306,6 +315,9 @@ public class VnPayServiceImpl implements VnPayService {
         vnp_Params.put("vnp_ReturnUrl", vnPayConfig.getReturnUrl());
         vnp_Params.put("vnp_IpAddr", ipAddress);
         vnp_Params.put("vnp_CreateDate", createDate);
+
+        String expireDate = LocalDateTime.now().plusMinutes(5).format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+        vnp_Params.put("vnp_ExpireDate", expireDate);
 
         List<String> fieldNames = new ArrayList<>(vnp_Params.keySet());
         java.util.Collections.sort(fieldNames);
@@ -419,7 +431,8 @@ public class VnPayServiceImpl implements VnPayService {
                         }
                         roomBookingDetailRepository.saveAll(details);
                     }
-                } else if ("Pending".equals(booking.getBookingStatus()) || "HOLD".equals(booking.getBookingStatus())) {
+                } else if ("Pending".equals(booking.getBookingStatus())
+                        || "Pending_Payment".equals(booking.getBookingStatus())) {
                     booking.setBookingStatus("Confirmed");
                 }
             }
@@ -428,10 +441,28 @@ public class VnPayServiceImpl implements VnPayService {
             if (txnRef != null && txnRef.startsWith("FOLIO_")) {
                 try {
                     String[] parts = txnRef.split("_");
-                    if (parts.length >= 2) {
+                    if (txnRef.startsWith("FOLIO_GROUP_") && parts.length >= 3) {
+                        Long detailId = Long.parseLong(parts[2]);
+                        RoomBookingDetail detail = roomBookingDetailRepository.findById(detailId).orElse(null);
+                        if (detail != null && detail.getRoomBooking() != null) {
+                            java.util.List<RoomBookingDetail> details = roomBookingDetailRepository.findByRoomBookingId(detail.getRoomBooking().getId());
+                            for (RoomBookingDetail d : details) {
+                                if ("Checked_In".equals(d.getDetailStatus())) {
+                                    d.setDetailStatus("Checked_Out");
+                                    roomBookingDetailRepository.save(d);
+                                    Room room = d.getRoom();
+                                    if (room != null) {
+                                        room.setRoomStatus("Vacant_Dirty");
+                                        room.setCurrentBookingDetailId(null);
+                                        roomRepository.save(room);
+                                    }
+                                }
+                            }
+                        }
+                    } else if (parts.length >= 2) {
                         Long detailId = Long.parseLong(parts[1]);
                         RoomBookingDetail detail = roomBookingDetailRepository.findById(detailId).orElse(null);
-                        if (detail != null) {
+                        if (detail != null && "Checked_In".equals(detail.getDetailStatus())) {
                             detail.setDetailStatus("Checked_Out");
                             roomBookingDetailRepository.save(detail);
 
@@ -460,7 +491,8 @@ public class VnPayServiceImpl implements VnPayService {
                         Map<String, Object> ctx = new java.util.HashMap<>();
                         ctx.put("invoice", invoice);
                         ctx.put("pdfPath", pdfPath);
-                        eventPublisher.publishEvent(new com.kawai.events.SystemEmailEvent(this, booking.getCustomer().getEmail(), "Hóa đơn điện tử - HOANIEN", "invoice", ctx));
+                        eventPublisher.publishEvent(new com.kawai.events.SystemEmailEvent(this,
+                                booking.getCustomer().getEmail(), "Hóa đơn điện tử - HOANIEN", "invoice", ctx));
                     }
                 } catch (Exception e) {
                     System.err.println("Lỗi khi sinh PDF hoặc gửi Email cho hóa đơn VNPay: " + e.getMessage());
@@ -468,8 +500,7 @@ public class VnPayServiceImpl implements VnPayService {
             }
         } else {
             txn.setStatus(PaymentStatus.FAILED);
-            if (booking != null && "WALK_IN".equals(booking.getBookingSource())
-                    && "Pending_Payment".equals(booking.getBookingStatus())) {
+            if (booking != null && "Pending_Payment".equals(booking.getBookingStatus())) {
                 booking.setBookingStatus("Cancelled");
                 if (booking instanceof com.kawai.models.RoomBooking) {
                     java.util.List<com.kawai.models.RoomBookingDetail> details = roomBookingDetailRepository
@@ -483,6 +514,7 @@ public class VnPayServiceImpl implements VnPayService {
                         }
                     }
                     roomBookingDetailRepository.saveAll(details);
+                    roomBookingRepository.saveAndFlush((com.kawai.models.RoomBooking) booking);
                 }
             }
         }

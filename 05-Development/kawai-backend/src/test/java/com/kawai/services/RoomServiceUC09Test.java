@@ -110,7 +110,7 @@ class RoomServiceUC09Test {
                 cat1.setCategoryName("Deluxe");
                 cat1.setBasePrice(new BigDecimal("2000000"));
                 cat1.setCapacity(2);
-                
+
                 RoomCategory cat2 = new RoomCategory();
                 cat2.setId(2L);
                 cat2.setCategoryName("Suite");
@@ -118,9 +118,7 @@ class RoomServiceUC09Test {
                 cat2.setCapacity(4);
 
                 when(roomCategoryRepository.findAll()).thenReturn(Arrays.asList(cat1, cat2));
-                when(roomRepository.countActiveRoomsByCategoryName("Deluxe")).thenReturn(1L);
-                when(roomRepository.countActiveRoomsByCategoryName("Suite")).thenReturn(1L);
-                
+
                 when(roomBookingRepository.countOverlappingBookingsByCategoryWithoutExclude(eq("Deluxe"), any(), any()))
                                 .thenReturn(0L);
                 when(roomBookingRepository.countOverlappingBookingsByCategoryWithoutExclude(eq("Suite"), any(), any()))
@@ -212,9 +210,9 @@ class RoomServiceUC09Test {
                 cat1.setCapacity(2);
 
                 when(roomCategoryRepository.findAll()).thenReturn(Arrays.asList(cat1));
-                lenient().when(roomRepository.countActiveRoomsByCategoryName("Deluxe")).thenReturn(1L);
-                
-                lenient().when(roomBookingRepository.countOverlappingBookingsByCategoryWithoutExclude(eq("Deluxe"), any(), any()))
+
+                lenient().when(roomBookingRepository.countOverlappingBookingsByCategoryWithoutExclude(eq("Deluxe"),
+                                any(), any()))
                                 .thenReturn(1L);
 
                 // Act

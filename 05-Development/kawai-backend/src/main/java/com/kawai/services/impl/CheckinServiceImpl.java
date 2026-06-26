@@ -278,4 +278,18 @@ public class CheckinServiceImpl implements CheckinService {
                                 .orElseThrow(() -> new IllegalArgumentException(
                                                 "Role CUSTOMER không tồn tại trong hệ thống"));
         }
+
+        @Override
+        @Transactional
+        public void markAsNoShow(Long bookingId) {
+                RoomBooking booking = roomBookingRepo.findById(bookingId)
+                                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy đơn phòng ID: " + bookingId));
+                
+                if (!"Confirmed".equals(booking.getBookingStatus())) {
+                        throw new IllegalArgumentException("Chỉ có thể hủy No-Show với đơn đã Confirmed.");
+                }
+
+                booking.setBookingStatus("No-Show");
+                roomBookingRepo.save(booking);
+        }
 }

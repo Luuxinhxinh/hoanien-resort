@@ -110,6 +110,13 @@ public class TableReservationServiceImpl implements TableReservationService {
             throw new BusinessException("TABLE-002", "Party size exceeds table capacity");
         }
 
+        if (request.getStartTime() != null) {
+            LocalTime time = request.getStartTime();
+            if (time.isAfter(LocalTime.of(22, 59)) || time.isBefore(LocalTime.of(8, 0))) {
+                throw new BusinessException("TABLE-008", "Nhà hàng không nhận khách đặt bàn trong khung giờ từ 23:00 đến 08:00 sáng. Quý khách vui lòng sử dụng dịch vụ gọi món lên phòng.");
+            }
+        }
+
         if (request.getEndTime() != null) {
             java.time.LocalDateTime newStartDT = java.time.LocalDateTime.of(request.getReserveDate(), request.getStartTime());
             java.time.LocalDateTime newEndDT = java.time.LocalDateTime.of(request.getReserveDate(), request.getEndTime());
