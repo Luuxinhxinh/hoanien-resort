@@ -100,9 +100,7 @@ public class ProfileController {
             List<RoomBooking> roomBookings = uniqueBookings.stream()
                     .filter(b -> {
                         String status = b.getBookingStatus() != null ? b.getBookingStatus().toUpperCase() : "";
-                        if (status.startsWith("PENDING") || status.equals("Pending_Payment")) {
-                            return false;
-                        }
+
                         if (status.startsWith("CANCEL")) {
                             return paymentTransactionRepository.existsByBookingIdAndStatus(b.getId(),
                                     com.kawai.models.PaymentStatus.SUCCESS);
@@ -147,9 +145,7 @@ public class ProfileController {
             List<TourBooking> tourBookings = tourBookingRepository.findByCustomer(customer).stream()
                     .filter(tb -> {
                         String status = tb.getBookingStatus() != null ? tb.getBookingStatus().toUpperCase() : "";
-                        if (status.startsWith("PENDING")) {
-                            return false;
-                        }
+
                         if (status.startsWith("CANCEL")) {
                             return paymentTransactionRepository.existsByBookingIdAndStatus(tb.getId(),
                                     com.kawai.models.PaymentStatus.SUCCESS);
