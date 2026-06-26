@@ -368,7 +368,7 @@ public class FolioRestController {
                 if (booking != null) {
                     List<RoomBookingDetail> details = roomBookingDetailRepository.findByRoomBookingId(booking.getId());
                     for (RoomBookingDetail d : details) {
-                        if ("Checked_In".equals(d.getDetailStatus()) || "Checked_Out".equals(d.getDetailStatus())
+                        if ("Checked_In".equalsIgnoreCase(d.getDetailStatus()) || "Checked_Out".equalsIgnoreCase(d.getDetailStatus())
                                 || d.getId().equals(roomBookingDetailId)) {
                             // Auto-post Room Charge if it hasn't been posted yet for this room in the group
                             List<FolioItem> groupItems = nightAuditService.getFolioItems(d.getId());
@@ -508,7 +508,7 @@ public class FolioRestController {
                 if (isGroup) {
                     List<RoomBookingDetail> details = roomBookingDetailRepository.findByRoomBookingId(booking.getId());
                     for (RoomBookingDetail d : details) {
-                        if ("Checked_In".equals(d.getDetailStatus())) {
+                        if ("Checked_In".equalsIgnoreCase(d.getDetailStatus())) {
                             d.setDetailStatus("Checked_Out");
                             roomBookingDetailRepository.save(d);
 
@@ -585,9 +585,9 @@ public class FolioRestController {
                 final boolean isGroupFinal = isGroup;
                 List<RoomBookingDetail> details = roomBookingDetailRepository.findByRoomBookingId(booking.getId());
                 allCheckedOut = details.stream()
-                        .allMatch(d -> "Checked_Out".equals(d.getDetailStatus())
+                        .allMatch(d -> "Checked_Out".equalsIgnoreCase(d.getDetailStatus())
                                 || d.getId().equals(detail.getId())
-                                || (isGroupFinal && "Checked_In".equals(d.getDetailStatus())));
+                                || (isGroupFinal && "Checked_In".equalsIgnoreCase(d.getDetailStatus())));
                 if (allCheckedOut && !isVnPay) {
                     booking.setBookingStatus("Completed");
                 }
@@ -627,11 +627,12 @@ public class FolioRestController {
             if ("Paid".equalsIgnoreCase(invoice.getInvoiceStatus())) {
                 String pdfPath = invoicePdfService.generateInvoicePdf(invoice);
                 String customerEmail = detail.getRoomBooking().getCustomer().getEmail();
-                
+
                 Map<String, Object> ctx = new java.util.HashMap<>();
                 ctx.put("invoice", invoice);
                 ctx.put("pdfPath", pdfPath);
-                eventPublisher.publishEvent(new com.kawai.events.SystemEmailEvent(this, customerEmail, "Hóa đơn điện tử - HOANIEN", "invoice", ctx));
+                eventPublisher.publishEvent(new com.kawai.events.SystemEmailEvent(this, customerEmail,
+                        "Hóa đơn điện tử - HOANIEN", "invoice", ctx));
 
                 // 5.1 Cộng điểm Loyalty (1 điểm = 10,000 VNĐ chi tiêu)
                 if (paymentAmount.compareTo(BigDecimal.ZERO) > 0) {
@@ -747,7 +748,7 @@ public class FolioRestController {
     @GetMapping("/active")
     public ResponseEntity<?> getActiveFolios() {
         try {
-            List<RoomBookingDetail> activeDetails = roomBookingDetailRepository.findByDetailStatus("Checked_In");
+            List<RoomBookingDetail> activeDetails = roomBookingDetailRepository.findByDetailStatusIn(java.util.Arrays.asList("Checked_In", "Checked_Out"));
 
             // Group by Booking ID instead of Customer ID
             Map<Long, List<RoomBookingDetail>> groupedByBooking = activeDetails.stream()
@@ -855,7 +856,9 @@ public class FolioRestController {
                 map.put("balance", groupBalance);
                 map.put("phoneNumber", phoneNumber);
                 map.put("checkOutDate", checkOutDateStr);
-                map.put("status", "Checked_In");
+                boolean isAllCheckedOut = details.stream()
+                        .allMatch(d -> "Checked_Out".equalsIgnoreCase(d.getDetailStatus()));
+                map.put("status", isAllCheckedOut ? "Checked_Out" : "Checked_In");
 
                 if (!details.isEmpty()) {
                     map.put("roomBookingDetailId", details.get(0).getId());

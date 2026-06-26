@@ -11,6 +11,6 @@ public interface RoomBookingDetailRepository extends JpaRepository<RoomBookingDe
     List<RoomBookingDetail> findByRoomBookingId(Long bookingId);
 
     List<RoomBookingDetail> findByDetailStatus(String detailStatus);
-    
     List<RoomBookingDetail> findByCustomer(com.kawai.models.Customer customer);
+    List<RoomBookingDetail> findByDetailStatusIn(List<String> statuses);
 }
