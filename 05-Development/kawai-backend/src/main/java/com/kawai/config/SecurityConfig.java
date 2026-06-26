@@ -174,7 +174,25 @@ public class SecurityConfig {
 
                 if (isOpsUser) {
                     if (!isFromOpsPortal) {
-                        response.sendRedirect("/booking?login_error=true");
+                        request.getSession().invalidate();
+                        org.springframework.security.core.context.SecurityContextHolder.clearContext();
+                        response.sendRedirect("/booking?login_error=true&error_type=invalid");
+                        return;
+                    }
+                    
+                    // Device Authorization Check
+                    java.util.Optional<com.kawai.models.AuthorizedDevice> optDevice = authorizedDeviceRepository.findByDeviceCode(deviceId);
+                    if (optDevice.isEmpty()) {
+                        // Tạm thời auto-approve thiết bị mới trong quá trình dev
+                        com.kawai.models.AuthorizedDevice newDevice = new com.kawai.models.AuthorizedDevice();
+                        newDevice.setDeviceCode(deviceId);
+                        newDevice.setIsApproved(true);
+                        authorizedDeviceRepository.save(newDevice);
+                    } else if (!optDevice.get().getIsApproved()) {
+                        request.getSession().invalidate();
+                        org.springframework.security.core.context.SecurityContextHolder.clearContext();
+                        request.getSession().setAttribute("authError", "Thiết bị của bạn không được cấp phép hoặc đã bị khóa.");
+                        response.sendRedirect("/ops-login?error=unauthorized_device");
                         return;
                     }
 
@@ -214,8 +232,9 @@ public class SecurityConfig {
                     // Normal Customer / Guest
                     if (isFromOpsPortal) {
                         // Guest tried to log in from Ops portal
-                        // Redirect them to the Guest portal
-                        response.sendRedirect("/booking");
+                        request.getSession().invalidate();
+                        org.springframework.security.core.context.SecurityContextHolder.clearContext();
+                        response.sendRedirect("/ops-login?error=true");
                         return;
                     }
 

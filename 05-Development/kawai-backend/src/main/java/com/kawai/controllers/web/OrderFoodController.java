@@ -56,7 +56,8 @@ public class OrderFoodController {
 
         List<MenuItem> allItems = Collections.emptyList();
         List<String> categories = Collections.emptyList();
-        Room currentRoom = null;
+        List<Room> activeRooms = null;
+        List<java.util.Map<String, Object>> roomOptions = new ArrayList<>();
         RestaurantTable currentTable = null;
         BigDecimal currentCreditLimit = null;
         boolean isLoggedIn = com.kawai.utils.SecurityUtils.isCustomerLoggedIn(principal);
@@ -81,7 +82,9 @@ public class OrderFoodController {
         // ── XỬ LÝ KHI KHÁCH CHƯA ĐĂNG NHẬP ──
         if (!isLoggedIn) {
             model.addAttribute("isLoggedIn", false);
+            model.addAttribute("isLoggedIn", false);
             model.addAttribute("currentRoom", null);
+            model.addAttribute("roomOptions", Collections.emptyList());
             model.addAttribute("currentTable", null);
             model.addAttribute("currentCreditLimit", null);
             session.removeAttribute("user"); // Đảm bảo clear session cũ nếu có
@@ -127,9 +130,22 @@ public class OrderFoodController {
 
                 // Quét tìm thông tin phòng đang thuê
                 try {
-                    currentRoom = roomRepository.findActiveRoomByUserId(accountId).orElse(null);
-                    log.info(">>> findActiveRoomByUserId({}) = {}", accountId,
-                            currentRoom != null ? currentRoom.getRoomNumber() : "NULL");
+                    activeRooms = roomRepository.findActiveRoomsByUserId(accountId);
+                    if (activeRooms != null && !activeRooms.isEmpty()) {
+                        // Populate room options
+                        for (Room r : activeRooms) {
+                            if (r.getCurrentBookingDetailId() != null) {
+                                RoomBookingDetail rbd = roomBookingDetailRepository.findById(r.getCurrentBookingDetailId()).orElse(null);
+                                if (rbd != null) {
+                                    java.util.Map<String, Object> rMap = new java.util.HashMap<>();
+                                    rMap.put("roomNumber", r.getRoomNumber());
+                                    BigDecimal limit = rbd.getSubCreditLimit() != null ? rbd.getSubCreditLimit() : (rbd.getRoomBooking() != null ? rbd.getRoomBooking().getCreditLimit() : BigDecimal.ZERO);
+                                    rMap.put("limit", limit);
+                                    roomOptions.add(rMap);
+                                }
+                            }
+                        }
+                    }
                 } catch (Exception e) {
                     log.warn("Lỗi khi truy vấn phòng cho userId={}: {}", accountId, e.getMessage(), e);
                 }
@@ -140,31 +156,16 @@ public class OrderFoodController {
                 } catch (Exception e) {
                     log.warn("Lỗi khi truy vấn bàn cho userId={}: {}", accountId, e.getMessage());
                 }
-
-                // Tính toán hạn mức ký bill gửi về phòng
-                if (currentRoom != null && currentRoom.getCurrentBookingDetailId() != null) {
-                    try {
-                        Optional<RoomBookingDetail> detailOpt = roomBookingDetailRepository
-                                .findById(currentRoom.getCurrentBookingDetailId());
-                        if (detailOpt.isPresent()) {
-                            RoomBooking roomBooking = detailOpt.get().getRoomBooking();
-                            if (roomBooking != null && roomBooking.getCreditLimit() != null) {
-                                currentCreditLimit = roomBooking.getCreditLimit();
-                            }
-                        }
-                    } catch (Exception e) {
-                        log.warn("Lỗi khi truy vấn credit limit: {}", e.getMessage());
-                    }
-                }
             }
         } catch (Exception e) {
             log.error("Lỗi hệ thống trong luồng xử lý định danh dữ liệu POS: {}", e.getMessage(), e);
         }
 
         // Trả các thực thể dữ liệu về cho view Thymeleaf kết xuất
-        model.addAttribute("currentRoom", currentRoom);
+        model.addAttribute("currentRoom", activeRooms != null && !activeRooms.isEmpty() ? activeRooms.get(0) : null);
+        model.addAttribute("roomOptions", roomOptions);
         model.addAttribute("currentTable", currentTable);
-        model.addAttribute("currentCreditLimit", currentCreditLimit);
+        model.addAttribute("currentCreditLimit", roomOptions.isEmpty() ? null : roomOptions.get(0).get("limit"));
 
         return "guest/order-food";
     }

@@ -3,6 +3,7 @@ package com.kawai.services.impl;
 import com.kawai.dto.TourBookingRequest;
 import com.kawai.models.*;
 import com.kawai.repositories.*;
+import com.kawai.services.interfaces.EmailService;
 import com.kawai.services.interfaces.TourBookingService;
 
 import org.slf4j.Logger;
@@ -46,7 +47,7 @@ public class TourBookingServiceImpl implements TourBookingService {
         private final RoomBookingDetailRepository roomBookingDetailRepository;
 
         @Autowired(required = false)
-        private TourEmailService tourEmailService;
+        private EmailService emailService;
 
         public TourBookingServiceImpl(TourScheduleRepository tourScheduleRepository,
                         TourBookingRepository tourBookingRepository,
@@ -141,6 +142,17 @@ public class TourBookingServiceImpl implements TourBookingService {
                                                                                 + request.getRoomBookingDetailId());
                                         });
 
+                        // Check Folio Credit Limit
+                        BigDecimal limit = detail.getSubCreditLimit() != null ? detail.getSubCreditLimit() : BigDecimal.ZERO;
+                        BigDecimal used = folioItemRepository.findByRoomBookingDetailId(detail.getId()).stream()
+                                .map(FolioItem::getAmount)
+                                .reduce(BigDecimal.ZERO, BigDecimal::add);
+                        
+                        if (limit.subtract(used).compareTo(totalPrice) < 0) {
+                                throw new IllegalStateException(
+                                                "TOUR-LIMIT: Hạn mức chi tiêu của phòng không đủ để thanh toán tour. Vui lòng thanh toán bớt nợ cũ hoặc chọn hình thức TT Trực Tuyến.");
+                        }
+
                         FolioItem folioItem = new FolioItem();
                         folioItem.setBooking(savedBooking);
                         folioItem.setRoomBookingDetail(detail);
@@ -160,7 +172,7 @@ public class TourBookingServiceImpl implements TourBookingService {
                 }
 
                 // 7. Gửi email xác nhận đặt tour (bất đồng bộ, không block)
-                if (tourEmailService != null) {
+                if (emailService != null) {
                         String roomNumber = null;
                         if (request.isPostToRoom() && request.getRoomBookingDetailId() != null) {
                                 RoomBookingDetail detail = roomBookingDetailRepository.findById(request.getRoomBookingDetailId()).orElse(null);
@@ -168,7 +180,7 @@ public class TourBookingServiceImpl implements TourBookingService {
                                         roomNumber = detail.getRoom().getRoomNumber();
                                 }
                         }
-                        tourEmailService.sendBookingConfirmation(savedBooking, customer, request.isPostToRoom(), roomNumber);
+                        emailService.sendBookingConfirmation(savedBooking, customer, request.isPostToRoom(), roomNumber);
                 }
 
                 return savedBooking.getId();
@@ -221,8 +233,8 @@ public class TourBookingServiceImpl implements TourBookingService {
                                 bookingId, cancelledByResort, refundAmount, newStatus);
 
                 // Gửi email thông báo hủy tour (bất đồng bộ)
-                if (tourEmailService != null && booking.getCustomer() != null) {
-                        tourEmailService.sendCancellationNotice(
+                if (emailService != null && booking.getCustomer() != null) {
+                        emailService.sendCancellationNotice(
                                 booking, booking.getCustomer(), refundAmount, cancelledByResort);
                 }
 

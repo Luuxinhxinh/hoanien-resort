@@ -56,5 +56,8 @@ public interface BookingService {
      */
     void confirmBooking(Long bookingId, Long customerId, String fullName, String phone, String email, String cccd, String notes);
 
-
+    /**
+     * Get folios for a booking based on role (Master Booker or Primary Contact).
+     */
+    java.util.List<java.util.Map<String, Object>> getBookingFolios(Long bookingId, Long customerId);
 }

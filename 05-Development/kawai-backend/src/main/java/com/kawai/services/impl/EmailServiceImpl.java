@@ -20,15 +20,118 @@ import java.io.IOException;
 public class EmailServiceImpl implements EmailService {
 
     private static final Logger logger = LoggerFactory.getLogger(EmailServiceImpl.class);
+    private static final java.time.format.DateTimeFormatter DATE_FMT = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    private static final java.text.NumberFormat VND_FMT = java.text.NumberFormat.getInstance(new java.util.Locale("vi", "VN"));
+
+    @org.springframework.beans.factory.annotation.Autowired
+    private org.thymeleaf.TemplateEngine templateEngine;
 
     @Value("${sendgrid.api-key:}")
     private String sendGridApiKey;
 
-    @Value("${sendgrid.from-email:noreply@kawai-resort.com}")
+    @Value("${sendgrid.from-email:hoanien.00@gmail.com}")
     private String fromEmail;
 
     @Value("${app.base-url:http://localhost:8080}")
     private String baseUrl;
+
+    @Value("${app.mail.resort-phone:1900 xxxx}")
+    private String resortPhone;
+
+    @Value("${app.mail.resort-website:https://hoaniensorretreat.vn}")
+    private String resortWebsite;
+
+    @org.springframework.scheduling.annotation.Async
+    @Override
+    public void sendBookingConfirmation(com.kawai.models.TourBooking booking, com.kawai.models.Customer customer) {
+        sendBookingConfirmation(booking, customer, false, null);
+    }
+
+    @org.springframework.scheduling.annotation.Async
+    @Override
+    public void sendBookingConfirmation(com.kawai.models.TourBooking booking, com.kawai.models.Customer customer, boolean postToRoom, String roomDetail) {
+        if (customer == null || customer.getEmail() == null || customer.getEmail().isBlank()) {
+            logger.warn("Bỏ qua gửi email xác nhận: customer {} không có email", customer != null ? customer.getId() : "null");
+            return;
+        }
+
+        try {
+            String tourName = booking.getSchedule() != null && booking.getSchedule().getTour() != null
+                    ? booking.getSchedule().getTour().getTourName() : "Tour";
+            String departureDate = booking.getSchedule() != null && booking.getSchedule().getDepartureDate() != null
+                    ? booking.getSchedule().getDepartureDate().format(DATE_FMT) : java.time.LocalDate.now().format(DATE_FMT);
+            String departureTime = booking.getSchedule() != null && booking.getSchedule().getDepartureTime() != null
+                    ? booking.getSchedule().getDepartureTime().toString().substring(0, 5) : "--:--";
+
+            org.thymeleaf.context.Context ctx = new org.thymeleaf.context.Context(new java.util.Locale("vi", "VN"));
+            ctx.setVariable("customerName", customer.getFullName());
+            ctx.setVariable("bookingId", booking.getId());
+            ctx.setVariable("tourName", tourName);
+            ctx.setVariable("departureDate", departureDate);
+            ctx.setVariable("departureTime", departureTime);
+            ctx.setVariable("participantCount", booking.getParticipantCount());
+            ctx.setVariable("totalPrice", formatVnd(booking.getTotalPrice()));
+            ctx.setVariable("bookingDate", java.time.LocalDate.now().format(DATE_FMT));
+            ctx.setVariable("postToRoom", postToRoom);
+            ctx.setVariable("roomDetail", roomDetail);
+            ctx.setVariable("resortPhone", resortPhone);
+            ctx.setVariable("resortWebsite", resortWebsite);
+            ctx.setVariable("bgUrl", "https://i.ibb.co/99JSj0SF/BREmail.png");
+
+            String html = templateEngine.process("email/tour-booking-confirmation", ctx);
+            sendEmail(customer.getEmail(), "Xác nhận đặt tour - " + tourName + " | Hòa Niên Retreat & Resort", html);
+            logger.info("Gửi email xác nhận đặt tour thành công → {} (booking #{})", customer.getEmail(), booking.getId());
+        } catch (Exception e) {
+            logger.error("Lỗi khi gửi email xác nhận đặt tour cho booking #{}: {}", booking.getId(), e.getMessage(), e);
+        }
+    }
+
+    @org.springframework.scheduling.annotation.Async
+    @Override
+    public void sendCancellationNotice(com.kawai.models.TourBooking booking, com.kawai.models.Customer customer, java.math.BigDecimal refundAmount, boolean cancelledByResort) {
+        if (customer == null || customer.getEmail() == null || customer.getEmail().isBlank()) {
+            logger.warn("Bỏ qua gửi email hủy tour: customer {} không có email", customer != null ? customer.getId() : "null");
+            return;
+        }
+
+        try {
+            String tourName = booking.getSchedule() != null && booking.getSchedule().getTour() != null
+                    ? booking.getSchedule().getTour().getTourName() : "Tour";
+            String departureDate = booking.getSchedule() != null && booking.getSchedule().getDepartureDate() != null
+                    ? booking.getSchedule().getDepartureDate().format(DATE_FMT) : "--/--/----";
+
+            java.math.BigDecimal forfeitAmount = booking.getTotalPrice() != null && refundAmount != null
+                    ? booking.getTotalPrice().subtract(refundAmount) : java.math.BigDecimal.ZERO;
+
+            org.thymeleaf.context.Context ctx = new org.thymeleaf.context.Context(new java.util.Locale("vi", "VN"));
+            ctx.setVariable("customerName", customer.getFullName());
+            ctx.setVariable("bookingId", booking.getId());
+            ctx.setVariable("tourName", tourName);
+            ctx.setVariable("departureDate", departureDate);
+            ctx.setVariable("participantCount", booking.getParticipantCount());
+            ctx.setVariable("totalPrice", formatVnd(booking.getTotalPrice()));
+            ctx.setVariable("refundAmount", formatVnd(refundAmount));
+            ctx.setVariable("forfeitAmount", formatVnd(forfeitAmount));
+            ctx.setVariable("cancelledByResort", cancelledByResort);
+            ctx.setVariable("resortPhone", resortPhone);
+            ctx.setVariable("resortWebsite", resortWebsite);
+            ctx.setVariable("bgUrl", "https://i.ibb.co/99JSj0SF/BREmail.png");
+
+            String html = templateEngine.process("email/tour-booking-cancelled", ctx);
+            String subject = cancelledByResort ? "❌ Thông báo hủy tour — " + tourName + " | Hòa Niên Retreat & Resort"
+                    : "❌ Xác nhận hủy tour — " + tourName + " | Hòa Niên Retreat & Resort";
+
+            sendEmail(customer.getEmail(), subject, html);
+            logger.info("Gửi email hủy tour thành công → {} (booking #{}, hoàn {})", customer.getEmail(), booking.getId(), formatVnd(refundAmount));
+        } catch (Exception e) {
+            logger.error("Lỗi khi gửi email hủy tour cho booking #{}: {}", booking.getId(), e.getMessage(), e);
+        }
+    }
+
+    private String formatVnd(java.math.BigDecimal amount) {
+        if (amount == null) return "0 ₫";
+        return VND_FMT.format(amount) + " ₫";
+    }
 
     @Override
     public void sendInvoiceEmail(String toEmail, ConsolidatedInvoice invoice, String pdfAttachmentPath) {
@@ -52,14 +155,24 @@ public class EmailServiceImpl implements EmailService {
     @Override
     public void sendRegistrationOtpEmail(String toEmail, String otpCode, String fullName) {
         String subject = "Xác nhận đăng ký tài khoản - HOANIEN Retreat & Resort";
-        String content = buildRegistrationOtpEmail(fullName, otpCode);
+        org.thymeleaf.context.Context ctx = new org.thymeleaf.context.Context(new java.util.Locale("vi", "VN"));
+        ctx.setVariable("customerName", fullName);
+        ctx.setVariable("otpCode", otpCode);
+        ctx.setVariable("resortPhone", resortPhone);
+        ctx.setVariable("resortWebsite", resortWebsite);
+        String content = templateEngine.process("email/registration-otp", ctx);
         sendEmail(toEmail, subject, content);
     }
 
     @Override
     public void sendPasswordResetEmail(String toEmail, String resetLink, String fullName) {
         String subject = "Đặt lại mật khẩu - HOANIEN Retreat & Resort";
-        String content = buildPasswordResetEmail(fullName, resetLink);
+        org.thymeleaf.context.Context ctx = new org.thymeleaf.context.Context(new java.util.Locale("vi", "VN"));
+        ctx.setVariable("customerName", fullName);
+        ctx.setVariable("otpCode", resetLink);
+        ctx.setVariable("resortPhone", resortPhone);
+        ctx.setVariable("resortWebsite", resortWebsite);
+        String content = templateEngine.process("email/password-reset", ctx);
         sendEmail(toEmail, subject, content);
     }
 
@@ -118,63 +231,7 @@ public class EmailServiceImpl implements EmailService {
         }
     }
 
-    private String buildRegistrationOtpEmail(String fullName, String otpCode) {
-        return "<!DOCTYPE html>" +
-                "<html><body style=\"font-family: 'Times New Roman', Times, serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #FAFAFA;\">" +
-                "<div style=\"background: linear-gradient(135deg, #1A1A1A 0%, #2C2C2C 100%); padding: 40px 30px; text-align: center; border-radius: 8px 8px 0 0;\">" +
-                "<h1 style=\"color: #D4AF37; margin: 0; font-size: 32px; letter-spacing: 6px; font-weight: 400;\">HOANIEN</h1>" +
-                "<p style=\"color: #E0E0E0; margin-top: 8px; font-weight: 300; font-size: 14px; letter-spacing: 2px; font-style: italic;\">Retreat & Resort</p>" +
-                "</div>" +
-                "<div style=\"background: #FFFFFF; padding: 40px 30px; border-left: 1px solid #EAEAEA; border-right: 1px solid #EAEAEA; border-bottom: 1px solid #EAEAEA; border-radius: 0 0 8px 8px;\">" +
-                "<div style=\"text-align: center; margin-bottom: 30px;\">" +
-                "<span style=\"display: inline-block; padding: 6px 16px; background-color: #F8F5F0; border: 1px solid #D4AF37; color: #8B7355; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; border-radius: 20px;\">Xác nhận đăng ký</span>" +
-                "</div>" +
-                "<p style=\"color: #333333; font-size: 16px; line-height: 1.6; margin-bottom: 20px;\">Kính gửi Quý khách <strong style=\"color: #1A1A1A;\">" + fullName + "</strong>,</p>" +
-                "<p style=\"color: #555555; font-size: 15px; line-height: 1.8;\">Lời đầu tiên, <i>HOANIEN Retreat & Resort</i> xin gửi lời cảm ơn chân thành tới Quý khách vì đã tin tưởng và lựa chọn dịch vụ của chúng tôi. Để hoàn tất thủ tục đăng ký tài khoản thành viên, xin vui lòng sử dụng mã bảo mật dưới đây:</p>" +
-                "<div style=\"background: #FDFBF7; padding: 30px; border-radius: 8px; text-align: center; margin: 35px 0; border: 1px solid #E8E0D5;\">" +
-                "<h1 style=\"color: #1A1A1A; font-size: 42px; letter-spacing: 14px; margin: 0; font-family: 'Courier New', Courier, monospace; font-weight: 300;\">" + otpCode + "</h1>" +
-                "</div>" +
-                "<p style=\"color: #888888; font-size: 13px; margin-bottom: 5px; font-style: italic;\">* Mã xác thực có hiệu lực trong vòng <strong>10 phút</strong> kể từ khi nhận được email này.</p>" +
-                "<p style=\"color: #888888; font-size: 13px; font-style: italic;\">* Vì sự an toàn của Quý khách, tuyệt đối không chia sẻ mã này cho bất kỳ bên thứ ba nào.</p>" +
-                "<div style=\"margin-top: 40px; border-top: 1px solid #EAEAEA; padding-top: 20px;\">" +
-                "<p style=\"color: #333333; font-size: 15px; margin: 0;\">Trân trọng,</p>" +
-                "<p style=\"color: #1A1A1A; font-size: 16px; margin: 5px 0 0 0; font-weight: bold; letter-spacing: 1px;\">HOANIEN Concierge Team</p>" +
-                "</div>" +
-                "</div>" +
-                "<div style=\"text-align: center; margin-top: 30px; color: #999999; font-size: 11px; letter-spacing: 1px;\">" +
-                "© 2026 HOANIEN Retreat & Resort. All rights reserved." +
-                "</div>" +
-                "</body></html>";
-    }
 
-    private String buildPasswordResetEmail(String fullName, String otpCode) {
-        return "<!DOCTYPE html>" +
-                "<html><body style=\"font-family: 'Times New Roman', Times, serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #FAFAFA;\">" +
-                "<div style=\"background: linear-gradient(135deg, #1A1A1A 0%, #2C2C2C 100%); padding: 40px 30px; text-align: center; border-radius: 8px 8px 0 0;\">" +
-                "<h1 style=\"color: #D4AF37; margin: 0; font-size: 32px; letter-spacing: 6px; font-weight: 400;\">HOANIEN</h1>" +
-                "<p style=\"color: #E0E0E0; margin-top: 8px; font-weight: 300; font-size: 14px; letter-spacing: 2px; font-style: italic;\">Retreat & Resort</p>" +
-                "</div>" +
-                "<div style=\"background: #FFFFFF; padding: 40px 30px; border-left: 1px solid #EAEAEA; border-right: 1px solid #EAEAEA; border-bottom: 1px solid #EAEAEA; border-radius: 0 0 8px 8px;\">" +
-                "<div style=\"text-align: center; margin-bottom: 30px;\">" +
-                "<span style=\"display: inline-block; padding: 6px 16px; background-color: #FFF5F5; border: 1px solid #C5A0A0; color: #8A4B4B; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; border-radius: 20px;\">Khôi phục mật khẩu</span>" +
-                "</div>" +
-                "<p style=\"color: #333333; font-size: 16px; line-height: 1.6; margin-bottom: 20px;\">Kính gửi Quý khách <strong style=\"color: #1A1A1A;\">" + fullName + "</strong>,</p>" +
-                "<p style=\"color: #555555; font-size: 15px; line-height: 1.8;\"><i>HOANIEN Retreat & Resort</i> đã nhận được yêu cầu đặt lại mật khẩu cho tài khoản của Quý khách. Để đảm bảo tính bảo mật, xin vui lòng sử dụng mã xác nhận dưới đây để thiết lập lại mật khẩu:</p>" +
-                "<div style=\"background: #FDFBF7; padding: 30px; border-radius: 8px; text-align: center; margin: 35px 0; border: 1px solid #E8E0D5;\">" +
-                "<h1 style=\"color: #8A4B4B; font-size: 42px; letter-spacing: 14px; margin: 0; font-family: 'Courier New', Courier, monospace; font-weight: 300;\">" + otpCode + "</h1>" +
-                "</div>" +
-                "<p style=\"color: #888888; font-size: 13px; margin-bottom: 5px; font-style: italic;\">* Mã xác nhận này chỉ có hiệu lực trong vòng <strong>15 phút</strong>.</p>" +
-                "<p style=\"color: #888888; font-size: 13px; font-style: italic;\">* Nếu Quý khách không thực hiện yêu cầu này, xin vui lòng bỏ qua email và đảm bảo mật khẩu hiện tại vẫn đang được bảo mật an toàn.</p>" +
-                "<div style=\"margin-top: 40px; border-top: 1px solid #EAEAEA; padding-top: 20px;\">" +
-                "<p style=\"color: #333333; font-size: 15px; margin: 0;\">Trân trọng,</p>" +
-                "<p style=\"color: #1A1A1A; font-size: 16px; margin: 5px 0 0 0; font-weight: bold; letter-spacing: 1px;\">HOANIEN Concierge Team</p>" +
-                "</div>" +
-                "</div>" +
-                "<div style=\"text-align: center; margin-top: 30px; color: #999999; font-size: 11px; letter-spacing: 1px;\">" +
-                "© 2026 HOANIEN Retreat & Resort. All rights reserved." +
-                "</div>" +
-                "</body></html>";
-    }
 
     @Override
     public void sendSlaWarningEmail(String toEmail, String taskName, int pendingMinutes, String roomNumber) {

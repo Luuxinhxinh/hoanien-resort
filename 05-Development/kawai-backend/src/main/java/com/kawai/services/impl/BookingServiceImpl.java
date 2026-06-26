@@ -108,6 +108,9 @@ public class BookingServiceImpl implements BookingService {
     private final com.kawai.repositories.RoomSurchargeRepository roomSurchargeRepository;
     private final com.kawai.repositories.DependentRepository dependentRepository;
     private final com.kawai.repositories.RoomGuestRepository roomGuestRepository;
+    
+    @Autowired
+    private com.kawai.repositories.FolioItemRepository folioItemRepository;
 
     public BookingServiceImpl(RoomBookingRepository roomBookingRepository,
             PromotionRepository promotionRepository,
@@ -363,6 +366,12 @@ public class BookingServiceImpl implements BookingService {
             detail.setNumberOfChildren(reqChildren);
             detail.setDetailStatus("Pending");
             detail.setCustomer(customer);
+            
+            // Distribute the booking's total credit limit equally among all rooms
+            BigDecimal subLimit = savedBooking.getCreditLimit()
+                    .divide(new BigDecimal(categoriesToBook.size()), 2, java.math.RoundingMode.HALF_UP);
+            detail.setSubCreditLimit(subLimit);
+            
             roomBookingDetailRepository.save(detail);
 
             // Create RoomGuest for Adults (Stub)
@@ -799,6 +808,55 @@ public class BookingServiceImpl implements BookingService {
         // Chỉ lưu ghi chú và giữ nguyên trạng thái HOLD để chờ thanh toán cọc
         booking.setNotes(notes);
         roomBookingRepository.save(booking);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public java.util.List<java.util.Map<String, Object>> getBookingFolios(Long bookingId, Long customerId) {
+        RoomBooking booking = roomBookingRepository.findById(bookingId)
+                .orElseThrow(() -> new BusinessException("NOT_FOUND", "Không tìm thấy đơn đặt phòng!"));
+        
+        boolean isMasterBooker = booking.getCustomer() != null && booking.getCustomer().getId().equals(customerId);
+        
+        List<com.kawai.models.RoomBookingDetail> visibleDetails = new java.util.ArrayList<>();
+        
+        if (isMasterBooker) {
+            visibleDetails = roomBookingDetailRepository.findByRoomBookingId(bookingId);
+        } else {
+            // Check if primary contact
+            List<com.kawai.models.RoomGuest> guests = roomGuestRepository.findByCustomerId(customerId);
+            for (com.kawai.models.RoomGuest g : guests) {
+                if (Boolean.TRUE.equals(g.getIsPrimaryContact()) &&
+                    g.getRoomBookingDetail() != null &&
+                    g.getRoomBookingDetail().getRoomBooking() != null &&
+                    g.getRoomBookingDetail().getRoomBooking().getId().equals(bookingId)) {
+                    visibleDetails.add(g.getRoomBookingDetail());
+                }
+            }
+            if (visibleDetails.isEmpty()) {
+                throw new BusinessException("FORBIDDEN", "Bạn không có quyền xem thông tin chi phí của đơn đặt phòng này!");
+            }
+        }
+        
+        java.util.List<java.util.Map<String, Object>> result = new java.util.ArrayList<>();
+        for (com.kawai.models.RoomBookingDetail detail : visibleDetails) {
+            List<com.kawai.models.FolioItem> folios = folioItemRepository.findByRoomBookingDetailId(detail.getId());
+            for (com.kawai.models.FolioItem f : folios) {
+                java.util.Map<String, Object> map = new java.util.HashMap<>();
+                map.put("folioItemId", f.getId());
+                map.put("roomBookingDetailId", detail.getId());
+                map.put("roomNumber", detail.getRoom() != null ? detail.getRoom().getRoomNumber() : null);
+                map.put("payerCustomerId", f.getPayerCustomer() != null ? f.getPayerCustomer().getId() : null);
+                map.put("payerName", f.getPayerCustomer() != null ? f.getPayerCustomer().getFullName() : null);
+                map.put("sourceDepartment", f.getSourceDepartment());
+                map.put("amount", f.getAmount());
+                map.put("description", f.getDescription());
+                map.put("isSettledSeparately", f.getIsSettledSeparately());
+                map.put("createdAt", f.getCreatedAt());
+                result.add(map);
+            }
+        }
+        return result;
     }
 
 }

@@ -7,4 +7,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface AuthorizedDeviceRepository extends JpaRepository<AuthorizedDevice, Long> {
     boolean existsByDeviceCodeAndIsApprovedTrue(String deviceCode);
+    java.util.Optional<AuthorizedDevice> findByDeviceCode(String deviceCode);
 }

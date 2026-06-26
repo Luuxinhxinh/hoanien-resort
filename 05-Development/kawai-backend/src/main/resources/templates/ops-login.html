@@ -246,6 +246,11 @@
                 style="display: block;">
                 <span th:text="${authError}"></span>
             </div>
+            <div th:if="${session.authError}" class="ops-error show"
+                style="display: block;">
+                <span th:text="${session.authError}"></span>
+                <span th:text="${#session.removeAttribute('authError')}" style="display:none;"></span>
+            </div>
 
             <form th:action="@{/auth/login}" method="post">
                 <input type="hidden" name="device_id" value="HN-DEV-LAPTOP002">

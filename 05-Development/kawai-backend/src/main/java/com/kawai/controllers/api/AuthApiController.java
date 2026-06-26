@@ -17,6 +17,8 @@ public class AuthApiController {
     @Autowired
     private AuthService authService;
 
+
+
     @PostMapping("/register")
     public ResponseEntity<?> registerAjax(@RequestParam String username,
                                           @RequestParam String password,

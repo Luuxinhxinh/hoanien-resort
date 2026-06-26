@@ -353,9 +353,10 @@
                             <div id="optionInRoom" th:if="${currentRoom != null}"
                                 class="text-white/90 leading-relaxed font-medium">
                                 Xin chào <span class="font-bold text-white">Khách hàng</span>, hệ thống ghi nhận bạn
-                                đang lưu trú tại <span class="text-amber-400 font-bold"
-                                    th:text="'Phòng ' + ${currentRoom.roomNumber}">Phòng 000</span>. Món ăn sẽ được giao
-                                lên tận cửa phòng.
+                                đang lưu trú tại 
+                                <select id="posLocationIdSelect" onchange="updateRoomSelection()" class="bg-black/50 text-amber-400 font-bold border border-white/20 rounded px-2 py-1 mx-1 text-sm outline-none cursor-pointer">
+                                    <option th:each="r : ${roomOptions}" th:value="${r.roomNumber}" th:data-limit="${r.limit}" th:text="'Phòng ' + ${r.roomNumber}"></option>
+                                </select>. Món ăn sẽ được giao lên tận cửa phòng.
                                 <input type="hidden" id="posOrderType" value="ROOM_SERVICE">
                                 <input type="hidden" id="posLocationId" th:value="${currentRoom.roomNumber}">
                             </div>
@@ -601,6 +602,23 @@
                 const desc = card.querySelector('p').innerText.toLowerCase();
                 card.style.display = (name.includes(input) || desc.includes(input)) ? 'flex' : 'none';
             });
+        }
+
+        function updateRoomSelection() {
+            const selectEl = document.getElementById('posLocationIdSelect');
+            if(selectEl) {
+                const selectedOption = selectEl.options[selectEl.selectedIndex];
+                const newRoom = selectedOption.value;
+                const newLimit = selectedOption.getAttribute('data-limit');
+                
+                document.getElementById('posLocationId').value = newRoom;
+                
+                const limitDisplay = document.getElementById('currentCreditLimitDisplay');
+                if (limitDisplay && newLimit) {
+                    limitDisplay.setAttribute('data-limit', newLimit);
+                    limitDisplay.innerText = 'Hạn mức tín dụng: ₫' + parseFloat(newLimit).toLocaleString('vi-VN');
+                }
+            }
         }
 
         function filterCategoryFromData(buttonEl) {

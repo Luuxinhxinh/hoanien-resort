@@ -210,7 +210,7 @@ body {
     text-align: left;
     text-decoration: none;
     font-size: 13px;
-    color: #9A9485;
+    color: #DED9C8;
     background: transparent;
     border: none;
     border-left: 2px solid transparent;
@@ -243,7 +243,7 @@ body {
 
 .adm-nav-icon {
     flex-shrink: 0;
-    color: #8B8576;
+    color: #C2BCA9;
     width: 15px;
     height: 15px;
     display: flex;
@@ -263,7 +263,7 @@ body {
 }
 
 .adm-nav-arrow {
-    color: #8B8576;
+    color: #C2BCA9;
     width: 14px;
     height: 14px;
     display: flex;
@@ -304,7 +304,7 @@ body {
     text-align: left;
     text-decoration: none;
     font-size: 12px;
-    color: #9A9485;
+    color: #DED9C8;
     background: transparent;
     border: none;
     cursor: pointer;
@@ -408,7 +408,7 @@ body {
 }
 
 .adm-breadcrumb-page {
-    color: #9A9485;
+    color: #DED9C8;
     font-size: 12px;
     font-family: var(--font-sans);
 }
@@ -485,7 +485,7 @@ body {
 }
 
 .adm-header-username {
-    color: #9A9485;
+    color: #DED9C8;
     font-size: 13px;
     font-family: var(--font-sans);
 }
@@ -2446,7 +2446,8 @@ body {
  . g a p - 2   {   g a p :   8 p x ;   } 
  . g a p - 3   {   g a p :   1 2 p x ;   } 
  . t e x t - r i g h t   {   t e x t - a l i g n :   r i g h t ;   } 
-  
+ 
+ 
  
  . l o g - s e v e r i t y - p i l l   { 
          p a d d i n g :   2 p x   8 p x ; 
@@ -2455,5 +2456,6 @@ body {
          f o n t - w e i g h t :   6 0 0 ; 
          d i s p l a y :   i n l i n e - b l o c k ; 
  } 
-  
+ 
+ 
  

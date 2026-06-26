@@ -71,6 +71,9 @@ public class ProfileController {
     @Autowired
     private com.kawai.repositories.TableReservationRepository tableReservationRepository;
 
+    @Autowired
+    private com.kawai.repositories.FolioItemRepository folioItemRepository;
+
     @GetMapping
     public String viewProfile(Authentication authentication, Model model) {
         if (!com.kawai.utils.SecurityUtils.isCustomerLoggedIn(authentication)) {
@@ -82,8 +85,19 @@ public class ProfileController {
         model.addAttribute("customer", customer);
 
         if (customer != null) {
-            List<RoomBooking> roomBookings = roomBookingRepository.findByCustomerOrderByIdDesc(customer)
-                    .stream()
+            // Get bookings where customer is master
+            List<RoomBooking> masterBookings = roomBookingRepository.findByCustomerOrderByIdDesc(customer);
+            // Get details where customer is occupant
+            List<RoomBookingDetail> occupantDetails = roomBookingDetailRepository.findByCustomer(customer);
+            
+            java.util.Set<RoomBooking> uniqueBookings = new java.util.HashSet<>(masterBookings);
+            for (RoomBookingDetail d : occupantDetails) {
+                if (d.getRoomBooking() != null) {
+                    uniqueBookings.add(d.getRoomBooking());
+                }
+            }
+            
+            List<RoomBooking> roomBookings = uniqueBookings.stream()
                     .filter(b -> {
                         if ("HOLD".equalsIgnoreCase(b.getBookingStatus())) {
                             return false;
@@ -94,17 +108,40 @@ public class ProfileController {
                         }
                         return true;
                     })
+                    .sorted((b1, b2) -> b2.getId().compareTo(b1.getId()))
                     .collect(java.util.stream.Collectors.toList());
+
             model.addAttribute("bookings", roomBookings);
 
-            java.util.Map<Long, RoomBookingDetail> bookingFirstDetails = new java.util.HashMap<>();
+            java.util.Map<Long, List<RoomBookingDetail>> visibleDetailsMap = new java.util.HashMap<>();
+            java.util.Map<Long, java.math.BigDecimal> remainingLimits = new java.util.HashMap<>();
+
             for (RoomBooking rb : roomBookings) {
-                List<RoomBookingDetail> details = roomBookingDetailRepository.findByRoomBookingId(rb.getId());
-                if (!details.isEmpty()) {
-                    bookingFirstDetails.put(rb.getId(), details.get(0));
+                List<RoomBookingDetail> allDetails = roomBookingDetailRepository.findByRoomBookingId(rb.getId());
+                List<RoomBookingDetail> visibleDetails;
+                
+                if (rb.getCustomer() != null && rb.getCustomer().getId().equals(customer.getId())) {
+                    visibleDetails = allDetails; // Master sees all
+                } else {
+                    visibleDetails = allDetails.stream()
+                        .filter(d -> d.getCustomer() != null && d.getCustomer().getId().equals(customer.getId()))
+                        .collect(java.util.stream.Collectors.toList());
+                }
+                
+                visibleDetailsMap.put(rb.getId(), visibleDetails);
+                
+                for (RoomBookingDetail d : visibleDetails) {
+                    java.math.BigDecimal subLimit = d.getSubCreditLimit() != null ? d.getSubCreditLimit() : java.math.BigDecimal.ZERO;
+                    List<com.kawai.models.FolioItem> folioItems = folioItemRepository.findByRoomBookingDetailId(d.getId());
+                    java.math.BigDecimal spent = folioItems.stream()
+                            .filter(f -> !Boolean.TRUE.equals(f.getIsSettledSeparately()))
+                            .map(com.kawai.models.FolioItem::getAmount)
+                            .reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add);
+                    remainingLimits.put(d.getId(), subLimit.subtract(spent));
                 }
             }
-            model.addAttribute("bookingFirstDetails", bookingFirstDetails);
+            model.addAttribute("visibleDetailsMap", visibleDetailsMap);
+            model.addAttribute("remainingLimits", remainingLimits);
 
             List<TourBooking> tourBookings = tourBookingRepository.findByCustomer(customer);
             for (TourBooking tb : tourBookings) {
@@ -148,77 +185,17 @@ public class ProfileController {
     }
 
     @GetMapping("/bookings")
-    public String viewBookingHistory(Authentication authentication, Model model) {
+    public String viewBookingHistory(Authentication authentication, Model model, 
+            @org.springframework.web.bind.annotation.RequestParam(value = "payment", required = false) String paymentStatus) {
         if (!com.kawai.utils.SecurityUtils.isCustomerLoggedIn(authentication)) {
             return "redirect:/booking";
         }
-        String username = extractUsername(authentication);
-        Customer customer = customerRepository.findByAccount_Username(username)
-                .orElseGet(() -> customerRepository.findByEmail(username).orElse(null));
-        model.addAttribute("customer", customer);
-
-        if (customer != null) {
-            List<RoomBooking> roomBookings = roomBookingRepository.findByCustomerOrderByIdDesc(customer)
-                    .stream()
-                    .filter(b -> {
-                        if ("HOLD".equalsIgnoreCase(b.getBookingStatus())) {
-                            return false;
-                        }
-                        if (b.getBookingStatus() != null && b.getBookingStatus().toUpperCase().startsWith("CANCEL")) {
-                            return paymentTransactionRepository.existsByBookingIdAndStatus(b.getId(),
-                                    com.kawai.models.PaymentStatus.SUCCESS);
-                        }
-                        return true;
-                    })
-                    .collect(java.util.stream.Collectors.toList());
-            model.addAttribute("bookings", roomBookings);
-
-            java.util.Map<Long, RoomBookingDetail> bookingFirstDetails = new java.util.HashMap<>();
-            for (RoomBooking rb : roomBookings) {
-                List<RoomBookingDetail> details = roomBookingDetailRepository.findByRoomBookingId(rb.getId());
-                if (!details.isEmpty()) {
-                    bookingFirstDetails.put(rb.getId(), details.get(0));
-                }
-            }
-            model.addAttribute("bookingFirstDetails", bookingFirstDetails);
-
-            // Fetch and initialize tourBookings
-            List<TourBooking> tourBookings = tourBookingRepository.findByCustomer(customer);
-            for (TourBooking tb : tourBookings) {
-                if (tb.getSchedule() != null) {
-                    tb.getSchedule().getDepartureDate();
-                    if (tb.getSchedule().getTour() != null) {
-                        tb.getSchedule().getTour().getTourName();
-                    }
-                }
-            }
-            model.addAttribute("tourBookings", tourBookings);
-
-            // Fetch and initialize foodOrders
-            List<FoodOrder> foodOrders = foodOrderRepository.findByCustomer(customer);
-            for (FoodOrder fo : foodOrders) {
-                if (fo.getDetails() != null) {
-                    fo.getDetails().size();
-                    for (FoodOrderDetail detail : fo.getDetails()) {
-                        if (detail.getMenuItem() != null) {
-                            detail.getMenuItem().getItemName();
-                        }
-                    }
-                }
-            }
-            model.addAttribute("foodOrders", foodOrders);
-
-            List<com.kawai.models.TableReservation> tableReservations = tableReservationRepository
-                    .findByCustomerOrderByIdDesc(customer);
-            model.addAttribute("tableReservations", tableReservations);
-        } else {
-            model.addAttribute("bookings", Collections.emptyList());
-            model.addAttribute("bookingFirstDetails", Collections.emptyMap());
-            model.addAttribute("tourBookings", Collections.emptyList());
-            model.addAttribute("foodOrders", Collections.emptyList());
-            model.addAttribute("tableReservations", Collections.emptyList());
+        
+        String redirectUrl = "redirect:/profile#bookings";
+        if (paymentStatus != null) {
+            redirectUrl += "?payment=" + paymentStatus;
         }
-        return "guest/booking-history";
+        return redirectUrl;
     }
 
     @GetMapping({ "/update", "/edit" })
@@ -344,10 +321,54 @@ public class ProfileController {
         if (customer != null) {
             com.kawai.models.Dependent dep = dependentRepository.findById(id).orElse(null);
             if (dep != null && dep.getCustomer().getId().equals(customer.getId())) {
-                dependentRepository.delete(dep);
-                redirectAttributes.addFlashAttribute("success", "Xóa người đi cùng thành công!");
+                try {
+                    dependentRepository.delete(dep);
+                    redirectAttributes.addFlashAttribute("success", "Xóa người đi cùng thành công!");
+                } catch (Exception e) {
+                    redirectAttributes.addFlashAttribute("error", "Không thể xóa người đi cùng vì đang được sử dụng trong các đơn đặt phòng!");
+                }
             } else {
                 redirectAttributes.addFlashAttribute("error", "Không tìm thấy người đi cùng!");
+            }
+        }
+        return "redirect:/profile";
+    }
+
+    @PostMapping("/avatar")
+    public String uploadAvatar(@org.springframework.web.bind.annotation.RequestParam("avatarFile") org.springframework.web.multipart.MultipartFile file,
+                               Authentication authentication,
+                               RedirectAttributes redirectAttributes) {
+        if (!com.kawai.utils.SecurityUtils.isCustomerLoggedIn(authentication)) {
+            return "redirect:/booking";
+        }
+        String username = extractUsername(authentication);
+        Customer customer = customerRepository.findByAccount_Username(username)
+                .orElseGet(() -> customerRepository.findByEmail(username).orElse(null));
+
+        if (customer != null && !file.isEmpty()) {
+            try {
+                String originalFilename = file.getOriginalFilename();
+                String extension = "";
+                if (originalFilename != null && originalFilename.contains(".")) {
+                    extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+                }
+                String newFilename = "avatar_" + customer.getId() + "_" + System.currentTimeMillis() + extension;
+                
+                String currentWorkingDir = System.getProperty("user.dir");
+                java.nio.file.Path uploadDir = java.nio.file.Paths.get(currentWorkingDir, "uploads", "avatars");
+                if (!java.nio.file.Files.exists(uploadDir)) {
+                    java.nio.file.Files.createDirectories(uploadDir);
+                }
+                
+                java.nio.file.Path filePath = uploadDir.resolve(newFilename);
+                file.transferTo(filePath.toFile());
+                
+                customer.setAvatarUrl("/uploads/avatars/" + newFilename);
+                customerRepository.save(customer);
+                
+                redirectAttributes.addFlashAttribute("success", "Cập nhật ảnh đại diện thành công!");
+            } catch (Exception e) {
+                redirectAttributes.addFlashAttribute("error", "Lỗi tải lên ảnh đại diện: " + e.getMessage());
             }
         }
         return "redirect:/profile";

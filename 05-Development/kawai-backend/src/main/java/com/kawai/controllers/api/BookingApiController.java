@@ -48,6 +48,15 @@ public class BookingApiController {
 
     @Autowired
     private CustomerRepository customerRepository;
+    
+    @Autowired
+    private com.kawai.repositories.RoomGuestRepository roomGuestRepository;
+    
+    @Autowired
+    private com.kawai.repositories.RoomBookingDetailRepository roomBookingDetailRepository;
+    
+    @Autowired
+    private com.kawai.repositories.DependentRepository dependentRepository;
 
     @Autowired
     private com.kawai.services.interfaces.VnPayService vnPayService;
@@ -219,6 +228,168 @@ public class BookingApiController {
             e.printStackTrace();
             return ResponseEntity.status(400).body(
                     Map.of("status", "error", "message", e.getMessage() != null ? e.getMessage() : "Đã xảy ra lỗi"));
+        }
+    }
+
+    @GetMapping("/{bookingId}/folios")
+    public ResponseEntity<?> getBookingFolios(Principal principal, @PathVariable Long bookingId) {
+        if (principal == null) {
+            return ResponseEntity.status(401).body(Map.of("status", "error", "message", "Quý khách cần đăng nhập!"));
+        }
+        try {
+            Customer customer = resolveCurrentCustomer(principal);
+            java.util.List<Map<String, Object>> folios = bookingService.getBookingFolios(bookingId, customer.getId());
+            return ResponseEntity.ok(folios);
+        } catch (BusinessException e) {
+            return ResponseEntity.status(403).body(Map.of("status", "error", "message", e.getMessage()));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(
+                    Map.of("status", "error", "message", e.getMessage() != null ? e.getMessage() : "Đã xảy ra lỗi hệ thống"));
+        }
+    }
+
+    @GetMapping("/{bookingId}/guests")
+    public ResponseEntity<?> getBookingGuests(Principal principal, @PathVariable Long bookingId) {
+        if (principal == null) {
+            return ResponseEntity.status(401).body(Map.of("status", "error", "message", "Quý khách cần đăng nhập!"));
+        }
+        try {
+            Customer customer = resolveCurrentCustomer(principal);
+            
+            // Lấy danh sách RoomBookingDetail của đơn này
+            java.util.List<com.kawai.models.RoomBookingDetail> details = roomBookingDetailRepository.findByRoomBookingId(bookingId);
+            
+            // Trả về cấu trúc: [ { detailId, roomName, guests: [ { guestId, type, dependentId, isPrimary } ] } ]
+            java.util.List<Map<String, Object>> responseList = new java.util.ArrayList<>();
+            
+            for (com.kawai.models.RoomBookingDetail detail : details) {
+                // Kiểm tra xem đơn này có thuộc về customer không (Chủ đơn)
+                if (!detail.getRoomBooking().getCustomer().getId().equals(customer.getId())) {
+                    throw new BusinessException("FORBIDDEN", "Không có quyền truy cập đơn hàng này");
+                }
+                
+                Map<String, Object> roomData = new java.util.HashMap<>();
+                roomData.put("detailId", detail.getId());
+                roomData.put("roomName", detail.getCategory() != null ? detail.getCategory().getCategoryName() : "Phòng");
+                
+                java.util.List<com.kawai.models.RoomGuest> guests = roomGuestRepository.findByRoomBookingDetailId(detail.getId());
+                java.util.List<Map<String, Object>> guestsData = new java.util.ArrayList<>();
+                for (com.kawai.models.RoomGuest g : guests) {
+                    Map<String, Object> gData = new java.util.HashMap<>();
+                    gData.put("guestId", g.getId());
+                    gData.put("type", g.getGuestType());
+                    gData.put("dependentId", g.getDependent() != null ? g.getDependent().getId() : null);
+                    gData.put("isPrimary", g.getIsPrimaryContact());
+                    gData.put("name", g.getDependent() != null ? g.getDependent().getDependentName() : (g.getCustomer() != null ? g.getCustomer().getFullName() : ""));
+                    guestsData.add(gData);
+                }
+                
+                roomData.put("guests", guestsData);
+                responseList.add(roomData);
+            }
+            return ResponseEntity.ok(responseList);
+            
+        } catch (BusinessException e) {
+            return ResponseEntity.status(403).body(Map.of("status", "error", "message", e.getMessage()));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(
+                    Map.of("status", "error", "message", e.getMessage() != null ? e.getMessage() : "Đã xảy ra lỗi hệ thống"));
+        }
+    }
+    
+    @PostMapping("/{bookingId}/guests")
+    public ResponseEntity<?> updateBookingGuests(Principal principal, @PathVariable Long bookingId, @RequestBody java.util.List<Map<String, Object>> updates) {
+        if (principal == null) {
+            return ResponseEntity.status(401).body(Map.of("status", "error", "message", "Quý khách cần đăng nhập!"));
+        }
+        try {
+            Customer customer = resolveCurrentCustomer(principal);
+            
+            for (Map<String, Object> update : updates) {
+                Long guestId = Long.valueOf(update.get("guestId").toString());
+                Long dependentId = update.get("dependentId") != null && !update.get("dependentId").toString().isEmpty() ? Long.valueOf(update.get("dependentId").toString()) : null;
+                
+                com.kawai.models.RoomGuest guest = roomGuestRepository.findById(guestId).orElse(null);
+                if (guest != null) {
+                    // Check ownership
+                    if (guest.getRoomBookingDetail().getRoomBooking().getCustomer().getId().equals(customer.getId())) {
+                        if (dependentId != null) {
+                            com.kawai.models.Dependent dep = dependentRepository.findById(dependentId).orElse(null);
+                            if (dep != null && dep.getCustomer().getId().equals(customer.getId())) {
+                                guest.setDependent(dep);
+                            }
+                        } else {
+                            // If primary contact, keep customer, otherwise null dependent
+                            if (!Boolean.TRUE.equals(guest.getIsPrimaryContact())) {
+                                guest.setDependent(null);
+                            }
+                        }
+                        roomGuestRepository.save(guest);
+                    }
+                }
+            }
+            
+            return ResponseEntity.ok(Map.of("status", "success", "message", "Khai báo khách lưu trú thành công!"));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(
+                    Map.of("status", "error", "message", e.getMessage() != null ? e.getMessage() : "Đã xảy ra lỗi hệ thống"));
+        }
+    }
+
+    @PostMapping("/{bookingId}/rooms/{detailId}/credit-limit")
+    public ResponseEntity<?> updateRoomCreditLimit(Principal principal, @PathVariable Long bookingId, @PathVariable Long detailId, @RequestBody Map<String, Object> payload) {
+        if (principal == null) {
+            return ResponseEntity.status(401).body(Map.of("status", "error", "message", "Quý khách cần đăng nhập!"));
+        }
+        try {
+            Customer customer = resolveCurrentCustomer(principal);
+            com.kawai.models.RoomBookingDetail detail = roomBookingDetailRepository.findById(detailId).orElse(null);
+            if (detail == null || !detail.getRoomBooking().getId().equals(bookingId)) {
+                return ResponseEntity.status(404).body(Map.of("status", "error", "message", "Không tìm thấy phòng!"));
+            }
+
+            com.kawai.models.RoomBooking booking = detail.getRoomBooking();
+            if (!booking.getCustomer().getId().equals(customer.getId())) {
+                return ResponseEntity.status(403).body(Map.of("status", "error", "message", "Không có quyền truy cập!"));
+            }
+
+            if (payload.get("newLimit") == null || payload.get("newLimit").toString().trim().isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of("status", "error", "message", "Hạn mức không hợp lệ!"));
+            }
+            BigDecimal newLimit;
+            try {
+                newLimit = new BigDecimal(payload.get("newLimit").toString());
+            } catch (Exception ex) {
+                return ResponseEntity.badRequest().body(Map.of("status", "error", "message", "Định dạng số không hợp lệ!"));
+            }
+            
+            if (newLimit.compareTo(BigDecimal.ZERO) < 0) {
+                return ResponseEntity.badRequest().body(Map.of("status", "error", "message", "Hạn mức không hợp lệ!"));
+            }
+
+            BigDecimal maxLimit = booking.getCreditLimit() != null ? booking.getCreditLimit() : BigDecimal.ZERO;
+            BigDecimal totalOtherRoomsLimit = BigDecimal.ZERO;
+            java.util.List<com.kawai.models.RoomBookingDetail> allDetails = roomBookingDetailRepository.findByRoomBookingId(bookingId);
+            for(com.kawai.models.RoomBookingDetail d : allDetails) {
+                if(!d.getId().equals(detailId)) {
+                    totalOtherRoomsLimit = totalOtherRoomsLimit.add(d.getSubCreditLimit() != null ? d.getSubCreditLimit() : BigDecimal.ZERO);
+                }
+            }
+            
+            if (totalOtherRoomsLimit.add(newLimit).compareTo(maxLimit) > 0) {
+                 return ResponseEntity.badRequest().body(Map.of("status", "error", "message", "Tổng hạn mức cấp cho các phòng không được vượt quá hạn mức tối đa của đơn đặt phòng (" + String.format("%,.0f", maxLimit) + "đ)"));
+            }
+
+            detail.setSubCreditLimit(newLimit);
+            roomBookingDetailRepository.save(detail);
+
+            return ResponseEntity.ok(Map.of("status", "success", "message", "Cập nhật hạn mức phòng thành công!"));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(Map.of("status", "error", "message", "Đã xảy ra lỗi hệ thống"));
         }
     }
 

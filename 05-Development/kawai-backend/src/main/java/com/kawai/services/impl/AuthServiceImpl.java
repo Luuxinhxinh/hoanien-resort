@@ -50,8 +50,7 @@ public class AuthServiceImpl implements AuthService {
     @Autowired
     private EmployeeRepository employeeRepository;
 
-    @Autowired
-    private TourEmailService tourEmailService;
+
 
     private final Random random = new Random();
 
@@ -278,37 +277,37 @@ public class AuthServiceImpl implements AuthService {
             throw new IllegalArgumentException("Email không tồn tại");
         }
 
-        String otp = String.format("%06d", 100000 + random.nextInt(900000));
-        account.setResetPasswordToken(otp);
-        account.setResetPasswordExpiry(LocalDateTime.now().plusMinutes(15));
+        String token = java.util.UUID.randomUUID().toString();
+        account.setResetPasswordToken(token);
+        account.setResetPasswordExpiry(LocalDateTime.now().plusMinutes(10));
         accountRepository.save(account);
 
-        writeAuditLog(account, "RESET_PASSWORD_REQUEST", "Accounts", account.getId(), null, "Reset OTP: " + otp);
+        writeAuditLog(account, "RESET_PASSWORD_REQUEST", "Accounts", account.getId(), null, "Reset Token: " + token);
 
         // Gửi email chứa OTP đặt lại mật khẩu qua Workflow Engine hoặc fallback
         boolean hasActiveWorkflow = workflowRepository.findByTriggerEventAndIsActive("USER_PASSWORD_RESET", true).size() > 0;
+        String resetLink = baseUrl + "/auth/reset-password?token=" + token;
+        
         if (hasActiveWorkflow) {
             Map<String, Object> payload = new java.util.HashMap<>();
             payload.put("email", email);
             payload.put("fullName", username);
-            payload.put("otpCode", otp);
+            payload.put("otpCode", resetLink);
             workflowEngineService.triggerEvent("USER_PASSWORD_RESET", payload);
         } else {
             Map<String, Object> ctx = new java.util.HashMap<>();
-            ctx.put("resetLink", otp);
+            ctx.put("resetLink", resetLink);
             ctx.put("fullName", username);
             eventPublisher.publishEvent(new com.kawai.events.SystemEmailEvent(this, email, "Đặt lại mật khẩu", "password-reset", ctx));
         }
 
-        return otp;
+        return token;
     }
 
     @Override
     @Transactional
     public boolean resetPassword(String token, String newPassword) {
-        Account account = accountRepository.findAll().stream()
-                .filter(a -> token.equals(a.getResetPasswordToken()))
-                .findFirst()
+        Account account = accountRepository.findByResetPasswordToken(token)
                 .orElseThrow(() -> new IllegalArgumentException("Token reset hết hạn hoặc không hợp lệ"));
 
         if (account.getResetPasswordExpiry() == null

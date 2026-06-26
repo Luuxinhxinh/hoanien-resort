@@ -26,6 +26,8 @@ public class Customer {
     private Integer loyaltyPoints = 0;
     @Column(name = "membership_tier", nullable = false)
     private String membershipTier = "Regular";
+    @Column(name = "avatar_url")
+    private String avatarUrl;
 
     public Long getId() {
         return id;
@@ -97,5 +99,13 @@ public class Customer {
 
     public void setMembershipTier(String v) {
         this.membershipTier = v;
+    }
+
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
     }
 }

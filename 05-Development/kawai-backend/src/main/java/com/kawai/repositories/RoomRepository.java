@@ -44,6 +44,11 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
             "AND rbd.roomBooking.bookingStatus IN ('Confirmed', 'Checked_In')")
     Optional<Room> findActiveRoomByUserId(@Param("userId") Long userId);
 
+    @Query("SELECT rbd.room FROM RoomBookingDetail rbd " +
+            "WHERE rbd.roomBooking.customer.account.id = :userId " +
+            "AND rbd.roomBooking.bookingStatus IN ('Confirmed', 'Checked_In')")
+    java.util.List<Room> findActiveRoomsByUserId(@Param("userId") Long userId);
+
     @Query("SELECT COUNT(r) FROM Room r WHERE r.category.categoryName = :categoryName AND r.roomStatus != 'Maintenance'")
     long countActiveRoomsByCategoryName(@Param("categoryName") String categoryName);
 

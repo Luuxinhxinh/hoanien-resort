@@ -217,18 +217,39 @@ public class PosServiceImpl implements PosService {
 
         if ("CHARGE_TO_ROOM".equalsIgnoreCase(request.getPaymentType()) && activeBooking != null
                 && activeBooking instanceof RoomBooking) {
-            RoomBooking roomBooking = (RoomBooking) activeBooking;
             BigDecimal feePercent = new BigDecimal("0.05");
             BigDecimal fee = subtotal.multiply(feePercent);
             BigDecimal totalAmount = subtotal.add(fee);
 
-            BigDecimal currentLimit = roomBooking.getCreditLimit() != null ? roomBooking.getCreditLimit()
-                    : BigDecimal.ZERO;
-            if (currentLimit.compareTo(totalAmount) >= 0) {
-                roomBooking.setCreditLimit(currentLimit.subtract(totalAmount));
-                roomBookingRepository.save(roomBooking);
+            RoomBookingDetail detailToCharge = order.getRoomBookingDetail();
+            if (detailToCharge == null) {
+                List<RoomBookingDetail> details = roomBookingDetailRepository.findByRoomBookingId(activeBooking.getId());
+                detailToCharge = details.stream().filter(d -> "Checked_In".equals(d.getDetailStatus())).findFirst().orElse(!details.isEmpty() ? details.get(0) : null);
+            }
+
+            if (detailToCharge != null) {
+                BigDecimal limit = detailToCharge.getSubCreditLimit() != null ? detailToCharge.getSubCreditLimit() : (((RoomBooking) activeBooking).getCreditLimit() != null ? ((RoomBooking) activeBooking).getCreditLimit() : BigDecimal.ZERO);
+                BigDecimal used = folioItemRepository.findByRoomBookingDetailId(detailToCharge.getId()).stream()
+                        .filter(f -> !Boolean.TRUE.equals(f.getIsSettledSeparately()))
+                        .map(FolioItem::getAmount)
+                        .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+                if (limit.subtract(used).compareTo(totalAmount) >= 0) {
+                    FolioItem folioItem = new FolioItem();
+                    folioItem.setRoomBookingDetail(detailToCharge);
+                    folioItem.setBooking(activeBooking);
+                    folioItem.setSourceDepartment("F&B");
+                    folioItem.setAmount(totalAmount);
+                    folioItem.setDescription("Ký bill đồ ăn F&B (Order #" + savedOrder.getId() + ")");
+                    if (userAccount != null) {
+                        folioItem.setPayerCustomer(customerRepository.findByAccount_Username(userAccount.getUsername()).orElse(null));
+                    }
+                    folioItemRepository.save(folioItem);
+                } else {
+                    throw new BusinessException("POS-005", "Hạn mức tín dụng của phòng không đủ để thanh toán!");
+                }
             } else {
-                throw new BusinessException("POS-005", "Hạn mức tín dụng của phòng không đủ để thanh toán!");
+                throw new BusinessException("POS-009", "Không tìm thấy phòng để ký bill!");
             }
         }
 
@@ -291,8 +312,13 @@ public class PosServiceImpl implements PosService {
     }
 
     private void validateCreditLimit(RoomBookingDetail detail, BigDecimal amount) {
-        if (detail.getSubCreditLimit().compareTo(amount) < 0) {
-            throw new BusinessException("POS-003", "Post to Room vượt Credit Limit");
+        BigDecimal limit = detail.getSubCreditLimit() != null ? detail.getSubCreditLimit() : BigDecimal.ZERO;
+        BigDecimal used = folioItemRepository.findByRoomBookingDetailId(detail.getId()).stream()
+                .map(com.kawai.models.FolioItem::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        
+        if (limit.subtract(used).compareTo(amount) < 0) {
+            throw new BusinessException("POS-003", "Hạn mức chi tiêu phòng không đủ để thanh toán (vượt Credit Limit)");
         }
     }
 

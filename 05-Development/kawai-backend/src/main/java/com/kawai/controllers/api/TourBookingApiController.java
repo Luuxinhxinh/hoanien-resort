@@ -38,6 +38,9 @@ public class TourBookingApiController {
     @Autowired
     private RoomBookingDetailRepository roomBookingDetailRepository;
 
+    @Autowired
+    private TourBookingRepository tourBookingRepository;
+
     @PostMapping
     public ResponseEntity<?> createTourBooking(@RequestBody Map<String, Object> payload, Principal principal) {
         try {
@@ -149,5 +152,38 @@ public class TourBookingApiController {
                     "message", e.getMessage() != null ? e.getMessage() : "Unknown error"
             ));
         }
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getTourBookingDetail(@PathVariable Long id, Principal principal) {
+        if (principal == null) {
+            return ResponseEntity.status(401).body(Map.of("message", "Vui lòng đăng nhập"));
+        }
+        Optional<TourBooking> optTb = tourBookingRepository.findById(id);
+        if (optTb.isEmpty()) {
+            return ResponseEntity.status(404).body(Map.of("message", "Không tìm thấy đơn đặt tour"));
+        }
+        TourBooking tb = optTb.get();
+        TourSchedule schedule = tb.getSchedule();
+        Tour tour = schedule != null ? schedule.getTour() : null;
+        
+        Map<String, Object> data = new java.util.HashMap<>();
+        data.put("id", tb.getId());
+        data.put("bookingStatus", tb.getBookingStatus());
+        data.put("participantCount", tb.getParticipantCount());
+        data.put("tourCharge", tb.getTourCharge());
+        data.put("paymentType", "UNKNOWN");
+        
+        if (schedule != null) {
+            data.put("departureDate", schedule.getDepartureDate().toString());
+            data.put("departureTime", schedule.getDepartureTime().toString());
+            if (tour != null) {
+                data.put("tourName", tour.getTourName());
+                data.put("duration", tour.getDuration());
+                data.put("description", tour.getDescription());
+                // Get itineraries if needed, but for now we just return the basics
+            }
+        }
+        return ResponseEntity.ok(data);
     }
 }

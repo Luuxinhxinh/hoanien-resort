@@ -9,6 +9,30 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/auth")
 public class AuthController {
 
+    @org.springframework.beans.factory.annotation.Autowired
+    private com.kawai.repositories.AccountRepository accountRepository;
+
+    @GetMapping("/reset-password")
+    public String showResetPasswordForm(@RequestParam("token") String token, org.springframework.ui.Model model) {
+        // Kiểm tra token có khớp và còn hạn không
+        java.util.Optional<Account> optAcc = accountRepository.findByResetPasswordToken(token);
+
+        if (optAcc.isEmpty()) {
+            model.addAttribute("error", "Đường link đã hết hạn hoặc không hợp lệ.");
+            return "guest/reset-password-error";
+        }
+
+        Account account = optAcc.get();
+        if (account.getResetPasswordExpiry() == null || account.getResetPasswordExpiry().isBefore(java.time.LocalDateTime.now())) {
+            model.addAttribute("error", "Đường link đã hết hạn hoặc không hợp lệ.");
+            return "guest/reset-password-error";
+        }
+
+        // Hợp lệ -> Hiển thị form
+        model.addAttribute("token", token);
+        return "guest/reset-password-form";
+    }
+
     /**
      * Endpoint trung gian: lưu trang hiện tại vào session trước khi redirect sang
      * Google OAuth.

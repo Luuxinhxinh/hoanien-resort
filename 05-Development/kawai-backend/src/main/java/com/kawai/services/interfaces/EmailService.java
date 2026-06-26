@@ -39,4 +39,19 @@ public interface EmailService {
      * Gửi email tùy chỉnh từ Workflow Engine
      */
     void sendCustomWorkflowEmail(String fromEmail, String toEmail, String subject, String htmlContent);
+
+    /**
+     * Gửi email xác nhận đặt tour thành công.
+     */
+    void sendBookingConfirmation(com.kawai.models.TourBooking booking, com.kawai.models.Customer customer);
+
+    /**
+     * Gửi email xác nhận đặt tour thành công với thông tin ghi nợ vào phòng.
+     */
+    void sendBookingConfirmation(com.kawai.models.TourBooking booking, com.kawai.models.Customer customer, boolean postToRoom, String roomDetail);
+
+    /**
+     * Gửi email thông báo hủy tour kèm số tiền hoàn.
+     */
+    void sendCancellationNotice(com.kawai.models.TourBooking booking, com.kawai.models.Customer customer, java.math.BigDecimal refundAmount, boolean cancelledByResort);
 }

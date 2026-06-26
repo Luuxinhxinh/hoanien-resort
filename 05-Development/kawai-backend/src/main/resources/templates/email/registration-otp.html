@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Xác nhận đăng ký tài khoản</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500;600&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+      background-color: #1a120b;
+      color: #2a1f14;
+    }
+
+    .email-outer {
+      background-color: #1a120b;
+      background-size: cover;
+      background-position: center;
+      padding: 40px 16px;
+      min-height: 100vh;
+    }
+
+    .wrapper {
+      max-width: 600px;
+      margin: 0 auto;
+      border-radius: 4px;
+      overflow: hidden;
+      box-shadow: 0 8px 48px rgba(0, 0, 0, 0.6);
+    }
+
+    /* ── Header ── */
+    .header {
+      background: rgba(60, 45, 30, 0.92);
+      padding: 36px 40px 28px;
+      text-align: center;
+      border-bottom: 1px solid rgba(229, 196, 148, 0.3);
+    }
+
+    .header .brand {
+      font-family: 'EB Garamond', Georgia, serif;
+      font-size: 42px;
+      font-weight: 400;
+      font-style: italic;
+      color: #e5c494;
+      margin-bottom: 4px;
+    }
+
+    .header .logo-text {
+      font-family: 'EB Garamond', Georgia, serif;
+      font-size: 16px;
+      font-weight: 400;
+      font-style: italic;
+      color: rgba(229, 196, 148, 0.8);
+      letter-spacing: 2px;
+    }
+
+    /* ── Hero ── */
+    .hero {
+      background: rgba(70, 50, 35, 0.88);
+      padding: 40px 40px 36px;
+      text-align: center;
+      border-bottom: 1px solid rgba(229, 196, 148, 0.2);
+    }
+
+    .hero .icon {
+      font-size: 44px;
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .hero h1 {
+      font-family: 'EB Garamond', Georgia, serif;
+      font-size: 26px;
+      font-weight: 400;
+      font-style: italic;
+      color: #e5c494;
+      margin-bottom: 10px;
+      letter-spacing: 0.5px;
+    }
+
+    .hero p {
+      font-size: 13px;
+      font-weight: 300;
+      color: rgba(255, 255, 255, 0.9);
+      letter-spacing: 0.3px;
+      line-height: 1.7;
+    }
+
+    /* ── Body ── */
+    .body {
+      background: rgba(55, 40, 28, 0.88);
+      padding: 40px;
+    }
+
+    .greeting {
+      font-size: 14px;
+      font-weight: 400;
+      color: rgba(255, 255, 255, 0.95);
+      margin-bottom: 28px;
+      line-height: 1.9;
+    }
+
+    .greeting strong {
+      font-weight: 600;
+      color: #f0ca56;
+    }
+
+    .divider-line {
+      height: 1px;
+      background: rgba(229, 196, 148, 0.15);
+      margin: 28px 0;
+    }
+
+    /* ── OTP Box ── */
+    .otp-box {
+      background: rgba(229, 196, 148, 0.07);
+      border: 1px solid rgba(229, 196, 148, 0.2);
+      border-radius: 3px;
+      padding: 35px 24px;
+      margin: 28px 0;
+      text-align: center;
+    }
+
+    .otp-box .otp-amount {
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 42px;
+      font-weight: 600;
+      color: #f0ca56;
+      letter-spacing: 14px;
+      margin: 0;
+      text-shadow: 0 0 15px rgba(240, 202, 86, 0.3);
+    }
+
+    .note-box {
+      border-left: 3px solid #f0ca56;
+      padding: 16px 20px;
+      margin-bottom: 28px;
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.9);
+      line-height: 1.85;
+      background: rgba(240, 202, 86, 0.05);
+    }
+
+    .note-box strong {
+      color: #f0ca56;
+      font-weight: 600;
+    }
+
+    .closing-text {
+      font-size: 13px;
+      font-weight: 400;
+      color: rgba(255, 255, 255, 0.85);
+      line-height: 1.9;
+    }
+
+    .closing-text strong {
+      font-weight: 600;
+      color: #f0ca56;
+    }
+
+    .closing-text em {
+      font-family: 'EB Garamond', Georgia, serif;
+      font-style: italic;
+      color: #f0ca56;
+    }
+
+    /* ── Footer ── */
+    .footer {
+      background: rgba(50, 36, 24, 0.92);
+      padding: 28px 40px;
+      text-align: center;
+      border-top: 1px solid rgba(229, 196, 148, 0.12);
+    }
+
+    .footer .resort-name {
+      font-family: 'EB Garamond', Georgia, serif;
+      font-style: italic;
+      font-size: 18px;
+      color: rgba(229, 196, 148, 0.7);
+      margin-bottom: 10px;
+    }
+
+    .footer p {
+      color: rgba(229, 196, 148, 0.35);
+      font-size: 11px;
+      line-height: 1.9;
+      font-weight: 300;
+    }
+
+    .footer a {
+      color: rgba(229, 196, 148, 0.55);
+      text-decoration: none;
+    }
+
+    .footer .footer-divider {
+      height: 1px;
+      background: rgba(229, 196, 148, 0.10);
+      margin: 14px 0;
+    }
+
+    @media (max-width: 480px) {
+      .body,
+      .header,
+      .hero,
+      .footer {
+        padding: 28px 24px;
+      }
+    }
+  </style>
+</head>
+
+<body th:style="'font-family: Inter, Helvetica Neue, Arial, sans-serif; background-color: #1a120b; color: #2a1f14;'">
+  <div class="email-outer" th:style="'background-color: #1a120b; padding: 40px 16px; min-height: 100vh;'">
+    <div class="wrapper">
+      <!-- Header -->
+      <div class="header">
+        <div class="brand">Hòa Niên</div>
+        <div class="logo-text">Retreat Resort & Hub</div>
+      </div>
+
+      <!-- Hero -->
+      <div class="hero">
+        <span class="icon">✦</span>
+        <h1>Xác nhận đăng ký</h1>
+        <p>Chào mừng Quý khách đến với hệ thống thành viên của Hòa Niên</p>
+      </div>
+
+      <!-- Body -->
+      <div class="body">
+        <p class="greeting">
+          Kính gửi <strong th:text="${customerName}">Quý khách</strong>,<br /><br />
+          Lời đầu tiên, <em>Hòa Niên Retreat & Resort</em> xin gửi lời cảm ơn chân thành tới Quý khách vì đã tin tưởng và lựa chọn dịch vụ của chúng tôi. 
+          Để hoàn tất thủ tục đăng ký tài khoản thành viên, xin vui lòng sử dụng mã bảo mật dưới đây:
+        </p>
+
+        <div class="divider-line"></div>
+
+        <!-- OTP Box -->
+        <div class="otp-box">
+          <div class="otp-amount" th:text="${otpCode}">123456</div>
+        </div>
+
+        <div class="divider-line"></div>
+
+        <!-- Note -->
+        <div class="note-box">
+          • Mã xác thực có hiệu lực trong vòng <strong>10 phút</strong> kể từ khi nhận được email này.<br />
+          • Vì sự an toàn của Quý khách, tuyệt đối không chia sẻ mã này cho bất kỳ bên thứ ba nào.
+        </div>
+
+        <p class="closing-text">
+          Nếu Quý khách cần hỗ trợ thêm, xin vui lòng liên hệ với chúng tôi qua số hotline <strong th:text="${resortPhone}">1900 xxxx</strong>.<br /><br />
+          Trân trọng,<br />
+          <strong>HOANIEN Concierge Team</strong><br />
+          <em>Hòa Niên Retreat Resort & Hub</em>
+        </p>
+
+      </div>
+
+      <!-- Footer -->
+      <div class="footer">
+        <div class="resort-name">Hòa Niên</div>
+        <p>
+          📞 <span th:text="${resortPhone}">1900 xxxx</span> &nbsp;|&nbsp;
+          🌐 <a th:href="${resortWebsite}" th:text="${resortWebsite}">hoaniensorretreat.vn</a>
+        </p>
+        <div class="footer-divider"></div>
+        <p>
+          Email này được gửi tự động — vui lòng không phản hồi.<br />
+          © 2026 Hòa Niên Retreat Resort & Hub. Bảo lưu mọi quyền.
+        </p>
+      </div>
+
+    </div>
+  </div>
+</body>
+
+</html>
