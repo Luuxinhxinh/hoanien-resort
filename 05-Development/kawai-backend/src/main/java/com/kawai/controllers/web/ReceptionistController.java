@@ -77,6 +77,9 @@ public class ReceptionistController {
 
     @GetMapping("/walk-in")
     public String walkIn(Model model) {
+        java.time.LocalDate today = java.time.LocalDate.now(java.time.ZoneId.of("Asia/Ho_Chi_Minh"));
+        model.addAttribute("todayStr", today.toString());
+        
         Map<String, List<Map<String, Object>>> inventory = new HashMap<>();
         for (Room r : roomRepository.findVacant()) {
             String cat = "Other";
@@ -191,9 +194,11 @@ public class ReceptionistController {
                         : "N/A");
                 map.put("isExpired",
                         rb.getCheckInDate() != null && rb.getCheckInDate().isBefore(java.time.LocalDate.now()));
+                map.put("creditLimit", rb.getCreditLimit() != null ? rb.getCreditLimit() : new java.math.BigDecimal("5000000.00"));
             } else {
                 map.put("checkInDate", "N/A");
                 map.put("isExpired", false);
+                map.put("creditLimit", new java.math.BigDecimal("5000000.00"));
             }
 
             String roomSummary = "N/A";

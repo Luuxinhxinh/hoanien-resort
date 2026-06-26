@@ -132,6 +132,8 @@ class WalkInCheckInServiceUC14Test {
         private com.kawai.services.interfaces.FolioService folioService;
         @Mock
         private PasswordEncoder passwordEncoder;
+        @Mock
+        private com.kawai.repositories.MembershipTierRepository membershipTierRepository;
 
         // ── Test Data Constants (SYNTHETIC) ──────────────────────────────────────
         private static final String CCCD_NEW_GUEST = "001234567890"; // TC-M2-021
@@ -752,6 +754,48 @@ class WalkInCheckInServiceUC14Test {
                 assertTrue(bookingCap.getAllValues().stream()
                                 .anyMatch(b -> "Checked_In".equals(b.getBookingStatus())),
                                 "[BR-10] Booking CHECKED_IN phải được lưu");
+        }
+
+        @Test
+        @DisplayName("TC-M2-036 | MEDIUM | Tổng hạng mức phòng vượt master customer limit → [MOD2-UC14-016]")
+        void TC_M2_036_allocatedCreditLimitExceedsMaster_throwsMOD2UC14016() {
+                // Arrange
+                WalkInCheckInRequest request = new WalkInCheckInRequest();
+                request.setFullName("Lê Văn C");
+                request.setDateOfBirth(LocalDate.of(1990, 1, 1));
+                request.setCheckInDate(LocalDate.now());
+                request.setCheckOutDate(LocalDate.now().plusDays(1));
+
+                WalkInRoomSelectionDTO selection = new WalkInRoomSelectionDTO();
+                selection.setRoomId(101L);
+                selection.setAllocatedCreditLimit(new BigDecimal("6000000.00")); // Vượt 5M
+                request.setRoomSelections(Collections.singletonList(selection));
+
+                Room room = new Room();
+                room.setId(101L);
+                room.setRoomNumber("101");
+                room.setRoomStatus("Vacant_Clean");
+                RoomCategory category = new RoomCategory();
+                category.setCapacity(2);
+                category.setBasePrice(new BigDecimal("1000000"));
+                room.setCategory(category);
+
+                when(roomRepository.findByIdWithPessimisticLock(101L)).thenReturn(Optional.of(room));
+
+                com.kawai.models.MembershipTier defaultTier = new com.kawai.models.MembershipTier();
+                defaultTier.setTierName("Regular");
+                defaultTier.setCreditLimit(new BigDecimal("5000000.00"));
+                when(membershipTierRepository.findByTierNameIgnoreCase("Regular")).thenReturn(Optional.of(defaultTier));
+
+                Customer mockCust = new Customer();
+                mockCust.setFullName("L� Van C");
+                mockCust.setMembershipTier(defaultTier);
+                when(customerRepository.save(any(Customer.class))).thenReturn(mockCust);
+
+                // Act & Assert
+                BusinessException ex = assertThrows(BusinessException.class,
+                                () -> walkInCheckInService.createWalkInBookingAndCheckIn(request));
+                assertEquals("MOD2-UC14-016", ex.getErrorCode());
         }
 
 }

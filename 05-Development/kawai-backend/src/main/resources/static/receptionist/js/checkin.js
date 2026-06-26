@@ -1,5 +1,3 @@
-
-
 function updateAvailableRooms() {
     const typeSelect = document.getElementById('bookTypeSelect');
     const roomSelect = document.getElementById('physicalRoomSelect');
@@ -51,6 +49,36 @@ function assignRoom() {
     }
 }
 
+let checkinMasterCreditLimit = 5000000;
+
+function handleCheckinCreditInput(input, index) {
+    let val = parseFloat(input.value) || 0;
+    assignedRooms[index].allocatedCreditLimit = val;
+    let hiddens = document.querySelectorAll('input[name="allocatedCreditLimits"]');
+    if (hiddens && hiddens[index]) {
+        hiddens[index].value = val;
+    }
+    updateCheckinCreditLimitDisplay();
+    // Cảnh báo real-time nếu tổng hạn mức vượt quá
+    const totalAllocated = assignedRooms.reduce((s, r) => s + (r.allocatedCreditLimit || 0), 0);
+    input.style.borderColor = totalAllocated > checkinMasterCreditLimit ? '#ef4444' : '#cbd5e1';
+}
+
+function updateCheckinCreditLimitDisplay() {
+    let totalAllocated = 0;
+    assignedRooms.forEach(r => totalAllocated += (r.allocatedCreditLimit || 0));
+    let remaining = checkinMasterCreditLimit - totalAllocated;
+    let displayEl = document.getElementById('checkinRemainingCreditDisplay');
+    if(displayEl) {
+        displayEl.innerText = remaining.toLocaleString() + ' VND';
+        if(remaining < 0) {
+            displayEl.style.color = 'red';
+        } else {
+            displayEl.style.color = '#16a34a';
+        }
+    }
+}
+
 function removeAssignedRoom(roomNumber) {
     const index = assignedRooms.findIndex(a => a.room === roomNumber);
     if (index > -1) {
@@ -73,57 +101,86 @@ function removeAssignedRoom(roomNumber) {
         renderAssignedRooms();
     }
 }
-
-
-
 function renderAssignedRooms() {
     const container = document.getElementById('assignedRoomsList');
     container.innerHTML = '';
-
-    // Xóa các hidden input cũ
+    
     document.querySelectorAll('input[name="assignedRoomNumbers"]').forEach(el => el.remove());
+    document.querySelectorAll('input[name="allocatedCreditLimits"]').forEach(el => el.remove());
 
-    // Cập nhật label hiển thị phòng của Master Customer
     const masterLabel = document.getElementById('masterCustomerRoomLabel');
     if (masterLabel) {
         if (assignedRooms.length > 0) {
             masterLabel.innerText = `(Phòng: ${assignedRooms[0].room})`;
-            masterLabel.style.color = '#059669'; // text-emerald-600
+            masterLabel.style.color = '#059669';
         } else {
             masterLabel.innerText = `(Chưa phân phòng)`;
-            masterLabel.style.color = '#d97706'; // text-amber-600
+            masterLabel.style.color = '#d97706';
         }
     }
 
-    assignedRooms.forEach(a => {
-        const badge = document.createElement('span');
-        badge.className = 'status-badge';
-        badge.style.cssText = 'background:#e0f2fe; color:#0284c7; display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; font-size: 13px; border: 1px solid #bae6fd;';
-        badge.innerHTML = `${a.room} (${a.type}) <i class="fa-solid fa-xmark" style="cursor:pointer;" onclick="removeAssignedRoom('${a.room}')"></i>`;
-        container.appendChild(badge);
+    assignedRooms.forEach((a, index) => {
+        const row = document.createElement('div');
+        row.style.cssText = 'display: flex; align-items: center; justify-content: space-between; background:#e0f2fe; margin-bottom: 8px; padding: 8px 12px; border-radius: 6px; border: 1px solid #bae6fd;';
+        
+        const infoSpan = document.createElement('span');
+        infoSpan.style.cssText = 'color:#0284c7; font-weight: 500; font-size: 14px;';
+        infoSpan.innerText = `${a.room} (${a.type})`;
+        
+        const rightDiv = document.createElement('div');
+        rightDiv.style.cssText = 'display: flex; align-items: center; gap: 10px;';
+        
+        const limitInput = document.createElement('input');
+        limitInput.type = 'number';
+        limitInput.className = 'form-control';
+        limitInput.style.cssText = 'width: 120px; padding: 4px 8px; font-size: 13px; border: 1px solid #cbd5e1; border-radius: 4px;';
+        limitInput.placeholder = 'Credit Limit';
+        limitInput.value = a.allocatedCreditLimit || 0;
+        limitInput.min = "0";
+        limitInput.oninput = function() { handleCheckinCreditInput(this, index); };
+        
+        const delBtn = document.createElement('i');
+        delBtn.className = 'fa-solid fa-xmark';
+        delBtn.style.cssText = 'cursor:pointer; color: #ef4444; font-size: 16px;';
+        delBtn.onclick = function() { removeAssignedRoom(a.room); };
+        
+        rightDiv.appendChild(limitInput);
+        rightDiv.appendChild(delBtn);
+        
+        row.appendChild(infoSpan);
+        row.appendChild(rightDiv);
+        container.appendChild(row);
 
-        // Thêm hidden input cho mảng phòng
         const hiddenInput = document.createElement('input');
         hiddenInput.type = 'hidden';
         hiddenInput.name = 'assignedRoomNumbers';
         hiddenInput.value = a.room;
         document.getElementById('checkinFormWrapper').appendChild(hiddenInput);
+        
+        const hiddenLimitInput = document.createElement('input');
+        hiddenLimitInput.type = 'hidden';
+        hiddenLimitInput.name = 'allocatedCreditLimits';
+        hiddenLimitInput.value = a.allocatedCreditLimit || 0;
+        document.getElementById('checkinFormWrapper').appendChild(hiddenLimitInput);
     });
 
-    // Cập nhật lại dropdown Chọn phòng cho Người phụ thuộc
     const depRoomSelect = document.getElementById('depRoom');
-    depRoomSelect.innerHTML = '<option value="">-- Select Room --</option>';
-    assignedRooms.forEach(a => {
-        const opt = document.createElement('option');
-        opt.value = a.room;
-        opt.innerText = `${a.room} (${a.type})`;
-        depRoomSelect.appendChild(opt);
-    });
+    if (depRoomSelect) {
+        depRoomSelect.innerHTML = '<option value="">-- Select Room --</option>';
+        assignedRooms.forEach(a => {
+            const opt = document.createElement('option');
+            opt.value = a.room;
+            opt.innerText = `${a.room} (${a.type})`;
+            depRoomSelect.appendChild(opt);
+        });
+    }
+    updateCheckinCreditLimitDisplay();
 }
 
 
-
-function openCheckinModal(bookingId, guestName, phone, cccd, roomSummary, depsDivId) {
+function openCheckinModal(bookingId, guestName, phone, cccd, roomSummary, depsDivId, creditLimit) {
+    checkinMasterCreditLimit = creditLimit ? parseFloat(creditLimit) : 5000000;
+    updateCheckinCreditLimitDisplay();
     // Gán bookingId vào form submit hidden input
     document.getElementById('submitBookingId').value = bookingId;
     const dependentsListContainer = document.getElementById('dependentsList');
@@ -374,6 +431,8 @@ function toggleDependentsList() {
 
 document.getElementById('checkinFormWrapper').addEventListener('submit', function (e) {
     if (assignedRooms.length === 0) {
+        e.preventDefault();
+        alert('Vui lòng phân ít nhất 1 phòng trước khi hoàn tất Check-in!');
         return;
     }
 

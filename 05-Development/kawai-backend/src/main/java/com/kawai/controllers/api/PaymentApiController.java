@@ -33,35 +33,62 @@ public class PaymentApiController {
         }
 
         String txnRef = queryParams.get("vnp_TxnRef");
-        String redirectUrl = "/profile/bookings?payment=" + ("00".equals(rspCode) ? "success" : "failed");
+        boolean isSuccess = "00".equals(rspCode);
+
+        // Mặc định redirect về lịch sử booking (cho trường hợp thành công)
+        String redirectUrl = "/profile/bookings?payment=success";
 
         // DEBUG: log để kiểm tra
         System.err.println("[VNPay Return] rspCode=" + rspCode + " | txnRef=" + txnRef);
 
         if (txnRef != null && txnRef.startsWith("FOOD_")) {
             if (txnRef.endsWith("_PROFILE")) {
-                redirectUrl = "/profile/bookings?payment=" + ("00".equals(rspCode) ? "success" : "failed");
+                redirectUrl = "/profile/bookings?payment=" + (isSuccess ? "success" : "failed");
             } else {
-                redirectUrl = "/order-food?payment=" + ("00".equals(rspCode) ? "success" : "failed");
+                redirectUrl = "/order-food?payment=" + (isSuccess ? "success" : "failed");
             }
         } else if (txnRef != null && (txnRef.startsWith("TXN-") || txnRef.startsWith("FOLIO_"))) {
-            redirectUrl = "/receptionist/folio?payment=" + ("00".equals(rspCode) ? "success" : "failed");
+            redirectUrl = "/receptionist/folio?payment=" + (isSuccess ? "success" : "failed");
         } else if (txnRef != null && txnRef.startsWith("WALKIN_")) {
-            redirectUrl = "/receptionist/in-house?payment=" + ("00".equals(rspCode) ? "success" : "failed");
+            redirectUrl = "/receptionist/in-house?payment=" + (isSuccess ? "success" : "failed");
             System.err.println("[VNPay Return] -> Redirecting to in-house (WALKIN_ prefix)");
         } else {
-            System.err.println("[VNPay Return] -> Defaulting to profile (Customer Booking)");
+            // Đặt phòng thông thường (Customer Online Booking)
+            if (isSuccess) {
+                // Thành công → lịch sử booking
+                redirectUrl = "/profile/bookings?payment=success";
+            } else {
+                // Thất bại → quay lại form payment để khách retry (không cần chọn phòng lại)
+                String fallbackBId = queryParams.get("bId");
+                String bookingIdStr = fallbackBId;
+
+                if (bookingIdStr == null && txnRef != null) {
+                    String[] parts = txnRef.split("_");
+                    if (parts.length > 0) {
+                        bookingIdStr = parts[0];
+                    }
+                }
+
+                if (bookingIdStr != null && bookingIdStr.matches("\\d+")) {
+                    redirectUrl = "/payment?bookingId=" + bookingIdStr + "&payment=failed";
+                } else {
+                    // Fallback nếu không parse được bookingId
+                    redirectUrl = "/profile/bookings?payment=failed";
+                }
+            }
+            System.err.println("[VNPay Return] -> Customer Booking | isSuccess=" + isSuccess + " | bookingId="
+                    + (queryParams.get("bId") != null ? queryParams.get("bId") : "null"));
         }
 
         System.err.println("[VNPay Return] -> Final redirectUrl=" + redirectUrl);
-        
+
         return ResponseEntity.status(HttpStatus.FOUND).location(URI.create(redirectUrl)).build();
     }
 
     @GetMapping("/food-order/{orderId}/vnpay")
-    public ResponseEntity<?> vnpayFoodOrder(@PathVariable Long orderId, 
-                                            @RequestParam(required = false) String from,
-                                            HttpServletRequest request) {
+    public ResponseEntity<?> vnpayFoodOrder(@PathVariable Long orderId,
+            @RequestParam(required = false) String from,
+            HttpServletRequest request) {
         try {
             String paymentUrl = vnPayService.createPaymentUrlForFoodOrder(orderId, request.getRemoteAddr(), from);
             return ResponseEntity.ok(Map.of("url", paymentUrl));
