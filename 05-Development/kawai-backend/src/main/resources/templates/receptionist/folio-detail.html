@@ -659,11 +659,13 @@
                     <div style="display: flex; flex-direction: column; gap: 8px; align-items: flex-end;">
                         <div class="status-pill" id="bookerPill"
                             style="background-color: #f8f9fa; color: #2c3e50; border: 1px solid #e2e8f0; font-weight: 500; display: none;">
-                            <i class="fa-solid fa-user-tie"></i> Đặt bởi: <span id="bookerName">--</span></div>
+                            <i class="fa-solid fa-user-tie"></i> Đặt bởi: <span id="bookerName">--</span>
+                        </div>
                         <div class="status-pill" id="groupTotalPill"
                             style="background-color: #fff3e0; color: #d35400; border: 1px solid #ffe0b2; font-weight: 600; display: none;">
                             <i class="fa-solid fa-file-invoice-dollar"></i> Tổng nợ đoàn: <span id="groupTotalAmount">0
-                                ₫</span></div>
+                                ₫</span>
+                        </div>
                     </div>
                 </div>
 
@@ -680,14 +682,16 @@
                             <div id="originalBillDetails"></div>
 
                             <div id="promoSection">
-                                <div style="font-size: 0.9rem; color: #7f8c8d; margin: 24px 0 8px 0;">Apply Promotion </div>
+                                <div style="font-size: 0.9rem; color: #7f8c8d; margin: 24px 0 8px 0;">Apply Promotion
+                                </div>
                                 <div class="promo-input">
                                     <input type="text" placeholder="Voucher code" id="groupPromoInput">
                                     <button class="btn-apply" onclick="applyGroupPromo()">Apply</button>
                                 </div>
                             </div>
 
-                            <div class="summary-row total-row" id="row-promo" style="display: none; color: #e67e22; border-top: 1px dashed #cbd5e1; padding-top: 12px; margin-top: 12px;">
+                            <div class="summary-row total-row" id="row-promo"
+                                style="display: none; color: #e67e22; border-top: 1px dashed #cbd5e1; padding-top: 12px; margin-top: 12px;">
                                 <span>Khuyến mãi (<span id="promoLabel">0%</span>)</span>
                                 <span id="promoAmount">-0 ₫</span>
                             </div>
@@ -744,7 +748,8 @@
                 </div>
             </div>
 
-            <div class="summary-row total-row" id="row-room-promo" style="display: none; color: #e67e22; border-top: 1px dashed #cbd5e1; padding-top: 12px; margin-top: 12px;">
+            <div class="summary-row total-row" id="row-room-promo"
+                style="display: none; color: #e67e22; border-top: 1px dashed #cbd5e1; padding-top: 12px; margin-top: 12px;">
                 <span>Khuyến mãi (<span id="roomPromoLabel">0%</span>)</span>
                 <span id="roomPromoAmount">-0 ₫</span>
             </div>
@@ -754,7 +759,8 @@
                 <span class="amount" id="roomBillOutstandingAmount">0 ₫</span>
             </div>
 
-            <button class="btn-checkout" id="btnProceedRoomBill" style="width: 100%; margin-top: 16px;">Thanh toán phòng này</button>
+            <button class="btn-checkout" id="btnProceedRoomBill" style="width: 100%; margin-top: 16px;">Thanh toán phòng
+                này</button>
         </div>
     </div>
 
@@ -929,7 +935,7 @@
             const avatarLetter = displayNameForAvatar.charAt(0).toUpperCase();
             document.querySelector('.guest-avatar').innerText = avatarLetter;
 
-            const roomNum = roomCount > 1 ? `Đoàn ${roomCount} phòng` : (data.roomNumber || "N/A");
+            const roomNum = roomCount > 1 ? `${roomCount} phòng` : (data.roomNumber || "N/A");
             const checkIn = data.checkInDate || "N/A";
             const checkOut = data.checkOutDate || "N/A";
             let subtitleHtml = `${roomNum} &nbsp;|&nbsp; ${checkIn} &rarr; ${checkOut}`;
@@ -1018,11 +1024,11 @@
                              <span>Hạn mức chi tiêu (Credit Limit): <strong style="color: #2c3e50;">${formatCurrency(data.subCreditLimit || 0)}</strong></span>
                          </div>`;
 
-                 for (const [dep, group] of Object.entries(allGroups)) {
-                     const availableItems = group.items.filter(i => !i.isSettledSeparately);
-                     const depSafe = roomId + '_' + dep.replace(/[^a-zA-Z0-9]/g, '');
+                for (const [dep, group] of Object.entries(allGroups)) {
+                    const availableItems = group.items.filter(i => !i.isSettledSeparately);
+                    const depSafe = roomId + '_' + dep.replace(/[^a-zA-Z0-9]/g, '');
 
-                     leftHtml += `
+                    leftHtml += `
                          <div class="charge-card" style="box-shadow: none; border: 1px solid #edf2f7; margin-bottom: 16px;">
                              <div class="charge-card-header" style="background: #fdfdfd; padding: 12px 16px; margin-bottom: 0;">
                                  <div class="charge-title" style="display: flex; align-items: center; gap: 12px; text-transform: uppercase;">
@@ -1039,10 +1045,10 @@
                                      </thead>
                                      <tbody>
                                          ${group.items.map(i => {
-                         const isSplit = i.isSettledSeparately;
-                         const trClass = isSplit ? 'item-settled' : '';
-                         const dateStr = i.createdAt && i.createdAt.length >= 10 ? i.createdAt.substring(0, 10) : '';
-                         return `
+                        const isSplit = i.isSettledSeparately;
+                        const trClass = isSplit ? 'item-settled' : '';
+                        const dateStr = i.createdAt && i.createdAt.length >= 10 ? i.createdAt.substring(0, 10) : '';
+                        return `
                                              <tr class="${trClass}">
                                                  <td>
                                                      ${i.description} 
@@ -1051,29 +1057,29 @@
                                                  </td>
                                                  <td class="amount">${formatCurrency(i.amount)}</td>
                                              </tr>`;
-                     }).join('')}
+                    }).join('')}
                                      </tbody>
                                  </table>
                              </div>
                          </div>`;
-                 }
+                }
 
-                 roomSummaryMap[roomId] = {
-                     roomNumber: data.roomNumber || 'N/A',
-                     total: roomTotal * 1.1,
-                     prePaidDeposit: data.prePaidDeposit || 0,
-                     currentBalance: data.currentBalance || 0,
-                     detailStatus: data.detailStatus || 'Checked_In',
-                     summary: {},
-                     appliedPromoCode: null,
-                     appliedPromoType: null,
-                     appliedPromoDiscount: 0
-                 };
-                 for (const [dep, group] of Object.entries(allGroups)) {
-                     roomSummaryMap[roomId].summary[dep] = group.items.reduce((sum, i) => sum + i.amount, 0);
-                 }
+                roomSummaryMap[roomId] = {
+                    roomNumber: data.roomNumber || 'N/A',
+                    total: roomTotal * 1.1,
+                    prePaidDeposit: data.prePaidDeposit || 0,
+                    currentBalance: data.currentBalance || 0,
+                    detailStatus: data.detailStatus || 'Checked_In',
+                    summary: {},
+                    appliedPromoCode: null,
+                    appliedPromoType: null,
+                    appliedPromoDiscount: 0
+                };
+                for (const [dep, group] of Object.entries(allGroups)) {
+                    roomSummaryMap[roomId].summary[dep] = group.items.reduce((sum, i) => sum + i.amount, 0);
+                }
 
-                 leftHtml += `
+                leftHtml += `
                          <div style="display: flex; flex-direction: column; gap: 8px; width: 100%; border-top: 1px solid #e2e8f0; padding-top: 16px; margin-top: 16px;">
                              <div style="display: flex; justify-content: space-between; font-size: 0.95rem; color: #7f8c8d;">
                                  <span>Subtotal (trước thuế):</span>
@@ -1290,15 +1296,27 @@
             if (outstanding < 0) outstanding = 0;
             globalOriginalOutstanding = outstanding;
             document.getElementById('originalOutstandingAmount').innerText = formatCurrency(outstanding);
-            
+
             const btn = document.getElementById('btnProceedOriginal');
             if (btn) {
-                const allCheckedOut = Object.values(roomSummaryMap).every(r => r.detailStatus === 'Checked_Out');
-                if (allCheckedOut) {
-                    btn.style.display = 'none';
+                btn.style.display = 'block';
+                if (outstanding < 1) {
+                    btn.disabled = false;
+                    btn.style.opacity = '1';
+                    btn.style.cursor = 'pointer';
+                    btn.innerText = 'Hoàn tất Checkout';
+                    btn.onclick = function () {
+                        currentPaymentRoomId = null;
+                        currentPaymentAmount = 0;
+                        selectedPaymentMethod = 'CASH';
+                        processPayment();
+                    };
                 } else {
-                    btn.style.display = 'block';
-                    btn.onclick = function() {
+                    btn.disabled = false;
+                    btn.style.opacity = '1';
+                    btn.style.cursor = 'pointer';
+                    btn.innerText = 'Thanh toán HĐ Gốc';
+                    btn.onclick = function () {
                         openPaymentModal(globalOriginalOutstanding, true);
                     };
                 }
@@ -1440,8 +1458,8 @@
             const urlParams = new URLSearchParams(window.location.search);
             const roomId = currentPaymentRoomId || urlParams.get('id');
 
-            const promoCode = currentPaymentRoomId ? 
-                (roomSummaryMap[currentPaymentRoomId] ? roomSummaryMap[currentPaymentRoomId].appliedPromoCode : null) : 
+            const promoCode = currentPaymentRoomId ?
+                (roomSummaryMap[currentPaymentRoomId] ? roomSummaryMap[currentPaymentRoomId].appliedPromoCode : null) :
                 appliedGroupPromoCode;
 
             const bodyPayload = {
@@ -1467,6 +1485,13 @@
                     } else {
                         closePaymentModal();
                         showSuccessModal(data);
+                        // Reload folio data để cập nhật trạng thái nút và badge
+                        const urlParams2 = new URLSearchParams(window.location.search);
+                        const currentId = urlParams2.get('id');
+                        if (currentId) {
+                            roomSummaryMap = {};
+                            fetchBookingGroup(currentId);
+                        }
                     }
                 } else {
                     alert("Lỗi: " + (data.message || "Không thể thanh toán"));

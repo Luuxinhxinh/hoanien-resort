@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,13 +8,45 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
+        rel="stylesheet">
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Custom CSS -->
     <link rel="stylesheet" href="/receptionist/css/dashboard.css">
     <link rel="stylesheet" href="/receptionist/css/pages.css">
+    <style>
+        .btn-folio-detail {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 7px 16px;
+            background: transparent;
+            color: #634636;
+            border: 1.5px solid #634636;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 0.78rem;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.22s ease;
+            white-space: nowrap;
+        }
+        .btn-folio-detail:hover {
+            background: #634636;
+            color: #fff;
+            box-shadow: 0 6px 20px rgba(99, 70, 54, 0.45), 0 2px 6px rgba(99, 70, 54, 0.25);
+            transform: translateY(-1px);
+        }
+        .btn-folio-detail:active {
+            transform: scale(0.97) translateY(0);
+            box-shadow: 0 2px 8px rgba(99, 70, 54, 0.3);
+        }
+    </style>
 </head>
+
 <body>
     <div class="app-container">
         <!-- Sidebar -->
@@ -94,10 +127,10 @@
                 <div class="header-datetime">
                     <div class="date" id="currentDate" th:text="${todayLabel}">Wednesday, June 10, 2026</div>
                 </div>
-                
+
                 <div class="header-search">
                     <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                    <input type="text" placeholder="Search guest, room no., phone">
+                    <input type="text" id="folioSearchInput" placeholder="Search guest, room no., phone">
                 </div>
 
                 <div class="header-actions">
@@ -126,12 +159,12 @@
                     <table class="data-table">
                         <thead>
                             <tr>
-                                <th>Representative / Booker</th>
-                                <th>Expected Check-out Date</th>
-                                <th>Total Payments</th>
-                                <th>Phone Number</th>
-                                <th>Status</th>
-                                <th>Action</th>
+                                <th style="font-weight: 700; color: #000; font-size: 0.9rem;">Representative / Booker</th>
+                                <th style="font-weight: 700; color: #000; font-size: 0.9rem;">Expected Check-out Date</th>
+                                <th style="font-weight: 700; color: #000; font-size: 0.9rem;">Total Payments</th>
+                                <th style="font-weight: 700; color: #000; font-size: 0.9rem;">Phone Number</th>
+                                <th style="font-weight: 700; color: #000; font-size: 0.9rem;">Status</th>
+                                <th style="font-weight: 700; color: #000; font-size: 0.9rem;">Action</th>
                             </tr>
                         </thead>
                         <tbody id="folioTableBody">
@@ -146,41 +179,37 @@
     </div>
     <script src="/receptionist/js/dashboard.js"></script>
     <script>
+        let allFolios = [];
+
         document.addEventListener('DOMContentLoaded', function() {
             fetchActiveFolios();
+
+            const searchInput = document.getElementById('folioSearchInput');
+            if (searchInput) {
+                searchInput.addEventListener('input', function(e) {
+                    const term = e.target.value.toLowerCase().trim();
+                    if (!term) {
+                        renderFolios(allFolios);
+                        return;
+                    }
+
+                    const filtered = allFolios.filter(folio => {
+                        const name = (folio.bookerName || '').toLowerCase();
+                        const phone = (folio.phoneNumber || '').toLowerCase();
+                        const rooms = (folio.roomNumber || '').toLowerCase();
+                        return name.includes(term) || phone.includes(term) || rooms.includes(term);
+                    });
+                    renderFolios(filtered);
+                });
+            }
         });
 
         function fetchActiveFolios() {
             fetch('/api/folios/active')
                 .then(response => response.json())
                 .then(data => {
-                    const tbody = document.getElementById('folioTableBody');
-                    tbody.innerHTML = ''; // Clear loading
-                    
-                    if (!data || data.length === 0) {
-                        tbody.innerHTML = '<tr><td colspan="8" style="text-align: center;">No active folios found.</td></tr>';
-                        return;
-                    }
-
-                    data.forEach(folio => {
-                        const tr = document.createElement('tr');
-                        
-                        const formatCurrency = (val) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(val);
-                        
-                        let balanceClass = folio.balance > 0 ? 'text-red' : '';
-                        
-                        tr.innerHTML = `
-                            <td>
-                                <div style="font-weight: 500;"><i class="fa-solid fa-user-tie" style="color: #c19b6c; font-size: 0.8rem; margin-right: 4px;"></i> ${folio.bookerName}</div>
-                            </td>
-                            <td>${folio.checkOutDate}</td>
-                            <td>${formatCurrency(folio.totalPayments)}</td>
-                            <td>${folio.phoneNumber}</td>
-                            <td><span class="status-badge status-pending" style="text-transform: capitalize;">${folio.status.toLowerCase()}</span></td>
-                            <td><a href="/receptionist/folio/detail?id=${folio.roomBookingDetailId}" class="btn btn-view" style="text-decoration:none; white-space: nowrap; background: #2c3e50; color: white;">View Details</a></td>
-                        `;
-                        tbody.appendChild(tr);
-                    });
+                    allFolios = data || [];
+                    renderFolios(allFolios);
                 })
                 .catch(error => {
                     console.error("Error fetching active folios:", error);
@@ -188,6 +217,35 @@
                     tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: red;">Error loading data.</td></tr>';
                 });
         }
+
+        function renderFolios(folios) {
+            const tbody = document.getElementById('folioTableBody');
+            tbody.innerHTML = '';
+            
+            if (!folios || folios.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align: center;">No active folios found.</td></tr>';
+                return;
+            }
+
+            folios.forEach(folio => {
+                const tr = document.createElement('tr');
+                const formatCurrency = (val) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(val);
+                
+                const statusClass = folio.status.toLowerCase() === 'checked_out' ? 'status-confirmed' : 'status-pending';
+                tr.innerHTML = `
+                    <td>
+                        <div style="font-weight: 500;"><i class="fa-solid fa-user-tie" style="color: #c19b6c; font-size: 0.8rem; margin-right: 4px;"></i> ${folio.bookerName}</div>
+                    </td>
+                    <td>${folio.checkOutDate}</td>
+                    <td>${formatCurrency(folio.totalPayments)}</td>
+                    <td>${folio.phoneNumber}</td>
+                    <td><span class="status-badge ${statusClass}" style="text-transform: capitalize;">${folio.status.toLowerCase()}</span></td>
+                    <td><a href="/receptionist/folio/detail?id=${folio.roomBookingDetailId}" class="btn-folio-detail">View Details</a></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
     </script>
 </body>
+
 </html>

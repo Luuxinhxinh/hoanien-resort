@@ -11,4 +11,5 @@ public interface RoomBookingDetailRepository extends JpaRepository<RoomBookingDe
     List<RoomBookingDetail> findByRoomBookingId(Long bookingId);
 
     List<RoomBookingDetail> findByDetailStatus(String detailStatus);
+    List<RoomBookingDetail> findByDetailStatusIn(List<String> statuses);
 }
