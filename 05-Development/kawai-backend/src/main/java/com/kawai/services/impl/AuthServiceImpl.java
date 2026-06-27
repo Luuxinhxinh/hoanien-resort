@@ -30,6 +30,9 @@ public class AuthServiceImpl implements AuthService {
     private RoleRepository roleRepository;
 
     @Autowired
+    private MembershipTierRepository membershipTierRepository;
+
+    @Autowired
     private AuditLogRepository auditLogRepository;
 
     @Autowired
@@ -123,6 +126,9 @@ public class AuthServiceImpl implements AuthService {
         customerToUse.setEmail(email);
         customerToUse.setGender(gender != null ? gender : "Other");
         customerToUse.setPhone(phone != null && !phone.trim().isEmpty() ? phone : "0000000000");
+        if (customerToUse.getMembershipTier() == null) {
+            customerToUse.setMembershipTier(membershipTierRepository.findByTierNameIgnoreCase("Regular").orElse(null));
+        }
         customerRepository.save(customerToUse);
 
         writeAuditLog(accountToUse, "REGISTER", "Accounts", accountToUse.getId(), null,

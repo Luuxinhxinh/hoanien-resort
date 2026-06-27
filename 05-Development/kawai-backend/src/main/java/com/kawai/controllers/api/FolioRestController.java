@@ -64,7 +64,7 @@ public class FolioRestController {
             com.kawai.repositories.RoomBookingRepository roomBookingRepository,
             com.kawai.repositories.PromotionRepository promotionRepository,
             com.kawai.repositories.CustomerRepository customerRepository,
-            com.kawai.repositories.RoomGuestRepository roomGuestRepository) {
+            com.kawai.repositories.RoomGuestRepository roomGuestRepository,
             com.kawai.repositories.MembershipTierRepository membershipTierRepository) {
         this.nightAuditService = nightAuditService;
         this.folioItemRepository = folioItemRepository;

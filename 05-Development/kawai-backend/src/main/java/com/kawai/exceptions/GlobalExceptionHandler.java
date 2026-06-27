@@ -2,6 +2,7 @@ package com.kawai.exceptions;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.ModelAndView;
@@ -11,6 +12,23 @@ import jakarta.servlet.http.HttpServletRequest;
 public class GlobalExceptionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public Object handleAccessDenied(HttpServletRequest request, AccessDeniedException ex) {
+        log.warn("Truy cập bị từ chối tại {}: {}", request.getRequestURI(), ex.getMessage());
+
+        // If it's an API request, return JSON
+        if (request.getRequestURI().startsWith("/api/") || request.getRequestURI().startsWith("/admin/api/")) {
+            return org.springframework.http.ResponseEntity
+                    .status(org.springframework.http.HttpStatus.FORBIDDEN)
+                    .body(java.util.Map.of("error", "Bạn không có quyền thực hiện thao tác này.", "type", "AccessDenied"));
+        }
+
+        ModelAndView mav = new ModelAndView();
+        mav.addObject("requestUri", request.getRequestURI());
+        mav.setViewName("error/403");
+        return mav;
+    }
 
     @ExceptionHandler(Exception.class)
     public Object handleError(HttpServletRequest request, Exception ex) {

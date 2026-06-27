@@ -29,6 +29,9 @@ public class OAuthAccountService {
     @Autowired
     private RoleRepository roleRepository;
 
+    @Autowired
+    private com.kawai.repositories.MembershipTierRepository membershipTierRepository;
+
     // Không inject PasswordEncoder để tránh circular dependency
 
     /**
@@ -88,6 +91,7 @@ public class OAuthAccountService {
         customer.setGender("Other");
         customer.setPhone("N/A");
         customer.setCccdPassportEncrypted(null);
+        customer.setMembershipTier(membershipTierRepository.findByTierNameIgnoreCase("Regular").orElse(null));
         customerRepository.save(customer);
         log.info("Đã tạo Customer mới: id={}, email={}", customer.getId(), email);
 

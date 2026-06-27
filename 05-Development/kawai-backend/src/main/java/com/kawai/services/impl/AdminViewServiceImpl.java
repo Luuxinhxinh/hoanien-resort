@@ -359,6 +359,9 @@ public class AdminViewServiceImpl implements AdminViewService {
                 List<Map<String, String>> rows = new ArrayList<>();
                 try {
                     for (Role role : roleRepository.findAll()) {
+                        if (role.getRoleName() != null && role.getRoleName().toUpperCase().contains("CUSTOMER")) {
+                            continue;
+                        }
                         rows.add(r("id", "RL-" + role.getId(), "name", role.getRoleName(), "permissions", role.getPermissions() != null ? role.getPermissions() : ""));
                     }
                 } catch (Exception e) {

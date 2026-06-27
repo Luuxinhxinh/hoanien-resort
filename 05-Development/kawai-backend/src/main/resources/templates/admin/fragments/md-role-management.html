@@ -5,47 +5,92 @@
 
     <!-- TABLE FRAGMENT -->
     <div th:fragment="table">
+        <style>
+            .rbac-perm-badge {
+                display: inline-flex;
+                align-items: center;
+                padding: 4px 10px;
+                background-color: #fcf9f2;
+                border: 1px solid #e2d1b3;
+                color: #8b6d3b;
+                border-radius: 20px;
+                font-size: 11.5px;
+                font-weight: 600;
+                letter-spacing: 0.02em;
+                box-shadow: 0 1px 2px rgba(139,109,59,0.05);
+            }
+            .rbac-perm-badge.sys {
+                background-color: #fdf5f5;
+                border-color: #f5c6c6;
+                color: #c94f4f;
+            }
+            .rbac-role-name {
+                font-weight: 600;
+                color: #4a3b2c;
+                font-size: 14px;
+            }
+            .rbac-empty-perm {
+                font-size: 12px;
+                color: #a09384;
+                font-style: italic;
+                background: #f5f5f5;
+                padding: 4px 10px;
+                border-radius: 20px;
+                border: 1px dashed #ddd;
+            }
+        </style>
         <div class="adm-table-wrap">
             <table class="adm-table">
                 <thead>
                     <tr>
-                        <th>Mã</th>
-                        <th>Tên vai trò</th>
-                        <th>Quyền hiện tại</th>
-                        <th style="text-align:right">Thao tác</th>
+                        <th style="width: 80px">Mã</th>
+                        <th style="width: 220px">Tên vai trò</th>
+                        <th>Quyền hiện tại (Permissions)</th>
+                        <th style="text-align:right; width: 100px">Thao tác</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr th:each="row, stat : ${rows}" th:attr="data-id=${row['id']},data-entity=${row['jsonString']}">
-                        <td th:attr="data-key='id',data-value=${row['id']}" th:text="${row['id']}"></td>
-                        <td th:attr="data-key='name',data-value=${row['name']}" th:text="${row['name']}"></td>
+                        <td th:attr="data-key='id',data-value=${row['id']}" th:text="${'R-' + row['id']}" style="color: #8b7355; font-family: monospace; font-size: 13px;"></td>
+                        <td th:attr="data-key='name',data-value=${row['name']}">
+                            <div class="rbac-role-name" th:text="${row['name']}"></div>
+                        </td>
                         <td th:attr="data-key='permissions',data-value=${row['permissions']}">
-                            <div style="display:flex;flex-wrap:wrap;gap:4px;max-width:480px">
+                            <div style="display:flex;flex-wrap:wrap;gap:6px;max-width:550px">
                                 <th:block th:if="${row['permissions'] != null and !row['permissions'].isEmpty()}">
                                     <th:block th:each="perm : ${#strings.arraySplit(row['permissions'], ',')}">
-                                        <span class="cell-badge badge-green" th:text="${#strings.trim(perm)}"></span>
+                                        <span class="rbac-perm-badge" 
+                                              th:classappend="${#strings.trim(perm) == 'MASTER_DATA' or #strings.trim(perm) == 'AUDIT_LOG' ? 'sys' : ''}" 
+                                              th:text="${#strings.trim(perm)}"></span>
                                     </th:block>
                                 </th:block>
                                 <span th:if="${row['permissions'] == null or row['permissions'].isEmpty()}" 
-                                      class="cell-badge badge-gray" style="font-style:italic">Chưa có quyền</span>
+                                      class="rbac-empty-perm">Chưa gán quyền</span>
                             </div>
                         </td>
                         <td style="text-align:right">
                             <div style="display:flex;align-items:center;justify-content:flex-end;gap:8px">
-                                <button class="btn-action btn-action-edit btn-edit" th:attr="data-id=${row['id']}">
-                                    <i data-lucide="shield-check"></i>
-                                </button>
-                                <button class="btn-action btn-action-delete btn-delete"
-                                    th:attr="data-id=${row['id']}">
-                                    <i data-lucide="trash-2"></i>
-                                </button>
+                                <th:block th:if="${#strings.toUpperCase(row['name']) != 'ADMIN'}">
+                                    <button class="btn-action btn-action-edit btn-edit" th:attr="data-id=${row['id']}" title="Chỉnh sửa quyền">
+                                        <i data-lucide="shield-check"></i>
+                                    </button>
+                                    <button class="btn-action btn-action-delete btn-delete"
+                                        th:attr="data-id=${row['id']}" title="Xóa vai trò">
+                                        <i data-lucide="trash-2"></i>
+                                    </button>
+                                </th:block>
+                                <th:block th:if="${#strings.toUpperCase(row['name']) == 'ADMIN'}">
+                                    <span style="color: #999; font-size: 12px; display:flex; align-items:center; gap: 4px; padding-right: 4px;" title="Vai trò hệ thống không thể sửa">
+                                        <i data-lucide="lock" style="width: 14px; height: 14px;"></i> Hệ thống
+                                    </span>
+                                </th:block>
                             </div>
                         </td>
                     </tr>
                     <tr th:if="${#lists.isEmpty(rows)}">
                         <td colspan="4"
-                            style="text-align:center;padding:48px;color:#8B7355;font-family:var(--font-serif);font-size:18px">
-                            Không có bản ghi nào</td>
+                            style="text-align:center;padding:48px;color:#8B7355;font-family:var(--font-serif);font-size:16px">
+                            Chưa có dữ liệu vai trò</td>
                     </tr>
                 </tbody>
             </table>

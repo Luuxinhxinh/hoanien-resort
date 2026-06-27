@@ -4,16 +4,16 @@
 -- ============================================================
 
 -- ── 1. Roles (10 rows) ───────────────────────────────────────
-INSERT INTO Roles (role_id, role_name) VALUES (1, 'ADMIN');
-INSERT INTO Roles (role_id, role_name) VALUES (2, 'RECEPTIONIST');
-INSERT INTO Roles (role_id, role_name) VALUES (3, 'F&B KITCHEN');
-INSERT INTO Roles (role_id, role_name) VALUES (4, 'F&B POS');
-INSERT INTO Roles (role_id, role_name) VALUES (5, 'HOUSEKEEPING');
-INSERT INTO Roles (role_id, role_name) VALUES (6, 'MAINTAINER');
-INSERT INTO Roles (role_id, role_name) VALUES (7, 'MANAGER');
-INSERT INTO Roles (role_id, role_name) VALUES (8, 'TOURGUIDE');
-INSERT INTO Roles (role_id, role_name) VALUES (9, 'CUSTOMER VIP');
-INSERT INTO Roles (role_id, role_name) VALUES (10, 'CUSTOMER NORMAL');
+INSERT INTO Roles (role_id, role_name, permissions) VALUES (1, 'ADMIN', 'MASTER_DATA,AUDIT_LOG,DASHBOARD,BOOKING,FNB,TOUR,HOUSEKEEPING,MAINTENANCE,NIGHT_AUDIT,ANALYTICS,REVIEWS,PROMOTIONS,CRM,WORKFLOW');
+INSERT INTO Roles (role_id, role_name, permissions) VALUES (2, 'RECEPTIONIST', 'DASHBOARD,BOOKING,NIGHT_AUDIT,CRM,REVIEWS');
+INSERT INTO Roles (role_id, role_name, permissions) VALUES (3, 'F&B KITCHEN', 'DASHBOARD,FNB');
+INSERT INTO Roles (role_id, role_name, permissions) VALUES (4, 'F&B POS', 'DASHBOARD,FNB');
+INSERT INTO Roles (role_id, role_name, permissions) VALUES (5, 'HOUSEKEEPING', 'DASHBOARD,HOUSEKEEPING');
+INSERT INTO Roles (role_id, role_name, permissions) VALUES (6, 'MAINTAINER', 'DASHBOARD,MAINTENANCE');
+INSERT INTO Roles (role_id, role_name, permissions) VALUES (7, 'MANAGER', 'DASHBOARD,ANALYTICS,REVIEWS,PROMOTIONS,CRM,WORKFLOW');
+INSERT INTO Roles (role_id, role_name, permissions) VALUES (8, 'TOURGUIDE', 'DASHBOARD,TOUR');
+INSERT INTO Roles (role_id, role_name, permissions) VALUES (9, 'CUSTOMER VIP', '');
+INSERT INTO Roles (role_id, role_name, permissions) VALUES (10, 'CUSTOMER NORMAL', '');
 
 -- ── 2. Accounts (20 rows) ────────────────────────────────────
 -- password hash for 'admin123': $2a$10$4bnThA4xQVw1rF2POQv78uAQll2KsUsgF32JaYiVG5d2d3Fhgk83q
