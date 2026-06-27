@@ -242,7 +242,7 @@
                 <div class="mgr-chart-card">
                     <div class="mgr-chart-header">
                         <div>
-                            <div class="mgr-chart-title">Doanh thu 7 ngày gần nhất</div>
+                            <div class="mgr-chart-title">Doanh thu trong ngày</div>
                             <div class="mgr-chart-subtitle">Đơn vị: triệu VNĐ</div>
                         </div>
                         <div class="mgr-legend">
@@ -257,20 +257,20 @@
                             </div>
                         </div>
                     </div>
-                    <div class="mgr-chart-canvas-wrap" style="height:220px"><canvas id="chart-bar"></canvas></div>
+                    <div class="mgr-chart-canvas-wrap" style="height:220px"><canvas id="chart-line-today"></canvas></div>
                     <script th:inline="javascript">
-                        window.barData = {
-                            labels: /*[[${dailyRevenue.![label]}]]*/["T2", "T3", "T4", "T5", "T6", "T7", "CN"],
-                            room:   /*[[${dailyRevenue.![room]}]]*/[180, 145, 200, 220, 265, 310, 295],
-                            fnb:    /*[[${dailyRevenue.![fnb]}]]*/[65, 55, 78, 82, 95, 110, 105],
-                            tour:   /*[[${dailyRevenue.![tour]}]]*/[42, 28, 55, 61, 72, 88, 80]
+                        window.todayData = {
+                            labels: /*[[${todayChartLabels}]]*/ ["06:00", "09:00", "12:00", "15:00", "18:00", "21:00"],
+                            room: /*[[${todayRoomValues}]]*/ [0, 10, 5, 20, 10, 30],
+                            fnb: /*[[${todayFnbValues}]]*/ [0.5, 5, 2, 5, 3, 10],
+                            tour: /*[[${todayTourValues}]]*/ [0, 10, 3, 10, 5, 8]
                         };
                     </script>
                 </div>
                 <div class="mgr-chart-card">
                     <div class="mgr-chart-header">
                         <div>
-                            <div class="mgr-chart-title">Cơ cấu doanh thu 7 ngày qua</div>
+                            <div class="mgr-chart-title">Doanh thu 7 ngày gần nhất</div>
                         </div>
                     </div>
                     <div class="mgr-donut-wrap" style="height:180px">

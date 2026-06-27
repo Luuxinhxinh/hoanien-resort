@@ -12,4 +12,5 @@ public interface RoomGuestRepository extends JpaRepository<RoomGuest, Long> {
     java.util.Optional<RoomGuest> findByDependentId(Long dependentId);
     java.util.Optional<RoomGuest> findByCustomerIdAndGuestType(Long customerId, String guestType);
     List<RoomGuest> findByCustomerId(Long customerId);
+    java.util.Optional<RoomGuest> findByRoomBookingDetailIdAndIsPrimaryContactTrue(Long detailId);
 }

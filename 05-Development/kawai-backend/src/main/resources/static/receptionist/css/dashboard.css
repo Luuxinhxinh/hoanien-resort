@@ -1,15 +1,18 @@
 :root {
-    --bg-main: #f4efea; /* Updated to #f4efea as requested */
-    --bg-sidebar: #38302c; /* Dark brown */
+    --bg-main: #f4efea;
+    /* Updated to #f4efea as requested */
+    --bg-sidebar: #38302c;
+    /* Dark brown */
     --bg-sidebar-hover: #4a403a;
-    --bg-sidebar-active: #946f38; /* Goldish brown */
+    --bg-sidebar-active: #946f38;
+    /* Goldish brown */
     --text-sidebar: #a89f9a;
     --text-sidebar-active: #ffffff;
     --bg-header: #ffffff;
     --text-main: #1a1a1a;
     --text-muted: #8b8b8b;
     --border-color: #e5e5e5;
-    
+
     /* Card borders and colors */
     --color-occupied-bg: #222938;
     --color-occupied-text: #ffffff;
@@ -19,7 +22,7 @@
     --color-available-text: #64d18a;
     --color-ooo-border: #eb5757;
     --color-ooo-text: #eb5757;
-    
+
     /* Stat colors */
     --stat-purple: #7b61ff;
     --stat-purple-bg: #f2efff;
@@ -30,7 +33,8 @@
     --stat-red: #eb5757;
     --stat-red-bg: #fdeeee;
 
-    --font-heading: 'Playfair Display', serif; /* Requested font for Hoanien Retreat */
+    --font-heading: 'Playfair Display', serif;
+    /* Requested font for Hoanien Retreat */
     --font-body: 'Inter', sans-serif;
 }
 
@@ -41,11 +45,12 @@
 }
 
 body {
-    font-family: var(--font-body);
+    font-family: EB Garamond (--font-body);
     background-color: var(--bg-main);
     color: var(--text-main);
     height: 100vh;
-    overflow: hidden; /* Prevent body scroll, let specific areas scroll to prevent overlap */
+    overflow: hidden;
+    /* Prevent body scroll, let specific areas scroll to prevent overlap */
 }
 
 .app-container {
@@ -61,7 +66,8 @@ body {
     color: var(--text-sidebar);
     display: flex;
     flex-direction: column;
-    flex-shrink: 0; /* Prevent sidebar from shrinking and overlapping */
+    flex-shrink: 0;
+    /* Prevent sidebar from shrinking and overlapping */
 }
 
 .sidebar-brand {
@@ -173,7 +179,7 @@ body {
     display: flex;
     align-items: center;
     gap: 12px;
-    border-top: 1px solid rgba(255,255,255,0.05);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
     position: relative;
 }
 
@@ -220,7 +226,8 @@ body {
     flex: 1;
     display: flex;
     flex-direction: column;
-    min-width: 0; /* Fix flexbox overflowing */
+    min-width: 0;
+    /* Fix flexbox overflowing */
 }
 
 /* HEADER */
@@ -232,7 +239,8 @@ body {
     justify-content: space-between;
     padding: 0 32px;
     border-bottom: 1px solid var(--border-color);
-    flex-shrink: 0; /* Prevent header from shrinking/overlapping */
+    flex-shrink: 0;
+    /* Prevent header from shrinking/overlapping */
 }
 
 .header-datetime {
@@ -346,13 +354,15 @@ body {
     border: 2px solid white;
 }
 
-.user-profile-btn, .logout-btn {
+.user-profile-btn,
+.logout-btn {
     background-color: #38302c !important;
     color: white !important;
     font-weight: 500;
 }
 
-.user-profile-btn:hover, .logout-btn:hover {
+.user-profile-btn:hover,
+.logout-btn:hover {
     background-color: #4a403a !important;
 }
 
@@ -375,7 +385,7 @@ body {
     background-color: #ffffff;
     border-radius: 16px;
     padding: 24px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
 }
 
 .stat-card-header {
@@ -401,17 +411,37 @@ body {
     font-size: 14px;
 }
 
-.bg-purple-light { background-color: var(--stat-purple-bg); }
-.text-purple { color: var(--stat-purple); }
+.bg-purple-light {
+    background-color: var(--stat-purple-bg);
+}
 
-.bg-green-light { background-color: var(--stat-green-bg); }
-.text-green { color: var(--stat-green); }
+.text-purple {
+    color: var(--stat-purple);
+}
 
-.bg-orange-light { background-color: var(--stat-orange-bg); }
-.text-orange { color: var(--stat-orange); }
+.bg-green-light {
+    background-color: var(--stat-green-bg);
+}
 
-.bg-red-light { background-color: var(--stat-red-bg); }
-.text-red { color: var(--stat-red); }
+.text-green {
+    color: var(--stat-green);
+}
+
+.bg-orange-light {
+    background-color: var(--stat-orange-bg);
+}
+
+.text-orange {
+    color: var(--stat-orange);
+}
+
+.bg-red-light {
+    background-color: var(--stat-red-bg);
+}
+
+.text-red {
+    color: var(--stat-red);
+}
 
 .stat-value {
     font-size: 32px;
@@ -430,7 +460,7 @@ body {
     background-color: #ffffff;
     border-radius: 16px;
     padding: 24px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
 }
 
 .room-matrix-header {
@@ -489,7 +519,8 @@ body {
     padding-bottom: 16px;
     border-bottom: 1px solid var(--border-color);
     margin-bottom: 24px;
-    flex-wrap: wrap; /* Prevent overlap on small screens */
+    flex-wrap: wrap;
+    /* Prevent overlap on small screens */
     gap: 16px;
 }
 
@@ -515,10 +546,22 @@ body {
     background-color: white;
 }
 
-.dot-available { border-color: var(--color-available-border); }
-.dot-occupied { border-color: var(--color-occupied-bg); background-color: var(--color-occupied-bg); }
-.dot-housekeeping { border-color: var(--color-housekeeping-border); }
-.dot-ooo { border-color: var(--color-ooo-border); }
+.dot-available {
+    border-color: var(--color-available-border);
+}
+
+.dot-occupied {
+    border-color: var(--color-occupied-bg);
+    background-color: var(--color-occupied-bg);
+}
+
+.dot-housekeeping {
+    border-color: var(--color-housekeeping-border);
+}
+
+.dot-ooo {
+    border-color: var(--color-ooo-border);
+}
 
 .matrix-count {
     font-size: 13px;
@@ -571,7 +614,8 @@ body {
 .room-grid.collapsed {
     max-height: 0;
     opacity: 0;
-    margin-top: -16px; /* Counteract any gap/margin if needed, or simply hide */
+    margin-top: -16px;
+    /* Counteract any gap/margin if needed, or simply hide */
     pointer-events: none;
 }
 
@@ -605,11 +649,12 @@ body {
 
 .room-type {
     font-size: 12px;
-    margin-bottom: auto; /* Push footer to bottom */
+    margin-bottom: auto;
+    /* Push footer to bottom */
 }
 
 .type-badge {
-    background-color: rgba(0,0,0,0.05);
+    background-color: rgba(0, 0, 0, 0.05);
     padding: 2px 6px;
     border-radius: 4px;
 }
@@ -623,7 +668,8 @@ body {
     text-overflow: ellipsis;
 }
 
-.room-footer, .room-status-text {
+.room-footer,
+.room-status-text {
     font-size: 12px;
     opacity: 0.8;
 }
@@ -633,6 +679,7 @@ body {
     background-color: var(--color-occupied-bg);
     color: var(--color-occupied-text);
 }
+
 .card-occupied .room-indicator {
     background-color: #f6c042;
 }
@@ -641,10 +688,12 @@ body {
     background-color: white;
     border-color: var(--color-housekeeping-border);
 }
+
 .card-housekeeping .room-status-text {
     color: var(--color-housekeeping-text);
     font-weight: 500;
 }
+
 .card-housekeeping i {
     color: var(--color-housekeeping-text);
 }
@@ -653,9 +702,11 @@ body {
     background-color: white;
     border-color: var(--color-available-border);
 }
+
 .card-available .room-indicator {
     background-color: var(--color-available-border);
 }
+
 .card-available .text-green {
     color: var(--color-available-text) !important;
     font-weight: 500;
@@ -665,10 +716,12 @@ body {
     background-color: white;
     border-color: var(--color-ooo-border);
 }
+
 .card-ooo .room-status-text {
     color: var(--color-ooo-text);
     font-weight: 500;
 }
+
 .card-ooo i {
     color: var(--color-ooo-text);
 }
@@ -684,29 +737,41 @@ body {
     .sidebar {
         width: 80px;
     }
-    .brand-text, .nav-text, .nav-arrow, .sidebar-section-title, .user-info {
+
+    .brand-text,
+    .nav-text,
+    .nav-arrow,
+    .sidebar-section-title,
+    .user-info {
         display: none;
     }
+
     .sidebar-brand {
         justify-content: center;
         padding: 20px 0;
     }
+
     .nav-item {
         justify-content: center;
     }
+
     .sidebar-user {
         justify-content: center;
     }
+
     .user-status {
         right: 18px;
         top: 20px;
     }
+
     .stat-cards-container {
         grid-template-columns: 1fr;
     }
+
     .header-search {
         display: none;
     }
+
     .matrix-filters {
         flex-direction: column;
         align-items: flex-start;

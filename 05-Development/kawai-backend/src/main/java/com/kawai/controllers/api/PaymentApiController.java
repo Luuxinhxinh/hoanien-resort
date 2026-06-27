@@ -47,8 +47,25 @@ public class PaymentApiController {
             } else {
                 redirectUrl = "/order-food?payment=" + (isSuccess ? "success" : "failed");
             }
-        } else if (txnRef != null && (txnRef.startsWith("TXN-") || txnRef.startsWith("FOLIO_"))) {
+} else if (txnRef != null && (txnRef.startsWith("FOLIO_") || txnRef.startsWith("TXN-"))) {
+            // Nếu là mã TXN- hoặc mã FOLIO_ không đúng định dạng bóc tách, mặc định về trang danh sách folio
             redirectUrl = "/receptionist/folio?payment=" + (isSuccess ? "success" : "failed");
+
+            // Nếu là mã FOLIO_, tiến hành bóc tách nâng cao để đưa về trang chi tiết (detail)
+            if (txnRef.startsWith("FOLIO_")) {
+                String[] parts = txnRef.split("_");
+                String detailId = null;
+                
+                if (txnRef.startsWith("FOLIO_GROUP_") && parts.length >= 3) {
+                    detailId = parts[2];
+                } else if (parts.length >= 2) {
+                    detailId = parts[1];
+                }
+                
+                if (detailId != null) {
+                    redirectUrl = "/receptionist/folio/detail?id=" + detailId + "&payment=" + (isSuccess ? "success" : "failed");
+                }
+            }
         } else if (txnRef != null && txnRef.startsWith("WALKIN_")) {
             redirectUrl = "/receptionist/in-house?payment=" + (isSuccess ? "success" : "failed");
             System.err.println("[VNPay Return] -> Redirecting to in-house (WALKIN_ prefix)");
