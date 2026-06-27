@@ -7,7 +7,8 @@ document.addEventListener('DOMContentLoaded', () => {
     cart: {}, // foodId -> { item, qty }
     vatRate: 0.1,
     roomLimit: 1000000, // Hardcoded for mockup (1,000,000 VND)
-    roomOccupied: false
+    roomOccupied: false,
+    guestVerified: false
   };
 
   // --- TABLE ID MAPPING ---
@@ -31,6 +32,20 @@ document.addEventListener('DOMContentLoaded', () => {
   // --- PARSE URL PARAMS ---
   const urlParams = new URLSearchParams(window.location.search);
   const preselectTableId = urlParams.get('tableId');
+  const typeParam = urlParams.get('type');
+  const returnUrl = urlParams.get('returnUrl') || "/fbStaff/dashboard";
+
+  // Customize back button
+  if (urlParams.has('returnUrl')) {
+    const backBtn = document.querySelector('.topbar-right a.btn');
+    if (backBtn) {
+      backBtn.href = returnUrl;
+      if (returnUrl.includes('room-service')) {
+        backBtn.innerHTML = '<span class="material-symbols-outlined">arrow_back</span> Quay lại Room Service';
+      }
+    }
+  }
+
   if (preselectTableId && tableInputText && tableHiddenId) {
     tableHiddenId.value = preselectTableId;
     // Tìm tableNumber tương ứng với tableId để hiển thị
@@ -93,13 +108,19 @@ document.addEventListener('DOMContentLoaded', () => {
           <label class="form-label">Thanh toán</label>
           <div class="room-charge-info">
             <div class="rc-row"><span class="rc-label">Hình thức</span><span class="rc-val">Charge to Room</span></div>
-            <div class="rc-row"><span class="rc-label">Hạn mức còn lại</span><span class="rc-val">${formatMoney(state.roomLimit)}</span></div>
+            <div class="rc-row"><span class="rc-label">Hạn mức còn lại</span><span class="rc-val" id="sidebar-room-limit">${formatMoney(state.roomLimit)}</span></div>
           </div>
         `;
       }
       validateCheckout();
     });
   });
+
+  // Auto select based on URL
+  if (typeParam === 'room-service') {
+    const rsBtn = document.querySelector('.type-btn[data-type="room-svc"]');
+    if (rsBtn) rsBtn.click();
+  }
 
   // --- ROOM SERVICE API INTEGRATION ---
   let roomSearchTimeout = null;
@@ -112,9 +133,15 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!val) {
       roomInfo.style.display = 'none';
       state.roomOccupied = false;
+      state.guestVerified = false;
       validateCheckout();
       return;
     }
+
+    // Reset verify state when room changes
+    state.guestVerified = false;
+    guestNameEl.textContent = 'Đang chờ xác thực...';
+    guestNameEl.style.color = 'var(--text-secondary)';
 
     // Debounce API call
     roomSearchTimeout = setTimeout(() => {
@@ -126,7 +153,8 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(data => {
           if (data.occupied) {
             roomInfo.style.display = 'block';
-            guestNameEl.textContent = data.guestName || 'Không có tên';
+            guestNameEl.textContent = 'Đang chờ xác thực CCCD...';
+            guestNameEl.style.color = 'var(--text-secondary)';
             state.roomLimit = data.limitRemaining || 0;
             roomLimitEl.textContent = formatMoney(state.roomLimit);
             state.roomOccupied = true;
@@ -134,7 +162,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('roomStatusBadge').textContent = 'Occupied';
 
             if (state.orderType === 'room-svc') {
-              const limitDisplay = document.querySelector('.room-charge-info .rc-val:last-child');
+              const limitDisplay = document.getElementById('sidebar-room-limit');
               if (limitDisplay) limitDisplay.textContent = formatMoney(state.roomLimit);
             }
           } else {
@@ -152,8 +180,58 @@ document.addEventListener('DOMContentLoaded', () => {
   function showVacant() {
     roomInfo.style.display = 'none';
     state.roomOccupied = false;
+    state.guestVerified = false;
     document.getElementById('roomStatusBadge').className = 'status-badge status-vacant';
     document.getElementById('roomStatusBadge').textContent = 'Trống';
+  }
+
+  // --- VERIFY GUEST API ---
+  const btnVerifyGuest = document.getElementById('btnVerifyGuest');
+  const last4DigitsInput = document.getElementById('last4DigitsInput');
+
+  if (btnVerifyGuest && last4DigitsInput) {
+    btnVerifyGuest.addEventListener('click', () => {
+      const val = roomInput.value.trim().toUpperCase();
+      const last4 = last4DigitsInput.value.trim();
+
+      if (!val) {
+        alert("Vui lòng nhập số phòng trước.");
+        return;
+      }
+      if (!last4 || last4.length !== 4) {
+        alert("Vui lòng nhập đủ 4 số cuối CCCD/Passport.");
+        return;
+      }
+
+      btnVerifyGuest.textContent = '...';
+      btnVerifyGuest.disabled = true;
+
+      fetch(`/api/rooms/${val}/verify-guest?last4Digits=${last4}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            state.guestVerified = true;
+            guestNameEl.textContent = data.guestName;
+            guestNameEl.style.color = 'var(--status-ready-text)'; // Greenish
+            alert("Xác thực thành công!");
+          } else {
+            state.guestVerified = false;
+            guestNameEl.textContent = data.message || 'Xác thực thất bại';
+            guestNameEl.style.color = 'red';
+            alert(data.message || "Xác thực thất bại!");
+          }
+          validateCheckout();
+        })
+        .catch(err => {
+          alert("Lỗi kết nối máy chủ");
+          state.guestVerified = false;
+          validateCheckout();
+        })
+        .finally(() => {
+          btnVerifyGuest.textContent = 'Xác nhận';
+          btnVerifyGuest.disabled = false;
+        });
+    });
   }
 
   // --- FILTER & SEARCH ---
@@ -312,6 +390,9 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!state.roomOccupied) {
         isValid = false;
       }
+      if (!state.guestVerified) {
+        isValid = false;
+      }
       if (state.currentTotal > state.roomLimit) {
         isValid = false;
         limitWarning.style.display = 'block';
@@ -339,6 +420,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Expose send logic
   window.sendToKitchen = function () {
+    if (!confirm("Bạn có chắc chắn muốn chốt đơn và gửi xuống bếp (KOT) không?\nHành động này không thể hoàn tác.")) {
+      return; // Hủy bỏ, ở lại màn hình hiện tại
+    }
+
     const tableSelect = document.getElementById('tableSelect');
     const guestInput = document.getElementById('guestNameInput');
     const dineInNote = document.getElementById('dineInNoteInput');
@@ -377,7 +462,26 @@ document.addEventListener('DOMContentLoaded', () => {
       })
       .then(data => {
         alert("Đã sinh Kitchen Order Ticket (KOT) và chuyển xuống bếp!");
-        window.location.href = "/fbStaff/dashboard";
+        
+        // Trừ đi hạn mức trên giao diện để nhân viên thấy trực quan
+        if (state.orderType === 'room-svc') {
+            state.roomLimit -= state.currentTotal;
+            if (document.getElementById('roomLimit')) {
+                document.getElementById('roomLimit').textContent = formatMoney(state.roomLimit);
+            }
+            const sidebarLimit = document.getElementById('sidebar-room-limit');
+            if (sidebarLimit) {
+                sidebarLimit.textContent = formatMoney(state.roomLimit);
+            }
+        }
+
+        // Reset giỏ hàng và UI
+        state.cart = {};
+        renderCart();
+        btnSendKitchen.disabled = false;
+        btnSendKitchen.textContent = 'Gửi xuống Bếp (KOT)';
+        
+        window.location.href = returnUrl;
       })
       .catch(err => {
         alert("Lỗi khi tạo đơn: " + err.message);

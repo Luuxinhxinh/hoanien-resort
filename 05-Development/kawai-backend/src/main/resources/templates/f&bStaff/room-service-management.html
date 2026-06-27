@@ -83,11 +83,20 @@
         <div class="topbar-title">Room Service Management</div>
         <div class="topbar-subtitle">Quản lý và theo dõi các yêu cầu gọi món từ phòng khách</div>
       </div>
-      <div class="topbar-right">
+      <div class="topbar-right" style="display: flex; align-items: center; gap: 15px;">
+        <a href="/fbStaff/create-food-order?type=room-service&returnUrl=/fbStaff/room-service" class="btn btn-primary" style="text-decoration:none; display:inline-flex; align-items:center; gap:4px; height:34px; padding:0 14px; font-size:0.75rem; font-weight:600; letter-spacing:0.04em;">
+          <span class="material-symbols-outlined" style="font-size:1rem;">add</span>
+          Tạo đơn
+        </a>
+        
         <div class="time-display topbar-clock" id="time-display">12:00</div>
-        <div class="user-profile">
-          <img src="https://ui-avatars.com/api/?name=NV&background=be5014&color=fff" alt="User" class="avatar">
-        </div>
+
+        <form action="/auth/manual-logout" method="post" style="display:inline-block; margin:0;">
+          <button type="submit" class="btn btn-outline" style="height:34px;padding:0 14px;border:1px solid var(--border-active);cursor:pointer;display:inline-flex;align-items:center;gap:4px;font-family:inherit;font-size:0.75rem;font-weight:600;letter-spacing:0.04em; background:var(--bg-card); color:var(--text-primary);">
+            <span class="material-symbols-outlined" style="font-size:1rem;">logout</span>
+            Đăng xuất
+          </button>
+        </form>
       </div>
     </header>
 
@@ -98,25 +107,25 @@
         <div class="stat-card">
           <div class="stat-icon"><span class="material-symbols-outlined">receipt_long</span></div>
           <div class="stat-title">Total Orders Today</div>
-          <div class="stat-val">42</div>
+          <div class="stat-val" th:text="${totalOrders}">0</div>
         </div>
         <div class="stat-card">
           <div class="stat-icon" style="color:var(--status-pending-text); background:var(--status-pending-bg);"><span
               class="material-symbols-outlined">hourglass_empty</span></div>
           <div class="stat-title">Pending Orders</div>
-          <div class="stat-val">5</div>
+          <div class="stat-val" th:text="${pendingOrders}">0</div>
         </div>
         <div class="stat-card">
           <div class="stat-icon" style="color:var(--status-cooking-text); background:var(--status-cooking-bg);"><span
               class="material-symbols-outlined">skillet</span></div>
           <div class="stat-title">Preparing Orders</div>
-          <div class="stat-val">8</div>
+          <div class="stat-val" th:text="${preparingOrders}">0</div>
         </div>
         <div class="stat-card">
           <div class="stat-icon" style="color:var(--status-ready-text); background:var(--status-ready-bg);"><span
               class="material-symbols-outlined">check_circle</span></div>
           <div class="stat-title">Served Orders</div>
-          <div class="stat-val">29</div>
+          <div class="stat-val" th:text="${servedOrders}">0</div>
         </div>
       </div>
 
@@ -131,8 +140,9 @@
           <button class="pill active" data-filter="all">All</button>
           <button class="pill" data-filter="pending">Pending</button>
           <button class="pill" data-filter="preparing">Preparing</button>
+          <button class="pill" data-filter="ready">Ready</button>
+          <button class="pill" data-filter="delivering">Delivering</button>
           <button class="pill" data-filter="served">Served</button>
-          <button class="pill" data-filter="cancelled">Cancelled</button>
         </div>
       </div>
 
@@ -151,75 +161,44 @@
               <th>Action</th>
             </tr>
           </thead>
-          <tbody id="rs-tbody">
-
-            <!-- Row 1: Pending -->
-            <tr data-status="pending" onclick="location.href='/fbStaff/room-service-detail?id=RS-1024'">
-              <td class="col-id">RS-1024</td>
-              <td class="col-room"><span class="room-badge">208</span></td>
-              <td class="col-guest">Trần Thị Lan Anh</td>
-              <td class="col-time">19:41</td>
-              <td class="col-items">3 items</td>
-              <td class="col-amount">323.190₫</td>
-              <td class="col-status"><span class="order-status-chip chip-pending"><span
-                    class="dot"></span>Pending</span></td>
-              <td class="col-action">
-                <button class="btn btn-sm btn-outline">View</button>
-              </td>
-            </tr>
-
-            <!-- Row 2: Preparing -->
-            <tr data-status="preparing" onclick="location.href='/fbStaff/room-service-detail?id=RS-1023'">
-              <td class="col-id">RS-1023</td>
-              <td class="col-room"><span class="room-badge">501</span></td>
-              <td class="col-guest">Phạm Thùy Linh</td>
-              <td class="col-time">19:29</td>
-              <td class="col-items">4 items</td>
-              <td class="col-amount">450.000₫</td>
-              <td class="col-status"><span class="order-status-chip chip-cooking"><span
-                    class="dot"></span>Preparing</span></td>
-              <td class="col-action">
-                <button class="btn btn-sm btn-outline">View</button>
-              </td>
-            </tr>
-
-            <!-- Row 3: Served -->
-            <tr data-status="served" onclick="location.href='/fbStaff/room-service-detail?id=RS-1020'">
-              <td class="col-id">RS-1020</td>
-              <td class="col-room"><span class="room-badge">112</span></td>
-              <td class="col-guest">Lê Hoàng Nam</td>
-              <td class="col-time">18:15</td>
-              <td class="col-items">2 items</td>
-              <td class="col-amount">275.000₫</td>
-              <td class="col-status"><span class="order-status-chip chip-served"><span class="dot"></span>Served</span>
+          <tbody id="rs-tbody" th:each="entry : ${groupedOrders}">
+            <tr class="floor-group-header" style="background:#f9f5f0; border-top: 2px solid #e2d9ce;">
+              <td colspan="7" style="font-weight:700; color:var(--primary-dark); padding: 12px 16px;">
+                <span class="material-symbols-outlined" style="vertical-align:middle; font-size:1.2rem; margin-right:5px;">floor</span>
+                <span th:text="${entry.key} + ' (' + ${#lists.size(entry.value)} + ' đơn)'">Tầng 3 (2 đơn)</span>
               </td>
               <td class="col-action">
-                <button class="btn btn-sm btn-outline">View</button>
+                <button class="btn btn-sm btn-primary" th:data-floor="${entry.key}" onclick="dispatchFloor(this.getAttribute('data-floor'))"><span class="material-symbols-outlined" style="font-size:1rem; margin-right:4px;">local_shipping</span> Giao Tầng</button>
               </td>
             </tr>
-
-            <!-- Row 4: Cancelled -->
-            <tr data-status="cancelled" onclick="location.href='/fbStaff/room-service-detail?id=RS-1019'">
-              <td class="col-id">RS-1019</td>
-              <td class="col-room"><span class="room-badge">305</span></td>
-              <td class="col-guest">Nguyễn Văn Cường</td>
-              <td class="col-time">17:50</td>
-              <td class="col-items">1 item</td>
-              <td class="col-amount">120.000₫</td>
-              <td class="col-status"><span class="order-status-chip"
-                  style="background:#fbecec; color:#d32f2f; border-color:#d32f2f;"><span class="dot"
-                    style="background:#d32f2f;"></span>Cancelled</span></td>
+            <tr th:each="order : ${entry.value}" class="rs-row" th:data-status="${order.rawStatus}" th:data-floor="${entry.key}" th:data-orderid="${order.displayId}">
+              <td class="col-id"><a th:href="@{/fbStaff/order-detail(id=${order.displayId})}" style="font-weight:600; color:var(--primary-color);" th:text="${order.displayId}">RS-1024</a></td>
+              <td class="col-room"><span class="room-badge" th:text="${order.room}">208</span></td>
+              <td class="col-guest" th:text="${order.guestName}">Trần Thị Lan Anh</td>
+              <td class="col-time">
+                <div th:text="${order.time}">19:41</div>
+                <div class="sla-timer" th:data-ordertime="${order.orderTimeIso}" th:data-etamins="${order.etaMins}" style="font-size: 0.8rem; font-weight: 600; margin-top: 4px;">--:--</div>
+              </td>
+              <td class="col-items" th:text="${order.itemsText}">3 items</td>
+              <td class="col-amount" th:text="${order.amount}">323.190₫</td>
+              <td class="col-status">
+                <span class="order-status-chip chip-pending" th:if="${order.rawStatus == 'pending'}"><span class="dot"></span>Pending</span>
+                <span class="order-status-chip chip-cooking" th:if="${order.rawStatus == 'preparing'}"><span class="dot"></span>Preparing</span>
+                <span class="order-status-chip chip-ready" th:if="${order.rawStatus == 'ready'}"><span class="dot"></span>Ready</span>
+                <span class="order-status-chip chip-delivering" th:if="${order.rawStatus == 'delivering'}" style="background:#e0f7fa; color:#006064; border-color:#006064;"><span class="dot" style="background:#006064;"></span>Delivering</span>
+                <span class="order-status-chip chip-served" th:if="${order.rawStatus == 'served'}"><span class="dot"></span>Served</span>
+              </td>
               <td class="col-action">
-                <button class="btn btn-sm btn-outline">View</button>
+                <button th:if="${order.rawStatus == 'ready'}" class="btn btn-sm btn-outline" th:data-id="${order.id}" onclick="updateStatus(this.getAttribute('data-id'), 'delivering')"><span class="material-symbols-outlined" style="font-size:1rem; margin-right:4px;">local_shipping</span> Đi Giao</button>
+                <button th:if="${order.rawStatus == 'delivering'}" class="btn btn-sm btn-primary" th:data-id="${order.id}" onclick="updateStatus(this.getAttribute('data-id'), 'served')"><span class="material-symbols-outlined" style="font-size:1rem; margin-right:4px;">check_circle</span> Xác nhận giao</button>
               </td>
             </tr>
-
           </tbody>
         </table>
 
         <!-- Pagination -->
         <div class="pagination">
-          <div class="page-info">Hiển thị 1-4 trên 42 đơn hàng</div>
+          <div class="page-info">Tổng cộng <span th:text="${totalOrders}">0</span> đơn hàng</div>
           <div class="page-controls">
             <button class="btn btn-sm btn-outline" disabled><span class="material-symbols-outlined">chevron_left</span>
               Previous</button>
