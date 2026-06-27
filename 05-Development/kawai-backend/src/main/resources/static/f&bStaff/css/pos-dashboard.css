@@ -47,13 +47,17 @@
   --status-cooking-text: #b04510;
   --status-cooking-ring: rgba(190,80,20,0.22);
 
-  --status-ready-bg:     rgba(30,120,70,0.10);
-  --status-ready-text:   #1a7044;
-  --status-ready-ring:   rgba(30,120,70,0.22);
+  --status-ready-bg:     #e8f5e9;
+  --status-ready-text:   #2e7d32;
+  --status-ready-ring:   #a5d6a7;
 
   --status-served-bg:    rgba(60,80,160,0.08);
   --status-served-text:  #3a5098;
   --status-served-ring:  rgba(60,80,160,0.18);
+  
+  --status-delivering-bg:   #e0f7fa;
+  --status-delivering-text: #006064;
+  --status-delivering-ring: #006064;
 
   --status-roomsvc-bg:   rgba(140,50,120,0.09);
   --status-roomsvc-text: #8a306e;
@@ -78,7 +82,8 @@ body {
   font-family: 'Montserrat', sans-serif;
   font-weight: 400;
   line-height: 1.6;
-  min-height: 100vh;
+  height: 100vh;
+  max-height: 100vh;
   display: flex;
   overflow: hidden;
   -webkit-font-smoothing: antialiased;
@@ -297,6 +302,7 @@ h3, h4 { font-family: 'Montserrat', sans-serif; font-weight: 600; }
   display: flex;
   flex-direction: column;
   height: 100vh;
+  min-height: 0;
   overflow: hidden;
 }
 
@@ -374,11 +380,15 @@ h3, h4 { font-family: 'Montserrat', sans-serif; font-weight: 600; }
 .dashboard-body {
   flex: 1;
   overflow-y: auto;
+  min-height: 0;
   padding: 22px 26px 40px;
   display: flex;
   flex-direction: column;
   gap: 20px;
   background: var(--bg-base);
+}
+.dashboard-body > * {
+  flex-shrink: 0;
 }
 
 /* ============================================================
@@ -604,6 +614,7 @@ h3, h4 { font-family: 'Montserrat', sans-serif; font-weight: 600; }
 .chip-cooking  { background: var(--status-cooking-bg);  color: var(--status-cooking-text);  border-color: var(--status-cooking-ring);  }
 .chip-ready    { background: var(--status-ready-bg);    color: var(--status-ready-text);    border-color: var(--status-ready-ring);    }
 .chip-served   { background: var(--status-served-bg);   color: var(--status-served-text);   border-color: var(--status-served-ring);   }
+.chip-delivering { background: var(--status-delivering-bg); color: var(--status-delivering-text); border-color: var(--status-delivering-ring); }
 .chip-roomsvc  { background: var(--status-roomsvc-bg);  color: var(--status-roomsvc-text);  border-color: var(--status-roomsvc-ring);  }
 
 /* Order Items */

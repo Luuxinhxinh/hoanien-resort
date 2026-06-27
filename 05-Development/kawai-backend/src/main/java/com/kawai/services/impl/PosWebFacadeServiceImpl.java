@@ -219,7 +219,7 @@ public class PosWebFacadeServiceImpl implements PosWebFacadeService {
     @Override
     public Map<String, Object> getOrderDetailData(String idParam) {
         Map<String, Object> data = new HashMap<>();
-        String cleanId = idParam.replace("ORD-", "").replace("RES-", "");
+        String cleanId = idParam.replace("ORD-", "").replace("RES-", "").replace("RS-", "");
         Long id = Long.parseLong(cleanId);
         foodOrderRepository.findById(id).ifPresent(order -> {
             String extractedGuestName = "";
@@ -247,6 +247,114 @@ public class PosWebFacadeServiceImpl implements PosWebFacadeService {
                 .filter(o -> "Pending".equalsIgnoreCase(o.getOrderStatus()) || "Preparing".equalsIgnoreCase(o.getOrderStatus()))
                 .toList();
         data.put("orders", orders);
+        return data;
+    }
+
+    @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    public Map<String, Object> getRoomServiceManagementData() {
+        Map<String, Object> data = new HashMap<>();
+        List<FoodOrder> rsOrders = foodOrderRepository.findRoomServiceOrders();
+        
+        long totalOrders = 0;
+        long pendingOrders = 0;
+        long preparingOrders = 0;
+        long servedOrders = 0;
+        
+        java.time.format.DateTimeFormatter timeFormatter = java.time.format.DateTimeFormatter.ofPattern("HH:mm");
+        
+        List<Map<String, Object>> mappedOrders = new ArrayList<>();
+        
+        for (FoodOrder order : rsOrders) {
+            totalOrders++;
+            String status = order.getOrderStatus() != null ? order.getOrderStatus().toLowerCase() : "pending";
+            if (status.equals("pending")) pendingOrders++;
+            else if (status.equals("preparing")) preparingOrders++;
+            else if (status.equals("served") || status.equals("ready")) servedOrders++;
+            
+            // Bổ sung Delivering status count
+            long deliveringOrders = 0;
+            if (data.containsKey("deliveringOrders")) deliveringOrders = (long) data.get("deliveringOrders");
+            if (status.equals("delivering")) deliveringOrders++;
+            data.put("deliveringOrders", deliveringOrders);
+            
+            Map<String, Object> orderMap = new HashMap<>();
+            orderMap.put("id", order.getId());
+            orderMap.put("displayId", "RS-" + order.getId());
+            
+            String room = "";
+            String guest = "";
+            if (order.getRoomBookingDetail() != null) {
+                if (order.getRoomBookingDetail().getRoom() != null) {
+                    room = order.getRoomBookingDetail().getRoom().getRoomNumber();
+                }
+                if (order.getRoomBookingDetail().getCustomer() != null) {
+                    guest = order.getRoomBookingDetail().getCustomer().getFullName();
+                }
+            } else if (order.getBooking() != null && order.getBooking().getCustomer() != null) {
+                guest = order.getBooking().getCustomer().getFullName();
+            }
+            
+            orderMap.put("room", room);
+            orderMap.put("guestName", guest);
+            orderMap.put("time", order.getOrderTime() != null ? order.getOrderTime().format(timeFormatter) : "");
+            orderMap.put("orderTimeIso", order.getOrderTime() != null ? order.getOrderTime().toString() : "");
+            
+            // Lấy Tầng dựa trên số phòng (Giả định số phòng bắt đầu bằng Tầng, VD: 305 -> Tầng 3)
+            String floor = "Unknown";
+            if (room != null && room.length() > 0) {
+                floor = "Tầng " + room.substring(0, 1);
+            }
+            orderMap.put("floor", floor);
+            
+            // Tính thời gian ETA linh động (Dynamic SLA) không cần Database
+            // Quét qua tất cả các món để tìm món cần chuẩn bị lâu nhất
+            int itemsCount = 0;
+            int maxPrep = 0;
+            if (order.getDetails() != null) {
+                for (com.kawai.models.FoodOrderDetail detail : order.getDetails()) {
+                    int qty = detail.getQuantity() != null ? detail.getQuantity() : 1;
+                    itemsCount += qty;
+                    
+                    if (detail.getMenuItem() != null && detail.getMenuItem().getCategory() != null) {
+                        String cat = detail.getMenuItem().getCategory().toLowerCase();
+                        int prep = 10; // Thời gian chuẩn bị cơ bản
+                        if (cat.contains("main") || cat.contains("chính") || cat.contains("hot")) prep = 20; // Món chính lâu hơn
+                        else if (cat.contains("drink") || cat.contains("nước")) prep = 5; // Đồ uống nhanh hơn
+                        if (prep > maxPrep) maxPrep = prep;
+                    }
+                }
+            }
+            if (maxPrep == 0) maxPrep = 15; // Mặc định nếu không phân loại được
+            
+            // Công thức: Thời gian của món lâu nhất + (2 phút/món phụ trội nếu > 2 món) + 5 phút di chuyển
+            int etaMins = maxPrep + (itemsCount > 2 ? (itemsCount - 2) * 2 : 0) + 5;
+            orderMap.put("etaMins", etaMins);
+            
+            orderMap.put("itemsText", itemsCount + (itemsCount > 1 ? " items" : " item"));
+            
+            java.text.NumberFormat format = java.text.NumberFormat.getCurrencyInstance(new java.util.Locale("vi", "VN"));
+            orderMap.put("amount", format.format(order.getTotalAmount()));
+            
+            orderMap.put("rawStatus", status);
+            
+            mappedOrders.add(orderMap);
+        }
+        
+        // Gom đơn theo Tầng (Group by Floor) để phục vụ cho tính năng Giao Cả Tầng (Batch Dispatch)
+        Map<String, List<Map<String, Object>>> groupedOrders = new java.util.TreeMap<>();
+        for (Map<String, Object> om : mappedOrders) {
+            String floor = (String) om.get("floor");
+            groupedOrders.computeIfAbsent(floor, k -> new ArrayList<>()).add(om);
+        }
+        
+        data.put("orders", mappedOrders);
+        data.put("groupedOrders", groupedOrders);
+        data.put("totalOrders", totalOrders);
+        data.put("pendingOrders", pendingOrders);
+        data.put("preparingOrders", preparingOrders);
+        data.put("servedOrders", servedOrders);
+        
         return data;
     }
 }

@@ -14,10 +14,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.kawai.dto.RoomSearchRequestDTO;
 import com.kawai.dto.RoomSearchResponseDTO;
+import com.kawai.models.Customer;
 import com.kawai.services.interfaces.RoomService;
 import org.springframework.web.bind.annotation.RequestParam;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -130,5 +132,79 @@ public class RoomApiController {
         }
 
         return ResponseEntity.ok(dto);
+    }
+
+    /**
+     * API để nhân viên xác thực 4 số cuối CCCD/Passport của khách khi gọi đặt đồ ăn lên phòng (Room Service)
+     */
+    @GetMapping("/{roomNumber}/verify-guest")
+    public ResponseEntity<?> verifyGuest(
+            @PathVariable String roomNumber,
+            @RequestParam String last4Digits) {
+
+        // 1. Lấy thông tin phòng
+        Optional<Room> roomOpt = roomRepository.findByRoomNumber(roomNumber);
+        if (roomOpt.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Phòng không tồn tại."));
+        }
+
+        Room room = roomOpt.get();
+
+        // Kiểm tra phòng có đang có khách ở không (có booking detail)
+        if (room.getCurrentBookingDetailId() == null) {
+            return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Phòng hiện không có khách lưu trú."));
+        }
+
+        // 2. Lấy thông tin Booking Detail hiện tại của phòng
+        Optional<RoomBookingDetail> detailOpt = roomBookingDetailRepository.findById(room.getCurrentBookingDetailId());
+        if (detailOpt.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Lỗi dữ liệu: Không tìm thấy booking detail."));
+        }
+
+        RoomBookingDetail bookingDetail = detailOpt.get();
+        Customer customer = null;
+        
+        // Theo logic hiện tại, Customer có thể nằm ở Detail hoặc Booking
+        if (bookingDetail.getCustomer() != null) {
+            customer = bookingDetail.getCustomer();
+        } else if (bookingDetail.getRoomBooking() != null && bookingDetail.getRoomBooking().getCustomer() != null) {
+            customer = bookingDetail.getRoomBooking().getCustomer();
+        }
+
+        if (customer == null) {
+            return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Lỗi dữ liệu: Không tìm thấy hồ sơ khách hàng."));
+        }
+
+        // 3. Lấy CCCD đã mã hóa và giải mã
+        String encryptedCccd = customer.getCccdPassportEncrypted();
+        if (encryptedCccd == null || encryptedCccd.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Hồ sơ khách hàng thiếu thông tin CCCD/Passport."));
+        }
+
+        try {
+            String realCccd = com.kawai.utils.EncryptionUtils.decrypt(encryptedCccd);
+            
+            if (realCccd == null || realCccd.length() < 4) {
+                 return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Chuỗi CCCD quá ngắn để xác thực."));
+            }
+            
+            // Cắt 4 số cuối
+            String actualLast4 = realCccd.substring(realCccd.length() - 4);
+            
+            if (actualLast4.equals(last4Digits)) {
+                return ResponseEntity.ok(Map.of(
+                    "success", true,
+                    "guestName", customer.getFullName(),
+                    "message", "Xác thực thành công!"
+                ));
+            } else {
+                return ResponseEntity.ok(Map.of(
+                    "success", false,
+                    "message", "4 số cuối CCCD/Passport không khớp!"
+                ));
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("success", false, "message", "Lỗi giải mã CCCD: " + e.getMessage()));
+        }
     }
 }

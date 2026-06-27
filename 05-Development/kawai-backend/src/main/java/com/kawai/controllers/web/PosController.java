@@ -37,7 +37,8 @@ public class PosController {
     }
 
     @GetMapping("/room-service")
-    public String roomService() {
+    public String roomService(Model model) {
+        model.addAllAttributes(posWebFacadeService.getRoomServiceManagementData());
         return "f&bStaff/room-service-management";
     }
 

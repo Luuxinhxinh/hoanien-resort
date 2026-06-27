@@ -214,9 +214,9 @@
                   <div class="order-table" th:text="${order.orderType == 'Room Service' ? 'Room Service' : 'Bàn ' + (order.table != null ? order.table.tableNumber : '?')}">Room Service • P101</div>
                   <div class="order-guest" th:text="${order.createdByStaff != null ? 'NV: ' + order.createdByStaff.fullName : ''}">NV: Trần Phương</div>
                 </div>
-                <span class="order-status-chip chip-pending" 
-                      th:classappend="${order.orderStatus == 'Pending' ? 'chip-pending' : (order.orderStatus == 'Preparing' ? 'chip-cooking' : (order.orderStatus == 'Served' ? 'chip-served' : (order.orderStatus == 'Ready' ? 'chip-ready' : '')))}" >
-                  <span class="dot"></span><span th:text="${order.orderStatus == 'Preparing' ? 'Processing' : (order.orderStatus == 'Ready' ? 'Complete' : order.orderStatus)}">Processing</span>
+                <span class="order-status-chip" 
+                      th:classappend="${#strings.equalsIgnoreCase(order.orderStatus, 'Pending') ? 'chip-pending' : (#strings.equalsIgnoreCase(order.orderStatus, 'Preparing') ? 'chip-cooking' : (#strings.equalsIgnoreCase(order.orderStatus, 'Served') ? 'chip-served' : (#strings.equalsIgnoreCase(order.orderStatus, 'Ready') ? 'chip-ready' : (#strings.equalsIgnoreCase(order.orderStatus, 'Delivering') ? 'chip-delivering' : 'chip-pending'))))}" >
+                  <span class="dot"></span><span th:text="${#strings.equalsIgnoreCase(order.orderStatus, 'Preparing') ? 'Processing' : (#strings.equalsIgnoreCase(order.orderStatus, 'Ready') ? 'Complete' : (order.orderStatus != null ? #strings.capitalize(order.orderStatus) : 'Pending'))}">Processing</span>
                 </span>
               </div>
               <div class="order-items" style="display:none;">
@@ -250,8 +250,8 @@
                   <div class="order-guest" th:text="${order.createdByStaff != null ? 'NV: ' + order.createdByStaff.fullName : '--'}">NV: Trần Phương</div>
                 </div>
                 <span class="order-status-chip" 
-                      th:classappend="${order.orderStatus == 'Pending' ? 'chip-pending' : (order.orderStatus == 'Preparing' ? 'chip-cooking' : (order.orderStatus == 'Served' ? 'chip-served' : (order.orderStatus == 'Ready' ? 'chip-ready' : 'chip-ready')))}" >
-                  <span class="dot"></span><span th:text="${order.orderStatus == 'Preparing' ? 'Processing' : (order.orderStatus == 'Ready' ? 'Complete' : order.orderStatus)}">Processing</span>
+                      th:classappend="${#strings.equalsIgnoreCase(order.orderStatus, 'Pending') ? 'chip-pending' : (#strings.equalsIgnoreCase(order.orderStatus, 'Preparing') ? 'chip-cooking' : (#strings.equalsIgnoreCase(order.orderStatus, 'Served') ? 'chip-served' : (#strings.equalsIgnoreCase(order.orderStatus, 'Ready') ? 'chip-ready' : (#strings.equalsIgnoreCase(order.orderStatus, 'Delivering') ? 'chip-delivering' : 'chip-pending'))))}" >
+                  <span class="dot"></span><span th:text="${#strings.equalsIgnoreCase(order.orderStatus, 'Preparing') ? 'Processing' : (#strings.equalsIgnoreCase(order.orderStatus, 'Ready') ? 'Complete' : (order.orderStatus != null ? #strings.capitalize(order.orderStatus) : 'Pending'))}">Processing</span>
                 </span>
               </div>
               <div class="order-card-bottom">
