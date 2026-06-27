@@ -202,17 +202,42 @@ public class BookingServiceImpl implements BookingService {
         holdBooking.setCancellationDeadline(checkIn.minusDays(2));
         holdBooking.setPersonalPinHash("HOLD_PENDING");
 
-        BigDecimal creditLimit = new BigDecimal("5000000.00"); // Mặc định 5 triệu
+        BigDecimal maxTierLimit = new BigDecimal("5000000.00"); // Mặc định 5 triệu
         if (customer.getMembershipTier() != null) {
             String tier = customer.getMembershipTier().toUpperCase();
             if (tier.contains("SILVER")) {
-                creditLimit = new BigDecimal("10000000.00"); // 10 triệu
+                maxTierLimit = new BigDecimal("10000000.00"); // 10 triệu
             } else if (tier.contains("GOLD")) {
-                creditLimit = new BigDecimal("20000000.00"); // 20 triệu
+                maxTierLimit = new BigDecimal("20000000.00"); // 20 triệu
             } else if (tier.contains("DIAMOND")) {
-                creditLimit = new BigDecimal("50000000.00"); // 50 triệu
+                maxTierLimit = new BigDecimal("50000000.00"); // 50 triệu
             }
         }
+
+        // Tính tổng hạn mức đã sử dụng của các Đơn hàng (của khách này) đang có khoảng thời gian lưu trú giao nhau
+        java.util.List<RoomBooking> existingBookings = roomBookingRepository.findByCustomerOrderByIdDesc(customer);
+        BigDecimal utilizedLimit = BigDecimal.ZERO;
+        for (RoomBooking b : existingBookings) {
+            String st = b.getBookingStatus() != null ? b.getBookingStatus().toUpperCase() : "";
+            if (st.startsWith("CANCEL") || st.equals("CHECKED_OUT")) {
+                continue;
+            }
+            // Ktra giao nhau: b.checkIn < new.checkOut AND b.checkOut > new.checkIn
+            // (Đảm bảo trả phòng cùng ngày nhận phòng đơn mới sẽ không bị tính là giao nhau)
+            if (b.getCheckInDate() != null && b.getCheckOutDate() != null) {
+                if (b.getCheckInDate().isBefore(checkOut) && b.getCheckOutDate().isAfter(checkIn)) {
+                    if (b.getCreditLimit() != null) {
+                        utilizedLimit = utilizedLimit.add(b.getCreditLimit());
+                    }
+                }
+            }
+        }
+        
+        BigDecimal creditLimit = maxTierLimit.subtract(utilizedLimit);
+        if (creditLimit.compareTo(BigDecimal.ZERO) < 0) {
+            creditLimit = BigDecimal.ZERO;
+        }
+
         holdBooking.setCreditLimit(creditLimit);
 
         RoomBooking savedHold = roomBookingRepository.save(holdBooking);
@@ -413,7 +438,6 @@ public class BookingServiceImpl implements BookingService {
      * Scheduler chạy mỗi 60 giây, tìm các HOLD đã hết hạn (holdExpiresAt ≤ now)
      * và chuyển sang CANCELLED để giải phóng phòng.
      */
-    @Scheduled(fixedDelay = 60_000)
     @Transactional
     public void cleanupStaleHolds() {
         LocalDateTime now = LocalDateTime.now();

@@ -167,6 +167,37 @@
         </div>
     </div>
 
+    <!-- Logs Modal -->
+    <div id="logs-modal" class="hidden fixed inset-0 z-50 bg-black/40 flex items-center justify-center backdrop-blur-sm" style="display: none;">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-4xl max-h-[80vh] flex flex-col overflow-hidden transform transition-all">
+            <div class="px-6 py-4 border-b border-slate-200 flex justify-between items-center" style="background: #FDFBF7;">
+                <h3 class="text-lg font-bold flex items-center gap-2" style="color: #2C2A1E;">
+                    <i data-lucide="scroll-text" class="w-5 h-5 text-hoanien-text"></i> Lịch sử chạy 10 lần gần nhất
+                </h3>
+                <button onclick="closeLogsModal()" class="text-slate-400 hover:text-rose-500">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div class="p-0 overflow-y-auto flex-1 bg-slate-50">
+                <table class="w-full text-left text-sm whitespace-nowrap">
+                    <thead class="uppercase tracking-wider font-medium text-xs sticky top-0" style="background: #EDE8DF; color: #5C4A3A;">
+                        <tr>
+                            <th class="px-6 py-3">Thời gian</th>
+                            <th class="px-6 py-3">Thời lượng</th>
+                            <th class="px-6 py-3">Trạng thái</th>
+                            <th class="px-6 py-3">Log / Output</th>
+                        </tr>
+                    </thead>
+                    <tbody id="logs-table-body" class="divide-y divide-slate-200 bg-white">
+                    </tbody>
+                </table>
+            </div>
+            <div class="px-6 py-4 border-t border-slate-200 flex justify-end" style="background: #FDFBF7;">
+                <button onclick="closeLogsModal()" class="px-4 py-2 text-sm font-medium rounded-md border bg-white text-slate-700 border-slate-300">Đóng</button>
+            </div>
+        </div>
+    </div>
+
     <style>
         .log-btn {
             background: #FDFBF7;
@@ -320,13 +351,17 @@
                         ${job.lastRun}
                     </td>
                     <td class="px-6 py-4 text-right">
-                        <button onclick="openConfigModal('${job.id}', '${job.schedule.replace(/'/g, "\\'")}')" class="log-btn" style="margin-right: 8px;">
-                            <i data-lucide="settings" style="width:14px; height:14px; color: #8B7355;"></i>
-                            <span>Cấu hình</span>
+                        <button onclick="toggleJob('${job.id}')" id="btn-toggle-${job.id}" class="log-btn" style="margin-right: 8px;" title="${job.status === 'ACTIVE' ? 'Tạm dừng' : 'Tiếp tục'}">
+                            <i data-lucide="${job.status === 'ACTIVE' ? 'pause' : 'play-circle'}" style="width:14px; height:14px; color: ${job.status === 'ACTIVE' ? '#8C3C28' : '#2E5A3B'};"></i>
                         </button>
-                        <button onclick="runJobNow('${job.id}')" id="btn-${job.id}" class="log-btn">
+                        <button onclick="viewLogs('${job.id}')" class="log-btn" style="margin-right: 8px;" title="Lịch sử chạy">
+                            <i data-lucide="scroll-text" style="width:14px; height:14px; color: #8B7355;"></i>
+                        </button>
+                        <button onclick="openConfigModal('${job.id}', '${job.schedule.replace(/'/g, "\\'")}')" class="log-btn" style="margin-right: 8px;" title="Cấu hình lịch">
+                            <i data-lucide="settings" style="width:14px; height:14px; color: #8B7355;"></i>
+                        </button>
+                        <button onclick="runJobNow('${job.id}')" id="btn-${job.id}" class="log-btn" title="Chạy ngay">
                             <i data-lucide="play" style="width:14px; height:14px; color: #2E5A3B;"></i>
-                            <span>Chạy Ngay</span>
                         </button>
                     </td>
                 `;
@@ -414,6 +449,63 @@
                 btn.disabled = false;
                 lucide.createIcons();
             }
+        }
+
+        async function toggleJob(jobId) {
+            const btn = document.getElementById(`btn-toggle-${jobId}`);
+            btn.disabled = true;
+            try {
+                const res = await fetch(`/admin/api/v1/cronjobs/${jobId}/toggle`, { method: 'POST' });
+                const data = await res.json();
+                if (res.ok) {
+                    showToast(data.message, "success");
+                    loadCronjobs();
+                } else {
+                    showToast(data.error || "Lỗi khi thay đổi trạng thái.", "error");
+                }
+            } catch(e) {
+                showToast("Lỗi kết nối máy chủ.", "error");
+            }
+        }
+
+        async function viewLogs(jobId) {
+            const modal = document.getElementById("logs-modal");
+            const tbody = document.getElementById("logs-table-body");
+            tbody.innerHTML = `<tr><td colspan="4" class="px-6 py-4 text-center"><i data-lucide="loader-2" class="w-5 h-5 animate-spin mx-auto"></i></td></tr>`;
+            lucide.createIcons();
+            
+            modal.style.display = "flex";
+            modal.classList.remove("hidden");
+
+            try {
+                const res = await fetch(`/admin/api/v1/cronjobs/${jobId}/logs`);
+                const logs = await res.json();
+                
+                if (logs.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="4" class="px-6 py-8 text-center text-slate-500">Chưa có lịch sử chạy nào.</td></tr>`;
+                    return;
+                }
+                
+                tbody.innerHTML = logs.map(l => {
+                    const statusClass = l.status === 'SUCCESS' ? 'text-emerald-600 bg-emerald-50' : 'text-rose-600 bg-rose-50';
+                    return `
+                        <tr>
+                            <td class="px-6 py-3">${l.startTime}</td>
+                            <td class="px-6 py-3 font-mono text-xs">${l.durationMs} ms</td>
+                            <td class="px-6 py-3"><span class="px-2 py-1 rounded text-xs font-semibold ${statusClass}">${l.status}</span></td>
+                            <td class="px-6 py-3 whitespace-normal max-w-xs text-xs" style="color: #6B6558;">${l.output}</td>
+                        </tr>
+                    `;
+                }).join('');
+            } catch(e) {
+                tbody.innerHTML = `<tr><td colspan="4" class="px-6 py-4 text-center text-rose-500">Lỗi tải dữ liệu.</td></tr>`;
+            }
+        }
+
+        function closeLogsModal() {
+            const modal = document.getElementById("logs-modal");
+            modal.style.display = "none";
+            modal.classList.add("hidden");
         }
 
         // Initialize

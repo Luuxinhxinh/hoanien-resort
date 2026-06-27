@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[HOANIEN] Thông báo hủy đặt bàn</title>
+</head>
+<body>
+
+  <div class="wrapper">
+
+    <!-- HEADER -->
+    <div class="header">
+      <div class="brand">H O A N I E N</div>
+      <div class="tagline">Retreat &amp; Resort</div>
+    </div>
+
+    <!-- BODY -->
+    <div class="body">
+
+      <div class="badge-wrap">
+        <span class="badge">THÔNG BÁO HỦY ĐẶT BÀN</span>
+      </div>
+
+      <p class="greeting">Kính gửi Quý khách <strong th:text="${customerName}">[Tên Khách]</strong>,</p>
+
+      <p class="intro">
+        <em>HOANIEN Retreat &amp; Resort</em> rất tiếc phải thông báo mã đặt bàn
+        <strong th:text="'#' + ${reservationId}">#[Mã Reservation]</strong> vào lúc <strong th:text="${reservationTime}">[Giờ đặt]</strong>, ngày
+        <strong th:text="${reservationDate}">[Ngày]</strong> đã bị hệ thống tự động hủy.
+      </p>
+
+      <!-- REASON BOX -->
+      <div class="info-box">
+        <p class="info-box-title">Lý do hủy</p>
+        <p class="info-reason">
+          Đã quá thời gian giữ bàn quy định mà chúng tôi chưa ghi nhận sự có mặt của Quý khách.
+        </p>
+      </div>
+
+      <p class="closing">
+        Nếu Quý khách muốn đặt lại, xin vui lòng thực hiện trên hệ thống hoặc liên hệ trực tiếp
+        với nhân viên nhà hàng. Chúng tôi mong sớm được đón tiếp Quý khách.
+      </p>
+
+      <hr class="divider" />
+
+      <div class="signoff">
+        Trân trọng,
+        <strong>HOANIEN Concierge Team</strong>
+      </div>
+
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+      <p>&copy; 2026 HOANIEN Retreat &amp; Resort. All rights reserved.</p>
+    </div>
+
+  </div>
+
+</body>
+</html>

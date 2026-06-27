@@ -53,7 +53,7 @@
                     </option>
                 </select>
             </div>
-            <div class="adm-form-group"><label class="adm-form-label">Trạng thái</label>
+            <div class="adm-form-group" style="display:none;"><label class="adm-form-label">Trạng thái</label>
                 <select name="status" class="adm-form-select">
                     <option th:each="opt : ${formOptions['roomStatuses']}" th:value="${opt}" th:text="${opt}"></option>
                 </select>

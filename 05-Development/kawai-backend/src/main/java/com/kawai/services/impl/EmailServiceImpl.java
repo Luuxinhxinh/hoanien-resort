@@ -133,6 +133,9 @@ public class EmailServiceImpl implements EmailService {
         return VND_FMT.format(amount) + " ₫";
     }
 
+    @org.springframework.beans.factory.annotation.Autowired
+    private com.kawai.repositories.RoomBookingDetailRepository roomBookingDetailRepository;
+
     @Override
     public void sendInvoiceEmail(String toEmail, ConsolidatedInvoice invoice, String pdfAttachmentPath) {
         if (!"Paid".equalsIgnoreCase(invoice.getInvoiceStatus())) {
@@ -141,15 +144,57 @@ public class EmailServiceImpl implements EmailService {
                             + invoice.getInvoiceStatus() + ")");
         }
 
-        // Mô phỏng việc kết nối SMTP và gửi email
-        logger.info("================================================");
-        logger.info("[EMAIL SERVICE] KẾT NỐI SMTP THÀNH CÔNG");
-        logger.info("[EMAIL SERVICE] Đang gửi thư tới: {}", toEmail);
-        logger.info("[EMAIL SERVICE] Chủ đề: Hóa đơn điện tử e-Invoice số {}", invoice.getInvoiceNumber());
-        logger.info("[EMAIL SERVICE] Nội dung: Kính gửi quý khách, đính kèm là hóa đơn thanh toán tiền phòng/dịch vụ.");
-        logger.info("[EMAIL SERVICE] File đính kèm: {}", pdfAttachmentPath);
-        logger.info("[EMAIL SERVICE] TRẠNG THÁI: ĐÃ GỬI THÀNH CÔNG");
-        logger.info("================================================");
+        try {
+            org.thymeleaf.context.Context ctx = new org.thymeleaf.context.Context(new java.util.Locale("vi", "VN"));
+            
+            // Set basic info
+            ctx.setVariable("customerName", invoice.getBooking() != null && invoice.getBooking().getCustomer() != null ? invoice.getBooking().getCustomer().getFullName() : "Khách hàng");
+            ctx.setVariable("invoiceNumber", invoice.getInvoiceNumber());
+            ctx.setVariable("issuedDate", invoice.getIssuedAt() != null ? invoice.getIssuedAt().format(DATE_FMT) : java.time.LocalDate.now().format(DATE_FMT));
+            
+            // Collect items from booking details
+            java.util.List<java.util.Map<String, String>> items = new java.util.ArrayList<>();
+            String roomNumber = "";
+            java.math.BigDecimal depositAmount = java.math.BigDecimal.ZERO;
+            String paymentMethod = "Chuyển khoản / Tiền mặt";
+
+            if (invoice.getBooking() instanceof com.kawai.models.RoomBooking rb) {
+                if (rb.getDepositAmount() != null) {
+                    depositAmount = rb.getDepositAmount();
+                }
+
+                java.util.List<com.kawai.models.RoomBookingDetail> details = roomBookingDetailRepository.findAll().stream()
+                        .filter(d -> d.getRoomBooking() != null && d.getRoomBooking().getId().equals(rb.getId()))
+                        .toList();
+
+                if (!details.isEmpty()) {
+                    for (com.kawai.models.RoomBookingDetail detail : details) {
+                        if (detail.getRoom() != null) {
+                            roomNumber += detail.getRoom().getRoomNumber() + " ";
+                        }
+                        java.util.Map<String, String> item = new java.util.HashMap<>();
+                        item.put("date", rb.getCheckInDate() != null ? rb.getCheckInDate().format(DATE_FMT) : "");
+                        item.put("description", "Tiền phòng (" + (detail.getCategory() != null ? detail.getCategory().getCategoryName() : "Standard") + ")");
+                        item.put("amount", formatVnd(detail.getRoomCharge()));
+                        items.add(item);
+                    }
+                }
+            }
+            
+            ctx.setVariable("roomNumber", roomNumber.trim());
+            ctx.setVariable("items", items);
+            ctx.setVariable("paymentMethod", paymentMethod);
+            ctx.setVariable("subtotal", formatVnd(invoice.getSubtotalBeforeVat()));
+            ctx.setVariable("vatAmount", formatVnd(invoice.getVatAmount()));
+            ctx.setVariable("depositAmount", formatVnd(depositAmount));
+            ctx.setVariable("totalAmount", formatVnd(invoice.getTotalAmount().subtract(depositAmount)));
+
+            String html = templateEngine.process("email/invoice", ctx);
+            sendEmail(toEmail, "Hóa đơn thanh toán - " + invoice.getInvoiceNumber() + " | Hòa Niên Retreat & Resort", html);
+            logger.info("Gửi email hóa đơn thành công → {} (invoice #{})", toEmail, invoice.getInvoiceNumber());
+        } catch (Exception e) {
+            logger.error("Lỗi khi gửi email hóa đơn {}: {}", invoice.getInvoiceNumber(), e.getMessage(), e);
+        }
     }
 
     @Override
@@ -176,7 +221,7 @@ public class EmailServiceImpl implements EmailService {
         sendEmail(toEmail, subject, content);
     }
 
-    private void sendEmail(String toEmail, String subject, String htmlContent) {
+    public void sendEmail(String toEmail, String subject, String htmlContent) {
         if (sendGridApiKey == null || sendGridApiKey.isBlank()) {
             logger.warn("[SENDGRID] API_KEY chưa được cấu hình. Email không được gửi.");
             logger.info("[SENDGRID MOCK] To: {}, Subject: {}", toEmail, subject);
@@ -249,5 +294,90 @@ public class EmailServiceImpl implements EmailService {
                 "<br/><p>Trân trọng,<br/><i>HOANIEN Operational Workflow Engine</i></p>" +
                 "</body></html>";
         sendEmail(toEmail, subject, htmlContent);
+    }
+
+    @Override
+    @org.springframework.scheduling.annotation.Async
+    public void sendRoomServiceConfirmation(com.kawai.models.FoodOrder order, com.kawai.models.Customer customer, String roomNumber) {
+        if (customer == null || customer.getEmail() == null || customer.getEmail().isBlank()) return;
+        try {
+            org.thymeleaf.context.Context ctx = new org.thymeleaf.context.Context(new java.util.Locale("vi", "VN"));
+            ctx.setVariable("customerName", customer.getFullName());
+            ctx.setVariable("orderId", order.getId());
+            ctx.setVariable("roomNumber", roomNumber);
+            ctx.setVariable("totalAmount", formatVnd(order.getTotalAmount()));
+            ctx.setVariable("paymentMethod", "CHARGE_TO_ROOM".equals(order.getPaymentType()) ? "Ghi nợ vào phòng" : "Thanh toán ngay");
+            
+            String itemsStr = "";
+            if (order.getDetails() != null) {
+                itemsStr = order.getDetails().stream()
+                    .map(i -> (i.getMenuItem() != null ? i.getMenuItem().getItemName() : "Món") + " x" + i.getQuantity())
+                    .collect(java.util.stream.Collectors.joining(", "));
+            }
+            ctx.setVariable("items", itemsStr.isEmpty() ? "Không có" : itemsStr);
+            
+            String html = templateEngine.process("email/room-service", ctx);
+            sendEmail(customer.getEmail(), "Xác nhận đơn phục vụ tại phòng #" + order.getId(), html);
+        } catch (Exception e) {
+            logger.error("Lỗi gửi email Room Service cho order #{}: {}", order.getId(), e.getMessage());
+        }
+    }
+
+    @Override
+    @org.springframework.scheduling.annotation.Async
+    public void sendTableBookingConfirmation(com.kawai.models.TableReservation reservation, com.kawai.models.Customer customer) {
+        if (customer == null || customer.getEmail() == null || customer.getEmail().isBlank()) return;
+        try {
+            org.thymeleaf.context.Context ctx = new org.thymeleaf.context.Context(new java.util.Locale("vi", "VN"));
+            ctx.setVariable("customerName", customer.getFullName());
+            ctx.setVariable("reservationId", reservation.getId());
+            ctx.setVariable("reservationDate", reservation.getReserveDate() != null ? reservation.getReserveDate().format(DATE_FMT) : "");
+            ctx.setVariable("startTime", reservation.getReserveTime() != null ? reservation.getReserveTime().toString() : "");
+            ctx.setVariable("endTime", reservation.getEndTime() != null ? reservation.getEndTime().toString() : "");
+            ctx.setVariable("tableNumber", reservation.getTable() != null ? reservation.getTable().getTableNumber() : "Chưa xếp");
+            ctx.setVariable("guestCount", reservation.getPartySize());
+            ctx.setVariable("note", reservation.getSpecialRequests() != null && !reservation.getSpecialRequests().isBlank() ? reservation.getSpecialRequests() : "Không có");
+            
+            String html = templateEngine.process("email/booking-table", ctx);
+            sendEmail(customer.getEmail(), "Xác nhận đặt bàn thành công #" + reservation.getId(), html);
+        } catch (Exception e) {
+            logger.error("Lỗi gửi email xác nhận đặt bàn #{}: {}", reservation.getId(), e.getMessage());
+        }
+    }
+
+    @Override
+    @org.springframework.scheduling.annotation.Async
+    public void sendExtendTableHold(com.kawai.models.TableReservation reservation, com.kawai.models.Customer customer, int extendMinutes, String latestCheckInTime) {
+        if (customer == null || customer.getEmail() == null || customer.getEmail().isBlank()) return;
+        try {
+            org.thymeleaf.context.Context ctx = new org.thymeleaf.context.Context(new java.util.Locale("vi", "VN"));
+            ctx.setVariable("customerName", customer.getFullName());
+            ctx.setVariable("reservationId", reservation.getId());
+            ctx.setVariable("extendMinutes", extendMinutes);
+            ctx.setVariable("latestCheckInTime", latestCheckInTime);
+            
+            String html = templateEngine.process("email/extend-hold", ctx);
+            sendEmail(customer.getEmail(), "Gia hạn giữ bàn thành công #" + reservation.getId(), html);
+        } catch (Exception e) {
+            logger.error("Lỗi gửi email gia hạn giữ bàn #{}: {}", reservation.getId(), e.getMessage());
+        }
+    }
+
+    @Override
+    @org.springframework.scheduling.annotation.Async
+    public void sendCancelTableBooking(com.kawai.models.TableReservation reservation, com.kawai.models.Customer customer) {
+        if (customer == null || customer.getEmail() == null || customer.getEmail().isBlank()) return;
+        try {
+            org.thymeleaf.context.Context ctx = new org.thymeleaf.context.Context(new java.util.Locale("vi", "VN"));
+            ctx.setVariable("customerName", customer.getFullName());
+            ctx.setVariable("reservationId", reservation.getId());
+            ctx.setVariable("reservationTime", reservation.getReserveTime() != null ? reservation.getReserveTime().toString() : "");
+            ctx.setVariable("reservationDate", reservation.getReserveDate() != null ? reservation.getReserveDate().format(DATE_FMT) : "");
+            
+            String html = templateEngine.process("email/cancel-booking", ctx);
+            sendEmail(customer.getEmail(), "Thông báo hủy đặt bàn #" + reservation.getId(), html);
+        } catch (Exception e) {
+            logger.error("Lỗi gửi email hủy đặt bàn #{}: {}", reservation.getId(), e.getMessage());
+        }
     }
 }

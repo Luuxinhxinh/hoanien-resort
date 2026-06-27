@@ -348,7 +348,6 @@ public class WorkflowEngineServiceImpl implements WorkflowEngineService {
         }
     }
 
-    @Scheduled(cron = "0 */1 * * * *")
     public void scanSlaEscalations() {
         System.out.println("========== WORKFLOW ENGINE: Scanning SLA Escalations ==========");
         List<Workflow> activeWorkflows = workflowRepository.findByTriggerEventAndIsActive("SLA_ESCALATE", true);

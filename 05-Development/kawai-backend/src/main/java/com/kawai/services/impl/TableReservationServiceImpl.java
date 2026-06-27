@@ -32,17 +32,20 @@ public class TableReservationServiceImpl implements TableReservationService {
     private final CustomerRepository customerRepository;
     private final RoomRepository roomRepository;
     private final RoomBookingDetailRepository roomBookingDetailRepository;
+    private final com.kawai.services.interfaces.EmailService emailService;
 
     public TableReservationServiceImpl(TableReservationRepository tableReservationRepository,
                                        RestaurantTableRepository restaurantTableRepository,
                                        CustomerRepository customerRepository,
                                        RoomRepository roomRepository,
-                                       RoomBookingDetailRepository roomBookingDetailRepository) {
+                                       RoomBookingDetailRepository roomBookingDetailRepository,
+                                       com.kawai.services.interfaces.EmailService emailService) {
         this.tableReservationRepository = tableReservationRepository;
         this.restaurantTableRepository = restaurantTableRepository;
         this.customerRepository = customerRepository;
         this.roomRepository = roomRepository;
         this.roomBookingDetailRepository = roomBookingDetailRepository;
+        this.emailService = emailService;
     }
 
     @Override
@@ -224,7 +227,11 @@ public class TableReservationServiceImpl implements TableReservationService {
         }
         res.setSpecialRequests(specialReqs);
 
-        return tableReservationRepository.save(res);
+        TableReservation savedRes = tableReservationRepository.save(res);
+        if (savedRes.getCustomer() != null) {
+            emailService.sendTableBookingConfirmation(savedRes, savedRes.getCustomer());
+        }
+        return savedRes;
     }
 
     @Override
@@ -335,6 +342,12 @@ public class TableReservationServiceImpl implements TableReservationService {
         }
         
         res.setSpecialRequests(currentNotes.isEmpty() ? null : currentNotes);
-        return tableReservationRepository.save(res);
+        TableReservation savedRes = tableReservationRepository.save(res);
+        
+        if (holdMinutes > 0 && savedRes.getCustomer() != null) {
+            String latestTime = res.getReserveTime().plusMinutes(15 + holdMinutes).toString();
+            emailService.sendExtendTableHold(savedRes, savedRes.getCustomer(), holdMinutes, latestTime);
+        }
+        return savedRes;
     }
 }

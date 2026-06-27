@@ -663,7 +663,7 @@ document.addEventListener("click", (e) => {
 
     const id = btn.dataset.id;
     const val = btn.dataset.value;
-    const current = (val === "true" || val === "Active" || val === "Available" || val === "Occupied");
+    const current = (val === "true" || val === "Active" || val === "Available" || val === "Occupied" || val === "Hoạt động");
     const next = !current;
 
     // ── Cập nhật UI ngay (không cần API) ─────────────────────────────────────
@@ -696,10 +696,13 @@ document.addEventListener("click", (e) => {
                 if (currentText === "Active" || currentText === "Inactive") {
                     newText = next ? "Active" : "Inactive";
                     newClass = next ? "badge-green" : "badge-gray";
+                } else if (currentText === "Hoạt động" || currentText === "Ngừng hoạt động") {
+                    newText = next ? "Hoạt động" : "Ngừng hoạt động";
+                    newClass = next ? "badge-green" : "badge-gray";
                 } else if (currentText === "Available" || currentText === "Unavailable") {
                     newText = next ? "Available" : "Unavailable";
                     newClass = next ? "badge-green" : "badge-yellow";
-                } else if (currentText === "Vacant" || currentText === "Maintenance" || currentText === "Dirty" || currentText === "Occupied") {
+                } else if (currentText === "Vacant" || currentText === "Maintenance" || currentText === "Dirty" || currentText === "Occupied" || currentText === "OutOfOrder") {
                     newText = next ? "Vacant" : "Maintenance";
                     newClass = next ? "badge-brown" : "badge-dark";
                 } else if (currentText === "true" || currentText === "false") {

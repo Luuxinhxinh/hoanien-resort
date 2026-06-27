@@ -68,6 +68,9 @@ public class VnPayServiceImpl implements VnPayService {
     @Autowired
     private InvoicePdfService invoicePdfService;
 
+    @Autowired
+    private EmailService emailService;
+
     @Override
     @Transactional
     public String createPaymentUrl(Long bookingId, String ipAddress) {
@@ -412,6 +415,16 @@ public class VnPayServiceImpl implements VnPayService {
                     }
                     foodOrder.setIsPaidInPos(true);
                     foodOrderRepository.save(foodOrder);
+
+                    if ("Room Service".equalsIgnoreCase(foodOrder.getOrderType())) {
+                        if (foodOrder.getBooking() != null && foodOrder.getBooking().getCustomer() != null) {
+                            String roomNum = "";
+                            if (foodOrder.getRoomBookingDetail() != null && foodOrder.getRoomBookingDetail().getRoom() != null) {
+                                roomNum = foodOrder.getRoomBookingDetail().getRoom().getRoomNumber();
+                            }
+                            emailService.sendRoomServiceConfirmation(foodOrder, foodOrder.getBooking().getCustomer(), roomNum);
+                        }
+                    }
                 }
             } else if ("ROOM_BOOKING".equals(txn.getTransactionType()) && booking != null) {
                 if ("WALK_IN".equals(booking.getBookingSource())

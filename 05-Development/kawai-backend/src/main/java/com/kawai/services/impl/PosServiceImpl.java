@@ -29,6 +29,7 @@ public class PosServiceImpl implements PosService {
     private final CustomerRepository customerRepository;
     private final RoomBookingRepository roomBookingRepository;
     private final TableReservationRepository tableReservationRepository;
+    private final com.kawai.services.interfaces.EmailService emailService;
 
     public PosServiceImpl(RoomRepository roomRepository,
             RoomBookingDetailRepository roomBookingDetailRepository,
@@ -41,7 +42,8 @@ public class PosServiceImpl implements PosService {
             AccountRepository accountRepository,
             CustomerRepository customerRepository,
             RoomBookingRepository roomBookingRepository,
-            TableReservationRepository tableReservationRepository) {
+            TableReservationRepository tableReservationRepository,
+            com.kawai.services.interfaces.EmailService emailService) {
         this.roomRepository = roomRepository;
         this.roomBookingDetailRepository = roomBookingDetailRepository;
         this.folioItemRepository = folioItemRepository;
@@ -54,6 +56,7 @@ public class PosServiceImpl implements PosService {
         this.customerRepository = customerRepository;
         this.roomBookingRepository = roomBookingRepository;
         this.tableReservationRepository = tableReservationRepository;
+        this.emailService = emailService;
     }
 
     @Override
@@ -256,6 +259,16 @@ public class PosServiceImpl implements PosService {
                 }
             } else {
                 throw new BusinessException("POS-009", "Không tìm thấy phòng để ký bill!");
+            }
+        }
+
+        if ("Room Service".equalsIgnoreCase(savedOrder.getOrderType()) && !"AWAITING_PAYMENT".equalsIgnoreCase(savedOrder.getOrderStatus())) {
+            if (activeBooking != null && activeBooking.getCustomer() != null) {
+                String roomNum = request.getRoomNumber();
+                if (roomNum == null && savedOrder.getRoomBookingDetail() != null && savedOrder.getRoomBookingDetail().getRoom() != null) {
+                    roomNum = savedOrder.getRoomBookingDetail().getRoom().getRoomNumber();
+                }
+                emailService.sendRoomServiceConfirmation(savedOrder, activeBooking.getCustomer(), roomNum);
             }
         }
 

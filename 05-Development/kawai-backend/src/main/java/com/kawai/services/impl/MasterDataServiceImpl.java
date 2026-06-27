@@ -20,6 +20,7 @@ public class MasterDataServiceImpl implements MasterDataService {
     private final PromotionRepository promotionRepository;
     private final BookingRepository bookingRepository;
     private final RoleRepository roleRepository;
+    private final DailyRateRepository dailyRateRepository;
 
     @Override
     @Transactional
@@ -144,6 +145,39 @@ public class MasterDataServiceImpl implements MasterDataService {
                     : com.kawai.security.RolePermissionConstants.getDefaultPermissionsFor((String) payload.get("name"));
                 newRole.setPermissions(permStr);
                 roleRepository.save(newRole);
+                break;
+            case "pricing":
+                DailyRate newRate = new DailyRate();
+                if (payload.get("roomCategory") != null) {
+                    String categoryName = payload.get("roomCategory").toString();
+                    roomCategoryRepository.findAll().stream()
+                        .filter(c -> c.getCategoryName().equals(categoryName))
+                        .findFirst().ifPresent(newRate::setCategory);
+                }
+                if (payload.get("price") != null) {
+                    String p = payload.get("price").toString().replaceAll("[^\\d]", "");
+                    if (!p.isEmpty()) {
+                        newRate.setComputedPrice(new java.math.BigDecimal(p));
+                    }
+                }
+                if (payload.get("isWeekend") != null) {
+                    newRate.setIsWeekend(Boolean.parseBoolean(payload.get("isWeekend").toString()));
+                } else {
+                    newRate.setIsWeekend(false);
+                }
+                if (payload.get("isHoliday") != null) {
+                    newRate.setIsHoliday(Boolean.parseBoolean(payload.get("isHoliday").toString()));
+                } else {
+                    newRate.setIsHoliday(false);
+                }
+                if (payload.get("date") != null && !payload.get("date").toString().isEmpty()) {
+                    newRate.setRateDate(java.time.LocalDate.parse(payload.get("date").toString()));
+                } else {
+                    newRate.setRateDate(java.time.LocalDate.now());
+                }
+                if (newRate.getCategory() != null) {
+                    dailyRateRepository.save(newRate);
+                }
                 break;
         }
         return payload;
@@ -335,6 +369,27 @@ public class MasterDataServiceImpl implements MasterDataService {
                     roleRepository.save(role);
                 }
                 break;
+            case "pricing":
+                DailyRate rate = dailyRateRepository.findById(entityId).orElse(null);
+                if (rate != null) {
+                    if (payload.get("price") != null) {
+                        String p = payload.get("price").toString().replaceAll("[^\\d]", "");
+                        if (!p.isEmpty()) {
+                            rate.setComputedPrice(new java.math.BigDecimal(p));
+                        }
+                    }
+                    if (payload.get("isWeekend") != null) {
+                        rate.setIsWeekend(Boolean.parseBoolean(payload.get("isWeekend").toString()));
+                    }
+                    if (payload.get("isHoliday") != null) {
+                        rate.setIsHoliday(Boolean.parseBoolean(payload.get("isHoliday").toString()));
+                    }
+                    if (payload.get("date") != null && !payload.get("date").toString().isEmpty()) {
+                        rate.setRateDate(java.time.LocalDate.parse(payload.get("date").toString()));
+                    }
+                    dailyRateRepository.save(rate);
+                }
+                break;
         }
         return payload;
     }
@@ -357,7 +412,7 @@ public class MasterDataServiceImpl implements MasterDataService {
                 break;
             case "rooms":
                 roomRepository.findById(entityId).ifPresent(room -> {
-                    room.setRoomStatus("OutOfOrder");
+                    room.setRoomStatus("Maintenance");
                     roomRepository.save(room);
                 });
                 break;
@@ -387,6 +442,9 @@ public class MasterDataServiceImpl implements MasterDataService {
                     roleRepository.delete(r);
                 });
                 break;
+            case "pricing":
+                dailyRateRepository.findById(entityId).ifPresent(dailyRateRepository::delete);
+                break;
         }
     }
 
@@ -410,20 +468,13 @@ public class MasterDataServiceImpl implements MasterDataService {
                     roomCategoryRepository.findById(entityId).ifPresent(rc -> {
                         rc.setIsActive(newStatus);
                         roomCategoryRepository.save(rc);
-                        // Cascade
-                        roomRepository.findAll().stream()
-                            .filter(r -> r.getCategory() != null && r.getCategory().getId().equals(rc.getId()))
-                            .forEach(r -> {
-                                r.setRoomStatus(newStatus ? "Vacant_Clean" : "OutOfOrder");
-                                roomRepository.save(r);
-                            });
                     });
                 }
                 break;
             case "rooms":
                 if (entityId != null) {
                     roomRepository.findById(entityId).ifPresent(room -> {
-                        room.setRoomStatus(newStatus ? "Occupied" : "OutOfOrder");
+                        room.setRoomStatus(newStatus ? "Vacant_Clean" : "Maintenance");
                         roomRepository.save(room);
                     });
                 }

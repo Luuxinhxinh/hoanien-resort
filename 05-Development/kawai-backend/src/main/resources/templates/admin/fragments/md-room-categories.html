@@ -22,8 +22,8 @@
                 </td>
                 <td style="text-align:center;">
                     <button type="button" class="btn-toggle" th:attr="data-id=${row['id']},data-value=${row['status']}">
-                        <i th:if="${row['status'] == 'Active' || row['status'] == 'Available' || row['status'] == 'true'}" data-lucide="toggle-right" style="color:#C9A96E"></i>
-                        <i th:unless="${row['status'] == 'Active' || row['status'] == 'Available' || row['status'] == 'true'}" data-lucide="toggle-left" style="color:#8B7355"></i>
+                        <i th:if="${row['status'] == 'Active' || row['status'] == 'Available' || row['status'] == 'true' || row['status'] == 'Hoạt động'}" data-lucide="toggle-right" style="color:#C9A96E"></i>
+                        <i th:unless="${row['status'] == 'Active' || row['status'] == 'Available' || row['status'] == 'true' || row['status'] == 'Hoạt động'}" data-lucide="toggle-left" style="color:#8B7355"></i>
                     </button>
                 </td>
                 <td style="text-align:right">
@@ -50,7 +50,7 @@
             <div class="adm-form-group"><label class="adm-form-label">NL tối đa</label><input type="number" name="maxAdults" class="adm-form-input"></div>
             <div class="adm-form-group"><label class="adm-form-label">TE tối đa</label><input type="number" name="maxChildren" class="adm-form-input"></div>
             <div class="adm-form-group"><label class="adm-form-label">Phụ thu NL (VNĐ)</label><input type="text" name="extraAdultSurcharge" class="adm-form-input"></div>
-            <div class="adm-form-group"><label class="adm-form-label">Phụ thu TE (VNĐ)</label><input type="text" name="extraChildSurcharge" class="adm-form-input"></div>
+            <div class="adm-form-group"><label class="adm-form-label">Phụ thu TE (Có giường) (VNĐ)</label><input type="text" name="extraChildSurcharge" class="adm-form-input"></div>
         </div>
         <div class="adm-form-group"><label class="adm-form-label">Mô tả hạng phòng</label><textarea name="description" class="adm-form-input" rows="3"></textarea></div>
         <div class="adm-form-group"><label class="adm-form-label">Link ảnh đại diện</label><input type="text" name="coverImgUrl" class="adm-form-input"></div>

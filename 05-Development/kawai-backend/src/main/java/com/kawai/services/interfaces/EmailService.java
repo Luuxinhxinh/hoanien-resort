@@ -54,4 +54,28 @@ public interface EmailService {
      * Gửi email thông báo hủy tour kèm số tiền hoàn.
      */
     void sendCancellationNotice(com.kawai.models.TourBooking booking, com.kawai.models.Customer customer, java.math.BigDecimal refundAmount, boolean cancelledByResort);
+
+    /**
+     * Gửi email xác nhận đặt món tại phòng (Room Service).
+     */
+    void sendRoomServiceConfirmation(com.kawai.models.FoodOrder order, com.kawai.models.Customer customer, String roomNumber);
+
+    /**
+     * Gửi email xác nhận đặt bàn (Table Reservation).
+     */
+    void sendTableBookingConfirmation(com.kawai.models.TableReservation reservation, com.kawai.models.Customer customer);
+
+    /**
+     * Gửi email thông báo gia hạn giữ bàn.
+     */
+    void sendExtendTableHold(com.kawai.models.TableReservation reservation, com.kawai.models.Customer customer, int extendMinutes, String latestCheckInTime);
+
+    /**
+     * Gửi email thông báo hủy bàn.
+     */
+    void sendCancelTableBooking(com.kawai.models.TableReservation reservation, com.kawai.models.Customer customer);
+    /**
+     * Gửi email HTML thô (phục vụ test preview).
+     */
+    void sendEmail(String toEmail, String subject, String htmlContent);
 }

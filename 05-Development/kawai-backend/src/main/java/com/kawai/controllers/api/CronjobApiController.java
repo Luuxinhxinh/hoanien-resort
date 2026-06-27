@@ -25,43 +25,15 @@ public class CronjobApiController {
 
     @GetMapping
     public ResponseEntity<List<Map<String, Object>>> getCronjobs() {
-        List<Map<String, Object>> jobs = new ArrayList<>();
-
-        Map<String, Object> job1 = new HashMap<>();
-        job1.put("id", "audit_cleanup");
-        job1.put("name", "Dọn dẹp Audit Log cũ (Hơn 90 ngày)");
-        job1.put("schedule", dynamicJobManager.getAuditCron());
-        job1.put("description", "Tự động xóa các bản ghi lịch sử kiểm toán quá cũ để tối ưu không gian Database.");
-        job1.put("status", "ACTIVE");
-        job1.put("lastRun", auditCleanupTask.getLastRunTime());
-        jobs.add(job1);
-
-        Map<String, Object> job2 = new HashMap<>();
-        job2.put("id", "reservation_cleanup");
-        job2.put("name", "Hủy đặt bàn F&B quá giờ (No-show)");
-        job2.put("schedule", dynamicJobManager.getReservationCron());
-        job2.put("description", "Tự động quét và hủy các lượt đặt bàn nhà hàng đã quá hạn 30 phút mà khách không đến.");
-        job2.put("status", "ACTIVE");
-        job2.put("lastRun", reservationCleanupTask.getLastRunTime());
-        jobs.add(job2);
-
-        return ResponseEntity.ok(jobs);
+        return ResponseEntity.ok(dynamicJobManager.getAllJobsInfo());
     }
 
     @PostMapping("/{id}/run")
     public ResponseEntity<Map<String, String>> runJobNow(@PathVariable String id) {
         Map<String, String> response = new HashMap<>();
         try {
-            if ("audit_cleanup".equals(id)) {
-                auditCleanupTask.cleanupOldAuditLogs();
-                response.put("message", "Đã thực thi thủ công tác vụ dọn dẹp Audit Log thành công!");
-            } else if ("reservation_cleanup".equals(id)) {
-                reservationCleanupTask.cleanupNoShowReservations();
-                response.put("message", "Đã thực thi thủ công tác vụ hủy bàn No-show thành công!");
-            } else {
-                response.put("error", "Không tìm thấy tiến trình.");
-                return ResponseEntity.badRequest().body(response);
-            }
+            dynamicJobManager.executeWithLog(id);
+            response.put("message", "Đã thực thi thủ công tác vụ thành công!");
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             response.put("error", "Lỗi khi chạy tiến trình: " + e.getMessage());
@@ -84,16 +56,8 @@ public class CronjobApiController {
                 return ResponseEntity.badRequest().body(response);
             }
 
-            if ("audit_cleanup".equals(id)) {
-                dynamicJobManager.scheduleAuditTask(cron);
-                response.put("message", "Cập nhật lịch cho tác vụ Audit thành công!");
-            } else if ("reservation_cleanup".equals(id)) {
-                dynamicJobManager.scheduleReservationTask(cron);
-                response.put("message", "Cập nhật lịch cho tác vụ No-show thành công!");
-            } else {
-                response.put("error", "Không tìm thấy tiến trình.");
-                return ResponseEntity.badRequest().body(response);
-            }
+            dynamicJobManager.scheduleJob(id, cron);
+            response.put("message", "Cập nhật lịch cho tác vụ thành công!");
             return ResponseEntity.ok(response);
         } catch (IllegalArgumentException ie) {
             response.put("error", "Định dạng Cron không hợp lệ: " + ie.getMessage());
@@ -102,5 +66,22 @@ public class CronjobApiController {
             response.put("error", "Lỗi khi cập nhật cấu hình: " + e.getMessage());
             return ResponseEntity.internalServerError().body(response);
         }
+    }
+    @PostMapping("/{id}/toggle")
+    public ResponseEntity<Map<String, String>> toggleJob(@PathVariable String id) {
+        Map<String, String> response = new HashMap<>();
+        try {
+            dynamicJobManager.togglePause(id);
+            response.put("message", "Đã thay đổi trạng thái tiến trình!");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.put("error", "Lỗi: " + e.getMessage());
+            return ResponseEntity.internalServerError().body(response);
+        }
+    }
+
+    @GetMapping("/{id}/logs")
+    public ResponseEntity<List<Map<String, Object>>> getJobLogs(@PathVariable String id) {
+        return ResponseEntity.ok(dynamicJobManager.getJobLogs(id));
     }
 }

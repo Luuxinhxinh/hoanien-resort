@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[HOANIEN] Xác nhận đặt bàn thành công</title>
+</head>
+<body>
+
+  <div class="wrapper">
+
+    <!-- HEADER -->
+    <div class="header">
+      <div class="brand">H O A N I E N</div>
+      <div class="tagline">Retreat &amp; Resort</div>
+    </div>
+
+    <!-- BODY -->
+    <div class="body">
+
+      <div class="badge-wrap">
+        <span class="badge">XÁC NHẬN ĐẶT BÀN THÀNH CÔNG</span>
+      </div>
+
+      <p class="greeting">Kính gửi Quý khách <strong th:text="${customerName}">[Tên Khách]</strong>,</p>
+
+      <p class="intro">
+        <em>HOANIEN Retreat &amp; Resort</em> xin trân trọng xác nhận yêu cầu đặt bàn của
+        Quý khách đã được ghi nhận thành công.
+      </p>
+
+      <!-- BOOKING INFO BOX -->
+      <div class="info-box">
+        <p class="info-box-title">Thông tin đặt bàn</p>
+        <table class="info-table">
+          <tr>
+            <td class="info-label">Mã đặt bàn</td>
+            <td class="info-value" th:text="'#' + ${reservationId}">#[Mã Reservation]</td>
+          </tr>
+          <tr>
+            <td class="info-label">Thời gian</td>
+            <td class="info-value" th:text="${startTime} + ' – ' + ${endTime} + ', ngày ' + ${reservationDate}">[Giờ bắt đầu] – [Giờ kết thúc], ngày [Ngày]</td>
+          </tr>
+          <tr>
+            <td class="info-label">Bàn</td>
+            <td class="info-value"><span th:text="'Bàn ' + ${tableNumber}">Bàn [Số bàn]</span> &nbsp;|&nbsp; Số khách: <span th:text="${guestCount} + ' người'">[Số lượng] người</span></td>
+          </tr>
+          <tr>
+            <td class="info-label">Ghi chú</td>
+            <td class="info-value" th:text="${note}">[Nội dung ghi chú / Không có]</td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- WARNING -->
+      <div class="warning-box">
+        <p class="warning-title">⚠️ Lưu ý quan trọng</p>
+        <p class="warning-text">
+          Quý khách vui lòng mang theo <strong>Căn cước công dân (CCCD)</strong> khi đến nhà hàng
+          để nhân viên thực hiện thủ tục check-in. Nếu Quý khách đến trễ quá
+          <strong>15 phút</strong> mà không có thông báo trước, hệ thống sẽ tự động hủy bàn.
+        </p>
+      </div>
+
+      <p class="closing">Mong sớm được phục vụ Quý khách tại nhà hàng.</p>
+
+      <hr class="divider" />
+
+      <div class="signoff">
+        Trân trọng,
+        <strong>HOANIEN Concierge Team</strong>
+      </div>
+
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+      <p>&copy; 2026 HOANIEN Retreat &amp; Resort. All rights reserved.</p>
+    </div>
+
+  </div>
+
+</body>
+</html>

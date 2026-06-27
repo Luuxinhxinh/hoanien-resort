@@ -34,6 +34,9 @@ public class FolioServiceImpl implements FolioService {
     @Autowired
     private EmployeeRepository employeeRepository;
 
+    @Autowired
+    private com.kawai.services.interfaces.EmailService emailService;
+
     @Override
     @Transactional
     public void addFolioItem(Long bookingDetailId, String department, BigDecimal amount, String description) {
@@ -164,8 +167,14 @@ public class FolioServiceImpl implements FolioService {
         invoice.setIssuedAt(LocalDateTime.now());
         consolidatedInvoiceRepository.save(invoice);
 
-        // 4. Simulate E-Invoice sending
-        System.out.println("E-Invoice sent to " + detail.getRoomBooking().getCustomer().getEmail() + " for invoice " + invoice.getInvoiceNumber());
+        // 4. Send HTML E-Invoice via EmailService
+        if (detail.getRoomBooking().getCustomer() != null && detail.getRoomBooking().getCustomer().getEmail() != null) {
+            try {
+                emailService.sendInvoiceEmail(detail.getRoomBooking().getCustomer().getEmail(), invoice, null);
+            } catch (Exception e) {
+                System.err.println("Failed to send e-invoice email: " + e.getMessage());
+            }
+        }
 
         // 5. Audit Log
         AuditLog log = new AuditLog();

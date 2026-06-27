@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[HOANIEN] Thông báo gia hạn thời gian giữ bàn</title>
+</head>
+<body>
+
+  <div class="wrapper">
+
+    <!-- HEADER -->
+    <div class="header">
+      <div class="brand">H O A N I E N</div>
+      <div class="tagline">Retreat &amp; Resort</div>
+    </div>
+
+    <!-- BODY -->
+    <div class="body">
+
+      <div class="badge-wrap">
+        <span class="badge">GIA HẠN GIỮ BÀN THÀNH CÔNG</span>
+      </div>
+
+      <p class="greeting">Kính gửi Quý khách <strong th:text="${customerName}">[Tên Khách]</strong>,</p>
+
+      <p class="intro">
+        Theo yêu cầu, thời gian giữ bàn cho mã đặt bàn <strong th:text="'#' + ${reservationId}">#[Mã Reservation]</strong>
+        đã được gia hạn thành công.
+      </p>
+
+      <!-- UPDATE INFO BOX -->
+      <div class="info-box">
+        <p class="info-box-title">Thông tin cập nhật</p>
+        <table class="info-table">
+          <tr>
+            <td class="info-label">Thời gian giữ thêm</td>
+            <td class="info-value" th:text="${extendMinutes} + ' phút'">[Số phút] phút</td>
+          </tr>
+          <tr>
+            <td class="info-label">Check-in muộn nhất</td>
+            <td class="info-value" th:text="${latestCheckInTime}">[Giờ mới]</td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- WARNING -->
+      <div class="warning-box">
+        <p class="warning-title">⚠️ Lưu ý</p>
+        <p class="warning-text">
+          Quý khách vui lòng mang theo <strong>Căn cước công dân (CCCD)</strong> khi đến nhà hàng.
+          Sau thời hạn trên, hệ thống sẽ tự động hủy bàn.
+        </p>
+      </div>
+
+      <p class="closing">Mong sớm được phục vụ Quý khách tại nhà hàng.</p>
+
+      <hr class="divider" />
+
+      <div class="signoff">
+        Trân trọng,
+        <strong>HOANIEN Concierge Team</strong>
+      </div>
+
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+      <p>&copy; 2026 HOANIEN Retreat &amp; Resort. All rights reserved.</p>
+    </div>
+
+  </div>
+
+</body>
+</html>

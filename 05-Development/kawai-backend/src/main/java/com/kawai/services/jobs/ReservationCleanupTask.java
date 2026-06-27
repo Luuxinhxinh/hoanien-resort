@@ -17,10 +17,12 @@ public class ReservationCleanupTask {
 
     private final TableReservationRepository tableReservationRepository;
     private final RestaurantTableRepository restaurantTableRepository;
+    private final com.kawai.services.interfaces.EmailService emailService;
 
-    public ReservationCleanupTask(TableReservationRepository tableReservationRepository, RestaurantTableRepository restaurantTableRepository) {
+    public ReservationCleanupTask(TableReservationRepository tableReservationRepository, RestaurantTableRepository restaurantTableRepository, com.kawai.services.interfaces.EmailService emailService) {
         this.tableReservationRepository = tableReservationRepository;
         this.restaurantTableRepository = restaurantTableRepository;
+        this.emailService = emailService;
     }
 
     private java.time.LocalDateTime lastRun;
@@ -29,7 +31,6 @@ public class ReservationCleanupTask {
         return lastRun != null ? java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss").format(lastRun) : "Chưa chạy lần nào";
     }
 
-    @Scheduled(cron = "0 * * * * *") // Run every minute
     public void cleanupTables() {
         List<RestaurantTable> cleaningTables = restaurantTableRepository.findAll().stream()
                 .filter(t -> "Cleaning".equalsIgnoreCase(t.getTableStatus()) && t.getCleaningStartTime() != null)
@@ -72,7 +73,11 @@ public class ReservationCleanupTask {
         for (TableReservation res : pendingReservations) {
             res.setStatus("Cancelled");
             res.setSpecialRequests((res.getSpecialRequests() != null ? res.getSpecialRequests() : "") + " [System: Auto-cancelled due to No-show]");
-            tableReservationRepository.save(res);
+            TableReservation savedRes = tableReservationRepository.save(res);
+            
+            if (savedRes.getCustomer() != null) {
+                emailService.sendCancelTableBooking(savedRes, savedRes.getCustomer());
+            }
         }
     }
 }

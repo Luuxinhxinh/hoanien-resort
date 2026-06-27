@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[HOANIEN] Xác nhận đơn phục vụ tại phòng</title>
+</head>
+<body>
+
+  <div class="wrapper">
+
+    <!-- HEADER -->
+    <div class="header">
+      <div class="brand">H O A N I E N</div>
+      <div class="tagline">Retreat &amp; Resort</div>
+    </div>
+
+    <!-- BODY -->
+    <div class="body">
+
+      <div class="badge-wrap">
+        <span class="badge">XÁC NHẬN ĐƠN PHỤC VỤ TẠI PHÒNG</span>
+      </div>
+
+      <p class="greeting">Kính gửi Quý khách <strong th:text="${customerName}">[Tên Khách]</strong>,</p>
+
+      <p class="intro">
+        Đơn phục vụ tại phòng <strong th:text="'#' + ${orderId}">#[Mã Order]</strong> của Quý khách đã được xác nhận
+        và thanh toán thành công.
+      </p>
+
+      <!-- ORDER INFO BOX -->
+      <div class="info-box">
+        <p class="info-box-title">Chi tiết đơn</p>
+        <table class="info-table">
+          <tr>
+            <td class="info-label">Phòng</td>
+            <td class="info-value" th:text="${roomNumber}">[Số phòng]</td>
+          </tr>
+          <tr>
+            <td class="info-label">Tổng thanh toán</td>
+            <td class="info-value" th:text="${totalAmount} + ' VNĐ'">[Số tiền] VNĐ</td>
+          </tr>
+          <tr>
+            <td class="info-label">Hình thức</td>
+            <td class="info-value" th:text="${paymentMethod}">[Credit Limit phòng / Thẻ ngân hàng]</td>
+          </tr>
+          <tr>
+            <td class="info-label">Món đặt</td>
+            <td class="info-value" th:text="${items}">[Tên món 1], [Tên món 2], ...</td>
+          </tr>
+        </table>
+      </div>
+
+      <p class="closing">
+        Đội ngũ bếp đang chuẩn bị và sẽ phục vụ Quý khách trong thời gian sớm nhất.
+        Nếu cần hỗ trợ, Quý khách vui lòng liên hệ lễ tân.
+      </p>
+
+      <hr class="divider" />
+
+      <div class="signoff">
+        Trân trọng,
+        <strong>HOANIEN Concierge Team</strong>
+      </div>
+
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+      <p>&copy; 2026 HOANIEN Retreat &amp; Resort. All rights reserved.</p>
+    </div>
+
+  </div>
+
+</body>
+</html>

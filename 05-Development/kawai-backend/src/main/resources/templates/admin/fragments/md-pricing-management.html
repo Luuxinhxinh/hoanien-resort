@@ -11,11 +11,9 @@
                     <tr>
                         <th>Mã</th>
                         <th>Hạng phòng</th>
-                        <th>Loại mùa</th>
-                        <th>Ngày bắt đầu</th>
-                        <th>Ngày kết thúc</th>
+                        <th>Ngày áp dụng</th>
+                        <th>Loại ngày</th>
                         <th>Giá / đêm</th>
-                        <th>Trạng thái</th>
                         <th style="text-align:right">Thao tác</th>
                     </tr>
                 </thead>
@@ -24,18 +22,11 @@
                         <td th:attr="data-key='id',data-value=${row['id']}" th:text="${row['id']}"></td>
                         <td th:attr="data-key='roomCategory',data-value=${row['roomCategory']}"
                             th:text="${row['roomCategory']}"></td>
-                        <td th:attr="data-key='seasonType',data-value=${row['seasonType']}">
-                            <span class="cell-badge" th:classappend="${row['__seasonTypeStyle']}"
-                                th:text="${row['seasonType']}"></span>
+                        <td th:attr="data-key='date',data-value=${row['date']}" th:text="${row['date']}"></td>
+                        <td th:attr="data-key='dayType',data-value=${row['dayType']}">
+                            <span class="cell-badge" th:classappend="${row['__dayStyle']}" th:text="${row['dayType']}"></span>
                         </td>
-                        <td th:attr="data-key='startDate',data-value=${row['startDate']}" th:text="${row['startDate']}">
-                        </td>
-                        <td th:attr="data-key='endDate',data-value=${row['endDate']}" th:text="${row['endDate']}"></td>
                         <td th:attr="data-key='price',data-value=${row['price']}" th:text="${row['price']}"></td>
-                        <td th:attr="data-key='status',data-value=${row['status']}">
-                            <span class="cell-badge" th:classappend="${row['__statusStyle']}"
-                                th:text="${row['status']}"></span>
-                        </td>
                         <td style="text-align:right">
                             <button class="btn-action btn-action-edit btn-edit" th:attr="data-id=${row['id']}"><i
                                     data-lucide="pencil"></i></button>
@@ -61,16 +52,23 @@
                     </option>
                 </select>
             </div>
-            <div class="adm-form-group"><label class="adm-form-label">Loại mùa</label>
-                <select name="seasonType" class="adm-form-select">
-                    <option th:each="opt : ${formOptions['seasonTypes']}" th:value="${opt}" th:text="${opt}"></option>
-                </select>
+            <div class="adm-form-group"><label class="adm-form-label">Ngày áp dụng <span style="color:#B45309">*</span></label><input type="date"
+                    name="date" class="adm-form-input" required></div>
+            <div style="display:flex;gap:20px;">
+                <div class="adm-form-group" style="flex:1;"><label class="adm-form-label">Là Cuối tuần</label>
+                    <select name="isWeekend" class="adm-form-select">
+                        <option value="false">Không</option>
+                        <option value="true">Có</option>
+                    </select>
+                </div>
+                <div class="adm-form-group" style="flex:1;"><label class="adm-form-label">Là Lễ/Tết</label>
+                    <select name="isHoliday" class="adm-form-select">
+                        <option value="false">Không</option>
+                        <option value="true">Có</option>
+                    </select>
+                </div>
             </div>
-            <div class="adm-form-group"><label class="adm-form-label">Ngày bắt đầu</label><input type="date"
-                    name="startDate" class="adm-form-input"></div>
-            <div class="adm-form-group"><label class="adm-form-label">Ngày kết thúc</label><input type="date"
-                    name="endDate" class="adm-form-input"></div>
-            <div class="adm-form-group"><label class="adm-form-label">Giá / đêm <span
+            <div class="adm-form-group"><label class="adm-form-label">Giá điều chỉnh / đêm <span
                         style="color:#B45309">*</span></label><input type="text" name="price" class="adm-form-input"
                     required></div>
         </div>
