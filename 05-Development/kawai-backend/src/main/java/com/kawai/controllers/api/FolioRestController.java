@@ -48,6 +48,7 @@ public class FolioRestController {
     private final com.kawai.repositories.RoomBookingRepository roomBookingRepository;
     private final com.kawai.repositories.PromotionRepository promotionRepository;
     private final com.kawai.repositories.CustomerRepository customerRepository;
+    private final com.kawai.repositories.RoomGuestRepository roomGuestRepository;
     private final com.kawai.repositories.MembershipTierRepository membershipTierRepository;
 
     @Autowired
@@ -63,6 +64,7 @@ public class FolioRestController {
             com.kawai.repositories.RoomBookingRepository roomBookingRepository,
             com.kawai.repositories.PromotionRepository promotionRepository,
             com.kawai.repositories.CustomerRepository customerRepository,
+            com.kawai.repositories.RoomGuestRepository roomGuestRepository) {
             com.kawai.repositories.MembershipTierRepository membershipTierRepository) {
         this.nightAuditService = nightAuditService;
         this.folioItemRepository = folioItemRepository;
@@ -76,6 +78,7 @@ public class FolioRestController {
         this.vnPayService = vnPayService;
         this.promotionRepository = promotionRepository;
         this.customerRepository = customerRepository;
+        this.roomGuestRepository = roomGuestRepository;
         this.membershipTierRepository = membershipTierRepository;
     }
 
@@ -207,7 +210,20 @@ public class FolioRestController {
             bookerName = detail.getRoomBooking().getCustomer().getFullName();
         }
 
-        if (detail.getCustomer() != null) {
+        // Ưu tiên: primary contact từ room_guests (người đứng đầu phòng lúc check-in)
+        com.kawai.models.RoomGuest primaryGuest = roomGuestRepository
+                .findByRoomBookingDetailIdAndIsPrimaryContactTrue(roomBookingDetailId)
+                .orElse(null);
+
+        if (primaryGuest != null && primaryGuest.getCustomer() != null
+                && primaryGuest.getCustomer().getFullName() != null) {
+            // Primary contact là customer
+            guestName = primaryGuest.getCustomer().getFullName();
+        } else if (primaryGuest != null && primaryGuest.getDependent() != null
+                && primaryGuest.getDependent().getDependentName() != null) {
+            // Primary contact là dependent (người thân được đăng ký lúc check-in)
+            guestName = primaryGuest.getDependent().getDependentName();
+        } else if (detail.getCustomer() != null) {
             guestName = detail.getCustomer().getFullName();
         } else {
             guestName = bookerName;
@@ -435,9 +451,7 @@ public class FolioRestController {
                 List<FolioItem> allItemsForBal = nightAuditService.getFolioItems(roomBookingDetailId);
                 if (allItemsForBal != null) {
                     for (FolioItem item : allItemsForBal) {
-                        if (!"Room".equalsIgnoreCase(item.getSourceDepartment())) {
-                            roomBal = roomBal.add(item.getAmount());
-                        }
+                        roomBal = roomBal.add(item.getAmount());
                     }
                 }
                 finalBalance = roomBal.multiply(new BigDecimal("1.10"));
@@ -492,8 +506,15 @@ public class FolioRestController {
                 paymentMethod = payload.get("paymentMethod").toString();
             }
 
-            BigDecimal bookingOutstanding = booking != null ? getBookingOutstandingBalance(booking) : finalBalance;
-            BigDecimal minRequired = finalBalance.compareTo(bookingOutstanding) < 0 ? finalBalance : bookingOutstanding;
+            // Validate: khi thanh toán riêng phòng chỉ cần đủ finalBalance của phòng đó
+            // khi thanh toán cả đoàn thì mới check bookingOutstanding
+            BigDecimal minRequired;
+            if (isGroup) {
+                BigDecimal bookingOutstanding = booking != null ? getBookingOutstandingBalance(booking) : finalBalance;
+                minRequired = finalBalance.compareTo(bookingOutstanding) < 0 ? finalBalance : bookingOutstanding;
+            } else {
+                minRequired = finalBalance; // chỉ cần đủ tiền phòng này
+            }
 
             // Trường hợp Balance != 0
             if (minRequired.compareTo(BigDecimal.ZERO) > 0) {
@@ -506,8 +527,9 @@ public class FolioRestController {
 
             boolean isVnPay = "VNPAY".equalsIgnoreCase(paymentMethod) && paymentAmount.compareTo(BigDecimal.ZERO) > 0;
 
-            // 1 & 2. Thay đổi trạng thái phòng (CHỈ làm ngay nếu KHÔNG PHẢI VNPAY)
-            if (!isVnPay) {
+            // 1 & 2. Thay đổi trạng thái phòng (CHỈ làm khi KHÔNG PHẢI VNPAY VÀ thao tác này là "Hoàn tất Checkout" tức là paymentAmount = 0)
+            boolean isCheckoutAction = (!isVnPay && paymentAmount.compareTo(BigDecimal.ZERO) == 0);
+            if (isCheckoutAction) {
                 if (isGroup) {
                     List<RoomBookingDetail> details = roomBookingDetailRepository.findByRoomBookingId(booking.getId());
                     for (RoomBookingDetail d : details) {
@@ -517,22 +539,17 @@ public class FolioRestController {
 
                             Room room = d.getRoom();
                             if (room != null) {
-                                boolean triggered = false;
                                 try {
                                     workflowEngineService.triggerEvent("ROOM_CHECKOUT", Map.of(
                                             "room_id", room.getId(),
                                             "booking_id", booking.getId(),
                                             "booking_detail_id", d.getId()));
-                                    triggered = true;
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }
-
-                                if (!triggered) {
-                                    room.setRoomStatus("Vacant_Dirty");
-                                    room.setCurrentBookingDetailId(null);
-                                    roomRepository.save(room);
-                                }
+                                room.setRoomStatus("Vacant_Dirty");
+                                room.setCurrentBookingDetailId(null);
+                                roomRepository.save(room);
                             }
                         }
                     }
@@ -543,22 +560,18 @@ public class FolioRestController {
                     // 2. Thay đổi trạng thái phòng vật lý qua Dirty (hoặc theo cấu hình workflow)
                     Room room = detail.getRoom();
                     if (room != null) {
-                        boolean triggered = false;
                         try {
                             workflowEngineService.triggerEvent("ROOM_CHECKOUT", Map.of(
                                     "room_id", room.getId(),
                                     "booking_id", detail.getRoomBooking().getId(),
                                     "booking_detail_id", detail.getId()));
-                            triggered = true;
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
-
-                        if (!triggered) {
-                            room.setRoomStatus("Vacant_Dirty");
-                            room.setCurrentBookingDetailId(null);
-                            roomRepository.save(room);
-                        }
+                        // Luôn đảm bảo set Vacant_Dirty sau checkout
+                        room.setRoomStatus("Vacant_Dirty");
+                        room.setCurrentBookingDetailId(null);
+                        roomRepository.save(room);
                     }
                 }
             }

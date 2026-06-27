@@ -444,49 +444,10 @@ public class VnPayServiceImpl implements VnPayService {
                     booking.setBookingStatus("Confirmed");
                 }
             }
-
-            // Xử lý checkout phòng nếu giao dịch xuất phát từ Folio
-            if (txnRef != null && txnRef.startsWith("FOLIO_")) {
-                try {
-                    String[] parts = txnRef.split("_");
-                    if (txnRef.startsWith("FOLIO_GROUP_") && parts.length >= 3) {
-                        Long detailId = Long.parseLong(parts[2]);
-                        RoomBookingDetail detail = roomBookingDetailRepository.findById(detailId).orElse(null);
-                        if (detail != null && detail.getRoomBooking() != null) {
-                            java.util.List<RoomBookingDetail> details = roomBookingDetailRepository
-                                    .findByRoomBookingId(detail.getRoomBooking().getId());
-                            for (RoomBookingDetail d : details) {
-                                if ("Checked_In".equals(d.getDetailStatus())) {
-                                    d.setDetailStatus("Checked_Out");
-                                    roomBookingDetailRepository.save(d);
-                                    Room room = d.getRoom();
-                                    if (room != null) {
-                                        room.setRoomStatus("Vacant_Dirty");
-                                        room.setCurrentBookingDetailId(null);
-                                        roomRepository.save(room);
-                                    }
-                                }
-                            }
-                        }
-                    } else if (parts.length >= 2) {
-                        Long detailId = Long.parseLong(parts[1]);
-                        RoomBookingDetail detail = roomBookingDetailRepository.findById(detailId).orElse(null);
-                        if (detail != null && "Checked_In".equals(detail.getDetailStatus())) {
-                            detail.setDetailStatus("Checked_Out");
-                            roomBookingDetailRepository.save(detail);
-
-                            Room room = detail.getRoom();
-                            if (room != null) {
-                                room.setRoomStatus("Vacant_Dirty");
-                                room.setCurrentBookingDetailId(null);
-                                roomRepository.save(room);
-                            }
-                        }
-                    }
-                } catch (Exception e) {
-                    System.err.println("Lỗi khi chuyển trạng thái phòng trong IPN: " + e.getMessage());
-                }
-            }
+            
+            // Bỏ tự động chuyển trạng thái phòng khi thanh toán VNPay thành công.
+            // Việc thay đổi trạng thái sang Checked_Out / Vacant_Dirty chỉ diễn ra
+            // khi nhân viên nhấn nút "Hoàn tất Checkout" (gọi lại API checkout với amount = 0).
 
             // Tự động chuyển trạng thái Hóa Đơn sang PAID
             if (txn.getInvoice() != null) {
