@@ -817,15 +817,16 @@
             </div>
 
             <div class="modal-actions">
-                <button class="btn-apply" onclick="window.print()"><i class="fa-solid fa-print"></i> In biên lai
-                    giấy</button>
-                <button class="btn-checkout" style="margin: 0;"
-                    onclick="window.location.href='/receptionist/folio'">Hoàn tất & Đóng</button>
+                <button class="btn-apply" onclick="window.print()"><i class="fa-solid fa-print"></i> In biên lai giấy</button>
+                <button class="btn-checkout" style="margin: 0;" onclick="closeSuccessModal()">Đóng</button>
             </div>
         </div>
     </div>
 
     <script>
+        function closeSuccessModal() {
+            document.getElementById('successModal').style.display = 'none';
+        }
         let currentFolioData = null;
         let selectedItemIds = [];
         let currentRoomBookingDetailId = null;
@@ -1002,8 +1003,8 @@
 
                 // Build Room Card HTML
                 leftHtml += `
-                <div style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; margin-bottom: 24px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
-                    <div style="background: #f8fafc; padding: 16px 20px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="toggleRoomDetail('room-detail-${roomId}')">
+                <div style="background: white; border: none; border-radius: 16px; margin-bottom: 32px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04); transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.boxShadow='0 8px 30px rgba(0,0,0,0.13), 0 4px 10px rgba(0,0,0,0.07)'; this.style.transform='translateY(-2px)';" onmouseout="this.style.boxShadow='0 4px 20px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04)'; this.style.transform='translateY(0)';">
+                    <div style="background: #f8fafc; padding: 24px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="toggleRoomDetail('room-detail-${roomId}')">
                          <div>
                              <h4 style="margin: 0 0 4px 0; font-size: 1.1rem; color: #2c3e50;"><i class="fa-solid fa-door-open"></i> Phòng ${data.roomNumber || 'N/A'}</h4>
                              <div style="font-size: 0.9rem; color: #7f8c8d;">
@@ -1104,6 +1105,7 @@
                              </div>
                          </div>
                      </div>
+                 </div>
                  `;
             });
 
@@ -1484,13 +1486,18 @@
                         window.location.href = data.paymentUrl;
                     } else {
                         closePaymentModal();
-                        showSuccessModal(data);
-                        // Reload folio data để cập nhật trạng thái nút và badge
-                        const urlParams2 = new URLSearchParams(window.location.search);
-                        const currentId = urlParams2.get('id');
-                        if (currentId) {
-                            roomSummaryMap = {};
-                            fetchBookingGroup(currentId);
+                        if (currentPaymentAmount > 0) {
+                            showSuccessModal(data);
+                            // Reload folio data để cập nhật trạng thái nút và badge
+                            const urlParams2 = new URLSearchParams(window.location.search);
+                            const currentId = urlParams2.get('id');
+                            if (currentId) {
+                                roomSummaryMap = {};
+                                fetchBookingGroup(currentId);
+                            }
+                        } else {
+                            // Nếu currentPaymentAmount === 0 (nghĩa là ấn Hoàn tất Checkout) -> quay về màn folio
+                            window.location.href = '/receptionist/folio';
                         }
                     }
                 } else {

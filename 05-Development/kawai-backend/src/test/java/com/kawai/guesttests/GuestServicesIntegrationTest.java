@@ -54,10 +54,10 @@ public class GuestServicesIntegrationTest {
     void testEncryptionUtils_EncryptDecrypt() {
         String originalValue = "012345678912";
         String encrypted = EncryptionUtils.encrypt(originalValue);
-        
+
         assertNotNull(encrypted);
         assertNotEquals(originalValue, encrypted);
-        
+
         String decrypted = EncryptionUtils.decrypt(encrypted);
         assertEquals(originalValue, decrypted);
     }
@@ -75,8 +75,7 @@ public class GuestServicesIntegrationTest {
                 "Female",
                 "0911223344",
                 "123456789012",
-                redirectAttributes
-        );
+                redirectAttributes);
 
         assertEquals("redirect:/profile", result);
         assertEquals("Updated Name", mockCustomer.getFullName());
@@ -103,8 +102,7 @@ public class GuestServicesIntegrationTest {
                 "Female",
                 "0911223344",
                 "********",
-                redirectAttributes
-        );
+                redirectAttributes);
 
         assertEquals("redirect:/profile", result);
         assertEquals("123456789012", EncryptionUtils.decrypt(mockCustomer.getCccdPassportEncrypted()));

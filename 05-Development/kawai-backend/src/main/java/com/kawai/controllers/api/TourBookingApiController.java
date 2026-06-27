@@ -33,6 +33,9 @@ public class TourBookingApiController {
     private CustomerRepository customerRepository;
 
     @Autowired
+    private MembershipTierRepository membershipTierRepository;
+
+    @Autowired
     private RoomRepository roomRepository;
 
     @Autowired
@@ -83,7 +86,7 @@ public class TourBookingApiController {
                     customer.setGender("Nam"); // default
                     customer.setCccdPassportEncrypted("GUEST_" + System.currentTimeMillis());
                     customer.setLoyaltyPoints(0);
-                    customer.setMembershipTier("Regular");
+                    customer.setMembershipTier(membershipTierRepository.findByTierNameIgnoreCase("Regular").orElse(null));
                     customer = customerRepository.save(customer);
                 }
             }

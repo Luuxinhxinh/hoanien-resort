@@ -29,7 +29,7 @@ import java.util.UUID;
 public class CheckinServiceImpl implements CheckinService {
 
         // ===== Constants =====
-        private static final String STATUS_DIRTY = "Dirty";
+        private static final String STATUS_DIRTY = "Vacant_Dirty";
         private static final String STATUS_MAINTENANCE = "Maintenance";
         private static final String STATUS_VACANT_CLEAN = "Vacant_Clean";
         private static final String STATUS_AVAILABLE = "Available";
@@ -40,7 +40,6 @@ public class CheckinServiceImpl implements CheckinService {
         private static final String DEFAULT_MEMBERSHIP = "Regular";
         private static final String TEMP_PASSWORD_HASH = "TEMPORARY_HASH";
 
-        // ===== Dependencies =====
         private final RoomBookingDetailRepository roomBookingDetailRepo;
         private final RoomRepository roomRepo;
         private final RoomBookingRepository roomBookingRepo;
@@ -48,6 +47,7 @@ public class CheckinServiceImpl implements CheckinService {
         private final AccountRepository accountRepo;
         private final RoleRepository roleRepo;
         private final DependentRepository dependentRepo;
+        private final com.kawai.repositories.MembershipTierRepository membershipTierRepo;
 
         @Autowired
         public CheckinServiceImpl(
@@ -57,7 +57,8 @@ public class CheckinServiceImpl implements CheckinService {
                         CustomerRepository customerRepo,
                         AccountRepository accountRepo,
                         RoleRepository roleRepo,
-                        DependentRepository dependentRepo) {
+                        DependentRepository dependentRepo,
+                        com.kawai.repositories.MembershipTierRepository membershipTierRepo) {
                 this.roomBookingDetailRepo = roomBookingDetailRepo;
                 this.roomRepo = roomRepo;
                 this.roomBookingRepo = roomBookingRepo;
@@ -65,15 +66,13 @@ public class CheckinServiceImpl implements CheckinService {
                 this.accountRepo = accountRepo;
                 this.roleRepo = roleRepo;
                 this.dependentRepo = dependentRepo;
+                this.membershipTierRepo = membershipTierRepo;
         }
 
-        // ========================================================================
         // UC12.1: Check-in
-        // ========================================================================
-
         @Override
         @Transactional
-        public RoomBookingDetail checkIn(Long bookingDetailId, Long roomId) {
+        public RoomBookingDetail checkIn(Long bookingDetailId, Long roomId, java.math.BigDecimal allocatedCreditLimit) {
                 RoomBookingDetail detail = findBookingDetail(bookingDetailId);
 
                 if (STATUS_CHECKED_IN.equalsIgnoreCase(detail.getDetailStatus())) {
@@ -88,13 +87,15 @@ public class CheckinServiceImpl implements CheckinService {
 
                 validateRoomAvailableForCheckin(room);
 
-                assignRoomToGuest(detail, room);
+                assignRoomToGuest(detail, room, allocatedCreditLimit);
 
                 return detail;
         }
 
-        private void assignRoomToGuest(RoomBookingDetail detail, Room room) {
+        private void assignRoomToGuest(RoomBookingDetail detail, Room room, java.math.BigDecimal allocatedCreditLimit) {
                 detail.setRoom(room);
+                detail.setSubCreditLimit(
+                                allocatedCreditLimit != null ? allocatedCreditLimit : java.math.BigDecimal.ZERO);
                 detail.setDetailStatus(STATUS_CHECKED_IN);
 
                 room.setRoomStatus(STATUS_OCCUPIED);
@@ -150,13 +151,28 @@ public class CheckinServiceImpl implements CheckinService {
                         throw new IllegalArgumentException("Credit Limit âm không hợp lệ (MOD2-001)");
                 }
                 RoomBookingDetail detail = findBookingDetail(bookingDetailId);
-                detail.getRoomBooking().setCreditLimit(newCreditLimit);
-                roomBookingRepo.save(detail.getRoomBooking());
+                RoomBooking parent = detail.getRoomBooking();
+
+                BigDecimal currentTotal = BigDecimal.ZERO;
+                java.util.List<RoomBookingDetail> allDetails = roomBookingDetailRepo
+                                .findByRoomBookingId(parent.getId());
+                for (RoomBookingDetail d : allDetails) {
+                        if (!d.getId().equals(detail.getId()) && d.getSubCreditLimit() != null) {
+                                currentTotal = currentTotal.add(d.getSubCreditLimit());
+                        }
+                }
+
+                if (parent.getCreditLimit() != null
+                                && currentTotal.add(newCreditLimit).compareTo(parent.getCreditLimit()) > 0) {
+                        throw new com.kawai.exceptions.BusinessException("MOD2-UC14-016",
+                                        "Tổng hạn mức phân bổ vượt quá hạn mức tổng");
+                }
+
+                detail.setSubCreditLimit(newCreditLimit);
+                roomBookingDetailRepo.save(detail);
         }
 
-        // ========================================================================
         // UC12.3: Đổi phòng
-        // ========================================================================
 
         @Override
         @Transactional
@@ -213,10 +229,7 @@ public class CheckinServiceImpl implements CheckinService {
                 roomRepo.save(newRoom);
         }
 
-        // ========================================================================
         // UC12.4: Nâng cấp Dependent → Customer
-        // ========================================================================
-
         @Override
         @Transactional
         public Customer upgradeDependentToCustomer(Long dependentId) {
@@ -247,13 +260,11 @@ public class CheckinServiceImpl implements CheckinService {
                 customer.setPhone(TEMP_PHONE);
                 customer.setEmail("pending_" + account.getId() + "@kawai-resort.com");
                 customer.setLoyaltyPoints(0);
-                customer.setMembershipTier(DEFAULT_MEMBERSHIP);
+                customer.setMembershipTier(
+                                membershipTierRepo.findByTierNameIgnoreCase(DEFAULT_MEMBERSHIP).orElse(null));
                 return customerRepo.save(customer);
         }
-
-        // ========================================================================
         // Private helpers: repository lookups
-        // ========================================================================
 
         private RoomBookingDetail findBookingDetail(Long id) {
                 return roomBookingDetailRepo.findById(id)
@@ -283,8 +294,9 @@ public class CheckinServiceImpl implements CheckinService {
         @Transactional
         public void markAsNoShow(Long bookingId) {
                 RoomBooking booking = roomBookingRepo.findById(bookingId)
-                                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy đơn phòng ID: " + bookingId));
-                
+                                .orElseThrow(() -> new IllegalArgumentException(
+                                                "Không tìm thấy đơn phòng ID: " + bookingId));
+
                 if (!"Confirmed".equals(booking.getBookingStatus())) {
                         throw new IllegalArgumentException("Chỉ có thể hủy No-Show với đơn đã Confirmed.");
                 }

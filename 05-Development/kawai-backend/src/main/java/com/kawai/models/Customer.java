@@ -24,8 +24,9 @@ public class Customer {
     private String email;
     @Column(name = "loyalty_points", nullable = false)
     private Integer loyaltyPoints = 0;
-    @Column(name = "membership_tier", nullable = false)
-    private String membershipTier = "Regular";
+    @ManyToOne
+    @JoinColumn(name = "membership_tier_id", nullable = false)
+    private MembershipTier membershipTier;
     @Column(name = "avatar_url")
     private String avatarUrl;
 
@@ -93,11 +94,11 @@ public class Customer {
         this.loyaltyPoints = v;
     }
 
-    public String getMembershipTier() {
+    public MembershipTier getMembershipTier() {
         return membershipTier;
     }
 
-    public void setMembershipTier(String v) {
+    public void setMembershipTier(MembershipTier v) {
         this.membershipTier = v;
     }
 

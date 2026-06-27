@@ -119,6 +119,7 @@
   padding: 0;
   overflow: hidden;
   box-shadow: var(--shadow-card);
+  flex-shrink: 0;
 }
 
 .rs-table {

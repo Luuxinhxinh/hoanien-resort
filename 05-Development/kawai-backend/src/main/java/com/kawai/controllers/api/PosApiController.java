@@ -80,4 +80,21 @@ public class PosApiController {
                     "message", e.getMessage() != null ? e.getMessage() : "null message"));
         }
     }
+
+    @PostMapping("/batch-update-status")
+    public ResponseEntity<?> batchUpdateStatus(@RequestBody Map<String, Object> payload) {
+        try {
+            java.util.List<String> orderIds = (java.util.List<String>) payload.get("orderIds");
+            String newStatus = (String) payload.get("newStatus");
+            for (String idStr : orderIds) {
+                posService.updateOrderStatus(Long.parseLong(idStr), newStatus);
+            }
+            return ResponseEntity.ok().body(Map.of("status", "success", "message", "Cập nhật hàng loạt thành công"));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(400).body(Map.of(
+                    "error", e.getClass().getName(),
+                    "message", e.getMessage() != null ? e.getMessage() : "null message"));
+        }
+    }
 }

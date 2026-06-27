@@ -42,4 +42,7 @@ public interface FoodOrderRepository extends JpaRepository<FoodOrder, Long> {
 
     @Query("SELECT fo FROM FoodOrder fo WHERE fo.table.id = :tableId AND fo.isPaidInPos = false AND fo.orderStatus != 'Cancelled' ORDER BY fo.orderTime DESC")
     List<FoodOrder> findActiveOrdersByTable(@org.springframework.data.repository.query.Param("tableId") Long tableId);
+
+    @Query("SELECT fo FROM FoodOrder fo WHERE LOWER(fo.orderType) IN ('room service', 'room-svc') ORDER BY fo.id DESC")
+    List<FoodOrder> findRoomServiceOrders();
 }

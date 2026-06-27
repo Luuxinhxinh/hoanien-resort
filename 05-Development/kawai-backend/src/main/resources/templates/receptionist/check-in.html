@@ -191,7 +191,7 @@
                                         th:data-id="${arr.id}" th:data-name="${arr.guestName}"
                                         th:data-phone="${arr.phone}" th:data-cccd="${arr.cccd}"
                                         th:data-room="${arr.roomSummary}"
-                                        th:attr="onclick=|openCheckinModal('${arr.id}', '${arr.guestName}', '${arr.phone}', '${arr.cccd}', '${arr.roomSummary}', 'deps-arr-${arr.id}')|"
+                                        th:attr="onclick=|openCheckinModal('${arr.id}', '${arr.guestName}', '${arr.phone}', '${arr.cccd}', '${arr.roomSummary}', 'deps-arr-', '${arr.creditLimit}')|"
                                         th:text="${arr.guestName}"></td>
                                     <td th:text="${arr.phone}"></td>
                                     <td th:text="${arr.checkInDate}"></td>
@@ -201,7 +201,7 @@
                                             <button class="btn btn-primary btn-sm" th:data-id="${arr.id}"
                                                 th:data-name="${arr.guestName}" th:data-phone="${arr.phone}"
                                                 th:data-cccd="${arr.cccd}" th:data-room="${arr.roomSummary}"
-                                                th:attr="onclick=|openCheckinModal('${arr.id}', '${arr.guestName}', '${arr.phone}', '${arr.cccd}', '${arr.roomSummary}', 'deps-arr-${arr.id}')|">Assign
+                                                th:attr="onclick=|openCheckinModal('${arr.id}', '${arr.guestName}', '${arr.phone}', '${arr.cccd}', '${arr.roomSummary}', 'deps-arr-', '${arr.creditLimit}')|">Assign
                                                 & Check-in</button>
                                         </div>
                                         <div th:if="${arr.isExpired == true}">
@@ -299,12 +299,13 @@
 
                 <!-- Physical Room Assignment Section -->
                 <div style="margin-bottom: 24px;">
-                    <h4
-                        style="margin-top: 0; margin-bottom: 12px; font-weight: 600; color: #334155; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px;">
-                        Physical Room Assignment (Phân phòng)</h4>
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; margin-bottom: 12px;">
+                        <h4 style="margin: 0; font-weight: 600; color: #334155;">Physical Room Assignment (Phân phòng)</h4>
+                        <span style="font-size: 14px; font-weight: 600; color: #64748b;">Hạn mức tổng còn lại: <span id="checkinRemainingCreditDisplay" style="color: #16a34a;">5,000,000 VND</span></span>
+                    </div>
 
                     <!-- Assigned Rooms List -->
-                    <div id="assignedRoomsList" style="margin-bottom: 12px; display: flex; flex-wrap: wrap; gap: 8px;">
+                    <div id="assignedRoomsList" style="margin-bottom: 12px; display: flex; flex-direction: column; gap: 8px;">
                         <!-- JS injected badges for assigned rooms -->
                     </div>
 
