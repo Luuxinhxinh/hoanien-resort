@@ -751,6 +751,7 @@
         let isScanning = false;
         let modelsLoaded = false;
         let referenceDescriptors = [];
+        let scanInterval = null;
 
         async function loadModels() {
             const statusText = document.getElementById('scan-status-label');
@@ -822,8 +823,16 @@
                 document.getElementById('camera-placeholder').classList.add('hidden');
                 document.getElementById('camera-icon').textContent = 'videocam_off';
                 document.getElementById('camera-btn-label').textContent = 'Tắt Camera';
-                document.getElementById('btn-scan').disabled = false;
+                document.getElementById('btn-scan').disabled = true; // Auto scanning now
+                document.getElementById('btn-scan').textContent = 'Đang Auto Quét...';
                 document.getElementById('btn-reset').disabled = false;
+
+                if (scanInterval) clearInterval(scanInterval);
+                scanInterval = setInterval(() => {
+                    if (cameraActive && !isScanning && modelsLoaded && referenceDescriptors.length > 0) {
+                        performRealTimeScan();
+                    }
+                }, 800); // scan every 800ms
             } catch (err) {
                 console.error('Camera error:', err);
                 showToast('Không thể truy cập camera. Vui lòng kiểm tra quyền thiết bị.', 'error');
@@ -831,12 +840,14 @@
         }
 
         function stopCamera() {
+            if (scanInterval) clearInterval(scanInterval);
             if (cameraStream) { cameraStream.getTracks().forEach(t => t.stop()); cameraStream = null; }
             cameraActive = false;
             document.getElementById('camera-video').srcObject = null;
             document.getElementById('camera-placeholder').classList.remove('hidden');
             document.getElementById('camera-icon').textContent = 'videocam';
             document.getElementById('camera-btn-label').textContent = 'Bật Camera';
+            document.getElementById('btn-scan').textContent = 'Quét Khuôn Mặt';
             document.getElementById('btn-scan').disabled = true;
         }
 
@@ -846,8 +857,96 @@
             document.getElementById('camera-video').classList.remove('hidden');
             document.getElementById('scan-result-card').classList.add('hidden');
             document.getElementById('face-frame').className = 'face-frame';
+            document.getElementById('face-frame').style = '';
             document.getElementById('scan-status-label').textContent = 'SẴN SÀNG';
             document.getElementById('scan-line').classList.remove('active');
+            isScanning = false;
+            if (cameraActive) {
+                if (scanInterval) clearInterval(scanInterval);
+                scanInterval = setInterval(() => {
+                    if (cameraActive && !isScanning && modelsLoaded && referenceDescriptors.length > 0) {
+                        performRealTimeScan();
+                    }
+                }, 800);
+            }
+        }
+
+        async function performRealTimeScan() {
+            isScanning = true;
+            const video = document.getElementById('camera-video');
+            const faceFrame = document.getElementById('face-frame');
+            const statusLabel = document.getElementById('scan-status-label');
+            const statusIcon = document.getElementById('scan-status-icon');
+            const scanLine = document.getElementById('scan-line');
+
+            try {
+                const detection = await faceapi
+                    .detectSingleFace(video, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.5 }))
+                    .withFaceLandmarks()
+                    .withFaceDescriptor();
+
+                if (detection) {
+                    scanLine.classList.add('active');
+                    let bestDistance = Infinity;
+                    let bestName = null;
+                    for (const ref of referenceDescriptors) {
+                        const distance = faceapi.euclideanDistance(detection.descriptor, ref.descriptor);
+                        if (distance < bestDistance) {
+                            bestDistance = distance;
+                            bestName = ref.name;
+                        }
+                    }
+
+                    let confidence;
+                    if (bestDistance <= FACE_MATCH_THRESHOLD) {
+                        confidence = 100.0 - (bestDistance / FACE_MATCH_THRESHOLD) * 15.0;
+                    } else {
+                        confidence = Math.max(0.0, 85.0 - ((bestDistance - FACE_MATCH_THRESHOLD) / (1.0 - FACE_MATCH_THRESHOLD)) * 85.0);
+                    }
+
+                    if (bestDistance < FACE_MATCH_THRESHOLD && confidence >= MIN_CONFIDENCE) {
+                        clearInterval(scanInterval); // Dừng quét khi tìm thấy
+                        
+                        // Vẽ khung khớp với khuôn mặt thật trên video
+                        const displaySize = { width: video.clientWidth, height: video.clientHeight };
+                        const resizedDetections = faceapi.resizeResults(detection, displaySize);
+                        const box = resizedDetections.detection.box;
+                        
+                        faceFrame.style.top = box.y + 'px';
+                        faceFrame.style.left = box.x + 'px';
+                        faceFrame.style.width = box.width + 'px';
+                        faceFrame.style.height = box.height + 'px';
+
+                        faceFrame.className = 'face-frame matched';
+                        statusLabel.textContent = 'ĐÃ XÁC THỰC';
+                        statusIcon.textContent = 'check_circle';
+                        showScanResult(true, bestName, `Xác thực thành công (${confidence.toFixed(1)}%)`);
+
+                        try {
+                            await fetch('/api/faceid/verify', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ name: bestName })
+                            });
+                        } catch (e) { console.warn(e); }
+                        
+                        // Tự động reload trang sau 2s
+                        setTimeout(() => { window.location.href = '/tourguide/dashboard?scanned=true'; }, 2000);
+                        return; // Dừng logic ở đây, không set isScanning = false để chống spam
+                    } else {
+                        faceFrame.className = 'face-frame scanning';
+                        statusLabel.textContent = 'ĐANG NHẬN DIỆN...';
+                    }
+                } else {
+                    scanLine.classList.remove('active');
+                    faceFrame.className = 'face-frame';
+                    faceFrame.style = ''; // Reset CSS
+                    statusLabel.textContent = 'TÌM KHUÔN MẶT';
+                }
+            } catch (err) {
+                console.error("Lỗi scan:", err);
+            }
+            isScanning = false;
         }
 
         async function captureAndScan() {
@@ -913,15 +1012,7 @@
                         }
                     }
                 } else {
-                    const response = await fetch('/api/faceid/scan', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ image: imageData })
-                    });
-                    const data = await response.json();
-                    if (data.success) {
-                        matchResult = { name: data.name, confidence: 100 };
-                    }
+                    showToast('Hệ thống chưa tải xong mô hình nhận diện AI. Vui lòng thử lại sau.', 'error');
                 }
             } catch (err) {
                 console.error(err);
