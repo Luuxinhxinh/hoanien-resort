@@ -137,7 +137,7 @@ public class TourBookingApiController {
                     .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy thông tin đặt phòng chi tiết."));
 
             request.setRoomBookingDetailId(detailId);
-            request.setRoomBookingId(detail.getRoomBooking().getId());
+            // request.setRoomBookingId(detail.getRoomBooking().getId());
 
             List<String> childAges = (List<String>) payload.get("childAges");
             request.setChildAges(childAges);

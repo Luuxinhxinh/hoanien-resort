@@ -210,7 +210,7 @@ public class BookingApiController {
 
             // 2. Chốt booking: Xác nhận available, gắn thông tin khách, chuyển sang
             // Pending_Payment hoặc Confirmed
-            bookingService.confirmBooking(bookingId, customer.getId(), fullName, phone, email, cccd, notes,
+            bookingService.confirmBooking(bookingId, customer.getId(), fullName, phone, email, cccd, null, notes,
                     paymentMethod);
 
             Map<String, Object> response = new java.util.HashMap<>();

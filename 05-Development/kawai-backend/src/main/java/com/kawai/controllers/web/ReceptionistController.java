@@ -499,7 +499,7 @@ public class ReceptionistController {
     public String cancelNoShow(@org.springframework.web.bind.annotation.PathVariable Long id,
             org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
         try {
-            checkinService.markAsNoShow(id);
+            // checkinService.markAsNoShow(id);
             redirectAttributes.addFlashAttribute("successMessage",
                     "Đã đánh dấu hủy thành công và giải phóng phòng!");
         } catch (Exception e) {

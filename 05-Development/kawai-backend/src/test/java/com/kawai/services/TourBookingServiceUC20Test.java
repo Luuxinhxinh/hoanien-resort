@@ -106,7 +106,7 @@ class TourBookingServiceUC20Test {
         validRequest.setScheduleId(100L);
         validRequest.setCustomerId(10L);
         validRequest.setParticipantCount(2);
-        validRequest.setRoomBookingId(1L);
+
         validRequest.setPostToRoom(false);
     }
 

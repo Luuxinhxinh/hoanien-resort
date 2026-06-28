@@ -281,7 +281,7 @@ public class ReceptionistCheckinWebController {
                     }
                     RoomBookingDetail detail = roomBookingDetailRepo.findById(detailId).orElse(null);
                     if (detail != null) {
-                        tourBooking.setRoomBookingDetail(detail);
+                        // tourBooking.setRoomBookingDetail(detail);
                         tourBookingRepo.save(tourBooking);
                         log.info("Phân bổ TourBooking {} vào phòng {} (detail {})",
                                 tourBooking.getId(), allocation.getRoomNumber(), detailId);

@@ -179,7 +179,7 @@ class HousekeepingServiceUC13Test {
                     .thenAnswer(inv -> inv.getArgument(0));
 
             // ACT
-            Room result = housekeepingService.updateRoomToClean(taskId);
+            Room result = housekeepingService.updateRoomToClean(taskId, null);
 
             // ASSERT
             assertNotNull(result, "Kết quả không được null");

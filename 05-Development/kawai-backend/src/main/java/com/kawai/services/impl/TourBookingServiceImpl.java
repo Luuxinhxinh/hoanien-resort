@@ -156,15 +156,7 @@ public class TourBookingServiceImpl implements TourBookingService {
                 booking.setSchedule(schedule);
                 booking.setCustomer(customer);
                 
-                RoomBooking roomBooking = roomBookingRepository.findById(request.getRoomBookingId())
-                                .orElseThrow(() -> new IllegalStateException("TOUR-006: Room Booking not found"));
-                booking.setRoomBooking(roomBooking);
-                
-                if (request.getRoomBookingDetailId() != null) {
-                    RoomBookingDetail detail = roomBookingDetailRepository.findById(request.getRoomBookingDetailId())
-                                    .orElseThrow(() -> new IllegalStateException("TOUR-007: Room Booking Detail not found"));
-                    booking.setRoomBookingDetail(detail);
-                }
+
 
                 booking.setBookingDate(LocalDate.now());
                 booking.setParticipantCount(request.getParticipantCount());
