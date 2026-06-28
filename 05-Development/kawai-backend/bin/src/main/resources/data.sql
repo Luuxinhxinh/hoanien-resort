@@ -27,7 +27,7 @@ INSERT INTO Accounts (account_id, username, password_hash, is_active, role_id, c
 (6, 'vanan', '$2a$10$4bnThA4xQVw1rF2POQv78uAQll2KsUsgF32JaYiVG5d2d3Fhgk83q', TRUE, 9, CURRENT_TIMESTAMP),
 (7, 'phamtuan', '$2a$10$4bnThA4xQVw1rF2POQv78uAQll2KsUsgF32JaYiVG5d2d3Fhgk83q', TRUE, 8, CURRENT_TIMESTAMP),
 (8, 'thibich', '$2a$10$4bnThA4xQVw1rF2POQv78uAQll2KsUsgF32JaYiVG5d2d3Fhgk83q', TRUE, 9, CURRENT_TIMESTAMP),
-(9, 'lequang', '$2a$10$4bnThA4xQVw1rF2POQv78uAQll2KsUsgF32JaYiVG5d2d3Fhgk83q', TRUE, 9, CURRENT_TIMESTAMP),
+(9, 'ngocthi', '$2a$10$4bnThA4xQVw1rF2POQv78uAQll2KsUsgF32JaYiVG5d2d3Fhgk83q', TRUE, 9, CURRENT_TIMESTAMP),
 (10, 'mylinh', '$2a$10$4bnThA4xQVw1rF2POQv78uAQll2KsUsgF32JaYiVG5d2d3Fhgk83q', TRUE, 9, CURRENT_TIMESTAMP),
 (11, 'hoanganh', '$2a$10$4bnThA4xQVw1rF2POQv78uAQll2KsUsgF32JaYiVG5d2d3Fhgk83q', TRUE, 8, CURRENT_TIMESTAMP),
 (12, 'vuhung', '$2a$10$4bnThA4xQVw1rF2POQv78uAQll2KsUsgF32JaYiVG5d2d3Fhgk83q', TRUE, 8, CURRENT_TIMESTAMP),
@@ -59,7 +59,7 @@ INSERT INTO Customers (customer_id, account_id, full_name, gender, cccd_passport
 (2, 6, 'Nguyễn Văn An', 'Nam', 'CCCD_204', '090204', 'an204@test.com', 200, 'Silver'),
 (3, 7, 'Phạm Tuấn', 'Nam', 'CCCD_308', '090308', 'tuan308@test.com', 500, 'Gold'),
 (4, 8, 'Trần Thị Bích', 'Nữ', 'CCCD_104', '090104', 'bich104@test.com', 50, 'Regular'),
-(5, 9, 'Lê Quang', 'Nam', 'CCCD_106', '090106', 'quang106@test.com', 0, 'Regular'),
+(5, 9, 'Ngọc Thị', 'Nữ', 'CCCD_106', '090106', 'quang106@test.com', 0, 'Regular'),
 (6, 10, 'Đỗ Mỹ Linh', 'Nữ', 'CCCD_207', '090207', 'linh207@test.com', 150, 'Silver'),
 (7, 11, 'Hoàng Anh', 'Nam', 'CCCD_210', '090210', 'anh210@test.com', 300, 'Gold'),
 (8, 12, 'Vũ Hùng', 'Nam', 'CCCD_311', '090311', 'hung311@test.com', 800, 'Platinum'),
@@ -785,3 +785,7 @@ INSERT INTO Room_Booking_Details (detail_id, room_booking_id, category_id, room_
 
 INSERT INTO Tour_Bookings (booking_id, schedule_id, participant_count, tour_charge, is_walk_in_tour) VALUES 
 (992, 1, 4, 45000000, FALSE);
+
+-- Self-healing database name update for customer Ngọc Thị (formerly Lê Quang)
+UPDATE Customers SET full_name = 'Ngọc Thị', gender = 'Nữ' WHERE customer_id = 5;
+UPDATE Accounts SET username = 'ngocthi' WHERE account_id = 9;

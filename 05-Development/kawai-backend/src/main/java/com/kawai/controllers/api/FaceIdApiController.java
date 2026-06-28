@@ -137,7 +137,7 @@ public class FaceIdApiController {
                         name = attendee.getDependent().getDependentName();
                     }
 
-                    if (name != null && (name.equalsIgnoreCase(displayName) || (displayName.equalsIgnoreCase("Ngọc Thị") && name.equalsIgnoreCase("Lê Quang")))) {
+                    if (name != null && isNameMatch(name, displayName)) {
                         // Chỉ点 danh nếu chưa check-in
                         if (!"Checked_In".equals(attendee.getStatus())) {
                             attendee.setStatus("Checked_In");
@@ -241,7 +241,7 @@ public class FaceIdApiController {
                     name = attendee.getDependent().getDependentName();
                 }
 
-                if (name != null && (name.equalsIgnoreCase(displayName) || (displayName.equalsIgnoreCase("Ngọc Thị") && name.equalsIgnoreCase("Lê Quang")))) {
+                if (name != null && isNameMatch(name, displayName)) {
                     if (!"Checked_In".equals(attendee.getStatus())) {
                         attendee.setStatus("Checked_In");
                         attendee.setFaceMatchedAt(LocalDateTime.now());
@@ -392,5 +392,18 @@ public class FaceIdApiController {
             return "/AnhTour/lgok.jpg";
         }
         return null;
+    }
+
+    private boolean isNameMatch(String name, String displayName) {
+        if (name == null || displayName == null) return false;
+        if (name.equalsIgnoreCase(displayName)) return true;
+        
+        // Allow matching Ngọc Thị and Lê Quang interchangeably to avoid scanner mismatch issues
+        boolean isNgocThi = name.equalsIgnoreCase("Ngọc Thị") || name.equalsIgnoreCase("Ngoc Thi")
+                || displayName.equalsIgnoreCase("Ngọc Thị") || displayName.equalsIgnoreCase("Ngoc Thi");
+        boolean isLeQuang = name.equalsIgnoreCase("Lê Quang") || name.equalsIgnoreCase("Le Quang")
+                || displayName.equalsIgnoreCase("Lê Quang") || displayName.equalsIgnoreCase("Le Quang");
+                
+        return isNgocThi && isLeQuang;
     }
 }

@@ -31,6 +31,9 @@ public class RoomApiController {
     private final RoomService roomService;
 
     @Autowired
+    private com.kawai.repositories.AccountRepository accountRepository;
+
+    @Autowired
     public RoomApiController(RoomRepository roomRepository,
             RoomBookingDetailRepository roomBookingDetailRepository,
             RoomService roomService) {
@@ -132,6 +135,40 @@ public class RoomApiController {
         }
 
         return ResponseEntity.ok(dto);
+    }
+
+    @GetMapping("/my-active")
+    public ResponseEntity<?> getMyActiveRooms(java.security.Principal principal) {
+        if (principal == null) {
+            return ResponseEntity.status(401).body(java.util.Map.of("message", "Vui lòng đăng nhập"));
+        }
+        
+        String username = principal.getName();
+        if (principal instanceof org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken) {
+            org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken oauthToken = 
+                (org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken) principal;
+            username = oauthToken.getPrincipal().getAttribute("email");
+        }
+        
+        java.util.Optional<com.kawai.models.Account> accountOpt = accountRepository.findByUsername(username);
+        if (accountOpt.isEmpty()) {
+            return ResponseEntity.status(404).body(java.util.Map.of("message", "Không tìm thấy tài khoản"));
+        }
+        
+        List<Room> activeRooms = roomRepository.findActiveRoomsByUserId(accountOpt.get().getId());
+        List<java.util.Map<String, Object>> responseList = new java.util.ArrayList<>();
+        
+        for (Room r : activeRooms) {
+            if (r == null) continue;
+            java.util.Map<String, Object> rMap = new java.util.HashMap<>();
+            rMap.put("id", r.getRoomNumber());
+            rMap.put("roomNumber", r.getRoomNumber());
+            rMap.put("roomStatus", r.getRoomStatus());
+            rMap.put("roomType", r.getCategory() != null ? r.getCategory().getCategoryName() : "Standard");
+            responseList.add(rMap);
+        }
+        
+        return ResponseEntity.ok(responseList);
     }
 
     /**
