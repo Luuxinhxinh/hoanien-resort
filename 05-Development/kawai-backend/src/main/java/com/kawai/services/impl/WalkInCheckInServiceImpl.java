@@ -213,8 +213,8 @@ public class WalkInCheckInServiceImpl implements WalkInCheckInService {
                 for (DependentRegistrationDTO dto : companions) {
                     Dependent d = new Dependent();
                     d.setCustomer(customer);
-                    d.setDependentName(dto.getFullName());
-                    d.setBirthDate(dto.getDateOfBirth());
+                    d.setDependentName(dto.getFullName() != null && !dto.getFullName().isBlank() ? dto.getFullName().trim() : "Khách đi kèm");
+                    d.setBirthDate(dto.getDateOfBirth() != null ? dto.getDateOfBirth() : java.time.LocalDate.now().minusYears(18).withDayOfYear(1));
                     d.setGender(dto.getGender() != null ? dto.getGender() : "Khác");
                     if (dto.getCccd() != null && !dto.getCccd().isBlank()) {
                         d.setCccdPassportEncrypted(EncryptionUtils.encrypt(dto.getCccd()));

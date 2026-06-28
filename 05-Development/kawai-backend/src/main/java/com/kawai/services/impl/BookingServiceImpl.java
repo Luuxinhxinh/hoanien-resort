@@ -89,6 +89,9 @@ public class BookingServiceImpl implements BookingService {
     private com.kawai.repositories.BookingRepository bookingRepository;
 
     @Autowired
+    private com.kawai.repositories.TourBookingRepository tourBookingRepository;
+
+    @Autowired
     private WorkflowRepository workflowRepository;
 
     private final RoomBookingRepository roomBookingRepository;
@@ -387,7 +390,9 @@ public class BookingServiceImpl implements BookingService {
                 } else {
                     com.kawai.models.Dependent stubDep = new com.kawai.models.Dependent();
                     stubDep.setCustomer(customer);
+                    stubDep.setDependentName("Khách đi kèm");
                     stubDep.setBirthDate(java.time.LocalDate.now().minusYears(18).withDayOfYear(1));
+                    stubDep.setGender("Khác");
                     dependentRepository.save(stubDep);
 
                     guest.setCustomer(null);
@@ -402,6 +407,8 @@ public class BookingServiceImpl implements BookingService {
             for (Integer age : agesForRoom) {
                 com.kawai.models.Dependent dep = new com.kawai.models.Dependent();
                 dep.setCustomer(customer);
+                dep.setDependentName("Khách đi kèm");
+                dep.setGender("Khác");
                 // Calculate approximate birthDate from age (e.g., Jan 1st of birth year)
                 dep.setBirthDate(java.time.LocalDate.now().minusYears(age).withDayOfYear(1));
                 dependentRepository.save(dep);
@@ -743,50 +750,71 @@ public class BookingServiceImpl implements BookingService {
     @Override
     @Transactional
     public BigDecimal applyCoupon(Long bookingId, String couponCode, Long customerId) {
-        RoomBooking booking = roomBookingRepository.findByIdAndCustomerId(bookingId, customerId)
+        com.kawai.models.Booking generalBooking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new BusinessException("FORBIDDEN",
-                        "Đơn đặt phòng không thuộc về tài khoản này hoặc không tồn tại!"));
+                        "Đơn đặt dịch vụ không thuộc về tài khoản này hoặc không tồn tại!"));
 
-        List<RoomBookingDetail> details = roomBookingDetailRepository.findByRoomBookingId(bookingId);
-        BigDecimal baseRoomPrice = BigDecimal.ZERO;
-        BigDecimal servicesFee = BigDecimal.ZERO;
-        for (RoomBookingDetail detail : details) {
-            baseRoomPrice = baseRoomPrice
-                    .add(detail.getRoomCharge() != null ? detail.getRoomCharge() : BigDecimal.ZERO);
-            servicesFee = servicesFee
-                    .add(detail.getExtraSurcharge() != null ? detail.getExtraSurcharge() : BigDecimal.ZERO);
+        if (generalBooking.getCustomer() == null || !generalBooking.getCustomer().getId().equals(customerId)) {
+            throw new BusinessException("FORBIDDEN",
+                    "Đơn đặt dịch vụ không thuộc về tài khoản này hoặc không tồn tại!");
         }
-        BigDecimal totalBaseTotal = baseRoomPrice.add(servicesFee);
+
+        BigDecimal totalBaseTotal = BigDecimal.ZERO;
+
+        if (generalBooking instanceof RoomBooking) {
+            List<RoomBookingDetail> details = roomBookingDetailRepository.findByRoomBookingId(bookingId);
+            BigDecimal baseRoomPrice = BigDecimal.ZERO;
+            BigDecimal servicesFee = BigDecimal.ZERO;
+            for (RoomBookingDetail detail : details) {
+                baseRoomPrice = baseRoomPrice
+                        .add(detail.getRoomCharge() != null ? detail.getRoomCharge() : BigDecimal.ZERO);
+                servicesFee = servicesFee
+                        .add(detail.getExtraSurcharge() != null ? detail.getExtraSurcharge() : BigDecimal.ZERO);
+            }
+            totalBaseTotal = baseRoomPrice.add(servicesFee);
+        } else if (generalBooking instanceof com.kawai.models.TourBooking) {
+            com.kawai.models.TourBooking booking = (com.kawai.models.TourBooking) generalBooking;
+            totalBaseTotal = booking.getTourCharge() != null ? booking.getTourCharge() : booking.getTotalPrice();
+            if (totalBaseTotal == null) {
+                totalBaseTotal = BigDecimal.ZERO;
+            }
+        } else {
+            throw new BusinessException("NOT_SUPPORTED", "Loại đơn hàng này không hỗ trợ áp dụng mã giảm giá!");
+        }
 
         BigDecimal discountedPrice = applyPromotion(couponCode, totalBaseTotal, customerId);
         BigDecimal discountAmount = totalBaseTotal.subtract(discountedPrice);
 
-        booking.setTotalPrice(discountedPrice.setScale(0, RoundingMode.HALF_UP));
-        booking.setDepositAmount(discountedPrice.multiply(new BigDecimal("0.3")).setScale(0, RoundingMode.HALF_UP)); // Default
-                                                                                                                     // deposit
-                                                                                                                     // is
-                                                                                                                     // 30%
-                                                                                                                     // of
-                                                                                                                     // final
-                                                                                                                     // price
-        roomBookingRepository.save(booking);
+        generalBooking.setTotalPrice(discountedPrice.setScale(0, RoundingMode.HALF_UP));
+
+        Promotion promotion = promotionRepository.findByPromoCode(couponCode)
+                .orElseThrow(() -> new BusinessException("PROMOTION_NOT_FOUND", "Mã giảm giá không tồn tại hoặc đã hết hạn!"));
+        generalBooking.setAppliedPromotion(promotion);
+
+        if (generalBooking instanceof RoomBooking) {
+            RoomBooking roomBooking = (RoomBooking) generalBooking;
+            roomBooking.setDepositAmount(discountedPrice.multiply(new BigDecimal("0.3")).setScale(0, RoundingMode.HALF_UP));
+            roomBookingRepository.save(roomBooking);
+        } else if (generalBooking instanceof com.kawai.models.TourBooking) {
+            tourBookingRepository.save((com.kawai.models.TourBooking) generalBooking);
+        } else {
+            bookingRepository.save(generalBooking);
+        }
 
         // Gọi Workflow Engine để kiểm tra nếu áp dụng mã giảm giá vượt ngưỡng
         try {
-            Promotion promo = promotionRepository.findByPromoCode(couponCode).orElse(null);
-            if (promo != null) {
-                BigDecimal pct = "Percentage".equalsIgnoreCase(promo.getDiscountType())
-                        ? promo.getDiscountValue()
-                        : (totalBaseTotal.compareTo(BigDecimal.ZERO) > 0
-                                ? promo.getDiscountValue().multiply(new BigDecimal("100")).divide(totalBaseTotal, 2,
-                                        RoundingMode.HALF_UP)
-                                : BigDecimal.ZERO);
+            Promotion promo = promotion;
+            BigDecimal pct = "Percentage".equalsIgnoreCase(promo.getDiscountType())
+                    ? promo.getDiscountValue()
+                    : (totalBaseTotal.compareTo(BigDecimal.ZERO) > 0
+                            ? promo.getDiscountValue().multiply(new BigDecimal("100")).divide(totalBaseTotal, 2,
+                                    RoundingMode.HALF_UP)
+                            : BigDecimal.ZERO);
 
-                workflowEngineService.triggerEvent("PROMOTION_EXCEEDED", java.util.Map.of(
-                        "promo_id", promo.getId(),
-                        "input_discount_pct", pct.doubleValue(),
-                        "booking_id", booking.getId()));
-            }
+            workflowEngineService.triggerEvent("PROMOTION_EXCEEDED", java.util.Map.of(
+                    "promo_id", promo.getId(),
+                    "input_discount_pct", pct.doubleValue(),
+                    "booking_id", generalBooking.getId()));
         } catch (Exception e) {
             log.error("Failed to trigger PROMOTION_EXCEEDED workflow in applyCoupon", e);
         }

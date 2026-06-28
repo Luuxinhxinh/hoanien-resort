@@ -24,13 +24,29 @@ public class TourBookingRequest {
     @Min(value = 1, message = "participantCount must be at least 1")
     private int participantCount;
 
-    @NotNull(message = "roomBookingId is required")
-    private Long roomBookingId;
+    private boolean isWalkInTour = false;
+
     // Post to Room fields
     private boolean postToRoom = false;
     private Long roomBookingDetailId;
 
+    // Payment method: "counter", "post-room", "vnpay"
+    private String paymentMethod = "counter";
+
+    private java.util.List<String> childAges;
+
+    // Mã giảm giá (tùy chọn)
+    private String promoCode;
+
     public TourBookingRequest() {
+    }
+
+    public java.util.List<String> getChildAges() {
+        return childAges;
+    }
+
+    public void setChildAges(java.util.List<String> childAges) {
+        this.childAges = childAges;
     }
 
     // --- Getters & Setters ---
@@ -59,12 +75,12 @@ public class TourBookingRequest {
         this.participantCount = participantCount;
     }
 
-    public Long getRoomBookingId() {
-        return roomBookingId;
+    public boolean isWalkInTour() {
+        return isWalkInTour;
     }
 
-    public void setRoomBookingId(Long roomBookingId) {
-        this.roomBookingId = roomBookingId;
+    public void setWalkInTour(boolean walkInTour) {
+        isWalkInTour = walkInTour;
     }
 
     public boolean isPostToRoom() {
@@ -81,5 +97,21 @@ public class TourBookingRequest {
 
     public void setRoomBookingDetailId(Long roomBookingDetailId) {
         this.roomBookingDetailId = roomBookingDetailId;
+    }
+
+    public String getPaymentMethod() {
+        return paymentMethod;
+    }
+
+    public void setPaymentMethod(String paymentMethod) {
+        this.paymentMethod = paymentMethod;
+    }
+
+    public String getPromoCode() {
+        return promoCode;
+    }
+
+    public void setPromoCode(String promoCode) {
+        this.promoCode = promoCode;
     }
 }

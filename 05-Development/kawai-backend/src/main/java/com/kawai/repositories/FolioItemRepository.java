@@ -13,4 +13,5 @@ import java.util.List;
 @Repository
 public interface FolioItemRepository extends JpaRepository<FolioItem, Long> {
     List<FolioItem> findByRoomBookingDetailId(Long roomBookingDetailId);
+    List<FolioItem> findByBookingId(Long bookingId);
 }

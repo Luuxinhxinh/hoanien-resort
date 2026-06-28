@@ -8,5 +8,6 @@ public interface VnPayService {
     String createPaymentUrlForWalkIn(Long bookingId, String ipAddress);
     String createPaymentUrlForFoodOrder(Long orderId, String ipAddress, String source);
     String createPaymentUrlFromTransaction(PaymentTransaction txn, String ipAddress);
+    String createPaymentUrlForTourBooking(Long tourBookingId, java.math.BigDecimal amount, String paymentType, String ipAddress);
     Map<String, String> verifyIpn(Map<String, String> queryParams);
 }

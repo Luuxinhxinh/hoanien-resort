@@ -134,8 +134,8 @@ public class DependentServiceImpl implements DependentService {
             dependent.setCustomer(booking.getCustomer());
         }
 
-        dependent.setDependentName(dto.getFullName());
-        dependent.setBirthDate(dto.getDateOfBirth());
+        dependent.setDependentName(dto.getFullName() != null && !dto.getFullName().isBlank() ? dto.getFullName().trim() : "Khách đi kèm");
+        dependent.setBirthDate(dto.getDateOfBirth() != null ? dto.getDateOfBirth() : java.time.LocalDate.now().minusYears(18).withDayOfYear(1));
         dependent.setGender(dto.getGender() != null ? dto.getGender() : "Khác");
         dependent.setCccdPassportEncrypted(cccdEncrypted); // Lưu đã mã hoá, không phải plaintext
 

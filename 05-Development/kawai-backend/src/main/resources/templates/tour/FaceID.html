@@ -1,29 +1,175 @@
 <!DOCTYPE html>
-<html class="light" lang="vi">
+<html class="light" lang="vi" xmlns:th="http://www.thymeleaf.org">
 
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <title>Hòa Niên Resort | Guide Portal - Điểm danh</title>
+    <title>HoaNien Resort | Guide Portal - Điểm danh</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Inter:wght@300;400;500;600;700&display=swap"
-        rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
-        rel="stylesheet" />
+        href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,400..900;1,400..900&amp;family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;family=EB+Garamond:ital,wght@0,400..800;1,400..800&amp;display=swap"
+        rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet">
     <!-- face-api.js: Face Detection & Recognition Library -->
     <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-surface-variant": "#49454f",
+                        "tertiary": "#5e5e5c",
+                        "on-tertiary-fixed-variant": "#474744",
+                        "inverse-primary": "#d2bcfb",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary-fixed": "#220f44",
+                        "secondary-fixed-dim": "#debcd8",
+                        "on-tertiary-container": "#3b3c39",
+                        "on-tertiary-fixed": "#1b1c1a",
+                        "surface-container-highest": "#eedeea",
+                        "on-error-container": "#93000a",
+                        "tertiary-fixed": "#e4e2de",
+                        "surface-tint": "#67558c",
+                        "on-tertiary": "#ffffff",
+                        "surface-container-low": "#ffeffb",
+                        "primary-container": "#b19cd9",
+                        "on-secondary-fixed-variant": "#583f55",
+                        "surface-dim": "#e5d6e1",
+                        "tertiary-container": "#a7a6a3",
+                        "on-secondary-container": "#775c74",
+                        "on-background": "#211921",
+                        "surface-container": "#f9e9f5",
+                        "on-primary-fixed-variant": "#4f3d73",
+                        "surface": "#fff7fa",
+                        "outline-variant": "#cbc4d0",
+                        "on-secondary-fixed": "#291428",
+                        "on-primary-container": "#443267",
+                        "on-error": "#ffffff",
+                        "surface-variant": "#eedeea",
+                        "error-container": "#ffdad6",
+                        "error": "#ba1a1a",
+                        "tertiary-fixed-dim": "#c8c6c3",
+                        "primary-fixed-dim": "#d2bcfb",
+                        "on-secondary": "#ffffff",
+                        "secondary-container": "#fbd8f5",
+                        "secondary-fixed": "#fbd8f5",
+                        "inverse-on-surface": "#fcecf8",
+                        "surface-container-high": "#f3e4ef",
+                        "surface-bright": "#fff7fa",
+                        "outline": "#7a757f",
+                        "on-surface": "#211921",
+                        "secondary": "#71566e",
+                        "primary-fixed": "#ebddff",
+                        "inverse-surface": "#372e36",
+                        "on-primary": "#ffffff",
+                        "background": "#fff7fa",
+                        "primary": "#67558c",
+                        "champagne": "#BFAC8F",
+                        "beige-decorative": "#D3CEBF"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "section-gap": "120px",
+                        "margin-desktop": "64px",
+                        "gutter": "24px",
+                        "container-max": "1280px",
+                        "unit": "8px",
+                        "margin-mobile": "20px"
+                    },
+                    "fontFamily": {
+                        "headline-lg-mobile": ["Bodoni Moda"],
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "display-lg": ["Bodoni Moda"],
+                        "label-sm": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Bodoni Moda"],
+                        "label-md": ["Plus Jakarta Sans"],
+                        "headline-md": ["Bodoni Moda"],
+                        "display-md": ["Bodoni Moda"],
+                        "body-md": ["Plus Jakarta Sans"],
+                        "headline": ["EB Garamond", "serif"]
+                    },
+                    "fontSize": {
+                        "headline-lg-mobile": ["32px", { "lineHeight": "40px", "fontWeight": "500" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "display-lg": ["80px", { "lineHeight": "88px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.03em", "fontWeight": "500" }],
+                        "headline-lg": ["40px", { "lineHeight": "48px", "fontWeight": "500" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "headline-md": ["28px", { "lineHeight": "36px", "fontWeight": "500" }],
+                        "display-md": ["56px", { "lineHeight": "64px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+                    }
+                },
+            },
+        }
+    </script>
     <style>
         body {
-            background-color: #fdfbf7;
-            color: #372618;
-            -webkit-font-smoothing: antialiased;
+            background-color: #fff7fa;
+            background-image:
+                radial-gradient(at 0% 0%, hsla(273, 24%, 44%, 0.1) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, hsla(305, 19%, 38%, 0.1) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, hsla(273, 24%, 44%, 0.05) 0px, transparent 50%),
+                radial-gradient(at 0% 100%, hsla(305, 19%, 38%, 0.05) 0px, transparent 50%);
+            min-height: 100vh;
+        }
+
+        .glass-panel {
+            background: rgba(255, 247, 250, 0.4);
+            backdrop-filter: blur(48px);
+            -webkit-backdrop-filter: blur(48px);
+            border: 1.5px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .glass-card {
+            background: rgba(255, 247, 250, 0.6);
+            backdrop-filter: blur(32px);
+            -webkit-backdrop-filter: blur(32px);
+            border: 1.5px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 4px 24px -1px rgba(144, 115, 140, 0.05);
         }
 
         .material-symbols-outlined {
             font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(103, 85, 140, 0.2);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(103, 85, 140, 0.4);
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            margin-top: 0.5rem;
+            min-width: 200px;
+            z-index: 60;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
         }
 
         .camera-container {
@@ -58,704 +204,568 @@
         }
 
         @keyframes scan {
-
-            0%,
-            100% {
-                top: 5%;
-            }
-
-            50% {
-                top: 95%;
-            }
-        }
-
-        .corner-mark {
-            position: absolute;
-            width: 24px;
-            height: 24px;
-            z-index: 20;
-        }
-
-        .corner-mark.tl {
-            top: 16px;
-            left: 16px;
-            border-top: 2px solid #BFAC8F;
-            border-left: 2px solid #BFAC8F;
-        }
-
-        .corner-mark.tr {
-            top: 16px;
-            right: 16px;
-            border-top: 2px solid #BFAC8F;
-            border-right: 2px solid #BFAC8F;
-        }
-
-        .corner-mark.bl {
-            bottom: 16px;
-            left: 16px;
-            border-bottom: 2px solid #BFAC8F;
-            border-left: 2px solid #BFAC8F;
-        }
-
-        .corner-mark.br {
-            bottom: 16px;
-            right: 16px;
-            border-bottom: 2px solid #BFAC8F;
-            border-right: 2px solid #BFAC8F;
+            0%, 100% { top: 5%; }
+            50% { top: 95%; }
         }
 
         .face-frame {
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 180px;
-            height: 220px;
-            border: 2px dashed rgba(191, 172, 143, 0.5);
-            border-radius: 50% 50% 45% 45%;
-            z-index: 15;
-            transition: border-color 0.3s;
+            top: 10%;
+            left: 10%;
+            width: 80%;
+            height: 80%;
+            border: 2px dashed rgba(255,255,255,0.4);
+            border-radius: 20px;
+            z-index: 20;
+            transition: all 0.3s;
         }
 
         .face-frame.scanning {
             border-color: #BFAC8F;
-            animation: pulse-frame 1.5s ease-in-out infinite;
+            box-shadow: 0 0 15px rgba(191, 172, 143, 0.3);
         }
 
         .face-frame.matched {
-            border-color: #166534;
-            border-style: solid;
+            border-color: #10B981;
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.5);
+            background: rgba(16, 185, 129, 0.05);
         }
 
         .face-frame.failed {
-            border-color: #991b1b;
-            border-style: solid;
+            border-color: #EF4444;
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.5);
+            background: rgba(239, 68, 68, 0.05);
         }
 
-        @keyframes pulse-frame {
-
-            0%,
-            100% {
-                opacity: 0.5;
+        @media print {
+            body * {
+                visibility: hidden;
             }
-
-            50% {
-                opacity: 1;
+            #print-area, #print-area * {
+                visibility: visible;
             }
-        }
-
-        .faded-entry {
-            animation: fadeIn 0.6s ease-out forwards;
-        }
-
-        .faded-entry-delay-1 {
-            animation-delay: 0.1s;
-            opacity: 0;
-        }
-
-        .faded-entry-delay-2 {
-            animation-delay: 0.2s;
-            opacity: 0;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(8px);
+            #print-area {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                background: white !important;
+                color: black !important;
             }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
+            .no-print, .no-print * {
+                visibility: hidden !important;
+                display: none !important;
             }
-        }
-
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 3px;
-        }
-
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #D3CEBF;
-            border-radius: 4px;
-        }
-
-        .result-flash {
-            animation: flashResult 0.5s ease-out;
-        }
-
-        @keyframes flashResult {
-            0% {
-                transform: scale(0.95);
-                opacity: 0;
-            }
-
-            100% {
-                transform: scale(1);
-                opacity: 1;
-            }
-        }
-
-        .status-checked {
-            background: #f0fdf4;
-            color: #166534;
-            border: 1px solid #bbf7d0;
-        }
-
-        .status-waiting {
-            background: #fefce8;
-            color: #854d0e;
-            border: 1px solid #fde68a;
-        }
-
-        .status-absent {
-            background: #fef2f2;
-            color: #991b1b;
-            border: 1px solid #fecaca;
-        }
-
-        @keyframes spin {
-            from {
-                transform: rotate(0deg);
-            }
-
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        .model-loading .loading-bar {
-            width: 0%;
-            transition: width 0.3s;
-        }
-
-        /* ── Navbar solid #d0bcb1 & dark text ── */
-        .guest-nav,
-        .guest-sub-nav {
-            background: transparent !important;
-            border-bottom: 1px solid rgba(58, 50, 48, 0.15) !important;
-            backdrop-filter: blur(8px) !important;
-            -webkit-backdrop-filter: blur(8px) !important;
-            transition: none !important;
-        }
-
-        .guest-nav .nav-text,
-        .guest-sub-nav .sub-nav-text {
-            color: #3a3230 !important;
-            text-shadow: none !important;
-        }
-
-        .guest-nav .nav-text-dim {
-            color: rgba(58, 50, 48, 0.75) !important;
-            text-shadow: none !important;
-        }
-
-        .guest-nav .nav-text-dim:hover,
-        .guest-sub-nav .sub-nav-text:hover {
-            color: #3a3230 !important;
-            opacity: 1 !important;
-        }
-
-        .guest-nav .nav-brand {
-            color: #3a3230 !important;
-            text-shadow: none !important;
-        }
-
-        .guest-nav .nav-btn-book {
-            background: transparent !important;
-            color: #3a3230 !important;
-            border: 1px solid rgba(58, 50, 48, 0.5) !important;
-            box-shadow: none !important;
-            transition: all 0.3s ease !important;
-        }
-
-        .guest-nav .nav-btn-book:hover {
-            background: rgba(58, 50, 48, 0.06) !important;
-            border-color: #3a3230 !important;
-        }
-
-        .guest-nav .nav-menu-icon {
-            color: #3a3230 !important;
-            text-shadow: none !important;
-        }
-
-        /* Make text bolder and highly readable */
-        .text-on-surface-variant {
-            color: #866D57 !important;
-            font-weight: 700 !important;
-        }
-
-        .text-primary,
-        .text-primary-fixed,
-        .font-body-md {
-            color: #372618 !important;
-            font-weight: 700 !important;
-        }
-
-        .font-headline-md,
-        .font-label-caps {
-            color: #866D57 !important;
-            font-weight: 700 !important;
-        }
-
-        .bg-surface-container-low,
-        .bg-surface-container {
-            background-color: #fcf2e9 !important;
-            border-color: rgba(134, 109, 87, 0.2) !important;
-        }
-
-        .border-outline-variant {
-            border-color: rgba(134, 109, 87, 0.15) !important;
-        }
-
-        th,
-        td {
-            color: #372618 !important;
-            font-weight: 700 !important;
-        }
-
-        p,
-        span {
-            font-weight: 600 !important;
-        }
-
-        .status-checked,
-        .status-waiting,
-        .status-absent {
-            font-weight: 700 !important;
         }
     </style>
-    <script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        'hoanien-bg': '#f1ebe3',
-                        'hoanien-text': '#3a3230',
-                        'hoanien-footer': '#3c3530',
-                        'hoanien-footer-text': '#e5dfd8',
-                        "primary": "#fbddc7",
-                        "surface": "#fff8f4",
-                        "on-surface": "#1f1b16",
-                        "outline-variant": "rgba(134, 109, 87, 0.15)",
-                        "tertiary-fixed": "#e8e2d3",
-                        "surface-container-highest": "#ebe1d8",
-                        "inverse-surface": "#35302a",
-                        "secondary-container": "#f5e0c0",
-                        "primary-fixed": "#fbddc7",
-                        "primary-container": "#372618",
-                        "on-secondary-container": "#726249",
-                        "surface-container-low": "#fcf2e9",
-                        "on-background": "#1f1b16",
-                        "tertiary-fixed-dim": "#cbc6b7",
-                        "surface-bright": "#fff8f4",
-                        "on-surface-variant": "#4e453e",
-                        "surface-container-high": "#f1e6de",
-                        "surface-tint": "#705a49",
-                        "outline": "#80756d",
-                        "background": "#fdfbf7",
-                        "surface-container": "#f6ece3",
-                        "on-primary-container": "#a58c79",
-                        "surface-variant": "#ebe1d8",
-                        "secondary": "#6b5c44",
-                        "champagne": "#BFAC8F",
-                        "beige-decorative": "#D3CEBF"
-                    },
-                    borderRadius: { "DEFAULT": "0px", "lg": "0px", "xl": "0px", "full": "9999px" },
-                    spacing: { "margin-desktop": "80px", "container-max": "1440px", "gutter": "24px" },
-                    fontFamily: {
-                        'serif': ['"Playfair Display"', 'serif'],
-                        'sans': ['"Montserrat"', 'sans-serif'],
-                        "headline": ["EB Garamond", "serif"],
-                        "body": ["Inter", "sans-serif"],
-                        "headline-lg": ["EB Garamond"],
-                        "caption": ["Inter"],
-                        "body-lg": ["Inter"],
-                        "headline-md": ["EB Garamond"],
-                        "body-md": ["Inter"],
-                        "label-caps": ["Inter"]
-                    },
-                    fontSize: {
-                        "headline-lg": ["40px", { "lineHeight": "1.2", "fontWeight": "400" }],
-                        "caption": ["13px", { "lineHeight": "1.4", "fontWeight": "400" }],
-                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
-                        "headline-md": ["24px", { "lineHeight": "1.3", "fontWeight": "500" }],
-                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
-                        "label-caps": ["12px", { "lineHeight": "1.5", "letterSpacing": "0.15em", "fontWeight": "600" }]
-                    }
-                },
-            },
-        }
-    </script>
 </head>
 
-<body class="flex flex-col min-h-screen pt-4">
-    <!-- Header -->
-    <header
-        class="bg-background border-b border-outline-variant flex justify-between items-center w-full px-margin-desktop py-gutter max-w-container-max mx-auto h-20">
-        <div class="flex items-center gap-10">
-            <a href="/tourguide/dashboard"
-                class="font-headline-md text-headline-md italic text-primary no-underline">Hòa Niên Resort</a>
-            <nav class="hidden md:flex gap-6">
-                <a class="font-label-caps text-label-caps text-primary border-b border-primary pb-1 no-underline"
-                    href="/tourguide/dashboard">
-                    <span class="material-symbols-outlined text-[14px] align-middle mr-1">dashboard</span>Tổng quan
-                </a>
-                <a class="font-label-caps text-label-caps text-on-surface-variant hover:text-primary transition-colors duration-300 no-underline"
+<body class="font-body-md text-on-surface">
+    <!-- Main Wrapper -->
+    <div class="flex flex-col min-h-screen">
+        <!-- 1. TopNavBar (Horizontal) -->
+        <header
+            class="w-full h-20 fixed top-0 left-0 z-50 bg-surface/80 backdrop-blur-xl border-b border-white/20 px-margin-desktop flex items-center justify-between">
+            <div class="flex items-center gap-12">
+                <div class="flex flex-col">
+                    <h1 class="font-headline text-[32px] italic tracking-tighter text-primary leading-tight cursor-pointer" onclick="window.location.href='/'">HoaNien</h1>
+                    <p class="font-label-sm text-[10px] text-on-surface-variant/60 -mt-1">Retreat Resort &amp; Hub</p>
+                </div>
+                <nav class="flex items-center gap-2">
+                <a th:class="${requestUri == '/tourguide/tour'} ? 'flex items-center gap-2 py-2 px-4 rounded-full text-primary font-bold bg-primary/5 border border-primary/20 transition-all duration-300 no-underline' : 'flex items-center gap-2 py-2 px-4 rounded-full text-on-surface-variant/70 font-medium hover:bg-primary/5 transition-all duration-300 no-underline'"
                     href="/tourguide/tour">
-                    <span class="material-symbols-outlined text-[14px] align-middle mr-1">route</span>Lịch trình
+                    <span class="material-symbols-outlined text-[20px]">map</span>
+                    <span class="font-label-md text-label-md">Hành trình</span>
                 </a>
-                <a class="font-label-caps text-label-caps text-on-surface-variant hover:text-primary transition-colors duration-300 no-underline"
-                    href="#manifest-section">
-                    <span class="material-symbols-outlined text-[14px] align-middle mr-1">group</span>Hành khách
+                <a th:class="${requestUri == '/tourguide/dashboard'} ? 'flex items-center gap-2 py-2 px-4 rounded-full text-primary font-bold bg-primary/5 border border-primary/20 transition-all duration-300 no-underline' : 'flex items-center gap-2 py-2 px-4 rounded-full text-on-surface-variant/70 font-medium hover:bg-primary/5 transition-all duration-300 no-underline'"
+                    href="/tourguide/dashboard">
+                    <span class="material-symbols-outlined text-[20px]">group</span>
+                    <span class="font-label-md text-label-md">Khách hàng</span>
                 </a>
-                <a class="font-label-caps text-label-caps text-on-surface-variant hover:text-primary transition-colors duration-300 no-underline"
-                    href="#faceid-section">
-                    <span class="material-symbols-outlined text-[14px] align-middle mr-1">face</span>Quét FaceID
+                <a th:class="${requestUri == '/tourguide/feedback'} ? 'flex items-center gap-2 py-2 px-4 rounded-full text-primary font-bold bg-primary/5 border border-primary/20 transition-all duration-300 no-underline' : 'flex items-center gap-2 py-2 px-4 rounded-full text-on-surface-variant/70 font-medium hover:bg-primary/5 transition-all duration-300 no-underline'"
+                    href="/tourguide/feedback">
+                    <span class="material-symbols-outlined text-[20px]">rate_review</span>
+                    <span class="font-label-md text-label-md">Nhận xét</span>
                 </a>
             </nav>
         </div>
+        <!-- 3. Profile & Icons -->
         <div class="flex items-center gap-4">
-            <!-- Settings Button for Tour Guide Info -->
-            <button onclick="openGuideSettingsModal(event)"
-                class="hover:text-primary transition-colors duration-300 flex items-center justify-center focus:outline-none mr-2"
-                title="Cài đặt thông tin hướng dẫn viên">
-                <span class="material-symbols-outlined text-[24px] text-primary">settings</span>
-            </button>
-            <div class="relative inline-block text-left">
-                <button onclick="toggleProfileDropdown(event)"
-                    class="hover:text-primary transition-colors duration-300 flex items-center justify-center focus:outline-none"
-                    title="Tài khoản">
-                    <span class="material-symbols-outlined text-[24px] text-primary">person</span>
+            <div class="relative dropdown-notification">
+                <button onclick="toggleNotificationDropdown(event)"
+                    class="w-10 h-10 flex items-center justify-center rounded-full text-on-surface-variant hover:bg-primary/5 transition-colors relative">
+                    <span class="material-symbols-outlined">notifications</span>
+                    <!-- Red badge for unread notifications -->
+                    <span class="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full"></span>
                 </button>
-                <div id="profileDropdown"
-                    class="hidden absolute right-0 mt-2 w-56 bg-[#f1ebe3] border border-[#3a3230]/20 shadow-lg text-[#3a3230] font-sans z-[100] rounded">
-                    <div class="p-4 border-b border-[#3a3230]/10 text-left">
-                        <p class="text-[10px] uppercase tracking-wider text-[#3a3230]/60 font-semibold">Tài khoản</p>
-                        <p class="font-medium text-sm mt-1 text-[#3a3230] font-semibold" th:text="${username}">Guide</p>
-                        <p class="text-[11px] text-[#3a3230]/80 mt-0.5">Vai trò: Hướng dẫn viên</p>
+                <!-- Dropdown Card -->
+                <div id="notificationDropdown" class="hidden absolute right-0 mt-2 w-80 bg-[#fdfbf7] border border-[#3a3230]/20 shadow-2xl rounded-2xl p-4 z-[100] text-[#372618]">
+                    <div class="flex justify-between items-center border-b border-[#3a3230]/10 pb-2 mb-3">
+                        <span class="font-headline text-lg font-bold">Thông báo mới</span>
+                        <button onclick="markAllNotificationsAsRead(event)" class="text-xs text-primary hover:underline font-semibold">Đọc tất cả</button>
                     </div>
-                    <div class="p-2 text-left">
-                        <form th:action="@{/auth/logout}" method="post" class="w-full">
-                            <button type="submit"
-                                class="w-full text-left px-3 py-2 text-xs text-red-700 hover:bg-[#3a3230]/5 transition-colors font-bold uppercase tracking-wider">Đăng
-                                xuất</button>
-                        </form>
+                    <div class="space-y-3 max-h-64 overflow-y-auto text-left" id="notifications-list">
+                        <!-- Notification Item 1 -->
+                        <div class="p-3 bg-primary/5 rounded-xl border-l-4 border-primary space-y-1">
+                            <p class="text-xs font-semibold text-on-surface">Yêu cầu hỗ trợ từ Đoàn khách</p>
+                            <p class="text-[11px] text-on-surface-variant/70 leading-snug">Đoàn khách Singapore tại Cố đô Huế yêu cầu chuẩn bị thêm nước uống đóng chai.</p>
+                            <p class="text-[9px] text-on-surface-variant/50">5 phút trước</p>
+                        </div>
+                        <!-- Notification Item 2 -->
+                        <div class="p-3 bg-primary/5 rounded-xl border-l-4 border-primary space-y-1">
+                            <p class="text-xs font-semibold text-on-surface">Cảnh báo Thời tiết</p>
+                            <p class="text-[11px] text-on-surface-variant/70 leading-snug">Dự báo có mưa rào nhẹ tại khu vực Tháp Mười từ 16:30 chiều nay.</p>
+                            <p class="text-[9px] text-on-surface-variant/50">20 phút trước</p>
+                        </div>
+                        <!-- Notification Item 3 -->
+                        <div class="p-3 hover:bg-primary/5 rounded-xl transition-colors space-y-1">
+                            <p class="text-xs font-medium text-on-surface-variant">Lịch trình Ngày mai</p>
+                            <p class="text-[11px] text-on-surface-variant/70 leading-snug">Bạn có lịch dẫn đoàn tham quan Ninh Bình bắt đầu lúc 08:30 sáng mai.</p>
+                            <p class="text-[9px] text-on-surface-variant/50">2 giờ trước</p>
+                        </div>
                     </div>
                 </div>
+            </div>
+            <div class="h-8 w-px bg-primary/10"></div>
+            <button onclick="openGuideSettingsModal(event)" class="flex items-center gap-3 pl-2 pr-1 py-1 rounded-full hover:bg-primary/5 transition-all outline-none" title="Thông tin cá nhân">
+                <div class="text-right">
+                    <p class="font-label-md text-label-md text-on-surface leading-none" th:text="${employee != null ? employee.fullName : 'NguynNgoc'}">NguynNgoc</p>
+                    <p class="text-[10px] text-on-surface-variant/60">Hướng dẫn viên cao cấp</p>
+                </div>
+                <div
+                    class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary/20 ring-4 ring-primary/5 bg-primary-container flex items-center justify-center text-on-primary-container font-bold">
+                    GD
+                </div>
+            </button>
+            <form th:action="@{/auth/logout}" method="post" class="inline">
+                <button type="submit" class="w-10 h-10 flex items-center justify-center rounded-full text-red-600 hover:bg-red-50 hover:text-red-800 transition-colors" title="Đăng xuất">
+                    <span class="material-symbols-outlined">logout</span>
+                </button>
+            </form>
+        </div>
+        </header>
+        <!-- 2. Sub-navbar (Search & Actions) -->
+        <div
+            class="w-full h-16 fixed top-20 left-0 z-40 bg-surface/40 backdrop-blur-md border-b border-white/10 px-margin-desktop flex items-center justify-between">
+            <div class="relative group">
+                <span
+                    class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/40 group-focus-within:text-primary transition-colors text-[20px]">search</span>
+                <input id="search-customer-input" oninput="performSearch(this.value)"
+                    class="bg-surface-container/30 border-none rounded-full pl-11 pr-6 py-2 w-80 font-body-md text-on-surface placeholder-on-surface-variant/40 focus:ring-2 focus:ring-primary/20 transition-all outline-none font-medium"
+                    placeholder="Tìm kiếm khách hàng..." type="text">
+            </div>
+            <div class="flex items-center gap-4">
+                <button onclick="window.print()"
+                    class="flex items-center gap-2 px-5 py-2 rounded-full border border-primary/30 text-primary font-label-md text-[13px] hover:bg-primary/5 transition-all">
+                    <span class="material-symbols-outlined text-[18px]">print</span>
+                    In danh sách
+                </button>
+                <button onclick="exportCustomerList()"
+                    class="flex items-center gap-2 px-6 py-2 rounded-full bg-primary text-white font-label-md text-[13px] shadow-lg shadow-primary/20 hover:scale-[1.02] transition-all">
+                    <span class="material-symbols-outlined text-[18px]">file_download</span>
+                    Xuất danh sách
+                </button>
             </div>
         </div>
-    </header>
+        <!-- 4. Adjusted Main Content Body -->
+        <main class="flex-1 mt-36 p-margin-desktop space-y-10">
+            <!-- Header -->
+            <div class="space-y-2">
+                <h3 class="font-headline-lg text-headline-lg text-on-surface">Quản lý Đoàn Khách</h3>
+                <p class="font-headline text-lg md:text-xl font-light text-on-surface-variant/70">Theo dõi trạng thái và thực hiện điểm danh tự động qua FaceID.</p>
+            </div>
+            <!-- Grid Layout -->
+            <div class="grid grid-cols-12 gap-8 items-start">
+                <!-- Left Column: Customer List -->
+                <div id="print-area" class="col-span-12 lg:col-span-8 space-y-8">
+                    <!-- Tour Info Summary -->
+                    <div class="glass-panel rounded-lg p-8 border-primary/10">
+                        <div class="flex justify-between items-start w-full">
+                            <div class="space-y-1">
+                                 <h4 id="tour-name-display" 
+                                     class="font-display-md text-[32px] text-primary leading-tight cursor-pointer hover:underline hover:opacity-80 transition-all" 
+                                     onclick="showActivities(this.textContent.trim())" 
+                                     th:text="${tourName != null ? tourName : 'Hành trình Đoàn Tụ'}">Hành trình Đoàn Tụ</h4>
+                                <p class="font-headline text-lg md:text-xl font-light text-on-surface-variant/60" th:text="'Khởi hành ngày ' + ${departureDate != null ? departureDate : '--'} + ' vào lúc ' + ${departureTime != null ? departureTime : '--'}">Quản lý và cập nhật tình trạng điểm danh cho đoàn khách cao cấp.</p>
+                            </div>
+                            <div
+                                class="flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-full border border-primary/20 shadow-sm">
+                                <span class="material-symbols-outlined text-primary text-[20px]">groups</span>
+                                <span class="font-label-md text-label-md text-primary" th:text="${totalAttendees} + ' Khách hàng'">128 Khách hàng</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Table Container -->
+                    <div class="glass-panel rounded-lg overflow-hidden flex flex-col p-8 border-primary/10 shadow-sm">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left">
+                                <thead>
+                                    <tr class="border-b border-primary/5">
+                                        <th
+                                            class="pb-6 font-label-md text-label-md text-primary uppercase tracking-widest px-4">Mã KH</th>
+                                        <th
+                                            class="pb-6 font-label-md text-label-md text-primary uppercase tracking-widest px-4">Họ và Tên</th>
+                                        <th
+                                            class="pb-6 font-label-md text-label-md text-primary uppercase tracking-widest px-4">TRẠNG THÁI</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-primary/5">
+                                    <tr th:each="attendee, iter : ${attendees}" class="group hover:bg-primary/5 transition-colors">
+                                        <td class="py-6 px-4 font-body-md font-medium text-on-surface" th:text="'#EVN-00' + ${attendee.id}">#EVN-00234</td>
+                                        <td class="py-6 px-4">
+                                            <div class="flex items-center gap-3">
+                                                 <div th:with="custName=${attendee.customer?.fullName ?: (attendee.dependent?.dependentName ?: 'KH')}"
+                                                     class="w-10 h-10 rounded-full glass-card flex items-center justify-center font-display-md text-primary text-sm cursor-pointer hover:scale-105 transition-all"
+                                                     th:text="${#strings.length(custName) >= 2 ? #strings.substring(custName, 0, 2).toUpperCase() : custName.toUpperCase()}"
+                                                     th:data-name="${attendee.customer?.fullName ?: (attendee.dependent?.dependentName ?: 'Khách vãng lai')}"
+                                                     th:data-id="'#EVN-00' + ${attendee.id}"
+                                                     th:data-phone="${attendee.customer?.phone ?: (attendee.dependent != null ? 'Người thân' : '--')}"
+                                                     th:data-email="${attendee.customer?.email ?: '--'}"
+                                                     th:data-membership="${attendee.customer != null ? attendee.customer.membershipTier : 'Khách đi cùng'}"
+                                                     th:data-room="'Phòng ' + ${100 + (attendee.id != null ? attendee.id % 20 : 0)}"
+                                                     onclick="showCustomerContactModal(this)">
+                                                     NM
+                                                 </div>
+                                                <div>
+                                                    <p class="font-body-md font-semibold text-on-surface cursor-pointer hover:underline animate-none"
+                                                       th:text="${attendee.customer?.fullName ?: (attendee.dependent?.dependentName ?: 'Khách vãng lai')}"
+                                                       th:data-name="${attendee.customer?.fullName ?: (attendee.dependent?.dependentName ?: 'Khách vãng lai')}"
+                                                       th:data-id="'#EVN-00' + ${attendee.id}"
+                                                       th:data-phone="${attendee.customer?.phone ?: (attendee.dependent != null ? 'Người thân' : '--')}"
+                                                       th:data-email="${attendee.customer?.email ?: '--'}"
+                                                       th:data-membership="${attendee.customer != null ? attendee.customer.membershipTier : 'Khách đi cùng'}"
+                                                       th:data-room="'Phòng ' + ${100 + (attendee.id != null ? attendee.id % 20 : 0)}"
+                                                       onclick="showCustomerContactModal(this)">
+                                                        Nguyễn Minh Anh
+                                                    </p>
+                                                    <p class="text-[12px] text-on-surface-variant/60" th:text="${attendee.customer != null ? attendee.customer.membershipTier : 'Khách đi cùng'}">Hà Nội</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="py-6 px-4 flex items-center">
+                                            <span th:if="${attendee.status == 'Checked_In'}"
+                                                class="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 font-label-sm text-label-sm border border-emerald-500/30 flex items-center">
+                                                <span class="material-symbols-outlined text-[14px] mr-1">check</span>Đã điểm danh
+                                            </span>
+                                            <button th:if="${attendee.status == 'Checked_In'}"
+                                                class="ml-3 w-8 h-8 flex items-center justify-center rounded-lg border border-primary/30 text-primary/40 cursor-default bg-primary/5"
+                                                disabled="">
+                                                <span class="material-symbols-outlined text-[18px]">check</span>
+                                            </button>
 
-    <main class="flex-grow flex w-full max-w-container-max mx-auto px-margin-desktop py-8 gap-6"
-        style="padding-bottom: 100px;">
-        <!-- Left: Tour Info -->
-        <section class="w-1/4 flex flex-col faded-entry">
-            <div class="mb-6 p-5 bg-[#3a3230] text-white">
-                <div class="flex items-center gap-2 mb-3">
-                    <span class="material-symbols-outlined text-champagne text-[18px]">tour</span>
-                    <span class="font-label-caps text-[10px] tracking-widest text-champagne">LỊCH TRÌNH HÔM NAY</span>
-                </div>
-                <h2 class="font-headline-md text-[20px] text-white leading-tight mb-2"
-                    th:text="${tourName != null ? tourName : 'Chưa có tour'}">Chưa có tour</h2>
-                <div class="flex items-center gap-4 mt-3">
-                    <div class="flex items-center gap-1">
-                        <span class="material-symbols-outlined text-champagne text-[14px]">schedule</span>
-                        <span class="font-caption text-[12px] text-champagne"
-                            th:text="${departureTime != null ? departureTime : '--:--'}">--:--</span>
+                                            <span th:if="${attendee.status == 'Not_Show'}"
+                                                class="px-3 py-1 rounded-full bg-secondary-container/30 text-secondary font-label-sm text-label-sm border border-secondary-container">
+                                                Chờ điểm danh
+                                            </span>
+                                            <button th:if="${attendee.status == 'Not_Show'}"
+                                                th:onclick="'checkinManual(' + ${attendee.id} + ')'"
+                                                class="ml-3 w-8 h-8 flex items-center justify-center rounded-lg border border-primary/30 text-primary hover:bg-primary/5 hover:scale-105 transition-all shadow-sm active:shadow-inner">
+                                                <span class="material-symbols-outlined text-[18px]">check</span>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div th:if="${#lists.isEmpty(attendees)}" class="flex flex-col items-center justify-center py-16 text-center">
+                                <span class="material-symbols-outlined text-[48px] text-beige-decorative mb-4">groups</span>
+                                <p class="font-body-md text-on-surface-variant">Không có hành khách nào đăng ký hôm nay.</p>
+                            </div>
+                        </div>
                     </div>
-                    <div class="flex items-center gap-1">
-                        <span class="material-symbols-outlined text-champagne text-[14px]">calendar_today</span>
-                        <span class="font-caption text-[12px] text-champagne"
-                            th:text="${departureDate != null ? departureDate : ''}"></span>
+                    <!-- Announcement / Banner -->
+                    <div class="glass-panel p-8 rounded-lg border-primary/10 space-y-6 no-print">
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-primary">report_problem</span>
+                            <h4 class="font-display-md text-[28px] text-primary">Báo cáo sự cố</h4>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="font-label-md text-on-surface-variant/70">Mô tả sự cố</label>
+                            <textarea
+                                id="incident-description"
+                                class="w-full bg-surface-container/30 border-none rounded-lg p-4 font-body-md text-on-surface placeholder-on-surface-variant/40 focus:ring-2 focus:ring-primary/20 transition-all outline-none min-h-[120px]"
+                                placeholder="Nhập chi tiết sự cố tại đây..."></textarea>
+                        </div>
+                        <div class="flex justify-end">
+                            <button
+                                onclick="submitIncidentReport()"
+                                class="px-8 py-3 rounded-full bg-primary text-white font-label-md text-label-md shadow-lg shadow-primary/20 hover:scale-[1.02] transition-all font-semibold">
+                                Gửi báo cáo
+                            </button>
+                        </div>
+                    </div>
+                    <div id="notice-banner-card" class="glass-panel p-8 rounded-lg relative overflow-hidden group no-print">
+                        <div class="relative z-10 flex flex-col h-full justify-between">
+                            <div class="max-w-md">
+                                <h4 class="font-display-md text-[28px] text-primary mb-2">Thông tin Quan trọng (Lưu ý)</h4>
+                                <p class="font-headline text-lg font-light text-on-surface-variant/70">Yêu cầu tất cả nhân viên kiểm tra
+                                    thiết bị quét khuôn mặt trước giờ đón khách 30 phút. Báo cáo ngay nếu có sự cố xảy ra.</p>
+                            </div>
+                            <div class="flex items-center gap-4 mt-8">
+                                <button onclick="showImportantNoteDetails()"
+                                    class="px-6 py-2 rounded-full bg-on-background text-white font-label-md text-label-md hover:opacity-90 transition-all">Xem
+                                    chi tiết</button>
+                                <button onclick="dismissImportantNote()"
+                                    class="px-6 py-2 rounded-full border border-primary/20 text-primary font-label-md text-label-md hover:bg-primary/5 transition-all">Bỏ
+                                    qua</button>
+                            </div>
+                        </div>
+                        <div
+                            class="absolute right-0 top-0 w-1/3 h-full opacity-20 group-hover:opacity-30 transition-opacity duration-700 mix-blend-overlay">
+                            <img alt="Lavender" class="w-full h-full object-cover"
+                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuDeLvciBkxzpqCj99jbhYDz-jWK36X0hiX6zOFGSREI9SK6R5-Vo7lRAKfEd6Z3Wr_hSC3C__jVEYbxzQbBA-UkwdGxwaQrHu6isYZl1ibWqp4M42CGW_uMKaNtNYsHjycv_UNAjCuOeuZY4xTpjnAdYN6JsWf65fvEvvXEIJ9vCn5SP80Tgu7X6wUXuynSbPC_s_W9jdb69eSOlgBl2aRhYQQeMe7ukL-J4tGjtg1WlG9E3UW6GzWv8GF0Xi9HHgxqHfeX3CjWgZ8">
+                        </div>
                     </div>
                 </div>
-                <div class="mt-3 pt-3 border-t border-white/20 flex items-center justify-between">
-                    <span class="font-caption text-[12px] text-champagne/80">Sức chứa</span>
-                    <span class="font-label-caps text-[12px] text-white"
-                        th:text="${maxCapacity != null ? maxCapacity + ' khách' : 'N/A'}">N/A</span>
-                </div>
-            </div>
-            <!-- Progress -->
-            <div class="mb-6 p-4 bg-surface-container-low border border-outline-variant">
-                <span class="font-label-caps text-[11px] text-on-surface-variant tracking-widest">TIẾN ĐỘ ĐIỂM
-                    DANH</span>
-                <div class="flex items-baseline gap-1 mt-2 mb-3">
-                    <span class="font-headline-md text-[28px] text-primary" th:text="${checkedInCount}">0</span>
-                    <span class="font-body-md text-on-surface-variant">/</span>
-                    <span class="font-body-md text-on-surface-variant" th:text="${totalAttendees}">0</span>
-                    <span class="font-caption text-[12px] text-on-surface-variant ml-1">khách</span>
-                </div>
-                <div class="w-full bg-surface-container-highest h-1.5 overflow-hidden">
-                    <div class="bg-[#866D57] h-full transition-all duration-500"
-                        th:style="'width: ' + (${totalAttendees} > 0 ? ${checkedInCount * 100 / totalAttendees} : 0) + '%'">
-                    </div>
-                </div>
-            </div>
-            <div class="grid grid-cols-2 gap-3 mb-6">
-                <div class="p-3 bg-surface-container-low border border-outline-variant text-center">
-                    <span class="material-symbols-outlined text-[20px] text-green-800 block mb-1">check_circle</span>
-                    <span class="font-headline-md text-[20px] text-primary block" th:text="${checkedInCount}">0</span>
-                    <span class="font-caption text-[10px] text-on-surface-variant">Đã check-in</span>
-                </div>
-                <div class="p-3 bg-surface-container-low border border-outline-variant text-center">
-                    <span class="material-symbols-outlined text-[20px] text-champagne block mb-1">pending</span>
-                    <span class="font-headline-md text-[20px] text-primary block"
-                        th:text="${totalAttendees - checkedInCount}">0</span>
-                    <span class="font-caption text-[10px] text-on-surface-variant">Chờ điểm danh</span>
-                </div>
-            </div>
-            <div th:if="${#lists.isEmpty(attendees)}" class="p-4 bg-yellow-50 border border-yellow-200 text-center">
-                <span class="material-symbols-outlined text-[24px] text-yellow-600 block mb-2">info</span>
-                <p class="font-body-md text-[13px] text-yellow-800">Không có khách đăng ký tour hôm nay.</p>
-            </div>
-            <!-- AI Model Status -->
-            <div id="model-status-card" class="p-3 bg-surface-container-low border border-outline-variant">
-                <div class="flex items-center gap-2 mb-2">
-                    <span class="material-symbols-outlined text-[14px] text-on-surface-variant">psychology</span>
-                    <span class="font-label-caps text-[10px] text-on-surface-variant tracking-widest">AI MODEL</span>
-                </div>
-                <div id="model-status-text" class="font-caption text-[12px] text-on-surface-variant">Đang tải model...
-                </div>
-                <div class="w-full bg-surface-container-highest h-1 mt-2 overflow-hidden">
-                    <div id="model-loading-bar" class="bg-champagne h-full transition-all duration-300"
-                        style="width: 0%"></div>
-                </div>
-            </div>
-        </section>
+                <!-- Right Column: FaceID Attendance -->
+                <div class="col-span-12 lg:col-span-4 space-y-8" id="faceid-section">
+                    <!-- Scanner Interface -->
+                    <div class="glass-panel p-6 rounded-lg space-y-6">
+                        <div class="space-y-8">
+                            <!-- Header -->
+                            <div class="flex items-center gap-3">
+                                <span class="material-symbols-outlined text-primary">face_retouching_natural</span>
+                                <h5 class="font-headline-md text-[20px] text-on-surface">Điểm danh FaceID</h5>
+                            </div>
+                            <!-- Camera Scanning Frame (Squircle) -->
+                            <div class="relative aspect-[4/3] bg-[#1a151a] rounded-xl overflow-hidden shadow-xl border-[12px] border-surface-container-low camera-container" id="camera-container">
+                                <video id="camera-video" autoplay playsinline muted class="absolute inset-0 w-full h-full object-cover z-0"></video>
+                                <canvas id="camera-canvas" class="hidden"></canvas>
+                                <img id="captured-image" class="absolute inset-0 w-full h-full object-cover hidden z-0" alt="Captured">
 
-        <!-- Middle: Guest Manifest -->
-        <section id="manifest-section"
-            class="w-2/5 flex flex-col faded-entry faded-entry-delay-1 border-x border-outline-variant px-5">
-            <div class="flex justify-between items-end mb-6">
-                <div>
-                    <h2 class="font-label-caps text-label-caps text-primary tracking-widest uppercase">Danh sách hành
-                        khách</h2>
-                    <p class="font-caption text-[11px] text-on-surface-variant mt-1">
-                        <span th:text="${checkedInCount}">0</span> đã điểm danh / <span
-                            th:text="${totalAttendees}">0</span> khách
-                    </p>
-                </div>
-            </div>
-            <div class="flex-grow overflow-y-auto custom-scrollbar">
-                <table class="w-full text-left border-collapse" th:if="${!#lists.isEmpty(attendees)}">
-                    <thead>
-                        <tr class="border-b border-outline-variant">
-                            <th class="py-3 font-label-caps text-[10px] text-on-surface-variant w-8">#</th>
-                            <th class="py-3 font-label-caps text-[10px] text-on-surface-variant">Tên khách hàng</th>
-                            <th class="py-3 font-label-caps text-[10px] text-on-surface-variant text-center">Trạng thái
-                            </th>
-                            <th class="py-3 font-label-caps text-[10px] text-on-surface-variant text-right">Mã</th>
-                        </tr>
-                    </thead>
-                    <tbody class="font-body-md text-body-md text-primary">
-                        <tr th:each="attendee, iter : ${attendees}"
-                            class="border-b border-surface-container transition-colors duration-200 hover:bg-surface-container-low"
-                            th:id="'row-attendee-' + ${attendee.id}">
-                            <td class="py-4 text-[12px] text-on-surface-variant font-label-caps"
-                                th:text="${iter.index + 1}">1</td>
-                            <td class="py-4">
-                                <div class="flex items-center gap-3">
-                                    <div
-                                        class="w-9 h-9 bg-surface-container-highest overflow-hidden flex items-center justify-center flex-shrink-0">
-                                        <span
-                                            class="material-symbols-outlined text-[16px] text-on-surface-variant">person</span>
+                                <!-- Original background/placeholder mockup -->
+                                <div id="camera-placeholder" class="absolute inset-0 bg-[#161216] flex flex-col items-center justify-center gap-3 z-5">
+                                    <span class="material-symbols-outlined text-[48px] text-primary/30">videocam_off</span>
+                                    <p class="text-xs text-on-surface-variant/40 font-medium px-4 text-center">Camera đang tắt. Hãy bấm bật camera để bắt đầu.</p>
+                                </div>
+
+                                <div class="absolute inset-0 flex items-center justify-center z-10">
+                                    <div class="w-4/5 h-4/5 border border-primary/30 rounded-xl relative">
+                                        <div class="absolute top-0 left-0 w-6 h-6 border-t-2 border-l-2 border-primary">
+                                        </div>
+                                        <div
+                                            class="absolute top-0 right-0 w-6 h-6 border-t-2 border-r-2 border-primary">
+                                        </div>
+                                        <div
+                                            class="absolute bottom-0 left-0 w-6 h-6 border-b-2 border-l-2 border-primary">
+                                        </div>
+                                        <div
+                                            class="absolute bottom-0 right-0 w-6 h-6 border-b-2 border-r-2 border-primary">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="face-frame z-20" id="face-frame"></div>
+                                <div class="scan-line z-20" id="scan-line"></div>
+
+                                <div class="absolute bottom-6 left-1/2 -translate-x-1/2 bg-black/60 backdrop-blur-md px-4 py-2 rounded-full z-30 flex items-center gap-2 pointer-events-none" id="scan-status-bar">
+                                    <span class="material-symbols-outlined text-champagne text-[16px]" style="font-variation-settings: 'FILL' 1;" id="scan-status-icon">face</span>
+                                    <span id="scan-status-label" class="font-label-caps text-[10px] tracking-widest text-white">SẴN SÀNG</span>
+                                </div>
+                            </div>
+                            <!-- Control Buttons -->
+                            <div class="space-y-4">
+                                <div class="grid grid-cols-2 gap-3">
+                                    <button id="btn-camera" onclick="toggleCamera()" class="flex items-center justify-center gap-2 py-3 rounded-full bg-primary text-white font-label-md text-[13px] shadow-md hover:opacity-90 transition-all">
+                                        <span class="material-symbols-outlined text-[18px]" id="camera-icon">videocam</span>
+                                        <span id="camera-btn-label">Bật Camera</span>
+                                    </button>
+                                    <button id="btn-scan" onclick="captureAndScan()" disabled class="flex items-center justify-center gap-2 py-3 rounded-full border border-primary/20 text-on-surface-variant font-label-md text-[13px] hover:bg-primary/5 transition-all disabled:opacity-40 disabled:cursor-not-allowed">
+                                        <span class="material-symbols-outlined text-[18px]">center_focus_strong</span>
+                                        Quét Khuôn Mặt
+                                    </button>
+                                </div>
+                                <button id="btn-reset" onclick="resetCamera()" disabled class="w-full flex items-center justify-center gap-2 py-3 rounded-full bg-surface-container-low text-on-surface-variant/70 font-label-md text-[13px] hover:bg-surface-container transition-all">
+                                    <span class="material-symbols-outlined text-[18px]">restart_alt</span>
+                                    Reset Camera
+                                </button>
+                                <button onclick="manualResetAttendance()" class="w-full border border-red-800/60 py-2.5 font-label-caps text-[11px] text-red-800 hover:bg-red-800 hover:text-white transition-all duration-300 flex items-center justify-center gap-2">
+                                    <span class="material-symbols-outlined text-[14px]">lock_reset</span> RESET ĐIỂM DANH
+                                </button>
+                            </div>
+                            <!-- Success Status Notification -->
+                            <div id="scan-result-card" class="glass-card p-4 rounded-lg border border-primary/10 flex items-center justify-between hidden">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-12 h-12 rounded-full overflow-hidden border-2 border-primary/20 flex items-center justify-center bg-white">
+                                        <span id="result-icon" class="material-symbols-outlined text-[20px] text-green-800">check_circle</span>
                                     </div>
                                     <div>
-                                        <p class="font-medium text-[14px]"
-                                            th:text="${attendee.customer != null ? (attendee.customer.fullName == 'Lê Quang' ? 'Ngọc Thị' : attendee.customer.fullName) : (attendee.dependent != null ? attendee.dependent.dependentName : 'Ẩn danh')}">
-                                            Tên khách</p>
+                                        <p id="result-name" class="font-body-md font-bold text-on-surface">Nguyễn Minh Anh</p>
+                                        <div class="flex items-center gap-1 text-emerald-600 text-[12px]">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                            <span id="result-detail">Xác thực thành công</span>
+                                        </div>
                                     </div>
                                 </div>
-                            </td>
-                            <td class="py-4 text-center">
-                                <div class="flex items-center justify-center gap-2">
-                                    <span th:if="${attendee.status == 'Checked_In'}"
-                                        class="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-label-caps status-checked">
-                                        <span class="material-symbols-outlined text-[12px]">check</span> Đã điểm danh
-                                    </span>
-                                    <span th:if="${attendee.status == 'Not_Show'}"
-                                        class="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-label-caps status-waiting">
-                                        <span class="w-1.5 h-1.5 bg-yellow-500 rounded-full animate-pulse"></span> Chờ
-                                        FaceID
-                                    </span>
-                                    <button th:if="${attendee.status == 'Not_Show'}"
-                                        th:onclick="'checkinManual(' + ${attendee.id} + ')'"
-                                        class="p-1 border border-[#BFAC8F] text-[#BFAC8F] hover:bg-[#3a3230] hover:text-[#fff8f4] transition-all duration-300 flex items-center justify-center"
-                                        title="Điểm danh thủ công">
-                                        <span class="material-symbols-outlined text-[14px]">check</span>
-                                    </button>
-                                    <span th:if="${attendee.status != 'Checked_In' && attendee.status != 'Not_Show'}"
-                                        class="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-label-caps status-absent"
-                                        th:text="${attendee.status}"></span>
+                            </div>
+                            <!-- Attendance Progress -->
+                            <div class="space-y-6 pt-4">
+                                <div class="flex justify-between items-center">
+                                    <div class="space-y-1">
+                                        <p class="text-[10px] font-bold text-on-surface-variant/40 uppercase tracking-widest">Tiến độ điểm danh</p>
+                                        <p class="font-headline-md text-2xl text-on-surface">
+                                            <span th:text="${checkedInCount}">0</span> / <span th:text="${totalAttendees}">0</span> Khách
+                                        </p>
+                                    </div>
+                                    <span class="text-xs text-on-surface-variant/60 font-semibold"
+                                          th:text="${totalAttendees > 0 ? (checkedInCount * 100 / totalAttendees) + '%' : '0%'}">0%</span>
                                 </div>
-                            </td>
-                            <td class="py-4 text-right font-label-caps text-[10px] text-on-surface-variant opacity-50"
-                                th:text="'KR-' + ${1000 + attendee.id}">KR-1001</td>
-                        </tr>
-                    </tbody>
-                </table>
-                <div th:if="${#lists.isEmpty(attendees)}"
-                    class="flex flex-col items-center justify-center py-16 text-center">
-                    <span class="material-symbols-outlined text-[48px] text-beige-decorative mb-4">groups</span>
-                    <p class="font-body-md text-on-surface-variant">Chưa có hành khách nào</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- Right: FaceID Camera -->
-        <section id="faceid-section" class="w-1/3 flex flex-col faded-entry faded-entry-delay-2 pl-5">
-            <h2 class="font-label-caps text-label-caps text-primary mb-5 tracking-widest uppercase">Điểm danh FaceID
-            </h2>
-            <!-- Camera -->
-            <div class="camera-container" id="camera-container">
-                <video id="camera-video" autoplay playsinline muted
-                    class="absolute inset-0 w-full h-full object-cover"></video>
-                <canvas id="camera-canvas" class="hidden"></canvas>
-                <img id="captured-image" class="absolute inset-0 w-full h-full object-cover hidden" alt="Captured">
-                <div class="absolute inset-0 border-[16px] border-background/80 z-10 pointer-events-none"></div>
-                <div class="corner-mark tl"></div>
-                <div class="corner-mark tr"></div>
-                <div class="corner-mark bl"></div>
-                <div class="corner-mark br"></div>
-                <div class="face-frame" id="face-frame"></div>
-                <div class="scan-line" id="scan-line"></div>
-                <div id="camera-placeholder"
-                    class="absolute inset-0 flex flex-col items-center justify-center z-5 bg-surface-container">
-                    <span class="material-symbols-outlined text-[48px] text-beige-decorative mb-3">photo_camera</span>
-                    <p class="font-body-md text-[13px] text-on-surface-variant">Nhấn "Bật Camera" để bắt đầu</p>
-                </div>
-                <div class="absolute bottom-3 left-1/2 -translate-x-1/2 z-30 bg-primary/90 px-4 py-2 flex items-center gap-2 pointer-events-none"
-                    id="scan-status-bar">
-                    <span class="material-symbols-outlined text-champagne text-[16px]"
-                        style="font-variation-settings: 'FILL' 1;" id="scan-status-icon">face</span>
-                    <span id="scan-status-label" class="font-label-caps text-[10px] tracking-widest text-white">SẴN
-                        SÀNG</span>
-                </div>
-            </div>
-            <!-- Result Card -->
-            <div id="scan-result-card" class="mt-4 p-4 bg-beige-decorative/10 border border-beige-decorative hidden">
-                <div class="result-flash">
-                    <div class="flex items-center justify-between mb-3">
-                        <span class="font-label-caps text-[10px] text-on-surface-variant tracking-widest">KẾT QUẢ GẦN
-                            NHẤT</span>
-                        <span id="result-badge"
-                            class="font-label-caps text-[10px] px-2 py-0.5 bg-green-800 text-white">THÀNH CÔNG</span>
-                    </div>
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 bg-white overflow-hidden flex items-center justify-center flex-shrink-0">
-                            <span id="result-icon"
-                                class="material-symbols-outlined text-[20px] text-green-800">check_circle</span>
-                        </div>
-                        <div>
-                            <p id="result-name" class="font-body-md text-[14px] text-primary font-medium">--</p>
-                            <p id="result-detail" class="font-caption text-[11px] text-on-surface-variant">--</p>
+                                <div class="w-full bg-[#1b1c1a]/5 rounded-full h-1.5 overflow-hidden">
+                                    <div class="bg-primary h-full rounded-full transition-all duration-500" 
+                                         th:style="'width: ' + ${totalAttendees > 0 ? (checkedInCount * 100 / totalAttendees) : 0} + '%'"></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <!-- Buttons -->
-            <div class="mt-auto space-y-3 pt-4">
-                <button id="btn-camera" onclick="toggleCamera()"
-                    class="w-full border border-[#3a3230] py-3 font-label-caps text-[11px] text-[#3a3230] hover:bg-[#3a3230]/5 transition-all duration-300 flex items-center justify-center gap-2">
-                    <span class="material-symbols-outlined text-[16px]" id="camera-icon">videocam</span>
-                    <span id="camera-btn-label">BẬT CAMERA</span>
-                </button>
-                <button id="btn-scan" onclick="captureAndScan()" disabled
-                    class="w-full py-3 font-label-caps text-[11px] transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed bg-[#3a3230] text-[#fff8f4] hover:bg-[#1f1b16]">
-                    <span class="material-symbols-outlined text-[16px]">center_focus_strong</span>
-                    CHỤP ẢNH & QUÉT
-                </button>
-                <button id="btn-reset" onclick="resetCamera()" disabled
-                    class="w-full border border-outline-variant py-2.5 font-label-caps text-[11px] text-on-surface-variant hover:border-primary-container hover:text-primary-container transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-30 disabled:cursor-not-allowed">
-                    <span class="material-symbols-outlined text-[14px]">refresh</span> ĐẶT LẠI
-                </button>
-                <button id="btn-reset-attendance" onclick="manualResetAttendance()"
-                    class="w-full border border-red-800/60 py-2.5 font-label-caps text-[11px] text-red-800 hover:bg-red-800 hover:text-white transition-all duration-300 flex items-center justify-center gap-2">
-                    <span class="material-symbols-outlined text-[14px]">lock_reset</span> RESET ĐIỂM DANH
-                </button>
-            </div>
-        </section>
-    </main>
+        </main>
 
-    <!-- Footer -->
-    <footer
-        class="fixed bottom-0 left-0 w-full bg-background border-t border-outline-variant py-3 px-margin-desktop z-50">
-        <div class="max-w-container-max mx-auto flex justify-between items-center">
-            <p class="font-caption text-[11px] text-on-surface-variant opacity-60">© 2026 HoaNien Retreat Resort. AI
-                Face
-                Recognition v1.0</p>
-            <div class="flex items-center gap-6">
-                <div id="camera-indicator" class="flex items-center gap-2 opacity-0 transition-opacity duration-300">
-                    <span class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
-                    <span class="font-caption text-[10px] text-red-600">CAMERA ĐANG BẬT</span>
+        <!-- BEGIN: Footer -->
+        <footer class="bg-[#2D2926] text-white py-20 px-20">
+            <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-end">
+                <div class="space-y-4">
+                    <h3 class="text-3xl font-serif text-white">HoaNien</h3>
+                    <p class="text-[10px] tracking-widest opacity-50 uppercase text-white">© 2026 HOANIEN RETREAT. A QUIET LUXURY TRAVEL GROUP.</p>
+                </div>
+                <div class="flex space-x-12 text-[10px] font-bold tracking-widest uppercase opacity-80">
+                    <a class="hover:text-[#C5A059] no-underline text-white" href="#">Quyền riêng tư</a>
+                    <a class="hover:text-[#C5A059] no-underline text-white" href="#">Sự bền vững</a>
+                    <a class="hover:text-[#C5A059] no-underline text-white" href="#">Truyền thông</a>
+                    <a class="hover:text-[#C5A059] no-underline text-white" href="#">Liên hệ</a>
                 </div>
             </div>
-        </div>
-    </footer>
+        </footer>
+        <!-- END: Footer -->
+    </div>
 
-    <!-- Toast -->
-    <div id="toast" class="fixed top-24 right-8 z-[110] hidden">
-        <div class="bg-primary text-white px-6 py-4 flex items-center gap-3 shadow-xl max-w-sm faded-entry">
-            <span class="material-symbols-outlined text-champagne text-[20px]" id="toast-icon">info</span>
-            <div>
-                <p class="font-body-md text-[13px] font-medium" id="toast-title">Thông báo</p>
-                <p class="font-caption text-[11px] opacity-80" id="toast-message">Nội dung</p>
+    <!-- Guide Settings Modal -->
+    <div id="guideSettingsModal" class="fixed inset-0 z-[150] hidden flex items-center justify-center bg-black/60 backdrop-blur-sm">
+        <div class="bg-[#fdfbf7] w-full max-w-lg p-8 border border-[#3a3230]/20 shadow-2xl relative text-[#372618]">
+            <button onclick="closeGuideSettingsModal()" class="absolute top-4 right-4 text-[#372618]/60 hover:text-[#372618] transition-colors focus:outline-none">
+                <span class="material-symbols-outlined text-2xl">close</span>
+            </button>
+            <h3 class="font-headline-md text-2xl text-black font-bold mb-2 border-b border-[#3a3230]/10 pb-3">Thông tin hướng dẫn viên</h3>
+
+            <div th:if="${employee != null}" class="space-y-4 mt-4">
+                <div class="space-y-1">
+                    <label class="font-label-caps text-[10px] text-outline uppercase block text-left font-semibold">Họ và tên</label>
+                    <input readonly th:value="${employee.fullName}" class="w-full bg-transparent border-0 border-b border-[#3a3230]/20 py-1.5 font-body-md text-black transition-all text-left outline-none cursor-default" />
+                </div>
+                <div class="space-y-1">
+                    <label class="font-label-caps text-[10px] text-outline uppercase block text-left font-semibold">Giới tính</label>
+                    <input readonly th:value="${employee.gender == 'Male' ? 'Nam' : (employee.gender == 'Female' ? 'Nữ' : 'Khác')}" class="w-full bg-transparent border-0 border-b border-[#3a3230]/20 py-1.5 font-body-md text-black transition-all text-left outline-none cursor-default" />
+                </div>
+                <div class="space-y-1">
+                    <label class="font-label-caps text-[10px] text-outline uppercase block text-left font-semibold">Số CCCD</label>
+                    <input readonly th:value="${employee.cccd}" class="w-full bg-transparent border-0 border-b border-[#3a3230]/20 py-1.5 font-body-md text-black transition-all text-left outline-none cursor-default" />
+                </div>
+                <div class="space-y-1">
+                    <label class="font-label-caps text-[10px] text-outline uppercase block text-left font-semibold">Số điện thoại</label>
+                    <input readonly th:value="${employee.phone}" class="w-full bg-transparent border-0 border-b border-[#3a3230]/20 py-1.5 font-body-md text-black transition-all text-left outline-none cursor-default" />
+                </div>
+                <div class="space-y-1">
+                    <label class="font-label-caps text-[10px] text-outline uppercase block text-left font-semibold">Email</label>
+                    <input readonly th:value="${employee.email}" class="w-full bg-transparent border-0 border-b border-[#3a3230]/20 py-1.5 font-body-md text-black transition-all text-left outline-none cursor-default" />
+                </div>
+            </div>
+            <div th:if="${employee == null}">
+                <p class="text-sm text-[#3a3230]/80 mt-4 text-left">Không tìm thấy thông tin hồ sơ hướng dẫn viên. Vui lòng liên hệ Quản lý để được hỗ trợ.</p>
             </div>
         </div>
     </div>
 
-    <script>
-        // ============================================================
-        // HOANIEN RESORT - AI FACE RECOGNITION (Browser-based)
-        // Sử dụng face-api.js cho nhận diện khuôn mặt hoàn toàn trên web
-        // ============================================================
+    <!-- Customer Contact Modal -->
+    <div class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300"
+        id="customer-contact-modal">
+        <div class="max-w-md w-full mx-4 p-8 rounded-xl shadow-xl relative overflow-hidden bg-[#fdfbf7] border border-[#3a3230]/20 text-[#372618]">
+            <button class="absolute top-4 right-4 text-on-surface-variant hover:text-primary transition-colors focus:outline-none"
+                onclick="closeCustomerContactModal()">
+                <span class="material-symbols-outlined text-2xl text-[#372618]">close</span>
+            </button>
+            <div class="flex flex-col items-center text-center space-y-6">
+                <div
+                    class="w-32 h-32 rounded-full overflow-hidden border-4 border-primary/20 ring-8 ring-primary/5 bg-[#eedeea] flex items-center justify-center text-primary font-bold">
+                    <span class="font-display-md text-primary text-[40px]" id="modal-avatar-placeholder"></span>
+                </div>
+                <div class="space-y-2">
+                    <h2 class="font-display-md text-[32px] text-primary font-bold" id="modal-customer-name"></h2>
+                    <p class="font-label-md text-primary uppercase tracking-widest font-semibold" id="modal-customer-id"></p>
+                </div>
+                <div class="w-full space-y-4 text-left">
+                    <div class="flex items-center gap-4 p-4 rounded-lg bg-primary/5">
+                        <span class="material-symbols-outlined text-primary">call</span>
+                        <div>
+                            <p class="text-[10px] text-on-surface-variant/60 uppercase font-bold">Điện thoại</p>
+                            <p class="font-body-md text-on-surface" id="modal-customer-phone">+84 900 000 000</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4 p-4 rounded-lg bg-primary/5">
+                        <span class="material-symbols-outlined text-primary">mail</span>
+                        <div>
+                            <p class="text-[10px] text-on-surface-variant/60 uppercase font-bold">Email</p>
+                            <p class="font-body-md text-on-surface" id="modal-customer-email">customer@example.com</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4 p-4 rounded-lg bg-primary/5">
+                        <span class="material-symbols-outlined text-primary">meeting_room</span>
+                        <div>
+                            <p class="text-[10px] text-on-surface-variant/60 uppercase font-bold">Số phòng</p>
+                            <p class="font-body-md text-on-surface" id="modal-customer-room">Phòng 302</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4 p-4 rounded-lg bg-primary/5">
+                        <span class="material-symbols-outlined text-primary">location_on</span>
+                        <div>
+                            <p class="text-[10px] text-on-surface-variant/60 uppercase font-bold">Phân loại</p>
+                            <p class="font-body-md text-on-surface" id="modal-customer-detail">Regular</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4 w-full">
+                    <button
+                        onclick="showToast('Đang kết nối cuộc gọi đến khách hàng...', 'info')"
+                        class="flex items-center justify-center gap-2 py-3 rounded-full bg-primary text-white font-label-md hover:opacity-90 transition-all font-semibold text-[13px]">
+                        <span class="material-symbols-outlined text-[18px]">call</span>
+                        Gọi điện
+                    </button>
+                    <button
+                        onclick="showToast('Đang mở hộp thoại chat với khách hàng...', 'info')"
+                        class="flex items-center justify-center gap-2 py-3 rounded-full border border-primary/20 text-primary font-label-md hover:bg-primary/5 transition-all font-semibold text-[13px]">
+                        <span class="material-symbols-outlined text-[18px]">chat</span>
+                        Gửi tin nhắn
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed top-24 right-8 z-[200] flex flex-col gap-3 pointer-events-none"></div>
+
+    <!-- Script Section -->
+    <script>
         const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.12/model/';
-        const FACE_MATCH_THRESHOLD = 0.45; // Ngưỡng khoảng cách (thấp hơn = chính xác hơn)
-        const MIN_CONFIDENCE = 85; // % tin cậy tối thiểu theo BR-TR-02
+        const FACE_MATCH_THRESHOLD = 0.45;
+        const MIN_CONFIDENCE = 85;
 
         let cameraStream = null;
         let cameraActive = false;
         let isScanning = false;
         let modelsLoaded = false;
-        let referenceDescriptors = []; // [{name, descriptor, imageUrl}]
+        let referenceDescriptors = [];
 
-        // ==================== MODEL LOADING ====================
         async function loadModels() {
-            const statusText = document.getElementById('model-status-text');
-            const loadingBar = document.getElementById('model-loading-bar');
-
+            const statusText = document.getElementById('scan-status-label');
             try {
-                statusText.textContent = 'Đang tải Face Detector (SSD)...';
-                loadingBar.style.width = '20%';
+                statusText.textContent = 'ĐANG TẢI MODEL...';
                 await faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL);
-
-                statusText.textContent = 'Đang tải Face Landmark...';
-                loadingBar.style.width = '50%';
                 await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
-
-                statusText.textContent = 'Đang tải Face Recognition...';
-                loadingBar.style.width = '80%';
                 await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
 
                 modelsLoaded = true;
-                loadingBar.style.width = '100%';
-                statusText.textContent = '✓ Model sẵn sàng';
-                statusText.className = 'font-caption text-[12px] text-green-800 font-medium';
-
-                // Load reference faces
+                statusText.textContent = 'SẴN SÀNG';
                 await loadReferenceFaces();
             } catch (err) {
                 console.error('Model loading error:', err);
-                loadingBar.style.width = '0%';
-                statusText.textContent = '✗ Lỗi tải model - Fallback mode';
-                statusText.className = 'font-caption text-[12px] text-red-800';
-                // Don't block the UI - allow manual verification
+                statusText.textContent = 'CHẾ ĐỘ DỰ PHÒNG';
             }
         }
 
@@ -763,7 +773,6 @@
             try {
                 const response = await fetch('/api/faceid/references');
                 const refs = await response.json();
-
                 for (const ref of refs) {
                     try {
                         const img = await loadImage(ref.imageUrl);
@@ -771,22 +780,17 @@
                             .detectSingleFace(img, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.5 }))
                             .withFaceLandmarks()
                             .withFaceDescriptor();
-
                         if (detection) {
                             referenceDescriptors.push({
                                 name: ref.name,
                                 descriptor: detection.descriptor,
                                 imageUrl: ref.imageUrl
                             });
-                            console.log(`✓ Loaded reference: ${ref.name}`);
-                        } else {
-                            console.warn(`⚠ No face found in reference image: ${ref.name}`);
                         }
                     } catch (e) {
                         console.warn(`Failed to load reference for ${ref.name}:`, e);
                     }
                 }
-                console.log(`Loaded ${referenceDescriptors.length} reference faces`);
             } catch (err) {
                 console.error('Failed to load reference faces:', err);
             }
@@ -802,7 +806,6 @@
             });
         }
 
-        // ==================== CAMERA ====================
         async function toggleCamera() {
             if (cameraActive) { stopCamera(); } else { await startCamera(); }
         }
@@ -817,19 +820,13 @@
                 await video.play();
                 cameraActive = true;
                 document.getElementById('camera-placeholder').classList.add('hidden');
-                document.getElementById('btn-camera').className = 'w-full border border-red-600 py-3 font-label-caps text-[11px] text-red-600 hover:bg-red-600 hover:text-white transition-all duration-300 flex items-center justify-center gap-2';
                 document.getElementById('camera-icon').textContent = 'videocam_off';
-                document.getElementById('camera-btn-label').textContent = 'TẮT CAMERA';
+                document.getElementById('camera-btn-label').textContent = 'Tắt Camera';
                 document.getElementById('btn-scan').disabled = false;
-                document.getElementById('btn-scan').classList.remove('disabled:opacity-40', 'disabled:cursor-not-allowed');
-                document.getElementById('camera-indicator').style.opacity = '1';
-                document.getElementById('scan-status-label').textContent = 'SẴN SÀNG QUÉT';
-                document.getElementById('scan-status-icon').textContent = 'face';
-                document.getElementById('captured-image').classList.add('hidden');
-                document.getElementById('btn-reset').disabled = true;
+                document.getElementById('btn-reset').disabled = false;
             } catch (err) {
                 console.error('Camera error:', err);
-                showToast('error', 'Không thể truy cập camera', 'Cho phép camera trong trình duyệt.');
+                showToast('Không thể truy cập camera. Vui lòng kiểm tra quyền thiết bị.', 'error');
             }
         }
 
@@ -838,27 +835,21 @@
             cameraActive = false;
             document.getElementById('camera-video').srcObject = null;
             document.getElementById('camera-placeholder').classList.remove('hidden');
-            document.getElementById('btn-camera').className = 'w-full border border-primary py-3 font-label-caps text-[11px] text-primary hover:bg-primary hover:text-white transition-all duration-300 flex items-center justify-center gap-2';
             document.getElementById('camera-icon').textContent = 'videocam';
-            document.getElementById('camera-btn-label').textContent = 'BẬT CAMERA';
+            document.getElementById('camera-btn-label').textContent = 'Bật Camera';
             document.getElementById('btn-scan').disabled = true;
-            document.getElementById('btn-scan').classList.add('disabled:opacity-40', 'disabled:cursor-not-allowed');
-            document.getElementById('camera-indicator').style.opacity = '0';
         }
 
         function resetCamera() {
             document.getElementById('captured-image').classList.add('hidden');
             document.getElementById('captured-image').src = '';
             document.getElementById('camera-video').classList.remove('hidden');
-            document.getElementById('btn-reset').disabled = true;
             document.getElementById('scan-result-card').classList.add('hidden');
             document.getElementById('face-frame').className = 'face-frame';
-            document.getElementById('scan-status-label').textContent = 'SẴN SÀNG QUÉT';
-            document.getElementById('scan-status-icon').textContent = 'face';
+            document.getElementById('scan-status-label').textContent = 'SẴN SÀNG';
             document.getElementById('scan-line').classList.remove('active');
         }
 
-        // ==================== FACE SCAN ====================
         async function captureAndScan() {
             if (!cameraActive || isScanning) return;
             isScanning = true;
@@ -871,21 +862,17 @@
             const statusLabel = document.getElementById('scan-status-label');
             const statusIcon = document.getElementById('scan-status-icon');
             const btnScan = document.getElementById('btn-scan');
-            const btnReset = document.getElementById('btn-reset');
 
-            // Capture frame
             canvas.width = video.videoWidth || 640;
             canvas.height = video.videoHeight || 480;
             const ctx = canvas.getContext('2d');
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
             const imageData = canvas.toDataURL('image/jpeg', 0.9);
 
-            // Show captured image
             capturedImg.src = imageData;
             capturedImg.classList.remove('hidden');
             video.classList.add('hidden');
 
-            // Scanning animation
             statusLabel.textContent = 'ĐANG QUÉT...';
             statusIcon.textContent = 'sync';
             statusIcon.style.animation = 'spin 1s linear infinite';
@@ -897,7 +884,6 @@
 
             try {
                 if (modelsLoaded && referenceDescriptors.length > 0) {
-                    // === FACE-API.JS RECOGNITION (Client-side) ===
                     const img = await loadImage(imageData);
                     const detection = await faceapi
                         .detectSingleFace(img, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.5 }))
@@ -907,10 +893,8 @@
                     if (detection) {
                         let bestDistance = Infinity;
                         let bestName = null;
-
                         for (const ref of referenceDescriptors) {
                             const distance = faceapi.euclideanDistance(detection.descriptor, ref.descriptor);
-                            console.log(`Distance to ${ref.name}: ${distance.toFixed(4)}`);
                             if (distance < bestDistance) {
                                 bestDistance = distance;
                                 bestName = ref.name;
@@ -923,14 +907,12 @@
                         } else {
                             confidence = Math.max(0.0, 85.0 - ((bestDistance - FACE_MATCH_THRESHOLD) / (1.0 - FACE_MATCH_THRESHOLD)) * 85.0);
                         }
-                        console.log(`Best match: ${bestName}, distance: ${bestDistance.toFixed(4)}, confidence: ${confidence.toFixed(1)}%`);
 
                         if (bestDistance < FACE_MATCH_THRESHOLD && confidence >= MIN_CONFIDENCE) {
                             matchResult = { name: bestName, confidence: confidence };
                         }
                     }
                 } else {
-                    // === FALLBACK: Gửi ảnh lên server xử lý ===
                     const response = await fetch('/api/faceid/scan', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -942,100 +924,50 @@
                     }
                 }
             } catch (err) {
-                console.error('Face scan error:', err);
+                console.error(err);
             }
 
-            // Stop scanning animation
             scanLine.classList.remove('active');
             statusIcon.style.animation = '';
 
             if (matchResult) {
-                // === SUCCESS ===
-                let displayName = matchResult.name;
                 faceFrame.className = 'face-frame matched';
                 statusLabel.textContent = 'ĐÃ XÁC THỰC';
                 statusIcon.textContent = 'check_circle';
-                showScanResult(true, displayName, `Tin cậy: ${matchResult.confidence.toFixed(1)}%`);
-                showToast('success', 'Điểm danh thành công', displayName + ' đã được xác thực.');
+                showScanResult(true, matchResult.name, `Xác thực thành công (${matchResult.confidence.toFixed(1)}%)`);
 
-                // Gửi kết quả lên server để cập nhật DB
                 try {
-                    const verifyResp = await fetch('/api/faceid/verify', {
+                    await fetch('/api/faceid/verify', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ name: displayName })
+                        body: JSON.stringify({ name: matchResult.name })
                     });
-                    const verifyData = await verifyResp.json();
-                    console.log('Verify response:', verifyData);
                 } catch (e) {
-                    console.warn('Failed to update server:', e);
+                    console.warn(e);
                 }
-
-                setTimeout(() => { window.location.href = '/tourguide/dashboard?scanned=true&t=' + new Date().getTime(); }, 2500);
+                setTimeout(() => { window.location.href = '/tourguide/dashboard?scanned=true'; }, 2000);
             } else {
-                // === FAILED ===
                 faceFrame.className = 'face-frame failed';
                 statusLabel.textContent = 'KHÔNG KHỚP';
                 statusIcon.textContent = 'error';
-                showScanResult(false, null, 'Không nhận diện được khuôn mặt. Thử lại.');
-                setTimeout(() => { faceFrame.className = 'face-frame'; }, 3000);
+                showScanResult(false, 'Không nhận diện được', 'Thử lại hoặc check-in thủ công.');
             }
 
             isScanning = false;
             btnScan.disabled = false;
-            btnReset.disabled = false;
         }
 
         function showScanResult(success, name, detail) {
             const card = document.getElementById('scan-result-card');
-            const badge = document.getElementById('result-badge');
+            const resultName = document.getElementById('result-name');
+            const resultDetail = document.getElementById('result-detail');
             const icon = document.getElementById('result-icon');
             card.classList.remove('hidden');
-            if (success) {
-                badge.textContent = 'THÀNH CÔNG';
-                badge.className = 'font-label-caps text-[10px] px-2 py-0.5 bg-green-800 text-white';
-                icon.textContent = 'check_circle';
-                icon.className = 'material-symbols-outlined text-[20px] text-green-800';
-                document.getElementById('result-name').textContent = name;
-                document.getElementById('result-detail').textContent = detail;
-            } else {
-                badge.textContent = 'THẤT BẠI';
-                badge.className = 'font-label-caps text-[10px] px-2 py-0.5 bg-red-800 text-white';
-                icon.textContent = 'cancel';
-                icon.className = 'material-symbols-outlined text-[20px] text-red-800';
-                document.getElementById('result-name').textContent = 'Không nhận diện được';
-                document.getElementById('result-detail').textContent = detail;
-            }
-        }
 
-        // ==================== TOAST ====================
-        function showToast(type, title, message) {
-            const toast = document.getElementById('toast');
-            const icon = document.getElementById('toast-icon');
-            document.getElementById('toast-title').textContent = title;
-            document.getElementById('toast-message').textContent = message;
-            icon.textContent = type === 'success' ? 'check_circle' : 'error';
-            icon.className = type === 'success'
-                ? 'material-symbols-outlined text-green-300 text-[20px]'
-                : 'material-symbols-outlined text-red-300 text-[20px]';
-            toast.classList.remove('hidden');
-            setTimeout(() => { toast.classList.add('hidden'); }, 4000);
-        }
-
-        async function resetAttendance() {
-            try {
-                const resp = await fetch('/api/faceid/reset');
-                const data = await resp.json();
-                console.log('Auto reset attendance:', data);
-                if (data.success && data.resetCount > 0) {
-                    showToast('success', 'Đã sẵn sàng demo', data.message);
-                    setTimeout(() => {
-                        window.location.href = '/tourguide/dashboard?t=' + new Date().getTime();
-                    }, 1500);
-                }
-            } catch (e) {
-                console.warn('Auto reset attendance error:', e);
-            }
+            resultName.textContent = name;
+            resultDetail.textContent = detail;
+            icon.textContent = success ? 'check_circle' : 'cancel';
+            icon.className = success ? 'material-symbols-outlined text-[20px] text-green-800' : 'material-symbols-outlined text-[20px] text-red-800';
         }
 
         async function checkinManual(attendeeId) {
@@ -1047,207 +979,433 @@
                 });
                 const data = await resp.json();
                 if (data.success) {
-                    showToast('success', 'Điểm danh thủ công', data.name + ' đã được điểm danh.');
-                    setTimeout(() => {
-                        window.location.href = '/tourguide/dashboard?scanned=true&t=' + new Date().getTime();
-                    }, 1000);
-                } else {
-                    showToast('error', 'Lỗi điểm danh', data.message || 'Không thể điểm danh hành khách.');
+                    showToast(data.name + ' đã được điểm danh thành công!', 'success');
+                    window.location.href = '/tourguide/dashboard?scanned=true';
                 }
             } catch (e) {
-                console.error('Checkin manual error:', e);
-                showToast('error', 'Lỗi kết nối', 'Không thể gửi yêu cầu điểm danh.');
+                console.error(e);
             }
         }
 
         async function manualResetAttendance() {
-            try {
-                const resp = await fetch('/api/faceid/reset');
-                const data = await resp.json();
-                console.log('Manual reset attendance:', data);
-                showToast('success', 'Reset điểm danh', data.message || 'Đã đặt lại trạng thái chờ FaceID.');
-                setTimeout(() => {
-                    window.location.href = '/tourguide/dashboard?t=' + new Date().getTime();
-                }, 1000);
-            } catch (e) {
-                console.error('Manual reset error:', e);
-                showToast('error', 'Lỗi reset', 'Không thể kết nối tới server.');
+            if (confirm('Bạn có chắc muốn reset toàn bộ trạng thái điểm danh cho hôm nay?')) {
+                try {
+                    await fetch('/api/faceid/reset');
+                    window.location.href = '/tourguide/dashboard';
+                } catch (e) {
+                    console.error(e);
+                }
             }
         }
-
-        function toggleProfileDropdown(e) {
-            e.stopPropagation();
-            const dropdown = document.getElementById('profileDropdown');
-            if (dropdown) dropdown.classList.toggle('hidden');
-        }
-
-        document.addEventListener('click', () => {
-            const dropdown = document.getElementById('profileDropdown');
-            if (dropdown) dropdown.classList.add('hidden');
-        });
 
         function openGuideSettingsModal(e) {
             e.stopPropagation();
-            const modal = document.getElementById('guideSettingsModal');
-            if (modal) modal.classList.remove('hidden');
+            document.getElementById('guideSettingsModal').classList.remove('hidden');
         }
 
         function closeGuideSettingsModal() {
-            const modal = document.getElementById('guideSettingsModal');
-            if (modal) modal.classList.add('hidden');
+            document.getElementById('guideSettingsModal').classList.add('hidden');
         }
 
-        // ==================== INIT ====================
-        document.addEventListener('DOMContentLoaded', function () {
-            const urlParams = new URLSearchParams(window.location.search);
-            const scanned = urlParams.get('scanned');
-            if (scanned === 'true') {
-                // Xóa query parameter khỏi thanh địa chỉ để khi bấm F5 reload sẽ tự động reset
-                const newUrl = window.location.pathname;
-                window.history.replaceState({}, document.title, newUrl);
-            } else {
-                // Tự động reset trạng thái điểm danh khi load trang để demo lại
-                resetAttendance();
+        function showCustomerContactModal(element) {
+            const name = element.getAttribute('data-name');
+            const id = element.getAttribute('data-id');
+            const phone = element.getAttribute('data-phone');
+            const email = element.getAttribute('data-email');
+            const detail = element.getAttribute('data-membership');
+            const room = element.getAttribute('data-room');
+
+            document.getElementById('modal-customer-name').textContent = name;
+            document.getElementById('modal-customer-id').textContent = id;
+            document.getElementById('modal-customer-phone').textContent = phone;
+            document.getElementById('modal-customer-email').textContent = email;
+            document.getElementById('modal-customer-room').textContent = room;
+            document.getElementById('modal-customer-detail').textContent = detail;
+            
+            // Extract initials from name
+            const nameParts = name.trim().split(/\s+/);
+            let initials = 'KH';
+            if (nameParts.length >= 2) {
+                initials = (nameParts[nameParts.length - 2][0] + nameParts[nameParts.length - 1][0]).toUpperCase();
+            } else if (nameParts.length === 1 && nameParts[0].length > 0) {
+                initials = nameParts[0].substring(0, Math.min(2, nameParts[0].length)).toUpperCase();
+            }
+            document.getElementById('modal-avatar-placeholder').textContent = initials;
+            
+            const modal = document.getElementById('customer-contact-modal');
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+        }
+
+        function closeCustomerContactModal() {
+            const modal = document.getElementById('customer-contact-modal');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+        }
+
+        function submitIncidentReport() {
+            const desc = document.getElementById('incident-description').value.trim();
+            if (!desc) {
+                showToast('Vui lòng nhập mô tả sự cố.', 'warning');
+                return;
+            }
+            showToast('Báo cáo sự cố đã được gửi thành công đến Ban Quản lý Resort HoaNien!', 'success');
+            document.getElementById('incident-description').value = '';
+        }
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+
+            const toast = document.createElement('div');
+            toast.className = 'flex items-center gap-3 px-6 py-4 rounded-xl shadow-xl border backdrop-blur-md transition-all duration-300 translate-x-12 opacity-0 pointer-events-auto max-w-sm';
+            
+            let icon = 'check_circle';
+            let iconColor = 'text-green-500';
+            let borderColor = 'border-green-500/20';
+            let bgColor = 'bg-[#fdfbf7]/95';
+            
+            if (type === 'error') {
+                icon = 'cancel';
+                iconColor = 'text-red-500';
+                borderColor = 'border-red-500/20';
+            } else if (type === 'warning') {
+                icon = 'warning';
+                iconColor = 'text-amber-500';
+                borderColor = 'border-amber-500/20';
+            } else if (type === 'info') {
+                icon = 'info';
+                iconColor = 'text-primary';
+                borderColor = 'border-primary/20';
             }
 
-            loadModels();
+            toast.className += ` ${borderColor} ${bgColor}`;
 
-            const toast = urlParams.get('toast');
-            if (toast) {
-                let msg = '';
-                if (toast === 'create_success') {
-                    msg = 'Đã tạo hồ sơ hướng dẫn viên thành công!';
-                } else if (toast === 'update_success') {
-                    msg = 'Đã cập nhật hồ sơ hướng dẫn viên thành công!';
-                } else if (toast === 'delete_success') {
-                    msg = 'Đã xóa hồ sơ hướng dẫn viên thành công!';
+            toast.innerHTML = `
+                <span class="material-symbols-outlined ${iconColor} text-[20px]">${icon}</span>
+                <p class="font-body-md font-medium text-on-surface text-sm leading-tight">${message}</p>
+            `;
+
+            container.appendChild(toast);
+
+            // Animate in
+            setTimeout(() => {
+                toast.classList.remove('translate-x-12', 'opacity-0');
+            }, 10);
+
+            // Animate out and remove
+            setTimeout(() => {
+                toast.classList.add('translate-x-12', 'opacity-0');
+                setTimeout(() => {
+                    toast.remove();
+                }, 300);
+            }, 4000);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadModels();
+            
+            // Check for toast redirects
+            const urlParams = new URLSearchParams(window.location.search);
+            const toastParam = urlParams.get('toast');
+            if (toastParam) {
+                if (toastParam === 'update_success') {
+                    showToast('Cập nhật hồ sơ hướng dẫn viên thành công!', 'success');
+                } else if (toastParam === 'create_success') {
+                    showToast('Tạo hồ sơ hướng dẫn viên thành công!', 'success');
+                } else if (toastParam === 'delete_success') {
+                    showToast('Xóa hồ sơ hướng dẫn viên thành công!', 'success');
                 }
-                if (msg) {
-                    alert(msg);
-                    const newUrl = window.location.pathname;
-                    window.history.replaceState({}, document.title, newUrl);
+                // Clean url parameters
+                const cleanUrl = window.location.pathname;
+                window.history.replaceState({}, document.title, cleanUrl);
+            }
+            
+            const scannedParam = urlParams.get('scanned');
+            if (scannedParam === 'true') {
+                showToast('Điểm danh khách hàng thành công!', 'success');
+                // Clean url parameters
+                const cleanUrl = window.location.pathname;
+                window.history.replaceState({}, document.title, cleanUrl);
+            }
+        });
+
+        function exportCustomerList() {
+            // Get tour name
+            const tourNameEl = document.getElementById('tour-name-display');
+            const tourName = tourNameEl ? tourNameEl.textContent.trim() : 'Danh_sach_khach_hang';
+            const cleanTourName = tourName.replace(/[^a-zA-Z0-9_ -]/g, '').replace(/\s+/g, '_');
+            
+            // Get rows
+            const rows = document.querySelectorAll('table tbody tr');
+            let csvContent = "\ufeff"; // BOM for UTF-8 in Excel
+            csvContent += "Mã Khách Hàng,Họ và Tên,Trạng thái\n";
+            
+            rows.forEach(row => {
+                const cols = row.querySelectorAll('td');
+                if (cols.length >= 3) {
+                    const customerId = cols[0].textContent.trim();
+                    const nameEl = cols[1].querySelector('p') || cols[1];
+                    const name = nameEl.textContent.trim();
+                    const statusText = cols[2].textContent.trim();
+                    
+                    let status = 'Chờ điểm danh';
+                    if (statusText.includes('Đã điểm danh')) {
+                        status = 'Đã điểm danh';
+                    }
+                    
+                    csvContent += `"${customerId}","${name}","${status}"\n`;
+                }
+            });
+            
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            link.setAttribute("download", `${cleanTourName}_Danh_sach_diem_danh.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function toggleNotificationDropdown(e) {
+            e.stopPropagation();
+            const dropdown = document.getElementById('notificationDropdown');
+            dropdown.classList.toggle('hidden');
+        }
+
+        function markAllNotificationsAsRead(e) {
+            if (e) e.stopPropagation();
+            const badge = document.querySelector('.dropdown-notification button .bg-red-500');
+            if (badge) {
+                badge.remove();
+            }
+            const items = document.querySelectorAll('#notifications-list > div');
+            items.forEach(item => {
+                item.className = 'p-3 hover:bg-primary/5 rounded-xl transition-colors space-y-1';
+            });
+        }
+
+        document.addEventListener('click', function(e) {
+            const dropdown = document.getElementById('notificationDropdown');
+            if (dropdown && !dropdown.classList.contains('hidden')) {
+                const isClickInside = dropdown.contains(e.target) || e.target.closest('.dropdown-notification');
+                if (!isClickInside) {
+                    dropdown.classList.add('hidden');
                 }
             }
         });
+
+        function removeVietnameseAccents(str) {
+            if (!str) return '';
+            return str
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .replace(/đ/g, "d")
+                .replace(/Đ/g, "D");
+        }
+
+        function matchQuery(text, query) {
+            const normText = text.toLowerCase().normalize("NFC");
+            const normQuery = query.toLowerCase().normalize("NFC");
+            if (normText.includes(normQuery)) return true;
+            
+            const accentlessText = removeVietnameseAccents(normText);
+            const accentlessQuery = removeVietnameseAccents(normQuery);
+            return accentlessText.includes(accentlessQuery);
+        }
+
+        function performSearch(query) {
+            const cleanQuery = query.trim();
+            if (!cleanQuery) {
+                document.querySelectorAll('table tbody tr').forEach(r => r.style.display = '');
+                return;
+            }
+            
+            const tourName = document.getElementById('tour-name-display') ? document.getElementById('tour-name-display').textContent : '';
+            const tourMetaEl = document.querySelector('[th\\:text*="departureDate"]') || document.querySelector('.font-headline.text-lg.md\\:text-xl.font-light.text-on-surface-variant\\/60') || document.querySelector('#print-area p');
+            const tourMeta = tourMetaEl ? tourMetaEl.textContent : '';
+            const tourDetailsText = (tourName + " " + tourMeta);
+            
+            const matchesTour = matchQuery(tourDetailsText, cleanQuery);
+            
+            const rows = document.querySelectorAll('table tbody tr');
+            rows.forEach(row => {
+                if (matchesTour) {
+                    row.style.display = '';
+                    return;
+                }
+                
+                const idText = row.querySelector('td:first-child') ? row.querySelector('td:first-child').textContent : '';
+                const dataEl = row.querySelector('[data-name]');
+                
+                let nameText = '';
+                let phoneText = '';
+                let emailText = '';
+                let membershipText = '';
+                let roomText = '';
+                
+                if (dataEl) {
+                    nameText = (dataEl.getAttribute('data-name') || '');
+                    phoneText = (dataEl.getAttribute('data-phone') || '');
+                    emailText = (dataEl.getAttribute('data-email') || '');
+                    membershipText = (dataEl.getAttribute('data-membership') || '');
+                    roomText = (dataEl.getAttribute('data-room') || '');
+                }
+                
+                const statusText = row.textContent;
+                const combinedText = `${idText} ${nameText} ${phoneText} ${emailText} ${membershipText} ${roomText} ${statusText}`;
+                
+                if (matchQuery(combinedText, cleanQuery)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
     </script>
-
-    <!-- Guide Settings Modal -->
-    <div id="guideSettingsModal"
-        class="fixed inset-0 z-[150] hidden flex items-center justify-center bg-black/60 backdrop-blur-sm">
-        <div class="bg-[#fdfbf7] w-full max-w-lg p-8 border border-[#3a3230]/20 shadow-2xl relative text-[#372618]">
-            <button onclick="closeGuideSettingsModal()"
-                class="absolute top-4 right-4 text-[#372618]/60 hover:text-[#372618] transition-colors focus:outline-none">
-                <span class="material-symbols-outlined text-2xl">close</span>
-            </button>
-            <h3 class="font-headline-md text-2xl text-black font-bold mb-2 border-b border-[#3a3230]/10 pb-3">Thông tin
-                hướng dẫn viên</h3>
-
-            <!-- Read / Update / Delete Form (If employee exists) -->
-            <div th:if="${employee != null}">
-                <form th:action="@{/tourguide/profile/update}" method="post" class="space-y-4 mt-4">
-                    <input type="hidden" name="redirectUrl" th:value="${requestUri}" />
-
-                    <div class="space-y-1">
-                        <label class="font-label-caps text-[10px] text-outline uppercase block text-left">Họ và
-                            tên</label>
-                        <input name="fullName" required th:value="${employee.fullName}"
-                            class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-black focus:border-black transition-all text-left" />
-                    </div>
-                    <div class="space-y-1">
-                        <label class="font-label-caps text-[10px] text-outline uppercase block text-left">Giới
-                            tính</label>
-                        <select name="gender"
-                            class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-black focus:border-black transition-all text-left">
-                            <option value="Male" th:selected="${employee.gender == 'Male'}">Nam</option>
-                            <option value="Female" th:selected="${employee.gender == 'Female'}">Nữ</option>
-                            <option value="Other" th:selected="${employee.gender == 'Other'}">Khác</option>
-                        </select>
-                    </div>
-                    <div class="space-y-1">
-                        <label class="font-label-caps text-[10px] text-outline uppercase block text-left">Số
-                            CCCD</label>
-                        <input name="cccd" required th:value="${employee.cccd}"
-                            class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-black focus:border-black transition-all text-left" />
-                    </div>
-                    <div class="space-y-1">
-                        <label class="font-label-caps text-[10px] text-outline uppercase block text-left">Số điện
-                            thoại</label>
-                        <input name="phone" required th:value="${employee.phone}"
-                            class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-black focus:border-black transition-all text-left" />
-                    </div>
-                    <div class="space-y-1">
-                        <label class="font-label-caps text-[10px] text-outline uppercase block text-left">Email</label>
-                        <input name="email" type="email" required th:value="${employee.email}"
-                            class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-black focus:border-black transition-all text-left" />
-                    </div>
-
-                    <div class="pt-4 flex gap-4">
-                        <button type="submit"
-                            class="flex-grow py-3 bg-primary text-background font-label-caps text-[11px] hover:bg-primary/95 transition-all tracking-wider font-semibold">
-                            CẬP NHẬT
-                        </button>
-                    </div>
-                </form>
-                <form th:action="@{/tourguide/profile/delete}" method="post" class="mt-2 text-left">
-                    <input type="hidden" name="redirectUrl" th:value="${requestUri}" />
-                    <button type="submit" onclick="return confirm('Bạn có chắc chắn muốn xóa hồ sơ này không?')"
-                        class="w-full py-2 border border-red-600 text-red-600 hover:bg-red-50 font-label-caps text-[10px] font-bold tracking-wider transition-all">
-                        XÓA HỒ SƠ HƯỚNG DẪN VIÊN
-                    </button>
-                </form>
-            </div>
-
-            <!-- Create Form (If employee does not exist) -->
-            <div th:if="${employee == null}">
-                <p class="text-sm text-[#3a3230]/80 mb-4 text-left">Bạn chưa thiết lập hồ sơ hướng dẫn viên. Hãy nhập
-                    thông tin bên dưới để tạo mới.</p>
-                <form th:action="@{/tourguide/profile/create}" method="post" class="space-y-4">
-                    <input type="hidden" name="redirectUrl" th:value="${requestUri}" />
-
-                    <div class="space-y-1">
-                        <label class="font-label-caps text-[10px] text-outline uppercase block text-left">Họ và
-                            tên</label>
-                        <input name="fullName" required placeholder="Nguyễn Văn A"
-                            class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-black focus:border-black transition-all text-left" />
-                    </div>
-                    <div class="space-y-1">
-                        <label class="font-label-caps text-[10px] text-outline uppercase block text-left">Giới
-                            tính</label>
-                        <select name="gender"
-                            class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-black focus:border-black transition-all text-left">
-                            <option value="Male">Nam</option>
-                            <option value="Female">Nữ</option>
-                            <option value="Other">Khác</option>
-                        </select>
-                    </div>
-                    <div class="space-y-1">
-                        <label class="font-label-caps text-[10px] text-outline uppercase block text-left">Số
-                            CCCD</label>
-                        <input name="cccd" required placeholder="012345678912"
-                            class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-black focus:border-black transition-all text-left" />
-                    </div>
-                    <div class="space-y-1">
-                        <label class="font-label-caps text-[10px] text-outline uppercase block text-left">Số điện
-                            thoại</label>
-                        <input name="phone" required placeholder="0987654321"
-                            class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-black focus:border-black transition-all text-left" />
-                    </div>
-                    <div class="space-y-1">
-                        <label class="font-label-caps text-[10px] text-outline uppercase block text-left">Email</label>
-                        <input name="email" type="email" required placeholder="guide@example.com"
-                            class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-black focus:border-black transition-all text-left" />
-                    </div>
-
-                    <div class="pt-4">
-                        <button type="submit"
-                            class="w-full py-3 bg-gold-accent text-white font-label-caps text-[11px] hover:bg-gold-accent/90 transition-all tracking-wider font-semibold">
-                            TẠO HỒ SƠ
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
 </body>
 
-</html>
+<!-- Activities Popup Modal (hidden by default) -->
+<div id="activities-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center hidden z-50 transition-all duration-300">
+  <div class="bg-surface rounded-lg shadow-2xl p-8 w-11/12 max-w-lg border border-primary/10">
+    <div class="flex justify-between items-center mb-6 border-b border-primary/10 pb-4">
+      <h3 class="text-2xl font-display-md font-bold text-primary">Lịch Trình Chi Tiết</h3>
+      <button class="text-on-surface-variant hover:text-primary transition-colors text-2xl font-bold" onclick="closeActivities()">&#x2715;</button>
+    </div>
+    <div id="activities-content" class="space-y-4 max-h-[60vh] overflow-y-auto pr-2 scrollbar-custom"></div>
+    <div class="mt-6 pt-4 border-t border-primary/10 flex justify-end">
+      <button class="px-6 py-2 bg-primary text-on-primary rounded-full hover:bg-primary/80 font-bold transition-all shadow-md" onclick="closeActivities()">Đóng</button>
+    </div>
+  </div>
+</div>
+<script>
+  const TOUR_ITINERARIES = {
+    'tinh tuy': {
+      subtitle: 'Tinh túy đồng nội - Quảng Nam (Khởi hành: 08:00)',
+      activities: [
+        { time: '08:00 - 08:30', title: 'Đón khách & Di chuyển', desc: 'Xe đón khách tại điểm hẹn và khởi hành đi Quảng Nam.' },
+        { time: '08:30 - 10:00', title: 'Làng nghề truyền thống', desc: 'Tham quan làng nghề truyền thống, tìm hiểu các công đoạn chế tác thủ công lâu đời.' },
+        { time: '10:00 - 11:30', title: 'Khu sản xuất đặc sản', desc: 'Ghé thăm khu sản xuất thủ công, thưởng thức nông sản và đặc sản địa phương sạch.' },
+        { time: '11:30 - 13:00', title: 'Trải nghiệm ẩm thực', desc: 'Thưởng thức bữa trưa với các món đặc sản đồng quê mang hương vị chuẩn bản địa.' },
+        { time: '13:00 - 15:00', title: 'Trực tiếp trải nghiệm', desc: 'Khách tự tay làm thử các sản phẩm lưu niệm dưới sự hướng dẫn của nghệ nhân bản địa.' },
+        { time: '15:00 - 16:00', title: 'Hòa nhạc dân gian & Trà chiều', desc: 'Thưởng thức trà thảo mộc organic và nghe hòa nhạc dân gian đặc sắc trước khi kết thúc tour.' }
+      ]
+    },
+    'doan tu': {
+      subtitle: 'Hành trình Đoàn Tụ - Huế (Khởi hành: 08:00)',
+      activities: [
+        { time: '08:00 - 08:30', title: 'Đón khách & Di chuyển', desc: 'Xe đón khách tại khách sạn, khởi hành cùng hướng dẫn viên đến thành phố Huế.' },
+        { time: '08:30 - 10:00', title: 'Kinh Thành Huế', desc: 'Tham quan Kinh Thành Huế — di sản thế giới UNESCO, khám phá các ô phố cổ và đình lăng mẫu.' },
+        { time: '10:00 - 11:30', title: 'Chợ Đông Ba & Phố Cổ', desc: 'Dạo bước chợ Đông Ba, mua sắm đặc sản Huế: đường bao tử, mè xửng, nón bài thơ.' },
+        { time: '11:30 - 13:00', title: 'Bữa trưa cơm Huế', desc: 'Thưởng thức bữa cơm Huế chính thống: bánh bèo, bánh nậm, cơm hến, bún bò Huế tại nhà hàng truyền thống.' },
+        { time: '13:00 - 15:00', title: 'Lăng Tự Đức & Chùa Thiên Mụ', desc: 'Tham quan Lăng Tự Đức và chùa Thiên Mụ — biểu tượng linh thiêng của xứ Huế bên bờ sông Hương.' },
+        { time: '15:00 - 16:00', title: 'Trà chiều & Ngắm hoàng hôn', desc: 'Nghỉ ngơi bên bờ sông Hương, thưởng trà sen Huế, ngắm hoàng hôn rồi lên xe đưa khách về.' }
+      ]
+    }
+  };
+
+  function normalizeKey(name) {
+    return name.toLowerCase()
+      .replace(/đ/g, 'd')
+      .normalize('NFD').replace(/\p{Diacritic}/gu, '')
+      .replace(/\s+/g, ' ').trim();
+  }
+
+  function showActivities(tourName) {
+    const norm = normalizeKey(tourName || '');
+    let key = null;
+    if (norm.includes('tinh tuy') || norm.includes('tinh t')) key = 'tinh tuy';
+    else if (norm.includes('doan tu') || norm.includes('doan t')) key = 'doan tu';
+
+    if (!key) return;
+
+    const data = TOUR_ITINERARIES[key];
+    const content = document.getElementById('activities-content');
+
+    content.innerHTML = [
+      '<p class="font-headline text-lg font-light text-on-surface-variant mb-4 italic">' + data.subtitle + '</p>',
+      ...data.activities.map(a =>
+        '<div class="flex gap-4 items-start">' +
+          '<span class="bg-primary/10 text-primary text-label-sm font-bold px-3 py-1 rounded-full shrink-0 min-w-[100px] text-center border border-primary/20">' + a.time + '</span>' +
+          '<div class="text-on-surface-variant">' +
+            '<p class="font-semibold text-on-surface">' + a.title + '</p>' +
+            '<p class="text-sm opacity-80">' + a.desc + '</p>' +
+          '</div>' +
+        '</div>'
+      )
+    ].join('');
+
+    document.getElementById('activities-modal').classList.remove('hidden');
+  }
+
+  function closeActivities() {
+    document.getElementById('activities-modal').classList.add('hidden');
+  }
+
+  function dismissImportantNote() {
+    const card = document.getElementById('notice-banner-card');
+    if (card) {
+        card.style.transition = 'all 0.4s ease';
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(10px)';
+        setTimeout(() => {
+            card.style.display = 'none';
+        }, 400);
+    }
+  }
+
+  function showImportantNoteDetails() {
+    document.getElementById('notice-details-modal').classList.remove('hidden');
+  }
+
+  function closeImportantNoteDetails() {
+    document.getElementById('notice-details-modal').classList.add('hidden');
+  }
+</script>
+
+<!-- Important Notes Details Modal -->
+<div id="notice-details-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center hidden z-[200] transition-all duration-300">
+  <div class="bg-[#fdfbf7] rounded-lg shadow-2xl p-8 w-11/12 max-w-lg border border-[#3a3230]/20 relative text-[#372618]">
+    <button class="absolute top-4 right-4 text-on-surface-variant hover:text-primary transition-colors text-2xl font-bold" onclick="closeImportantNoteDetails()">✕</button>
+    <div class="flex items-center gap-3 mb-6 border-b border-primary/10 pb-4">
+      <span class="material-symbols-outlined text-primary text-3xl">info</span>
+      <h3 class="text-2xl font-display-md font-bold text-primary">Quy Trình Kiểm Tra & Hướng Dẫn</h3>
+    </div>
+    <div class="space-y-6 max-h-[60vh] overflow-y-auto pr-2 scrollbar-custom text-on-surface-variant">
+      <div>
+        <p class="font-bold text-primary mb-2 flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-primary"></span> 1. Kiểm tra Thiết bị (Trước 30 phút)
+        </p>
+        <p class="text-sm pl-4 leading-relaxed">
+          Đảm bảo kết nối internet ổn định. Kiểm tra chất lượng camera, làm sạch ống kính thiết bị quét để FaceID nhận diện chính xác nhất. Kiểm tra pin hoặc nguồn điện cấp cho thiết bị quét.
+        </p>
+      </div>
+      <div>
+        <p class="font-bold text-primary mb-2 flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-primary"></span> 2. Chuẩn bị Ánh sáng & Vị trí quét
+        </p>
+        <p class="text-sm pl-4 leading-relaxed">
+          Đặt thiết bị ở vị trí đón khách có đầy đủ ánh sáng tự nhiên hoặc đèn bổ trợ. Tránh nguồn ánh sáng ngược mạnh chiếu thẳng vào ống kính làm giảm độ chính xác của camera.
+        </p>
+      </div>
+      <div>
+        <p class="font-bold text-primary mb-2 flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-primary"></span> 3. Báo cáo Sự cố Kịp thời
+        </p>
+        <p class="text-sm pl-4 leading-relaxed">
+          Nếu camera không hoạt động, thư viện face-api không load thành công, hoặc sai lệch thông tin khách hàng, hãy điền mô tả sự cố và gửi báo cáo ngay lập tức để bộ phận kỹ thuật hỗ trợ.
+        </p>
+      </div>
+      <div>
+        <p class="font-bold text-primary mb-2 flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-primary"></span> 4. Điểm danh thủ công dự phòng
+        </p>
+        <p class="text-sm pl-4 leading-relaxed">
+          Trong trường hợp khách không nhận diện được hoặc hệ thống FaceID gián đoạn, hãy bấm nút tích xanh ✔ cạnh tên khách hàng trong bảng danh sách để thực hiện điểm danh thủ công.
+        </p>
+      </div>
+    </div>
+    <div class="mt-6 pt-4 border-t border-primary/10 flex justify-end">
+      <button class="px-6 py-2 bg-primary text-on-primary rounded-full hover:bg-primary/80 font-bold transition-all shadow-md text-sm" onclick="closeImportantNoteDetails()">Đã hiểu</button>
+    </div>
+  </div>
+</div>
