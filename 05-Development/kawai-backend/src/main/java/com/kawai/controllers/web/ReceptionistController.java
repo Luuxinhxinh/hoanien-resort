@@ -242,9 +242,8 @@ public class ReceptionistController {
 
             // Tìm TourBookings chưa được gán phòng cụ thể (roomBookingDetail IS NULL)
             // → các tour này lễ tân sẽ phân bổ khi check-in
-            // List<com.kawai.models.TourBooking> unallocatedTours =
-            //         tourBookingRepository.findByRoomBookingIdAndRoomBookingDetailIsNull(b.getId());
-            List<com.kawai.models.TourBooking> unallocatedTours = new ArrayList<>();
+            List<com.kawai.models.TourBooking> unallocatedTours =
+                    tourBookingRepository.findByRoomBookingIdAndRoomBookingDetailIsNull(b.getId());
             map.put("tourBookings", unallocatedTours);
 
             pagedArrivals.add(map);

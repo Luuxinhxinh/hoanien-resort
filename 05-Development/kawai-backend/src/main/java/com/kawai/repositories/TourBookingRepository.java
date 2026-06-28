@@ -32,12 +32,12 @@ public interface TourBookingRepository extends JpaRepository<TourBooking, Long> 
      * phòng cụ thể (roomBookingDetail IS NULL).
      * Dùng tại check-in: lễ tân sẽ phân bổ các tour này vào phòng vật lý.
      */
-    // List<TourBooking> findByRoomBookingIdAndRoomBookingDetailIsNull(Long roomBookingId);
+    List<TourBooking> findByRoomBookingIdAndRoomBookingDetailIsNull(Long roomBookingId);
 
     /**
      * Lấy tất cả TourBookings của một RoomBooking (kể cả đã phân bổ và chưa).
      */
-    // List<TourBooking> findByRoomBookingId(Long roomBookingId);
+    List<TourBooking> findByRoomBookingId(Long roomBookingId);
 
     @org.springframework.data.jpa.repository.Query(value = "SELECT t.tour_name FROM tour_bookings b JOIN tour_schedules s ON b.schedule_id = s.schedule_id JOIN tours t ON s.tour_id = t.tour_id GROUP BY t.tour_id ORDER BY COUNT(b.booking_id) DESC LIMIT 1", nativeQuery = true)
     String findTopTourName();

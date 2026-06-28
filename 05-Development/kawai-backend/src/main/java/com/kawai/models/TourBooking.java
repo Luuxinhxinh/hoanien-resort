@@ -18,4 +18,12 @@ public class TourBooking extends Booking {
     private java.math.BigDecimal tourCharge;
     @Column(name = "is_walk_in_tour", nullable = false)
     private Boolean isWalkInTour = false;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "room_booking_id")
+    private RoomBooking roomBooking;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "room_booking_detail_id")
+    private RoomBookingDetail roomBookingDetail;
 }
