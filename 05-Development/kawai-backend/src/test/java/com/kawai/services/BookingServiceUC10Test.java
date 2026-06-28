@@ -107,7 +107,7 @@ class BookingServiceUC10Test {
         private RoomBookingDetailRepository roomBookingDetailRepository;
 
         @Mock
-        private com.kawai.services.interfaces.PaymentGatewayService paymentGatewayService;
+        private com.kawai.services.interfaces.PaymentRefundService paymentRefundService;
 
         @Mock
         private com.kawai.services.interfaces.NotificationService notificationService;
@@ -126,8 +126,9 @@ class BookingServiceUC10Test {
 
         @org.junit.jupiter.api.BeforeEach
         void setUp() {
-                org.springframework.test.util.ReflectionTestUtils.setField(bookingService, "workflowRepository", workflowRepository);
-                
+                org.springframework.test.util.ReflectionTestUtils.setField(bookingService, "workflowRepository",
+                                workflowRepository);
+
                 com.kawai.models.Customer customer = new com.kawai.models.Customer();
                 customer.setId(1L);
                 lenient().when(customerRepository.findById(any())).thenReturn(Optional.of(customer));
@@ -408,7 +409,7 @@ class BookingServiceUC10Test {
                 BigDecimal depositDB = new BigDecimal("3500000");
                 RoomBooking booking = new RoomBooking();
                 booking.setId(201L);
-                booking.setBookingStatus("Pending");
+                booking.setBookingStatus("CONFIRMED");
                 booking.setDepositAmount(depositDB);
                 booking.setCancellationDeadline(LocalDate.now().plusDays(3)); // còn 3 ngày → trước deadline
                 booking.setCheckInDate(LocalDate.now().plusDays(5));
@@ -453,7 +454,7 @@ class BookingServiceUC10Test {
                 // Arrange: đã qua deadline → tịch thu cọc
                 RoomBooking booking = new RoomBooking();
                 booking.setId(202L);
-                booking.setBookingStatus("Pending");
+                booking.setBookingStatus("CONFIRMED");
                 booking.setDepositAmount(new BigDecimal("2000000"));
                 booking.setCancellationDeadline(LocalDate.now().minusDays(1)); // qua deadline rồi
                 booking.setCheckInDate(LocalDate.now().plusDays(1));

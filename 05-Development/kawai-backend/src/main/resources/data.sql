@@ -251,7 +251,7 @@ INSERT INTO Room_Bookings (room_booking_id, check_in_date, check_out_date, depos
 (6, '2026-06-10', '2026-06-14', 1500000, '2026-06-06', 5000000, 'hash'),
 (7, '2026-06-10', '2026-06-15', 1500000, '2026-06-06', 5000000, 'hash'),
 (8, '2026-06-10', '2026-06-16', 3000000, '2026-06-06', 15000000, 'hash'),
-(14, '2026-07-01', '2026-07-05', 1000000, '2026-06-25', 5000000, 'hash'),
+(14, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 4 DAY), 1000000, DATE_SUB(CURDATE(), INTERVAL 2 DAY), 5000000, 'hash'),
 (15, '2026-07-01', '2026-07-05', 1000000, '2026-06-25', 5000000, 'hash');
 
 -- ── 14. Room Booking Details (10 rows) ───────────────────────
@@ -839,7 +839,27 @@ ALTER TABLE Tours AUTO_INCREMENT = 100;
 ALTER TABLE Tour_Schedules AUTO_INCREMENT = 100;
 ALTER TABLE Tour_Attendees AUTO_INCREMENT = 100;
 
+-- ── 48b. Tour Bookings seed — TourBooking liên kết với RoomBooking nhưng CHƯA phân phòng ──────
+-- Các bản ghi này có room_booking_id != NULL nhưng room_booking_detail_id = NULL
+-- → lễ tân sẽ thấy và phân bổ tour vào phòng cụ thể khi check-in
+
+-- Booking gốc cho TourBooking (kiểu cha Bookings)
+INSERT IGNORE INTO Bookings (booking_id, customer_id, booking_date, total_price, booking_status, booking_source, applied_promotion_id, version) VALUES
+(200, 12, CURDATE(), 1200000, 'Confirmed', 'Direct_Web', NULL, 1),
+(201, 12, CURDATE(), 3000000, 'Confirmed', 'Direct_Web', NULL, 1),
+(202, 18, CURDATE(), 1200000, 'Confirmed', 'Direct_Web', NULL, 1);
+
+-- TourBookings: liên kết với RoomBooking 14 (Phạm Hùng Anh) và 23 (test Confirmed)
+-- room_booking_detail_id = NULL vì chưa check-in / chưa phân phòng
+INSERT IGNORE INTO Tour_Bookings (booking_id, schedule_id, participant_count, tour_charge, room_booking_id, room_booking_detail_id) VALUES
+(200, 1, 2, 1200000, 14, NULL),
+(201, 2, 5, 3000000, 14, NULL),
+(202, 3, 2, 1200000, 23, NULL);
+
+ALTER TABLE Tour_Bookings AUTO_INCREMENT = 300;
+
 -- ── 49. Export History (Mock Data) ───────────────────────────
+
 INSERT IGNORE INTO Export_History (id, report_name, format, exported_at, exported_by, file_size) VALUES
 (1, 'Doanh thu tháng 5/2026', 'Excel', '2026-06-01 09:15:00', 'Manager ', '2.4 MB'),
 (2, 'Tỷ lệ lấp đầy Q2', 'PDF', '2026-05-30 14:30:00', 'Manager ', '1.1 MB'),

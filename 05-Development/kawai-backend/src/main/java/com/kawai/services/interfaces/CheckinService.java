@@ -28,11 +28,6 @@ public interface CheckinService {
     void updateCreditLimit(Long bookingDetailId, BigDecimal newCreditLimit);
 
     /**
-     * BR-FO-09: Xử lý tự động đánh dấu No-Show cho khách không đến
-     */
-    void markAsNoShow(Long bookingId);
-
-    /**
      * Đổi phòng vật lý cho khách đang lưu trú (UC12.3).
      */
     RoomBookingDetail transferRoom(Long bookingDetailId, Long newRoomId);

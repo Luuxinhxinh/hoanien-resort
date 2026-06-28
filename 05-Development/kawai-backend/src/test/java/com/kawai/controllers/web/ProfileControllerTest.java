@@ -71,6 +71,9 @@ public class ProfileControllerTest {
     @MockBean
     private com.kawai.repositories.PaymentTransactionRepository paymentTransactionRepository;
 
+    @MockBean
+    private com.kawai.repositories.FolioItemRepository folioItemRepository;
+
     @Test
     @WithMockUser(username = "hoangnam")
     public void testGetProfileUpdateRedirectsToProfile() throws Exception {
@@ -94,7 +97,7 @@ public class ProfileControllerTest {
                         .param("fullName", "New Name")
                         .param("email", "nam101@test.com")
                         .param("gender", "Male")
-                        .param("phone", "090101")
+                        .param("phone", "0901234567")
                         .param("cccd", "********"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/profile"))

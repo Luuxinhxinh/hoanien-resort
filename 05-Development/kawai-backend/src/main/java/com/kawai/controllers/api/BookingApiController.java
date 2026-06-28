@@ -141,6 +141,23 @@ public class BookingApiController {
         }
     }
 
+    @DeleteMapping("/{bookingId}")
+    public ResponseEntity<?> deletePendingBooking(Principal principal, @PathVariable Long bookingId) {
+        if (principal == null) {
+            return ResponseEntity.status(401).body(Map.of("status", "error", "message", "Quý khách cần đăng nhập!"));
+        }
+        try {
+            Customer customer = resolveCurrentCustomer(principal);
+            bookingService.deletePendingBooking(bookingId, customer.getId());
+            return ResponseEntity.ok(Map.of("status", "success", "message", "Đã xóa đơn đặt phòng thành công!"));
+        } catch (BusinessException e) {
+            return ResponseEntity.status(400).body(Map.of("status", "error", "message", e.getMessage()));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(Map.of("status", "error", "message", "Đã xảy ra lỗi hệ thống"));
+        }
+    }
+
     @GetMapping("/{bookingId}")
     public ResponseEntity<?> getBookingDetail(Principal principal, @PathVariable Long bookingId) {
         if (principal == null) {
@@ -202,11 +219,12 @@ public class BookingApiController {
             String email = (String) payload.get("email");
             String cccd = (String) payload.get("cccd");
             String notes = (String) payload.get("notes");
+            String address = (String) payload.get("address");
 
             String paymentMethod = (String) payload.get("paymentMethod");
 
             // 2. Chốt booking: Xác nhận available, gắn thông tin khách, chuyển sang Pending_Payment hoặc Confirmed
-            bookingService.confirmBooking(bookingId, customer.getId(), fullName, phone, email, cccd, notes, paymentMethod);
+            bookingService.confirmBooking(bookingId, customer.getId(), fullName, phone, email, cccd, address, notes, paymentMethod);
 
             Map<String, Object> response = new java.util.HashMap<>();
             response.put("status", "success");

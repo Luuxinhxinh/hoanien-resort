@@ -24,8 +24,8 @@ public class TourBookingRequest {
     @Min(value = 1, message = "participantCount must be at least 1")
     private int participantCount;
 
-    private boolean isWalkInTour = false;
-
+    @NotNull(message = "roomBookingId is required")
+    private Long roomBookingId;
     // Post to Room fields
     private boolean postToRoom = false;
     private Long roomBookingDetailId;
@@ -59,12 +59,12 @@ public class TourBookingRequest {
         this.participantCount = participantCount;
     }
 
-    public boolean isWalkInTour() {
-        return isWalkInTour;
+    public Long getRoomBookingId() {
+        return roomBookingId;
     }
 
-    public void setWalkInTour(boolean walkInTour) {
-        isWalkInTour = walkInTour;
+    public void setRoomBookingId(Long roomBookingId) {
+        this.roomBookingId = roomBookingId;
     }
 
     public boolean isPostToRoom() {

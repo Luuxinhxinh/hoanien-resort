@@ -2,7 +2,7 @@ package com.kawai.services.interfaces;
 
 import java.math.BigDecimal;
 
-public interface PaymentGatewayService {
+public interface PaymentRefundService {
     /**
      * Hoàn tiền cho giao dịch đã thanh toán.
      * 
