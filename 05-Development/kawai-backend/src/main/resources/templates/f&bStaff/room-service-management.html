@@ -39,11 +39,11 @@
         <span class="material-symbols-outlined">dashboard</span>
         <span>POS Dashboard</span>
       </a>
-      <a href="/fbStaff/create-food-order" class="nav-item">
+      <a href="/fbStaff/create-food-order" class="nav-item" sec:authorize="hasAnyAuthority('OP_FNB_ORDER', 'OP_FNB', 'ROLE_ADMIN', 'ROLE_MANAGER')">
         <span class="material-symbols-outlined">add_circle</span>
         <span>New Order</span>
       </a>
-      <a href="/fbStaff/table-management" th:href="@{/fbStaff/table-management}" class="nav-item">
+      <a href="/fbStaff/table-management" th:href="@{/fbStaff/table-management}" class="nav-item" sec:authorize="hasAnyAuthority('OP_FNB_TABLE', 'OP_FNB', 'ROLE_ADMIN', 'ROLE_MANAGER')">
         <span class="material-symbols-outlined">table_restaurant</span>
         <span>Table Management</span>
       </a>
@@ -55,7 +55,7 @@
 
       <div class="nav-section-label">Tài chính</div>
 
-      <a href="/fbStaff/shift-report" th:href="@{/fbStaff/shift-report}" class="nav-item">
+      <a href="/fbStaff/shift-report" th:href="@{/fbStaff/shift-report}" class="nav-item" sec:authorize="hasAnyAuthority('OP_FNB_REPORT', 'OP_ANALYTICS', 'ROLE_ADMIN', 'ROLE_MANAGER')">
         <span class="material-symbols-outlined">bar_chart</span>
         <span>Báo cáo ngày</span>
       </a>
@@ -217,3 +217,4 @@
 </body>
 
 </html>
+

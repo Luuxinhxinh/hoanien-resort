@@ -32,7 +32,7 @@ public interface HousekeepingService {
      * @param taskId ID nhiệm vụ dọn dẹp
      * @return Room phòng đã được dọn sạch
      */
-    Room updateRoomToClean(Long taskId);
+    Room updateRoomToClean(Long taskId, String notes);
 
     /**
      * Lễ tân xem danh sách yêu cầu dọn/sửa phòng (UC13.3).

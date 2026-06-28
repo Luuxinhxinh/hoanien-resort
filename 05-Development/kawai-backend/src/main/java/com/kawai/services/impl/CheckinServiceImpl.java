@@ -190,7 +190,7 @@ public class CheckinServiceImpl implements CheckinService {
         }
 
         private void validateDetailIsCheckedIn(RoomBookingDetail detail) {
-                if (!STATUS_CHECKED_IN.equals(detail.getDetailStatus())) {
+                if (!STATUS_CHECKED_IN.equalsIgnoreCase(detail.getDetailStatus())) {
                         throw new IllegalStateException("Chỉ có thể đổi phòng cho khách đang CHECKED_IN");
                 }
         }

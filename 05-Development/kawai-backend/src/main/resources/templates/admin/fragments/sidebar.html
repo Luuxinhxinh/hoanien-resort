@@ -85,6 +85,16 @@
 
     <!-- Footer Area -->
     <div class="adm-sidebar-footer">
+        <!-- Module Switcher for RBAC cross-navigation -->
+        <div class="module-switcher" sec:authorize="hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_RECEPTIONIST', 'ROLE_FB_STAFF', 'BOOKING', 'FNB', 'MASTER_DATA')" style="padding: 0 16px 16px 16px;">
+            <select onchange="if(this.value) window.location.href=this.value" style="width: 100%; padding: 8px; border-radius: 6px; background: rgba(255,255,255,0.05); color: #c9a96e; border: 1px solid rgba(255,255,255,0.1); font-size: 13px; font-weight: 500; outline: none; cursor: pointer; font-family: 'Inter', sans-serif;">
+                <option value="" disabled selected>-- Chuyển phân hệ --</option>
+                <option sec:authorize="hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER', 'MASTER_DATA', 'OP_MASTER_DATA')" value="/admin/dashboard">Core Operations (Admin)</option>
+                <option sec:authorize="hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_RECEPTIONIST', 'BOOKING', 'RECEPTION_CHECKIN')" value="/receptionist/dashboard">Receptionist (Lễ tân)</option>
+                <option sec:authorize="hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_FB_STAFF', 'FNB', 'FNB_ORDER')" value="/fbStaff/dashboard">F&amp;B POS (Nhà hàng)</option>
+            </select>
+        </div>
+
         <div class="adm-sidebar-user">
             <div class="adm-sidebar-avatar" th:text="${#authentication != null ? #strings.substring(#authentication.name, 0, 2).toUpperCase() : 'AD'}">AD</div>
             <div>

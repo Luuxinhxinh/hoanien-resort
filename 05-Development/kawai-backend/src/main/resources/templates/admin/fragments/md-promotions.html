@@ -17,8 +17,8 @@
                 <td th:attr="data-key='code',data-value=${row['code']}">
                     <span class="cell-code" th:text="${row['code']}"></span>
                 </td>
-                <td th:attr="data-key='type',data-value=${row['type']}">
-                    <span class="cell-badge" th:classappend="${row['__typeStyle']}" th:text="${row['type']}"></span>
+                <td th:attr="data-key='discountType',data-value=${row['discountType']}">
+                    <span class="cell-badge" th:classappend="${row['__discountTypeStyle']}" th:text="${row['discountTypeDisplay']}"></span>
                 </td>
                 <td th:attr="data-key='value',data-value=${row['value']}" th:text="${row['value']}"></td>
                 <td th:attr="data-key='scope',data-value=${row['scope']}">
@@ -29,16 +29,14 @@
                 <td th:attr="data-key='status',data-value=${row['status']}">
                     <span class="cell-badge" th:classappend="${row['__statusStyle']}" th:text="${row['status']}"></span>
                 </td>
-                <td style="text-align:center;">
-                    <button type="button" class="btn-toggle" th:attr="data-id=${row['id']},data-value=${row['status']}">
-                        <i th:if="${row['status'] == 'Active' || row['status'] == 'Available' || row['status'] == 'true'}" data-lucide="toggle-right" style="color:#C9A96E"></i>
-                        <i th:unless="${row['status'] == 'Active' || row['status'] == 'Available' || row['status'] == 'true'}" data-lucide="toggle-left" style="color:#8B7355"></i>
-                    </button>
-                </td>
                 <td style="text-align:right">
-                    <div style="display:flex;align-items:center;justify-content:flex-end;gap:2px">
+                    <div style="display:flex;align-items:center;justify-content:flex-end;gap:8px">
+                        <button type="button" class="btn-toggle" th:attr="data-id=${row['id']},data-value=${row['status']}">
+                            <i th:if="${row['status'] == 'Active' || row['status'] == 'Available' || row['status'] == 'true'}" data-lucide="toggle-right" style="color:#C9A96E"></i>
+                            <i th:unless="${row['status'] == 'Active' || row['status'] == 'Available' || row['status'] == 'true'}" data-lucide="toggle-left" style="color:#8B7355"></i>
+                        </button>
                         <button class="btn-action btn-action-edit btn-edit" th:attr="data-id=${row['id']}"><i data-lucide="pencil"></i></button>
-</div>
+                    </div>
                 </td>
             </tr>
             <tr th:if="${#lists.isEmpty(rows)}"><td colspan="9" style="text-align:center;padding:48px;color:#8B7355;font-family:var(--font-serif);font-size:18px">Không có bản ghi nào</td></tr>
@@ -53,11 +51,11 @@
         <div class="adm-form-group"><label class="adm-form-label">Mã giảm giá <span style="color:#B45309">*</span></label><input type="text" name="code" class="adm-form-input" required></div>
         <div class="adm-form-group"><label class="adm-form-label">Loại</label>
             <select name="discountType" class="adm-form-select">
-                <option value="Phần trăm">Phần trăm</option>
-                <option value="Số tiền">Số tiền</option>
+                <option value="PERCENTAGE">Phần trăm</option>
+                <option value="FIXED_AMOUNT">Số tiền</option>
             </select>
         </div>
-        <div class="adm-form-group"><label class="adm-form-label">Giá trị <span style="color:#B45309">*</span></label><input type="text" name="value" class="adm-form-input" required></div>
+        <div class="adm-form-group"><label class="adm-form-label">Giá trị <span style="color:#B45309">*</span></label><input type="text" name="rawValue" class="adm-form-input" required></div>
         <div class="adm-form-group"><label class="adm-form-label">Ngày bắt đầu</label><input type="datetime-local" name="validFrom" class="adm-form-input"></div>
         <div class="adm-form-group"><label class="adm-form-label">Ngày hết hạn</label><input type="date" name="validTo" class="adm-form-input"></div>
         <div class="adm-form-group"><label class="adm-form-label">Số lượt dùng tối đa</label><input type="number" name="maxUses" class="adm-form-input"></div>

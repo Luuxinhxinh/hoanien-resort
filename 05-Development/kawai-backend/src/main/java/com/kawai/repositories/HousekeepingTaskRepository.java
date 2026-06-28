@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface HousekeepingTaskRepository extends JpaRepository<HotelOperation, Long> {
     List<HotelOperation> findByStatus(String status);
+    List<HotelOperation> findByOperationalTypeAndStatus(String operationalType, String status);
 }

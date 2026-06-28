@@ -231,7 +231,10 @@
             <div th:if="${param.error != null && param.error_type != null && param.error_type[0] == 'locked'}" class="ops-error show">
                 Tài khoản của bạn đã bị khóa do đăng nhập sai quá nhiều lần. Vui lòng thử lại sau 15 phút.
             </div>
-            <div th:if="${param.error != null && (param.error_type == null || param.error_type[0] != 'locked')}" class="ops-error show">
+            <div th:if="${param.error != null && param.error_type != null && param.error_type[0] == 'disabled'}" class="ops-error show">
+                Tài khoản của bạn đã bị vô hiệu hóa hoặc cấm truy cập. Vui lòng liên hệ Quản trị viên.
+            </div>
+            <div th:if="${param.error != null && (param.error_type == null || (param.error_type[0] != 'locked' && param.error_type[0] != 'disabled'))}" class="ops-error show">
                 Sai tên đăng nhập hoặc mật khẩu. Vui lòng thử lại.
             </div>
             <div th:if="${param.logout}" class="ops-error"

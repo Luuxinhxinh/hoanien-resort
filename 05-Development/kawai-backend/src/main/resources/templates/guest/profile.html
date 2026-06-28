@@ -106,7 +106,7 @@
                         <h2 class="font-serif text-3xl font-medium mb-2 text-hoanien-text/90" th:text="${customer != null ? customer.fullName : 'Guest Name'}">Guest Name</h2>
                         <button type="button" onclick="openTierModal()" class="inline-flex items-center gap-2 mt-1 px-4 py-1.5 rounded-full border border-hoanien-text/20 bg-gradient-to-r from-hoanien-text/5 to-transparent shadow-inner hover:bg-hoanien-text/10 transition-colors cursor-pointer group/badge">
                             <span class="material-symbols-outlined text-[14px] text-[#A67C00] group-hover/badge:scale-110 transition-transform">workspace_premium</span>
-                            <span class="text-[11px] font-bold uppercase tracking-[0.25em] bg-clip-text text-transparent bg-gradient-to-r from-hoanien-text to-[#A67C00]" th:text="${customer != null ? customer.membershipTier : 'REGULAR'}">REGULAR</span>
+                            <span class="text-[11px] font-bold uppercase tracking-[0.25em] bg-clip-text text-transparent bg-gradient-to-r from-hoanien-text to-[#A67C00]" th:text="${customer != null and customer.membershipTier != null ? customer.membershipTier.tierName : 'REGULAR'}">REGULAR</span>
                             <span class="material-symbols-outlined text-[14px] opacity-50 group-hover/badge:opacity-100 transition-opacity ml-1">info</span>
                         </button>
                     </div>

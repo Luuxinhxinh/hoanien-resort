@@ -13,10 +13,12 @@ import java.util.stream.Collectors;
 
 import com.kawai.repositories.*;
 import com.kawai.models.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 @Controller
 @RequestMapping("/receptionist")
 @AllArgsConstructor
+@PreAuthorize("hasAnyAuthority('OP_BOOKING', 'ROLE_ADMIN', 'ROLE_MANAGER')")
 public class ReceptionistController {
 
     private final RoomRepository roomRepository;
@@ -25,6 +27,8 @@ public class ReceptionistController {
     private final RoomBookingDetailRepository roomBookingDetailRepository;
     private final com.kawai.services.interfaces.DependentService dependentService;
     private final com.kawai.services.interfaces.CheckinService checkinService;
+    private final com.kawai.services.interfaces.HousekeepingService housekeepingService;
+    private final EmployeeRepository employeeRepository;
 
     @org.springframework.web.bind.annotation.ModelAttribute("todayLabel")
     public String getTodayLabel() {
@@ -32,6 +36,7 @@ public class ReceptionistController {
     }
 
     @GetMapping("/dashboard")
+    @PreAuthorize("hasAnyAuthority('OP_DASHBOARD', 'ROLE_ADMIN', 'ROLE_MANAGER')")
     public String dashboard(Model model) {
         // KPI
         long totalRooms = 0, occupied = 0, dirty = 0;
@@ -213,6 +218,16 @@ public class ReceptionistController {
                         .collect(Collectors.joining(", "));
             }
             map.put("roomSummary", roomSummary);
+            map.put("activeDetails", details.stream()
+                    .filter(d -> d.getRoom() != null && "CHECKED_IN".equalsIgnoreCase(d.getDetailStatus()))
+                    .map(d -> {
+                        Map<String, Object> detailMap = new HashMap<>();
+                        detailMap.put("id", d.getId());
+                        detailMap.put("label", d.getRoom().getRoomNumber() + " - "
+                                + (d.getCategory() != null ? d.getCategory().getCategoryName() : "Room"));
+                        return detailMap;
+                    })
+                    .collect(Collectors.toList()));
 
             // (Removed unused detailsList creation)
             List<com.kawai.dto.DependentResponseDTO> deps = dependentService.getGuestListByBooking(b.getId());
@@ -228,6 +243,10 @@ public class ReceptionistController {
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", totalPages);
         model.addAttribute("keyword", keyword);
+        model.addAttribute("vacantRooms", roomRepository.findVacant().stream()
+                .filter(r -> "Vacant_Clean".equalsIgnoreCase(r.getRoomStatus())
+                        || "Available".equalsIgnoreCase(r.getRoomStatus()))
+                .collect(Collectors.toList()));
         if (dateFilter != null) {
             model.addAttribute("dateFilter", dateFilter.toString());
         }
@@ -403,6 +422,64 @@ public class ReceptionistController {
         return "receptionist/night-audit";
     }
 
+    @GetMapping("/operations")
+    public String operations(Model model) {
+        model.addAttribute("operations", housekeepingService.getPendingOperations());
+        model.addAttribute("rooms", roomRepository.findAll());
+        return "receptionist/operations";
+    }
+
+    @org.springframework.web.bind.annotation.PostMapping("/operations/clean/{taskId}")
+    public String completeCleaning(@org.springframework.web.bind.annotation.PathVariable Long taskId,
+            org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+        try {
+            housekeepingService.updateRoomToClean(taskId, null);
+            redirectAttributes.addFlashAttribute("successMessage", "Đã chuyển phòng về trạng thái sạch.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Lỗi: " + e.getMessage());
+        }
+        return "redirect:/receptionist/operations";
+    }
+
+    @org.springframework.web.bind.annotation.PostMapping("/operations/maintenance")
+    public String createMaintenance(@org.springframework.web.bind.annotation.RequestParam Long roomId,
+            @org.springframework.web.bind.annotation.RequestParam(required = false) String notes,
+            org.springframework.security.core.Authentication authentication,
+            org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+        try {
+            housekeepingService.createMaintenanceRequest(roomId, resolveEmployeeId(authentication), notes);
+            redirectAttributes.addFlashAttribute("successMessage", "Đã tạo phiếu bảo trì.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Lỗi: " + e.getMessage());
+        }
+        return "redirect:/receptionist/operations";
+    }
+
+    @org.springframework.web.bind.annotation.PostMapping("/operations/maintenance/{taskId}/complete")
+    public String completeMaintenance(@org.springframework.web.bind.annotation.PathVariable Long taskId,
+            org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+        try {
+            housekeepingService.completeMaintenance(taskId);
+            redirectAttributes.addFlashAttribute("successMessage", "Đã hoàn tất bảo trì.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Lỗi: " + e.getMessage());
+        }
+        return "redirect:/receptionist/operations";
+    }
+
+    @org.springframework.web.bind.annotation.PostMapping("/in-house/transfer-room")
+    public String transferRoom(@org.springframework.web.bind.annotation.RequestParam Long bookingDetailId,
+            @org.springframework.web.bind.annotation.RequestParam Long newRoomId,
+            org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+        try {
+            checkinService.transferRoom(bookingDetailId, newRoomId);
+            redirectAttributes.addFlashAttribute("successMessage", "Đổi phòng thành công.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Lỗi đổi phòng: " + e.getMessage());
+        }
+        return "redirect:/receptionist/in-house";
+    }
+
     @org.springframework.web.bind.annotation.PostMapping("/check-in/cancel-no-show/{id}")
     public String cancelNoShow(@org.springframework.web.bind.annotation.PathVariable Long id,
             org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
@@ -436,5 +513,21 @@ public class ReceptionistController {
         return guestName.toLowerCase().contains(kw) ||
                 phone.toLowerCase().contains(kw) ||
                 cccd.toLowerCase().contains(kw);
+    }
+
+    private Long resolveEmployeeId(org.springframework.security.core.Authentication authentication) {
+        if (authentication != null && authentication.getName() != null) {
+            return employeeRepository.findByAccountUsername(authentication.getName())
+                    .map(Employee::getId)
+                    .orElseGet(this::firstEmployeeId);
+        }
+        return firstEmployeeId();
+    }
+
+    private Long firstEmployeeId() {
+        return employeeRepository.findAll().stream()
+                .findFirst()
+                .map(Employee::getId)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy nhân viên để ghi nhận thao tác."));
     }
 }

@@ -6,9 +6,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 @Controller
 @RequestMapping("/kitchenStaff")
+@PreAuthorize("hasAnyAuthority('OP_FNB', 'ROLE_ADMIN', 'ROLE_MANAGER')")
 public class KitchenController {
 
     @Autowired
@@ -21,6 +23,7 @@ public class KitchenController {
     }
 
     @GetMapping({"/kitchen", "/dashboard", ""})
+    @PreAuthorize("hasAnyAuthority('OP_DASHBOARD', 'ROLE_ADMIN', 'ROLE_MANAGER')")
     public String kitchenDashboard(Model model) {
         model.addAllAttributes(posWebFacadeService.getKitchenData());
         return "kitchenStaff/kitchen-dashboard";

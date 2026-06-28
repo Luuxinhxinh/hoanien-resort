@@ -43,7 +43,7 @@
             <div class="sidebar-section-title">RECEPTIONIST</div>
 
             <nav class="sidebar-nav">
-                <a href="/receptionist/dashboard" class="nav-item active">
+                <a href="/receptionist/dashboard" class="nav-item active" sec:authorize="hasAnyAuthority('OP_DASHBOARD', 'ROLE_ADMIN', 'ROLE_MANAGER')">
                     <i class="fa-solid fa-border-all"></i>
                     <div class="nav-text">
                         <span class="nav-main-text">Room Matrix</span>
@@ -52,28 +52,28 @@
                     <i class="fa-solid fa-chevron-right nav-arrow"></i>
                 </a>
 
-                <a href="/receptionist/walk-in" class="nav-item">
+                <a href="/receptionist/walk-in" class="nav-item" sec:authorize="hasAnyAuthority('OP_RECEPTION_WALKIN', 'OP_BOOKING', 'ROLE_ADMIN', 'ROLE_MANAGER')">
                     <i class="fa-solid fa-person-walking-luggage"></i>
                     <div class="nav-text">
                         <span class="nav-main-text">Walk-In</span>
                         <span class="nav-sub-text">Khách vãng lai</span>
                     </div>
                 </a>
-                <a href="/receptionist/check-in" class="nav-item">
+                <a href="/receptionist/check-in" class="nav-item" sec:authorize="hasAnyAuthority('OP_RECEPTION_CHECKIN', 'OP_BOOKING', 'ROLE_ADMIN', 'ROLE_MANAGER')">
                     <i class="fa-solid fa-arrow-right-to-bracket"></i>
                     <div class="nav-text">
                         <span class="nav-main-text">Check-in</span>
                         <span class="nav-sub-text">Nhận phòng</span>
                     </div>
                 </a>
-                <a href="/receptionist/folio" class="nav-item">
+                <a href="/receptionist/folio" class="nav-item" sec:authorize="hasAnyAuthority('OP_RECEPTION_CHECKOUT', 'OP_BOOKING', 'ROLE_ADMIN', 'ROLE_MANAGER')">
                     <i class="fa-solid fa-arrow-right-from-bracket"></i>
                     <div class="nav-text">
                         <span class="nav-main-text">Check-out / Folio</span>
-                        <span class="nav-sub-text">Trả phòng & Hóa đơn</span>
+                        <span class="nav-sub-text">Trả phòng &amp; Hóa đơn</span>
                     </div>
                 </a>
-                <a href="/receptionist/in-house" class="nav-item">
+                <a href="/receptionist/in-house" class="nav-item" sec:authorize="hasAnyAuthority('OP_RECEPTION_INHOUSE', 'OP_BOOKING', 'ROLE_ADMIN', 'ROLE_MANAGER')">
                     <i class="fa-solid fa-bed"></i>
                     <div class="nav-text">
                         <span class="nav-main-text">Khách lưu trú</span>
@@ -91,11 +91,21 @@
                 -->
             </nav>
 
+            <!-- Module Switcher for RBAC cross-navigation -->
+            <div class="module-switcher" sec:authorize="hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_RECEPTIONIST', 'ROLE_FB_STAFF', 'BOOKING', 'FNB', 'MASTER_DATA')" style="padding: 0 24px 20px 24px;">
+                <select onchange="if(this.value) window.location.href=this.value" style="width: 100%; padding: 8px; border-radius: 6px; background: rgba(255,255,255,0.05); color: #c9a96e; border: 1px solid rgba(255,255,255,0.1); font-size: 13px; font-weight: 500; outline: none; cursor: pointer; font-family: 'Inter', sans-serif;">
+                    <option value="" disabled selected>-- Chuyển phân hệ --</option>
+                    <option sec:authorize="hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER', 'MASTER_DATA', 'OP_MASTER_DATA')" value="/admin/dashboard">Core Operations (Admin)</option>
+                    <option sec:authorize="hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_RECEPTIONIST', 'BOOKING', 'RECEPTION_CHECKIN')" value="/receptionist/dashboard">Receptionist (Lễ tân)</option>
+                    <option sec:authorize="hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_FB_STAFF', 'FNB', 'FNB_ORDER')" value="/fbStaff/dashboard">F&B POS (Nhà hàng)</option>
+                </select>
+            </div>
+
             <div class="sidebar-user">
-                <div class="user-avatar">MH</div>
+                <div class="user-avatar" th:text="${#authentication != null ? #strings.substring(#authentication.name, 0, 2).toUpperCase() : 'NV'}">NV</div>
                 <div class="user-info">
-                    <div class="user-name">Minh Hoàng</div>
-                    <div class="user-role">Receptionist</div>
+                    <div class="user-name" th:text="${#authentication != null ? #authentication.name : 'Nhân viên'}">Nhân viên</div>
+                    <div class="user-role" th:text="${#authentication != null and #authentication.authorities != null and !#authentication.authorities.isEmpty() ? #strings.replace(#authentication.authorities[0].authority, 'ROLE_', '') : 'Receptionist'}">Receptionist</div>
                 </div>
                 <div class="user-status"></div>
             </div>

@@ -59,7 +59,7 @@
                             <span th:text="${customer != null ? #strings.substring(customer.fullName, 0, 1) : 'G'}">G</span>
                         </div>
                         <h2 class="font-serif text-2xl font-medium mb-1" th:text="${customer != null ? customer.fullName : 'Guest Name'}">Guest Name</h2>
-                        <p class="text-xs uppercase tracking-widest opacity-60 mb-4" th:text="${customer != null ? customer.membershipTier : 'Regular Member'}">Regular Member</p>
+                        <p class="text-xs uppercase tracking-widest opacity-60 mb-4" th:text="${customer != null and customer.membershipTier != null ? customer.membershipTier.tierName : 'Regular Member'}">Regular Member</p>
 
                         <div class="bg-hoanien-bg border border-hoanien-text/10 rounded-lg p-3 flex justify-between items-center text-sm">
                             <span class="opacity-70">Loyalty Points</span>

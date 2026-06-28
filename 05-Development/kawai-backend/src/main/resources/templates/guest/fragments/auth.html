@@ -37,7 +37,7 @@
             </div>
 
             <!-- Login Form -->
-            <div id="loginSection">
+            <div id="loginSection" class="auth-section">
                 <div class="flex flex-col items-center mb-8">
                     <span class="material-symbols-outlined text-[#3a3230]/30 text-2xl mb-1 font-light">spa</span>
                     <div class="flex items-center gap-4">
@@ -108,7 +108,7 @@
             </div>
 
             <!-- Register Form -->
-            <div id="registerSection" style="display: none;">
+            <div id="registerSection" class="auth-section" style="display: none;">
                 <div class="flex flex-col items-center mb-2">
                     <span class="material-symbols-outlined text-[#3a3230]/30 text-2xl mb-1 font-light">spa</span>
                     <div class="flex items-center gap-4">
@@ -174,7 +174,7 @@
             </div>
 
             <!-- Forgot Password Section -->
-            <div id="forgotPasswordSection" style="display: none;">
+            <div id="forgotPasswordSection" class="auth-section" style="display: none;">
                 <div class="flex flex-col items-center mb-6">
                     <span class="material-symbols-outlined text-[#3a3230]/30 text-2xl mb-1 font-light">lock_reset</span>
                     <h2 class="font-serif text-[28px] text-center text-[#3a3230] tracking-tight leading-none mb-2">Quên
@@ -200,7 +200,7 @@
             </div>
 
             <!-- Registration OTP Section -->
-            <div id="otpSection" style="display: none;">
+            <div id="otpSection" class="auth-section" style="display: none;">
                 <div class="flex flex-col items-center mb-6">
                     <span
                         class="material-symbols-outlined text-[#3a3230]/30 text-2xl mb-1 font-light">mark_email_read</span>
@@ -242,7 +242,7 @@
             </div>
 
             <!-- Reset Password Section (OTP + New Pass) -->
-            <div id="resetPasswordSection" style="display: none;">
+            <div id="resetPasswordSection" class="auth-section" style="display: none;">
                 <div class="flex flex-col items-center mb-6">
                     <span class="material-symbols-outlined text-[#3a3230]/30 text-2xl mb-1 font-light">key</span>
                     <h2 class="font-serif text-[28px] text-center text-[#3a3230] tracking-tight leading-none mb-2">Tạo
@@ -344,14 +344,16 @@
             if (m) m.style.display = 'none';
         }
         function toggleAuthView(view) {
-            const sections = ['login', 'register', 'forgotPassword', 'otp', 'resetPassword'];
-            sections.forEach(sec => {
-                const el = document.getElementById(sec + 'Section');
+            document.querySelectorAll('.auth-section').forEach(el => {
                 if (el) el.style.display = 'none';
             });
 
             const target = document.getElementById(view + 'Section');
-            if (target) target.style.display = 'block';
+            if (target) {
+                target.style.display = 'block';
+            } else {
+                console.warn('Không tìm thấy section:', view + 'Section');
+            }
         }
 
         document.addEventListener("DOMContentLoaded", function () {
@@ -530,6 +532,8 @@
                                 if (response.url.includes('error=true') || response.url.includes('login_error')) {
                                     if (response.url.includes('error_type=locked')) {
                                         showToast('Tài Khoản Bị Khóa', 'Tài khoản của bạn đã bị khóa do đăng nhập sai nhiều lần. Vui lòng thử lại sau 15 phút.', 'error');
+                                    } else if (response.url.includes('error_type=disabled')) {
+                                        showToast('Tài Khoản Bị Khóa', 'Tài khoản của bạn đã bị vô hiệu hóa hoặc cấm truy cập. Vui lòng liên hệ quản trị viên.', 'error');
                                     } else {
                                         showToast('Lỗi Đăng Nhập', 'Tên đăng nhập hoặc mật khẩu không chính xác.', 'error');
                                     }

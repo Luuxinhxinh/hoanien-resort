@@ -208,7 +208,10 @@ function wireHideRestoreButtons() {
 
     document.querySelectorAll(".btn-restore-review").forEach(btn => {
         btn.addEventListener("click", () => {
-            restoreReviewInDom(btn.dataset.id);
+            const id = btn.dataset.id;
+            moderateReview(id, "Approved", "Khôi phục hiển thị đánh giá")
+                .then(() => restoreReviewInDom(id))
+                .catch(err => alert(err.message || "Không thể khôi phục đánh giá. Vui lòng thử lại."));
         });
     });
 }
@@ -239,8 +242,32 @@ function submitHideReview() {
     const reason = document.getElementById("hide-reason-textarea").value.trim();
     if (!pendingHideId || !reason) return;
 
-    hideReviewInDom(pendingHideId, reason);
-    closeHideModal();
+    const id = pendingHideId;
+    moderateReview(id, "Hidden", reason)
+        .then(() => {
+            hideReviewInDom(id, reason);
+            closeHideModal();
+        })
+        .catch(err => alert(err.message || "Không thể ẩn đánh giá. Vui lòng thử lại."));
+}
+
+function normalizeReviewId(id) {
+    return String(id || "").replace(/^RV-/i, "");
+}
+
+async function moderateReview(id, status, reason) {
+    const params = new URLSearchParams({
+        newStatus: status,
+        reason: reason || (status === "Approved" ? "Khôi phục hiển thị đánh giá" : "Ẩn đánh giá")
+    });
+    const response = await fetch(`/api/v1/reviews/${normalizeReviewId(id)}/moderate?${params}`, {
+        method: "PUT"
+    });
+    if (!response.ok) {
+        const message = await response.text();
+        throw new Error(message || "Moderation API failed");
+    }
+    return response.json();
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -279,7 +306,11 @@ function hideReviewInDom(id, reason) {
         restoreBtn.className = "btn-restore-review flex items-center gap-2 px-4 py-2 rounded-lg border border-[#2D6B4A]/30 bg-[#2D6B4A]/12 text-[#2D6B4A] font-sans text-[13px] cursor-pointer hover:opacity-75 transition-opacity";
         restoreBtn.dataset.id = id;
         restoreBtn.innerHTML = `<i data-lucide="eye" class="w-[13px] h-[13px]"></i> Khôi phục hiển thị`;
-        restoreBtn.addEventListener("click", () => restoreReviewInDom(id));
+        restoreBtn.addEventListener("click", () => {
+            moderateReview(id, "Approved", "Khôi phục hiển thị đánh giá")
+                .then(() => restoreReviewInDom(id))
+                .catch(err => alert(err.message || "Không thể khôi phục đánh giá. Vui lòng thử lại."));
+        });
         hideBtn.parentNode.replaceChild(restoreBtn, hideBtn);
     }
 

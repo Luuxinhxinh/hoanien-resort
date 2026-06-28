@@ -19,7 +19,7 @@ INSERT INTO Roles (role_id, role_name, permissions) VALUES (10, 'CUSTOMER NORMAL
 -- password hash for 'admin123': $2a$10$4bnThA4xQVw1rF2POQv78uAQll2KsUsgF32JaYiVG5d2d3Fhgk83q
 -- password hash for 'staff123': $2a$10$ikP3XeXnMx/oLodhs4wqBO61AhyuE4dWtSJDJcOH7D2ii5Vrgq0bG
 INSERT INTO Accounts (account_id, username, password_hash, is_active, role_id, created_at) VALUES 
-(1, 'admin', '$2b$10$oakn3nxfdAIk//HHAna4puEgDjGKdZI.Znk2/YByT893WJ9dlXKKe', TRUE, 1, CURRENT_TIMESTAMP),
+(1, 'admin', '$2a$10$4bnThA4xQVw1rF2POQv78uAQll2KsUsgF32JaYiVG5d2d3Fhgk83q', TRUE, 1, CURRENT_TIMESTAMP),
 (2, 'tphuong', '$2a$10$ikP3XeXnMx/oLodhs4wqBO61AhyuE4dWtSJDJcOH7D2ii5Vrgq0bG', TRUE, 3, CURRENT_TIMESTAMP),
 (3, 'nmquan', '$2a$10$ikP3XeXnMx/oLodhs4wqBO61AhyuE4dWtSJDJcOH7D2ii5Vrgq0bG', TRUE, 3, CURRENT_TIMESTAMP),
 (4, 'lelinh', '$2a$10$ikP3XeXnMx/oLodhs4wqBO61AhyuE4dWtSJDJcOH7D2ii5Vrgq0bG', TRUE, 2, CURRENT_TIMESTAMP),
@@ -31,13 +31,14 @@ INSERT INTO Accounts (account_id, username, password_hash, is_active, role_id, c
 (10, 'mylinh', '$2a$10$4bnThA4xQVw1rF2POQv78uAQll2KsUsgF32JaYiVG5d2d3Fhgk83q', TRUE, 9, CURRENT_TIMESTAMP),
 (11, 'hoanganh', '$2a$10$4bnThA4xQVw1rF2POQv78uAQll2KsUsgF32JaYiVG5d2d3Fhgk83q', TRUE, 8, CURRENT_TIMESTAMP),
 (12, 'vuhung', '$2a$10$4bnThA4xQVw1rF2POQv78uAQll2KsUsgF32JaYiVG5d2d3Fhgk83q', TRUE, 8, CURRENT_TIMESTAMP),
-(13, 'NguynNgoc', '$2b$10$oakn3nxfdAIk//HHAna4puEgDjGKdZI.Znk2/YByT893WJ9dlXKKe', TRUE, 8, CURRENT_TIMESTAMP),
+(13, 'NguynNgoc', '$2a$10$4bnThA4xQVw1rF2POQv78uAQll2KsUsgF32JaYiVG5d2d3Fhgk83q', TRUE, 8, CURRENT_TIMESTAMP),
 (14, 'guide2', '$2a$10$ikP3XeXnMx/oLodhs4wqBO61AhyuE4dWtSJDJcOH7D2ii5Vrgq0bG', TRUE, 7, CURRENT_TIMESTAMP),
 (15, 'guide3', '$2a$10$ikP3XeXnMx/oLodhs4wqBO61AhyuE4dWtSJDJcOH7D2ii5Vrgq0bG', TRUE, 7, CURRENT_TIMESTAMP),
 (16, 'housekeep1', '$2a$10$ikP3XeXnMx/oLodhs4wqBO61AhyuE4dWtSJDJcOH7D2ii5Vrgq0bG', TRUE, 5, CURRENT_TIMESTAMP),
 (17, 'housekeep2', '$2a$10$ikP3XeXnMx/oLodhs4wqBO61AhyuE4dWtSJDJcOH7D2ii5Vrgq0bG', TRUE, 5, CURRENT_TIMESTAMP),
 (18, 'pos1', '$2a$10$ikP3XeXnMx/oLodhs4wqBO61AhyuE4dWtSJDJcOH7D2ii5Vrgq0bG', TRUE, 4, CURRENT_TIMESTAMP),
-(19, 'manager1', '$2a$10$4bnThA4xQVw1rF2POQv78uAQll2KsUsgF32JaYiVG5d2d3Fhgk83q', TRUE, 7, CURRENT_TIMESTAMP);
+(19, 'manager1', '$2a$10$4bnThA4xQVw1rF2POQv78uAQll2KsUsgF32JaYiVG5d2d3Fhgk83q', TRUE, 7, CURRENT_TIMESTAMP),
+(20, 'maintain1', '$2a$10$ikP3XeXnMx/oLodhs4wqBO61AhyuE4dWtSJDJcOH7D2ii5Vrgq0bG', TRUE, 6, CURRENT_TIMESTAMP);
 
 -- ── 3. Employees (10 rows) ───────────────────────────────────
 INSERT INTO Employees (employee_id, account_id, full_name, gender, cccd, phone, email, salary) VALUES 
@@ -49,7 +50,8 @@ INSERT INTO Employees (employee_id, account_id, full_name, gender, cccd, phone, 
 (6, 14, 'Phạm Quốc Bảo', 'Nam', '001234567895', '0912000006', 'pqbao@hoanien.vn', 8500000),
 (7, 15, 'Trần Thu Hà', 'Nữ', '001234567896', '0912000007', 'ttha@hoanien.vn', 8500000),
 (8, 16, 'Lê Văn Tám', 'Nam', '001234567897', '0912000008', 'lvtam@hoanien.vn', 7000000),
-(9, 17, 'Nguyễn Thị Hoa', 'Nữ', '001234567898', '0912000009', 'nthoa@hoanien.vn', 7000000);
+(9, 17, 'Nguyễn Thị Hoa', 'Nữ', '001234567898', '0912000009', 'nthoa@hoanien.vn', 7000000),
+(10, 20, 'Hoàng Bảo Trì', 'Nam', '001234567899', '0912000010', 'hbtri@hoanien.vn', 7500000);
 
 -- ── 3.5. Membership Tiers (4 rows) ───────────────────────────────────
 INSERT INTO membership_tiers (tier_id, tier_name, points_from, points_to, credit_limit, description) VALUES
@@ -495,16 +497,19 @@ INSERT INTO Booking_Services (booking_service_id, booking_id, service_id, quanti
 
 -- ── 23. Hotel Operations (10 rows) ───────────────────────────
 INSERT INTO Hotel_Operations (task_id, room_id, staff_id, supervisor_id, operational_type, priority, status, created_at, started_at, completed_at, notes) VALUES 
-(1, 2, 8, 4, 'Cleaning', 'Normal', 'Completed', '2026-06-13 08:00:00', '2026-06-13 08:15:00', '2026-06-13 08:45:00', 'Đã dọn dẹp sạch sẽ phòng 102 đón khách mới.'),
-(2, 4, 9, 4, 'Cleaning', 'Normal', 'Pending', '2026-06-13 09:00:00', NULL, NULL, 'Khách vừa check out, cần dọn dẹp gấp.'),
-(3, 8, 8, 4, 'Cleaning', 'High', 'Completed', '2026-06-13 09:30:00', '2026-06-13 09:40:00', '2026-06-13 10:15:00', 'Dọn dẹp phòng 105, thay ga giường.'),
-(4, 13, 9, 4, 'Cleaning', 'Normal', 'Pending', '2026-06-13 10:00:00', NULL, NULL, 'Dọn dẹp định kỳ hàng ngày.'),
-(5, 17, 8, 4, 'Repair', 'High', 'Completed', '2026-06-13 10:30:00', '2026-06-13 10:45:00', '2026-06-13 11:30:00', 'Sửa chữa bóng đèn nhà vệ sinh bị nhấp nháy.'),
-(6, 1, 9, 4, 'Cleaning', 'Normal', 'Completed', '2026-06-13 11:00:00', '2026-06-13 11:15:00', '2026-06-13 11:45:00', 'Dọn dẹp buồng phòng định kỳ.'),
-(7, 3, 8, 4, 'Cleaning', 'Normal', 'Completed', '2026-06-13 12:00:00', '2026-06-13 12:10:00', '2026-06-13 12:45:00', 'Dọn dẹp phòng khách VIP Thu Bồn.'),
-(8, 5, 9, 4, 'Cleaning', 'Normal', 'Completed', '2026-06-13 13:00:00', '2026-06-13 13:15:00', '2026-06-13 13:50:00', 'Dọn phòng Wellness Retreats.'),
-(9, 10, 8, 4, 'Cleaning', 'Normal', 'Completed', '2026-06-13 14:00:00', '2026-06-13 14:10:00', '2026-06-13 14:40:00', 'Lau dọn sàn phòng 107 sạch bóng.'),
-(10, 16, 9, 4, 'Inspection', 'Low', 'Completed', '2026-06-13 15:00:00', '2026-06-13 15:05:00', '2026-06-13 15:20:00', 'Kiểm tra trang thiết bị phòng trống 309 hoạt động tốt.');
+-- HOUSEKEEPING (CHECKOUT_CLEAN)
+(1, 2, 8, 4, 'CHECKOUT_CLEAN', 'High', 'Pending', '2026-06-28 08:00:00', NULL, NULL, '[Check-out] Khách phòng 102 vừa trả phòng, dọn gấp để đón đoàn 2h chiều.'),
+(2, 4, 9, 4, 'CHECKOUT_CLEAN', 'Normal', 'Pending', '2026-06-28 09:00:00', NULL, NULL, '[Check-out] Dọn dẹp sạch sâu, thay toàn bộ ga giường và xịt thơm phòng.'),
+(3, 8, 8, 4, 'CHECKOUT_CLEAN', 'Normal', 'InProgress', '2026-06-28 09:30:00', '2026-06-28 10:15:00', NULL, '[Stay-over] Khách yêu cầu thêm 2 khăn tắm và 1 chai nước suối.'),
+(4, 13, 9, 4, 'CHECKOUT_CLEAN', 'High', 'InProgress', '2026-06-28 10:00:00', '2026-06-28 10:20:00', NULL, '[Arrival] Khách VIP sắp nhận phòng, chuẩn bị sẵn giỏ trái cây tươi trên bàn.'),
+(5, 1, 9, 4, 'CHECKOUT_CLEAN', 'Normal', 'Completed', '2026-06-28 07:00:00', '2026-06-28 07:15:00', '2026-06-28 08:45:00', '[Check-out] Đã dọn xong, phát hiện quên một chiếc sạc điện thoại trên bàn.'),
+
+-- MAINTENANCE (MAINTENANCE)
+(6, 17, 10, 4, 'MAINTENANCE', 'High', 'Pending', '2026-06-28 10:30:00', NULL, NULL, 'Housekeeping báo: Điều hòa chảy nước ướt cả sàn gỗ, phòng 310.'),
+(7, 3, 10, 4, 'MAINTENANCE', 'Normal', 'Pending', '2026-06-28 12:00:00', NULL, NULL, 'Khách phàn nàn: Vòi hoa sen bị nghẹt, nước chảy rất yếu.'),
+(8, 5, 10, 4, 'MAINTENANCE', 'Normal', 'InProgress', '2026-06-28 13:00:00', '2026-06-28 13:15:00', NULL, 'Kiểm tra hệ thống đèn ban công, 1 bóng bị cháy.'),
+(9, 10, 10, 4, 'MAINTENANCE', 'High', 'Paused', '2026-06-28 09:00:00', '2026-06-28 09:10:00', NULL, 'Sửa két sắt không mở được. \n[Tạm dừng]: Chờ mua pin mới loại 9V để thay mảng mạch.'),
+(10, 16, 10, 4, 'MAINTENANCE', 'Low', 'Completed', '2026-06-28 08:00:00', '2026-06-28 08:05:00', '2026-06-28 08:20:00', 'Thay pin tay nắm cửa phòng 309. \n[Đã sửa]: Đã thay 4 cục pin AA Panasonic.');
 
 -- ── 24. Folio Items (10 rows) ────────────────────────────────
 INSERT INTO Folio_Items (folio_item_id, booking_id, room_booking_detail_id, payer_customer_id, source_department, amount, description, is_settled_separately, created_by_staff_id, created_at, signature_img_url) VALUES 

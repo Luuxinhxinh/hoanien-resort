@@ -66,9 +66,23 @@
                         <input type="text" id="search-input" placeholder="Tìm kiếm..." class="adm-search-input"
                             style="width:260px" />
                     </div>
-                    <button id="btn-add-new" class="adm-btn adm-btn-primary">
-                        <i data-lucide="plus" style="width:15px;height:15px"></i> Thêm mới
-                    </button>
+                    <!-- Khu vực chứa các bộ lọc động -->
+                    <div id="dynamic-filters" style="display:flex; gap:8px; flex-wrap: wrap; margin-left: 10px;"></div>
+                    <div style="display:flex; gap:8px; margin-left: auto;">
+                        <button id="btn-bulk-delete" class="adm-btn adm-btn-ghost" style="color: #EF4444; border: 1px solid rgba(239, 68, 68, 0.3); display: none;">
+                            <i data-lucide="trash" style="width:15px;height:15px"></i> Khóa hàng loạt (<span id="bulk-count">0</span>)
+                        </button>
+                        <label id="btn-import-csv-label" class="adm-btn adm-btn-ghost" style="color: #2D6B4A; border: 1px solid rgba(45, 107, 74, 0.3); cursor: pointer; display: none;">
+                            <i data-lucide="upload" style="width:15px;height:15px"></i> Nhập CSV
+                            <input type="file" id="input-import-csv" accept=".csv" style="display:none;" />
+                        </label>
+                        <a id="btn-export-csv" class="adm-btn adm-btn-ghost" style="color: #1D5B6A; border: 1px solid rgba(29, 91, 106, 0.3); text-decoration: none;">
+                            <i data-lucide="download" style="width:15px;height:15px"></i> Xuất CSV
+                        </a>
+                        <button id="btn-add-new" class="adm-btn adm-btn-primary">
+                            <i data-lucide="plus" style="width:15px;height:15px"></i> Thêm mới
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Table -->

@@ -21,6 +21,8 @@ public class MasterDataServiceImpl implements MasterDataService {
     private final BookingRepository bookingRepository;
     private final RoleRepository roleRepository;
     private final DailyRateRepository dailyRateRepository;
+    private final AccountRepository accountRepository;
+    private final AuditLogRepository auditLogRepository;
 
     @Override
     @Transactional
@@ -113,16 +115,38 @@ public class MasterDataServiceImpl implements MasterDataService {
                 Promotion promo = new Promotion();
                 promo.setPromoCode((String) payload.get("code"));
                 promo.setDescription((String) payload.get("description"));
-                String dStr = (String) payload.get("discount");
+                if (payload.get("comboConfig") != null)
+                    promo.setComboConfig((String) payload.get("comboConfig"));
+                if (payload.get("discountType") != null)
+                    promo.setDiscountType((String) payload.get("discountType"));
+                else
+                    promo.setDiscountType("Phần trăm");
+
+                String dStr = (String) payload.get("rawValue");
                 if (dStr != null) {
-                    promo.setDiscountValue(new java.math.BigDecimal(dStr.replaceAll("[^\\d.]", "")));
+                    String c = dStr.replaceAll("[^\\d]", "");
+                    if (!c.isEmpty())
+                        promo.setDiscountValue(new java.math.BigDecimal(c));
+                    else
+                        promo.setDiscountValue(java.math.BigDecimal.ZERO);
                 } else {
                     promo.setDiscountValue(java.math.BigDecimal.ZERO);
                 }
-                promo.setDiscountType("PERCENTAGE");
-                promo.setValidFrom(java.time.LocalDateTime.now());
-                promo.setValidTo(java.time.LocalDate.now().plusYears(1));
-                promo.setMaxUses(100);
+                
+                if (payload.get("validFrom") != null && !payload.get("validFrom").toString().isEmpty())
+                    promo.setValidFrom(java.time.LocalDateTime.parse(payload.get("validFrom").toString()));
+                else
+                    promo.setValidFrom(java.time.LocalDateTime.now());
+                
+                if (payload.get("validTo") != null && !payload.get("validTo").toString().isEmpty())
+                    promo.setValidTo(java.time.LocalDate.parse(payload.get("validTo").toString()));
+                else
+                    promo.setValidTo(java.time.LocalDate.now().plusYears(1));
+                
+                if (payload.get("maxUses") != null && !payload.get("maxUses").toString().isEmpty())
+                    promo.setMaxUses(Integer.parseInt(payload.get("maxUses").toString()));
+                else
+                    promo.setMaxUses(100);
                 
                 if (payload.get("maxDiscountValueVnd") != null && !payload.get("maxDiscountValueVnd").toString().isEmpty()) {
                     promo.setMaxDiscountValueVnd(new java.math.BigDecimal(payload.get("maxDiscountValueVnd").toString().replaceAll("[^\\d.]", "")));
@@ -317,7 +341,7 @@ public class MasterDataServiceImpl implements MasterDataService {
                         promo.setComboConfig((String) payload.get("comboConfig"));
                     if (payload.get("discountType") != null)
                         promo.setDiscountType((String) payload.get("discountType"));
-                    String dStr = (String) payload.get("value");
+                    String dStr = (String) payload.get("rawValue");
                     if (dStr != null) {
                         String c = dStr.replaceAll("[^\\d]", "");
                         if (!c.isEmpty())
@@ -362,11 +386,32 @@ public class MasterDataServiceImpl implements MasterDataService {
                     if ("Admin".equalsIgnoreCase(role.getRoleName())) {
                         throw new IllegalArgumentException("Không thể sửa vai trò Admin");
                     }
+                    String oldPermissions = role.getPermissions();
+                    String oldName = role.getRoleName();
                     role.setRoleName((String) payload.get("name"));
                     if (payload.get("permissions") != null) {
                         role.setPermissions(payload.get("permissions").toString());
                     }
                     roleRepository.save(role);
+
+                    try {
+                        org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+                        Account currentAccount = null;
+                        if (auth != null && auth.isAuthenticated()) {
+                            currentAccount = accountRepository.findByUsername(auth.getName()).orElse(null);
+                        }
+                        AuditLog audit = new AuditLog();
+                        audit.setAccount(currentAccount);
+                        audit.setAction("UPDATE_ROLE");
+                        audit.setTableName("Roles");
+                        audit.setRecordId(role.getId());
+                        audit.setOldValue("Name: " + oldName + ", Permissions: " + oldPermissions);
+                        audit.setNewValue("Name: " + role.getRoleName() + ", Permissions: " + role.getPermissions());
+                        audit.setIpAddress("127.0.0.1");
+                        auditLogRepository.save(audit);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
                 break;
             case "pricing":

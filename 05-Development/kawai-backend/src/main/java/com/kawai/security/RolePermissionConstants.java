@@ -28,6 +28,17 @@ public class RolePermissionConstants {
     public static final String TOUR            = "TOUR";
     public static final String ANALYTICS       = "ANALYTICS";
 
+    // Sub-permissions for Receptionist & F&B
+    public static final String RECEPTION_CHECKIN  = "RECEPTION_CHECKIN";
+    public static final String RECEPTION_CHECKOUT = "RECEPTION_CHECKOUT";
+    public static final String RECEPTION_WALKIN   = "RECEPTION_WALKIN";
+    public static final String RECEPTION_INHOUSE  = "RECEPTION_INHOUSE";
+
+    public static final String FNB_ORDER          = "FNB_ORDER";
+    public static final String FNB_TABLE          = "FNB_TABLE";
+    public static final String FNB_ROOM_SERVICE   = "FNB_ROOM_SERVICE";
+    public static final String FNB_REPORT         = "FNB_REPORT";
+
     // ── Mô tả hiển thị (cho UI Admin) ─────────────────────────────────────────
     public static final Map<String, String> PERMISSION_LABELS;
     static {
@@ -46,6 +57,16 @@ public class RolePermissionConstants {
         m.put(PROMOTIONS,   "Mã giảm giá & Khuyến mại");
         m.put(WORKFLOW,     "Kích hoạt Quy trình");
         m.put(AUDIT_LOG,    "Nhật ký Audit Log");
+
+        m.put(RECEPTION_CHECKIN,  "Lễ tân - Check-in");
+        m.put(RECEPTION_CHECKOUT, "Lễ tân - Check-out/Folio");
+        m.put(RECEPTION_WALKIN,   "Lễ tân - Walk-in");
+        m.put(RECEPTION_INHOUSE,  "Lễ tân - In-house");
+
+        m.put(FNB_ORDER,          "F&B - Tạo Order");
+        m.put(FNB_TABLE,          "F&B - Quản lý Bàn");
+        m.put(FNB_ROOM_SERVICE,   "F&B - Room Service");
+        m.put(FNB_REPORT,         "F&B - Báo cáo ngày");
         PERMISSION_LABELS = Collections.unmodifiableMap(m);
     }
 

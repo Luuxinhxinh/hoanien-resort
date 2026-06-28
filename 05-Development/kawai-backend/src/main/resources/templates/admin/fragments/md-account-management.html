@@ -9,6 +9,7 @@
             <table class="adm-table">
                 <thead>
                     <tr>
+                        <th style="width:80px; text-align:center; cursor:pointer; color:#8B7355; font-size:12px; font-weight:600; text-decoration:underline;" id="check-all-btn">Chọn tất cả</th>
                         <th>Mã</th>
                         <th>Tên</th>
                         <th>Loại tài khoản</th>
@@ -19,6 +20,7 @@
                 </thead>
                 <tbody>
                     <tr th:each="row, stat : ${rows}" th:attr="data-id=${row['id']},data-entity=${row['jsonString']}">
+                        <td style="text-align:center;"></td>
                         <td th:attr="data-key='id',data-value=${row['id']}" th:text="${row['id']}"></td>
                         <td th:attr="data-key='name',data-value=${row['name']}" th:text="${row['name']}"></td>
                         <td th:attr="data-key='type',data-value=${row['type']}">
@@ -34,9 +36,9 @@
                             <div style="display:flex;align-items:center;justify-content:flex-end;gap:8px">
                                 <button type="button" class="btn-toggle"
                                     th:attr="data-id=${row['id']},data-value=${row['status']}">
-                                    <i th:if="${row['status'] == 'true'}" data-lucide="toggle-right"
+                                    <i th:if="${row['status'] == 'Hoạt động'}" data-lucide="toggle-right"
                                         style="color:#C9A96E"></i>
-                                    <i th:unless="${row['status'] == 'true'}" data-lucide="toggle-left"
+                                    <i th:unless="${row['status'] == 'Hoạt động'}" data-lucide="toggle-left"
                                         style="color:#8B7355"></i>
                                 </button>
                                 <button class="btn-action btn-action-edit btn-edit" th:attr="data-id=${row['id']}"><i
@@ -45,7 +47,7 @@
                         </td>
                     </tr>
                     <tr th:if="${#lists.isEmpty(rows)}">
-                        <td colspan="6"
+                        <td colspan="7"
                             style="text-align:center;padding:48px;color:#8B7355;font-family:var(--font-serif);font-size:18px">
                             Không có bản ghi nào</td>
                     </tr>

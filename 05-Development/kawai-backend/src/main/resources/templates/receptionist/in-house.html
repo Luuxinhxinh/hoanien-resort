@@ -33,7 +33,7 @@
             <div class="sidebar-section-title">RECEPTIONIST</div>
 
             <nav class="sidebar-nav">
-                <a href="/receptionist/dashboard" class="nav-item">
+                <a href="/receptionist/dashboard" class="nav-item" sec:authorize="hasAnyAuthority('OP_DASHBOARD', 'ROLE_ADMIN', 'ROLE_MANAGER')">
                     <i class="fa-solid fa-border-all"></i>
                     <div class="nav-text">
                         <span class="nav-main-text">Room Matrix</span>
@@ -42,21 +42,21 @@
                     <i class="fa-solid fa-chevron-right nav-arrow"></i>
                 </a>
 
-                <a href="/receptionist/walk-in" class="nav-item">
+                <a href="/receptionist/walk-in" class="nav-item" sec:authorize="hasAnyAuthority('OP_RECEPTION_WALKIN', 'OP_BOOKING', 'ROLE_ADMIN', 'ROLE_MANAGER')">
                     <i class="fa-solid fa-person-walking-luggage"></i>
                     <div class="nav-text">
                         <span class="nav-main-text">Walk-In</span>
                         <span class="nav-sub-text">Khách vãng lai</span>
                     </div>
                 </a>
-                <a href="/receptionist/check-in" class="nav-item">
+                <a href="/receptionist/check-in" class="nav-item" sec:authorize="hasAnyAuthority('OP_RECEPTION_CHECKIN', 'OP_BOOKING', 'ROLE_ADMIN', 'ROLE_MANAGER')">
                     <i class="fa-solid fa-arrow-right-to-bracket"></i>
                     <div class="nav-text">
                         <span class="nav-main-text">Check-in</span>
                         <span class="nav-sub-text">Nhận phòng</span>
                     </div>
                 </a>
-                <a href="/receptionist/folio" class="nav-item">
+                <a href="/receptionist/folio" class="nav-item" sec:authorize="hasAnyAuthority('OP_RECEPTION_CHECKOUT', 'OP_BOOKING', 'ROLE_ADMIN', 'ROLE_MANAGER')">
                     <i class="fa-solid fa-arrow-right-from-bracket"></i>
                     <div class="nav-text">
                         <span class="nav-main-text">Check-out / Folio</span>
@@ -179,6 +179,23 @@
                                         <button class="btn btn-primary btn-sm"
                                             th:attr="onclick=|openInHouseModal('${arr.guestName}', '${arr.phone}', '${arr.roomSummary}', 'deps-${arr.id}')|">Chi
                                             tiết</button>
+                                        <form action="/receptionist/in-house/transfer-room" method="post"
+                                            style="display:flex; gap:6px; align-items:center; margin-top:8px; flex-wrap:wrap;">
+                                            <select name="bookingDetailId" required
+                                                style="min-width:120px; padding:6px; border:1px solid #d1d5db; border-radius:6px; font-size:12px;">
+                                                <option value="">Phòng hiện tại</option>
+                                                <option th:each="detail : ${arr.activeDetails}"
+                                                    th:value="${detail.id}" th:text="${detail.label}">101 - Deluxe</option>
+                                            </select>
+                                            <select name="newRoomId" required
+                                                style="min-width:120px; padding:6px; border:1px solid #d1d5db; border-radius:6px; font-size:12px;">
+                                                <option value="">Phòng mới</option>
+                                                <option th:each="room : ${vacantRooms}"
+                                                    th:value="${room.id}"
+                                                    th:text="${room.roomNumber} + ' - ' + (${room.category != null ? room.category.categoryName : 'Room'})">102</option>
+                                            </select>
+                                            <button class="btn btn-secondary btn-sm" type="submit">Đổi phòng</button>
+                                        </form>
                                         <!-- Hidden data for dependents -->
                                         <div th:id="'deps-' + ${arr.id}" style="display:none;">
                                             <ul style="padding-left: 20px; margin:0; color:#475569; font-size:14px;">

@@ -1,4 +1,4 @@
-/* export.js — Xuất báo cáo: form handling + format selection */
+/* export.js - report export form handling */
 
 let selectedFormat = 'xlsx';
 
@@ -23,34 +23,51 @@ function selectFormat(fmt) {
     if (chip) chip.classList.add('active');
 }
 
-function handleExport() {
+async function handleExport() {
     const type = document.getElementById('export-type')?.value || 'revenue';
     const from = document.getElementById('export-from')?.value;
     const to = document.getElementById('export-to')?.value;
 
     if (!from || !to) {
-        alert('Vui lòng chọn khoảng thời gian trước khi xuất báo cáo.');
+        alert('Vui long chon khoang thoi gian truoc khi xuat bao cao.');
         return;
     }
     if (from > to) {
-        alert('"Từ ngày" phải nhỏ hơn hoặc bằng "Đến ngày".');
+        alert('Tu ngay phai nho hon hoac bang Den ngay.');
         return;
     }
 
     const typeLabels = {
-        revenue: 'Doanh thu tổng hợp',
-        room: 'Báo cáo phòng',
-        fnb: 'Báo cáo F&B',
-        tour: 'Báo cáo Tour',
-        occupancy: 'Tỷ lệ lấp đầy',
-        stay: 'Thời gian lưu trú'
+        revenue: 'Doanh thu tong hop',
+        room: 'Bao cao phong',
+        fnb: 'Bao cao F&B',
+        tour: 'Bao cao Tour',
+        occupancy: 'Ty le lap day',
+        stay: 'Thoi gian luu tru'
     };
     const label = typeLabels[type] || type;
 
-    // TODO: Thay bằng API call thực khi có backend
-    // fetch(`/manager/api/export?type=${type}&from=${from}&to=${to}&format=${selectedFormat}`)
-    console.log('[Export]', { type, from, to, format: selectedFormat });
-    alert(`✓ Đang xuất: "${label}"\n   Từ: ${from}  →  Đến: ${to}\n   Định dạng: .${selectedFormat}\n\n(Mock — chưa kết nối backend)`);
+    const btn = document.getElementById('btn-export');
+    if (btn) btn.disabled = true;
+    try {
+        const response = await fetch(`/manager/api/reports/export?type=${encodeURIComponent(type)}&from=${from}&to=${to}&format=${selectedFormat}`);
+        if (!response.ok) {
+            throw new Error(await response.text() || 'Khong the xuat bao cao.');
+        }
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${label}-${from}-${to}.${selectedFormat === 'xlsx' ? 'csv' : selectedFormat}`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+    } catch (err) {
+        alert(err.message || 'Khong the xuat bao cao.');
+    } finally {
+        if (btn) btn.disabled = false;
+    }
 }
 
 function toggleSubmenu(id, arrowId) {
@@ -60,5 +77,8 @@ function toggleSubmenu(id, arrowId) {
     const open = s.classList.contains('open');
     document.querySelectorAll('.mgr-submenu').forEach(e => e.classList.remove('open'));
     document.querySelectorAll('.mgr-nav-arrow').forEach(e => e.classList.remove('open'));
-    if (!open) { s.classList.add('open'); a.classList.add('open'); }
+    if (!open) {
+        s.classList.add('open');
+        a.classList.add('open');
+    }
 }

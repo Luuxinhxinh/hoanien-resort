@@ -40,19 +40,21 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
                         "AND rbd.roomBooking.bookingStatus IN ('Confirmed', 'Checked_In')")
         Optional<Room> findActiveRoomByUserId(@Param("userId") Long userId);
 
-    @Query("SELECT rbd.room FROM RoomBookingDetail rbd " +
-            "WHERE rbd.roomBooking.customer.account.id = :userId " +
-            "AND rbd.roomBooking.bookingStatus IN ('Confirmed', 'Checked_In')")
-    java.util.List<Room> findActiveRoomsByUserId(@Param("userId") Long userId);
+        @Query("SELECT rbd.room FROM RoomBookingDetail rbd " +
+                        "WHERE rbd.roomBooking.customer.account.id = :userId " +
+                        "AND rbd.roomBooking.bookingStatus IN ('Confirmed', 'Checked_In')")
+        java.util.List<Room> findActiveRoomsByUserId(@Param("userId") Long userId);
 
-    @Query("SELECT COUNT(r) FROM Room r WHERE r.category.categoryName = :categoryName AND r.roomStatus != 'Maintenance'")
-    long countActiveRoomsByCategoryName(@Param("categoryName") String categoryName);
+        @Query("SELECT COUNT(r) FROM Room r WHERE r.category.categoryName = :categoryName AND r.roomStatus != 'Maintenance'")
+        long countActiveRoomsByCategoryName(@Param("categoryName") String categoryName);
 
-    @Query("SELECT r FROM Room r JOIN RoomBookingDetail rbd ON r.currentBookingDetailId = rbd.id " +
-            "LEFT JOIN rbd.roomBooking rb " +
-            "LEFT JOIN rbd.customer rbdc " +
-            "LEFT JOIN rb.customer rbc " +
-            "WHERE (rbdc.cccdPassportEncrypted = :cccd OR rbc.cccdPassportEncrypted = :cccd) " +
-            "AND r.roomStatus = 'Occupied'")
-    List<Room> findOccupiedRoomsByCustomerCccd(@Param("cccd") String cccd);
+        @Query("SELECT r FROM Room r JOIN RoomBookingDetail rbd ON r.currentBookingDetailId = rbd.id " +
+                        "LEFT JOIN rbd.roomBooking rb " +
+                        "LEFT JOIN rbd.customer rbdc " +
+                        "LEFT JOIN rb.customer rbc " +
+                        "WHERE (rbdc.cccdPassportEncrypted = :cccd OR rbc.cccdPassportEncrypted = :cccd) " +
+                        "AND r.roomStatus = 'Occupied'")
+        List<Room> findOccupiedRoomsByCustomerCccd(@Param("cccd") String cccd);
+
+        long countByRoomStatus(String roomStatus);
 }

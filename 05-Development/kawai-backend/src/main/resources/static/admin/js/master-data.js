@@ -75,6 +75,170 @@ document.addEventListener("DOMContentLoaded", () => {
     // Table action buttons (edit, delete, permissions)
     wireTableButtons();
 
+    // Bulk Selection Logic (No checkboxes)
+    const btnBulkDelete = document.getElementById("btn-bulk-delete");
+    const bulkCountSpan = document.getElementById("bulk-count");
+    const checkAllBtn = document.getElementById("check-all-btn");
+    
+    let isAllSelected = false;
+    const allowedBulkTabs = ['Room Categories', 'Restaurant Menu', 'Tours', 'Account Management'];
+
+    function updateBulkToolbar() {
+        if (!btnBulkDelete) return;
+        
+        if (!allowedBulkTabs.includes(activeTab)) {
+            btnBulkDelete.style.display = "none";
+            return;
+        }
+
+        const checkedCount = document.querySelectorAll("tbody tr.row-selected").length;
+        if (checkedCount > 0) {
+            btnBulkDelete.style.display = "inline-flex";
+            if (bulkCountSpan) bulkCountSpan.textContent = checkedCount;
+        } else {
+            btnBulkDelete.style.display = "none";
+        }
+        
+        const totalVisible = Array.from(document.querySelectorAll("tbody tr[data-id]")).filter(tr => tr.style.display !== 'none').length;
+        if (totalVisible > 0) {
+            isAllSelected = checkedCount === totalVisible;
+            if (checkAllBtn) checkAllBtn.textContent = isAllSelected ? "Bỏ chọn" : "Chọn tất cả";
+        }
+    }
+
+    if (checkAllBtn) {
+        checkAllBtn.addEventListener("click", () => {
+            isAllSelected = !isAllSelected;
+            document.querySelectorAll("tbody tr[data-id]").forEach(tr => {
+                if (tr.style.display !== 'none') {
+                    if (isAllSelected) {
+                        tr.classList.add('row-selected');
+                        tr.style.backgroundColor = 'rgba(201, 169, 110, 0.15)';
+                    } else {
+                        tr.classList.remove('row-selected');
+                        tr.style.backgroundColor = '';
+                    }
+                }
+            });
+            updateBulkToolbar();
+        });
+    }
+
+    // UX: Bấm vào bất kỳ đâu trên dòng cũng sẽ toggle
+    document.querySelectorAll("tbody tr[data-id]").forEach(tr => {
+        tr.style.cursor = 'pointer';
+        tr.style.transition = 'background-color 0.2s ease';
+        tr.addEventListener("click", (e) => {
+            // Không trigger nếu bấm vào button, input hoặc thẻ a
+            if (e.target.closest('button') || e.target.closest('a') || e.target.tagName === 'INPUT') return;
+            
+            const isSelected = tr.classList.toggle('row-selected');
+            if (isSelected) {
+                tr.style.backgroundColor = 'rgba(201, 169, 110, 0.15)';
+            } else {
+                tr.style.backgroundColor = '';
+            }
+            updateBulkToolbar();
+        });
+    });
+
+    if (btnBulkDelete) {
+        btnBulkDelete.addEventListener("click", () => {
+            const checkedIds = Array.from(document.querySelectorAll("tbody tr.row-selected")).map(tr => tr.dataset.id);
+            if (checkedIds.length === 0) return;
+            if (!confirm(`Bạn có chắc muốn khóa ${checkedIds.length} bản ghi đã chọn không?`)) return;
+
+            let apiPath = '';
+            switch (activeTab) {
+                case 'Room Categories': apiPath = 'room-categories'; break;
+                case 'Restaurant Menu': apiPath = 'menu-items'; break;
+                case 'Tours': apiPath = 'tours'; break;
+                case 'Account Management': apiPath = 'accounts'; break;
+                default: return; // Chỉ cho phép các tab đã chỉ định
+            }
+
+            // Gọi API toggle ngầm cho từng ID
+            Promise.all(checkedIds.map(id => {
+                return fetch(`/admin/api/v1/${apiPath}/${id}/toggle`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: false })
+                });
+            })).then(() => {
+                // Tự động load lại UI không cần reload
+                document.querySelectorAll("tbody tr.row-selected").forEach(tr => {
+                    const toggleBtn = tr.querySelector('.btn-toggle');
+                    if (toggleBtn) {
+                        applyToggleUI(toggleBtn, false); // Ép UI cập nhật về false ngay lập tức
+                    }
+                    tr.classList.remove('row-selected');
+                    tr.style.backgroundColor = '';
+                });
+                updateBulkToolbar();
+                if (typeof showToast === "function") showToast(`Đã khóa thành công ${checkedIds.length} bản ghi.`, "success");
+            }).catch(err => {
+                alert("Lỗi khi khóa hàng loạt: " + err);
+            });
+        });
+    }
+
+    // Export CSV Logic
+    const btnExportCsv = document.getElementById("btn-export-csv");
+    if (btnExportCsv) {
+        btnExportCsv.href = `/admin/api/v1/export/csv?tab=${encodeURIComponent(activeTab)}`;
+    }
+
+    // Import CSV Logic
+    const btnImportCsvLabel = document.getElementById("btn-import-csv-label");
+    const inputImportCsv = document.getElementById("input-import-csv");
+
+    if (btnImportCsvLabel && (activeTab === "Promotions" || activeTab === "Restaurant Menu")) {
+        btnImportCsvLabel.style.display = "inline-flex";
+    }
+
+    if (inputImportCsv) {
+        inputImportCsv.addEventListener("change", (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const formData = new FormData();
+            formData.append("file", file);
+            formData.append("tab", activeTab);
+
+            // Đổi UI để báo đang upload
+            const originalHTML = btnImportCsvLabel.innerHTML;
+            btnImportCsvLabel.innerHTML = `<i data-lucide="loader-2" class="animate-spin" style="width:15px;height:15px"></i> Đang tải...`;
+            if (typeof lucide !== "undefined") lucide.createIcons();
+
+            fetch("/admin/api/v1/import", {
+                method: "POST",
+                body: formData
+            })
+            .then(res => res.json().then(data => ({status: res.status, body: data})))
+            .then(obj => {
+                if (obj.status === 200) {
+                    alert(obj.body.message);
+                    window.location.reload();
+                } else {
+                    alert("Lỗi: " + obj.body.message);
+                    btnImportCsvLabel.innerHTML = originalHTML;
+                    if (typeof lucide !== "undefined") lucide.createIcons();
+                }
+            })
+            .catch(err => {
+                alert("Lỗi kết nối: " + err);
+                btnImportCsvLabel.innerHTML = originalHTML;
+                if (typeof lucide !== "undefined") lucide.createIcons();
+            })
+            .finally(() => {
+                inputImportCsv.value = ""; // Reset file input
+            });
+        });
+    }
+
+    // Init auto-filters
+    buildDynamicFilters();
+
     // Init icons
     if (typeof lucide !== "undefined") lucide.createIcons();
 });
@@ -95,25 +259,123 @@ function handleSidebarToggle(event) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Client-side search (filter on Thymeleaf-rendered rows)
+// ─────────────────────────────────────────────────────────────────────────────
+// Client-side search & dynamic filtering (filter on Thymeleaf-rendered rows)
 // ─────────────────────────────────────────────────────────────────────────────
 
+let dynamicFiltersConfig = []; // [{ colIndex: 2, selectEl: <select> }]
+
+function buildDynamicFilters() {
+    const filterContainer = document.getElementById("dynamic-filters");
+    if (!filterContainer) return;
+    filterContainer.innerHTML = "";
+    dynamicFiltersConfig = [];
+
+    // Bỏ qua lọc ở tab Phân quyền (Role Management) vì người dùng chỉ muốn dùng search
+    if (activeTab === "Role Management") return;
+
+    const table = document.querySelector(".adm-table");
+    if (!table) return;
+
+    const headers = table.querySelectorAll("thead th");
+    const rows = Array.from(table.querySelectorAll("tbody tr[data-id]"));
+    if (rows.length === 0) return;
+
+    // Phân tích từng cột để xem có thể làm bộ lọc không
+    headers.forEach((th, colIndex) => {
+        // Bỏ qua cột check-all và cột thao tác
+        if (th.id === "check-all-btn" || th.textContent.trim() === "Thao tác" || th.textContent.trim() === "") return;
+
+        const uniqueValues = new Set();
+        let hasComplexHTML = false;
+
+        rows.forEach(tr => {
+            const td = tr.cells[colIndex];
+            if (!td) return;
+            // Nếu có nhiều hơn 1 thẻ span badge thì không lọc
+            if (td.querySelectorAll(".cell-badge").length > 1) hasComplexHTML = true;
+            
+            let text = td.textContent.trim();
+            if (text) uniqueValues.add(text);
+        });
+
+        // Nếu cột có từ 2 đến 8 giá trị khác nhau -> Có thể làm bộ lọc Dropdown
+        if (!hasComplexHTML && uniqueValues.size > 1 && uniqueValues.size <= 8) {
+            const select = document.createElement("select");
+            select.className = "adm-search-input";
+            select.style.width = "auto";
+            select.style.minWidth = "120px";
+            select.style.height = "38px";
+            select.style.padding = "0 12px";
+
+            // Option mặc định
+            const defaultOpt = document.createElement("option");
+            defaultOpt.value = "";
+            defaultOpt.textContent = th.textContent.trim();
+            select.appendChild(defaultOpt);
+
+            // Các giá trị
+            Array.from(uniqueValues).sort().forEach(val => {
+                const opt = document.createElement("option");
+                opt.value = val.toLowerCase();
+                opt.textContent = val;
+                select.appendChild(opt);
+            });
+
+            select.addEventListener("change", () => {
+                handleSearch(document.getElementById("search-input") ? document.getElementById("search-input").value : "");
+            });
+
+            filterContainer.appendChild(select);
+            dynamicFiltersConfig.push({ colIndex, selectEl: select });
+        }
+    });
+}
+
 function handleSearch(query) {
-    const q = query.toLowerCase().trim();
+    const q = query ? query.toLowerCase().trim() : "";
     const totalEl = document.getElementById("pagination-info");
     let visible = 0;
     let total = 0;
 
     document.querySelectorAll("tbody tr[data-id]").forEach(tr => {
         total++;
-        const match = !q || tr.textContent.toLowerCase().includes(q);
+        // 1. Kiểm tra Search Text
+        let textMatch = !q || tr.textContent.toLowerCase().includes(q);
+        
+        // 2. Kiểm tra Dynamic Filters
+        let filterMatch = true;
+        for (const config of dynamicFiltersConfig) {
+            const selectedVal = config.selectEl.value;
+            if (selectedVal !== "") {
+                const td = tr.cells[config.colIndex];
+                if (td) {
+                    if (td.textContent.trim().toLowerCase() !== selectedVal) {
+                        filterMatch = false;
+                        break;
+                    }
+                }
+            }
+        }
+
+        const match = textMatch && filterMatch;
         tr.style.display = match ? "" : "none";
+        
+        // Nếu dòng bị ẩn đi, tự động bỏ check (nếu đang được chọn)
+        if (!match && tr.classList.contains("row-selected")) {
+            tr.classList.remove("row-selected");
+            tr.style.backgroundColor = "";
+        }
+
         if (match) visible++;
     });
 
     if (totalEl) {
         totalEl.textContent = `Hiển thị ${visible} / ${total} bản ghi`;
     }
+    
+    // Cập nhật lại UI Bulk Action
+    if (typeof updateBulkToolbar === "function") updateBulkToolbar();
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -652,21 +914,9 @@ function handleSavePermissions() {
 }
 // ─────────────────────────────────────────────────────────────────────────────
 // ACCOUNT TOGGLE STATUS
-// Cập nhật UI ngay (optimistic). Khi backend sẵn sàng:
-//   1. Uncomment phần fetch() bên dưới
-//   2. Xóa phần "// Cập nhật UI" phía trên fetch (để tránh double-update)
 // ─────────────────────────────────────────────────────────────────────────────
 
-document.addEventListener("click", (e) => {
-    const btn = e.target.closest(".btn-toggle");
-    if (!btn) return;
-
-    const id = btn.dataset.id;
-    const val = btn.dataset.value;
-    const current = (val === "true" || val === "Active" || val === "Available" || val === "Occupied" || val === "Hoạt động");
-    const next = !current;
-
-    // ── Cập nhật UI ngay (không cần API) ─────────────────────────────────────
+function applyToggleUI(btn, next) {
     btn.dataset.value = String(next);
 
     btn.innerHTML = `<i data-lucide="${next ? 'toggle-right' : 'toggle-left'}" class="w-[22px] h-[22px] ${next ? 'text-[#C9A96E]' : 'text-[#8B7355]'}"></i>`;
@@ -715,6 +965,19 @@ document.addEventListener("click", (e) => {
             }
         }
     }
+}
+
+document.addEventListener("click", (e) => {
+    const btn = e.target.closest(".btn-toggle");
+    if (!btn) return;
+
+    const id = btn.dataset.id;
+    const val = btn.dataset.value;
+    const current = (val === "true" || val === "Active" || val === "Available" || val === "Occupied" || val === "Hoạt động");
+    const next = !current;
+
+    // ── Cập nhật UI ngay (không cần API) ─────────────────────────────────────
+    applyToggleUI(btn, next);
 
     let apiPath = '';
     switch (activeTab) {
@@ -822,13 +1085,13 @@ function removeGalleryItem(btn, inputId, fileIndex) {
  * Admin có thể tước bớt, nhưng KHÔNG được cấp vượt trần này.
  */
 const ROLE_CEILINGS = {
-    admin:        ['DASHBOARD','MASTER_DATA','AUDIT_LOG','REVIEWS','BOOKING','FNB','HOUSEKEEPING','MAINTENANCE','WORKFLOW','CRM','PROMOTIONS','NIGHT_AUDIT','TOUR','ANALYTICS'],
-    manager:      ['DASHBOARD','BOOKING','FNB','TOUR','HOUSEKEEPING','MAINTENANCE','NIGHT_AUDIT','ANALYTICS','REVIEWS','CRM','PROMOTIONS','WORKFLOW'],
-    receptionist: ['DASHBOARD','BOOKING','HOUSEKEEPING','NIGHT_AUDIT','REVIEWS'],
-    'f&b':        ['DASHBOARD','FNB'],
-    fnb:          ['DASHBOARD','FNB'],
-    kitchen:      ['DASHBOARD','FNB'],
-    'thu ngan':   ['DASHBOARD','FNB'],
+    admin:        ['DASHBOARD','MASTER_DATA','AUDIT_LOG','REVIEWS','BOOKING','FNB','HOUSEKEEPING','MAINTENANCE','WORKFLOW','CRM','PROMOTIONS','NIGHT_AUDIT','TOUR','ANALYTICS', 'RECEPTION_CHECKIN', 'RECEPTION_CHECKOUT', 'RECEPTION_WALKIN', 'RECEPTION_INHOUSE', 'FNB_ORDER', 'FNB_TABLE', 'FNB_ROOM_SERVICE', 'FNB_REPORT'],
+    manager:      ['DASHBOARD','BOOKING','FNB','TOUR','HOUSEKEEPING','MAINTENANCE','NIGHT_AUDIT','ANALYTICS','REVIEWS','CRM','PROMOTIONS','WORKFLOW', 'RECEPTION_CHECKIN', 'RECEPTION_CHECKOUT', 'RECEPTION_WALKIN', 'RECEPTION_INHOUSE', 'FNB_ORDER', 'FNB_TABLE', 'FNB_ROOM_SERVICE', 'FNB_REPORT'],
+    receptionist: ['DASHBOARD','BOOKING','HOUSEKEEPING','NIGHT_AUDIT','REVIEWS', 'RECEPTION_CHECKIN', 'RECEPTION_CHECKOUT', 'RECEPTION_WALKIN', 'RECEPTION_INHOUSE'],
+    'f&b':        ['DASHBOARD','FNB', 'FNB_ORDER', 'FNB_TABLE', 'FNB_ROOM_SERVICE', 'FNB_REPORT'],
+    fnb:          ['DASHBOARD','FNB', 'FNB_ORDER', 'FNB_TABLE', 'FNB_ROOM_SERVICE', 'FNB_REPORT'],
+    kitchen:      ['DASHBOARD','FNB', 'FNB_ORDER', 'FNB_TABLE', 'FNB_ROOM_SERVICE', 'FNB_REPORT'],
+    'thu ngan':   ['DASHBOARD','FNB', 'FNB_ORDER', 'FNB_TABLE', 'FNB_ROOM_SERVICE', 'FNB_REPORT'],
     housekeeping: ['DASHBOARD','HOUSEKEEPING'],
     tourguide:    ['DASHBOARD','TOUR'],
     'tour guide': ['DASHBOARD','TOUR'],
@@ -864,23 +1127,44 @@ function filterPermissionsByRole(roleName) {
         const wrapper = label ? label.parentElement : null;
 
         if (ceiling.includes(cb.value)) {
-            // Quyền nằm trong ceiling → hiển thị
-            if (label) label.style.display = '';
-            if (wrapper && wrapper.tagName !== 'DIV') wrapper.style.display = '';
+            // Quyền nằm trong ceiling → hiển thị bình thường, cho phép sửa
+            cb.disabled = false;
+            if (label) {
+                label.style.opacity = '1';
+                label.style.cursor = 'pointer';
+                label.style.background = cb.value === 'MASTER_DATA' || cb.value === 'AUDIT_LOG' ? '#fff5f5' : '#f9f6f0';
+                // Remove lock icon if exists
+                const lockSpan = label.querySelector('.lock-indicator');
+                if (lockSpan) lockSpan.remove();
+            }
         } else {
-            // Quyền vượt trần → ẩn đi & uncheck
+            // Quyền vượt trần → disable & uncheck & locked style
             cb.checked = false;
-            if (label) label.style.display = 'none';
+            cb.disabled = true;
+            if (label) {
+                label.style.opacity = '0.5';
+                label.style.cursor = 'not-allowed';
+                label.style.background = '#eef2f6'; // Muted gray background for locked
+                // Check if lock indicator already exists
+                if (!label.querySelector('.lock-indicator')) {
+                    const lockSpan = document.createElement('span');
+                    lockSpan.className = 'lock-indicator';
+                    lockSpan.style.display = 'inline-flex';
+                    lockSpan.style.alignItems = 'center';
+                    lockSpan.style.marginLeft = 'auto';
+                    lockSpan.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#78909c"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>';
+                    label.appendChild(lockSpan);
+                }
+            }
         }
     });
 
-    // Ẩn section header nếu không có checkbox nào visible trong đó
+    // Hiển thị tất cả section headers
     document.querySelectorAll('.perm-section-title').forEach(title => {
+        title.style.display = '';
         const section = title.nextElementSibling;
         if (section) {
-            const visibleCount = section.querySelectorAll('label:not([style*="none"])').length;
-            title.style.display = visibleCount === 0 ? 'none' : '';
-            section.style.display = visibleCount === 0 ? 'none' : '';
+            section.style.display = '';
         }
     });
 }
@@ -894,14 +1178,13 @@ function suggestPermissions() {
     const name = nameInput.value.trim();
     if (!name) { alert('Vui lòng nhập tên vai trò trước!'); return; }
 
-    // Filter trước để ẩn quyền không phù hợp
+    // Filter trước để ẩn/khóa quyền không phù hợp
     filterPermissionsByRole(name);
 
-    // Sau đó check tất cả những checkbox còn visible
+    // Sau đó check tất cả những checkbox không bị disabled
     let count = 0;
     document.querySelectorAll('.perm-checkbox').forEach(cb => {
-        const label = cb.closest('label');
-        if (label && label.style.display !== 'none') {
+        if (!cb.disabled) {
             cb.checked = true;
             count++;
         }
@@ -923,8 +1206,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (activeTabEl && activeTabEl.textContent.trim() === 'Role Management') {
                     // Show tất cả checkboxes khi tạo mới
                     document.querySelectorAll('.perm-checkbox').forEach(cb => {
+                        cb.disabled = false;
                         const label = cb.closest('label');
-                        if (label) label.style.display = '';
+                        if (label) {
+                            label.style.opacity = '1';
+                            label.style.cursor = 'pointer';
+                            label.style.background = cb.value === 'MASTER_DATA' || cb.value === 'AUDIT_LOG' ? '#fff5f5' : '#f9f6f0';
+                            const lockSpan = label.querySelector('.lock-indicator');
+                            if (lockSpan) lockSpan.remove();
+                        }
                     });
                     document.querySelectorAll('.perm-section-title').forEach(t => {
                         t.style.display = '';

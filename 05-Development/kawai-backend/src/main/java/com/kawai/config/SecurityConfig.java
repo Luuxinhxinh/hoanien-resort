@@ -82,10 +82,14 @@ public class SecurityConfig {
                                 "/api/v1/payments/food-order/**", "/book-table")
                         .permitAll()
 
-                        .requestMatchers("/admin/**").hasAnyRole("ADMIN", "MANAGER")
-                        .requestMatchers("/manager/**").hasRole("MANAGER")
-                        .requestMatchers("/staff/**").hasAnyRole("ADMIN", "STAFF")
-                        .requestMatchers("/tourguide/**").hasRole("TOURGUIDE")
+                        .requestMatchers("/admin/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_MANAGER", "OP_MASTER_DATA", "OP_AUDIT_LOG", "OP_WORKFLOW")
+                        .requestMatchers("/manager/**").hasAnyAuthority("ROLE_MANAGER", "OP_DASHBOARD")
+                        .requestMatchers("/receptionist/**").hasAnyAuthority("ROLE_RECEPTIONIST", "ROLE_ADMIN", "ROLE_MANAGER", "OP_BOOKING", "OP_RECEPTION_CHECKIN", "OP_RECEPTION_CHECKOUT")
+                        .requestMatchers("/staff/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_STAFF")
+                        .requestMatchers("/housekeeping/**").hasAnyAuthority("ROLE_HOUSEKEEPING", "ROLE_ADMIN", "OP_HOUSEKEEPING")
+                        .requestMatchers("/maintenance/**").hasAnyAuthority("ROLE_MAINTENANCE", "ROLE_MAINTAINER", "ROLE_ADMIN", "OP_MAINTENANCE")
+                        .requestMatchers("/tourguide/**").hasAnyAuthority("ROLE_TOURGUIDE", "OP_TOUR")
+                        .requestMatchers("/fbStaff/**", "/f&bStaff/**", "/kitchenStaff/**").hasAnyAuthority("ROLE_FB_STAFF", "ROLE_ADMIN", "ROLE_MANAGER", "OP_FNB", "OP_FNB_ORDER", "OP_FNB_TABLE")
                         .requestMatchers("/profile/**").authenticated()
                         .anyRequest().authenticated())
 
@@ -118,7 +122,9 @@ public class SecurityConfig {
         return (request, response, exception) -> {
             String referer = request.getHeader("Referer");
             String errorType = "invalid";
-            if (exception instanceof org.springframework.security.authentication.DisabledException || exception instanceof org.springframework.security.authentication.LockedException) {
+            if (exception instanceof org.springframework.security.authentication.DisabledException) {
+                errorType = "disabled";
+            } else if (exception instanceof org.springframework.security.authentication.LockedException) {
                 errorType = "locked";
             }
             if (referer != null && !referer.trim().isEmpty() && !referer.contains("/ops-login")) {
@@ -163,9 +169,9 @@ public class SecurityConfig {
                     String role = authz.getAuthority();
                     if (role.equals("ROLE_ADMIN") || role.equals("ROLE_MANAGER") ||
                             role.equals("ROLE_RECEPTIONIST") || role.equals("ROLE_STAFF") ||
-                            role.equals("ROLE_FB_STAFF") || role.equals("ROLE_TOURGUIDE")) {
+                            role.equals("ROLE_FB_STAFF") || role.equals("ROLE_TOURGUIDE") ||
+                            role.equals("ROLE_HOUSEKEEPING") || role.equals("ROLE_MAINTENANCE") || role.equals("ROLE_MAINTAINER")) {
                         isOpsUser = true;
-                        break;
                     }
                 }
 
@@ -225,14 +231,16 @@ public class SecurityConfig {
                         } else if (role.equals("ROLE_TOURGUIDE")) {
                             redirect = "/tourguide/dashboard";
                             break;
+                        } else if (role.equals("ROLE_HOUSEKEEPING")) {
+                            redirect = "/housekeeping/dashboard";
+                            break;
+                        } else if (role.equals("ROLE_MAINTENANCE") || role.equals("ROLE_MAINTAINER")) {
+                            redirect = "/maintenance/dashboard";
+                            break;
                         }
                     }
-                    response.sendRedirect(redirect);
-                } else {
-                    // Normal Customer / Guest
-                    if (isFromOpsPortal) {
-                        // Guest tried to log in from Ops portal
-                        request.getSession().invalidate();
+
+                    if (redirect.equals("/")) {
                         org.springframework.security.core.context.SecurityContextHolder.clearContext();
                         response.sendRedirect("/ops-login?error=true");
                         return;
@@ -243,14 +251,14 @@ public class SecurityConfig {
                         request.getSession().setAttribute("user", account);
                     }
 
-                    String redirectTo = request.getParameter("redirect_to");
-                    if (redirectTo != null && !redirectTo.trim().isEmpty()) {
-                        response.sendRedirect(redirectTo);
+                    String finalRedirectTo = request.getParameter("redirect_to");
+                    if (finalRedirectTo != null && !finalRedirectTo.trim().isEmpty()) {
+                        response.sendRedirect(finalRedirectTo);
                         return;
                     }
 
-                    // Redirect to /living for all customers
-                    response.sendRedirect("/living");
+                    // Redirect to the appropriate dashboard
+                    response.sendRedirect(redirect);
                 }
             }
         };

@@ -49,6 +49,17 @@ public class AdminViewServiceImpl implements AdminViewService {
             metrics.put("pendingMaintenance", 0L);
             metrics.put("urgentMaintenance", 0);
             metrics.put("normalMaintenance", 0);
+
+            // Chart data (Mock for now, 7 days revenue)
+            List<String> labels = new ArrayList<>();
+            List<Long> revenueData = new ArrayList<>();
+            LocalDate today = LocalDate.now();
+            for (int i = 6; i >= 0; i--) {
+                labels.add(today.minusDays(i).format(DateTimeFormatter.ofPattern("dd/MM")));
+                revenueData.add((long) (Math.random() * 20000000) + 10000000); // 10M - 30M
+            }
+            metrics.put("chartLabels", labels);
+            metrics.put("chartData", revenueData);
         } catch (Exception e) {
             metrics.put("totalRooms", 0);
             metrics.put("occupiedRooms", 0);
@@ -57,6 +68,8 @@ public class AdminViewServiceImpl implements AdminViewService {
             metrics.put("pendingMaintenance", 0);
             metrics.put("urgentMaintenance", 0);
             metrics.put("normalMaintenance", 0);
+            metrics.put("chartLabels", List.of());
+            metrics.put("chartData", List.of());
         }
         return metrics;
     }
@@ -277,15 +290,17 @@ public class AdminViewServiceImpl implements AdminViewService {
                     if (promo.getValidTo() != null && promo.getValidTo().isBefore(LocalDate.now()))
                         st = "Expired";
                     r.add(r("id", "PR-" + promo.getId(), "code",
-                            promo.getPromoCode() != null ? promo.getPromoCode() : "-", "type",
-                            promo.getDiscountType() != null ? promo.getDiscountType() : "Phần trăm", "__typeStyle",
-                            bs(promo.getDiscountType() != null ? promo.getDiscountType() : "Phần trăm"),
+                            promo.getPromoCode() != null ? promo.getPromoCode() : "-",
                             "value",
                             promo.getDiscountValue() != null
                                     ? (promo.getDiscountValue().compareTo(new java.math.BigDecimal("100")) <= 0
                                             ? promo.getDiscountValue().stripTrailingZeros().toPlainString() + "%"
                                             : formatVnd(promo.getDiscountValue()))
                                     : "-",
+                            "rawValue", promo.getDiscountValue() != null ? promo.getDiscountValue().stripTrailingZeros().toPlainString() : "",
+                            "discountType", promo.getDiscountType() != null ? promo.getDiscountType() : "PERCENTAGE",
+                            "discountTypeDisplay", promo.getDiscountType() != null ? ("PERCENTAGE".equalsIgnoreCase(promo.getDiscountType()) ? "Phần trăm" : ("FIXED_AMOUNT".equalsIgnoreCase(promo.getDiscountType()) ? "Số tiền" : promo.getDiscountType())) : "Phần trăm",
+                            "__discountTypeStyle", bs(promo.getDiscountType() != null ? promo.getDiscountType() : "PERCENTAGE"),
                             "minOrder", "Không có", "scope", "Toàn bộ", "__scopeStyle", bs("Toàn bộ"),
                             "uses",
                             (promo.getCurrentUses() != null ? promo.getCurrentUses() : 0) + "/"
@@ -585,10 +600,11 @@ public class AdminViewServiceImpl implements AdminViewService {
     private static String bs(String val) {
         return switch (val == null ? "" : val) {
             case "Active", "Available", "Nhân viên" -> "badge-green";
-            case "Khách", "Khách hàng", "Receptionist", "Tours", "Số tiền" -> "badge-blue";
+            case "Khách", "Khách hàng", "Receptionist", "Tours", "Số tiền", "FIXED_AMOUNT" -> "badge-blue";
             case "Occupied", "Vacant", "Phòng", "Thường ngày", "Cuối tuần" -> "badge-brown";
             case "Manager", "Khách VIP", "Unavailable", "Cao điểm" -> "badge-yellow";
             case "Maintenance", "Expired" -> "badge-dark";
+            case "PERCENTAGE", "Phần trăm" -> "badge-gray";
             default -> "badge-gray";
         };
     }

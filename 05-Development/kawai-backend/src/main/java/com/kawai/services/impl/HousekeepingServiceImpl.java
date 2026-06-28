@@ -102,18 +102,23 @@ public class HousekeepingServiceImpl implements HousekeepingService {
      * Cập nhật phòng thành Vacant_Clean và Task thành Completed (BR-FO-04).
      *
      * @param taskId ID của yêu cầu dọn phòng
+     * @param notes  Ghi chú khi hoàn thành
      * @return Phòng đã cập nhật trạng thái sạch
      */
     @Override
     @Transactional
-    public Room updateRoomToClean(Long taskId) {
+    public Room updateRoomToClean(Long taskId, String notes) {
         HotelOperation task = findTaskById(taskId);
         Room room = task.getRoom();
 
-        // BR-FO-04: Luân chuyển trạng thái phòng sang Vacant_Clean
+        // BR-FO-04: Luân chuyển trạng thái phòng sang Vacant_Clean (Có thể cải tiến sau để nhận diện Occupied_Clean)
         room.setRoomStatus(STATUS_VACANT_CLEAN);
         task.setStatus(STATUS_COMPLETED);
         task.setCompletedAt(LocalDateTime.now());
+        if (notes != null && !notes.isEmpty()) {
+            String existingNotes = task.getNotes() != null ? task.getNotes() + "\n" : "";
+            task.setNotes(existingNotes + "[Ghi chú hoàn thành]: " + notes);
+        }
 
         roomRepo.save(room);
         housekeepingTaskRepo.save(task);

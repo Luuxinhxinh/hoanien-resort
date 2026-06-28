@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Quản lý Add-on Dịch vụ</title>
+<script src="https://unpkg.com/lucide@latest"></script>
+<link rel="stylesheet" th:href="@{/admin/css/theme.css}" href="../../static/admin/css/theme.css"/>
+<link rel="stylesheet" th:href="@{/admin/css/admin.css}" href="../../static/admin/css/admin.css"/>
+</head>
+<body>
+<aside th:replace="~{admin/fragments/sidebar :: sidebar('addons', '')}"></aside>
+<div class="adm-main">
+  <header class="adm-header">
+    <div class="adm-header-left">
+      <span class="adm-breadcrumb-site">Hoanien Retreat</span>
+      <span class="adm-breadcrumb-sep">/</span>
+      <span class="adm-breadcrumb-page">Master Data</span>
+      <span class="adm-breadcrumb-sep">/</span>
+      <span class="adm-breadcrumb-page">Dịch vụ Add-on</span>
+    </div>
+    <div class="adm-header-right">
+      <button class="adm-header-icon-btn"><i data-lucide="search"></i></button>
+      <div class="adm-divider-v"></div>
+      <div class="adm-header-user-box">
+        <div class="adm-header-avatar">AD</div>
+        <span class="adm-header-username">Admin Dũng</span>
+      </div>
+    </div>
+  </header>
+  <main class="adm-page">
+    <div><p class="adm-page-eyebrow">Dịch vụ bổ sung</p>
+      <h1 class="adm-page-title">Quản lý Add-on (Spa / Đưa đón / …)</h1>
+    </div>
+    <!-- CRUD Table -->
+    <div class="adm-table-wrap" style="margin-top:20px">
+      <table class="adm-table">
+        <thead>
+          <tr>
+            <th>ID</th><th>Tên dịch vụ</th><th>Giá gốc</th>
+            <th>Bộ phận</th><th>Mô tả</th><th>Khả dụng</th><th>Thao tác</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="svc : ${services}">
+            <td th:text="${svc.id}">1</td>
+            <td th:text="${svc.serviceName}">Massage Spa</td>
+            <td th:text="${svc.basePrice}">500000</td>
+            <td><span class="adm-badge" th:text="${svc.sourceDepartment}">SPA</span></td>
+            <td style="max-width:200px;font-size:12px;color:#6B6558" th:text="${svc.description}">...</td>
+            <td><span th:if="${svc.isAvailable}" style="color:#2D6B4A">✅ Có</span>
+                <span th:unless="${svc.isAvailable}" style="color:#8C3C28">❌ Không</span></td>
+            <td>
+              <button class="adm-btn-xs" onclick="editSvc(this)" style="background:#C9A96E;color:#fff;border:none;padding:4px 10px;border-radius:4px;cursor:pointer;font-size:11px">Sửa</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="margin-top:12px">
+        <button onclick="openCreateModal()" style="background:#2D6B4A;color:#fff;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-size:13px">
+          <i data-lucide="plus" style="width:14px;height:14px;vertical-align:middle"></i> Thêm dịch vụ
+        </button>
+      </div>
+    </div>
+  </main>
+</div>
+<!-- Create/Edit Modal -->
+<div id="svc-modal" class="adm-modal-backdrop hidden" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.4);display:none;align-items:center;justify-content:center;z-index:999">
+  <div class="adm-modal-box" style="background:#fff;border-radius:12px;width:500px;max-width:90%;padding:24px">
+    <h3 style="font-family:'Playfair Display',serif;margin:0 0 16px" id="modal-title">Thêm dịch vụ Add-on</h3>
+    <form id="svc-form">
+      <input type="hidden" id="svc-id"/>
+      <div style="margin-bottom:12px">
+        <label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px">Tên dịch vụ *</label>
+        <input id="svc-name" required style="width:100%;padding:8px 10px;border:1px solid #ddd;border-radius:6px;font-size:13px"/>
+      </div>
+      <div style="margin-bottom:12px">
+        <label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px">Giá gốc (VND) *</label>
+        <input id="svc-price" type="number" required style="width:100%;padding:8px 10px;border:1px solid #ddd;border-radius:6px;font-size:13px"/>
+      </div>
+      <div style="margin-bottom:12px">
+        <label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px">Bộ phận *</label>
+        <select id="svc-dept" style="width:100%;padding:8px 10px;border:1px solid #ddd;border-radius:6px;font-size:13px">
+          <option value="SPA">Spa & Wellness</option>
+          <option value="TRANSPORTATION">Đưa đón (Transportation)</option>
+          <option value="FLORIST">Florist</option>
+          <option value="LAUNDRY">Giặt ủi</option>
+          <option value="TOUR">Tour</option>
+          <option value="OTHER">Khác</option>
+        </select>
+      </div>
+      <div style="margin-bottom:12px">
+        <label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px">Mô tả</label>
+        <textarea id="svc-desc" rows="2" style="width:100%;padding:8px 10px;border:1px solid #ddd;border-radius:6px;font-size:13px"></textarea>
+      </div>
+      <div style="margin-bottom:16px">
+        <label><input id="svc-avail" type="checkbox" checked/> Khả dụng</label>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+        <button type="button" onclick="closeModal()" style="padding:8px 16px;border:1px solid #ddd;border-radius:6px;background:#fff;cursor:pointer">Huỷ</button>
+        <button type="submit" style="padding:8px 16px;background:#C9A96E;color:#fff;border:none;border-radius:6px;cursor:pointer">Lưu</button>
+      </div>
+    </form>
+  </div>
+</div>
+<script th:src="@{/admin/js/main.js}" src="../../static/admin/js/main.js"></script>
+<script th:src="@{/admin/js/addons.js}" src="../../static/admin/js/addons.js"></script>
+</body>
+</html>

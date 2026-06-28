@@ -38,40 +38,50 @@
     <nav class="sidebar-nav">
       <div class="nav-section-label">Vận hành</div>
 
-      <a href="#" class="nav-item active">
+      <a href="#" class="nav-item active" sec:authorize="hasAnyAuthority('OP_DASHBOARD', 'ROLE_ADMIN', 'ROLE_MANAGER')">
         <span class="material-symbols-outlined">dashboard</span>
         <span>POS Dashboard</span>
       </a>
-      <a href="/fbStaff/create-food-order" class="nav-item">
+      <a href="/fbStaff/create-food-order" class="nav-item" sec:authorize="hasAnyAuthority('OP_FNB_ORDER', 'OP_FNB', 'ROLE_ADMIN', 'ROLE_MANAGER')">
         <span class="material-symbols-outlined">add_circle</span>
         <span>New Order</span>
       </a>
-      <a href="/fbStaff/table-management" th:href="@{/fbStaff/table-management}" class="nav-item">
+      <a href="/fbStaff/table-management" th:href="@{/fbStaff/table-management}" class="nav-item" sec:authorize="hasAnyAuthority('OP_FNB_TABLE', 'OP_FNB', 'ROLE_ADMIN', 'ROLE_MANAGER')">
         <span class="material-symbols-outlined">table_restaurant</span>
         <span>Table Management</span>
       </a>
-      <a href="/fbStaff/room-service" th:href="@{/fbStaff/room-service}" class="nav-item">
+      <a href="/fbStaff/room-service" th:href="@{/fbStaff/room-service}" class="nav-item" sec:authorize="hasAnyAuthority('OP_FNB_ROOM_SERVICE', 'OP_FNB', 'ROLE_ADMIN', 'ROLE_MANAGER')">
         <span class="material-symbols-outlined">room_service</span>
         <span>Room Service</span>
       </a>
 
 
 
-      <div class="nav-section-label">Tài chính</div>
+      <div class="nav-section-label" sec:authorize="hasAnyAuthority('OP_FNB_REPORT', 'OP_ANALYTICS', 'ROLE_ADMIN', 'ROLE_MANAGER')">Tài chính</div>
 
 
-      <a href="/fbStaff/shift-report" th:href="@{/fbStaff/shift-report}" class="nav-item">
+      <a href="/fbStaff/shift-report" th:href="@{/fbStaff/shift-report}" class="nav-item" sec:authorize="hasAnyAuthority('OP_FNB_REPORT', 'OP_ANALYTICS', 'ROLE_ADMIN', 'ROLE_MANAGER')">
         <span class="material-symbols-outlined">bar_chart</span>
         <span>Báo cáo ngày</span>
       </a>
     </nav>
 
     <div class="sidebar-footer">
+      <!-- Module Switcher for RBAC cross-navigation -->
+      <div sec:authorize="hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_RECEPTIONIST', 'ROLE_FB_STAFF', 'BOOKING', 'FNB', 'MASTER_DATA')" style="margin-bottom: 12px; padding: 0;">
+          <select onchange="if(this.value) window.location.href=this.value" style="width: 100%; padding: 8px; border-radius: 6px; background: rgba(255,255,255,0.05); color: #c9a96e; border: 1px solid rgba(255,255,255,0.1); font-size: 13px; font-weight: 500; outline: none; cursor: pointer; font-family: 'Montserrat', sans-serif;">
+              <option value="" disabled selected>-- Chuyển phân hệ --</option>
+              <option sec:authorize="hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER', 'MASTER_DATA', 'OP_MASTER_DATA')" value="/admin/dashboard">Core Operations (Admin)</option>
+              <option sec:authorize="hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_RECEPTIONIST', 'BOOKING', 'RECEPTION_CHECKIN')" value="/receptionist/dashboard">Receptionist (Lễ tân)</option>
+              <option sec:authorize="hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_FB_STAFF', 'FNB', 'FNB_ORDER')" value="/fbStaff/dashboard">F&B POS (Nhà hàng)</option>
+          </select>
+      </div>
+
       <div class="staff-profile">
         <div class="staff-avatar">TP</div>
         <div>
           <div class="staff-name" th:text="${staffName != null ? staffName : 'Trần Phương'}">Trần Phương</div>
-          <div class="staff-role">F&amp;B POS · Ca Sáng</div>
+          <div class="staff-role" th:text="${#authentication != null and #authentication.authorities != null and !#authentication.authorities.isEmpty() ? #strings.replace(#authentication.authorities[0].authority, 'ROLE_', '') : 'F&B POS'}">F&B POS · Ca Sáng</div>
         </div>
         <form action="/auth/manual-logout" method="post" style="display:inline-block; margin:0;">
           <button type="submit" class="logout-btn" title="Đăng xuất">
@@ -335,3 +345,4 @@
   </script>
 </body>
 </html>
+

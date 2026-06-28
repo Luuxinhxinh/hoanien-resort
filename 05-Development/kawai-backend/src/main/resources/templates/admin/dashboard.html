@@ -100,6 +100,16 @@
 
         </div>
 
+        <!-- Chart Row -->
+        <div class="adm-card" style="margin-top: 24px; margin-bottom: 24px;">
+            <div class="adm-card-header">
+                <h2 class="adm-section-title">Doanh thu 7 ngày gần nhất (VNĐ)</h2>
+            </div>
+            <div style="height: 300px; width: 100%;">
+                <canvas id="revenueChart"></canvas>
+            </div>
+        </div>
+
         <!-- Room Status Matrix -->
         <div class="adm-card">
             <div class="adm-card-header">
@@ -257,5 +267,51 @@
 
 <script th:src="@{/admin/js/main.js}"      src="../../static/admin/js/main.js"></script>
 <script th:src="@{/admin/js/dashboard.js}" src="../../static/admin/js/dashboard.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    document.addEventListener('DOMContentLoaded', function() {
+        const ctx = document.getElementById('revenueChart').getContext('2d');
+        const labels = /*[[${chartLabels}]]*/ [];
+        const data = /*[[${chartData}]]*/ [];
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Doanh thu (VNĐ)',
+                    data: data,
+                    borderColor: '#C9A96E',
+                    backgroundColor: 'rgba(201, 169, 110, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: { 
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value, index, values) {
+                                if (value >= 1000000) {
+                                    return (value / 1000000) + 'M';
+                                }
+                                return value;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    });
+    /*]]>*/
+</script>
 </body>
 </html>
