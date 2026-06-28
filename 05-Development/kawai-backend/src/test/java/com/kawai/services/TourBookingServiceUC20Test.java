@@ -64,6 +64,9 @@ class TourBookingServiceUC20Test {
 
     @Mock
     private RoomBookingDetailRepository roomBookingDetailRepository;
+    
+    @Mock
+    private RoomBookingRepository roomBookingRepository;
 
     @InjectMocks
     private TourBookingServiceImpl tourBookingService;
@@ -102,8 +105,8 @@ class TourBookingServiceUC20Test {
         validRequest = new TourBookingRequest();
         validRequest.setScheduleId(100L);
         validRequest.setCustomerId(10L);
-        validRequest.setParticipantCount(3);
-        validRequest.setWalkInTour(false);
+        validRequest.setParticipantCount(2);
+        validRequest.setRoomBookingId(1L);
         validRequest.setPostToRoom(false);
     }
 
@@ -120,6 +123,7 @@ class TourBookingServiceUC20Test {
             // ARRANGE
             when(tourScheduleRepository.findById(100L)).thenReturn(Optional.of(sampleSchedule));
             when(customerRepository.findById(10L)).thenReturn(Optional.of(sampleCustomer));
+            when(roomBookingRepository.findById(1L)).thenReturn(Optional.of(new RoomBooking()));
             when(tourBookingRepository.countByScheduleAndBookingStatus(sampleSchedule, "Confirmed"))
                     .thenReturn(0);
 
@@ -147,36 +151,6 @@ class TourBookingServiceUC20Test {
                 return ((java.util.List<?>) list).size() == 3;
             }));
         }
-
-        @Test
-        @DisplayName("TC-M4-003.2: Đặt tour với walk-in = true — tạo booking thành công")
-        void createTourBooking_WalkInTour_ShouldCreateBooking() {
-            // ARRANGE
-            validRequest.setWalkInTour(true);
-
-            when(tourScheduleRepository.findById(100L)).thenReturn(Optional.of(sampleSchedule));
-            when(customerRepository.findById(10L)).thenReturn(Optional.of(sampleCustomer));
-            when(tourBookingRepository.countByScheduleAndBookingStatus(sampleSchedule, "Confirmed"))
-                    .thenReturn(0);
-
-            TourBooking savedBooking = new TourBooking();
-            savedBooking.setId(201L);
-            savedBooking.setSchedule(sampleSchedule);
-            savedBooking.setParticipantCount(3);
-            savedBooking.setIsWalkInTour(true);
-            savedBooking.setBookingStatus("Confirmed");
-            when(tourBookingRepository.save(any(TourBooking.class))).thenReturn(savedBooking);
-            when(tourAttendeeRepository.saveAll(anyList())).thenReturn(null);
-
-            // ACT
-            Long bookingId = tourBookingService.createTourBooking(validRequest);
-
-            // ASSERT
-            assertNotNull(bookingId);
-            assertEquals(201L, bookingId);
-            verify(tourBookingRepository)
-                    .save(argThat(booking -> booking.getIsWalkInTour() != null && booking.getIsWalkInTour()));
-        }
     }
 
     // ================================================================
@@ -193,6 +167,7 @@ class TourBookingServiceUC20Test {
             sampleSchedule.setBookedSeats(25);
             when(tourScheduleRepository.findById(100L)).thenReturn(Optional.of(sampleSchedule));
             when(customerRepository.findById(10L)).thenReturn(Optional.of(sampleCustomer));
+            when(roomBookingRepository.findById(1L)).thenReturn(Optional.of(new RoomBooking()));
 
             // Đã có 18 người đặt, capacity = 30, chỉ còn 12 chỗ, nhưng participantCount = 3
             // availableSlots = maxCapacity - alreadyBooked = 30 - 0 = 30 (không dùng
@@ -223,6 +198,7 @@ class TourBookingServiceUC20Test {
             // ARRANGE: capacity = 30, đã có 29 người đặt, request 3 người
             when(tourScheduleRepository.findById(100L)).thenReturn(Optional.of(sampleSchedule));
             when(customerRepository.findById(10L)).thenReturn(Optional.of(sampleCustomer));
+            when(roomBookingRepository.findById(1L)).thenReturn(Optional.of(new RoomBooking()));
             when(tourBookingRepository.countByScheduleAndBookingStatus(sampleSchedule, "Confirmed"))
                     .thenReturn(29);
 
@@ -255,6 +231,7 @@ class TourBookingServiceUC20Test {
 
             when(tourScheduleRepository.findById(100L)).thenReturn(Optional.of(sampleSchedule));
             when(customerRepository.findById(10L)).thenReturn(Optional.of(sampleCustomer));
+            when(roomBookingRepository.findById(1L)).thenReturn(Optional.of(new RoomBooking()));
             when(roomBookingDetailRepository.findById(50L)).thenReturn(Optional.of(sampleDetail));
             when(tourBookingRepository.countByScheduleAndBookingStatus(sampleSchedule, "Confirmed"))
                     .thenReturn(0);
@@ -292,6 +269,7 @@ class TourBookingServiceUC20Test {
             // ARRANGE: Request mặc định — không Post to Room
             when(tourScheduleRepository.findById(100L)).thenReturn(Optional.of(sampleSchedule));
             when(customerRepository.findById(10L)).thenReturn(Optional.of(sampleCustomer));
+            when(roomBookingRepository.findById(1L)).thenReturn(Optional.of(new RoomBooking()));
             when(tourBookingRepository.countByScheduleAndBookingStatus(sampleSchedule, "Confirmed"))
                     .thenReturn(0);
 

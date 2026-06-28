@@ -20,6 +20,10 @@ public class CheckinSubmitFormDTO {
     // Danh sách người đi kèm, form frontend gửi lên dạng dependents[0].fullName,
     // dependents[1].fullName...
     private List<DependentRegistrationDTO> dependents = new ArrayList<>();
+    // Tour allocation: phân bổ tour đã đặt vào phòng vật lý khi check-in
+    // (không tạo mới TourBooking, chỉ ghi nhận roomBookingDetail cho từng tour)
+    private String tourAllocationMode;
+    private List<TourRoomAllocationDTO> tourAllocations = new ArrayList<>();
 
     public CheckinSubmitFormDTO() {
     }
@@ -56,8 +60,13 @@ public class CheckinSubmitFormDTO {
         this.cccd = cccd;
     }
 
-    public List<java.math.BigDecimal> getAllocatedCreditLimits() { return allocatedCreditLimits; }
-    public void setAllocatedCreditLimits(List<java.math.BigDecimal> allocatedCreditLimits) { this.allocatedCreditLimits = allocatedCreditLimits; }
+    public List<java.math.BigDecimal> getAllocatedCreditLimits() {
+        return allocatedCreditLimits;
+    }
+
+    public void setAllocatedCreditLimits(List<java.math.BigDecimal> allocatedCreditLimits) {
+        this.allocatedCreditLimits = allocatedCreditLimits;
+    }
 
     public List<String> getAssignedRoomNumbers() {
         return assignedRoomNumbers;
@@ -73,5 +82,21 @@ public class CheckinSubmitFormDTO {
 
     public void setDependents(List<DependentRegistrationDTO> dependents) {
         this.dependents = dependents;
+    }
+
+    public String getTourAllocationMode() {
+        return tourAllocationMode;
+    }
+
+    public void setTourAllocationMode(String tourAllocationMode) {
+        this.tourAllocationMode = tourAllocationMode;
+    }
+
+    public List<TourRoomAllocationDTO> getTourAllocations() {
+        return tourAllocations;
+    }
+
+    public void setTourAllocations(List<TourRoomAllocationDTO> tourAllocations) {
+        this.tourAllocations = tourAllocations;
     }
 }

@@ -45,6 +45,7 @@ public class TourBookingServiceImpl implements TourBookingService {
         private final TourStaffAssignmentRepository tourStaffAssignmentRepository;
         private final EmployeeRepository employeeRepository;
         private final RoomBookingDetailRepository roomBookingDetailRepository;
+        private final RoomBookingRepository roomBookingRepository;
 
         @Autowired(required = false)
         private EmailService emailService;
@@ -56,7 +57,8 @@ public class TourBookingServiceImpl implements TourBookingService {
                         FolioItemRepository folioItemRepository,
                         TourStaffAssignmentRepository tourStaffAssignmentRepository,
                         EmployeeRepository employeeRepository,
-                        RoomBookingDetailRepository roomBookingDetailRepository) {
+                        RoomBookingDetailRepository roomBookingDetailRepository,
+                        RoomBookingRepository roomBookingRepository) {
                 this.tourScheduleRepository = tourScheduleRepository;
                 this.tourBookingRepository = tourBookingRepository;
                 this.tourAttendeeRepository = tourAttendeeRepository;
@@ -65,6 +67,7 @@ public class TourBookingServiceImpl implements TourBookingService {
                 this.tourStaffAssignmentRepository = tourStaffAssignmentRepository;
                 this.employeeRepository = employeeRepository;
                 this.roomBookingDetailRepository = roomBookingDetailRepository;
+                this.roomBookingRepository = roomBookingRepository;
         }
 
         @Override
@@ -95,9 +98,19 @@ public class TourBookingServiceImpl implements TourBookingService {
                 TourBooking booking = new TourBooking();
                 booking.setSchedule(schedule);
                 booking.setCustomer(customer);
+                
+                RoomBooking roomBooking = roomBookingRepository.findById(request.getRoomBookingId())
+                                .orElseThrow(() -> new IllegalStateException("TOUR-006: Room Booking not found"));
+                booking.setRoomBooking(roomBooking);
+                
+                if (request.getRoomBookingDetailId() != null) {
+                    RoomBookingDetail detail = roomBookingDetailRepository.findById(request.getRoomBookingDetailId())
+                                    .orElseThrow(() -> new IllegalStateException("TOUR-007: Room Booking Detail not found"));
+                    booking.setRoomBookingDetail(detail);
+                }
+
                 booking.setBookingDate(LocalDate.now());
                 booking.setParticipantCount(request.getParticipantCount());
-                booking.setIsWalkInTour(request.isWalkInTour());
                 booking.setBookingStatus("Confirmed");
                 booking.setBookingSource("Direct_Web");
                 booking.setTotalPrice(totalPrice);

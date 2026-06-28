@@ -55,10 +55,15 @@ public interface BookingService {
      * Xác nhận thanh toán và cập nhật thông tin khách hàng (UC10).
      */
     void confirmBooking(Long bookingId, Long customerId, String fullName, String phone, String email,
-            String cccd, String notes, String paymentMethod);
+            String cccd, String address, String notes, String paymentMethod);
 
     /**
      * Get folios for a booking based on role (Master Booker or Primary Contact).
      */
     java.util.List<java.util.Map<String, Object>> getBookingFolios(Long bookingId, Long customerId);
+
+    /**
+     * Delete a pending booking completely when user exits the payment flow.
+     */
+    void deletePendingBooking(Long bookingId, Long customerId);
 }

@@ -48,7 +48,8 @@ public class TourBookingApiController {
     public ResponseEntity<?> createTourBooking(@RequestBody Map<String, Object> payload, Principal principal) {
         try {
             Long tourId = Long.valueOf(payload.get("tourId").toString());
-            LocalDate departureDate = LocalDate.parse(payload.get("departureDate").toString(), DateTimeFormatter.ISO_LOCAL_DATE);
+            LocalDate departureDate = LocalDate.parse(payload.get("departureDate").toString(),
+                    DateTimeFormatter.ISO_LOCAL_DATE);
             String fullName = (String) payload.get("fullName");
             String email = (String) payload.get("email");
             String phone = (String) payload.get("phone");
@@ -61,8 +62,7 @@ public class TourBookingApiController {
             if (principal != null) {
                 String identifier = principal.getName();
                 if (principal instanceof org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken) {
-                    org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken oauthToken = 
-                        (org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken) principal;
+                    org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken oauthToken = (org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken) principal;
                     identifier = oauthToken.getPrincipal().getAttribute("email");
                 }
                 if (identifier != null) {
@@ -76,7 +76,7 @@ public class TourBookingApiController {
                         .filter(c -> email.equalsIgnoreCase(c.getEmail()))
                         .findFirst()
                         .orElse(null);
-                
+
                 if (customer == null) {
                     // Create transient Guest Customer
                     customer = new Customer();
@@ -86,7 +86,8 @@ public class TourBookingApiController {
                     customer.setGender("Nam"); // default
                     customer.setCccdPassportEncrypted("GUEST_" + System.currentTimeMillis());
                     customer.setLoyaltyPoints(0);
-                    customer.setMembershipTier(membershipTierRepository.findByTierNameIgnoreCase("Regular").orElse(null));
+                    customer.setMembershipTier(
+                            membershipTierRepository.findByTierNameIgnoreCase("Regular").orElse(null));
                     customer = customerRepository.save(customer);
                 }
             }
@@ -114,16 +115,26 @@ public class TourBookingApiController {
             request.setScheduleId(schedule.getId());
             request.setCustomerId(customer.getId());
             request.setParticipantCount(participantCount);
-            request.setWalkInTour(false);
+            request.setParticipantCount(participantCount);
+
+            if (roomNumber == null || roomNumber.trim().isEmpty()) {
+                throw new IllegalArgumentException("Vui lòng chọn phòng bạn đang lưu trú.");
+            }
+
+            Optional<Room> roomOpt = roomRepository.findByRoomNumber(roomNumber);
+            if (roomOpt.isEmpty() || roomOpt.get().getCurrentBookingDetailId() == null) {
+                throw new IllegalArgumentException("Phòng không hợp lệ hoặc bạn chưa nhận phòng.");
+            }
+
+            Long detailId = roomOpt.get().getCurrentBookingDetailId();
+            RoomBookingDetail detail = roomBookingDetailRepository.findById(detailId)
+                    .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy thông tin đặt phòng chi tiết."));
+
+            request.setRoomBookingDetailId(detailId);
+            request.setRoomBookingId(detail.getRoomBooking().getId());
 
             if ("post-room".equalsIgnoreCase(paymentMethod)) {
                 request.setPostToRoom(true);
-                if (roomNumber != null && !roomNumber.trim().isEmpty()) {
-                    Optional<Room> roomOpt = roomRepository.findByRoomNumber(roomNumber);
-                    if (roomOpt.isPresent() && roomOpt.get().getCurrentBookingDetailId() != null) {
-                        request.setRoomBookingDetailId(roomOpt.get().getCurrentBookingDetailId());
-                    }
-                }
             } else {
                 request.setPostToRoom(false);
             }
@@ -137,7 +148,8 @@ public class TourBookingApiController {
             responsePayload.put("bookingId", bookingId);
             responsePayload.put("message", "Đặt tour thành công!");
             responsePayload.put("tourName", tour.getTourName());
-            java.math.BigDecimal totalPrice = tour.getBasePrice().multiply(java.math.BigDecimal.valueOf(participantCount));
+            java.math.BigDecimal totalPrice = tour.getBasePrice()
+                    .multiply(java.math.BigDecimal.valueOf(participantCount));
             responsePayload.put("totalPrice", totalPrice);
             responsePayload.put("paymentMethod", paymentMethod);
             responsePayload.put("depositAmount", totalPrice.multiply(new java.math.BigDecimal("0.3")));
@@ -152,8 +164,7 @@ public class TourBookingApiController {
             e.printStackTrace();
             return ResponseEntity.status(400).body(Map.of(
                     "status", "error",
-                    "message", e.getMessage() != null ? e.getMessage() : "Unknown error"
-            ));
+                    "message", e.getMessage() != null ? e.getMessage() : "Unknown error"));
         }
     }
 
@@ -169,14 +180,14 @@ public class TourBookingApiController {
         TourBooking tb = optTb.get();
         TourSchedule schedule = tb.getSchedule();
         Tour tour = schedule != null ? schedule.getTour() : null;
-        
+
         Map<String, Object> data = new java.util.HashMap<>();
         data.put("id", tb.getId());
         data.put("bookingStatus", tb.getBookingStatus());
         data.put("participantCount", tb.getParticipantCount());
         data.put("tourCharge", tb.getTourCharge());
         data.put("paymentType", "UNKNOWN");
-        
+
         if (schedule != null) {
             data.put("departureDate", schedule.getDepartureDate().toString());
             data.put("departureTime", schedule.getDepartureTime().toString());
