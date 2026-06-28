@@ -204,8 +204,15 @@
         }
 
         @keyframes scan {
-            0%, 100% { top: 5%; }
-            50% { top: 95%; }
+
+            0%,
+            100% {
+                top: 5%;
+            }
+
+            50% {
+                top: 95%;
+            }
         }
 
         .face-frame {
@@ -214,7 +221,7 @@
             left: 10%;
             width: 80%;
             height: 80%;
-            border: 2px dashed rgba(255,255,255,0.4);
+            border: 2px dashed rgba(255, 255, 255, 0.4);
             border-radius: 20px;
             z-index: 20;
             transition: all 0.3s;
@@ -241,9 +248,12 @@
             body * {
                 visibility: hidden;
             }
-            #print-area, #print-area * {
+
+            #print-area,
+            #print-area * {
                 visibility: visible;
             }
+
             #print-area {
                 position: absolute;
                 left: 0;
@@ -252,7 +262,9 @@
                 background: white !important;
                 color: black !important;
             }
-            .no-print, .no-print * {
+
+            .no-print,
+            .no-print * {
                 visibility: hidden !important;
                 display: none !important;
             }
@@ -268,81 +280,92 @@
             class="w-full h-20 fixed top-0 left-0 z-50 bg-surface/80 backdrop-blur-xl border-b border-white/20 px-margin-desktop flex items-center justify-between">
             <div class="flex items-center gap-12">
                 <div class="flex flex-col">
-                    <h1 class="font-headline text-[32px] italic tracking-tighter text-primary leading-tight cursor-pointer" onclick="window.location.href='/'">HoaNien</h1>
+                    <h1 class="font-headline text-[32px] italic tracking-tighter text-primary leading-tight cursor-pointer"
+                        onclick="window.location.href='/'">HoaNien</h1>
                     <p class="font-label-sm text-[10px] text-on-surface-variant/60 -mt-1">Retreat Resort &amp; Hub</p>
                 </div>
                 <nav class="flex items-center gap-2">
-                <a th:class="${requestUri == '/tourguide/tour'} ? 'flex items-center gap-2 py-2 px-4 rounded-full text-primary font-bold bg-primary/5 border border-primary/20 transition-all duration-300 no-underline' : 'flex items-center gap-2 py-2 px-4 rounded-full text-on-surface-variant/70 font-medium hover:bg-primary/5 transition-all duration-300 no-underline'"
-                    href="/tourguide/tour">
-                    <span class="material-symbols-outlined text-[20px]">map</span>
-                    <span class="font-label-md text-label-md">Hành trình</span>
-                </a>
-                <a th:class="${requestUri == '/tourguide/dashboard'} ? 'flex items-center gap-2 py-2 px-4 rounded-full text-primary font-bold bg-primary/5 border border-primary/20 transition-all duration-300 no-underline' : 'flex items-center gap-2 py-2 px-4 rounded-full text-on-surface-variant/70 font-medium hover:bg-primary/5 transition-all duration-300 no-underline'"
-                    href="/tourguide/dashboard">
-                    <span class="material-symbols-outlined text-[20px]">group</span>
-                    <span class="font-label-md text-label-md">Khách hàng</span>
-                </a>
-                <a th:class="${requestUri == '/tourguide/feedback'} ? 'flex items-center gap-2 py-2 px-4 rounded-full text-primary font-bold bg-primary/5 border border-primary/20 transition-all duration-300 no-underline' : 'flex items-center gap-2 py-2 px-4 rounded-full text-on-surface-variant/70 font-medium hover:bg-primary/5 transition-all duration-300 no-underline'"
-                    href="/tourguide/feedback">
-                    <span class="material-symbols-outlined text-[20px]">rate_review</span>
-                    <span class="font-label-md text-label-md">Nhận xét</span>
-                </a>
-            </nav>
-        </div>
-        <!-- 3. Profile & Icons -->
-        <div class="flex items-center gap-4">
-            <div class="relative dropdown-notification">
-                <button onclick="toggleNotificationDropdown(event)"
-                    class="w-10 h-10 flex items-center justify-center rounded-full text-on-surface-variant hover:bg-primary/5 transition-colors relative">
-                    <span class="material-symbols-outlined">notifications</span>
-                    <!-- Red badge for unread notifications -->
-                    <span class="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full"></span>
-                </button>
-                <!-- Dropdown Card -->
-                <div id="notificationDropdown" class="hidden absolute right-0 mt-2 w-80 bg-[#fdfbf7] border border-[#3a3230]/20 shadow-2xl rounded-2xl p-4 z-[100] text-[#372618]">
-                    <div class="flex justify-between items-center border-b border-[#3a3230]/10 pb-2 mb-3">
-                        <span class="font-headline text-lg font-bold">Thông báo mới</span>
-                        <button onclick="markAllNotificationsAsRead(event)" class="text-xs text-primary hover:underline font-semibold">Đọc tất cả</button>
-                    </div>
-                    <div class="space-y-3 max-h-64 overflow-y-auto text-left" id="notifications-list">
-                        <!-- Notification Item 1 -->
-                        <div class="p-3 bg-primary/5 rounded-xl border-l-4 border-primary space-y-1">
-                            <p class="text-xs font-semibold text-on-surface">Yêu cầu hỗ trợ từ Đoàn khách</p>
-                            <p class="text-[11px] text-on-surface-variant/70 leading-snug">Đoàn khách Singapore tại Cố đô Huế yêu cầu chuẩn bị thêm nước uống đóng chai.</p>
-                            <p class="text-[9px] text-on-surface-variant/50">5 phút trước</p>
-                        </div>
-                        <!-- Notification Item 2 -->
-                        <div class="p-3 bg-primary/5 rounded-xl border-l-4 border-primary space-y-1">
-                            <p class="text-xs font-semibold text-on-surface">Cảnh báo Thời tiết</p>
-                            <p class="text-[11px] text-on-surface-variant/70 leading-snug">Dự báo có mưa rào nhẹ tại khu vực Tháp Mười từ 16:30 chiều nay.</p>
-                            <p class="text-[9px] text-on-surface-variant/50">20 phút trước</p>
-                        </div>
-                        <!-- Notification Item 3 -->
-                        <div class="p-3 hover:bg-primary/5 rounded-xl transition-colors space-y-1">
-                            <p class="text-xs font-medium text-on-surface-variant">Lịch trình Ngày mai</p>
-                            <p class="text-[11px] text-on-surface-variant/70 leading-snug">Bạn có lịch dẫn đoàn tham quan Ninh Bình bắt đầu lúc 08:30 sáng mai.</p>
-                            <p class="text-[9px] text-on-surface-variant/50">2 giờ trước</p>
-                        </div>
-                    </div>
-                </div>
+                    <a th:class="${requestUri == '/tourguide/tour'} ? 'flex items-center gap-2 py-2 px-4 rounded-full text-primary font-bold bg-primary/5 border border-primary/20 transition-all duration-300 no-underline' : 'flex items-center gap-2 py-2 px-4 rounded-full text-on-surface-variant/70 font-medium hover:bg-primary/5 transition-all duration-300 no-underline'"
+                        href="/tourguide/tour">
+                        <span class="material-symbols-outlined text-[20px]">map</span>
+                        <span class="font-label-md text-label-md">Hành trình</span>
+                    </a>
+                    <a th:class="${requestUri == '/tourguide/dashboard'} ? 'flex items-center gap-2 py-2 px-4 rounded-full text-primary font-bold bg-primary/5 border border-primary/20 transition-all duration-300 no-underline' : 'flex items-center gap-2 py-2 px-4 rounded-full text-on-surface-variant/70 font-medium hover:bg-primary/5 transition-all duration-300 no-underline'"
+                        href="/tourguide/dashboard">
+                        <span class="material-symbols-outlined text-[20px]">group</span>
+                        <span class="font-label-md text-label-md">Khách hàng</span>
+                    </a>
+                    <a th:class="${requestUri == '/tourguide/feedback'} ? 'flex items-center gap-2 py-2 px-4 rounded-full text-primary font-bold bg-primary/5 border border-primary/20 transition-all duration-300 no-underline' : 'flex items-center gap-2 py-2 px-4 rounded-full text-on-surface-variant/70 font-medium hover:bg-primary/5 transition-all duration-300 no-underline'"
+                        href="/tourguide/feedback">
+                        <span class="material-symbols-outlined text-[20px]">rate_review</span>
+                        <span class="font-label-md text-label-md">Nhận xét</span>
+                    </a>
+                </nav>
             </div>
-            <div class="h-8 w-px bg-primary/10"></div>
-            <button onclick="openGuideSettingsModal(event)" class="flex items-center gap-3 pl-2 pr-1 py-1 rounded-full hover:bg-primary/5 transition-all outline-none" title="Thông tin cá nhân">
-                <div class="text-right">
-                    <p class="font-label-md text-label-md text-on-surface leading-none" th:text="${employee != null ? employee.fullName : 'NguynNgoc'}">NguynNgoc</p>
-                    <p class="text-[10px] text-on-surface-variant/60">Hướng dẫn viên cao cấp</p>
+            <!-- 3. Profile & Icons -->
+            <div class="flex items-center gap-4">
+                <div class="relative dropdown-notification">
+                    <button onclick="toggleNotificationDropdown(event)"
+                        class="w-10 h-10 flex items-center justify-center rounded-full text-on-surface-variant hover:bg-primary/5 transition-colors relative">
+                        <span class="material-symbols-outlined">notifications</span>
+                        <!-- Red badge for unread notifications -->
+                        <span class="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full"></span>
+                    </button>
+                    <!-- Dropdown Card -->
+                    <div id="notificationDropdown"
+                        class="hidden absolute right-0 mt-2 w-80 bg-[#fdfbf7] border border-[#3a3230]/20 shadow-2xl rounded-2xl p-4 z-[100] text-[#372618]">
+                        <div class="flex justify-between items-center border-b border-[#3a3230]/10 pb-2 mb-3">
+                            <span class="font-headline text-lg font-bold">Thông báo mới</span>
+                            <button onclick="markAllNotificationsAsRead(event)"
+                                class="text-xs text-primary hover:underline font-semibold">Đọc tất cả</button>
+                        </div>
+                        <div class="space-y-3 max-h-64 overflow-y-auto text-left" id="notifications-list">
+                            <!-- Notification Item 1 -->
+                            <div class="p-3 bg-primary/5 rounded-xl border-l-4 border-primary space-y-1">
+                                <p class="text-xs font-semibold text-on-surface">Yêu cầu hỗ trợ từ Đoàn khách</p>
+                                <p class="text-[11px] text-on-surface-variant/70 leading-snug">Đoàn khách Singapore tại
+                                    Cố đô Huế yêu cầu chuẩn bị thêm nước uống đóng chai.</p>
+                                <p class="text-[9px] text-on-surface-variant/50">5 phút trước</p>
+                            </div>
+                            <!-- Notification Item 2 -->
+                            <div class="p-3 bg-primary/5 rounded-xl border-l-4 border-primary space-y-1">
+                                <p class="text-xs font-semibold text-on-surface">Cảnh báo Thời tiết</p>
+                                <p class="text-[11px] text-on-surface-variant/70 leading-snug">Dự báo có mưa rào nhẹ tại
+                                    khu vực Tháp Mười từ 16:30 chiều nay.</p>
+                                <p class="text-[9px] text-on-surface-variant/50">20 phút trước</p>
+                            </div>
+                            <!-- Notification Item 3 -->
+                            <div class="p-3 hover:bg-primary/5 rounded-xl transition-colors space-y-1">
+                                <p class="text-xs font-medium text-on-surface-variant">Lịch trình Ngày mai</p>
+                                <p class="text-[11px] text-on-surface-variant/70 leading-snug">Bạn có lịch dẫn đoàn tham
+                                    quan Ninh Bình bắt đầu lúc 08:30 sáng mai.</p>
+                                <p class="text-[9px] text-on-surface-variant/50">2 giờ trước</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div
-                    class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary/20 ring-4 ring-primary/5 bg-primary-container flex items-center justify-center text-on-primary-container font-bold">
-                    GD
-                </div>
-            </button>
-            <form th:action="@{/auth/logout}" method="post" class="inline">
-                <button type="submit" class="w-10 h-10 flex items-center justify-center rounded-full text-red-600 hover:bg-red-50 hover:text-red-800 transition-colors" title="Đăng xuất">
-                    <span class="material-symbols-outlined">logout</span>
+                <div class="h-8 w-px bg-primary/10"></div>
+                <button onclick="openGuideSettingsModal(event)"
+                    class="flex items-center gap-3 pl-2 pr-1 py-1 rounded-full hover:bg-primary/5 transition-all outline-none"
+                    title="Thông tin cá nhân">
+                    <div class="text-right">
+                        <p class="font-label-md text-label-md text-on-surface leading-none"
+                            th:text="${employee != null ? employee.fullName : 'NguynNgoc'}">NguynNgoc</p>
+                        <p class="text-[10px] text-on-surface-variant/60">Hướng dẫn viên cao cấp</p>
+                    </div>
+                    <div
+                        class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary/20 ring-4 ring-primary/5 bg-primary-container flex items-center justify-center text-on-primary-container font-bold">
+                        GD
+                    </div>
                 </button>
-            </form>
-        </div>
+                <form th:action="@{/auth/logout}" method="post" class="inline">
+                    <button type="submit"
+                        class="w-10 h-10 flex items-center justify-center rounded-full text-red-600 hover:bg-red-50 hover:text-red-800 transition-colors"
+                        title="Đăng xuất">
+                        <span class="material-symbols-outlined">logout</span>
+                    </button>
+                </form>
+            </div>
         </header>
         <!-- 2. Sub-navbar (Search & Actions) -->
         <div
@@ -372,7 +395,8 @@
             <!-- Header -->
             <div class="space-y-2">
                 <h3 class="font-headline-lg text-headline-lg text-on-surface">Quản lý Đoàn Khách</h3>
-                <p class="font-headline text-lg md:text-xl font-light text-on-surface-variant/70">Theo dõi trạng thái và thực hiện điểm danh tự động qua FaceID.</p>
+                <p class="font-headline text-lg md:text-xl font-light text-on-surface-variant/70">Theo dõi trạng thái và
+                    thực hiện điểm danh tự động qua FaceID.</p>
             </div>
             <!-- Grid Layout -->
             <div class="grid grid-cols-12 gap-8 items-start">
@@ -382,16 +406,20 @@
                     <div class="glass-panel rounded-lg p-8 border-primary/10">
                         <div class="flex justify-between items-start w-full">
                             <div class="space-y-1">
-                                 <h4 id="tour-name-display" 
-                                     class="font-display-md text-[32px] text-primary leading-tight cursor-pointer hover:underline hover:opacity-80 transition-all" 
-                                     onclick="showActivities(this.textContent.trim())" 
-                                     th:text="${tourName != null ? tourName : 'Hành trình Đoàn Tụ'}">Hành trình Đoàn Tụ</h4>
-                                <p class="font-headline text-lg md:text-xl font-light text-on-surface-variant/60" th:text="'Khởi hành ngày ' + ${departureDate != null ? departureDate : '--'} + ' vào lúc ' + ${departureTime != null ? departureTime : '--'}">Quản lý và cập nhật tình trạng điểm danh cho đoàn khách cao cấp.</p>
+                                <h4 id="tour-name-display"
+                                    class="font-display-md text-[32px] text-primary leading-tight cursor-pointer hover:underline hover:opacity-80 transition-all"
+                                    onclick="showActivities(this.textContent.trim())"
+                                    th:text="${tourName != null ? tourName : 'Hành trình Đoàn Tụ'}">Hành trình Đoàn Tụ
+                                </h4>
+                                <p class="font-headline text-lg md:text-xl font-light text-on-surface-variant/60"
+                                    th:text="'Khởi hành ngày ' + ${departureDate != null ? departureDate : '--'} + ' vào lúc ' + ${departureTime != null ? departureTime : '--'}">
+                                    Quản lý và cập nhật tình trạng điểm danh cho đoàn khách cao cấp.</p>
                             </div>
                             <div
                                 class="flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-full border border-primary/20 shadow-sm">
                                 <span class="material-symbols-outlined text-primary text-[20px]">groups</span>
-                                <span class="font-label-md text-label-md text-primary" th:text="${totalAttendees} + ' Khách hàng'">128 Khách hàng</span>
+                                <span class="font-label-md text-label-md text-primary"
+                                    th:text="${totalAttendees} + ' Khách hàng'">128 Khách hàng</span>
                             </div>
                         </div>
                     </div>
@@ -402,50 +430,58 @@
                                 <thead>
                                     <tr class="border-b border-primary/5">
                                         <th
-                                            class="pb-6 font-label-md text-label-md text-primary uppercase tracking-widest px-4">Mã KH</th>
+                                            class="pb-6 font-label-md text-label-md text-primary uppercase tracking-widest px-4">
+                                            Mã KH</th>
                                         <th
-                                            class="pb-6 font-label-md text-label-md text-primary uppercase tracking-widest px-4">Họ và Tên</th>
+                                            class="pb-6 font-label-md text-label-md text-primary uppercase tracking-widest px-4">
+                                            Họ và Tên</th>
                                         <th
-                                            class="pb-6 font-label-md text-label-md text-primary uppercase tracking-widest px-4">TRẠNG THÁI</th>
+                                            class="pb-6 font-label-md text-label-md text-primary uppercase tracking-widest px-4">
+                                            TRẠNG THÁI</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-primary/5">
-                                    <tr th:each="attendee, iter : ${attendees}" class="group hover:bg-primary/5 transition-colors">
-                                        <td class="py-6 px-4 font-body-md font-medium text-on-surface" th:text="'#EVN-00' + ${attendee.id}">#EVN-00234</td>
+                                    <tr th:each="attendee, iter : ${attendees}"
+                                        class="group hover:bg-primary/5 transition-colors">
+                                        <td class="py-6 px-4 font-body-md font-medium text-on-surface"
+                                            th:text="'#EVN-00' + ${attendee.id}">#EVN-00234</td>
                                         <td class="py-6 px-4">
                                             <div class="flex items-center gap-3">
-                                                 <div th:with="custName=${attendee.customer?.fullName ?: (attendee.dependent?.dependentName ?: 'KH')}"
-                                                     class="w-10 h-10 rounded-full glass-card flex items-center justify-center font-display-md text-primary text-sm cursor-pointer hover:scale-105 transition-all"
-                                                     th:text="${#strings.length(custName) >= 2 ? #strings.substring(custName, 0, 2).toUpperCase() : custName.toUpperCase()}"
-                                                     th:data-name="${attendee.customer?.fullName ?: (attendee.dependent?.dependentName ?: 'Khách vãng lai')}"
-                                                     th:data-id="'#EVN-00' + ${attendee.id}"
-                                                     th:data-phone="${attendee.customer?.phone ?: (attendee.dependent != null ? 'Người thân' : '--')}"
-                                                     th:data-email="${attendee.customer?.email ?: '--'}"
-                                                     th:data-membership="${attendee.customer != null ? attendee.customer.membershipTier : 'Khách đi cùng'}"
-                                                     th:data-room="'Phòng ' + ${100 + (attendee.id != null ? attendee.id % 20 : 0)}"
-                                                     onclick="showCustomerContactModal(this)">
-                                                     NM
-                                                 </div>
+                                                <div th:with="custName=${attendee.customer?.fullName ?: (attendee.dependent?.dependentName ?: 'KH')}"
+                                                    class="w-10 h-10 rounded-full glass-card flex items-center justify-center font-display-md text-primary text-sm cursor-pointer hover:scale-105 transition-all"
+                                                    th:text="${#strings.length(custName) >= 2 ? #strings.substring(custName, 0, 2).toUpperCase() : custName.toUpperCase()}"
+                                                    th:data-name="${attendee.customer?.fullName ?: (attendee.dependent?.dependentName ?: 'Khách vãng lai')}"
+                                                    th:data-id="'#EVN-00' + ${attendee.id}"
+                                                    th:data-phone="${attendee.customer?.phone ?: (attendee.dependent != null ? 'Người thân' : '--')}"
+                                                    th:data-email="${attendee.customer?.email ?: '--'}"
+                                                    th:data-membership="${attendee.customer != null ? attendee.customer.membershipTier : 'Khách đi cùng'}"
+                                                    th:data-room="'Phòng ' + ${100 + (attendee.id != null ? attendee.id % 20 : 0)}"
+                                                    onclick="showCustomerContactModal(this)">
+                                                    NM
+                                                </div>
                                                 <div>
                                                     <p class="font-body-md font-semibold text-on-surface cursor-pointer hover:underline animate-none"
-                                                       th:text="${attendee.customer?.fullName ?: (attendee.dependent?.dependentName ?: 'Khách vãng lai')}"
-                                                       th:data-name="${attendee.customer?.fullName ?: (attendee.dependent?.dependentName ?: 'Khách vãng lai')}"
-                                                       th:data-id="'#EVN-00' + ${attendee.id}"
-                                                       th:data-phone="${attendee.customer?.phone ?: (attendee.dependent != null ? 'Người thân' : '--')}"
-                                                       th:data-email="${attendee.customer?.email ?: '--'}"
-                                                       th:data-membership="${attendee.customer != null ? attendee.customer.membershipTier : 'Khách đi cùng'}"
-                                                       th:data-room="'Phòng ' + ${100 + (attendee.id != null ? attendee.id % 20 : 0)}"
-                                                       onclick="showCustomerContactModal(this)">
+                                                        th:text="${attendee.customer?.fullName ?: (attendee.dependent?.dependentName ?: 'Khách vãng lai')}"
+                                                        th:data-name="${attendee.customer?.fullName ?: (attendee.dependent?.dependentName ?: 'Khách vãng lai')}"
+                                                        th:data-id="'#EVN-00' + ${attendee.id}"
+                                                        th:data-phone="${attendee.customer?.phone ?: (attendee.dependent != null ? 'Người thân' : '--')}"
+                                                        th:data-email="${attendee.customer?.email ?: '--'}"
+                                                        th:data-membership="${attendee.customer != null ? attendee.customer.membershipTier : 'Khách đi cùng'}"
+                                                        th:data-room="'Phòng ' + ${100 + (attendee.id != null ? attendee.id % 20 : 0)}"
+                                                        onclick="showCustomerContactModal(this)">
                                                         Nguyễn Minh Anh
                                                     </p>
-                                                    <p class="text-[12px] text-on-surface-variant/60" th:text="${attendee.customer != null ? attendee.customer.membershipTier : 'Khách đi cùng'}">Hà Nội</p>
+                                                    <p class="text-[12px] text-on-surface-variant/60"
+                                                        th:text="${attendee.customer != null ? attendee.customer.membershipTier : 'Khách đi cùng'}">
+                                                        Hà Nội</p>
                                                 </div>
                                             </div>
                                         </td>
                                         <td class="py-6 px-4 flex items-center">
                                             <span th:if="${attendee.status == 'Checked_In'}"
                                                 class="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 font-label-sm text-label-sm border border-emerald-500/30 flex items-center">
-                                                <span class="material-symbols-outlined text-[14px] mr-1">check</span>Đã điểm danh
+                                                <span class="material-symbols-outlined text-[14px] mr-1">check</span>Đã
+                                                điểm danh
                                             </span>
                                             <button th:if="${attendee.status == 'Checked_In'}"
                                                 class="ml-3 w-8 h-8 flex items-center justify-center rounded-lg border border-primary/30 text-primary/40 cursor-default bg-primary/5"
@@ -466,9 +502,12 @@
                                     </tr>
                                 </tbody>
                             </table>
-                            <div th:if="${#lists.isEmpty(attendees)}" class="flex flex-col items-center justify-center py-16 text-center">
-                                <span class="material-symbols-outlined text-[48px] text-beige-decorative mb-4">groups</span>
-                                <p class="font-body-md text-on-surface-variant">Không có hành khách nào đăng ký hôm nay.</p>
+                            <div th:if="${#lists.isEmpty(attendees)}"
+                                class="flex flex-col items-center justify-center py-16 text-center">
+                                <span
+                                    class="material-symbols-outlined text-[48px] text-beige-decorative mb-4">groups</span>
+                                <p class="font-body-md text-on-surface-variant">Không có hành khách nào đăng ký hôm nay.
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -480,25 +519,27 @@
                         </div>
                         <div class="space-y-2">
                             <label class="font-label-md text-on-surface-variant/70">Mô tả sự cố</label>
-                            <textarea
-                                id="incident-description"
+                            <textarea id="incident-description"
                                 class="w-full bg-surface-container/30 border-none rounded-lg p-4 font-body-md text-on-surface placeholder-on-surface-variant/40 focus:ring-2 focus:ring-primary/20 transition-all outline-none min-h-[120px]"
                                 placeholder="Nhập chi tiết sự cố tại đây..."></textarea>
                         </div>
                         <div class="flex justify-end">
-                            <button
-                                onclick="submitIncidentReport()"
+                            <button onclick="submitIncidentReport()"
                                 class="px-8 py-3 rounded-full bg-primary text-white font-label-md text-label-md shadow-lg shadow-primary/20 hover:scale-[1.02] transition-all font-semibold">
                                 Gửi báo cáo
                             </button>
                         </div>
                     </div>
-                    <div id="notice-banner-card" class="glass-panel p-8 rounded-lg relative overflow-hidden group no-print">
+                    <div id="notice-banner-card"
+                        class="glass-panel p-8 rounded-lg relative overflow-hidden group no-print">
                         <div class="relative z-10 flex flex-col h-full justify-between">
                             <div class="max-w-md">
-                                <h4 class="font-display-md text-[28px] text-primary mb-2">Thông tin Quan trọng (Lưu ý)</h4>
-                                <p class="font-headline text-lg font-light text-on-surface-variant/70">Yêu cầu tất cả nhân viên kiểm tra
-                                    thiết bị quét khuôn mặt trước giờ đón khách 30 phút. Báo cáo ngay nếu có sự cố xảy ra.</p>
+                                <h4 class="font-display-md text-[28px] text-primary mb-2">Thông tin Quan trọng (Lưu ý)
+                                </h4>
+                                <p class="font-headline text-lg font-light text-on-surface-variant/70">Yêu cầu tất cả
+                                    nhân viên kiểm tra
+                                    thiết bị quét khuôn mặt trước giờ đón khách 30 phút. Báo cáo ngay nếu có sự cố xảy
+                                    ra.</p>
                             </div>
                             <div class="flex items-center gap-4 mt-8">
                                 <button onclick="showImportantNoteDetails()"
@@ -527,15 +568,21 @@
                                 <h5 class="font-headline-md text-[20px] text-on-surface">Điểm danh FaceID</h5>
                             </div>
                             <!-- Camera Scanning Frame (Squircle) -->
-                            <div class="relative aspect-[4/3] bg-[#1a151a] rounded-xl overflow-hidden shadow-xl border-[12px] border-surface-container-low camera-container" id="camera-container">
-                                <video id="camera-video" autoplay playsinline muted class="absolute inset-0 w-full h-full object-cover z-0"></video>
+                            <div class="relative aspect-[4/3] bg-[#1a151a] rounded-xl overflow-hidden shadow-xl border-[12px] border-surface-container-low camera-container"
+                                id="camera-container">
+                                <video id="camera-video" autoplay playsinline muted
+                                    class="absolute inset-0 w-full h-full object-cover z-0"></video>
                                 <canvas id="camera-canvas" class="hidden"></canvas>
-                                <img id="captured-image" class="absolute inset-0 w-full h-full object-cover hidden z-0" alt="Captured">
+                                <img id="captured-image" class="absolute inset-0 w-full h-full object-cover hidden z-0"
+                                    alt="Captured">
 
                                 <!-- Original background/placeholder mockup -->
-                                <div id="camera-placeholder" class="absolute inset-0 bg-[#161216] flex flex-col items-center justify-center gap-3 z-5">
-                                    <span class="material-symbols-outlined text-[48px] text-primary/30">videocam_off</span>
-                                    <p class="text-xs text-on-surface-variant/40 font-medium px-4 text-center">Camera đang tắt. Hãy bấm bật camera để bắt đầu.</p>
+                                <div id="camera-placeholder"
+                                    class="absolute inset-0 bg-[#161216] flex flex-col items-center justify-center gap-3 z-5">
+                                    <span
+                                        class="material-symbols-outlined text-[48px] text-primary/30">videocam_off</span>
+                                    <p class="text-xs text-on-surface-variant/40 font-medium px-4 text-center">Camera
+                                        đang tắt. Hãy bấm bật camera để bắt đầu.</p>
                                 </div>
 
                                 <div class="absolute inset-0 flex items-center justify-center z-10">
@@ -553,42 +600,55 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="face-frame z-20" id="face-frame"></div>
+                                <div id="faces-container" class="absolute inset-0 z-20 pointer-events-none"></div>
                                 <div class="scan-line z-20" id="scan-line"></div>
 
-                                <div class="absolute bottom-6 left-1/2 -translate-x-1/2 bg-black/60 backdrop-blur-md px-4 py-2 rounded-full z-30 flex items-center gap-2 pointer-events-none" id="scan-status-bar">
-                                    <span class="material-symbols-outlined text-champagne text-[16px]" style="font-variation-settings: 'FILL' 1;" id="scan-status-icon">face</span>
-                                    <span id="scan-status-label" class="font-label-caps text-[10px] tracking-widest text-white">SẴN SÀNG</span>
+                                <div class="absolute bottom-6 left-1/2 -translate-x-1/2 bg-black/60 backdrop-blur-md px-4 py-2 rounded-full z-30 flex items-center gap-2 pointer-events-none"
+                                    id="scan-status-bar">
+                                    <span class="material-symbols-outlined text-champagne text-[16px]"
+                                        style="font-variation-settings: 'FILL' 1;" id="scan-status-icon">face</span>
+                                    <span id="scan-status-label"
+                                        class="font-label-caps text-[10px] tracking-widest text-white">SẴN SÀNG</span>
                                 </div>
                             </div>
                             <!-- Control Buttons -->
                             <div class="space-y-4">
                                 <div class="grid grid-cols-2 gap-3">
-                                    <button id="btn-camera" onclick="toggleCamera()" class="flex items-center justify-center gap-2 py-3 rounded-full bg-primary text-white font-label-md text-[13px] shadow-md hover:opacity-90 transition-all">
-                                        <span class="material-symbols-outlined text-[18px]" id="camera-icon">videocam</span>
+                                    <button id="btn-camera" onclick="toggleCamera()"
+                                        class="flex items-center justify-center gap-2 py-3 rounded-full bg-primary text-white font-label-md text-[13px] shadow-md hover:opacity-90 transition-all">
+                                        <span class="material-symbols-outlined text-[18px]"
+                                            id="camera-icon">videocam</span>
                                         <span id="camera-btn-label">Bật Camera</span>
                                     </button>
-                                    <button id="btn-scan" onclick="captureAndScan()" disabled class="flex items-center justify-center gap-2 py-3 rounded-full border border-primary/20 text-on-surface-variant font-label-md text-[13px] hover:bg-primary/5 transition-all disabled:opacity-40 disabled:cursor-not-allowed">
+                                    <button id="btn-scan" disabled
+                                        class="flex items-center justify-center gap-2 py-3 rounded-full border border-primary/20 text-on-surface-variant font-label-md text-[13px] hover:bg-primary/5 transition-all disabled:opacity-40 disabled:cursor-not-allowed">
                                         <span class="material-symbols-outlined text-[18px]">center_focus_strong</span>
                                         Quét Khuôn Mặt
                                     </button>
                                 </div>
-                                <button id="btn-reset" onclick="resetCamera()" disabled class="w-full flex items-center justify-center gap-2 py-3 rounded-full bg-surface-container-low text-on-surface-variant/70 font-label-md text-[13px] hover:bg-surface-container transition-all">
+                                <button id="btn-reset" onclick="resetCamera()" disabled
+                                    class="w-full flex items-center justify-center gap-2 py-3 rounded-full bg-surface-container-low text-on-surface-variant/70 font-label-md text-[13px] hover:bg-surface-container transition-all">
                                     <span class="material-symbols-outlined text-[18px]">restart_alt</span>
                                     Reset Camera
                                 </button>
-                                <button onclick="manualResetAttendance()" class="w-full border border-red-800/60 py-2.5 font-label-caps text-[11px] text-red-800 hover:bg-red-800 hover:text-white transition-all duration-300 flex items-center justify-center gap-2">
-                                    <span class="material-symbols-outlined text-[14px]">lock_reset</span> RESET ĐIỂM DANH
+                                <button onclick="manualResetAttendance()"
+                                    class="w-full border border-red-800/60 py-2.5 font-label-caps text-[11px] text-red-800 hover:bg-red-800 hover:text-white transition-all duration-300 flex items-center justify-center gap-2">
+                                    <span class="material-symbols-outlined text-[14px]">lock_reset</span> RESET ĐIỂM
+                                    DANH
                                 </button>
                             </div>
                             <!-- Success Status Notification -->
-                            <div id="scan-result-card" class="glass-card p-4 rounded-lg border border-primary/10 flex items-center justify-between hidden">
+                            <div id="scan-result-card"
+                                class="glass-card p-4 rounded-lg border border-primary/10 flex items-center justify-between hidden">
                                 <div class="flex items-center gap-4">
-                                    <div class="w-12 h-12 rounded-full overflow-hidden border-2 border-primary/20 flex items-center justify-center bg-white">
-                                        <span id="result-icon" class="material-symbols-outlined text-[20px] text-green-800">check_circle</span>
+                                    <div
+                                        class="w-12 h-12 rounded-full overflow-hidden border-2 border-primary/20 flex items-center justify-center bg-white">
+                                        <span id="result-icon"
+                                            class="material-symbols-outlined text-[20px] text-green-800">check_circle</span>
                                     </div>
                                     <div>
-                                        <p id="result-name" class="font-body-md font-bold text-on-surface">Nguyễn Minh Anh</p>
+                                        <p id="result-name" class="font-body-md font-bold text-on-surface">Nguyễn Minh
+                                            Anh</p>
                                         <div class="flex items-center gap-1 text-emerald-600 text-[12px]">
                                             <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                                             <span id="result-detail">Xác thực thành công</span>
@@ -600,17 +660,21 @@
                             <div class="space-y-6 pt-4">
                                 <div class="flex justify-between items-center">
                                     <div class="space-y-1">
-                                        <p class="text-[10px] font-bold text-on-surface-variant/40 uppercase tracking-widest">Tiến độ điểm danh</p>
+                                        <p
+                                            class="text-[10px] font-bold text-on-surface-variant/40 uppercase tracking-widest">
+                                            Tiến độ điểm danh</p>
                                         <p class="font-headline-md text-2xl text-on-surface">
-                                            <span th:text="${checkedInCount}">0</span> / <span th:text="${totalAttendees}">0</span> Khách
+                                            <span th:text="${checkedInCount}">0</span> / <span
+                                                th:text="${totalAttendees}">0</span> Khách
                                         </p>
                                     </div>
                                     <span class="text-xs text-on-surface-variant/60 font-semibold"
-                                          th:text="${totalAttendees > 0 ? (checkedInCount * 100 / totalAttendees) + '%' : '0%'}">0%</span>
+                                        th:text="${totalAttendees > 0 ? (checkedInCount * 100 / totalAttendees) + '%' : '0%'}">0%</span>
                                 </div>
                                 <div class="w-full bg-[#1b1c1a]/5 rounded-full h-1.5 overflow-hidden">
-                                    <div class="bg-primary h-full rounded-full transition-all duration-500" 
-                                         th:style="'width: ' + ${totalAttendees > 0 ? (checkedInCount * 100 / totalAttendees) : 0} + '%'"></div>
+                                    <div class="bg-primary h-full rounded-full transition-all duration-500"
+                                        th:style="'width: ' + ${totalAttendees > 0 ? (checkedInCount * 100 / totalAttendees) : 0} + '%'">
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -623,7 +687,8 @@
             <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-end">
                 <div class="space-y-4">
                     <h3 class="text-3xl font-serif text-white">HoaNien</h3>
-                    <p class="text-[10px] tracking-widest opacity-50 uppercase text-white">© 2026 HOANIEN RETREAT. A QUIET LUXURY TRAVEL GROUP.</p>
+                    <p class="text-[10px] tracking-widest opacity-50 uppercase text-white">© 2026 HOANIEN RETREAT. A
+                        QUIET LUXURY TRAVEL GROUP.</p>
                 </div>
                 <div class="flex space-x-12 text-[10px] font-bold tracking-widest uppercase opacity-80">
                     <a class="hover:text-[#C5A059] no-underline text-white" href="#">Quyền riêng tư</a>
@@ -637,37 +702,52 @@
     </div>
 
     <!-- Guide Settings Modal -->
-    <div id="guideSettingsModal" class="fixed inset-0 z-[150] hidden flex items-center justify-center bg-black/60 backdrop-blur-sm">
+    <div id="guideSettingsModal"
+        class="fixed inset-0 z-[150] hidden flex items-center justify-center bg-black/60 backdrop-blur-sm">
         <div class="bg-[#fdfbf7] w-full max-w-lg p-8 border border-[#3a3230]/20 shadow-2xl relative text-[#372618]">
-            <button onclick="closeGuideSettingsModal()" class="absolute top-4 right-4 text-[#372618]/60 hover:text-[#372618] transition-colors focus:outline-none">
+            <button onclick="closeGuideSettingsModal()"
+                class="absolute top-4 right-4 text-[#372618]/60 hover:text-[#372618] transition-colors focus:outline-none">
                 <span class="material-symbols-outlined text-2xl">close</span>
             </button>
-            <h3 class="font-headline-md text-2xl text-black font-bold mb-2 border-b border-[#3a3230]/10 pb-3">Thông tin hướng dẫn viên</h3>
+            <h3 class="font-headline-md text-2xl text-black font-bold mb-2 border-b border-[#3a3230]/10 pb-3">Thông tin
+                hướng dẫn viên</h3>
 
             <div th:if="${employee != null}" class="space-y-4 mt-4">
                 <div class="space-y-1">
-                    <label class="font-label-caps text-[10px] text-outline uppercase block text-left font-semibold">Họ và tên</label>
-                    <input readonly th:value="${employee.fullName}" class="w-full bg-transparent border-0 border-b border-[#3a3230]/20 py-1.5 font-body-md text-black transition-all text-left outline-none cursor-default" />
+                    <label class="font-label-caps text-[10px] text-outline uppercase block text-left font-semibold">Họ
+                        và tên</label>
+                    <input readonly th:value="${employee.fullName}"
+                        class="w-full bg-transparent border-0 border-b border-[#3a3230]/20 py-1.5 font-body-md text-black transition-all text-left outline-none cursor-default" />
                 </div>
                 <div class="space-y-1">
-                    <label class="font-label-caps text-[10px] text-outline uppercase block text-left font-semibold">Giới tính</label>
-                    <input readonly th:value="${employee.gender == 'Male' ? 'Nam' : (employee.gender == 'Female' ? 'Nữ' : 'Khác')}" class="w-full bg-transparent border-0 border-b border-[#3a3230]/20 py-1.5 font-body-md text-black transition-all text-left outline-none cursor-default" />
+                    <label class="font-label-caps text-[10px] text-outline uppercase block text-left font-semibold">Giới
+                        tính</label>
+                    <input readonly
+                        th:value="${employee.gender == 'Male' ? 'Nam' : (employee.gender == 'Female' ? 'Nữ' : 'Khác')}"
+                        class="w-full bg-transparent border-0 border-b border-[#3a3230]/20 py-1.5 font-body-md text-black transition-all text-left outline-none cursor-default" />
                 </div>
                 <div class="space-y-1">
-                    <label class="font-label-caps text-[10px] text-outline uppercase block text-left font-semibold">Số CCCD</label>
-                    <input readonly th:value="${employee.cccd}" class="w-full bg-transparent border-0 border-b border-[#3a3230]/20 py-1.5 font-body-md text-black transition-all text-left outline-none cursor-default" />
+                    <label class="font-label-caps text-[10px] text-outline uppercase block text-left font-semibold">Số
+                        CCCD</label>
+                    <input readonly th:value="${employee.cccd}"
+                        class="w-full bg-transparent border-0 border-b border-[#3a3230]/20 py-1.5 font-body-md text-black transition-all text-left outline-none cursor-default" />
                 </div>
                 <div class="space-y-1">
-                    <label class="font-label-caps text-[10px] text-outline uppercase block text-left font-semibold">Số điện thoại</label>
-                    <input readonly th:value="${employee.phone}" class="w-full bg-transparent border-0 border-b border-[#3a3230]/20 py-1.5 font-body-md text-black transition-all text-left outline-none cursor-default" />
+                    <label class="font-label-caps text-[10px] text-outline uppercase block text-left font-semibold">Số
+                        điện thoại</label>
+                    <input readonly th:value="${employee.phone}"
+                        class="w-full bg-transparent border-0 border-b border-[#3a3230]/20 py-1.5 font-body-md text-black transition-all text-left outline-none cursor-default" />
                 </div>
                 <div class="space-y-1">
-                    <label class="font-label-caps text-[10px] text-outline uppercase block text-left font-semibold">Email</label>
-                    <input readonly th:value="${employee.email}" class="w-full bg-transparent border-0 border-b border-[#3a3230]/20 py-1.5 font-body-md text-black transition-all text-left outline-none cursor-default" />
+                    <label
+                        class="font-label-caps text-[10px] text-outline uppercase block text-left font-semibold">Email</label>
+                    <input readonly th:value="${employee.email}"
+                        class="w-full bg-transparent border-0 border-b border-[#3a3230]/20 py-1.5 font-body-md text-black transition-all text-left outline-none cursor-default" />
                 </div>
             </div>
             <div th:if="${employee == null}">
-                <p class="text-sm text-[#3a3230]/80 mt-4 text-left">Không tìm thấy thông tin hồ sơ hướng dẫn viên. Vui lòng liên hệ Quản lý để được hỗ trợ.</p>
+                <p class="text-sm text-[#3a3230]/80 mt-4 text-left">Không tìm thấy thông tin hồ sơ hướng dẫn viên. Vui
+                    lòng liên hệ Quản lý để được hỗ trợ.</p>
             </div>
         </div>
     </div>
@@ -675,8 +755,10 @@
     <!-- Customer Contact Modal -->
     <div class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300"
         id="customer-contact-modal">
-        <div class="max-w-md w-full mx-4 p-8 rounded-xl shadow-xl relative overflow-hidden bg-[#fdfbf7] border border-[#3a3230]/20 text-[#372618]">
-            <button class="absolute top-4 right-4 text-on-surface-variant hover:text-primary transition-colors focus:outline-none"
+        <div
+            class="max-w-md w-full mx-4 p-8 rounded-xl shadow-xl relative overflow-hidden bg-[#fdfbf7] border border-[#3a3230]/20 text-[#372618]">
+            <button
+                class="absolute top-4 right-4 text-on-surface-variant hover:text-primary transition-colors focus:outline-none"
                 onclick="closeCustomerContactModal()">
                 <span class="material-symbols-outlined text-2xl text-[#372618]">close</span>
             </button>
@@ -687,7 +769,8 @@
                 </div>
                 <div class="space-y-2">
                     <h2 class="font-display-md text-[32px] text-primary font-bold" id="modal-customer-name"></h2>
-                    <p class="font-label-md text-primary uppercase tracking-widest font-semibold" id="modal-customer-id"></p>
+                    <p class="font-label-md text-primary uppercase tracking-widest font-semibold"
+                        id="modal-customer-id"></p>
                 </div>
                 <div class="w-full space-y-4 text-left">
                     <div class="flex items-center gap-4 p-4 rounded-lg bg-primary/5">
@@ -720,14 +803,12 @@
                     </div>
                 </div>
                 <div class="grid grid-cols-2 gap-4 w-full">
-                    <button
-                        onclick="showToast('Đang kết nối cuộc gọi đến khách hàng...', 'info')"
+                    <button onclick="showToast('Đang kết nối cuộc gọi đến khách hàng...', 'info')"
                         class="flex items-center justify-center gap-2 py-3 rounded-full bg-primary text-white font-label-md hover:opacity-90 transition-all font-semibold text-[13px]">
                         <span class="material-symbols-outlined text-[18px]">call</span>
                         Gọi điện
                     </button>
-                    <button
-                        onclick="showToast('Đang mở hộp thoại chat với khách hàng...', 'info')"
+                    <button onclick="showToast('Đang mở hộp thoại chat với khách hàng...', 'info')"
                         class="flex items-center justify-center gap-2 py-3 rounded-full border border-primary/20 text-primary font-label-md hover:bg-primary/5 transition-all font-semibold text-[13px]">
                         <span class="material-symbols-outlined text-[18px]">chat</span>
                         Gửi tin nhắn
@@ -752,6 +833,7 @@
         let modelsLoaded = false;
         let referenceDescriptors = [];
         let scanInterval = null;
+        const recentlyScanned = new Set();
 
         async function loadModels() {
             const statusText = document.getElementById('scan-status-label');
@@ -856,8 +938,7 @@
             document.getElementById('captured-image').src = '';
             document.getElementById('camera-video').classList.remove('hidden');
             document.getElementById('scan-result-card').classList.add('hidden');
-            document.getElementById('face-frame').className = 'face-frame';
-            document.getElementById('face-frame').style = '';
+            document.getElementById('faces-container').innerHTML = '';
             document.getElementById('scan-status-label').textContent = 'SẴN SÀNG';
             document.getElementById('scan-line').classList.remove('active');
             isScanning = false;
@@ -874,77 +955,126 @@
         async function performRealTimeScan() {
             isScanning = true;
             const video = document.getElementById('camera-video');
-            const faceFrame = document.getElementById('face-frame');
+            const facesContainer = document.getElementById('faces-container');
             const statusLabel = document.getElementById('scan-status-label');
             const statusIcon = document.getElementById('scan-status-icon');
             const scanLine = document.getElementById('scan-line');
 
             try {
-                const detection = await faceapi
-                    .detectSingleFace(video, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.5 }))
+                // Sử dụng detectAllFaces để quét đám đông
+                const detections = await faceapi
+                    .detectAllFaces(video, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.5 }))
                     .withFaceLandmarks()
-                    .withFaceDescriptor();
+                    .withFaceDescriptors();
 
-                if (detection) {
+                // Xóa các khung cũ trên video
+                facesContainer.innerHTML = '';
+
+                if (detections && detections.length > 0) {
                     scanLine.classList.add('active');
-                    let bestDistance = Infinity;
-                    let bestName = null;
-                    for (const ref of referenceDescriptors) {
-                        const distance = faceapi.euclideanDistance(detection.descriptor, ref.descriptor);
-                        if (distance < bestDistance) {
-                            bestDistance = distance;
-                            bestName = ref.name;
+                    statusLabel.textContent = `ĐANG QUÉT (${detections.length} NGƯỜI)...`;
+
+                    const displaySize = { width: video.clientWidth, height: video.clientHeight };
+                    const resizedDetections = faceapi.resizeResults(detections, displaySize);
+
+                    for (const detection of resizedDetections) {
+                        let bestDistance = Infinity;
+                        let bestName = null;
+                        for (const ref of referenceDescriptors) {
+                            const distance = faceapi.euclideanDistance(detection.descriptor, ref.descriptor);
+                            if (distance < bestDistance) {
+                                bestDistance = distance;
+                                bestName = ref.name;
+                            }
                         }
-                    }
 
-                    let confidence;
-                    if (bestDistance <= FACE_MATCH_THRESHOLD) {
-                        confidence = 100.0 - (bestDistance / FACE_MATCH_THRESHOLD) * 15.0;
-                    } else {
-                        confidence = Math.max(0.0, 85.0 - ((bestDistance - FACE_MATCH_THRESHOLD) / (1.0 - FACE_MATCH_THRESHOLD)) * 85.0);
-                    }
+                        let confidence;
+                        if (bestDistance <= FACE_MATCH_THRESHOLD) {
+                            confidence = 100.0 - (bestDistance / FACE_MATCH_THRESHOLD) * 15.0;
+                        } else {
+                            confidence = Math.max(0.0, 85.0 - ((bestDistance - FACE_MATCH_THRESHOLD) / (1.0 - FACE_MATCH_THRESHOLD)) * 85.0);
+                        }
 
-                    if (bestDistance < FACE_MATCH_THRESHOLD && confidence >= MIN_CONFIDENCE) {
-                        clearInterval(scanInterval); // Dừng quét khi tìm thấy
-                        
-                        // Vẽ khung khớp với khuôn mặt thật trên video
-                        const displaySize = { width: video.clientWidth, height: video.clientHeight };
-                        const resizedDetections = faceapi.resizeResults(detection, displaySize);
-                        const box = resizedDetections.detection.box;
-                        
-                        faceFrame.style.top = box.y + 'px';
-                        faceFrame.style.left = box.x + 'px';
-                        faceFrame.style.width = box.width + 'px';
-                        faceFrame.style.height = box.height + 'px';
+                        const box = detection.detection.box;
+                        const frameDiv = document.createElement('div');
+                        frameDiv.style.position = 'absolute';
+                        frameDiv.style.top = box.y + 'px';
+                        frameDiv.style.left = box.x + 'px';
+                        frameDiv.style.width = box.width + 'px';
+                        frameDiv.style.height = box.height + 'px';
 
-                        faceFrame.className = 'face-frame matched';
-                        statusLabel.textContent = 'ĐÃ XÁC THỰC';
-                        statusIcon.textContent = 'check_circle';
-                        showScanResult(true, bestName, `Xác thực thành công (${confidence.toFixed(1)}%)`);
+                        if (bestDistance < FACE_MATCH_THRESHOLD && confidence >= MIN_CONFIDENCE) {
+                            // MATCHED
+                            frameDiv.className = 'face-frame matched';
+                            frameDiv.innerHTML = `<div class="absolute -bottom-8 left-1/2 -translate-x-1/2 bg-green-600/90 text-white px-2 py-1 rounded text-[10px] whitespace-nowrap font-bold shadow-md">${bestName} (${confidence.toFixed(0)}%)</div>`;
+                            statusIcon.textContent = 'check_circle';
 
-                        try {
-                            await fetch('/api/faceid/verify', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ name: bestName })
-                            });
-                        } catch (e) { console.warn(e); }
-                        
-                        // Tự động reload trang sau 2s
-                        setTimeout(() => { window.location.href = '/tourguide/dashboard?scanned=true'; }, 2000);
-                        return; // Dừng logic ở đây, không set isScanning = false để chống spam
-                    } else {
-                        faceFrame.className = 'face-frame scanning';
-                        statusLabel.textContent = 'ĐANG NHẬN DIỆN...';
+                            // Anti-spam check
+                            if (!recentlyScanned.has(bestName)) {
+                                recentlyScanned.add(bestName);
+                                showToast(`Đã điểm danh thành công: ${bestName}`, 'success');
+
+                                // Cập nhật ngầm bằng API
+                                try {
+                                    await fetch('/api/faceid/verify', {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({ name: bestName })
+                                    });
+
+                                    // Update UI List bên tay trái ngay lập tức (không cần reload)
+                                    const rows = document.querySelectorAll('tbody tr');
+                                    rows.forEach(row => {
+                                        const nameCol = row.querySelector('td:nth-child(2)');
+                                        if (nameCol && nameCol.textContent.includes(bestName)) {
+                                            const statusCol = row.querySelector('td:nth-child(3)');
+                                            if (statusCol && !statusCol.innerHTML.includes('Đã điểm danh')) {
+                                                statusCol.innerHTML = `
+                                                    <span class="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 font-label-sm text-label-sm border border-emerald-500/30 flex items-center">
+                                                        <span class="material-symbols-outlined text-[14px] mr-1">check</span>Đã điểm danh
+                                                    </span>
+                                                    <button class="ml-3 w-8 h-8 flex items-center justify-center rounded-lg border border-primary/30 text-primary/40 cursor-default bg-primary/5" disabled>
+                                                        <span class="material-symbols-outlined text-[16px]">check</span>
+                                                    </button>
+                                                `;
+                                                
+                                                // Cập nhật thanh tiến độ
+                                                const countSpan = document.querySelector('.font-headline-md.text-2xl span:first-child');
+                                                const totalSpan = document.querySelector('.font-headline-md.text-2xl span:last-child');
+                                                const pctSpan = document.querySelector('.text-xs.text-on-surface-variant\\/60.font-semibold');
+                                                const barDiv = document.querySelector('.bg-primary.h-full.rounded-full');
+                                                
+                                                if (countSpan && totalSpan) {
+                                                    let c = parseInt(countSpan.textContent) + 1;
+                                                    let t = parseInt(totalSpan.textContent);
+                                                    countSpan.textContent = c;
+                                                    if (t > 0) {
+                                                        let pct = Math.round((c / t) * 100);
+                                                        if(pctSpan) pctSpan.textContent = pct + '%';
+                                                        if(barDiv) barDiv.style.width = pct + '%';
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    });
+                                } catch (e) { console.warn(e); }
+
+                                // Xóa khỏi danh sách spam sau 10s
+                                setTimeout(() => recentlyScanned.delete(bestName), 10000);
+                            }
+                        } else {
+                            // NOT MATCHED
+                            frameDiv.className = 'face-frame scanning';
+                        }
+                        // Thêm khung vào video
+                        facesContainer.appendChild(frameDiv);
                     }
                 } else {
                     scanLine.classList.remove('active');
-                    faceFrame.className = 'face-frame';
-                    faceFrame.style = ''; // Reset CSS
-                    statusLabel.textContent = 'TÌM KHUÔN MẶT';
+                    statusLabel.textContent = 'SẴN SÀNG QUÉT';
                 }
             } catch (err) {
-                console.error("Lỗi scan:", err);
+                console.error("Lỗi scan realtime:", err);
             }
             isScanning = false;
         }
@@ -1112,7 +1242,7 @@
             document.getElementById('modal-customer-email').textContent = email;
             document.getElementById('modal-customer-room').textContent = room;
             document.getElementById('modal-customer-detail').textContent = detail;
-            
+
             // Extract initials from name
             const nameParts = name.trim().split(/\s+/);
             let initials = 'KH';
@@ -1122,7 +1252,7 @@
                 initials = nameParts[0].substring(0, Math.min(2, nameParts[0].length)).toUpperCase();
             }
             document.getElementById('modal-avatar-placeholder').textContent = initials;
-            
+
             const modal = document.getElementById('customer-contact-modal');
             modal.classList.remove('opacity-0', 'pointer-events-none');
         }
@@ -1148,12 +1278,12 @@
 
             const toast = document.createElement('div');
             toast.className = 'flex items-center gap-3 px-6 py-4 rounded-xl shadow-xl border backdrop-blur-md transition-all duration-300 translate-x-12 opacity-0 pointer-events-auto max-w-sm';
-            
+
             let icon = 'check_circle';
             let iconColor = 'text-green-500';
             let borderColor = 'border-green-500/20';
             let bgColor = 'bg-[#fdfbf7]/95';
-            
+
             if (type === 'error') {
                 icon = 'cancel';
                 iconColor = 'text-red-500';
@@ -1193,7 +1323,7 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             loadModels();
-            
+
             // Check for toast redirects
             const urlParams = new URLSearchParams(window.location.search);
             const toastParam = urlParams.get('toast');
@@ -1209,7 +1339,7 @@
                 const cleanUrl = window.location.pathname;
                 window.history.replaceState({}, document.title, cleanUrl);
             }
-            
+
             const scannedParam = urlParams.get('scanned');
             if (scannedParam === 'true') {
                 showToast('Điểm danh khách hàng thành công!', 'success');
@@ -1224,12 +1354,12 @@
             const tourNameEl = document.getElementById('tour-name-display');
             const tourName = tourNameEl ? tourNameEl.textContent.trim() : 'Danh_sach_khach_hang';
             const cleanTourName = tourName.replace(/[^a-zA-Z0-9_ -]/g, '').replace(/\s+/g, '_');
-            
+
             // Get rows
             const rows = document.querySelectorAll('table tbody tr');
             let csvContent = "\ufeff"; // BOM for UTF-8 in Excel
             csvContent += "Mã Khách Hàng,Họ và Tên,Trạng thái\n";
-            
+
             rows.forEach(row => {
                 const cols = row.querySelectorAll('td');
                 if (cols.length >= 3) {
@@ -1237,16 +1367,16 @@
                     const nameEl = cols[1].querySelector('p') || cols[1];
                     const name = nameEl.textContent.trim();
                     const statusText = cols[2].textContent.trim();
-                    
+
                     let status = 'Chờ điểm danh';
                     if (statusText.includes('Đã điểm danh')) {
                         status = 'Đã điểm danh';
                     }
-                    
+
                     csvContent += `"${customerId}","${name}","${status}"\n`;
                 }
             });
-            
+
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
             const link = document.createElement("a");
@@ -1275,7 +1405,7 @@
             });
         }
 
-        document.addEventListener('click', function(e) {
+        document.addEventListener('click', function (e) {
             const dropdown = document.getElementById('notificationDropdown');
             if (dropdown && !dropdown.classList.contains('hidden')) {
                 const isClickInside = dropdown.contains(e.target) || e.target.closest('.dropdown-notification');
@@ -1298,7 +1428,7 @@
             const normText = text.toLowerCase().normalize("NFC");
             const normQuery = query.toLowerCase().normalize("NFC");
             if (normText.includes(normQuery)) return true;
-            
+
             const accentlessText = removeVietnameseAccents(normText);
             const accentlessQuery = removeVietnameseAccents(normQuery);
             return accentlessText.includes(accentlessQuery);
@@ -1310,30 +1440,30 @@
                 document.querySelectorAll('table tbody tr').forEach(r => r.style.display = '');
                 return;
             }
-            
+
             const tourName = document.getElementById('tour-name-display') ? document.getElementById('tour-name-display').textContent : '';
             const tourMetaEl = document.querySelector('[th\\:text*="departureDate"]') || document.querySelector('.font-headline.text-lg.md\\:text-xl.font-light.text-on-surface-variant\\/60') || document.querySelector('#print-area p');
             const tourMeta = tourMetaEl ? tourMetaEl.textContent : '';
             const tourDetailsText = (tourName + " " + tourMeta);
-            
+
             const matchesTour = matchQuery(tourDetailsText, cleanQuery);
-            
+
             const rows = document.querySelectorAll('table tbody tr');
             rows.forEach(row => {
                 if (matchesTour) {
                     row.style.display = '';
                     return;
                 }
-                
+
                 const idText = row.querySelector('td:first-child') ? row.querySelector('td:first-child').textContent : '';
                 const dataEl = row.querySelector('[data-name]');
-                
+
                 let nameText = '';
                 let phoneText = '';
                 let emailText = '';
                 let membershipText = '';
                 let roomText = '';
-                
+
                 if (dataEl) {
                     nameText = (dataEl.getAttribute('data-name') || '');
                     phoneText = (dataEl.getAttribute('data-phone') || '');
@@ -1341,10 +1471,10 @@
                     membershipText = (dataEl.getAttribute('data-membership') || '');
                     roomText = (dataEl.getAttribute('data-room') || '');
                 }
-                
+
                 const statusText = row.textContent;
                 const combinedText = `${idText} ${nameText} ${phoneText} ${emailText} ${membershipText} ${roomText} ${statusText}`;
-                
+
                 if (matchQuery(combinedText, cleanQuery)) {
                     row.style.display = '';
                 } else {
@@ -1356,147 +1486,161 @@
 </body>
 
 <!-- Activities Popup Modal (hidden by default) -->
-<div id="activities-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center hidden z-50 transition-all duration-300">
-  <div class="bg-surface rounded-lg shadow-2xl p-8 w-11/12 max-w-lg border border-primary/10">
-    <div class="flex justify-between items-center mb-6 border-b border-primary/10 pb-4">
-      <h3 class="text-2xl font-display-md font-bold text-primary">Lịch Trình Chi Tiết</h3>
-      <button class="text-on-surface-variant hover:text-primary transition-colors text-2xl font-bold" onclick="closeActivities()">&#x2715;</button>
+<div id="activities-modal"
+    class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center hidden z-50 transition-all duration-300">
+    <div class="bg-surface rounded-lg shadow-2xl p-8 w-11/12 max-w-lg border border-primary/10">
+        <div class="flex justify-between items-center mb-6 border-b border-primary/10 pb-4">
+            <h3 class="text-2xl font-display-md font-bold text-primary">Lịch Trình Chi Tiết</h3>
+            <button class="text-on-surface-variant hover:text-primary transition-colors text-2xl font-bold"
+                onclick="closeActivities()">&#x2715;</button>
+        </div>
+        <div id="activities-content" class="space-y-4 max-h-[60vh] overflow-y-auto pr-2 scrollbar-custom"></div>
+        <div class="mt-6 pt-4 border-t border-primary/10 flex justify-end">
+            <button
+                class="px-6 py-2 bg-primary text-on-primary rounded-full hover:bg-primary/80 font-bold transition-all shadow-md"
+                onclick="closeActivities()">Đóng</button>
+        </div>
     </div>
-    <div id="activities-content" class="space-y-4 max-h-[60vh] overflow-y-auto pr-2 scrollbar-custom"></div>
-    <div class="mt-6 pt-4 border-t border-primary/10 flex justify-end">
-      <button class="px-6 py-2 bg-primary text-on-primary rounded-full hover:bg-primary/80 font-bold transition-all shadow-md" onclick="closeActivities()">Đóng</button>
-    </div>
-  </div>
 </div>
 <script>
-  const TOUR_ITINERARIES = {
-    'tinh tuy': {
-      subtitle: 'Tinh túy đồng nội - Quảng Nam (Khởi hành: 08:00)',
-      activities: [
-        { time: '08:00 - 08:30', title: 'Đón khách & Di chuyển', desc: 'Xe đón khách tại điểm hẹn và khởi hành đi Quảng Nam.' },
-        { time: '08:30 - 10:00', title: 'Làng nghề truyền thống', desc: 'Tham quan làng nghề truyền thống, tìm hiểu các công đoạn chế tác thủ công lâu đời.' },
-        { time: '10:00 - 11:30', title: 'Khu sản xuất đặc sản', desc: 'Ghé thăm khu sản xuất thủ công, thưởng thức nông sản và đặc sản địa phương sạch.' },
-        { time: '11:30 - 13:00', title: 'Trải nghiệm ẩm thực', desc: 'Thưởng thức bữa trưa với các món đặc sản đồng quê mang hương vị chuẩn bản địa.' },
-        { time: '13:00 - 15:00', title: 'Trực tiếp trải nghiệm', desc: 'Khách tự tay làm thử các sản phẩm lưu niệm dưới sự hướng dẫn của nghệ nhân bản địa.' },
-        { time: '15:00 - 16:00', title: 'Hòa nhạc dân gian & Trà chiều', desc: 'Thưởng thức trà thảo mộc organic và nghe hòa nhạc dân gian đặc sắc trước khi kết thúc tour.' }
-      ]
-    },
-    'doan tu': {
-      subtitle: 'Hành trình Đoàn Tụ - Huế (Khởi hành: 08:00)',
-      activities: [
-        { time: '08:00 - 08:30', title: 'Đón khách & Di chuyển', desc: 'Xe đón khách tại khách sạn, khởi hành cùng hướng dẫn viên đến thành phố Huế.' },
-        { time: '08:30 - 10:00', title: 'Kinh Thành Huế', desc: 'Tham quan Kinh Thành Huế — di sản thế giới UNESCO, khám phá các ô phố cổ và đình lăng mẫu.' },
-        { time: '10:00 - 11:30', title: 'Chợ Đông Ba & Phố Cổ', desc: 'Dạo bước chợ Đông Ba, mua sắm đặc sản Huế: đường bao tử, mè xửng, nón bài thơ.' },
-        { time: '11:30 - 13:00', title: 'Bữa trưa cơm Huế', desc: 'Thưởng thức bữa cơm Huế chính thống: bánh bèo, bánh nậm, cơm hến, bún bò Huế tại nhà hàng truyền thống.' },
-        { time: '13:00 - 15:00', title: 'Lăng Tự Đức & Chùa Thiên Mụ', desc: 'Tham quan Lăng Tự Đức và chùa Thiên Mụ — biểu tượng linh thiêng của xứ Huế bên bờ sông Hương.' },
-        { time: '15:00 - 16:00', title: 'Trà chiều & Ngắm hoàng hôn', desc: 'Nghỉ ngơi bên bờ sông Hương, thưởng trà sen Huế, ngắm hoàng hôn rồi lên xe đưa khách về.' }
-      ]
+    const TOUR_ITINERARIES = {
+        'tinh tuy': {
+            subtitle: 'Tinh túy đồng nội - Quảng Nam (Khởi hành: 08:00)',
+            activities: [
+                { time: '08:00 - 08:30', title: 'Đón khách & Di chuyển', desc: 'Xe đón khách tại điểm hẹn và khởi hành đi Quảng Nam.' },
+                { time: '08:30 - 10:00', title: 'Làng nghề truyền thống', desc: 'Tham quan làng nghề truyền thống, tìm hiểu các công đoạn chế tác thủ công lâu đời.' },
+                { time: '10:00 - 11:30', title: 'Khu sản xuất đặc sản', desc: 'Ghé thăm khu sản xuất thủ công, thưởng thức nông sản và đặc sản địa phương sạch.' },
+                { time: '11:30 - 13:00', title: 'Trải nghiệm ẩm thực', desc: 'Thưởng thức bữa trưa với các món đặc sản đồng quê mang hương vị chuẩn bản địa.' },
+                { time: '13:00 - 15:00', title: 'Trực tiếp trải nghiệm', desc: 'Khách tự tay làm thử các sản phẩm lưu niệm dưới sự hướng dẫn của nghệ nhân bản địa.' },
+                { time: '15:00 - 16:00', title: 'Hòa nhạc dân gian & Trà chiều', desc: 'Thưởng thức trà thảo mộc organic và nghe hòa nhạc dân gian đặc sắc trước khi kết thúc tour.' }
+            ]
+        },
+        'doan tu': {
+            subtitle: 'Hành trình Đoàn Tụ - Huế (Khởi hành: 08:00)',
+            activities: [
+                { time: '08:00 - 08:30', title: 'Đón khách & Di chuyển', desc: 'Xe đón khách tại khách sạn, khởi hành cùng hướng dẫn viên đến thành phố Huế.' },
+                { time: '08:30 - 10:00', title: 'Kinh Thành Huế', desc: 'Tham quan Kinh Thành Huế — di sản thế giới UNESCO, khám phá các ô phố cổ và đình lăng mẫu.' },
+                { time: '10:00 - 11:30', title: 'Chợ Đông Ba & Phố Cổ', desc: 'Dạo bước chợ Đông Ba, mua sắm đặc sản Huế: đường bao tử, mè xửng, nón bài thơ.' },
+                { time: '11:30 - 13:00', title: 'Bữa trưa cơm Huế', desc: 'Thưởng thức bữa cơm Huế chính thống: bánh bèo, bánh nậm, cơm hến, bún bò Huế tại nhà hàng truyền thống.' },
+                { time: '13:00 - 15:00', title: 'Lăng Tự Đức & Chùa Thiên Mụ', desc: 'Tham quan Lăng Tự Đức và chùa Thiên Mụ — biểu tượng linh thiêng của xứ Huế bên bờ sông Hương.' },
+                { time: '15:00 - 16:00', title: 'Trà chiều & Ngắm hoàng hôn', desc: 'Nghỉ ngơi bên bờ sông Hương, thưởng trà sen Huế, ngắm hoàng hôn rồi lên xe đưa khách về.' }
+            ]
+        }
+    };
+
+    function normalizeKey(name) {
+        return name.toLowerCase()
+            .replace(/đ/g, 'd')
+            .normalize('NFD').replace(/\p{Diacritic}/gu, '')
+            .replace(/\s+/g, ' ').trim();
     }
-  };
 
-  function normalizeKey(name) {
-    return name.toLowerCase()
-      .replace(/đ/g, 'd')
-      .normalize('NFD').replace(/\p{Diacritic}/gu, '')
-      .replace(/\s+/g, ' ').trim();
-  }
+    function showActivities(tourName) {
+        const norm = normalizeKey(tourName || '');
+        let key = null;
+        if (norm.includes('tinh tuy') || norm.includes('tinh t')) key = 'tinh tuy';
+        else if (norm.includes('doan tu') || norm.includes('doan t')) key = 'doan tu';
 
-  function showActivities(tourName) {
-    const norm = normalizeKey(tourName || '');
-    let key = null;
-    if (norm.includes('tinh tuy') || norm.includes('tinh t')) key = 'tinh tuy';
-    else if (norm.includes('doan tu') || norm.includes('doan t')) key = 'doan tu';
+        if (!key) return;
 
-    if (!key) return;
+        const data = TOUR_ITINERARIES[key];
+        const content = document.getElementById('activities-content');
 
-    const data = TOUR_ITINERARIES[key];
-    const content = document.getElementById('activities-content');
+        content.innerHTML = [
+            '<p class="font-headline text-lg font-light text-on-surface-variant mb-4 italic">' + data.subtitle + '</p>',
+            ...data.activities.map(a =>
+                '<div class="flex gap-4 items-start">' +
+                '<span class="bg-primary/10 text-primary text-label-sm font-bold px-3 py-1 rounded-full shrink-0 min-w-[100px] text-center border border-primary/20">' + a.time + '</span>' +
+                '<div class="text-on-surface-variant">' +
+                '<p class="font-semibold text-on-surface">' + a.title + '</p>' +
+                '<p class="text-sm opacity-80">' + a.desc + '</p>' +
+                '</div>' +
+                '</div>'
+            )
+        ].join('');
 
-    content.innerHTML = [
-      '<p class="font-headline text-lg font-light text-on-surface-variant mb-4 italic">' + data.subtitle + '</p>',
-      ...data.activities.map(a =>
-        '<div class="flex gap-4 items-start">' +
-          '<span class="bg-primary/10 text-primary text-label-sm font-bold px-3 py-1 rounded-full shrink-0 min-w-[100px] text-center border border-primary/20">' + a.time + '</span>' +
-          '<div class="text-on-surface-variant">' +
-            '<p class="font-semibold text-on-surface">' + a.title + '</p>' +
-            '<p class="text-sm opacity-80">' + a.desc + '</p>' +
-          '</div>' +
-        '</div>'
-      )
-    ].join('');
-
-    document.getElementById('activities-modal').classList.remove('hidden');
-  }
-
-  function closeActivities() {
-    document.getElementById('activities-modal').classList.add('hidden');
-  }
-
-  function dismissImportantNote() {
-    const card = document.getElementById('notice-banner-card');
-    if (card) {
-        card.style.transition = 'all 0.4s ease';
-        card.style.opacity = '0';
-        card.style.transform = 'translateY(10px)';
-        setTimeout(() => {
-            card.style.display = 'none';
-        }, 400);
+        document.getElementById('activities-modal').classList.remove('hidden');
     }
-  }
 
-  function showImportantNoteDetails() {
-    document.getElementById('notice-details-modal').classList.remove('hidden');
-  }
+    function closeActivities() {
+        document.getElementById('activities-modal').classList.add('hidden');
+    }
 
-  function closeImportantNoteDetails() {
-    document.getElementById('notice-details-modal').classList.add('hidden');
-  }
+    function dismissImportantNote() {
+        const card = document.getElementById('notice-banner-card');
+        if (card) {
+            card.style.transition = 'all 0.4s ease';
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(10px)';
+            setTimeout(() => {
+                card.style.display = 'none';
+            }, 400);
+        }
+    }
+
+    function showImportantNoteDetails() {
+        document.getElementById('notice-details-modal').classList.remove('hidden');
+    }
+
+    function closeImportantNoteDetails() {
+        document.getElementById('notice-details-modal').classList.add('hidden');
+    }
 </script>
 
 <!-- Important Notes Details Modal -->
-<div id="notice-details-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center hidden z-[200] transition-all duration-300">
-  <div class="bg-[#fdfbf7] rounded-lg shadow-2xl p-8 w-11/12 max-w-lg border border-[#3a3230]/20 relative text-[#372618]">
-    <button class="absolute top-4 right-4 text-on-surface-variant hover:text-primary transition-colors text-2xl font-bold" onclick="closeImportantNoteDetails()">✕</button>
-    <div class="flex items-center gap-3 mb-6 border-b border-primary/10 pb-4">
-      <span class="material-symbols-outlined text-primary text-3xl">info</span>
-      <h3 class="text-2xl font-display-md font-bold text-primary">Quy Trình Kiểm Tra & Hướng Dẫn</h3>
+<div id="notice-details-modal"
+    class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center hidden z-[200] transition-all duration-300">
+    <div
+        class="bg-[#fdfbf7] rounded-lg shadow-2xl p-8 w-11/12 max-w-lg border border-[#3a3230]/20 relative text-[#372618]">
+        <button
+            class="absolute top-4 right-4 text-on-surface-variant hover:text-primary transition-colors text-2xl font-bold"
+            onclick="closeImportantNoteDetails()">✕</button>
+        <div class="flex items-center gap-3 mb-6 border-b border-primary/10 pb-4">
+            <span class="material-symbols-outlined text-primary text-3xl">info</span>
+            <h3 class="text-2xl font-display-md font-bold text-primary">Quy Trình Kiểm Tra & Hướng Dẫn</h3>
+        </div>
+        <div class="space-y-6 max-h-[60vh] overflow-y-auto pr-2 scrollbar-custom text-on-surface-variant">
+            <div>
+                <p class="font-bold text-primary mb-2 flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-primary"></span> 1. Kiểm tra Thiết bị (Trước 30 phút)
+                </p>
+                <p class="text-sm pl-4 leading-relaxed">
+                    Đảm bảo kết nối internet ổn định. Kiểm tra chất lượng camera, làm sạch ống kính thiết bị quét để
+                    FaceID nhận diện chính xác nhất. Kiểm tra pin hoặc nguồn điện cấp cho thiết bị quét.
+                </p>
+            </div>
+            <div>
+                <p class="font-bold text-primary mb-2 flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-primary"></span> 2. Chuẩn bị Ánh sáng & Vị trí quét
+                </p>
+                <p class="text-sm pl-4 leading-relaxed">
+                    Đặt thiết bị ở vị trí đón khách có đầy đủ ánh sáng tự nhiên hoặc đèn bổ trợ. Tránh nguồn ánh sáng
+                    ngược mạnh chiếu thẳng vào ống kính làm giảm độ chính xác của camera.
+                </p>
+            </div>
+            <div>
+                <p class="font-bold text-primary mb-2 flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-primary"></span> 3. Báo cáo Sự cố Kịp thời
+                </p>
+                <p class="text-sm pl-4 leading-relaxed">
+                    Nếu camera không hoạt động, thư viện face-api không load thành công, hoặc sai lệch thông tin khách
+                    hàng, hãy điền mô tả sự cố và gửi báo cáo ngay lập tức để bộ phận kỹ thuật hỗ trợ.
+                </p>
+            </div>
+            <div>
+                <p class="font-bold text-primary mb-2 flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-primary"></span> 4. Điểm danh thủ công dự phòng
+                </p>
+                <p class="text-sm pl-4 leading-relaxed">
+                    Trong trường hợp khách không nhận diện được hoặc hệ thống FaceID gián đoạn, hãy bấm nút tích xanh ✔
+                    cạnh tên khách hàng trong bảng danh sách để thực hiện điểm danh thủ công.
+                </p>
+            </div>
+        </div>
+        <div class="mt-6 pt-4 border-t border-primary/10 flex justify-end">
+            <button
+                class="px-6 py-2 bg-primary text-on-primary rounded-full hover:bg-primary/80 font-bold transition-all shadow-md text-sm"
+                onclick="closeImportantNoteDetails()">Đã hiểu</button>
+        </div>
     </div>
-    <div class="space-y-6 max-h-[60vh] overflow-y-auto pr-2 scrollbar-custom text-on-surface-variant">
-      <div>
-        <p class="font-bold text-primary mb-2 flex items-center gap-2">
-          <span class="w-2 h-2 rounded-full bg-primary"></span> 1. Kiểm tra Thiết bị (Trước 30 phút)
-        </p>
-        <p class="text-sm pl-4 leading-relaxed">
-          Đảm bảo kết nối internet ổn định. Kiểm tra chất lượng camera, làm sạch ống kính thiết bị quét để FaceID nhận diện chính xác nhất. Kiểm tra pin hoặc nguồn điện cấp cho thiết bị quét.
-        </p>
-      </div>
-      <div>
-        <p class="font-bold text-primary mb-2 flex items-center gap-2">
-          <span class="w-2 h-2 rounded-full bg-primary"></span> 2. Chuẩn bị Ánh sáng & Vị trí quét
-        </p>
-        <p class="text-sm pl-4 leading-relaxed">
-          Đặt thiết bị ở vị trí đón khách có đầy đủ ánh sáng tự nhiên hoặc đèn bổ trợ. Tránh nguồn ánh sáng ngược mạnh chiếu thẳng vào ống kính làm giảm độ chính xác của camera.
-        </p>
-      </div>
-      <div>
-        <p class="font-bold text-primary mb-2 flex items-center gap-2">
-          <span class="w-2 h-2 rounded-full bg-primary"></span> 3. Báo cáo Sự cố Kịp thời
-        </p>
-        <p class="text-sm pl-4 leading-relaxed">
-          Nếu camera không hoạt động, thư viện face-api không load thành công, hoặc sai lệch thông tin khách hàng, hãy điền mô tả sự cố và gửi báo cáo ngay lập tức để bộ phận kỹ thuật hỗ trợ.
-        </p>
-      </div>
-      <div>
-        <p class="font-bold text-primary mb-2 flex items-center gap-2">
-          <span class="w-2 h-2 rounded-full bg-primary"></span> 4. Điểm danh thủ công dự phòng
-        </p>
-        <p class="text-sm pl-4 leading-relaxed">
-          Trong trường hợp khách không nhận diện được hoặc hệ thống FaceID gián đoạn, hãy bấm nút tích xanh ✔ cạnh tên khách hàng trong bảng danh sách để thực hiện điểm danh thủ công.
-        </p>
-      </div>
-    </div>
-    <div class="mt-6 pt-4 border-t border-primary/10 flex justify-end">
-      <button class="px-6 py-2 bg-primary text-on-primary rounded-full hover:bg-primary/80 font-bold transition-all shadow-md text-sm" onclick="closeImportantNoteDetails()">Đã hiểu</button>
-    </div>
-  </div>
 </div>

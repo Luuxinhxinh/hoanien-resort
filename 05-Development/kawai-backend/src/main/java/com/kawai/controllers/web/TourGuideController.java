@@ -209,24 +209,7 @@ public class TourGuideController {
             attendees = tourAttendeeRepository.findByTourBooking_Schedule_DepartureDate(today);
         }
 
-        // Nếu không phải là load sau khi quét thành công (scanned == true), tự động reset trạng thái chờ FaceID
-        if (!"true".equals(scanned)) {
-            boolean didReset = false;
-            for (com.kawai.models.TourAttendee attendee : attendees) {
-                if (!"Not_Show".equals(attendee.getStatus())) {
-                    attendee.setStatus("Not_Show");
-                    attendee.setFaceMatchedAt(null);
-                    tourAttendeeRepository.saveAndFlush(attendee);
-                    didReset = true;
-                }
-            }
-            if (didReset && targetSchedule != null) {
-                attendees = tourAttendeeRepository.findByTourBooking_Schedule_Id(targetSchedule.getId());
-                if (attendees.isEmpty()) {
-                    attendees = tourAttendeeRepository.findByTourBooking_Schedule_DepartureDate(today);
-                }
-            }
-        }
+        // [Removed auto-reset logic here. The status will persist across reloads unless manually reset.]
         
         model.addAttribute("attendees", attendees);
 
