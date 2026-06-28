@@ -179,45 +179,52 @@
                                     <th>Phone</th>
                                     <th>Check-in Date</th>
                                     <th>Booking Date</th>
+                                    <th>Notes</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr th:if="${#lists.isEmpty(arrivals)}">
-                                    <td colspan="5" style="text-align: center;">No arrivals today</td>
+                                    <td colspan="6" style="text-align: center;">No arrivals today</td>
                                 </tr>
                                 <tr th:each="arr : ${arrivals}">
                                     <td style="cursor: pointer; color: #2563eb; font-weight: 500;"
                                         th:data-id="${arr.id}" th:data-name="${arr.guestName}"
                                         th:data-phone="${arr.phone}" th:data-cccd="${arr.cccd}"
-                                        th:data-room="${arr.roomSummary}"
-                                        th:attr="onclick=|openCheckinModal('${arr.id}', '${arr.guestName}', '${arr.phone}', '${arr.cccd}', '${arr.roomSummary}', 'deps-arr-', '${arr.creditLimit}')|"
+                                        th:data-room="${arr.roomSummary}" th:data-deps="|deps-arr-${arr.id}|"
+                                        th:data-tours="|tours-arr-${arr.id}|" th:data-credit="${arr.creditLimit}"
+                                        onclick="openCheckinModal(this.getAttribute('data-id'), this.getAttribute('data-name'), this.getAttribute('data-phone'), this.getAttribute('data-cccd'), this.getAttribute('data-room'), this.getAttribute('data-deps'), this.getAttribute('data-tours'), this.getAttribute('data-credit'))"
                                         th:text="${arr.guestName}"></td>
                                     <td th:text="${arr.phone}"></td>
                                     <td th:text="${arr.checkInDate}"></td>
                                     <td th:text="${arr.bookingDate}" style="color: #4b5563;"></td>
+                                    <td th:text="${arr.notes}" style="max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" th:title="${arr.notes}"></td>
                                     <td>
-                                        <div th:if="${arr.isExpired == false}">
-                                            <button class="btn btn-primary btn-sm" th:data-id="${arr.id}"
-                                                th:data-name="${arr.guestName}" th:data-phone="${arr.phone}"
-                                                th:data-cccd="${arr.cccd}" th:data-room="${arr.roomSummary}"
-                                                th:attr="onclick=|openCheckinModal('${arr.id}', '${arr.guestName}', '${arr.phone}', '${arr.cccd}', '${arr.roomSummary}', 'deps-arr-', '${arr.creditLimit}')|">Assign
-                                                & Check-in</button>
-                                        </div>
-                                        <div th:if="${arr.isExpired == true}">
-                                            <form
-                                                th:action="@{/receptionist/check-in/cancel-no-show/{id}(id=${arr.id})}"
-                                                method="post"
-                                                onsubmit="return confirm('Xác nhận hủy đơn quá hạn này và đánh dấu No-Show?');">
-                                                <button type="submit" class="btn btn-primary btn-sm" style="background-color: #ef4444; border-color: #ef4444; color: white;">Hủy
-                                                    (No-Show)</button>
-                                            </form>
-                                        </div>
+                                        <button class="btn btn-primary btn-sm" th:data-id="${arr.id}"
+                                            th:data-name="${arr.guestName}" th:data-phone="${arr.phone}"
+                                            th:data-cccd="${arr.cccd}" th:data-room="${arr.roomSummary}"
+                                            th:data-deps="|deps-arr-${arr.id}|"
+                                            th:data-tours="|tours-arr-${arr.id}|"
+                                            th:data-credit="${arr.creditLimit}"
+                                            onclick="openCheckinModal(this.getAttribute('data-id'), this.getAttribute('data-name'), this.getAttribute('data-phone'), this.getAttribute('data-cccd'), this.getAttribute('data-room'), this.getAttribute('data-deps'), this.getAttribute('data-tours'), this.getAttribute('data-credit'))">Assign
+                                            & Check-in</button>
                                         <!-- Hidden data for dependents -->
                                         <div th:id="'deps-arr-' + ${arr.id}" style="display:none;">
                                             <ul>
                                                 <li th:each="dep : ${arr.dependents}" th:data-name="${dep.fullName}"
                                                     th:data-dob="${dep.dateOfBirth}" th:data-id="${dep.dependentId}">
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        <!-- Hidden data for unallocated TourBookings -->
+                                        <div th:id="'tours-arr-' + ${arr.id}" style="display:none;">
+                                            <ul>
+                                                <li th:each="tb : ${arr.tourBookings}" th:data-id="${tb.id}"
+                                                    th:data-tour="${tb.schedule.tour.tourName}"
+                                                    th:data-date="${tb.schedule.departureDate}"
+                                                    th:data-time="${tb.schedule.departureTime}"
+                                                    th:data-count="${tb.participantCount}"
+                                                    th:data-charge="${tb.tourCharge}">
                                                 </li>
                                             </ul>
                                         </div>
@@ -264,165 +271,301 @@
                 <button type="button" onclick="closeCheckinModal()"
                     style="background: none; border: none; font-size: 20px; cursor: pointer; color: #64748b;">&times;</button>
             </div>
-            <div class="modal-body" style="padding: 24px; overflow-y: auto; flex: 1;">
+            <div class="modal-body" style="padding: 24px; overflow-y: auto; flex: 1; background: #fcfcfc;">
                 <!-- Main Guest Info -->
-                <div style="margin-bottom: 24px;">
-                    <h4
-                        style="margin-top: 0; margin-bottom: 12px; font-weight: 600; color: #334155; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px;">
-                        Main Guest Information (Booking) <span id="masterCustomerRoomLabel"
-                            style="font-size: 13px; font-weight: 500; color: #d97706; margin-left: 12px;">(Chưa phân
-                            phòng)</span></h4>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-                        <div><label style="display: block; color:#64748b; font-size: 13px; margin-bottom: 4px;">Full
+                <div style="margin-bottom: 32px;">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; margin-bottom: 16px;">
+                        <h4 style="margin: 0; font-weight: 600; color: #1e293b; font-size: 16px;">
+                            <i class="fa-solid fa-user-tie" style="color: #64748b; margin-right: 6px;"></i>
+                            Main Guest Information
+                            <span id="masterCustomerRoomLabel"
+                                style="font-size: 13px; font-weight: 500; color: #d97706; margin-left: 8px;">(Chưa phân
+                                phòng)</span>
+                        </h4>
+                        <span style="font-size: 13px; color: #64748b; font-weight: 500;">Thông tin người đặt</span>
+                    </div>
+
+                    <div
+                        style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; background: white; padding: 16px; border-radius: 8px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+                        <div>
+                            <label
+                                style="display: block; color: #475569; font-size: 12px; font-weight: 600; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">Full
                                 Name</label>
                             <input type="text" id="modalGuestName" name="guestName"
-                                style="width: 100%; padding: 6px 8px; border: 1px solid #cbd5e1; border-radius: 4px; font-weight: 500; font-family: inherit;"
+                                style="width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-weight: 500; font-family: inherit; color: #1e293b; outline: none; transition: border-color 0.2s;"
+                                onfocus="this.style.borderColor='#94a3b8'" onblur="this.style.borderColor='#cbd5e1'"
                                 value="">
                         </div>
-                        <div><label style="display: block; color:#64748b; font-size: 13px; margin-bottom: 4px;">Phone
+                        <div>
+                            <label
+                                style="display: block; color: #475569; font-size: 12px; font-weight: 600; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">Phone
                                 Number</label>
                             <input type="text" id="modalGuestPhone" name="phone"
-                                style="width: 100%; padding: 6px 8px; border: 1px solid #cbd5e1; border-radius: 4px; font-weight: 500; font-family: inherit;"
+                                style="width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-weight: 500; font-family: inherit; color: #1e293b; outline: none; transition: border-color 0.2s;"
+                                onfocus="this.style.borderColor='#94a3b8'" onblur="this.style.borderColor='#cbd5e1'"
                                 value="">
                         </div>
-                        <div><label style="display: block; color:#64748b; font-size: 13px; margin-bottom: 4px;">Identity
+                        <div>
+                            <label
+                                style="display: block; color: #475569; font-size: 12px; font-weight: 600; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">Identity
                                 (CCCD/Passport)</label>
                             <input type="text" id="modalGuestCccd" name="cccd"
-                                style="width: 100%; padding: 6px 8px; border: 1px solid #cbd5e1; border-radius: 4px; font-weight: 500; font-family: inherit;"
+                                style="width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-weight: 500; font-family: inherit; color: #1e293b; outline: none; transition: border-color 0.2s;"
+                                onfocus="this.style.borderColor='#94a3b8'" onblur="this.style.borderColor='#cbd5e1'"
                                 value="">
                         </div>
-                        <div><label style="color:#64748b; font-size: 13px;">Booked Room Types</label>
-                            <div style="font-weight: 500; color: #0284c7;" id="modalRoom"></div>
+                        <div
+                            style="display: flex; flex-direction: column; justify-content: center; background: #f8fafc; padding: 10px 12px; border-radius: 6px; border: 1px solid #e2e8f0;">
+                            <label
+                                style="color: #475569; font-size: 12px; font-weight: 600; margin-bottom: 2px; text-transform: uppercase; letter-spacing: 0.5px;">Booked
+                                Room Types</label>
+                            <div style="font-weight: 600; color: #0369a1; font-size: 14px;" id="modalRoom"></div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Physical Room Assignment Section -->
-                <div style="margin-bottom: 24px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; margin-bottom: 12px;">
-                        <h4 style="margin: 0; font-weight: 600; color: #334155;">Physical Room Assignment (Phân phòng)</h4>
-                        <span style="font-size: 14px; font-weight: 600; color: #64748b;">Hạn mức tổng còn lại: <span id="checkinRemainingCreditDisplay" style="color: #16a34a;">5,000,000 VND</span></span>
+                <div style="margin-bottom: 32px;">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; margin-bottom: 16px;">
+                        <h4 style="margin: 0; font-weight: 600; color: #1e293b; font-size: 16px;">
+                            <i class="fa-solid fa-door-open" style="color: #64748b; margin-right: 6px;"></i>
+                            Physical Room Assignment
+                        </h4>
+                        <span style="font-size: 14px; font-weight: 600; color: #475569;">Hạn mức tổng còn lại: <span
+                                id="checkinRemainingCreditDisplay" style="color: #0f766e;">5,000,000 VND</span></span>
                     </div>
 
                     <!-- Assigned Rooms List -->
-                    <div id="assignedRoomsList" style="margin-bottom: 12px; display: flex; flex-direction: column; gap: 8px;">
+                    <div id="assignedRoomsList"
+                        style="margin-bottom: 16px; display: flex; flex-direction: column; gap: 10px;">
                         <!-- JS injected badges for assigned rooms -->
                     </div>
 
                     <!-- Assign Controls -->
                     <div
-                        style="display: grid; grid-template-columns: 2fr 2fr auto; gap: 12px; align-items: end; background: #f8fafc; padding: 12px; border-radius: 6px; border: 1px solid #e2e8f0;">
+                        style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 16px; align-items: end; background: white; padding: 16px; border-radius: 8px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
                         <div>
-                            <label style="display: block; font-size: 13px; margin-bottom: 4px;">Booked Room Type</label>
+                            <label
+                                style="display: block; font-size: 12px; font-weight: 600; color: #475569; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">Booked
+                                Room Type</label>
                             <select id="bookTypeSelect" class="form-control"
-                                style="width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #cbd5e1;"
+                                style="width: 100%; padding: 10px 12px; border-radius: 6px; border: 1px solid #cbd5e1; font-family: inherit; color: #1e293b; outline: none; cursor: pointer;"
                                 onchange="updateAvailableRooms()">
                                 <option value="">-- Select Type --</option>
                                 <!-- Populated dynamically by JS -->
                             </select>
                         </div>
                         <div>
-                            <label style="display: block; font-size: 13px; margin-bottom: 4px;">Available Physical
-                                Room</label>
+                            <label
+                                style="display: block; font-size: 12px; font-weight: 600; color: #475569; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">Available
+                                Physical Room</label>
                             <select id="physicalRoomSelect" class="form-control"
-                                style="width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #cbd5e1;">
+                                style="width: 100%; padding: 10px 12px; border-radius: 6px; border: 1px solid #cbd5e1; font-family: inherit; color: #1e293b; outline: none; cursor: pointer;">
                                 <option value="">-- Select Type First --</option>
                             </select>
                         </div>
                         <div>
-                            <button type="button" class="btn btn-primary btn-sm" onclick="assignRoom()"
-                                style="height: 33px; padding: 0 16px;">Assign Room</button>
+                            <button type="button" class="btn btn-primary" onclick="assignRoom()"
+                                style="height: 42px; padding: 0 24px; font-weight: 600; border-radius: 6px; display: flex; align-items: center; gap: 8px; background: #0f766e; border-color: #0f766e; color: white;">
+                                <i class="fa-solid fa-plus"></i> Assign
+                            </button>
                         </div>
                     </div>
                 </div>
 
                 <!-- Dependents Section -->
-                <div>
+                <div style="margin-bottom: 32px;">
                     <div
-                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px;">
-                        <h3 style="font-size: 16px; font-weight: 600; color: #1e293b; margin: 0;">Group Members &amp;
-                            Room Assignment</h3>
-                        <button type="button" class="btn btn-sm btn-ghost" onclick="toggleDependentsList()"
-                            id="toggleDependentsBtn"
-                            style="color: #64748b; background: none; border: none; cursor: pointer;">
+                        style="display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; margin-bottom: 16px;">
+                        <h4 style="margin: 0; font-weight: 600; color: #1e293b; font-size: 16px;">
+                            <i class="fa-solid fa-users" style="color: #64748b; margin-right: 6px;"></i>
+                            Group Members & Room Assignment
+                        </h4>
+                        <button type="button" onclick="toggleDependentsList()" id="toggleDependentsBtn"
+                            style="color: #64748b; background: none; border: none; cursor: pointer; font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 6px; padding: 4px 8px; border-radius: 4px; transition: background 0.2s;">
                             <i class="fa-solid fa-chevron-up"></i> Thu gọn
                         </button>
                     </div>
 
                     <div id="dependentsTableWrapper" style="overflow: hidden; transition: all 0.3s ease-in-out;">
-                        <table class="data-table" style="margin-bottom: 16px; width: 100%; border-collapse: collapse;"
-                            id="dependentsTable">
-                            <thead>
-                                <tr style="background: #f8fafc; border-bottom: 1px solid #e2e8f0;">
-                                    <th style="padding: 8px; text-align: left; font-weight: 500; font-size: 13px;">Full
-                                        Name
-                                    </th>
-                                    <th style="padding: 8px; text-align: left; font-weight: 500; font-size: 13px;">
-                                        CCCD</th>
-                                    <th style="padding: 8px; text-align: left; font-weight: 500; font-size: 13px;">
-                                        Phòng & Vai trò
-                                    </th>
-                                    <th style="padding: 8px; text-align: left; font-weight: 500; font-size: 13px;">Date
-                                        of
-                                        Birth
-                                    </th>
-                                    <th style="padding: 8px; text-align: left; font-weight: 500; font-size: 13px;">
-                                        Action
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody id="dependentsList">
-                                <tr>
-                                    <td colspan="4"
-                                        style="text-align:center; padding: 16px; color: #94a3b8; font-size: 13px;">No
-                                        group members added yet</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        <div
+                            style="background: white; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-bottom: 20px;">
+                            <table class="data-table" style="width: 100%; border-collapse: collapse;"
+                                id="dependentsTable">
+                                <thead>
+                                    <tr style="background: #f8fafc; border-bottom: 1px solid #e2e8f0;">
+                                        <th
+                                            style="padding: 12px 16px; text-align: left; font-size: 12px; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 0.5px;">
+                                            Full Name</th>
+                                        <th
+                                            style="padding: 12px 16px; text-align: left; font-size: 12px; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 0.5px;">
+                                            CCCD</th>
+                                        <th
+                                            style="padding: 12px 16px; text-align: left; font-size: 12px; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 0.5px;">
+                                            Phòng & Vai trò</th>
+                                        <th
+                                            style="padding: 12px 16px; text-align: left; font-size: 12px; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 0.5px;">
+                                            Date of Birth</th>
+                                        <th
+                                            style="padding: 12px 16px; text-align: left; font-size: 12px; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 0.5px;">
+                                            Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="dependentsList">
+                                    <tr>
+                                        <td colspan="5"
+                                            style="text-align:center; padding: 24px; color: #94a3b8; font-size: 14px; font-weight: 500;">
+                                            No group members added yet
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
 
-                    <div style="background: #f8fafc; padding: 16px; border-radius: 6px; border: 1px dashed #cbd5e1;">
-                        <h5 style="margin-top: 0; margin-bottom: 12px; font-weight: 500; font-size: 14px;">Add Group
-                            Member</h5>
+                    <div
+                        style="background: #f8fafc; padding: 20px 16px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                        <h5
+                            style="margin-top: 0; margin-bottom: 16px; font-weight: 600; font-size: 14px; color: #1e293b; display: flex; align-items: center; gap: 8px;">
+                            <i class="fa-solid fa-user-plus" style="color: #64748b;"></i> Add Group Member
+                        </h5>
                         <div
                             style="display: grid; grid-template-columns: 2fr 2fr 2fr 2fr auto auto; gap: 12px; align-items: end;">
                             <div>
-                                <label style="display: block; font-size: 13px; margin-bottom: 4px;">Full Name</label>
+                                <label
+                                    style="display: block; font-size: 12px; font-weight: 600; color: #475569; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">Full
+                                    Name</label>
                                 <input type="text" id="depName"
-                                    style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;"
-                                    placeholder="Name">
+                                    style="width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; outline: none; transition: border-color 0.2s;"
+                                    placeholder="Name" onfocus="this.style.borderColor='#94a3b8'"
+                                    onblur="this.style.borderColor='#cbd5e1'">
                             </div>
                             <div>
-                                <label style="display: block; font-size: 13px; margin-bottom: 4px;">CCCD</label>
+                                <label
+                                    style="display: block; font-size: 12px; font-weight: 600; color: #475569; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">CCCD</label>
                                 <input type="text" id="depId"
-                                    style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;"
-                                    placeholder="ID">
+                                    style="width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; outline: none; transition: border-color 0.2s;"
+                                    placeholder="ID" onfocus="this.style.borderColor='#94a3b8'"
+                                    onblur="this.style.borderColor='#cbd5e1'">
                             </div>
                             <div>
-                                <label style="display: block; font-size: 13px; margin-bottom: 4px;">Assign to
-                                    Room</label>
+                                <label
+                                    style="display: block; font-size: 12px; font-weight: 600; color: #475569; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">Assign
+                                    to Room</label>
                                 <select id="depRoom"
-                                    style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px; background: white;">
-                                    <option value="">-- Select Room --</option>
+                                    style="width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; background: white; outline: none; cursor: pointer;">
+                                    <option value=""> Select Room </option>
                                 </select>
                             </div>
                             <div>
-                                <label style="display: block; font-size: 13px; margin-bottom: 4px;">Date of
-                                    Birth</label>
-                                <input type="date" id="depDob"
-                                    style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px; background: white;">
-                            </div>
-                            <div
-                                style="display: flex; flex-direction: column; justify-content: flex-end; padding-bottom: 4px;">
                                 <label
-                                    style="display: flex; align-items: center; gap: 4px; font-size: 13px; cursor: pointer; color: #334155;">
-                                    <input type="checkbox" id="depIsPrimary" style="width: 16px; height: 16px;"> Đứng
-                                    đầu phòng
+                                    style="display: block; font-size: 12px; font-weight: 600; color: #475569; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">Date
+                                    of Birth</label>
+                                <input type="date" id="depDob"
+                                    style="width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; background: white; outline: none; cursor: pointer;">
+                            </div>
+                            <div style="display: flex; flex-direction: column; justify-content: center; height: 42px;">
+                                <label
+                                    style="display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; cursor: pointer; color: #334155;">
+                                    <input type="checkbox" id="depIsPrimary"
+                                        style="width: 16px; height: 16px; accent-color: #0f766e; cursor: pointer;"> Đứng
+                                    đầu
                                 </label>
                             </div>
                             <div>
-                                <button type="button" class="btn btn-outline btn-sm" onclick="addDependent()"
-                                    style="height: 35px; padding: 0 16px;"><i class="fa-solid fa-plus"></i> Add</button>
+                                <button type="button" class="btn btn-outline" onclick="addDependent()"
+                                    style="height: 42px; padding: 0 20px; font-weight: 600; border-radius: 6px; border-color: #cbd5e1; color: #334155; background: white;">
+                                    <i class="fa-solid fa-plus"></i> Add
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tour Allocation Section — chỉ hiện khi booking có tour chưa phân bổ phòng -->
+                <div id="tourAllocationSection" style="display: none; margin-top: 32px;">
+                    <!-- Elegant Header -->
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; margin-bottom: 16px;">
+                        <h4 style="margin: 0; font-weight: 600; color: #1e293b; font-size: 16px;">
+                            <i class="fa-solid fa-map-location-dot" style="color: #64748b; margin-right: 6px;"></i>
+                            Tour Booking Allocation
+                        </h4>
+                        <span style="font-size: 13px; color: #64748b; font-weight: 500;">Phân bổ chi phí tour vào
+                            phòng</span>
+                    </div>
+
+                    <div
+                        style="background: white; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                        <!-- Bảng danh sách tour đã đặt -->
+                        <table class="data-table" style="width: 100%; border-collapse: collapse;"
+                            id="tourBookingsTable">
+                            <thead>
+                                <tr style="background: #f8fafc; border-bottom: 1px solid #e2e8f0;">
+                                    <th
+                                        style="padding: 12px 16px; text-align: left; font-size: 12px; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 0.5px;">
+                                        Tên Tour</th>
+                                    <th
+                                        style="padding: 12px 16px; text-align: left; font-size: 12px; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 0.5px;">
+                                        Ngày đi</th>
+                                    <th
+                                        style="padding: 12px 16px; text-align: left; font-size: 12px; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 0.5px;">
+                                        Giờ</th>
+                                    <th
+                                        style="padding: 12px 16px; text-align: left; font-size: 12px; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 0.5px;">
+                                        Số lượng</th>
+                                    <th
+                                        style="padding: 12px 16px; text-align: right; font-size: 12px; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 0.5px;">
+                                        Tổng tiền</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tourBookingsList">
+                                <!-- Render bởi JS từ hidden div data -->
+                            </tbody>
+                        </table>
+
+                        <div style="padding: 20px 16px; background: #f8fafc; border-top: 1px solid #e2e8f0;">
+                            <!-- Chọn chế độ phân bổ -->
+                            <div style="margin-bottom: 20px;">
+                                <label
+                                    style="display: block; font-size: 13px; font-weight: 600; color: #334155; margin-bottom: 12px;">Allocation
+                                    Mode (Chế độ phân bổ):</label>
+                                <div style="display: flex; gap: 16px;">
+                                    <label
+                                        style="flex: 1; display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: white; border: 1px solid #cbd5e1; border-radius: 6px; cursor: pointer; transition: all 0.2s ease;">
+                                        <input type="radio" name="tourAllocationMode" value="ALL" checked
+                                            onchange="toggleTourAllocationMode()"
+                                            style="accent-color: #334155; width: 16px; height: 16px; cursor: pointer;">
+                                        <span style="font-size: 14px; color: #1e293b; font-weight: 500;">Gộp chung <span
+                                                style="color: #64748b; font-weight: 400; font-size: 13px;">(Không gán
+                                                phòng cụ thể)</span></span>
+                                    </label>
+                                    <label
+                                        style="flex: 1; display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: white; border: 1px solid #cbd5e1; border-radius: 6px; cursor: pointer; transition: all 0.2s ease;">
+                                        <input type="radio" name="tourAllocationMode" value="PER_TOUR"
+                                            onchange="toggleTourAllocationMode()"
+                                            style="accent-color: #334155; width: 16px; height: 16px; cursor: pointer;">
+                                        <span style="font-size: 14px; color: #1e293b; font-weight: 500;">Phân bổ từng
+                                            tour <span style="color: #64748b; font-weight: 400; font-size: 13px;">(Chọn
+                                                phòng chịu phí)</span></span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Phân bổ từng tour vào phòng (chỉ hiện khi PER_TOUR) -->
+                            <div id="perTourAllocationContainer"
+                                style="display: none; background: white; padding: 16px; border-radius: 8px; border: 1px solid #e2e8f0; box-shadow: 0 1px 2px rgba(0,0,0,0.02);">
+                                <p
+                                    style="margin: 0 0 16px; font-size: 13px; color: #64748b; display: flex; align-items: center; gap: 8px;">
+                                    <i class="fa-solid fa-circle-info" style="color: #94a3b8; font-size: 14px;"></i>
+                                    Vui lòng gán mỗi tour cho một phòng tương ứng để tính chi phí vào phòng đó.
+                                </p>
+                                <div id="perTourAllocationRows"
+                                    style="display: flex; flex-direction: column; gap: 10px;">
+                                    <!-- Render bởi JS: [Tên Tour] → [dropdown phòng] -->
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -445,6 +588,4 @@
     </script>
     <script src="/receptionist/js/checkin.js"></script>
 </body>
-
 </html>
-

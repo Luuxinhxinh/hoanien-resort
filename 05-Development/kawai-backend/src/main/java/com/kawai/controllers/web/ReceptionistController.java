@@ -29,6 +29,7 @@ public class ReceptionistController {
     private final com.kawai.services.interfaces.CheckinService checkinService;
     private final com.kawai.services.interfaces.HousekeepingService housekeepingService;
     private final EmployeeRepository employeeRepository;
+    private final TourBookingRepository tourBookingRepository;
 
     @org.springframework.web.bind.annotation.ModelAttribute("todayLabel")
     public String getTodayLabel() {
@@ -131,6 +132,11 @@ public class ReceptionistController {
                     if (rb.getCheckInDate() == null || !rb.getCheckInDate().equals(dateFilter)) {
                         continue;
                     }
+                } else if (keyword == null || keyword.trim().isEmpty()) {
+                    // Mặc định ẩn đơn quá khứ nếu KHÔNG dùng bộ lọc (không có keyword, không chọn ngày)
+                    if (rb.getCheckInDate() != null && rb.getCheckInDate().isBefore(java.time.LocalDate.now())) {
+                        continue;
+                    }
                 }
 
                 filteredArrivals.add(b);
@@ -191,24 +197,25 @@ public class ReceptionistController {
                     b.getBookingDate() != null
                             ? b.getBookingDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
                             : "");
+            map.put("notes", b.getNotes() != null ? b.getNotes() : "");
 
             if (b instanceof RoomBooking) {
                 RoomBooking rb = (RoomBooking) b;
                 map.put("checkInDate", rb.getCheckInDate() != null
                         ? rb.getCheckInDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
                         : "N/A");
-                map.put("isExpired",
-                        rb.getCheckInDate() != null && rb.getCheckInDate().isBefore(java.time.LocalDate.now()));
                 map.put("creditLimit", rb.getCreditLimit() != null ? rb.getCreditLimit() : new java.math.BigDecimal("5000000.00"));
             } else {
                 map.put("checkInDate", "N/A");
-                map.put("isExpired", false);
                 map.put("creditLimit", new java.math.BigDecimal("5000000.00"));
             }
 
+            // Chỉ tính roomSummary cho các phòng CHƯA check-in (pending)
+            // để JS dropdown khớp với backend pendingDetails khi submit
             String roomSummary = "N/A";
             Map<String, Long> categoryCount = details.stream()
-                    .filter(d -> d.getCategory() != null)
+                    .filter(d -> d.getCategory() != null
+                            && !"CHECKED_IN".equalsIgnoreCase(d.getDetailStatus()))
                     .collect(Collectors.groupingBy(d -> d.getCategory().getCategoryName(),
                             Collectors.counting()));
 
@@ -232,6 +239,12 @@ public class ReceptionistController {
             // (Removed unused detailsList creation)
             List<com.kawai.dto.DependentResponseDTO> deps = dependentService.getGuestListByBooking(b.getId());
             map.put("dependents", deps);
+
+            // Tìm TourBookings chưa được gán phòng cụ thể (roomBookingDetail IS NULL)
+            // → các tour này lễ tân sẽ phân bổ khi check-in
+            List<com.kawai.models.TourBooking> unallocatedTours =
+                    tourBookingRepository.findByRoomBookingIdAndRoomBookingDetailIsNull(b.getId());
+            map.put("tourBookings", unallocatedTours);
 
             pagedArrivals.add(map);
         }
@@ -257,6 +270,7 @@ public class ReceptionistController {
             inventory.computeIfAbsent(cat, k -> new ArrayList<>()).add(r.getRoomNumber());
         }
         model.addAttribute("roomInventory", inventory);
+
 
         return "receptionist/check-in";
     }
@@ -422,6 +436,7 @@ public class ReceptionistController {
         return "receptionist/night-audit";
     }
 
+
     @GetMapping("/operations")
     public String operations(Model model) {
         model.addAttribute("operations", housekeepingService.getPendingOperations());
@@ -492,6 +507,7 @@ public class ReceptionistController {
         }
         return "redirect:/receptionist/check-in";
     }
+
 
     private boolean matchesKeyword(Booking b, String keyword) {
         if (keyword == null || keyword.trim().isEmpty()) {

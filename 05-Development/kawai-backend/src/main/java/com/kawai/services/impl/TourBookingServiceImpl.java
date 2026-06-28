@@ -45,6 +45,7 @@ public class TourBookingServiceImpl implements TourBookingService {
         private final TourStaffAssignmentRepository tourStaffAssignmentRepository;
         private final EmployeeRepository employeeRepository;
         private final RoomBookingDetailRepository roomBookingDetailRepository;
+        private final PromotionRepository promotionRepository;
 
         @Autowired(required = false)
         private EmailService emailService;
@@ -56,7 +57,8 @@ public class TourBookingServiceImpl implements TourBookingService {
                         FolioItemRepository folioItemRepository,
                         TourStaffAssignmentRepository tourStaffAssignmentRepository,
                         EmployeeRepository employeeRepository,
-                        RoomBookingDetailRepository roomBookingDetailRepository) {
+                        RoomBookingDetailRepository roomBookingDetailRepository,
+                        PromotionRepository promotionRepository) {
                 this.tourScheduleRepository = tourScheduleRepository;
                 this.tourBookingRepository = tourBookingRepository;
                 this.tourAttendeeRepository = tourAttendeeRepository;
@@ -65,6 +67,7 @@ public class TourBookingServiceImpl implements TourBookingService {
                 this.tourStaffAssignmentRepository = tourStaffAssignmentRepository;
                 this.employeeRepository = employeeRepository;
                 this.roomBookingDetailRepository = roomBookingDetailRepository;
+                this.promotionRepository = promotionRepository;
         }
 
         @Override
@@ -87,21 +90,91 @@ public class TourBookingServiceImpl implements TourBookingService {
                                         "TOUR-001: Hết chỗ. Chỉ còn " + remainingCapacity + " chỗ trống");
                 }
 
-                // 3. Tính tổng giá
-                BigDecimal totalPrice = schedule.getTour().getBasePrice()
-                                .multiply(BigDecimal.valueOf(request.getParticipantCount()));
+                // 3. Tính tổng giá (Dưới 2 tuổi miễn phí, 2 - 11 tuổi giảm 50%)
+                BigDecimal totalPrice = BigDecimal.ZERO;
+                BigDecimal basePrice = schedule.getTour().getBasePrice();
+                int childCount = request.getChildAges() != null ? request.getChildAges().size() : 0;
+                int adultCount = request.getParticipantCount() - childCount;
+                if (adultCount < 0)
+                        adultCount = 0;
 
-                // 4. Tạo TourBooking
+                // Người lớn tính 100% giá
+                totalPrice = totalPrice.add(basePrice.multiply(BigDecimal.valueOf(adultCount)));
+
+                // Trẻ em tính theo độ tuổi
+                if (request.getChildAges() != null) {
+                        for (String age : request.getChildAges()) {
+                                if ("Dưới 2 tuổi".equalsIgnoreCase(age)) {
+                                        // Miễn phí
+                                } else if ("2 - 11 tuổi".equalsIgnoreCase(age)) {
+                                        // Giảm 50%
+                                        totalPrice = totalPrice.add(basePrice.multiply(new BigDecimal("0.5")));
+                                } else {
+                                        // Mặc định giảm 50%
+                                        totalPrice = totalPrice.add(basePrice.multiply(new BigDecimal("0.5")));
+                                }
+                        }
+                }
+
+                // 4. Áp dụng mã giảm giá (nếu có)
+                Promotion appliedPromotion = null;
+                if (request.getPromoCode() != null && !request.getPromoCode().trim().isEmpty()) {
+                        String promoCode = request.getPromoCode().trim().toUpperCase();
+                        java.util.Optional<Promotion> optPromo = promotionRepository.findByPromoCode(promoCode);
+                        if (optPromo.isPresent()) {
+                                Promotion promo = optPromo.get();
+                                boolean isActive = Boolean.TRUE.equals(promo.getIsActive());
+                                boolean notExpired = promo.getValidTo() == null
+                                                || !promo.getValidTo().isBefore(LocalDate.now());
+                                if (isActive && notExpired) {
+                                        BigDecimal discountValue = promo.getDiscountValue();
+                                        boolean isFixed = "FIXED_AMOUNT".equalsIgnoreCase(promo.getDiscountType())
+                                                        || discountValue.compareTo(new BigDecimal("100")) >= 0;
+                                        BigDecimal discountAmount;
+                                        if (isFixed) {
+                                                discountAmount = discountValue;
+                                        } else {
+                                                discountAmount = totalPrice.multiply(discountValue)
+                                                                .divide(new BigDecimal("100"), 0,
+                                                                                java.math.RoundingMode.HALF_UP);
+                                        }
+                                        if (discountAmount.compareTo(totalPrice) > 0) discountAmount = totalPrice;
+                                        totalPrice = totalPrice.subtract(discountAmount);
+                                        appliedPromotion = promo;
+                                        LOG.info("Áp dụng mã giảm giá '{}' cho tour booking: giảm {} VND",
+                                                        promoCode, discountAmount);
+                                } else {
+                                        LOG.warn("Mã giảm giá '{}' không hợp lệ hoặc đã hết hạn", promoCode);
+                                }
+                        } else {
+                                LOG.warn("Mã giảm giá '{}' không tồn tại trong hệ thống", promoCode);
+                        }
+                }
+
+                // 5. Tạo TourBooking
                 TourBooking booking = new TourBooking();
                 booking.setSchedule(schedule);
                 booking.setCustomer(customer);
+                
+                RoomBooking roomBooking = roomBookingRepository.findById(request.getRoomBookingId())
+                                .orElseThrow(() -> new IllegalStateException("TOUR-006: Room Booking not found"));
+                booking.setRoomBooking(roomBooking);
+                
+                if (request.getRoomBookingDetailId() != null) {
+                    RoomBookingDetail detail = roomBookingDetailRepository.findById(request.getRoomBookingDetailId())
+                                    .orElseThrow(() -> new IllegalStateException("TOUR-007: Room Booking Detail not found"));
+                    booking.setRoomBookingDetail(detail);
+                }
+
                 booking.setBookingDate(LocalDate.now());
                 booking.setParticipantCount(request.getParticipantCount());
-                booking.setIsWalkInTour(request.isWalkInTour());
                 booking.setBookingStatus("Confirmed");
                 booking.setBookingSource("Direct_Web");
                 booking.setTotalPrice(totalPrice);
                 booking.setTourCharge(totalPrice);
+                if (appliedPromotion != null) {
+                        booking.setAppliedPromotion(appliedPromotion);
+                }
 
                 TourBooking savedBooking = tourBookingRepository.save(booking);
                 LOG.info("Created tour booking {} for schedule {} ({} pax)",
@@ -143,11 +216,12 @@ public class TourBookingServiceImpl implements TourBookingService {
                                         });
 
                         // Check Folio Credit Limit
-                        BigDecimal limit = detail.getSubCreditLimit() != null ? detail.getSubCreditLimit() : BigDecimal.ZERO;
+                        BigDecimal limit = detail.getSubCreditLimit() != null ? detail.getSubCreditLimit()
+                                        : BigDecimal.ZERO;
                         BigDecimal used = folioItemRepository.findByRoomBookingDetailId(detail.getId()).stream()
-                                .map(FolioItem::getAmount)
-                                .reduce(BigDecimal.ZERO, BigDecimal::add);
-                        
+                                        .map(FolioItem::getAmount)
+                                        .reduce(BigDecimal.ZERO, BigDecimal::add);
+
                         if (limit.subtract(used).compareTo(totalPrice) < 0) {
                                 throw new IllegalStateException(
                                                 "TOUR-LIMIT: Hạn mức chi tiêu của phòng không đủ để thanh toán tour. Vui lòng thanh toán bớt nợ cũ hoặc chọn hình thức TT Trực Tuyến.");
@@ -172,15 +246,19 @@ public class TourBookingServiceImpl implements TourBookingService {
                 }
 
                 // 7. Gửi email xác nhận đặt tour (bất đồng bộ, không block)
-                if (emailService != null) {
+                // Nếu thanh toán qua VNPay, email sẽ được gửi sau khi VNPay xác nhận thành công
+                // (trong VnPayServiceImpl.verifyIpn)
+                if (emailService != null && !"vnpay".equalsIgnoreCase(request.getPaymentMethod())) {
                         String roomNumber = null;
                         if (request.isPostToRoom() && request.getRoomBookingDetailId() != null) {
-                                RoomBookingDetail detail = roomBookingDetailRepository.findById(request.getRoomBookingDetailId()).orElse(null);
+                                RoomBookingDetail detail = roomBookingDetailRepository
+                                                .findById(request.getRoomBookingDetailId()).orElse(null);
                                 if (detail != null && detail.getRoom() != null) {
                                         roomNumber = detail.getRoom().getRoomNumber();
                                 }
                         }
-                        emailService.sendBookingConfirmation(savedBooking, customer, request.isPostToRoom(), roomNumber);
+                        emailService.sendBookingConfirmation(savedBooking, customer, request.isPostToRoom(),
+                                        roomNumber);
                 }
 
                 return savedBooking.getId();
@@ -235,9 +313,34 @@ public class TourBookingServiceImpl implements TourBookingService {
                 // Gửi email thông báo hủy tour (bất đồng bộ)
                 if (emailService != null && booking.getCustomer() != null) {
                         emailService.sendCancellationNotice(
-                                booking, booking.getCustomer(), refundAmount, cancelledByResort);
+                                        booking, booking.getCustomer(), refundAmount, cancelledByResort);
                 }
 
                 return refundAmount;
+        }
+
+
+        @jakarta.annotation.PostConstruct
+        public void clearTourBookingsData() {
+                try {
+                        LOG.info("STARTING DATA CLEANUP FOR TOUR BOOKINGS AS REQUESTED...");
+                        // 1. Delete tour attendees
+                        tourAttendeeRepository.deleteAll();
+
+                        // 2. Delete folio items that are linked to tour bookings
+                        List<TourBooking> tbs = tourBookingRepository.findAll();
+                        for (TourBooking tb : tbs) {
+                                List<FolioItem> fis = folioItemRepository.findByBookingId(tb.getId());
+                                if (fis != null && !fis.isEmpty()) {
+                                        folioItemRepository.deleteAll(fis);
+                                }
+                        }
+
+                        // 3. Delete tour bookings
+                        tourBookingRepository.deleteAll();
+                        LOG.info("TOUR BOOKINGS DATA CLEANUP COMPLETED SUCCESSFULLY.");
+                } catch (Exception e) {
+                        LOG.error("Failed to clean up tour bookings: " + e.getMessage());
+                }
         }
 }

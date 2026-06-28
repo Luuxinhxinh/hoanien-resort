@@ -30,7 +30,23 @@ public class TourBookingRequest {
     private boolean postToRoom = false;
     private Long roomBookingDetailId;
 
+    // Payment method: "counter", "post-room", "vnpay"
+    private String paymentMethod = "counter";
+
+    private java.util.List<String> childAges;
+
+    // Mã giảm giá (tùy chọn)
+    private String promoCode;
+
     public TourBookingRequest() {
+    }
+
+    public java.util.List<String> getChildAges() {
+        return childAges;
+    }
+
+    public void setChildAges(java.util.List<String> childAges) {
+        this.childAges = childAges;
     }
 
     // --- Getters & Setters ---
@@ -81,5 +97,21 @@ public class TourBookingRequest {
 
     public void setRoomBookingDetailId(Long roomBookingDetailId) {
         this.roomBookingDetailId = roomBookingDetailId;
+    }
+
+    public String getPaymentMethod() {
+        return paymentMethod;
+    }
+
+    public void setPaymentMethod(String paymentMethod) {
+        this.paymentMethod = paymentMethod;
+    }
+
+    public String getPromoCode() {
+        return promoCode;
+    }
+
+    public void setPromoCode(String promoCode) {
+        this.promoCode = promoCode;
     }
 }

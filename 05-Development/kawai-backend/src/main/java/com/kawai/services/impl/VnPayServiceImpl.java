@@ -14,6 +14,7 @@ import com.kawai.repositories.PaymentTransactionRepository;
 import com.kawai.repositories.RoomBookingRepository;
 import com.kawai.repositories.RoomBookingDetailRepository;
 import com.kawai.repositories.RoomRepository;
+import com.kawai.repositories.TourBookingRepository;
 import com.kawai.services.interfaces.VnPayService;
 import com.kawai.services.interfaces.EmailService;
 import com.kawai.services.interfaces.InvoicePdfService;
@@ -68,8 +69,11 @@ public class VnPayServiceImpl implements VnPayService {
     @Autowired
     private InvoicePdfService invoicePdfService;
 
-    @Autowired
+    private TourBookingRepository tourBookingRepository;
+
+    @Autowired(required = false)
     private EmailService emailService;
+
 
     @Override
     @Transactional
@@ -309,6 +313,81 @@ public class VnPayServiceImpl implements VnPayService {
 
     @Override
     @Transactional
+    public String createPaymentUrlForTourBooking(Long tourBookingId, java.math.BigDecimal amount, String paymentType,
+            String ipAddress) {
+        com.kawai.models.TourBooking tourBooking = tourBookingRepository.findById(tourBookingId)
+                .orElseThrow(() -> new BusinessException("TOUR_BOOKING_NOT_FOUND", "Không tìm thấy đơn đặt tour"));
+
+        // 1. Tạo PaymentTransaction status = INIT
+        PaymentTransaction txn = new PaymentTransaction();
+        txn.setAmount(amount);
+        txn.setStatus(PaymentStatus.INIT);
+        txn.setTransactionType("TOUR_BOOKING");
+        txn.setPaymentMethod("VNPAY");
+        txn.setCreatedAt(LocalDateTime.now());
+
+        // 2. Sinh transactionRef
+        String transactionRef = "TOUR_" + tourBookingId + "_" + paymentType.toUpperCase() + "_"
+                + System.currentTimeMillis();
+        txn.setTransactionRef(transactionRef);
+        paymentTransactionRepository.save(txn);
+
+        // 3. Build params VNPay
+        long amountVal = amount.multiply(new BigDecimal("100")).setScale(0, RoundingMode.HALF_UP).longValue();
+        String createDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+        String tourName = tourBooking.getSchedule() != null && tourBooking.getSchedule().getTour() != null
+                ? tourBooking.getSchedule().getTour().getTourName()
+                : "Tour";
+        String orderInfo = "Thanh toan tour " + tourName + " #" + tourBookingId
+                + ("deposit".equalsIgnoreCase(paymentType) ? " (Dat coc 30%)" : " (Toan bo)");
+
+        Map<String, String> vnp_Params = new HashMap<>();
+        vnp_Params.put("vnp_Version", vnPayConfig.getApiVersion());
+        vnp_Params.put("vnp_Command", "pay");
+        vnp_Params.put("vnp_TmnCode", vnPayConfig.getTmnCode());
+        vnp_Params.put("vnp_Amount", String.valueOf(amountVal));
+        vnp_Params.put("vnp_CurrCode", "VND");
+        vnp_Params.put("vnp_TxnRef", transactionRef);
+        vnp_Params.put("vnp_OrderInfo", orderInfo);
+        vnp_Params.put("vnp_OrderType", "250000");
+        vnp_Params.put("vnp_Locale", "vn");
+        vnp_Params.put("vnp_ReturnUrl", vnPayConfig.getReturnUrl());
+        vnp_Params.put("vnp_IpAddr", ipAddress);
+        vnp_Params.put("vnp_CreateDate", createDate);
+
+        String expireDate = LocalDateTime.now().plusMinutes(15).format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+        vnp_Params.put("vnp_ExpireDate", expireDate);
+
+        // 4. Build hash & query
+        List<String> fieldNames = new ArrayList<>(vnp_Params.keySet());
+        Collections.sort(fieldNames);
+        StringBuilder hashData = new StringBuilder();
+        StringBuilder query = new StringBuilder();
+        try {
+            for (String fieldName : fieldNames) {
+                String fieldValue = vnp_Params.get(fieldName);
+                if (fieldValue != null && fieldValue.length() > 0) {
+                    hashData.append(fieldName).append('=')
+                            .append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII.toString()));
+                    query.append(URLEncoder.encode(fieldName, StandardCharsets.US_ASCII.toString())).append('=')
+                            .append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII.toString()));
+                    query.append('&');
+                    hashData.append('&');
+                }
+            }
+        } catch (java.io.UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
+        query.setLength(query.length() - 1);
+        hashData.setLength(hashData.length() - 1);
+
+        String vnp_SecureHash = VnPayUtil.hmacSHA512(vnPayConfig.getHashSecret(), hashData.toString());
+        query.append("&vnp_SecureHash=").append(vnp_SecureHash);
+        return vnPayConfig.getPayUrl() + "?" + query;
+    }
+
+    @Override
+    @Transactional
     public String createPaymentUrlFromTransaction(PaymentTransaction txn, String ipAddress) {
         long amountVal = txn.getAmount().multiply(new BigDecimal("100")).setScale(0, RoundingMode.HALF_UP).longValue();
         String createDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
@@ -434,6 +513,30 @@ public class VnPayServiceImpl implements VnPayService {
                         }
                     }
                 }
+            } else if ("TOUR_BOOKING".equals(txn.getTransactionType())) {
+                // Extract tour booking ID from transactionRef: "TOUR_<id>_<TYPE>_<ts>"
+                try {
+                    String[] parts = txnRef.split("_");
+                    Long tourBookingId = Long.parseLong(parts[1]);
+                    com.kawai.models.TourBooking tourBooking = tourBookingRepository.findById(tourBookingId)
+                            .orElse(null);
+                    if (tourBooking != null) {
+                        tourBooking.setBookingStatus("Confirmed");
+                        tourBookingRepository.save(tourBooking);
+                        // Send confirmation email after successful VNPay payment
+                        if (emailService != null && tourBooking.getCustomer() != null) {
+                            try {
+                                emailService.sendBookingConfirmation(tourBooking, tourBooking.getCustomer(), false,
+                                        null);
+                            } catch (Exception emailEx) {
+                                System.err.println("[VNPay IPN] Loi gui email xac nhan tour booking #" + tourBookingId
+                                        + ": " + emailEx.getMessage());
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    System.err.println("[VNPay IPN] Loi xu ly TOUR_BOOKING: " + e.getMessage());
+                }
             } else if ("ROOM_BOOKING".equals(txn.getTransactionType()) && booking != null) {
                 if ("WALK_IN".equals(booking.getBookingSource())
                         && "Pending_Payment".equals(booking.getBookingStatus())) {
@@ -457,10 +560,10 @@ public class VnPayServiceImpl implements VnPayService {
                     booking.setBookingStatus("Confirmed");
                 }
             }
-            
             // Bỏ tự động chuyển trạng thái phòng khi thanh toán VNPay thành công.
             // Việc thay đổi trạng thái sang Checked_Out / Vacant_Dirty chỉ diễn ra
             // khi nhân viên nhấn nút "Hoàn tất Checkout" (gọi lại API checkout với amount = 0).
+
 
             // Tự động chuyển trạng thái Hóa Đơn sang PAID
             if (txn.getInvoice() != null) {

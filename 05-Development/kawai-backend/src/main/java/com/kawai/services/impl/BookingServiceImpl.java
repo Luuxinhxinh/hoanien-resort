@@ -30,7 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.kawai.services.interfaces.PaymentGatewayService;
+import com.kawai.services.interfaces.PaymentRefundService;
 import com.kawai.services.interfaces.NotificationService;
 
 import java.math.BigDecimal;
@@ -89,6 +89,9 @@ public class BookingServiceImpl implements BookingService {
     private com.kawai.repositories.BookingRepository bookingRepository;
 
     @Autowired
+    private com.kawai.repositories.TourBookingRepository tourBookingRepository;
+
+    @Autowired
     private WorkflowRepository workflowRepository;
 
     private final RoomBookingRepository roomBookingRepository;
@@ -96,7 +99,7 @@ public class BookingServiceImpl implements BookingService {
     private final RoomRepository roomRepository;
     private final CustomerRepository customerRepository;
     private final RoomBookingDetailRepository roomBookingDetailRepository;
-    private final PaymentGatewayService paymentGatewayService;
+    private final PaymentRefundService paymentRefundService;
     private final NotificationService notificationService;
     private final com.kawai.repositories.RoomCategoryRepository roomCategoryRepository;
     private final com.kawai.repositories.RoomSurchargeRepository roomSurchargeRepository;
@@ -111,7 +114,7 @@ public class BookingServiceImpl implements BookingService {
             RoomRepository roomRepository,
             CustomerRepository customerRepository,
             RoomBookingDetailRepository roomBookingDetailRepository,
-            PaymentGatewayService paymentGatewayService,
+            PaymentRefundService paymentRefundService,
             NotificationService notificationService,
             com.kawai.repositories.RoomCategoryRepository roomCategoryRepository,
             com.kawai.repositories.RoomSurchargeRepository roomSurchargeRepository,
@@ -122,7 +125,7 @@ public class BookingServiceImpl implements BookingService {
         this.roomRepository = roomRepository;
         this.customerRepository = customerRepository;
         this.roomBookingDetailRepository = roomBookingDetailRepository;
-        this.paymentGatewayService = paymentGatewayService;
+        this.paymentRefundService = paymentRefundService;
         this.notificationService = notificationService;
         this.roomCategoryRepository = roomCategoryRepository;
         this.roomSurchargeRepository = roomSurchargeRepository;
@@ -387,7 +390,9 @@ public class BookingServiceImpl implements BookingService {
                 } else {
                     com.kawai.models.Dependent stubDep = new com.kawai.models.Dependent();
                     stubDep.setCustomer(customer);
+                    stubDep.setDependentName("Khách đi kèm");
                     stubDep.setBirthDate(java.time.LocalDate.now().minusYears(18).withDayOfYear(1));
+                    stubDep.setGender("Khác");
                     dependentRepository.save(stubDep);
 
                     guest.setCustomer(null);
@@ -402,6 +407,8 @@ public class BookingServiceImpl implements BookingService {
             for (Integer age : agesForRoom) {
                 com.kawai.models.Dependent dep = new com.kawai.models.Dependent();
                 dep.setCustomer(customer);
+                dep.setDependentName("Khách đi kèm");
+                dep.setGender("Khác");
                 // Calculate approximate birthDate from age (e.g., Jan 1st of birth year)
                 dep.setBirthDate(java.time.LocalDate.now().minusYears(age).withDayOfYear(1));
                 dependentRepository.save(dep);
@@ -435,25 +442,45 @@ public class BookingServiceImpl implements BookingService {
     public void cleanupStaleHolds() {
         LocalDateTime now = LocalDateTime.now();
         List<RoomBooking> staleHolds = roomBookingRepository
-                .findByBookingStatusAndHoldExpiresAtBefore("Pending_Payment", now);
+                .findByBookingStatusInAndHoldExpiresAtBefore(java.util.List.of("Pending", "Pending_Payment"), now);
         if (!staleHolds.isEmpty()) {
             staleHolds.forEach(h -> {
-                h.setBookingStatus("CANCELLED");
-                h.setHoldExpiresAt(null);
-                if (h.getCustomer() != null) {
-                    try {
-                        notificationService.sendNotification(
-                                h.getCustomer().getId(),
-                                "Hủy đơn phòng tự động",
-                                "Đơn đặt phòng #" + h.getId()
-                                        + " của quý khách đã bị hủy tự động do quá hạn chờ thanh toán.");
-                    } catch (Exception e) {
-                        log.error("Failed to send cancellation notification for booking {}", h.getId(), e);
+                try {
+                    // Xóa các chi tiết phòng (RoomBookingDetail) và khách (RoomGuest)
+                    List<com.kawai.models.RoomBookingDetail> details = roomBookingDetailRepository.findByRoomBookingId(h.getId());
+                    for (com.kawai.models.RoomBookingDetail detail : details) {
+                        List<com.kawai.models.RoomGuest> guests = roomGuestRepository.findByRoomBookingDetailId(detail.getId());
+                        for (com.kawai.models.RoomGuest guest : guests) {
+                            com.kawai.models.Dependent dep = guest.getDependent();
+                            roomGuestRepository.delete(guest);
+                            if (dep != null) {
+                                try {
+                                    dependentRepository.delete(dep);
+                                } catch (Exception ignored) {}
+                            }
+                        }
+                        roomBookingDetailRepository.delete(detail);
                     }
+                    
+                    // Xóa chính Booking
+                    roomBookingRepository.delete(h);
+                    
+                    if (h.getCustomer() != null) {
+                        try {
+                            notificationService.sendNotification(
+                                    h.getCustomer().getId(),
+                                    "Đơn đặt phòng tự động bị xóa",
+                                    "Đơn đặt phòng #" + h.getId()
+                                            + " của quý khách đã bị xóa do quá hạn 2 phút chờ thanh toán.");
+                        } catch (Exception e) {
+                            log.error("Failed to send deletion notification for booking {}", h.getId(), e);
+                        }
+                    }
+                } catch (Exception e) {
+                    log.error("Failed to delete stale booking {}", h.getId(), e);
                 }
             });
-            roomBookingRepository.saveAll(staleHolds);
-            log.warn("[SOFT_LOCK] Auto-cancelled {} expired HOLD booking(s) at {}",
+            log.warn("[SOFT_LOCK] Auto-deleted {} expired HOLD booking(s) at {}",
                     staleHolds.size(), now);
         }
     }
@@ -594,11 +621,17 @@ public class BookingServiceImpl implements BookingService {
             throw new BusinessException("BKG-005", "Invalid booking status");
         }
 
+        if ("Pending".equalsIgnoreCase(booking.getBookingStatus()) || "Pending_Payment".equalsIgnoreCase(booking.getBookingStatus())) {
+            deletePendingBooking(bookingId, customerId);
+            BookingResponseDTO response = new BookingResponseDTO();
+            response.setBookingId(bookingId);
+            response.setBookingStatus("CANCELLED");
+            response.setDepositAmount(BigDecimal.ZERO);
+            return response;
+        }
+
         // Nếu booking chưa đóng tiền cọc (depositAmount = null hoặc = 0)
-        // HOẶC đang ở trạng thái HOLD (chưa thanh toán thực tế dù depositAmount đã được
-        // tính sẵn)
-        if (booking.getDepositAmount() == null || booking.getDepositAmount().compareTo(BigDecimal.ZERO) <= 0
-                || "Pending_Payment".equalsIgnoreCase(booking.getBookingStatus())) {
+        if (booking.getDepositAmount() == null || booking.getDepositAmount().compareTo(BigDecimal.ZERO) <= 0) {
             booking.setBookingStatus("CANCELLED");
             roomBookingRepository.save(booking);
             BookingResponseDTO response = new BookingResponseDTO();
@@ -615,8 +648,8 @@ public class BookingServiceImpl implements BookingService {
 
         try {
             if (isEligibleForRefund) {
-                if (paymentGatewayService != null) {
-                    paymentGatewayService.processRefund("TXN_" + bookingId, booking.getDepositAmount());
+                if (paymentRefundService != null) {
+                    paymentRefundService.processRefund("TXN_" + bookingId, booking.getDepositAmount());
                 }
                 if (notificationService != null) {
                     notificationService.sendNotification(customerId, "Cancel Success",
@@ -717,50 +750,71 @@ public class BookingServiceImpl implements BookingService {
     @Override
     @Transactional
     public BigDecimal applyCoupon(Long bookingId, String couponCode, Long customerId) {
-        RoomBooking booking = roomBookingRepository.findByIdAndCustomerId(bookingId, customerId)
+        com.kawai.models.Booking generalBooking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new BusinessException("FORBIDDEN",
-                        "Đơn đặt phòng không thuộc về tài khoản này hoặc không tồn tại!"));
+                        "Đơn đặt dịch vụ không thuộc về tài khoản này hoặc không tồn tại!"));
 
-        List<RoomBookingDetail> details = roomBookingDetailRepository.findByRoomBookingId(bookingId);
-        BigDecimal baseRoomPrice = BigDecimal.ZERO;
-        BigDecimal servicesFee = BigDecimal.ZERO;
-        for (RoomBookingDetail detail : details) {
-            baseRoomPrice = baseRoomPrice
-                    .add(detail.getRoomCharge() != null ? detail.getRoomCharge() : BigDecimal.ZERO);
-            servicesFee = servicesFee
-                    .add(detail.getExtraSurcharge() != null ? detail.getExtraSurcharge() : BigDecimal.ZERO);
+        if (generalBooking.getCustomer() == null || !generalBooking.getCustomer().getId().equals(customerId)) {
+            throw new BusinessException("FORBIDDEN",
+                    "Đơn đặt dịch vụ không thuộc về tài khoản này hoặc không tồn tại!");
         }
-        BigDecimal totalBaseTotal = baseRoomPrice.add(servicesFee);
+
+        BigDecimal totalBaseTotal = BigDecimal.ZERO;
+
+        if (generalBooking instanceof RoomBooking) {
+            List<RoomBookingDetail> details = roomBookingDetailRepository.findByRoomBookingId(bookingId);
+            BigDecimal baseRoomPrice = BigDecimal.ZERO;
+            BigDecimal servicesFee = BigDecimal.ZERO;
+            for (RoomBookingDetail detail : details) {
+                baseRoomPrice = baseRoomPrice
+                        .add(detail.getRoomCharge() != null ? detail.getRoomCharge() : BigDecimal.ZERO);
+                servicesFee = servicesFee
+                        .add(detail.getExtraSurcharge() != null ? detail.getExtraSurcharge() : BigDecimal.ZERO);
+            }
+            totalBaseTotal = baseRoomPrice.add(servicesFee);
+        } else if (generalBooking instanceof com.kawai.models.TourBooking) {
+            com.kawai.models.TourBooking booking = (com.kawai.models.TourBooking) generalBooking;
+            totalBaseTotal = booking.getTourCharge() != null ? booking.getTourCharge() : booking.getTotalPrice();
+            if (totalBaseTotal == null) {
+                totalBaseTotal = BigDecimal.ZERO;
+            }
+        } else {
+            throw new BusinessException("NOT_SUPPORTED", "Loại đơn hàng này không hỗ trợ áp dụng mã giảm giá!");
+        }
 
         BigDecimal discountedPrice = applyPromotion(couponCode, totalBaseTotal, customerId);
         BigDecimal discountAmount = totalBaseTotal.subtract(discountedPrice);
 
-        booking.setTotalPrice(discountedPrice.setScale(0, RoundingMode.HALF_UP));
-        booking.setDepositAmount(discountedPrice.multiply(new BigDecimal("0.3")).setScale(0, RoundingMode.HALF_UP)); // Default
-                                                                                                                     // deposit
-                                                                                                                     // is
-                                                                                                                     // 30%
-                                                                                                                     // of
-                                                                                                                     // final
-                                                                                                                     // price
-        roomBookingRepository.save(booking);
+        generalBooking.setTotalPrice(discountedPrice.setScale(0, RoundingMode.HALF_UP));
+
+        Promotion promotion = promotionRepository.findByPromoCode(couponCode)
+                .orElseThrow(() -> new BusinessException("PROMOTION_NOT_FOUND", "Mã giảm giá không tồn tại hoặc đã hết hạn!"));
+        generalBooking.setAppliedPromotion(promotion);
+
+        if (generalBooking instanceof RoomBooking) {
+            RoomBooking roomBooking = (RoomBooking) generalBooking;
+            roomBooking.setDepositAmount(discountedPrice.multiply(new BigDecimal("0.3")).setScale(0, RoundingMode.HALF_UP));
+            roomBookingRepository.save(roomBooking);
+        } else if (generalBooking instanceof com.kawai.models.TourBooking) {
+            tourBookingRepository.save((com.kawai.models.TourBooking) generalBooking);
+        } else {
+            bookingRepository.save(generalBooking);
+        }
 
         // Gọi Workflow Engine để kiểm tra nếu áp dụng mã giảm giá vượt ngưỡng
         try {
-            Promotion promo = promotionRepository.findByPromoCode(couponCode).orElse(null);
-            if (promo != null) {
-                BigDecimal pct = "Percentage".equalsIgnoreCase(promo.getDiscountType())
-                        ? promo.getDiscountValue()
-                        : (totalBaseTotal.compareTo(BigDecimal.ZERO) > 0
-                                ? promo.getDiscountValue().multiply(new BigDecimal("100")).divide(totalBaseTotal, 2,
-                                        RoundingMode.HALF_UP)
-                                : BigDecimal.ZERO);
+            Promotion promo = promotion;
+            BigDecimal pct = "Percentage".equalsIgnoreCase(promo.getDiscountType())
+                    ? promo.getDiscountValue()
+                    : (totalBaseTotal.compareTo(BigDecimal.ZERO) > 0
+                            ? promo.getDiscountValue().multiply(new BigDecimal("100")).divide(totalBaseTotal, 2,
+                                    RoundingMode.HALF_UP)
+                            : BigDecimal.ZERO);
 
-                workflowEngineService.triggerEvent("PROMOTION_EXCEEDED", java.util.Map.of(
-                        "promo_id", promo.getId(),
-                        "input_discount_pct", pct.doubleValue(),
-                        "booking_id", booking.getId()));
-            }
+            workflowEngineService.triggerEvent("PROMOTION_EXCEEDED", java.util.Map.of(
+                    "promo_id", promo.getId(),
+                    "input_discount_pct", pct.doubleValue(),
+                    "booking_id", generalBooking.getId()));
         } catch (Exception e) {
             log.error("Failed to trigger PROMOTION_EXCEEDED workflow in applyCoupon", e);
         }
@@ -771,7 +825,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     @Transactional(isolation = org.springframework.transaction.annotation.Isolation.READ_COMMITTED)
     public void confirmBooking(Long bookingId, Long customerId, String fullName, String phone, String email,
-            String cccd, String notes, String paymentMethod) {
+            String cccd, String address, String notes, String paymentMethod) {
         RoomBooking booking = roomBookingRepository.findByIdAndCustomerId(bookingId, customerId)
                 .orElseThrow(() -> new BusinessException("FORBIDDEN",
                         "Đơn đặt phòng không thuộc về tài khoản này hoặc không tồn tại!"));
@@ -854,6 +908,12 @@ public class BookingServiceImpl implements BookingService {
                 customer.setCccdPassportEncrypted(com.kawai.utils.EncryptionUtils.encrypt(cccd.trim()));
             }
         }
+        
+        if (customer.getAddress() == null || customer.getAddress().trim().isEmpty()) {
+            if (address != null && !address.trim().isEmpty()) {
+                customer.setAddress(address.trim());
+            }
+        }
         customerRepository.save(customer);
 
         // Chỉ lưu ghi chú và giữ nguyên trạng thái HOLD để chờ thanh toán cọc
@@ -909,6 +969,35 @@ public class BookingServiceImpl implements BookingService {
             }
         }
         return result;
+    }
+
+    @Override
+    @Transactional
+    public void deletePendingBooking(Long bookingId, Long customerId) {
+        RoomBooking booking = roomBookingRepository.findByIdAndCustomerId(bookingId, customerId)
+                .orElseThrow(() -> new BusinessException("BOOKING_NOT_FOUND", "Không tìm thấy đơn đặt phòng"));
+        
+        if (!"Pending".equalsIgnoreCase(booking.getBookingStatus()) && !"Pending_Payment".equalsIgnoreCase(booking.getBookingStatus())) {
+            throw new BusinessException("INVALID_STATE", "Chỉ có thể xóa đơn đang ở trạng thái chờ");
+        }
+        
+        List<com.kawai.models.RoomBookingDetail> details = roomBookingDetailRepository.findByRoomBookingId(booking.getId());
+        for (com.kawai.models.RoomBookingDetail detail : details) {
+            List<com.kawai.models.RoomGuest> guests = roomGuestRepository.findByRoomBookingDetailId(detail.getId());
+            for (com.kawai.models.RoomGuest guest : guests) {
+                com.kawai.models.Dependent dep = guest.getDependent();
+                roomGuestRepository.delete(guest);
+                if (dep != null) {
+                    try {
+                        dependentRepository.delete(dep);
+                    } catch (Exception ignored) {}
+                }
+            }
+            roomBookingDetailRepository.delete(detail);
+        }
+        
+        roomBookingRepository.delete(booking);
+        log.info("Deleted pending booking {} manually by customer {}", bookingId, customerId);
     }
 
     private long calculateAvailableRooms(String catName, java.time.LocalDate checkIn, java.time.LocalDate checkOut) {

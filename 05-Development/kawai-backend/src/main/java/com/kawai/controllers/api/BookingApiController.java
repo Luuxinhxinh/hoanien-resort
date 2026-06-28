@@ -48,15 +48,18 @@ public class BookingApiController {
 
     @Autowired
     private CustomerRepository customerRepository;
-    
+
     @Autowired
     private com.kawai.repositories.RoomGuestRepository roomGuestRepository;
-    
+
     @Autowired
     private com.kawai.repositories.RoomBookingDetailRepository roomBookingDetailRepository;
-    
+
     @Autowired
     private com.kawai.repositories.DependentRepository dependentRepository;
+
+    @Autowired
+    private com.kawai.repositories.PromotionRepository promotionRepository;
 
     @Autowired
     private com.kawai.services.interfaces.VnPayService vnPayService;
@@ -205,8 +208,10 @@ public class BookingApiController {
 
             String paymentMethod = (String) payload.get("paymentMethod");
 
-            // 2. Chốt booking: Xác nhận available, gắn thông tin khách, chuyển sang Pending_Payment hoặc Confirmed
-            bookingService.confirmBooking(bookingId, customer.getId(), fullName, phone, email, cccd, notes, paymentMethod);
+            // 2. Chốt booking: Xác nhận available, gắn thông tin khách, chuyển sang
+            // Pending_Payment hoặc Confirmed
+            bookingService.confirmBooking(bookingId, customer.getId(), fullName, phone, email, cccd, notes,
+                    paymentMethod);
 
             Map<String, Object> response = new java.util.HashMap<>();
             response.put("status", "success");
@@ -240,7 +245,8 @@ public class BookingApiController {
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(500).body(
-                    Map.of("status", "error", "message", e.getMessage() != null ? e.getMessage() : "Đã xảy ra lỗi hệ thống"));
+                    Map.of("status", "error", "message",
+                            e.getMessage() != null ? e.getMessage() : "Đã xảy ra lỗi hệ thống"));
         }
     }
 
@@ -251,24 +257,28 @@ public class BookingApiController {
         }
         try {
             Customer customer = resolveCurrentCustomer(principal);
-            
+
             // Lấy danh sách RoomBookingDetail của đơn này
-            java.util.List<com.kawai.models.RoomBookingDetail> details = roomBookingDetailRepository.findByRoomBookingId(bookingId);
-            
-            // Trả về cấu trúc: [ { detailId, roomName, guests: [ { guestId, type, dependentId, isPrimary } ] } ]
+            java.util.List<com.kawai.models.RoomBookingDetail> details = roomBookingDetailRepository
+                    .findByRoomBookingId(bookingId);
+
+            // Trả về cấu trúc: [ { detailId, roomName, guests: [ { guestId, type,
+            // dependentId, isPrimary } ] } ]
             java.util.List<Map<String, Object>> responseList = new java.util.ArrayList<>();
-            
+
             for (com.kawai.models.RoomBookingDetail detail : details) {
                 // Kiểm tra xem đơn này có thuộc về customer không (Chủ đơn)
                 if (!detail.getRoomBooking().getCustomer().getId().equals(customer.getId())) {
                     throw new BusinessException("FORBIDDEN", "Không có quyền truy cập đơn hàng này");
                 }
-                
+
                 Map<String, Object> roomData = new java.util.HashMap<>();
                 roomData.put("detailId", detail.getId());
-                roomData.put("roomName", detail.getCategory() != null ? detail.getCategory().getCategoryName() : "Phòng");
-                
-                java.util.List<com.kawai.models.RoomGuest> guests = roomGuestRepository.findByRoomBookingDetailId(detail.getId());
+                roomData.put("roomName",
+                        detail.getCategory() != null ? detail.getCategory().getCategoryName() : "Phòng");
+
+                java.util.List<com.kawai.models.RoomGuest> guests = roomGuestRepository
+                        .findByRoomBookingDetailId(detail.getId());
                 java.util.List<Map<String, Object>> guestsData = new java.util.ArrayList<>();
                 for (com.kawai.models.RoomGuest g : guests) {
                     Map<String, Object> gData = new java.util.HashMap<>();
@@ -276,36 +286,41 @@ public class BookingApiController {
                     gData.put("type", g.getGuestType());
                     gData.put("dependentId", g.getDependent() != null ? g.getDependent().getId() : null);
                     gData.put("isPrimary", g.getIsPrimaryContact());
-                    gData.put("name", g.getDependent() != null ? g.getDependent().getDependentName() : (g.getCustomer() != null ? g.getCustomer().getFullName() : ""));
+                    gData.put("name", g.getDependent() != null ? g.getDependent().getDependentName()
+                            : (g.getCustomer() != null ? g.getCustomer().getFullName() : ""));
                     guestsData.add(gData);
                 }
-                
+
                 roomData.put("guests", guestsData);
                 responseList.add(roomData);
             }
             return ResponseEntity.ok(responseList);
-            
+
         } catch (BusinessException e) {
             return ResponseEntity.status(403).body(Map.of("status", "error", "message", e.getMessage()));
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(500).body(
-                    Map.of("status", "error", "message", e.getMessage() != null ? e.getMessage() : "Đã xảy ra lỗi hệ thống"));
+                    Map.of("status", "error", "message",
+                            e.getMessage() != null ? e.getMessage() : "Đã xảy ra lỗi hệ thống"));
         }
     }
-    
+
     @PostMapping("/{bookingId}/guests")
-    public ResponseEntity<?> updateBookingGuests(Principal principal, @PathVariable Long bookingId, @RequestBody java.util.List<Map<String, Object>> updates) {
+    public ResponseEntity<?> updateBookingGuests(Principal principal, @PathVariable Long bookingId,
+            @RequestBody java.util.List<Map<String, Object>> updates) {
         if (principal == null) {
             return ResponseEntity.status(401).body(Map.of("status", "error", "message", "Quý khách cần đăng nhập!"));
         }
         try {
             Customer customer = resolveCurrentCustomer(principal);
-            
+
             for (Map<String, Object> update : updates) {
                 Long guestId = Long.valueOf(update.get("guestId").toString());
-                Long dependentId = update.get("dependentId") != null && !update.get("dependentId").toString().isEmpty() ? Long.valueOf(update.get("dependentId").toString()) : null;
-                
+                Long dependentId = update.get("dependentId") != null && !update.get("dependentId").toString().isEmpty()
+                        ? Long.valueOf(update.get("dependentId").toString())
+                        : null;
+
                 com.kawai.models.RoomGuest guest = roomGuestRepository.findById(guestId).orElse(null);
                 if (guest != null) {
                     // Check ownership
@@ -325,17 +340,19 @@ public class BookingApiController {
                     }
                 }
             }
-            
+
             return ResponseEntity.ok(Map.of("status", "success", "message", "Khai báo khách lưu trú thành công!"));
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(500).body(
-                    Map.of("status", "error", "message", e.getMessage() != null ? e.getMessage() : "Đã xảy ra lỗi hệ thống"));
+                    Map.of("status", "error", "message",
+                            e.getMessage() != null ? e.getMessage() : "Đã xảy ra lỗi hệ thống"));
         }
     }
 
     @PostMapping("/{bookingId}/rooms/{detailId}/credit-limit")
-    public ResponseEntity<?> updateRoomCreditLimit(Principal principal, @PathVariable Long bookingId, @PathVariable Long detailId, @RequestBody Map<String, Object> payload) {
+    public ResponseEntity<?> updateRoomCreditLimit(Principal principal, @PathVariable Long bookingId,
+            @PathVariable Long detailId, @RequestBody Map<String, Object> payload) {
         if (principal == null) {
             return ResponseEntity.status(401).body(Map.of("status", "error", "message", "Quý khách cần đăng nhập!"));
         }
@@ -348,7 +365,8 @@ public class BookingApiController {
 
             com.kawai.models.RoomBooking booking = detail.getRoomBooking();
             if (!booking.getCustomer().getId().equals(customer.getId())) {
-                return ResponseEntity.status(403).body(Map.of("status", "error", "message", "Không có quyền truy cập!"));
+                return ResponseEntity.status(403)
+                        .body(Map.of("status", "error", "message", "Không có quyền truy cập!"));
             }
 
             if (payload.get("newLimit") == null || payload.get("newLimit").toString().trim().isEmpty()) {
@@ -358,24 +376,30 @@ public class BookingApiController {
             try {
                 newLimit = new BigDecimal(payload.get("newLimit").toString());
             } catch (Exception ex) {
-                return ResponseEntity.badRequest().body(Map.of("status", "error", "message", "Định dạng số không hợp lệ!"));
+                return ResponseEntity.badRequest()
+                        .body(Map.of("status", "error", "message", "Định dạng số không hợp lệ!"));
             }
-            
+
             if (newLimit.compareTo(BigDecimal.ZERO) < 0) {
                 return ResponseEntity.badRequest().body(Map.of("status", "error", "message", "Hạn mức không hợp lệ!"));
             }
 
             BigDecimal maxLimit = booking.getCreditLimit() != null ? booking.getCreditLimit() : BigDecimal.ZERO;
             BigDecimal totalOtherRoomsLimit = BigDecimal.ZERO;
-            java.util.List<com.kawai.models.RoomBookingDetail> allDetails = roomBookingDetailRepository.findByRoomBookingId(bookingId);
-            for(com.kawai.models.RoomBookingDetail d : allDetails) {
-                if(!d.getId().equals(detailId)) {
-                    totalOtherRoomsLimit = totalOtherRoomsLimit.add(d.getSubCreditLimit() != null ? d.getSubCreditLimit() : BigDecimal.ZERO);
+            java.util.List<com.kawai.models.RoomBookingDetail> allDetails = roomBookingDetailRepository
+                    .findByRoomBookingId(bookingId);
+            for (com.kawai.models.RoomBookingDetail d : allDetails) {
+                if (!d.getId().equals(detailId)) {
+                    totalOtherRoomsLimit = totalOtherRoomsLimit
+                            .add(d.getSubCreditLimit() != null ? d.getSubCreditLimit() : BigDecimal.ZERO);
                 }
             }
-            
+
             if (totalOtherRoomsLimit.add(newLimit).compareTo(maxLimit) > 0) {
-                 return ResponseEntity.badRequest().body(Map.of("status", "error", "message", "Tổng hạn mức cấp cho các phòng không được vượt quá hạn mức tối đa của đơn đặt phòng (" + String.format("%,.0f", maxLimit) + "đ)"));
+                return ResponseEntity.badRequest()
+                        .body(Map.of("status", "error", "message",
+                                "Tổng hạn mức cấp cho các phòng không được vượt quá hạn mức tối đa của đơn đặt phòng ("
+                                        + String.format("%,.0f", maxLimit) + "đ)"));
             }
 
             detail.setSubCreditLimit(newLimit);
@@ -385,6 +409,54 @@ public class BookingApiController {
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(500).body(Map.of("status", "error", "message", "Đã xảy ra lỗi hệ thống"));
+        }
+    }
+
+    /**
+     * Validate và tính toán giá trị mã giảm giá từ bảng Promotions.
+     * Endpoint này được đặt dưới /api/bookings/** nên được truy cập bởi guest (không cần đăng nhập).
+     *
+     * @param code   Mã giảm giá cần kiểm tra
+     * @param amount Số tiền gốc (VND) để tính toán giá trị giảm
+     */
+    @org.springframework.web.bind.annotation.GetMapping("/promo/validate")
+    public ResponseEntity<?> validatePromo(
+            @org.springframework.web.bind.annotation.RequestParam String code,
+            @org.springframework.web.bind.annotation.RequestParam java.math.BigDecimal amount) {
+        try {
+            java.util.Optional<com.kawai.models.Promotion> optPromo = promotionRepository.findByPromoCode(code.toUpperCase().trim());
+            if (optPromo.isEmpty()) {
+                return ResponseEntity.ok(Map.of("success", false, "message", "Mã giảm giá không tồn tại"));
+            }
+            com.kawai.models.Promotion promo = optPromo.get();
+            if (!Boolean.TRUE.equals(promo.getIsActive())
+                    || (promo.getValidTo() != null && promo.getValidTo().isBefore(java.time.LocalDate.now()))) {
+                return ResponseEntity.ok(Map.of("success", false, "message", "Mã giảm giá đã hết hạn hoặc không hoạt động"));
+            }
+            java.math.BigDecimal discountRate = promo.getDiscountValue();
+            java.math.BigDecimal discountAmount;
+            // Heuristic: giá trị >= 100 được coi là FIXED_AMOUNT (VND), còn lại là PERCENTAGE
+            boolean isFixed = "FIXED_AMOUNT".equalsIgnoreCase(promo.getDiscountType())
+                    || discountRate.compareTo(new java.math.BigDecimal("100")) >= 0;
+            if (isFixed) {
+                discountAmount = discountRate;
+            } else {
+                discountAmount = amount.multiply(discountRate)
+                        .divide(new java.math.BigDecimal("100"), 0, java.math.RoundingMode.HALF_UP);
+            }
+            if (discountAmount.compareTo(amount) > 0) discountAmount = amount;
+            java.math.BigDecimal newAmount = amount.subtract(discountAmount);
+            return ResponseEntity.ok(Map.of(
+                    "success", true,
+                    "promoCode", promo.getPromoCode(),
+                    "discountType", isFixed ? "FIXED_AMOUNT" : "PERCENTAGE",
+                    "discountValue", discountRate,
+                    "discountAmount", discountAmount,
+                    "newAmount", newAmount,
+                    "description", promo.getDescription() != null ? promo.getDescription() : ""));
+        } catch (Exception e) {
+            return ResponseEntity.status(500)
+                    .body(Map.of("success", false, "message", "Lỗi kiểm tra mã giảm giá: " + e.getMessage()));
         }
     }
 

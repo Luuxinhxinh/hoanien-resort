@@ -69,9 +69,9 @@ function updateCheckinCreditLimitDisplay() {
     assignedRooms.forEach(r => totalAllocated += (r.allocatedCreditLimit || 0));
     let remaining = checkinMasterCreditLimit - totalAllocated;
     let displayEl = document.getElementById('checkinRemainingCreditDisplay');
-    if(displayEl) {
+    if (displayEl) {
         displayEl.innerText = remaining.toLocaleString() + ' VND';
-        if(remaining < 0) {
+        if (remaining < 0) {
             displayEl.style.color = 'red';
         } else {
             displayEl.style.color = '#16a34a';
@@ -104,7 +104,7 @@ function removeAssignedRoom(roomNumber) {
 function renderAssignedRooms() {
     const container = document.getElementById('assignedRoomsList');
     container.innerHTML = '';
-    
+
     document.querySelectorAll('input[name="assignedRoomNumbers"]').forEach(el => el.remove());
     document.querySelectorAll('input[name="allocatedCreditLimits"]').forEach(el => el.remove());
 
@@ -122,14 +122,14 @@ function renderAssignedRooms() {
     assignedRooms.forEach((a, index) => {
         const row = document.createElement('div');
         row.style.cssText = 'display: flex; align-items: center; justify-content: space-between; background:#e0f2fe; margin-bottom: 8px; padding: 8px 12px; border-radius: 6px; border: 1px solid #bae6fd;';
-        
+
         const infoSpan = document.createElement('span');
         infoSpan.style.cssText = 'color:#0284c7; font-weight: 500; font-size: 14px;';
         infoSpan.innerText = `${a.room} (${a.type})`;
-        
+
         const rightDiv = document.createElement('div');
         rightDiv.style.cssText = 'display: flex; align-items: center; gap: 10px;';
-        
+
         const limitInput = document.createElement('input');
         limitInput.type = 'number';
         limitInput.className = 'form-control';
@@ -137,16 +137,16 @@ function renderAssignedRooms() {
         limitInput.placeholder = 'Credit Limit';
         limitInput.value = a.allocatedCreditLimit || 0;
         limitInput.min = "0";
-        limitInput.oninput = function() { handleCheckinCreditInput(this, index); };
-        
+        limitInput.oninput = function () { handleCheckinCreditInput(this, index); };
+
         const delBtn = document.createElement('i');
         delBtn.className = 'fa-solid fa-xmark';
         delBtn.style.cssText = 'cursor:pointer; color: #ef4444; font-size: 16px;';
-        delBtn.onclick = function() { removeAssignedRoom(a.room); };
-        
+        delBtn.onclick = function () { removeAssignedRoom(a.room); };
+
         rightDiv.appendChild(limitInput);
         rightDiv.appendChild(delBtn);
-        
+
         row.appendChild(infoSpan);
         row.appendChild(rightDiv);
         container.appendChild(row);
@@ -156,7 +156,7 @@ function renderAssignedRooms() {
         hiddenInput.name = 'assignedRoomNumbers';
         hiddenInput.value = a.room;
         document.getElementById('checkinFormWrapper').appendChild(hiddenInput);
-        
+
         const hiddenLimitInput = document.createElement('input');
         hiddenLimitInput.type = 'hidden';
         hiddenLimitInput.name = 'allocatedCreditLimits';
@@ -174,11 +174,21 @@ function renderAssignedRooms() {
             depRoomSelect.appendChild(opt);
         });
     }
+
+    // Cập nhật dropdown phòng trong phân bổ tour (PER_TOUR)
+    renderPerTourAllocationRows();
+
     updateCheckinCreditLimitDisplay();
 }
 
 
-function openCheckinModal(bookingId, guestName, phone, cccd, roomSummary, depsDivId, creditLimit) {
+function openCheckinModal(bookingId, guestName, phone, cccd, roomSummary, depsDivId, toursDivId, creditLimit) {
+    console.log('[openCheckinModal] called:', { bookingId, guestName, phone, cccd, roomSummary, depsDivId, toursDivId, creditLimit });
+    const modalEl = document.getElementById('checkinModal');
+    if (!modalEl) {
+        console.error('[openCheckinModal] CRITICAL: #checkinModal không tìm thấy trong DOM!');
+        return;
+    }
     checkinMasterCreditLimit = creditLimit ? parseFloat(creditLimit) : 5000000;
     updateCheckinCreditLimitDisplay();
     // Gán bookingId vào form submit hidden input
@@ -244,6 +254,9 @@ function openCheckinModal(bookingId, guestName, phone, cccd, roomSummary, depsDi
         }
     }
     updateAvailableRooms();
+
+    // Render danh sách tour chưa phân bổ
+    renderExistingTourBookings(toursDivId);
 
     document.getElementById('checkinModal').style.display = 'flex';
 }
@@ -345,40 +358,44 @@ function addDependentRow(name, cccd, dob, dependentId, assignedPhysicalRoomNumbe
     }
 
     const tr = document.createElement('tr');
-    tr.style.borderBottom = '1px solid #e2e8f0';
+    tr.style.borderBottom = '1px solid #f1f5f9';
+    tr.style.transition = 'background-color 0.2s ease';
+    tr.onmouseover = () => tr.style.backgroundColor = '#f8fafc';
+    tr.onmouseout = () => tr.style.backgroundColor = 'transparent';
+
     let hiddenIdInput = dependentId ? `<input type="hidden" name="dependents[${depIndexCounter}].dependentId" value="${dependentId}" />` : '';
     let hiddenRoomInput = assignedPhysicalRoomNumber ? `<input type="hidden" name="dependents[${depIndexCounter}].assignedPhysicalRoomNumber" value="${assignedPhysicalRoomNumber}" />` : '';
     let hiddenPrimaryInput = `<input type="hidden" name="dependents[${depIndexCounter}].isPrimaryContact" value="${isPrimary ? 'true' : 'false'}" />`;
 
     let depIdArg = dependentId ? `'${dependentId}'` : 'null';
     let roomIdArg = assignedPhysicalRoomNumber ? `'${assignedPhysicalRoomNumber}'` : 'null';
-    let roleBadge = isPrimary ? `<span style="display:inline-block; margin-top: 4px; padding: 2px 6px; background: #fef3c7; color: #d97706; border-radius: 4px; font-size: 11px; font-weight: 600;"><i class="fa-solid fa-star"></i> Đứng đầu</span>` : `<span style="font-size: 13px; color: #64748b;">Thành viên</span>`;
-    let roomDisplay = assignedPhysicalRoomNumber ? `<span style="font-weight: 500; color: #334155;">Phòng ${assignedPhysicalRoomNumber}</span><br>` : '';
+    let roleBadge = isPrimary ? `<span style="display:inline-block; margin-top: 4px; padding: 2px 8px; background: #fef3c7; color: #d97706; border-radius: 12px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;"><i class="fa-solid fa-star"></i> Đứng đầu</span>` : `<span style="font-size: 13px; color: #64748b; font-weight: 500;">Thành viên</span>`;
+    let roomDisplay = assignedPhysicalRoomNumber ? `<span style="font-weight: 600; color: #0f766e; font-size: 13px;">Phòng ${assignedPhysicalRoomNumber}</span><br>` : '';
     let finalRoleDisplay = `${roomDisplay}${roleBadge}`;
 
     tr.innerHTML = `
-        <td style="padding: 8px; font-size: 14px;">
+        <td style="padding: 12px 16px; font-size: 14px; font-weight: 600; color: #1e293b;">
             ${name}
             ${hiddenIdInput}
             ${hiddenRoomInput}
             ${hiddenPrimaryInput}
             <input type="hidden" name="dependents[${depIndexCounter}].fullName" value="${name}" />
         </td>
-        <td style="padding: 8px; font-size: 14px;">
+        <td style="padding: 12px 16px; font-size: 14px; color: #475569; font-weight: 500;">
             ${cccd}
             <input type="hidden" name="dependents[${depIndexCounter}].cccd" value="${cccd}" />
         </td>
-        <td style="padding: 8px; font-size: 14px;">
+        <td style="padding: 12px 16px; font-size: 14px;">
             ${finalRoleDisplay}
         </td>
-        <td style="padding: 8px; font-size: 14px;">
+        <td style="padding: 12px 16px; font-size: 14px; color: #475569;">
             ${dob}
             <input type="hidden" name="dependents[${depIndexCounter}].dateOfBirth" value="${dob}" />
             <input type="hidden" name="dependents[${depIndexCounter}].gender" value="Other" />
         </td>
-        <td style="padding: 8px;">
-            <button type="button" class="btn btn-outline btn-sm" style="color: #3b82f6; border-color: #3b82f6; padding: 4px 8px; margin-right: 4px;" title="Edit" onclick="editDependentRow(this, '${name}', '${cccd}', '${dob}', ${depIdArg}, ${roomIdArg}, ${isPrimary})"><i class="fa-solid fa-pen"></i></button>
-            <button type="button" class="btn btn-outline btn-sm" style="color: #ef4444; border-color: #ef4444; padding: 4px 8px;" title="Delete" onclick="this.closest('tr').remove()"><i class="fa-solid fa-trash"></i></button>
+        <td style="padding: 12px 16px;">
+            <button type="button" class="btn btn-outline btn-sm" style="color: #3b82f6; border-color: #bfdbfe; background: #eff6ff; padding: 6px 10px; margin-right: 6px; border-radius: 6px; transition: all 0.2s;" onmouseover="this.style.background='#dbeafe'" onmouseout="this.style.background='#eff6ff'" title="Edit" onclick="editDependentRow(this, '${name}', '${cccd}', '${dob}', ${depIdArg}, ${roomIdArg}, ${isPrimary})"><i class="fa-solid fa-pen"></i></button>
+            <button type="button" class="btn btn-outline btn-sm" style="color: #ef4444; border-color: #fecaca; background: #fef2f2; padding: 6px 10px; border-radius: 6px; transition: all 0.2s;" onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='#fef2f2'" title="Delete" onclick="this.closest('tr').remove()"><i class="fa-solid fa-trash"></i></button>
         </td>
     `;
     tbody.appendChild(tr);
@@ -425,45 +442,189 @@ function toggleDependentsList() {
         btn.innerHTML = '<i class="fa-solid fa-chevron-up"></i> Thu gọn';
     } else {
         wrapper.style.display = 'none';
-        btn.innerHTML = '<i class="fa-solid fa-chevron-down"></i> Hiện hết';
+        btn.innerHTML = '<i class="fa-solid fa-chevron-down"></i> Hien het';
     }
 }
 
-document.getElementById('checkinFormWrapper').addEventListener('submit', function (e) {
-    if (assignedRooms.length === 0) {
-        e.preventDefault();
-        alert('Vui lòng phân ít nhất 1 phòng trước khi hoàn tất Check-in!');
-        return;
-    }
+const _checkinForm = document.getElementById('checkinFormWrapper');
+if (_checkinForm) {
+    _checkinForm.addEventListener('submit', function (e) {
+        if (assignedRooms.length === 0) {
+            e.preventDefault();
+            alert('Vui long phan it nhat 1 phong truoc khi hoan tat Check-in!');
+            return;
+        }
 
-    const assignedRoomNumbers = assignedRooms.map(r => r.room);
-    
-    // Master customer đứng đầu phòng đầu tiên
-    const masterRoom = assignedRoomNumbers[0];
-    
-    // Kiểm tra các phòng còn lại xem đã có đủ người đứng đầu chưa
-    const primaryInputs = document.querySelectorAll(`input[name$=".isPrimaryContact"][value="true"]`);
-    const primaryRooms = [];
-    primaryInputs.forEach(input => {
-        const row = input.closest('tr');
-        if (row && !row.classList.contains('editing-row')) {
-            const roomInput = row.querySelector(`input[name$=".assignedPhysicalRoomNumber"]`);
-            if (roomInput && roomInput.value) {
-                primaryRooms.push(roomInput.value);
+        const assignedRoomNumbers = assignedRooms.map(r => r.room);
+
+        const primaryInputs = document.querySelectorAll('input[name$=".isPrimaryContact"][value="true"]');
+        const primaryRooms = [];
+        primaryInputs.forEach(input => {
+            const row = input.closest('tr');
+            if (row && !row.classList.contains('editing-row')) {
+                const roomInput = row.querySelector('input[name$=".assignedPhysicalRoomNumber"]');
+                if (roomInput && roomInput.value) {
+                    primaryRooms.push(roomInput.value);
+                }
+            }
+        });
+
+        const missingRooms = [];
+        for (let i = 1; i < assignedRoomNumbers.length; i++) {
+            const room = assignedRoomNumbers[i];
+            if (!primaryRooms.includes(room)) {
+                missingRooms.push(room);
+            }
+        }
+
+        if (missingRooms.length > 0) {
+            e.preventDefault();
+            alert('Thieu nguoi dung dau cho phong: ' + missingRooms.join(', '));
+            return;
+        }
+
+        if (currentUnallocatedTours.length > 0) {
+            const allocationMode = document.querySelector('input[name="tourAllocationMode"]:checked');
+            if (allocationMode && allocationMode.value === 'PER_TOUR') {
+                const hiddenRoomInputs = document.querySelectorAll('input[name^="tourAllocations"][name$=".roomNumber"]');
+                const unassigned = Array.from(hiddenRoomInputs).filter(inp => !inp.value);
+                if (unassigned.length > 0) {
+                    e.preventDefault();
+                    alert('Che do Phan bo tung tour: vui long chon phong cho tat ca ' + currentUnallocatedTours.length + ' tour!');
+                    return;
+                }
             }
         }
     });
+} else {
+    console.error('[checkin.js] CRITICAL: #checkinFormWrapper khong tim thay trong DOM!');
+}
 
-    const missingRooms = [];
-    for (let i = 1; i < assignedRoomNumbers.length; i++) {
-        const room = assignedRoomNumbers[i];
-        if (!primaryRooms.includes(room)) {
-            missingRooms.push(room);
+let currentUnallocatedTours = [];
+
+function renderExistingTourBookings(toursDivId) {
+    const section = document.getElementById('tourAllocationSection');
+    const tbody = document.getElementById('tourBookingsList');
+    if (!section || !tbody) return;
+
+    tbody.innerHTML = '';
+    currentUnallocatedTours = [];
+    document.querySelectorAll('input[name^="tourAllocations"]').forEach(el => el.remove());
+
+    const toursDiv = toursDivId ? document.getElementById(toursDivId) : null;
+    if (!toursDiv) { section.style.display = 'none'; return; }
+
+    const items = toursDiv.querySelectorAll('li');
+    if (items.length === 0) { section.style.display = 'none'; return; }
+
+    section.style.display = 'block';
+
+    items.forEach(li => {
+        const id = li.getAttribute('data-id');
+        const tourName = li.getAttribute('data-tour');
+        const date = li.getAttribute('data-date');
+        const time = li.getAttribute('data-time');
+        const count = li.getAttribute('data-count');
+        const charge = parseFloat(li.getAttribute('data-charge') || 0);
+
+        currentUnallocatedTours.push({ id, tourName, date, time, count, charge });
+
+        const tr = document.createElement('tr');
+        tr.style.borderBottom = '1px solid #f1f5f9';
+        tr.style.transition = 'background-color 0.2s ease';
+        tr.onmouseover = () => tr.style.backgroundColor = '#f8fafc';
+        tr.onmouseout = () => tr.style.backgroundColor = 'transparent';
+        tr.innerHTML =
+            '<td style="padding:12px 16px;font-size:14px;font-weight:600;color:#1e293b">' + tourName + '</td>' +
+            '<td style="padding:12px 16px;font-size:14px;color:#475569">' + date + '</td>' +
+            '<td style="padding:12px 16px;font-size:14px;color:#475569">' + time + '</td>' +
+            '<td style="padding:12px 16px;font-size:14px;color:#475569">' + count + ' khách</td>' +
+            '<td style="padding:12px 16px;font-size:14px;font-weight:600;color:#0f766e;text-align:right">' + charge.toLocaleString('vi-VN') + ' đ</td>';
+        tbody.appendChild(tr);
+    });
+
+    const allRadio = document.querySelector('input[name="tourAllocationMode"][value="ALL"]');
+    if (allRadio) allRadio.checked = true;
+    toggleTourAllocationMode();
+}
+
+function toggleTourAllocationMode() {
+    const mode = document.querySelector('input[name="tourAllocationMode"]:checked');
+    const perTourContainer = document.getElementById('perTourAllocationContainer');
+    if (perTourContainer) {
+        perTourContainer.style.display = (mode && mode.value === 'PER_TOUR') ? 'block' : 'none';
+    }
+    if (mode && mode.value === 'PER_TOUR') {
+        renderPerTourAllocationRows();
+    }
+}
+
+function renderPerTourAllocationRows() {
+    const container = document.getElementById('perTourAllocationRows');
+    if (!container) return;
+    container.innerHTML = '';
+    document.querySelectorAll('input[name^="tourAllocations"]').forEach(el => el.remove());
+
+    currentUnallocatedTours.forEach(function (tour, i) {
+        const row = document.createElement('div');
+        row.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:#f8fafc;border-radius:6px;border:1px solid #e2e8f0;transition:all 0.2s ease;';
+
+        const labelInfo = document.createElement('div');
+        labelInfo.style.cssText = 'display:flex;flex-direction:column;gap:4px;';
+        
+        const labelName = document.createElement('span');
+        labelName.style.cssText = 'font-size:14px;font-weight:600;color:#1e293b';
+        labelName.innerText = tour.tourName;
+
+        const labelDate = document.createElement('span');
+        labelDate.style.cssText = 'font-size:12px;color:#64748b;font-weight:500;';
+        labelDate.innerText = tour.date + ' • ' + tour.time;
+        
+        labelInfo.appendChild(labelName);
+        labelInfo.appendChild(labelDate);
+
+        const rightSide = document.createElement('div');
+        rightSide.style.cssText = 'display:flex;align-items:center;gap:16px;flex:0.6;';
+
+        const arrow = document.createElement('span');
+        arrow.innerHTML = '<i class="fa-solid fa-arrow-right-long"></i>';
+        arrow.style.cssText = 'color:#94a3b8;font-size:14px;';
+
+        const select = document.createElement('select');
+        select.style.cssText = 'flex:1;padding:8px 12px;border:1px solid #cbd5e1;border-radius:6px;background:white;font-size:14px;color:#334155;outline:none;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,0.05);';
+        select.innerHTML = '<option value="">-- Chọn phòng --</option>';
+        assignedRooms.forEach(function (a) {
+            const opt = document.createElement('option');
+            opt.value = a.room;
+            opt.innerText = 'Phòng ' + a.room + ' (' + a.type + ')';
+            select.appendChild(opt);
+        });
+
+        const hiddenId = document.createElement('input');
+        hiddenId.type = 'hidden';
+        hiddenId.name = 'tourAllocations[' + i + '].tourBookingId';
+        hiddenId.value = tour.id;
+
+        const hiddenRoom = document.createElement('input');
+        hiddenRoom.type = 'hidden';
+        hiddenRoom.name = 'tourAllocations[' + i + '].roomNumber';
+        hiddenRoom.value = '';
+
+        select.addEventListener('change', function () {
+            hiddenRoom.value = select.value;
+        });
+
+        rightSide.appendChild(arrow);
+        rightSide.appendChild(select);
+        
+        row.appendChild(labelInfo);
+        row.appendChild(rightSide);
+        container.appendChild(row);
+
+        const form = document.getElementById('checkinFormWrapper');
+        if (form) {
+            form.appendChild(hiddenId);
+            form.appendChild(hiddenRoom);
         }
-    }
-
-    if (missingRooms.length > 0) {
-        e.preventDefault();
-        alert(`Thiếu người đứng đầu cho phòng: ${missingRooms.join(', ')}. Vui lòng chọn 1 người phụ thuộc làm người đứng đầu cho mỗi phòng này trước khi hoàn tất Check-in!`);
-    }
-});
+    });
+}

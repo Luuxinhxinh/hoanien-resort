@@ -1,518 +1,792 @@
 <!DOCTYPE html>
-<html class="light" lang="vi" xmlns:th="http://www.thymeleaf.org">
+<html class="light" lang="vi" xmlns:th="http://www.thymeleaf.org" style="scroll-behavior: smooth;">
 
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <title>Thanh Toán | HoaNien Retreat </title>
+    <title>HoaNien - Thông tin đặt chỗ</title>
+    <!-- Tailwind CSS v3 with Plugins -->
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Inter:wght@300;400;500;600&display=swap"
-        rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
-        rel="stylesheet" />
-    <script id="tailwind-config">
+    <!-- Custom Tailwind Config -->
+    <script>
         tailwind.config = {
-            darkMode: "class",
             theme: {
                 extend: {
                     colors: {
-                        'hoanien-bg': '#f1ebe3',
-                        'hoanien-text': '#3a3230',
-                        'hoanien-footer': '#3c3530',
-                        'hoanien-footer-text': '#e5dfd8',
-                        "primary": "#fbddc7",
-                        "surface": "#fff8f4",
-                        "on-surface": "#1f1b16",
-                        "outline-variant": "rgba(251, 221, 199, 0.2)",
-                        "background": "#fff8f4",
-                        "surface-tint": "#705a49",
-                        "surface-container-lowest": "#ffffff",
-                        "secondary-container": "#f5e0c0",
-                        "surface-container-high": "#f1e6de",
-                        "tertiary": "#17160d",
-                        "surface-variant": "#ebe1d8",
-                        "inverse-primary": "#dec1ac",
-                        "on-error": "#ffffff",
-                        "on-primary-container": "#a58c79",
-                        "surface-container-low": "#fcf2e9",
-                        "on-background": "#1f1b16",
-                        "on-tertiary-container": "#959183",
-                        "on-tertiary-fixed-variant": "#49473c",
-                        "error-container": "#ffdad6",
-                        "on-tertiary-fixed": "#1d1c12",
-                        "on-tertiary": "#ffffff",
-                        "on-secondary-fixed-variant": "#52452e",
-                        "surface-dim": "#e2d8d0",
-                        "on-secondary-fixed": "#241a07",
-                        "surface-container": "#f6ece3",
-                        "on-primary-fixed-variant": "#574333",
-                        "on-surface-variant": "#4e453e",
-                        "primary-fixed": "#fbddc7",
-                        "on-primary-fixed": "#27180b",
-                        "outline": "#80756d",
-                        "on-secondary": "#ffffff",
-                        "surface-container-highest": "#ebe1d8",
-                        "inverse-on-surface": "#f9efe6",
-                        "secondary-fixed": "#f5e0c0",
-                        "surface-bright": "#fff8f4",
-                        "error": "#ba1a1a",
-                        "on-error-container": "#93000a",
-                        "tertiary-fixed": "#e8e2d3",
-                        "tertiary-container": "#2c2a20",
-                        "tertiary-fixed-dim": "#cbc6b7",
-                        "primary-container": "#866D57",
-                        "secondary": "#6b5c44",
-                        "on-primary": "#ffffff",
-                        "inverse-surface": "#35302a",
-                        "on-secondary-container": "#726249",
-                        "primary-fixed-dim": "#dec1ac",
-                        "secondary-fixed-dim": "#d8c4a6",
-                        "gold-accent": "#866D57"
+                        brand: {
+                            gold: '#C5A059',
+                            dark: '#2D2926',
+                            bg: '#FBF9F6',
+                            border: '#E5E1DA'
+                        }
                     },
                     fontFamily: {
-                        'serif': ['"Playfair Display"', 'serif'],
-                        'sans': ['"Montserrat"', 'sans-serif'],
-                        "headline": ["EB Garamond", "serif"],
-                        "body": ["Inter", "sans-serif"],
-                        "caption": ["Inter"],
-                        "headline-lg": ["EB Garamond"],
-                        "label-caps": ["Inter"],
-                        "display-lg": ["EB Garamond"],
-                        "headline-md": ["EB Garamond"],
-                        "body-md": ["Inter"],
-                        "body-lg": ["Inter"],
-                        "display-xl": ["EB Garamond"],
-                        "headline-lg-mobile": ["EB Garamond"]
-                    },
-                    fontSize: {
-                        "caption": ["13px", { "lineHeight": "1.4", "fontWeight": "400" }],
-                        "headline-lg": ["40px", { "lineHeight": "1.2", "fontWeight": "400" }],
-                        "label-caps": ["12px", { "lineHeight": "1.5", "letterSpacing": "0.15em", "fontWeight": "600" }],
-                        "display-lg": ["70px", { "lineHeight": "1.1", "letterSpacing": "-0.01em", "fontWeight": "400" }],
-                        "headline-md": ["24px", { "lineHeight": "1.3", "fontWeight": "500" }],
-                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
-                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
-                        "display-xl": ["80px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "400" }],
-                        "headline-lg-mobile": ["32px", { "lineHeight": "1.2", "fontWeight": "400" }]
-                    },
-                    spacing: {
-                        "margin-desktop": "80px",
-                        "section-gap": "160px",
-                        "container-max": "1440px",
-                        "unit": "8px",
-                        "margin-mobile": "20px",
-                        "gutter": "24px",
-                        "margin-tablet": "40px"
+                        serif: ['Playfair Display', 'serif'],
+                        sans: ['Montserrat', 'sans-serif'],
                     }
                 }
             }
         }
     </script>
-    <style>
+    <!-- Google Fonts for Serif Typography -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&amp;family=Montserrat:wght@300;400;500;600&amp;display=swap"
+        rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet">
+    <style data-purpose="custom-styling">
         body {
-            background-color: #fdfbf7;
-            color: #372618;
-            -webkit-font-smoothing: antialiased;
-            overflow-x: hidden;
+            font-family: 'Montserrat', sans-serif;
+            background-color: #FBF9F6;
+            color: #2D2926;
+            scroll-behavior: smooth;
         }
 
-        .fade-in {
-            animation: fadeIn 1s ease-out forwards;
+        h1,
+        h2,
+        h3,
+        .font-serif {
+            font-family: 'Playfair Display', serif;
         }
 
-        @keyframes fadeIn {
+        input[type="text"],
+        input[type="email"],
+        input[type="number"],
+        input[type="date"],
+        textarea {
+            border: none;
+            border-bottom: 1px solid #E5E1DA;
+            background: transparent;
+            padding-left: 0;
+            padding-right: 0;
+            border-radius: 0;
+        }
+
+        input:focus,
+        textarea:focus {
+            outline: none !important;
+            box-shadow: none !important;
+            border-color: #2D2926 !important;
+        }
+
+        .payment-option {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .payment-option:hover {
+            border-color: #2D2926;
+            background-color: rgba(45, 41, 38, 0.02);
+        }
+
+        .payment-option.active {
+            border-color: #2D2926;
+            background-color: #F8F5F0;
+        }
+
+        #overlay,
+        #payment-modal,
+        #room-selection-modal,
+        .age-picker-popup,
+        #activity-modal,
+        #map-detail-popup {
+            display: none;
+        }
+
+        #overlay.active,
+        #payment-modal.active,
+        #room-selection-modal.active,
+        .age-picker-popup.active,
+        #activity-modal.active,
+        #map-detail-popup.active {
+            display: flex;
+        }
+
+        .collapsible-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-out, opacity 0.3s ease;
+            opacity: 0;
+        }
+
+        .collapsible-content.expanded {
+            max-height: 500px;
+            opacity: 1;
+        }
+
+        .room-item {
+            transition: all 0.2s ease;
+        }
+
+        .room-item.selectable:hover {
+            border-color: #2D2926;
+            background-color: #fff;
+        }
+
+        .room-item.selected {
+            border-color: #C5A059;
+            background-color: #fff;
+            box-shadow: 0 0 0 1px #C5A059;
+        }
+
+        .timeline-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #E5E1DA;
+            position: relative;
+            z-index: 2;
+            transition: all 0.3s ease;
+        }
+
+        .timeline-item.active .timeline-dot {
+            background: #C5A059;
+            box-shadow: 0 0 0 4px rgba(197, 160, 89, 0.3);
+        }
+
+        .timeline-item:hover .timeline-dot {
+            background: #C5A059;
+            box-shadow: 0 0 0 4px rgba(197, 160, 89, 0.1);
+        }
+
+        .timeline-line {
+            position: absolute;
+            left: 3.5px;
+            top: 12px;
+            bottom: -24px;
+            width: 1px;
+            background: #E5E1DA;
+        }
+
+        .timeline-item:last-child .timeline-line {
+            display: none;
+        }
+
+        .premium-card {
+            background: white;
+            border: 1px solid #E5E1DA;
+            border-radius: 4px;
+            transition: border-color 0.3s ease;
+        }
+
+        .premium-card:hover {
+            border-color: #C5A059;
+        }
+
+        /* Map Interaction Styles */
+        .map-marker {
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .map-marker:hover {
+            transform: scale(1.1);
+        }
+
+        .info-window {
+            padding: 8px;
+            max-width: 200px;
+        }
+
+        .info-window h4 {
+            font-family: 'Playfair Display', serif;
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 4px;
+            color: #2D2926;
+        }
+
+        .info-window p {
+            font-size: 11px;
+            color: #666;
+            line-height: 1.4;
+        }
+
+        .glass-map {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            overflow: hidden;
+            scroll-margin-top: 100px;
+        }
+
+        @keyframes spin {
             from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes scaleUp {
+            from {
+                transform: scale(0.95);
                 opacity: 0;
             }
 
             to {
+                transform: scale(1);
                 opacity: 1;
             }
-        }
-
-        input:focus {
-            outline: none !important;
-            border-color: #372618 !important;
-            box-shadow: none !important;
-        }
-
-        .payment-option input:checked+label {
-            border-color: #372618;
-            background-color: #fcf2e9;
-        }
-
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
-        }
-
-        .lang-btn {
-            cursor: pointer;
-            transition: all 0.3s ease;
-            color: rgba(58, 50, 48, 0.6) !important;
-        }
-
-        .lang-btn:hover {
-            color: #3a3230 !important;
-        }
-
-        .lang-btn.active {
-            color: #3a3230 !important;
-            font-weight: 700;
-        }
-
-        /* ── Navbar transparent & dark text ── */
-        .guest-nav,
-        .guest-sub-nav {
-            background: transparent !important;
-            border-bottom: 1px solid rgba(58, 50, 48, 0.15) !important;
-            backdrop-filter: blur(8px) !important;
-            -webkit-backdrop-filter: blur(8px) !important;
-            transition: none !important;
-        }
-
-        .guest-nav .nav-text,
-        .guest-sub-nav .sub-nav-text {
-            color: #3a3230 !important;
-            text-shadow: none !important;
-        }
-
-        .guest-nav .nav-text-dim {
-            color: rgba(58, 50, 48, 0.75) !important;
-            text-shadow: none !important;
-        }
-
-        .guest-nav .nav-text-dim:hover,
-        .guest-sub-nav .sub-nav-text:hover {
-            color: #3a3230 !important;
-            opacity: 1 !important;
-        }
-
-        .guest-nav .nav-brand {
-            color: #3a3230 !important;
-            text-shadow: none !important;
-        }
-
-        .guest-nav .nav-btn-book {
-            background: transparent !important;
-            color: #3a3230 !important;
-            border: 1px solid rgba(58, 50, 48, 0.5) !important;
-            box-shadow: none !important;
-            transition: all 0.3s ease !important;
-        }
-
-        .guest-nav .nav-btn-book:hover {
-            background: rgba(58, 50, 48, 0.06) !important;
-            border-color: #3a3230 !important;
-        }
-
-        .guest-nav .nav-menu-icon {
-            color: #3a3230 !important;
-            text-shadow: none !important;
         }
     </style>
 </head>
 
-<body class="overflow-x-hidden pt-36">
-    <!-- Sticky Navigation Bar -->
-    <header id="header-wrapper" class="fixed top-0 left-0 w-full z-50 flex flex-col pointer-events-none text-[#3a3230]">
-        <!-- Main Nav -->
-        <nav class="guest-nav relative w-full font-sans pointer-events-auto">
-            <div class="max-w-[1440px] mx-auto px-6 py-4 flex items-center justify-between">
-                <!-- Left Links -->
-                <div class="hidden lg:flex items-center gap-8 text-[13px] uppercase tracking-[0.2em] font-semibold">
-                    <a th:href="@{/living}"
-                        class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200"
-                        data-i18n="nav_living">Nghỉ Dưỡng</a>
-                    <a th:href="@{/dining}"
-                        class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200"
-                        data-i18n="nav_dining">Ẩm Thực</a>
-                    <a th:href="@{/experiences}"
-                        class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200"
-                        data-i18n="nav_experiences">Trải Nghiệm</a>
-                    <a th:href="@{/tours/search}" class="nav-text border-b border-current pb-0.5"
-                        data-i18n="nav_tours">Hành Trình</a>
+<body class="min-h-screen" style="overflow: auto;">
+    <!-- BEGIN: MainHeader -->
+    <header class="fixed top-0 w-full z-50 bg-white/30 backdrop-blur-md border-b border-brand-border/30">
+        <nav class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <div class="flex space-x-8 text-xs font-semibold tracking-widest uppercase">
+                <a class="hover:text-brand-gold" th:href="@{/living}">Nghỉ Dưỡng</a>
+                <a class="hover:text-brand-gold" th:href="@{/dining}">Ẩm Thực</a>
+                <a class="hover:text-brand-gold" th:href="@{/experiences}">Trải Nghiệm</a>
+                <a class="border-b-2 border-brand-dark pb-1" th:href="@{/tours/search}">Hành Trình</a>
+            </div>
+            <div class="absolute left-1/2 -translate-x-1/2">
+                <h1 class="text-3xl font-serif tracking-tighter cursor-pointer" onclick="window.location.href='/'">
+                    HoaNien</h1>
+            </div>
+            <div class="flex items-center space-x-6">
+                <div class="text-[10px] font-bold tracking-widest text-gray-400">
+                    <span class="lang-btn active text-brand-dark cursor-pointer" data-lang="vi"
+                        onclick="switchLang('vi')">VI</span> |
+                    <span class="lang-btn cursor-pointer" data-lang="en" onclick="switchLang('en')">EN</span>
                 </div>
-
-                <!-- Center Logo -->
-                <div class="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 font-headline text-[32px] italic tracking-tighter nav-brand text-center cursor-pointer w-max"
-                    onclick="window.location.href='/'">
-                    HoaNien
-                </div>
-
-                <!-- Right Actions -->
-                <div class="hidden lg:flex items-center gap-6 text-[13px] uppercase tracking-[0.2em] font-semibold">
-                    <div class="flex items-center gap-3 pr-4 border-r border-[#3a3230]/20">
-                        <span class="lang-btn active text-[10px] font-semibold uppercase tracking-[0.1em]"
-                            data-lang="vi" onclick="switchLang('vi')">VI</span>
-                        <span class="text-[10px] opacity-30">|</span>
-                        <span class="lang-btn text-[10px] font-semibold uppercase tracking-[0.1em]" data-lang="en"
-                            onclick="switchLang('en')">EN</span>
-                    </div>
-
-                    <!-- Profile / Logout if logged in -->
-                    <a th:href="@{/profile}" th:if="${session.user != null}"
-                        class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200"
-                        data-i18n="nav_profile">Hồ Sơ</a>
-                    <form th:action="@{/auth/logout}" method="post" th:if="${session.user != null}" class="inline">
-                        <button type="submit"
-                            class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200 uppercase tracking-[0.2em] bg-transparent border-none p-0 cursor-pointer font-sans font-semibold"
-                            data-i18n="nav_logout">Đăng Xuất</button>
-                    </form>
-
-                    <a th:href="@{/booking}" th:if="${session.user != null}"
-                        class="nav-btn-book px-8 py-3.5 hover:opacity-90 active:scale-[0.98] transition-all duration-200 inline-block text-center text-[13px]"
-                        data-i18n="nav_book_now">
-                        Đặt Ngay
-                    </a>
-                    <a href="#" onclick="openLoginModal(); return false;" th:unless="${session.user != null}"
-                        class="nav-btn-book px-8 py-3.5 hover:opacity-90 active:scale-[0.98] transition-all duration-200 inline-block text-center text-[13px]"
-                        data-i18n="nav_login">
-                        Đăng nhập
-                    </a>
-                </div>
-
-                <div class="lg:hidden flex items-center gap-3 pointer-events-auto">
-                    <div class="flex items-center gap-2 mr-2">
-                        <span class="lang-btn active text-[10px] font-semibold uppercase tracking-[0.1em]"
-                            data-lang="vi" onclick="switchLang('vi')">VI</span>
-                        <span class="text-[10px] opacity-30">|</span>
-                        <span class="lang-btn text-[10px] font-semibold uppercase tracking-[0.1em]" data-lang="en"
-                            onclick="switchLang('en')">EN</span>
-                    </div>
-                    <button class="pointer-events-auto">
-                        <span class="material-symbols-outlined text-3xl nav-menu-icon">menu</span>
-                    </button>
-                </div>
+                <!-- Profile / Logout if logged in -->
+                <a th:href="@{/profile}" th:if="${session.user != null}"
+                    class="text-[11px] font-bold tracking-widest uppercase hover:text-brand-gold">Hồ Sơ</a>
+                <form th:action="@{/auth/logout}" method="post" th:if="${session.user != null}" class="inline">
+                    <button type="submit"
+                        class="text-[11px] font-bold tracking-widest uppercase bg-transparent border-none p-0 cursor-pointer font-sans font-semibold">Đăng
+                        Xuất</button>
+                </form>
+                <button th:unless="${session.user != null}" onclick="openLoginModal(); return false;"
+                    class="px-8 py-3 border border-brand-dark text-[11px] font-bold tracking-widest uppercase hover:bg-brand-dark hover:text-white transition">
+                    Đăng Nhập
+                </button>
             </div>
         </nav>
-
-        <!-- Sub-navigation -->
-        <div class="guest-sub-nav w-full font-sans pointer-events-auto">
-            <div
-                class="max-w-[1440px] mx-auto px-6 py-3 flex justify-center gap-8 md:gap-12 text-xs uppercase tracking-[0.15em] font-medium overflow-x-auto">
-                <a href="javascript:void(0)" onclick="loadTour('doantu')"
-                    class="sub-nav-link sub-nav-text hover:opacity-100 active:scale-95 transition-all duration-200 whitespace-nowrap"
-                    data-tour="doantu" data-i18n="nav_doantu">Đoàn Tụ</a>
-                <a href="javascript:void(0)" onclick="loadTour('dongnoi')"
-                    class="sub-nav-link sub-nav-text hover:opacity-100 active:scale-95 transition-all duration-200 whitespace-nowrap"
-                    data-tour="dongnoi" data-i18n="nav_dongnoi">Đồng Nội</a>
-                <a href="javascript:void(0)" onclick="loadTour('disan')"
-                    class="sub-nav-link sub-nav-text hover:opacity-100 active:scale-95 transition-all duration-200 whitespace-nowrap"
-                    data-tour="disan" data-i18n="nav_disan">Di Sản</a>
-                <a href="javascript:void(0)" onclick="loadTour('tinhlang')"
-                    class="sub-nav-link sub-nav-text hover:opacity-100 active:scale-95 transition-all duration-200 whitespace-nowrap"
-                    data-tour="tinhlang" data-i18n="nav_tinhlang">Tĩnh Lặng</a>
-            </div>
-        </div>
     </header>
-
-    <main class="min-h-screen flex flex-col md:flex-row">
-        <!-- Left Side: Visual summary & quote -->
-        <section class="w-full md:w-1/2 min-h-[50vh] md:min-h-screen relative overflow-hidden bg-primary-container">
-            <div class="absolute inset-0 z-0 scale-105 transition-transform duration-[20s] ease-linear hover:scale-100">
-                <img id="tourImage" alt="Journey Visual" class="w-full h-full object-cover opacity-80 mix-blend-overlay"
-                    src="/AnhTour/z7930565879475_de7864577660b0726376ea947dbe94de.jpg">
-                <div class="absolute inset-0 bg-black opacity-50 z-10"></div>
+    <div class="fixed top-20 w-full z-40 bg-white/30 backdrop-blur-md border-b border-brand-border/30">
+        <div class="max-w-7xl mx-auto px-6 h-12 flex items-center justify-center space-x-12">
+            <a href="javascript:void(0)" onclick="loadTour('doantu')"
+                class="sub-nav-link text-[11px] font-bold tracking-[0.25em] uppercase text-gray-600 hover:text-brand-dark transition-all pb-1"
+                data-tour="doantu" data-i18n="nav_doantu">Đoàn Tụ</a>
+            <a href="javascript:void(0)" onclick="loadTour('dongnoi')"
+                class="sub-nav-link text-[11px] font-bold tracking-[0.25em] uppercase text-gray-600 hover:text-brand-dark transition-all pb-1"
+                data-tour="dongnoi" data-i18n="nav_dongnoi">Đồng Nội</a>
+            <a href="javascript:void(0)" onclick="loadTour('disan')"
+                class="sub-nav-link text-[11px] font-bold tracking-[0.25em] uppercase text-gray-600 hover:text-brand-dark transition-all pb-1"
+                data-tour="disan" data-i18n="nav_disan">Di Sản</a>
+            <a href="javascript:void(0)" onclick="loadTour('tinhlang')"
+                class="sub-nav-link text-[11px] font-bold tracking-[0.25em] uppercase text-gray-600 hover:text-brand-dark transition-all pb-1"
+                data-tour="tinhlang" data-i18n="nav_tinhlang">Tĩnh Lặng</a>
+        </div>
+    </div>
+    <div class="fixed w-full z-40 bg-white/30 backdrop-blur-md border-b border-brand-border/30">
+        <div class="max-w-7xl mx-auto px-6 h-12 flex items-center justify-center space-x-12">
+            <a href="javascript:void(0)" onclick="loadTour('doantu')"
+                class="sub-nav-link text-[11px] font-bold tracking-[0.25em] uppercase text-gray-600 hover:text-brand-dark transition-all pb-1"
+                data-tour="doantu" data-i18n="nav_doantu">Đoàn Tụ</a>
+            <a href="javascript:void(0)" onclick="loadTour('dongnoi')"
+                class="sub-nav-link text-[11px] font-bold tracking-[0.25em] uppercase text-gray-600 hover:text-brand-dark transition-all pb-1"
+                data-tour="dongnoi" data-i18n="nav_dongnoi">Đồng Nội</a>
+            <a href="javascript:void(0)" onclick="loadTour('disan')"
+                class="sub-nav-link text-[11px] font-bold tracking-[0.25em] uppercase text-gray-600 hover:text-brand-dark transition-all pb-1"
+                data-tour="disan" data-i18n="nav_disan">Di Sản</a>
+            <a href="javascript:void(0)" onclick="loadTour('tinhlang')"
+                class="sub-nav-link text-[11px] font-bold tracking-[0.25em] uppercase text-gray-600 hover:text-brand-dark transition-all pb-1"
+                data-tour="tinhlang" data-i18n="nav_tinhlang">Tĩnh Lặng</a>
+        </div>
+    </div>
+    <!-- END: MainHeader -->
+    <main class="flex min-h-screen bg-brand-bg pt-32"
+        style="background-image: url('/AnhTour/z7930565879475_de7864577660b0726376ea947dbe94de.jpg'); background-size: cover; background-position: center center; background-attachment: fixed;">
+        <!-- BEGIN: LeftHeroSection -->
+        <section id="leftHeroSection" class="w-1/2 px-12 py-16 overflow-y-auto relative"
+            style="background-image: url('/AnhTour/z7930565882675_f94fe322fc3a06efe82eccf1e76b09e1.jpg'); background-size: cover; background-position: center center; background-repeat: no-repeat;">
+            <div class="max-w-xl mx-auto mb-10 relative z-10" style="text-shadow: 0 2px 4px rgba(0,0,0,0.5)">
+                <div class="flex items-center space-x-4 mb-6">
+                    <div class="w-8 h-[1px] bg-white/80"></div>
+                    <p class="text-[10px] font-bold tracking-widest uppercase text-white"
+                        style="text-shadow: 0 1px 2px rgba(0,0,0,0.3);">Tóm tắt hành trình</p>
+                </div>
+                <h2 id="tourTitle" class="text-6xl font-serif font-bold text-white">Đoàn Tụ</h2>
             </div>
-            <div class="relative z-20 p-margin-desktop md:p-24 flex flex-col justify-between h-full text-white">
-                <div class="space-y-12">
-                    <div class="flex items-center space-x-4 opacity-70">
-                        <span class="w-12 h-px bg-white"></span>
-                        <p class="font-label-caps text-label-caps" data-i18n="summary">Tóm tắt hành trình</p>
-                    </div>
-                    <h1 id="tourTitle" class="font-display-lg text-display-lg leading-tight max-w-2xl">Tinh túy đồng nội
-                    </h1>
-                    <div
-                        class="space-y-8 mt-12 bg-white/5 backdrop-blur-sm p-10 border border-white/10 max-w-2xl w-full">
-                        <div class="flex justify-between border-b border-white/20 pb-4">
-                            <p class="font-label-caps text-label-caps opacity-60" data-i18n="dest">Điểm đến</p>
-                            <p id="tourDestVal" class="font-body-md text-body-md">Quảng Nam</p>
+            <div class="absolute inset-0 bg-black/60 z-0 pointer-events-none"></div>
+            <div class="max-w-xl mx-auto space-y-8 relative z-10">
+                <!-- Section 1 - Overview -->
+                <div class="premium-card p-10 text-white"
+                    style="background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.2); box-shadow: rgba(0, 0, 0, 0.05) 0px 8px 32px 0px;">
+                    <div class="space-y-6">
+                        <div class="flex justify-between items-center pb-4 border-b border-brand-border/50">
+                            <span class="text-[10px] font-bold uppercase tracking-widest">Điểm đến</span>
+                            <span id="tourDestVal" class="text-sm font-medium">Huế, Việt Nam</span>
                         </div>
-                        <div class="flex justify-between border-b border-white/20 pb-4">
-                            <p class="font-label-caps text-label-caps opacity-60" data-i18n="time">Thời gian</p>
-                            <p id="tourDurationVal" class="font-body-md text-body-md">3 Ngày 2 Đêm</p>
+                        <div class="flex justify-between items-center pb-4 border-b border-brand-border/50">
+                            <span class="text-[10px] font-bold uppercase tracking-widest">Thời gian</span>
+                            <span id="tourDurationVal" class="text-sm font-medium">5 Tiếng</span>
                         </div>
-
-                        <div class="flex justify-between border-b border-white/20 pb-4">
-                            <p class="font-label-caps text-label-caps opacity-60" data-i18n="weather_lbl">Thời tiết dự
-                                kiến</p>
-                            <p id="tourWeatherVal" class="font-body-md text-body-md">☀️ 32°C • Nắng ấm</p>
+                        <div class="flex justify-between items-center pb-4 border-b border-brand-border/50">
+                            <span class="text-[10px] font-bold uppercase tracking-widest">Thời tiết dự kiến</span>
+                            <span id="tourWeatherVal" class="text-sm font-medium flex items-center">
+                                <span class="mr-2 text-white" style="text-shadow: 0 1px 2px rgba(0,0,0,0.3);">⛅</span>
+                                29°C • Nắng nhẹ
+                            </span>
                         </div>
-                        <div class="flex justify-between pt-4">
-                            <p class="font-label-caps text-label-caps opacity-60" data-i18n="total">Tổng cộng</p>
-                            <p id="displayTotalPrice" class="font-headline-md text-headline-md text-white font-bold">
-                                35.000.000 VNĐ</p>
+                        <div class="flex justify-between items-center pb-4 border-b border-brand-border/50">
+                            <span class="text-[10px] font-bold uppercase tracking-widest">Giá trọn gói</span>
+                            <span class="text-sm font-bold text-brand-gold" id="displayTotalPrice">1.200.000 VNĐ</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-[10px] font-bold uppercase tracking-widest">Đặt cọc giữ chỗ (30%)</span>
+                            <span class="text-sm font-bold text-brand-gold" id="displayDepositPrice">360.000 VNĐ</span>
                         </div>
                     </div>
                 </div>
-                <div class="mt-12">
-                    <p id="tourQuote" class="font-body-md text-body-md italic opacity-80">
-                        "Rời xa những náo nhiệt thị thành..."
+                <!-- Section 2 - Quote -->
+                <div class="premium-card p-10 text-white" style="display: none;">
+                    <div class="flex flex-col space-y-4">
+                        <span class="text-[10px] font-bold uppercase tracking-widest text-brand-gold">Triết lý hành
+                            trình</span>
+                        <p class="font-serif italic text-lg leading-relaxed text-gray-100" id="tourQuote">
+                            "Tìm về hơi ấm vẹn nguyên của lòng biết ơn và sự gắn kết."
+                        </p>
+                    </div>
+                </div>
+                <!-- Section 3 - Timeline/Activities -->
+                <div class="premium-card p-10 text-white"
+                    style="background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.2); box-shadow: rgba(0, 0, 0, 0.05) 0px 8px 32px 0px;">
+                    <div class="flex items-center justify-between pb-6 border-b border-brand-border/50 mb-8">
+                        <span class="text-[10px] font-bold uppercase tracking-widest">Lịch trình chi tiết</span>
+                        <span class="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-gold">Hoạt động trong
+                            ngày</span>
+                    </div>
+                    <div id="timeline-container" class="relative pl-6 space-y-8">
+                        <!-- Timeline items will be rendered dynamically -->
+                    </div>
+                </div>
+                <!-- Interactive Map Section -->
+                <div class="glass-map flex flex-col relative overflow-hidden h-[450px]" id="map-section">
+                    <div class="absolute top-6 left-6 z-10 flex items-center space-x-3">
+                        <span class="material-symbols-outlined text-white text-[20px]">explore</span>
+                        <h4 class="font-serif text-lg text-white font-bold"
+                            style="text-shadow: 0 1px 2px rgba(0,0,0,0.5)">Bản đồ hành trình</h4>
+                    </div>
+                    <!-- Zoom & Pan Layer Wrapper -->
+                    <div class="relative flex-1 overflow-hidden">
+                        <div class="absolute inset-0 w-[150%] h-[150%] origin-center transition-transform duration-700 ease-in-out"
+                            id="map-pins-layer"
+                            style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAQvH-i9sT2XwI_65jN6r7F03h-Hl52n0iBqD7y8X7j9C6vGzJ2XwH4M9wH4Z_G5C6t-7sR_b_V8e6e5O3X_l3s2L9C2F5e6b7d-8yR-b_V8e6e5O3X_l3s2L9C2F5e6'); background-size: cover; background-position: center; transform: scale(1.0) translate(0%, 0%);">
+                            <!-- Background Map Image Cover (Mockup) -->
+                            <div class="absolute inset-0 bg-black/20"></div>
+                            <!-- Pins Group -->
+                            <div id="map-pins-container" class="absolute inset-0">
+                                <!-- Pins will be rendered dynamically -->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-4 bg-white/10 backdrop-blur-sm border-t border-brand-border/20">
+                        <p class="text-[9px] text-white/60 text-center uppercase tracking-widest italic">Cảm ứng: Bấm
+                            vào địa điểm để xem chi tiết</p>
+                    </div>
+                </div>
+                <div class="mt-8 text-center px-6">
+                    <p class="font-serif italic text-base text-white/90 leading-relaxed">
+                        "Chạm vào hồn cốt của thời gian qua những tạo tác từ đôi bàn tay nghệ nhân."
                     </p>
                 </div>
             </div>
         </section>
-
-        <!-- Right Side: Booking Form -->
-        <section
-            class="w-full md:w-1/2 p-margin-mobile md:p-margin-desktop bg-background flex flex-col justify-center fade-in">
-            <div class="max-w-2xl mx-auto w-full py-12">
-                <div class="mb-12 flex flex-col items-center justify-center space-y-3 text-center">
-                    <h2 class="font-headline-lg text-4xl md:text-5xl text-hoanien-text font-bold text-center"
-                        data-i18n="payment_title">
-                        Thông tin đặt chỗ</h2>
-                    <div class="flex items-center space-x-2 text-gold-accent animate-pulse justify-center">
-                        <span class="w-2 h-2 rounded-full bg-gold-accent"></span>
-                        <p class="font-label-caps text-[11px] font-bold" data-i18n="urgency">Chỉ còn vài chỗ trống</p>
-                    </div>
+        <!-- END: LeftHeroSection -->
+        <!-- BEGIN: RightFormSection -->
+        <section class="w-1/2 bg-white px-20 py-16 border-l border-brand-border overflow-y-auto relative">
+            <!-- Blur Overlay if not logged in -->
+            <div th:if="${session.user == null}" id="booking-blur-overlay"
+                class="absolute inset-0 z-20 bg-white/40 flex items-center justify-center cursor-pointer transition-all duration-300 hover:bg-white/50"
+                style="backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);"
+                onclick="openRequireLoginModal()">
+            </div>
+            <div class="max-w-2xl mx-auto">
+                <div class="text-center mb-8">
+                    <h2 class="text-5xl font-serif mb-2">Thông tin đặt chỗ</h2>
                 </div>
-                <form class="space-y-10" id="paymentForm">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div class="relative group col-span-2 md:col-span-1">
-                            <label
-                                class="font-label-caps text-[10px] text-hoanien-text/80 uppercase block mb-2 transition-colors group-focus-within:text-hoanien-text font-bold"
-                                data-i18n="name_label">Họ và tên</label>
-                            <input id="fullName" required
-                                class="w-full bg-transparent border-0 border-b border-hoanien-text/30 py-2 font-body-md text-hoanien-text font-semibold placeholder:text-outline/40 focus:border-hoanien-text transition-all"
-                                placeholder="Nguyễn Văn A" data-i18n="name_ph" type="text" th:value="${customerName}">
+                <form class="space-y-12" id="paymentForm" onsubmit="return false;">
+                    <!-- Primary Info -->
+                    <div class="grid grid-cols-2 gap-10">
+                        <div class="flex flex-col">
+                            <label class="text-[10px] font-bold uppercase tracking-widest mb-2 text-black">Họ và
+                                tên</label>
+                            <input class="text-sm py-2" id="fullName" th:value="${customerName}"
+                                placeholder="Nhập họ và tên của bạn..." type="text">
                         </div>
-                        <div class="relative group col-span-2 md:col-span-1">
-                            <label
-                                class="font-label-caps text-[10px] text-hoanien-text/80 uppercase block mb-2 transition-colors group-focus-within:text-hoanien-text font-bold"
-                                data-i18n="email_label">Email</label>
-                            <input id="email" required
-                                class="w-full bg-transparent border-0 border-b border-hoanien-text/30 py-2 font-body-md text-hoanien-text font-semibold placeholder:text-outline/40 focus:border-hoanien-text transition-all"
-                                placeholder="email@example.com" data-i18n="email_ph" type="email"
-                                th:value="${customerEmail}">
-                        </div>
-                        <div class="relative group col-span-2 md:col-span-1">
-                            <label
-                                class="font-label-caps text-[10px] text-hoanien-text/80 uppercase block mb-2 transition-colors group-focus-within:text-hoanien-text font-bold"
-                                data-i18n="phone_label">Số điện thoại</label>
-                            <input id="phone" required
-                                class="w-full bg-transparent border-0 border-b border-hoanien-text/30 py-2 font-body-md text-hoanien-text font-semibold placeholder:text-outline/40 focus:border-hoanien-text transition-all"
-                                placeholder="0912345678" data-i18n="phone_ph" type="text" th:value="${customerPhone}">
-                        </div>
-                        <div class="relative group col-span-2 md:col-span-1">
-                            <label
-                                class="font-label-caps text-[10px] text-hoanien-text/80 uppercase block mb-2 transition-colors group-focus-within:text-hoanien-text font-bold"
-                                data-i18n="date_label">Ngày đi</label>
-                            <input id="departureDate" required
-                                class="w-full bg-transparent border-0 border-b border-hoanien-text/30 py-2 font-body-md text-hoanien-text font-semibold placeholder:text-outline/40 focus:border-hoanien-text transition-all"
-                                type="date">
-                        </div>
-                        <div class="relative group col-span-2">
-                            <label
-                                class="font-label-caps text-[10px] text-hoanien-text/80 uppercase block mb-2 transition-colors group-focus-within:text-hoanien-text font-bold"
-                                data-i18n="members_label">Số lượng thành viên (Khách)</label>
-                            <input id="participantCount" required min="1" value="1"
-                                class="w-full bg-transparent border-0 border-b border-hoanien-text/30 py-2 font-body-md text-hoanien-text font-semibold placeholder:text-outline/40 focus:border-hoanien-text transition-all"
-                                type="number" oninput="updateTotalPrice()">
+                        <div class="flex flex-col">
+                            <label class="text-[10px] font-bold uppercase tracking-widest mb-2 text-black">Email</label>
+                            <input class="text-sm py-2" id="email" th:value="${customerEmail}"
+                                placeholder="Nhập email của bạn..." type="email">
                         </div>
                     </div>
-
-                    <div class="pt-8">
-                        <label class="font-label-caps text-[10px] text-hoanien-text/80 uppercase block mb-6 font-bold"
-                            data-i18n="payment_method">Phương thức thanh toán</label>
-                        <div class="space-y-4">
-                            <div class="payment-option">
-                                <input checked="" class="hidden" id="deposit" name="payment" type="radio"
-                                    value="deposit" onchange="togglePaymentFields()">
-                                <label
-                                    class="flex items-center justify-between p-6 border border-hoanien-text/30 cursor-pointer transition-all hover:bg-surface-container-low"
-                                    for="deposit">
-                                    <div>
-                                        <p class="font-body-md text-hoanien-text font-bold" data-i18n="deposit">Thanh
-                                            toán đặt cọc</p>
-                                        <p class="font-caption text-hoanien-text/70 mt-1 font-medium"
-                                            data-i18n="deposit_desc">
-                                            Giữ chỗ ngay với 30% tổng giá trị hành trình</p>
-                                    </div>
-                                    <span class="text-[#866D57] font-body-md font-bold" id="displayDepositPrice">450.000
-                                        VNĐ</span>
-                                </label>
+                    <div class="grid grid-cols-2 gap-10">
+                        <div class="flex flex-col">
+                            <label class="text-[10px] font-bold uppercase tracking-widest mb-2 text-black">Số điện
+                                thoại</label>
+                            <input class="text-sm py-2" id="phone" th:value="${customerPhone}"
+                                placeholder="Nhập số điện thoại của bạn..." type="text">
+                        </div>
+                        <div class="flex flex-col">
+                            <label class="text-[10px] font-bold uppercase tracking-widest mb-2 text-black">Ngày
+                                đi</label>
+                            <input class="text-sm py-2" id="departureDate" type="date" value="2026-06-26"
+                                oninput="validateDepartureDate(this)">
+                            <p class="text-[9px] font-bold text-red-500 uppercase tracking-widest mt-1 hidden"
+                                id="date-error">Không thể chọn ngày trong quá khứ</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-col">
+                        <label class="text-[10px] font-bold uppercase tracking-widest mb-2 text-black">Số lượng thành
+                            viên (khách)</label>
+                        <input class="text-sm py-2" id="participantCount" min="1" type="number" value="1"
+                            oninput="updateTotalPrice(); validateCompanions(false, false)"
+                            onchange="validateCompanions(true, false)">
+                    </div>
+                    <!-- Companion Section -->
+                    <div data-purpose="accompanying-section">
+                        <label class="text-[10px] font-bold uppercase tracking-widest mb-4 block text-black">Người cùng
+                            đồng hành</label>
+                        <div class="grid grid-cols-2 gap-10 mb-6">
+                            <div class="flex flex-col">
+                                <label class="text-[9px] font-bold uppercase tracking-widest mb-1 text-black">Người
+                                    lớn</label>
+                                <input class="text-sm py-2" id="num-adults" min="1" placeholder="Số lượng..."
+                                    type="number" value="1" oninput="validateCompanions(false, false)"
+                                    onchange="validateCompanions(true, false)">
                             </div>
-                            <div class="payment-option">
-                                <input class="hidden" id="room_charge" name="payment" type="radio" value="post-room"
-                                    onchange="togglePaymentFields()">
-                                <label
-                                    class="flex items-center justify-between p-6 border border-hoanien-text/30 cursor-pointer transition-all hover:bg-surface-container-low"
-                                    for="room_charge">
-                                    <div>
-                                        <p class="font-body-md text-hoanien-text font-bold" data-i18n="room">Tính vào
-                                            phòng nghỉ</p>
-                                        <p class="font-caption text-hoanien-text/70 mt-1 font-medium"
-                                            data-i18n="room_desc">Dành riêng cho khách đang lưu trú tại HoaNien Retreat
-                                        </p>
-                                    </div>
-                                    <span class="material-symbols-outlined text-hoanien-text font-bold">hotel</span>
-                                </label>
+                            <div class="flex flex-col">
+                                <label class="text-[9px] font-bold uppercase tracking-widest mb-1 text-black">Trẻ
+                                    em</label>
+                                <input class="text-sm py-2" id="num-children" min="0"
+                                    oninput="validateCompanions(false, false)" onchange="validateCompanions(true, true)"
+                                    placeholder="Số lượng..." type="number" value="0">
                             </div>
                         </div>
+                        <p class="text-[9px] font-bold text-red-500 uppercase tracking-widest mt-2 hidden"
+                            id="companion-error">
+                            Tổng số người lớn và trẻ em phải bằng số lượng thành viên đã chọn
+                        </p>
+                        <div class="space-y-6" id="child-rows-container"></div>
                     </div>
-
-                    <div id="roomNumberContainer" class="relative group hidden pt-4">
-                        <label
-                            class="font-label-caps text-[10px] text-hoanien-text/80 uppercase block mb-2 transition-colors group-focus-within:text-hoanien-text font-bold"
-                            data-i18n="room_number_label">Số phòng</label>
-                        <input id="roomNumber"
-                            class="w-full bg-transparent border-0 border-b border-hoanien-text/30 py-2 font-body-md text-hoanien-text font-semibold placeholder:text-outline/40 focus:border-hoanien-text transition-all"
-                            placeholder="101" data-i18n="room_ph" type="text">
+                    <!-- Notes Section -->
+                    <div class="flex flex-col">
+                        <label class="text-[10px] font-bold uppercase tracking-widest mb-2 text-black">Ghi chú</label>
+                        <textarea class="text-sm py-2 resize-none"
+                            placeholder="Yêu cầu đặc biệt về thực phẩm, dị ứng..." rows="2"></textarea>
                     </div>
-
-                    <div class="flex items-start gap-2.5 mb-6">
-                        <input type="checkbox" id="tourConsent" required
-                            class="mt-0.5 rounded border-hoanien-text/30 text-hoanien-text focus:ring-hoanien-text">
-                        <label for="tourConsent"
-                            class="font-caption text-[11px] text-hoanien-text/80 font-semibold leading-normal select-none cursor-pointer"
-                            data-i18n="consent_label">
+                    <!-- Discount Code Section -->
+                    <div class="space-y-4">
+                        <button
+                            class="flex items-center text-[10px] font-bold uppercase tracking-widest text-brand-dark hover:text-brand-gold transition-colors group"
+                            onclick="toggleDiscountSection()" type="button">
+                            <span
+                                class="material-symbols-outlined text-[16px] mr-2 group-hover:rotate-12 transition-transform">sell</span>
+                            Bạn có mã giảm giá?
+                        </button>
+                        <div class="collapsible-content expanded" id="discount-section">
+                            <div class="p-5 border border-brand-border bg-gray-50/50 rounded-sm">
+                                <div class="flex items-center gap-3 mb-3">
+                                    <div class="relative flex-1"><input
+                                            class="w-full text-sm py-3 pr-4 border-b border-brand-border focus:border-brand-dark transition-colors bg-transparent rounded-none"
+                                            id="discount-input" placeholder="Nhập mã giảm giá (vd: SUMMER2026)" type="text"
+                                            oninput="onDiscountInputChange()"></div><button
+                                        class="px-6 py-3 bg-brand-dark text-white text-[10px] font-bold uppercase tracking-widest hover:bg-brand-gold transition-colors rounded-sm"
+                                        id="btn-apply-discount" onclick="applyDiscount()" type="button">Áp dụng</button>
+                                </div>
+                                <div id="discount-feedback" class="text-[9px] font-bold uppercase tracking-widest mt-2 hidden"></div>
+                                <div id="applied-promo-badge" class="hidden mt-3 flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-sm">
+                                    <div class="flex items-center gap-2">
+                                        <span class="material-symbols-outlined text-green-600 text-[16px]">check_circle</span>
+                                        <span class="text-[10px] font-bold uppercase tracking-widest text-green-700" id="applied-promo-label">Mã đã áp dụng</span>
+                                    </div>
+                                    <button type="button" onclick="clearDiscount()" class="text-[10px] font-bold uppercase tracking-widest text-red-500 hover:text-red-700 transition-colors">Xóa</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Payment Options -->
+                    <div class="space-y-4">
+                        <label class="text-[10px] font-bold uppercase tracking-widest mb-2 block text-black">Phương thức
+                            thanh toán</label>
+                        <div class="payment-option border border-brand-border p-6 flex justify-between items-center"
+                            onclick="showPaymentModal('deposit')">
+                            <div>
+                                <h4 class="font-bold text-sm mb-1">Thanh toán đặt cọc</h4>
+                                <p class="text-xs text-gray-500">Giữ chỗ ngay với 30% tổng giá trị hành trình</p>
+                            </div>
+                            <div class="text-right">
+                                <span class="font-bold text-sm" id="displayFullPriceDeposit">360.000 VNĐ</span>
+                            </div>
+                        </div>
+                        <div class="payment-option border border-brand-border p-6 flex justify-between items-center"
+                            onclick="showPaymentModal('full')">
+                            <div>
+                                <h4 class="font-bold text-sm mb-1">Thanh toán tổng đơn booking tour</h4>
+                                <p class="text-xs text-gray-500">Thanh toán toàn bộ 100% để hoàn tất thủ tục</p>
+                            </div>
+                            <div class="text-right">
+                                <span class="font-bold text-sm" id="displayFullPriceValue">1.200.000 VNĐ</span>
+                            </div>
+                        </div>
+                        <div id="room-charge-container">
+                            <div class="payment-option border border-brand-border p-6 flex justify-between items-center group"
+                                onclick="openRoomSelection()">
+                                <div>
+                                    <h4 class="font-bold text-sm mb-1">Tính vào phòng nghỉ</h4>
+                                    <p class="text-xs text-gray-500">Dành riêng cho khách đang lưu trú tại HoaNien
+                                        Retreat</p>
+                                </div>
+                                <div>
+                                    <span
+                                        class="material-symbols-outlined text-gray-400 group-hover:text-brand-dark transition-colors">home</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-start space-x-3 pt-4">
+                        <input class="mt-1 rounded border-gray-300 text-brand-dark focus:ring-brand-dark"
+                            id="tourConsent" type="checkbox">
+                        <p class="text-[10px] leading-relaxed text-gray-500">
                             Tôi đồng ý cung cấp thông tin cá nhân và hành trình để resort thực hiện dịch vụ đặt tour và
                             mã hóa bảo mật thông tin.
-                        </label>
+                        </p>
                     </div>
-
-                    <div class="pt-12 flex flex-col items-center">
-                        <button
-                            class="w-full py-5 bg-[#3a3230] text-[#fff8f4] font-label-caps text-label-caps hover:bg-[#1f1b16] transition-all duration-500 tracking-[0.2em] relative overflow-hidden group font-bold"
-                            type="submit">
-                            <span class="relative z-10" data-i18n="confirm">XÁC NHẬN ĐẶT CHỖ</span>
-                            <div
-                                class="absolute inset-0 bg-gold-accent translate-y-full group-hover:translate-y-0 transition-transform duration-500 opacity-20">
-                            </div>
-                        </button>
-                        <div class="mt-8 flex items-center space-x-2 text-hoanien-text/80 font-semibold">
-                            <span class="material-symbols-outlined text-[16px] font-bold">verified_user</span>
-                            <p class="font-caption text-[11px] uppercase tracking-widest" data-i18n="secure">Giao dịch
-                                được mã hóa 256-bit SSL</p>
-                        </div>
+                    <button type="submit"
+                        class="w-full bg-brand-dark text-white py-5 text-[11px] font-bold tracking-[0.2em] uppercase hover:bg-brand-gold transition-colors">
+                        Xác nhận đặt chỗ
+                    </button>
+                    <div
+                        class="flex justify-center items-center space-x-2 text-[9px] font-bold tracking-widest text-gray-400 uppercase">
+                        <span class="material-symbols-outlined text-[12px]">lock</span>
+                        <span class="">Giao dịch được mã hóa 256-bit SSL</span>
                     </div>
                 </form>
             </div>
         </section>
     </main>
-
-    <footer class="w-full bg-[#1f1b16] text-[#fff8f4] border-t border-white/10 px-margin-desktop py-12 mt-auto">
-        <div class="max-w-container-max mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
-            <div class="text-center md:text-left space-y-2">
-                <p class="font-headline-md text-headline-md italic text-[#fff8f4]">HoaNien</p>
-                <p class="text-[9px] tracking-[0.3em] text-white/40 uppercase" data-i18n="copyright">© 2026 HoaNien
-                    Retreat. A Quiet Luxury Travel Group.</p>
+    <!-- BEGIN: Footer -->
+    <footer class="bg-brand-dark text-white py-20 px-20">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-end">
+            <div class="space-y-4">
+                <h3 class="text-3xl font-serif">HoaNien</h3>
+                <p class="text-[10px] tracking-widest opacity-50 uppercase">© 2026 HOANIEN RETREAT. A QUIET LUXURY
+                    TRAVEL GROUP.</p>
             </div>
-            <div class="flex flex-wrap justify-center gap-x-10 gap-y-4">
-                <a class="text-[9px] font-semibold uppercase tracking-[0.25em] text-white/50 hover:text-white transition-colors duration-300"
-                    data-i18n="footer_priv" href="#">Quyền riêng tư</a>
-                <a class="text-[9px] font-semibold uppercase tracking-[0.25em] text-white/50 hover:text-white transition-colors duration-300"
-                    data-i18n="footer_sus" href="#">Sự bền vững</a>
-                <a class="text-[9px] font-semibold uppercase tracking-[0.25em] text-white/50 hover:text-white transition-colors duration-300"
-                    data-i18n="footer_media" href="#">Truyền thông</a>
-                <a class="text-[9px] font-semibold uppercase tracking-[0.25em] text-white/50 hover:text-white transition-colors duration-300"
-                    data-i18n="footer_contact" href="#">Liên hệ</a>
+            <div class="flex space-x-12 text-[10px] font-bold tracking-widest uppercase opacity-80">
+                <a class="hover:text-brand-gold" href="#">Quyền riêng tư</a>
+                <a class="hover:text-brand-gold" href="#">Sự bền vững</a>
+                <a class="hover:text-brand-gold" href="#">Truyền thông</a>
+                <a class="hover:text-brand-gold" href="#">Liên hệ</a>
             </div>
         </div>
     </footer>
+    <!-- END: Footer -->
+    <!-- BEGIN: Modals -->
+    <div class="fixed inset-0 bg-black/60 z-[60] justify-center items-center p-10" id="overlay">
+        <!-- Activity Modal -->
+        <div class="bg-white/30 backdrop-blur-3xl border border-white/20 shadow-2xl w-full max-w-2xl relative flex flex-col animate-in zoom-in-95 duration-300 rounded-sm overflow-hidden"
+            id="activity-modal">
+            <button class="absolute top-6 right-6 text-2xl text-gray-400 hover:text-brand-dark transition-colors z-10"
+                onclick="closeModal()">×</button>
+            <div class="relative h-64 w-full">
+                <img alt="Activity" class="w-full h-full object-cover" id="activity-modal-img" src="">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                <div class="absolute bottom-8 left-10">
+                    <p class="text-[10px] font-bold text-white/80 uppercase tracking-[0.3em] mb-2"
+                        id="activity-modal-time">---</p>
+                    <h3 class="text-3xl font-serif text-white" id="activity-modal-title">---</h3>
+                </div>
+            </div>
+            <div class="p-10">
+                <div class="flex items-center space-x-4 mb-6">
+                    <div class="w-8 h-[1px] bg-brand-gold"></div>
+                    <p class="text-[10px] font-bold tracking-widest uppercase text-brand-gold">Chi tiết trải nghiệm</p>
+                </div>
+                <p class="text-sm text-white leading-relaxed font-light" id="activity-modal-desc">---</p><button
+                    class="mt-10 px-10 py-4 border border-white/40 text-[10px] font-bold uppercase tracking-widest text-white hover:bg-white hover:text-brand-dark transition"
+                    onclick="closeModal()">Đóng</button>
+            </div>
+        </div>
+        <!-- Payment Modal -->
+        <div class="bg-brand-bg w-full max-w-4xl max-h-[90vh] overflow-y-auto flex flex-col md:flex-row shadow-2xl relative"
+            id="payment-modal">
+            <button class="absolute top-6 right-6 text-2xl text-gray-400 hover:text-brand-dark transition-colors"
+                onclick="closeModal()">×</button>
+            <div class="w-full md:w-1/2 p-10 bg-white border-r border-brand-border">
+                <h3 class="text-2xl font-serif mb-8">Chi tiết đơn hàng</h3>
+                <table class="w-full text-xs">
+                    <tbody>
+                        <tr class="border-b border-brand-border">
+                            <td class="py-4 font-bold text-gray-400 uppercase tracking-wider">Dịch vụ</td>
+                            <td class="py-4 text-right" id="modal-service-name">Hành trình Đoàn Tụ</td>
+                        </tr>
+                        <tr class="border-b border-brand-border">
+                            <td class="py-4 font-bold text-gray-400 uppercase tracking-wider">Ngày đi</td>
+                            <td class="py-4 text-right" id="modal-departure-date">26/06/2026</td>
+                        </tr>
+                        <tr class="border-b border-brand-border">
+                            <td class="py-4 font-bold text-gray-400 uppercase tracking-wider">Thành viên</td>
+                            <td class="py-4 text-right" id="modal-summary-members">1 Người lớn, 0 Trẻ em</td>
+                        </tr>
+                        <tr class="border-b border-brand-border">
+                            <td class="py-4 font-bold text-gray-400 uppercase tracking-wider">Tổng cộng</td>
+                            <td class="py-4 text-right" id="modal-total-price">1.200.000 VNĐ</td>
+                        </tr>
+                        <tr>
+                            <td class="py-4 font-bold text-gray-400 uppercase tracking-wider">Số tiền thanh toán</td>
+                            <td class="py-4 text-right text-lg font-bold" id="modal-payment-amount">---</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="w-full md:w-1/2 p-10">
+                <h3 class="text-2xl font-serif mb-8">Thanh toán</h3>
+                <div class="space-y-6 pt-2">
+                    <label class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2 block">Chọn phương
+                        thức</label>
+                    <div class="grid grid-cols-1 gap-3">
+                        <div class="payment-method-toggle border border-brand-border p-4 flex flex-col cursor-pointer transition-all hover:border-brand-dark border-brand-dark"
+                            id="toggle-counter" onclick="selectPaymentMethod('counter')">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-4">
+                                    <span class="material-symbols-outlined text-brand-dark text-lg">storefront</span>
+                                    <p class="text-[10px] font-bold uppercase tracking-wider">Thanh toán tại quầy</p>
+                                </div>
+                                <div
+                                    class="method-radio w-4 h-4 rounded-full border border-brand-border flex items-center justify-center">
+                                    <div class="radio-inner w-2 h-2 rounded-full bg-brand-dark transition-opacity">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="payment-method-toggle border border-brand-border p-4 flex flex-col cursor-pointer transition-all hover:border-brand-dark"
+                            id="toggle-vnpay" onclick="selectPaymentMethod('vnpay')">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-4">
+                                    <span
+                                        class="material-symbols-outlined text-brand-dark text-lg">account_balance_wallet</span>
+                                    <p class="text-[10px] font-bold uppercase tracking-wider">Thanh toán qua VNPay</p>
+                                </div>
+                                <div
+                                    class="method-radio w-4 h-4 rounded-full border border-brand-border flex items-center justify-center">
+                                    <div
+                                        class="radio-inner w-2 h-2 rounded-full bg-brand-dark opacity-0 transition-opacity">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="collapsible-content expanded" id="branch-details">
+                        <div class="bg-white p-5 border border-brand-border mt-4">
+                            <p class="text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-1">Địa chỉ chi
+                                nhánh gần nhất</p>
+                            <p class="text-sm font-medium">123 Lê Lợi, Huế</p>
+                        </div>
+                    </div>
+                    <div class="collapsible-content" id="vnpay-details">
+                        <div class="mt-4 border border-blue-100 bg-blue-50/60 rounded-sm overflow-hidden">
+                            <!-- VNPay logo header -->
+                            <div class="flex items-center gap-3 px-5 py-3 bg-white border-b border-blue-100">
+                                <img alt="VNPay" class="h-7"
+                                    src="https://vnpay.vn/s1/statics.vnpay.vn/2023/6/0ttn4n4s0o6y1685957358991.png"
+                                    onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/VNPAY_logo.svg/1200px-VNPAY_logo.svg.png'">
+                                <div>
+                                    <p class="text-[10px] font-bold uppercase tracking-widest text-brand-dark">Cổng
+                                        thanh toán VNPay</p>
+                                    <p class="text-[9px] text-gray-400">Sandbox / Test Environment</p>
+                                </div>
+                            </div>
+                            <div class="p-5 space-y-3">
+                                <div class="flex items-start gap-3">
+                                    <span
+                                        class="material-symbols-outlined text-blue-500 text-base mt-0.5">qr_code_2</span>
+                                    <p class="text-[10px] text-gray-600 leading-relaxed">Sau khi xác nhận, mã QR thanh
+                                        toán sẽ xuất hiện ngay tại đây. Quét bằng app ngân hàng hoặc VNPay để hoàn tất.
+                                    </p>
+                                </div>
+                                <div class="flex items-start gap-3">
+                                    <span
+                                        class="material-symbols-outlined text-blue-500 text-base mt-0.5">account_balance</span>
+                                    <p class="text-[10px] text-gray-600 leading-relaxed">Hỗ trợ tất cả ngân hàng Việt
+                                        Nam — chuyển khoản online, QR Pay, Ví điện tử.</p>
+                                </div>
+                                <div class="flex items-start gap-3">
+                                    <span
+                                        class="material-symbols-outlined text-blue-500 text-base mt-0.5">verified_user</span>
+                                    <p class="text-[10px] text-gray-600 leading-relaxed">Giao dịch được bảo mật SSL
+                                        256-bit. Thông tin thẻ được mã hóa theo chuẩn PCI DSS.</p>
+                                </div>
+                                <div class="flex gap-2 flex-wrap pt-1">
+                                    <span
+                                        class="px-2 py-1 bg-white border border-gray-200 rounded-sm text-[8px] font-bold uppercase tracking-widest text-gray-500">VCB</span>
+                                    <span
+                                        class="px-2 py-1 bg-white border border-gray-200 rounded-sm text-[8px] font-bold uppercase tracking-widest text-gray-500">TCB</span>
+                                    <span
+                                        class="px-2 py-1 bg-white border border-gray-200 rounded-sm text-[8px] font-bold uppercase tracking-widest text-gray-500">MB</span>
+                                    <span
+                                        class="px-2 py-1 bg-white border border-gray-200 rounded-sm text-[8px] font-bold uppercase tracking-widest text-gray-500">VPBank</span>
+                                    <span
+                                        class="px-2 py-1 bg-white border border-gray-200 rounded-sm text-[8px] font-bold uppercase tracking-widest text-gray-500">+
+                                        40 NH</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button
+                        class="w-full bg-brand-dark text-white py-5 text-[11px] font-bold tracking-[0.2em] uppercase hover:bg-brand-gold transition-colors mt-6"
+                        id="final-confirm-btn" onclick="submitBookingFlow()">
+                        XÁC NHẬN ĐẶT CHỖ
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    <!-- Room Selection Modal -->
+    <div class="bg-white w-full max-w-lg p-10 shadow-2xl relative flex flex-col" id="room-selection-modal">
+        <h3 class="text-2xl font-serif mb-8 text-center">Chọn phòng để gán</h3>
+        <div id="active-rooms-list" class="space-y-3 mb-10">
+            <!-- Will be dynamically populated -->
+        </div>
+        <div class="flex space-x-4">
+            <button
+                class="flex-1 border border-brand-dark py-4 text-[10px] font-bold uppercase tracking-widest hover:bg-gray-50 transition"
+                onclick="closeModal()">Hủy</button>
+            <button
+                class="flex-1 bg-brand-dark text-white py-4 text-[10px] font-bold uppercase tracking-widest hover:bg-brand-gold transition"
+                onclick="confirmRoomSelection()">Gán phòng</button>
+        </div>
+    </div>
+    </div>
+    <!-- END: Modals -->
+
+    <!-- BEGIN: Payment Toast -->
+    <div id="payment-toast"
+        style="display:none; position:fixed; bottom:32px; left:50%; transform:translateX(-50%); z-index:9999; min-width:320px; max-width:480px;">
+        <div id="payment-toast-inner" class="flex items-center gap-4 px-6 py-4 shadow-2xl rounded-sm"
+            style="background:#1a1a1a; color:#fff; font-family:'Montserrat',sans-serif;">
+            <span id="payment-toast-icon" class="material-symbols-outlined text-2xl"></span>
+            <div>
+                <p id="payment-toast-title" class="text-[11px] font-bold uppercase tracking-widest mb-0.5"></p>
+                <p id="payment-toast-msg" class="text-[10px] opacity-70"></p>
+            </div>
+            <button onclick="document.getElementById('payment-toast').style.display='none'"
+                class="ml-auto text-white/50 hover:text-white text-xl leading-none">&times;</button>
+        </div>
+    </div>
+    <!-- END: Payment Toast -->
 
     <script th:inline="javascript">
         /*<![CDATA[*/
@@ -555,8 +829,11 @@
         /*]]>*/
     </script>
 
-    <script>
+    <script data-purpose="ui-interactions">
         let currentTour = initialTourType || 'doantu';
+        let selectedRoomData = null;
+        let selectedPaymentType = 'deposit'; // 'deposit' or 'full' or 'post-room'
+        let currentPaymentMethod = 'counter'; // 'counter' or 'vnpay'
 
         const tourData = {
             doantu: {
@@ -567,8 +844,8 @@
                 destEn: "Hue",
                 durationVi: "5 tiếng",
                 durationEn: "5 hours",
-                quoteVi: `"Tìm về hơi ấm vẹn nguyên của lòng biết ơn và sự gắn kết. Nơi những điển tích cổ kính, nghi thức têm trầu cánh phượng và mâm cơm vị cội nguồn khơi mở cuộc sum vầy, kết nối các thế hệ trong dòng chảy thời gian bất tận."`,
-                quoteEn: `"Return to the complete warmth of gratitude and connection. Where ancient tales, betel nut ceremonies and ancestral flavors open a gathering, connecting generations in the endless flow of time."`,
+                quoteVi: `"Tìm về hơi ấm vẹn nguyên của lòng biết ơn và sự gắn kết."`,
+                quoteEn: `"Return to the complete warmth of gratitude and connection."`,
                 image: "/AnhTour/z7930565879475_de7864577660b0726376ea947dbe94de.jpg",
                 price: 5000000,
                 weatherVi: "☀️ 28°C • Nắng nhẹ",
@@ -582,8 +859,8 @@
                 destEn: "Quang Nam",
                 durationVi: "7 Tiếng",
                 durationEn: "7 Hours",
-                quoteVi: `"Lắng nghe nhịp điệu mộc mạc của đất mẹ và hồn quê xứ Quảng. Hành trình đánh thức mọi giác quan qua hương lúa non nếp cái hoa vàng, hơi ấm bếp củi rực hồng và tiếng chày giã cốm mộc ngân dài trong khoảng không tĩnh lặng."`,
-                quoteEn: `"Listen to the rustic rhythm of motherland and Quang's rural soul. A journey awakening all senses through young rice fragrance, warm firewood stoves and the resonating sound of pounding mortar echoing in silent space."`,
+                quoteVi: `"Lắng nghe nhịp điệu mộc mạc của đất quê xứ Quảng."`,
+                quoteEn: `"Listen to the rustic rhythm of motherland and Quang's rural soul."`,
                 image: "/AnhTour/com.jfif",
                 price: 7000000,
                 weatherVi: "☀️ 32°C • Nắng ấm",
@@ -597,8 +874,8 @@
                 destEn: "Ninh Binh",
                 durationVi: "7 Tiếng",
                 durationEn: "7 Hours",
-                quoteVi: `"Chạm vào hồn cốt của thời gian qua những tạo tác từ đôi bàn tay nghệ nhân. Khi sợi mây tre đan cài, kén vàng ươm dệt tơ và đất sét mộc hóa thành gốm quý, đó cũng là lúc tâm trí ta tìm thấy sự kiên nhẫn và tĩnh tại tuyệt đối."`,
-                quoteEn: `"Touch the essence of time through creations from artisan hands. When rattan weaves, golden cocoons spin silk, and clay transforms into precious pottery, our minds find patience and absolute stillness."`,
+                quoteVi: `"Chạm vào hồn cốt của thời gian qua những tạo tác nghệ nhân."`,
+                quoteEn: `"Touch the essence of time through creations from artisan hands."`,
                 image: "/AnhTour/z7930578251310_cb227ca09c0f3c7a04a3ab6beb933d35.jpg",
                 price: 5000000,
                 weatherVi: "⛅ 26°C • Nhiều mây",
@@ -612,8 +889,8 @@
                 destEn: "Thap Muoi",
                 durationVi: "8 Tiếng",
                 durationEn: "8 Hours",
-                quoteVi: `"Sự thanh lọc thuần khiết cho thân - tâm - trí giữa vùng sông nước mờ sương. Thả trôi mọi âu lo theo hương sen bánh tẻ ngậm sương sớm và thưởng ngụm trà nhị thanh sạch, để lại trong lòng một dư âm bình yên, nhẹ nhõm vô bờ."`,
-                quoteEn: `"Pure purification for body - mind - spirit amidst misty water region. Drift away all worries with early dew lotus fragrance and savor pure tea, leaving behind a peaceful, lighthearted echo."`,
+                quoteVi: `"Sự thanh lọc thuần khiết cho thân - tâm - trí."`,
+                quoteEn: `"Pure purification for body - mind - spirit."`,
                 image: "/AnhTour/ThapMuoi.jpg",
                 price: 7000000,
                 weatherVi: "☀️ 30°C • Nắng ráo",
@@ -627,8 +904,9 @@
                 if (dbTours[key] && tourData[key]) {
                     const dbTour = dbTours[key];
                     if (dbTour.name) {
-                        tourData[key].titleVi = dbTour.name;
-                        tourData[key].titleEn = dbTour.name;
+                        const cleanedName = dbTour.name.split(/\s*-\s*/)[0].trim();
+                        tourData[key].titleVi = cleanedName;
+                        tourData[key].titleEn = cleanedName;
                     }
                     if (dbTour.dest) {
                         tourData[key].destVi = dbTour.dest;
@@ -649,52 +927,224 @@
             }
         }
 
+        const tourActivities = {
+            doantu: [
+                {
+                    time: "08:00 - 10:00",
+                    title: "Khám phá Đại Nội (Imperial City)",
+                    desc: "Hành trình xuyên không về cố đô Huế, khám phá kiến trúc cung đình tinh xảo. Quý khách sẽ được tham quan Điện Thái Hòa, Thế Miếu...",
+                    image: "https://lh3.googleusercontent.com/aida/AP1WRLuLL5Izs2UvzjZ5hvyRCN8ptBTww-0CeLmjHOm1_PPrf48kr6ShNgjHCVWa0C4gsaJVZZwZ0EH6iEz0TzjGn5gbdU98Tbf8OALK_JCdqe9-yhF2NYHj31uV024CdVwGrAzxDR-0JqoHvUAXPnUT2ZoioVEeSImipl_9m5ygMoIlc8gJcgp_qRYBN5mTgM-o6aA-foBrnT-QHQLmtGkTPmaYY3AvrNnSx1nl_aWU4gO-EdRQrhOLF78GrtBU",
+                    coords: { top: '45%', left: '48%' }
+                },
+                {
+                    time: "10:00 - 12:00",
+                    title: "Thưởng thức Trà Cung Đình",
+                    desc: "Thưởng thức tinh hoa ẩm thực trà Việt giữa không gian di sản cổ kính. Trà được pha từ các loại thảo mộc quý hiếm...",
+                    image: "https://lh3.googleusercontent.com/aida/AP1WRLvfuZDKaVo6yf7f8YWPDu1jm68_SboAFbtXnu1S6RSG6xEVl2N33EvUWaG14dIa35anIW7d-ro6IOMHmt1yr9MA2wLcSGWVKTDHpRqW5MThngaD_53PoZ9KjmW3_6Df7GKqYVb3C17dvvg1ds_B2T1e8Wx8-6Ua-zLT64bhH4id4WTpw-BObitkYXZ7nR9ALB6DP5iYksKkon5LPj5KZl4laRuSpxSumrTy0MasLdU379O-F9wYw0HHk8Ke",
+                    coords: { top: '50%', left: '52%' }
+                },
+                {
+                    time: "14:00 - 17:00",
+                    title: "Du ngoạn Sông Hương",
+                    desc: "Ngắm nhìn cố đô yên bình trên chiếc thuyền rồng truyền thống lướt nhẹ trên dòng sông Hương thơ mộng...",
+                    image: "https://lh3.googleusercontent.com/aida/AP1WRLsAxsPs5r2kvGoyuzwLi5HZNuqZFFJ92LYmgV2zf3VVi05_rp0P1FIjGTkhnt_yYR6R6IQjVqoUK2S2TtEuQtrwfCt_DIWjhkdBsJi4brBXRdsMVNvfm5NsRG1XzflD7aZffpBJlDVKtz1uIAqPvyYVctHm-h0qxIJfPuGZ05rvpSBiDwbHDDReK2fzQwtanrEH-ZuatIZKHHkSLCx7Yu6WvSDvYTjedkshVAfKkDxWCi2s8KYXnJZrg7wu",
+                    coords: { top: '58%', left: '40%' }
+                }
+            ],
+            dongnoi: [
+                {
+                    time: "08:30 - 10:30",
+                    title: "Làng gốm Thanh Hà",
+                    desc: "Tìm hiểu nghệ thuật làm gốm thủ công mộc mạc bên dòng sông Thu Bồn. Tự tay trải nghiệm xoay gốm tạo hình đất sét.",
+                    image: "/AnhTour/z7930565882675_f94fe322fc3a06efe82eccf1e76b09e1.jpg",
+                    coords: { top: '40%', left: '46%' }
+                },
+                {
+                    time: "10:30 - 12:30",
+                    title: "Vườn rau Trà Quế",
+                    desc: "Dạo quanh vườn rau hữu cơ nổi tiếng, tham gia xới đất, trồng rau và thưởng thức ly nước hạt sen mát lạnh.",
+                    image: "/AnhTour/com.jfif",
+                    coords: { top: '48%', left: '50%' }
+                },
+                {
+                    time: "13:00 - 15:30",
+                    title: "Trải nghiệm ẩm thực",
+                    desc: "Thưởng thức bữa trưa đậm đà hương vị Quảng Nam với các món đặc sản từ nông sản sạch thu hoạch ngay tại vườn.",
+                    image: "/AnhTour/Com.jpg",
+                    coords: { top: '55%', left: '44%' }
+                }
+            ],
+            disan: [
+                {
+                    time: "09:00 - 11:30",
+                    title: "Làng chiếu cói Kim Sơn",
+                    desc: "Khám phá quy trình dệt chiếu truyền thống tinh xảo từ sợi cói tự nhiên của các nghệ nhân địa phương.",
+                    image: "/AnhTour/ThuCong.jpg",
+                    coords: { top: '42%', left: '48%' }
+                },
+                {
+                    time: "11:30 - 13:30",
+                    title: "Thưởng thức ẩm thực Tràng An",
+                    desc: "Bữa trưa đặc sắc tại nhà hàng ven sông Ninh Bình với đặc sản thịt dê núi, cơm cháy và rượu Kim Sơn.",
+                    image: "/AnhTour/z7930578251310_cb227ca09c0f3c7a04a3ab6beb933d35.jpg",
+                    coords: { top: '49%', left: '51%' }
+                },
+                {
+                    time: "13:30 - 16:00",
+                    title: "Trải nghiệm thêu Văn Lâm",
+                    desc: "Học cách thêu những họa tiết truyền thống tinh tế trên nền vải lanh tự nhiên cùng các nghệ nhân lão luyện.",
+                    image: "/AnhTour/ThuCong.jpg",
+                    coords: { top: '56%', left: '45%' }
+                }
+            ],
+            tinhlang: [
+                {
+                    time: "08:00 - 10:30",
+                    title: "Chèo xuồng ngắm sen",
+                    desc: "Thả mình giữa cánh đồng sen mênh mông bạt ngàn tại Tháp Mười, ngắm hoa sen chớm nở đón ánh bình minh.",
+                    image: "/AnhTour/ThapMuoi.jpg",
+                    coords: { top: '44%', left: '46%' }
+                },
+                {
+                    time: "10:30 - 13:00",
+                    title: "Thiền hành đầm sen",
+                    desc: "Thưởng trà sen hữu cơ và tham gia các hoạt động thiền hành, hít thở thư giãn tinh thần giữa thiên nhiên.",
+                    image: "/AnhTour/ThapMuoi.jpg",
+                    coords: { top: '52%', left: '52%' }
+                },
+                {
+                    time: "13:00 - 15:30",
+                    title: "Ẩm thực sen Tháp Mười",
+                    desc: "Khám phá thực đơn đặc biệt làm hoàn toàn từ sen: cơm hấp lá sen, súp hạt sen, gỏi ngó sen thanh mát.",
+                    image: "/AnhTour/ThapMuoi.jpg",
+                    coords: { top: '60%', left: '42%' }
+                }
+            ]
+        };
+
+        function renderActivities() {
+            const list = tourActivities[currentTour] || [];
+
+            // 1. Timeline list HTML
+            const timelineContainer = document.getElementById('timeline-container');
+            if (timelineContainer) {
+                timelineContainer.innerHTML = list.map((act, index) => {
+                    const activeClass = index === 0 ? 'active' : '';
+                    return `
+                        <div class="timeline-item flex items-start space-x-6 relative group cursor-pointer ${activeClass}"
+                            id="timeline-${index}" onclick="handleMapScroll(event, ${index})">
+                            <div class="timeline-line"></div>
+                            <div class="timeline-dot mt-1.5"></div>
+                            <div class="flex-1">
+                                <span class="text-[9px] font-bold text-brand-gold uppercase tracking-[0.25em] block mb-1">${act.time}</span>
+                                <h4 class="font-serif font-bold text-base mb-1 text-white group-hover:text-brand-gold transition-colors"
+                                    onclick="openActivityModal(${index})">${act.title}</h4>
+                                <p class="text-xs text-gray-300 leading-relaxed font-light mb-2">${act.desc}</p>
+                                <div class="mt-2">
+                                    <button onclick="handleMapScroll(event, ${index}); event.stopPropagation();" 
+                                            class="inline-flex items-center space-x-1 text-[10px] font-bold uppercase tracking-widest text-brand-gold hover:text-white transition-colors">
+                                        <span class="material-symbols-outlined text-[13px]">location_on</span>
+                                        <span>Xem vị trí</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            // 2. Map pins HTML
+            const pinsContainer = document.getElementById('map-pins-container');
+            if (pinsContainer) {
+                pinsContainer.innerHTML = list.map((act, index) => {
+                    return `
+                        <div class="absolute transition-all duration-700 ease-in-out map-marker"
+                            id="pin-${index}" style="top: ${act.coords.top}; left: ${act.coords.left};" onclick="focusActivity(${index})">
+                            <svg class="map-pin-svg" fill="#C5A059" height="42" viewBox="0 0 32 42" width="32"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M16 0C7.16344 0 0 7.16344 0 16C0 28 16 42 16 42C16 42 32 28 32 16C32 7.16344 24.8366 0 16 0ZM16 22C12.6863 22 10 19.3137 10 16C10 12.6863 12.6863 10 16 10C19.3137 10 22 12.6863 22 16C22 19.3137 19.3137 22 16 22Z"
+                                    fill="currentColor"></path>
+                                <circle cx="16" cy="16" fill="white" r="4"></circle>
+                            </svg>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
         function formatVND(amount) {
             return amount.toLocaleString('vi-VN') + ' VNĐ';
         }
 
-        function updateTotalPrice() {
-            const qty = parseInt(document.getElementById('participantCount').value) || 1;
+        // Returns the raw total price before any promo discount
+        function getRawTotalPrice() {
+            const participantInput = document.getElementById('participantCount');
+            const adultsInput = document.getElementById('num-adults');
+            const childrenInput = document.getElementById('num-children');
+
+            const qty = parseInt(participantInput.value) || 1;
             const tourInfo = tourData[currentTour];
-            const totalPrice = tourInfo.price * qty;
+            const basePrice = tourInfo.price;
+
+            let rawTotal = basePrice * qty;
+
+            if (adultsInput && childrenInput) {
+                const adults = parseInt(adultsInput.value) || 0;
+                const children = parseInt(childrenInput.value) || 0;
+                const sum = adults + children;
+
+                if (sum === qty) {
+                    let calculatedPrice = basePrice * adults;
+                    for (let i = 0; i < children; i++) {
+                        const ageEl = document.getElementById(`child-age-${i}`);
+                        const ageVal = ageEl ? ageEl.value : '';
+                        if (ageVal === 'Dưới 2 tuổi') {
+                            calculatedPrice += 0; // Miễn phí
+                        } else if (ageVal === '2 - 11 tuổi') {
+                            calculatedPrice += basePrice * 0.5; // Giảm 50%
+                        } else {
+                            calculatedPrice += basePrice * 0.5;
+                        }
+                    }
+                    rawTotal = calculatedPrice;
+                }
+            }
+            return rawTotal;
+        }
+
+        function updateTotalPrice() {
+            let totalPrice = getRawTotalPrice();
+
+            // Apply promo discount if one is active
+            if (appliedPromoState) {
+                const isFixed = appliedPromoState.discountType === 'FIXED_AMOUNT';
+                let discount;
+                if (isFixed) {
+                    discount = Number(appliedPromoState.discountAmount);
+                } else {
+                    discount = Math.round(totalPrice * Number(appliedPromoState.discountValue) / 100);
+                }
+                if (discount > totalPrice) discount = totalPrice;
+                totalPrice = totalPrice - discount;
+            }
+
             const depositPrice = Math.round(totalPrice * 0.3);
 
             document.getElementById('displayTotalPrice').textContent = formatVND(totalPrice);
             document.getElementById('displayDepositPrice').textContent = formatVND(depositPrice);
 
-            const lang = document.documentElement.lang || 'vi';
-            const formattedQty = qty < 10 ? '0' + qty : qty;
-            const suffix = lang === 'vi' ? ' Người lớn' : ' Adults';
-            const tourMembersVal = document.getElementById('tourMembersVal');
-            if (tourMembersVal) {
-                tourMembersVal.textContent = formattedQty + suffix;
-            }
+            document.getElementById('displayFullPriceDeposit').textContent = formatVND(depositPrice);
+            document.getElementById('displayFullPriceValue').textContent = formatVND(totalPrice);
         }
 
-        function togglePaymentFields() {
-            const roomOption = document.getElementById('room_charge');
-            const container = document.getElementById('roomNumberContainer');
-            const roomInput = document.getElementById('roomNumber');
-            if (roomOption.checked) {
-                container.classList.remove('hidden');
-                roomInput.setAttribute('required', 'required');
-            } else {
-                container.classList.add('hidden');
-                roomInput.removeAttribute('required');
-            }
-        }
 
         function loadTour(tourKey) {
             currentTour = tourKey;
-
-            // Update URL query parameter without reloading
             const url = new URL(window.location);
             url.searchParams.set('type', tourKey);
             window.history.pushState({}, '', url);
-
             renderTour();
-
-            // Clear weather cache and fetch for new location
             cachedWeather = null;
             const selectedDate = document.getElementById('departureDate') ? document.getElementById('departureDate').value : null;
             fetchWeather(selectedDate);
@@ -705,147 +1155,619 @@
             const tourInfo = tourData[currentTour];
             if (!tourInfo) return;
 
-            // Update active class on sub-nav links
             document.querySelectorAll('.sub-nav-link').forEach(link => {
                 if (link.dataset.tour === currentTour) {
-                    link.classList.add('border-b', 'border-current');
-                    link.classList.remove('opacity-70');
+                    link.classList.add('border-b-2', 'border-brand-dark', 'text-brand-dark');
+                    link.classList.remove('text-gray-600');
                 } else {
-                    link.classList.remove('border-b', 'border-current');
-                    link.classList.add('opacity-70');
+                    link.classList.remove('border-b-2', 'border-brand-dark', 'text-brand-dark');
+                    link.classList.add('text-gray-600');
                 }
             });
 
-            // Update left side contents
-            document.getElementById('tourImage').src = tourInfo.image;
             document.getElementById('tourTitle').textContent = lang === 'vi' ? tourInfo.titleVi : tourInfo.titleEn;
             document.getElementById('tourDestVal').textContent = lang === 'vi' ? tourInfo.destVi : tourInfo.destEn;
             document.getElementById('tourDurationVal').textContent = lang === 'vi' ? tourInfo.durationVi : tourInfo.durationEn;
             document.getElementById('tourQuote').textContent = lang === 'vi' ? tourInfo.quoteVi : tourInfo.quoteEn;
 
-            // Re-render cached live weather in current language (don't overwrite with hardcoded)
-            displayCachedWeather();
+            const mainDiv = document.querySelector('main');
+            if (mainDiv && tourInfo.image) {
+                mainDiv.style.backgroundImage = `url('${tourInfo.image}')`;
+            }
 
-            // Recalculate price
+            const leftHero = document.getElementById('leftHeroSection');
+            if (leftHero && tourInfo.image) {
+                leftHero.style.backgroundImage = `url('${tourInfo.image}')`;
+            }
+
+            renderActivities();
+            displayCachedWeather();
             updateTotalPrice();
         }
 
-        const translations = {
-            vi: {
-                weather_lbl: "Thời tiết dự kiến",
-                nav_living: "Nghỉ Dưỡng",
-                nav_dining: "Ẩm Thực",
-                nav_experiences: "Trải Nghiệm",
-                nav_tours: "Hành Trình",
-                nav_profile: "Hồ Sơ",
-                nav_logout: "Đăng Xuất",
-                nav_book_now: "Đặt Ngay",
-                nav_login: "Đăng nhập",
-                nav_doantu: "Đoàn Tụ",
-                nav_dongnoi: "Đồng Nội",
-                nav_disan: "Di Sản",
-                nav_tinhlang: "Tĩnh Lặng",
-                summary: "Tóm tắt hành trình",
-                dest: "Điểm đến",
-                time: "Thời gian",
-                members: "Thành viên",
-                total: "Tổng cộng",
-                payment_title: "Thông tin đặt chỗ",
-                urgency: "Chỉ còn vài chỗ trống",
-                name_label: "Họ và tên",
-                email_label: "Email",
-                phone_label: "Số điện thoại",
-                date_label: "Ngày đi",
-                members_label: "Số lượng thành viên (Khách)",
-                payment_method: "Phương thức thanh toán",
-                deposit: "Thanh toán đặt cọc",
-                deposit_desc: "Giữ chỗ ngay với 30% tổng giá trị hành trình",
-                room: "Tính vào phòng nghỉ",
-                room_desc: "Dành riêng cho khách đang lưu trú tại HoaNien Retreat",
-                room_number_label: "Số phòng",
-                confirm: "XÁC NHẬN ĐẶT CHỖ",
-                secure: "Giao dịch được mã hóa 256-bit SSL",
-                copyright: "© 2026 HoaNien Retreat. A Quiet Luxury Travel Group.",
-                footer_priv: "Quyền riêng tư",
-                footer_sus: "Sự bền vững",
-                footer_media: "Truyền thông",
-                footer_contact: "Liên hệ",
-                name_ph: "Nguyễn Văn A",
-                email_ph: "email@example.com",
-                phone_ph: "0912345678",
-                room_ph: "101",
-                consent_label: "Tôi đồng ý cung cấp thông tin cá nhân và hành trình để resort thực hiện dịch vụ đặt tour và mã hóa bảo mật thông tin."
-            },
-            en: {
-                weather_lbl: "Expected Weather",
-                nav_living: "Living",
-                nav_dining: "Dining",
-                nav_experiences: "Experiences",
-                nav_tours: "Tours",
-                nav_profile: "Profile",
-                nav_logout: "Logout",
-                nav_book_now: "Book Now",
-                nav_login: "Login",
-                nav_doantu: "Reunion",
-                nav_dongnoi: "Countryside",
-                nav_disan: "Heritage",
-                nav_tinhlang: "Serenity",
-                summary: "Journey Summary",
-                dest: "Destination",
-                time: "Duration",
-                members: "Members",
-                total: "Total",
-                payment_title: "Booking Information",
-                urgency: "Only a few spots left",
-                name_label: "Full Name",
-                email_label: "Email",
-                phone_label: "Phone Number",
-                date_label: "Departure Date",
-                members_label: "Number of Guests",
-                payment_method: "Payment Method",
-                deposit: "Pay Deposit",
-                deposit_desc: "Secure your spot with 30% of total journey value",
-                room: "Charge to room",
-                room_desc: "Exclusive for guests currently staying at HoaNien Retreat",
-                room_number_label: "Room Number",
-                confirm: "CONFIRM BOOKING",
-                secure: "256-bit SSL Encrypted Transaction",
-                copyright: "© 2026 HoaNien Retreat. A Quiet Luxury Travel Group.",
-                footer_priv: "Privacy Policy",
-                footer_sus: "Sustainability",
-                footer_media: "Media",
-                footer_contact: "Contact",
-                name_ph: "John Doe",
-                email_ph: "email@example.com",
-                phone_ph: "0912345678",
-                room_ph: "101",
-                consent_label: "I agree to provide personal and itinerary details for booking and data security purposes."
-            }
-        };
-
-        function switchLang(lang) {
-            document.querySelectorAll('.lang-btn').forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.lang === lang);
-            });
-            document.documentElement.lang = lang;
-
-            // Update all elements with data-i18n
-            document.querySelectorAll('[data-i18n]').forEach(el => {
-                const key = el.dataset.i18n;
-                if (translations[lang] && translations[lang][key]) {
-                    if (el.placeholder !== undefined) {
-                        el.placeholder = translations[lang][key];
-                    } else {
-                        el.textContent = translations[lang][key];
-                    }
-                }
-            });
-
-            renderTour();
-        }
-        document.getElementById('paymentForm').addEventListener('submit', function (e) {
+        // Handle Smooth Scroll to Map with Header Offset and Activity Focus
+        function handleMapScroll(e, index) {
             e.preventDefault();
+            focusActivity(index);
+            const target = document.getElementById('map-section');
+            const headerOffset = 100;
+            const elementPosition = target.getBoundingClientRect().top;
+            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+            window.scrollTo({
+                top: offsetPosition,
+                behavior: 'smooth'
+            });
+        }
 
+        // Interaction Logic: Focus Activity from Timeline
+        function focusActivity(index) {
+            document.querySelectorAll('.timeline-item').forEach(item => item.classList.remove('active'));
+            const timelineEl = document.getElementById(`timeline-${index}`);
+            if (timelineEl) timelineEl.classList.add('active');
+
+            const container = document.getElementById('map-pins-layer');
+            const list = tourActivities[currentTour] || [];
+            const activity = list[index];
+
+            if (container && activity) {
+                container.style.transform = `scale(1.2) translate(${-(parseFloat(activity.coords.left) - 50) * 2}%, ${-(parseFloat(activity.coords.top) - 50) * 2}%)`;
+                container.style.transition = 'transform 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
+            }
+        }
+
+        // ── Promo code state ────────────────────────────────────────────
+        // appliedPromoState: { code, discountType, discountValue, discountAmount, newAmount } | null
+        let appliedPromoState = null;
+
+        function onDiscountInputChange() {
+            // If user edits input after applying a promo, reset the applied state
+            if (appliedPromoState) {
+                clearDiscount(false);
+            }
+        }
+
+        function toggleDiscountSection() {
+            const section = document.getElementById('discount-section');
+            section.classList.toggle('expanded');
+        }
+
+        async function applyDiscount() {
+            const code = document.getElementById('discount-input').value.trim();
+            const feedbackEl = document.getElementById('discount-feedback');
+            const badgeEl = document.getElementById('applied-promo-badge');
+            const btn = document.getElementById('btn-apply-discount');
+
+            if (!code) {
+                showDiscountFeedback('Vui lòng nhập mã giảm giá.', false);
+                return;
+            }
+
+            // Calculate current raw total price for the API
+            const rawTotal = getRawTotalPrice();
+
+            btn.disabled = true;
+            btn.textContent = '...';
+
+            try {
+                const res = await fetch(`/api/bookings/promo/validate?code=${encodeURIComponent(code.toUpperCase())}&amount=${rawTotal}`);
+                const data = await res.json();
+
+                if (data.success) {
+                    appliedPromoState = {
+                        code: data.promoCode,
+                        discountType: data.discountType,
+                        discountValue: data.discountValue,
+                        discountAmount: data.discountAmount,
+                        newAmount: data.newAmount
+                    };
+                    // Show badge
+                    const label = document.getElementById('applied-promo-label');
+                    const isFixed = data.discountType === 'FIXED_AMOUNT';
+                    const discountText = isFixed
+                        ? formatVND(data.discountAmount)
+                        : `${data.discountValue}%`;
+                    label.textContent = `${data.promoCode} — Giảm ${discountText}`;
+                    badgeEl.classList.remove('hidden');
+                    showDiscountFeedback('Áp dụng mã thành công!', true);
+                    // Update displayed prices
+                    updateTotalPrice();
+                } else {
+                    appliedPromoState = null;
+                    badgeEl.classList.add('hidden');
+                    showDiscountFeedback(data.message || 'Mã không hợp lệ.', false);
+                }
+            } catch (e) {
+                showDiscountFeedback('Lỗi kết nối. Vui lòng thử lại.', false);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Áp dụng';
+            }
+        }
+
+        function clearDiscount(resetInput = true) {
+            appliedPromoState = null;
+            const badgeEl = document.getElementById('applied-promo-badge');
+            const feedbackEl = document.getElementById('discount-feedback');
+            if (badgeEl) badgeEl.classList.add('hidden');
+            if (feedbackEl) feedbackEl.classList.add('hidden');
+            if (resetInput) {
+                const inputEl = document.getElementById('discount-input');
+                if (inputEl) inputEl.value = '';
+            }
+            // Re-render prices without promo
+            updateTotalPrice();
+        }
+
+        function showDiscountFeedback(msg, isOk) {
+            const el = document.getElementById('discount-feedback');
+            if (!el) return;
+            el.textContent = msg;
+            el.className = 'text-[9px] font-bold uppercase tracking-widest mt-2 block ' + (isOk ? 'text-green-600' : 'text-red-600');
+        }
+
+        function openActivityModal(index) {
+            const list = tourActivities[currentTour] || [];
+            const data = list[index];
+            if (!data) return;
+            const overlay = document.getElementById('overlay');
+            const modal = document.getElementById('activity-modal');
+
+            document.getElementById('activity-modal-img').src = data.image;
+            document.getElementById('activity-modal-time').innerText = data.time;
+            document.getElementById('activity-modal-title').innerText = data.title;
+            document.getElementById('activity-modal-desc').innerText = data.desc;
+
+            overlay.classList.add('active');
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function generateChildRows(count) {
+            const container = document.getElementById('child-rows-container');
+            const num = parseInt(count) || 0;
+            container.innerHTML = '';
+            for (let i = 0; i < num; i++) {
+                const row = document.createElement('div');
+                row.className = 'grid grid-cols-2 gap-10 child-row animate-in fade-in slide-in-from-top-1 duration-300';
+                row.innerHTML = `
+          <div class="flex flex-col">
+            <label class="text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-1">Tên trẻ em ${i + 1}</label>
+            <input class="text-sm py-2 child-name" placeholder="Họ và tên" type="text">
+          </div>
+          <div class="flex flex-col relative">
+            <label class="text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-1">Độ tuổi</label>
+            <input class="text-sm py-2 cursor-pointer child-age-input" id="child-age-${i}" onclick="toggleAgePicker(${i})" placeholder="Chọn độ tuổi" readonly type="text">
+            <div class="absolute top-full left-0 w-full mt-1 p-4 bg-white shadow-xl border border-brand-border z-20 flex-col space-y-3 age-picker-popup" id="age-picker-${i}">
+              <div class="grid grid-cols-2 gap-2">
+                <button class="px-2 py-2 text-[10px] border border-brand-border hover:bg-brand-dark hover:text-white" onclick="selectAge(${i}, 'Dưới 2 tuổi')" type="button">Dưới 2 tuổi</button>
+                <button class="px-2 py-2 text-[10px] border border-brand-border hover:bg-brand-dark hover:text-white" onclick="selectAge(${i}, '2 - 11 tuổi')" type="button">2 - 11 tuổi</button>
+              </div>
+            </div>
+          </div>
+        `;
+                container.appendChild(row);
+            }
+        }
+
+        function toggleAgePicker(index) {
+            document.querySelectorAll('.age-picker-popup').forEach((p, i) => i !== index && p.classList.remove('active'));
+            document.getElementById(`age-picker-${index}`).classList.toggle('active');
+        }
+
+        function selectAge(index, age) {
+            document.getElementById(`child-age-${index}`).value = age;
+            toggleAgePicker(index);
+            updateTotalPrice();
+        }
+
+        function selectPaymentMethod(method) {
+            const counterToggle = document.getElementById('toggle-counter');
+            const vnpayToggle = document.getElementById('toggle-vnpay');
+            const branchContent = document.getElementById('branch-details');
+            const vnpayContent = document.getElementById('vnpay-details');
+            const confirmBtn = document.getElementById('final-confirm-btn');
+
+            currentPaymentMethod = method;
+
+            [counterToggle, vnpayToggle].forEach(el => {
+                el.classList.remove('border-brand-dark');
+                el.querySelector('.radio-inner').classList.add('opacity-0');
+            });
+            [branchContent, vnpayContent].forEach(el => el.classList.remove('expanded'));
+
+            if (method === 'counter') {
+                counterToggle.classList.add('border-brand-dark');
+                counterToggle.querySelector('.radio-inner').classList.remove('opacity-0');
+                branchContent.classList.add('expanded');
+                confirmBtn.innerText = 'XÁC NHẬN ĐẶT CHỖ';
+            } else if (method === 'vnpay') {
+                vnpayToggle.classList.add('border-brand-dark');
+                vnpayToggle.querySelector('.radio-inner').classList.remove('opacity-0');
+                vnpayContent.classList.add('expanded');
+                confirmBtn.innerText = 'TIẾN HÀNH THANH TOÁN VNPay';
+            }
+        }
+
+        function showPaymentModal(type) {
+            if (!validateInputs()) return;
+
+            selectedPaymentType = type;
+            const overlay = document.getElementById('overlay');
+            const modal = document.getElementById('payment-modal');
+            const amountSpan = document.getElementById('modal-payment-amount');
+            const summaryMembers = document.getElementById('modal-summary-members');
+            const numChildren = document.getElementById('num-children').value || 0;
+            const qty = parseInt(document.getElementById('participantCount').value) || 1;
+
+            const tourInfo = tourData[currentTour];
+            const totalPrice = tourInfo.price * qty;
+
+            document.getElementById('modal-service-name').innerText = 'Hành trình ' + tourInfo.titleVi;
+            document.getElementById('modal-departure-date').innerText = document.getElementById('departureDate').value;
+            document.getElementById('modal-total-price').innerText = formatVND(totalPrice);
+
+            summaryMembers.innerText = `${qty} Khách, ${numChildren} Trẻ em`;
+            amountSpan.innerText = (type === 'deposit') ? formatVND(Math.round(totalPrice * 0.3)) : formatVND(totalPrice);
+
+            overlay.classList.add('active');
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            selectPaymentMethod('counter');
+        }
+
+        function openRoomSelection() {
+            console.log("openRoomSelection started");
+            try {
+                if (!validateInputs()) {
+                    console.log("validateInputs failed");
+                    return;
+                }
+
+                // Fetch active rooms for the currently logged in customer
+                fetch('/api/rooms/my-active')
+                    .then(response => {
+                        console.log("my-active API response status:", response.status);
+                        if (response.status === 401) {
+                            throw new Error('UNAUTHORIZED');
+                        }
+                        if (!response.ok) {
+                            throw new Error('FAILED');
+                        }
+                        return response.json();
+                    })
+                    .then(activeRooms => {
+                        console.log("activeRooms fetched:", activeRooms);
+                        if (!activeRooms || activeRooms.length === 0) {
+                            console.log("No active rooms. Showing warning alert popup.");
+                            // 3: if room is expired or none exist, show warning popup and redirect to room registration (/living)
+                            showWarningAlertPopup(
+                                'Yêu cầu phòng lưu trú',
+                                'Quý khách chưa đăng ký phòng hoặc phòng đã hết hạn tại HoaNien Retreat. Vui lòng thực hiện đặt phòng để trải nghiệm dịch vụ này.'
+                            );
+                            window.pendingRoomChargeRedirect = true;
+                            return;
+                        }
+
+                        if (activeRooms.length === 1) {
+                            console.log("Exactly 1 active room. Auto-selecting.");
+                            // 1: automatically select room (if customer only has 1 room)
+                            const singleRoom = activeRooms[0];
+                            selectedRoomData = { id: singleRoom.roomNumber, type: singleRoom.roomType };
+                            confirmRoomSelection();
+                        } else {
+                            console.log("Multiple active rooms. Opening modal.");
+                            // 2: display choice of rooms to assign (if customer has multiple rooms)
+                            const container = document.getElementById('active-rooms-list');
+                            if (container) {
+                                container.innerHTML = activeRooms.map((r, idx) => `
+                                    <div class="room-item selectable border ${idx === 0 ? 'border-brand-dark bg-[#FBF9F6]' : 'border-brand-border'} p-4 flex justify-between items-center cursor-pointer transition-all hover:bg-gray-50/50"
+                                         onclick="selectRoomUI(this, '${r.roomNumber}', '${r.roomType}')">
+                                        <div class="flex items-center space-x-4">
+                                            <span class="material-symbols-outlined text-gray-400">door_front</span>
+                                            <div>
+                                                <p class="text-xs font-bold uppercase tracking-widest">${r.roomNumber}</p>
+                                                <p class="text-[10px] text-gray-400 uppercase">${r.roomType}</p>
+                                            </div>
+                                        </div>
+                                        <div class="text-[9px] font-bold text-green-700 uppercase tracking-widest bg-green-50 px-2 py-0.5 border border-green-200">Đang hoạt động</div>
+                                    </div>
+                                `).join('');
+                            }
+
+                            // Auto-select the first room by default to avoid empty clicks!
+                            selectedRoomData = { id: activeRooms[0].roomNumber, type: activeRooms[0].roomType };
+
+                            const overlay = document.getElementById('overlay');
+                            const roomModal = document.getElementById('room-selection-modal');
+                            if (overlay && roomModal) {
+                                overlay.classList.add('active');
+                                roomModal.classList.add('active');
+                                document.body.style.overflow = 'hidden';
+                            } else {
+                                console.error("overlay or room-selection-modal element not found in DOM");
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error in active rooms fetch:", error);
+                        if (error.message === 'UNAUTHORIZED') {
+                            openRequireLoginModal();
+                        } else {
+                            showWarningAlertPopup('Lỗi hệ thống', 'Có lỗi xảy ra khi lấy thông tin phòng nghỉ. Vui lòng thử lại sau.');
+                        }
+                    });
+            } catch (err) {
+                console.error("Critical error in openRoomSelection function:", err);
+            }
+        }
+
+        function selectRoomUI(element, id, type) {
+            try {
+                console.log("selectRoomUI clicked for room:", id);
+                document.querySelectorAll('.room-item').forEach(el => {
+                    el.classList.remove('border-brand-dark', 'bg-[#FBF9F6]');
+                    el.classList.add('border-brand-border');
+                });
+                if (element) {
+                    element.classList.remove('border-brand-border');
+                    element.classList.add('border-brand-dark', 'bg-[#FBF9F6]');
+                }
+                selectedRoomData = { id, type };
+            } catch (err) {
+                console.error("Error in selectRoomUI:", err);
+            }
+        }
+
+        function confirmRoomSelection() {
+            console.log("confirmRoomSelection called, selectedRoomData:", selectedRoomData);
+            try {
+                if (!selectedRoomData) {
+                    console.warn("confirmRoomSelection called but selectedRoomData is null");
+                    return;
+                }
+                selectedPaymentType = 'post-room';
+                const container = document.getElementById('room-charge-container');
+                if (container) {
+                    container.innerHTML = `
+                        <div class="border border-brand-dark p-6 flex justify-between items-center bg-white animate-in fade-in duration-500">
+                          <div class="flex items-center space-x-6">
+                            <div class="w-12 h-12 bg-brand-bg flex items-center justify-center border border-brand-border">
+                              <span class="material-symbols-outlined text-brand-dark">key</span>
+                            </div>
+                            <div>
+                              <div class="flex items-center space-x-3 mb-1">
+                                <h4 class="font-bold text-sm">Phòng: ${selectedRoomData.id}</h4>
+                                <span class="px-2 py-0.5 bg-green-50 text-[8px] font-bold uppercase tracking-widest text-green-700 border border-green-200">Đang ở</span>
+                              </div>
+                              <p class="text-xs text-gray-500">Loại: ${selectedRoomData.type}</p>
+                            </div>
+                          </div>
+                          <button class="text-[9px] font-bold uppercase tracking-widest text-gray-400 hover:text-brand-dark underline underline-offset-4" onclick="resetToScreen1()">Thay đổi</button>
+                        </div>
+                    `;
+                } else {
+                    console.error("room-charge-container element not found in DOM");
+                }
+                closeModal();
+            } catch (err) {
+                console.error("Error in confirmRoomSelection:", err);
+            }
+        }
+
+        function resetToScreen1() {
+            console.log("resetToScreen1 called");
+            try {
+                selectedPaymentType = 'deposit';
+                const container = document.getElementById('room-charge-container');
+                if (container) {
+                    container.innerHTML = `
+                        <div class="payment-option border border-brand-border p-6 flex justify-between items-center group" onclick="openRoomSelection()">
+                          <div>
+                            <h4 class="font-bold text-sm mb-1">Tính vào phòng nghỉ</h4>
+                            <p class="text-xs text-gray-500">Dành riêng cho khách đang lưu trú tại HoaNien Retreat</p>
+                          </div>
+                          <div>
+                            <span class="material-symbols-outlined text-gray-400 group-hover:text-brand-dark transition-colors">home</span>
+                          </div>
+                        </div>
+                    `;
+                }
+                selectedRoomData = null;
+            } catch (err) {
+                console.error("Error in resetToScreen1:", err);
+            }
+        }
+
+        function closeModal() {
+            console.log("closeModal called");
+            try {
+                const overlay = document.getElementById('overlay');
+                const paymentModal = document.getElementById('payment-modal');
+                const roomModal = document.getElementById('room-selection-modal');
+                const activityModal = document.getElementById('activity-modal');
+
+                if (overlay) overlay.classList.remove('active');
+                if (paymentModal) paymentModal.classList.remove('active');
+                if (roomModal) roomModal.classList.remove('active');
+                if (activityModal) activityModal.classList.remove('active');
+
+                document.body.style.overflow = 'auto';
+            } catch (err) {
+                console.error("Error in closeModal:", err);
+            }
+        }
+
+        // Real-time validation: prevent past date selection
+        function validateDepartureDate(input) {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const selected = new Date(input.value);
+            const errorEl = document.getElementById('date-error');
+            if (selected < today) {
+                input.style.borderColor = '#ef4444';
+                if (errorEl) errorEl.classList.remove('hidden');
+                // Reset to today
+                input.value = today.toISOString().split('T')[0];
+                setTimeout(() => {
+                    input.style.borderColor = '';
+                    if (errorEl) errorEl.classList.add('hidden');
+                }, 2500);
+            } else {
+                input.style.borderColor = '';
+                if (errorEl) errorEl.classList.add('hidden');
+            }
+        }
+
+        function validateInputs() {
+            const lang = document.documentElement.lang || 'vi';
+            const fullName = document.getElementById('fullName').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const departureDate = document.getElementById('departureDate').value;
+
+            if (!fullName || !email || !phone || !departureDate) {
+                showWarningAlertPopup(
+                    lang === 'vi' ? 'Thiếu thông tin' : 'Missing Information',
+                    lang === 'vi' ? 'Vui lòng nhập đầy đủ thông tin (Họ tên, Email, Số điện thoại và Ngày đi).' : 'Please fill out all primary information.'
+                );
+                return false;
+            }
+
+            // Validate Full Name
+            const nameRegex = /^[\p{L}]+(?:\s+[\p{L}]+)+$/u;
+            if (!nameRegex.test(fullName)) {
+                showWarningAlertPopup(
+                    lang === 'vi' ? 'Họ tên không hợp lệ' : 'Invalid Name',
+                    lang === 'vi' ? 'Họ và tên không hợp lệ. Vui lòng nhập cả họ và tên (tối thiểu 2 từ).' : 'Invalid Full Name. Please enter at least 2 words.'
+                );
+                return false;
+            }
+
+            // Validate Phone Number
+            const phoneRegex = /^(0[35789])[0-9]{8}$/;
+            if (!phoneRegex.test(phone)) {
+                showWarningAlertPopup(
+                    lang === 'vi' ? 'Số điện thoại không hợp lệ' : 'Invalid Phone',
+                    lang === 'vi' ? 'Số điện thoại không hợp lệ. Vui lòng nhập số điện thoại Việt Nam (10 chữ số).' : 'Invalid phone number.'
+                );
+                return false;
+            }
+
+            // Validate Email
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                showWarningAlertPopup(
+                    lang === 'vi' ? 'Email không hợp lệ' : 'Invalid Email',
+                    lang === 'vi' ? 'Email không đúng định dạng. Vui lòng nhập lại.' : 'Invalid email format.'
+                );
+                return false;
+            }
+
+            // Validate departure date is not in the past
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const selectedDate = new Date(departureDate);
+            if (selectedDate < today) {
+                showWarningAlertPopup(
+                    lang === 'vi' ? 'Ngày khởi hành không hợp lệ' : 'Invalid Departure Date',
+                    lang === 'vi' ? 'Ngày khởi hành không thể là ngày trong quá khứ. Vui lòng chọn lại.' : 'Departure date cannot be in the past. Please select a valid date.'
+                );
+                document.getElementById('departureDate').focus();
+                return false;
+            }
+
+            // Validate companions total count matches participant count
+            if (!validateCompanions(true, true)) {
+                return false;
+            }
+
+            return true;
+        }
+
+        function validateCompanions(isBlur = false, triggerInsufficientPopup = false) {
+            const participantInput = document.getElementById('participantCount');
+            const adultsInput = document.getElementById('num-adults');
+            const childrenInput = document.getElementById('num-children');
+            const errorEl = document.getElementById('companion-error');
+            const container = document.getElementById('child-rows-container');
+
+            if (!participantInput || !adultsInput || !childrenInput) return true;
+
+            const totalParticipants = parseInt(participantInput.value) || 1;
+            const adults = parseInt(adultsInput.value) || 0;
+            const children = parseInt(childrenInput.value) || 0;
+
+            const sum = adults + children;
+
+            if (sum > totalParticipants) {
+                // Clear child rows immediately
+                if (container) container.innerHTML = '';
+
+                // Show visual errors
+                adultsInput.style.borderColor = '#ef4444';
+                childrenInput.style.borderColor = '#ef4444';
+                if (errorEl) {
+                    errorEl.classList.remove('hidden');
+                    errorEl.textContent = `Tổng số người lớn (${adults}) và trẻ em (${children}) đã vượt quá số thành viên đã chọn (${totalParticipants})`;
+                }
+
+                // Beautiful custom popup warning (always trigger immediately on exceeds)
+                showWarningAlertPopup('Vượt quá số lượng', `Vượt quá số lượng thành viên là ${totalParticipants} trên màn hình`);
+                return false;
+            } else if (sum < totalParticipants) {
+                // Hide child rows container if sum is less than total
+                if (container) container.innerHTML = '';
+
+                // Show visual errors
+                adultsInput.style.borderColor = '#ef4444';
+                childrenInput.style.borderColor = '#ef4444';
+                if (errorEl) {
+                    errorEl.classList.remove('hidden');
+                    errorEl.textContent = `Tổng số người lớn (${adults}) và trẻ em (${children}) chưa đủ so với số thành viên đã chọn (${totalParticipants})`;
+                }
+
+                // Show insufficient popup ONLY when configured to do so (e.g. after children blur or on submit)
+                if (isBlur && triggerInsufficientPopup) {
+                    showWarningAlertPopup('Chưa đủ số lượng', `Tổng số người lớn và trẻ em (${sum}) chưa đủ so với số lượng thành viên là ${totalParticipants}`);
+                }
+                return false;
+            } else {
+                // Sum matches exactly! Clear visual errors
+                adultsInput.style.borderColor = '';
+                childrenInput.style.borderColor = '';
+                if (errorEl) errorEl.classList.add('hidden');
+
+                // Generate child name and age rows because sum matches exactly!
+                generateChildRows(children);
+                return true;
+            }
+        }
+
+        function showWarningAlertPopup(title, message) {
+            const popup = document.getElementById('warning-alert-popup');
+            const titleEl = document.getElementById('warning-alert-title');
+            const msgEl = document.getElementById('warning-alert-msg');
+            if (popup) {
+                if (titleEl) titleEl.textContent = title;
+                if (msgEl) msgEl.textContent = message;
+                popup.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeWarningAlertPopup() {
+            const popup = document.getElementById('warning-alert-popup');
+            if (popup) {
+                popup.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }
+            if (window.pendingRoomChargeRedirect) {
+                window.pendingRoomChargeRedirect = false;
+                window.location.href = '/living';
+            }
+        }
+
+        function submitBookingFlow() {
             const consentChk = document.getElementById('tourConsent');
             if (!consentChk || !consentChk.checked) {
                 alert(document.documentElement.lang === 'vi' ? 'Vui lòng tích chọn đồng ý cung cấp thông tin để tiếp tục.' : 'Please consent to data processing to continue.');
@@ -860,49 +1782,21 @@
             const phone = document.getElementById('phone').value.trim();
             const departureDate = document.getElementById('departureDate').value;
             const participantCount = parseInt(document.getElementById('participantCount').value) || 1;
-            const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
-            const roomNumber = document.getElementById('roomNumber') ? document.getElementById('roomNumber').value.trim() : null;
+            const roomNumber = selectedRoomData ? selectedRoomData.id : null;
 
-            // 1. Validate Full Name
-            const nameRegex = /^[\p{L}]+(?:\s+[\p{L}]+)+$/u;
-            if (!nameRegex.test(fullName)) {
-                alert(lang === 'vi' ? 'Họ và tên không hợp lệ. Vui lòng nhập cả họ và tên (tối thiểu 2 từ, chỉ chứa chữ và khoảng trắng).' : 'Invalid Full Name. Please enter at least 2 words containing letters and spaces only.');
-                return;
-            }
+            // Determine if this is a VNPay flow
+            const isVnpay = (currentPaymentMethod === 'vnpay');
+            // vnpPaymentType = 'deposit' | 'full' based on which payment option opened the modal
+            const vnpPaymentType = selectedPaymentType === 'full' ? 'full' : 'deposit';
 
-            // 2. Validate Phone Number
-            const phoneRegex = /^(0[35789])[0-9]{8}$/;
-            if (!phoneRegex.test(phone)) {
-                alert(lang === 'vi' ? 'Số điện thoại không hợp lệ. Vui lòng nhập số điện thoại Việt Nam (10 chữ số, bắt đầu bằng 03, 05, 07, 08 hoặc 09).' : 'Invalid phone number. Please enter a valid Vietnamese phone number (10 digits starting with 03, 05, 07, 08, 09).');
-                return;
-            }
-
-            // 3. Validate Email
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(email)) {
-                alert(lang === 'vi' ? 'Email không đúng định dạng. Vui lòng nhập lại.' : 'Invalid email format. Please enter a valid email.');
-                return;
-            }
-
-            // 4. Validate Room Number if post-to-room is selected
-            if (paymentMethod === 'post-room') {
-                if (!roomNumber) {
-                    alert(lang === 'vi' ? 'Vui lòng điền số phòng để ghi nợ dịch vụ.' : 'Please fill in your room number to charge to room.');
-                    return;
-                }
-                const roomRegex = /^[0-9]+$/;
-                if (!roomRegex.test(roomNumber)) {
-                    alert(lang === 'vi' ? 'Số phòng không hợp lệ. Vui lòng chỉ nhập số.' : 'Invalid room number. Please enter digits only.');
-                    return;
+            const childAges = [];
+            const childrenQty = parseInt(document.getElementById('num-children').value) || 0;
+            for (let i = 0; i < childrenQty; i++) {
+                const ageEl = document.getElementById(`child-age-${i}`);
+                if (ageEl) {
+                    childAges.push(ageEl.value);
                 }
             }
-
-            const btn = this.querySelector('button[type="submit"]');
-            const originalText = btn.innerHTML;
-
-            btn.innerHTML = lang === 'vi' ? 'Quý khách xin vui lòng chờ...' : 'Please wait...';
-            btn.disabled = true;
-            btn.style.opacity = '0.7';
 
             const payload = {
                 tourId: tourInfo.id,
@@ -911,15 +1805,24 @@
                 email: email,
                 phone: phone,
                 participantCount: participantCount,
-                paymentMethod: paymentMethod,
-                roomNumber: roomNumber
+                paymentMethod: isVnpay ? 'vnpay' : selectedPaymentType,
+                roomNumber: roomNumber,
+                vnpPaymentType: vnpPaymentType,
+                childAges: childAges,
+                promoCode: appliedPromoState ? appliedPromoState.code : null
             };
+
+
+            // Show loading state on confirm button
+            const confirmBtn = document.getElementById('final-confirm-btn');
+            if (confirmBtn) {
+                confirmBtn.disabled = true;
+                confirmBtn.textContent = lang === 'vi' ? 'Đang xử lý...' : 'Processing...';
+            }
 
             fetch('/api/tour-bookings', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             })
                 .then(response => {
@@ -929,70 +1832,187 @@
                     return response.json();
                 })
                 .then(data => {
-                    btn.innerHTML = lang === 'vi' ? 'ĐÃ XÁC NHẬN' : 'CONFIRMED';
-                    btn.classList.remove('bg-primary');
-                    btn.classList.add('bg-gold-accent');
-
-                    // Show success alert with detailed booking info
-                    const name = data.customerName || '';
-                    const phone = data.customerPhone || '';
-                    const tourName = data.tourName || '';
-                    const totalPriceFormatted = formatVND(parseFloat(data.totalPrice) || 0);
-                    const paymentMethod = data.paymentMethod;
-                    
-                    let paymentDetailVi = '';
-                    let paymentDetailEn = '';
-                    if (paymentMethod === 'post-room') {
-                        paymentDetailVi = `Số phòng gán: ${data.roomNumber || ''}\nPhương thức: Ghi nợ phòng nghỉ`;
-                        paymentDetailEn = `Assigned Room: ${data.roomNumber || ''}\nMethod: Charge to room`;
+                    if (data.vnpayUrl) {
+                        // Close main modal then show VNPay QR screen
+                        closeModal();
+                        showVnpayQrScreen(data.vnpayUrl, data.totalPrice, data.depositAmount, vnpPaymentType);
+                    } else if (data.vnpayError) {
+                        // VNPay URL generation failed
+                        if (confirmBtn) {
+                            confirmBtn.disabled = false;
+                            confirmBtn.textContent = lang === 'vi' ? 'XÁC NHẬN ĐẶT CHỖ' : 'CONFIRM BOOKING';
+                        }
+                        alert((lang === 'vi' ? 'Lỗi tạo liên kết VNPay: ' : 'VNPay error: ') + data.vnpayError);
                     } else {
-                        const depositAmtFormatted = formatVND(parseFloat(data.depositAmount) || 0);
-                        paymentDetailVi = `Tiền đặt cọc (30%): ${depositAmtFormatted}\nPhương thức: Đặt cọc trực tuyến`;
-                        paymentDetailEn = `Deposit (30%): ${depositAmtFormatted}\nMethod: Online Deposit`;
+                        closeModal();
+                        showPaymentToast('success',
+                            lang === 'vi' ? 'Đặt tour thành công!' : 'Booking confirmed!',
+                            lang === 'vi' ? `Mã đặt chỗ: #${data.bookingId} — Email xác nhận đã được gửi.` : `Booking #${data.bookingId} confirmed. Check your email.`
+                        );
+                        setTimeout(() => window.location.reload(), 3000);
                     }
-
-                    const successMsgVi = `Đặt tour thành công!\n` +
-                                         `Tên tour: ${tourName}\n` +
-                                         `Khách hàng: ${name}\n` +
-                                         `SĐT: ${phone}\n` +
-                                         `Tổng giá trị: ${totalPriceFormatted}\n` +
-                                         `${paymentDetailVi}`;
-                                         
-                    const successMsgEn = `Booking success!\n` +
-                                         `Tour: ${tourName}\n` +
-                                         `Customer: ${name}\n` +
-                                         `Phone: ${phone}\n` +
-                                         `Total Price: ${totalPriceFormatted}\n` +
-                                         `${paymentDetailEn}`;
-                                         
-                    const successMsg = lang === 'vi' ? successMsgVi : successMsgEn;
-                    alert(successMsg);
                 })
                 .catch(error => {
                     console.error(error);
-                    btn.innerHTML = originalText;
-                    btn.disabled = false;
-                    btn.style.opacity = '1';
+                    if (confirmBtn) {
+                        confirmBtn.disabled = false;
+                        confirmBtn.textContent = lang === 'vi' ? 'XÁC NHẬN ĐẶT CHỖ' : 'CONFIRM BOOKING';
+                    }
                     alert((lang === 'vi' ? 'Lỗi: ' : 'Error: ') + error.message);
                 });
+        }
+
+        // Bind main form submission
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('paymentForm');
+            if (form) {
+                form.addEventListener('submit', function (e) {
+                    e.preventDefault();
+                    if (selectedPaymentType === 'post-room') {
+                        submitBookingFlow();
+                    } else {
+                        showPaymentModal(selectedPaymentType);
+                    }
+                });
+            }
+
+            // Show payment result toast when returning from VNPay
+            const urlParams = new URLSearchParams(window.location.search);
+            const paymentResult = urlParams.get('payment');
+            if (paymentResult === 'success') {
+                showPaymentToast('success',
+                    'Thanh toán thành công!',
+                    'Đặt tour của bạn đã được xác nhận. Email xác nhận đã được gửi về hộp thư.'
+                );
+            } else if (paymentResult === 'failed') {
+                showPaymentToast('failed',
+                    'Thanh toán thất bại',
+                    'Giao dịch VNPay không thành công. Vui lòng thử lại hoặc chọn hình thức khác.'
+                );
+            }
         });
 
-        const inputs = document.querySelectorAll('input[type="text"], input[type="email"], input[type="number"], input[type="date"]');
-        inputs.forEach(input => {
-            input.addEventListener('focus', () => {
-                const label = input.parentElement.querySelector('label');
-                if (label) {
-                    label.style.letterSpacing = '0.25em';
-                    label.style.transition = 'all 0.4s ease';
+        // Show payment toast notification
+        function showPaymentToast(type, title, message) {
+            const toast = document.getElementById('payment-toast');
+            const icon = document.getElementById('payment-toast-icon');
+            const titleEl = document.getElementById('payment-toast-title');
+            const msgEl = document.getElementById('payment-toast-msg');
+            const inner = document.getElementById('payment-toast-inner');
+            if (!toast) return;
+
+            if (type === 'success') {
+                inner.style.background = '#1a3322';
+                icon.textContent = 'check_circle';
+                icon.style.color = '#4ade80';
+            } else {
+                inner.style.background = '#3a1a1a';
+                icon.textContent = 'cancel';
+                icon.style.color = '#f87171';
+            }
+            titleEl.textContent = title;
+            msgEl.textContent = message;
+            toast.style.display = 'block';
+
+            // Auto-dismiss after 7 seconds
+            setTimeout(() => { toast.style.display = 'none'; }, 7000);
+        }
+
+        // Show VNPay QR payment screen (fixed overlay, outside all modals)
+        let vnpayCountdownTimer = null;
+        function showVnpayQrScreen(vnpayUrl, totalPrice, depositAmount, paymentType) {
+            const screen = document.getElementById('vnpay-qr-screen');
+            const qrImg = document.getElementById('vnpay-qr-img');
+            const qrLoading = document.getElementById('vnpay-qr-loading');
+            const amountLabel = document.getElementById('vnpay-qr-amount-label');
+            const redirectBtn = document.getElementById('vnpay-redirect-btn');
+            const countdownEl = document.getElementById('vnpay-countdown');
+            if (!screen) return;
+
+            // Set amount label
+            const amount = paymentType === 'full' ? totalPrice : depositAmount;
+            const formattedAmount = amount ? Number(amount).toLocaleString('vi-VN') + ' VNĐ' : '---';
+            const typeLabel = paymentType === 'full' ? 'Toàn bộ' : 'Đặt cọc 30%';
+            if (amountLabel) amountLabel.textContent = `${typeLabel} — ${formattedAmount}`;
+
+            // Set redirect link (opens in current tab - VNPay needs to redirect back)
+            if (redirectBtn) {
+                redirectBtn.href = vnpayUrl;
+                redirectBtn.removeAttribute('target'); // open in same tab for proper return redirect
+            }
+
+            // Show the fixed overlay
+            screen.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+
+            // Generate QR code using qrserver.com API
+            const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(vnpayUrl)}&size=192x192&margin=8&format=png`;
+            if (qrImg && qrLoading) {
+                qrImg.style.display = 'none';
+                qrLoading.style.display = 'flex';
+                qrImg.onload = () => {
+                    qrLoading.style.display = 'none';
+                    qrImg.style.display = 'block';
+                };
+                qrImg.onerror = () => {
+                    qrLoading.innerHTML = '<p style="font-size:11px;color:#9ca3af;padding:12px;text-align:center;">Không tải được QR.<br>Dùng nút bên dưới.</p>';
+                };
+                qrImg.src = qrApiUrl;
+            }
+
+            // Countdown & auto-redirect
+            let seconds = 5;
+            if (countdownEl) countdownEl.textContent = seconds;
+            if (vnpayCountdownTimer) clearInterval(vnpayCountdownTimer);
+            vnpayCountdownTimer = setInterval(() => {
+                seconds--;
+                if (countdownEl) countdownEl.textContent = seconds;
+                if (seconds <= 0) {
+                    clearInterval(vnpayCountdownTimer);
+                    window.location.href = vnpayUrl;
                 }
-            });
-            input.addEventListener('blur', () => {
-                const label = input.parentElement.querySelector('label');
-                if (label) {
-                    label.style.letterSpacing = '0.15em';
-                }
-            });
-        });
+            }, 1000);
+        }
+
+        function closeVnpayQrScreen() {
+            if (vnpayCountdownTimer) {
+                clearInterval(vnpayCountdownTimer);
+                vnpayCountdownTimer = null;
+            }
+            const screen = document.getElementById('vnpay-qr-screen');
+            if (screen) screen.style.display = 'none';
+            const qrImg = document.getElementById('vnpay-qr-img');
+            if (qrImg) { qrImg.src = ''; qrImg.style.display = 'none'; }
+            const qrLoading = document.getElementById('vnpay-qr-loading');
+            if (qrLoading) qrLoading.style.display = 'flex';
+            document.body.style.overflow = 'auto';
+        }
+
+        // Require Login Modal Controls
+        function openRequireLoginModal() {
+            const modal = document.getElementById('require-login-modal');
+            if (modal) {
+                modal.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeRequireLoginModal() {
+            const modal = document.getElementById('require-login-modal');
+            if (modal) {
+                modal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }
+        }
+
+        function triggerLoginFromPopup() {
+            closeRequireLoginModal();
+            if (typeof openLoginModal === 'function') {
+                openLoginModal();
+            } else {
+                console.error('openLoginModal is not defined. Ensure guest/fragments/auth fragment is present.');
+            }
+        }
 
         // Helper to translate weather description
         function translateWeatherDesc(desc) {
@@ -1015,41 +2035,19 @@
                 "Moderate rain": "Mưa vừa"
             };
             if (dict[desc]) return dict[desc];
-
-            // Smart keyword match fallback for custom/complex description strings from wttr.in
             const d = desc.toLowerCase();
-            if (d.includes("thunderstorm") || d.includes("thunder") || d.includes("lightning")) {
-                return "Có giông bão";
-            }
-            if (d.includes("heavy rain") || d.includes("torrential") || d.includes("heavy shower")) {
-                return "Mưa lớn";
-            }
-            if (d.includes("light rain") || d.includes("drizzle") || d.includes("shower") || d.includes("patchy rain")) {
-                return "Mưa nhẹ / Mưa rào";
-            }
-            if (d.includes("rain")) {
-                return "Có mưa";
-            }
-            if (d.includes("partly cloudy")) {
-                return "Nắng nhẹ";
-            }
-            if (d.includes("cloudy") || d.includes("overcast")) {
-                return "Nhiều mây";
-            }
-            if (d.includes("clear") || d.includes("sunny")) {
-                return "Trời quang / Nắng";
-            }
-            if (d.includes("mist") || d.includes("fog") || d.includes("haze")) {
-                return "Có sương mù";
-            }
-            
+            if (d.includes("thunderstorm") || d.includes("thunder") || d.includes("lightning")) return "Có giông bão";
+            if (d.includes("heavy rain") || d.includes("torrential")) return "Mưa lớn";
+            if (d.includes("light rain") || d.includes("drizzle") || d.includes("shower")) return "Mưa nhẹ";
+            if (d.includes("rain")) return "Có mưa";
+            if (d.includes("partly cloudy")) return "Nắng nhẹ";
+            if (d.includes("cloudy")) return "Nhiều mây";
+            if (d.includes("clear") || d.includes("sunny")) return "Trời quang / Nắng";
             return desc;
         }
 
-        // Cache for live weather data from API
         let cachedWeather = null;
 
-        // Display cached weather in current language
         function displayCachedWeather() {
             const weatherEl = document.getElementById('tourWeatherVal');
             const lang = document.documentElement.lang || 'vi';
@@ -1057,17 +2055,15 @@
                 const temp = cachedWeather.temp;
                 const rawDesc = cachedWeather.rawDesc;
                 const desc = lang === 'vi' ? translateWeatherDesc(rawDesc) : rawDesc;
-                weatherEl.textContent = `${cachedWeather.icon} ${temp}°C • ${desc}`;
+                weatherEl.innerHTML = `<span class="mr-2 text-white">${cachedWeather.icon}</span> ${temp}°C • ${desc}`;
             } else {
-                // No cache yet, show fallback from tourData
                 const tourInfo = tourData[currentTour];
                 if (tourInfo) {
-                    weatherEl.textContent = lang === 'vi' ? tourInfo.weatherVi : tourInfo.weatherEn;
+                    weatherEl.innerHTML = lang === 'vi' ? tourInfo.weatherVi : tourInfo.weatherEn;
                 }
             }
         }
 
-        // Get weather icon based on description
         function getWeatherIcon(desc) {
             const d = desc.toLowerCase();
             if (d.includes('rain') || d.includes('drizzle')) return '🌧️';
@@ -1076,26 +2072,19 @@
             return '☀️';
         }
 
-        // Reusable function to fetch and display live weather
         function fetchWeather(dateStr) {
             const tourInfo = tourData[currentTour];
             const location = tourInfo ? tourInfo.destEn : 'Hue';
-            
             let url = `/tours/api/weather?location=${encodeURIComponent(location)}`;
             if (dateStr) {
                 url += `&date=${dateStr}`;
             }
             const weatherEl = document.getElementById('tourWeatherVal');
             const lang = document.documentElement.lang || 'vi';
-
-            // Show loading indicator (bilingual)
             weatherEl.textContent = lang === 'vi' ? '⏳ Đang tải...' : '⏳ Loading...';
 
             fetch(url)
-                .then(response => {
-                    if (!response.ok) throw new Error('Weather request failed');
-                    return response.json();
-                })
+                .then(response => response.json())
                 .then(data => {
                     if (data && data.temperature !== undefined) {
                         const rawDesc = data.description || 'Unknown';
@@ -1107,50 +2096,147 @@
                         displayCachedWeather();
                     }
                 })
-                .catch(error => {
-                    console.warn('Weather API fetch error, falling back to static weather:', error);
+                .catch(() => {
                     cachedWeather = null;
                     displayCachedWeather();
                 });
         }
 
-        // Fetch weather dynamically when date is selected
         document.getElementById('departureDate').addEventListener('change', function () {
-            const selectedDate = this.value;
-            if (!selectedDate) return;
-            fetchWeather(selectedDate);
+            fetchWeather(this.value);
         });
 
-        // Initialize view
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.child-age-input') && !e.target.closest('.age-picker-popup')) {
+                document.querySelectorAll('.age-picker-popup').forEach(p => p.classList.remove('active'));
+            }
+            // Click outside info windows to close
+            if (!e.target.closest('.map-marker')) {
+                document.querySelectorAll('.map-marker .animate-in').forEach(info => info.classList.add('hidden'));
+            }
+        });
+
         document.addEventListener('DOMContentLoaded', () => {
             renderTour();
-
-            // Auto-fetch live weather on page load (current weather)
-            fetchWeather(null);
-
-            if (document.getElementById('departureDate')) {
-                const todayStr = new Date().toISOString().split('T')[0];
-                document.getElementById('departureDate').value = todayStr;
-                // Fetch weather for today
-                fetchWeather(todayStr);
+            const todayStr = new Date().toISOString().split('T')[0];
+            const dateInput = document.getElementById('departureDate');
+            if (dateInput) {
+                dateInput.min = todayStr;  // Block past dates in native picker
+                dateInput.value = todayStr;
             }
-
-            if (customerName && document.getElementById('fullName')) {
-                document.getElementById('fullName').value = customerName;
-            }
-            if (customerEmail && document.getElementById('email')) {
-                document.getElementById('email').value = customerEmail;
-            }
-            if (customerPhone && document.getElementById('phone')) {
-                document.getElementById('phone').value = customerPhone;
-            }
-
+            fetchWeather(todayStr);
         });
     </script>
-
-
-
     <div th:replace="~{guest/fragments/auth :: authModal}"></div>
+
+    <!-- VNPay QR Fixed Overlay (outside all modals to avoid overflow clipping) -->
+    <div id="vnpay-qr-screen"
+        style="display:none; position:fixed; inset:0; z-index:9000; background:rgba(0,0,0,0.75); align-items:center; justify-content:center; padding:20px;">
+        <div
+            style="background:#fff; width:100%; max-width:440px; padding:40px 32px; position:relative; box-shadow:0 25px 60px rgba(0,0,0,0.3);">
+            <button onclick="closeVnpayQrScreen()"
+                style="position:absolute; top:16px; right:20px; font-size:1.5rem; color:#9ca3af; background:none; border:none; cursor:pointer; line-height:1;">&times;</button>
+
+            <!-- Header -->
+            <div style="display:flex; align-items:center; justify-content:center; gap:12px; margin-bottom:20px;">
+                <div style="width:32px; height:1px; background:#C5A059;"></div>
+                <p
+                    style="font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:0.2em; color:#C5A059; font-family:'Montserrat',sans-serif;">
+                    Thanh toán VNPay</p>
+                <div style="width:32px; height:1px; background:#C5A059;"></div>
+            </div>
+            <h3 style="font-family:'Playfair Display',serif; font-size:1.5rem; text-align:center; margin-bottom:4px;">
+                Quét mã để thanh toán</h3>
+            <p id="vnpay-qr-amount-label"
+                style="font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:0.12em; color:#9ca3af; text-align:center; margin-bottom:24px; font-family:'Montserrat',sans-serif;">
+                Số tiền: ---</p>
+
+            <!-- QR Code -->
+            <div style="display:flex; justify-content:center; margin-bottom:12px;">
+                <div id="vnpay-qr-loading"
+                    style="width:192px; height:192px; background:#f9fafb; border:2px solid #E5E1DA; display:flex; align-items:center; justify-content:center;">
+                    <div
+                        style="width:40px;height:40px;border:3px solid #e5e7eb;border-top-color:#2D2926;border-radius:50%;animation:spin 0.8s linear infinite;">
+                    </div>
+                </div>
+                <img id="vnpay-qr-img" src="" alt="VNPay QR"
+                    style="width:192px; height:192px; border:2px solid #E5E1DA; display:none;">
+            </div>
+            <p
+                style="font-size:9px; color:#9ca3af; text-align:center; margin-bottom:20px; font-family:'Montserrat',sans-serif;">
+                Sử dụng app ngân hàng hoặc VNPay để quét mã QR</p>
+
+            <!-- Countdown -->
+            <div
+                style="margin-bottom:20px; padding:12px 16px; background:#fffbeb; border:1px solid #fde68a; display:flex; align-items:center; justify-content:center; gap:8px;">
+                <span class="material-symbols-outlined" style="color:#f59e0b; font-size:18px;">timer</span>
+                <p style="font-size:10px; color:#92400e; font-family:'Montserrat',sans-serif;">
+                    Tự động chuyển đến VNPay sau <strong id="vnpay-countdown">5</strong> giây
+                </p>
+            </div>
+
+            <!-- Action buttons -->
+            <a id="vnpay-redirect-btn" href="#"
+                style="display:block; width:100%; background:#2D2926; color:#fff; padding:16px; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.2em; text-align:center; text-decoration:none; margin-bottom:10px; font-family:'Montserrat',sans-serif; box-sizing:border-box;"
+                onmouseover="this.style.background='#C5A059'" onmouseout="this.style.background='#2D2926'">
+                Mở trang thanh toán VNPay
+            </a>
+            <button onclick="closeVnpayQrScreen()"
+                style="width:100%; background:transparent; border:1px solid #E5E1DA; padding:12px; font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:0.15em; cursor:pointer; font-family:'Montserrat',sans-serif;"
+                onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='transparent'">
+                Hủy giao dịch
+            </button>
+        </div>
+    </div>
+    <!-- END VNPay QR -->
+
+    <!-- Require Login Modal -->
+    <div id="require-login-modal"
+        style="display:none; position:fixed; inset:0; z-index:9100; background:rgba(0,0,0,0.65); align-items:center; justify-content:center; padding:20px; backdrop-filter:blur(4px); -webkit-backdrop-filter:blur(4px);">
+        <div style="background:#fff; width:100%; max-width:440px; padding:40px 32px; position:relative; box-shadow:0 25px 60px rgba(0,0,0,0.3); border:1px solid #E5E1DA;"
+            class="text-center">
+            <button onclick="closeRequireLoginModal()"
+                style="position:absolute; top:16px; right:20px; font-size:1.5rem; color:#9ca3af; background:none; border:none; cursor:pointer; line-height:1;">&times;</button>
+
+            <span class="material-symbols-outlined text-brand-gold text-5xl mb-6">lock_open</span>
+            <h3 class="font-serif text-2xl text-brand-dark mb-4">Khám Phá Hòa Niên</h3>
+            <p
+                style="font-family:'Montserrat',sans-serif; font-size:13px; color:#4b5563; line-height:1.7; margin-bottom:28px;">
+                Quý khách hãy thực hiện đăng nhập để khám phá trải nghiệm thú vị cùng Hòa Niên Retreat Resort & Hub.
+            </p>
+
+            <button onclick="triggerLoginFromPopup()"
+                style="display:block; width:100%; background:#2D2926; color:#fff; padding:16px; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.2em; text-align:center; border:none; cursor:pointer; margin-bottom:10px; font-family:'Montserrat',sans-serif;"
+                onmouseover="this.style.background='#C5A059'" onmouseout="this.style.background='#2D2926'">
+                Đăng Nhập
+            </button>
+            <button onclick="closeRequireLoginModal()"
+                style="width:100%; background:transparent; border:1px solid #E5E1DA; padding:12px; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.15em; cursor:pointer; font-family:'Montserrat',sans-serif;"
+                onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='transparent'">
+                Bỏ qua
+            </button>
+        </div>
+    </div>
+
+    <!-- Beautiful Warning Alert Popup -->
+    <div id="warning-alert-popup"
+        style="display:none; position:fixed; inset:0; z-index:9200; background:rgba(0,0,0,0.5); align-items:center; justify-content:center; padding:20px; backdrop-filter:blur(3px); -webkit-backdrop-filter:blur(3px);">
+        <div style="background:#fff; width:100%; max-width:400px; padding:40px 32px; position:relative; box-shadow:0 25px 60px rgba(0,0,0,0.2); border:1px solid #E5E1DA; animation:scaleUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;"
+            class="text-center">
+            <span class="material-symbols-outlined text-amber-500 text-5xl mb-4"
+                style="font-weight: 300;">warning</span>
+            <h4 class="font-serif text-xl text-brand-dark mb-2" id="warning-alert-title">Thông báo</h4>
+            <p id="warning-alert-msg"
+                style="font-family:'Montserrat',sans-serif; font-size:12px; color:#6b7280; line-height:1.7; margin-bottom:24px;">
+            </p>
+            <button onclick="closeWarningAlertPopup()"
+                style="width:100%; background:#2D2926; color:#fff; padding:16px 24px; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.15em; border:none; cursor:pointer; font-family:'Montserrat',sans-serif;"
+                onmouseover="this.style.background='#C5A059'" onmouseout="this.style.background='#2D2926'">
+                Xác nhận
+            </button>
+        </div>
+    </div>
+
 </body>
 
 </html>

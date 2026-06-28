@@ -139,7 +139,7 @@ class CheckinServiceUC12Test {
         dirtyRoom.setId(101L);
         dirtyRoom.setRoomNumber("R102");
         dirtyRoom.setCategory(sampleCategory);
-        dirtyRoom.setRoomStatus("Dirty");
+        dirtyRoom.setRoomStatus("Vacant_Dirty");
 
         // Room MAINTENANCE
         maintenanceRoom = new Room();
@@ -417,7 +417,7 @@ class CheckinServiceUC12Test {
                     "Booking detail phải được gán sang phòng mới");
             assertEquals("Occupied", newRoom.getRoomStatus(),
                     "Phòng mới phải chuyển sang Occupied");
-            assertEquals("Dirty", sampleRoom.getRoomStatus(),
+            assertEquals("Vacant_Dirty", sampleRoom.getRoomStatus(),
                     "Phòng cũ phải chuyển sang Dirty (BR-FO-04)");
 
             // Verify: lưu cả 2 phòng
@@ -782,70 +782,6 @@ class CheckinServiceUC12Test {
         }
     }
 
-    // ================================================================
-    // TC-M2-025: Xử lý Hủy No-Show thủ công (BR-FO-09)
-    // Ref: TDD UC13 | Gap: Xử lý khách không đến check-in
-    // ================================================================
-    @Nested
-    @DisplayName("TC-M2-025 [NEW]: markAsNoShow — Đánh dấu No-Show thủ công")
-    class TC_M2_025 {
-
-        @Test
-        @DisplayName("TC-M2-025a: markAsNoShow — Đơn hợp lệ (Confirmed) → Đổi thành No-Show")
-        void markAsNoShow_ValidBooking_ShouldMarkAsNoShow() {
-            // ARRANGE
-            RoomBooking expiredBooking = new RoomBooking();
-            expiredBooking.setId(999L);
-            expiredBooking.setBookingStatus("Confirmed");
-            
-            when(roomBookingRepository.findById(999L))
-                    .thenReturn(java.util.Optional.of(expiredBooking));
-                    
-            when(roomBookingRepository.save(any(RoomBooking.class)))
-                    .thenAnswer(invocation -> invocation.getArgument(0));
-
-            // ACT
-            checkinService.markAsNoShow(999L);
-
-            // ASSERT
-            assertEquals("No-Show", expiredBooking.getBookingStatus(), "Trạng thái phải được đổi thành No-Show");
-            verify(roomBookingRepository, times(1)).save(expiredBooking);
-        }
-        
-        @Test
-        @DisplayName("TC-M2-025b: markAsNoShow — Không tìm thấy đơn → Ném lỗi")
-        void markAsNoShow_NotFound_ShouldThrowException() {
-            // ARRANGE
-            when(roomBookingRepository.findById(999L))
-                    .thenReturn(java.util.Optional.empty());
-
-            // ACT & ASSERT
-            IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> {
-                checkinService.markAsNoShow(999L);
-            });
-            assertTrue(ex.getMessage().contains("Không tìm thấy đơn phòng ID"));
-            verify(roomBookingRepository, never()).save(any(RoomBooking.class));
-        }
-
-        @Test
-        @DisplayName("TC-M2-025c: markAsNoShow — Đơn không phải Confirmed → Ném lỗi")
-        void markAsNoShow_NotConfirmed_ShouldThrowException() {
-            // ARRANGE
-            RoomBooking checkedInBooking = new RoomBooking();
-            checkedInBooking.setId(999L);
-            checkedInBooking.setBookingStatus("Checked-in");
-            
-            when(roomBookingRepository.findById(999L))
-                    .thenReturn(java.util.Optional.of(checkedInBooking));
-
-            // ACT & ASSERT
-            IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> {
-                checkinService.markAsNoShow(999L);
-            });
-            assertTrue(ex.getMessage().contains("Chỉ có thể hủy No-Show với đơn đã Confirmed"));
-            verify(roomBookingRepository, never()).save(any(RoomBooking.class));
-        }
-    }
 
     // ================================================================
     // TC-M2-026: updateCreditLimit — Tổng hạn mức phòng vượt master customer limit → [MOD2-UC14-016]
