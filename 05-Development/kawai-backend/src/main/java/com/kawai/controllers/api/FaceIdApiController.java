@@ -21,6 +21,15 @@ public class FaceIdApiController {
     @Autowired
     private TourAttendeeRepository tourAttendeeRepository;
 
+    @Autowired
+    private com.kawai.repositories.CustomerRepository customerRepository;
+
+    @Autowired
+    private com.kawai.repositories.DependentRepository dependentRepository;
+
+    @Autowired
+    private com.kawai.repositories.BookingRepository bookingRepository;
+
 
     /**
      * POST /api/faceid/verify
@@ -98,15 +107,63 @@ public class FaceIdApiController {
                     resetCount++;
                 }
             }
-            return ResponseEntity.ok(Map.of(
-                    "success", true,
-                    "resetCount", resetCount,
-                    "message", "Đã reset " + resetCount + " hành khách về trạng thái chờ FaceID"));
+            return ResponseEntity.ok(Map.of("success", true, "resetCount", resetCount));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("success", false, "message", e.getMessage()));
+        }
+    }
+
+    /**
+     * POST /api/faceid/enroll
+     * Thu thập dữ liệu khuôn mặt (đăng ký) cho khách hàng (Customer hoặc Dependent)
+     * Request: { "customerId": 1, "dependentId": null, "faceVectorData": "[...]" }
+     */
+    @PostMapping("/enroll")
+    @org.springframework.transaction.annotation.Transactional
+    public ResponseEntity<?> enrollFaceId(@RequestBody Map<String, Object> body) {
+        try {
+            String faceVectorData = (String) body.get("faceVectorData");
+            if (faceVectorData == null || faceVectorData.isBlank()) {
+                return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Thiếu dữ liệu nhận diện khuôn mặt"));
+            }
+
+            if (body.get("bookingId") != null) {
+                Long bookingId = Long.valueOf(body.get("bookingId").toString());
+                com.kawai.models.Booking booking = bookingRepository.findById(bookingId).orElse(null);
+                if (booking == null) {
+                    return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Booking không tồn tại"));
+                }
+                com.kawai.models.Customer customer = booking.getCustomer();
+                if (customer == null) {
+                    return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Không tìm thấy khách hàng cho Booking này"));
+                }
+                customer.setFaceVectorData(faceVectorData);
+                customerRepository.save(customer);
+                return ResponseEntity.ok(Map.of("success", true, "message", "Đăng ký khuôn mặt thành công cho khách hàng " + customer.getFullName()));
+            } else if (body.get("customerId") != null) {
+                Long customerId = Long.valueOf(body.get("customerId").toString());
+                com.kawai.models.Customer customer = customerRepository.findById(customerId).orElse(null);
+                if (customer == null) {
+                    return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Khách hàng không tồn tại"));
+                }
+                customer.setFaceVectorData(faceVectorData);
+                customerRepository.save(customer);
+                return ResponseEntity.ok(Map.of("success", true, "message", "Đăng ký khuôn mặt thành công cho khách hàng " + customer.getFullName()));
+            } else if (body.get("dependentId") != null) {
+                Long dependentId = Long.valueOf(body.get("dependentId").toString());
+                com.kawai.models.Dependent dependent = dependentRepository.findById(dependentId).orElse(null);
+                if (dependent == null) {
+                    return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Người đi kèm không tồn tại"));
+                }
+                dependent.setFaceVectorData(faceVectorData);
+                dependentRepository.save(dependent);
+                return ResponseEntity.ok(Map.of("success", true, "message", "Đăng ký khuôn mặt thành công cho người đi kèm " + dependent.getDependentName()));
+            } else {
+                return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Thiếu customerId hoặc dependentId"));
+            }
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.status(500).body(Map.of(
-                    "success", false,
-                    "message", "Lỗi máy chủ: " + e.getMessage()));
+            return ResponseEntity.status(500).body(Map.of("success", false, "message", "Lỗi hệ thống: " + e.getMessage()));
         }
     }
 

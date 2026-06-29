@@ -394,6 +394,7 @@ function addDependentRow(name, cccd, dob, dependentId, assignedPhysicalRoomNumbe
             <input type="hidden" name="dependents[${depIndexCounter}].gender" value="Other" />
         </td>
         <td style="padding: 12px 16px;">
+            <button type="button" class="btn btn-outline btn-sm" style="color: #6366f1; border-color: #c7d2fe; background: #eef2ff; padding: 6px 10px; margin-right: 6px; border-radius: 6px; transition: all 0.2s;" onmouseover="this.style.background='#e0e7ff'" onmouseout="this.style.background='#eef2ff'" title="FaceID" onclick="openEnrollModal('DEPENDENT', ${depIdArg})"><i class="fa-solid fa-camera"></i></button>
             <button type="button" class="btn btn-outline btn-sm" style="color: #3b82f6; border-color: #bfdbfe; background: #eff6ff; padding: 6px 10px; margin-right: 6px; border-radius: 6px; transition: all 0.2s;" onmouseover="this.style.background='#dbeafe'" onmouseout="this.style.background='#eff6ff'" title="Edit" onclick="editDependentRow(this, '${name}', '${cccd}', '${dob}', ${depIdArg}, ${roomIdArg}, ${isPrimary})"><i class="fa-solid fa-pen"></i></button>
             <button type="button" class="btn btn-outline btn-sm" style="color: #ef4444; border-color: #fecaca; background: #fef2f2; padding: 6px 10px; border-radius: 6px; transition: all 0.2s;" onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='#fef2f2'" title="Delete" onclick="this.closest('tr').remove()"><i class="fa-solid fa-trash"></i></button>
         </td>
@@ -627,4 +628,151 @@ function renderPerTourAllocationRows() {
             form.appendChild(hiddenRoom);
         }
     });
+}
+
+// ==========================================
+// THU THẬP KHUÔN MẶT (FACE ID ENROLLMENT)
+// ==========================================
+let faceApiLoaded = false;
+let videoStream = null;
+let currentEnrollType = null; // 'CUSTOMER' or 'DEPENDENT'
+let currentEnrollId = null;
+
+const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.12/model/';
+
+async function loadFaceApiModels() {
+    if (faceApiLoaded) return true;
+    try {
+        await Promise.all([
+            faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL),
+            faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
+            faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL)
+        ]);
+        faceApiLoaded = true;
+        return true;
+    } catch (error) {
+        console.error("Lỗi khi tải FaceAPI models:", error);
+        alert("Không thể tải AI Models. Vui lòng kiểm tra kết nối mạng.");
+        return false;
+    }
+}
+
+async function openEnrollModal(type, targetId) {
+    if (!targetId || targetId === "undefined" || targetId === "") {
+        alert("Không xác định được ID Khách hàng! Hãy kiểm tra lại.");
+        return;
+    }
+    
+    currentEnrollType = type;
+    
+    // Convert bookingId to customerId via UI element if it's CUSTOMER type
+    // Since check-in uses bookingId, we will use bookingId and the backend can resolve customer or we just pass customerId from the backend.
+    // In our case, the button passes bookingId, but backend needs customerId. We should have passed customer_id.
+    // Let's modify the UI directly in JS: we can just ask user to scan, and we send it to backend API.
+    // Wait, let's fetch customer id from the global variable or DOM.
+    // Check-in modal has dataset.id which is bookingId.
+    // To keep it simple, we assume targetId is customerId for CUSTOMER, and dependentId for DEPENDENT.
+    // Actually in check-in.html `openEnrollModal('CUSTOMER', document.getElementById('submitBookingId').value)`
+    // This is wrong, it sends bookingId. Let's fix that. I'll send it as `bookingId` for CUSTOMER and backend will find customer from booking.
+    
+    currentEnrollId = targetId; 
+    
+    const modal = document.getElementById('enrollFaceModal');
+    const overlay = document.getElementById('enrollOverlay');
+    const captureBtn = document.getElementById('captureBtn');
+    
+    document.getElementById('enrollTargetName').innerText = type === 'CUSTOMER' ? "Đang đăng ký cho Người Đặt Phòng..." : "Đang đăng ký cho Người Đi Kèm...";
+    
+    modal.style.display = 'flex';
+    overlay.style.display = 'flex';
+    overlay.innerText = 'Đang tải AI Model...';
+    captureBtn.disabled = true;
+
+    const loaded = await loadFaceApiModels();
+    if (!loaded) {
+        closeEnrollModal();
+        return;
+    }
+
+    try {
+        videoStream = await navigator.mediaDevices.getUserMedia({ video: {} });
+        const video = document.getElementById('enrollVideo');
+        video.srcObject = videoStream;
+        
+        video.onloadedmetadata = () => {
+            overlay.style.display = 'none';
+            captureBtn.disabled = false;
+        };
+    } catch (err) {
+        console.error("Không có quyền truy cập camera: ", err);
+        overlay.innerText = 'Lỗi truy cập Camera';
+        alert("Vui lòng cấp quyền truy cập Camera cho trình duyệt.");
+    }
+}
+
+function closeEnrollModal() {
+    if (videoStream) {
+        videoStream.getTracks().forEach(track => track.stop());
+        videoStream = null;
+    }
+    document.getElementById('enrollFaceModal').style.display = 'none';
+}
+
+async function captureFace() {
+    const video = document.getElementById('enrollVideo');
+    const overlay = document.getElementById('enrollOverlay');
+    const captureBtn = document.getElementById('captureBtn');
+    
+    overlay.style.display = 'flex';
+    overlay.innerText = 'Đang trích xuất khuôn mặt...';
+    captureBtn.disabled = true;
+
+    try {
+        const detection = await faceapi.detectSingleFace(video).withFaceLandmarks().withFaceDescriptor();
+        
+        if (!detection) {
+            alert("Không tìm thấy khuôn mặt rõ ràng. Vui lòng nhìn thẳng vào camera và thử lại.");
+            overlay.style.display = 'none';
+            captureBtn.disabled = false;
+            return;
+        }
+
+        const descriptor = Array.from(detection.descriptor);
+        
+        overlay.innerText = 'Đang lưu lên hệ thống...';
+        
+        // Gọi API backend (we need an endpoint /api/faceid/enrollByBooking or modify /enroll)
+        // Since I only created /api/faceid/enroll receiving customerId or dependentId, 
+        // I will use another fetch to get customerId from booking, or just create another endpoint.
+        // Let's pass "bookingId" instead of "customerId" if type is CUSTOMER.
+        
+        const payload = {};
+        if (currentEnrollType === 'CUSTOMER') {
+            payload.bookingId = currentEnrollId; 
+        } else {
+            payload.dependentId = currentEnrollId;
+        }
+        payload.faceVectorData = JSON.stringify(descriptor);
+
+        const res = await fetch('/api/faceid/enroll-checkin', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+        if (data.success) {
+            alert("Đăng ký khuôn mặt thành công!");
+            closeEnrollModal();
+        } else {
+            alert("Lỗi: " + data.message);
+            overlay.style.display = 'none';
+            captureBtn.disabled = false;
+        }
+    } catch (e) {
+        console.error("Lỗi quét:", e);
+        alert("Đã xảy ra lỗi khi quét khuôn mặt.");
+        overlay.style.display = 'none';
+        captureBtn.disabled = false;
+    }
 }

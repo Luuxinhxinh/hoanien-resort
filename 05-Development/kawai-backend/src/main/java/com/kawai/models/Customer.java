@@ -30,6 +30,28 @@ public class Customer {
     @Column(name = "avatar_url")
     private String avatarUrl;
 
+    @Column(name = "face_vector_data", columnDefinition = "TEXT")
+    private String faceVectorData;
+
+    @Column(name = "face_img_url", length = 500)
+    private String faceImgUrl;
+
+    public String getFaceVectorData() {
+        return faceVectorData;
+    }
+
+    public void setFaceVectorData(String faceVectorData) {
+        this.faceVectorData = faceVectorData;
+    }
+
+    public String getFaceImgUrl() {
+        return faceImgUrl;
+    }
+
+    public void setFaceImgUrl(String faceImgUrl) {
+        this.faceImgUrl = faceImgUrl;
+    }
+
     public Long getId() {
         return id;
     }
