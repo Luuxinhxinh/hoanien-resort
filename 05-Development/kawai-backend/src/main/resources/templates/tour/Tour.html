@@ -266,7 +266,7 @@
                 title="Thông tin cá nhân">
                 <div class="text-right">
                     <p id="logged-in-guide-name" class="font-label-md text-label-md text-on-surface leading-none"
-                        th:text="${employee != null ? employee.fullName : 'NguynNgoc'}">NguynNgoc</p>
+                        th:text="${employee?.fullName ?: 'NguynNgoc'}">NguynNgoc</p>
                     <p class="text-[10px] text-on-surface-variant/60">Hướng dẫn viên cao cấp</p>
                 </div>
                 <div
@@ -360,8 +360,8 @@
                                      th:data-status="${tour.status}"
                                      th:data-date="${tour.date}"
                                      th:data-schedule-id="${tour.id}"
-                                     th:class="${tour.guide == (employee != null ? employee.fullName : 'NguynNgoc')} ? 'tour-card glass-surface glass-interactive rounded-lg p-6 glow-accent-primary relative group cursor-pointer overflow-hidden' : 'tour-card glass-surface glass-interactive rounded-lg p-6 relative group cursor-pointer border border-outline-variant/30'"
-                                     th:onclick="'window.location.href=\'/tourguide/dashboard?scheduleId=' + ${tour.id} + '\''">
+                                     th:class="${tour.guide == (employee?.fullName ?: 'NguynNgoc')} ? 'tour-card glass-surface glass-interactive rounded-lg p-6 glow-accent-primary relative group cursor-pointer overflow-hidden' : 'tour-card glass-surface glass-interactive rounded-lg p-6 relative group cursor-pointer border border-outline-variant/30'"
+                                     onclick="handleViewDetails(this)">
                                     <div class="absolute top-0 right-0 p-4">
                                         <span class="bg-primary/10 text-primary text-label-sm font-label-sm px-4 py-1 rounded-full border border-primary/20 uppercase tracking-widest font-bold" th:text="${tour.type}">Cao cấp</span>
                                     </div>
@@ -476,6 +476,22 @@
         class="fixed bottom-[-5%] left-[-5%] w-[35vw] h-[35vw] bg-secondary/5 rounded-full blur-[80px] pointer-events-none -z-10">
     </div>
 
+    <!-- Custom Unauthorized Modal -->
+    <div id="unauthorizedModal" class="fixed inset-0 z-[200] flex items-center justify-center hidden">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeUnauthorizedModal()"></div>
+        <div class="bg-[#fdfbf7] border border-primary/20 rounded-lg p-8 max-w-md w-full mx-4 relative z-10 text-center shadow-2xl">
+            <span class="material-symbols-outlined text-[64px] text-red-500 mb-4 animate-bounce">gpp_maybe</span>
+            <h3 class="font-serif text-2xl text-black font-bold mb-3">Không có quyền truy cập</h3>
+            <p id="unauthorizedMsg" class="text-sm text-gray-700 leading-relaxed mb-6">
+                Bạn không có quyền xem thông tin điểm danh của tour do hướng dẫn viên khác phụ trách. Lịch trình này thuộc về hướng dẫn viên khác.
+            </p>
+            <button onclick="closeUnauthorizedModal()" 
+                    class="w-full py-3 px-6 rounded-full bg-primary/10 hover:bg-primary/20 text-primary font-bold border border-primary/30 hover:border-primary/50 transition-all uppercase tracking-widest text-xs">
+                Đóng
+            </button>
+        </div>
+    </div>
+
     <!-- Guide Settings Modal -->
     <div id="guideSettingsModal"
         class="fixed inset-0 z-[150] hidden flex items-center justify-center bg-black/60 backdrop-blur-sm">
@@ -567,7 +583,7 @@
     </div>
 
     <script th:inline="javascript">
-        const loggedInGuideName = /*[[${employee != null ? employee.fullName : 'NguynNgoc'}]]*/ "NguynNgoc";
+        const loggedInGuideName = /*[[${employee?.fullName ?: 'NguynNgoc'}]]*/ "NguynNgoc";
         let selectedDateFilter = null;
 
         function clearDateFilter() {
@@ -652,13 +668,6 @@
         if (dbTours && dbTours.length > 0) {
             toursData = dbTours;
         }
- 
-        // Replace NguynNgoc references with current guide's actual name
-        toursData.forEach(t => {
-            if (t.guide === 'NguynNgoc') {
-                t.guide = loggedInGuideName;
-            }
-        });
 
         let activeTourFilter = 'all';
 
@@ -813,10 +822,9 @@
                 ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20'
                 : 'bg-secondary-container/30 text-secondary border-secondary-container';
             const statusText = tour.status === 'upcoming' ? 'Sắp diễn ra' : 'Đã hoàn thành';
-            const dashboardUrl = `/tourguide/dashboard?scheduleId=${tour.id}`;
 
             return `
-                <div class="glass-panel border-primary/10 rounded-xl p-4 flex gap-4 hover:scale-[1.01] transition-transform duration-300 bg-white/40 backdrop-blur-md cursor-pointer" onclick="window.location.href='${dashboardUrl}'">
+                <div class="glass-panel border-primary/10 rounded-xl p-4 flex gap-4 hover:scale-[1.01] transition-transform duration-300 bg-white/40 backdrop-blur-md cursor-pointer" onclick="handleViewDetails(${tour.id}, '${tour.guide}')">
                     <div class="w-24 h-16 rounded-lg overflow-hidden flex-shrink-0 shadow-sm">
                         <img src="${tour.image}" class="w-full h-full object-cover" />
                     </div>
@@ -837,6 +845,44 @@
                 </div>
             `;
         }
+
+        function handleViewDetails(arg1, arg2) {
+            let scheduleId, guideName;
+            if (arg2 !== undefined) {
+                // Called from calendar modal (passed as two arguments)
+                scheduleId = arg1;
+                guideName = arg2;
+            } else {
+                // Called from HTML click: handleViewDetails(this)
+                const element = arg1;
+                scheduleId = element.getAttribute('data-schedule-id');
+                guideName = element.getAttribute('data-guide');
+            }
+
+            if (!isSameGuide(guideName, loggedInGuideName)) {
+                showUnauthorizedModal(guideName);
+                return;
+            }
+            window.location.href = `/tourguide/dashboard?scheduleId=${scheduleId}`;
+        }
+
+        function showUnauthorizedModal(guideName) {
+            const msg = `Bạn không có quyền xem chi tiết điểm danh của tour này. Lịch trình này do hướng dẫn viên <strong>${guideName}</strong> phụ trách.`;
+            document.getElementById('unauthorizedMsg').innerHTML = msg;
+            document.getElementById('unauthorizedModal').classList.remove('hidden');
+        }
+
+        function closeUnauthorizedModal() {
+            document.getElementById('unauthorizedModal').classList.add('hidden');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('error') && urlParams.get('error') === 'unauthorized') {
+                showUnauthorizedModal("hướng dẫn viên khác");
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        });
 
         function toggleNotificationDropdown(e) {
             e.stopPropagation();

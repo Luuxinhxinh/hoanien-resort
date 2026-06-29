@@ -46,6 +46,7 @@ public class TourBookingServiceImpl implements TourBookingService {
         private final EmployeeRepository employeeRepository;
         private final RoomBookingDetailRepository roomBookingDetailRepository;
         private final PromotionRepository promotionRepository;
+        private final BookingRepository bookingRepository;
 
         @Autowired(required = false)
         private EmailService emailService;
@@ -58,7 +59,8 @@ public class TourBookingServiceImpl implements TourBookingService {
                         TourStaffAssignmentRepository tourStaffAssignmentRepository,
                         EmployeeRepository employeeRepository,
                         RoomBookingDetailRepository roomBookingDetailRepository,
-                        PromotionRepository promotionRepository) {
+                        PromotionRepository promotionRepository,
+                        BookingRepository bookingRepository) {
                 this.tourScheduleRepository = tourScheduleRepository;
                 this.tourBookingRepository = tourBookingRepository;
                 this.tourAttendeeRepository = tourAttendeeRepository;
@@ -68,6 +70,7 @@ public class TourBookingServiceImpl implements TourBookingService {
                 this.employeeRepository = employeeRepository;
                 this.roomBookingDetailRepository = roomBookingDetailRepository;
                 this.promotionRepository = promotionRepository;
+                this.bookingRepository = bookingRepository;
         }
 
         @Override
@@ -98,6 +101,7 @@ public class TourBookingServiceImpl implements TourBookingService {
                 if (adultCount < 0)
                         adultCount = 0;
 
+                BigDecimal childDiscount = BigDecimal.ZERO;
                 // Người lớn tính 100% giá
                 totalPrice = totalPrice.add(basePrice.multiply(BigDecimal.valueOf(adultCount)));
 
@@ -106,17 +110,21 @@ public class TourBookingServiceImpl implements TourBookingService {
                         for (String age : request.getChildAges()) {
                                 if ("Dưới 2 tuổi".equalsIgnoreCase(age)) {
                                         // Miễn phí
+                                        childDiscount = childDiscount.add(basePrice);
                                 } else if ("2 - 11 tuổi".equalsIgnoreCase(age)) {
                                         // Giảm 50%
                                         totalPrice = totalPrice.add(basePrice.multiply(new BigDecimal("0.5")));
+                                        childDiscount = childDiscount.add(basePrice.multiply(new BigDecimal("0.5")));
                                 } else {
                                         // Mặc định giảm 50%
                                         totalPrice = totalPrice.add(basePrice.multiply(new BigDecimal("0.5")));
+                                        childDiscount = childDiscount.add(basePrice.multiply(new BigDecimal("0.5")));
                                 }
                         }
                 }
 
                 // 4. Áp dụng mã giảm giá (nếu có)
+                BigDecimal promoDiscount = BigDecimal.ZERO;
                 Promotion appliedPromotion = null;
                 if (request.getPromoCode() != null && !request.getPromoCode().trim().isEmpty()) {
                         String promoCode = request.getPromoCode().trim().toUpperCase();
@@ -127,6 +135,10 @@ public class TourBookingServiceImpl implements TourBookingService {
                                 boolean notExpired = promo.getValidTo() == null
                                                 || !promo.getValidTo().isBefore(LocalDate.now());
                                 if (isActive && notExpired) {
+                                        long uses = bookingRepository.countByCustomerIdAndPromoCode(customer.getId(), promoCode);
+                                        if (uses >= 1) {
+                                                throw new IllegalArgumentException("Khách hàng đã vượt quá số lần sử dụng mã giảm giá này (1 lần) [ERR_PROMO_USAGE_EXCEEDED]");
+                                        }
                                         BigDecimal discountValue = promo.getDiscountValue();
                                         boolean isFixed = "FIXED_AMOUNT".equalsIgnoreCase(promo.getDiscountType())
                                                         || discountValue.compareTo(new BigDecimal("100")) >= 0;
@@ -140,9 +152,10 @@ public class TourBookingServiceImpl implements TourBookingService {
                                         }
                                         if (discountAmount.compareTo(totalPrice) > 0) discountAmount = totalPrice;
                                         totalPrice = totalPrice.subtract(discountAmount);
+                                        promoDiscount = discountAmount;
                                         appliedPromotion = promo;
                                         LOG.info("Áp dụng mã giảm giá '{}' cho tour booking: giảm {} VND",
-                                                        promoCode, discountAmount);
+                                                         promoCode, discountAmount);
                                 } else {
                                         LOG.warn("Mã giảm giá '{}' không hợp lệ hoặc đã hết hạn", promoCode);
                                 }
@@ -155,8 +168,6 @@ public class TourBookingServiceImpl implements TourBookingService {
                 TourBooking booking = new TourBooking();
                 booking.setSchedule(schedule);
                 booking.setCustomer(customer);
-                
-
 
                 booking.setBookingDate(LocalDate.now());
                 booking.setParticipantCount(request.getParticipantCount());
@@ -167,6 +178,38 @@ public class TourBookingServiceImpl implements TourBookingService {
                 if (appliedPromotion != null) {
                         booking.setAppliedPromotion(appliedPromotion);
                 }
+
+                // Lưu thông tin chi tiết vào notes để email hiển thị
+                BigDecimal originalPrice = basePrice.multiply(new BigDecimal(request.getParticipantCount()));
+                String pm = request.getPaymentMethod();
+                String paymentMethodStr = pm;
+                String paymentTypeStr = "full";
+
+                if ("vnpay".equalsIgnoreCase(pm)) {
+                        paymentMethodStr = "vnpay";
+                        paymentTypeStr = request.getVnpPaymentType() != null ? request.getVnpPaymentType() : "deposit";
+                } else if ("post-room".equalsIgnoreCase(pm) || request.isPostToRoom()) {
+                        paymentMethodStr = "post-room";
+                        paymentTypeStr = "room";
+                } else if ("deposit".equalsIgnoreCase(pm)) {
+                        paymentMethodStr = "counter";
+                        paymentTypeStr = "deposit";
+                } else if ("full".equalsIgnoreCase(pm)) {
+                        paymentMethodStr = "counter";
+                        paymentTypeStr = "full";
+                }
+
+                String customerNotes = request.getNotes() != null ? request.getNotes().trim() : "";
+                customerNotes = customerNotes.replace(";", " ").replace("=", " ");
+                String serializedNotes = "adults=" + adultCount
+                                + ";children=" + childCount
+                                + ";childDiscount=" + childDiscount
+                                + ";promoDiscount=" + promoDiscount
+                                + ";originalPrice=" + originalPrice
+                                + ";paymentMethod=" + paymentMethodStr
+                                + ";paymentType=" + paymentTypeStr
+                                + ";customerNotes=" + customerNotes;
+                booking.setNotes(serializedNotes);
 
                 TourBooking savedBooking = tourBookingRepository.save(booking);
                 LOG.info("Created tour booking {} for schedule {} ({} pax)",
@@ -249,7 +292,7 @@ public class TourBookingServiceImpl implements TourBookingService {
                                         roomNumber = detail.getRoom().getRoomNumber();
                                 }
                         }
-                        emailService.sendBookingConfirmation(savedBooking, customer, request.isPostToRoom(),
+                        emailService.sendBookingConfirmation(savedBooking, customer, paymentMethodStr, paymentTypeStr,
                                         roomNumber);
                 }
 
@@ -266,6 +309,18 @@ public class TourBookingServiceImpl implements TourBookingService {
                                 .orElseThrow(() -> new IllegalStateException("TOUR-002: Schedule not found"));
                 Employee employee = employeeRepository.findById(employeeId)
                                 .orElseThrow(() -> new IllegalStateException("TOUR-003: Employee not found"));
+
+                if ("GUIDE".equalsIgnoreCase(staffRole)) {
+                    LocalDate date = schedule.getDepartureDate();
+                    List<TourStaffAssignment> existingAssignments = tourStaffAssignmentRepository.findByEmployeeId(employeeId);
+                    for (TourStaffAssignment existing : existingAssignments) {
+                        if (existing.getSchedule() != null && "GUIDE".equalsIgnoreCase(existing.getStaffRole())) {
+                            if (existing.getSchedule().getDepartureDate().equals(date) && !existing.getSchedule().getId().equals(scheduleId)) {
+                                throw new IllegalStateException("Hướng dẫn viên " + employee.getFullName() + " đã kẹt lịch trình tour khác trong ngày " + date);
+                            }
+                        }
+                    }
+                }
 
                 TourStaffAssignment assignment = new TourStaffAssignment();
                 assignment.setSchedule(schedule);

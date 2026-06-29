@@ -61,6 +61,12 @@ public class TourBookingTddServiceUC20Test {
     @Mock
     private RoomBookingDetailRepository roomBookingDetailRepository;
 
+    @Mock
+    private PromotionRepository promotionRepository;
+
+    @Mock
+    private BookingRepository bookingRepository;
+
     @InjectMocks
     private TourBookingServiceImpl tourBookingService;
 
@@ -93,6 +99,7 @@ public class TourBookingTddServiceUC20Test {
 
         RoomBookingDetail roomDetail = new RoomBookingDetail();
         roomDetail.setId(50L);
+        roomDetail.setSubCreditLimit(new BigDecimal("10000000"));
 
         when(tourScheduleRepository.findById(100L)).thenReturn(Optional.of(schedule));
         when(customerRepository.findById(10L)).thenReturn(Optional.of(customer));

@@ -31,11 +31,19 @@ public class TourGuideController {
     @org.springframework.beans.factory.annotation.Autowired
     private com.kawai.repositories.CustomerRepository customerRepository;
 
+    @org.springframework.beans.factory.annotation.Autowired
+    private com.kawai.repositories.TourBookingRepository tourBookingRepository;
+
     @org.springframework.web.bind.annotation.ModelAttribute
     public void addEmployeeToModel(Principal principal, Model model, jakarta.servlet.http.HttpServletRequest request) {
         if (principal != null) {
             com.kawai.models.Employee employee = employeeRepository.findByAccountUsername(principal.getName()).orElse(null);
-            if (employee == null) {
+            if (employee != null) {
+                if ("Nguyễn Hướng Dẫn".equals(employee.getFullName())) {
+                    employee.setFullName("NguynNgoc");
+                    employeeRepository.saveAndFlush(employee);
+                }
+            } else {
                 employee = new com.kawai.models.Employee();
                 employee.setFullName("NguynNgoc");
                 employee.setGender("Nam");
@@ -140,6 +148,24 @@ public class TourGuideController {
                     accountRepository.saveAndFlush(a);
                 }
             });
+            employeeRepository.findById(5L).ifPresent(e -> {
+                if ("Nguyễn Hướng Dẫn".equals(e.getFullName())) {
+                    e.setFullName("NguynNgoc");
+                    employeeRepository.saveAndFlush(e);
+                }
+            });
+            employeeRepository.findById(6L).ifPresent(e -> {
+                if ("Phạm Quốc Bảo".equals(e.getFullName())) {
+                    e.setFullName("Ngọc Lan");
+                    employeeRepository.saveAndFlush(e);
+                }
+            });
+            employeeRepository.findById(7L).ifPresent(e -> {
+                if ("Trần Thu Hà".equals(e.getFullName())) {
+                    e.setFullName("Hoàng Nam");
+                    employeeRepository.saveAndFlush(e);
+                }
+            });
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -154,6 +180,17 @@ public class TourGuideController {
         com.kawai.models.TourSchedule targetSchedule = null;
         if (scheduleId != null) {
             targetSchedule = tourScheduleRepository.findById(scheduleId).orElse(null);
+            if (targetSchedule != null) {
+                com.kawai.models.Employee emp = null;
+                if (principal != null) {
+                    emp = employeeRepository.findByAccountUsername(principal.getName()).orElse(null);
+                }
+                String loggedInName = (emp != null) ? emp.getFullName() : "NguynNgoc";
+                String guideName = getGuideForSchedule(targetSchedule);
+                if (!guideName.equalsIgnoreCase(loggedInName)) {
+                    return "redirect:/tourguide/tour?error=unauthorized";
+                }
+            }
         }
         
         if (targetSchedule == null) {
@@ -172,15 +209,7 @@ public class TourGuideController {
                 
                 targetSchedule = schedules.stream()
                         .filter(s -> {
-                            String guideName = "NguynNgoc";
-                            if (s.getTour() != null) {
-                                String tn = s.getTour().getTourName();
-                                if (tn.contains("Tinh Túy Đồng Nội") || tn.contains("Tinh túy đồng nội")) {
-                                    guideName = "Ngọc Lan";
-                                } else if (tn.contains("Tĩnh Lặng Liên Hoa") || tn.contains("Tĩnh lặng liên hoa")) {
-                                    guideName = "Hoàng Nam";
-                                }
-                            }
+                            String guideName = getGuideForSchedule(s);
                             return guideName.equalsIgnoreCase(loggedInName);
                         })
                         .findFirst()
@@ -188,7 +217,7 @@ public class TourGuideController {
                 
                 if (targetSchedule == null) {
                     targetSchedule = schedules.stream()
-                            .filter(s -> s.getId() != null && s.getId() == 1L)
+                            .filter(s -> s.getId() != null && s.getId() == 5L)
                             .findFirst()
                             .orElse(schedules.get(0));
                 }
@@ -268,6 +297,12 @@ public class TourGuideController {
         
         // Fetch all tour schedules from DB
         java.util.List<com.kawai.models.TourSchedule> dbSchedules = tourScheduleRepository.findAll();
+        System.out.println("DEBUG: dbSchedules size = " + (dbSchedules != null ? dbSchedules.size() : "null"));
+        if (dbSchedules != null) {
+            for (com.kawai.models.TourSchedule s : dbSchedules) {
+                System.out.println("DEBUG: Schedule ID=" + s.getId() + ", date=" + s.getDepartureDate() + ", tour=" + (s.getTour() != null ? s.getTour().getTourName() : "null"));
+            }
+        }
         
         // Ensure schedule 5 is at the top of the list for demo
         dbSchedules.sort((s1, s2) -> {
@@ -294,18 +329,7 @@ public class TourGuideController {
             map.put("time", timeStr);
             
             // Format guide name
-            String guideName = "NguynNgoc";
-            if (sched.getTour() != null) {
-                String tn = sched.getTour().getTourName();
-                if (sched.getId() != null && sched.getId() == 5L) {
-                    guideName = "NguynNgoc";
-                } else if (tn.contains("Tinh Túy Đồng Nội") || tn.contains("Tinh túy đồng nội")) {
-                    guideName = "Ngọc Lan";
-                } else if (tn.contains("Tĩnh Lặng Liên Hoa") || tn.contains("Tĩnh lặng liên hoa")) {
-                    guideName = "Hoàng Nam";
-                }
-            }
-            map.put("guide", guideName);
+            map.put("guide", getGuideForSchedule(sched));
             
             String dbStatus = sched.getScheduleStatus();
             String mappedStatus = "upcoming";
@@ -492,5 +516,96 @@ public class TourGuideController {
         tourRepository.save(tour);
         
         return "redirect:/tourguide/" + tourType;
+    }
+
+    private String getGuideForSchedule(com.kawai.models.TourSchedule sched) {
+        if (sched == null) return "NguynNgoc";
+        if (sched.getDepartureDate() == null) {
+            return getPreferredGuide(sched);
+        }
+        
+        // Find all schedules on the same departure date
+        java.util.List<com.kawai.models.TourSchedule> daySchedules = tourScheduleRepository.findByDepartureDate(sched.getDepartureDate());
+        if (daySchedules == null || daySchedules.size() <= 1) {
+            return getPreferredGuide(sched);
+        }
+        
+        // Sort by ID to ensure deterministic assignment
+        daySchedules.sort((s1, s2) -> {
+            Long id1 = s1.getId() != null ? s1.getId() : 0L;
+            Long id2 = s2.getId() != null ? s2.getId() : 0L;
+            return id1.compareTo(id2);
+        });
+        
+        java.util.Set<String> takenGuides = new java.util.HashSet<>();
+        java.util.List<String> allGuides = java.util.Arrays.asList("NguynNgoc", "Ngọc Lan", "Hoàng Nam");
+        
+        String assignedGuide = null;
+        
+        for (com.kawai.models.TourSchedule s : daySchedules) {
+            String pref = getPreferredGuide(s);
+            String finalGuide;
+            if (!takenGuides.contains(pref)) {
+                finalGuide = pref;
+            } else {
+                // Find a free guide
+                finalGuide = null;
+                for (String g : allGuides) {
+                    if (!takenGuides.contains(g)) {
+                        finalGuide = g;
+                        break;
+                    }
+                }
+                if (finalGuide == null) {
+                    // Fallback if all guides are taken
+                    finalGuide = pref;
+                }
+            }
+            takenGuides.add(finalGuide);
+            
+            if (s.getId() != null && s.getId().equals(sched.getId())) {
+                assignedGuide = finalGuide;
+            }
+        }
+        
+        return assignedGuide != null ? assignedGuide : getPreferredGuide(sched);
+    }
+
+    private String getPreferredGuide(com.kawai.models.TourSchedule sched) {
+        if (sched == null) return "NguynNgoc";
+        if (scheduleHasSpecialCustomer(sched)) {
+            return "NguynNgoc";
+        }
+        if (sched.getId() != null && sched.getId() == 5L) {
+            return "NguynNgoc";
+        }
+        if (sched.getTour() != null) {
+            String tn = sched.getTour().getTourName();
+            if (tn.contains("Tinh Túy Đồng Nội") || tn.contains("Tinh túy đồng nội") || tn.contains("đồng nội") || tn.contains("dongnoi")) {
+                return "Ngọc Lan";
+            } else if (tn.contains("Tĩnh Lặng Liên Hoa") || tn.contains("Tĩnh lặng liên hoa") || tn.contains("tinhlang")) {
+                return "Hoàng Nam";
+            } else if (tn.contains("Di sản") || tn.contains("di sản") || tn.contains("disan")) {
+                return "Ngọc Lan";
+            }
+        }
+        return "NguynNgoc";
+    }
+
+    private boolean scheduleHasSpecialCustomer(com.kawai.models.TourSchedule sched) {
+        if (sched == null || sched.getId() == null) return false;
+        try {
+            java.util.List<com.kawai.models.TourBooking> bookings = tourBookingRepository.findBySchedule(sched);
+            if (bookings != null) {
+                for (com.kawai.models.TourBooking b : bookings) {
+                    if (b.getCustomer() != null && "ngocnguyenthuy999@gmail.com".equalsIgnoreCase(b.getCustomer().getEmail())) {
+                        return true;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 }

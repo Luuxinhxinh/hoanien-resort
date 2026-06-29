@@ -103,8 +103,34 @@ public class TourBookingApiController {
                     .orElseThrow(() -> new IllegalArgumentException("Tour not found with ID: " + tourId));
 
             List<TourSchedule> schedules = tourScheduleRepository.findByTourIdAndDepartureDate(tourId, departureDate);
-            TourSchedule schedule;
-            if (schedules.isEmpty()) {
+            TourSchedule schedule = schedules.isEmpty() ? null : schedules.get(0);
+
+            // Determine guide for this booking
+            String guideForNewTour = getGuideNameForTour(tour.getTourName());
+            boolean isSpecialCustomer = "ngocnguyenthuy999@gmail.com".equalsIgnoreCase(email);
+            if (isSpecialCustomer) {
+                guideForNewTour = "NguynNgoc";
+            }
+
+            // Verify guide limit: 1 guide per day
+            List<TourSchedule> existingSchedulesOnDay = tourScheduleRepository.findByDepartureDate(departureDate);
+            for (TourSchedule es : existingSchedulesOnDay) {
+                // If it is a different schedule
+                if (schedule == null || !es.getId().equals(schedule.getId())) {
+                    int bookingsCount = tourBookingRepository.countByScheduleAndBookingStatus(es, "Confirmed");
+                    if (bookingsCount > 0 && es.getTour() != null) {
+                        String existingGuide = getGuideNameForTour(es.getTour().getTourName());
+                        if (scheduleHasSpecialCustomer(es)) {
+                            existingGuide = "NguynNgoc";
+                        }
+                        if (existingGuide.equalsIgnoreCase(guideForNewTour)) {
+                            throw new IllegalArgumentException("Hướng dẫn viên phụ trách (" + guideForNewTour + ") đã kẹt lịch trình tour khác trong ngày này. Vui lòng chọn ngày khác.");
+                        }
+                    }
+                }
+            }
+
+            if (schedule == null) {
                 schedule = new TourSchedule();
                 schedule.setTour(tour);
                 schedule.setDepartureDate(departureDate);
@@ -112,8 +138,6 @@ public class TourBookingApiController {
                 schedule.setBookedSeats(0);
                 schedule.setScheduleStatus("Open");
                 schedule = tourScheduleRepository.save(schedule);
-            } else {
-                schedule = schedules.get(0);
             }
 
             // 3. Prepare TourBookingRequest DTO
@@ -123,21 +147,85 @@ public class TourBookingApiController {
             request.setParticipantCount(participantCount);
             request.setParticipantCount(participantCount);
 
+            RoomBookingDetail detail = null;
+
             if (roomNumber == null || roomNumber.trim().isEmpty()) {
-                throw new IllegalArgumentException("Vui lòng chọn phòng bạn đang lưu trú.");
+                // Tự động tìm booking detail đang hoạt động của khách hàng này để liên kết
+                List<RoomBookingDetail> customerDetails = roomBookingDetailRepository.findByCustomer(customer);
+                if (customerDetails.isEmpty()) {
+                    throw new IllegalArgumentException("Vui lòng thực hiện đặt phòng trước khi đặt tour.");
+                }
+                
+                // Tìm xem có cái nào đang hoạt động và bao gồm ngày tour không
+                for (RoomBookingDetail rbd : customerDetails) {
+                    if ("Confirmed".equalsIgnoreCase(rbd.getRoomBooking().getBookingStatus())
+                            || "Checked_In".equalsIgnoreCase(rbd.getRoomBooking().getBookingStatus())) {
+                        LocalDate checkIn = rbd.getRoomBooking().getCheckInDate();
+                        LocalDate checkOut = rbd.getRoomBooking().getCheckOutDate();
+                        if (!departureDate.isBefore(checkIn) && !departureDate.isAfter(checkOut)) {
+                            detail = rbd;
+                            break;
+                        }
+                    }
+                }
+                
+                if (detail == null) {
+                    throw new IllegalArgumentException("Khách đặt phòng đã hết thời hạn, cần đăng ký phòng mới.");
+                }
+            } else {
+                if (roomNumber.toUpperCase().startsWith("VIRTUAL_")) {
+                    try {
+                        Long detailId = Long.parseLong(roomNumber.substring(8));
+                        detail = roomBookingDetailRepository.findById(detailId).orElse(null);
+                    } catch (Exception e) {
+                        throw new IllegalArgumentException("Mã đặt phòng không hợp lệ.");
+                    }
+                } else {
+                    Optional<Room> roomOpt = roomRepository.findByRoomNumber(roomNumber);
+                    if (roomOpt.isEmpty()) {
+                        throw new IllegalArgumentException("Phòng không hợp lệ.");
+                    }
+                    Room room = roomOpt.get();
+
+                    // 1. Kiểm tra nếu khách đã check-in (phòng có currentBookingDetailId)
+                    if (room.getCurrentBookingDetailId() != null) {
+                        detail = roomBookingDetailRepository.findById(room.getCurrentBookingDetailId()).orElse(null);
+                    }
+
+                    // 2. Nếu chưa check-in, tìm Booking Detail đã được xác nhận (Confirmed) của khách cho phòng này
+                    if (detail == null) {
+                        List<RoomBookingDetail> customerDetails = roomBookingDetailRepository.findByCustomer(customer);
+                        for (RoomBookingDetail rbd : customerDetails) {
+                            if (rbd.getRoom() != null && rbd.getRoom().getRoomNumber().equals(roomNumber)
+                                    && ("Confirmed".equalsIgnoreCase(rbd.getRoomBooking().getBookingStatus())
+                                        || "Checked_In".equalsIgnoreCase(rbd.getRoomBooking().getBookingStatus()))) {
+                                detail = rbd;
+                                break;
+                            }
+                        }
+                    }
+                }
+                
+                if (detail == null) {
+                    // Check if they ever booked any room
+                    List<RoomBookingDetail> customerDetails = roomBookingDetailRepository.findByCustomer(customer);
+                    if (customerDetails.isEmpty()) {
+                        throw new IllegalArgumentException("Vui lòng thực hiện đặt phòng trước khi đặt tour.");
+                    } else {
+                        throw new IllegalArgumentException("Khách đặt phòng đã hết thời hạn, cần đăng ký phòng mới.");
+                    }
+                }
+
+                // Check if the tour departure date is outside the room booking duration
+                LocalDate checkIn = detail.getRoomBooking().getCheckInDate();
+                LocalDate checkOut = detail.getRoomBooking().getCheckOutDate();
+                if (departureDate.isBefore(checkIn) || departureDate.isAfter(checkOut)) {
+                    throw new IllegalArgumentException("Khách đặt phòng đã hết thời hạn, cần đăng ký phòng mới.");
+                }
             }
 
-            Optional<Room> roomOpt = roomRepository.findByRoomNumber(roomNumber);
-            if (roomOpt.isEmpty() || roomOpt.get().getCurrentBookingDetailId() == null) {
-                throw new IllegalArgumentException("Phòng không hợp lệ hoặc bạn chưa nhận phòng.");
-            }
-
-            Long detailId = roomOpt.get().getCurrentBookingDetailId();
-            RoomBookingDetail detail = roomBookingDetailRepository.findById(detailId)
-                    .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy thông tin đặt phòng chi tiết."));
-
-            request.setRoomBookingDetailId(detailId);
-            // request.setRoomBookingId(detail.getRoomBooking().getId());
+            request.setRoomBookingDetailId(detail.getId());
+            request.setRoomBookingId(detail.getRoomBooking().getId());
 
             List<String> childAges = (List<String>) payload.get("childAges");
             request.setChildAges(childAges);
@@ -148,12 +236,15 @@ public class TourBookingApiController {
                 request.setPromoCode(promoCode.trim());
             }
 
+
             if ("post-room".equalsIgnoreCase(paymentMethod)) {
                 request.setPostToRoom(true);
             } else {
                 request.setPostToRoom(false);
             }
             request.setPaymentMethod(paymentMethod);
+            request.setVnpPaymentType(payload.get("vnpPaymentType") != null ? payload.get("vnpPaymentType").toString() : null);
+            request.setNotes(payload.get("notes") != null ? payload.get("notes").toString() : null);
 
             // 4. Create Tour Booking
             Long bookingId = tourBookingService.createTourBooking(request);
@@ -254,5 +345,35 @@ public class TourBookingApiController {
             }
         }
         return ResponseEntity.ok(data);
+    }
+
+    private String getGuideNameForTour(String tourName) {
+        if (tourName == null) return "NguynNgoc";
+        String tn = tourName.toLowerCase();
+        if (tn.contains("tinh túy đồng nội") || tn.contains("tinh túy đồng nội") || tn.contains("đồng nội") || tn.contains("dongnoi")) {
+            return "Ngọc Lan";
+        } else if (tn.contains("tĩnh lặng liên hoa") || tn.contains("tĩnh lặng liên hoa") || tn.contains("tinhlang")) {
+            return "Hoàng Nam";
+        } else if (tn.contains("di sản") || tn.contains("disan")) {
+            return "Ngọc Lan";
+        }
+        return "NguynNgoc";
+    }
+
+    private boolean scheduleHasSpecialCustomer(TourSchedule sched) {
+        if (sched == null || sched.getId() == null) return false;
+        try {
+            java.util.List<TourBooking> bookings = tourBookingRepository.findBySchedule(sched);
+            if (bookings != null) {
+                for (TourBooking b : bookings) {
+                    if (b.getCustomer() != null && "ngocnguyenthuy999@gmail.com".equalsIgnoreCase(b.getCustomer().getEmail())) {
+                        return true;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 }

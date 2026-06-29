@@ -62,6 +62,9 @@ public class BookingApiController {
     private com.kawai.repositories.PromotionRepository promotionRepository;
 
     @Autowired
+    private com.kawai.repositories.BookingRepository bookingRepository;
+
+    @Autowired
     private com.kawai.services.interfaces.VnPayService vnPayService;
 
     @PostMapping
@@ -422,11 +425,34 @@ public class BookingApiController {
     @org.springframework.web.bind.annotation.GetMapping("/promo/validate")
     public ResponseEntity<?> validatePromo(
             @org.springframework.web.bind.annotation.RequestParam String code,
-            @org.springframework.web.bind.annotation.RequestParam java.math.BigDecimal amount) {
+            @org.springframework.web.bind.annotation.RequestParam java.math.BigDecimal amount,
+            java.security.Principal principal) {
         try {
             java.util.Optional<com.kawai.models.Promotion> optPromo = promotionRepository.findByPromoCode(code.toUpperCase().trim());
             if (optPromo.isEmpty()) {
                 return ResponseEntity.ok(Map.of("success", false, "message", "Mã giảm giá không tồn tại"));
+            }
+            if (principal != null) {
+                Customer customer = resolveCurrentCustomer(principal);
+                if (customer != null) {
+                    java.util.List<com.kawai.models.Booking> usedBookings = bookingRepository.findUsedPromoBookings(customer.getId(), code.toUpperCase().trim());
+                    if (!usedBookings.isEmpty()) {
+                        com.kawai.models.Booking b = usedBookings.get(0);
+                        String serviceName = "Dịch vụ của resort";
+                        if (b instanceof com.kawai.models.TourBooking) {
+                            com.kawai.models.TourBooking tb = (com.kawai.models.TourBooking) b;
+                            if (tb.getSchedule() != null && tb.getSchedule().getTour() != null) {
+                                serviceName = "Tour " + tb.getSchedule().getTour().getTourName();
+                            } else {
+                                serviceName = "Đặt Tour du lịch";
+                            }
+                        } else if (b instanceof com.kawai.models.RoomBooking) {
+                            serviceName = "Đặt phòng nghỉ";
+                        }
+                        return ResponseEntity.ok(Map.of("success", false, "message",
+                            "Mã giảm giá \"" + code.toUpperCase().trim() + "\" đã được sử dụng tại dịch vụ \"" + serviceName + "\". Hãy nhập mã giảm giá mới."));
+                    }
+                }
             }
             com.kawai.models.Promotion promo = optPromo.get();
             if (!Boolean.TRUE.equals(promo.getIsActive())

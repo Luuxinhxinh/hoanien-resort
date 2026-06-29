@@ -536,9 +536,12 @@ public class BookingServiceImpl implements BookingService {
                         }
                     }
 
-                    // 2. max_uses_per_customer
-                    if (conds.containsKey("max_uses_per_customer") && customerId != null) {
-                        int maxUses = Integer.parseInt(conds.get("max_uses_per_customer").toString());
+                    // 2. max_uses_per_customer (Default to 1 use if not defined)
+                    if (customerId != null) {
+                        int maxUses = 1;
+                        if (conds.containsKey("max_uses_per_customer")) {
+                            maxUses = Integer.parseInt(conds.get("max_uses_per_customer").toString());
+                        }
                         long uses = bookingRepository.countByCustomerIdAndPromoCode(customerId, promoCode);
                         if (uses >= maxUses) {
                             throw new IllegalArgumentException("Khách hàng đã vượt quá số lần sử dụng mã giảm giá này ("
