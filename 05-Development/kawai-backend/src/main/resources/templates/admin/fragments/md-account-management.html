@@ -9,7 +9,8 @@
             <table class="adm-table">
                 <thead>
                     <tr>
-                        <th style="width:80px; text-align:center; cursor:pointer; color:#8B7355; font-size:12px; font-weight:600; text-decoration:underline;" id="check-all-btn">Chọn tất cả</th>
+                        <th style="width:80px; text-align:center; cursor:pointer; color:#8B7355; font-size:12px; font-weight:600; text-decoration:underline;"
+                            id="check-all-btn">Chọn tất cả</th>
                         <th>Mã</th>
                         <th>Tên</th>
                         <th>Loại tài khoản</th>
@@ -70,10 +71,9 @@
             </div>
             <div class="adm-form-group"><label class="adm-form-label">Vai trò</label>
                 <select name="role" class="adm-form-select" id="account-role-select">
-                    <option th:each="r : ${staffRoles}" th:value="${r}" th:text="${r}"
-                        class="role-staff"></option>
-                    <option th:each="r : ${guestRoles}" th:value="${r}" th:text="${r}"
-                        class="role-guest" style="display:none"></option>
+                    <option th:each="r : ${staffRoles}" th:value="${r}" th:text="${r}" class="role-staff"></option>
+                    <option th:each="r : ${guestRoles}" th:value="${r}" th:text="${r}" class="role-guest"
+                        style="display:none"></option>
                 </select>
             </div>
             <div class="adm-form-group"><label class="adm-form-label">Email <span

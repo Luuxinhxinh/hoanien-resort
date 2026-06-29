@@ -174,7 +174,8 @@ public class AdminViewServiceImpl implements AdminViewService {
                 List.of(col("id", "Mã", "text"), col("name", "Tên", "text"), col("type", "Loại tài khoản", "badge"),
                         col("role", "Vai trò", "badge"), col("email", "Email", "text"),
                         col("status", "Kích hoạt", "toggle"));
-            case "Role Management" -> List.of(col("id", "Mã", "text"), col("name", "Tên vai trò", "text"), col("permissions", "Quyền hạn", "text"));
+            case "Role Management" -> List.of(col("id", "Mã", "text"), col("name", "Tên vai trò", "text"),
+                    col("permissions", "Quyền hạn", "text"));
             case "Pricing Management" -> List.of(col("id", "Mã", "text"), col("roomCategory", "Hạng phòng", "text"),
                     col("date", "Ngày", "text"), col("price", "Giá / đêm", "text"));
             case "Bookings" -> List.of(col("id", "Mã Booking", "text"), col("customer", "Khách hàng", "text"),
@@ -198,7 +199,8 @@ public class AdminViewServiceImpl implements AdminViewService {
                 for (RoomCategory cat : roomCategoryRepository.findAll()) {
                     r.add(r("id", "RC-" + cat.getId(), "name", cat.getCategoryName(), "rooms",
                             String.valueOf(cat.getCapacity()), "price", formatVnd(cat.getBasePrice()), "status",
-                            cat.getIsActive() != null && cat.getIsActive() ? "Hoạt động" : "Ngừng hoạt động", "__statusStyle",
+                            cat.getIsActive() != null && cat.getIsActive() ? "Hoạt động" : "Ngừng hoạt động",
+                            "__statusStyle",
                             bs(cat.getIsActive() != null && cat.getIsActive() ? "Active" : "Inactive"),
                             "description", cat.getDescription() != null ? cat.getDescription() : "",
                             "coverImgUrl", cat.getCoverImgUrl() != null ? cat.getCoverImgUrl() : "",
@@ -297,10 +299,19 @@ public class AdminViewServiceImpl implements AdminViewService {
                                             ? promo.getDiscountValue().stripTrailingZeros().toPlainString() + "%"
                                             : formatVnd(promo.getDiscountValue()))
                                     : "-",
-                            "rawValue", promo.getDiscountValue() != null ? promo.getDiscountValue().stripTrailingZeros().toPlainString() : "",
+                            "rawValue",
+                            promo.getDiscountValue() != null
+                                    ? promo.getDiscountValue().stripTrailingZeros().toPlainString()
+                                    : "",
                             "discountType", promo.getDiscountType() != null ? promo.getDiscountType() : "PERCENTAGE",
-                            "discountTypeDisplay", promo.getDiscountType() != null ? ("PERCENTAGE".equalsIgnoreCase(promo.getDiscountType()) ? "Phần trăm" : ("FIXED_AMOUNT".equalsIgnoreCase(promo.getDiscountType()) ? "Số tiền" : promo.getDiscountType())) : "Phần trăm",
-                            "__discountTypeStyle", bs(promo.getDiscountType() != null ? promo.getDiscountType() : "PERCENTAGE"),
+                            "discountTypeDisplay",
+                            promo.getDiscountType() != null
+                                    ? ("PERCENTAGE".equalsIgnoreCase(promo.getDiscountType()) ? "Phần trăm"
+                                            : ("FIXED_AMOUNT".equalsIgnoreCase(promo.getDiscountType()) ? "Số tiền"
+                                                    : promo.getDiscountType()))
+                                    : "Phần trăm",
+                            "__discountTypeStyle",
+                            bs(promo.getDiscountType() != null ? promo.getDiscountType() : "PERCENTAGE"),
                             "minOrder", "Không có", "scope", "Toàn bộ", "__scopeStyle", bs("Toàn bộ"),
                             "uses",
                             (promo.getCurrentUses() != null ? promo.getCurrentUses() : 0) + "/"
@@ -377,7 +388,8 @@ public class AdminViewServiceImpl implements AdminViewService {
                         if (role.getRoleName() != null && role.getRoleName().toUpperCase().contains("CUSTOMER")) {
                             continue;
                         }
-                        rows.add(r("id", "RL-" + role.getId(), "name", role.getRoleName(), "permissions", role.getPermissions() != null ? role.getPermissions() : ""));
+                        rows.add(r("id", "RL-" + role.getId(), "name", role.getRoleName(), "permissions",
+                                role.getPermissions() != null ? role.getPermissions() : ""));
                     }
                 } catch (Exception e) {
                 }
@@ -397,7 +409,8 @@ public class AdminViewServiceImpl implements AdminViewService {
                     }
                     r.add(r("id", "PR-" + rate.getId(), "roomCategory",
                             rate.getCategory() != null ? rate.getCategory().getCategoryName() : "N/A", "date",
-                            rate.getRateDate() != null ? rate.getRateDate().toString() : "", "dayType", dayType, "__dayStyle", dayStyle, "price",
+                            rate.getRateDate() != null ? rate.getRateDate().toString() : "", "dayType", dayType,
+                            "__dayStyle", dayStyle, "price",
                             rate.getComputedPrice() != null ? formatVnd(rate.getComputedPrice()) : "-"));
                 }
                 yield r;
@@ -409,30 +422,33 @@ public class AdminViewServiceImpl implements AdminViewService {
                     String checkOut = "-";
                     String roomStr = "N/A";
                     String displayStatus = b.getBookingStatus() != null ? b.getBookingStatus() : "Pending";
-                    
+
                     if (b instanceof RoomBooking rb) {
                         checkIn = rb.getCheckInDate() != null ? rb.getCheckInDate().toString() : "-";
                         checkOut = rb.getCheckOutDate() != null ? rb.getCheckOutDate().toString() : "-";
-                        
+
                         try {
-                            List<RoomBookingDetail> details = roomBookingDetailRepository.findByRoomBookingId(rb.getId());
+                            List<RoomBookingDetail> details = roomBookingDetailRepository
+                                    .findByRoomBookingId(rb.getId());
                             if (details != null && !details.isEmpty()) {
                                 String rooms = details.stream()
-                                    .map(d -> d.getRoom() != null ? d.getRoom().getRoomNumber() : "TBD")
-                                    .collect(Collectors.joining(", "));
+                                        .map(d -> d.getRoom() != null ? d.getRoom().getRoomNumber() : "TBD")
+                                        .collect(Collectors.joining(", "));
                                 roomStr = rooms.isEmpty() ? "TBD" : rooms;
                             }
-                        } catch (Exception e) {}
-                        
+                        } catch (Exception e) {
+                        }
+
                         if (rb.getCheckOutDate() != null && rb.getCheckOutDate().isBefore(LocalDate.now())) {
                             displayStatus = "Checked-out";
-                        } else if (rb.getCheckInDate() != null && !rb.getCheckInDate().isAfter(LocalDate.now()) && rb.getCheckOutDate() != null && rb.getCheckOutDate().isAfter(LocalDate.now())) {
+                        } else if (rb.getCheckInDate() != null && !rb.getCheckInDate().isAfter(LocalDate.now())
+                                && rb.getCheckOutDate() != null && rb.getCheckOutDate().isAfter(LocalDate.now())) {
                             if ("Confirmed".equals(displayStatus) || "Pending".equals(displayStatus)) {
                                 displayStatus = "Checked-in";
                             }
                         }
                     }
-                    
+
                     if ("Checked_In".equals(displayStatus)) {
                         displayStatus = "Checked-in";
                     }
@@ -512,9 +528,10 @@ public class AdminViewServiceImpl implements AdminViewService {
                 String date = l.getTimestamp() != null
                         ? l.getTimestamp().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
                         : "";
-                String role = l.getAccount() != null && l.getAccount().getRole() != null && l.getAccount().getRole().getRoleName() != null
-                        ? l.getAccount().getRole().getRoleName()
-                        : "System";
+                String role = l.getAccount() != null && l.getAccount().getRole() != null
+                        && l.getAccount().getRole().getRoleName() != null
+                                ? l.getAccount().getRole().getRoleName()
+                                : "System";
                 logs.add(new AuditLogMock(
                         l.getTimestamp() != null ? l.getTimestamp().format(DateTimeFormatter.ofPattern("HH:mm")) : "--",
                         name, name.length() >= 2 ? name.substring(0, 2).toUpperCase() : "SY",
