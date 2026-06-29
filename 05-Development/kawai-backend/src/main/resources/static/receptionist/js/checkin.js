@@ -189,6 +189,14 @@ function openCheckinModal(bookingId, guestName, phone, cccd, roomSummary, depsDi
         console.error('[openCheckinModal] CRITICAL: #checkinModal không tìm thấy trong DOM!');
         return;
     }
+
+    const currentBookingId = document.getElementById('submitBookingId').value;
+    if (currentBookingId === bookingId.toString()) {
+        // Resume from previous state if clicking the same check-in button
+        modalEl.style.display = 'flex';
+        return;
+    }
+
     checkinMasterCreditLimit = creditLimit ? parseFloat(creditLimit) : 5000000;
     updateCheckinCreditLimitDisplay();
     // Gán bookingId vào form submit hidden input
@@ -263,6 +271,11 @@ function openCheckinModal(bookingId, guestName, phone, cccd, roomSummary, depsDi
 
 function closeCheckinModal() {
     document.getElementById('checkinModal').style.display = 'none';
+}
+
+function cancelCheckinModal() {
+    closeCheckinModal();
+    document.getElementById('submitBookingId').value = '';
     pendingFaceEnrollments = {};
     const gallery = document.getElementById('faceGallery');
     if (gallery) {
