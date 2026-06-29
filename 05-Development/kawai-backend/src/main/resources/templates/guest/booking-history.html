@@ -16,6 +16,7 @@
         button:active, a.bg-hoanien-text:active { transform: scale(0.97) translateY(0.5px); transition: transform 0.1s ease; }
         button, a.bg-hoanien-text { transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease, opacity 0.2s ease; }
     </style>
+    <link rel="stylesheet" th:href="@{/f&amp;bStaff/css/refund-modal.css}" />
 </head>
 
 <body class="bg-hoanien-bg text-hoanien-text antialiased flex flex-col min-h-screen">
@@ -279,6 +280,16 @@
                                             <span class="text-[9px] font-sans">VNĐ</span>
                                         </p>
                                     </div>
+                                </div>
+                                <div class="flex justify-end pt-2 border-t border-hoanien-text/5" th:if="${fo.orderStatus == 'Pending'}">
+                                        <button th:if="${fo.orderStatus == 'Pending'}" type="button"
+                                                th:data-id="${fo.id}"
+                                                th:data-payment="${fo.paymentType}"
+                                                onclick="cancelOrderGuest(this.getAttribute('data-id'), this.getAttribute('data-payment'))"
+                                                class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-semibold shadow-sm transition-all text-[11px] uppercase tracking-wider flex items-center gap-2 mt-2">
+                                        <span class="material-symbols-outlined text-[14px]">close</span>
+                                        Hủy đơn
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -585,6 +596,31 @@
 
     <script src="/guest/js/utils.js"></script>
     <div th:replace="~{guest/fragments/auth :: authModal}"></div>
+    <div th:replace="~{f&amp;bStaff/refund-modal :: #refundModal}"></div>
+    <script th:src="@{/f&amp;bStaff/js/refund-modal.js}"></script>
+    <script>
+        function cancelOrderGuest(id, paymentType) {
+            if (paymentType && (paymentType.includes('Ví') || paymentType.includes('Thẻ') || paymentType.includes('Online') || paymentType.toUpperCase().includes('VNPAY'))) {
+                openRefundModal(id);
+                return;
+            }
+
+            if (!confirm('Bạn có chắc chắn muốn hủy đơn hàng này không? Hành động này không thể hoàn tác.')) return;
+            
+            fetch('/api/pos/orders/' + id + '/cancel', {
+                method: 'POST'
+            })
+            .then(res => {
+                if(!res.ok) return res.json().then(e => { throw new Error(e.message) });
+                return res.json();
+            })
+            .then(data => {
+                alert('Đã hủy đơn thành công!');
+                window.location.reload();
+            })
+            .catch(err => alert('Lỗi: ' + err.message));
+        }
+    </script>
 </body>
 
 </html>

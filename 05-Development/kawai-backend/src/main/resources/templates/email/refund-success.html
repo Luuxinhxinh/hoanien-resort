@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[HOANIEN] Xác nhận hoàn tiền thành công</title>
+</head>
+<body>
+
+  <div class="wrapper">
+    <!-- HEADER -->
+    <div class="header">
+      <div class="brand">H O A N I E N</div>
+      <div class="tagline">Retreat &amp; Resort</div>
+    </div>
+
+    <!-- BODY -->
+    <div class="body">
+      <div class="badge-wrap">
+        <span class="badge">THÔNG BÁO HOÀN TIỀN THÀNH CÔNG</span>
+      </div>
+
+      <p class="greeting">Kính gửi Quý khách <strong th:text="${customerName}">[Tên Khách]</strong>,</p>
+
+      <p class="intro">
+        HOANIEN Retreat &amp; Resort xin trân trọng thông báo yêu cầu hoàn tiền cho đơn hàng 
+        <strong th:text="${orderId}">[Mã Đơn]</strong> của Quý khách đã được bộ phận Kế toán của chúng tôi xử lý thành công.
+      </p>
+
+      <!-- INFO BOX -->
+      <div class="info-box">
+        <p class="info-box-title">Chi tiết giao dịch hoàn tiền:</p>
+        <ul>
+          <li><strong>Mã đơn hàng bị hủy:</strong> <span th:text="${orderId}">ORD-000</span></li>
+          <li><strong>Thời gian hoàn tiền:</strong> <span th:text="${refundTime}">01/01/2026 12:00</span></li>
+          <li><strong>Ngân hàng thụ hưởng:</strong> <span th:text="${bankName}">[Tên Ngân Hàng]</span></li>
+          <li><strong>Số tài khoản:</strong> <span th:text="${accountNumber}">[Số Tài Khoản]</span></li>
+          <li><strong>Số tiền hoàn trả:</strong> <strong class="amount" th:text="${refundAmount} + ' ₫'">0 ₫</strong></li>
+        </ul>
+      </div>
+
+      <p class="closing">
+        Quý khách vui lòng kiểm tra tài khoản ngân hàng. Hình ảnh ủy nhiệm chi (biên lai chuyển khoản) đã được đính kèm cùng email này để Quý khách tiện đối chiếu.
+      </p>
+      
+      <p>
+        Một lần nữa, chúng tôi xin lỗi vì những bất tiện phát sinh trong quá trình sử dụng dịch vụ và mong sớm được đón tiếp Quý khách trở lại.
+      </p>
+
+      <hr class="divider" />
+
+      <div class="signoff">
+        Trân trọng,<br>
+        <strong>HOANIEN Concierge Team</strong>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+      <p>&copy; 2026 HOANIEN Retreat &amp; Resort. All rights reserved.</p>
+    </div>
+  </div>
+
+</body>
+</html>

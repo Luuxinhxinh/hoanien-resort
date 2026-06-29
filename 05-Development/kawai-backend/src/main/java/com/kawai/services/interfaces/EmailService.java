@@ -83,4 +83,9 @@ public interface EmailService {
      * Gửi email HTML thô (phục vụ test preview).
      */
     void sendEmail(String toEmail, String subject, String htmlContent);
+
+    /**
+     * Gửi email thông báo hoàn tiền thành công kèm biên lai (ủy nhiệm chi).
+     */
+    void sendRefundSuccessEmail(com.kawai.models.RefundRequest refundRequest, com.kawai.models.Customer customer, String absoluteAttachmentPath);
 }

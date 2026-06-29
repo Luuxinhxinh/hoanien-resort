@@ -12,6 +12,7 @@
   
   <link rel="stylesheet" th:href="@{/f&amp;bStaff/css/pos-dashboard.css}" href="../../statics/f&bStaff/css/pos-dashboard.css" />
   <link rel="stylesheet" th:href="@{/f&amp;bStaff/css/order-detail.css}" href="../../statics/f&bStaff/css/order-detail.css" />
+  <link rel="stylesheet" th:href="@{/f&amp;bStaff/css/refund-modal.css}" href="../../statics/f&bStaff/css/refund-modal.css" />
 </head>
 <body>
 
@@ -66,7 +67,26 @@
     </div>
   </aside>
 
-  <!-- MAIN CONTENT -->
+    <div id="tableReleaseModal" class="addon-modal-overlay" style="display:none; z-index:9999;">
+      <div class="addon-modal-content" style="max-width:400px;">
+        <div class="addon-modal-header">
+          <h3>Giải phóng bàn</h3>
+        </div>
+        <div class="addon-modal-body" style="font-size:0.95rem; color:var(--text-primary); line-height:1.5;">
+          Khách hàng có tiếp tục sử dụng bàn này không?
+          <ul style="margin-top:10px; margin-left:20px; color:var(--text-secondary);">
+            <li>Chọn <b>OK</b> để GIỮ bàn</li>
+            <li>Chọn <b>Cancel</b> để GIẢI PHÓNG bàn</li>
+          </ul>
+        </div>
+        <div class="addon-modal-footer" style="gap:10px; justify-content:flex-end;">
+          <button class="btn btn-outline" id="btnReleaseCancel" style="border-color:#ccc; color:#555;">Cancel</button>
+          <button class="btn btn-primary" id="btnReleaseOk">OK</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAPPING JAVASCRIPT VARS -->
   <div class="main-content">
     <header class="topbar">
       <div>
@@ -74,7 +94,7 @@
         <div class="topbar-subtitle">Thông tin, trạng thái &amp; hóa đơn</div>
       </div>
       <div class="topbar-right">
-        <button class="btn btn-outline" onclick="location.href='pos-dashboard.html'">
+        <button class="btn btn-outline" onclick="location.href='/fbStaff/dashboard'">
           <span class="material-symbols-outlined">arrow_back</span>
           Quay lại
         </button>
@@ -118,7 +138,7 @@
             <div class="step-icon"><span class="material-symbols-outlined">receipt_long</span></div>
             <div class="step-label">Created</div>
           </div>
-          <div class="step" th:classappend="${foodOrder != null ? (foodOrder.orderStatus == 'Preparing' || foodOrder.orderStatus == 'preparing' || foodOrder.orderStatus == 'Ready' || foodOrder.orderStatus == 'ready' || foodOrder.orderStatus == 'Delivering' || foodOrder.orderStatus == 'delivering' || foodOrder.orderStatus == 'Served' || foodOrder.orderStatus == 'served' ? 'completed' : 'active') : 'completed'}" id="step-2">
+          <div class="step" th:classappend="${foodOrder != null ? (foodOrder.orderStatus == 'Preparing' || foodOrder.orderStatus == 'preparing' || foodOrder.orderStatus == 'Ready' || foodOrder.orderStatus == 'ready' || foodOrder.orderStatus == 'Delivering' || foodOrder.orderStatus == 'delivering' || foodOrder.orderStatus == 'Served' || foodOrder.orderStatus == 'served' ? 'completed' : '') : 'completed'}" id="step-2">
             <div class="step-icon"><span class="material-symbols-outlined">skillet</span></div>
             <div class="step-label" id="lbl-step-2">Processing</div>
           </div>
@@ -232,7 +252,15 @@
 
         <!-- ACTION BUTTONS -->
         <div class="detail-actions" th:if="${foodOrder != null || tableOrder != null}">
-          <button class="btn btn-outline btn-danger" id="btn-cancel"><span class="material-symbols-outlined">close</span> Hủy đơn</button>
+          <button class="btn btn-outline btn-danger" id="btn-cancel"
+                  th:if="${foodOrder != null && (foodOrder.orderStatus == 'Pending' || foodOrder.orderStatus == 'pending')}"
+                  th:data-id="${foodOrder.id}"
+                  th:data-payment="${foodOrder.paymentType}"
+                  th:data-type="${foodOrder.orderType}"
+                  th:data-table="${foodOrder.table != null ? foodOrder.table.id : ''}"
+                  onclick="cancelOrder(this.getAttribute('data-id'), this.getAttribute('data-payment'), this.getAttribute('data-type'), this.getAttribute('data-table'))">
+            <span class="material-symbols-outlined">close</span> Hủy đơn
+          </button>
           <div style="margin-left:auto; display:flex; gap:10px;">
             <button class="btn btn-primary" id="btn-addon" th:if="${foodOrder != null && foodOrder.orderStatus != 'PAID'}" onclick="openAddonModal()" style="background-color: #ff9800; border-color: #ff9800; color: white;"><span class="material-symbols-outlined">add</span> Gọi thêm món</button>
             <button class="btn btn-primary" id="btn-pay" th:if="${foodOrder != null && !foodOrder.isPaidInPos && foodOrder.orderStatus != 'PAID' && foodOrder.orderType != 'Room Service' && foodOrder.orderType != 'RoomService'}" style="background-color: var(--status-ready-text); border-color: var(--status-ready-text);" th:onclick="|payOrder(${foodOrder.id}, ${foodOrder.table != null ? foodOrder.table.id : 'null'})|"><span class="material-symbols-outlined">payments</span> Thanh toán</button>
@@ -313,10 +341,31 @@
     </div>
   </div>
 
+  <!-- REFUND MODAL FRAGMENT -->
+  <div th:replace="~{f&amp;bStaff/refund-modal :: #refundModal}"></div>
+
   <script th:src="@{/f&amp;bStaff/js/order-detail.js}" src="../../statics/f&bStaff/js/order-detail.js"></script>
+  <script th:src="@{/f&amp;bStaff/js/refund-modal.js}" src="../../statics/f&bStaff/js/refund-modal.js"></script>
   <script th:inline="javascript">
     window.SERVER_MENU_ITEMS = /*[[${menuItems}]]*/ [];
     window.CURRENT_ORDER_ID = /*[[${foodOrder != null ? foodOrder.id : null}]]*/ null;
+
+    function showTableReleaseModal(tableId) {
+        const modal = document.getElementById('tableReleaseModal');
+        modal.style.display = 'flex';
+        
+        document.getElementById('btnReleaseOk').onclick = function() {
+            modal.style.display = 'none';
+            window.location.reload();
+        };
+        
+        document.getElementById('btnReleaseCancel').onclick = function() {
+            modal.style.display = 'none';
+            fetch('/api/v1/tables/' + tableId + '/status?status=Available', { method: 'PUT' })
+            .then(() => window.location.href = '/fbStaff/dashboard')
+            .catch(() => window.location.reload());
+        };
+    }
     
     let addonCart = [];
 
@@ -437,6 +486,44 @@
             alert('Lỗi: ' + err.message);
             btn.disabled = false;
             btn.innerText = 'Gửi Nhà Bếp';
+        });
+    }
+
+    function cancelOrder(id, paymentType, orderType, tableId) {
+        if (paymentType && (paymentType.includes('Ví') || paymentType.includes('Thẻ') || paymentType.includes('Online') || paymentType.includes('thẻ') || paymentType.includes('ví') || paymentType.includes('Thanh toán trực tuyến'))) {
+            openRefundModal(id);
+            return;
+        }
+
+        if (!confirm('Bạn có chắc chắn muốn hủy đơn hàng này không? Hành động này không thể hoàn tác.')) return;
+        
+        const btn = document.getElementById('btn-cancel');
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = 'Đang xử lý...';
+        }
+
+        fetch('/api/pos/orders/' + id + '/cancel', {
+            method: 'POST'
+        })
+        .then(res => {
+            if(!res.ok) return res.json().then(e => { throw new Error(e.message) });
+            return res.json();
+        })
+        .then(data => {
+            alert('Hủy đơn thành công!');
+            if (orderType && !orderType.includes('Room') && tableId) {
+                showTableReleaseModal(tableId);
+            } else {
+                window.location.reload();
+            }
+        })
+        .catch(err => {
+            alert('Lỗi khi hủy đơn: ' + err.message);
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = '<span class="material-symbols-outlined">close</span> Hủy đơn';
+            }
         });
     }
 

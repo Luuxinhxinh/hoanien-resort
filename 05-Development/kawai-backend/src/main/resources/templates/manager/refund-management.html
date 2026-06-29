@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quản lý Hoàn tiền — Hoanien Manager Portal</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" th:href="@{/manager/css/dashboard.css}" href="../../static/manager/css/dashboard.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+    <style>
+        .refund-table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .refund-table th, .refund-table td { padding: 15px; border-bottom: 1px solid var(--border-subtle); text-align: left; font-size: 0.9rem; }
+        .refund-table th { font-weight: 600; color: var(--text-muted); text-transform: uppercase; font-size: 0.8rem; background: #faf9f6; }
+        .badge-pending { background: #fff3e0; color: #e65100; padding: 6px 10px; border-radius: 6px; font-weight: 600; font-size: 0.75rem; }
+        .badge-completed { background: #e8f5e9; color: #2e7d32; padding: 6px 10px; border-radius: 6px; font-weight: 600; font-size: 0.75rem; }
+        
+        .btn-action { background: #fff; border: 1px solid var(--border-subtle); padding: 8px 16px; border-radius: 6px; cursor: pointer; transition: all 0.2s; font-size: 0.85rem; display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-family: inherit; color: var(--foreground); }
+        .btn-action:hover { background: #f0f0f0; }
+        .btn-primary { background: var(--primary); color: #fff; border: none; }
+        .btn-primary:hover { background: #b08d4b; color: #fff; }
+        
+        /* Upload Modal */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-content { background: #fff; width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto; border-radius: 12px; padding: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 15px; }
+        .modal-header h3 { margin: 0; font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--foreground); }
+        .modal-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #666; }
+        .file-input-wrapper { border: 2px dashed #ddd; border-radius: 8px; padding: 30px; text-align: center; margin-bottom: 20px; cursor: pointer; transition: border-color 0.2s; }
+        .file-input-wrapper:hover { border-color: var(--primary); }
+        #billFile { display: none; }
+        .preview-img { max-width: 100%; max-height: 200px; display: none; margin-top: 15px; border-radius: 8px; object-fit: contain; }
+        .info-grid { display: grid; grid-template-columns: 100px 1fr; gap: 8px; margin-bottom: 20px; font-size: 0.9rem; background: #faf9f6; padding: 15px; border-radius: 8px; }
+        .info-label { color: var(--text-muted); }
+        .info-value { font-weight: 600; color: var(--foreground); }
+        .section-title { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--foreground); margin: 30px 0 15px 0; }
+    </style>
+</head>
+
+<body>
+    <!-- SIDEBAR -->
+    <aside class="mgr-sidebar">
+        <div class="mgr-sidebar-logo">
+            <div class="mgr-logo-brand">
+                <span class="mgr-logo-label">Hoa Nien</span>
+            </div>
+            <h1 class="mgr-portal-title">Manager Portal</h1>
+        </div>
+        <nav class="mgr-nav">
+            <!-- Tổng quan -->
+            <div class="mgr-nav-item">
+                <a href="/manager/dashboard" class="mgr-nav-link">
+                    <svg class="mgr-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect width="7" height="9" x="3" y="3" rx="1" />
+                        <rect width="7" height="5" x="14" y="3" rx="1" />
+                        <rect width="7" height="9" x="14" y="12" rx="1" />
+                        <rect width="7" height="5" x="3" y="16" rx="1" />
+                    </svg>
+                    <span style="flex:1">Tổng quan</span>
+                </a>
+            </div>
+            <!-- Hoàn tiền (ACTIVE) -->
+            <div class="mgr-nav-item">
+                <a href="/manager/refunds" class="mgr-nav-link active">
+                    <svg class="mgr-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="2" y="5" width="20" height="14" rx="2" ry="2"></rect>
+                        <line x1="2" y1="10" x2="22" y2="10"></line>
+                    </svg>
+                    <span style="flex:1">Hoàn tiền</span>
+                </a>
+            </div>
+            <!-- Báo cáo Tài chính -->
+            <div class="mgr-nav-item">
+                <button class="mgr-nav-link" onclick="toggleSubmenu('sub-finance','arr-finance')">
+                    <svg class="mgr-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="12" x2="12" y1="2" y2="22" />
+                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                    </svg>
+                    <span style="flex:1">Báo cáo Tài chính</span>
+                    <svg class="mgr-nav-arrow" id="arr-finance" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="m9 18 6-6-6-6" />
+                    </svg>
+                </button>
+                <div class="mgr-submenu" id="sub-finance">
+                    <a href="/manager/revenue" class="mgr-submenu-link">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect width="18" height="18" x="3" y="4" rx="2" />
+                            <line x1="16" x2="16" y1="2" y2="6" />
+                            <line x1="8" x2="8" y1="2" y2="6" />
+                            <line x1="3" x2="21" y1="10" y2="10" />
+                        </svg>Báo cáo Doanh thu
+                    </a>
+                </div>
+            </div>
+            <!-- Biểu đồ Phân tích -->
+            <div class="mgr-nav-item">
+                <button class="mgr-nav-link" onclick="toggleSubmenu('sub-analytics','arr-analytics')">
+                    <svg class="mgr-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 3v18h18" />
+                        <path d="M18.7 8 13 13.7 8.7 9.4l-5 5" />
+                    </svg>
+                    <span style="flex:1">Biểu đồ Phân tích</span>
+                    <svg class="mgr-nav-arrow" id="arr-analytics" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="m9 18 6-6-6-6" />
+                    </svg>
+                </button>
+                <div class="mgr-submenu" id="sub-analytics">
+                    <a href="/manager/analytics/room" class="mgr-submenu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9Z" /><path d="M3 11h18" /></svg>Hiệu suất phòng</a>
+                    <a href="/manager/analytics/tour" class="mgr-submenu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l19-9-9 19-2-8-8-2z" /></svg>Tỷ lệ tour</a>
+                    <a href="/manager/analytics/food" class="mgr-submenu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2" /><path d="M7 2v20" /><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7" /></svg>Tỷ lệ các món ăn</a>
+                </div>
+            </div>
+            <!-- Xuất báo cáo -->
+            <div class="mgr-nav-item">
+                <a href="/manager/export" class="mgr-nav-link">
+                    <svg class="mgr-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        <polyline points="7 10 12 15 17 10" />
+                        <line x1="12" x2="12" y1="15" y2="3" />
+                    </svg>
+                    <span style="flex:1">Xuất báo cáo</span>
+                </a>
+            </div>
+        </nav>
+        <div class="mgr-sidebar-footer">
+            <div class="mgr-sidebar-user">
+                <div class="mgr-sidebar-avatar">MG</div>
+                <div>
+                    <div class="mgr-sidebar-name">Manager </div>
+                    <div class="mgr-sidebar-role">Quản lý</div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN -->
+    <div class="mgr-main">
+        <header class="mgr-header">
+            <div class="mgr-header-left">
+                <button class="mgr-header-icon-btn mgr-sidebar-toggle" onclick="document.body.classList.toggle('sidebar-hidden')">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="3" y1="12" x2="21" y2="12" />
+                        <line x1="3" y1="6" x2="21" y2="6" />
+                        <line x1="3" y1="18" x2="21" y2="18" />
+                    </svg>
+                </button>
+                <span style="color:#4A4740;font-size:12px">MANAGER</span>
+                <span class="mgr-breadcrumb-sep">/</span>
+                <span style="color:#C9A96E;font-size:12px;font-weight:500">Hoàn tiền</span>
+            </div>
+            <div class="mgr-header-right">
+                <button class="mgr-header-icon-btn" style="position:relative"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" /><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" /></svg><span class="mgr-notif-dot"></span></button>
+                <div class="mgr-header-user-box">
+                    <div class="mgr-header-avatar">MG</div>
+                    <span class="mgr-header-username">Manager </span>
+                </div>
+                <div class="mgr-divider-v"></div>
+                <button class="mgr-header-btn-outline" onclick="location.href='/auth/logout'">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg> Đăng xuất
+                </button>
+            </div>
+        </header>
+
+        <main class="mgr-page">
+            <div>
+                <p class="mgr-page-eyebrow">Xử lý các yêu cầu hoàn tiền</p>
+                <h1 class="mgr-page-title">Quản lý Hoàn tiền</h1>
+            </div>
+
+            <!-- Pending Refunds -->
+            <div class="mgr-section-card" style="margin-top: 30px;">
+                <div class="mgr-section-title" style="margin-bottom:16px">Đang chờ xử lý</div>
+                <div style="overflow-x: auto;">
+                    <table class="mgr-table">
+                        <thead>
+                            <tr>
+                                <th>Mã Đơn</th>
+                                <th>Thông tin Bank</th>
+                                <th>Chủ TK</th>
+                                <th>SĐT Liên hệ</th>
+                                <th>Số tiền</th>
+                                <th>Thời gian yêu cầu</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="r : ${pendingRefunds}">
+                                <td th:text="${'ORD-' + r.order.id}">ORD-123</td>
+                                <td>
+                                    <strong style="font-family: var(--font-sans);" th:text="${r.bankName}">VCB</strong><br>
+                                    <span style="color:var(--text-muted); font-size:12px;" th:text="${r.accountNumber}">123456789</span>
+                                </td>
+                                <td th:text="${r.accountName}">NGUYEN VAN A</td>
+                                <td th:text="${r.phoneNumber}">090xxxx</td>
+                                <td style="color:#C9A96E; font-weight:600;" th:text="${#numbers.formatDecimal(r.amount, 0, 'COMMA', 0, 'POINT')} + ' ₫'">100,000 ₫</td>
+                                <td th:text="${#temporals.format(r.createdAt, 'dd/MM/yyyy HH:mm')}">01/01/2026</td>
+                                <td>
+                                    <!-- Nút Xem chi tiết / Xử lý -->
+                                    <button class="mgr-header-btn-outline" style="color: var(--primary); border-color: var(--primary); background: transparent; padding: 6px 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;"
+                                            th:attr="onclick=|openUploadModal('${r.id}', '${'ORD-' + r.order.id}', '${r.bankName}', '${r.accountNumber}', '${r.accountName}', '${#numbers.formatDecimal(r.amount, 0, 'COMMA', 0, 'POINT')} ₫')|">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                            <polyline points="17 8 12 3 7 8"/>
+                                            <line x1="12" y1="3" x2="12" y2="15"/>
+                                        </svg>
+                                        Xác nhận & Upload Bill
+                                    </button>
+                                    
+                                    <!-- Dữ liệu chi tiết đơn ẩn -->
+                                    <template th:id="'order-items-ORD-' + ${r.order.id}">
+                                        <ul style="list-style:none; padding:0; margin:0; font-size:13px; color:var(--text-muted);">
+                                            <li th:each="detail : ${r.order.details}" style="padding:6px 0; border-bottom:1px dashed var(--border-subtle); display:flex; justify-content:space-between;">
+                                                <span th:text="${detail.menuItem.itemName} + ' x ' + ${detail.quantity}"></span>
+                                                <span th:text="${#numbers.formatDecimal(detail.priceAtOrder, 0, 'COMMA', 0, 'POINT')} + ' ₫'" style="font-family: var(--font-mono); font-weight: 500;"></span>
+                                            </li>
+                                        </ul>
+                                    </template>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(pendingRefunds)}">
+                                <td colspan="7" style="text-align:center; padding:40px; color:var(--text-muted); font-family: var(--font-sans);">Không có yêu cầu hoàn tiền nào đang chờ.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Completed Refunds -->
+            <div class="mgr-section-card" style="margin-top: 30px;">
+                <div class="mgr-section-title" style="margin-bottom:16px">Đã hoàn thành</div>
+                <div style="overflow-x: auto;">
+                    <table class="mgr-table">
+                        <thead>
+                            <tr>
+                                <th>Mã Đơn</th>
+                                <th>Thông tin Bank</th>
+                                <th>Số tiền</th>
+                                <th>Trạng thái</th>
+                                <th>Bill (Ủy nhiệm chi)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="r : ${completedRefunds}">
+                                <td th:text="${'ORD-' + r.order.id}">ORD-123</td>
+                                <td>
+                                    <strong style="font-family: var(--font-sans);" th:text="${r.bankName}">VCB</strong><br>
+                                    <span style="color:var(--text-muted); font-size:12px;" th:text="${r.accountNumber}">123456789</span>
+                                </td>
+                                <td th:text="${#numbers.formatDecimal(r.amount, 0, 'COMMA', 0, 'POINT')} + ' ₫'" style="font-weight:600; color:var(--foreground);">100,000 ₫</td>
+                                <td><span style="background: rgba(122,156,122,0.1); color: #7A9C7A; padding: 4px 8px; border-radius: 4px; font-weight: 500; font-size: 11px; font-family: var(--font-sans);">Đã hoàn trả</span></td>
+                                <td>
+                                    <a th:href="${r.evidenceImageUrl}" target="_blank" class="mgr-header-btn-outline" style="text-decoration:none; padding: 6px 12px; display: inline-flex; align-items: center; gap: 6px;">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                            <circle cx="12" cy="12" r="3"></circle>
+                                        </svg>
+                                        Xem Bill
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(completedRefunds)}">
+                                <td colspan="5" style="text-align:center; padding:40px; color:var(--text-muted); font-family: var(--font-sans);">Chưa có dữ liệu.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Upload Modal -->
+    <div id="uploadModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Xác nhận Đã Chuyển khoản</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            
+            <div class="info-grid">
+                <span class="info-label">Mã đơn:</span>
+                <span class="info-value" id="mOrderId">ORD-000</span>
+                <span class="info-label">Ngân hàng:</span>
+                <span class="info-value" id="mBank">VCB</span>
+                <span class="info-label">Số TK:</span>
+                <span class="info-value" id="mAccNum">123456</span>
+                <span class="info-label">Chủ TK:</span>
+                <span class="info-value" id="mAccName">NGUYEN VAN A</span>
+                <span class="info-label">Số tiền:</span>
+                <span class="info-value" id="mAmount" style="color:#d32f2f;">0 ₫</span>
+            </div>
+
+            <!-- Chi tiết món ăn -->
+            <div style="margin-bottom: 20px; border: 1px solid var(--border-subtle); border-radius: 8px; padding: 15px;">
+                <div style="font-weight: 600; font-size: 0.9rem; color: var(--foreground); margin-bottom: 10px;">Chi tiết đơn bị hủy</div>
+                <div id="mOrderItems" style="max-height: 150px; overflow-y: auto;">
+                    <!-- Render list here -->
+                </div>
+            </div>
+
+            <p style="margin-bottom:15px; font-size:0.9rem; color:var(--text-muted); line-height: 1.5;">
+                Vui lòng tải lên hình ảnh chụp màn hình (Bill / Ủy nhiệm chi) chứng minh bạn đã chuyển khoản thành công vào tài khoản trên. Hệ thống sẽ tự động gửi email thông báo cho khách.
+            </p>
+
+            <form id="uploadForm" onsubmit="submitRefund(event)">
+                <input type="hidden" id="mRefundId">
+                
+                <div class="file-input-wrapper" onclick="document.getElementById('billFile').click()">
+                    <span class="material-symbols-outlined" style="font-size:3rem; color:var(--text-muted);">cloud_upload</span>
+                    <p style="margin-top:10px; color:var(--text-muted);">Bấm để chọn ảnh từ máy tính (JPG, PNG)</p>
+                    <input type="file" id="billFile" accept="image/*" required onchange="previewImage(event)">
+                </div>
+                <div style="text-align:center;">
+                    <img id="imgPreview" class="preview-img">
+                </div>
+
+                <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:25px;">
+                    <button type="button" class="btn-action" onclick="closeModal()">Hủy</button>
+                    <button type="submit" class="btn-action btn-primary" id="btnSubmit">
+                        <span class="material-symbols-outlined" style="font-size:1rem;">check_circle</span> Xác nhận & Gửi Mail
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function toggleSubmenu(subId, arrId) {
+            document.getElementById(subId).classList.toggle('open');
+            document.getElementById(arrId).classList.toggle('open');
+        }
+
+        function openUploadModal(refundId, orderId, bank, accNum, accName, amount) {
+            document.getElementById('mRefundId').value = refundId;
+            document.getElementById('mOrderId').innerText = orderId;
+            document.getElementById('mBank').innerText = bank;
+            document.getElementById('mAccNum').innerText = accNum;
+            document.getElementById('mAccName').innerText = accName;
+            document.getElementById('mAmount').innerText = amount;
+            
+            // Lấy chi tiết món ăn từ template ẩn
+            const template = document.getElementById('order-items-' + orderId);
+            if (template) {
+                document.getElementById('mOrderItems').innerHTML = template.innerHTML;
+            } else {
+                document.getElementById('mOrderItems').innerHTML = '<p style="color:var(--text-muted); font-size:12px;">Không có chi tiết.</p>';
+            }
+            
+            document.getElementById('billFile').value = '';
+            document.getElementById('imgPreview').style.display = 'none';
+            document.getElementById('imgPreview').src = '';
+            
+            document.getElementById('uploadModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('uploadModal').style.display = 'none';
+        }
+
+        function previewImage(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.getElementById('imgPreview');
+                    img.src = e.target.result;
+                    img.style.display = 'inline-block';
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function submitRefund(e) {
+            e.preventDefault();
+            const file = document.getElementById('billFile').files[0];
+            if (!file) {
+                alert("Vui lòng chọn ảnh bill!");
+                return;
+            }
+            
+            const refundId = document.getElementById('mRefundId').value;
+            const btn = document.getElementById('btnSubmit');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:1rem;">hourglass_empty</span> Đang xử lý...';
+
+            const formData = new FormData();
+            formData.append("billImage", file);
+
+            fetch('/api/manager/refunds/' + refundId + '/complete', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => {
+                if (!res.ok) throw new Error("API lỗi");
+                return res.json();
+            })
+            .then(data => {
+                alert("Hoàn tất quy trình hoàn tiền và đã gửi email thành công!");
+                window.location.reload();
+            })
+            .catch(err => {
+                alert("Có lỗi xảy ra: " + err.message);
+                btn.disabled = false;
+                btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:1rem;">check_circle</span> Xác nhận & Gửi Mail';
+            });
+        }
+    </script>
+</body>
+</html>

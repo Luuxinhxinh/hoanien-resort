@@ -12,4 +12,5 @@ public interface PosService {
     void addItemsToOrder(Long orderId, java.util.List<com.kawai.dto.CartItemDto> items);
 
     void updateOrderStatus(Long orderId, String status);
+    void cancelOrder(Long orderId, com.kawai.dtos.CancelOrderRequestDTO dto);
 }
