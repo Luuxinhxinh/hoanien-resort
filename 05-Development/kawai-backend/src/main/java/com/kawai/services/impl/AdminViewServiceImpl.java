@@ -533,6 +533,56 @@ public class AdminViewServiceImpl implements AdminViewService {
     }
 
     @Override
+    public List<AutomationTimelineMock> getAutomationTimeline() {
+        List<AutomationTimelineMock> timeline = new ArrayList<>();
+        try {
+            List<AuditLog> logs = auditLogRepository.findAll();
+            // Sort by timestamp desc manually to avoid needing a new repository method
+            logs.sort((a, b) -> {
+                if (a.getTimestamp() == null || b.getTimestamp() == null) return 0;
+                return b.getTimestamp().compareTo(a.getTimestamp());
+            });
+
+            int count = 0;
+            for (AuditLog l : logs) {
+                if (count >= 10) break; // Limit to 10
+
+                String time = l.getTimestamp() != null ? l.getTimestamp().format(DateTimeFormatter.ofPattern("HH:mm")) : "00:00";
+                String title = "[" + time + "] Hệ thống ghi nhận thay đổi trên bảng " + l.getTableName();
+                String action = l.getAction() != null ? l.getAction() : "ACTION";
+                String desc = "Hành động: " + action + " (ID: " + l.getRecordId() + ")";
+                
+                if (l.getNewValue() != null && !l.getNewValue().isEmpty()) {
+                    desc += " - Dữ liệu mới: " + l.getNewValue();
+                }
+
+                String type = "SYSTEM";
+                String theme = "blue";
+                
+                String table = l.getTableName() != null ? l.getTableName().toUpperCase() : "";
+                if (table.contains("ROOM")) {
+                    type = "ROOMS";
+                    theme = "yellow";
+                } else if (table.contains("BOOKING")) {
+                    type = "BOOKING";
+                    theme = "green";
+                } else if (table.contains("ORDER") || table.contains("FOOD")) {
+                    type = "F&B";
+                    theme = "red";
+                }
+
+                timeline.add(new AutomationTimelineMock(time, title, desc, type, theme));
+                count++;
+            }
+        } catch (Exception e) {}
+
+        if (timeline.isEmpty()) {
+            timeline.add(new AutomationTimelineMock("15:40", "[15:40] Không có sự kiện nào gần đây", "Hệ thống đang hoạt động bình thường", "SYSTEM", "green"));
+        }
+        return timeline;
+    }
+
+    @Override
     public List<AuditLogMock> getAuditLogs() {
         List<AuditLogMock> logs = new ArrayList<>();
         try {

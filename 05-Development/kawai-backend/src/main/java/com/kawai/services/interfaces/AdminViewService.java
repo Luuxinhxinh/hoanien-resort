@@ -88,7 +88,19 @@ public interface AdminViewService {
         }
     }
 
-        @Data
+        List<AutomationTimelineMock> getAutomationTimeline();
+
+    @Data
+    @AllArgsConstructor
+    class AutomationTimelineMock {
+        private String time;
+        private String title;
+        private String description;
+        private String type;
+        private String colorTheme; // 'red', 'yellow', 'blue', 'green'
+    }
+
+    @Data
     class RoomMock {
         private String roomNumber;
         private String status;

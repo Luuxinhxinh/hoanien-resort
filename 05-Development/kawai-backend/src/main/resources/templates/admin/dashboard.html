@@ -172,38 +172,21 @@
                     Active (Real-time)
                 </span>
             </div>
-            <div class="automation-timeline-list" style="display: flex; flex-direction: column; gap: 12px; max-height: 220px; overflow-y: auto; padding-right: 6px;">
-                <div class="automation-item" style="display: flex; align-items: flex-start; gap: 12px; padding: 10px 14px; background: rgba(239,68,68,0.04); border-left: 3px solid #EF4444; border-radius: 4px;">
-                    <span class="auto-time" style="font-family: var(--font-mono); font-size: 11px; color: #EF4444; font-weight: 600; margin-top: 2px;">15:40</span>
+                        <div class="automation-timeline-list" style="display: flex; flex-direction: column; gap: 12px; max-height: 220px; overflow-y: auto; padding-right: 6px;">
+                <div th:each="auto : ${automations}" class="automation-item" 
+                     th:style="'display: flex; align-items: flex-start; gap: 12px; padding: 10px 14px; border-radius: 4px; background: ' + 
+                     (${auto.colorTheme} == 'red' ? 'rgba(239,68,68,0.04)' : (${auto.colorTheme} == 'yellow' ? 'rgba(201,169,110,0.05)' : (${auto.colorTheme} == 'green' ? 'rgba(90,140,107,0.05)' : 'rgba(45,107,122,0.05)'))) + 
+                     '; border-left: 3px solid ' + 
+                     (${auto.colorTheme} == 'red' ? '#EF4444' : (${auto.colorTheme} == 'yellow' ? '#C9A96E' : (${auto.colorTheme} == 'green' ? '#2D6B4A' : '#1D5B6A'))) + ';'">
+                    <span class="auto-time" th:text="${auto.time}" th:style="'font-family: var(--font-mono); font-size: 11px; font-weight: 600; margin-top: 2px; color: ' + (${auto.colorTheme} == 'red' ? '#EF4444' : (${auto.colorTheme} == 'yellow' ? '#8B7355' : (${auto.colorTheme} == 'green' ? '#2D6B4A' : '#1D5B6A')))">15:40</span>
                     <div style="flex: 1;">
-                        <p style="margin: 0; font-size: 13px; font-weight: 600; color: #2C2A1E;">[15:40] Phòng 103 báo hỏng -> Đã tự động tạo Task cho Đội Sửa Chữa</p>
-                        <p style="margin: 2px 0 0 0; font-size: 11px; color: #8B7355;">Thiết bị hỏng: Điều hòa nhiệt độ phòng ngủ. Nhân viên kỹ thuật Phạm Quốc Bảo đã được chỉ định lập tức.</p>
+                        <p style="margin: 0; font-size: 13px; font-weight: 600; color: #2C2A1E;" th:text="${auto.title}">[15:40] Title</p>
+                        <p style="margin: 2px 0 0 0; font-size: 11px; color: #8B7355; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 600px;" th:text="${auto.description}">Desc</p>
                     </div>
-                    <span class="badge-red" style="font-size: 9px; padding: 2px 6px; border-radius: 3px; background-color: rgba(239,68,68,0.15); color: #EF4444; font-weight:600;">MAINTENANCE</span>
-                </div>
-                <div class="automation-item" style="display: flex; align-items: flex-start; gap: 12px; padding: 10px 14px; background: rgba(201,169,110,0.05); border-left: 3px solid #C9A96E; border-radius: 4px;">
-                    <span class="auto-time" style="font-family: var(--font-mono); font-size: 11px; color: #8B7355; margin-top: 2px;">15:15</span>
-                    <div style="flex: 1;">
-                        <p style="margin: 0; font-size: 13px; font-weight: 600; color: #2C2A1E;">[15:15] Phòng 203 chuyển trạng thái [Bẩn] -> Kích hoạt lệnh dọn phòng tự động</p>
-                        <p style="margin: 2px 0 0 0; font-size: 11px; color: #8B7355;">Đã khởi tạo công việc làm sạch phòng và điều phối nhân viên buồng phòng Lê Văn Tám xử lý.</p>
-                    </div>
-                    <span class="badge-yellow" style="font-size: 9px; padding: 2px 6px; border-radius: 3px; background-color: rgba(201,169,110,0.15); color: #8B6010; font-weight:600;">HOUSEKEEPING</span>
-                </div>
-                <div class="automation-item" style="display: flex; align-items: flex-start; gap: 12px; padding: 10px 14px; background: rgba(45,107,122,0.05); border-left: 3px solid #1D5B6A; border-radius: 4px;">
-                    <span class="auto-time" style="font-family: var(--font-mono); font-size: 11px; color: #8B7355; margin-top: 2px;">14:30</span>
-                    <div style="flex: 1;">
-                        <p style="margin: 0; font-size: 13px; font-weight: 600; color: #2C2A1E;">[14:30] Đơn F&B #FB-1002 hoàn tất chuẩn bị tại Bếp -> Thông báo giao nhận</p>
-                        <p style="margin: 2px 0 0 0; font-size: 11px; color: #8B7355;">Gửi thông báo đẩy đến Tablet của nhân viên phục vụ bàn ăn khu vực T04 để nhận món từ quầy bếp.</p>
-                    </div>
-                    <span class="badge-blue" style="font-size: 9px; padding: 2px 6px; border-radius: 3px; background-color: rgba(45,107,122,0.15); color: #1D5B6A; font-weight:600;">ROOM SERVICE</span>
-                </div>
-                <div class="automation-item" style="display: flex; align-items: flex-start; gap: 12px; padding: 10px 14px; background: rgba(90,140,107,0.05); border-left: 3px solid #2D6B4A; border-radius: 4px;">
-                    <span class="auto-time" style="font-family: var(--font-mono); font-size: 11px; color: #8B7355; margin-top: 2px;">13:00</span>
-                    <div style="flex: 1;">
-                        <p style="margin: 0; font-size: 13px; font-weight: 600; color: #2C2A1E;">[13:00] Tour Tây Bắc #TS-2002 đạt giới hạn sĩ số 20/20 -> Tự động đóng đăng ký</p>
-                        <p style="margin: 2px 0 0 0; font-size: 11px; color: #8B7355;">Khóa đăng ký bổ sung, kích hoạt lịch trình vận hành và gửi SMS hướng dẫn cho toàn bộ hành khách.</p>
-                    </div>
-                    <span class="badge-green" style="font-size: 9px; padding: 2px 6px; border-radius: 3px; background-color: rgba(90,140,107,0.15); color: #2D6B4A; font-weight:600;">TOUR SYSTEM</span>
+                    <span th:class="'badge-' + ${auto.colorTheme}" 
+                          th:style="'font-size: 9px; padding: 2px 6px; border-radius: 3px; font-weight:600; ' + 
+                          (${auto.colorTheme} == 'red' ? 'background-color: rgba(239,68,68,0.15); color: #EF4444;' : (${auto.colorTheme} == 'yellow' ? 'background-color: rgba(201,169,110,0.15); color: #8B6010;' : (${auto.colorTheme} == 'green' ? 'background-color: rgba(90,140,107,0.15); color: #2D6B4A;' : 'background-color: rgba(45,107,122,0.15); color: #1D5B6A;')))" 
+                          th:text="${auto.type}">MAINTENANCE</span>
                 </div>
             </div>
             <style>
