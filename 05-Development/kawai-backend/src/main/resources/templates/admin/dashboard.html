@@ -141,9 +141,9 @@
                     <h3 class="adm-floor-title" th:text="${floorEntry.key}" style="margin-bottom:12px; font-size:14px; font-weight:600; color:#5c5a4d; border-bottom:1px solid #e2ddce; padding-bottom:4px;">Tầng</h3>
                     <div class="adm-room-matrix" style="grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));">
                         <div th:each="room : ${floorEntry.value}"
-                             class="adm-room-cell"
-                             th:style="'background-color:' + ${room.bgColor} + '; color:' + ${room.textColor} + '; border: 1px solid ' + ${room.dotColor} + '; position: relative; min-height: 68px; padding: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center;'"
-                             th:title="${room.status == 'broken' ? 'Hệ thống Sửa chữa - Ghi chú: ' + room.issueDescription : room.statusLabel}">
+                                                          class="adm-room-cell"
+                             th:style="'background-color:' + ${room.bgColor} + '; color:' + ${room.textColor} + '; border: 1px solid ' + ${room.dotColor} + '; position: relative; min-height: 68px; padding: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer;'"
+                             th:attr="onclick='openRoomDetailModal(this)', data-room-no=${room.roomNumber}, data-status=${room.statusLabel}, data-issue=${room.issueDescription}, data-category=${room.roomCategory}, data-guest-name=${room.guestName}, data-guest-requests=${room.guestRequests}, data-guests=${room.currentGuests}">>
                             <span class="adm-room-number" th:text="${room.roomNumber}" th:style="'color:' + ${room.textColor} + '; font-weight:700; font-size:14px;'">101</span>
                             <span class="adm-room-status-lbl" th:text="${room.statusLabel}" th:style="'color:' + ${room.textColor} + '; font-size:9.5px; opacity:0.85; font-weight:600;'">Trống</span>
                             
@@ -158,53 +158,6 @@
                     </div>
                 </div>
             </div>
-        </div>
-
-        <!-- Bottom Grid: Activity + Checkout -->
-        <div class="adm-bottom-grid">
-
-            <!-- Recent Activity (3/5) -->
-            <div class="adm-card">
-                <h2 class="adm-section-title" style="margin-bottom:20px">Hoạt động gần đây</h2>
-                <div class="adm-activity-list">
-                    <div th:each="activity : ${activities}" class="adm-activity-item">
-                        <span class="adm-activity-time" th:text="${activity.time}">08:42</span>
-                        <div class="adm-activity-avatar"
-                             th:style="'background-color:' + ${activity.avatarBg}"
-                             th:text="${activity.initials}">LN</div>
-                        <div class="adm-activity-body">
-                            <div class="adm-activity-name-row">
-                                <span class="adm-activity-name" th:text="${activity.name}">Linh Nguyễn</span>
-                                <span class="adm-role-pill"
-                                      th:style="'background-color:' + ${activity.roleBadgeBg} + '; color:' + ${activity.roleBadgeColor}"
-                                      th:text="${activity.role}">Receptionist</span>
-                            </div>
-                            <p class="adm-activity-action" th:text="${activity.action}">Check-in khách #1204</p>
-                        </div>
-                        <span class="adm-activity-badge" th:text="${activity.badgeLabel}">Booking</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Tonight's Checkouts (2/5) -->
-            <div class="adm-card">
-                <h2 class="adm-section-title">Trả phòng tối nay</h2>
-                <p class="adm-section-subtitle" style="margin-bottom:20px"
-                   th:text="${checkoutCount} + ' khách trả phòng'">4 khách trả phòng</p>
-                <div class="adm-checkout-list">
-                    <div th:each="checkout, iterStat : ${checkouts}"
-                         class="adm-checkout-row"
-                         th:classappend="${iterStat.odd} ? ' odd' : ''">
-                        <div class="adm-checkout-left">
-                            <span class="adm-room-tag" th:text="${checkout.roomNumber}">102</span>
-                            <span class="adm-checkout-guest" th:text="${checkout.guestName}">Mr. Haruto Yamamoto</span>
-                        </div>
-                        <span th:if="${checkout.paid}"   class="adm-badge-paid">Đã thanh toán</span>
-                        <span th:unless="${checkout.paid}" class="adm-badge-pending">Chờ thanh toán</span>
-                    </div>
-                </div>
-            </div>
-
         </div>
 
         <!-- Automation Engine Timeline -->
@@ -312,6 +265,100 @@
         });
     });
     /*]]>*/
+</script>
+
+<!-- Room Detail Modal -->
+<div id="roomDetailModal" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;">
+    <div style="background:#fff; border-radius:12px; width:450px; padding:24px; box-shadow:0 10px 25px rgba(0,0,0,0.15); font-family:'Inter', sans-serif;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:1px solid #eee; padding-bottom:12px;">
+            <h3 style="margin:0; font-size:18px; color:#2C2A1E; font-weight:700; display:flex; align-items:center; gap:8px;">
+                <i data-lucide="info" style="color:#C9A96E; width:22px; height:22px;"></i>
+                Chi tiết Phòng <span id="modalRoomNo" style="color:#C9A96E;"></span>
+            </h3>
+            <button onclick="closeRoomDetailModal()" style="background:none; border:none; cursor:pointer; color:#8B7355;"><i data-lucide="x" style="width:20px; height:20px;"></i></button>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:16px;">
+            <div style="display:grid; grid-template-columns: 100px 1fr; gap:12px; align-items:center;">
+                <span style="color:#8B7355; font-size:13px; font-weight:600;">Loại phòng:</span>
+                <span id="modalRoomCat" style="color:#2C2A1E; font-size:14px; font-weight:500; background:#f4f4f4; padding:4px 8px; border-radius:4px;"></span>
+            </div>
+            <div style="display:grid; grid-template-columns: 100px 1fr; gap:12px; align-items:center;">
+                <span style="color:#8B7355; font-size:13px; font-weight:600;">Trạng thái:</span>
+                <span id="modalRoomStatus" style="font-size:13px; font-weight:600; padding:4px 8px; border-radius:4px;"></span>
+            </div>
+            <div id="modalGuestInfo" style="display:none; flex-direction:column; gap:16px; margin-top:8px; padding-top:16px; border-top:1px dashed #e2ddce;">
+                <div style="display:grid; grid-template-columns: 100px 1fr; gap:12px; align-items:center;">
+                    <span style="color:#8B7355; font-size:13px; font-weight:600;">Khách lưu trú:</span>
+                    <span id="modalGuestName" style="color:#2C2A1E; font-size:14px; font-weight:600;"></span>
+                </div>
+                <div style="display:grid; grid-template-columns: 100px 1fr; gap:12px; align-items:center;">
+                    <span style="color:#8B7355; font-size:13px; font-weight:600;">Số lượng:</span>
+                    <span id="modalGuests" style="color:#2C2A1E; font-size:14px; font-weight:500;"></span>
+                </div>
+                <div id="modalRequestsWrap" style="display:none; background:rgba(201,169,110,0.1); padding:12px; border-radius:6px; border-left:3px solid #C9A96E;">
+                    <span style="color:#8B6010; font-size:12px; font-weight:700; text-transform:uppercase;">Yêu cầu đặc biệt:</span>
+                    <p id="modalRequests" style="margin:4px 0 0 0; color:#2C2A1E; font-size:13px; line-height:1.4;"></p>
+                </div>
+            </div>
+            <div id="modalIssueWrap" style="display:none; background:rgba(239,68,68,0.05); padding:12px; border-radius:6px; border-left:3px solid #EF4444; margin-top:8px;">
+                <span style="color:#B91C1C; font-size:12px; font-weight:700; text-transform:uppercase;">Lỗi / Sự cố:</span>
+                <p id="modalIssue" style="margin:4px 0 0 0; color:#991B1B; font-size:13px; line-height:1.4;"></p>
+            </div>
+        </div>
+        <div style="margin-top:24px; display:flex; justify-content:flex-end;">
+            <button onclick="closeRoomDetailModal()" style="background:#C9A96E; color:#fff; border:none; padding:8px 16px; border-radius:6px; font-weight:600; cursor:pointer; font-size:13px;">Đóng</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openRoomDetailModal(el) {
+        document.getElementById('modalRoomNo').innerText = el.dataset.roomNo;
+        document.getElementById('modalRoomCat').innerText = el.dataset.category;
+        
+        const status = el.dataset.status;
+        const statusEl = document.getElementById('modalRoomStatus');
+        statusEl.innerText = status;
+        
+        if (status === 'Có Khách') {
+            statusEl.style.backgroundColor = '#DBEAFE';
+            statusEl.style.color = '#1E40AF';
+            document.getElementById('modalGuestInfo').style.display = 'flex';
+            document.getElementById('modalGuestName').innerText = el.dataset.guestName;
+            document.getElementById('modalGuests').innerText = el.dataset.guests + ' khách';
+            
+            if (el.dataset.guestRequests) {
+                document.getElementById('modalRequestsWrap').style.display = 'block';
+                document.getElementById('modalRequests').innerText = el.dataset.guestRequests;
+            } else {
+                document.getElementById('modalRequestsWrap').style.display = 'none';
+            }
+            document.getElementById('modalIssueWrap').style.display = 'none';
+        } else if (status === 'HỎNG') {
+            statusEl.style.backgroundColor = '#FEE2E2';
+            statusEl.style.color = '#991B1B';
+            document.getElementById('modalGuestInfo').style.display = 'none';
+            document.getElementById('modalIssueWrap').style.display = 'block';
+            document.getElementById('modalIssue').innerText = el.dataset.issue;
+        } else if (status === 'Bẩn') {
+            statusEl.style.backgroundColor = '#FEF3C7';
+            statusEl.style.color = '#92400E';
+            document.getElementById('modalGuestInfo').style.display = 'none';
+            document.getElementById('modalIssueWrap').style.display = 'none';
+        } else {
+            statusEl.style.backgroundColor = '#E5E7EB';
+            statusEl.style.color = '#374151';
+            document.getElementById('modalGuestInfo').style.display = 'none';
+            document.getElementById('modalIssueWrap').style.display = 'none';
+        }
+        
+        document.getElementById('roomDetailModal').style.display = 'flex';
+        lucide.createIcons();
+    }
+    
+    function closeRoomDetailModal() {
+        document.getElementById('roomDetailModal').style.display = 'none';
+    }
 </script>
 </body>
 </html>

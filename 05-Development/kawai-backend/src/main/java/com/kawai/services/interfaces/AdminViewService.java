@@ -88,22 +88,32 @@ public interface AdminViewService {
         }
     }
 
-    @Data
+        @Data
     class RoomMock {
         private String roomNumber;
         private String status;
         private String issueDescription;
+        private String roomCategory;
+        private String guestName;
+        private String guestRequests;
+        private int currentGuests;
 
-        public RoomMock(String roomNumber, String status) {
-            this.roomNumber = roomNumber;
-            this.status = status;
-            this.issueDescription = "";
-        }
-
-        public RoomMock(String roomNumber, String status, String issueDescription) {
+        public RoomMock(String roomNumber, String status, String issueDescription, String roomCategory, String guestName, String guestRequests, int currentGuests) {
             this.roomNumber = roomNumber;
             this.status = status;
             this.issueDescription = issueDescription;
+            this.roomCategory = roomCategory;
+            this.guestName = guestName;
+            this.guestRequests = guestRequests;
+            this.currentGuests = currentGuests;
+        }
+
+        public RoomMock(String roomNumber, String status) {
+            this(roomNumber, status, "", "Standard", "", "", 0);
+        }
+
+        public RoomMock(String roomNumber, String status, String issueDescription) {
+            this(roomNumber, status, issueDescription, "Standard", "", "", 0);
         }
 
         public String getBgColor() {

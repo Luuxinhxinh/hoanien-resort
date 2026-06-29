@@ -83,8 +83,14 @@ public class AdminViewServiceImpl implements AdminViewService {
             String issue = "";
             String dbStatus = r.getRoomStatus() == null ? "Vacant_Clean" : r.getRoomStatus();
 
+                        String guestName = "";
+            String guestRequests = "";
+            int guests = 0;
+
             if ("Occupied".equalsIgnoreCase(dbStatus)) {
                 status = "occupied";
+                guestName = "Guest " + r.getRoomNumber();
+                guests = 2;
             } else if ("Vacant_Dirty".equalsIgnoreCase(dbStatus)) {
                 status = "dirty";
             } else if ("Maintenance".equalsIgnoreCase(dbStatus)) {
@@ -98,12 +104,28 @@ public class AdminViewServiceImpl implements AdminViewService {
             if ("103".equals(r.getRoomNumber())) {
                 status = "broken";
                 issue = "Hỏng điều hòa";
+                guestName = "";
+                guests = 0;
             } else if ("207".equals(r.getRoomNumber())) {
                 status = "broken";
                 issue = "Hỏng vòi sen";
+                guestName = "";
+                guests = 0;
+            } else if ("201".equals(r.getRoomNumber())) {
+                status = "occupied";
+                guestName = "Trần Đình Trọng";
+                guests = 2;
+                guestRequests = "Khách yêu cầu thêm gối mềm và dọn phòng lúc 14h.";
+            } else if ("205".equals(r.getRoomNumber())) {
+                status = "occupied";
+                guestName = "Michael Smith";
+                guests = 1;
+                guestRequests = "Cần setup bàn là hơi nước.";
             }
 
-            return new RoomMock(r.getRoomNumber(), status, issue);
+            String category = r.getCategory() != null ? r.getCategory().getCategoryName() : "Standard";
+
+            return new RoomMock(r.getRoomNumber(), status, issue, category, guestName, guestRequests, guests);
         }).collect(Collectors.groupingBy(r -> {
             String rn = r.getRoomNumber();
             if (rn != null && rn.length() >= 3) {
