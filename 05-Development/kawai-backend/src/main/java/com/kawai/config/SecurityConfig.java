@@ -250,15 +250,30 @@ public class SecurityConfig {
                     if (account != null) {
                         request.getSession().setAttribute("user", account);
                     }
-
-                    String finalRedirectTo = request.getParameter("redirect_to");
-                    if (finalRedirectTo != null && !finalRedirectTo.trim().isEmpty()) {
-                        response.sendRedirect(finalRedirectTo);
+                    response.sendRedirect(redirect);
+                } else {
+                    // Normal Customer / Guest
+                    if (isFromOpsPortal) {
+                        // Guest tried to log in from Ops portal
+                        request.getSession().invalidate();
+                        org.springframework.security.core.context.SecurityContextHolder.clearContext();
+                        response.sendRedirect("/ops-login?error=true");
                         return;
                     }
 
-                    // Redirect to the appropriate dashboard
-                    response.sendRedirect(redirect);
+                    Account account = accountRepository.findByUsername(authentication.getName()).orElse(null);
+                    if (account != null) {
+                        request.getSession().setAttribute("user", account);
+                    }
+
+                    String redirectTo = request.getParameter("redirect_to");
+                    if (redirectTo != null && !redirectTo.trim().isEmpty()) {
+                        response.sendRedirect(redirectTo);
+                        return;
+                    }
+
+                    // Redirect to /living for all customers
+                    response.sendRedirect("/living");
                 }
             }
         };
