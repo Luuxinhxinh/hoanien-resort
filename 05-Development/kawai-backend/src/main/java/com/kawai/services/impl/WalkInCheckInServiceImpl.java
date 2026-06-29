@@ -64,6 +64,7 @@ public class WalkInCheckInServiceImpl implements WalkInCheckInService {
     private final com.kawai.repositories.MembershipTierRepository membershipTierRepository;
     private final com.kawai.services.interfaces.FolioService folioService;
     private final PasswordEncoder passwordEncoder;
+    private final com.kawai.services.interfaces.CheckinService checkinService;
     private static final int ADULT_AGE_THRESHOLD = 18;
     private static final String CCCD_PATTERN = "\\d{12}";
 
@@ -79,7 +80,8 @@ public class WalkInCheckInServiceImpl implements WalkInCheckInService {
             com.kawai.repositories.RoleRepository roleRepository,
             com.kawai.repositories.MembershipTierRepository membershipTierRepository,
             com.kawai.services.interfaces.FolioService folioService,
-            PasswordEncoder passwordEncoder) {
+            PasswordEncoder passwordEncoder,
+            @org.springframework.context.annotation.Lazy com.kawai.services.interfaces.CheckinService checkinService) {
         this.roomRepository = roomRepository;
         this.roomBookingRepository = roomBookingRepository;
         this.roomBookingDetailRepository = roomBookingDetailRepository;
@@ -92,6 +94,7 @@ public class WalkInCheckInServiceImpl implements WalkInCheckInService {
         this.membershipTierRepository = membershipTierRepository;
         this.folioService = folioService;
         this.passwordEncoder = passwordEncoder;
+        this.checkinService = checkinService;
     }
 
     /**
@@ -135,9 +138,10 @@ public class WalkInCheckInServiceImpl implements WalkInCheckInService {
             }
 
             // Validate Total Allocated Credit Limit
-            BigDecimal masterCreditLimit = (customer.getMembershipTier() != null && customer.getMembershipTier().getCreditLimit() != null) 
-                    ? customer.getMembershipTier().getCreditLimit() 
-                    : new BigDecimal("5000000.00");
+            BigDecimal masterCreditLimit = (customer.getMembershipTier() != null
+                    && customer.getMembershipTier().getCreditLimit() != null)
+                            ? customer.getMembershipTier().getCreditLimit()
+                            : new BigDecimal("5000000.00");
             if (totalAllocatedCreditLimit.compareTo(masterCreditLimit) > 0) {
                 throw new BusinessException("MOD2-UC14-016",
                         "Tổng hạng mức của các phòng cộng lại (" + totalAllocatedCreditLimit
@@ -211,24 +215,26 @@ public class WalkInCheckInServiceImpl implements WalkInCheckInService {
                 }
 
                 for (DependentRegistrationDTO dto : companions) {
+                    boolean isPrimary = !isFirstRoom && Boolean.TRUE.equals(dto.getIsPrimaryContact());
+
+                    // Lưu Dependent bình thường cho dù có là primary contact hay không
                     Dependent d = new Dependent();
-                    d.setCustomer(customer);
-                    d.setDependentName(dto.getFullName() != null && !dto.getFullName().isBlank() ? dto.getFullName().trim() : "Khách đi kèm");
-                    d.setBirthDate(dto.getDateOfBirth() != null ? dto.getDateOfBirth() : java.time.LocalDate.now().minusYears(18).withDayOfYear(1));
+                    d.setCustomer(customer); // Phụ thuộc vào Master Customer
+                    d.setDependentName(
+                            dto.getFullName() != null && !dto.getFullName().isBlank() ? dto.getFullName().trim()
+                                    : "Khách lưu trú");
                     d.setGender(dto.getGender() != null ? dto.getGender() : "Khác");
+                    d.setBirthDate(dto.getDateOfBirth() != null ? dto.getDateOfBirth()
+                            : LocalDate.now().minusYears(18).withDayOfYear(1));
                     if (dto.getCccd() != null && !dto.getCccd().isBlank()) {
                         d.setCccdPassportEncrypted(EncryptionUtils.encrypt(dto.getCccd()));
                     }
                     Dependent savedDep = dependentRepository.save(d);
 
-                    // Tạo liên kết RoomGuest cho người đi kèm
                     RoomGuest rg = new RoomGuest();
                     rg.setRoomBookingDetail(detail);
                     rg.setDependent(savedDep);
-                    // Nếu là phòng 1, cưỡng chế không cho khách đi kèm làm Đứng đầu (vì Master
-                    // Guest đã gánh).
-                    rg.setIsPrimaryContact(isFirstRoom ? false
-                            : (dto.getIsPrimaryContact() != null ? dto.getIsPrimaryContact() : false));
+                    rg.setIsPrimaryContact(isPrimary);
 
                     int age = 18;
                     if (savedDep.getBirthDate() != null) {
@@ -282,7 +288,6 @@ public class WalkInCheckInServiceImpl implements WalkInCheckInService {
             response.setAccompaniedGuestCount(totalCompanions);
             if (newAccount != null) {
                 response.setNewAccountUsername(newAccount.getUsername());
-                response.setNewAccountPassword("123456"); // Show plain-text default password
             }
 
             return response;
@@ -415,7 +420,8 @@ public class WalkInCheckInServiceImpl implements WalkInCheckInService {
                 .orElseThrow(() -> new BusinessException("MOD2-UC14-004",
                         "No available rooms found for the requested room ID: " + roomId));
 
-        if (!"Vacant_Clean".equalsIgnoreCase(room.getRoomStatus()) && !"Vacant_Dirty".equalsIgnoreCase(room.getRoomStatus())) {
+        if (!"Vacant_Clean".equalsIgnoreCase(room.getRoomStatus())
+                && !"Vacant_Dirty".equalsIgnoreCase(room.getRoomStatus())) {
             throw new BusinessException("MOD2-UC14-006",
                     "Selected room is not available for check-in. Current status: " + room.getRoomStatus());
         }
@@ -563,8 +569,8 @@ public class WalkInCheckInServiceImpl implements WalkInCheckInService {
                 : "walkin_" + UUID.randomUUID().toString().substring(0, 8);
         account.setUsername(username);
 
-        // Mật khẩu mặc định là 123456 cho khách Walk-in chưa có tài khoản
-        String defaultPassword = "123456";
+        // Mật khẩu random thay vì mặc định 123456
+        String defaultPassword = UUID.randomUUID().toString().substring(0, 6);
         account.setPasswordHash(passwordEncoder.encode(defaultPassword));
         account.setIsActive(true);
 

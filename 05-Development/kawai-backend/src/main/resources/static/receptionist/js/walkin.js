@@ -7,7 +7,26 @@ document.addEventListener('DOMContentLoaded', () => {
     for (const category in roomInventory) {
         const opt = document.createElement('option');
         opt.value = category;
-        opt.innerText = category;
+
+        // Số phòng thực còn khả dụng (đã trừ slot bị giữ bởi booking online Confirmed)
+        const netAvailable = (typeof categoryAvailability !== 'undefined' && categoryAvailability[category] !== undefined)
+            ? categoryAvailability[category]
+            : roomInventory[category].length;
+        const totalVacant = roomInventory[category].length;
+
+        let availabilityLabel = '';
+        if (netAvailable <= 0) {
+            availabilityLabel = ' ⚠ Hết phòng thực tế (đã bị giữ bởi booking online)';
+            opt.style.color = '#dc2626'; // đỏ
+        } else if (netAvailable < totalVacant) {
+            availabilityLabel = ` (Còn ${netAvailable}/${totalVacant} phòng walk-in được)`;
+            opt.style.color = '#d97706'; // vàng cam
+        } else {
+            availabilityLabel = ` (Còn ${netAvailable} phòng)`;
+        }
+
+        opt.innerText = category + availabilityLabel;
+        opt.dataset.netAvailable = netAvailable;
         typeSelect.appendChild(opt);
     }
 
@@ -41,6 +60,28 @@ function updateWalkInAvailableRooms() {
     if (!selectedType) return;
 
     const available = roomInventory[selectedType] || [];
+    const selectedOpt = typeSelect.options[typeSelect.selectedIndex];
+    const netAvailable = selectedOpt ? parseInt(selectedOpt.dataset.netAvailable || available.length) : available.length;
+
+    // Xoá banner cũ nếu có
+    const oldBanner = document.getElementById('walkInAvailabilityWarning');
+    if (oldBanner) oldBanner.remove();
+
+    // Hiển thị cảnh báo nếu số phòng thực còn lại bằng 0
+    if (netAvailable <= 0 && available.length > 0) {
+        const banner = document.createElement('div');
+        banner.id = 'walkInAvailabilityWarning';
+        banner.style.cssText = 'margin-top:12px; padding:10px 14px; background:#fef2f2; border:1px solid #fca5a5; border-radius:6px; color:#dc2626; font-size:13px; display:flex; align-items:center; gap:8px;';
+        banner.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> <strong>Cảnh báo:</strong> Toàn bộ ' + available.length + ' phòng thuộc loại này đã bị giữ bởi booking online (Confirmed). Không nên chọn walk-in cho hạng phòng này!';
+        typeSelect.parentElement.appendChild(banner);
+    } else if (netAvailable < available.length) {
+        const banner = document.createElement('div');
+        banner.id = 'walkInAvailabilityWarning';
+        banner.style.cssText = 'margin-top:12px; padding:10px 14px; background:#fffbeb; border:1px solid #fcd34d; border-radius:6px; color:#92400e; font-size:13px; display:flex; align-items:center; gap:8px;';
+        banner.innerHTML = '<i class="fa-solid fa-circle-info"></i> <strong>Lưu ý:</strong> ' + (available.length - netAvailable) + ' phòng đã bị giữ bởi booking online. Chỉ còn <strong>' + netAvailable + '/' + available.length + '</strong> phòng thực sự khả dụng cho walk-in.';
+        typeSelect.parentElement.appendChild(banner);
+    }
+
     available.forEach(r => {
         const opt = document.createElement('option');
 
@@ -89,9 +130,9 @@ function updateCreditLimitDisplay() {
     walkInCart.forEach(r => totalAllocated += (r.allocatedCreditLimit || 0));
     let remaining = masterCreditLimit - totalAllocated;
     let displayEl = document.getElementById('remainingCreditDisplay');
-    if(displayEl) {
+    if (displayEl) {
         displayEl.innerText = remaining.toLocaleString() + ' VND';
-        if(remaining < 0) {
+        if (remaining < 0) {
             displayEl.style.color = 'red';
         } else {
             displayEl.style.color = '#16a34a';
@@ -182,11 +223,11 @@ function renderRoomCart() {
     walkInCart.forEach((room, index) => {
         const tr = document.createElement('tr');
         tr.style.borderBottom = '1px dashed #e2e8f0';
-        
-        const creditCell = isGuestVerified 
+
+        const creditCell = isGuestVerified
             ? `<td style="padding: 10px 16px;">
                 <input type="number" class="form-control room-credit-input" data-index="${index}" value="${room.allocatedCreditLimit || ''}" min="0" oninput="handleCreditInput(this, ${index})" style="width:120px; padding: 6px; border: 1px solid #cbd5e1; border-radius: 4px;">
-               </td>` 
+               </td>`
             : `<td style="display: none;"></td>`;
 
         tr.innerHTML = `
@@ -246,7 +287,7 @@ function searchCustomer() {
             } else {
                 masterCreditLimit = 5000000;
             }
-            
+
             isGuestVerified = true;
             renderRoomCart();
             updateCreditLimitDisplay();
@@ -520,16 +561,12 @@ function submitCheckIn() {
             const isNew = data.newCustomer === true || data.isNewCustomer === true;
             if (isNew && data.newAccountUsername) {
                 msg.innerHTML = "Hệ thống đã <b>tự động tạo hồ sơ</b> khách hàng mới và làm thủ tục nhận phòng thành công.";
-                document.getElementById('modalUsername').innerText = data.newAccountUsername;
-                document.getElementById('modalPassword').innerText = data.newAccountPassword;
-                accInfo.style.display = 'block';
             } else {
                 msg.innerText = "Đã làm thủ tục nhận phòng hoàn tất cho khách lưu trú này.";
-                accInfo.style.display = 'none';
             }
+            if (accInfo) accInfo.style.display = 'none';
 
             if (data.paymentUrl) {
-                msg.innerHTML += "<br><br><span style='color:#e11d48;'><b>Lưu ý:</b> Vui lòng ghi lại thông tin tài khoản của khách (nếu có) trước khi ấn nút Thanh Toán bên dưới!</span>";
                 if (closeBtn) {
                     closeBtn.innerHTML = '<i class="fa-solid fa-qrcode"></i> Thanh toán VNPay';
                     closeBtn.onclick = function () {

@@ -25,6 +25,7 @@ public class ReceptionistController {
     private final BookingRepository bookingRepository;
     private final RoomBookingRepository roomBookingRepository;
     private final RoomBookingDetailRepository roomBookingDetailRepository;
+    private final com.kawai.repositories.RoomGuestRepository roomGuestRepository;
     private final com.kawai.services.interfaces.DependentService dependentService;
     private final com.kawai.services.interfaces.CheckinService checkinService;
     private final com.kawai.services.interfaces.HousekeepingService housekeepingService;
@@ -85,7 +86,7 @@ public class ReceptionistController {
     public String walkIn(Model model) {
         java.time.LocalDate today = java.time.LocalDate.now(java.time.ZoneId.of("Asia/Ho_Chi_Minh"));
         model.addAttribute("todayStr", today.toString());
-        
+
         Map<String, List<Map<String, Object>>> inventory = new HashMap<>();
         for (Room r : roomRepository.findVacant()) {
             String cat = "Other";
@@ -104,6 +105,34 @@ public class ReceptionistController {
             inventory.computeIfAbsent(cat, k -> new ArrayList<>()).add(roomInfo);
         }
         model.addAttribute("roomInventory", inventory);
+
+        // Tính số phòng thực sự còn khả dụng cho walk-in (= số phòng Vacant - slot bị
+        // giữ bởi Confirmed booking chưa phân phòng)
+        Map<String, Long> reservedSlots = new HashMap<>();
+        try {
+            for (Object[] row : roomBookingDetailRepository.countPendingUnassignedByCategoryName()) {
+                String catName = (String) row[0];
+                Long count = (Long) row[1];
+                reservedSlots.put(catName, count);
+            }
+        } catch (Exception ignored) {
+        }
+
+        // categoryAvailability: categoryName -> số phòng thực còn trống (đã trừ slot bị
+        // giữ)
+        Map<String, Long> categoryAvailability = new HashMap<>();
+        for (Map.Entry<String, List<Map<String, Object>>> entry : inventory.entrySet()) {
+            // Key của inventory có dạng "NipaPool - 500,000 VNĐ/đêm (...)"
+            // Cần tách ra categoryName (phần trước " - ")
+            String fullKey = entry.getKey();
+            String catName = fullKey.contains(" - ") ? fullKey.split(" - ")[0] : fullKey;
+            long vacantCount = entry.getValue().size();
+            long reserved = reservedSlots.getOrDefault(catName, 0L);
+            long netAvailable = Math.max(0L, vacantCount - reserved);
+            categoryAvailability.put(fullKey, netAvailable);
+        }
+        model.addAttribute("categoryAvailability", categoryAvailability);
+
         return "receptionist/walk-in";
     }
 
@@ -133,7 +162,8 @@ public class ReceptionistController {
                         continue;
                     }
                 } else if (keyword == null || keyword.trim().isEmpty()) {
-                    // Mặc định ẩn đơn quá khứ nếu KHÔNG dùng bộ lọc (không có keyword, không chọn ngày)
+                    // Mặc định ẩn đơn quá khứ nếu KHÔNG dùng bộ lọc (không có keyword, không chọn
+                    // ngày)
                     if (rb.getCheckInDate() != null && rb.getCheckInDate().isBefore(java.time.LocalDate.now())) {
                         continue;
                     }
@@ -204,7 +234,8 @@ public class ReceptionistController {
                 map.put("checkInDate", rb.getCheckInDate() != null
                         ? rb.getCheckInDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
                         : "N/A");
-                map.put("creditLimit", rb.getCreditLimit() != null ? rb.getCreditLimit() : new java.math.BigDecimal("5000000.00"));
+                map.put("creditLimit",
+                        rb.getCreditLimit() != null ? rb.getCreditLimit() : new java.math.BigDecimal("5000000.00"));
             } else {
                 map.put("checkInDate", "N/A");
                 map.put("creditLimit", new java.math.BigDecimal("5000000.00"));
@@ -242,8 +273,8 @@ public class ReceptionistController {
 
             // Tìm TourBookings chưa được gán phòng cụ thể (roomBookingDetail IS NULL)
             // → các tour này lễ tân sẽ phân bổ khi check-in
-            List<com.kawai.models.TourBooking> unallocatedTours =
-                    tourBookingRepository.findByRoomBookingIdAndRoomBookingDetailIsNull(b.getId());
+            List<com.kawai.models.TourBooking> unallocatedTours = tourBookingRepository
+                    .findByRoomBookingIdAndRoomBookingDetailIsNull(b.getId());
             map.put("tourBookings", unallocatedTours);
 
             pagedArrivals.add(map);
@@ -271,8 +302,125 @@ public class ReceptionistController {
         }
         model.addAttribute("roomInventory", inventory);
 
-
         return "receptionist/check-in";
+    }
+
+    /**
+     * REST endpoint: trả về JSON chi tiết booking (khách + phòng + người đi kèm)
+     * để hiển thị modal "Chi tiết" qua AJAX fetch.
+     */
+    @GetMapping("/in-house/detail/{bookingId}")
+    @org.springframework.web.bind.annotation.ResponseBody
+    public org.springframework.http.ResponseEntity<Map<String, Object>> getInHouseDetail(
+            @org.springframework.web.bind.annotation.PathVariable Long bookingId) {
+        try {
+            Booking booking = bookingRepository.findById(bookingId).orElse(null);
+            if (booking == null) {
+                return org.springframework.http.ResponseEntity.notFound().build();
+            }
+
+            List<RoomBookingDetail> details = roomBookingDetailRepository.findByRoomBookingId(bookingId);
+
+            String guestName = booking.getCustomer() != null ? booking.getCustomer().getFullName() : "Unknown";
+            String phone = booking.getCustomer() != null ? booking.getCustomer().getPhone() : "";
+
+            // Tóm tắt số phòng
+            String roomSummary = details.stream()
+                    .filter(d -> d.getRoom() != null)
+                    .map(d -> d.getRoom().getRoomNumber() + " ("
+                            + (d.getCategory() != null ? d.getCategory().getCategoryName() : "Unknown") + ")")
+                    .collect(Collectors.joining(", "));
+            if (roomSummary.isEmpty())
+                roomSummary = "N/A";
+
+            // Danh sách khách (cả Main Guest lẫn Dependent) theo từng phòng
+            List<Map<String, Object>> guestList = new ArrayList<>();
+            for (RoomBookingDetail detail : details) {
+                if (detail.getRoom() == null)
+                    continue;
+                String roomNumber = detail.getRoom().getRoomNumber();
+                String roomCategory = detail.getCategory() != null ? detail.getCategory().getCategoryName() : "";
+
+                List<com.kawai.models.RoomGuest> guests = roomGuestRepository.findByRoomBookingDetailId(detail.getId());
+                for (com.kawai.models.RoomGuest guest : guests) {
+                    Map<String, Object> guestMap = new HashMap<>();
+                    guestMap.put("roomNumber", roomNumber);
+                    guestMap.put("roomCategory", roomCategory);
+                    String cccdEnc = null;
+                    if (guest.getCustomer() != null) {
+                        boolean isBooker = booking.getCustomer() != null
+                                && guest.getCustomer().getId().equals(booking.getCustomer().getId());
+                        guestMap.put("name", guest.getCustomer().getFullName());
+                        guestMap.put("type", isBooker ? "Main Guest" : "Customer (Được nâng cấp)");
+                        guestMap.put("isPrimaryContact", Boolean.TRUE.equals(guest.getIsPrimaryContact()));
+                        guestMap.put("dependentId", null);
+                        guestMap.put("dob", "");
+                        cccdEnc = guest.getCustomer().getCccdPassportEncrypted();
+                    } else if (guest.getDependent() != null) {
+                        guestMap.put("name", guest.getDependent().getDependentName());
+                        guestMap.put("dob", guest.getDependent().getBirthDate() != null
+                                ? guest.getDependent().getBirthDate().toString()
+                                : "");
+                        guestMap.put("type", "Dependent");
+                        guestMap.put("isPrimaryContact", Boolean.TRUE.equals(guest.getIsPrimaryContact()));
+                        guestMap.put("dependentId", guest.getDependent().getId());
+                        cccdEnc = guest.getDependent().getCccdPassportEncrypted();
+                    } else {
+                        continue;
+                    }
+                    
+                    String cccd = "";
+                    if (cccdEnc != null && !cccdEnc.isBlank()) {
+                        try {
+                            cccd = com.kawai.utils.EncryptionUtils.decrypt(cccdEnc);
+                        } catch (Exception e) {
+                            cccd = cccdEnc;
+                        }
+                    }
+                    guestMap.put("cccd", cccd);
+                    guestList.add(guestMap);
+                }
+            }
+
+            // Nếu không có guest nào trong Room_Guests, thêm Main Guest từ booking
+            if (guestList.isEmpty() && booking.getCustomer() != null) {
+                Map<String, Object> mainGuestMap = new HashMap<>();
+                mainGuestMap.put("name", guestName);
+                mainGuestMap.put("type", "Main Guest");
+                mainGuestMap.put("isPrimaryContact", false);
+                mainGuestMap.put("dependentId", null);
+                mainGuestMap.put("dob", "");
+                mainGuestMap.put("roomNumber", roomSummary);
+                mainGuestMap.put("roomCategory", "");
+                guestList.add(mainGuestMap);
+            }
+
+            // Phòng đang ở
+            List<Map<String, Object>> roomDetails = new ArrayList<>();
+            for (RoomBookingDetail detail : details) {
+                if (detail.getRoom() == null)
+                    continue;
+                Map<String, Object> rd = new HashMap<>();
+                rd.put("detailId", detail.getId());
+                rd.put("roomNumber", detail.getRoom().getRoomNumber());
+                rd.put("category", detail.getCategory() != null ? detail.getCategory().getCategoryName() : "");
+                rd.put("status", detail.getDetailStatus());
+                roomDetails.add(rd);
+            }
+
+            Map<String, Object> result = new HashMap<>();
+            result.put("guestName", guestName);
+            result.put("phone", phone);
+            result.put("roomSummary", roomSummary);
+            result.put("guests", guestList);
+            result.put("roomDetails", roomDetails);
+
+            return org.springframework.http.ResponseEntity.ok(result);
+        } catch (Exception e) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("error", e.getMessage());
+            return org.springframework.http.ResponseEntity.status(500).body(error);
+        }
     }
 
     @GetMapping("/in-house")
@@ -317,12 +465,10 @@ public class ReceptionistController {
                 continue;
 
             String guestName = b.getCustomer() != null ? b.getCustomer().getFullName() : "Unknown";
-            String phone = b.getCustomer() != null ? b.getCustomer().getPhone() : "";
 
             Map<String, Object> map = new HashMap<>();
             map.put("id", b.getId());
             map.put("guestName", guestName);
-            map.put("phone", phone);
 
             String checkInStr = "";
             String checkOutStr = "";
@@ -339,21 +485,16 @@ public class ReceptionistController {
             map.put("checkOutDate", checkOutStr);
 
             int roomCount = (int) details.stream().filter(d -> d.getRoom() != null).count();
-            List<com.kawai.dto.DependentResponseDTO> deps = dependentService.getGuestListByBooking(b.getId());
-            map.put("dependents", deps);
-
-            int guestCount = 1 + deps.size();
+            int guestCount = 0;
+            for (RoomBookingDetail d : details) {
+                guestCount += roomGuestRepository.findByRoomBookingDetailId(d.getId()).size();
+            }
+            if (guestCount == 0) {
+                List<com.kawai.dto.DependentResponseDTO> deps = dependentService.getGuestListByBooking(b.getId());
+                guestCount = 1 + deps.size();
+            }
             String bookingScale = roomCount + " Phòng, " + guestCount + " Khách";
             map.put("bookingScale", bookingScale);
-
-            String roomSummary = details.stream()
-                    .filter(d -> d.getRoom() != null)
-                    .map(d -> d.getRoom().getRoomNumber() + " ("
-                            + (d.getCategory() != null ? d.getCategory().getCategoryName() : "Unknown") + ")")
-                    .collect(Collectors.joining(", "));
-            if (roomSummary.isEmpty())
-                roomSummary = "N/A";
-            map.put("roomSummary", roomSummary);
 
             pagedInHouse.add(map);
         }
@@ -383,28 +524,21 @@ public class ReceptionistController {
             if (details == null || details.isEmpty())
                 continue;
             String guestName = b.getCustomer() != null ? b.getCustomer().getFullName() : "Unknown";
-            String phone = b.getCustomer() != null ? b.getCustomer().getPhone() : "";
+
             Map<String, Object> map = new HashMap<>();
             map.put("id", b.getId());
             map.put("guestName", guestName);
-            map.put("phone", phone);
             map.put("status", b.getBookingStatus());
 
             String checkInStr = "";
-            String checkOutStr = "";
             if (b instanceof RoomBooking) {
                 RoomBooking rb = (RoomBooking) b;
                 checkInStr = rb.getCheckInDate() != null
                         ? rb.getCheckInDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
                         : "";
-                checkOutStr = rb.getCheckOutDate() != null
-                        ? rb.getCheckOutDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
-                        : "";
             }
             map.put("checkInDate", checkInStr);
-            map.put("checkOutDate", checkOutStr);
 
-            int roomCount = (int) details.stream().filter(d -> d.getRoom() != null).count();
             String roomSummary = details.stream()
                     .filter(d -> d.getRoom() != null)
                     .map(d -> d.getRoom().getRoomNumber() + " ("
@@ -435,7 +569,6 @@ public class ReceptionistController {
     public String nightAudit(Model model) {
         return "receptionist/night-audit";
     }
-
 
     @GetMapping("/operations")
     public String operations(Model model) {
@@ -482,18 +615,6 @@ public class ReceptionistController {
         return "redirect:/receptionist/operations";
     }
 
-    @org.springframework.web.bind.annotation.PostMapping("/in-house/transfer-room")
-    public String transferRoom(@org.springframework.web.bind.annotation.RequestParam Long bookingDetailId,
-            @org.springframework.web.bind.annotation.RequestParam Long newRoomId,
-            org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
-        try {
-            checkinService.transferRoom(bookingDetailId, newRoomId);
-            redirectAttributes.addFlashAttribute("successMessage", "Đổi phòng thành công.");
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Lỗi đổi phòng: " + e.getMessage());
-        }
-        return "redirect:/receptionist/in-house";
-    }
 
     @org.springframework.web.bind.annotation.PostMapping("/check-in/cancel-no-show/{id}")
     public String cancelNoShow(@org.springframework.web.bind.annotation.PathVariable Long id,
@@ -507,7 +628,6 @@ public class ReceptionistController {
         }
         return "redirect:/receptionist/check-in";
     }
-
 
     private boolean matchesKeyword(Booking b, String keyword) {
         if (keyword == null || keyword.trim().isEmpty()) {

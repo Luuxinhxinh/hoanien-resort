@@ -349,7 +349,6 @@
                                                 <div class="flex flex-col">
                                                     <div class="flex items-center gap-1 justify-end">
                                                         <span class="text-[9px] uppercase tracking-wider opacity-50">Cấp mức</span>
-                                                        <button type="button" th:if="${booking.customer != null and booking.customer.id == customer.id}" th:onclick="'editCreditLimit(' + ${booking.id} + ', ' + ${detail.id} + ', ' + ${detail.subCreditLimit != null ? detail.subCreditLimit : 0} + ')'" class="material-symbols-outlined text-[12px] opacity-40 hover:opacity-100 hover:text-hoanien-text transition-all" title="Chỉnh sửa hạn mức">edit</button>
                                                     </div>
                                                     <span class="font-semibold text-hoanien-text"><span th:text="${detail.subCreditLimit != null ? #numbers.formatDecimal(detail.subCreditLimit, 0, 'COMMA', 0, 'POINT') : '0'}">0</span>đ</span>
                                                 </div>
@@ -1298,9 +1297,6 @@
             }, 300);
         }
 
-        // --- EDIT CREDIT LIMIT LOGIC ---
-        let currentEditingBookingId = null;
-        let currentEditingDetailId = null;
 
         function editCreditLimit(bookingId, detailId, currentLimit) {
             currentEditingBookingId = bookingId;
@@ -1388,30 +1384,6 @@
         }
     </script>
 
-    <!-- Edit Credit Limit Modal -->
-    <div id="editCreditLimitModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden opacity-0 transition-opacity duration-300 flex items-center justify-center p-4">
-        <div id="editCreditLimitModalContent" class="bg-white w-full max-w-sm rounded-2xl shadow-2xl transform scale-95 transition-all duration-300 overflow-hidden">
-            <div class="p-6">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="font-serif text-xl font-medium text-hoanien-text">Cấu hình Hạn mức</h3>
-                    <button type="button" onclick="closeEditCreditLimitModal()" class="material-symbols-outlined text-gray-400 hover:text-red-500 transition-colors">close</button>
-                </div>
-                
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-xs uppercase tracking-wider opacity-70 font-semibold mb-2">Hạn mức mới (VNĐ)</label>
-                        <input type="number" id="newCreditLimitInput" class="w-full bg-white border border-hoanien-text/20 rounded-lg px-4 py-3 focus:border-hoanien-text focus:outline-none transition-colors" placeholder="VD: 5000000" min="0" step="500000" />
-                        <p class="text-[10px] text-hoanien-text/60 mt-2">* Tổng hạn mức các phòng không được vượt quá hạn mức tối đa của đơn đặt phòng.</p>
-                    </div>
-                </div>
-
-                <div class="mt-8 flex justify-end gap-3">
-                    <button type="button" onclick="closeEditCreditLimitModal()" class="px-5 py-2.5 rounded-full border border-hoanien-text/20 text-hoanien-text font-medium text-sm hover:bg-hoanien-text/5 transition-colors">Hủy</button>
-                    <button type="button" id="btnSaveCreditLimit" onclick="saveCreditLimit()" class="px-5 py-2.5 rounded-full bg-hoanien-text text-white font-medium text-sm shadow-md hover:shadow-lg transition-all flex items-center gap-2">Lưu hạn mức</button>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- Tier Info Modal -->
     <div id="tierInfoModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden opacity-0 transition-opacity duration-300 flex items-center justify-center p-4">

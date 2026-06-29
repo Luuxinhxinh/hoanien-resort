@@ -149,7 +149,8 @@ public class ReceptionistCheckinWebController {
             java.math.BigDecimal totalRequested = java.math.BigDecimal.ZERO;
             if (form.getAllocatedCreditLimits() != null) {
                 for (java.math.BigDecimal limit : form.getAllocatedCreditLimits()) {
-                    if (limit != null) totalRequested = totalRequested.add(limit);
+                    if (limit != null)
+                        totalRequested = totalRequested.add(limit);
                 }
             }
             java.math.BigDecimal existingUsed = java.math.BigDecimal.ZERO;
@@ -158,17 +159,19 @@ public class ReceptionistCheckinWebController {
                     existingUsed = existingUsed.add(d.getSubCreditLimit());
                 }
             }
-            // RoomBooking extends Booking — cast an toàn vì bookingRepo dùng JOINED inheritance
+            // RoomBooking extends Booking — cast an toàn vì bookingRepo dùng JOINED
+            // inheritance
             com.kawai.models.RoomBooking roomBooking = (com.kawai.models.RoomBooking) booking;
             java.math.BigDecimal masterCreditLimit = roomBooking.getCreditLimit() != null
                     ? roomBooking.getCreditLimit()
                     : new java.math.BigDecimal("5000000.00");
             if (existingUsed.add(totalRequested).compareTo(masterCreditLimit) > 0) {
                 throw new com.kawai.exceptions.BusinessException("CHECKIN-007",
-                        "Tổng hạn mức cấp cho các phòng vượt quá hạn mức của tài khoản (Master: " + masterCreditLimit + ")");
+                        "Tổng hạn mức cấp cho các phòng vượt quá hạn mức của tài khoản (Master: " + masterCreditLimit
+                                + ")");
             }
 
-              if (form.getAssignedRoomNumbers().size() != pendingDetails.size()) {
+            if (form.getAssignedRoomNumbers().size() != pendingDetails.size()) {
                 throw new com.kawai.exceptions.BusinessException("CHECKIN-005",
                         "Bạn phải phân đủ " + pendingDetails.size() + " phòng trước khi hoàn tất Check-in!");
             }
@@ -297,7 +300,8 @@ public class ReceptionistCheckinWebController {
                     }
                     TourBooking tourBooking = tourBookingRepo.findById(allocation.getTourBookingId())
                             .orElse(null);
-                    if (tourBooking == null) continue;
+                    if (tourBooking == null)
+                        continue;
 
                     Long detailId = roomNumberToDetailIdMap.get(allocation.getRoomNumber());
                     if (detailId == null) {
@@ -314,7 +318,8 @@ public class ReceptionistCheckinWebController {
                     }
                 }
             }
-            // Nếu ALL → giữ roomBookingDetail = null (gộp chung toàn booking, không gán phòng cụ thể)
+            // Nếu ALL → giữ roomBookingDetail = null (gộp chung toàn booking, không gán
+            // phòng cụ thể)
 
             // Thành công: Gửi flash message và redirect
             redirectAttributes.addFlashAttribute("successMessage", "Check-in thành công !");
@@ -334,6 +339,41 @@ public class ReceptionistCheckinWebController {
             redirectAttributes.addFlashAttribute("errorMessage",
                     "Lỗi hệ thống! Vui lòng thử lại. Chi tiết: " + e.toString());
             return "redirect:/receptionist/check-in";
+        }
+    }
+
+    @PostMapping("/upgrade-dependent/{dependentId}")
+    @org.springframework.web.bind.annotation.ResponseBody
+    public org.springframework.http.ResponseEntity<?> upgradeDependentToCustomer(
+            @org.springframework.web.bind.annotation.PathVariable Long dependentId) {
+        try {
+            java.util.Map<String, Object> result = checkinService.upgradeDependentToCustomer(dependentId);
+            com.kawai.models.Customer customer = (com.kawai.models.Customer) result.get("customer");
+            String username = (String) result.get("username");
+            String password = (String) result.get("password");
+
+            // Lấy thông tin phòng để trả về UI (Logic unlink RoomGuest đã được làm trong
+            // Service)
+            com.kawai.models.RoomGuest rg = roomGuestRepo.findByCustomerIdAndGuestType(customer.getId(), "ADULT")
+                    .orElse(null);
+
+            String roomInfo = "";
+            if (rg != null && rg.getRoomBookingDetail() != null) {
+                com.kawai.models.RoomBookingDetail detail = rg.getRoomBookingDetail();
+                String categoryName = detail.getCategory() != null ? detail.getCategory().getCategoryName()
+                        : "Không xác định";
+                String roomNumber = detail.getRoom() != null ? detail.getRoom().getRoomNumber() : "Chưa xếp phòng";
+                roomInfo = " (Hạng phòng: " + categoryName + " - Số phòng: " + roomNumber + ")";
+            }
+
+            return org.springframework.http.ResponseEntity.ok(java.util.Map.of(
+                    "success", true,
+                    "message", "Nâng cấp thành công Khách hàng: " + customer.getFullName() + roomInfo + ". Tài khoản: " + username + " - Mật khẩu: " + password));
+        } catch (Exception e) {
+            log.error("Error upgrading dependent", e);
+            return org.springframework.http.ResponseEntity.badRequest().body(java.util.Map.of(
+                    "success", false,
+                    "message", e.getMessage()));
         }
     }
 }
