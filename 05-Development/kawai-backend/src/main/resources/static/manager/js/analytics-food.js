@@ -1,6 +1,6 @@
 /* analytics-food.js — Tỷ lệ các món ăn: donut chart by category */
 
-const COLORS=['#7A9C7A','#C9A96E','#6B8C9A','#A89060','#8A7A9A'];
+const COLORS=['#C9A96E','#7A9C7A','#6B8C9A','#A89060','#D17C6B','#9B8B6B','#5A7D7C','#B59B7D','#6A8F70','#8D7E61','#4A6B80','#D49E7C'];
 
 Chart.defaults.font.family="'DM Sans',sans-serif";
 Chart.defaults.font.size=12;
@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     const ctx=document.getElementById('chart-food-donut');
     if(!ctx)return;
     const d=window.foodDonutData||{labels:["Món chính","Súp","Set Menu","Tráng miệng","Đồ uống"],values:[42,28,21,16,18]};
-    new Chart(ctx,{type:'doughnut',data:{labels:d.labels,datasets:[{data:d.values,backgroundColor:COLORS,borderWidth:0,hoverOffset:6}]},options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>` ${c.label}: ${c.parsed} đơn`}}}}});
+    new Chart(ctx,{type:'doughnut',data:{labels:d.labels,datasets:[{data:d.values,backgroundColor:COLORS,borderWidth:0,hoverOffset:6}]},options:{responsive:true,maintainAspectRatio:false,cutout:'70%',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>` ${c.label}: ${c.parsed} đơn`}}}}});
 });
 
 function toggleSubmenu(id,arrowId){

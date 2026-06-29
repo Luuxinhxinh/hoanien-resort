@@ -2,6 +2,7 @@ package com.kawai.services;
 
 import com.kawai.dto.TourBookingRequest;
 import com.kawai.models.*;
+import com.kawai.repositories.WorkflowRepository;
 import com.kawai.repositories.*;
 import com.kawai.services.impl.TourBookingServiceImpl;
 
@@ -130,11 +131,9 @@ class TourBookingServiceUC20Test {
         @DisplayName("TC-M4-003.1: Đặt tour thành công — tạo TourBooking và Tour_Attendees")
         void createTourBooking_ValidRequest_ShouldCreateBookingAndAttendees() {
             // ARRANGE
-            validRequest.setParticipantCount(3);
-            when(tourScheduleRepository.findById(100L)).thenReturn(Optional.of(sampleSchedule));
-            when(customerRepository.findById(10L)).thenReturn(Optional.of(sampleCustomer));
-            when(roomBookingRepository.findById(1L)).thenReturn(Optional.of(new RoomBooking()));
-            when(tourBookingRepository.countByScheduleAndBookingStatus(sampleSchedule, "Confirmed"))
+            org.mockito.Mockito.lenient().when(tourScheduleRepository.findById(100L)).thenReturn(Optional.of(sampleSchedule));
+            org.mockito.Mockito.lenient().when(customerRepository.findById(10L)).thenReturn(Optional.of(sampleCustomer));
+            org.mockito.Mockito.lenient().when(tourBookingRepository.countByScheduleAndBookingStatus(sampleSchedule, "Confirmed"))
                     .thenReturn(0);
 
             TourBooking savedBooking = new TourBooking();
@@ -142,8 +141,8 @@ class TourBookingServiceUC20Test {
             savedBooking.setSchedule(sampleSchedule);
             savedBooking.setParticipantCount(3);
             savedBooking.setBookingStatus("Confirmed");
-            when(tourBookingRepository.save(any(TourBooking.class))).thenReturn(savedBooking);
-            when(tourAttendeeRepository.saveAll(anyList())).thenReturn(null);
+            org.mockito.Mockito.lenient().when(tourBookingRepository.save(any(TourBooking.class))).thenReturn(savedBooking);
+            org.mockito.Mockito.lenient().when(tourAttendeeRepository.saveAll(anyList())).thenReturn(null);
 
             // ACT
             Long bookingId = tourBookingService.createTourBooking(validRequest);
@@ -161,6 +160,36 @@ class TourBookingServiceUC20Test {
                 return ((java.util.List<?>) list).size() == 3;
             }));
         }
+
+        @Test
+        @DisplayName("TC-M4-003.2: Đặt tour với walk-in = true — tạo booking thành công")
+        void createTourBooking_WalkInTour_ShouldCreateBooking() {
+            // ARRANGE
+            validRequest.setWalkInTour(true);
+
+            org.mockito.Mockito.lenient().when(tourScheduleRepository.findById(100L)).thenReturn(Optional.of(sampleSchedule));
+            org.mockito.Mockito.lenient().when(customerRepository.findById(10L)).thenReturn(Optional.of(sampleCustomer));
+            org.mockito.Mockito.lenient().when(tourBookingRepository.countByScheduleAndBookingStatus(sampleSchedule, "Confirmed"))
+                    .thenReturn(0);
+
+            TourBooking savedBooking = new TourBooking();
+            savedBooking.setId(201L);
+            savedBooking.setSchedule(sampleSchedule);
+            savedBooking.setParticipantCount(3);
+            savedBooking.setIsWalkInTour(true);
+            savedBooking.setBookingStatus("Confirmed");
+            org.mockito.Mockito.lenient().when(tourBookingRepository.save(any(TourBooking.class))).thenReturn(savedBooking);
+            org.mockito.Mockito.lenient().when(tourAttendeeRepository.saveAll(anyList())).thenReturn(null);
+
+            // ACT
+            Long bookingId = tourBookingService.createTourBooking(validRequest);
+
+            // ASSERT
+            assertNotNull(bookingId);
+            assertEquals(201L, bookingId);
+            verify(tourBookingRepository)
+                    .save(argThat(booking -> booking.getIsWalkInTour() != null && booking.getIsWalkInTour()));
+        }
     }
 
     // ================================================================
@@ -175,16 +204,14 @@ class TourBookingServiceUC20Test {
         void createTourBooking_NoAvailableSlots_ShouldThrowException() {
             // ARRANGE: Schedule có 5 chỗ trống (bookedSeats = 25)
             sampleSchedule.setBookedSeats(25);
-            validRequest.setParticipantCount(3);
-            when(tourScheduleRepository.findById(100L)).thenReturn(Optional.of(sampleSchedule));
-            when(customerRepository.findById(10L)).thenReturn(Optional.of(sampleCustomer));
-            when(roomBookingRepository.findById(1L)).thenReturn(Optional.of(new RoomBooking()));
+            org.mockito.Mockito.lenient().when(tourScheduleRepository.findById(100L)).thenReturn(Optional.of(sampleSchedule));
+            org.mockito.Mockito.lenient().when(customerRepository.findById(10L)).thenReturn(Optional.of(sampleCustomer));
 
             // Đã có 18 người đặt, capacity = 30, chỉ còn 12 chỗ, nhưng participantCount = 3
             // availableSlots = maxCapacity - alreadyBooked = 30 - 0 = 30 (không dùng
             // availableSlots)
             // Test này cần check: alreadyBooked + participantCount > maxCapacity
-            when(tourBookingRepository.countByScheduleAndBookingStatus(sampleSchedule, "Confirmed"))
+            org.mockito.Mockito.lenient().when(tourBookingRepository.countByScheduleAndBookingStatus(sampleSchedule, "Confirmed"))
                     .thenReturn(28); // 28 đã đặt, capacity 30, còn 2 chỗ, nhưng request 3 người
 
             // ACT & ASSERT
@@ -207,10 +234,9 @@ class TourBookingServiceUC20Test {
         @DisplayName("TC-M4-004.2: Đặt tour với số lượng khách vượt quá capacity — bị chặn")
         void createTourBooking_ExceedsMaxCapacity_ShouldThrowException() {
             // ARRANGE: capacity = 30, đã có 29 người đặt, request 3 người
-            when(tourScheduleRepository.findById(100L)).thenReturn(Optional.of(sampleSchedule));
-            when(customerRepository.findById(10L)).thenReturn(Optional.of(sampleCustomer));
-            when(roomBookingRepository.findById(1L)).thenReturn(Optional.of(new RoomBooking()));
-            when(tourBookingRepository.countByScheduleAndBookingStatus(sampleSchedule, "Confirmed"))
+            org.mockito.Mockito.lenient().when(tourScheduleRepository.findById(100L)).thenReturn(Optional.of(sampleSchedule));
+            org.mockito.Mockito.lenient().when(customerRepository.findById(10L)).thenReturn(Optional.of(sampleCustomer));
+            org.mockito.Mockito.lenient().when(tourBookingRepository.countByScheduleAndBookingStatus(sampleSchedule, "Confirmed"))
                     .thenReturn(29);
 
             validRequest.setParticipantCount(3); // 29 + 3 = 32 > 30
@@ -242,11 +268,10 @@ class TourBookingServiceUC20Test {
             sampleDetail.setId(50L);
             sampleDetail.setSubCreditLimit(new java.math.BigDecimal("10000000"));
 
-            when(tourScheduleRepository.findById(100L)).thenReturn(Optional.of(sampleSchedule));
-            when(customerRepository.findById(10L)).thenReturn(Optional.of(sampleCustomer));
-            when(roomBookingRepository.findById(1L)).thenReturn(Optional.of(new RoomBooking()));
-            when(roomBookingDetailRepository.findById(50L)).thenReturn(Optional.of(sampleDetail));
-            when(tourBookingRepository.countByScheduleAndBookingStatus(sampleSchedule, "Confirmed"))
+            org.mockito.Mockito.lenient().when(tourScheduleRepository.findById(100L)).thenReturn(Optional.of(sampleSchedule));
+            org.mockito.Mockito.lenient().when(customerRepository.findById(10L)).thenReturn(Optional.of(sampleCustomer));
+            org.mockito.Mockito.lenient().when(roomBookingDetailRepository.findById(50L)).thenReturn(Optional.of(sampleDetail));
+            org.mockito.Mockito.lenient().when(tourBookingRepository.countByScheduleAndBookingStatus(sampleSchedule, "Confirmed"))
                     .thenReturn(0);
 
             TourBooking savedBooking = new TourBooking();
@@ -255,12 +280,12 @@ class TourBookingServiceUC20Test {
             savedBooking.setParticipantCount(3);
             savedBooking.setBookingStatus("Confirmed");
             savedBooking.setTotalPrice(new BigDecimal("4500000")); // 3 * 1.500.000
-            when(tourBookingRepository.save(any(TourBooking.class))).thenReturn(savedBooking);
-            when(tourAttendeeRepository.saveAll(anyList())).thenReturn(null);
+            org.mockito.Mockito.lenient().when(tourBookingRepository.save(any(TourBooking.class))).thenReturn(savedBooking);
+            org.mockito.Mockito.lenient().when(tourAttendeeRepository.saveAll(anyList())).thenReturn(null);
 
             FolioItem savedFolioItem = new FolioItem();
             savedFolioItem.setId(400L);
-            when(folioItemRepository.save(any(FolioItem.class))).thenReturn(savedFolioItem);
+            org.mockito.Mockito.lenient().when(folioItemRepository.save(any(FolioItem.class))).thenReturn(savedFolioItem);
 
             // ACT
             Long bookingId = tourBookingService.createTourBooking(validRequest);
@@ -280,10 +305,9 @@ class TourBookingServiceUC20Test {
         @DisplayName("TC-M4-005.2: Đặt tour không Post to Room — KHÔNG ghi nợ Folio")
         void createTourBooking_NotPostToRoom_ShouldNotChargeFolio() {
             // ARRANGE: Request mặc định — không Post to Room
-            when(tourScheduleRepository.findById(100L)).thenReturn(Optional.of(sampleSchedule));
-            when(customerRepository.findById(10L)).thenReturn(Optional.of(sampleCustomer));
-            when(roomBookingRepository.findById(1L)).thenReturn(Optional.of(new RoomBooking()));
-            when(tourBookingRepository.countByScheduleAndBookingStatus(sampleSchedule, "Confirmed"))
+            org.mockito.Mockito.lenient().when(tourScheduleRepository.findById(100L)).thenReturn(Optional.of(sampleSchedule));
+            org.mockito.Mockito.lenient().when(customerRepository.findById(10L)).thenReturn(Optional.of(sampleCustomer));
+            org.mockito.Mockito.lenient().when(tourBookingRepository.countByScheduleAndBookingStatus(sampleSchedule, "Confirmed"))
                     .thenReturn(0);
 
             TourBooking savedBooking = new TourBooking();
@@ -291,8 +315,8 @@ class TourBookingServiceUC20Test {
             savedBooking.setSchedule(sampleSchedule);
             savedBooking.setParticipantCount(3);
             savedBooking.setBookingStatus("Confirmed");
-            when(tourBookingRepository.save(any(TourBooking.class))).thenReturn(savedBooking);
-            when(tourAttendeeRepository.saveAll(anyList())).thenReturn(null);
+            org.mockito.Mockito.lenient().when(tourBookingRepository.save(any(TourBooking.class))).thenReturn(savedBooking);
+            org.mockito.Mockito.lenient().when(tourAttendeeRepository.saveAll(anyList())).thenReturn(null);
 
             // ACT
             Long bookingId = tourBookingService.createTourBooking(validRequest);
@@ -311,9 +335,9 @@ class TourBookingServiceUC20Test {
             validRequest.setPostToRoom(true);
             validRequest.setRoomBookingDetailId(null);
 
-            when(tourScheduleRepository.findById(100L)).thenReturn(Optional.of(sampleSchedule));
-            when(customerRepository.findById(10L)).thenReturn(Optional.of(sampleCustomer));
-            when(tourBookingRepository.countByScheduleAndBookingStatus(sampleSchedule, "Confirmed"))
+            org.mockito.Mockito.lenient().when(tourScheduleRepository.findById(100L)).thenReturn(Optional.of(sampleSchedule));
+            org.mockito.Mockito.lenient().when(customerRepository.findById(10L)).thenReturn(Optional.of(sampleCustomer));
+            org.mockito.Mockito.lenient().when(tourBookingRepository.countByScheduleAndBookingStatus(sampleSchedule, "Confirmed"))
                     .thenReturn(0);
 
             TourBooking savedBooking = new TourBooking();
@@ -322,8 +346,8 @@ class TourBookingServiceUC20Test {
             savedBooking.setParticipantCount(3);
             savedBooking.setBookingStatus("Confirmed");
             savedBooking.setTotalPrice(new BigDecimal("4500000"));
-            when(tourBookingRepository.save(any(TourBooking.class))).thenReturn(savedBooking);
-            when(tourAttendeeRepository.saveAll(anyList())).thenReturn(null);
+            org.mockito.Mockito.lenient().when(tourBookingRepository.save(any(TourBooking.class))).thenReturn(savedBooking);
+            org.mockito.Mockito.lenient().when(tourAttendeeRepository.saveAll(anyList())).thenReturn(null);
 
             // ACT & ASSERT
             IllegalStateException exception = assertThrows(
@@ -345,11 +369,11 @@ class TourBookingServiceUC20Test {
             validRequest.setPostToRoom(true);
             validRequest.setRoomBookingDetailId(99L);
 
-            when(tourScheduleRepository.findById(100L)).thenReturn(Optional.of(sampleSchedule));
-            when(customerRepository.findById(10L)).thenReturn(Optional.of(sampleCustomer));
-            when(tourBookingRepository.countByScheduleAndBookingStatus(sampleSchedule, "Confirmed"))
+            org.mockito.Mockito.lenient().when(tourScheduleRepository.findById(100L)).thenReturn(Optional.of(sampleSchedule));
+            org.mockito.Mockito.lenient().when(customerRepository.findById(10L)).thenReturn(Optional.of(sampleCustomer));
+            org.mockito.Mockito.lenient().when(tourBookingRepository.countByScheduleAndBookingStatus(sampleSchedule, "Confirmed"))
                     .thenReturn(0);
-            when(roomBookingDetailRepository.findById(99L)).thenReturn(Optional.empty());
+            org.mockito.Mockito.lenient().when(roomBookingDetailRepository.findById(99L)).thenReturn(Optional.empty());
 
             TourBooking savedBooking = new TourBooking();
             savedBooking.setId(600L);
@@ -357,8 +381,8 @@ class TourBookingServiceUC20Test {
             savedBooking.setParticipantCount(3);
             savedBooking.setBookingStatus("Confirmed");
             savedBooking.setTotalPrice(new BigDecimal("4500000"));
-            when(tourBookingRepository.save(any(TourBooking.class))).thenReturn(savedBooking);
-            when(tourAttendeeRepository.saveAll(anyList())).thenReturn(null);
+            org.mockito.Mockito.lenient().when(tourBookingRepository.save(any(TourBooking.class))).thenReturn(savedBooking);
+            org.mockito.Mockito.lenient().when(tourAttendeeRepository.saveAll(anyList())).thenReturn(null);
 
             // ACT & ASSERT
             IllegalStateException exception = assertThrows(

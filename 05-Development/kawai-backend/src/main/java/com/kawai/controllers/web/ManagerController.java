@@ -92,7 +92,7 @@ public class ManagerController {
         }
         model.addAttribute("totalGuests", totalGuests);
 
-        List<DailyRevenueMock> dailyRevenue = new ArrayList<>();
+        List<DailyRevenueDTO> dailyRevenue = new ArrayList<>();
         BigDecimal totalRevRoom7Days = BigDecimal.ZERO;
         BigDecimal totalRevFnb7Days = BigDecimal.ZERO;
         BigDecimal totalRevTour7Days = BigDecimal.ZERO;
@@ -122,7 +122,7 @@ public class ManagerController {
                     revenueToday = rDate.add(fDate).add(tDate);
                 }
 
-                dailyRevenue.add(new DailyRevenueMock(
+                dailyRevenue.add(new DailyRevenueDTO(
                         label,
                         rDate.doubleValue() / 1_000_000.0,
                         fDate.doubleValue() / 1_000_000.0,
@@ -252,28 +252,26 @@ public class ManagerController {
     // 2. Doanh thu theo ngày
     // =========================================================================
 
-    @GetMapping("/revenue/daily")
-    public String revenueDaily(Model model) {
+    @GetMapping("/revenue")
+    public String revenue(Model model) {
         model.addAttribute("todayLabel", todayLabel());
-
         LocalDate today = LocalDate.now();
+
+        // --- DAILY ---
         BigDecimal roomToday = roomBookingRepository.revenueBetween(today, today);
-        BigDecimal fnbToday = foodOrderRepository.revenueBetween(today.atStartOfDay(),
-                today.plusDays(1).atStartOfDay());
+        BigDecimal fnbToday = foodOrderRepository.revenueBetween(today.atStartOfDay(), today.plusDays(1).atStartOfDay());
         BigDecimal tourToday = tourBookingRepository.revenueBetween(today, today);
         BigDecimal totalToday = roomToday.add(fnbToday).add(tourToday);
 
         LocalDate weekStart = today.minusDays(6);
         BigDecimal roomWeek = roomBookingRepository.revenueBetween(weekStart, today);
-        BigDecimal fnbWeek = foodOrderRepository.revenueBetween(weekStart.atStartOfDay(),
-                today.plusDays(1).atStartOfDay());
+        BigDecimal fnbWeek = foodOrderRepository.revenueBetween(weekStart.atStartOfDay(), today.plusDays(1).atStartOfDay());
         BigDecimal tourWeek = tourBookingRepository.revenueBetween(weekStart, today);
         BigDecimal totalWeek = roomWeek.add(fnbWeek).add(tourWeek);
 
         LocalDate monthStart = today.minusDays(29);
         BigDecimal roomMonth = roomBookingRepository.revenueBetween(monthStart, today);
-        BigDecimal fnbMonth = foodOrderRepository.revenueBetween(monthStart.atStartOfDay(),
-                today.plusDays(1).atStartOfDay());
+        BigDecimal fnbMonth = foodOrderRepository.revenueBetween(monthStart.atStartOfDay(), today.plusDays(1).atStartOfDay());
         BigDecimal tourMonth = tourBookingRepository.revenueBetween(monthStart, today);
         BigDecimal totalMonth = roomMonth.add(fnbMonth).add(tourMonth);
 
@@ -281,79 +279,52 @@ public class ManagerController {
         model.addAttribute("totalWeek", fmt(totalWeek));
         model.addAttribute("totalMonth", fmt(totalMonth));
 
-        List<RevenueRowMock> rows = new ArrayList<>();
-        List<DailyRevenueMock> chart = new ArrayList<>();
+        List<RevenueRowDTO> dailyRows = new ArrayList<>();
+        List<String> dailyChartLabels = new ArrayList<>();
+        List<Double> dailyChartRoom = new ArrayList<>();
+        List<Double> dailyChartFnb = new ArrayList<>();
+        List<Double> dailyChartTour = new ArrayList<>();
+
         try {
             for (int i = 8; i >= 0; i--) {
                 LocalDate d = today.minusDays(i);
                 String lbl = d.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-
                 BigDecimal rDate = roomBookingRepository.revenueOnDate(d);
-                if (rDate == null)
-                    rDate = BigDecimal.ZERO;
-
+                if (rDate == null) rDate = BigDecimal.ZERO;
                 BigDecimal fDate = foodOrderRepository.revenueOnDate(d.atStartOfDay(), d.plusDays(1).atStartOfDay());
-                if (fDate == null)
-                    fDate = BigDecimal.ZERO;
-
+                if (fDate == null) fDate = BigDecimal.ZERO;
                 BigDecimal tDate = tourBookingRepository.revenueOnDate(d);
-                if (tDate == null)
-                    tDate = BigDecimal.ZERO;
+                if (tDate == null) tDate = BigDecimal.ZERO;
 
                 BigDecimal totalDate = rDate.add(fDate).add(tDate);
+                dailyRows.add(0, new RevenueRowDTO(lbl, fmt(rDate), fmt(fDate), fmt(tDate), fmt(totalDate)));
 
-                rows.add(0, new RevenueRowMock(lbl, fmt(rDate), fmt(fDate), fmt(tDate), fmt(totalDate)));
-
-                chart.add(new DailyRevenueMock(d.format(DateTimeFormatter.ofPattern("dd/MM")),
-                        rDate.doubleValue() / 1_000_000.0,
-                        fDate.doubleValue() / 1_000_000.0,
-                        tDate.doubleValue() / 1_000_000.0));
+                dailyChartLabels.add(d.format(DateTimeFormatter.ofPattern("dd/MM")));
+                dailyChartRoom.add(rDate.doubleValue() / 1_000_000.0);
+                dailyChartFnb.add(fDate.doubleValue() / 1_000_000.0);
+                dailyChartTour.add(tDate.doubleValue() / 1_000_000.0);
             }
-        } catch (Exception e) {
-        }
+        } catch (Exception e) {}
 
-        model.addAttribute("rows", rows);
-        model.addAttribute("chartData", chart);
-        return "manager/revenue-daily";
-    }
+        model.addAttribute("dailyRows", dailyRows);
+        model.addAttribute("dailyChartLabels", dailyChartLabels);
+        model.addAttribute("dailyChartRoom", dailyChartRoom);
+        model.addAttribute("dailyChartFnb", dailyChartFnb);
+        model.addAttribute("dailyChartTour", dailyChartTour);
 
-    private static int parseM(String s) {
-        try {
-            return Integer.parseInt(s.replace("M", "").replace(",", ""));
-        } catch (Exception e) {
-            return 0;
-        }
-    }
-
-    // =========================================================================
-    // 3. Doanh thu theo tháng
-    // =========================================================================
-
-    @GetMapping("/revenue/monthly")
-    public String revenueMonthly(Model model) {
-        model.addAttribute("todayLabel", todayLabel());
-
+        // --- MONTHLY ---
         LocalDate now = LocalDate.now();
-        BigDecimal ytdRoom = roomBookingRepository.revenueBetween(LocalDate.of(now.getYear(), 1, 1),
-                LocalDate.of(now.getYear(), now.getMonthValue(), now.lengthOfMonth()));
-        BigDecimal ytdFnb = foodOrderRepository.revenueBetween(java.time.LocalDateTime.of(now.getYear(), 1, 1, 0, 0),
-                LocalDate.of(now.getYear(), now.getMonthValue(), now.lengthOfMonth()).atTime(23, 59, 59));
-        BigDecimal ytdTour = tourBookingRepository.revenueBetween(LocalDate.of(now.getYear(), 1, 1),
-                LocalDate.of(now.getYear(), now.getMonthValue(), now.lengthOfMonth()));
-
+        BigDecimal ytdRoom = roomBookingRepository.revenueBetween(LocalDate.of(now.getYear(), 1, 1), LocalDate.of(now.getYear(), now.getMonthValue(), now.lengthOfMonth()));
+        BigDecimal ytdFnb = foodOrderRepository.revenueBetween(java.time.LocalDateTime.of(now.getYear(), 1, 1, 0, 0), LocalDate.of(now.getYear(), now.getMonthValue(), now.lengthOfMonth()).atTime(23, 59, 59));
+        BigDecimal ytdTour = tourBookingRepository.revenueBetween(LocalDate.of(now.getYear(), 1, 1), LocalDate.of(now.getYear(), now.getMonthValue(), now.lengthOfMonth()));
         BigDecimal totalYear = ytdRoom.add(ytdFnb).add(ytdTour);
         model.addAttribute("totalYear", fmt(totalYear));
 
-        // Tính toán YoY (Tăng trưởng so với cùng kỳ năm trước)
-        BigDecimal ytdRoomLastYear = roomBookingRepository.revenueBetween(LocalDate.of(now.getYear() - 1, 1, 1),
-                LocalDate.of(now.getYear() - 1, now.getMonthValue(), now.lengthOfMonth()));
-        BigDecimal ytdFnbLastYear = foodOrderRepository.revenueBetween(
-                java.time.LocalDateTime.of(now.getYear() - 1, 1, 1, 0, 0),
-                LocalDate.of(now.getYear() - 1, now.getMonthValue(), now.lengthOfMonth()).atTime(23, 59, 59));
-        BigDecimal ytdTourLastYear = tourBookingRepository.revenueBetween(LocalDate.of(now.getYear() - 1, 1, 1),
-                LocalDate.of(now.getYear() - 1, now.getMonthValue(), now.lengthOfMonth()));
-
+        BigDecimal ytdRoomLastYear = roomBookingRepository.revenueBetween(LocalDate.of(now.getYear() - 1, 1, 1), LocalDate.of(now.getYear() - 1, now.getMonthValue(), now.lengthOfMonth()));
+        BigDecimal ytdFnbLastYear = foodOrderRepository.revenueBetween(java.time.LocalDateTime.of(now.getYear() - 1, 1, 1, 0, 0), LocalDate.of(now.getYear() - 1, now.getMonthValue(), now.lengthOfMonth()).atTime(23, 59, 59));
+        BigDecimal ytdTourLastYear = tourBookingRepository.revenueBetween(LocalDate.of(now.getYear() - 1, 1, 1), LocalDate.of(now.getYear() - 1, now.getMonthValue(), now.lengthOfMonth()));
         BigDecimal totalLastYear = ytdRoomLastYear.add(ytdFnbLastYear).add(ytdTourLastYear);
+        
         String yoyStr = "-";
         if (totalLastYear.compareTo(BigDecimal.ZERO) > 0) {
             double yoy = (totalYear.doubleValue() - totalLastYear.doubleValue()) / totalLastYear.doubleValue() * 100;
@@ -361,12 +332,11 @@ public class ManagerController {
         }
         model.addAttribute("growthYoY", yoyStr);
 
-        List<RevenueRowMock> rows = new ArrayList<>();
-        List<String> chartLabels = new ArrayList<>();
-        List<Double> chartRoom = new ArrayList<>();
-        List<Double> chartFnb = new ArrayList<>();
-        List<Double> chartTour = new ArrayList<>();
-
+        List<RevenueRowDTO> monthlyRows = new ArrayList<>();
+        List<String> monthlyChartLabels = new ArrayList<>();
+        List<Double> monthlyChartRoom = new ArrayList<>();
+        List<Double> monthlyChartFnb = new ArrayList<>();
+        List<Double> monthlyChartTour = new ArrayList<>();
         BigDecimal maxMonthRev = BigDecimal.ZERO;
         String bestMonthLabel = "-";
 
@@ -374,11 +344,9 @@ public class ManagerController {
             LocalDate mDate = now.minusMonths(i);
             LocalDate start = LocalDate.of(mDate.getYear(), mDate.getMonthValue(), 1);
             LocalDate end = LocalDate.of(mDate.getYear(), mDate.getMonthValue(), mDate.lengthOfMonth());
-
             BigDecimal rMonth = roomBookingRepository.revenueBetween(start, end);
             BigDecimal fMonth = foodOrderRepository.revenueBetween(start.atStartOfDay(), end.atTime(23, 59, 59));
             BigDecimal tMonth = tourBookingRepository.revenueBetween(start, end);
-
             BigDecimal totalM = rMonth.add(fMonth).add(tMonth);
 
             if (totalM.compareTo(maxMonthRev) > 0) {
@@ -386,60 +354,45 @@ public class ManagerController {
                 bestMonthLabel = "Tháng " + mDate.getMonthValue();
             }
 
-            rows.add(0, new RevenueRowMock("Tháng " + mDate.getMonthValue() + "/" + mDate.getYear(), fmt(rMonth),
-                    fmt(fMonth), fmt(tMonth), fmt(totalM)));
-            chartLabels.add("T" + mDate.getMonthValue());
-            chartRoom.add(rMonth.doubleValue() / 1_000_000.0);
-            chartFnb.add(fMonth.doubleValue() / 1_000_000.0);
-            chartTour.add(tMonth.doubleValue() / 1_000_000.0);
+            monthlyRows.add(0, new RevenueRowDTO("Tháng " + mDate.getMonthValue() + "/" + mDate.getYear(), fmt(rMonth), fmt(fMonth), fmt(tMonth), fmt(totalM)));
+            monthlyChartLabels.add("T" + mDate.getMonthValue());
+            monthlyChartRoom.add(rMonth.doubleValue() / 1_000_000.0);
+            monthlyChartFnb.add(fMonth.doubleValue() / 1_000_000.0);
+            monthlyChartTour.add(tMonth.doubleValue() / 1_000_000.0);
         }
 
         model.addAttribute("bestMonth", bestMonthLabel);
         model.addAttribute("bestMonthVal", fmt(maxMonthRev));
+        model.addAttribute("monthlyRows", monthlyRows);
+        model.addAttribute("monthlyChartLabels", monthlyChartLabels);
+        model.addAttribute("monthlyChartRoom", monthlyChartRoom);
+        model.addAttribute("monthlyChartFnb", monthlyChartFnb);
+        model.addAttribute("monthlyChartTour", monthlyChartTour);
 
-        model.addAttribute("rows", rows);
-        model.addAttribute("chartLabels", chartLabels);
-        model.addAttribute("chartRoom", chartRoom);
-        model.addAttribute("chartFnb", chartFnb);
-        model.addAttribute("chartTour", chartTour);
-        return "manager/revenue-monthly";
-    }
-
-    // =========================================================================
-    // 4. Doanh thu theo năm
-    // =========================================================================
-
-    @GetMapping("/revenue/yearly")
-    public String revenueYearly(Model model) {
-        model.addAttribute("todayLabel", todayLabel());
-        model.addAttribute("currentYear", String.valueOf(LocalDate.now().getYear()));
-
-        List<RevenueRowMock> rows = new ArrayList<>();
-        List<String> chartLabels = new ArrayList<>();
-        List<Double> chartRoom = new ArrayList<>();
-        List<Double> chartFnb = new ArrayList<>();
-        List<Double> chartTour = new ArrayList<>();
-
-        int currentYear = LocalDate.now().getYear();
+        // --- YEARLY ---
+        model.addAttribute("currentYear", String.valueOf(now.getYear()));
+        List<RevenueRowDTO> yearlyRows = new ArrayList<>();
+        List<String> yearlyChartLabels = new ArrayList<>();
+        List<Double> yearlyChartRoom = new ArrayList<>();
+        List<Double> yearlyChartFnb = new ArrayList<>();
+        List<Double> yearlyChartTour = new ArrayList<>();
+        int currentYear = now.getYear();
 
         for (int i = 2; i >= 0; i--) {
             int y = currentYear - i;
             LocalDate start = LocalDate.of(y, 1, 1);
             LocalDate end = LocalDate.of(y, 12, 31);
-
             BigDecimal rYear = roomBookingRepository.revenueBetween(start, end);
             BigDecimal fYear = foodOrderRepository.revenueBetween(start.atStartOfDay(), end.atTime(23, 59, 59));
             BigDecimal tYear = tourBookingRepository.revenueBetween(start, end);
-
             BigDecimal totalY = rYear.add(fYear).add(tYear);
 
             String lbl = String.valueOf(y) + (i == 0 ? " (YTD)" : "");
-            rows.add(0, new RevenueRowMock(lbl, fmt(rYear), fmt(fYear), fmt(tYear), fmt(totalY)));
-
-            chartLabels.add(lbl);
-            chartRoom.add(rYear.doubleValue() / 1_000_000.0);
-            chartFnb.add(fYear.doubleValue() / 1_000_000.0);
-            chartTour.add(tYear.doubleValue() / 1_000_000.0);
+            yearlyRows.add(0, new RevenueRowDTO(lbl, fmt(rYear), fmt(fYear), fmt(tYear), fmt(totalY)));
+            yearlyChartLabels.add(lbl);
+            yearlyChartRoom.add(rYear.doubleValue() / 1_000_000.0);
+            yearlyChartFnb.add(fYear.doubleValue() / 1_000_000.0);
+            yearlyChartTour.add(tYear.doubleValue() / 1_000_000.0);
 
             if (i == 0) {
                 model.addAttribute("ytdRevenue", fmt(totalY));
@@ -448,22 +401,24 @@ public class ManagerController {
 
         model.addAttribute("growthVsLast", "-");
         model.addAttribute("cagr3y", "-");
+        model.addAttribute("yearlyRows", yearlyRows);
+        model.addAttribute("yearlyChartLabels", yearlyChartLabels);
+        model.addAttribute("yearlyChartRoom", yearlyChartRoom);
+        model.addAttribute("yearlyChartFnb", yearlyChartFnb);
+        model.addAttribute("yearlyChartTour", yearlyChartTour);
 
-        model.addAttribute("rows", rows);
-        model.addAttribute("chartLabels", chartLabels);
-        model.addAttribute("chartRoom", chartRoom);
-        model.addAttribute("chartFnb", chartFnb);
-        model.addAttribute("chartTour", chartTour);
-        return "manager/revenue-yearly";
+        return "manager/revenue";
     }
 
     // =========================================================================
     // 5. Tỷ lệ lấp đầy phòng
     // =========================================================================
 
-    @GetMapping("/analytics/occupancy")
-    public String analyticsOccupancy(Model model) {
+    @GetMapping("/analytics/room")
+    public String analyticsRoom(Model model) {
         model.addAttribute("todayLabel", todayLabel());
+        
+        // --- OCCUPANCY LOGIC ---
         long total = 0;
         long occupied = 0;
         try {
@@ -487,9 +442,9 @@ public class ManagerController {
         String lowDateLabel = "--/--";
         int sumOcc = 0;
 
-        LocalDate today = LocalDate.now();
+        java.time.LocalDate today = java.time.LocalDate.now();
         for (int i = 29; i >= 0; i--) {
-            LocalDate d = today.minusDays(i);
+            java.time.LocalDate d = today.minusDays(i);
             int occOnDay = 0;
             try {
                 Integer c = roomBookingRepository.countOccupiedRoomsOnDate(d);
@@ -526,23 +481,73 @@ public class ManagerController {
         model.addAttribute("chartOccVals", chartOccVals);
         model.addAttribute("chartOccLabels", chartOccLabels);
 
-        List<OccupancyRowMock> rows = new ArrayList<>();
+        List<OccupancyRowDTO> occRows = new ArrayList<>();
         try {
             List<Object[]> roomCounts = roomRepository.countByCategory();
             List<com.kawai.models.Room> occupiedList = roomRepository.findOccupied();
-            for (RoomCategory cat : roomCategoryRepository.findAll()) {
+            for (com.kawai.models.RoomCategory cat : roomCategoryRepository.findAll()) {
                 long catTotal = roomCounts.stream().filter(r -> cat.getCategoryName().equals(r[0]))
                         .mapToLong(r -> (Long) r[1]).findFirst().orElse(0);
                 long catOccupied = occupiedList.stream()
                         .filter(r -> r.getCategory() != null && r.getCategory().getId().equals(cat.getId())).count();
                 int occPct = catTotal > 0 ? (int) (catOccupied * 100 / catTotal) : 0;
-                rows.add(new OccupancyRowMock(cat.getCategoryName(), (int) catTotal, occPct, (int) catOccupied));
+                occRows.add(new OccupancyRowDTO(cat.getCategoryName(), (int) catTotal, occPct, (int) catOccupied));
             }
         } catch (Exception e) {
         }
+        model.addAttribute("occRows", occRows);
 
-        model.addAttribute("rows", rows);
-        return "manager/analytics-occupancy";
+        // --- STAY LOGIC ---
+        Double avgStay = 0.0;
+        try {
+            avgStay = roomBookingRepository.getAverageStayDuration();
+            if (avgStay == null)
+                avgStay = 0.0;
+        } catch (Exception e) {
+        }
+
+        model.addAttribute("avgStay", String.format(java.util.Locale.US, "%.0f", avgStay));
+
+        long guests = 0;
+        try {
+            guests = bookingRepository.count();
+        } catch (Exception e) {
+        }
+
+        model.addAttribute("totalGuests", guests);
+        model.addAttribute("minStay", 1);
+        model.addAttribute("maxStay", 12);
+        model.addAttribute("medianStay", String.format(java.util.Locale.US, "%.0f", avgStay));
+
+        List<StayRowDTO> stayRows = new ArrayList<>();
+        try {
+            List<Object[]> guestCaps = roomBookingRepository.getGuestCapacityByCategory();
+            List<Object[]> avgStays = roomBookingRepository.getAverageStayDurationByCategory();
+            List<Object[]> roomCounts = roomRepository.countByCategory();
+            
+            for (com.kawai.models.RoomCategory cat : roomCategoryRepository.findAll()) {
+                String catName = cat.getCategoryName();
+                long catTotal = roomCounts.stream().filter(r -> catName.equals(r[0]))
+                        .mapToLong(r -> (Long) r[1]).findFirst().orElse(0);
+                
+                long catGuests = guestCaps.stream().filter(r -> catName.equals(r[0]))
+                        .mapToLong(r -> r[1] != null ? ((Number) r[1]).longValue() : 0).findFirst().orElse(0);
+                        
+                double catAvgStay = avgStays.stream().filter(r -> catName.equals(r[0]))
+                        .mapToDouble(r -> r[1] != null ? ((Number) r[1]).doubleValue() : 0.0).findFirst().orElse(0.0);
+                        
+                stayRows.add(new StayRowDTO(catName, String.format(java.util.Locale.US, "%.1f ngày", catAvgStay),
+                        (int) catGuests, (int) catTotal));
+            }
+        } catch (Exception e) {
+            System.err.println("[ManagerController] Error computing stay statistics: " + e.getMessage());
+        }
+
+        model.addAttribute("stayRows", stayRows);
+        model.addAttribute("distLabels", java.util.List.of("1 ngày", "2 ngày", "3 ngày", "4 ngày", "5 ngày", "6+ ngày"));
+        model.addAttribute("distValues", java.util.List.of(58, 72, 85, 61, 28, 16));
+        
+        return "manager/analytics-room";
     }
 
     // ── Inject roomCategoryRepo ──
@@ -563,7 +568,7 @@ public class ManagerController {
         } catch (Exception e) {
         }
 
-        List<TourRowMock> rows = new ArrayList<>();
+        List<TourRowDTO> rows = new ArrayList<>();
         try {
             List<Object[]> tourData = tourBookingRepository.getTourAnalytics();
             for (Object[] r : tourData) {
@@ -574,11 +579,11 @@ public class ManagerController {
                 BigDecimal basePrice = r[4] != null ? (BigDecimal) r[4] : BigDecimal.ZERO;
 
                 totalRevenue = totalRevenue.add(rev);
-                rows.add(new TourRowMock(name, cat, cnt, fmt(basePrice), fmt(rev), 0));
+                rows.add(new TourRowDTO(name, cat, cnt, fmt(basePrice), fmt(rev), 0));
             }
             rows.sort((a, b) -> Integer.compare(b.getBookings(), a.getBookings()));
-            int maxBookings = rows.stream().mapToInt(TourRowMock::getBookings).max().orElse(0);
-            for (TourRowMock row : rows) {
+            int maxBookings = rows.stream().mapToInt(TourRowDTO::getBookings).max().orElse(0);
+            for (TourRowDTO row : rows) {
                 row.setBarPct(maxBookings > 0 ? (row.getBookings() * 100 / maxBookings) : 0);
             }
         } catch (Exception e) {
@@ -608,7 +613,7 @@ public class ManagerController {
         } catch (Exception e) {
         }
 
-        List<FoodRowMock> rows = new ArrayList<>();
+        List<FoodRowDTO> rows = new ArrayList<>();
         java.util.Map<String, Integer> catCounts = new java.util.HashMap<>();
         try {
             List<Object[]> foodData = foodOrderDetailRepository.getFoodAnalytics();
@@ -621,16 +626,15 @@ public class ManagerController {
 
                 catCounts.put(cat, catCounts.getOrDefault(cat, 0) + qty);
                 totalRevenue = totalRevenue.add(rev);
-                rows.add(new FoodRowMock(name, cat, qty, fmt(price), fmt(rev), 100));
+                rows.add(new FoodRowDTO(name, cat, qty, fmt(price), fmt(rev), 100));
             }
             rows.sort((a, b) -> Integer.compare(b.getOrders(), a.getOrders()));
             if (rows.size() > 10)
                 rows = rows.subList(0, 10);
 
-            for (FoodRowMock row : rows) {
-                row.setBarPct(totalRevenue.compareTo(BigDecimal.ZERO) > 0
-                        ? (int) (parseM(row.getRevenue()) * 1000000L * 100 / totalRevenue.longValue())
-                        : 0);
+            int maxOrders = rows.stream().mapToInt(FoodRowDTO::getOrders).max().orElse(0);
+            for (FoodRowDTO row : rows) {
+                row.setBarPct(maxOrders > 0 ? (row.getOrders() * 100 / maxOrders) : 0);
             }
         } catch (Exception e) {
         }
@@ -650,52 +654,9 @@ public class ManagerController {
         return "manager/analytics-food";
     }
 
-    // =========================================================================
-    // 8. Thời gian lưu trú trung bình
-    // =========================================================================
+    
 
-    @GetMapping("/analytics/stay")
-    public String analyticsStay(Model model) {
-        model.addAttribute("todayLabel", todayLabel());
-        Double avgStay = 0.0;
-        try {
-            avgStay = roomBookingRepository.getAverageStayDuration();
-            if (avgStay == null)
-                avgStay = 0.0;
-        } catch (Exception e) {
-        }
-
-        model.addAttribute("avgStay", String.format(Locale.US, "%.0f", avgStay));
-
-        long guests = 0;
-        try {
-            guests = bookingRepository.count();
-        } catch (Exception e) {
-        }
-
-        model.addAttribute("totalGuests", guests);
-        model.addAttribute("minStay", 1);
-        model.addAttribute("maxStay", 12);
-        model.addAttribute("medianStay", String.format(Locale.US, "%.0f", avgStay));
-
-        List<StayRowMock> rows = new ArrayList<>();
-        try {
-            List<Object[]> roomCounts = roomRepository.countByCategory();
-            for (RoomCategory cat : roomCategoryRepository.findAll()) {
-                long catTotal = roomCounts.stream().filter(r -> cat.getCategoryName().equals(r[0]))
-                        .mapToLong(r -> (Long) r[1]).findFirst().orElse(0);
-                long catGuests = (guests * catTotal) / 50; // simple rough estimation for display
-                rows.add(new StayRowMock(cat.getCategoryName(), String.format(Locale.US, "%.0f ngày", avgStay),
-                        (int) catGuests, (int) catTotal));
-            }
-        } catch (Exception e) {
-        }
-
-        model.addAttribute("rows", rows);
-        model.addAttribute("distLabels", List.of("1 ngày", "2 ngày", "3 ngày", "4 ngày", "5 ngày", "6+ ngày"));
-        model.addAttribute("distValues", List.of(58, 72, 85, 61, 28, 16));
-        return "manager/analytics-stay";
-    }
+    
 
     // =========================================================================
     // 9. Xuất báo cáo
@@ -714,7 +675,7 @@ public class ManagerController {
 
     @Data
     @AllArgsConstructor
-    public static class DailyRevenueMock {
+    public static class DailyRevenueDTO {
         private String label;
         private double room;
         private double fnb;
@@ -723,7 +684,7 @@ public class ManagerController {
 
     @Data
     @AllArgsConstructor
-    public static class RevenueRowMock {
+    public static class RevenueRowDTO {
         private String period;
         private String room;
         private String fnb;
@@ -733,7 +694,7 @@ public class ManagerController {
 
     @Data
     @AllArgsConstructor
-    public static class OccupancyRowMock {
+    public static class OccupancyRowDTO {
         private String category;
         private int totalRooms;
         private int occupancyPct;
@@ -742,7 +703,7 @@ public class ManagerController {
 
     @Data
     @AllArgsConstructor
-    public static class TourRowMock {
+    public static class TourRowDTO {
         private String name;
         private String category;
         private int bookings;
@@ -753,7 +714,7 @@ public class ManagerController {
 
     @Data
     @AllArgsConstructor
-    public static class FoodRowMock {
+    public static class FoodRowDTO {
         private String name;
         private String category;
         private int orders;
@@ -764,7 +725,7 @@ public class ManagerController {
 
     @Data
     @AllArgsConstructor
-    public static class StayRowMock {
+    public static class StayRowDTO {
         private String category;
         private String avgStay;
         private int guests;
@@ -773,7 +734,7 @@ public class ManagerController {
 
     @Data
     @AllArgsConstructor
-    public static class ExportHistoryMock {
+    public static class ExportHistoryDTO {
         private String reportName;
         private String format;
         private String exportedAt;

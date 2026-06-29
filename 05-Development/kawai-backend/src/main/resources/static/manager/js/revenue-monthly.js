@@ -1,5 +1,6 @@
 /* revenue-monthly.js — Doanh thu theo tháng: multi-line chart */
 
+(() => {
 const C_ROOM='#C9A96E',C_FNB='#7A9C7A',C_TOUR='#6B8C9A';
 const C_GRID='rgba(44,42,30,0.07)',C_TICK='#8B7355';
 
@@ -21,13 +22,8 @@ document.addEventListener('DOMContentLoaded',()=>{
         {label:'F&B',data:d.fnb,borderColor:C_FNB,backgroundColor:'rgba(122,156,122,0.08)',borderWidth:2.5,pointRadius:4,pointBackgroundColor:C_FNB,tension:0.3,fill:false},
         {label:'Tour',data:d.tour,borderColor:C_TOUR,backgroundColor:'rgba(107,140,154,0.08)',borderWidth:2.5,pointRadius:4,pointBackgroundColor:C_TOUR,tension:0.3,fill:false}
     ]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>` ${c.dataset.label}: ${c.parsed.y} Tỷ`}}},scales:{x:{grid:{display:false},border:{display:false},ticks:{color:C_TICK}},y:{grid:{color:C_GRID},border:{display:false},ticks:{color:C_TICK,callback:v=>v+' Tỷ'}}}}});
+})();
 });
 
-function toggleSubmenu(id,arrowId){
-    const s=document.getElementById(id),a=document.getElementById(arrowId);
-    if(!s||!a)return;
-    const open=s.classList.contains('open');
-    document.querySelectorAll('.mgr-submenu').forEach(e=>e.classList.remove('open'));
-    document.querySelectorAll('.mgr-nav-arrow').forEach(e=>e.classList.remove('open'));
-    if(!open){s.classList.add('open');a.classList.add('open');}
+
 }

@@ -662,9 +662,9 @@
                             <i class="fa-solid fa-user-tie"></i> Đặt bởi: <span id="bookerName">--</span>
                         </div>
                         <div class="status-pill" id="groupTotalPill"
-                            style="background-color: #fff3e0; color: #d35400; border: 1px solid #ffe0b2; font-weight: 600; display: none;">
+                            style="background-color: #FFF8F4; color: #d35400; border: 1px solid #ffe0b2; font-weight: 600; display: none;">
                             <i class="fa-solid fa-file-invoice-dollar"></i> Tổng nợ đoàn: <span id="groupTotalAmount">0
-                                ₫</span>
+                                VNĐ</span>
                         </div>
                     </div>
                 </div>
@@ -677,44 +677,72 @@
                     <!-- BILL SUMMARY -->
                     <div class="folio-right">
                         <!-- HÓA ĐƠN GỐC -->
-                        <div class="bill-summary-card" id="originalBillCard">
-                            <h3 id="billTitle">Hóa đơn tổng</h3>
-                            <div id="originalBillDetails"></div>
+                        <div class="bill-summary-card" id="originalBillCard"
+                            style="background: #ffffff; padding: 24px 32px; border: 1px solid #e2e8f0; border-radius: 2px;">
+                            <h3 id="billTitle"
+                                style="font-family: 'Playfair Display', serif; font-size: 1.5rem; color: #111827; margin: 0 0 16px 0; font-weight: normal;">
+                                Tổng kết hóa đơn</h3>
+                            <div style="height: 1px; background: #e2e8f0; margin-bottom: 24px;"></div>
+
+                            <div id="originalBillDetails" style="margin-bottom: 24px;"></div>
 
                             <div id="promoSection">
-                                <div style="font-size: 0.9rem; color: #7f8c8d; margin: 24px 0 8px 0;">Apply Promotion
-                                </div>
-                                <div class="promo-input">
-                                    <input type="text" placeholder="Voucher code" id="groupPromoInput">
-                                    <button class="btn-apply" onclick="applyGroupPromo()">Apply</button>
+                                <div
+                                    style="font-size: 0.75rem; font-weight: bold; color: #6b7280; text-transform: uppercase; margin: 0 0 8px 0; letter-spacing: 0.5px;">
+                                    Mã khuyến mãi</div>
+                                <div class="promo-input" style="display: flex; gap: 12px; margin-bottom: 24px;">
+                                    <input type="text" placeholder="Nhập mã..." id="groupPromoInput"
+                                        style="flex: 1; border: none; border-bottom: 1px solid #e2e8f0; padding: 8px 0; outline: none; background: transparent; font-size: 0.95rem; color: #4b5563;">
+                                    <button class="btn-apply" onclick="applyGroupPromo()"
+                                        style="background: white; border: 1px solid #d1d5db; border-radius: 2px; padding: 8px 16px; font-weight: bold; font-size: 0.75rem; cursor: pointer; color: #374151; letter-spacing: 0.5px;">ÁP
+                                        DỤNG</button>
                                 </div>
                             </div>
 
+                            <div style="border-top: 1px dotted #cbd5e1; margin-bottom: 24px;"></div>
+
                             <div class="summary-row total-row" id="row-promo"
-                                style="display: none; color: #e67e22; border-top: 1px dashed #cbd5e1; padding-top: 12px; margin-top: 12px;">
-                                <span>Khuyến mãi (<span id="promoLabel">0%</span>)</span>
-                                <span id="promoAmount">-0 ₫</span>
+                                style="display: none; color: #e67e22; margin-bottom: 16px; justify-content: space-between;">
+                                <span style="color: #6b7280; font-size: 0.95rem;">Khuyến mãi (<span
+                                        id="promoLabel">0%</span>)</span>
+                                <span id="promoAmount" style="color: #111827; font-weight: 600; font-size: 0.95rem;">-0
+                                    VNĐ</span>
                             </div>
 
                             <div class="summary-row total-row" id="row-deposit"
-                                style="display: none; color: #27ae60; border-top: 1px dashed #cbd5e1; padding-top: 12px; margin-top: 12px;">
-                                <span>Tiền cọc (Deposit)</span>
-                                <span id="prePaidAmount">-0 ₫</span>
+                                style="display: none; margin-bottom: 16px; justify-content: space-between;">
+                                <span style="color: #6b7280; font-size: 0.95rem;">Tiền cọc</span>
+                                <span id="prePaidAmount"
+                                    style="color: #111827; font-weight: 600; font-size: 0.95rem;">-0 VNĐ</span>
                             </div>
 
                             <div class="summary-row total-row" id="row-other-payments"
-                                style="display: none; color: #2980b9; padding-top: 8px;">
-                                <span>Đã thanh toán (Paid)</span>
-                                <span id="otherPaymentsAmount">-0 ₫</span>
+                                style="display: none; margin-bottom: 16px; justify-content: space-between;">
+                                <span style="color: #6b7280; font-size: 0.95rem;">Đã thanh toán</span>
+                                <span id="otherPaymentsAmount"
+                                    style="color: #111827; font-weight: 600; font-size: 0.95rem;">-0 VNĐ</span>
                             </div>
 
-                            <div class="summary-row outstanding-row">
-                                <span class="label">Outstanding</span>
-                                <span class="amount" id="originalOutstandingAmount">0 ₫</span>
+                            <div style="height: 1px; background: #f3f4f6; margin-bottom: 24px;"></div>
+
+                            <div class="summary-row outstanding-row"
+                                style="align-items: flex-end; justify-content: space-between; display: flex;">
+                                <span class="label"
+                                    style="font-size: 0.75rem; font-weight: bold; color: #6b7280; text-transform: uppercase; width: 80px; line-height: 1.4; padding-bottom: 4px;">Cần
+                                    thanh<br>toán</span>
+                                <div
+                                    style="display: flex; flex-direction: column; align-items: flex-start; text-align: left;">
+                                    <span class="amount" id="originalOutstandingAmount"
+                                        style="font-family: 'EB Garamond', serif; font-size: 1.5rem; color: #111827; line-height: 1; letter-spacing: -0.5px;">0
+                                        VNĐ</span>
+                                </div>
                             </div>
 
                             <button class="btn-checkout" id="btnProceedOriginal"
-                                onclick="openPaymentModal(globalOriginalOutstanding, true)">Thanh toán HĐ Gốc</button>
+                                onclick="openPaymentModal(globalOriginalOutstanding, true)"
+                                style="width: 100%; margin-top: 32px; background: #332B22; color: white; padding: 16px; border: none; border-radius: 2px; font-weight: bold; font-size: 0.85rem; letter-spacing: 0.5px; text-transform: uppercase; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                <i class="fa-solid fa-credit-card"></i> Thanh toán HĐ Gốc
+                            </button>
                         </div>
 
                     </div>
@@ -751,12 +779,12 @@
             <div class="summary-row total-row" id="row-room-promo"
                 style="display: none; color: #e67e22; border-top: 1px dashed #cbd5e1; padding-top: 12px; margin-top: 12px;">
                 <span>Khuyến mãi (<span id="roomPromoLabel">0%</span>)</span>
-                <span id="roomPromoAmount">-0 ₫</span>
+                <span id="roomPromoAmount">-0 VNĐ</span>
             </div>
 
             <div class="summary-row outstanding-row">
                 <span class="label">Outstanding</span>
-                <span class="amount" id="roomBillOutstandingAmount">0 ₫</span>
+                <span class="amount" id="roomBillOutstandingAmount">0 VNĐ</span>
             </div>
 
             <button class="btn-checkout" id="btnProceedRoomBill" style="width: 100%; margin-top: 16px;">Thanh toán phòng
@@ -768,7 +796,7 @@
     <div id="paymentModal" class="split-modal-overlay" style="display: none;">
         <div class="payment-modal-content">
             <h3 style="margin: 0; color: #2c3e50; text-align: center;">Xử lý Thanh toán</h3>
-            <div class="payment-amount-display" id="paymentTotalAmount">0 ₫</div>
+            <div class="payment-amount-display" id="paymentTotalAmount">0 VNĐ</div>
 
             <label style="display:block; margin-bottom: 8px; font-size: 0.9rem; color: #7f8c8d;">Phương thức thanh
                 toán</label>
@@ -786,7 +814,7 @@
                 </div>
                 <div class="change-due">
                     <span>Tiền thừa trả khách:</span>
-                    <span id="changeDueAmount" style="color: #27ae60;">0 ₫</span>
+                    <span id="changeDueAmount" style="color: #27ae60;">0 VNĐ</span>
                 </div>
             </div>
 
@@ -817,7 +845,8 @@
             </div>
 
             <div class="modal-actions">
-                <button class="btn-apply" onclick="window.print()"><i class="fa-solid fa-print"></i> In biên lai giấy</button>
+                <button class="btn-apply" onclick="window.print()"><i class="fa-solid fa-print"></i> In biên lai
+                    giấy</button>
                 <button class="btn-checkout" style="margin: 0;" onclick="closeSuccessModal()">Đóng</button>
             </div>
         </div>
@@ -862,7 +891,7 @@
                         bookingGroupData = data;
 
                         if (data.rooms && data.rooms.length > 1) {
-                            const formatCurrency = (val) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(val);
+                            const formatCurrency = (val) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(val).replace('₫', 'VNĐ');
                             document.getElementById('groupTotalPill').style.display = 'none';
                         } else {
                             document.getElementById('groupTotalPill').style.display = 'none';
@@ -922,7 +951,7 @@
         }
 
         function formatCurrency(amount) {
-            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount).replace('₫', 'VNĐ');
         }
 
         function renderGuestInfo(data, roomCount) {
@@ -1003,19 +1032,19 @@
 
                 // Build Room Card HTML
                 leftHtml += `
-                <div style="background: white; border: none; border-radius: 16px; margin-bottom: 32px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04); transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.boxShadow='0 8px 30px rgba(0,0,0,0.13), 0 4px 10px rgba(0,0,0,0.07)'; this.style.transform='translateY(-2px)';" onmouseout="this.style.boxShadow='0 4px 20px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04)'; this.style.transform='translateY(0)';">
+                <div style="background: white; border: none; border-radius: 0; margin-bottom: 32px; margin-right: 32px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04); transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.boxShadow='0 8px 30px rgba(0,0,0,0.13), 0 4px 10px rgba(0,0,0,0.07)'; this.style.transform='translateY(-2px)';" onmouseout="this.style.boxShadow='0 4px 20px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04)'; this.style.transform='translateY(0)';">
                     <div style="background: #f8fafc; padding: 24px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="toggleRoomDetail('room-detail-${roomId}')">
                          <div>
-                             <h4 style="margin: 0 0 4px 0; font-size: 1.1rem; color: #2c3e50;"><i class="fa-solid fa-door-open"></i> Phòng ${data.roomNumber || 'N/A'}</h4>
+                             <h4 style="margin: 0 0 4px 0; font-size: 1.1rem; color: #332B22;"><i class="fa-solid fa-door-open"></i> Phòng ${data.roomNumber || 'N/A'}</h4>
                              <div style="font-size: 0.9rem; color: #7f8c8d;">
-                                 <i class="fa-solid fa-user" style="margin-right: 4px;"></i> Đại diện phòng: <strong style="color: #2c3e50;">${data.guestName || 'Unknown'}</strong>
+                                 <i class="fa-solid fa-user" style="margin-right: 4px;"></i> Đại diện phòng: <strong style="color: #332B22;">${data.guestName || 'Unknown'}</strong>
                                  ${data.detailStatus === 'Checked_Out' ? '<span class="status-badge" style="background-color: #d1fae5; color: #065f46; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; margin-left: 8px; font-weight: 600;">Đã trả phòng (Checked-out)</span>' : ''}
                              </div>
                          </div>
                          <div style="display: flex; align-items: center; gap: 16px;">
-                             <span style="font-weight: 600; color: #c19b6c; font-size: 1.1rem;">${formatCurrency(roomTotal * 1.1)}</span>
+                             <span style="font-weight: 600; color: #332B22; font-size: 1.1rem;">${formatCurrency(roomTotal * 1.1)}</span>
                              <button class="btn btn-secondary" style="margin: 0; padding: 6px 12px; font-size: 0.85rem; background: white; border: 1px solid #cbd5e1; border-radius: 6px; cursor: pointer; transition: background 0.2s;">
-                                 <i class="fa-solid fa-eye"></i> View Detail
+                                 View Detail
                              </button>
                          </div>
                      </div>
@@ -1115,18 +1144,18 @@
             let rightOriginalHtml = '';
             for (const [dep, group] of Object.entries(originalGroups)) {
                 rightOriginalHtml += `
-                    <div class="summary-row">
-                        <span>${dep}</span>
-                        <span>${formatCurrency(group.total)}</span>
+                    <div class="summary-row" style="display: flex; justify-content: space-between; margin-bottom: 12px; color: #4b5563; font-size: 0.95rem;">
+                        <span>Tiền ${dep.toLowerCase()}</span>
+                        <span style="color: #111827; font-weight: 600;">${formatCurrency(group.total).replace('₫', 'đ')}</span>
                     </div>
                 `;
             }
             if (Object.keys(originalGroups).length > 0) {
                 const vatAmount = originalTotal * 0.1;
                 rightOriginalHtml += `
-                    <div class="summary-row" style="border-top: 1px dashed #cbd5e1; padding-top: 8px; margin-top: 8px;">
+                    <div class="summary-row" style="display: flex; justify-content: space-between; margin-bottom: 12px; color: #4b5563; font-size: 0.95rem; margin-top: 12px;">
                         <span>VAT (10%)</span>
-                        <span>${formatCurrency(vatAmount)}</span>
+                        <span style="color: #111827; font-weight: 600;">${formatCurrency(vatAmount).replace('₫', 'đ')}</span>
                     </div>
                 `;
             } else {
@@ -1141,14 +1170,14 @@
 
             if (globalPrePaidDeposit > 0) {
                 document.getElementById('row-deposit').style.display = 'flex';
-                document.getElementById('prePaidAmount').innerText = "-" + formatCurrency(globalPrePaidDeposit);
+                document.getElementById('prePaidAmount').innerText = "-" + formatCurrency(globalPrePaidDeposit).replace('₫', 'đ');
             } else {
                 document.getElementById('row-deposit').style.display = 'none';
             }
 
             if (globalOtherPayments > 0) {
                 document.getElementById('row-other-payments').style.display = 'flex';
-                document.getElementById('otherPaymentsAmount').innerText = "-" + formatCurrency(globalOtherPayments);
+                document.getElementById('otherPaymentsAmount').innerText = "-" + formatCurrency(globalOtherPayments).replace('₫', 'đ');
             } else {
                 document.getElementById('row-other-payments').style.display = 'none';
             }
@@ -1297,7 +1326,8 @@
             let outstanding = totalWithVat - appliedGroupPromoDiscount - globalPrePaidDeposit - globalOtherPayments;
             if (outstanding < 0) outstanding = 0;
             globalOriginalOutstanding = outstanding;
-            document.getElementById('originalOutstandingAmount').innerText = formatCurrency(outstanding);
+            let formattedOut = formatCurrency(outstanding);
+            document.getElementById('originalOutstandingAmount').innerHTML = formattedOut;
 
             const btn = document.getElementById('btnProceedOriginal');
             if (btn) {
