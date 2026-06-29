@@ -1090,3 +1090,70 @@ function updateFacePreviewUI(type, targetId, base64Image) {
     `;
 }
 
+
+// --- AUTO SAVE FORM DATA TO PREVENT DATA LOSS ON TAB SWITCH / RELOAD ---
+document.addEventListener('DOMContentLoaded', () => {
+    const pageKey = 'kawai_autosave_' + window.location.pathname.replace(/[^a-zA-Z0-9]/g, '_');
+    
+    // Khôi phục dữ liệu
+    const savedDataStr = localStorage.getItem(pageKey);
+    if (savedDataStr) {
+        try {
+            const savedData = JSON.parse(savedDataStr);
+            document.querySelectorAll('input, select, textarea').forEach(el => {
+                const key = el.id || el.name;
+                // Bỏ qua các trường nhạy cảm hoặc không cần lưu
+                if (!key || el.type === 'password' || el.type === 'file' || el.type === 'hidden') return;
+                // Bỏ qua trường tìm kiếm nếu có
+                if (key.toLowerCase().includes('search') || key.toLowerCase().includes('keyword')) return;
+                
+                if (savedData[key] !== undefined) {
+                    if (el.type === 'checkbox' || el.type === 'radio') {
+                        el.checked = savedData[key];
+                    } else {
+                        el.value = savedData[key];
+                    }
+                }
+            });
+            console.log('Khôi phục dữ liệu đang nhập dở thành công.');
+        } catch(e) {
+            console.error('Lỗi khi khôi phục dữ liệu autosave:', e);
+        }
+    }
+
+    // Lắng nghe sự kiện để lưu dữ liệu (dùng event delegation)
+    document.body.addEventListener('input', (e) => {
+        const el = e.target;
+        if (el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.tagName === 'TEXTAREA') {
+            const key = el.id || el.name;
+            if (!key || el.type === 'password' || el.type === 'file' || el.type === 'hidden') return;
+            if (key.toLowerCase().includes('search') || key.toLowerCase().includes('keyword')) return;
+            
+            const currentData = JSON.parse(localStorage.getItem(pageKey) || '{}');
+            if (el.type === 'checkbox' || el.type === 'radio') {
+                currentData[key] = el.checked;
+            } else {
+                currentData[key] = el.value;
+            }
+            localStorage.setItem(pageKey, JSON.stringify(currentData));
+        }
+    });
+
+    // Xóa dữ liệu khi submit thành công bằng form truyền thống
+    document.querySelectorAll('form').forEach(form => {
+        form.addEventListener('submit', () => {
+            localStorage.removeItem(pageKey);
+        });
+    });
+
+    // Gắn đè hàm fetch để xóa dữ liệu khi fetch api checkin thành công
+    const originalFetch = window.fetch;
+    window.fetch = async function() {
+        const response = await originalFetch.apply(this, arguments);
+        const url = arguments[0];
+        if (response.ok && typeof url === 'string' && (url.includes('/walkin/checkin') || url.includes('/checkin/complete'))) {
+            localStorage.removeItem(pageKey);
+        }
+        return response;
+    };
+});

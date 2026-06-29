@@ -19,6 +19,55 @@
 </head>
 
 <body>
+    <!-- Toast Notification -->
+    <div id="toastContainer" style="position:fixed; top:24px; right:24px; z-index:9999; display:flex; flex-direction:column; gap:10px;"></div>
+
+    <!-- Modal Đổi Phòng (Transfer Room) - 3 bước -->
+    <div id="transferRoomModal" style="display:none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.65); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(5px);">
+        <div style="background: white; border-radius: 16px; width: 100%; max-width: 640px; padding: 36px; box-shadow: 0 24px 40px -8px rgba(0, 0, 0, 0.2); position: relative;">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 2px solid #f0e8df; padding-bottom: 18px; margin-bottom: 24px;">
+                <h3 style="margin: 0; color: #1a1a1a; font-size: 22px; font-weight: 700; font-family: 'Playfair Display', serif;">Đổi Hạng Phòng</h3>
+                <i class="fa-solid fa-xmark" style="cursor: pointer; color: #8b8b8b; font-size: 22px;" onmouseover="this.style.color='#eb5757'" onmouseout="this.style.color='#8b8b8b'" onclick="closeTransferRoomModal()"></i>
+            </div>
+
+            <!-- Bước 1: Chọn phòng hiện tại -->
+            <div id="transferStep1" style="display: flex; flex-direction: column; gap: 14px;">
+                <p style="margin:0; font-size:13px; color:#946f38; font-weight:600; letter-spacing:0.5px; text-transform:uppercase;">Bước 1 / 3 — Chọn phòng muốn đổi hạng</p>
+                <select id="transferCurrentRoomSelect" style="width:100%; padding:12px 14px; border:2px solid #e5ddd5; border-radius:10px; font-size:15px; outline:none; font-family: inherit; transition: border-color 0.2s;" onfocus="this.style.borderColor='#946f38'" onblur="this.style.borderColor='#e5ddd5'">
+                    <option value="">-- Đang tải... --</option>
+                </select>
+                <div style="display:flex; justify-content:flex-end; margin-top:4px;">
+                    <button type="button" onclick="transferStep1Next()" style="background:#946f38; color:#fff; border:none; padding:10px 24px; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer; transition: background 0.2s;" onmouseover="this.style.background='#7a5c2e'" onmouseout="this.style.background='#946f38'">Tiếp theo →</button>
+                </div>
+            </div>
+
+            <!-- Bước 2: Chọn hạng phòng -->
+            <div id="transferStep2" style="display:none; flex-direction:column; gap:14px;">
+                <p style="margin:0; font-size:13px; color:#946f38; font-weight:600; letter-spacing:0.5px; text-transform:uppercase;">Bước 2 / 3 — Chọn hạng phòng muốn đổi sang</p>
+                <div id="transferCategoryList" style="display:flex; flex-direction:column; gap:10px; max-height:360px; overflow-y:auto; padding-right:4px;"></div>
+                <div style="display:flex; justify-content:space-between; margin-top:4px;">
+                    <button type="button" onclick="transferGoStep(1)" style="background:white; border:2px solid #e5ddd5; color:#5a5a5a; padding:10px 20px; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer; transition: all 0.2s;" onmouseover="this.style.borderColor='#946f38'; this.style.color='#946f38'" onmouseout="this.style.borderColor='#e5ddd5'; this.style.color='#5a5a5a'">← Quay lại</button>
+                </div>
+            </div>
+
+            <!-- Bước 3: Chọn phòng cụ thể & xác nhận -->
+            <div id="transferStep3" style="display:none; flex-direction:column; gap:14px;">
+                <p style="margin:0; font-size:13px; color:#946f38; font-weight:600; letter-spacing:0.5px; text-transform:uppercase;">Bước 3 / 3 — Chọn phòng trống cụ thể</p>
+                <div id="transferPriceInfo" style="background:#fdf8f1; border:2px solid #f0e8df; border-left:4px solid #946f38; border-radius:10px; padding:14px 16px; font-size:14px; color:#5a4020;"></div>
+                <form id="transferRoomForm" onsubmit="submitTransferRoom(event)" style="display:flex; flex-direction:column; gap:14px;">
+                    <input type="hidden" id="transferDetailIdInput" name="bookingDetailId" />
+                    <select id="transferNewRoomSelect" name="newRoomId" required style="width:100%; padding:12px 14px; border:2px solid #e5ddd5; border-radius:10px; font-size:15px; outline:none; font-family:inherit; transition: border-color 0.2s;" onfocus="this.style.borderColor='#946f38'" onblur="this.style.borderColor='#e5ddd5'">
+                        <option value="">-- Chọn phòng --</option>
+                    </select>
+                    <div style="display:flex; justify-content:space-between; margin-top:4px;">
+                        <button type="button" onclick="transferGoStep(2)" style="background:white; border:2px solid #e5ddd5; color:#5a5a5a; padding:10px 20px; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer; transition: all 0.2s;" onmouseover="this.style.borderColor='#946f38'; this.style.color='#946f38'" onmouseout="this.style.borderColor='#e5ddd5'; this.style.color='#5a5a5a'">← Quay lại</button>
+                        <button type="submit" style="background:#946f38; color:#fff; border:none; padding:10px 28px; border-radius:8px; font-size:14px; font-weight:700; cursor:pointer; transition: background 0.2s;" onmouseover="this.style.background='#7a5c2e'" onmouseout="this.style.background='#946f38'">✔ Xác nhận Đổi phòng</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <div class="app-container">
         <!-- Sidebar -->
         <aside class="sidebar">
@@ -180,8 +229,25 @@
                                     <td><span class="status-badge" style="background: #e0f2fe; color: #0284c7;"
                                             th:text="${arr.bookingScale}"></span></td>
                                     <td>
+
                                         <button class="btn btn-primary btn-sm"
-                                            th:attr="onclick=|openInHouseModal(${arr.id})|">Chi ti&#7871;t</button>
+                                            th:attr="onclick=|openInHouseModal(${arr.id})|">Chi tiết</button>
+                                        <button class="btn btn-secondary btn-sm" style="margin-left: 6px;"
+                                            th:attr="onclick=|openTransferRoomModal(${arr.id})|">Đổi phòng</button>
+                                        <!-- Hidden data for dependents -->
+                                        <div th:id="'deps-' + ${arr.id}" style="display:none;">
+                                            <ul style="padding-left: 20px; margin:0; color:#475569; font-size:14px;">
+                                                <li th:if="${#lists.isEmpty(arr.dependents)}">Không có người đi kèm</li>
+                                                <li th:each="dep : ${arr.dependents}">
+                                                    <span
+                                                        th:text="${dep.fullName} + ' (Sinh: ' + ${dep.dateOfBirth} + ')'"></span>
+                                                    <span th:if="${dep.isPrimaryContact}"
+                                                        style="background-color: #fef08a; color: #854d0e; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; margin-left: 8px;"
+                                                        th:text="'Đứng đầu ' + (${dep.assignedRoom != null ? 'phòng ' + dep.assignedRoom : ''})">Đứng
+                                                        đầu</span>
+                                                </li>
+                                            </ul>
+                                        </div>
                                     </td>
                                 </tr>
                             </tbody>
@@ -248,8 +314,10 @@
             <div
                 style="display:flex; justify-content:space-between; align-items:center; border-bottom: 2px solid #e2e8f0; padding-bottom: 20px; margin-bottom: 24px;">
                 <h3 style="margin: 0; color: #0f172a; font-size: 22px; font-weight: 600;">Chi tiết Đơn lưu trú</h3>
-                <i class="fa-solid fa-xmark" style="cursor: pointer; color: #64748b; font-size: 24px; transition: color 0.2s;"
-                    onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='#64748b'" onclick="closeInHouseModal()"></i>
+                <i class="fa-solid fa-xmark"
+                    style="cursor: pointer; color: #64748b; font-size: 24px; transition: color 0.2s;"
+                    onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='#64748b'"
+                    onclick="closeInHouseModal()"></i>
             </div>
 
             <div style="display:flex; flex-direction:column; gap: 24px;">
@@ -285,8 +353,8 @@
         </div>
     </div>
 
-    <script src="/receptionist/js/dashboard.js"></script>
-    <script src="/receptionist/js/in-house.js?v=3"></script>
+    <script th:src="@{/receptionist/js/dashboard.js}"></script>
+    <script th:src="@{/receptionist/js/in-house.js}"></script>
 </body>
 
 </html>
