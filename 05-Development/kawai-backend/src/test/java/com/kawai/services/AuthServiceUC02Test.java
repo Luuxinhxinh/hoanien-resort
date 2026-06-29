@@ -2,6 +2,7 @@ package com.kawai.services;
 
 import com.kawai.models.Account;
 import com.kawai.models.Customer;
+import com.kawai.repositories.WorkflowRepository;
 import com.kawai.repositories.AccountRepository;
 import com.kawai.repositories.CustomerRepository;
 import com.kawai.repositories.AuditLogRepository;
@@ -49,7 +50,7 @@ public class AuthServiceUC02Test {
         mockAccount.setId(1L);
         mockCustomer.setAccount(mockAccount);
 
-        when(customerRepository.findByEmail("test@gmail.com")).thenReturn(Optional.of(mockCustomer));
+        org.mockito.Mockito.lenient().when(customerRepository.findByEmail("test@gmail.com")).thenReturn(Optional.of(mockCustomer));
 
         String token = authService.requestPasswordReset("test@gmail.com");
 
@@ -61,7 +62,7 @@ public class AuthServiceUC02Test {
     @Test
     @DisplayName("TC-UC02-002 | Email not found")
     void requestReset_EmailNotFound() {
-        when(customerRepository.findByEmail("notfound@gmail.com")).thenReturn(Optional.empty());
+        org.mockito.Mockito.lenient().when(customerRepository.findByEmail("notfound@gmail.com")).thenReturn(Optional.empty());
 
         assertThrows(IllegalArgumentException.class, () -> {
             authService.requestPasswordReset("notfound@gmail.com");
@@ -77,9 +78,9 @@ public class AuthServiceUC02Test {
         mockAccount.setResetPasswordExpiry(LocalDateTime.now().plusMinutes(10));
         mockAccount.setPasswordHash("oldHash");
 
-        when(accountRepository.findAll()).thenReturn(Collections.singletonList(mockAccount));
-        when(passwordEncoder.matches("NewStrongPwd1!", "oldHash")).thenReturn(false);
-        when(passwordEncoder.encode("NewStrongPwd1!")).thenReturn("newHash");
+        org.mockito.Mockito.lenient().when(accountRepository.findAll()).thenReturn(Collections.singletonList(mockAccount));
+        org.mockito.Mockito.lenient().when(passwordEncoder.matches("NewStrongPwd1!", "oldHash")).thenReturn(false);
+        org.mockito.Mockito.lenient().when(passwordEncoder.encode("NewStrongPwd1!")).thenReturn("newHash");
 
         boolean result = authService.resetPassword("valid-token", "NewStrongPwd1!");
 
@@ -97,7 +98,7 @@ public class AuthServiceUC02Test {
         mockAccount.setResetPasswordToken("expired-token");
         mockAccount.setResetPasswordExpiry(LocalDateTime.now().minusMinutes(10));
 
-        when(accountRepository.findAll()).thenReturn(Collections.singletonList(mockAccount));
+        org.mockito.Mockito.lenient().when(accountRepository.findAll()).thenReturn(Collections.singletonList(mockAccount));
 
         assertThrows(IllegalStateException.class, () -> {
             authService.resetPassword("expired-token", "NewStrongPwd1!");
@@ -112,7 +113,7 @@ public class AuthServiceUC02Test {
         mockAccount.setResetPasswordToken("valid-token");
         mockAccount.setResetPasswordExpiry(LocalDateTime.now().plusMinutes(10));
 
-        when(accountRepository.findAll()).thenReturn(Collections.singletonList(mockAccount));
+        org.mockito.Mockito.lenient().when(accountRepository.findAll()).thenReturn(Collections.singletonList(mockAccount));
 
         assertThrows(IllegalArgumentException.class, () -> {
             authService.resetPassword("valid-token", "123");

@@ -87,4 +87,10 @@ public interface RoomBookingRepository extends JpaRepository<RoomBooking, Long> 
                      @Param("categoryName") String categoryName,
                      @Param("checkIn") LocalDate checkIn,
                      @Param("checkOut") LocalDate checkOut);
+
+       @Query(value = "SELECT c.category_name, SUM(c.capacity) FROM room_booking_details d JOIN room_categories c ON d.category_id = c.category_id JOIN room_bookings b ON d.room_booking_id = b.room_booking_id WHERE b.booking_status IN ('Confirmed', 'Checked_In', 'Checked_Out') GROUP BY c.category_name", nativeQuery = true)
+       List<Object[]> getGuestCapacityByCategory();
+
+       @Query(value = "SELECT c.category_name, COALESCE(AVG(DATEDIFF(b.check_out_date, b.check_in_date)), 0) FROM room_booking_details d JOIN room_bookings b ON d.room_booking_id = b.room_booking_id JOIN room_categories c ON d.category_id = c.category_id WHERE b.booking_status IN ('Confirmed', 'Checked_In', 'Checked_Out') GROUP BY c.category_name", nativeQuery = true)
+       List<Object[]> getAverageStayDurationByCategory();
 }
