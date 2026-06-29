@@ -723,9 +723,16 @@ async function captureFace() {
     const overlay = document.getElementById('enrollOverlay');
     const captureBtn = document.getElementById('captureBtn');
     
-    overlay.style.display = 'flex';
-    overlay.innerText = 'Đang trích xuất khuôn mặt...';
     captureBtn.disabled = true;
+    overlay.style.display = 'flex';
+    
+    // Countdown 3 seconds
+    for (let i = 3; i > 0; i--) {
+        overlay.innerHTML = `<span style="font-size: 24px; font-weight: bold;">Chụp trong: ${i}s<br><span style="font-size: 14px; font-weight: normal; color: #cbd5e1;">(Vui lòng mở mắt to và nhìn thẳng)</span></span>`;
+        await new Promise(r => setTimeout(r, 1000));
+    }
+    
+    overlay.innerText = 'Đang trích xuất khuôn mặt...';
 
     try {
         const detection = await faceapi.detectSingleFace(video).withFaceLandmarks().withFaceDescriptor();
