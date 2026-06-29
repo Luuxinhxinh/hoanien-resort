@@ -819,6 +819,23 @@ async function captureFace() {
 
         const descriptor = Array.from(detection.descriptor);
         
+        // Kiểm tra trùng lặp với các khuôn mặt đã chụp trong cùng session
+        const currentKey = currentEnrollType === 'CUSTOMER' ? 'CUSTOMER' : currentEnrollId;
+        for (const existingKey in pendingFaceEnrollments) {
+            if (existingKey === currentKey.toString()) continue; // Bỏ qua nếu chụp lại cho chính người này
+            
+            const existingVector = JSON.parse(pendingFaceEnrollments[existingKey].vector);
+            const distance = faceapi.euclideanDistance(descriptor, existingVector);
+            
+            // Threshold = 0.5 for faceapi
+            if (distance < 0.5) {
+                alert("Khuôn mặt này đã được quét cho một người khác trong đoàn! Vui lòng quét khuôn mặt khác.");
+                overlay.style.display = 'none';
+                captureBtn.disabled = false;
+                return;
+            }
+        }
+        
         // Capture face image
         const canvas = document.createElement('canvas');
         canvas.width = video.videoWidth;
