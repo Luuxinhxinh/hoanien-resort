@@ -264,6 +264,10 @@ function openCheckinModal(bookingId, guestName, phone, cccd, roomSummary, depsDi
 function closeCheckinModal() {
     document.getElementById('checkinModal').style.display = 'none';
     pendingFaceEnrollments = {};
+    const gallery = document.getElementById('faceGallery');
+    if (gallery) {
+        gallery.innerHTML = '<div id="faceGalleryEmpty" style="font-size: 13px; color: #94a3b8; text-align: center; padding: 20px 0;">Chưa có ảnh nào được chụp</div>';
+    }
 }
 
 let depIndexCounter = 0;
@@ -836,37 +840,38 @@ async function captureFace() {
 }
 
 function updateFacePreviewUI(type, targetId, base64Image) {
-    let container;
+    const gallery = document.getElementById('faceGallery');
+    const emptyMsg = document.getElementById('faceGalleryEmpty');
+    if (emptyMsg) emptyMsg.style.display = 'none';
+
+    let guestName = "Khách hàng";
     if (type === 'CUSTOMER') {
-        container = document.getElementById('customerFacePreviewContainer');
-        if (!container) {
-            const btn = document.querySelector('button[onclick*="openEnrollModal(\\\'CUSTOMER\\\'"]');
-            if (btn) {
-                container = document.createElement('div');
-                container.id = 'customerFacePreviewContainer';
-                container.style.cssText = 'display: inline-block; margin-left: 10px; vertical-align: middle; position: relative;';
-                btn.parentNode.insertBefore(container, btn.nextSibling);
-            }
-        }
+        guestName = document.getElementById('modalGuestName').value || "Người đặt phòng";
     } else {
-        const tr = document.querySelector(`button[onclick*="openEnrollModal('DEPENDENT', '${targetId}')"]`).closest('tr');
-        if (tr) {
-            const td = tr.querySelector('td:last-child');
-            container = td.querySelector('.dep-face-preview');
-            if (!container) {
-                container = document.createElement('div');
-                container.className = 'dep-face-preview';
-                container.style.cssText = 'display: inline-block; margin-left: 10px; vertical-align: middle; position: relative;';
-                td.appendChild(container);
+        const btn = document.querySelector(`button[onclick*="openEnrollModal('DEPENDENT', '${targetId}')"]`) || document.querySelector(`button[onclick*="openEnrollModal('DEPENDENT', ${targetId})"]`);
+        if (btn) {
+            const tr = btn.closest('tr');
+            if (tr) {
+                const nameInput = tr.querySelector(`input[name$=".fullName"]`);
+                if (nameInput) guestName = nameInput.value;
             }
         }
+    }
+
+    const keyId = type === 'CUSTOMER' ? 'CUSTOMER' : targetId;
+    let card = document.getElementById('face-card-' + keyId);
+    
+    if (!card) {
+        card = document.createElement('div');
+        card.id = 'face-card-' + keyId;
+        card.style.cssText = 'display: flex; flex-direction: column; align-items: center; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; background: #f8fafc; gap: 8px; position: relative;';
+        gallery.appendChild(card);
     }
     
-    if (container) {
-        container.innerHTML = `
-            <img src="${base64Image}" style="width: 36px; height: 36px; border-radius: 4px; object-fit: cover; border: 2px solid #10b981; box-shadow: 0 2px 4px rgba(0,0,0,0.1);" title="Đã chụp ảnh. Bấm nút FaceID để chụp lại.">
-            <i class="fa-solid fa-circle-check" style="color: #10b981; position: absolute; top: -6px; right: -6px; background: white; border-radius: 50%; font-size: 14px;"></i>
-        `;
-    }
+    card.innerHTML = `
+        <img src="${base64Image}" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid #10b981; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        <span style="font-size: 13px; font-weight: 600; color: #334155; text-align: center; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${guestName}</span>
+        <i class="fa-solid fa-circle-check" style="color: #10b981; position: absolute; top: 10px; right: 10px; font-size: 16px;"></i>
+    `;
 }
 

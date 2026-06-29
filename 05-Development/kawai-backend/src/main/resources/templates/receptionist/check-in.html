@@ -262,7 +262,7 @@
     <div id="checkinModal" class="modal-overlay"
         style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;">
         <form id="checkinFormWrapper" action="/receptionist/checkin/complete" method="POST" class="modal-content"
-            style="background: white; width: 800px; max-width: 90%; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; flex-direction: column; max-height: 90vh;">
+            style="background: white; width: 1000px; max-width: 95%; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; flex-direction: column; max-height: 90vh;">
             <!-- Hidden fields for Spring Boot DTO Binding -->
             <input type="hidden" id="submitBookingId" name="bookingId" value="" />
             <!-- Hidden inputs for assignedRoomIds will be injected by Javascript -->
@@ -273,7 +273,9 @@
                 <button type="button" onclick="closeCheckinModal()"
                     style="background: none; border: none; font-size: 20px; cursor: pointer; color: #64748b;">&times;</button>
             </div>
-            <div class="modal-body" style="padding: 24px; overflow-y: auto; flex: 1; background: #fcfcfc;">
+            <div class="modal-body" style="padding: 24px; overflow-y: auto; flex: 1; background: #fcfcfc; display: flex; gap: 24px;">
+                <!-- Left Column (Form) -->
+                <div style="flex: 1; min-width: 0;">
                 <!-- Main Guest Info -->
                 <div style="margin-bottom: 32px;">
                     <div
@@ -573,6 +575,20 @@
                                     style="display: flex; flex-direction: column; gap: 10px;">
                                     <!-- Render bởi JS: [Tên Tour] → [dropdown phòng] -->
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                </div> <!-- End Left Column -->
+                
+                <!-- Right Column (Face Gallery) -->
+                <div style="width: 220px; flex-shrink: 0; display: flex; flex-direction: column;">
+                    <div style="background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; position: sticky; top: 0; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                        <h4 style="margin: 0 0 16px 0; font-size: 14px; color: #1e293b; font-weight: 600; text-align: center; border-bottom: 2px solid #f1f5f9; padding-bottom: 12px;">
+                            <i class="fa-solid fa-images" style="color: #6366f1;"></i> FaceID Gallery
+                        </h4>
+                        <div id="faceGallery" style="display: flex; flex-direction: column; gap: 12px; max-height: 500px; overflow-y: auto; padding-right: 4px;">
+                            <div id="faceGalleryEmpty" style="font-size: 13px; color: #94a3b8; text-align: center; padding: 20px 0;">
+                                Chưa có ảnh nào được chụp
                             </div>
                         </div>
                     </div>
