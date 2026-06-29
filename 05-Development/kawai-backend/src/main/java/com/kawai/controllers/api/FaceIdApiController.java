@@ -127,6 +127,23 @@ public class FaceIdApiController {
                 return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Thiếu dữ liệu nhận diện khuôn mặt"));
             }
 
+            String base64Image = (String) body.get("faceImageBase64");
+            String savedImageUrl = null;
+            if (base64Image != null && base64Image.contains(",")) {
+                try {
+                    String base64Data = base64Image.split(",")[1];
+                    byte[] imageBytes = java.util.Base64.getDecoder().decode(base64Data);
+                    String dirPath = "src/main/resources/static/uploads/faces/";
+                    java.io.File dir = new java.io.File(dirPath);
+                    if (!dir.exists()) dir.mkdirs();
+                    String uniqueName = "face_" + System.currentTimeMillis() + ".jpg";
+                    java.nio.file.Files.write(java.nio.file.Paths.get(dirPath + uniqueName), imageBytes);
+                    savedImageUrl = "/uploads/faces/" + uniqueName;
+                } catch (Exception ex) {
+                    System.out.println("Could not save face image: " + ex.getMessage());
+                }
+            }
+
             if (body.get("bookingId") != null) {
                 Long bookingId = Long.valueOf(body.get("bookingId").toString());
                 com.kawai.models.Booking booking = bookingRepository.findById(bookingId).orElse(null);
@@ -138,6 +155,7 @@ public class FaceIdApiController {
                     return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Không tìm thấy khách hàng cho Booking này"));
                 }
                 customer.setFaceVectorData(faceVectorData);
+                if (savedImageUrl != null) customer.setFaceImgUrl(savedImageUrl);
                 customerRepository.save(customer);
                 return ResponseEntity.ok(Map.of("success", true, "message", "Đăng ký khuôn mặt thành công cho khách hàng " + customer.getFullName()));
             } else if (body.get("customerId") != null) {
@@ -147,6 +165,7 @@ public class FaceIdApiController {
                     return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Khách hàng không tồn tại"));
                 }
                 customer.setFaceVectorData(faceVectorData);
+                if (savedImageUrl != null) customer.setFaceImgUrl(savedImageUrl);
                 customerRepository.save(customer);
                 return ResponseEntity.ok(Map.of("success", true, "message", "Đăng ký khuôn mặt thành công cho khách hàng " + customer.getFullName()));
             } else if (body.get("dependentId") != null) {
@@ -156,6 +175,7 @@ public class FaceIdApiController {
                     return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Người đi kèm không tồn tại"));
                 }
                 dependent.setFaceVectorData(faceVectorData);
+                if (savedImageUrl != null) dependent.setFaceImgUrl(savedImageUrl);
                 dependentRepository.save(dependent);
                 return ResponseEntity.ok(Map.of("success", true, "message", "Đăng ký khuôn mặt thành công cho người đi kèm " + dependent.getDependentName()));
             } else {

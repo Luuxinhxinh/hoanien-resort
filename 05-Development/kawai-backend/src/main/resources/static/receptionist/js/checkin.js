@@ -739,12 +739,35 @@ async function captureFace() {
 
         const descriptor = Array.from(detection.descriptor);
         
-        overlay.innerText = 'Đang lưu lên hệ thống...';
+        // Capture face image
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
         
-        // Gọi API backend (we need an endpoint /api/faceid/enrollByBooking or modify /enroll)
-        // Since I only created /api/faceid/enroll receiving customerId or dependentId, 
-        // I will use another fetch to get customerId from booking, or just create another endpoint.
-        // Let's pass "bookingId" instead of "customerId" if type is CUSTOMER.
+        const box = detection.detection.box;
+        const faceCanvas = document.createElement('canvas');
+        
+        // Add padding around the face for better visibility
+        const padX = box.width * 0.2;
+        const padY = box.height * 0.2;
+        const startX = Math.max(0, box.x - padX);
+        const startY = Math.max(0, box.y - padY);
+        const drawWidth = Math.min(canvas.width - startX, box.width + padX * 2);
+        const drawHeight = Math.min(canvas.height - startY, box.height + padY * 2);
+        
+        faceCanvas.width = drawWidth;
+        faceCanvas.height = drawHeight;
+        faceCanvas.getContext('2d').drawImage(
+            canvas, 
+            startX, startY, drawWidth, drawHeight, 
+            0, 0, drawWidth, drawHeight
+        );
+        
+        const base64Image = faceCanvas.toDataURL('image/jpeg', 0.85);
+
+        overlay.innerText = 'Đang lưu lên hệ thống...';
         
         const payload = {};
         if (currentEnrollType === 'CUSTOMER') {
@@ -753,6 +776,7 @@ async function captureFace() {
             payload.dependentId = currentEnrollId;
         }
         payload.faceVectorData = JSON.stringify(descriptor);
+        payload.faceImageBase64 = base64Image;
 
         const res = await fetch('/api/faceid/enroll', {
             method: 'POST',
