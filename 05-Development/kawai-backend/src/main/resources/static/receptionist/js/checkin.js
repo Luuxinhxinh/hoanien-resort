@@ -263,6 +263,7 @@ function openCheckinModal(bookingId, guestName, phone, cccd, roomSummary, depsDi
 
 function closeCheckinModal() {
     document.getElementById('checkinModal').style.display = 'none';
+    pendingFaceEnrollments = {};
 }
 
 let depIndexCounter = 0;
@@ -449,7 +450,7 @@ function toggleDependentsList() {
 
 const _checkinForm = document.getElementById('checkinFormWrapper');
 if (_checkinForm) {
-    _checkinForm.addEventListener('submit', function (e) {
+    _checkinForm.addEventListener('submit', async function (e) {
         if (assignedRooms.length === 0) {
             e.preventDefault();
             alert('Vui long phan it nhat 1 phong truoc khi hoan tat Check-in!');
@@ -496,6 +497,43 @@ if (_checkinForm) {
                 }
             }
         }
+        
+        // Prevent default submission to process FaceIDs first
+        e.preventDefault();
+        
+        // Show loading state
+        const submitBtn = _checkinForm.querySelector('button[type="submit"]');
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang xử lý FaceID...';
+        }
+        
+        // Upload pending FaceIDs
+        for (const key in pendingFaceEnrollments) {
+            const data = pendingFaceEnrollments[key];
+            const payload = {
+                faceVectorData: data.vector,
+                faceImageBase64: data.image
+            };
+            if (data.type === 'CUSTOMER') {
+                payload.bookingId = data.id;
+            } else {
+                payload.dependentId = data.id;
+            }
+            
+            try {
+                await fetch('/api/faceid/enroll', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+            } catch (err) {
+                console.error("Lỗi khi upload FaceID cho", key, err);
+            }
+        }
+        
+        // Sau khi upload xong, submit form gốc
+        _checkinForm.submit();
     });
 } else {
     console.error('[checkin.js] CRITICAL: #checkinFormWrapper khong tim thay trong DOM!');
@@ -637,6 +675,7 @@ let faceApiLoaded = false;
 let videoStream = null;
 let currentEnrollType = null; // 'CUSTOMER' or 'DEPENDENT'
 let currentEnrollId = null;
+let pendingFaceEnrollments = {}; // Temporary storage for face vectors and images
 
 const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.12/model/';
 
@@ -774,32 +813,20 @@ async function captureFace() {
         
         const base64Image = faceCanvas.toDataURL('image/jpeg', 0.85);
 
-        overlay.innerText = 'Đang lưu lên hệ thống...';
+        // Lưu tạm vào bộ nhớ JS
+        const key = currentEnrollType === 'CUSTOMER' ? 'CUSTOMER' : currentEnrollId;
+        pendingFaceEnrollments[key] = {
+            type: currentEnrollType,
+            id: currentEnrollId,
+            vector: JSON.stringify(descriptor),
+            image: base64Image
+        };
         
-        const payload = {};
-        if (currentEnrollType === 'CUSTOMER') {
-            payload.bookingId = currentEnrollId; 
-        } else {
-            payload.dependentId = currentEnrollId;
-        }
-        payload.faceVectorData = JSON.stringify(descriptor);
-        payload.faceImageBase64 = base64Image;
-
-        const res = await fetch('/api/faceid/enroll', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        });
-
-        const data = await res.json();
-        if (data.success) {
-            alert("Đăng ký khuôn mặt thành công!");
-            closeEnrollModal();
-        } else {
-            alert("Lỗi: " + data.message);
-            overlay.style.display = 'none';
-            captureBtn.disabled = false;
-        }
+        // Hiển thị ảnh xem trước trên giao diện checkin
+        updateFacePreviewUI(currentEnrollType, currentEnrollId, base64Image);
+        
+        closeEnrollModal();
+        
     } catch (e) {
         console.error("Lỗi quét:", e);
         alert("Đã xảy ra lỗi khi quét khuôn mặt.");
@@ -807,3 +834,39 @@ async function captureFace() {
         captureBtn.disabled = false;
     }
 }
+
+function updateFacePreviewUI(type, targetId, base64Image) {
+    let container;
+    if (type === 'CUSTOMER') {
+        container = document.getElementById('customerFacePreviewContainer');
+        if (!container) {
+            const btn = document.querySelector('button[onclick*="openEnrollModal(\\\'CUSTOMER\\\'"]');
+            if (btn) {
+                container = document.createElement('div');
+                container.id = 'customerFacePreviewContainer';
+                container.style.cssText = 'display: inline-block; margin-left: 10px; vertical-align: middle; position: relative;';
+                btn.parentNode.insertBefore(container, btn.nextSibling);
+            }
+        }
+    } else {
+        const tr = document.querySelector(`button[onclick*="openEnrollModal('DEPENDENT', '${targetId}')"]`).closest('tr');
+        if (tr) {
+            const td = tr.querySelector('td:last-child');
+            container = td.querySelector('.dep-face-preview');
+            if (!container) {
+                container = document.createElement('div');
+                container.className = 'dep-face-preview';
+                container.style.cssText = 'display: inline-block; margin-left: 10px; vertical-align: middle; position: relative;';
+                td.appendChild(container);
+            }
+        }
+    }
+    
+    if (container) {
+        container.innerHTML = `
+            <img src="${base64Image}" style="width: 36px; height: 36px; border-radius: 4px; object-fit: cover; border: 2px solid #10b981; box-shadow: 0 2px 4px rgba(0,0,0,0.1);" title="Đã chụp ảnh. Bấm nút FaceID để chụp lại.">
+            <i class="fa-solid fa-circle-check" style="color: #10b981; position: absolute; top: -6px; right: -6px; background: white; border-radius: 50%; font-size: 14px;"></i>
+        `;
+    }
+}
+
