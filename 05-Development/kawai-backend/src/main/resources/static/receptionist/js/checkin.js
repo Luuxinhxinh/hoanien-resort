@@ -1,3 +1,19 @@
+
+function showToast(msg, type = 'error') {
+    if (typeof Toastify !== 'undefined') {
+        Toastify({
+            text: msg,
+            backgroundColor: type === 'error' ? '#ef4444' : (type === 'success' ? '#22c55e' : '#f59e0b'),
+            duration: 3500,
+            close: true,
+            gravity: 'top',
+            position: 'right'
+        }).showToast();
+    } else {
+        showToast(msg);
+    }
+}
+
 function updateAvailableRooms() {
     const typeSelect = document.getElementById('bookTypeSelect');
     const roomSelect = document.getElementById('physicalRoomSelect');
@@ -299,23 +315,23 @@ function addDependent() {
     const roomId = document.getElementById('depRoom').value;
     const isPrimary = document.getElementById('depIsPrimary').checked;
     if (!name || !dob) {
-        alert('Please fill Name and Date of Birth!');
+        showToast('Please fill Name and Date of Birth!');
         return;
     }
     const age = calculateAge(dob);
     if (age >= 14 && !id) {
-        alert('Người đi kèm từ 14 tuổi trở lên bắt buộc phải cung cấp CCCD/Passport!');
+        showToast('Người đi kèm từ 14 tuổi trở lên bắt buộc phải cung cấp CCCD/Passport!');
         return;
     }
     
     if (!roomId) {
-        alert('Please assign the guest to a room!');
+        showToast('Please assign the guest to a room!');
         return;
     }
 
     if (isPrimary) {
         if (assignedRooms.length > 0 && roomId === assignedRooms[0].room) {
-            alert(`Phòng ${roomId} đã được chỉ định cho khách chính đứng đầu! Vui lòng không chọn người đi kèm làm người đứng đầu cho phòng này.`);
+            showToast(`Phòng ${roomId} đã được chỉ định cho khách chính đứng đầu! Vui lòng không chọn người đi kèm làm người đứng đầu cho phòng này.`);
             return;
         }
 
@@ -331,7 +347,7 @@ function addDependent() {
             }
         });
         if (conflict) {
-            alert(`Phòng này đã có người đứng đầu! Vui lòng chọn người khác hoặc bỏ chọn người đứng đầu cũ.`);
+            showToast(`Phòng này đã có người đứng đầu! Vui lòng chọn người khác hoặc bỏ chọn người đứng đầu cũ.`);
             return;
         }
     }
@@ -339,11 +355,11 @@ function addDependent() {
     // Kiểm tra ngày sinh không được ở tương lai
     const todayStr = new Date().toISOString().split('T')[0];
     if (dob > todayStr) {
-        alert('Ngày sinh không được vượt quá ngày hiện tại!');
+        showToast('Ngày sinh không được vượt quá ngày hiện tại!');
         return;
     }
     if (dob < '1900-01-01') {
-        alert('Ngày sinh không hợp lệ!');
+        showToast('Ngày sinh không hợp lệ!');
         return;
     }
 
@@ -352,13 +368,13 @@ function addDependent() {
         const isNumericOnly = /^\d+$/.test(id);
         if (isNumericOnly) {
             if (id.length !== 12) {
-                alert('Số CCCD không hợp lệ! Nếu chỉ nhập số, CCCD phải gồm đúng 12 chữ số.');
+                showToast('Số CCCD không hợp lệ! Nếu chỉ nhập số, CCCD phải gồm đúng 12 chữ số.');
                 return;
             }
         } else {
             const isValidPassport = /^[A-Za-z0-9]{6,15}$/.test(id);
             if (!isValidPassport) {
-                alert('Số Passport không hợp lệ! Passport phải từ 6-15 ký tự chữ và số.');
+                showToast('Số Passport không hợp lệ! Passport phải từ 6-15 ký tự chữ và số.');
                 return;
             }
         }
@@ -498,7 +514,7 @@ if (_checkinForm) {
     _checkinForm.addEventListener('submit', async function (e) {
         if (assignedRooms.length === 0) {
             e.preventDefault();
-            alert('Vui long phan it nhat 1 phong truoc khi hoan tat Check-in!');
+            showToast('Vui long phan it nhat 1 phong truoc khi hoan tat Check-in!');
             return;
         }
 
@@ -506,7 +522,16 @@ if (_checkinForm) {
         const mainCccd = document.getElementById('modalGuestCccd').value;
         if (!mainPhone || !mainCccd) {
             e.preventDefault();
-            alert('Khách đứng đầu (chủ đoàn) phải điền đầy đủ số điện thoại và CCCD!');
+            showToast('Khách đứng đầu (chủ đoàn) phải điền đầy đủ số điện thoại và CCCD!');
+            return;
+        }
+
+        // Ràng buộc FaceID cho chủ đoàn
+        // Lấy targetId của CUSTOMER là bookingId
+        const submitBookingId = document.getElementById('submitBookingId').value;
+        if (!pendingFaceEnrollments[submitBookingId]) {
+            e.preventDefault();
+            showToast('Người chủ đoàn bắt buộc phải cập nhật khuôn mặt (FaceID) để hoàn tất đơn!');
             return;
         }
 
@@ -534,7 +559,7 @@ if (_checkinForm) {
 
         if (missingFaceName) {
             e.preventDefault();
-            alert(`Thành viên ${missingFaceName} từ 14 tuổi trở lên bắt buộc phải cập nhật khuôn mặt (FaceID mới) để hoàn tất đơn!`);
+            showToast(`Thành viên ${missingFaceName} từ 14 tuổi trở lên bắt buộc phải cập nhật khuôn mặt (FaceID mới) để hoàn tất đơn!`);
             return;
         }
 
@@ -562,7 +587,7 @@ if (_checkinForm) {
 
         if (missingRooms.length > 0) {
             e.preventDefault();
-            alert('Thieu nguoi dung dau cho phong: ' + missingRooms.join(', '));
+            showToast('Thieu nguoi dung dau cho phong: ' + missingRooms.join(', '));
             return;
         }
 
@@ -573,7 +598,7 @@ if (_checkinForm) {
                 const unassigned = Array.from(hiddenRoomInputs).filter(inp => !inp.value);
                 if (unassigned.length > 0) {
                     e.preventDefault();
-                    alert('Che do Phan bo tung tour: vui long chon phong cho tat ca ' + currentUnallocatedTours.length + ' tour!');
+                    showToast('Che do Phan bo tung tour: vui long chon phong cho tat ca ' + currentUnallocatedTours.length + ' tour!');
                     return;
                 }
             }
@@ -783,14 +808,14 @@ async function loadFaceApiModels() {
         return true;
     } catch (error) {
         console.error("Lỗi khi tải FaceAPI models:", error);
-        alert("Không thể tải AI Models. Vui lòng kiểm tra kết nối mạng.");
+        showToast("Không thể tải AI Models. Vui lòng kiểm tra kết nối mạng.");
         return false;
     }
 }
 
 async function openEnrollModal(type, targetId, targetName) {
     if (!targetId || targetId === "undefined" || targetId === "") {
-        alert("Không xác định được ID Khách hàng! Hãy kiểm tra lại.");
+        showToast("Không xác định được ID Khách hàng! Hãy kiểm tra lại.");
         return;
     }
     
@@ -837,7 +862,7 @@ async function openEnrollModal(type, targetId, targetName) {
     } catch (err) {
         console.error("Không có quyền truy cập camera: ", err);
         overlay.innerText = 'Lỗi truy cập Camera';
-        alert("Vui lòng cấp quyền truy cập Camera cho trình duyệt.");
+        showToast("Vui lòng cấp quyền truy cập Camera cho trình duyệt.");
     }
 }
 
@@ -869,7 +894,7 @@ async function captureFace() {
         const detection = await faceapi.detectSingleFace(video).withFaceLandmarks().withFaceDescriptor();
         
         if (!detection) {
-            alert("Không tìm thấy khuôn mặt rõ ràng. Vui lòng nhìn thẳng vào camera và thử lại.");
+            showToast("Không tìm thấy khuôn mặt rõ ràng. Vui lòng nhìn thẳng vào camera và thử lại.");
             overlay.style.display = 'none';
             captureBtn.disabled = false;
             return;
@@ -887,7 +912,7 @@ async function captureFace() {
             
             // Threshold = 0.5 for faceapi
             if (distance < 0.5) {
-                alert("Khuôn mặt này đã được quét cho một người khác trong đoàn! Vui lòng quét khuôn mặt khác.");
+                showToast("Khuôn mặt này đã được quét cho một người khác trong đoàn! Vui lòng quét khuôn mặt khác.");
                 overlay.style.display = 'none';
                 captureBtn.disabled = false;
                 return;
@@ -938,7 +963,7 @@ async function captureFace() {
         
     } catch (e) {
         console.error("Lỗi quét:", e);
-        alert("Đã xảy ra lỗi khi quét khuôn mặt.");
+        showToast("Đã xảy ra lỗi khi quét khuôn mặt.");
         overlay.style.display = 'none';
         captureBtn.disabled = false;
     }

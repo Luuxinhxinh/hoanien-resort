@@ -18,6 +18,8 @@
     <link rel="stylesheet" href="/receptionist/css/pages.css">
     <!-- face-api.js: Face Detection & Recognition Library -->
     <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+    <!-- Toastify -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
 </head>
 
 <body>
@@ -628,10 +630,21 @@
 
     <script src="/receptionist/js/dashboard.js"></script>
     <script th:inline="javascript">
+        const currentUserRole = /*[[${currentUserRole}]]*/ 'RECEPTIONIST';
+        
+        // Cập nhật hàm formatCurrency
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+        }
+    </script>
+    <!-- Toastify -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script src="/receptionist/js/checkin.js"></script>
+    <script th:inline="javascript">
         const roomInventory = /*[[${roomInventory}]]*/ {};
         const assignedRooms = [];
 
     </script>
-    <script src="/receptionist/js/checkin.js"></script>
 </body>
 </html>
