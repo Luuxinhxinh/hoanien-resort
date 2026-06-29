@@ -36,10 +36,8 @@
 <!-- FORM FRAGMENT -->
 <div th:fragment="form">
     <div class="form-fields-inner" style="display:flex;flex-direction:column;gap:20px">
-        <div class="adm-form-group"><label class="adm-form-label">Phòng</label><input type="text" name="room" class="adm-form-input"></div>
-        <div class="adm-form-group"><label class="adm-form-label">Ngày Check-in</label><input type="date" name="checkIn" class="adm-form-input"></div>
-        <div class="adm-form-group"><label class="adm-form-label">Ngày Check-out</label><input type="date" name="checkOut" class="adm-form-input"></div>
-        <div class="adm-form-group" style="display:none;"><label class="adm-form-label">Trạng thái</label>
+        <div class="adm-form-group">
+            <label class="adm-form-label">Cập nhật Trạng thái thủ công</label>
             <select name="status" class="adm-form-select">
                 <option value="Pending">Pending</option>
                 <option value="Confirmed">Confirmed</option>
@@ -47,8 +45,10 @@
                 <option value="Checked-out">Checked-out</option>
                 <option value="Cancelled">Cancelled</option>
             </select>
+            <p style="font-size: 12px; color: #666; margin-top: 8px;">Lưu ý: Chỉ cho phép cập nhật trạng thái thủ công đối với các Booking này.</p>
         </div>
     </div>
+</div>
 </div>
 
 </body>
