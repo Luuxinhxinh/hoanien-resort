@@ -479,4 +479,51 @@ public class EmailServiceImpl implements EmailService {
             logger.error("Lỗi gửi email hủy đặt bàn #{}: {}", reservation.getId(), e.getMessage());
         }
     }
+    @Override
+    @org.springframework.scheduling.annotation.Async
+    public void sendRefundSuccessEmail(com.kawai.models.RefundRequest refundRequest, com.kawai.models.Customer customer, String absoluteAttachmentPath) {
+        if (customer == null || customer.getEmail() == null || customer.getEmail().isBlank()) return;
+        try {
+            org.thymeleaf.context.Context ctx = new org.thymeleaf.context.Context(new java.util.Locale("vi", "VN"));
+            ctx.setVariable("customerName", customer.getFullName());
+            ctx.setVariable("orderId", "ORD-" + refundRequest.getOrder().getId());
+            ctx.setVariable("refundTime", refundRequest.getCompletedAt() != null ? refundRequest.getCompletedAt().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")) : "");
+            ctx.setVariable("bankName", refundRequest.getBankName());
+            ctx.setVariable("accountNumber", refundRequest.getAccountNumber());
+            ctx.setVariable("refundAmount", VND_FMT.format(refundRequest.getAmount()));
+            
+            String html = templateEngine.process("email/refund-success", ctx);
+            
+            Email from = new Email(fromEmail, "HOANIEN Resort");
+            Email to = new Email(customer.getEmail());
+            Content content = new Content("text/html", html);
+            Mail mail = new Mail(from, "[HOANIEN] Xác nhận hoàn tiền thành công", to, content);
+            
+            if (absoluteAttachmentPath != null && !absoluteAttachmentPath.isBlank()) {
+                java.io.File file = new java.io.File(absoluteAttachmentPath);
+                if (file.exists()) {
+                    byte[] fileData = java.nio.file.Files.readAllBytes(file.toPath());
+                    com.sendgrid.helpers.mail.objects.Attachments attachments = new com.sendgrid.helpers.mail.objects.Attachments();
+                    attachments.setContent(java.util.Base64.getEncoder().encodeToString(fileData));
+                    String extension = file.getName().substring(file.getName().lastIndexOf(".") + 1).toLowerCase();
+                    String mimeType = "image/jpeg";
+                    if (extension.equals("png")) mimeType = "image/png";
+                    attachments.setType(mimeType);
+                    attachments.setFilename(file.getName());
+                    attachments.setDisposition("attachment");
+                    mail.addAttachments(attachments);
+                }
+            }
+
+            SendGrid sg = new SendGrid(sendGridApiKey);
+            Request request = new Request();
+            request.setMethod(Method.POST);
+            request.setEndpoint("mail/send");
+            request.setBody(mail.build());
+            Response response = sg.api(request);
+            logger.info("Sent refund email to {}: status {}", customer.getEmail(), response.getStatusCode());
+        } catch (Exception e) {
+            logger.error("Lỗi gửi email hoàn tiền cho RefundRequest #{}: {}", refundRequest.getId(), e.getMessage());
+        }
+    }
 }

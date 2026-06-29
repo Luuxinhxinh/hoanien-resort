@@ -37,6 +37,7 @@ public class ManagerController {
     private final DailyRateRepository dailyRateRepository;
     private final ExportHistoryRepository exportHistoryRepository;
     private final PaymentTransactionRepository paymentTransactionRepository;
+    private final RefundRequestRepository refundRequestRepository;
 
     private static String todayLabel() {
         return LocalDate.now().format(DateTimeFormatter.ofPattern("EEEE, d 'tháng' M, yyyy", new Locale("vi")));
@@ -57,6 +58,13 @@ public class ManagerController {
     // =========================================================================
     // 1. Dashboard
     // =========================================================================
+
+    @GetMapping("/refunds")
+    public String refundManagement(Model model) {
+        model.addAttribute("pendingRefunds", refundRequestRepository.findByStatusOrderByCreatedAtDesc("Pending"));
+        model.addAttribute("completedRefunds", refundRequestRepository.findByStatusOrderByCreatedAtDesc("COMPLETED"));
+        return "manager/refund-management";
+    }
 
     @GetMapping({ "/dashboard", "/" })
     public String dashboard(Model model) {

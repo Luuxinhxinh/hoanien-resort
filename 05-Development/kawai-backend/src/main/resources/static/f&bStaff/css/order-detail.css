@@ -3,6 +3,7 @@
    ============================================================ */
 
 .detail-wrapper {
+  width: 100%;
   max-width: 900px;
   margin: 0 auto;
   padding: 20px;
@@ -270,6 +271,8 @@
 .detail-actions {
   display: flex;
   align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
   margin-top: 30px;
   padding-top: 20px;
   border-top: 1px solid var(--border);
