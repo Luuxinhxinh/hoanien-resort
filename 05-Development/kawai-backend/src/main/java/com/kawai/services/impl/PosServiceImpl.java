@@ -210,6 +210,17 @@ public class PosServiceImpl implements PosService {
                 MenuItem menuItem = foodItemRepository.findById(itemDto.getId())
                         .orElseThrow(() -> new BusinessException("POS-004", "Món ăn không tồn tại!"));
                 
+                // =========================================================
+                // CHỐT CHẶN BẢO MẬT: KIỂM TRA MÓN ĂN THEO NGÀY
+                // Ngăn chặn trường hợp user dùng Postman hack gửi id món ăn của ngày mai vào giỏ hàng hôm nay.
+                // Nếu món này KHÔNG phải món cố định (isAlwaysAvailable = false) 
+                // VÀ ngày hiện tại không nằm trong danh sách được bán -> Văng lỗi!
+                // =========================================================
+                if (!Boolean.TRUE.equals(menuItem.getIsAlwaysAvailable()) && 
+                    (menuItem.getAvailableDays() == null || !menuItem.getAvailableDays().contains(java.time.LocalDate.now().getDayOfWeek()))) {
+                    throw new BusinessException("POS-010", "Món ăn '" + menuItem.getItemName() + "' không được phục vụ vào hôm nay. Vui lòng làm mới giỏ hàng.");
+                }
+
                 FoodOrderDetail detail = new FoodOrderDetail();
                 detail.setFoodOrder(savedOrder);
                 detail.setMenuItem(menuItem);
@@ -250,9 +261,13 @@ public class PosServiceImpl implements PosService {
                     folioItem.setSourceDepartment("F&B");
                     folioItem.setAmount(totalAmount);
                     folioItem.setDescription("Ký bill đồ ăn F&B (Order #" + savedOrder.getId() + ")");
-                    if (userAccount != null) {
-                        folioItem.setPayerCustomer(customerRepository.findByAccount_Username(userAccount.getUsername()).orElse(null));
+                    Customer payer = null;
+                    if (detailToCharge.getCustomer() != null) {
+                        payer = detailToCharge.getCustomer();
+                    } else if (activeBooking.getCustomer() != null) {
+                        payer = activeBooking.getCustomer();
                     }
+                    folioItem.setPayerCustomer(payer);
                     folioItemRepository.save(folioItem);
                 } else {
                     throw new BusinessException("POS-005", "Hạn mức tín dụng của phòng không đủ để thanh toán!");
@@ -376,6 +391,12 @@ public class PosServiceImpl implements PosService {
 
             if (Boolean.FALSE.equals(menuItem.getIsAvailable())) {
                 throw new com.kawai.exceptions.BusinessException("POS-004", "Món đã hết — không thể order: " + menuItem.getItemName());
+            }
+
+            // CHỐT CHẶN BẢO MẬT: Áp dụng tương tự cho tính năng "Gọi thêm món" khi đang ăn tại bàn
+            if (!Boolean.TRUE.equals(menuItem.getIsAlwaysAvailable()) && 
+                (menuItem.getAvailableDays() == null || !menuItem.getAvailableDays().contains(java.time.LocalDate.now().getDayOfWeek()))) {
+                throw new com.kawai.exceptions.BusinessException("POS-010", "Món ăn '" + menuItem.getItemName() + "' không được phục vụ vào hôm nay.");
             }
 
             FoodOrderDetail detail = new FoodOrderDetail();

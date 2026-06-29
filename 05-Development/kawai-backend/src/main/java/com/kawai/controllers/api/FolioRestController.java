@@ -387,7 +387,8 @@ public class FolioRestController {
                 if (booking != null) {
                     List<RoomBookingDetail> details = roomBookingDetailRepository.findByRoomBookingId(booking.getId());
                     for (RoomBookingDetail d : details) {
-                        if ("Checked_In".equalsIgnoreCase(d.getDetailStatus()) || "Checked_Out".equalsIgnoreCase(d.getDetailStatus())
+                        if ("Checked_In".equalsIgnoreCase(d.getDetailStatus())
+                                || "Checked_Out".equalsIgnoreCase(d.getDetailStatus())
                                 || d.getId().equals(roomBookingDetailId)) {
                             // Auto-post Room Charge if it hasn't been posted yet for this room in the group
                             List<FolioItem> groupItems = nightAuditService.getFolioItems(d.getId());
@@ -527,7 +528,8 @@ public class FolioRestController {
 
             boolean isVnPay = "VNPAY".equalsIgnoreCase(paymentMethod) && paymentAmount.compareTo(BigDecimal.ZERO) > 0;
 
-            // 1 & 2. Thay đổi trạng thái phòng (CHỈ làm khi KHÔNG PHẢI VNPAY VÀ thao tác này là "Hoàn tất Checkout" tức là paymentAmount = 0)
+            // 1 & 2. Thay đổi trạng thái phòng (CHỈ làm khi KHÔNG PHẢI VNPAY VÀ thao tác
+            // này là "Hoàn tất Checkout" tức là paymentAmount = 0)
             boolean isCheckoutAction = (!isVnPay && paymentAmount.compareTo(BigDecimal.ZERO) == 0);
             if (isCheckoutAction) {
                 if (isGroup) {
@@ -670,7 +672,8 @@ public class FolioRestController {
                             else if (newPoints >= 1000)
                                 newTier = "Silver";
 
-                            customer.setMembershipTier(membershipTierRepository.findByTierNameIgnoreCase(newTier).orElse(null));
+                            customer.setMembershipTier(
+                                    membershipTierRepository.findByTierNameIgnoreCase(newTier).orElse(null));
                             customerRepository.save(customer);
                             System.out.println("[LOYALTY] Khách " + customer.getFullName() + " vừa nhận " + pointsEarned
                                     + " điểm. Tổng: " + newPoints + " (" + newTier + ")");
@@ -764,7 +767,8 @@ public class FolioRestController {
     @GetMapping("/active")
     public ResponseEntity<?> getActiveFolios() {
         try {
-            List<RoomBookingDetail> activeDetails = roomBookingDetailRepository.findByDetailStatusIn(java.util.Arrays.asList("Checked_In", "Checked_Out"));
+            List<RoomBookingDetail> activeDetails = roomBookingDetailRepository
+                    .findByDetailStatusIn(java.util.Arrays.asList("Checked_In", "Checked_Out"));
 
             // Group by Booking ID instead of Customer ID
             Map<Long, List<RoomBookingDetail>> groupedByBooking = activeDetails.stream()

@@ -88,6 +88,9 @@ document.addEventListener('DOMContentLoaded', () => {
       state.orderType = btn.dataset.type;
 
       if (state.orderType === 'dine-in') {
+        state.vatRate = 0.10;
+        const feeLabel = document.getElementById('fee-label-text');
+        if (feeLabel) feeLabel.textContent = 'VAT (10%)';
         dineInFields.style.display = 'grid';
         roomSvcFields.style.display = 'none';
 
@@ -100,6 +103,9 @@ document.addEventListener('DOMContentLoaded', () => {
           </select>
         `;
       } else {
+        state.vatRate = 0.05;
+        const feeLabel = document.getElementById('fee-label-text');
+        if (feeLabel) feeLabel.textContent = 'Phí dịch vụ (5%)';
         dineInFields.style.display = 'none';
         roomSvcFields.style.display = 'grid';
 
@@ -434,7 +440,7 @@ document.addEventListener('DOMContentLoaded', () => {
       tableId: state.orderType === 'dine-in' && tableSelect ? tableSelect.value : null,
       guestName: state.orderType === 'dine-in' && guestInput ? guestInput.value.trim() : null,
       note: state.orderType === 'dine-in' && dineInNote ? dineInNote.value.trim() : (state.orderType === 'room-svc' && roomSvcNote ? roomSvcNote.value.trim() : null),
-      paymentType: 'Pay_Later',
+      paymentType: state.orderType === 'room-svc' ? 'CHARGE_TO_ROOM' : 'Pay_Later',
       items: Object.values(state.cart).map(item => ({
         id: item.id,
         qty: item.qty,

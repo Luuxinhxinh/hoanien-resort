@@ -34,9 +34,9 @@ public class FoodOrder {
             total = total.add(price.multiply(java.math.BigDecimal.valueOf(detail.getQuantity() != null ? detail.getQuantity() : 1)));
         }
         
-        // Add room service fee if applicable (10%)
+        // Add room service fee if applicable (5%)
         if ("RoomService".equalsIgnoreCase(orderType) || "Room Service".equalsIgnoreCase(orderType)) {
-            java.math.BigDecimal fee = total.multiply(new java.math.BigDecimal("0.10"));
+            java.math.BigDecimal fee = total.multiply(new java.math.BigDecimal("0.05"));
             total = total.add(fee);
         }
         

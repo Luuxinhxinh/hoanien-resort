@@ -284,6 +284,48 @@
             <div class="grid grid-cols-1 xl:grid-cols-4 gap-8 items-start">
 
                 <div class="xl:col-span-3">
+                    
+                    <!-- THÊM TABS CHỌN NGÀY -->
+                    <div class="flex overflow-x-auto gap-3 mb-6 pb-2 snap-x hide-scrollbar items-center">
+                        <span class="text-[10px] uppercase tracking-[0.2em] font-semibold text-hoanien-bg/40 whitespace-nowrap mr-2">Chọn ngày:</span>
+                        <a th:href="@{/order-food(day='MONDAY')}" th:class="${currentDay == 'MONDAY' ? 'bg-white text-[#1e1a19] shadow-[0_0_15px_rgba(255,255,255,0.4)] scale-105' : 'bg-white/5 border border-white/10 text-white/70 hover:bg-white/15'} + ' flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap snap-start'">
+                            THỨ 2 
+                            <span th:if="${serverToday == 'MONDAY'}" class="flex items-center gap-1 text-[9px] font-bold tracking-wider" th:classappend="${currentDay == 'MONDAY' ? 'text-emerald-700' : 'text-emerald-400'}"><span class="w-1.5 h-1.5 rounded-full bg-current animate-pulse"></span> HÔM NAY</span>
+                        </a>
+                        <a th:href="@{/order-food(day='TUESDAY')}" th:class="${currentDay == 'TUESDAY' ? 'bg-white text-[#1e1a19] shadow-[0_0_15px_rgba(255,255,255,0.4)] scale-105' : 'bg-white/5 border border-white/10 text-white/70 hover:bg-white/15'} + ' flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap snap-start'">
+                            THỨ 3 
+                            <span th:if="${serverToday == 'TUESDAY'}" class="flex items-center gap-1 text-[9px] font-bold tracking-wider" th:classappend="${currentDay == 'TUESDAY' ? 'text-emerald-700' : 'text-emerald-400'}"><span class="w-1.5 h-1.5 rounded-full bg-current animate-pulse"></span> HÔM NAY</span>
+                        </a>
+                        <a th:href="@{/order-food(day='WEDNESDAY')}" th:class="${currentDay == 'WEDNESDAY' ? 'bg-white text-[#1e1a19] shadow-[0_0_15px_rgba(255,255,255,0.4)] scale-105' : 'bg-white/5 border border-white/10 text-white/70 hover:bg-white/15'} + ' flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap snap-start'">
+                            THỨ 4 
+                            <span th:if="${serverToday == 'WEDNESDAY'}" class="flex items-center gap-1 text-[9px] font-bold tracking-wider" th:classappend="${currentDay == 'WEDNESDAY' ? 'text-emerald-700' : 'text-emerald-400'}"><span class="w-1.5 h-1.5 rounded-full bg-current animate-pulse"></span> HÔM NAY</span>
+                        </a>
+                        <a th:href="@{/order-food(day='THURSDAY')}" th:class="${currentDay == 'THURSDAY' ? 'bg-white text-[#1e1a19] shadow-[0_0_15px_rgba(255,255,255,0.4)] scale-105' : 'bg-white/5 border border-white/10 text-white/70 hover:bg-white/15'} + ' flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap snap-start'">
+                            THỨ 5 
+                            <span th:if="${serverToday == 'THURSDAY'}" class="flex items-center gap-1 text-[9px] font-bold tracking-wider" th:classappend="${currentDay == 'THURSDAY' ? 'text-emerald-700' : 'text-emerald-400'}"><span class="w-1.5 h-1.5 rounded-full bg-current animate-pulse"></span> HÔM NAY</span>
+                        </a>
+                        <a th:href="@{/order-food(day='FRIDAY')}" th:class="${currentDay == 'FRIDAY' ? 'bg-white text-[#1e1a19] shadow-[0_0_15px_rgba(255,255,255,0.4)] scale-105' : 'bg-white/5 border border-white/10 text-white/70 hover:bg-white/15'} + ' flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap snap-start'">
+                            THỨ 6 
+                            <span th:if="${serverToday == 'FRIDAY'}" class="flex items-center gap-1 text-[9px] font-bold tracking-wider" th:classappend="${currentDay == 'FRIDAY' ? 'text-emerald-700' : 'text-emerald-400'}"><span class="w-1.5 h-1.5 rounded-full bg-current animate-pulse"></span> HÔM NAY</span>
+                        </a>
+                        <a th:href="@{/order-food(day='SATURDAY')}" th:class="${currentDay == 'SATURDAY' ? 'bg-white text-[#1e1a19] shadow-[0_0_15px_rgba(255,255,255,0.4)] scale-105' : 'bg-white/5 border border-white/10 text-white/70 hover:bg-white/15'} + ' flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap snap-start'">
+                            THỨ 7 
+                            <span th:if="${serverToday == 'SATURDAY'}" class="flex items-center gap-1 text-[9px] font-bold tracking-wider" th:classappend="${currentDay == 'SATURDAY' ? 'text-emerald-700' : 'text-emerald-400'}"><span class="w-1.5 h-1.5 rounded-full bg-current animate-pulse"></span> HÔM NAY</span>
+                        </a>
+                        <a th:href="@{/order-food(day='SUNDAY')}" th:class="${currentDay == 'SUNDAY' ? 'bg-white text-[#1e1a19] shadow-[0_0_15px_rgba(255,255,255,0.4)] scale-105' : 'bg-white/5 border border-white/10 text-white/70 hover:bg-white/15'} + ' flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap snap-start'">
+                            CHỦ NHẬT 
+                            <span th:if="${serverToday == 'SUNDAY'}" class="flex items-center gap-1 text-[9px] font-bold tracking-wider" th:classappend="${currentDay == 'SUNDAY' ? 'text-emerald-700' : 'text-emerald-400'}"><span class="w-1.5 h-1.5 rounded-full bg-current animate-pulse"></span> HÔM NAY</span>
+                        </a>
+                    </div>
+                    
+                    <div th:if="${currentDay != serverToday}" class="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4 mb-8 flex items-start gap-3">
+                        <span class="material-symbols-outlined text-amber-500 text-xl mt-0.5">info</span>
+                        <div>
+                            <h4 class="text-amber-500 font-semibold text-sm mb-1">Chế độ xem trước thực đơn</h4>
+                            <p class="text-xs text-amber-500/80 leading-relaxed font-light">Bạn đang xem thực đơn của một ngày khác trong tuần. Hệ thống chỉ cho phép đặt món trực tuyến vào đúng ngày hiện tại để đảm bảo độ tươi ngon của nguyên liệu. Vui lòng quay lại tab ngày hôm nay để đặt món.</p>
+                        </div>
+                    </div>
+
                     <div class="flex flex-wrap gap-4 mb-8 text-xs uppercase tracking-[0.15em] font-medium text-hoanien-bg/60 select-none border-b border-white/5 pb-2"
                         id="categoryTabs">
                         <button id="btn-cat-all"
@@ -329,11 +371,12 @@
                                     <span class="font-sans text-xs font-semibold text-white/90"
                                         th:text="${#numbers.formatDecimal(item.price, 0, 'COMMA', 0, 'POINT')} + ' đ'">0
                                         đ</span>
-                                    <button type="button"
+                                    <button type="button" th:if="${currentDay == serverToday}"
                                         th:onclick="addToCart([[${item.id}]], [[${item.itemName}]], [[${item.price}]])"
                                         class="border border-white/20 text-white w-8 h-8 rounded-full flex justify-center items-center hover:bg-white hover:text-hoanien-text transition-all shadow">
                                         <span class="material-symbols-outlined text-sm font-bold">add</span>
                                     </button>
+                                    <span th:if="${currentDay != serverToday}" class="text-[9px] uppercase font-bold text-amber-500 bg-amber-500/10 px-2 py-1 rounded">Chỉ Xem</span>
                                 </div>
                             </div>
                         </div>
@@ -521,9 +564,12 @@
             <div class="mt-6 flex justify-end gap-3 border-t border-white/5 pt-4">
                 <button onclick="closeItemDetailModal()"
                     class="px-4 py-2 text-xs font-semibold text-white/60 hover:text-white">Hủy bỏ</button>
-                <button id="modalAddToCartBtn"
+                <button th:if="${currentDay == serverToday}" id="modalAddToCartBtn"
                     class="bg-white text-black px-6 py-2 rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-opacity-90">Thêm
                     vào hóa đơn</button>
+                <button th:if="${currentDay != serverToday}" disabled
+                    class="bg-white/20 text-white/50 px-6 py-2 rounded-lg text-xs font-bold uppercase tracking-wider cursor-not-allowed">Chỉ
+                    xem</button>
             </div>
         </div>
     </div>
@@ -588,6 +634,9 @@
     <script th:inline="javascript">
         /* SỬA LỖI: Đồng bộ kiểm tra đăng nhập trực tiếp từ HTTP Session tránh xung đột dữ liệu client */
         const isLoggedIn = /*[[${session.user != null}]]*/ false;
+        const currentDay = /*[[${currentDay}]]*/ 'MONDAY';
+        const serverToday = /*[[${serverToday}]]*/ 'MONDAY';
+        const isOrderAllowed = currentDay === serverToday;
 
         let modalCurrentItemId = null;
         let cart = [];
@@ -655,11 +704,13 @@
                 if (allergens.includes('Sữa')) iconsGrid.innerHTML += '<span class="bg-white/10 p-1 rounded">🥛</span>';
             }
 
-            document.getElementById('modalAddToCartBtn').onclick = function () {
-                const customNote = document.getElementById('modalItemChefNote').value.trim();
-                addToCart(modalCurrentItemId, name, price, customNote);
-                closeItemDetailModal();
-            };
+            if (isOrderAllowed) {
+                document.getElementById('modalAddToCartBtn').onclick = function () {
+                    const customNote = document.getElementById('modalItemChefNote').value.trim();
+                    addToCart(modalCurrentItemId, name, price, customNote);
+                    closeItemDetailModal();
+                };
+            }
             document.getElementById('itemDetailModal').style.display = 'flex';
         }
 

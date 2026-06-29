@@ -390,41 +390,78 @@ INSERT INTO Table_Reservations (reservation_id, customer_id, table_id, reserve_d
 (38, 11, 8, '2026-07-01', '19:00:00', '21:00:00', 100000, 'Confirmed');
 
 -- ── 18. Menu Items (34 rows) ─────────────────────────────────
-INSERT INTO Menu_Items (item_id, item_name, price, category, is_available, description, image_url, allergy_tags) VALUES 
-(1, 'Súp Bí Đỏ Kem Tươi Truffle', 180000, 'Khai vị', TRUE, 'Súp bí đỏ béo ngậy kết hợp kem tươi và dầu truffle nguyên chất.', 'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=500&q=80', 'Sữa'),
-(2, 'Gỏi Cuốn Tôm Thịt', 95000, 'Khai vị', TRUE, 'Gỏi cuốn tôm thịt tươi ngon kèm rau sống và tương đậu phộng.', 'https://www.cet.edu.vn/wp-content/uploads/2018/11/goi-cuon-tom-thit.jpg', 'Đậu phộng, Hải sản'),
-(3, 'Chả Giò Hải Sản', 110000, 'Khai vị', TRUE, 'Chả giò chiên giòn nhân hải sản tươi sống.', 'https://cdn.tgdd.vn/2022/01/CookDish/2-cach-lam-cha-gio-hai-san-don-gian-gion-thom-beo-ngay-ai-avt-1200x676.jpg', 'Hải sản'),
-(4, 'Salad Cá Hồi Xông Khói', 150000, 'Khai vị', TRUE, 'Salad rau xanh tươi mát kết hợp cá hồi xông khói nhập khẩu.', 'https://file.hstatic.net/200000356095/file/salad_ca_hoi__xong_khoi__3__59eaf296ddc644849699579b210c7855.jpg', 'Hải sản'),
-(5, 'Súp Hải Sản Măng Tây', 130000, 'Khai vị', TRUE, 'Súp hải sản nấu cùng măng tây tươi ngon ngọt.', 'https://cdn.tgdd.vn/Files/2020/10/09/1297483/tro-tai-voi-mon-sup-tom-mang-tay-vi-lau-thai-vua-la-vua-quen-ai-an-cung-tam-tac-khen-202010091742198445.jpg', 'Hải sản'),
-(6, 'Bánh Mì Bơ Tỏi', 65000, 'Khai vị', TRUE, 'Bánh mì Pháp nướng giòn phết bơ tỏi thơm lừng.', 'https://www.lorca.vn/wp-content/uploads/2021/10/Cach-lam-mong-banh-mi-bo-toi-phomai-bang-lo-nuong.jpg', 'Gluten, Sữa'),
-(7, 'Nem Chua Rán', 75000, 'Khai vị', TRUE, 'Nem chua rán giòn rụm chấm tương ớt.', 'https://trumfood.vn/wp-content/uploads/2022/09/trumfood_decor00865.jpg', NULL),
-(8, 'Hoành Thánh Chiên Giòn', 85000, 'Khai vị', TRUE, 'Hoành thánh chiên giòn nhân tôm thịt.', 'https://cdn.tgdd.vn/2020/09/CookProduct/Untitled-2-1200x676-1.jpg', 'Gluten, Hải sản'),
-(9, 'Bò Bít Tết Wagyu Kèm Sốt Tiêu Xanh', 850000, 'Món chính', TRUE, 'Bò Wagyu Nhật Bản áp chảo sốt tiêu xanh, kèm rau củ nướng.', 'https://live.staticflickr.com/65535/50489573886_fa160b7292_b.jpg', NULL),
-(10, 'Cá Hồi Nướng Sốt Miso Nhật Bản', 520000, 'Món chính', TRUE, 'Cá hồi tươi nướng sốt miso thanh nhẹ, ăn kèm cơm trắng.', 'https://www.theforkbite.com/wp-content/uploads/2024/02/Teriyaki-Salmon-featured-2.9.24-500x500.jpg', 'Hải sản'),
-(11, 'Phở Bò Truyền Thống', 120000, 'Món chính', TRUE, 'Phở bò nước dùng đậm đà, thịt bò tái chín mềm.', 'https://daotaobeptruong.vn/wp-content/uploads/2020/03/cach-nau-pho-bo.jpg', NULL),
-(12, 'Cơm Chiên Dương Châu', 85000, 'Món chính', TRUE, 'Cơm chiên dương châu thập cẩm tôm, lạp xưởng, trứng.', 'https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=500&q=80', 'Hải sản, Trứng'),
-(13, 'Sườn Heo Nướng BBQ', 250000, 'Món chính', TRUE, 'Sườn heo non nướng sốt BBQ đậm vị, ăn kèm khoai tây chiên.', 'https://images.unsplash.com/photo-1544025162-d76694265947?w=500&q=80', NULL),
-(14, 'Mì Ý Sốt Bò Băm', 140000, 'Món chính', TRUE, 'Mì Ý spaghetti sốt bolognese thịt bò băm.', 'https://meoeva.com/wp-content/uploads/2019/05/Spaghetti.jpg', 'Gluten'),
-(15, 'Gà Nướng Mật Ong', 180000, 'Món chính', TRUE, 'Đùi gà nướng mật ong thơm ngọt, ăn kèm salad.', 'https://lh3.googleusercontent.com/p/AF1QipOYKsd6yLm0iH-NJGsbyVcSl6woaZT1DpHGG1LM=s680-w680-h510', NULL),
-(16, 'Lẩu Thái Hải Sản', 350000, 'Món chính', TRUE, 'Lẩu Thái chua cay hải sản tươi sống, kèm bún tươi.', 'https://i.ytimg.com/vi/p1ejp7z4mc4/sddefault.jpg', 'Hải sản'),
-(17, 'Bún Chả Hà Nội', 95000, 'Món chính', TRUE, 'Bún chả Hà Nội thịt nướng than hồng, nước mắm chua ngọt.', 'https://www.seriouseats.com/thmb/J0g7JWjk9r6CHESo1CIrD1BfGd0=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/20231204-SEA-VyTran-BunChaHanoi-19-f623913c6ef34a9185bcd6e5680c545f.jpg', NULL),
-(18, 'Pizza Hải Sản', 210000, 'Món chính', TRUE, 'Pizza đế mỏng nhân hải sản phô mai mozzarella.', 'https://doiduavang.vn/wp-content/uploads/2021/01/pizza-nhan-hai-san-doi-dua-vang-scaled.jpg', 'Gluten, Hải sản, Sữa'),
-(19, 'Cơm Gà Hải Nam', 110000, 'Món chính', TRUE, 'Cơm gà Hải Nam nước dùng gà thanh ngọt.', 'https://cdn.tgdd.vn/Files/2021/08/16/1375575/cach-nau-com-ga-hai-nam-don-gian-ga-chin-vang-uom-da-gion-dung-chuan-202112281045139511.jpg', NULL),
-(20, 'Mực Ống Nhồi Thịt', 170000, 'Món chính', TRUE, 'Mực ống nhồi thịt chiên giòn, chấm sốt tương xoài.', 'https://cdn.tgdd.vn/2021/03/CookProduct/1200-1200x676-31.jpg', 'Hải sản'),
-(21, 'Bánh Tiramisu Truyền Thống Ý', 120000, 'Tráng miệng', FALSE, 'Bánh Tiramisu Ý nguyên bản vị cà phê, kem mascarpone.', 'https://thermomixvietnam.vn/wp-content/uploads/2021/08/tiramisu-truyen-thong.jpg', 'Sữa, Gluten'),
-(22, 'Chè Xoài Dừa Tươi', 65000, 'Tráng miệng', TRUE, 'Chè xoài chín ngọt kết hợp nước cốt dừa béo ngậy.', 'https://img.freepik.com/premium-photo/mango-cheese-milka-dessert-made-from-jelly-nata-de-coco-basil-seed-mango-cream-cheese-milk_583400-4287.jpg', NULL),
-(23, 'Kem Xôi Dừa', 55000, 'Tráng miệng', TRUE, 'Kem xôi dừa mát lạnh, topping dừa nạo sấy.', 'https://beptruong.edu.vn/wp-content/uploads/2016/02/kem-xoi-dua.jpg', 'Sữa'),
-(24, 'Bánh Flan Caramel', 45000, 'Tráng miệng', TRUE, 'Bánh flan caramel mềm mịn, thơm ngon.', 'https://img.freepik.com/premium-photo/cream-caramel-pudding_599862-23796.jpg', 'Trứng, Sữa'),
-(25, 'Panna Cotta Dâu Tây', 75000, 'Tráng miệng', TRUE, 'Panna cotta Ý sốt dâu tây tươi mát.', 'https://bloganchoi.com/wp-content/uploads/2022/06/cach-lam-panna-cotta.jpg', 'Sữa'),
-(26, 'Trái Cây Thập Cẩm', 110000, 'Tráng miệng', TRUE, 'Đĩa trái cây tươi thập cẩm theo mùa.', 'https://bolcereales.com.ar/wp-content/uploads/2021/01/alimentos-con-cobre-frutas.jpeg', NULL),
-(27, 'Bánh Mousse Chocolate', 90000, 'Tráng miệng', TRUE, 'Bánh mousse chocolate Bỉ mịn màng, đắng nhẹ.', 'https://i.ytimg.com/vi/pESVrDm6yIM/maxresdefault.jpg', 'Sữa, Trứng'),
-(28, 'Nước Cam Tươi Ép Lạnh', 95000, 'Đồ uống', TRUE, 'Nước cam tươi nguyên chất ép lạnh.', 'https://www.sieuthidonglanh.com/wp-content/uploads/2023/03/Nuoc-ep-cam-giup-chong-lao-hoa-da-hieu-qua.png', NULL),
-(29, 'Cà Phê Phin Việt Nam', 55000, 'Đồ uống', TRUE, 'Cà phê phin Việt Nam đậm đà truyền thống.', 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=500&q=80', NULL),
-(30, 'Trà Đào Cam Sả', 65000, 'Đồ uống', TRUE, 'Trà đào cam sả tươi mát giải nhiệt.', 'https://img.meta.com.vn/Data/image/2021/05/20/tra-dao-cam-sa-2.jpg', NULL),
-(31, 'Sinh Tố Bơ', 75000, 'Đồ uống', TRUE, 'Sinh tố bơ tươi xay nhuyễn béo ngậy.', 'https://img.freepik.com/premium-photo/avocado-smoothie-with-avocado-wooden-board-dark-background_490636-2675.jpg', 'Sữa'),
-(32, 'Mojito Chanh Bạc Hà', 85000, 'Đồ uống', TRUE, 'Mojito không cồn chanh bạc hà tươi mát.', 'https://img.freepik.com/premium-photo/refreshing-glass-coconut-water-garnished-with-mint-leaves-slice-lime_198067-290311.jpg', NULL),
-(33, 'Bia Heineken', 45000, 'Đồ uống', TRUE, 'Bia Heineken nhập khẩu lạnh.', 'https://tse2.mm.bing.net/th/id/OIP.h3ptwUpaWsyCB7MAVaLGhwHaEK?w=680&h=382&rs=1&pid=ImgDetMain&o=7&rm=3', 'Gluten'),
-(34, 'Nước Khoáng Evian', 40000, 'Đồ uống', TRUE, 'Nước khoáng Evian Pháp.', 'https://gangnamkong.co.kr/web/upload/NNEditor/20230424/33378a1a3af8ff1869c4b1faf8da8863.jpg', NULL);
+INSERT INTO Menu_Items (item_id, item_name, price, category, is_available, description, image_url, allergy_tags, is_always_available) VALUES 
+(1, 'Súp Bí Đỏ Kem Tươi Truffle', 180000, 'Khai vị', TRUE, 'Súp bí đỏ béo ngậy kết hợp kem tươi và dầu truffle nguyên chất.', 'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=500&q=80', 'Sữa', FALSE),
+(2, 'Gỏi Cuốn Tôm Thịt', 95000, 'Khai vị', TRUE, 'Gỏi cuốn tôm thịt tươi ngon kèm rau sống và tương đậu phộng.', 'https://www.cet.edu.vn/wp-content/uploads/2018/11/goi-cuon-tom-thit.jpg', 'Đậu phộng, Hải sản', FALSE),
+(3, 'Chả Giò Hải Sản', 110000, 'Khai vị', TRUE, 'Chả giò chiên giòn nhân hải sản tươi sống.', 'https://cdn.tgdd.vn/2022/01/CookDish/2-cach-lam-cha-gio-hai-san-don-gian-gion-thom-beo-ngay-ai-avt-1200x676.jpg', 'Hải sản', FALSE),
+(4, 'Salad Cá Hồi Xông Khói', 150000, 'Khai vị', TRUE, 'Salad rau xanh tươi mát kết hợp cá hồi xông khói nhập khẩu.', 'https://file.hstatic.net/200000356095/file/salad_ca_hoi__xong_khoi__3__59eaf296ddc644849699579b210c7855.jpg', 'Hải sản', FALSE),
+(5, 'Súp Hải Sản Măng Tây', 130000, 'Khai vị', TRUE, 'Súp hải sản nấu cùng măng tây tươi ngon ngọt.', 'https://cdn.tgdd.vn/Files/2020/10/09/1297483/tro-tai-voi-mon-sup-tom-mang-tay-vi-lau-thai-vua-la-vua-quen-ai-an-cung-tam-tac-khen-202010091742198445.jpg', 'Hải sản', FALSE),
+(6, 'Bánh Mì Bơ Tỏi', 65000, 'Khai vị', TRUE, 'Bánh mì Pháp nướng giòn phết bơ tỏi thơm lừng.', 'https://www.lorca.vn/wp-content/uploads/2021/10/Cach-lam-mong-banh-mi-bo-toi-phomai-bang-lo-nuong.jpg', 'Gluten, Sữa', FALSE),
+(7, 'Nem Chua Rán', 75000, 'Khai vị', TRUE, 'Nem chua rán giòn rụm chấm tương ớt.', 'https://trumfood.vn/wp-content/uploads/2022/09/trumfood_decor00865.jpg', NULL, FALSE),
+(8, 'Hoành Thánh Chiên Giòn', 85000, 'Khai vị', TRUE, 'Hoành thánh chiên giòn nhân tôm thịt.', 'https://cdn.tgdd.vn/2020/09/CookProduct/Untitled-2-1200x676-1.jpg', 'Gluten, Hải sản', FALSE),
+(9, 'Bò Bít Tết Wagyu Kèm Sốt Tiêu Xanh', 850000, 'Món chính', TRUE, 'Bò Wagyu Nhật Bản áp chảo sốt tiêu xanh, kèm rau củ nướng.', 'https://live.staticflickr.com/65535/50489573886_fa160b7292_b.jpg', NULL, FALSE),
+(10, 'Cá Hồi Nướng Sốt Miso Nhật Bản', 520000, 'Món chính', TRUE, 'Cá hồi tươi nướng sốt miso thanh nhẹ, ăn kèm cơm trắng.', 'https://www.theforkbite.com/wp-content/uploads/2024/02/Teriyaki-Salmon-featured-2.9.24-500x500.jpg', 'Hải sản', FALSE),
+(11, 'Phở Bò Truyền Thống', 120000, 'Món chính', TRUE, 'Phở bò nước dùng đậm đà, thịt bò tái chín mềm.', 'https://daotaobeptruong.vn/wp-content/uploads/2020/03/cach-nau-pho-bo.jpg', NULL, FALSE),
+(12, 'Cơm Chiên Dương Châu', 85000, 'Món chính', TRUE, 'Cơm chiên dương châu thập cẩm tôm, lạp xưởng, trứng.', 'https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=500&q=80', 'Hải sản, Trứng', FALSE),
+(13, 'Sườn Heo Nướng BBQ', 250000, 'Món chính', TRUE, 'Sườn heo non nướng sốt BBQ đậm vị, ăn kèm khoai tây chiên.', 'https://images.unsplash.com/photo-1544025162-d76694265947?w=500&q=80', NULL, FALSE),
+(14, 'Mì Ý Sốt Bò Băm', 140000, 'Món chính', TRUE, 'Mì Ý spaghetti sốt bolognese thịt bò băm.', 'https://meoeva.com/wp-content/uploads/2019/05/Spaghetti.jpg', 'Gluten', FALSE),
+(15, 'Gà Nướng Mật Ong', 180000, 'Món chính', TRUE, 'Đùi gà nướng mật ong thơm ngọt, ăn kèm salad.', 'https://lh3.googleusercontent.com/p/AF1QipOYKsd6yLm0iH-NJGsbyVcSl6woaZT1DpHGG1LM=s680-w680-h510', NULL, FALSE),
+(16, 'Lẩu Thái Hải Sản', 350000, 'Món chính', TRUE, 'Lẩu Thái chua cay hải sản tươi sống, kèm bún tươi.', 'https://i.ytimg.com/vi/p1ejp7z4mc4/sddefault.jpg', 'Hải sản', FALSE),
+(17, 'Bún Chả Hà Nội', 95000, 'Món chính', TRUE, 'Bún chả Hà Nội thịt nướng than hồng, nước mắm chua ngọt.', 'https://www.seriouseats.com/thmb/J0g7JWjk9r6CHESo1CIrD1BfGd0=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/20231204-SEA-VyTran-BunChaHanoi-19-f623913c6ef34a9185bcd6e5680c545f.jpg', NULL, FALSE),
+(18, 'Pizza Hải Sản', 210000, 'Món chính', TRUE, 'Pizza đế mỏng nhân hải sản phô mai mozzarella.', 'https://doiduavang.vn/wp-content/uploads/2021/01/pizza-nhan-hai-san-doi-dua-vang-scaled.jpg', 'Gluten, Hải sản, Sữa', FALSE),
+(19, 'Cơm Gà Hải Nam', 110000, 'Món chính', TRUE, 'Cơm gà Hải Nam nước dùng gà thanh ngọt.', 'https://cdn.tgdd.vn/Files/2021/08/16/1375575/cach-nau-com-ga-hai-nam-don-gian-ga-chin-vang-uom-da-gion-dung-chuan-202112281045139511.jpg', NULL, FALSE),
+(20, 'Mực Ống Nhồi Thịt', 170000, 'Món chính', TRUE, 'Mực ống nhồi thịt chiên giòn, chấm sốt tương xoài.', 'https://cdn.tgdd.vn/2021/03/CookProduct/1200-1200x676-31.jpg', 'Hải sản', FALSE),
+(21, 'Bánh Tiramisu Truyền Thống Ý', 120000, 'Tráng miệng', FALSE, 'Bánh Tiramisu Ý nguyên bản vị cà phê, kem mascarpone.', 'https://thermomixvietnam.vn/wp-content/uploads/2021/08/tiramisu-truyen-thong.jpg', 'Sữa, Gluten', FALSE),
+(22, 'Chè Xoài Dừa Tươi', 65000, 'Tráng miệng', TRUE, 'Chè xoài chín ngọt kết hợp nước cốt dừa béo ngậy.', 'https://img.freepik.com/premium-photo/mango-cheese-milka-dessert-made-from-jelly-nata-de-coco-basil-seed-mango-cream-cheese-milk_583400-4287.jpg', NULL, FALSE),
+(23, 'Kem Xôi Dừa', 55000, 'Tráng miệng', TRUE, 'Kem xôi dừa mát lạnh, topping dừa nạo sấy.', 'https://beptruong.edu.vn/wp-content/uploads/2016/02/kem-xoi-dua.jpg', 'Sữa', FALSE),
+(24, 'Bánh Flan Caramel', 45000, 'Tráng miệng', TRUE, 'Bánh flan caramel mềm mịn, thơm ngon.', 'https://img.freepik.com/premium-photo/cream-caramel-pudding_599862-23796.jpg', 'Trứng, Sữa', FALSE),
+(25, 'Panna Cotta Dâu Tây', 75000, 'Tráng miệng', TRUE, 'Panna cotta Ý sốt dâu tây tươi mát.', 'https://bloganchoi.com/wp-content/uploads/2022/06/cach-lam-panna-cotta.jpg', 'Sữa', FALSE),
+(26, 'Trái Cây Thập Cẩm', 110000, 'Tráng miệng', TRUE, 'Đĩa trái cây tươi thập cẩm theo mùa.', 'https://bolcereales.com.ar/wp-content/uploads/2021/01/alimentos-con-cobre-frutas.jpeg', NULL, FALSE),
+(27, 'Bánh Mousse Chocolate', 90000, 'Tráng miệng', TRUE, 'Bánh mousse chocolate Bỉ mịn màng, đắng nhẹ.', 'https://i.ytimg.com/vi/pESVrDm6yIM/maxresdefault.jpg', 'Sữa, Trứng', FALSE),
+(28, 'Nước Cam Tươi Ép Lạnh', 95000, 'Đồ uống', TRUE, 'Nước cam tươi nguyên chất ép lạnh.', 'https://www.sieuthidonglanh.com/wp-content/uploads/2023/03/Nuoc-ep-cam-giup-chong-lao-hoa-da-hieu-qua.png', NULL, TRUE),
+(29, 'Cà Phê Phin Việt Nam', 55000, 'Đồ uống', TRUE, 'Cà phê phin Việt Nam đậm đà truyền thống.', 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=500&q=80', NULL, TRUE),
+(30, 'Trà Đào Cam Sả', 65000, 'Đồ uống', TRUE, 'Trà đào cam sả tươi mát giải nhiệt.', 'https://img.meta.com.vn/Data/image/2021/05/20/tra-dao-cam-sa-2.jpg', NULL, TRUE),
+(31, 'Sinh Tố Bơ', 75000, 'Đồ uống', TRUE, 'Sinh tố bơ tươi xay nhuyễn béo ngậy.', 'https://img.freepik.com/premium-photo/avocado-smoothie-with-avocado-wooden-board-dark-background_490636-2675.jpg', 'Sữa', TRUE),
+(32, 'Mojito Chanh Bạc Hà', 85000, 'Đồ uống', TRUE, 'Mojito không cồn chanh bạc hà tươi mát.', 'https://img.freepik.com/premium-photo/refreshing-glass-coconut-water-garnished-with-mint-leaves-slice-lime_198067-290311.jpg', NULL, TRUE),
+(33, 'Bia Heineken', 45000, 'Đồ uống', TRUE, 'Bia Heineken nhập khẩu lạnh.', 'https://tse2.mm.bing.net/th/id/OIP.h3ptwUpaWsyCB7MAVaLGhwHaEK?w=680&h=382&rs=1&pid=ImgDetMain&o=7&rm=3', 'Gluten', TRUE),
+(34, 'Nước Khoáng Evian', 40000, 'Đồ uống', TRUE, 'Nước khoáng Evian Pháp.', 'https://gangnamkong.co.kr/web/upload/NNEditor/20230424/33378a1a3af8ff1869c4b1faf8da8863.jpg', NULL, TRUE);
+
+-- ── 18.5 Menu Item Days (Phân bổ thực đơn theo ngày) ───────────
+INSERT INTO Menu_Item_Days (item_id, day_of_week) VALUES
+-- MONDAY (Thứ 2)
+(1, 'MONDAY'), (2, 'MONDAY'), (5, 'MONDAY'), (8, 'MONDAY'),
+(9, 'MONDAY'), (10, 'MONDAY'), (13, 'MONDAY'), (16, 'MONDAY'),
+(21, 'MONDAY'), (22, 'MONDAY'), (25, 'MONDAY'), (27, 'MONDAY'),
+
+-- TUESDAY (Thứ 3)
+(3, 'TUESDAY'), (4, 'TUESDAY'), (6, 'TUESDAY'), (7, 'TUESDAY'),
+(11, 'TUESDAY'), (12, 'TUESDAY'), (14, 'TUESDAY'), (17, 'TUESDAY'),
+(23, 'TUESDAY'), (24, 'TUESDAY'), (26, 'TUESDAY'), (22, 'TUESDAY'),
+
+-- WEDNESDAY (Thứ 4)
+(1, 'WEDNESDAY'), (3, 'WEDNESDAY'), (5, 'WEDNESDAY'), (8, 'WEDNESDAY'),
+(15, 'WEDNESDAY'), (18, 'WEDNESDAY'), (19, 'WEDNESDAY'), (20, 'WEDNESDAY'),
+(21, 'WEDNESDAY'), (23, 'WEDNESDAY'), (25, 'WEDNESDAY'), (27, 'WEDNESDAY'),
+
+-- THURSDAY (Thứ 5)
+(2, 'THURSDAY'), (4, 'THURSDAY'), (6, 'THURSDAY'), (7, 'THURSDAY'),
+(9, 'THURSDAY'), (12, 'THURSDAY'), (16, 'THURSDAY'), (18, 'THURSDAY'),
+(22, 'THURSDAY'), (24, 'THURSDAY'), (26, 'THURSDAY'), (21, 'THURSDAY'),
+
+-- FRIDAY (Thứ 6)
+(1, 'FRIDAY'), (2, 'FRIDAY'), (3, 'FRIDAY'), (4, 'FRIDAY'),
+(10, 'FRIDAY'), (11, 'FRIDAY'), (14, 'FRIDAY'), (20, 'FRIDAY'),
+(21, 'FRIDAY'), (23, 'FRIDAY'), (25, 'FRIDAY'), (27, 'FRIDAY'),
+
+-- SATURDAY (Thứ 7)
+(5, 'SATURDAY'), (6, 'SATURDAY'), (7, 'SATURDAY'), (8, 'SATURDAY'),
+(9, 'SATURDAY'), (13, 'SATURDAY'), (16, 'SATURDAY'), (19, 'SATURDAY'),
+(22, 'SATURDAY'), (24, 'SATURDAY'), (26, 'SATURDAY'), (25, 'SATURDAY'),
+
+-- SUNDAY (Chủ Nhật)
+(1, 'SUNDAY'), (2, 'SUNDAY'), (3, 'SUNDAY'), (4, 'SUNDAY'),
+(10, 'SUNDAY'), (12, 'SUNDAY'), (15, 'SUNDAY'), (18, 'SUNDAY'),
+(21, 'SUNDAY'), (23, 'SUNDAY'), (26, 'SUNDAY'), (27, 'SUNDAY');
 
 -- ── 19. Food Orders (19 rows) ────────────────────────────────
 INSERT INTO Food_Orders (order_id, booking_id, room_booking_detail_id, table_id, order_type, order_status, payment_type, is_paid_in_pos, created_by_staff_id, kitchen_processed_by_id) VALUES 

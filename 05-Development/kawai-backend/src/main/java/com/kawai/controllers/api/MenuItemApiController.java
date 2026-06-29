@@ -16,6 +16,22 @@ public class MenuItemApiController {
     @Autowired
     private FoodItemRepository foodItemRepository;
 
+    @GetMapping
+    public ResponseEntity<?> getMenuItems(@RequestParam(required = false) String day) {
+        // TÍNH NĂNG CHIA THỰC ĐƠN THEO NGÀY: 
+        // API phục vụ cho Frontend lấy dữ liệu thực đơn theo từng ngày.
+        java.time.DayOfWeek targetDay = java.time.LocalDate.now().getDayOfWeek();
+        if (day != null && !day.isEmpty()) {
+            try {
+                targetDay = java.time.DayOfWeek.valueOf(day.toUpperCase());
+            } catch (Exception e) {
+                // Nếu FE truyền sai định dạng, fallback về ngày hôm nay
+            }
+        }
+        java.util.List<MenuItem> items = foodItemRepository.findAvailableByDayOfWeek(targetDay);
+        return ResponseEntity.ok(items);
+    }
+
     @PostMapping("/{id}/toggle")
     public ResponseEntity<?> toggleAvailability(@PathVariable Long id, @RequestParam Boolean isAvailable) {
         Optional<MenuItem> itemOpt = foodItemRepository.findById(id);

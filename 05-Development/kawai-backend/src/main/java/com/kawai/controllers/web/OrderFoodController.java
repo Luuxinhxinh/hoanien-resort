@@ -11,6 +11,8 @@ import com.kawai.repositories.FoodItemRepository;
 import com.kawai.repositories.RestaurantTableRepository;
 import com.kawai.repositories.RoomRepository;
 import com.kawai.repositories.RoomBookingDetailRepository;
+import com.kawai.repositories.FolioItemRepository;
+import com.kawai.models.FolioItem;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,8 +53,11 @@ public class OrderFoodController {
     @Autowired
     private RoomBookingDetailRepository roomBookingDetailRepository;
 
+    @Autowired
+    private FolioItemRepository folioItemRepository;
+
     @GetMapping("/order-food")
-    public String showOrderFoodPage(Principal principal, Model model, HttpSession session) {
+    public String showOrderFoodPage(@org.springframework.web.bind.annotation.RequestParam(required = false) String day, Principal principal, Model model, HttpSession session) {
 
         List<MenuItem> allItems = Collections.emptyList();
         List<String> categories = Collections.emptyList();
@@ -64,18 +69,34 @@ public class OrderFoodController {
 
         // 1. Tải thực đơn (Áp dụng chung cho cả Guest và Member)
         try {
-            allItems = foodItemRepository.findAll().stream()
-                    .filter(item -> Boolean.TRUE.equals(item.getIsAvailable()))
-                    .collect(Collectors.toList());
+            // TÍNH NĂNG CHIA THỰC ĐƠN THEO NGÀY:
+            // - Mặc định sẽ lấy thứ hiện tại của Server (today)
+            // - Nếu FE có truyền tham số `?day=...` (ví dụ khi khách click sang tab Thứ 4), thì ưu tiên dùng ngày đó để query DB.
+            java.time.DayOfWeek targetDay = java.time.LocalDate.now().getDayOfWeek();
+            if (day != null && !day.isEmpty()) {
+                try {
+                    targetDay = java.time.DayOfWeek.valueOf(day.toUpperCase());
+                } catch (Exception e) {
+                    log.warn("Invalid day param: {}", day);
+                }
+            }
+            
+            // Gọi hàm query đặc biệt đã custom trong Repository
+            allItems = foodItemRepository.findAvailableByDayOfWeek(targetDay);
+            
             categories = allItems.stream()
                     .map(MenuItem::getCategory)
                     .filter(Objects::nonNull)
                     .distinct()
                     .collect(Collectors.toList());
+                    
+            model.addAttribute("currentDay", targetDay.name());
         } catch (Exception e) {
             log.error("Lỗi khi tải Menu hoặc lọc danh mục: {}", e.getMessage(), e);
+            model.addAttribute("currentDay", java.time.LocalDate.now().getDayOfWeek().name());
         }
 
+        model.addAttribute("serverToday", java.time.LocalDate.now().getDayOfWeek().name());
         model.addAttribute("menuItems", allItems);
         model.addAttribute("categories", categories);
 
@@ -140,6 +161,11 @@ public class OrderFoodController {
                                     java.util.Map<String, Object> rMap = new java.util.HashMap<>();
                                     rMap.put("roomNumber", r.getRoomNumber());
                                     BigDecimal limit = rbd.getSubCreditLimit() != null ? rbd.getSubCreditLimit() : (rbd.getRoomBooking() != null ? rbd.getRoomBooking().getCreditLimit() : BigDecimal.ZERO);
+                                    BigDecimal used = folioItemRepository.findByRoomBookingDetailId(rbd.getId()).stream()
+                                            .filter(f -> !Boolean.TRUE.equals(f.getIsSettledSeparately()))
+                                            .map(FolioItem::getAmount)
+                                            .reduce(BigDecimal.ZERO, BigDecimal::add);
+                                    limit = limit.subtract(used);
                                     rMap.put("limit", limit);
                                     roomOptions.add(rMap);
                                 }

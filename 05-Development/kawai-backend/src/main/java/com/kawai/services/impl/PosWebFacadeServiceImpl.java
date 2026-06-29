@@ -148,7 +148,8 @@ public class PosWebFacadeServiceImpl implements PosWebFacadeService {
 
     @Override
     public List<Map<String, Object>> getMappedMenuItems() {
-        List<MenuItem> rawItems = foodItemRepository.findAll();
+        java.time.DayOfWeek today = java.time.LocalDate.now().getDayOfWeek();
+        List<MenuItem> rawItems = foodItemRepository.findAvailableByDayOfWeek(today);
         List<Map<String, Object>> mappedItems = new ArrayList<>();
 
         for (MenuItem item : rawItems) {
