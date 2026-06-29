@@ -56,19 +56,22 @@ public class DependentServiceImpl implements DependentService {
     private final RoomBookingDetailRepository roomBookingDetailRepository;
     private final RoomGuestRepository roomGuestRepository;
     private final RoomSurchargeRepository roomSurchargeRepository;
+    private final com.kawai.services.interfaces.CheckinService checkinService;
 
     public DependentServiceImpl(DependentRepository dependentRepository,
             RoomBookingRepository bookingRepository,
             EncryptionService encryptionService,
             RoomBookingDetailRepository roomBookingDetailRepository,
             RoomGuestRepository roomGuestRepository,
-            RoomSurchargeRepository roomSurchargeRepository) {
+            RoomSurchargeRepository roomSurchargeRepository,
+            @org.springframework.context.annotation.Lazy com.kawai.services.interfaces.CheckinService checkinService) {
         this.dependentRepository = dependentRepository;
         this.bookingRepository = bookingRepository;
         this.encryptionService = encryptionService;
         this.roomBookingDetailRepository = roomBookingDetailRepository;
         this.roomGuestRepository = roomGuestRepository;
         this.roomSurchargeRepository = roomSurchargeRepository;
+        this.checkinService = checkinService;
     }
 
     // ══════════════════════════════════════════════════════════════════════
@@ -255,9 +258,12 @@ public class DependentServiceImpl implements DependentService {
                 rg = new RoomGuest();
             }
             rg.setRoomBookingDetail(detail);
+
             rg.setDependent(saved);
+            rg.setCustomer(null);
+            rg.setIsPrimaryContact(Boolean.TRUE.equals(dto.getIsPrimaryContact()));
+
             rg.setGuestType(age < 12 ? "CHILD" : "ADULT");
-            rg.setIsPrimaryContact(dto.getIsPrimaryContact() != null ? dto.getIsPrimaryContact() : false);
             roomGuestRepository.saveAndFlush(rg);
         }
 

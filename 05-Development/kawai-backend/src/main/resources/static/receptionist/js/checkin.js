@@ -813,13 +813,13 @@ function renderPerTourAllocationRows() {
 
     currentUnallocatedTours.forEach(function (tour, i) {
         const row = document.createElement('div');
-        row.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:#f8fafc;border-radius:6px;border:1px solid #e2e8f0;transition:all 0.2s ease;';
+        row.style.cssText = 'display:grid;grid-template-columns:1fr 32px 1fr;align-items:center;padding:12px 16px;background:#f8fafc;border-radius:6px;border:1px solid #e2e8f0;transition:all 0.2s ease;gap:12px;';
 
         const labelInfo = document.createElement('div');
-        labelInfo.style.cssText = 'display:flex;flex-direction:column;gap:4px;';
+        labelInfo.style.cssText = 'display:flex;flex-direction:column;gap:4px;min-width:0;';
         
         const labelName = document.createElement('span');
-        labelName.style.cssText = 'font-size:14px;font-weight:600;color:#1e293b';
+        labelName.style.cssText = 'font-size:14px;font-weight:600;color:#1e293b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
         labelName.innerText = tour.tourName;
 
         const labelDate = document.createElement('span');
@@ -829,15 +829,12 @@ function renderPerTourAllocationRows() {
         labelInfo.appendChild(labelName);
         labelInfo.appendChild(labelDate);
 
-        const rightSide = document.createElement('div');
-        rightSide.style.cssText = 'display:flex;align-items:center;gap:16px;flex:0.6;';
-
         const arrow = document.createElement('span');
         arrow.innerHTML = '<i class="fa-solid fa-arrow-right-long"></i>';
-        arrow.style.cssText = 'color:#94a3b8;font-size:14px;';
+        arrow.style.cssText = 'color:#94a3b8;font-size:14px;text-align:center;';
 
         const select = document.createElement('select');
-        select.style.cssText = 'flex:1;padding:8px 12px;border:1px solid #cbd5e1;border-radius:6px;background:white;font-size:14px;color:#334155;outline:none;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,0.05);';
+        select.style.cssText = 'width:100%;padding:8px 12px;border:1px solid #cbd5e1;border-radius:6px;background:white;font-size:14px;color:#334155;outline:none;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,0.05);';
         select.innerHTML = '<option value="">-- Chọn phòng --</option>';
         assignedRooms.forEach(function (a) {
             const opt = document.createElement('option');
@@ -860,11 +857,9 @@ function renderPerTourAllocationRows() {
             hiddenRoom.value = select.value;
         });
 
-        rightSide.appendChild(arrow);
-        rightSide.appendChild(select);
-        
         row.appendChild(labelInfo);
-        row.appendChild(rightSide);
+        row.appendChild(arrow);
+        row.appendChild(select);
         container.appendChild(row);
 
         const form = document.getElementById('checkinFormWrapper');

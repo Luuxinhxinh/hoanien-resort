@@ -27,10 +27,5 @@ public interface CheckinService {
      */
     void updateCreditLimit(Long bookingDetailId, BigDecimal newCreditLimit);
 
-    /**
-     * Đổi phòng vật lý cho khách đang lưu trú (UC12.3).
-     */
-    RoomBookingDetail transferRoom(Long bookingDetailId, Long newRoomId);
-
-    Customer upgradeDependentToCustomer(Long dependentId);
+    java.util.Map<String, Object> upgradeDependentToCustomer(Long dependentId);
 }
