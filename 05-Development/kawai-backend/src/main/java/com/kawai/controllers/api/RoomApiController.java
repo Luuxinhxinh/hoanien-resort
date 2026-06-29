@@ -15,7 +15,10 @@ import org.springframework.web.bind.annotation.RestController;
 import com.kawai.dto.RoomSearchRequestDTO;
 import com.kawai.dto.RoomSearchResponseDTO;
 import com.kawai.models.Customer;
+import com.kawai.models.FolioItem;
+import com.kawai.repositories.FolioItemRepository;
 import com.kawai.services.interfaces.RoomService;
+import java.math.BigDecimal;
 import org.springframework.web.bind.annotation.RequestParam;
 import java.time.LocalDate;
 import java.util.List;
@@ -29,6 +32,7 @@ public class RoomApiController {
     private final RoomRepository roomRepository;
     private final RoomBookingDetailRepository roomBookingDetailRepository;
     private final RoomService roomService;
+    private final FolioItemRepository folioItemRepository;
 
     @Autowired
     private com.kawai.repositories.AccountRepository accountRepository;
@@ -36,10 +40,12 @@ public class RoomApiController {
     @Autowired
     public RoomApiController(RoomRepository roomRepository,
             RoomBookingDetailRepository roomBookingDetailRepository,
-            RoomService roomService) {
+            RoomService roomService,
+            FolioItemRepository folioItemRepository) {
         this.roomRepository = roomRepository;
         this.roomBookingDetailRepository = roomBookingDetailRepository;
         this.roomService = roomService;
+        this.folioItemRepository = folioItemRepository;
     }
 
     @GetMapping("/{roomNumber}/info")
@@ -68,7 +74,14 @@ public class RoomApiController {
                     dto.setGuestName(detail.getRoomBooking().getCustomer().getFullName());
                     dto.setCustomerId(detail.getRoomBooking().getCustomer().getId());
                 }
-                dto.setLimitRemaining(detail.getSubCreditLimit());
+                
+                // Calculate dynamic credit limit remaining
+                BigDecimal limit = detail.getSubCreditLimit() != null ? detail.getSubCreditLimit() : (detail.getRoomBooking() != null && detail.getRoomBooking().getCreditLimit() != null ? detail.getRoomBooking().getCreditLimit() : BigDecimal.ZERO);
+                BigDecimal used = folioItemRepository.findByRoomBookingDetailId(detail.getId()).stream()
+                        .filter(f -> !Boolean.TRUE.equals(f.getIsSettledSeparately()))
+                        .map(FolioItem::getAmount)
+                        .reduce(BigDecimal.ZERO, BigDecimal::add);
+                dto.setLimitRemaining(limit.subtract(used));
             }
         }
 
