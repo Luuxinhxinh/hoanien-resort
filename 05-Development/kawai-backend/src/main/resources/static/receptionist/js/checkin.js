@@ -754,7 +754,7 @@ async function captureFace() {
         }
         payload.faceVectorData = JSON.stringify(descriptor);
 
-        const res = await fetch('/api/faceid/enroll-checkin', {
+        const res = await fetch('/api/faceid/enroll', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
