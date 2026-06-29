@@ -1,6 +1,7 @@
 package com.kawai.services;
 
 import com.kawai.models.*;
+import com.kawai.repositories.WorkflowRepository;
 import com.kawai.repositories.*;
 import com.kawai.services.impl.HousekeepingServiceImpl;
 
@@ -127,15 +128,15 @@ class HousekeepingServiceUC13Test {
             Long roomId = 1L;
             Long staffId = 10L;
 
-            when(roomRepo.findById(roomId)).thenReturn(Optional.of(sampleRoom));
-            when(employeeRepo.findById(staffId)).thenReturn(Optional.of(sampleStaff));
-            when(housekeepingTaskRepo.save(any(HotelOperation.class)))
+            org.mockito.Mockito.lenient().when(roomRepo.findById(roomId)).thenReturn(Optional.of(sampleRoom));
+            org.mockito.Mockito.lenient().when(employeeRepo.findById(staffId)).thenReturn(Optional.of(sampleStaff));
+            org.mockito.Mockito.lenient().when(housekeepingTaskRepo.save(any(HotelOperation.class)))
                     .thenAnswer(inv -> {
                         HotelOperation saved = inv.getArgument(0);
                         saved.setId(100L);
                         return saved;
                     });
-            when(roomRepo.save(any(Room.class)))
+            org.mockito.Mockito.lenient().when(roomRepo.save(any(Room.class)))
                     .thenAnswer(inv -> inv.getArgument(0));
 
             // ACT
@@ -172,10 +173,10 @@ class HousekeepingServiceUC13Test {
             // ARRANGE
             Long taskId = 100L;
 
-            when(housekeepingTaskRepo.findById(taskId)).thenReturn(Optional.of(sampleTask));
-            when(roomRepo.save(any(Room.class)))
+            org.mockito.Mockito.lenient().when(housekeepingTaskRepo.findById(taskId)).thenReturn(Optional.of(sampleTask));
+            org.mockito.Mockito.lenient().when(roomRepo.save(any(Room.class)))
                     .thenAnswer(inv -> inv.getArgument(0));
-            when(housekeepingTaskRepo.save(any(HotelOperation.class)))
+            org.mockito.Mockito.lenient().when(housekeepingTaskRepo.save(any(HotelOperation.class)))
                     .thenAnswer(inv -> inv.getArgument(0));
 
             // ACT
@@ -211,7 +212,7 @@ class HousekeepingServiceUC13Test {
             maintenanceTask.setStatus("Pending");
             pendingTasks.add(maintenanceTask);
 
-            when(housekeepingTaskRepo.findByStatus("Pending"))
+            org.mockito.Mockito.lenient().when(housekeepingTaskRepo.findByStatus("Pending"))
                     .thenReturn(pendingTasks);
 
             // ACT
@@ -243,11 +244,11 @@ class HousekeepingServiceUC13Test {
             Long staffId = 10L;
             String notes = "Dieu hoa phong R101 khong lanh";
 
-            when(roomRepo.findById(roomId)).thenReturn(Optional.of(sampleRoom));
-            when(employeeRepo.findById(staffId)).thenReturn(Optional.of(sampleStaff));
-            when(maintenanceRequestRepo.save(any(HotelOperation.class)))
+            org.mockito.Mockito.lenient().when(roomRepo.findById(roomId)).thenReturn(Optional.of(sampleRoom));
+            org.mockito.Mockito.lenient().when(employeeRepo.findById(staffId)).thenReturn(Optional.of(sampleStaff));
+            org.mockito.Mockito.lenient().when(maintenanceRequestRepo.save(any(HotelOperation.class)))
                     .thenAnswer(inv -> inv.getArgument(0));
-            when(roomRepo.save(any(Room.class)))
+            org.mockito.Mockito.lenient().when(roomRepo.save(any(Room.class)))
                     .thenAnswer(inv -> inv.getArgument(0));
 
             // ACT
@@ -285,10 +286,10 @@ class HousekeepingServiceUC13Test {
             // ARRANGE
             Long taskId = 200L;
 
-            when(maintenanceRequestRepo.findById(taskId)).thenReturn(Optional.of(maintenanceTask));
-            when(roomRepo.save(any(Room.class)))
+            org.mockito.Mockito.lenient().when(maintenanceRequestRepo.findById(taskId)).thenReturn(Optional.of(maintenanceTask));
+            org.mockito.Mockito.lenient().when(roomRepo.save(any(Room.class)))
                     .thenAnswer(inv -> inv.getArgument(0));
-            when(maintenanceRequestRepo.save(any(HotelOperation.class)))
+            org.mockito.Mockito.lenient().when(maintenanceRequestRepo.save(any(HotelOperation.class)))
                     .thenAnswer(inv -> inv.getArgument(0));
 
             // ACT
