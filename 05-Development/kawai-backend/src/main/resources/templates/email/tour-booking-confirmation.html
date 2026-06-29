@@ -398,10 +398,11 @@
             </div>
             <div class="info-row">
               <span class="info-label">Phương thức thanh toán:</span>
-              <span class="info-value" th:if="${!postToRoom}">Thanh toán trực tiếp</span>
-              <span class="info-value" th:if="${postToRoom}">Ghi nợ vào phòng</span>
+              <span class="info-value" th:if="${paymentMethod == 'counter'}">Thanh toán trực tiếp tại quầy</span>
+              <span class="info-value" th:if="${paymentMethod == 'vnpay'}">Thanh toán trực tuyến (VNPay)</span>
+              <span class="info-value" th:if="${paymentMethod == 'post-room'}">Ghi nợ vào phòng nghỉ</span>
             </div>
-            <div class="info-row" th:if="${postToRoom and roomDetail != null}">
+            <div class="info-row" th:if="${paymentMethod == 'post-room' and roomDetail != null}">
               <span class="info-label">Phòng ghi nợ:</span>
               <span class="info-value" th:text="'Phòng ' + ${roomDetail}">Phòng 201</span>
             </div>
@@ -412,12 +413,66 @@
           </div>
         </div>
 
+        <!-- Tour Bill Breakdown (Hóa đơn chi tiết từng đầu tiền) -->
+        <div class="section-label">Chi tiết hóa đơn tour</div>
+        <div class="booking-card" style="margin-bottom: 28px;">
+          <div class="booking-card-body">
+            <div class="info-row">
+              <span class="info-label">Giá vé tour gốc:</span>
+              <span class="info-value" th:text="${basePrice} + ' / khách'">50.000 VNĐ</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Thành viên:</span>
+              <span class="info-value" th:text="${adultCount} + ' Người lớn, ' + ${childCount} + ' Trẻ em'">2 Người lớn, 1 Trẻ em</span>
+            </div>
+            <div class="info-row" th:if="${childDiscountVal != null and childDiscountVal > 0}">
+              <span class="info-label" style="color: #ef4444;">Giảm giá trẻ em:<br/>
+                <small style="color: #9ca3af; font-size: 10px; font-weight: normal; text-transform: none;">(Dưới 2 tuổi: -100%, 2 - 11 tuổi: -50%)</small>
+              </span>
+              <span class="info-value" style="color: #ef4444; font-weight: 500;" th:text="'-' + ${childDiscount}">-25.000 VNĐ</span>
+            </div>
+            <div class="info-row" th:if="${promoDiscountVal != null and promoDiscountVal > 0}">
+              <span class="info-label" style="color: #ef4444;">Khuyến mãi (Mã giảm):</span>
+              <span class="info-value" style="color: #ef4444; font-weight: 500;" th:text="'-' + ${promoDiscount}">-10.000 VNĐ</span>
+            </div>
+            <div class="info-row" style="background: #fbf9f6; border-top: 1px solid #e5e1da;">
+              <span class="info-label" style="font-weight: 600;">Tổng giá trị tour:</span>
+              <span class="info-value highlight" style="font-weight: 600;" th:text="${totalPrice}">115.000 VNĐ</span>
+            </div>
+          </div>
+        </div>
+
         <!-- Total -->
         <div class="total-box">
-          <div class="total-label">Tổng chi phí hành trình</div>
-          <div class="total-amount" th:text="${totalPrice}">4.500.000 ₫</div>
-          <div class="total-note" th:if="${postToRoom}">Sẽ được ghi vào hóa đơn phòng khi trả phòng</div>
-          <div class="total-note" th:if="${!postToRoom}">Vui lòng thanh toán trực tiếp tại quầy lễ tân</div>
+          <div class="total-label" th:text="${paymentLabel}">Số tiền cần thanh toán</div>
+          <div class="total-amount" th:text="${paymentAmount}">115.000 VNĐ</div>
+          
+          <!-- Case 1: VNPay Deposit -->
+          <div class="total-note" th:if="${paymentMethod == 'vnpay' and paymentType == 'deposit'}">
+            Quý khách đã thanh toán đặt cọc 30% thành công qua cổng VNPay. Số tiền 70% còn lại vui lòng thanh toán tại quầy lễ tân khi Check-in tham gia tour.
+          </div>
+          <!-- Case 2: VNPay Full -->
+          <div class="total-note" th:if="${paymentMethod == 'vnpay' and paymentType == 'full'}">
+            Quý khách đã thanh toán toàn bộ 100% giá trị tour thành công qua cổng VNPay.
+          </div>
+          
+          <!-- Case 3: Counter Deposit -->
+          <div class="total-note" th:if="${paymentMethod == 'counter' and paymentType == 'deposit'}">
+            Quý khách vui lòng thanh toán số tiền đặt cọc 30% này tại quầy lễ tân để giữ chỗ tour.
+          </div>
+          <!-- Case 4: Counter Full -->
+          <div class="total-note" th:if="${paymentMethod == 'counter' and paymentType == 'full'}">
+            Quý khách vui lòng thanh toán toàn bộ 100% giá trị tour này tại quầy lễ tân trước khi khởi hành.
+          </div>
+          
+          <!-- Case 5: Post to Room - Checked In -->
+          <div class="total-note" th:if="${paymentMethod == 'post-room' and isCheckedIn}">
+            Chi phí tour đã được gán trực tiếp vào hóa đơn của **Phòng <span th:text="${roomDetail}">101</span>** Quý khách đang lưu trú và sẽ được thanh toán khi Check-out phòng.
+          </div>
+          <!-- Case 6: Post to Room - Not Checked In -->
+          <div class="total-note" th:if="${paymentMethod == 'post-room' and !isCheckedIn}">
+            Quý khách chưa làm thủ tục nhận phòng. Vui lòng hoàn tất thủ tục nhận phòng (Check-in) tại quầy lễ tân để chi phí tour được gán vào phòng nghỉ.
+          </div>
         </div>
 
         <div class="divider-line"></div>
@@ -433,6 +488,12 @@
           <strong>50%</strong> chi phí.<br />
           • <strong>Hỗ trợ:</strong> Liên hệ lễ tân hoặc gọi <strong th:text="${resortPhone}">1900 xxxx</strong> để được
           hỗ trợ.
+        </div>
+
+        <!-- Ghi chú của khách hàng -->
+        <div class="note-box" th:if="${customerNotes != null and !customerNotes.isEmpty()}" style="border-left: 3px solid #ef4444; background: #fdfaf8; margin-bottom: 28px;">
+          <span class="note-title" style="color: #ef4444;">Yêu cầu đặc biệt từ Quý khách</span>
+          • <strong th:text="${customerNotes}">Yêu cầu đặc biệt</strong>
         </div>
 
         <p class="closing-text">

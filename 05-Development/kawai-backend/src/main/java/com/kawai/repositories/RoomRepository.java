@@ -47,6 +47,7 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
             "AND rbd.room IS NOT NULL")
         java.util.List<Room> findActiveRoomsByUserId(@Param("userId") Long userId);
 
+
         @Query("SELECT COUNT(r) FROM Room r WHERE r.category.categoryName = :categoryName AND r.roomStatus != 'Maintenance'")
         long countActiveRoomsByCategoryName(@Param("categoryName") String categoryName);
 

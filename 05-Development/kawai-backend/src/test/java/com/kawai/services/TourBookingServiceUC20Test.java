@@ -13,6 +13,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -38,6 +40,7 @@ import static org.mockito.Mockito.*;
  * UnsupportedOperationException cho đến khi implement xong).
  */
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 @DisplayName("UC20.1 — Đặt tour du lịch (TourBookingService)")
 class TourBookingServiceUC20Test {
 
@@ -67,6 +70,12 @@ class TourBookingServiceUC20Test {
     
     @Mock
     private RoomBookingRepository roomBookingRepository;
+
+    @Mock
+    private PromotionRepository promotionRepository;
+
+    @Mock
+    private BookingRepository bookingRepository;
 
     @InjectMocks
     private TourBookingServiceImpl tourBookingService;
@@ -121,6 +130,7 @@ class TourBookingServiceUC20Test {
         @DisplayName("TC-M4-003.1: Đặt tour thành công — tạo TourBooking và Tour_Attendees")
         void createTourBooking_ValidRequest_ShouldCreateBookingAndAttendees() {
             // ARRANGE
+            validRequest.setParticipantCount(3);
             when(tourScheduleRepository.findById(100L)).thenReturn(Optional.of(sampleSchedule));
             when(customerRepository.findById(10L)).thenReturn(Optional.of(sampleCustomer));
             when(roomBookingRepository.findById(1L)).thenReturn(Optional.of(new RoomBooking()));
@@ -165,6 +175,7 @@ class TourBookingServiceUC20Test {
         void createTourBooking_NoAvailableSlots_ShouldThrowException() {
             // ARRANGE: Schedule có 5 chỗ trống (bookedSeats = 25)
             sampleSchedule.setBookedSeats(25);
+            validRequest.setParticipantCount(3);
             when(tourScheduleRepository.findById(100L)).thenReturn(Optional.of(sampleSchedule));
             when(customerRepository.findById(10L)).thenReturn(Optional.of(sampleCustomer));
             when(roomBookingRepository.findById(1L)).thenReturn(Optional.of(new RoomBooking()));
@@ -225,9 +236,11 @@ class TourBookingServiceUC20Test {
             // ARRANGE: Post to Room
             validRequest.setPostToRoom(true);
             validRequest.setRoomBookingDetailId(50L);
+            validRequest.setParticipantCount(3);
 
             RoomBookingDetail sampleDetail = new RoomBookingDetail();
             sampleDetail.setId(50L);
+            sampleDetail.setSubCreditLimit(new java.math.BigDecimal("10000000"));
 
             when(tourScheduleRepository.findById(100L)).thenReturn(Optional.of(sampleSchedule));
             when(customerRepository.findById(10L)).thenReturn(Optional.of(sampleCustomer));

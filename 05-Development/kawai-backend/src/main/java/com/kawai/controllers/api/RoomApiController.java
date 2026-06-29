@@ -168,16 +168,24 @@ public class RoomApiController {
             return ResponseEntity.status(404).body(java.util.Map.of("message", "Không tìm thấy tài khoản"));
         }
         
-        List<Room> activeRooms = roomRepository.findActiveRoomsByUserId(accountOpt.get().getId());
+        List<RoomBookingDetail> activeDetails = roomBookingDetailRepository.findActiveDetailsByUserId(accountOpt.get().getId());
         List<java.util.Map<String, Object>> responseList = new java.util.ArrayList<>();
         
-        for (Room r : activeRooms) {
-            if (r == null) continue;
+        for (RoomBookingDetail rbd : activeDetails) {
+            if (rbd == null) continue;
             java.util.Map<String, Object> rMap = new java.util.HashMap<>();
-            rMap.put("id", r.getRoomNumber());
-            rMap.put("roomNumber", r.getRoomNumber());
-            rMap.put("roomStatus", r.getRoomStatus());
-            rMap.put("roomType", r.getCategory() != null ? r.getCategory().getCategoryName() : "Standard");
+            Room r = rbd.getRoom();
+            if (r != null) {
+                rMap.put("id", r.getRoomNumber());
+                rMap.put("roomNumber", r.getRoomNumber());
+                rMap.put("roomStatus", r.getRoomStatus());
+                rMap.put("roomType", r.getCategory() != null ? r.getCategory().getCategoryName() : "Standard");
+            } else {
+                rMap.put("id", "Virtual_" + rbd.getId());
+                rMap.put("roomNumber", "Đang chờ nhận phòng (" + rbd.getCategory().getCategoryName() + ")");
+                rMap.put("roomStatus", "Confirmed");
+                rMap.put("roomType", rbd.getCategory().getCategoryName());
+            }
             responseList.add(rMap);
         }
         

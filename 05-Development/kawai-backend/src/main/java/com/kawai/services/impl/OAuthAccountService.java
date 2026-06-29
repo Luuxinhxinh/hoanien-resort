@@ -89,7 +89,7 @@ public class OAuthAccountService {
         customer.setFullName(fullName != null ? fullName : "Khách hàng Google");
         customer.setEmail(email);
         customer.setGender("Other");
-        customer.setPhone("N/A");
+        customer.setPhone("");
         customer.setCccdPassportEncrypted(null);
         customer.setMembershipTier(membershipTierRepository.findByTierNameIgnoreCase("Regular").orElse(null));
         customerRepository.save(customer);

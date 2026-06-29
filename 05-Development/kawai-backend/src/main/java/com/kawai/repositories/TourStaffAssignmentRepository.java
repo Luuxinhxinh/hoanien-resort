@@ -9,4 +9,6 @@ import java.util.List;
 @Repository
 public interface TourStaffAssignmentRepository extends JpaRepository<TourStaffAssignment, Long> {
     List<TourStaffAssignment> findByScheduleId(Long scheduleId);
+
+    List<TourStaffAssignment> findByEmployeeId(Long employeeId);
 }

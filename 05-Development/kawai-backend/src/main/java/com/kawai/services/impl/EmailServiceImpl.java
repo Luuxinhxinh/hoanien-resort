@@ -44,12 +44,32 @@ public class EmailServiceImpl implements EmailService {
     @org.springframework.scheduling.annotation.Async
     @Override
     public void sendBookingConfirmation(com.kawai.models.TourBooking booking, com.kawai.models.Customer customer) {
-        sendBookingConfirmation(booking, customer, false, null);
+        sendBookingConfirmation(booking, customer, "counter", "full", null);
     }
 
     @org.springframework.scheduling.annotation.Async
     @Override
     public void sendBookingConfirmation(com.kawai.models.TourBooking booking, com.kawai.models.Customer customer, boolean postToRoom, String roomDetail) {
+        String paymentMethod = postToRoom ? "post-room" : "counter";
+        String paymentType = postToRoom ? "room" : "full";
+        if (booking.getNotes() != null && booking.getNotes().contains(";")) {
+            java.util.Map<String, String> noteMap = new java.util.HashMap<>();
+            String[] pairs = booking.getNotes().split(";");
+            for (String pair : pairs) {
+                String[] kv = pair.split("=");
+                if (kv.length == 2) {
+                    noteMap.put(kv[0], kv[1]);
+                }
+            }
+            if (noteMap.containsKey("paymentMethod")) paymentMethod = noteMap.get("paymentMethod");
+            if (noteMap.containsKey("paymentType")) paymentType = noteMap.get("paymentType");
+        }
+        sendBookingConfirmation(booking, customer, paymentMethod, paymentType, roomDetail);
+    }
+
+    @org.springframework.scheduling.annotation.Async
+    @Override
+    public void sendBookingConfirmation(com.kawai.models.TourBooking booking, com.kawai.models.Customer customer, String paymentMethod, String paymentType, String roomDetail) {
         if (customer == null || customer.getEmail() == null || customer.getEmail().isBlank()) {
             logger.warn("Bỏ qua gửi email xác nhận: customer {} không có email", customer != null ? customer.getId() : "null");
             return;
@@ -63,6 +83,70 @@ public class EmailServiceImpl implements EmailService {
             String departureTime = booking.getSchedule() != null && booking.getSchedule().getDepartureTime() != null
                     ? booking.getSchedule().getDepartureTime().toString().substring(0, 5) : "--:--";
 
+            // Parse metadata from notes
+            int adultCount = booking.getParticipantCount() != null ? booking.getParticipantCount() : 1;
+            int childCount = 0;
+            java.math.BigDecimal childDiscountVal = java.math.BigDecimal.ZERO;
+            java.math.BigDecimal promoDiscountVal = java.math.BigDecimal.ZERO;
+            java.math.BigDecimal originalPriceVal = booking.getTotalPrice() != null ? booking.getTotalPrice() : java.math.BigDecimal.ZERO;
+            
+            // If notes exist and are structured, parse them
+            if (booking.getNotes() != null && booking.getNotes().contains(";")) {
+                java.util.Map<String, String> noteMap = new java.util.HashMap<>();
+                String[] pairs = booking.getNotes().split(";");
+                for (String pair : pairs) {
+                    String[] kv = pair.split("=");
+                    if (kv.length == 2) {
+                        noteMap.put(kv[0], kv[1]);
+                    }
+                }
+                try {
+                    if (noteMap.containsKey("adults")) adultCount = Integer.parseInt(noteMap.get("adults"));
+                    if (noteMap.containsKey("children")) childCount = Integer.parseInt(noteMap.get("children"));
+                    if (noteMap.containsKey("childDiscount")) childDiscountVal = new java.math.BigDecimal(noteMap.get("childDiscount"));
+                    if (noteMap.containsKey("promoDiscount")) promoDiscountVal = new java.math.BigDecimal(noteMap.get("promoDiscount"));
+                    if (noteMap.containsKey("originalPrice")) originalPriceVal = new java.math.BigDecimal(noteMap.get("originalPrice"));
+                    if (noteMap.containsKey("paymentMethod")) paymentMethod = noteMap.get("paymentMethod");
+                    if (noteMap.containsKey("paymentType")) paymentType = noteMap.get("paymentType");
+                } catch (Exception parseEx) {
+                    logger.warn("Lỗi phân tích notes metadata cho booking {}: {}", booking.getId(), parseEx.getMessage());
+                }
+            }
+
+            // Determine if the customer is checked in for room gán nợ
+            boolean isCheckedIn = false;
+            if ("post-room".equalsIgnoreCase(paymentMethod)) {
+                com.kawai.models.RoomBookingDetail detail = booking.getRoomBookingDetail();
+                if (detail != null && detail.getRoomBooking() != null) {
+                    String bookingStatus = detail.getRoomBooking().getBookingStatus();
+                    String roomNumber = detail.getRoom() != null ? detail.getRoom().getRoomNumber() : "";
+                    if ("Checked_In".equalsIgnoreCase(bookingStatus) && roomNumber != null && !roomNumber.toUpperCase().startsWith("VIRTUAL_")) {
+                        isCheckedIn = true;
+                    }
+                }
+            }
+
+            // Set up dynamic payment label & paymentAmount
+            String paymentLabel = "Số tiền thanh toán";
+            java.math.BigDecimal finalPrice = booking.getTotalPrice() != null ? booking.getTotalPrice() : java.math.BigDecimal.ZERO;
+            java.math.BigDecimal paymentAmountVal = finalPrice;
+            if ("deposit".equalsIgnoreCase(paymentType)) {
+                paymentLabel = "Số tiền đặt cọc (30%)";
+                paymentAmountVal = finalPrice.multiply(new java.math.BigDecimal("0.3")).setScale(0, java.math.RoundingMode.HALF_UP);
+            } else if ("full".equalsIgnoreCase(paymentType)) {
+                paymentLabel = "Tổng tiền thanh toán (100%)";
+                paymentAmountVal = finalPrice;
+            } else if ("room".equalsIgnoreCase(paymentType)) {
+                paymentLabel = "Số tiền gán nợ phòng";
+                paymentAmountVal = finalPrice;
+            }
+
+            String customerNotes = "";
+            if (booking.getNotes() != null && booking.getNotes().contains("customerNotes=")) {
+                int idx = booking.getNotes().indexOf("customerNotes=");
+                customerNotes = booking.getNotes().substring(idx + "customerNotes=".length()).trim();
+            }
+
             org.thymeleaf.context.Context ctx = new org.thymeleaf.context.Context(new java.util.Locale("vi", "VN"));
             ctx.setVariable("customerName", customer.getFullName());
             ctx.setVariable("bookingId", booking.getId());
@@ -70,19 +154,34 @@ public class EmailServiceImpl implements EmailService {
             ctx.setVariable("departureDate", departureDate);
             ctx.setVariable("departureTime", departureTime);
             ctx.setVariable("participantCount", booking.getParticipantCount());
-            ctx.setVariable("totalPrice", formatVnd(booking.getTotalPrice()));
             ctx.setVariable("bookingDate", java.time.LocalDate.now().format(DATE_FMT));
-            ctx.setVariable("postToRoom", postToRoom);
-            ctx.setVariable("roomDetail", roomDetail);
             ctx.setVariable("resortPhone", resortPhone);
             ctx.setVariable("resortWebsite", resortWebsite);
-            ctx.setVariable("bgUrl", "https://i.ibb.co/99JSj0SF/BREmail.png");
+
+            // Detailed invoice vars
+            ctx.setVariable("basePrice", formatVnd(booking.getSchedule() != null && booking.getSchedule().getTour() != null ? booking.getSchedule().getTour().getBasePrice() : java.math.BigDecimal.ZERO));
+            ctx.setVariable("adultCount", adultCount);
+            ctx.setVariable("childCount", childCount);
+            ctx.setVariable("childDiscount", formatVnd(childDiscountVal));
+            ctx.setVariable("childDiscountVal", childDiscountVal);
+            ctx.setVariable("promoDiscount", formatVnd(promoDiscountVal));
+            ctx.setVariable("promoDiscountVal", promoDiscountVal);
+            ctx.setVariable("totalPrice", formatVnd(finalPrice));
+
+            // Payment context
+            ctx.setVariable("paymentMethod", paymentMethod);
+            ctx.setVariable("paymentType", paymentType);
+            ctx.setVariable("isCheckedIn", isCheckedIn);
+            ctx.setVariable("roomDetail", roomDetail);
+            ctx.setVariable("paymentLabel", paymentLabel);
+            ctx.setVariable("paymentAmount", formatVnd(paymentAmountVal));
+            ctx.setVariable("customerNotes", customerNotes);
 
             String html = templateEngine.process("email/tour-booking-confirmation", ctx);
             sendEmail(customer.getEmail(), "Xác nhận đặt tour - " + tourName + " | Hòa Niên Retreat & Resort", html);
-            logger.info("Gửi email xác nhận đặt tour thành công → {} (booking #{})", customer.getEmail(), booking.getId());
+            logger.info("Gửi email xác nhận đặt tour thành công (Nâng cao) → {} (booking #{})", customer.getEmail(), booking.getId());
         } catch (Exception e) {
-            logger.error("Lỗi khi gửi email xác nhận đặt tour cho booking #{}: {}", booking.getId(), e.getMessage(), e);
+            logger.error("Lỗi khi gửi email xác nhận đặt tour nâng cao cho booking #{}: {}", booking.getId(), e.getMessage(), e);
         }
     }
 
