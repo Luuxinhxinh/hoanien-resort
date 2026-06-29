@@ -1,18 +1,108 @@
 
+
 function showToast(msg, type = 'error') {
-    if (typeof Toastify !== 'undefined') {
-        Toastify({
-            text: msg,
-            backgroundColor: type === 'error' ? '#ef4444' : (type === 'success' ? '#22c55e' : '#f59e0b'),
-            duration: 3500,
-            close: true,
-            gravity: 'top',
-            position: 'right'
-        }).showToast();
-    } else {
-        showToast(msg);
+    let container = document.getElementById('custom-toast-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'custom-toast-container';
+        
+        const style = document.createElement('style');
+        style.innerHTML = `
+            #custom-toast-container {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                z-index: 99999;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+            .custom-toast {
+                display: flex;
+                align-items: flex-start;
+                padding: 16px;
+                border-radius: 8px;
+                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+                border-left: 4px solid;
+                width: 320px;
+                transform: translateX(120%);
+                opacity: 0;
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                font-family: 'Inter', sans-serif;
+            }
+            .custom-toast.show {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            .custom-toast.error {
+                background-color: #fef2f2;
+                border-color: #ef4444;
+                color: #7f1d1d;
+            }
+            .custom-toast.success {
+                background-color: #f0fdf4;
+                border-color: #22c55e;
+                color: #14532d;
+            }
+            .custom-toast-icon {
+                font-size: 20px;
+                margin-right: 12px;
+                margin-top: 2px;
+            }
+            .custom-toast.error .custom-toast-icon {
+                color: #ef4444;
+            }
+            .custom-toast.success .custom-toast-icon {
+                color: #22c55e;
+            }
+            .custom-toast-content {
+                flex: 1;
+            }
+            .custom-toast-title {
+                font-weight: 700;
+                font-size: 13px;
+                text-transform: uppercase;
+                letter-spacing: 0.025em;
+                margin: 0 0 4px 0;
+            }
+            .custom-toast-message {
+                font-size: 12px;
+                opacity: 0.9;
+                margin: 0;
+                line-height: 1.4;
+            }
+        `;
+        document.head.appendChild(style);
+        document.body.appendChild(container);
     }
+    
+    const toast = document.createElement('div');
+    toast.className = `custom-toast ${type}`;
+    
+    const icon = type === 'error' ? 'fa-circle-exclamation' : 'fa-circle-check';
+    const title = type === 'error' ? 'LỖI' : 'THÀNH CÔNG';
+    
+    toast.innerHTML = `
+        <i class="fa-solid ${icon} custom-toast-icon"></i>
+        <div class="custom-toast-content">
+            <h4 class="custom-toast-title">${title}</h4>
+            <p class="custom-toast-message">${msg}</p>
+        </div>
+    `;
+    
+    container.appendChild(toast);
+    
+    // trigger animation
+    requestAnimationFrame(() => {
+        setTimeout(() => toast.classList.add('show'), 10);
+    });
+    
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+    }, 4000);
 }
+
 
 function updateAvailableRooms() {
     const typeSelect = document.getElementById('bookTypeSelect');
