@@ -283,6 +283,13 @@ function cancelCheckinModal() {
     }
 }
 
+function calculateAge(dobStr) {
+    if (!dobStr) return 0;
+    const dob = new Date(dobStr);
+    const diff = Date.now() - dob.getTime();
+    return Math.floor(diff / (1000 * 60 * 60 * 24 * 365.25));
+}
+
 let depIndexCounter = 0;
 
 function addDependent() {
@@ -295,6 +302,12 @@ function addDependent() {
         alert('Please fill Name and Date of Birth!');
         return;
     }
+    const age = calculateAge(dob);
+    if (age >= 14 && !id) {
+        alert('Người đi kèm từ 14 tuổi trở lên bắt buộc phải cung cấp CCCD/Passport!');
+        return;
+    }
+    
     if (!roomId) {
         alert('Please assign the guest to a room!');
         return;
@@ -366,6 +379,11 @@ function addDependent() {
     document.getElementById('depDob').value = '';
     document.getElementById('depRoom').value = '';
     document.getElementById('depIsPrimary').checked = false;
+    
+    const btnAddDependent = document.getElementById('btnAddDependent');
+    if (btnAddDependent) {
+        btnAddDependent.innerHTML = '<i class="fa-solid fa-plus"></i> Add';
+    }
 }
 
 function addDependentRow(name, cccd, dob, dependentId, assignedPhysicalRoomNumber, isPrimary = false) {
@@ -418,7 +436,7 @@ function addDependentRow(name, cccd, dob, dependentId, assignedPhysicalRoomNumbe
             <input type="hidden" name="dependents[${depIndexCounter}].gender" value="Other" />
         </td>
         <td style="padding: 12px 16px;">
-            <button type="button" class="btn btn-outline btn-sm" style="color: #6366f1; border-color: #c7d2fe; background: #eef2ff; padding: 6px 10px; margin-right: 6px; border-radius: 6px; transition: all 0.2s;" onmouseover="this.style.background='#e0e7ff'" onmouseout="this.style.background='#eef2ff'" title="FaceID" onclick="openEnrollModal('DEPENDENT', ${depIdArg})"><i class="fa-solid fa-camera"></i></button>
+            <button type="button" class="btn btn-outline btn-sm" style="color: #6366f1; border-color: #c7d2fe; background: #eef2ff; padding: 6px 10px; margin-right: 6px; border-radius: 6px; transition: all 0.2s;" onmouseover="this.style.background='#e0e7ff'" onmouseout="this.style.background='#eef2ff'" title="FaceID" onclick="openEnrollModal('DEPENDENT', ${depIdArg}, '${name}')"><i class="fa-solid fa-camera"></i></button>
             <button type="button" class="btn btn-outline btn-sm" style="color: #3b82f6; border-color: #bfdbfe; background: #eff6ff; padding: 6px 10px; margin-right: 6px; border-radius: 6px; transition: all 0.2s;" onmouseover="this.style.background='#dbeafe'" onmouseout="this.style.background='#eff6ff'" title="Edit" onclick="editDependentRow(this, '${name}', '${cccd}', '${dob}', ${depIdArg}, ${roomIdArg}, ${isPrimary})"><i class="fa-solid fa-pen"></i></button>
             <button type="button" class="btn btn-outline btn-sm" style="color: #ef4444; border-color: #fecaca; background: #fef2f2; padding: 6px 10px; border-radius: 6px; transition: all 0.2s;" onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='#fef2f2'" title="Delete" onclick="this.closest('tr').remove()"><i class="fa-solid fa-trash"></i></button>
         </td>
@@ -453,10 +471,14 @@ function editDependentRow(btn, name, cccd, dob, depId, roomId, isPrimary) {
         toggleDependentsList();
     }
 
-    // Thay vì xóa luôn, ta chỉ ẩn nó đi và đánh dấu
     const tr = btn.closest('tr');
     tr.classList.add('editing-row');
     tr.style.display = 'none';
+    
+    const btnAddDependent = document.getElementById('btnAddDependent');
+    if (btnAddDependent) {
+        btnAddDependent.innerHTML = '<i class="fa-solid fa-check"></i> Update';
+    }
 }
 
 function toggleDependentsList() {
@@ -477,6 +499,42 @@ if (_checkinForm) {
         if (assignedRooms.length === 0) {
             e.preventDefault();
             alert('Vui long phan it nhat 1 phong truoc khi hoan tat Check-in!');
+            return;
+        }
+
+        const mainPhone = document.getElementById('modalGuestPhone').value;
+        const mainCccd = document.getElementById('modalGuestCccd').value;
+        if (!mainPhone || !mainCccd) {
+            e.preventDefault();
+            alert('Khách đứng đầu (chủ đoàn) phải điền đầy đủ số điện thoại và CCCD!');
+            return;
+        }
+
+        let missingFaceName = null;
+        document.querySelectorAll('.faceid-mapping-id').forEach(input => {
+            const row = input.closest('tr');
+            if (row && row.style.display !== 'none') {
+                const targetId = input.getAttribute('data-target-id');
+                const dobInput = row.querySelector('input[name$=".dateOfBirth"]');
+                const nameInput = row.querySelector('input[name$=".fullName"]');
+                if (dobInput) {
+                    const age = calculateAge(dobInput.value);
+                    // Bắt buộc FaceID nếu đủ 14 tuổi, VÀ khách hàng mới hoặc phụ thuộc mới (có thể check targetId bắt đầu bằng NEW_)
+                    if (age >= 14) {
+                        // Nếu backend có check FaceID rồi thì không nói, ở đây force capture tại UI
+                        // Chỉ force nếu là NEW_ hoặc chưa có vector. 
+                        // Tạm thời nếu user muốn thì force hết. Hoặc nếu nó không nằm trong targetId (tức là targetId bắt đầu bằng NEW_)
+                        if (targetId && targetId.startsWith('NEW_') && !pendingFaceEnrollments[targetId]) {
+                            missingFaceName = nameInput ? nameInput.value : 'Người đi kèm';
+                        }
+                    }
+                }
+            }
+        });
+
+        if (missingFaceName) {
+            e.preventDefault();
+            alert(`Thành viên ${missingFaceName} từ 14 tuổi trở lên bắt buộc phải cập nhật khuôn mặt (FaceID mới) để hoàn tất đơn!`);
             return;
         }
 
@@ -730,7 +788,7 @@ async function loadFaceApiModels() {
     }
 }
 
-async function openEnrollModal(type, targetId) {
+async function openEnrollModal(type, targetId, targetName) {
     if (!targetId || targetId === "undefined" || targetId === "") {
         alert("Không xác định được ID Khách hàng! Hãy kiểm tra lại.");
         return;
@@ -754,7 +812,7 @@ async function openEnrollModal(type, targetId) {
     const overlay = document.getElementById('enrollOverlay');
     const captureBtn = document.getElementById('captureBtn');
     
-    document.getElementById('enrollTargetName').innerText = type === 'CUSTOMER' ? "Đang đăng ký cho Người Đặt Phòng..." : "Đang đăng ký cho Người Đi Kèm...";
+    document.getElementById('enrollTargetName').innerText = type === 'CUSTOMER' ? "Đang đăng ký cho Người Đặt Phòng..." : "Đang đăng ký cho " + (targetName || "Người Đi Kèm...");
     
     modal.style.display = 'flex';
     overlay.style.display = 'flex';
