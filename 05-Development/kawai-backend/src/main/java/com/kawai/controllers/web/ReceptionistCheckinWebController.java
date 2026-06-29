@@ -92,6 +92,32 @@ public class ReceptionistCheckinWebController {
                         customer.setCccdPassportEncrypted(form.getCccd().trim());
                     }
                 }
+                
+                // Save customer FaceID if provided in form
+                if (form.getFaceVectorData() != null && !form.getFaceVectorData().isEmpty()) {
+                    customer.setFaceVectorData(form.getFaceVectorData());
+                }
+                if (form.getFaceImageBase64() != null && !form.getFaceImageBase64().isEmpty()) {
+                    try {
+                        String[] parts = form.getFaceImageBase64().split(",");
+                        String imageString = parts.length > 1 ? parts[1] : parts[0];
+                        byte[] imageBytes = java.util.Base64.getDecoder().decode(imageString);
+                        
+                        String fileName = "cust_" + customer.getId() + "_" + System.currentTimeMillis() + ".jpg";
+                        java.nio.file.Path uploadPath = java.nio.file.Paths.get("src/main/resources/static/uploads/faces");
+                        if (!java.nio.file.Files.exists(uploadPath)) {
+                            java.nio.file.Files.createDirectories(uploadPath);
+                        }
+                        java.nio.file.Path filePath = uploadPath.resolve(fileName);
+                        java.nio.file.Files.write(filePath, imageBytes);
+                        String publicUrl = "/uploads/faces/" + fileName;
+                        
+                        customer.setFaceImgUrl(publicUrl);
+                    } catch (Exception e) {
+                        log.error("Failed to save FaceID image for customer {}", customer.getId(), e);
+                    }
+                }
+                
                 customerRepo.save(customer);
             }
 

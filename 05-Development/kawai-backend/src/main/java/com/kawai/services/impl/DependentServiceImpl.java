@@ -138,8 +138,35 @@ public class DependentServiceImpl implements DependentService {
         dependent.setBirthDate(dto.getDateOfBirth() != null ? dto.getDateOfBirth() : java.time.LocalDate.now().minusYears(18).withDayOfYear(1));
         dependent.setGender(dto.getGender() != null ? dto.getGender() : "Khác");
         dependent.setCccdPassportEncrypted(cccdEncrypted); // Lưu đã mã hoá, không phải plaintext
+        
+        if (dto.getFaceVectorData() != null && !dto.getFaceVectorData().isEmpty()) {
+            dependent.setFaceVectorData(dto.getFaceVectorData());
+        }
 
         Dependent saved = dependentRepository.save(dependent);
+        
+        // Handle image saving after dependent has an ID
+        if (dto.getFaceImageBase64() != null && !dto.getFaceImageBase64().isEmpty()) {
+            try {
+                String[] parts = dto.getFaceImageBase64().split(",");
+                String imageString = parts.length > 1 ? parts[1] : parts[0];
+                byte[] imageBytes = java.util.Base64.getDecoder().decode(imageString);
+                
+                String fileName = "dep_" + saved.getId() + "_" + System.currentTimeMillis() + ".jpg";
+                java.nio.file.Path uploadPath = java.nio.file.Paths.get("src/main/resources/static/uploads/faces");
+                if (!java.nio.file.Files.exists(uploadPath)) {
+                    java.nio.file.Files.createDirectories(uploadPath);
+                }
+                java.nio.file.Path filePath = uploadPath.resolve(fileName);
+                java.nio.file.Files.write(filePath, imageBytes);
+                String publicUrl = "/uploads/faces/" + fileName;
+                
+                saved.setFaceImgUrl(publicUrl);
+                saved = dependentRepository.save(saved);
+            } catch (Exception e) {
+                log.error("Failed to save FaceID image for dependent {}", saved.getId(), e);
+            }
+        }
 
         // 6.5. Nếu là Khách mới thêm tại lễ tân -> Liên kết vào RoomBookingDetail và
         // Tính phụ thu

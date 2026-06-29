@@ -372,7 +372,12 @@ function addDependentRow(name, cccd, dob, dependentId, assignedPhysicalRoomNumbe
     let hiddenRoomInput = assignedPhysicalRoomNumber ? `<input type="hidden" name="dependents[${depIndexCounter}].assignedPhysicalRoomNumber" value="${assignedPhysicalRoomNumber}" />` : '';
     let hiddenPrimaryInput = `<input type="hidden" name="dependents[${depIndexCounter}].isPrimaryContact" value="${isPrimary ? 'true' : 'false'}" />`;
 
-    let depIdArg = dependentId ? `'${dependentId}'` : 'null';
+    let effectiveDepId = dependentId || ('NEW_' + depIndexCounter);
+    let depIdArg = `'${effectiveDepId}'`;
+    
+    // Thêm div ẩn chứa ID mapping để submit form dễ tìm
+    let hiddenMapping = `<input type="hidden" class="faceid-mapping-id" data-target-id="${effectiveDepId}" data-index="${depIndexCounter}" />`;
+
     let roomIdArg = assignedPhysicalRoomNumber ? `'${assignedPhysicalRoomNumber}'` : 'null';
     let roleBadge = isPrimary ? `<span style="display:inline-block; margin-top: 4px; padding: 2px 8px; background: #fef3c7; color: #d97706; border-radius: 12px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;"><i class="fa-solid fa-star"></i> Đứng đầu</span>` : `<span style="font-size: 13px; color: #64748b; font-weight: 500;">Thành viên</span>`;
     let roomDisplay = assignedPhysicalRoomNumber ? `<span style="font-weight: 600; color: #0f766e; font-size: 13px;">Phòng ${assignedPhysicalRoomNumber}</span><br>` : '';
@@ -384,6 +389,7 @@ function addDependentRow(name, cccd, dob, dependentId, assignedPhysicalRoomNumbe
             ${hiddenIdInput}
             ${hiddenRoomInput}
             ${hiddenPrimaryInput}
+            ${hiddenMapping}
             <input type="hidden" name="dependents[${depIndexCounter}].fullName" value="${name}" />
         </td>
         <td style="padding: 12px 16px; font-size: 14px; color: #475569; font-weight: 500;">
@@ -512,27 +518,38 @@ if (_checkinForm) {
             submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang xử lý FaceID...';
         }
         
-        // Upload pending FaceIDs
+        // Inject pending FaceIDs into the form
         for (const key in pendingFaceEnrollments) {
             const data = pendingFaceEnrollments[key];
-            const payload = {
-                faceVectorData: data.vector,
-                faceImageBase64: data.image
-            };
             if (data.type === 'CUSTOMER') {
-                payload.bookingId = data.id;
+                const input1 = document.createElement('input');
+                input1.type = 'hidden';
+                input1.name = 'faceVectorData';
+                input1.value = data.vector;
+                _checkinForm.appendChild(input1);
+                
+                const input2 = document.createElement('input');
+                input2.type = 'hidden';
+                input2.name = 'faceImageBase64';
+                input2.value = data.image;
+                _checkinForm.appendChild(input2);
             } else {
-                payload.dependentId = data.id;
-            }
-            
-            try {
-                await fetch('/api/faceid/enroll', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-            } catch (err) {
-                console.error("Lỗi khi upload FaceID cho", key, err);
+                // Dependent
+                const mapping = _checkinForm.querySelector(`.faceid-mapping-id[data-target-id="${data.id}"]`);
+                if (mapping) {
+                    const idx = mapping.getAttribute('data-index');
+                    const input1 = document.createElement('input');
+                    input1.type = 'hidden';
+                    input1.name = `dependents[${idx}].faceVectorData`;
+                    input1.value = data.vector;
+                    _checkinForm.appendChild(input1);
+                    
+                    const input2 = document.createElement('input');
+                    input2.type = 'hidden';
+                    input2.name = `dependents[${idx}].faceImageBase64`;
+                    input2.value = data.image;
+                    _checkinForm.appendChild(input2);
+                }
             }
         }
         

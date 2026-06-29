@@ -17,6 +17,24 @@ public class DependentRegistrationDTO {
     private String contactInfo;
     private String assignedPhysicalRoomNumber;
     private Boolean isPrimaryContact = false;
+    private String faceVectorData;
+    private String faceImageBase64;
+
+    public String getFaceVectorData() {
+        return faceVectorData;
+    }
+
+    public void setFaceVectorData(String faceVectorData) {
+        this.faceVectorData = faceVectorData;
+    }
+
+    public String getFaceImageBase64() {
+        return faceImageBase64;
+    }
+
+    public void setFaceImageBase64(String faceImageBase64) {
+        this.faceImageBase64 = faceImageBase64;
+    }
 
     public Boolean getIsPrimaryContact() {
         return isPrimaryContact;

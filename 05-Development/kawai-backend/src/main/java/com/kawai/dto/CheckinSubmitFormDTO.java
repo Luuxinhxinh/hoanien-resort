@@ -25,6 +25,26 @@ public class CheckinSubmitFormDTO {
     private String tourAllocationMode;
     private List<TourRoomAllocationDTO> tourAllocations = new ArrayList<>();
 
+    // FaceID data for the main Customer
+    private String faceVectorData;
+    private String faceImageBase64;
+
+    public String getFaceVectorData() {
+        return faceVectorData;
+    }
+
+    public void setFaceVectorData(String faceVectorData) {
+        this.faceVectorData = faceVectorData;
+    }
+
+    public String getFaceImageBase64() {
+        return faceImageBase64;
+    }
+
+    public void setFaceImageBase64(String faceImageBase64) {
+        this.faceImageBase64 = faceImageBase64;
+    }
+
     public CheckinSubmitFormDTO() {
     }
 
