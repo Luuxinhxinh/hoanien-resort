@@ -1106,6 +1106,27 @@ function handleQrScan(val, target, inputEl) {
             dob = `${dobStr.substring(4, 8)}-${dobStr.substring(2, 4)}-${dobStr.substring(0, 2)}`;
         }
         
+        // GLOBAL DUPLICATE CHECK
+        const mainCccd = document.getElementById('modalGuestCccd').value.trim();
+        let isDuplicateDep = false;
+        document.querySelectorAll('input[name$=".cccd"]').forEach(inp => {
+            if (inp.value === id) isDuplicateDep = true;
+        });
+
+        // 1. If scanned ID belongs to Main Guest, block if target is not 'main' (prevent auto-assigning or dep-assigning the main guest)
+        if (mainCccd === id && target !== 'main') {
+            showToast(`Thẻ CCCD của ${name} đã được quét cho trưởng đoàn!`, 'warning');
+            if (inputEl) inputEl.value = '';
+            return;
+        }
+
+        // 2. If scanned ID belongs to a Dependent, block unconditionally
+        if (isDuplicateDep) {
+            showToast(`Thành viên ${name} đã có trong danh sách!`, 'warning');
+            if (inputEl) inputEl.value = '';
+            return;
+        }
+
         if (target === 'main') {
             document.getElementById('modalGuestName').value = name;
             document.getElementById('modalGuestCccd').value = id;
@@ -1118,29 +1139,14 @@ function handleQrScan(val, target, inputEl) {
             }
             showToast('Đã tự động điền thông tin thành viên từ QR!', 'success');
         } else if (target === 'auto-dep') {
-            // Check for duplicates
-            const mainCccd = document.getElementById('modalGuestCccd').value.trim();
-            if (mainCccd === id) {
-                showToast(`Thẻ CCCD của ${name} đã được quét cho trưởng đoàn!`, 'warning');
+            if (assignedRooms.length === 0) {
+                showToast('Vui lòng phân phòng trước khi quét tự động người đi kèm!', 'warning');
                 if (inputEl) inputEl.value = '';
                 return;
             }
-            
-            // Check if already in dependents
-            const depCccdInputs = document.querySelectorAll('input[name$=".cccd"]');
-            let isDuplicate = false;
-            depCccdInputs.forEach(inp => {
-                if (inp.value === id) isDuplicate = true;
-            });
-            
-            if (isDuplicate) {
-                showToast(`Thành viên ${name} đã có trong danh sách!`, 'warning');
-                if (inputEl) inputEl.value = '';
-                return;
-            }
-
-            addDependentRow(name, id, dob, null, '');
-            showToast(`Đã tự động thêm thành viên: ${name}`, 'success');
+            const autoRoom = assignedRooms[0].room;
+            addDependentRow(name, id, dob, null, autoRoom);
+            showToast(`Đã tự động thêm thành viên: ${name} vào phòng ${autoRoom}`, 'success');
         }
         
         if (inputEl) {
