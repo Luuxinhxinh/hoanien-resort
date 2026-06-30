@@ -257,7 +257,7 @@ INSERT INTO Room_Bookings (room_booking_id, check_in_date, check_out_date, depos
 (15, '2026-07-01', '2026-07-05', 1000000, '2026-06-25', 5000000, 'hash');
 
 -- ── 14. Room Booking Details (10 rows) ───────────────────────
-INSERT INTO Room_Booking_Details (detail_id, room_booking_id, category_id, room_id, room_charge, detail_status, bed_preference, special_requests, is_charge_to_room_allowed, sub_credit_limit, billing_routing_strategy) VALUES
+INSERT INTO Room_Booking_Details (detail_id, room_booking_id, category_id, room_id, room_charge, detail_status, bed_preference, special_requests, is_charge_to_room_allowed, sub_credit_limit, billing_routing_strategy, number_of_adults, number_of_children) VALUES
 (1, 1, 1, 1, 2500000, 'Checked_In', 'KING_SIZE', NULL, TRUE, 500000, 'BILL_TO_LEADER'),
 (2, 2, 2, 3, 3500000, 'Checked_In', 'KING_SIZE', NULL, TRUE, 1500000, 'BILL_TO_LEADER'),
 (3, 3, 3, 5, 8000000, 'Checked_In', 'KING_SIZE', NULL, TRUE, 2000000, 'BILL_TO_LEADER'),
@@ -916,7 +916,7 @@ INSERT INTO Bookings (booking_id, customer_id, booking_date, total_price, bookin
 INSERT INTO Room_Bookings (room_booking_id, check_in_date, check_out_date, deposit_amount, cancellation_deadline, credit_limit, personal_pin_hash) VALUES
 (991, '2025-06-10', '2025-06-15', 5000000, '2025-06-05', 10000000, 'hash');
 
-INSERT INTO Room_Booking_Details (detail_id, room_booking_id, category_id, room_id, room_charge, detail_status, bed_preference, special_requests, is_charge_to_room_allowed, sub_credit_limit, billing_routing_strategy) VALUES
+INSERT INTO Room_Booking_Details (detail_id, room_booking_id, category_id, room_id, room_charge, detail_status, bed_preference, special_requests, is_charge_to_room_allowed, sub_credit_limit, billing_routing_strategy, number_of_adults, number_of_children) VALUES
 (991, 991, 1, 1, 65000000, 'Checked_Out', 'KING_SIZE', NULL, TRUE, 500000, 'BILL_TO_LEADER');
 
 INSERT INTO Tour_Bookings (booking_id, schedule_id, participant_count, tour_charge, is_walk_in_tour) VALUES 
@@ -1034,3 +1034,26 @@ INSERT IGNORE INTO Food_Order_Details (detail_id, order_id, item_id, quantity, u
 INSERT IGNORE INTO Folio_Items (folio_item_id, booking_id, room_booking_detail_id, payer_customer_id, source_department, amount, description, is_settled_separately, created_by_staff_id, created_at) VALUES 
 (501, 501, 501, 501, 'LAUNDRY', 150000, 'Giặt ủi VIP', FALSE, 4, CURRENT_TIMESTAMP),
 (502, 501, 501, 501, 'FNB', 85000, 'Order Nhà hàng T06 (SERVED)', FALSE, 2, CURRENT_TIMESTAMP);
+
+
+-- ============================================================
+-- APPENDED NEW BOOKINGS FOR MULTIPLE ROOM TESTING
+-- ============================================================
+INSERT INTO Bookings (booking_id, customer_id, booking_date, total_price, booking_status, booking_source, applied_promotion_id, version) VALUES
+(101, 3, '2026-06-25', 15000000, 'Confirmed', 'Direct_Web', NULL, 1),
+(102, 4, '2026-06-26', 22000000, 'Confirmed', 'OTA', NULL, 1);
+
+INSERT INTO Room_Bookings (room_booking_id, check_in_date, check_out_date, deposit_amount, cancellation_deadline, credit_limit, personal_pin_hash) VALUES
+(101, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 2 DAY), 2000000, DATE_SUB(CURDATE(), INTERVAL 1 DAY), 10000000, 'hash101'),
+(102, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 3 DAY), 3000000, DATE_SUB(CURDATE(), INTERVAL 1 DAY), 15000000, 'hash102');
+
+INSERT INTO Room_Booking_Details (detail_id, room_booking_id, category_id, room_id, room_charge, detail_status, bed_preference, special_requests, is_charge_to_room_allowed, sub_credit_limit, billing_routing_strategy, number_of_adults, number_of_children) VALUES
+-- Booking 101: 2 rooms
+(1011, 101, 1, 2, 2500000, 'Pending', 'KING_SIZE', NULL, TRUE, 500000, 'BILL_TO_LEADER', 2, 0),
+(1012, 101, 2, 6, 3500000, 'Pending', 'TWIN_BED', NULL, TRUE, 1000000, 'BILL_TO_LEADER', 2, 2),
+-- Booking 102: 3 rooms
+(1021, 102, 1, 8, 2500000, 'Pending', 'KING_SIZE', NULL, TRUE, 500000, 'BILL_TO_LEADER', 1, 0),
+(1022, 102, 3, 11, 8000000, 'Pending', 'KING_SIZE', NULL, TRUE, 2000000, 'BILL_TO_LEADER', 3, 1),
+(1023, 102, 1, 13, 2500000, 'Pending', 'TWIN_BED', NULL, TRUE, 500000, 'BILL_TO_LEADER', 2, 1);
+
+UPDATE Room_Booking_Details SET number_of_adults = 2, number_of_children = 0 WHERE number_of_adults IS NULL;
