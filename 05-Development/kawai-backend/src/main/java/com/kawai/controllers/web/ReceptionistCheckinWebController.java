@@ -23,7 +23,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
  */
 @Controller
 @RequestMapping("/receptionist/checkin")
-@AllArgsConstructor
 @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER', 'OP_RECEPTION_CHECKIN')")
 public class ReceptionistCheckinWebController {
 
