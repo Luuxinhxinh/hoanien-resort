@@ -21,9 +21,23 @@ public class RemoteScanApiController {
     @GetMapping("/host-ip")
     public ResponseEntity<?> getHostIp() {
         try {
-            String ip = InetAddress.getLocalHost().getHostAddress();
-            return ResponseEntity.ok(Map.of("ip", ip));
-        } catch (UnknownHostException e) {
+            String fallbackIp = InetAddress.getLocalHost().getHostAddress();
+            java.util.Enumeration<java.net.NetworkInterface> interfaces = java.net.NetworkInterface.getNetworkInterfaces();
+            while (interfaces.hasMoreElements()) {
+                java.net.NetworkInterface iface = interfaces.nextElement();
+                if (iface.isLoopback() || !iface.isUp()) continue;
+                java.util.Enumeration<InetAddress> addresses = iface.getInetAddresses();
+                while (addresses.hasMoreElements()) {
+                    InetAddress addr = addresses.nextElement();
+                    if (addr instanceof java.net.Inet4Address && !addr.isLoopbackAddress()) {
+                        if (addr.getHostAddress().startsWith("192.168.")) {
+                            return ResponseEntity.ok(Map.of("ip", addr.getHostAddress()));
+                        }
+                    }
+                }
+            }
+            return ResponseEntity.ok(Map.of("ip", fallbackIp));
+        } catch (Exception e) {
             return ResponseEntity.ok(Map.of("ip", "localhost"));
         }
     }
