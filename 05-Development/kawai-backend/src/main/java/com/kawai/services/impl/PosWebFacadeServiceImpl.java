@@ -256,6 +256,22 @@ public class PosWebFacadeServiceImpl implements PosWebFacadeService {
     public Map<String, Object> getRoomServiceManagementData() {
         Map<String, Object> data = new HashMap<>();
         List<FoodOrder> rsOrders = foodOrderRepository.findRoomServiceOrders();
+
+        // Lọc dữ liệu: Bỏ qua các đơn có trạng thái đóng (Terminal States) nếu nó không thuộc về ngày hôm nay
+        java.time.LocalDate today = java.time.LocalDate.now();
+        rsOrders = rsOrders.stream().filter(order -> {
+            String status = order.getOrderStatus() != null ? order.getOrderStatus().toLowerCase() : "";
+            boolean isTerminal = status.equals("cancelled") || status.equals("refunded") || 
+                                 status.equals("served") || status.equals("completed") || status.equals("paid");
+            if (isTerminal) {
+                // Chỉ giữ lại đơn kết thúc trong ngày hôm nay
+                if (order.getOrderTime() != null && order.getOrderTime().toLocalDate().isEqual(today)) {
+                    return true;
+                }
+                return false;
+            }
+            return true; // Giữ lại tất cả các đơn đang chạy (Pending, Preparing, Ready, Delivering)
+        }).collect(java.util.stream.Collectors.toList());
         
         long totalOrders = 0;
         long pendingOrders = 0;
