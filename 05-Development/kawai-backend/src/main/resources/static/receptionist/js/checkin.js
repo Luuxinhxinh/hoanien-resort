@@ -156,6 +156,7 @@ function assignRoom() {
 }
 
 let checkinMasterCreditLimit = 5000000;
+let expectedTotalGuests = 0;
 
 function handleCheckinCreditInput(input, index) {
     let val = parseFloat(input.value) || 0;
@@ -288,8 +289,8 @@ function renderAssignedRooms() {
 }
 
 
-function openCheckinModal(bookingId, guestName, phone, cccd, roomSummary, depsDivId, toursDivId, creditLimit) {
-    console.log('[openCheckinModal] called:', { bookingId, guestName, phone, cccd, roomSummary, depsDivId, toursDivId, creditLimit });
+function openCheckinModal(bookingId, guestName, phone, cccd, roomSummary, depsDivId, toursDivId, creditLimit, expectedGuests) {
+    console.log('[openCheckinModal] called:', { bookingId, guestName, phone, cccd, roomSummary, depsDivId, toursDivId, creditLimit, expectedGuests });
     const modalEl = document.getElementById('checkinModal');
     if (!modalEl) {
         console.error('[openCheckinModal] CRITICAL: #checkinModal không tìm thấy trong DOM!');
@@ -304,6 +305,7 @@ function openCheckinModal(bookingId, guestName, phone, cccd, roomSummary, depsDi
     }
 
     checkinMasterCreditLimit = creditLimit ? parseFloat(creditLimit) : 5000000;
+    expectedTotalGuests = expectedGuests ? parseInt(expectedGuests) : 1;
     updateCheckinCreditLimitDisplay();
     // Gán bookingId vào form submit hidden input
     document.getElementById('submitBookingId').value = bookingId;
@@ -408,6 +410,18 @@ function addDependent() {
         showToast('Please fill Name and Date of Birth!');
         return;
     }
+
+    const btnAddDependent = document.getElementById('btnAddDependent');
+    const isUpdate = btnAddDependent && btnAddDependent.innerHTML.includes('Update');
+
+    if (!isUpdate) {
+        const actualDepCount = Array.from(document.querySelectorAll('#dependentsList tr')).filter(tr => tr.querySelector('input')).length;
+        if (actualDepCount >= (expectedTotalGuests - 1)) {
+            showToast('Số lượng người đi kèm đã đạt giới hạn của đơn đặt phòng!', 'warning');
+            return;
+        }
+    }
+
     const age = calculateAge(dob);
     if (age >= 14 && !id) {
         showToast('Người đi kèm từ 14 tuổi trở lên bắt buộc phải cung cấp CCCD/Passport!');
@@ -1139,6 +1153,12 @@ function handleQrScan(val, target, inputEl) {
             }
             showToast('Đã tự động điền thông tin thành viên từ QR!', 'success');
         } else if (target === 'auto-dep') {
+            const actualDepCount = Array.from(document.querySelectorAll('#dependentsList tr')).filter(tr => tr.querySelector('input')).length;
+            if (actualDepCount >= (expectedTotalGuests - 1)) {
+                showToast('Số lượng người đi kèm đã đạt giới hạn của đơn đặt phòng!', 'warning');
+                if (inputEl) inputEl.value = '';
+                return;
+            }
             if (assignedRooms.length === 0) {
                 showToast('Vui lòng phân phòng trước khi quét tự động người đi kèm!', 'warning');
                 if (inputEl) inputEl.value = '';

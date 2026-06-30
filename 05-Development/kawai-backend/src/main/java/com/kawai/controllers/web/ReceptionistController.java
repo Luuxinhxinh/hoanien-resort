@@ -256,6 +256,14 @@ public class ReceptionistController {
                         .collect(Collectors.joining(", "));
             }
             map.put("roomSummary", roomSummary);
+
+            int expectedGuests = details.stream().mapToInt(d -> {
+                int adults = d.getNumberOfAdults() != null ? d.getNumberOfAdults() : 0;
+                int children = d.getNumberOfChildren() != null ? d.getNumberOfChildren() : 0;
+                return adults + children;
+            }).sum();
+            map.put("expectedGuests", expectedGuests);
+
             map.put("activeDetails", details.stream()
                     .filter(d -> d.getRoom() != null && "CHECKED_IN".equalsIgnoreCase(d.getDetailStatus()))
                     .map(d -> {
