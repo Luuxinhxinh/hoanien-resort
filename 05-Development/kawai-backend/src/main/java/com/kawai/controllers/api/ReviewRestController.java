@@ -6,21 +6,20 @@ import com.kawai.services.interfaces.ReviewService;
 import org.springframework.security.core.Authentication;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
+import lombok.AllArgsConstructor;
 
 /**
  * REST Controller cho tính năng Đánh giá dịch vụ (UC22, UC23).
  */
 @RestController
 @RequestMapping("/api/v1/reviews")
+@AllArgsConstructor
+@PreAuthorize("isAuthenticated()")
 public class ReviewRestController {
 
     private final ReviewService reviewService;
     private final EmployeeRepository employeeRepository;
-
-    public ReviewRestController(ReviewService reviewService, EmployeeRepository employeeRepository) {
-        this.reviewService = reviewService;
-        this.employeeRepository = employeeRepository;
-    }
 
     /**
      * API Khách hàng gửi đánh giá Tour.

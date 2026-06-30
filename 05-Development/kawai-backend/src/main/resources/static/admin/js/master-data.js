@@ -548,6 +548,14 @@ function openEditModal(id) {
                 form.querySelectorAll('.perm-checkbox').forEach(cb => {
                     cb.checked = perms.includes(cb.value);
                 });
+                
+                // Fallback ensure DOM is updated
+                setTimeout(() => {
+                    document.querySelectorAll('.perm-checkbox').forEach(cb => {
+                        cb.checked = perms.includes(cb.value);
+                    });
+                }, 50);
+                
                 continue;
             }
 
