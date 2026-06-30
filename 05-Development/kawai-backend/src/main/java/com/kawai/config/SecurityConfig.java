@@ -72,6 +72,8 @@ public class SecurityConfig {
                                 "/auth/google-login", "/auth/forgot-password", "/auth/reset-password", "/auth/manual-logout",
                                 "/api/v1/auth/**",
                                 "/h2-console/**", "/css/**", "/js/**", "/guest/**", "/uploads/**", "/api/v1/upload",
+                                "/receptionist/css/**", "/receptionist/js/**", "/receptionist/images/**",
+                                "/admin/css/**", "/admin/js/**", "/admin/img/**", "/admin/images/**",
                                 "/living", "/wellbeing", "/dining",
                                 "/experiences", "/tours", "/tours/**", "/profile", "/order-food", "/AnhTour/**",
                                 "/fbStaff/**", "/f&bStaff/**", "/kitchenStaff/**", "/api/menu-items/**", "/api/rooms/**",
