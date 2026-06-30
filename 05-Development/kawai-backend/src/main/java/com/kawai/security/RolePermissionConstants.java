@@ -91,28 +91,36 @@ public class RolePermissionConstants {
             PROMOTIONS, WORKFLOW
         ));
 
-        // RECEPTIONIST — lễ tân, tập trung check-in/out và folio
+        // RECEPTIONIST — lễ tân, tập trung vào các giao diện nghiệp vụ cụ thể:
+        //   walk-in, check-in, folio/check-out, in-house, night-audit, housekeeping-ops
         m.put("receptionist", Arrays.asList(
-            DASHBOARD, BOOKING, HOUSEKEEPING, NIGHT_AUDIT, REVIEWS
+            DASHBOARD,
+            RECEPTION_WALKIN,
+            RECEPTION_CHECKIN,
+            RECEPTION_CHECKOUT,
+            RECEPTION_INHOUSE,
+            NIGHT_AUDIT,
+            HOUSEKEEPING
         ));
 
-        // F&B KITCHEN / FNB — thu ngân bếp, chỉ nhà hàng
+        // F&B POS STAFF — thu ngân nhà hàng: tạo order, quản lý bàn, room service
         m.put("f&b", Arrays.asList(
-            DASHBOARD, FNB
+            DASHBOARD, FNB_ORDER, FNB_TABLE, FNB_ROOM_SERVICE
         ));
         m.put("fnb", Arrays.asList(
-            DASHBOARD, FNB
+            DASHBOARD, FNB_ORDER, FNB_TABLE, FNB_ROOM_SERVICE
         ));
+        // F&B KITCHEN STAFF — chỉ xem và cập nhật order, không cần quản lý bàn
         m.put("kitchen", Arrays.asList(
-            DASHBOARD, FNB
+            DASHBOARD, FNB_ORDER
         ));
 
-        // HOUSEKEEPING — buồng phòng
+        // HOUSEKEEPING — chỉ xem & cập nhật trạng thái buồng phòng
         m.put("housekeeping", Arrays.asList(
             DASHBOARD, HOUSEKEEPING
         ));
 
-        // TOURGUIDE — hướng dẫn viên
+        // TOURGUIDE — xem lịch tour và danh sách khách
         m.put("tourguide", Arrays.asList(
             DASHBOARD, TOUR
         ));

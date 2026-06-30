@@ -83,13 +83,42 @@ public class SecurityConfig {
                         .permitAll()
 
                         .requestMatchers("/admin/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_MANAGER", "OP_MASTER_DATA", "OP_AUDIT_LOG", "OP_WORKFLOW")
-                        .requestMatchers("/manager/**").hasAnyAuthority("ROLE_MANAGER", "OP_DASHBOARD")
-                        .requestMatchers("/receptionist/**").hasAnyAuthority("ROLE_RECEPTIONIST", "ROLE_ADMIN", "ROLE_MANAGER", "OP_BOOKING", "OP_RECEPTION_CHECKIN", "OP_RECEPTION_CHECKOUT")
+                        .requestMatchers("/manager/**").hasAnyAuthority("ROLE_MANAGER", "ROLE_ADMIN")
+                        // Receptionist root & dashboard
+                        .requestMatchers("/receptionist/dashboard").hasAnyAuthority(
+                                "ROLE_ADMIN", "ROLE_MANAGER", "OP_DASHBOARD",
+                                "OP_RECEPTION_WALKIN", "OP_RECEPTION_CHECKIN", "OP_RECEPTION_CHECKOUT", "OP_RECEPTION_INHOUSE")
+                        // Walk-in
+                        .requestMatchers("/receptionist/walk-in", "/receptionist/walk-in/**").hasAnyAuthority(
+                                "ROLE_ADMIN", "ROLE_MANAGER", "OP_RECEPTION_WALKIN")
+                        // Check-in
+                        .requestMatchers("/receptionist/check-in", "/receptionist/check-in/**").hasAnyAuthority(
+                                "ROLE_ADMIN", "ROLE_MANAGER", "OP_RECEPTION_CHECKIN")
+                        // Folio / Check-out
+                        .requestMatchers("/receptionist/folio", "/receptionist/folio/**").hasAnyAuthority(
+                                "ROLE_ADMIN", "ROLE_MANAGER", "OP_RECEPTION_CHECKOUT")
+                        // In-house
+                        .requestMatchers("/receptionist/in-house", "/receptionist/in-house/**").hasAnyAuthority(
+                                "ROLE_ADMIN", "ROLE_MANAGER", "OP_RECEPTION_INHOUSE")
+                        // Night-audit
+                        .requestMatchers("/receptionist/night-audit", "/receptionist/night-audit/**").hasAnyAuthority(
+                                "ROLE_ADMIN", "ROLE_MANAGER", "OP_NIGHT_AUDIT")
+                        // Housekeeping ops (via receptionist portal)
+                        .requestMatchers("/receptionist/operations", "/receptionist/operations/**").hasAnyAuthority(
+                                "ROLE_ADMIN", "ROLE_MANAGER", "OP_HOUSEKEEPING")
+                        // Catch-all for any other /receptionist/** paths
+                        .requestMatchers("/receptionist/**").hasAnyAuthority(
+                                "ROLE_ADMIN", "ROLE_MANAGER",
+                                "OP_RECEPTION_WALKIN", "OP_RECEPTION_CHECKIN", "OP_RECEPTION_CHECKOUT", "OP_RECEPTION_INHOUSE")
                         .requestMatchers("/staff/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_STAFF")
                         .requestMatchers("/housekeeping/**").hasAnyAuthority("ROLE_HOUSEKEEPING", "ROLE_ADMIN", "OP_HOUSEKEEPING")
                         .requestMatchers("/maintenance/**").hasAnyAuthority("ROLE_MAINTENANCE", "ROLE_MAINTAINER", "ROLE_ADMIN", "OP_MAINTENANCE")
-                        .requestMatchers("/tourguide/**").hasAnyAuthority("ROLE_TOURGUIDE", "OP_TOUR")
-                        .requestMatchers("/fbStaff/**", "/f&bStaff/**", "/kitchenStaff/**").hasAnyAuthority("ROLE_FB_STAFF", "ROLE_ADMIN", "ROLE_MANAGER", "OP_FNB", "OP_FNB_ORDER", "OP_FNB_TABLE")
+                        .requestMatchers("/tourguide/**").hasAnyAuthority("ROLE_TOURGUIDE", "ROLE_ADMIN", "OP_TOUR")
+                        // F&B: sub-permissions govern each operation type
+                        .requestMatchers("/fbStaff/**", "/f&bStaff/**").hasAnyAuthority(
+                                "ROLE_FB_STAFF", "ROLE_ADMIN", "ROLE_MANAGER", "OP_FNB", "OP_FNB_ORDER", "OP_FNB_TABLE", "OP_FNB_ROOM_SERVICE")
+                        .requestMatchers("/kitchenStaff/**").hasAnyAuthority(
+                                "ROLE_FB_STAFF", "ROLE_ADMIN", "ROLE_MANAGER", "OP_FNB", "OP_FNB_ORDER")
                         .requestMatchers("/profile/**").authenticated()
                         .anyRequest().authenticated())
 
