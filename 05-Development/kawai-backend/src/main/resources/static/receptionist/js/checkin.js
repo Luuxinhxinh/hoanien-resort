@@ -646,6 +646,30 @@ function toggleDependentsList() {
 const _checkinForm = document.getElementById('checkinFormWrapper');
 if (_checkinForm) {
     _checkinForm.addEventListener('submit', async function (e) {
+        
+        let actualAdultCount = 1; // Main Guest
+        let actualChildCount = 0;
+        
+        document.querySelectorAll('#dependentsList tr').forEach(tr => {
+            if (tr.querySelector('input')) {
+                const trDob = tr.getAttribute('data-dob');
+                const trAge = calculateAge(trDob);
+                if (trAge >= 12) actualAdultCount++;
+                else actualChildCount++;
+            }
+        });
+
+        if (actualAdultCount > expectedTotalAdults) {
+            e.preventDefault();
+            showToast(`Không thể hoàn tất! Tổng số Người Lớn (${actualAdultCount}) vượt quá tiêu chuẩn (${expectedTotalAdults}). Vui lòng xóa bớt hoặc điều chỉnh hạng phòng.`, 'error');
+            return;
+        }
+        if (actualChildCount > expectedTotalChildren) {
+            e.preventDefault();
+            showToast(`Không thể hoàn tất! Tổng số Trẻ Em (${actualChildCount}) vượt quá tiêu chuẩn (${expectedTotalChildren}). Vui lòng xóa bớt hoặc điều chỉnh hạng phòng.`, 'error');
+            return;
+        }
+
         if (assignedRooms.length === 0) {
             e.preventDefault();
             showToast('Vui long phan it nhat 1 phong truoc khi hoan tat Check-in!');
