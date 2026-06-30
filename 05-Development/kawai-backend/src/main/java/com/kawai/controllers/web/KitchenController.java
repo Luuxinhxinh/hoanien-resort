@@ -10,13 +10,14 @@ import org.springframework.security.access.prepost.PreAuthorize;
 
 @Controller
 @RequestMapping("/kitchenStaff")
-@PreAuthorize("hasAnyAuthority('OP_FNB', 'ROLE_ADMIN', 'ROLE_MANAGER')")
+@PreAuthorize("hasAnyAuthority('OP_FNB', 'OP_FNB_ORDER', 'ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_FB_STAFF')")
 public class KitchenController {
 
     @Autowired
     private PosWebFacadeService posWebFacadeService;
 
     @GetMapping("/emenu")
+    @PreAuthorize("hasAnyAuthority('OP_FNB_ORDER', 'OP_FNB', 'ROLE_ADMIN', 'ROLE_MANAGER')")
     public String emenu(Model model) {
         model.addAttribute("menuItems", posWebFacadeService.getMappedMenuItems());
         return "kitchenStaff/e-menu";

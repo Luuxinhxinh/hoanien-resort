@@ -118,7 +118,7 @@ public class SecurityConfig {
                         .requestMatchers("/tourguide/**").hasAnyAuthority("ROLE_TOURGUIDE", "ROLE_ADMIN", "OP_TOUR")
                         // F&B: sub-permissions govern each operation type
                         .requestMatchers("/fbStaff/**", "/f&bStaff/**").hasAnyAuthority(
-                                "ROLE_FB_STAFF", "ROLE_ADMIN", "ROLE_MANAGER", "OP_FNB", "OP_FNB_ORDER", "OP_FNB_TABLE", "OP_FNB_ROOM_SERVICE")
+                                "ROLE_FB_STAFF", "ROLE_ADMIN", "ROLE_MANAGER", "OP_FNB", "OP_FNB_ORDER", "OP_FNB_TABLE", "OP_FNB_ROOM_SERVICE", "OP_FNB_REPORT")
                         .requestMatchers("/kitchenStaff/**").hasAnyAuthority(
                                 "ROLE_FB_STAFF", "ROLE_ADMIN", "ROLE_MANAGER", "OP_FNB", "OP_FNB_ORDER")
                         .requestMatchers("/profile/**").authenticated()

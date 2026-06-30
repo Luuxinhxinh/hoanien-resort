@@ -60,7 +60,7 @@
       <div class="nav-section-label">Tài chính</div>
 
 
-      <a href="/fbStaff/shift-report" th:href="@{/fbStaff/shift-report}" class="nav-item">
+      <a href="/fbStaff/shift-report" th:href="@{/fbStaff/shift-report}" class="nav-item" sec:authorize="hasAnyAuthority('OP_FNB_REPORT', 'OP_FNB', 'ROLE_ADMIN', 'ROLE_MANAGER')">
         <span class="material-symbols-outlined">bar_chart</span>
         <span>Báo cáo ngày</span>
       </a>
@@ -345,4 +345,5 @@
   </script>
 </body>
 </html>
+
 
