@@ -1058,3 +1058,22 @@ INSERT INTO Room_Booking_Details (detail_id, room_booking_id, category_id, room_
 
 UPDATE Room_Booking_Details SET number_of_adults = 2, number_of_children = 0 WHERE number_of_adults IS NULL;
 
+
+-- ============================================================
+-- APPENDED BOOKING 103: MULTIPLE ROOMS + PRE-REGISTERED GUESTS
+-- ============================================================
+INSERT INTO Bookings (booking_id, customer_id, booking_date, total_price, booking_status, booking_source, applied_promotion_id, version) VALUES
+(103, 1, '2026-06-27', 18000000, 'Confirmed', 'Direct_Web', NULL, 1);
+
+INSERT INTO Room_Bookings (room_booking_id, check_in_date, check_out_date, deposit_amount, cancellation_deadline, credit_limit, personal_pin_hash) VALUES
+(103, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 2 DAY), 2000000, DATE_SUB(CURDATE(), INTERVAL 1 DAY), 10000000, 'hash103');
+
+INSERT INTO Room_Booking_Details (detail_id, room_booking_id, category_id, room_id, room_charge, detail_status, bed_preference, special_requests, is_charge_to_room_allowed, sub_credit_limit, billing_routing_strategy, number_of_adults, number_of_children) VALUES
+(1031, 103, 8, 26, 4500000, 'Pending', 'KING_SIZE', 'G?n thang máy', TRUE, 1000000, 'BILL_TO_LEADER', 2, 1),
+(1032, 103, 8, 27, 4500000, 'Pending', 'TWIN_BED', 'G?n phòng 26', TRUE, 1000000, 'BILL_TO_LEADER', 2, 1);
+
+INSERT INTO Room_Guests (guest_id, detail_id, customer_id, dependent_id, guest_type, is_primary_contact) VALUES
+(10311, 1031, 1, NULL, 'ADULT', TRUE),
+(10312, 1031, 1, 1, 'CHILD', FALSE), -- Lê Hoàng Minh
+(10321, 1032, 1, 2, 'CHILD', FALSE); -- Lê Th? H?ng
+
