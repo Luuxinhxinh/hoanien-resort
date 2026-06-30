@@ -17,7 +17,6 @@ public class RolePermissionConstants {
     public static final String MASTER_DATA     = "MASTER_DATA";
     public static final String AUDIT_LOG       = "AUDIT_LOG";
     public static final String REVIEWS         = "REVIEWS";
-    public static final String BOOKING         = "BOOKING";
     public static final String FNB             = "FNB";
     public static final String HOUSEKEEPING    = "HOUSEKEEPING";
     public static final String MAINTENANCE     = "MAINTENANCE";
@@ -44,7 +43,6 @@ public class RolePermissionConstants {
     static {
         Map<String, String> m = new LinkedHashMap<>();
         m.put(DASHBOARD,    "Dashboard Tổng Quan");
-        m.put(BOOKING,      "Quản lý Đặt phòng");
         m.put(FNB,          "Quản lý F&B (Nhà hàng)");
         m.put(TOUR,         "Quản lý Tour");
         m.put(HOUSEKEEPING, "Buồng phòng (Housekeeping)");
@@ -79,14 +77,14 @@ public class RolePermissionConstants {
 
         // ADMIN — được hết
         m.put("admin", Arrays.asList(
-            DASHBOARD, MASTER_DATA, AUDIT_LOG, REVIEWS, BOOKING,
+            DASHBOARD, MASTER_DATA, AUDIT_LOG, REVIEWS, 
             FNB, HOUSEKEEPING, MAINTENANCE, WORKFLOW, CRM,
             PROMOTIONS, NIGHT_AUDIT, TOUR, ANALYTICS
         ));
 
         // MANAGER — gần giống Admin, không có phân quyền RBAC
         m.put("manager", Arrays.asList(
-            DASHBOARD, BOOKING, FNB, TOUR, HOUSEKEEPING,
+            DASHBOARD, FNB, TOUR, HOUSEKEEPING,
             MAINTENANCE, NIGHT_AUDIT, ANALYTICS, REVIEWS, CRM,
             PROMOTIONS, WORKFLOW
         ));
