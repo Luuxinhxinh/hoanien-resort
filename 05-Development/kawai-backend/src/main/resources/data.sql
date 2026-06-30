@@ -1074,7 +1074,8 @@ INSERT INTO Room_Booking_Details (detail_id, room_booking_id, category_id, room_
 
 INSERT INTO Room_Guests (guest_id, detail_id, customer_id, dependent_id, guest_type, is_primary_contact) VALUES
 (10311, 1031, 1, NULL, 'ADULT', TRUE),
-(10312, 1031, 1, 1, 'CHILD', FALSE), -- Lê Hoàng Minh
-(10321, 1032, 1, 2, 'CHILD', FALSE); -- Lê Th? H?ng
+(10312, 1031, NULL, 1, 'CHILD', FALSE), -- Lê Hoàng Minh
+(10321, 1032, NULL, 2, 'CHILD', FALSE); -- Lê Th? H?ng
+
 
 
