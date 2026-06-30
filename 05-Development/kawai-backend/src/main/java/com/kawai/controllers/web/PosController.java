@@ -19,7 +19,7 @@ public class PosController {
     private PosWebFacadeService posWebFacadeService;
 
     @GetMapping({"/dashboard", ""})
-    @PreAuthorize("hasAnyAuthority('OP_DASHBOARD', 'ROLE_ADMIN', 'ROLE_MANAGER')")
+    @PreAuthorize("hasAnyAuthority('OP_DASHBOARD', 'OP_FNB', 'OP_FNB_ORDER', 'OP_FNB_TABLE', 'OP_FNB_ROOM_SERVICE', 'OP_FNB_REPORT', 'ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_FB_STAFF')")
     public String dashboard(Model model) {
         model.addAllAttributes(posWebFacadeService.getDashboardData());
         return "f&bStaff/pos-dashboard";

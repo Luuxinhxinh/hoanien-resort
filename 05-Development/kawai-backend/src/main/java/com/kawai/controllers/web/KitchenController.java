@@ -24,7 +24,7 @@ public class KitchenController {
     }
 
     @GetMapping({"/kitchen", "/dashboard", ""})
-    @PreAuthorize("hasAnyAuthority('OP_DASHBOARD', 'ROLE_ADMIN', 'ROLE_MANAGER')")
+    @PreAuthorize("hasAnyAuthority('OP_DASHBOARD', 'OP_FNB', 'OP_FNB_ORDER', 'ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_FB_STAFF')")
     public String kitchenDashboard(Model model) {
         model.addAllAttributes(posWebFacadeService.getKitchenData());
         return "kitchenStaff/kitchen-dashboard";
