@@ -15,7 +15,7 @@
 | **Reviewed by**    | `Chu Xuân Dũng`                                                                   |
 | **DPO Sign-off**   | `[x] Approved – 2026-06-12 – Nguyễn Xuân Lưu` *(bắt buộc với module PII)* |
 | **Approved by**    | `Chu Xuân Dũng`                                                                   |
-| **Last Review**    | 2026-06-12*(stale nếu > 2 sprints không cập nhật)*                              |
+| **Last Review**    | 2026-06-12*(stale nếu > 2 sprints không cập nhật)*                                |
 | **Based on EDS**   | v2.0                                                                                  |
 
 ---
@@ -25,9 +25,10 @@
 > [!IMPORTANT]
 > **Policy 4.4 — Immutable History:** Không bao giờ xóa thông tin cũ. Mọi thay đổi phải ghi vào bảng này.
 
-| Ngày      | Người thực hiện | Nội dung thay đổi                                                                            |
-| ---------- | ------------------- | ----------------------------------------------------------------------------------------------- |
-| 2026-06-12 | Nguyễn Xuân Lưu  | Tạo tài liệu lần đầu và hoàn thiện đặc tả chi tiết 17 section theo chuẩn EDS v2.0 |
+| Ngày      | Người thực hiện | Nội dung thay đổi                                                                                                                                                        |
+| ---------- | ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2026-06-30 | Chu Xuân Dũng     | Bổ sung đặc tả API UC16 (POST`/api/bookings/{id}/dependents`, GET `/api/bookings/{id}/dependents`), Error Codes MOD2-015~021 và Authorization Matrix tương ứng. |
+| 2026-06-12 | Nguyễn Xuân Lưu  | Tạo tài liệu lần đầu và hoàn thiện đặc tả chi tiết 17 section theo chuẩn EDS v2.0                                                                             |
 
 ---
 
@@ -425,9 +426,9 @@ Liệt kê tất cả domain events mà module này phát ra (publish) và tiêu
 
 #### 7.2. Events Consumed (Tiêu thụ)
 
-| Event Name         | Source            | Handler                | Action thực hiện                                                 |
-| ------------------ | ----------------- | ---------------------- | ------------------------------------------------------------------ |
-| `PaymentSuccess` | `FinanceModule` | `BookingServiceImpl` | Cập nhật Booking sang `CONFIRMED` và kích hoạt Folio phòng |
+| Event Name         | Source            | Handler                | Action thực hiện                                                |
+| ------------------ | ----------------- | ---------------------- | ----------------------------------------------------------------- |
+| `PaymentSuccess` | `FinanceModule` | `BookingServiceImpl` | Cập nhật Booking sang`CONFIRMED` và kích hoạt Folio phòng |
 
 #### 7.3. Payload Schema
 
@@ -487,13 +488,118 @@ public interface RoomBookingRepository extends JpaRepository<RoomBooking, Long> 
     /**
      * Đếm số lượ### 10. Bảng mã lỗi (Error Codes)
 
-| Code         | HTTP Status | Message (EN)             | Message (VI)              | Trigger Condition  |
-| ------------ | ----------- | ------------------------ | ------------------------- | ------------------ |
-| `MOD2-001` | 400         | Validation failed        | Dữ liệu không hợp lệ      | Thiếu thông tin bắt buộc hoặc ngày nhận > ngày trả |
-| `MOD2-002` | 409         | Resource conflict        | Phòng đã bị đặt           | Phòng đã được đặt trước đó trong cùng khoảng thời gian |
-| `MOD2-003` | 404         | Resource not found       | Không tìm thấy thông tin  | ID đặt phòng hoặc mã phòng không tồn tại trong hệ thống |
-| `MOD2-004` | 403         | Insufficient permissions | Không có quyền truy cập   | Khách hàng cố gắng hủy đơn đặt phòng của người khác |
-| `MOD2-005` | 500         | Internal error           | Lỗi hệ thống phòng        | Lỗi kết nối cơ sở dữ liệu hoặc lỗi xử lý transaction |
+| Code         | HTTP Status | Message (EN)                          | Message (VI)                             | Trigger Condition  |
+| ------------ | ----------- | ------------------------------------- | ---------------------------------------- | ------------------ |
+| `MOD2-001` | 400         | Validation failed                     | Dữ liệu không hợp lệ                       | Thiếu thông tin bắt buộc hoặc ngày nhận > ngày trả |
+| `MOD2-002` | 409         | Resource conflict                     | Phòng đã bị đặt                          | Phòng đã được đặt trước đó trong cùng khoảng thời gian |
+| `MOD2-003` | 404         | Resource not found                    | Không tìm thấy thông tin                | ID đặt phòng hoặc mã phòng không tồn tại trong hệ thống |
+| `MOD2-004` | 403         | Insufficient permissions              | Không có quyền truy cập                 | Khách hàng cố gắng hủy đơn đặt phòng của người khác |
+| `MOD2-005` | 500         | Internal error                        | Lỗi hệ thống phòng                       | Lỗi kết nối cơ sở dữ liệu hoặc lỗi xử lý transaction |
+| `MOD2-015` | 400         | Reservation is not active             | Đặt phòng không còn hiệu lực           | UC16: Booking status không phải `Confirmed` hoặc `Checked_In` |
+| `MOD2-016` | 409         | Guest already registered              | Khách đã đăng ký trước                   | UC16: CCCD trùng lặp trong cùng booking (ADR-002) |
+| `MOD2-017` | 422         | Invalid identification document       | CCCD/Hộ chiếu không hợp lệ             | UC16: CCCD null, trống, hoặc không đúng định dạng 12 số |
+| `MOD2-018` | 404         | Dependent not found                   | Không tìm thấy khách đi kèm              | UC16 UPDATE: dependentId không tồn tại |
+| `MOD2-019` | 404         | RoomBookingDetail not found           | Không tìm thấy chi tiết phòng             | UC16: roomBookingDetailId không tồn tại |
+| `MOD2-020` | 409         | Exceeds max adult capacity            | Vượt quá số người lớn tối đa             | UC16: currentAdults > maxAdults |
+| `MOD2-021` | 409         | Exceeds max children capacity         | Vượt quá số trẻ em tối đa               | UC16: currentChildren > maxChildren |
+
+---
+
+### 9-UC16. API Specification — UC16: Register Accompanying Guests
+
+> [!IMPORTANT]
+> **PII Compliance (Nghị định 13/2023/NĐ-CP):** Field `cccd` phải được mã hoá AES-256 trước khi lưu vào DB.
+> **Authorization:** Chỉ `RECEPTIONIST` và `ADMIN` được phép gọi endpoint này.
+
+#### API-UC16-01 — Đăng ký khách đi kèm mới
+
+| Field           | Value                                                      |
+| --------------- | ---------------------------------------------------------- |
+| **Method**      | `POST`                                                     |
+| **Path**        | `/api/bookings/{bookingId}/dependents`                     |
+| **Auth**        | `Bearer JWT` — Role: `RECEPTIONIST`, `ADMIN`              |
+| **Content-Type**| `application/json`                                         |
+| **TDD Ref**     | TC-UC16-001, TC-UC16-005                                   |
+
+**Request Body (JSON):**
+
+```json
+{
+  "fullName": "Nguyen Van B",
+  "dateOfBirth": "1995-08-20",
+  "cccd": "034095012345",
+  "gender": "Nam",
+  "contactInfo": "0901234567",
+  "roomBookingDetailId": 42,
+  "isPrimaryContact": false,
+  "faceVectorData": null,
+  "faceImageBase64": null
+}
+```
+
+**Response 201 Created:**
+
+```json
+{
+  "dependentId": 7,
+  "fullName": "Nguyen Van B",
+  "dateOfBirth": "1995-08-20",
+  "status": "REGISTERED",
+  "isPrimaryContact": false,
+  "assignedRoom": null
+}
+```
+
+**Error Responses:**
+
+| HTTP | Error Code   | Trigger                                                             |
+| ---- | ------------ | ------------------------------------------------------------------- |
+| 422  | `MOD2-017` | CCCD null, rỗng, hoặc không đúng định dạng 12 số           |
+| 404  | `MOD2-003` | `bookingId` không tồn tại trong DB                             |
+| 400  | `MOD2-015` | Booking status không phải`Confirmed` hoặc `Checked_In`       |
+| 409  | `MOD2-016` | CCCD trùng lặp với dependent đã tồn tại trong cùng booking  |
+| 409  | `MOD2-020` | Vượt số người lớn tối đa của loại phòng                  |
+| 409  | `MOD2-021` | Vượt số trẻ em tối đa của loại phòng                       |
+| 401  | `AUTH-001` | Không có JWT hoặc JWT đã hết hạn                             |
+| 403  | `MOD2-004` | Role không có quyền (ví dụ: USER cố gắng gọi endpoint này) |
+
+#### API-UC16-02 — Lấy danh sách khách đi kèm theo Booking
+
+| Field             | Value                                               |
+| ----------------- | --------------------------------------------------- |
+| **Method**  | `GET`                                             |
+| **Path**    | `/api/bookings/{bookingId}/dependents`            |
+| **Auth**    | `Bearer JWT` — Role: `RECEPTIONIST`, `ADMIN` |
+| **TDD Ref** | TC-UC16-005 (getGuestListByBooking)                 |
+
+**Response 200 OK:**
+
+```json
+[
+  {
+    "dependentId": 7,
+    "fullName": "Nguyen Van B",
+    "dateOfBirth": "1995-08-20",
+    "status": "REGISTERED",
+    "isPrimaryContact": false,
+    "assignedRoom": "101"
+  }
+]
+```
+
+**Error Responses:**
+
+| HTTP | Error Code   | Trigger                        |
+| ---- | ------------ | ------------------------------ |
+| 404  | `MOD2-003` | `bookingId` không tồn tại |
+| 401  | `AUTH-001` | Không có JWT                 |
+
+#### Authorization Matrix nội bộ — UC16 Dependent API
+
+| Endpoint                               | GUEST | USER | ADMIN | RECEPTIONIST | HOUSEKEEPING |
+| -------------------------------------- | :---: | :--: | :---: | :----------: | :----------: |
+| `POST /api/bookings/{id}/dependents` |  ❌  |  ❌  | ✔️ |     ✔️     |      ❌      |
+| `GET /api/bookings/{id}/dependents`  |  ❌  |  ❌  | ✔️ |     ✔️     |      ❌      |
 
 ---
 
@@ -501,17 +607,17 @@ public interface RoomBookingRepository extends JpaRepository<RoomBooking, Long> 
 
 #### 11.1. Prerequisites
 
-- [x] ADR đã được Accepted (xem §3)
-- [x] DPO đã sign-off nếu module xử lý PII (xem header)
-- [x] Blueprint đã được Principal Architect approve
-- [x] Môi trường staging đã sẵn sàng
+- [X] ADR đã được Accepted (xem §3)
+- [X] DPO đã sign-off nếu module xử lý PII (xem header)
+- [X] Blueprint đã được Principal Architect approve
+- [X] Môi trường staging đã sẵn sàng
 
 #### 11.2. Pre-Migration Checklist *(bắt buộc tick trước khi chạy migration)*
 
-- [x] Đã backup DB production: `mysqldump -u [user] -p [db] > backup_booking_YYYYMMDD.sql`
-- [x] Migration đã chạy thành công trên staging >= 24 giờ
-- [x] Rollback script đã được test trên staging (xem §12)
-- [x] DPO đã sign-off nếu migration thay đổi cấu trúc lưu PII
+- [X] Đã backup DB production: `mysqldump -u [user] -p [db] > backup_booking_YYYYMMDD.sql`
+- [X] Migration đã chạy thành công trên staging >= 24 giờ
+- [X] Rollback script đã được test trên staging (xem §12)
+- [X] DPO đã sign-off nếu migration thay đổi cấu trúc lưu PII
 
 #### 11.3. Implementation Steps
 
@@ -584,10 +690,10 @@ curl -X GET http://localhost:8080/api/bookings
 
 #### 12.3. Notification Protocol
 
-| Thời điểm                   | Người nhận | Kênh               | Template                                                                        |
-| ------------------------------ | ------------- | ------------------- | ------------------------------------------------------------------------------- |
-| **Ngay khi phát hiện** | On-call team  | Slack `#incident` | `"🚨 [BOOKING-SERVICE] incident detected: Overbooking detected on room R102"` |
-| **Trong 30 phút**       | DPO           | Email               | Bắt buộc gửi báo cáo nếu thông tin cá nhân khách hàng bị rò rỉ    |
+| Thời điểm                   | Người nhận | Kênh              | Template                                                                        |
+| ------------------------------ | ------------- | ------------------ | ------------------------------------------------------------------------------- |
+| **Ngay khi phát hiện** | On-call team  | Slack`#incident` | `"🚨 [BOOKING-SERVICE] incident detected: Overbooking detected on room R102"` |
+| **Trong 30 phút**       | DPO           | Email              | Bắt buộc gửi báo cáo nếu thông tin cá nhân khách hàng bị rò rỉ    |
 
 ---
 
@@ -751,12 +857,12 @@ curl -X GET https://api.kawairesort.com/api/bookings
 > [!NOTE]
 > **Nguyên tắc Least Privilege:** Mỗi Role chỉ có quyền tối thiểu cần thiết để thực hiện nhiệm vụ của mình.
 
-| Endpoint                     | GUEST | USER | ADMIN | RECEPTIONIST | HOUSEKEEPING |
-| ---------------------------- | :---: | :--: | :---: | :----------: | :----------: |
-| GET `/api/bookings`        |  ❌  | Own |  All  |     All     |      ❌      |
-| POST `/api/bookings`       |  ❌  | ✔️ | ✔️ |     ✔️     |      ❌      |
-| DELETE `/api/bookings/:id` |  ❌  | Own |  All  |     All     |      ❌      |
-| PATCH `/api/rooms/status`  |  ❌  |  ❌  |  All  |     All     |     ✔️     |
+| Endpoint                    | GUEST | USER | ADMIN | RECEPTIONIST | HOUSEKEEPING |
+| --------------------------- | :---: | :--: | :---: | :----------: | :----------: |
+| GET`/api/bookings`        |  ❌  | Own |  All  |     All     |      ❌      |
+| POST`/api/bookings`       |  ❌  | ✔️ | ✔️ |     ✔️     |      ❌      |
+| DELETE`/api/bookings/:id` |  ❌  | Own |  All  |     All     |      ❌      |
+| PATCH`/api/rooms/status`  |  ❌  |  ❌  |  All  |     All     |     ✔️     |
 
 **Chú thích:**
 

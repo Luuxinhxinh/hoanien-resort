@@ -67,6 +67,7 @@
         }
     </style>
     <link rel="stylesheet" th:href="@{/f&amp;bStaff/css/refund-modal.css}" />
+    <link rel="stylesheet" th:href="@{/guest/css/booking-cancel-modal.css}" />
 </head>
 
 <body class="bg-hoanien-bg text-hoanien-text antialiased flex flex-col min-h-screen">
@@ -433,13 +434,14 @@
                                         href="#dependents"
                                         onclick="document.querySelector('.tab-link[data-target=\'tab-dependents\']').click()"
                                         class="text-hoanien-text underline font-bold hover:text-blue-600 transition-colors">Người
-                                        đi cùng</a> (ở menu tab phía trên).</li>
+                                        đi cùng</a> (không bắt buộc).</li>
                                 <li><b>Khai báo khách:</b> Ở danh sách bên dưới, tìm các đơn đang có trạng thái <i>Chờ
                                         Check-in</i> và bấm nút <b>Khai báo khách</b>. Trong cửa sổ mở ra, chọn tên
                                     người thân từ danh sách thả xuống.</li>
                                 <li><b>Thủ tục trực tiếp (Khi đến nhận phòng):</b> Vui lòng chuẩn bị sẵn và mang theo
                                     <b>CMND/CCCD/Hộ chiếu bản gốc</b> của tất cả khách lưu trú để Lễ tân đối chiếu và
-                                    nhận thẻ phòng nhanh chóng.</li>
+                                    nhận thẻ phòng nhanh chóng.
+                                </li>
                             </ol>
                         </div>
 
@@ -999,13 +1001,15 @@
                     <div>
                         <p
                             class="flex items-center gap-2 uppercase tracking-widest text-[10px] opacity-60 font-semibold mb-2">
-                            <span class="material-symbols-outlined text-[16px]">event</span> Khởi hành</p>
+                            <span class="material-symbols-outlined text-[16px]">event</span> Khởi hành
+                        </p>
                         <p id="detailTourDeparture" class="font-medium text-base"></p>
                     </div>
                     <div>
                         <p
                             class="flex items-center gap-2 uppercase tracking-widest text-[10px] opacity-60 font-semibold mb-2">
-                            <span class="material-symbols-outlined text-[16px]">group</span> Số lượng</p>
+                            <span class="material-symbols-outlined text-[16px]">group</span> Số lượng
+                        </p>
                         <p id="detailTourGuests" class="font-medium text-base"></p>
                     </div>
                 </div>
@@ -1013,7 +1017,8 @@
                 <div>
                     <p
                         class="flex items-center gap-2 uppercase tracking-widest text-[10px] opacity-60 font-semibold mb-2">
-                        <span class="material-symbols-outlined text-[16px]">info</span> Thông tin Tour</p>
+                        <span class="material-symbols-outlined text-[16px]">info</span> Thông tin Tour
+                    </p>
                     <p id="detailTourDescription"
                         class="opacity-80 leading-relaxed bg-white/40 p-4 rounded-xl border border-hoanien-text/5"></p>
                 </div>
@@ -1524,22 +1529,7 @@
         // --- END PRE-CHECKIN LOGIC ---
 
         function cancelBooking(bookingId) {
-            if (!confirm(`Bạn có chắc chắn muốn hủy đơn đặt phòng #HN${bookingId}? Hành động này không thể hoàn tác.`)) return;
-
-            fetch(`/api/bookings/${bookingId}/cancel`, { method: 'POST' })
-                .then(res => res.json().then(data => ({ status: res.status, body: data })))
-                .then(resObj => {
-                    if (resObj.status !== 200) {
-                        alert(`Không thể hủy đơn: ${resObj.body.message || 'Lỗi hệ thống'}`);
-                    } else {
-                        alert(resObj.body.message || 'Hủy phòng thành công!');
-                        location.reload();
-                    }
-                })
-                .catch(e => {
-                    console.error(e);
-                    alert("Đã xảy ra lỗi hệ thống khi hủy đơn.");
-                });
+            openBkCancelModal(bookingId);
         }
 
         function viewTourBookingDetails(bookingId) {
@@ -1751,6 +1741,8 @@
     <div th:replace="~{guest/fragments/auth :: authModal}"></div>
     <div th:replace="~{f&amp;bStaff/refund-modal :: #refundModal}"></div>
     <script th:src="@{/f&amp;bStaff/js/refund-modal.js}"></script>
+    <div th:replace="~{guest/fragments/booking-cancel-modal}"></div>
+    <script th:src="@{/guest/js/booking-cancel-modal.js}"></script>
 </body>
 
 </html>

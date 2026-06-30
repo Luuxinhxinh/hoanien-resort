@@ -287,10 +287,7 @@ public class ReceptionistController {
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", totalPages);
         model.addAttribute("keyword", keyword);
-        model.addAttribute("vacantRooms", roomRepository.findVacant().stream()
-                .filter(r -> "Vacant_Clean".equalsIgnoreCase(r.getRoomStatus())
-                        || "Available".equalsIgnoreCase(r.getRoomStatus()))
-                .collect(Collectors.toList()));
+        model.addAttribute("vacantRooms", roomRepository.findVacant());
         if (dateFilter != null) {
             model.addAttribute("dateFilter", dateFilter.toString());
         }
@@ -368,7 +365,7 @@ public class ReceptionistController {
                     } else {
                         continue;
                     }
-                    
+
                     String cccd = "";
                     if (cccdEnc != null && !cccdEnc.isBlank()) {
                         try {
@@ -422,7 +419,6 @@ public class ReceptionistController {
             return org.springframework.http.ResponseEntity.status(500).body(error);
         }
     }
-
 
     @GetMapping("/in-house")
     public String inHouse(@org.springframework.web.bind.annotation.RequestParam(defaultValue = "1") int page,
@@ -499,7 +495,7 @@ public class ReceptionistController {
 
             // Add missing fields for the new UI
             map.put("phone", b.getCustomer() != null ? b.getCustomer().getPhone() : "");
-            
+
             // Generate room summary
             Map<String, Long> categoryCount = details.stream()
                     .filter(d -> d.getCategory() != null)
@@ -507,7 +503,8 @@ public class ReceptionistController {
             String roomSummary = categoryCount.entrySet().stream()
                     .map(entry -> entry.getValue() + "x " + entry.getKey())
                     .collect(Collectors.joining(", "));
-            if (roomSummary.isEmpty()) roomSummary = "N/A";
+            if (roomSummary.isEmpty())
+                roomSummary = "N/A";
             map.put("roomSummary", roomSummary);
 
             // Active details for room transfer
@@ -521,7 +518,7 @@ public class ReceptionistController {
                         return detailMap;
                     })
                     .collect(Collectors.toList()));
-            
+
             map.put("dependents", deps);
 
             pagedInHouse.add(map);
@@ -646,7 +643,6 @@ public class ReceptionistController {
         }
         return "redirect:/receptionist/operations";
     }
-
 
     @org.springframework.web.bind.annotation.PostMapping("/check-in/cancel-no-show/{id}")
     public String cancelNoShow(@org.springframework.web.bind.annotation.PathVariable Long id,
