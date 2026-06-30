@@ -1049,11 +1049,12 @@ INSERT INTO Room_Bookings (room_booking_id, check_in_date, check_out_date, depos
 
 INSERT INTO Room_Booking_Details (detail_id, room_booking_id, category_id, room_id, room_charge, detail_status, bed_preference, special_requests, is_charge_to_room_allowed, sub_credit_limit, billing_routing_strategy, number_of_adults, number_of_children) VALUES
 -- Booking 101: 2 rooms
-(1011, 101, 1, 2, 2500000, 'Pending', 'KING_SIZE', NULL, TRUE, 500000, 'BILL_TO_LEADER', 2, 0),
-(1012, 101, 2, 6, 3500000, 'Pending', 'TWIN_BED', NULL, TRUE, 1000000, 'BILL_TO_LEADER', 2, 2),
+(1011, 101, 7, 21, 2500000, 'Pending', 'KING_SIZE', NULL, TRUE, 500000, 'BILL_TO_LEADER', 2, 0),
+(1012, 101, 7, 22, 3500000, 'Pending', 'TWIN_BED', NULL, TRUE, 1000000, 'BILL_TO_LEADER', 2, 2),
 -- Booking 102: 3 rooms
-(1021, 102, 1, 8, 2500000, 'Pending', 'KING_SIZE', NULL, TRUE, 500000, 'BILL_TO_LEADER', 1, 0),
-(1022, 102, 3, 11, 8000000, 'Pending', 'KING_SIZE', NULL, TRUE, 2000000, 'BILL_TO_LEADER', 3, 1),
-(1023, 102, 1, 13, 2500000, 'Pending', 'TWIN_BED', NULL, TRUE, 500000, 'BILL_TO_LEADER', 2, 1);
+(1021, 102, 7, 23, 2500000, 'Pending', 'KING_SIZE', NULL, TRUE, 500000, 'BILL_TO_LEADER', 1, 0),
+(1022, 102, 7, 24, 8000000, 'Pending', 'KING_SIZE', NULL, TRUE, 2000000, 'BILL_TO_LEADER', 3, 1),
+(1023, 102, 7, 25, 2500000, 'Pending', 'TWIN_BED', NULL, TRUE, 500000, 'BILL_TO_LEADER', 2, 1);
 
 UPDATE Room_Booking_Details SET number_of_adults = 2, number_of_children = 0 WHERE number_of_adults IS NULL;
+

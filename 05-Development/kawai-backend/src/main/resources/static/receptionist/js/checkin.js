@@ -310,6 +310,13 @@ function openCheckinModal(bookingId, guestName, phone, cccd, roomSummary, depsDi
     expectedTotalGuests = expectedGuests ? parseInt(expectedGuests) : 1;
     expectedTotalAdults = expectedAdults ? parseInt(expectedAdults) : 1;
     expectedTotalChildren = expectedChildren ? parseInt(expectedChildren) : 0;
+    
+    const capacitySpan = document.getElementById('modalExpectedCapacity');
+    if (capacitySpan) {
+        capacitySpan.innerHTML = `<i class="fa-solid fa-users" style="margin-right: 4px;"></i> Tiêu chuẩn: ${expectedTotalAdults} Người Lớn, ${expectedTotalChildren} Trẻ Em`;
+        capacitySpan.style.display = 'inline-block';
+    }
+    
     updateCheckinCreditLimitDisplay();
     // Gán bookingId vào form submit hidden input
     document.getElementById('submitBookingId').value = bookingId;
