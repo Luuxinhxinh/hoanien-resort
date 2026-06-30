@@ -262,9 +262,9 @@
             <span class="material-symbols-outlined">close</span> Hủy đơn
           </button>
           <div style="margin-left:auto; display:flex; gap:10px;">
-            <button class="btn btn-primary" id="btn-addon" th:if="${foodOrder != null && foodOrder.orderStatus != 'PAID'}" onclick="openAddonModal()" style="background-color: #ff9800; border-color: #ff9800; color: white;"><span class="material-symbols-outlined">add</span> Gọi thêm món</button>
+            <button class="btn btn-primary" id="btn-addon" th:if="${foodOrder != null && foodOrder.orderStatus != 'PAID' && foodOrder.orderStatus != 'Cancelled' && foodOrder.orderStatus != 'Refunded' && !foodOrder.isPaidInPos && foodOrder.orderType != 'Room Service' && foodOrder.orderType != 'RoomService'}" onclick="openAddonModal()" style="background-color: #ff9800; border-color: #ff9800; color: white;"><span class="material-symbols-outlined">add</span> Gọi thêm món</button>
             <button class="btn btn-primary" id="btn-pay" th:if="${foodOrder != null && !foodOrder.isPaidInPos && foodOrder.orderStatus != 'PAID' && foodOrder.orderType != 'Room Service' && foodOrder.orderType != 'RoomService'}" style="background-color: var(--status-ready-text); border-color: var(--status-ready-text);" th:onclick="|payOrder(${foodOrder.id}, ${foodOrder.table != null ? foodOrder.table.id : 'null'})|"><span class="material-symbols-outlined">payments</span> Thanh toán</button>
-            <button class="btn btn-outline" id="btn-print"><span class="material-symbols-outlined">print</span> In hóa đơn</button>
+            <button class="btn btn-outline" id="btn-print" onclick="window.print()"><span class="material-symbols-outlined">print</span> In hóa đơn</button>
             <!-- NÚT CHO ĐƠN DINE-IN (ĂN TẠI BÀN) -->
             <!-- Chuyển trạng thái từ Ready/Completed sang Served (Chỉ có 1 bước) -->
             <button class="btn btn-primary" id="btn-action-food-dinein"
@@ -592,6 +592,72 @@
             .catch(err => console.error('Background refresh failed:', err));
     }, 15000);
   </script>
+
+  <!-- PRINT RECEIPT SECTION (HIDDEN BY DEFAULT) -->
+  <div id="print-receipt-section" class="receipt-wrapper" style="display:none;" th:if="${foodOrder != null}">
+    <div class="receipt-header">
+      <h2>HOANIEN RESORT</h2>
+      <p>Khu Nghỉ Dưỡng &amp; Sinh Thái</p>
+      <p>123 Đường Ven Biển, TP. XYZ</p>
+    </div>
+    
+    <div class="receipt-title">
+      HÓA ĐƠN THANH TOÁN
+    </div>
+    
+    <div class="receipt-meta">
+      <p><span>Số Order:</span> <strong th:text="${'ORD-' + foodOrder.id}">ORD-000</strong></p>
+      <p><span>Ngày/Giờ:</span> <span th:text="${#dates.format(#dates.createNow(), 'dd/MM/yyyy HH:mm')}">01/01/2026 12:00</span></p>
+      <p><span>Thu ngân:</span> <span th:text="${staffName != null ? staffName : 'NV'}">Thu ngân</span></p>
+      <p th:if="${foodOrder.orderType != 'Room Service' && foodOrder.orderType != 'RoomService'}">
+         <span>Bàn:</span> <strong th:text="${foodOrder.table != null ? foodOrder.table.tableNumber : '?'}">01</strong>
+      </p>
+      <p th:if="${foodOrder.orderType == 'Room Service' || foodOrder.orderType == 'RoomService'}">
+         <span>Phòng/Khách:</span> 
+         <strong th:text="${foodOrder.booking != null && foodOrder.booking.customer != null ? foodOrder.booking.customer.fullName : (extractedGuestName != null && !extractedGuestName.isEmpty() ? extractedGuestName : 'Khách')}">Khách</strong>
+      </p>
+    </div>
+    
+    <div class="receipt-table">
+      <div class="receipt-item" th:each="detail : ${foodOrder.details}">
+        <div class="receipt-item-name" th:text="${detail.menuItem != null ? detail.menuItem.itemName : 'Món ăn'}">Tên món</div>
+        <div class="receipt-item-qty" th:text="${detail.quantity}">1</div>
+        <div class="receipt-item-price" th:text="${#numbers.formatDecimal(detail.priceAtOrder * detail.quantity, 0, 'COMMA', 0, 'POINT')}">0</div>
+      </div>
+    </div>
+    
+    <div class="receipt-totals">
+      <p><span>Tổng số lượng:</span> <span th:text="${foodOrder.details.size()}">0</span></p>
+      <p class="receipt-total-bold"><span>TỔNG CỘNG:</span> <span th:text="${#numbers.formatDecimal(foodOrder.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">0 VNĐ</span></p>
+    </div>
+    
+    <!-- Hiển thị phương thức thanh toán -->
+    <div style="text-align: right; font-size: 0.85rem; margin-top: 5px; margin-bottom: 15px;">
+      Phương thức TT: 
+      <strong th:text="${(foodOrder.orderType == 'Room Service' || foodOrder.orderType == 'RoomService') ? foodOrder.paymentType : 'Thanh toán tại quầy'}">Thanh toán tại quầy</strong>
+    </div>
+    
+    <!-- Status: PAID -->
+    <div th:if="${foodOrder.isPaidInPos || foodOrder.orderStatus == 'PAID'}" class="receipt-paid-stamp">
+      ĐÃ THANH TOÁN
+    </div>
+    
+    <!-- Status: UNPAID (Room Service requires Signature) -->
+    <div th:if="${!foodOrder.isPaidInPos && foodOrder.orderStatus != 'PAID' && (foodOrder.orderType == 'Room Service' || foodOrder.orderType == 'RoomService')}" class="receipt-signature">
+      <p>Chữ ký khách hàng<br/>(Guest Signature)</p>
+      <div class="sign-line"></div>
+    </div>
+    
+    <div th:if="${!foodOrder.isPaidInPos && foodOrder.orderStatus != 'PAID' && foodOrder.orderType != 'Room Service' && foodOrder.orderType != 'RoomService'}" style="text-align:center; font-weight:bold; margin-top:10px;">
+      CHƯA THANH TOÁN
+    </div>
+    
+    <div class="receipt-footer">
+      <p>Cảm ơn quý khách và hẹn gặp lại!</p>
+      <p>Hotline: 1900 xxxx</p>
+    </div>
+  </div>
+
 </body>
 </html>
 
