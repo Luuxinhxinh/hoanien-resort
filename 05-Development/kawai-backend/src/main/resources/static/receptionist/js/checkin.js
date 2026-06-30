@@ -1275,21 +1275,37 @@ function openRemoteScanModal(target) {
     currentQrTarget = target;
     document.getElementById('remoteScanModal').style.display = 'flex';
     
-    const scanUrl = window.location.origin + '/receptionist/remote-scan?session=' + persistentSessionId;
-    
-    // Render QR Code (Chỉ render 1 lần)
-    const qrContainer = document.getElementById('remote-qrcode-container');
-    if (!remoteScanQrCode) {
-        qrContainer.innerHTML = ''; // Clear comments or whitespace
-        remoteScanQrCode = new QRCode(qrContainer, {
-            text: scanUrl,
-            width: 200,
-            height: 200,
-            colorDark : '#0f172a',
-            colorLight : '#ffffff',
-            correctLevel : QRCode.CorrectLevel.H
-        });
-    }
+    fetch('/api/v1/remote-scan/host-ip')
+        .then(res => res.json())
+        .then(data => {
+            let host = window.location.host;
+            let protocol = window.location.protocol;
+            
+            // If accessing via localhost, replace localhost with the actual IP
+            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                host = data.ip + (window.location.port ? ':' + window.location.port : '');
+                protocol = 'http:'; // Fallback to http for IP
+            }
+            
+            const scanUrl = protocol + '//' + host + '/receptionist/remote-scan?session=' + persistentSessionId;
+            
+            const qrContainer = document.getElementById('remote-qrcode-container');
+            if (!remoteScanQrCode) {
+                qrContainer.innerHTML = '';
+                remoteScanQrCode = new QRCode(qrContainer, {
+                    text: scanUrl,
+                    width: 200,
+                    height: 200,
+                    colorDark : '#0f172a',
+                    colorLight : '#ffffff',
+                    correctLevel : QRCode.CorrectLevel.H
+                });
+            } else {
+                remoteScanQrCode.clear();
+                remoteScanQrCode.makeCode(scanUrl);
+            }
+        })
+        .catch(err => console.error("Could not fetch host IP", err));
 }
 
 function closeRemoteScanModal() {

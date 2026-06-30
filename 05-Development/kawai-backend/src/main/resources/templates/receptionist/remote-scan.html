@@ -178,7 +178,7 @@
                 console.warn("Lỗi camera sau:", err);
                 // Fallback: Nếu lỗi NotReadableError, thử mở bất kỳ camera nào có sẵn mà không ép facingMode
                 html5QrCode.start(
-                    true, // true means any video device
+                    { facingMode: "user" }, // Fallback to front camera if back fails
                     config,
                     onScanSuccess,
                     onScanFailure

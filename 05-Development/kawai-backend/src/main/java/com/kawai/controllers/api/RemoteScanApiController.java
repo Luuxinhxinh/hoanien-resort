@@ -8,12 +8,25 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 @RestController
 @RequestMapping("/api/v1/remote-scan")
 public class RemoteScanApiController {
 
     // Store SseEmitters with sessionId as key
     private final ConcurrentHashMap<String, SseEmitter> emitters = new ConcurrentHashMap<>();
+
+    @GetMapping("/host-ip")
+    public ResponseEntity<?> getHostIp() {
+        try {
+            String ip = InetAddress.getLocalHost().getHostAddress();
+            return ResponseEntity.ok(Map.of("ip", ip));
+        } catch (UnknownHostException e) {
+            return ResponseEntity.ok(Map.of("ip", "localhost"));
+        }
+    }
 
     @GetMapping("/{sessionId}/subscribe")
     public SseEmitter subscribe(@PathVariable String sessionId) {
