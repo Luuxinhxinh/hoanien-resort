@@ -617,9 +617,9 @@ if (_checkinForm) {
         }
 
         // Ràng buộc FaceID cho chủ đoàn
-        // Lấy targetId của CUSTOMER là bookingId
+        // Lấy targetId của CUSTOMER
         const submitBookingId = document.getElementById('submitBookingId').value;
-        if (!pendingFaceEnrollments[submitBookingId]) {
+        if (!pendingFaceEnrollments['CUSTOMER']) {
             e.preventDefault();
             showToast('Người chủ đoàn bắt buộc phải cập nhật khuôn mặt (FaceID) để hoàn tất đơn!');
             return;

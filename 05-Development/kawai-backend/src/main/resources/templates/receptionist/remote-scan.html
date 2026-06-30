@@ -184,7 +184,12 @@
                     onScanFailure
                 ).catch(fallbackErr => {
                     console.error("Lỗi tất cả camera:", fallbackErr);
-                    showError("Lỗi phần cứng Camera: " + fallbackErr + ". Vui lòng đóng tất cả các app Camera đang chạy ngầm và tải lại trang!");
+                    let errStr = fallbackErr.toString().toLowerCase();
+                    if (errStr.includes("not supported") || errStr.includes("not allowed")) {
+                        showError("Trình duyệt này đã chặn Camera (Thường do mở qua Zalo/Facebook). Vui lòng nhấn dấu ... và chọn 'Mở bằng trình duyệt' (Safari/Chrome) để quét!");
+                    } else {
+                        showError("Lỗi phần cứng Camera: " + fallbackErr + ". Vui lòng đóng các app Camera khác và tải lại trang.");
+                    }
                 });
             });
         }
