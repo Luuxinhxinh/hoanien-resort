@@ -42,6 +42,15 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
       
+      // Nếu đã hủy hoặc hoàn tiền
+      if (status === 'cancelled' || status === 'refunded') {
+        timer.textContent = '--:--';
+        timer.style.color = '#999';
+        row.style.border = '';
+        row.style.outline = 'none';
+        return;
+      }
+      
       // Nếu vẫn còn thời gian (diffMs > 0)
       if (diffMs > 0) {
         const diffMins = Math.floor(diffMs / 60000);

@@ -83,8 +83,14 @@ public class AdminViewServiceImpl implements AdminViewService {
             String issue = "";
             String dbStatus = r.getRoomStatus() == null ? "Vacant_Clean" : r.getRoomStatus();
 
+                        String guestName = "";
+            String guestRequests = "";
+            int guests = 0;
+
             if ("Occupied".equalsIgnoreCase(dbStatus)) {
                 status = "occupied";
+                guestName = "Guest " + r.getRoomNumber();
+                guests = 2;
             } else if ("Vacant_Dirty".equalsIgnoreCase(dbStatus)) {
                 status = "dirty";
             } else if ("Maintenance".equalsIgnoreCase(dbStatus)) {
@@ -98,12 +104,28 @@ public class AdminViewServiceImpl implements AdminViewService {
             if ("103".equals(r.getRoomNumber())) {
                 status = "broken";
                 issue = "Hỏng điều hòa";
+                guestName = "";
+                guests = 0;
             } else if ("207".equals(r.getRoomNumber())) {
                 status = "broken";
                 issue = "Hỏng vòi sen";
+                guestName = "";
+                guests = 0;
+            } else if ("201".equals(r.getRoomNumber())) {
+                status = "occupied";
+                guestName = "Trần Đình Trọng";
+                guests = 2;
+                guestRequests = "Khách yêu cầu thêm gối mềm và dọn phòng lúc 14h.";
+            } else if ("205".equals(r.getRoomNumber())) {
+                status = "occupied";
+                guestName = "Michael Smith";
+                guests = 1;
+                guestRequests = "Cần setup bàn là hơi nước.";
             }
 
-            return new RoomMock(r.getRoomNumber(), status, issue);
+            String category = r.getCategory() != null ? r.getCategory().getCategoryName() : "Standard";
+
+            return new RoomMock(r.getRoomNumber(), status, issue, category, guestName, guestRequests, guests);
         }).collect(Collectors.groupingBy(r -> {
             String rn = r.getRoomNumber();
             if (rn != null && rn.length() >= 3) {
@@ -508,6 +530,56 @@ public class AdminViewServiceImpl implements AdminViewService {
         opts.put("guestRoles", roleRepository.findAll().stream().filter(r -> r.getRoleName().startsWith("Khách"))
                 .map(Role::getRoleName).collect(Collectors.toList()));
         return opts;
+    }
+
+    @Override
+    public List<AutomationTimelineMock> getAutomationTimeline() {
+        List<AutomationTimelineMock> timeline = new ArrayList<>();
+        try {
+            List<AuditLog> logs = auditLogRepository.findAll();
+            // Sort by timestamp desc manually to avoid needing a new repository method
+            logs.sort((a, b) -> {
+                if (a.getTimestamp() == null || b.getTimestamp() == null) return 0;
+                return b.getTimestamp().compareTo(a.getTimestamp());
+            });
+
+            int count = 0;
+            for (AuditLog l : logs) {
+                if (count >= 10) break; // Limit to 10
+
+                String time = l.getTimestamp() != null ? l.getTimestamp().format(DateTimeFormatter.ofPattern("HH:mm")) : "00:00";
+                String title = "[" + time + "] Hệ thống ghi nhận thay đổi trên bảng " + l.getTableName();
+                String action = l.getAction() != null ? l.getAction() : "ACTION";
+                String desc = "Hành động: " + action + " (ID: " + l.getRecordId() + ")";
+                
+                if (l.getNewValue() != null && !l.getNewValue().isEmpty()) {
+                    desc += " - Dữ liệu mới: " + l.getNewValue();
+                }
+
+                String type = "SYSTEM";
+                String theme = "blue";
+                
+                String table = l.getTableName() != null ? l.getTableName().toUpperCase() : "";
+                if (table.contains("ROOM")) {
+                    type = "ROOMS";
+                    theme = "yellow";
+                } else if (table.contains("BOOKING")) {
+                    type = "BOOKING";
+                    theme = "green";
+                } else if (table.contains("ORDER") || table.contains("FOOD")) {
+                    type = "F&B";
+                    theme = "red";
+                }
+
+                timeline.add(new AutomationTimelineMock(time, title, desc, type, theme));
+                count++;
+            }
+        } catch (Exception e) {}
+
+        if (timeline.isEmpty()) {
+            timeline.add(new AutomationTimelineMock("15:40", "[15:40] Không có sự kiện nào gần đây", "Hệ thống đang hoạt động bình thường", "SYSTEM", "green"));
+        }
+        return timeline;
     }
 
     @Override

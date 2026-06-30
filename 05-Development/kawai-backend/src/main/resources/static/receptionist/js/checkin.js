@@ -617,9 +617,9 @@ if (_checkinForm) {
         }
 
         // Ràng buộc FaceID cho chủ đoàn
-        // Lấy targetId của CUSTOMER là bookingId
+        // Lấy targetId của CUSTOMER
         const submitBookingId = document.getElementById('submitBookingId').value;
-        if (!pendingFaceEnrollments[submitBookingId]) {
+        if (!pendingFaceEnrollments['CUSTOMER']) {
             e.preventDefault();
             showToast('Người chủ đoàn bắt buộc phải cập nhật khuôn mặt (FaceID) để hoàn tất đơn!');
             return;
@@ -1090,7 +1090,6 @@ function updateFacePreviewUI(type, targetId, base64Image) {
     `;
 }
 
-
 // --- AUTO SAVE FORM DATA TO PREVENT DATA LOSS ON TAB SWITCH / RELOAD ---
 document.addEventListener('DOMContentLoaded', () => {
     const pageKey = 'kawai_autosave_' + window.location.pathname.replace(/[^a-zA-Z0-9]/g, '_');
@@ -1157,3 +1156,224 @@ document.addEventListener('DOMContentLoaded', () => {
         return response;
     };
 });
+function handleQrScan(val, target, inputEl) {
+    if (!val) return;
+    
+    // Format expected: 001205015836||Nguyễn Xuân Lưu|14102005|Nam|TDP Ninh Sơn, Chúc Sơn, Chương Mỹ, Hà Nội|31052021
+    const parts = val.split('|');
+    if (parts.length >= 7) {
+        const id = parts[0];
+        const name = parts[2];
+        const dobStr = parts[3]; // DDMMYYYY
+        
+        let dob = '';
+        if (dobStr && dobStr.length === 8) {
+            dob = `${dobStr.substring(4, 8)}-${dobStr.substring(2, 4)}-${dobStr.substring(0, 2)}`;
+        }
+        
+        if (target === 'main') {
+            document.getElementById('modalGuestName').value = name;
+            document.getElementById('modalGuestCccd').value = id;
+            showToast('Đã tự động điền thông tin chủ đoàn từ QR!', 'success');
+        } else if (target === 'dep') {
+            document.getElementById('depName').value = name;
+            document.getElementById('depId').value = id;
+            if (dob) {
+                document.getElementById('depDob').value = dob;
+            }
+            showToast('Đã tự động điền thông tin thành viên từ QR!', 'success');
+        } else if (target === 'auto-dep') {
+            // Check for duplicates
+            const mainCccd = document.getElementById('modalGuestCccd').value.trim();
+            if (mainCccd === id) {
+                showToast(`Thẻ CCCD của ${name} đã được quét cho trưởng đoàn!`, 'warning');
+                if (inputEl) inputEl.value = '';
+                return;
+            }
+            
+            // Check if already in dependents
+            const depCccdInputs = document.querySelectorAll('input[name$=".cccd"]');
+            let isDuplicate = false;
+            depCccdInputs.forEach(inp => {
+                if (inp.value === id) isDuplicate = true;
+            });
+            
+            if (isDuplicate) {
+                showToast(`Thành viên ${name} đã có trong danh sách!`, 'warning');
+                if (inputEl) inputEl.value = '';
+                return;
+            }
+
+            addDependentRow(name, id, dob, null, '');
+            showToast(`Đã tự động thêm thành viên: ${name}`, 'success');
+        }
+        
+        if (inputEl) {
+            inputEl.value = '';
+        }
+    }
+}
+
+let html5QrcodeScanner = null;
+let currentQrTarget = null;
+
+function openQrScannerModal(target) {
+    currentQrTarget = target;
+    document.getElementById('qrScannerModal').style.display = 'flex';
+    
+    // CCCD barcode is a square QR Code, use square box and limit format for speed
+    if (!html5QrcodeScanner) {
+        html5QrcodeScanner = new Html5QrcodeScanner(
+            "qr-reader", 
+            { 
+                fps: 20, 
+                qrbox: {width: 300, height: 300},
+                formatsToSupport: [ Html5QrcodeSupportedFormats.QR_CODE ],
+                useBarCodeDetectorIfSupported: true,
+                videoConstraints: {
+                    width: { ideal: 1920 },
+                    height: { ideal: 1080 }
+                }
+            }, 
+            /* verbose= */ false
+        );
+    }
+    
+    html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+}
+
+function closeQrScannerModal() {
+    document.getElementById('qrScannerModal').style.display = 'none';
+    if (html5QrcodeScanner) {
+        html5QrcodeScanner.clear().catch(error => {
+            console.error('Failed to clear html5QrcodeScanner. ', error);
+        });
+    }
+    currentQrTarget = null;
+}
+
+function onScanSuccess(decodedText, decodedResult) {
+    console.log("Scan result: " + decodedText);
+    closeQrScannerModal();
+    let mockInput = { value: decodedText, tagName: 'MOCK' };
+    handleQrScan(decodedText, currentQrTarget, mockInput);
+}
+
+function onScanFailure(error) {
+}
+
+async function scanQrFromFile(input) {
+    if (!input.files || input.files.length === 0) return;
+    const file = input.files[0];
+    
+    // Stop the camera scanner if it's currently running
+    if (html5QrcodeScanner) {
+        try {
+            await html5QrcodeScanner.clear();
+        } catch(e) {}
+    }
+    
+    const html5QrCode = new Html5Qrcode("qr-reader");
+    try {
+        const decodedText = await html5QrCode.scanFile(file, true);
+        console.log("Scan result from file: " + decodedText);
+        
+        html5QrCode.clear().catch(e => {});
+        closeQrScannerModal();
+        
+        let mockInput = { value: decodedText, tagName: 'MOCK' };
+        handleQrScan(decodedText, currentQrTarget, mockInput);
+    } catch (err) {
+        console.error(err);
+        showToast('Không tìm thấy mã QR hợp lệ trong ảnh!', 'error');
+        html5QrCode.clear().catch(e => {});
+    }
+    input.value = '';
+}
+
+let remoteScanEventSource = null;
+let remoteScanQrCode = null;
+
+// Khởi tạo một Session duy nhất cho máy tính này khi tải trang
+const persistentSessionId = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : ('session-' + Date.now() + '-' + Math.random().toString(36).substring(2, 10));
+
+// Tự động kết nối SSE ngay từ đầu và duy trì mãi mãi
+function initPersistentSse() {
+    remoteScanEventSource = new EventSource('/api/v1/remote-scan/' + persistentSessionId + '/subscribe');
+    
+    remoteScanEventSource.addEventListener('SCAN_RESULT', function(event) {
+        console.log('Received from remote: ' + event.data);
+        
+        let target = currentQrTarget;
+        
+        // Auto-assign logic for smooth continuous scanning
+        if (!target) {
+            const mainNameInput = document.getElementById('modalGuestName');
+            const mainCccdInput = document.getElementById('modalGuestCccd');
+            if (!mainNameInput.value.trim() && !mainCccdInput.value.trim()) {
+                // If main guest is empty, assign to main
+                target = 'main';
+            } else {
+                // If main guest is filled, assign as auto-dependent
+                target = 'auto-dep';
+            }
+        }
+        
+        let mockInput = { value: event.data, tagName: 'MOCK' };
+        handleQrScan(event.data, target, mockInput);
+        
+        if (currentQrTarget) {
+            closeRemoteScanModal();
+        }
+    });
+    
+    remoteScanEventSource.onerror = function() {
+        console.log('SSE Connection lost, reconnecting...');
+        remoteScanEventSource.close();
+        setTimeout(initPersistentSse, 2000); // Auto reconnect
+    };
+}
+// Khởi chạy
+initPersistentSse();
+
+function openRemoteScanModal(target) {
+    currentQrTarget = target;
+    document.getElementById('remoteScanModal').style.display = 'flex';
+    
+    fetch('/api/v1/remote-scan/host-ip')
+        .then(res => res.json())
+        .then(data => {
+            let host = window.location.host;
+            let protocol = window.location.protocol;
+            
+            // If accessing via localhost, replace localhost with the actual IP
+            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                host = data.ip + (window.location.port ? ':' + window.location.port : '');
+                protocol = 'http:'; // Fallback to http for IP
+            }
+            
+            const scanUrl = protocol + '//' + host + '/receptionist/remote-scan?session=' + persistentSessionId;
+            
+            const qrContainer = document.getElementById('remote-qrcode-container');
+            if (!remoteScanQrCode) {
+                qrContainer.innerHTML = '';
+                remoteScanQrCode = new QRCode(qrContainer, {
+                    text: scanUrl,
+                    width: 200,
+                    height: 200,
+                    colorDark : '#0f172a',
+                    colorLight : '#ffffff',
+                    correctLevel : QRCode.CorrectLevel.H
+                });
+            } else {
+                remoteScanQrCode.clear();
+                remoteScanQrCode.makeCode(scanUrl);
+            }
+        })
+        .catch(err => console.error("Could not fetch host IP", err));
+}
+
+function closeRemoteScanModal() {
+    document.getElementById('remoteScanModal').style.display = 'none';
+    currentQrTarget = null;
+}
