@@ -6,7 +6,7 @@
 |-------|-------|
 | **Document ID** | `KAWAI-SRS-UC-DET-004` |
 | **Version** | 4.0 (Đồng bộ `UC_MASTER_TABLE` v4.0 + codebase thực tế) |
-| **Date** | 2026-06-28 |
+| **Date** | 2026-07-02 |
 | **Status** | Approved — Reflects implementation audit |
 | **Author** | Nhóm Phát Triển SWP391 - G2 |
 | **Codebase** | `05-Development/kawai-backend` |
@@ -17,6 +17,7 @@
 
 | Ngày | Người thực hiện | Nội dung thay đổi |
 |------|-----------------|-------------------|
+| 2026-07-02 | Antigravity | Đồng bộ hóa toàn diện tài liệu đặc tả chi tiết với codebase thực tế. |
 | 2026-06-28 | Nhóm G2 | Rà soát toàn bộ controller/service/template; đồng bộ số UC với Master v4.0; bổ sung UC29–UC31; ghi endpoint thực tế, trạng thái ✅/⚠️/❌, và gap còn lại |
 | 2026-06-16 | Antigravity | Cập nhật UC11 auth modal order-food; đồng bộ 25 UC |
 | 2026-06-13 | Nhóm G2 | Khởi tạo tài liệu UC Detail |
@@ -523,12 +524,11 @@
 
 ---
 
-### **UC25 — Kiểm duyệt review** ⚠️
+### **UC25 — Kiểm duyệt review** ✅
 
 * **Actor:** Admin
 * **API:** `PUT /api/v1/reviews/{reviewId}/moderate` ✅
-* **UI:** `admin/reviews.html` + `reviews.js` — **chỉ thao tác DOM**, chưa gọi API moderate
-* **Gap:** Cần wire frontend admin → `ReviewRestController`
+* **UI:** `admin/reviews.html` + `reviews.js` — Gọi API kiểm duyệt thực tế qua `fetch` và cập nhật DOM động.
 
 ---
 
@@ -709,12 +709,12 @@ GET  /api/weather
 
 ---
 
-## GHI CHÚ TRIỂN KHAI & TECH DEBT (2026-06-28)
+## GHI CHÚ TRIỂN KHAI & TECH DEBT (2026-07-02)
 
 | # | Vấn đề | UC liên quan | Mức |
 |---|--------|--------------|-----|
 | 1 | Night audit query status `OCCUPIED` vs `Checked_In` | UC27.1 | 🔴 Bug |
-| 2 | Admin reviews UI không gọi API moderate | UC25 | 🟠 Gap |
+| 2 | GPS Tour Tracking chưa có frontend integration | UC22.3 | 🟠 Gap |
 | 3 | `transferRoom` chưa expose cho lễ tân | UC12.5 | 🟠 Gap |
 | 4 | Housekeeping/Maintenance không có UI riêng | UC13 | 🟠 Gap |
 | 5 | Dynamic pricing & combo marketing chưa runtime | UC09.1, UC23 | 🟠 Gap |
@@ -722,8 +722,8 @@ GET  /api/weather
 | 7 | FaceID demo hardcode references | UC04.2 | 🟡 Demo |
 | 8 | OCR CCCD check-in chưa làm | UC12.3 | 🟡 Spec drift |
 | 9 | WebSocket KDS — dùng polling thay thế | UC19 | 🟡 Spec drift |
-| 10 | Backdoor `/admin-backdoor`, Debug controllers | — | ⚠️ Dev only |
+| 10 | Đã khóa backdoor /admin-backdoor & debug-folios API | — | ✅ Resolved |
 
 ---
 
-*Tài liệu này phản ánh trạng thái codebase tại ngày 2026-06-28. Khi merge tính năng mới, cập nhật đồng thời `UC_MASTER_TABLE.md` và mục tương ứng trong file này.*
+*Tài liệu này phản ánh trạng thái codebase tại ngày 2026-07-02. Khi merge tính năng mới, cập nhật đồng thời `UC_MASTER_TABLE.md` và mục tương ứng trong file này.*

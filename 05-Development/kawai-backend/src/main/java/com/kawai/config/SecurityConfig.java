@@ -63,7 +63,7 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/ops-login", "/admin-backdoor").permitAll()
+                        .requestMatchers("/ops-login").permitAll()
                         // .access(new
                         // org.springframework.security.web.access.expression.WebExpressionAuthorizationManager(
                         // "hasIpAddress('192.168.1.0/24')"))

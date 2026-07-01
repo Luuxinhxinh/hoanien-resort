@@ -31,7 +31,7 @@
 
 ## WF-01 — Xác thực & Đăng ký Tài khoản
 
-**Use Cases:** UC-01, UC-02, UC-03, UC-04  
+**Use Cases:** UC01, UC02, UC03  
 **Business Rules:** BR-SYS-01, BR-SYS-02, BR-SYS-06, BR-SYS-07  
 **Actors:** Guest, All Users, System
 
@@ -108,7 +108,7 @@ flowchart TD
 
 ## WF-02 — Đặt phòng & Thanh toán Cọc trực tuyến
 
-**Use Cases:** UC-10, UC-11, UC-14 (SRS); UC06, UC07.1, UC07.2, UC07.3 (Spec)  
+**Use Cases:** UC10, UC11, UC12.1  
 **Business Rules:** BR-FO-01, BR-FO-02, BR-FIN-06  
 **Actors:** Customer, System, VNPay Gateway
 
@@ -176,7 +176,7 @@ flowchart TD
 
 ## WF-03 — Check-in Tiền sảnh
 
-**Use Cases:** UC-13, UC-14 (SRS); UC09.1–UC09.4 (Spec)  
+**Use Cases:** UC12.2, UC12.3, UC12.4  
 **Business Rules:** BR-FO-03, BR-FO-04, BR-FO-06, BR-DATA-02  
 **Actors:** Receptionist, Customer
 
@@ -237,7 +237,7 @@ flowchart TD
 
 ## WF-04 — Check-out & Tổng hợp Hóa đơn
 
-**Use Cases:** UC-08, UC-28, UC-29 (SRS); UC21.3, UC22.1 (Spec)  
+**Use Cases:** UC12.6, UC26.5, UC27.4  
 **Business Rules:** BR-FIN-01, BR-FO-04, BR-HK-01  
 **Actors:** Receptionist, Customer, System
 
@@ -293,7 +293,7 @@ flowchart TD
 
 ## WF-05 — F&B / POS / Ghi nợ Folio
 
-**Use Cases:** UC-15, UC-16, UC-17, UC-18, UC-19, UC-20 (SRS); UC11–UC15 (Spec)  
+**Use Cases:** UC14, UC16, UC17, UC18, UC19  
 **Business Rules:** BR-FB-01, BR-FB-02, BR-FB-04, BR-FO-06  
 **Actors:** Customer, F&B Staff, Kitchen Staff
 
@@ -368,7 +368,7 @@ flowchart TD
 
 ## WF-06 — Đặt Tour & Điểm danh AI
 
-**Use Cases:** UC-21, UC-22, UC-23, UC-24 (SRS); UC16, UC17, UC18 (Spec)  
+**Use Cases:** UC20, UC21, UC22  
 **Business Rules:** BR-TR-01, BR-TR-02, BR-TR-05  
 **Actors:** Customer, Tour Guide, Admin, System
 
@@ -428,7 +428,7 @@ flowchart TD
 
 ## WF-07 — Room Status Lifecycle
 
-**Use Cases:** UC-34, UC-35, UC-36, UC-37 (SRS); UC10.1–UC10.5 (Spec)  
+**Use Cases:** UC13  
 **Business Rules:** BR-FO-04, BR-FO-05, BR-HK-01, BR-HK-02  
 **Actors:** Housekeeping, Maintenance, Receptionist, System
 
@@ -489,7 +489,7 @@ flowchart TD
 
 ## WF-08 — Night Audit (Kiểm toán Đêm)
 
-**Use Cases:** UC-30 (SRS); UC21.4 (Spec)  
+**Use Cases:** UC27.1, UC27.2  
 **Business Rules:** BR-FIN-03, BR-FIN-04  
 **Actors:** System (Automated Scheduler)
 
@@ -528,7 +528,7 @@ flowchart TD
 
 ## WF-09 — Hủy Đặt phòng & Hoàn tiền
 
-**Use Cases:** UC-06 (SRS)  
+**Use Cases:** UC12 (Hủy đặt phòng), UC27  
 **Business Rules:** BR-FIN-02  
 **Actors:** Customer
 
@@ -572,7 +572,7 @@ flowchart TD
 
 ## WF-10 — Hủy Tour & Hoàn tiền Tự động
 
-**Use Cases:** UC-23 (SRS); UC17.3 (Spec)  
+**Use Cases:** UC22.4, UC27  
 **Business Rules:** BR-TR-05  
 **Actors:** System (Scheduler), Admin, Tour Guide
 
@@ -617,7 +617,7 @@ flowchart TD
 
 ## WF-11 — Đánh giá Dịch vụ & Kiểm duyệt
 
-**Use Cases:** UC-25, UC-26 (SRS); UC19, UC20 (Spec)  
+**Use Cases:** UC24, UC25  
 **Business Rules:** BR-TR-03, BR-TR-04, BR-SYS-04  
 **Actors:** Customer, Admin
 
@@ -661,7 +661,7 @@ flowchart TD
 
 ## WF-12 — Quản lý Nhân viên & Phân quyền
 
-**Use Cases:** UC-08, UC-32 (SRS); UC04.1, UC04.2 (Spec)  
+**Use Cases:** UC01.2, UC05.1, UC05.2  
 **Business Rules:** BR-SYS-04, BR-SYS-07, BR-DATA-03  
 **Actors:** Admin
 
@@ -760,23 +760,302 @@ flowchart LR
 
 ---
 
+## WF-14 — Walk-in Check-in
+
+**Use Cases:** Use Case "Walk-in Check-in"  
+**Business Rules:** BR-FO-08, BR-FO-03, BR-FO-04, BR-FO-06  
+**Actors:** Receptionist
+
+```mermaid
+flowchart TD
+    START([Khách vãng lai đến quầy]) --> S1[Lễ tân tìm phòng trống trực tiếp]
+    S1 --> S2{Có phòng trống phù hợp?}
+    S2 -->|Không| END_N([Từ chối/Hết phòng])
+    S2 -->|Có| S3[Chọn phòng, nhập số lượng khách & ngày đi]
+    S3 --> S4[Quét CCCD bằng đầu đọc tại quầy hoặc Remote Scan]
+    S4 --> S5[Validate thông tin OCR & xác nhận thủ công]
+    S5 --> S6[Thanh toán toàn bộ tiền phòng ngay lập tức]
+    S6 --> S7[Tạo Booking trực tiếp trên hệ thống]
+    S7 --> S8[Gán phòng vật lý Vacant_Clean]
+    S8 --> S9[Thiết lập Credit Limit & Mã PIN ký nợ phòng]
+    S9 --> S10[Phòng chuyển sang Occupied_Clean]
+    S10 --> END_S([Hoàn tất check-in & Giao chìa khóa])
+
+    style S6 fill:#b71c1c,color:#fff
+    style S10 fill:#1b5e20,color:#fff
+```
+
+> **Business Rules áp dụng:**
+> - `BR-FO-08` — Walk-in phải thanh toán ngay lập tức trước khi nhận phòng.
+> - `BR-FO-04` — Chỉ gán phòng ở trạng thái Vacant_Clean.
+> - `BR-FO-06` — Thiết lập hạn mức chi tiêu phụ (sub_credit_limit) và mã PIN.
+
+---
+
+## WF-15 — Remote CCCD Scan
+
+**Use Cases:** Use Case "Remote CCCD Scan"  
+**Business Rules:** BR-FIN-07  
+**Actors:** Customer, Receptionist
+
+```mermaid
+flowchart TD
+    START([Lễ tân kích hoạt Remote Scan]) --> S1[Hệ thống sinh Session ID & QR Code có TTL 2 phút]
+    S1 --> S2[Khách quét QR Code bằng điện thoại cá nhân]
+    S2 --> S3[Trang web bảo mật mở ra trên thiết bị khách]
+    S3 --> S4[Khách chụp ảnh mặt trước/sau CCCD]
+    S4 --> S5[Gửi ảnh lên Python OCR Microservice]
+    S5 --> S6[Trích xuất dữ liệu: Họ tên, Số CCCD, Ngày sinh, Giới tính]
+    S6 --> S7[WebSocket gửi dữ liệu thời gian thực về màn hình Lễ tân]
+    S7 --> S8[Lễ tân đối chiếu với người thực tế & nhấn Approve]
+    S8 --> S9[Hệ thống tự động điền vào Form lưu trú]
+    S9 --> END([Đóng phiên quét & Lưu thông tin])
+
+    style S1 fill:#1a237e,color:#fff
+    style S7 fill:#e65100,color:#fff
+```
+
+> **Business Rules áp dụng:**
+> - `BR-FIN-07` — Dữ liệu CCCD được mã hóa AES-256; Phiên quét tự hủy sau TTL 2 phút để bảo mật.
+
+---
+
+## WF-16 — Tour Itinerary & GPS Checkpoint
+
+**Use Cases:** Use Case "Tour Attendance & GPS Tracking"  
+**Business Rules:** BR-TR-02, BR-TR-06, BR-TR-07, BR-TR-08, BR-TR-09  
+**Actors:** Tour Guide, Tour Attendee, System
+
+```mermaid
+flowchart TD
+    START([Đến giờ khởi hành Tour]) --> S1[Tour Guide nhấn Start Tour trên App]
+    S1 --> S2[Hệ thống chuyển trạng thái Tour Schedule sang RUNNING]
+    S2 --> S3[Di chuyển đến Checkpoint đầu tiên trong Itinerary]
+    S3 --> S4[Gọi AI Face Scan để điểm danh thành viên]
+    S4 --> S5{Cosine Similarity >= 0.85?}
+    S5 -->|Có| S6[Cập nhật Attendance Status = BOARDED]
+    S5 -->|Không| S7[Yêu cầu chụp lại hoặc điểm danh thủ công]
+    S7 --> S8[Ghi chú lý do điểm danh thủ công vào hệ thống]
+    S6 & S8 --> S9[App gửi tọa độ GPS định kỳ 5 phút về Backend]
+    S9 --> S10[Backend đối chiếu tọa độ với Checkpoint Location]
+    S10 --> S11{Hoàn thành toàn bộ lộ trình?}
+    S11 -->|Chưa| S3
+    S11 -->|Rồi| S12[Tour Guide nhấn End Tour]
+    S12 --> END([Tour Schedule = COMPLETED])
+
+    style S4 fill:#4a148c,color:#fff
+    style S5 fill:#ff9900,color:#fff
+```
+
+> **Business Rules áp dụng:**
+> - `BR-TR-02` — Điểm danh AI Face Scan với ngưỡng khớp vector >= 0.85.
+> - `BR-TR-06/07/08/09` — Đảm bảo định vị GPS chính xác, tuân thủ lịch trình và điểm danh tại mỗi trạm dừng.
+
+---
+
+## WF-17 — Đổi Hạng Phòng (Change Room Category)
+
+**Use Cases:** Use Case "Change Room Category"  
+**Business Rules:** BR-FO-07, BR-FO-04  
+**Actors:** Receptionist, Customer
+
+```mermaid
+flowchart TD
+    START([Khách yêu cầu đổi phòng]) --> S1[Kiểm tra tính khả dụng của hạng phòng mới]
+    S1 --> S2{Có phòng trống?}
+    S2 -->|Không| END_N([Từ chối & giải thích])
+    S2 -->|Có| S3{Loại đổi phòng?}
+    S3 -->|Nâng cấp/Hạ cấp| S4[Tính toán chênh lệch giá bằng DailyRate & RoomSurcharge]
+    S3 -->|Cùng hạng| S5[Chênh lệch giá = 0]
+    S4 & S5 --> S6[Lễ tân chọn phòng vật lý Vacant_Clean mới]
+    S6 --> S7[Cập nhật RoomBookingDetail với roomId & categoryId mới]
+    S7 --> S8[Ghi nhận phụ thu hoặc hoàn tiền vào Folio]
+    S8 --> S9[Chuyển trạng thái phòng cũ sang Vacant_Dirty]
+    S9 --> S10[Chuyển trạng thái phòng mới sang Occupied_Clean]
+    S10 --> END_S([Giao chìa khóa phòng mới & ghi Audit Log])
+
+    style S4 fill:#ff9900,color:#fff
+    style S9 fill:#b71c1c,color:#fff
+    style S10 fill:#1b5e20,color:#fff
+```
+
+> **Business Rules áp dụng:**
+> - `BR-FO-07` — Đổi hạng phòng phải tính toán phụ thu dựa trên daily_rates của hạng mới.
+> - `BR-FO-04` — Phòng mới phải ở trạng thái Vacant_Clean.
+
+---
+
+## WF-18 — Membership Tier & Loyalty Points
+
+**Use Cases:** Use Case "Membership Tier Calculation"  
+**Business Rules:** BR-MEM-01  
+**Actors:** System, Customer
+
+```mermaid
+flowchart TD
+    START([Hóa đơn Booking được tất toán]) --> S1[Hệ thống lấy tổng tiền thanh toán thực tế]
+    S1 --> S2[Tính điểm Loyalty tích lũy mới: 100,000 VND = 1 điểm]
+    S2 --> S3[UPDATE loyalty_points trong bảng Customers]
+    S3 --> S4[Kiểm tra ngưỡng thăng hạng thành viên]
+    S4 --> S5{Đủ điều kiện lên hạng?}
+    S5 -->|Có| S6[Cập nhật membership_tier: Silver -> Gold -> Platinum]
+    S6 --> S7[Gửi email chúc mừng và thông báo quyền lợi mới]
+    S5 -->|Không| S8[Giữ nguyên hạng hiện tại]
+    S7 & S8 --> END([Hoàn tất cập nhật tài khoản])
+
+    style S6 fill:#1b5e20,color:#fff
+```
+
+> **Business Rules áp dụng:**
+> - `BR-MEM-01` — Tích điểm tự động dựa trên hóa đơn checkout và nâng hạng thành viên theo thang điểm cố định.
+
+---
+
+## WF-19 — Refund Request Flow (Manual)
+
+**Use Cases:** Use Case "Refund Processing"  
+**Business Rules:** BR-FIN-08, BR-FIN-02  
+**Actors:** Receptionist, Manager, System
+
+```mermaid
+flowchart TD
+    START([Yêu cầu hủy đặt phòng/dịch vụ]) --> S1[Lễ tân/Khách tạo Refund Request]
+    S1 --> S2[Hệ thống tính toán số tiền được hoàn theo BR-FIN-02]
+    S2 --> S3[Tạo bản ghi RefundRequest ở trạng thái PENDING]
+    S3 --> S4[Gửi thông báo phê duyệt tới Manager]
+    S4 --> S5{Manager duyệt?}
+    S5 -->|Từ chối| S6[Chuyển trạng thái sang REJECTED & thông báo lý do]
+    S5 -->|Đồng ý| S7[Chuyển trạng thái sang APPROVED]
+    S7 --> S8{Phương thức thanh toán?}
+    S8 -->|VNPay| S9[Gọi VNPay API hoàn tiền tự động]
+    S8 -->|Tiền mặt/Chuyển khoản| S10[Thực hiện hoàn thủ công tại quầy]
+    S9 & S10 --> S11[UPDATE PaymentTransaction & đóng hồ sơ]
+    S6 & S11 --> END([Kết thúc quy trình hoàn tiền])
+
+    style S3 fill:#e65100,color:#fff
+    style S5 fill:#ff9900,color:#fff
+```
+
+> **Business Rules áp dụng:**
+> - `BR-FIN-02` — Quy định thời gian hủy phòng để tính tỷ lệ hoàn tiền (100% hoặc mất cọc).
+> - `BR-FIN-08` — Mọi yêu cầu hoàn tiền thủ công phải được Manager phê duyệt trực tiếp.
+
+---
+
+## WF-20 — Add-On Hotel Service
+
+**Use Cases:** Use Case "Add-On Service Order"  
+**Business Rules:** BR-FB-05, BR-FO-06  
+**Actors:** Customer, Receptionist, F&B Staff
+
+```mermaid
+flowchart TD
+    START([Khách yêu cầu dịch vụ gia tăng]) --> S1[Tìm kiếm dịch vụ: Spa, Thuê xe, Hồ bơi...]
+    S1 --> S2[Chọn dịch vụ & số lượng]
+    S2 --> S3{Phương thức thanh toán?}
+    S3 -->|Thanh toán ngay| S4[Tạo VNPay Payment Link hoặc thu tiền mặt]
+    S4 --> S5[Giao dịch thành công -> Tạo BookingService]
+    S3 -->|Ký nợ về phòng| S6[Xác thực mã PIN của phòng]
+    S6 --> S7[Kiểm tra Credit Limit của phòng]
+    S7 --> S8{Còn hạn mức?}
+    S8 -->|Không| S9[Từ chối ký nợ, yêu cầu thanh toán ngay]
+    S8 -->|Có| S10[Tạo FolioItem cho dịch vụ & cộng vào ví nợ phòng]
+    S9 --> S3
+    S5 & S10 --> END([Cung cấp dịch vụ & Ghi log])
+
+    style S8 fill:#ff9900,color:#fff
+```
+
+> **Business Rules áp dụng:**
+> - `BR-FB-05` — Quản lý dịch vụ gia tăng của khách sạn (Add-On Services).
+> - `BR-FO-06` — Enforce Credit Limit khi ký nợ dịch vụ về phòng.
+
+---
+
+## WF-21 — Staff Scheduling
+
+**Use Cases:** Use Case "Staff Shift Scheduling"  
+**Business Rules:** BR-STAFF-01  
+**Actors:** Manager, Admin, Employees
+
+```mermaid
+flowchart TD
+    START([Manager truy cập Staff Scheduling]) --> S1[Chọn Tuần / Tháng cần lên lịch]
+    S1 --> S2[Chọn nhân viên & gán vào Shift tương ứng]
+    S2 --> S3[Hệ thống kiểm tra xung đột lịch trình]
+    S3 --> S4{Có xung đột? \n(Overlapping/Double-booking)}
+    S4 -->|Có| S5[Hiển thị cảnh báo xung đột & yêu cầu đổi lịch]
+    S5 --> S2
+    S4 -->|Không| S6[Lưu lịch làm việc ở trạng thái DRAFT]
+    S6 --> S7[Manager nhấn Publish Schedule]
+    S7 --> S8[Gửi thông báo lịch làm việc mới cho nhân viên]
+    S8 --> END([Nhân viên xem lịch làm việc trên portal])
+
+    style S4 fill:#ff9900,color:#fff
+```
+
+> **Business Rules áp dụng:**
+> - `BR-STAFF-01` — Ràng buộc lịch làm việc của nhân viên, chống trùng lịch làm việc hoặc trùng chuyến đi tour.
+
+---
+
+## WF-22 — Workflow Engine (Dynamic BPMN)
+
+**Use Cases:** Use Case "Workflow Configuration & Execution"  
+**Business Rules:** BR-WF-01, BR-WF-02, BR-SYS-09  
+**Actors:** System, Admin
+
+```mermaid
+flowchart TD
+    START([Hệ thống phát sinh sự kiện]) --> S1[Workflow Engine nhận Event Signal]
+    S1 --> S2[Tải cấu hình JSON của Workflow đang hoạt động]
+    S2 --> S3[Phân tích điều kiện conditions_json]
+    S3 --> S4{Điều kiện thỏa mãn?}
+    S4 -->|Không| END_N([Bỏ qua & thực hiện luồng mặc định])
+    S4 -->|Có| S5[Tạo tiến trình chạy Workflow Instance]
+    S5 --> S6[Thực thi actions_json: chuyển trạng thái thành Pending_Approval]
+    S6 --> S7[Gửi thông báo phê duyệt tới Manager/Admin]
+    S7 --> S8{Approver duyệt?}
+    S8 -->|Từ chối| S9[Chuyển trạng thái sang REJECTED & Rollback/Hủy]
+    S8 -->|Phê duyệt| S10[Chuyển trạng thái sang APPROVED & Commit giao dịch]
+    S9 & S10 --> END_S([Ghi nhật ký Workflow Instance và hoàn tất])
+
+    style S4 fill:#ff9900,color:#fff
+    style S8 fill:#ff9900,color:#fff
+```
+
+> **Business Rules áp dụng:**
+> - `BR-SYS-09` — Chỉ Admin được cấu hình Workflow qua JSON.
+> - `BR-WF-01/02` — Tự động hóa quy trình phê duyệt các giao dịch vượt hạn mức khuyến mãi hoặc ngoại lệ hệ thống.
+
+---
+
 ## Bảng Tóm tắt — Tất cả Workflows
 
 | Workflow | UC Liên quan | Business Rules chính | Actors | Mức độ |
 |:---------|:------------|:--------------------|:-------|:------:|
-| WF-01 Xác thực & Đăng ký | UC-01,02,03,04 | BR-SYS-01,02,06,07 | Guest, All Users | HIGH |
-| WF-02 Đặt phòng & Cọc | UC-10,11,14 | BR-FO-01,02; BR-FIN-06 | Customer, System | CRITICAL |
-| WF-03 Check-in | UC-13,14 | BR-FO-03,04,06; BR-DATA-02 | Receptionist | CRITICAL |
-| WF-04 Check-out & Invoice | UC-08,28,29 | BR-FIN-01; BR-FO-04; BR-HK-01 | Receptionist | CRITICAL |
-| WF-05 F&B / Post-to-Room | UC-15,16,17,18 | BR-FB-01,02,04; BR-FO-06 | Customer, F&B, Kitchen | CRITICAL |
-| WF-06 Tour & AI Attendance | UC-21,22,23,24 | BR-TR-01,02,05 | Customer, Tour Guide | CRITICAL |
-| WF-07 Room Lifecycle | UC-34,35,36,37 | BR-FO-04,05; BR-HK-01,02 | HK, Maintenance | HIGH |
-| WF-08 Night Audit | UC-30 | BR-FIN-03,04 | System (Scheduler) | CRITICAL |
-| WF-09 Hủy Phòng & Hoàn tiền | UC-06 | BR-FIN-02 | Customer | HIGH |
-| WF-10 Hủy Tour & Hoàn tiền | UC-23 | BR-TR-05 | System, Admin | HIGH |
-| WF-11 Review & Kiểm duyệt | UC-25,26 | BR-TR-03,04; BR-SYS-04 | Customer, Admin | MEDIUM |
-| WF-12 Quản lý Nhân viên | UC-08,32 | BR-SYS-04,07; BR-DATA-03 | Admin | HIGH |
+| WF-01 Xác thực & Đăng ký | UC01, UC02, UC03 | BR-SYS-01,02,06,07 | Guest, All Users | HIGH |
+| WF-02 Đặt phòng & Cọc | UC10, UC11, UC12.1 | BR-FO-01,02; BR-FIN-06 | Customer, System | CRITICAL |
+| WF-03 Check-in | UC12.2, UC12.3, UC12.4 | BR-FO-03,04,06; BR-DATA-02 | Receptionist | CRITICAL |
+| WF-04 Check-out & Invoice | UC12.6, UC26.5, UC27.4 | BR-FIN-01; BR-FO-04; BR-HK-01 | Receptionist | CRITICAL |
+| WF-05 F&B / Post-to-Room | UC14, UC16, UC17, UC18, UC19 | BR-FB-01,02,04; BR-FO-06 | Customer, F&B, Kitchen | CRITICAL |
+| WF-06 Tour & AI Attendance | UC20, UC21, UC22 | BR-TR-01,02,05 | Customer, Tour Guide | CRITICAL |
+| WF-07 Room Lifecycle | UC13 | BR-FO-04,05; BR-HK-01,02 | HK, Maintenance | HIGH |
+| WF-08 Night Audit | UC27.1, UC27.2 | BR-FIN-03,04 | System (Scheduler) | CRITICAL |
+| WF-09 Hủy Phòng & Hoàn tiền | UC12 (Hủy đặt phòng), UC27 | BR-FIN-02 | Customer | HIGH |
+| WF-10 Hủy Tour & Hoàn tiền | UC22.4, UC27 | BR-TR-05 | System, Admin | HIGH |
+| WF-11 Review & Kiểm duyệt | UC24, UC25 | BR-TR-03,04; BR-SYS-04 | Customer, Admin | MEDIUM |
+| WF-12 Quản lý Nhân viên | UC01.2, UC05.1, UC05.2 | BR-SYS-04,07; BR-DATA-03 | Admin | HIGH |
 | WF-13 Master Flow | All | All | All Actors | — |
+| WF-14 Walk-in Check-in | UC12.7 | BR-FO-08 | Receptionist | CRITICAL |
+| WF-15 Remote CCCD Scan | UC04.2, UC12.3 | BR-FIN-07 | Customer | HIGH |
+| WF-16 Tour GPS & Itinerary | UC22.3, UC22.4 | BR-TR-06,07,08,09 | Tour Guide | HIGH |
+| WF-17 Đổi Hạng Phòng | UC12.5, UC09.3 | BR-FO-07 | Receptionist | HIGH |
+| WF-18 Membership Tier & Loyalty | UC26.6 | BR-MEM-01 | System | MEDIUM |
+| WF-19 Refund Request | UC27 | BR-FIN-08 | Manager | MEDIUM |
+| WF-20 Add-On Services | UC23 | BR-FB-05 | Customer | MEDIUM |
+| WF-21 Staff Scheduling | UC22.2 | BR-STAFF-01 | Admin, Manager | MEDIUM |
+| WF-22 Workflow Engine | UC09.8 | BR-WF-01,02 | System, Admin | HIGH |
 
 ---
 

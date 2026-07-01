@@ -76,7 +76,7 @@ com.kawai/
 ### 1. Dual Controller Layer (Web + API)
 
 Codebase phân tách rõ:
-- **`controllers/web/`** — 19 web controllers dùng `@Controller`, return Thymeleaf view names để render HTML server-side. Đây là nơi các role-specific portals được serve: `AdminController`, `ManagerController`, `ReceptionistController`, `TourGuideController`, `HousekeepingWebController`, `MaintenanceWebController`...
+- **`controllers/web/`** — 20 web controllers dùng `@Controller`, return Thymeleaf view names để render HTML server-side. Đây là nơi các role-specific portals được serve: `AdminController`, `ManagerController`, `ReceptionistController`, `TourGuideController`, `HousekeepingWebController`, `MaintenanceWebController`...
 - **`controllers/api/`** — 30 REST controllers dùng `@RestController`, return JSON cho AJAX, mobile, hoặc integrations: `BookingApiController`, `FolioRestController`, `TourBookingApiController`, `NightAuditRestController`...
 
 Điều này cho phép cùng một `Service` layer phục vụ cả hai kênh mà không bị duplicate business logic.
@@ -163,7 +163,7 @@ Night Audit thực thi tự động lúc 02:00 AM, post room charges cho tất c
 - `DynamicJobManager` cho phép quản lý scheduled jobs runtime — linh hoạt hơn `@Scheduled` cứng
 
 **Negative (trade-offs accepted):**
-- Thymeleaf templates có thể khó maintain khi số lượng views tăng (hiện ~19 web controllers, mỗi controller nhiều views)
+- Thymeleaf templates có thể khó maintain khi số lượng views tăng (hiện ~20 web controllers, mỗi controller nhiều views)
 - Server-side rendering không optimal cho real-time features (WebSocket cần xử lý riêng)
 - Hai loại controller (web + api) có thể gây nhầm lẫn nếu không có naming convention rõ
 - `@Autowired` field injection (thay vì constructor injection) ở nhiều chỗ — khó unit test hơn
@@ -172,6 +172,7 @@ Night Audit thực thi tự động lúc 02:00 AM, post room charges cho tất c
 - `BookingServiceImpl.java` 57KB và `WalkInCheckInServiceImpl.java` 33KB — có nguy cơ trở thành God Class, cần refactor theo Single Responsibility Principle
 - CSRF disabled (`csrf.disable()`) — cần đảm bảo toàn bộ state-changing endpoints có authentication
 - Nhiều `@Autowired` direct repositories trong Controllers (e.g., `BookingApiController` inject `CustomerRepository` trực tiếp) — vi phạm separation of concerns, nên chuyển qua Service layer
+- Các debug controller như `BackdoorController.java`, `DebugSqlController.java`, `TestDebugController.java` tuyệt đối không được đưa vào production build do rủi ro bảo mật nghiêm trọng (đã xóa trong bản cập nhật 2026-07-02).
 
 **Compliance Impact:**
 - Audit Log qua AOP (`BR-SYS-04`) đảm bảo mọi thao tác nhạy cảm được ghi lại
@@ -219,7 +220,7 @@ Night Audit thực thi tự động lúc 02:00 AM, post room charges cho tất c
 
 #### Layer 1: Models (Persistence Layer)
 
-**48 JPA Entities** được map 1-1 với database tables:
+**49 JPA Entities** được map 1-1 với database tables:
 
 | Entity | Table | Ghi chú |
 |:-------|:------|:--------|
@@ -247,7 +248,7 @@ Night Audit thực thi tự động lúc 02:00 AM, post room charges cho tất c
 | `AuditLog` | `Audit_Logs` | INSERT-only audit trail |
 | `Promotion` | `Promotions` | Voucher/discount |
 | `Workflow` | `Workflows` | Dynamic workflow engine |
-| ... | | 48 entities tổng cộng |
+| ... | | 49 entities tổng cộng |
 
 #### Layer 2: Repositories (Data Access Layer)
 
@@ -545,13 +546,13 @@ Theo ADR-01 (Spring Boot MVC Layered Architecture):
 │   │   │   ├── RoomApiController.java         (12.7KB)
 │   │   │   ├── AuditApiController.java        (12.3KB)
 │   │   │   └── ... (24 more)
-│   │   ├── web/               ← 19 Thymeleaf controllers
+│   │   ├── web/               ← 20 Thymeleaf controllers
 │   │   │   ├── ManagerController.java              (34KB) ← largest
 │   │   │   ├── TourGuideController.java            (28.7KB)
 │   │   │   ├── ReceptionistController.java         (26.5KB)
 │   │   │   ├── ReceptionistCheckinWebController.java (20.2KB)
 │   │   │   ├── ProfileController.java              (19.2KB)
-│   │   │   └── ... (14 more)
+│   │   │   └── ... (15 more)
 │   │   └── EmailPreviewController.java
 │   ├── services/
 │   │   ├── interfaces/        ← 35 interfaces
@@ -566,7 +567,7 @@ Theo ADR-01 (Spring Boot MVC Layered Architecture):
 │   │       ├── WorkflowEngineServiceImpl.java   (21.3KB)
 │   │       └── ... (29 more)
 │   ├── repositories/          ← 44 Spring Data JPA repos
-│   ├── models/                ← 48 JPA entities
+│   ├── models/                ← 49 JPA entities
 │   ├── dto/                   ← 25+ DTOs
 │   ├── security/              ← 4 files (UserDetails, RoleConstants, AuthEvents)
 │   ├── exceptions/            ← BusinessException
