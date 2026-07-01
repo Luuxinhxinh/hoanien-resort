@@ -51,6 +51,114 @@ document.addEventListener('DOMContentLoaded', () => {
     if (depDobInput) depDobInput.max = todayStrGlobal;
 });
 
+function escalateDirtyRoomWalkIn(roomNum, assignAfter) {
+    fetch(`/receptionist/operations/escalate-room?roomNumber=${roomNum}`, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]') ? document.querySelector('meta[name="_csrf"]').getAttribute('content') : ''
+        }
+    }).then(res => res.json())
+    .then(data => {
+        if (data.status === 'success') {
+            showToast('Đã gửi yêu cầu dọn khẩn cấp cho buồng phòng.', 'success');
+            
+            const select = document.getElementById('walkInPhysicalRoomSelect');
+
+            // Always remove the warning banner when a choice is made
+            const existingWarning = document.getElementById('dirtyRoomWarningInlineWalkIn');
+            if (existingWarning) existingWarning.remove();
+
+            // Always re-enable the assign button
+            const gridContainer = select.closest('div[style*="display: grid"]');
+            if (gridContainer) {
+                const addBtn = gridContainer.querySelector('button[onclick="addRoomToCart()"]');
+                if (addBtn) {
+                    addBtn.disabled = false;
+                    addBtn.style.opacity = '1';
+                    addBtn.style.cursor = 'pointer';
+                }
+            }
+
+            if (assignAfter) {
+                const roomId = select.value;
+                const selectedOpt = select.options[select.selectedIndex];
+                if (!selectedOpt) return;
+                const category = selectedOpt.dataset.category;
+                const price = selectedOpt.dataset.price;
+                
+                proceedAddRoomToCart(roomId, roomNum, category, price);
+            } else {
+                // Reset the dropdown if they only escalated
+                select.value = "";
+            }
+        } else {
+            showToast('Lỗi khi gửi yêu cầu: ' + data.message, 'error');
+        }
+    }).catch(err => {
+        console.error(err);
+        showToast('Lỗi kết nối khi gửi yêu cầu khẩn cấp.', 'error');
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const roomSelect = document.getElementById('walkInPhysicalRoomSelect');
+    if (roomSelect) {
+        roomSelect.addEventListener('change', function() {
+            const opt = this.options[this.selectedIndex];
+            if (!opt) return;
+            const status = opt.getAttribute('data-status');
+            const roomNum = opt.getAttribute('data-roomNum');
+            const gridContainer = this.closest('div[style*="display: grid"]');
+            if (!gridContainer) return;
+
+            const existingWarning = document.getElementById('dirtyRoomWarningInlineWalkIn');
+            if (existingWarning) existingWarning.remove();
+
+            const addBtn = gridContainer.querySelector('button[onclick="addRoomToCart()"]');
+            
+            if (status === 'Vacant_Dirty') {
+                const warningDiv = document.createElement('div');
+                warningDiv.id = 'dirtyRoomWarningInlineWalkIn';
+                warningDiv.style.gridColumn = '1 / -1';
+                warningDiv.style.marginTop = '12px';
+                warningDiv.style.padding = '12px 16px';
+                warningDiv.style.background = '#fef2f2';
+                warningDiv.style.border = '1px solid #fca5a5';
+                warningDiv.style.borderRadius = '6px';
+                warningDiv.style.display = 'flex';
+                warningDiv.style.flexDirection = 'column';
+                warningDiv.style.gap = '8px';
+                warningDiv.innerHTML = `
+                    <div style="color: #dc2626; font-size: 13px;">
+                        <i class="fa-solid fa-triangle-exclamation"></i> <strong>Cảnh báo:</strong> Phòng <b>${roomNum}</b> chưa dọn dẹp. Vui lòng chọn hành động:
+                    </div>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <button type="button" style="background:#3b82f6; color:white; border:none; padding: 6px 12px; border-radius: 4px; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 6px;" onclick="escalateDirtyRoomWalkIn('${roomNum}', false)">
+                            <i class="fa-solid fa-broom"></i> Chỉ yêu cầu dọn (Chưa gán)
+                        </button>
+                        <button type="button" style="background:#ef4444; color:white; border:none; padding: 6px 12px; border-radius: 4px; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 6px;" onclick="escalateDirtyRoomWalkIn('${roomNum}', true)">
+                            <i class="fa-solid fa-bolt"></i> Yêu cầu dọn & Phân phòng (Treo)
+                        </button>
+                    </div>
+                `;
+                gridContainer.appendChild(warningDiv);
+                
+                if (addBtn) {
+                    addBtn.disabled = true;
+                    addBtn.style.opacity = '0.5';
+                    addBtn.style.cursor = 'not-allowed';
+                }
+            } else {
+                if (addBtn) {
+                    addBtn.disabled = false;
+                    addBtn.style.opacity = '1';
+                    addBtn.style.cursor = 'pointer';
+                }
+            }
+        });
+    }
+});
+
 function updateWalkInAvailableRooms() {
     const typeSelect = document.getElementById('walkInTypeSelect');
     const roomSelect = document.getElementById('walkInPhysicalRoomSelect');
@@ -88,9 +196,10 @@ function updateWalkInAvailableRooms() {
         const roomId = r.id !== undefined ? r.id : r;
         const roomNum = r.number !== undefined ? r.number : r;
         opt.value = roomId;
-        opt.innerText = 'Phòng ' + roomNum;
+        opt.innerText = 'Phòng ' + roomNum + (r.status === 'Vacant_Dirty' ? ' (Chưa dọn)' : '');
 
         opt.dataset.roomNum = roomNum;
+        opt.dataset.status = r.status;
 
         const catParts = selectedType.split(' - ');
         opt.dataset.category = catParts[0];
@@ -164,6 +273,10 @@ function addRoomToCart() {
         return;
     }
 
+    proceedAddRoomToCart(roomId, roomNum, category, price);
+}
+
+function proceedAddRoomToCart(roomId, roomNum, category, price) {
     walkInCart.push({ roomId: parseInt(roomId), roomNum, category, price });
     renderRoomCart();
     unlockStep2();

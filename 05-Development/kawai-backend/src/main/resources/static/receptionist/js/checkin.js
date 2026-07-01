@@ -113,19 +113,124 @@ function updateAvailableRooms() {
     if (!selectedType) return;
 
     const inventoryForType = roomInventory[selectedType] || [];
-    const available = inventoryForType.filter(r => !assignedRooms.some(a => a.room === r));
+    const available = inventoryForType.filter(r => !assignedRooms.some(a => a.room === r.number));
 
     if (available.length === 0) {
-        return; // Giữ lại dropdown mặc định "-- Select Room --" mà không hiện lỗi
+        return;
     }
 
     available.forEach(r => {
         const opt = document.createElement('option');
-        opt.value = r;
-        opt.innerText = r;
+        opt.value = r.number;
+        opt.innerText = r.number + (r.status === 'Vacant_Dirty' ? ' (Chưa dọn)' : '');
+        opt.setAttribute('data-status', r.status);
         roomSelect.appendChild(opt);
     });
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+    const roomSelect = document.getElementById('physicalRoomSelect');
+    if (roomSelect) {
+        roomSelect.addEventListener('change', function() {
+            const opt = this.options[this.selectedIndex];
+            if (!opt) return;
+            const status = opt.getAttribute('data-status');
+            const gridContainer = this.closest('div[style*="display: grid"]');
+            if (!gridContainer) return;
+
+            const existingWarning = document.getElementById('dirtyRoomWarningInline');
+            if (existingWarning) existingWarning.remove();
+
+            const assignBtn = gridContainer.querySelector('button[onclick="assignRoom()"]');
+            
+            if (status === 'Vacant_Dirty') {
+                const warningDiv = document.createElement('div');
+                warningDiv.id = 'dirtyRoomWarningInline';
+                warningDiv.style.gridColumn = '1 / -1';
+                warningDiv.style.marginTop = '12px';
+                warningDiv.style.padding = '12px 16px';
+                warningDiv.style.background = '#fef2f2';
+                warningDiv.style.border = '1px solid #fca5a5';
+                warningDiv.style.borderRadius = '6px';
+                warningDiv.style.display = 'flex';
+                warningDiv.style.flexDirection = 'column';
+                warningDiv.style.gap = '8px';
+                warningDiv.innerHTML = `
+                    <div style="color: #dc2626; font-size: 13px;">
+                        <i class="fa-solid fa-triangle-exclamation"></i> <strong>Cảnh báo:</strong> Phòng <b>${this.value}</b> chưa dọn dẹp. Vui lòng chọn hành động:
+                    </div>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <button type="button" style="background:#3b82f6; color:white; border:none; padding: 6px 12px; border-radius: 4px; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 6px;" onclick="escalateDirtyRoom('${this.value}', false)">
+                            <i class="fa-solid fa-broom"></i> Chỉ yêu cầu dọn (Chưa gán)
+                        </button>
+                        <button type="button" style="background:#ef4444; color:white; border:none; padding: 6px 12px; border-radius: 4px; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 6px;" onclick="escalateDirtyRoom('${this.value}', true)">
+                            <i class="fa-solid fa-bolt"></i> Yêu cầu dọn & Phân phòng (Treo)
+                        </button>
+                    </div>
+                `;
+                gridContainer.appendChild(warningDiv);
+                
+                if (assignBtn) {
+                    assignBtn.disabled = true;
+                    assignBtn.style.opacity = '0.5';
+                    assignBtn.style.cursor = 'not-allowed';
+                }
+            } else {
+                if (assignBtn) {
+                    assignBtn.disabled = false;
+                    assignBtn.style.opacity = '1';
+                    assignBtn.style.cursor = 'pointer';
+                }
+            }
+        });
+    }
+});
+
+window.escalateDirtyRoom = function(roomNumber, assignAfter) {
+    fetch(`/receptionist/operations/escalate-room?roomNumber=${roomNumber}`, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]') ? document.querySelector('meta[name="_csrf"]').getAttribute('content') : ''
+        }
+    }).then(res => res.json())
+    .then(data => {
+        if (data.status === 'success') {
+            showToast('Đã gửi yêu cầu dọn khẩn cấp cho buồng phòng.', 'success');
+            
+            const typeSelect = document.getElementById('bookTypeSelect');
+            const roomSelect = document.getElementById('physicalRoomSelect');
+
+            // Always remove the warning banner when a choice is made
+            const existingWarning = document.getElementById('dirtyRoomWarningInline');
+            if (existingWarning) existingWarning.remove();
+
+            // Always re-enable the assign button
+            const gridContainer = roomSelect.closest('div[style*="display: grid"]');
+            if (gridContainer) {
+                const assignBtn = gridContainer.querySelector('button[onclick="assignRoom()"]');
+                if (assignBtn) {
+                    assignBtn.disabled = false;
+                    assignBtn.style.opacity = '1';
+                    assignBtn.style.cursor = 'pointer';
+                }
+            }
+
+            if (assignAfter) {
+                const selectedType = typeSelect.value;
+                const selectedRoomOpt = roomSelect.options[roomSelect.selectedIndex];
+                proceedAssignRoom(typeSelect, selectedType, roomNumber, selectedRoomOpt);
+            } else {
+                // If they only requested cleaning, reset the dropdown to force them to select a different room
+                roomSelect.value = "";
+            }
+        } else {
+            showToast('Lỗi khi gửi yêu cầu: ' + data.message, 'error');
+        }
+    }).catch(err => {
+        console.error(err);
+        showToast('Lỗi kết nối khi gửi yêu cầu khẩn cấp.', 'error');
+    });
+};
 
 function assignRoom() {
     const typeSelect = document.getElementById('bookTypeSelect');
@@ -134,6 +239,12 @@ function assignRoom() {
     const selectedRoom = roomSelect.value;
 
     if (!selectedType || !selectedRoom) return;
+
+    const selectedRoomOpt = roomSelect.options[roomSelect.selectedIndex];
+    proceedAssignRoom(typeSelect, selectedType, selectedRoom, selectedRoomOpt);
+}
+
+function proceedAssignRoom(typeSelect, selectedType, selectedRoom, selectedRoomOpt) {
 
     const selectedOption = typeSelect.options[typeSelect.selectedIndex];
     let pending = parseInt(selectedOption.getAttribute('data-pending'));

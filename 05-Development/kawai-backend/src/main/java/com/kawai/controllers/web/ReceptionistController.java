@@ -2,8 +2,7 @@ package com.kawai.controllers.web;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import lombok.AllArgsConstructor;
 
 import java.time.LocalDate;
@@ -104,6 +103,7 @@ public class ReceptionistController {
             Map<String, Object> roomInfo = new HashMap<>();
             roomInfo.put("id", r.getId());
             roomInfo.put("number", r.getRoomNumber());
+            roomInfo.put("status", r.getRoomStatus());
             inventory.computeIfAbsent(cat, k -> new ArrayList<>()).add(roomInfo);
         }
         model.addAttribute("roomInventory", inventory);
@@ -298,18 +298,18 @@ public class ReceptionistController {
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", totalPages);
         model.addAttribute("keyword", keyword);
-        model.addAttribute("vacantRooms", roomRepository.findVacant().stream()
-                .filter(r -> "Vacant_Clean".equalsIgnoreCase(r.getRoomStatus())
-                        || "Available".equalsIgnoreCase(r.getRoomStatus()))
-                .collect(Collectors.toList()));
+        model.addAttribute("vacantRooms", roomRepository.findVacant());
         if (dateFilter != null) {
             model.addAttribute("dateFilter", dateFilter.toString());
         }
 
-        Map<String, List<String>> inventory = new HashMap<>();
+        Map<String, List<Map<String, Object>>> inventory = new HashMap<>();
         for (Room r : roomRepository.findVacant()) {
             String cat = r.getCategory() != null ? r.getCategory().getCategoryName() : "Other";
-            inventory.computeIfAbsent(cat, k -> new ArrayList<>()).add(r.getRoomNumber());
+            Map<String, Object> roomInfo = new HashMap<>();
+            roomInfo.put("number", r.getRoomNumber());
+            roomInfo.put("status", r.getRoomStatus());
+            inventory.computeIfAbsent(cat, k -> new ArrayList<>()).add(roomInfo);
         }
         model.addAttribute("roomInventory", inventory);
 
@@ -380,7 +380,7 @@ public class ReceptionistController {
                     } else {
                         continue;
                     }
-                    
+
                     String cccd = "";
                     if (cccdEnc != null && !cccdEnc.isBlank()) {
                         try {
@@ -594,6 +594,17 @@ public class ReceptionistController {
         return "receptionist/operations";
     }
 
+    @PostMapping("/operations/escalate-room")
+    @ResponseBody
+    public org.springframework.http.ResponseEntity<?> escalateTaskByRoomNumber(@org.springframework.web.bind.annotation.RequestParam("roomNumber") String roomNumber) {
+        try {
+            housekeepingService.escalateTaskByRoomNumber(roomNumber);
+            return org.springframework.http.ResponseEntity.ok(java.util.Map.of("status", "success", "message", "Task escalated successfully"));
+        } catch (Exception e) {
+            return org.springframework.http.ResponseEntity.status(500).body(java.util.Map.of("status", "error", "message", e.getMessage()));
+        }
+    }
+
     @org.springframework.web.bind.annotation.PostMapping("/operations/clean/{taskId}")
     public String completeCleaning(@org.springframework.web.bind.annotation.PathVariable Long taskId,
             org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
@@ -631,7 +642,6 @@ public class ReceptionistController {
         }
         return "redirect:/receptionist/operations";
     }
-
 
     @org.springframework.web.bind.annotation.PostMapping("/check-in/cancel-no-show/{id}")
     public String cancelNoShow(@org.springframework.web.bind.annotation.PathVariable Long id,

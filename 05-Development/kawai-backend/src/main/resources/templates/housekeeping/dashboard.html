@@ -1,14 +1,17 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Housekeeping Dashboard - Hoanien Retreat</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <style>
         :root {
             --primary: #8C6A41;
@@ -22,7 +25,7 @@
             --text-secondary: #6A6256;
             --text-tertiary: #9A9485;
             --border-color: #EAE6DF;
-            
+
             --success: #2D6B4A;
             --success-light: #E8F3ED;
             --warning: #D98C2A;
@@ -165,7 +168,7 @@
             border-radius: 6px;
             transition: background 0.2s;
         }
-        
+
         .logout-btn:hover {
             background: var(--danger-light);
         }
@@ -261,10 +264,25 @@
             font-size: 14px;
         }
 
-        .icon-clean { background: var(--success-light); color: var(--success); }
-        .icon-dirty { background: var(--danger-light); color: var(--danger); }
-        .icon-occupied { background: var(--info-light); color: var(--info); }
-        .icon-vacant { background: var(--surface-hover); color: var(--text-secondary); }
+        .icon-clean {
+            background: var(--success-light);
+            color: var(--success);
+        }
+
+        .icon-dirty {
+            background: var(--danger-light);
+            color: var(--danger);
+        }
+
+        .icon-occupied {
+            background: var(--info-light);
+            color: var(--info);
+        }
+
+        .icon-vacant {
+            background: var(--surface-hover);
+            color: var(--text-secondary);
+        }
 
         .stat-value {
             font-family: var(--font-serif);
@@ -289,12 +307,12 @@
             font-size: 24px;
             color: var(--secondary);
         }
-        
+
         .section-tabs {
             display: flex;
             gap: 12px;
         }
-        
+
         .tab-btn {
             padding: 8px 16px;
             background: var(--surface);
@@ -306,7 +324,7 @@
             cursor: pointer;
             transition: all 0.2s;
         }
-        
+
         .tab-btn.active {
             background: var(--secondary);
             color: #fff;
@@ -374,9 +392,20 @@
             gap: 4px;
         }
 
-        .status-urgent { background: var(--danger-light); color: var(--danger); }
-        .status-progress { background: var(--warning-light); color: var(--warning); }
-        .status-done { background: var(--success-light); color: var(--success); }
+        .status-urgent {
+            background: var(--danger-light);
+            color: var(--danger);
+        }
+
+        .status-progress {
+            background: var(--warning-light);
+            color: var(--warning);
+        }
+
+        .status-done {
+            background: var(--success-light);
+            color: var(--success);
+        }
 
         .room-card-body {
             padding: 16px 20px;
@@ -393,9 +422,17 @@
             margin-bottom: 12px;
         }
 
-        .stay-checkout { color: var(--danger); }
-        .stay-expected { color: var(--primary); }
-        .stay-over { color: var(--info); }
+        .stay-checkout {
+            color: var(--danger);
+        }
+
+        .stay-expected {
+            color: var(--primary);
+        }
+
+        .stay-over {
+            color: var(--info);
+        }
 
         .guest-note {
             background: var(--surface-hover);
@@ -444,7 +481,7 @@
         .btn-primary:hover {
             background: var(--primary-dark);
         }
-        
+
         .btn-success {
             background: var(--success);
             color: #fff;
@@ -467,7 +504,10 @@
         /* Modal for Maintenance Report */
         .modal-overlay {
             position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
             background: rgba(26, 24, 20, 0.6);
             backdrop-filter: blur(4px);
             display: none;
@@ -489,7 +529,7 @@
             max-width: 480px;
             border-radius: var(--radius-lg);
             padding: 32px;
-            box-shadow: 0 24px 48px rgba(0,0,0,0.1);
+            box-shadow: 0 24px 48px rgba(0, 0, 0, 0.1);
             transform: translateY(20px);
             transition: transform 0.3s;
         }
@@ -569,15 +609,31 @@
             font-weight: 500;
             animation: slideIn 0.3s ease-out;
         }
-        
+
         @keyframes slideIn {
-            from { transform: translateY(-10px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
+            from {
+                transform: translateY(-10px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
         }
 
-        .alert-success { background: var(--success-light); color: var(--success); border-left: 4px solid var(--success); }
-        .alert-error { background: var(--danger-light); color: var(--danger); border-left: 4px solid var(--danger); }
-        
+        .alert-success {
+            background: var(--success-light);
+            color: var(--success);
+            border-left: 4px solid var(--success);
+        }
+
+        .alert-error {
+            background: var(--danger-light);
+            color: var(--danger);
+            border-left: 4px solid var(--danger);
+        }
+
         .empty-state {
             text-align: center;
             padding: 64px 20px;
@@ -586,13 +642,13 @@
             border: 1px dashed var(--border-color);
             color: var(--text-tertiary);
         }
-        
+
         .empty-state i {
             font-size: 48px;
             color: var(--border-color);
             margin-bottom: 16px;
         }
-        
+
         .empty-state h3 {
             font-family: var(--font-serif);
             font-size: 20px;
@@ -601,6 +657,7 @@
         }
     </style>
 </head>
+
 <body>
 
     <!-- Top Navigation -->
@@ -623,9 +680,11 @@
                     <option value="/maintenance/dashboard">Maintenance (Bảo trì)</option>
                 </select>
             </div>
-            
+
             <div class="user-info">
-                <div class="user-avatar" th:text="${#authentication != null ? #strings.substring(#authentication.name, 0, 2).toUpperCase() : 'HK'}">HK</div>
+                <div class="user-avatar"
+                    th:text="${#authentication != null ? #strings.substring(#authentication.name, 0, 2).toUpperCase() : 'HK'}">
+                    HK</div>
                 <div class="user-details">
                     <h4 th:text="${#authentication != null ? #authentication.name : 'Nhân viên'}">Nhân viên</h4>
                     <p>Bộ phận Buồng phòng</p>
@@ -657,7 +716,8 @@
             </div>
             <div class="personal-task-badge">
                 <i class="fa-solid fa-clipboard-check"></i>
-                <span th:with="left=${pendingTasks.size() + inProgressTasks.size()}, total=${pendingTasks.size() + inProgressTasks.size() + completedToday.size()}">
+                <span
+                    th:with="left=${pendingTasks.size() + inProgressTasks.size()}, total=${pendingTasks.size() + inProgressTasks.size() + completedToday.size()}">
                     Nhiệm vụ: Bạn còn <span th:text="${left}"></span> / <span th:text="${total}"></span> phòng chưa xong
                 </span>
             </div>
@@ -704,7 +764,7 @@
         </div>
 
         <div class="room-grid">
-            
+
             <!-- In Progress Rooms first -->
             <div th:each="t : ${inProgressTasks}" class="room-card">
                 <div class="room-card-header">
@@ -723,20 +783,23 @@
                     <div class="stay-status stay-expected" th:if="${#strings.containsIgnoreCase(t.notes, 'arrival')}">
                         <i class="fa-solid fa-arrow-right-to-bracket"></i> Khách sắp đến (Ưu tiên)
                     </div>
-                    <div class="stay-status stay-over" th:if="${!#strings.containsIgnoreCase(t.notes, 'check-out') and !#strings.containsIgnoreCase(t.notes, 'arrival')}">
+                    <div class="stay-status stay-over"
+                        th:if="${!#strings.containsIgnoreCase(t.notes, 'check-out') and !#strings.containsIgnoreCase(t.notes, 'arrival')}">
                         <i class="fa-solid fa-bed"></i> Khách đang ở (Dọn hàng ngày)
                     </div>
-                    
+
                     <div class="guest-note" th:if="${t.notes != null and !t.notes.isEmpty()}">
                         <i class="fa-solid fa-note-sticky"></i>
                         <span th:text="${t.notes}">Ghi chú từ hệ thống</span>
                     </div>
                 </div>
                 <div class="room-card-footer">
-                    <button class="btn btn-report" th:attr="onclick=|openReportModal('${t.room.id}', '${t.room.roomNumber}')|">
+                    <button class="btn btn-report"
+                        th:attr="onclick=|openReportModal('${t.room.id}', '${t.room.roomNumber}')|">
                         <i class="fa-solid fa-triangle-exclamation"></i> Báo sự cố
                     </button>
-                    <button class="btn btn-success" th:attr="onclick=|openCompleteModal('${t.id}', '${t.room.roomNumber}')|">
+                    <button class="btn btn-success"
+                        th:attr="onclick=|openCompleteModal('${t.id}', '${t.room.roomNumber}')|">
                         <i class="fa-solid fa-check"></i> Hoàn thành
                     </button>
                 </div>
@@ -749,10 +812,12 @@
                         <span class="room-number" th:text="${t.room.roomNumber}">102</span>
                         <span class="room-type" th:text="${t.room.category.categoryName}">Suite</span>
                     </div>
-                    <div class="status-badge status-urgent" th:if="${t.priority == 'High'}">
-                        <i class="fa-solid fa-bell"></i> Cần dọn gấp
+                    <div class="status-badge" style="background: #dc2626; color: white; border-color: #ef4444;"
+                        th:if="${t.priority == 'Super High'}">
+                        <i class="fa-solid fa-bolt"></i> SIÊU KHẨN CẤP
                     </div>
-                    <div class="status-badge" style="background: var(--surface-hover); color: var(--text-secondary);" th:if="${t.priority != 'High'}">
+                    <div class="status-badge" style="background: var(--surface-hover); color: var(--text-secondary);"
+                        th:if="${t.priority != 'Super High'}">
                         <i class="fa-solid fa-clock"></i> Chờ dọn
                     </div>
                 </div>
@@ -763,17 +828,19 @@
                     <div class="stay-status stay-expected" th:if="${#strings.containsIgnoreCase(t.notes, 'arrival')}">
                         <i class="fa-solid fa-arrow-right-to-bracket"></i> Khách sắp đến (Ưu tiên)
                     </div>
-                    <div class="stay-status stay-over" th:if="${!#strings.containsIgnoreCase(t.notes, 'check-out') and !#strings.containsIgnoreCase(t.notes, 'arrival')}">
+                    <div class="stay-status stay-over"
+                        th:if="${!#strings.containsIgnoreCase(t.notes, 'check-out') and !#strings.containsIgnoreCase(t.notes, 'arrival')}">
                         <i class="fa-solid fa-bed"></i> Khách đang ở (Dọn hàng ngày)
                     </div>
-                    
+
                     <div class="guest-note" th:if="${t.notes != null and !t.notes.isEmpty()}">
                         <i class="fa-solid fa-note-sticky"></i>
                         <span th:text="${t.notes}">Ghi chú từ hệ thống</span>
                     </div>
                 </div>
                 <div class="room-card-footer">
-                    <button class="btn btn-report" th:attr="onclick=|openReportModal('${t.room.id}', '${t.room.roomNumber}')|">
+                    <button class="btn btn-report"
+                        th:attr="onclick=|openReportModal('${t.room.id}', '${t.room.roomNumber}')|">
                         <i class="fa-solid fa-triangle-exclamation"></i> Báo sự cố
                     </button>
                     <form method="post" th:action="@{/housekeeping/tasks/{id}/start(id=${t.id})}" style="margin: 0;">
@@ -826,20 +893,25 @@
             </div>
             <form action="/housekeeping/report-damage" method="post">
                 <input type="hidden" id="reportRoomId" name="roomId" value="">
-                
+
                 <div class="form-group">
                     <label class="form-label">Phòng đang xảy ra sự cố</label>
-                    <input type="text" id="reportRoomNumber" class="form-control" value="101" readonly style="background: var(--surface-hover); color: var(--text-secondary); font-weight: 600;">
+                    <input type="text" id="reportRoomNumber" class="form-control" value="101" readonly
+                        style="background: var(--surface-hover); color: var(--text-secondary); font-weight: 600;">
                 </div>
-                
+
                 <div class="form-group">
                     <label class="form-label">Mô tả sự cố gặp phải</label>
-                    <textarea name="notes" class="form-control" rows="4" placeholder="Ví dụ: Tivi không lên nguồn, vòi hoa sen bị rỉ nước..." required></textarea>
+                    <textarea name="notes" class="form-control" rows="4"
+                        placeholder="Ví dụ: Tivi không lên nguồn, vòi hoa sen bị rỉ nước..." required></textarea>
                 </div>
-                
+
                 <div class="modal-actions">
-                    <button type="button" class="btn" style="background: var(--surface-hover); color: var(--text-secondary);" onclick="closeReportModal()">Hủy bỏ</button>
-                    <button type="submit" class="btn btn-primary" style="background: var(--danger);"><i class="fa-solid fa-paper-plane"></i> Gửi yêu cầu ngay</button>
+                    <button type="button" class="btn"
+                        style="background: var(--surface-hover); color: var(--text-secondary);"
+                        onclick="closeReportModal()">Hủy bỏ</button>
+                    <button type="submit" class="btn btn-primary" style="background: var(--danger);"><i
+                            class="fa-solid fa-paper-plane"></i> Gửi yêu cầu ngay</button>
                 </div>
             </form>
         </div>
@@ -855,14 +927,19 @@
                 <button class="close-btn" onclick="closeCompleteModal()"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <form id="completeForm" method="post" action="">
-                <p style="margin-bottom: 16px; font-size: 14px; color: var(--text-secondary);">Bạn chuẩn bị đánh dấu hoàn thành dọn dẹp cho <strong id="completeRoomNumber">Phòng</strong>.</p>
+                <p style="margin-bottom: 16px; font-size: 14px; color: var(--text-secondary);">Bạn chuẩn bị đánh dấu
+                    hoàn thành dọn dẹp cho <strong id="completeRoomNumber">Phòng</strong>.</p>
                 <div class="form-group">
                     <label>Ghi chú (Tùy chọn)</label>
-                    <textarea name="notes" rows="3" class="form-control" placeholder="Ví dụ: Khách quên sạc điện thoại, cần bổ sung khăn tắm..."></textarea>
+                    <textarea name="notes" rows="3" class="form-control"
+                        placeholder="Ví dụ: Khách quên sạc điện thoại, cần bổ sung khăn tắm..."></textarea>
                 </div>
                 <div style="display: flex; gap: 12px; margin-top: 24px;">
-                    <button type="button" class="btn" style="background: var(--surface-hover); color: var(--text-primary); flex: 1;" onclick="closeCompleteModal()">Hủy</button>
-                    <button type="submit" class="btn btn-success" style="flex: 1;"><i class="fa-solid fa-check"></i> Hoàn tất</button>
+                    <button type="button" class="btn"
+                        style="background: var(--surface-hover); color: var(--text-primary); flex: 1;"
+                        onclick="closeCompleteModal()">Hủy</button>
+                    <button type="submit" class="btn btn-success" style="flex: 1;"><i class="fa-solid fa-check"></i>
+                        Hoàn tất</button>
                 </div>
             </form>
         </div>
@@ -878,9 +955,9 @@
         function closeReportModal() {
             document.getElementById('reportModal').classList.remove('active');
         }
-        
+
         // Close modal on outside click
-        document.getElementById('reportModal').addEventListener('click', function(e) {
+        document.getElementById('reportModal').addEventListener('click', function (e) {
             if (e.target === this) {
                 closeReportModal();
             }
@@ -896,11 +973,12 @@
             document.getElementById('completeModal').classList.remove('active');
         }
 
-        document.getElementById('completeModal').addEventListener('click', function(e) {
+        document.getElementById('completeModal').addEventListener('click', function (e) {
             if (e.target === this) {
                 closeCompleteModal();
             }
         });
     </script>
 </body>
+
 </html>
