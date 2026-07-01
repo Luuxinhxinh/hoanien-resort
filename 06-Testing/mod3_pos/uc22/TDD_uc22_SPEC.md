@@ -1,10 +1,10 @@
-# TEST-DRIVEN DEVELOPMENT SPECIFICATION — UC18: CHỐT CA / BÁO CÁO F&B
+# TEST-DRIVEN DEVELOPMENT SPECIFICATION — UC22: ĐẶT MÓN VNPAY
 
 ## Mẫu Đặc tả Kiểm thử Hướng Phát triển — KAWAI RETREAT RESORT & HUB
 
 | Field                    | Value                                                |
 | ------------------------ | ---------------------------------------------------- |
-| **Document ID**    | `KAWAI-TDD-UC18-001`                               |
+| **Document ID**    | `KAWAI-TDD-UC22-001`                               |
 | **Version**        | 1.0                                                  |
 | **Date**           | 2026-07-02                                           |
 | **Status**         | Approved                                             |
@@ -15,7 +15,7 @@
 | **Classification** | Internal — Confidential                             |
 
 **References:**
-* `EDS_UC18_Chot_Ca_Bao_Cao_FnB.md`
+* `EDS_UC22_Dat_Mon_Truc_Tuyen_VNPAY.md`
 
 > **Quy ước TDD:** Thứ tự bắt buộc: viết test (.java) → chạy → xác nhận FAIL 🔴 → implement → PASS 🟢 → refactor 🔵.
 
@@ -25,7 +25,7 @@
 
 | Ngày       | Người thực hiện | Nội dung thay đổi                                                              |
 | ---------- | --------------- | ------------------------------------------------------------------------------- |
-| 2026-07-02 | Trịnh Minh Đức  | Khởi tạo TDD Spec cho UC18 — Chốt ca / Báo cáo doanh thu F&B                  |
+| 2026-07-02 | Trịnh Minh Đức  | Khởi tạo TDD Spec cho UC22 — Đặt món trực tuyến qua VNPAY                     |
 
 ---
 
@@ -43,9 +43,9 @@
 
 | Field                         | Value                                                              |
 | ----------------------------- | ------------------------------------------------------------------ |
-| **Feature / Gap ID**    | `GAP-MOD3-UC18`                                                  |
-| **Use Case**            | UC-18 — Chốt ca / Báo cáo doanh thu F&B                     |
-| **Compliance Scope**    | BR-FIN-15, BR-SYS-04                                              |
+| **Feature / Gap ID**    | `GAP-MOD3-UC22`                                                  |
+| **Use Case**            | UC-22 — Đặt món trực tuyến qua VNPAY                        |
+| **Compliance Scope**    | VNPAY HMAC-SHA512                                                 |
 
 ---
 
@@ -53,62 +53,61 @@
 
 | #  | Spec gốc (sai / thiếu)                                                                       | Thực tế (schema / policy)                                                             | Fix áp dụng trong test                                                                     |
 | -- | ---------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
-| L1 | Chốt ca nhiều lần trong ngày                                                                   | 1 ngày chỉ có 1 báo cáo chốt (Idempotent guard)                                         | Assert ném lỗi khi cố chốt lần 2.                                                           |
-| L2 | Tính tổng tiền cả đơn chưa thanh toán                                                          | Chỉ tính đơn `isPaidInPos = true`                                                       | Đưa logic filter vào test data để verify totalRevenue.                                      |
+| L1 | IPN update không an toàn                                                                       | Phải xác thực chữ ký (SecureHash)                                                       | Assert lỗi "Invalid Signature" khi gửi SecureHash sai.                                      |
 
 ---
 
 ## 3. Test Case Specification
 
-### TC-UC18-001 — Chốt ca thành công (Tính đúng tổng tiền)
+### TC-UC22-001 — VNPAY Callback Thành Công (Response = 00)
 
 **Severity:** CRITICAL
 **CWE:** N/A
-**Feature Under Test:** `FnBDailyReportServiceImpl.calculateRevenue() & save()`
-**Test File:** `src/test/java/com/kawai/services/FnBDailyReportServiceUC18Test.java`
+**Feature Under Test:** `VnPayPaymentController.ipn()`
+**Test File:** `src/test/java/com/kawai/services/PosOnlineOrderUC22Test.java`
 **TDD Phase:** 🟢 GREEN
 
 **Preconditions:**
-* DB chứa 3 đơn hàng hôm nay:
-  * Đơn 1: 100k, `isPaidInPos = true`
-  * Đơn 2: 50k, `isPaidInPos = true`
-  * Đơn 3: 200k, `isPaidInPos = false` (chưa thanh toán)
+* Đơn hàng `ORD-999` đang ở trạng thái `AWAITING_PAYMENT`, `isPaidInPos = false`.
+* Request IPN từ VNPAY có `vnp_ResponseCode = "00"` và `vnp_SecureHash` hợp lệ.
 
 **Test Steps:**
-1. Mock Repository trả về danh sách 3 đơn trên theo ngày.
-2. Gọi API hoặc Service thực hiện chốt ca `closeReport(today)`.
-3. Assert Entity `FnBDailyReport` được tạo ra để lưu.
-4. Assert `totalRevenue` của báo cáo phải bằng `150,000` (chỉ cộng đơn đã pay).
+1. Dựng mock params gửi vào IPN, ký hash SHA512 đúng với secret key.
+2. Gửi request vào `/api/vnpay/ipn`.
+3. Assert DB cập nhật đơn hàng thành `PENDING` và `isPaidInPos = true`.
+4. Assert IPN trả về response `{"RspCode": "00", "Message": "Confirm Success"}`.
 
 **Expected Result (PASS):**
-* Lọc bỏ hoàn toàn đơn chưa thanh toán (isPaidInPos = false) ra khỏi báo cáo chốt doanh thu.
+* Hệ thống ghi nhận thanh toán thành công và báo lại cho VNPAY.
 
 **Expected Result (FAIL):**
-* Tổng doanh thu báo cáo sai lầm (ra 350,000 VND).
+* API trả về 500 hoặc lưu trạng thái không đồng bộ (trả 00 cho VNPAY nhưng đơn chưa update).
 
 ---
 
-### TC-UC18-002 — Ngăn chốt ca 2 lần cùng ngày (Idempotent)
+### TC-UC22-002 — VNPAY Chữ Ký Sai
 
 **Severity:** HIGH
-**CWE:** CWE-362
-**Feature Under Test:** `Idempotent validation`
-**Test File:** `src/test/java/com/kawai/services/FnBDailyReportServiceUC18Test.java`
+**CWE:** CWE-347 (Improper Verification of Cryptographic Signature)
+**Feature Under Test:** `SecureHash Validation`
+**Test File:** `src/test/java/com/kawai/services/PosOnlineOrderUC22Test.java`
 **TDD Phase:** 🟢 GREEN
 
 **Preconditions:**
-* Đã tồn tại một `FnBDailyReport` cho ngày hôm nay trong DB.
+* Đơn hàng `ORD-999` đang `AWAITING_PAYMENT`.
+* Request IPN bị hacker giả mạo (truyền sai `vnp_SecureHash`).
 
 **Test Steps:**
-1. Mock `FnBDailyReportRepository.existsByReportDate(today)` trả về `true`.
-2. Gọi hàm `closeReport(today)`.
-3. Assert bắt được Exception.
+1. Dựng mock params với `vnp_ResponseCode = "00"` nhưng `vnp_SecureHash` giả.
+2. Gửi request vào `/api/vnpay/ipn`.
+3. Assert đơn hàng không đổi trạng thái.
+4. Assert IPN trả về `{"RspCode": "97", "Message": "Invalid Checksum"}`.
 
 **Expected Result (PASS):**
-* Ném lỗi `BusinessLogicException`: "FNB-RPT-001: Báo cáo ngày hôm nay đã được chốt".
+* Chặn đứng việc gọi giả mạo, đơn hàng vẫn `AWAITING_PAYMENT`.
 
 **Expected Result (FAIL):**
-* Lưu đè (overwrite) snapshot báo cáo cũ hoặc tạo đúp báo cáo cùng 1 ngày.
+* Bị bypass chữ ký, hệ thống cập nhật đơn hàng thành PENDING mặc dù tiền chưa vào tài khoản.
 
 ---
 
@@ -116,8 +115,8 @@
 
 | UC   | TC ID       | Mô tả ngắn                                                    | Test File                                    | 🔴 RED | 🟢 GREEN | 🔵 REFACTOR |
 | ---- | ----------- | ------------------------------------------------------------- | -------------------------------------------- | ------ | -------- | ----------- |
-| UC18 | TC-UC18-001 | Tính tổng tiền và lưu báo cáo thành công                       | `FnBDailyReportServiceUC18Test.java`             | [x]    | [x]      | [x]         |
-| UC18 | TC-UC18-002 | Ngăn chốt nhiều lần trong ngày                                 | `FnBDailyReportServiceUC18Test.java`             | [x]    | [x]      | [x]         |
+| UC22 | TC-UC22-001 | IPN Thành công                                                 | `PosOnlineOrderUC22Test.java`                | [x]    | [x]      | [x]         |
+| UC22 | TC-UC22-002 | Sai chữ ký                                                     | `PosOnlineOrderUC22Test.java`                | [x]    | [x]      | [x]         |
 
 ---
 
@@ -132,4 +131,4 @@
 ## 6. Rollback Plan
 | Tình huống                                           | Hành động                                                                        |
 | ------------------------------------------------------ | ----------------------------------------------------------------------------------- |
-| Lỗi Transaction khi lưu Snapshot                     | Bổ sung logic try/catch và log lỗi để tránh rollback toàn bộ hệ thống Pos.          |
+| Chữ ký VNPAY không xác thực được do config sai       | Kiểm tra lại vnp_HashSecret trong biến môi trường và đồng bộ với Sandbox VNPAY. |

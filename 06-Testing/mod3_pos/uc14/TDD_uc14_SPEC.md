@@ -1,36 +1,40 @@
-# TEST-DRIVEN DEVELOPMENT SPECIFICATION
+# TEST-DRIVEN DEVELOPMENT SPECIFICATION — UC14: QUẢN LÝ ĐƠN HÀNG F&B (F&B ORDER MANAGEMENT)
 
-## UC-17: Order Food Online (Room Service / E-Menu) — Đặc tả Kiểm thử Hướng Phát triển
+## Mẫu Đặc tả Kiểm thử Hướng Phát triển — KAWAI RETREAT RESORT & HUB
 
-| Field                  | Value                       |
-| ---------------------- | --------------------------- |
-| **Document ID**  | `KAWAI-TDD-MOD3-UC17-001` |
-| **Version**      | 2.0                         |
-| **Date**         | 2026-06-19                  |
-| **Status**       | Approved                    |
-| **Standard**     | ISO/IEC/IEEE 29119-3:2021   |
-| **Author**       | Trịnh Minh Đức            |
-| **Reviewed by**  | Nguyễn Xuân Lưu          |
-| **DPO Sign-off** |                             |
-| **Approved by**  | [x] Trịnh Minh Đức       |
-| **Based on EDS** | v2.0                        |
+| Field                    | Value                                                |
+| ------------------------ | ---------------------------------------------------- |
+| **Document ID**    | `KAWAI-TDD-UC14-001`                               |
+| **Version**        | 1.0                                                  |
+| **Date**           | 2026-07-02                                           |
+| **Status**         | Approved                                             |
+| **Standard**       | ISO/IEC/IEEE 29119-3:2021 — Software Testing Part 3 |
+| **Author**         | Trịnh Minh Đức                                     |
+| **Reviewed by**    | Nguyễn Xuân Lưu                                   |
+| **Approved by**    | [ ] Pending                                          |
+| **Classification** | Internal — Confidential                             |
+
+**References:**
+
+* `06-Testing/mod3_pos/uc14/EDS_UC14_Quan_Ly_Don_Hang_FnB.md` — UC14 EDS Spec
+* `06-Testing/MASTER_TDD_SPEC.md` — Master TDD Spec
+* `06-Testing/mod3_pos/TDD_MOD3_SPEC.md` — TDD Module 3
+* `05-Development/kawai-backend` — Backend Spring Boot
 
 > **Quy ước TDD:** Tài liệu này mô tả test cases TRƯỚC khi viết production code.
-> Thứ tự bắt buộc: viết test (`.java`) → chạy → xác nhận FAIL 🔴 → implement → PASS 🟢 → refactor 🔵.
+> Thứ tự bắt buộc: viết test (.java) → chạy → xác nhận FAIL 🔴 → implement → PASS 🟢 → refactor 🔵.
 
 ---
 
-### CHANGELOG
+## CHANGELOG
 
-| Ngày      | Người thực hiện | Nội dung thay đổi                                                                                                                   |
-| ---------- | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| 2026-06-19 | Antigravity Agent | Đổi tên tài liệu từ UC16/14 thành UC-17 cho đúng SRS. Viết lại cấu trúc theo đúng format 7 sections chuẩn TDD của UC-14 mẫu. Bổ sung trọn bộ 6 Test Cases. |
-| 2026-06-17 | Trịnh Minh Đức | Cập nhật file cho PosApiController, sửa tên mã Test. |
-| 2026-06-15 | Trịnh Minh Đức | Khởi tạo tài liệu. |
+| Ngày       | Người thực hiện | Nội dung thay đổi                                                              |
+| ---------- | --------------- | ------------------------------------------------------------------------------- |
+| 2026-07-02 | Trịnh Minh Đức  | Khởi tạo TDD Spec cho UC14 — Quản lý đơn hàng F&B (F&B Order Management)      |
 
 ---
 
-### MỤC LỤC
+## MỤC LỤC
 
 1. [Thông tin Module](#1-thong-tin-module)
 2. [Logic Issues Resolved](#2-logic-issues-resolved)
@@ -42,250 +46,172 @@
 
 ---
 
-### 1. Thông tin Module
+## 1. Thông tin Module
 
-| Field                         | Value                                                                           |
-| ----------------------------- | ------------------------------------------------------------------------------- |
-| **Feature / Gap ID**    | `GAP-MOD3-UC17`                                                               |
-| **Use Case**            | UC-17 — Order Food Online (Room Service / E-Menu)                              |
-| **Module**              | MOD3 — Restaurant POS & F&B Operations                                  |
-| **Priority**            | 🔴 P0 — Critical                                                               |
-| **Sprint**              | S1 (2026-06-09 → 2026-06-23)                                                   |
-| **Milestone**           | M3 Alpha — 2026-07-11                                                          |
-| **Data Classification** | Internal (Dữ liệu nội bộ F&B, không chứa PII)                                |
-| **Compliance Scope**    | Nội bộ khách sạn                                                              |
-| **Primary Actor**       | Customer                                                                        |
-| **Secondary Actor**     | System / F&B Staff / Kitchen Staff                                              |
+| Field                         | Value                                                              |
+| ----------------------------- | ------------------------------------------------------------------ |
+| **Feature / Gap ID**    | `GAP-MOD3-UC14`                                                  |
+| **Use Case**            | UC-14 — Quản lý đơn hàng F&B (F&B Order Management)         |
+| **Module**              | Module 3 — POS & Nhà hàng                                    |
+| **Priority**            | 🔴 P0 — Critical                                                  |
+| **Sprint**              | S3 (2026-07-01 → 2026-07-15)                                      |
+| **Milestone**           | M3 Alpha — 2026-07-11                                             |
+| **Data Classification** | Internal / Operational                                             |
+| **Compliance Scope**    | POS-001, POS-007, POS-008, POS-009                                |
 
 ---
 
-### 2. Logic Issues Resolved
+## 2. Logic Issues Resolved
 
-| #  | Spec gốc (sai / thiếu)                                             | Thực tế (schema / policy)                                                                           | Fix áp dụng trong test                                                                            |
-| -- | -------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
-| L1 | Chưa rõ giá món ăn lúc đặt và sau này đổi thì tính sao?      | Giá tại thời điểm đặt (priceAtOrder) phải được snapshot và lưu thẳng vào FoodOrderDetail     | TC-M3-001 verify priceAtOrder được lưu chuẩn theo giá gửi lên từ Cart request                  |
-| L2 | Trạng thái KOT của món ăn sau khi gọi là gì?                      | Tất cả món ăn sau khi đặt thành công đều có kotStatus = "Pending" chờ bếp tiếp nhận        | TC-M3-001 verify trường kotStatus = "Pending"                                                 |
-| L3 | Phí phục vụ (Service Fee) chưa được tính rõ ràng                | Charge to Room luôn cộng thêm 5% service fee vào subtotal để trừ credit limit của phòng             | TC-M3-001 và TC-M3-001b tính toán công thức subtotal + 5% và so sánh với CreditLimit còn lại        |
-| L4 | Khách viết ghi chú (AF2) thì lưu ở đâu?                            | Lưu vào trường `note` của bảng `FoodOrder`, kèm theo tên khách (nếu có)                      | TC-M3-001c (AF2) kiểm tra nội dung ghi chú và tên khách được lưu thành công                       |
-| L5 | Nếu Credit Limit < Total Amount thì sao? (E1)                        | Báo lỗi 400 Bad Request ngay, không tạo đơn hàng, không trừ tiền                                    | TC-M3-001d (E1) xác minh lỗi HTTP 400 và không có thay đổi DB                                        |
-| L6 | Nếu phòng đã checkout hoặc số phòng sai (E2)?                       | Báo lỗi 400 Bad Request "Phòng không tồn tại!"                                                 | TC-M3-001e (E2) kiểm tra validation roomNumber                                                  |
+| #  | Spec gốc (sai / thiếu)                                                                       | Thực tế (schema / policy)                                                             | Fix áp dụng trong test                                                                     |
+| -- | ---------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| L1 | Chưa rõ xử lý khi số khách bằng 0 hoặc âm                                                  | Party size phải > 0 (POS-008)                                                           | Thêm test chặn tạo đơn nếu số khách <= 0.                                                   |
+| L2 | Thiếu ràng buộc về trạng thái bàn khi tạo đơn Dine-In                                         | Bàn phải ở trạng thái Available (POS-007)                                               | Thêm test chặn tạo đơn nếu bàn đang Occupied hoặc Out_of_service.                             |
+| L3 | Thiếu ràng buộc thời gian tạo đơn Dine-In                                                    | Không nhận khách Dine-In từ 23:00 đến 08:00 (POS-009)                                   | Thêm test với mock time ngoài giờ hoạt động.                                                |
+| L4 | Chưa quy định rõ trạng thái KOT của món ăn sau khi tạo đơn                                 | Mọi món trong đơn tạo mới đều có KOT status = Pending                                   | Assert tất cả FoodOrderDetail.kotStatus = Pending.                                          |
 
 ---
 
-### 3. Test Design Specification (TDS)
+## 3. Test Design Specification (TDS)
 
-#### TDS-01 — Scope / Phạm vi
+### TDS-01 — Scope / Phạm vi
 
 ```
-Room Service Order Backend — Spring Boot
-├── Controller  : PosApiController.createOrder()
-├── Repository  : FoodOrderRepository, FoodOrderDetailRepository
-├── Integration : RoomBookingRepository (để trừ CreditLimit)
-└── Event       : FoodOrderCreatedEvent (ApplicationEventPublisher - sẽ implement)
-
-NGOÀI PHẠM VI UC-17 (test riêng):
-  ✖ KDS Status Update (Bếp đổi trạng thái) → Test riêng (Kitchen Module)
-  ✖ Checkout / Settlement Folio            → Test riêng (Checkout Module)
+Feature: F&B Order Management (UC-14)
+├── Service Layer: PosServiceImpl.createOrder()
+├── Repository:
+│   ├── FoodOrderRepository
+│   ├── FoodOrderDetailRepository
+│   ├── RestaurantTableRepository (kiểm tra status bàn)
+│   └── MenuItemRepository (lấy giá trị menu items)
+└── Integration:
+    ├── Table Management (cập nhật status)
+    └── Business Rules validation (POS-001, 007, 008, 009)
 ```
 
-#### TDS-02 — Test Basis / Cơ sở Kiểm thử
+### TDS-02 — Test Basis / Cơ sở Kiểm thử
 
-| Source                | Items Derived                                                                      |
-| --------------------- | ---------------------------------------------------------------------------------- |
-| SRS §2.1.17 UC-17    | Normal Flow, AF-01 (Multiple Items), AF-02 (Special Request), E-01 (Credit Limit), E-02, E-03 |
-| EDS ADR-UC17-001      | Xử lý Charge to Room và Credit Limit tại Controller (cho response nhanh)          |
-| EDS ADR-UC17-002      | Snapshot Pricing: `priceAtOrder` là hằng số theo thời điểm đặt                 |
+| Source                        | Items Derived                                                                                             |
+| ----------------------------- | --------------------------------------------------------------------------------------------------------- |
+| SRS UC14 — Normal Flow       | Tạo đơn hàng, cập nhật bàn sang Occupied, lưu chi tiết món ăn (KOT)                              |
+| SRS UC14 — Exceptions        | EX1 (items rỗng), EX2 (bàn không trống), EX3 (khách <= 0), EX4 (ngoài giờ làm việc)            |
+| Business Rules                | POS-001, POS-007, POS-008, POS-009                                                                        |
 
-#### TDS-03 — Test Techniques
+### TDS-03 — Test Conditions and Coverage Items
 
-| Kỹ thuật                              | Áp dụng cho Test Case                                               |
-| --------------------------------------- | --------------------------------------------------------------------- |
-| **Equivalence Partitioning**      | TC-M3-001 (data chuẩn), TC-M3-001e (sai mã phòng)                      |
-| **Boundary Value Analysis**       | TC-M3-001d (Credit Limit sát mép hoặc nhỏ hơn số tiền)                |
-| **Negative Test**                 | TC-M3-001d, TC-M3-001e, TC-M3-001f                                     |
-
-#### TDS-04 — Test Conditions and Coverage Items
-
-| Condition ID    | SRS Coverage                        | Test Condition                                                              | Test Case |
-| --------------- | ----------------------------------- | --------------------------------------------------------------------------- | --------- |
-| TC-COND-M3-01   | Normal Flow                         | Gọi món Room Service thành công, Credit Limit trừ chuẩn (có phí 5%)      | TC-M3-001 |
-| TC-COND-M3-02   | AF-01                               | Gọi nhiều món cùng lúc (qty > 1, nhiều items), tính tổng tiền chính xác  | TC-M3-001b |
-| TC-COND-M3-03   | AF-02                               | Thêm ghi chú đặc biệt vào đơn hàng                                       | TC-M3-001c |
-| TC-COND-M3-04   | E-01                                | Tổng đơn hàng vượt hạn mức tín dụng còn lại → Reject đơn hàng        | TC-M3-001d |
-| TC-COND-M3-05   | E-02                                | Phòng không tồn tại trong hệ thống → Reject đơn hàng                   | TC-M3-001e |
-| TC-COND-M3-06   | E-03                                | Món ăn không còn tồn tại trong DB → Reject đơn hàng                     | TC-M3-001f |
+| Condition ID    | Test Condition                                                      | Coverage Item                                  | Test Cases               |
+| --------------- | ------------------------------------------------------------------- | ---------------------------------------------- | ------------------------ |
+| TC-COND-UC14-01 | Tạo đơn thành công                                                 | `PosServiceImpl.createOrder()`                 | TC-UC14-001              |
+| TC-COND-UC14-02 | Tạo đơn khi items rỗng (POS-001)                                   | Item list validation                           | TC-UC14-002              |
+| TC-COND-UC14-03 | Tạo đơn Dine-In khi bàn không trống (POS-007)                      | Table status validation                        | TC-UC14-003              |
+| TC-COND-UC14-04 | Số khách <= 0 (POS-008)                                            | Party size validation                          | TC-UC14-004              |
+| TC-COND-UC14-05 | Tạo đơn Dine-In từ 23:00-08:00 (POS-009)                           | Business hours validation                      | TC-UC14-005              |
 
 ---
 
-### 4. Test Case Specification
+## 4. Test Case Specification
 
----
+### TC-UC14-001 — Tạo đơn hàng Dine-In thành công
 
-#### `TC-M3-001` — Normal Flow: Room Service thành công, Credit Limit trừ đúng
-
-**Severity:** 🔴 CRITICAL
-**Feature Under Test:** UC-17 Normal Flow
-**SRS Coverage:** Normal Flow Steps 1-16
-**TDD Phase:** 🟢 GREEN (Retroactive)
-**Test File:** `PosApiControllerUC17Test.java`
-**Test Data Classification:** SYNTHETIC
+**Severity:** CRITICAL
+**CWE:** N/A
+**Feature Under Test:** `PosServiceImpl.createOrder()`, `RestaurantTableRepository`
+**Test File:** `src/test/java/com/kawai/services/PosServiceUC14Test.java`
+**TDD Phase:** 🟢 GREEN
 
 **Preconditions:**
-- Khách ở phòng `101`, credit limit ban đầu: `500,000 VND`.
-- Món ăn ID=1 có giá `100,000 VND` sẵn sàng.
+* Bàn "T01" (capacity 4) đang có trạng thái "AVAILABLE".
+* Món "Phở bò" (giá 100,000 VND) đang có sẵn (`isAvailable = true`).
+* Request: partySize = 2.
+* Thời gian hiện tại: 10:00 AM (trong giờ hoạt động).
 
 **Test Steps:**
-1. Khách gọi `POST /api/pos/orders` qua app E-Menu: đặt 2 món ID=1, Charge to Room.
-2. Assert HTTP 200 OK, `status = "success"`.
-3. Truy vấn DB mock: `foodOrderRepository.save()` được gọi 1 lần với orderType = "Room Service".
-4. Truy vấn DB mock: `foodOrderDetailRepository.save()` được gọi 1 lần với priceAtOrder = 100000.
-5. Truy vấn DB mock: `roomBookingRepository.save()` được gọi 1 lần với CreditLimit cập nhật.
-6. Xác minh CreditLimit mới: 500k - (200k + 5% fee) = `290,000 VND`.
+1. Mock `RestaurantTableRepository.findById(1)` trả về bàn T01 (AVAILABLE).
+2. Mock `MenuItemRepository` để lấy giá món ăn.
+3. Gọi `createOrder` tạo đơn với bàn T01, partySize 2, 2 phần Phở bò.
+4. Assert Order được tạo có `orderStatus = PENDING`, `isPaidInPos = false`.
+5. Assert `FoodOrderDetail` được tạo đủ 2 bản ghi, mỗi bản ghi có `kotStatus = PENDING`.
+6. Assert Bàn T01 chuyển trạng thái sang `OCCUPIED`.
 
 **Expected Result (PASS):**
-- Đơn hàng tạo thành công, giá tiền lưu chuẩn snapshot, Credit Limit trừ đúng 210,000 VND.
+* Tạo đơn thành công, tổng tiền được tính đúng (200,000 VND).
+* Bàn chuyển trạng thái sang `OCCUPIED`.
+* Các `FoodOrderDetail` có `kotStatus = PENDING`.
+
+**Expected Result (FAIL):**
+* Đơn được tạo nhưng bàn không đổi trạng thái.
+* Tổng tiền tính sai do lấy sai giá từ DB.
 
 ---
 
-#### `TC-M3-001b` — AF-01: Đặt nhiều món (Multiple Items)
+### TC-UC14-002 — Bàn không trống (POS-007)
 
-**Severity:** 🟡 MEDIUM
-**Feature Under Test:** UC-17 AF-01
-**SRS Coverage:** AF-01 "Multiple Items Ordered"
-**TDD Phase:** 🟢 GREEN (Retroactive)
-**Test File:** `PosApiControllerUC17Test.java`
-**Test Data Classification:** SYNTHETIC
+**Severity:** HIGH
+**CWE:** CWE-841 (Improper Enforcement of Behavioral Workflow)
+**Feature Under Test:** `Table Status Validation`
+**Test File:** `src/test/java/com/kawai/services/PosServiceUC14Test.java`
+**TDD Phase:** 🟢 GREEN
 
 **Preconditions:**
-- Món ID=1 (100k), Món ID=2 (80k). Credit limit phòng: 500k.
+* Bàn "T02" đang có trạng thái "OCCUPIED" hoặc "CLEANING".
 
 **Test Steps:**
-1. Khách gọi `POST /api/pos/orders` với mảng items gồm: 2 phần món ID=1 (200k) và 3 phần món ID=2 (240k).
-2. Assert HTTP 200 OK.
-3. Xác minh tổng đơn: 440k + 5% (22k) = 462,000 VND.
-4. Xác minh Credit Limit mới: 500k - 462k = `38,000 VND`.
+1. Mock `RestaurantTableRepository.findById(2)` trả về bàn T02 (OCCUPIED).
+2. Gọi `createOrder` với bàn T02.
+3. Assert Exception được ném ra với message phù hợp.
 
 **Expected Result (PASS):**
-- Thuật toán tính tổng tiền (kết hợp số lượng và giá) chính xác cho nhiều phần tử.
+* Ném lỗi `BusinessLogicException`: "POS-007: Bàn không ở trạng thái khả dụng".
+* Không có đơn hàng nào được tạo trong DB.
+
+**Expected Result (FAIL):**
+* Vẫn tạo đơn cho bàn đang OCCUPIED dẫn đến conflict dữ liệu bàn.
 
 ---
 
-#### `TC-M3-001c` — AF-02: Ghi chú đặc biệt (Special Request)
+### TC-UC14-003 — Đặt Dine-in ngoài giờ hoạt động (POS-009)
 
-**Severity:** 🟡 MEDIUM
-**Feature Under Test:** UC-17 AF-02
-**SRS Coverage:** AF-02 "Special Request"
-**TDD Phase:** 🟢 GREEN (Retroactive)
-**Test File:** `PosApiControllerUC17Test.java`
-**Test Data Classification:** SYNTHETIC
-
-**Test Steps:**
-1. Khách thêm thuộc tính `note="Không hành, dị ứng hải sản"` và `guestName="Nguyễn Thị B"` vào Request.
-2. Assert HTTP 200 OK.
-3. Assert FoodOrder lưu trữ thành công có chứa chuỗi "Dị ứng hải sản" và "Nguyễn Thị B".
-
-**Expected Result (PASS):**
-- Note được đính kèm thành công vào FoodOrder phục vụ bếp.
-
----
-
-#### `TC-M3-001d` — E-01: Credit Limit Exceeded (Hạn mức không đủ)
-
-**Severity:** 🟠 HIGH
-**Feature Under Test:** UC-17 E-01
-**SRS Coverage:** E-01 "Credit Limit Exceeded"
-**TDD Phase:** 🟢 GREEN (Retroactive)
-**Test File:** `PosApiControllerUC17Test.java`
-**Test Data Classification:** SYNTHETIC
+**Severity:** HIGH
+**CWE:** N/A
+**Feature Under Test:** `Business Hours Validation`
+**Test File:** `src/test/java/com/kawai/services/PosServiceUC14Test.java`
+**TDD Phase:** 🟢 GREEN
 
 **Preconditions:**
-- Credit Limit của phòng chỉ còn `100,000 VND`. Tổng đơn khách đặt tốn `210,000 VND`.
+* Thời gian hiện tại hệ thống là `23:30` (ngoài giờ phục vụ).
 
 **Test Steps:**
-1. Khách gọi `POST /api/pos/orders`.
-2. Assert HTTP 400 Bad Request.
-3. Assert JSON response chứa `"Hạn mức tín dụng của phòng không đủ"`.
-4. Assert method `save` của FoodOrder và RoomBooking KHÔNG ĐƯỢC GỌI.
+1. Dùng library mock thời gian (vd: `Clock` hoặc fixed time) về 23:30.
+2. Gọi `createOrder` với loại đơn `DINE_IN`.
+3. Assert Exception được ném ra.
 
 **Expected Result (PASS):**
-- Giao dịch bị hủy, Credit Limit giữ nguyên `100,000 VND`.
+* Ném lỗi `BusinessLogicException`: "POS-009: Không nhận đặt bàn / phục vụ tại nhà hàng từ 23:00 đến 08:00".
+
+**Expected Result (FAIL):**
+* Hệ thống vẫn nhận đơn Dine-In lúc nửa đêm.
 
 ---
 
-#### `TC-M3-001e` — E-02: Phòng không tồn tại (Room Not Eligible)
+## 5. Red-Green-Refactor Tracker
 
-**Severity:** 🟠 HIGH
-**Feature Under Test:** UC-17 E-02
-**SRS Coverage:** E-02 "Room Not Eligible"
-**TDD Phase:** 🟢 GREEN (Retroactive)
-**Test File:** `PosApiControllerUC17Test.java`
-**Test Data Classification:** SYNTHETIC
-
-**Test Steps:**
-1. Khách điền `roomNumber="999"` (không tồn tại trong hệ thống DB).
-2. Assert HTTP 400 Bad Request, message `"Phòng không tồn tại!"`.
-3. Assert không có FoodOrder nào được tạo.
-
-**Expected Result (PASS):**
-- Validate thất bại, trả lỗi sớm.
+| UC   | TC ID       | Mô tả ngắn                                                    | Test File                                    | 🔴 RED | 🟢 GREEN | 🔵 REFACTOR | 🔵 Note |
+| ---- | ----------- | ------------------------------------------------------------- | -------------------------------------------- | ------ | -------- | ----------- | ------- |
+| UC14 | TC-UC14-001 | Tạo đơn thành công, cập nhật trạng thái bàn                    | `PosServiceUC14Test.java`                    | [x]    | [x]      | [x]         |         |
+| UC14 | TC-UC14-002 | Bàn không khả dụng (POS-007)                                   | `PosServiceUC14Test.java`                    | [x]    | [x]      | [x]         |         |
+| UC14 | TC-UC14-003 | Dine-in ngoài giờ (POS-009)                                    | `PosServiceUC14Test.java`                    | [x]    | [x]      | [x]         |         |
 
 ---
 
-#### `TC-M3-001f` — E-03: Món ăn không tồn tại (Menu Item Unavailable)
+## 6. Entry / Exit Criteria
 
-**Severity:** 🟡 MEDIUM
-**Feature Under Test:** UC-17 E-03
-**SRS Coverage:** E-03 "Menu Item Unavailable"
-**TDD Phase:** 🟢 GREEN (Retroactive)
-**Test File:** `PosApiControllerUC17Test.java`
-**Test Data Classification:** SYNTHETIC
-
-**Test Steps:**
-1. Khách chọn mua món ID=1, nhưng món ID=1 đã bị xoá khỏi `menu_items` DB trong lúc đang đặt hàng.
-2. Assert HTTP 400 Bad Request, message `"Món ăn không tồn tại!"`.
-3. Assert không có FoodOrderDetail nào được lưu.
-
-**Expected Result (PASS):**
-- Validate item thất bại, từ chối tạo dòng chi tiết.
+### Exit Criteria / Definition of Done (DoD)
+- [x] **3/3 test cases** trong tracker chuyển sang trạng thái 🟢 GREEN.
+- [x] Code coverage ≥ 80% cho Use Case.
 
 ---
 
-### 5. Red-Green-Refactor Tracker
-
-> **Format 3-phase:** Mỗi test case ghi đầy đủ trạng thái 🔴 RED, 🟢 GREEN, 🔵 REFACTOR kèm commit hash + ngày thực hiện.
-> *Note: Các test này được thực hiện theo Retroactive TDD.*
-
-| UC    | TC ID      | Mô tả ngắn                                                        | Test File                         | 🔴 RED | 🔴 Date | 🟢 GREEN | 🟢 Date | 🔵 REFACTOR | 🔵 Note |
-| ----- | ---------- | -------------------------------------------------------------------- | --------------------------------- | ------ | ------- | -------- | ------- | ----------- | ------- |
-| UC-17 | TC-M3-001  | Normal Flow: Room Service đặt thành công, Credit Limit trừ đúng | `PosApiControllerUC17Test.java` | [x]    | 26-06-19| [x]      | 26-06-19| [x]         | ✅ Retroactive |
-| UC-17 | TC-M3-001b | AF-01: Đặt nhiều món cùng lúc tính tổng chính xác               | `PosApiControllerUC17Test.java` | [x]    | 26-06-19| [x]      | 26-06-19| [x]         | ✅ Retroactive |
-| UC-17 | TC-M3-001c | AF-02: Ghi chú đặc biệt lưu vào đơn hàng                        | `PosApiControllerUC17Test.java` | [x]    | 26-06-19| [x]      | 26-06-19| [x]         | ✅ Retroactive |
-| UC-17 | TC-M3-001d | E-01: Credit Limit không đủ → Reject HTTP 400                    | `PosApiControllerUC17Test.java` | [x]    | 26-06-19| [x]      | 26-06-19| [x]         | ✅ Retroactive |
-| UC-17 | TC-M3-001e | E-02: Phòng không tồn tại → Reject HTTP 400                      | `PosApiControllerUC17Test.java` | [x]    | 26-06-19| [x]      | 26-06-19| [x]         | ✅ Retroactive |
-| UC-17 | TC-M3-001f | E-03: Món ăn không tồn tại → Reject HTTP 400                    | `PosApiControllerUC17Test.java` | [x]    | 26-06-19| [x]      | 26-06-19| [x]         | ✅ Retroactive |
-
----
-
-### 6. Entry / Exit Criteria
-
-#### Entry Criteria
-- [x] Code base setup hoàn chỉnh.
-- [x] RoomBooking repository đã có hàm lấy CreditLimit.
-
-#### Exit Criteria — Definition of Done (DoD)
-- [x] Unit tests pass 100% (6/6 test cases cho UC-17).
-- [x] Không có lỗi compilation, không có FIXME trong các test code.
-- [x] `mvn test -Dtest=PosApiControllerUC17Test` trả về SUCCESS.
-
----
-
-### 7. Rollback Plan
-
-Nếu phát hiện lỗi logic sai lệch CreditLimit trên production do UC-17:
-
-```bash
-git checkout -- src/main/java/com/kawai/controllers/api/PosApiController.java
-```
-
-**Khắc phục nhanh dữ liệu sai:**
-Cộng ngược lại số tiền trừ sai vào bảng `room_bookings.credit_limit`. Xóa các `food_orders` phát sinh do lỗi.
+## 7. Rollback Plan
+| Tình huống                                           | Hành động                                                                        |
+| ------------------------------------------------------ | ----------------------------------------------------------------------------------- |
+| Tạo KOT thất bại do Timeout Database                 | Đảm bảo `@Transactional` sẽ rollback toàn bộ việc tạo Order và Table Status.       |

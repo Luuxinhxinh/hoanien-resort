@@ -1,35 +1,36 @@
-# TEST-DRIVEN DEVELOPMENT SPECIFICATION
+# TEST-DRIVEN DEVELOPMENT SPECIFICATION — UC15: XÁC NHẬN THANH TOÁN ĐƠN HÀNG (PAYMENT CONFIRMATION)
 
-## UC-15: Reserve a Restaurant Table (Table Management) — Đặc tả Kiểm thử Hướng Phát triển
+## Mẫu Đặc tả Kiểm thử Hướng Phát triển — KAWAI RETREAT RESORT & HUB
 
-| Field                  | Value                       |
-| ---------------------- | --------------------------- |
-| **Document ID**  | `KAWAI-TDD-MOD3-UC15-001` |
-| **Version**      | 2.0                         |
-| **Date**         | 2026-06-20                  |
-| **Status**       | Approved                    |
-| **Standard**     | ISO/IEC/IEEE 29119-3:2021   |
-| **Author**       | Trịnh Minh Đức            |
-| **Reviewed by**  | Nguyễn Xuân Lưu          |
-| **DPO Sign-off** |                             |
-| **Approved by**  | [x] Trịnh Minh Đức       |
-| **Based on EDS** | v2.0                        |
+| Field                    | Value                                                |
+| ------------------------ | ---------------------------------------------------- |
+| **Document ID**    | `KAWAI-TDD-UC15-001`                               |
+| **Version**        | 1.0                                                  |
+| **Date**           | 2026-07-02                                           |
+| **Status**         | Approved                                             |
+| **Standard**       | ISO/IEC/IEEE 29119-3:2021 — Software Testing Part 3 |
+| **Author**         | Trịnh Minh Đức                                     |
+| **Reviewed by**    | Nguyễn Xuân Lưu                                   |
+| **Approved by**    | [ ] Pending                                          |
+| **Classification** | Internal — Confidential                             |
 
-> **Quy ước TDD:** Tài liệu này mô tả test cases TRƯỚC khi viết production code.
-> Thứ tự bắt buộc: viết test (`.java`) → chạy → xác nhận FAIL 🔴 → implement → PASS 🟢 → refactor 🔵.
+**References:**
 
----
-
-### CHANGELOG
-
-| Ngày      | Người thực hiện | Nội dung thay đổi                                                                                                                   |
-| ---------- | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| 2026-06-20 | Antigravity Agent | Cập nhật file theo đúng format 7 sections chuẩn TDD của UC-14 mẫu. Bổ sung trọn bộ 3 Test Cases xử lý Time Wrap-around và Physical Check. |
-| 2026-06-15 | Trịnh Minh Đức | Khởi tạo tài liệu TDD sơ khai. |
+* `06-Testing/mod3_pos/uc15/EDS_UC15_Xac_Nhan_Thanh_Toan.md` — UC15 EDS Spec
+* `06-Testing/MASTER_TDD_SPEC.md` — Master TDD Spec
+* `06-Testing/mod3_pos/TDD_MOD3_SPEC.md` — TDD Module 3
 
 ---
 
-### MỤC LỤC
+## CHANGELOG
+
+| Ngày       | Người thực hiện | Nội dung thay đổi                                                              |
+| ---------- | --------------- | ------------------------------------------------------------------------------- |
+| 2026-07-02 | Trịnh Minh Đức  | Khởi tạo TDD Spec cho UC15 — Xác nhận thanh toán đơn hàng (Payment Confirmation)|
+
+---
+
+## MỤC LỤC
 
 1. [Thông tin Module](#1-thong-tin-module)
 2. [Logic Issues Resolved](#2-logic-issues-resolved)
@@ -41,171 +42,125 @@
 
 ---
 
-### 1. Thông tin Module
+## 1. Thông tin Module
 
-| Field                         | Value                                                                           |
-| ----------------------------- | ------------------------------------------------------------------------------- |
-| **Feature / Gap ID**    | `GAP-MOD3-UC15`                                                               |
-| **Use Case**            | UC-15 — Reserve a Restaurant Table (Table Management)                              |
-| **Module**              | MOD3 — Restaurant POS & F&B Operations                                  |
-| **Priority**            | 🔴 P0 — Critical                                                               |
-| **Sprint**              | S1 (2026-06-09 → 2026-06-23)                                                   |
-| **Milestone**           | M3 Alpha — 2026-07-11                                                          |
-| **Data Classification** | Internal (Dữ liệu nội bộ F&B)                                |
-| **Compliance Scope**    | Nội bộ nhà hàng                                                              |
-| **Primary Actor**       | Customer, F&B Staff                                                                        |
-| **Secondary Actor**     | System                                              |
+| Field                         | Value                                                              |
+| ----------------------------- | ------------------------------------------------------------------ |
+| **Feature / Gap ID**    | `GAP-MOD3-UC15`                                                  |
+| **Use Case**            | UC-15 — Xác nhận thanh toán đơn hàng                        |
+| **Module**              | Module 3 — POS & Nhà hàng                                    |
+| **Priority**            | 🔴 P0 — Critical                                                  |
+| **Sprint**              | S3                                                                |
+| **Data Classification** | Internal / Financial                                               |
+| **Compliance Scope**    | POS-006                                                           |
 
 ---
 
-### 2. Logic Issues Resolved
+## 2. Logic Issues Resolved
 
-| #  | Spec gốc (sai / thiếu)                                             | Thực tế (schema / policy)                                                                           | Fix áp dụng trong test                                                                            |
-| -- | -------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
-| L1 | Không rõ bàn đang có khách ngồi thì khách khác có được đặt không? | Nếu đặt cận giờ (cách thời điểm đặt < 2 tiếng), hệ thống phải check trạng thái vật lý thực tế của bàn | TC-M3-UC15-002 (Physical Check) đảm bảo bàn Occupied/Cleaning bị chặn nếu đặt trong vòng 2h.  |
-| L2 | Check cận giờ qua mốc nửa đêm bị lỗi sai logic thời gian.        | `LocalTime.plusHours(2)` sẽ bị wrap-around (ví dụ: 22h+2h = 00h). Cần dùng `LocalDateTime`. | TC-M3-UC15-003 kiểm tra lỗi Time wrap-around ở mốc 22:55.                  |
-| L3 | Trùng lịch đặt bàn chưa xử lý đồng thời                        | Query mọi lịch đặt trong ngày và đối chiếu giờ start/end.                                        | TC-M3-UC15-001 kiểm tra việc Overlap giờ đặt bàn.                                                 |
+| #  | Spec gốc (sai / thiếu)                                                                       | Thực tế (schema / policy)                                                             | Fix áp dụng trong test                                                                     |
+| -- | ---------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| L1 | Đơn hàng sang thẳng Completed sau khi pay                                                     | Đơn AWAITING_PAYMENT thanh toán xong chuyển sang Pending (kitchen còn nấu)             | Assert orderStatus = Pending.                                                               |
+| L2 | Trạng thái bàn sau thanh toán là Available                                                     | Trạng thái bàn là Cleaning để nhân viên dọn bàn                                         | Assert tableStatus = Cleaning.                                                              |
+| L3 | Không liên kết tự động với Reservation                                                        | Cần tự động cập nhật Reservation (nếu có) sang Completed                                | Assert reservation status được set thành Completed nếu có lịch đặt trong ngày.              |
 
 ---
 
-### 3. Test Design Specification (TDS)
+## 3. Test Design Specification (TDS)
 
-#### TDS-01 — Scope / Phạm vi
+### TDS-01 — Scope / Phạm vi
 
 ```
-Table Reservation Backend — Spring Boot
-├── Controller  : TableApiController.getAvailableTables()
-├── Repository  : TableReservationRepository, RestaurantTableRepository
-└── Validation  : Kiểm tra Physical Status và Overlap Logic
-
-NGOÀI PHẠM VI UC-15 (test riêng):
-  ✖ Đặt thức ăn trực tiếp tại bàn (Dine In Order) → Test riêng (UC-19)
+Feature: Payment Confirmation (UC-15)
+├── Service Layer: PosServiceImpl.payOrder()
+├── Repository:
+│   ├── FoodOrderRepository
+│   ├── RestaurantTableRepository (cập nhật Cleaning)
+│   └── TableReservationRepository (cập nhật Completed)
 ```
 
-#### TDS-02 — Test Basis / Cơ sở Kiểm thử
+### TDS-03 — Test Conditions and Coverage Items
 
-| Source                | Items Derived                                                                      |
-| --------------------- | ---------------------------------------------------------------------------------- |
-| SRS UC-2.1.19    | Bàn không bị trùng lịch (Overlap check) |
-| EDS ADR-UC15-002      | Fix lỗi Time Wrap-around qua 00:00 của `LocalTime` bằng `LocalDateTime`          |
-
-#### TDS-03 — Test Techniques
-
-| Kỹ thuật                              | Áp dụng cho Test Case                                               |
-| --------------------------------------- | --------------------------------------------------------------------- |
-| **Equivalence Partitioning**      | TC-M3-UC15-001 (Overlap Check chuẩn)                      |
-| **Boundary Value Analysis**       | TC-M3-UC15-003 (Mốc thời gian sát nửa đêm 22:50 - 00:50)                |
-| **Negative Test**                 | TC-M3-UC15-002, TC-M3-UC15-003                                     |
-
-#### TDS-04 — Test Conditions and Coverage Items
-
-| Condition ID    | SRS Coverage                        | Test Condition                                                              | Test Case |
-| --------------- | ----------------------------------- | --------------------------------------------------------------------------- | --------- |
-| TC-COND-M3-01   | Overlap Check                       | Bàn đã được đặt trước ở cùng khung giờ sẽ bị loại khỏi danh sách trống      | TC-M3-UC15-001 |
-| TC-COND-M3-02   | Physical Status Check               | Đặt cận giờ (< 2 tiếng) và bàn đang Occupied sẽ bị báo bận  | TC-M3-UC15-002 |
-| TC-COND-M3-03   | Time Wrap-around Bug                | Đặt cận giờ qua mốc nửa đêm (VD: 22:55) không bị vô hiệu hóa logic check bận                                       | TC-M3-UC15-003 |
+| Condition ID    | Test Condition                                                      | Coverage Item                                  | Test Cases               |
+| --------------- | ------------------------------------------------------------------- | ---------------------------------------------- | ------------------------ |
+| TC-COND-UC15-01 | Thanh toán thành công đơn Dine-In                                  | `PosServiceImpl.payOrder()`                    | TC-UC15-001              |
+| TC-COND-UC15-02 | Thanh toán đơn không tồn tại (POS-006)                             | Exception validation                           | TC-UC15-002              |
 
 ---
 
-### 4. Test Case Specification
+## 4. Test Case Specification
 
----
+### TC-UC15-001 — Thanh toán thành công (Update table & reservation)
 
-#### `TC-M3-UC15-001` — Normal Flow: Trùng lịch (Overlap)
-
-**Severity:** 🔴 CRITICAL
-**Feature Under Test:** Overlap Checking
-**TDD Phase:** 🟢 GREEN (Retroactive)
-**Test File:** `TableApiControllerTest.java`
-**Test Data Classification:** SYNTHETIC
+**Severity:** CRITICAL
+**CWE:** N/A
+**Feature Under Test:** `PosServiceImpl.payOrder()`
+**Test File:** `src/test/java/com/kawai/services/PosServiceUC15Test.java`
+**TDD Phase:** 🟢 GREEN
 
 **Preconditions:**
-- Bàn số 4 có 1 TableReservation từ `18:00` đến `20:00`.
+* Order `ORD-100` đang có `orderStatus = AWAITING_PAYMENT`, `isPaidInPos = false`.
+* Bàn "T10" liên kết với ORD-100 đang có trạng thái `OCCUPIED`.
+* Có `TableReservation` "RSV-005" của bàn "T10" đang ở trạng thái `SEATED`.
 
 **Test Steps:**
-1. Khách gọi `GET /api/v1/tables/availability` cho cùng ngày, từ `19:00` đến `21:00`.
-2. Assert HTTP 200 OK.
-3. Assert danh sách `availableTableIds` trả về.
+1. Mock dữ liệu trả về cho `ORD-100`, bàn `T10`, và reservation `RSV-005`.
+2. Gọi `payOrder(100, paymentMethod)`.
+3. Assert `Order.isPaidInPos == true` và `Order.orderStatus == PENDING`.
+4. Assert Bàn T10 `status = CLEANING` và `cleaningStartTime` được ghi nhận.
+5. Assert Reservation RSV-005 `status = COMPLETED` và `endTime` được ghi nhận.
 
 **Expected Result (PASS):**
-- Bàn số 4 KHÔNG xuất hiện trong danh sách vì bị trùng giờ (19:00 - 20:00 là thời gian giao thoa).
+* Thanh toán thành công, thay đổi trạng thái đồng loạt cho Order, Table và Reservation.
+
+**Expected Result (FAIL):**
+* Trạng thái Bàn không được chuyển sang CLEANING dẫn đến khách mới ngồi vào bàn chưa dọn.
+* `isPaidInPos` không bật true khiến báo cáo tài chính sai.
 
 ---
 
-#### `TC-M3-UC15-002` — E-01: Trạng thái vật lý cận giờ (Physical Check)
+### TC-UC15-002 — Thanh toán đơn không tồn tại (POS-006)
 
-**Severity:** 🔴 CRITICAL
-**Feature Under Test:** Physical Status Rules
-**TDD Phase:** 🟢 GREEN (Retroactive)
-**Test File:** `TableApiControllerTest.java`
-**Test Data Classification:** SYNTHETIC
+**Severity:** HIGH
+**CWE:** CWE-20 (Improper Input Validation)
+**Feature Under Test:** `PosServiceImpl.payOrder()`
+**Test File:** `src/test/java/com/kawai/services/PosServiceUC15Test.java`
+**TDD Phase:** 🟢 GREEN
 
 **Preconditions:**
-- Thời điểm hiện tại là `18:00`.
-- Bàn số 1 đang có khách ngồi thực tế (`tableStatus = Occupied`).
+* Nhập `orderId` là `999` (không tồn tại trong hệ thống).
 
 **Test Steps:**
-1. Khách gọi `GET /api/v1/tables/availability` cho ngày hôm nay, từ `19:00` đến `21:00`.
-2. Assert HTTP 200 OK.
+1. Mock `FoodOrderRepository.findById(999)` trả về `Optional.empty()`.
+2. Gọi `payOrder(999, paymentMethod)`.
+3. Assert Exception ném ra với mã lỗi `POS-006`.
 
 **Expected Result (PASS):**
-- Giờ đặt (19:00) cách hiện tại (18:00) dưới 2 tiếng và Bàn 1 đang `Occupied`.
-- Bàn số 1 KHÔNG xuất hiện trong danh sách `availableTableIds`.
+* Ném lỗi `ResourceNotFoundException`: "POS-006: Đơn hàng không tồn tại hoặc đã kết thúc."
+
+**Expected Result (FAIL):**
+* Hệ thống bị NullPointerException hoặc trả về lỗi không rõ ràng.
 
 ---
 
-#### `TC-M3-UC15-003` — E-02: Time Wrap-around Bug
+## 5. Red-Green-Refactor Tracker
 
-**Severity:** 🟠 HIGH
-**Feature Under Test:** Time Comparison Edge Case
-**TDD Phase:** 🟢 GREEN (Retroactive)
-**Test File:** `TableApiControllerTest.java`
-**Test Data Classification:** SYNTHETIC
-
-**Preconditions:**
-- Thời điểm hiện tại giả lập là `22:50` ngày 20/06.
-- Bàn số 1 đang `Occupied`.
-
-**Test Steps:**
-1. Khách gọi `GET /api/v1/tables/availability` cho ngày 20/06, lúc `22:55` đến `23:30`.
-2. Assert HTTP 200 OK.
-
-**Expected Result (PASS):**
-- Hệ thống lấy `LocalDateTime` cộng 2 tiếng để ra `00:50 ngày 21/06`.
-- 22:55 ngày 20/06 < 00:50 ngày 21/06.
-- Bàn số 1 KHÔNG khả dụng và KHÔNG xuất hiện trong danh sách trả về.
+| UC   | TC ID       | Mô tả ngắn                                                    | Test File                                    | 🔴 RED | 🟢 GREEN | 🔵 REFACTOR |
+| ---- | ----------- | ------------------------------------------------------------- | -------------------------------------------- | ------ | -------- | ----------- |
+| UC15 | TC-UC15-001 | Thanh toán thành công, cập nhật Bàn và Lịch đặt                | `PosServiceUC15Test.java`                    | [x]    | [x]      | [x]         |
+| UC15 | TC-UC15-002 | Thanh toán đơn không tồn tại (POS-006)                         | `PosServiceUC15Test.java`                    | [x]    | [x]      | [x]         |
 
 ---
 
-### 5. Red-Green-Refactor Tracker
+## 6. Entry / Exit Criteria
 
-| UC    | TC ID      | Mô tả ngắn                                                        | Test File                         | 🔴 RED | 🔴 Date | 🟢 GREEN | 🟢 Date | 🔵 REFACTOR | 🔵 Note |
-| ----- | ---------- | -------------------------------------------------------------------- | --------------------------------- | ------ | ------- | -------- | ------- | ----------- | ------- |
-| UC-15 | TC-M3-UC15-001  | Overlap Check (Trùng giờ đặt bàn) | `TableApiControllerTest.java` | [x]    | 26-06-20| [x]      | 26-06-20| [x]         | ✅ Retroactive |
-| UC-15 | TC-M3-UC15-002 | Physical Check cận giờ (< 2 tiếng)               | `TableApiControllerTest.java` | [x]    | 26-06-20| [x]      | 26-06-20| [x]         | ✅ Retroactive |
-| UC-15 | TC-M3-UC15-003 | Fix Time Wrap-around Bug qua nửa đêm                        | `TableApiControllerTest.java` | [x]    | 26-06-20| [x]      | 26-06-20| [x]         | ✅ Retroactive |
+### Exit Criteria / Definition of Done (DoD)
+- [x] **2/2 test cases** trong tracker chuyển sang trạng thái 🟢 GREEN.
+- [x] Code coverage ≥ 80% cho Use Case.
 
 ---
 
-### 6. Entry / Exit Criteria
-
-#### Entry Criteria
-- [x] Code base setup hoàn chỉnh.
-- [x] Entity RestaurantTable và TableReservation được định nghĩa.
-
-#### Exit Criteria — Definition of Done (DoD)
-- [x] Không có lỗi logic thời gian ở mọi edge cases (nhất là qua 00:00).
-- [x] Lỗi Table Overbooking được giải quyết triệt để trên production.
-
----
-
-### 7. Rollback Plan
-
-Nếu phát hiện logic lọc bàn sai ảnh hưởng đến khách hàng trên web:
-
-```bash
-git checkout tags/v[previous-stable] -- src/main/java/com/kawai/controllers/api/TableApiController.java
-```
-
-**Khắc phục nhanh dữ liệu sai:**
-Nếu lỡ có khách đặt trùng bàn, nhân viên Reception hoặc F&B sẽ gọi điện trực tiếp cho khách để xin dời bàn.
+## 7. Rollback Plan
+| Tình huống                                           | Hành động                                                                        |
+| ------------------------------------------------------ | ----------------------------------------------------------------------------------- |
+| Lỗi cập nhật TableStatus sau khi đã update Order       | Đảm bảo method `payOrder` có `@Transactional` để rollback toàn bộ logic.           |

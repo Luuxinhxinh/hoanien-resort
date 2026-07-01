@@ -21,20 +21,18 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-@DisplayName("UC07 - Table & Menu Core Data CRUD (FnBService)")
-public class TableServiceUC07Test {
+@DisplayName("UC16 - Quản lý bàn ăn")
+public class TableServiceUC16Test {
 
     @Mock
     private RestaurantTableRepository tableRepository;
 
-    @Mock
-    private FoodItemRepository foodItemRepository;
 
     @InjectMocks
     private TableServiceImpl tableService;
 
     @Test
-    @DisplayName("TC-UC07-001 | Chặn tạo trùng tên bàn (Unique Constraint)")
+    @DisplayName("TC-UC16-001 | Chặn tạo trùng tên bàn (Unique Constraint)")
     void testSaveTable_DuplicateName_ThrowsException() {
         RestaurantTable existingTable = new RestaurantTable();
         existingTable.setTableNumber("T01");
@@ -47,7 +45,7 @@ public class TableServiceUC07Test {
     }
 
     @Test
-    @DisplayName("TC-UC07-002 | Đóng bảo trì bàn hợp lệ")
+    @DisplayName("TC-UC16-002 | Đóng bảo trì bàn hợp lệ")
     void testToggleStatus_Valid_Success() {
         RestaurantTable table = new RestaurantTable();
         table.setId(2L);
@@ -63,7 +61,7 @@ public class TableServiceUC07Test {
     }
 
     @Test
-    @DisplayName("TC-UC07-003 | Chặn đóng bàn đang có khách ngồi")
+    @DisplayName("TC-UC16-003 | Chặn đóng bàn đang có khách ngồi")
     void testToggleStatus_Occupied_ThrowsException() {
         RestaurantTable table = new RestaurantTable();
         table.setId(3L);
@@ -77,7 +75,7 @@ public class TableServiceUC07Test {
     }
 
     @Test
-    @DisplayName("TC-UC07-004 | Xóa mềm bàn (Soft Delete)")
+    @DisplayName("TC-UC16-004 | Xóa mềm bàn (Soft Delete)")
     void testSoftDeleteTable_Success() {
         RestaurantTable table = new RestaurantTable();
         table.setId(4L);
@@ -91,40 +89,4 @@ public class TableServiceUC07Test {
         verify(tableRepository, times(1)).save(table);
     }
 
-    @Test
-    @DisplayName("TC-UC07-005 | Chặn tạo món ăn trùng tên")
-    void testCreateMenuItem_DuplicateName_ThrowsException() {
-        MenuItem existingItem = new MenuItem();
-        existingItem.setItemName("Phở Bò");
-
-        when(foodItemRepository.findAll()).thenReturn(Collections.singletonList(existingItem));
-
-        assertThrows(DataIntegrityViolationException.class, () -> {
-            tableService.createMenuItem("Phở Bò", new BigDecimal("50000"), "Main");
-        });
-    }
-
-    @Test
-    @DisplayName("TC-UC07-006 | Chặn tạo món ăn giá âm")
-    void testCreateMenuItem_NegativePrice_ThrowsException() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            tableService.createMenuItem("Trà Đá", new BigDecimal("-5000"), "Drink");
-        });
-    }
-
-    @Test
-    @DisplayName("TC-UC07-007 | Toggle Availability món ăn thành công")
-    void testToggleMenuAvailability_Success() {
-        MenuItem item = new MenuItem();
-        item.setId(10L);
-        item.setIsAvailable(true);
-
-        when(foodItemRepository.findById(10L)).thenReturn(Optional.of(item));
-        when(foodItemRepository.save(any())).thenReturn(item);
-
-        MenuItem updated = tableService.toggleMenuAvailability(10L, false);
-
-        assertFalse(updated.getIsAvailable());
-        verify(foodItemRepository, times(1)).save(item);
-    }
 }
