@@ -470,6 +470,12 @@ public class PosServiceImpl implements PosService {
                     detail.setKotStatus("Served");
                 }
             }
+            
+            // Tự động gán cờ thanh toán cho đơn Room-Service khi giao xong (Served)
+            String orderTypeStr = order.getOrderType() != null ? order.getOrderType().replace(" ", "") : "";
+            if ("RoomService".equalsIgnoreCase(orderTypeStr) || "Room-Svc".equalsIgnoreCase(orderTypeStr)) {
+                order.setIsPaidInPos(true);
+            }
         }
 
         foodOrderRepository.save(order);

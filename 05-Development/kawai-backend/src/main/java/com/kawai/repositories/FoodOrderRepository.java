@@ -45,4 +45,6 @@ public interface FoodOrderRepository extends JpaRepository<FoodOrder, Long> {
 
     @Query("SELECT fo FROM FoodOrder fo WHERE LOWER(fo.orderType) IN ('room service', 'room-svc') ORDER BY fo.id DESC")
     List<FoodOrder> findRoomServiceOrders();
+
+    List<FoodOrder> findByOrderTimeBetweenOrderByOrderTimeDesc(java.time.LocalDateTime start, java.time.LocalDateTime end);
 }
