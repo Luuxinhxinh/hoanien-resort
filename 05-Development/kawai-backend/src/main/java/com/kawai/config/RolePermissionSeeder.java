@@ -31,25 +31,29 @@ public class RolePermissionSeeder implements ApplicationRunner {
         int patched = 0;
 
         for (Role role : roles) {
-            if (role.getPermissions() == null || role.getPermissions().trim().isEmpty()) {
-                String defaults = RolePermissionConstants.getDefaultPermissionsFor(role.getRoleName());
-                if (defaults != null && !defaults.isEmpty()) {
-                    role.setPermissions(defaults);
+            String defaults = RolePermissionConstants.getDefaultPermissionsFor(role.getRoleName());
+            if (defaults != null && !defaults.isEmpty()) {
+                String current = role.getPermissions() == null ? "" : role.getPermissions().trim();
+                java.util.Set<String> perms = new java.util.HashSet<>(java.util.Arrays.asList(current.split(",")));
+                perms.remove(""); // Clean up empty string if any
+                java.util.Set<String> defaultPerms = new java.util.HashSet<>(java.util.Arrays.asList(defaults.split(",")));
+                
+                if (!perms.containsAll(defaultPerms)) {
+                    perms.addAll(defaultPerms);
+                    role.setPermissions(String.join(",", perms));
                     roleRepository.save(role);
                     patched++;
-                    System.out.printf("[RBAC] Role '%s' → assigned default permissions: %s%n",
-                            role.getRoleName(), defaults);
+                    System.out.printf("[RBAC] Role '%s' → merged full default permissions.%n", role.getRoleName());
+                } else {
+                    System.out.printf("[RBAC] Role '%s' → already has full default permissions, skipped.%n", role.getRoleName());
                 }
-            } else {
-                System.out.printf("[RBAC] Role '%s' → already has permissions, skipped.%n",
-                        role.getRoleName());
             }
         }
 
         if (patched > 0) {
-            System.out.printf("[RBAC] ✅ Seeded permissions for %d role(s).%n", patched);
+            System.out.printf("[RBAC] ✅ Seeded full default permissions for %d role(s).%n", patched);
         } else {
-            System.out.println("[RBAC] ✅ All roles already have permissions configured.");
+            System.out.println("[RBAC] ✅ All roles already have their full default permissions configured.");
         }
     }
 }
