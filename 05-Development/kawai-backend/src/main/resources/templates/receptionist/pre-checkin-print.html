@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title th:text="'Khai báo tạm trú - Booking #' + ${bookingId}">Khai báo tạm trú - Booking</title>
+    <style>
+        body {
+            font-family: "Times New Roman", Times, serif;
+            font-size: 13pt;
+            line-height: 1.5;
+            color: #000;
+            background-color: #fff;
+            padding: 20px;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+        }
+
+        /* Header Layout: 2 Columns */
+        .header-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+
+        .header-table td {
+            vertical-align: top;
+            padding: 0;
+        }
+
+        .header-left {
+            width: 45%;
+            text-align: center;
+        }
+
+        .header-right {
+            width: 55%;
+            text-align: center;
+        }
+
+        .resort-name {
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 12pt;
+        }
+
+        .resort-sub {
+            font-size: 11pt;
+            font-style: italic;
+        }
+
+        .national-title {
+            font-weight: bold;
+            font-size: 12pt;
+            text-transform: uppercase;
+        }
+
+        .national-sub {
+            font-weight: bold;
+            font-size: 13pt;
+        }
+
+        .underline {
+            width: 120px;
+            height: 1px;
+            background-color: #000;
+            margin: 5px auto 0;
+        }
+
+        /* Document Title */
+        .doc-title {
+            text-align: center;
+            font-weight: bold;
+            font-size: 16pt;
+            margin: 25px 0 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Content Paragraphs */
+        .info-paragraph {
+            margin-bottom: 12px;
+            text-align: justify;
+        }
+
+        .dots {
+            border-bottom: 1px dotted #000;
+            display: inline-block;
+            flex-grow: 1;
+            margin-left: 5px;
+            min-width: 50px;
+        }
+
+        .flex-row {
+            display: flex;
+            align-items: baseline;
+            margin-bottom: 12px;
+        }
+
+        /* Table design matching word template */
+        .manifest-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 11pt;
+        }
+
+        .manifest-table th, .manifest-table td {
+            border: 1px solid #000;
+            padding: 6px 4px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .manifest-table th {
+            font-weight: bold;
+            background-color: #f2f2f2;
+        }
+
+        .align-left {
+            text-align: left !important;
+            padding-left: 6px !important;
+        }
+
+        /* Signatures Section */
+        .signature-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 35px;
+        }
+
+        .signature-table td {
+            width: 50%;
+            text-align: center;
+            vertical-align: top;
+            padding: 0;
+        }
+
+        .sig-date {
+            font-style: italic;
+            margin-bottom: 5px;
+        }
+
+        .sig-title {
+            font-weight: bold;
+            margin-bottom: 60px;
+        }
+
+        .sig-sub {
+            font-size: 11pt;
+            color: #555;
+            font-style: italic;
+        }
+
+        .sig-name {
+            font-weight: bold;
+        }
+
+        /* Control Panel (No-print) */
+        .no-print-bar {
+            background-color: #f1f5f9;
+            border-bottom: 1px solid #cbd5e1;
+            padding: 12px 24px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: sans-serif;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .btn-print-action {
+            background-color: #10b981;
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: background-color 0.2s;
+        }
+
+        .btn-print-action:hover {
+            background-color: #059669;
+        }
+
+        .btn-close-action {
+            background-color: #64748b;
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-close-action:hover {
+            background-color: #475569;
+        }
+
+        /* CSS for printing */
+        @media print {
+            body {
+                padding: 0;
+                margin: 0;
+            }
+            .no-print-bar {
+                display: none !important;
+            }
+            @page {
+                size: A4;
+                margin: 1.5cm 1.5cm 1.5cm 1.5cm;
+            }
+        }
+    </style>
+    <!-- FontAwesome for icons in no-print bar -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+
+    <div class="no-print-bar">
+        <span style="font-weight: 600; color: #334155;">Xem trước bản in Tờ Khai Tạm Trú (A4)</span>
+        <div style="display: flex; gap: 10px;">
+            <button class="btn-print-action" onclick="window.print()">
+                <i class="fas fa-print"></i> In tờ khai
+            </button>
+            <button class="btn-close-action" onclick="window.close()">
+                Đóng tab
+            </button>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Header Document Header -->
+        <table class="header-table">
+            <tr>
+                <td class="header-left">
+                    <div class="resort-name">Hòa Niên Retreat Resort & Hub</div>
+                    <div class="resort-sub">Bộ phận Lễ tân</div>
+                    <div style="font-size: 10pt; margin-top: 5px;" th:text="'Số: BKG-' + ${bookingId} + '/PNR'">Số: BKG-PNR</div>
+                </td>
+                <td class="header-right">
+                    <div class="national-title">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</div>
+                    <div class="national-sub">Độc lập – Tự do - Hạnh phúc</div>
+                    <div class="underline"></div>
+                </td>
+            </tr>
+        </table>
+
+        <!-- Title -->
+        <div class="doc-title">ĐƠN KHAI BÁO LƯU TRÚ TẠM TRÚ</div>
+
+        <!-- Content -->
+        <div class="info-paragraph" style="font-weight: bold; text-indent: 30px;">
+            KÍNH GỬI: CÔNG AN PHƯỜNG THỦY XUÂN, THÀNH PHỐ HUẾ, TỈNH THỪA THIÊN HUẾ.
+        </div>
+
+        <div class="info-paragraph">
+            Tôi tên: <strong th:text="${staffName}">Ngô Thị Ngọc Lan</strong>
+            <span style="margin-left: 60px;">Đại diện cơ sở lưu trú: <strong>Hòa Niên Retreat Resort & Hub</strong></span>
+        </div>
+
+        <div class="info-paragraph">
+            Địa chỉ cơ sở: <strong>268 Minh Mạng, Phường Thủy Xuân, Thành phố Huế, Tỉnh Thừa Thiên Huế.</strong>
+        </div>
+
+        <div class="info-paragraph">
+            Tôi xin cam kết và khai báo danh sách những khách du lịch đang thực hiện lưu trú, tạm trú tại cơ sở của chúng tôi, chi tiết cụ thể dưới đây:
+        </div>
+
+        <div class="info-paragraph" style="font-style: italic;">
+            * Thời gian lưu trú: Từ ngày <strong th:text="${checkInDate}"></strong> đến ngày <strong th:text="${checkOutDate}"></strong>
+        </div>
+
+        <!-- Manifest Table -->
+        <table class="manifest-table">
+            <thead>
+                <tr>
+                    <th rowspan="2" style="width: 5%;">STT</th>
+                    <th rowspan="2" style="width: 25%;">Họ và Tên</th>
+                    <th rowspan="2" style="width: 12%;">Ngày Sinh</th>
+                    <th colspan="2" style="width: 12%;">Giới Tính</th>
+                    <th rowspan="2" style="width: 18%;">Số CCCD / Hộ Chiếu</th>
+                    <th rowspan="2" style="width: 15%;">Quốc Tịch</th>
+                    <th rowspan="2" style="width: 13%;">Số Phòng</th>
+                </tr>
+                <tr>
+                    <th style="font-weight: normal; font-size: 10pt; width: 6%;">Nam</th>
+                    <th style="font-weight: normal; font-size: 10pt; width: 6%;">Nữ</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Loop through guests -->
+                <tr th:each="guest, stat : ${guests}">
+                    <td th:text="${stat.count}">1</td>
+                    <td class="align-left" th:text="${#strings.toUpperCase(guest.name)}"></td>
+                    <td th:text="${guest.dob}"></td>
+                    <td th:text="${#strings.equalsIgnoreCase(guest.gender, 'Nam') or #strings.equalsIgnoreCase(guest.gender, 'Male') ? 'X' : ''}"></td>
+                    <td th:text="${#strings.equalsIgnoreCase(guest.gender, 'Nữ') or #strings.equalsIgnoreCase(guest.gender, 'Female') ? 'X' : ''}"></td>
+                    <td th:text="${guest.cccd}"></td>
+                    <td th:text="${guest.nationality}">Việt Nam</td>
+                    <td><strong th:text="${guest.roomNumber}"></strong></td>
+                </tr>
+
+                <!-- Append empty rows to fill up space if there are few guests, to match standard forms -->
+                <th:block th:if="${#lists.size(guests) < 5}">
+                    <tr th:each="i : ${#numbers.sequence(#lists.size(guests) + 1, 5)}">
+                        <td th:text="${i}"></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </th:block>
+            </tbody>
+        </table>
+
+        <!-- Footnote and Signatures -->
+        <div class="info-paragraph" style="margin-top: 15px;">
+            <strong>Lý do khai báo:</strong> Đăng ký lưu trú tạm trú cho khách du lịch theo quy định pháp luật.
+        </div>
+        <div class="info-paragraph" style="text-indent: 30px; font-style: italic;">
+            Xin chân thành cảm ơn.
+        </div>
+
+        <table class="signature-table">
+            <tr>
+                <td>
+                    <div class="sig-title" style="margin-bottom: 80px;">XÁC NHẬN CỦA CÔNG AN PHƯỜNG</div>
+                    <div class="sig-sub">(Ký, ghi rõ họ tên và đóng dấu)</div>
+                </td>
+                <td>
+                    <div class="sig-date" th:text="'Huế, ngày ' + ${#dates.format(#dates.createNow(), 'dd')} + ' tháng ' + ${#dates.format(#dates.createNow(), 'MM')} + ' năm ' + ${#dates.format(#dates.createNow(), 'yyyy')}">Huế, ngày ...</div>
+                    <div class="sig-title" style="margin-bottom: 80px;">NGƯỜI LÀM ĐƠN KHAI BÁO</div>
+                    <div class="sig-name" th:text="${staffName}">Ngô Thị Ngọc Lan</div>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <script>
+        // Trigger print window automatically once document is loaded
+        window.onload = function() {
+            // Tiny delay to ensure browser rendering is complete
+            setTimeout(function() {
+                window.print();
+            }, 300);
+        };
+    </script>
+</body>
+</html>

@@ -31,6 +31,7 @@ public class ReceptionistController {
     private final com.kawai.services.interfaces.HousekeepingService housekeepingService;
     private final EmployeeRepository employeeRepository;
     private final TourBookingRepository tourBookingRepository;
+    private final com.kawai.services.interfaces.EncryptionService encryptionService;
 
     @org.springframework.web.bind.annotation.ModelAttribute("todayLabel")
     public String getTodayLabel() {
@@ -217,7 +218,11 @@ public class ReceptionistController {
                 try {
                     cccd = com.kawai.utils.EncryptionUtils.decrypt(cccdEnc);
                 } catch (Exception e) {
-                    cccd = cccdEnc;
+                    try {
+                        cccd = encryptionService.decrypt(cccdEnc);
+                    } catch (Exception ex) {
+                        cccd = cccdEnc;
+                    }
                 }
             }
 
@@ -226,6 +231,7 @@ public class ReceptionistController {
             map.put("guestName", guestName);
             map.put("phone", phone);
             map.put("cccd", cccd);
+            map.put("birthDate", (b.getCustomer() != null && b.getCustomer().getBirthDate() != null) ? b.getCustomer().getBirthDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) : "");
             map.put("bookingDate",
                     b.getBookingDate() != null
                             ? b.getBookingDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
@@ -386,7 +392,11 @@ public class ReceptionistController {
                         try {
                             cccd = com.kawai.utils.EncryptionUtils.decrypt(cccdEnc);
                         } catch (Exception e) {
-                            cccd = cccdEnc;
+                            try {
+                                cccd = encryptionService.decrypt(cccdEnc);
+                            } catch (Exception ex) {
+                                cccd = cccdEnc;
+                            }
                         }
                     }
                     guestMap.put("cccd", cccd);
@@ -433,6 +443,112 @@ public class ReceptionistController {
             error.put("error", e.getMessage());
             return org.springframework.http.ResponseEntity.status(500).body(error);
         }
+    }
+
+    @GetMapping("/in-house/print/{bookingId}")
+    public String printPreCheckinForm(@org.springframework.web.bind.annotation.PathVariable Long bookingId, Model model, org.springframework.security.core.Authentication authentication) {
+        Booking booking = bookingRepository.findById(bookingId).orElse(null);
+        if (booking == null) {
+            return "redirect:/receptionist/in-house";
+        }
+
+        List<RoomBookingDetail> details = roomBookingDetailRepository.findByRoomBookingId(bookingId);
+
+        String guestName = booking.getCustomer() != null ? booking.getCustomer().getFullName() : "Unknown";
+        
+        List<Map<String, Object>> guestList = new ArrayList<>();
+        for (RoomBookingDetail detail : details) {
+            if (detail.getRoom() == null) continue;
+            String roomNumber = detail.getRoom().getRoomNumber();
+            List<com.kawai.models.RoomGuest> guests = roomGuestRepository.findByRoomBookingDetailId(detail.getId());
+            for (com.kawai.models.RoomGuest guest : guests) {
+                Map<String, Object> guestMap = new HashMap<>();
+                guestMap.put("roomNumber", roomNumber);
+                String cccdEnc = null;
+                
+                if (guest.getCustomer() != null) {
+                    guestMap.put("name", guest.getCustomer().getFullName());
+                    guestMap.put("dob", guest.getCustomer().getBirthDate() != null ? guest.getCustomer().getBirthDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "");
+                    guestMap.put("gender", guest.getCustomer().getGender());
+                    guestMap.put("nationality", "Việt Nam"); // Default
+                    cccdEnc = guest.getCustomer().getCccdPassportEncrypted();
+                } else if (guest.getDependent() != null) {
+                    guestMap.put("name", guest.getDependent().getDependentName());
+                    guestMap.put("dob", guest.getDependent().getBirthDate() != null ? guest.getDependent().getBirthDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "");
+                    guestMap.put("gender", guest.getDependent().getGender());
+                    guestMap.put("nationality", "Việt Nam"); // Default
+                    cccdEnc = guest.getDependent().getCccdPassportEncrypted();
+                } else {
+                    continue;
+                }
+
+                String cccd = "";
+                if (cccdEnc != null && !cccdEnc.isBlank()) {
+                    try {
+                        cccd = com.kawai.utils.EncryptionUtils.decrypt(cccdEnc);
+                    } catch (Exception e) {
+                        try {
+                            cccd = encryptionService.decrypt(cccdEnc);
+                        } catch (Exception ex) {
+                            cccd = cccdEnc;
+                        }
+                    }
+                }
+                guestMap.put("cccd", cccd);
+                guestList.add(guestMap);
+            }
+        }
+        
+        if (guestList.isEmpty() && booking.getCustomer() != null) {
+            Map<String, Object> mainGuestMap = new HashMap<>();
+            mainGuestMap.put("name", guestName);
+            mainGuestMap.put("dob", booking.getCustomer().getBirthDate() != null ? booking.getCustomer().getBirthDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "");
+            mainGuestMap.put("gender", booking.getCustomer().getGender());
+            mainGuestMap.put("nationality", "Việt Nam");
+            
+            // Get room number for main guest if they haven't been mapped via roomGuestRepository
+            String mainGuestRoom = details.stream().filter(d -> d.getRoom() != null)
+                .map(d -> d.getRoom().getRoomNumber()).findFirst().orElse("");
+            mainGuestMap.put("roomNumber", mainGuestRoom);
+            
+            String cccdEnc = booking.getCustomer().getCccdPassportEncrypted();
+            String cccd = "";
+            if (cccdEnc != null && !cccdEnc.isBlank()) {
+                try {
+                    cccd = com.kawai.utils.EncryptionUtils.decrypt(cccdEnc);
+                } catch (Exception e) {
+                    try {
+                        cccd = encryptionService.decrypt(cccdEnc);
+                    } catch (Exception ex) {
+                        cccd = cccdEnc;
+                    }
+                }
+            }
+            mainGuestMap.put("cccd", cccd);
+            guestList.add(mainGuestMap);
+        }
+
+        model.addAttribute("bookingId", bookingId);
+        
+        String checkInStr = "";
+        String checkOutStr = "";
+        if (booking instanceof RoomBooking) {
+            RoomBooking rb = (RoomBooking) booking;
+            checkInStr = rb.getCheckInDate() != null ? rb.getCheckInDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "";
+            checkOutStr = rb.getCheckOutDate() != null ? rb.getCheckOutDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "";
+        }
+        model.addAttribute("checkInDate", checkInStr);
+        model.addAttribute("checkOutDate", checkOutStr);
+        model.addAttribute("guests", guestList);
+        
+        String staffName = "Receptionist";
+        if (authentication != null && authentication.getName() != null) {
+            staffName = employeeRepository.findByAccountUsername(authentication.getName())
+                    .map(Employee::getFullName).orElse(staffName);
+        }
+        model.addAttribute("staffName", staffName);
+
+        return "receptionist/pre-checkin-print";
     }
 
     @GetMapping("/in-house")
@@ -508,6 +624,7 @@ public class ReceptionistController {
             }
             String bookingScale = roomCount + " Phòng, " + guestCount + " Khách";
             map.put("bookingScale", bookingScale);
+            map.put("roomCount", roomCount);
 
             // Add missing fields for the new UI
             map.put("phone", b.getCustomer() != null ? b.getCustomer().getPhone() : "");
@@ -534,8 +651,6 @@ public class ReceptionistController {
                         return detailMap;
                     })
                     .collect(Collectors.toList()));
-
-            map.put("dependents", deps);
 
             pagedInHouse.add(map);
         }
@@ -700,7 +815,11 @@ public class ReceptionistController {
             try {
                 cccd = com.kawai.utils.EncryptionUtils.decrypt(cccdEnc);
             } catch (Exception e) {
-                cccd = cccdEnc;
+                try {
+                    cccd = encryptionService.decrypt(cccdEnc);
+                } catch (Exception ex) {
+                    cccd = cccdEnc;
+                }
             }
         }
 
