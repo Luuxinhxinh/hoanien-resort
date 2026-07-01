@@ -111,7 +111,8 @@ public class HousekeepingServiceImpl implements HousekeepingService {
         HotelOperation task = findTaskById(taskId);
         Room room = task.getRoom();
 
-        // BR-FO-04: Luân chuyển trạng thái phòng sang Vacant_Clean (Có thể cải tiến sau để nhận diện Occupied_Clean)
+        // BR-FO-04: Luân chuyển trạng thái phòng sang Vacant_Clean (Có thể cải tiến sau
+        // để nhận diện Occupied_Clean)
         room.setRoomStatus(STATUS_VACANT_CLEAN);
         task.setStatus(STATUS_COMPLETED);
         task.setCompletedAt(LocalDateTime.now());
@@ -137,7 +138,30 @@ public class HousekeepingServiceImpl implements HousekeepingService {
      */
     @Override
     public List<HotelOperation> getPendingOperations() {
-        return housekeepingTaskRepo.findByStatus(STATUS_PENDING);
+        return housekeepingTaskRepo.findPendingTasksSorted(STATUS_PENDING);
+    }
+
+    @Override
+    @Transactional
+    public void escalateTaskByRoomNumber(String roomNumber) {
+        List<HotelOperation> tasks = housekeepingTaskRepo.findByRoomNumberAndStatusAndType(roomNumber, STATUS_PENDING, OPERATION_CLEAN);
+        if (!tasks.isEmpty()) {
+            HotelOperation task = tasks.get(0);
+            task.setPriority("Super High");
+            housekeepingTaskRepo.save(task);
+        } else {
+            // Nếu chưa có phiếu dọn phòng (có thể do lỗi dữ liệu test chưa tự động sinh ra),
+            // ta sẽ tự động tạo một phiếu mới tinh với mức độ Super High.
+            Room room = roomRepo.findByRoomNumber(roomNumber).orElse(null);
+            if (room != null) {
+                List<Employee> allStaff = employeeRepo.findAll();
+                if (!allStaff.isEmpty()) {
+                    Employee staff = allStaff.get(0);
+                    HotelOperation newTask = buildHotelOperation(room, staff, OPERATION_CLEAN, "Super High", "Lễ tân yêu cầu dọn khẩn cấp để giao phòng cho khách.");
+                    housekeepingTaskRepo.save(newTask);
+                }
+            }
+        }
     }
 
     // ========================================================================
@@ -156,31 +180,31 @@ public class HousekeepingServiceImpl implements HousekeepingService {
     @Override
     @Transactional
     public HotelOperation createMaintenanceRequest(Long roomId, Long staffId, String notes) {
-        List<com.kawai.models.Workflow> activeWorkflows = workflowRepository.findByTriggerEventAndIsActive("ROOM_REPORT_DAMAGE", true);
+        List<com.kawai.models.Workflow> activeWorkflows = workflowRepository
+                .findByTriggerEventAndIsActive("ROOM_REPORT_DAMAGE", true);
         if (!activeWorkflows.isEmpty()) {
             Room room = findRoomById(roomId);
             Employee staff = findEmployeeById(staffId);
-            
+
             // Execute the automated workflows
             try {
                 workflowEngineService.triggerEvent("ROOM_REPORT_DAMAGE", java.util.Map.of(
-                    "room_id", roomId,
-                    "staff_id", staffId,
-                    "notes", notes != null ? notes : ""
-                ));
+                        "room_id", roomId,
+                        "staff_id", staffId,
+                        "notes", notes != null ? notes : ""));
             } catch (Exception e) {
                 log.error("Failed executing workflow engine trigger for ROOM_REPORT_DAMAGE", e);
             }
 
             // Return the created task
             return maintenanceRequestRepo.findAll().stream()
-                .filter(t -> t.getRoom().getId().equals(roomId) && "Maintenance".equals(t.getOperationalType()))
-                .sorted((t1, t2) -> t2.getCreatedAt().compareTo(t1.getCreatedAt()))
-                .findFirst()
-                .orElseGet(() -> {
-                    HotelOperation task = buildHotelOperation(room, staff, OPERATION_MAINTENANCE, "Normal", notes);
-                    return maintenanceRequestRepo.save(task);
-                });
+                    .filter(t -> t.getRoom().getId().equals(roomId) && "Maintenance".equals(t.getOperationalType()))
+                    .sorted((t1, t2) -> t2.getCreatedAt().compareTo(t1.getCreatedAt()))
+                    .findFirst()
+                    .orElseGet(() -> {
+                        HotelOperation task = buildHotelOperation(room, staff, OPERATION_MAINTENANCE, "Normal", notes);
+                        return maintenanceRequestRepo.save(task);
+                    });
         }
 
         Room room = findRoomById(roomId);

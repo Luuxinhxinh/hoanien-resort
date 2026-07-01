@@ -41,6 +41,8 @@ public interface HousekeepingService {
      */
     List<HotelOperation> getPendingOperations();
 
+    void escalateTaskByRoomNumber(String roomNumber);
+
     /**
      * Housekeeping tạo phiếu sửa chữa → phòng chuyển MAINTENANCE (UC13.4).
      *

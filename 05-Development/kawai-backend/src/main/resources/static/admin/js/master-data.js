@@ -548,6 +548,14 @@ function openEditModal(id) {
                 form.querySelectorAll('.perm-checkbox').forEach(cb => {
                     cb.checked = perms.includes(cb.value);
                 });
+                
+                // Fallback ensure DOM is updated
+                setTimeout(() => {
+                    document.querySelectorAll('.perm-checkbox').forEach(cb => {
+                        cb.checked = perms.includes(cb.value);
+                    });
+                }, 50);
+                
                 continue;
             }
 
@@ -1119,66 +1127,18 @@ const ROLE_PRESETS = ROLE_CEILINGS;
  * Các checkbox nằm ngoài ceiling bị ẩn hoàn toàn (không thể chọn nhầm).
  */
 function filterPermissionsByRole(roleName) {
-    const name = (roleName || '').toLowerCase().trim();
-
-    let ceiling = null;
-    for (const [key, perms] of Object.entries(ROLE_CEILINGS)) {
-        if (name.includes(key)) {
-            ceiling = perms;
-            break;
-        }
-    }
-
-    // Fallback: nếu không nhận ra tên role → show tất cả (trường hợp Admin tạo role mới)
-    if (!ceiling) ceiling = ROLE_CEILINGS['admin'];
-
+    // Disabled filtering to allow full Cross-Module RBAC
     document.querySelectorAll('.perm-checkbox').forEach(cb => {
+        cb.disabled = false;
         const label = cb.closest('label');
-        const wrapper = label ? label.parentElement : null;
-
-        if (ceiling.includes(cb.value)) {
-            // Quyền nằm trong ceiling → hiển thị bình thường, cho phép sửa
-            cb.disabled = false;
-            if (label) {
-                label.style.opacity = '1';
-                label.style.cursor = 'pointer';
-                label.style.background = cb.value === 'MASTER_DATA' || cb.value === 'AUDIT_LOG' ? '#fff5f5' : '#f9f6f0';
-                // Remove lock icon if exists
-                const lockSpan = label.querySelector('.lock-indicator');
-                if (lockSpan) lockSpan.remove();
-            }
-        } else {
-            // Quyền vượt trần → disable & uncheck & locked style
-            cb.checked = false;
-            cb.disabled = true;
-            if (label) {
-                label.style.opacity = '0.5';
-                label.style.cursor = 'not-allowed';
-                label.style.background = '#eef2f6'; // Muted gray background for locked
-                // Check if lock indicator already exists
-                if (!label.querySelector('.lock-indicator')) {
-                    const lockSpan = document.createElement('span');
-                    lockSpan.className = 'lock-indicator';
-                    lockSpan.style.display = 'inline-flex';
-                    lockSpan.style.alignItems = 'center';
-                    lockSpan.style.marginLeft = 'auto';
-                    lockSpan.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#78909c"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>';
-                    label.appendChild(lockSpan);
-                }
-            }
-        }
-    });
-
-    // Hiển thị tất cả section headers
-    document.querySelectorAll('.perm-section-title').forEach(title => {
-        title.style.display = '';
-        const section = title.nextElementSibling;
-        if (section) {
-            section.style.display = '';
+        if (label) {
+            label.style.opacity = '1';
+            label.style.cursor = 'pointer';
+            const lockSpan = label.querySelector('.lock-indicator');
+            if (lockSpan) lockSpan.remove();
         }
     });
 }
-
 /**
  * Nút "Gợi ý tự động" — đọc tên role, check tất cả quyền trong ceiling.
  */
@@ -1236,4 +1196,5 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
 

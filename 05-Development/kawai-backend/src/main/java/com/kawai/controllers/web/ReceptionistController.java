@@ -2,8 +2,7 @@ package com.kawai.controllers.web;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import lombok.AllArgsConstructor;
 
 import java.time.LocalDate;
@@ -18,7 +17,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 @Controller
 @RequestMapping("/receptionist")
 @AllArgsConstructor
-@PreAuthorize("hasAnyAuthority('OP_BOOKING', 'ROLE_ADMIN', 'ROLE_MANAGER')")
+// Cho phép vào controller nếu có bất kỳ quyền lễ tân nào — từng endpoint sẽ kiểm tra chi tiết hơn
+@PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER', 'OP_RECEPTION_WALKIN', 'OP_RECEPTION_CHECKIN', 'OP_RECEPTION_CHECKOUT', 'OP_RECEPTION_INHOUSE', 'OP_NIGHT_AUDIT', 'OP_HOUSEKEEPING')")
 public class ReceptionistController {
 
     private final RoomRepository roomRepository;
@@ -38,7 +38,7 @@ public class ReceptionistController {
     }
 
     @GetMapping("/dashboard")
-    @PreAuthorize("hasAnyAuthority('OP_DASHBOARD', 'ROLE_ADMIN', 'ROLE_MANAGER')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER', 'OP_DASHBOARD', 'OP_RECEPTION_WALKIN', 'OP_RECEPTION_CHECKIN', 'OP_RECEPTION_CHECKOUT', 'OP_RECEPTION_INHOUSE')")
     public String dashboard(Model model) {
         // KPI
         long totalRooms = 0, occupied = 0, dirty = 0;
@@ -83,6 +83,7 @@ public class ReceptionistController {
     }
 
     @GetMapping("/walk-in")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER', 'OP_RECEPTION_WALKIN')")
     public String walkIn(Model model) {
         java.time.LocalDate today = java.time.LocalDate.now(java.time.ZoneId.of("Asia/Ho_Chi_Minh"));
         model.addAttribute("todayStr", today.toString());
@@ -102,6 +103,7 @@ public class ReceptionistController {
             Map<String, Object> roomInfo = new HashMap<>();
             roomInfo.put("id", r.getId());
             roomInfo.put("number", r.getRoomNumber());
+            roomInfo.put("status", r.getRoomStatus());
             inventory.computeIfAbsent(cat, k -> new ArrayList<>()).add(roomInfo);
         }
         model.addAttribute("roomInventory", inventory);
@@ -137,6 +139,7 @@ public class ReceptionistController {
     }
 
     @GetMapping("/check-in")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER', 'OP_RECEPTION_CHECKIN')")
     public String checkIn(@org.springframework.web.bind.annotation.RequestParam(defaultValue = "1") int page,
             @org.springframework.web.bind.annotation.RequestParam(required = false) String keyword,
             @org.springframework.web.bind.annotation.RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate dateFilter,
@@ -256,6 +259,14 @@ public class ReceptionistController {
                         .collect(Collectors.joining(", "));
             }
             map.put("roomSummary", roomSummary);
+
+            int expectedAdults = details.stream().mapToInt(d -> d.getNumberOfAdults() != null ? d.getNumberOfAdults() : 0).sum();
+            int expectedChildren = details.stream().mapToInt(d -> d.getNumberOfChildren() != null ? d.getNumberOfChildren() : 0).sum();
+            
+            map.put("expectedAdults", expectedAdults);
+            map.put("expectedChildren", expectedChildren);
+            map.put("expectedGuests", expectedAdults + expectedChildren);
+
             map.put("activeDetails", details.stream()
                     .filter(d -> d.getRoom() != null && "CHECKED_IN".equalsIgnoreCase(d.getDetailStatus()))
                     .map(d -> {
@@ -292,10 +303,13 @@ public class ReceptionistController {
             model.addAttribute("dateFilter", dateFilter.toString());
         }
 
-        Map<String, List<String>> inventory = new HashMap<>();
+        Map<String, List<Map<String, Object>>> inventory = new HashMap<>();
         for (Room r : roomRepository.findVacant()) {
             String cat = r.getCategory() != null ? r.getCategory().getCategoryName() : "Other";
-            inventory.computeIfAbsent(cat, k -> new ArrayList<>()).add(r.getRoomNumber());
+            Map<String, Object> roomInfo = new HashMap<>();
+            roomInfo.put("number", r.getRoomNumber());
+            roomInfo.put("status", r.getRoomStatus());
+            inventory.computeIfAbsent(cat, k -> new ArrayList<>()).add(roomInfo);
         }
         model.addAttribute("roomInventory", inventory);
 
@@ -307,6 +321,7 @@ public class ReceptionistController {
      * để hiển thị modal "Chi tiết" qua AJAX fetch.
      */
     @GetMapping("/in-house/detail/{bookingId}")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER', 'OP_RECEPTION_INHOUSE')")
     @org.springframework.web.bind.annotation.ResponseBody
     public org.springframework.http.ResponseEntity<Map<String, Object>> getInHouseDetail(
             @org.springframework.web.bind.annotation.PathVariable Long bookingId) {
@@ -421,6 +436,7 @@ public class ReceptionistController {
     }
 
     @GetMapping("/in-house")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER', 'OP_RECEPTION_INHOUSE')")
     public String inHouse(@org.springframework.web.bind.annotation.RequestParam(defaultValue = "1") int page,
             @org.springframework.web.bind.annotation.RequestParam(required = false) String keyword,
             Model model) {
@@ -585,25 +601,40 @@ public class ReceptionistController {
     }
 
     @GetMapping("/folio")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER', 'OP_RECEPTION_CHECKOUT')")
     public String folio(Model model) {
         return "receptionist/folio";
     }
 
     @GetMapping("/folio/detail")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER', 'OP_RECEPTION_CHECKOUT')")
     public String folioDetail(Model model) {
         return "receptionist/folio-detail";
     }
 
     @GetMapping("/night-audit")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER', 'OP_NIGHT_AUDIT')")
     public String nightAudit(Model model) {
         return "receptionist/night-audit";
     }
 
     @GetMapping("/operations")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER', 'OP_HOUSEKEEPING')")
     public String operations(Model model) {
         model.addAttribute("operations", housekeepingService.getPendingOperations());
         model.addAttribute("rooms", roomRepository.findAll());
         return "receptionist/operations";
+    }
+
+    @PostMapping("/operations/escalate-room")
+    @ResponseBody
+    public org.springframework.http.ResponseEntity<?> escalateTaskByRoomNumber(@org.springframework.web.bind.annotation.RequestParam("roomNumber") String roomNumber) {
+        try {
+            housekeepingService.escalateTaskByRoomNumber(roomNumber);
+            return org.springframework.http.ResponseEntity.ok(java.util.Map.of("status", "success", "message", "Task escalated successfully"));
+        } catch (Exception e) {
+            return org.springframework.http.ResponseEntity.status(500).body(java.util.Map.of("status", "error", "message", e.getMessage()));
+        }
     }
 
     @org.springframework.web.bind.annotation.PostMapping("/operations/clean/{taskId}")

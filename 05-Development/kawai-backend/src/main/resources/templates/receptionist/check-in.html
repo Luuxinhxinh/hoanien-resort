@@ -197,7 +197,10 @@
                                         th:data-phone="${arr.phone}" th:data-cccd="${arr.cccd}"
                                         th:data-room="${arr.roomSummary}" th:data-deps="|deps-arr-${arr.id}|"
                                         th:data-tours="|tours-arr-${arr.id}|" th:data-credit="${arr.creditLimit}"
-                                        onclick="openCheckinModal(this.getAttribute('data-id'), this.getAttribute('data-name'), this.getAttribute('data-phone'), this.getAttribute('data-cccd'), this.getAttribute('data-room'), this.getAttribute('data-deps'), this.getAttribute('data-tours'), this.getAttribute('data-credit'))"
+                                        th:data-expected-guests="${arr.expectedGuests}"
+                                        th:data-expected-adults="${arr.expectedAdults}"
+                                        th:data-expected-children="${arr.expectedChildren}"
+                                        onclick="openCheckinModal(this.getAttribute('data-id'), this.getAttribute('data-name'), this.getAttribute('data-phone'), this.getAttribute('data-cccd'), this.getAttribute('data-room'), this.getAttribute('data-deps'), this.getAttribute('data-tours'), this.getAttribute('data-credit'), this.getAttribute('data-expected-guests'), this.getAttribute('data-expected-adults'), this.getAttribute('data-expected-children'))"
                                         th:text="${arr.guestName}"></td>
                                     <td th:text="${arr.phone}"></td>
                                     <td th:text="${arr.checkInDate}"></td>
@@ -210,7 +213,10 @@
                                             th:data-deps="|deps-arr-${arr.id}|"
                                             th:data-tours="|tours-arr-${arr.id}|"
                                             th:data-credit="${arr.creditLimit}"
-                                            onclick="openCheckinModal(this.getAttribute('data-id'), this.getAttribute('data-name'), this.getAttribute('data-phone'), this.getAttribute('data-cccd'), this.getAttribute('data-room'), this.getAttribute('data-deps'), this.getAttribute('data-tours'), this.getAttribute('data-credit'))">Assign
+                                            th:data-expected-guests="${arr.expectedGuests}"
+                                            th:data-expected-adults="${arr.expectedAdults}"
+                                            th:data-expected-children="${arr.expectedChildren}"
+                                            onclick="openCheckinModal(this.getAttribute('data-id'), this.getAttribute('data-name'), this.getAttribute('data-phone'), this.getAttribute('data-cccd'), this.getAttribute('data-room'), this.getAttribute('data-deps'), this.getAttribute('data-tours'), this.getAttribute('data-credit'), this.getAttribute('data-expected-guests'), this.getAttribute('data-expected-adults'), this.getAttribute('data-expected-children'))">Assign
                                             & Check-in</button>
                                         <!-- Hidden data for dependents -->
                                         <div th:id="'deps-arr-' + ${arr.id}" style="display:none;">
@@ -271,7 +277,10 @@
 
             <div class="modal-header"
                 style="padding: 16px 24px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
-                <h3 style="margin: 0; font-size: 18px; font-weight: 600;">Check-in & Guest Details</h3>
+                <h3 style="margin: 0; font-size: 18px; font-weight: 600; display: flex; align-items: center;">
+                    Check-in & Guest Details
+                    <span id="modalExpectedCapacity" style="font-size: 13px; font-weight: 500; color: #059669; background: #d1fae5; padding: 4px 10px; border-radius: 12px; margin-left: 12px; display: none;"></span>
+                </h3>
                 <button type="button" onclick="closeCheckinModal()"
                     style="background: none; border: none; font-size: 20px; cursor: pointer; color: #64748b;">&times;</button>
             </div>
