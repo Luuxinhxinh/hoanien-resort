@@ -107,7 +107,7 @@ public class ReceptionistCheckinWebController {
 
                         String fileName = "cust_" + customer.getId() + "_" + System.currentTimeMillis() + ".jpg";
                         java.nio.file.Path uploadPath = java.nio.file.Paths
-                                .get("src/main/resources/static/uploads/faces");
+                                .get(com.kawai.utils.UploadPathResolver.resolvePath("src/main/resources/static/uploads/faces"));
                         if (!java.nio.file.Files.exists(uploadPath)) {
                             java.nio.file.Files.createDirectories(uploadPath);
                         }
