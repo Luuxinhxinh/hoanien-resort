@@ -1,4 +1,4 @@
-CREATE OR REPLACE VIEW recent_booking_info AS
+﻿CREATE OR REPLACE VIEW recent_booking_info AS
 SELECT
     tb.booking_id AS booking_id,
     c.full_name AS customer_name,
@@ -12,3 +12,5 @@ JOIN Customers c ON b.customer_id = c.customer_id
 LEFT JOIN Room_Booking_Details rbd ON rbd.room_booking_id = b.booking_id
 LEFT JOIN Rooms r ON rbd.room_id = r.room_id
 GROUP BY tb.booking_id, c.full_name, c.email, c.phone;
+
+ALTER TABLE refund_requests MODIFY order_id BIGINT NULL;

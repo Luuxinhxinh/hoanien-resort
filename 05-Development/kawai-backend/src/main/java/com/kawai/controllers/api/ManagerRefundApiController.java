@@ -62,16 +62,25 @@ public class ManagerRefundApiController {
             refundRequestRepository.save(req);
 
             // Gửi email cho khách (nếu có thông tin)
-            FoodOrder order = req.getOrder();
             String customerEmail = null;
             com.kawai.models.Customer customer = null;
-            if (order.getBooking() != null && order.getBooking().getCustomer() != null) {
-                customer = order.getBooking().getCustomer();
-                customerEmail = customer.getEmail();
-            } else if (order.getRoomBookingDetail() != null 
-                    && order.getRoomBookingDetail().getRoomBooking() != null 
-                    && order.getRoomBookingDetail().getRoomBooking().getCustomer() != null) {
-                customer = order.getRoomBookingDetail().getRoomBooking().getCustomer();
+            
+            if (req.getOrder() != null) {
+                FoodOrder order = req.getOrder();
+                if (order.getBooking() != null && order.getBooking().getCustomer() != null) {
+                    customer = order.getBooking().getCustomer();
+                } else if (order.getRoomBookingDetail() != null 
+                        && order.getRoomBookingDetail().getRoomBooking() != null 
+                        && order.getRoomBookingDetail().getRoomBooking().getCustomer() != null) {
+                    customer = order.getRoomBookingDetail().getRoomBooking().getCustomer();
+                }
+            } else if (req.getRoomBooking() != null && req.getRoomBooking().getCustomer() != null) {
+                customer = req.getRoomBooking().getCustomer();
+            } else if (req.getTourBooking() != null && req.getTourBooking().getCustomer() != null) {
+                customer = req.getTourBooking().getCustomer();
+            }
+            
+            if (customer != null) {
                 customerEmail = customer.getEmail();
             }
 

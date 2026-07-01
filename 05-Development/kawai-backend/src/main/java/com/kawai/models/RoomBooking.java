@@ -21,6 +21,7 @@ public class RoomBooking extends Booking {
     @Column(name = "personal_pin_hash", nullable = false)
     private String personalPinHash;
 
+
     public LocalDate getCheckInDate() {
         return checkInDate;
     }

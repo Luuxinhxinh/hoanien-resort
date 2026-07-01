@@ -17,20 +17,29 @@ import com.kawai.services.interfaces.DependentService;
 import com.kawai.services.interfaces.EncryptionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * ═══════════════════════════════════════════════════════════════════════════
  * DependentServiceImpl — UC16: Register Accompanying Guests
  * ═══════════════════════════════════════════════════════════════════════════
  *
- * TDD Phase: 🔴 RED → 🟢 GREEN skeleton
+ * CHANGELOG:
+ * 2026-06-30 | Antigravity AI | REFACTOR (Clean Code): tách private methods,
+ * | | loại bỏ duplicate null-check, đặt tên constants,
+ * | | fix thiếu status="REGISTERED" trong response DTO.
+ * 2026-06-20 | Antigravity AI | GREEN: implement DependentServiceImpl, pass 9
+ * TC.
  *
  * Business Rules:
  * BR-SYS-01 : CCCD/Hộ chiếu phải mã hoá AES-256 trước khi lưu DB
@@ -47,9 +56,16 @@ public class DependentServiceImpl implements DependentService {
 
     private static final Logger log = LoggerFactory.getLogger(DependentServiceImpl.class);
 
+    // ── Business Constants ──────────────────────────────────────────────────
     /** Trạng thái booking được phép thêm dependent (Invariant §6.5 EDS). */
-    private static final java.util.Set<String> ACTIVE_STATUSES = java.util.Set.of("Confirmed", "Checked_In");
-
+    private static final Set<String> ACTIVE_BOOKING_STATUSES = Set.of("Confirmed", "Checked_In");
+    private static final int ADULT_AGE_THRESHOLD = 18;
+    private static final String STATUS_REGISTERED = "REGISTERED";
+    private static final String DEFAULT_DEPENDENT_NAME = "Khách đi kèm";
+    private static final String DEFAULT_GENDER = "Khác";
+    private static final String GUEST_TYPE_CHILD = "CHILD";
+    private static final String GUEST_TYPE_ADULT = "ADULT";
+    private static final String FACE_UPLOAD_DIR = "src/main/resources/static/uploads/faces";
     private final DependentRepository dependentRepository;
     private final RoomBookingRepository bookingRepository;
     private final EncryptionService encryptionService;
@@ -58,13 +74,14 @@ public class DependentServiceImpl implements DependentService {
     private final RoomSurchargeRepository roomSurchargeRepository;
     private final com.kawai.services.interfaces.CheckinService checkinService;
 
-    public DependentServiceImpl(DependentRepository dependentRepository,
+    public DependentServiceImpl(
+            DependentRepository dependentRepository,
             RoomBookingRepository bookingRepository,
             EncryptionService encryptionService,
             RoomBookingDetailRepository roomBookingDetailRepository,
             RoomGuestRepository roomGuestRepository,
             RoomSurchargeRepository roomSurchargeRepository,
-            @org.springframework.context.annotation.Lazy com.kawai.services.interfaces.CheckinService checkinService) {
+            @Lazy com.kawai.services.interfaces.CheckinService checkinService) {
         this.dependentRepository = dependentRepository;
         this.bookingRepository = bookingRepository;
         this.encryptionService = encryptionService;
@@ -74,265 +91,367 @@ public class DependentServiceImpl implements DependentService {
         this.checkinService = checkinService;
     }
 
-    // ══════════════════════════════════════════════════════════════════════
-    // registerDependent()
-    // ══════════════════════════════════════════════════════════════════════
-
+    /**
+     * Đăng ký khách đi kèm (Dependent) cho một booking.
+     *
+     * Flow:
+     * 1. Validate CCCD format (MOD2-017)
+     * 2. Validate Date of Birth
+     * 3. Tìm Booking (MOD2-003)
+     * 4. Kiểm tra Booking status (MOD2-015)
+     * 5. Mã hoá CCCD AES-256 (BR-SYS-01)
+     * 6. Kiểm tra trùng lặp CCCD trong booking (MOD2-016)
+     * 7. Lưu Dependent entity
+     * 8. Lưu ảnh FaceID nếu có
+     * 9. Xử lý RoomBookingDetail + phụ thu nếu có
+     * 10. Build và trả về DependentResponseDTO
+     */
     @Override
     @Transactional
     public DependentResponseDTO registerDependent(Long bookingId, DependentRegistrationDTO dto) {
+        // Steps 1–2: Input validation (fail-fast trước khi truy cập DB)
+        validateCccdIfPresent(dto.getCccd());
+        validateDateOfBirthNotFuture(dto.getDateOfBirth());
 
-        // 1. Validate CCCD format (BR-SYS-01, MOD2-017) nếu có
-        if (dto.getCccd() != null && !dto.getCccd().trim().isEmpty()) {
-            validateCccdFormat(dto.getCccd());
+        // Steps 3–4: Business-state validation
+        RoomBooking booking = findBookingOrThrow(bookingId);
+        assertBookingIsActive(booking);
+
+        // Step 5: Encrypt PII (BR-SYS-01 — Nghị định 13/2023)
+        String cccdEncrypted = encryptCccd(dto.getCccd());
+
+        // Step 6: Duplicate check (ADR-002)
+        if (isNewRegistration(dto)) {
+            assertNoDuplicateCccd(bookingId, cccdEncrypted);
         }
 
-        // Validate Date of Birth (không được ở tương lai)
-        if (dto.getDateOfBirth() != null && dto.getDateOfBirth().isAfter(java.time.LocalDate.now())) {
-            throw new BusinessException("MOD2-001", "Invalid Date of Birth: Cannot be in the future [MOD2-001]");
-        }
+        // Steps 7–8: Persist Dependent
+        Dependent saved = buildAndSaveDependent(dto, booking, cccdEncrypted);
+        saveFaceImageIfPresent(saved, dto.getFaceImageBase64());
 
-        // 2. Tìm booking (MOD2-003)
-        RoomBooking booking = bookingRepository.findById(bookingId)
-                .orElseThrow(() -> new BusinessException("MOD2-003",
-                        "Booking not found with ID: " + bookingId + " [MOD2-003]"));
-
-        // 3. Kiểm tra trạng thái booking (MOD2-015)
-        if (!ACTIVE_STATUSES.contains(booking.getBookingStatus())) {
-            throw new BusinessException("MOD2-015",
-                    "Reservation is not active (must be Confirmed or Checked_In). " +
-                            "Current status: " + booking.getBookingStatus() + " [MOD2-015]");
-        }
-
-        // 4. Mã hoá CCCD AES-256 (BR-SYS-01 — Nghị định 13/2023)
-        String cccdEncrypted = null;
-        if (dto.getCccd() != null && !dto.getCccd().trim().isEmpty()) {
-            try {
-                cccdEncrypted = encryptionService.encrypt(dto.getCccd());
-            } catch (Exception e) {
-                log.error("[UC16] AES-256 encryption failed for dependent registration: {}", e.getMessage());
-                throw new BusinessException("MOD2-005", "Internal error during CCCD encryption [MOD2-005]");
-            }
-        }
-
-        // 5. Kiểm tra trùng lặp CCCD trong cùng booking (ADR-002, MOD2-016)
-        if (cccdEncrypted != null) {
-            int duplicateCount = dependentRepository.countDuplicateInBooking(bookingId, cccdEncrypted);
-            // Ignore duplicate check if updating the SAME dependent
-            if (dto.getDependentId() == null && duplicateCount > 0) {
-                throw new BusinessException("MOD2-016",
-                        "Guest already registered under this reservation [MOD2-016]");
-            }
-        }
-
-        // 6. Tạo hoặc Cập nhật Dependent entity và lưu vào DB
-        Dependent dependent;
-        if (dto.getDependentId() != null) {
-            dependent = dependentRepository.findById(dto.getDependentId())
-                    .orElseThrow(() -> new BusinessException("MOD2-018",
-                            "Dependent not found with ID: " + dto.getDependentId()));
-            // Không được đổi customer của dependent
-        } else {
-            dependent = new Dependent();
-            dependent.setCustomer(booking.getCustomer());
-        }
-
-        dependent.setDependentName(dto.getFullName() != null && !dto.getFullName().isBlank() ? dto.getFullName().trim() : "Khách đi kèm");
-        dependent.setBirthDate(dto.getDateOfBirth() != null ? dto.getDateOfBirth() : java.time.LocalDate.now().minusYears(18).withDayOfYear(1));
-        dependent.setGender(dto.getGender() != null ? dto.getGender() : "Khác");
-        dependent.setCccdPassportEncrypted(cccdEncrypted); // Lưu đã mã hoá, không phải plaintext
-        
-        if (dto.getFaceVectorData() != null && !dto.getFaceVectorData().isEmpty()) {
-            dependent.setFaceVectorData(dto.getFaceVectorData());
-        }
-
-        Dependent saved = dependentRepository.save(dependent);
-        
-        // Handle image saving after dependent has an ID
-        if (dto.getFaceImageBase64() != null && !dto.getFaceImageBase64().isEmpty()) {
-            try {
-                String[] parts = dto.getFaceImageBase64().split(",");
-                String imageString = parts.length > 1 ? parts[1] : parts[0];
-                byte[] imageBytes = java.util.Base64.getDecoder().decode(imageString);
-                
-                String fileName = "dep_" + saved.getId() + "_" + System.currentTimeMillis() + ".jpg";
-                java.nio.file.Path uploadPath = java.nio.file.Paths.get("src/main/resources/static/uploads/faces");
-                if (!java.nio.file.Files.exists(uploadPath)) {
-                    java.nio.file.Files.createDirectories(uploadPath);
-                }
-                java.nio.file.Path filePath = uploadPath.resolve(fileName);
-                java.nio.file.Files.write(filePath, imageBytes);
-                String publicUrl = "/uploads/faces/" + fileName;
-                
-                saved.setFaceImgUrl(publicUrl);
-                saved = dependentRepository.save(saved);
-            } catch (Exception e) {
-                log.error("Failed to save FaceID image for dependent {}", saved.getId(), e);
-            }
-        }
-
-        // 6.5. Nếu là Khách mới thêm tại lễ tân -> Liên kết vào RoomBookingDetail và
-        // Tính phụ thu
+        // Step 9: Handle room-level guest linkage and surcharges
         if (dto.getRoomBookingDetailId() != null) {
-            RoomBookingDetail detail = roomBookingDetailRepository.findById(dto.getRoomBookingDetailId())
-                    .orElseThrow(() -> new BusinessException("MOD2-019", "RoomBookingDetail not found"));
-
-            com.kawai.models.RoomCategory category = detail.getCategory();
-            int maxAdults = category.getMaxAdults() != null ? category.getMaxAdults() : category.getCapacity();
-            int maxChildren = category.getMaxChildren() != null ? category.getMaxChildren() : 2;
-            int baseAdults = category.getBaseAdults() != null ? category.getBaseAdults() : category.getCapacity();
-            int baseChildren = category.getBaseChildren() != null ? category.getBaseChildren() : 0;
-
-            int currentAdults = detail.getNumberOfAdults() != null ? detail.getNumberOfAdults() : 0;
-            int currentChildren = detail.getNumberOfChildren() != null ? detail.getNumberOfChildren() : 0;
-            int age = 18;
-            if (saved.getBirthDate() != null) {
-                age = Period.between(saved.getBirthDate(), LocalDate.now()).getYears();
-            }
-
-            boolean isAdult = age >= 18; // 18 is ADULT_AGE_THRESHOLD
-            java.math.BigDecimal extraFee = java.math.BigDecimal.ZERO;
-
-            if (dto.getDependentId() == null) {
-                if (isAdult) {
-                    currentAdults++;
-                    if (currentAdults > maxAdults) {
-                        throw new BusinessException("MOD2-020",
-                                "Number of guests exceeds maximum room capacity. Max adults: " + maxAdults);
-                    }
-                    if (currentAdults > baseAdults && category.getExtraAdultSurcharge() != null) {
-                        extraFee = category.getExtraAdultSurcharge();
-                    }
-                } else {
-                    currentChildren++;
-                    if (currentChildren > maxChildren) {
-                        throw new BusinessException("MOD2-021",
-                                "Number of guests exceeds maximum room capacity. Max children: " + maxChildren);
-                    }
-                    if (currentChildren > baseChildren) {
-                        java.util.Optional<RoomSurcharge> surchargeOpt = roomSurchargeRepository
-                                .findSurchargeForAge(category, age);
-                        if (surchargeOpt.isPresent()) {
-                            extraFee = surchargeOpt.get().getPriceModifier();
-                        }
-                    }
-                }
-
-                if (extraFee.compareTo(java.math.BigDecimal.ZERO) > 0) {
-                    if (booking.getCheckInDate() != null && booking.getCheckOutDate() != null) {
-                        long nights = java.time.temporal.ChronoUnit.DAYS.between(booking.getCheckInDate(),
-                                booking.getCheckOutDate());
-                        if (nights > 0) {
-                            extraFee = extraFee.multiply(java.math.BigDecimal.valueOf(nights));
-                        }
-                    }
-                }
-
-                // Cập nhật lại số lượng khách thực tế trong phòng
-                detail.setNumberOfAdults(currentAdults);
-                detail.setNumberOfChildren(currentChildren);
-
-                // Cộng phụ thu vào detail và booking
-                if (extraFee.compareTo(java.math.BigDecimal.ZERO) > 0) {
-                    if (detail.getExtraSurcharge() == null) {
-                        detail.setExtraSurcharge(java.math.BigDecimal.ZERO);
-                    }
-                    detail.setExtraSurcharge(detail.getExtraSurcharge().add(extraFee));
-
-                    booking.setTotalPrice(booking.getTotalPrice().add(extraFee));
-                    bookingRepository.save(booking);
-
-                    log.info("[UC16] Added extra fee: {} for dependent {} in detail {}", extraFee, saved.getId(),
-                            detail.getId());
-                }
-
-                roomBookingDetailRepository.save(detail);
-            }
-
-            // Tạo hoặc cập nhật RoomGuest
-            RoomGuest rg = null;
-            if (dto.getDependentId() != null) {
-                rg = roomGuestRepository.findByDependentId(saved.getId()).orElse(null);
-            }
-            if (rg == null) {
-                rg = new RoomGuest();
-            }
-            rg.setRoomBookingDetail(detail);
-
-            rg.setDependent(saved);
-            rg.setCustomer(null);
-            rg.setIsPrimaryContact(Boolean.TRUE.equals(dto.getIsPrimaryContact()));
-
-            rg.setGuestType(age < 12 ? "CHILD" : "ADULT");
-            roomGuestRepository.saveAndFlush(rg);
+            linkGuestToRoomDetail(saved, dto, booking);
         }
 
         log.info("[UC16] Dependent registered: bookingId={}, dependentId={}", bookingId, saved.getId());
 
-        // 7. Build response DTO
-        DependentResponseDTO response = new DependentResponseDTO();
-        response.setDependentId(saved.getId());
-        response.setFullName(dto.getFullName());
-        response.setDateOfBirth(dto.getDateOfBirth());
-
-        return response;
+        // Step 10: Build response
+        return buildResponseDTO(saved, dto);
     }
-
-    // ══════════════════════════════════════════════════════════════════════
-    // getGuestListByBooking()
-    // ══════════════════════════════════════════════════════════════════════
 
     @Override
     @Transactional(readOnly = true)
     public List<DependentResponseDTO> getGuestListByBooking(Long bookingId) {
-        RoomBooking booking = bookingRepository.findById(bookingId)
-                .orElseThrow(() -> new BusinessException("MOD2-003",
-                        "Booking not found with ID: " + bookingId + " [MOD2-003]"));
+        findBookingOrThrow(bookingId); // guard: ném MOD2-003 nếu không tồn tại
 
         List<RoomBookingDetail> details = roomBookingDetailRepository.findByRoomBookingId(bookingId);
-        List<DependentResponseDTO> result = new java.util.ArrayList<>();
+        List<DependentResponseDTO> result = new ArrayList<>();
 
         for (RoomBookingDetail detail : details) {
             List<RoomGuest> guests = roomGuestRepository.findByRoomBookingDetailId(detail.getId());
             for (RoomGuest guest : guests) {
-                // Bỏ qua Chủ đơn (Customer) vì đã hiển thị ở phần thông tin chung.
-                if (guest.getCustomer() != null) {
+                // Bỏ qua Chủ đơn (Customer) — đã hiển thị ở phần thông tin chung
+                if (guest.getCustomer() != null)
                     continue;
-                }
-
-                DependentResponseDTO dto = new DependentResponseDTO();
-                if (guest.getDependent() != null) {
-                    dto.setDependentId(guest.getDependent().getId());
-                    dto.setFullName(guest.getDependent().getDependentName());
-                    dto.setDateOfBirth(guest.getDependent().getBirthDate());
-                } else {
-                    dto.setDependentId(null);
-                    dto.setFullName(null);
-                    dto.setDateOfBirth(null);
-                }
-                dto.setIsPrimaryContact(guest.getIsPrimaryContact());
-                if (detail.getRoom() != null) {
-                    dto.setAssignedRoom(detail.getRoom().getRoomNumber());
-                }
-                result.add(dto);
+                result.add(mapGuestToResponseDTO(guest, detail));
             }
         }
-
         return result;
     }
 
-    // ══════════════════════════════════════════════════════════════════════
-    // Private Helpers
-    // ══════════════════════════════════════════════════════════════════════
-
     /**
-     * Validate định dạng CCCD/Hộ chiếu (BR-SYS-01, MOD2-017).
-     * Sử dụng ValidationUtils.
+     * Validate CCCD/Hộ chiếu nếu giá trị không rỗng. (BR-SYS-01, MOD2-017)
+     * Validate được thực hiện TRƯỚC khi truy cập bất kỳ repository nào (fail-fast).
      */
-    private void validateCccdFormat(String cccd) {
-        if (cccd == null || cccd.isBlank() || !com.kawai.utils.ValidationUtils.isValidDocument(cccd)) {
+    private void validateCccdIfPresent(String cccd) {
+        if (cccd == null || cccd.isBlank()) {
+            // CCCD null/blank → ném ngay (MOD2-017)
+            throw new BusinessException("MOD2-017",
+                    "Invalid identification document: CCCD/Passport is required [MOD2-017]");
+        }
+        if (!com.kawai.utils.ValidationUtils.isValidDocument(cccd)) {
             throw new BusinessException("MOD2-017",
                     "Invalid identification document: Must be a 12-digit CCCD or a valid Passport [MOD2-017]");
         }
+    }
+
+    /** Validate ngày sinh không được ở tương lai. */
+    private void validateDateOfBirthNotFuture(LocalDate dateOfBirth) {
+        if (dateOfBirth != null && dateOfBirth.isAfter(LocalDate.now())) {
+            throw new BusinessException("MOD2-001",
+                    "Invalid Date of Birth: Cannot be in the future [MOD2-001]");
+        }
+    }
+
+    /** Lấy RoomBooking theo ID hoặc ném MOD2-003. */
+    private RoomBooking findBookingOrThrow(Long bookingId) {
+        return bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new BusinessException("MOD2-003",
+                        "Booking not found with ID: " + bookingId + " [MOD2-003]"));
+    }
+
+    /**
+     * Kiểm tra booking phải ở trạng thái ACTIVE (Confirmed / Checked_In).
+     * (MOD2-015)
+     */
+    private void assertBookingIsActive(RoomBooking booking) {
+        if (!ACTIVE_BOOKING_STATUSES.contains(booking.getBookingStatus())) {
+            throw new BusinessException("MOD2-015",
+                    "Reservation is not active (must be Confirmed or Checked_In). " +
+                            "Current status: " + booking.getBookingStatus() + " [MOD2-015]");
+        }
+    }
+
+    /**
+     * Mã hoá CCCD bằng AES-256. (BR-SYS-01 — Nghị định 13/2023/NĐ-CP)
+     * Được gọi sau khi validate format — đảm bảo cccd không bao giờ null/blank ở
+     * đây.
+     */
+    private String encryptCccd(String cccd) {
+        try {
+            return encryptionService.encrypt(cccd);
+        } catch (Exception e) {
+            log.error("[UC16] AES-256 encryption failed for dependent registration: {}", e.getMessage());
+            throw new BusinessException("MOD2-005", "Internal error during CCCD encryption [MOD2-005]");
+        }
+    }
+
+    /** @return true khi dto đang tạo mới (không phải cập nhật). */
+    private boolean isNewRegistration(DependentRegistrationDTO dto) {
+        return dto.getDependentId() == null;
+    }
+
+    /** Kiểm tra không có CCCD trùng trong cùng booking. (ADR-002, MOD2-016) */
+    private void assertNoDuplicateCccd(Long bookingId, String cccdEncrypted) {
+        if (cccdEncrypted != null && dependentRepository.countDuplicateInBooking(bookingId, cccdEncrypted) > 0) {
+            throw new BusinessException("MOD2-016",
+                    "Guest already registered under this reservation [MOD2-016]");
+        }
+    }
+
+    /**
+     * Tạo hoặc cập nhật Dependent entity và lưu vào DB.
+     * Trả về entity đã được persist (có ID).
+     */
+    private Dependent buildAndSaveDependent(DependentRegistrationDTO dto, RoomBooking booking, String cccdEncrypted) {
+        Dependent dependent = isNewRegistration(dto)
+                ? createNewDependent(booking)
+                : loadExistingDependent(dto.getDependentId());
+
+        populateDependentFields(dependent, dto, cccdEncrypted);
+        return dependentRepository.save(dependent);
+    }
+
+    /** Tạo mới Dependent entity và gán Customer từ booking. */
+    private Dependent createNewDependent(RoomBooking booking) {
+        Dependent dependent = new Dependent();
+        dependent.setCustomer(booking.getCustomer());
+        return dependent;
+    }
+
+    /** Load Dependent đã tồn tại để cập nhật. */
+    private Dependent loadExistingDependent(Long dependentId) {
+        return dependentRepository.findById(dependentId)
+                .orElseThrow(() -> new BusinessException("MOD2-018",
+                        "Dependent not found with ID: " + dependentId));
+    }
+
+    private void populateDependentFields(Dependent dependent, DependentRegistrationDTO dto, String cccdEncrypted) {
+        dependent.setDependentName(resolveFullName(dto.getFullName()));
+        dependent.setBirthDate(resolveBirthDate(dto.getDateOfBirth()));
+        dependent.setGender(dto.getGender() != null ? dto.getGender() : DEFAULT_GENDER);
+        dependent.setCccdPassportEncrypted(cccdEncrypted); // BR-SYS-01: lưu đã mã hoá
+
+        if (dto.getFaceVectorData() != null && !dto.getFaceVectorData().isEmpty()) {
+            dependent.setFaceVectorData(dto.getFaceVectorData());
+        }
+    }
+
+    private String resolveFullName(String fullName) {
+        return (fullName != null && !fullName.isBlank()) ? fullName.trim() : DEFAULT_DEPENDENT_NAME;
+    }
+
+    private LocalDate resolveBirthDate(LocalDate dateOfBirth) {
+        return dateOfBirth != null ? dateOfBirth : LocalDate.now().minusYears(ADULT_AGE_THRESHOLD).withDayOfYear(1);
+    }
+
+    private void saveFaceImageIfPresent(Dependent saved, String faceImageBase64) {
+        if (faceImageBase64 == null || faceImageBase64.isEmpty())
+            return;
+        try {
+            String[] parts = faceImageBase64.split(",");
+            String imgData = parts.length > 1 ? parts[1] : parts[0];
+            byte[] imgBytes = java.util.Base64.getDecoder().decode(imgData);
+
+            String fileName = "dep_" + saved.getId() + "_" + System.currentTimeMillis() + ".jpg";
+            java.nio.file.Path uploadPath = java.nio.file.Paths.get(FACE_UPLOAD_DIR);
+            if (!java.nio.file.Files.exists(uploadPath)) {
+                java.nio.file.Files.createDirectories(uploadPath);
+            }
+            java.nio.file.Files.write(uploadPath.resolve(fileName), imgBytes);
+
+            saved.setFaceImgUrl("/uploads/faces/" + fileName);
+            dependentRepository.save(saved);
+        } catch (Exception e) {
+            log.error("[UC16] Failed to save FaceID image for dependent {}: {}", saved.getId(), e.getMessage());
+        }
+    }
+
+    // ══════════════════════════════════════════════════════════════════════
+    // Private — Room Linkage & Surcharge Helpers
+    // ══════════════════════════════════════════════════════════════════════
+
+    /**
+     * Liên kết Dependent vào RoomBookingDetail và tính phụ thu theo độ tuổi nếu
+     * cần.
+     */
+    private void linkGuestToRoomDetail(Dependent saved, DependentRegistrationDTO dto, RoomBooking booking) {
+        RoomBookingDetail detail = roomBookingDetailRepository.findById(dto.getRoomBookingDetailId())
+                .orElseThrow(() -> new BusinessException("MOD2-019", "RoomBookingDetail not found"));
+
+        int age = calculateAge(saved.getBirthDate());
+
+        if (isNewRegistration(dto)) {
+            BigDecimal extraFee = applyGuestCountAndCalculateSurcharge(detail, booking, age, detail.getCategory());
+            persistDetailAndBookingIfSurcharge(detail, booking, extraFee, saved.getId());
+        }
+
+        saveOrUpdateRoomGuest(saved, dto, detail, age);
+    }
+
+    /**
+     * Tính tuổi từ ngày sinh. Trả về 18 nếu ngày sinh null (mặc định người lớn).
+     */
+    private int calculateAge(LocalDate birthDate) {
+        return birthDate != null ? Period.between(birthDate, LocalDate.now()).getYears() : ADULT_AGE_THRESHOLD;
+    }
+
+    /**
+     * Cập nhật số lượng người trong detail, kiểm tra capacity, và tính extra fee.
+     * 
+     * @return BigDecimal extra fee (có thể là ZERO nếu không có phụ thu).
+     */
+    private BigDecimal applyGuestCountAndCalculateSurcharge(
+            RoomBookingDetail detail, RoomBooking booking, int age, com.kawai.models.RoomCategory category) {
+
+        int maxAdults = category.getMaxAdults() != null ? category.getMaxAdults() : category.getCapacity();
+        int maxChildren = category.getMaxChildren() != null ? category.getMaxChildren() : 2;
+        int baseAdults = category.getBaseAdults() != null ? category.getBaseAdults() : category.getCapacity();
+        int baseChildren = category.getBaseChildren() != null ? category.getBaseChildren() : 0;
+
+        int currentAdults = detail.getNumberOfAdults() != null ? detail.getNumberOfAdults() : 0;
+        int currentChildren = detail.getNumberOfChildren() != null ? detail.getNumberOfChildren() : 0;
+
+        boolean isAdult = age >= ADULT_AGE_THRESHOLD;
+        BigDecimal extraFee = BigDecimal.ZERO;
+
+        if (isAdult) {
+            currentAdults++;
+            if (currentAdults > maxAdults) {
+                throw new BusinessException("MOD2-020",
+                        "Number of guests exceeds maximum room capacity. Max adults: " + maxAdults);
+            }
+            if (currentAdults > baseAdults && category.getExtraAdultSurcharge() != null) {
+                extraFee = category.getExtraAdultSurcharge();
+            }
+        } else {
+            currentChildren++;
+            if (currentChildren > maxChildren) {
+                throw new BusinessException("MOD2-021",
+                        "Number of guests exceeds maximum room capacity. Max children: " + maxChildren);
+            }
+            if (currentChildren > baseChildren) {
+                Optional<RoomSurcharge> surchargeOpt = roomSurchargeRepository.findSurchargeForAge(category, age);
+                extraFee = surchargeOpt.map(RoomSurcharge::getPriceModifier).orElse(BigDecimal.ZERO);
+            }
+        }
+
+        detail.setNumberOfAdults(currentAdults);
+        detail.setNumberOfChildren(currentChildren);
+
+        return multiplyByNightsIfPositive(extraFee, booking);
+    }
+
+    /** Nhân extra fee với số đêm nếu fee > 0 và booking có ngày hợp lệ. */
+    private BigDecimal multiplyByNightsIfPositive(BigDecimal extraFee, RoomBooking booking) {
+        if (extraFee.compareTo(BigDecimal.ZERO) <= 0)
+            return extraFee;
+        if (booking.getCheckInDate() == null || booking.getCheckOutDate() == null)
+            return extraFee;
+
+        long nights = java.time.temporal.ChronoUnit.DAYS.between(booking.getCheckInDate(), booking.getCheckOutDate());
+        return nights > 0 ? extraFee.multiply(BigDecimal.valueOf(nights)) : extraFee;
+    }
+
+    /** Lưu detail và cập nhật tổng tiền booking nếu có phụ thu. */
+    private void persistDetailAndBookingIfSurcharge(
+            RoomBookingDetail detail, RoomBooking booking, BigDecimal extraFee, Long dependentId) {
+
+        if (extraFee.compareTo(BigDecimal.ZERO) > 0) {
+            if (detail.getExtraSurcharge() == null)
+                detail.setExtraSurcharge(BigDecimal.ZERO);
+            detail.setExtraSurcharge(detail.getExtraSurcharge().add(extraFee));
+
+            booking.setTotalPrice(booking.getTotalPrice().add(extraFee));
+            bookingRepository.save(booking);
+
+            log.info("[UC16] Extra surcharge applied: {} VND for dependent {} in detail {}",
+                    extraFee, dependentId, detail.getId());
+        }
+        roomBookingDetailRepository.save(detail);
+    }
+
+    /** Tạo hoặc cập nhật RoomGuest entry liên kết Dependent với phòng. */
+    private void saveOrUpdateRoomGuest(Dependent saved, DependentRegistrationDTO dto, RoomBookingDetail detail,
+            int age) {
+        RoomGuest rg = (dto.getDependentId() != null)
+                ? roomGuestRepository.findByDependentId(saved.getId()).orElse(new RoomGuest())
+                : new RoomGuest();
+
+        rg.setRoomBookingDetail(detail);
+        rg.setDependent(saved);
+        rg.setCustomer(null);
+        rg.setIsPrimaryContact(Boolean.TRUE.equals(dto.getIsPrimaryContact()));
+        rg.setGuestType(age < 12 ? GUEST_TYPE_CHILD : GUEST_TYPE_ADULT);
+
+        roomGuestRepository.saveAndFlush(rg);
+    }
+
+    /** Build DependentResponseDTO từ kết quả persist và request DTO. */
+    private DependentResponseDTO buildResponseDTO(Dependent saved, DependentRegistrationDTO dto) {
+        DependentResponseDTO response = new DependentResponseDTO();
+        response.setDependentId(saved.getId());
+        response.setFullName(dto.getFullName());
+        response.setDateOfBirth(dto.getDateOfBirth());
+        response.setStatus(STATUS_REGISTERED);
+        return response;
+    }
+
+    /**
+     * Map RoomGuest entity sang DependentResponseDTO (dùng trong
+     * getGuestListByBooking).
+     */
+    private DependentResponseDTO mapGuestToResponseDTO(RoomGuest guest, RoomBookingDetail detail) {
+        DependentResponseDTO dto = new DependentResponseDTO();
+        if (guest.getDependent() != null) {
+            dto.setDependentId(guest.getDependent().getId());
+            dto.setFullName(guest.getDependent().getDependentName());
+            dto.setDateOfBirth(guest.getDependent().getBirthDate());
+        }
+        dto.setIsPrimaryContact(guest.getIsPrimaryContact());
+        if (detail.getRoom() != null) {
+            dto.setAssignedRoom(detail.getRoom().getRoomNumber());
+        }
+        return dto;
+    }
+
+    /**
+     * @deprecated Dùng {@link #validateCccdIfPresent(String)} thay thế.
+     *             Phương thức này giữ lại để tránh breaking change với code legacy.
+     */
+    @Deprecated(since = "refactor-2026-06-30", forRemoval = true)
+    private void validateCccdFormat(String cccd) {
+        validateCccdIfPresent(cccd);
     }
 }

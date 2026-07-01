@@ -17,6 +17,7 @@
         button, a.bg-hoanien-text { transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease, opacity 0.2s ease; }
     </style>
     <link rel="stylesheet" th:href="@{/f&amp;bStaff/css/refund-modal.css}" />
+    <link rel="stylesheet" th:href="@{/guest/css/booking-cancel-modal.css}" />
 </head>
 
 <body class="bg-hoanien-bg text-hoanien-text antialiased flex flex-col min-h-screen">
@@ -544,22 +545,7 @@
         }
 
         function cancelBooking(bookingId) {
-            if (!confirm(`Bạn có chắc chắn muốn hủy đơn đặt phòng #HN${bookingId}? Hành động này không thể hoàn tác.`)) return;
-
-            fetch(`/api/bookings/${bookingId}/cancel`, { method: 'POST' })
-                .then(res => res.json().then(data => ({ status: res.status, body: data })))
-                .then(resObj => {
-                    if (resObj.status !== 200) {
-                        alert(`Không thể hủy đơn: ${resObj.body.message || 'Lỗi hệ thống'}`);
-                    } else {
-                        alert(resObj.body.message || 'Hủy phòng thành công!');
-                        location.reload();
-                    }
-                })
-                .catch(e => {
-                    console.error(e);
-                    alert("Đã xảy ra lỗi hệ thống khi hủy đơn.");
-                });
+            openBkCancelModal(bookingId);
         }
 
         function formatDate(dateStr) {
@@ -598,6 +584,8 @@
     <div th:replace="~{guest/fragments/auth :: authModal}"></div>
     <div th:replace="~{f&amp;bStaff/refund-modal :: #refundModal}"></div>
     <script th:src="@{/f&amp;bStaff/js/refund-modal.js}"></script>
+    <div th:replace="~{guest/fragments/booking-cancel-modal}"></div>
+    <script th:src="@{/guest/js/booking-cancel-modal.js}"></script>
     <script>
         function cancelOrderGuest(id, paymentType) {
             if (paymentType && (paymentType.includes('Ví') || paymentType.includes('Thẻ') || paymentType.includes('Online') || paymentType.toUpperCase().includes('VNPAY'))) {
