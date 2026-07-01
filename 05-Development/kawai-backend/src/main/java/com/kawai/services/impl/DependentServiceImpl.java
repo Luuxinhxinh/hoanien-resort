@@ -65,7 +65,7 @@ public class DependentServiceImpl implements DependentService {
     private static final String DEFAULT_GENDER = "Khác";
     private static final String GUEST_TYPE_CHILD = "CHILD";
     private static final String GUEST_TYPE_ADULT = "ADULT";
-    private static final String FACE_UPLOAD_DIR = "src/main/resources/static/uploads/faces";
+    private static final String FACE_UPLOAD_DIR = com.kawai.utils.UploadPathResolver.resolvePath("src/main/resources/static/uploads/faces");
     private final DependentRepository dependentRepository;
     private final RoomBookingRepository bookingRepository;
     private final EncryptionService encryptionService;

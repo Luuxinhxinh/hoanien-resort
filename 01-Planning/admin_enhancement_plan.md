@@ -59,7 +59,9 @@ Tuyệt đối **KHÔNG code ngay lập tức** để tránh gãy đổ hệ th�
 
 ---
 
-## 🎯 BƯỚC 3: XIN Ý KIẾN DUYỆT (USER APPROVAL)
+## 🎯 BƯỚC 3: XIN Ý KIẾN D
+
+UYỆT (USER APPROVAL)
 
 Vì khối lượng công việc cực kỳ lớn, nếu làm cùng lúc 4 mục sẽ dễ gây conflict code và làm sập giao diện hiện tại của bạn. Tôi đề xuất chia làm 2 Giai đoạn (Sprint):
 

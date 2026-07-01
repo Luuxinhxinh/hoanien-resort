@@ -243,7 +243,8 @@
                             class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200 uppercase tracking-[0.2em] bg-transparent border-none p-0 cursor-pointer">Logout</button>
                     </form>
 
-                    <a href="#" onclick="openLoginModal(); return false;" th:unless="${session.user != null}" class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200">Log In</a>
+                    <a href="#" onclick="openLoginModal(); return false;" th:unless="${session.user != null}"
+                        class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200">Log In</a>
                     <a href="/booking"
                         class="nav-btn-book hover:opacity-100 active:scale-95 transition-all duration-200 inline-block text-[13px]">
                         Book Now
@@ -284,48 +285,6 @@
             <div class="grid grid-cols-1 xl:grid-cols-4 gap-8 items-start">
 
                 <div class="xl:col-span-3">
-                    
-                    <!-- THÊM TABS CHỌN NGÀY -->
-                    <div class="flex overflow-x-auto gap-3 mb-6 pb-2 snap-x hide-scrollbar items-center">
-                        <span class="text-[10px] uppercase tracking-[0.2em] font-semibold text-hoanien-bg/40 whitespace-nowrap mr-2">Chọn ngày:</span>
-                        <a th:href="@{/order-food(day='MONDAY')}" th:class="${currentDay == 'MONDAY' ? 'bg-white text-[#1e1a19] shadow-[0_0_15px_rgba(255,255,255,0.4)] scale-105' : 'bg-white/5 border border-white/10 text-white/70 hover:bg-white/15'} + ' flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap snap-start'">
-                            THỨ 2 
-                            <span th:if="${serverToday == 'MONDAY'}" class="flex items-center gap-1 text-[9px] font-bold tracking-wider" th:classappend="${currentDay == 'MONDAY' ? 'text-emerald-700' : 'text-emerald-400'}"><span class="w-1.5 h-1.5 rounded-full bg-current animate-pulse"></span> HÔM NAY</span>
-                        </a>
-                        <a th:href="@{/order-food(day='TUESDAY')}" th:class="${currentDay == 'TUESDAY' ? 'bg-white text-[#1e1a19] shadow-[0_0_15px_rgba(255,255,255,0.4)] scale-105' : 'bg-white/5 border border-white/10 text-white/70 hover:bg-white/15'} + ' flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap snap-start'">
-                            THỨ 3 
-                            <span th:if="${serverToday == 'TUESDAY'}" class="flex items-center gap-1 text-[9px] font-bold tracking-wider" th:classappend="${currentDay == 'TUESDAY' ? 'text-emerald-700' : 'text-emerald-400'}"><span class="w-1.5 h-1.5 rounded-full bg-current animate-pulse"></span> HÔM NAY</span>
-                        </a>
-                        <a th:href="@{/order-food(day='WEDNESDAY')}" th:class="${currentDay == 'WEDNESDAY' ? 'bg-white text-[#1e1a19] shadow-[0_0_15px_rgba(255,255,255,0.4)] scale-105' : 'bg-white/5 border border-white/10 text-white/70 hover:bg-white/15'} + ' flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap snap-start'">
-                            THỨ 4 
-                            <span th:if="${serverToday == 'WEDNESDAY'}" class="flex items-center gap-1 text-[9px] font-bold tracking-wider" th:classappend="${currentDay == 'WEDNESDAY' ? 'text-emerald-700' : 'text-emerald-400'}"><span class="w-1.5 h-1.5 rounded-full bg-current animate-pulse"></span> HÔM NAY</span>
-                        </a>
-                        <a th:href="@{/order-food(day='THURSDAY')}" th:class="${currentDay == 'THURSDAY' ? 'bg-white text-[#1e1a19] shadow-[0_0_15px_rgba(255,255,255,0.4)] scale-105' : 'bg-white/5 border border-white/10 text-white/70 hover:bg-white/15'} + ' flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap snap-start'">
-                            THỨ 5 
-                            <span th:if="${serverToday == 'THURSDAY'}" class="flex items-center gap-1 text-[9px] font-bold tracking-wider" th:classappend="${currentDay == 'THURSDAY' ? 'text-emerald-700' : 'text-emerald-400'}"><span class="w-1.5 h-1.5 rounded-full bg-current animate-pulse"></span> HÔM NAY</span>
-                        </a>
-                        <a th:href="@{/order-food(day='FRIDAY')}" th:class="${currentDay == 'FRIDAY' ? 'bg-white text-[#1e1a19] shadow-[0_0_15px_rgba(255,255,255,0.4)] scale-105' : 'bg-white/5 border border-white/10 text-white/70 hover:bg-white/15'} + ' flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap snap-start'">
-                            THỨ 6 
-                            <span th:if="${serverToday == 'FRIDAY'}" class="flex items-center gap-1 text-[9px] font-bold tracking-wider" th:classappend="${currentDay == 'FRIDAY' ? 'text-emerald-700' : 'text-emerald-400'}"><span class="w-1.5 h-1.5 rounded-full bg-current animate-pulse"></span> HÔM NAY</span>
-                        </a>
-                        <a th:href="@{/order-food(day='SATURDAY')}" th:class="${currentDay == 'SATURDAY' ? 'bg-white text-[#1e1a19] shadow-[0_0_15px_rgba(255,255,255,0.4)] scale-105' : 'bg-white/5 border border-white/10 text-white/70 hover:bg-white/15'} + ' flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap snap-start'">
-                            THỨ 7 
-                            <span th:if="${serverToday == 'SATURDAY'}" class="flex items-center gap-1 text-[9px] font-bold tracking-wider" th:classappend="${currentDay == 'SATURDAY' ? 'text-emerald-700' : 'text-emerald-400'}"><span class="w-1.5 h-1.5 rounded-full bg-current animate-pulse"></span> HÔM NAY</span>
-                        </a>
-                        <a th:href="@{/order-food(day='SUNDAY')}" th:class="${currentDay == 'SUNDAY' ? 'bg-white text-[#1e1a19] shadow-[0_0_15px_rgba(255,255,255,0.4)] scale-105' : 'bg-white/5 border border-white/10 text-white/70 hover:bg-white/15'} + ' flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap snap-start'">
-                            CHỦ NHẬT 
-                            <span th:if="${serverToday == 'SUNDAY'}" class="flex items-center gap-1 text-[9px] font-bold tracking-wider" th:classappend="${currentDay == 'SUNDAY' ? 'text-emerald-700' : 'text-emerald-400'}"><span class="w-1.5 h-1.5 rounded-full bg-current animate-pulse"></span> HÔM NAY</span>
-                        </a>
-                    </div>
-                    
-                    <div th:if="${currentDay != serverToday}" class="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4 mb-8 flex items-start gap-3">
-                        <span class="material-symbols-outlined text-amber-500 text-xl mt-0.5">info</span>
-                        <div>
-                            <h4 class="text-amber-500 font-semibold text-sm mb-1">Chế độ xem trước thực đơn</h4>
-                            <p class="text-xs text-amber-500/80 leading-relaxed font-light">Bạn đang xem thực đơn của một ngày khác trong tuần. Hệ thống chỉ cho phép đặt món trực tuyến vào đúng ngày hiện tại để đảm bảo độ tươi ngon của nguyên liệu. Vui lòng quay lại tab ngày hôm nay để đặt món.</p>
-                        </div>
-                    </div>
-
                     <div class="flex flex-wrap gap-4 mb-8 text-xs uppercase tracking-[0.15em] font-medium text-hoanien-bg/60 select-none border-b border-white/5 pb-2"
                         id="categoryTabs">
                         <button id="btn-cat-all"
@@ -371,12 +330,11 @@
                                     <span class="font-sans text-xs font-semibold text-white/90"
                                         th:text="${#numbers.formatDecimal(item.price, 0, 'COMMA', 0, 'POINT')} + ' đ'">0
                                         đ</span>
-                                    <button type="button" th:if="${currentDay == serverToday}"
+                                    <button type="button"
                                         th:onclick="addToCart([[${item.id}]], [[${item.itemName}]], [[${item.price}]])"
                                         class="border border-white/20 text-white w-8 h-8 rounded-full flex justify-center items-center hover:bg-white hover:text-hoanien-text transition-all shadow">
                                         <span class="material-symbols-outlined text-sm font-bold">add</span>
                                     </button>
-                                    <span th:if="${currentDay != serverToday}" class="text-[9px] uppercase font-bold text-amber-500 bg-amber-500/10 px-2 py-1 rounded">Chỉ Xem</span>
                                 </div>
                             </div>
                         </div>
@@ -396,9 +354,11 @@
                             <div id="optionInRoom" th:if="${currentRoom != null}"
                                 class="text-white/90 leading-relaxed font-medium">
                                 Xin chào <span class="font-bold text-white">Khách hàng</span>, hệ thống ghi nhận bạn
-                                đang lưu trú tại 
-                                <select id="posLocationIdSelect" onchange="updateRoomSelection()" class="bg-black/50 text-amber-400 font-bold border border-white/20 rounded px-2 py-1 mx-1 text-sm outline-none cursor-pointer">
-                                    <option th:each="r : ${roomOptions}" th:value="${r.roomNumber}" th:data-limit="${r.limit}" th:text="'Phòng ' + ${r.roomNumber}"></option>
+                                đang lưu trú tại
+                                <select id="posLocationIdSelect" onchange="updateRoomSelection()"
+                                    class="bg-black/50 text-amber-400 font-bold border border-white/20 rounded px-2 py-1 mx-1 text-sm outline-none cursor-pointer">
+                                    <option th:each="r : ${roomOptions}" th:value="${r.roomNumber}"
+                                        th:data-limit="${r.limit}" th:text="'Phòng ' + ${r.roomNumber}"></option>
                                 </select>. Món ăn sẽ được giao lên tận cửa phòng.
                                 <input type="hidden" id="posOrderType" value="ROOM_SERVICE">
                                 <input type="hidden" id="posLocationId" th:value="${currentRoom.roomNumber}">
@@ -416,7 +376,8 @@
                             <div id="optionWalkIn"
                                 th:if="${session.user != null && currentRoom == null && currentTable == null}"
                                 class="text-amber-400/90 leading-relaxed font-light italic">
-                                Tài khoản chưa liên kết thông tin lưu trú hoặc lịch đặt bàn tiệc hôm nay. Hệ thống chỉ nhận đơn trực tuyến cho khách có phòng/bàn. Vui lòng liên hệ Lễ tân nếu bạn ăn tại Sảnh.
+                                Tài khoản chưa liên kết thông tin lưu trú hoặc lịch đặt bàn tiệc hôm nay. Hệ thống chỉ
+                                nhận đơn trực tuyến cho khách có phòng/bàn. Vui lòng liên hệ Lễ tân nếu bạn ăn tại Sảnh.
                                 <input type="hidden" id="posOrderType" value="WALK_IN">
                                 <input type="hidden" id="posLocationId" value="Lobby">
                             </div>
@@ -433,24 +394,29 @@
                             </div>
                         </div>
 
-                        <div th:class="${currentRoom == null && currentTable == null} ? 'opacity-30 pointer-events-none grayscale select-none transition-all duration-500 relative' : ''">
+                        <div
+                            th:class="${currentRoom == null && currentTable == null} ? 'opacity-30 pointer-events-none grayscale select-none transition-all duration-500 relative' : ''">
                             <!-- Optional Overlay for extra block -->
-                            <div th:if="${currentRoom == null && currentTable == null}" class="absolute inset-0 z-10"></div>
-                            
+                            <div th:if="${currentRoom == null && currentTable == null}" class="absolute inset-0 z-10">
+                            </div>
+
                             <h3
                                 class="font-serif text-lg mb-4 flex items-center justify-between border-b border-white/5 pb-3 text-white relative z-0">
                                 <span>Đơn gọi món</span>
-                                <span class="text-[10px] uppercase tracking-widest font-sans opacity-40 font-light">[ Items
+                                <span class="text-[10px] uppercase tracking-widest font-sans opacity-40 font-light">[
+                                    Items
                                     ]</span>
                             </h3>
 
                             <div id="cartItemsList"
                                 class="min-h-[80px] max-h-[220px] overflow-y-auto space-y-2 mb-4 pr-1 font-sans relative z-0">
-                                <p class="text-xs opacity-40 italic text-center mt-4 text-white" id="emptyCartMsg">Chưa có
+                                <p class="text-xs opacity-40 italic text-center mt-4 text-white" id="emptyCartMsg">Chưa
+                                    có
                                     món ăn nào được chọn.</p>
                             </div>
 
-                            <div class="border-t border-white/5 pt-3 space-y-2 mb-4 text-xs font-light text-hoanien-bg/70 relative z-0">
+                            <div
+                                class="border-t border-white/5 pt-3 space-y-2 mb-4 text-xs font-light text-hoanien-bg/70 relative z-0">
                                 <div class="flex justify-between"><span>Tạm tính:</span><span id="subtotal"
                                         class="font-medium text-white">0đ</span></div>
                                 <div class="flex justify-between"><span>Phí dịch vụ (5%):</span><span id="serviceFee"
@@ -473,29 +439,36 @@
                                             <input type="radio" name="paymentType" value="CHARGE_TO_ROOM" checked
                                                 class="text-white focus:ring-0 bg-transparent" onchange="renderCart()">
                                             <div>
-                                                <span class="block font-semibold">Ký bill về phòng (Charge to Room)</span>
+                                                <span class="block font-semibold">Ký bill về phòng (Charge to
+                                                    Room)</span>
                                                 <span class="block text-[10px] opacity-50"
-                                                    id="currentCreditLimitDisplay"
-                                                    th:if="${currentCreditLimit != null}"
+                                                    id="currentCreditLimitDisplay" th:if="${currentCreditLimit != null}"
                                                     th:data-limit="${currentCreditLimit}"
                                                     th:text="'Hạn mức tín dụng: ₫' + ${#numbers.formatDecimal(currentCreditLimit, 0, 'COMMA', 0, 'POINT')}">Hạn
                                                     mức: 0đ</span>
                                             </div>
                                         </label>
-                                        <label class="flex items-center gap-2 p-2.5 bg-white/5 border border-white/10 rounded-lg cursor-pointer hover:bg-white/10 transition-colors">
-                                            <input type="radio" name="paymentType" value="ONLINE" th:checked="${currentRoom == null}"
+                                        <label
+                                            class="flex items-center gap-2 p-2.5 bg-white/5 border border-white/10 rounded-lg cursor-pointer hover:bg-white/10 transition-colors">
+                                            <input type="radio" name="paymentType" value="ONLINE"
+                                                th:checked="${currentRoom == null}"
                                                 class="text-white focus:ring-0 bg-transparent" onchange="renderCart()">
                                             <div>
-                                                <span class="block font-semibold text-white/90">Thanh toán trực tuyến trước qua Ví/Thẻ</span>
-                                                <span class="block text-[10px] text-emerald-400">Giảm ngay 2% phí dịch vụ ẩm thực</span>
+                                                <span class="block font-semibold text-white/90">Thanh toán trực tuyến
+                                                    trước qua Ví/Thẻ</span>
+                                                <span class="block text-[10px] text-emerald-400">Giảm ngay 2% phí dịch
+                                                    vụ ẩm thực</span>
                                             </div>
                                         </label>
-                                        <label class="flex items-center gap-2 p-2.5 bg-white/5 border border-white/10 rounded-lg cursor-pointer hover:bg-white/10 transition-colors">
+                                        <label
+                                            class="flex items-center gap-2 p-2.5 bg-white/5 border border-white/10 rounded-lg cursor-pointer hover:bg-white/10 transition-colors">
                                             <input type="radio" name="paymentType" value="PAY_AT_RESTAURANT"
                                                 class="text-white focus:ring-0 bg-transparent" onchange="renderCart()">
                                             <div>
-                                                <span class="block font-semibold text-white/90">Thanh toán trực tiếp khi nhận hàng</span>
-                                                <span class="block text-[10px] opacity-50">Tiền mặt, thẻ ngân hàng hoặc chuyển khoản tại chỗ</span>
+                                                <span class="block font-semibold text-white/90">Thanh toán trực tiếp khi
+                                                    nhận hàng</span>
+                                                <span class="block text-[10px] opacity-50">Tiền mặt, thẻ ngân hàng hoặc
+                                                    chuyển khoản tại chỗ</span>
                                             </div>
                                         </label>
                                     </div>
@@ -564,12 +537,9 @@
             <div class="mt-6 flex justify-end gap-3 border-t border-white/5 pt-4">
                 <button onclick="closeItemDetailModal()"
                     class="px-4 py-2 text-xs font-semibold text-white/60 hover:text-white">Hủy bỏ</button>
-                <button th:if="${currentDay == serverToday}" id="modalAddToCartBtn"
+                <button id="modalAddToCartBtn"
                     class="bg-white text-black px-6 py-2 rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-opacity-90">Thêm
                     vào hóa đơn</button>
-                <button th:if="${currentDay != serverToday}" disabled
-                    class="bg-white/20 text-white/50 px-6 py-2 rounded-lg text-xs font-bold uppercase tracking-wider cursor-not-allowed">Chỉ
-                    xem</button>
             </div>
         </div>
     </div>
@@ -634,9 +604,6 @@
     <script th:inline="javascript">
         /* SỬA LỖI: Đồng bộ kiểm tra đăng nhập trực tiếp từ HTTP Session tránh xung đột dữ liệu client */
         const isLoggedIn = /*[[${session.user != null}]]*/ false;
-        const currentDay = /*[[${currentDay}]]*/ 'MONDAY';
-        const serverToday = /*[[${serverToday}]]*/ 'MONDAY';
-        const isOrderAllowed = currentDay === serverToday;
 
         let modalCurrentItemId = null;
         let cart = [];
@@ -655,13 +622,13 @@
 
         function updateRoomSelection() {
             const selectEl = document.getElementById('posLocationIdSelect');
-            if(selectEl) {
+            if (selectEl) {
                 const selectedOption = selectEl.options[selectEl.selectedIndex];
                 const newRoom = selectedOption.value;
                 const newLimit = selectedOption.getAttribute('data-limit');
-                
+
                 document.getElementById('posLocationId').value = newRoom;
-                
+
                 const limitDisplay = document.getElementById('currentCreditLimitDisplay');
                 if (limitDisplay && newLimit) {
                     limitDisplay.setAttribute('data-limit', newLimit);
@@ -704,13 +671,11 @@
                 if (allergens.includes('Sữa')) iconsGrid.innerHTML += '<span class="bg-white/10 p-1 rounded">🥛</span>';
             }
 
-            if (isOrderAllowed) {
-                document.getElementById('modalAddToCartBtn').onclick = function () {
-                    const customNote = document.getElementById('modalItemChefNote').value.trim();
-                    addToCart(modalCurrentItemId, name, price, customNote);
-                    closeItemDetailModal();
-                };
-            }
+            document.getElementById('modalAddToCartBtn').onclick = function () {
+                const customNote = document.getElementById('modalItemChefNote').value.trim();
+                addToCart(modalCurrentItemId, name, price, customNote);
+                closeItemDetailModal();
+            };
             document.getElementById('itemDetailModal').style.display = 'flex';
         }
 
@@ -757,14 +722,14 @@
             });
 
             container.innerHTML = html || '<p class="text-xs opacity-40 italic text-center mt-4 text-white" id="emptyCartMsg">Chưa có món ăn nào được chọn.</p>';
-            
+
             // Check selected payment type for discount
             const selectedPayment = document.querySelector('input[name="paymentType"]:checked');
             let feePercent = 0.05;
             if (selectedPayment && selectedPayment.value === 'ONLINE') {
                 feePercent = 0.03; // 2% discount on service fee
             }
-            
+
             const fee = subtotal * feePercent;
             const total = subtotal + fee;
 
@@ -890,7 +855,7 @@
                         document.getElementById('posKitchenNote').innerText = pendingOrderPayload.note || 'KHÔNG CÓ GHI CHÚ DỊ ỨNG';
                         document.getElementById('posItemsList').innerHTML = cart.map(function (i) { return '<div>• ' + i.name + ' (x' + i.qty + ')</div>'; }).join('');
                         document.getElementById('posTimelineModal').style.display = 'flex';
-                        
+
                         if (pendingOrderPayload.paymentType === 'CHARGE_TO_ROOM') {
                             const limitDisplay = document.getElementById('currentCreditLimitDisplay');
                             if (limitDisplay) {
