@@ -166,9 +166,7 @@ public class DependentServiceImpl implements DependentService {
      */
     private void validateCccdIfPresent(String cccd) {
         if (cccd == null || cccd.isBlank()) {
-            // CCCD null/blank → ném ngay (MOD2-017)
-            throw new BusinessException("MOD2-017",
-                    "Invalid identification document: CCCD/Passport is required [MOD2-017]");
+            return; // CCCD is optional for dependents (e.g. children)
         }
         if (!com.kawai.utils.ValidationUtils.isValidDocument(cccd)) {
             throw new BusinessException("MOD2-017",
@@ -209,8 +207,10 @@ public class DependentServiceImpl implements DependentService {
      * đây.
      */
     private String encryptCccd(String cccd) {
+        if (cccd == null || cccd.isBlank())
+            return null;
         try {
-            return encryptionService.encrypt(cccd);
+            return com.kawai.utils.EncryptionUtils.encrypt(cccd);
         } catch (Exception e) {
             log.error("[UC16] AES-256 encryption failed for dependent registration: {}", e.getMessage());
             throw new BusinessException("MOD2-005", "Internal error during CCCD encryption [MOD2-005]");
@@ -438,6 +438,15 @@ public class DependentServiceImpl implements DependentService {
             dto.setDependentId(guest.getDependent().getId());
             dto.setFullName(guest.getDependent().getDependentName());
             dto.setDateOfBirth(guest.getDependent().getBirthDate());
+            String cccdEnc = guest.getDependent().getCccdPassportEncrypted();
+            if (cccdEnc != null && !cccdEnc.isBlank()) {
+                try {
+                    dto.setCccd(com.kawai.utils.EncryptionUtils.decrypt(cccdEnc));
+                } catch (Exception e) {
+                    dto.setCccd(cccdEnc);
+                }
+            }
+
         }
         dto.setIsPrimaryContact(guest.getIsPrimaryContact());
         if (detail.getRoom() != null) {

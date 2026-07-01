@@ -1,11 +1,9 @@
-
-
 function showToast(msg, type = 'error') {
     let container = document.getElementById('custom-toast-container');
     if (!container) {
         container = document.createElement('div');
         container.id = 'custom-toast-container';
-        
+
         const style = document.createElement('style');
         style.innerHTML = `
             #custom-toast-container {
@@ -75,13 +73,13 @@ function showToast(msg, type = 'error') {
         document.head.appendChild(style);
         document.body.appendChild(container);
     }
-    
+
     const toast = document.createElement('div');
     toast.className = `custom-toast ${type}`;
-    
+
     const icon = type === 'error' ? 'fa-circle-exclamation' : 'fa-circle-check';
     const title = type === 'error' ? 'LỖI' : 'THÀNH CÔNG';
-    
+
     toast.innerHTML = `
         <i class="fa-solid ${icon} custom-toast-icon"></i>
         <div class="custom-toast-content">
@@ -89,14 +87,14 @@ function showToast(msg, type = 'error') {
             <p class="custom-toast-message">${msg}</p>
         </div>
     `;
-    
+
     container.appendChild(toast);
-    
+
     // trigger animation
     requestAnimationFrame(() => {
         setTimeout(() => toast.classList.add('show'), 10);
     });
-    
+
     setTimeout(() => {
         toast.classList.remove('show');
         setTimeout(() => toast.remove(), 300);
@@ -131,7 +129,7 @@ function updateAvailableRooms() {
 document.addEventListener('DOMContentLoaded', () => {
     const roomSelect = document.getElementById('physicalRoomSelect');
     if (roomSelect) {
-        roomSelect.addEventListener('change', function() {
+        roomSelect.addEventListener('change', function () {
             const opt = this.options[this.selectedIndex];
             if (!opt) return;
             const status = opt.getAttribute('data-status');
@@ -142,7 +140,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (existingWarning) existingWarning.remove();
 
             const assignBtn = gridContainer.querySelector('button[onclick="assignRoom()"]');
-            
+
             if (status === 'Vacant_Dirty') {
                 const warningDiv = document.createElement('div');
                 warningDiv.id = 'dirtyRoomWarningInline';
@@ -169,7 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 `;
                 gridContainer.appendChild(warningDiv);
-                
+
                 if (assignBtn) {
                     assignBtn.disabled = true;
                     assignBtn.style.opacity = '0.5';
@@ -186,50 +184,50 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-window.escalateDirtyRoom = function(roomNumber, assignAfter) {
+window.escalateDirtyRoom = function (roomNumber, assignAfter) {
     fetch(`/receptionist/operations/escalate-room?roomNumber=${roomNumber}`, {
         method: 'POST',
         headers: {
             'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]') ? document.querySelector('meta[name="_csrf"]').getAttribute('content') : ''
         }
     }).then(res => res.json())
-    .then(data => {
-        if (data.status === 'success') {
-            showToast('Đã gửi yêu cầu dọn khẩn cấp cho buồng phòng.', 'success');
-            
-            const typeSelect = document.getElementById('bookTypeSelect');
-            const roomSelect = document.getElementById('physicalRoomSelect');
+        .then(data => {
+            if (data.status === 'success') {
+                showToast('Đã gửi yêu cầu dọn khẩn cấp cho buồng phòng.', 'success');
 
-            // Always remove the warning banner when a choice is made
-            const existingWarning = document.getElementById('dirtyRoomWarningInline');
-            if (existingWarning) existingWarning.remove();
+                const typeSelect = document.getElementById('bookTypeSelect');
+                const roomSelect = document.getElementById('physicalRoomSelect');
 
-            // Always re-enable the assign button
-            const gridContainer = roomSelect.closest('div[style*="display: grid"]');
-            if (gridContainer) {
-                const assignBtn = gridContainer.querySelector('button[onclick="assignRoom()"]');
-                if (assignBtn) {
-                    assignBtn.disabled = false;
-                    assignBtn.style.opacity = '1';
-                    assignBtn.style.cursor = 'pointer';
+                // Always remove the warning banner when a choice is made
+                const existingWarning = document.getElementById('dirtyRoomWarningInline');
+                if (existingWarning) existingWarning.remove();
+
+                // Always re-enable the assign button
+                const gridContainer = roomSelect.closest('div[style*="display: grid"]');
+                if (gridContainer) {
+                    const assignBtn = gridContainer.querySelector('button[onclick="assignRoom()"]');
+                    if (assignBtn) {
+                        assignBtn.disabled = false;
+                        assignBtn.style.opacity = '1';
+                        assignBtn.style.cursor = 'pointer';
+                    }
                 }
-            }
 
-            if (assignAfter) {
-                const selectedType = typeSelect.value;
-                const selectedRoomOpt = roomSelect.options[roomSelect.selectedIndex];
-                proceedAssignRoom(typeSelect, selectedType, roomNumber, selectedRoomOpt);
+                if (assignAfter) {
+                    const selectedType = typeSelect.value;
+                    const selectedRoomOpt = roomSelect.options[roomSelect.selectedIndex];
+                    proceedAssignRoom(typeSelect, selectedType, roomNumber, selectedRoomOpt);
+                } else {
+                    // If they only requested cleaning, reset the dropdown to force them to select a different room
+                    roomSelect.value = "";
+                }
             } else {
-                // If they only requested cleaning, reset the dropdown to force them to select a different room
-                roomSelect.value = "";
+                showToast('Lỗi khi gửi yêu cầu: ' + data.message, 'error');
             }
-        } else {
-            showToast('Lỗi khi gửi yêu cầu: ' + data.message, 'error');
-        }
-    }).catch(err => {
-        console.error(err);
-        showToast('Lỗi kết nối khi gửi yêu cầu khẩn cấp.', 'error');
-    });
+        }).catch(err => {
+            console.error(err);
+            showToast('Lỗi kết nối khi gửi yêu cầu khẩn cấp.', 'error');
+        });
 };
 
 function assignRoom() {
@@ -272,7 +270,13 @@ let expectedTotalAdults = 0;
 let expectedTotalChildren = 0;
 
 function handleCheckinCreditInput(input, index) {
-    let val = parseFloat(input.value) || 0;
+    let val = parseFloat(input.value);
+    if (isNaN(val) || val < 0) {
+        val = 0;
+        if (input.value !== '') {
+            input.value = ''; // keep it empty if user clears it or enters negative
+        }
+    }
     assignedRooms[index].allocatedCreditLimit = val;
     let hiddens = document.querySelectorAll('input[name="allocatedCreditLimits"]');
     if (hiddens && hiddens[index]) {
@@ -355,7 +359,7 @@ function renderAssignedRooms() {
         limitInput.className = 'form-control';
         limitInput.style.cssText = 'width: 120px; padding: 4px 8px; font-size: 13px; border: 1px solid #cbd5e1; border-radius: 4px;';
         limitInput.placeholder = 'Credit Limit';
-        limitInput.value = a.allocatedCreditLimit || 0;
+        limitInput.value = (a.allocatedCreditLimit && a.allocatedCreditLimit > 0) ? a.allocatedCreditLimit : '';
         limitInput.min = "0";
         limitInput.oninput = function () { handleCheckinCreditInput(this, index); };
 
@@ -400,16 +404,14 @@ function renderAssignedRooms() {
 
     updateCheckinCreditLimitDisplay();
 }
+function openCheckinModal(bookingId, guestName, phone, cccd, dob, roomSummary, depsDivId, toursDivId, creditLimit) {
+    console.log('[openCheckinModal] called:', { bookingId, guestName, phone, cccd, dob, roomSummary, depsDivId, toursDivId, creditLimit });
 
-
-function openCheckinModal(bookingId, guestName, phone, cccd, roomSummary, depsDivId, toursDivId, creditLimit, expectedGuests, expectedAdults, expectedChildren) {
-    console.log('[openCheckinModal] called:', { bookingId, guestName, phone, cccd, roomSummary, depsDivId, toursDivId, creditLimit, expectedGuests, expectedAdults, expectedChildren });
     const modalEl = document.getElementById('checkinModal');
     if (!modalEl) {
         console.error('[openCheckinModal] CRITICAL: #checkinModal không tìm thấy trong DOM!');
         return;
     }
-
     const currentBookingId = document.getElementById('submitBookingId').value;
     if (currentBookingId === bookingId.toString()) {
         // Resume from previous state if clicking the same check-in button
@@ -421,13 +423,13 @@ function openCheckinModal(bookingId, guestName, phone, cccd, roomSummary, depsDi
     expectedTotalGuests = expectedGuests ? parseInt(expectedGuests) : 1;
     expectedTotalAdults = expectedAdults ? parseInt(expectedAdults) : 1;
     expectedTotalChildren = expectedChildren ? parseInt(expectedChildren) : 0;
-    
+
     const capacitySpan = document.getElementById('modalExpectedCapacity');
     if (capacitySpan) {
         capacitySpan.innerHTML = `<i class="fa-solid fa-users" style="margin-right: 4px;"></i> Tiêu chuẩn: ${expectedTotalAdults} Người Lớn, ${expectedTotalChildren} Trẻ Em`;
         capacitySpan.style.display = 'inline-block';
     }
-    
+
     updateCheckinCreditLimitDisplay();
     // Gán bookingId vào form submit hidden input
     document.getElementById('submitBookingId').value = bookingId;
@@ -443,9 +445,11 @@ function openCheckinModal(bookingId, guestName, phone, cccd, roomSummary, depsDi
                 const name = li.getAttribute('data-name');
                 const dob = li.getAttribute('data-dob');
                 const dependentId = li.getAttribute('data-id');
+                const cccd = li.getAttribute('data-cccd');
+                const gender = li.getAttribute('data-gender');
                 // Hiển thị tất cả các khách, bao gồm cả những khách chưa có tên (Stub từ Đặt phòng online)
                 const displayName = name ? name : '(Chưa cập nhật)';
-                addDependentRow(displayName, '', dob || '', dependentId);
+                addDependentRow(displayName, cccd || '', dob || '', gender || 'Nam', dependentId);
             });
         }
     }
@@ -455,9 +459,10 @@ function openCheckinModal(bookingId, guestName, phone, cccd, roomSummary, depsDi
     }
 
     document.getElementById('modalGuestName').value = guestName || '';
-    document.getElementById('modalGuestPhone').value = phone || '';
-    document.getElementById('modalGuestCccd').value = cccd || '';
-    document.getElementById('modalRoom').innerText = roomSummary || '';
+    if (document.getElementById('modalGuestPhone')) document.getElementById('modalGuestPhone').value = phone || '';
+    if (document.getElementById('modalGuestCccd')) document.getElementById('modalGuestCccd').value = (cccd && cccd !== 'null') ? cccd : '';
+    if (document.getElementById('modalGuestDob')) document.getElementById('modalGuestDob').value = (dob && dob !== 'null') ? dob : '';
+    if (document.getElementById('modalRoom')) document.getElementById('modalRoom').innerText = (roomSummary && roomSummary !== 'null') ? roomSummary : '';
 
     // reset assignment state
     assignedRooms.length = 0;
@@ -523,11 +528,14 @@ function calculateAge(dobStr) {
 let depIndexCounter = 0;
 
 function addDependent() {
-    const name = document.getElementById('depName').value;
-    const id = document.getElementById('depId').value;
+    const name = document.getElementById('depName').value.trim();
+    const cccd = document.getElementById('depId').value.trim();
+    const depId = document.getElementById('depId').getAttribute('data-dependent-id');
     const dob = document.getElementById('depDob').value;
+    const gender = document.getElementById('depGender').value;
     const roomId = document.getElementById('depRoom').value;
     const isPrimary = document.getElementById('depIsPrimary').checked;
+
     if (!name || !dob) {
         showToast('Please fill Name and Date of Birth!');
         return;
@@ -539,7 +547,7 @@ function addDependent() {
     if (!isUpdate) {
         let actualAdultCount = 1; // Main Guest counts as 1 Adult
         let actualChildCount = 0;
-        
+
         document.querySelectorAll('#dependentsList tr').forEach(tr => {
             if (tr.querySelector('input')) {
                 const trDob = tr.getAttribute('data-dob');
@@ -564,11 +572,11 @@ function addDependent() {
     }
 
     const age = calculateAge(dob);
-    if (age >= 14 && !id) {
+    if (age >= 14 && !cccd) {
         showToast('Người đi kèm từ 14 tuổi trở lên bắt buộc phải cung cấp CCCD/Passport!');
         return;
     }
-    
+
     if (!roomId) {
         showToast('Please assign the guest to a room!');
         return;
@@ -609,15 +617,15 @@ function addDependent() {
     }
 
     // Kiểm tra CCCD/Passport nếu có nhập
-    if (id) {
-        const isNumericOnly = /^\d+$/.test(id);
+    if (cccd) {
+        const isNumericOnly = /^\d+$/.test(cccd);
         if (isNumericOnly) {
-            if (id.length !== 12) {
+            if (cccd.length !== 12) {
                 showToast('Số CCCD không hợp lệ! Nếu chỉ nhập số, CCCD phải gồm đúng 12 chữ số.');
                 return;
             }
         } else {
-            const isValidPassport = /^[A-Za-z0-9]{6,15}$/.test(id);
+            const isValidPassport = /^[A-Za-z0-9]{6,15}$/.test(cccd);
             if (!isValidPassport) {
                 showToast('Số Passport không hợp lệ! Passport phải từ 6-15 ký tự chữ và số.');
                 return;
@@ -625,28 +633,27 @@ function addDependent() {
         }
     }
 
-    const depId = document.getElementById('depId').getAttribute('data-dependent-id');
-    const parsedDepId = (depId && depId !== 'null' && depId !== '') ? depId : null;
     const editingRow = document.querySelector('.editing-row');
     if (editingRow) {
         editingRow.remove();
     }
 
-    addDependentRow(name, id, dob, parsedDepId, roomId, isPrimary);
+    addDependentRow(name, cccd, dob, gender, depId, roomId, isPrimary);
 
     document.getElementById('depName').value = '';
     document.getElementById('depId').value = '';
     document.getElementById('depId').removeAttribute('data-dependent-id');
     document.getElementById('depDob').value = '';
+    document.getElementById('depGender').value = 'Nam';
     document.getElementById('depRoom').value = '';
     document.getElementById('depIsPrimary').checked = false;
-    
+
     if (btnAddDependent) {
         btnAddDependent.innerHTML = '<i class="fa-solid fa-plus"></i> Add';
     }
 }
 
-function addDependentRow(name, cccd, dob, dependentId, assignedPhysicalRoomNumber, isPrimary = false) {
+function addDependentRow(name, cccd, dob, gender, dependentId, assignedPhysicalRoomNumber, isPrimary = false) {
     const tbody = document.getElementById('dependentsList');
     // remove empty message if present
     if (tbody.children.length === 1 && tbody.children[0].innerText.includes('No group members')) {
@@ -666,7 +673,7 @@ function addDependentRow(name, cccd, dob, dependentId, assignedPhysicalRoomNumbe
 
     let effectiveDepId = dependentId || ('NEW_' + depIndexCounter);
     let depIdArg = `'${effectiveDepId}'`;
-    
+
     // Thêm div ẩn chứa ID mapping để submit form dễ tìm
     let hiddenMapping = `<input type="hidden" class="faceid-mapping-id" data-target-id="${effectiveDepId}" data-index="${depIndexCounter}" />`;
 
@@ -694,11 +701,11 @@ function addDependentRow(name, cccd, dob, dependentId, assignedPhysicalRoomNumbe
         <td style="padding: 12px 16px; font-size: 14px; color: #475569;">
             ${dob}
             <input type="hidden" name="dependents[${depIndexCounter}].dateOfBirth" value="${dob}" />
-            <input type="hidden" name="dependents[${depIndexCounter}].gender" value="Other" />
+            <input type="hidden" name="dependents[${depIndexCounter}].gender" value="${gender}" />
         </td>
         <td style="padding: 12px 16px;">
             <button type="button" class="btn btn-outline btn-sm" style="color: #6366f1; border-color: #c7d2fe; background: #eef2ff; padding: 6px 10px; margin-right: 6px; border-radius: 6px; transition: all 0.2s;" onmouseover="this.style.background='#e0e7ff'" onmouseout="this.style.background='#eef2ff'" title="FaceID" onclick="openEnrollModal('DEPENDENT', ${depIdArg}, '${name}')"><i class="fa-solid fa-camera"></i></button>
-            <button type="button" class="btn btn-outline btn-sm" style="color: #3b82f6; border-color: #bfdbfe; background: #eff6ff; padding: 6px 10px; margin-right: 6px; border-radius: 6px; transition: all 0.2s;" onmouseover="this.style.background='#dbeafe'" onmouseout="this.style.background='#eff6ff'" title="Edit" onclick="editDependentRow(this, '${name}', '${cccd}', '${dob}', ${depIdArg}, ${roomIdArg}, ${isPrimary})"><i class="fa-solid fa-pen"></i></button>
+            <button type="button" class="btn btn-outline btn-sm" style="color: #3b82f6; border-color: #bfdbfe; background: #eff6ff; padding: 6px 10px; margin-right: 6px; border-radius: 6px; transition: all 0.2s;" onmouseover="this.style.background='#dbeafe'" onmouseout="this.style.background='#eff6ff'" title="Edit" onclick="editDependentRow(this, '${name}', '${cccd}', '${dob}', '${gender}', ${depIdArg}, ${roomIdArg}, ${isPrimary})"><i class="fa-solid fa-pen"></i></button>
             <button type="button" class="btn btn-outline btn-sm" style="color: #ef4444; border-color: #fecaca; background: #fef2f2; padding: 6px 10px; border-radius: 6px; transition: all 0.2s;" onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='#fef2f2'" title="Delete" onclick="this.closest('tr').remove()"><i class="fa-solid fa-trash"></i></button>
         </td>
     `;
@@ -707,7 +714,7 @@ function addDependentRow(name, cccd, dob, dependentId, assignedPhysicalRoomNumbe
     depIndexCounter++;
 }
 
-function editDependentRow(btn, name, cccd, dob, depId, roomId, isPrimary) {
+function editDependentRow(btn, name, cccd, dob, gender, depId, roomId, isPrimary) {
     // Phục hồi dòng đang edit dang dở (nếu khách click sửa liên tục mà quên bấm Add)
     const editingRow = document.querySelector('.editing-row');
     if (editingRow) {
@@ -723,6 +730,7 @@ function editDependentRow(btn, name, cccd, dob, depId, roomId, isPrimary) {
         document.getElementById('depId').removeAttribute('data-dependent-id');
     }
     document.getElementById('depDob').value = dob !== 'null' ? dob : '';
+    document.getElementById('depGender').value = gender !== 'null' ? gender : 'Nam';
     document.getElementById('depRoom').value = roomId !== 'null' ? roomId : '';
     document.getElementById('depIsPrimary').checked = isPrimary;
 
@@ -735,7 +743,7 @@ function editDependentRow(btn, name, cccd, dob, depId, roomId, isPrimary) {
     const tr = btn.closest('tr');
     tr.classList.add('editing-row');
     tr.style.display = 'none';
-    
+
     const btnAddDependent = document.getElementById('btnAddDependent');
     if (btnAddDependent) {
         btnAddDependent.innerHTML = '<i class="fa-solid fa-check"></i> Update';
@@ -757,10 +765,10 @@ function toggleDependentsList() {
 const _checkinForm = document.getElementById('checkinFormWrapper');
 if (_checkinForm) {
     _checkinForm.addEventListener('submit', async function (e) {
-        
+
         let actualAdultCount = 1; // Main Guest
         let actualChildCount = 0;
-        
+
         document.querySelectorAll('#dependentsList tr').forEach(tr => {
             if (tr.querySelector('input')) {
                 const trDob = tr.getAttribute('data-dob');
@@ -860,6 +868,30 @@ if (_checkinForm) {
             return;
         }
 
+        // Validate that all dependents have been assigned a physical room
+        const dependentRows = document.querySelectorAll('#dependentsList tr:not(.editing-row)');
+        let unassignedDependentCount = 0;
+        let missingDependentName = null;
+        dependentRows.forEach(row => {
+            if (row.style.display !== 'none') {
+                const roomInput = row.querySelector('input[name$=".assignedPhysicalRoomNumber"]');
+                // N?u l thnh vin dnh sch bnh thu?ng c th? roomInput (hidden field)
+                if (roomInput !== null && (!roomInput.value || roomInput.value.trim() === '')) {
+                    unassignedDependentCount++;
+                    if (!missingDependentName) {
+                        const nameTd = row.querySelector('td:first-child');
+                        if (nameTd) missingDependentName = nameTd.innerText.trim().split('\n')[0];
+                    }
+                }
+            }
+        });
+
+        if (unassignedDependentCount > 0) {
+            e.preventDefault();
+            showToast(`Vui lòng chọn phòng cho khách "${missingDependentName || 'ẩn danh'}" và các khách chưa được phân phòng khác!`, 'error');
+            return;
+        }
+
         if (currentUnallocatedTours.length > 0) {
             const allocationMode = document.querySelector('input[name="tourAllocationMode"]:checked');
             if (allocationMode && allocationMode.value === 'PER_TOUR') {
@@ -872,17 +904,17 @@ if (_checkinForm) {
                 }
             }
         }
-        
+
         // Prevent default submission to process FaceIDs first
         e.preventDefault();
-        
+
         // Show loading state
         const submitBtn = _checkinForm.querySelector('button[type="submit"]');
         if (submitBtn) {
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang xử lý FaceID...';
         }
-        
+
         // Inject pending FaceIDs into the form
         for (const key in pendingFaceEnrollments) {
             const data = pendingFaceEnrollments[key];
@@ -892,7 +924,7 @@ if (_checkinForm) {
                 input1.name = 'faceVectorData';
                 input1.value = data.vector;
                 _checkinForm.appendChild(input1);
-                
+
                 const input2 = document.createElement('input');
                 input2.type = 'hidden';
                 input2.name = 'faceImageBase64';
@@ -908,7 +940,7 @@ if (_checkinForm) {
                     input1.name = `dependents[${idx}].faceVectorData`;
                     input1.value = data.vector;
                     _checkinForm.appendChild(input1);
-                    
+
                     const input2 = document.createElement('input');
                     input2.type = 'hidden';
                     input2.name = `dependents[${idx}].faceImageBase64`;
@@ -917,7 +949,7 @@ if (_checkinForm) {
                 }
             }
         }
-        
+
         // Sau khi upload xong, submit form gốc
         _checkinForm.submit();
     });
@@ -996,7 +1028,7 @@ function renderPerTourAllocationRows() {
 
         const labelInfo = document.createElement('div');
         labelInfo.style.cssText = 'display:flex;flex-direction:column;gap:4px;min-width:0;';
-        
+
         const labelName = document.createElement('span');
         labelName.style.cssText = 'font-size:14px;font-weight:600;color:#1e293b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
         labelName.innerText = tour.tourName;
@@ -1004,7 +1036,7 @@ function renderPerTourAllocationRows() {
         const labelDate = document.createElement('span');
         labelDate.style.cssText = 'font-size:12px;color:#64748b;font-weight:500;';
         labelDate.innerText = tour.date + ' • ' + tour.time;
-        
+
         labelInfo.appendChild(labelName);
         labelInfo.appendChild(labelDate);
 
@@ -1082,9 +1114,9 @@ async function openEnrollModal(type, targetId, targetName) {
         showToast("Không xác định được ID Khách hàng! Hãy kiểm tra lại.");
         return;
     }
-    
+
     currentEnrollType = type;
-    
+
     // Convert bookingId to customerId via UI element if it's CUSTOMER type
     // Since check-in uses bookingId, we will use bookingId and the backend can resolve customer or we just pass customerId from the backend.
     // In our case, the button passes bookingId, but backend needs customerId. We should have passed customer_id.
@@ -1094,15 +1126,15 @@ async function openEnrollModal(type, targetId, targetName) {
     // To keep it simple, we assume targetId is customerId for CUSTOMER, and dependentId for DEPENDENT.
     // Actually in check-in.html `openEnrollModal('CUSTOMER', document.getElementById('submitBookingId').value)`
     // This is wrong, it sends bookingId. Let's fix that. I'll send it as `bookingId` for CUSTOMER and backend will find customer from booking.
-    
-    currentEnrollId = targetId; 
-    
+
+    currentEnrollId = targetId;
+
     const modal = document.getElementById('enrollFaceModal');
     const overlay = document.getElementById('enrollOverlay');
     const captureBtn = document.getElementById('captureBtn');
-    
+
     document.getElementById('enrollTargetName').innerText = type === 'CUSTOMER' ? "Đang đăng ký cho Người Đặt Phòng..." : "Đang đăng ký cho " + (targetName || "Người Đi Kèm...");
-    
+
     modal.style.display = 'flex';
     overlay.style.display = 'flex';
     overlay.innerText = 'Đang tải AI Model...';
@@ -1118,7 +1150,7 @@ async function openEnrollModal(type, targetId, targetName) {
         videoStream = await navigator.mediaDevices.getUserMedia({ video: {} });
         const video = document.getElementById('enrollVideo');
         video.srcObject = videoStream;
-        
+
         video.onloadedmetadata = () => {
             overlay.style.display = 'none';
             captureBtn.disabled = false;
@@ -1142,21 +1174,21 @@ async function captureFace() {
     const video = document.getElementById('enrollVideo');
     const overlay = document.getElementById('enrollOverlay');
     const captureBtn = document.getElementById('captureBtn');
-    
+
     captureBtn.disabled = true;
     overlay.style.display = 'flex';
-    
+
     // Countdown 3 seconds
     for (let i = 3; i > 0; i--) {
         overlay.innerHTML = `<span style="font-size: 24px; font-weight: bold;">Chụp trong: ${i}s<br><span style="font-size: 14px; font-weight: normal; color: #cbd5e1;">(Vui lòng mở mắt to và nhìn thẳng)</span></span>`;
         await new Promise(r => setTimeout(r, 1000));
     }
-    
+
     overlay.innerText = 'Đang trích xuất khuôn mặt...';
 
     try {
         const detection = await faceapi.detectSingleFace(video).withFaceLandmarks().withFaceDescriptor();
-        
+
         if (!detection) {
             showToast("Không tìm thấy khuôn mặt rõ ràng. Vui lòng nhìn thẳng vào camera và thử lại.");
             overlay.style.display = 'none';
@@ -1165,15 +1197,15 @@ async function captureFace() {
         }
 
         const descriptor = Array.from(detection.descriptor);
-        
+
         // Kiểm tra trùng lặp với các khuôn mặt đã chụp trong cùng session
         const currentKey = currentEnrollType === 'CUSTOMER' ? 'CUSTOMER' : currentEnrollId;
         for (const existingKey in pendingFaceEnrollments) {
             if (existingKey === currentKey.toString()) continue; // Bỏ qua nếu chụp lại cho chính người này
-            
+
             const existingVector = JSON.parse(pendingFaceEnrollments[existingKey].vector);
             const distance = faceapi.euclideanDistance(descriptor, existingVector);
-            
+
             // Threshold = 0.5 for faceapi
             if (distance < 0.5) {
                 showToast("Khuôn mặt này đã được quét cho một người khác trong đoàn! Vui lòng quét khuôn mặt khác.");
@@ -1182,17 +1214,17 @@ async function captureFace() {
                 return;
             }
         }
-        
+
         // Capture face image
         const canvas = document.createElement('canvas');
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
         const ctx = canvas.getContext('2d');
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        
+
         const box = detection.detection.box;
         const faceCanvas = document.createElement('canvas');
-        
+
         // Add padding around the face for better visibility
         const padX = box.width * 0.2;
         const padY = box.height * 0.2;
@@ -1200,15 +1232,15 @@ async function captureFace() {
         const startY = Math.max(0, box.y - padY);
         const drawWidth = Math.min(canvas.width - startX, box.width + padX * 2);
         const drawHeight = Math.min(canvas.height - startY, box.height + padY * 2);
-        
+
         faceCanvas.width = drawWidth;
         faceCanvas.height = drawHeight;
         faceCanvas.getContext('2d').drawImage(
-            canvas, 
-            startX, startY, drawWidth, drawHeight, 
+            canvas,
+            startX, startY, drawWidth, drawHeight,
             0, 0, drawWidth, drawHeight
         );
-        
+
         const base64Image = faceCanvas.toDataURL('image/jpeg', 0.85);
 
         // Lưu tạm vào bộ nhớ JS
@@ -1219,12 +1251,12 @@ async function captureFace() {
             vector: JSON.stringify(descriptor),
             image: base64Image
         };
-        
+
         // Hiển thị ảnh xem trước trên giao diện checkin
         updateFacePreviewUI(currentEnrollType, currentEnrollId, base64Image);
-        
+
         closeEnrollModal();
-        
+
     } catch (e) {
         console.error("Lỗi quét:", e);
         showToast("Đã xảy ra lỗi khi quét khuôn mặt.");
@@ -1254,14 +1286,14 @@ function updateFacePreviewUI(type, targetId, base64Image) {
 
     const keyId = type === 'CUSTOMER' ? 'CUSTOMER' : targetId;
     let card = document.getElementById('face-card-' + keyId);
-    
+
     if (!card) {
         card = document.createElement('div');
         card.id = 'face-card-' + keyId;
         card.style.cssText = 'display: flex; flex-direction: column; align-items: center; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; background: #f8fafc; gap: 8px; position: relative;';
         gallery.appendChild(card);
     }
-    
+
     card.innerHTML = `
         <img src="${base64Image}" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid #10b981; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
         <span style="font-size: 13px; font-weight: 600; color: #334155; text-align: center; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${guestName}</span>
@@ -1272,7 +1304,7 @@ function updateFacePreviewUI(type, targetId, base64Image) {
 // --- AUTO SAVE FORM DATA TO PREVENT DATA LOSS ON TAB SWITCH / RELOAD ---
 document.addEventListener('DOMContentLoaded', () => {
     const pageKey = 'kawai_autosave_' + window.location.pathname.replace(/[^a-zA-Z0-9]/g, '_');
-    
+
     // Khôi phục dữ liệu
     const savedDataStr = localStorage.getItem(pageKey);
     if (savedDataStr) {
@@ -1284,7 +1316,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!key || el.type === 'password' || el.type === 'file' || el.type === 'hidden') return;
                 // Bỏ qua trường tìm kiếm nếu có
                 if (key.toLowerCase().includes('search') || key.toLowerCase().includes('keyword')) return;
-                
+
                 if (savedData[key] !== undefined) {
                     if (el.type === 'checkbox' || el.type === 'radio') {
                         el.checked = savedData[key];
@@ -1294,7 +1326,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
             console.log('Khôi phục dữ liệu đang nhập dở thành công.');
-        } catch(e) {
+        } catch (e) {
             console.error('Lỗi khi khôi phục dữ liệu autosave:', e);
         }
     }
@@ -1306,7 +1338,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const key = el.id || el.name;
             if (!key || el.type === 'password' || el.type === 'file' || el.type === 'hidden') return;
             if (key.toLowerCase().includes('search') || key.toLowerCase().includes('keyword')) return;
-            
+
             const currentData = JSON.parse(localStorage.getItem(pageKey) || '{}');
             if (el.type === 'checkbox' || el.type === 'radio') {
                 currentData[key] = el.checked;
@@ -1326,7 +1358,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Gắn đè hàm fetch để xóa dữ liệu khi fetch api checkin thành công
     const originalFetch = window.fetch;
-    window.fetch = async function() {
+    window.fetch = async function () {
         const response = await originalFetch.apply(this, arguments);
         const url = arguments[0];
         if (response.ok && typeof url === 'string' && (url.includes('/walkin/checkin') || url.includes('/checkin/complete'))) {
@@ -1337,19 +1369,19 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 function handleQrScan(val, target, inputEl) {
     if (!val) return;
-    
+
     // Format expected: 001205015836||Nguyễn Xuân Lưu|14102005|Nam|TDP Ninh Sơn, Chúc Sơn, Chương Mỹ, Hà Nội|31052021
     const parts = val.split('|');
     if (parts.length >= 7) {
         const id = parts[0];
         const name = parts[2];
         const dobStr = parts[3]; // DDMMYYYY
-        
+
         let dob = '';
         if (dobStr && dobStr.length === 8) {
             dob = `${dobStr.substring(4, 8)}-${dobStr.substring(2, 4)}-${dobStr.substring(0, 2)}`;
         }
-        
+
         // GLOBAL DUPLICATE CHECK
         const mainCccd = document.getElementById('modalGuestCccd').value.trim();
         let isDuplicateDep = false;
@@ -1385,7 +1417,7 @@ function handleQrScan(val, target, inputEl) {
         } else if (target === 'auto-dep') {
             let actualAdultCount = 1; // Main Guest
             let actualChildCount = 0;
-            
+
             document.querySelectorAll('#dependentsList tr').forEach(tr => {
                 if (tr.querySelector('input')) {
                     const trDob = tr.getAttribute('data-dob');
@@ -1410,16 +1442,11 @@ function handleQrScan(val, target, inputEl) {
                 }
             }
 
-            if (assignedRooms.length === 0) {
-                showToast('Vui lòng phân phòng trước khi quét tự động người đi kèm!', 'warning');
-                if (inputEl) inputEl.value = '';
-                return;
-            }
-            const autoRoom = assignedRooms[0].room;
-            addDependentRow(name, id, dob, null, autoRoom);
-            showToast(`Đã tự động thêm thành viên: ${name} vào phòng ${autoRoom}`, 'success');
+
+            addDependentRow(name, id, dob, 'Nam', null, '');
+            showToast(`Đã tự động thêm thành viên: ${name}`, 'success');
         }
-        
+
         if (inputEl) {
             inputEl.value = '';
         }
@@ -1432,25 +1459,25 @@ let currentQrTarget = null;
 function openQrScannerModal(target) {
     currentQrTarget = target;
     document.getElementById('qrScannerModal').style.display = 'flex';
-    
+
     // CCCD barcode is a square QR Code, use square box and limit format for speed
     if (!html5QrcodeScanner) {
         html5QrcodeScanner = new Html5QrcodeScanner(
-            "qr-reader", 
-            { 
-                fps: 20, 
-                qrbox: {width: 300, height: 300},
-                formatsToSupport: [ Html5QrcodeSupportedFormats.QR_CODE ],
+            "qr-reader",
+            {
+                fps: 20,
+                qrbox: { width: 300, height: 300 },
+                formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE],
                 useBarCodeDetectorIfSupported: true,
                 videoConstraints: {
                     width: { ideal: 1920 },
                     height: { ideal: 1080 }
                 }
-            }, 
+            },
             /* verbose= */ false
         );
     }
-    
+
     html5QrcodeScanner.render(onScanSuccess, onScanFailure);
 }
 
@@ -1477,28 +1504,28 @@ function onScanFailure(error) {
 async function scanQrFromFile(input) {
     if (!input.files || input.files.length === 0) return;
     const file = input.files[0];
-    
+
     // Stop the camera scanner if it's currently running
     if (html5QrcodeScanner) {
         try {
             await html5QrcodeScanner.clear();
-        } catch(e) {}
+        } catch (e) { }
     }
-    
+
     const html5QrCode = new Html5Qrcode("qr-reader");
     try {
         const decodedText = await html5QrCode.scanFile(file, true);
         console.log("Scan result from file: " + decodedText);
-        
-        html5QrCode.clear().catch(e => {});
+
+        html5QrCode.clear().catch(e => { });
         closeQrScannerModal();
-        
+
         let mockInput = { value: decodedText, tagName: 'MOCK' };
         handleQrScan(decodedText, currentQrTarget, mockInput);
     } catch (err) {
         console.error(err);
         showToast('Không tìm thấy mã QR hợp lệ trong ảnh!', 'error');
-        html5QrCode.clear().catch(e => {});
+        html5QrCode.clear().catch(e => { });
     }
     input.value = '';
 }
@@ -1512,12 +1539,12 @@ const persistentSessionId = (window.crypto && crypto.randomUUID) ? crypto.random
 // Tự động kết nối SSE ngay từ đầu và duy trì mãi mãi
 function initPersistentSse() {
     remoteScanEventSource = new EventSource('/api/v1/remote-scan/' + persistentSessionId + '/subscribe');
-    
-    remoteScanEventSource.addEventListener('SCAN_RESULT', function(event) {
+
+    remoteScanEventSource.addEventListener('SCAN_RESULT', function (event) {
         console.log('Received from remote: ' + event.data);
-        
+
         let target = currentQrTarget;
-        
+
         // Auto-assign logic for smooth continuous scanning
         if (!target) {
             const mainNameInput = document.getElementById('modalGuestName');
@@ -1530,16 +1557,16 @@ function initPersistentSse() {
                 target = 'auto-dep';
             }
         }
-        
+
         let mockInput = { value: event.data, tagName: 'MOCK' };
         handleQrScan(event.data, target, mockInput);
-        
+
         if (currentQrTarget) {
             closeRemoteScanModal();
         }
     });
-    
-    remoteScanEventSource.onerror = function() {
+
+    remoteScanEventSource.onerror = function () {
         console.log('SSE Connection lost, reconnecting...');
         remoteScanEventSource.close();
         setTimeout(initPersistentSse, 2000); // Auto reconnect
@@ -1551,21 +1578,21 @@ initPersistentSse();
 function openRemoteScanModal(target) {
     currentQrTarget = target;
     document.getElementById('remoteScanModal').style.display = 'flex';
-    
+
     fetch('/api/v1/remote-scan/host-ip')
         .then(res => res.json())
         .then(data => {
             let host = window.location.host;
             let protocol = window.location.protocol;
-            
+
             // If accessing via localhost, replace localhost with the actual IP
             if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
                 host = data.ip + (window.location.port ? ':' + window.location.port : '');
                 protocol = 'http:'; // Fallback to http for IP
             }
-            
+
             const scanUrl = protocol + '//' + host + '/receptionist/remote-scan?session=' + persistentSessionId;
-            
+
             const qrContainer = document.getElementById('remote-qrcode-container');
             if (!remoteScanQrCode) {
                 qrContainer.innerHTML = '';
@@ -1573,9 +1600,9 @@ function openRemoteScanModal(target) {
                     text: scanUrl,
                     width: 200,
                     height: 200,
-                    colorDark : '#0f172a',
-                    colorLight : '#ffffff',
-                    correctLevel : QRCode.CorrectLevel.H
+                    colorDark: '#0f172a',
+                    colorLight: '#ffffff',
+                    correctLevel: QRCode.CorrectLevel.H
                 });
             } else {
                 remoteScanQrCode.clear();

@@ -14,6 +14,7 @@ public class DependentResponseDTO {
     private String status; // REGISTERED | AUTHORIZED
     private Boolean isPrimaryContact;
     private String assignedRoom;
+    private String cccd;
 
     public DependentResponseDTO() {
     }
@@ -64,5 +65,13 @@ public class DependentResponseDTO {
 
     public void setAssignedRoom(String assignedRoom) {
         this.assignedRoom = assignedRoom;
+    }
+
+    public String getCccd() {
+        return cccd;
+    }
+
+    public void setCccd(String cccd) {
+        this.cccd = cccd;
     }
 }
