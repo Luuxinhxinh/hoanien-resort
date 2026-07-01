@@ -112,18 +112,4 @@ public class PosApiController {
         }
     }
 
-    @org.springframework.web.bind.annotation.GetMapping("/debug-folios")
-    public ResponseEntity<?> debugFolios(
-            @org.springframework.beans.factory.annotation.Autowired com.kawai.repositories.FolioItemRepository folioItemRepository) {
-        java.util.List<com.kawai.models.FolioItem> all = folioItemRepository.findAll();
-        java.util.List<java.util.Map<String, Object>> result = new java.util.ArrayList<>();
-        for (com.kawai.models.FolioItem f : all) {
-            java.util.Map<String, Object> map = new java.util.HashMap<>();
-            map.put("id", f.getId());
-            map.put("desc", f.getDescription());
-            map.put("amount", f.getAmount());
-            result.add(map);
-        }
-        return ResponseEntity.ok(result);
-    }
 }

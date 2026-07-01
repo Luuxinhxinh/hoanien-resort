@@ -125,6 +125,42 @@
 | 39 | Log Multi-Stage Transactions | **Financial Controls** — The system tracks chronological financial movements including advances, split installments, final settlements, or refunds. |
 | 40 | Set Dynamic Holiday Pricing | **Financial Controls** — Managers adjust pricing algorithms dynamically based on specific holiday schedules or custom calendar dates. |
 
+##### 1.3.2 Use Cases (UC)
+
+| ID | Use Case Feature | Use Case Description |
+|---|---|---|
+| UC01 | Account Management & Authentication | **Authentication** — Allows customers and staff to register, login, handle OAuth2 Google, and auto-lock after failed attempts. |
+| UC02 | Password Reset | **Authentication** — Allows users who forgot their passwords to securely reset them via email token links. |
+| UC03 | Profile & Dependent Management | **Profiles** — Allows customers to manage profiles, upload avatars, and link dependent travelers (family members). |
+| UC04 | FaceID Enrollment & Verification | **AI Features** — Registers guest facial images and extracts vectors for local tour checkpoint authentication. |
+| UC05 | Authorization & Security | **Security** — Enforces RBAC permissions, intercepts modifications for Audit Logs, and tracks Entity revisions using Envers. |
+| UC06 | Master Data — Rooms | **Master Data** — Administrators manage physical room inventory, layouts, categories, and availability. |
+| UC07 | Master Data — Tables | **Master Data** — Administrators manage restaurant table coordinates, occupancy, and seating capacities. |
+| UC08 | Master Data — Tours | **Master Data** — Administrators manage tour routes, itineraries, scheduling, and staff assignments. |
+| UC09 | Pricing, Marketing & Workflows | **Admin Ops** &mdash; Manages daily rates, dynamic seasonal prices, discount promo codes, and approval threshold workflows. |
+| UC10 | Room Availability Search | **Booking** — Guest-facing room searches based on custom criteria: date ranges, category preferences, and capacities. |
+| UC11 | Temporary Room Holding | **Booking** — Locks rooms temporarily (15 minutes TTL) in cache to prevent overbooking during payment checkout. |
+| UC12 | Front-Desk Operations | **Front Desk** — Handles check-ins (CCCD/Passport OCR scan), credit limits, room swaps, walk-ins, and checkout invoices. |
+| UC13 | Housekeeping & Maintenance | **Operations** — Automates cleaning task dispatch upon check-out, status reporting, and repair tracking. |
+| UC14 | Restaurant Table Reservations | **Restaurant** — Allows customers to reserve tables in advance for specific times and party sizes. |
+| UC15 | Menu Configuration | **Restaurant** — Admin CRUD configurations of food menu, categories, pricing, and allergen warning labels. |
+| UC16 | Room Service Ordering | **Restaurant** — In-room dining service allows checked-in guests to place culinary orders by scanning QR codes. |
+| UC17 | POS Dine-In Order Creation | **Restaurant** — POS terminals used by F&B staff to record orders for customers dining at tables. |
+| UC18 | POS Settlement & Post-to-Room | **Finance** — Integrates POS orders directly to guest room folios using PIN authentication. |
+| UC19 | KDS Real-time Kitchen Screen | **Kitchen** — Displays Kitchen Order Tickets (KOT) and coordinates cooking, completion, and serving states. |
+| UC20 | Tour Searching & Weather | **Tours** — Guests browse upcoming tour schedules integrated with live OpenWeather API forecasts. |
+| UC21 | Tour Booking & Capacity | **Tours** — Handles tour registrations, ticket checkout, and prevents over-booking of vehicle passenger seats. |
+| UC22 | Tour Operation & GPS | **Tours** — Tracks tour guides, route checkpoints, GPS coordinates, and handles emergency cancellations. |
+| UC23 | Service Add-ons Booking | **Booking** — Allows customers to request additional amenities like spa, gym sessions, and shuttle transfers. |
+| UC24 | Submit Service Reviews | **Feedback** — Customers provide 5-star ratings and textual reviews within 7 days of service completion. |
+| UC25 | Review Moderation System | **Feedback** — Administrators audit, approve, or hide customer reviews before publishing on public landing pages. |
+| UC26 | Folio Aggregation | **Finance** — Aggregates room rates, dining charges, and tour fees into a single-source-of-truth folio. |
+| UC27 | Night Audit & e-Invoice | **Finance** — Runs automated chots-so cronjob at 02:00 AM, posts room fees, locks daily books, and emails PDF e-Invoices. |
+| UC28 | Manager Dashboard & USALI | **Analytics** — Aggregates strategic performance charts, computes USALI segment reports, and exports raw data. |
+| UC29 | Automated Notification Emails | **System Integration** — Manages automated mailing of OTP tokens, booking receipts, password reset links, and e-Invoices. |
+| UC30 | Scheduled Jobs Engine | **System Integration** &mdash; Houses system cronjobs (room holds, table holds, and night audits). |
+| UC31 | Landing Pages & Portal | **User Experience** &mdash; Displays high-end marketing pages, room previews, and the customer booking portal. |
+
 ##### 1.3.2 Use Case Diagrams
 
 **1.3.2.1 UCs for Guest**
@@ -1098,6 +1134,156 @@
 - The booking belongs to the customer submitting the feedback.
 
 ---
+
+### 2. Use Case Specifications
+
+This section outlines the detailed use case specifications for the core business processes of the Kawai Resort & Hub platform. Simple data management tasks (CRUD) and basic informational lookups are detailed directly within the functional specifications in Section 3.
+
+#### **UC01: Account Management & Authentication**
+* **Primary Actor:** Guest / Customer / Staff / Admin
+* **Description:** Provides registration, validation, traditional login, Google OAuth2 integration, security lockout, and redirection based on role.
+* **Preconditions:** User has a device with internet access.
+* **Postconditions:** Active authentication session established or new account registered.
+* **Normal Flow:** 
+  1. Guest submits register form or clicks Google OAuth button.
+  2. System validates fields, bhashes passwords using BCrypt, or queries email against Google profile.
+  3. System sends OTP for online registration or establishes active session for OAuth users.
+* **Business Rules:** BR-SYS-01, BR-SYS-02, BR-SYS-03.
+
+#### **UC02: Password Reset**
+* **Primary Actor:** Customer / Staff
+* **Description:** Initiates secure forgot-password flows using tokenized email validation.
+* **Preconditions:** Account exists under target email.
+* **Normal Flow:** User submits email -> System generates UUID token valid for 15 minutes -> Emails reset link -> User opens link, enters new password -> System updates credentials and deletes token.
+
+#### **UC03: Profile & Dependent Management**
+* **Primary Actor:** Customer
+* **Description:** Manages customer profile data and links accompanying travelers (dependents) for sảnh check-in compliance.
+* **Normal Flow:** Customer updates profile fields -> Optional: adds accompanying dependent names and document IDs.
+* **Tác động DB:** `Customers` (UPDATE), `Dependents` (INSERT/UPDATE/DELETE).
+
+#### **UC04: FaceID Enrollment & Verification**
+* **Primary Actor:** Customer / Tour Guide
+* **Description:** Captures photo templates to extract and match 128-dimensional facial vector signatures using Python AI service.
+* **Normal Flow:** Customer uploads direct headshot -> Python service extracts vector and saves to database -> Tour guide scans customer's face at checkpoints to match vector and confirm attendance status.
+
+#### **UC05: Authorization & Security**
+* **Primary Actor:** Admin / System
+* **Description:** Restricts access via permission-based RBAC, intercepts transactions via AOP to record audit logs, and monitors revisions with Hibernate Envers.
+* **Business Rules:** BR-SYS-04, BR-SYS-06.
+
+#### **UC06: Master Data — Rooms**
+* **Primary Actor:** Admin
+* **Description:** Master data configurations of physical rooms and Categories.
+
+#### **UC07: Master Data — Tables**
+* **Primary Actor:** Admin / Manager
+* **Description:** Master data configurations of restaurant tables, capacities, and layout grids.
+
+#### **UC08: Master Data — Tours**
+* **Primary Actor:** Admin / Manager
+* **Description:** CRUD operations on Tour routes, itineraries, scheduling, and guide assignments.
+
+#### **UC09: Pricing, Marketing & Workflows**
+* **Primary Actor:** Admin / Manager
+* **Description:** Configures daily rates, dynamic season schedules, promo codes, and JSON-based workflow schemas.
+
+#### **UC10: Room Availability Search**
+* **Primary Actor:** Guest / Customer / Receptionist
+* **Description:** Queries available rooms for target check-in/out dates, computing seasonal costs via `Daily_Rates`.
+* **Preconditions:** Check-in date >= today; Check-out date > check-in.
+
+#### **UC11: Temporary Room Holding**
+* **Primary Actor:** System / Customer
+* **Description:** Sets a 15-minute Cart Lock on chosen rooms to prevent double-booking during transaction checkouts.
+
+#### **UC12: Front-Desk Operations**
+* **Primary Actor:** Receptionist / Customer
+* **Description:** Orchestrates Check-ins (CCCD OCR scan, primary contact linkage, and credit limit setup), Room swappings, Walk-ins, and checkout settlements.
+* **Business Rules:** BR-FO-01, BR-FO-02, BR-FO-03.
+
+#### **UC13: Housekeeping & Maintenance**
+* **Primary Actor:** Housekeeper / Maintenance Staff / System
+* **Description:** Auto-creates cleaning tasks upon check-out, updates room cleanliness status, and tracks mechanical repair tickets.
+* **Business Rules:** BR-HK-02, BR-HK-03, BR-HK-04.
+
+#### **UC14: Restaurant Table Reservations**
+* **Primary Actor:** Customer / Receptionist
+* **Description:** Reserves dining tables for specific times and party sizes, validating against table capacities.
+
+#### **UC15: Menu Configuration**
+* **Primary Actor:** Admin / Manager
+* **Description:** Configures restaurant menu items, pricing, availability toggles, and allergy information labels.
+
+#### **UC16: Room Service Ordering**
+* **Primary Actor:** Customer
+* **Description:** In-room dining ordering via scanning QR codes, with options to post to room folio.
+* **Preconditions:** Customer must be currently checked in.
+
+#### **UC17: POS Dine-In Order Creation**
+* **Primary Actor:** F&B Staff
+* **Description:** Staff enters dine-in table orders on restaurant tablets.
+
+#### **UC18: POS Settlement & Post-to-Room**
+* **Primary Actor:** F&B Staff / Customer / Cashier
+* **Description:** Routes dining bills directly to guest room folios using PIN validation and credit limit checks.
+* **Business Rules:** BR-FB-01, BR-FB-05.
+
+#### **UC19: KDS Real-time Kitchen Screen**
+* **Primary Actor:** Kitchen Staff
+* **Description:** Displays real-time cooking tickets, updating states from Cooking to Ready and broadcasting out-of-stock items.
+
+#### **UC20: Tour Searching & Weather**
+* **Primary Actor:** Guest / Customer
+* **Description:** Searches local sightseeing packages, integrating OpenWeather API forecasts for safety.
+
+#### **UC21: Tour Booking & Capacity**
+* **Primary Actor:** Customer / Receptionist
+* **Description:** Registers seats on tour routes, validating capacity limit checks.
+* **Business Rules:** BR-TR-01.
+
+#### **UC22: Tour Operation & GPS**
+* **Primary Actor:** Tour Guide / Admin
+* **Description:** Manages staff assignments, tracks vehicle route coordinates, validates checkpoints via AI Face Scan, and coordinates weather cancellations.
+* **Business Rules:** BR-TR-02, BR-TR-05, BR-TR-06.
+
+#### **UC23: Service Add-ons Booking**
+* **Primary Actor:** Customer / Receptionist
+* **Description:** Books spa sessions, gym schedules, and shuttle bus transfers, billing directly to the folio.
+
+#### **UC24: Submit Service Reviews**
+* **Primary Actor:** Customer
+* **Description:** Allows guests to write rating reviews within 7 days of check-out or tour completion.
+
+#### **UC25: Review Moderation System**
+* **Primary Actor:** Admin
+* **Description:** Audits and decides to approve or hide reviews on public portal pages.
+
+#### **UC26: Folio Aggregation**
+* **Primary Actor:** Receptionist / Customer
+* **Description:** Integrates room charges, dining fees, tour tickets, and incidentals into room sub-folios.
+
+#### **UC27: Night Audit & e-Invoice**
+* **Primary Actor:** System / Receptionist
+* **Description:** Runs automated 02:00 AM cronjobs posting daily room rates, locks journals, finishes guest checkouts, and sends e-Invoice PDFs.
+* **Business Rules:** BR-FIN-01, BR-FIN-03.
+
+#### **UC28: Manager Dashboard & USALI**
+* **Primary Actor:** Manager
+* **Description:** Tracks strategic indicators, visualizes USALI category metrics, and exports reports.
+* **Business Rules:** BR-FIN-04.
+
+#### **UC29: Automated Notification Emails**
+* **Primary Actor:** System
+* **Description:** Dispatch mechanism for registration OTPs, booking confirmations, invoice attachments, and security alerts.
+
+#### **UC30: Scheduled Jobs Engine**
+* **Primary Actor:** System
+* **Description:** Manages background schedulers (cart timeouts, table releases, and night audits).
+
+#### **UC31: Landing Pages & Portal**
+* **Primary Actor:** Guest / Customer
+* **Description:** Guest-facing portal showcasing room catalogs, restaurants, tours, and reviews.
 
 ### 3. Functional Requirements
 

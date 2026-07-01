@@ -5,7 +5,7 @@
 |-------|-------|
 | **Document ID** | `KAWAI-SRS-UC-MASTER-004` |
 | **Version** | 4.0 |
-| **Date** | 2026-06-28 |
+| **Date** | 2026-07-02 |
 | **Status** | Đồng bộ với codebase `05-Development/kawai-backend` |
 | **Author** | Nhóm SWP391 — G2 |
 
@@ -15,6 +15,7 @@
 
 | Ngày | Người thực hiện | Nội dung |
 |------|----------------|----------|
+| 2026-07-02 | Antigravity | Đồng bộ hóa toàn diện tài liệu yêu cầu (Project Spec, SRS, Business Rules, Workflows, RTM) khớp 1:1 với codebase thực tế. |
 | 2026-06-28 | Nhóm G2 | Rà soát toàn bộ codebase; cập nhật trạng thái triển khai; bổ sung UC29–UC37 cho nghiệp vụ phát sinh (Walk-in, Workflow, Cronjob, Export/Import, Device Auth, Envers, Email, Dependents…) |
 | 2026-06-16 | Antigravity | Chuẩn hóa 60 UC con, 9 Actor, 5 Module |
 | 2026-06-09 | Nhóm G2 | Khởi tạo bảng UC Master V3 |
@@ -162,7 +163,7 @@
 | UC23.2 | Đặt add-on & cấu hình JSON đặc biệt | `Customer`,`Receptionist` | P0 | ❌ |
 | UC23.3 | Gói combo marketing (`MarketingService.createCombo`) | `Admin` | P2 | ⚠️ |
 | **UC24** | Gửi đánh giá sao & feedback (phòng / tour) | `Customer` | P2 | ⚠️ |
-| **UC25** | Kiểm duyệt review (admin) | `Admin` | P2 | ⚠️ |
+| **UC25** | Kiểm duyệt review (admin) | `Admin` | P2 | ✅ |
 
 ---
 
