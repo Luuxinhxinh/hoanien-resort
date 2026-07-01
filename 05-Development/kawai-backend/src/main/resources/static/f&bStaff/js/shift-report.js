@@ -40,81 +40,180 @@ window.addEventListener('load', () => {
 });
 
 /* ============================================================
-   REVENUE BAR CHART
+   REVENUE PIE CHART
    ============================================================ */
-const hourlyRevenue = [
-  { hour: '06', amount: 320000 },
-  { hour: '07', amount: 580000 },
-  { hour: '08', amount: 920000 },
-  { hour: '09', amount: 1150000 },
-  { hour: '10', amount: 850000 },
-  { hour: '11', amount: 1400000 },
-  { hour: '12', amount: 1850000 },
-  { hour: '13', amount: 1320000 },
-  { hour: '14', amount: 720000 },
-];
-
-function renderBarChart() {
-  const container = document.getElementById('revenue-bar-chart');
+function renderPieChart(data) {
+  const container = document.getElementById('revenue-pie-chart-container');
   if (!container) return;
 
-  const maxVal = Math.max(...hourlyRevenue.map(d => d.amount));
-  const maxH   = 70; // px
+  const total = data.totalRevenue || 0;
+  const pie = document.getElementById('revenue-pie-chart');
+  const legend = document.getElementById('revenue-pie-legend');
 
-  container.innerHTML = '';
-  hourlyRevenue.forEach(d => {
-    const h    = Math.round((d.amount / maxVal) * maxH);
-    const isPeak = d.amount === maxVal;
-    const col  = document.createElement('div');
-    col.className = 'bar-chart-col';
-    col.title = `${d.hour}:00 — ${d.amount.toLocaleString('vi-VN')}₫`;
-    col.innerHTML = `
-      <div class="bar-chart-bar ${isPeak ? 'peak' : ''}" style="height:${h}px;"></div>
-      <div class="bar-chart-lbl">${d.hour}h</div>
-    `;
-    container.appendChild(col);
-  });
+  if (total === 0) {
+    pie.style.background = 'conic-gradient(#e0e0e0 0deg, #e0e0e0 360deg)';
+    legend.innerHTML = '<div style="color: #999; font-size: 0.8rem; padding: 10px;">No revenue data</div>';
+    return;
+  }
+
+  const cash = data.totalCashRevenue || 0;
+  const vnpay = data.totalVnpayRevenue || 0;
+  const charge = data.totalChargeToRoomRevenue || 0;
+
+  const cashPct = Math.round((cash / total) * 100);
+  const vnpayPct = Math.round((vnpay / total) * 100);
+  const chargePct = Math.round((charge / total) * 100); // Or 100 - cashPct - vnpayPct
+
+  const degCash = (cash / total) * 360;
+  const degVnpay = (vnpay / total) * 360;
+  
+  const cCash = '#10B981'; // Green
+  const cVnpay = '#3B82F6'; // Blue
+  const cCharge = '#F59E0B'; // Orange
+
+  // Conic gradient: Cash -> VNPay -> Charge To Room
+  pie.style.background = `conic-gradient(
+    ${cCash} 0deg, ${cCash} ${degCash}deg,
+    ${cVnpay} ${degCash}deg, ${cVnpay} ${degCash + degVnpay}deg,
+    ${cCharge} ${degCash + degVnpay}deg, ${cCharge} 360deg
+  )`;
+
+  legend.innerHTML = `
+    <div class="legend-item">
+      <div class="legend-color" style="background: ${cCash}"></div>
+      <span>Cash</span>
+      <b>${cashPct}%</b>
+    </div>
+    <div class="legend-item">
+      <div class="legend-color" style="background: ${cVnpay}"></div>
+      <span>VNPay</span>
+      <b>${vnpayPct}%</b>
+    </div>
+    <div class="legend-item">
+      <div class="legend-color" style="background: ${cCharge}"></div>
+      <span>Charge to Room</span>
+      <b>${chargePct}%</b>
+    </div>
+  `;
 }
-renderBarChart();
 
 /* ============================================================
-   MOCK ORDER DATA (125 orders)
+   API FETCH & DATA STATE
    ============================================================ */
-const ORDER_STATUSES = ['pending','preparing','served','served','served','cancelled'];
-const DINE_IN_TABLES = ['Bàn 01 · Indochine','Bàn 02 · Indochine','Bàn 03 · Terrace','Bàn 05 · Indochine','Bàn 06 · Indochine','Bàn 09 · Terrace','Bàn 11 · Terrace','Bàn 17 · Poolside'];
-const ROOMS = ['Phòng 101','Phòng 204','Phòng 308','Phòng 112','Phòng 501','Phòng 215','Phòng 407'];
-const GUEST_NAMES = ['Nguyễn Minh Quân','Trần Thị Lan Anh','Lê Văn Hùng','Hoàng Thị Minh Nguyệt','Vũ Đình Hào','Phạm Ngọc Bảo','Đặng Quốc Trung','Trần Lan Anh','Phan Minh Tài','Ngô Thị Kim','Lê Hữu Phước','Bùi Thị Mai'];
-const BASE_AMOUNTS = [185000, 285000, 430000, 520000, 750000, 850000, 1240000, 1850000, 320000, 480000];
-
-function rand(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
-function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
-
-function generateOrders(n = 125) {
-  const orders = [];
-  for (let i = 1; i <= n; i++) {
-    const type   = Math.random() < 0.64 ? 'dine-in' : 'room-service';
-    const status = rand(ORDER_STATUSES);
-    const hh     = randInt(6, 13);
-    const mm     = randInt(0, 59);
-    const amount = rand(BASE_AMOUNTS) + randInt(-20000, 50000);
-    orders.push({
-      id:       `ORD-${String(i).padStart(3, '0')}`,
-      type,
-      location: type === 'dine-in' ? rand(DINE_IN_TABLES) : rand(ROOMS),
-      customer: rand(GUEST_NAMES),
-      time:     `${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}`,
-      timeSort: hh * 60 + mm,
-      status,
-      amount:   Math.max(80000, amount),
-    });
-  }
-  return orders;
-}
-
-let allOrders    = generateOrders(125);
+let allOrders    = [];
 let sortAsc      = false; // newest first by default
 let currentPage  = 1;
 const PAGE_SIZE  = 10;
+const CURRENT_STAFF_ID = 1; // Hardcoded for now
+
+async function fetchDailyReport() {
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    const res = await fetch(`/api/v1/fnb/daily-reports/preview?date=${today}&staffId=${CURRENT_STAFF_ID}`);
+    if (!res.ok) throw new Error('Failed to fetch daily report');
+    
+    const data = await res.json();
+    
+    // Update Revenue Cards
+    document.getElementById('rev-cash').textContent = formatAmount(data.totalCashRevenue);
+    document.getElementById('rev-vnpay').textContent = formatAmount(data.totalVnpayRevenue);
+    document.getElementById('rev-charge').textContent = formatAmount(data.totalChargeToRoomRevenue);
+    document.getElementById('rev-total').textContent = formatAmount(data.totalRevenue);
+    
+    if (data.totalRevenue > 0) {
+      document.getElementById('rev-cash-pct').textContent = Math.round((data.totalCashRevenue / data.totalRevenue) * 100) + '%';
+      document.getElementById('rev-vnpay-pct').textContent = Math.round((data.totalVnpayRevenue / data.totalRevenue) * 100) + '%';
+      document.getElementById('rev-charge-pct').textContent = Math.round((data.totalChargeToRoomRevenue / data.totalRevenue) * 100) + '%';
+    }
+    
+    // Update Order Stats
+    document.getElementById('stat-total-orders').textContent = data.totalDineInOrders + data.totalRoomServiceOrders;
+    document.getElementById('stat-dine-in').textContent = data.totalDineInOrders;
+    document.getElementById('stat-room-svc').textContent = data.totalRoomServiceOrders;
+    
+    let servedCount = 0;
+    let cancelledCount = 0;
+    
+    // Map transactions to allOrders
+    allOrders = (data.transactions || []).map(t => {
+      let type = (t.orderType || '').toLowerCase().includes('room') ? 'room-service' : 'dine-in';
+      let loc = type === 'room-service' ? ('Phòng ' + (t.roomName || 'N/A')) : ('Bàn ' + (t.tableName || 'N/A'));
+      let statusMap = {
+        'PENDING': 'pending',
+        'PREPARING': 'preparing',
+        'COOKING': 'preparing',
+        'SERVED': 'served',
+        'PAID': 'served',
+        'COMPLETED': 'served',
+        'CANCELLED': 'cancelled'
+      };
+      let s = statusMap[(t.orderStatus || 'PENDING').toUpperCase()] || 'pending';
+      
+      if (s === 'served') servedCount++;
+      if (s === 'cancelled') cancelledCount++;
+      
+      let tDate = new Date(t.orderTime);
+      let hh = String(tDate.getHours()).padStart(2, '0');
+      let mm = String(tDate.getMinutes()).padStart(2, '0');
+
+      return {
+        id: 'ORD-' + String(t.orderId).padStart(3, '0'),
+        rawId: t.orderId,
+        type: type,
+        location: loc,
+        customer: t.paymentType || 'Khách',
+        time: `${hh}:${mm}`,
+        timeSort: tDate.getTime(),
+        status: s,
+        amount: t.totalAmount || 0
+      };
+    });
+    
+    document.getElementById('stat-served').textContent = servedCount;
+    document.getElementById('stat-cancelled').textContent = cancelledCount;
+    
+    // Revenue Summary
+    let revTotal = data.totalRevenue || 0;
+    document.getElementById('rev-cash').textContent = formatAmount(data.totalCashRevenue || 0);
+    document.getElementById('rev-vnpay').textContent = formatAmount(data.totalVnpayRevenue || 0);
+    document.getElementById('rev-charge').textContent = formatAmount(data.totalChargeToRoomRevenue || 0);
+    document.getElementById('rev-total').textContent = formatAmount(revTotal);
+    
+    document.getElementById('rev-cash-pct').textContent = revTotal > 0 ? Math.round(((data.totalCashRevenue || 0) / revTotal) * 100) + '%' : '0%';
+    document.getElementById('rev-vnpay-pct').textContent = revTotal > 0 ? Math.round(((data.totalVnpayRevenue || 0) / revTotal) * 100) + '%' : '0%';
+    document.getElementById('rev-charge-pct').textContent = revTotal > 0 ? Math.round(((data.totalChargeToRoomRevenue || 0) / revTotal) * 100) + '%' : '0%';
+
+    // Generate dynamic Hourly Revenue Chart
+    let hourMap = {};
+    for (let i = 0; i <= 23; i++) {
+        let hStr = String(i).padStart(2, '0');
+        hourMap[hStr] = 0;
+    }
+    allOrders.forEach(o => {
+        if (o.status === 'served') {
+            let h = o.time.split(':')[0];
+            if (hourMap[h] !== undefined) {
+                hourMap[h] += o.amount;
+            }
+        }
+    });
+    
+    // Generate Pie Chart
+    renderPieChart(data);
+    
+    // Sort & Render
+    renderTable();
+    
+  } catch (err) {
+    console.error(err);
+    showToast('error', 'Error', 'Cannot load daily report data');
+  }
+}
+
+// Call on load
+fetchDailyReport();
+
+
 
 function formatAmount(n) {
   return n.toLocaleString('vi-VN') + '₫';
@@ -122,10 +221,10 @@ function formatAmount(n) {
 
 function statusChip(status) {
   const map = {
-    pending:   ['chip-pending',   'Chờ', 'schedule'],
-    preparing: ['chip-preparing', 'Đang nấu', 'skillet'],
-    served:    ['chip-served',    'Đã phục vụ', 'check_circle'],
-    cancelled: ['chip-cancelled', 'Đã hủy', 'cancel'],
+    pending:   ['chip-pending',   'Pending', 'schedule'],
+    preparing: ['chip-preparing', 'Preparing', 'skillet'],
+    served:    ['chip-served',    'Served', 'check_circle'],
+    cancelled: ['chip-cancelled', 'Cancelled', 'cancel'],
   };
   const [cls, label, icon] = map[status] || ['', status, 'info'];
   return `<span class="order-status-chip ${cls}"><span class="dot"></span>${label}</span>`;
@@ -261,11 +360,12 @@ document.getElementById('btn-sort-time')?.addEventListener('click', function () 
 
 function viewDetail(orderId, e) {
   if (e) e.stopPropagation();
-  window.location.href = `order-detail.html?id=${orderId}&type=food`;
+  let rawId = orderId.replace('ORD-', '');
+  window.location.href = `/fbStaff/order-detail?id=${parseInt(rawId)}&type=food`;
 }
 
 // Initial render
-renderTable();
+// renderTable(); // Called in fetchDailyReport()
 
 /* ============================================================
    MODALS LOGIC
@@ -284,7 +384,7 @@ window.openOrdersModal = function(filter) {
     title.textContent = `Đơn hàng: ${filter === 'dine-in' ? 'Dine-In' : 'Room Service'}`;
   } else {
     filtered = allOrders.filter(o => o.status === filter);
-    const statusMap = { 'pending': 'Chờ', 'preparing': 'Đang nấu', 'served': 'Đã phục vụ', 'cancelled': 'Đã hủy' };
+    const statusMap = { 'pending': 'Pending', 'preparing': 'Preparing', 'served': 'Served', 'cancelled': 'Cancelled' };
     title.textContent = `Đơn hàng: ${statusMap[filter] || filter}`;
   }
   
@@ -420,3 +520,43 @@ function showToast(type, title, message, duration = 4000) {
     setTimeout(() => toast.remove(), 300);
   }, duration);
 }
+
+/* ============================================================
+   CLOSE DAY LOGIC
+   ============================================================ */
+function openCloseDayModal() {
+  document.getElementById('close-day-notes').value = '';
+  document.getElementById('close-day-modal').style.display = 'flex';
+}
+
+async function submitCloseDay() {
+  const btn = document.getElementById('btn-confirm-close');
+  btn.disabled = true;
+  btn.innerHTML = `<span class="material-symbols-outlined">hourglass_empty</span> Đang xử lý...`;
+  
+  const notes = document.getElementById('close-day-notes').value;
+  const today = new Date().toISOString().split('T')[0];
+  
+  try {
+    const res = await fetch(`/api/v1/fnb/daily-reports/close?date=${today}&staffId=${CURRENT_STAFF_ID}&notes=${encodeURIComponent(notes)}`, {
+      method: 'POST'
+    });
+    
+    if (res.ok) {
+      showToast('success', 'Thành công', 'Đã chốt ngày thành công!');
+      document.getElementById('close-day-modal').style.display = 'none';
+      document.getElementById('btn-close-day').disabled = true;
+      document.getElementById('btn-close-day').innerHTML = `<span class="material-symbols-outlined">lock</span> Đã chốt`;
+    } else {
+      const err = await res.json();
+      showToast('error', 'Thất bại', err.message || 'Không thể chốt ngày');
+    }
+  } catch (error) {
+    console.error(error);
+    showToast('error', 'Lỗi', 'Có lỗi xảy ra khi kết nối máy chủ');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = `<span class="material-symbols-outlined">check_circle</span> Đồng ý chốt`;
+  }
+}
+
