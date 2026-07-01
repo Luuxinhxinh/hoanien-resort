@@ -14,6 +14,8 @@ public class CheckinSubmitFormDTO {
     private String guestName;
     private String phone;
     private String cccd;
+    @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE)
+    private java.time.LocalDate dob;
     private List<String> assignedRoomNumbers = new ArrayList<>();
     private List<java.math.BigDecimal> allocatedCreditLimits = new ArrayList<>();
 
@@ -78,6 +80,14 @@ public class CheckinSubmitFormDTO {
 
     public void setCccd(String cccd) {
         this.cccd = cccd;
+    }
+
+    public java.time.LocalDate getDob() {
+        return dob;
+    }
+
+    public void setDob(java.time.LocalDate dob) {
+        this.dob = dob;
     }
 
     public List<java.math.BigDecimal> getAllocatedCreditLimits() {

@@ -216,6 +216,7 @@ function validateForm() {
         { id: 'fieldFullName', label: 'Họ và tên' },
         { id: 'fieldPhone', label: 'Số điện thoại' },
         { id: 'fieldEmail', label: 'Email' },
+        { id: 'fieldBirthDate', label: 'Ngày sinh' },
     ];
     for (const f of fields) {
         const el = document.getElementById(f.id);
@@ -252,6 +253,7 @@ async function submitPayment() {
         fullName: document.getElementById('fieldFullName')?.value?.trim(),
         phone: document.getElementById('fieldPhone')?.value?.trim(),
         email: document.getElementById('fieldEmail')?.value?.trim(),
+        birthDate: document.getElementById('fieldBirthDate')?.value?.trim(),
         address: document.getElementById('fieldAddress')?.value?.trim() || null,
         notes: document.getElementById('fieldNotes')?.value?.trim() || null,
         paymentMethod: methodEl ? methodEl.value : 'VNPAY',

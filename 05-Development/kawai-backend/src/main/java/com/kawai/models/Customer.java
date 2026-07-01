@@ -1,6 +1,7 @@
 package com.kawai.models;
 
 import jakarta.persistence.*;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "Customers")
@@ -22,6 +23,8 @@ public class Customer {
     private String phone;
     @Column(unique = true, nullable = false)
     private String email;
+    @Column(name = "birth_date")
+    private LocalDate birthDate;
     @Column(name = "loyalty_points", nullable = false)
     private Integer loyaltyPoints = 0;
     @ManyToOne
@@ -112,6 +115,14 @@ public class Customer {
 
     public void setEmail(String v) {
         this.email = v;
+    }
+
+    public LocalDate getBirthDate() {
+        return birthDate;
+    }
+
+    public void setBirthDate(LocalDate birthDate) {
+        this.birthDate = birthDate;
     }
 
     public Integer getLoyaltyPoints() {

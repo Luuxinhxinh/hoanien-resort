@@ -70,6 +70,8 @@
 | Customer ──◆ Dependent | Customer | Dependent | **Composition** | 1 → 0..* | Dependent gắn chặt Customer; xóa Customer thì Dependent mất ý nghĩa |
 | Employee ──◆ AuditLog | Employee | AuditLog | **Composition** | 1 → 0..* | AuditLog gắn với người thực hiện; không tồn tại độc lập |
 | Account ──> PasswordResetToken | Account | PasswordResetToken | **Dependency** | 1 → 0..1 | Account tạm thời dùng token; token độc lập sau khi tạo |
+| Account ──◆ AuthorizedDevice | Account | AuthorizedDevice | **Composition** | 1 → 0..* | Thiết bị đã đăng ký của Account nhân viên |
+| Customer ──> MembershipTier | Customer | MembershipTier | **Association** | 0..* → 1 | Hạng thành viên hiện tại của Customer |
 
 ```mermaid
 classDiagram
@@ -172,6 +174,27 @@ classDiagram
         +invalidate() void
     }
 
+    class AuthorizedDevice {
+        <<Entity>>
+        -Long id
+        -Long accountId
+        -String deviceCode
+        -String deviceName
+        -Boolean isApproved
+        -LocalDateTime registeredAt
+        +approve() void
+        +revoke() void
+    }
+
+    class MembershipTier {
+        <<Entity>>
+        -Long id
+        -String tierName
+        -Integer pointsThreshold
+        -BigDecimal discountPercentage
+        +checkEligibility(points) Boolean
+    }
+
     %% Generalization — Customer/Employee "is-a" Account
     Account <|-- Customer : is-a
     Account <|-- Employee : is-a
@@ -187,6 +210,12 @@ classDiagram
 
     %% Dependency — Account temporarily uses PasswordResetToken
     Account "1" ..> "0..1" PasswordResetToken : uses ▶
+
+    %% Composition — AuthorizedDevice owned by Account
+    Account "1" *-- "0..*" AuthorizedDevice : registers ▶
+
+    %% Association — Customer linked to MembershipTier
+    Customer "0..*" --> "1" MembershipTier : has tier ▶
 ```
 
 ---
@@ -1169,15 +1198,15 @@ classDiagram
 
 | Nhóm | Số Classes |
 |:-----|:---------:|
-| Identity (Account, Role, Customer, Employee, Dependent) | 5 |
-| Booking (Booking, RoomBooking, RoomBookingDetail, TourBooking) | 4 |
+| Identity (Account, Role, Customer, Employee, Dependent, AuthorizedDevice, MembershipTier) | 7 |
+| Booking (Booking, RoomBooking, RoomBookingDetail, TourBooking, RoomGuest) | 5 |
 | Room (RoomCategory, Room, DailyRate, DynamicPricing, Promotion) | 5 |
-| F&B (FoodOrder, FoodOrderDetail, MenuItem, RestaurantTable, TableReservation) | 5 |
-| Tour (Tour, TourSchedule, TourBooking, TourAttendee, TourStaffAssignment) | 5 |
-| Finance (ConsolidatedInvoice, FolioItem, PaymentTransaction) | 3 |
-| Operations (HotelOperation, Review, AuditLog) | 3 |
+| F&B (FoodOrder, FoodOrderDetail, MenuItem, RestaurantTable, TableReservation, HotelService) | 6 |
+| Tour (Tour, TourSchedule, TourBooking, TourAttendee, TourStaffAssignment, TourImage, TourItinerary, TourItineraryDetail, TourLocation, TourPrice, CheckpointAttendance, RunItineraryStatus) | 12 |
+| Finance (ConsolidatedInvoice, FolioItem, PaymentTransaction, RefundRequest, RoomSurcharge) | 5 |
+| Operations (HotelOperation, Review, AuditLog, ExportHistory, Shift, StaffSchedule, Workflow) | 7 |
 | Services (NightAuditService, VNPayGateway, AIFaceService, RoomStatusStateMachine) | 4 |
-| **Tổng** | **34** |
+| **Tổng** | **51** |
 
 ### 9.4 Design Patterns được áp dụng
 

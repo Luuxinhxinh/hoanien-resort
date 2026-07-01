@@ -208,13 +208,14 @@ public class BookingApiController {
             String email = (String) payload.get("email");
             String cccd = (String) payload.get("cccd");
             String notes = (String) payload.get("notes");
+            String birthDateStr = (String) payload.get("birthDate");
 
             String paymentMethod = (String) payload.get("paymentMethod");
 
             // 2. Chốt booking: Xác nhận available, gắn thông tin khách, chuyển sang
             // Pending_Payment hoặc Confirmed
             bookingService.confirmBooking(bookingId, customer.getId(), fullName, phone, email, cccd, null, notes,
-                    paymentMethod);
+                    paymentMethod, birthDateStr);
 
             Map<String, Object> response = new java.util.HashMap<>();
             response.put("status", "success");

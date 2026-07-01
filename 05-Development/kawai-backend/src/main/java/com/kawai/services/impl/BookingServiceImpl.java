@@ -849,7 +849,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     @Transactional(isolation = org.springframework.transaction.annotation.Isolation.READ_COMMITTED)
     public void confirmBooking(Long bookingId, Long customerId, String fullName, String phone, String email,
-            String cccd, String address, String notes, String paymentMethod) {
+            String cccd, String address, String notes, String paymentMethod, String birthDateStr) {
         RoomBooking booking = roomBookingRepository.findByIdAndCustomerId(bookingId, customerId)
                 .orElseThrow(() -> new BusinessException("FORBIDDEN",
                         "Đơn đặt phòng không thuộc về tài khoản này hoặc không tồn tại!"));
@@ -906,6 +906,28 @@ public class BookingServiceImpl implements BookingService {
         }
 
         // Cập nhật thông tin khách hàng từ form NẾU họ chưa có thông tin trong profile
+        if (birthDateStr != null && !birthDateStr.trim().isEmpty()) {
+            try {
+                LocalDate birthDate = LocalDate.parse(birthDateStr);
+                if (java.time.temporal.ChronoUnit.YEARS.between(birthDate, LocalDate.now()) < 18) {
+                    throw new BusinessException("UNDER_AGE", "Người đại diện thực hiện thủ tục nhận phòng phải từ đủ 18 tuổi trở lên.");
+                }
+                if (customer.getBirthDate() == null) {
+                    customer.setBirthDate(birthDate);
+                }
+            } catch (java.time.format.DateTimeParseException e) {
+                throw new BusinessException("INVALID_DATE", "Ngày sinh không hợp lệ.");
+            }
+        } else {
+            if (customer.getBirthDate() == null) {
+                throw new BusinessException("MISSING_DOB", "Vui lòng cung cấp ngày sinh.");
+            } else {
+                if (java.time.temporal.ChronoUnit.YEARS.between(customer.getBirthDate(), LocalDate.now()) < 18) {
+                    throw new BusinessException("UNDER_AGE", "Người đại diện thực hiện thủ tục nhận phòng phải từ đủ 18 tuổi trở lên.");
+                }
+            }
+        }
+
         if (customer.getFullName() == null || customer.getFullName().trim().isEmpty()) {
             customer.setFullName(fullName);
         }

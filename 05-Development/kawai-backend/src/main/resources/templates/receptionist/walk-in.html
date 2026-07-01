@@ -203,7 +203,7 @@
                     <h3
                         style="margin-top: 0; margin-bottom: 16px; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; color: #1e293b;">
                         Step 2: Guest Information</h3>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 1fr; gap: 24px;">
+                    <div style="display: grid; grid-template-columns: 1.2fr 1.2fr 1.5fr 1.2fr 1fr 1.5fr; gap: 20px;">
                         <div>
                             <label style="display: block; font-weight: 500; margin-bottom: 8px;">Phone Number <span
                                     style="color:red">*</span></label>
@@ -227,6 +227,16 @@
                                     style="color:red">*</span></label>
                             <input type="date" id="guestDob" class="form-control"
                                 style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 4px;">
+                        </div>
+                        <div>
+                            <label style="display: block; font-weight: 500; margin-bottom: 8px;">Gender <span
+                                    style="color:red">*</span></label>
+                            <select id="guestGender" class="form-control"
+                                style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 4px;">
+                                <option value="Nam">Nam</option>
+                                <option value="Nữ">Nữ</option>
+                                <option value="Khác">Khác</option>
+                            </select>
                         </div>
                         <div>
                             <label style="display: block; font-weight: 500; margin-bottom: 8px;">Email Address</label>
@@ -452,7 +462,7 @@
 
                     <div style="text-align: right;">
                         <button type="button" id="modalCloseBtn" onclick="defaultModalClose()" class="btn btn-primary"
-                            style="padding: 8px 24px;">Đóng & Về trang chủ</button>
+                            style="padding: 8px 24px;">Đóng & Về danh sách Lưu trú</button>
                     </div>
                 </div>
             </div>

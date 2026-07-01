@@ -32,71 +32,74 @@ import java.util.UUID;
  *
  * CHANGELOG:
  * 2026-06-30 | Antigravity AI | REFACTOR (Clean Code): đặt tên constants
- *             |                | (ROOM_STATUS_*, BOOKING_STATUS_*, GUEST_TYPE_*,
- *             |                | DEFAULT_CREDIT_LIMIT), loại bỏ double-loop
- *             |                | pre-validation, tách private methods
- *             |                | (buildMasterRoomGuest, buildAndSaveDependentGuest,
- *             |                | validatePrimaryContactCount, applyDepositToFolio,
- *             |                | buildWalkInResponse), thay array trick bằng
- *             |                | CustomerLookupResult record-like class.
- * 2026-06-22 | Chu Xuân Dũng | GREEN: implement WalkInCheckInServiceImpl, pass 12 TC.
+ * | | (ROOM_STATUS_*, BOOKING_STATUS_*, GUEST_TYPE_*,
+ * | | DEFAULT_CREDIT_LIMIT), loại bỏ double-loop
+ * | | pre-validation, tách private methods
+ * | | (buildMasterRoomGuest, buildAndSaveDependentGuest,
+ * | | validatePrimaryContactCount, applyDepositToFolio,
+ * | | buildWalkInResponse), thay array trick bằng
+ * | | CustomerLookupResult record-like class.
+ * 2026-06-22 | Chu Xuân Dũng | GREEN: implement WalkInCheckInServiceImpl, pass
+ * 12 TC.
  * 2026-06-19 | Chu Xuân Dũng | Khởi tạo skeleton theo TDD_UC14_SPEC.md.
  *
  * Business Rules:
- *   BR-UC14-01 : CCCD bắt buộc đúng format 12 chữ số (nếu được cung cấp)
- *   BR-UC14-02 : Phòng phải Vacant_Clean
- *   BR-UC14-03 : Booking được tạo trong 1 @Transactional
- *   BR-UC14-05 : Booking status → CHECKED_IN
- *   BR-UC14-08 : Tự động tạo Account cho khách mới
- *   BR-UC14-09 : Default password được gán
- *   BR-UC14-10 : Account phải link với Reservation
+ * BR-UC14-01 : CCCD bắt buộc đúng format 12 chữ số (nếu được cung cấp)
+ * BR-UC14-02 : Phòng phải Vacant_Clean
+ * BR-UC14-03 : Booking được tạo trong 1 @Transactional
+ * BR-UC14-05 : Booking status → CHECKED_IN
+ * BR-UC14-08 : Tự động tạo Account cho khách mới
+ * BR-UC14-09 : Default password được gán
+ * BR-UC14-10 : Account phải link với Reservation
  *
  * Capacity Rules (Soft/Hard Limit):
- *   Người lớn : >= 18 tuổi
- *   Trẻ em   :  < 18 tuổi
- *   Soft Limit: adults > baseAdults hoặc children > baseChildren → tính extra surcharge
- *   Hard Limit: adults > maxAdults hoặc children > maxChildren  → reject (MOD2-UC14-009)
+ * Người lớn : >= 18 tuổi
+ * Trẻ em : < 18 tuổi
+ * Soft Limit: adults > baseAdults hoặc children > baseChildren → tính extra
+ * surcharge
+ * Hard Limit: adults > maxAdults hoặc children > maxChildren → reject
+ * (MOD2-UC14-009)
  */
 @Service
 public class WalkInCheckInServiceImpl implements WalkInCheckInService {
 
     // ── Business Constants ───────────────────────────────────────────────────
-    private static final int        ADULT_AGE_THRESHOLD         = 18;
-    private static final String     CCCD_PATTERN                = "\\d{12}";
-    private static final BigDecimal DEFAULT_CREDIT_LIMIT        = new BigDecimal("5000000.00");
-    private static final String     DEFAULT_GUEST_NAME          = "Khách lưu trú";
-    private static final String     DEFAULT_GENDER              = "Khác";
-    private static final String     DEFAULT_PAYMENT_METHOD      = "Tiền mặt";
+    private static final int ADULT_AGE_THRESHOLD = 18;
+    private static final String CCCD_PATTERN = "\\d{12}";
+    private static final BigDecimal DEFAULT_CREDIT_LIMIT = new BigDecimal("5000000.00");
+    private static final String DEFAULT_GUEST_NAME = "Khách lưu trú";
+    private static final String DEFAULT_GENDER = "Khác";
+    private static final String DEFAULT_PAYMENT_METHOD = "Tiền mặt";
 
     // Room status constants
-    private static final String ROOM_STATUS_VACANT_CLEAN  = "Vacant_Clean";
-    private static final String ROOM_STATUS_VACANT_DIRTY  = "Vacant_Dirty";
-    private static final String ROOM_STATUS_OCCUPIED      = "Occupied";
+    private static final String ROOM_STATUS_VACANT_CLEAN = "Vacant_Clean";
+    private static final String ROOM_STATUS_VACANT_DIRTY = "Vacant_Dirty";
+    private static final String ROOM_STATUS_OCCUPIED = "Occupied";
 
     // Booking & detail status constants
-    private static final String BOOKING_STATUS_CHECKED_IN      = "Checked_In";
+    private static final String BOOKING_STATUS_CHECKED_IN = "Checked_In";
     private static final String BOOKING_STATUS_PENDING_PAYMENT = "Pending_Payment";
-    private static final String BOOKING_STATUS_CANCELLED       = "Cancelled";
-    private static final String BOOKING_SOURCE_WALK_IN         = "WALK_IN";
+    private static final String BOOKING_STATUS_CANCELLED = "Cancelled";
+    private static final String BOOKING_SOURCE_WALK_IN = "WALK_IN";
 
     // Guest type constants
     private static final String GUEST_TYPE_ADULT = "ADULT";
     private static final String GUEST_TYPE_CHILD = "CHILD";
 
     // ── Dependencies ─────────────────────────────────────────────────────────
-    private final RoomRepository               roomRepository;
-    private final RoomBookingRepository        roomBookingRepository;
-    private final RoomBookingDetailRepository  roomBookingDetailRepository;
-    private final CustomerRepository           customerRepository;
-    private final AccountRepository            accountRepository;
-    private final DependentRepository          dependentRepository;
-    private final RoomSurchargeRepository      roomSurchargeRepository;
-    private final RoomGuestRepository          roomGuestRepository;
-    private final RoleRepository               roleRepository;
-    private final MembershipTierRepository     membershipTierRepository;
-    private final com.kawai.services.interfaces.FolioService    folioService;
-    private final PasswordEncoder              passwordEncoder;
-    private final com.kawai.services.interfaces.CheckinService  checkinService;
+    private final RoomRepository roomRepository;
+    private final RoomBookingRepository roomBookingRepository;
+    private final RoomBookingDetailRepository roomBookingDetailRepository;
+    private final CustomerRepository customerRepository;
+    private final AccountRepository accountRepository;
+    private final DependentRepository dependentRepository;
+    private final RoomSurchargeRepository roomSurchargeRepository;
+    private final RoomGuestRepository roomGuestRepository;
+    private final RoleRepository roleRepository;
+    private final MembershipTierRepository membershipTierRepository;
+    private final com.kawai.services.interfaces.FolioService folioService;
+    private final PasswordEncoder passwordEncoder;
+    private final com.kawai.services.interfaces.CheckinService checkinService;
 
     public WalkInCheckInServiceImpl(
             RoomRepository roomRepository,
@@ -112,19 +115,19 @@ public class WalkInCheckInServiceImpl implements WalkInCheckInService {
             com.kawai.services.interfaces.FolioService folioService,
             PasswordEncoder passwordEncoder,
             @Lazy com.kawai.services.interfaces.CheckinService checkinService) {
-        this.roomRepository              = roomRepository;
-        this.roomBookingRepository       = roomBookingRepository;
+        this.roomRepository = roomRepository;
+        this.roomBookingRepository = roomBookingRepository;
         this.roomBookingDetailRepository = roomBookingDetailRepository;
-        this.customerRepository          = customerRepository;
-        this.accountRepository           = accountRepository;
-        this.dependentRepository         = dependentRepository;
-        this.roomSurchargeRepository     = roomSurchargeRepository;
-        this.roomGuestRepository         = roomGuestRepository;
-        this.roleRepository              = roleRepository;
-        this.membershipTierRepository    = membershipTierRepository;
-        this.folioService                = folioService;
-        this.passwordEncoder             = passwordEncoder;
-        this.checkinService              = checkinService;
+        this.customerRepository = customerRepository;
+        this.accountRepository = accountRepository;
+        this.dependentRepository = dependentRepository;
+        this.roomSurchargeRepository = roomSurchargeRepository;
+        this.roomGuestRepository = roomGuestRepository;
+        this.roleRepository = roleRepository;
+        this.membershipTierRepository = membershipTierRepository;
+        this.folioService = folioService;
+        this.passwordEncoder = passwordEncoder;
+        this.checkinService = checkinService;
     }
 
     // ══════════════════════════════════════════════════════════════════════════
@@ -136,15 +139,15 @@ public class WalkInCheckInServiceImpl implements WalkInCheckInService {
      * ADR-UC14-003: Toàn bộ walk-in flow là 1 @Transactional.
      *
      * Flow tổng quát:
-     *   1. Validate thông tin định danh (fail-fast)
-     *   2. Tính tổng credit limit được phân bổ từ request
-     *   3. Find-or-Create Customer
-     *   4. Auto-create Account nếu khách mới (BR-08/09)
-     *   5. Validate tổng credit limit vs membership tier
-     *   6. Tạo RoomBooking master
-     *   7. Với mỗi phòng: lock + validate → tạo detail → gán guest → phụ thu
-     *   8. Cập nhật tổng giá booking
-     *   9. Build & return response
+     * 1. Validate thông tin định danh (fail-fast)
+     * 2. Tính tổng credit limit được phân bổ từ request
+     * 3. Find-or-Create Customer
+     * 4. Auto-create Account nếu khách mới (BR-08/09)
+     * 5. Validate tổng credit limit vs membership tier
+     * 6. Tạo RoomBooking master
+     * 7. Với mỗi phòng: lock + validate → tạo detail → gán guest → phụ thu
+     * 8. Cập nhật tổng giá booking
+     * 9. Build & return response
      */
     @Override
     @Transactional
@@ -153,8 +156,10 @@ public class WalkInCheckInServiceImpl implements WalkInCheckInService {
             // Step 1: Validate thông tin định danh (fail-fast trước DB)
             validateIdentification(request);
 
-            // Step 2: Pre-validate TẤT CẢ phòng ngay từ đầu (fail-fast trước Customer/Booking creation).
-            // (TC-M2-030: phòng DIRTY/MAINTENANCE phải reject trước khi bất kỳ entity nào được save)
+            // Step 2: Pre-validate TẤT CẢ phòng ngay từ đầu (fail-fast trước
+            // Customer/Booking creation).
+            // (TC-M2-030: phòng DIRTY/MAINTENANCE phải reject trước khi bất kỳ entity nào
+            // được save)
             // (TC-M2-035: hard capacity violation phải reject trước khi Booking được save)
             BigDecimal totalAllocatedCreditLimit = sumAllocatedCreditLimit(request);
             java.util.Map<Long, Room> validatedRooms = new java.util.LinkedHashMap<>();
@@ -188,14 +193,16 @@ public class WalkInCheckInServiceImpl implements WalkInCheckInService {
             BigDecimal totalDeposit = resolveDepositAmount(request);
             booking.setDepositAmount(totalDeposit);
 
-            // Step 7: Xử lý từng phòng (dùng cache room đã validate — không gọi repository lại)
+            // Step 7: Xử lý từng phòng (dùng cache room đã validate — không gọi repository
+            // lại)
             BigDecimal bookingTotalPrice = BigDecimal.ZERO;
             boolean isFirstRoom = true;
             String firstRoomNumber = "";
 
             for (WalkInRoomSelectionDTO selection : request.getRoomSelections()) {
                 Room room = validatedRooms.get(selection.getRoomId()); // reuse từ cache
-                if (isFirstRoom) firstRoomNumber = room.getRoomNumber();
+                if (isFirstRoom)
+                    firstRoomNumber = room.getRoomNumber();
 
                 List<DependentRegistrationDTO> companions = resolveCompanions(selection);
                 List<Integer> childAges = new java.util.ArrayList<>();
@@ -207,7 +214,8 @@ public class WalkInCheckInServiceImpl implements WalkInCheckInService {
                 RoomBookingDetail detail = buildRoomBookingDetail(request, booking, room, room.getCategory(),
                         guestCount, extraSurcharge);
                 detail.setSubCreditLimit(
-                        selection.getAllocatedCreditLimit() != null ? selection.getAllocatedCreditLimit() : BigDecimal.ZERO);
+                        selection.getAllocatedCreditLimit() != null ? selection.getAllocatedCreditLimit()
+                                : BigDecimal.ZERO);
                 roomBookingDetailRepository.save(detail);
 
                 bookingTotalPrice = bookingTotalPrice.add(calculateDetailCharge(booking, detail));
@@ -317,7 +325,8 @@ public class WalkInCheckInServiceImpl implements WalkInCheckInService {
                 totalExtraSurcharge = totalExtraSurcharge
                         .add(validateAndCalculateSurcharge(guestCount, category, childAges));
             } catch (BusinessException ex) {
-                throw new BusinessException(ex.getErrorCode(), "Phòng " + room.getRoomNumber() + ": " + ex.getMessage());
+                throw new BusinessException(ex.getErrorCode(),
+                        "Phòng " + room.getRoomNumber() + ": " + ex.getMessage());
             }
         }
 
@@ -343,10 +352,12 @@ public class WalkInCheckInServiceImpl implements WalkInCheckInService {
 
     @Override
     public java.util.Optional<Customer> searchCustomer(String keyword) {
-        if (keyword == null || keyword.isBlank()) return java.util.Optional.empty();
+        if (keyword == null || keyword.isBlank())
+            return java.util.Optional.empty();
 
         java.util.Optional<Customer> byPhone = customerRepository.findByPhone(keyword);
-        if (byPhone.isPresent()) return byPhone;
+        if (byPhone.isPresent())
+            return byPhone;
 
         try {
             return customerRepository.findByCccdPassportEncrypted(EncryptionUtils.encrypt(keyword));
@@ -360,7 +371,8 @@ public class WalkInCheckInServiceImpl implements WalkInCheckInService {
     // ══════════════════════════════════════════════════════════════════════════
 
     /**
-     * Validate thông tin định danh: dateOfBirth bắt buộc; CCCD đúng format 12 số nếu có.
+     * Validate thông tin định danh: dateOfBirth bắt buộc; CCCD đúng format 12 số
+     * nếu có.
      */
     private void validateIdentification(WalkInCheckInRequest req) {
         if (req.getDateOfBirth() == null) {
@@ -388,10 +400,12 @@ public class WalkInCheckInServiceImpl implements WalkInCheckInService {
     /**
      * Validate số lượng primary contact của 1 phòng phải đúng bằng 1.
      */
-    private void validatePrimaryContactCount(Room room, List<DependentRegistrationDTO> companions, boolean isFirstRoom) {
+    private void validatePrimaryContactCount(Room room, List<DependentRegistrationDTO> companions,
+            boolean isFirstRoom) {
         long primaryCount = isFirstRoom ? 1 : 0;
         for (DependentRegistrationDTO dto : companions) {
-            if (!isFirstRoom && Boolean.TRUE.equals(dto.getIsPrimaryContact())) primaryCount++;
+            if (!isFirstRoom && Boolean.TRUE.equals(dto.getIsPrimaryContact()))
+                primaryCount++;
         }
         if (primaryCount != 1) {
             throw new BusinessException("CHECKIN-006",
@@ -404,7 +418,8 @@ public class WalkInCheckInServiceImpl implements WalkInCheckInService {
     // ══════════════════════════════════════════════════════════════════════════
 
     /**
-     * Lấy Room bằng Pessimistic Lock và validate trạng thái Vacant_Clean/Vacant_Dirty.
+     * Lấy Room bằng Pessimistic Lock và validate trạng thái
+     * Vacant_Clean/Vacant_Dirty.
      * ADR-UC14-002: Chống overbooking Walk-in.
      */
     private Room findAndValidateRoom(Long roomId) {
@@ -434,8 +449,12 @@ public class WalkInCheckInServiceImpl implements WalkInCheckInService {
 
         if (primaryDob != null) {
             int age = Period.between(primaryDob, LocalDate.now()).getYears();
-            if (age >= ADULT_AGE_THRESHOLD) adults++;
-            else { children++; childAges.add(age); }
+            if (age >= ADULT_AGE_THRESHOLD)
+                adults++;
+            else {
+                children++;
+                childAges.add(age);
+            }
         } else {
             adults++; // Fallback: không biết tuổi → tính là người lớn
         }
@@ -443,8 +462,12 @@ public class WalkInCheckInServiceImpl implements WalkInCheckInService {
         for (DependentRegistrationDTO dto : companions) {
             if (dto.getDateOfBirth() != null) {
                 int age = Period.between(dto.getDateOfBirth(), LocalDate.now()).getYears();
-                if (age >= ADULT_AGE_THRESHOLD) adults++;
-                else { children++; childAges.add(age); }
+                if (age >= ADULT_AGE_THRESHOLD)
+                    adults++;
+                else {
+                    children++;
+                    childAges.add(age);
+                }
             } else {
                 adults++; // Fallback
             }
@@ -453,21 +476,22 @@ public class WalkInCheckInServiceImpl implements WalkInCheckInService {
     }
 
     /**
-     * Validate số khách theo Soft/Hard Limit và tính phụ thu nếu vượt base capacity.
+     * Validate số khách theo Soft/Hard Limit và tính phụ thu nếu vượt base
+     * capacity.
      *
      * @return BigDecimal phụ thu/đêm (ZERO nếu không có)
      */
     private BigDecimal validateAndCalculateSurcharge(GuestCount count, RoomCategory category, List<Integer> childAges) {
-        int maxAdults    = category.getMaxAdults()    != null ? category.getMaxAdults()    : category.getCapacity();
-        int maxChildren  = category.getMaxChildren()  != null ? category.getMaxChildren()  : 2;
-        int baseAdults   = category.getBaseAdults()   != null ? category.getBaseAdults()   : category.getCapacity();
+        int maxAdults = category.getMaxAdults() != null ? category.getMaxAdults() : category.getCapacity();
+        int maxChildren = category.getMaxChildren() != null ? category.getMaxChildren() : 2;
+        int baseAdults = category.getBaseAdults() != null ? category.getBaseAdults() : category.getCapacity();
         int baseChildren = category.getBaseChildren() != null ? category.getBaseChildren() : 0;
 
         // Hard Limit — reject nếu vượt max
         if (count.adults > maxAdults || count.children > maxChildren) {
             throw new BusinessException("MOD2-UC14-009",
                     "Number of guests exceeds maximum room capacity. " +
-                    "Max adults: " + maxAdults + ", max children: " + maxChildren);
+                            "Max adults: " + maxAdults + ", max children: " + maxChildren);
         }
 
         // Soft Limit — tính phụ thu người lớn vượt base
@@ -507,7 +531,32 @@ public class WalkInCheckInServiceImpl implements WalkInCheckInService {
 
         String encryptedCccd = EncryptionUtils.encrypt(req.getCccd());
         return customerRepository.findByCccdPassportEncrypted(encryptedCccd)
-                .map(existing -> new CustomerLookupResult(existing, false))
+                .map(existing -> {
+                    boolean updated = false;
+                    if (req.getDateOfBirth() != null && !req.getDateOfBirth().equals(existing.getBirthDate())) {
+                        existing.setBirthDate(req.getDateOfBirth());
+                        updated = true;
+                    }
+                    if (req.getFullName() != null && !req.getFullName().isBlank()
+                            && !req.getFullName().equals(existing.getFullName())) {
+                        existing.setFullName(req.getFullName());
+                        updated = true;
+                    }
+                    if (req.getGender() != null && !req.getGender().isBlank()
+                            && !req.getGender().equals(existing.getGender())) {
+                        existing.setGender(req.getGender());
+                        updated = true;
+                    }
+                    if (req.getPhone() != null && !req.getPhone().isBlank()
+                            && !req.getPhone().equals(existing.getPhone())) {
+                        existing.setPhone(req.getPhone());
+                        updated = true;
+                    }
+                    if (updated) {
+                        customerRepository.save(existing);
+                    }
+                    return new CustomerLookupResult(existing, false);
+                })
                 .orElseGet(() -> new CustomerLookupResult(createNewCustomer(req, encryptedCccd), true));
     }
 
@@ -520,14 +569,14 @@ public class WalkInCheckInServiceImpl implements WalkInCheckInService {
             if (customerRepository.existsByEmail(req.getEmail())) {
                 throw new BusinessException("MOD2-UC14-010",
                         "Email '" + req.getEmail() + "' đã được đăng ký cho một tài khoản khác. "
-                        + "Vui lòng sử dụng chức năng tìm kiếm (Check Existing) hoặc dùng Email khác.");
+                                + "Vui lòng sử dụng chức năng tìm kiếm (Check Existing) hoặc dùng Email khác.");
             }
         }
         if (req.getPhone() != null && !req.getPhone().isBlank()) {
             if (customerRepository.findByPhone(req.getPhone()).isPresent()) {
                 throw new BusinessException("MOD2-UC14-011",
                         "Số điện thoại '" + req.getPhone() + "' đã được đăng ký cho một tài khoản khác. "
-                        + "Vui lòng sử dụng chức năng tìm kiếm (Check Existing) hoặc dùng số khác.");
+                                + "Vui lòng sử dụng chức năng tìm kiếm (Check Existing) hoặc dùng số khác.");
             }
         }
 
@@ -536,6 +585,7 @@ public class WalkInCheckInServiceImpl implements WalkInCheckInService {
         customer.setPhone(req.getPhone() != null ? req.getPhone() : "");
         customer.setEmail(req.getEmail() != null ? req.getEmail() : "guest_" + UUID.randomUUID() + "@kawai.auto");
         customer.setGender(req.getGender() != null ? req.getGender() : "Unknown");
+        customer.setBirthDate(req.getDateOfBirth());
         customer.setCccdPassportEncrypted(encryptedCccd);
         customer.setMembershipTier(membershipTierRepository.findByTierNameIgnoreCase("Regular").orElse(null));
         return customerRepository.save(customer);
@@ -557,7 +607,8 @@ public class WalkInCheckInServiceImpl implements WalkInCheckInService {
 
         Role role = roleRepository.findByRoleName("CUSTOMER NORMAL")
                 .orElseGet(() -> roleRepository.findByRoleName("CUSTOMER").orElse(null));
-        if (role != null) account.setRole(role);
+        if (role != null)
+            account.setRole(role);
 
         Account savedAccount = accountRepository.save(account);
         customer.setAccount(savedAccount);
@@ -625,7 +676,8 @@ public class WalkInCheckInServiceImpl implements WalkInCheckInService {
         Dependent d = new Dependent();
         d.setCustomer(customer);
         d.setDependentName(dto.getFullName() != null && !dto.getFullName().isBlank()
-                ? dto.getFullName().trim() : DEFAULT_GUEST_NAME);
+                ? dto.getFullName().trim()
+                : DEFAULT_GUEST_NAME);
         d.setGender(dto.getGender() != null ? dto.getGender() : DEFAULT_GENDER);
         d.setBirthDate(dto.getDateOfBirth() != null
                 ? dto.getDateOfBirth()
@@ -649,11 +701,13 @@ public class WalkInCheckInServiceImpl implements WalkInCheckInService {
     }
 
     /**
-     * Cộng tiền cọc vào Folio nếu là phòng đầu tiên, có tiền cọc, và không phải Chuyển khoản.
+     * Cộng tiền cọc vào Folio nếu là phòng đầu tiên, có tiền cọc, và không phải
+     * Chuyển khoản.
      */
     private void applyDepositToFolioIfNeeded(boolean isFirstRoom, BigDecimal totalDeposit,
             WalkInCheckInRequest request, RoomBookingDetail detail) {
-        if (!isFirstRoom || totalDeposit.compareTo(BigDecimal.ZERO) <= 0) return;
+        if (!isFirstRoom || totalDeposit.compareTo(BigDecimal.ZERO) <= 0)
+            return;
 
         String paymentMethod = request.getPaymentMethod() != null ? request.getPaymentMethod() : DEFAULT_PAYMENT_METHOD;
         if (!"Chuyển khoản".equalsIgnoreCase(paymentMethod)) {
@@ -669,7 +723,7 @@ public class WalkInCheckInServiceImpl implements WalkInCheckInService {
     /** Tính tổng phí của 1 RoomBookingDetail theo số đêm. */
     private BigDecimal calculateDetailCharge(RoomBooking booking, RoomBookingDetail detail) {
         long nights = resolveNights(booking.getCheckInDate(), booking.getCheckOutDate());
-        BigDecimal roomCharge    = detail.getRoomCharge()    != null ? detail.getRoomCharge()    : BigDecimal.ZERO;
+        BigDecimal roomCharge = detail.getRoomCharge() != null ? detail.getRoomCharge() : BigDecimal.ZERO;
         BigDecimal extraSurcharge = detail.getExtraSurcharge() != null ? detail.getExtraSurcharge() : BigDecimal.ZERO;
         return roomCharge.add(extraSurcharge).multiply(BigDecimal.valueOf(nights));
     }
@@ -691,7 +745,8 @@ public class WalkInCheckInServiceImpl implements WalkInCheckInService {
                 request.getRoomSelections().stream()
                         .mapToInt(s -> s.getAccompaniedGuests() != null ? s.getAccompaniedGuests().size() : 0)
                         .sum());
-        if (newAccount != null) response.setNewAccountUsername(newAccount.getUsername());
+        if (newAccount != null)
+            response.setNewAccountUsername(newAccount.getUsername());
         return response;
     }
 
@@ -715,14 +770,17 @@ public class WalkInCheckInServiceImpl implements WalkInCheckInService {
      * VNPay/Chuyển khoản → Pending_Payment; các phương thức khác → Checked_In.
      */
     private String resolveBookingStatus(String paymentMethod) {
-        if (paymentMethod == null) return BOOKING_STATUS_CHECKED_IN;
+        if (paymentMethod == null)
+            return BOOKING_STATUS_CHECKED_IN;
         String pm = paymentMethod.trim();
         return (pm.equalsIgnoreCase("VNPay") || pm.equalsIgnoreCase("Chuyển khoản"))
                 ? BOOKING_STATUS_PENDING_PAYMENT
                 : BOOKING_STATUS_CHECKED_IN;
     }
 
-    /** Resolve credit limit từ membership tier, fallback về DEFAULT_CREDIT_LIMIT. */
+    /**
+     * Resolve credit limit từ membership tier, fallback về DEFAULT_CREDIT_LIMIT.
+     */
     private BigDecimal resolveMembershipCreditLimit(Customer customer) {
         if (customer.getMembershipTier() != null && customer.getMembershipTier().getCreditLimit() != null) {
             return customer.getMembershipTier().getCreditLimit();
@@ -744,8 +802,10 @@ public class WalkInCheckInServiceImpl implements WalkInCheckInService {
      * Tính số đêm giữa checkIn và checkOut. Tối thiểu 1 đêm.
      */
     private long resolveNights(LocalDate checkIn, LocalDate checkOut) {
-        if (checkIn == null) checkIn = LocalDate.now();
-        if (checkOut == null) checkOut = LocalDate.now().plusDays(1);
+        if (checkIn == null)
+            checkIn = LocalDate.now();
+        if (checkOut == null)
+            checkOut = LocalDate.now().plusDays(1);
         long nights = java.time.temporal.ChronoUnit.DAYS.between(checkIn, checkOut);
         return nights <= 0 ? 1 : nights;
     }
@@ -762,7 +822,7 @@ public class WalkInCheckInServiceImpl implements WalkInCheckInService {
         final int children;
 
         GuestCount(int adults, int children) {
-            this.adults   = adults;
+            this.adults = adults;
             this.children = children;
         }
     }
@@ -773,11 +833,11 @@ public class WalkInCheckInServiceImpl implements WalkInCheckInService {
      */
     private static class CustomerLookupResult {
         final Customer customer;
-        final boolean  isNew;
+        final boolean isNew;
 
         CustomerLookupResult(Customer customer, boolean isNew) {
             this.customer = customer;
-            this.isNew    = isNew;
+            this.isNew = isNew;
         }
     }
 }
