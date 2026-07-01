@@ -17,7 +17,7 @@ Chart.defaults.plugins.tooltip.displayColors=false;
 document.addEventListener('DOMContentLoaded',()=>{
     const ctx=document.getElementById('chart-daily-bar');
     if(!ctx)return;
-    const d=window.dailyChartData||{labels:["01/06","02/06","03/06","04/06","05/06","06/06","07/06","08/06","09/06"],room:[195,220,180,145,200,220,265,310,295],fnb:[72,80,65,55,78,82,95,110,105],tour:[51,58,42,28,55,61,72,88,80]};
+    const d=window.dailyChartData||{labels:[],room:[],fnb:[],tour:[]};
     new Chart(ctx,{type:'bar',data:{labels:d.labels,datasets:[
         {label:'Phòng',data:d.room,backgroundColor:C_ROOM,borderRadius:{topLeft:0,topRight:0,bottomLeft:3,bottomRight:3},borderSkipped:false,stack:'rev'},
         {label:'F&B',data:d.fnb,backgroundColor:C_FNB,borderRadius:0,borderSkipped:false,stack:'rev'},

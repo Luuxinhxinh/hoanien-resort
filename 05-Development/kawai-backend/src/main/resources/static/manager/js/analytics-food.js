@@ -14,7 +14,7 @@ Chart.defaults.plugins.tooltip.cornerRadius=8;
 document.addEventListener('DOMContentLoaded',()=>{
     const ctx=document.getElementById('chart-food-donut');
     if(!ctx)return;
-    const d=window.foodDonutData||{labels:["Món chính","Súp","Set Menu","Tráng miệng","Đồ uống"],values:[42,28,21,16,18]};
+    const d=window.foodDonutData||{labels:[],values:[]};
     new Chart(ctx,{type:'doughnut',data:{labels:d.labels,datasets:[{data:d.values,backgroundColor:COLORS,borderWidth:0,hoverOffset:6}]},options:{responsive:true,maintainAspectRatio:false,cutout:'70%',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>` ${c.label}: ${c.parsed} đơn`}}}}});
 });
 

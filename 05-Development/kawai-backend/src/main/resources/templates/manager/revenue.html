@@ -37,30 +37,17 @@
                     <span style="flex:1">Hoàn tiền</span>
                 </a>
             </div>
-            <!-- Báo cáo Tài chính -->
+            <!-- Báo cáo Doanh thu -->
             <div class="mgr-nav-item">
-                <button class="mgr-nav-link" onclick="toggleSubmenu('sub-finance','arr-finance')">
+                <a href="/manager/revenue" class="mgr-nav-link active">
                     <svg class="mgr-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <line x1="12" x2="12" y1="2" y2="22" />
-                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                        <rect width="18" height="18" x="3" y="4" rx="2" />
+                        <line x1="16" x2="16" y1="2" y2="6" />
+                        <line x1="8" x2="8" y1="2" y2="6" />
+                        <line x1="3" x2="21" y1="10" y2="10" />
                     </svg>
-                    <span style="flex:1">Báo cáo Tài chính</span>
-                    <svg class="mgr-nav-arrow open" id="arr-finance" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2">
-                        <path d="m9 18 6-6-6-6" />
-                    </svg>
-                </button>
-                <div class="mgr-submenu open" id="sub-finance">
-                    <a href="/manager/revenue" class="mgr-submenu-link active"><svg viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2">
-                            <rect width="18" height="18" x="3" y="4" rx="2" />
-                            <line x1="16" x2="16" y1="2" y2="6" />
-                            <line x1="8" x2="8" y1="2" y2="6" />
-                            <line x1="3" x2="21" y1="10" y2="10" />
-                        </svg>Báo cáo Doanh thu</a>
-                    
-                    
-                </div>
+                    <span style="flex:1">Báo cáo Doanh thu</span>
+                </a>
             </div>
             <div class="mgr-nav-item">
                 <button class="mgr-nav-link" onclick="toggleSubmenu('sub-analytics','arr-analytics')">
@@ -122,9 +109,7 @@
                     </svg>
                 </button>
                 <span style="color:#4A4740;font-size:12px">MANAGER</span><span class="mgr-breadcrumb-sep">/</span>
-                <span style="color:#9A9485;font-size:12px">Báo cáo Tài chính</span><span
-                    class="mgr-breadcrumb-sep">/</span>
-                <span style="color:#C9A96E;font-size:12px;font-weight:500">Doanh thu theo ngày</span>
+                <span style="color:#C9A96E;font-size:12px;font-weight:500" id="breadcrumb-text">Báo cáo Doanh thu</span>
             </div>
             <div class="mgr-header-right">
 
@@ -149,8 +134,8 @@
 
         <main class="mgr-page">
             <div>
-                <p class="mgr-page-eyebrow">Báo cáo Tài chính</p>
-                <h1 class="mgr-page-title">Báo cáo Doanh thu</h1>
+                <p class="mgr-page-eyebrow" id="page-eyebrow">Báo cáo Doanh thu</p>
+                <h1 class="mgr-page-title" id="page-title">Báo cáo Doanh thu</h1>
             </div>
 
             <!-- TABS -->
@@ -175,8 +160,11 @@
                                 <line x1="3" x2="21" y1="10" y2="10" />
                             </svg></div>
                     </div>
-                    <div class="mgr-kpi-bottom"><span class="mgr-kpi-value" th:text="${totalToday}">480M</span><span
-                            class="mgr-kpi-note">Phòng + F&amp;B + Tour</span></div>
+                    <div class="mgr-kpi-bottom">
+                        <span class="mgr-kpi-value" th:text="${totalToday}">480M</span>
+                        <span class="mgr-kpi-note">Phòng + F&amp;B + Tour</span>
+                        <span th:if="${todayGrowthText != null}" th:style="'font-size:12px; font-weight:600; margin-top:6px; color:' + ${todayGrowthColor}" th:text="${todayGrowthText}">Tăng 15% so với hôm qua</span>
+                    </div>
                 </div>
                 <div class="mgr-kpi-card">
                     <div class="mgr-kpi-top"><span class="mgr-kpi-label">7 ngày gần nhất</span>
@@ -190,15 +178,15 @@
                             class="mgr-kpi-note">Tổng 7 ngày</span></div>
                 </div>
                 <div class="mgr-kpi-card">
-                    <div class="mgr-kpi-top"><span class="mgr-kpi-label">Tháng hiện tại</span>
+                    <div class="mgr-kpi-top"><span class="mgr-kpi-label">Ngày hôm qua</span>
                         <div class="mgr-kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2">
                                 <line x1="12" x2="12" y1="2" y2="22" />
                                 <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
                             </svg></div>
                     </div>
-                    <div class="mgr-kpi-bottom"><span class="mgr-kpi-value" th:text="${totalMonth}">1.84 Tỷ</span><span
-                            class="mgr-kpi-note">Tháng 6/2026</span></div>
+                    <div class="mgr-kpi-bottom"><span class="mgr-kpi-value" th:text="${totalYesterday}">1.84 Tỷ</span><span
+                            class="mgr-kpi-note" th:text="${yesterdayLabel}">Ngày 08/06/2026</span></div>
                 </div>
                 <div class="mgr-kpi-card">
                     <div class="mgr-kpi-top"><span class="mgr-kpi-label">Ngày cao nhất</span>
@@ -275,28 +263,28 @@
                 <!-- Row 1: KPI Grid -->
                 <div class="mgr-kpi-grid">
                     <div class="mgr-kpi-card">
-                        <div class="mgr-kpi-top"><span class="mgr-kpi-label">Tổng năm (YTD)</span>
+                        <div class="mgr-kpi-top"><span class="mgr-kpi-label">Tháng này</span>
                             <div class="mgr-kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18" /><path d="m19 9-5 5-4-4-3 3" /></svg></div>
                         </div>
-                        <div class="mgr-kpi-bottom"><span class="mgr-kpi-value" th:text="${totalYear}">29.5 Tỷ</span><span class="mgr-kpi-note">Năm hiện tại</span></div>
+                        <div class="mgr-kpi-bottom"><span class="mgr-kpi-value" th:text="${currentMonthTotal}">15M</span><span class="mgr-kpi-note" th:text="${currentMonthLabel}">Tháng 7/2026</span></div>
+                    </div>
+                    <div class="mgr-kpi-card">
+                        <div class="mgr-kpi-top"><span class="mgr-kpi-label">Tháng trước</span>
+                            <div class="mgr-kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m22 7-8.5 8.5-5-5L2 17" /><path d="M16 7h6v6" /></svg></div>
+                        </div>
+                        <div class="mgr-kpi-bottom"><span class="mgr-kpi-value" th:text="${previousMonthTotal}">29M</span><span class="mgr-kpi-note" th:text="${previousMonthLabel}">Tháng 6/2026</span></div>
+                    </div>
+                    <div class="mgr-kpi-card">
+                        <div class="mgr-kpi-top"><span class="mgr-kpi-label">Tăng trưởng MTD</span>
+                            <div class="mgr-kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" x2="12" y1="2" y2="22" /><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" /></svg></div>
+                        </div>
+                        <div class="mgr-kpi-bottom"><span class="mgr-kpi-value" th:style="${growthMoM == 'Chưa phát sinh' ? 'font-size: 18px;' : ''}" th:text="${growthMoM}">+22%</span><span class="mgr-kpi-note">Cùng kỳ tháng trước</span></div>
                     </div>
                     <div class="mgr-kpi-card">
                         <div class="mgr-kpi-top"><span class="mgr-kpi-label">Tháng cao nhất</span>
                             <div class="mgr-kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m22 7-8.5 8.5-5-5L2 17" /><path d="M16 7h6v6" /></svg></div>
                         </div>
-                        <div class="mgr-kpi-bottom"><span class="mgr-kpi-value" th:text="${bestMonthVal}">6.29 Tỷ</span><span class="mgr-kpi-note" th:text="${bestMonth}">Tháng 5</span></div>
-                    </div>
-                    <div class="mgr-kpi-card">
-                        <div class="mgr-kpi-top"><span class="mgr-kpi-label">Tăng trưởng YoY</span>
-                            <div class="mgr-kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" x2="12" y1="2" y2="22" /><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" /></svg></div>
-                        </div>
-                        <div class="mgr-kpi-bottom"><span class="mgr-kpi-value" th:text="${growthYoY}">+22%</span><span class="mgr-kpi-note">So với cùng kỳ</span></div>
-                    </div>
-                    <div class="mgr-kpi-card">
-                        <div class="mgr-kpi-top"><span class="mgr-kpi-label">Số tháng báo cáo</span>
-                            <div class="mgr-kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2" /><line x1="16" x2="16" y1="2" y2="6" /><line x1="8" x2="8" y1="2" y2="6" /><line x1="3" x2="21" y1="10" y2="10" /></svg></div>
-                        </div>
-                        <div class="mgr-kpi-bottom"><span class="mgr-kpi-value">6</span><span class="mgr-kpi-note">Kỳ hiện tại</span></div>
+                        <div class="mgr-kpi-bottom"><span class="mgr-kpi-value" th:text="${bestMonthVal}">33M</span><span class="mgr-kpi-note" th:text="${bestMonth}">Tháng 6</span></div>
                     </div>
                 </div>
     
@@ -324,10 +312,10 @@
                     </div>
                     <script th:inline="javascript">
                         window.monthlyChartData = {
-                            labels: /*[[${monthlyChartLabels}]]*/["T1", "T2", "T3", "T4", "T5", "T6"],
-                            room:   /*[[${monthlyChartRoom}]]*/[3.20, 2.80, 3.50, 3.80, 4.10, 1.13],
-                            fnb:    /*[[${monthlyChartFnb}]]*/[1.10, 0.94, 1.20, 1.30, 1.40, 0.49],
-                            tour:   /*[[${monthlyChartTour}]]*/[0.62, 0.51, 0.68, 0.72, 0.79, 0.23]
+                            labels: /*[[${monthlyChartLabels}]]*/[],
+                            room:   /*[[${monthlyChartRoom}]]*/[],
+                            fnb:    /*[[${monthlyChartFnb}]]*/[],
+                            tour:   /*[[${monthlyChartTour}]]*/[]
                         };
                     </script>
                 </div>
@@ -376,7 +364,7 @@
                             class="mgr-kpi-note" th:text="${currentYear}+' YTD'">2026 YTD</span></div>
                 </div>
                 <div class="mgr-kpi-card">
-                    <div class="mgr-kpi-top"><span class="mgr-kpi-label">Tăng trưởng vs 2025</span>
+                    <div class="mgr-kpi-top"><span class="mgr-kpi-label">Tăng trưởng YoY</span>
                         <div class="mgr-kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2">
                                 <path d="m22 7-8.5 8.5-5-5L2 17" />
@@ -384,7 +372,7 @@
                             </svg></div>
                     </div>
                     <div class="mgr-kpi-bottom"><span class="mgr-kpi-value" th:text="${growthVsLast}">+19%</span><span
-                            class="mgr-kpi-note">YoY so cùng kỳ</span></div>
+                            class="mgr-kpi-note" th:text="'So với năm ' + ${previousYear}">So với năm 2025</span></div>
                 </div>
                 <div class="mgr-kpi-card">
                     <div class="mgr-kpi-top"><span class="mgr-kpi-label">CAGR 3 năm</span>
@@ -395,20 +383,13 @@
                             </svg></div>
                     </div>
                     <div class="mgr-kpi-bottom"><span class="mgr-kpi-value" th:text="${cagr3y}">+16%</span><span
-                            class="mgr-kpi-note">2024 – 2026</span></div>
+                            class="mgr-kpi-note" th:text="${startYear} + ' – ' + ${currentYear}">2024 – 2026</span></div>
                 </div>
                 <div class="mgr-kpi-card">
-                    <div class="mgr-kpi-top"><span class="mgr-kpi-label">Số năm thống kê</span>
-                        <div class="mgr-kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2">
-                                <rect width="18" height="18" x="3" y="4" rx="2" />
-                                <line x1="16" x2="16" y1="2" y2="6" />
-                                <line x1="8" x2="8" y1="2" y2="6" />
-                                <line x1="3" x2="21" y1="10" y2="10" />
-                            </svg></div>
+                    <div class="mgr-kpi-top"><span class="mgr-kpi-label">Năm kỷ lục</span>
+                        <div class="mgr-kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m22 7-8.5 8.5-5-5L2 17" /><path d="M16 7h6v6" /></svg></div>
                     </div>
-                    <div class="mgr-kpi-bottom"><span class="mgr-kpi-value">3</span><span class="mgr-kpi-note">2024 ·
-                            2025 · 2026</span></div>
+                    <div class="mgr-kpi-bottom"><span class="mgr-kpi-value" th:text="${bestYearVal}">5.2 Tỷ</span><span class="mgr-kpi-note" th:text="${bestYear}">Năm 2025</span></div>
                 </div>
             </div>
 
@@ -433,10 +414,10 @@
                 <div class="mgr-chart-canvas-wrap" style="height:260px"><canvas id="chart-yearly-bar"></canvas></div>
                 <script th:inline="javascript">
                     window.yearlyChartData = {
-                        labels: /*[[${yearlyChartLabels}]]*/["2024", "2025", "2026 YTD"],
-                        room:   /*[[${yearlyChartRoom}]]*/[32.0, 38.0, 19.5],
-                        fnb:    /*[[${yearlyChartFnb}]]*/[11.0, 13.0, 6.4],
-                        tour:   /*[[${yearlyChartTour}]]*/[6.2, 7.8, 3.6]
+                        labels: /*[[${yearlyChartLabels}]]*/[],
+                        room:   /*[[${yearlyChartRoom}]]*/[],
+                        fnb:    /*[[${yearlyChartFnb}]]*/[],
+                        tour:   /*[[${yearlyChartTour}]]*/[]
                     };
                 </script>
             </div>
@@ -480,6 +461,17 @@
             document.getElementById('tab-' + tabId).style.display = 'block';
             document.querySelector('.mgr-tab[onclick*="' + tabId + '"]').classList.add('active');
             
+            let title = "Báo cáo Doanh thu";
+            if (tabId === 'day') title = "Doanh thu theo ngày";
+            else if (tabId === 'month') title = "Doanh thu theo tháng";
+            else if (tabId === 'year') title = "Doanh thu theo năm";
+            
+            let breadcrumbText = document.getElementById('breadcrumb-text');
+            if (breadcrumbText) breadcrumbText.innerText = title;
+            
+            let pageTitle = document.getElementById('page-title');
+            if (pageTitle) pageTitle.innerText = title;
+            
             // Lưu trạng thái tab đang chọn
             localStorage.setItem('activeRevenueTab', tabId);
             
@@ -497,6 +489,26 @@
     </script>
 </main>
     </div>
+    <script th:inline="javascript">
+        window.dailyChartData = {
+            labels: /*[[${dailyChartLabels}]]*/ [],
+            room: /*[[${dailyChartRoom}]]*/ [],
+            fnb: /*[[${dailyChartFnb}]]*/ [],
+            tour: /*[[${dailyChartTour}]]*/ []
+        };
+        window.monthlyChartData = {
+            labels: /*[[${monthlyChartLabels}]]*/ [],
+            room: /*[[${monthlyChartRoom}]]*/ [],
+            fnb: /*[[${monthlyChartFnb}]]*/ [],
+            tour: /*[[${monthlyChartTour}]]*/ []
+        };
+        window.yearlyChartData = {
+            labels: /*[[${yearlyChartLabels}]]*/ [],
+            room: /*[[${yearlyChartRoom}]]*/ [],
+            fnb: /*[[${yearlyChartFnb}]]*/ [],
+            tour: /*[[${yearlyChartTour}]]*/ []
+        };
+    </script>
     <script th:src="@{/manager/js/revenue-daily.js}" src="../../static/manager/js/revenue-daily.js"></script>
     <script th:src="@{/manager/js/revenue-monthly.js}" src="../../static/manager/js/revenue-monthly.js"></script>
     <script th:src="@{/manager/js/revenue-yearly.js}" src="../../static/manager/js/revenue-yearly.js"></script>

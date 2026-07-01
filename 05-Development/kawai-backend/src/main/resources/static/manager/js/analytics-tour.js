@@ -14,7 +14,7 @@ Chart.defaults.plugins.tooltip.cornerRadius = 8;
 document.addEventListener('DOMContentLoaded', () => {
     const ctx = document.getElementById('chart-tour-donut');
     if (!ctx) return;
-    const d = window.tourDonutData || { labels: ["Du thuyền hoàng hôn", "Thăm bản Hmông", "Đi bộ rừng", "Kayak thác nước"], values: [43, 38, 29, 17] };
+    const d = window.tourDonutData || { labels: [], values: [] };
     new Chart(ctx, { type: 'doughnut', data: { labels: d.labels, datasets: [{ data: d.values, backgroundColor: COLORS, borderWidth: 0, hoverOffset: 6 }] }, options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => ` ${c.label}: ${c.parsed} lượt` } } } } });
 });
 
