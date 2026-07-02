@@ -40,7 +40,7 @@
 | Mã BR | Tên Quy Tắc | Mô Tả Chi Tiết / Ràng Buộc Kỹ Thuật | Tác Nhân |
 |-------|------------|--------------------------------------|----------|
 | BR-FO-01 | Chống đặt trùng phòng | Áp dụng Pessimistic Locking (Khóa bi quan) khi khách nhấn "Đặt phòng". Đảm bảo một mã phòng vật lý không được cấp cho 2 đơn đặt có khoảng thời gian [Checkin_1, Checkout_1] giao với [Checkin_2, Checkout_2]. | Customer, Lễ tân |
-| BR-FO-02 | Ràng buộc đặt cọc phòng | Đơn đặt phòng trực tuyến của khách chỉ giữ trạng thái "Tạm giữ" trong vòng 30 phút. Nếu không nhận được webhook thanh toán cọc từ Stripe/VNPay, hệ thống tự động hủy đơn và giải phóng phòng. | Customer, System |
+| BR-FO-02 | Ràng buộc đặt cọc phòng | Đơn đặt phòng trực tuyến của khách chỉ giữ trạng thái "Tạm giữ" trong vòng 2 phút. Nếu không nhận được webhook thanh toán cọc từ Stripe/VNPay, hệ thống tự động hủy đơn và giải phóng phòng. | Customer, System |
 | BR-FO-03 | Ràng buộc tuổi Check-in | Người thực hiện thủ tục Check-in đại diện phòng phải từ 18 tuổi trở lên và có giấy tờ định danh hợp lệ (CCCD/Hộ chiếu). | Lễ tân |
 | BR-FO-04 | Luân chuyển trạng thái phòng | Trạng thái phòng phải tuân thủ nghiêm ngặt vòng đời: Phòng khách Check-out tự động chuyển sang Trống/Bẩn → Nhân viên dọn xong mới chuyển sang Trống/Sạch → Lễ tân chỉ được Check-in khách vào phòng Trống/Sạch. | Lễ tân, Buồng phòng |
 | BR-FO-05 | Ưu tiên dọn phòng (Rush Room) | Khi Lễ tân bật nhãn Rush Room cho phòng check-in sớm, hệ thống phải đẩy phòng đó lên đầu danh sách công việc của nhân viên buồng phòng thuộc tầng/khu vực đó và phát thông báo Real-time. | Lễ tân, Buồng phòng |
@@ -137,7 +137,7 @@
 | AUTH-004 | 403 | Không đủ quyền truy cập | BR-SYS-06 |
 | AUTH-005 | 429 | Tài khoản bị khóa do nhập sai quá 5 lần | BR-SYS-02 |
 | BOOK-001 | 409 | Phòng không còn trống (khoảng ngày bị trùng) | UC10, BR-FO-01 |
-| BOOK-002 | 408 | Hết thời gian tạm giữ 30 phút — đơn bị hủy | BR-FO-02 |
+| BOOK-002 | 408 | Hết thời gian tạm giữ 2 phút — đơn bị hủy | BR-FO-02 |
 | BOOK-003 | 400 | Ngày nhận/trả phòng không hợp lệ | UC10 |
 | BOOK-004 | 400 | Hủy trong 48h — không đủ điều kiện hoàn cọc | BR-FIN-02 |
 | ROOM-001 | 400 | Phòng đang DIRTY hoặc MAINTENANCE — không thể Check-in | BR-FO-04, BR-HK-03 |

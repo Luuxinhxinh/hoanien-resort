@@ -201,7 +201,15 @@ public class SecurityConfig {
                     if (role.equals("ROLE_ADMIN") || role.equals("ROLE_MANAGER") ||
                             role.equals("ROLE_RECEPTIONIST") || role.equals("ROLE_STAFF") ||
                             role.equals("ROLE_FB_STAFF") || role.equals("ROLE_TOURGUIDE") ||
-                            role.equals("ROLE_HOUSEKEEPING") || role.equals("ROLE_MAINTENANCE") || role.equals("ROLE_MAINTAINER")) {
+                            role.equals("ROLE_HOUSEKEEPING") || role.equals("ROLE_MAINTENANCE") || role.equals("ROLE_MAINTAINER") ||
+                            // RBAC-only users: nhân viên chỉ có OP_* permission, không có ROLE cụ thể
+                            role.startsWith("OP_RECEPTION") || role.startsWith("OP_FNB") ||
+                            role.startsWith("OP_HOUSEKEEPING") || role.startsWith("OP_MAINTENANCE") ||
+                            role.startsWith("OP_TOUR") || role.startsWith("OP_NIGHT_AUDIT") ||
+                            role.startsWith("OP_DASHBOARD") || role.startsWith("OP_MASTER_DATA") ||
+                            role.startsWith("OP_AUDIT_LOG") || role.startsWith("OP_WORKFLOW") ||
+                            role.startsWith("OP_CRM") || role.startsWith("OP_PROMOTIONS") ||
+                            role.startsWith("OP_ANALYTICS") || role.startsWith("OP_REVIEWS")) {
                         isOpsUser = true;
                     }
                 }
@@ -239,7 +247,7 @@ public class SecurityConfig {
                         return;
                     }
 
-                    String redirect = "/";
+                    String redirect = null;
                     for (var authz : authentication.getAuthorities()) {
                         String role = authz.getAuthority();
                         if (role.equals("ROLE_ADMIN")) {
@@ -271,7 +279,35 @@ public class SecurityConfig {
                         }
                     }
 
-                    if (redirect.equals("/")) {
+                    // Fallback cho RBAC-only user (chỉ có OP_* không có ROLE cụ thể)
+                    // Xác định dashboard dựa trên OP quyền cao nhất
+                    if (redirect == null) {
+                        for (var authz : authentication.getAuthorities()) {
+                            String perm = authz.getAuthority();
+                            if (perm.startsWith("OP_RECEPTION") || perm.equals("OP_DASHBOARD")) {
+                                redirect = "/receptionist/dashboard";
+                                break;
+                            } else if (perm.startsWith("OP_FNB")) {
+                                redirect = "/fbStaff/dashboard";
+                                break;
+                            } else if (perm.startsWith("OP_HOUSEKEEPING")) {
+                                redirect = "/housekeeping/dashboard";
+                                break;
+                            } else if (perm.startsWith("OP_MAINTENANCE")) {
+                                redirect = "/maintenance/dashboard";
+                                break;
+                            } else if (perm.startsWith("OP_TOUR")) {
+                                redirect = "/tourguide/dashboard";
+                                break;
+                            } else if (perm.startsWith("OP_MASTER_DATA") || perm.startsWith("OP_AUDIT_LOG") ||
+                                       perm.startsWith("OP_WORKFLOW")) {
+                                redirect = "/admin/dashboard";
+                                break;
+                            }
+                        }
+                    }
+
+                    if (redirect == null) {
                         org.springframework.security.core.context.SecurityContextHolder.clearContext();
                         response.sendRedirect("/ops-login?error=true");
                         return;

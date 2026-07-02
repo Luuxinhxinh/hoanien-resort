@@ -61,6 +61,13 @@ flowchart TD
     %% ---------- LOGIN PATH ----------
     Q1 -->|Đã có| LOGIN_FORM[Màn hình Đăng nhập]
     LOGIN_FORM --> L1[Nhập email + password]
+    LOGIN_FORM --> L_OAUTH[Đăng nhập qua Google OAuth2]
+    
+    L_OAUTH --> L_OAUTH_CHK{Tài khoản\ntồn tại?}
+    L_OAUTH_CHK -->|Chưa| L_OAUTH_REG[Tự động tạo Customer mới\nPassword: OAUTH2_GOOGLE_PLACEHOLDER\nisActive = true]
+    L_OAUTH_REG --> JWT
+    L_OAUTH_CHK -->|Rồi| L4
+    
     L1 --> L2{Validate format}
     L2 -->|Lỗi| L1
     L2 -->|OK| L3{Email tồn\ntại trong DB?}
@@ -103,9 +110,10 @@ flowchart TD
 
 > **Business Rules áp dụng:**
 > - `BR-SYS-01` — BCrypt hash password; AES-256 mã hóa CCCD
-> - `BR-SYS-02` — Khóa 15 phút sau 5 lần sai; OTP TTL 3 phút
+> - `BR-SYS-02` — Khóa 15 phút sau 5 lần sai; OTP TTL 3 phút; Google OAuth2 bỏ qua OTP
 > - `BR-SYS-06` — Mật khẩu ≥ 8 ký tự, có Hoa + Thường + Số
 > - `BR-SYS-07` — Routing theo RBAC role sau login
+
 
 ---
 
@@ -142,18 +150,18 @@ flowchart TD
 
     TOTAL --> CONFIRM[Khách xác nhận\nthông tin booking]
     CONFIRM --> INS[INSERT Bookings status=Pending\n+ Room_Booking_Details]
-    INS --> LOCK[Kích hoạt Cart Lock 15 phút\nBR-FO-02: TTL 15 phút]
+    INS --> LOCK[Kích hoạt Cart Lock 2 phút\nBR-FO-02: TTL 2 phút]
     LOCK --> VNP[Tạo VNPay Payment URL\n+ HMAC Signature]
     VNP --> PAY_PAGE[Chuyển sang VNPay\nPayment Page]
 
-    PAY_PAGE --> TIMEOUT{Khách thanh toán\ntrong 15 phút?}
-    TIMEOUT -->|Quá 15 phút| SCHED[Scheduler phát hiện\nBooking Pending > 15 phút]
+    PAY_PAGE --> TIMEOUT{Khách thanh toán\ntrong 2 phút?}
+    TIMEOUT -->|Quá 2 phút| SCHED[Scheduler phát hiện\nBooking Pending > 2 phút]
     SCHED --> CANCEL[UPDATE Bookings\nstatus = Cancelled]
     CANCEL --> FREE[Giải phóng Cart Lock]
     FREE --> NOTIFY_CANCEL[Thông báo: Booking hết hạn\ndo chưa thanh toán]
     NOTIFY_CANCEL --> DONE_TIMEOUT([Kết thúc - Hủy tự động])
 
-    TIMEOUT -->|Trong 15 phút| VNPAY_PROC[VNPay xử lý giao dịch]
+    TIMEOUT -->|Trong 2 phút| VNPAY_PROC[VNPay xử lý giao dịch]
     VNPAY_PROC --> WEBHOOK{VNPay Webhook\nCallback}
     WEBHOOK -->|Thất bại| PAY_FAIL[Hiển thị lỗi thanh toán]
     PAY_FAIL --> PAY_PAGE
@@ -172,8 +180,9 @@ flowchart TD
 
 > **Business Rules áp dụng:**
 > - `BR-FO-01` — SELECT...FOR UPDATE; @Version Optimistic Lock chống overbooking
-> - `BR-FO-02` — Cart Lock 15 phút; Scheduler tự động hủy Booking Pending quá hạn
+> - `BR-FO-02` — Cart Lock 2 phút; Scheduler tự động hủy Booking Pending quá hạn
 > - `BR-FIN-06` — 1 voucher/booking; kiểm tra is_active, valid_to, max_uses
+
 
 ---
 

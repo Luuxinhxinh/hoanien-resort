@@ -201,12 +201,11 @@
                                         th:data-phone="${arr.phone}" th:data-cccd="${arr.cccd}"
                                         th:data-dob="${arr.birthDate}" th:data-room="${arr.roomSummary}"
                                         th:data-deps="|deps-arr-${arr.id}|" th:data-tours="|tours-arr-${arr.id}|"
-                                        th:data-credit="${arr.creditLimit}" <<<<<<< HEAD
-                                        onclick="openCheckinModal(this.getAttribute('data-id'), this.getAttribute('data-name'), this.getAttribute('data-phone'), this.getAttribute('data-cccd'), this.getAttribute('data-dob'), this.getAttribute('data-room'), this.getAttribute('data-deps'), this.getAttribute('data-tours'), this.getAttribute('data-credit'))"=======th:data-expected-guests="${arr.expectedGuests}"
+                                        th:data-credit="${arr.creditLimit}"
+                                        th:data-expected-guests="${arr.expectedGuests}"
                                         th:data-expected-adults="${arr.expectedAdults}"
                                         th:data-expected-children="${arr.expectedChildren}"
-                                        onclick="openCheckinModal(this.getAttribute('data-id'), this.getAttribute('data-name'), this.getAttribute('data-phone'), this.getAttribute('data-cccd'), this.getAttribute('data-room'), this.getAttribute('data-deps'), this.getAttribute('data-tours'), this.getAttribute('data-credit'), this.getAttribute('data-expected-guests'), this.getAttribute('data-expected-adults'), this.getAttribute('data-expected-children'))">
-                                        >>>>>> 239152117a0a934d52e699143819cc305a5dc5cf
+                                        onclick="openCheckinModal(this.getAttribute('data-id'), this.getAttribute('data-name'), this.getAttribute('data-phone'), this.getAttribute('data-cccd'), this.getAttribute('data-dob'), this.getAttribute('data-room'), this.getAttribute('data-deps'), this.getAttribute('data-tours'), this.getAttribute('data-credit'), this.getAttribute('data-expected-guests'), this.getAttribute('data-expected-adults'), this.getAttribute('data-expected-children'))"
                                         th:text="${arr.guestName}"></td>
                                     <td th:text="${arr.phone}"></td>
                                     <td th:text="${arr.checkInDate}"></td>
@@ -220,7 +219,10 @@
                                             th:data-cccd="${arr.cccd}" th:data-dob="${arr.birthDate}"
                                             th:data-room="${arr.roomSummary}" th:data-deps="|deps-arr-${arr.id}|"
                                             th:data-tours="|tours-arr-${arr.id}|" th:data-credit="${arr.creditLimit}"
-                                            onclick="openCheckinModal(this.getAttribute('data-id'), this.getAttribute('data-name'), this.getAttribute('data-phone'), this.getAttribute('data-cccd'), this.getAttribute('data-dob'), this.getAttribute('data-room'), this.getAttribute('data-deps'), this.getAttribute('data-tours'), this.getAttribute('data-credit'))">Assign
+                                            th:data-expected-guests="${arr.expectedGuests}"
+                                            th:data-expected-adults="${arr.expectedAdults}"
+                                            th:data-expected-children="${arr.expectedChildren}"
+                                            onclick="openCheckinModal(this.getAttribute('data-id'), this.getAttribute('data-name'), this.getAttribute('data-phone'), this.getAttribute('data-cccd'), this.getAttribute('data-dob'), this.getAttribute('data-room'), this.getAttribute('data-deps'), this.getAttribute('data-tours'), this.getAttribute('data-credit'), this.getAttribute('data-expected-guests'), this.getAttribute('data-expected-adults'), this.getAttribute('data-expected-children'))">Assign
 
                                             & Check-in</button>
                                         <!-- Hidden data for dependents -->
@@ -228,7 +230,7 @@
                                             <ul>
                                                 <li th:each="dep : ${arr.dependents}" th:data-name="${dep.fullName}"
                                                     th:data-dob="${dep.dateOfBirth}" th:data-id="${dep.dependentId}"
-                                                    th:data-cccd="${dep.cccd}" th:data-gender="${dep.gender}">
+                                                    th:data-cccd="${dep.cccd}">
                                                 </li>
                                             </ul>
                                         </div>

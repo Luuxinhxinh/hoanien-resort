@@ -54,13 +54,37 @@
 
         </div>
         <nav class="mgr-nav">
-            <div class="mgr-nav-item"><a href="/manager/dashboard" class="mgr-nav-link"><svg class="mgr-nav-icon"
-                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <!-- Tổng quan -->
+            <div class="mgr-nav-item">
+                <a href="/manager/dashboard" class="mgr-nav-link">
+                    <svg class="mgr-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <rect width="7" height="9" x="3" y="3" rx="1" />
                         <rect width="7" height="5" x="14" y="3" rx="1" />
                         <rect width="7" height="9" x="14" y="12" rx="1" />
                         <rect width="7" height="5" x="3" y="16" rx="1" />
-                    </svg><span style="flex:1">Tổng quan</span></a></div>
+                    </svg>
+                    <span style="flex:1">Tổng quan</span>
+                </a>
+            </div>
+            <!-- Hoàn tiền -->
+            <div class="mgr-nav-item">
+                <a href="/manager/refunds" class="mgr-nav-link">
+                    <svg class="mgr-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="2" y="5" width="20" height="14" rx="2" ry="2"></rect>
+                        <line x1="2" y1="10" x2="22" y2="10"></line>
+                    </svg>
+                    <span style="flex:1">Hoàn tiền</span>
+                </a>
+            </div>
+            <!-- Duyệt yêu cầu -->
+            <div class="mgr-nav-item">
+                <a href="/manager/approvals" class="mgr-nav-link">
+                    <svg class="mgr-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+                    </svg>
+                    <span style="flex:1">Duyệt yêu cầu</span>
+                </a>
+            </div>
             <!-- Báo cáo Doanh thu -->
             <div class="mgr-nav-item">
                 <a href="/manager/revenue" class="mgr-nav-link">
@@ -73,39 +97,44 @@
                     <span style="flex:1">Báo cáo Doanh thu</span>
                 </a>
             </div>
+            <!-- Biểu đồ Phân tích -->
             <div class="mgr-nav-item">
-                <button class="mgr-nav-link" onclick="toggleSubmenu('sub-analytics','arr-analytics')"><svg
-                        class="mgr-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <button class="mgr-nav-link" onclick="toggleSubmenu('sub-analytics','arr-analytics')">
+                    <svg class="mgr-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M3 3v18h18" />
                         <path d="M18.7 8 13 13.7 8.7 9.4l-5 5" />
-                    </svg><span style="flex:1">Biểu đồ Phân tích</span><svg class="mgr-nav-arrow open"
-                        id="arr-analytics" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    </svg>
+                    <span style="flex:1">Biểu đồ Phân tích</span>
+                    <svg class="mgr-nav-arrow open" id="arr-analytics" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="m9 18 6-6-6-6" />
-                    </svg></button>
+                    </svg>
+                </button>
                 <div class="mgr-submenu open" id="sub-analytics">
-                    <a href="/manager/analytics/room" class="mgr-submenu-link active"><svg viewBox="0 0 24 24"
-                            fill="none" stroke="currentColor" stroke-width="2">
+                    <a href="/manager/analytics/room" class="mgr-submenu-link active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M3 9a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9Z" />
                             <path d="M3 11h18" />
                         </svg>Hiệu suất phòng</a>
-                    <a href="/manager/analytics/tour" class="mgr-submenu-link"><svg viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2">
+                    <a href="/manager/analytics/tour" class="mgr-submenu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M3 11l19-9-9 19-2-8-8-2z" />
                         </svg>Tỷ lệ tour</a>
-                    <a href="/manager/analytics/food" class="mgr-submenu-link"><svg viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2">
+                    <a href="/manager/analytics/food" class="mgr-submenu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2" />
                             <path d="M7 2v20" />
                             <path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7" />
                         </svg>Tỷ lệ các món ăn</a>
                 </div>
             </div>
-            <div class="mgr-nav-item"><a href="/manager/export" class="mgr-nav-link"><svg class="mgr-nav-icon"
-                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <!-- Xuất báo cáo -->
+            <div class="mgr-nav-item">
+                <a href="/manager/export" class="mgr-nav-link">
+                    <svg class="mgr-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
                         <polyline points="7 10 12 15 17 10" />
                         <line x1="12" x2="12" y1="15" y2="3" />
-                    </svg><span style="flex:1">Xuất báo cáo</span></a></div>
+                    </svg>
+                    <span style="flex:1">Xuất báo cáo</span>
+                </a>
+            </div>
         </nav>
         <div class="mgr-sidebar-footer">
             <div class="mgr-sidebar-user">

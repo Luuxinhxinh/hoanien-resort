@@ -264,15 +264,16 @@ Hệ thống phải **ngăn chặn tuyệt đối tình trạng đặt phòng ch
 **Mức độ:** CRITICAL
 
 **Phát biểu:**
-Đặt phòng trực tuyến chỉ được **giữ chỗ tối đa 15 phút**. Nếu không nhận được xác nhận thanh toán cọc trong vòng 15 phút, hệ thống **tự động hủy đặt phòng** và giải phóng phòng về kho.
+Đặt phòng trực tuyến chỉ được **giữ chỗ tối đa 2 phút**. Nếu không nhận được xác nhận thanh toán cọc trong vòng 2 phút, hệ thống **tự động hủy đặt phòng** và giải phóng phòng về kho.
 
 **Chi tiết:**
 
-- Hệ thống chạy Task Scheduler mỗi 5 phút để quét và hủy các booking `Pending` đã quá 15 phút.
-- Cơ chế Cart Lock 15 phút ngăn khách hàng khác đặt cùng phòng trong thời gian giữ chỗ.
+- Hệ thống chạy Task Scheduler định kỳ (mỗi 1 phút hoặc 5 phút) để quét và hủy các booking `Pending` đã quá 2 phút.
+- Cơ chế Cart Lock 2 phút ngăn khách hàng khác đặt cùng phòng trong thời gian giữ chỗ.
 - Thông báo: "Booking expired due to payment timeout".
 
 **Nguồn:** SRS §1.2.1 · §5.1 · Project Specification §4 UC07.3
+
 
 ---
 
