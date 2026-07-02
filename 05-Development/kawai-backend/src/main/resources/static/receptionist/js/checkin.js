@@ -404,8 +404,8 @@ function renderAssignedRooms() {
 
     updateCheckinCreditLimitDisplay();
 }
-function openCheckinModal(bookingId, guestName, phone, cccd, dob, roomSummary, depsDivId, toursDivId, creditLimit) {
-    console.log('[openCheckinModal] called:', { bookingId, guestName, phone, cccd, dob, roomSummary, depsDivId, toursDivId, creditLimit });
+function openCheckinModal(bookingId, guestName, phone, cccd, dob, roomSummary, depsDivId, toursDivId, creditLimit, expectedGuests, expectedAdults, expectedChildren) {
+    console.log('[openCheckinModal] called:', { bookingId, guestName, phone, cccd, dob, roomSummary, depsDivId, toursDivId, creditLimit, expectedGuests, expectedAdults, expectedChildren });
 
     const modalEl = document.getElementById('checkinModal');
     if (!modalEl) {

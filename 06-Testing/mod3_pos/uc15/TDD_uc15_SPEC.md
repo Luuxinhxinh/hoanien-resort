@@ -102,6 +102,7 @@ Feature: Payment Confirmation (UC-15)
 * Order `ORD-100` đang có `orderStatus = AWAITING_PAYMENT`, `isPaidInPos = false`.
 * Bàn "T10" liên kết với ORD-100 đang có trạng thái `OCCUPIED`.
 * Có `TableReservation` "RSV-005" của bàn "T10" đang ở trạng thái `SEATED`.
+<<<<<<< HEAD
 * Method payment truyền lên là `CASH`.
 
 **Test Steps:**
@@ -118,6 +119,22 @@ Feature: Payment Confirmation (UC-15)
 * `order.getOrderStatus()` trả về `PENDING` (chờ bếp làm xong món, nếu có món, hoặc hoàn tất luôn nếu xong).
 * `table.getStatus()` trả về `CLEANING`.
 * `reservation.getStatus()` trả về `COMPLETED`.
+=======
+
+**Test Steps:**
+1. Mock dữ liệu trả về cho `ORD-100`, bàn `T10`, và reservation `RSV-005`.
+2. Gọi `payOrder(100, paymentMethod)`.
+3. Assert `Order.isPaidInPos == true` và `Order.orderStatus == PENDING`.
+4. Assert Bàn T10 `status = CLEANING` và `cleaningStartTime` được ghi nhận.
+5. Assert Reservation RSV-005 `status = COMPLETED` và `endTime` được ghi nhận.
+
+**Expected Result (PASS):**
+* Thanh toán thành công, thay đổi trạng thái đồng loạt cho Order, Table và Reservation.
+
+**Expected Result (FAIL):**
+* Trạng thái Bàn không được chuyển sang CLEANING dẫn đến khách mới ngồi vào bàn chưa dọn.
+* `isPaidInPos` không bật true khiến báo cáo tài chính sai.
+>>>>>>> 7414e299dc9443033140483710eb1236086b60de
 
 ---
 

@@ -114,7 +114,7 @@ Requirements Traceability Matrix (RTM) phiên bản 4.0 được thiết kế đ
 | **BR-SYS-09** | NF-18 | Workflow_Rule_Evaluator | Spring Expression Language (SpEL) parse điều kiện JSON |
 | **BR-SYS-10** | NF-19 | Audit_Export_Logger | Ghi nhật ký vào bảng `ExportHistory` khi xuất báo cáo |
 | **BR-FO-01** | NF-03 | Hold_Room_Expiry_Scanner | SELECT...FOR UPDATE; @Version Optimistic Lock |
-| **BR-FO-02** | NF-03 | Hold_Room_Expiry_Scanner | Scheduler 5 phút; hủy booking Pending > 15 phút |
+| **BR-FO-02** | NF-03 | Hold_Room_Expiry_Scanner | Scheduler 5 phút; hủy booking Pending > 2 phút |
 | **BR-FO-04** | NF-05, NF-11 | Housekeeping_Task_Trigger, Room_Status_State_Machine | Event listener / DB Trigger tự sinh task dọn dẹp |
 | **BR-FO-05** | NF-11 | Room_Status_State_Machine | Rush Room = Set priority thành `URGENT` |
 | **BR-FO-06** | NF-06 | Credit_Limit_Realtime_Validator | Constraint Validator; check tổng Folio + đơn mới |
