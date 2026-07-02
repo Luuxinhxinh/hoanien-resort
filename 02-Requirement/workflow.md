@@ -1145,10 +1145,47 @@ flowchart TD
     style AUDIT fill:#9933ff,color:#fff
 ```
 
+## WF-26 — Phê duyệt Thiết bị Vận hành (Ops Device Authorization)
+
+**Use Cases:** UC05.4  
+**Business Rules:** BR-SYS-02, BR-SYS-04  
+**Actors:** Admin, Toàn bộ nhân viên Ops, System
+
+```mermaid
+flowchart TD
+    START([Nhân viên đăng nhập /ops-login]) --> S1[Nhập username + password\n+ gửi device_id tự động]
+    S1 --> S2{Tài khoản thuộc\nnhóm Ops/Nhân viên?\nROLE_ADMIN, ROLE_RECEPTIONIST...}
+    S2 -->|Không - Là Khách| S3[Bỏ qua check thiết bị\nĐăng nhập theo luồng thường]
+    S3 --> DONE_FAIL([Đăng nhập OK])
+    
+    S2 -->|Có - Là Ops| S4{Thiết bị device_id\nđã được đăng ký?}
+    S4 -->|Chưa đăng ký| S5[Hệ thống tự động đăng ký thiết bị\nisApproved = true - Chạy Dev]
+    S5 --> DONE_OK([Đăng nhập thành công])
+    
+    S4 -->|Đã đăng ký| S6{Được duyệt?\nisApproved = true}
+    S6 -->|Đã duyệt| DONE_OK
+    S6 -->|Chưa duyệt/Bị khóa| S7[Hủy Session và Logout ngay lập tức\nrequest.getSession().invalidate()]
+    S7 --> S8[Redirect về /ops-login\nHiển thị lỗi thiết bị không được cấp phép]
+    S8 --> DONE_FAIL
+
+    subgraph ADMIN_CONTROL["Quản lý Thiết bị - Admin"]
+        A1([Admin vào Device Management]) --> A2[Xem danh sách thiết bị Ops]
+        A2 --> ACT{Hành động}
+        ACT -->|Duyệt/Khóa| A3[UPDATE AuthorizedDevice\nisApproved = !isApproved]
+        ACT -->|Xóa| A4[DELETE AuthorizedDevice]
+        A3 & A4 --> AUDIT[INSERT Audit_Logs\nBR-SYS-04]
+    end
+
+    style S6 fill:#ff9900,color:#fff
+    style S7 fill:#ff4444,color:#fff
+    style S5 fill:#00aa44,color:#fff
+    style A3 fill:#ff9900,color:#fff
+    style A4 fill:#ff4444,color:#fff
+```
+
 > **Business Rules áp dụng:**
-> - `BR-FIN-15` — Báo cáo doanh thu chỉ tính đơn hàng `isPaidInPos = true`.
-> - Idempotent: 1 ngày chỉ được chốt 1 lần duy nhất, tránh ghi đúp dữ liệu.
-> - `BR-SYS-04` — Mọi hành động chốt ca ảnh hưởng tài chính phải ghi Audit_Logs.
+> - `BR-SYS-02` — Chỉ thiết bị Ops được phê duyệt (Approved) mới có quyền duy trì Session làm việc.
+> - `BR-SYS-04` — Ghi log mọi hành động thay đổi quyền phê duyệt thiết bị của Admin.
 
 ---
 
@@ -1181,6 +1218,7 @@ flowchart TD
 | WF-23 Đặt bàn trực tuyến | UC21, UC16 | TABLE-002, TABLE-003, TABLE-008 | Customer, F&B Staff | HIGH |
 | WF-24 Hủy đơn F&B & Hoàn tiền | UC19 | POS-004, POS-006 | Customer, F&B Staff | HIGH |
 | WF-25 Chốt ca & Báo cáo F&B | UC18 | BR-FIN-15, BR-SYS-04 | F&B Manager | HIGH |
+| WF-26 Phê duyệt Thiết bị Vận hành | UC05.4 | BR-SYS-02, BR-SYS-04 | Admin | MEDIUM |
 
 ---
 
