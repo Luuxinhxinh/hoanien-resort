@@ -15,7 +15,7 @@ Chart.defaults.plugins.tooltip.cornerRadius=8;
 document.addEventListener('DOMContentLoaded',()=>{
     const ctx=document.getElementById('chart-stay-bar');
     if(!ctx)return;
-    const d=window.stayDistData||{labels:["1 ngày","2 ngày","3 ngày","4 ngày","5 ngày","6+ ngày"],values:[58,72,85,61,28,16]};
+    const d=window.stayDistData||{labels:[],values:[]};
     new Chart(ctx,{type:'bar',data:{labels:d.labels,datasets:[{label:'Lượt khách',data:d.values,backgroundColor:C_ROOM,borderRadius:4,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>` ${c.parsed.y} lượt khách`}}},scales:{x:{grid:{display:false},border:{display:false},ticks:{color:C_TICK}},y:{grid:{color:C_GRID},border:{display:false},ticks:{color:C_TICK,callback:v=>v+' lượt'}}}}});
 });
 
