@@ -1164,7 +1164,7 @@ flowchart TD
     
     S4 -->|Đã đăng ký| S6{Được duyệt?\nisApproved = true}
     S6 -->|Đã duyệt| DONE_OK
-    S6 -->|Chưa duyệt/Bị khóa| S7[Hủy Session và Logout ngay lập tức\nrequest.getSession().invalidate()]
+    S6 -->|Chưa duyệt/Bị khóa| S7["Hủy Session và Logout ngay lập tức\nrequest.getSession().invalidate()"]
     S7 --> S8[Redirect về /ops-login\nHiển thị lỗi thiết bị không được cấp phép]
     S8 --> DONE_FAIL
 
