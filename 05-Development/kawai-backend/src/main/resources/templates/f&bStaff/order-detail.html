@@ -490,7 +490,7 @@
     }
 
     function cancelOrder(id, paymentType, orderType, tableId) {
-        if (paymentType && (paymentType.includes('Ví') || paymentType.includes('Thẻ') || paymentType.includes('Online') || paymentType.includes('thẻ') || paymentType.includes('ví') || paymentType.includes('Thanh toán trực tuyến'))) {
+        if (paymentType && (paymentType.includes('Ví') || paymentType.includes('Thẻ') || paymentType.includes('Online') || paymentType.includes('thẻ') || paymentType.includes('ví') || paymentType.includes('Thanh toán trực tuyến') || paymentType.toUpperCase().includes('VNPAY'))) {
             openRefundModal(id);
             return;
         }

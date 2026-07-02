@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
 function initLineToday() {
     const ctx = document.getElementById('chart-line-today');
     if (!ctx) return;
-    const d = window.todayData || { labels: ['06:00', '09:00', '12:00', '15:00', '18:00', '21:00'], room: [0,0,0,0,0,0], fnb: [0,0,0,0,0,0], tour: [0,0,0,0,0,0] };
+    const d = window.todayData || { labels: [], room: [], fnb: [], tour: [] };
     
     // Đăng ký plugin datalabels nếu có (tuỳ chọn)
     let plugins = [];
@@ -91,7 +91,7 @@ function initLineToday() {
             }, 
             scales: { 
                 x: { grid: { display: false }, border: { display: false }, ticks: { color: C_TICK } }, 
-                y: { grid: { color: C_GRID }, border: { display: false }, ticks: { color: C_TICK, callback: v => v + 'M' } } 
+                y: { min: 0, grid: { color: C_GRID }, border: { display: false }, ticks: { color: C_TICK, callback: v => v + 'M' } } 
             } 
         }
     });
@@ -100,16 +100,16 @@ function initLineToday() {
 function initDonut() {
     const ctx = document.getElementById('chart-donut');
     if (!ctx) return;
-    const d = window.donutData || { room: 1128, fnb: 487, tour: 231 };
+    const d = window.donutData || { room: 0, fnb: 0, tour: 0 };
     new Chart(ctx, { type: 'doughnut', data: { labels: ['Phòng', 'F&B', 'Tour'], datasets: [{ data: [d.room, d.fnb, d.tour], backgroundColor: [C_ROOM, C_FNB, C_TOUR], borderWidth: 0, hoverOffset: 6 }] }, options: { responsive: true, maintainAspectRatio: false, cutout: '68%', plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => ` ${c.label}: ${c.parsed}M` } } } } });
 }
 
 function initLine() {
     const ctx = document.getElementById('chart-line');
     if (!ctx) return;
-    const vals = [72, 75, 78, 80, 82, 85, 88, 91, 89, 87, 85, 83, 80, 78, 76, 79, 82, 85, 88, 92, 94, 90, 87, 84, 81, 79, 77, 80, 83, 86];
-    const labels = Array.from({ length: 30 }, (_, i) => i % 5 === 0 ? `${i + 1}/06` : '');
-    new Chart(ctx, { type: 'line', data: { labels, datasets: [{ label: 'Occupancy', data: vals, borderColor: C_ROOM, backgroundColor: 'rgba(201,169,110,0.08)', borderWidth: 2, pointRadius: 0, pointHoverRadius: 4, tension: 0.4, fill: true }] }, options: { responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false }, plugins: { legend: { display: false }, tooltip: { callbacks: { title: i => `Ngày ${i[0].dataIndex + 1}/06`, label: c => ` Lấp đầy: ${c.parsed.y}%` } } }, scales: { x: { grid: { display: false }, border: { display: false }, ticks: { color: C_TICK, maxRotation: 0 } }, y: { min: 0, max: 100, grid: { color: C_GRID }, border: { display: false }, ticks: { color: C_TICK, callback: v => v + '%', stepSize: 10 } } } } });
+    const d = window.occupancyData || { labels: [], data: [] };
+    const labels = d.labels.map((l, i) => i % 5 === 0 ? l : '');
+    new Chart(ctx, { type: 'line', data: { labels, datasets: [{ label: 'Occupancy', data: d.data, borderColor: C_ROOM, backgroundColor: 'rgba(201,169,110,0.08)', borderWidth: 2, pointRadius: 0, pointHoverRadius: 4, tension: 0.4, fill: true }] }, options: { responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false }, plugins: { legend: { display: false }, tooltip: { callbacks: { title: i => `Ngày ${d.labels[i[0].dataIndex]}`, label: c => ` Lấp đầy: ${c.parsed.y}%` } } }, scales: { x: { grid: { display: false }, border: { display: false }, ticks: { color: C_TICK, maxRotation: 0 } }, y: { min: 0, max: 100, grid: { color: C_GRID }, border: { display: false }, ticks: { color: C_TICK, callback: v => v + '%', stepSize: 10 } } } } });
 }
 
 function toggleSubmenu(id, arrowId) {
