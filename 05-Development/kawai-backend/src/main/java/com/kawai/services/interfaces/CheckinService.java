@@ -33,4 +33,14 @@ public interface CheckinService {
     void updateCreditLimit(Long bookingDetailId, BigDecimal newCreditLimit);
 
     java.util.Map<String, Object> upgradeDependentToCustomer(Long dependentId);
+
+    /**
+     * Đổi phòng cho khách đang lưu trú (UC12.3).
+     * Phòng cũ → Vacant_Dirty, phòng mới → Occupied.
+     * @param bookingDetailId ID của booking detail cần đổi phòng
+     * @param newRoomId ID của phòng mới
+     * @return RoomBookingDetail đã được cập nhật
+     * @throws IllegalStateException nếu phòng mới không khả dụng
+     */
+    RoomBookingDetail transferRoom(Long bookingDetailId, Long newRoomId);
 }

@@ -1,4 +1,4 @@
-package com.kawai.dtos;
+package com.kawai.dto;
 
 import lombok.Data;
 
@@ -27,9 +27,4 @@ public class CancelOrderRequestDTO {
      * Lý do hủy đơn (tùy chọn)
      */
     private String reason;
-
-    /**
-     * Số điện thoại chủ tài khoản (dùng cho hoàn tiền)
-     */
-    private String phoneNumber;
 }

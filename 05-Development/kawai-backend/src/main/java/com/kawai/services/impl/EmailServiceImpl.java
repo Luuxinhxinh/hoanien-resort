@@ -25,6 +25,9 @@ public class EmailServiceImpl implements EmailService {
     private static final java.text.NumberFormat VND_FMT = java.text.NumberFormat
             .getInstance(new java.util.Locale("vi", "VN"));
 
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private org.springframework.mail.javamail.JavaMailSender mailSender;
+
     @org.springframework.beans.factory.annotation.Autowired
     private org.thymeleaf.TemplateEngine templateEngine;
 
@@ -363,9 +366,35 @@ public class EmailServiceImpl implements EmailService {
     }
 
     public void sendEmail(String toEmail, String subject, String htmlContent) {
+        boolean sentViaSmtp = false;
+        
+        if (mailSender != null) {
+            try {
+                jakarta.mail.internet.MimeMessage mimeMessage = mailSender.createMimeMessage();
+                org.springframework.mail.javamail.MimeMessageHelper helper = 
+                        new org.springframework.mail.javamail.MimeMessageHelper(mimeMessage, "utf-8");
+                helper.setTo(toEmail);
+                helper.setSubject(subject);
+                helper.setText(htmlContent, true);
+                
+                String finalFrom = (fromEmail != null && !fromEmail.isBlank()) ? fromEmail : "hoanien.00@gmail.com";
+                helper.setFrom(finalFrom, "HOANIEN Resort");
+                
+                mailSender.send(mimeMessage);
+                logger.info("[SMTP] Email sent successfully to {}", toEmail);
+                sentViaSmtp = true;
+                return; // Gửi SMTP thành công thì thoát luôn
+            } catch (Exception e) {
+                logger.error("[SMTP] Lỗi gửi email tới {}: {}", toEmail, e.getMessage());
+                logger.info("[SMTP] Sẽ thử chuyển sang dùng SendGrid fallback...");
+            }
+        }
+
         if (sendGridApiKey == null || sendGridApiKey.isBlank()) {
-            logger.warn("[SENDGRID] API_KEY chưa được cấu hình. Email không được gửi.");
-            logger.info("[SENDGRID MOCK] To: {}, Subject: {}", toEmail, subject);
+            if (!sentViaSmtp) {
+                logger.warn("[SENDGRID] API_KEY chưa được cấu hình. Email không được gửi.");
+                logger.info("[SENDGRID MOCK] To: {}, Subject: {}", toEmail, subject);
+            }
             return;
         }
 
@@ -390,16 +419,40 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public void sendCustomWorkflowEmail(String customFromEmail, String toEmail, String subject, String htmlContent) {
+        boolean sentViaSmtp = false;
+        String finalFrom = (customFromEmail != null && !customFromEmail.trim().isEmpty()) ? customFromEmail : fromEmail;
+
+        if (mailSender != null) {
+            try {
+                jakarta.mail.internet.MimeMessage mimeMessage = mailSender.createMimeMessage();
+                org.springframework.mail.javamail.MimeMessageHelper helper = 
+                        new org.springframework.mail.javamail.MimeMessageHelper(mimeMessage, "utf-8");
+                helper.setTo(toEmail);
+                helper.setSubject(subject);
+                helper.setText(htmlContent, true);
+                
+                helper.setFrom(finalFrom, "HOANIEN Workflow Engine");
+                
+                mailSender.send(mimeMessage);
+                logger.info("[SMTP] Custom Workflow Email sent successfully from {} to {}", finalFrom, toEmail);
+                sentViaSmtp = true;
+                return;
+            } catch (Exception e) {
+                logger.error("[SMTP] Lỗi gửi Custom Workflow email tới {}: {}", toEmail, e.getMessage());
+            }
+        }
+
         if (sendGridApiKey == null || sendGridApiKey.isBlank()) {
-            logger.warn("[SENDGRID] API_KEY chưa được cấu hình. Custom Workflow Email không được gửi.");
-            logger.info("[SENDGRID MOCK] From: {}, To: {}, Subject: {}", customFromEmail, toEmail, subject);
-            logger.info("[SENDGRID MOCK CONTENT]: \n{}", htmlContent);
+            if (!sentViaSmtp) {
+                logger.warn("[SENDGRID] API_KEY chưa được cấu hình. Custom Workflow Email không được gửi.");
+                logger.info("[SENDGRID MOCK] From: {}, To: {}, Subject: {}", customFromEmail, toEmail, subject);
+                logger.info("[SENDGRID MOCK CONTENT]: \n{}", htmlContent);
+            }
             return;
         }
 
         try {
-            String finalFrom = (customFromEmail != null && !customFromEmail.trim().isEmpty()) ? customFromEmail
-                    : fromEmail;
+            // finalFrom has already been calculated above
             Email from = new Email(finalFrom);
             Email to = new Email(toEmail);
             Content content = new Content("text/html", htmlContent);

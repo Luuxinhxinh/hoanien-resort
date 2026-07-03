@@ -12,4 +12,11 @@ public interface PosService {
     void addItemsToOrder(Long orderId, java.util.List<com.kawai.dto.CartItemDto> items);
 
     void updateOrderStatus(Long orderId, String status);
+
+    /**
+     * Hủy đơn hàng F&B (UC19 / WF-24).
+     * @param orderId ID của đơn hàng cần hủy
+     * @param cancelRequest Thông tin hoàn tiền (có thể null nếu không cần refund)
+     */
+    void cancelOrder(Long orderId, com.kawai.dtos.CancelOrderRequestDTO cancelRequest);
 }

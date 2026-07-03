@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -477,4 +478,48 @@ public class CheckinServiceImpl implements CheckinService {
                 }
             }
         }
+
+
+    // UC12.3: Đổi phòng
+    @Override
+    @Transactional
+    public RoomBookingDetail transferRoom(Long bookingDetailId, Long newRoomId) {
+        RoomBookingDetail detail = findBookingDetail(bookingDetailId);
+        
+        // Guard: detail phải có phòng cũ
+        Room oldRoom = detail.getRoom();
+        if (oldRoom == null) {
+            throw new RuntimeException("Booking detail chưa được gán phòng, không thể đổi phòng");
+        }
+        
+        // Guard: detail phải đang CHECKED_IN
+        if (!STATUS_CHECKED_IN.equalsIgnoreCase(detail.getDetailStatus())) {
+            throw new IllegalStateException("Booking detail chưa CHECKED_IN, không thể đổi phòng");
+        }
+        
+        Room newRoom = findRoom(newRoomId);
+        
+        // Validate phòng mới phải Vacant_Clean
+        if (!STATUS_VACANT_CLEAN.equalsIgnoreCase(newRoom.getRoomStatus())) {
+            throw new IllegalStateException(
+                "Phòng mới không khả dụng (trạng thái: " + newRoom.getRoomStatus() + "). Chỉ được đổi sang phòng Vacant_Clean (BR-FO-04)");
+        }
+        
+        // Đổi phòng cũ → Vacant_Dirty
+        oldRoom.setRoomStatus(STATUS_DIRTY);
+        oldRoom.setCurrentBookingDetailId(null);
+        roomRepo.save(oldRoom);
+        
+        // Gán phòng mới → Occupied
+        newRoom.setRoomStatus(STATUS_OCCUPIED);
+        newRoom.setCurrentBookingDetailId(detail.getId());
+        roomRepo.save(newRoom);
+        
+        // Cập nhật detail
+        detail.setRoom(newRoom);
+        roomBookingDetailRepo.save(detail);
+        
+        return detail;
+    }
+
 }
