@@ -65,7 +65,8 @@ public class DependentServiceImpl implements DependentService {
     private static final String DEFAULT_GENDER = "Khác";
     private static final String GUEST_TYPE_CHILD = "CHILD";
     private static final String GUEST_TYPE_ADULT = "ADULT";
-    private static final String FACE_UPLOAD_DIR = com.kawai.utils.UploadPathResolver.resolvePath("src/main/resources/static/uploads/faces");
+    private static final String FACE_UPLOAD_DIR = com.kawai.utils.UploadPathResolver
+            .resolvePath("src/main/resources/static/uploads/faces");
     private final DependentRepository dependentRepository;
     private final RoomBookingRepository bookingRepository;
     private final EncryptionService encryptionService;
@@ -184,9 +185,14 @@ public class DependentServiceImpl implements DependentService {
 
     /** Lấy RoomBooking theo ID hoặc ném MOD2-003. */
     private RoomBooking findBookingOrThrow(Long bookingId) {
-        return bookingRepository.findById(bookingId)
+        com.kawai.models.Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new BusinessException("MOD2-003",
                         "Booking not found with ID: " + bookingId + " [MOD2-003]"));
+        if (!(booking instanceof RoomBooking)) {
+            throw new BusinessException("MOD2-003",
+                    "Booking ID " + bookingId + " is not a Room Booking [MOD2-003]");
+        }
+        return (RoomBooking) booking;
     }
 
     /**
@@ -337,38 +343,45 @@ public class DependentServiceImpl implements DependentService {
 
         int maxAdults = category.getMaxAdults() != null ? category.getMaxAdults() : category.getCapacity();
         int maxChildren = category.getMaxChildren() != null ? category.getMaxChildren() : 2;
-        int baseAdults = category.getBaseAdults() != null ? category.getBaseAdults() : category.getCapacity();
-        int baseChildren = category.getBaseChildren() != null ? category.getBaseChildren() : 0;
 
-        int currentAdults = detail.getNumberOfAdults() != null ? detail.getNumberOfAdults() : 0;
-        int currentChildren = detail.getNumberOfChildren() != null ? detail.getNumberOfChildren() : 0;
+        int paidAdults = detail.getNumberOfAdults() != null ? detail.getNumberOfAdults() : 0;
+        int paidChildren = detail.getNumberOfChildren() != null ? detail.getNumberOfChildren() : 0;
+
+        // Đếm số lượng khách thực tế đã được xếp vào phòng này
+        long checkedInAdults = roomGuestRepository.findByRoomBookingDetailId(detail.getId()).stream()
+                .filter(rg -> GUEST_TYPE_ADULT.equals(rg.getGuestType()))
+                .count();
+        long checkedInChildren = roomGuestRepository.findByRoomBookingDetailId(detail.getId()).stream()
+                .filter(rg -> GUEST_TYPE_CHILD.equals(rg.getGuestType()))
+                .count();
 
         boolean isAdult = age >= ADULT_AGE_THRESHOLD;
         BigDecimal extraFee = BigDecimal.ZERO;
 
         if (isAdult) {
-            currentAdults++;
-            if (currentAdults > maxAdults) {
+            long newAdultsCount = checkedInAdults + 1;
+            if (newAdultsCount > maxAdults) {
                 throw new BusinessException("MOD2-020",
                         "Number of guests exceeds maximum room capacity. Max adults: " + maxAdults);
             }
-            if (currentAdults > baseAdults && category.getExtraAdultSurcharge() != null) {
-                extraFee = category.getExtraAdultSurcharge();
+            if (newAdultsCount > paidAdults) {
+                if (category.getExtraAdultSurcharge() != null) {
+                    extraFee = category.getExtraAdultSurcharge();
+                }
+                detail.setNumberOfAdults((int) newAdultsCount);
             }
         } else {
-            currentChildren++;
-            if (currentChildren > maxChildren) {
+            long newChildrenCount = checkedInChildren + 1;
+            if (newChildrenCount > maxChildren) {
                 throw new BusinessException("MOD2-021",
                         "Number of guests exceeds maximum room capacity. Max children: " + maxChildren);
             }
-            if (currentChildren > baseChildren) {
+            if (newChildrenCount > paidChildren) {
                 Optional<RoomSurcharge> surchargeOpt = roomSurchargeRepository.findSurchargeForAge(category, age);
                 extraFee = surchargeOpt.map(RoomSurcharge::getPriceModifier).orElse(BigDecimal.ZERO);
+                detail.setNumberOfChildren((int) newChildrenCount);
             }
         }
-
-        detail.setNumberOfAdults(currentAdults);
-        detail.setNumberOfChildren(currentChildren);
 
         return multiplyByNightsIfPositive(extraFee, booking);
     }
@@ -424,6 +437,7 @@ public class DependentServiceImpl implements DependentService {
         response.setDependentId(saved.getId());
         response.setFullName(dto.getFullName());
         response.setDateOfBirth(dto.getDateOfBirth());
+        response.setGender(saved.getGender());
         response.setStatus(STATUS_REGISTERED);
         return response;
     }
@@ -438,6 +452,7 @@ public class DependentServiceImpl implements DependentService {
             dto.setDependentId(guest.getDependent().getId());
             dto.setFullName(guest.getDependent().getDependentName());
             dto.setDateOfBirth(guest.getDependent().getBirthDate());
+            dto.setGender(guest.getDependent().getGender());
             String cccdEnc = guest.getDependent().getCccdPassportEncrypted();
             if (cccdEnc != null && !cccdEnc.isBlank()) {
                 try {

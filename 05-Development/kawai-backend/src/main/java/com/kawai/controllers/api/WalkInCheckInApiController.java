@@ -77,7 +77,9 @@ public class WalkInCheckInApiController {
                     "fullName", c.getFullName() != null ? c.getFullName() : "",
                     "phone", c.getPhone() != null ? c.getPhone() : "",
                     "email", c.getEmail() != null ? c.getEmail() : "",
-                    "cccd", cccd));
+                    "cccd", cccd,
+                    "dateOfBirth", c.getBirthDate() != null ? c.getBirthDate().toString() : "",
+                    "gender", c.getGender() != null ? c.getGender() : ""));
         }
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND)

@@ -194,7 +194,8 @@
                             class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200 uppercase tracking-[0.2em] bg-transparent border-none p-0 cursor-pointer">Logout</button>
                     </form>
 
-                    <a href="#" onclick="openLoginModal(); return false;" th:unless="${session.user != null}" class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200">Log In</a>
+                    <a href="#" onclick="openLoginModal(); return false;" th:unless="${session.user != null}"
+                        class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200">Log In</a>
                     <a href="/booking"
                         class="nav-btn-book hover:opacity-100 active:scale-95 transition-all duration-200 inline-block text-[13px]">
                         Book Now
@@ -221,8 +222,9 @@
                     in Hoi An</p>
                 <h1 class="font-serif text-5xl md:text-7xl lg:text-8xl mb-6 font-medium">Living</h1>
                 <p class="text-sm md:text-base leading-relaxed opacity-90 max-w-lg font-light">
-                    Every villa and suite is a private haven, thoughtfully designed to harmonize with the natural
-                    surroundings and offer unparalleled comfort and serenity.
+                    Mỗi không gian nghỉ dưỡng là một chốn ẩn náu riêng tư, được thiết kế tinh tế để giao hòa trọn vẹn
+                    với thiên nhiên nguyên bản, mang đến cho quý khách trải nghiệm nghỉ dưỡng êm ái và tĩnh lặng độc
+                    nhất.
                 </p>
             </div>
         </div>
@@ -232,8 +234,9 @@
         <section id="residences" class="max-w-4xl mx-auto px-6 py-20 md:py-32 text-center">
             <h2 class="font-serif text-3xl md:text-5xl mb-8">A Sense of Place</h2>
             <p class="text-hoanien-text/80 leading-loose text-sm md:text-base font-light max-w-2xl mx-auto">
-                Embracing the rich architectural heritage of Hoi An, our accommodations feature local craftsmanship,
-                natural materials, and private pools that invite the outside in.
+                Kế thừa di sản kiến trúc phong phú của phố cổ Hội An, không gian nghỉ dưỡng của chúng tôi tôn vinh nghệ
+                thuật thủ công bản địa, chất liệu tự nhiên mộc mạc cùng những hồ bơi tĩnh lặng như mời gọi thiên nhiên
+                tràn vào hiên nhà.
             </p>
         </section>
 
@@ -258,8 +261,9 @@
                                 <span class="meka-underline !after:bg-white">Pool Villa</span>
                             </h2>
                             <p class="font-sans text-xs opacity-90 mt-6 leading-relaxed max-w-xs font-light">
-                                Interface directly with the Thu Bon tidal rhythm. Plunge matrix and open terrace
-                                configured to maximize solar convergence.
+                                Lắng nghe nhịp đập êm đềm của dòng sông Thu Bồn hiền hòa. Không gian mở lộng gió đón
+                                trọn ánh hoàng hôn, mang đến sự tĩnh tại tuyệt đối cho tâm hồn và đánh thức mọi giác
+                                quan.
                             </p>
                         </div>
 
@@ -268,13 +272,13 @@
                                 class="space-y-1 md:border-r border-white/30 md:pr-4 md:text-right text-xs opacity-90 font-light">
                                 <span class="block text-[10px] uppercase tracking-widest opacity-60">[ Metadata ]</span>
                                 <p>SIZE: 120 SQM</p>
-                                <p class="opacity-70">SYS: THU BON WATER VIEW</p>
+                                <p class="opacity-70">VIEW: THU BON RIVER</p>
                             </div>
 
                             <div class="w-full sm:w-auto">
                                 <a href="/booking"
                                     class="w-full sm:w-auto inline-block text-center bg-hoanien-text text-hoanien-bg font-sans text-xs uppercase tracking-wider px-8 py-3.5 hover:bg-hoanien-text/90 shadow-md">
-                                    INITIALIZE BOOKING
+                                    RESERVE NOW
                                 </a>
                             </div>
                         </div>
@@ -303,8 +307,8 @@
                                 <span class="meka-underline !after:bg-white">Pool Villa</span>
                             </h2>
                             <p class="font-sans text-xs opacity-90 mt-6 leading-relaxed max-w-xs font-light">
-                                Secluded ecosystem enclosed by dense botanical shielding. Total detachment designed for
-                                psychological calibration.
+                                Ẩn mình giữa mảng xanh nguyên bản của khu vườn nhiệt đới thanh bình. Nơi chốn trú ẩn an
+                                yên, giúp quý khách tìm lại sự cân bằng và tái tạo năng lượng từ sâu bên trong.
                             </p>
                         </div>
 
@@ -313,13 +317,59 @@
                                 class="space-y-1 md:border-r border-white/30 md:pr-4 md:text-right text-xs opacity-90 font-light">
                                 <span class="block text-[10px] uppercase tracking-widest opacity-60">[ Metadata ]</span>
                                 <p>SIZE: 105 SQM</p>
-                                <p class="opacity-70">SYS: BIOMASS GREEN MATRIX</p>
+                                <p class="opacity-70">VIEW: TROPICAL GARDEN</p>
                             </div>
 
                             <div class="w-full sm:w-auto">
                                 <a href="/booking"
                                     class="w-full sm:w-auto inline-block text-center bg-hoanien-text text-hoanien-bg font-sans text-xs uppercase tracking-wider px-8 py-3.5 hover:bg-hoanien-text/90 shadow-md">
-                                    INITIALIZE BOOKING
+                                    RESERVE NOW
+                                </a>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+            </section>
+
+            <section id="wellness-retreat" class="immersive-scroll-tier relative w-full h-[180vh]">
+                <div
+                    class="sticky top-0 h-screen w-full overflow-hidden flex items-center justify-center pointer-events-none">
+
+                    <div class="tier-image-frame absolute w-full h-full overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2100&q=90"
+                            alt="Wellness Retreat" class="w-full h-full object-cover brightness-[0.7]" />
+                    </div>
+
+                    <div
+                        class="tier-interface-overlay absolute inset-x-0 bottom-0 w-full max-w-[1440px] mx-auto px-8 md:px-16 flex flex-col md:flex-row justify-between items-start md:items-end pb-16 md:pb-20 gap-6 pointer-events-auto">
+
+                        <div class="flex flex-col items-start max-w-xl text-white">
+                            <h2
+                                class="font-serif text-4xl md:text-5xl lg:text-6xl font-normal leading-[0.85] tracking-tight flex flex-col items-start gap-1">
+                                <span class="meka-underline !after:bg-white">Wellness</span>
+                                <span class="meka-underline !after:bg-white">Retreat</span>
+                            </h2>
+                            <p class="font-sans text-xs opacity-90 mt-6 leading-relaxed max-w-xs font-light">
+                                Một không gian chữa lành mang đậm âm hưởng kiến trúc cung đình truyền thống, đan cài
+                                tinh tế cùng tiện nghi nghỉ dưỡng đương đại. Nâng niu thân-tâm-trí qua những liệu pháp
+                                thanh lọc thuần khiết nhất.
+                            </p>
+                        </div>
+
+                        <div class="flex flex-col items-start md:items-end gap-5 text-white font-sans w-full sm:w-auto">
+                            <div
+                                class="space-y-1 md:border-r border-white/30 md:pr-4 md:text-right text-xs opacity-90 font-light">
+                                <span class="block text-[10px] uppercase tracking-widest opacity-60">[ Metadata ]</span>
+                                <p>SIZE: 150 SQM</p>
+                                <p class="opacity-70">SYS: HOLISTIC SANCTUARY</p>
+                            </div>
+
+                            <div class="w-full sm:w-auto">
+                                <a href="/booking"
+                                    class="w-full sm:w-auto inline-block text-center bg-hoanien-text text-hoanien-bg font-sans text-xs uppercase tracking-wider px-8 py-3.5 hover:bg-hoanien-text/90 shadow-md">
+                                    RESERVE NOW
                                 </a>
                             </div>
                         </div>

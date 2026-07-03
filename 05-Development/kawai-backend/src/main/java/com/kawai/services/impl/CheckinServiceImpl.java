@@ -205,19 +205,9 @@ public class CheckinServiceImpl implements CheckinService {
 
                 Role customerRole = findCustomerRole();
 
-                String plainCccd = null;
-                if (dependent.getCccdPassportEncrypted() != null && !dependent.getCccdPassportEncrypted().isBlank()) {
-                        try {
-                                plainCccd = com.kawai.utils.EncryptionUtils
-                                                .decrypt(dependent.getCccdPassportEncrypted());
-                        } catch (Exception e) {
-                                plainCccd = null;
-                        }
-                }
-                String cccdOrRandom = (plainCccd != null && !plainCccd.isBlank()) ? plainCccd
-                                : UUID.randomUUID().toString().substring(0, 2);
-                String dummyEmail = "guest_" + cccdOrRandom + "@kawai-resort.com";
-                String username = dummyEmail.split("@")[0];
+                String randomSuffix = UUID.randomUUID().toString().substring(0, 2);
+                String username = "guest" + randomSuffix;
+                String dummyEmail = username + "@kawai-resort.com";
                 String randomPwd = UUID.randomUUID().toString().substring(0, 6);
 
                 Account savedAccount = createAccountForDependent(customerRole, username, randomPwd);
@@ -481,7 +471,7 @@ public class CheckinServiceImpl implements CheckinService {
                     }
                     com.kawai.models.RoomBookingDetail detail = roomBookingDetailRepo.findById(detailId).orElse(null);
                     if (detail != null) {
-                        // tourBooking.setRoomBookingDetail(detail);
+                        tourBooking.setRoomBookingDetail(detail);
                         tourBookingRepo.save(tourBooking);
                     }
                 }
