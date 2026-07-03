@@ -175,6 +175,9 @@ public class RoomApiController {
             if (rbd == null) continue;
             java.util.Map<String, Object> rMap = new java.util.HashMap<>();
             Room r = rbd.getRoom();
+            // Common fields from the booking detail
+            rMap.put("numberOfAdults", rbd.getNumberOfAdults() != null ? rbd.getNumberOfAdults() : 1);
+            rMap.put("numberOfChildren", rbd.getNumberOfChildren() != null ? rbd.getNumberOfChildren() : 0);
             if (r != null) {
                 rMap.put("id", r.getRoomNumber());
                 rMap.put("roomNumber", r.getRoomNumber());
@@ -182,7 +185,11 @@ public class RoomApiController {
                 rMap.put("roomType", r.getCategory() != null ? r.getCategory().getCategoryName() : "Standard");
             } else {
                 rMap.put("id", "Virtual_" + rbd.getId());
-                rMap.put("roomNumber", "Đang chờ nhận phòng (" + rbd.getCategory().getCategoryName() + ")");
+                String bookingLabel = "";
+                if (rbd.getRoomBooking() != null) {
+                    bookingLabel = " (Đơn #" + rbd.getRoomBooking().getId() + ")";
+                }
+                rMap.put("roomNumber", "Đang chờ nhận phòng " + rbd.getCategory().getCategoryName() + bookingLabel);
                 rMap.put("roomStatus", "Confirmed");
                 rMap.put("roomType", rbd.getCategory().getCategoryName());
             }
