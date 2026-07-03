@@ -35,4 +35,7 @@ public interface RoomBookingDetailRepository extends JpaRepository<RoomBookingDe
             "AND rbd.roomBooking.bookingStatus = 'Confirmed' " +
             "GROUP BY rbd.category.categoryName")
     List<Object[]> countPendingUnassignedByCategoryName();
+
+    @org.springframework.data.jpa.repository.Query("SELECT rbd.room.roomNumber, rbd.roomBooking.customer.fullName FROM RoomBookingDetail rbd WHERE rbd.detailStatus = 'CHECKED_IN' AND rbd.room.roomStatus = 'Vacant_Clean'")
+    List<Object[]> findCleanedRoomsPendingHandover();
 }

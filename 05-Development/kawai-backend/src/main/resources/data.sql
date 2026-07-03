@@ -31,7 +31,7 @@ INSERT INTO Accounts (account_id, username, password_hash, is_active, role_id, c
 (10, 'mylinh', '$2a$10$4bnThA4xQVw1rF2POQv78uAQll2KsUsgF32JaYiVG5d2d3Fhgk83q', TRUE, 9, CURRENT_TIMESTAMP),
 (11, 'hoanganh', '$2a$10$4bnThA4xQVw1rF2POQv78uAQll2KsUsgF32JaYiVG5d2d3Fhgk83q', TRUE, 8, CURRENT_TIMESTAMP),
 (12, 'vuhung', '$2a$10$4bnThA4xQVw1rF2POQv78uAQll2KsUsgF32JaYiVG5d2d3Fhgk83q', TRUE, 8, CURRENT_TIMESTAMP),
-(13, 'NguynNgoc', '$2a$10$4bnThA4xQVw1rF2POQv78uAQll2KsUsgF32JaYiVG5d2d3Fhgk83q', TRUE, 8, CURRENT_TIMESTAMP),
+(13, 'Nguyễn Ngọc', '$2a$10$4bnThA4xQVw1rF2POQv78uAQll2KsUsgF32JaYiVG5d2d3Fhgk83q', TRUE, 8, CURRENT_TIMESTAMP),
 (14, 'guide2', '$2a$10$ikP3XeXnMx/oLodhs4wqBO61AhyuE4dWtSJDJcOH7D2ii5Vrgq0bG', TRUE, 7, CURRENT_TIMESTAMP),
 (15, 'guide3', '$2a$10$ikP3XeXnMx/oLodhs4wqBO61AhyuE4dWtSJDJcOH7D2ii5Vrgq0bG', TRUE, 7, CURRENT_TIMESTAMP),
 (16, 'housekeep1', '$2a$10$ikP3XeXnMx/oLodhs4wqBO61AhyuE4dWtSJDJcOH7D2ii5Vrgq0bG', TRUE, 5, CURRENT_TIMESTAMP),
@@ -42,38 +42,48 @@ INSERT INTO Accounts (account_id, username, password_hash, is_active, role_id, c
 
 -- ── 3. Employees (10 rows) ───────────────────────────────────
 INSERT INTO Employees (employee_id, account_id, full_name, gender, cccd, phone, email, salary) VALUES 
+
 (1, 1, 'Nguyễn Quản Trị', 'Nam', '001234567890', '0912000001', 'admin@hoanien.vn', 15000000),
 (2, 2, 'Trần Phương', 'Nữ', '001234567891', '0912000002', 'tphuong@hoanien.vn', 10000000),
 (3, 3, 'Nguyễn Minh Quân', 'Nam', '001234567892', '0912000003', 'nmquan@hoanien.vn', 10000000),
 (4, 4, 'Lê Linh', 'Nữ', '001234567893', '0912000004', 'lelinh@hoanien.vn', 9000000),
 (5, 13, 'NguynNgoc', 'Nam', '001234567894', '0912000005', 'guide@hoanien.vn', 8000000),
+
 (6, 14, 'Ngọc Lan', 'Nữ', '001234567895', '0912000006', 'guide2@hoanien.vn', 8500000),
 (7, 15, 'Hoàng Nam', 'Nam', '001234567896', '0912000007', 'guide3@hoanien.vn', 8500000),
 (8, 16, 'Lê Văn Tám', 'Nam', '001234567897', '0912000008', 'lvtam@hoanien.vn', 7000000),
 (9, 17, 'Nguyễn Thị Hoa', 'Nữ', '001234567898', '0912000009', 'nthoa@hoanien.vn', 7000000),
+
 (10, 20, 'Hoàng Bảo Trì', 'Nam', '001234567899', '0912000010', 'hbtri@hoanien.vn', 7500000);
+
 
 -- ── 3.5. Membership Tiers (4 rows) ───────────────────────────────────
 INSERT INTO membership_tiers (tier_id, tier_name, points_from, points_to, credit_limit, description) VALUES
+
 (1, 'Regular', 0, 999, 5000000.00, 'Hạng thẻ mặc định'),
+
 (2, 'Silver', 1000, 4999, 10000000.00, 'Hạng Bạc'),
 (3, 'Gold', 5000, 9999, 20000000.00, 'Hạng Vàng'),
 (4, 'Platinum', 10000, 99999, 50000000.00, 'Hạng Bạch kim');
 
 -- ── 4. Customers (15 rows) ───────────────────────────────────
 INSERT INTO Customers (customer_id, account_id, full_name, gender, cccd_passport_encrypted, phone, email, loyalty_points, membership_tier_id) VALUES 
+
 (1, 5, 'Nguyễn Xuân Lưu', 'Nam', 'CCCD_101', '090101', 'nam101@test.com', 100, 1),
 (2, 6, 'Ngọc Thị', 'Nam', 'CCCD_204', '090204', 'an204@test.com', 200, 2),
 (3, 7, 'Phạm Tuấn', 'Nam', 'CCCD_308', '090308', 'tuan308@test.com', 500, 3),
 (4, 8, 'Trần Thị Bích', 'Nữ', 'CCCD_104', '090104', 'bich104@test.com', 50, 1),
 (5, 9, 'Ngọc Thị', 'Nữ', 'CCCD_106', '090106', 'quang106@test.com', 0, 1),
 (6, 10, 'Đỗ Mỹ Linh', 'Nữ', 'CCCD_207', '090207', 'linh207@test.com', 150, 2),
+
 (7, 11, 'Hoàng Anh', 'Nam', 'CCCD_210', '090210', 'anh210@test.com', 300, 3),
 (8, 12, 'Vũ Hùng', 'Nam', 'CCCD_311', '090311', 'hung311@test.com', 800, 4),
 (9, NULL, 'Lưu Đình Đức', 'Nam', 'CCCD_DEMO1', '0909990001', 'duc@test.com', 0, 1),
 (10, NULL, 'Nguyễn Minh Đức', 'Nam', 'CCCD_DEMO2', '0909990002', 'duc2@test.com', 0, 1),
 (11, NULL, 'Trần Thị Mai', 'Nữ', 'CCCD_DEMO3', '0909990003', 'mai@test.com', 0, 1),
+
 (12, NULL, 'Phạm Hùng Anh', 'Nam', 'CCCD_DEMO4', '0909990004', 'phanh@test.com', 0, 1),
+
 (13, NULL, 'Nguyễn Thanh Sơn', 'Nam', 'CCCD_DEMO5', '0909990005', 'ntson@test.com', 0, 1),
 (14, NULL, 'Vũ Thị Thảo', 'Nữ', 'CCCD_DEMO6', '0909990006', 'vtthao@test.com', 0, 1),
 (15, NULL, 'Đoàn Minh Khang', 'Nam', 'CCCD_DEMO7', '0909990007', 'dmkhang@test.com', 0, 1);
@@ -83,7 +93,9 @@ INSERT INTO Dependents (dependent_id, customer_id, dependent_name, birth_date, g
 (1, 1, 'Lê Hoàng Minh', '2018-05-12', 'Nam', NULL),
 (2, 1, 'Lê Thị Hồng', '2020-09-20', 'Nữ', NULL),
 (3, 2, 'Nguyễn Văn Bình', '2015-03-10', 'Nam', NULL),
+
 (4, 3, 'Phạm Tuấn Hải', '2016-07-15', 'Nam', NULL),
+
 (5, 4, 'Trần An Nhiên', '2019-11-01', 'Nữ', NULL),
 (6, 6, 'Nguyễn Mỹ Anh', '2017-02-14', 'Nữ', NULL),
 (7, 7, 'Hoàng Minh Khôi', '2014-06-25', 'Nam', NULL),
@@ -108,6 +120,7 @@ INSERT INTO Room_Categories (
 (6,  'Ocean View Bungalow',      'https://images.unsplash.com/photo-1582719508461-905c673771fd', 3000000,  2, 'Bungalow bãi cát đón gió biển tươi mát.',           2, 0, 3, 1, 600000,  300000, TRUE, '1 Giường King 2m2', 50, 'Hướng biển', TRUE, TRUE, '2 chai nước suối, Trái cây tươi', TRUE),
 (7,  'Family Connecting Room',   'https://images.unsplash.com/photo-1568495248636-6432b97bd949', 4500000,  5, 'Phòng thông nhau phù hợp cho cả gia đình.',         2, 2, 4, 4, 500000,  250000, TRUE, '1 Giường King & 2 Giường Đơn', 90, 'Hướng vườn', FALSE, TRUE, '4 chai nước suối, Bánh quy, Trà', TRUE),
 (8,  'Superior Mountain View',   'https://images.unsplash.com/photo-1596394516093-501ba68a0ba6', 1800000,  2, 'Phòng hướng núi thanh tịnh bình yên.',              2, 0, 2, 1, 350000,  150000, TRUE, '2 Giường Đơn 1m2', 40, 'Hướng núi đồi', FALSE, FALSE, '2 chai nước suối, Trà & Cà phê', TRUE),
+
 (9,  'Luxury Penthouse',         'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688', 12000000, 4, 'Căn hộ tầng mái đẳng cấp ngắm toàn cảnh resort.',  2, 0, 4, 2, 1500000, 750000, TRUE, '2 Giường King siêu lớn', 180, 'Toàn cảnh Resort', TRUE, TRUE, 'Rượu vang cao cấp, Trái cây nhập khẩu, Minibar', TRUE),
 (10, 'Cozy Studio Room',         'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af', 1500000,  2, 'Phòng Studio nhỏ gọn, đầy đủ tiện nghi.',          2, 0, 2, 1, 300000,  150000, TRUE, '1 Giường Queen 1m8', 35, 'Hướng đường phố', FALSE, FALSE, '2 chai nước suối, Cà phê hòa tan', FALSE);
 
@@ -190,8 +203,10 @@ INSERT INTO Dynamic_Pricing (price_id, category_id, start_date, end_date, price_
 (9, 4, '2026-09-01', '2026-09-30', -150000, 'Ưu đãi mùa thu'),
 (10, 6, '2026-09-01', '2026-09-30', -250000, 'Ưu đãi mùa thu');
 
+
 -- ── 10. Daily Rates (10 rows) ────────────────────────────────
 INSERT INTO Daily_Rates (daily_rate_id, category_id, rate_date, computed_price, is_weekend, is_holiday) VALUES 
+
 (1, 1, '2026-06-13', 2700000, TRUE, FALSE),
 (2, 1, '2026-06-14', 2700000, TRUE, FALSE),
 (3, 2, '2026-06-13', 3800000, TRUE, FALSE),
@@ -205,17 +220,20 @@ INSERT INTO Daily_Rates (daily_rate_id, category_id, rate_date, computed_price, 
 
 -- ── 11. Promotions (10 rows) ─────────────────────────────────
 INSERT INTO Promotions (promo_id, promo_code, discount_type, discount_value, valid_from, valid_to, max_uses, current_uses, is_active, description) VALUES 
+
 (1, 'SUMMER2026', 'PERCENTAGE', 10.00, '2026-05-01 00:00:00', '2026-08-31 23:59:59', 1000, 15, TRUE, 'Giảm giá 10% cho toàn bộ dịch vụ đặt phòng hè.'),
 (2, 'WELCOMETOHOANIEN', 'FIXED_AMOUNT', 200000.00, '2026-01-01 00:00:00', '2026-12-31 23:59:59', 5000, 120, TRUE, 'Tặng ngay 200,000 VND cho khách đặt phòng lần đầu.'),
 (3, 'VIPGOLD', 'PERCENTAGE', 15.00, '2026-01-01 00:00:00', '2026-12-31 23:59:59', 9999, 45, TRUE, 'Ưu đãi đặc biệt giảm 15% cho thành viên Gold.'),
 (4, 'MIDWEEK20', 'PERCENTAGE', 20.00, '2026-01-01 00:00:00', '2026-12-31 23:59:59', 200, 10, TRUE, 'Giảm 20% đặt phòng từ thứ 2 đến thứ 5.'),
+
 (5, 'AUTUMNRETREAT', 'PERCENTAGE', 12.00, '2026-09-01 00:00:00', '2026-11-30 23:59:59', 500, 0, TRUE, 'Giảm giá 12% chăm sóc sức khoẻ mùa thu.'),
+
 (6, 'HONEYMOON', 'FIXED_AMOUNT', 500000.00, '2026-01-01 00:00:00', '2026-12-31 23:59:59', 100, 2, TRUE, 'Gói trăng mật ngọt ngào giảm ngay 500k.'),
 (7, 'FESTIVE15', 'PERCENTAGE', 15.00, '2026-12-20 00:00:00', '2027-01-05 23:59:59', 1000, 0, TRUE, 'Chào đón giáng sinh và năm mới.'),
 (8, 'VOUCHER100K', 'FIXED_AMOUNT', 100000.00, '2026-01-01 00:00:00', '2026-12-31 23:59:59', 10000, 300, TRUE, 'Voucher 100k cho khách hàng thân thiết.'),
 (9, 'EARLYBIRD', 'PERCENTAGE', 8.00, '2026-01-01 00:00:00', '2026-12-31 23:59:59', 2000, 50, TRUE, 'Đặt trước 30 ngày hưởng ngay ưu đãi 8%.');
-
 -- ── 12. Bookings (20 rows) ───────────────────────────────────
+
 INSERT INTO Bookings (booking_id, customer_id, booking_date, total_price, booking_status, booking_source, applied_promotion_id, version) VALUES
 (1, 1, '2026-06-01', 5000000, 'Confirmed', 'Direct_Web', 1, 1),
 (2, 2, '2026-06-02', 7000000, 'Confirmed', 'Direct_Web', NULL, 1),
@@ -391,12 +409,16 @@ INSERT INTO Table_Reservations (reservation_id, customer_id, table_id, reserve_d
 
 -- ── 18. Menu Items (34 rows) ─────────────────────────────────
 INSERT INTO Menu_Items (item_id, item_name, price, category, is_available, description, image_url, allergy_tags, is_always_available) VALUES 
+
 (1, 'Súp Bí Đỏ Kem Tươi Truffle', 180000, 'Khai vị', TRUE, 'Súp bí đỏ béo ngậy kết hợp kem tươi và dầu truffle nguyên chất.', 'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=500&q=80', 'Sữa', FALSE),
+
 (2, 'Gỏi Cuốn Tôm Thịt', 95000, 'Khai vị', TRUE, 'Gỏi cuốn tôm thịt tươi ngon kèm rau sống và tương đậu phộng.', 'https://www.cet.edu.vn/wp-content/uploads/2018/11/goi-cuon-tom-thit.jpg', 'Đậu phộng, Hải sản', FALSE),
 (3, 'Chả Giò Hải Sản', 110000, 'Khai vị', TRUE, 'Chả giò chiên giòn nhân hải sản tươi sống.', 'https://cdn.tgdd.vn/2022/01/CookDish/2-cach-lam-cha-gio-hai-san-don-gian-gion-thom-beo-ngay-ai-avt-1200x676.jpg', 'Hải sản', FALSE),
 (4, 'Salad Cá Hồi Xông Khói', 150000, 'Khai vị', TRUE, 'Salad rau xanh tươi mát kết hợp cá hồi xông khói nhập khẩu.', 'https://file.hstatic.net/200000356095/file/salad_ca_hoi__xong_khoi__3__59eaf296ddc644849699579b210c7855.jpg', 'Hải sản', FALSE),
 (5, 'Súp Hải Sản Măng Tây', 130000, 'Khai vị', TRUE, 'Súp hải sản nấu cùng măng tây tươi ngon ngọt.', 'https://cdn.tgdd.vn/Files/2020/10/09/1297483/tro-tai-voi-mon-sup-tom-mang-tay-vi-lau-thai-vua-la-vua-quen-ai-an-cung-tam-tac-khen-202010091742198445.jpg', 'Hải sản', FALSE),
+
 (6, 'Bánh Mì Bơ Tỏi', 65000, 'Khai vị', TRUE, 'Bánh mì Pháp nướng giòn phết bơ tỏi thơm lừng.', 'https://www.lorca.vn/wp-content/uploads/2021/10/Cach-lam-mong-banh-mi-bo-toi-phomai-bang-lo-nuong.jpg', 'Gluten, Sữa', FALSE),
+
 (7, 'Nem Chua Rán', 75000, 'Khai vị', TRUE, 'Nem chua rán giòn rụm chấm tương ớt.', 'https://trumfood.vn/wp-content/uploads/2022/09/trumfood_decor00865.jpg', NULL, FALSE),
 (8, 'Hoành Thánh Chiên Giòn', 85000, 'Khai vị', TRUE, 'Hoành thánh chiên giòn nhân tôm thịt.', 'https://cdn.tgdd.vn/2020/09/CookProduct/Untitled-2-1200x676-1.jpg', 'Gluten, Hải sản', FALSE),
 (9, 'Bò Bít Tết Wagyu Kèm Sốt Tiêu Xanh', 850000, 'Món chính', TRUE, 'Bò Wagyu Nhật Bản áp chảo sốt tiêu xanh, kèm rau củ nướng.', 'https://live.staticflickr.com/65535/50489573886_fa160b7292_b.jpg', NULL, FALSE),
@@ -417,7 +439,9 @@ INSERT INTO Menu_Items (item_id, item_name, price, category, is_available, descr
 (24, 'Bánh Flan Caramel', 45000, 'Tráng miệng', TRUE, 'Bánh flan caramel mềm mịn, thơm ngon.', 'https://img.freepik.com/premium-photo/cream-caramel-pudding_599862-23796.jpg', 'Trứng, Sữa', FALSE),
 (25, 'Panna Cotta Dâu Tây', 75000, 'Tráng miệng', TRUE, 'Panna cotta Ý sốt dâu tây tươi mát.', 'https://bloganchoi.com/wp-content/uploads/2022/06/cach-lam-panna-cotta.jpg', 'Sữa', FALSE),
 (26, 'Trái Cây Thập Cẩm', 110000, 'Tráng miệng', TRUE, 'Đĩa trái cây tươi thập cẩm theo mùa.', 'https://bolcereales.com.ar/wp-content/uploads/2021/01/alimentos-con-cobre-frutas.jpeg', NULL, FALSE),
+
 (27, 'Bánh Mousse Chocolate', 90000, 'Tráng miệng', TRUE, 'Bánh mousse chocolate Bỉ mịn màng, đắng nhẹ.', 'https://i.ytimg.com/vi/pESVrDm6yIM/maxresdefault.jpg', 'Sữa, Trứng', FALSE),
+
 (28, 'Nước Cam Tươi Ép Lạnh', 95000, 'Đồ uống', TRUE, 'Nước cam tươi nguyên chất ép lạnh.', 'https://www.sieuthidonglanh.com/wp-content/uploads/2023/03/Nuoc-ep-cam-giup-chong-lao-hoa-da-hieu-qua.png', NULL, TRUE),
 (29, 'Cà Phê Phin Việt Nam', 55000, 'Đồ uống', TRUE, 'Cà phê phin Việt Nam đậm đà truyền thống.', 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=500&q=80', NULL, TRUE),
 (30, 'Trà Đào Cam Sả', 65000, 'Đồ uống', TRUE, 'Trà đào cam sả tươi mát giải nhiệt.', 'https://img.meta.com.vn/Data/image/2021/05/20/tra-dao-cam-sa-2.jpg', NULL, TRUE),
@@ -515,7 +539,9 @@ INSERT INTO Hotel_Services (service_id, service_name, base_price, source_departm
 (3, 'Giặt sấy quần áo lấy nhanh', 150000, 'LAUNDRY', TRUE, 'Giặt hấp sấy khô quần áo giao trả trong 4 giờ.'),
 (4, 'Decor phòng tân hôn lãng mạn', 500000, 'FLORIST', TRUE, 'Trang trí phòng bằng hoa tươi hồng đỏ và nến thơm nồng nàn.'),
 (5, 'Thuê xe máy tay ga tự lái', 200000, 'TRANSPORTATION', TRUE, 'Thuê xe ga Honda Vision 110cc tự lái khám phá đảo ngọc.'),
+
 (8, 'Giặt khô đồ vest/đầm dạ hội', 250000, 'LAUNDRY', TRUE, 'Giặt khô là hơi đồ vest và váy cưới cao cấp.'),
+
 (9, 'Bó hoa tươi chúc mừng sinh nhật', 600000, 'FLORIST', TRUE, 'Bó hoa hướng dương kết hợp hoa hồng tươi rực rỡ.'),
 (10, 'Thuê xe ô tô 7 chỗ kèm tài xế', 1500000, 'TRANSPORTATION', TRUE, 'Thuê xe Toyota Fortuner đi tham quan đảo trọn ngày.');
 
@@ -535,6 +561,7 @@ INSERT INTO Booking_Services (booking_service_id, booking_id, service_id, quanti
 -- ── 23. Hotel Operations (10 rows) ───────────────────────────
 INSERT INTO Hotel_Operations (task_id, room_id, staff_id, supervisor_id, operational_type, priority, status, created_at, started_at, completed_at, notes) VALUES 
 -- HOUSEKEEPING (CHECKOUT_CLEAN)
+
 (1, 2, 8, 4, 'CHECKOUT_CLEAN', 'High', 'Pending', '2026-06-28 08:00:00', NULL, NULL, '[Check-out] Khách phòng 102 vừa trả phòng, dọn gấp để đón đoàn 2h chiều.'),
 (2, 4, 9, 4, 'CHECKOUT_CLEAN', 'Normal', 'Pending', '2026-06-28 09:00:00', NULL, NULL, '[Check-out] Dọn dẹp sạch sâu, thay toàn bộ ga giường và xịt thơm phòng.'),
 (3, 8, 8, 4, 'CHECKOUT_CLEAN', 'Normal', 'InProgress', '2026-06-28 09:30:00', '2026-06-28 10:15:00', NULL, '[Stay-over] Khách yêu cầu thêm 2 khăn tắm và 1 chai nước suối.'),
@@ -543,6 +570,7 @@ INSERT INTO Hotel_Operations (task_id, room_id, staff_id, supervisor_id, operati
 
 -- MAINTENANCE (MAINTENANCE)
 (6, 17, 10, 4, 'MAINTENANCE', 'High', 'Pending', '2026-06-28 10:30:00', NULL, NULL, 'Housekeeping báo: Điều hòa chảy nước ướt cả sàn gỗ, phòng 310.'),
+
 (7, 3, 10, 4, 'MAINTENANCE', 'Normal', 'Pending', '2026-06-28 12:00:00', NULL, NULL, 'Khách phàn nàn: Vòi hoa sen bị nghẹt, nước chảy rất yếu.'),
 (8, 5, 10, 4, 'MAINTENANCE', 'Normal', 'InProgress', '2026-06-28 13:00:00', '2026-06-28 13:15:00', NULL, 'Kiểm tra hệ thống đèn ban công, 1 bóng bị cháy.'),
 (9, 10, 10, 4, 'MAINTENANCE', 'High', 'Paused', '2026-06-28 09:00:00', '2026-06-28 09:10:00', NULL, 'Sửa két sắt không mở được. \n[Tạm dừng]: Chờ mua pin mới loại 9V để thay mảng mạch.'),
@@ -586,6 +614,7 @@ INSERT INTO Payment_Transactions (transaction_id, invoice_id, booking_id, amount
 
 -- ── 27. Tours (10 rows) ──────────────────────────────────────
 INSERT INTO Tours (tour_id, tour_name, tour_type, duration, base_price, max_capacity, short_quote, description, created_at, is_active) VALUES 
+
 (1, 'Đoàn tụ - Huế', 'doantu', '7 Giờ', 50000, 20, 'Tìm về hơi ấm vẹn nguyên của lòng biết ơn và sự gắn kết.', 'Hành trình di sản cố đô Huế trải nghiệm văn hoá ẩm thực cung đình Huế.', CURRENT_TIMESTAMP, TRUE),
 (2, 'Tinh túy đồng nội - Quảng Nam', 'dongnoi', '7 Giờ', 70000, 15, 'Lắng nghe nhịp điệu mộc mạc của đất mẹ và hồn quê xứ Quảng.', 'Tham quan phố cổ Hội An, làng rau Trà Quế và làng gốm Thanh Hà.', CURRENT_TIMESTAMP, TRUE),
 (3, 'Di sản thủ công - Ninh Bình', 'disan', '7 Giờ', 50000, 15, 'Chạm vào hồn cốt của thời gian qua những tạo tác từ đôi bàn tay nghệ nhân.', 'Khám phá đầm Vân Long và làng nghề thêu ren truyền thống Văn Lâm.', CURRENT_TIMESTAMP, TRUE),
@@ -596,6 +625,7 @@ INSERT INTO Tours (tour_id, tour_name, tour_type, duration, base_price, max_capa
 (8, 'Bình minh cồn cát - Mũi Né', 'Half-Day', '5 Giờ', 9000, 15, 'Trượt cát đón mặt trời mọc rực rỡ.', 'Khám phá Đồi Cát Trắng, Đồi Cát Đỏ Mũi Né bằng xe địa hình ATV.', CURRENT_TIMESTAMP, TRUE),
 (9, 'Sóng hát san hô - Phú Quốc', 'Half-Day', '6 Giờ', 14000, 25, 'Hoà mình vào làn nước xanh lục bảo óng ánh.', 'Lặn cano 4 đảo ngắm san hô thiên nhiên rực rỡ Phú Quốc.', CURRENT_TIMESTAMP, TRUE),
 (10, 'Hương sắc miệt vườn - Cần Thơ', 'Half-Day', '5 Giờ', 8000, 20, 'Ngọt lịm trái chín trĩu cành miền Tây sông nước.', 'Đi chợ nổi Cái Răng thưởng thức bữa sáng trên ghe thuyền mộc mạc.', CURRENT_TIMESTAMP, TRUE);
+
 
 -- ── 28. Tour Images (10 rows) ────────────────────────────────
 INSERT INTO Tour_Images (image_id, tour_id, image_url, is_primary) VALUES 
@@ -615,7 +645,9 @@ INSERT INTO Tour_Locations (location_id, location_name, latitude, longitude, des
 (1, 'Đại Nội Huế', 16.4678, 107.5789, 'Hoàng cung triều Nguyễn cổ kính, uy nghiêm.', TRUE),
 (2, 'Phố cổ Hội An', 15.8801, 108.3380, 'Di sản văn hoá thế giới thương cảng đèn lồng rực rỡ.', TRUE),
 (3, 'Đầm Vân Long', 20.3621, 105.9087, 'Khu bảo tồn thiên nhiên ngập nước lớn nhất vịnh Bắc Bộ.', TRUE),
+
 (4, 'Đồng Tháp Mười', 10.4500, 105.7000, 'Xứ sở sen hồng ngào ngạt ngút ngàn tầm mắt.', TRUE),
+
 (5, 'Đảo Ti Tốp Hạ Long', 20.8654, 107.0812, 'Bãi tắm cát trắng tuyệt đẹp tựa lưng vách đá.', TRUE),
 (6, 'Bản Cát Cát Sapa', 22.3289, 103.8415, 'Bản làng mộc mạc bên thác nước mát rượi.', TRUE),
 (7, 'Bàu Sấu Cát Tiên', 11.4589, 107.3654, 'Vùng đầm lầy bảo tồn cá sấu tự nhiên quý hiếm.', TRUE),
@@ -626,6 +658,7 @@ INSERT INTO Tour_Locations (location_id, location_name, latitude, longitude, des
 -- ── 30. Tour Itineraries (10 rows) ───────────────────────────
 INSERT INTO Tour_Itineraries (itinerary_id, tour_id, day_number, day_title, summary) VALUES 
 (1, 1, 1, 'Hành trình Cố đô', 'Khám phá Đại Nội Huế và lăng tẩm hoàng cung triều Nguyễn.'),
+
 (2, 2, 1, 'Hồn Quê Xứ Quảng', 'Tham quan Hội An cổ kính và trải nghiệm cày cấy làng Trà Quế.'),
 (3, 3, 1, 'Hồn Đất Văn Lâm', 'Đi thuyền Vân Long ngắm cảnh sơn thuỷ và xem dệt thêu thủ công.'),
 (4, 4, 1, 'Thiền Giữa Hương Sen', 'Ngắm sen nở mờ sương và tập yoga thiền trên sông nước.'),
@@ -633,6 +666,7 @@ INSERT INTO Tour_Itineraries (itinerary_id, tour_id, day_number, day_title, summ
 (6, 6, 1, 'Sapa Mây Mù', 'Thăm bản H’mông cổ xưa, tìm hiểu nghệ thuật nhuộm chàm.'),
 (7, 7, 1, 'Khám Phá Rừng Xanh', 'Đi bộ xuyên rừng ngắm bằng lăng cổ thụ kì vĩ.'),
 (8, 8, 1, 'Cát Vàng Mũi Né', 'Ngắm bình minh cồn cát trắng, tham quan Suối Tiên.'),
+
 (9, 9, 1, 'Đại Dương Phú Quốc', 'Lặn cano 4 đảo nhỏ hoang sơ hoà vào san hô rực rỡ.'),
 (10, 10, 1, 'Sông Nước Cần Thơ', 'Ăn sáng hủ tiếu chợ nổi Cái Răng sôi động.');
 
@@ -642,11 +676,13 @@ INSERT INTO Tour_Itinerary_Details (detail_id, itinerary_id, start_time, end_tim
 (2, 2, '09:00:00', '12:00:00', 2, 'Dạo bước phố cổ', 'Thăm Chùa Cầu, hội quán Quảng Đông lấp lánh đèn lồng.', 'Lunch'),
 (3, 3, '14:00:00', '17:00:00', 3, 'Du thuyền Vân Long', 'Đi thuyền nan ngắm đàn voọc quần đùi trắng chuyền cành vách đá.', NULL),
 (4, 4, '06:00:00', '08:30:00', 4, 'Thiền hành đón nắng', 'Tập yoga tĩnh tâm trên nhà chòi gỗ giữa đầm sen lộng gió.', 'Breakfast'),
+
 (5, 5, '08:30:00', '11:30:00', 5, 'Khám phá hang động', 'Tham quan động Thiên Cung hoành tráng thạch nhũ kì vĩ.', NULL),
 (6, 6, '09:00:00', '12:00:00', 6, 'Thăm bản Cát Cát', 'Đi bộ ngắm cối xay nước khổng lồ và check-in thác Tiên Sa.', 'Lunch'),
 (7, 7, '08:00:00', '15:00:00', 7, 'Trekking Bàu Sấu', 'Đi bộ 5km xuyên rừng rậm Nam Cát Tiên đến đầm lầy bảo tồn.', 'Lunch'),
 (8, 8, '05:30:00', '08:30:00', 8, 'Đón bình minh cồn cát', 'Trượt cát đồi cát trắng bằng máng trượt và mô tô ATV chạy địa hình.', NULL),
 (9, 9, '09:00:00', '15:00:00', 9, 'Lặn ngắm san hô', 'Tắm biển Hòn Thơm lặn biển ống thở ngắm rạn san hô tự nhiên đẹp nhất Phú Quốc.', 'Lunch'),
+
 (10, 10, '06:00:00', '08:30:00', 10, 'Chợ nổi Cái Răng', 'Lên thuyền ngắm chợ nổi nhộn nhịp, ăn hủ tiếu nóng hổi chòng chành trên sông.', 'Breakfast');
 
 -- ── 32. Tour Prices (10 rows) ────────────────────────────────
@@ -691,6 +727,7 @@ INSERT INTO Tour_Staff_Assignments (assignment_id, schedule_id, employee_id, sta
 -- ── 35. Run Itinerary Status (10 rows) ───────────────────────
 INSERT INTO Run_Itinerary_Status (run_status_id, schedule_id, detail_id, actual_start_time, actual_end_time, current_stage_status, guide_notes) VALUES 
 (1, 5, 2, '2026-06-13 09:05:00', '2026-06-13 12:10:00', 'COMPLETED', 'Lượng xe cộ Hội An đông, đoàn di chuyển chậm 5 phút.'),
+
 (2, 1, 1, NULL, NULL, 'NOT_STARTED', NULL),
 (3, 2, 2, NULL, NULL, 'NOT_STARTED', NULL),
 (4, 3, 3, NULL, NULL, 'NOT_STARTED', NULL),
@@ -744,6 +781,7 @@ INSERT INTO Checkpoint_Attendance (checkpoint_id, schedule_id, attendee_id, deta
 INSERT INTO Reviews (review_id, customer_id, room_booking_detail_id, tour_booking_id, rating_service, review_text, moderation_status, moderated_by, moderation_reason, created_at) VALUES 
 (1, 1, 1, NULL, 5, 'Phòng Nipa Villa tuyệt hảo, mát mẻ, nhân viên buồng dọn rất sạch.', 'Approved', 4, 'Đánh giá tích cực hợp lệ', CURRENT_TIMESTAMP),
 (2, 2, 2, NULL, 4, 'Phòng River Villa đẹp, view sông thơ mộng, đồ ăn room service hơi chậm.', 'Approved', 4, 'Đánh giá xây dựng hợp lệ', CURRENT_TIMESTAMP),
+
 (3, 3, 3, NULL, 5, 'Khóa tu Wellness Retreats giúp tôi tịnh tâm, phục hồi sức khoẻ rất nhiều.', 'Approved', 4, 'Đánh giá tốt chất lượng cao', CURRENT_TIMESTAMP),
 (4, 4, 4, NULL, 4, 'Phòng 104 sạch sẽ, bồn tắm rộng rãi, decor buồng cưới rất tỉ mỉ.', 'Approved', 4, 'Đánh giá tốt', CURRENT_TIMESTAMP),
 (5, 5, 5, NULL, 5, 'Rất hài lòng với kỳ nghỉ tại resort, bãi cỏ xanh ngát, đồ ăn buffet ngon.', 'Approved', 4, 'Đánh giá tốt', CURRENT_TIMESTAMP),
@@ -881,9 +919,11 @@ ALTER TABLE Tours AUTO_INCREMENT = 100;
 ALTER TABLE Tour_Schedules AUTO_INCREMENT = 100;
 ALTER TABLE Tour_Attendees AUTO_INCREMENT = 100;
 
+
 -- ── 48b. Tour Bookings seed — TourBooking liên kết với RoomBooking nhưng CHƯA phân phòng ──────
 -- Các bản ghi này có room_booking_id != NULL nhưng room_booking_detail_id = NULL
 -- → lễ tân sẽ thấy và phân bổ tour vào phòng cụ thể khi check-in
+
 
 -- Booking gốc cho TourBooking (kiểu cha Bookings)
 INSERT IGNORE INTO Bookings (booking_id, customer_id, booking_date, total_price, booking_status, booking_source, applied_promotion_id, version) VALUES
@@ -900,6 +940,7 @@ INSERT IGNORE INTO Tour_Bookings (booking_id, schedule_id, participant_count, to
 
 ALTER TABLE Tour_Bookings AUTO_INCREMENT = 300;
 
+
 -- ── 49. Export History (Mock Data) ───────────────────────────
 
 INSERT IGNORE INTO Export_History (id, report_name, format, exported_at, exported_by, file_size) VALUES
@@ -907,6 +948,7 @@ INSERT IGNORE INTO Export_History (id, report_name, format, exported_at, exporte
 (2, 'Tỷ lệ lấp đầy Q2', 'PDF', '2026-05-30 14:30:00', 'Manager ', '1.1 MB'),
 (3, 'Báo cáo tour tháng 4', 'CSV', '2026-05-02 10:00:00', 'Manager ', '320 KB'),
 (4, 'Doanh thu năm 2025', 'Excel', '2026-01-15 08:45:00', 'Manager ', '5.8 MB');
+
 
 -- ── 50. Mock Data for YoY Comparison (Năm 2025) ───────────────────────────
 INSERT INTO Bookings (booking_id, customer_id, booking_date, total_price, booking_status, booking_source, applied_promotion_id, version) VALUES
@@ -921,6 +963,7 @@ INSERT INTO Room_Booking_Details (detail_id, room_booking_id, category_id, room_
 
 INSERT INTO Tour_Bookings (booking_id, schedule_id, participant_count, tour_charge, is_walk_in_tour) VALUES 
 (992, 1, 4, 45000000, FALSE);
+
 
 -- Self-healing database name update for customer Ngọc Thị (formerly Lê Quang)
 UPDATE Customers SET full_name = 'Ngọc Thị', gender = 'Nữ' WHERE customer_id = 5;
@@ -942,7 +985,9 @@ INSERT IGNORE INTO Customers (customer_id, account_id, full_name, email, phone, 
 (501, 501, 'VIP Nguyễn Văn A', 'vipa@example.com', '0999888771', 'Nam', '001099000501', 52000, 4),
 (502, 502, 'Normal Trần B', 'normalb@example.com', '0999888772', 'Nữ', '001099000502', 95, 1),
 (503, 503, 'Newbie Lê C', 'newbiec@example.com', '0999888773', 'Nam', '001099000503', 0, 1),
+
 (504, 504, 'Banned Phạm D', 'bannedd@example.com', '0999888774', 'Nữ', '001099000504', 0, 1);
+
 
 INSERT IGNORE INTO Dependents (dependent_id, customer_id, full_name, date_of_birth, relationship, face_vector_data, face_image_url) VALUES 
 (501, 501, 'Wife Nguyễn Thị B', '1995-08-15', 'Vợ', NULL, NULL),
@@ -969,7 +1014,9 @@ INSERT IGNORE INTO Bookings (booking_id, customer_id, booking_date, total_price,
 (499, 501, '2025-12-01', 52000000, 'Checked_Out', 'Direct_Web', NULL, 1);
 INSERT IGNORE INTO Room_Bookings (room_booking_id, check_in_date, check_out_date, deposit_amount, cancellation_deadline, credit_limit, personal_pin_hash) VALUES
 (499, '2025-12-20', '2025-12-25', 10000000, '2025-12-15', 20000000, 'hash');
+
 INSERT IGNORE INTO Room_Booking_Details (detail_id, room_booking_id, category_id, room_id, room_charge, detail_status, bed_preference, special_requests, is_charge_to_room_allowed, sub_credit_limit, billing_routing_strategy, customer_id) VALUES
+
 (499, 499, 5, 15, 52000000, 'Checked_Out', 'KING_SIZE', 'Tuần trăng mật', TRUE, 5000000, 'BILL_TO_LEADER', 501);
 
 -- Normal Customer has 95 pts (95,000 VND).
@@ -990,7 +1037,9 @@ INSERT IGNORE INTO Bookings (booking_id, customer_id, booking_date, total_price,
 (501, 501, '2026-06-25', 10500000, 'Checked_In', 'Direct_Web', NULL, 1);
 INSERT IGNORE INTO Room_Bookings (room_booking_id, check_in_date, check_out_date, deposit_amount, cancellation_deadline, credit_limit, personal_pin_hash) VALUES
 (501, '2026-06-28', '2026-07-02', 2000000, '2026-06-25', 10000000, 'hash');
+
 INSERT IGNORE INTO Room_Booking_Details (detail_id, room_booking_id, category_id, room_id, room_charge, detail_status, bed_preference, special_requests, is_charge_to_room_allowed, sub_credit_limit, billing_routing_strategy, customer_id) VALUES
+
 (501, 501, 3, 501, 10500000, 'Checked_In', 'KING_SIZE', 'Gần thang máy', TRUE, 5000000, 'BILL_TO_LEADER', 501);
 UPDATE Rooms SET current_booking_detail_id = 501, room_status = 'Occupied' WHERE room_id = 501;
 
@@ -1017,10 +1066,12 @@ INSERT IGNORE INTO Room_Booking_Details (detail_id, room_booking_id, category_id
 -- F&B Orders (Lifecycles)
 INSERT IGNORE INTO Food_Orders (order_id, booking_id, guest_id, staff_id, order_type, table_number, total_amount, order_status, payment_status, notes) VALUES
 (501, 501, 501, 2, 'ROOM_SERVICE', 'RM801', 415000, 'PENDING', 'UNPAID', 'Phòng 801 VIP'),
+
 (502, 501, 501, 3, 'DINE_IN', 'T05', 500000, 'COOKING', 'UNPAID', 'Ít đá'),
 (503, 501, 501, 2, 'DINE_IN', 'T06', 85000, 'SERVED', 'UNPAID', 'Charge to room'),
 (504, NULL, NULL, 3, 'DINE_IN', 'T07', 700000, 'PAID', 'PAID', 'Khách vãng lai'),
 (505, NULL, NULL, 2, 'DINE_IN', 'T08', 0, 'CANCELLED', 'UNPAID', 'Khách đổi ý');
+
 
 INSERT IGNORE INTO Food_Order_Details (detail_id, order_id, item_id, quantity, unit_price, subtotal) VALUES
 (501, 501, 2, 1, 350000, 350000),
@@ -1034,6 +1085,7 @@ INSERT IGNORE INTO Food_Order_Details (detail_id, order_id, item_id, quantity, u
 INSERT IGNORE INTO Folio_Items (folio_item_id, booking_id, room_booking_detail_id, payer_customer_id, source_department, amount, description, is_settled_separately, created_by_staff_id, created_at) VALUES 
 (501, 501, 501, 501, 'LAUNDRY', 150000, 'Giặt ủi VIP', FALSE, 4, CURRENT_TIMESTAMP),
 (502, 501, 501, 501, 'FNB', 85000, 'Order Nhà hàng T06 (SERVED)', FALSE, 2, CURRENT_TIMESTAMP);
+
 -- ============================================================
 -- APPENDED NEW BOOKINGS FOR MULTIPLE ROOM TESTING
 -- ============================================================
@@ -1065,6 +1117,7 @@ INSERT INTO Bookings (booking_id, customer_id, booking_date, total_price, bookin
 
 INSERT INTO Room_Bookings (room_booking_id, check_in_date, check_out_date, deposit_amount, cancellation_deadline, credit_limit, personal_pin_hash) VALUES
 (103, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 2 DAY), 2000000, DATE_SUB(CURDATE(), INTERVAL 1 DAY), 10000000, 'hash103');
+
 
 -- ============================================================
 -- DATA TEST NGHIỆP VỤ MANAGER APPROVALS & REFUNDS
@@ -1101,3 +1154,4 @@ INSERT INTO Room_Guests (guest_id, detail_id, customer_id, dependent_id, guest_t
 (10311, 1031, 1, NULL, 'ADULT', TRUE),
 (10312, 1031, NULL, 1, 'CHILD', FALSE), -- Lê Hoàng Minh
 (10321, 1032, NULL, 2, 'CHILD', FALSE); -- Lê Thị Hồng
+

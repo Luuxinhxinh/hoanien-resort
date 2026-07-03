@@ -139,12 +139,15 @@ public class ReceptionistController {
         return "receptionist/walk-in";
     }
 
+    private static final org.slf4j.Logger checkinLog = org.slf4j.LoggerFactory.getLogger(ReceptionistController.class);
+
     @GetMapping("/check-in")
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER', 'OP_RECEPTION_CHECKIN')")
     public String checkIn(@org.springframework.web.bind.annotation.RequestParam(defaultValue = "1") int page,
             @org.springframework.web.bind.annotation.RequestParam(required = false) String keyword,
             @org.springframework.web.bind.annotation.RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate dateFilter,
             Model model) {
+        try {
         List<Booking> allConfirmed = bookingRepository.findConfirmed();
         List<Booking> filteredArrivals = new ArrayList<>();
 
@@ -206,8 +209,8 @@ public class ReceptionistController {
         List<Map<String, Object>> pagedArrivals = new ArrayList<>();
         for (Booking b : pagedPendingList) {
             List<RoomBookingDetail> details = roomBookingDetailRepository.findByRoomBookingId(b.getId());
-            if (details == null || details.isEmpty()) {
-                continue;
+            if (details == null) {
+                details = new ArrayList<>();
             }
 
             String guestName = b.getCustomer() != null ? b.getCustomer().getFullName() : "Khách";
@@ -232,6 +235,7 @@ public class ReceptionistController {
             map.put("phone", phone);
             map.put("cccd", cccd);
             map.put("birthDate", (b.getCustomer() != null && b.getCustomer().getBirthDate() != null) ? b.getCustomer().getBirthDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) : "");
+            map.put("gender", (b.getCustomer() != null && b.getCustomer().getGender() != null) ? b.getCustomer().getGender() : "Khác");
             map.put("bookingDate",
                     b.getBookingDate() != null
                             ? b.getBookingDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
@@ -269,9 +273,14 @@ public class ReceptionistController {
             int expectedAdults = details.stream().mapToInt(d -> d.getNumberOfAdults() != null ? d.getNumberOfAdults() : 0).sum();
             int expectedChildren = details.stream().mapToInt(d -> d.getNumberOfChildren() != null ? d.getNumberOfChildren() : 0).sum();
             
+            int maxAdults = details.stream().mapToInt(d -> (d.getCategory() != null && d.getCategory().getMaxAdults() != null) ? d.getCategory().getMaxAdults() : (d.getCategory() != null ? d.getCategory().getCapacity() : 2)).sum();
+            int maxChildren = details.stream().mapToInt(d -> (d.getCategory() != null && d.getCategory().getMaxChildren() != null) ? d.getCategory().getMaxChildren() : 2).sum();
+
             map.put("expectedAdults", expectedAdults);
             map.put("expectedChildren", expectedChildren);
             map.put("expectedGuests", expectedAdults + expectedChildren);
+            map.put("maxAdults", maxAdults);
+            map.put("maxChildren", maxChildren);
 
             map.put("activeDetails", details.stream()
                     .filter(d -> d.getRoom() != null && "CHECKED_IN".equalsIgnoreCase(d.getDetailStatus()))
@@ -320,6 +329,28 @@ public class ReceptionistController {
         model.addAttribute("roomInventory", inventory);
 
         return "receptionist/check-in";
+        } catch (Exception e) {
+            checkinLog.error("❌ LỖI khi tải trang Check-in. Class: {}, Message: {}", e.getClass().getName(), e.getMessage(), e);
+            // Hiển thị lỗi trực tiếp trên trang thay vì Whitelabel Error Page
+            StringBuilder sb = new StringBuilder();
+            sb.append("[").append(e.getClass().getSimpleName()).append("] ").append(e.getMessage()).append("\n\n--- Stack Trace ---\n");
+            for (StackTraceElement el : e.getStackTrace()) {
+                sb.append(el.toString()).append("\n");
+                if (el.getClassName().startsWith("com.kawai")) {
+                    // Chỉ in thêm vài dòng sau dòng code của project
+                    break;
+                }
+            }
+            model.addAttribute("errorMessage", sb.toString());
+            model.addAttribute("arrivals", new java.util.ArrayList<>());
+            model.addAttribute("pendingArrivalsCount", 0);
+            model.addAttribute("currentPage", 1);
+            model.addAttribute("totalPages", 1);
+            model.addAttribute("keyword", keyword);
+            model.addAttribute("vacantRooms", new java.util.ArrayList<>());
+            model.addAttribute("roomInventory", new java.util.HashMap<>());
+            return "receptionist/check-in";
+        }
     }
 
     /**
@@ -590,8 +621,9 @@ public class ReceptionistController {
         List<Map<String, Object>> pagedInHouse = new ArrayList<>();
         for (Booking b : pagedInHouseBookings) {
             List<RoomBookingDetail> details = roomBookingDetailRepository.findByRoomBookingId(b.getId());
-            if (details == null || details.isEmpty())
-                continue;
+            if (details == null) {
+                details = new ArrayList<>();
+            }
 
             String guestName = b.getCustomer() != null ? b.getCustomer().getFullName() : "Unknown";
 
@@ -681,8 +713,9 @@ public class ReceptionistController {
         List<Map<String, Object>> mappedCancelled = new ArrayList<>();
         for (Booking b : allCancelled) {
             List<RoomBookingDetail> details = roomBookingDetailRepository.findByRoomBookingId(b.getId());
-            if (details == null || details.isEmpty())
-                continue;
+            if (details == null) {
+                details = new ArrayList<>();
+            }
             String guestName = b.getCustomer() != null ? b.getCustomer().getFullName() : "Unknown";
 
             Map<String, Object> map = new HashMap<>();
@@ -843,5 +876,19 @@ public class ReceptionistController {
                 .findFirst()
                 .map(Employee::getId)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy nhân viên để ghi nhận thao tác."));
+    }
+
+    @GetMapping("/api/notifications/cleaned-rooms")
+    @ResponseBody
+    public org.springframework.http.ResponseEntity<List<Map<String, String>>> getCleanedRoomsPendingHandover() {
+        List<Object[]> results = roomBookingDetailRepository.findCleanedRoomsPendingHandover();
+        List<Map<String, String>> response = new ArrayList<>();
+        for (Object[] row : results) {
+            Map<String, String> map = new HashMap<>();
+            map.put("roomNumber", row[0] != null ? row[0].toString() : "");
+            map.put("customerName", row[1] != null ? row[1].toString() : "Khách hàng");
+            response.add(map);
+        }
+        return org.springframework.http.ResponseEntity.ok(response);
     }
 }

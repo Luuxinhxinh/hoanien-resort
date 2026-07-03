@@ -33,12 +33,14 @@ public class ChangeRoomCategoryServiceImpl implements ChangeRoomCategoryService 
         RoomCategory newCategory = newRoom.getCategory();
         validatePricing(newCategory);
 
-        BigDecimal newRate = newCategory.getBasePrice();
-        BigDecimal oldRate = detail.getRoomCharge() != null ? detail.getRoomCharge() : BigDecimal.ZERO;
+        BigDecimal newRate = newCategory.getBasePrice() != null ? newCategory.getBasePrice() : BigDecimal.ZERO;
+        BigDecimal oldRate = detail.getCategory() != null && detail.getCategory().getBasePrice() != null 
+                ? detail.getCategory().getBasePrice() 
+                : (detail.getRoomCharge() != null ? detail.getRoomCharge() : BigDecimal.ZERO);
 
         Room oldRoom = detail.getRoom();
         updateRoomStatuses(oldRoom, newRoom, detail.getId());
-        updateAndSaveBookingDetail(detail, newRoom, newCategory, newRate);
+        updateAndSaveBookingDetail(detail, newRoom, newCategory);
 
         Long folioItemId = handleSurchargeFolioItem(detail, newRate, oldRate, oldRoom, newCategory);
         createAuditLog(request.getReceptionistAccountId(), detail.getId(), oldRoom, newRoom, newCategory);
@@ -94,10 +96,9 @@ public class ChangeRoomCategoryServiceImpl implements ChangeRoomCategoryService 
         roomRepository.save(newRoom);
     }
 
-    private void updateAndSaveBookingDetail(RoomBookingDetail detail, Room newRoom, RoomCategory newCategory, BigDecimal newRate) {
+    private void updateAndSaveBookingDetail(RoomBookingDetail detail, Room newRoom, RoomCategory newCategory) {
         detail.setRoom(newRoom);
         detail.setCategory(newCategory);
-        detail.setRoomCharge(newRate);
         try {
             roomBookingDetailRepository.save(detail);
         } catch (org.springframework.dao.DataAccessException e) {

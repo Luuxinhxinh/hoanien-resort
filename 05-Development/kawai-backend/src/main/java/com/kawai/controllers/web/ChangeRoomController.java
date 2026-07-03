@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 @Controller
 @RequestMapping("/receptionist/in-house")
 @RequiredArgsConstructor
-@PreAuthorize("hasAnyAuthority('OP_BOOKING', 'ROLE_ADMIN', 'ROLE_MANAGER')")
+@PreAuthorize("hasAnyAuthority('OP_BOOKING', 'ROLE_ADMIN', 'ROLE_MANAGER', 'OP_RECEPTION_INHOUSE')")
 public class ChangeRoomController {
 
     private final ChangeRoomCategoryService changeRoomCategoryService;
@@ -66,15 +66,21 @@ public class ChangeRoomController {
             List<Map<String, Object>> result = new ArrayList<>();
 
             for (RoomCategory cat : allCategories) {
-                long vacantCount = roomRepository.findByCategoryName(cat.getCategoryName()).stream()
-                        .filter(r -> "Vacant_Clean".equalsIgnoreCase(r.getRoomStatus()))
-                        .count();
+                long vacantCount = 0;
+                if (cat.getCategoryName() != null) {
+                    vacantCount = roomRepository.countVacantCleanRoomsByCategoryName(cat.getCategoryName());
+                }
 
                 Map<String, Object> catMap = new HashMap<>();
-                catMap.put("categoryName", cat.getCategoryName());
+                catMap.put("categoryName", cat.getCategoryName() != null ? cat.getCategoryName() : "Unknown");
                 catMap.put("basePrice", cat.getBasePrice());
                 catMap.put("vacantCount", vacantCount);
-                catMap.put("isCurrent", cat.getCategoryName().equals(finalCurrentCategoryName));
+                
+                boolean isCurrent = false;
+                if (cat.getCategoryName() != null && finalCurrentCategoryName != null) {
+                    isCurrent = cat.getCategoryName().equals(finalCurrentCategoryName);
+                }
+                catMap.put("isCurrent", isCurrent);
 
                 if (finalCurrentPrice != null && cat.getBasePrice() != null) {
                     catMap.put("priceDiff", cat.getBasePrice().subtract(finalCurrentPrice));
@@ -87,7 +93,11 @@ public class ChangeRoomController {
 
             return ResponseEntity.ok(result);
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(null);
+            e.printStackTrace(); 
+            Map<String, Object> errorMap = new HashMap<>();
+            errorMap.put("error", e.getMessage());
+            errorMap.put("trace", java.util.Arrays.toString(e.getStackTrace()));
+            return ResponseEntity.status(500).body(Collections.singletonList(errorMap));
         }
     }
 

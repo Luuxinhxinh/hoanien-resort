@@ -51,6 +51,9 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
         @Query("SELECT COUNT(r) FROM Room r WHERE r.category.categoryName = :categoryName AND r.roomStatus != 'Maintenance'")
         long countActiveRoomsByCategoryName(@Param("categoryName") String categoryName);
 
+        @Query("SELECT COUNT(r) FROM Room r WHERE r.category.categoryName = :categoryName AND r.roomStatus = 'Vacant_Clean'")
+        long countVacantCleanRoomsByCategoryName(@Param("categoryName") String categoryName);
+
         @Query("SELECT r FROM Room r JOIN RoomBookingDetail rbd ON r.currentBookingDetailId = rbd.id " +
                         "LEFT JOIN rbd.roomBooking rb " +
                         "LEFT JOIN rbd.customer rbdc " +
