@@ -120,6 +120,25 @@ Feature: F&B Order Management (UC-14)
 **TDD Phase:** 🟢 GREEN
 
 **Preconditions:**
+<<<<<<< HEAD
+* Bàn "T01" (capacity = 4) đang có trạng thái `AVAILABLE`.
+* Món "Phở bò" (giá 100,000 VND) đang có sẵn (`isAvailable = true`).
+* Request Body: `partySize = 2`, chọn bàn T01, thêm 2 bát Phở bò.
+* Thời gian hệ thống: 10:00 AM (trong giờ hoạt động nhà hàng).
+
+**Test Steps:**
+1. Khởi tạo mock `RestaurantTableRepository.findById(1L)` trả về bàn T01.
+2. Khởi tạo mock `MenuItemRepository.findById(10L)` trả về đối tượng MenuItem "Phở bò" (price = 100,000).
+3. Gọi hàm `posService.createOrder(requestDto)`.
+4. Dùng `ArgumentCaptor` để hứng đối tượng `FoodOrder` được truyền vào `foodOrderRepository.save()`.
+5. Kiểm tra trạng thái của bàn xem có được set thành `OCCUPIED` không (gọi `restaurantTableRepository.save()`).
+
+**Expected Result (PASS):**
+* `foodOrder.getOrderStatus()` bằng `PENDING`.
+* `foodOrder.getTotalAmount()` bằng `200,000` VND.
+* `foodOrder.getFoodOrderDetails().size()` bằng 2, và mỗi chi tiết đều có `kotStatus` = `PENDING`.
+* Bàn chuyển trạng thái thành `OCCUPIED`.
+=======
 * Bàn "T01" (capacity 4) đang có trạng thái "AVAILABLE".
 * Món "Phở bò" (giá 100,000 VND) đang có sẵn (`isAvailable = true`).
 * Request: partySize = 2.
@@ -141,6 +160,7 @@ Feature: F&B Order Management (UC-14)
 **Expected Result (FAIL):**
 * Đơn được tạo nhưng bàn không đổi trạng thái.
 * Tổng tiền tính sai do lấy sai giá từ DB.
+>>>>>>> 7414e299dc9443033140483710eb1236086b60de
 
 ---
 

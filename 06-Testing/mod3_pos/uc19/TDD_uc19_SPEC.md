@@ -61,7 +61,10 @@
 ## 3. Test Case Specification
 
 ### TC-UC19-001 — Hủy đơn Charge to Room thành công
+<<<<<<< HEAD
+=======
 
+>>>>>>> 7414e299dc9443033140483710eb1236086b60de
 **Severity:** CRITICAL
 **CWE:** N/A
 **Feature Under Test:** `PosServiceImpl.cancelOrder()`
@@ -69,6 +72,31 @@
 **TDD Phase:** 🟢 GREEN
 
 **Preconditions:**
+<<<<<<< HEAD
+* Bảng `Food_Orders` có bản ghi `ORD-001` đang ở trạng thái `PENDING`.
+* Cột `paymentType` của đơn hàng này là `CHARGE_TO_ROOM`.
+* Bảng `Folio_Items` có bản ghi `FL-100` liên kết trực tiếp với đơn `ORD-001` thông qua `source_id` hoặc mapping table, với số tiền 500,000 VND.
+
+**Test Steps:**
+1. Khởi tạo mock `FoodOrderRepository.findById(1L)` trả về `ORD-001`.
+2. Khởi tạo mock `FolioRepository.findByFoodOrderId(1L)` trả về `FL-100`.
+3. Khởi tạo mock `SimpMessagingTemplate` để theo dõi WebSocket event.
+4. Gọi method `posService.cancelOrder(1L, "Khách đổi ý")`.
+5. Sử dụng Mockito `verify()` để đảm bảo `folioRepository.delete(FL-100)` được gọi chính xác 1 lần.
+6. Sử dụng Mockito `verify()` để đảm bảo thông điệp hủy được bắn qua WebSocket vào topic `/topic/kds/orders`.
+
+**Expected Result (PASS):**
+* Hàm không quăng ngoại lệ.
+* `order.getOrderStatus()` bằng `CANCELLED`.
+* `folioItem` bị xóa (trả lại hạn mức).
+
+---
+
+### TC-UC19-002 — Hủy đơn VNPAY thành công (Yêu cầu Refund)
+**Severity:** HIGH
+**CWE:** N/A
+**Feature Under Test:** `PosServiceImpl.cancelOrder()` và `VnpayService` Integration
+=======
 * Đơn hàng `ORD-001` đang ở trạng thái `PENDING`.
 * Loại thanh toán là `CHARGE_TO_ROOM`.
 * `FolioItem` liên kết với đơn này đã được ghi vào hệ thống.
@@ -93,10 +121,33 @@
 **Severity:** HIGH
 **CWE:** N/A
 **Feature Under Test:** `Refund Integration`
+>>>>>>> 7414e299dc9443033140483710eb1236086b60de
 **Test File:** `src/test/java/com/kawai/services/PosServiceUC19Test.java`
 **TDD Phase:** 🟢 GREEN
 
 **Preconditions:**
+<<<<<<< HEAD
+* Đơn `ORD-002` (giá trị 1,000,000 VND) đã thanh toán qua VNPAY (`paymentType = VNPAY`, `isPaidInPos = true`).
+* Trạng thái đơn: `PENDING`.
+* Cổng thanh toán VNPAY mock server trả về `200 OK` cho Refund Request.
+
+**Test Steps:**
+1. Khởi tạo mock `FoodOrderRepository.findById(2L)` trả về `ORD-002`.
+2. Khởi tạo mock `VnpayService.processRefund(...)` trả về `RefundResponse(status=SUCCESS)`.
+3. Gọi method `posService.cancelOrder(2L, "Khách bận việc")`.
+4. Assert method `vnpayService.processRefund` được gọi với đúng tham số (`orderId=2, amount=1000000`).
+
+**Expected Result (PASS):**
+* `order.getOrderStatus()` bằng `CANCELLED`.
+* Refund Request ghi nhận thành công, khách hàng nhận lại tiền qua gateway.
+
+---
+
+### TC-UC19-003 — Chặn hủy đơn khi bếp đang nấu (POS-004)
+**Severity:** HIGH
+**CWE:** CWE-841 (Improper Enforcement of Behavioral Workflow)
+**Feature Under Test:** Kiểm soát vòng đời đơn hàng (Order Lifecycle)
+=======
 * Đơn `ORD-002` đã được thanh toán bằng VNPAY (`isPaidInPos = true`).
 * Trạng thái đơn đang là `PENDING`.
 
@@ -119,10 +170,40 @@
 **Severity:** HIGH
 **CWE:** CWE-841
 **Feature Under Test:** `Order Status Validation`
+>>>>>>> 7414e299dc9443033140483710eb1236086b60de
 **Test File:** `src/test/java/com/kawai/services/PosServiceUC19Test.java`
 **TDD Phase:** 🟢 GREEN
 
 **Preconditions:**
+<<<<<<< HEAD
+* Đơn `ORD-003` có trạng thái hiện tại là `PREPARING` (Bếp đã nhận order và đang làm món).
+
+**Test Steps:**
+1. Khởi tạo mock `FoodOrderRepository.findById(3L)` trả về `ORD-003` (status = PREPARING).
+2. Dùng hàm `assertThrows` của JUnit 5 bao bọc lời gọi `posService.cancelOrder(3L, "Đợi lâu quá")`.
+3. Kiểm tra Exception trả về.
+
+**Expected Result (PASS):**
+* Ném lỗi `BusinessLogicException`.
+* Message lỗi chứa mã: `POS-004: Không thể hủy đơn đang được chế biến`.
+* Không có thao tác ghi Database nào (như đổi status hay xoá Folio) xảy ra.
+
+---
+
+### TC-UC19-004 — Chặn hủy đơn đã thanh toán nhưng chưa có Refund Gateway (Fall-back)
+**Severity:** MEDIUM
+**CWE:** N/A
+**Feature Under Test:** Validations
+**Test File:** `src/test/java/com/kawai/services/PosServiceUC19Test.java`
+**TDD Phase:** 🟢 GREEN
+
+**Test Steps:**
+1. Gọi hủy đơn `ORD-004` (paymentType = CASH) nhưng status là `COMPLETED`.
+2. Hệ thống phải ném lỗi cấm hủy đơn đã hoàn thành.
+
+**Expected Result (PASS):**
+* Ném lỗi `BusinessLogicException: "Không thể hủy đơn đã hoàn thành và xuất hóa đơn."`
+=======
 * Đơn `ORD-003` đang ở trạng thái `PREPARING` (bếp đang nấu).
 
 **Test Steps:**
@@ -135,6 +216,7 @@
 
 **Expected Result (FAIL):**
 * Đơn hàng vẫn bị hủy trong khi bếp đã làm xong món ăn (gây lãng phí nguyên liệu).
+>>>>>>> 7414e299dc9443033140483710eb1236086b60de
 
 ---
 
