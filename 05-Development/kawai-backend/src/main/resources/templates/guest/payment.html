@@ -107,15 +107,6 @@
                                     th:classappend="${customer != null && customer.email != null && !customer.email.isEmpty() ? 'readonly-field' : ''}"
                                     placeholder="email@example.com" autocomplete="email" required />
                             </div>
-                            <!-- Ngày sinh -->
-                            <div class="form-group">
-                                <label for="fieldBirthDate">Ngày sinh <span class="req">*</span></label>
-                                <input type="date" id="fieldBirthDate" name="birthDate"
-                                    th:value="${customer != null && customer.birthDate != null ? customer.birthDate : ''}"
-                                    th:readonly="${customer != null && customer.birthDate != null}"
-                                    th:classappend="${customer != null && customer.birthDate != null ? 'readonly-field' : ''}"
-                                    required />
-                            </div>
 
 
                             <!-- Ghi thêm (full width) -->

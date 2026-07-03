@@ -112,23 +112,7 @@ public class TourBookingApiController {
                 guideForNewTour = "NguynNgoc";
             }
 
-            // Verify guide limit: 1 guide per day
-            List<TourSchedule> existingSchedulesOnDay = tourScheduleRepository.findByDepartureDate(departureDate);
-            for (TourSchedule es : existingSchedulesOnDay) {
-                // If it is a different schedule
-                if (schedule == null || !es.getId().equals(schedule.getId())) {
-                    int bookingsCount = tourBookingRepository.countByScheduleAndBookingStatus(es, "Confirmed");
-                    if (bookingsCount > 0 && es.getTour() != null) {
-                        String existingGuide = getGuideNameForTour(es.getTour().getTourName());
-                        if (scheduleHasSpecialCustomer(es)) {
-                            existingGuide = "NguynNgoc";
-                        }
-                        if (existingGuide.equalsIgnoreCase(guideForNewTour)) {
-                            throw new IllegalArgumentException("Hướng dẫn viên phụ trách (" + guideForNewTour + ") đã kẹt lịch trình tour khác trong ngày này. Vui lòng chọn ngày khác.");
-                        }
-                    }
-                }
-            }
+
 
             if (schedule == null) {
                 schedule = new TourSchedule();

@@ -832,6 +832,7 @@
         let referenceDescriptors = [];
         let scanInterval = null;
         const recentlyScanned = new Set();
+        const recentlyUnknown = new Set();
 
         async function loadModels() {
             const statusText = document.getElementById('scan-status-label');
@@ -1059,10 +1060,24 @@
 
                                 // Xóa khỏi danh sách spam sau 10s
                                 setTimeout(() => recentlyScanned.delete(bestName), 10000);
+
+                                // Tự động tải lại trang sau khi điểm danh thành công
+                                setTimeout(() => {
+                                    window.location.href = '/tourguide/dashboard?scanned=true';
+                                }, 1500);
                             }
                         } else {
                             // NOT MATCHED
-                            frameDiv.className = 'face-frame scanning';
+                            frameDiv.className = 'face-frame failed';
+                            frameDiv.innerHTML = `<div class="absolute -bottom-8 left-1/2 -translate-x-1/2 bg-red-600/90 text-white px-2 py-1 rounded text-[10px] whitespace-nowrap font-bold shadow-md">Không tồn tại</div>`;
+
+                            // Anti-spam warning for unknown faces
+                            const unknownKey = 'unknown_face_detected';
+                            if (!recentlyUnknown.has(unknownKey)) {
+                                recentlyUnknown.add(unknownKey);
+                                showToast('Khuôn mặt chưa được đăng ký trong hệ thống!', 'error');
+                                setTimeout(() => recentlyUnknown.delete(unknownKey), 8000);
+                            }
                         }
                         // Thêm khung vào video
                         facesContainer.appendChild(frameDiv);
@@ -1167,9 +1182,9 @@
                 setTimeout(() => { window.location.href = '/tourguide/dashboard?scanned=true'; }, 2000);
             } else {
                 faceFrame.className = 'face-frame failed';
-                statusLabel.textContent = 'KHÔNG KHỚP';
+                statusLabel.textContent = 'KHÔNG TỒN TẠI';
                 statusIcon.textContent = 'error';
-                showScanResult(false, 'Không nhận diện được', 'Thử lại hoặc check-in thủ công.');
+                showScanResult(false, 'Không tồn tại', 'Khuôn mặt khách hàng chưa được đăng ký trong hệ thống.');
             }
 
             isScanning = false;

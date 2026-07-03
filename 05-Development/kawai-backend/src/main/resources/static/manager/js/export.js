@@ -26,7 +26,7 @@ function selectFormat(fmt) {
 async function handleExport() {
     const type = document.getElementById('export-type')?.value || 'revenue';
     const from = document.getElementById('export-from')?.value;
-    const to   = document.getElementById('export-to')?.value;
+    const to = document.getElementById('export-to')?.value;
 
     if (!from || !to) {
         alert('Vui long chon khoang thoi gian truoc khi xuat bao cao.');

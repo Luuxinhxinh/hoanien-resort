@@ -220,7 +220,7 @@ public class ReceptionistController {
             if (cccdEnc != null && !cccdEnc.isEmpty()) {
                 try {
                     cccd = com.kawai.utils.EncryptionUtils.decrypt(cccdEnc);
-                } catch (Exception e) {
+                } catch (Throwable e) {
                     try {
                         cccd = encryptionService.decrypt(cccdEnc);
                     } catch (Exception ex) {
@@ -422,7 +422,7 @@ public class ReceptionistController {
                     if (cccdEnc != null && !cccdEnc.isBlank()) {
                         try {
                             cccd = com.kawai.utils.EncryptionUtils.decrypt(cccdEnc);
-                        } catch (Exception e) {
+                        } catch (Throwable e) {
                             try {
                                 cccd = encryptionService.decrypt(cccdEnc);
                             } catch (Exception ex) {
@@ -517,7 +517,7 @@ public class ReceptionistController {
                 if (cccdEnc != null && !cccdEnc.isBlank()) {
                     try {
                         cccd = com.kawai.utils.EncryptionUtils.decrypt(cccdEnc);
-                    } catch (Exception e) {
+                    } catch (Throwable e) {
                         try {
                             cccd = encryptionService.decrypt(cccdEnc);
                         } catch (Exception ex) {
@@ -547,7 +547,7 @@ public class ReceptionistController {
             if (cccdEnc != null && !cccdEnc.isBlank()) {
                 try {
                     cccd = com.kawai.utils.EncryptionUtils.decrypt(cccdEnc);
-                } catch (Exception e) {
+                } catch (Throwable e) {
                     try {
                         cccd = encryptionService.decrypt(cccdEnc);
                     } catch (Exception ex) {
@@ -847,7 +847,7 @@ public class ReceptionistController {
         if (cccdEnc != null && !cccdEnc.isEmpty()) {
             try {
                 cccd = com.kawai.utils.EncryptionUtils.decrypt(cccdEnc);
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 try {
                     cccd = encryptionService.decrypt(cccdEnc);
                 } catch (Exception ex) {

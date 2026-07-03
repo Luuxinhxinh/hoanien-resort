@@ -43,7 +43,7 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
 @DisplayName("UC20.1 — Đặt tour du lịch (TourBookingService)")
-class TourBookingServiceUC20Test {
+public class TourBookingServiceUC20Test {
 
     @Mock
     private TourScheduleRepository tourScheduleRepository;
@@ -131,6 +131,7 @@ class TourBookingServiceUC20Test {
         @DisplayName("TC-M4-003.1: Đặt tour thành công — tạo TourBooking và Tour_Attendees")
         void createTourBooking_ValidRequest_ShouldCreateBookingAndAttendees() {
             // ARRANGE
+            validRequest.setParticipantCount(3);
             org.mockito.Mockito.lenient().when(tourScheduleRepository.findById(100L)).thenReturn(Optional.of(sampleSchedule));
             org.mockito.Mockito.lenient().when(customerRepository.findById(10L)).thenReturn(Optional.of(sampleCustomer));
             org.mockito.Mockito.lenient().when(tourBookingRepository.countByScheduleAndBookingStatus(sampleSchedule, "Confirmed"))
@@ -166,6 +167,7 @@ class TourBookingServiceUC20Test {
         void createTourBooking_WalkInTour_ShouldCreateBooking() {
             // ARRANGE
             validRequest.setWalkInTour(true);
+            validRequest.setParticipantCount(3);
 
             org.mockito.Mockito.lenient().when(tourScheduleRepository.findById(100L)).thenReturn(Optional.of(sampleSchedule));
             org.mockito.Mockito.lenient().when(customerRepository.findById(10L)).thenReturn(Optional.of(sampleCustomer));
@@ -204,6 +206,7 @@ class TourBookingServiceUC20Test {
         void createTourBooking_NoAvailableSlots_ShouldThrowException() {
             // ARRANGE: Schedule có 5 chỗ trống (bookedSeats = 25)
             sampleSchedule.setBookedSeats(25);
+            validRequest.setParticipantCount(3);
             org.mockito.Mockito.lenient().when(tourScheduleRepository.findById(100L)).thenReturn(Optional.of(sampleSchedule));
             org.mockito.Mockito.lenient().when(customerRepository.findById(10L)).thenReturn(Optional.of(sampleCustomer));
 
