@@ -160,7 +160,55 @@
             </div>
         </div>
 
+        <!-- Bottom Grid: Recent Activity + Tonight's Checkouts -->
+        <div class="adm-bottom-grid">
+
+            <!-- Recent Activity (3/5) -->
+            <div class="adm-card">
+                <h2 class="adm-section-title" style="margin-bottom:20px">Hoạt động gần đây</h2>
+                <div class="adm-activity-list">
+                    <div th:each="activity : ${activities}" class="adm-activity-item">
+                        <span class="adm-activity-time" th:text="${activity.time}">08:42</span>
+                        <div class="adm-activity-avatar"
+                             th:style="'background-color:' + ${activity.avatarBg}"
+                             th:text="${activity.initials}">LN</div>
+                        <div class="adm-activity-body">
+                            <div class="adm-activity-name-row">
+                                <span class="adm-activity-name" th:text="${activity.name}">Linh Nguyễn</span>
+                                <span class="adm-role-pill"
+                                      th:style="'background-color:' + ${activity.roleBadgeBg} + '; color:' + ${activity.roleBadgeColor}"
+                                      th:text="${activity.role}">Receptionist</span>
+                            </div>
+                            <p class="adm-activity-action" th:text="${activity.action}">Check-in khách #1204</p>
+                        </div>
+                        <span class="adm-activity-badge" th:text="${activity.badgeLabel}">Booking</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tonight's Checkouts (2/5) -->
+            <div class="adm-card">
+                <h2 class="adm-section-title">Trả phòng tối nay</h2>
+                <p class="adm-section-subtitle" style="margin-bottom:20px"
+                   th:text="${checkoutCount} + ' khách trả phòng'">4 khách trả phòng</p>
+                <div class="adm-checkout-list">
+                    <div th:each="checkout, iterStat : ${checkouts}"
+                         class="adm-checkout-row"
+                         th:classappend="${iterStat.odd} ? ' odd' : ''">
+                        <div class="adm-checkout-left">
+                            <span class="adm-room-tag" th:text="${checkout.roomNumber}">102</span>
+                            <span class="adm-checkout-guest" th:text="${checkout.guestName}">Mr. Haruto Yamamoto</span>
+                        </div>
+                        <span th:if="${checkout.paid}"   class="adm-badge-paid">Đã thanh toán</span>
+                        <span th:unless="${checkout.paid}" class="adm-badge-pending">Chờ thanh toán</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
         <!-- Automation Engine Timeline -->
+
         <div class="adm-card" style="margin-top: 24px;">
             <div class="adm-card-header" style="border-bottom: 1px solid rgba(44,42,30,0.08); padding-bottom: 12px; margin-bottom: 16px;">
                 <div style="display: flex; align-items: center; gap: 8px;">

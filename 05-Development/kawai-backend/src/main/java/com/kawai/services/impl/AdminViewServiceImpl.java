@@ -199,8 +199,8 @@ public class AdminViewServiceImpl implements AdminViewService {
                         col("status", "Kích hoạt", "toggle"));
             case "Role Management" -> List.of(col("id", "Mã", "text"), col("name", "Tên vai trò", "text"),
                     col("permissions", "Quyền hạn", "text"));
-                        case "Pricing Management" -> List.of(col("id", "Mã", "text"), col("roomCategory", "Hạng phòng (ID)", "text"),
-                    col("startDate", "Từ ngày", "date"), col("endDate", "Đến ngày", "date"), col("priceModifier", "Điều chỉnh giá", "number"), col("reason", "Lý do", "text"));
+            case "Pricing Management" -> List.of(col("id", "Mã", "text"), col("roomCategory", "Hạng phòng", "text"),
+                    col("date", "Ngày", "text"), col("dayType", "Loại ngày", "badge"), col("price", "Giá / đêm", "text"));
             case "Bookings" -> List.of(col("id", "Mã Booking", "text"), col("customer", "Khách hàng", "text"),
                     col("room", "Phòng", "text"), col("checkIn", "Ngày Check-in", "text"),
                     col("checkOut", "Ngày Check-out", "text"), col("status", "Trạng thái", "badge"));
@@ -418,17 +418,23 @@ public class AdminViewServiceImpl implements AdminViewService {
                 }
                 yield rows;
             }
-                        case "Pricing Management" -> {
+            case "Pricing Management" -> {
                 List<Map<String, String>> r = new ArrayList<>();
-                for (com.kawai.models.DynamicPricing rule : dynamicPricingRepository.findAll()) {
-                    r.add(r(
-                        "id", rule.getId().toString(),
-                        "roomCategory", rule.getCategory() != null ? rule.getCategory().getId().toString() : "",
-                        "startDate", rule.getStartDate() != null ? rule.getStartDate().toString() : "",
-                        "endDate", rule.getEndDate() != null ? rule.getEndDate().toString() : "",
-                        "priceModifier", rule.getPriceModifier() != null ? rule.getPriceModifier().toString() : "0",
-                        "reason", rule.getReason() != null ? rule.getReason() : ""
-                    ));
+                for (DailyRate rate : dailyRateRepository.findAll()) {
+                    String dayType = "Ngày thường";
+                    String dayStyle = "badge-gray";
+                    if (rate.getIsHoliday() != null && rate.getIsHoliday()) {
+                        dayType = "Ngày Lễ";
+                        dayStyle = "badge-red";
+                    } else if (rate.getIsWeekend() != null && rate.getIsWeekend()) {
+                        dayType = "Cuối tuần";
+                        dayStyle = "badge-yellow";
+                    }
+                    r.add(r("id", "PR-" + rate.getId(), "roomCategory",
+                            rate.getCategory() != null ? rate.getCategory().getCategoryName() : "N/A", "date",
+                            rate.getRateDate() != null ? rate.getRateDate().toString() : "",
+                            "dayType", dayType, "__dayStyle", dayStyle,
+                            "price", rate.getComputedPrice() != null ? formatVnd(rate.getComputedPrice()) : "-"));
                 }
                 yield r;
             }
