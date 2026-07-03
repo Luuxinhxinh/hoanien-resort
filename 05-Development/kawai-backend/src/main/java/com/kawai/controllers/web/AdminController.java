@@ -41,7 +41,6 @@ public class AdminController {
 
     model.addAttribute("roomsByFloor", adminViewService.getRoomsByFloor());
     model.addAttribute("activities", adminViewService.getRecentActivities());
-    model.addAttribute("automations", adminViewService.getAutomationTimeline());
 
     List<AdminViewService.CheckoutMock> checkouts = adminViewService.getCheckouts();
     model.addAttribute("checkouts", checkouts);

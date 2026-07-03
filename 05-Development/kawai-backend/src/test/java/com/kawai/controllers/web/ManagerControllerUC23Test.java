@@ -24,39 +24,26 @@ import static org.mockito.Mockito.*;
 /**
  * JUnit Test cho UC23 — Dashboard Manager (ManagerController)
  * Map với TDD_UC23_SPEC.md:
- * MOD5-TC-UC23-001 → testDashboard_OccupancyRate_CorrectFromDB()
- * MOD5-TC-UC23-002 → testDashboard_NullRevenue_NoNPE()
- * MOD5-TC-UC23-003 → testRevenueDaily_SumOf3Sources()
- * MOD5-TC-UC23-004 → testRevenueMonthly_YoYGrowth()
- * MOD5-TC-UC23-005 → testAnalyticsOccupancy_PeakAndCurrentRate()
+ *   MOD5-TC-UC23-001 → testDashboard_OccupancyRate_CorrectFromDB()
+ *   MOD5-TC-UC23-002 → testDashboard_NullRevenue_NoNPE()
+ *   MOD5-TC-UC23-003 → testRevenueDaily_SumOf3Sources()
+ *   MOD5-TC-UC23-004 → testRevenueMonthly_YoYGrowth()
+ *   MOD5-TC-UC23-005 → testAnalyticsOccupancy_PeakAndCurrentRate()
  */
 @ExtendWith(MockitoExtension.class)
 public class ManagerControllerUC23Test {
 
-    @Mock
-    private com.kawai.repositories.PaymentTransactionRepository paymentTransactionRepository;
-    @Mock
-    private RoomRepository roomRepository;
-    @Mock
-    private RoomBookingRepository roomBookingRepository;
-    @Mock
-    private FoodOrderRepository foodOrderRepository;
-    @Mock
-    private FoodOrderDetailRepository foodOrderDetailRepository;
-    @Mock
-    private TourBookingRepository tourBookingRepository;
-    @Mock
-    private TourRepository tourRepository;
-    @Mock
-    private BookingRepository bookingRepository;
-    @Mock
-    private FoodItemRepository foodItemRepository;
-    @Mock
-    private DailyRateRepository dailyRateRepository;
-    @Mock
-    private ExportHistoryRepository exportHistoryRepository;
-    @Mock
-    private RoomCategoryRepository roomCategoryRepository;
+    @Mock private RoomRepository roomRepository;
+    @Mock private RoomBookingRepository roomBookingRepository;
+    @Mock private FoodOrderRepository foodOrderRepository;
+    @Mock private FoodOrderDetailRepository foodOrderDetailRepository;
+    @Mock private TourBookingRepository tourBookingRepository;
+    @Mock private TourRepository tourRepository;
+    @Mock private BookingRepository bookingRepository;
+    @Mock private FoodItemRepository foodItemRepository;
+    @Mock private DailyRateRepository dailyRateRepository;
+    @Mock private ExportHistoryRepository exportHistoryRepository;
+    @Mock private RoomCategoryRepository roomCategoryRepository;
 
     @InjectMocks
     private ManagerController managerController;
@@ -66,10 +53,6 @@ public class ManagerControllerUC23Test {
     @BeforeEach
     void setUp() {
         model = new ExtendedModelMap();
-        org.mockito.Mockito.lenient()
-                .when(paymentTransactionRepository.findBetween(org.mockito.ArgumentMatchers.any(),
-                        org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any()))
-                .thenReturn(new java.util.ArrayList<>());
     }
 
     // =========================================================================
@@ -82,38 +65,30 @@ public class ManagerControllerUC23Test {
         // Arrange — FX-001: 25 phòng occupied, tổng 50 phòng trong DB
         com.kawai.models.Room dummyRoom = new com.kawai.models.Room();
         List<com.kawai.models.Room> occupiedList = new ArrayList<>();
-        for (int i = 0; i < 25; i++)
-            occupiedList.add(dummyRoom);
+        for (int i = 0; i < 25; i++) occupiedList.add(dummyRoom);
 
-        org.mockito.Mockito.lenient().when(roomRepository.findOccupied()).thenReturn(occupiedList);
-        org.mockito.Mockito.lenient().when(roomRepository.countTotalRooms()).thenReturn(50L);
+        when(roomRepository.findOccupied()).thenReturn(occupiedList);
+        when(roomRepository.countTotalRooms()).thenReturn(50L);
 
         // Stub các revenue repo trả về ZERO để tránh NPE trong vòng lặp 7 ngày
-        org.mockito.Mockito.lenient().when(roomBookingRepository.revenueOnDate(any(LocalDate.class)))
-                .thenReturn(BigDecimal.ZERO);
-        org.mockito.Mockito.lenient().when(foodOrderRepository.revenueOnDate(any(LocalDateTime.class),
-                any(LocalDateTime.class))).thenReturn(BigDecimal.ZERO);
-        org.mockito.Mockito.lenient().when(tourBookingRepository.revenueOnDate(any(LocalDate.class)))
-                .thenReturn(BigDecimal.ZERO);
-        org.mockito.Mockito.lenient().when(roomBookingRepository.countOccupiedRoomsOnDate(any(LocalDate.class)))
-                .thenReturn(0);
-        org.mockito.Mockito.lenient().when(roomBookingRepository.getAverageStayDuration()).thenReturn(2.0);
-        org.mockito.Mockito.lenient().when(bookingRepository.count()).thenReturn(0L);
-        org.mockito.Mockito.lenient().when(foodOrderDetailRepository.findTopDishName()).thenReturn("Phở bò");
-        org.mockito.Mockito.lenient().when(foodOrderDetailRepository.findTopDishOrders()).thenReturn(10);
-        org.mockito.Mockito.lenient().when(tourBookingRepository.findTopTourName()).thenReturn("Tour biển");
-        org.mockito.Mockito.lenient().when(tourBookingRepository.findTopTourBookings()).thenReturn(5);
+        when(roomBookingRepository.revenueOnDate(any(LocalDate.class))).thenReturn(BigDecimal.ZERO);
+        when(foodOrderRepository.revenueOnDate(any(LocalDateTime.class), any(LocalDateTime.class))).thenReturn(BigDecimal.ZERO);
+        when(tourBookingRepository.revenueOnDate(any(LocalDate.class))).thenReturn(BigDecimal.ZERO);
+        when(roomBookingRepository.countOccupiedRoomsOnDate(any(LocalDate.class))).thenReturn(0);
+        when(roomBookingRepository.getAverageStayDuration()).thenReturn(2.0);
+        when(bookingRepository.count()).thenReturn(0L);
+        when(foodOrderDetailRepository.findTopDishName()).thenReturn("Phở bò");
+        when(foodOrderDetailRepository.findTopDishOrders()).thenReturn(10);
+        when(tourBookingRepository.findTopTourName()).thenReturn("Tour biển");
+        when(tourBookingRepository.findTopTourBookings()).thenReturn(5);
 
         // Act
         String viewName = managerController.dashboard(model);
 
         // Assert
         assertEquals("manager/dashboard", viewName);
-        assertEquals(50L, model.getAttribute("occupancyRate") == null ? -1L : Math.round((double) (25) / 50 * 100)); // verify
-                                                                                                                     // formula:
-                                                                                                                     // 25/50*100
-                                                                                                                     // =
-                                                                                                                     // 50
+        assertEquals(50L, model.getAttribute("occupancyRate") == null ? -1L :
+                Math.round((double)(25) / 50 * 100)); // verify formula: 25/50*100 = 50
         assertEquals(50L, model.getAttribute("totalRooms"));
         assertEquals(25L, model.getAttribute("occupiedRooms"));
 
@@ -130,22 +105,20 @@ public class ManagerControllerUC23Test {
     @DisplayName("MOD5-TC-UC23-002 - Dashboard không NPE khi tất cả revenue repo trả về null")
     void testDashboard_NullRevenue_NoNPE() {
         // Arrange — FX-003: tất cả revenue = null
-        org.mockito.Mockito.lenient().when(roomRepository.findOccupied()).thenReturn(new ArrayList<>());
-        org.mockito.Mockito.lenient().when(roomRepository.countTotalRooms()).thenReturn(50L);
+        when(roomRepository.findOccupied()).thenReturn(new ArrayList<>());
+        when(roomRepository.countTotalRooms()).thenReturn(50L);
 
         // Revenue trả về null — test guard null check trong controller
-        org.mockito.Mockito.lenient().when(roomBookingRepository.revenueOnDate(any(LocalDate.class))).thenReturn(null);
-        org.mockito.Mockito.lenient().when(foodOrderRepository.revenueOnDate(any(LocalDateTime.class),
-                any(LocalDateTime.class))).thenReturn(null);
-        org.mockito.Mockito.lenient().when(tourBookingRepository.revenueOnDate(any(LocalDate.class))).thenReturn(null);
-        org.mockito.Mockito.lenient().when(roomBookingRepository.countOccupiedRoomsOnDate(any(LocalDate.class)))
-                .thenReturn(null);
-        org.mockito.Mockito.lenient().when(roomBookingRepository.getAverageStayDuration()).thenReturn(null);
-        org.mockito.Mockito.lenient().when(bookingRepository.count()).thenReturn(0L);
-        org.mockito.Mockito.lenient().when(foodOrderDetailRepository.findTopDishName()).thenReturn(null);
-        org.mockito.Mockito.lenient().when(foodOrderDetailRepository.findTopDishOrders()).thenReturn(null);
-        org.mockito.Mockito.lenient().when(tourBookingRepository.findTopTourName()).thenReturn(null);
-        org.mockito.Mockito.lenient().when(tourBookingRepository.findTopTourBookings()).thenReturn(null);
+        when(roomBookingRepository.revenueOnDate(any(LocalDate.class))).thenReturn(null);
+        when(foodOrderRepository.revenueOnDate(any(LocalDateTime.class), any(LocalDateTime.class))).thenReturn(null);
+        when(tourBookingRepository.revenueOnDate(any(LocalDate.class))).thenReturn(null);
+        when(roomBookingRepository.countOccupiedRoomsOnDate(any(LocalDate.class))).thenReturn(null);
+        when(roomBookingRepository.getAverageStayDuration()).thenReturn(null);
+        when(bookingRepository.count()).thenReturn(0L);
+        when(foodOrderDetailRepository.findTopDishName()).thenReturn(null);
+        when(foodOrderDetailRepository.findTopDishOrders()).thenReturn(null);
+        when(tourBookingRepository.findTopTourName()).thenReturn(null);
+        when(tourBookingRepository.findTopTourBookings()).thenReturn(null);
 
         // Act + Assert — không được ném exception
         assertDoesNotThrow(() -> managerController.dashboard(model));
@@ -170,38 +143,32 @@ public class ManagerControllerUC23Test {
         // Arrange — FX-002: Room=1M, FnB=500k, Tour=300k → total=1.8M
         LocalDate today = LocalDate.now();
 
-        org.mockito.Mockito.lenient().when(roomBookingRepository.revenueBetween(any(LocalDate.class),
-                any(LocalDate.class)))
+        when(roomBookingRepository.revenueBetween(any(LocalDate.class), any(LocalDate.class)))
                 .thenReturn(BigDecimal.ZERO); // default cho tất cả kỳ
-        org.mockito.Mockito.lenient().when(roomBookingRepository.revenueBetween(today, today))
+        when(roomBookingRepository.revenueBetween(today, today))
                 .thenReturn(new BigDecimal("1000000")); // override cho today
 
-        org.mockito.Mockito.lenient().when(foodOrderRepository.revenueBetween(any(LocalDateTime.class),
-                any(LocalDateTime.class)))
+        when(foodOrderRepository.revenueBetween(any(LocalDateTime.class), any(LocalDateTime.class)))
                 .thenReturn(BigDecimal.ZERO);
-        org.mockito.Mockito.lenient().when(foodOrderRepository.revenueBetween(
+        when(foodOrderRepository.revenueBetween(
                 today.atStartOfDay(), today.plusDays(1).atStartOfDay()))
                 .thenReturn(new BigDecimal("500000"));
 
-        org.mockito.Mockito.lenient().when(tourBookingRepository.revenueBetween(any(LocalDate.class),
-                any(LocalDate.class)))
+        when(tourBookingRepository.revenueBetween(any(LocalDate.class), any(LocalDate.class)))
                 .thenReturn(BigDecimal.ZERO);
-        org.mockito.Mockito.lenient().when(tourBookingRepository.revenueBetween(today, today))
+        when(tourBookingRepository.revenueBetween(today, today))
                 .thenReturn(new BigDecimal("300000"));
 
         // revenueOnDate cho chart (9 ngày)
-        org.mockito.Mockito.lenient().when(roomBookingRepository.revenueOnDate(any(LocalDate.class)))
-                .thenReturn(BigDecimal.ZERO);
-        org.mockito.Mockito.lenient().when(foodOrderRepository.revenueOnDate(any(LocalDateTime.class),
-                any(LocalDateTime.class))).thenReturn(BigDecimal.ZERO);
-        org.mockito.Mockito.lenient().when(tourBookingRepository.revenueOnDate(any(LocalDate.class)))
-                .thenReturn(BigDecimal.ZERO);
+        when(roomBookingRepository.revenueOnDate(any(LocalDate.class))).thenReturn(BigDecimal.ZERO);
+        when(foodOrderRepository.revenueOnDate(any(LocalDateTime.class), any(LocalDateTime.class))).thenReturn(BigDecimal.ZERO);
+        when(tourBookingRepository.revenueOnDate(any(LocalDate.class))).thenReturn(BigDecimal.ZERO);
 
         // Act
-        String viewName = managerController.revenue(model);
+        String viewName = managerController.revenueDaily(model);
 
         // Assert
-        assertEquals("manager/revenue", viewName);
+        assertEquals("manager/revenue-daily", viewName);
 
         // 1M + 500k + 300k = 1,800,000 → fmt() = "2M" (vì >= 1M, làm tròn)
         String totalToday = (String) model.getAttribute("totalToday");
@@ -211,7 +178,7 @@ public class ManagerControllerUC23Test {
 
         // Kiểm tra có đủ rows (9 ngày gần nhất)
         @SuppressWarnings("unchecked")
-        List<?> rows = (List<?>) model.getAttribute("dailyRows");
+        List<?> rows = (List<?>) model.getAttribute("rows");
         assertNotNull(rows);
         assertEquals(9, rows.size());
     }
@@ -225,44 +192,41 @@ public class ManagerControllerUC23Test {
     void testRevenueMonthly_YoYGrowth() {
         // Arrange — FX-004: năm nay = 120M, năm ngoái = 100M
         // YTD năm nay: Room 60M + FnB 40M + Tour 20M = 120M
-        org.mockito.Mockito.lenient().when(roomBookingRepository.revenueBetween(any(LocalDate.class),
-                any(LocalDate.class)))
+        when(roomBookingRepository.revenueBetween(any(LocalDate.class), any(LocalDate.class)))
                 .thenReturn(BigDecimal.ZERO);
-        org.mockito.Mockito.lenient().when(foodOrderRepository.revenueBetween(any(LocalDateTime.class),
-                any(LocalDateTime.class)))
+        when(foodOrderRepository.revenueBetween(any(LocalDateTime.class), any(LocalDateTime.class)))
                 .thenReturn(BigDecimal.ZERO);
-        org.mockito.Mockito.lenient().when(tourBookingRepository.revenueBetween(any(LocalDate.class),
-                any(LocalDate.class)))
+        when(tourBookingRepository.revenueBetween(any(LocalDate.class), any(LocalDate.class)))
                 .thenReturn(BigDecimal.ZERO);
 
         // Năm nay YTD: tổng 3 nguồn = 120M
         LocalDate now = LocalDate.now();
         LocalDate ytdStart = LocalDate.of(now.getYear(), 1, 1);
         LocalDate ytdEnd = LocalDate.of(now.getYear(), now.getMonthValue(), now.lengthOfMonth());
-        org.mockito.Mockito.lenient().when(roomBookingRepository.revenueBetween(ytdStart, ytdEnd))
+        when(roomBookingRepository.revenueBetween(ytdStart, ytdEnd))
                 .thenReturn(new BigDecimal("60000000"));
-        org.mockito.Mockito.lenient().when(foodOrderRepository.revenueBetween(
+        when(foodOrderRepository.revenueBetween(
                 ytdStart.atStartOfDay(), ytdEnd.atTime(23, 59, 59)))
                 .thenReturn(new BigDecimal("40000000"));
-        org.mockito.Mockito.lenient().when(tourBookingRepository.revenueBetween(ytdStart, ytdEnd))
+        when(tourBookingRepository.revenueBetween(ytdStart, ytdEnd))
                 .thenReturn(new BigDecimal("20000000"));
 
         // Năm ngoái YTD: tổng = 100M
         LocalDate lastYtdStart = LocalDate.of(now.getYear() - 1, 1, 1);
         LocalDate lastYtdEnd = LocalDate.of(now.getYear() - 1, now.getMonthValue(), now.lengthOfMonth());
-        org.mockito.Mockito.lenient().when(roomBookingRepository.revenueBetween(lastYtdStart, lastYtdEnd))
+        when(roomBookingRepository.revenueBetween(lastYtdStart, lastYtdEnd))
                 .thenReturn(new BigDecimal("50000000"));
-        org.mockito.Mockito.lenient().when(foodOrderRepository.revenueBetween(
+        when(foodOrderRepository.revenueBetween(
                 lastYtdStart.atStartOfDay(), lastYtdEnd.atTime(23, 59, 59)))
                 .thenReturn(new BigDecimal("30000000"));
-        org.mockito.Mockito.lenient().when(tourBookingRepository.revenueBetween(lastYtdStart, lastYtdEnd))
+        when(tourBookingRepository.revenueBetween(lastYtdStart, lastYtdEnd))
                 .thenReturn(new BigDecimal("20000000"));
 
         // Act
-        String viewName = managerController.revenue(model);
+        String viewName = managerController.revenueMonthly(model);
 
         // Assert
-        assertEquals("manager/revenue", viewName);
+        assertEquals("manager/revenue-monthly", viewName);
         String growthYoY = (String) model.getAttribute("growthYoY");
         assertNotNull(growthYoY);
         // (120M - 100M) / 100M * 100 = 20.0% → "+20.0%"
@@ -281,21 +245,21 @@ public class ManagerControllerUC23Test {
         // Hiện tại: 25/50 = 50% occupied
         com.kawai.models.Room dummyRoom = new com.kawai.models.Room();
         List<com.kawai.models.Room> occupiedList = new ArrayList<>();
-        for (int i = 0; i < 25; i++)
-            occupiedList.add(dummyRoom);
+        for (int i = 0; i < 25; i++) occupiedList.add(dummyRoom);
 
-        org.mockito.Mockito.lenient().when(roomRepository.findOccupied()).thenReturn(occupiedList);
-        org.mockito.Mockito.lenient().when(roomRepository.countTotalRooms()).thenReturn(50L);
+        when(roomRepository.findOccupied()).thenReturn(occupiedList);
+        when(roomRepository.countTotalRooms()).thenReturn(50L);
+        when(roomRepository.countByCategory()).thenReturn(new ArrayList<>());
+        when(roomCategoryRepository.findAll()).thenReturn(new ArrayList<>());
 
         // 30 ngày: tất cả = 40 phòng occupied (80% của 50)
-        org.mockito.Mockito.lenient().when(roomBookingRepository.countOccupiedRoomsOnDate(any(LocalDate.class)))
-                .thenReturn(40);
+        when(roomBookingRepository.countOccupiedRoomsOnDate(any(LocalDate.class))).thenReturn(40);
 
         // Act
-        String viewName = managerController.analyticsRoom(model);
+        String viewName = managerController.analyticsOccupancy(model);
 
         // Assert
-        assertEquals("manager/analytics-room", viewName);
+        assertEquals("manager/analytics-occupancy", viewName);
 
         // currentOccupancy = 25 / 50 * 100 = 50
         assertEquals(50L, model.getAttribute("currentOccupancy"));
@@ -304,8 +268,7 @@ public class ManagerControllerUC23Test {
         assertEquals(80, model.getAttribute("peakOccupancy"));
 
         // avgOccupancy = sumOcc / 30 (integer division)
-        // → 29 ngày × 80 (từ countOccupiedRoomsOnDate=40/50*100) + 1 ngày × 50 (hôm nay
-        // dùng occRate)
+        // → 29 ngày × 80 (từ countOccupiedRoomsOnDate=40/50*100) + 1 ngày × 50 (hôm nay dùng occRate)
         // → (2320 + 50) / 30 = 2370 / 30 = 79 (integer division)
         assertEquals(79, model.getAttribute("avgOccupancy"));
 

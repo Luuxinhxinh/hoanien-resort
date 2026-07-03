@@ -125,23 +125,22 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // UX: Bấm vào bất kỳ đâu trên dòng cũng sẽ toggle
-        if (allowedBulkTabs.includes(activeTab)) {
-        document.querySelectorAll("tbody tr[data-id]").forEach(tr => {
-            tr.style.cursor = 'pointer';
-            tr.style.transition = 'background-color 0.2s ease';
-            tr.addEventListener("click", (e) => {
-                if (e.target.closest('button') || e.target.closest('a') || e.target.tagName === 'INPUT') return;
-                
-                const isSelected = tr.classList.toggle('row-selected');
-                if (isSelected) {
-                    tr.style.backgroundColor = 'rgba(201, 169, 110, 0.15)';
-                } else {
-                    tr.style.backgroundColor = '';
-                }
-                updateBulkToolbar();
-            });
+    document.querySelectorAll("tbody tr[data-id]").forEach(tr => {
+        tr.style.cursor = 'pointer';
+        tr.style.transition = 'background-color 0.2s ease';
+        tr.addEventListener("click", (e) => {
+            // Không trigger nếu bấm vào button, input hoặc thẻ a
+            if (e.target.closest('button') || e.target.closest('a') || e.target.tagName === 'INPUT') return;
+            
+            const isSelected = tr.classList.toggle('row-selected');
+            if (isSelected) {
+                tr.style.backgroundColor = 'rgba(201, 169, 110, 0.15)';
+            } else {
+                tr.style.backgroundColor = '';
+            }
+            updateBulkToolbar();
         });
-    }
+    });
 
     if (btnBulkDelete) {
         btnBulkDelete.addEventListener("click", () => {
@@ -548,14 +547,6 @@ function openEditModal(id) {
                 form.querySelectorAll('.perm-checkbox').forEach(cb => {
                     cb.checked = perms.includes(cb.value);
                 });
-                
-                // Fallback ensure DOM is updated
-                setTimeout(() => {
-                    document.querySelectorAll('.perm-checkbox').forEach(cb => {
-                        cb.checked = perms.includes(cb.value);
-                    });
-                }, 50);
-                
                 continue;
             }
 
@@ -928,7 +919,7 @@ function handleSavePermissions() {
 function applyToggleUI(btn, next) {
     btn.dataset.value = String(next);
 
-    btn.innerHTML = `<i data-lucide="${next ? 'toggle-right' : 'toggle-left'}" style="width: 22px; height: 22px; color: ${next ? '#C9A96E' : '#8B7355'}"></i>`;
+    btn.innerHTML = `<i data-lucide="${next ? 'toggle-right' : 'toggle-left'}" class="w-[22px] h-[22px] ${next ? 'text-[#C9A96E]' : 'text-[#8B7355]'}"></i>`;
     if (typeof lucide !== "undefined") lucide.createIcons();
 
     // Đồng bộ data-value trên <td> để edit modal đọc đúng
@@ -940,15 +931,6 @@ function applyToggleUI(btn, next) {
     // Cập nhật text và màu của badge
     const tr = btn.closest("tr");
     if (tr) {
-        try {
-            if (tr.dataset.entity) {
-                const entityObj = JSON.parse(tr.dataset.entity);
-                if (entityObj.status !== undefined) {
-                    entityObj.status = next ? "Hoạt động" : "Ngừng hoạt động";
-                    tr.dataset.entity = JSON.stringify(entityObj);
-                }
-            }
-        } catch(e) {}
         const statusTd = tr.querySelector('td[data-key="status"]');
         if (statusTd) {
             statusTd.dataset.value = String(next);
@@ -1127,18 +1109,66 @@ const ROLE_PRESETS = ROLE_CEILINGS;
  * Các checkbox nằm ngoài ceiling bị ẩn hoàn toàn (không thể chọn nhầm).
  */
 function filterPermissionsByRole(roleName) {
-    // Disabled filtering to allow full Cross-Module RBAC
+    const name = (roleName || '').toLowerCase().trim();
+
+    let ceiling = null;
+    for (const [key, perms] of Object.entries(ROLE_CEILINGS)) {
+        if (name.includes(key)) {
+            ceiling = perms;
+            break;
+        }
+    }
+
+    // Fallback: nếu không nhận ra tên role → show tất cả (trường hợp Admin tạo role mới)
+    if (!ceiling) ceiling = ROLE_CEILINGS['admin'];
+
     document.querySelectorAll('.perm-checkbox').forEach(cb => {
-        cb.disabled = false;
         const label = cb.closest('label');
-        if (label) {
-            label.style.opacity = '1';
-            label.style.cursor = 'pointer';
-            const lockSpan = label.querySelector('.lock-indicator');
-            if (lockSpan) lockSpan.remove();
+        const wrapper = label ? label.parentElement : null;
+
+        if (ceiling.includes(cb.value)) {
+            // Quyền nằm trong ceiling → hiển thị bình thường, cho phép sửa
+            cb.disabled = false;
+            if (label) {
+                label.style.opacity = '1';
+                label.style.cursor = 'pointer';
+                label.style.background = cb.value === 'MASTER_DATA' || cb.value === 'AUDIT_LOG' ? '#fff5f5' : '#f9f6f0';
+                // Remove lock icon if exists
+                const lockSpan = label.querySelector('.lock-indicator');
+                if (lockSpan) lockSpan.remove();
+            }
+        } else {
+            // Quyền vượt trần → disable & uncheck & locked style
+            cb.checked = false;
+            cb.disabled = true;
+            if (label) {
+                label.style.opacity = '0.5';
+                label.style.cursor = 'not-allowed';
+                label.style.background = '#eef2f6'; // Muted gray background for locked
+                // Check if lock indicator already exists
+                if (!label.querySelector('.lock-indicator')) {
+                    const lockSpan = document.createElement('span');
+                    lockSpan.className = 'lock-indicator';
+                    lockSpan.style.display = 'inline-flex';
+                    lockSpan.style.alignItems = 'center';
+                    lockSpan.style.marginLeft = 'auto';
+                    lockSpan.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#78909c"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>';
+                    label.appendChild(lockSpan);
+                }
+            }
+        }
+    });
+
+    // Hiển thị tất cả section headers
+    document.querySelectorAll('.perm-section-title').forEach(title => {
+        title.style.display = '';
+        const section = title.nextElementSibling;
+        if (section) {
+            section.style.display = '';
         }
     });
 }
+
 /**
  * Nút "Gợi ý tự động" — đọc tên role, check tất cả quyền trong ceiling.
  */
@@ -1196,5 +1226,4 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
-
 

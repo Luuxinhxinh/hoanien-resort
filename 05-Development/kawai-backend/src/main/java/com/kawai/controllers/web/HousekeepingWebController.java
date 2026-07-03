@@ -38,8 +38,8 @@ public class HousekeepingWebController {
 
     @GetMapping("/dashboard")
     public String dashboard(Model model) {
-        model.addAttribute("pendingTasks", housekeepingTaskRepo.findByOperationalTypeAndStatusSorted("CHECKOUT_CLEAN","Pending"));
-        model.addAttribute("inProgressTasks", housekeepingTaskRepo.findByOperationalTypeAndStatusSorted("CHECKOUT_CLEAN","InProgress"));
+        model.addAttribute("pendingTasks", housekeepingTaskRepo.findByOperationalTypeAndStatus("CHECKOUT_CLEAN","Pending"));
+        model.addAttribute("inProgressTasks", housekeepingTaskRepo.findByOperationalTypeAndStatus("CHECKOUT_CLEAN","InProgress"));
         model.addAttribute("completedToday", housekeepingTaskRepo.findByOperationalTypeAndStatus("CHECKOUT_CLEAN","Completed"));
         long dirtyRooms = roomRepository.countByRoomStatus("Vacant_Dirty") + roomRepository.countByRoomStatus("Occupied_Dirty");
         long cleanRooms = roomRepository.countByRoomStatus("Vacant_Clean") + roomRepository.countByRoomStatus("Occupied_Clean");

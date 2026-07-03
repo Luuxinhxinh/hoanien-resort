@@ -468,7 +468,6 @@ body {
     display: grid;
     gap: 20px;
     align-items: stretch;
-    margin-top: 20px;
 }
 .mgr-chart-row-62 { grid-template-columns: 62fr 38fr; }
 .mgr-chart-row-50 { grid-template-columns: 1fr 1fr; }
@@ -480,11 +479,6 @@ body {
     display: flex;
     flex-direction: column;
     gap: 16px;
-    margin-top: 20px;
-}
-
-.mgr-chart-row .mgr-chart-card {
-    margin-top: 0;
 }
 
 .mgr-chart-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
@@ -587,7 +581,6 @@ body {
     background: var(--card-bg);
     border-radius: 12px;
     padding: 28px 28px 24px;
-    margin-top: 20px;
 }
 
 .mgr-section-title {

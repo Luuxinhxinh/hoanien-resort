@@ -3,7 +3,7 @@
    ============================================================ */
 
 .rs-wrapper {
-  width: 100%;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
 }
@@ -78,7 +78,6 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 20px; /* Ngăn ô search và các nút bị dính vào nhau */
   background: var(--bg-card);
   padding: 15px 20px;
   border: 1px solid var(--border);
@@ -94,7 +93,6 @@
   border-radius: var(--radius-md);
   padding: 0 15px;
   width: 350px;
-  flex-shrink: 0; /* Giữ nguyên kích thước ô search */
 }
 .search-icon {
   color: var(--text-muted);
@@ -201,17 +199,4 @@
 }
 @media (max-width: 768px) {
   .rs-table { display: block; overflow-x: auto; }
-}
-
-/* Cancelled / Refunded Row Styles */
-.row-cancelled {
-  opacity: 0.55;
-  background-color: #fafafa !important;
-}
-.row-cancelled:hover {
-  background-color: #fafafa !important;
-  cursor: default;
-}
-.row-cancelled .col-action button {
-  display: none;
 }

@@ -71,9 +71,10 @@ public class ManagerController {
     public String approvals(Model model) {
         model.addAttribute("todayLabel", todayLabel());
         
-        List<HotelOperation> pendingOps = housekeepingTaskRepository.findByOperationalTypeAndStatusSorted("Manager_Approval", "Pending");
-        List<HotelOperation> completedOps = housekeepingTaskRepository.findByOperationalTypeAndStatusSorted("Manager_Approval", "Completed");
-        List<HotelOperation> rejectedOps = housekeepingTaskRepository.findByOperationalTypeAndStatusSorted("Manager_Approval", "Rejected");
+        List<String> types = java.util.Arrays.asList("Manager_Approval", "Late_Checkout_Waiver", "Cancellation_Fee_Waiver", "Room_Downgrade_Refund");
+        List<HotelOperation> pendingOps = housekeepingTaskRepository.findByOperationalTypesAndStatusSorted(types, "Pending");
+        List<HotelOperation> completedOps = housekeepingTaskRepository.findByOperationalTypesAndStatusSorted(types, "Completed");
+        List<HotelOperation> rejectedOps = housekeepingTaskRepository.findByOperationalTypesAndStatusSorted(types, "Rejected");
         
         List<ApprovalDTO> pending = convertToApprovalDTOs(pendingOps);
         List<ApprovalDTO> completed = convertToApprovalDTOs(completedOps);
@@ -101,6 +102,12 @@ public class ManagerController {
                     customerName = booking.getCustomer() != null ? booking.getCustomer().getFullName() : "N/A";
                     totalPriceStr = fmt(booking.getTotalPrice()) + " VNĐ";
                     promoCode = booking.getAppliedPromotion() != null ? booking.getAppliedPromotion().getPromoCode() : "N/A";
+                    if ("N/A".equals(promoCode) && op.getNotes() != null) {
+                        java.util.regex.Matcher m = java.util.regex.Pattern.compile("Mã giảm giá (\\S+) áp dụng").matcher(op.getNotes());
+                        if (m.find()) {
+                            promoCode = m.group(1);
+                        }
+                    }
                     
                     if (booking instanceof RoomBooking rb) {
                         bookingDetails = "Đặt phòng (" + rb.getCheckInDate() + " -> " + rb.getCheckOutDate() + ")";
@@ -119,7 +126,8 @@ public class ManagerController {
                 op.getStatus(),
                 op.getCreatedAt() != null ? op.getCreatedAt().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")) : "N/A",
                 bookingDetails,
-                totalPriceStr
+                totalPriceStr,
+                op.getOperationalType()
             ));
         }
         return dtos;
@@ -988,5 +996,6 @@ public class ManagerController {
         private String createdAt;
         private String bookingDetails;
         private String totalPrice;
+        private String operationalType;
     }
 }

@@ -31,20 +31,15 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(Exception.class)
-    public Object handleError(HttpServletRequest request, jakarta.servlet.http.HttpServletResponse response, Exception ex) {
+    public Object handleError(HttpServletRequest request, Exception ex) {
         log.error("Lỗi khi truy cập {}: {}", request.getRequestURI(), ex.getMessage(), ex);
 
-        // If it's an API request or expects JSON, return JSON instead of HTML
-        String acceptHeader = request.getHeader("Accept");
-        boolean isJsonExpected = acceptHeader != null && acceptHeader.contains("application/json");
-        
-        if (request.getRequestURI().startsWith("/api/") || request.getRequestURI().startsWith("/admin/api/") || isJsonExpected) {
+        // If it's an API request, return JSON instead of HTML
+        if (request.getRequestURI().startsWith("/api/") || request.getRequestURI().startsWith("/admin/api/")) {
             return org.springframework.http.ResponseEntity
                     .status(org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(java.util.Map.of("error", ex.getMessage(), "type", "Internal Server Error", "status", 500));
+                    .body(java.util.Map.of("error", ex.getMessage(), "type", ex.getClass().getSimpleName()));
         }
-
-        response.setStatus(jakarta.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 
         ModelAndView mav = new ModelAndView();
         mav.addObject("errorMessage", ex.getMessage());

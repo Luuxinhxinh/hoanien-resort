@@ -30,7 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import com.kawai.services.interfaces.PaymentRefundService;
 import com.kawai.services.interfaces.NotificationService;
 
 import java.math.BigDecimal;
@@ -92,9 +92,6 @@ public class BookingServiceImpl implements BookingService {
     private com.kawai.repositories.TourBookingRepository tourBookingRepository;
 
     @Autowired
-    private com.kawai.repositories.RefundRequestRepository refundRequestRepository;
-
-    @Autowired
     private WorkflowRepository workflowRepository;
 
     private final RoomBookingRepository roomBookingRepository;
@@ -102,6 +99,7 @@ public class BookingServiceImpl implements BookingService {
     private final RoomRepository roomRepository;
     private final CustomerRepository customerRepository;
     private final RoomBookingDetailRepository roomBookingDetailRepository;
+    private final PaymentRefundService paymentRefundService;
     private final NotificationService notificationService;
     private final com.kawai.repositories.RoomCategoryRepository roomCategoryRepository;
     private final com.kawai.repositories.RoomSurchargeRepository roomSurchargeRepository;
@@ -116,6 +114,7 @@ public class BookingServiceImpl implements BookingService {
             RoomRepository roomRepository,
             CustomerRepository customerRepository,
             RoomBookingDetailRepository roomBookingDetailRepository,
+            PaymentRefundService paymentRefundService,
             NotificationService notificationService,
             com.kawai.repositories.RoomCategoryRepository roomCategoryRepository,
             com.kawai.repositories.RoomSurchargeRepository roomSurchargeRepository,
@@ -126,6 +125,7 @@ public class BookingServiceImpl implements BookingService {
         this.roomRepository = roomRepository;
         this.customerRepository = customerRepository;
         this.roomBookingDetailRepository = roomBookingDetailRepository;
+        this.paymentRefundService = paymentRefundService;
         this.notificationService = notificationService;
         this.roomCategoryRepository = roomCategoryRepository;
         this.roomSurchargeRepository = roomSurchargeRepository;
@@ -612,7 +612,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     @Transactional
-    public BookingResponseDTO cancelBooking(Long bookingId, Long customerId, com.kawai.dto.CancelRequestDTO cancelRequest) {
+    public BookingResponseDTO cancelBooking(Long bookingId, Long customerId) {
         RoomBooking booking = roomBookingRepository.findByIdAndCustomerId(bookingId, customerId)
                 .orElseThrow(() -> new BusinessException("FORBIDDEN",
                         "Đơn đặt phòng không thuộc về tài khoản này hoặc không tồn tại!"));
@@ -649,35 +649,14 @@ public class BookingServiceImpl implements BookingService {
         boolean isEligibleForRefund = booking.getCancellationDeadline() != null
                 && !today.isAfter(booking.getCancellationDeadline());
 
-        if (isEligibleForRefund) {
-            if (cancelRequest == null 
-                    || cancelRequest.getBankName() == null || cancelRequest.getBankName().isBlank()
-                    || cancelRequest.getAccountNumber() == null || cancelRequest.getAccountNumber().isBlank()
-                    || cancelRequest.getAccountName() == null || cancelRequest.getAccountName().isBlank()) {
-                throw new BusinessException("BKG-008", "Vui lòng cung cấp đầy đủ thông tin ngân hàng (Tên ngân hàng, Số tài khoản, Tên chủ tài khoản) để nhận hoàn tiền.");
-            }
-        }
-
         try {
             if (isEligibleForRefund) {
-                // Remove automatic refund and create a RefundRequest
-                com.kawai.models.RefundRequest refund = new com.kawai.models.RefundRequest();
-                refund.setRoomBooking(booking);
-                refund.setAmount(booking.getDepositAmount());
-                refund.setStatus("Pending");
-                
-                if (cancelRequest != null) {
-                    refund.setBankName(cancelRequest.getBankName());
-                    refund.setAccountNumber(cancelRequest.getAccountNumber());
-                    refund.setAccountName(cancelRequest.getAccountName());
-                    refund.setPhoneNumber(cancelRequest.getPhoneNumber());
+                if (paymentRefundService != null) {
+                    paymentRefundService.processRefund("TXN_" + bookingId, booking.getDepositAmount());
                 }
-                
-                refundRequestRepository.save(refund);
-
                 if (notificationService != null) {
                     notificationService.sendNotification(customerId, "Cancel Success",
-                            "Your booking has been cancelled and a refund request is pending.");
+                            "Your booking has been cancelled and refunded.");
                 }
             } else {
                 if (notificationService != null) {
@@ -849,7 +828,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     @Transactional(isolation = org.springframework.transaction.annotation.Isolation.READ_COMMITTED)
     public void confirmBooking(Long bookingId, Long customerId, String fullName, String phone, String email,
-            String cccd, String address, String notes, String paymentMethod, String birthDateStr) {
+            String cccd, String address, String notes, String paymentMethod) {
         RoomBooking booking = roomBookingRepository.findByIdAndCustomerId(bookingId, customerId)
                 .orElseThrow(() -> new BusinessException("FORBIDDEN",
                         "Đơn đặt phòng không thuộc về tài khoản này hoặc không tồn tại!"));
@@ -906,28 +885,6 @@ public class BookingServiceImpl implements BookingService {
         }
 
         // Cập nhật thông tin khách hàng từ form NẾU họ chưa có thông tin trong profile
-        if (birthDateStr != null && !birthDateStr.trim().isEmpty()) {
-            try {
-                LocalDate birthDate = LocalDate.parse(birthDateStr);
-                if (java.time.temporal.ChronoUnit.YEARS.between(birthDate, LocalDate.now()) < 18) {
-                    throw new BusinessException("UNDER_AGE", "Người đại diện thực hiện thủ tục nhận phòng phải từ đủ 18 tuổi trở lên.");
-                }
-                if (customer.getBirthDate() == null) {
-                    customer.setBirthDate(birthDate);
-                }
-            } catch (java.time.format.DateTimeParseException e) {
-                throw new BusinessException("INVALID_DATE", "Ngày sinh không hợp lệ.");
-            }
-        } else {
-            if (customer.getBirthDate() == null) {
-                throw new BusinessException("MISSING_DOB", "Vui lòng cung cấp ngày sinh.");
-            } else {
-                if (java.time.temporal.ChronoUnit.YEARS.between(customer.getBirthDate(), LocalDate.now()) < 18) {
-                    throw new BusinessException("UNDER_AGE", "Người đại diện thực hiện thủ tục nhận phòng phải từ đủ 18 tuổi trở lên.");
-                }
-            }
-        }
-
         if (customer.getFullName() == null || customer.getFullName().trim().isEmpty()) {
             customer.setFullName(fullName);
         }

@@ -34,7 +34,7 @@ import static org.mockito.Mockito.*;
  * ═══════════════════════════════════════════════════════════════════════════
  *
  * Standard   : ISO/IEC/IEEE 29119-3:2021
- * TDD Phase  : 🔵 REFACTOR — Tất cả 9 TC PASS; code đã được refactor Clean Code.
+ * TDD Phase  : 🔴 RED — Các test case phải FAIL trước khi implement.
  * Document   : KAWAI-TDD-MOD2-UC16-001 v1.0 (2026-06-18)
  * Test File  : DependentServiceUC16Test.java
  *
@@ -63,7 +63,7 @@ import static org.mockito.Mockito.*;
  * MOD2-017 : Invalid identification document (422)
  */
 @ExtendWith(MockitoExtension.class)
-@DisplayName("UC16 — Register Accompanying Guests (DependentService) | TDD 🔵 REFACTOR")
+@DisplayName("UC16 — Register Accompanying Guests (DependentService) | TDD 🔴 RED")
 class DependentServiceUC16Test {
 
     // ── SUT ───────────────────────────────────────────────────────────────────
@@ -136,7 +136,7 @@ class DependentServiceUC16Test {
      *   And dependentRepository.save() được gọi đúng 1 lần
      *   And encryptionService.encrypt() được gọi đúng 1 lần
      *
-     * 🔵 REFACTOR: extractCccd/validate tách private method; status=REGISTERED được set đúng.
+     * 🔴 RED: DependentService và DependentServiceImpl chưa tồn tại → COMPILE ERROR
      */
     @Test
     @DisplayName("TC-UC16-001 | CRITICAL | Đăng ký dependent mới → status=REGISTERED, id=7")
@@ -178,7 +178,7 @@ class DependentServiceUC16Test {
      *   Then ném BusinessException với errorCode "MOD2-015"
      *   And dependentRepository.save() KHÔNG được gọi
      *
-     * 🔵 REFACTOR: assertBookingIsActive() được tách riêng; phủ cả Cancelled lẫn Checked_Out.
+     * 🔴 RED: DependentServiceImpl chưa implement kiểm tra status → FAIL
      */
     @Test
     @DisplayName("TC-UC16-002 | HIGH | Booking Cancelled → BusinessException [MOD2-015]")
@@ -246,7 +246,7 @@ class DependentServiceUC16Test {
      *   Then ném BusinessException với errorCode "MOD2-016"
      *   And dependentRepository.save() KHÔNG được gọi
      *
-     * 🔵 REFACTOR: assertNoDuplicateCccd() được tách riêng; guard isNewRegistration() rõ ràng.
+     * 🔴 RED: Kiểm tra duplicate chưa được implement → FAIL
      */
     @Test
     @DisplayName("TC-UC16-003 | HIGH | Trùng CCCD trong booking → BusinessException [MOD2-016]")
@@ -292,7 +292,7 @@ class DependentServiceUC16Test {
      *   Then ném BusinessException với errorCode "MOD2-017"
      *   And dependentRepository.save() KHÔNG được gọi
      *
-     * 🔵 REFACTOR: validateCccdIfPresent() gộp 2 nhánh null+format; fail-fast trước DB call.
+     * 🔴 RED: Validation CCCD format chưa implement → FAIL
      */
     @Test
     @DisplayName("TC-UC16-004 | MEDIUM | CCCD quá ngắn (3 ký tự) → BusinessException [MOD2-017]")
@@ -351,7 +351,7 @@ class DependentServiceUC16Test {
      *   When registerDependent(55, dto{cccd:"034095099999"})
      *   Then đăng ký thành công, không ném exception
      *
-     * 🔵 REFACTOR: ACTIVE_BOOKING_STATUSES constant thay thế inline Set.of() trong hàm.
+     * 🔴 RED: DependentServiceImpl chưa cho phép Checked_In → FAIL
      */
     @Test
     @DisplayName("TC-UC16-005 | HIGH | Booking Checked_In → đăng ký thành công (SRS AF-02)")
@@ -390,7 +390,7 @@ class DependentServiceUC16Test {
      *   Then dependent được save với cccdPassportEncrypted = "ENCRYPTED_AES256_VALUE"
      *   And cccdPassportEncrypted != "034095012345" (không phải plaintext)
      *
-     * 🔵 REFACTOR: encryptCccd() private method; đảm bảo luôn gọi trước populateDependentFields().
+     * 🔴 RED: DependentServiceImpl chưa gọi encrypt trước khi save → FAIL
      */
     @Test
     @DisplayName("TC-UC16-009 | CRITICAL | CCCD phải mã hoá AES-256 trước khi lưu DB (BR-SYS-01)")
@@ -436,7 +436,7 @@ class DependentServiceUC16Test {
      *   When registerDependent(9999, dto) được gọi
      *   Then ném BusinessException với errorCode "MOD2-003"
      *
-     * 🔵 REFACTOR: findBookingOrThrow() private method; message chứa bookingId rõ ràng.
+     * 🔴 RED: DependentServiceImpl chưa handle Optional.empty() → FAIL
      */
     @Test
     @DisplayName("TC-UC16-010 | HIGH | bookingId không tồn tại → BusinessException [MOD2-003]")

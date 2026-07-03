@@ -111,22 +111,6 @@
 
 ---
 
-## 3. Bảng Tác Nhân & Phân Quyền (Actor / Role Matrix)
-
-| ROLE ID | Tên Role | Mô tả | UC được phép |
-|---------|---------|-------|-------------|
-| ROLE-01 | Guest | Khách vãng lai chưa đăng nhập | UC01.3, UC10, UC20, UC31 |
-| ROLE-02 | Customer | Khách đã đăng ký tài khoản | UC01.1, UC01.3, UC02, UC03, UC04.1, UC10, UC11, UC12.1, UC14, UC16, UC20, UC21, UC23, UC24, UC31 |
-| ROLE-03 | Receptionist | Lễ tân tiền sảnh | UC10, UC12.2, UC12.3, UC12.5, UC12.6, UC12.7, UC13.3, UC14, UC21, UC23, UC26, UC27.2 |
-| ROLE-04 | F&B Staff | Nhân viên phục vụ / Thu ngân | UC07.2, UC16, UC17, UC18 |
-| ROLE-05 | Kitchen Staff | Nhân viên bếp | UC19 |
-| ROLE-06 | Housekeeping | Nhân viên buồng phòng | UC13.2, UC13.4 |
-| ROLE-07 | Maintenance | Nhân viên kỹ thuật | UC13.5 |
-| ROLE-08 | Tour Guide | Hướng dẫn viên | UC04.2, UC22 |
-| ROLE-09 | Admin | Quản trị viên hệ thống | UC01.2, UC01.4, UC05, UC06, UC07, UC08, UC09, UC15, UC25, UC28, UC30 + toàn quyền |
-| ROLE-10 | Manager | Quản lý cấp cao | UC07.1, UC08, UC09, UC15, UC28 |
-| ROLE-11 | System | Tác nhân tự động (Cron, Trigger) | UC01.5, UC11, UC13.1, UC22.4, UC27.1, UC27.4, UC29, UC30 |
-
 ## 4. Bảng Mã Lỗi Chuẩn (Error Codes)
 
 | Error Code | HTTP | Mô tả (VI) | BR / UC liên quan |

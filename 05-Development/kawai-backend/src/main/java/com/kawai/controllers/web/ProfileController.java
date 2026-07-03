@@ -85,17 +85,6 @@ public class ProfileController {
         model.addAttribute("customer", customer);
 
         if (customer != null) {
-            if (customer.getCccdPassportEncrypted() != null && !customer.getCccdPassportEncrypted().isEmpty()) {
-                try {
-                    String decryptedCccd = EncryptionUtils.decrypt(customer.getCccdPassportEncrypted());
-                    model.addAttribute("decryptedCccd", decryptedCccd);
-                } catch (Exception e) {
-                    model.addAttribute("decryptedCccd", customer.getCccdPassportEncrypted());
-                }
-            } else {
-                model.addAttribute("decryptedCccd", "");
-            }
-
             // Get bookings where customer is master
             List<RoomBooking> masterBookings = roomBookingRepository.findByCustomerOrderByIdDesc(customer);
             // Get details where customer is occupant

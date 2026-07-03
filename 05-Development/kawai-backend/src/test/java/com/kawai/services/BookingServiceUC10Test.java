@@ -107,7 +107,7 @@ class BookingServiceUC10Test {
         private RoomBookingDetailRepository roomBookingDetailRepository;
 
         @Mock
-        private com.kawai.repositories.RefundRequestRepository refundRequestRepository;
+        private com.kawai.services.interfaces.PaymentRefundService paymentRefundService;
 
         @Mock
         private com.kawai.services.interfaces.NotificationService notificationService;
@@ -417,11 +417,7 @@ class BookingServiceUC10Test {
                 when(roomBookingRepository.findByIdAndCustomerId(201L, 1L)).thenReturn(Optional.of(booking));
 
                 // Act
-                com.kawai.dto.CancelRequestDTO cancelReq = new com.kawai.dto.CancelRequestDTO();
-                cancelReq.setBankName("VCB");
-                cancelReq.setAccountNumber("123");
-                cancelReq.setAccountName("A");
-                BookingResponseDTO response = bookingService.cancelBooking(201L, 1L, cancelReq);
+                BookingResponseDTO response = bookingService.cancelBooking(201L, 1L);
 
                 // Assert — hoàn tiền đúng
                 assertNotNull(response, "Response không được null");
@@ -466,7 +462,7 @@ class BookingServiceUC10Test {
                 when(roomBookingRepository.findByIdAndCustomerId(202L, 1L)).thenReturn(Optional.of(booking));
 
                 // Act
-                BookingResponseDTO response = bookingService.cancelBooking(202L, 1L, null);
+                BookingResponseDTO response = bookingService.cancelBooking(202L, 1L);
 
                 // Assert — không hoàn tiền
                 assertNotNull(response, "Response không được null");

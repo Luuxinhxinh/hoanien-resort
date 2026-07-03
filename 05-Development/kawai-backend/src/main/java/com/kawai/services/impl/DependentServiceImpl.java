@@ -457,7 +457,7 @@ public class DependentServiceImpl implements DependentService {
             if (cccdEnc != null && !cccdEnc.isBlank()) {
                 try {
                     dto.setCccd(com.kawai.utils.EncryptionUtils.decrypt(cccdEnc));
-                } catch (Exception e) {
+                } catch (Throwable e) {
                     dto.setCccd(cccdEnc);
                 }
             }

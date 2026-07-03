@@ -21,7 +21,6 @@ public class MasterDataServiceImpl implements MasterDataService {
     private final BookingRepository bookingRepository;
     private final RoleRepository roleRepository;
     private final DailyRateRepository dailyRateRepository;
-    private final DynamicPricingRepository dynamicPricingRepository;
     private final AccountRepository accountRepository;
     private final AuditLogRepository auditLogRepository;
 
@@ -489,7 +488,7 @@ public class MasterDataServiceImpl implements MasterDataService {
                 });
                 break;
             case "pricing":
-                dynamicPricingRepository.findById(entityId).ifPresent(dynamicPricingRepository::delete);
+                dailyRateRepository.findById(entityId).ifPresent(dailyRateRepository::delete);
                 break;
         }
     }

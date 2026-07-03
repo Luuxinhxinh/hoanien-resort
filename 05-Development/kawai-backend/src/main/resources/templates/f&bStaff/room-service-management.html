@@ -55,7 +55,7 @@
 
       <div class="nav-section-label">Tài chính</div>
 
-      <a href="/fbStaff/shift-report" th:href="@{/fbStaff/shift-report}" class="nav-item">
+      <a href="/fbStaff/shift-report" th:href="@{/fbStaff/shift-report}" class="nav-item" sec:authorize="hasAnyAuthority('OP_FNB_REPORT', 'OP_ANALYTICS', 'ROLE_ADMIN', 'ROLE_MANAGER')">
         <span class="material-symbols-outlined">bar_chart</span>
         <span>Báo cáo ngày</span>
       </a>
@@ -143,7 +143,6 @@
           <button class="pill" data-filter="ready">Ready</button>
           <button class="pill" data-filter="delivering">Delivering</button>
           <button class="pill" data-filter="served">Served</button>
-          <button class="pill" data-filter="cancelled">Cancelled</button>
         </div>
       </div>
 
@@ -172,7 +171,7 @@
                 <button class="btn btn-sm btn-primary" th:data-floor="${entry.key}" onclick="dispatchFloor(this.getAttribute('data-floor'))"><span class="material-symbols-outlined" style="font-size:1rem; margin-right:4px;">local_shipping</span> Giao Tầng</button>
               </td>
             </tr>
-            <tr th:each="order : ${entry.value}" class="rs-row" th:classappend="${order.rawStatus == 'cancelled' || order.rawStatus == 'refunded'} ? 'row-cancelled' : ''" th:data-status="${order.rawStatus}" th:data-floor="${entry.key}" th:data-orderid="${order.displayId}">
+            <tr th:each="order : ${entry.value}" class="rs-row" th:data-status="${order.rawStatus}" th:data-floor="${entry.key}" th:data-orderid="${order.displayId}">
               <td class="col-id"><a th:href="@{/fbStaff/order-detail(id=${order.displayId})}" style="font-weight:600; color:var(--primary-color);" th:text="${order.displayId}">RS-1024</a></td>
               <td class="col-room"><span class="room-badge" th:text="${order.room}">208</span></td>
               <td class="col-guest" th:text="${order.guestName}">Trần Thị Lan Anh</td>
@@ -188,7 +187,6 @@
                 <span class="order-status-chip chip-ready" th:if="${order.rawStatus == 'ready'}"><span class="dot"></span>Ready</span>
                 <span class="order-status-chip chip-delivering" th:if="${order.rawStatus == 'delivering'}" style="background:#e0f7fa; color:#006064; border-color:#006064;"><span class="dot" style="background:#006064;"></span>Delivering</span>
                 <span class="order-status-chip chip-served" th:if="${order.rawStatus == 'served'}"><span class="dot"></span>Served</span>
-                <span class="order-status-chip chip-cancelled" th:if="${order.rawStatus == 'cancelled' || order.rawStatus == 'refunded'}" style="background:#fce4e4; color:#cc0000; border-color:#cc0000;"><span class="dot" style="background:#cc0000;"></span>Cancelled</span>
               </td>
               <td class="col-action">
                 <button th:if="${order.rawStatus == 'ready'}" class="btn btn-sm btn-outline" th:data-id="${order.id}" onclick="updateStatus(this.getAttribute('data-id'), 'delivering')"><span class="material-symbols-outlined" style="font-size:1rem; margin-right:4px;">local_shipping</span> Đi Giao</button>

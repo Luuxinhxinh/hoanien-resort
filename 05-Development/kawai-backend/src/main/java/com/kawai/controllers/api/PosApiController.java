@@ -81,20 +81,6 @@ public class PosApiController {
         }
     }
 
-    @PostMapping("/orders/{id}/cancel")
-    public ResponseEntity<?> cancelOrder(@PathVariable Long id,
-            @RequestBody(required = false) com.kawai.dtos.CancelOrderRequestDTO dto) {
-        try {
-            posService.cancelOrder(id, dto);
-            return ResponseEntity.ok().body(Map.of("status", "success", "message", "Đã hủy đơn hàng thành công"));
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(400).body(Map.of(
-                    "error", e.getClass().getName(),
-                    "message", e.getMessage() != null ? e.getMessage() : "null message"));
-        }
-    }
-
     @PostMapping("/batch-update-status")
     public ResponseEntity<?> batchUpdateStatus(@RequestBody Map<String, Object> payload) {
         try {
@@ -111,5 +97,4 @@ public class PosApiController {
                     "message", e.getMessage() != null ? e.getMessage() : "null message"));
         }
     }
-
 }
