@@ -1,7 +1,7 @@
-# 🏨 Hệ thống Quản trị Resort & Khách sạn Hoa Niên (Kawai Resort)
+# 🏨 Hệ thống Quản trị Resort & Khách sạn Hòa Niên
 
 ## 📌 Giới thiệu dự án
-Đây là hệ thống phần mềm quản lý tổng thể dành cho Khách sạn & Resort Hoa Niên (Kawai Resort). Hệ thống bao quát toàn bộ quy trình vận hành thực tế của một resort quy mô lớn, từ việc khách hàng đặt phòng trực tuyến, lễ tân đón khách, quản lý nhà hàng (F&B), điều hành Tour du lịch, cho đến các luồng phê duyệt tài chính khép kín của cấp Quản lý.
+Đây là hệ thống phần mềm quản lý tổng thể dành cho **Hòa Niên Retreat & Resort**. Hệ thống bao quát toàn bộ quy trình vận hành thực tế của một resort quy mô lớn, từ việc khách hàng đặt phòng trực tuyến, lễ tân đón khách, quản lý nhà hàng (F&B), điều hành Tour du lịch, cho đến các luồng phê duyệt tài chính khép kín của cấp Quản lý.
 
 ## 🏗 Phân quyền và Chức năng chính (Roles)
 Hệ thống được thiết kế với nhiều phân hệ (module) chuyên sâu theo từng vị trí việc làm:
@@ -53,7 +53,7 @@ Mở Terminal / Command Prompt tại thư mục gốc của dự án (nơi có f
 ```bash
 mvn spring-boot:run
 ```
-Sau khi terminal báo `Started KawaiBackendApplication`, bạn mở trình duyệt và truy cập:
+Sau khi terminal báo `Started HoanienBackendApplication`, bạn mở trình duyệt và truy cập:
 👉 **http://localhost:8080**
 
 ---
