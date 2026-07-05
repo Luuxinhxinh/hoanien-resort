@@ -105,9 +105,6 @@ public class SecurityConfig {
                         // Night-audit
                         .requestMatchers("/receptionist/night-audit", "/receptionist/night-audit/**").hasAnyAuthority(
                                 "ROLE_ADMIN", "ROLE_MANAGER", "OP_NIGHT_AUDIT")
-                        // Housekeeping ops (via receptionist portal)
-                        .requestMatchers("/receptionist/operations", "/receptionist/operations/**").hasAnyAuthority(
-                                "ROLE_ADMIN", "ROLE_MANAGER", "OP_HOUSEKEEPING")
                         // Catch-all for any other /receptionist/** paths
                         .requestMatchers("/receptionist/**").hasAnyAuthority(
                                 "ROLE_ADMIN", "ROLE_MANAGER",

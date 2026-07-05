@@ -597,12 +597,12 @@ public class VnPayServiceImpl implements VnPayService {
         } else {
             txn.setStatus(PaymentStatus.FAILED);
             if (booking != null && "Pending_Payment".equals(booking.getBookingStatus())) {
-                booking.setBookingStatus("Cancelled");
+                booking.setBookingStatus("Cancelled_Payment");
                 if (booking instanceof com.kawai.models.RoomBooking) {
                     java.util.List<com.kawai.models.RoomBookingDetail> details = roomBookingDetailRepository
                             .findByRoomBookingId(booking.getId());
                     for (com.kawai.models.RoomBookingDetail detail : details) {
-                        detail.setDetailStatus("Cancelled");
+                        detail.setDetailStatus("Cancelled_Payment");
                         if (detail.getRoom() != null) {
                             com.kawai.models.Room room = detail.getRoom();
                             room.setRoomStatus("Vacant_Clean");

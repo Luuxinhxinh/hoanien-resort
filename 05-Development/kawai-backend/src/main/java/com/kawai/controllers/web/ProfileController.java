@@ -66,6 +66,9 @@ public class ProfileController {
     private com.kawai.repositories.DependentRepository dependentRepository;
 
     @Autowired
+    private com.kawai.repositories.RoomGuestRepository roomGuestRepository;
+
+    @Autowired
     private com.kawai.repositories.PaymentTransactionRepository paymentTransactionRepository;
 
     @Autowired
@@ -186,7 +189,10 @@ public class ProfileController {
             }
             model.addAttribute("foodOrders", foodOrders);
 
-            List<com.kawai.models.Dependent> dependents = dependentRepository.findByCustomer(customer);
+            List<com.kawai.models.Dependent> dependents = dependentRepository.findByCustomer(customer).stream()
+                    .filter(d -> !"Khách đi kèm".equalsIgnoreCase(d.getDependentName()))
+                    .filter(d -> d.getIsDeleted() == null || !d.getIsDeleted())
+                    .collect(java.util.stream.Collectors.toList());
             model.addAttribute("dependents", dependents);
 
             List<com.kawai.models.TableReservation> tableReservations = tableReservationRepository
@@ -303,6 +309,19 @@ public class ProfileController {
         Customer customer = customerRepository.findByAccount_Username(username)
                 .orElseGet(() -> customerRepository.findByEmail(username).orElse(null));
         if (customer != null) {
+            // Ngăn chặn spam data: Giới hạn mỗi khách hàng chỉ được lưu tối đa 40 người đi
+            // cùng
+            List<com.kawai.models.Dependent> dependents = dependentRepository.findByCustomer(customer).stream()
+                    .filter(d -> !"Khách đi kèm".equalsIgnoreCase(d.getDependentName()))
+                    .filter(d -> d.getIsDeleted() == null || !d.getIsDeleted())
+                    .collect(java.util.stream.Collectors.toList());
+            long currentDependentsCount = dependents.size();
+            if (currentDependentsCount >= 40) {
+                redirectAttributes.addFlashAttribute("error",
+                        "Danh bạ của bạn đã đầy. Bạn chỉ được phép lưu tối đa 40 người đi cùng!");
+                return "redirect:/profile";
+            }
+
             com.kawai.models.Dependent dep = new com.kawai.models.Dependent();
             dep.setCustomer(customer);
             dep.setDependentName(dependentName);
@@ -341,11 +360,12 @@ public class ProfileController {
             com.kawai.models.Dependent dep = dependentRepository.findById(id).orElse(null);
             if (dep != null && dep.getCustomer().getId().equals(customer.getId())) {
                 try {
-                    dependentRepository.delete(dep);
+                    dep.setIsDeleted(true);
+                    dependentRepository.save(dep);
                     redirectAttributes.addFlashAttribute("success", "Xóa người đi cùng thành công!");
                 } catch (Exception e) {
                     redirectAttributes.addFlashAttribute("error",
-                            "Không thể xóa người đi cùng vì đang được sử dụng trong các đơn đặt phòng!");
+                            "Không thể xóa người đi cùng vì lỗi hệ thống!");
                 }
             } else {
                 redirectAttributes.addFlashAttribute("error", "Không tìm thấy người đi cùng!");

@@ -29,8 +29,9 @@
                 </div>
 
                 <!-- Logo -->
-                <div class="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 font-headline text-[32px] italic tracking-tighter text-hoanien-text text-center cursor-pointer w-max"
-                    onclick="window.location.href='/'">HoaNien</div>
+                <div id="paymentPageLogo"
+                    class="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 font-headline text-[32px] italic tracking-tighter text-hoanien-text text-center cursor-pointer w-max">
+                    HoaNien</div>
 
                 <!-- Right -->
                 <div class="hidden lg:flex items-center gap-6 text-[13px] uppercase tracking-[0.2em] font-semibold">
@@ -106,6 +107,16 @@
                                     th:readonly="${customer != null && customer.email != null && !customer.email.isEmpty()}"
                                     th:classappend="${customer != null && customer.email != null && !customer.email.isEmpty() ? 'readonly-field' : ''}"
                                     placeholder="email@example.com" autocomplete="email" required />
+                            </div>
+
+                            <!-- Ngày sinh -->
+                            <div class="form-group">
+                                <label for="fieldDob">Ngày sinh <span class="req">*</span></label>
+                                <input type="date" id="fieldDob" name="dateOfBirth"
+                                    th:value="${customer != null && customer.birthDate != null ? customer.birthDate : ''}"
+                                    th:readonly="${customer != null && customer.birthDate != null}"
+                                    th:classappend="${customer != null && customer.birthDate != null ? 'readonly-field' : ''}"
+                                    required />
                             </div>
 
 
@@ -373,6 +384,8 @@
             </div>
         </div>
     </div>
+
+
 
     <!-- Toast container -->
     <div id="co-toast-container"></div>

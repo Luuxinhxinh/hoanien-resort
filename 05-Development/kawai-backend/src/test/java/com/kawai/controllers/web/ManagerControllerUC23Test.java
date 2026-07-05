@@ -165,10 +165,10 @@ public class ManagerControllerUC23Test {
         when(tourBookingRepository.revenueOnDate(any(LocalDate.class))).thenReturn(BigDecimal.ZERO);
 
         // Act
-        String viewName = managerController.revenueDaily(model);
+        String viewName = managerController.revenue(model);
 
         // Assert
-        assertEquals("manager/revenue-daily", viewName);
+        assertEquals("manager/revenue", viewName);
 
         // 1M + 500k + 300k = 1,800,000 → fmt() = "2M" (vì >= 1M, làm tròn)
         String totalToday = (String) model.getAttribute("totalToday");
@@ -178,7 +178,7 @@ public class ManagerControllerUC23Test {
 
         // Kiểm tra có đủ rows (9 ngày gần nhất)
         @SuppressWarnings("unchecked")
-        List<?> rows = (List<?>) model.getAttribute("rows");
+        List<?> rows = (List<?>) model.getAttribute("dailyRows");
         assertNotNull(rows);
         assertEquals(9, rows.size());
     }
@@ -223,11 +223,11 @@ public class ManagerControllerUC23Test {
                 .thenReturn(new BigDecimal("20000000"));
 
         // Act
-        String viewName = managerController.revenueMonthly(model);
+        String viewName = managerController.revenue(model);
 
         // Assert
-        assertEquals("manager/revenue-monthly", viewName);
-        String growthYoY = (String) model.getAttribute("growthYoY");
+        assertEquals("manager/revenue", viewName);
+        String growthYoY = (String) model.getAttribute("growthVsLast");
         assertNotNull(growthYoY);
         // (120M - 100M) / 100M * 100 = 20.0% → "+20.0%"
         assertEquals("+20.0%", growthYoY);
@@ -256,10 +256,10 @@ public class ManagerControllerUC23Test {
         when(roomBookingRepository.countOccupiedRoomsOnDate(any(LocalDate.class))).thenReturn(40);
 
         // Act
-        String viewName = managerController.analyticsOccupancy(model);
+        String viewName = managerController.analyticsRoom(model);
 
         // Assert
-        assertEquals("manager/analytics-occupancy", viewName);
+        assertEquals("manager/analytics-room", viewName);
 
         // currentOccupancy = 25 / 50 * 100 = 50
         assertEquals(50L, model.getAttribute("currentOccupancy"));

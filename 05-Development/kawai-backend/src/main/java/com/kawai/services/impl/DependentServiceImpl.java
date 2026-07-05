@@ -126,13 +126,20 @@ public class DependentServiceImpl implements DependentService {
             assertNoDuplicateCccd(bookingId, cccdEncrypted);
         }
 
-        // Steps 7–8: Persist Dependent
+        // Lưu lại ngày sinh CŨ TRƯỚC KHI ghi đè — dùng để hoàn phụ thu trẻ em nếu bị nâng cấp lên ADULT
+        LocalDate oldBirthDate = null;
+        if (!isNewRegistration(dto)) {
+            oldBirthDate = dependentRepository.findById(dto.getDependentId())
+                    .map(Dependent::getBirthDate).orElse(null);
+        }
+
+        // Steps 7–8: Persist Dependent (ghi đè ngày sinh mới vào DB)
         Dependent saved = buildAndSaveDependent(dto, booking, cccdEncrypted);
         saveFaceImageIfPresent(saved, dto.getFaceImageBase64());
 
         // Step 9: Handle room-level guest linkage and surcharges
         if (dto.getRoomBookingDetailId() != null) {
-            linkGuestToRoomDetail(saved, dto, booking);
+            linkGuestToRoomDetail(saved, dto, booking, oldBirthDate);
         }
 
         log.info("[UC16] Dependent registered: bookingId={}, dependentId={}", bookingId, saved.getId());
@@ -232,7 +239,7 @@ public class DependentServiceImpl implements DependentService {
     private void assertNoDuplicateCccd(Long bookingId, String cccdEncrypted) {
         if (cccdEncrypted != null && dependentRepository.countDuplicateInBooking(bookingId, cccdEncrypted) > 0) {
             throw new BusinessException("MOD2-016",
-                    "Guest already registered under this reservation [MOD2-016]");
+                    "Căn cước bị trùng với người khác trong cùng một đơn đặt phòng [MOD2-016]");
         }
     }
 
@@ -309,18 +316,56 @@ public class DependentServiceImpl implements DependentService {
     // ══════════════════════════════════════════════════════════════════════
 
     /**
-     * Liên kết Dependent vào RoomBookingDetail và tính phụ thu theo độ tuổi nếu
-     * cần.
+     * Liên kết Dependent vào RoomBookingDetail và tính phụ thu theo độ tuổi nếu cần.
+     *
+     * @param oldBirthDate Ngày sinh CŨ của Dependent (trước khi bị ghi đè), dùng để hoàn phụ thu
+     *                     trẻ em khi nâng cấp CHILD → ADULT. Null nếu đây là đăng ký mới.
      */
-    private void linkGuestToRoomDetail(Dependent saved, DependentRegistrationDTO dto, RoomBooking booking) {
+    private void linkGuestToRoomDetail(Dependent saved, DependentRegistrationDTO dto,
+            RoomBooking booking, LocalDate oldBirthDate) {
         RoomBookingDetail detail = roomBookingDetailRepository.findById(dto.getRoomBookingDetailId())
                 .orElseThrow(() -> new BusinessException("MOD2-019", "RoomBookingDetail not found"));
 
         int age = calculateAge(saved.getBirthDate());
+        boolean isAdultNow = age >= ADULT_AGE_THRESHOLD;
 
         if (isNewRegistration(dto)) {
+            // Khách đi kèm mới hoàn toàn: tính phụ thu bình thường theo độ tuổi thực
             BigDecimal extraFee = applyGuestCountAndCalculateSurcharge(detail, booking, age, detail.getCategory());
             persistDetailAndBookingIfSurcharge(detail, booking, extraFee, saved.getId());
+        } else {
+            // Cập nhật thông tin khách đã có: kiểm tra có nâng cấp CHILD → ADULT không
+            Optional<RoomGuest> existingGuestOpt = roomGuestRepository.findByDependentId(saved.getId());
+            if (existingGuestOpt.isPresent()) {
+                RoomGuest existingGuest = existingGuestOpt.get();
+                if (GUEST_TYPE_CHILD.equals(existingGuest.getGuestType()) && isAdultNow) {
+                    // Bước 1: Hoàn lại phụ thu trẻ em đã thu — dùng ngày sinh CŨ (trước khi ghi đè)
+                    int oldAge = calculateAge(oldBirthDate); // dùng oldBirthDate truyền vào, không phải saved!
+                    Optional<RoomSurcharge> oldChildSurchargeOpt = roomSurchargeRepository
+                            .findSurchargeForAge(detail.getCategory(), oldAge);
+                    BigDecimal oldChildFeePerNight = oldChildSurchargeOpt
+                            .map(RoomSurcharge::getPriceModifier).orElse(BigDecimal.ZERO);
+                    BigDecimal oldChildFee = multiplyByNightsIfPositive(oldChildFeePerNight, booking);
+
+                    if (oldChildFee.compareTo(BigDecimal.ZERO) > 0) {
+                        BigDecimal afterRefund = detail.getExtraSurcharge() != null
+                                ? detail.getExtraSurcharge().subtract(oldChildFee)
+                                : BigDecimal.ZERO;
+                        detail.setExtraSurcharge(afterRefund.max(BigDecimal.ZERO));
+                        booking.setTotalPrice(booking.getTotalPrice().subtract(oldChildFee));
+                        bookingRepository.save(booking);
+                        roomBookingDetailRepository.save(detail);
+                        log.info("[UC16-UPGRADE] Reversed CHILD surcharge {} VND for dep={}", oldChildFee, saved.getId());
+                    }
+
+                    // Bước 2: Tính phụ thu người lớn mới (chỉ tính phần vượt quá quota paidAdults)
+                    BigDecimal newAdultFee = applyGuestCountAndCalculateSurcharge(detail, booking, age, detail.getCategory());
+                    persistDetailAndBookingIfSurcharge(detail, booking, newAdultFee, saved.getId());
+
+                    log.info("[UC16-UPGRADE] CHILD→ADULT upgrade: dep={}, netFee={}",
+                            saved.getId(), newAdultFee.subtract(oldChildFee));
+                }
+            }
         }
 
         saveOrUpdateRoomGuest(saved, dto, detail, age);
@@ -426,7 +471,7 @@ public class DependentServiceImpl implements DependentService {
         rg.setDependent(saved);
         rg.setCustomer(null);
         rg.setIsPrimaryContact(Boolean.TRUE.equals(dto.getIsPrimaryContact()));
-        rg.setGuestType(age < 12 ? GUEST_TYPE_CHILD : GUEST_TYPE_ADULT);
+        rg.setGuestType(age < ADULT_AGE_THRESHOLD ? GUEST_TYPE_CHILD : GUEST_TYPE_ADULT);
 
         roomGuestRepository.saveAndFlush(rg);
     }

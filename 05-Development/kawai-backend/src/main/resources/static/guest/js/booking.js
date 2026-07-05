@@ -1,6 +1,7 @@
 // Global Booking
 let selectedRoomsCart = {};
 let cartHoldConfirmedBookingId = null;
+let isRedirectingToPayment = false;
 
 const today = new Date();
 const defaultCheckOut = new Date(today);
@@ -903,6 +904,7 @@ function confirmCartBooking() {
 
                     // Redirect sang trang thanh toán với bookingId
                     setTimeout(() => {
+                        isRedirectingToPayment = true;
                         window.location.href = `/payment?bookingId=${data.bookingId}`;
                     }, 1200);
                 }
@@ -1040,6 +1042,13 @@ document.addEventListener("DOMContentLoaded", function () {
         sessionStorage.removeItem('loginToastShown');
     }
 
+    // Xóa giỏ hàng khi có hành động logout
+    document.addEventListener('submit', (e) => {
+        if (e.target && e.target.action && e.target.action.includes('/auth/logout')) {
+            sessionStorage.clear();
+        }
+    });
+
     // Initialize rooms pagination
     initRoomsPagination();
 
@@ -1063,5 +1072,18 @@ document.addEventListener("DOMContentLoaded", function () {
             subNav.style.opacity = '1';
             subNav.style.transform = 'translateY(0)';
         }, 300);
+    }
+});
+
+window.addEventListener('beforeunload', (e) => {
+    if (cartHoldConfirmedBookingId && !isRedirectingToPayment) {
+        e.preventDefault();
+        e.returnValue = 'Đơn đặt phòng của bạn sẽ bị hủy nếu bạn rời khỏi trang này. Bạn có chắc chắn muốn thoát?';
+    }
+});
+
+window.addEventListener('pagehide', () => {
+    if (cartHoldConfirmedBookingId && !isRedirectingToPayment) {
+        fetch(`/api/bookings/${cartHoldConfirmedBookingId}/cancel`, { method: 'POST', keepalive: true });
     }
 });
