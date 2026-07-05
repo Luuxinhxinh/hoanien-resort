@@ -2,7 +2,6 @@ package com.kawai.controllers.web;
 
 import com.kawai.dto.CheckinSubmitFormDTO;
 import com.kawai.dto.DependentRegistrationDTO;
-import com.kawai.dto.TourRoomAllocationDTO;
 import com.kawai.exceptions.BusinessException;
 import com.kawai.models.RoomBookingDetail;
 import com.kawai.models.TourBooking;

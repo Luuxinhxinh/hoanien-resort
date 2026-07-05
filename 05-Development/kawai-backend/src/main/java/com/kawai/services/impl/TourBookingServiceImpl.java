@@ -179,6 +179,13 @@ public class TourBookingServiceImpl implements TourBookingService {
                 if (appliedPromotion != null) {
                         booking.setAppliedPromotion(appliedPromotion);
                 }
+                
+                if (request.getRoomBookingId() != null) {
+                    booking.setRoomBooking((RoomBooking) bookingRepository.findById(request.getRoomBookingId()).orElse(null));
+                }
+                if (request.getRoomBookingDetailId() != null) {
+                    booking.setRoomBookingDetail(roomBookingDetailRepository.findById(request.getRoomBookingDetailId()).orElse(null));
+                }
 
                 // Lưu thông tin chi tiết vào notes để email hiển thị
                 BigDecimal originalPrice = basePrice.multiply(new BigDecimal(request.getParticipantCount()));

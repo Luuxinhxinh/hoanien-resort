@@ -49,6 +49,17 @@ public class Dependent {
         this.faceImgUrl = faceImgUrl;
     }
 
+    @Column(name = "is_deleted", columnDefinition = "boolean default false")
+    private Boolean isDeleted = false;
+
+    public Boolean getIsDeleted() {
+        return isDeleted;
+    }
+
+    public void setIsDeleted(Boolean isDeleted) {
+        this.isDeleted = isDeleted;
+    }
+
     // Getters and Setters
     public Long getId() {
         return id;

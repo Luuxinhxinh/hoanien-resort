@@ -210,7 +210,8 @@ public class BookingServiceImpl implements BookingService {
             maxTierLimit = customer.getMembershipTier().getCreditLimit();
         }
 
-        // Tính tổng hạn mức đã sử dụng của các Đơn hàng (của khách này) đang có khoảng thời gian lưu trú giao nhau
+        // Tính tổng hạn mức đã sử dụng của các Đơn hàng (của khách này) đang có khoảng
+        // thời gian lưu trú giao nhau
         java.util.List<RoomBooking> existingBookings = roomBookingRepository.findByCustomerOrderByIdDesc(customer);
         BigDecimal utilizedLimit = BigDecimal.ZERO;
         for (RoomBooking b : existingBookings) {
@@ -219,7 +220,8 @@ public class BookingServiceImpl implements BookingService {
                 continue;
             }
             // Ktra giao nhau: b.checkIn < new.checkOut AND b.checkOut > new.checkIn
-            // (Đảm bảo trả phòng cùng ngày nhận phòng đơn mới sẽ không bị tính là giao nhau)
+            // (Đảm bảo trả phòng cùng ngày nhận phòng đơn mới sẽ không bị tính là giao
+            // nhau)
             if (b.getCheckInDate() != null && b.getCheckOutDate() != null) {
                 if (b.getCheckInDate().isBefore(checkOut) && b.getCheckOutDate().isAfter(checkIn)) {
                     if (b.getCreditLimit() != null) {
@@ -228,7 +230,7 @@ public class BookingServiceImpl implements BookingService {
                 }
             }
         }
-        
+
         BigDecimal creditLimit = maxTierLimit.subtract(utilizedLimit);
         if (creditLimit.compareTo(BigDecimal.ZERO) < 0) {
             creditLimit = BigDecimal.ZERO;
@@ -446,25 +448,17 @@ public class BookingServiceImpl implements BookingService {
         if (!staleHolds.isEmpty()) {
             staleHolds.forEach(h -> {
                 try {
-                    // Xóa các chi tiết phòng (RoomBookingDetail) và khách (RoomGuest)
-                    List<com.kawai.models.RoomBookingDetail> details = roomBookingDetailRepository.findByRoomBookingId(h.getId());
+                    // Chuyển trạng thái sang Cancelled_Payment để giải phóng phòng thay vì xóa
+                    h.setBookingStatus("Cancelled_Payment");
+                    h.setHoldExpiresAt(null);
+                    List<com.kawai.models.RoomBookingDetail> details = roomBookingDetailRepository
+                            .findByRoomBookingId(h.getId());
                     for (com.kawai.models.RoomBookingDetail detail : details) {
-                        List<com.kawai.models.RoomGuest> guests = roomGuestRepository.findByRoomBookingDetailId(detail.getId());
-                        for (com.kawai.models.RoomGuest guest : guests) {
-                            com.kawai.models.Dependent dep = guest.getDependent();
-                            roomGuestRepository.delete(guest);
-                            if (dep != null) {
-                                try {
-                                    dependentRepository.delete(dep);
-                                } catch (Exception ignored) {}
-                            }
-                        }
-                        roomBookingDetailRepository.delete(detail);
+                        detail.setDetailStatus("Cancelled_Payment");
+                        roomBookingDetailRepository.save(detail);
                     }
-                    
-                    // Xóa chính Booking
-                    roomBookingRepository.delete(h);
-                    
+                    roomBookingRepository.save(h);
+
                     if (h.getCustomer() != null) {
                         try {
                             notificationService.sendNotification(
@@ -624,7 +618,8 @@ public class BookingServiceImpl implements BookingService {
             throw new BusinessException("BKG-005", "Invalid booking status");
         }
 
-        if ("Pending".equalsIgnoreCase(booking.getBookingStatus()) || "Pending_Payment".equalsIgnoreCase(booking.getBookingStatus())) {
+        if ("Pending".equalsIgnoreCase(booking.getBookingStatus())
+                || "Pending_Payment".equalsIgnoreCase(booking.getBookingStatus())) {
             deletePendingBooking(bookingId, customerId);
             BookingResponseDTO response = new BookingResponseDTO();
             response.setBookingId(bookingId);
@@ -791,12 +786,14 @@ public class BookingServiceImpl implements BookingService {
         generalBooking.setTotalPrice(discountedPrice.setScale(0, RoundingMode.HALF_UP));
 
         Promotion promotion = promotionRepository.findByPromoCode(couponCode)
-                .orElseThrow(() -> new BusinessException("PROMOTION_NOT_FOUND", "Mã giảm giá không tồn tại hoặc đã hết hạn!"));
+                .orElseThrow(() -> new BusinessException("PROMOTION_NOT_FOUND",
+                        "Mã giảm giá không tồn tại hoặc đã hết hạn!"));
         generalBooking.setAppliedPromotion(promotion);
 
         if (generalBooking instanceof RoomBooking) {
             RoomBooking roomBooking = (RoomBooking) generalBooking;
-            roomBooking.setDepositAmount(discountedPrice.multiply(new BigDecimal("0.3")).setScale(0, RoundingMode.HALF_UP));
+            roomBooking.setDepositAmount(
+                    discountedPrice.multiply(new BigDecimal("0.3")).setScale(0, RoundingMode.HALF_UP));
             roomBookingRepository.save(roomBooking);
         } else if (generalBooking instanceof com.kawai.models.TourBooking) {
             tourBookingRepository.save((com.kawai.models.TourBooking) generalBooking);
@@ -828,7 +825,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     @Transactional(isolation = org.springframework.transaction.annotation.Isolation.READ_COMMITTED)
     public void confirmBooking(Long bookingId, Long customerId, String fullName, String phone, String email,
-            String cccd, String address, String notes, String paymentMethod) {
+            String cccd, java.time.LocalDate dateOfBirth, String address, String notes, String paymentMethod) {
         RoomBooking booking = roomBookingRepository.findByIdAndCustomerId(bookingId, customerId)
                 .orElseThrow(() -> new BusinessException("FORBIDDEN",
                         "Đơn đặt phòng không thuộc về tài khoản này hoặc không tồn tại!"));
@@ -901,6 +898,18 @@ public class BookingServiceImpl implements BookingService {
             customer.setEmail(email);
         }
 
+        // Kiểm tra đủ 18 tuổi nếu có dateOfBirth
+        if (dateOfBirth != null) {
+            int age = java.time.Period.between(dateOfBirth, java.time.LocalDate.now()).getYears();
+            if (age < 18) {
+                throw new BusinessException("AGE_RESTRICTION", "Bạn phải từ đủ 18 tuổi trở lên để đặt phòng.");
+            }
+            // Chỉ cập nhật nếu profile chưa có
+            if (customer.getBirthDate() == null) {
+                customer.setBirthDate(dateOfBirth);
+            }
+        }
+
         if (cccd != null && !cccd.equals("********") && !cccd.trim().isEmpty()) {
             if (!com.kawai.utils.ValidationUtils.isValidDocument(cccd)) {
                 throw new BusinessException("INVALID_CCCD",
@@ -911,7 +920,7 @@ public class BookingServiceImpl implements BookingService {
                 customer.setCccdPassportEncrypted(com.kawai.utils.EncryptionUtils.encrypt(cccd.trim()));
             }
         }
-        
+
         if (customer.getAddress() == null || customer.getAddress().trim().isEmpty()) {
             if (address != null && !address.trim().isEmpty()) {
                 customer.setAddress(address.trim());
@@ -979,28 +988,26 @@ public class BookingServiceImpl implements BookingService {
     public void deletePendingBooking(Long bookingId, Long customerId) {
         RoomBooking booking = roomBookingRepository.findByIdAndCustomerId(bookingId, customerId)
                 .orElseThrow(() -> new BusinessException("BOOKING_NOT_FOUND", "Không tìm thấy đơn đặt phòng"));
-        
-        if (!"Pending".equalsIgnoreCase(booking.getBookingStatus()) && !"Pending_Payment".equalsIgnoreCase(booking.getBookingStatus())) {
+
+        if (!"Pending".equalsIgnoreCase(booking.getBookingStatus())
+                && !"Pending_Payment".equalsIgnoreCase(booking.getBookingStatus())) {
             throw new BusinessException("INVALID_STATE", "Chỉ có thể xóa đơn đang ở trạng thái chờ");
         }
-        
-        List<com.kawai.models.RoomBookingDetail> details = roomBookingDetailRepository.findByRoomBookingId(booking.getId());
+
+        // Thay vì xóa cứng, ta chuyển trạng thái sang Cancelled_Payment để giải phóng
+        // phòng
+        booking.setBookingStatus("Cancelled_Payment");
+        booking.setHoldExpiresAt(null);
+
+        List<com.kawai.models.RoomBookingDetail> details = roomBookingDetailRepository
+                .findByRoomBookingId(booking.getId());
         for (com.kawai.models.RoomBookingDetail detail : details) {
-            List<com.kawai.models.RoomGuest> guests = roomGuestRepository.findByRoomBookingDetailId(detail.getId());
-            for (com.kawai.models.RoomGuest guest : guests) {
-                com.kawai.models.Dependent dep = guest.getDependent();
-                roomGuestRepository.delete(guest);
-                if (dep != null) {
-                    try {
-                        dependentRepository.delete(dep);
-                    } catch (Exception ignored) {}
-                }
-            }
-            roomBookingDetailRepository.delete(detail);
+            detail.setDetailStatus("Cancelled_Payment");
+            roomBookingDetailRepository.save(detail);
         }
-        
-        roomBookingRepository.delete(booking);
-        log.info("Deleted pending booking {} manually by customer {}", bookingId, customerId);
+
+        roomBookingRepository.save(booking);
+        log.info("Soft-cancelled pending booking {} manually by customer {}", bookingId, customerId);
     }
 
     private long calculateAvailableRooms(String catName, java.time.LocalDate checkIn, java.time.LocalDate checkOut) {
@@ -1027,5 +1034,4 @@ public class BookingServiceImpl implements BookingService {
         }
 
     }
-
 }

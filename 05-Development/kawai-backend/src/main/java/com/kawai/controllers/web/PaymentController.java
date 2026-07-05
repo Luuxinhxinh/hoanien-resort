@@ -40,9 +40,17 @@ public class PaymentController {
 
         // Pre-fill customer info nếu đã đăng nhập
         if (isLoggedIn && authentication != null) {
-            Customer customer = customerRepository
-                    .findByAccount_Username(authentication.getName())
-                    .orElse(null);
+            String username = authentication.getName();
+            if (principal instanceof org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken) {
+                org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken oauthToken = 
+                    (org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken) principal;
+                username = oauthToken.getPrincipal().getAttribute("email");
+            }
+            
+            Customer customer = customerRepository.findByAccount_Username(username).orElse(null);
+            if (customer == null) {
+                customer = customerRepository.findByEmail(username).orElse(null);
+            }
             model.addAttribute("customer", customer);
         }
 
