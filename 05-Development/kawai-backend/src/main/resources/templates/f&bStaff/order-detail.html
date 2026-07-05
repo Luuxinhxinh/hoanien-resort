@@ -48,9 +48,9 @@
 
       <div class="nav-section-label">Tài chính</div>
 
-      <a href="/fbStaff/shift-report" th:href="@{/fbStaff/shift-report}" class="nav-item" sec:authorize="hasAnyAuthority('OP_FNB_REPORT', 'OP_ANALYTICS', 'ROLE_ADMIN', 'ROLE_MANAGER')">
+      <a href="/fbStaff/shift-report" th:href="@{/fbStaff/shift-report}" class="nav-item" sec:authorize="hasAnyAuthority('OP_FNB_REPORT', 'OP_FNB', 'ROLE_ADMIN', 'ROLE_MANAGER')">
         <span class="material-symbols-outlined">bar_chart</span>
-        <span>Báo cáo ca</span>
+        <span>Báo cáo ngày</span>
       </a>
     </nav>
     <div class="sidebar-footer">
@@ -103,13 +103,7 @@
 
     <div class="dashboard-body detail-wrapper">
       
-      <!-- Toggle Mock View (For Demo only) -->
-      <div class="demo-toggle" style="margin-bottom: 20px; background:var(--bg-card); padding:10px 15px; border-radius:var(--radius-md); border:1px dashed var(--namia-text); display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-        <strong style="color:var(--text-secondary); font-size:0.8rem;">DEMO NAV:</strong>
-        <button class="btn btn-sm btn-outline" onclick="window.location.href='/fbStaff/order-detail?type=food&id=ORD-001'">Food Order (Dine-in)</button>
-        <button class="btn btn-sm btn-outline" onclick="window.location.href='/fbStaff/order-detail?type=food&id=ORD-002&mode=room'">Food Order (Room Svc)</button>
-        <button class="btn btn-sm btn-outline" onclick="window.location.href='/fbStaff/order-detail?type=table&id=RES-105'">Table Reservation</button>
-      </div>
+
 
       <div class="detail-card">
         
