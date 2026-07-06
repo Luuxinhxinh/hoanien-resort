@@ -2,6 +2,64 @@ const ALERT_AUDIO = new Audio('https://actions.google.com/sounds/v1/alarms/beep_
 ALERT_AUDIO.playbackRate = 2.0;
 let lastAlertedRooms = new Set();
 
+// ── WalkIn Pending Clean Rooms ─────────────────────────────────────────────
+// Khi lễ tân bấm "Yêu cầu dọn & Phân phòng (Treo)" trên trang WalkIn,
+// roomNum được lưu vào sessionStorage['walkInPendingCleanRooms'].
+// Hàm bên dưới poll trực tiếp roomStatus của từng phòng đó.
+// Khi phòng chuyển sang Vacant_Clean → hiện toast ngay trên màn WalkIn.
+async function pollPendingWalkInRooms() {
+    try {
+        const raw = sessionStorage.getItem('walkInPendingCleanRooms');
+        if (!raw) return;
+        const pendingRooms = JSON.parse(raw); // { roomNum: true, ... }
+        if (!pendingRooms || Object.keys(pendingRooms).length === 0) return;
+
+        const roomNums = Object.keys(pendingRooms);
+        const params = roomNums.map(r => 'rooms=' + encodeURIComponent(r)).join('&');
+        const res = await fetch('/receptionist/api/notifications/room-status?' + params);
+        if (!res.ok) return;
+        const statusMap = await res.json(); // { "101": "Vacant_Clean", "102": "Vacant_Dirty" }
+
+        let changed = false;
+        roomNums.forEach(roomNum => {
+            const status = statusMap[roomNum];
+            if (status === 'Vacant_Clean') {
+                // Phòng đã dọn xong → hiện toast
+                showToastAlert(`✅ Phòng ${roomNum} đã dọn xong! Bạn có thể tiếp tục hoàn tất đơn Walk-in.`, roomNum);
+                playAlertSound();
+                delete pendingRooms[roomNum];
+                changed = true;
+            }
+        });
+
+        if (changed) {
+            if (Object.keys(pendingRooms).length === 0) {
+                sessionStorage.removeItem('walkInPendingCleanRooms');
+            } else {
+                sessionStorage.setItem('walkInPendingCleanRooms', JSON.stringify(pendingRooms));
+            }
+        }
+    } catch (err) {
+        console.error('Failed to poll walk-in pending clean rooms:', err);
+    }
+}
+
+function playAlertSound() {
+    let playCount = 0;
+    const maxPlays = 3;
+    const playHandler = () => {
+        playCount++;
+        if (playCount < maxPlays) {
+            ALERT_AUDIO.play().catch(e => console.log('Autoplay blocked:', e));
+        } else {
+            ALERT_AUDIO.removeEventListener('ended', playHandler);
+        }
+    };
+    ALERT_AUDIO.removeEventListener('ended', playHandler);
+    ALERT_AUDIO.addEventListener('ended', playHandler);
+    ALERT_AUDIO.play().catch(e => console.log('Autoplay blocked:', e));
+}
+
 async function pollCleanedRooms() {
     try {
         const res = await fetch('/receptionist/api/notifications/cleaned-rooms');
@@ -11,43 +69,20 @@ async function pollCleanedRooms() {
         let playSound = false;
         let currentAlertedRooms = new Set();
 
-        const closedRoomsData = JSON.parse(localStorage.getItem('closedAlertRooms') || '{"date":"", "rooms":[]}');
-        const today = new Date().toISOString().split('T')[0];
-        if (closedRoomsData.date !== today) {
-            closedRoomsData.date = today;
-            closedRoomsData.rooms = [];
-            localStorage.setItem('closedAlertRooms', JSON.stringify(closedRoomsData));
-        }
 
         rooms.forEach(roomInfo => {
             const roomNum = roomInfo.roomNumber;
             const customerName = roomInfo.customerName;
 
-            // Bỏ qua nếu Lễ tân đã bấm X tắt thông báo phòng này trong ngày hôm nay
-            if (closedRoomsData.rooms.includes(roomNum)) return;
-
             currentAlertedRooms.add(roomNum);
             if (!lastAlertedRooms.has(roomNum)) {
                 playSound = true;
-                // Show notification to user
                 showToastAlert(`Ting! 🔔 Phòng ${roomNum} đã dọn xong! Vui lòng báo khách (${customerName}) lên nhận thẻ từ!`, roomNum);
             }
         });
 
         if (playSound) {
-            let playCount = 0;
-            const maxPlays = 3;
-            const playHandler = () => {
-                playCount++;
-                if (playCount < maxPlays) {
-                    ALERT_AUDIO.play().catch(e => console.log('Autoplay blocked:', e));
-                } else {
-                    ALERT_AUDIO.removeEventListener('ended', playHandler);
-                }
-            };
-            ALERT_AUDIO.removeEventListener('ended', playHandler);
-            ALERT_AUDIO.addEventListener('ended', playHandler);
-            ALERT_AUDIO.play().catch(e => console.log('Autoplay blocked:', e));
+            playAlertSound();
         }
 
         lastAlertedRooms = currentAlertedRooms;
@@ -58,17 +93,23 @@ async function pollCleanedRooms() {
 
 window.dismissRoomAlert = function (roomNum, element) {
     element.remove();
-    // Lưu vào localStorage để không hiện lại khi F5
-    const closedRoomsData = JSON.parse(localStorage.getItem('closedAlertRooms') || '{"date":"", "rooms":[]}');
-    const today = new Date().toISOString().split('T')[0];
-    if (closedRoomsData.date !== today) {
-        closedRoomsData.date = today;
-        closedRoomsData.rooms = [];
-    }
-    if (!closedRoomsData.rooms.includes(roomNum)) {
-        closedRoomsData.rooms.push(roomNum);
-        localStorage.setItem('closedAlertRooms', JSON.stringify(closedRoomsData));
-    }
+    // Thêm vào lastAlertedRooms để không hiện lại trong session này
+    lastAlertedRooms.add(roomNum);
+    // Xóa khỏi walkInPendingCleanRooms nếu có
+    try {
+        const raw = sessionStorage.getItem('walkInPendingCleanRooms');
+        if (raw) {
+            const pending = JSON.parse(raw);
+            if (pending[roomNum]) {
+                delete pending[roomNum];
+                if (Object.keys(pending).length === 0) {
+                    sessionStorage.removeItem('walkInPendingCleanRooms');
+                } else {
+                    sessionStorage.setItem('walkInPendingCleanRooms', JSON.stringify(pending));
+                }
+            }
+        }
+    } catch (e) { /* ignore */ }
 };
 
 function showToastAlert(message, roomNum) {
@@ -114,6 +155,8 @@ function showToastAlert(message, roomNum) {
     // Bỏ tự động remove, để Lễ tân chủ động bấm X xác nhận mới mất
 }
 
-// Start polling
+// Start polling — interval 5 giây
 pollCleanedRooms();
-setInterval(pollCleanedRooms, 15000);
+pollPendingWalkInRooms();
+setInterval(pollCleanedRooms, 10000);
+setInterval(pollPendingWalkInRooms, 10000);

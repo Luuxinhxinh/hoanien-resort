@@ -1,3 +1,4 @@
+
 # ENGINEERING DOCUMENTATION STANDARD (EDS) v2.0
 
 ## WF-03 — Check-in Tiền sảnh (Front Office Check-in & Room Assignment)
@@ -356,17 +357,17 @@ public class CheckinServiceImpl implements CheckinService {
         if (rawPin != null && !rawPin.isEmpty()) {
             detail.setPersonalPinHash(passwordEncoder.encode(rawPin));
         }
-      
+  
         detail.setRoom(room);
         detail.setSubCreditLimit(creditLimit);
         detail.setDetailStatus("CHECKED_IN");
-      
+  
         room.setRoomStatus("Occupied_Clean");
         room.setCurrentBookingDetailId(detail.getId());
-      
+  
         // Auto update Booking status
         updateParentBookingStatus(detail.getRoomBooking());
-      
+  
         return roomBookingDetailRepo.save(detail);
     }
 }
@@ -391,11 +392,11 @@ public class ReceptionistCheckinWebController {
             redirectAttributes.addFlashAttribute("error", bindingResult.getAllErrors().get(0).getDefaultMessage());
             return "redirect:/receptionist/walk-in";
         }
-      
+  
         try {
             // Process Dependents & PII Encryption
             dependentService.saveDependents(form.getBookingId(), form.getDependents());
-          
+      
             // Iterate over selected rooms and check-in
             for (int i = 0; i < form.getAssignedRoomNumbers().size(); i++) {
                 checkinService.checkIn(
@@ -406,10 +407,10 @@ public class ReceptionistCheckinWebController {
                     form.getRoomPinCodes().get(i)
                 );
             }
-          
+      
             redirectAttributes.addFlashAttribute("success", "Check-in thành công!");
             return "redirect:/receptionist/in-house";
-          
+      
         } catch (BusinessException ex) {
             redirectAttributes.addFlashAttribute("error", ex.getMessage());
             return "redirect:/receptionist/walk-in";
@@ -525,7 +526,7 @@ curl -X POST "http://localhost:8080/receptionist/checkin/complete" \
 
 ## 16. Authorization Matrix (Bảng chặn phân quyền)
 
-| Endpoint / Action                      |         GUEST         |    CUSTOMER    | RECEPTIONIST |   ADMIN/MANAGER   |
-| :------------------------------------- | :--------------------: | :-------------: | :----------: | :----------------: |
-| `GET /receptionist/walk-in` |           ❌           |           ❌           |      ✔️      |         ✔️         |
-| `POST /receptionist/checkin/complete` |           ❌           |           ❌           |      ✔️      |         ✔️         |
+| Endpoint / Action                       | GUEST | CUSTOMER | RECEPTIONIST | ADMIN/MANAGER |
+| :-------------------------------------- | :---: | :------: | :----------: | :-----------: |
+| `GET /receptionist/walk-in`           |  ❌  |    ❌    |     ✔️     |     ✔️     |
+| `POST /receptionist/checkin/complete` |  ❌  |    ❌    |     ✔️     |     ✔️     |

@@ -175,8 +175,16 @@ public class TourBookingServiceImpl implements TourBookingService {
                 booking.setBookingSource("Direct_Web");
                 booking.setTotalPrice(totalPrice);
                 booking.setTourCharge(totalPrice);
+                booking.setIsWalkInTour(request.isWalkInTour());
                 if (appliedPromotion != null) {
                         booking.setAppliedPromotion(appliedPromotion);
+                }
+                
+                if (request.getRoomBookingId() != null) {
+                    booking.setRoomBooking((RoomBooking) bookingRepository.findById(request.getRoomBookingId()).orElse(null));
+                }
+                if (request.getRoomBookingDetailId() != null) {
+                    booking.setRoomBookingDetail(roomBookingDetailRepository.findById(request.getRoomBookingDetailId()).orElse(null));
                 }
 
                 // Lưu thông tin chi tiết vào notes để email hiển thị
@@ -310,17 +318,7 @@ public class TourBookingServiceImpl implements TourBookingService {
                 Employee employee = employeeRepository.findById(employeeId)
                                 .orElseThrow(() -> new IllegalStateException("TOUR-003: Employee not found"));
 
-                if ("GUIDE".equalsIgnoreCase(staffRole)) {
-                    LocalDate date = schedule.getDepartureDate();
-                    List<TourStaffAssignment> existingAssignments = tourStaffAssignmentRepository.findByEmployeeId(employeeId);
-                    for (TourStaffAssignment existing : existingAssignments) {
-                        if (existing.getSchedule() != null && "GUIDE".equalsIgnoreCase(existing.getStaffRole())) {
-                            if (existing.getSchedule().getDepartureDate().equals(date) && !existing.getSchedule().getId().equals(scheduleId)) {
-                                throw new IllegalStateException("Hướng dẫn viên " + employee.getFullName() + " đã kẹt lịch trình tour khác trong ngày " + date);
-                            }
-                        }
-                    }
-                }
+
 
                 TourStaffAssignment assignment = new TourStaffAssignment();
                 assignment.setSchedule(schedule);

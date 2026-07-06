@@ -16,13 +16,17 @@
 | **Based on EDS** | v2.0                        |
 
 > **Quy ước TDD:** Tài liệu này mô tả test cases TRƯỚC khi viết production code.
-> Thứ tự bắt buộc: viết test (`.java`) → chạy → xác nhận FAIL 🔴 �| Ngày      | Người thực hiện | Nội dung thay đổi                                                                                                                   |
+> Thứ tự bắt buộc: viết test (`.java`) → chạy → xác nhận FAIL 🔴 → implement → PASS 🟢 → refactor 🔵.
+
+---
+
+### CHANGELOG
+
+| Ngày      | Người thực hiện | Nội dung thay đổi                                                                                                                   |
 | ---------- | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| 2026-06-30 | Antigravity AI      | **REFACTOR** — Clean Code: named constants (ROOM_STATUS_*, BOOKING_STATUS_*, DEFAULT_CREDIT_LIMIT), pre-validate loop + room cache, tách 8 private methods, `CustomerLookupResult` thay thế array trick. 13/13 TC PASS. |
 | 2026-06-21 | Chu Xuân Dũng               | **v1.2** — Loai bo TC-M2-023/2 (CCCD null — tre em khong bat buoc co CCCD), TC-M2-023/3 (fullName — Bean Validation o Controller), TC-M2-026 (Concurrency — DB-level lock), TC-M2-032 (covered by TC-M2-028). Gop TC-M2-030 thanh @ParameterizedTest. Tong con **10 test case**. |
 | 2026-06-19 | Chu Xuân Dũng     | Refactor scope: xóa TC-M2-022 (trùng TC-M2-021), chuyển TC-M2-027 sang Security Suite, thu gọn E2E, bổ sung TC-M2-031/032/033/034 |
-| 2026-06-19 | Chu Xuân Dũng     |  Khởi tạo tài liệu TDD cho UC-14 (Walk-in Guest Check-in)                                                                         |
- TDD cho UC-14 (Walk-in Guest Check-in)                                                                         |
+| 2026-06-19 | Chu Xuân Dũng     |  Khởi tạo tài liệu TDD cho UC-14 (Walk-in Guest Check-in)                                                                         |
 
 ---
 
@@ -513,16 +517,16 @@ NGOÀI PHẠM VI UC-14 (test riêng):
 
 | UC    | TC ID     | Mô tả ngắn                                                              | Test File                             | 🔴 RED | 🔴 Commit | 🔴 Date | 🟢 GREEN | 🟢 Commit | 🟢 Date | 🔵 REFACTOR | 🔵 Commit | 🔵 Note |
 | ----- | --------- | ------------------------------------------------------------------------ | ------------------------------------- | ------ | --------- | ------- | -------- | --------- | ------- | ----------- | --------- | ------- |
-| UC-14 | TC-M2-021 | Walk-in thành công: Booking + OCCUPIED + Account tạo mới              | `WalkInCheckInServiceUC14Test.java` | [x]    | —         | 2026-06-22 | [x]   | —         | 2026-06-22 | [x]         | —         | Named constants `BOOKING_STATUS_CHECKED_IN`, `BOOKING_SOURCE_WALK_IN`, `ROOM_STATUS_OCCUPIED`. `buildWalkInResponse()` tách riêng. |
-| UC-14 | TC-M2-023 | E-01: CCCD sai format → từ chối; dateOfBirth null → từ chối        | `WalkInCheckInServiceUC14Test.java` | [x]    | —         | 2026-06-22 | [x]   | —         | 2026-06-22 | [x]         | —         | `validateIdentification()` tách riêng, fail-fast trước DB. |
-| UC-14 | TC-M2-024 | AF-01: Không có phòng trống → Walk-in bị chặn                      | `WalkInCheckInServiceUC14Test.java` | [x]    | —         | 2026-06-22 | [x]   | —         | 2026-06-22 | [x]         | —         | `findAndValidateRoom()` tách riêng; pre-validate loop trước Customer/Booking creation. |
-| UC-14 | TC-M2-025 | E-03: Transaction Rollback khi lỗi giữa chừng                          | `WalkInCheckInServiceUC14Test.java` | [x]    | —         | 2026-06-22 | [x]   | —         | 2026-06-22 | [x]         | —         | try/catch re-throw `BusinessException` trực tiếp, wrap `Exception` thành MOD2-UC14-005. |
-| UC-14 | TC-M2-028 | AF-02: Khách đã có profile → Reuse profile, không tạo duplicate      | `WalkInCheckInServiceUC14Test.java` | [x]    | —         | 2026-06-22 | [x]   | —         | 2026-06-22 | [x]         | —         | `CustomerLookupResult` thay thế `boolean[]` array trick trong lambda closure. |
-| UC-14 | TC-M2-029 | AF-03: Thêm khách đi kèm → Dependent record                          | `WalkInCheckInServiceUC14Test.java` | [x]    | —         | 2026-06-22 | [x]   | —         | 2026-06-22 | [x]         | —         | `buildAndSaveDependentGuest()` tách riêng, DEFAULT_GUEST_NAME / DEFAULT_GENDER constants. |
-| UC-14 | TC-M2-030 | E-02: Phòng DIRTY/MAINTENANCE → Walk-in bị chặn (@ParameterizedTest) | `WalkInCheckInServiceUC14Test.java` | [x]    | —         | 2026-06-22 | [x]   | —         | 2026-06-22 | [x]         | —         | Pre-validate loop đảm bảo room status reject trước `customerRepository.save()` / `roomBookingRepository.save()`. |
-| UC-14 | TC-M2-031 | Auto-Create Account cho khách mới (BR-08/09/10)                        | `WalkInCheckInServiceUC14Test.java` | [x]    | —         | 2026-06-22 | [x]   | —         | 2026-06-22 | [x]         | —         | `autoCreateAccount()` sử dụng UUID random password; `@Lazy CheckinService` import gọn. |
-| UC-14 | TC-M2-033 | Soft Capacity: vượt base capacity → Check-in + Phụ thu                 | `WalkInCheckInServiceUC14Test.java` | [x]    | —         | 2026-06-22 | [x]   | —         | 2026-06-22 | [x]         | —         | `validateAndCalculateSurcharge()` tách riêng; surcharge được cache từ pre-loop. |
-| UC-14 | TC-M2-035 | Hard Capacity: vượt maxAdults → Reject MOD2-UC14-009                  | `WalkInCheckInServiceUC14Test.java` | [x]    | —         | 2026-06-22 | [x]   | —         | 2026-06-22 | [x]         | —         | Hard capacity check trong pre-loop — Booking không được save trước khi vượt max. |
+| UC-14 | TC-M2-021 | Walk-in thành công: Booking + OCCUPIED + Account tạo mới              | `WalkInCheckInServiceUC14Test.java` | [x]    | —         | 2026-06-22 | [x]   | —         | 2026-06-22 | [ ]         |           |         |
+| UC-14 | TC-M2-023 | E-01: CCCD sai format → từ chối; dateOfBirth null → từ chối        | `WalkInCheckInServiceUC14Test.java` | [x]    | —         | 2026-06-22 | [x]   | —         | 2026-06-22 | [ ]         |           |         |
+| UC-14 | TC-M2-024 | AF-01: Không có phòng trống → Walk-in bị chặn                      | `WalkInCheckInServiceUC14Test.java` | [x]    | —         | 2026-06-22 | [x]   | —         | 2026-06-22 | [ ]         |           |         |
+| UC-14 | TC-M2-025 | E-03: Transaction Rollback khi lỗi giữa chừng                          | `WalkInCheckInServiceUC14Test.java` | [x]    | —         | 2026-06-22 | [x]   | —         | 2026-06-22 | [ ]         |           |         |
+| UC-14 | TC-M2-028 | AF-02: Khách đã có profile → Reuse profile, không tạo duplicate      | `WalkInCheckInServiceUC14Test.java` | [x]    | —         | 2026-06-22 | [x]   | —         | 2026-06-22 | [ ]         |           |         |
+| UC-14 | TC-M2-029 | AF-03: Thêm khách đi kèm → Dependent record                          | `WalkInCheckInServiceUC14Test.java` | [x]    | —         | 2026-06-22 | [x]   | —         | 2026-06-22 | [ ]         |           |         |
+| UC-14 | TC-M2-030 | E-02: Phòng DIRTY/MAINTENANCE → Walk-in bị chặn (@ParameterizedTest) | `WalkInCheckInServiceUC14Test.java` | [x]    | —         | 2026-06-22 | [x]   | —         | 2026-06-22 | [ ]         |           |         |
+| UC-14 | TC-M2-031 | Auto-Create Account cho khách mới (BR-08/09/10)                        | `WalkInCheckInServiceUC14Test.java` | [x]    | —         | 2026-06-22 | [x]   | —         | 2026-06-22 | [ ]         |           |         |
+| UC-14 | TC-M2-033 | Soft Capacity: vượt base capacity → Check-in + Phụ thu                 | `WalkInCheckInServiceUC14Test.java` | [x]    | —         | 2026-06-22 | [x]   | —         | 2026-06-22 | [ ]         |           |         |
+| UC-14 | TC-M2-035 | Hard Capacity: vượt maxAdults → Reject MOD2-UC14-009                  | `WalkInCheckInServiceUC14Test.java` | [x]    | —         | 2026-06-22 | [x]   | —         | 2026-06-22 | [ ]         |           |         |
 
 
 

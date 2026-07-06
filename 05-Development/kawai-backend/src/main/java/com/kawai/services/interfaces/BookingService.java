@@ -39,7 +39,7 @@ public interface BookingService {
      * @param bookingId ID của booking cần hủy
      * @return Số tiền hoàn lại (0 nếu hủy trong 48h — BR-FIN-02)
      */
-    BookingResponseDTO cancelBooking(Long bookingId, Long customerId, com.kawai.dto.CancelRequestDTO cancelRequest);
+    BookingResponseDTO cancelBooking(Long bookingId, Long customerId);
 
     /**
      * Lấy chi tiết booking (UC10.1).
@@ -55,7 +55,7 @@ public interface BookingService {
      * Xác nhận thanh toán và cập nhật thông tin khách hàng (UC10).
      */
     void confirmBooking(Long bookingId, Long customerId, String fullName, String phone, String email,
-            String cccd, String address, String notes, String paymentMethod, String birthDateStr);
+            String cccd, java.time.LocalDate dateOfBirth, String address, String notes, String paymentMethod);
 
     /**
      * Get folios for a booking based on role (Master Booker or Primary Contact).

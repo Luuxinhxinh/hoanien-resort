@@ -29,9 +29,9 @@ function showToast(msg, type = 'success') {
     let title = 'THÀNH CÔNG';
     if (type === 'error') { icon = 'fa-circle-exclamation'; title = 'LỖI'; }
     if (type === 'warning') { icon = 'fa-triangle-exclamation'; title = 'CẢNH BÁO'; }
-    
+
     toast.innerHTML = `<i class="fa-solid ${icon} custom-toast-icon"></i><div><h4 class="custom-toast-title">${title}</h4><p class="custom-toast-message">${msg}</p></div>`;
-    
+
     container.appendChild(toast);
     requestAnimationFrame(() => setTimeout(() => toast.classList.add('show'), 10));
     setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 300); }, 4000);
@@ -91,7 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function escalateDirtyRoomWalkIn(roomNum, assignAfter) {
-    fetch(`/receptionist/operations/escalate-room?roomNumber=${roomNum}`, {
+    fetch(`/receptionist/rooms/escalate-dirty?roomNumber=${roomNum}`, {
         method: 'POST',
         headers: {
             'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]') ? document.querySelector('meta[name="_csrf"]').getAttribute('content') : ''
@@ -125,6 +125,15 @@ function escalateDirtyRoomWalkIn(roomNum, assignAfter) {
                     const category = selectedOpt.dataset.category;
                     const price = selectedOpt.dataset.price;
 
+                    // Lưu phòng đang "treo" vào sessionStorage để room-alert.js poll
+                    // và hiện thông báo khi house dọn xong
+                    try {
+                        const pendingRaw = sessionStorage.getItem('walkInPendingCleanRooms');
+                        const pendingRooms = pendingRaw ? JSON.parse(pendingRaw) : {};
+                        pendingRooms[roomNum] = true;
+                        sessionStorage.setItem('walkInPendingCleanRooms', JSON.stringify(pendingRooms));
+                    } catch (e) { }
+
                     proceedAddRoomToCart(roomId, roomNum, category, price);
                 } else {
                     // Reset the dropdown if they only escalated
@@ -134,9 +143,9 @@ function escalateDirtyRoomWalkIn(roomNum, assignAfter) {
                 showToast('Lỗi khi gửi yêu cầu: ' + data.message, 'error');
             }
         }).catch(err => {
-            console.error(err);
-            showToast('Lỗi kết nối khi gửi yêu cầu khẩn cấp.', 'error');
-        });
+                console.error(err);
+                showToast('Lỗi kết nối khi gửi yêu cầu khẩn cấp.', 'error');
+            });
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -478,7 +487,7 @@ function validateGuestInfo() {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const birthDate = new Date(dob);
-    
+
     if (birthDate > today) {
         alert("LỖI: Ngày sinh không thể ở trong tương lai!");
         return false;
@@ -724,6 +733,10 @@ function submitCheckIn() {
             return response.json();
         })
         .then(data => {
+            // Xóa danh sách phòng "treo" khi WalkIn submit thành công
+            // để tránh toast trùng với pollCleanedRooms() sau khi có RBD trong DB
+            try { sessionStorage.removeItem('walkInPendingCleanRooms'); } catch (e) { /* ignore */ }
+
             const modal = document.getElementById('successModal');
             const msg = document.getElementById('modalMessage');
             const accInfo = document.getElementById('modalAccountInfo');

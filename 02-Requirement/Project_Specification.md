@@ -122,302 +122,413 @@ graph TD
 
 ---
 
-## 4. Đặc tả kỹ thuật chi tiết các Use Cases phát triển hệ thống (31 Use Cases)
+## 4. Đặc tả kỹ thuật chi tiết của 25 Use Cases phát triển hệ thống
 
-Hệ thống được chia thành 6 phân hệ cốt lõi tương ứng 6 nhóm nghiệp vụ chính:
+Hệ thống được chia thành 5 phân hệ cốt lõi tương ứng 5 nhóm nghiệp vụ chính:
 
-### 🔴 MOD1: HỆ THỐNG CỐT LÕI, XÁC THỰC & ADMIN CONFIG
+### 🔴 PHÂN HỆ 1: XÁC THỰC, HỒ SƠ & DỮ LIỆU GỐC (Sinh viên 1)
 
-#### **UC01: Quản lý Tài khoản & Xác thực (BCrypt)**
-* **UC01.1: Đăng ký khách hàng trực tuyến + xác thực OTP email**
-  * **Actor:** Guest (Customer)
-  * **Luồng xử lý chính:** Khách điền form đăng ký trực tuyến -> Validate định dạng (Email, Phone) -> Băm mật khẩu bằng BCrypt (factor=10) -> INSERT `Accounts` (trạng thái `is_active = true`, role `CUSTOMER`) và `Customers` -> Gửi Email OTP kích hoạt tài khoản.
-  * **Ràng buộc:** Mật khẩu tối thiểu 8 ký tự, có chữ hoa, thường và số. SĐT từ 10-12 số.
-  * **Inputs:** `username`, `password`, `email`, `phone`, `fullName`.
-  * **Outputs:** Thông báo đăng ký thành công, link xác thực gửi qua email.
+#### **UC01: Đăng ký & Đăng nhập (BCrypt)**
+
+* **UC01.1: Đăng ký tài khoản khách hàng trực tuyến**
+  * **Actor:** Customer (Guest)
+  * **Luồng xử lý chính:** Khách điền form đăng ký trực tuyến -> Hệ thống thực hiện Validate định dạng (Email, Phone) -> Kiểm tra tính duy nhất (tránh trùng lặp username, email, phone) -> Băm mật khẩu bằng BCrypt (độ phức tạp 10) -> Thực hiện ghi bản ghi vào bảng `Accounts` (trạng thái `is_active = true`, gán vai trò `CUSTOMER`) và bảng `Customers` -> Gửi Email chào mừng thông qua Mail Service.
+  * **Ràng buộc & Logic kiểm tra:** Mật khẩu tối thiểu 8 ký tự, chứa ít nhất một chữ hoa, chữ thường và chữ số. Số điện thoại phải gồm 10-12 số.
+  * **Dữ liệu Đầu vào (Inputs):** `username`, `password`, `email`, `phone`, `fullName`, `gender`.
+  * **Dữ liệu Đầu ra (Outputs):** Thông báo đăng ký thành công, tự động chuyển hướng về trang đăng nhập.
   * **Tác động Database:** `Accounts` (INSERT), `Customers` (INSERT).
-* **UC01.2: Admin khởi tạo tài khoản nhân viên / khách CRM**
-  * **Actor:** Admin
-  * **Luồng xử lý chính:** Admin điền form tạo nhân viên -> Chọn role tương ứng -> Hệ thống tự động tạo Account liên kết -> Gửi mail thông báo thông tin đăng nhập.
-  * **Tác động Database:** `Accounts` (INSERT), `Employees` (INSERT).
-* **UC01.3: Đăng nhập Guest (modal) + OAuth2 Google**
-  * **Actor:** Guest, Customer
-  * **Luồng xử lý chính:** Đăng nhập trực tiếp bằng Google OAuth2 -> Lấy thông tin email/tên -> Nếu chưa có tài khoản, tự động tạo tài khoản Customer mới.
-  * **Tác động Database:** `Accounts` (SELECT/INSERT), `Customers` (SELECT/INSERT).
-* **UC01.4: Đăng nhập nhân viên Ops (`/ops-login`) + redirect theo role**
-  * **Actor:** Staff
-  * **Luồng xử lý chính:** Nhân viên nhập credentials -> Spring Security xác thực -> Redirect về dashboard phù hợp: `/admin`, `/receptionist`, `/kitchen`, `/pos`.
-  * **Tác động Database:** `Accounts` (SELECT).
-* **UC01.5: Khóa tài khoản tự động sau n lần đăng nhập sai**
-  * **Actor:** System
-  * **Luồng xử lý chính:** Nhập sai liên tiếp 5 lần -> Cập nhật `failed_attempts` -> Khóa tài khoản trong 15 phút.
-  * **Tác động Database:** `Accounts` (UPDATE).
+* **UC01.2: Đăng nhập hệ thống (Form truyền thống & OAuth2 Google)**
+  * **Actor:** Customer, User (Nhân viên, Lễ tân, Admin...)
+  * **Luồng xử lý chính:**
+    * *Truyền thống:* User gửi thông tin credentials -> Spring Security xác thực thông tin thông qua `UserDetailsService` -> Kiểm tra mật khẩu khớp BCrypt -> Cấp phát Session hoặc JWT -> Ghi log đăng nhập vào `Audit_Logs`.
+    * *OAuth2 Google:* Khách hàng click đăng nhập bằng Google -> Nhận Token xác thực từ Google Auth Provider -> Giải mã lấy Email và Họ tên -> Kiểm tra trong hệ thống, nếu Email chưa tồn tại thì tự động tạo tài khoản Customer mới với mật khẩu sinh ngẫu nhiên -> Cấp quyền đăng nhập.
+  * **Ràng buộc & Logic kiểm tra:** Tài khoản phải có `is_active = true`. Tự động khóa tài khoản tạm thời trong 15 phút nếu nhập sai mật khẩu quá 5 lần liên tiếp.
+  * **Dữ liệu Đầu vào (Inputs):** `username`, `password` (Truyền thống) hoặc Google OAuth code.
+  * **Dữ liệu Đầu ra (Outputs):** JWT Token/Session Cookie, thông tin Role và Redirect URL thích hợp.
+  * **Tác động Database:** `Accounts` (SELECT), `Audit_Logs` (INSERT).
 
 #### **UC02: Đặt lại mật khẩu (Gửi Mail chứa Token giới hạn thời gian)**
-* **Actor:** Toàn bộ User
-* **Luồng xử lý chính:** Click "Quên mật khẩu" -> Nhập email -> Sinh UUID Token lưu vào DB (thời hạn 15 phút) -> Gửi mail link reset -> User click link -> Nhập mật khẩu mới -> Xác thực token hợp lệ -> Cập nhật mật khẩu mới và vô hiệu hóa token.
-* **Tác động Database:** `Accounts` (UPDATE), `PasswordResetTokens` (INSERT/DELETE).
 
-#### **UC03: Quản lý thông tin hồ sơ & người phụ thuộc**
-* **UC03.1: Cập nhật thông tin profile, đổi mật khẩu**
+* **Actor:** Customer, User
+* **Luồng xử lý chính:** User click "Quên mật khẩu" -> Nhập email -> Hệ thống kiểm tra tính tồn tại -> Sinh mã UUID Token ngẫu nhiên -> Lưu Token vào DB kèm thời hạn hết hạn (15 phút) -> Gửi Email chứa link reset có kèm Token -> User click link -> Nhập mật khẩu mới -> Hệ thống xác thực Token hợp lệ và chưa hết hạn -> Băm mật khẩu mới bằng BCrypt và cập nhật DB -> Xóa/Vô hiệu hóa Token.
+* **Ràng buộc & Logic kiểm tra:** Token chỉ được sử dụng một lần duy nhất. Hết hiệu lực sau đúng 15 phút kể từ thời điểm gửi.
+* **Dữ liệu Đầu vào (Inputs):** `email` (Bước 1), `token`, `newPassword` (Bước 2).
+* **Dữ liệu Đầu ra (Outputs):** Thông báo gửi email thành công / Đổi mật khẩu thành công.
+* **Tác động Database:** `Accounts` (UPDATE), `Password_Reset_Tokens` (INSERT/UPDATE/DELETE).
+
+#### **UC03: Quản lý thông tin hồ sơ & Định danh FaceID**
+
+* **UC03.1: Quản lý hồ sơ cá nhân & Mã hóa giấy tờ (AES-256)**
   * **Actor:** Customer
+  * **Luồng xử lý chính:** Khách truy cập trang cá nhân -> Cập nhật thông tin cơ bản -> Nhập thông tin nhạy cảm định danh (CCCD/Passport) -> Hệ thống sử dụng thuật toán AES-256 để mã hóa chuỗi thông tin này trước khi lưu trữ vào cột `cccd_passport_encrypted` tại Database nhằm tránh rò rỉ dữ liệu.
+  * **Ràng buộc & Logic kiểm tra:** Khóa mã hóa (AES Key) được cấu hình tuyệt mật trên biến môi trường hệ thống. Giải mã chỉ thực hiện khi được yêu cầu bởi người dùng hợp lệ hoặc Lễ tân có thẩm quyền.
+  * **Dữ liệu Đầu vào (Inputs):** `fullName`, `gender`, `phone`, `email`, `cccdPassportRaw`.
+  * **Dữ liệu Đầu ra (Outputs):** Thông báo cập nhật thông tin cá nhân thành công.
   * **Tác động Database:** `Customers` (UPDATE).
-* **UC03.2: Upload avatar (`/api/v1/upload`)**
-  * **Actor:** Customer
-  * **Tác động Database:** `Customers` (UPDATE).
-* **UC03.3: Quản lý người phụ thuộc (Dependents)**
-  * **Actor:** Customer
-  * **Luồng xử lý chính:** Thêm thông tin người đi cùng (họ tên, CCCD/Passport) để phục vụ khai báo tạm trú.
-  * **Tác động Database:** `Dependents` (INSERT/UPDATE/DELETE).
+* **UC03.2: Đăng tải, trích xuất dữ liệu khuôn mặt và chuyển đổi Vector**
+  * **Actor:** Customer, Lễ tân
+  * **Luồng xử lý chính:** Khách chụp ảnh hoặc tải ảnh chân dung lên -> Server Spring Boot chuyển tiếp ảnh sang Microservice Python `kawai-ai-service` -> AI service sử dụng OpenCV/dlib để phát hiện khuôn mặt và trích xuất mảng Vector đặc trưng (128-dimensional embedding) -> Trả về mảng số Vector -> Spring Boot lưu mảng Vector này dưới dạng Text/JSON vào cột `face_vector_data`.
+  * **Ràng buộc & Logic kiểm tra:** Ảnh chụp phải đảm bảo chất lượng, đủ ánh sáng, chỉ chứa duy nhất một khuôn mặt trực diện. Ảnh lỗi/mờ sẽ bị AI service trả về mã lỗi 400.
+  * **Dữ liệu Đầu vào (Inputs):** Multipart File (Ảnh chân dung).
+  * **Dữ liệu Đầu ra (Outputs):** Xác nhận cập nhật khuôn mặt thành công.
+  * **Tác động Database:** `Tour_Attendees` hoặc `Customers` (UPDATE cột `face_vector_data`).
 
-#### **UC04: FaceID — Đăng ký & nhận diện khuôn mặt**
-* **UC04.1: Upload ảnh chân dung / vector khuôn mặt vào profile**
-  * **Actor:** Customer
-  * **Luồng xử lý chính:** Khách hàng upload ảnh trực diện chân dung -> Server gọi Python AI service trích xuất vector khuôn mặt và lưu vào DB.
-  * **Tác động Database:** `Customers` (UPDATE cột `face_vector_data`).
-* **UC04.2: Quét FaceID tại checkpoint tour (Python + face-api.js)**
-  * **Actor:** Tour Guide
-  * **Luồng xử lý chính:** Hướng dẫn viên dùng camera quét mặt khách -> So khớp vector khuôn mặt (Cosine Similarity >= 0.85) để ghi nhận điểm danh.
-  * **Tác động Database:** `TourAttendees` (UPDATE cột `attendance_status`).
+#### **UC04: Quản lý tài khoản nhân viên & Kiểm soát rủi ro**
 
-#### **UC05: Phân quyền & An ninh nội bộ**
-* **UC05.1: RBAC — Gán role & permission**
+* **UC04.1: Quản lý tài khoản & Phân quyền RBAC (Lễ tân, Bếp, Guide)**
   * **Actor:** Admin
-  * **Tác động Database:** `Roles` (UPDATE), `Accounts` (UPDATE).
-* **UC05.2: Activity Audit Log (`AuditLog`, `@LogActivity`)**
+  * **Luồng xử lý chính:** Admin thực hiện tạo mới nhân sự -> Phân phối Tài khoản đăng nhập -> Chọn gán Vai trò tương ứng trong bảng `Roles` -> Spring Security nhận cấu hình và tự động giới hạn quyền truy cập các API của phân hệ tương ứng (ví dụ: Nhân viên bếp không được gọi API Lễ tân).
+  * **Ràng buộc & Logic kiểm tra:** Nhân viên chỉ có duy nhất một vai trò chính tại một thời điểm.
+  * **Dữ liệu Đầu vào (Inputs):** `username`, `password`, `roleId`, `fullName`, `gender`, `cccd`, `phone`, `email`, `salary`.
+  * **Dữ liệu Đầu ra (Outputs):** Thông báo tạo/cập nhật tài khoản nhân sự thành công.
+  * **Tác động Database:** `Accounts` (INSERT/UPDATE), `Employees` (INSERT/UPDATE).
+* **UC04.2: Truy vết lịch sử nhật ký hệ thống (Audit Log) chống gian lận**
   * **Actor:** Admin
-  * **Luồng xử lý chính:** Log tự động ghi nhận hành vi thay đổi dữ liệu nhạy cảm (Ai, làm gì, ở đâu, lúc nào, giá trị cũ/mới).
-  * **Tác động Database:** `AuditLogs` (INSERT).
-* **UC05.3: Envers — Lịch sử thay đổi entity & rollback**
+  * **Luồng xử lý chính:** Khi có bất kỳ hành vi thay đổi dữ liệu nhạy cảm nào (Thay đổi hạn mức nợ, chỉnh sửa giá phòng động, hủy hóa đơn...) -> Hệ thống tự động kích hoạt ghi nhận Audit Log lưu thông tin: bảng dữ liệu bị tác động, giá trị cũ dạng JSON, giá trị mới dạng JSON, tài khoản thực hiện, địa chỉ IP và thời gian.
+  * **Ràng buộc & Logic kiểm tra:** Bảng `Audit_Logs` chỉ cho phép thêm mới (`INSERT`) và truy vấn (`SELECT`), chặn đứng tất cả thao tác `UPDATE` và `DELETE` để bảo mật pháp lý.
+  * **Dữ liệu Đầu vào (Inputs):** Query filters (Date, Account, Table).
+  * **Dữ liệu Đầu ra (Outputs):** Danh sách dòng log truy vết.
+  * **Tác động Database:** `Audit_Logs` (INSERT).
+
+#### **UC05: Quản lý Cấu hình Hệ thống (Core Data Config)**
+
+* **UC05.1: Quản lý dữ liệu nền (Thêm/Sửa/Xóa cấu hình phòng, bàn, tour)**
   * **Actor:** Admin
-  * **Tác động Database:** `CustomRevisionEntities` (INSERT), các bảng audit của Envers.
-* **UC05.4: Quản lý thiết bị ủy quyền Ops (`AuthorizedDevice`)**
-  * **Actor:** Admin
-  * **Tác động Database:** `AuthorizedDevices` (INSERT/UPDATE/DELETE).
-
-#### **UC06: Master Data — Hạng phòng & Phòng vật lý**
-* **Actor:** Admin
-* **Luồng xử lý chính:** CRUD hạng phòng và các phòng vật lý trong resort.
-* **Tác động Database:** `RoomCategories` (CRUD), `Rooms` (CRUD).
-
-#### **UC07: Master Data — Sơ đồ bàn ăn**
-* **Actor:** Admin, Manager
-* **Luồng xử lý chính:** CRUD bàn ăn của các nhà hàng trong khu nghỉ dưỡng.
-* **Tác động Database:** `RestaurantTables` (CRUD).
-
-#### **UC08: Master Data — Tour & Lịch trình**
-* **Actor:** Admin, Manager
-* **Luồng xử lý chính:** CRUD tour, lịch chạy tour và các điểm dừng trong hành trình.
-* **Tác động Database:** `Tours` (CRUD), `TourSchedules` (CRUD), `TourItineraries` (CRUD).
-
-#### **UC09: Giá, Marketing & Vận hành Admin**
-* **UC09.1: Cấu hình giá phòng động (`Dynamic_Pricing`)**
+  * **Luồng xử lý chính:** Admin thực hiện các thao tác CRUD danh mục các phòng vật lý, các bàn ăn nhà hàng, các hành trình du lịch lữ hành.
+  * **Ràng buộc & Logic kiểm tra:** Không cho phép xóa phòng đang có khách ở, cấm xóa bàn đang được đặt cọc trước, cấm xóa tour đang hoạt động.
+  * **Dữ liệu Đầu vào (Inputs):** Biến cấu hình tương ứng của từng thực thể nền.
+  * **Dữ liệu Đầu ra (Outputs):** Xác nhận thay đổi dữ liệu gốc thành công.
+  * **Tác động Database:** `Rooms`, `Restaurant_Tables`, `Tours`, `Menu_Items` (INSERT/UPDATE/DELETE).
+* **UC05.2: Cấu hình chiến dịch giá phòng động biến động (Mùa/Lễ tết)**
   * **Actor:** Admin, Manager
-  * **Tác động Database:** `DynamicPricing` (INSERT/UPDATE).
-* **UC09.2: CRUD bảng giá ngày (`Daily_Rates`)**
-  * **Actor:** Admin
-  * **Tác động Database:** `DailyRates` (CRUD).
-* **UC09.3: Phụ thu trẻ em theo khung tuổi (`Room_Surcharge`)**
+  * **Luồng xử lý chính:** Chọn hạng phòng -> Thiết lập khoảng ngày áp dụng -> Nhập hệ số tiền tăng/giảm (`price_modifier`) -> Tạo chính sách -> Hệ thống tự động tính toán lại và chèn/cập nhật bảng tĩnh `Daily_Rates` cho từng ngày cụ thể để phục vụ việc truy xuất tìm kiếm nhanh.
+  * **Ràng buộc & Logic kiểm tra:** Khoảng ngày áp dụng không được chồng lấn (overlap) với các chính sách giá động khác của cùng một hạng phòng.
+  * **Dữ liệu Đầu vào (Inputs):** `categoryId`, `startDate`, `endDate`, `priceModifier`, `reason`.
+  * **Dữ liệu Đầu ra (Outputs):** Bảng lịch giá phòng chi tiết sau cấu hình.
+  * **Tác động Database:** `Dynamic_Pricing` (INSERT/UPDATE), `Daily_Rates` (INSERT/UPDATE).
+* **UC05.3: Thiết lập chiến dịch Marketing & Đóng gói Combo dạng JSON**
   * **Actor:** Admin, Manager
-  * **Tác động Database:** `RoomSurcharges` (CRUD).
-* **UC09.4: CRUD chiến dịch khuyến mãi (`Promotions`)**
-  * **Actor:** Admin, Manager
-  * **Tác động Database:** `Promotions` (CRUD).
-* **UC09.5: CRUD thực đơn F&B (`Menu_Items`)**
-  * **Actor:** Admin, Manager
-  * **Tác động Database:** `MenuItems` (CRUD).
-* **UC09.8: Workflow phê duyệt nghiệp vụ (promo threshold)**
-  * **Actor:** Admin
-  * **Luồng xử lý chính:** Quản lý JSON config workflow duyệt hạn mức giảm giá hoặc ngoại lệ nghiệp vụ.
-  * **Tác động Database:** `Workflows` (INSERT/UPDATE).
-* **UC09.9: Quản lý Cronjob hệ thống (DynamicJobManager)**
-  * **Actor:** Admin
-  * **Tác động Database:** `AuditLogs` (INSERT).
+  * **Luồng xử lý chính:** Tạo mới mã Voucher khuyến mãi (`promo_code`) quy định mức giảm, số lượt dùng tối đa. Tạo các gói Combo dịch vụ (gộp phòng lưu trú + suất ăn + tour) -> Lưu trữ thông số đóng gói các dịch vụ con dưới cấu trúc chuỗi JSON để hệ thống tự động bóc tách phân phối.
+  * **Ràng buộc & Logic kiểm tra:** Cấu trúc JSON combo phải chuẩn hóa schema thiết kế.
+  * **Dữ liệu Đầu vào (Inputs):** Promo code details, JSON combo configuration.
+  * **Dữ liệu Đầu ra (Outputs):** Lưu thành công chiến dịch tiếp thị.
+  * **Tác động Database:** `Promotions` (INSERT/UPDATE).
 
 ---
 
-### 🔵 MOD2: QUẢN LÝ PHÒNG, LỄ TÂN & BUỒNG PHÒNG
+### 🔵 PHÂN HỆ 2: QUẢN LÝ PHÒNG & LỄ TÂN VẬN HÀNH (Sinh viên 2)
 
-#### **UC10: Tìm kiếm phòng trống & giá**
-* **Actor:** Guest, Customer, Receptionist
-* **Luồng xử lý chính:** Nhập ngày đến/đi và số khách -> Tính toán phòng trống khả dụng -> Trả về danh sách kèm giá tính theo `Daily_Rates`.
-* **Tác động Database:** `Rooms` (SELECT), `DailyRates` (SELECT), `RoomBookingDetails` (SELECT).
+#### **UC06: Tìm kiếm hạng phòng trống thời gian thực theo bộ lọc**
 
-#### **UC11: Khóa giữ phòng tạm (Room Cart Lock 15')**
-* **Actor:** Customer, System
-* **Luồng xử lý chính:** Khi khách chọn phòng và bấm thanh toán -> Giữ phòng tạm thời (`holdExpiresAt = now + 15 mins`) -> Tự động giải phóng nếu hết 15 phút không thanh toán.
-* **Tác động Database:** `RoomBookingDetails` (UPDATE).
+* **Actor:** Customer, Guest (Khách vãng lai)
+* **Luồng xử lý chính:** Khách nhập Ngày nhận phòng, Ngày trả phòng, Số lượng khách -> Hệ thống truy vấn đếm tổng số phòng của mỗi hạng -> Tính số lượng phòng của hạng đó đã bị khóa trước trong khoảng ngày tìm kiếm (dựa vào `Room_Booking_Details` ở trạng thái khác `Cancelled`) -> Hiển thị số lượng phòng còn trống thực tế -> Tính tổng tiền dự kiến dựa vào việc cộng dồn đơn giá theo ngày tại bảng `Daily_Rates`.
+* **Ràng buộc & Logic kiểm tra:** Ngày nhận phòng phải lớn hơn hoặc bằng ngày hiện tại. Ngày trả phòng phải sau ngày nhận phòng tối thiểu 1 ngày.
+* **Dữ liệu Đầu vào (Inputs):** `checkInDate`, `checkOutDate`, `guestsCount`.
+* **Dữ liệu Đầu ra (Outputs):** Danh sách hạng phòng trống khả dụng kèm hình ảnh, mô tả, tiện ích và tổng giá trị thanh toán.
+* **Tác động Database:** `Room_Booking_Details` (SELECT), `Daily_Rates` (SELECT), `Rooms` (SELECT).
 
-#### **UC12: Nghiệp vụ sảnh (Front Desk)**
-* **UC12.1: Đặt phòng & Đặt cọc trực tuyến đa hạng (Tích hợp VNPay)**
+#### **UC07: Đặt phòng & Quản lý quỹ giao dịch trực tuyến**
+
+* **UC07.1: Đặt phòng & Đặt cọc trực tuyến đa hạng (Tích hợp VNPay)**
   * **Actor:** Customer
-  * **Tác động Database:** `Bookings` (INSERT), `PaymentTransactions` (INSERT).
-* **UC12.2: Check-in tại quầy & Gán phòng vật lý**
-  * **Actor:** Receptionist
-  * **Tác động Database:** `RoomBookingDetails` (UPDATE), `Rooms` (UPDATE status thành `Occupied`).
-* **UC12.3: Quét OCR CCCD tự động điền form**
-  * **Actor:** Receptionist
-  * **Luồng xử lý chính:** Lễ tân upload ảnh CCCD của khách -> AI trích xuất thông tin -> Tự động cập nhật hồ sơ lưu trú.
-  * **Tác động Database:** `Customers` (UPDATE).
-* **UC12.5: Điều phối đổi phòng vật lý linh hoạt**
-  * **Actor:** Receptionist
-  * **Tác động Database:** `RoomBookingDetails` (UPDATE), `Rooms` (UPDATE).
-* **UC12.6: Check-out tất toán hóa đơn tổng**
-  * **Actor:** Receptionist
-  * **Tác động Database:** `Bookings` (UPDATE status thành `Checked_Out`), `Rooms` (UPDATE status thành `Vacant_Dirty`).
-* **UC12.7: Walk-in Check-in (Khách đặt trực tiếp tại sảnh)**
-  * **Actor:** Receptionist
-  * **Tác động Database:** `Bookings` (INSERT), `RoomBookingDetails` (INSERT), `PaymentTransactions` (INSERT).
-
-#### **UC13: Buồng phòng & Bảo trì**
-* **UC13.1: Tự động phát lệnh tác vụ dọn phòng khi khách Check-out**
+  * **Luồng xử lý chính:** Khách hàng tiến hành chọn phòng -> Xác nhận điền thông tin người lưu trú -> Hệ thống tạo đơn hàng Booking nháp ở trạng thái `Pending` -> Khóa giữ chỗ tạm thời (Cart Lock 15 phút) -> Sinh Link thanh toán cọc VNPay -> Khách tiến hành thanh toán qua ứng dụng ngân hàng -> Nhận tín hiệu Webhook Callback từ VNPay -> So khớp chữ ký bảo mật -> Cập nhật trạng thái Booking thành `Confirmed`, lưu thông tin giao dịch vào `Payment_Transactions`.
+  * **Ràng buộc & Logic kiểm tra:** Nếu VNPay phản hồi thất bại hoặc hết hạn 15 phút chưa thanh toán, hệ thống tự động chạy ngầm hủy đơn hàng và giải phòng bị giữ.
+  * **Dữ liệu Đầu vào (Inputs):** Cart Details, VNPay IPN Callback variables.
+  * **Dữ liệu Đầu ra (Outputs):** Trực quan hóa kết quả giao dịch (Thành công / Thất bại).
+  * **Tác động Database:** `Bookings` (INSERT/UPDATE), `Room_Bookings` (INSERT), `Room_Booking_Details` (INSERT), `Payment_Transactions` (INSERT).
+* **UC07.2: Áp dụng mã chiến dịch khuyến mãi / Voucher giảm giá**
+  * **Actor:** Customer
+  * **Luồng xử lý chính:** Khách nhập mã voucher -> Hệ thống truy xuất thông tin `Promotions` -> Kiểm tra: Trạng thái `is_active = true`, ngày hiện tại nằm trong hiệu lực, lượt dùng chưa vượt `max_uses` -> Thực hiện tính toán giảm giá trực tiếp vào tổng tiền Booking.
+  * **Ràng buộc & Logic kiểm tra:** Mỗi Booking chỉ được sử dụng tối đa 1 mã giảm giá.
+  * **Dữ liệu Đầu vào (Inputs):** `promoCode`, `bookingTotal`.
+  * **Dữ liệu Đầu ra (Outputs):** Giá trị giảm giá và tổng tiền thanh toán mới sau khấu trừ.
+  * **Tác động Database:** `Promotions` (SELECT, UPDATE).
+* **UC07.3: Kích hoạt khóa quỹ giữ phòng tạm thời (Room Cart Lock 15')**
   * **Actor:** System
-  * **Tác động Database:** `HotelOperations` (INSERT task `CLEANING`).
-* **UC13.2: HK cập nhật dọn phòng hoàn thành (Báo Sạch/Bẩn)**
-  * **Actor:** Housekeeper
-  * **Tác động Database:** `Rooms` (UPDATE status thành `Vacant_Clean`), `HotelOperations` (UPDATE status thành `Completed`).
-* **UC13.4: Báo hỏng thiết bị phòng (Chuyển trạng thái Maintenance)**
-  * **Actor:** Housekeeper, Receptionist
-  * **Tác động Database:** `Rooms` (UPDATE status thành `Maintenance`), `HotelOperations` (INSERT task `MAINTENANCE`).
-* **UC13.5: Hoàn thành bảo trì thiết bị**
-  * **Actor:** Maintenance Staff
-  * **Tác động Database:** `Rooms` (UPDATE status thành `Vacant_Dirty`), `HotelOperations` (UPDATE).
+  * **Luồng xử lý chính:** Khi khách hàng click chọn thanh toán đặt phòng, hệ thống lập tức chèn tạm thời số lượng phòng bị giữ vào bộ nhớ đệm cache (hoặc database nháp) với thời gian sống (TTL) 15 phút. Trong thời gian này, các khách hàng khác tìm kiếm sẽ thấy số lượng phòng trống khả dụng bị trừ đi tương ứng, ngăn chặn tuyệt đối tình trạng Overbooking.
+  * **Ràng buộc & Logic kiểm tra:** Tự động thu hồi khóa sau 15 phút nếu giao dịch thanh toán không được xác nhận thành công.
+  * **Dữ liệu Đầu vào (Inputs):** `bookingId`.
+  * **Dữ liệu Đầu ra (Outputs):** Hủy bỏ khóa giữ phòng (Giải phóng / Xác nhận giữ phòng vĩnh viễn).
+  * **Tác động Database:** `Bookings` (UPDATE trạng thái thành `Cancelled` nếu hết hạn).
+
+#### **UC08: Xem sơ đồ trạng thái phòng thời gian thực (Front Desk Dashboard)**
+
+* **Actor:** Receptionist
+* **Luồng xử lý chính:** Lễ tân truy cập dashboard -> Hệ thống kết xuất giao diện lưới (Room Matrix Grid) thể hiện toàn bộ phòng vật lý được gom nhóm theo Hạng phòng/Số tầng. Mỗi ô phòng hiển thị trực quan trạng thái vận hành hiện tại (`Vacant_Clean`, `Vacant_Dirty`, `Occupied`, `Maintenance`) kết hợp hiển thị thông tin tên khách hàng đang lưu trú và các cảnh báo khẩn cấp.
+* **Ràng buộc & Logic kiểm tra:** Cập nhật trạng thái thời gian thực bằng cơ chế WebSocket Connection.
+* **Dữ liệu Đầu vào (Inputs):** Tùy chọn bộ lọc (Tầng, Hạng phòng).
+* **Dữ liệu Đầu ra (Outputs):** Bảng hiển thị Room Matrix trực quan động.
+* **Tác động Database:** `Rooms` (SELECT), `Room_Booking_Details` (SELECT).
+
+#### **UC09: N nghiệp vụ Sảnh (Check-in / Check-out / Điều phối đoàn)**
+
+* **UC09.1: Quy trình Check-In sảnh (Quét OCR CCCD tự động điền form)**
+  * **Actor:** Receptionist
+  * **Luồng xử lý chính:** Lễ tân chụp/quét ảnh mặt trước CCCD của khách -> Upload lên Server -> Hệ thống gọi API OCR trích xuất thông tin cá nhân (Họ tên, CCCD, Ngày sinh, Giới tính, Quê quán) -> Tự động điền dữ liệu vào Form khai báo sảnh -> Lễ tân chọn gán phòng vật lý khả dụng (phải ở trạng thái `Vacant_Clean`) -> Cập nhật trạng thái `Room_Booking_Details.detail_status = 'Checked_In'` -> Trạng thái phòng chuyển sang `Occupied`.
+  * **Ràng buộc & Logic kiểm tra:** Chỉ tiến hành check-in được đối với các đơn hàng ở trạng thái `Confirmed`. Phòng vật lý chỉ định bắt buộc phải sạch sẽ (`Vacant_Clean`).
+  * **Dữ liệu Đầu vào (Inputs):** Image File (CCCD), `roomId`, `bookingId`.
+  * **Dữ liệu Đầu ra (Outputs):** Form thông tin điền sẵn tự động, mã khóa phòng / Số phòng được cấp.
+  * **Tác động Database:** `Room_Booking_Details` (UPDATE), `Rooms` (UPDATE).
+* **UC09.2: Ủy quyền hạn mức chi tiêu ví nợ phòng phát sinh**
+  * **Actor:** Receptionist
+  * **Luồng xử lý chính:** Lễ tân thiết lập giá trị nợ trần (`sub_credit_limit`) và bật cờ `is_charge_to_room_allowed = true` cho phòng cụ thể -> Khách hàng thiết lập mã PIN bảo mật 4 số (hệ thống băm bằng BCrypt và lưu vào `personal_pin_hash`) để phục vụ việc xác thực ký nợ dịch vụ tại quầy F&B/Tour.
+  * **Ràng buộc & Logic kiểm tra:** Tổng hạn mức nợ của các phòng chi tiết không được vượt quá hạn mức nợ trần của Booking tổng.
+  * **Dữ liệu Đầu vào (Inputs):** `detailId`, `subCreditLimit`, `pinRaw`.
+  * **Dữ liệu Đầu ra (Outputs):** Thiết lập hạn mức ghi nợ phòng thành công.
+  * **Tác động Database:** `Room_Booking_Details` (UPDATE).
+* **UC09.3: Điều phối đổi phòng vật lý linh hoạt cho khách lưu trú**
+  * **Actor:** Receptionist
+  * **Luồng xử lý chính:** Khách yêu cầu đổi phòng -> Lễ tân tìm phòng trống cùng hạng -> Thực hiện đổi: Cập nhật `room_id` mới vào chi tiết đặt phòng -> Chuyển trạng thái phòng cũ thành `Vacant_Dirty` -> Chuyển phòng mới thành `Occupied` -> Ghi log vết đổi phòng.
+  * **Ràng buộc & Logic kiểm tra:** Phòng mới phải trống hoàn toàn. Nếu đổi sang hạng phòng cao hơn (Upgrade), Lễ tân phải nhập số tiền phụ thu phát sinh (nếu có).
+  * **Dữ liệu Đầu vào (Inputs):** `detailId`, `newRoomId`, `priceDifference`.
+  * **Dữ liệu Đầu ra (Outputs):** Thông báo đổi phòng thành công.
+  * **Tác động Database:** `Room_Booking_Details` (UPDATE), `Rooms` (UPDATE), `Audit_Logs` (INSERT).
+* **UC09.4: Khai báo lưu trú & Chỉ định người lớn đứng tên phòng (Primary Contact)**
+  * **Actor:** Customer, Lễ tân
+  * **Luồng xử lý chính:** Thực hiện liên kết thông tin của tất cả thành viên ở chung một phòng vào danh sách lưu trú (có thể là tài khoản hệ thống `Customers` hoặc người đi kèm `Dependents`) -> Chỉ định một người lớn đại diện làm Primary Contact chịu trách nhiệm pháp lý trực tiếp cho phòng.
+  * **Ràng buộc & Logic kiểm tra:** Bắt buộc phải có tối thiểu một người lớn đứng tên đại diện pháp lý cho mỗi phòng vật lý.
+  * **Dữ liệu Đầu vào (Inputs):** `detailId`, danh sách thành viên lưu trú, `primaryCustomerId`.
+  * **Dữ liệu Đầu ra (Outputs):** Hồ sơ lưu trú của phòng được hoàn tất.
+  * **Tác động Database:** `Room_Booking_Details` (UPDATE).
+
+#### **UC10: Tác vụ buồng phòng nội bộ & Bảo trì thiết bị (Housekeeping)**
+
+* **UC10.1: Tự động phát lệnh tác vụ dọn phòng khi khách Check-out**
+  * **Actor:** System
+  * **Luồng xử lý chính:** Khi Lễ tân chuyển trạng thái phòng sang `Checked_Out`, database trigger `TRG_Auto_Housekeeping_Task` tự động chuyển trạng thái phòng vật lý đó thành `Vacant_Dirty` và sinh một bản ghi dọn dẹp mới trong bảng `Hotel_Operations` (trạng thái `Pending`, độ ưu tiên `High`).
+  * **Ràng buộc & Logic kiểm tra:** Trigger tự động kích hoạt ở tầng CSDL không cần gọi qua code Java.
+  * **Dữ liệu Đầu vào (Inputs):** Sự kiện Check-out phòng.
+  * **Dữ liệu Đầu ra (Outputs):** Sinh phiếu dọn phòng trên app của nhân viên buồng.
+  * **Tác động Database:** `Hotel_Operations` (INSERT), `Rooms` (UPDATE).
+* **UC10.2: Cập nhật tiến độ dọn dẹp trực tiếp trên App (Báo Sạch / Bẩn)**
+  * **Actor:** Housekeeping
+  * **Luồng xử lý chính:** Nhân viên buồng mở ứng dụng -> Nhận tác vụ dọn phòng -> Thực hiện dọn -> Nhấn "Hoàn thành" -> Trạng thái tác vụ chuyển thành `Completed` -> Hệ thống tự động cập nhật trạng thái phòng vật lý thành `Vacant_Clean`.
+  * **Dữ liệu Đầu vào (Inputs):** `taskId`, `notes`.
+  * **Dữ liệu Đầu ra (Outputs):** Trạng thái dọn phòng cập nhật thành công.
+  * **Tác động Database:** `Hotel_Operations` (UPDATE), `Rooms` (UPDATE).
+* **UC10.3: Xem giám sát danh sách yêu cầu dọn, sửa phòng khẩn cấp**
+  * **Actor:** Receptionist
+  * **Luồng xử lý chính:** Màn hình điều phối hiển thị toàn bộ tiến độ của các tác vụ dọn phòng đang chạy. Lễ tân có quyền click nút "Đẩy hàng ưu tiên" (Rush Room) để chuyển độ ưu tiên của một phòng thành `Urgent`, báo hiệu nhân viên buồng dọn trước phục vụ khách VIP nhận phòng sớm.
+  * **Dữ liệu Đầu vào (Inputs):** `taskId`, `priority`.
+  * **Dữ liệu Đầu ra (Outputs):** Thay đổi thứ tự ưu tiên dọn dẹp trong hàng đợi dọn phòng.
+  * **Tác động Database:** `Hotel_Operations` (UPDATE).
+* **UC10.4: Ghi nhận yêu cầu sửa chữa cơ sở vật chất (Báo hỏng thiết bị)**
+  * **Actor:** Housekeeping
+  * **Luồng xử lý chính:** Nhân viên buồng phòng phát hiện trang thiết bị phòng bị hỏng -> Lên đơn báo hỏng -> Hệ thống sinh một phiếu tác vụ kỹ thuật mới trong `Hotel_Operations` với loại `MAINTENANCE` -> Trạng thái phòng vật lý chuyển sang `Maintenance` (ngăn cản việc Lễ tân chọn phòng này để gán check-in).
+  * **Dữ liệu Đầu vào (Inputs):** `roomId`, `description`, `priority`.
+  * **Dữ liệu Đầu ra (Outputs):** Phiếu báo hỏng được chuyển tới đội Kỹ thuật.
+  * **Tác động Database:** `Hotel_Operations` (INSERT), `Rooms` (UPDATE).
+* **UC10.5: Khắc phục sự cố kỹ thuật phòng vật lý (Báo hoàn thành bảo trì)**
+  * **Actor:** Maintenance
+  * **Luồng xử lý chính:** Nhân viên sửa chữa nhận phiếu -> Khắc phục sự cố vật lý xong -> Bấm xác nhận hoàn thành trên app -> Hệ thống chuyển trạng thái phòng vật lý trở lại thành `Vacant_Dirty` (chờ dọn dẹp) hoặc `Vacant_Clean` (sẵn sàng đón khách).
+  * **Dữ liệu Đầu vào (Inputs):** `taskId`, `notes`.
+  * **Dữ liệu Đầu ra (Outputs):** Giải phóng phòng khỏi trạng thái bảo trì.
+  * **Tác động Database:** `Hotel_Operations` (UPDATE), `Rooms` (UPDATE).
 
 ---
 
-### 🔵 MOD3: F&B, POS & KDS
+### 🟡 PHÂN HỆ 3: DỊCH VỤ ẨM THỰC & NHÀ HÀNG (F&B / POS / KDS) (Sinh viên 3)
 
-#### **UC14: Đặt giữ trước bàn ăn tại nhà hàng**
-* **Actor:** Customer, Receptionist
-* **Luồng xử lý chính:** Đặt chỗ giữ bàn theo giờ hẹn -> Hệ thống cập nhật sơ đồ bàn.
-* **Tác động Database:** `TableReservations` (INSERT).
+#### **UC11: Đặt món trực tuyến lên phòng nghỉ (Room Service / E-Menu)**
 
-#### **UC15: Cấu hình thực đơn & nhãn dị ứng**
-* **Actor:** Admin, Manager
-* **Tác động Database:** `MenuItems` (INSERT/UPDATE).
+* **Actor:** Customer (Khách lưu trú)
+* **Luồng xử lý chính:** Khách quét mã QR tại phòng nghỉ -> Hệ thống giải mã Token QR lấy thông tin Số phòng -> Trả về giao diện E-Menu thực đơn -> Khách chọn món, điền ghi chú -> Chọn hình thức "Ghi nợ phòng" -> Hệ thống tạo đơn hàng `Food_Orders` (trạng thái `Pending`, loại `Room_Service`) -> Gửi tín hiệu real-time thông báo xuống màn hình nhà bếp (KDS).
+* **Ràng buộc & Logic kiểm tra:** Khách hàng bắt buộc phải đang ở trạng thái lưu trú (`Checked_In`) mới có quyền đặt Room Service. Hạn mức ví nợ phòng của khách phải đủ thanh toán đơn hàng.
+* **Dữ liệu Đầu vào (Inputs):** `roomBookingDetailId`, Cart items (item_id, quantity), `notes`.
+* **Dữ liệu Đầu ra (Outputs):** Thông báo đặt món thành công, hiển thị tiến trình món đang làm.
+* **Tác động Database:** `Food_Orders` (INSERT), `Food_Order_Details` (INSERT).
 
-#### **UC16: Đặt món trực tuyến lên phòng nghỉ (Room Service / E-Menu)**
+#### **UC12: Đặt giữ trước bàn ăn tại sảnh nhà hàng của resort**
+
 * **Actor:** Customer
-* **Luồng xử lý chính:** Khách quét QR phòng -> Lên đơn -> Báo bếp -> Cho phép chọn ghi nợ ví phòng.
-* **Tác động Database:** `FoodOrders` (INSERT), `FoodOrderDetails` (INSERT).
+* **Luồng xử lý chính:** Khách hàng chọn ngày dùng bữa, khung giờ hẹn, số khách, chọn bàn vật lý mong muốn -> Nhấn đặt chỗ -> Hệ thống kiểm tra tình trạng trống của bàn -> Lưu lịch đặt bàn vào `Table_Reservations` (trạng thái `Confirmed`) -> Gửi email xác nhận.
+* **Ràng buộc & Logic kiểm tra:** Thời điểm đặt bàn phải trước giờ dùng bữa tối thiểu 1 tiếng. Không được đặt trùng bàn trong cùng một khoảng thời gian giữ bàn quy định.
+* **Dữ liệu Đầu vào (Inputs):** `reserveDate`, `reserveTime`, `guestsCount`, `tableId`.
+* **Dữ liệu Đầu ra (Outputs):** Hóa đơn đặt bàn và thông tin mã đặt bàn.
+* **Tác động Database:** `Table_Reservations` (INSERT), `Restaurant_Tables` (SELECT).
 
-#### **UC17: POS Dine-In — Lên đơn tại bàn**
+#### **UC13: Gọi món Dine-In tại quầy (Nhân viên POS lên đơn tại bàn)**
+
 * **Actor:** F&B Staff
-* **Tác động Database:** `FoodOrders` (INSERT), `FoodOrderDetails` (INSERT).
+* **Luồng xử lý chính:** Nhân viên phục vụ đứng tại bàn gọi món -> Sử dụng Tablet POS -> Chọn bàn vật lý `table_id` -> Chọn các món ăn khách yêu cầu -> Nhấn gửi đơn -> Hệ thống tạo đơn `Food_Orders` (trạng thái `Pending`, loại `Dine_In`) -> Đẩy dữ liệu tức thời xuống màn hình KDS nhà bếp.
+* **Dữ liệu Đầu vào (Inputs):** `tableId`, List of items and quantities.
+* **Dữ liệu Đầu ra (Outputs):** Tạo đơn hàng thành công, sinh vé gọi món (KOT).
+* **Tác động Database:** `Food_Orders` (INSERT), `Food_Order_Details` (INSERT).
 
-#### **UC18: Tất toán POS / Post-to-Room (Gom Folio)**
-* **Actor:** F&B Staff, Cashier
-* **Luồng xử lý chính:** Khách ăn tại quầy muốn ghi nợ phòng -> Nhập số phòng + mã PIN -> Kiểm tra Credit Limit của phòng -> Tạo giao dịch folio.
-* **Tác động Database:** `FolioItems` (INSERT).
+#### **UC14: Màn hình nhà bếp KDS Real-time — Điều phối trạng thái món**
 
-#### **UC19: Màn hình bếp KDS Real-time**
-* **UC19.2: Đầu bếp cập nhật tiến độ (Cooking / Ready / Served)**
+* **UC14.1: Theo dõi hiển thị vé gọi món nhà bếp tập trung (Màn hình KOT)**
   * **Actor:** Kitchen Staff
-  * **Tác động Database:** `FoodOrderDetails` (UPDATE `kot_status`).
-* **UC19.3: Báo hết món (Tự động khóa thực đơn trên POS/Web)**
+  * **Luồng xử lý chính:** Màn hình KDS hiển thị danh sách các món ăn cần nấu theo thứ tự thời gian gọi món. Các món Room Service được đánh dấu cảnh báo riêng để bếp xử lý kịp thời.
+  * **Dữ liệu Đầu vào (Inputs):** WebSocket Stream từ máy chủ backend.
+  * **Dữ liệu Đầu ra (Outputs):** Màn hình hiển thị vé KOT động theo hàng đợi.
+  * **Tác động Database:** `Food_Order_Details` (SELECT).
+* **UC14.2: Cập nhật tiến độ nấu nướng (Bếp bấm chuyển COOKING / READY)**
   * **Actor:** Kitchen Staff
-  * **Tác động Database:** `MenuItems` (UPDATE `is_available = false`).
+  * **Luồng xử lý chính:** Đầu bếp click vào món ăn đang làm để báo chuyển sang `Cooking` -> Chế biến xong, đầu bếp click chuyển sang `Ready` -> Hệ thống tự động bắn tin báo cho nhân viên chạy bàn bê món đến cho khách và cập nhật trạng thái `Served`.
+  * **Dữ liệu Đầu vào (Inputs):** `detailId` (Mã chi tiết dòng order), `newStatus`.
+  * **Dữ liệu Đầu ra (Outputs):** Trạng thái món cập nhật real-time trên POS và màn hình của khách.
+  * **Tác động Database:** `Food_Order_Details` (UPDATE `kot_status`).
+* **UC14.3: Kích hoạt báo hết món ăn (Tự động khóa thực đơn trên POS/Web)**
+  * **Actor:** Kitchen Staff
+  * **Luồng xử lý chính:** Đầu bếp phát hiện một món ăn đã hết nguyên liệu -> Truy cập danh mục KDS bếp -> Click nút "Hết món" -> Hệ thống cập nhật `Menu_Items.is_available = false` -> Món ăn bị ẩn / khóa đặt trên toàn bộ hệ thống POS sảnh và Web Room Service của khách.
+  * **Dữ liệu Đầu vào (Inputs):** `itemId`.
+  * **Dữ liệu Đầu ra (Outputs):** Khóa đặt món trên toàn bộ mặt diện.
+  * **Tác động Database:** `Menu_Items` (UPDATE `is_available`).
+
+#### **UC15: Ký nợ hóa đơn ăn uống về phòng nghỉ — Post to Room (Gom Folio)**
+
+* **Actor:** F&B Staff
+* **Luồng xử lý chính:** Nhân viên POS hỏi thông tin số phòng của khách -> Nhập số phòng -> Hệ thống kiểm tra phòng đang lưu trú và có quyền ký nợ (`is_charge_to_room_allowed = true`) -> Khách hàng tiến hành nhập mã PIN 4 số trên thiết bị POS -> So khớp mã băm mật khẩu -> Kiểm tra số tiền nợ mới cộng dồn nợ cũ không vượt hạn mức nợ của phòng -> Hệ thống tạo bản ghi ghi nợ `Folio_Items` (nguồn `source_department = 'FB'`) -> Đóng đơn F&B thành công (đánh dấu `is_paid_in_pos = false`).
+* **Ràng buộc & Logic kiểm tra:** Database Trigger `TRG_Folio_Credit_Limit_Check` tự động kiểm tra hạn mức nợ. Nếu vi phạm, giao dịch bị rollback và đẩy lỗi 403.
+* **Dữ liệu Đầu vào (Inputs):** `orderId`, `roomNumber`, `pinRaw`.
+* **Dữ liệu Đầu ra (Outputs):** In hóa đơn ký nợ thành công kèm chữ ký.
+* **Tác động Database:** `Folio_Items` (INSERT), `Food_Orders` (UPDATE `payment_type = 'Charge_To_Room'`).
 
 ---
 
-### 🟢 MOD4: TOUR, ADD-ONS & ĐÁNH GIÁ
+### 🟢 PHÂN HỆ 4: QUẢN LÝ LỮ HÀNH & ĐÁNH GIÁ (Sinh viên 4)
 
-#### **UC20: Tìm kiếm hành trình lữ hành & thời tiết**
-* **Actor:** Guest, Customer
-* **Luồng xử lý chính:** Xem danh sách tour, hiển thị widget thời tiết OpenWeather tương ứng ngày chạy.
-* **Tác động Database:** `Tours` (SELECT).
+#### **UC16: Tìm kiếm hành trình trải nghiệm local ngắn giờ (Tích hợp thời tiết)**
 
-#### **UC21: Đặt vé tour & Chống Double-booking**
-* **Actor:** Customer, Receptionist
-* **Luồng xử lý chính:** Đặt vé tour -> Kiểm tra capacity của chuyến xe -> Trừ số chỗ còn trống.
-* **Tác động Database:** `TourBookings` (INSERT), `TourAttendees` (INSERT).
+* **Actor:** Customer, Guest
+* **Luồng xử lý chính:** Người dùng tìm kiếm các chuyến xe Tour trải nghiệm tại Resort -> Nhập ngày muốn đi -> Hệ thống gọi API dự báo thời tiết OpenWeather tương ứng ngày đó -> Hiển thị thông số dự báo thời tiết trực quan trên thẻ thông tin Tour (ví dụ: Cảnh báo bão/mưa dông không nên đi biển).
+* **Dữ liệu Đầu vào (Inputs):** `searchQuery`, `tourDate`.
+* **Dữ liệu Đầu ra (Outputs):** Danh sách Tour kèm cảnh báo thời tiết tương ứng ngày đi.
+* **Tác động Database:** `Tours` (SELECT), `Tour_Schedules` (SELECT).
 
-#### **UC22: Điều hành Tour**
-* **UC22.1: Phân công tài xế & Hướng dẫn viên du lịch**
-  * **Actor:** Admin
-  * **Tác động Database:** `TourStaffAssignments` (INSERT).
-* **UC22.2: Điểm danh AI Face Scan tại Checkpoint**
-  * **Actor:** Tour Guide
-  * **Luồng xử lý chính:** Chụp ảnh khách -> Microservice so khớp FaceID -> Cập nhật trạng thái điểm danh hành khách.
-  * **Tác động Database:** `TourAttendees` (UPDATE).
-* **UC22.3: Ghi nhận tọa độ GPS xe chạy**
-  * **Actor:** Tour Guide
-  * **Tác động Database:** `TourLocations` (INSERT).
-* **UC22.4: Hủy chuyến Tour do sự cố khẩn cấp (Hoàn tiền)**
-  * **Actor:** Admin
-  * **Tác động Database:** `TourSchedules` (UPDATE), `TourBookings` (UPDATE status thành `Cancelled`), `PaymentTransactions` (INSERT refund).
+#### **UC17: Điều hành & Đặt lịch chuyến xe Tour (Chống Double-booking)**
 
-#### **UC23: Add-ons dịch vụ gia tăng (Spa, Transfer Booking)**
-* **Actor:** Customer, Receptionist
-* **Tác động Database:** `BookingServices` (INSERT), `FolioItems` (INSERT).
+* **UC17.1: Duyệt và đặt lệnh mua vé gói hành trình trải nghiệm**
+  * **Actor:** Customer
+  * **Luồng xử lý chính:** Khách chọn Tour, chọn lịch đi `schedule_id` -> Chọn số lượng vé -> Thực hiện thanh toán (VNPay trực tiếp hoặc ký nợ phòng Post to Room) -> Hệ thống kiểm tra số lượng ghế trống khả dụng của chuyến xe -> Tạo hóa đơn `Tour_Bookings` và danh sách hành khách trong `Tour_Attendees`.
+  * **Ràng buộc & Logic kiểm tra:** Trigger `TRG_Tour_Capacity_Validator` sẽ chặn đứng giao dịch và báo lỗi nếu số lượng ghế đặt vượt quá sức chứa tối đa của xe Tour (`max_capacity`).
+  * **Dữ liệu Đầu vào (Inputs):** `scheduleId`, `participantCount`, danh sách thông tin người đi kèm.
+  * **Dữ liệu Đầu ra (Outputs):** Mã vé Tour điện tử.
+  * **Tác động Database:** `Tour_Bookings` (INSERT), `Tour_Attendees` (INSERT), `Tour_Schedules` (UPDATE `booked_seats` thông qua Trigger `TRG_Update_Tour_Booked_Seats`).
+* **UC17.2: Lập lịch chạy các chuyến xe (Phân công tài xế & Hướng dẫn viên)**
+  * **Actor:** Admin, Tour Guide
+  * **Luồng xử lý chính:** Quản lý lữ hành tạo mới chuyến chạy thực tế -> Chỉ định ngày, giờ khởi hành -> Phân công tài xế lái xe và Hướng dẫn viên du lịch tương ứng -> Hệ thống kiểm tra chéo lịch hoạt động của các nhân sự được chỉ định trong khoảng thời gian diễn ra tour -> Cảnh báo và chặn lập lịch nếu phát hiện nhân sự bị trùng thời gian ở một chuyến chạy khác (Double-booking).
+  * **Dữ liệu Đầu vào (Inputs):** `tourId`, `departureDate`, `departureTime`, danh sách `employeeId` được phân công.
+  * **Dữ liệu Đầu ra (Outputs):** Lập lịch chạy tour thành công.
+  * **Tác động Database:** `Tour_Schedules` (INSERT), `Tour_Staff_Assignments` (INSERT).
+* **UC17.3: Hủy chuyến Tour do sự cố khẩn cấp (Xử lý hoàn tiền/đổi lịch)**
+  * **Actor:** Admin, Tour Guide
+  * **Luồng xử lý chính:** Khi xảy ra thiên tai hoặc sự cố khẩn cấp -> Admin bấm hủy chuyến chạy tour -> Trạng thái chuyến chạy chuyển thành `Closed` -> Hệ thống tìm kiếm toàn bộ các đơn đặt `Tour_Bookings` của chuyến chạy này -> Thực hiện hoàn tiền tự động (gọi VNPay Refund) hoặc xóa khoản nợ Folio đã Post to Room -> Gửi email xin lỗi và thông báo khẩn cấp tới toàn bộ khách hàng đặt tour.
+  * **Dữ liệu Đầu vào (Inputs):** `scheduleId`, `cancelReason`.
+  * **Dữ liệu Đầu ra (Outputs):** Hoàn tất tiến trình hủy tour và hoàn trả tiền cho khách hàng.
+  * **Tác động Database:** `Tour_Schedules` (UPDATE), `Tour_Bookings` (UPDATE status to `Cancelled`), `Payment_Transactions` (INSERT refund records).
+* **UC17.4: Tự động đồng bộ phôi khách hàng từ gói Combo phòng sang Tour**
+  * **Actor:** System
+  * **Luồng xử lý chính:** Khi khách hàng đặt mua gói Combo Phòng + Tour thành công -> Hệ thống tự động bóc tách thông tin Combo -> Tự động sinh giao dịch đặt vé Tour trong `Tour_Bookings` -> Trích xuất danh sách hành khách lưu trú gán trực tiếp vào bảng danh sách hành khách tham gia chuyến đi `Tour_Attendees` mà không cần khách phải tự thao tác đặt tour thủ công.
+  * **Tác động Database:** `Tour_Bookings` (INSERT), `Tour_Attendees` (INSERT).
 
-#### **UC24: Gửi đánh giá bằng sao & feedback văn bản**
+#### **UC18: Điểm danh hành khách bằng AI quét mặt khuôn mặt tại Checkpoint**
+
+* **Actor:** Tour Guide
+* **Luồng xử lý chính:** Hướng dẫn viên chụp ảnh khách hàng bằng điện thoại khi lên xe -> Upload lên API -> Spring Boot gửi request sang microservice Python `kawai-ai-service` -> AI service trích xuất vector khuôn mặt khách chụp, thực hiện tính toán độ tương đồng Cosine Similarity với vector khuôn mặt gốc lưu trữ trong database của hành khách -> Nếu độ tương đồng vượt ngưỡng 0.8 -> Trả về định danh khách hàng -> Spring Boot cập nhật `Tour_Attendees.attendance_status = 'Boarded'` và lưu thời gian `face_matched_at`.
+* **Ràng buộc & Logic kiểm tra:** Trong trường hợp quét lỗi (do trời tối, góc chụp...), Hướng dẫn viên có quyền tích chọn điểm danh thủ công trên giao diện.
+* **Dữ liệu Đầu vào (Inputs):** Image File, `scheduleId`.
+* **Dữ liệu Đầu ra (Outputs):** Trạng thái so khớp khuôn mặt (Khớp thành công / Thất bại).
+* **Tác động Database:** `Tour_Attendees` (UPDATE cột `attendance_status`, `face_matched_at`).
+
+#### **UC19: Gửi đánh giá bằng sao & feedback văn bản (Về phòng / Tour)**
+
 * **Actor:** Customer
-* **Luồng xử lý chính:** Khách đã checkout / hoàn thành tour được quyền đánh giá dịch vụ 1-5 sao.
+* **Luồng xử lý chính:** Khách sau khi Check-out phòng hoặc hoàn thành chuyến Tour lữ hành sẽ nhận được link đánh giá -> Nhập điểm sao (1 đến 5 sao) và nhận xét chữ -> Nhấn gửi -> Hệ thống lưu bản ghi vào bảng `Reviews` ở trạng thái chờ duyệt `moderation_status = 'Pending'`.
+* **Ràng buộc & Logic kiểm tra:** Hệ thống kiểm tra chéo cơ sở dữ liệu, chỉ cho phép khách hàng đã thanh toán và hoàn tất chu kỳ dịch vụ thực tế viết đánh giá (tránh spam review khống).
+* **Dữ liệu Đầu vào (Inputs):** `ratingService`, `reviewText`, `roomBookingDetailId` (hoặc `tourBookingId`).
+* **Dữ liệu Đầu ra (Outputs):** Thông báo gửi đánh giá thành công.
 * **Tác động Database:** `Reviews` (INSERT).
 
-#### **UC25: Kiểm duyệt nội dung đánh giá của khách**
+#### **UC20: Kiểm duyệt nội dung đánh giá của khách (Ẩn bình luận toxic/spam)**
+
 * **Actor:** Admin
-* **Tác động Database:** `Reviews` (UPDATE `moderation_status`).
+* **Luồng xử lý chính:** Admin truy cập danh sách review chờ duyệt -> Xem nội dung -> Click "Phê duyệt" để công khai review ra Landing Page hoặc click "Ẩn" kèm lý do để khóa review không cho hiển thị.
+* **Dữ liệu Đầu vào (Inputs):** `reviewId`, `action` (APPROVE / HIDE), `reason`.
+* **Dữ liệu Đầu ra (Outputs):** Trạng thái kiểm duyệt review được cập nhật.
+* **Tác động Database:** `Reviews` (UPDATE).
 
 ---
 
-### 🟢 MOD5: FOLIO, TÀI CHÍNH & BÁO CÁO
+### 🟣 PHÂN HỆ 5: KIỂM TOÁN ĐÊM, TÀI CHÍNH & BÁO CÁO (Sinh viên 5)
 
-#### **UC26: Folio Aggregation — Gom hóa đơn tích lũy tự động**
-* **UC26.1: Theo dõi ví nợ phòng lẻ thời gian thực**
-  * **Actor:** Customer, Receptionist
-  * **Tác động Database:** `FolioItems` (SELECT).
-* **UC26.2: Kiểm soát nợ trần & Ví nợ phòng**
-  * **Actor:** Receptionist
-  * **Tác động Database:** `RoomBookingDetails` (SELECT/UPDATE).
-* **UC26.5: Tách hóa đơn phụ thu / hóa đơn đoàn**
-  * **Actor:** Receptionist
-  * **Tác động Database:** `FolioItems` (UPDATE `is_settled_separately`).
+#### **UC21: Folio Aggregation — Gom hóa đơn tích lũy tự động**
 
-#### **UC27: Night Audit & Thanh toán Check-out phát hành e-Invoice**
-* **UC27.1: Chạy lệnh Kiểm toán đêm (Night Audit) tự động khóa sổ (02:00 AM)**
+* **UC21.1: Theo dõi kiểm soát dư nợ phòng lẻ thời gian thực (Ví Folio)**
+  * **Actor:** Receptionist, Customer
+  * **Luồng xử lý chính:** Giao diện hiển thị ví nợ Folio của một booking. Thể hiện chi tiết tất cả các khoản chi tiêu nhỏ lẻ phát sinh từ phòng (tiền phòng hàng ngày, ăn uống nhà hàng, mua vé xe tour, đền bù mất đồ buồng phòng...) cùng hạn mức nợ còn lại.
+  * **Dữ liệu Đầu ra (Outputs):** Bảng kê chi phí Folio chi tiết thời gian thực.
+  * **Tác động Database:** `Folio_Items` (SELECT).
+* **UC21.2: Ghi vết lưu lịch sử luồng tiền nhiều đợt (Ứng trước, hoàn tiền)**
   * **Actor:** System
-  * **Luồng xử lý chính:** 02:00 AM tự động chốt ngày -> Post room charges vào folio -> Chốt doanh thu ngày -> Đổi ngày làm việc.
-  * **Tác động Database:** `FolioItems` (INSERT), `AuditLogs` (INSERT).
-* **UC27.2: Tất toán tài chính check-out & In hóa đơn**
-  * **Actor:** Receptionist
-  * **Tác động Database:** `ConsolidatedInvoices` (INSERT/UPDATE).
-* **UC27.4: Phát hành hóa đơn điện tử e-Invoice gửi mail PDF**
+  * **Luồng xử lý chính:** Mọi hành vi nạp cọc đặt phòng, đóng thêm tiền mặt tại sảnh lúc lưu trú, hoàn tiền hủy dịch vụ... đều được hệ thống tự động ghi vết thành một dòng giao dịch chi tiết trong bảng `Payment_Transactions` để phục vụ đối soát kế toán.
+  * **Tác động Database:** `Payment_Transactions` (INSERT).
+* **UC21.3: Tổng hợp hóa đơn quyết toán tổng (Gom phòng + F&B + Tour thành 1)**
   * **Actor:** System
-  * **Tác động Database:** `ConsolidatedInvoices` (SELECT).
+  * **Luồng xử lý chính:** Khi khách làm thủ tục trả phòng, hệ thống tự động quét toàn bộ các bản ghi `Folio_Items` chưa thanh toán (`is_settled_separately = false`) và tiền phòng -> Cộng dồn -> Khấu trừ số tiền đã đặt cọc trước đó -> Tính ra số tiền dư nợ thực tế cuối cùng khách phải thanh toán để Check-out.
+  * **Tác động Database:** `Folio_Items` (SELECT), `Room_Booking_Details` (SELECT).
+* **UC21.4: Chạy lệnh Kiểm toán đêm (Night Audit) tự động khóa sổ (02:00 AM)**
+  * **Actor:** System
+  * **Luồng xử lý chính:** Vào đúng **02:00 AM** hàng ngày, hệ thống chạy Scheduler ngầm tự động:
+    1. Quét toàn bộ phòng đang có khách ở (`detail_status = 'Checked_In'`).
+    2. Với mỗi phòng, lấy giá phòng của ngày hôm nay tại bảng `Daily_Rates`.
+    3. Tạo một dòng ghi nợ tiền phòng vào ví Folio (`Folio_Items` với bộ phận nguồn `ROOM`, số tiền bằng giá phòng).
+    4. Tự động dịch chuyển ngày hoạt động của khách sạn sang ngày tiếp theo.
+    5. Kết xuất dữ liệu cân đối doanh thu của ngày đã khóa sổ.
+  * **Ràng buộc & Logic kiểm tra:** Tiến trình tự động chạy ngầm, ghi nhật ký thực thi chi tiết. Nếu phát hiện lỗi (ví dụ: không có cấu hình giá phòng ngày hôm đó), hệ thống sẽ gửi cảnh báo khẩn cấp tới Quản lý.
+  * **Dữ liệu Đầu vào (Inputs):** Ngày vận hành hiện hành của hệ thống.
+  * **Dữ liệu Đầu ra (Outputs):** Ghi nhận nợ tiền phòng của đêm vào ví nợ của khách.
+  * **Tác động Database:** `Folio_Items` (INSERT), `Room_Booking_Details` (SELECT).
+* **UC21.5: Điều hướng dòng nợ & Tách hóa đơn tách ví Folio nâng cao**
+  * **Actor:** Kế toán, Lễ tân
+  * **Luồng xử lý chính:** Khách đi theo đoàn hoặc công tác yêu cầu tách hóa đơn thanh toán (Ví dụ: Công ty trả tiền phòng nghỉ, cá nhân tự trả tiền ăn uống) -> Lễ tân chọn các dòng chi phí ăn uống -> Bật cờ `is_settled_separately = true` -> Trích xuất phần này thành một hóa đơn thanh toán riêng lẻ lập tức, phần tiền phòng giữ nguyên trên hóa đơn tổng.
+  * **Dữ liệu Đầu vào (Inputs):** `folioItemId`, `action` (SPLIT / MOVE).
+  * **Dữ liệu Đầu ra (Outputs):** Hóa đơn phụ được bóc tách riêng biệt.
+  * **Tác động Database:** `Folio_Items` (UPDATE).
 
-#### **UC28: Dashboard Manager & Báo cáo USALI**
-* **UC28.1: Biểu đồ phân tích tài chính doanh thu luỹ kế**
+#### **UC22: Tất toán tài chính & Phát hành e-Invoice**
+
+* **UC22.1: Xử lý thanh toán Check-out tài chính cuối cùng tại sảnh**
+  * **Actor:** Receptionist
+  * **Luồng xử lý chính:** Lễ tân in hóa đơn tổng hợp -> Khách thanh toán số tiền nợ cuối cùng bằng thẻ hoặc chuyển khoản ngân hàng -> Lễ tân bấm nút xác nhận trả phòng -> Hệ thống cập nhật trạng thái hóa đơn tổng thành `Paid`, chuyển trạng thái `Room_Booking_Details.detail_status = 'Checked_Out'` -> Hệ thống tự động chuyển trạng thái phòng vật lý sang `Vacant_Dirty` và sinh task dọn phòng.
+  * **Ràng buộc & Logic kiểm tra:** Hệ thống khóa tính năng check-out nếu số dư nợ trên hóa đơn tổng của Booking chưa bằng 0. Mọi công nợ folio phải được tất toán hoàn toàn trước khi khách rời đi.
+  * **Dữ liệu Đầu vào (Inputs):** `bookingId`, `paymentMethod`, `amountPaid`.
+  * **Dữ liệu Đầu ra (Outputs):** Hóa đơn tổng có đóng dấu đã thanh toán, giải phóng phòng.
+  * **Tác động Database:** `Consolidated_Invoices` (UPDATE), `Room_Booking_Details` (UPDATE), `Rooms` (UPDATE), `Payment_Transactions` (INSERT).
+* **UC22.2: Tự động phát hành hóa đơn điện tử e-Invoice gửi về Email khách**
+  * **Actor:** System
+  * **Luồng xử lý chính:** Ngay sau khi hóa đơn được thanh toán thành công -> Hệ thống tự động render hóa đơn điện tử dưới dạng file tài liệu PDF có chữ ký số điện tử của Resort -> Kích hoạt gửi Mail đính kèm e-Invoice PDF tới hòm thư của khách hàng.
+  * **Tác động Database:** `Consolidated_Invoices` (SELECT).
+
+#### **UC23: Dashboard Manager — Báo cáo quản trị cấp cao**
+
+* **UC23.1: Giám sát biểu đồ phân tích tài chính doanh thu luỹ kế**
   * **Actor:** Manager
-  * **Tác động Database:** `ConsolidatedInvoices` (SELECT).
-* **UC28.4: Xuất báo cáo tài chính phân bổ chi phí chuẩn USALI**
+  * **Luồng xử lý chính:** Dashboard truy vấn tổng doanh thu theo ngày/tháng/năm, bóc tách dòng tiền chi tiết theo từng nguồn thu dịch vụ (Doanh thu phòng, Doanh thu ăn uống nhà hàng, Doanh thu bán vé Tour lữ hành) -> Vẽ biểu đồ xu hướng trực quan.
+  * **Dữ liệu Đầu ra (Outputs):** Biểu đồ doanh thu lũy kế (Line / Bar chart).
+  * **Tác động Database:** `Consolidated_Invoices` (SELECT), `Folio_Items` (SELECT).
+* **UC23.2: Kiểm soát công suất phòng & Số khách đang lưu trú (Occupancy)**
   * **Actor:** Manager
-  * **Tác động Database:** `ConsolidatedInvoices` (SELECT), `FolioItems` (SELECT).
-* **UC28.5: Export PDF / Excel (.xlsx) các loại báo cáo**
-  * **Actor:** Manager
-  * **Tác động Database:** `ExportHistories` (INSERT).
+  * **Luồng xử lý chính:** Manager xem tỷ lệ lấp đầy phòng thực tế = (Số phòng ở trạng thái `Occupied` / Tổng số phòng của Resort) * 100%. Xem tổng số lượng khách hàng thực tế đang có mặt trong khu nghỉ dưỡng sảnh.
+  * **Tác động Database:** `Rooms` (SELECT), `Room_Booking_Details` (SELECT).
+
+#### **UC24: Kết xuất báo cáo tài chính vận hành khách sạn chuẩn quốc tế USALI**
+
+* **Actor:** Manager
+* **Luồng xử lý chính:** Hệ thống tự động phân tích toàn bộ doanh thu và các chi phí trực tiếp phát sinh của từng bộ phận vận hành để tạo báo cáo theo chuẩn USALI (Uniform System of Accounts for the Lodging Industry). Phân tách rõ ràng doanh thu Phòng (Room Revenue), doanh thu Ẩm thực (F&B Revenue), doanh thu Lữ hành (Tour Revenue) cùng với các chi phí phân bổ trực tiếp tương ứng để tính toán lợi nhuận hoạt động gộp (GOP).
+* **Dữ liệu Đầu ra (Outputs):** Bảng báo cáo tài chính chuẩn USALI có phân bổ chi phí.
+* **Tác động Database:** `Consolidated_Invoices` (SELECT), `Folio_Items` (SELECT), `Employees` (SELECT - chi phí lương).
+
+#### **UC25: Trích xuất báo cáo định dạng file tài liệu cứng PDF / Excel**
+
+* **Actor:** Manager
+* **Luồng xử lý chính:** Manager click chọn xuất tài liệu cứng -> Server Java gọi thư viện Apache POI (đối với Excel) hoặc OpenPDF (đối với PDF) -> Tiến hành đổ dữ liệu từ database vào template mẫu được thiết kế sẵn -> Trả về luồng Byte Stream cho trình duyệt của người dùng tải file.
+* **Dữ liệu Đầu vào (Inputs):** `reportType`, `startDate`, `endDate`.
+* **Dữ liệu Đầu ra (Outputs):** Tệp tin cứng `.xlsx` hoặc `.pdf` tải về thiết bị.
 
 ---
 
-### 🟢 MOD6: HỆ THỐNG & TÍCH HỢP
-
-#### **UC29: Hệ thống email thông báo tự động**
-* **Actor:** System
-* **Luồng xử lý chính:** Mail OTP đăng ký, reset mật khẩu, e-Invoice PDF, xác nhận booking, cảnh báo VIP.
-* **Tác động Database:** `Accounts` (SELECT).
-
-#### **UC30: Scheduled Jobs tự động (Cronjobs)**
-* **Actor:** System
-* **Luồng xử lý chính:** Scheduler quét giỏ phòng tạm 15 phút, giải phóng bàn ăn quá giờ 30 phút, kiểm toán đêm 02:00 AM.
-* **Tác động Database:** `RoomBookingDetails` (UPDATE), `TableReservations` (UPDATE).
-
-#### **UC31: Landing pages & Trải nghiệm khách hàng portal**
-* **Actor:** Guest, Customer
-* **Luồng xử lý chính:** Hiển thị giao diện giới thiệu resort, menu ẩm thực công khai, form đặt phòng trực tuyến.
-* **Tác động Database:** `RoomCategories` (SELECT).
-
----
 ## 5. Quy tắc Kinh doanh & Ràng buộc Hệ thống (Business Rules)
 
 - **Chống ghi đè đồng thời (Concurrent Booking Prevention):** Bắt buộc sử dụng cơ chế Khóa lạc quan (Optimistic Locking) thông qua cột `@Version` trong JPA tại các bảng `Bookings` để tránh việc hai khách hàng cùng đặt thành công một phòng vật lý tại một thời điểm hoặc đặt vượt sức chứa của một chuyến xe Tour.

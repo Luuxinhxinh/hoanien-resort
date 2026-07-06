@@ -35,8 +35,8 @@
 <!-- FORM FRAGMENT -->
 <div th:fragment="form">
     <div class="form-fields-inner" style="display:flex;flex-direction:column;gap:20px">
-        <div class="adm-form-group">
-            <label class="adm-form-label">Cập nhật Trạng thái thủ công</label>
+        <div class="adm-form-group"><label class="adm-form-label">Bàn/Phòng</label><input type="text" name="table" class="adm-form-input"></div>
+        <div class="adm-form-group"><label class="adm-form-label">Trạng thái</label>
             <select name="status" class="adm-form-select">
                 <option value="Pending">Pending</option>
                 <option value="Cooking">Cooking</option>
@@ -45,10 +45,8 @@
                 <option value="Paid">Paid</option>
                 <option value="Cancelled">Cancelled</option>
             </select>
-            <p style="font-size: 12px; color: #666; margin-top: 8px;">Lưu ý: Chỉ cho phép cập nhật trạng thái thủ công đối với các Đơn F&B này.</p>
         </div>
     </div>
-</div>
 </div>
 
 </body>

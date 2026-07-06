@@ -220,7 +220,7 @@ public class ReceptionistController {
             if (cccdEnc != null && !cccdEnc.isEmpty()) {
                 try {
                     cccd = com.kawai.utils.EncryptionUtils.decrypt(cccdEnc);
-                } catch (Exception e) {
+                } catch (Throwable e) {
                     try {
                         cccd = encryptionService.decrypt(cccdEnc);
                     } catch (Exception ex) {
@@ -297,11 +297,10 @@ public class ReceptionistController {
             List<com.kawai.dto.DependentResponseDTO> deps = dependentService.getGuestListByBooking(b.getId());
             map.put("dependents", deps);
 
-            // Tìm TourBookings chưa được gán phòng cụ thể (roomBookingDetail IS NULL)
-            // → các tour này lễ tân sẽ phân bổ khi check-in
-            List<com.kawai.models.TourBooking> unallocatedTours = tourBookingRepository
-                    .findByRoomBookingIdAndRoomBookingDetailIsNull(b.getId());
-            map.put("tourBookings", unallocatedTours);
+            // Tìm tất cả TourBookings thuộc đơn này để hiển thị Read-only cho lễ tân
+            List<com.kawai.models.TourBooking> allTours = tourBookingRepository
+                    .findByRoomBookingId(b.getId());
+            map.put("tourBookings", allTours);
 
             pagedArrivals.add(map);
         }
@@ -422,7 +421,7 @@ public class ReceptionistController {
                     if (cccdEnc != null && !cccdEnc.isBlank()) {
                         try {
                             cccd = com.kawai.utils.EncryptionUtils.decrypt(cccdEnc);
-                        } catch (Exception e) {
+                        } catch (Throwable e) {
                             try {
                                 cccd = encryptionService.decrypt(cccdEnc);
                             } catch (Exception ex) {
@@ -517,7 +516,7 @@ public class ReceptionistController {
                 if (cccdEnc != null && !cccdEnc.isBlank()) {
                     try {
                         cccd = com.kawai.utils.EncryptionUtils.decrypt(cccdEnc);
-                    } catch (Exception e) {
+                    } catch (Throwable e) {
                         try {
                             cccd = encryptionService.decrypt(cccdEnc);
                         } catch (Exception ex) {
@@ -547,7 +546,7 @@ public class ReceptionistController {
             if (cccdEnc != null && !cccdEnc.isBlank()) {
                 try {
                     cccd = com.kawai.utils.EncryptionUtils.decrypt(cccdEnc);
-                } catch (Exception e) {
+                } catch (Throwable e) {
                     try {
                         cccd = encryptionService.decrypt(cccdEnc);
                     } catch (Exception ex) {
@@ -766,61 +765,24 @@ public class ReceptionistController {
         return "receptionist/night-audit";
     }
 
-    @GetMapping("/operations")
-    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER', 'OP_HOUSEKEEPING')")
-    public String operations(Model model) {
-        model.addAttribute("operations", housekeepingService.getPendingOperations());
-        model.addAttribute("rooms", roomRepository.findAll());
-        return "receptionist/operations";
-    }
-
-    @PostMapping("/operations/escalate-room")
+    /**
+     * Gửi yêu cầu dọn khẩn cấp cho phòng Vacant_Dirty.
+     * Dùng chung cho cả WalkIn (walkin.js) và Check-in (checkin.js).
+     * Đặt tại /rooms/escalate-dirty để tách khỏi prefix /operations/
+     * của trang operations.html (đã không còn sử dụng).
+     */
+    @PostMapping("/rooms/escalate-dirty")
     @ResponseBody
-    public org.springframework.http.ResponseEntity<?> escalateTaskByRoomNumber(@org.springframework.web.bind.annotation.RequestParam("roomNumber") String roomNumber) {
+    public org.springframework.http.ResponseEntity<?> escalateTaskByRoomNumber(
+            @org.springframework.web.bind.annotation.RequestParam("roomNumber") String roomNumber) {
         try {
             housekeepingService.escalateTaskByRoomNumber(roomNumber);
-            return org.springframework.http.ResponseEntity.ok(java.util.Map.of("status", "success", "message", "Task escalated successfully"));
+            return org.springframework.http.ResponseEntity.ok(
+                    java.util.Map.of("status", "success", "message", "Task escalated successfully"));
         } catch (Exception e) {
-            return org.springframework.http.ResponseEntity.status(500).body(java.util.Map.of("status", "error", "message", e.getMessage()));
+            return org.springframework.http.ResponseEntity.status(500).body(
+                    java.util.Map.of("status", "error", "message", e.getMessage()));
         }
-    }
-
-    @org.springframework.web.bind.annotation.PostMapping("/operations/clean/{taskId}")
-    public String completeCleaning(@org.springframework.web.bind.annotation.PathVariable Long taskId,
-            org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
-        try {
-            housekeepingService.updateRoomToClean(taskId, null);
-            redirectAttributes.addFlashAttribute("successMessage", "Đã chuyển phòng về trạng thái sạch.");
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Lỗi: " + e.getMessage());
-        }
-        return "redirect:/receptionist/operations";
-    }
-
-    @org.springframework.web.bind.annotation.PostMapping("/operations/maintenance")
-    public String createMaintenance(@org.springframework.web.bind.annotation.RequestParam Long roomId,
-            @org.springframework.web.bind.annotation.RequestParam(required = false) String notes,
-            org.springframework.security.core.Authentication authentication,
-            org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
-        try {
-            housekeepingService.createMaintenanceRequest(roomId, resolveEmployeeId(authentication), notes);
-            redirectAttributes.addFlashAttribute("successMessage", "Đã tạo phiếu bảo trì.");
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Lỗi: " + e.getMessage());
-        }
-        return "redirect:/receptionist/operations";
-    }
-
-    @org.springframework.web.bind.annotation.PostMapping("/operations/maintenance/{taskId}/complete")
-    public String completeMaintenance(@org.springframework.web.bind.annotation.PathVariable Long taskId,
-            org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
-        try {
-            housekeepingService.completeMaintenance(taskId);
-            redirectAttributes.addFlashAttribute("successMessage", "Đã hoàn tất bảo trì.");
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Lỗi: " + e.getMessage());
-        }
-        return "redirect:/receptionist/operations";
     }
 
     @org.springframework.web.bind.annotation.PostMapping("/check-in/cancel-no-show/{id}")
@@ -847,7 +809,7 @@ public class ReceptionistController {
         if (cccdEnc != null && !cccdEnc.isEmpty()) {
             try {
                 cccd = com.kawai.utils.EncryptionUtils.decrypt(cccdEnc);
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 try {
                     cccd = encryptionService.decrypt(cccdEnc);
                 } catch (Exception ex) {
@@ -890,5 +852,27 @@ public class ReceptionistController {
             response.add(map);
         }
         return org.springframework.http.ResponseEntity.ok(response);
+    }
+
+    /**
+     * API dành cho trang WalkIn: poll trạng thái của các phòng đang "treo"
+     * (escalate Vacant_Dirty + assignAfter=true, chưa hoàn thành đơn WalkIn).
+     * Trả về Map { roomNumber -> roomStatus } để frontend phát hiện khi
+     * phòng chuyển sang Vacant_Clean và hiện toast thông báo.
+     */
+    @GetMapping("/api/notifications/room-status")
+    @ResponseBody
+    public org.springframework.http.ResponseEntity<Map<String, String>> getRoomStatuses(
+            @RequestParam(value = "rooms", required = false) List<String> roomNumbers) {
+        Map<String, String> result = new HashMap<>();
+        if (roomNumbers == null || roomNumbers.isEmpty()) {
+            return org.springframework.http.ResponseEntity.ok(result);
+        }
+        // Tìm trạng thái của từng phòng theo roomNumber (dùng findByRoomNumber để tránh full-table scan)
+        for (String roomNum : roomNumbers) {
+            roomRepository.findByRoomNumber(roomNum)
+                    .ifPresent(r -> result.put(roomNum, r.getRoomStatus()));
+        }
+        return org.springframework.http.ResponseEntity.ok(result);
     }
 }

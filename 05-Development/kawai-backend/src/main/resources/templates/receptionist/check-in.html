@@ -240,14 +240,13 @@
                                                 </li>
                                             </ul>
                                         </div>
-                                        <!-- Hidden data for unallocated TourBookings -->
+                                        <!-- Hidden data for TourBookings -->
                                         <div th:id="'tours-arr-' + ${arr.id}" style="display:none;">
                                             <ul>
                                                 <li th:each="tb : ${arr.tourBookings}" th:data-id="${tb.id}"
                                                     th:data-tour="${tb.schedule?.tour?.tourName}"
-                                                    th:data-date="${tb.schedule?.departureDate}"
-                                                    th:data-time="${tb.schedule?.departureTime}"
-                                                    th:data-count="${tb.participantCount}"
+                                                    th:data-category="${tb.roomBookingDetail?.category?.categoryName}"
+                                                    th:data-participant="${tb.participantCount}"
                                                     th:data-charge="${tb.tourCharge}">
                                                 </li>
                                             </ul>
@@ -607,21 +606,18 @@
                         </div>
                     </div>
 
-                    <!-- Tour Allocation Section — chỉ hiện khi booking có tour chưa phân bổ phòng -->
-                    <div id="tourAllocationSection" style="display: none; margin-top: 32px;">
-                        <!-- Elegant Header -->
+                    <!-- Danh sách Tour đã đặt (Read-only) -->
+                    <div id="tourBookingsSection" style="display: none; margin-top: 32px;">
                         <div
                             style="display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; margin-bottom: 16px;">
                             <h4 style="margin: 0; font-weight: 600; color: #1e293b; font-size: 16px;">
                                 <i class="fa-solid fa-map-location-dot" style="color: #64748b; margin-right: 6px;"></i>
-                                Tour Booking Allocation
+                                Danh sách Tour đã đặt
                             </h4>
-                            <span style="font-size: 13px; color: #64748b; font-weight: 500;">Phân bổ chi phí tour vào
-                                phòng</span>
                         </div>
 
                         <div
-                            style="background: white; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                            style="background: white; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-bottom: 20px;">
                             <!-- Bảng danh sách tour đã đặt -->
                             <table class="data-table" style="width: 100%; border-collapse: collapse;"
                                 id="tourBookingsTable">
@@ -632,70 +628,27 @@
                                             Tên Tour</th>
                                         <th
                                             style="padding: 12px 16px; text-align: left; font-size: 12px; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 0.5px;">
-                                            Ngày đi</th>
+                                            Hạng Phòng</th>
                                         <th
-                                            style="padding: 12px 16px; text-align: left; font-size: 12px; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 0.5px;">
-                                            Giờ</th>
-                                        <th
-                                            style="padding: 12px 16px; text-align: left; font-size: 12px; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 0.5px;">
+                                            style="padding: 12px 16px; text-align: center; font-size: 12px; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 0.5px;">
                                             Số lượng</th>
                                         <th
-                                            style="padding: 12px 16px; text-align: right; font-size: 12px; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 0.5px;">
-                                            Tổng tiền</th>
+                                            style="padding: 12px 16px; text-align: left; font-size: 12px; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 0.5px;">
+                                            Phòng Vật Lý</th>
                                     </tr>
                                 </thead>
                                 <tbody id="tourBookingsList">
-                                    <!-- Render bởi JS từ hidden div data -->
+                                    <tr>
+                                        <td colspan="4"
+                                            style="text-align:center; padding: 24px; color: #94a3b8; font-size: 14px; font-weight: 500;">
+                                            Đang tải...
+                                        </td>
+                                    </tr>
                                 </tbody>
                             </table>
-
-                            <div style="padding: 20px 16px; background: #f8fafc; border-top: 1px solid #e2e8f0;">
-                                <!-- Chọn chế độ phân bổ -->
-                                <div style="margin-bottom: 20px;">
-                                    <label
-                                        style="display: block; font-size: 13px; font-weight: 600; color: #334155; margin-bottom: 12px;">Allocation
-                                        Mode (Chế độ phân bổ):</label>
-                                    <div style="display: flex; gap: 16px;">
-                                        <label
-                                            style="flex: 1; display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: white; border: 1px solid #cbd5e1; border-radius: 6px; cursor: pointer; transition: all 0.2s ease;">
-                                            <input type="radio" name="tourAllocationMode" value="ALL" checked
-                                                onchange="toggleTourAllocationMode()"
-                                                style="accent-color: #334155; width: 16px; height: 16px; cursor: pointer;">
-                                            <span style="font-size: 14px; color: #1e293b; font-weight: 500;">Gộp chung
-                                                <span style="color: #64748b; font-weight: 400; font-size: 13px;">(Không
-                                                    gán
-                                                    phòng cụ thể)</span></span>
-                                        </label>
-                                        <label
-                                            style="flex: 1; display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: white; border: 1px solid #cbd5e1; border-radius: 6px; cursor: pointer; transition: all 0.2s ease;">
-                                            <input type="radio" name="tourAllocationMode" value="PER_TOUR"
-                                                onchange="toggleTourAllocationMode()"
-                                                style="accent-color: #334155; width: 16px; height: 16px; cursor: pointer;">
-                                            <span style="font-size: 14px; color: #1e293b; font-weight: 500;">Phân bổ
-                                                từng
-                                                tour <span
-                                                    style="color: #64748b; font-weight: 400; font-size: 13px;">(Chọn
-                                                    phòng chịu phí)</span></span>
-                                        </label>
-                                    </div>
-                                </div>
-
-                                <!-- Phân bổ từng tour vào phòng (chỉ hiện khi PER_TOUR) -->
-                                <div id="perTourAllocationContainer"
-                                    style="display: none; background: white; padding: 16px; border-radius: 8px; border: 1px solid #e2e8f0; box-shadow: 0 1px 2px rgba(0,0,0,0.02);">
-                                    <p
-                                        style="margin: 0 0 16px; font-size: 13px; color: #64748b; display: flex; align-items: center; gap: 8px;">
-                                        <i class="fa-solid fa-circle-info" style="color: #94a3b8; font-size: 14px;"></i>
-                                        Vui lòng gán mỗi tour cho một phòng tương ứng để tính chi phí vào phòng đó.
-                                    </p>
-                                    <div id="perTourAllocationRows"
-                                        style="display: flex; flex-direction: column; gap: 10px;">
-                                        <!-- Render bởi JS: [Tên Tour] → [dropdown phòng] -->
-                                    </div>
-                                </div>
-                            </div>
                         </div>
                     </div>
+
                 </div> <!-- End Left Column -->
 
                 <!-- Right Column (Face Gallery) -->
