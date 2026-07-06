@@ -1088,8 +1088,18 @@ flowchart TD
 
 ## WF-23 — Đặt Bàn Trực Tuyến
 
+<<<<<<< HEAD
+<<<<<<< HEAD
 **Use Cases:** UC21, UC16
 **Business Rules:** TABLE-002, TABLE-003, TABLE-005, TABLE-008
+=======
+**Use Cases:** UC21, UC16  
+**Business Rules:** TABLE-002, TABLE-003, TABLE-005, TABLE-008  
+>>>>>>> 7414e299dc9443033140483710eb1236086b60de
+=======
+**Use Cases:** UC21, UC16
+**Business Rules:** TABLE-002, TABLE-003, TABLE-005, TABLE-008
+>>>>>>> origin/dev
 **Actors:** Customer, F&B Staff, System
 
 ```mermaid
@@ -1120,7 +1130,14 @@ flowchart TD
 ```
 
 > **Business Rules áp dụng:**
+<<<<<<< HEAD
+<<<<<<< HEAD
 >
+=======
+>>>>>>> 7414e299dc9443033140483710eb1236086b60de
+=======
+>
+>>>>>>> origin/dev
 > - `TABLE-002` — Không cho phép đặt bàn nếu số khách vượt quá sức chứa (capacity).
 > - `TABLE-003` — Chặn đặt bàn nếu thời gian bị trùng lặp (Overlap) với lịch đã có.
 > - `TABLE-008` — Gửi email xác nhận tự động sau khi đặt bàn thành công.
@@ -1129,8 +1146,18 @@ flowchart TD
 
 ## WF-24 — Hủy Đơn Hàng F&B & Hoàn Tiền
 
+<<<<<<< HEAD
+<<<<<<< HEAD
 **Use Cases:** UC19
 **Business Rules:** POS-004, POS-006
+=======
+**Use Cases:** UC19  
+**Business Rules:** POS-004, POS-006  
+>>>>>>> 7414e299dc9443033140483710eb1236086b60de
+=======
+**Use Cases:** UC19
+**Business Rules:** POS-004, POS-006
+>>>>>>> origin/dev
 **Actors:** Customer, F&B Staff, System
 
 ```mermaid
@@ -1168,7 +1195,14 @@ flowchart TD
 ```
 
 > **Business Rules áp dụng:**
+<<<<<<< HEAD
+<<<<<<< HEAD
 >
+=======
+>>>>>>> 7414e299dc9443033140483710eb1236086b60de
+=======
+>
+>>>>>>> origin/dev
 > - `POS-004` — Không được hủy đơn nếu trạng thái đang là `PREPARING` (bếp đang nấu).
 > - `POS-006` — Đảm bảo tính nhất quán hoàn tiền: Charge-to-Room xóa Folio; VNPay gọi Refund API.
 
@@ -1176,8 +1210,18 @@ flowchart TD
 
 ## WF-25 — Chốt Ca & Báo Cáo F&B
 
+<<<<<<< HEAD
+<<<<<<< HEAD
 **Use Cases:** UC18
 **Business Rules:** BR-FIN-15, BR-SYS-04
+=======
+**Use Cases:** UC18  
+**Business Rules:** BR-FIN-15, BR-SYS-04  
+>>>>>>> 7414e299dc9443033140483710eb1236086b60de
+=======
+**Use Cases:** UC18
+**Business Rules:** BR-FIN-15, BR-SYS-04
+>>>>>>> origin/dev
 **Actors:** F&B Manager
 
 ```mermaid
@@ -1200,16 +1244,33 @@ flowchart TD
     style AUDIT fill:#9933ff,color:#fff
 ```
 
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/dev
 > **Business Rules áp dụng:**
 >
 > - `BR-FIN-15` — Báo cáo doanh thu chỉ tính đơn hàng `isPaidInPos = true`.
 > - Idempotent: 1 ngày chỉ được chốt 1 lần duy nhất, tránh ghi đúp dữ liệu.
 > - `BR-SYS-04` — Mọi hành động chốt ca ảnh hưởng tài chính phải ghi Audit_Logs.
 
+<<<<<<< HEAD
 ## WF-26 — Phê duyệt Thiết bị Vận hành (Ops Device Authorization)
 
 **Use Cases:** UC05.4
 **Business Rules:** BR-SYS-02, BR-SYS-04
+=======
+## WF-26 — Phê duyệt Thiết bị Vận hành (Ops Device Authorization)
+
+**Use Cases:** UC05.4  
+**Business Rules:** BR-SYS-02, BR-SYS-04  
+>>>>>>> 7414e299dc9443033140483710eb1236086b60de
+=======
+## WF-26 — Phê duyệt Thiết bị Vận hành (Ops Device Authorization)
+
+**Use Cases:** UC05.4
+**Business Rules:** BR-SYS-02, BR-SYS-04
+>>>>>>> origin/dev
 **Actors:** Admin, Toàn bộ nhân viên Ops, System
 
 ```mermaid
@@ -1218,11 +1279,27 @@ flowchart TD
     S1 --> S2{Tài khoản thuộc\nnhóm Ops/Nhân viên?\nROLE_ADMIN, ROLE_RECEPTIONIST...}
     S2 -->|Không - Là Khách| S3[Bỏ qua check thiết bị\nĐăng nhập theo luồng thường]
     S3 --> DONE_FAIL([Đăng nhập OK])
+<<<<<<< HEAD
+<<<<<<< HEAD
   
     S2 -->|Có - Là Ops| S4{Thiết bị device_id\nđã được đăng ký?}
     S4 -->|Chưa đăng ký| S5[Hệ thống tự động đăng ký thiết bị\nisApproved = true - Chạy Dev]
     S5 --> DONE_OK([Đăng nhập thành công])
   
+=======
+    
+    S2 -->|Có - Là Ops| S4{Thiết bị device_id\nđã được đăng ký?}
+    S4 -->|Chưa đăng ký| S5[Hệ thống tự động đăng ký thiết bị\nisApproved = true - Chạy Dev]
+    S5 --> DONE_OK([Đăng nhập thành công])
+    
+>>>>>>> 7414e299dc9443033140483710eb1236086b60de
+=======
+  
+    S2 -->|Có - Là Ops| S4{Thiết bị device_id\nđã được đăng ký?}
+    S4 -->|Chưa đăng ký| S5[Hệ thống tự động đăng ký thiết bị\nisApproved = true - Chạy Dev]
+    S5 --> DONE_OK([Đăng nhập thành công])
+  
+>>>>>>> origin/dev
     S4 -->|Đã đăng ký| S6{Được duyệt?\nisApproved = true}
     S6 -->|Đã duyệt| DONE_OK
     S6 -->|Chưa duyệt/Bị khóa| S7["Hủy Session và Logout ngay lập tức\nrequest.getSession().invalidate()"]
@@ -1245,7 +1322,14 @@ flowchart TD
 ```
 
 > **Business Rules áp dụng:**
+<<<<<<< HEAD
+<<<<<<< HEAD
 >
+=======
+>>>>>>> 7414e299dc9443033140483710eb1236086b60de
+=======
+>
+>>>>>>> origin/dev
 > - `BR-SYS-02` — Chỉ thiết bị Ops được phê duyệt (Approved) mới có quyền duy trì Session làm việc.
 > - `BR-SYS-04` — Ghi log mọi hành động thay đổi quyền phê duyệt thiết bị của Admin.
 
@@ -1253,6 +1337,10 @@ flowchart TD
 
 ## Bảng Tóm tắt — Tất cả Workflows
 
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/dev
 | Workflow                                | UC Liên quan                  | Business Rules chính           | Actors                 | Mức độ |
 | :-------------------------------------- | :----------------------------- | :------------------------------ | :--------------------- | :-------: |
 | WF-01 Xác thực & Đăng ký           | UC01, UC02, UC03               | BR-SYS-01,02,06,07              | Guest, All Users       |   HIGH   |
@@ -1268,6 +1356,51 @@ flowchart TD
 | WF-11 Review & Kiểm duyệt             | UC24, UC25                     | BR-TR-03,04; BR-SYS-04          | Customer, Admin        |  MEDIUM  |
 | WF-12 Quản lý Nhân viên             | UC01.2, UC05.1, UC05.2         | BR-SYS-04,07; BR-DATA-03        | Admin                  |   HIGH   |
 | WF-13 Master Flow                       | All                            | All                             | All Actors             |    —    |
+<<<<<<< HEAD
+| WF-14 Walk-in Check-in                  | UC12.7                         | BR-FO-08                        | Receptionist           | CRITICAL |
+| WF-15 Remote CCCD Scan                  | UC04.2, UC12.3                 | BR-FIN-07                       | Customer               |   HIGH   |
+| WF-16 Tour GPS & Itinerary              | UC22.3, UC22.4                 | BR-TR-06,07,08,09               | Tour Guide             |   HIGH   |
+| WF-17 Đổi Hạng Phòng                | UC12.5, UC09.3                 | BR-FO-07                        | Receptionist           |   HIGH   |
+| WF-18 Membership Tier & Loyalty         | UC26.6                         | BR-MEM-01                       | System                 |  MEDIUM  |
+| WF-19 Refund Request                    | UC27                           | BR-FIN-08                       | Manager                |  MEDIUM  |
+| WF-20 Add-On Services                   | UC23                           | BR-FB-05                        | Customer               |  MEDIUM  |
+| WF-21 Staff Scheduling                  | UC22.2                         | BR-STAFF-01                     | Admin, Manager         |  MEDIUM  |
+| WF-22 Workflow Engine                   | UC09.8                         | BR-WF-01,02                     | System, Admin          |   HIGH   |
+| WF-23 Đặt bàn trực tuyến           | UC21, UC16                     | TABLE-002, TABLE-003, TABLE-008 | Customer, F&B Staff    |   HIGH   |
+| WF-24 Hủy đơn F&B & Hoàn tiền      | UC19                           | POS-004, POS-006                | Customer, F&B Staff    |   HIGH   |
+| WF-25 Chốt ca & Báo cáo F&B          | UC18                           | BR-FIN-15, BR-SYS-04            | F&B Manager            |   HIGH   |
+| WF-26 Phê duyệt Thiết bị Vận hành | UC05.4                         | BR-SYS-02, BR-SYS-04            | Admin                  |  MEDIUM  |
+=======
+| Workflow | UC Liên quan | Business Rules chính | Actors | Mức độ |
+|:---------|:------------|:--------------------|:-------|:------:|
+| WF-01 Xác thực & Đăng ký | UC01, UC02, UC03 | BR-SYS-01,02,06,07 | Guest, All Users | HIGH |
+| WF-02 Đặt phòng & Cọc | UC10, UC11, UC12.1 | BR-FO-01,02; BR-FIN-06 | Customer, System | CRITICAL |
+| WF-03 Check-in | UC12.2, UC12.3, UC12.4 | BR-FO-03,04,06; BR-DATA-02 | Receptionist | CRITICAL |
+| WF-04 Check-out & Invoice | UC12.6, UC26.5, UC27.4 | BR-FIN-01; BR-FO-04; BR-HK-01 | Receptionist | CRITICAL |
+| WF-05 F&B / Post-to-Room | UC14, UC16, UC17, UC18, UC19 | BR-FB-01,02,04; BR-FO-06 | Customer, F&B, Kitchen | CRITICAL |
+| WF-06 Tour & AI Attendance | UC20, UC21, UC22 | BR-TR-01,02,05 | Customer, Tour Guide | CRITICAL |
+| WF-07 Room Lifecycle | UC13 | BR-FO-04,05; BR-HK-01,02 | HK, Maintenance | HIGH |
+| WF-08 Night Audit | UC27.1, UC27.2 | BR-FIN-03,04 | System (Scheduler) | CRITICAL |
+| WF-09 Hủy Phòng & Hoàn tiền | UC12 (Hủy đặt phòng), UC27 | BR-FIN-02 | Customer | HIGH |
+| WF-10 Hủy Tour & Hoàn tiền | UC22.4, UC27 | BR-TR-05 | System, Admin | HIGH |
+| WF-11 Review & Kiểm duyệt | UC24, UC25 | BR-TR-03,04; BR-SYS-04 | Customer, Admin | MEDIUM |
+| WF-12 Quản lý Nhân viên | UC01.2, UC05.1, UC05.2 | BR-SYS-04,07; BR-DATA-03 | Admin | HIGH |
+| WF-13 Master Flow | All | All | All Actors | — |
+| WF-14 Walk-in Check-in | UC12.7 | BR-FO-08 | Receptionist | CRITICAL |
+| WF-15 Remote CCCD Scan | UC04.2, UC12.3 | BR-FIN-07 | Customer | HIGH |
+| WF-16 Tour GPS & Itinerary | UC22.3, UC22.4 | BR-TR-06,07,08,09 | Tour Guide | HIGH |
+| WF-17 Đổi Hạng Phòng | UC12.5, UC09.3 | BR-FO-07 | Receptionist | HIGH |
+| WF-18 Membership Tier & Loyalty | UC26.6 | BR-MEM-01 | System | MEDIUM |
+| WF-19 Refund Request | UC27 | BR-FIN-08 | Manager | MEDIUM |
+| WF-20 Add-On Services | UC23 | BR-FB-05 | Customer | MEDIUM |
+| WF-21 Staff Scheduling | UC22.2 | BR-STAFF-01 | Admin, Manager | MEDIUM |
+| WF-22 Workflow Engine | UC09.8 | BR-WF-01,02 | System, Admin | HIGH |
+| WF-23 Đặt bàn trực tuyến | UC21, UC16 | TABLE-002, TABLE-003, TABLE-008 | Customer, F&B Staff | HIGH |
+| WF-24 Hủy đơn F&B & Hoàn tiền | UC19 | POS-004, POS-006 | Customer, F&B Staff | HIGH |
+| WF-25 Chốt ca & Báo cáo F&B | UC18 | BR-FIN-15, BR-SYS-04 | F&B Manager | HIGH |
+| WF-26 Phê duyệt Thiết bị Vận hành | UC05.4 | BR-SYS-02, BR-SYS-04 | Admin | MEDIUM |
+>>>>>>> 7414e299dc9443033140483710eb1236086b60de
+=======
 | WF-14 | [Walk-in Check-in](#wf-14--walk-in-check-in)                                       | Front Office   | CRITICAL |
 | WF-15 | [Remote CCCD Scan](#wf-15--remote-cccd-scan)                                       | Front Office   |   HIGH   |
 | WF-16 | [Tour Itinerary & GPS Checkpoint](#wf-16--tour-itinerary--gps-checkpoint)      | Tour           |   HIGH   |
@@ -1281,6 +1414,7 @@ flowchart TD
 | WF-24 | [Hủy Đơn Hàng F&B & Hoàn Tiền](#wf-24--hủy-đơn-hàng-fb--hoàn-tiền)     | F&B            |   HIGH   |
 | WF-25 | [Chốt Ca & Báo Cáo F&B](#wf-25--chốt-ca--báo-cáo-fb)                         | F&B            |   HIGH   |
 | WF-26 | [Phê duyệt Thiết bị Vận hành](#wf-26--phê-duyệt-thiết-bị-vận-hành)               | Admin          |  MEDIUM  |
+>>>>>>> origin/dev
 
 ---
 
