@@ -2,7 +2,6 @@ package com.kawai.controllers.web;
 
 import com.kawai.dto.CheckinSubmitFormDTO;
 import com.kawai.dto.DependentRegistrationDTO;
-import com.kawai.dto.TourRoomAllocationDTO;
 import com.kawai.exceptions.BusinessException;
 import com.kawai.models.RoomBookingDetail;
 import com.kawai.models.TourBooking;
@@ -56,8 +55,13 @@ public class ReceptionistCheckinWebController {
     }
 
     @PostMapping("/complete")
-    @org.springframework.transaction.annotation.Transactional(rollbackFor = Exception.class)
-    public String completeCheckin(@ModelAttribute CheckinSubmitFormDTO form, RedirectAttributes redirectAttributes) {
+    public String completeCheckin(@ModelAttribute CheckinSubmitFormDTO form, org.springframework.validation.BindingResult bindingResult, RedirectAttributes redirectAttributes) {
+        if (bindingResult.hasErrors()) {
+            log.error("Lỗi binding dữ liệu form: {}", bindingResult.getAllErrors());
+            redirectAttributes.addFlashAttribute("errorMessage", "Dữ liệu nhập vào không hợp lệ. Vui lòng kiểm tra lại (đặc biệt là ngày tháng).");
+            return "redirect:/receptionist/check-in";
+        }
+        
         log.info("Bắt đầu xử lý Form Check-in bulk. BookingId: {}, Số phòng gán: {}, Số người đi kèm: {}",
                 form.getBookingId(),
                 form.getAssignedRoomNumbers() != null ? form.getAssignedRoomNumbers().size() : 0,
@@ -94,6 +98,9 @@ public class ReceptionistCheckinWebController {
                 }
                 if (form.getDob() != null) {
                     customer.setBirthDate(form.getDob());
+                }
+                if (form.getGender() != null && !form.getGender().trim().isEmpty()) {
+                    customer.setGender(form.getGender().trim());
                 }
                 // Save customer FaceID if provided in form
                 if (form.getFaceVectorData() != null && !form.getFaceVectorData().isEmpty()) {
@@ -133,15 +140,11 @@ public class ReceptionistCheckinWebController {
             return "redirect:/receptionist/check-in"; // Redirect về trang danh sách check-in
 
         } catch (BusinessException e) {
-            org.springframework.transaction.interceptor.TransactionAspectSupport.currentTransactionStatus()
-                    .setRollbackOnly();
             log.error("Lỗi nghiệp vụ khi Check-in: {}", e.getMessage());
             // Thất bại: Gửi thông báo lỗi và redirect lại trang form cũ
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
             return "redirect:/receptionist/check-in";
         } catch (Exception e) {
-            org.springframework.transaction.interceptor.TransactionAspectSupport.currentTransactionStatus()
-                    .setRollbackOnly();
             log.error("Lỗi hệ thống khi Check-in: ", e);
             redirectAttributes.addFlashAttribute("errorMessage",
                     "Lỗi hệ thống! Vui lòng thử lại. Chi tiết: " + e.toString());

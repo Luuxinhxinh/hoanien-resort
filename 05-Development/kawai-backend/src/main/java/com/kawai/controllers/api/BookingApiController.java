@@ -110,7 +110,7 @@ public class BookingApiController {
     }
 
     @PostMapping("/{bookingId}/cancel")
-    public ResponseEntity<?> cancelBooking(Principal principal, @PathVariable Long bookingId, @RequestBody(required = false) com.kawai.dto.CancelRequestDTO cancelRequest) {
+    public ResponseEntity<?> cancelBooking(Principal principal, @PathVariable Long bookingId) {
         if (principal == null) {
             return ResponseEntity.status(401).body(new BookingApiResponse(
                     "error", null, null, null, null, "Quý khách cần đăng nhập để thực hiện thao tác này!"));
@@ -119,7 +119,7 @@ public class BookingApiController {
         try {
             Customer customer = resolveCurrentCustomer(principal);
 
-            BookingResponseDTO response = bookingService.cancelBooking(bookingId, customer.getId(), cancelRequest);
+            BookingResponseDTO response = bookingService.cancelBooking(bookingId, customer.getId());
 
             String msg = (response.getDepositAmount() != null
                     && response.getDepositAmount().compareTo(BigDecimal.ZERO) > 0)
@@ -208,14 +208,18 @@ public class BookingApiController {
             String email = (String) payload.get("email");
             String cccd = (String) payload.get("cccd");
             String notes = (String) payload.get("notes");
-            String birthDateStr = (String) payload.get("birthDate");
+            String dobStr = (String) payload.get("dateOfBirth");
+            java.time.LocalDate dateOfBirth = null;
+            if (dobStr != null && !dobStr.trim().isEmpty()) {
+                dateOfBirth = java.time.LocalDate.parse(dobStr);
+            }
 
             String paymentMethod = (String) payload.get("paymentMethod");
 
             // 2. Chốt booking: Xác nhận available, gắn thông tin khách, chuyển sang
             // Pending_Payment hoặc Confirmed
-            bookingService.confirmBooking(bookingId, customer.getId(), fullName, phone, email, cccd, null, notes,
-                    paymentMethod, birthDateStr);
+            bookingService.confirmBooking(bookingId, customer.getId(), fullName, phone, email, cccd, dateOfBirth, null, notes,
+                    paymentMethod);
 
             Map<String, Object> response = new java.util.HashMap<>();
             response.put("status", "success");

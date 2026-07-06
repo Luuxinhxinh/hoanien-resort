@@ -58,24 +58,23 @@ async function loadBookingDetail(bookingId) {
             throw new Error('HTTP ' + res.status);
         }
         bookingData = await res.json();
-        
+
         const currentStatus = (bookingData.bookingStatus || '').toUpperCase();
-        if (currentStatus === 'PENDING' || currentStatus === 'PENDING_PAYMENT' || currentStatus === 'CANCELLED') {
+        if (currentStatus === 'PENDING' || currentStatus === 'PENDING_PAYMENT') {
             canAbandonCheckout = true;
-            
-            if (currentStatus === 'CANCELLED') {
-                setTimeout(() => {
-                    showToast('Đơn của bạn đã quá hạn thanh toán. Vui lòng thử thanh toán lại để giữ phòng nếu còn trống.', 'error');
-                }, 500);
-            }
+        } else if (currentStatus === 'CANCELLED' || currentStatus === 'CANCELLED_PAYMENT') {
+            canAbandonCheckout = false;
+            showToast('Đơn đặt phòng này đã bị hủy. Đang chuyển về trang đặt phòng...', 'error');
+            setTimeout(() => window.location.replace('/booking'), 2000);
+            return;
         } else {
             canAbandonCheckout = false;
             isPaymentSubmitted = true; // prevent unload events
-            
+
             // Hide the container to prevent interaction
             const container = document.querySelector('.checkout-container');
             if (container) container.style.display = 'none';
-            
+
             // Redirect based on status
             if (currentStatus === 'CONFIRMED' || currentStatus === 'CHECKED_IN' || currentStatus === 'CHECKED_OUT') {
                 window.location.replace('/profile');
@@ -216,7 +215,7 @@ function validateForm() {
         { id: 'fieldFullName', label: 'Họ và tên' },
         { id: 'fieldPhone', label: 'Số điện thoại' },
         { id: 'fieldEmail', label: 'Email' },
-        { id: 'fieldBirthDate', label: 'Ngày sinh' },
+        { id: 'fieldDob', label: 'Ngày sinh' }
     ];
     for (const f of fields) {
         const el = document.getElementById(f.id);
@@ -231,6 +230,19 @@ function validateForm() {
     if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
         showToast('Email không hợp lệ.', 'error');
         return false;
+    }
+
+    // Age check
+    const dobStr = document.getElementById('fieldDob')?.value;
+    if (dobStr) {
+        const dob = new Date(dobStr);
+        const ageDifMs = Date.now() - dob.getTime();
+        const ageDate = new Date(ageDifMs);
+        const age = Math.abs(ageDate.getUTCFullYear() - 1970);
+        if (age < 18) {
+            showToast('Bạn phải từ đủ 18 tuổi trở lên để đặt phòng.', 'error');
+            return false;
+        }
     }
     return true;
 }
@@ -253,7 +265,7 @@ async function submitPayment() {
         fullName: document.getElementById('fieldFullName')?.value?.trim(),
         phone: document.getElementById('fieldPhone')?.value?.trim(),
         email: document.getElementById('fieldEmail')?.value?.trim(),
-        birthDate: document.getElementById('fieldBirthDate')?.value?.trim(),
+        dateOfBirth: document.getElementById('fieldDob')?.value?.trim() || null,
         address: document.getElementById('fieldAddress')?.value?.trim() || null,
         notes: document.getElementById('fieldNotes')?.value?.trim() || null,
         paymentMethod: methodEl ? methodEl.value : 'VNPAY',
@@ -272,6 +284,7 @@ async function submitPayment() {
             isPaymentSubmitted = true; // Prevent unload warning
             if (data.paymentUrl) {
                 // Redirect đến VNPay
+                sessionStorage.setItem('vnpay_redirect_' + bookingId, 'true');
                 window.location.href = data.paymentUrl;
             } else {
                 showToast('Đặt phòng thành công!', 'success');
@@ -306,8 +319,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (!bookingId) {
         // Không có bookingId → không có gì để thanh toán
-        showToast('Không tìm thấy đơn đặt phòng. Đang chuyển về trang đặt phòng...', 'error');
-        setTimeout(() => window.location.href = '/booking', 2500);
+        showToast('Không tìm thấy thông tin đơn đặt phòng.', 'error');
+        setTimeout(() => window.location.href = '/booking', 2000);
+        return;
+    }
+
+    // Check if user backed out from VNPay via Browser Back Button
+    if (sessionStorage.getItem('vnpay_redirect_' + bookingId) === 'true') {
+        sessionStorage.removeItem('vnpay_redirect_' + bookingId);
+        // User came back from VNPay. Cancel immediately to free the room.
+        fetch(`/api/bookings/${bookingId}/cancel`, { method: 'POST', keepalive: true }).finally(() => {
+            showToast('Giao dịch đã bị hủy. Đang chuyển về trang đặt phòng...', 'error');
+            setTimeout(() => window.location.replace('/booking'), 2000);
+        });
         return;
     }
 
@@ -325,7 +349,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Hiển thị thông báo xác nhận khi cố gắng thoát trang
+    // Click logo để về trang chủ
+    document.getElementById('paymentPageLogo')?.addEventListener('click', () => {
+        window.location.href = '/';
+    });
+
+    // Hiển thị thông báo xác nhận khi cố gắng thoát trang (reload, close tab)
     window.addEventListener('beforeunload', (e) => {
         if (canAbandonCheckout && !isPaymentSubmitted && bookingId) {
             e.preventDefault();
@@ -333,11 +362,26 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Hủy đơn đặt phòng ngay lập tức khi khách hàng rời khỏi trang (thoát, back, reload)
+    // Hủy đơn đặt phòng ngay lập tức khi khách hàng rời khỏi trang (thoát, close tab)
     window.addEventListener('pagehide', () => {
         if (canAbandonCheckout && !isPaymentSubmitted && bookingId) {
-            navigator.sendBeacon(`/api/bookings/${bookingId}/cancel`);
+            fetch(`/api/bookings/${bookingId}/cancel`, { method: 'POST', keepalive: true });
         }
     });
 
+});
+
+// Handle BFCache (when user clicks Back button from VNPay)
+window.addEventListener('pageshow', (event) => {
+    if (event.persisted) {
+        isPaymentSubmitted = false;
+        const bookingId = getBookingIdFromUrl();
+        if (bookingId && sessionStorage.getItem('vnpay_redirect_' + bookingId) === 'true') {
+            sessionStorage.removeItem('vnpay_redirect_' + bookingId);
+            fetch(`/api/bookings/${bookingId}/cancel`, { method: 'POST', keepalive: true }).finally(() => {
+                showToast('Giao dịch đã bị hủy. Đang chuyển về trang đặt phòng...', 'error');
+                setTimeout(() => window.location.replace('/booking'), 2000);
+            });
+        }
+    }
 });

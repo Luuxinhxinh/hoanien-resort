@@ -23,12 +23,10 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     List<Booking> findCheckedIn();
 
     @Query("SELECT COUNT(b) FROM Booking b WHERE b.customer.id = :customerId AND UPPER(b.appliedPromotion.promoCode) = UPPER(:promoCode) AND LOWER(b.bookingStatus) NOT LIKE '%cancel%' AND LOWER(b.bookingStatus) != 'no-show'")
-    long countByCustomerIdAndPromoCode(@org.springframework.data.repository.query.Param("customerId") Long customerId,
-            @org.springframework.data.repository.query.Param("promoCode") String promoCode);
+    long countByCustomerIdAndPromoCode(@org.springframework.data.repository.query.Param("customerId") Long customerId, @org.springframework.data.repository.query.Param("promoCode") String promoCode);
 
     @Query("SELECT b FROM Booking b WHERE b.customer.id = :customerId AND UPPER(b.appliedPromotion.promoCode) = UPPER(:promoCode) AND LOWER(b.bookingStatus) NOT LIKE '%cancel%' AND LOWER(b.bookingStatus) != 'no-show'")
-    List<Booking> findUsedPromoBookings(@org.springframework.data.repository.query.Param("customerId") Long customerId,
-            @org.springframework.data.repository.query.Param("promoCode") String promoCode);
+    List<Booking> findUsedPromoBookings(@org.springframework.data.repository.query.Param("customerId") Long customerId, @org.springframework.data.repository.query.Param("promoCode") String promoCode);
 
     @Query("SELECT b FROM Booking b WHERE LOWER(b.bookingStatus) LIKE '%cancel%' OR LOWER(b.bookingStatus) = 'no-show'")
     List<Booking> findCancelledBookings();

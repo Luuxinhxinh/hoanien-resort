@@ -3,7 +3,6 @@ package com.kawai.services.custom;
 import com.kawai.models.Account;
 import com.kawai.models.Customer;
 import com.kawai.models.Role;
-import com.kawai.repositories.WorkflowRepository;
 import com.kawai.repositories.AccountRepository;
 import com.kawai.repositories.AuditLogRepository;
 import com.kawai.repositories.CustomerRepository;
@@ -47,15 +46,15 @@ public class AuthServiceCustomTest {
 
     @Test
     void testRegister_Success() {
-        org.mockito.Mockito.lenient().when(accountRepository.existsByUsername("testuser")).thenReturn(false);
-        org.mockito.Mockito.lenient().when(customerRepository.existsByEmail("test@example.com")).thenReturn(false);
-        org.mockito.Mockito.lenient().when(passwordEncoder.encode("Password123")).thenReturn("hashedPass");
-        org.mockito.Mockito.lenient().when(roleRepository.findByRoleName("CUSTOMER NORMAL")).thenReturn(Optional.of(new Role()));
+        when(accountRepository.existsByUsername("testuser")).thenReturn(false);
+        when(customerRepository.existsByEmail("test@example.com")).thenReturn(false);
+        when(passwordEncoder.encode("Password123")).thenReturn("hashedPass");
+        when(roleRepository.findByRoleName("CUSTOMER NORMAL")).thenReturn(Optional.of(new Role()));
 
         Account savedAccount = new Account();
         savedAccount.setId(1L);
         savedAccount.setUsername("testuser");
-        org.mockito.Mockito.lenient().when(accountRepository.save(any(Account.class))).thenReturn(savedAccount);
+        when(accountRepository.save(any(Account.class))).thenReturn(savedAccount);
 
         boolean result = authService.register("testuser", "Password123", "test@example.com", "Test User", "Male", "0987654321");
 
@@ -78,8 +77,8 @@ public class AuthServiceCustomTest {
         account.setPasswordHash("hashedPass");
         account.setFailedLoginAttempts(3);
 
-        org.mockito.Mockito.lenient().when(accountRepository.findByUsername("testuser")).thenReturn(Optional.of(account));
-        org.mockito.Mockito.lenient().when(passwordEncoder.matches("Password123", "hashedPass")).thenReturn(true);
+        when(accountRepository.findByUsername("testuser")).thenReturn(Optional.of(account));
+        when(passwordEncoder.matches("Password123", "hashedPass")).thenReturn(true);
 
         boolean result = authService.login("testuser", "Password123");
 
@@ -96,8 +95,8 @@ public class AuthServiceCustomTest {
         account.setPasswordHash("hashedPass");
         account.setFailedLoginAttempts(4);
 
-        org.mockito.Mockito.lenient().when(accountRepository.findByUsername("testuser")).thenReturn(Optional.of(account));
-        org.mockito.Mockito.lenient().when(passwordEncoder.matches("WrongPass", "hashedPass")).thenReturn(false);
+        when(accountRepository.findByUsername("testuser")).thenReturn(Optional.of(account));
+        when(passwordEncoder.matches("WrongPass", "hashedPass")).thenReturn(false);
 
         boolean result = authService.login("testuser", "WrongPass");
 
@@ -112,7 +111,7 @@ public class AuthServiceCustomTest {
         Account account = new Account();
         account.setUsername("testuser");
 
-        org.mockito.Mockito.lenient().when(accountRepository.findByUsername("testuser")).thenReturn(Optional.of(account));
+        when(accountRepository.findByUsername("testuser")).thenReturn(Optional.of(account));
 
         String otp = authService.generate2FaOtp("testuser");
         assertNotNull(otp);
@@ -127,7 +126,7 @@ public class AuthServiceCustomTest {
         expiredAccount.setUsername("testuser");
         expiredAccount.setTwoFactorCode(otp);
         expiredAccount.setTwoFactorExpiry(LocalDateTime.now().minusMinutes(1));
-        org.mockito.Mockito.lenient().when(accountRepository.findByUsername("testuser")).thenReturn(Optional.of(expiredAccount));
+        when(accountRepository.findByUsername("testuser")).thenReturn(Optional.of(expiredAccount));
 
         assertThrows(IllegalStateException.class, () -> {
             authService.verify2FaOtp("testuser", otp);
@@ -142,9 +141,9 @@ public class AuthServiceCustomTest {
         account.setResetPasswordToken("reset-token");
         account.setResetPasswordExpiry(LocalDateTime.now().plusMinutes(10));
 
-        org.mockito.Mockito.lenient().when(accountRepository.findAll()).thenReturn(Collections.singletonList(account));
-        org.mockito.Mockito.lenient().when(passwordEncoder.matches("NewPassword123", "oldHashed")).thenReturn(false);
-        org.mockito.Mockito.lenient().when(passwordEncoder.encode("NewPassword123")).thenReturn("newHashed");
+        when(accountRepository.findAll()).thenReturn(Collections.singletonList(account));
+        when(passwordEncoder.matches("NewPassword123", "oldHashed")).thenReturn(false);
+        when(passwordEncoder.encode("NewPassword123")).thenReturn("newHashed");
 
         boolean result = authService.resetPassword("reset-token", "NewPassword123");
 

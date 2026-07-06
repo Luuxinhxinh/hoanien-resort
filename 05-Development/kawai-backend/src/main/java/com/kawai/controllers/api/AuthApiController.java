@@ -67,13 +67,12 @@ public class AuthApiController {
         try {
             authService.requestPasswordReset(email);
             response.put("success", true);
-            response.put("message", "Nếu email tồn tại, mã OTP đã được gửi đến bạn.");
+            response.put("message", "Link khôi phục đã được gửi đến email của bạn.");
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            // Do not leak email existence
-            response.put("success", true);
-            response.put("message", "Nếu email tồn tại, mã OTP đã được gửi đến bạn.");
-            return ResponseEntity.ok(response);
+            response.put("success", false);
+            response.put("message", e.getMessage() != null ? e.getMessage() : "Có lỗi xảy ra, vui lòng thử lại.");
+            return ResponseEntity.badRequest().body(response);
         }
     }
 

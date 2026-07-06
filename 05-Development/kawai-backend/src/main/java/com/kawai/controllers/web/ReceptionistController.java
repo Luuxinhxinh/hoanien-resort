@@ -139,12 +139,15 @@ public class ReceptionistController {
         return "receptionist/walk-in";
     }
 
+    private static final org.slf4j.Logger checkinLog = org.slf4j.LoggerFactory.getLogger(ReceptionistController.class);
+
     @GetMapping("/check-in")
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER', 'OP_RECEPTION_CHECKIN')")
     public String checkIn(@org.springframework.web.bind.annotation.RequestParam(defaultValue = "1") int page,
             @org.springframework.web.bind.annotation.RequestParam(required = false) String keyword,
             @org.springframework.web.bind.annotation.RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate dateFilter,
             Model model) {
+        try {
         List<Booking> allConfirmed = bookingRepository.findConfirmed();
         List<Booking> filteredArrivals = new ArrayList<>();
 
@@ -206,8 +209,8 @@ public class ReceptionistController {
         List<Map<String, Object>> pagedArrivals = new ArrayList<>();
         for (Booking b : pagedPendingList) {
             List<RoomBookingDetail> details = roomBookingDetailRepository.findByRoomBookingId(b.getId());
-            if (details == null || details.isEmpty()) {
-                continue;
+            if (details == null) {
+                details = new ArrayList<>();
             }
 
             String guestName = b.getCustomer() != null ? b.getCustomer().getFullName() : "Khách";
@@ -217,7 +220,7 @@ public class ReceptionistController {
             if (cccdEnc != null && !cccdEnc.isEmpty()) {
                 try {
                     cccd = com.kawai.utils.EncryptionUtils.decrypt(cccdEnc);
-                } catch (Exception e) {
+                } catch (Throwable e) {
                     try {
                         cccd = encryptionService.decrypt(cccdEnc);
                     } catch (Exception ex) {
@@ -232,6 +235,7 @@ public class ReceptionistController {
             map.put("phone", phone);
             map.put("cccd", cccd);
             map.put("birthDate", (b.getCustomer() != null && b.getCustomer().getBirthDate() != null) ? b.getCustomer().getBirthDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) : "");
+            map.put("gender", (b.getCustomer() != null && b.getCustomer().getGender() != null) ? b.getCustomer().getGender() : "Khác");
             map.put("bookingDate",
                     b.getBookingDate() != null
                             ? b.getBookingDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
@@ -269,9 +273,14 @@ public class ReceptionistController {
             int expectedAdults = details.stream().mapToInt(d -> d.getNumberOfAdults() != null ? d.getNumberOfAdults() : 0).sum();
             int expectedChildren = details.stream().mapToInt(d -> d.getNumberOfChildren() != null ? d.getNumberOfChildren() : 0).sum();
             
+            int maxAdults = details.stream().mapToInt(d -> (d.getCategory() != null && d.getCategory().getMaxAdults() != null) ? d.getCategory().getMaxAdults() : (d.getCategory() != null ? d.getCategory().getCapacity() : 2)).sum();
+            int maxChildren = details.stream().mapToInt(d -> (d.getCategory() != null && d.getCategory().getMaxChildren() != null) ? d.getCategory().getMaxChildren() : 2).sum();
+
             map.put("expectedAdults", expectedAdults);
             map.put("expectedChildren", expectedChildren);
             map.put("expectedGuests", expectedAdults + expectedChildren);
+            map.put("maxAdults", maxAdults);
+            map.put("maxChildren", maxChildren);
 
             map.put("activeDetails", details.stream()
                     .filter(d -> d.getRoom() != null && "CHECKED_IN".equalsIgnoreCase(d.getDetailStatus()))
@@ -288,11 +297,10 @@ public class ReceptionistController {
             List<com.kawai.dto.DependentResponseDTO> deps = dependentService.getGuestListByBooking(b.getId());
             map.put("dependents", deps);
 
-            // Tìm TourBookings chưa được gán phòng cụ thể (roomBookingDetail IS NULL)
-            // → các tour này lễ tân sẽ phân bổ khi check-in
-            List<com.kawai.models.TourBooking> unallocatedTours = tourBookingRepository
-                    .findByRoomBookingIdAndRoomBookingDetailIsNull(b.getId());
-            map.put("tourBookings", unallocatedTours);
+            // Tìm tất cả TourBookings thuộc đơn này để hiển thị Read-only cho lễ tân
+            List<com.kawai.models.TourBooking> allTours = tourBookingRepository
+                    .findByRoomBookingId(b.getId());
+            map.put("tourBookings", allTours);
 
             pagedArrivals.add(map);
         }
@@ -320,6 +328,28 @@ public class ReceptionistController {
         model.addAttribute("roomInventory", inventory);
 
         return "receptionist/check-in";
+        } catch (Exception e) {
+            checkinLog.error("❌ LỖI khi tải trang Check-in. Class: {}, Message: {}", e.getClass().getName(), e.getMessage(), e);
+            // Hiển thị lỗi trực tiếp trên trang thay vì Whitelabel Error Page
+            StringBuilder sb = new StringBuilder();
+            sb.append("[").append(e.getClass().getSimpleName()).append("] ").append(e.getMessage()).append("\n\n--- Stack Trace ---\n");
+            for (StackTraceElement el : e.getStackTrace()) {
+                sb.append(el.toString()).append("\n");
+                if (el.getClassName().startsWith("com.kawai")) {
+                    // Chỉ in thêm vài dòng sau dòng code của project
+                    break;
+                }
+            }
+            model.addAttribute("errorMessage", sb.toString());
+            model.addAttribute("arrivals", new java.util.ArrayList<>());
+            model.addAttribute("pendingArrivalsCount", 0);
+            model.addAttribute("currentPage", 1);
+            model.addAttribute("totalPages", 1);
+            model.addAttribute("keyword", keyword);
+            model.addAttribute("vacantRooms", new java.util.ArrayList<>());
+            model.addAttribute("roomInventory", new java.util.HashMap<>());
+            return "receptionist/check-in";
+        }
     }
 
     /**
@@ -391,7 +421,7 @@ public class ReceptionistController {
                     if (cccdEnc != null && !cccdEnc.isBlank()) {
                         try {
                             cccd = com.kawai.utils.EncryptionUtils.decrypt(cccdEnc);
-                        } catch (Exception e) {
+                        } catch (Throwable e) {
                             try {
                                 cccd = encryptionService.decrypt(cccdEnc);
                             } catch (Exception ex) {
@@ -486,7 +516,7 @@ public class ReceptionistController {
                 if (cccdEnc != null && !cccdEnc.isBlank()) {
                     try {
                         cccd = com.kawai.utils.EncryptionUtils.decrypt(cccdEnc);
-                    } catch (Exception e) {
+                    } catch (Throwable e) {
                         try {
                             cccd = encryptionService.decrypt(cccdEnc);
                         } catch (Exception ex) {
@@ -516,7 +546,7 @@ public class ReceptionistController {
             if (cccdEnc != null && !cccdEnc.isBlank()) {
                 try {
                     cccd = com.kawai.utils.EncryptionUtils.decrypt(cccdEnc);
-                } catch (Exception e) {
+                } catch (Throwable e) {
                     try {
                         cccd = encryptionService.decrypt(cccdEnc);
                     } catch (Exception ex) {
@@ -590,8 +620,9 @@ public class ReceptionistController {
         List<Map<String, Object>> pagedInHouse = new ArrayList<>();
         for (Booking b : pagedInHouseBookings) {
             List<RoomBookingDetail> details = roomBookingDetailRepository.findByRoomBookingId(b.getId());
-            if (details == null || details.isEmpty())
-                continue;
+            if (details == null) {
+                details = new ArrayList<>();
+            }
 
             String guestName = b.getCustomer() != null ? b.getCustomer().getFullName() : "Unknown";
 
@@ -681,8 +712,9 @@ public class ReceptionistController {
         List<Map<String, Object>> mappedCancelled = new ArrayList<>();
         for (Booking b : allCancelled) {
             List<RoomBookingDetail> details = roomBookingDetailRepository.findByRoomBookingId(b.getId());
-            if (details == null || details.isEmpty())
-                continue;
+            if (details == null) {
+                details = new ArrayList<>();
+            }
             String guestName = b.getCustomer() != null ? b.getCustomer().getFullName() : "Unknown";
 
             Map<String, Object> map = new HashMap<>();
@@ -733,61 +765,24 @@ public class ReceptionistController {
         return "receptionist/night-audit";
     }
 
-    @GetMapping("/operations")
-    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER', 'OP_HOUSEKEEPING')")
-    public String operations(Model model) {
-        model.addAttribute("operations", housekeepingService.getPendingOperations());
-        model.addAttribute("rooms", roomRepository.findAll());
-        return "receptionist/operations";
-    }
-
-    @PostMapping("/operations/escalate-room")
+    /**
+     * Gửi yêu cầu dọn khẩn cấp cho phòng Vacant_Dirty.
+     * Dùng chung cho cả WalkIn (walkin.js) và Check-in (checkin.js).
+     * Đặt tại /rooms/escalate-dirty để tách khỏi prefix /operations/
+     * của trang operations.html (đã không còn sử dụng).
+     */
+    @PostMapping("/rooms/escalate-dirty")
     @ResponseBody
-    public org.springframework.http.ResponseEntity<?> escalateTaskByRoomNumber(@org.springframework.web.bind.annotation.RequestParam("roomNumber") String roomNumber) {
+    public org.springframework.http.ResponseEntity<?> escalateTaskByRoomNumber(
+            @org.springframework.web.bind.annotation.RequestParam("roomNumber") String roomNumber) {
         try {
             housekeepingService.escalateTaskByRoomNumber(roomNumber);
-            return org.springframework.http.ResponseEntity.ok(java.util.Map.of("status", "success", "message", "Task escalated successfully"));
+            return org.springframework.http.ResponseEntity.ok(
+                    java.util.Map.of("status", "success", "message", "Task escalated successfully"));
         } catch (Exception e) {
-            return org.springframework.http.ResponseEntity.status(500).body(java.util.Map.of("status", "error", "message", e.getMessage()));
+            return org.springframework.http.ResponseEntity.status(500).body(
+                    java.util.Map.of("status", "error", "message", e.getMessage()));
         }
-    }
-
-    @org.springframework.web.bind.annotation.PostMapping("/operations/clean/{taskId}")
-    public String completeCleaning(@org.springframework.web.bind.annotation.PathVariable Long taskId,
-            org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
-        try {
-            housekeepingService.updateRoomToClean(taskId, null);
-            redirectAttributes.addFlashAttribute("successMessage", "Đã chuyển phòng về trạng thái sạch.");
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Lỗi: " + e.getMessage());
-        }
-        return "redirect:/receptionist/operations";
-    }
-
-    @org.springframework.web.bind.annotation.PostMapping("/operations/maintenance")
-    public String createMaintenance(@org.springframework.web.bind.annotation.RequestParam Long roomId,
-            @org.springframework.web.bind.annotation.RequestParam(required = false) String notes,
-            org.springframework.security.core.Authentication authentication,
-            org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
-        try {
-            housekeepingService.createMaintenanceRequest(roomId, resolveEmployeeId(authentication), notes);
-            redirectAttributes.addFlashAttribute("successMessage", "Đã tạo phiếu bảo trì.");
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Lỗi: " + e.getMessage());
-        }
-        return "redirect:/receptionist/operations";
-    }
-
-    @org.springframework.web.bind.annotation.PostMapping("/operations/maintenance/{taskId}/complete")
-    public String completeMaintenance(@org.springframework.web.bind.annotation.PathVariable Long taskId,
-            org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
-        try {
-            housekeepingService.completeMaintenance(taskId);
-            redirectAttributes.addFlashAttribute("successMessage", "Đã hoàn tất bảo trì.");
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Lỗi: " + e.getMessage());
-        }
-        return "redirect:/receptionist/operations";
     }
 
     @org.springframework.web.bind.annotation.PostMapping("/check-in/cancel-no-show/{id}")
@@ -814,7 +809,7 @@ public class ReceptionistController {
         if (cccdEnc != null && !cccdEnc.isEmpty()) {
             try {
                 cccd = com.kawai.utils.EncryptionUtils.decrypt(cccdEnc);
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 try {
                     cccd = encryptionService.decrypt(cccdEnc);
                 } catch (Exception ex) {
@@ -843,5 +838,41 @@ public class ReceptionistController {
                 .findFirst()
                 .map(Employee::getId)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy nhân viên để ghi nhận thao tác."));
+    }
+
+    @GetMapping("/api/notifications/cleaned-rooms")
+    @ResponseBody
+    public org.springframework.http.ResponseEntity<List<Map<String, String>>> getCleanedRoomsPendingHandover() {
+        List<Object[]> results = roomBookingDetailRepository.findCleanedRoomsPendingHandover();
+        List<Map<String, String>> response = new ArrayList<>();
+        for (Object[] row : results) {
+            Map<String, String> map = new HashMap<>();
+            map.put("roomNumber", row[0] != null ? row[0].toString() : "");
+            map.put("customerName", row[1] != null ? row[1].toString() : "Khách hàng");
+            response.add(map);
+        }
+        return org.springframework.http.ResponseEntity.ok(response);
+    }
+
+    /**
+     * API dành cho trang WalkIn: poll trạng thái của các phòng đang "treo"
+     * (escalate Vacant_Dirty + assignAfter=true, chưa hoàn thành đơn WalkIn).
+     * Trả về Map { roomNumber -> roomStatus } để frontend phát hiện khi
+     * phòng chuyển sang Vacant_Clean và hiện toast thông báo.
+     */
+    @GetMapping("/api/notifications/room-status")
+    @ResponseBody
+    public org.springframework.http.ResponseEntity<Map<String, String>> getRoomStatuses(
+            @RequestParam(value = "rooms", required = false) List<String> roomNumbers) {
+        Map<String, String> result = new HashMap<>();
+        if (roomNumbers == null || roomNumbers.isEmpty()) {
+            return org.springframework.http.ResponseEntity.ok(result);
+        }
+        // Tìm trạng thái của từng phòng theo roomNumber (dùng findByRoomNumber để tránh full-table scan)
+        for (String roomNum : roomNumbers) {
+            roomRepository.findByRoomNumber(roomNum)
+                    .ifPresent(r -> result.put(roomNum, r.getRoomStatus()));
+        }
+        return org.springframework.http.ResponseEntity.ok(result);
     }
 }

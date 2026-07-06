@@ -19,11 +19,10 @@
 
 ### CHANGELOG
 
-| Ngày      | Người thực hiện | Nội dung thay đổi                                                                                                                                                                                                                                                                                                                                |
-| ---------- | ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 2026-06-30 | Chu Xuân Dũng     | 🔵 REFACTOR: tách private methods (validateCccdIfPresent, findBookingOrThrow, encryptCccd, assertBookingIsActive, assertNoDuplicateCccd, buildAndSaveDependent), đặt tên constants (ACTIVE_BOOKING_STATUSES, STATUS_REGISTERED, ADULT_AGE_THRESHOLD), fix thiếu`status="REGISTERED"` trong response DTO, loại bỏ duplicate null-check CCCD |
-| 2026-06-20 | Antigravity AI      | Tạo Test Class DependentServiceUC16Test.java (9 TC, PASS 9/9 🟢) — Tạo impl DependentServiceImpl, DependentRegistrationDTO, DependentResponseDTO, DependentService interface                                                                                                                                                                     |
-| 2026-06-18 | Chu Xuân Dũng     | Khởi tạo TDD spec cho UC16 Register Accompanying Guests                                                                                                                                                                                                                                                                                           |
+| Ngày      | Người thực hiện | Nội dung thay đổi                                      |
+| ---------- | ------------------- | --------------------------------------------------------- |
+| 2026-06-20 | Antigravity AI      | Tạo Test Class DependentServiceUC16Test.java (9 TC, PASS 9/9 🟢) — Tạo impl DependentServiceImpl, DependentRegistrationDTO, DependentResponseDTO, DependentService interface |
+| 2026-06-18 | Chu Xuân Dũng     | Khởi tạo TDD spec cho UC16 Register Accompanying Guests |
 
 ---
 
@@ -45,11 +44,11 @@
 
 ### 2. Logic Issues Resolved
 
-| #  | Spec gốc (sai / thiếu)                                          | Thực tế (schema / policy)                                       | Fix áp dụng trong test                                                                  |
-| -- | ----------------------------------------------------------------- | ----------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| L1 | SRS không nêu cụ thể cơ chế kiểm tra trùng lặp Dependent | Phải check CCCD encrypted theo booking_id trước khi INSERT     | Test TC-UC16-003 kiểm tra`DuplicateDependentException` khi gọi lần 2 với cùng CCCD |
-| L2 | SRS không đề cập mã hoá PII                                 | Nghị định 13/2023 yêu cầu AES-256 cho CCCD/Hộ chiếu        | Test TC-UC16-009 verify field`cccd_passport_encrypted` NOT plaintext sau khi lưu       |
-| L3 | SRS chỉ nêu booking`Confirmed`                                | Thực tế AF-02 SRS cho phép thêm sau Check-in (`Checked_In`) | Test TC-UC16-005 dùng booking trạng thái`Checked_In` và expect thành công         |
+| #  | Spec gốc (sai / thiếu)                                          | Thực tế (schema / policy)                                       | Fix áp dụng trong test                                                                   |
+| -- | ----------------------------------------------------------------- | ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| L1 | SRS không nêu cụ thể cơ chế kiểm tra trùng lặp Dependent | Phải check CCCD encrypted theo booking_id trước khi INSERT     | Test TC-UC16-003 kiểm tra `DuplicateDependentException` khi gọi lần 2 với cùng CCCD |
+| L2 | SRS không đề cập mã hoá PII                                 | Nghị định 13/2023 yêu cầu AES-256 cho CCCD/Hộ chiếu        | Test TC-UC16-009 verify field `cccd_passport_encrypted` NOT plaintext sau khi lưu       |
+| L3 | SRS chỉ nêu booking `Confirmed`                               | Thực tế AF-02 SRS cho phép thêm sau Check-in (`Checked_In`) | Test TC-UC16-005 dùng booking trạng thái `Checked_In` và expect thành công         |
 
 ---
 
@@ -272,15 +271,15 @@ UC16 Backend Spring Boot:
 
 ### 5. Red-Green-Refactor Tracker
 
-| UC   | TC ID       | Mô tả ngắn                                | Test File                         | 🔴 RED | 🔴 Commit  | 🔴 Date    | 🟢 GREEN | 🟢 Commit  | 🟢 Date    | 🔵 REFACTOR | 🔵 Commit  | 🔵 Note                                                                                                |
-| ---- | ----------- | -------------------------------------------- | --------------------------------- | ------ | ---------- | ---------- | -------- | ---------- | ---------- | ----------- | ---------- | ------------------------------------------------------------------------------------------------------ |
-| UC16 | TC-UC16-001 | Đăng ký dependent mới thành công       | `DependentServiceUC16Test.java` | [x]    | 2026-06-20 | 2026-06-20 | [x]      | 2026-06-20 | 2026-06-20 | [x]         | 2026-06-30 | `buildAndSaveDependent()` + `buildResponseDTO()` tách riêng; fix `status=REGISTERED` trong DTO |
-| UC16 | TC-UC16-002 | Booking Cancelled → từ chối               | `DependentServiceUC16Test.java` | [x]    | 2026-06-20 | 2026-06-20 | [x]      | 2026-06-20 | 2026-06-20 | [x]         | 2026-06-30 | `assertBookingIsActive()` tách private; `ACTIVE_BOOKING_STATUSES` constant thay inline Set        |
-| UC16 | TC-UC16-003 | Trùng CCCD → DuplicateException            | `DependentServiceUC16Test.java` | [x]    | 2026-06-20 | 2026-06-20 | [x]      | 2026-06-20 | 2026-06-20 | [x]         | 2026-06-30 | `assertNoDuplicateCccd()` tách private; guard `isNewRegistration()` tường minh                  |
-| UC16 | TC-UC16-004 | CCCD không hợp lệ → InvalidIdException   | `DependentServiceUC16Test.java` | [x]    | 2026-06-20 | 2026-06-20 | [x]      | 2026-06-20 | 2026-06-20 | [x]         | 2026-06-30 | `validateCccdIfPresent()` gộp null+format; fail-fast trước DB call                                |
-| UC16 | TC-UC16-005 | Booking Checked_In → thành công           | `DependentServiceUC16Test.java` | [x]    | 2026-06-20 | 2026-06-20 | [x]      | 2026-06-20 | 2026-06-20 | [x]         | 2026-06-30 | `ACTIVE_BOOKING_STATUSES` constant chứa cả `Confirmed` + `Checked_In`                          |
-| UC16 | TC-UC16-009 | PII CCCD mã hoá AES-256 (không plaintext) | `DependentServiceUC16Test.java` | [x]    | 2026-06-20 | 2026-06-20 | [x]      | 2026-06-20 | 2026-06-20 | [x]         | 2026-06-30 | `encryptCccd()` private method; luôn gọi trước `populateDependentFields()`                     |
-| UC16 | TC-UC16-010 | bookingId không tồn tại → 404            | `DependentServiceUC16Test.java` | [x]    | 2026-06-20 | 2026-06-20 | [x]      | 2026-06-20 | 2026-06-20 | [x]         | 2026-06-30 | `findBookingOrThrow()` private method; message chứa bookingId rõ ràng                             |
+| UC   | TC ID       | Mô tả ngắn                                | Test File                         | 🔴 RED | 🔴 Commit | 🔴 Date | 🟢 GREEN | 🟢 Commit | 🟢 Date | 🔵 REFACTOR | 🔵 Commit | 🔵 Note |
+| ---- | ----------- | -------------------------------------------- | --------------------------------- | ------ | --------- | ------- | -------- | --------- | ------- | ----------- | --------- | ------- |
+| UC16 | TC-UC16-001 | Đăng ký dependent mới thành công       | `DependentServiceUC16Test.java` | [x]    | 2026-06-20 | 2026-06-20 | [x]      | 2026-06-20 | 2026-06-20 | [ ]         |           |         |
+| UC16 | TC-UC16-002 | Booking Cancelled → từ chối               | `DependentServiceUC16Test.java` | [x]    | 2026-06-20 | 2026-06-20 | [x]      | 2026-06-20 | 2026-06-20 | [ ]         |           |         |
+| UC16 | TC-UC16-003 | Trùng CCCD → DuplicateException            | `DependentServiceUC16Test.java` | [x]    | 2026-06-20 | 2026-06-20 | [x]      | 2026-06-20 | 2026-06-20 | [ ]         |           |         |
+| UC16 | TC-UC16-004 | CCCD không hợp lệ → InvalidIdException   | `DependentServiceUC16Test.java` | [x]    | 2026-06-20 | 2026-06-20 | [x]      | 2026-06-20 | 2026-06-20 | [ ]         |           |         |
+| UC16 | TC-UC16-005 | Booking Checked_In → thành công           | `DependentServiceUC16Test.java` | [x]    | 2026-06-20 | 2026-06-20 | [x]      | 2026-06-20 | 2026-06-20 | [ ]         |           |         |
+| UC16 | TC-UC16-009 | PII CCCD mã hoá AES-256 (không plaintext) | `DependentServiceUC16Test.java` | [x]    | 2026-06-20 | 2026-06-20 | [x]      | 2026-06-20 | 2026-06-20 | [ ]         |           |         |
+| UC16 | TC-UC16-010 | bookingId không tồn tại → 404            | `DependentServiceUC16Test.java` | [x]    | 2026-06-20 | 2026-06-20 | [x]      | 2026-06-20 | 2026-06-20 | [ ]         |           |         |
 
 ---
 
@@ -295,12 +294,11 @@ UC16 Backend Spring Boot:
 
 #### Exit Criteria (Điều kiện kết thúc — DoD)
 
-- [X] Tất cả **7 test cases** chạy PASS 100% (`mvn test -Dtest=DependentServiceUC16Test`)
-- [X] Không có CCCD/PII nào lưu dạng plaintext (verified bằng DB inspection)
-- [X] `DuplicateDependentException` được ném đúng 100% trường hợp trùng lặp
+- [ ] Tất cả **7 test cases** chạy PASS 100% (`mvn test -Dtest=DependentServiceUC16Test`)
+- [ ] Không có CCCD/PII nào lưu dạng plaintext (verified bằng DB inspection)
+- [ ] `DuplicateDependentException` được ném đúng 100% trường hợp trùng lặp
 - [ ] Audit Log ghi đủ mỗi hành động INSERT/DELETE Dependent
 - [ ] Code coverage Service layer ≥ 90%
-- [X] 🔵 REFACTOR hoàn thành: private method extraction, named constants, no duplicate null-check
 
 ---
 

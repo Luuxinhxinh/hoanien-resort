@@ -1,3 +1,42 @@
+function showToast(msg, type = 'success') {
+    let container = document.getElementById('custom-toast-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'custom-toast-container';
+
+        const style = document.createElement('style');
+        style.innerHTML = `
+            #custom-toast-container { position: fixed; top: 20px; right: 20px; z-index: 99999; display: flex; flex-direction: column; gap: 10px; }
+            .custom-toast { display: flex; align-items: flex-start; padding: 16px; border-radius: 8px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); border-left: 4px solid; width: 320px; transform: translateX(120%); opacity: 0; transition: all 0.3s ease; font-family: sans-serif; background: white; }
+            .custom-toast.show { transform: translateX(0); opacity: 1; }
+            .custom-toast.error { border-color: #ef4444; color: #7f1d1d; background-color: #fef2f2; }
+            .custom-toast.success { border-color: #22c55e; color: #14532d; background-color: #f0fdf4; }
+            .custom-toast.warning { border-color: #f59e0b; color: #78350f; background-color: #fffbeb; }
+            .custom-toast-icon { font-size: 20px; margin-right: 12px; }
+            .custom-toast.error .custom-toast-icon { color: #ef4444; }
+            .custom-toast.success .custom-toast-icon { color: #22c55e; }
+            .custom-toast.warning .custom-toast-icon { color: #f59e0b; }
+            .custom-toast-title { font-weight: 700; font-size: 13px; text-transform: uppercase; margin: 0 0 4px 0; }
+            .custom-toast-message { font-size: 12px; margin: 0; line-height: 1.4; }
+        `;
+        document.head.appendChild(style);
+        document.body.appendChild(container);
+    }
+
+    const toast = document.createElement('div');
+    toast.className = `custom-toast ${type}`;
+    let icon = 'fa-circle-check';
+    let title = 'THÀNH CÔNG';
+    if (type === 'error') { icon = 'fa-circle-exclamation'; title = 'LỖI'; }
+    if (type === 'warning') { icon = 'fa-triangle-exclamation'; title = 'CẢNH BÁO'; }
+
+    toast.innerHTML = `<i class="fa-solid ${icon} custom-toast-icon"></i><div><h4 class="custom-toast-title">${title}</h4><p class="custom-toast-message">${msg}</p></div>`;
+
+    container.appendChild(toast);
+    requestAnimationFrame(() => setTimeout(() => toast.classList.add('show'), 10));
+    setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 300); }, 4000);
+}
+
 let todayStrGlobal = '';
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -52,7 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function escalateDirtyRoomWalkIn(roomNum, assignAfter) {
-    fetch(`/receptionist/operations/escalate-room?roomNumber=${roomNum}`, {
+    fetch(`/receptionist/rooms/escalate-dirty?roomNumber=${roomNum}`, {
         method: 'POST',
         headers: {
             'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]') ? document.querySelector('meta[name="_csrf"]').getAttribute('content') : ''
@@ -86,6 +125,15 @@ function escalateDirtyRoomWalkIn(roomNum, assignAfter) {
                     const category = selectedOpt.dataset.category;
                     const price = selectedOpt.dataset.price;
 
+                    // Lưu phòng đang "treo" vào sessionStorage để room-alert.js poll
+                    // và hiện thông báo khi house dọn xong
+                    try {
+                        const pendingRaw = sessionStorage.getItem('walkInPendingCleanRooms');
+                        const pendingRooms = pendingRaw ? JSON.parse(pendingRaw) : {};
+                        pendingRooms[roomNum] = true;
+                        sessionStorage.setItem('walkInPendingCleanRooms', JSON.stringify(pendingRooms));
+                    } catch (e) { }
+
                     proceedAddRoomToCart(roomId, roomNum, category, price);
                 } else {
                     // Reset the dropdown if they only escalated
@@ -95,9 +143,9 @@ function escalateDirtyRoomWalkIn(roomNum, assignAfter) {
                 showToast('Lỗi khi gửi yêu cầu: ' + data.message, 'error');
             }
         }).catch(err => {
-            console.error(err);
-            showToast('Lỗi kết nối khi gửi yêu cầu khẩn cấp.', 'error');
-        });
+                console.error(err);
+                showToast('Lỗi kết nối khi gửi yêu cầu khẩn cấp.', 'error');
+            });
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -106,8 +154,8 @@ document.addEventListener('DOMContentLoaded', () => {
         roomSelect.addEventListener('change', function () {
             const opt = this.options[this.selectedIndex];
             if (!opt) return;
-            const status = opt.getAttribute('data-status');
-            const roomNum = opt.getAttribute('data-roomNum');
+            const status = opt.dataset.status || opt.getAttribute('data-status');
+            const roomNum = opt.dataset.roomNum || opt.getAttribute('data-roomnum') || opt.getAttribute('data-roomNum');
             const gridContainer = this.closest('div[style*="display: grid"]');
             if (!gridContainer) return;
 
@@ -190,7 +238,13 @@ function updateWalkInAvailableRooms() {
         typeSelect.parentElement.appendChild(banner);
     }
 
+    const statusFilter = document.getElementById('walkInStatusFilter');
+    const filterValue = statusFilter ? statusFilter.value : 'ALL';
+
     available.forEach(r => {
+        if (filterValue === 'CLEAN' && r.status !== 'Vacant_Clean') return;
+        if (filterValue === 'DIRTY' && r.status !== 'Vacant_Dirty') return;
+
         const opt = document.createElement('option');
 
         const roomId = r.id !== undefined ? r.id : r;
@@ -432,8 +486,20 @@ function validateGuestInfo() {
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    if (new Date(dob) > today) {
+    const birthDate = new Date(dob);
+
+    if (birthDate > today) {
         alert("LỖI: Ngày sinh không thể ở trong tương lai!");
+        return false;
+    }
+
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const m = today.getMonth() - birthDate.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+    }
+    if (age < 18) {
+        alert("LỖI: Khách hàng phải từ 18 tuổi trở lên mới được phép đứng tên đăng ký phòng!");
         return false;
     }
 
@@ -667,6 +733,10 @@ function submitCheckIn() {
             return response.json();
         })
         .then(data => {
+            // Xóa danh sách phòng "treo" khi WalkIn submit thành công
+            // để tránh toast trùng với pollCleanedRooms() sau khi có RBD trong DB
+            try { sessionStorage.removeItem('walkInPendingCleanRooms'); } catch (e) { /* ignore */ }
+
             const modal = document.getElementById('successModal');
             const msg = document.getElementById('modalMessage');
             const accInfo = document.getElementById('modalAccountInfo');

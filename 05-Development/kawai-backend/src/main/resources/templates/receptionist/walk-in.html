@@ -139,7 +139,7 @@
                     <h3
                         style="margin-top: 0; margin-bottom: 16px; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; color: #1e293b;">
                         Step 1: Check Availability & Assign Room</h3>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1.5fr; gap: 20px; align-items: end;">
                         <div>
                             <label style="display: block; font-weight: 500; margin-bottom: 8px;">Expected Checkout
                                 Date</label>
@@ -152,6 +152,17 @@
                                 style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 4px;"
                                 onchange="updateWalkInAvailableRooms()">
                                 <option value="">-- Select Type --</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="display: block; font-weight: 500; margin-bottom: 8px;">Trạng thái
+                                phòng</label>
+                            <select id="walkInStatusFilter" class="form-control"
+                                style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 4px;"
+                                onchange="updateWalkInAvailableRooms()">
+                                <option value="ALL">Tất cả</option>
+                                <option value="CLEAN">Chỉ phòng Sạch (Vacant_Clean)</option>
+                                <option value="DIRTY">Chỉ phòng Bẩn (Vacant_Dirty)</option>
                             </select>
                         </div>
                         <div>
@@ -476,6 +487,7 @@
     </script>
     <!-- Tách toàn bộ logic JS ra file riêng -->
     <script src="/receptionist/js/walkin.js"></script>
+    <script src="/receptionist/js/room-alert.js"></script>
 </body>
 
 </html>

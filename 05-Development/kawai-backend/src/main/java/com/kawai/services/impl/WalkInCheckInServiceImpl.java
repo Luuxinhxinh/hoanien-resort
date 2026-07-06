@@ -361,7 +361,7 @@ public class WalkInCheckInServiceImpl implements WalkInCheckInService {
 
         try {
             return customerRepository.findByCccdPassportEncrypted(EncryptionUtils.encrypt(keyword));
-        } catch (Exception e) {
+        } catch (Throwable e) {
             return java.util.Optional.empty();
         }
     }

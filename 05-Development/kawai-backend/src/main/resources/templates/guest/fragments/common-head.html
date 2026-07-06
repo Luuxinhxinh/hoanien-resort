@@ -28,17 +28,4 @@
             }
         }
     </script>
-
-    <!-- Clear Cart on Logout Script -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const logoutForms = document.querySelectorAll('form[action*="/auth/logout"]');
-            logoutForms.forEach(form => {
-                form.addEventListener('submit', function() {
-                    sessionStorage.removeItem('kawai_cart');
-                    sessionStorage.removeItem('kawai_bookingState');
-                });
-            });
-        });
-    </script>
 </th:block>

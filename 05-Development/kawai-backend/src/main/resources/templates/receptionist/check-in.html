@@ -4,10 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="_csrf" th:if="${_csrf != null}" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:if="${_csrf != null}" th:content="${_csrf.headerName}" />
     <title>Check-in / Check-out - Hoanien Retreat</title>
     <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
         rel="stylesheet">
@@ -142,9 +142,13 @@
                     <span th:text="${successMessage}"></span>
                 </div>
                 <div th:if="${errorMessage}" class="alert alert-danger"
-                    style="margin-bottom: 20px; padding: 16px; border-radius: 8px; background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca; display: flex; align-items: center; gap: 12px; font-weight: 500;">
-                    <i class="fa-solid fa-triangle-exclamation"></i>
-                    <span th:text="${errorMessage}"></span>
+                    style="margin-bottom: 20px; padding: 16px; border-radius: 8px; background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca; font-weight: 500;">
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        <strong>Lỗi khi tải trang Check-in</strong>
+                    </div>
+                    <pre th:text="${errorMessage}"
+                        style="white-space: pre-wrap; word-break: break-all; margin: 0; font-family: monospace; font-size: 12px; background: #fff5f5; padding: 12px; border-radius: 6px; border: 1px solid #fecaca; max-height: 300px; overflow-y: auto;"></pre>
                 </div>
 
                 <div class="page-header">
@@ -205,7 +209,8 @@
                                         th:data-expected-guests="${arr.expectedGuests}"
                                         th:data-expected-adults="${arr.expectedAdults}"
                                         th:data-expected-children="${arr.expectedChildren}"
-                                        onclick="openCheckinModal(this.getAttribute('data-id'), this.getAttribute('data-name'), this.getAttribute('data-phone'), this.getAttribute('data-cccd'), this.getAttribute('data-dob'), this.getAttribute('data-room'), this.getAttribute('data-deps'), this.getAttribute('data-tours'), this.getAttribute('data-credit'), this.getAttribute('data-expected-guests'), this.getAttribute('data-expected-adults'), this.getAttribute('data-expected-children'))"
+                                        th:data-max-adults="${arr.maxAdults}" th:data-max-children="${arr.maxChildren}"
+                                        onclick="openCheckinModal(this.getAttribute('data-id'), this.getAttribute('data-name'), this.getAttribute('data-phone'), this.getAttribute('data-cccd'), this.getAttribute('data-dob'), this.getAttribute('data-room'), this.getAttribute('data-deps'), this.getAttribute('data-tours'), this.getAttribute('data-credit'), this.getAttribute('data-expected-guests'), this.getAttribute('data-expected-adults'), this.getAttribute('data-expected-children'), this.getAttribute('data-max-adults'), this.getAttribute('data-max-children'))"
                                         th:text="${arr.guestName}"></td>
                                     <td th:text="${arr.phone}"></td>
                                     <td th:text="${arr.checkInDate}"></td>
@@ -222,8 +227,9 @@
                                             th:data-expected-guests="${arr.expectedGuests}"
                                             th:data-expected-adults="${arr.expectedAdults}"
                                             th:data-expected-children="${arr.expectedChildren}"
-                                            onclick="openCheckinModal(this.getAttribute('data-id'), this.getAttribute('data-name'), this.getAttribute('data-phone'), this.getAttribute('data-cccd'), this.getAttribute('data-dob'), this.getAttribute('data-room'), this.getAttribute('data-deps'), this.getAttribute('data-tours'), this.getAttribute('data-credit'), this.getAttribute('data-expected-guests'), this.getAttribute('data-expected-adults'), this.getAttribute('data-expected-children'))">Assign
-
+                                            th:data-max-adults="${arr.maxAdults}"
+                                            th:data-max-children="${arr.maxChildren}" th:data-gender="${arr.gender}"
+                                            onclick="openCheckinModal(this.getAttribute('data-id'), this.getAttribute('data-name'), this.getAttribute('data-phone'), this.getAttribute('data-cccd'), this.getAttribute('data-dob'), this.getAttribute('data-room'), this.getAttribute('data-deps'), this.getAttribute('data-tours'), this.getAttribute('data-credit'), this.getAttribute('data-expected-guests'), this.getAttribute('data-expected-adults'), this.getAttribute('data-expected-children'), this.getAttribute('data-max-adults'), this.getAttribute('data-max-children'), this.getAttribute('data-gender'))">Assign
                                             & Check-in</button>
                                         <!-- Hidden data for dependents -->
                                         <div th:id="'deps-arr-' + ${arr.id}" style="display:none;">
@@ -234,14 +240,13 @@
                                                 </li>
                                             </ul>
                                         </div>
-                                        <!-- Hidden data for unallocated TourBookings -->
+                                        <!-- Hidden data for TourBookings -->
                                         <div th:id="'tours-arr-' + ${arr.id}" style="display:none;">
                                             <ul>
                                                 <li th:each="tb : ${arr.tourBookings}" th:data-id="${tb.id}"
-                                                    th:data-tour="${tb.schedule.tour.tourName}"
-                                                    th:data-date="${tb.schedule.departureDate}"
-                                                    th:data-time="${tb.schedule.departureTime}"
-                                                    th:data-count="${tb.participantCount}"
+                                                    th:data-tour="${tb.schedule?.tour?.tourName}"
+                                                    th:data-category="${tb.roomBookingDetail?.category?.categoryName}"
+                                                    th:data-participant="${tb.participantCount}"
                                                     th:data-charge="${tb.tourCharge}">
                                                 </li>
                                             </ul>
@@ -277,7 +282,7 @@
     <!-- Check-in Modal -->
     <div id="checkinModal" class="modal-overlay"
         style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;">
-        <form id="checkinFormWrapper" action="/receptionist/checkin/complete" method="POST" class="modal-content"
+        <form id="checkinFormWrapper" th:action="@{/receptionist/checkin/complete}" method="POST" class="modal-content"
             style="background: white; width: 1000px; max-width: 95%; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; flex-direction: column; max-height: 90vh;">
             <!-- Hidden fields for Spring Boot DTO Binding -->
             <input type="hidden" id="submitBookingId" name="bookingId" value="" />
@@ -382,6 +387,18 @@
                                     style="width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-weight: 500; font-family: inherit; color: #1e293b; outline: none; transition: border-color 0.2s;"
                                     onfocus="this.style.borderColor='#94a3b8'" onblur="this.style.borderColor='#cbd5e1'"
                                     value="">
+                            </div>
+                            <div>
+                                <label
+                                    style="display: block; color: #475569; font-size: 12px; font-weight: 600; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">Gender</label>
+                                <select id="modalGuestGender" name="gender"
+                                    style="width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-weight: 500; font-family: inherit; color: #1e293b; outline: none; transition: border-color 0.2s;"
+                                    onfocus="this.style.borderColor='#94a3b8'"
+                                    onblur="this.style.borderColor='#cbd5e1'">
+                                    <option value="Nam">Nam</option>
+                                    <option value="Nữ">Nữ</option>
+                                    <option value="Khác">Khác</option>
+                                </select>
                             </div>
                             <div
                                 style="display: flex; flex-direction: column; justify-content: center; background: #f8fafc; padding: 10px 12px; border-radius: 6px; border: 1px solid #e2e8f0; grid-column: span 2;">
@@ -589,21 +606,18 @@
                         </div>
                     </div>
 
-                    <!-- Tour Allocation Section — chỉ hiện khi booking có tour chưa phân bổ phòng -->
-                    <div id="tourAllocationSection" style="display: none; margin-top: 32px;">
-                        <!-- Elegant Header -->
+                    <!-- Danh sách Tour đã đặt (Read-only) -->
+                    <div id="tourBookingsSection" style="display: none; margin-top: 32px;">
                         <div
                             style="display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; margin-bottom: 16px;">
                             <h4 style="margin: 0; font-weight: 600; color: #1e293b; font-size: 16px;">
                                 <i class="fa-solid fa-map-location-dot" style="color: #64748b; margin-right: 6px;"></i>
-                                Tour Booking Allocation
+                                Danh sách Tour đã đặt
                             </h4>
-                            <span style="font-size: 13px; color: #64748b; font-weight: 500;">Phân bổ chi phí tour vào
-                                phòng</span>
                         </div>
 
                         <div
-                            style="background: white; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                            style="background: white; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-bottom: 20px;">
                             <!-- Bảng danh sách tour đã đặt -->
                             <table class="data-table" style="width: 100%; border-collapse: collapse;"
                                 id="tourBookingsTable">
@@ -614,70 +628,27 @@
                                             Tên Tour</th>
                                         <th
                                             style="padding: 12px 16px; text-align: left; font-size: 12px; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 0.5px;">
-                                            Ngày đi</th>
+                                            Hạng Phòng</th>
                                         <th
-                                            style="padding: 12px 16px; text-align: left; font-size: 12px; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 0.5px;">
-                                            Giờ</th>
-                                        <th
-                                            style="padding: 12px 16px; text-align: left; font-size: 12px; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 0.5px;">
+                                            style="padding: 12px 16px; text-align: center; font-size: 12px; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 0.5px;">
                                             Số lượng</th>
                                         <th
-                                            style="padding: 12px 16px; text-align: right; font-size: 12px; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 0.5px;">
-                                            Tổng tiền</th>
+                                            style="padding: 12px 16px; text-align: left; font-size: 12px; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 0.5px;">
+                                            Phòng Vật Lý</th>
                                     </tr>
                                 </thead>
                                 <tbody id="tourBookingsList">
-                                    <!-- Render bởi JS từ hidden div data -->
+                                    <tr>
+                                        <td colspan="4"
+                                            style="text-align:center; padding: 24px; color: #94a3b8; font-size: 14px; font-weight: 500;">
+                                            Đang tải...
+                                        </td>
+                                    </tr>
                                 </tbody>
                             </table>
-
-                            <div style="padding: 20px 16px; background: #f8fafc; border-top: 1px solid #e2e8f0;">
-                                <!-- Chọn chế độ phân bổ -->
-                                <div style="margin-bottom: 20px;">
-                                    <label
-                                        style="display: block; font-size: 13px; font-weight: 600; color: #334155; margin-bottom: 12px;">Allocation
-                                        Mode (Chế độ phân bổ):</label>
-                                    <div style="display: flex; gap: 16px;">
-                                        <label
-                                            style="flex: 1; display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: white; border: 1px solid #cbd5e1; border-radius: 6px; cursor: pointer; transition: all 0.2s ease;">
-                                            <input type="radio" name="tourAllocationMode" value="ALL" checked
-                                                onchange="toggleTourAllocationMode()"
-                                                style="accent-color: #334155; width: 16px; height: 16px; cursor: pointer;">
-                                            <span style="font-size: 14px; color: #1e293b; font-weight: 500;">Gộp chung
-                                                <span style="color: #64748b; font-weight: 400; font-size: 13px;">(Không
-                                                    gán
-                                                    phòng cụ thể)</span></span>
-                                        </label>
-                                        <label
-                                            style="flex: 1; display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: white; border: 1px solid #cbd5e1; border-radius: 6px; cursor: pointer; transition: all 0.2s ease;">
-                                            <input type="radio" name="tourAllocationMode" value="PER_TOUR"
-                                                onchange="toggleTourAllocationMode()"
-                                                style="accent-color: #334155; width: 16px; height: 16px; cursor: pointer;">
-                                            <span style="font-size: 14px; color: #1e293b; font-weight: 500;">Phân bổ
-                                                từng
-                                                tour <span
-                                                    style="color: #64748b; font-weight: 400; font-size: 13px;">(Chọn
-                                                    phòng chịu phí)</span></span>
-                                        </label>
-                                    </div>
-                                </div>
-
-                                <!-- Phân bổ từng tour vào phòng (chỉ hiện khi PER_TOUR) -->
-                                <div id="perTourAllocationContainer"
-                                    style="display: none; background: white; padding: 16px; border-radius: 8px; border: 1px solid #e2e8f0; box-shadow: 0 1px 2px rgba(0,0,0,0.02);">
-                                    <p
-                                        style="margin: 0 0 16px; font-size: 13px; color: #64748b; display: flex; align-items: center; gap: 8px;">
-                                        <i class="fa-solid fa-circle-info" style="color: #94a3b8; font-size: 14px;"></i>
-                                        Vui lòng gán mỗi tour cho một phòng tương ứng để tính chi phí vào phòng đó.
-                                    </p>
-                                    <div id="perTourAllocationRows"
-                                        style="display: flex; flex-direction: column; gap: 10px;">
-                                        <!-- Render bởi JS: [Tên Tour] → [dropdown phòng] -->
-                                    </div>
-                                </div>
-                            </div>
                         </div>
                     </div>
+
                 </div> <!-- End Left Column -->
 
                 <!-- Right Column (Face Gallery) -->
@@ -814,7 +785,30 @@
         const roomInventory = /*[[${roomInventory}]]*/ {};
         const assignedRooms = [];
 
+        // Hiển thị thông báo nếu có từ redirectAttributes
+        const successMessage = /*[[${successMessage}]]*/ null;
+        const errorMessage = /*[[${errorMessage}]]*/ null;
+
+        if (successMessage) {
+            Toastify({
+                text: successMessage,
+                duration: 4000,
+                gravity: "top",
+                position: "right",
+                backgroundColor: "#16a34a",
+            }).showToast();
+        }
+        if (errorMessage) {
+            Toastify({
+                text: errorMessage,
+                duration: 6000,
+                gravity: "top",
+                position: "right",
+                backgroundColor: "#dc2626",
+            }).showToast();
+        }
     </script>
+    <script src="/receptionist/js/room-alert.js"></script>
 </body>
 
 </html>

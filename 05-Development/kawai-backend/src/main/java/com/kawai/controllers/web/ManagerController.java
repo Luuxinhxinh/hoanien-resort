@@ -71,9 +71,10 @@ public class ManagerController {
     public String approvals(Model model) {
         model.addAttribute("todayLabel", todayLabel());
         
-        List<HotelOperation> pendingOps = housekeepingTaskRepository.findByOperationalTypeAndStatusSorted("Manager_Approval", "Pending");
-        List<HotelOperation> completedOps = housekeepingTaskRepository.findByOperationalTypeAndStatusSorted("Manager_Approval", "Completed");
-        List<HotelOperation> rejectedOps = housekeepingTaskRepository.findByOperationalTypeAndStatusSorted("Manager_Approval", "Rejected");
+        List<String> types = java.util.Arrays.asList("Manager_Approval", "Late_Checkout_Waiver", "Cancellation_Fee_Waiver", "Room_Downgrade_Refund");
+        List<HotelOperation> pendingOps = housekeepingTaskRepository.findByOperationalTypesAndStatusSorted(types, "Pending");
+        List<HotelOperation> completedOps = housekeepingTaskRepository.findByOperationalTypesAndStatusSorted(types, "Completed");
+        List<HotelOperation> rejectedOps = housekeepingTaskRepository.findByOperationalTypesAndStatusSorted(types, "Rejected");
         
         List<ApprovalDTO> pending = convertToApprovalDTOs(pendingOps);
         List<ApprovalDTO> completed = convertToApprovalDTOs(completedOps);
@@ -101,6 +102,12 @@ public class ManagerController {
                     customerName = booking.getCustomer() != null ? booking.getCustomer().getFullName() : "N/A";
                     totalPriceStr = fmt(booking.getTotalPrice()) + " VNĐ";
                     promoCode = booking.getAppliedPromotion() != null ? booking.getAppliedPromotion().getPromoCode() : "N/A";
+                    if ("N/A".equals(promoCode) && op.getNotes() != null) {
+                        java.util.regex.Matcher m = java.util.regex.Pattern.compile("Mã giảm giá (\\S+) áp dụng").matcher(op.getNotes());
+                        if (m.find()) {
+                            promoCode = m.group(1);
+                        }
+                    }
                     
                     if (booking instanceof RoomBooking rb) {
                         bookingDetails = "Đặt phòng (" + rb.getCheckInDate() + " -> " + rb.getCheckOutDate() + ")";
@@ -119,7 +126,8 @@ public class ManagerController {
                 op.getStatus(),
                 op.getCreatedAt() != null ? op.getCreatedAt().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")) : "N/A",
                 bookingDetails,
-                totalPriceStr
+                totalPriceStr,
+                op.getOperationalType()
             ));
         }
         return dtos;
@@ -904,6 +912,137 @@ public class ManagerController {
     }
 
     // =========================================================================
+
+    // =========================================================================
+    // 3. Doanh thu theo ngày (chi tiết)
+    // =========================================================================
+
+    @GetMapping("/revenue/daily")
+    public String revenueDaily(Model model) {
+        model.addAttribute("todayLabel", todayLabel());
+        LocalDate today = LocalDate.now();
+
+        BigDecimal roomToday = roomBookingRepository.revenueBetween(today, today);
+        BigDecimal fnbToday = foodOrderRepository.revenueBetween(today.atStartOfDay(), today.plusDays(1).atStartOfDay());
+        BigDecimal tourToday = tourBookingRepository.revenueBetween(today, today);
+        BigDecimal totalToday = roomToday.add(fnbToday).add(tourToday);
+        model.addAttribute("totalToday", fmt(totalToday));
+
+        List<RevenueRowDTO> rows = new ArrayList<>();
+        for (int i = 8; i >= 0; i--) {
+            LocalDate d = today.minusDays(i);
+            String lbl = d.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+            BigDecimal rDate = roomBookingRepository.revenueOnDate(d);
+            if (rDate == null) rDate = BigDecimal.ZERO;
+            BigDecimal fDate = foodOrderRepository.revenueOnDate(d.atStartOfDay(), d.plusDays(1).atStartOfDay());
+            if (fDate == null) fDate = BigDecimal.ZERO;
+            BigDecimal tDate = tourBookingRepository.revenueOnDate(d);
+            if (tDate == null) tDate = BigDecimal.ZERO;
+            BigDecimal totalDate = rDate.add(fDate).add(tDate);
+            rows.add(0, new RevenueRowDTO(lbl, fmt(rDate), fmt(fDate), fmt(tDate), fmt(totalDate)));
+        }
+        model.addAttribute("rows", rows);
+        return "manager/revenue-daily";
+    }
+
+    // =========================================================================
+    // 4. Doanh thu theo tháng (chi tiết)
+    // =========================================================================
+
+    @GetMapping("/revenue/monthly")
+    public String revenueMonthly(Model model) {
+        model.addAttribute("todayLabel", todayLabel());
+        LocalDate now = LocalDate.now();
+
+        LocalDate currentMonthStart = LocalDate.of(now.getYear(), now.getMonthValue(), 1);
+        BigDecimal currentMonthRoom = roomBookingRepository.revenueBetween(currentMonthStart, now);
+        BigDecimal currentMonthFnb = foodOrderRepository.revenueBetween(currentMonthStart.atStartOfDay(), now.plusDays(1).atStartOfDay());
+        BigDecimal currentMonthTour = tourBookingRepository.revenueBetween(currentMonthStart, now);
+        BigDecimal currentMonthTotal = currentMonthRoom.add(currentMonthFnb).add(currentMonthTour);
+        model.addAttribute("currentMonthTotal", fmt(currentMonthTotal));
+
+        BigDecimal ytdRoom = roomBookingRepository.revenueBetween(LocalDate.of(now.getYear(), 1, 1), LocalDate.of(now.getYear(), now.getMonthValue(), now.lengthOfMonth()));
+        BigDecimal ytdFnb = foodOrderRepository.revenueBetween(java.time.LocalDateTime.of(now.getYear(), 1, 1, 0, 0), LocalDate.of(now.getYear(), now.getMonthValue(), now.lengthOfMonth()).atTime(23, 59, 59));
+        BigDecimal ytdTour = tourBookingRepository.revenueBetween(LocalDate.of(now.getYear(), 1, 1), LocalDate.of(now.getYear(), now.getMonthValue(), now.lengthOfMonth()));
+        BigDecimal totalYear = ytdRoom.add(ytdFnb).add(ytdTour);
+        model.addAttribute("totalYear", fmt(totalYear));
+
+        BigDecimal ytdRoomLastYear = roomBookingRepository.revenueBetween(LocalDate.of(now.getYear() - 1, 1, 1), LocalDate.of(now.getYear() - 1, now.getMonthValue(), now.lengthOfMonth()));
+        BigDecimal ytdFnbLastYear = foodOrderRepository.revenueBetween(java.time.LocalDateTime.of(now.getYear() - 1, 1, 1, 0, 0), LocalDate.of(now.getYear() - 1, now.getMonthValue(), now.lengthOfMonth()).atTime(23, 59, 59));
+        BigDecimal ytdTourLastYear = tourBookingRepository.revenueBetween(LocalDate.of(now.getYear() - 1, 1, 1), LocalDate.of(now.getYear() - 1, now.getMonthValue(), now.lengthOfMonth()));
+        BigDecimal totalLastYear = ytdRoomLastYear.add(ytdFnbLastYear).add(ytdTourLastYear);
+
+        String growthYoY = "-";
+        if (totalLastYear.compareTo(BigDecimal.ZERO) == 0) {
+            if (totalYear.compareTo(BigDecimal.ZERO) > 0) {
+                growthYoY = "+100.0%";
+            } else {
+                growthYoY = "0.0%";
+            }
+        } else {
+            double yoy = (totalYear.doubleValue() - totalLastYear.doubleValue()) / totalLastYear.doubleValue() * 100;
+            growthYoY = (yoy >= 0 ? "+" : "") + String.format(java.util.Locale.US, "%.1f%%", yoy);
+        }
+        model.addAttribute("growthYoY", growthYoY);
+
+        return "manager/revenue-monthly";
+    }
+
+    // =========================================================================
+    // 8. Phân tích tỷ lệ lấp đầy
+    // =========================================================================
+
+    @GetMapping("/analytics/occupancy")
+    public String analyticsOccupancy(Model model) {
+        model.addAttribute("todayLabel", todayLabel());
+        long total = 0;
+        long occupied = 0;
+        try {
+            occupied = roomRepository.findOccupied().size();
+            total = roomRepository.countTotalRooms();
+        } catch (Exception e) {
+        }
+
+        long currentOccupancy = total > 0 ? Math.round((double) occupied / total * 100) : 0;
+        model.addAttribute("currentOccupancy", currentOccupancy);
+        model.addAttribute("totalRooms", total);
+        model.addAttribute("occupiedRooms", occupied);
+
+        List<Integer> chartOccVals = new ArrayList<>();
+        List<String> chartOccLabels = new ArrayList<>();
+        int peakOcc = -1;
+        String peakDateLabel = "--/--";
+        int sumOcc = 0;
+
+        java.time.LocalDate today = java.time.LocalDate.now();
+        for (int i = 29; i >= 0; i--) {
+            java.time.LocalDate d = today.minusDays(i);
+            int occOnDay = 0;
+            try {
+                Integer c = roomBookingRepository.countOccupiedRoomsOnDate(d);
+                if (c != null) occOnDay = c;
+            } catch (Exception e) {
+            }
+            int pct = total > 0 ? (int) Math.round((double) occOnDay * 100 / total) : 0;
+            if (i == 0) pct = (int) currentOccupancy;
+            chartOccVals.add(pct);
+            chartOccLabels.add(d.format(java.time.format.DateTimeFormatter.ofPattern("d/MM")));
+            if (pct >= peakOcc) {
+                peakOcc = pct;
+                peakDateLabel = d.format(java.time.format.DateTimeFormatter.ofPattern("dd/MM"));
+            }
+            sumOcc += pct;
+        }
+
+        model.addAttribute("peakOccupancy", peakOcc == -1 ? 0 : peakOcc);
+        model.addAttribute("peakDate", peakDateLabel);
+        model.addAttribute("avgOccupancy", sumOcc / 30);
+        model.addAttribute("chartOccVals", chartOccVals);
+        model.addAttribute("chartOccLabels", chartOccLabels);
+
+        return "manager/analytics-occupancy";
+    }
+
     // Inner classes
     // =========================================================================
 
@@ -988,5 +1127,6 @@ public class ManagerController {
         private String createdAt;
         private String bookingDetails;
         private String totalPrice;
+        private String operationalType;
     }
 }

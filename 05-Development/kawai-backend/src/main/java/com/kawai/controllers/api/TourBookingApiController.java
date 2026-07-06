@@ -61,7 +61,26 @@ public class TourBookingApiController {
             String phone = (String) payload.get("phone");
             int participantCount = Integer.parseInt(payload.get("participantCount").toString());
             String paymentMethod = (String) payload.get("paymentMethod");
-            String roomNumber = (String) payload.get("roomNumber");
+
+            // Parse roomSelections: [{roomId, adults, children}] — per-room participant counts
+            // Also support legacy roomNumbers[] (array of strings) and roomNumber (single string)
+            List<java.util.Map<String, Object>> roomSelections = null;
+            Object roomSelectionsRaw = payload.get("roomSelections");
+            if (roomSelectionsRaw instanceof List) {
+                roomSelections = (List<java.util.Map<String, Object>>) roomSelectionsRaw;
+            }
+
+            // Legacy fallbacks
+            List<String> legacyRoomNumbers = null;
+            if (roomSelections == null) {
+                Object roomNumbersRaw = payload.get("roomNumbers");
+                if (roomNumbersRaw instanceof List) {
+                    legacyRoomNumbers = (List<String>) roomNumbersRaw;
+                } else {
+                    String singleRoom = payload.get("roomNumber") != null ? payload.get("roomNumber").toString() : null;
+                    if (singleRoom != null) legacyRoomNumbers = java.util.Collections.singletonList(singleRoom);
+                }
+            }
 
             // 1. Find or create Customer
             Customer customer = null;
@@ -112,23 +131,7 @@ public class TourBookingApiController {
                 guideForNewTour = "NguynNgoc";
             }
 
-            // Verify guide limit: 1 guide per day
-            List<TourSchedule> existingSchedulesOnDay = tourScheduleRepository.findByDepartureDate(departureDate);
-            for (TourSchedule es : existingSchedulesOnDay) {
-                // If it is a different schedule
-                if (schedule == null || !es.getId().equals(schedule.getId())) {
-                    int bookingsCount = tourBookingRepository.countByScheduleAndBookingStatus(es, "Confirmed");
-                    if (bookingsCount > 0 && es.getTour() != null) {
-                        String existingGuide = getGuideNameForTour(es.getTour().getTourName());
-                        if (scheduleHasSpecialCustomer(es)) {
-                            existingGuide = "NguynNgoc";
-                        }
-                        if (existingGuide.equalsIgnoreCase(guideForNewTour)) {
-                            throw new IllegalArgumentException("Hướng dẫn viên phụ trách (" + guideForNewTour + ") đã kẹt lịch trình tour khác trong ngày này. Vui lòng chọn ngày khác.");
-                        }
-                    }
-                }
-            }
+
 
             if (schedule == null) {
                 schedule = new TourSchedule();
@@ -140,92 +143,11 @@ public class TourBookingApiController {
                 schedule = tourScheduleRepository.save(schedule);
             }
 
-            // 3. Prepare TourBookingRequest DTO
+            // 3. Prepare shared TourBookingRequest template (room detail set per-iteration below)
             TourBookingRequest request = new TourBookingRequest();
             request.setScheduleId(schedule.getId());
             request.setCustomerId(customer.getId());
             request.setParticipantCount(participantCount);
-            request.setParticipantCount(participantCount);
-
-            RoomBookingDetail detail = null;
-
-            if (roomNumber == null || roomNumber.trim().isEmpty()) {
-                // Tự động tìm booking detail đang hoạt động của khách hàng này để liên kết
-                List<RoomBookingDetail> customerDetails = roomBookingDetailRepository.findByCustomer(customer);
-                if (customerDetails.isEmpty()) {
-                    throw new IllegalArgumentException("Vui lòng thực hiện đặt phòng trước khi đặt tour.");
-                }
-                
-                // Tìm xem có cái nào đang hoạt động và bao gồm ngày tour không
-                for (RoomBookingDetail rbd : customerDetails) {
-                    if ("Confirmed".equalsIgnoreCase(rbd.getRoomBooking().getBookingStatus())
-                            || "Checked_In".equalsIgnoreCase(rbd.getRoomBooking().getBookingStatus())) {
-                        LocalDate checkIn = rbd.getRoomBooking().getCheckInDate();
-                        LocalDate checkOut = rbd.getRoomBooking().getCheckOutDate();
-                        if (!departureDate.isBefore(checkIn) && !departureDate.isAfter(checkOut)) {
-                            detail = rbd;
-                            break;
-                        }
-                    }
-                }
-                
-                if (detail == null) {
-                    throw new IllegalArgumentException("Khách đặt phòng đã hết thời hạn, cần đăng ký phòng mới.");
-                }
-            } else {
-                if (roomNumber.toUpperCase().startsWith("VIRTUAL_")) {
-                    try {
-                        Long detailId = Long.parseLong(roomNumber.substring(8));
-                        detail = roomBookingDetailRepository.findById(detailId).orElse(null);
-                    } catch (Exception e) {
-                        throw new IllegalArgumentException("Mã đặt phòng không hợp lệ.");
-                    }
-                } else {
-                    Optional<Room> roomOpt = roomRepository.findByRoomNumber(roomNumber);
-                    if (roomOpt.isEmpty()) {
-                        throw new IllegalArgumentException("Phòng không hợp lệ.");
-                    }
-                    Room room = roomOpt.get();
-
-                    // 1. Kiểm tra nếu khách đã check-in (phòng có currentBookingDetailId)
-                    if (room.getCurrentBookingDetailId() != null) {
-                        detail = roomBookingDetailRepository.findById(room.getCurrentBookingDetailId()).orElse(null);
-                    }
-
-                    // 2. Nếu chưa check-in, tìm Booking Detail đã được xác nhận (Confirmed) của khách cho phòng này
-                    if (detail == null) {
-                        List<RoomBookingDetail> customerDetails = roomBookingDetailRepository.findByCustomer(customer);
-                        for (RoomBookingDetail rbd : customerDetails) {
-                            if (rbd.getRoom() != null && rbd.getRoom().getRoomNumber().equals(roomNumber)
-                                    && ("Confirmed".equalsIgnoreCase(rbd.getRoomBooking().getBookingStatus())
-                                        || "Checked_In".equalsIgnoreCase(rbd.getRoomBooking().getBookingStatus()))) {
-                                detail = rbd;
-                                break;
-                            }
-                        }
-                    }
-                }
-                
-                if (detail == null) {
-                    // Check if they ever booked any room
-                    List<RoomBookingDetail> customerDetails = roomBookingDetailRepository.findByCustomer(customer);
-                    if (customerDetails.isEmpty()) {
-                        throw new IllegalArgumentException("Vui lòng thực hiện đặt phòng trước khi đặt tour.");
-                    } else {
-                        throw new IllegalArgumentException("Khách đặt phòng đã hết thời hạn, cần đăng ký phòng mới.");
-                    }
-                }
-
-                // Check if the tour departure date is outside the room booking duration
-                LocalDate checkIn = detail.getRoomBooking().getCheckInDate();
-                LocalDate checkOut = detail.getRoomBooking().getCheckOutDate();
-                if (departureDate.isBefore(checkIn) || departureDate.isAfter(checkOut)) {
-                    throw new IllegalArgumentException("Khách đặt phòng đã hết thời hạn, cần đăng ký phòng mới.");
-                }
-            }
-
-            request.setRoomBookingDetailId(detail.getId());
-            request.setRoomBookingId(detail.getRoomBooking().getId());
 
             List<String> childAges = (List<String>) payload.get("childAges");
             request.setChildAges(childAges);
@@ -236,7 +158,6 @@ public class TourBookingApiController {
                 request.setPromoCode(promoCode.trim());
             }
 
-
             if ("post-room".equalsIgnoreCase(paymentMethod)) {
                 request.setPostToRoom(true);
             } else {
@@ -246,8 +167,56 @@ public class TourBookingApiController {
             request.setVnpPaymentType(payload.get("vnpPaymentType") != null ? payload.get("vnpPaymentType").toString() : null);
             request.setNotes(payload.get("notes") != null ? payload.get("notes").toString() : null);
 
-            // 4. Create Tour Booking
-            Long bookingId = tourBookingService.createTourBooking(request);
+            // 4. Create one TourBooking per selected room
+            List<Long> createdBookingIds = new java.util.ArrayList<>();
+            List<String> resolvedRooms = new java.util.ArrayList<>();
+
+            if (roomSelections != null && !roomSelections.isEmpty()) {
+                // New flow: per-room participant counts
+                for (java.util.Map<String, Object> sel : roomSelections) {
+                    String roomId = sel.get("roomId") != null ? sel.get("roomId").toString() : null;
+                    int roomAdults = sel.get("adults") != null ? Integer.parseInt(sel.get("adults").toString()) : 1;
+                    int roomChildren = sel.get("children") != null ? Integer.parseInt(sel.get("children").toString()) : 0;
+                    int roomParticipantCount = roomAdults + roomChildren;
+
+                    RoomBookingDetail detail = resolveRoomDetail(roomId, customer, departureDate);
+                    TourBookingRequest req = buildRequest(request, detail);
+                    req.setParticipantCount(roomParticipantCount); // override with per-room count
+                    createdBookingIds.add(tourBookingService.createTourBooking(req));
+                    resolvedRooms.add(roomId);
+                }
+            } else if (legacyRoomNumbers != null && !legacyRoomNumbers.isEmpty()) {
+                // Legacy: roomNumbers[] with shared participantCount
+                for (String roomNum : legacyRoomNumbers) {
+                    RoomBookingDetail detail = resolveRoomDetail(roomNum, customer, departureDate);
+                    TourBookingRequest req = buildRequest(request, detail);
+                    createdBookingIds.add(tourBookingService.createTourBooking(req));
+                    resolvedRooms.add(roomNum);
+                }
+            } else {
+                // No room selected: auto-find an active booking detail for this customer
+                RoomBookingDetail autoDetail = null;
+                List<RoomBookingDetail> customerDetails = roomBookingDetailRepository.findByCustomer(customer);
+                for (RoomBookingDetail rbd : customerDetails) {
+                    if (("Confirmed".equalsIgnoreCase(rbd.getRoomBooking().getBookingStatus())
+                            || "Checked_In".equalsIgnoreCase(rbd.getRoomBooking().getBookingStatus()))) {
+                        LocalDate checkIn = rbd.getRoomBooking().getCheckInDate();
+                        LocalDate checkOut = rbd.getRoomBooking().getCheckOutDate();
+                        if (!departureDate.isBefore(checkIn) && !departureDate.isAfter(checkOut)) {
+                            autoDetail = rbd;
+                            break;
+                        }
+                    }
+                }
+                if (autoDetail == null) {
+                    throw new IllegalArgumentException("Vui lòng thực hiện đặt phòng trước khi đặt tour.");
+                }
+                TourBookingRequest req = buildRequest(request, autoDetail);
+                createdBookingIds.add(tourBookingService.createTourBooking(req));
+                resolvedRooms.add(autoDetail.getCategory() != null ? autoDetail.getCategory().getCategoryName() : "Phòng");
+            }
+
+            Long bookingId = createdBookingIds.get(0); // primary booking for VNPay / response
 
             // Build detailed success payload with customer info
             Map<String, Object> responsePayload = new java.util.HashMap<>();
@@ -281,7 +250,7 @@ public class TourBookingApiController {
             responsePayload.put("paymentMethod", paymentMethod);
             java.math.BigDecimal depositAmount = totalPrice.multiply(new java.math.BigDecimal("0.3"));
             responsePayload.put("depositAmount", depositAmount);
-            responsePayload.put("roomNumber", roomNumber);
+            responsePayload.put("roomNumbers", resolvedRooms);
             if (customer != null) {
                 responsePayload.put("customerName", customer.getFullName());
                 responsePayload.put("customerEmail", customer.getEmail());
@@ -375,5 +344,67 @@ public class TourBookingApiController {
             e.printStackTrace();
         }
         return false;
+    }
+
+    /**
+     * Resolve a roomNumber string (Virtual_ID or physical room number) to a RoomBookingDetail.
+     */
+    private RoomBookingDetail resolveRoomDetail(String roomNum, Customer customer, LocalDate departureDate) {
+        if (roomNum == null || roomNum.trim().isEmpty()) {
+            throw new IllegalArgumentException("Mã phòng không hợp lệ.");
+        }
+        RoomBookingDetail detail = null;
+        if (roomNum.toUpperCase().startsWith("VIRTUAL_")) {
+            try {
+                Long detailId = Long.parseLong(roomNum.substring(8));
+                detail = roomBookingDetailRepository.findById(detailId).orElse(null);
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Mã đặt phòng không hợp lệ: " + roomNum);
+            }
+        } else {
+            Optional<Room> roomOpt = roomRepository.findByRoomNumber(roomNum);
+            if (roomOpt.isEmpty()) {
+                throw new IllegalArgumentException("Phòng không hợp lệ: " + roomNum);
+            }
+            Room room = roomOpt.get();
+            if (room.getCurrentBookingDetailId() != null) {
+                detail = roomBookingDetailRepository.findById(room.getCurrentBookingDetailId()).orElse(null);
+            }
+            if (detail == null) {
+                List<RoomBookingDetail> customerDetails = roomBookingDetailRepository.findByCustomer(customer);
+                for (RoomBookingDetail rbd : customerDetails) {
+                    if (rbd.getRoom() != null && rbd.getRoom().getRoomNumber().equals(roomNum)
+                            && ("Confirmed".equalsIgnoreCase(rbd.getRoomBooking().getBookingStatus())
+                                || "Checked_In".equalsIgnoreCase(rbd.getRoomBooking().getBookingStatus()))) {
+                        detail = rbd;
+                        break;
+                    }
+                }
+            }
+        }
+        if (detail == null) {
+            throw new IllegalArgumentException("Không tìm thấy thông tin đặt phòng cho: " + roomNum);
+        }
+        return detail;
+    }
+
+    /**
+     * Clone the shared template request and bind it to a specific RoomBookingDetail.
+     */
+    private TourBookingRequest buildRequest(TourBookingRequest template, RoomBookingDetail detail) {
+        TourBookingRequest req = new TourBookingRequest();
+        req.setScheduleId(template.getScheduleId());
+        req.setCustomerId(template.getCustomerId());
+        req.setParticipantCount(template.getParticipantCount());
+        req.setChildAges(template.getChildAges());
+        req.setPromoCode(template.getPromoCode());
+        req.setPostToRoom(template.isPostToRoom());
+        req.setPaymentMethod(template.getPaymentMethod());
+        req.setVnpPaymentType(template.getVnpPaymentType());
+        req.setNotes(template.getNotes());
+        req.setWalkInTour(template.isWalkInTour());
+        req.setRoomBookingDetailId(detail.getId());
+        req.setRoomBookingId(detail.getRoomBooking().getId());
+        return req;
     }
 }
