@@ -258,11 +258,23 @@ public class PosServiceImpl implements PosService {
             }
         }
 
+        // --- NEW CODE: Calculate and set final total amount explicitly ---
+        BigDecimal finalTotal = subtotal;
+        if ("Room Service".equalsIgnoreCase(savedOrder.getOrderType())) {
+            BigDecimal feePercent = new BigDecimal("0.05");
+            if ("VNPAY".equalsIgnoreCase(request.getPaymentType()) || "ONLINE".equalsIgnoreCase(request.getPaymentType())) {
+                feePercent = new BigDecimal("0.03");
+            }
+            BigDecimal fee = subtotal.multiply(feePercent);
+            finalTotal = subtotal.add(fee);
+        }
+        savedOrder.setTotalAmount(finalTotal);
+        foodOrderRepository.save(savedOrder);
+        // -----------------------------------------------------------------
+
         if ("CHARGE_TO_ROOM".equalsIgnoreCase(request.getPaymentType()) && activeBooking != null
                 && activeBooking instanceof RoomBooking) {
-            BigDecimal feePercent = new BigDecimal("0.05");
-            BigDecimal fee = subtotal.multiply(feePercent);
-            BigDecimal totalAmount = subtotal.add(fee);
+            BigDecimal totalAmount = savedOrder.getTotalAmount();
 
             RoomBookingDetail detailToCharge = order.getRoomBookingDetail();
             if (detailToCharge == null) {

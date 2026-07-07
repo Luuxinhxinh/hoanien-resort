@@ -261,6 +261,20 @@ public class TableReservationServiceImpl implements TableReservationService {
 
         res.setCustomer(customer);
 
+        // Verification: ensure this customer is currently Checked_In
+        boolean isCheckedIn = false;
+        java.util.List<RoomBookingDetail> detailsByCustomer = roomBookingDetailRepository.findByAnyCustomerId(customer.getId());
+        if (detailsByCustomer != null) {
+            for (RoomBookingDetail d : detailsByCustomer) {
+                if ("Checked_In".equalsIgnoreCase(d.getDetailStatus())) {
+                    isCheckedIn = true;
+                    break;
+                }
+            }
+        }
+        if (!isCheckedIn) {
+            throw new BusinessException("TABLE-009", "Chỉ khách đang lưu trú tại khách sạn (đã Check-in) mới được đặt bàn.");
+        }
         // Retain typed customer name in special requests if provided by F&B staff
         String specialReqs = request.getSpecialRequests();
         if (request.getCustomerName() != null && !request.getCustomerName().trim().isEmpty()) {

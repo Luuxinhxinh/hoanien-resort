@@ -1,24 +1,53 @@
 package com.kawai.models;
+
 import jakarta.persistence.*;
 import lombok.Data;
-@Entity @Table(name="Food_Orders") @Data
+
+@Entity
+@Table(name = "Food_Orders")
+@Data
 public class FoodOrder {
-    @Id @GeneratedValue(strategy=GenerationType.IDENTITY) @Column(name="order_id") private Long id;
-    @ManyToOne @JoinColumn(name="booking_id") private Booking booking;
-    @ManyToOne @JoinColumn(name="room_booking_detail_id") private RoomBookingDetail roomBookingDetail;
-    @ManyToOne @JoinColumn(name="table_id") private RestaurantTable table;
-    @Column(name="order_type", nullable=false) private String orderType;
-    @Column(name="order_status", nullable=false) private String orderStatus = "Pending";
-    @Column(name="payment_type", nullable=false) private String paymentType;
-    @Column(name="is_paid_in_pos", nullable=false) private Boolean isPaidInPos = false;
-    @ManyToOne @JoinColumn(name="created_by_staff_id", nullable=false) private Employee createdByStaff;
-    @ManyToOne @JoinColumn(name="kitchen_processed_by_id") private Employee kitchenProcessedBy;
-    @Column(name="note", length=500) private String note;
-    @Column(name="order_time", nullable=false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP") private java.time.LocalDateTime orderTime = java.time.LocalDateTime.now();
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "order_id")
+    private Long id;
+    @ManyToOne
+    @JoinColumn(name = "booking_id")
+    private Booking booking;
+    @ManyToOne
+    @JoinColumn(name = "room_booking_detail_id")
+    private RoomBookingDetail roomBookingDetail;
+    @ManyToOne
+    @JoinColumn(name = "table_id")
+    private RestaurantTable table;
+    @Column(name = "order_type", nullable = false)
+    private String orderType;
+    @Column(name = "order_status", nullable = false)
+    private String orderStatus = "Pending";
+    @Column(name = "payment_type", nullable = false)
+    private String paymentType;
+    @Column(name = "is_paid_in_pos", nullable = false)
+    private Boolean isPaidInPos = false;
+    @ManyToOne
+    @JoinColumn(name = "created_by_staff_id", nullable = false)
+    private Employee createdByStaff;
+    @ManyToOne
+    @JoinColumn(name = "kitchen_processed_by_id")
+    private Employee kitchenProcessedBy;
+    @Column(name = "note", length = 500)
+    private String note;
+    @Column(name = "order_time", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    private java.time.LocalDateTime orderTime = java.time.LocalDateTime.now();
     @OneToMany(mappedBy = "foodOrder", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private java.util.List<FoodOrderDetail> details;
 
+    @Column(name = "total_amount")
+    private java.math.BigDecimal totalAmount;
+
     public java.math.BigDecimal getTotalAmount() {
+        if (this.totalAmount != null) {
+            return this.totalAmount;
+        }
         if (details == null || details.isEmpty()) {
             return java.math.BigDecimal.ZERO;
         }
@@ -31,19 +60,20 @@ public class FoodOrder {
             if (price == null) {
                 price = java.math.BigDecimal.ZERO;
             }
-            total = total.add(price.multiply(java.math.BigDecimal.valueOf(detail.getQuantity() != null ? detail.getQuantity() : 1)));
+            total = total.add(price
+                    .multiply(java.math.BigDecimal.valueOf(detail.getQuantity() != null ? detail.getQuantity() : 1)));
         }
-        
-        // Add room service fee if applicable (5% or 3% for VNPAY)
+
+        // Add room service fee if applicable (5% for standard, 3% for VNPAY/ONLINE)
         if ("RoomService".equalsIgnoreCase(orderType) || "Room Service".equalsIgnoreCase(orderType)) {
-            java.math.BigDecimal feeRate = new java.math.BigDecimal("0.05");
-            if ("VNPAY".equalsIgnoreCase(paymentType)) {
-                feeRate = new java.math.BigDecimal("0.03");
+            java.math.BigDecimal feePercent = new java.math.BigDecimal("0.05");
+            if ("VNPAY".equalsIgnoreCase(paymentType) || "ONLINE".equalsIgnoreCase(paymentType)) {
+                feePercent = new java.math.BigDecimal("0.03");
             }
-            java.math.BigDecimal fee = total.multiply(feeRate);
+            java.math.BigDecimal fee = total.multiply(feePercent);
             total = total.add(fee);
         }
-        
+
         return total;
     }
 }

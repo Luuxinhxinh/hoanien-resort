@@ -368,6 +368,7 @@ public class FolioRestController {
      * UC21.3 & UC22.1 - Gom Folio và Tất toán (Có xử lý Payment & Invoice)
      */
     @PostMapping("/room/{roomBookingDetailId}/checkout")
+    @org.springframework.transaction.annotation.Transactional
     public ResponseEntity<?> checkoutFolio(@PathVariable Long roomBookingDetailId,
             @RequestBody(required = false) Map<String, Object> payload,
             HttpServletRequest httpRequest) {
@@ -557,6 +558,10 @@ public class FolioRestController {
                         if ("Checked_In".equalsIgnoreCase(d.getDetailStatus())) {
                             d.setDetailStatus("Checked_Out");
                             roomBookingDetailRepository.save(d);
+                            
+                            if (d.getRoomBooking() != null && d.getRoomBooking().getCustomer() != null) {
+                                eventPublisher.publishEvent(new com.kawai.events.CustomerCheckedOutEvent(this, d.getRoomBooking().getCustomer()));
+                            }
 
                             Room room = d.getRoom();
                             if (room != null) {
@@ -577,6 +582,10 @@ public class FolioRestController {
                 } else {
                     detail.setDetailStatus("Checked_Out");
                     roomBookingDetailRepository.save(detail);
+                    
+                    if (detail.getRoomBooking() != null && detail.getRoomBooking().getCustomer() != null) {
+                        eventPublisher.publishEvent(new com.kawai.events.CustomerCheckedOutEvent(this, detail.getRoomBooking().getCustomer()));
+                    }
 
                     // 2. Thay đổi trạng thái phòng vật lý qua Dirty (hoặc theo cấu hình workflow)
                     Room room = detail.getRoom();

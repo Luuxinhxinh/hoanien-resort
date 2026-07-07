@@ -192,58 +192,91 @@
 
             <!-- SVG Tables Map -->
             <div id="svgMapContainer" class="w-full max-w-7xl mx-auto mt-8">
-                <div class="relative w-full rounded-2xl overflow-hidden border border-white/10 bg-black/40 backdrop-blur-md shadow-2xl p-4">
+                <div
+                    class="relative w-full rounded-2xl overflow-hidden border border-white/10 bg-black/40 backdrop-blur-md shadow-2xl p-4">
                     <!-- Sơ đồ SVG tạo bằng Javascript -->
                     <div id="restaurantMapWrapper" class="w-full relative cursor-crosshair">
-                        <svg viewBox="0 0 1200 600" class="w-full h-auto" id="restaurantMap" style="min-height: 400px; max-height: 70vh;">
-                          <defs>
-                            <filter id="glow-available" x="-20%" y="-20%" width="140%" height="140%">
-                              <feGaussianBlur stdDeviation="6" result="blur" />
-                              <feComposite in="SourceGraphic" in2="blur" operator="over" />
-                            </filter>
-                          </defs>
-                          <!-- Decorative lines -->
-                          <line x1="250" y1="40" x2="250" y2="560" stroke="rgba(255,255,255,0.05)" stroke-width="2" stroke-dasharray="8 8"/>
-                          <line x1="950" y1="40" x2="950" y2="560" stroke="rgba(255,255,255,0.05)" stroke-width="2" stroke-dasharray="8 8"/>
-                          
-                          <!-- Entrance Marker -->
-                          <g transform="translate(600, 30)">
-                              <rect x="-130" y="-18" width="260" height="36" fill="rgba(16, 185, 129, 0.1)" stroke="#10b981" stroke-width="1.5" stroke-dasharray="4 4" rx="6" />
-                              <text x="0" y="2" text-anchor="middle" dominant-baseline="central" font-weight="bold" font-size="14" fill="#10b981" letter-spacing="3">LỐI VÀO (ENTRANCE)</text>
-                              <!-- Mũi tên chỉ hướng đi vào -->
-                              <path d="M0,18 L0,35 M-8,27 L0,35 L8,27" fill="none" stroke="#10b981" stroke-width="2" />
-                          </g>
+                        <svg viewBox="0 0 1200 600" class="w-full h-auto" id="restaurantMap"
+                            style="min-height: 400px; max-height: 70vh;">
+                            <defs>
+                                <filter id="glow-available" x="-20%" y="-20%" width="140%" height="140%">
+                                    <feGaussianBlur stdDeviation="6" result="blur" />
+                                    <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                                </filter>
+                            </defs>
+                            <!-- Decorative lines -->
+                            <line x1="250" y1="40" x2="250" y2="560" stroke="rgba(255,255,255,0.05)" stroke-width="2"
+                                stroke-dasharray="8 8" />
+                            <line x1="950" y1="40" x2="950" y2="560" stroke="rgba(255,255,255,0.05)" stroke-width="2"
+                                stroke-dasharray="8 8" />
 
-                          <text x="50" y="300" fill="rgba(255,255,255,0.15)" font-size="18" transform="rotate(-90 50,300)" text-anchor="middle" font-family="sans-serif" font-weight="bold" letter-spacing="4">VIEW SÔNG (WINDOW SEATING)</text>
-                          <text x="600" y="580" fill="rgba(255,255,255,0.15)" font-size="18" text-anchor="middle" font-family="sans-serif" font-weight="bold" letter-spacing="4">KHU TRUNG TÂM (MAIN DINING)</text>
-                          <text x="1150" y="300" fill="rgba(255,255,255,0.15)" font-size="18" transform="rotate(90 1150,300)" text-anchor="middle" font-family="sans-serif" font-weight="bold" letter-spacing="4">VIEW THÀNH PHỐ (CITY VIEW)</text>
+                            <!-- Entrance Marker -->
+                            <g transform="translate(600, 30)">
+                                <rect x="-130" y="-18" width="260" height="36" fill="rgba(16, 185, 129, 0.1)"
+                                    stroke="#10b981" stroke-width="1.5" stroke-dasharray="4 4" rx="6" />
+                                <text x="0" y="2" text-anchor="middle" dominant-baseline="central" font-weight="bold"
+                                    font-size="14" fill="#10b981" letter-spacing="3">LỐI VÀO (ENTRANCE)</text>
+                                <!-- Mũi tên chỉ hướng đi vào -->
+                                <path d="M0,18 L0,35 M-8,27 L0,35 L8,27" fill="none" stroke="#10b981"
+                                    stroke-width="2" />
+                            </g>
 
-                          <!-- Tables injected here -->
-                          <!-- Khu View Sông (5 bàn) -->
-                          <g id="map-table-1" class="map-table" data-table-num="12" transform="translate(150, 100)"></g>
-                          <g id="map-table-2" class="map-table" data-table-num="1" transform="translate(150, 200)"></g>
-                          <g id="map-table-3" class="map-table" data-table-num="18" transform="translate(150, 300)"></g>
-                          <g id="map-table-4" class="map-table" data-table-num="3" transform="translate(150, 400)"></g>
-                          <g id="map-table-5" class="map-table" data-table-num="6" transform="translate(150, 500)"></g>
+                            <text x="50" y="300" fill="rgba(255,255,255,0.15)" font-size="18"
+                                transform="rotate(-90 50,300)" text-anchor="middle" font-family="sans-serif"
+                                font-weight="bold" letter-spacing="4">VIEW SÔNG (WINDOW SEATING)</text>
+                            <text x="600" y="580" fill="rgba(255,255,255,0.15)" font-size="18" text-anchor="middle"
+                                font-family="sans-serif" font-weight="bold" letter-spacing="4">KHU TRUNG TÂM (MAIN
+                                DINING)</text>
+                            <text x="1150" y="300" fill="rgba(255,255,255,0.15)" font-size="18"
+                                transform="rotate(90 1150,300)" text-anchor="middle" font-family="sans-serif"
+                                font-weight="bold" letter-spacing="4">VIEW THÀNH PHỐ (CITY VIEW)</text>
 
-                          <!-- Khu Trung Tâm (7 bàn xếp đan xen) -->
-                          <g id="map-table-6" class="map-table" data-table-num="5" transform="translate(400, 200)"></g>
-                          <g id="map-table-7" class="map-table" data-table-num="15" transform="translate(600, 150)"></g>
-                          <g id="map-table-8" class="map-table" data-table-num="14" transform="translate(800, 200)"></g>
-                          <g id="map-table-9" class="map-table" data-table-num="4" transform="translate(600, 300)"></g>
-                          <g id="map-table-10" class="map-table" data-table-num="9" transform="translate(400, 400)"></g>
-                          <g id="map-table-11" class="map-table" data-table-num="17" transform="translate(600, 450)"></g>
-                          <g id="map-table-12" class="map-table" data-table-num="20" transform="translate(800, 400)"></g>
+                            <!-- Tables injected here -->
+                            <!-- Khu View Sông (5 bàn) -->
+                            <g id="map-table-1" class="map-table" data-table-num="12" transform="translate(150, 100)">
+                            </g>
+                            <g id="map-table-2" class="map-table" data-table-num="1" transform="translate(150, 200)">
+                            </g>
+                            <g id="map-table-3" class="map-table" data-table-num="18" transform="translate(150, 300)">
+                            </g>
+                            <g id="map-table-4" class="map-table" data-table-num="3" transform="translate(150, 400)">
+                            </g>
+                            <g id="map-table-5" class="map-table" data-table-num="6" transform="translate(150, 500)">
+                            </g>
 
-                          <!-- Khu View Thành Phố (8 bàn) -->
-                          <g id="map-table-13" class="map-table" data-table-num="2" transform="translate(1010, 120)"></g>
-                          <g id="map-table-14" class="map-table" data-table-num="11" transform="translate(1090, 120)"></g>
-                          <g id="map-table-15" class="map-table" data-table-num="7" transform="translate(1010, 240)"></g>
-                          <g id="map-table-16" class="map-table" data-table-num="13" transform="translate(1090, 240)"></g>
-                          <g id="map-table-17" class="map-table" data-table-num="10" transform="translate(1010, 360)"></g>
-                          <g id="map-table-18" class="map-table" data-table-num="16" transform="translate(1090, 360)"></g>
-                          <g id="map-table-19" class="map-table" data-table-num="19" transform="translate(1010, 480)"></g>
-                          <g id="map-table-20" class="map-table" data-table-num="8" transform="translate(1090, 480)"></g>
+                            <!-- Khu Trung Tâm (7 bàn xếp đan xen) -->
+                            <g id="map-table-6" class="map-table" data-table-num="5" transform="translate(400, 200)">
+                            </g>
+                            <g id="map-table-7" class="map-table" data-table-num="15" transform="translate(600, 150)">
+                            </g>
+                            <g id="map-table-8" class="map-table" data-table-num="14" transform="translate(800, 200)">
+                            </g>
+                            <g id="map-table-9" class="map-table" data-table-num="4" transform="translate(600, 300)">
+                            </g>
+                            <g id="map-table-10" class="map-table" data-table-num="9" transform="translate(400, 400)">
+                            </g>
+                            <g id="map-table-11" class="map-table" data-table-num="17" transform="translate(600, 450)">
+                            </g>
+                            <g id="map-table-12" class="map-table" data-table-num="20" transform="translate(800, 400)">
+                            </g>
+
+                            <!-- Khu View Thành Phố (8 bàn) -->
+                            <g id="map-table-13" class="map-table" data-table-num="2" transform="translate(1010, 120)">
+                            </g>
+                            <g id="map-table-14" class="map-table" data-table-num="11" transform="translate(1090, 120)">
+                            </g>
+                            <g id="map-table-15" class="map-table" data-table-num="7" transform="translate(1010, 240)">
+                            </g>
+                            <g id="map-table-16" class="map-table" data-table-num="13" transform="translate(1090, 240)">
+                            </g>
+                            <g id="map-table-17" class="map-table" data-table-num="10" transform="translate(1010, 360)">
+                            </g>
+                            <g id="map-table-18" class="map-table" data-table-num="16" transform="translate(1090, 360)">
+                            </g>
+                            <g id="map-table-19" class="map-table" data-table-num="19" transform="translate(1010, 480)">
+                            </g>
+                            <g id="map-table-20" class="map-table" data-table-num="8" transform="translate(1090, 480)">
+                            </g>
                         </svg>
                     </div>
 
@@ -251,16 +284,18 @@
                     <div class="mt-6 flex flex-wrap justify-center gap-8 border-t border-white/10 pt-4 pb-2">
                         <div class="flex items-center gap-3">
                             <div class="w-4 h-4 rounded bg-[#10b981] shadow-[0_0_10px_rgba(16,185,129,0.5)]"></div>
-                            <span class="text-xs text-white/70 uppercase tracking-widest font-semibold">Bàn trống (Available)</span>
+                            <span class="text-xs text-white/70 uppercase tracking-widest font-semibold">Bàn trống
+                                (Available)</span>
                         </div>
                         <div class="flex items-center gap-3">
                             <div class="w-4 h-4 rounded bg-[#4b5563] opacity-60"></div>
-                            <span class="text-xs text-white/70 uppercase tracking-widest font-semibold">Đã đặt (Occupied)</span>
+                            <span class="text-xs text-white/70 uppercase tracking-widest font-semibold">Đã đặt
+                                (Occupied)</span>
                         </div>
                     </div>
                 </div>
             </div>
-            
+
             <!-- Hide old Tables Grid to avoid errors, keeping it for backup or remove it completely -->
             <!-- We will completely remove the old Grid -->
         </section>
@@ -402,9 +437,9 @@
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script th:inline="javascript">
         const IS_LOGGED_IN = /*[[${session.user != null}]]*/ false;
-        
+
         // Truyền mảng các bàn (từ backend) xuống Javascript để khởi tạo sơ đồ SVG tương ứng với số lượng bàn thực tế.
-        const SERVER_TABLES = /*[[${tables}]]*/ [];
+        const SERVER_TABLES = /*[[${tables}]]*/[];
     </script>
     <script th:src="@{/guest/js/book-table.js}"></script>
     <div th:replace="~{guest/fragments/auth :: authModal}"></div>
