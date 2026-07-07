@@ -644,4 +644,45 @@ public class EmailServiceImpl implements EmailService {
             logger.error("Lỗi gửi email hoàn tiền cho RefundRequest #{}: {}", refundRequest.getId(), e.getMessage());
         }
     }
+
+    @Override
+    @org.springframework.scheduling.annotation.Async
+    public void sendTableCancellationDueToCheckoutEmail(com.kawai.models.TableReservation reservation, com.kawai.models.Customer customer) {
+        if (customer == null || customer.getEmail() == null || customer.getEmail().isEmpty()) {
+            return;
+        }
+
+        try {
+            java.util.Map<String, Object> model = new java.util.HashMap<>();
+            model.put("customerName", customer.getFullName() != null ? customer.getFullName() : customer.getEmail());
+            model.put("tableNumber", reservation.getTable().getTableNumber());
+            model.put("reserveDate", reservation.getReserveDate().toString());
+            model.put("reserveTime", reservation.getReserveTime().toString());
+
+            String subject = "[HOANIEN Resort] Thông báo tự động hủy lịch đặt bàn";
+
+            String htmlContent = "<div style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333;\">"
+                    + "<div style=\"background-color: #2c3e50; padding: 20px; text-align: center;\">"
+                    + "  <h2 style=\"color: #f1c40f; margin: 0;\">HOANIEN Resort</h2>"
+                    + "</div>"
+                    + "<div style=\"padding: 20px; background-color: #f9f9f9; border: 1px solid #ddd;\">"
+                    + "  <p>Kính chào <strong>" + model.get("customerName") + "</strong>,</p>"
+                    + "  <p>Do quý khách đã hoàn tất thủ tục trả phòng (Check-out), hệ thống đã tự động hủy lịch đặt bàn tại nhà hàng của chúng tôi với chi tiết như sau:</p>"
+                    + "  <ul style=\"list-style-type: none; padding: 0;\">"
+                    + "    <li style=\"margin-bottom: 10px;\"><strong>Bàn:</strong> " + model.get("tableNumber") + "</li>"
+                    + "    <li style=\"margin-bottom: 10px;\"><strong>Ngày đặt:</strong> " + model.get("reserveDate") + "</li>"
+                    + "    <li style=\"margin-bottom: 10px;\"><strong>Giờ đặt:</strong> " + model.get("reserveTime") + "</li>"
+                    + "  </ul>"
+                    + "  <p style=\"color: #e74c3c; font-style: italic;\">Nếu quý khách vẫn muốn dùng bữa, xin vui lòng đặt lại bàn trực tiếp tại quầy lễ tân với tư cách khách vãng lai.</p>"
+                    + "  <p>Cảm ơn quý khách đã tin tưởng và sử dụng dịch vụ của HOANIEN Resort.</p>"
+                    + "  <hr style=\"border: none; border-top: 1px solid #ddd; margin: 20px 0;\" />"
+                    + "  <p style=\"font-size: 12px; color: #777;\">Đây là email tự động, vui lòng không phản hồi.</p>"
+                    + "</div>"
+                    + "</div>";
+
+            sendEmail(customer.getEmail(), subject, htmlContent);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }

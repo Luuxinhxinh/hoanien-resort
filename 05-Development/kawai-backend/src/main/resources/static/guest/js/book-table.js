@@ -7,7 +7,7 @@ let flatpickrFilterStart, flatpickrFilterEnd;
 document.addEventListener("DOMContentLoaded", () => {
     let minDateVal = "today";
     let maxDateVal = null;
-    
+
     if (typeof HAS_VALID_BOOKING !== 'undefined' && HAS_VALID_BOOKING) {
         if (typeof VALID_CHECK_IN !== 'undefined' && VALID_CHECK_IN) {
             const checkInDate = new Date(VALID_CHECK_IN);
@@ -23,14 +23,19 @@ document.addEventListener("DOMContentLoaded", () => {
     // Initialize Flatpickr for dates
     flatpickrFilterDate = flatpickr("#filterDate", {
         dateFormat: "Y-m-d",
-        minDate: minDateVal,
-        ...(maxDateVal && { maxDate: maxDateVal })
+        minDate: "today",
+        maxDate: new Date().fp_incr(7),
+        onChange: function (selectedDates, dateStr, instance) {
+            if (document.getElementById('filterStart').value && document.getElementById('filterEnd').value) {
+                checkAvailability();
+            }
+        }
     });
-    
+
     flatpickrReserveDate = flatpickr("#reserveDate", {
         dateFormat: "Y-m-d",
-        minDate: minDateVal,
-        ...(maxDateVal && { maxDate: maxDateVal })
+        minDate: "today",
+        maxDate: new Date().fp_incr(7)
     });
 
     // Initialize Flatpickr for times (24-hour format)
@@ -38,7 +43,14 @@ document.addEventListener("DOMContentLoaded", () => {
         enableTime: true,
         noCalendar: true,
         dateFormat: "H:i",
-        time_24hr: true
+        time_24hr: true,
+        onChange: function (selectedDates, dateStr, instance) {
+            if (document.getElementById('filterDate').value &&
+                document.getElementById('filterStart').value &&
+                document.getElementById('filterEnd').value) {
+                checkAvailability();
+            }
+        }
     };
 
     flatpickrFilterStart = flatpickr("#filterStart", timeConfig);
@@ -60,17 +72,17 @@ function openBookingModal(tableId, tableNumber, capacity) {
     document.getElementById('tableId').value = tableId;
     document.getElementById('modalTableNumber').innerText = "Bàn " + tableNumber;
     document.getElementById('modalTableCapacity').innerText = capacity;
-    
+
     // Pre-fill from filter if available
     const filterDate = document.getElementById('filterDate').value;
     const filterStart = document.getElementById('filterStart').value;
     const filterEnd = document.getElementById('filterEnd').value;
-    
+
     if (filterDate && filterStart && filterEnd) {
         flatpickrReserveDate.setDate(filterDate);
         flatpickrStartTime.setDate(filterStart);
         flatpickrEndTime.setDate(filterEnd);
-        
+
         // Disable inputs if pre-filled
         document.getElementById('reserveDate').disabled = true;
         document.getElementById('startTime').disabled = true;
@@ -161,7 +173,7 @@ function cancelEndTimeAuto() {
 }
 
 // Handle form submission
-document.getElementById('bookingForm').addEventListener('submit', async function(e) {
+document.getElementById('bookingForm').addEventListener('submit', async function (e) {
     e.preventDefault();
 
     const tableId = document.getElementById('tableId').value;
@@ -198,11 +210,11 @@ document.getElementById('bookingForm').addEventListener('submit', async function
     const [endH, endM] = endTime.split(':').map(Number);
     let startMins = startH * 60 + startM;
     let endMins = endH * 60 + endM;
-    
+
     if (endMins <= startMins) {
         endMins += 24 * 60;
     }
-    
+
     if (endMins - startMins > 12 * 60) {
         alert('Thời gian đặt bàn quá dài hoặc giờ kết thúc không hợp lệ.');
         return;
@@ -233,7 +245,7 @@ async function submitReservation(tableId, reserveDate, startTime, endTime, party
             try {
                 const parsed = JSON.parse(errorMsg);
                 if (parsed.message) errorMsg = parsed.message;
-            } catch (e) {}
+            } catch (e) { }
             alert('Lỗi đặt bàn: ' + errorMsg);
             return;
         }
@@ -271,12 +283,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 const tableNumStr = String(t.tableNumber).replace(/[^0-9]/g, '');
                 return parseInt(tableNumStr) === num;
             });
-            
+
             if (tableData) {
                 // Gắn dữ liệu ID và Sức chứa vào thẻ SVG
                 svgTable.setAttribute('data-table-id', tableData.id);
                 svgTable.setAttribute('data-capacity', tableData.capacity);
-                
+
                 // Quy ước hình dáng và kích thước theo số lượng khách
                 const cap = parseInt(tableData.capacity);
                 let shapeHtml = '';
@@ -306,14 +318,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     <text x="0" y="-8" text-anchor="middle" dominant-baseline="central" font-weight="bold" font-size="16" fill="#fff">${displayNum}</text>
                     <text x="0" y="12" text-anchor="middle" dominant-baseline="central" font-size="11" fill="rgba(255,255,255,0.8)">${cap} pax</text>
                 `;
-                
+
                 svgTable.innerHTML = shapeHtml + textHtml;
-                
+
                 // Mặc định lúc mới vào trang (chưa lọc) thì bàn màu xám mờ
                 svgTable.classList.add('occupied');
-                
+
                 // Gắn sự kiện click mở form đặt bàn
-                svgTable.addEventListener('click', function() {
+                svgTable.addEventListener('click', function () {
                     // Chỉ cho click nếu bàn trống (có class available sau khi bấm Lọc)
                     if (this.classList.contains('available')) {
                         openBookingModal(tableData.id, tableData.tableNumber, tableData.capacity);

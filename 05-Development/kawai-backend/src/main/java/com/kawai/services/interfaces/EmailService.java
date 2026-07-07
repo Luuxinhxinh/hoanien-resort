@@ -79,6 +79,11 @@ public interface EmailService {
      * Gửi email thông báo hủy bàn.
      */
     void sendCancelTableBooking(com.kawai.models.TableReservation reservation, com.kawai.models.Customer customer);
+
+    /**
+     * Gửi email thông báo hủy bàn tự động do khách trả phòng (Check-out).
+     */
+    void sendTableCancellationDueToCheckoutEmail(com.kawai.models.TableReservation reservation, com.kawai.models.Customer customer);
     /**
      * Gửi email HTML thô (phục vụ test preview).
      */

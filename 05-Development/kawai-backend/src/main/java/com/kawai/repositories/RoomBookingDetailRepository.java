@@ -15,7 +15,10 @@ public interface RoomBookingDetailRepository extends JpaRepository<RoomBookingDe
 
         List<RoomBookingDetail> findByCustomer(com.kawai.models.Customer customer);
 
-        List<RoomBookingDetail> findByDetailStatusIn(List<String> statuses);
+    @org.springframework.data.jpa.repository.Query("SELECT d FROM RoomBookingDetail d WHERE d.customer.id = :customerId OR d.roomBooking.customer.id = :customerId")
+    List<RoomBookingDetail> findByAnyCustomerId(@org.springframework.data.repository.query.Param("customerId") Long customerId);
+
+    List<RoomBookingDetail> findByDetailStatusIn(List<String> statuses);
 
         @org.springframework.data.jpa.repository.Query("SELECT rbd FROM RoomBookingDetail rbd " +
                         "WHERE rbd.roomBooking.customer.account.id = :userId " +
