@@ -96,23 +96,29 @@
           <div class="topbar-date" id="live-date" style="position:absolute;top:calc(100% + 3px);left:0;right:0;text-align:center;white-space:nowrap;"></div>
         </div>
 
-        <div class="icon-btn" title="Thông báo">
-          <span class="material-symbols-outlined">notifications</span>
-        </div>
 
 
 
-        <button class="btn btn-primary" onclick="window.print()" style="height:34px;padding:0 14px;gap:6px;">
-          <span class="material-symbols-outlined">print</span>
-          In báo cáo
-        </button>
       </div>
     </header>
 
     <!-- Dashboard Body -->
     <div class="dashboard-body sr-wrapper">
 
-
+      <!-- Date navigation bar -->
+      <div class="sr-date-nav-wrapper">
+        <div class="sr-date-nav">
+          <button class="sr-date-nav-btn" id="btn-prev-day-nav" title="Ngày hôm trước" onclick="changeReportDate(-1)">
+            <span class="material-symbols-outlined">chevron_left</span>
+          </button>
+          <span class="sr-date-label" id="sr-date-label">Hôm nay</span>
+          <button class="sr-date-nav-btn" id="btn-next-day-nav" title="Ngày hôm sau" onclick="changeReportDate(1)">
+            <span class="material-symbols-outlined">chevron_right</span>
+          </button>
+        </div>
+        <button class="sr-today-btn" id="sr-today-btn" onclick="changeReportDate('today')">Hôm nay</button>
+        <input type="date" class="sr-date-input" id="sr-date-input" onchange="changeReportDate(this.value)" />
+      </div>
 
       <!-- ===================================================
            SECTION 1: ORDER STATISTICS

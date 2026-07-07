@@ -153,3 +153,16 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover,
 input[type="time"]::-webkit-calendar-picker-indicator:hover {
     opacity: 0.8;
 }
+
+/* SVG Map Styles */
+.map-table { cursor: pointer; transition: all 0.3s ease; }
+.map-table rect, .map-table circle { fill: #4b5563; stroke: rgba(255,255,255,0.1); stroke-width: 2; transition: all 0.3s ease; }
+.map-table:hover rect, .map-table:hover circle { fill: #6b7280; }
+
+.map-table.available rect, .map-table.available circle { fill: #10b981; filter: url(#glow-available); }
+.map-table.available:hover rect, .map-table.available:hover circle { fill: #34d399; filter: brightness(1.2); }
+
+.map-table.occupied { pointer-events: none; opacity: 0.5; }
+.map-table.occupied rect, .map-table.occupied circle { fill: #1f2937; }
+
+.map-table.selected rect, .map-table.selected circle { fill: #f59e0b; filter: drop-shadow(0 0 8px rgba(245,158,11,0.6)); }

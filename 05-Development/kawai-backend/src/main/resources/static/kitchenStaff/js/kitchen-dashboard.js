@@ -91,7 +91,7 @@ function updateStatus(orderId, status) {
             localStorage.setItem('kitchenDoneItems', JSON.stringify(doneItems));
           }
         }
-        location.reload();
+        refreshBoard();
       } else {
         alert('Lỗi: ' + data.message);
       }

@@ -34,9 +34,13 @@ public class FoodOrder {
             total = total.add(price.multiply(java.math.BigDecimal.valueOf(detail.getQuantity() != null ? detail.getQuantity() : 1)));
         }
         
-        // Add room service fee if applicable (5%)
+        // Add room service fee if applicable (5% or 3% for VNPAY)
         if ("RoomService".equalsIgnoreCase(orderType) || "Room Service".equalsIgnoreCase(orderType)) {
-            java.math.BigDecimal fee = total.multiply(new java.math.BigDecimal("0.05"));
+            java.math.BigDecimal feeRate = new java.math.BigDecimal("0.05");
+            if ("VNPAY".equalsIgnoreCase(paymentType)) {
+                feeRate = new java.math.BigDecimal("0.03");
+            }
+            java.math.BigDecimal fee = total.multiply(feeRate);
             total = total.add(fee);
         }
         

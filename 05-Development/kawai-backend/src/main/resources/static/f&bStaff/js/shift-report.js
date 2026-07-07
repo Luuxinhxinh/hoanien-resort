@@ -106,10 +106,76 @@ let currentPage  = 1;
 const PAGE_SIZE  = 10;
 const CURRENT_STAFF_ID = 1; // Hardcoded for now
 
+let currentReportDate = new Date();
+
+function updateDateUI() {
+  const subtitle = document.querySelector('.topbar-subtitle');
+  const dateLabel = document.getElementById('sr-date-label');
+  const dateInput = document.getElementById('sr-date-input');
+  const nextBtnNav = document.getElementById('btn-next-day-nav');
+  const closeBtn = document.getElementById('btn-close-day');
+  
+  const today = new Date();
+  const isToday = currentReportDate.toDateString() === today.toDateString();
+  
+  const viDateStr = currentReportDate.toLocaleDateString('vi-VN');
+  const days = ['CN','Th 2','Th 3','Th 4','Th 5','Th 6','Th 7'];
+  const dayName = days[currentReportDate.getDay()];
+  
+  const year = currentReportDate.getFullYear();
+  const month = String(currentReportDate.getMonth() + 1).padStart(2, '0');
+  const day = String(currentReportDate.getDate()).padStart(2, '0');
+  const isoDate = `${year}-${month}-${day}`;
+  
+  if (subtitle) {
+    subtitle.textContent = isToday ? `F&B Daily Report · Current Day` : `F&B Daily Report · ${viDateStr}`;
+  }
+  
+  if (dateLabel) {
+    dateLabel.textContent = isToday ? `Hôm nay — ${dayName}, ${viDateStr}` : `${dayName}, ${viDateStr}`;
+  }
+  
+  if (dateInput) {
+    dateInput.value = isoDate;
+  }
+  
+  if (nextBtnNav) {
+    nextBtnNav.disabled = isToday;
+    nextBtnNav.style.opacity = isToday ? '0.5' : '1';
+    nextBtnNav.style.cursor = isToday ? 'not-allowed' : 'pointer';
+  }
+  
+  if (closeBtn) {
+    closeBtn.style.display = isToday ? 'inline-flex' : 'none';
+  }
+}
+
+window.changeReportDate = function(offsetOrDate) {
+  if (offsetOrDate === 'today') {
+    currentReportDate = new Date();
+  } else if (typeof offsetOrDate === 'string') {
+    currentReportDate = new Date(offsetOrDate);
+  } else {
+    currentReportDate.setDate(currentReportDate.getDate() + offsetOrDate);
+  }
+  
+  const today = new Date();
+  if (currentReportDate > today) {
+    currentReportDate = new Date();
+  }
+  
+  updateDateUI();
+  fetchDailyReport();
+};
+
 async function fetchDailyReport() {
   try {
-    const today = new Date().toISOString().split('T')[0];
-    const res = await fetch(`/api/v1/fnb/daily-reports/preview?date=${today}&staffId=${CURRENT_STAFF_ID}`);
+    const year = currentReportDate.getFullYear();
+    const month = String(currentReportDate.getMonth() + 1).padStart(2, '0');
+    const day = String(currentReportDate.getDate()).padStart(2, '0');
+    const dateStr = `${year}-${month}-${day}`;
+    
+    const res = await fetch(`/api/v1/fnb/daily-reports/preview?date=${dateStr}&staffId=${CURRENT_STAFF_ID}`);
     if (!res.ok) throw new Error('Failed to fetch daily report');
     
     const data = await res.json();
@@ -211,6 +277,7 @@ async function fetchDailyReport() {
 }
 
 // Call on load
+updateDateUI();
 fetchDailyReport();
 
 
