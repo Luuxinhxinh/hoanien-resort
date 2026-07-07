@@ -200,6 +200,57 @@ public class RoomApiController {
     }
 
     /**
+     * API hỗ trợ nghiệp vụ Check-in Bàn: Lấy thông tin khách hàng đang lưu trú dựa trên số phòng.
+     * Trả về thông tin cơ bản của phòng (số phòng, trạng thái) và tên khách đại diện (Guest Name)
+     * để đối chiếu xem khách đó có đúng là người đã đặt bàn hay không.
+     */
+    @GetMapping("/by-number")
+    public ResponseEntity<RoomInfoDto> getRoomInfoByNumber(@RequestParam("roomNumber") String roomNumber) {
+        // Kiểm tra tính hợp lệ của tham số đầu vào
+        if (roomNumber == null || roomNumber.trim().isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+        
+        // 1. Tìm kiếm phòng theo số phòng (đã loại bỏ khoảng trắng dư thừa)
+        java.util.Optional<Room> roomOpt = roomRepository.findByRoomNumber(roomNumber.trim());
+        if (roomOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        Room room = roomOpt.get();
+        
+        // 2. Kiểm tra xem phòng có đang được khách lưu trú hay không (phải có Booking Detail ID hiện tại)
+        if (room.getCurrentBookingDetailId() == null) {
+            return ResponseEntity.notFound().build();
+        }
+        
+        // 3. Khởi tạo đối tượng DTO trả về chứa thông tin phòng
+        RoomInfoDto dto = RoomInfoDto.builder()
+                .roomNumber(room.getRoomNumber())
+                .status(room.getRoomStatus())
+                .occupied(true)
+                .build();
+
+        // 4. Truy vấn chi tiết thông tin Booking để lấy thông tin khách hàng
+        java.util.Optional<RoomBookingDetail> detailOpt = roomBookingDetailRepository.findById(room.getCurrentBookingDetailId());
+        if (detailOpt.isPresent()) {
+            RoomBookingDetail detail = detailOpt.get();
+            
+            // Logic lấy tên khách hàng:
+            // Khách hàng có thể được gắn trực tiếp ở cấp độ Chi tiết phòng (RoomBookingDetail) 
+            // HOẶC ở cấp độ Đơn đặt tổng (RoomBooking). Ta ưu tiên lấy ở mức Detail trước.
+            if (detail.getCustomer() != null) {
+                dto.setGuestName(detail.getCustomer().getFullName());
+                dto.setCustomerId(detail.getCustomer().getId());
+            } else if (detail.getRoomBooking() != null && detail.getRoomBooking().getCustomer() != null) {
+                dto.setGuestName(detail.getRoomBooking().getCustomer().getFullName());
+                dto.setCustomerId(detail.getRoomBooking().getCustomer().getId());
+            }
+        }
+
+        return ResponseEntity.ok(dto);
+    }
+
+    /**
      * API để nhân viên xác thực 4 số cuối CCCD/Passport của khách khi gọi đặt đồ ăn lên phòng (Room Service)
      */
     @GetMapping("/{roomNumber}/verify-guest")

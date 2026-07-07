@@ -451,8 +451,8 @@
     <div class="modal" style="max-width: 400px;">
       <div class="modal-header">
         <div class="modal-title" style="display:flex;align-items:center;gap:8px;">
-          <span class="material-symbols-outlined" style="color:var(--namia-text);">badge</span>
-          Check-in Bằng CCCD
+          <span class="material-symbols-outlined" style="color:var(--namia-text);">how_to_reg</span>
+          Xác thực Check-in
         </div>
         <button class="modal-close" onclick="closeCccdCheckInModal()">
           <span class="material-symbols-outlined">close</span>
@@ -462,14 +462,35 @@
       <div class="modal-body">
         <input type="hidden" id="cccdCheckIn-resId" />
         <input type="hidden" id="cccdCheckIn-tableId" />
+        <input type="hidden" id="cccdCheckIn-resRoom" />
+        <input type="hidden" id="cccdCheckIn-resName" />
 
-        <div class="form-group">
+        <div style="display:flex; gap:16px; margin-bottom:15px;">
+          <label style="display:flex; align-items:center; gap:6px; cursor:pointer;">
+            <input type="radio" name="checkInMode" value="cccd" checked onchange="toggleCheckInMode()" />
+            Bằng CCCD
+          </label>
+          <label style="display:flex; align-items:center; gap:6px; cursor:pointer;">
+            <input type="radio" name="checkInMode" value="room" onchange="toggleCheckInMode()" />
+            Bằng Số phòng
+          </label>
+        </div>
+
+        <div class="form-group" id="group-cccd-input">
           <label class="form-label" for="cccdCheckIn-cccd">Căn cước công dân / Hộ chiếu <span
               style="color:#b03232;">*</span></label>
           <input type="text" class="form-input" id="cccdCheckIn-cccd" placeholder="Nhập CCCD hoặc Hộ chiếu" required
             onblur="searchCccdInfo()" />
-          <div id="cccdCheckIn-error" style="color:#b03232; font-size: 0.75rem; margin-top: 5px; display: none;"></div>
         </div>
+
+        <div class="form-group" id="group-room-input" style="display:none;">
+          <label class="form-label" for="cccdCheckIn-roomInput">Nhập Số phòng <span
+              style="color:#b03232;">*</span></label>
+          <input type="text" class="form-input" id="cccdCheckIn-roomInput" placeholder="Ví dụ: 101" required
+            onblur="searchRoomInfo()" />
+        </div>
+
+        <div id="cccdCheckIn-error" style="color:#b03232; font-size: 0.75rem; margin-top: 5px; display: none;"></div>
 
         <div class="form-group" style="margin-top: 15px;">
           <label class="form-label" for="cccdCheckIn-name">Tên khách hàng</label>
