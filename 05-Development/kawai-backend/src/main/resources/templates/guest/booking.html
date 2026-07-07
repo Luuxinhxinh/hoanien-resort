@@ -469,10 +469,8 @@
     </div>
 
     <!-- ============ INTERACTIVE AND AUTHENTICATION JAVASCRIPT ============ -->
-    <script th:inline="javascript">
-        // Global variables from Thymeleaf model
-        const isUserLoggedIn = /*[[${session.user != null}]]*/ false;
-    </script>
+    <!-- Note: isUserLoggedIn is declared in fragments/auth.html which is included above -->
+
     <script src="/guest/js/utils.js"></script>
     <script src="/guest/js/booking.js"></script>
 
