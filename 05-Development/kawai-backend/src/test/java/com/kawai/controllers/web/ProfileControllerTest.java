@@ -74,6 +74,10 @@ public class ProfileControllerTest {
     @MockBean
     private com.kawai.repositories.FolioItemRepository folioItemRepository;
 
+    @MockBean
+    private com.kawai.repositories.RoomGuestRepository roomGuestRepository;
+
+
     @Test
     @WithMockUser(username = "hoangnam")
     public void testGetProfileUpdateRedirectsToProfile() throws Exception {
@@ -103,4 +107,32 @@ public class ProfileControllerTest {
                 .andExpect(redirectedUrl("/profile"))
                 .andExpect(flash().attribute("success", "Cập nhật thông tin thành công!"));
     }
+
+    @Test
+    @WithMockUser(username = "hoangnam")
+    public void testGetProfileRendersSuccessfully() throws Exception {
+        Customer customer = new Customer();
+        customer.setFullName("Le Hoang Nam");
+        customer.setEmail("nam101@test.com");
+        customer.setGender("MALE");
+        customer.setPhone("0901234567");
+        customer.setLoyaltyPoints(100);
+        
+        com.kawai.models.MembershipTier tier = new com.kawai.models.MembershipTier();
+        tier.setTierName("REGULAR");
+        customer.setMembershipTier(tier);
+
+        when(customerRepository.findByAccount_Username("hoangnam")).thenReturn(Optional.of(customer));
+        when(roomBookingRepository.findByCustomerOrderByIdDesc(any())).thenReturn(java.util.Collections.emptyList());
+        when(roomBookingDetailRepository.findByCustomer(any())).thenReturn(java.util.Collections.emptyList());
+        when(tourBookingRepository.findByCustomer(any())).thenReturn(java.util.Collections.emptyList());
+        when(foodOrderRepository.findByCustomer(any())).thenReturn(java.util.Collections.emptyList());
+        when(dependentRepository.findByCustomer(any())).thenReturn(java.util.Collections.emptyList());
+        when(tableReservationRepository.findByCustomerOrderByIdDesc(any())).thenReturn(java.util.Collections.emptyList());
+
+        mockMvc.perform(get("/profile"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("guest/profile"));
+    }
 }
+

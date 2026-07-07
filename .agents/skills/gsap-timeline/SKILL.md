@@ -1,6 +1,6 @@
 ---
 name: gsap-timeline
-description: Official GSAP skill for timelines — gsap.timeline(), position parameter, nesting, playback. Use when sequencing animations, choreographing keyframes, or when the user asks about animation sequencing, timelines, or animation order (in GSAP or when recommending a library that supports timelines).
+description: Official GSAP skill for timelines. CHỈ KÍCH HOẠT khi user yêu cầu explicitly các chuỗi hiệu ứng phức tạp (timeline sequencing, choreography). Đối với các animation cuộn cơ bản trong project này, vui lòng sử dụng `gsap-project-usage` để tiết kiệm token.
 license: MIT
 ---
 

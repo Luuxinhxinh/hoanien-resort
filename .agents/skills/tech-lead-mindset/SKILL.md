@@ -17,8 +17,8 @@ Khi nhận bất kỳ yêu cầu nào (Sửa bug hoặc làm tính năng mới),
 - Một tính năng chỉ được coi là HOÀN THÀNH khi xử lý hết các kịch bản: Thành công (Happy Path), Thất bại (Validation failed, DB error, API 500/403), Dữ liệu rỗng/Null, và các hành động bất đồng bộ từ User (ví dụ: nhấn nút liên tiếp).
 - KHÔNG sử dụng khối catch trống hoặc chỉ `e.printStackTrace()`. Mọi ngoại lệ phải được log rõ ràng bằng Logger và trả về thông báo lỗi thân thiện cho Frontend.
 
-## 3. QUY TRÌNH LÀM VIỆC BẮT BUỘC:
-- **Bước 1:** PHÂN TÍCH LIÊN ĐỚI. Liệt kê tất cả các file sẽ bị ảnh hưởng dưới dạng danh sách (Checklist).
-- **Bước 2:** ĐỀ XUẤT GIẢI PHÁP & XỬ LÝ LỖI. Nêu rõ cách xử lý các trường hợp biên.
-- **Bước 3:** ĐƯỢC USER DUYỆT mới tiến hành viết code.
-- **Bước 4:** Kiểm tra lại tính đồng bộ giữa các tầng trước khi bàn giao.
+
+
+## 4. CÁC LỖI THƯỜNG GẶP CẦN LƯU Ý (Lessons Learned):
+- **Trùng lặp tên biến (Duplicate local variable):** Cẩn thận khi copy-paste hoặc thêm logic mới trong các phương thức Java (ví dụ: gán nhiều lần biến `username`, `isUserLoggedIn`). Luôn kiểm tra scope của biến để tránh lỗi Compile Error.
+- **Lỗi đứng màn hình (Không chuyển hướng được / Mất layout):** *Xem chi tiết tại `frontend-integrity.md` §6 (Thymeleaf Template Integrity).*

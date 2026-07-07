@@ -193,13 +193,17 @@ Khi thêm hoặc sửa chức năng, **không dừng lại ở file đang sửa*
 - CHỈ đọc file chi tiết khi bắt đầu sửa file đó
 - KHÔNG đọc trước tất cả file rồi mới sửa
 
-### Bước 4: Kiểm tra toàn diện
-- Kiểm tra tính toàn vẹn liên đới (dùng search để verify)
-- Kiểm tra edge cases
-- Kiểm tra frontend (nếu có UI)
-- Kiểm tra tài liệu (nếu có)
+### Bước 4: Kiểm tra toàn diện (BẢNG DEFINITION OF DONE TỔNG)
+Trọn vẹn các bài kiểm tra BẮT BUỘC trước khi có thể kết luận task hoàn thành. 
+*(Các skill khác như `frontend-integrity`, `tech-lead-mindset` sẽ tham chiếu và yêu cầu rà soát bổ sung vào bảng này thay vì tự viết DoD riêng).*
+
+- [ ] **Tính đồng bộ (Backend-to-Frontend):** Nếu DB/Service đổi định dạng, API Controller và thẻ HTML hiển thị (Thymeleaf/JS) đã được sửa tương ứng.
+- [ ] **Frontend Integrity:** Đã chạy qua các mục checklist của `frontend-integrity.md` (nếu liên quan tới giao diện).
+- [ ] **Trường hợp biên (Edge Cases):** Đã bao phủ Happy path, Error path (validation, API error), Null/Empty data.
+- [ ] **Security & Performance:** Không lộ thông tin PII qua `log.TRACE`, không bị N+1 query (đọc thêm ở `security-baseline` & `jpa-performance`).
+- [ ] **Build Check:** Code phải chạy qua vòng build (`mvn compile` / test) thành công mà không phát sinh lỗi compile liên quan tới biến trùng lặp (Duplicate variables) hoặc vỡ HTML tag `</th:block>`.
 
 ### Bước 5: Bàn giao
-- Tóm tắt những gì đã làm
-- Nêu rõ những gì chưa làm (nếu có)
-- Nêu rủi ro tiềm ẩn (nếu có)
+- Tóm tắt ngắn gọn những gì đã làm.
+- Xác nhận đã qua bước "Kiểm tra toàn diện" (DoD).
+- Nêu rõ những rủi ro / technical debt nhỏ (nếu có).
