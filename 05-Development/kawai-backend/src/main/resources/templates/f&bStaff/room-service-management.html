@@ -33,13 +33,13 @@
       </div>
     </div>
     <nav class="sidebar-nav">
-      <div class="nav-section-label">Vận hành</div>
+      <div class="nav-section-label">Operations</div>
 
       <a href="/fbStaff/dashboard" th:href="@{/fbStaff/dashboard}" class="nav-item">
         <span class="material-symbols-outlined">dashboard</span>
         <span>POS Dashboard</span>
       </a>
-      <a href="/fbStaff/create-food-order" class="nav-item" sec:authorize="hasAnyAuthority('OP_FNB_ORDER', 'OP_FNB', 'ROLE_ADMIN', 'ROLE_MANAGER')">
+      <a href="/fbStaff/create-food-order" th:href="@{/fbStaff/create-food-order}" class="nav-item" sec:authorize="hasAnyAuthority('OP_FNB_ORDER', 'OP_FNB', 'ROLE_ADMIN', 'ROLE_MANAGER')">
         <span class="material-symbols-outlined">add_circle</span>
         <span>New Order</span>
       </a>
@@ -53,11 +53,11 @@
       </a>
 
 
-      <div class="nav-section-label">Tài chính</div>
+      <div class="nav-section-label">Finance</div>
 
-      <a href="/fbStaff/shift-report" th:href="@{/fbStaff/shift-report}" class="nav-item" sec:authorize="hasAnyAuthority('OP_FNB_REPORT', 'OP_ANALYTICS', 'ROLE_ADMIN', 'ROLE_MANAGER')">
+      <a href="/fbStaff/shift-report" th:href="@{/fbStaff/shift-report}" class="nav-item">
         <span class="material-symbols-outlined">bar_chart</span>
-        <span>Báo cáo ngày</span>
+        <span>Shift Report</span>
       </a>
     </nav>
     <div class="sidebar-footer">
@@ -130,11 +130,14 @@
       </div>
 
       <!-- FILTER SECTION -->
-      <div class="filter-section">
-        <div class="search-bar">
+      <div class="filter-section" style="display: flex; flex-wrap: wrap; gap: 15px; align-items: center;">
+        <div class="search-bar" style="flex: 1; min-width: 250px;">
           <span class="material-symbols-outlined search-icon">search</span>
           <input type="text" placeholder="Tìm theo Order ID, Room Number hoặc Guest Name..." class="search-input"
             id="search-input">
+        </div>
+        <div class="date-filter">
+          <input type="date" id="date-filter-input" th:value="${currentDate}" class="search-input" style="padding: 8px 12px; border: 1px solid var(--border-active, #ccc); border-radius: 8px; font-family: inherit; color: var(--text-primary); cursor: pointer; height: 38px;" onchange="window.location.href='/fbStaff/room-service?date=' + this.value">
         </div>
         <div class="filter-pills" id="status-filters">
           <button class="pill active" data-filter="all">All</button>

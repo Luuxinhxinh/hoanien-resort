@@ -208,10 +208,13 @@ async function fetchDailyReport() {
         'PENDING': 'pending',
         'PREPARING': 'preparing',
         'COOKING': 'preparing',
+        'READY': 'ready',
+        'DELIVERING': 'served',
         'SERVED': 'served',
         'PAID': 'served',
         'COMPLETED': 'served',
-        'CANCELLED': 'cancelled'
+        'CANCELLED': 'cancelled',
+        'AWAITING_PAYMENT': 'pending'
       };
       let s = statusMap[(t.orderStatus || 'PENDING').toUpperCase()] || 'pending';
       
@@ -256,7 +259,7 @@ async function fetchDailyReport() {
         hourMap[hStr] = 0;
     }
     allOrders.forEach(o => {
-        if (o.status === 'served') {
+        if (o.status === 'served' || o.status === 'ready') {
             let h = o.time.split(':')[0];
             if (hourMap[h] !== undefined) {
                 hourMap[h] += o.amount;
@@ -289,7 +292,8 @@ function formatAmount(n) {
 function statusChip(status) {
   const map = {
     pending:   ['chip-pending',   'Pending', 'schedule'],
-    preparing: ['chip-preparing', 'Preparing', 'skillet'],
+    preparing: ['chip-preparing', 'Processing', 'skillet'],
+    ready:     ['chip-ready',     'Complete', 'done'],
     served:    ['chip-served',    'Served', 'check_circle'],
     cancelled: ['chip-cancelled', 'Cancelled', 'cancel'],
   };
@@ -451,7 +455,7 @@ window.openOrdersModal = function(filter) {
     title.textContent = `Đơn hàng: ${filter === 'dine-in' ? 'Dine-In' : 'Room Service'}`;
   } else {
     filtered = allOrders.filter(o => o.status === filter);
-    const statusMap = { 'pending': 'Pending', 'preparing': 'Preparing', 'served': 'Served', 'cancelled': 'Cancelled' };
+    const statusMap = { 'pending': 'Pending', 'preparing': 'Processing', 'ready': 'Complete', 'served': 'Served', 'cancelled': 'Cancelled' };
     title.textContent = `Đơn hàng: ${statusMap[filter] || filter}`;
   }
   

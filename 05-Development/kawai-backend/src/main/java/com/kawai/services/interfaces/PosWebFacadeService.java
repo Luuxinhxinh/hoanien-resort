@@ -10,5 +10,5 @@ public interface PosWebFacadeService {
     List<Map<String, Object>> getMappedMenuItems();
     Map<String, Object> getKitchenData();
     Map<String, Object> getOrderDetailData(String idParam);
-    Map<String, Object> getRoomServiceManagementData();
+    Map<String, Object> getRoomServiceManagementData(String dateString);
 }

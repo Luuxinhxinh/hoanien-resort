@@ -94,12 +94,7 @@ function renderMenu() {
           <span class="badge-dot"></span>
           ${statusLabel(item.status)}
         </div>
-        <div class="card-hover-overlay">
-          <button class="overlay-add-btn btn-add-to-order" data-id="${item.id}" ${item.status === 'out-of-stock' ? 'disabled style="opacity:0.5;cursor:not-allowed;"' : ''}>
-            <span class="material-symbols-outlined">add_shopping_cart</span>
-            Thêm vào đơn
-          </button>
-        </div>
+
       </div>
 
       <!-- Card body -->
@@ -110,14 +105,12 @@ function renderMenu() {
         <div class="menu-item-name">${item.name}</div>
         <div class="menu-item-desc">${item.desc}</div>
 
-        <div class="menu-card-footer">
+        <div class="menu-card-footer" style="align-items: center;">
           <span class="menu-price">${formatPrice(item.price)}</span>
           <div class="card-actions">
-            <button class="btn-toggle btn-status-toggle" data-id="${item.id}" title="Đổi trạng thái">
-              <span class="material-symbols-outlined">${item.status === 'available' ? 'toggle_on' : 'toggle_off'}</span>
-            </button>
-            <button class="btn-add btn-add-to-order" data-id="${item.id}" ${item.status === 'out-of-stock' ? 'disabled style="opacity:0.5;cursor:not-allowed;"' : ''} title="Thêm vào đơn">
-              <span class="material-symbols-outlined">add</span>
+            <button class="btn-toggle btn-status-toggle" data-id="${item.id}" title="Đổi trạng thái" style="padding: 6px 12px; font-size: 0.75rem; border-radius: 6px; display: flex; align-items: center; justify-content: center; width: 110px;">
+              <span class="material-symbols-outlined" style="font-size: 1.2rem; margin-right: 4px;">${item.status === 'available' ? 'toggle_on' : 'toggle_off'}</span>
+              ${item.status === 'available' ? 'CÒN MÓN' : 'HẾT MÓN'}
             </button>
           </div>
         </div>

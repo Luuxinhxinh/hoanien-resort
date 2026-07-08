@@ -7,9 +7,7 @@
    SHIFT META BAR
    ────────────────────────────────────────────── */
 .sr-wrapper {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 22px 24px;
+  /* Inherit padding and layout from .dashboard-body */
 }
 
 .shift-badge {
