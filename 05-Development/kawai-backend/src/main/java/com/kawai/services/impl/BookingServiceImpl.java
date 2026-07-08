@@ -32,6 +32,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.kawai.services.interfaces.PaymentRefundService;
 import com.kawai.services.interfaces.NotificationService;
+import com.kawai.services.interfaces.EmailService;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -105,6 +106,7 @@ public class BookingServiceImpl implements BookingService {
     private final com.kawai.repositories.RoomSurchargeRepository roomSurchargeRepository;
     private final com.kawai.repositories.DependentRepository dependentRepository;
     private final com.kawai.repositories.RoomGuestRepository roomGuestRepository;
+    private final EmailService emailService;
 
     @Autowired
     private com.kawai.repositories.FolioItemRepository folioItemRepository;
@@ -116,6 +118,7 @@ public class BookingServiceImpl implements BookingService {
             RoomBookingDetailRepository roomBookingDetailRepository,
             PaymentRefundService paymentRefundService,
             NotificationService notificationService,
+            EmailService emailService,
             com.kawai.repositories.RoomCategoryRepository roomCategoryRepository,
             com.kawai.repositories.RoomSurchargeRepository roomSurchargeRepository,
             com.kawai.repositories.DependentRepository dependentRepository,
@@ -127,6 +130,7 @@ public class BookingServiceImpl implements BookingService {
         this.roomBookingDetailRepository = roomBookingDetailRepository;
         this.paymentRefundService = paymentRefundService;
         this.notificationService = notificationService;
+        this.emailService = emailService;
         this.roomCategoryRepository = roomCategoryRepository;
         this.roomSurchargeRepository = roomSurchargeRepository;
         this.dependentRepository = dependentRepository;
@@ -663,6 +667,12 @@ public class BookingServiceImpl implements BookingService {
             String newStatus = isEligibleForRefund ? "Cancelled_Refunded" : "Cancelled_Forfeited";
             booking.setBookingStatus(newStatus);
             roomBookingRepository.save(booking);
+
+            try {
+                emailService.sendRoomCancellationEmail(booking, booking.getCustomer(), isEligibleForRefund);
+            } catch (Exception e) {
+                log.error("Lỗi gửi email xác nhận hủy đặt phòng: ", e);
+            }
 
             BookingResponseDTO response = new BookingResponseDTO();
             response.setBookingId(bookingId);

@@ -60,8 +60,11 @@ import java.util.UUID;
  * Hard Limit: adults > maxAdults hoặc children > maxChildren → reject
  * (MOD2-UC14-009)
  */
+import lombok.extern.slf4j.Slf4j;
+
 @Service
-public class WalkInCheckInServiceImpl implements WalkInCheckInService {
+@Slf4j
+public class WalkInCheckInServiceImpl implements com.kawai.services.interfaces.WalkInCheckInService {
 
     // ── Business Constants ───────────────────────────────────────────────────
     private static final int ADULT_AGE_THRESHOLD = 18;
@@ -100,6 +103,7 @@ public class WalkInCheckInServiceImpl implements WalkInCheckInService {
     private final com.kawai.services.interfaces.FolioService folioService;
     private final PasswordEncoder passwordEncoder;
     private final com.kawai.services.interfaces.CheckinService checkinService;
+    private final com.kawai.services.interfaces.EmailService emailService;
 
     public WalkInCheckInServiceImpl(
             RoomRepository roomRepository,
@@ -114,7 +118,8 @@ public class WalkInCheckInServiceImpl implements WalkInCheckInService {
             MembershipTierRepository membershipTierRepository,
             com.kawai.services.interfaces.FolioService folioService,
             PasswordEncoder passwordEncoder,
-            @Lazy com.kawai.services.interfaces.CheckinService checkinService) {
+            @Lazy com.kawai.services.interfaces.CheckinService checkinService,
+            com.kawai.services.interfaces.EmailService emailService) {
         this.roomRepository = roomRepository;
         this.roomBookingRepository = roomBookingRepository;
         this.roomBookingDetailRepository = roomBookingDetailRepository;
@@ -128,6 +133,7 @@ public class WalkInCheckInServiceImpl implements WalkInCheckInService {
         this.folioService = folioService;
         this.passwordEncoder = passwordEncoder;
         this.checkinService = checkinService;
+        this.emailService = emailService;
     }
 
     // ══════════════════════════════════════════════════════════════════════════
@@ -181,8 +187,10 @@ public class WalkInCheckInServiceImpl implements WalkInCheckInService {
             Customer customer = customerResult.customer;
 
             Account newAccount = null;
+            String rawPassword = null;
             if (customerResult.isNew) {
-                newAccount = autoCreateAccount(customer, request.getEmail());
+                rawPassword = java.util.UUID.randomUUID().toString().substring(0, 6);
+                newAccount = autoCreateAccount(customer, request.getEmail(), rawPassword);
             }
 
             // Step 5: Validate tổng credit limit vs membership tier
@@ -244,7 +252,19 @@ public class WalkInCheckInServiceImpl implements WalkInCheckInService {
             booking.setTotalPrice(bookingTotalPrice);
             roomBookingRepository.save(booking);
 
-            // Step 9: Build & return response
+            // Step 9: Gửi email xác nhận
+            if (BOOKING_STATUS_CHECKED_IN.equals(booking.getBookingStatus())) {
+                try {
+                    RoomBookingDetail firstDetail = roomBookingDetailRepository.findByRoomBookingId(booking.getId()).stream().findFirst().orElse(null);
+                    if (firstDetail != null) {
+                        String userParam = newAccount != null ? newAccount.getUsername() : null;
+                        emailService.sendWalkInCheckInEmail(booking, firstDetail, customer, customerResult.isNew, userParam, rawPassword);
+                    }
+                } catch (Exception e) {
+                    log.error("Lỗi gửi email Walk-in Check-in: ", e);
+                }
+            }
+
             return buildWalkInResponse(booking, firstRoomNumber, request, customer, customerResult.isNew, newAccount);
 
         } catch (BusinessException ex) {
@@ -596,13 +616,13 @@ public class WalkInCheckInServiceImpl implements WalkInCheckInService {
      * BR-09: Default password hash không null.
      * BR-10: Account được link vào Customer.
      */
-    private Account autoCreateAccount(Customer customer, String email) {
+    private Account autoCreateAccount(Customer customer, String email, String rawPassword) {
         Account account = new Account();
         String username = (email != null && !email.isBlank() && email.contains("@"))
                 ? email.split("@")[0]
                 : "walkin_" + UUID.randomUUID().toString().substring(0, 8);
         account.setUsername(username);
-        account.setPasswordHash(passwordEncoder.encode(UUID.randomUUID().toString().substring(0, 6)));
+        account.setPasswordHash(passwordEncoder.encode(rawPassword));
         account.setIsActive(true);
 
         Role role = roleRepository.findByRoleName("CUSTOMER NORMAL")
