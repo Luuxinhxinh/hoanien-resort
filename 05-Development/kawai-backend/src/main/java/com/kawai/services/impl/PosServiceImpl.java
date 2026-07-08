@@ -228,6 +228,7 @@ public class PosServiceImpl implements PosService {
 
         BigDecimal subtotal = BigDecimal.ZERO;
 
+        List<FoodOrderDetail> savedDetails = new java.util.ArrayList<>();
         if (request.getItems() != null) {
             for (CartItemDto itemDto : request.getItems()) {
                 MenuItem menuItem = foodItemRepository.findById(itemDto.getId())
@@ -251,12 +252,15 @@ public class PosServiceImpl implements PosService {
                 detail.setPriceAtOrder(itemDto.getPrice());
                 detail.setKotStatus("Pending");
                 foodOrderDetailRepository.save(detail);
+                
+                savedDetails.add(detail);
 
                 if (itemDto.getPrice() != null && itemDto.getQty() != null) {
                     subtotal = subtotal.add(itemDto.getPrice().multiply(new BigDecimal(itemDto.getQty())));
                 }
             }
         }
+        savedOrder.setDetails(savedDetails);
 
         // --- NEW CODE: Calculate and set final total amount explicitly ---
         BigDecimal finalTotal = subtotal;

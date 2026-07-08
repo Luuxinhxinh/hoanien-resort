@@ -3,9 +3,7 @@
    ============================================================ */
 
 .rs-wrapper {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
+  /* Inherit padding and layout from .dashboard-body */
 }
 
 /* Stats Row */

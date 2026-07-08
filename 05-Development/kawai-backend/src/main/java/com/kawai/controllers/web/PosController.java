@@ -41,8 +41,8 @@ public class PosController {
 
     @GetMapping("/room-service")
     @PreAuthorize("hasAnyAuthority('OP_FNB', 'OP_FNB_ROOM_SERVICE', 'ROLE_ADMIN', 'ROLE_MANAGER')")
-    public String roomService(Model model) {
-        model.addAllAttributes(posWebFacadeService.getRoomServiceManagementData());
+    public String roomService(@RequestParam(value = "date", required = false) String dateString, Model model) {
+        model.addAllAttributes(posWebFacadeService.getRoomServiceManagementData(dateString));
         return "f&bStaff/room-service-management";
     }
 

@@ -36,13 +36,13 @@
     </div>
 
     <nav class="sidebar-nav">
-      <div class="nav-section-label">Vận hành</div>
+      <div class="nav-section-label">Operations</div>
 
       <a href="#" class="nav-item active" sec:authorize="hasAnyAuthority('OP_DASHBOARD', 'ROLE_ADMIN', 'ROLE_MANAGER')">
         <span class="material-symbols-outlined">dashboard</span>
         <span>POS Dashboard</span>
       </a>
-      <a href="/fbStaff/create-food-order" class="nav-item" sec:authorize="hasAnyAuthority('OP_FNB_ORDER', 'OP_FNB', 'ROLE_ADMIN', 'ROLE_MANAGER')">
+      <a href="/fbStaff/create-food-order" th:href="@{/fbStaff/create-food-order}" class="nav-item" sec:authorize="hasAnyAuthority('OP_FNB_ORDER', 'OP_FNB', 'ROLE_ADMIN', 'ROLE_MANAGER')">
         <span class="material-symbols-outlined">add_circle</span>
         <span>New Order</span>
       </a>
@@ -57,12 +57,12 @@
 
 
 
-      <div class="nav-section-label" sec:authorize="hasAnyAuthority('OP_FNB_REPORT', 'OP_ANALYTICS', 'ROLE_ADMIN', 'ROLE_MANAGER')">Tài chính</div>
+      <div class="nav-section-label">Finance</div>
 
 
-      <a href="/fbStaff/shift-report" th:href="@{/fbStaff/shift-report}" class="nav-item" sec:authorize="hasAnyAuthority('OP_FNB_REPORT', 'OP_ANALYTICS', 'ROLE_ADMIN', 'ROLE_MANAGER')">
+      <a href="/fbStaff/shift-report" th:href="@{/fbStaff/shift-report}" class="nav-item">
         <span class="material-symbols-outlined">bar_chart</span>
-        <span>Báo cáo ngày</span>
+        <span>Shift Report</span>
       </a>
     </nav>
 
@@ -301,17 +301,7 @@
   <!-- POS Dashboard JS — statics/f&bStaff/js/ -->
   <script th:src="@{/f&amp;bStaff/js/pos-dashboard.js}" src="../../statics/f&bStaff/js/pos-dashboard.js"></script>
   <script>
-      // Background refresh every 15 seconds
-      function bindOrderCardEvents() {
-          document.querySelectorAll('.order-card').forEach(card => {
-              card.onclick = function(e) {
-                  // Only if we're not clicking the card body (to expand items)
-                  // Wait, pos-dashboard.js handles clicks via redirecting via th:onclick
-                  // actually the th:onclick in HTML already does location.href
-              };
-          });
-      }
-
+      // Background refresh every 15 seconds (Smart DOM Sync)
       setInterval(function() {
           fetch(location.href)
               .then(res => res.text())
@@ -320,25 +310,72 @@
                   const doc = parser.parseFromString(html, 'text/html');
                   
                   // Update KPIs
-                  const newKpi = doc.querySelector('.kpi-boxes');
-                  if (newKpi) document.querySelector('.kpi-boxes').innerHTML = newKpi.innerHTML;
+                  const newKpi = doc.querySelector('.stats-row');
+                  if (newKpi) document.querySelector('.stats-row').innerHTML = newKpi.innerHTML;
 
-                  // Update Food Orders
-                  const newFoodList = doc.querySelector('#list-food');
-                  if (newFoodList) document.querySelector('#list-food').innerHTML = newFoodList.innerHTML;
-
-                  // Update Table Orders
-                  const newTableList = doc.querySelector('#list-table');
-                  if (newTableList) document.querySelector('#list-table').innerHTML = newTableList.innerHTML;
-
-                  // Re-apply active filter
-                  let activePills = document.querySelectorAll('.filter-pills:not([style*="display: none"]) .pill.active');
-                  if (activePills.length === 0) activePills = document.querySelectorAll('.filter-pills .pill.active');
-                  
-                  if (activePills.length > 0) {
-                      // Trigger click to re-filter the newly loaded DOM elements
-                      activePills.forEach(pill => pill.click());
+                  // Smart DOM sync function
+                  function syncList(listId) {
+                      const oldContainer = document.querySelector(listId);
+                      const newContainer = doc.querySelector(listId);
+                      if (!oldContainer || !newContainer) return;
+                      
+                      const oldCards = Array.from(oldContainer.querySelectorAll('.order-card'));
+                      const newCards = Array.from(newContainer.querySelectorAll('.order-card'));
+                      
+                      const oldCardsMap = {};
+                      oldCards.forEach(c => oldCardsMap[c.dataset.order] = c);
+                      
+                      const newOrderIds = new Set(newCards.map(c => c.dataset.order));
+                      oldCards.forEach(c => {
+                          if (!newOrderIds.has(c.dataset.order)) c.remove();
+                      });
+                      
+                      newCards.forEach((newCard, index) => {
+                          const orderId = newCard.dataset.order;
+                          const existingCard = oldCardsMap[orderId];
+                          
+                          if (existingCard) {
+                              // Preserve expanded state
+                              const oldItems = existingCard.querySelector('.order-items');
+                              const oldDisplay = oldItems ? oldItems.style.display : 'none';
+                              
+                              existingCard.innerHTML = newCard.innerHTML;
+                              existingCard.className = newCard.className;
+                              existingCard.dataset.status = newCard.dataset.status;
+                              
+                              const updatedItems = existingCard.querySelector('.order-items');
+                              if (updatedItems) updatedItems.style.display = oldDisplay;
+                              
+                              if (oldContainer.children[index] !== existingCard) {
+                                  oldContainer.insertBefore(existingCard, oldContainer.children[index] || null);
+                              }
+                          } else {
+                              // Add new card and bind click event
+                              newCard.addEventListener('click', function (e) {
+                                  if (e.target.closest('button') || e.target.closest('a')) return;
+                                  const items = this.querySelector('.order-items');
+                                  if (!items) return;
+                                  items.style.display = items.style.display === 'none' ? 'flex' : 'none';
+                              });
+                              oldContainer.insertBefore(newCard, oldContainer.children[index] || null);
+                          }
+                      });
                   }
+
+                  syncList('#list-food');
+                  syncList('#list-table');
+
+                  // Re-apply filters silently without triggering animations
+                  document.querySelectorAll('.filter-pills').forEach(pillContainer => {
+                      const activePill = pillContainer.querySelector('.pill.active');
+                      if (!activePill) return;
+                      const filter = activePill.dataset.filter;
+                      const listId = pillContainer.id === 'filters-food' ? '#list-food' : '#list-table';
+                      document.querySelectorAll(`${listId} .order-card`).forEach(card => {
+                          const show = filter === 'all' || card.dataset.status === filter;
+                          card.style.display = show ? '' : 'none';
+                      });
+                  });
               })
               .catch(err => console.error('Background refresh failed:', err));
       }, 15000);
