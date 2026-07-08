@@ -208,7 +208,7 @@ public class TourGuideController {
             Principal principal,
             Model model) {
         
-        healDatabase();
+        
 
         model.addAttribute("isLoggedIn", principal != null);
         if (principal != null) {
@@ -395,7 +395,7 @@ public class TourGuideController {
             model.addAttribute("username", principal.getName());
         }
         
-        healDatabase();
+        
         
         // Fetch all tour schedules from DB
         java.util.List<com.kawai.models.TourSchedule> dbSchedules = tourScheduleRepository.findAll();

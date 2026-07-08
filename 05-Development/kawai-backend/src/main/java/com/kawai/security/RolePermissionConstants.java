@@ -97,18 +97,19 @@ public class RolePermissionConstants {
 
         // RECEPTIONIST — lễ tân, tập trung check-in/out và folio
         m.put("receptionist", Arrays.asList(
-            DASHBOARD, BOOKING, HOUSEKEEPING, NIGHT_AUDIT, REVIEWS
+            DASHBOARD, BOOKING, HOUSEKEEPING, NIGHT_AUDIT, REVIEWS,
+            RECEPTION_CHECKIN, RECEPTION_CHECKOUT, RECEPTION_WALKIN, RECEPTION_INHOUSE
         ));
 
         // F&B KITCHEN / FNB — thu ngân bếp, chỉ nhà hàng
         m.put("f&b", Arrays.asList(
-            DASHBOARD, FNB
+            DASHBOARD, FNB, FNB_ORDER, FNB_TABLE, FNB_ROOM_SERVICE, FNB_REPORT
         ));
         m.put("fnb", Arrays.asList(
-            DASHBOARD, FNB
+            DASHBOARD, FNB, FNB_ORDER, FNB_TABLE, FNB_ROOM_SERVICE, FNB_REPORT
         ));
         m.put("kitchen", Arrays.asList(
-            DASHBOARD, FNB
+            DASHBOARD, FNB, FNB_ORDER, FNB_TABLE, FNB_ROOM_SERVICE, FNB_REPORT
         ));
 
         // HOUSEKEEPING — buồng phòng

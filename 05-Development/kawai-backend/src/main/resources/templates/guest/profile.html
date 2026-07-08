@@ -45,12 +45,12 @@
     </style>
 </head>
 
-<body class="bg-hoanien-bg text-hoanien-text antialiased flex flex-col min-h-screen">
+<body class="text-hoanien-text antialiased flex flex-col min-h-screen" style="background-image: url('https://nhadepaz.com/wp-content/uploads/2026/06/tranh-dan-tuong-hoa-sen-vang-cho-phong-thien-spa-sang-trong-va-thu-thai-93213298-2.png'); background-size: cover; background-position: center; background-attachment: fixed;">
 
     <!-- ============ NAVIGATION BAR ============ -->
-    <nav class="fixed top-0 left-0 w-full z-50 bg-hoanien-bg/90 backdrop-blur-md border-b border-hoanien-text/10 transition-all duration-300 font-sans site-header">
+    <nav class="fixed top-0 left-0 w-full z-50 bg-hoanien-bg border-b border-hoanien-text/10 transition-all duration-300 font-sans site-header">
         <div class="max-w-[1440px] mx-auto px-6 py-4 flex items-center justify-between relative">
-            <div class="hidden lg:flex items-center gap-8 text-[13px] uppercase tracking-[0.2em] font-semibold text-hoanien-text/60">
+            <div class="hidden lg:flex items-center gap-8 text-[13px] uppercase tracking-[0.2em] font-semibold text-hoanien-text/80">
                 <a href="/living" class="hover:text-hoanien-text hover:opacity-100 active:scale-95 transition-all duration-200">Living</a>
                 <a href="/dining" class="hover:text-hoanien-text hover:opacity-100 active:scale-95 transition-all duration-200">Dining</a>
                 <a href="/experiences" class="hover:text-hoanien-text hover:opacity-100 active:scale-95 transition-all duration-200">Experiences</a>
@@ -61,7 +61,7 @@
                 HoaNien
             </div>
 
-            <div class="hidden lg:flex items-center gap-6 text-[13px] uppercase tracking-[0.2em] font-semibold text-hoanien-text/60">
+            <div class="hidden lg:flex items-center gap-6 text-[13px] uppercase tracking-[0.2em] font-semibold text-hoanien-text/80">
                 <a href="/profile" class="text-hoanien-text border-b border-hoanien-text pb-0.5 active:scale-95 transition-all duration-200">Profile</a>
                 <form th:action="@{/auth/logout}" method="post" class="inline">
                     <button type="submit" class="hover:text-hoanien-text hover:opacity-100 active:scale-95 transition-all duration-200 bg-transparent border-none p-0 cursor-pointer uppercase tracking-[0.2em]">Logout</button>
@@ -75,8 +75,11 @@
     <!-- ============ MAIN CONTENT ============ -->
     <main class="flex-grow pt-32 pb-20 px-6">
         <section class="max-w-[1200px] mx-auto feature-row">
-            <h1 class="font-serif text-4xl md:text-5xl mb-2 text-center">Hồ sơ cá nhân</h1>
-            <p class="text-center text-sm opacity-70 uppercase tracking-widest mb-12">Quản lý thông tin & Giấy tờ định danh</p>
+            <!-- Page Header Container to pop out against golden background -->
+            <div class="max-w-[640px] mx-auto mb-12 p-8 rounded-2xl bg-hoanien-bg/95 backdrop-blur-md border border-hoanien-text/10 text-center shadow-md">
+                <h1 class="font-serif text-4xl md:text-5xl mb-3 text-hoanien-text">Hồ sơ cá nhân</h1>
+                <p class="text-xs opacity-75 uppercase tracking-[0.2em] font-semibold text-hoanien-text/90">Quản lý thông tin & Giấy tờ định danh</p>
+            </div>
 
             <!-- Alert Banners -->
             <div th:if="${success}" class="max-w-[1200px] mx-auto mb-6 p-4 bg-green-50 border border-green-200 text-green-800 rounded-lg text-sm flex items-center gap-2">
@@ -88,7 +91,7 @@
                 <span th:text="${error}">Error message</span>
             </div>
             <!-- Customer Summary Header -->
-            <div class="bg-white/50 backdrop-blur-sm border border-hoanien-text/10 p-8 rounded-xl room-card mb-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-sm">
+            <div class="bg-hoanien-bg border border-hoanien-text/10 p-8 rounded-xl room-card mb-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-sm">
                 <div class="flex flex-col md:flex-row items-center md:items-start gap-6 text-center md:text-left">
                     <div class="relative group/avatar cursor-pointer flex-shrink-0">
                         <div class="w-24 h-24 bg-hoanien-text text-hoanien-bg rounded-full flex items-center justify-center text-4xl font-serif overflow-hidden shadow-md border-2 border-transparent group-hover/avatar:border-hoanien-text/30 transition-all">
@@ -129,8 +132,8 @@
                 </div>
             </div>
 
-            <!-- Horizontal Tab Navigation -->
-            <div class="flex flex-wrap border-b border-hoanien-text/10 mb-8 gap-x-8 gap-y-4">
+            <!-- Horizontal Tab Navigation wrapped in solid card for clear readability -->
+            <div class="bg-hoanien-bg border border-hoanien-text/10 px-8 pt-4 rounded-xl shadow-sm mb-8 flex flex-wrap gap-x-8 gap-y-4">
                 <a href="#personal-info" class="tab-link pb-4 border-b-2 border-hoanien-text font-semibold text-hoanien-text flex items-center gap-2 uppercase tracking-widest text-xs transition-all duration-300" data-target="tab-personal-info">
                     <span class="material-symbols-outlined text-lg">badge</span>
                     Thông tin cá nhân
@@ -152,7 +155,7 @@
             <!-- Main Content Area -->
             <div>
                 <!-- Personal Info Form -->
-                <div id="tab-personal-info" class="tab-content bg-white/50 backdrop-blur-sm border border-hoanien-text/10 p-10 rounded-xl room-card shadow-sm">
+                <div id="tab-personal-info" class="tab-content bg-hoanien-bg border border-hoanien-text/10 p-10 rounded-xl room-card shadow-sm">
                         <h3 class="font-serif text-2xl mb-6 flex items-center gap-2">
                             <span class="material-symbols-outlined text-[#6e7869]">badge</span>
                             Thông tin định danh
@@ -201,7 +204,7 @@
                     </div>
 
                     <!-- Dependents -->
-                    <div id="tab-dependents" class="tab-content hidden bg-white/50 backdrop-blur-sm border border-hoanien-text/10 p-10 rounded-xl room-card shadow-sm">
+                    <div id="tab-dependents" class="tab-content hidden bg-hoanien-bg border border-hoanien-text/10 p-10 rounded-xl room-card shadow-sm">
                         <div class="flex justify-between items-center mb-6">
                             <h3 class="font-serif text-2xl flex items-center gap-2">
                                 <span class="material-symbols-outlined text-[#6e7869]">family_restroom</span>
@@ -232,7 +235,7 @@
                     </div>
 
                     <!-- Security -->
-                    <div id="tab-security" class="tab-content hidden bg-white/50 backdrop-blur-sm border border-hoanien-text/10 p-10 rounded-xl room-card shadow-sm">
+                    <div id="tab-security" class="tab-content hidden bg-hoanien-bg border border-hoanien-text/10 p-10 rounded-xl room-card shadow-sm">
                         <h3 class="font-serif text-2xl mb-6 flex items-center gap-2">
                             <span class="material-symbols-outlined text-[#6e7869]">lock</span>
                             Bảo mật & Mật khẩu
@@ -254,7 +257,7 @@
                     </div>
 
                     <!-- Bookings -->
-                    <div id="tab-bookings" class="tab-content hidden bg-white/50 backdrop-blur-sm border border-hoanien-text/10 p-10 rounded-xl room-card shadow-sm">
+                    <div id="tab-bookings" class="tab-content hidden bg-hoanien-bg border border-hoanien-text/10 p-10 rounded-xl room-card shadow-sm">
                         <!-- Tab Buttons -->
                         <div class="flex border-b border-hoanien-text/10 mb-8 gap-8 text-sm">
                             <button onclick="switchTab('rooms')" id="tabBtn-rooms" class="pb-3 border-b-2 border-hoanien-text font-semibold text-hoanien-text flex items-center gap-2 tracking-widest uppercase transition-all duration-300">
@@ -280,13 +283,13 @@
                             <div class="flex justify-between items-center mb-6">
                                 <div class="flex items-center gap-4">
                                     <h3 class="font-serif text-2xl font-medium text-hoanien-text/90">Lịch sử đặt phòng</h3>
-                                    <button type="button" onclick="document.getElementById('checkin-guide-box').classList.toggle('hidden')" class="flex items-center gap-1 text-[11px] font-semibold uppercase tracking-widest text-hoanien-text/60 hover:text-hoanien-text transition-colors border border-hoanien-text/20 px-3 py-1.5 rounded-full bg-white/50 hover:bg-white shadow-sm">
+                                    <button type="button" onclick="document.getElementById('checkin-guide-box').classList.toggle('hidden')" class="flex items-center gap-1 text-[11px] font-semibold uppercase tracking-widest text-hoanien-text/60 hover:text-hoanien-text transition-colors border border-hoanien-text/20 px-3 py-1.5 rounded-full bg-hoanien-bg hover:bg-white shadow-sm">
                                         <span class="material-symbols-outlined text-[14px]">help</span>
                                         Hướng dẫn Check-in
                                     </button>
                                 </div>
                                 <div class="relative w-40">
-                                    <select id="bookingStatusFilter" onchange="filterBookings()" class="w-full bg-white/50 border border-hoanien-text/20 rounded-full px-4 py-2 focus:border-hoanien-text focus:outline-none transition-colors text-[11px] uppercase tracking-widest appearance-none cursor-pointer font-semibold shadow-sm backdrop-blur-md">
+                                    <select id="bookingStatusFilter" onchange="filterBookings()" class="w-full bg-hoanien-bg border border-hoanien-text/20 rounded-full px-4 py-2 focus:border-hoanien-text focus:outline-none transition-colors text-[11px] uppercase tracking-widest appearance-none cursor-pointer font-semibold shadow-sm">
                                         <option value="all">Tất cả</option>
                                         <option value="paid">Đã xác nhận</option>
                                         <option value="cancelled">Đã hủy</option>
@@ -317,10 +320,10 @@
                             <!-- ACTIVE BOOKINGS -->
                             <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start mb-8">
                                 <th:block th:each="booking : ${bookings}" th:if="${#lists.contains({'PENDING', 'CONFIRMED', 'CHECKED_IN'}, #strings.toUpperCase(booking.bookingStatus))}">
-                                    <div class="booking-item flex flex-col p-6 border border-hoanien-text/10 rounded-2xl bg-white/40 hover:bg-white/80 hover:shadow-xl transition-all duration-300 group" th:data-status="${#strings.toUpperCase(booking.bookingStatus)}">
+                                    <div class="booking-item flex flex-col p-6 border border-hoanien-text/10 rounded-2xl bg-white hover:shadow-xl transition-all duration-300 group" th:data-status="${#strings.toUpperCase(booking.bookingStatus)}">
                                         <div class="flex gap-5 mb-4">
                                             <div class="w-32 h-24 shrink-0 rounded-xl overflow-hidden shadow-sm relative">
-                                                <img th:src="${'https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'}" alt="Room" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                                                <img th:src="${visibleDetailsMap[booking.id] != null and !visibleDetailsMap[booking.id].empty and visibleDetailsMap[booking.id][0].category != null and visibleDetailsMap[booking.id][0].category.coverImgUrl != null ? visibleDetailsMap[booking.id][0].category.coverImgUrl : 'https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'}" alt="Room" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                                                 <div class="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors"></div>
                                             </div>
                                             <div class="flex-1 min-w-0">
@@ -389,7 +392,7 @@
                             </div>
                             
                             <!-- PAST BOOKINGS ACCORDION -->
-                            <details class="group bg-white/40 border border-hoanien-text/10 rounded-2xl transition-all duration-300 open:bg-white/80 open:shadow-lg">
+                            <details class="group bg-white border border-hoanien-text/10 rounded-2xl transition-all duration-300 open:shadow-lg">
                                 <summary class="flex justify-between items-center cursor-pointer p-6 font-serif text-xl font-medium text-hoanien-text/80 outline-none select-none hover:text-hoanien-text transition-colors">
                                     <div class="flex items-center gap-3">
                                         <span class="material-symbols-outlined">history</span>
@@ -400,10 +403,10 @@
                                 <div class="px-6 pb-6 pt-2 border-t border-hoanien-text/5">
                                     <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start mt-4">
                                         <th:block th:each="booking : ${bookings}" th:if="${!#lists.contains({'PENDING', 'CONFIRMED', 'CHECKED_IN'}, #strings.toUpperCase(booking.bookingStatus))}">
-                                            <div class="booking-item flex flex-col p-6 border border-hoanien-text/10 rounded-2xl bg-white/40 hover:bg-white/80 hover:shadow-xl transition-all duration-300 group opacity-60 grayscale" th:data-status="${#strings.toUpperCase(booking.bookingStatus)}">
+                                            <div class="booking-item flex flex-col p-6 border border-hoanien-text/10 rounded-2xl bg-white hover:shadow-xl transition-all duration-300 group opacity-60 grayscale" th:data-status="${#strings.toUpperCase(booking.bookingStatus)}">
                                                 <div class="flex gap-5 mb-4">
                                                     <div class="w-32 h-24 shrink-0 rounded-xl overflow-hidden shadow-sm relative">
-                                                        <img th:src="${'https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'}" alt="Room" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                                                        <img th:src="${visibleDetailsMap[booking.id] != null and !visibleDetailsMap[booking.id].empty and visibleDetailsMap[booking.id][0].category != null and visibleDetailsMap[booking.id][0].category.coverImgUrl != null ? visibleDetailsMap[booking.id][0].category.coverImgUrl : 'https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'}" alt="Room" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                                                         <div class="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors"></div>
                                                     </div>
                                                     <div class="flex-1 min-w-0">
@@ -456,7 +459,7 @@
                             <!-- ACTIVE TOUR BOOKINGS -->
                             <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start mb-8">
                                 <th:block th:each="tb : ${tourBookings}" th:if="${#lists.contains({'PENDING', 'CONFIRMED', 'IN_PROGRESS'}, #strings.toUpperCase(tb.bookingStatus))}">
-                                    <div class="flex flex-col p-6 border border-hoanien-text/10 rounded-2xl bg-white/40 hover:bg-white/80 hover:shadow-xl transition-all duration-300 group">
+                                    <div class="flex flex-col p-6 border border-hoanien-text/10 rounded-2xl bg-white hover:shadow-xl transition-all duration-300 group">
                                         <div class="flex gap-5 mb-4">
                                             <div class="w-32 h-24 shrink-0 rounded-xl bg-hoanien-text text-hoanien-bg flex flex-col items-center justify-center shadow-inner relative overflow-hidden" th:if="${tb.schedule != null}">
                                                 <span class="text-[10px] uppercase tracking-widest font-semibold opacity-70" th:text="${#temporals.format(tb.schedule.departureDate, 'MM/yyyy')}">MM/YYYY</span>
@@ -503,7 +506,7 @@
                             </div>
                             
                             <!-- PAST TOUR BOOKINGS ACCORDION -->
-                            <details class="group bg-white/40 border border-hoanien-text/10 rounded-2xl transition-all duration-300 open:bg-white/80 open:shadow-lg">
+                            <details class="group bg-white border border-hoanien-text/10 rounded-2xl transition-all duration-300 open:shadow-lg">
                                 <summary class="flex justify-between items-center cursor-pointer p-6 font-serif text-xl font-medium text-hoanien-text/80 outline-none select-none hover:text-hoanien-text transition-colors">
                                     <div class="flex items-center gap-3">
                                         <span class="material-symbols-outlined">history</span>
@@ -514,7 +517,7 @@
                                 <div class="px-6 pb-6 pt-2 border-t border-hoanien-text/5">
                                     <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start mt-4">
                                         <th:block th:each="tb : ${tourBookings}" th:if="${!#lists.contains({'PENDING', 'CONFIRMED', 'IN_PROGRESS'}, #strings.toUpperCase(tb.bookingStatus))}">
-                                            <div class="flex flex-col p-6 border border-hoanien-text/10 rounded-2xl bg-white/40 hover:bg-white/80 hover:shadow-xl transition-all duration-300 group opacity-60 grayscale">
+                                            <div class="flex flex-col p-6 border border-hoanien-text/10 rounded-2xl bg-white hover:shadow-xl transition-all duration-300 group opacity-60 grayscale">
                                                 <div class="flex gap-5 mb-4">
                                                     <div class="w-32 h-24 shrink-0 rounded-xl bg-hoanien-text text-hoanien-bg flex flex-col items-center justify-center shadow-inner relative overflow-hidden" th:if="${tb.schedule != null}">
                                                         <span class="text-[10px] uppercase tracking-widest font-semibold opacity-70" th:text="${#temporals.format(tb.schedule.departureDate, 'MM/yyyy')}">MM/YYYY</span>
@@ -561,8 +564,6 @@
                                 </div>
                             </details>
                         </div>
-                            </div>
-                        </div>
 
                         <!-- 3. FOOD ORDERS SECTION -->
                         <div id="section-food" class="hidden space-y-3">
@@ -573,7 +574,7 @@
                             </div>
                             
                             <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start">
-                                <div th:each="fo : ${foodOrders}" class="flex flex-col border border-hoanien-text/10 rounded-2xl bg-white/40 hover:bg-white/80 hover:shadow-xl transition-all duration-300 overflow-hidden group" th:classappend="${fo.orderStatus == 'Cancelled' ? 'opacity-60 grayscale' : ''}">
+                                <div th:each="fo : ${foodOrders}" class="flex flex-col border border-hoanien-text/10 rounded-2xl bg-white hover:shadow-xl transition-all duration-300 overflow-hidden group" th:classappend="${fo.orderStatus == 'Cancelled' ? 'opacity-60 grayscale' : ''}">
                                     <div class="flex flex-col p-6 cursor-pointer relative" th:onclick="'toggleFoodDetails(\'food-detail-' + ${fo.id} + '\')'">
                                         <div class="flex items-start gap-5 min-w-0">
                                             <div class="w-20 h-20 shrink-0 rounded-xl bg-hoanien-text/5 border border-hoanien-text/10 flex flex-col items-center justify-center relative overflow-hidden">
@@ -617,7 +618,7 @@
                                     </div>
                                 
                                 <!-- Expandable Tracker -->
-                                <div th:id="'food-detail-' + ${fo.id}" class="hidden border-t border-hoanien-text/10 bg-white/60 p-6">
+                                <div th:id="'food-detail-' + ${fo.id}" class="hidden border-t border-hoanien-text/10 bg-white p-6">
                                     <h5 class="text-xs uppercase tracking-widest font-semibold mb-6 opacity-70 text-center">Trạng thái đơn hàng</h5>
                                     <div th:if="${fo.orderStatus != 'Cancelled'}" class="flex items-center justify-between relative max-w-sm mx-auto px-4">
                                         <div class="absolute top-3 left-4 right-4 h-1 bg-gray-200 -z-10 rounded-full"></div>
@@ -679,7 +680,7 @@
                             </div>
                             
                             <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start">
-                                <div th:each="tr : ${tableReservations}" class="flex flex-col p-6 border border-hoanien-text/10 rounded-2xl bg-white/40 hover:bg-white/80 hover:shadow-xl transition-all duration-300 group" th:classappend="${tr.status == 'Cancelled' ? 'opacity-60 grayscale' : ''}">
+                                <div th:each="tr : ${tableReservations}" class="flex flex-col p-6 border border-hoanien-text/10 rounded-2xl bg-white hover:shadow-xl transition-all duration-300 group" th:classappend="${tr.status == 'Cancelled' ? 'opacity-60 grayscale' : ''}">
                                     <div class="flex gap-5 mb-4">
                                         <div class="w-32 h-24 shrink-0 rounded-xl bg-hoanien-text text-hoanien-bg flex flex-col items-center justify-center shadow-inner relative overflow-hidden">
                                             <span class="text-[10px] uppercase tracking-widest font-semibold opacity-70" th:text="${#temporals.format(tr.reserveDate, 'MM/yyyy')}">MM/YYYY</span>
@@ -713,15 +714,16 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
+                        </div> <!-- closes section-tables -->
+                    </div> <!-- closes tab-bookings -->
+                </div> <!-- closes Main Content Area wrapper -->
 
             </div>
         </section>
     </main>
 
     <!-- Booking Detail Modal -->
-    <div id="bookingDetailModal" class="hidden fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+    <div id="bookingDetailModal" class="hidden fixed inset-0 z-[100] bg-black/50 flex items-center justify-center p-4">
         <div class="bg-hoanien-bg text-hoanien-text rounded-xl shadow-xl max-w-lg w-full overflow-hidden border border-hoanien-text/10">
             <div class="p-6 border-b border-hoanien-text/10 flex justify-between items-center">
                 <h3 class="font-serif text-2xl">Chi tiết Đơn <span id="detailBookingId" class="text-hoanien-text/70"></span></h3>
@@ -773,7 +775,7 @@
     </div>
 
     <!-- Tour Booking Detail Modal -->
-    <div id="tourBookingDetailModal" class="hidden fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 opacity-0 transition-opacity duration-300">
+    <div id="tourBookingDetailModal" class="hidden fixed inset-0 z-[100] bg-black/50 flex items-center justify-center p-4 opacity-0 transition-opacity duration-300">
         <div class="bg-hoanien-bg text-hoanien-text rounded-2xl shadow-2xl max-w-2xl w-full overflow-hidden border border-hoanien-text/10 transform scale-95 transition-transform duration-300" id="tourBookingDetailModalContent">
             <div class="p-8 border-b border-hoanien-text/10 flex justify-between items-center bg-white/40">
                 <div>
@@ -819,7 +821,7 @@
     </div>
 
     <!-- Add Dependent Modal -->
-    <div id="addDependentModal" class="hidden fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+    <div id="addDependentModal" class="hidden fixed inset-0 z-[100] bg-black/50 flex items-center justify-center p-4">
         <div class="bg-hoanien-bg text-hoanien-text rounded-xl shadow-xl max-w-md w-full overflow-hidden border border-hoanien-text/10">
             <div class="p-6 border-b border-hoanien-text/10 flex justify-between items-center">
                 <h3 class="font-serif text-2xl">Thêm người đi cùng</h3>
@@ -855,7 +857,7 @@
     </div>
 
     <!-- Pre-Checkin Modal -->
-    <div id="preCheckinModal" class="hidden fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+    <div id="preCheckinModal" class="hidden fixed inset-0 z-[100] bg-black/50 flex items-center justify-center p-4">
         <div class="bg-hoanien-bg text-hoanien-text rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden border border-hoanien-text/10 flex flex-col">
             <div class="p-6 border-b border-hoanien-text/10 flex justify-between items-center bg-white">
                 <div>
@@ -1477,7 +1479,7 @@
     </script>
 
     <!-- Edit Credit Limit Modal -->
-    <div id="editCreditLimitModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden opacity-0 transition-opacity duration-300 flex items-center justify-center p-4">
+    <div id="editCreditLimitModal" class="fixed inset-0 bg-black/60 z-50 hidden opacity-0 transition-opacity duration-300 flex items-center justify-center p-4">
         <div id="editCreditLimitModalContent" class="bg-white w-full max-w-sm rounded-2xl shadow-2xl transform scale-95 transition-all duration-300 overflow-hidden">
             <div class="p-6">
                 <div class="flex justify-between items-center mb-6">
@@ -1502,7 +1504,7 @@
     </div>
 
     <!-- Tier Info Modal -->
-    <div id="tierInfoModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden opacity-0 transition-opacity duration-300 flex items-center justify-center p-4">
+    <div id="tierInfoModal" class="fixed inset-0 bg-black/60 z-50 hidden opacity-0 transition-opacity duration-300 flex items-center justify-center p-4">
         <div id="tierInfoModalContent" class="bg-white w-full max-w-md rounded-2xl shadow-2xl transform scale-95 transition-all duration-300 overflow-hidden">
             <!-- Header -->
             <div class="bg-hoanien-text p-6 text-center relative">

@@ -449,29 +449,4 @@ public class TourBookingServiceImpl implements TourBookingService {
 
                 return refundAmount;
         }
-
-
-        @jakarta.annotation.PostConstruct
-        public void clearTourBookingsData() {
-                try {
-                        LOG.info("STARTING DATA CLEANUP FOR TOUR BOOKINGS AS REQUESTED...");
-                        // 1. Delete tour attendees
-                        tourAttendeeRepository.deleteAll();
-
-                        // 2. Delete folio items that are linked to tour bookings
-                        List<TourBooking> tbs = tourBookingRepository.findAll();
-                        for (TourBooking tb : tbs) {
-                                List<FolioItem> fis = folioItemRepository.findByBookingId(tb.getId());
-                                if (fis != null && !fis.isEmpty()) {
-                                        folioItemRepository.deleteAll(fis);
-                                }
-                        }
-
-                        // 3. Delete tour bookings
-                        tourBookingRepository.deleteAll();
-                        LOG.info("TOUR BOOKINGS DATA CLEANUP COMPLETED SUCCESSFULLY.");
-                } catch (Exception e) {
-                        LOG.error("Failed to clean up tour bookings: " + e.getMessage());
-                }
-        }
 }

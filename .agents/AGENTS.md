@@ -19,3 +19,9 @@ Là một trợ lý AI, sau khi giải quyết xong một bug khó, hoàn thành
 | `agent-efficiency-protocol` | **Quy tắc CÁCH gọi tool** (đọc/sửa) trong mọi bước. |
 | `large-file-patching-strategy` | Chi tiết hóa bước sửa khi file >150 dòng. |
 | `frontend-integrity` / `db-seeding-integrity` | Checklist chuyên biệt, chỉ nạp khi đụng đúng vùng (UI / seed data). |
+
+## 🛑 HARD-STOP RULE (Ràng buộc cứng cho Agent)
+**ĐỌC KỸ VÀ TUÂN THỦ TUYỆT ĐỐI VỚI MỌI REQUEST MỚI:**
+1. Trừ khi đang tiếp tục một task dang dở, nếu nhận một prompt mới từ user bắt đầu một task, tool call ĐẦU TIÊN của bạn BẮT BUỘC phải là `view_file` để đọc `context-first-quality/SKILL.md`. 
+2. Tuyệt đối KHÔNG ĐƯỢC phép gọi các lệnh terminal (`run_command`), không được đọc source code, không sửa file cho đến khi bạn đã nạp đủ ngữ cảnh từ các skill liên quan.
+3. Việc vi phạm nguyên tắc này (nhảy vào chạy lệnh luôn) là KHÔNG THỂ CHẤP NHẬN ĐƯỢC.

@@ -21,5 +21,9 @@ description: Tối ưu hóa việc sử dụng công cụ (Tool Usage) để đ�
 - **KHÔNG dùng `sed` hay `awk` để sửa code qua Terminal**: Các tool chuyên dụng có cơ chế safety/diff review an toàn hơn nhiều. Trừ phi bạn cần chạy một đoạn regex đổi tên/sửa hàng loạt trên hàng chục file cùng lúc thì mới được viết script Python/PowerShell tự động.
 
 ## 3. Tối ưu Compile & Debug (Build & Feedback Loop)
-- **Chạy Test chọn lọc**: Thay vì gõ lệnh `mvn test` hay `npm run test` quét toàn bộ project mất hàng phút, hãy chạy đích danh file test liên quan (ví dụ: `mvn test -Dtest=ClassName`) để vòng lặp 피드백 (feedback loop) chỉ mất vài giây.
+- **Chạy Test chọn lọc**: Thay vì gõ lệnh `mvn test` hay `npm run test` quét toàn bộ project mất hàng phút, hãy chạy đích danh file test liên quan (ví dụ: `mvn test -Dtest=ClassName`) để vòng lặp phản hồi (feedback loop) chỉ mất vài giây.
 - **Gom nhóm sửa đổi**: Hãy phân tích liên đới toàn diện, sửa một lúc các file liên quan (Controller -> Service -> Repo -> UI), rà soát logic thật kỹ rồi mới chạy lệnh Build/Test. Việc sửa 1 file -> Build -> Lỗi -> Sửa file khác -> Build lại là một anti-pattern cực kỳ lãng phí thời gian chờ (idle time).
+
+## 4. Dọn dẹp Workspace (Clean Workspace)
+- **Xóa ngay file tạm/scripts**: Mọi file script viết tạm (ví dụ python, powershell script) dùng để fix bug, patch data hoặc test thử logic PHẢI ĐƯỢC XÓA NGAY LẬP TỨC bằng lệnh terminal (`Remove-Item` hoặc `rm`) ngay khi sử dụng xong. 
+- Việc để lại các file rác này trong source code (workspace) là hành vi cẩu thả, gây nhiễu cho user và rác repo. Môi trường làm việc lúc hoàn thành task phải sạch sẽ đúng như lúc bắt đầu.
