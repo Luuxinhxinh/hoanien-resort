@@ -127,13 +127,28 @@
       <!-- INFO BOX -->
       <div class="info-box">
         <p class="info-box-title">Chi tiết giao dịch hoàn tiền:</p>
-        <ul>
-          <li><strong>Mã đơn hàng bị hủy:</strong> <span th:text="${orderId}">ORD-000</span></li>
-          <li><strong>Thời gian hoàn tiền:</strong> <span th:text="${refundTime}">01/01/2026 12:00</span></li>
-          <li><strong>Ngân hàng thụ hưởng:</strong> <span th:text="${bankName}">[Tên Ngân Hàng]</span></li>
-          <li><strong>Số tài khoản:</strong> <span th:text="${accountNumber}">[Số Tài Khoản]</span></li>
-          <li><strong>Số tiền hoàn trả:</strong> <strong class="amount" th:text="${refundAmount} + ' ₫'">0 ₫</strong></li>
-        </ul>
+        <table class="info-table">
+          <tr>
+            <td class="info-label">Mã đơn hàng bị hủy:</td>
+            <td class="info-value" th:text="${orderId}">ORD-000</td>
+          </tr>
+          <tr>
+            <td class="info-label">Thời gian hoàn tiền:</td>
+            <td class="info-value" th:text="${refundTime}">01/01/2026 12:00</td>
+          </tr>
+          <tr>
+            <td class="info-label">Ngân hàng thụ hưởng:</td>
+            <td class="info-value" th:text="${bankName}">[Tên Ngân Hàng]</td>
+          </tr>
+          <tr>
+            <td class="info-label">Số tài khoản:</td>
+            <td class="info-value" th:text="${accountNumber}">[Số Tài Khoản]</td>
+          </tr>
+          <tr>
+            <td class="info-label">Số tiền hoàn trả:</td>
+            <td class="info-value highlight" th:text="${refundAmount} + ' ₫'">0 ₫</td>
+          </tr>
+        </table>
       </div>
 
       <p class="closing">
