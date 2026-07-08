@@ -1,11 +1,7 @@
-<!DOCTYPE html>
-<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+import os
+import re
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Thông báo hủy tour</title>
-  <style>
+css = """<style>
     @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500;600&display=swap');
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -52,8 +48,8 @@
     .note-box, .warning-box { border-left: 3px solid #f0ca56; padding: 16px 20px; margin-bottom: 28px; font-size: 13px; color: rgba(255, 255, 255, 0.9); line-height: 1.85; background: rgba(240, 202, 86, 0.05); }
     .note-box .note-title, .warning-box .warning-title { display: block; margin-bottom: 10px; font-size: 10px; font-weight: 600; letter-spacing: 2.5px; text-transform: uppercase; color: #e5c494; }
     .note-box strong, .warning-box strong { color: #f0ca56; font-weight: 600; }
-    .warning-box { border-left-color: #ff6b6b; background: rgba(239, 68, 68, 0.05); }
-    .warning-box .warning-title { color: #ff6b6b; }
+    .warning-box { border-left-color: #ef4444; background: rgba(239, 68, 68, 0.05); }
+    .warning-box .warning-title { color: #ef4444; }
     
     .closing-text, .closing, .intro, p.info-box-title { font-size: 13px; font-weight: 400; color: rgba(255, 255, 255, 0.85); line-height: 1.9; margin-bottom: 20px; }
     .closing-text strong, .closing strong, .signoff strong { font-weight: 600; color: #f0ca56; }
@@ -77,113 +73,44 @@
     .action-button { display: inline-block; background-color: #f0ca56; color: #2a1f14 !important; font-size: 13px; font-weight: 600; text-decoration: none; padding: 12px 32px; border-radius: 4px; margin: 10px 0 20px; letter-spacing: 0.5px; }
 
     @media (max-width: 480px) { .body, .header, .hero, .footer { padding: 28px 24px; } .info-label { min-width: 130px; } .info-row { flex-direction: column; gap: 3px; } }
-</style>
-</head>
+</style>"""
 
-<body th:style="'font-family: Inter, Helvetica Neue, Arial, sans-serif; background-color: #1a120b; color: #2a1f14;'">
-  <div class="email-outer" th:style="'background-color: #1a120b; padding: 40px 16px; min-height: 100vh;'">
-    <div class="wrapper">
+def process_file(filepath):
+    with open(filepath, 'r', encoding='utf-8') as f:
+        content = f.read()
 
-      <!-- Header -->
-      <div class="header">
-        <div class="brand">Hòa Niên</div>
-        <div class="logo-text">Retreat Resort & Hub</div>
-      </div>
-
-      <!-- Hero -->
-      <div class="hero">
-        <span class="icon" th:if="${!cancelledByResort}">✦</span>
-        <span class="icon" th:if="${cancelledByResort}">⚠️</span>
-        <h1>Thông báo hủy tour</h1>
-        <p th:if="${!cancelledByResort}">Hành trình của Quý khách đã được hủy theo yêu cầu</p>
-        <p th:if="${cancelledByResort}">Hành trình của Quý khách đã bị hủy do thay đổi từ hệ thống</p>
-      </div>
-
-      <!-- Body -->
-      <div class="body">
-
-        <p class="greeting">
-          Kính gửi <strong th:text="${customerName}">Quý khách</strong>,<br /><br />
-          <span th:if="${!cancelledByResort}">Chúng tôi xin xác nhận yêu cầu hủy tour của Quý khách đã được xử lý thành công. Dưới đây là thông tin chi tiết.</span>
-          <span th:if="${cancelledByResort}">Rất tiếc vì sự bất tiện này, Hòa Niên buộc phải thông báo hủy chuyến đi của Quý khách vì lý do bất khả kháng. Chúng tôi đã tiến hành hoàn trả chi phí. Dưới đây là thông tin chi tiết.</span>
-        </p>
-
-        <div class="divider-line"></div>
-
-        <!-- Booking Info Card -->
-        <div class="section-label">Chi tiết chuyến đi đã hủy</div>
-        <div class="booking-card">
-          <div class="booking-card-header">
-            <span class="card-title">Thông tin tour</span>
-            <span class="booking-id" th:text="'#' + ${bookingId}">#12345</span>
-          </div>
-          <div class="booking-card-body">
-            <div class="info-row">
-              <span class="info-label">Tên tour:</span>
-              <span class="info-value highlight" th:text="${tourName}">Hành trình Đoàn Tụ</span>
-            </div>
-            <div class="info-row">
-              <span class="info-label">Ngày khởi hành:</span>
-              <span class="info-value" th:text="${departureDate}">10/07/2026</span>
-            </div>
-            <div class="info-row">
-              <span class="info-label">Trạng thái hiện tại:</span>
-              <span class="info-value cancelled">Đã Hủy ✕</span>
-            </div>
-            <div class="info-row" th:if="${refundAmount != null and refundAmount != '0 ₫'}">
-              <span class="info-label">Số tiền hoàn lại:</span>
-              <span class="info-value refund" th:text="${refundAmount}">2.250.000 ₫</span>
-            </div>
-            <div class="info-row" th:if="${refundAmount == null or refundAmount == '0 ₫'}">
-              <span class="info-label">Số tiền hoàn lại:</span>
-              <span class="info-value">0 ₫ (Chưa đủ điều kiện hoàn trả theo quy định)</span>
-            </div>
-            <div class="info-row" th:if="${cancelReason != null}">
-              <span class="info-label">Lý do hủy:</span>
-              <span class="info-value" th:text="${cancelReason}">Lý do cá nhân</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="divider-line"></div>
-
-        <!-- Note -->
-        <div class="note-box" th:if="${refundAmount != null and refundAmount != '0 ₫'}">
-          <span class="note-title">Lưu ý về hoàn tiền</span>
-          • Số tiền hoàn lại sẽ được chuyển trả vào phương thức thanh toán gốc của Quý khách.<br />
-          • Vui lòng chờ <strong>3-7 ngày làm việc</strong> để ngân hàng xử lý giao dịch.
-        </div>
+    # 1. Replace <style> block
+    if '<style>' in content:
+        content = re.sub(r'<style>.*?</style>', css, content, flags=re.DOTALL)
+    elif '</head>' in content:
+        content = content.replace('</head>', css + '\n</head>')
         
-        <div class="note-box" th:if="${refundAmount == null or refundAmount == '0 ₫'}">
-          <span class="note-title">Lưu ý về quy định hủy</span>
-          Do thời điểm hủy nằm trong khoảng thời gian sát giờ khởi hành, hệ thống không áp dụng hoàn trả chi phí theo đúng chính sách của khu nghỉ dưỡng.
-        </div>
+    # 2. Fix body and email-outer styles
+    content = re.sub(r'<body[^>]*>', '<body th:style="\'font-family: Inter, Helvetica Neue, Arial, sans-serif; background-color: #1a120b; color: #2a1f14;\'">', content)
+    content = re.sub(r'<div class="email-outer"[^>]*>', '<div class="email-outer" th:style="\'background-color: #1a120b; padding: 40px 16px; min-height: 100vh;\'">', content)
+    
+    if 'email-outer' not in content:
+        content = content.replace('<body>', '<body th:style="\'font-family: Inter, Helvetica Neue, Arial, sans-serif; background-color: #1a120b; color: #2a1f14;\'">\n  <div class="email-outer" th:style="\'background-color: #1a120b; padding: 40px 16px; min-height: 100vh;\'">')
+        content = content.replace('</body>', '  </div>\n</body>')
 
-        <p class="closing-text">
-          Chúng tôi rất tiếc vì lỡ dở hành trình lần này. Rất mong được tiếp đón Quý khách tại <em>Hòa Niên</em> vào một dịp gần nhất.<br /><br />
-          Trân trọng,<br />
-          <strong>Đội ngũ Tour & Hospitality</strong><br />
-          <em>Hòa Niên Retreat Resort & Hub</em>
-        </p>
+    # Remove inline background=#ffffff or colors that might override
+    # Only if they were in the template.
+    content = content.replace('background: #ffffff;', '')
+    content = content.replace('background-color: #ffffff;', '')
+    content = content.replace('color: #2d2926;', '')
+    content = content.replace('color: #4b5563;', '')
+    content = content.replace('color: #ef4444;', 'color: #ff6b6b;')
+    content = content.replace('color: #9ca3af;', 'color: rgba(229,196,148,0.7);')
+    content = content.replace('background: #fbf9f6;', '')
+    content = content.replace('background: #e5e1da;', '')
+    content = content.replace('border: 1px solid #e5e1da;', '')
+    content = content.replace('border-bottom: 1px solid #e5e1da;', '')
+    content = content.replace('border-top: 1px solid #e5e1da;', '')
 
-      </div>
+    with open(filepath, 'w', encoding='utf-8') as f:
+        f.write(content)
 
-      <!-- Footer -->
-      <div class="footer">
-        <div class="resort-name">Hòa Niên</div>
-        <p>
-          📞 <span th:text="${resortPhone}">1900 xxxx</span> &nbsp;|&nbsp;
-          🌐 <a th:href="${resortWebsite}" th:text="${resortWebsite}">hoaniensorretreat.vn</a>
-        </p>
-        <div class="footer-divider"></div>
-        <p>
-          Email này được gửi tự động — vui lòng không phản hồi.<br />
-          © 2026 Hòa Niên Retreat Resort & Hub. Bảo lưu mọi quyền.
-        </p>
-      </div>
-
-    </div>
-  </div>
-</body>
-
-</html>
+folder = r"d:\SWP391\su26-swp391-se2023-g2\05-Development\kawai-backend\src\main\resources\templates\email"
+for filename in os.listdir(folder):
+    if filename.endswith(".html"):
+        process_file(os.path.join(folder, filename))
