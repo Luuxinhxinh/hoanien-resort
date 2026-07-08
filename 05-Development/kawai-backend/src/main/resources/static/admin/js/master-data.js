@@ -1245,8 +1245,8 @@ function filterPermissionsByRole(roleName) {
         }
     }
 
-    // Fallback: nếu không nhận ra tên role → show tất cả (trường hợp Admin tạo role mới)
-    if (!ceiling) ceiling = ROLE_CEILINGS['admin'];
+    // Fallback: nếu không nhận ra tên role → an toàn nhất là chỉ cho DASHBOARD
+    if (!ceiling) ceiling = ['DASHBOARD'];
 
     document.querySelectorAll('.perm-checkbox').forEach(cb => {
         const label = cb.closest('label');

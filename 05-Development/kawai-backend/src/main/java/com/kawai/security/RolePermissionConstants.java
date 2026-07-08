@@ -93,7 +93,8 @@ public class RolePermissionConstants {
 
         // RECEPTIONIST — lễ tân, tập trung check-in/out và folio
         m.put("receptionist", Arrays.asList(
-            DASHBOARD, BOOKING, HOUSEKEEPING, NIGHT_AUDIT, REVIEWS,
+            DASHBOARD, BOOKING, NIGHT_AUDIT, REVIEWS,
+            CRM,
             RECEPTION_CHECKIN, RECEPTION_CHECKOUT, RECEPTION_WALKIN, RECEPTION_INHOUSE
         ));
 
