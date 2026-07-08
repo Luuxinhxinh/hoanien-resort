@@ -31,6 +31,8 @@
                         class="hover:text-hoanien-text active:scale-95 transition-all duration-200 transition-colors">Experiences</a>
                     <a href="/tours/search"
                         class="hover:text-hoanien-text active:scale-95 transition-all duration-200 transition-colors">Tours</a>
+                    <a href="/feedback"
+                        class="hover:text-hoanien-text active:scale-95 transition-all duration-200 transition-colors">Feedback</a>
                 </div>
 
                 <!-- Center Logo -->
@@ -469,10 +471,8 @@
     </div>
 
     <!-- ============ INTERACTIVE AND AUTHENTICATION JAVASCRIPT ============ -->
-    <script th:inline="javascript">
-        // Global variables from Thymeleaf model
-        const isUserLoggedIn = /*[[${session.user != null}]]*/ false;
-    </script>
+    <!-- Note: isUserLoggedIn is declared in fragments/auth.html which is included above -->
+
     <script src="/guest/js/utils.js"></script>
     <script src="/guest/js/booking.js"></script>
 

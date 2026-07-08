@@ -85,6 +85,11 @@ public class ProfileController {
         String username = extractUsername(authentication);
         Customer customer = customerRepository.findByAccount_Username(username)
                 .orElseGet(() -> customerRepository.findByEmail(username).orElse(null));
+        if (customer != null && customer.getMembershipTier() == null) {
+            com.kawai.models.MembershipTier defaultTier = new com.kawai.models.MembershipTier();
+            defaultTier.setTierName("REGULAR");
+            customer.setMembershipTier(defaultTier);
+        }
         model.addAttribute("customer", customer);
 
         if (customer != null) {

@@ -81,7 +81,8 @@ public class SecurityConfig {
                                 "/api/bookings", "/api/bookings/**",
                                 "/api/tour-bookings", "/api/tour-bookings/**", "/api/faceid/**", "/error",
                                 "/api/v1/payments/vnpay-return", "/api/v1/payments/vnpay-ipn",
-                                "/api/v1/payments/food-order/**", "/book-table", "/receptionist/remote-scan", "/api/v1/remote-scan/**")
+                                "/api/v1/payments/food-order/**", "/book-table", "/receptionist/remote-scan", "/api/v1/remote-scan/**",
+                                "/feedback", "/feedback/**")
                         .permitAll()
 
                         .requestMatchers("/admin/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_MANAGER", "OP_MASTER_DATA", "OP_AUDIT_LOG", "OP_WORKFLOW")

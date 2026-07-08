@@ -152,6 +152,19 @@ public class TourBookingApiController {
             List<String> childAges = (List<String>) payload.get("childAges");
             request.setChildAges(childAges);
 
+            List<Map<String, Object>> companionsRaw = (List<Map<String, Object>>) payload.get("companions");
+            List<TourBookingRequest.CompanionRequest> companions = new java.util.ArrayList<>();
+            if (companionsRaw != null) {
+                for (Map<String, Object> compMap : companionsRaw) {
+                    TourBookingRequest.CompanionRequest comp = new TourBookingRequest.CompanionRequest();
+                    comp.setName((String) compMap.get("name"));
+                    comp.setAge(compMap.get("age") != null ? Integer.parseInt(compMap.get("age").toString()) : null);
+                    comp.setPhone((String) compMap.get("phone"));
+                    companions.add(comp);
+                }
+            }
+            request.setCompanions(companions);
+
             // Mã giảm giá (tùy chọn)
             String promoCode = payload.get("promoCode") != null ? payload.get("promoCode").toString() : null;
             if (promoCode != null && !promoCode.trim().isEmpty()) {
@@ -405,6 +418,7 @@ public class TourBookingApiController {
         req.setWalkInTour(template.isWalkInTour());
         req.setRoomBookingDetailId(detail.getId());
         req.setRoomBookingId(detail.getRoomBooking().getId());
+        req.setCompanions(template.getCompanions());
         return req;
     }
 }

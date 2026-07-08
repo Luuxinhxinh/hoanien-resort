@@ -644,4 +644,112 @@ public class EmailServiceImpl implements EmailService {
             logger.error("Lỗi gửi email hoàn tiền cho RefundRequest #{}: {}", refundRequest.getId(), e.getMessage());
         }
     }
+
+    @Override
+    @org.springframework.scheduling.annotation.Async
+    public void sendTourFeedbackEmail(com.kawai.models.TourBooking booking, com.kawai.models.Customer customer) {
+        if (customer == null || customer.getEmail() == null || customer.getEmail().isBlank()) {
+            logger.warn("Bỏ qua gửi email cảm ơn: customer {} không có email",
+                    customer != null ? customer.getId() : "null");
+            return;
+        }
+        try {
+            org.thymeleaf.context.Context ctx = new org.thymeleaf.context.Context(new java.util.Locale("vi", "VN"));
+            ctx.setVariable("customerName", customer.getFullName());
+            ctx.setVariable("tourName", booking.getSchedule() != null && booking.getSchedule().getTour() != null
+                    ? booking.getSchedule().getTour().getTourName() : "Hành trình trải nghiệm");
+            ctx.setVariable("bookingId", booking.getId());
+            ctx.setVariable("feedbackUrl", baseUrl + "/feedback?bookingId=" + booking.getId());
+            ctx.setVariable("resortPhone", resortPhone);
+            ctx.setVariable("resortWebsite", resortWebsite);
+
+            String html = templateEngine.process("email/tour-completed-feedback", ctx);
+            sendEmail(customer.getEmail(), "Cảm ơn bạn đã tham gia hành trình cùng HoaNien", html);
+        } catch (Exception e) {
+            logger.error("Lỗi gửi email cảm ơn và đánh giá cho booking #{}: {}", booking.getId(), e.getMessage());
+        }
+    }
+
+    @Override
+    @org.springframework.scheduling.annotation.Async
+    public void sendTourDepartureEmail(com.kawai.models.TourBooking booking, com.kawai.models.Customer customer,
+            java.util.List<com.kawai.models.TourItineraryDetail> activities) {
+        if (customer == null || customer.getEmail() == null || customer.getEmail().isBlank()) {
+            logger.warn("Bỏ qua gửi email khởi hành: customer {} không có email",
+                    customer != null ? customer.getId() : "null");
+            return;
+        }
+        try {
+            org.thymeleaf.context.Context ctx = new org.thymeleaf.context.Context(new java.util.Locale("vi", "VN"));
+            ctx.setVariable("customerName", customer.getFullName());
+
+            String tourName = "Hành trình trải nghiệm";
+            String departureDate = "";
+            String departureTime = "";
+            String guideName = "Hướng dẫn viên HoaNien";
+
+            if (booking.getSchedule() != null) {
+                com.kawai.models.TourSchedule sched = booking.getSchedule();
+                if (sched.getTour() != null) tourName = sched.getTour().getTourName();
+                if (sched.getDepartureDate() != null)
+                    departureDate = sched.getDepartureDate().format(DATE_FMT);
+                if (sched.getDepartureTime() != null)
+                    departureTime = sched.getDepartureTime().toString().substring(0, 5);
+            }
+
+            ctx.setVariable("tourName", tourName);
+            ctx.setVariable("departureDate", departureDate);
+            ctx.setVariable("departureTime", departureTime);
+            ctx.setVariable("guideName", guideName);
+            ctx.setVariable("activities", activities != null ? activities : java.util.Collections.emptyList());
+            ctx.setVariable("resortPhone", resortPhone);
+            ctx.setVariable("resortWebsite", resortWebsite);
+
+            String html = templateEngine.process("email/tour-departure-notification", ctx);
+            sendEmail(customer.getEmail(),
+                    "🚀 Hành trình " + tourName + " đã bắt đầu – Lịch trình chi tiết", html);
+        } catch (Exception e) {
+            logger.error("Lỗi gửi email khởi hành cho booking #{}: {}", booking.getId(), e.getMessage());
+        }
+    }
+
+    @Override
+    public void sendTableCancellationDueToCheckoutEmail(com.kawai.models.TableReservation reservation, com.kawai.models.Customer customer) {
+        if (customer == null || customer.getEmail() == null || customer.getEmail().isEmpty()) {
+            return;
+        }
+
+        try {
+            java.util.Map<String, Object> model = new java.util.HashMap<>();
+            model.put("customerName", customer.getFullName() != null ? customer.getFullName() : customer.getEmail());
+            model.put("tableNumber", reservation.getTable().getTableNumber());
+            model.put("reserveDate", reservation.getReserveDate().toString());
+            model.put("reserveTime", reservation.getReserveTime().toString());
+
+            String subject = "[HOANIEN Resort] Thông báo tự động hủy lịch đặt bàn";
+
+            String htmlContent = "<div style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333;\">"
+                    + "<div style=\"background-color: #2c3e50; padding: 20px; text-align: center;\">"
+                    + "  <h2 style=\"color: #f1c40f; margin: 0;\">HOANIEN Resort</h2>"
+                    + "</div>"
+                    + "<div style=\"padding: 20px; background-color: #f9f9f9; border: 1px solid #ddd;\">"
+                    + "  <p>Kính chào <strong>" + model.get("customerName") + "</strong>,</p>"
+                    + "  <p>Do quý khách đã hoàn tất thủ tục trả phòng (Check-out), hệ thống đã tự động hủy lịch đặt bàn tại nhà hàng của chúng tôi với chi tiết như sau:</p>"
+                    + "  <ul style=\"list-style-type: none; padding: 0;\">"
+                    + "    <li style=\"margin-bottom: 10px;\"><strong>Bàn:</strong> " + model.get("tableNumber") + "</li>"
+                    + "    <li style=\"margin-bottom: 10px;\"><strong>Ngày đặt:</strong> " + model.get("reserveDate") + "</li>"
+                    + "    <li style=\"margin-bottom: 10px;\"><strong>Giờ đặt:</strong> " + model.get("reserveTime") + "</li>"
+                    + "  </ul>"
+                    + "  <p style=\"color: #e74c3c; font-style: italic;\">Nếu quý khách vẫn muốn dùng bữa, xin vui lòng đặt lại bàn trực tiếp tại quầy lễ tân với tư cách khách vãng lai.</p>"
+                    + "  <p>Cảm ơn quý khách đã tin tưởng và sử dụng dịch vụ của HOANIEN Resort.</p>"
+                    + "  <hr style=\"border: none; border-top: 1px solid #ddd; margin: 20px 0;\" />"
+                    + "  <p style=\"font-size: 12px; color: #777;\">Đây là email tự động, vui lòng không phản hồi.</p>"
+                    + "</div>"
+                    + "</div>";
+
+            sendEmail(customer.getEmail(), subject, htmlContent);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }

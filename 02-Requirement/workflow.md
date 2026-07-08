@@ -395,8 +395,8 @@ flowchart TD
 
 ## WF-06 — Đặt Tour & Điểm danh AI
 
-**Use Cases:** UC20, UC21, UC22
-**Business Rules:** BR-TR-01, BR-TR-02, BR-TR-05
+**Use Cases:** UC20, UC21, UC22, UC21.1, UC21.2
+**Business Rules:** BR-TR-01, BR-TR-02, BR-TR-05, BR-TR-10, BR-TR-11
 **Actors:** Customer, Tour Guide, Admin, System
 
 ```mermaid
@@ -408,30 +408,47 @@ flowchart TD
     T4 --> T5{Đã đăng nhập?}
     T5 -->|Chưa| LOGIN[Chuyển Login]
     LOGIN --> T5
-    T5 -->|Rồi| T6[Nhập số vé\nvà thông tin hành khách]
-    T6 --> CAP{Số ghế đặt ≤\nmax_capacity - booked_seats?\nTRG_Tour_Capacity_Validator\nBR-TR-01}
+    T5 -->|Rồi| T6[Nhập số vé người lớn & trẻ em]
+    
+    T6 --> T6_COMP{Tổng người lớn > 1?\nBR-TR-10}
+    T6_COMP -->|Có| T6_COMP_FORM[Nhập thông tin người đi kèm:\nHọ tên, tuổi >=12, SĐT]
+    T6_COMP -->|Không| T6_CHILD{Có trẻ em?}
+    T6_COMP_FORM --> T6_CHILD
+    
+    T6_CHILD -->|Có| T6_CHILD_FORM[Khai báo độ tuổi trẻ em:\ndưới 2 tuổi hoặc 2-11 tuổi]
+    T6_CHILD -->|Không| CAP
+    T6_CHILD_FORM --> CAP{Số ghế đặt ≤\nmax_capacity - booked_seats?\nTRG_Tour_Capacity_Validator\nBR-TR-01}
+    
     CAP -->|Vượt sức chứa| ERR_CAP[Lỗi: Hết chỗ\nTRG_Tour_Capacity_Validator]
     ERR_CAP --> T4
-    CAP -->|Còn chỗ| PAY{Hình thức\nthanh toán?}
-
+    CAP -->|Còn chỗ| INS_REQ{Tour yêu cầu\nbảo hiểm?\nisInsuranceRequired\nBR-TR-11}
+    
+    INS_REQ -->|Có| INS_CHK{Khách đồng ý\nmua bảo hiểm?\ninsuranceConsent}
+    INS_REQ -->|Không| PAY
+    
+    INS_CHK -->|Không| ERR_INS[Lỗi: Chặn đặt tour\nMã lỗi TOUR-INS-001]
+    ERR_INS --> T4
+    INS_CHK -->|Có| INS_PROCESS[Cộng phí bảo hiểm đơn lẻ x số người.\nSinh mã Policy Number đoàn dạng\nINS-Ngày-SCH_ID-XXXX\nBR-TR-11]
+    INS_PROCESS --> PAY{Hình thức\nthanh toán?}
+    
     PAY -->|VNPay trực tiếp| VNP[Chuyển VNPay Payment]
     VNP --> VNP2{Thành công?}
     VNP2 -->|Thất bại| ERR_PAY[Lỗi thanh toán]
     ERR_PAY --> PAY
     VNP2 -->|Thành công| CONF
-
+    
     PAY -->|Post-to-Room| PTR[PIN + Credit Limit\nBR-FB-01]
     PTR --> PTR2{Hợp lệ?}
     PTR2 -->|Không| ERR_PTR[Lỗi xác thực]
     ERR_PTR --> PAY
     PTR2 -->|Có| CONF
-
-    CONF[INSERT Tour_Bookings\n+ INSERT Tour_Attendees\nstatus = Confirmed] --> SEATS[UPDATE Tour_Schedules\nbooked_seats += count\nTRG_Update_Tour_Booked_Seats]
+    
+    CONF[INSERT Tour_Bookings\n+ INSERT Dependents cho companions\n+ INSERT Tour_Attendees tương ứng\nstatus = Confirmed\nBR-TR-10] --> SEATS[UPDATE Tour_Schedules\nbooked_seats += count\nTRG_Update_Tour_Booked_Seats]
     SEATS --> ETICKET[Gửi e-Ticket qua Email]
     ETICKET --> DONE_BOOK([Đặt Tour thành công])
-
+    
     subgraph ATTEND["Điểm danh ngày khởi hành - BR-TR-02"]
-        A1([Tour Guide mở\nCamera AI]) --> A2[Chụp ảnh hành khách]
+        A1([Tour Guide mở\nCamera AI]) --> A2[Chụp ảnh hành khách / người đi kèm]
         A2 --> A3[Upload ảnh lên\nkawai-ai-service Python]
         A3 --> A4[AI trích xuất\n128-dim face vector]
         A4 --> A5{Cosine Similarity\n≥ 0.85?\nBR-TR-02}
@@ -440,10 +457,12 @@ flowchart TD
         A7 --> A6
         A6 --> A8([Điểm danh OK])
     end
-
+    
     style CAP fill:#ff4444,color:#fff
     style CONF fill:#0066cc,color:#fff
     style A5 fill:#ff9900,color:#fff
+    style INS_CHK fill:#ff9900,color:#fff
+    style ERR_INS fill:#ff4444,color:#fff
 ```
 
 > **Business Rules áp dụng:**
@@ -451,6 +470,8 @@ flowchart TD
 > - `BR-TR-01` — TRG_Tour_Capacity_Validator chặn overbooking tour
 > - `BR-TR-02` — Cosine Similarity ≥ 0.85; fallback manual điểm danh
 > - `BR-TR-05` — Auto-cancel 24h trước nếu dưới ngưỡng min_participants
+> - `BR-TR-10` — Đăng ký người đi cùng (Companions) và Điểm danh bằng FaceID
+> - `BR-TR-11` — Luồng Nghiệp vụ Bảo hiểm du lịch cho Tour
 
 ---
 

@@ -168,7 +168,6 @@ public class FolioRestController {
 
         if (deposit.compareTo(BigDecimal.ZERO) == 0 && detail.getRoomBooking().getDepositAmount() != null) {
             deposit = detail.getRoomBooking().getDepositAmount();
-            totalPayments = totalPayments.add(deposit);
         }
 
         BigDecimal otherPayments = totalPayments.subtract(deposit);
@@ -368,6 +367,7 @@ public class FolioRestController {
      * UC21.3 & UC22.1 - Gom Folio và Tất toán (Có xử lý Payment & Invoice)
      */
     @PostMapping("/room/{roomBookingDetailId}/checkout")
+    @org.springframework.transaction.annotation.Transactional
     public ResponseEntity<?> checkoutFolio(@PathVariable Long roomBookingDetailId,
             @RequestBody(required = false) Map<String, Object> payload,
             HttpServletRequest httpRequest) {
@@ -484,34 +484,16 @@ public class FolioRestController {
                 }
             }
 
-            BigDecimal legacyDepositUsed = BigDecimal.ZERO;
             if (booking != null && booking.getDepositAmount() != null) {
                 BigDecimal deposit = booking.getDepositAmount();
                 if (deposit.compareTo(BigDecimal.ZERO) > 0) {
-                    BigDecimal recDep = BigDecimal.ZERO;
-                    try {
-                        List<PaymentTransaction> pts = paymentService.getPaymentsByBookingId(booking.getId());
-                        if (pts != null) {
-                            for (PaymentTransaction pt : pts) {
-                                if (pt.getStatus() == PaymentStatus.SUCCESS && "Deposit".equalsIgnoreCase(pt.getTransactionType())) {
-                                    recDep = recDep.add(pt.getAmount());
-                                }
-                            }
-                        }
-                    } catch (Exception e) {}
-
-                    BigDecimal used = BigDecimal.ZERO;
                     if (finalBalance.compareTo(deposit) <= 0) {
-                        used = finalBalance;
+                        BigDecimal used = finalBalance;
                         finalBalance = BigDecimal.ZERO;
                         booking.setDepositAmount(deposit.subtract(used));
                     } else {
-                        used = deposit;
                         finalBalance = finalBalance.subtract(deposit);
                         booking.setDepositAmount(BigDecimal.ZERO);
-                    }
-                    if (recDep.compareTo(BigDecimal.ZERO) == 0) {
-                        legacyDepositUsed = used;
                     }
                 }
             }
@@ -557,6 +539,10 @@ public class FolioRestController {
                         if ("Checked_In".equalsIgnoreCase(d.getDetailStatus())) {
                             d.setDetailStatus("Checked_Out");
                             roomBookingDetailRepository.save(d);
+                            
+                            if (d.getRoomBooking() != null && d.getRoomBooking().getCustomer() != null) {
+                                eventPublisher.publishEvent(new com.kawai.events.CustomerCheckedOutEvent(this, d.getRoomBooking().getCustomer()));
+                            }
 
                             Room room = d.getRoom();
                             if (room != null) {
@@ -577,6 +563,10 @@ public class FolioRestController {
                 } else {
                     detail.setDetailStatus("Checked_Out");
                     roomBookingDetailRepository.save(detail);
+                    
+                    if (detail.getRoomBooking() != null && detail.getRoomBooking().getCustomer() != null) {
+                        eventPublisher.publishEvent(new com.kawai.events.CustomerCheckedOutEvent(this, detail.getRoomBooking().getCustomer()));
+                    }
 
                     // 2. Thay đổi trạng thái phòng vật lý qua Dirty (hoặc theo cấu hình workflow)
                     Room room = detail.getRoom();
@@ -658,16 +648,6 @@ public class FolioRestController {
                         paymentMethod,
                         initialStatus,
                         txnRef);
-            }
-            if (legacyDepositUsed != null && legacyDepositUsed.compareTo(BigDecimal.ZERO) > 0) {
-                paymentService.recordPayment(
-                        invoice,
-                        detail.getRoomBooking(),
-                        legacyDepositUsed,
-                        "Deposit",
-                        "SYSTEM",
-                        PaymentStatus.SUCCESS,
-                        "DEP-MIGRATE-" + System.currentTimeMillis());
             }
 
             // 5. Sinh file PDF hóa đơn và gửi email (Sử dụng Service) nếu đã thanh toán
@@ -772,7 +752,6 @@ public class FolioRestController {
 
         // Subtract all successful payments
         BigDecimal totalPayments = BigDecimal.ZERO;
-        BigDecimal recordedDeposit = BigDecimal.ZERO;
         try {
             List<PaymentTransaction> payments = paymentService.getPaymentsByBookingId(booking.getId());
             if (payments != null) {
@@ -780,18 +759,11 @@ public class FolioRestController {
                     if (pt.getStatus() == PaymentStatus.SUCCESS) {
                         if (pt.getAmount() != null) {
                             totalPayments = totalPayments.add(pt.getAmount());
-                            if ("Deposit".equalsIgnoreCase(pt.getTransactionType())) {
-                                recordedDeposit = recordedDeposit.add(pt.getAmount());
-                            }
                         }
                     }
                 }
             }
         } catch (Exception e) {
-        }
-        
-        if (recordedDeposit.compareTo(BigDecimal.ZERO) == 0 && booking.getDepositAmount() != null) {
-            totalPayments = totalPayments.add(booking.getDepositAmount());
         }
 
         BigDecimal outstanding = totalCharges.multiply(new BigDecimal("1.10")).subtract(totalPayments);

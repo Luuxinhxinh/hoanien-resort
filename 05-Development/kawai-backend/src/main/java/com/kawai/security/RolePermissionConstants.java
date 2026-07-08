@@ -17,6 +17,7 @@ public class RolePermissionConstants {
     public static final String MASTER_DATA     = "MASTER_DATA";
     public static final String AUDIT_LOG       = "AUDIT_LOG";
     public static final String REVIEWS         = "REVIEWS";
+    public static final String BOOKING         = "BOOKING";
     public static final String FNB             = "FNB";
     public static final String HOUSEKEEPING    = "HOUSEKEEPING";
     public static final String MAINTENANCE     = "MAINTENANCE";
@@ -43,6 +44,7 @@ public class RolePermissionConstants {
     static {
         Map<String, String> m = new LinkedHashMap<>();
         m.put(DASHBOARD,    "Dashboard Tổng Quan");
+        m.put(BOOKING,      "Quản lý Đặt phòng");
         m.put(FNB,          "Quản lý F&B (Nhà hàng)");
         m.put(TOUR,         "Quản lý Tour");
         m.put(HOUSEKEEPING, "Buồng phòng (Housekeeping)");
@@ -77,48 +79,45 @@ public class RolePermissionConstants {
 
         // ADMIN — được hết
         m.put("admin", Arrays.asList(
-            DASHBOARD, MASTER_DATA, AUDIT_LOG, REVIEWS, 
+            DASHBOARD, MASTER_DATA, AUDIT_LOG, REVIEWS, BOOKING,
             FNB, HOUSEKEEPING, MAINTENANCE, WORKFLOW, CRM,
-            PROMOTIONS, NIGHT_AUDIT, TOUR, ANALYTICS
+            PROMOTIONS, NIGHT_AUDIT, TOUR, ANALYTICS,
+            RECEPTION_CHECKIN, RECEPTION_CHECKOUT, RECEPTION_WALKIN, RECEPTION_INHOUSE,
+            FNB_ORDER, FNB_TABLE, FNB_ROOM_SERVICE, FNB_REPORT
         ));
 
         // MANAGER — gần giống Admin, không có phân quyền RBAC
         m.put("manager", Arrays.asList(
-            DASHBOARD, FNB, TOUR, HOUSEKEEPING,
+            DASHBOARD, BOOKING, FNB, TOUR, HOUSEKEEPING,
             MAINTENANCE, NIGHT_AUDIT, ANALYTICS, REVIEWS, CRM,
-            PROMOTIONS, WORKFLOW
+            PROMOTIONS, WORKFLOW,
+            RECEPTION_CHECKIN, RECEPTION_CHECKOUT, RECEPTION_WALKIN, RECEPTION_INHOUSE,
+            FNB_ORDER, FNB_TABLE, FNB_ROOM_SERVICE, FNB_REPORT
         ));
 
-        // RECEPTIONIST — lễ tân, tập trung vào các giao diện nghiệp vụ cụ thể:
-        //   walk-in, check-in, folio/check-out, in-house, night-audit, housekeeping-ops
+        // RECEPTIONIST — lễ tân, tập trung check-in/out và folio
         m.put("receptionist", Arrays.asList(
-            DASHBOARD,
-            RECEPTION_WALKIN,
-            RECEPTION_CHECKIN,
-            RECEPTION_CHECKOUT,
-            RECEPTION_INHOUSE,
-            NIGHT_AUDIT,
-            HOUSEKEEPING
+            DASHBOARD, BOOKING, HOUSEKEEPING, NIGHT_AUDIT, REVIEWS,
+            RECEPTION_CHECKIN, RECEPTION_CHECKOUT, RECEPTION_WALKIN, RECEPTION_INHOUSE
         ));
 
-        // F&B POS STAFF — thu ngân nhà hàng: tạo order, quản lý bàn, room service
+        // F&B KITCHEN / FNB — thu ngân bếp, chỉ nhà hàng
         m.put("f&b", Arrays.asList(
-            DASHBOARD, FNB_ORDER, FNB_TABLE, FNB_ROOM_SERVICE
+            DASHBOARD, FNB, FNB_ORDER, FNB_TABLE, FNB_ROOM_SERVICE, FNB_REPORT
         ));
         m.put("fnb", Arrays.asList(
-            DASHBOARD, FNB_ORDER, FNB_TABLE, FNB_ROOM_SERVICE
+            DASHBOARD, FNB, FNB_ORDER, FNB_TABLE, FNB_ROOM_SERVICE, FNB_REPORT
         ));
-        // F&B KITCHEN STAFF — chỉ xem và cập nhật order, không cần quản lý bàn
         m.put("kitchen", Arrays.asList(
-            DASHBOARD, FNB_ORDER
+            DASHBOARD, FNB, FNB_ORDER, FNB_TABLE, FNB_ROOM_SERVICE, FNB_REPORT
         ));
 
-        // HOUSEKEEPING — chỉ xem & cập nhật trạng thái buồng phòng
+        // HOUSEKEEPING — buồng phòng
         m.put("housekeeping", Arrays.asList(
             DASHBOARD, HOUSEKEEPING
         ));
 
-        // TOURGUIDE — xem lịch tour và danh sách khách
+        // TOURGUIDE — hướng dẫn viên
         m.put("tourguide", Arrays.asList(
             DASHBOARD, TOUR
         ));

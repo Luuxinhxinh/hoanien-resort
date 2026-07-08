@@ -124,14 +124,23 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // UX: Bấm vào bất kỳ đâu trên dòng cũng sẽ toggle
+    // UX: Bấm vào bất kỳ đâu trên dòng
+    // - Role Management: click thẳng vào row → mở modal chỉnh sửa (không cần nhấn nút)
+    // - Các tab khác: click row → toggle chọn (bulk action)
     document.querySelectorAll("tbody tr[data-id]").forEach(tr => {
         tr.style.cursor = 'pointer';
         tr.style.transition = 'background-color 0.2s ease';
         tr.addEventListener("click", (e) => {
             // Không trigger nếu bấm vào button, input hoặc thẻ a
             if (e.target.closest('button') || e.target.closest('a') || e.target.tagName === 'INPUT') return;
-            
+
+            if (activeTab === 'Role Management') {
+                // Mở thẳng modal edit khi click vào dòng ở tab Phân quyền
+                const rowId = tr.dataset.id;
+                if (rowId) openEditModal(rowId);
+                return;
+            }
+
             const isSelected = tr.classList.toggle('row-selected');
             if (isSelected) {
                 tr.style.backgroundColor = 'rgba(201, 169, 110, 0.15)';
@@ -594,7 +603,8 @@ function openEditModal(id) {
         // After populating all fields, filter permission checkboxes for Role Management
         if (activeTab === 'Role Management') {
             const nameInput = form.querySelector('[name="name"]');
-            if (nameInput && nameInput.value) filterPermissionsByRole(nameInput.value);
+            const currentPerms = form.querySelector('[name="permissions"]')?.value || '';
+            filterPermissionsByRole(nameInput?.value || '', currentPerms);
         }
 
         if (activeTab === "Rooms") {
@@ -764,6 +774,120 @@ function handleFormSubmit(event) {
     if (typeof showToast === "function") {
         showToast(isEdit ? "Cập nhật thành công!" : "Thêm mới thành công!", "success");
     }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// filterPermissionsByRole — Khoá checkbox không thuộc role và tick đúng quyền
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Định nghĩa các quyền được phép chỉnh sửa (không bị khoá) cho từng vai trò.
+ * Admin được toàn bộ, các role còn lại chỉ được các quyền thuộc giao diện của họ.
+ */
+const ROLE_ALLOWED_PERMISSIONS = {
+    // Admin: mọi quyền (không khoá gì)
+    admin: [
+        'DASHBOARD','MASTER_DATA','AUDIT_LOG','REVIEWS','FNB','HOUSEKEEPING',
+        'MAINTENANCE','WORKFLOW','CRM','PROMOTIONS','NIGHT_AUDIT','TOUR','ANALYTICS',
+        'RECEPTION_CHECKIN','RECEPTION_CHECKOUT','RECEPTION_WALKIN','RECEPTION_INHOUSE',
+        'FNB_ORDER','FNB_TABLE','FNB_ROOM_SERVICE','FNB_REPORT'
+    ],
+    // Manager: quyền quản lý nghiệp vụ, không có MASTER_DATA/AUDIT_LOG
+    manager: [
+        'DASHBOARD','FNB','TOUR','HOUSEKEEPING','MAINTENANCE',
+        'NIGHT_AUDIT','ANALYTICS','REVIEWS','CRM','PROMOTIONS','WORKFLOW'
+    ],
+    // Receptionist: chỉ giao diện lễ tân + houseekeeping + night audit
+    receptionist: [
+        'DASHBOARD','RECEPTION_WALKIN','RECEPTION_CHECKIN','RECEPTION_CHECKOUT',
+        'RECEPTION_INHOUSE','NIGHT_AUDIT','HOUSEKEEPING'
+    ],
+    // F&B POS (thu ngân): chỉ giao diện nhà hàng
+    'f&b': ['DASHBOARD','FNB_ORDER','FNB_TABLE','FNB_ROOM_SERVICE','FNB_REPORT'],
+    fnb:   ['DASHBOARD','FNB_ORDER','FNB_TABLE','FNB_ROOM_SERVICE','FNB_REPORT'],
+    // Kitchen: chỉ xem & cập nhật order
+    kitchen: ['DASHBOARD','FNB_ORDER'],
+    // Housekeeping: chỉ quản lý buồng phòng
+    housekeeping: ['DASHBOARD','HOUSEKEEPING'],
+    // Tourguide: chỉ xem tour
+    tourguide: ['DASHBOARD','TOUR'],
+};
+
+function filterPermissionsByRole(roleName, currentPermsCsv) {
+    const nameKey = (roleName || '').toLowerCase();
+
+    // Tìm nhóm quyền khớp (so sánh partial match giống backend)
+    let allowed = null;
+    for (const [key, perms] of Object.entries(ROLE_ALLOWED_PERMISSIONS)) {
+        if (nameKey.includes(key)) {
+            allowed = perms;
+            break;
+        }
+    }
+
+    const form = document.getElementById('entity-form');
+    if (!form) return;
+
+    // Nếu là Admin, bỏ khoá toàn bộ và tick hết
+    const isAdmin = nameKey.includes('admin');
+
+    // Parse permissions hiện tại từ DB để biết cái gì đang tick
+    const dbPerms = currentPermsCsv
+        ? currentPermsCsv.split(',').map(s => s.trim()).filter(Boolean)
+        : [];
+
+    form.querySelectorAll('.perm-checkbox').forEach(cb => {
+        const val = cb.value;
+        const parentLabel = cb.closest('label');
+
+        if (isAdmin) {
+            // Admin: bỏ lock, tick hết
+            cb.disabled = false;
+            cb.checked = true;
+            if (parentLabel) {
+                parentLabel.style.opacity = '1';
+                parentLabel.style.cursor = 'pointer';
+                parentLabel.title = '';
+                // Xóa icon khoá nếu có
+                const lockIcon = parentLabel.querySelector('.perm-lock-icon');
+                if (lockIcon) lockIcon.remove();
+            }
+            return;
+        }
+
+        if (allowed !== null) {
+            const isPermitted = allowed.includes(val);
+            if (isPermitted) {
+                // Quyền hợp lệ: bỏ lock, tick theo DB (nếu DB đã có thì tick, không thì tick mặc định)
+                cb.disabled = false;
+                cb.checked = dbPerms.length > 0 ? dbPerms.includes(val) : true;
+                if (parentLabel) {
+                    parentLabel.style.opacity = '1';
+                    parentLabel.style.cursor = 'pointer';
+                    parentLabel.title = '';
+                    const lockIcon = parentLabel.querySelector('.perm-lock-icon');
+                    if (lockIcon) lockIcon.remove();
+                }
+            } else {
+                // Quyền không thuộc role: khoá lại, bỏ tick
+                cb.disabled = true;
+                cb.checked = false;
+                if (parentLabel) {
+                    parentLabel.style.opacity = '0.45';
+                    parentLabel.style.cursor = 'not-allowed';
+                    parentLabel.title = 'Quyền này không thuộc giao diện của vai trò này';
+                    // Thêm icon khoá nếu chưa có
+                    if (!parentLabel.querySelector('.perm-lock-icon')) {
+                        const lock = document.createElement('span');
+                        lock.className = 'perm-lock-icon';
+                        lock.style.cssText = 'margin-left:auto;font-size:11px;color:#aaa';
+                        lock.textContent = '🔒';
+                        parentLabel.appendChild(lock);
+                    }
+                }
+            }
+        }
+    });
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

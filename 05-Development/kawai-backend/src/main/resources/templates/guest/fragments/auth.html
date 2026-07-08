@@ -301,23 +301,23 @@
         const isUserLoggedIn = /*[[${session.user != null}]]*/ false;
 
         function togglePasswordVisibility(inputId, btnEl) {
-            const input = document.getElementById(inputId);
+            const inputs = document.querySelectorAll('#' + inputId);
             const icon = btnEl.querySelector('.material-symbols-outlined');
-            if (input && icon) {
-                if (input.type === 'password') {
-                    input.type = 'text';
-                    icon.textContent = 'visibility_off';
-                } else {
-                    input.type = 'password';
-                    icon.textContent = 'visibility';
-                }
+            if (inputs.length > 0 && icon) {
+                const isPassword = inputs[0].type === 'password';
+                inputs.forEach(input => {
+                    input.type = isPassword ? 'text' : 'password';
+                });
+                icon.textContent = isPassword ? 'visibility_off' : 'visibility';
             }
         }
 
         function openLoginModal() {
-            const m = document.getElementById('authModal');
-            if (m) {
-                m.style.display = 'flex';
+            const modals = document.querySelectorAll('#authModal');
+            if (modals.length > 0) {
+                modals.forEach(m => {
+                    m.style.display = 'flex';
+                });
                 toggleAuthView('login');
 
                 document.querySelectorAll('.redirect-input').forEach(input => {
@@ -326,9 +326,11 @@
             }
         }
         function openRegisterModal() {
-            const m = document.getElementById('authModal');
-            if (m) {
-                m.style.display = 'flex';
+            const modals = document.querySelectorAll('#authModal');
+            if (modals.length > 0) {
+                modals.forEach(m => {
+                    m.style.display = 'flex';
+                });
                 toggleAuthView('register');
 
                 document.querySelectorAll('.redirect-input').forEach(input => {
@@ -340,27 +342,33 @@
             }
         }
         function closeAuthModal() {
-            const m = document.getElementById('authModal');
-            if (m) m.style.display = 'none';
+            const modals = document.querySelectorAll('#authModal');
+            modals.forEach(m => {
+                m.style.display = 'none';
+            });
         }
         function toggleAuthView(view) {
             const sections = ['login', 'register', 'forgotPassword', 'otp', 'resetPassword'];
             sections.forEach(id => {
-                const el = document.getElementById(id + 'Section');
-                if (el) {
+                document.querySelectorAll('#' + id + 'Section').forEach(el => {
                     el.style.display = 'none';
-                }
+                });
             });
 
-            const target = document.getElementById(view + 'Section');
-            if (target) {
-                target.style.display = 'block';
+            const targets = document.querySelectorAll('#' + view + 'Section');
+            if (targets.length > 0) {
+                targets.forEach(el => {
+                    el.style.display = 'block';
+                });
             } else {
                 console.warn('Không tìm thấy section:', view + 'Section');
             }
         }
 
         document.addEventListener("DOMContentLoaded", function () {
+            // Debug check for duplicate modals
+            console.log("HoaNien Auth Modal: Found " + document.querySelectorAll('#authModal').length + " modal container(s) in DOM.");
+
             const hasError = document.querySelector('#authModal .bg-red-100');
             const hasSuccess = document.querySelector('#authModal .bg-green-100');
             const urlParams = new URLSearchParams(window.location.search);
@@ -383,22 +391,22 @@
 
             // Auto open specific modals based on URL
             if (urlParams.get('verify_otp') === 'true') {
-                const m = document.getElementById('authModal');
-                if (m) m.style.display = 'flex';
+                const modals = document.querySelectorAll('#authModal');
+                modals.forEach(m => m.style.display = 'flex');
                 toggleAuthView('otp');
-                document.getElementById('regOtpUsername').value = urlParams.get('username') || '';
+                document.querySelectorAll('#regOtpUsername').forEach(el => el.value = urlParams.get('username') || '');
                 shouldOpenModal = false;
             } else if (urlParams.get('reset_otp') === 'true' || urlParams.get('reset_password') === 'true') {
-                const m = document.getElementById('authModal');
-                if (m) m.style.display = 'flex';
+                const modals = document.querySelectorAll('#authModal');
+                modals.forEach(m => m.style.display = 'flex');
                 toggleAuthView('resetPassword');
                 shouldOpenModal = false;
             } else if (urlParams.get('register') === 'true') {
                 openRegisterModal();
                 shouldOpenModal = false;
             } else if (urlParams.get('forgot_password') === 'true') {
-                const m = document.getElementById('authModal');
-                if (m) m.style.display = 'flex';
+                const modals = document.querySelectorAll('#authModal');
+                modals.forEach(m => m.style.display = 'flex');
                 toggleAuthView('forgotPassword');
                 shouldOpenModal = false;
             }
@@ -437,36 +445,37 @@
 
             // AJAX Form Submissions
             function handleAjaxForm(formId, apiUrl, onSuccess) {
-                const form = document.getElementById(formId);
-                if (!form) return;
-                form.addEventListener('submit', function (e) {
-                    e.preventDefault();
-                    const formData = new FormData(form);
-                    const btn = form.querySelector('button[type="submit"]');
-                    const originalText = btn.innerHTML;
-                    btn.innerHTML = '<span class="material-symbols-outlined animate-spin align-middle mr-2">autorenew</span> Đang xử lý...';
-                    btn.disabled = true;
+                const forms = document.querySelectorAll('#' + formId);
+                forms.forEach(form => {
+                    form.addEventListener('submit', function (e) {
+                        e.preventDefault();
+                        const formData = new FormData(form);
+                        const btn = form.querySelector('button[type="submit"]');
+                        const originalText = btn.innerHTML;
+                        btn.innerHTML = '<span class="material-symbols-outlined animate-spin align-middle mr-2">autorenew</span> Đang xử lý...';
+                        btn.disabled = true;
 
-                    fetch(apiUrl, {
-                        method: 'POST',
-                        body: new URLSearchParams(formData)
-                    })
-                        .then(response => response.json())
-                        .then(data => {
-                            btn.innerHTML = originalText;
-                            btn.disabled = false;
-                            if (data.success) {
-                                showToast('Thành công', data.message, 'success');
-                                if (onSuccess) onSuccess(data, formData);
-                            } else {
-                                showToast('Lỗi', data.message, 'error');
-                            }
+                        fetch(apiUrl, {
+                            method: 'POST',
+                            body: new URLSearchParams(formData)
                         })
-                        .catch(err => {
-                            btn.innerHTML = originalText;
-                            btn.disabled = false;
-                            showToast('Lỗi', 'Có lỗi kết nối xảy ra. Vui lòng thử lại.', 'error');
-                        });
+                            .then(response => response.json())
+                            .then(data => {
+                                btn.innerHTML = originalText;
+                                btn.disabled = false;
+                                if (data.success) {
+                                    showToast('Thành công', data.message, 'success');
+                                    if (onSuccess) onSuccess(data, formData);
+                                } else {
+                                    showToast('Lỗi', data.message, 'error');
+                                }
+                            })
+                            .catch(err => {
+                                btn.innerHTML = originalText;
+                                btn.disabled = false;
+                                showToast('Lỗi', 'Có lỗi kết nối xảy ra. Vui lòng thử lại.', 'error');
+                            });
+                    });
                 });
             }
 
@@ -476,23 +485,14 @@
                     const usernameInput = document.querySelector('#ajaxRegisterForm input[name="username"]');
                     const username = usernameInput ? usernameInput.value : '';
 
-                    const hiddenOtpUser = document.getElementById('regOtpUsername');
-                    if (hiddenOtpUser) {
-                        hiddenOtpUser.value = username;
-                    }
+                    document.querySelectorAll('#regOtpUsername').forEach(el => {
+                        el.value = username;
+                    });
 
                     toggleAuthView('otp');
-
-                    // Forcefully ensure the OTP section is visible
-                    const otpSec = document.getElementById('otpSection');
-                    const regSec = document.getElementById('registerSection');
-                    if (regSec) regSec.style.display = 'none';
-                    if (otpSec) otpSec.style.display = 'block';
-
                 } catch (e) {
                     console.error("Lỗi khi chuyển sang form OTP:", e);
                     toggleAuthView('otp');
-                    document.getElementById('otpSection').style.display = 'block';
                 }
             });
 
@@ -512,8 +512,8 @@
                 toggleAuthView('login');
             });
 
-            const loginForm = document.getElementById('ajaxLoginForm');
-            if (loginForm) {
+            const loginForms = document.querySelectorAll('#ajaxLoginForm');
+            loginForms.forEach(loginForm => {
                 loginForm.addEventListener('submit', function (e) {
                     e.preventDefault();
                     const formData = new FormData(loginForm);
@@ -560,7 +560,7 @@
                             showToast('Lỗi', 'Có lỗi kết nối xảy ra. Vui lòng thử lại.', 'error');
                         });
                 });
-            }
+            });
 
             // Tạo cleanUrl để redirect (không mang theo login params)
             const cleanParams = new URLSearchParams(window.location.search);
@@ -581,41 +581,45 @@
 
             // 6-digit OTP Box Logic
             function setupOtpBoxes(containerId, hiddenInputId) {
-                const container = document.getElementById(containerId);
-                if (!container) return;
-                const inputs = container.querySelectorAll('.otp-box');
-                const hiddenInput = document.getElementById(hiddenInputId);
+                const containers = document.querySelectorAll('#' + containerId);
+                containers.forEach(container => {
+                    const inputs = container.querySelectorAll('.otp-box');
+                    const hiddenInputs = document.querySelectorAll('#' + hiddenInputId);
 
-                inputs.forEach((input, index) => {
-                    input.addEventListener('input', function () {
-                        this.value = this.value.replace(/[^0-9]/g, '');
-                        if (this.value.length === 1) {
-                            if (index < inputs.length - 1) inputs[index + 1].focus();
-                        }
-                        updateHidden();
-                    });
-                    input.addEventListener('keydown', function (e) {
-                        if (e.key === 'Backspace' && !this.value) {
-                            if (index > 0) inputs[index - 1].focus();
-                        }
-                    });
-                    input.addEventListener('paste', function (e) {
-                        e.preventDefault();
-                        const pasted = e.clipboardData.getData('text').replace(/[^0-9]/g, '').slice(0, 6);
-                        if (pasted) {
-                            for (let i = 0; i < pasted.length; i++) {
-                                if (inputs[i]) inputs[i].value = pasted[i];
+                    inputs.forEach((input, index) => {
+                        input.addEventListener('input', function () {
+                            this.value = this.value.replace(/[^0-9]/g, '');
+                            if (this.value.length === 1) {
+                                if (index < inputs.length - 1) inputs[index + 1].focus();
                             }
-                            if (pasted.length < 6) inputs[pasted.length].focus();
-                            else inputs[5].focus();
                             updateHidden();
-                        }
+                        });
+                        input.addEventListener('keydown', function (e) {
+                            if (e.key === 'Backspace' && !this.value) {
+                                if (index > 0) inputs[index - 1].focus();
+                            }
+                        });
+                        input.addEventListener('paste', function (e) {
+                            e.preventDefault();
+                            const pasted = e.clipboardData.getData('text').replace(/[^0-9]/g, '').slice(0, 6);
+                            if (pasted) {
+                                for (let i = 0; i < pasted.length; i++) {
+                                    if (inputs[i]) inputs[i].value = pasted[i];
+                                }
+                                if (pasted.length < 6) inputs[pasted.length].focus();
+                                else inputs[5].focus();
+                                updateHidden();
+                            }
+                        });
                     });
-                });
 
-                function updateHidden() {
-                    hiddenInput.value = Array.from(inputs).map(inp => inp.value).join('');
-                }
+                    function updateHidden() {
+                        const val = Array.from(inputs).map(inp => inp.value).join('');
+                        hiddenInputs.forEach(hiddenInput => {
+                            hiddenInput.value = val;
+                        });
+                    }
+                });
             }
 
             setupOtpBoxes('regOtpBoxes', 'regOtpHidden');

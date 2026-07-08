@@ -32,6 +32,7 @@ public class TableReservationServiceImpl implements TableReservationService {
     private final CustomerRepository customerRepository;
     private final RoomRepository roomRepository;
     private final RoomBookingDetailRepository roomBookingDetailRepository;
+    private final com.kawai.repositories.RoomBookingRepository roomBookingRepository;
     private final com.kawai.services.interfaces.EmailService emailService;
 
     public TableReservationServiceImpl(TableReservationRepository tableReservationRepository,
@@ -39,12 +40,14 @@ public class TableReservationServiceImpl implements TableReservationService {
                                        CustomerRepository customerRepository,
                                        RoomRepository roomRepository,
                                        RoomBookingDetailRepository roomBookingDetailRepository,
+                                       com.kawai.repositories.RoomBookingRepository roomBookingRepository,
                                        com.kawai.services.interfaces.EmailService emailService) {
         this.tableReservationRepository = tableReservationRepository;
         this.restaurantTableRepository = restaurantTableRepository;
         this.customerRepository = customerRepository;
         this.roomRepository = roomRepository;
         this.roomBookingDetailRepository = roomBookingDetailRepository;
+        this.roomBookingRepository = roomBookingRepository;
         this.emailService = emailService;
     }
 
@@ -214,8 +217,64 @@ public class TableReservationServiceImpl implements TableReservationService {
                 throw new BusinessException("TABLE-005", "Vui lòng nhập số phòng. Chỉ áp dụng đặt bàn cho khách đang lưu trú.");
             }
         }
+
+        // Validate active room booking
+        java.time.LocalDate today = LocalDate.now();
+        boolean hasValidBooking = false;
+        
+        if (customer.getAccount() != null) {
+            List<RoomBookingDetail> rbds = roomBookingDetailRepository.findActiveDetailsByUserId(customer.getAccount().getId());
+            for (RoomBookingDetail d : rbds) {
+                if (d.getRoomBooking() != null) {
+                    java.time.LocalDate checkIn = d.getRoomBooking().getCheckInDate();
+                    java.time.LocalDate checkOut = d.getRoomBooking().getCheckOutDate();
+                    if (checkIn.isBefore(today)) checkIn = today;
+                    if (checkOut != null && checkOut.isBefore(today)) checkOut = today;
+                    if (!request.getReserveDate().isBefore(checkIn) && !request.getReserveDate().isAfter(checkOut)) {
+                        hasValidBooking = true;
+                        break;
+                    }
+                }
+            }
+        }
+        
+        if (!hasValidBooking) {
+            List<com.kawai.models.RoomBooking> rbs = roomBookingRepository.findByCustomerOrderByBookingDateDesc(customer);
+            for (com.kawai.models.RoomBooking rb : rbs) {
+                if ("Checked_In".equals(rb.getBookingStatus()) || "Confirmed".equals(rb.getBookingStatus())) {
+                    java.time.LocalDate checkIn = rb.getCheckInDate();
+                    java.time.LocalDate checkOut = rb.getCheckOutDate();
+                    if (checkIn.isBefore(today)) checkIn = today; 
+                    if (checkOut != null && checkOut.isBefore(today)) checkOut = today;
+                    
+                    if (!request.getReserveDate().isBefore(checkIn) && !request.getReserveDate().isAfter(checkOut)) {
+                        hasValidBooking = true;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (!hasValidBooking) {
+            throw new BusinessException("TABLE-009", "Bạn cần có lịch lưu trú hợp lệ tại thời điểm đặt bàn.");
+        }
+
         res.setCustomer(customer);
 
+        // Verification: ensure this customer is currently Checked_In
+        boolean isCheckedIn = false;
+        java.util.List<RoomBookingDetail> detailsByCustomer = roomBookingDetailRepository.findByAnyCustomerId(customer.getId());
+        if (detailsByCustomer != null) {
+            for (RoomBookingDetail d : detailsByCustomer) {
+                if ("Checked_In".equalsIgnoreCase(d.getDetailStatus())) {
+                    isCheckedIn = true;
+                    break;
+                }
+            }
+        }
+        if (!isCheckedIn) {
+            throw new BusinessException("TABLE-009", "Chỉ khách đang lưu trú tại khách sạn (đã Check-in) mới được đặt bàn.");
+        }
         // Retain typed customer name in special requests if provided by F&B staff
         String specialReqs = request.getSpecialRequests();
         if (request.getCustomerName() != null && !request.getCustomerName().trim().isEmpty()) {

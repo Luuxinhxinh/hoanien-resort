@@ -24,10 +24,7 @@ description: Đảm bảo tính toàn vẹn của Frontend (Giao diện và Tư�
 - Xử lý các trạng thái Promise (then/catch) và hiển thị UI thông báo tương ứng (Loading, Success, Error).
 
 ## 4. Kiểm tra chéo (Cross-check) trước khi báo cáo hoàn thành
-- Tôi đã kiểm tra class CSS của element chưa?
-- Element có hiển thị hoặc ẩn đúng thời điểm không?
-- Payload dữ liệu có bị null hay sai kiểu không?
-- Đã check Console Log / Swal alert nếu API trả về lỗi chưa?
+- Thay vì sử dụng danh sách kiểm tra độc lập ở đây, **BẮT BUỘC** gộp các tiêu chí kiểm tra (CSS hiển thị, biến lặp, payload null) vào mục **Kiểm tra toàn diện (Definition of Done)** tại file `context-first-quality.md` §4. Việc rà soát cuối cùng sẽ được thực hiện tại một nơi duy nhất.
 
 ## 5. End-to-End Flow & Data Consistency
 - Đảm bảo bất kỳ luồng chức năng nào cũng phải thông suốt từ lúc bắt đầu (giao diện gửi yêu cầu) đến lúc kết thúc (nơi nhận/xem yêu cầu hiển thị và cập nhật trạng thái).
@@ -35,3 +32,15 @@ description: Đảm bảo tính toàn vẹn của Frontend (Giao diện và Tư�
   - Kiểm tra xem các màn hình liên quan của người dùng khác (ví dụ: trang Duyệt yêu cầu của Manager) có hiển thị đúng, đủ các thông tin và trạng thái tương ứng hay không.
   - Đảm bảo không bị lệch kiểu dữ liệu hoặc giá trị nhãn (như enum, type string) khiến dữ liệu bị bỏ sót khi truy vấn lọc ở màn hình đích.
   - Khi thực thi các hành động phê duyệt/từ chối, các thay đổi trạng thái phải được cập nhật đồng bộ và chính xác xuống database cũng như các thực thể liên quan (ví dụ: trạng thái đơn đặt phòng Booking chuyển sang `Pending_Approval` khi gửi yêu cầu, và trả lại `Pending`/`CANCELLED` sau khi Manager xử lý).
+
+## 6. Thymeleaf Template Integrity & Chunked Encoding Debugging
+- **Tránh đóng block sớm (Premature Closure)**: Khi lặp với `<th:block th:each="...">`, thẻ đóng `</th:block>` phải được đặt ở cuối cùng, sau khi tất cả các thẻ con bên trong nó (ví dụ: thẻ bao `booking-item`, `details`, v.v.) đã đóng hoàn toàn.
+- **Phạm vi của biến lặp**: Hãy chắc chắn rằng biến lặp (ví dụ: `booking.id`) chỉ được truy cập ở bên trong phạm vi lặp của `th:block`. Truy cập ngoài phạm vi sẽ dẫn đến biến bị `null` ở Server-side, làm gián đoạn luồng HTTP (`ERR_INCOMPLETE_CHUNKED_ENCODING`).
+- **Tránh trùng lặp vòng lặp**: Không khai báo lặp lại biến vòng lặp trùng tên lồng nhau (như thẻ cha lặp `booking` và thẻ con cũng lặp `booking`).
+- **Khắc phục sự cố tải thiếu trang**: Khi màn hình tải dở dang và bị đứng/không điều hướng được tab, hãy tìm ngay log lỗi Java tại backend Server hoặc viết/chạy Unit Test MockMvc render view để định vị dòng lệnh bị ném ngoại lệ trong template thay vì cố debug JS client.
+
+## 7. String Normalization & Client-Side Mapping
+- **Chuẩn hóa chuỗi trước khi so khớp:** Khi sử dụng các chuỗi động lấy từ Server/Database (như tên thực thể, loại tour, tên phòng) để tra cứu dữ liệu tĩnh trên giao diện khách hoặc nội bộ, bắt buộc phải viết hàm chuẩn hóa ký tự (`normalizeKey`) để loại bỏ dấu tiếng Việt, ký tự đặc biệt, chuyển thành chữ thường và xóa khoảng trắng dư thừa trước khi so khớp.
+- **Ánh xạ từ khóa linh hoạt:** Cấu hình bộ quy tắc so khớp lỏng (`includes` hoặc regex) thay vì so khớp tuyệt đối (`===`) để hỗ trợ tìm kiếm theo cả từ khóa rút gọn, giúp giao diện không bị lỗi hoặc hiển thị trống khi dữ liệu trên DB có thay đổi nhỏ về tiêu đề.
+- **Cơ chế Fallback an toàn:** Khi so khớp dựa trên chuỗi văn bản không thành công (không tìm thấy key phù hợp), **BẮT BUỘC** phải có cơ chế fallback tự động sử dụng thuộc tính định danh chính gốc từ database (như ID, loại định danh `tourType`, `roomCategoryCode`) được nạp sẵn để hiển thị thông tin chính xác, tránh việc giao diện im lặng bỏ qua (silent failure) hoặc hiển thị trống rỗng.
+- **Tránh ghi đè mảng theo chỉ mục (Index Shifting):** Khi hợp nhất danh sách dữ liệu động từ Server (ví dụ: danh sách hoạt động tour bao gồm cả điểm đón/trả) vào danh sách tĩnh chứa siêu dữ liệu UI (toạ độ chấm CSS, hình ảnh bản đồ...), **TUYỆT ĐỐI KHÔNG** gán đè đơn giản theo chỉ mục (`dynamicList[i]` → `staticList[i]`) nếu kích thước hai mảng khác nhau. Hậu quả: toạ độ và hình ảnh của phần tử giữa bị lệch sang phần tử sai, gây hiển thị sai vị trí trên bản đồ. **Giải pháp:** Dùng so khớp theo thuộc tính tương đồng (tiêu đề, ID hoặc từ khoá). Các phần tử đặc biệt (ví dụ: "Đón khách", "Trả khách") cần được map cứng (hard-coded) vào toạ độ xác định; phần tử còn lại so khớp linh hoạt với danh sách tĩnh để kế thừa đúng siêu dữ liệu UI.

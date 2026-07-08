@@ -160,7 +160,8 @@
         class="w-full h-20 fixed top-0 left-0 z-50 bg-surface/80 backdrop-blur-xl border-b border-white/20 px-margin-desktop flex items-center justify-between">
         <div class="flex items-center gap-12">
             <div class="flex flex-col">
-                <h1 class="font-headline text-[32px] italic tracking-tighter text-primary leading-tight cursor-pointer" onclick="window.location.href='/'">HoaNien</h1>
+                <h1 class="font-headline text-[32px] italic tracking-tighter text-primary leading-tight cursor-pointer"
+                    onclick="window.location.href='/'">HoaNien</h1>
                 <p class="font-label-sm text-[10px] text-on-surface-variant/60 -mt-1">Retreat Resort &amp; Hub</p>
             </div>
             <nav class="flex items-center gap-2">
@@ -191,37 +192,45 @@
                     <span class="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full"></span>
                 </button>
                 <!-- Dropdown Card -->
-                <div id="notificationDropdown" class="hidden absolute right-0 mt-2 w-80 bg-[#fdfbf7] border border-[#3a3230]/20 shadow-2xl rounded-2xl p-4 z-[100] text-[#372618]">
+                <div id="notificationDropdown"
+                    class="hidden absolute right-0 mt-2 w-80 bg-[#fdfbf7] border border-[#3a3230]/20 shadow-2xl rounded-2xl p-4 z-[100] text-[#372618]">
                     <div class="flex justify-between items-center border-b border-[#3a3230]/10 pb-2 mb-3">
                         <span class="font-headline text-lg font-bold">Thông báo mới</span>
-                        <button onclick="markAllNotificationsAsRead(event)" class="text-xs text-primary hover:underline font-semibold">Đọc tất cả</button>
+                        <button onclick="markAllNotificationsAsRead(event)"
+                            class="text-xs text-primary hover:underline font-semibold">Đọc tất cả</button>
                     </div>
                     <div class="space-y-3 max-h-64 overflow-y-auto text-left" id="notifications-list">
                         <!-- Notification Item 1 -->
                         <div class="p-3 bg-primary/5 rounded-xl border-l-4 border-primary space-y-1">
                             <p class="text-xs font-semibold text-on-surface">Yêu cầu hỗ trợ từ Đoàn khách</p>
-                            <p class="text-[11px] text-on-surface-variant/70 leading-snug">Đoàn khách Singapore tại Cố đô Huế yêu cầu chuẩn bị thêm nước uống đóng chai.</p>
+                            <p class="text-[11px] text-on-surface-variant/70 leading-snug">Đoàn khách Singapore tại Cố
+                                đô Huế yêu cầu chuẩn bị thêm nước uống đóng chai.</p>
                             <p class="text-[9px] text-on-surface-variant/50">5 phút trước</p>
                         </div>
                         <!-- Notification Item 2 -->
                         <div class="p-3 bg-primary/5 rounded-xl border-l-4 border-primary space-y-1">
                             <p class="text-xs font-semibold text-on-surface">Cảnh báo Thời tiết</p>
-                            <p class="text-[11px] text-on-surface-variant/70 leading-snug">Dự báo có mưa rào nhẹ tại khu vực Tháp Mười từ 16:30 chiều nay.</p>
+                            <p class="text-[11px] text-on-surface-variant/70 leading-snug">Dự báo có mưa rào nhẹ tại khu
+                                vực Tháp Mười từ 16:30 chiều nay.</p>
                             <p class="text-[9px] text-on-surface-variant/50">20 phút trước</p>
                         </div>
                         <!-- Notification Item 3 -->
                         <div class="p-3 hover:bg-primary/5 rounded-xl transition-colors space-y-1">
                             <p class="text-xs font-medium text-on-surface-variant">Lịch trình Ngày mai</p>
-                            <p class="text-[11px] text-on-surface-variant/70 leading-snug">Bạn có lịch dẫn đoàn tham quan Ninh Bình bắt đầu lúc 08:30 sáng mai.</p>
+                            <p class="text-[11px] text-on-surface-variant/70 leading-snug">Bạn có lịch dẫn đoàn tham
+                                quan Ninh Bình bắt đầu lúc 08:30 sáng mai.</p>
                             <p class="text-[9px] text-on-surface-variant/50">2 giờ trước</p>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="h-8 w-px bg-primary/10"></div>
-            <button onclick="openGuideSettingsModal(event)" class="flex items-center gap-3 pl-2 pr-1 py-1 rounded-full hover:bg-primary/5 transition-all outline-none" title="Thông tin cá nhân">
+            <button onclick="openGuideSettingsModal(event)"
+                class="flex items-center gap-3 pl-2 pr-1 py-1 rounded-full hover:bg-primary/5 transition-all outline-none cursor-pointer"
+                title="Thông tin cá nhân">
                 <div class="text-right">
-                    <p class="font-label-md text-label-md text-on-surface leading-none" th:text="${employee != null ? employee.fullName : 'NguynNgoc'}">NguynNgoc</p>
+                    <p class="font-label-md text-label-md text-on-surface leading-none"
+                        th:text="${employee != null ? employee.fullName : 'NguynNgoc'}">NguynNgoc</p>
                     <p class="text-[10px] text-on-surface-variant/60">Hướng dẫn viên cao cấp</p>
                 </div>
                 <div
@@ -230,7 +239,9 @@
                 </div>
             </button>
             <form th:action="@{/auth/logout}" method="post" class="inline">
-                <button type="submit" class="w-10 h-10 flex items-center justify-center rounded-full text-red-600 hover:bg-red-50 hover:text-red-800 transition-colors" title="Đăng xuất">
+                <button type="submit"
+                    class="w-10 h-10 flex items-center justify-center rounded-full text-red-600 hover:bg-red-50 hover:text-red-800 transition-colors"
+                    title="Đăng xuất">
                     <span class="material-symbols-outlined">logout</span>
                 </button>
             </form>
@@ -240,165 +251,94 @@
     <main class="pt-32 pb-section-gap px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
         <div class="relative mb-12">
             <h1 class="font-display-md text-display-md text-on-surface mb-2">Nhận xét của khách hàng</h1>
-            <p class="font-headline text-lg md:text-xl font-light text-on-surface-variant max-w-2xl">Theo dõi chất lượng tour và mức độ hài lòng của khách hàng theo thời gian thực. Cần đặc biệt lưu ý các đánh giá tiêu cực.</p>
+            <p class="font-headline text-lg md:text-xl font-light text-on-surface-variant max-w-2xl">Theo dõi chất lượng
+                tour và mức độ hài lòng của khách hàng theo thời gian thực. Cần đặc biệt lưu ý các đánh giá tiêu cực.
+            </p>
         </div>
 
         <!-- Summary Widgets -->
-        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter mb-12">
-            <div class="glass-card p-6 rounded-lg flex flex-col gap-2">
+        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter mb-12 animate-fade-in no-print">
+            <div class="glass-card p-6 rounded-lg flex flex-col gap-2 shadow-sm border-primary/10">
                 <span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Tổng số đánh giá</span>
                 <div class="flex items-baseline gap-2">
-                    <span class="font-headline-lg text-headline-lg text-primary">1,248</span>
+                    <span class="font-headline-lg text-headline-lg text-primary font-bold" th:text="${totalReviews}">0</span>
                 </div>
             </div>
-            <div class="glass-card p-6 rounded-lg flex flex-col gap-2">
+            <div class="glass-card p-6 rounded-lg flex flex-col gap-2 shadow-sm border-primary/10">
                 <span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Điểm trung bình</span>
                 <div class="flex items-baseline gap-2">
-                    <span class="font-headline-lg text-headline-lg text-primary">4.8</span>
+                    <span class="font-headline-lg text-headline-lg text-primary font-bold" th:text="${averageRating}">5.0</span>
                     <div class="flex text-primary">
-                        <span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">star</span>
+                        <span class="material-symbols-outlined text-[20px]"
+                            style="font-variation-settings: 'FILL' 1;">star</span>
                     </div>
                 </div>
             </div>
-            <div class="glass-card p-6 rounded-lg flex flex-col gap-2">
+            <div class="glass-card p-6 rounded-lg flex flex-col gap-2 shadow-sm border-primary/10">
                 <span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Tỷ lệ hài lòng</span>
                 <div class="flex items-baseline gap-2">
-                    <span class="font-headline-lg text-headline-lg text-primary">96%</span>
+                    <span class="font-headline-lg text-headline-lg text-primary font-bold" th:text="${satisfactionRate}">100%</span>
                 </div>
             </div>
-            <div class="glass-card p-6 rounded-lg flex flex-col gap-2">
+            <div class="glass-card p-6 rounded-lg flex flex-col gap-2 shadow-sm border-primary/10">
                 <span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Đánh giá tiêu cực</span>
                 <div class="flex items-baseline gap-2">
-                    <span class="font-headline-lg text-headline-lg text-primary">14</span>
+                    <span class="font-headline-lg text-headline-lg text-primary font-bold" th:text="${negativeReviewsCount}">0</span>
                 </div>
             </div>
         </section>
 
         <!-- Feedback Content -->
         <section class="space-y-6">
-            <!-- Card 1 -->
-            <div class="glass-card p-8 rounded-lg flex flex-col md:flex-row gap-6 relative group hover:shadow-md transition-all duration-500">
-                <div class="w-16 h-16 rounded-full overflow-hidden flex-shrink-0 border-2 border-primary/20 bg-primary-container flex items-center justify-center font-bold text-white">
-                    EL
+            <!-- Dynamic Review Card -->
+            <div th:each="review : ${tourReviews}"
+                class="glass-card p-8 rounded-lg flex flex-col md:flex-row gap-6 relative group hover:shadow-md transition-all duration-500 border-primary/10 shadow-sm animate-fade-in">
+                
+                <!-- Avatar placeholder with initials -->
+                <div th:with="custName=${review.customer?.fullName ?: 'Khách hàng'}"
+                    class="w-16 h-16 rounded-full overflow-hidden flex-shrink-0 border-2 border-primary/20 bg-primary-container flex items-center justify-center font-bold text-white text-lg"
+                    th:text="${#strings.length(custName) >= 2 ? #strings.substring(custName, 0, 2).toUpperCase() : custName.toUpperCase()}">
+                    NM
                 </div>
+                
                 <div class="flex-1">
-                    <div class="flex justify-between items-start mb-2">
+                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 mb-4">
                         <div>
-                            <h3 class="font-headline-md text-headline-md text-on-surface">Elena Rodriguez</h3>
-                            <p class="font-label-sm text-label-sm text-on-surface-variant uppercase">Hành trình Đoàn Tụ</p>
+                            <h3 class="font-headline-md text-[20px] leading-tight text-on-surface font-bold"
+                                th:text="${review.customer?.fullName ?: 'Khách hàng ẩn danh'}">Nguyễn Minh Anh</h3>
+                            <p class="font-label-sm text-[11px] text-primary uppercase font-bold tracking-wider mt-1"
+                                th:text="${review.tourBooking?.schedule?.tour?.tourName ?: 'Hành trình HoaNien'}">
+                                Hành trình Cố Đô
+                            </p>
                         </div>
-                        <div class="flex text-[#BFAC8F]">
-                            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
-                            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
-                            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
-                            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
-                            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+                        
+                        <!-- Stars Rating -->
+                        <div class="flex text-[#BFAC8F]" th:with="rating=${review.ratingTour != null ? review.ratingTour : 5}">
+                            <span th:each="i : ${#numbers.sequence(1, 5)}"
+                                  class="material-symbols-outlined"
+                                  th:style="${i <= rating} ? 'font-variation-settings: \'FILL\' 1;' : ''"
+                                  th:text="'star'">star</span>
                         </div>
                     </div>
-                    <p class="font-headline text-lg font-light text-on-surface mb-6 leading-relaxed">
-                        "Hướng dẫn viên cực kỳ thân thiện và chuyên nghiệp. Phong cảnh tuyệt đẹp và chúng tôi đã có một khoảng thời gian tuyệt vời. Rất đáng trải nghiệm!"
+                    
+                    <p class="font-headline text-lg font-light text-on-surface mb-4 leading-relaxed italic"
+                        th:text="${review.reviewText}">
+                        "Hướng dẫn viên nhiệt tình, chu đáo..."
                     </p>
+                    
+                    <!-- Date -->
+                    <div class="flex justify-end">
+                        <span class="text-[10px] text-on-surface-variant/50 font-medium bg-primary/5 px-2.5 py-1 rounded-full border border-primary/10" 
+                              th:text="${#temporals.format(review.createdAt, 'dd/MM/yyyy HH:mm')}">01/01/2026 12:00</span>
+                    </div>
                 </div>
             </div>
 
-            <!-- Card 2 -->
-            <div class="glass-card p-8 rounded-lg flex flex-col md:flex-row gap-6 relative group hover:shadow-md transition-all duration-500">
-                <div class="w-16 h-16 rounded-full overflow-hidden flex-shrink-0 border-2 border-primary/20 bg-primary-container flex items-center justify-center font-bold text-white bg-amber-800">
-                    LC
-                </div>
-                <div class="flex-1">
-                    <div class="flex justify-between items-start mb-2">
-                        <div>
-                            <h3 class="font-headline-md text-headline-md text-on-surface">Nguyễn Lan Chi</h3>
-                            <p class="font-label-sm text-label-sm text-on-surface-variant uppercase">Hành trình Đồng Nội</p>
-                        </div>
-                        <div class="flex text-[#BFAC8F]">
-                            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
-                            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
-                            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
-                            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
-                            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
-                        </div>
-                    </div>
-                    <p class="font-headline text-lg font-light text-on-surface mb-6 leading-relaxed">
-                        "Một hành trình tuyệt vời đưa tôi trở về với nét bình yên mộc mạc của làng quê. Dịch vụ chăm sóc chu đáo, nước uống thảo mộc rất ngon và hướng dẫn viên vô cùng am hiểu văn hóa địa phương."
-                    </p>
-                </div>
-            </div>
-
-            <!-- Card 3 -->
-            <div class="glass-card p-8 rounded-lg flex flex-col md:flex-row gap-6 relative group hover:shadow-md transition-all duration-500">
-                <div class="w-16 h-16 rounded-full overflow-hidden flex-shrink-0 border-2 border-primary/20 bg-primary-container flex items-center justify-center font-bold text-white bg-indigo-900">
-                    MA
-                </div>
-                <div class="flex-1">
-                    <div class="flex justify-between items-start mb-2">
-                        <div>
-                            <h3 class="font-headline-md text-headline-md text-on-surface">Marcus Aurelius</h3>
-                            <p class="font-label-sm text-label-sm text-on-surface-variant uppercase">Hành trình Di Sản</p>
-                        </div>
-                        <div class="flex text-[#BFAC8F]">
-                            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
-                            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
-                            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
-                            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
-                            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
-                        </div>
-                    </div>
-                    <p class="font-headline text-lg font-light text-on-surface mb-6 leading-relaxed">
-                        "Fantastic historical tour of Trang An and Hoa Lu. The guide spoke fluent English and shared fascinating stories about the ancient dynasty. The architecture and landscape were breathtaking."
-                    </p>
-                </div>
-            </div>
-
-            <!-- Card 4 -->
-            <div class="glass-card p-8 rounded-lg flex flex-col md:flex-row gap-6 relative group hover:shadow-md transition-all duration-500">
-                <div class="w-16 h-16 rounded-full overflow-hidden flex-shrink-0 border-2 border-primary/20 bg-primary-container flex items-center justify-center font-bold text-white bg-emerald-950">
-                    MT
-                </div>
-                <div class="flex-1">
-                    <div class="flex justify-between items-start mb-2">
-                        <div>
-                            <h3 class="font-headline-md text-headline-md text-on-surface">Trần Minh Tâm</h3>
-                            <p class="font-label-sm text-label-sm text-on-surface-variant uppercase">Hành trình Tĩnh Lặng</p>
-                        </div>
-                        <div class="flex text-[#BFAC8F]">
-                            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
-                            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
-                            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
-                            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
-                            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
-                        </div>
-                    </div>
-                    <p class="font-headline text-lg font-light text-on-surface mb-6 leading-relaxed">
-                        "Đúng như tên gọi - một ngày hoàn toàn tĩnh lặng và thư thái. Không gian yên tĩnh tại Tháp Mười kết hợp với buổi thiền nhẹ giúp tôi tái tạo năng lượng hoàn toàn sau những ngày làm việc căng thẳng."
-                    </p>
-                </div>
-            </div>
-
-            <!-- Card 5 -->
-            <div class="glass-card p-8 rounded-lg flex flex-col md:flex-row gap-6 relative group hover:shadow-md transition-all duration-500">
-                <div class="w-16 h-16 rounded-full overflow-hidden flex-shrink-0 border-2 border-primary/20 bg-primary-container flex items-center justify-center font-bold text-white bg-slate-800">
-                    DS
-                </div>
-                <div class="flex-1">
-                    <div class="flex justify-between items-start mb-2">
-                        <div>
-                            <h3 class="font-headline-md text-headline-md text-on-surface">David & Sarah</h3>
-                            <p class="font-label-sm text-label-sm text-on-surface-variant uppercase">Hành trình Đoàn Tụ</p>
-                        </div>
-                        <div class="flex text-[#BFAC8F]">
-                            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
-                            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
-                            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
-                            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
-                            <span class="material-symbols-outlined">star</span>
-                        </div>
-                    </div>
-                    <p class="font-headline text-lg font-light text-on-surface mb-6 leading-relaxed">
-                        "We booked this tour for our family reunion and everyone, from our kids to grandparents, absolutely loved it. The private dining experience by the river was a highlight. Slightly rained in the afternoon but the guide handled it flawlessly."
-                    </p>
-                </div>
+            <!-- Empty State -->
+            <div th:if="${#lists.isEmpty(tourReviews)}"
+                class="flex flex-col items-center justify-center py-20 text-center glass-card border-primary/10 shadow-sm rounded-lg">
+                <span class="material-symbols-outlined text-[64px] text-primary/30 mb-4">rate_review</span>
+                <p class="font-body-md text-lg text-on-surface-variant/80 font-medium">Chưa có nhận xét nào liên quan tới các tour du lịch.</p>
             </div>
         </section>
     </main>
@@ -408,7 +348,8 @@
         <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-end">
             <div class="space-y-4">
                 <h3 class="text-3xl font-serif text-white">HoaNien</h3>
-                <p class="text-[10px] tracking-widest opacity-50 uppercase text-white">© 2026 HOANIEN RETREAT. A QUIET LUXURY TRAVEL GROUP.</p>
+                <p class="text-[10px] tracking-widest opacity-50 uppercase text-white">© 2026 HOANIEN RETREAT. A QUIET
+                    LUXURY TRAVEL GROUP.</p>
             </div>
             <div class="flex space-x-12 text-[10px] font-bold tracking-widest uppercase opacity-80">
                 <a class="hover:text-[#C5A059] no-underline text-white" href="#">Quyền riêng tư</a>
@@ -421,37 +362,52 @@
     <!-- END: Footer -->
 
     <!-- Guide Settings Modal -->
-    <div id="guideSettingsModal" class="fixed inset-0 z-[150] hidden flex items-center justify-center bg-black/60 backdrop-blur-sm">
+    <div id="guideSettingsModal"
+        class="fixed inset-0 z-[150] hidden flex items-center justify-center bg-black/60 backdrop-blur-sm">
         <div class="bg-[#fdfbf7] w-full max-w-lg p-8 border border-[#3a3230]/20 shadow-2xl relative text-[#372618]">
-            <button onclick="closeGuideSettingsModal()" class="absolute top-4 right-4 text-[#372618]/60 hover:text-[#372618] transition-colors focus:outline-none">
+            <button onclick="closeGuideSettingsModal()"
+                class="absolute top-4 right-4 text-[#372618]/60 hover:text-[#372618] transition-colors focus:outline-none">
                 <span class="material-symbols-outlined text-2xl">close</span>
             </button>
-            <h3 class="font-headline-md text-2xl text-black font-bold mb-2 border-b border-[#3a3230]/10 pb-3">Thông tin hướng dẫn viên</h3>
+            <h3 class="font-headline-md text-2xl text-black font-bold mb-2 border-b border-[#3a3230]/10 pb-3">Thông tin
+                hướng dẫn viên</h3>
 
             <div th:if="${employee != null}" class="space-y-4 mt-4">
                 <div class="space-y-1">
-                    <label class="font-label-caps text-[10px] text-outline uppercase block text-left font-semibold">Họ và tên</label>
-                    <input readonly th:value="${employee.fullName}" class="w-full bg-transparent border-0 border-b border-[#3a3230]/20 py-1.5 font-body-md text-black transition-all text-left outline-none cursor-default" />
+                    <label class="font-label-caps text-[10px] text-outline uppercase block text-left font-semibold">Họ
+                        và tên</label>
+                    <input readonly th:value="${employee.fullName}"
+                        class="w-full bg-transparent border-0 border-b border-[#3a3230]/20 py-1.5 font-body-md text-black transition-all text-left outline-none cursor-default" />
                 </div>
                 <div class="space-y-1">
-                    <label class="font-label-caps text-[10px] text-outline uppercase block text-left font-semibold">Giới tính</label>
-                    <input readonly th:value="${employee.gender == 'Male' ? 'Nam' : (employee.gender == 'Female' ? 'Nữ' : 'Khác')}" class="w-full bg-transparent border-0 border-b border-[#3a3230]/20 py-1.5 font-body-md text-black transition-all text-left outline-none cursor-default" />
+                    <label class="font-label-caps text-[10px] text-outline uppercase block text-left font-semibold">Giới
+                        tính</label>
+                    <input readonly
+                        th:value="${employee.gender == 'Male' ? 'Nam' : (employee.gender == 'Female' ? 'Nữ' : 'Khác')}"
+                        class="w-full bg-transparent border-0 border-b border-[#3a3230]/20 py-1.5 font-body-md text-black transition-all text-left outline-none cursor-default" />
                 </div>
                 <div class="space-y-1">
-                    <label class="font-label-caps text-[10px] text-outline uppercase block text-left font-semibold">Số CCCD</label>
-                    <input readonly th:value="${employee.cccd}" class="w-full bg-transparent border-0 border-b border-[#3a3230]/20 py-1.5 font-body-md text-black transition-all text-left outline-none cursor-default" />
+                    <label class="font-label-caps text-[10px] text-outline uppercase block text-left font-semibold">Số
+                        CCCD</label>
+                    <input readonly th:value="${employee.cccd}"
+                        class="w-full bg-transparent border-0 border-b border-[#3a3230]/20 py-1.5 font-body-md text-black transition-all text-left outline-none cursor-default" />
                 </div>
                 <div class="space-y-1">
-                    <label class="font-label-caps text-[10px] text-outline uppercase block text-left font-semibold">Số điện thoại</label>
-                    <input readonly th:value="${employee.phone}" class="w-full bg-transparent border-0 border-b border-[#3a3230]/20 py-1.5 font-body-md text-black transition-all text-left outline-none cursor-default" />
+                    <label class="font-label-caps text-[10px] text-outline uppercase block text-left font-semibold">Số
+                        điện thoại</label>
+                    <input readonly th:value="${employee.phone}"
+                        class="w-full bg-transparent border-0 border-b border-[#3a3230]/20 py-1.5 font-body-md text-black transition-all text-left outline-none cursor-default" />
                 </div>
                 <div class="space-y-1">
-                    <label class="font-label-caps text-[10px] text-outline uppercase block text-left font-semibold">Email</label>
-                    <input readonly th:value="${employee.email}" class="w-full bg-transparent border-0 border-b border-[#3a3230]/20 py-1.5 font-body-md text-black transition-all text-left outline-none cursor-default" />
+                    <label
+                        class="font-label-caps text-[10px] text-outline uppercase block text-left font-semibold">Email</label>
+                    <input readonly th:value="${employee.email}"
+                        class="w-full bg-transparent border-0 border-b border-[#3a3230]/20 py-1.5 font-body-md text-black transition-all text-left outline-none cursor-default" />
                 </div>
             </div>
             <div th:if="${employee == null}">
-                <p class="text-sm text-[#3a3230]/80 mt-4 text-left">Không tìm thấy thông tin hồ sơ hướng dẫn viên. Vui lòng liên hệ Quản lý để được hỗ trợ.</p>
+                <p class="text-sm text-[#3a3230]/80 mt-4 text-left">Không tìm thấy thông tin hồ sơ hướng dẫn viên. Vui
+                    lòng liên hệ Quản lý để được hỗ trợ.</p>
             </div>
         </div>
     </div>
@@ -484,7 +440,7 @@
             });
         }
 
-        document.addEventListener('click', function(e) {
+        document.addEventListener('click', function (e) {
             const dropdown = document.getElementById('notificationDropdown');
             if (dropdown && !dropdown.classList.contains('hidden')) {
                 const isClickInside = dropdown.contains(e.target) || e.target.closest('.dropdown-notification');

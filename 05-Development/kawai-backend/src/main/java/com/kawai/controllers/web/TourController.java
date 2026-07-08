@@ -41,15 +41,18 @@ public class TourController {
     private final com.kawai.repositories.CustomerRepository customerRepository;
     private final com.kawai.repositories.TourRepository tourRepository;
     private final com.kawai.services.interfaces.WeatherApiClient weatherApiClient;
+    private final com.kawai.repositories.TourItineraryDetailRepository tourItineraryDetailRepository;
 
     public TourController(TourService tourService, 
                           com.kawai.repositories.CustomerRepository customerRepository, 
                           com.kawai.repositories.TourRepository tourRepository,
-                          com.kawai.services.interfaces.WeatherApiClient weatherApiClient) {
+                          com.kawai.services.interfaces.WeatherApiClient weatherApiClient,
+                          com.kawai.repositories.TourItineraryDetailRepository tourItineraryDetailRepository) {
         this.tourService = tourService;
         this.customerRepository = customerRepository;
         this.tourRepository = tourRepository;
         this.weatherApiClient = weatherApiClient;
+        this.tourItineraryDetailRepository = tourItineraryDetailRepository;
     }
 
     @GetMapping
@@ -109,7 +112,7 @@ public class TourController {
             model.addAttribute("dynamicPrice", tour.getBasePrice());
         }
 
-        String[] tourTypes = {"doantu", "dongnoi", "disan", "tinhlang"};
+        String[] tourTypes = {"doantu", "dongnoi", "disan", "tinhlang", "halong", "sapa", "cattien", "muine", "phuquoc", "cantho"};
         for (String tType : tourTypes) {
             com.kawai.models.Tour activeTour = tourRepository.findFirstByTourTypeAndIsActiveTrueOrderByIdDesc(tType).orElse(null);
             if (activeTour == null) {
@@ -117,7 +120,48 @@ public class TourController {
             }
             if (activeTour != null) {
                 model.addAttribute("dbTour_" + tType, activeTour);
+                // Truyền thông tin bảo hiểm theo từng loại tour để JS đọc
+                model.addAttribute("insurance_required_" + tType,
+                        Boolean.TRUE.equals(activeTour.getIsInsuranceRequired()));
+                model.addAttribute("insurance_price_" + tType,
+                        activeTour.getInsurancePrice() != null ? activeTour.getInsurancePrice() : java.math.BigDecimal.ZERO);
             }
+        }
+
+        // Fetch detailed activities for all 10 tours and format as JSON
+        java.util.Map<String, java.util.List<java.util.Map<String, Object>>> dbTourActivitiesMap = new java.util.HashMap<>();
+        for (String tType : tourTypes) {
+            com.kawai.models.Tour activeTour = tourRepository.findFirstByTourTypeAndIsActiveTrueOrderByIdDesc(tType).orElse(null);
+            if (activeTour == null) {
+                activeTour = tourRepository.findByTourType(tType).orElse(null);
+            }
+            if (activeTour != null) {
+                java.util.List<com.kawai.models.TourItineraryDetail> details = tourItineraryDetailRepository.findByItineraryTourId(activeTour.getId());
+                java.util.List<java.util.Map<String, Object>> list = new java.util.ArrayList<>();
+                for (com.kawai.models.TourItineraryDetail d : details) {
+                    java.util.Map<String, Object> map = new java.util.HashMap<>();
+                    String timeStr = "";
+                    if (d.getStartTime() != null) {
+                        timeStr = d.getStartTime().toString().substring(0, 5);
+                        if (d.getEndTime() != null) {
+                            timeStr += " - " + d.getEndTime().toString().substring(0, 5);
+                        }
+                    }
+                    map.put("time", timeStr);
+                    map.put("title", d.getActivityTitle());
+                    map.put("desc", d.getActivityDescription());
+                    list.add(map);
+                }
+                dbTourActivitiesMap.put(tType, list);
+            }
+        }
+        try {
+            com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+            String dbTourActivitiesJson = mapper.writeValueAsString(dbTourActivitiesMap);
+            model.addAttribute("dbTourActivitiesJson", dbTourActivitiesJson);
+        } catch (Exception e) {
+            model.addAttribute("dbTourActivitiesJson", "{}");
+            e.printStackTrace();
         }
 
         if (com.kawai.utils.SecurityUtils.isCustomerLoggedIn(principal)) {
