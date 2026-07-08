@@ -81,14 +81,18 @@ public class RolePermissionConstants {
         m.put("admin", Arrays.asList(
             DASHBOARD, MASTER_DATA, AUDIT_LOG, REVIEWS, BOOKING,
             FNB, HOUSEKEEPING, MAINTENANCE, WORKFLOW, CRM,
-            PROMOTIONS, NIGHT_AUDIT, TOUR, ANALYTICS
+            PROMOTIONS, NIGHT_AUDIT, TOUR, ANALYTICS,
+            RECEPTION_CHECKIN, RECEPTION_CHECKOUT, RECEPTION_WALKIN, RECEPTION_INHOUSE,
+            FNB_ORDER, FNB_TABLE, FNB_ROOM_SERVICE, FNB_REPORT
         ));
 
         // MANAGER — gần giống Admin, không có phân quyền RBAC
         m.put("manager", Arrays.asList(
             DASHBOARD, BOOKING, FNB, TOUR, HOUSEKEEPING,
             MAINTENANCE, NIGHT_AUDIT, ANALYTICS, REVIEWS, CRM,
-            PROMOTIONS, WORKFLOW
+            PROMOTIONS, WORKFLOW,
+            RECEPTION_CHECKIN, RECEPTION_CHECKOUT, RECEPTION_WALKIN, RECEPTION_INHOUSE,
+            FNB_ORDER, FNB_TABLE, FNB_ROOM_SERVICE, FNB_REPORT
         ));
 
         // RECEPTIONIST — lễ tân, tập trung check-in/out và folio
