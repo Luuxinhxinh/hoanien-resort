@@ -647,6 +647,73 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     @org.springframework.scheduling.annotation.Async
+    public void sendTourFeedbackEmail(com.kawai.models.TourBooking booking, com.kawai.models.Customer customer) {
+        if (customer == null || customer.getEmail() == null || customer.getEmail().isBlank()) {
+            logger.warn("Bỏ qua gửi email cảm ơn: customer {} không có email",
+                    customer != null ? customer.getId() : "null");
+            return;
+        }
+        try {
+            org.thymeleaf.context.Context ctx = new org.thymeleaf.context.Context(new java.util.Locale("vi", "VN"));
+            ctx.setVariable("customerName", customer.getFullName());
+            ctx.setVariable("tourName", booking.getSchedule() != null && booking.getSchedule().getTour() != null
+                    ? booking.getSchedule().getTour().getTourName() : "Hành trình trải nghiệm");
+            ctx.setVariable("bookingId", booking.getId());
+            ctx.setVariable("feedbackUrl", baseUrl + "/feedback?bookingId=" + booking.getId());
+            ctx.setVariable("resortPhone", resortPhone);
+            ctx.setVariable("resortWebsite", resortWebsite);
+
+            String html = templateEngine.process("email/tour-completed-feedback", ctx);
+            sendEmail(customer.getEmail(), "Cảm ơn bạn đã tham gia hành trình cùng HoaNien", html);
+        } catch (Exception e) {
+            logger.error("Lỗi gửi email cảm ơn và đánh giá cho booking #{}: {}", booking.getId(), e.getMessage());
+        }
+    }
+
+    @Override
+    @org.springframework.scheduling.annotation.Async
+    public void sendTourDepartureEmail(com.kawai.models.TourBooking booking, com.kawai.models.Customer customer,
+            java.util.List<com.kawai.models.TourItineraryDetail> activities) {
+        if (customer == null || customer.getEmail() == null || customer.getEmail().isBlank()) {
+            logger.warn("Bỏ qua gửi email khởi hành: customer {} không có email",
+                    customer != null ? customer.getId() : "null");
+            return;
+        }
+        try {
+            org.thymeleaf.context.Context ctx = new org.thymeleaf.context.Context(new java.util.Locale("vi", "VN"));
+            ctx.setVariable("customerName", customer.getFullName());
+
+            String tourName = "Hành trình trải nghiệm";
+            String departureDate = "";
+            String departureTime = "";
+            String guideName = "Hướng dẫn viên HoaNien";
+
+            if (booking.getSchedule() != null) {
+                com.kawai.models.TourSchedule sched = booking.getSchedule();
+                if (sched.getTour() != null) tourName = sched.getTour().getTourName();
+                if (sched.getDepartureDate() != null)
+                    departureDate = sched.getDepartureDate().format(DATE_FMT);
+                if (sched.getDepartureTime() != null)
+                    departureTime = sched.getDepartureTime().toString().substring(0, 5);
+            }
+
+            ctx.setVariable("tourName", tourName);
+            ctx.setVariable("departureDate", departureDate);
+            ctx.setVariable("departureTime", departureTime);
+            ctx.setVariable("guideName", guideName);
+            ctx.setVariable("activities", activities != null ? activities : java.util.Collections.emptyList());
+            ctx.setVariable("resortPhone", resortPhone);
+            ctx.setVariable("resortWebsite", resortWebsite);
+
+            String html = templateEngine.process("email/tour-departure-notification", ctx);
+            sendEmail(customer.getEmail(),
+                    "🚀 Hành trình " + tourName + " đã bắt đầu – Lịch trình chi tiết", html);
+        } catch (Exception e) {
+            logger.error("Lỗi gửi email khởi hành cho booking #{}: {}", booking.getId(), e.getMessage());
+        }
+    }
+
+    @Override
     public void sendTableCancellationDueToCheckoutEmail(com.kawai.models.TableReservation reservation, com.kawai.models.Customer customer) {
         if (customer == null || customer.getEmail() == null || customer.getEmail().isEmpty()) {
             return;

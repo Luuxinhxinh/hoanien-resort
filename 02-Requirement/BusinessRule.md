@@ -608,6 +608,37 @@ Tại mỗi địa điểm trong lịch trình (Checkpoint), Tour Guide phải �
 
 ---
 
+### BR-TR-10 — Đăng ký người đi cùng (Companions) và Điểm danh bằng FaceID
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+Đăng ký đặt tour cho nhóm khách từ 2 thành viên trở lên bắt buộc phải cung cấp thông tin người đi kèm bao gồm Họ và tên (bắt buộc, từ 2 từ trở lên), Độ tuổi (tối thiểu 12 tuổi), và Số điện thoại (nếu có, 10 chữ số). Khi đặt tour thành công, hệ thống tự động lưu thông tin người đi kèm vào bảng `Dependents` và sinh bản ghi điểm danh `TourAttendee` liên kết để Tour Guide điểm danh / quét FaceID cho thành viên đó.
+
+**Chi tiết:**
+- Giao diện đặt tour tự động mở rộng và sinh ô nhập thông tin người lớn đi cùng dựa trên tổng số người lớn (nếu adults > 1, sinh adults - 1 dòng nhập).
+- Backend kiểm tra tính hợp lệ của thông tin và liên kết người đi kèm với `Customer` chính qua bảng `Dependents`.
+- Tên người đi kèm hiển thị tại màn hình điểm danh `FaceID.html` thông qua trường `dependent.dependentName`.
+
+**Nguồn:** Yêu cầu Nghiệp vụ mới (07/2026) · [tour-detail.html](file:///d:/SWP/SWP-Group02/su26-swp391-se2023-g2/05-Development/kawai-backend/src/main/resources/templates/guest/tour-detail.html) · [TourBookingServiceImpl.java](file:///d:/SWP/SWP-Group02/su26-swp391-se2023-g2/05-Development/kawai-backend/src/main/java/com/kawai/services/impl/TourBookingServiceImpl.java)
+
+---
+
+### BR-TR-11 — Luồng Nghiệp vụ Bảo hiểm du lịch cho Tour
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+Đối với các tour có cấu hình bắt buộc mua bảo hiểm du lịch (`isInsuranceRequired = true`), khách hàng bắt buộc phải đồng ý mua bảo hiểm du lịch thì mới được tiến hành đặt tour (mã lỗi chặn `TOUR-INS-001`). Phí bảo hiểm tính trên đầu người sẽ được cộng vào hóa đơn thực tế và tổng số tiền thanh toán hiển thị trong popup thanh toán, đồng thời hệ thống tự động sinh mã bảo hiểm chung (`Policy Number`) cho ngày đi đó theo cấu trúc `INS-<Ngày>-SCH<ID>-<4 ký tự random>`.
+
+**Chi tiết:**
+- Giá tour hiển thị tại cột thông tin của trang chi tiết tour là giá thô cố định của tour (không tự động cộng dồn phí bảo hiểm vào). Phí bảo hiểm chỉ cộng vào tổng hóa đơn cuối cùng và hiển thị chi tiết tại popup thanh toán trước khi submit.
+- Nếu không đồng ý mua bảo hiểm ở các tour bắt buộc, hệ thống ở Backend sẽ ném ra ngoại lệ và chặn giao dịch (mã lỗi `TOUR-INS-001`).
+
+**Nguồn:** Yêu cầu Nghiệp vụ mới (07/2026) · [TourBookingServiceImpl.java](file:///d:/SWP/SWP-Group02/su26-swp391-se2023-g2/05-Development/kawai-backend/src/main/java/com/kawai/services/impl/TourBookingServiceImpl.java)
+
+---
+
 ## 7. BR-FIN — Tài chính & Thanh toán
 
 ### BR-FIN-01 — Điều kiện Check-out Tài chính

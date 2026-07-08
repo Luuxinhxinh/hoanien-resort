@@ -34,6 +34,15 @@ public class TourGuideController {
     @org.springframework.beans.factory.annotation.Autowired
     private com.kawai.repositories.TourBookingRepository tourBookingRepository;
 
+    @org.springframework.beans.factory.annotation.Autowired
+    private com.kawai.repositories.TourItineraryDetailRepository tourItineraryDetailRepository;
+
+    @org.springframework.beans.factory.annotation.Autowired
+    private com.kawai.repositories.ReviewRepository reviewRepository;
+
+    @org.springframework.beans.factory.annotation.Autowired
+    private com.kawai.services.interfaces.EmailService emailService;
+
     @org.springframework.web.bind.annotation.ModelAttribute
     public void addEmployeeToModel(Principal principal, Model model, jakarta.servlet.http.HttpServletRequest request) {
         if (principal != null) {
@@ -309,6 +318,73 @@ public class TourGuideController {
         model.addAttribute("checkedInCount", checkedIn);
         model.addAttribute("totalAttendees", attendees.size());
 
+        // Load detailed activities and handbook for the active tour schedule dynamically
+        com.kawai.models.Tour currentTour = null;
+        if (targetSchedule != null) {
+            currentTour = targetSchedule.getTour();
+        } else if (!attendees.isEmpty()) {
+            com.kawai.models.TourBooking tb = attendees.get(0).getTourBooking();
+            if (tb != null && tb.getSchedule() != null) {
+                currentTour = tb.getSchedule().getTour();
+            }
+        }
+
+        java.util.List<java.util.Map<String, Object>> actList = new java.util.ArrayList<>();
+        java.util.Map<String, Object> hbMap = new java.util.HashMap<>();
+        String tourTypeKey = "doantu";
+
+        if (currentTour != null) {
+            tourTypeKey = currentTour.getTourType();
+            hbMap.put("spec", currentTour.getHandbookSpec());
+
+            com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+            Object logisticsObj = null;
+            Object explanationsObj = null;
+            try {
+                if (currentTour.getHandbookLogistics() != null) {
+                    logisticsObj = mapper.readValue(currentTour.getHandbookLogistics(), Object.class);
+                }
+                if (currentTour.getHandbookExplanations() != null) {
+                    explanationsObj = mapper.readValue(currentTour.getHandbookExplanations(), Object.class);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            hbMap.put("logistics", logisticsObj);
+            hbMap.put("explanations", explanationsObj);
+
+            java.util.List<com.kawai.models.TourItineraryDetail> details = tourItineraryDetailRepository.findByItineraryTourId(currentTour.getId());
+            for (com.kawai.models.TourItineraryDetail d : details) {
+                java.util.Map<String, Object> map = new java.util.HashMap<>();
+                String timeStr = "";
+                if (d.getStartTime() != null) {
+                    timeStr = d.getStartTime().toString().substring(0, 5);
+                    if (d.getEndTime() != null) {
+                        timeStr += " - " + d.getEndTime().toString().substring(0, 5);
+                    }
+                }
+                map.put("time", timeStr);
+                map.put("title", d.getActivityTitle());
+                map.put("desc", d.getActivityDescription());
+                actList.add(map);
+            }
+        } else {
+            hbMap.put("spec", "");
+            hbMap.put("logistics", new java.util.ArrayList<>());
+            hbMap.put("explanations", new java.util.ArrayList<>());
+        }
+
+        try {
+            com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+            model.addAttribute("tourActivitiesJson", mapper.writeValueAsString(actList));
+            model.addAttribute("tourHandbookJson", mapper.writeValueAsString(hbMap));
+        } catch (Exception e) {
+            model.addAttribute("tourActivitiesJson", "[]");
+            model.addAttribute("tourHandbookJson", "{}");
+            e.printStackTrace();
+        }
+        model.addAttribute("tourType", tourTypeKey);
+
         return "tour/FaceID";
     }
 
@@ -380,7 +456,7 @@ public class TourGuideController {
                 }
             }
             map.put("image", image);
-            map.put("type", "Cao cấp");
+            map.put("type", "");
             
             // Count total bookings/attendees dynamically from database
             int count = tourAttendeeRepository.findByTourBooking_Schedule_Id(sched.getId()).size();
@@ -400,6 +476,99 @@ public class TourGuideController {
         if (principal != null) {
             model.addAttribute("username", principal.getName());
         }
+
+        java.util.List<com.kawai.models.Review> tourReviews = new java.util.ArrayList<>();
+
+        // Demo Review 1: Elena Rodriguez
+        com.kawai.models.Review rev1 = new com.kawai.models.Review();
+        rev1.setId(-1L);
+        com.kawai.models.Customer cust1 = new com.kawai.models.Customer();
+        cust1.setFullName("Elena Rodriguez");
+        rev1.setCustomer(cust1);
+        rev1.setRatingTour(5);
+        rev1.setReviewText("Hướng dẫn viên cực kỳ thân thiện và chuyên nghiệp. Phong cảnh tuyệt đẹp và chúng tôi đã có một khoảng thời gian tuyệt vời. Rất đáng trải nghiệm!");
+        rev1.setCreatedAt(java.time.LocalDateTime.of(2026, 7, 6, 14, 32));
+        com.kawai.models.TourBooking tb1 = new com.kawai.models.TourBooking();
+        com.kawai.models.TourSchedule ts1 = new com.kawai.models.TourSchedule();
+        com.kawai.models.Tour t1 = new com.kawai.models.Tour();
+        t1.setTourName("Hành trình Đoàn Tụ");
+        ts1.setTour(t1);
+        tb1.setSchedule(ts1);
+        rev1.setTourBooking(tb1);
+        tourReviews.add(rev1);
+
+        // Demo Review 2: Nguyễn Lan Chi
+        com.kawai.models.Review rev2 = new com.kawai.models.Review();
+        rev2.setId(-2L);
+        com.kawai.models.Customer cust2 = new com.kawai.models.Customer();
+        cust2.setFullName("Nguyễn Lan Chi");
+        rev2.setCustomer(cust2);
+        rev2.setRatingTour(5);
+        rev2.setReviewText("Một hành trình tuyệt vời đưa tôi trở về với nét bình yên mộc mạc của làng quê. Dịch vụ chăm sóc chu đáo, nước uống thảo mộc rất ngon và hướng dẫn viên vô cùng am hiểu văn hóa địa phương.");
+        rev2.setCreatedAt(java.time.LocalDateTime.of(2026, 7, 5, 9, 15));
+        com.kawai.models.TourBooking tb2 = new com.kawai.models.TourBooking();
+        com.kawai.models.TourSchedule ts2 = new com.kawai.models.TourSchedule();
+        com.kawai.models.Tour t2 = new com.kawai.models.Tour();
+        t2.setTourName("Hành trình Đồng Nội");
+        ts2.setTour(t2);
+        tb2.setSchedule(ts2);
+        rev2.setTourBooking(tb2);
+        tourReviews.add(rev2);
+
+        // Demo Review 3: Marcus Aurelius
+        com.kawai.models.Review rev3 = new com.kawai.models.Review();
+        rev3.setId(-3L);
+        com.kawai.models.Customer cust3 = new com.kawai.models.Customer();
+        cust3.setFullName("Marcus Aurelius");
+        rev3.setCustomer(cust3);
+        rev3.setRatingTour(5);
+        rev3.setReviewText("Fantastic historical tour of Trang An and Hoa Lu. The guide spoke fluent English and shared fascinating stories about the ancient dynasty. The architecture and landscape were breathtaking.");
+        rev3.setCreatedAt(java.time.LocalDateTime.of(2026, 7, 4, 16, 45));
+        com.kawai.models.TourBooking tb3 = new com.kawai.models.TourBooking();
+        com.kawai.models.TourSchedule ts3 = new com.kawai.models.TourSchedule();
+        com.kawai.models.Tour t3 = new com.kawai.models.Tour();
+        t3.setTourName("Hành trình Di Sản");
+        ts3.setTour(t3);
+        tb3.setSchedule(ts3);
+        rev3.setTourBooking(tb3);
+        tourReviews.add(rev3);
+
+        // Fetch DB reviews and append them
+        java.util.List<com.kawai.models.Review> dbReviews = reviewRepository.findApprovedTourReviews();
+        if (dbReviews != null) {
+            tourReviews.addAll(dbReviews);
+        }
+        
+        int total = tourReviews.size();
+        double avg = 0.0;
+        int satisfactionCount = 0;
+        int negativeCount = 0;
+
+        if (total > 0) {
+            double sum = 0.0;
+            for (com.kawai.models.Review r : tourReviews) {
+                int rating = r.getRatingTour() != null ? r.getRatingTour() : 5;
+                sum += rating;
+                if (rating >= 4) {
+                    satisfactionCount++;
+                }
+                if (rating <= 2) {
+                    negativeCount++;
+                }
+            }
+            avg = sum / total;
+        } else {
+            avg = 5.0;
+        }
+
+        int satisfactionRate = total > 0 ? (int) Math.round((double) satisfactionCount / total * 100) : 100;
+
+        model.addAttribute("tourReviews", tourReviews);
+        model.addAttribute("totalReviews", total);
+        model.addAttribute("averageRating", String.format(java.util.Locale.US, "%.1f", avg));
+        model.addAttribute("satisfactionRate", satisfactionRate + "%");
+        model.addAttribute("negativeReviewsCount", negativeCount);
+
         return "tour/Feedback";
     }
 
@@ -633,5 +802,138 @@ public class TourGuideController {
             e.printStackTrace();
         }
         return false;
+    }
+
+    @org.springframework.web.bind.annotation.PostMapping("/start-tour")
+    public String startTour(
+            @org.springframework.web.bind.annotation.RequestParam("scheduleId") Long scheduleId,
+            jakarta.servlet.http.HttpServletRequest request) {
+
+        com.kawai.models.TourSchedule schedule = tourScheduleRepository.findById(scheduleId).orElse(null);
+        if (schedule != null && !"completed".equalsIgnoreCase(schedule.getScheduleStatus())) {
+            schedule.setScheduleStatus("ongoing");
+            schedule.setActualStartTime(java.time.LocalDateTime.now());
+            tourScheduleRepository.saveAndFlush(schedule);
+
+            // Load activities for this tour
+            java.util.List<com.kawai.models.TourItineraryDetail> activities = new java.util.ArrayList<>();
+            if (schedule.getTour() != null) {
+                try {
+                    activities = tourItineraryDetailRepository.findByItineraryTourId(schedule.getTour().getId());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+            // Send departure notification email to all customers in this schedule
+            java.util.List<com.kawai.models.TourBooking> bookings = tourBookingRepository.findBySchedule(schedule);
+            if (bookings != null) {
+                final java.util.List<com.kawai.models.TourItineraryDetail> actsFinal = activities;
+                for (com.kawai.models.TourBooking booking : bookings) {
+                    if (booking.getCustomer() != null) {
+                        try {
+                            emailService.sendTourDepartureEmail(booking, booking.getCustomer(), actsFinal);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+        }
+
+        String referer = request.getHeader("Referer");
+        if (referer != null && !referer.isBlank()) {
+            String cleanUrl = referer.replaceAll("[&?]toast=[^&]*", "");
+            String separator = cleanUrl.contains("?") ? "&" : "?";
+            return "redirect:" + cleanUrl + separator + "toast=start_success";
+        }
+        return "redirect:/tourguide/dashboard?toast=start_success";
+    }
+
+    @org.springframework.web.bind.annotation.PostMapping("/finish-tour")
+    public String finishTour(
+            @org.springframework.web.bind.annotation.RequestParam("scheduleId") Long scheduleId,
+            jakarta.servlet.http.HttpServletRequest request) {
+        
+        com.kawai.models.TourSchedule schedule = tourScheduleRepository.findById(scheduleId).orElse(null);
+        if (schedule != null) {
+            schedule.setScheduleStatus("completed");
+            tourScheduleRepository.saveAndFlush(schedule);
+
+            // Update all bookings on this schedule to Completed
+            java.util.List<com.kawai.models.TourBooking> bookings = tourBookingRepository.findBySchedule(schedule);
+            if (bookings != null) {
+                for (com.kawai.models.TourBooking booking : bookings) {
+                    booking.setBookingStatus("Completed");
+                    tourBookingRepository.saveAndFlush(booking);
+
+                    // Send email to the customer
+                    if (booking.getCustomer() != null) {
+                        try {
+                            emailService.sendTourFeedbackEmail(booking, booking.getCustomer());
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+        }
+
+        String referer = request.getHeader("Referer");
+        if (referer != null && !referer.isBlank()) {
+            String cleanUrl = referer.replaceAll("[&?]toast=[^&]*", "");
+            String separator = cleanUrl.contains("?") ? "&" : "?";
+            return "redirect:" + cleanUrl + separator + "toast=finish_success";
+        }
+        return "redirect:/tourguide/dashboard?toast=finish_success";
+    }
+
+    /**
+     * Hoàn tác trạng thái tour (dành cho trường hợp ấn nhầm).
+     * - ongoing  → Open    : xoá actualStartTime, khôi phục về Chờ Bắt Đầu
+     * - completed → ongoing : khôi phục booking status về Confirmed
+     */
+    @org.springframework.web.bind.annotation.PostMapping("/reset-tour")
+    public String resetTour(
+            @org.springframework.web.bind.annotation.RequestParam("scheduleId") Long scheduleId,
+            @org.springframework.web.bind.annotation.RequestParam("targetStatus") String targetStatus,
+            jakarta.servlet.http.HttpServletRequest request) {
+
+        com.kawai.models.TourSchedule schedule = tourScheduleRepository.findById(scheduleId).orElse(null);
+        if (schedule != null) {
+            String currentStatus = schedule.getScheduleStatus();
+
+            if ("Open".equalsIgnoreCase(targetStatus)
+                    && "ongoing".equalsIgnoreCase(currentStatus)) {
+                // Hoàn tác bắt đầu: ongoing → Open
+                schedule.setScheduleStatus("Open");
+                schedule.setActualStartTime(null);
+                tourScheduleRepository.saveAndFlush(schedule);
+
+            } else if ("ongoing".equalsIgnoreCase(targetStatus)
+                    && "completed".equalsIgnoreCase(currentStatus)) {
+                // Hoàn tác hoàn thành: completed → ongoing
+                schedule.setScheduleStatus("ongoing");
+                tourScheduleRepository.saveAndFlush(schedule);
+
+                // Khôi phục trạng thái đặt chỗ về Confirmed
+                java.util.List<com.kawai.models.TourBooking> bookings =
+                        tourBookingRepository.findBySchedule(schedule);
+                if (bookings != null) {
+                    for (com.kawai.models.TourBooking booking : bookings) {
+                        booking.setBookingStatus("Confirmed");
+                        tourBookingRepository.saveAndFlush(booking);
+                    }
+                }
+            }
+        }
+
+        String referer = request.getHeader("Referer");
+        if (referer != null && !referer.isBlank()) {
+            String cleanUrl = referer.replaceAll("[&?]toast=[^&]*", "");
+            String separator = cleanUrl.contains("?") ? "&" : "?";
+            return "redirect:" + cleanUrl + separator + "toast=reset_success";
+        }
+        return "redirect:/tourguide/dashboard?toast=reset_success";
     }
 }

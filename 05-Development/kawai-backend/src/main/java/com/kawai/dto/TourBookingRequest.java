@@ -137,6 +137,15 @@ public class TourBookingRequest {
     }
 
     private String notes;
+    private java.util.List<CompanionRequest> companions = new java.util.ArrayList<>();
+
+    public java.util.List<CompanionRequest> getCompanions() {
+        return companions;
+    }
+
+    public void setCompanions(java.util.List<CompanionRequest> companions) {
+        this.companions = companions;
+    }
 
     public String getNotes() {
         return notes;
@@ -144,5 +153,56 @@ public class TourBookingRequest {
 
     public void setNotes(String notes) {
         this.notes = notes;
+    }
+
+    // ─── Bảo hiểm ────────────────────────────────────────────────────────
+    /** Khách đồng ý mua bảo hiểm (bắt buộc với tour có isInsuranceRequired=true) */
+    private boolean acceptInsurance = false;
+
+    public boolean isAcceptInsurance() {
+        return acceptInsurance;
+    }
+
+    public void setAcceptInsurance(boolean acceptInsurance) {
+        this.acceptInsurance = acceptInsurance;
+    }
+
+    // Companion DTO representation
+    public static class CompanionRequest {
+        private String name;
+        private Integer age;
+        private String phone;
+
+        public CompanionRequest() {}
+
+        public CompanionRequest(String name, Integer age, String phone) {
+            this.name = name;
+            this.age = age;
+            this.phone = phone;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public Integer getAge() {
+            return age;
+        }
+
+        public void setAge(Integer age) {
+            this.age = age;
+        }
+
+        public String getPhone() {
+            return phone;
+        }
+
+        public void setPhone(String phone) {
+            this.phone = phone;
+        }
     }
 }

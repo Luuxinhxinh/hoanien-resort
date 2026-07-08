@@ -9,6 +9,8 @@ public class Review {
     @ManyToOne @JoinColumn(name="room_booking_detail_id") private RoomBookingDetail roomBookingDetail;
     @ManyToOne @JoinColumn(name="tour_booking_id") private TourBooking tourBooking;
     @Column(name="rating_service", nullable=false) private Integer ratingService;
+    @Column(name="rating_tour") private Integer ratingTour;
+    @Column(name="rating_room_dining") private Integer ratingRoomDining;
     @Column(name="review_text", columnDefinition="TEXT") private String reviewText;
     @Column(name="created_at", nullable=false) private LocalDateTime createdAt = LocalDateTime.now();
     @Column(name="moderation_status", nullable=false) private String moderationStatus = "Pending";

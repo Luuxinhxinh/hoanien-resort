@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Thông báo khởi hành hành trình</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500;600&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+      background-color: #f5f2ee;
+      color: #2d2926;
+    }
+
+    .email-outer { background-color: #f5f2ee; padding: 40px 16px; }
+
+    .wrapper {
+      max-width: 600px;
+      margin: 0 auto;
+      border-radius: 4px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.07);
+      border: 1px solid #e5e1da;
+    }
+
+    /* Header */
+    .header {
+      background: #2d2926;
+      padding: 36px 40px 28px;
+      text-align: center;
+    }
+
+    .header .brand {
+      font-family: 'EB Garamond', Georgia, serif;
+      font-size: 40px;
+      font-weight: 400;
+      font-style: italic;
+      color: #c5a059;
+      margin-bottom: 4px;
+    }
+
+    .header .tagline {
+      font-size: 10px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: rgba(229, 225, 218, 0.5);
+    }
+
+    /* Banner */
+    .banner {
+      background: linear-gradient(135deg, #c5a059 0%, #a07840 100%);
+      padding: 32px 40px;
+      text-align: center;
+    }
+
+    .banner .icon { font-size: 40px; margin-bottom: 10px; display: block; }
+
+    .banner h1 {
+      font-family: 'EB Garamond', Georgia, serif;
+      font-size: 26px;
+      font-weight: 400;
+      font-style: italic;
+      color: #ffffff;
+      margin-bottom: 6px;
+    }
+
+    .banner p { font-size: 13px; color: rgba(255,255,255,0.85); font-weight: 300; }
+
+    /* Body */
+    .body { background: #ffffff; padding: 36px 40px; border-bottom: 1px solid #e5e1da; }
+
+    .greeting { font-size: 14px; line-height: 1.8; color: #4b5563; margin-bottom: 20px; }
+
+    /* Info Box */
+    .info-box {
+      background: #fbf9f6;
+      border: 1px solid #e5e1da;
+      border-radius: 4px;
+      padding: 20px 24px;
+      margin-bottom: 28px;
+    }
+
+    .info-box .info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid #f0ece6;
+      font-size: 13px;
+    }
+
+    .info-box .info-row:last-child { border-bottom: none; }
+    .info-box .info-label { color: #9ca3af; text-transform: uppercase; letter-spacing: 1px; font-size: 10px; }
+    .info-box .info-value { font-weight: 600; color: #2d2926; }
+
+    /* Itinerary Section */
+    .section-title {
+      font-family: 'EB Garamond', Georgia, serif;
+      font-size: 18px;
+      font-style: italic;
+      color: #2d2926;
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #e5e1da;
+    }
+
+    .activity-item {
+      display: flex;
+      gap: 16px;
+      padding: 14px 0;
+      border-bottom: 1px solid #f5f2ee;
+    }
+
+    .activity-item:last-child { border-bottom: none; }
+
+    .activity-time {
+      min-width: 90px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #c5a059;
+      letter-spacing: 0.5px;
+      padding-top: 2px;
+    }
+
+    .activity-content { flex: 1; }
+
+    .activity-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #2d2926;
+      margin-bottom: 3px;
+    }
+
+    .activity-desc {
+      font-size: 12px;
+      color: #6b7280;
+      line-height: 1.6;
+    }
+
+    .meal-badge {
+      display: inline-block;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 2px 7px;
+      border-radius: 2px;
+      background: #fef3c7;
+      color: #92400e;
+      margin-top: 4px;
+    }
+
+    /* Note box */
+    .note-box {
+      background: #fffbeb;
+      border-left: 3px solid #c5a059;
+      padding: 14px 18px;
+      margin-top: 24px;
+      font-size: 12px;
+      color: #78350f;
+      line-height: 1.7;
+    }
+
+    /* Footer */
+    .footer {
+      background: #2d2926;
+      padding: 28px 40px;
+      text-align: center;
+    }
+
+    .footer .contact { font-size: 11px; color: rgba(229, 225, 218, 0.5); margin-bottom: 6px; }
+    .footer .copy { font-size: 9px; letter-spacing: 2px; color: rgba(229, 225, 218, 0.25); text-transform: uppercase; }
+  </style>
+</head>
+
+<body>
+  <div class="email-outer">
+    <div class="wrapper">
+
+      <!-- Header -->
+      <div class="header">
+        <div class="brand">HoaNien</div>
+        <div class="tagline">Retreat Resort &amp; Hub</div>
+      </div>
+
+      <!-- Banner -->
+      <div class="banner">
+        <span class="icon">🚀</span>
+        <h1>Hành Trình Bắt Đầu Hôm Nay!</h1>
+        <p>Chúc Quý khách một hành trình trọn vẹn và đầy ắp kỷ niệm</p>
+      </div>
+
+      <!-- Body -->
+      <div class="body">
+        <p class="greeting">
+          Kính gửi Quý khách <strong th:text="${customerName}">Nguyễn Văn A</strong>,
+        </p>
+        <p class="greeting">
+          Hành trình <strong th:text="${tourName}">Đoàn Tụ – Cố Đô Huế</strong> của Quý khách
+          đã chính thức bắt đầu. Dưới đây là lịch trình hoạt động chi tiết để Quý khách tiện theo dõi và
+          chuẩn bị cho từng điểm đến trong ngày.
+        </p>
+
+        <!-- Tour Info -->
+        <div class="info-box">
+          <div class="info-row">
+            <span class="info-label">Hành trình</span>
+            <span class="info-value" th:text="${tourName}">Đoàn Tụ – Cố Đô Huế</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Ngày khởi hành</span>
+            <span class="info-value" th:text="${departureDate}">07/07/2026</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Giờ xuất phát</span>
+            <span class="info-value" th:text="${departureTime}">08:00</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Hướng dẫn viên</span>
+            <span class="info-value" th:text="${guideName}">Nguyễn Hướng Dẫn</span>
+          </div>
+        </div>
+
+        <!-- Itinerary -->
+        <div class="section-title">📅 Lịch Trình Hoạt Động Chi Tiết</div>
+
+        <div th:if="${activities != null and !#lists.isEmpty(activities)}">
+          <div class="activity-item" th:each="act : ${activities}">
+            <div class="activity-time">
+              <span th:text="${act.startTime != null ? act.startTime.toString().substring(0,5) : '--:--'}">08:00</span>
+              <span th:if="${act.endTime != null}"> – <span th:text="${act.endTime.toString().substring(0,5)}">09:00</span></span>
+            </div>
+            <div class="activity-content">
+              <div class="activity-title" th:text="${act.activityTitle}">Tham quan Đại Nội</div>
+              <div class="activity-desc" th:text="${act.activityDescription}">Khám phá quần thể di tích hoàng thành triều Nguyễn.</div>
+              <span class="meal-badge" th:if="${act.mealType != null and !act.mealType.isEmpty()}" th:text="${act.mealType}">Bữa trưa</span>
+            </div>
+          </div>
+        </div>
+
+        <p th:if="${activities == null or #lists.isEmpty(activities)}" style="color:#9ca3af;font-size:13px;padding:12px 0;">
+          Lịch trình chi tiết sẽ được hướng dẫn viên thông báo trực tiếp khi bắt đầu chuyến đi.
+        </p>
+
+        <!-- Note -->
+        <div class="note-box">
+          <strong>📌 Lưu ý quan trọng:</strong><br/>
+          Vui lòng mặc trang phục phù hợp với lịch trình, mang theo giấy tờ tùy thân và đảm bảo sức khỏe tốt.
+          Nếu có bất kỳ thắc mắc nào, Quý khách vui lòng liên hệ hướng dẫn viên trực tiếp hoặc hotline resort.
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="footer">
+        <div class="contact">Hotline: <span th:text="${resortPhone}">1900 xxxx</span> | <span th:text="${resortWebsite}">hoaniensorretreat.vn</span></div>
+        <div class="copy">© 2026 HoaNien Retreat. All Rights Reserved.</div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

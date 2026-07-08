@@ -93,4 +93,15 @@ public interface EmailService {
      * Gửi email thông báo hoàn tiền thành công kèm biên lai (ủy nhiệm chi).
      */
     void sendRefundSuccessEmail(com.kawai.models.RefundRequest refundRequest, com.kawai.models.Customer customer, String absoluteAttachmentPath);
+
+    /**
+     * Gửi email cảm ơn và hướng dẫn đánh giá sau khi tour kết thúc.
+     */
+    void sendTourFeedbackEmail(com.kawai.models.TourBooking booking, com.kawai.models.Customer customer);
+
+    /**
+     * Gửi email thông báo khởi hành tour kèm lịch trình hoạt động chi tiết.
+     */
+    void sendTourDepartureEmail(com.kawai.models.TourBooking booking, com.kawai.models.Customer customer,
+            java.util.List<com.kawai.models.TourItineraryDetail> activities);
 }

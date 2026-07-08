@@ -168,6 +168,20 @@
             border: 4px solid #1f1b16;
             border-radius: 8px;
         }
+
+        .pagination-btn {
+            font-size: 11px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.4);
+            border-bottom: 2px solid transparent;
+            padding: 2px 6px;
+            transition: color 0.3s, border-color 0.3s;
+            cursor: pointer;
+        }
+        .pagination-btn.active {
+            color: #fbddc7;
+            border-bottom-color: #fbddc7;
+        }
     </style>
 </head>
 
@@ -184,6 +198,8 @@
                     <a href="/experiences"
                         class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200">Experiences</a>
                     <a href="/tours/search" class="nav-text border-b border-current pb-0.5">Tours</a>
+                    <a href="/feedback"
+                        class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200">Feedback</a>
                 </div>
 
                 <div class="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 font-headline text-[32px] italic tracking-tighter nav-brand text-center cursor-pointer w-max"
@@ -226,6 +242,23 @@
                 <a href="#journey-4"
                     class="sub-nav-text hover:opacity-100 active:scale-95 transition-all duration-200 whitespace-nowrap">Tĩnh
                     Lặng</a>
+                <a href="#journey-5"
+                    class="sub-nav-text hover:opacity-100 active:scale-95 transition-all duration-200 whitespace-nowrap">Hạ
+                    Long</a>
+                <a href="#journey-6"
+                    class="sub-nav-text hover:opacity-100 active:scale-95 transition-all duration-200 whitespace-nowrap">Sapa</a>
+                <a href="#journey-7"
+                    class="sub-nav-text hover:opacity-100 active:scale-95 transition-all duration-200 whitespace-nowrap">Cát
+                    Tiên</a>
+                <a href="#journey-8"
+                    class="sub-nav-text hover:opacity-100 active:scale-95 transition-all duration-200 whitespace-nowrap">Mũi
+                    Né</a>
+                <a href="#journey-9"
+                    class="sub-nav-text hover:opacity-100 active:scale-95 transition-all duration-200 whitespace-nowrap">Phú
+                    Quốc</a>
+                <a href="#journey-10"
+                    class="sub-nav-text hover:opacity-100 active:scale-95 transition-all duration-200 whitespace-nowrap">Cần
+                    Thơ</a>
             </div>
         </div>
     </div>
@@ -245,7 +278,7 @@
                     Hành trình chạm vào những mảnh ghép ký ức nguyên bản.
                 </p>
                 <div class="mt-10 flex flex-col items-center gap-6">
-                    <a href="#journey-1"
+                    <a href="#journey-viewer" onclick="const viewer = document.getElementById('journey-viewer'); if (viewer) { viewer.scrollIntoView({ behavior: 'smooth' }); } return false;"
                         class="nav-btn-book border border-white/50 backdrop-blur-sm inline-block px-10 py-3 text-[11px] font-bold uppercase tracking-[0.4em] text-white rounded-full hover:bg-white/10 hover:border-primary transition-all duration-400">Khám phá hành trình</a>
                     <div class="animate-bounce opacity-40">
                         <span class="material-symbols-outlined text-3xl">keyboard_double_arrow_down</span>
@@ -254,86 +287,42 @@
             </div>
         </section>
 
-        <section class="snap-section" id="journey-1">
-            <div class="absolute inset-0">
-                <img alt="Đoàn tụ — Huế" class="w-full h-full object-cover brightness-90"
+        <section class="snap-section" id="journey-viewer">
+            <div class="absolute inset-0 transition-opacity duration-700" id="viewer-bg-container">
+                <img alt="Tour Background" class="w-full h-full object-cover brightness-90 transition-transform duration-1000 scale-100" id="viewer-bg-img"
                     src="/AnhTour/z7930565882675_f94fe322fc3a06efe82eccf1e76b09e1.jpg">
                 <div class="absolute inset-0 journey-overlay"></div>
             </div>
-            <div class="relative h-full flex items-center justify-center text-center px-margin-desktop">
-                <div class="max-w-3xl space-y-8">
-                    <h2 class="font-headline text-4xl md:text-6xl italic">Đoàn tụ - Huế</h2>
-                    <div class="w-12 h-[1px] bg-primary mx-auto"></div>
-                    <p class="font-headline text-lg md:text-2xl font-light leading-relaxed opacity-90">
-                        Tìm về hơi ấm vẹn nguyên của lòng biết ơn và sự gắn kết. Nơi những điển tích cổ kính, nghi thức
-                        têm trầu cánh phượng và mâm cơm vị cội nguồn khơi mở cuộc sum vầy.
-                    </p>
-                    <a href="/tours/detail?type=doantu"
-                        class="inline-block mt-8 text-[11px] font-bold uppercase tracking-[0.4em] border-b border-white/40 pb-2 hover:border-primary hover:text-primary transition-all">Khám
-                        phá trải nghiệm</a>
+            
+            <div class="relative h-full flex flex-col justify-between py-24 text-center px-margin-desktop z-10">
+                <!-- Content Area -->
+                <div class="flex-grow flex items-center justify-center">
+                    <div class="max-w-3xl space-y-8 opacity-100 transition-all duration-500" id="viewer-content">
+                        <h2 class="font-headline text-4xl md:text-6xl italic" id="viewer-title">Đoàn tụ - Huế</h2>
+                        <div class="w-12 h-[1px] bg-primary mx-auto"></div>
+                        <p class="font-headline text-lg md:text-2xl font-light leading-relaxed opacity-90" id="viewer-desc">
+                            Tìm về hơi ấm vẹn nguyên của lòng biết ơn và sự gắn kết. Nơi những điển tích cổ kính, nghi thức
+                            têm trầu cánh phượng và mâm cơm vị cội nguồn khơi mở cuộc sum vầy.
+                        </p>
+                        <a href="/tours/detail?type=doantu" id="viewer-link"
+                            class="inline-block mt-8 text-[11px] font-bold uppercase tracking-[0.4em] border-b border-white/40 pb-2 hover:border-primary hover:text-primary transition-all">Khám
+                            phá trải nghiệm</a>
+                    </div>
                 </div>
-            </div>
-        </section>
-
-        <section class="snap-section" id="journey-2">
-            <div class="absolute inset-0">
-                <img alt="Tinh Túy Đồng Nội — Quảng Nam" class="w-full h-full object-cover brightness-90"
-                    src="/AnhTour/Com.jpg">
-                <div class="absolute inset-0 journey-overlay"></div>
-            </div>
-            <div class="relative h-full flex items-center justify-center text-center px-margin-desktop">
-                <div class="max-w-3xl space-y-8">
-                    <h2 class="font-headline text-4xl md:text-6xl italic">Tinh túy đồng nội - Quảng Nam</h2>
-                    <div class="w-12 h-[1px] bg-primary mx-auto"></div>
-                    <p class="font-headline text-lg md:text-2xl font-light leading-relaxed opacity-90">
-                        Lắng nghe nhịp điệu mộc mạc của đất mẹ và hồn quê xứ Quảng. Hành trình đánh thức mọi giác quan
-                        qua hương lúa non nếp cái hoa vàng, hơi ấm bếp củi.
-                    </p>
-                    <a href="/tours/detail?type=dongnoi"
-                        class="inline-block mt-8 text-[11px] font-bold uppercase tracking-[0.4em] border-b border-white/40 pb-2 hover:border-primary hover:text-primary transition-all">Gói
-                        trọn hương quê</a>
-                </div>
-            </div>
-        </section>
-
-        <section class="snap-section" id="journey-3">
-            <div class="absolute inset-0">
-                <img alt="Di sản thủ công — Ninh Bình" class="w-full h-full object-cover brightness-90"
-                    src="/AnhTour/ThuCong.jpg">
-                <div class="absolute inset-0 journey-overlay"></div>
-            </div>
-            <div class="relative h-full flex items-center justify-center text-center px-margin-desktop">
-                <div class="max-w-3xl space-y-8">
-                    <h2 class="font-headline text-4xl md:text-6xl italic">Di sản thủ công - Ninh Bình</h2>
-                    <div class="w-12 h-[1px] bg-primary mx-auto"></div>
-                    <p class="font-headline text-lg md:text-2xl font-light leading-relaxed opacity-90">
-                        Chạm vào hồn cốt của thời gian qua những tạo tác từ đôi bàn tay nghệ nhân. Khi sợi mây tre đan
-                        cài, kén vàng ươm dệt tơ và đất sét mộc hóa thành gốm quý.
-                    </p>
-                    <a href="/tours/detail?type=disan"
-                        class="inline-block mt-8 text-[11px] font-bold uppercase tracking-[0.4em] border-b border-white/40 pb-2 hover:border-primary hover:text-primary transition-all">Trải
-                        nghiệm thủ công</a>
-                </div>
-            </div>
-        </section>
-
-        <section class="snap-section" id="journey-4">
-            <div class="absolute inset-0">
-                <img alt="Tĩnh lặng liên hoa — Đồng Sen Tháp Mười" class="w-full h-full object-cover brightness-90"
-                    src="/AnhTour/ThapMuoi.jpg">
-                <div class="absolute inset-0 journey-overlay"></div>
-            </div>
-            <div class="relative h-full flex items-center justify-center text-center px-margin-desktop">
-                <div class="max-w-3xl space-y-8">
-                    <h2 class="font-headline text-4xl md:text-6xl italic">Tĩnh lặng liên hoa - Tháp Mười</h2>
-                    <div class="w-12 h-[1px] bg-primary mx-auto"></div>
-                    <p class="font-headline text-lg md:text-2xl font-light leading-relaxed opacity-90">
-                        Sự thanh lọc thuần khiết cho thân - tâm - trí giữa vùng sông nước mờ sương. Thả trôi mọi âu lo
-                        theo hương sen bánh tẻ ngậm sương sớm và thưởng ngụm trà nhị thanh sạch.
-                    </p>
-                    <a href="/tours/detail?type=tinhlang"
-                        class="inline-block mt-8 text-[11px] font-bold uppercase tracking-[0.4em] border-b border-white/40 pb-2 hover:border-primary hover:text-primary transition-all">Tìm
-                        về tĩnh lặng</a>
+                
+                <!-- Pagination Controls -->
+                <div class="flex justify-center items-center gap-4 md:gap-6 mt-auto">
+                    <button onclick="prevTour()" class="w-10 h-10 border border-white/20 rounded-full flex items-center justify-center hover:bg-white/10 hover:border-primary transition-all active:scale-90" type="button">
+                        <span class="material-symbols-outlined text-white text-base">arrow_back</span>
+                    </button>
+                    
+                    <div class="flex items-center gap-3 overflow-x-auto max-w-[280px] md:max-w-md px-2 py-1 select-none" id="viewer-pagination-dots">
+                        <!-- Numbers 1, 2, 3... will be rendered here dynamically -->
+                    </div>
+                    
+                    <button onclick="nextTour()" class="w-10 h-10 border border-white/20 rounded-full flex items-center justify-center hover:bg-white/10 hover:border-primary transition-all active:scale-90" type="button">
+                        <span class="material-symbols-outlined text-white text-base">arrow_forward</span>
+                    </button>
                 </div>
             </div>
         </section>
@@ -373,27 +362,211 @@
     </div>
 
     <script>
+        const tourList = [
+            {
+                key: 'doantu',
+                title: 'Đoàn tụ - Huế',
+                description: 'Tìm về hơi ấm vẹn nguyên của lòng biết ơn và sự gắn kết. Nơi những điển tích cổ kính, nghi thức têm trầu cánh phượng và mâm cơm vị cội nguồn khơi mở cuộc sum vầy.',
+                link: '/tours/detail?type=doantu',
+                buttonText: 'Khám phá trải nghiệm',
+                image: '/AnhTour/z7930565882675_f94fe322fc3a06efe82eccf1e76b09e1.jpg'
+            },
+            {
+                key: 'dongnoi',
+                title: 'Tinh túy đồng nội - Quảng Nam',
+                description: 'Lắng nghe nhịp điệu mộc mạc của đất mẹ và hồn quê xứ Quảng. Hành trình đánh thức mọi giác quan qua hương lúa non nếp cái hoa vàng, hơi ấm bếp củi.',
+                link: '/tours/detail?type=dongnoi',
+                buttonText: 'Gói trọn hương quê',
+                image: '/AnhTour/Com.jpg'
+            },
+            {
+                key: 'disan',
+                title: 'Di sản thủ công - Ninh Bình',
+                description: 'Chạm vào hồn cốt của thời gian qua những tạo tác từ đôi bàn tay nghệ nhân. Khi sợi mây tre đan cài, kén vàng ươm dệt tơ và đất sét mộc hóa thành gốm quý.',
+                link: '/tours/detail?type=disan',
+                buttonText: 'Trải nghiệm thủ công',
+                image: '/AnhTour/ThuCong.jpg'
+            },
+            {
+                key: 'tinhlang',
+                title: 'Tĩnh lặng liên hoa - Tháp Mười',
+                description: 'Sự thanh lọc thuần khiết cho thân - tâm - trí giữa vùng sông nước mờ sương. Thả trôi mọi âu lo theo hương sen bánh tẻ ngậm sương sớm và thưởng ngụm trà nhị thanh sạch.',
+                link: '/tours/detail?type=tinhlang',
+                buttonText: 'Tìm về tĩnh lặng',
+                image: '/AnhTour/ThapMuoi.jpg'
+            },
+            {
+                key: 'halong',
+                title: 'Tiếng Vọng Sóng Xanh - Hạ Long',
+                description: 'Du thuyền lướt nhẹ giữa ngàn khơi, thưởng ngoạn kỳ quan thiên nhiên rực rỡ. Hải trình khám phá thế giới thạch nhũ giấu kín ngàn năm.',
+                link: '/tours/detail?type=halong',
+                buttonText: 'Khám phá kỳ quan',
+                image: '/AnhTour/z7930578251310_cb227ca09c0f3c7a04a3ab6beb933d35.jpg'
+            },
+            {
+                key: 'sapa',
+                title: 'Nẻo Đường Sương Phủ - Sapa',
+                description: 'Gặp gỡ những nụ cười hồn hậu giữa mây trời sương phủ. Hành trình thong dong qua ruộng bậc thang và suối nguồn Sapa mộc mạc.',
+                link: '/tours/detail?type=sapa',
+                buttonText: 'Về với sương phủ',
+                image: '/AnhTour/ThapMuoi.jpg'
+            },
+            {
+                key: 'cattien',
+                title: 'Nhịp Đập Rừng Già - Cát Tiên',
+                description: 'Lắng nghe tiếng gọi thì thầm từ đại ngàn nguyên sinh xanh thẳm. Chuyến đi băng rừng, ngắm thú đêm hoang dã đầy thú vị và cảm xúc.',
+                link: '/tours/detail?type=cattien',
+                buttonText: 'Lắng nghe đại ngàn',
+                image: '/AnhTour/z7930565879475_de7864577660b0726376ea947dbe94de.jpg'
+            },
+            {
+                key: 'muine',
+                title: 'Bình Minh Cồn Cát - Mũi Né',
+                description: 'Đón những vệt nắng đầu ngày rực rỡ trên đồi cát trắng tinh khôi. Trải nghiệm xe địa hình ATV vượt đụn cát và lướt sóng biển xanh.',
+                link: '/tours/detail?type=muine',
+                buttonText: 'Đón bình minh',
+                image: '/AnhTour/z7930565879475_de7864577660b0726376ea947dbe94de.jpg'
+            },
+            {
+                key: 'phuquoc',
+                title: 'Khúc Ca San Hô - Phú Quốc',
+                description: 'Hòa mình vào làn nước xanh lục bảo và rạn san hô đa sắc màu dưới lòng đại dương. Khám phá các hòn đảo hoang sơ tuyệt đẹp.',
+                link: '/tours/detail?type=phuquoc',
+                buttonText: 'Lặn biển ngắm san hô',
+                image: '/AnhTour/z7930565879475_de7864577660b0726376ea947dbe94de.jpg'
+            },
+            {
+                key: 'cantho',
+                title: 'Hương Sắc Miệt Vườn - Cần Thơ',
+                description: 'Tròn vị ngọt ngào của vườn cây trĩu trái và cuộc sống nổi miệt vườn Cần Thơ. Đón bình minh ăn hủ tiếu chòng chành trên sông.',
+                link: '/tours/detail?type=cantho',
+                buttonText: 'Thăm miệt vườn',
+                image: '/AnhTour/com.jfif'
+            }
+        ];
+
+        let activeTourIndex = 0;
+
+        function updateViewer(index) {
+            if (index < 0 || index >= tourList.length) return;
+            activeTourIndex = index;
+            const tour = tourList[index];
+
+            const content = document.getElementById('viewer-content');
+            const bgImg = document.getElementById('viewer-bg-img');
+
+            if (content) {
+                content.style.opacity = '0';
+                content.style.transform = 'translateY(15px)';
+            }
+            if (bgImg) {
+                bgImg.style.transform = 'scale(1.05)';
+            }
+
+            setTimeout(() => {
+                if (document.getElementById('viewer-title')) document.getElementById('viewer-title').textContent = tour.title;
+                if (document.getElementById('viewer-desc')) document.getElementById('viewer-desc').textContent = tour.description;
+                
+                const link = document.getElementById('viewer-link');
+                if (link) {
+                    link.setAttribute('href', tour.link);
+                    link.textContent = tour.buttonText;
+                }
+                
+                if (bgImg) {
+                    bgImg.setAttribute('src', tour.image);
+                }
+
+                // Active status sub-nav links
+                document.querySelectorAll('.guest-sub-nav .sub-nav-text').forEach((subLink, idx) => {
+                    if (idx === index) {
+                        subLink.style.color = '#c5a059'; // Đồng vàng active
+                        subLink.style.borderBottom = '1px solid #c5a059';
+                    } else {
+                        subLink.style.color = '';
+                        subLink.style.borderBottom = 'none';
+                    }
+                });
+
+                renderPaginationDots(index);
+
+                if (content) {
+                    content.style.opacity = '1';
+                    content.style.transform = 'translateY(0)';
+                }
+                if (bgImg) {
+                    bgImg.style.transform = 'scale(1)';
+                }
+            }, 350);
+        }
+
+        function renderPaginationDots(activeIdx) {
+            const dotsContainer = document.getElementById('viewer-pagination-dots');
+            if (!dotsContainer) return;
+            dotsContainer.innerHTML = '';
+
+            tourList.forEach((tour, idx) => {
+                const btn = document.createElement('button');
+                btn.className = `pagination-btn ${idx === activeIdx ? 'active' : ''}`;
+                btn.textContent = (idx + 1).toString().padStart(2, '0');
+                btn.type = 'button';
+                btn.onclick = () => {
+                    updateViewer(idx);
+                };
+                dotsContainer.appendChild(btn);
+            });
+        }
+
+        function prevTour() {
+            let idx = activeTourIndex - 1;
+            if (idx < 0) idx = tourList.length - 1;
+            updateViewer(idx);
+        }
+
+        function nextTour() {
+            let idx = activeTourIndex + 1;
+            if (idx >= tourList.length) idx = 0;
+            updateViewer(idx);
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
+            const subNavLinks = document.querySelectorAll('.guest-sub-nav .sub-nav-text');
+            subNavLinks.forEach((link, idx) => {
+                link.removeAttribute('href');
+                link.style.cursor = 'pointer';
+                link.onclick = (e) => {
+                    e.preventDefault();
+                    updateViewer(idx);
+                    const viewerSection = document.getElementById('journey-viewer');
+                    if (viewerSection) {
+                        viewerSection.scrollIntoView({ behavior: 'smooth' });
+                    }
+                };
+            });
+
+            updateViewer(0);
+
+            // Parallax effect
             const scrollContainer = document.querySelector('.scroll-container');
             const sections = document.querySelectorAll('.snap-section');
             const backgrounds = document.querySelectorAll('.parallax-bg');
 
-            scrollContainer.addEventListener('scroll', () => {
-                const height = window.innerHeight;
-
-                // Parallax effect giữ nguyên cho ảnh nền mượt mà
-                backgrounds.forEach((bg, index) => {
-                    const section = sections[index];
-                    if (section) {
-                        const rect = section.getBoundingClientRect();
-                        if (rect.top < height && rect.bottom > 0) {
-                            const speed = 0.15;
-                            const yPos = -(rect.top * speed);
-                            bg.style.transform = `translateY(${yPos}px) scale(1.1)`;
+            if (scrollContainer) {
+                scrollContainer.addEventListener('scroll', () => {
+                    const height = window.innerHeight;
+                    backgrounds.forEach((bg, index) => {
+                        const section = sections[index];
+                        if (section) {
+                            const rect = section.getBoundingClientRect();
+                            if (rect.top < height && rect.bottom > 0) {
+                                const speed = 0.15;
+                                const yPos = -(rect.top * speed);
+                                bg.style.transform = `translateY(${yPos}px) scale(1.1)`;
+                            }
                         }
-                    }
+                    });
                 });
-            });
+            }
         });
     </script>
 
