@@ -140,22 +140,22 @@ INSERT INTO Room_Surcharges (surcharge_id, category_id, surcharge_type, age_from
 -- ── 8. Rooms (50 rows) ───────────────────────────────────────
 INSERT INTO Rooms (room_id, room_number, category_id, room_status, current_booking_detail_id) VALUES 
 (1, '101', 1, 'Occupied', 1),
-(2, '102', 1, 'Vacant_Clean', NULL),
-(3, '103', 1, 'Occupied', 2),
-(4, '104', 1, 'Vacant_Clean', NULL),
-(5, '105', 1, 'Occupied', 3),
+(2, '102', 1, 'Vacant_Dirty', NULL),
+(3, '103', 1, 'Maintenance', NULL),
+(4, '104', 1, 'Vacant_Dirty', NULL),
+(5, '105', 1, 'Maintenance', NULL),
 (6, '106', 4, 'Vacant_Clean', NULL),
 (7, '107', 4, 'Vacant_Clean', NULL),
 (8, '108', 4, 'Vacant_Clean', NULL),
 (9, '109', 4, 'Vacant_Clean', NULL),
-(10, '110', 4, 'Vacant_Clean', NULL),
-(11, '201', 2, 'Vacant_Clean', NULL),
-(12, '202', 2, 'Vacant_Clean', NULL),
-(13, '203', 2, 'Vacant_Clean', NULL),
+(10, '110', 4, 'Maintenance', NULL),
+(11, '201', 2, 'Occupied', NULL),
+(12, '202', 2, 'Occupied', NULL),
+(13, '203', 2, 'Vacant_Dirty', NULL),
 (14, '204', 2, 'Vacant_Clean', NULL),
 (15, '205', 2, 'Occupied', 7),
 (16, '206', 10, 'Vacant_Clean', NULL),
-(17, '207', 10, 'Vacant_Clean', NULL),
+(17, '207', 10, 'Maintenance', NULL),
 (18, '208', 10, 'Occupied', 8),
 (19, '209', 10, 'Vacant_Clean', NULL),
 (20, '210', 10, 'Vacant_Clean', NULL),
@@ -277,8 +277,8 @@ INSERT INTO Room_Bookings (room_booking_id, check_in_date, check_out_date, depos
 -- ── 14. Room Booking Details (10 rows) ───────────────────────
 INSERT INTO Room_Booking_Details (detail_id, room_booking_id, category_id, room_id, room_charge, detail_status, bed_preference, special_requests, is_charge_to_room_allowed, sub_credit_limit, billing_routing_strategy) VALUES
 (1, 1, 1, 1, 2500000, 'Checked_In', 'KING_SIZE', NULL, TRUE, 500000, 'BILL_TO_LEADER'),
-(2, 2, 2, 3, 3500000, 'Checked_In', 'KING_SIZE', NULL, TRUE, 1500000, 'BILL_TO_LEADER'),
-(3, 3, 3, 5, 8000000, 'Checked_In', 'KING_SIZE', NULL, TRUE, 2000000, 'BILL_TO_LEADER'),
+(2, 2, 2, 3, 3500000, 'Checked_Out', 'KING_SIZE', NULL, TRUE, 1500000, 'BILL_TO_LEADER'),
+(3, 3, 3, 5, 8000000, 'Checked_Out', 'KING_SIZE', NULL, TRUE, 2000000, 'BILL_TO_LEADER'),
 (4, 4, 1, 7, 2500000, 'Pending', 'KING_SIZE', NULL, TRUE, 500000, 'BILL_TO_LEADER'),
 (5, 5, 1, 9, 2500000, 'Pending', 'KING_SIZE', NULL, TRUE, 500000, 'BILL_TO_LEADER'),
 (6, 6, 2, 12, 3500000, 'Pending', 'KING_SIZE', NULL, TRUE, 1500000, 'BILL_TO_LEADER'),
@@ -562,10 +562,12 @@ INSERT INTO Booking_Services (booking_service_id, booking_id, service_id, quanti
 INSERT INTO Hotel_Operations (task_id, room_id, staff_id, supervisor_id, operational_type, priority, status, created_at, started_at, completed_at, notes) VALUES 
 (1, 2, 8, 4, 'CHECKOUT_CLEAN', 'High', 'Pending', '2026-06-28 08:00:00', NULL, NULL, '[Check-out] Khách phòng 102 vừa trả phòng, dọn gấp để đón đoàn 2h chiều.'),
 (2, 4, 9, 4, 'CHECKOUT_CLEAN', 'Normal', 'Pending', '2026-06-28 09:00:00', NULL, NULL, '[Check-out] Dọn dẹp sạch sâu, thay toàn bộ ga giường và xịt thơm phòng.'),
-(3, 8, 8, 4, 'CHECKOUT_CLEAN', 'Normal', 'InProgress', '2026-06-28 09:30:00', '2026-06-28 10:15:00', NULL, '[Stay-over] Khách yêu cầu thêm 2 khăn tắm và 1 chai nước suối.'),
-(4, 13, 9, 4, 'CHECKOUT_CLEAN', 'High', 'InProgress', '2026-06-28 10:00:00', '2026-06-28 10:20:00', NULL, '[Arrival] Khách VIP sắp nhận phòng, chuẩn bị sẵn giỏ trái cây tươi trên bàn.'),
+(3, 3, 8, 4, 'GUEST_REQUEST', 'Normal', 'Completed', '2026-06-28 09:30:00', '2026-06-28 10:15:00', '2026-06-28 11:00:00', '[Stay-over] Khách yêu cầu thêm 2 khăn tắm và 1 chai nước suối.'),
+(4, 13, 9, 4, 'URGENT_CLEAN', 'High', 'InProgress', '2026-06-28 10:00:00', '2026-06-28 10:20:00', NULL, '[Arrival] Khách VIP sắp nhận phòng, chuẩn bị sẵn giỏ trái cây tươi trên bàn.'),
 (5, 1, 9, 4, 'CHECKOUT_CLEAN', 'Normal', 'Completed', '2026-06-28 07:00:00', '2026-06-28 07:15:00', '2026-06-28 08:45:00', '[Check-out] Đã dọn xong, phát hiện quên một chiếc sạc điện thoại trên bàn.'),
-(6, 17, 10, 4, 'MAINTENANCE', 'High', 'Pending', '2026-06-28 10:30:00', NULL, NULL, 'Housekeeping báo: Điều hòa chảy nước ướt cả sàn gỗ, phòng 310.'),
+
+-- MAINTENANCE (MAINTENANCE)
+(6, 17, 10, 4, 'MAINTENANCE', 'High', 'Pending', '2026-06-28 10:30:00', NULL, NULL, 'Housekeeping báo: Điều hòa chảy nước ướt cả sàn gỗ, phòng 207.'),
 (7, 3, 10, 4, 'MAINTENANCE', 'Normal', 'Pending', '2026-06-28 12:00:00', NULL, NULL, 'Khách phàn nàn: Vòi hoa sen bị nghẹt, nước chảy rất yếu.'),
 (8, 5, 10, 4, 'MAINTENANCE', 'Normal', 'InProgress', '2026-06-28 13:00:00', '2026-06-28 13:15:00', NULL, 'Kiểm tra hệ thống đèn ban công, 1 bóng bị cháy.'),
 (9, 10, 10, 4, 'MAINTENANCE', 'High', 'Paused', '2026-06-28 09:00:00', '2026-06-28 09:10:00', NULL, 'Sửa két sắt không mở được. \n[Tạm dừng]: Chờ mua pin mới loại 9V để thay mảng mạch.'),
@@ -865,9 +867,9 @@ UPDATE Rooms SET current_booking_detail_id = 13, room_status = 'Occupied' WHERE 
 
 -- Bước 1: 3 bản ghi Bookings (bảng cha) — mỗi cái là 1 phòng của Nam
 INSERT IGNORE INTO Bookings (booking_id, customer_id, booking_date, total_price, booking_status, booking_source, applied_promotion_id, version) VALUES
-(50, 1, '2026-06-22', 4500000, 'Confirmed', 'Direct_Web', NULL, 1),
-(51, 1, '2026-06-22', 4500000, 'Confirmed', 'Direct_Web', NULL, 1),
-(52, 1, '2026-06-22', 4500000, 'Confirmed', 'Direct_Web', NULL, 1);
+(50, 1, '2026-06-22', 4500000, 'Checked_In', 'Direct_Web', NULL, 1),
+(51, 1, '2026-06-22', 4500000, 'Checked_In', 'Direct_Web', NULL, 1),
+(52, 1, '2026-06-22', 4500000, 'Checked_In', 'Direct_Web', NULL, 1);
 
 -- Bước 2: 3 bản ghi Room_Bookings (bảng con) với cùng ID → kế thừa từ Bookings
 INSERT IGNORE INTO Room_Bookings (room_booking_id, check_in_date, check_out_date, deposit_amount, cancellation_deadline, credit_limit, personal_pin_hash) VALUES
@@ -974,8 +976,8 @@ INSERT INTO Bookings (booking_id, customer_id, booking_date, total_price, bookin
 INSERT INTO Room_Bookings (room_booking_id, check_in_date, check_out_date, deposit_amount, cancellation_deadline, credit_limit, personal_pin_hash) VALUES
 (991, '2025-06-10', '2025-06-15', 5000000, '2025-06-05', 10000000, 'hash');
 
-INSERT INTO Room_Booking_Details (detail_id, room_booking_id, category_id, room_id, room_charge, detail_status, bed_preference, special_requests, is_charge_to_room_allowed, sub_credit_limit, billing_routing_strategy) VALUES
-(991, 991, 1, 1, 65000000, 'Checked_Out', 'KING_SIZE', NULL, TRUE, 500000, 'BILL_TO_LEADER');
+INSERT INTO Room_Booking_Details (detail_id, room_booking_id, category_id, room_id, room_charge, detail_status, bed_preference, special_requests, is_charge_to_room_allowed, sub_credit_limit, billing_routing_strategy, customer_id) VALUES
+(991, 991, 1, 1, 65000000, 'Checked_Out', 'KING_SIZE', NULL, TRUE, 500000, 'BILL_TO_LEADER', 1);
 
 INSERT INTO Tour_Bookings (booking_id, schedule_id, participant_count, tour_charge, is_walk_in_tour) VALUES 
 (992, 1, 4, 45000000, FALSE);
@@ -992,7 +994,7 @@ UPDATE Accounts SET username = 'ngocthi' WHERE account_id = 9;
 
 -- Additional Customers
 INSERT IGNORE INTO Accounts (account_id, username, password_hash, is_active, role_id, created_at) VALUES 
-(501, 'vip_customer', '\\/oLodhs4wqBO61AhyuE4dWtSJDJcOH7D2ii5Vrgq0bG', TRUE, 9, CURRENT_TIMESTAMP),
+(501, 'vip_customer', '$2a$10$ikP3XeXnMx/oLodhs4wqBO61AhyuE4dWtSJDJcOH7D2ii5Vrgq0bG', TRUE, 9, CURRENT_TIMESTAMP),
 (502, 'normal_customer', '$2a$10$ikP3XeXnMx/oLodhs4wqBO61AhyuE4dWtSJDJcOH7D2ii5Vrgq0bG', TRUE, 10, CURRENT_TIMESTAMP),
 (503, 'newbie_customer', '$2a$10$ikP3XeXnMx/oLodhs4wqBO61AhyuE4dWtSJDJcOH7D2ii5Vrgq0bG', TRUE, 10, CURRENT_TIMESTAMP),
 (504, 'banned_customer', '$2a$10$ikP3XeXnMx/oLodhs4wqBO61AhyuE4dWtSJDJcOH7D2ii5Vrgq0bG', FALSE, 10, CURRENT_TIMESTAMP);
@@ -1005,16 +1007,11 @@ INSERT IGNORE INTO Customers (customer_id, account_id, full_name, email, phone, 
 (504, 504, 'Banned Phạm D', 'bannedd@example.com', '0999888774', 'Nữ', '001099000504', 0, 1);
 
 
-INSERT IGNORE INTO Dependents (dependent_id, customer_id, full_name, date_of_birth, relationship, face_vector_data, face_image_url) VALUES 
-(501, 501, 'Wife Nguyễn Thị B', '1995-08-15', 'Vợ', NULL, NULL),
-(502, 501, 'Kid Nguyễn Văn C', '2015-05-20', 'Con', NULL, NULL);
+INSERT IGNORE INTO Dependents (dependent_id, customer_id, dependent_name, birth_date, gender, cccd_passport_encrypted) VALUES 
+(501, 501, 'Wife Nguyễn Thị B', '1995-08-15', 'Nữ', NULL),
+(502, 501, 'Kid Nguyễn Văn C', '2015-05-20', 'Nam', NULL);
 
--- Additional Rooms (just in case)
-INSERT IGNORE INTO Rooms (room_id, room_number, category_id, room_status) VALUES
-(501, '801', 3, 'Occupied'),
-(502, '802', 1, 'Vacant_Dirty'),
-(503, '803', 2, 'OutOfOrder'),
-(504, '804', 4, 'Maintenance');
+-- Additional Rooms (just in case) - Floor 8 rooms deleted
 
 -- Promotions
 INSERT IGNORE INTO Promotions (promotion_id, promo_code, discount_type, discount_value, max_discount_value_vnd, min_order_value_vnd, applicable_scope, max_uses, current_uses, valid_from, valid_to, is_active, manager_approval_threshold_pct) VALUES
@@ -1048,20 +1045,7 @@ INSERT IGNORE INTO Room_Booking_Details (detail_id, room_booking_id, category_id
 -- ============================================================
 -- E2E Bookings (CURRENT)
 -- ============================================================
--- 1. Checked_In for VIP (Room 801)
-INSERT IGNORE INTO Bookings (booking_id, customer_id, booking_date, total_price, booking_status, booking_source, applied_promotion_id, version) VALUES
-(501, 501, '2026-06-25', 10500000, 'Checked_In', 'Direct_Web', NULL, 1);
-INSERT IGNORE INTO Room_Bookings (room_booking_id, check_in_date, check_out_date, deposit_amount, cancellation_deadline, credit_limit, personal_pin_hash) VALUES
-(501, '2026-06-28', '2026-07-02', 2000000, '2026-06-25', 10000000, 'hash');
-
-INSERT IGNORE INTO Room_Booking_Details (detail_id, room_booking_id, category_id, room_id, room_charge, detail_status, bed_preference, special_requests, is_charge_to_room_allowed, sub_credit_limit, billing_routing_strategy, customer_id) VALUES
-
-(501, 501, 3, 501, 10500000, 'Checked_In', 'KING_SIZE', 'Gần thang máy', TRUE, 5000000, 'BILL_TO_LEADER', 501);
-UPDATE Rooms SET current_booking_detail_id = 501, room_status = 'Occupied' WHERE room_id = 501;
-
-INSERT IGNORE INTO Room_Guests (guest_id, detail_id, customer_id, dependent_id, guest_type, is_primary_contact) VALUES
-(501, 501, 501, NULL, 'ADULT', TRUE),
-(502, 501, NULL, 501, 'ADULT', FALSE);
+-- 1. Checked_In for VIP (Room 801) - Deleted
 
 -- 2. Confirmed for Normal Customer (Ready for Check-in)
 INSERT IGNORE INTO Bookings (booking_id, customer_id, booking_date, total_price, booking_status, booking_source, applied_promotion_id, version) VALUES
@@ -1081,26 +1065,14 @@ INSERT IGNORE INTO Room_Booking_Details (detail_id, room_booking_id, category_id
 
 -- F&B Orders (Lifecycles)
 INSERT IGNORE INTO Food_Orders (order_id, booking_id, guest_id, staff_id, order_type, table_number, total_amount, order_status, payment_status, notes) VALUES
-(501, 501, 501, 2, 'ROOM_SERVICE', 'RM801', 415000, 'PENDING', 'UNPAID', 'Phòng 801 VIP'),
-
-(502, 501, 501, 3, 'DINE_IN', 'T05', 500000, 'COOKING', 'UNPAID', 'Ít đá'),
-(503, 501, 501, 2, 'DINE_IN', 'T06', 85000, 'SERVED', 'UNPAID', 'Charge to room'),
 (504, NULL, NULL, 3, 'DINE_IN', 'T07', 700000, 'PAID', 'PAID', 'Khách vãng lai'),
 (505, NULL, NULL, 2, 'DINE_IN', 'T08', 0, 'CANCELLED', 'UNPAID', 'Khách đổi ý');
 
 
 INSERT IGNORE INTO Food_Order_Details (detail_id, order_id, item_id, quantity, unit_price, subtotal) VALUES
-(501, 501, 2, 1, 350000, 350000),
-(502, 501, 4, 1, 65000, 65000),
-(503, 502, 2, 1, 350000, 350000),
-(504, 502, 5, 1, 95000, 95000),
-(505, 503, 1, 1, 85000, 85000),
 (506, 504, 2, 2, 350000, 700000);
 
--- Folios linked
-INSERT IGNORE INTO Folio_Items (folio_item_id, booking_id, room_booking_detail_id, payer_customer_id, source_department, amount, description, is_settled_separately, created_by_staff_id, created_at) VALUES 
-(501, 501, 501, 501, 'LAUNDRY', 150000, 'Giặt ủi VIP', FALSE, 4, CURRENT_TIMESTAMP),
-(502, 501, 501, 501, 'FNB', 85000, 'Order Nhà hàng T06 (SERVED)', FALSE, 2, CURRENT_TIMESTAMP);
+-- Folios linked - Deleted
 
 -- ============================================================
 -- APPENDED NEW BOOKINGS FOR MULTIPLE ROOM TESTING
@@ -1173,4 +1145,40 @@ INSERT INTO Room_Guests (guest_id, detail_id, customer_id, dependent_id, guest_t
 (10311, 1031, 1, NULL, 'ADULT', TRUE),
 (10312, 1031, NULL, 1, 'CHILD', FALSE), -- Lê Hoàng Minh
 (10321, 1032, NULL, 2, 'CHILD', FALSE); -- Lê Thị Hồng
+
+-- ============================================================
+-- APPENDED BOOKING 505: NGOC LAN CHECKED-IN WITH 2 ROOMS (201 & 202)
+-- ============================================================
+INSERT IGNORE INTO Accounts (account_id, username, password_hash, is_active, role_id, created_at) VALUES 
+(505, 'ngoclan_customer', '$2a$10$ikP3XeXnMx/oLodhs4wqBO61AhyuE4dWtSJDJcOH7D2ii5Vrgq0bG', TRUE, 10, CURRENT_TIMESTAMP);
+
+INSERT IGNORE INTO Customers (customer_id, account_id, full_name, email, phone, gender, cccd_passport_encrypted, loyalty_points, membership_tier_id) VALUES
+(505, 505, 'Ngọc Lan', 'ngoclan@example.com', '0999888775', 'Nữ', '001099000505', 100, 1);
+
+INSERT IGNORE INTO Dependents (dependent_id, customer_id, dependent_name, birth_date, gender, cccd_passport_encrypted) VALUES 
+(505, 505, 'Nguyễn Văn Bạn', '1996-03-10', 'Nam', NULL),
+(506, 505, 'Trần Thị Bạn', '1998-11-25', 'Nữ', NULL);
+
+INSERT IGNORE INTO Bookings (booking_id, customer_id, booking_date, total_price, booking_status, booking_source, applied_promotion_id, version) VALUES
+(505, 505, '2026-07-01', 7000000, 'Checked_In', 'Direct_Web', NULL, 1);
+
+INSERT IGNORE INTO Room_Bookings (room_booking_id, check_in_date, check_out_date, deposit_amount, cancellation_deadline, credit_limit, personal_pin_hash) VALUES
+(505, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 2 DAY), 1000000.00, DATE_SUB(CURDATE(), INTERVAL 1 DAY), 5000000.00, 'hash505');
+
+INSERT IGNORE INTO Room_Booking_Details (detail_id, room_booking_id, category_id, room_id, room_charge, detail_status, bed_preference, special_requests, is_charge_to_room_allowed, sub_credit_limit, billing_routing_strategy, customer_id) VALUES
+(5051, 505, 2, 11, 3500000, 'Checked_In', 'KING_SIZE', 'Ngọc Lan phòng 1', TRUE, 2500000, 'BILL_TO_LEADER', 505),
+(5052, 505, 2, 12, 3500000, 'Checked_In', 'TWIN_BED', 'Ngọc Lan phòng 2', TRUE, 2500000, 'BILL_TO_LEADER', 505);
+
+INSERT IGNORE INTO Room_Guests (guest_id, detail_id, customer_id, dependent_id, guest_type, is_primary_contact) VALUES
+(50511, 5051, 505, NULL, 'ADULT', TRUE),
+(50512, 5051, NULL, 505, 'ADULT', FALSE),
+(50521, 5052, 505, NULL, 'ADULT', TRUE),
+(50522, 5052, NULL, 506, 'ADULT', FALSE);
+
+INSERT IGNORE INTO Payment_Transactions (id, booking_id, amount, status, transaction_type, payment_method, gateway_status, transaction_ref, created_at, paid_at) VALUES
+(5051, 505, 1000000.00, 'SUCCESS', 'Deposit', 'VNPAY', 'SUCCESS', 'DEP505_1783478433300', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+UPDATE Rooms SET current_booking_detail_id = 5051, room_status = 'Occupied' WHERE room_id = 11;
+UPDATE Rooms SET current_booking_detail_id = 5052, room_status = 'Occupied' WHERE room_id = 12;
+
 

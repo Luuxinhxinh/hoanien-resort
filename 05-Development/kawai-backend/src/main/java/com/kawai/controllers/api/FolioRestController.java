@@ -33,9 +33,7 @@ import com.kawai.services.interfaces.VnPayService;
 @RequestMapping("/api/folios")
 public class FolioRestController {
 
-    @Autowired
-    private com.kawai.services.interfaces.WorkflowEngineService workflowEngineService;
-
+    private final com.kawai.services.interfaces.WorkflowEngineService workflowEngineService;
     private final NightAuditService nightAuditService;
     private final FolioItemRepository folioItemRepository;
     private final RoomBookingDetailRepository roomBookingDetailRepository;
@@ -50,6 +48,8 @@ public class FolioRestController {
     private final com.kawai.repositories.CustomerRepository customerRepository;
     private final com.kawai.repositories.RoomGuestRepository roomGuestRepository;
     private final com.kawai.repositories.MembershipTierRepository membershipTierRepository;
+    private final com.kawai.repositories.HousekeepingTaskRepository housekeepingTaskRepo;
+    private final com.kawai.repositories.EmployeeRepository employeeRepository;
 
     @Autowired
     public FolioRestController(NightAuditService nightAuditService,
@@ -65,7 +65,10 @@ public class FolioRestController {
             com.kawai.repositories.PromotionRepository promotionRepository,
             com.kawai.repositories.CustomerRepository customerRepository,
             com.kawai.repositories.RoomGuestRepository roomGuestRepository,
-            com.kawai.repositories.MembershipTierRepository membershipTierRepository) {
+            com.kawai.repositories.MembershipTierRepository membershipTierRepository,
+            com.kawai.services.interfaces.WorkflowEngineService workflowEngineService,
+            com.kawai.repositories.HousekeepingTaskRepository housekeepingTaskRepo,
+            com.kawai.repositories.EmployeeRepository employeeRepository) {
         this.nightAuditService = nightAuditService;
         this.folioItemRepository = folioItemRepository;
         this.roomBookingDetailRepository = roomBookingDetailRepository;
@@ -80,6 +83,9 @@ public class FolioRestController {
         this.customerRepository = customerRepository;
         this.roomGuestRepository = roomGuestRepository;
         this.membershipTierRepository = membershipTierRepository;
+        this.workflowEngineService = workflowEngineService;
+        this.housekeepingTaskRepo = housekeepingTaskRepo;
+        this.employeeRepository = employeeRepository;
     }
 
     /**
@@ -166,11 +172,20 @@ public class FolioRestController {
         } catch (Exception e) {
         }
 
+        boolean depositFromBooking = false;
         if (deposit.compareTo(BigDecimal.ZERO) == 0 && detail.getRoomBooking().getDepositAmount() != null) {
             deposit = detail.getRoomBooking().getDepositAmount();
+            depositFromBooking = true;
         }
 
-        BigDecimal otherPayments = totalPayments.subtract(deposit);
+        BigDecimal otherPayments;
+        if (depositFromBooking) {
+            otherPayments = totalPayments;
+            totalPayments = totalPayments.add(deposit);
+        } else {
+            otherPayments = totalPayments.subtract(deposit);
+        }
+
         if (otherPayments.compareTo(BigDecimal.ZERO) < 0) {
             otherPayments = BigDecimal.ZERO;
         }
@@ -363,6 +378,112 @@ public class FolioRestController {
                 "item", item));
     }
 
+    @PostMapping("/room/{roomBookingDetailId}/request-checkout")
+    public ResponseEntity<?> requestCheckout(@PathVariable Long roomBookingDetailId) {
+        try {
+            Optional<RoomBookingDetail> optDetail = roomBookingDetailRepository.findById(roomBookingDetailId);
+            if (optDetail.isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Không tìm thấy phòng"));
+            }
+            RoomBookingDetail detail = optDetail.get();
+            com.kawai.models.Room room = detail.getRoom();
+
+            if (!"Checked_In".equalsIgnoreCase(detail.getDetailStatus())) {
+                return ResponseEntity.badRequest()
+                        .body(Map.of("success", false, "message", "Phòng chưa check-in hoặc đã checkout."));
+            }
+
+            // Kiểm tra xem đã có task ROOM_CHECK chưa hoàn thành chưa
+            boolean hasPendingCheck = housekeepingTaskRepo.findAll().stream()
+                    .anyMatch(t -> t.getRoom() != null && t.getRoom().getId().equals(room.getId())
+                            && "ROOM_CHECK".equals(t.getOperationalType())
+                            && !"Completed".equals(t.getStatus()));
+            if (hasPendingCheck) {
+                return ResponseEntity.badRequest().body(Map.of("success", false, "message",
+                        "Phòng đang được chờ kiểm tra (ROOM_CHECK) bởi bộ phận Housekeeping."));
+            }
+
+            com.kawai.models.Employee staff = employeeRepository.findAll().stream().findFirst().orElse(null);
+            com.kawai.models.HotelOperation task = new com.kawai.models.HotelOperation();
+            task.setRoom(room);
+            task.setStaff(staff);
+            task.setSupervisor(staff);
+            task.setOperationalType("ROOM_CHECK");
+            task.setPriority("High");
+            task.setStatus("Pending");
+            task.setCreatedAt(LocalDateTime.now());
+            task.setNotes("Lễ tân yêu cầu kiểm tra phòng để checkout (Minibar & Hỏng hóc).");
+
+            housekeepingTaskRepo.save(task);
+
+            return ResponseEntity
+                    .ok(Map.of("success", true, "message", "Đã gửi yêu cầu kiểm tra phòng đến bộ phận Housekeeping."));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(Map.of("success", false, "message", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/booking/{bookingId}/request-group-checkout")
+    public ResponseEntity<?> requestGroupCheckout(@PathVariable Long bookingId) {
+        try {
+            List<RoomBookingDetail> details = roomBookingDetailRepository.findByRoomBookingId(bookingId);
+            if (details.isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Không tìm thấy phòng nào trong đơn đặt phòng này."));
+            }
+
+            com.kawai.models.Employee staff = employeeRepository.findAll().stream().findFirst().orElse(null);
+            List<String> createdRooms = new java.util.ArrayList<>();
+            List<String> skippedRooms = new java.util.ArrayList<>();
+
+            for (RoomBookingDetail detail : details) {
+                if (!"Checked_In".equalsIgnoreCase(detail.getDetailStatus())) {
+                    continue;
+                }
+                com.kawai.models.Room room = detail.getRoom();
+                if (room == null) continue;
+
+                // Kiểm tra xem đã có task ROOM_CHECK chưa hoàn thành chưa
+                boolean hasPendingCheck = housekeepingTaskRepo.findAll().stream()
+                        .anyMatch(t -> t.getRoom() != null && t.getRoom().getId().equals(room.getId())
+                                && "ROOM_CHECK".equals(t.getOperationalType())
+                                && !"Completed".equals(t.getStatus()));
+                if (hasPendingCheck) {
+                    skippedRooms.add(room.getRoomNumber());
+                    continue;
+                }
+
+                com.kawai.models.HotelOperation task = new com.kawai.models.HotelOperation();
+                task.setRoom(room);
+                task.setStaff(staff);
+                task.setSupervisor(staff);
+                task.setOperationalType("ROOM_CHECK");
+                task.setPriority("High");
+                task.setStatus("Pending");
+                task.setCreatedAt(LocalDateTime.now());
+                task.setNotes("Lễ tân yêu cầu kiểm tra phòng để checkout (Minibar & Hỏng hóc) - Yêu cầu cả đoàn.");
+
+                housekeepingTaskRepo.save(task);
+                createdRooms.add(room.getRoomNumber());
+            }
+
+            if (createdRooms.isEmpty() && skippedRooms.isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Không có phòng nào đang ở (Checked_In) để kiểm tra."));
+            }
+
+            String msg = "";
+            if (!createdRooms.isEmpty()) {
+                msg += "Đã gửi yêu cầu kiểm tra cho các phòng: " + String.join(", ", createdRooms) + ". ";
+            }
+            if (!skippedRooms.isEmpty()) {
+                msg += "Các phòng đã có yêu cầu trước đó: " + String.join(", ", skippedRooms) + ".";
+            }
+
+            return ResponseEntity.ok(Map.of("success", true, "message", msg.trim()));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(Map.of("success", false, "message", e.getMessage()));
+        }
+    }
+
     /**
      * UC21.3 & UC22.1 - Gom Folio và Tất toán (Có xử lý Payment & Invoice)
      */
@@ -378,6 +499,16 @@ public class FolioRestController {
             }
             RoomBookingDetail detail = optDetail.get();
             com.kawai.models.RoomBooking booking = detail.getRoomBooking();
+
+            // KIỂM TRA: Đảm bảo task ROOM_CHECK đã hoàn tất
+            boolean hasPendingCheck = housekeepingTaskRepo.findAll().stream()
+                    .anyMatch(t -> t.getRoom() != null && t.getRoom().getId().equals(detail.getRoom().getId())
+                            && "ROOM_CHECK".equals(t.getOperationalType())
+                            && !"Completed".equals(t.getStatus()));
+            if (hasPendingCheck) {
+                return ResponseEntity.badRequest().body(Map.of("success", false, "message",
+                        "Vui lòng chờ bộ phận Housekeeping hoàn tất kiểm tra phòng (Minibar/Hỏng hóc) trước khi thanh toán và checkout."));
+            }
             boolean isGroup = false;
             if (payload != null && payload.containsKey("isGroup")) {
                 isGroup = Boolean.TRUE.equals(payload.get("isGroup"));
@@ -484,7 +615,7 @@ public class FolioRestController {
                 }
             }
 
-            if (booking != null && booking.getDepositAmount() != null) {
+            if (isGroup && booking != null && booking.getDepositAmount() != null) {
                 BigDecimal deposit = booking.getDepositAmount();
                 if (deposit.compareTo(BigDecimal.ZERO) > 0) {
                     if (finalBalance.compareTo(deposit) <= 0) {
@@ -531,7 +662,7 @@ public class FolioRestController {
 
             // 1 & 2. Thay đổi trạng thái phòng (CHỈ làm khi KHÔNG PHẢI VNPAY VÀ thao tác
             // này là "Hoàn tất Checkout" tức là paymentAmount = 0)
-            boolean isCheckoutAction = (!isVnPay && paymentAmount.compareTo(BigDecimal.ZERO) == 0);
+            boolean isCheckoutAction = (!isVnPay && (paymentAmount.compareTo(BigDecimal.ZERO) == 0 || paymentAmount.compareTo(minRequired) >= 0));
             if (isCheckoutAction) {
                 if (isGroup) {
                     List<RoomBookingDetail> details = roomBookingDetailRepository.findByRoomBookingId(booking.getId());
@@ -585,21 +716,40 @@ public class FolioRestController {
                         roomRepository.save(room);
                     }
                 }
+
+                // Đồng bộ trạng thái Booking sang Checked_Out nếu toàn bộ các phòng đã checkout
+                if (booking != null) {
+                    List<RoomBookingDetail> allDetails = roomBookingDetailRepository.findByRoomBookingId(booking.getId());
+                    boolean allCheckedOut = allDetails.stream()
+                            .allMatch(d -> "Checked_Out".equalsIgnoreCase(d.getDetailStatus()));
+                    if (allCheckedOut) {
+                        booking.setBookingStatus("Checked_Out");
+                        roomBookingRepository.save(booking);
+                    }
+                }
             }
 
             // 3. Tạo hóa đơn tổng (Consolidated Invoice) hoặc cập nhật nếu đã có
             ConsolidatedInvoice invoice = consolidatedInvoiceRepository.findByBooking_Id(booking.getId())
                     .orElse(new ConsolidatedInvoice());
             if (invoice.getInvoiceNumber() == null) {
-                invoice.setInvoiceNumber("INV-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase());
+                invoice.setInvoiceNumber("INV-" + java.util.UUID.randomUUID().toString().substring(0, 8).toUpperCase());
                 invoice.setBooking(booking);
+                invoice.setSubtotalBeforeVat(BigDecimal.ZERO);
+                invoice.setVatAmount(BigDecimal.ZERO);
+                invoice.setTotalAmount(BigDecimal.ZERO);
             }
             if (appliedPromo != null) {
                 invoice.setPromo(appliedPromo);
             }
 
-            BigDecimal currentTotal = invoice.getTotalAmount() != null ? invoice.getTotalAmount() : BigDecimal.ZERO;
-            BigDecimal newTotal = currentTotal.add(finalBalance);
+            BigDecimal newTotal;
+            if (isGroup) {
+                newTotal = finalBalance;
+            } else {
+                BigDecimal currentTotal = invoice.getTotalAmount() != null ? invoice.getTotalAmount() : BigDecimal.ZERO;
+                newTotal = currentTotal.add(finalBalance);
+            }
 
             BigDecimal subtotal = newTotal.divide(new BigDecimal("1.10"), 2, java.math.RoundingMode.HALF_UP);
             BigDecimal vat = newTotal.subtract(subtotal);
@@ -674,18 +824,20 @@ public class FolioRestController {
 
                             // Auto upgrade tier based on new points
                             String newTier = "Regular";
-                            if (newPoints >= 20000)
-                                newTier = "Diamond";
+                            if (newPoints >= 10000)
+                                newTier = "Platinum";
                             else if (newPoints >= 5000)
                                 newTier = "Gold";
                             else if (newPoints >= 1000)
                                 newTier = "Silver";
 
-                            customer.setMembershipTier(
-                                    membershipTierRepository.findByTierNameIgnoreCase(newTier).orElse(null));
+                            com.kawai.models.MembershipTier tierObj = membershipTierRepository.findByTierNameIgnoreCase(newTier).orElse(null);
+                            if (tierObj != null) {
+                                customer.setMembershipTier(tierObj);
+                            }
                             customerRepository.save(customer);
                             System.out.println("[LOYALTY] Khách " + customer.getFullName() + " vừa nhận " + pointsEarned
-                                    + " điểm. Tổng: " + newPoints + " (" + newTier + ")");
+                                    + " điểm. Tổng: " + newPoints + " (" + (tierObj != null ? tierObj.getTierName() : (customer.getMembershipTier() != null ? customer.getMembershipTier().getTierName() : "Regular")) + ")");
                         }
                     }
                 }
@@ -765,6 +917,7 @@ public class FolioRestController {
             }
         } catch (Exception e) {
         }
+
 
         BigDecimal outstanding = totalCharges.multiply(new BigDecimal("1.10")).subtract(totalPayments);
         return outstanding.compareTo(BigDecimal.ZERO) < 0 ? BigDecimal.ZERO : outstanding;
@@ -856,16 +1009,24 @@ public class FolioRestController {
 
                 // Sum all successful payments for this booking
                 BigDecimal totalPayments = BigDecimal.ZERO;
+                BigDecimal txDeposit = BigDecimal.ZERO;
                 try {
                     List<PaymentTransaction> payments = paymentService.getPaymentsByBookingId(bookingId);
                     if (payments != null) {
                         for (PaymentTransaction pt : payments) {
                             if (pt.getStatus() == PaymentStatus.SUCCESS && pt.getAmount() != null) {
                                 totalPayments = totalPayments.add(pt.getAmount());
+                                if ("ROOM_BOOKING".equalsIgnoreCase(pt.getTransactionType()) || "DEPOSIT".equalsIgnoreCase(pt.getTransactionType())) {
+                                    txDeposit = txDeposit.add(pt.getAmount());
+                                }
                             }
                         }
                     }
                 } catch (Exception e) {
+                }
+
+                if (txDeposit.compareTo(BigDecimal.ZERO) == 0 && !details.isEmpty() && details.get(0).getRoomBooking().getDepositAmount() != null) {
+                    totalPayments = totalPayments.add(details.get(0).getRoomBooking().getDepositAmount());
                 }
 
                 groupBalance = groupBalance.multiply(new BigDecimal("1.10")).subtract(totalPayments);
@@ -876,6 +1037,7 @@ public class FolioRestController {
                 groupTotalCharges = groupTotalCharges.multiply(new BigDecimal("1.10"));
 
                 Map<String, Object> map = new java.util.HashMap<>();
+                map.put("bookingId", bookingId);
 
                 map.put("folioNo", "BKG-" + String.format("%04d", bookingId));
                 map.put("roomNumber", String.join(", ", roomNumbers));

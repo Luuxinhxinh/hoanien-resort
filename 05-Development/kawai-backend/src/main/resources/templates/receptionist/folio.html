@@ -46,6 +46,37 @@
             transform: scale(0.97) translateY(0);
             box-shadow: 0 2px 8px rgba(99, 70, 54, 0.3);
         }
+
+        .btn-request-check {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 7px 16px;
+            background: #2e7d32;
+            color: #fff;
+            border: 1.5px solid #2e7d32;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 0.78rem;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.22s ease;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+
+        .btn-request-check:hover {
+            background: #1b5e20;
+            border-color: #1b5e20;
+            box-shadow: 0 6px 20px rgba(27, 94, 32, 0.45), 0 2px 6px rgba(27, 94, 32, 0.25);
+            transform: translateY(-1px);
+        }
+
+        .btn-request-check:active {
+            transform: scale(0.97) translateY(0);
+            box-shadow: 0 2px 8px rgba(27, 94, 32, 0.3);
+        }
     </style>
 </head>
 
@@ -157,6 +188,12 @@
                     <h2 class="page-title">Check-out & Folio Management (Trả phòng & Hóa đơn)</h2>
                 </div>
 
+                <!-- Tab Navigation -->
+                <div class="tabs-container" style="display: flex; gap: 16px; margin-bottom: 20px; border-bottom: 1px solid #ddd;">
+                    <button class="tab-btn active" onclick="filterByTab(this, 'CHECKED_IN')" style="padding: 10px 16px; border: none; background: none; font-size: 1rem; font-weight: 600; color: #634636; border-bottom: 2px solid #634636; cursor: pointer; transition: all 0.2s;">Checked In</button>
+                    <button class="tab-btn" onclick="filterByTab(this, 'CHECKED_OUT')" style="padding: 10px 16px; border: none; background: none; font-size: 1rem; font-weight: 500; color: #777; border-bottom: 2px solid transparent; cursor: pointer; transition: all 0.2s;">Checked Out</button>
+                </div>
+
                 <div class="table-container">
                     <table class="data-table">
                         <thead>
@@ -184,6 +221,7 @@
     <script src="/receptionist/js/dashboard.js"></script>
     <script>
         let allFolios = [];
+        let currentTabStatus = 'CHECKED_IN'; // Default tab
 
         document.addEventListener('DOMContentLoaded', function () {
             fetchActiveFolios();
@@ -191,29 +229,50 @@
             const searchInput = document.getElementById('folioSearchInput');
             if (searchInput) {
                 searchInput.addEventListener('input', function (e) {
-                    const term = e.target.value.toLowerCase().trim();
-                    if (!term) {
-                        renderFolios(allFolios);
-                        return;
-                    }
-
-                    const filtered = allFolios.filter(folio => {
-                        const name = (folio.bookerName || '').toLowerCase();
-                        const phone = (folio.phoneNumber || '').toLowerCase();
-                        const rooms = (folio.roomNumber || '').toLowerCase();
-                        return name.includes(term) || phone.includes(term) || rooms.includes(term);
-                    });
-                    renderFolios(filtered);
+                    applyFilters();
                 });
             }
         });
+
+        function filterByTab(btn, status) {
+            document.querySelectorAll('.tab-btn').forEach(b => {
+                b.classList.remove('active');
+                b.style.fontWeight = '500';
+                b.style.color = '#777';
+                b.style.borderBottomColor = 'transparent';
+            });
+            btn.classList.add('active');
+            btn.style.fontWeight = '600';
+            btn.style.color = '#634636';
+            btn.style.borderBottomColor = '#634636';
+
+            currentTabStatus = status;
+            applyFilters();
+        }
+
+        function applyFilters() {
+            const term = (document.getElementById('folioSearchInput')?.value || '').toLowerCase().trim();
+            
+            const filtered = allFolios.filter(folio => {
+                if (!folio.status || folio.status.toUpperCase() !== currentTabStatus) {
+                    return false;
+                }
+                
+                if (!term) return true;
+                const name = (folio.bookerName || '').toLowerCase();
+                const phone = (folio.phoneNumber || '').toLowerCase();
+                const rooms = (folio.roomNumber || '').toLowerCase();
+                return name.includes(term) || phone.includes(term) || rooms.includes(term);
+            });
+            renderFolios(filtered);
+        }
 
         function fetchActiveFolios() {
             fetch('/api/folios/active')
                 .then(response => response.json())
                 .then(data => {
                     allFolios = data || [];
-                    renderFolios(allFolios);
+                    applyFilters();
                 })
                 .catch(error => {
                     console.error("Error fetching active folios:", error);
@@ -244,9 +303,43 @@
                     <td>${formatCurrency(folio.totalPayments)}</td>
                     <td>${folio.phoneNumber}</td>
                     <td><span class="status-badge ${statusClass}" style="text-transform: capitalize;">${folio.status.toLowerCase()}</span></td>
-                    <td><a href="/receptionist/folio/detail?id=${folio.roomBookingDetailId}" class="btn-folio-detail">View Details</a></td>
+                    <td>
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <a href="/receptionist/folio/detail?id=${folio.roomBookingDetailId}" class="btn-folio-detail">View Details</a>
+                            ${folio.status.toLowerCase() !== 'checked_out' ? `
+                                <button onclick="requestGroupCheck(${folio.bookingId})" class="btn-request-check">
+                                    <i class="fa-solid fa-clipboard-check"></i> Kiểm tra phòng
+                                </button>
+                            ` : ''}
+                        </div>
+                    </td>
                 `;
                 tbody.appendChild(tr);
+            });
+        }
+
+        function requestGroupCheck(bookingId) {
+            if (!confirm("Bạn muốn gửi yêu cầu kiểm tra phòng cho tất cả các phòng trong đơn đặt phòng này?")) {
+                return;
+            }
+            fetch(`/api/folios/booking/${bookingId}/request-group-checkout`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    fetchActiveFolios(); // refresh table
+                } else {
+                    alert(data.message || "Lỗi khi gửi yêu cầu.");
+                }
+            })
+            .catch(error => {
+                console.error("Error sending check request:", error);
+                alert("Lỗi kết nối máy chủ.");
             });
         }
     </script>

@@ -147,17 +147,21 @@ public class HousekeepingServiceImpl implements HousekeepingService {
         List<HotelOperation> tasks = housekeepingTaskRepo.findByRoomNumberAndStatusAndType(roomNumber, STATUS_PENDING, OPERATION_CLEAN);
         if (!tasks.isEmpty()) {
             HotelOperation task = tasks.get(0);
-            task.setPriority("Super High");
+            task.setPriority("Lễ tân báo dọn khẩn");
+            String currentNotes = task.getNotes() != null ? task.getNotes() : "";
+            if (!currentNotes.contains("[Khẩn cấp]")) {
+                task.setNotes(currentNotes + " \n[Khẩn cấp] Lễ tân hối thúc dọn ưu tiên để khách Check-in!");
+            }
             housekeepingTaskRepo.save(task);
         } else {
             // Nếu chưa có phiếu dọn phòng (có thể do lỗi dữ liệu test chưa tự động sinh ra),
-            // ta sẽ tự động tạo một phiếu mới tinh với mức độ Super High.
+            // ta sẽ tự động tạo một phiếu mới tinh với mức độ Lễ tân báo dọn khẩn.
             Room room = roomRepo.findByRoomNumber(roomNumber).orElse(null);
             if (room != null) {
                 List<Employee> allStaff = employeeRepo.findAll();
                 if (!allStaff.isEmpty()) {
                     Employee staff = allStaff.get(0);
-                    HotelOperation newTask = buildHotelOperation(room, staff, OPERATION_CLEAN, "Super High", "Lễ tân yêu cầu dọn khẩn cấp để giao phòng cho khách.");
+                    HotelOperation newTask = buildHotelOperation(room, staff, OPERATION_CLEAN, "Lễ tân báo dọn khẩn", "Lễ tân yêu cầu dọn phòng khẩn cấp.");
                     housekeepingTaskRepo.save(newTask);
                 }
             }
@@ -235,8 +239,12 @@ public class HousekeepingServiceImpl implements HousekeepingService {
         HotelOperation task = findMaintenanceTaskById(taskId);
         Room room = task.getRoom();
 
-        // Phòng sau bảo trì → Vacant_Clean (BR-FO-04)
-        room.setRoomStatus(STATUS_VACANT_CLEAN);
+        // Phòng sau bảo trì → Trả về Occupied nếu đang có khách ở, ngược lại là Vacant_Clean (BR-FO-04)
+        if (room.getCurrentBookingDetailId() != null) {
+            room.setRoomStatus("Occupied");
+        } else {
+            room.setRoomStatus(STATUS_VACANT_CLEAN);
+        }
         task.setStatus(STATUS_COMPLETED);
         task.setCompletedAt(LocalDateTime.now());
 
