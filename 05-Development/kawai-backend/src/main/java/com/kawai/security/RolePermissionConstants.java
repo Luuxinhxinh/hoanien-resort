@@ -86,13 +86,9 @@ public class RolePermissionConstants {
             FNB_ORDER, FNB_TABLE, FNB_ROOM_SERVICE, FNB_REPORT
         ));
 
-        // MANAGER — gần giống Admin, không có phân quyền RBAC
+        // MANAGER — chỉ có quyền trên Manager UI
         m.put("manager", Arrays.asList(
-            DASHBOARD, BOOKING, FNB, TOUR, HOUSEKEEPING,
-            MAINTENANCE, NIGHT_AUDIT, ANALYTICS, REVIEWS, CRM,
-            PROMOTIONS, WORKFLOW,
-            RECEPTION_CHECKIN, RECEPTION_CHECKOUT, RECEPTION_WALKIN, RECEPTION_INHOUSE,
-            FNB_ORDER, FNB_TABLE, FNB_ROOM_SERVICE, FNB_REPORT
+            DASHBOARD, ANALYTICS
         ));
 
         // RECEPTIONIST — lễ tân, tập trung check-in/out và folio
