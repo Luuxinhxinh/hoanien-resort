@@ -149,6 +149,9 @@
 | --------------- | ------------------------------------------------------------- | ----------------------------- | ----------- | ------------ |
 | **UC20**  | Tìm tour + tích hợp thời tiết OpenWeather                | `Customer`,`Guest`        | P1          | ✅           |
 | **UC21**  | Đặt vé tour (web + post-to-room / VNPay)                   | `Customer`,`Receptionist` | P0          | ✅           |
+| UC21.1    | Khai báo thông tin người lớn đi kèm (Companions) nhóm >=2  | `Customer`                  | P0          | ✅           |
+| UC21.2    | Áp dụng luồng bảo hiểm bắt buộc và sinh mã Policy Number  | `Customer`, System          | P0          | ✅           |
+| UC21.3    | Giao diện trình chiếu và phân trang danh sách tour động    | `Customer`,`Guest`          | P1          | ✅           |
 | **UC22**  | **Điều hành Tour**                                   |                               |             |              |
 | UC22.1          | Đồng bộ khách combo phòng → tour booking                | System                        | P0          | ❌           |
 | UC22.2          | Phân công HDV / nhân sự tour (`TourStaffAssignment`)    | `Admin`,`Manager`         | P1          | ⚠️         |
@@ -218,10 +221,10 @@
 | MOD1            | 35            | 24           | 9            | 2           |
 | MOD2            | 18            | 11           | 6            | 1           |
 | MOD3            | 16            | 13           | 3            | 0           |
-| MOD4            | 14            | 4            | 6            | 4           |
+| MOD4            | 17            | 7            | 6            | 4           |
 | MOD5            | 16            | 12           | 3            | 1           |
 | MOD6            | 9             | 9            | 0            | 0           |
-| **TỔNG** | **108** | **73** | **27** | **8** |
+| **TỔNG** | **111** | **76** | **27** | **8** |
 
 **Tỷ lệ có code:** ~93% (✅ + ⚠️) | **Hoàn thiện E2E:** ~68% (✅)
 

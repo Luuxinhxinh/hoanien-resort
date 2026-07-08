@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cảm ơn quý khách đã tham gia hành trình</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500;600&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+      background-color: #ffffff;
+      color: #2d2926;
+    }
+
+    .email-outer {
+      background-color: #ffffff;
+      padding: 40px 16px;
+      min-height: 100vh;
+    }
+
+    .wrapper {
+      max-width: 600px;
+      margin: 0 auto;
+      border-radius: 4px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+      border: 1px solid #e5e1da;
+    }
+
+    /* ── Header ── */
+    .header {
+      background: #ffffff;
+      padding: 36px 40px 28px;
+      text-align: center;
+      border-bottom: 1px solid #e5e1da;
+    }
+
+    .header .brand {
+      font-family: 'EB Garamond', Georgia, serif;
+      font-size: 42px;
+      font-weight: 400;
+      font-style: italic;
+      color: #c5a059;
+      margin-bottom: 4px;
+    }
+
+    .header .logo-text {
+      font-family: 'EB Garamond', Georgia, serif;
+      font-size: 16px;
+      font-weight: 400;
+      font-style: italic;
+      color: #9ca3af;
+      letter-spacing: 2px;
+    }
+
+    /* ── Hero ── */
+    .hero {
+      background: #fbf9f6;
+      padding: 45px 40px;
+      text-align: center;
+      border-bottom: 1px solid #e5e1da;
+    }
+
+    .hero .icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+      display: block;
+      color: #c5a059;
+    }
+
+    .hero h1 {
+      font-family: 'EB Garamond', Georgia, serif;
+      font-size: 28px;
+      font-weight: 400;
+      font-style: italic;
+      color: #2d2926;
+      margin-bottom: 12px;
+      letter-spacing: 0.5px;
+    }
+
+    .hero p {
+      font-size: 14px;
+      font-weight: 300;
+      color: #4b5563;
+      letter-spacing: 0.3px;
+      line-height: 1.8;
+    }
+
+    /* ── Body ── */
+    .body {
+      background: #ffffff;
+      padding: 40px;
+      border-bottom: 1px solid #e5e1da;
+    }
+
+    .body p {
+      font-size: 14px;
+      line-height: 1.8;
+      color: #4b5563;
+      margin-bottom: 24px;
+    }
+
+    .button-container {
+      text-align: center;
+      margin: 32px 0;
+    }
+
+    .btn-feedback {
+      display: inline-block;
+      background-color: #c5a059;
+      color: #ffffff !important;
+      text-decoration: none;
+      font-family: 'Inter', sans-serif;
+      font-[12px] font-bold;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      padding: 16px 40px;
+      border-radius: 2px;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(197, 160, 89, 0.2);
+    }
+
+    /* ── Footer ── */
+    .footer {
+      background: #fbf9f6;
+      padding: 36px 40px;
+      text-align: center;
+    }
+
+    .footer .contact-info {
+      font-size: 11px;
+      color: #9ca3af;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+    }
+
+    .footer .copyright {
+      font-size: 10px;
+      color: #d1d5db;
+      letter-spacing: 1px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="email-outer">
+    <div class="wrapper">
+      <!-- Header -->
+      <div class="header">
+        <div class="brand">HoaNien</div>
+        <div class="logo-text">Retreat Resort &amp; Hub</div>
+      </div>
+
+      <!-- Hero -->
+      <div class="hero">
+        <span class="icon">❀</span>
+        <h1>Hành Trình Trọn Vẹn Cảm Xúc</h1>
+        <p>Cảm ơn quý khách <strong th:text="${customerName}">Nguyễn Ngọc</strong> đã đồng hành cùng HoaNien trong hành trình <strong th:text="${tourName}">Đoàn Tụ</strong>.</p>
+      </div>
+
+      <!-- Body -->
+      <div class="body">
+        <p>Kính gửi Quý khách,</p>
+        <p>Mỗi hành trình tại HoaNien được thiết kế không chỉ để khám phá những vùng đất rêu phong cổ kính, mà còn là nơi lưu giữ những xúc cảm chân thành và sự kết nối trọn vẹn của Quý khách cùng người thân.</p>
+        <p>Sự hài lòng của Quý khách là kim chỉ nam cho mọi dịch vụ của chúng tôi. Kính mong Quý khách dành ít phút để chia sẻ những cảm nhận về hành trình vừa qua, giúp HoaNien nâng tầm chất lượng dịch vụ ngày một hoàn mỹ hơn.</p>
+
+        <!-- Large Gold Button -->
+        <div class="button-container">
+          <a th:href="${feedbackUrl}" class="btn-feedback">Đánh giá trải nghiệm</a>
+        </div>
+
+        <p>Trân trọng cảm ơn và hẹn gặp lại Quý khách trong những hành trình tiếp theo.</p>
+        <p>Đội ngũ HoaNien Retreat.</p>
+      </div>
+
+      <!-- Footer -->
+      <div class="footer">
+        <div class="contact-info">
+          Hotline: <span th:text="${resortPhone}">1900 xxxx</span> | Website: <span th:text="${resortWebsite}">hoaniensorretreat.vn</span>
+        </div>
+        <div class="copyright">
+          © 2026 HOANIEN RETREAT. ALL RIGHTS RESERVED.
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>

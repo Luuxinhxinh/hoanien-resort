@@ -15,6 +15,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Implementation của {@link TourBookingService} cho UC20.1: Đặt tour du lịch.
@@ -50,6 +51,9 @@ public class TourBookingServiceImpl implements TourBookingService {
 
         @Autowired(required = false)
         private EmailService emailService;
+
+        @Autowired
+        private DependentRepository dependentRepository;
 
         public TourBookingServiceImpl(TourScheduleRepository tourScheduleRepository,
                         TourBookingRepository tourBookingRepository,
@@ -93,9 +97,18 @@ public class TourBookingServiceImpl implements TourBookingService {
                                         "TOUR-001: Hết chỗ. Chỉ còn " + remainingCapacity + " chỗ trống");
                 }
 
+                // 2b. Kiểm tra bảo hiểm bắt buộc — TOUR-INS-001
+                Tour tour = schedule.getTour();
+                if (Boolean.TRUE.equals(tour.getIsInsuranceRequired()) && !request.isAcceptInsurance()) {
+                        LOG.warn("TOUR-INS-001: Khách {} từ chối bảo hiểm bắt buộc cho tour {}",
+                                        request.getCustomerId(), tour.getId());
+                        throw new IllegalStateException(
+                                        "TOUR-INS-001: Tour này bắt buộc mua bảo hiểm du lịch. Vui lòng đồng ý mua bảo hiểm để tiếp tục đặt chỗ.");
+                }
+
                 // 3. Tính tổng giá (Dưới 2 tuổi miễn phí, 2 - 11 tuổi giảm 50%)
                 BigDecimal totalPrice = BigDecimal.ZERO;
-                BigDecimal basePrice = schedule.getTour().getBasePrice();
+                BigDecimal basePrice = tour.getBasePrice();
                 int childCount = request.getChildAges() != null ? request.getChildAges().size() : 0;
                 int adultCount = request.getParticipantCount() - childCount;
                 if (adultCount < 0)
@@ -121,6 +134,16 @@ public class TourBookingServiceImpl implements TourBookingService {
                                         childDiscount = childDiscount.add(basePrice.multiply(new BigDecimal("0.5")));
                                 }
                         }
+                }
+
+                // 3b. Cộng phí bảo hiểm (nếu tour bắt buộc và khách đã đồng ý)
+                BigDecimal insuranceFee = BigDecimal.ZERO;
+                if (Boolean.TRUE.equals(tour.getIsInsuranceRequired()) && request.isAcceptInsurance()) {
+                        insuranceFee = tour.getInsurancePrice()
+                                        .multiply(BigDecimal.valueOf(request.getParticipantCount()));
+                        totalPrice = totalPrice.add(insuranceFee);
+                        LOG.info("Cộng phí bảo hiểm: {} x {} người = {} VND",
+                                        tour.getInsurancePrice(), request.getParticipantCount(), insuranceFee);
                 }
 
                 // 4. Áp dụng mã giảm giá (nếu có)
@@ -214,6 +237,7 @@ public class TourBookingServiceImpl implements TourBookingService {
                                 + ";childDiscount=" + childDiscount
                                 + ";promoDiscount=" + promoDiscount
                                 + ";originalPrice=" + originalPrice
+                                + ";insuranceFee=" + insuranceFee
                                 + ";paymentMethod=" + paymentMethodStr
                                 + ";paymentType=" + paymentTypeStr
                                 + ";customerNotes=" + customerNotes;
@@ -223,17 +247,79 @@ public class TourBookingServiceImpl implements TourBookingService {
                 LOG.info("Created tour booking {} for schedule {} ({} pax)",
                                 savedBooking.getId(), schedule.getId(), request.getParticipantCount());
 
+                // 5a. Sinh mã bảo hiểm và đánh dấu schedule (chỉ khi tour bắt buộc bảo hiểm)
+                if (Boolean.TRUE.equals(tour.getIsInsuranceRequired()) && request.isAcceptInsurance()) {
+                        if (!Boolean.TRUE.equals(schedule.getIsInsuranceProcessed())) {
+                                // Chưa có mã → sinh mới
+                                String suffix = UUID.randomUUID().toString().substring(0, 4).toUpperCase();
+                                String policyNumber = "INS-" + LocalDate.now()
+                                                + "-SCH" + schedule.getId()
+                                                + "-" + suffix;
+                                schedule.setInsurancePolicyNumber(policyNumber);
+                                schedule.setIsInsuranceProcessed(true);
+                                tourScheduleRepository.save(schedule);
+                                LOG.info("Sinh mã bảo hiểm cho schedule {}: {}", schedule.getId(), policyNumber);
+                        } else {
+                                LOG.info("Schedule {} đã có mã bảo hiểm: {}", schedule.getId(),
+                                                schedule.getInsurancePolicyNumber());
+                        }
+                }
+
                 // 5. Tạo TourAttendee records
                 List<TourAttendee> attendees = new ArrayList<>();
-                for (int i = 0; i < request.getParticipantCount(); i++) {
+                int currentAttendeeCount = 0;
+
+                // Khách hàng đặt chính là attendee số 1
+                if (currentAttendeeCount < request.getParticipantCount()) {
+                        TourAttendee mainAttendee = new TourAttendee();
+                        mainAttendee.setTourBooking(savedBooking);
+                        mainAttendee.setCustomer(customer);
+                        mainAttendee.setAttendanceStatus("Not_Show");
+                        attendees.add(mainAttendee);
+                        currentAttendeeCount++;
+                }
+
+                // Tạo các attendee đi kèm dựa trên danh sách companions (người lớn đi cùng)
+                if (request.getCompanions() != null && !request.getCompanions().isEmpty()) {
+                        for (TourBookingRequest.CompanionRequest comp : request.getCompanions()) {
+                                if (currentAttendeeCount >= request.getParticipantCount()) {
+                                        break;
+                                }
+                                // Lưu thông tin người đi kèm vào bảng Dependents
+                                Dependent dep = new Dependent();
+                                dep.setCustomer(customer);
+                                dep.setDependentName(comp.getName());
+                                // Tính ngày sinh từ độ tuổi (ví dụ mặc định lấy năm hiện tại - số tuổi)
+                                int age = comp.getAge() != null ? comp.getAge() : 12;
+                                dep.setBirthDate(LocalDate.now().minusYears(age));
+                                dep.setGender("Nam");
+                                dep.setIsDeleted(false);
+                                
+                                // Nếu có sđt, lưu vào cccdPassportEncrypted dưới dạng note PHONE_xxx để tránh thiếu dữ liệu
+                                if (comp.getPhone() != null && !comp.getPhone().trim().isEmpty()) {
+                                        dep.setCccdPassportEncrypted("PHONE_" + comp.getPhone().trim());
+                                }
+                                
+                                Dependent savedDep = dependentRepository.save(dep);
+
+                                TourAttendee attendee = new TourAttendee();
+                                attendee.setTourBooking(savedBooking);
+                                attendee.setDependent(savedDep);
+                                attendee.setAttendanceStatus("Not_Show");
+                                attendees.add(attendee);
+                                currentAttendeeCount++;
+                        }
+                }
+
+                // Nếu tổng số lượng khách lớn hơn và còn thừa slot (ví dụ trẻ em hoặc khách chưa nhập chi tiết), tạo các attendee rỗng
+                while (currentAttendeeCount < request.getParticipantCount()) {
                         TourAttendee attendee = new TourAttendee();
                         attendee.setTourBooking(savedBooking);
-                        if (i == 0) {
-                                attendee.setCustomer(customer);
-                        }
                         attendee.setAttendanceStatus("Not_Show");
                         attendees.add(attendee);
+                        currentAttendeeCount++;
                 }
+
                 tourAttendeeRepository.saveAll(attendees);
 
                 // 6. Post to Room: ghi nợ vào Folio phòng
