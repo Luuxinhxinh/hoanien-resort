@@ -8,7 +8,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.stream.Stream;
+import java.util.Arrays;
+import java.util.List;
 
 @SpringBootTest
 public class RawEmailTest {
@@ -20,18 +21,18 @@ public class RawEmailTest {
     public void sendRawTemplates() throws Exception {
         String testEmail = "liungu2005@gmail.com";
         Path templatesDir = Paths.get("src/main/resources/templates/email");
-        
-        try (Stream<Path> paths = Files.list(templatesDir)) {
-            paths.filter(p -> p.toString().endsWith(".html")).forEach(p -> {
-                try {
-                    String content = Files.readString(p);
-                    String subject = "[Preview Format FIX] " + p.getFileName().toString();
-                    emailService.sendEmail(testEmail, subject, content);
-                    Thread.sleep(1000); // Prevent spam block
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            });
+        List<String> filesToSend = Arrays.asList("room-service.html", "refund-success.html", "invoice.html");
+
+        for (String fileName : filesToSend) {
+            try {
+                Path p = templatesDir.resolve(fileName);
+                String content = Files.readString(p);
+                String subject = "[Preview Format FINAL] " + fileName;
+                emailService.sendEmail(testEmail, subject, content);
+                Thread.sleep(1000); // Prevent spam block
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         Thread.sleep(5000); // wait for async
     }

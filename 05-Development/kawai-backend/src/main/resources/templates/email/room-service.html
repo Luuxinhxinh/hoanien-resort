@@ -98,21 +98,24 @@
 </style>
 </head>
 <body>
+  <div class="email-outer">
+    <div class="wrapper">
 
-  <div class="wrapper">
-
-    <!-- HEADER -->
-    <div class="header">
-      <div class="brand">H O A N I E N</div>
-      <div class="tagline">Retreat &amp; Resort</div>
-    </div>
-
-    <!-- BODY -->
-    <div class="body">
-
-      <div class="badge-wrap">
-        <span class="badge">XÁC NHẬN ĐƠN PHỤC VỤ TẠI PHÒNG</span>
+      <!-- HEADER -->
+      <div class="header">
+        <div class="brand">Hòa Niên</div>
+        <div class="logo-text">Retreat Resort &amp; Hub</div>
       </div>
+
+      <!-- HERO -->
+      <div class="hero">
+        <span class="icon">🛎️</span>
+        <h1>Xác nhận phục vụ phòng</h1>
+        <p>Chi tiết đơn gọi món tại phòng của Quý khách</p>
+      </div>
+
+      <!-- BODY -->
+      <div class="body">
 
       <p class="greeting">Kính gửi Quý khách <strong th:text="${customerName}">[Tên Khách]</strong>,</p>
 
@@ -158,12 +161,21 @@
 
     </div>
 
-    <!-- FOOTER -->
-    <div class="footer">
-      <p>&copy; 2026 HOANIEN Retreat &amp; Resort. All rights reserved.</p>
+      <!-- FOOTER -->
+      <div class="footer">
+        <div class="resort-name">Hòa Niên</div>
+        <p>
+          📞 <span th:text="${resortPhone}">1900 xxxx</span> &nbsp;|&nbsp;
+          🌐 <a th:href="${resortWebsite}" th:text="${resortWebsite}">hoaniensorretreat.vn</a>
+        </p>
+        <div class="footer-divider"></div>
+        <p>
+          Email này được gửi tự động — vui lòng không phản hồi.<br />
+          © 2026 Hòa Niên Retreat Resort & Hub. Bảo lưu mọi quyền.
+        </p>
+      </div>
+
     </div>
-
   </div>
-
 </body>
 </html>
