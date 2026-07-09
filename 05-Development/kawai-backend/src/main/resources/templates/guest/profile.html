@@ -25,6 +25,27 @@
             div.innerHTML = '⚠️ Lỗi JavaScript: ' + e.message + '<br><small style="opacity:0.8; font-weight:normal;">Tại file: ' + e.filename + ' (Dòng ' + e.lineno + ':' + e.colno + ')</small>';
             document.body.appendChild(div);
         });
+
+        // Click intercept tracker to see if any transparent overlay is blocking the page
+        document.addEventListener('click', function(e) {
+            var toast = document.createElement('div');
+            toast.style.position = 'fixed';
+            toast.style.bottom = '20px';
+            toast.style.left = '20px';
+            toast.style.backgroundColor = 'rgba(0, 0, 0, 0.85)';
+            toast.style.color = '#10b981'; // green text
+            toast.style.padding = '12px 16px';
+            toast.style.zIndex = '9999999';
+            toast.style.borderRadius = '8px';
+            toast.style.fontSize = '12px';
+            toast.style.fontFamily = 'monospace';
+            toast.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
+            toast.innerText = '👉 Nhấp chuột: <' + e.target.tagName.toLowerCase() + '> ' + 
+                              (e.target.id ? 'id="' + e.target.id + '" ' : '') + 
+                              (e.target.className ? 'class="' + e.target.className.split(' ').slice(0,3).join(' ') + '..."' : '');
+            document.body.appendChild(toast);
+            setTimeout(function() { toast.remove(); }, 4000);
+        }, true); // Use capture phase
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Hồ sơ cá nhân - Hoanien River Retreat</title>
