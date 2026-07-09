@@ -33,6 +33,7 @@ public class MenuItemApiController {
     }
 
     @PostMapping("/{id}/toggle")
+    @org.springframework.security.access.prepost.PreAuthorize("hasAnyAuthority('OP_FNB_ORDER', 'ROLE_ADMIN', 'ROLE_MANAGER')")
     public ResponseEntity<?> toggleAvailability(@PathVariable Long id, @RequestParam Boolean isAvailable) {
         Optional<MenuItem> itemOpt = foodItemRepository.findById(id);
         if (itemOpt.isPresent()) {

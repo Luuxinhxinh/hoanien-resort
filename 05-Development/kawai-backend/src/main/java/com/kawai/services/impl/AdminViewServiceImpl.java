@@ -363,9 +363,26 @@ public class AdminViewServiceImpl implements AdminViewService {
                 List<Map<String, String>> rows = new ArrayList<>();
                 try {
                     for (Employee e : employeeRepository.findAll()) {
-                        String rn = e.getAccount() != null && e.getAccount().getRole() != null
-                                ? e.getAccount().getRole().getRoleName()
-                                : "Nhân viên";
+                        // Nếu role là CUSTOM_ROLE_ thì lấy base role từ description, không hiện tên kỹ thuật
+                        String rn;
+                        boolean hasCustomPerms = false;
+                        if (e.getAccount() != null && e.getAccount().getRole() != null) {
+                            String roleName = e.getAccount().getRole().getRoleName();
+                            if (roleName.startsWith("CUSTOM_ROLE_")) {
+                                hasCustomPerms = true;
+                                // Lấy base role từ description: "Custom role for account X (Base: Lễ tân)"
+                                String desc = e.getAccount().getRole().getDescription();
+                                if (desc != null && desc.contains("Base: ")) {
+                                    rn = desc.substring(desc.indexOf("Base: ") + 6).replace(")", "").trim();
+                                } else {
+                                    rn = "Nhân viên";
+                                }
+                            } else {
+                                rn = roleName;
+                            }
+                        } else {
+                            rn = "Nhân viên";
+                        }
                         boolean isActive = e.getAccount() != null && e.getAccount().getIsActive();
                         rows.add(r("id", "E-" + e.getId(),
                                 "name", e.getFullName(),
@@ -373,6 +390,7 @@ public class AdminViewServiceImpl implements AdminViewService {
                                 "__typeStyle", bs("Nhân viên"),
                                 "role", rn,
                                 "__roleStyle", bs(rn),
+                                "hasCustomPerms", hasCustomPerms ? "true" : "false",
                                 "email", e.getEmail() != null ? e.getEmail() : "-",
                                 "status", isActive ? "Hoạt động" : "Ngừng hoạt động",
                                 "username", e.getAccount() != null ? e.getAccount().getUsername() : "",
@@ -531,7 +549,7 @@ public class AdminViewServiceImpl implements AdminViewService {
         opts.put("seasonTypes", List.of("Thường ngày", "Cuối tuần", "Cao điểm"));
         opts.put("staffRoles",
                 roleRepository.findAll().stream()
-                        .filter(r -> !r.getRoleName().startsWith("Khách") && !"Admin".equalsIgnoreCase(r.getRoleName()))
+                        .filter(r -> !r.getRoleName().startsWith("Khách") && !"Admin".equalsIgnoreCase(r.getRoleName()) && !r.getRoleName().startsWith("CUSTOM_ROLE_"))
                         .map(Role::getRoleName).collect(Collectors.toList()));
         opts.put("guestRoles", roleRepository.findAll().stream().filter(r -> r.getRoleName().startsWith("Khách"))
                 .map(Role::getRoleName).collect(Collectors.toList()));
@@ -616,7 +634,7 @@ public class AdminViewServiceImpl implements AdminViewService {
             /* empty */ }
         if (logs.isEmpty()) {
             logs.add(new AuditLogMock("--", "System", "SY", "System", "Hệ thống đang chạy", List.of("System"),
-                    "127.0.0.1", "normal", 0L, "", ""));
+                    "127.0.0.1", "normal", 0L, "", java.time.LocalDate.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd"))));
         }
         return logs;
     }

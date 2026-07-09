@@ -32,6 +32,7 @@ description: Đảm bảo tính toàn vẹn của Frontend (Giao diện và Tư�
   - Kiểm tra xem các màn hình liên quan của người dùng khác (ví dụ: trang Duyệt yêu cầu của Manager) có hiển thị đúng, đủ các thông tin và trạng thái tương ứng hay không.
   - Đảm bảo không bị lệch kiểu dữ liệu hoặc giá trị nhãn (như enum, type string) khiến dữ liệu bị bỏ sót khi truy vấn lọc ở màn hình đích.
   - Khi thực thi các hành động phê duyệt/từ chối, các thay đổi trạng thái phải được cập nhật đồng bộ và chính xác xuống database cũng như các thực thể liên quan (ví dụ: trạng thái đơn đặt phòng Booking chuyển sang `Pending_Approval` khi gửi yêu cầu, và trả lại `Pending`/`CANCELLED` sau khi Manager xử lý).
+- **[Quy tắc Ảo giác "Bảng rỗng" do Auto-Filter]:** Khi thiết kế màn hình danh sách (Danh sách Booking, Audit Log, History,...), **tuyệt đối không** tự động gán cứng giá trị mặc định cho các ô lọc (Ví dụ: `filterDate.value = new Date()`) ngay khi tải trang (Initial Load) trừ khi có yêu cầu nghiệp vụ bắt buộc. Việc này rất dễ che giấu dữ liệu cũ, làm sai lệch kết quả từ API (ví dụ API fallback trả data trống ngày) và khiến người dùng tưởng hệ thống bị lỗi "mất dữ liệu". Luôn ưu tiên để trống bộ lọc và hiển thị toàn bộ data ở lần tải đầu tiên.
 
 ## 6. Thymeleaf Template Integrity & Chunked Encoding Debugging
 - **Tránh đóng block sớm (Premature Closure)**: Khi lặp với `<th:block th:each="...">`, thẻ đóng `</th:block>` phải được đặt ở cuối cùng, sau khi tất cả các thẻ con bên trong nó (ví dụ: thẻ bao `booking-item`, `details`, v.v.) đã đóng hoàn toàn.
@@ -44,3 +45,28 @@ description: Đảm bảo tính toàn vẹn của Frontend (Giao diện và Tư�
 - **Ánh xạ từ khóa linh hoạt:** Cấu hình bộ quy tắc so khớp lỏng (`includes` hoặc regex) thay vì so khớp tuyệt đối (`===`) để hỗ trợ tìm kiếm theo cả từ khóa rút gọn, giúp giao diện không bị lỗi hoặc hiển thị trống khi dữ liệu trên DB có thay đổi nhỏ về tiêu đề.
 - **Cơ chế Fallback an toàn:** Khi so khớp dựa trên chuỗi văn bản không thành công (không tìm thấy key phù hợp), **BẮT BUỘC** phải có cơ chế fallback tự động sử dụng thuộc tính định danh chính gốc từ database (như ID, loại định danh `tourType`, `roomCategoryCode`) được nạp sẵn để hiển thị thông tin chính xác, tránh việc giao diện im lặng bỏ qua (silent failure) hoặc hiển thị trống rỗng.
 - **Tránh ghi đè mảng theo chỉ mục (Index Shifting):** Khi hợp nhất danh sách dữ liệu động từ Server (ví dụ: danh sách hoạt động tour bao gồm cả điểm đón/trả) vào danh sách tĩnh chứa siêu dữ liệu UI (toạ độ chấm CSS, hình ảnh bản đồ...), **TUYỆT ĐỐI KHÔNG** gán đè đơn giản theo chỉ mục (`dynamicList[i]` → `staticList[i]`) nếu kích thước hai mảng khác nhau. Hậu quả: toạ độ và hình ảnh của phần tử giữa bị lệch sang phần tử sai, gây hiển thị sai vị trí trên bản đồ. **Giải pháp:** Dùng so khớp theo thuộc tính tương đồng (tiêu đề, ID hoặc từ khoá). Các phần tử đặc biệt (ví dụ: "Đón khách", "Trả khách") cần được map cứng (hard-coded) vào toạ độ xác định; phần tử còn lại so khớp linh hoạt với danh sách tĩnh để kế thừa đúng siêu dữ liệu UI.
+
+## 8. Thymeleaf Fragment Scope — Quy tắc cứng (BẮT BUỘC)
+
+> **Bài học từ bug thực tế:** Modal đặt sai ngoài fragment → build thành công → runtime hoàn toàn im lặng → nút không có tác dụng.
+
+- **Trước khi báo Done với bất kỳ element HTML nào (Modal, Button, Form...)**, PHẢI trả lời câu hỏi: *"Element này đến tay người dùng qua đường nào?"*
+  - Nếu nằm trong một file `fragments/xxx.html` → phải nằm **bên trong** `th:fragment="tên"` được gọi qua `th:replace="~{...:: tên}"`.
+  - Nếu muốn luôn render (không phụ thuộc fragment) → đặt trực tiếp trong file layout/template cha.
+- **Trace bắt buộc:** Mở file template cha (ví dụ `master-data.html`), grep tên fragment (`:: tên`), xác nhận element đang thêm nằm **bên trong** fragment đó. Không tìm thấy → element **KHÔNG tồn tại trong DOM**.
+- **Modal đặc biệt:** Modal nên đặt trong template cha (cùng nơi với các modal khác như `delete-modal`, `entity-modal`) thay vì trong fragment, trừ khi fragment đó được include dưới dạng `th:insert` (không phải `th:replace` một phần).
+- **Kiểm tra nhanh bằng grep:** Sau khi thêm element, chạy `grep_search` với `id="element-id"` trên toàn bộ file template cha để xác nhận nó xuất hiện sau khi Thymeleaf xử lý.
+
+## 9. E2E Trace Checklist — Bắt buộc trước khi báo Done với tính năng có Modal/API
+
+> **Mục tiêu:** `mvn compile` chỉ bắt lỗi Java. Lỗi giao diện và logic luồng phải trace thủ công theo 5 mắt xích sau:
+
+| Mắt xích | Câu hỏi phải trả lời được | Cách kiểm tra |
+|---|---|---|
+| **1. HTML/DOM** | Element có thật trong DOM không? | Trace `th:replace`/`th:insert` từ template cha |
+| **2. JS Binding** | Event listener tìm thấy element không? | `getElementById("id")` → null là lỗi; grep tên hàm xem có định nghĩa không |
+| **3. API Call** | URL, method, body có khớp Controller không? | So `fetch("/path/${id}")` vs `@GetMapping("/path/{id}")`, kiểm tra format id (E-5 vs 5) |
+| **4. Backend** | Service/Repository xử lý được không? | Đọc method service, kiểm tra exception path |
+| **5. Response → UI** | JS nhận response và cập nhật UI đúng không? | Đọc `.then(res => ...)`, kiểm tra field name khớp |
+
+Nếu bất kỳ mắt xích nào chưa được kiểm tra → **KHÔNG được báo Done**.

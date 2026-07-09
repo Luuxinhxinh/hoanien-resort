@@ -32,6 +32,13 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         }
 
         String rawRole = account.getRole().getRoleName();
+        String description = account.getRole().getDescription();
+        
+        // Nếu là role tuỳ chỉnh, lấy base role ra để map Security Role đúng
+        if (rawRole != null && rawRole.startsWith("CUSTOM_ROLE_") && description != null && description.contains("Base: ")) {
+            rawRole = description.substring(description.indexOf("Base: ") + 6).replace(")", "").trim();
+        }
+
         String securityRole = rawRole;
         if (rawRole.equalsIgnoreCase("Admin")) {
             securityRole = "ROLE_ADMIN";
