@@ -70,3 +70,7 @@ description: Đảm bảo tính toàn vẹn của Frontend (Giao diện và Tư�
 | **5. Response → UI** | JS nhận response và cập nhật UI đúng không? | Đọc `.then(res => ...)`, kiểm tra field name khớp |
 
 Nếu bất kỳ mắt xích nào chưa được kiểm tra → **KHÔNG được báo Done**.
+
+## 10. Phân biệt giao dịch tài chính (Financial Transaction Consistency)
+- **Tuyệt đối không gộp nhóm giao dịch chỉ bằng dấu (+/-):** Khi Frontend nhận danh sách `FolioItem` (hoặc Transaction) từ Backend, nếu cần tính tổng tiền nạp, tiền cọc, hoặc tiền hoàn (Refund), **KHÔNG ĐƯỢC** quét mọi khoản tiền âm (`amount < 0`) rồi tự động cộng dồn vào cùng một biến hiển thị. Điều này sẽ dẫn đến việc cộng nhầm Tiền cọc phòng (Pre-paid Deposit) với Tiền nạp hạn mức (Credit Deposit) và gây hiện tượng "Double-count" (cấn trừ đúp).
+- **Phân loại dựa trên Metadata/Description:** Luôn phải dựa vào thuộc tính `description` (ví dụ chứa cụm từ `"nạp tiền nâng hạn mức"`), `sourceDepartment`, hoặc `transactionType` để lọc chính xác đúng loại giao dịch cần hiển thị trên UI. Sự phân loại này trên Frontend **PHẢI** luôn khớp 100% với điều kiện truy vấn tại Backend Repository (ví dụ: `FolioItemRepository.findCreditDepositAmountsByDetailId`).

@@ -75,6 +75,10 @@ public class PaymentApiController {
         } else if (txnRef != null && txnRef.startsWith("WALKIN_")) {
             redirectUrl = "/receptionist/in-house?payment=" + (isSuccess ? "success" : "failed");
             System.err.println("[VNPay Return] -> Redirecting to in-house (WALKIN_ prefix)");
+        } else if (txnRef != null && txnRef.startsWith("CREDITDEPOSIT_")) {
+            // Nâng hạn mức tín dụng do lễ tân thực hiện → redirect về trang In-House
+            redirectUrl = "/receptionist/in-house?payment=" + (isSuccess ? "success" : "failed");
+            System.err.println("[VNPay Return] -> Redirecting to in-house (CREDITDEPOSIT_ prefix)");
         } else {
             // Đặt phòng thông thường (Customer Online Booking)
             if (isSuccess) {

@@ -201,7 +201,7 @@ public class VnPayServiceImpl implements VnPayService {
         vnp_Params.put("vnp_IpAddr", ipAddress);
         vnp_Params.put("vnp_CreateDate", createDate);
 
-        String expireDate = LocalDateTime.now().plusMinutes(5).format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+        String expireDate = LocalDateTime.now().plusMinutes(2).format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
         vnp_Params.put("vnp_ExpireDate", expireDate);
 
         // Build query string
@@ -278,7 +278,7 @@ public class VnPayServiceImpl implements VnPayService {
         vnp_Params.put("vnp_IpAddr", ipAddress);
         vnp_Params.put("vnp_CreateDate", createDate);
 
-        String expireDate = LocalDateTime.now().plusMinutes(5).format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+        String expireDate = LocalDateTime.now().plusMinutes(2).format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
         vnp_Params.put("vnp_ExpireDate", expireDate);
 
         // 4. Lọc null/empty, sắp xếp và build hashData & query
@@ -412,7 +412,7 @@ public class VnPayServiceImpl implements VnPayService {
         vnp_Params.put("vnp_IpAddr", ipAddress);
         vnp_Params.put("vnp_CreateDate", createDate);
 
-        String expireDate = LocalDateTime.now().plusMinutes(5).format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+        String expireDate = LocalDateTime.now().plusMinutes(2).format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
         vnp_Params.put("vnp_ExpireDate", expireDate);
 
         List<String> fieldNames = new ArrayList<>(vnp_Params.keySet());
@@ -568,6 +568,19 @@ public class VnPayServiceImpl implements VnPayService {
                 } else if ("Pending".equals(booking.getBookingStatus())
                         || "Pending_Payment".equals(booking.getBookingStatus())) {
                     booking.setBookingStatus("Confirmed");
+                }
+            } else if ("CREDIT_LIMIT_DEPOSIT".equals(txn.getTransactionType())) {
+                try {
+                    String[] parts = txnRef.split("_");
+                    if (parts.length >= 2) {
+                        Long detailId = Long.parseLong(parts[1]);
+                        // Ghi nhận như FolioItem âm (đồng nhất với luồng CASH)
+                        // → Checkout sẽ tự động cấn trừ: chi tiêu(+) + đã nạp(-) = số thực nợ
+                        folioService.addFolioItem(detailId, "FRONT_DESK", txn.getAmount().negate(),
+                                "Nạp tiền nâng hạn mức (Chuyển khoản VNPay)");
+                    }
+                } catch (Exception e) {
+                    System.err.println("[VNPay IPN] Lỗi xử lý CREDIT_LIMIT_DEPOSIT: " + e.getMessage());
                 }
             }
             // Bỏ tự động chuyển trạng thái phòng khi thanh toán VNPay thành công.

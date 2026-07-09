@@ -66,6 +66,7 @@
             transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease, opacity 0.2s ease;
         }
     </style>
+    <link rel="stylesheet" th:href="@{/f&amp;bStaff/css/refund-modal.css}" href="../../statics/f&bStaff/css/refund-modal.css" />
 </head>
 
 <body class="text-hoanien-text antialiased flex flex-col min-h-screen"
@@ -1214,6 +1215,13 @@
                                             <span class="material-symbols-outlined text-[16px]">credit_card</span>
                                             Thanh toán ngay
                                         </button>
+                                        <button th:if="${fo.orderStatus == 'Pending' or fo.orderStatus == 'AWAITING_PAYMENT'}" type="button"
+                                                th:data-id="${fo.id}" th:data-payment="${fo.paymentType}"
+                                                onclick="cancelFoodOrder(this.getAttribute('data-id'), this.getAttribute('data-payment'))"
+                                                class="bg-red-50 text-red-600 hover:bg-red-500 hover:text-white px-4 py-2 rounded-lg font-semibold shadow-sm transition-all text-[11px] uppercase tracking-wider flex items-center gap-2 ml-2 border border-red-200 hover:border-red-500">
+                                            <span class="material-symbols-outlined text-[16px]">cancel</span>
+                                            Hủy đơn
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -1933,6 +1941,41 @@
                 });
         }
 
+        function cancelFoodOrder(orderId, paymentType) {
+            const isOnline = paymentType && (paymentType.toUpperCase() === 'ONLINE' || paymentType.toUpperCase() === 'VNPAY');
+            
+            if (isOnline) {
+                // Hiển thị modal hoàn tiền
+                if (typeof openRefundModal === 'function') {
+                    openRefundModal(orderId);
+                } else {
+                    alert('Không thể mở hộp thoại hoàn tiền. Vui lòng thử lại sau.');
+                }
+            } else {
+                // Gọi API hủy trực tiếp
+                if (!confirm(`Bạn có chắc chắn muốn hủy đơn món ăn #${orderId}? Hành động này không thể hoàn tác.`)) return;
+
+                fetch(`/api/pos/orders/${orderId}/cancel`, { 
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ reason: 'Khách hàng tự hủy trên Profile' })
+                })
+                .then(res => res.json().then(data => ({ status: res.status, body: data })))
+                .then(resObj => {
+                    if (resObj.status !== 200) {
+                        alert(`Không thể hủy đơn: ${resObj.body.message || 'Lỗi hệ thống'}`);
+                    } else {
+                        alert(resObj.body.message || 'Hủy đơn thành công!');
+                        location.reload();
+                    }
+                })
+                .catch(e => {
+                    console.error(e);
+                    alert("Đã xảy ra lỗi hệ thống khi hủy đơn.");
+                });
+            }
+        }
+
         function viewTourBookingDetails(bookingId) {
             fetch(`/api/tour-bookings/${bookingId}`)
                 .then(res => res.json())
@@ -2350,6 +2393,10 @@
     </div>
 
     <div th:replace="~{guest/fragments/auth :: authModal}"></div>
+    
+    <!-- Modal Hoàn tiền cho Hủy Đơn -->
+    <div th:replace="~{f&amp;bStaff/refund-modal :: #refundModal}"></div>
+    <script th:src="@{/f&amp;bStaff/js/refund-modal.js}" src="../../statics/f&bStaff/js/refund-modal.js"></script>
 </body>
 
 </html>
