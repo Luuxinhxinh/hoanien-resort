@@ -11,7 +11,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/pos")
-@org.springframework.security.access.prepost.PreAuthorize("hasAnyAuthority('OP_FNB_ORDER', 'ROLE_ADMIN', 'ROLE_MANAGER')")
 public class PosApiController {
 
     @Autowired
@@ -41,7 +40,9 @@ public class PosApiController {
         }
     }
 
+@org.springframework.security.access.prepost.PreAuthorize("hasAnyAuthority('OP_FNB_ORDER', 'ROLE_ADMIN', 'ROLE_MANAGER')")
     @PostMapping("/orders/{id}/pay")
+
     public ResponseEntity<?> payOrder(@PathVariable Long id) {
         try {
             posService.payOrder(id);
@@ -54,7 +55,9 @@ public class PosApiController {
         }
     }
 
+@org.springframework.security.access.prepost.PreAuthorize("hasAnyAuthority('OP_FNB_ORDER', 'ROLE_ADMIN', 'ROLE_MANAGER')")
     @PostMapping("/orders/{id}/add-items")
+
     public ResponseEntity<?> addItemsToOrder(@PathVariable Long id,
             @RequestBody java.util.List<com.kawai.dto.CartItemDto> items) {
         try {
@@ -69,7 +72,9 @@ public class PosApiController {
         }
     }
 
+@org.springframework.security.access.prepost.PreAuthorize("hasAnyAuthority('OP_FNB_ORDER', 'ROLE_ADMIN', 'ROLE_MANAGER')")
     @PutMapping("/orders/{id}/status")
+
     public ResponseEntity<?> updateOrderStatus(@PathVariable Long id, @RequestParam String status) {
         try {
             posService.updateOrderStatus(id, status);
@@ -82,7 +87,9 @@ public class PosApiController {
         }
     }
 
+@org.springframework.security.access.prepost.PreAuthorize("hasAnyAuthority('OP_FNB_ORDER', 'ROLE_ADMIN', 'ROLE_MANAGER')")
     @PostMapping("/batch-update-status")
+
     public ResponseEntity<?> batchUpdateStatus(@RequestBody Map<String, Object> payload) {
         try {
             java.util.List<String> orderIds = (java.util.List<String>) payload.get("orderIds");
@@ -98,7 +105,9 @@ public class PosApiController {
                     "message", e.getMessage() != null ? e.getMessage() : "null message"));
         }
     }
+@org.springframework.security.access.prepost.PreAuthorize("hasAnyAuthority('OP_FNB_ORDER', 'ROLE_ADMIN', 'ROLE_MANAGER')")
     @PostMapping("/orders/{id}/cancel")
+
     public ResponseEntity<?> cancelOrder(@PathVariable Long id, @RequestBody(required = false) com.kawai.dtos.CancelOrderRequestDTO dto) {
         try {
             posService.cancelOrder(id, dto);
