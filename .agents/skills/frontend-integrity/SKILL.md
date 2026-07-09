@@ -46,7 +46,11 @@ description: Đảm bảo tính toàn vẹn của Frontend (Giao diện và Tư�
 - **Cơ chế Fallback an toàn:** Khi so khớp dựa trên chuỗi văn bản không thành công (không tìm thấy key phù hợp), **BẮT BUỘC** phải có cơ chế fallback tự động sử dụng thuộc tính định danh chính gốc từ database (như ID, loại định danh `tourType`, `roomCategoryCode`) được nạp sẵn để hiển thị thông tin chính xác, tránh việc giao diện im lặng bỏ qua (silent failure) hoặc hiển thị trống rỗng.
 - **Tránh ghi đè mảng theo chỉ mục (Index Shifting):** Khi hợp nhất danh sách dữ liệu động từ Server (ví dụ: danh sách hoạt động tour bao gồm cả điểm đón/trả) vào danh sách tĩnh chứa siêu dữ liệu UI (toạ độ chấm CSS, hình ảnh bản đồ...), **TUYỆT ĐỐI KHÔNG** gán đè đơn giản theo chỉ mục (`dynamicList[i]` → `staticList[i]`) nếu kích thước hai mảng khác nhau. Hậu quả: toạ độ và hình ảnh của phần tử giữa bị lệch sang phần tử sai, gây hiển thị sai vị trí trên bản đồ. **Giải pháp:** Dùng so khớp theo thuộc tính tương đồng (tiêu đề, ID hoặc từ khoá). Các phần tử đặc biệt (ví dụ: "Đón khách", "Trả khách") cần được map cứng (hard-coded) vào toạ độ xác định; phần tử còn lại so khớp linh hoạt với danh sách tĩnh để kế thừa đúng siêu dữ liệu UI.
 
-## 8. Thymeleaf Fragment Scope — Quy tắc cứng (BẮT BUỘC)
+## 8. Tránh rò rỉ dữ liệu qua biến toàn cục (Global Variable Cleanup)
+- **Reset biến toàn cục ở đầu hàm load:** Khi viết/chỉnh sửa mã JavaScript trên giao diện chi tiết hoặc các màn hình dùng chung biến toàn cục (như `bookingGroupData`, `appliedPromoCode`, `globalDeposit`), bắt buộc phải reset sạch sẽ các biến này về giá trị mặc định (`null`, `0`, `{}`) ở đầu hàm `fetch/load` dữ liệu mới.
+- **Rủi ro rò rỉ dữ liệu:** Nếu không reset, khi người dùng chuyển nhanh giữa các bản ghi khác nhau (ví dụ: đổi từ xem chi tiết Booking của khách A sang khách B), dữ liệu của khách cũ (như mã giảm giá hoặc tiền cọc đã nạp) vẫn bị giữ lại trong bộ nhớ client và đè lên cách tính toán/hiển thị của khách mới, gây sai lệch nghiêm trọng thông tin thanh toán.
+
+## 9. Thymeleaf Fragment Scope — Quy tắc cứng (BẮT BUỘC)
 
 > **Bài học từ bug thực tế:** Modal đặt sai ngoài fragment → build thành công → runtime hoàn toàn im lặng → nút không có tác dụng.
 
@@ -57,7 +61,7 @@ description: Đảm bảo tính toàn vẹn của Frontend (Giao diện và Tư�
 - **Modal đặc biệt:** Modal nên đặt trong template cha (cùng nơi với các modal khác như `delete-modal`, `entity-modal`) thay vì trong fragment, trừ khi fragment đó được include dưới dạng `th:insert` (không phải `th:replace` một phần).
 - **Kiểm tra nhanh bằng grep:** Sau khi thêm element, chạy `grep_search` với `id="element-id"` trên toàn bộ file template cha để xác nhận nó xuất hiện sau khi Thymeleaf xử lý.
 
-## 9. E2E Trace Checklist — Bắt buộc trước khi báo Done với tính năng có Modal/API
+## 10. E2E Trace Checklist — Bắt buộc trước khi báo Done với tính năng có Modal/API
 
 > **Mục tiêu:** `mvn compile` chỉ bắt lỗi Java. Lỗi giao diện và logic luồng phải trace thủ công theo 5 mắt xích sau:
 
@@ -71,6 +75,6 @@ description: Đảm bảo tính toàn vẹn của Frontend (Giao diện và Tư�
 
 Nếu bất kỳ mắt xích nào chưa được kiểm tra → **KHÔNG được báo Done**.
 
-## 10. Phân biệt giao dịch tài chính (Financial Transaction Consistency)
+## 11. Phân biệt giao dịch tài chính (Financial Transaction Consistency)
 - **Tuyệt đối không gộp nhóm giao dịch chỉ bằng dấu (+/-):** Khi Frontend nhận danh sách `FolioItem` (hoặc Transaction) từ Backend, nếu cần tính tổng tiền nạp, tiền cọc, hoặc tiền hoàn (Refund), **KHÔNG ĐƯỢC** quét mọi khoản tiền âm (`amount < 0`) rồi tự động cộng dồn vào cùng một biến hiển thị. Điều này sẽ dẫn đến việc cộng nhầm Tiền cọc phòng (Pre-paid Deposit) với Tiền nạp hạn mức (Credit Deposit) và gây hiện tượng "Double-count" (cấn trừ đúp).
 - **Phân loại dựa trên Metadata/Description:** Luôn phải dựa vào thuộc tính `description` (ví dụ chứa cụm từ `"nạp tiền nâng hạn mức"`), `sourceDepartment`, hoặc `transactionType` để lọc chính xác đúng loại giao dịch cần hiển thị trên UI. Sự phân loại này trên Frontend **PHẢI** luôn khớp 100% với điều kiện truy vấn tại Backend Repository (ví dụ: `FolioItemRepository.findCreditDepositAmountsByDetailId`).

@@ -11,6 +11,7 @@
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
     <link rel="stylesheet" href="/receptionist/css/dashboard.css">
     <style>
         .room-grid {
@@ -24,6 +25,22 @@
         }
 
         /* Removed .room-grid.expanded max-height hack */
+        .urgent-clean-btn.btn-occupied {
+            background: #ffffff;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .urgent-clean-btn.btn-occupied:hover {
+            background: #f3f4f6;
+        }
+
+        .urgent-clean-btn.btn-dirty {
+            background: rgba(220, 38, 38, 0.1);
+        }
+
+        .urgent-clean-btn.btn-dirty:hover {
+            background: rgba(220, 38, 38, 0.2);
+        }
     </style>
 
 </head>
@@ -43,7 +60,8 @@
             <div class="sidebar-section-title">RECEPTIONIST</div>
 
             <nav class="sidebar-nav">
-                <a href="/receptionist/dashboard" class="nav-item active" sec:authorize="hasAnyAuthority('OP_DASHBOARD', 'ROLE_ADMIN', 'ROLE_MANAGER')">
+                <a href="/receptionist/dashboard" class="nav-item active"
+                    sec:authorize="hasAnyAuthority('OP_DASHBOARD', 'ROLE_ADMIN', 'ROLE_MANAGER')">
                     <i class="fa-solid fa-border-all"></i>
                     <div class="nav-text">
                         <span class="nav-main-text">Room Matrix</span>
@@ -52,28 +70,32 @@
                     <i class="fa-solid fa-chevron-right nav-arrow"></i>
                 </a>
 
-                <a href="/receptionist/walk-in" class="nav-item" sec:authorize="hasAnyAuthority('OP_RECEPTION_WALKIN', 'OP_BOOKING', 'ROLE_ADMIN', 'ROLE_MANAGER')">
+                <a href="/receptionist/walk-in" class="nav-item"
+                    sec:authorize="hasAnyAuthority('OP_RECEPTION_WALKIN', 'OP_BOOKING', 'ROLE_ADMIN', 'ROLE_MANAGER')">
                     <i class="fa-solid fa-person-walking-luggage"></i>
                     <div class="nav-text">
                         <span class="nav-main-text">Walk-In</span>
                         <span class="nav-sub-text">Khách vãng lai</span>
                     </div>
                 </a>
-                <a href="/receptionist/check-in" class="nav-item" sec:authorize="hasAnyAuthority('OP_RECEPTION_CHECKIN', 'OP_BOOKING', 'ROLE_ADMIN', 'ROLE_MANAGER')">
+                <a href="/receptionist/check-in" class="nav-item"
+                    sec:authorize="hasAnyAuthority('OP_RECEPTION_CHECKIN', 'OP_BOOKING', 'ROLE_ADMIN', 'ROLE_MANAGER')">
                     <i class="fa-solid fa-arrow-right-to-bracket"></i>
                     <div class="nav-text">
                         <span class="nav-main-text">Check-in</span>
                         <span class="nav-sub-text">Nhận phòng</span>
                     </div>
                 </a>
-                <a href="/receptionist/folio" class="nav-item" sec:authorize="hasAnyAuthority('OP_RECEPTION_CHECKOUT', 'OP_BOOKING', 'ROLE_ADMIN', 'ROLE_MANAGER')">
+                <a href="/receptionist/folio" class="nav-item"
+                    sec:authorize="hasAnyAuthority('OP_RECEPTION_CHECKOUT', 'OP_BOOKING', 'ROLE_ADMIN', 'ROLE_MANAGER')">
                     <i class="fa-solid fa-arrow-right-from-bracket"></i>
                     <div class="nav-text">
                         <span class="nav-main-text">Check-out / Folio</span>
                         <span class="nav-sub-text">Trả phòng &amp; Hóa đơn</span>
                     </div>
                 </a>
-                <a href="/receptionist/in-house" class="nav-item" sec:authorize="hasAnyAuthority('OP_RECEPTION_INHOUSE', 'OP_BOOKING', 'ROLE_ADMIN', 'ROLE_MANAGER')">
+                <a href="/receptionist/in-house" class="nav-item"
+                    sec:authorize="hasAnyAuthority('OP_RECEPTION_INHOUSE', 'OP_BOOKING', 'ROLE_ADMIN', 'ROLE_MANAGER')">
                     <i class="fa-solid fa-bed"></i>
                     <div class="nav-text">
                         <span class="nav-main-text">Khách lưu trú</span>
@@ -92,20 +114,34 @@
             </nav>
 
             <!-- Module Switcher for RBAC cross-navigation -->
-            <div class="module-switcher" sec:authorize="hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_RECEPTIONIST', 'ROLE_FB_STAFF', 'BOOKING', 'FNB', 'MASTER_DATA')" style="padding: 0 24px 20px 24px;">
-                <select onchange="if(this.value) window.location.href=this.value" style="width: 100%; padding: 8px; border-radius: 6px; background: rgba(255,255,255,0.05); color: #c9a96e; border: 1px solid rgba(255,255,255,0.1); font-size: 13px; font-weight: 500; outline: none; cursor: pointer; font-family: 'Inter', sans-serif;">
+            <div class="module-switcher"
+                sec:authorize="hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_RECEPTIONIST', 'ROLE_FB_STAFF', 'BOOKING', 'FNB', 'MASTER_DATA')"
+                style="padding: 0 24px 20px 24px;">
+                <select onchange="if(this.value) window.location.href=this.value"
+                    style="width: 100%; padding: 8px; border-radius: 6px; background: rgba(255,255,255,0.05); color: #c9a96e; border: 1px solid rgba(255,255,255,0.1); font-size: 13px; font-weight: 500; outline: none; cursor: pointer; font-family: 'Inter', sans-serif;">
                     <option value="" disabled selected>-- Chuyển phân hệ --</option>
-                    <option sec:authorize="hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER', 'MASTER_DATA', 'OP_MASTER_DATA')" value="/admin/dashboard">Core Operations (Admin)</option>
-                    <option sec:authorize="hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_RECEPTIONIST', 'BOOKING', 'RECEPTION_CHECKIN')" value="/receptionist/dashboard">Receptionist (Lễ tân)</option>
-                    <option sec:authorize="hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_FB_STAFF', 'FNB', 'FNB_ORDER')" value="/fbStaff/dashboard">F&B POS (Nhà hàng)</option>
+                    <option
+                        sec:authorize="hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER', 'MASTER_DATA', 'OP_MASTER_DATA')"
+                        value="/admin/dashboard">Core Operations (Admin)</option>
+                    <option
+                        sec:authorize="hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_RECEPTIONIST', 'BOOKING', 'RECEPTION_CHECKIN')"
+                        value="/receptionist/dashboard">Receptionist (Lễ tân)</option>
+                    <option
+                        sec:authorize="hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_FB_STAFF', 'FNB', 'FNB_ORDER')"
+                        value="/fbStaff/dashboard">F&B POS (Nhà hàng)</option>
                 </select>
             </div>
 
             <div class="sidebar-user">
-                <div class="user-avatar" th:text="${#authentication != null ? #strings.substring(#authentication.name, 0, 2).toUpperCase() : 'NV'}">NV</div>
+                <div class="user-avatar"
+                    th:text="${#authentication != null ? #strings.substring(#authentication.name, 0, 2).toUpperCase() : 'NV'}">
+                    NV</div>
                 <div class="user-info">
-                    <div class="user-name" th:text="${#authentication != null ? #authentication.name : 'Nhân viên'}">Nhân viên</div>
-                    <div class="user-role" th:text="${#authentication != null and #authentication.authorities != null and !#authentication.authorities.isEmpty() ? #strings.replace(#authentication.authorities[0].authority, 'ROLE_', '') : 'Receptionist'}">Receptionist</div>
+                    <div class="user-name" th:text="${#authentication != null ? #authentication.name : 'Nhân viên'}">
+                        Nhân viên</div>
+                    <div class="user-role"
+                        th:text="${#authentication != null and #authentication.authorities != null and !#authentication.authorities.isEmpty() ? #strings.replace(#authentication.authorities[0].authority, 'ROLE_', '') : 'Receptionist'}">
+                        Receptionist</div>
                 </div>
                 <div class="user-status"></div>
             </div>
@@ -199,12 +235,21 @@
 
                     <div class="matrix-legend-area">
                         <div class="legend-items">
-                            <div class="legend-item" onclick="toggleFilter('card-available', this)" style="cursor: pointer; transition: opacity 0.3s;"><span class="legend-dot dot-available"></span>Available</div>
-                            <div class="legend-item" onclick="toggleFilter('card-occupied', this)" style="cursor: pointer; transition: opacity 0.3s;"><span class="legend-dot dot-occupied"></span>Occupied</div>
-                            <div class="legend-item" onclick="toggleFilter('card-housekeeping', this)" style="cursor: pointer; transition: opacity 0.3s;"><span class="legend-dot dot-housekeeping"></span>Housekeeping</div>
-                            <div class="legend-item" onclick="toggleFilter('card-ooo', this)" style="cursor: pointer; transition: opacity 0.3s;"><span class="legend-dot dot-ooo"></span>Maintenance</div>
+                            <div class="legend-item" onclick="toggleFilter('card-available', this)"
+                                style="cursor: pointer; transition: opacity 0.3s;"><span
+                                    class="legend-dot dot-available"></span>Available</div>
+                            <div class="legend-item" onclick="toggleFilter('card-occupied', this)"
+                                style="cursor: pointer; transition: opacity 0.3s;"><span
+                                    class="legend-dot dot-occupied"></span>Occupied</div>
+                            <div class="legend-item" onclick="toggleFilter('card-housekeeping', this)"
+                                style="cursor: pointer; transition: opacity 0.3s;"><span
+                                    class="legend-dot dot-housekeeping"></span>Housekeeping</div>
+                            <div class="legend-item" onclick="toggleFilter('card-ooo', this)"
+                                style="cursor: pointer; transition: opacity 0.3s;"><span
+                                    class="legend-dot dot-ooo"></span>Maintenance</div>
                         </div>
-                        <div class="matrix-count" th:text="${#maps.size(categorizedRooms)} + ' categories'">Showing rooms</div>
+                        <div class="matrix-count" th:text="${#maps.size(categorizedRooms)} + ' categories'">Showing
+                            rooms</div>
                     </div>
 
                     <!-- Room Grid - grouped by category -->
@@ -219,16 +264,20 @@
                         </div>
 
                         <div class="room-grid">
-                            <div th:each="room : ${entry.value}" class="room-card"
+                            <div th:each="room : ${entry.value}" class="room-card" style="position: relative;"
                                 th:classappend="${#strings.equalsIgnoreCase(room.status, 'Occupied')} ? 'card-occupied' : (${#strings.equalsIgnoreCase(room.status, 'Vacant_Dirty')} ? 'card-housekeeping' : (${#strings.equalsIgnoreCase(room.status, 'Maintenance')} ? 'card-ooo' : 'card-available'))">
                                 <div class="room-card-top">
                                     <span class="room-number" th:text="${room.roomNumber}"></span>
-                                    <span class="room-indicator" th:if="${#strings.equalsIgnoreCase(room.status, 'Occupied')}"></span>
-                                    <i class="fa-solid fa-wand-magic-sparkles" th:if="${#strings.equalsIgnoreCase(room.status, 'Vacant_Dirty')}"
+                                    <span class="room-indicator"
+                                        th:if="${#strings.equalsIgnoreCase(room.status, 'Occupied')}"></span>
+                                    <i class="fa-solid fa-wand-magic-sparkles"
+                                        th:if="${#strings.equalsIgnoreCase(room.status, 'Vacant_Dirty')}"
                                         style="color:#c9a96e;font-size:14px;"></i>
-                                    <i class="fa-solid fa-wrench" th:if="${#strings.equalsIgnoreCase(room.status, 'Maintenance')}"
+                                    <i class="fa-solid fa-wrench"
+                                        th:if="${#strings.equalsIgnoreCase(room.status, 'Maintenance')}"
                                         style="color:#7a7a9a;font-size:14px;"></i>
-                                    <span class="room-indicator" th:if="${#strings.equalsIgnoreCase(room.status, 'Vacant_Clean')}"></span>
+                                    <span class="room-indicator"
+                                        th:if="${#strings.equalsIgnoreCase(room.status, 'Vacant_Clean')}"></span>
                                 </div>
                                 <div class="room-type">
                                     <span class="type-badge" th:text="${room.category}"></span>
@@ -236,6 +285,17 @@
                                 <div class="room-status-text"
                                     th:text="${#strings.equalsIgnoreCase(room.status, 'Vacant_Clean') ? 'Ready' : (#strings.equalsIgnoreCase(room.status, 'Vacant_Dirty') ? 'Needs cleaning' : (#strings.equalsIgnoreCase(room.status, 'Maintenance') ? 'Maintenance' : (#strings.equalsIgnoreCase(room.status, 'Occupied') ? 'Occupied' : room.status)))}">
                                 </div>
+                                <!-- Báo dọn khẩn cấp -->
+                                <button title="Yêu cầu dọn khẩn"
+                                    th:if="${#strings.equalsIgnoreCase(room.status, 'Occupied') or #strings.equalsIgnoreCase(room.status, 'Vacant_Dirty')}"
+                                    th:attr="onclick=|requestUrgentClean('${room.roomNumber}', event)|"
+                                    class="urgent-clean-btn"
+                                    th:classappend="${#strings.equalsIgnoreCase(room.status, 'Occupied')} ? 'btn-occupied' : 'btn-dirty'"
+                                    style="position: absolute; bottom: 8px; right: 8px; border: none; cursor: pointer; padding: 0; border-radius: 6px; overflow: hidden; display: flex; align-items: center; justify-content: center; transition: all 0.2s;">
+                                    <img src="https://i.pinimg.com/1200x/e9/4e/5e/e94e5e7e4ee77e075bf4e2abdd17af37.jpg"
+                                        alt="Dọn khẩn"
+                                        style="width: 28px; height: 28px; object-fit: cover; mix-blend-mode: multiply;">
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -251,6 +311,31 @@
     </div>
     <script src="/receptionist/js/dashboard.js"></script>
     <script src="/receptionist/js/room-alert.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script>
+        function requestUrgentClean(roomNumber, event) {
+            event.stopPropagation();
+            if (confirm('Yêu cầu dọn khẩn cấp phòng ' + roomNumber + '?')) {
+                fetch('/api/housekeeping/reception/escalate-task', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ roomNumber: roomNumber })
+                })
+                    .then(r => r.json())
+                    .then(data => {
+                        Toastify({
+                            text: data.message,
+                            duration: 3000,
+                            close: true,
+                            gravity: "top",
+                            position: "right",
+                            backgroundColor: data.success ? "linear-gradient(to right, #00b09b, #96c93d)" : "linear-gradient(to right, #ff5f6d, #ffc371)",
+                        }).showToast();
+                    })
+                    .catch(err => alert("Lỗi kết nối!"));
+            }
+        }
+    </script>
 </body>
 
 </html>

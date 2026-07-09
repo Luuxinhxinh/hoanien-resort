@@ -47,6 +47,22 @@ public class FolioRestControllerUC21Test {
     private RoomBookingRepository roomBookingRepository;
     @Mock
     private VnPayService vnPayService;
+    @Mock
+    private com.kawai.repositories.PromotionRepository promotionRepository;
+    @Mock
+    private com.kawai.repositories.CustomerRepository customerRepository;
+    @Mock
+    private com.kawai.repositories.RoomGuestRepository roomGuestRepository;
+    @Mock
+    private com.kawai.repositories.MembershipTierRepository membershipTierRepository;
+    @Mock
+    private org.springframework.context.ApplicationEventPublisher eventPublisher;
+    @Mock
+    private com.kawai.services.interfaces.WorkflowEngineService workflowEngineService;
+    @Mock
+    private com.kawai.repositories.HousekeepingTaskRepository housekeepingTaskRepo;
+    @Mock
+    private com.kawai.repositories.EmployeeRepository employeeRepository;
 
     @InjectMocks
     private FolioRestController folioRestController;
@@ -144,7 +160,9 @@ public class FolioRestControllerUC21Test {
         mockDetail.setRoomBooking(mockBooking);
 
         when(roomBookingDetailRepository.findById(detailId)).thenReturn(Optional.of(mockDetail));
-        when(nightAuditService.calculateFolioBalance(detailId)).thenReturn(new BigDecimal("1000000"));
+        FolioItem item = new FolioItem();
+        item.setAmount(new BigDecimal("1000000"));
+        when(nightAuditService.getFolioItems(detailId)).thenReturn(List.of(item));
         when(invoicePdfService.generateInvoicePdf(any())).thenReturn("path/to/invoice.pdf");
 
         Map<String, Object> payload = new HashMap<>();
@@ -178,9 +196,14 @@ public class FolioRestControllerUC21Test {
         Long detailId = 1L;
         RoomBookingDetail mockDetail = new RoomBookingDetail();
         mockDetail.setId(detailId);
+        RoomBooking mockBooking = new RoomBooking();
+        mockBooking.setId(1L);
+        mockDetail.setRoomBooking(mockBooking);
 
         when(roomBookingDetailRepository.findById(detailId)).thenReturn(Optional.of(mockDetail));
-        when(nightAuditService.calculateFolioBalance(detailId)).thenReturn(new BigDecimal("1000000"));
+        FolioItem item = new FolioItem();
+        item.setAmount(new BigDecimal("1000000"));
+        when(nightAuditService.getFolioItems(detailId)).thenReturn(List.of(item));
 
         Map<String, Object> payload = new HashMap<>();
         payload.put("paymentAmount", 500000);
@@ -226,14 +249,15 @@ public class FolioRestControllerUC21Test {
         // Stubbing
         when(roomBookingDetailRepository.findById(detailId)).thenReturn(Optional.of(mockDetail));
         when(roomBookingDetailRepository.findByRoomBookingId(mockBooking.getId())).thenReturn(List.of(mockDetail));
-        when(nightAuditService.calculateFolioBalance(detailId)).thenReturn(new BigDecimal("1000000"));
+        FolioItem item = new FolioItem();
+        item.setAmount(new BigDecimal("1000000"));
+        when(nightAuditService.getFolioItems(detailId)).thenReturn(List.of(item));
 
         // Deposit txn is mocked
         PaymentTransaction depositTxn = new PaymentTransaction();
         depositTxn.setStatus(PaymentStatus.SUCCESS);
         depositTxn.setAmount(new BigDecimal("500000"));
         depositTxn.setTransactionType("ROOM_BOOKING");
-        when(paymentService.getPaymentsByBookingId(mockBooking.getId())).thenReturn(List.of(depositTxn));
         when(invoicePdfService.generateInvoicePdf(any())).thenReturn("path/to/invoice.pdf");
 
         Map<String, Object> payload = new HashMap<>();
@@ -248,8 +272,7 @@ public class FolioRestControllerUC21Test {
         assertTrue(response.getStatusCode().is2xxSuccessful());
         verify(paymentService, times(1)).recordPayment(any(), any(), eq(new BigDecimal("1100000")), anyString(),
                 eq("CASH"), eq(PaymentStatus.SUCCESS), anyString());
-        // Verify deposit amount on booking remains 500,000 (not subtracted)
-        assertEquals(new BigDecimal("500000"), mockBooking.getDepositAmount());
+        assertEquals(0, new BigDecimal("500000").compareTo(mockBooking.getDepositAmount()));
     }
 
     @Test
