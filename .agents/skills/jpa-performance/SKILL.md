@@ -17,3 +17,8 @@ description: Bắt buộc kiểm tra hiệu năng JPA/Hibernate, cảnh báo N+1
 ## 3. Khuyến nghị thiết kế
 - Hạn chế sử dụng cấu trúc nhúng sâu (deep nested) khi trả ra View nếu không thực sự cần thiết.
 - Khuyến nghị dùng DTO Projection thay vì trả nguyên Entity ra Thymeleaf để tránh lazy loading ngoài ý muốn tại tầng View.
+
+## 4. Cẩn trọng với Polymorphic Querying (Truy vấn đa hình sai lệch)
+- **Vấn đề:** Khi sử dụng `@Inheritance(strategy = InheritanceType.JOINED)`, nếu sử dụng Derived Query Method (tự sinh theo tên hàm, VD: `findByCustomer`) trong Repository của class CON (VD: `TourBookingRepository`) nhưng field điều kiện (customer) lại được định nghĩa ở class CHA (`Booking`), Spring Data JPA sẽ vô tình sinh ra câu lệnh SQL truy vấn trên bảng của class CHA. Nó sẽ fetch lên danh sách hỗn hợp chứa TẤT CẢ các entity con (gồm cả `TourBooking` và `RoomBooking`).
+- **Hậu quả:** Kết quả truy vấn lúc runtime thực chất là `ArrayList<Booking>`. Khi Spring cố gắng ép kiểu danh sách này về `List<TourBooking>` như định nghĩa của interface, nó sẽ quăng ngay ngoại lệ `ConversionFailedException: Failed to convert from type [java.util.ArrayList<?>] to type [...]`.
+- **Giải pháp (BẮT BUỘC):** Khi viết Query Method trong Repository của class con mà cần WHERE theo property của class cha, **LUÔN LUÔN phải chỉ định rõ bằng JPQL `@Query("SELECT c FROM ClassCon c WHERE c.propertyCha = :param")`**. Tuyệt đối không phó mặc cho Spring Data Derived Query.
