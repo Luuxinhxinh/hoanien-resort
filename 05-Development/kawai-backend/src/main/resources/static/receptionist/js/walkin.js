@@ -707,7 +707,7 @@ function submitCheckIn() {
         cccd: cccd,
         email: email,
         dateOfBirth: dob,
-        gender: document.getElementById('guestGender').value,
+        gender: document.getElementById('guestGender') ? document.getElementById('guestGender').value : 'Nam',
         accompaniedGuests: walkInDependents,
         depositAmount: parseFloat(document.getElementById('depositAmount').value) || 0,
         paymentMethod: document.getElementById('paymentMethod').value || 'Tiền mặt'
@@ -794,7 +794,7 @@ function submitCheckIn() {
                 if (closeBtn) {
                     closeBtn.innerHTML = 'Đóng & Về danh sách Lưu trú';
                     closeBtn.onclick = function () {
-                        window.location.href = "/receptionist/in-house";
+                        window.location.href = "/receptionist/in-house?t=" + new Date().getTime();
                     };
                     let cancelBtn = document.getElementById('modalCancelBtn');
                     if (cancelBtn) cancelBtn.style.display = 'none';
@@ -809,7 +809,7 @@ function submitCheckIn() {
                     window.location.href = data.paymentUrl;
                 } else {
                     alert("Check-in thành công!");
-                    window.location.href = "/receptionist/in-house";
+                    window.location.href = "/receptionist/in-house?t=" + new Date().getTime();
                 }
             }
         })
@@ -823,7 +823,7 @@ function submitCheckIn() {
 // Hàm đóng modal mặc định (khi onclick trong HTML chưa bị override bởi submitCheckIn)
 function defaultModalClose() {
     document.getElementById('successModal').style.display = 'none';
-    window.location.href = "/receptionist/in-house";
+    window.location.href = "/receptionist/in-house?t=" + new Date().getTime();
 }
 
 // Hàm trung gian — trích ra từ showPaymentStep() và submitCheckIn() để tránh lặp code
