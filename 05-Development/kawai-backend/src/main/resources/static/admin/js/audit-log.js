@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
 function initializePage() {
     const filterDate = document.getElementById("filter-date");
     if (filterDate) {
-        filterDate.value = new Date().toISOString().split('T')[0];
+        filterDate.value = ""; // Mặc định không filter ngày để hiện toàn bộ log
     }
     
     // Populate dynamic select options

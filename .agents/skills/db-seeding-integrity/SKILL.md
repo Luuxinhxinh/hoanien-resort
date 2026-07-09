@@ -11,7 +11,7 @@ Mỗi khi bạn thực hiện thêm mới, chỉnh sửa hoặc tối ưu hóa c
 - **Luồng phê duyệt (Approval Workflows):** Nếu thêm một thực thể ở trạng thái chờ duyệt (ví dụ: `Pending_Approval`), bắt buộc phải có bản ghi tương ứng trong bảng theo dõi vận hành/phê duyệt của người quản lý (ví dụ: `Hotel_Operations` với loại `Manager_Approval`) ở trạng thái chờ xử lý (`Pending`).
 - **Luồng hoàn tiền (Refund Workflows):** Nếu thêm một yêu cầu hoàn tiền (`RefundRequest`), thực thể giao dịch hoặc đơn hàng gốc liên kết (ví dụ: `Booking`, `FoodOrder`, `TourBooking`) **phải được đặt ở trạng thái đã hủy (`Cancelled`)** để phản ánh đúng thực tế tài chính và nghiệp vụ.
 - **Mã giảm giá (Promotions):** Số lần sử dụng thực tế phải khớp hoặc được kiểm soát hợp lý so với số lượng đơn hàng liên kết đã áp dụng mã đó.
-
+- **Toàn vẹn Dữ liệu Cấp dưới (Parent-Child Completeness):** Khi thiết lập một thực thể cha ở các trạng thái đã xử lý / quá khứ (ví dụ: `Checked_Out`, `Cancelled`, `Completed`), **BẮT BUỘC** phải đảm bảo thực thể đó đã được khai báo đầy đủ các bản ghi ở bảng con liên đới (ví dụ: `Room_Bookings`, `Room_Booking_Details`). Việc thiếu dữ liệu chi tiết sẽ gây ra lỗi `NullPointerException` nghiêm trọng trên UI hoặc Business Logic.
 ## 2. NGUYÊN TẮC TOÀN VẸN DỮ LIỆU VẬT LÝ (REFERENTIAL INTEGRITY):
 - Đảm bảo tất cả các khóa ngoại (Foreign Keys) như `customer_id`, `room_id`, `employee_id`, `promotion_id`... trỏ đến các thực thể đã được khai báo và tồn tại trước đó trong tập dữ liệu.
 - Tránh trùng lặp khóa chính (`PRIMARY KEY`) hoặc vi phạm các ràng buộc duy nhất (`UNIQUE CONSTRAINTS`).

@@ -32,6 +32,7 @@ description: Đảm bảo tính toàn vẹn của Frontend (Giao diện và Tư�
   - Kiểm tra xem các màn hình liên quan của người dùng khác (ví dụ: trang Duyệt yêu cầu của Manager) có hiển thị đúng, đủ các thông tin và trạng thái tương ứng hay không.
   - Đảm bảo không bị lệch kiểu dữ liệu hoặc giá trị nhãn (như enum, type string) khiến dữ liệu bị bỏ sót khi truy vấn lọc ở màn hình đích.
   - Khi thực thi các hành động phê duyệt/từ chối, các thay đổi trạng thái phải được cập nhật đồng bộ và chính xác xuống database cũng như các thực thể liên quan (ví dụ: trạng thái đơn đặt phòng Booking chuyển sang `Pending_Approval` khi gửi yêu cầu, và trả lại `Pending`/`CANCELLED` sau khi Manager xử lý).
+- **[Quy tắc Ảo giác "Bảng rỗng" do Auto-Filter]:** Khi thiết kế màn hình danh sách (Danh sách Booking, Audit Log, History,...), **tuyệt đối không** tự động gán cứng giá trị mặc định cho các ô lọc (Ví dụ: `filterDate.value = new Date()`) ngay khi tải trang (Initial Load) trừ khi có yêu cầu nghiệp vụ bắt buộc. Việc này rất dễ che giấu dữ liệu cũ, làm sai lệch kết quả từ API (ví dụ API fallback trả data trống ngày) và khiến người dùng tưởng hệ thống bị lỗi "mất dữ liệu". Luôn ưu tiên để trống bộ lọc và hiển thị toàn bộ data ở lần tải đầu tiên.
 
 ## 6. Thymeleaf Template Integrity & Chunked Encoding Debugging
 - **Tránh đóng block sớm (Premature Closure)**: Khi lặp với `<th:block th:each="...">`, thẻ đóng `</th:block>` phải được đặt ở cuối cùng, sau khi tất cả các thẻ con bên trong nó (ví dụ: thẻ bao `booking-item`, `details`, v.v.) đã đóng hoàn toàn.
@@ -48,7 +49,32 @@ description: Đảm bảo tính toàn vẹn của Frontend (Giao diện và Tư�
 ## 8. Tránh rò rỉ dữ liệu qua biến toàn cục (Global Variable Cleanup)
 - **Reset biến toàn cục ở đầu hàm load:** Khi viết/chỉnh sửa mã JavaScript trên giao diện chi tiết hoặc các màn hình dùng chung biến toàn cục (như `bookingGroupData`, `appliedPromoCode`, `globalDeposit`), bắt buộc phải reset sạch sẽ các biến này về giá trị mặc định (`null`, `0`, `{}`) ở đầu hàm `fetch/load` dữ liệu mới.
 - **Rủi ro rò rỉ dữ liệu:** Nếu không reset, khi người dùng chuyển nhanh giữa các bản ghi khác nhau (ví dụ: đổi từ xem chi tiết Booking của khách A sang khách B), dữ liệu của khách cũ (như mã giảm giá hoặc tiền cọc đã nạp) vẫn bị giữ lại trong bộ nhớ client và đè lên cách tính toán/hiển thị của khách mới, gây sai lệch nghiêm trọng thông tin thanh toán.
-=======
-## 8. Phân biệt giao dịch tài chính (Financial Transaction Consistency)
+
+## 9. Thymeleaf Fragment Scope — Quy tắc cứng (BẮT BUỘC)
+
+> **Bài học từ bug thực tế:** Modal đặt sai ngoài fragment → build thành công → runtime hoàn toàn im lặng → nút không có tác dụng.
+
+- **Trước khi báo Done với bất kỳ element HTML nào (Modal, Button, Form...)**, PHẢI trả lời câu hỏi: *"Element này đến tay người dùng qua đường nào?"*
+  - Nếu nằm trong một file `fragments/xxx.html` → phải nằm **bên trong** `th:fragment="tên"` được gọi qua `th:replace="~{...:: tên}"`.
+  - Nếu muốn luôn render (không phụ thuộc fragment) → đặt trực tiếp trong file layout/template cha.
+- **Trace bắt buộc:** Mở file template cha (ví dụ `master-data.html`), grep tên fragment (`:: tên`), xác nhận element đang thêm nằm **bên trong** fragment đó. Không tìm thấy → element **KHÔNG tồn tại trong DOM**.
+- **Modal đặc biệt:** Modal nên đặt trong template cha (cùng nơi với các modal khác như `delete-modal`, `entity-modal`) thay vì trong fragment, trừ khi fragment đó được include dưới dạng `th:insert` (không phải `th:replace` một phần).
+- **Kiểm tra nhanh bằng grep:** Sau khi thêm element, chạy `grep_search` với `id="element-id"` trên toàn bộ file template cha để xác nhận nó xuất hiện sau khi Thymeleaf xử lý.
+
+## 10. E2E Trace Checklist — Bắt buộc trước khi báo Done với tính năng có Modal/API
+
+> **Mục tiêu:** `mvn compile` chỉ bắt lỗi Java. Lỗi giao diện và logic luồng phải trace thủ công theo 5 mắt xích sau:
+
+| Mắt xích | Câu hỏi phải trả lời được | Cách kiểm tra |
+|---|---|---|
+| **1. HTML/DOM** | Element có thật trong DOM không? | Trace `th:replace`/`th:insert` từ template cha |
+| **2. JS Binding** | Event listener tìm thấy element không? | `getElementById("id")` → null là lỗi; grep tên hàm xem có định nghĩa không |
+| **3. API Call** | URL, method, body có khớp Controller không? | So `fetch("/path/${id}")` vs `@GetMapping("/path/{id}")`, kiểm tra format id (E-5 vs 5) |
+| **4. Backend** | Service/Repository xử lý được không? | Đọc method service, kiểm tra exception path |
+| **5. Response → UI** | JS nhận response và cập nhật UI đúng không? | Đọc `.then(res => ...)`, kiểm tra field name khớp |
+
+Nếu bất kỳ mắt xích nào chưa được kiểm tra → **KHÔNG được báo Done**.
+
+## 11. Phân biệt giao dịch tài chính (Financial Transaction Consistency)
 - **Tuyệt đối không gộp nhóm giao dịch chỉ bằng dấu (+/-):** Khi Frontend nhận danh sách `FolioItem` (hoặc Transaction) từ Backend, nếu cần tính tổng tiền nạp, tiền cọc, hoặc tiền hoàn (Refund), **KHÔNG ĐƯỢC** quét mọi khoản tiền âm (`amount < 0`) rồi tự động cộng dồn vào cùng một biến hiển thị. Điều này sẽ dẫn đến việc cộng nhầm Tiền cọc phòng (Pre-paid Deposit) với Tiền nạp hạn mức (Credit Deposit) và gây hiện tượng "Double-count" (cấn trừ đúp).
 - **Phân loại dựa trên Metadata/Description:** Luôn phải dựa vào thuộc tính `description` (ví dụ chứa cụm từ `"nạp tiền nâng hạn mức"`), `sourceDepartment`, hoặc `transactionType` để lọc chính xác đúng loại giao dịch cần hiển thị trên UI. Sự phân loại này trên Frontend **PHẢI** luôn khớp 100% với điều kiện truy vấn tại Backend Repository (ví dụ: `FolioItemRepository.findCreditDepositAmountsByDetailId`).

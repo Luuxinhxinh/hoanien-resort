@@ -38,4 +38,15 @@ public class Role {
     public void setRoleName(String v) {
         this.roleName = v;
     }
+
+    @Column(name = "description", columnDefinition = "TEXT")
+    private String description;
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
 }

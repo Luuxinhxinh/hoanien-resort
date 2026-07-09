@@ -90,7 +90,7 @@
             <span th:text="${detail.quantity + 'x ' + (detail.menuItem != null ? detail.menuItem.itemName : 'Món')}"></span>
           </li>
         </ul>
-        <button class="btn-action btn-start" th:onclick="|updateStatus(${order.id}, 'Preparing')|">Bắt đầu nấu</button>
+        <button class="btn-action btn-start" th:onclick="|updateStatus(${order.id}, 'Preparing')|" sec:authorize="hasAnyAuthority('OP_FNB_ORDER', 'ROLE_ADMIN', 'ROLE_MANAGER')">Bắt đầu nấu</button>
       </div>
 
     </div>
@@ -113,7 +113,7 @@
           </li>
         </ul>
         <button th:id="'btn-ready-' + ${order.id}" class="btn-action btn-ready"
-          th:onclick="|updateStatus(${order.id}, 'Ready')|" disabled>Đã xong (Báo chuông)</button>
+          th:onclick="|updateStatus(${order.id}, 'Ready')|" disabled sec:authorize="hasAnyAuthority('OP_FNB_ORDER', 'ROLE_ADMIN', 'ROLE_MANAGER')">Đã xong (Báo chuông)</button>
       </div>
 
     </div>

@@ -76,13 +76,13 @@ public class SecurityConfig {
                                 "/admin/css/**", "/admin/js/**", "/admin/img/**", "/admin/images/**",
                                 "/living", "/wellbeing", "/dining",
                                 "/experiences", "/tours", "/tours/**", "/profile", "/order-food", "/AnhTour/**",
-                                "/fbStaff/**", "/f&bStaff/**", "/kitchenStaff/**", "/api/menu-items/**", "/api/rooms/**",
-                                "/api/v1/tables/**", "/api/pos/**",
-                                "/api/bookings", "/api/bookings/**",
-                                "/api/tour-bookings", "/api/tour-bookings/**", "/api/faceid/**", "/error",
+                                "/api/faceid/**", "/error",
                                 "/api/v1/payments/vnpay-return", "/api/v1/payments/vnpay-ipn",
                                 "/api/v1/payments/food-order/**", "/book-table", "/receptionist/remote-scan", "/api/v1/remote-scan/**",
                                 "/feedback", "/feedback/**")
+                        .permitAll()
+                        // Cho phép truy cập Read-Only (GET) đến thực đơn, phòng, bàn trống để khách hàng sử dụng e-menu/booking
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/menu-items/**", "/api/rooms/**", "/api/v1/tables/**")
                         .permitAll()
 
                         .requestMatchers("/admin/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_MANAGER", "OP_MASTER_DATA", "OP_AUDIT_LOG", "OP_WORKFLOW")
@@ -111,9 +111,9 @@ public class SecurityConfig {
                                 "ROLE_ADMIN", "ROLE_MANAGER",
                                 "OP_RECEPTION_WALKIN", "OP_RECEPTION_CHECKIN", "OP_RECEPTION_CHECKOUT", "OP_RECEPTION_INHOUSE")
                         .requestMatchers("/staff/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_STAFF")
-                        .requestMatchers("/housekeeping/**").hasAnyAuthority("ROLE_HOUSEKEEPING", "ROLE_ADMIN", "OP_HOUSEKEEPING")
-                        .requestMatchers("/maintenance/**").hasAnyAuthority("ROLE_MAINTENANCE", "ROLE_MAINTAINER", "ROLE_ADMIN", "OP_MAINTENANCE")
-                        .requestMatchers("/tourguide/**").hasAnyAuthority("ROLE_TOURGUIDE", "ROLE_ADMIN", "OP_TOUR")
+                        .requestMatchers("/housekeeping/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_MANAGER", "OP_HOUSEKEEPING")
+                        .requestMatchers("/maintenance/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_MANAGER", "OP_MAINTENANCE")
+                        .requestMatchers("/tourguide/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_MANAGER", "OP_TOUR")
                         // F&B: sub-permissions govern each operation type
                         .requestMatchers("/fbStaff/**", "/f&bStaff/**").hasAnyAuthority(
                                 "ROLE_FB_STAFF", "ROLE_ADMIN", "ROLE_MANAGER", "OP_FNB", "OP_FNB_ORDER", "OP_FNB_TABLE", "OP_FNB_ROOM_SERVICE", "OP_FNB_REPORT")
@@ -282,7 +282,7 @@ public class SecurityConfig {
                     if (redirect == null) {
                         for (var authz : authentication.getAuthorities()) {
                             String perm = authz.getAuthority();
-                            if (perm.startsWith("OP_RECEPTION") || perm.equals("OP_DASHBOARD")) {
+                            if (perm.startsWith("OP_RECEPTION")) {
                                 redirect = "/receptionist/dashboard";
                                 break;
                             } else if (perm.startsWith("OP_FNB")) {

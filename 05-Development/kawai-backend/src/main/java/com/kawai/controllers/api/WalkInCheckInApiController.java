@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/receptionist/walkin")
+@org.springframework.security.access.prepost.PreAuthorize("hasAnyAuthority('OP_RECEPTION_WALKIN', 'OP_RECEPTION_CHECKIN', 'ROLE_ADMIN', 'ROLE_MANAGER')")
 public class WalkInCheckInApiController {
 
     public static final String PAYMENT_METHOD_VNPAY = "Chuyển khoản";

@@ -130,8 +130,16 @@ public class ProfileController {
 
             java.util.Map<Long, List<RoomBookingDetail>> visibleDetailsMap = new java.util.HashMap<>();
             java.util.Map<Long, java.math.BigDecimal> remainingLimits = new java.util.HashMap<>();
+            
+            java.util.Map<Long, List<com.kawai.models.FolioItem>> folioItemsMap = new java.util.HashMap<>();
+            java.util.Map<Long, List<com.kawai.models.RoomGuest>> roomGuestsMap = new java.util.HashMap<>();
+            List<RoomBooking> activeStays = new java.util.ArrayList<>();
 
             for (RoomBooking rb : roomBookings) {
+                if ("CHECKED_IN".equalsIgnoreCase(rb.getBookingStatus())) {
+                    activeStays.add(rb);
+                }
+
                 List<RoomBookingDetail> allDetails = roomBookingDetailRepository.findByRoomBookingId(rb.getId());
                 List<RoomBookingDetail> visibleDetails;
 
@@ -150,6 +158,10 @@ public class ProfileController {
                             : java.math.BigDecimal.ZERO;
                     List<com.kawai.models.FolioItem> folioItems = folioItemRepository
                             .findByRoomBookingDetailId(d.getId());
+                            
+                    folioItemsMap.put(d.getId(), folioItems);
+                    roomGuestsMap.put(d.getId(), roomGuestRepository.findByRoomBookingDetailId(d.getId()));
+
                     java.math.BigDecimal spent = folioItems.stream()
                             .filter(f -> !Boolean.TRUE.equals(f.getIsSettledSeparately()))
                             .map(com.kawai.models.FolioItem::getAmount)
@@ -159,8 +171,11 @@ public class ProfileController {
             }
             model.addAttribute("visibleDetailsMap", visibleDetailsMap);
             model.addAttribute("remainingLimits", remainingLimits);
+            model.addAttribute("folioItemsMap", folioItemsMap);
+            model.addAttribute("roomGuestsMap", roomGuestsMap);
+            model.addAttribute("activeStays", activeStays);
 
-            List<TourBooking> tourBookings = tourBookingRepository.findByCustomer(customer).stream()
+            List<TourBooking> tourBookings = tourBookingRepository.findAllByCustomer(customer).stream()
                     .filter(tb -> {
                         String status = tb.getBookingStatus() != null ? tb.getBookingStatus().toUpperCase() : "";
 

@@ -5,8 +5,8 @@
 
 -- ── 1. Roles (10 rows) ───────────────────────────────────────
 INSERT INTO Roles (role_id, role_name, permissions) VALUES (1, 'ADMIN', 'MASTER_DATA,AUDIT_LOG,DASHBOARD,RECEPTION_WALKIN,RECEPTION_INHOUSE,RECEPTION_CHECKIN,RECEPTION_CHECKOUT,FNB,FNB_ORDER,FNB_TABLE,FNB_ROOM_SERVICE,FNB_REPORT,TOUR,HOUSEKEEPING,MAINTENANCE,NIGHT_AUDIT,ANALYTICS,REVIEWS,PROMOTIONS,CRM,WORKFLOW');
-INSERT INTO Roles (role_id, role_name, permissions) VALUES (2, 'RECEPTIONIST', 'DASHBOARD,RECEPTION_WALKIN,RECEPTION_INHOUSE,RECEPTION_CHECKIN,RECEPTION_CHECKOUT,NIGHT_AUDIT,CRM,REVIEWS');
-INSERT INTO Roles (role_id, role_name, permissions) VALUES (3, 'F&B KITCHEN', 'DASHBOARD,FNB,FNB_ORDER,FNB_TABLE,FNB_ROOM_SERVICE,FNB_REPORT');
+INSERT INTO Roles (role_id, role_name, permissions) VALUES (2, 'RECEPTIONIST', 'DASHBOARD,RECEPTION_WALKIN,RECEPTION_INHOUSE,RECEPTION_CHECKIN,RECEPTION_CHECKOUT');
+INSERT INTO Roles (role_id, role_name, permissions) VALUES (3, 'F&B KITCHEN', 'DASHBOARD,FNB,FNB_ORDER');
 INSERT INTO Roles (role_id, role_name, permissions) VALUES (4, 'F&B POS', 'DASHBOARD,FNB,FNB_ORDER,FNB_TABLE,FNB_ROOM_SERVICE,FNB_REPORT');
 INSERT INTO Roles (role_id, role_name, permissions) VALUES (5, 'HOUSEKEEPING', 'DASHBOARD,HOUSEKEEPING');
 INSERT INTO Roles (role_id, role_name, permissions) VALUES (6, 'MAINTAINER', 'DASHBOARD,MAINTENANCE');
@@ -143,7 +143,7 @@ INSERT INTO Rooms (room_id, room_number, category_id, room_status, current_booki
 (2, '102', 1, 'Vacant_Dirty', NULL),
 (3, '103', 1, 'Maintenance', NULL),
 (4, '104', 1, 'Vacant_Dirty', NULL),
-(5, '105', 1, 'Maintenance', NULL),
+(5, '105', 1, 'Occupied', 3),
 (6, '106', 4, 'Vacant_Clean', NULL),
 (7, '107', 4, 'Vacant_Clean', NULL),
 (8, '108', 4, 'Vacant_Clean', NULL),
@@ -235,8 +235,8 @@ INSERT INTO Promotions (promo_id, promo_code, discount_type, discount_value, val
 -- ── 12. Bookings (20 rows) ───────────────────────────────────
 
 INSERT INTO Bookings (booking_id, customer_id, booking_date, total_price, booking_status, booking_source, applied_promotion_id, version) VALUES
-(1, 1, '2026-06-01', 5000000, 'Confirmed', 'Direct_Web', 1, 1),
-(2, 2, '2026-06-02', 7000000, 'Confirmed', 'Direct_Web', NULL, 1),
+(1, 1, '2026-06-01', 5000000, 'Checked_In', 'Direct_Web', 1, 1),
+(2, 2, '2026-06-02', 7000000, 'Checked_Out', 'Direct_Web', NULL, 1),
 (3, 3, '2026-06-03', 16000000, 'Confirmed', 'OTA', NULL, 1),
 (4, 4, '2026-06-04', 5000000, 'Confirmed', 'OTA', 2, 1),
 (5, 5, '2026-06-05', 5000000, 'Confirmed', 'Direct_Web', NULL, 1),
@@ -248,7 +248,7 @@ INSERT INTO Bookings (booking_id, customer_id, booking_date, total_price, bookin
 (11, 9, '2026-06-12', 1200000, 'Confirmed', 'Direct_Web', NULL, 1),
 (12, 10, '2026-06-12', 1200000, 'Confirmed', 'Direct_Web', NULL, 1),
 (13, 11, '2026-06-12', 1200000, 'Confirmed', 'Direct_Web', NULL, 1),
-(14, 12, '2026-06-12', 2500000, 'Cancelled', 'Direct_Web', NULL, 1),
+(14, 12, '2026-06-12', 2500000, 'Checked_Out', 'Direct_Web', NULL, 1),
 (15, 13, '2026-06-12', 3500000, 'Cancelled', 'Direct_Web', NULL, 1),
 (16, 14, '2026-06-12', 8000000, 'Confirmed', 'Direct_Web', NULL, 1),
 (17, 15, '2026-06-12', 2000000, 'Confirmed', 'Direct_Web', NULL, 1),
@@ -256,36 +256,38 @@ INSERT INTO Bookings (booking_id, customer_id, booking_date, total_price, bookin
 (19, 4, '2026-06-12', 3000000, 'Confirmed', 'Direct_Web', NULL, 1),
 (20, 5, '2026-06-12', 4500000, 'Confirmed', 'Direct_Web', NULL, 1),
 (24, 1, '2026-06-01', 3000000, 'Confirmed', 'Direct_Web', NULL, 1),
-(25, 2, '2026-06-02', 1200000, 'Confirmed', 'Direct_Web', NULL, 1),
+(25, 2, '2026-06-02', 1200000, 'Cancelled', 'Direct_Web', NULL, 1),
 (26, 3, '2026-06-03', 5400000, 'Confirmed', 'Direct_Web', NULL, 1),
 (27, 4, '2026-06-04', 2500000, 'Confirmed', 'OTA', NULL, 1),
 (28, 5, '2026-06-05', 2400000, 'Confirmed', 'Direct_Web', NULL, 1);
 
 -- ── 13. Room Bookings (10 rows) ──────────────────────────────
 INSERT INTO Room_Bookings (room_booking_id, check_in_date, check_out_date, deposit_amount, cancellation_deadline, credit_limit, personal_pin_hash) VALUES
-(1, '2026-06-09', '2026-06-12', 1000000, '2026-06-05', 5000000, 'hash'),
-(2, '2026-06-09', '2026-06-12', 1000000, '2026-06-05', 5000000, 'hash'),
+(1, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 3 DAY), 1000000, DATE_SUB(CURDATE(), INTERVAL 2 DAY), 5000000, 'hash'),
+(2, DATE_SUB(CURDATE(), INTERVAL 5 DAY), DATE_SUB(CURDATE(), INTERVAL 2 DAY), 1000000, DATE_SUB(CURDATE(), INTERVAL 8 DAY), 5000000, 'hash'),
 (3, '2026-06-09', '2026-06-12', 2000000, '2026-06-05', 10000000, 'hash'),
 (4, '2026-06-09', '2026-06-11', 1000000, '2026-06-05', 5000000, 'hash'),
 (5, '2026-06-10', '2026-06-13', 1000000, '2026-06-06', 5000000, 'hash'),
 (6, '2026-06-10', '2026-06-14', 1500000, '2026-06-06', 5000000, 'hash'),
 (7, '2026-06-10', '2026-06-15', 1500000, '2026-06-06', 5000000, 'hash'),
 (8, '2026-06-10', '2026-06-16', 3000000, '2026-06-06', 15000000, 'hash'),
-(14, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 4 DAY), 1000000, DATE_SUB(CURDATE(), INTERVAL 2 DAY), 5000000, 'hash'),
-(15, '2026-07-01', '2026-07-05', 1000000, '2026-06-25', 5000000, 'hash');
+(9, DATE_ADD(CURDATE(), INTERVAL 5 DAY), DATE_ADD(CURDATE(), INTERVAL 8 DAY), 500000, DATE_ADD(CURDATE(), INTERVAL 2 DAY), 5000000, 'hash'),
+(14, DATE_SUB(CURDATE(), INTERVAL 10 DAY), DATE_SUB(CURDATE(), INTERVAL 6 DAY), 1000000, DATE_SUB(CURDATE(), INTERVAL 15 DAY), 5000000, 'hash'),
+(15, DATE_ADD(CURDATE(), INTERVAL 20 DAY), DATE_ADD(CURDATE(), INTERVAL 25 DAY), 1000000, DATE_ADD(CURDATE(), INTERVAL 10 DAY), 5000000, 'hash');
 
 -- ── 14. Room Booking Details (10 rows) ───────────────────────
 INSERT INTO Room_Booking_Details (detail_id, room_booking_id, category_id, room_id, room_charge, detail_status, bed_preference, special_requests, is_charge_to_room_allowed, sub_credit_limit, billing_routing_strategy) VALUES
 (1, 1, 1, 1, 2500000, 'Checked_In', 'KING_SIZE', NULL, TRUE, 500000, 'BILL_TO_LEADER'),
-(2, 2, 2, 3, 3500000, 'Checked_Out', 'KING_SIZE', NULL, TRUE, 1500000, 'BILL_TO_LEADER'),
-(3, 3, 3, 5, 8000000, 'Checked_Out', 'KING_SIZE', NULL, TRUE, 2000000, 'BILL_TO_LEADER'),
-(4, 4, 1, 7, 2500000, 'Pending', 'KING_SIZE', NULL, TRUE, 500000, 'BILL_TO_LEADER'),
-(5, 5, 1, 9, 2500000, 'Pending', 'KING_SIZE', NULL, TRUE, 500000, 'BILL_TO_LEADER'),
-(6, 6, 2, 12, 3500000, 'Pending', 'KING_SIZE', NULL, TRUE, 1500000, 'BILL_TO_LEADER'),
+(2, 2, 2, NULL, 3500000, 'Checked_Out', 'KING_SIZE', NULL, TRUE, 1500000, 'BILL_TO_LEADER'),
+(3, 3, 3, 5, 8000000, 'Checked_In', 'KING_SIZE', NULL, TRUE, 2000000, 'BILL_TO_LEADER'),
+(4, 4, 1, NULL, 2500000, 'Pending', 'KING_SIZE', NULL, TRUE, 500000, 'BILL_TO_LEADER'),
+(5, 5, 1, NULL, 2500000, 'Pending', 'KING_SIZE', NULL, TRUE, 500000, 'BILL_TO_LEADER'),
+(6, 6, 2, NULL, 3500000, 'Pending', 'KING_SIZE', NULL, TRUE, 1500000, 'BILL_TO_LEADER'),
 (7, 7, 2, 15, 3500000, 'Checked_In', 'KING_SIZE', NULL, TRUE, 1500000, 'BILL_TO_LEADER'),
 (8, 8, 3, 18, 8000000, 'Checked_In', 'KING_SIZE', NULL, TRUE, 3000000, 'BILL_TO_LEADER'),
-(9, 14, 1, 2, 2500000, 'Pending', 'KING_SIZE', NULL, TRUE, 500000, 'BILL_TO_LEADER'),
-(10, 15, 2, 4, 3500000, 'Pending', 'TWIN_BED', NULL, TRUE, 1500000, 'BILL_TO_LEADER');
+(9, 14, 1, NULL, 2500000, 'Checked_Out', 'KING_SIZE', NULL, TRUE, 500000, 'BILL_TO_LEADER'),
+(10, 15, 2, NULL, 3500000, 'Cancelled', 'TWIN_BED', NULL, TRUE, 1500000, 'BILL_TO_LEADER'),
+(11, 9, 1, NULL, 1200000, 'Confirmed', 'KING_SIZE', NULL, TRUE, 500000, 'BILL_TO_LEADER');
 
 -- ── 15. Room Guests (10 rows) ────────────────────────────────
 INSERT INTO Room_Guests (guest_id, detail_id, customer_id, dependent_id, guest_type, is_primary_contact) VALUES
@@ -298,7 +300,10 @@ INSERT INTO Room_Guests (guest_id, detail_id, customer_id, dependent_id, guest_t
 (7, 7, 7, NULL, 'ADULT', TRUE),
 (8, 8, 8, NULL, 'ADULT', TRUE),
 (9, 9, 12, NULL, 'ADULT', TRUE),
-(10, 10, 13, NULL, 'ADULT', TRUE);
+(10, 10, 13, NULL, 'ADULT', TRUE),
+(11, 1, 1, 1, 'CHILD', FALSE),
+(12, 1, 1, 2, 'CHILD', FALSE),
+(13, 11, 1, NULL, 'ADULT', TRUE);
 
 -- Force update tphuong to POS role in case DB already exists
 UPDATE Accounts SET role_id = 4 WHERE username = 'tphuong';

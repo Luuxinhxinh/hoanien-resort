@@ -18,7 +18,7 @@ import java.util.Locale;
 
 @Controller
 @RequestMapping("/housekeeping")
-@PreAuthorize("hasAnyAuthority('OP_HOUSEKEEPING','ROLE_ADMIN','ROLE_HOUSEKEEPING')")
+@PreAuthorize("hasAnyAuthority('OP_HOUSEKEEPING','ROLE_ADMIN','ROLE_MANAGER')")
 public class HousekeepingWebController {
     private final HousekeepingService housekeepingService;
     private final HousekeepingTaskRepository housekeepingTaskRepo;
