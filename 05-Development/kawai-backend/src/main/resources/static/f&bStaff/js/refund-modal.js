@@ -18,7 +18,8 @@ function submitRefundForm(event) {
         bankName: document.getElementById('refundBankName').value,
         accountNumber: document.getElementById('refundAccountNumber').value,
         accountName: document.getElementById('refundAccountName').value,
-        phoneNumber: document.getElementById('refundPhoneNumber').value
+        phoneNumber: document.getElementById('refundPhoneNumber').value,
+        reason: document.getElementById('refundReason') ? document.getElementById('refundReason').value : ''
     };
     
     if (!confirm('Xác nhận gửi thông tin hoàn tiền và hủy đơn hàng này?')) return;
