@@ -2,7 +2,7 @@
 ## Kawai Resort — Module 2: Quản lý Phòng, Nghiệp vụ Sảnh & Buồng Phòng
 
 > **Chuẩn**: ISO/IEC/IEEE 29119-3:2021  
-> **Cập nhật**: 2026-07-06  
+> **Cập nhật**: 2026-07-08 (sync Business Rules v2)  
 > **Nguồn**: Đọc trực tiếp từ 7 file test Java trong project  
 > **Vị trí source**: `05-Development/kawai-backend/src/test/java/com/kawai/`
 
@@ -30,17 +30,17 @@
 
 | **TC ID** | **Method Test** | **Kịch bản** | **Expected** | **Business Rule** | **Severity** | **Status** |
 |-----------|-----------------|--------------|--------------|-------------------|--------------|------------|
-| **TC-M2-003** | `TC_M2_003_createBooking_success_returnsPendingWithCancellationDeadline` | Đặt phòng thành công — phòng R101, Deluxe, 5 đêm, cọc 3tr | `status="Pending"`, `cancellationDeadline = checkIn - 2 ngày (2026-07-13)`, `bookingId not-null`, `depositAmount` khớp | BR-STATUS-01, BR-FIN-02 | CRITICAL | ✅ |
-| **TC-M2-004** | `TC_M2_004_createBooking_concurrency_onlyOneConfirmed` | Concurrency: 2 user cùng đặt R101 đồng thời | `successCount=1` (trả `Pending`), `conflictCount=1` (nhận `RoomNotAvailableException`) | BR-BOOK-01 (Pessimistic Lock) | CRITICAL | ✅ |
-| **TC-M2-005** | `TC_M2_005_createBooking_checkOutEqualsCheckIn_throwsDateException` | `checkOut == checkIn` (0 đêm) | `IllegalArgumentException`, message chứa "checkout" hoặc "ngày" | BR-DATE-01 | CRITICAL | ✅ |
-| **TC-M2-005b** | `TC_M2_005b_createBooking_checkOutBeforeCheckIn_throwsDateException` | `checkOut < checkIn` (ngược thời gian) | `IllegalArgumentException` | BR-DATE-01 | HIGH | ✅ |
-| **TC-M2-006** | `TC_M2_006_cancelBooking_before48h_fullRefundAndCorrectStatus` | Hủy trước 48h — booking id=201, cọc 3.5tr, deadline = now+3 ngày | `status="Cancelled_Refunded"`, `depositAmount=3.500.000` hoàn lại đủ, `save()` được gọi | BR-FIN-02, BR-STATUS-02 | HIGH | ✅ |
-| **TC-M2-007** | `TC_M2_007_cancelBooking_within48h_zeroRefundAndForfeitedStatus` | Hủy trong 48h — deadline đã qua (now-1 ngày) | `status="Cancelled_Forfeited"`, `depositAmount=0` (tịch thu), `save()` được gọi | BR-FIN-02, BR-STATUS-02 | HIGH | ✅ |
-| **TC-M2-008** | `TC_M2_008_createBooking_validPromoCode_appliesDiscount` | Mã `SUMMER10` (10% off, 5 đêm × 2tr) | `discountedPrice=9.000.000`, `cancellationDeadline=checkIn-2` | BR-FIN-01 | MEDIUM | ✅ |
-| **TC-M2-008b** | `TC_M2_008b_createBooking_20pctPromo_3nights_correctDiscount` | Mã `EARLYBIRD20` (20% off, 3 đêm × 2tr) | `discountedPrice=4.800.000`, deadline được set | BR-FIN-01 | MEDIUM | ✅ |
-| **TC-M2-009a** | `TC_M2_009a_createBooking_inactivePromo_throwsWithErrorCode` | Mã `EXPIRED2020` (`isActive=false`) | `IllegalArgumentException`, message chứa `[ERR_PROMO_INACTIVE]` | BR-ERR-01 | MEDIUM | ✅ |
-| **TC-M2-009b** | `TC_M2_009b_createBooking_expiredByDate_throwsWithErrorCode` | Mã `XMAS2025` (`isActive=true` nhưng `validTo=2025-12-31`) | `IllegalArgumentException`, message chứa `[ERR_PROMO_EXPIRED]` | BR-ERR-01 | MEDIUM | ✅ |
-| **TC-M2-009c** | `TC_M2_009c_createBooking_unknownPromoCode_throwsWithNotFoundCode` | Mã `GHOST999` không tồn tại trong DB | `IllegalArgumentException`, message chứa `[ERR_PROMO_NOT_FOUND]` | BR-ERR-01 | MEDIUM | ✅ |
+| **TC-M2-003** | `TC_M2_003_createBooking_success_returnsPendingWithCancellationDeadline` | Đặt phòng thành công — phòng R101, Deluxe, 5 đêm, cọc 3tr | `status="Pending"`, `cancellationDeadline = checkIn - 2 ngày (2026-07-13)`, `bookingId not-null`, `depositAmount` khớp | BR-RSV-07, BR-RSV-04 | CRITICAL | ✅ |
+| **TC-M2-004** | `TC_M2_004_createBooking_concurrency_onlyOneConfirmed` | Concurrency: 2 user cùng đặt R101 đồng thời | `successCount=1` (trả `Pending`), `conflictCount=1` (nhận `RoomNotAvailableException`) | BR-RSV-05 (Pessimistic Lock) | CRITICAL | ✅ |
+| **TC-M2-005** | `TC_M2_005_createBooking_checkOutEqualsCheckIn_throwsDateException` | `checkOut == checkIn` (0 đêm) | `IllegalArgumentException`, message chứa "checkout" hoặc "ngày" | BR-RSV-01 | CRITICAL | ✅ |
+| **TC-M2-005b** | `TC_M2_005b_createBooking_checkOutBeforeCheckIn_throwsDateException` | `checkOut < checkIn` (ngược thời gian) | `IllegalArgumentException` | BR-RSV-01 | HIGH | ✅ |
+| **TC-M2-006** | `TC_M2_006_cancelBooking_before48h_fullRefundAndCorrectStatus` | Hủy trước 48h — booking id=201, cọc 3.5tr, deadline = now+3 ngày | `status="Cancelled_Refunded"`, `depositAmount=3.500.000` hoàn lại đủ, `save()` được gọi | BR-FIN-01, BR-RSV-08 | HIGH | ✅ |
+| **TC-M2-007** | `TC_M2_007_cancelBooking_within48h_zeroRefundAndForfeitedStatus` | Hủy trong 48h — deadline đã qua (now-1 ngày) | `status="Cancelled_Forfeited"`, `depositAmount=0` (tịch thu), `save()` được gọi | BR-FIN-01, BR-RSV-08 | HIGH | ✅ |
+| **TC-M2-008** | `TC_M2_008_createBooking_validPromoCode_appliesDiscount` | Mã `SUMMER10` (10% off, 5 đêm × 2tr) | `discountedPrice=9.000.000`, `cancellationDeadline=checkIn-2` | BR-RSV-06 | MEDIUM | ✅ |
+| **TC-M2-008b** | `TC_M2_008b_createBooking_20pctPromo_3nights_correctDiscount` | Mã `EARLYBIRD20` (20% off, 3 đêm × 2tr) | `discountedPrice=4.800.000`, deadline được set | BR-RSV-06 | MEDIUM | ✅ |
+| **TC-M2-009a** | `TC_M2_009a_createBooking_inactivePromo_throwsWithErrorCode` | Mã `EXPIRED2020` (`isActive=false`) | `IllegalArgumentException`, message chứa `[ERR_PROMO_INACTIVE]` | BR-RSV-06, BR-ERR-01 | MEDIUM | ✅ |
+| **TC-M2-009b** | `TC_M2_009b_createBooking_expiredByDate_throwsWithErrorCode` | Mã `XMAS2025` (`isActive=true` nhưng `validTo=2025-12-31`) | `IllegalArgumentException`, message chứa `[ERR_PROMO_EXPIRED]` | BR-RSV-06, BR-ERR-01 | MEDIUM | ✅ |
+| **TC-M2-009c** | `TC_M2_009c_createBooking_unknownPromoCode_throwsWithNotFoundCode` | Mã `GHOST999` không tồn tại trong DB | `IllegalArgumentException`, message chứa `[ERR_PROMO_NOT_FOUND]` | BR-RSV-06, BR-ERR-01 | MEDIUM | ✅ |
 
 ---
 
@@ -78,10 +78,10 @@
 
 | **TC ID** | **Method Test** | **Kịch bản** | **Expected** | **Business Rule** | **Severity** | **Status** |
 |-----------|-----------------|--------------|--------------|-------------------|--------------|------------|
-| **TC-M2-011** | `checkIn_Success_RoomBecomesOccupied_FolioCreated` | Check-in thành công — booking CONFIRMED, phòng Vacant_Clean | `detail.status="CHECKED_IN"`, `room.status="Occupied"`, `save()` được gọi cho cả room & detail | BR-FO-04 | CRITICAL | ✅ |
-| **TC-M2-012a** | `checkIn_Fail_RoomDirty_ShouldThrowException` | Phòng R102 đang `Vacant_Dirty` | `IllegalStateException`, message chứa "dirty", KHÔNG gọi `save()` | BR-FO-04, MOD2-002 | HIGH | 🔴 RED |
-| **TC-M2-012b** | `checkIn_Fail_RoomMaintenance_ShouldThrowException` | Phòng R103 đang `Maintenance` | `IllegalStateException`, message chứa "maintenance", KHÔNG gọi `save()` | BR-HK-03, MOD2-002 | HIGH | ✅ |
-| **TC-M2-013** | `updateCreditLimit_Success_ShouldUpdateCreditLimit` | Cập nhật credit limit mới = 3tr (≤ master 5tr) | `subCreditLimit` đổi đúng giá trị mới, `findByRoomBookingId()` & `save()` được gọi | BR-FO-06 | MEDIUM | ✅ |
+| **TC-M2-011** | `checkIn_Success_RoomBecomesOccupied_FolioCreated` | Check-in thành công — booking CONFIRMED, phòng Vacant_Clean | `detail.status="CHECKED_IN"`, `room.status="Occupied"`, `save()` được gọi cho cả room & detail | BR-FO-07, BR-FIN-03 | CRITICAL | ✅ |
+| **TC-M2-012a** | `checkIn_Fail_RoomDirty_ShouldThrowException` | Phòng R102 đang `Vacant_Dirty` | `IllegalStateException`, message chứa "dirty", KHÔNG gọi `save()` | BR-FO-07, MOD2-002 | HIGH | 🔴 RED |
+| **TC-M2-012b** | `checkIn_Fail_RoomMaintenance_ShouldThrowException` | Phòng R103 đang `Maintenance` | `IllegalStateException`, message chứa "maintenance", KHÔNG gọi `save()` | BR-FO-07, MOD2-002 | HIGH | ✅ |
+| **TC-M2-013** | `updateCreditLimit_Success_ShouldUpdateCreditLimit` | Cập nhật credit limit mới = 3tr (≤ master 5tr) | `subCreditLimit` đổi đúng giá trị mới, `findByRoomBookingId()` & `save()` được gọi | BR-FO-03 | MEDIUM | ✅ |
 | **TC-M2-016** | `checkIn_BookingDetailNotFound_ShouldThrowException` | `bookingDetailId=9999` không tồn tại | `RuntimeException` (MOD2-003), KHÔNG gọi `roomRepository.findById()` | MOD2-003 | HIGH | ✅ |
 | **TC-M2-017** | `checkIn_RoomNotFound_ShouldThrowException` | `roomId=8888` không tồn tại | `RuntimeException` (MOD2-003), KHÔNG gọi `save()` | MOD2-003 | HIGH | ✅ |
 | **TC-M2-018** | `checkIn_BookingNotConfirmed_ShouldThrowException` | Booking ở trạng thái `Pending` (chưa cọc) | `IllegalStateException`, message chứa "confirmed" hoặc "pending", KHÔNG gọi `save()` | SRS UC-13 Preconditions | HIGH | ✅ |
@@ -161,11 +161,11 @@
 | **001-D** | `upgrade_roomBookingDetailShouldReferenceNewRoom` | RoomBookingDetail phải trỏ về phòng mới | `detail.room.id = 301` | HIGH | ✅ |
 | **001-E** | `upgrade_shouldCreateAuditLog` | AuditLog sau mỗi ca đổi phòng | `auditLog.action = "ROOM_CATEGORY_CHANGED"`, `timestamp` not-null | HIGH | ✅ |
 
-#### 🔹 TC-UC44-002 — Downgrade không hoàn tiền (HIGH, BR-FIN-09)
+#### 🔹 TC-UC44-002 — Downgrade không hoàn tiền (HIGH, BR-FIN-05)
 
 | **Sub-TC** | **Method Test** | **Kịch bản** | **Expected** | **Severity** | **Status** |
 |------------|-----------------|--------------|--------------|--------------|------------|
-| **002-A** | `downgrade_shouldNOT_createFolioItem` | Downgrade Suite→Deluxe — BR-FIN-09 | `folioItemRepository.save()` KHÔNG được gọi, `response.folioItemId = null` | HIGH | ✅ |
+| **002-A** | `downgrade_shouldNOT_createFolioItem` | Downgrade Suite→Deluxe — BR-FIN-05 | `folioItemRepository.save()` KHÔNG được gọi, `response.folioItemId = null` | HIGH | ✅ |
 | **002-B** | `downgrade_shouldUpdateRoomStatuses` | Room state machine khi downgrade | R401→`Vacant_Dirty`, R202→`Occupied` | HIGH | ✅ |
 
 #### 🔹 TC-UC44-003 — Không có phòng trống (HIGH, AF1)
@@ -195,7 +195,7 @@
 |------------|-----------------|--------------|--------------|--------------|------------|
 | **006** | `raceCondition_onlyOneThreadSucceeds` | 2 lễ tân đồng thời đổi sang cùng 1 phòng R302 Suite — Pessimistic Lock | `successCount=1`, `failCount=1` — không double-assignment | CRITICAL | ✅ |
 
-#### 🔹 TC-UC44-007 — Booking không IN-HOUSE (HIGH, EX3, BR-FO-10)
+#### 🔹 TC-UC44-007 — Booking không IN-HOUSE (HIGH, EX3, BR-FO-05)
 
 | **Sub-TC** | **Method Test** | **Kịch bản** | **Expected** | **Severity** | **Status** |
 |------------|-----------------|--------------|--------------|--------------|------------|
@@ -246,29 +246,60 @@
 
 ## 🔑 BUSINESS RULES THAM CHIẾU
 
+> **Ghi chú mapping**: Bảng dưới dùng tên BR chính thức (v2). Các tên cũ (BR-DATE-01, BR-BOOK-01, v.v.) là alias nội bộ TDD và đã được thay thế.
+
+### 📌 Booking Status State Machine (BR-RSV-04, BR-RSV-07)
+
+| **Status** | **Giai đoạn** | **Trigger** | **Thời hạn** |
+|------------|---------------|-------------|---------------|
+| `Pending` | Vừa tạo booking, chưa thanh toán | `createBooking()` | Không giới hạn |
+| `Pending_Payment` | User đang thanh toán qua VNPay, phòng bị soft-lock | `confirmBooking(VNPAY)` | **2 phút** (BR-RSV-04) — hết hạn → `Cancelled_Payment` |
+| `Confirmed` | VNPay IPN callback thành công | `verifyIpn(ResponseCode=00)` | — |
+| `Cancelled_Payment` | Hết timeout 2 phút chưa thanh toán | `cleanupStaleHolds()` Cron | — |
+| `Cancelled_Refunded` | Hủy trước 48h → hoàn 100% cọc | `cancelBooking()` trước deadline | — |
+| `Cancelled_Forfeited` | Hủy trong 48h → tịch thu cọc | `cancelBooking()` sau deadline | — |
+| `Checked_In` | Check-in thành công | `checkIn()` / walk-in | — |
+| `Checked_Out` | Trả phòng | `checkOut()` | — |
+
+---
+
+### 📋 Bảng BR Chính Thức (v2)
+
 | **Rule** | **Mô tả** |
 |----------|-----------|
-| BR-DATE-01 | checkOutDate phải SAU checkInDate (≥ 1 đêm) |
-| BR-BOOK-01 | Chống overbooking — countOverlappingBookings > 0 → 409 |
-| BR-FIN-01 | Mã promo phải isActive=true & validTo ≥ today |
-| BR-FIN-02 | Hủy trước 48h → hoàn 100%; hủy trong 48h → hoàn 0đ |
-| BR-FIN-09 | Downgrade KHÔNG hoàn tiền |
-| BR-STATUS-01 | Booking vừa tạo → "Pending" |
-| BR-STATUS-02 | Hủy trước 48h → "Cancelled_Refunded"; hủy trong 48h → "Cancelled_Forfeited" |
-| BR-ERR-01 | Exception message phải chứa error code dạng [ERR_PROMO_XXX] |
-| BR-FO-04 | Luân chuyển trạng thái: Vacant_Clean → Occupied → Dirty |
-| BR-FO-06 | Hạn mức chi tiêu phòng (Credit Limit) |
-| BR-FO-07 | Chỉ dependent đã đăng ký mới được cấp quyền dịch vụ |
-| BR-FO-10 | Chỉ khách đang IN-HOUSE mới được đổi hạng phòng |
-| BR-HK-02 | Báo cáo hư hỏng tài sản khi tạo maintenance |
-| BR-HK-03 | Chặn Check-in phòng MAINTENANCE |
-| BR-SYS-01 | CCCD/Hộ chiếu mã hoá AES-256 trước khi lưu DB (Nghị định 13/2023) |
-| BR-SYS-04 | Audit Log ghi đầy đủ: action, recordId, oldValue, newValue, timestamp, ipAddress |
-| BR-UC14-01 | CCCD bắt buộc đúng format 12 chữ số |
-| BR-UC14-02 | Phòng phải Vacant_Clean, numberOfGuests ≤ capacity |
-| BR-UC14-05 | Booking status → CHECKED_IN sau walk-in |
-| BR-UC14-08/09/10 | Tự động tạo Account, default password, link Reservation cho khách mới |
-| BR-ATOMIC-01 | Toàn bộ walk-in là 1 @Transactional — ADR-UC14-003 |
+| **BR-RSV-01** | checkOutDate phải SAU checkInDate, không đặt quá khứ (alias cũ: BR-DATE-01) |
+| **BR-RSV-02** | Chỉ hiển thị phòng Vacant, loại trừ phòng đang soft-locked |
+| **BR-RSV-03** | Phải đăng nhập mới được đặt phòng |
+| **BR-RSV-04** | Booking `Pending_Payment` timeout **2 phút** — hết hạn tự huỷ & giải phóng phòng |
+| **BR-RSV-05** | Chống overbooking — Pessimistic Lock trên RoomCategory (alias cũ: BR-BOOK-01) |
+| **BR-RSV-06** | Giá áp dụng tại thời điểm tìm kiếm (gồm promo, holiday, weekend) (alias cũ: BR-FIN-01 promo) |
+| **BR-RSV-07** | Booking chuyển `Pending` → `Confirmed` CHỈ khi VNPay IPN xác nhận thành công |
+| **BR-RSV-08** | Chỉ customer sở hữu booking mới được hủy |
+| **BR-RSV-09** | Booking `Checked_In` hoặc `Cancelled` không thể hủy |
+| **BR-RSV-10** | Hủy booking → giải phóng tất cả phòng ngay lập tức |
+| **BR-RSV-11** | Customer add/remove/assign dependent; dependent đăng ký trước khi assign phòng |
+| **BR-FIN-01** | Hủy ≥48h trước check-in → hoàn 100% cọc; < 48h / No-Show / đã Checked-In → không hoàn (alias cũ: BR-FIN-02) |
+| **BR-FIN-02** | Thanh toán online xác nhận qua payment gateway (VNPay IPN) |
+| **BR-FIN-03** | Check-in phải có deposit đã xác minh |
+| **BR-FIN-04** | Upgrade: chênh lệch giá × remaining nights |
+| **BR-FIN-05** | Downgrade KHÔNG hoàn tiền / giảm phí (alias cũ: BR-FIN-09) |
+| **BR-FIN-06** | Upgrade/Downgrade xác định bằng so sánh room rate |
+| **BR-FO-01** | Khách đại diện phải ≥ 18 tuổi, có giấy tờ hợp lệ |
+| **BR-FO-02** | Rush Room (Vacant_Dirty) ưu tiên lên đầu hàng đợi Housekeeping (alias cũ: BR-HK-02) |
+| **BR-FO-03** | Chỉ Primary Guest được yêu cầu nâng cấp / thay đổi nghiệp vụ |
+| **BR-FO-04** | No-Show sau 00:00 hôm sau → retention 100% cọc |
+| **BR-FO-05** | Chỉ khách đang IN-HOUSE được đổi hạng; phòng mới phải Vacant_Clean (alias cũ: BR-FO-10) |
+| **BR-FO-06** | Walk-in phải xuất trình giấy tờ hợp lệ |
+| **BR-FO-07** | Mỗi booking phải gán phòng vật lý cụ thể tại check-in (alias cũ: BR-FO-04 state machine) |
+| **BR-FO-08** | Walk-in không có account → tự động tạo account + mật khẩu tạm (alias cũ: BR-UC14-08/09) |
+| **BR-FO-09** | Khai báo tạm trú theo quy định (alias cũ: BR-FO-08) |
+| **BR-FO-10** | Booking phải được link với customer account |
+| **BR-FO-11** | Dependent không được đăng ký trùng CCCD/Passport trong cùng booking |
+| **BR-FO-12** | Đổi hạng phòng chỉ finalize sau khi assign phòng cụ thể |
+| **BR-ERR-01** | Exception message phải chứa error code dạng [ERR_PROMO_XXX] (nội bộ TDD) |
+| **BR-SYS-01** | CCCD/Hộ chiếu mã hoá AES-256 trước khi lưu DB (Nghị định 13/2023) |
+| **BR-SYS-04** | Audit Log ghi đầy đủ: action, recordId, oldValue, newValue, timestamp, ipAddress |
+| **BR-ATOMIC-01** | Toàn bộ walk-in là 1 @Transactional — ADR-UC14-003 |
 
 ---
 
@@ -277,5 +308,5 @@
 | **TC ID** | **Mô tả** | **Lý do thiếu** | **Ưu tiên** |
 |-----------|-----------|-----------------|-------------|
 | TC-M2-012a (GREEN) | Implement guard phòng DIRTY trong `CheckinServiceImpl.checkIn()` | Code chưa implement room status validation | 🔴 URGENT |
-| TC-M2-004 (Cron) | Scheduler tự giải phóng phòng ảo sau 15 phút | Cần test `@Scheduled` / Spring Integration Test | MEDIUM |
+| TC-M2-004 (Cron) | `cleanupStaleHolds()` tự giải phóng phòng sau **2 phút** timeout — BR-RSV-04 | Cần test `@Scheduled` / Spring Integration Test | HIGH |
 | TC-M2-034 | ResidenceReporting fail → check-in vẫn OK (best-effort ADR-UC14-004) | Chưa có test fault tolerance | MEDIUM |

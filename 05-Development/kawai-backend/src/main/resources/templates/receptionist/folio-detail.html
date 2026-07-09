@@ -590,21 +590,24 @@
             <div class="sidebar-section-title">RECEPTIONIST</div>
 
             <nav class="sidebar-nav">
-                <a href="/receptionist/dashboard" class="nav-item" sec:authorize="hasAnyAuthority('OP_DASHBOARD', 'ROLE_ADMIN', 'ROLE_MANAGER')">
+                <a href="/receptionist/dashboard" class="nav-item"
+                    sec:authorize="hasAnyAuthority('OP_DASHBOARD', 'ROLE_ADMIN', 'ROLE_MANAGER')">
                     <i class="fa-solid fa-border-all"></i>
                     <div class="nav-text">
                         <span class="nav-main-text">Room Matrix</span>
                         <span class="nav-sub-text">Sơ đồ phòng</span>
                     </div>
                 </a>
-                <a href="/receptionist/walk-in" class="nav-item" sec:authorize="hasAnyAuthority('OP_RECEPTION_WALKIN', 'OP_BOOKING', 'ROLE_ADMIN', 'ROLE_MANAGER')">
+                <a href="/receptionist/walk-in" class="nav-item"
+                    sec:authorize="hasAnyAuthority('OP_RECEPTION_WALKIN', 'OP_BOOKING', 'ROLE_ADMIN', 'ROLE_MANAGER')">
                     <i class="fa-solid fa-person-walking-luggage"></i>
                     <div class="nav-text">
                         <span class="nav-main-text">Walk-In</span>
                         <span class="nav-sub-text">Khách vãng lai</span>
                     </div>
                 </a>
-                <a href="/receptionist/check-in" class="nav-item" sec:authorize="hasAnyAuthority('OP_RECEPTION_CHECKIN', 'OP_BOOKING', 'ROLE_ADMIN', 'ROLE_MANAGER')">
+                <a href="/receptionist/check-in" class="nav-item"
+                    sec:authorize="hasAnyAuthority('OP_RECEPTION_CHECKIN', 'OP_BOOKING', 'ROLE_ADMIN', 'ROLE_MANAGER')">
                     <i class="fa-solid fa-arrow-right-to-bracket"></i>
                     <div class="nav-text">
                         <span class="nav-main-text">Check-in</span>
@@ -618,7 +621,8 @@
                         <span class="nav-sub-text">Trả phòng & Hóa đơn</span>
                     </div>
                 </a>
-                <a href="/receptionist/in-house" class="nav-item" sec:authorize="hasAnyAuthority('OP_RECEPTION_INHOUSE', 'OP_BOOKING', 'ROLE_ADMIN', 'ROLE_MANAGER')">
+                <a href="/receptionist/in-house" class="nav-item"
+                    sec:authorize="hasAnyAuthority('OP_RECEPTION_INHOUSE', 'OP_BOOKING', 'ROLE_ADMIN', 'ROLE_MANAGER')">
                     <i class="fa-solid fa-bed"></i>
                     <div class="nav-text">
                         <span class="nav-main-text">Khách lưu trú</span>
@@ -657,7 +661,9 @@
                         </div>
                     </div>
                     <div style="display: flex; flex-direction: column; gap: 8px; align-items: flex-end;">
-                        <button id="btnManagerRequest" style="background-color: #fff3e0; color: #e65100; border: 1px solid #ffcc80; padding: 6px 12px; border-radius: 4px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 6px;" onclick="openManagerRequestModal()">
+                        <button id="btnManagerRequest"
+                            style="background-color: #fff3e0; color: #e65100; border: 1px solid #ffcc80; padding: 6px 12px; border-radius: 4px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 6px;"
+                            onclick="openManagerRequestModal()">
                             <i class="fa-solid fa-triangle-exclamation"></i> Báo cáo sự cố / Yêu cầu Quản lý
                         </button>
                         <div class="status-pill" id="bookerPill"
@@ -820,7 +826,8 @@
             </div>
 
             <div class="modal-actions">
-                <button class="btn-apply" onclick="window.print()"><i class="fa-solid fa-print"></i> In biên lai giấy</button>
+                <button class="btn-apply" onclick="window.print()"><i class="fa-solid fa-print"></i> In biên lai
+                    giấy</button>
                 <button class="btn-checkout" style="margin: 0;" onclick="closeSuccessModal()">Đóng</button>
             </div>
         </div>
@@ -952,6 +959,8 @@
             let originalGroups = {};
             let originalTotal = 0;
             let splitTotal = 0;
+            
+            window.folioNegatives = 0;
 
             results.forEach((data, index) => {
                 if (!data.success) return;
@@ -959,6 +968,7 @@
                 const items = data.items || [];
                 const allGroups = {};
                 let roomTotal = 0;
+                let roomDeposited = 0;
 
                 items.forEach(item => {
                     const dep = item.sourceDepartment || 'OTHER';
@@ -985,7 +995,12 @@
                         if (typeof window.folioNegatives === 'undefined') {
                             window.folioNegatives = 0;
                         }
-                        window.folioNegatives += Math.abs(item.amount);
+                        
+                        // CHỈ tính tiền cọc Nâng hạn mức (tránh bị double-count tiền cọc Walk-in)
+                        if (item.description && item.description.toLowerCase().includes('nạp tiền nâng hạn mức')) {
+                            window.folioNegatives += Math.abs(item.amount);
+                            roomDeposited += Math.abs(item.amount);
+                        }
                     }
                 });
 
@@ -1025,7 +1040,7 @@
                      <div id="room-detail-${roomId}" style="padding: 16px 20px; display: none; background: #faf9f7;">
                          <div style="margin-bottom: 16px; background: #fdfbf7; border: 1px solid #e8e4db; border-radius: 8px; padding: 12px 16px; display: flex; align-items: center; gap: 8px; font-size: 0.95rem; color: #7f8c8d;">
                              <i class="fa-solid fa-credit-card" style="color: #c19b6c;"></i>
-                             <span>Hạn mức chi tiêu (Credit Limit): <strong style="color: #2c3e50;">${formatCurrency(data.subCreditLimit || 0)}</strong></span>
+                             <span>Hạn mức chi tiêu (Credit Limit): <strong style="color: #2c3e50;">${formatCurrency((data.subCreditLimit || 0) + roomDeposited)}</strong></span>
                          </div>`;
 
                 for (const [dep, group] of Object.entries(allGroups)) {
@@ -1077,7 +1092,8 @@
                     summary: {},
                     appliedPromoCode: null,
                     appliedPromoType: null,
-                    appliedPromoDiscount: 0
+                    appliedPromoDiscount: 0,
+                    roomDeposited: roomDeposited
                 };
                 for (const [dep, group] of Object.entries(allGroups)) {
                     roomSummaryMap[roomId].summary[dep] = group.items.reduce((sum, i) => sum + i.amount, 0);
@@ -1141,6 +1157,10 @@
             // Deposit from group API if available, else first result's deposit. (They all share same booking)
             globalPrePaidDeposit = bookingGroupData ? (bookingGroupData.prePaidDeposit || 0) : (results.length > 0 ? (results[0].prePaidDeposit || 0) : 0);
             globalOtherPayments = bookingGroupData ? (bookingGroupData.otherPayments || 0) : (results.length > 0 ? (results[0].otherPayments || 0) : 0);
+
+            if (typeof window.folioNegatives !== 'undefined' && window.folioNegatives > 0) {
+                globalOtherPayments += window.folioNegatives;
+            }
 
             if (globalPrePaidDeposit > 0) {
                 document.getElementById('row-deposit').style.display = 'flex';
@@ -1206,7 +1226,14 @@
                 html = '<div class="summary-row" style="justify-content:center; color:#95a5a6;">Không có mục nào</div>';
             }
 
-
+            if (roomInfo.roomDeposited > 0) {
+                html += `
+                    <div class="summary-row total-row" style="color: #2980b9; padding-top: 8px; border-top: 1px dashed #cbd5e1; margin-top: 8px;">
+                        <span>Đã thanh toán (Paid/Deposit)</span>
+                        <span>-${formatCurrency(roomInfo.roomDeposited)}</span>
+                    </div>
+                `;
+            }
 
             document.getElementById('roomBillDetails').innerHTML = html;
 
@@ -1440,7 +1467,7 @@
             const roomInfo = roomSummaryMap[roomId];
             if (!roomInfo) return;
 
-            let roomOutstanding = roomInfo.total - roomInfo.appliedPromoDiscount;
+            let roomOutstanding = roomInfo.total - roomInfo.appliedPromoDiscount - (roomInfo.roomDeposited || 0);
             if (roomOutstanding < 0) roomOutstanding = 0;
 
             document.getElementById('roomBillOutstandingAmount').innerText = formatCurrency(roomOutstanding);
@@ -1557,14 +1584,18 @@
     <!-- Manager Request Modal -->
     <div id="managerRequestModal" class="split-modal-overlay" style="display: none;">
         <div class="split-modal-content" style="max-width: 500px; padding: 24px; text-align: left;">
-            <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <div class="modal-header"
+                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                 <h3 style="margin: 0; color: #2c3e50;">Báo cáo sự cố & Yêu cầu Quản lý</h3>
-                <button class="close-btn" onclick="closeManagerRequestModal()" style="background: none; border: none; font-size: 1.2rem; cursor: pointer;"><i class="fa-solid fa-xmark"></i></button>
+                <button class="close-btn" onclick="closeManagerRequestModal()"
+                    style="background: none; border: none; font-size: 1.2rem; cursor: pointer;"><i
+                        class="fa-solid fa-xmark"></i></button>
             </div>
             <div class="modal-body">
                 <div class="form-group" style="margin-bottom: 16px;">
                     <label style="display: block; margin-bottom: 8px; font-weight: 500;">Loại yêu cầu</label>
-                    <select id="mgrRequestType" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                    <select id="mgrRequestType"
+                        style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
                         <option value="Manager_Approval">Giảm giá / Đền bù sự cố</option>
                         <option value="Late_Checkout_Waiver">Miễn phụ thu trả phòng trễ</option>
                         <option value="Cancellation_Fee_Waiver">Miễn phí phạt hủy phòng</option>
@@ -1573,12 +1604,15 @@
                 </div>
                 <div class="form-group" style="margin-bottom: 16px;">
                     <label style="display: block; margin-bottom: 8px; font-weight: 500;">Lý do / Mô tả chi tiết</label>
-                    <textarea id="mgrRequestDesc" rows="4" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;" placeholder="Ví dụ: Khách phàn nàn máy lạnh ồn, xin giảm giá 10%..."></textarea>
+                    <textarea id="mgrRequestDesc" rows="4"
+                        style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;"
+                        placeholder="Ví dụ: Khách phàn nàn máy lạnh ồn, xin giảm giá 10%..."></textarea>
                 </div>
             </div>
             <div class="modal-footer">
                 <button class="btn btn-secondary" onclick="closeManagerRequestModal()">Hủy</button>
-                <button class="btn btn-primary" onclick="submitManagerRequest()" style="background-color: #e65100; border-color: #e65100;">Gửi yêu cầu</button>
+                <button class="btn btn-primary" onclick="submitManagerRequest()"
+                    style="background-color: #e65100; border-color: #e65100;">Gửi yêu cầu</button>
             </div>
         </div>
     </div>
@@ -1595,7 +1629,7 @@
             const desc = document.getElementById('mgrRequestDesc').value;
 
             if (!desc.trim()) {
-                alert('Vui lòng nhập lý do/mô tả chi tiết!');
+                alert('Please enter reason/description!');
                 return;
             }
 
@@ -1610,19 +1644,19 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    closeManagerRequestModal();
-                    alert('Yêu cầu đã được gửi đến Quản lý.');
-                } else {
-                    alert(data.message || 'Lỗi khi gửi yêu cầu');
-                }
-            })
-            .catch(err => {
-                console.error(err);
-                alert('Lỗi kết nối máy chủ');
-            });
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        closeManagerRequestModal();
+                        alert('Yêu cầu đã được gửi đến Quản lý.');
+                    } else {
+                        alert(data.message || 'Lỗi khi gửi yêu cầu');
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert('Lỗi kết nối máy chủ');
+                });
         }
     </script>
 </body>

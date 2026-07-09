@@ -74,9 +74,12 @@ public class RoomApiController {
                     dto.setGuestName(detail.getRoomBooking().getCustomer().getFullName());
                     dto.setCustomerId(detail.getRoomBooking().getCustomer().getId());
                 }
-                
+
                 // Calculate dynamic credit limit remaining
-                BigDecimal limit = detail.getSubCreditLimit() != null ? detail.getSubCreditLimit() : (detail.getRoomBooking() != null && detail.getRoomBooking().getCreditLimit() != null ? detail.getRoomBooking().getCreditLimit() : BigDecimal.ZERO);
+                BigDecimal limit = detail.getSubCreditLimit() != null ? detail.getSubCreditLimit()
+                        : (detail.getRoomBooking() != null && detail.getRoomBooking().getCreditLimit() != null
+                                ? detail.getRoomBooking().getCreditLimit()
+                                : BigDecimal.ZERO);
                 BigDecimal used = folioItemRepository.findByRoomBookingDetailId(detail.getId()).stream()
                         .filter(f -> !Boolean.TRUE.equals(f.getIsSettledSeparately()))
                         .map(FolioItem::getAmount)
@@ -113,14 +116,14 @@ public class RoomApiController {
         if (cccd == null || cccd.trim().isEmpty()) {
             return ResponseEntity.badRequest().build();
         }
-        
+
         String encryptedCccd = cccd.trim();
         try {
             encryptedCccd = com.kawai.utils.EncryptionUtils.encrypt(cccd.trim());
         } catch (Exception e) {
             // Keep original if encryption fails
         }
-        
+
         List<Room> occupiedRooms = roomRepository.findOccupiedRoomsByCustomerCccd(encryptedCccd);
         if (occupiedRooms.isEmpty()) {
             return ResponseEntity.notFound().build();
@@ -155,24 +158,25 @@ public class RoomApiController {
         if (principal == null) {
             return ResponseEntity.status(401).body(java.util.Map.of("message", "Vui lòng đăng nhập"));
         }
-        
+
         String username = principal.getName();
         if (principal instanceof org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken) {
-            org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken oauthToken = 
-                (org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken) principal;
+            org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken oauthToken = (org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken) principal;
             username = oauthToken.getPrincipal().getAttribute("email");
         }
-        
+
         java.util.Optional<com.kawai.models.Account> accountOpt = accountRepository.findByUsername(username);
         if (accountOpt.isEmpty()) {
             return ResponseEntity.status(404).body(java.util.Map.of("message", "Không tìm thấy tài khoản"));
         }
-        
-        List<RoomBookingDetail> activeDetails = roomBookingDetailRepository.findActiveDetailsByUserId(accountOpt.get().getId());
+
+        List<RoomBookingDetail> activeDetails = roomBookingDetailRepository
+                .findActiveDetailsByUserId(accountOpt.get().getId());
         List<java.util.Map<String, Object>> responseList = new java.util.ArrayList<>();
-        
+
         for (RoomBookingDetail rbd : activeDetails) {
-            if (rbd == null) continue;
+            if (rbd == null)
+                continue;
             java.util.Map<String, Object> rMap = new java.util.HashMap<>();
             Room r = rbd.getRoom();
             // Common fields from the booking detail
@@ -195,13 +199,15 @@ public class RoomApiController {
             }
             responseList.add(rMap);
         }
-        
+
         return ResponseEntity.ok(responseList);
     }
 
     /**
-     * API hỗ trợ nghiệp vụ Check-in Bàn: Lấy thông tin khách hàng đang lưu trú dựa trên số phòng.
-     * Trả về thông tin cơ bản của phòng (số phòng, trạng thái) và tên khách đại diện (Guest Name)
+     * API hỗ trợ nghiệp vụ Check-in Bàn: Lấy thông tin khách hàng đang lưu trú dựa
+     * trên số phòng.
+     * Trả về thông tin cơ bản của phòng (số phòng, trạng thái) và tên khách đại
+     * diện (Guest Name)
      * để đối chiếu xem khách đó có đúng là người đã đặt bàn hay không.
      */
     @GetMapping("/by-number")
@@ -210,19 +216,20 @@ public class RoomApiController {
         if (roomNumber == null || roomNumber.trim().isEmpty()) {
             return ResponseEntity.badRequest().build();
         }
-        
+
         // 1. Tìm kiếm phòng theo số phòng (đã loại bỏ khoảng trắng dư thừa)
         java.util.Optional<Room> roomOpt = roomRepository.findByRoomNumber(roomNumber.trim());
         if (roomOpt.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
         Room room = roomOpt.get();
-        
-        // 2. Kiểm tra xem phòng có đang được khách lưu trú hay không (phải có Booking Detail ID hiện tại)
+
+        // 2. Kiểm tra xem phòng có đang được khách lưu trú hay không (phải có Booking
+        // Detail ID hiện tại)
         if (room.getCurrentBookingDetailId() == null) {
             return ResponseEntity.notFound().build();
         }
-        
+
         // 3. Khởi tạo đối tượng DTO trả về chứa thông tin phòng
         RoomInfoDto dto = RoomInfoDto.builder()
                 .roomNumber(room.getRoomNumber())
@@ -231,12 +238,14 @@ public class RoomApiController {
                 .build();
 
         // 4. Truy vấn chi tiết thông tin Booking để lấy thông tin khách hàng
-        java.util.Optional<RoomBookingDetail> detailOpt = roomBookingDetailRepository.findById(room.getCurrentBookingDetailId());
+        java.util.Optional<RoomBookingDetail> detailOpt = roomBookingDetailRepository
+                .findById(room.getCurrentBookingDetailId());
         if (detailOpt.isPresent()) {
             RoomBookingDetail detail = detailOpt.get();
-            
+
             // Logic lấy tên khách hàng:
-            // Khách hàng có thể được gắn trực tiếp ở cấp độ Chi tiết phòng (RoomBookingDetail) 
+            // Khách hàng có thể được gắn trực tiếp ở cấp độ Chi tiết phòng
+            // (RoomBookingDetail)
             // HOẶC ở cấp độ Đơn đặt tổng (RoomBooking). Ta ưu tiên lấy ở mức Detail trước.
             if (detail.getCustomer() != null) {
                 dto.setGuestName(detail.getCustomer().getFullName());
@@ -251,7 +260,8 @@ public class RoomApiController {
     }
 
     /**
-     * API để nhân viên xác thực 4 số cuối CCCD/Passport của khách khi gọi đặt đồ ăn lên phòng (Room Service)
+     * API để nhân viên xác thực 4 số cuối CCCD/Passport của khách khi gọi đặt đồ ăn
+     * lên phòng (Room Service)
      */
     @GetMapping("/{roomNumber}/verify-guest")
     public ResponseEntity<?> verifyGuest(
@@ -268,18 +278,20 @@ public class RoomApiController {
 
         // Kiểm tra phòng có đang có khách ở không (có booking detail)
         if (room.getCurrentBookingDetailId() == null) {
-            return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Phòng hiện không có khách lưu trú."));
+            return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "Phòng hiện không có khách lưu trú."));
         }
 
         // 2. Lấy thông tin Booking Detail hiện tại của phòng
         Optional<RoomBookingDetail> detailOpt = roomBookingDetailRepository.findById(room.getCurrentBookingDetailId());
         if (detailOpt.isEmpty()) {
-            return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Lỗi dữ liệu: Không tìm thấy booking detail."));
+            return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "Lỗi dữ liệu: Không tìm thấy booking detail."));
         }
 
         RoomBookingDetail bookingDetail = detailOpt.get();
         Customer customer = null;
-        
+
         // Theo logic hiện tại, Customer có thể nằm ở Detail hoặc Booking
         if (bookingDetail.getCustomer() != null) {
             customer = bookingDetail.getCustomer();
@@ -288,39 +300,41 @@ public class RoomApiController {
         }
 
         if (customer == null) {
-            return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Lỗi dữ liệu: Không tìm thấy hồ sơ khách hàng."));
+            return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "Lỗi dữ liệu: Không tìm thấy hồ sơ khách hàng."));
         }
 
         // 3. Lấy CCCD đã mã hóa và giải mã
         String encryptedCccd = customer.getCccdPassportEncrypted();
         if (encryptedCccd == null || encryptedCccd.isEmpty()) {
-            return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Hồ sơ khách hàng thiếu thông tin CCCD/Passport."));
+            return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "Hồ sơ khách hàng thiếu thông tin CCCD/Passport."));
         }
 
         try {
             String realCccd = com.kawai.utils.EncryptionUtils.decrypt(encryptedCccd);
-            
+
             if (realCccd == null || realCccd.length() < 4) {
-                 return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Chuỗi CCCD quá ngắn để xác thực."));
+                return ResponseEntity.badRequest()
+                        .body(Map.of("success", false, "message", "Chuỗi CCCD quá ngắn để xác thực."));
             }
-            
+
             // Cắt 4 số cuối
             String actualLast4 = realCccd.substring(realCccd.length() - 4);
-            
+
             if (actualLast4.equals(last4Digits)) {
                 return ResponseEntity.ok(Map.of(
-                    "success", true,
-                    "guestName", customer.getFullName(),
-                    "message", "Xác thực thành công!"
-                ));
+                        "success", true,
+                        "guestName", customer.getFullName(),
+                        "message", "Xác thực thành công!"));
             } else {
                 return ResponseEntity.ok(Map.of(
-                    "success", false,
-                    "message", "4 số cuối CCCD/Passport không khớp!"
-                ));
+                        "success", false,
+                        "message", "4 số cuối CCCD/Passport không khớp!"));
             }
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(Map.of("success", false, "message", "Lỗi giải mã CCCD: " + e.getMessage()));
+            return ResponseEntity.status(500)
+                    .body(Map.of("success", false, "message", "Lỗi giải mã CCCD: " + e.getMessage()));
         }
     }
 }

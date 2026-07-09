@@ -49,7 +49,8 @@ public class KdsServiceImpl implements KdsService {
 
     @Override
     @Transactional
-    public TableReservation createTableReservation(Long customerId, Long tableId, LocalDate date, LocalTime time, BigDecimal depositAmount) {
+    public TableReservation createTableReservation(Long customerId, Long tableId, LocalDate date, LocalTime time,
+            BigDecimal depositAmount) {
         Customer customer = customerRepository.findById(customerId)
                 .orElseThrow(() -> new IllegalArgumentException("Khách hàng không tồn tại"));
         RestaurantTable table = restaurantTableRepository.findById(tableId)
@@ -96,7 +97,8 @@ public class KdsServiceImpl implements KdsService {
 
     @Override
     @Transactional
-    public FoodOrder createFoodOrder(Long bookingDetailId, Long tableId, String orderType, List<FoodOrderDetail> items, Long staffId) {
+    public FoodOrder createFoodOrder(Long bookingDetailId, Long tableId, String orderType, List<FoodOrderDetail> items,
+            Long staffId) {
         if (items == null || items.isEmpty()) {
             throw new IllegalArgumentException("POS-001: Đơn hàng trống — không có món");
         }
@@ -108,7 +110,7 @@ public class KdsServiceImpl implements KdsService {
         if (bookingDetailId != null) {
             roomDetail = roomBookingDetailRepository.findById(bookingDetailId)
                     .orElseThrow(() -> new IllegalArgumentException("Chi tiết đặt phòng không tồn tại"));
-            
+
             // BR-FB-01 (1): Room must be Occupied
             Room room = roomDetail.getRoom();
             if (room == null || !"OCCUPIED".equalsIgnoreCase(room.getRoomStatus())) {
@@ -166,13 +168,15 @@ public class KdsServiceImpl implements KdsService {
         if (roomDetail != null) {
             BigDecimal currentFolioBalance = BigDecimal.ZERO;
             List<FolioItem> folioItems = folioItemRepository.findAll().stream()
-                    .filter(fi -> fi.getRoomBookingDetail() != null && fi.getRoomBookingDetail().getId().equals(bookingDetailId))
+                    .filter(fi -> fi.getRoomBookingDetail() != null
+                            && fi.getRoomBookingDetail().getId().equals(bookingDetailId))
                     .toList();
             for (FolioItem fi : folioItems) {
                 currentFolioBalance = currentFolioBalance.add(fi.getAmount());
             }
 
-            BigDecimal limit = roomDetail.getSubCreditLimit() != null ? roomDetail.getSubCreditLimit() : BigDecimal.ZERO;
+            BigDecimal limit = roomDetail.getSubCreditLimit() != null ? roomDetail.getSubCreditLimit()
+                    : BigDecimal.ZERO;
             if (currentFolioBalance.add(total).compareTo(limit) > 0) {
                 throw new IllegalStateException("POS-003: Vượt hạn mức tín dụng phòng (Credit Limit)");
             }
@@ -236,7 +240,8 @@ public class KdsServiceImpl implements KdsService {
         FoodOrderDetail detail = foodOrderDetailRepository.findById(detailId)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy order detail"));
 
-        if ("Preparing".equalsIgnoreCase(detail.getKotStatus()) || "Completed".equalsIgnoreCase(detail.getKotStatus())) {
+        if ("Preparing".equalsIgnoreCase(detail.getKotStatus())
+                || "Completed".equalsIgnoreCase(detail.getKotStatus())) {
             throw new IllegalStateException("POS-004: Không thể sửa/xóa — order đã vào bếp");
         }
 
