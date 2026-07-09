@@ -518,7 +518,7 @@
                                                             class="text-[10px] uppercase tracking-widest opacity-60 font-semibold mb-1">
                                                             Hạn mức khả dụng</p>
                                                         <p class="font-bold text-green-700 text-lg"
-                                                            th:text="${#numbers.formatDecimal(remainingLimits[detail.id], 0, 'COMMA', 0, 'POINT')} + ' đ'">
+                                                            th:text="${remainingLimits[detail.id] != null ? #numbers.formatDecimal(remainingLimits[detail.id], 0, 'COMMA', 0, 'POINT') : '0'} + ' đ'">
                                                             100,000 đ</p>
                                                         <!-- Nút đổi hạn mức chỉ hiện cho Master Guest -->
                                                         <button th:if="${stay.customer.id == customer.id}" type="button"
@@ -587,7 +587,7 @@
                                                                         </td>
                                                                         <td class="p-3 text-right">
                                                                             <span class="font-semibold"
-                                                                                th:text="${#numbers.formatDecimal(fItem.amount, 0, 'COMMA', 0, 'POINT')} + ' đ'">0
+                                                                                th:text="${fItem.amount != null ? #numbers.formatDecimal(fItem.amount, 0, 'COMMA', 0, 'POINT') : '0'} + ' đ'">0
                                                                                 đ</span>
                                                                             <div th:if="${fItem.isSettledSeparately}"
                                                                                 class="text-[9px] text-green-600 font-bold uppercase tracking-widest mt-1 bg-green-50 inline-block px-2 py-0.5 rounded border border-green-200">
@@ -690,7 +690,7 @@
                                             <div class="flex justify-between items-start mb-1">
                                                 <span
                                                     class="text-[10px] uppercase tracking-widest font-semibold opacity-60"
-                                                    th:text="'Ngày tạo: ' + ${#temporals.format(booking.bookingDate, 'dd/MM/yyyy')}"></span>
+                                                    th:text="'Ngày tạo: ' + ${booking.bookingDate != null ? #temporals.format(booking.bookingDate, 'dd/MM/yyyy') : 'Chưa rõ'}"></span>
                                                 <span
                                                     class="text-[10px] bg-hoanien-text text-white px-2 py-0.5 rounded font-semibold shrink-0 shadow-sm"
                                                     th:text="'#HN' + ${booking.id}"></span>
@@ -836,7 +836,7 @@
                                                     <div class="flex justify-between items-start mb-1">
                                                         <span
                                                             class="text-[10px] uppercase tracking-widest font-semibold opacity-60"
-                                                            th:text="'Ngày tạo: ' + ${#temporals.format(booking.bookingDate, 'dd/MM/yyyy')}"></span>
+                                                            th:text="'Ngày tạo: ' + ${booking.bookingDate != null ? #temporals.format(booking.bookingDate, 'dd/MM/yyyy') : 'Chưa rõ'}"></span>
                                                         <span
                                                             class="text-[10px] bg-hoanien-text text-white px-2 py-0.5 rounded font-semibold shrink-0 shadow-sm"
                                                             th:text="'#HN' + ${booking.id}"></span>
@@ -919,9 +919,9 @@
                                         <div class="w-32 h-24 shrink-0 rounded-xl bg-hoanien-text text-hoanien-bg flex flex-col items-center justify-center shadow-inner relative overflow-hidden"
                                             th:if="${tb.schedule != null}">
                                             <span class="text-[10px] uppercase tracking-widest font-semibold opacity-70"
-                                                th:text="${#temporals.format(tb.schedule.departureDate, 'MM/yyyy')}">MM/YYYY</span>
+                                                th:text="${tb.schedule != null and tb.schedule.departureDate != null ? #temporals.format(tb.schedule.departureDate, 'MM/yyyy') : 'Chưa rõ'}">MM/YYYY</span>
                                             <span class="text-3xl font-bold leading-none mt-1"
-                                                th:text="${#temporals.format(tb.schedule.departureDate, 'dd')}">01</span>
+                                                th:text="${tb.schedule != null and tb.schedule.departureDate != null ? #temporals.format(tb.schedule.departureDate, 'dd') : '01'}">01</span>
                                             <div class="absolute bottom-0 w-full h-1 bg-white/20"></div>
                                         </div>
                                         <div class="w-32 h-24 shrink-0 rounded-xl bg-hoanien-text/5 border border-hoanien-text/10 flex items-center justify-center"
@@ -1019,9 +1019,9 @@
                                                     th:if="${tb.schedule != null}">
                                                     <span
                                                         class="text-[10px] uppercase tracking-widest font-semibold opacity-70"
-                                                        th:text="${#temporals.format(tb.schedule.departureDate, 'MM/yyyy')}">MM/YYYY</span>
+                                                        th:text="${tb.schedule != null and tb.schedule.departureDate != null ? #temporals.format(tb.schedule.departureDate, 'MM/yyyy') : 'Chưa rõ'}">MM/YYYY</span>
                                                     <span class="text-3xl font-bold leading-none mt-1"
-                                                        th:text="${#temporals.format(tb.schedule.departureDate, 'dd')}">01</span>
+                                                        th:text="${tb.schedule != null and tb.schedule.departureDate != null ? #temporals.format(tb.schedule.departureDate, 'dd') : '01'}">01</span>
                                                     <div class="absolute bottom-0 w-full h-1 bg-white/20"></div>
                                                 </div>
                                                 <div class="w-32 h-24 shrink-0 rounded-xl bg-hoanien-text/5 border border-hoanien-text/10 flex items-center justify-center"
@@ -1127,7 +1127,7 @@
                                             <div class="flex justify-between items-start mb-1">
                                                 <span
                                                     class="text-[10px] uppercase tracking-widest font-semibold opacity-60"
-                                                    th:text="'Đặt lúc: ' + ${#temporals.format(fo.orderTime, 'dd/MM/yyyy HH:mm')}">Time</span>
+                                                    th:text="'Đặt lúc: ' + ${fo.orderTime != null ? #temporals.format(fo.orderTime, 'dd/MM/yyyy HH:mm') : 'Chưa rõ'}">Time</span>
                                                 <span
                                                     class="text-[10px] bg-hoanien-text/10 text-hoanien-text px-2 py-0.5 rounded font-semibold shrink-0"
                                                     th:text="'#HN-FOOD-' + ${fo.id}">#HN...</span>
@@ -1289,9 +1289,9 @@
                                     <div
                                         class="w-32 h-24 shrink-0 rounded-xl bg-hoanien-text text-hoanien-bg flex flex-col items-center justify-center shadow-inner relative overflow-hidden">
                                         <span class="text-[10px] uppercase tracking-widest font-semibold opacity-70"
-                                            th:text="${#temporals.format(tr.reserveDate, 'MM/yyyy')}">MM/YYYY</span>
+                                            th:text="${tr.reserveDate != null ? #temporals.format(tr.reserveDate, 'MM/yyyy') : 'Chưa rõ'}">MM/YYYY</span>
                                         <span class="text-3xl font-bold leading-none mt-1"
-                                            th:text="${#temporals.format(tr.reserveDate, 'dd')}">01</span>
+                                            th:text="${tr.reserveDate != null ? #temporals.format(tr.reserveDate, 'dd') : '01'}">01</span>
                                         <div class="absolute bottom-0 w-full h-1 bg-white/20"></div>
                                     </div>
 
@@ -1311,7 +1311,7 @@
                                             class="text-[11px] opacity-80 uppercase tracking-widest flex items-center gap-4 font-medium">
                                             <span class="flex items-center gap-1.5"><span
                                                     class="material-symbols-outlined text-[14px]">schedule</span> <span
-                                                    th:text="${#temporals.format(tr.reserveTime, 'HH:mm')} + ' — ' + ${#temporals.format(tr.endTime, 'HH:mm')}">Time</span></span>
+                                                    th:text="${(tr.reserveTime != null ? #temporals.format(tr.reserveTime, 'HH:mm') : 'Chưa rõ') + ' — ' + (tr.endTime != null ? #temporals.format(tr.endTime, 'HH:mm') : 'Chưa rõ')}">Time</span></span>
                                             <span class="flex items-center gap-1.5"><span
                                                     class="material-symbols-outlined text-[14px]">group</span> <span
                                                     th:text="${tr.partySize + ' khách'}">Khách</span></span>
