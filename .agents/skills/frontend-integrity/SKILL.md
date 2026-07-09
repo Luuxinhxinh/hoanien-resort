@@ -78,3 +78,82 @@ Nếu bất kỳ mắt xích nào chưa được kiểm tra → **KHÔNG đượ
 ## 11. Phân biệt giao dịch tài chính (Financial Transaction Consistency)
 - **Tuyệt đối không gộp nhóm giao dịch chỉ bằng dấu (+/-):** Khi Frontend nhận danh sách `FolioItem` (hoặc Transaction) từ Backend, nếu cần tính tổng tiền nạp, tiền cọc, hoặc tiền hoàn (Refund), **KHÔNG ĐƯỢC** quét mọi khoản tiền âm (`amount < 0`) rồi tự động cộng dồn vào cùng một biến hiển thị. Điều này sẽ dẫn đến việc cộng nhầm Tiền cọc phòng (Pre-paid Deposit) với Tiền nạp hạn mức (Credit Deposit) và gây hiện tượng "Double-count" (cấn trừ đúp).
 - **Phân loại dựa trên Metadata/Description:** Luôn phải dựa vào thuộc tính `description` (ví dụ chứa cụm từ `"nạp tiền nâng hạn mức"`), `sourceDepartment`, hoặc `transactionType` để lọc chính xác đúng loại giao dịch cần hiển thị trên UI. Sự phân loại này trên Frontend **PHẢI** luôn khớp 100% với điều kiện truy vấn tại Backend Repository (ví dụ: `FolioItemRepository.findCreditDepositAmountsByDetailId`).
+
+## 12. Thymeleaf SpEL Field-Name Mismatch — EL1008E (BẮT BUỘC ĐỌC TRƯỚC KHI VIẾT TEMPLATE)
+
+> **Bài học từ bug thực tế (2026-07-09):** Trang `/profile` bị đứt ngang HTML, mất toàn bộ tab, script và modal. Root cause là field name trong template sai so với entity Java, gây `SpelEvaluationException` khi render.
+
+### Cơ chế sập trang (Mid-render Crash)
+Khi Thymeleaf ném exception giữa chừng (Response đã `committed`):
+- Server **KHÔNG THỂ** redirect về trang lỗi 500.
+- Trình duyệt nhận HTML bị cắt cụt tại đúng dòng lỗi.
+- **Hậu quả UI:** Trang render một nửa, mất hết tab/script/modal, không click được Header nav, trông như bị "đơ/đứng" — thực chất là DOM hỏng.
+
+### Hai lỗi EL1008E đã gặp
+
+| Field sai trong Template | Entity thực tế | Field đúng |
+|---|---|---|
+| `${rg.guestName}` | `com.kawai.models.RoomGuest` | Không có `guestName`; dùng `rg.dependent.dependentName` hoặc `rg.customer.fullName` |
+| `${fItem.itemType}` | `com.kawai.models.FolioItem` | Không có `itemType`; dùng `fItem.sourceDepartment` |
+
+### Quy tắc phòng thủ — TRƯỚC KHI viết `${obj.someField}` trong Thymeleaf
+
+1. **Luôn xác minh field name từ Java entity**, không đoán mò:
+   ```bash
+   # Chạy lệnh này để xem tất cả field thực tế của entity
+   Get-Content "src/main/java/com/kawai/models/TênEntity.java" | Select-String "(private|public.*get)"
+   ```
+2. **Các entity hay bị nhầm field name trong project này:**
+   - `RoomGuest` → KHÔNG có `guestName`; tên khách phải lấy từ `rg.dependent.dependentName` (nếu là người thân) hoặc `rg.customer.fullName` (nếu là khách đăng ký).
+   - `FolioItem` → KHÔNG có `itemType`; tên loại phải lấy từ `fItem.sourceDepartment`.
+   - `Dependent` → KHÔNG có `fullName`; tên đúng là `dependent.dependentName`.
+3. **Luôn kiểm tra null trước khi gọi chained property:**
+   ```html
+   <!-- SAI: Nếu rg.dependent == null sẽ crash -->
+   th:text="${rg.dependent.dependentName}"
+   <!-- ĐÚNG: Có null-guard -->
+   th:text="${rg.dependent != null ? rg.dependent.dependentName : rg.customer.fullName}"
+   ```
+
+### Kỹ thuật debug Mid-Render Crash (Bypass Login)
+
+Khi trang đứt giữa chừng nhưng log server bị ẩn, thêm **diagnostic endpoint** để render không cần login và gọi kiểm tra từ PowerShell:
+
+**Bước 1 — Thêm endpoint test vào ProfileController:**
+```java
+// TẠM THỜI — XÓA SAU KHI FIX XONG
+@GetMapping("/profile-test")
+public String viewProfileTest(Model model) {
+    Customer customer = customerRepository.findById(1L).orElse(null);
+    // Gọi cùng hàm render logic với viewProfile
+    return renderProfileInternal(customer, model);
+}
+```
+
+**Bước 2 — Cho phép truy cập trong SecurityConfig (permitAll):**
+```java
+"/profile", "/profile/profile-test",  // thêm vào dòng này
+```
+
+**Bước 3 — Gọi thử và lưu HTML output:**
+```powershell
+$env:SERVER_PORT="8081" ; .\mvnw.cmd spring-boot:run
+# Sau khi server khởi động xong:
+Invoke-WebRequest -Uri "http://localhost:8081/profile/profile-test" -UseBasicParsing | Select-Object -ExpandProperty Content | Out-File "target\test-render.html"
+```
+
+**Bước 4 — Đọc log để tìm exception gốc:**
+```powershell
+Get-Content "<log-path>.log" | Select-String -Pattern "(SpelEvaluationException|EL1008|TemplateProcessingException|Caused by)" -Context 0,5
+```
+
+**Bước 5 — Xác nhận fix thành công:**
+```powershell
+# Nếu render hoàn chỉnh, output sẽ là hàng nghìn dòng HTML
+$res = Invoke-WebRequest -Uri "http://localhost:8081/profile/profile-test" -UseBasicParsing
+Write-Host "Lines: $($res.Content.Split([Environment]::NewLine).Length)"
+# Kết quả đạt: Lines=7529 (hoặc tương đương)
+```
+
+**Bước 6 — Dọn dẹp:** Xóa endpoint test và revert SecurityConfig sau khi fix xong.
+
