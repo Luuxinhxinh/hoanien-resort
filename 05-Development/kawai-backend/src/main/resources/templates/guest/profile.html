@@ -3,6 +3,29 @@
 
 <head>
     <meta charset="utf-8" />
+    <script>
+        window.addEventListener('error', function(e) {
+            var div = document.createElement('div');
+            div.className = 'js-error-toast';
+            div.style.position = 'fixed';
+            div.style.top = '10px';
+            div.style.left = '50%';
+            div.style.transform = 'translateX(-50%)';
+            div.style.backgroundColor = '#ef4444';
+            div.style.color = 'white';
+            div.style.padding = '16px';
+            div.style.zIndex = '999999';
+            div.style.borderRadius = '12px';
+            div.style.fontSize = '14px';
+            div.style.fontWeight = 'bold';
+            div.style.boxShadow = '0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1)';
+            div.style.border = '1px solid #fee2e2';
+            div.style.maxWidth = '90%';
+            div.style.wordBreak = 'break-all';
+            div.innerHTML = '⚠️ Lỗi JavaScript: ' + e.message + '<br><small style="opacity:0.8; font-weight:normal;">Tại file: ' + e.filename + ' (Dòng ' + e.lineno + ':' + e.colno + ')</small>';
+            document.body.appendChild(div);
+        });
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Hồ sơ cá nhân - Hoanien River Retreat</title>
 
@@ -142,7 +165,7 @@
                             <img th:if="${customer != null and customer.avatarUrl != null}"
                                 th:src="${customer.avatarUrl}" alt="Avatar" class="w-full h-full object-cover" />
                             <span th:unless="${customer != null and customer.avatarUrl != null}"
-                                th:text="${customer != null ? #strings.substring(customer.fullName, 0, 1) : 'G'}">G</span>
+                                th:text="${customer != null and customer.fullName != null and !customer.fullName.isEmpty() ? #strings.substring(customer.fullName, 0, 1) : 'G'}">G</span>
                         </div>
                         <div class="absolute inset-0 bg-black/40 rounded-full opacity-0 group-hover/avatar:opacity-100 transition-opacity duration-300 flex items-center justify-center"
                             onclick="document.getElementById('avatarFileInput').click()">
@@ -157,7 +180,7 @@
                     </div>
                     <div class="pt-2">
                         <h2 class="font-serif text-3xl font-medium mb-2 text-hoanien-text/90"
-                            th:text="${customer != null ? customer.fullName : 'Guest Name'}">Guest Name</h2>
+                            th:text="${customer != null and customer.fullName != null ? customer.fullName : 'Guest Name'}">Guest Name</h2>
                         <button type="button" onclick="openTierModal()"
                             class="inline-flex items-center gap-2 mt-1 px-4 py-1.5 rounded-full border border-hoanien-text/20 bg-gradient-to-r from-hoanien-text/5 to-transparent shadow-inner hover:bg-hoanien-text/10 transition-colors cursor-pointer group/badge">
                             <span
@@ -171,7 +194,7 @@
                     </div>
                 </div>
                 <div class="bg-gradient-to-br from-white to-gray-50 border border-hoanien-text/10 rounded-2xl p-6 min-w-[220px] text-center shadow-md relative overflow-hidden group cursor-default"
-                    th:with="pts=${customer != null ? customer.loyaltyPoints : 0}, maxPts=${pts < 1000 ? 1000 : (pts < 5000 ? 5000 : (pts < 10000 ? 10000 : pts))}, percent=${pts >= 10000 ? 100 : (pts * 100 / maxPts)}">
+                    th:with="pts=${customer != null and customer.loyaltyPoints != null ? customer.loyaltyPoints : 0}, maxPts=${pts < 1000 ? 1000 : (pts < 5000 ? 5000 : (pts < 10000 ? 10000 : pts))}, percent=${pts >= 10000 ? 100 : (pts * 100 / maxPts)}">
 
                     <div class="absolute left-0 bottom-0 top-0 bg-hoanien-text/10 w-0 transition-all duration-1000 ease-out z-0 group-hover:!w-[var(--target-width)]"
                         th:style="'--target-width: ' + ${percent} + '%;'"></div>
