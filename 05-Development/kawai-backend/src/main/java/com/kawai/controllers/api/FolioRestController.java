@@ -50,7 +50,7 @@ public class FolioRestController {
     private final com.kawai.repositories.MembershipTierRepository membershipTierRepository;
     private final com.kawai.repositories.HousekeepingTaskRepository housekeepingTaskRepo;
     private final com.kawai.repositories.EmployeeRepository employeeRepository;
-
+    private final com.kawai.repositories.PaymentTransactionRepository paymentTransactionRepository;
     @Autowired
     public FolioRestController(NightAuditService nightAuditService,
             FolioItemRepository folioItemRepository,
@@ -68,7 +68,8 @@ public class FolioRestController {
             com.kawai.repositories.MembershipTierRepository membershipTierRepository,
             com.kawai.services.interfaces.WorkflowEngineService workflowEngineService,
             com.kawai.repositories.HousekeepingTaskRepository housekeepingTaskRepo,
-            com.kawai.repositories.EmployeeRepository employeeRepository) {
+            com.kawai.repositories.EmployeeRepository employeeRepository,
+            com.kawai.repositories.PaymentTransactionRepository paymentTransactionRepository) {
         this.nightAuditService = nightAuditService;
         this.folioItemRepository = folioItemRepository;
         this.roomBookingDetailRepository = roomBookingDetailRepository;
@@ -83,6 +84,7 @@ public class FolioRestController {
         this.customerRepository = customerRepository;
         this.roomGuestRepository = roomGuestRepository;
         this.membershipTierRepository = membershipTierRepository;
+        this.paymentTransactionRepository = paymentTransactionRepository;
         this.workflowEngineService = workflowEngineService;
         this.housekeepingTaskRepo = housekeepingTaskRepo;
         this.employeeRepository = employeeRepository;

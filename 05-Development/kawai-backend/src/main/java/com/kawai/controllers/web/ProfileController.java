@@ -175,7 +175,7 @@ public class ProfileController {
             model.addAttribute("roomGuestsMap", roomGuestsMap);
             model.addAttribute("activeStays", activeStays);
 
-            List<TourBooking> tourBookings = tourBookingRepository.findAllByCustomer(customer).stream()
+            List<TourBooking> tourBookings = tourBookingRepository.findTourBookingsByCustomerId(customer.getId()).stream()
                     .filter(tb -> {
                         String status = tb.getBookingStatus() != null ? tb.getBookingStatus().toUpperCase() : "";
 
