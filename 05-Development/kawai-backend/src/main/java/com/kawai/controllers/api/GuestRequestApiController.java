@@ -65,7 +65,7 @@ public class GuestRequestApiController {
             }
 
             HotelOperation op = new HotelOperation();
-            op.setOperationalType(requestType); // EXPECTED: "CHECKOUT_CLEAN" hoặc "MAINTENANCE"
+            op.setOperationalType(requestType); // EXPECTED: "GUEST_REQUEST" hoặc "MAINTENANCE"
             op.setPriority("High");
             op.setStatus("Pending");
             op.setCreatedAt(LocalDateTime.now());
@@ -73,7 +73,7 @@ public class GuestRequestApiController {
             op.setStaff(defaultStaff);
             op.setSupervisor(defaultStaff);
 
-            String prefix = requestType.equals("CHECKOUT_CLEAN") ? "[Khách Yêu Cầu Dọn Phòng]" : "[Khách Yêu Cầu Sửa Chữa]";
+            String prefix = requestType.equals("GUEST_REQUEST") ? "[Khách Yêu Cầu Dọn Phòng]" : "[Khách Yêu Cầu Sửa Chữa]";
             op.setNotes(prefix + (description != null && !description.isEmpty() ? " - " + description : ""));
 
             hotelOperationRepository.save(op);

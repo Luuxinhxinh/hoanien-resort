@@ -3,50 +3,7 @@
 
 <head>
     <meta charset="utf-8" />
-    <script>
-        window.addEventListener('error', function(e) {
-            var div = document.createElement('div');
-            div.className = 'js-error-toast';
-            div.style.position = 'fixed';
-            div.style.top = '10px';
-            div.style.left = '50%';
-            div.style.transform = 'translateX(-50%)';
-            div.style.backgroundColor = '#ef4444';
-            div.style.color = 'white';
-            div.style.padding = '16px';
-            div.style.zIndex = '999999';
-            div.style.borderRadius = '12px';
-            div.style.fontSize = '14px';
-            div.style.fontWeight = 'bold';
-            div.style.boxShadow = '0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1)';
-            div.style.border = '1px solid #fee2e2';
-            div.style.maxWidth = '90%';
-            div.style.wordBreak = 'break-all';
-            div.innerHTML = '⚠️ Lỗi JavaScript: ' + e.message + '<br><small style="opacity:0.8; font-weight:normal;">Tại file: ' + e.filename + ' (Dòng ' + e.lineno + ':' + e.colno + ')</small>';
-            document.body.appendChild(div);
-        });
 
-        // Click intercept tracker to see if any transparent overlay is blocking the page
-        document.addEventListener('click', function(e) {
-            var toast = document.createElement('div');
-            toast.style.position = 'fixed';
-            toast.style.bottom = '20px';
-            toast.style.left = '20px';
-            toast.style.backgroundColor = 'rgba(0, 0, 0, 0.85)';
-            toast.style.color = '#10b981'; // green text
-            toast.style.padding = '12px 16px';
-            toast.style.zIndex = '9999999';
-            toast.style.borderRadius = '8px';
-            toast.style.fontSize = '12px';
-            toast.style.fontFamily = 'monospace';
-            toast.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
-            toast.innerText = '👉 Nhấp chuột: <' + e.target.tagName.toLowerCase() + '> ' + 
-                              (e.target.id ? 'id="' + e.target.id + '" ' : '') + 
-                              (e.target.className ? 'class="' + e.target.className.split(' ').slice(0,3).join(' ') + '..."' : '');
-            document.body.appendChild(toast);
-            setTimeout(function() { toast.remove(); }, 4000);
-        }, true); // Use capture phase
-    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Hồ sơ cá nhân - Hoanien River Retreat</title>
 
@@ -626,16 +583,7 @@
                                     Hướng dẫn Check-in
                                 </button>
                             </div>
-                            <div class="relative w-40">
-                                <select id="bookingStatusFilter" onchange="filterBookings()"
-                                    class="w-full bg-hoanien-bg border border-hoanien-text/20 rounded-full px-4 py-2 focus:border-hoanien-text focus:outline-none transition-colors text-[11px] uppercase tracking-widest appearance-none cursor-pointer font-semibold shadow-sm">
-                                    <option value="all">Tất cả</option>
-                                    <option value="paid">Đã xác nhận</option>
-                                    <option value="cancelled">Đã hủy</option>
-                                </select>
-                                <span
-                                    class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-hoanien-text/60 pointer-events-none text-sm">expand_more</span>
-                            </div>
+
                         </div>
 
                         <!-- Process Guide (Hidden by default) -->
@@ -675,7 +623,7 @@
                         <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start mb-8">
                             <th:block th:each="booking : ${bookings}"
                                 th:if="${#lists.contains({'PENDING', 'CONFIRMED', 'CHECKED_IN'}, #strings.toUpperCase(booking.bookingStatus))}">
-                                <div class="booking-item flex flex-col p-6 border border-hoanien-text/10 rounded-2xl bg-white hover:shadow-xl transition-all duration-300 group"
+                                <div class="booking-item h-full flex flex-col p-6 border border-hoanien-text/10 rounded-2xl bg-white hover:shadow-xl transition-all duration-300 group"
                                     th:data-status="${#strings.toUpperCase(booking.bookingStatus)}">
                                     <div class="flex gap-5 mb-4">
                                         <div class="w-32 h-24 shrink-0 rounded-xl overflow-hidden shadow-sm relative">
@@ -715,39 +663,52 @@
                                         <p class="text-[10px] uppercase tracking-widest opacity-60 font-semibold mb-1">
                                             Hạn mức chi tiêu phòng (Folio)</p>
                                         <div th:each="detail : ${visibleDetailsMap[booking.id]}"
-                                            class="flex justify-between items-center text-xs bg-white/50 border border-hoanien-text/10 p-2.5 rounded-lg shadow-sm">
-                                            <div class="flex items-center gap-2">
-                                                <span
-                                                    class="material-symbols-outlined text-[16px] opacity-50">door_front</span>
-                                                <span class="font-bold text-hoanien-text/90"
-                                                    th:text="${detail.room != null ? 'P. ' + detail.room.roomNumber : 'Đang xếp phòng'}">Phòng</span>
-                                            </div>
-                                            <div class="flex items-center gap-6 text-right">
-                                                <div class="flex flex-col">
-                                                    <div class="flex items-center gap-1 justify-end">
-                                                        <span class="text-[9px] uppercase tracking-wider opacity-50">Cấp
-                                                            mức</span>
-                                                        <button type="button"
-                                                            th:if="${booking.customer != null and booking.customer.id == customer.id}"
-                                                            th:onclick="'editCreditLimit(' + ${booking.id} + ', ' + ${detail.id} + ', ' + ${detail.subCreditLimit != null ? detail.subCreditLimit : 0} + ')'"
-                                                            class="material-symbols-outlined text-[12px] opacity-40 hover:opacity-100 hover:text-hoanien-text transition-all"
-                                                            title="Chỉnh sửa hạn mức">edit</button>
-                                                    </div>
-                                                    <span class="font-semibold text-hoanien-text"><span
-                                                            th:text="${detail.subCreditLimit != null ? #numbers.formatDecimal(detail.subCreditLimit, 0, 'COMMA', 0, 'POINT') : '0'}">0</span>đ</span>
+                                            class="flex flex-col text-xs bg-white/50 border border-hoanien-text/10 p-2.5 rounded-lg shadow-sm">
+                                            <div class="flex justify-between items-center">
+                                                <div class="flex items-center gap-2">
+                                                    <span
+                                                        class="material-symbols-outlined text-[16px] opacity-50">door_front</span>
+                                                    <span class="font-bold text-hoanien-text/90"
+                                                        th:text="${detail.room != null ? 'P. ' + detail.room.roomNumber : 'Đang xếp phòng'}">Phòng</span>
                                                 </div>
-                                                <div class="flex flex-col">
-                                                    <span class="text-[9px] uppercase tracking-wider opacity-50">Còn
-                                                        dư</span>
-                                                    <span class="font-bold text-green-700"
-                                                        th:classappend="${remainingLimits[detail.id] != null and remainingLimits[detail.id] < 0 ? 'text-red-600' : 'text-green-700'}"><span
-                                                            th:text="${remainingLimits[detail.id] != null ? #numbers.formatDecimal(remainingLimits[detail.id], 0, 'COMMA', 0, 'POINT') : '0'}">0</span>đ</span>
+                                                <div class="flex items-center gap-6 text-right">
+                                                    <div class="flex flex-col">
+                                                        <div class="flex items-center gap-1 justify-end">
+                                                            <span class="text-[9px] uppercase tracking-wider opacity-50">Cấp
+                                                                mức</span>
+                                                            <button type="button"
+                                                                th:if="${booking.customer != null and booking.customer.id == customer.id}"
+                                                                th:onclick="'editCreditLimit(' + ${booking.id} + ', ' + ${detail.id} + ', ' + ${detail.subCreditLimit != null ? detail.subCreditLimit : 0} + ')'"
+                                                                class="material-symbols-outlined text-[12px] opacity-40 hover:opacity-100 hover:text-hoanien-text transition-all"
+                                                                title="Chỉnh sửa hạn mức">edit</button>
+                                                        </div>
+                                                        <span class="font-semibold text-hoanien-text"><span
+                                                                th:text="${detail.subCreditLimit != null ? #numbers.formatDecimal(detail.subCreditLimit, 0, 'COMMA', 0, 'POINT') : '0'}">0</span>đ</span>
+                                                    </div>
+                                                    <div class="flex flex-col">
+                                                        <span class="text-[9px] uppercase tracking-wider opacity-50">Còn
+                                                            dư</span>
+                                                        <span class="font-bold text-green-700"
+                                                            th:classappend="${remainingLimits[detail.id] != null and remainingLimits[detail.id] < 0 ? 'text-red-600' : 'text-green-700'}"><span
+                                                                th:text="${remainingLimits[detail.id] != null ? #numbers.formatDecimal(remainingLimits[detail.id], 0, 'COMMA', 0, 'POINT') : '0'}">0</span>đ</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- Breakdown of Folio Items -->
+                                            <div th:if="${folioItemsMap[detail.id] != null and !folioItemsMap[detail.id].empty}" 
+                                                 class="mt-2 pt-2 border-t border-hoanien-text/10 border-dashed space-y-1">
+                                                <div th:each="item : ${folioItemsMap[detail.id]}" 
+                                                     th:if="${item.isSettledSeparately == null or !item.isSettledSeparately}" 
+                                                     class="flex justify-between items-center text-[10px] opacity-80">
+                                                    <span th:text="${item.description}">Dịch vụ</span>
+                                                    <span class="font-medium text-red-600" 
+                                                          th:text="${'-' + #numbers.formatDecimal(item.amount, 0, 'COMMA', 0, 'POINT') + 'đ'}">-100,000đ</span>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <hr class="border-hoanien-text/10 my-2" />
+                                    <hr class="border-hoanien-text/10 mt-auto mb-2" />
 
                                     <div class="flex justify-between items-end mt-2">
                                         <div>
@@ -820,7 +781,7 @@
                                 <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start mt-4">
                                     <th:block th:each="booking : ${bookings}"
                                         th:if="${!#lists.contains({'PENDING', 'CONFIRMED', 'CHECKED_IN'}, #strings.toUpperCase(booking.bookingStatus))}">
-                                        <div class="booking-item flex flex-col p-6 border border-hoanien-text/10 rounded-2xl bg-white hover:shadow-xl transition-all duration-300 group opacity-60 grayscale"
+                                        <div class="booking-item h-full flex flex-col p-6 border border-hoanien-text/10 rounded-2xl bg-white hover:shadow-xl transition-all duration-300 group opacity-60 grayscale"
                                             th:data-status="${#strings.toUpperCase(booking.bookingStatus)}">
                                             <div class="flex gap-5 mb-4">
                                                 <div
@@ -854,7 +815,7 @@
                                                 </div>
                                             </div>
 
-                                            <hr class="border-hoanien-text/10 my-2" />
+                                            <hr class="border-hoanien-text/10 mt-auto mb-2" />
 
                                             <div class="flex justify-between items-end mt-2">
                                                 <div>
@@ -955,7 +916,7 @@
                                         </div>
                                     </div>
 
-                                    <hr class="border-hoanien-text/10 my-2" />
+                                    <hr class="border-hoanien-text/10 mt-auto mb-2" />
 
                                     <div class="flex justify-between items-end mt-2">
                                         <div>
@@ -1013,7 +974,7 @@
                                     <th:block th:each="tb : ${tourBookings}"
                                         th:if="${!#lists.contains({'PENDING', 'CONFIRMED', 'IN_PROGRESS'}, #strings.toUpperCase(tb.bookingStatus))}">
                                         <div
-                                            class="flex flex-col p-6 border border-hoanien-text/10 rounded-2xl bg-white hover:shadow-xl transition-all duration-300 group opacity-60 grayscale">
+                                            class="h-full flex flex-col p-6 border border-hoanien-text/10 rounded-2xl bg-white hover:shadow-xl transition-all duration-300 group opacity-60 grayscale">
                                             <div class="flex gap-5 mb-4">
                                                 <div class="w-32 h-24 shrink-0 rounded-xl bg-hoanien-text text-hoanien-bg flex flex-col items-center justify-center shadow-inner relative overflow-hidden"
                                                     th:if="${tb.schedule != null}">
@@ -1057,7 +1018,7 @@
                                                 </div>
                                             </div>
 
-                                            <hr class="border-hoanien-text/10 my-2" />
+                                            <hr class="border-hoanien-text/10 mt-auto mb-2" />
 
                                             <div class="flex justify-between items-end mt-2">
                                                 <div>
@@ -2133,30 +2094,7 @@
             return d.toLocaleDateString('vi-VN');
         }
 
-        function filterBookings() {
-            const filterValue = document.getElementById('bookingStatusFilter').value;
-            const items = document.querySelectorAll('.booking-item');
 
-            items.forEach(item => {
-                const status = item.getAttribute('data-status');
-
-                if (filterValue === 'all') {
-                    item.style.display = 'flex';
-                } else if (filterValue === 'paid') {
-                    if (status === 'CONFIRMED' || status === 'CHECKED_IN' || status === 'CHECKED_OUT') {
-                        item.style.display = 'flex';
-                    } else {
-                        item.style.display = 'none';
-                    }
-                } else if (filterValue === 'cancelled') {
-                    if (status === 'CANCELLED') {
-                        item.style.display = 'flex';
-                    } else {
-                        item.style.display = 'none';
-                    }
-                }
-            });
-        }
 
         function toggleFoodDetails(id) {
             const el = document.getElementById(id);
@@ -2272,7 +2210,7 @@
                 cancelButtonText: 'Hủy'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    sendGuestRequest(roomId, 'CHECKOUT_CLEAN', null);
+                    sendGuestRequest(roomId, 'GUEST_REQUEST', null);
                 }
             });
         }

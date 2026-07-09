@@ -167,10 +167,6 @@ public class ProfileController {
                             return false;
                         }
 
-                        if (status.startsWith("CANCEL")) {
-                            return paymentTransactionRepository.existsByBookingIdAndStatus(b.getId(),
-                                    com.kawai.models.PaymentStatus.SUCCESS);
-                        }
                         return true;
                     })
                     .sorted((b1, b2) -> b2.getId().compareTo(b1.getId()))
@@ -235,10 +231,6 @@ public class ProfileController {
                             return false;
                         }
 
-                        if (status.startsWith("CANCEL")) {
-                            return paymentTransactionRepository.existsByBookingIdAndStatus(tb.getId(),
-                                    com.kawai.models.PaymentStatus.SUCCESS);
-                        }
                         return true;
                     })
                     .collect(java.util.stream.Collectors.toList());
