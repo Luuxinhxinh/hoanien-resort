@@ -50,7 +50,7 @@ public class FolioRestController {
     private final com.kawai.repositories.MembershipTierRepository membershipTierRepository;
     private final com.kawai.repositories.HousekeepingTaskRepository housekeepingTaskRepo;
     private final com.kawai.repositories.EmployeeRepository employeeRepository;
-
+    private final com.kawai.repositories.PaymentTransactionRepository paymentTransactionRepository;
     @Autowired
     public FolioRestController(NightAuditService nightAuditService,
             FolioItemRepository folioItemRepository,
@@ -68,7 +68,8 @@ public class FolioRestController {
             com.kawai.repositories.MembershipTierRepository membershipTierRepository,
             com.kawai.services.interfaces.WorkflowEngineService workflowEngineService,
             com.kawai.repositories.HousekeepingTaskRepository housekeepingTaskRepo,
-            com.kawai.repositories.EmployeeRepository employeeRepository) {
+            com.kawai.repositories.EmployeeRepository employeeRepository,
+            com.kawai.repositories.PaymentTransactionRepository paymentTransactionRepository) {
         this.nightAuditService = nightAuditService;
         this.folioItemRepository = folioItemRepository;
         this.roomBookingDetailRepository = roomBookingDetailRepository;
@@ -83,6 +84,7 @@ public class FolioRestController {
         this.customerRepository = customerRepository;
         this.roomGuestRepository = roomGuestRepository;
         this.membershipTierRepository = membershipTierRepository;
+        this.paymentTransactionRepository = paymentTransactionRepository;
         this.workflowEngineService = workflowEngineService;
         this.housekeepingTaskRepo = housekeepingTaskRepo;
         this.employeeRepository = employeeRepository;
@@ -880,11 +882,11 @@ public class FolioRestController {
                 eventPublisher.publishEvent(new com.kawai.events.SystemEmailEvent(this, customerEmail,
                         "Hóa đơn điện tử - HOANIEN", "invoice", ctx));
 
-                // 5.1 Cộng điểm Loyalty (1 điểm = 10,000 VNĐ chi tiêu)
-                if (paymentAmount.compareTo(BigDecimal.ZERO) > 0) {
+                // 5.1 Cộng điểm Loyalty (1 điểm = 10,000 VNĐ chi tiêu trên tổng hóa đơn)
+                if (invoice.getTotalAmount() != null && invoice.getTotalAmount().compareTo(BigDecimal.ZERO) > 0) {
                     com.kawai.models.Customer customer = detail.getRoomBooking().getCustomer();
                     if (customer != null) {
-                        int pointsEarned = paymentAmount.divide(new BigDecimal("10000"), 0, java.math.RoundingMode.DOWN)
+                        int pointsEarned = invoice.getTotalAmount().divide(new BigDecimal("10000"), 0, java.math.RoundingMode.DOWN)
                                 .intValue();
                         if (pointsEarned > 0) {
                             int currentPoints = customer.getLoyaltyPoints() != null ? customer.getLoyaltyPoints() : 0;
@@ -906,6 +908,7 @@ public class FolioRestController {
                             }
                             customerRepository.save(customer);
                             System.out.println("[LOYALTY] Khách " + customer.getFullName() + " vừa nhận " + pointsEarned
+
                                     + " điểm. Tổng: " + newPoints + " (" + (tierObj != null ? tierObj.getTierName() : (customer.getMembershipTier() != null ? customer.getMembershipTier().getTierName() : "Regular")) + ")");
                         }
                     }

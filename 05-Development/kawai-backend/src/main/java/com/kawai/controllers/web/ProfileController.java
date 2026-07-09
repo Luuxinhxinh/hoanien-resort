@@ -55,6 +55,9 @@ public class ProfileController {
     private RoomBookingRepository roomBookingRepository;
 
     @Autowired
+    private com.kawai.repositories.BookingRepository bookingRepository;
+
+    @Autowired
     private TourBookingRepository tourBookingRepository;
 
     @Autowired
@@ -95,6 +98,53 @@ public class ProfileController {
             customer.setMembershipTier(defaultTier);
         }
         model.addAttribute("customer", customer);
+        
+        // Safe calculations for Membership Tier, Loyalty Points and UI Progress to avoid Thymeleaf translation exceptions
+        String tierName = "REGULAR";
+        int pts = 0;
+        int maxPts = 1000;
+        int percent = 0;
+        String nextTierInfo = "Max Tier Reached!";
+        String avatarInitial = "G";
+
+        if (customer != null) {
+            try {
+                if (customer.getMembershipTier() != null) {
+                    tierName = customer.getMembershipTier().getTierName();
+                }
+            } catch (Exception e) {
+                tierName = "REGULAR";
+            }
+            if (customer.getLoyaltyPoints() != null) {
+                pts = customer.getLoyaltyPoints();
+            }
+            if (customer.getFullName() != null && !customer.getFullName().trim().isEmpty()) {
+                avatarInitial = customer.getFullName().trim().substring(0, 1).toUpperCase();
+            }
+        }
+
+        if (pts < 1000) {
+            maxPts = 1000;
+            nextTierInfo = (1000 - pts) + " pts to Silver";
+        } else if (pts < 5000) {
+            maxPts = 5000;
+            nextTierInfo = (5000 - pts) + " pts to Gold";
+        } else if (pts < 10000) {
+            maxPts = 10000;
+            nextTierInfo = (10000 - pts) + " pts to Platinum";
+        } else {
+            maxPts = pts;
+            nextTierInfo = "Hạng thẻ cao nhất!";
+        }
+
+        percent = maxPts > 0 ? (pts * 100 / maxPts) : 0;
+        if (percent > 100) percent = 100;
+
+        model.addAttribute("tierName", tierName != null ? tierName.toUpperCase() : "REGULAR");
+        model.addAttribute("loyaltyPoints", pts);
+        model.addAttribute("progressPercent", percent);
+        model.addAttribute("nextTierInfo", nextTierInfo);
+        model.addAttribute("avatarInitial", avatarInitial);
 
         if (customer != null) {
             // Get bookings where customer is master
@@ -117,10 +167,6 @@ public class ProfileController {
                             return false;
                         }
 
-                        if (status.startsWith("CANCEL")) {
-                            return paymentTransactionRepository.existsByBookingIdAndStatus(b.getId(),
-                                    com.kawai.models.PaymentStatus.SUCCESS);
-                        }
                         return true;
                     })
                     .sorted((b1, b2) -> b2.getId().compareTo(b1.getId()))
@@ -175,7 +221,9 @@ public class ProfileController {
             model.addAttribute("roomGuestsMap", roomGuestsMap);
             model.addAttribute("activeStays", activeStays);
 
-            List<TourBooking> tourBookings = tourBookingRepository.findAllByCustomer(customer).stream()
+            List<TourBooking> tourBookings = bookingRepository.findByCustomerId(customer.getId()).stream()
+                    .filter(b -> b instanceof TourBooking)
+                    .map(b -> (TourBooking) b)
                     .filter(tb -> {
                         String status = tb.getBookingStatus() != null ? tb.getBookingStatus().toUpperCase() : "";
 
@@ -183,10 +231,6 @@ public class ProfileController {
                             return false;
                         }
 
-                        if (status.startsWith("CANCEL")) {
-                            return paymentTransactionRepository.existsByBookingIdAndStatus(tb.getId(),
-                                    com.kawai.models.PaymentStatus.SUCCESS);
-                        }
                         return true;
                     })
                     .collect(java.util.stream.Collectors.toList());
