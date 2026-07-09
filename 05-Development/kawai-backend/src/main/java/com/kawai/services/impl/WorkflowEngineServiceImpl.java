@@ -295,10 +295,10 @@ public class WorkflowEngineServiceImpl implements WorkflowEngineService {
         if (room == null) return;
 
         String targetStatus = "Vacant_Dirty"; // default
-        String taskType = null;
+        String taskType = "CHECKOUT_CLEAN"; // default to CHECKOUT_CLEAN if not specified by workflow
         
         try {
-            if (workflow.getActionsJson() != null && !workflow.getActionsJson().trim().isEmpty()) {
+            if (workflow != null && workflow.getActionsJson() != null && !workflow.getActionsJson().trim().isEmpty()) {
                 List<Map<String, Object>> actions = objectMapper.readValue(workflow.getActionsJson(), new TypeReference<List<Map<String, Object>>>() {});
                 for (Map<String, Object> act : actions) {
                     String type = (String) act.get("type");
@@ -332,6 +332,14 @@ public class WorkflowEngineServiceImpl implements WorkflowEngineService {
                             emp.getAccount().getRole().getRoleName().toLowerCase().contains("supervisor"))
                     .findFirst()
                     .orElse(assignedStaff);
+
+            // Phòng thủ: tránh Null Constraint Violation ở DB cho staff và supervisor
+            if (assignedStaff == null) {
+                assignedStaff = employeeRepository.findAll().stream().findFirst().orElse(null);
+            }
+            if (supervisor == null) {
+                supervisor = assignedStaff;
+            }
 
             HotelOperation operation = new HotelOperation();
             operation.setRoom(room);

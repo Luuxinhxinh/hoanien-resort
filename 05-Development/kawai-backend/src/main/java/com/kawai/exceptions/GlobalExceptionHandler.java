@@ -21,7 +21,8 @@ public class GlobalExceptionHandler {
         if (request.getRequestURI().startsWith("/api/") || request.getRequestURI().startsWith("/admin/api/")) {
             return org.springframework.http.ResponseEntity
                     .status(org.springframework.http.HttpStatus.FORBIDDEN)
-                    .body(java.util.Map.of("error", "Bạn không có quyền thực hiện thao tác này.", "type", "AccessDenied"));
+                    .body(java.util.Map.of("error", "Bạn không có quyền thực hiện thao tác này.", "type",
+                            "AccessDenied"));
         }
 
         ModelAndView mav = new ModelAndView();
@@ -38,7 +39,11 @@ public class GlobalExceptionHandler {
         if (request.getRequestURI().startsWith("/api/") || request.getRequestURI().startsWith("/admin/api/")) {
             return org.springframework.http.ResponseEntity
                     .status(org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(java.util.Map.of("error", ex.getMessage(), "type", ex.getClass().getSimpleName()));
+                    .body(java.util.Map.of(
+                            "error", ex.getMessage() != null ? ex.getMessage() : "Unknown internal server error",
+                            "message", ex.getMessage() != null ? ex.getMessage() : "Unknown internal server error",
+                            "type", ex.getClass().getSimpleName()
+                    ));
         }
 
         ModelAndView mav = new ModelAndView();

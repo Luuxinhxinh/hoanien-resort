@@ -30,6 +30,7 @@ public class AdminViewServiceImpl implements AdminViewService {
     private final AuditLogRepository auditLogRepository;
     private final ReviewRepository reviewRepository;
     private final RoomBookingDetailRepository roomBookingDetailRepository;
+    private final MaintenanceRequestRepository maintenanceRequestRepository;
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -87,40 +88,30 @@ public class AdminViewServiceImpl implements AdminViewService {
             String guestRequests = "";
             int guests = 0;
 
-            if ("Occupied".equalsIgnoreCase(dbStatus)) {
+            if (dbStatus.startsWith("Occupied")) {
                 status = "occupied";
-                guestName = "Guest " + r.getRoomNumber();
+                if (r.getCurrentBookingDetailId() != null) {
+                    RoomBookingDetail detail = roomBookingDetailRepository.findById(r.getCurrentBookingDetailId()).orElse(null);
+                    if (detail != null && detail.getRoomBooking() != null && detail.getRoomBooking().getCustomer() != null) {
+                        guestName = detail.getRoomBooking().getCustomer().getFullName();
+                    }
+                }
+                if (guestName == null || guestName.isEmpty()) {
+                    guestName = "Khách " + r.getRoomNumber();
+                }
                 guests = 2;
-            } else if ("Vacant_Dirty".equalsIgnoreCase(dbStatus)) {
+            } else if (dbStatus.endsWith("Dirty") || "Vacant_Dirty".equalsIgnoreCase(dbStatus)) {
                 status = "dirty";
             } else if ("Maintenance".equalsIgnoreCase(dbStatus)) {
                 status = "broken";
-                issue = "Hỏng khóa cửa";
+                Optional<HotelOperation> activeMaint = maintenanceRequestRepository.findAll().stream()
+                        .filter(t -> t.getRoom() != null && t.getRoom().getId().equals(r.getId())
+                                && "Maintenance".equals(t.getOperationalType())
+                                && !"Completed".equals(t.getStatus()))
+                        .findFirst();
+                issue = activeMaint.map(HotelOperation::getNotes).orElse("Đang bảo trì");
             } else {
                 status = "vacant";
-            }
-
-            // Inject some mock broken rooms for rich operation hub preview
-            if ("103".equals(r.getRoomNumber())) {
-                status = "broken";
-                issue = "Hỏng điều hòa";
-                guestName = "";
-                guests = 0;
-            } else if ("207".equals(r.getRoomNumber())) {
-                status = "broken";
-                issue = "Hỏng vòi sen";
-                guestName = "";
-                guests = 0;
-            } else if ("201".equals(r.getRoomNumber())) {
-                status = "occupied";
-                guestName = "Trần Đình Trọng";
-                guests = 2;
-                guestRequests = "Khách yêu cầu thêm gối mềm và dọn phòng lúc 14h.";
-            } else if ("205".equals(r.getRoomNumber())) {
-                status = "occupied";
-                guestName = "Michael Smith";
-                guests = 1;
-                guestRequests = "Cần setup bàn là hơi nước.";
             }
 
             String category = r.getCategory() != null ? r.getCategory().getCategoryName() : "Standard";
