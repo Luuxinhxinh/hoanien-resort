@@ -22,17 +22,17 @@
       <div class="brand-name">HOANIEN</div>
       <div class="brand-sub">Resort &amp; Tour Hub</div>
       <div class="staff-badge">
-        <span class="material-symbols-outlined" style="font-size:0.7rem;">restaurant</span> F&amp;B Staff
+        <span class="material-symbols-outlined" style="font-size:0.7rem;">restaurant</span> Nhân viên F&amp;B
       </div>
     </div>
     <nav class="sidebar-nav">
-      <div class="nav-section-label">Vận hành</div>
+      <div class="nav-section-label">Operations</div>
 
       <a href="/fbStaff/dashboard" th:href="@{/fbStaff/dashboard}" class="nav-item active">
         <span class="material-symbols-outlined">dashboard</span>
         <span>POS Dashboard</span>
       </a>
-      <a href="/fbStaff/create-food-order" class="nav-item" sec:authorize="hasAnyAuthority('OP_FNB_ORDER', 'OP_FNB', 'ROLE_ADMIN', 'ROLE_MANAGER')">
+      <a href="/fbStaff/create-food-order" th:href="@{/fbStaff/create-food-order}" class="nav-item" sec:authorize="hasAnyAuthority('OP_FNB_ORDER', 'OP_FNB', 'ROLE_ADMIN', 'ROLE_MANAGER')">
         <span class="material-symbols-outlined">add_circle</span>
         <span>New Order</span>
       </a>
@@ -45,12 +45,11 @@
         <span>Room Service</span>
       </a>
 
+      <div class="nav-section-label">Finance</div>
 
-      <div class="nav-section-label">Tài chính</div>
-
-      <a href="/fbStaff/shift-report" th:href="@{/fbStaff/shift-report}" class="nav-item" sec:authorize="hasAnyAuthority('OP_FNB_REPORT', 'OP_FNB', 'ROLE_ADMIN', 'ROLE_MANAGER')">
+      <a href="/fbStaff/shift-report" th:href="@{/fbStaff/shift-report}" class="nav-item">
         <span class="material-symbols-outlined">bar_chart</span>
-        <span>Báo cáo ngày</span>
+        <span>Shift Report</span>
       </a>
     </nav>
     <div class="sidebar-footer">

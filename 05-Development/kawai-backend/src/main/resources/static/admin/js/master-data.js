@@ -1210,13 +1210,15 @@ function removeGalleryItem(btn, inputId, fileIndex) {
  */
 const ROLE_CEILINGS = {
     admin:        ['DASHBOARD','MASTER_DATA','AUDIT_LOG','REVIEWS','BOOKING','FNB','HOUSEKEEPING','MAINTENANCE','WORKFLOW','CRM','PROMOTIONS','NIGHT_AUDIT','TOUR','ANALYTICS', 'RECEPTION_CHECKIN', 'RECEPTION_CHECKOUT', 'RECEPTION_WALKIN', 'RECEPTION_INHOUSE', 'FNB_ORDER', 'FNB_TABLE', 'FNB_ROOM_SERVICE', 'FNB_REPORT'],
-    manager:      ['DASHBOARD','BOOKING','FNB','TOUR','HOUSEKEEPING','MAINTENANCE','NIGHT_AUDIT','ANALYTICS','REVIEWS','CRM','PROMOTIONS','WORKFLOW', 'RECEPTION_CHECKIN', 'RECEPTION_CHECKOUT', 'RECEPTION_WALKIN', 'RECEPTION_INHOUSE', 'FNB_ORDER', 'FNB_TABLE', 'FNB_ROOM_SERVICE', 'FNB_REPORT'],
-    receptionist: ['DASHBOARD','BOOKING','HOUSEKEEPING','NIGHT_AUDIT','REVIEWS', 'RECEPTION_CHECKIN', 'RECEPTION_CHECKOUT', 'RECEPTION_WALKIN', 'RECEPTION_INHOUSE'],
+    manager:      ['DASHBOARD','ANALYTICS'],
+    receptionist: ['DASHBOARD','BOOKING','NIGHT_AUDIT','REVIEWS', 'RECEPTION_CHECKIN', 'RECEPTION_CHECKOUT', 'RECEPTION_WALKIN', 'RECEPTION_INHOUSE'],
     'f&b':        ['DASHBOARD','FNB', 'FNB_ORDER', 'FNB_TABLE', 'FNB_ROOM_SERVICE', 'FNB_REPORT'],
     fnb:          ['DASHBOARD','FNB', 'FNB_ORDER', 'FNB_TABLE', 'FNB_ROOM_SERVICE', 'FNB_REPORT'],
     kitchen:      ['DASHBOARD','FNB', 'FNB_ORDER', 'FNB_TABLE', 'FNB_ROOM_SERVICE', 'FNB_REPORT'],
     'thu ngan':   ['DASHBOARD','FNB', 'FNB_ORDER', 'FNB_TABLE', 'FNB_ROOM_SERVICE', 'FNB_REPORT'],
     housekeeping: ['DASHBOARD','HOUSEKEEPING'],
+    maintainer:   ['DASHBOARD','MAINTENANCE'],
+    maintenance:  ['DASHBOARD','MAINTENANCE'],
     tourguide:    ['DASHBOARD','TOUR'],
     'tour guide': ['DASHBOARD','TOUR'],
     'tour':       ['DASHBOARD','TOUR'],
@@ -1243,8 +1245,8 @@ function filterPermissionsByRole(roleName) {
         }
     }
 
-    // Fallback: nếu không nhận ra tên role → show tất cả (trường hợp Admin tạo role mới)
-    if (!ceiling) ceiling = ROLE_CEILINGS['admin'];
+    // Fallback: nếu không nhận ra tên role → an toàn nhất là chỉ cho DASHBOARD
+    if (!ceiling) ceiling = ['DASHBOARD'];
 
     document.querySelectorAll('.perm-checkbox').forEach(cb => {
         const label = cb.closest('label');

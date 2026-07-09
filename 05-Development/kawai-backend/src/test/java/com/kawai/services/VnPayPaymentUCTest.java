@@ -171,7 +171,7 @@ class VnPayPaymentUCTest {
         txn.setTransactionType("ROOM_BOOKING");
 
         RoomBooking booking = new RoomBooking();
-        booking.setBookingStatus("PENDING");
+        booking.setBookingStatus("Pending_Payment"); // BR-RSV-04: tại thời điểm IPN callback, booking đã qua confirmBooking() → phải là Pending_Payment
         txn.setBooking(booking);
 
         when(paymentTransactionRepository.findByTransactionRef("123_123456")).thenReturn(Optional.of(txn));

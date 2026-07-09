@@ -26,7 +26,10 @@ import java.util.UUID;
  * <li>BR-SYS-01: Mã hóa dữ liệu nhạy cảm</li>
  * </ul>
  */
+import lombok.extern.slf4j.Slf4j;
+
 @Service
+@Slf4j
 public class CheckinServiceImpl implements CheckinService {
 
         // ===== Constants =====
@@ -52,6 +55,7 @@ public class CheckinServiceImpl implements CheckinService {
         private final com.kawai.repositories.RoomGuestRepository roomGuestRepo;
         private final com.kawai.repositories.TourBookingRepository tourBookingRepo;
         private final com.kawai.services.interfaces.DependentService dependentService;
+        private final com.kawai.services.interfaces.EmailService emailService;
 
         @Autowired
         public CheckinServiceImpl(
@@ -66,7 +70,8 @@ public class CheckinServiceImpl implements CheckinService {
                         org.springframework.security.crypto.password.PasswordEncoder passwordEncoder,
                         com.kawai.repositories.RoomGuestRepository roomGuestRepo,
                         com.kawai.repositories.TourBookingRepository tourBookingRepo,
-                        @org.springframework.context.annotation.Lazy com.kawai.services.interfaces.DependentService dependentService) {
+                        @org.springframework.context.annotation.Lazy com.kawai.services.interfaces.DependentService dependentService,
+                        com.kawai.services.interfaces.EmailService emailService) {
                 this.roomBookingDetailRepo = roomBookingDetailRepo;
                 this.roomRepo = roomRepo;
                 this.roomBookingRepo = roomBookingRepo;
@@ -79,6 +84,7 @@ public class CheckinServiceImpl implements CheckinService {
                 this.roomGuestRepo = roomGuestRepo;
                 this.tourBookingRepo = tourBookingRepo;
                 this.dependentService = dependentService;
+                this.emailService = emailService;
         }
 
         // UC12.1: Check-in
@@ -237,6 +243,15 @@ public class CheckinServiceImpl implements CheckinService {
                 result.put("customer", savedCustomer);
                 result.put("username", username);
                 result.put("password", randomPwd);
+
+                // Gửi email cho Master Customer
+                if (dependent.getCustomer() != null) {
+                    try {
+                        emailService.sendDependentUpgradeEmail(dependent.getCustomer(), savedCustomer, username, randomPwd);
+                    } catch (Exception e) {
+                        log.error("Lỗi gửi email thông báo nâng cấp Dependent: ", e);
+                    }
+                }
 
                 return result;
         }

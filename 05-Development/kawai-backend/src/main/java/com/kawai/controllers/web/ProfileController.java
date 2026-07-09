@@ -12,6 +12,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.kawai.utils.EncryptionUtils;
+import com.kawai.services.FileUploadService;
 
 import com.kawai.models.RoomBooking;
 import com.kawai.models.TourBooking;
@@ -76,6 +77,9 @@ public class ProfileController {
 
     @Autowired
     private com.kawai.repositories.FolioItemRepository folioItemRepository;
+
+    @Autowired
+    private FileUploadService fileUploadService;
 
     @GetMapping
     public String viewProfile(Authentication authentication, Model model) {
@@ -393,23 +397,10 @@ public class ProfileController {
 
         if (customer != null && !file.isEmpty()) {
             try {
-                String originalFilename = file.getOriginalFilename();
-                String extension = "";
-                if (originalFilename != null && originalFilename.contains(".")) {
-                    extension = originalFilename.substring(originalFilename.lastIndexOf("."));
-                }
-                String newFilename = "avatar_" + customer.getId() + "_" + System.currentTimeMillis() + extension;
+                // Upload file vào thư mục "hoanien_avatars" trên Cloudinary
+                String secureUrl = fileUploadService.uploadFile(file, "hoanien_avatars");
 
-                String currentWorkingDir = System.getProperty("user.dir");
-                java.nio.file.Path uploadDir = java.nio.file.Paths.get(currentWorkingDir, "uploads", "avatars");
-                if (!java.nio.file.Files.exists(uploadDir)) {
-                    java.nio.file.Files.createDirectories(uploadDir);
-                }
-
-                java.nio.file.Path filePath = uploadDir.resolve(newFilename);
-                file.transferTo(filePath.toFile());
-
-                customer.setAvatarUrl("/uploads/avatars/" + newFilename);
+                customer.setAvatarUrl(secureUrl);
                 customerRepository.save(customer);
 
                 redirectAttributes.addFlashAttribute("success", "Cập nhật ảnh đại diện thành công!");

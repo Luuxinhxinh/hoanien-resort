@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>[HOANIEN] Xác nhận đơn phục vụ tại phòng</title>
-<style>
+  <title>Nâng cấp tài khoản</title>
+  <style>
     @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;600&family=Inter:wght@300;400;500;600&display=swap');
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -100,73 +100,43 @@
 <body>
   <div class="email-outer">
     <div class="wrapper">
-
-      <!-- HEADER -->
       <div class="header">
         <div class="brand">Hòa Niên</div>
-        <div class="logo-text">Retreat Resort &amp; Hub</div>
+        <div class="logo-text">Retreat Resort & Hub</div>
       </div>
-
-      <!-- HERO -->
       <div class="hero">
-        <span class="icon">🛎️</span>
-        <h1>Xác nhận phục vụ phòng</h1>
-        <p>Chi tiết đơn gọi món tại phòng của Quý khách</p>
+        <span class="icon">✦</span>
+        <h1>Thông Báo Nâng Cấp</h1>
+        <p>Nâng cấp thông tin khách hàng chính</p>
       </div>
-
-      <!-- BODY -->
       <div class="body">
-
-      <p class="greeting">Kính gửi Quý khách <strong th:text="${customerName}">[Tên Khách]</strong>,</p>
-
-      <p class="intro">
-        Đơn phục vụ tại phòng <strong th:text="'#' + ${orderId}">#[Mã Order]</strong> của Quý khách đã được xác nhận
-        và thanh toán thành công.
-      </p>
-
-      <!-- ORDER INFO BOX -->
-      <div class="info-box">
-        <p class="info-box-title">Chi tiết đơn</p>
-        <table class="info-table">
-          <tr>
-            <td class="info-label">Phòng</td>
-            <td class="info-value" th:text="${roomNumber}">[Số phòng]</td>
-          </tr>
-          <tr>
-            <td class="info-label">Tổng thanh toán</td>
-            <td class="info-value" th:text="${totalAmount} + ' VNĐ'">[Số tiền] VNĐ</td>
-          </tr>
-          <tr>
-            <td class="info-label">Hình thức</td>
-            <td class="info-value" th:text="${paymentMethod}">[Credit Limit phòng / Thẻ ngân hàng]</td>
-          </tr>
-          <tr>
-            <td class="info-label">Món đặt</td>
-            <td class="info-value" th:text="${items}">[Tên món 1], [Tên món 2], ...</td>
-          </tr>
+        <p class="greeting">
+          Kính gửi <strong th:text="${customerName}">Quý khách</strong>,<br /><br />
+          <em>Hòa Niên Retreat & Resort</em> chân thành cảm ơn Quý khách đã tin tưởng và sử dụng dịch vụ của chúng tôi.
+        </p>
+        <div class="divider-line"></div>
+        <p class="greeting">Chúng tôi xin thông báo rằng thông tin khách lưu trú của Quý khách vừa được nâng cấp thành Khách hàng chính thành công.</p>
+        <p class="greeting">Dưới đây là thông tin tài khoản đăng nhập mới:</p>
+        <table class="details-table">
+          <tr><th>Tên đăng nhập</th><td th:text="${username}"></td></tr>
+          <tr><th>Mật khẩu</th><td th:text="${password}"></td></tr>
         </table>
+        <div class="note-box">
+          • Vì lý do bảo mật, chúng tôi khuyến nghị Quý khách <strong>đổi mật khẩu</strong> sau lần đăng nhập đầu tiên.<br />
+          • Nếu Quý khách cần bất kỳ sự hỗ trợ nào, vui lòng liên hệ với chúng tôi để được giải đáp.
+        </div>
+        <div class="divider-line"></div>
+        <p class="closing-text">
+          Trân trọng,<br />
+          <strong>HOANIEN Concierge Team</strong><br />
+          <em>Hòa Niên Retreat Resort & Hub</em>
+        </p>
       </div>
-
-      <p class="closing">
-        Đội ngũ bếp đang chuẩn bị và sẽ phục vụ Quý khách trong thời gian sớm nhất.
-        Nếu cần hỗ trợ, Quý khách vui lòng liên hệ lễ tân.
-      </p>
-
-      <hr class="divider" />
-
-      <div class="signoff">
-        Trân trọng,
-        <strong>HOANIEN Concierge Team</strong>
-      </div>
-
-    </div>
-
-      <!-- FOOTER -->
       <div class="footer">
         <div class="resort-name">Hòa Niên</div>
         <p>
-          📞 <span th:text="${resortPhone}">1900 xxxx</span> &nbsp;|&nbsp;
-          🌐 <a th:href="${resortWebsite}" th:text="${resortWebsite}">hoaniensorretreat.vn</a>
+          📞 <span th:text="${resortPhone != null ? resortPhone : '1900 xxxx'}">1900 xxxx</span> &nbsp;|&nbsp;
+          🌐 <a th:href="${resortWebsite != null ? resortWebsite : 'https://hoaniensorretreat.vn'}" th:text="${resortWebsite != null ? resortWebsite : 'hoaniensorretreat.vn'}">hoaniensorretreat.vn</a>
         </p>
         <div class="footer-divider"></div>
         <p>
@@ -174,7 +144,6 @@
           © 2026 Hòa Niên Retreat Resort & Hub. Bảo lưu mọi quyền.
         </p>
       </div>
-
     </div>
   </div>
 </body>

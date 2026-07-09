@@ -253,9 +253,26 @@ public class PosWebFacadeServiceImpl implements PosWebFacadeService {
 
     @Override
     @org.springframework.transaction.annotation.Transactional(readOnly = true)
-    public Map<String, Object> getRoomServiceManagementData() {
+    public Map<String, Object> getRoomServiceManagementData(String dateString) {
         Map<String, Object> data = new HashMap<>();
-        List<FoodOrder> rsOrders = foodOrderRepository.findRoomServiceOrders();
+        
+        java.time.LocalDate date = java.time.LocalDate.now();
+        if (dateString != null && !dateString.isEmpty()) {
+            try {
+                date = java.time.LocalDate.parse(dateString);
+            } catch (Exception e) {
+                // ignore, use today
+            }
+        }
+        
+        java.time.LocalDateTime startOfDay = date.atStartOfDay();
+        java.time.LocalDateTime endOfDay = startOfDay.plusDays(1);
+        
+        data.put("currentDate", date.toString()); // For UI filtering
+        
+        List<FoodOrder> rsOrders = foodOrderRepository.findRoomServiceOrders().stream()
+            .filter(o -> o.getOrderTime() != null && !o.getOrderTime().isBefore(startOfDay) && o.getOrderTime().isBefore(endOfDay))
+            .collect(java.util.stream.Collectors.toList());
         
         long totalOrders = 0;
         long pendingOrders = 0;
