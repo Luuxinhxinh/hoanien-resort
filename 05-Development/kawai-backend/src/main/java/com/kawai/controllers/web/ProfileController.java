@@ -55,6 +55,9 @@ public class ProfileController {
     private RoomBookingRepository roomBookingRepository;
 
     @Autowired
+    private com.kawai.repositories.BookingRepository bookingRepository;
+
+    @Autowired
     private TourBookingRepository tourBookingRepository;
 
     @Autowired
@@ -175,7 +178,9 @@ public class ProfileController {
             model.addAttribute("roomGuestsMap", roomGuestsMap);
             model.addAttribute("activeStays", activeStays);
 
-            List<TourBooking> tourBookings = tourBookingRepository.findTourBookingsByCustomerId(customer.getId()).stream()
+            List<TourBooking> tourBookings = bookingRepository.findByCustomerId(customer.getId()).stream()
+                    .filter(b -> b instanceof TourBooking)
+                    .map(b -> (TourBooking) b)
                     .filter(tb -> {
                         String status = tb.getBookingStatus() != null ? tb.getBookingStatus().toUpperCase() : "";
 
