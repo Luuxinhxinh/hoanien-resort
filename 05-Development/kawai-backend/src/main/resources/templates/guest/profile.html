@@ -659,7 +659,7 @@
                                                 <span
                                                     class="material-symbols-outlined text-[14px]">calendar_month</span>
                                                 <span
-                                                    th:text="${#temporals.format(booking.checkInDate, 'dd/MM/yyyy')} + ' — ' + ${#temporals.format(booking.checkOutDate, 'dd/MM/yyyy')}">Dates</span>
+                                                    th:text="|${booking.checkInDate != null ? #temporals.format(booking.checkInDate, 'dd/MM/yyyy') : 'Chưa có'} — ${booking.checkOutDate != null ? #temporals.format(booking.checkOutDate, 'dd/MM/yyyy') : 'Chưa có'}|">Dates</span>
                                             </div>
                                         </div>
                                     </div>
@@ -805,7 +805,7 @@
                                                         <span
                                                             class="material-symbols-outlined text-[14px]">calendar_month</span>
                                                         <span
-                                                            th:text="${#temporals.format(booking.checkInDate, 'dd/MM/yyyy')} + ' — ' + ${#temporals.format(booking.checkOutDate, 'dd/MM/yyyy')}">Dates</span>
+                                                            th:text="|${booking.checkInDate != null ? #temporals.format(booking.checkInDate, 'dd/MM/yyyy') : 'Chưa có'} — ${booking.checkOutDate != null ? #temporals.format(booking.checkOutDate, 'dd/MM/yyyy') : 'Chưa có'}|">Dates</span>
                                                     </div>
                                                 </div>
                                             </div>
