@@ -125,7 +125,7 @@ public class ProfileControllerTest {
         when(customerRepository.findByAccount_Username("hoangnam")).thenReturn(Optional.of(customer));
         when(roomBookingRepository.findByCustomerOrderByIdDesc(any())).thenReturn(java.util.Collections.emptyList());
         when(roomBookingDetailRepository.findByCustomer(any())).thenReturn(java.util.Collections.emptyList());
-        when(tourBookingRepository.findByCustomer(any())).thenReturn(java.util.Collections.emptyList());
+        when(tourBookingRepository.findTourBookingsByCustomerId(any())).thenReturn(java.util.Collections.emptyList());
         when(foodOrderRepository.findByCustomer(any())).thenReturn(java.util.Collections.emptyList());
         when(dependentRepository.findByCustomer(any())).thenReturn(java.util.Collections.emptyList());
         when(tableReservationRepository.findByCustomerOrderByIdDesc(any())).thenReturn(java.util.Collections.emptyList());
