@@ -541,7 +541,7 @@
                                                         <th:block th:each="rg : ${roomGuestsMap[detail.id]}">
                                                             <span
                                                                 class="text-xs bg-white text-hoanien-text px-3 py-1.5 rounded-full border border-hoanien-text/20 shadow-sm font-medium"
-                                                                th:text="${rg.guestName}">Nguyễn Văn A</span>
+                                                                th:text="${rg.dependent != null ? rg.dependent.dependentName : (rg.customer != null ? rg.customer.fullName : rg.guestType)}">Nguyễn Văn A</span>
                                                         </th:block>
                                                         <span
                                                             th:if="${roomGuestsMap[detail.id] == null or roomGuestsMap[detail.id].empty}"
@@ -581,7 +581,7 @@
                                                                         th:classappend="${fItem.isSettledSeparately} ? 'opacity-50' : ''">
                                                                         <td class="p-3">
                                                                             <p class="font-medium text-hoanien-text"
-                                                                                th:text="${fItem.itemType}">Dịch vụ</p>
+                                                                                th:text="${fItem.sourceDepartment}">Dịch vụ</p>
                                                                             <p class="text-[11px] opacity-70 mt-0.5"
                                                                                 th:text="${fItem.description}">Mô tả</p>
                                                                         </td>
