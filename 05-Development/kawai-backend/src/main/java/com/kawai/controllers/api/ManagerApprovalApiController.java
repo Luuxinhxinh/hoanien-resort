@@ -7,12 +7,14 @@ import com.kawai.repositories.HousekeepingTaskRepository;
 import com.kawai.repositories.BookingRepository;
 import com.kawai.services.interfaces.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Optional;
+import com.kawai.events.ManagerApprovalEvent;
 
 @RestController
 @RequestMapping("/manager/api/approvals")
@@ -27,6 +29,9 @@ public class ManagerApprovalApiController {
 
     @Autowired
     private EmailService emailService;
+
+    @Autowired
+    private ApplicationEventPublisher eventPublisher;
 
     @PostMapping("/{taskId}/approve")
     public ResponseEntity<?> approveTask(@PathVariable Long taskId) {
@@ -103,6 +108,10 @@ public class ManagerApprovalApiController {
             op.setCompletedAt(LocalDateTime.now());
             housekeepingTaskRepository.save(op);
 
+            if (bookingId != null) {
+                eventPublisher.publishEvent(new ManagerApprovalEvent(this, bookingId, op.getOperationalType(), "Completed", taskId));
+            }
+
             return ResponseEntity.ok(Map.of("message", "Đã phê duyệt thành công", "status", "Completed"));
 
         } catch (Exception e) {
@@ -167,6 +176,10 @@ public class ManagerApprovalApiController {
             op.setStatus("Rejected");
             op.setCompletedAt(LocalDateTime.now());
             housekeepingTaskRepository.save(op);
+
+            if (bookingId != null) {
+                eventPublisher.publishEvent(new ManagerApprovalEvent(this, bookingId, op.getOperationalType(), "Rejected", taskId));
+            }
 
             return ResponseEntity.ok(Map.of("message", "Đã từ chối phê duyệt thành công", "status", "Rejected"));
 

@@ -19,7 +19,7 @@ public class SystemEmailEventListener {
     @Async
     @EventListener
     public void handleSystemEmailEvent(SystemEmailEvent event) {
-        log.info("[SystemEmailEventListener] Bắt đầu gửi email (Async) tới: {}, Loại: {}", event.getToEmail(), event.getTemplateName());
+        log.info("[SystemEmailEventListener] Báº¯t Ä‘áº§u gá»­i email (Async) tá»›i: {}, Loáº¡i: {}", event.getToEmail(), event.getTemplateName());
 
         try {
             switch (event.getTemplateName()) {
@@ -61,12 +61,12 @@ public class SystemEmailEventListener {
                     );
                     break;
                 default:
-                    log.warn("[SystemEmailEventListener] Không tìm thấy handler cho template: {}", event.getTemplateName());
+                    log.warn("[SystemEmailEventListener] KhÃ´ng tÃ¬m tháº¥y handler cho template: {}", event.getTemplateName());
                     break;
             }
-            log.info("[SystemEmailEventListener] Gửi email thành công tới: {}", event.getToEmail());
+            log.info("[SystemEmailEventListener] Gá»­i email thÃ nh cÃ´ng tá»›i: {}", event.getToEmail());
         } catch (Exception e) {
-            log.error("[SystemEmailEventListener] Lỗi khi gửi email tới {}: {}", event.getToEmail(), e.getMessage());
+            log.error("[SystemEmailEventListener] Lá»—i khi gá»­i email tá»›i {}: {}", event.getToEmail(), e.getMessage());
         }
     }
 }

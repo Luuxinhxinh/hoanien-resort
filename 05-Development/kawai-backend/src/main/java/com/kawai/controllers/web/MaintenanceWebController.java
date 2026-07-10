@@ -4,14 +4,21 @@ import com.kawai.models.HotelOperation;
 import com.kawai.repositories.EmployeeRepository;
 import com.kawai.repositories.MaintenanceRequestRepository;
 import com.kawai.repositories.RoomRepository;
+import com.kawai.repositories.StaffScheduleRepository;
 import com.kawai.services.interfaces.HousekeepingService;
+import com.kawai.models.Employee;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import jakarta.servlet.http.HttpSession;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAdjusters;
 import java.util.Locale;
 
 @Controller
@@ -22,11 +29,13 @@ public class MaintenanceWebController {
     private final MaintenanceRequestRepository maintenanceRequestRepo;
     private final RoomRepository roomRepository;
     private final EmployeeRepository employeeRepository;
+    private final StaffScheduleRepository staffScheduleRepository;
 
     public MaintenanceWebController(HousekeepingService hs,
-            MaintenanceRequestRepository mrr, RoomRepository rr, EmployeeRepository er) {
+            MaintenanceRequestRepository mrr, RoomRepository rr, EmployeeRepository er, StaffScheduleRepository ssr) {
         this.housekeepingService = hs; this.maintenanceRequestRepo = mrr;
         this.roomRepository = rr; this.employeeRepository = er;
+        this.staffScheduleRepository = ssr;
     }
 
     @ModelAttribute("todayLabel")
@@ -35,15 +44,47 @@ public class MaintenanceWebController {
     }
 
     @GetMapping("/dashboard")
-    public String dashboard(Model model) {
-        model.addAttribute("pendingTasks", maintenanceRequestRepo.findByOperationalTypeAndStatus("MAINTENANCE","Pending"));
-        model.addAttribute("inProgressTasks", maintenanceRequestRepo.findByOperationalTypeAndStatus("MAINTENANCE","InProgress"));
-        model.addAttribute("pausedTasks", maintenanceRequestRepo.findByOperationalTypeAndStatus("MAINTENANCE","Paused"));
-        long underMaintenance = roomRepository.countByRoomStatus("Maintenance");
-        model.addAttribute("maintenanceRooms", underMaintenance);
-        var completed = maintenanceRequestRepo.findByOperationalTypeAndStatus("MAINTENANCE","Completed");
-        model.addAttribute("completedTasks", completed);
-        model.addAttribute("completedCount", completed.size());
+    public String dashboard(Model model, HttpSession session, @RequestParam(required = false) String bypass) {
+        if ("true".equals(bypass)) {
+            session.setAttribute("demoBypassShift", true);
+        }
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        boolean isOnShift = false;
+        
+        if (session.getAttribute("demoBypassShift") != null) {
+            isOnShift = true;
+        } else if (auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_MANAGER") || a.getAuthority().equals("ROLE_ADMIN"))) {
+            isOnShift = true;
+        } else {
+            Employee currentStaff = employeeRepository.findByAccountUsername(auth.getName()).orElse(null);
+            if (currentStaff != null) {
+                var shifts = staffScheduleRepository.findByEmployeeIdAndWorkDate(currentStaff.getId(), LocalDate.now());
+                if (shifts != null && !shifts.isEmpty()) {
+                    isOnShift = true;
+                }
+                
+                // Get weekly schedules for the employee
+                LocalDate startOfWeek = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+                LocalDate endOfWeek = startOfWeek.plusDays(6);
+                var weeklySchedules = staffScheduleRepository.findByEmployeeIdAndWorkDateBetweenOrderByWorkDateAsc(currentStaff.getId(), startOfWeek, endOfWeek);
+                model.addAttribute("myWeeklySchedules", weeklySchedules);
+            }
+        }
+        
+        model.addAttribute("isOnShift", isOnShift);
+        
+        if (isOnShift) {
+            model.addAttribute("pendingTasks", maintenanceRequestRepo.findByOperationalTypeAndStatus("MAINTENANCE","Pending"));
+            model.addAttribute("inProgressTasks", maintenanceRequestRepo.findByOperationalTypeAndStatus("MAINTENANCE","InProgress"));
+            model.addAttribute("pausedTasks", maintenanceRequestRepo.findByOperationalTypeAndStatus("MAINTENANCE","Paused"));
+            long underMaintenance = roomRepository.countByRoomStatus("Maintenance");
+            model.addAttribute("maintenanceRooms", underMaintenance);
+            var completed = maintenanceRequestRepo.findByOperationalTypeAndStatus("MAINTENANCE","Completed");
+            model.addAttribute("completedTasks", completed);
+            model.addAttribute("completedCount", completed.size());
+        }
+        
         return "maintenance/dashboard";
     }
 

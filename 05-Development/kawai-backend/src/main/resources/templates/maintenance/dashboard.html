@@ -182,7 +182,43 @@
             <i class="fa-solid fa-circle-exclamation"></i> <span th:text="${errorMessage}"></span>
         </div>
 
-        <div class="page-header">
+        <!-- Off-shift Block -->
+        <div th:if="${!isOnShift}" style="text-align: center; padding: 48px 24px; background: #fff5f5; border: 1px solid #feb2b2; border-radius: 12px; margin-top: 24px;">
+            <i class="fa-solid fa-user-clock" style="font-size: 48px; color: #f56565; margin-bottom: 16px;"></i>
+            <h2 style="color: #c53030; margin-bottom: 8px;">Bạn không có ca trực ngày hôm nay</h2>
+            <p style="color: #e53e3e; font-size: 15px;">Hệ thống đã khóa các chức năng nghiệp vụ. Vui lòng liên hệ Quản lý nếu có sai sót về lịch làm việc.</p>
+            
+            <!-- My Weekly Schedule -->
+            <div th:if="${myWeeklySchedules != null}" style="margin-top: 32px; max-width: 800px; margin-left: auto; margin-right: auto; background: var(--surface); border-radius: 12px; box-shadow: var(--shadow-sm); overflow: hidden; border: 1px solid var(--border-color);">
+                <div style="background: var(--info-light); padding: 16px 24px; border-bottom: 1px solid var(--border-color);">
+                    <h3 style="margin: 0; color: var(--info); font-family: var(--font-serif);"><i class="fa-regular fa-calendar-days"></i> Lịch trực tuần này của bạn</h3>
+                </div>
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="background: var(--bg-color); text-align: left; font-size: 13px; color: var(--text-secondary);">
+                            <th style="padding: 16px 24px; border-bottom: 1px solid var(--border-color);">Ngày</th>
+                            <th style="padding: 16px 24px; border-bottom: 1px solid var(--border-color);">Ca làm việc</th>
+                            <th style="padding: 16px 24px; border-bottom: 1px solid var(--border-color);">Khung giờ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="s : ${myWeeklySchedules}" style="border-bottom: 1px solid var(--border-color);">
+                            <td style="padding: 16px 24px; font-weight: 500;" th:text="${#temporals.format(s.workDate, 'EEEE, dd/MM')}">Thứ Hai, 10/07</td>
+                            <td style="padding: 16px 24px;">
+                                <span style="background: var(--success-light); color: var(--success); padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;" th:text="${s.shift.shiftName}">Ca Sáng</span>
+                            </td>
+                            <td style="padding: 16px 24px; color: var(--text-secondary); font-size: 14px;" th:text="${s.shift.startTime} + ' - ' + ${s.shift.endTime}">06:00 - 14:00</td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(myWeeklySchedules)}">
+                            <td colspan="3" style="padding: 32px; text-align: center; color: var(--text-tertiary);">Tuần này bạn chưa có lịch làm việc nào.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div th:if="${isOnShift}">
+            <div class="page-header">
             <div class="page-title">
                 <h1>Tổng quan sự cố</h1>
                 <p><i class="fa-regular fa-calendar"></i> <span th:text="${todayLabel}">Hôm nay</span></p>
@@ -317,7 +353,7 @@
         </div>
     </div>
 
-    <!-- Pause Task Modal -->
+    <!-- Modals (outside the main block so JS still attaches to them) -->
     <div class="modal-overlay" id="pauseModal">
         <div class="modal-content">
             <h3 class="modal-title" style="color: var(--warning);"><i class="fa-solid fa-pause"></i> Lý do tạm dừng</h3>
