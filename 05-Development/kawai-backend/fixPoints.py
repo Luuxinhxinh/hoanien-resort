@@ -1,0 +1,23 @@
+﻿sql = "\n\n-- RECALCULATE LOYALTY POINTS BASED ON MOCK DATA\n"
+sql += "UPDATE Customers c SET loyalty_points = (\n"
+sql += "    COALESCE((\n"
+sql += "        SELECT SUM(b.total_price) \n"
+sql += "        FROM Bookings b \n"
+sql += "        WHERE b.customer_id = c.customer_id AND b.booking_status IN ('Checked_Out', 'Completed')\n"
+sql += "    ), 0) + \n"
+sql += "    COALESCE((\n"
+sql += "        SELECT SUM(fi.amount) \n"
+sql += "        FROM Folio_Items fi \n"
+sql += "        JOIN Bookings b ON fi.booking_id = b.booking_id\n"
+sql += "        WHERE b.customer_id = c.customer_id AND b.booking_status = 'Checked_Out'\n"
+sql += "    ), 0)\n"
+sql += ") / 10000;\n\n"
+sql += "-- AUTO UPGRADE TIERS BASED ON RECALCULATED POINTS\n"
+sql += "UPDATE Customers SET membership_tier_id = (\n"
+sql += "    SELECT tier_id FROM Membership_Tiers \n"
+sql += "    WHERE required_points <= loyalty_points \n"
+sql += "    ORDER BY required_points DESC LIMIT 1\n"
+sql += ");\n"
+
+with open('d:\\SWP391\\su26-swp391-se2023-g2\\05-Development\\kawai-backend\\src\\main\\resources\\data.sql', 'a', encoding='utf-8') as f:
+    f.write(sql)

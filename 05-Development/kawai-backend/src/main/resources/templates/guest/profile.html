@@ -134,12 +134,53 @@
                 <span th:text="${error}">Error message</span>
             </div>
             <!-- Customer Summary Header -->
-            <div
-                class="bg-hoanien-bg border border-hoanien-text/10 p-8 rounded-xl room-card mb-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-sm">
-                <div class="flex flex-col md:flex-row items-center md:items-start gap-6 text-center md:text-left">
+            <style>
+                .tier-card[data-tier="DIAMOND"] h2, .tier-card[data-tier="PLATINUM"] h2,
+                .tier-card[data-tier="DIAMOND"] .point-label, .tier-card[data-tier="PLATINUM"] .point-label,
+                .tier-card[data-tier="DIAMOND"] .point-value, .tier-card[data-tier="PLATINUM"] .point-value,
+                .tier-card[data-tier="DIAMOND"] .point-unit, .tier-card[data-tier="PLATINUM"] .point-unit,
+                .tier-card[data-tier="DIAMOND"] .next-tier-info, .tier-card[data-tier="PLATINUM"] .next-tier-info {
+                    color: #E8DCC0 !important;
+                }
+                .tier-card[data-tier="DIAMOND"] .avatar-circle, .tier-card[data-tier="PLATINUM"] .avatar-circle {
+                    background: #E8DCC0 !important;
+                    color: #121A16 !important;
+                    border-color: rgba(232,220,192, 0.2) !important;
+                }
+                .tier-card[data-tier="DIAMOND"] .loyalty-box, .tier-card[data-tier="PLATINUM"] .loyalty-box {
+                    background: linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02)) !important;
+                    border-color: rgba(232, 220, 192, 0.15) !important;
+                    backdrop-filter: blur(8px);
+                }
+                .tier-card[data-tier="DIAMOND"] .badge-wrapper, .tier-card[data-tier="PLATINUM"] .badge-wrapper {
+                    border-color: rgba(232,220,192, 0.2) !important;
+                    background: rgba(0,0,0,0.2) !important;
+                }
+                
+                .tier-card[data-tier="GOLD"] h2 { color: #4A3B12 !important; }
+                .tier-card[data-tier="GOLD"] .loyalty-box {
+                    background: linear-gradient(135deg, rgba(255,255,255,0.6), rgba(255,255,255,0.2)) !important;
+                    border-color: rgba(166, 124, 0, 0.2) !important;
+                }
+                
+                .tier-card[data-tier="SILVER"] .loyalty-box {
+                    background: linear-gradient(135deg, rgba(255,255,255,0.8), rgba(255,255,255,0.4)) !important;
+                    border-color: rgba(143, 161, 179, 0.3) !important;
+                }
+            </style>
+            <div th:attr="data-tier=${tierName}"
+                class="tier-card p-8 rounded-xl room-card mb-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-md transition-all duration-700 relative overflow-hidden"
+                th:classappend="${(tierName == 'DIAMOND' || tierName == 'PLATINUM') ? 'bg-gradient-to-r from-[#0d1410] via-[#16231a] to-[#203025] border border-[#A67C00]/30 shadow-[#101713]/30' : 
+                               (tierName == 'GOLD' ? 'bg-gradient-to-r from-[#fdf6e6] via-[#ebd090] to-[#d4af5e] border border-[#A67C00]/40' : 
+                               (tierName == 'SILVER' ? 'bg-gradient-to-r from-[#ffffff] via-[#e4e9f0] to-[#c2cddb] border border-[#8FA1B3]/40' : 
+                               'bg-gradient-to-r from-[#ffffff] via-[#f7f5f0] to-[#eae4d8] border border-hoanien-text/10'))}">
+                <!-- Subtle noise overlay for Diamond/Platinum/Gold to look more premium -->
+                <div th:if="${tierName == 'DIAMOND' || tierName == 'PLATINUM' || tierName == 'GOLD'}" class="absolute inset-0 opacity-[0.03] pointer-events-none" style="background-image: url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.65%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E');"></div>
+                
+                <div class="flex flex-col md:flex-row items-center md:items-start gap-6 text-center md:text-left relative z-10">
                     <div class="relative group/avatar cursor-pointer flex-shrink-0">
                         <div
-                            class="w-24 h-24 bg-hoanien-text text-hoanien-bg rounded-full flex items-center justify-center text-4xl font-serif overflow-hidden shadow-md border-2 border-transparent group-hover/avatar:border-hoanien-text/30 transition-all">
+                            class="avatar-circle w-24 h-24 bg-hoanien-text text-hoanien-bg rounded-full flex items-center justify-center text-4xl font-serif overflow-hidden shadow-md border-2 border-transparent group-hover/avatar:border-hoanien-text/30 transition-all">
                             <img th:if="${customer != null and customer.avatarUrl != null}"
                                 th:src="${customer.avatarUrl}" alt="Avatar" class="w-full h-full object-cover" />
                             <span th:unless="${customer != null and customer.avatarUrl != null}"
@@ -160,7 +201,7 @@
                         <h2 class="font-serif text-3xl font-medium mb-2 text-hoanien-text/90"
                             th:text="${customer != null and customer.fullName != null ? customer.fullName : 'Guest Name'}">Guest Name</h2>
                         <button type="button" onclick="openTierModal()"
-                            class="inline-flex items-center gap-2 mt-1 px-4 py-1.5 rounded-full border border-hoanien-text/20 bg-gradient-to-r from-hoanien-text/5 to-transparent shadow-inner hover:bg-hoanien-text/10 transition-colors cursor-pointer group/badge">
+                            class="badge-wrapper inline-flex items-center gap-2 mt-1 px-4 py-1.5 rounded-full border border-hoanien-text/20 bg-gradient-to-r from-hoanien-text/5 to-transparent shadow-inner hover:bg-hoanien-text/10 transition-colors cursor-pointer group/badge">
                             <span
                                 class="material-symbols-outlined text-[14px] text-[#A67C00] group-hover/badge:scale-110 transition-transform">workspace_premium</span>
                             <span
@@ -171,25 +212,25 @@
                         </button>
                     </div>
                 </div>
-                <div class="bg-gradient-to-br from-white to-gray-50 border border-hoanien-text/10 rounded-2xl p-6 min-w-[220px] text-center shadow-md relative overflow-hidden group cursor-default"
+                <div class="loyalty-box bg-gradient-to-br from-white to-gray-50 border border-hoanien-text/10 rounded-2xl p-6 min-w-[220px] text-center shadow-md relative overflow-hidden group cursor-default z-10"
                     th:with="pts=${loyaltyPoints}, percent=${progressPercent}">
 
                     <div class="absolute left-0 bottom-0 top-0 bg-hoanien-text/10 w-0 transition-all duration-1000 ease-out z-0 group-hover:!w-[var(--target-width)]"
                         th:style="|--target-width: ${percent}%;|"></div>
 
                     <span
-                        class="block opacity-60 text-[10px] font-bold uppercase tracking-[0.25em] mb-3 relative z-10 transition-transform duration-500 group-hover:-translate-y-1">Điểm
+                        class="point-label block opacity-60 text-[10px] font-bold uppercase tracking-[0.25em] mb-3 relative z-10 transition-transform duration-500 group-hover:-translate-y-1">Điểm
                         Loyalty</span>
 
                     <div
                         class="flex items-center justify-center gap-2 relative z-10 transition-transform duration-500 group-hover:-translate-y-1">
-                        <span class="text-5xl font-black text-hoanien-text tracking-tighter" th:text="${pts}">0</span>
-                        <span class="text-xs font-bold text-hoanien-text/50 uppercase mt-4 tracking-widest">Pts</span>
+                        <span class="point-value text-5xl font-black text-hoanien-text tracking-tighter" th:text="${pts}">0</span>
+                        <span class="point-unit text-xs font-bold text-hoanien-text/50 uppercase mt-4 tracking-widest">Pts</span>
                     </div>
 
                     <div
                         class="absolute inset-x-0 bottom-2 text-center opacity-0 group-hover:opacity-100 transition-all duration-700 delay-100 z-10 translate-y-4 group-hover:translate-y-0">
-                        <span class="text-[9px] font-bold text-hoanien-text uppercase tracking-widest opacity-80"
+                        <span class="next-tier-info text-[9px] font-bold text-hoanien-text uppercase tracking-widest opacity-80"
                             th:text="${nextTierInfo}">Next
                             tier info</span>
                     </div>

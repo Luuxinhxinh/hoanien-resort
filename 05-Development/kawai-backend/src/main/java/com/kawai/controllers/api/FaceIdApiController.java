@@ -113,6 +113,9 @@ public class FaceIdApiController {
         }
     }
 
+    @Autowired
+    private com.cloudinary.Cloudinary cloudinary;
+
     /**
      * POST /api/faceid/enroll
      * Thu thập dữ liệu khuôn mặt (đăng ký) cho khách hàng (Customer hoặc Dependent)
@@ -131,16 +134,16 @@ public class FaceIdApiController {
             String savedImageUrl = null;
             if (base64Image != null && base64Image.contains(",")) {
                 try {
-                    String base64Data = base64Image.split(",")[1];
-                    byte[] imageBytes = java.util.Base64.getDecoder().decode(base64Data);
-                    String dirPath = com.kawai.utils.UploadPathResolver.resolvePath("src/main/resources/static/uploads/faces/");
-                    java.io.File dir = new java.io.File(dirPath);
-                    if (!dir.exists()) dir.mkdirs();
-                    String uniqueName = "face_" + System.currentTimeMillis() + ".jpg";
-                    java.nio.file.Files.write(java.nio.file.Paths.get(dirPath + uniqueName), imageBytes);
-                    savedImageUrl = "/uploads/faces/" + uniqueName;
+                    // Upload trực tiếp chuỗi Data URI (Base64) lên Cloudinary (SDK hỗ trợ phân tích tự động)
+                    Map<String, Object> uploadResult = cloudinary.uploader().upload(base64Image, 
+                            com.cloudinary.utils.ObjectUtils.asMap(
+                                    "folder", "kawai_faces",
+                                    "public_id", "face_" + System.currentTimeMillis()
+                            ));
+                    savedImageUrl = uploadResult.get("secure_url").toString();
                 } catch (Exception ex) {
-                    System.out.println("Could not save face image: " + ex.getMessage());
+                    System.err.println("Lỗi nghiêm trọng khi upload FaceID lên Cloudinary:");
+                    ex.printStackTrace();
                 }
             }
 
@@ -248,20 +251,32 @@ public class FaceIdApiController {
 
             for (TourAttendee attendee : attendees) {
                 String name = null;
+                String dbFaceUrl = null;
+                
                 if (attendee.getCustomer() != null) {
                     name = attendee.getCustomer().getFullName();
+                    dbFaceUrl = attendee.getCustomer().getFaceImgUrl();
                 } else if (attendee.getDependent() != null) {
                     name = attendee.getDependent().getDependentName();
+                    dbFaceUrl = attendee.getDependent().getFaceImgUrl();
                 }
+                
                 if (name != null) {
+                    // Ưu tiên 1: Ảnh fix cứng cho dữ liệu demo (Nguyễn Xuân Lưu, Ngọc Thị)
                     String imageUrl = mapNameToImageUrl(name);
+                    
+                    // Ưu tiên 2: Ảnh thật chụp từ quầy Lễ tân (nếu không có ảnh fix cứng)
+                    if (imageUrl == null && dbFaceUrl != null && !dbFaceUrl.isBlank()) {
+                        imageUrl = dbFaceUrl;
+                    }
+                    
                     if (imageUrl != null) {
                         refs.add(Map.of("name", name, "imageUrl", imageUrl));
                     }
                 }
             }
 
-            // Fallback nếu DB trống - dùng ảnh luuham.jpg và lgok.jpg cho demo
+            // Fallback nếu danh sách trống - đẩy thủ công 2 ảnh demo vào
             if (refs.isEmpty()) {
                 refs.add(Map.of("name", "Nguyễn Xuân Lưu", "imageUrl", "/AnhTour/luuham.jpg"));
                 refs.add(Map.of("name", "Ngọc Thị", "imageUrl", "/AnhTour/lgok.jpg"));

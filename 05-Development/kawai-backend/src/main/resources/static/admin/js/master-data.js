@@ -130,10 +130,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // UX: Bấm vào bất kỳ đâu trên dòng
     // - Role Management: click thẳng vào row → mở modal chỉnh sửa (không cần nhấn nút)
-    // - Các tab khác: click row → toggle chọn (bulk action)
+    // - Các tab khác hỗ trợ bulk delete: click row → toggle chọn (bulk action)
     document.querySelectorAll("tbody tr[data-id]").forEach(tr => {
-        tr.style.cursor = 'pointer';
-        tr.style.transition = 'background-color 0.2s ease';
+        if (activeTab === 'Role Management' || allowedBulkTabs.includes(activeTab)) {
+            tr.style.cursor = 'pointer';
+            tr.style.transition = 'background-color 0.2s ease';
+        }
+
         tr.addEventListener("click", (e) => {
             // Không trigger nếu bấm vào button, input hoặc thẻ a
             if (e.target.closest('button') || e.target.closest('a') || e.target.tagName === 'INPUT') return;
@@ -144,6 +147,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (rowId) openEditModal(rowId);
                 return;
             }
+
+            // Nếu tab không nằm trong danh sách hỗ trợ bulk, bỏ qua không có hiệu ứng chọn
+            if (!allowedBulkTabs.includes(activeTab)) return;
 
             const isSelected = tr.classList.toggle('row-selected');
             if (isSelected) {

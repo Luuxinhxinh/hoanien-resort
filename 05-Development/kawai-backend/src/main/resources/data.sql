@@ -50,7 +50,7 @@ INSERT INTO Employees (employee_id, account_id, full_name, gender, cccd, phone, 
 (5, 13, 'Nguyễn Ngọc', 'Nam', '001234567894', '0912000005', 'guide@hoanien.vn', 8000000),
 
 (6, 14, 'Ngọc Lan', 'Nữ', '001234567895', '0912000006', 'guide2@hoanien.vn', 8500000),
-(7, 15, 'Hoàng Nam', 'Nam', '001234567896', '0912000007', 'guide3@hoanien.vn', 8500000),
+(7, 15, 'Hoàng Nam', 'Nam', '001234567896', '0912000007', 'luu14102005@gmail.com', 8500000),
 (8, 16, 'Lê Văn Tám', 'Nam', '001234567897', '0912000008', 'lvtam@hoanien.vn', 7000000),
 (9, 17, 'Nguyễn Thị Hoa', 'Nữ', '001234567898', '0912000009', 'nthoa@hoanien.vn', 7000000),
 
@@ -69,24 +69,24 @@ INSERT INTO membership_tiers (tier_id, tier_name, points_from, points_to, credit
 -- ── 4. Customers (15 rows) ───────────────────────────────────
 INSERT INTO Customers (customer_id, account_id, full_name, gender, cccd_passport_encrypted, phone, email, loyalty_points, membership_tier_id) VALUES 
 
-(1, 5, 'Nguyễn Xuân Lưu', 'Nam', 'CCCD_101', '090101', 'nam101@test.com', 100, 1),
-(2, 6, 'Ngọc Thị', 'Nam', 'CCCD_204', '090204', 'an204@test.com', 200, 2),
-(3, 7, 'Phạm Tuấn', 'Nam', 'CCCD_308', '090308', 'tuan308@test.com', 500, 3),
-(4, 8, 'Trần Thị Bích', 'Nữ', 'CCCD_104', '090104', 'bich104@test.com', 50, 1),
-(5, 9, 'Ngọc Thị', 'Nữ', 'CCCD_106', '090106', 'quang106@test.com', 0, 1),
-(6, 10, 'Đỗ Mỹ Linh', 'Nữ', 'CCCD_207', '090207', 'linh207@test.com', 150, 2),
+(1, 5, 'Nguyễn Xuân Lưu', 'Nam', 'w3bBnx1QkqmC6TsRijDTyQ==', '0900000101', 'luu14102005@gmail.com', 100, 1),
+(2, 6, 'Ngọc Thị', 'Nam', 'EVfujNqVKXtMAe5+YOnQug==', '0900000204', 'an204@test.com', 200, 2),
+(3, 7, 'Phạm Tuấn', 'Nam', '9/Q+y3ZbaeA5FII8xIuL7Q==', '0900000308', 'tuan308@test.com', 500, 3),
+(4, 8, 'Trần Thị Bích', 'Nữ', 'M/MlYxn9cKfE7aIurv4RyQ==', '0900000104', 'bich104@test.com', 50, 1),
+(5, 9, 'Ngọc Thị', 'Nữ', 'aSFMtcXFScUI9tMJpcg8Rw==', '0900000106', 'quang106@test.com', 0, 1),
+(6, 10, 'Đỗ Mỹ Linh', 'Nữ', 'm2I9IZODG7gQw4TsTgg2CQ==', '0900000207', 'linh207@test.com', 150, 2),
 
-(7, 11, 'Hoàng Anh', 'Nam', 'CCCD_210', '090210', 'anh210@test.com', 300, 3),
-(8, 12, 'Vũ Hùng', 'Nam', 'CCCD_311', '090311', 'hung311@test.com', 800, 4),
-(9, NULL, 'Lưu Đình Đức', 'Nam', 'CCCD_DEMO1', '0909990001', 'duc@test.com', 0, 1),
-(10, NULL, 'Nguyễn Minh Đức', 'Nam', 'CCCD_DEMO2', '0909990002', 'duc2@test.com', 0, 1),
-(11, NULL, 'Trần Thị Mai', 'Nữ', 'CCCD_DEMO3', '0909990003', 'mai@test.com', 0, 1),
+(7, 11, 'Hoàng Anh', 'Nam', '+DcrwqgOs34v6la2vB57Qg==', '0900000210', 'anh210@test.com', 300, 3),
+(8, 12, 'Vũ Hùng', 'Nam', 'z3cHOvEWjSWhly6LTkb3mA==', '0900000311', 'hung311@test.com', 800, 4),
+(9, NULL, 'Lưu Đình Đức', 'Nam', 'YTZ6KpDQsEJPEHfwR+3vNw==', '0909990001', 'duc@test.com', 0, 1),
+(10, NULL, 'Nguyễn Minh Đức', 'Nam', 'L+rfuZSEQrLxAyYmz4xp9Q==', '0909990002', 'duc2@test.com', 0, 1),
+(11, NULL, 'Trần Thị Mai', 'Nữ', 'Rdq+O8/+wOLP5PTwDytFRQ==', '0909990003', 'mai@test.com', 0, 1),
 
-(12, NULL, 'Phạm Hùng Anh', 'Nam', 'CCCD_DEMO4', '0909990004', 'phanh@test.com', 0, 1),
+(12, NULL, 'Phạm Hùng Anh', 'Nam', 'AhHxE7tp68ehbFA5NT7Hvg==', '0909990004', 'phanh@test.com', 0, 1),
 
-(13, NULL, 'Nguyễn Thanh Sơn', 'Nam', 'CCCD_DEMO5', '0909990005', 'ntson@test.com', 0, 1),
-(14, NULL, 'Vũ Thị Thảo', 'Nữ', 'CCCD_DEMO6', '0909990006', 'vtthao@test.com', 0, 1),
-(15, NULL, 'Đoàn Minh Khang', 'Nam', 'CCCD_DEMO7', '0909990007', 'dmkhang@test.com', 0, 1);
+(13, NULL, 'Nguyễn Thanh Sơn', 'Nam', 'dWZuUAfHthTI8+2iM0V06g==', '0909990005', 'ntson@test.com', 0, 1),
+(14, NULL, 'Vũ Thị Thảo', 'Nữ', 'W2E4Zu7gUvOwLsWbO5TkUA==', '0909990006', 'vtthao@test.com', 0, 1),
+(15, NULL, 'Đoàn Minh Khang', 'Nam', 'z56ecl9PpUvWv6uTk1OMcQ==', '0909990007', 'dmkhang@test.com', 0, 1);
 
 -- ── 5. Dependents (10 rows) ──────────────────────────────────
 INSERT INTO Dependents (dependent_id, customer_id, dependent_name, birth_date, gender, cccd_passport_encrypted) VALUES 
@@ -832,9 +832,9 @@ INSERT IGNORE INTO Accounts (account_id, username, password_hash, is_active, rol
 
 -- ── 43. Test Customers liên kết Account ──────────────────────
 INSERT IGNORE INTO Customers (customer_id, account_id, full_name, gender, cccd_passport_encrypted, phone, email, loyalty_points, membership_tier) VALUES
-(16, 21, 'Nguyễn Minh Test', 'Nam', 'CCCD_TEST01', '0911000001', 'testguest1@test.com', 50, 'Regular'),
-(17, 22, 'Trần Thị Test', 'Nữ', 'CCCD_TEST02', '0911000002', 'testguest2@test.com', 100, 'Silver'),
-(18, 23, 'Lê Văn Test', 'Nam', 'CCCD_TEST03', '0911000003', 'testguest3@test.com', 200, 'Gold');
+(16, 21, 'Nguyễn Minh Test', 'Nam', 'YTZ6KpDQsEJPEHfwR+3vNw==', '0911000001', 'testguest1@test.com', 50, 'Regular'),
+(17, 22, 'Trần Thị Test', 'Nữ', 'L+rfuZSEQrLxAyYmz4xp9Q==', '0911000002', 'testguest2@test.com', 100, 'Silver'),
+(18, 23, 'Lê Văn Test', 'Nam', 'Rdq+O8/+wOLP5PTwDytFRQ==', '0911000003', 'testguest3@test.com', 200, 'Gold');
 
 -- ── 44. Test Bookings (Confirmed + Checked_In) ──────────────
 INSERT IGNORE INTO Bookings (booking_id, customer_id, booking_date, total_price, booking_status, booking_source, applied_promotion_id, version) VALUES
@@ -1139,8 +1139,8 @@ INSERT INTO Hotel_Operations (task_id, room_id, staff_id, supervisor_id, operati
 
 -- 2. Thêm các yêu cầu hoàn tiền (Refund Requests)
 INSERT INTO Refund_Requests (id, order_id, room_booking_id, tour_booking_id, bank_name, account_number, account_name, phone_number, amount, status, manager_note, evidence_image_url, created_at, completed_at) VALUES
-(1, NULL, 15, NULL, 'Vietcombank', '10129384829', 'NGUYEN XUAN LOC', '090101', 1000000.00, 'Pending', NULL, NULL, CURRENT_TIMESTAMP, NULL),
-(2, NULL, 14, NULL, 'Techcombank', '19033482938', 'TRAN THI BICH', '090104', 2500000.00, 'COMPLETED', 'Đã chuyển khoản hoàn tiền cọc qua ứng dụng ngân hàng', 'https://images.unsplash.com/photo-1554415707-6e8cfc93fe23?w=500', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+(1, NULL, 15, NULL, 'Vietcombank', '10129384829', 'NGUYEN XUAN LOC', '0900000101', 1000000.00, 'Pending', NULL, NULL, CURRENT_TIMESTAMP, NULL),
+(2, NULL, 14, NULL, 'Techcombank', '19033482938', 'TRAN THI BICH', '0900000104', 2500000.00, 'COMPLETED', 'Đã chuyển khoản hoàn tiền cọc qua ứng dụng ngân hàng', 'https://images.unsplash.com/photo-1554415707-6e8cfc93fe23?w=500', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 INSERT INTO Room_Booking_Details (detail_id, room_booking_id, category_id, room_id, room_charge, detail_status, bed_preference, special_requests, is_charge_to_room_allowed, sub_credit_limit, billing_routing_strategy, number_of_adults, number_of_children) VALUES
 (1031, 103, 8, NULL, 4500000, 'Pending', 'KING_SIZE', 'Gần thang máy', TRUE, 1000000, 'BILL_TO_LEADER', 2, 1),
@@ -1205,16 +1205,16 @@ INSERT IGNORE INTO Accounts (account_id, username, password_hash, is_active, rol
 (610, 'customer610', '/oLodhs4wqBO61AhyuE4dWtSJDJcOH7D2ii5Vrgq0bG', TRUE, 10, CURRENT_TIMESTAMP);
 
 INSERT IGNORE INTO Customers (customer_id, account_id, full_name, email, phone, gender, cccd_passport_encrypted, loyalty_points, membership_tier_id) VALUES
-(601, 601, 'Khách Hàng 601', 'customer601@example.com', '0909000601', 'Nam', 'CCCD601', 100, 1),
-(602, 602, 'Khách Hàng 602', 'customer602@example.com', '0909000602', 'Nam', 'CCCD602', 100, 1),
-(603, 603, 'Khách Hàng 603', 'customer603@example.com', '0909000603', 'Nam', 'CCCD603', 100, 1),
-(604, 604, 'Khách Hàng 604', 'customer604@example.com', '0909000604', 'Nam', 'CCCD604', 100, 1),
-(605, 605, 'Khách Hàng 605', 'customer605@example.com', '0909000605', 'Nam', 'CCCD605', 100, 1),
-(606, 606, 'Khách Hàng 606', 'customer606@example.com', '0909000606', 'Nam', 'CCCD606', 100, 1),
-(607, 607, 'Khách Hàng 607', 'customer607@example.com', '0909000607', 'Nam', 'CCCD607', 100, 1),
-(608, 608, 'Khách Hàng 608', 'customer608@example.com', '0909000608', 'Nam', 'CCCD608', 100, 1),
-(609, 609, 'Khách Hàng 609', 'customer609@example.com', '0909000609', 'Nam', 'CCCD609', 100, 1),
-(610, 610, 'Khách Hàng 610', 'customer610@example.com', '0909000610', 'Nam', 'CCCD610', 100, 1);
+(601, 601, 'Khách Hàng 601', 'customer601@example.com', '0909000601', 'Nam', 'YE+76wwcBJNg816HI3M2hA==', 100, 1),
+(602, 602, 'Khách Hàng 602', 'customer602@example.com', '0909000602', 'Nam', 't2B5hvGiyaTOn07btoMyrA==', 100, 1),
+(603, 603, 'Khách Hàng 603', 'customer603@example.com', '0909000603', 'Nam', 'rAYtDfmnZU/Fen53Ez7mLQ==', 100, 1),
+(604, 604, 'Khách Hàng 604', 'customer604@example.com', '0909000604', 'Nam', 'Yqb+bfrRgv9+LE7KWwbbng==', 100, 1),
+(605, 605, 'Khách Hàng 605', 'customer605@example.com', '0909000605', 'Nam', 'ASm7XtMcAHbOJbXHwhzKQw==', 100, 1),
+(606, 606, 'Khách Hàng 606', 'customer606@example.com', '0909000606', 'Nam', 'gsHmioJ2WTPXYI/R4I4dSw==', 100, 1),
+(607, 607, 'Khách Hàng 607', 'customer607@example.com', '0909000607', 'Nam', 'pPU4SxaRA/k+2Q+EH0mgFg==', 100, 1),
+(608, 608, 'Khách Hàng 608', 'customer608@example.com', '0909000608', 'Nam', 'WQdMV7CrIrZMKQhjKqtr6w==', 100, 1),
+(609, 609, 'Khách Hàng 609', 'customer609@example.com', '0909000609', 'Nam', 'oAuptPfLFkwE+oQuCCChFA==', 100, 1),
+(610, 610, 'Khách Hàng 610', 'customer610@example.com', '0909000610', 'Nam', 'vXCvrWxAmf8fMo6LSiqetw==', 100, 1);
 
 INSERT IGNORE INTO Dependents (dependent_id, customer_id, dependent_name, birth_date, gender) VALUES
 (601, 601, 'Người Thân 601', '2010-01-01', 'Nữ'),

@@ -1181,12 +1181,15 @@ async function captureFace() {
             const distance = faceapi.euclideanDistance(descriptor, existingVector);
 
             // Threshold = 0.5 for faceapi
+            // TẠM TẮT ĐỂ DEMO 1 NGƯỜI QUÉT NHIỀU MẶT:
+            /*
             if (distance < 0.5) {
                 showToast("Khuôn mặt này đã được quét cho một người khác trong đoàn! Vui lòng quét khuôn mặt khác.");
                 overlay.style.display = 'none';
                 captureBtn.disabled = false;
                 return;
             }
+            */
         }
 
         // Capture face image

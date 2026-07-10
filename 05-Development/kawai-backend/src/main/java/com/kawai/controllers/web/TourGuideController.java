@@ -714,7 +714,7 @@ public class TourGuideController {
     }
 
     private String getGuideForSchedule(com.kawai.models.TourSchedule sched) {
-        if (sched == null) return "NguynNgoc";
+        if (sched == null) return "Nguyễn Ngọc";
         if (sched.getDepartureDate() == null) {
             return getPreferredGuide(sched);
         }
@@ -733,7 +733,7 @@ public class TourGuideController {
         });
         
         java.util.Set<String> takenGuides = new java.util.HashSet<>();
-        java.util.List<String> allGuides = java.util.Arrays.asList("NguynNgoc", "Ngọc Lan", "Hoàng Nam");
+        java.util.List<String> allGuides = java.util.Arrays.asList("Nguyễn Ngọc", "Ngọc Lan", "Hoàng Nam");
         
         String assignedGuide = null;
         
@@ -767,12 +767,12 @@ public class TourGuideController {
     }
 
     private String getPreferredGuide(com.kawai.models.TourSchedule sched) {
-        if (sched == null) return "NguynNgoc";
+        if (sched == null) return "Nguyễn Ngọc";
         if (scheduleHasSpecialCustomer(sched)) {
-            return "NguynNgoc";
+            return "Nguyễn Ngọc";
         }
         if (sched.getId() != null && sched.getId() == 5L) {
-            return "NguynNgoc";
+            return "Nguyễn Ngọc";
         }
         if (sched.getTour() != null) {
             String tn = sched.getTour().getTourName();
@@ -784,7 +784,7 @@ public class TourGuideController {
                 return "Ngọc Lan";
             }
         }
-        return "NguynNgoc";
+        return "Nguyễn Ngọc";
     }
 
     private boolean scheduleHasSpecialCustomer(com.kawai.models.TourSchedule sched) {

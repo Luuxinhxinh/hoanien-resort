@@ -74,6 +74,7 @@ public class DependentServiceImpl implements DependentService {
     private final RoomGuestRepository roomGuestRepository;
     private final RoomSurchargeRepository roomSurchargeRepository;
     private final com.kawai.services.interfaces.CheckinService checkinService;
+    private final com.cloudinary.Cloudinary cloudinary;
 
     public DependentServiceImpl(
             DependentRepository dependentRepository,
@@ -82,7 +83,8 @@ public class DependentServiceImpl implements DependentService {
             RoomBookingDetailRepository roomBookingDetailRepository,
             RoomGuestRepository roomGuestRepository,
             RoomSurchargeRepository roomSurchargeRepository,
-            @Lazy com.kawai.services.interfaces.CheckinService checkinService) {
+            @Lazy com.kawai.services.interfaces.CheckinService checkinService,
+            com.cloudinary.Cloudinary cloudinary) {
         this.dependentRepository = dependentRepository;
         this.bookingRepository = bookingRepository;
         this.encryptionService = encryptionService;
@@ -90,6 +92,7 @@ public class DependentServiceImpl implements DependentService {
         this.roomGuestRepository = roomGuestRepository;
         this.roomSurchargeRepository = roomSurchargeRepository;
         this.checkinService = checkinService;
+        this.cloudinary = cloudinary;
     }
 
     /**
@@ -293,21 +296,17 @@ public class DependentServiceImpl implements DependentService {
         if (faceImageBase64 == null || faceImageBase64.isEmpty())
             return;
         try {
-            String[] parts = faceImageBase64.split(",");
-            String imgData = parts.length > 1 ? parts[1] : parts[0];
-            byte[] imgBytes = java.util.Base64.getDecoder().decode(imgData);
-
-            String fileName = "dep_" + saved.getId() + "_" + System.currentTimeMillis() + ".jpg";
-            java.nio.file.Path uploadPath = java.nio.file.Paths.get(FACE_UPLOAD_DIR);
-            if (!java.nio.file.Files.exists(uploadPath)) {
-                java.nio.file.Files.createDirectories(uploadPath);
-            }
-            java.nio.file.Files.write(uploadPath.resolve(fileName), imgBytes);
-
-            saved.setFaceImgUrl("/uploads/faces/" + fileName);
+            // Upload trực tiếp chuỗi Data URI (Base64) lên Cloudinary
+            java.util.Map<String, Object> uploadResult = cloudinary.uploader().upload(faceImageBase64, 
+                    com.cloudinary.utils.ObjectUtils.asMap(
+                            "folder", "kawai_faces",
+                            "public_id", "dep_" + saved.getId() + "_" + System.currentTimeMillis()
+                    ));
+            String publicUrl = uploadResult.get("secure_url").toString();
+            saved.setFaceImgUrl(publicUrl);
             dependentRepository.save(saved);
         } catch (Exception e) {
-            log.error("[UC16] Failed to save FaceID image for dependent {}: {}", saved.getId(), e.getMessage());
+            log.error("Failed to save FaceID image to Cloudinary for dependent {}", saved.getId(), e);
         }
     }
 
