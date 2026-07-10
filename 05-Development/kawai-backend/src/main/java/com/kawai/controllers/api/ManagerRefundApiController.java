@@ -27,6 +27,9 @@ public class ManagerRefundApiController {
     @Autowired
     private EmailService emailService;
 
+    @Autowired
+    private com.kawai.services.FileUploadService fileUploadService;
+
     @PostMapping("/{id}/complete")
     public ResponseEntity<?> completeRefund(@PathVariable Long id, @RequestParam("billImage") MultipartFile file) {
         try {
@@ -40,23 +43,11 @@ public class ManagerRefundApiController {
                 return ResponseEntity.badRequest().body(Map.of("message", "Yêu cầu này đã được xử lý hoàn tiền trước đó."));
             }
 
-            // Xử lý lưu file
-            String uploadDir = com.kawai.utils.UploadPathResolver.resolvePath("uploads/refund-bills/");
-            File dir = new File(uploadDir);
-            if (!dir.exists()) {
-                dir.mkdirs();
-            }
-
-            String originalFilename = file.getOriginalFilename();
-            String extension = originalFilename != null && originalFilename.contains(".") 
-                                ? originalFilename.substring(originalFilename.lastIndexOf(".")) 
-                                : ".jpg";
-            String newFilename = "bill_refund_" + id + "_" + UUID.randomUUID().toString() + extension;
-            File destFile = new File(dir.getAbsolutePath() + File.separator + newFilename);
-            file.transferTo(destFile);
+            // Upload lên Cloudinary
+            String secureUrl = fileUploadService.uploadFile(file, "hoanien_refund_bills");
 
             // Cập nhật CSDL
-            req.setEvidenceImageUrl("/uploads/refund-bills/" + newFilename);
+            req.setEvidenceImageUrl(secureUrl);
             req.setStatus("COMPLETED");
             req.setCompletedAt(LocalDateTime.now());
             refundRequestRepository.save(req);
@@ -86,7 +77,7 @@ public class ManagerRefundApiController {
 
             if (customerEmail != null && !customerEmail.isBlank() && customer != null) {
                 try {
-                    emailService.sendRefundSuccessEmail(req, customer, destFile.getAbsolutePath());
+                    emailService.sendRefundSuccessEmail(req, customer, null);
                 } catch (Exception e) {
                     System.err.println("Lỗi gửi email hoàn tiền: " + e.getMessage());
                 }

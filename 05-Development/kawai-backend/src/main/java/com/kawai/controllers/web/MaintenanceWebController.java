@@ -23,7 +23,7 @@ import java.util.Locale;
 
 @Controller
 @RequestMapping("/maintenance")
-@PreAuthorize("hasAnyAuthority('OP_MAINTENANCE','ROLE_ADMIN','ROLE_MAINTENANCE','ROLE_MAINTAINER','MAINTENANCE')")
+@PreAuthorize("hasAnyAuthority('OP_MAINTENANCE','ROLE_ADMIN','ROLE_MANAGER')")
 public class MaintenanceWebController {
     private final HousekeepingService housekeepingService;
     private final MaintenanceRequestRepository maintenanceRequestRepo;

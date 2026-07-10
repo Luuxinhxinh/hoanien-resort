@@ -45,13 +45,13 @@ window.showToast = function(message, type = 'success') {
         }, 50);
     });
 
-    // Auto dismiss after 4 seconds
+    // Auto dismiss after 2 seconds (faster, just enough to read)
     setTimeout(() => {
         toast.classList.add('opacity-0', 'translate-y-[-20px]');
         setTimeout(() => {
             toast.remove();
         }, 300);
-    }, 4000);
+    }, 2000);
 };
 
 // ── Formatting Utilities ──────────────────────────────────────────────────────

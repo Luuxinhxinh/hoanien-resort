@@ -158,9 +158,11 @@ public class TourBookingServiceImpl implements TourBookingService {
                                 boolean notExpired = promo.getValidTo() == null
                                                 || !promo.getValidTo().isBefore(LocalDate.now());
                                 if (isActive && notExpired) {
-                                        long uses = bookingRepository.countByCustomerIdAndPromoCode(customer.getId(), promoCode);
+                                        long uses = bookingRepository.countByCustomerIdAndPromoCode(customer.getId(),
+                                                        promoCode);
                                         if (uses >= 1) {
-                                                throw new IllegalArgumentException("Khách hàng đã vượt quá số lần sử dụng mã giảm giá này (1 lần) [ERR_PROMO_USAGE_EXCEEDED]");
+                                                throw new IllegalArgumentException(
+                                                                "Khách hàng đã vượt quá số lần sử dụng mã giảm giá này (1 lần) [ERR_PROMO_USAGE_EXCEEDED]");
                                         }
                                         BigDecimal discountValue = promo.getDiscountValue();
                                         boolean isFixed = "FIXED_AMOUNT".equalsIgnoreCase(promo.getDiscountType())
@@ -173,12 +175,13 @@ public class TourBookingServiceImpl implements TourBookingService {
                                                                 .divide(new BigDecimal("100"), 0,
                                                                                 java.math.RoundingMode.HALF_UP);
                                         }
-                                        if (discountAmount.compareTo(totalPrice) > 0) discountAmount = totalPrice;
+                                        if (discountAmount.compareTo(totalPrice) > 0)
+                                                discountAmount = totalPrice;
                                         totalPrice = totalPrice.subtract(discountAmount);
                                         promoDiscount = discountAmount;
                                         appliedPromotion = promo;
                                         LOG.info("Áp dụng mã giảm giá '{}' cho tour booking: giảm {} VND",
-                                                         promoCode, discountAmount);
+                                                        promoCode, discountAmount);
                                 } else {
                                         LOG.warn("Mã giảm giá '{}' không hợp lệ hoặc đã hết hạn", promoCode);
                                 }
@@ -202,12 +205,14 @@ public class TourBookingServiceImpl implements TourBookingService {
                 if (appliedPromotion != null) {
                         booking.setAppliedPromotion(appliedPromotion);
                 }
-                
+
                 if (request.getRoomBookingId() != null) {
-                    booking.setRoomBooking((RoomBooking) bookingRepository.findById(request.getRoomBookingId()).orElse(null));
+                        booking.setRoomBooking((RoomBooking) bookingRepository.findById(request.getRoomBookingId())
+                                        .orElse(null));
                 }
                 if (request.getRoomBookingDetailId() != null) {
-                    booking.setRoomBookingDetail(roomBookingDetailRepository.findById(request.getRoomBookingDetailId()).orElse(null));
+                        booking.setRoomBookingDetail(roomBookingDetailRepository
+                                        .findById(request.getRoomBookingDetailId()).orElse(null));
                 }
 
                 // Lưu thông tin chi tiết vào notes để email hiển thị
@@ -347,11 +352,24 @@ public class TourBookingServiceImpl implements TourBookingService {
                         // Check Folio Credit Limit
                         BigDecimal limit = detail.getSubCreditLimit() != null ? detail.getSubCreditLimit()
                                         : BigDecimal.ZERO;
-                        BigDecimal used = folioItemRepository.findByRoomBookingDetailId(detail.getId()).stream()
+                        java.util.List<FolioItem> folioItems = folioItemRepository.findByRoomBookingDetailId(detail.getId());
+                        // Chi tiêu thực (FolioItem DƯƠNG)
+                        BigDecimal charged = folioItems.stream()
+                                        .filter(fi -> !Boolean.TRUE.equals(fi.getIsSettledSeparately()))
                                         .map(FolioItem::getAmount)
+                                        .filter(a -> a != null && a.compareTo(BigDecimal.ZERO) > 0)
                                         .reduce(BigDecimal.ZERO, BigDecimal::add);
+                        // Đã nạp thêm hạn mức (không tính tiền cọc walk-in)
+                        BigDecimal creditTopUp = folioItems.stream()
+                                        .filter(fi -> !Boolean.TRUE.equals(fi.getIsSettledSeparately()))
+                                        .filter(fi -> fi.getDescription() != null && fi.getDescription().startsWith("Nạp tiền nâng hạn mức"))
+                                        .map(FolioItem::getAmount)
+                                        .filter(a -> a != null && a.compareTo(BigDecimal.ZERO) < 0)
+                                        .map(BigDecimal::abs)
+                                        .reduce(BigDecimal.ZERO, BigDecimal::add);
+                        BigDecimal available = limit.add(creditTopUp).subtract(charged);
 
-                        if (limit.subtract(used).compareTo(totalPrice) < 0) {
+                        if (available.compareTo(totalPrice) < 0) {
                                 throw new IllegalStateException(
                                                 "TOUR-LIMIT: Hạn mức chi tiêu của phòng không đủ để thanh toán tour. Vui lòng thanh toán bớt nợ cũ hoặc chọn hình thức TT Trực Tuyến.");
                         }
@@ -403,8 +421,6 @@ public class TourBookingServiceImpl implements TourBookingService {
                                 .orElseThrow(() -> new IllegalStateException("TOUR-002: Schedule not found"));
                 Employee employee = employeeRepository.findById(employeeId)
                                 .orElseThrow(() -> new IllegalStateException("TOUR-003: Employee not found"));
-
-
 
                 TourStaffAssignment assignment = new TourStaffAssignment();
                 assignment.setSchedule(schedule);

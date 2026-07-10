@@ -203,4 +203,55 @@ public class UserServiceImpl implements UserService {
 
         return customerRepository.save(customer);
     }
+
+    @Override
+    @Transactional
+    public void updateCustomPermissions(Long accountId, java.util.List<String> permissions) {
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new IllegalArgumentException("Account not found"));
+
+        Role currentRole = account.getRole();
+        if (currentRole == null) {
+            throw new IllegalArgumentException("Account has no role");
+        }
+
+        String customRoleName = "CUSTOM_ROLE_ACCOUNT_" + accountId;
+        String permissionsString = String.join(",", permissions);
+
+        // Check if the current role is already the custom role
+        if (currentRole.getRoleName().equals(customRoleName)) {
+            // Just update the permissions
+            currentRole.setPermissions(permissionsString);
+            roleRepository.save(currentRole);
+        } else {
+            // Need to create a new custom role or find existing one
+            Role customRole = roleRepository.findByRoleName(customRoleName).orElse(null);
+            if (customRole == null) {
+                customRole = new Role();
+                customRole.setRoleName(customRoleName);
+                customRole.setDescription("Custom role for account " + accountId + " (Base: " + currentRole.getRoleName() + ")");
+            }
+            customRole.setPermissions(permissionsString);
+            customRole = roleRepository.save(customRole);
+            
+            account.setRole(customRole);
+            accountRepository.save(account);
+        }
+    }
+
+    @Override
+    public java.util.Optional<Role> findRoleByName(String roleName) {
+        return roleRepository.findByRoleName(roleName);
+    }
+
+    @Override
+    public Account saveAccount(Account account) {
+        return accountRepository.save(account);
+    }
+
+    @Override
+    @Transactional
+    public void deleteRole(Long roleId) {
+        roleRepository.deleteById(roleId);
+    }
 }

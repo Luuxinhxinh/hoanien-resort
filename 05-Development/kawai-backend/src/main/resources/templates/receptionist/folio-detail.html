@@ -1060,6 +1060,7 @@
             let splitTotal = 0;
             let originalTaxable = 0;
             let originalNonTaxable = 0;
+            window.folioNegatives = 0;
 
             results.forEach((data, index) => {
                 if (!data.success) return;
@@ -1068,6 +1069,7 @@
                 const allGroups = {};
                 let roomTaxable = 0;
                 let roomNonTaxable = 0;
+                let roomDeposited = 0;
 
                 items.forEach(item => {
                     const dep = item.sourceDepartment || 'OTHER';
@@ -1104,7 +1106,12 @@
                         if (typeof window.folioNegatives === 'undefined') {
                             window.folioNegatives = 0;
                         }
-                        window.folioNegatives += Math.abs(item.amount);
+                        
+                        // CHỈ tính tiền cọc Nâng hạn mức (tránh bị double-count tiền cọc Walk-in)
+                        if (item.description && item.description.toLowerCase().includes('nạp tiền nâng hạn mức')) {
+                            window.folioNegatives += Math.abs(item.amount);
+                            roomDeposited += Math.abs(item.amount);
+                        }
                     }
                 });
 
@@ -1202,7 +1209,8 @@
                     summary: {},
                     appliedPromoCode: null,
                     appliedPromoType: null,
-                    appliedPromoDiscount: 0
+                    appliedPromoDiscount: 0,
+                    roomDeposited: roomDeposited
                 };
                 for (const [dep, group] of Object.entries(allGroups)) {
                     roomSummaryMap[roomId].summary[dep] = group.items.reduce((sum, i) => sum + i.amount, 0);
@@ -1266,6 +1274,10 @@
             // Deposit from group API if available, else first result's deposit. (They all share same booking)
             globalPrePaidDeposit = bookingGroupData ? (bookingGroupData.prePaidDeposit || 0) : (results.length > 0 ? (results[0].prePaidDeposit || 0) : 0);
             globalOtherPayments = bookingGroupData ? (bookingGroupData.otherPayments || 0) : (results.length > 0 ? (results[0].otherPayments || 0) : 0);
+
+            if (typeof window.folioNegatives !== 'undefined' && window.folioNegatives > 0) {
+                globalOtherPayments += window.folioNegatives;
+            }
 
             if (globalPrePaidDeposit > 0) {
                 document.getElementById('row-deposit').style.display = 'flex';
@@ -1331,7 +1343,14 @@
                 html = '<div class="summary-row" style="justify-content:center; color:#95a5a6;">Không có mục nào</div>';
             }
 
-
+            if (roomInfo.roomDeposited > 0) {
+                html += `
+                    <div class="summary-row total-row" style="color: #2980b9; padding-top: 8px; border-top: 1px dashed #cbd5e1; margin-top: 8px;">
+                        <span>Đã thanh toán (Paid/Deposit)</span>
+                        <span>-${formatCurrency(roomInfo.roomDeposited)}</span>
+                    </div>
+                `;
+            }
 
             document.getElementById('roomBillDetails').innerHTML = html;
 
@@ -1588,7 +1607,7 @@
             const roomInfo = roomSummaryMap[roomId];
             if (!roomInfo) return;
 
-            let roomOutstanding = roomInfo.total - roomInfo.appliedPromoDiscount;
+            let roomOutstanding = roomInfo.total - roomInfo.appliedPromoDiscount - (roomInfo.roomDeposited || 0);
             if (roomOutstanding < 0) roomOutstanding = 0;
 
             document.getElementById('roomBillOutstandingAmount').innerText = formatCurrency(roomOutstanding);
@@ -1750,7 +1769,7 @@
             const desc = document.getElementById('mgrRequestDesc').value;
 
             if (!desc.trim()) {
-                alert('Vui lòng nhập lý do/mô tả chi tiết!');
+                alert('Please enter reason/description!');
                 return;
             }
 

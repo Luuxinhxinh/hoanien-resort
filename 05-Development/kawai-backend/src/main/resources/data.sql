@@ -5,12 +5,12 @@
 
 -- ── 1. Roles (10 rows) ───────────────────────────────────────
 INSERT INTO Roles (role_id, role_name, permissions) VALUES (1, 'ADMIN', 'MASTER_DATA,AUDIT_LOG,DASHBOARD,RECEPTION_WALKIN,RECEPTION_INHOUSE,RECEPTION_CHECKIN,RECEPTION_CHECKOUT,FNB,FNB_ORDER,FNB_TABLE,FNB_ROOM_SERVICE,FNB_REPORT,TOUR,HOUSEKEEPING,MAINTENANCE,NIGHT_AUDIT,ANALYTICS,REVIEWS,PROMOTIONS,CRM,WORKFLOW');
-INSERT INTO Roles (role_id, role_name, permissions) VALUES (2, 'RECEPTIONIST', 'DASHBOARD,RECEPTION_WALKIN,RECEPTION_INHOUSE,RECEPTION_CHECKIN,RECEPTION_CHECKOUT,NIGHT_AUDIT,CRM,REVIEWS');
-INSERT INTO Roles (role_id, role_name, permissions) VALUES (3, 'F&B KITCHEN', 'DASHBOARD,FNB,FNB_ORDER,FNB_TABLE,FNB_ROOM_SERVICE,FNB_REPORT');
+INSERT INTO Roles (role_id, role_name, permissions) VALUES (2, 'RECEPTIONIST', 'DASHBOARD,RECEPTION_WALKIN,RECEPTION_INHOUSE,RECEPTION_CHECKIN,RECEPTION_CHECKOUT');
+INSERT INTO Roles (role_id, role_name, permissions) VALUES (3, 'F&B KITCHEN', 'DASHBOARD,FNB,FNB_ORDER');
 INSERT INTO Roles (role_id, role_name, permissions) VALUES (4, 'F&B POS', 'DASHBOARD,FNB,FNB_ORDER,FNB_TABLE,FNB_ROOM_SERVICE,FNB_REPORT');
 INSERT INTO Roles (role_id, role_name, permissions) VALUES (5, 'HOUSEKEEPING', 'DASHBOARD,HOUSEKEEPING');
 INSERT INTO Roles (role_id, role_name, permissions) VALUES (6, 'MAINTAINER', 'DASHBOARD,MAINTENANCE');
-INSERT INTO Roles (role_id, role_name, permissions) VALUES (7, 'MANAGER', 'DASHBOARD,RECEPTION_WALKIN,RECEPTION_INHOUSE,RECEPTION_CHECKIN,RECEPTION_CHECKOUT,FNB,FNB_ORDER,FNB_TABLE,FNB_ROOM_SERVICE,FNB_REPORT,TOUR,HOUSEKEEPING,MAINTENANCE,NIGHT_AUDIT,ANALYTICS,REVIEWS,PROMOTIONS,CRM,WORKFLOW');
+INSERT INTO Roles (role_id, role_name, permissions) VALUES (7, 'MANAGER', 'DASHBOARD,ANALYTICS');
 INSERT INTO Roles (role_id, role_name, permissions) VALUES (8, 'TOURGUIDE', 'DASHBOARD,TOUR');
 INSERT INTO Roles (role_id, role_name, permissions) VALUES (9, 'CUSTOMER VIP', '');
 INSERT INTO Roles (role_id, role_name, permissions) VALUES (10, 'CUSTOMER NORMAL', '');
@@ -50,7 +50,7 @@ INSERT INTO Employees (employee_id, account_id, full_name, gender, cccd, phone, 
 (5, 13, 'Nguyễn Ngọc', 'Nam', '001234567894', '0912000005', 'guide@hoanien.vn', 8000000),
 
 (6, 14, 'Ngọc Lan', 'Nữ', '001234567895', '0912000006', 'guide2@hoanien.vn', 8500000),
-(7, 15, 'Hoàng Nam', 'Nam', '001234567896', '0912000007', 'guide3@hoanien.vn', 8500000),
+(7, 15, 'Hoàng Nam', 'Nam', '001234567896', '0912000007', 'luu14102005@gmail.com', 8500000),
 (8, 16, 'Lê Văn Tám', 'Nam', '001234567897', '0912000008', 'lvtam@hoanien.vn', 7000000),
 (9, 17, 'Nguyễn Thị Hoa', 'Nữ', '001234567898', '0912000009', 'nthoa@hoanien.vn', 7000000),
 
@@ -69,24 +69,24 @@ INSERT INTO membership_tiers (tier_id, tier_name, points_from, points_to, credit
 -- ── 4. Customers (15 rows) ───────────────────────────────────
 INSERT INTO Customers (customer_id, account_id, full_name, gender, cccd_passport_encrypted, phone, email, loyalty_points, membership_tier_id) VALUES 
 
-(1, 5, 'Nguyễn Xuân Lưu', 'Nam', 'CCCD_101', '090101', 'nam101@test.com', 100, 1),
-(2, 6, 'Ngọc Thị', 'Nam', 'CCCD_204', '090204', 'an204@test.com', 200, 2),
-(3, 7, 'Phạm Tuấn', 'Nam', 'CCCD_308', '090308', 'tuan308@test.com', 500, 3),
-(4, 8, 'Trần Thị Bích', 'Nữ', 'CCCD_104', '090104', 'bich104@test.com', 50, 1),
-(5, 9, 'Ngọc Thị', 'Nữ', 'CCCD_106', '090106', 'quang106@test.com', 0, 1),
-(6, 10, 'Đỗ Mỹ Linh', 'Nữ', 'CCCD_207', '090207', 'linh207@test.com', 150, 2),
+(1, 5, 'Nguyễn Xuân Lưu', 'Nam', 'w3bBnx1QkqmC6TsRijDTyQ==', '0900000101', 'luu14102005@gmail.com', 100, 1),
+(2, 6, 'Ngọc Thị', 'Nam', 'EVfujNqVKXtMAe5+YOnQug==', '0900000204', 'an204@test.com', 200, 2),
+(3, 7, 'Phạm Tuấn', 'Nam', '9/Q+y3ZbaeA5FII8xIuL7Q==', '0900000308', 'tuan308@test.com', 500, 3),
+(4, 8, 'Trần Thị Bích', 'Nữ', 'M/MlYxn9cKfE7aIurv4RyQ==', '0900000104', 'bich104@test.com', 50, 1),
+(5, 9, 'Ngọc Thị', 'Nữ', 'aSFMtcXFScUI9tMJpcg8Rw==', '0900000106', 'quang106@test.com', 0, 1),
+(6, 10, 'Đỗ Mỹ Linh', 'Nữ', 'm2I9IZODG7gQw4TsTgg2CQ==', '0900000207', 'linh207@test.com', 150, 2),
 
-(7, 11, 'Hoàng Anh', 'Nam', 'CCCD_210', '090210', 'anh210@test.com', 300, 3),
-(8, 12, 'Vũ Hùng', 'Nam', 'CCCD_311', '090311', 'hung311@test.com', 800, 4),
-(9, NULL, 'Lưu Đình Đức', 'Nam', 'CCCD_DEMO1', '0909990001', 'duc@test.com', 0, 1),
-(10, NULL, 'Nguyễn Minh Đức', 'Nam', 'CCCD_DEMO2', '0909990002', 'duc2@test.com', 0, 1),
-(11, NULL, 'Trần Thị Mai', 'Nữ', 'CCCD_DEMO3', '0909990003', 'mai@test.com', 0, 1),
+(7, 11, 'Hoàng Anh', 'Nam', '+DcrwqgOs34v6la2vB57Qg==', '0900000210', 'anh210@test.com', 300, 3),
+(8, 12, 'Vũ Hùng', 'Nam', 'z3cHOvEWjSWhly6LTkb3mA==', '0900000311', 'hung311@test.com', 800, 4),
+(9, NULL, 'Lưu Đình Đức', 'Nam', 'YTZ6KpDQsEJPEHfwR+3vNw==', '0909990001', 'duc@test.com', 0, 1),
+(10, NULL, 'Nguyễn Minh Đức', 'Nam', 'L+rfuZSEQrLxAyYmz4xp9Q==', '0909990002', 'duc2@test.com', 0, 1),
+(11, NULL, 'Trần Thị Mai', 'Nữ', 'Rdq+O8/+wOLP5PTwDytFRQ==', '0909990003', 'mai@test.com', 0, 1),
 
-(12, NULL, 'Phạm Hùng Anh', 'Nam', 'CCCD_DEMO4', '0909990004', 'phanh@test.com', 0, 1),
+(12, NULL, 'Phạm Hùng Anh', 'Nam', 'AhHxE7tp68ehbFA5NT7Hvg==', '0909990004', 'phanh@test.com', 0, 1),
 
-(13, NULL, 'Nguyễn Thanh Sơn', 'Nam', 'CCCD_DEMO5', '0909990005', 'ntson@test.com', 0, 1),
-(14, NULL, 'Vũ Thị Thảo', 'Nữ', 'CCCD_DEMO6', '0909990006', 'vtthao@test.com', 0, 1),
-(15, NULL, 'Đoàn Minh Khang', 'Nam', 'CCCD_DEMO7', '0909990007', 'dmkhang@test.com', 0, 1);
+(13, NULL, 'Nguyễn Thanh Sơn', 'Nam', 'dWZuUAfHthTI8+2iM0V06g==', '0909990005', 'ntson@test.com', 0, 1),
+(14, NULL, 'Vũ Thị Thảo', 'Nữ', 'W2E4Zu7gUvOwLsWbO5TkUA==', '0909990006', 'vtthao@test.com', 0, 1),
+(15, NULL, 'Đoàn Minh Khang', 'Nam', 'z56ecl9PpUvWv6uTk1OMcQ==', '0909990007', 'dmkhang@test.com', 0, 1);
 
 -- ── 5. Dependents (10 rows) ──────────────────────────────────
 INSERT INTO Dependents (dependent_id, customer_id, dependent_name, birth_date, gender, cccd_passport_encrypted) VALUES 
@@ -143,7 +143,7 @@ INSERT INTO Rooms (room_id, room_number, category_id, room_status, current_booki
 (2, '102', 1, 'Vacant_Dirty', NULL),
 (3, '103', 1, 'Maintenance', NULL),
 (4, '104', 1, 'Vacant_Dirty', NULL),
-(5, '105', 1, 'Maintenance', NULL),
+(5, '105', 1, 'Occupied', 3),
 (6, '106', 4, 'Vacant_Clean', NULL),
 (7, '107', 4, 'Vacant_Clean', NULL),
 (8, '108', 4, 'Vacant_Clean', NULL),
@@ -235,8 +235,8 @@ INSERT INTO Promotions (promo_id, promo_code, discount_type, discount_value, val
 -- ── 12. Bookings (20 rows) ───────────────────────────────────
 
 INSERT INTO Bookings (booking_id, customer_id, booking_date, total_price, booking_status, booking_source, applied_promotion_id, version) VALUES
-(1, 1, '2026-06-01', 5000000, 'Confirmed', 'Direct_Web', 1, 1),
-(2, 2, '2026-06-02', 7000000, 'Confirmed', 'Direct_Web', NULL, 1),
+(1, 1, '2026-06-01', 5000000, 'Checked_In', 'Direct_Web', 1, 1),
+(2, 2, '2026-06-02', 7000000, 'Checked_Out', 'Direct_Web', NULL, 1),
 (3, 3, '2026-06-03', 16000000, 'Confirmed', 'OTA', NULL, 1),
 (4, 4, '2026-06-04', 5000000, 'Confirmed', 'OTA', 2, 1),
 (5, 5, '2026-06-05', 5000000, 'Confirmed', 'Direct_Web', NULL, 1),
@@ -248,7 +248,7 @@ INSERT INTO Bookings (booking_id, customer_id, booking_date, total_price, bookin
 (11, 9, '2026-06-12', 1200000, 'Confirmed', 'Direct_Web', NULL, 1),
 (12, 10, '2026-06-12', 1200000, 'Confirmed', 'Direct_Web', NULL, 1),
 (13, 11, '2026-06-12', 1200000, 'Confirmed', 'Direct_Web', NULL, 1),
-(14, 12, '2026-06-12', 2500000, 'Cancelled', 'Direct_Web', NULL, 1),
+(14, 12, '2026-06-12', 2500000, 'Checked_Out', 'Direct_Web', NULL, 1),
 (15, 13, '2026-06-12', 3500000, 'Cancelled', 'Direct_Web', NULL, 1),
 (16, 14, '2026-06-12', 8000000, 'Confirmed', 'Direct_Web', NULL, 1),
 (17, 15, '2026-06-12', 2000000, 'Confirmed', 'Direct_Web', NULL, 1),
@@ -256,36 +256,38 @@ INSERT INTO Bookings (booking_id, customer_id, booking_date, total_price, bookin
 (19, 4, '2026-06-12', 3000000, 'Confirmed', 'Direct_Web', NULL, 1),
 (20, 5, '2026-06-12', 4500000, 'Confirmed', 'Direct_Web', NULL, 1),
 (24, 1, '2026-06-01', 3000000, 'Confirmed', 'Direct_Web', NULL, 1),
-(25, 2, '2026-06-02', 1200000, 'Confirmed', 'Direct_Web', NULL, 1),
+(25, 2, '2026-06-02', 1200000, 'Cancelled', 'Direct_Web', NULL, 1),
 (26, 3, '2026-06-03', 5400000, 'Confirmed', 'Direct_Web', NULL, 1),
 (27, 4, '2026-06-04', 2500000, 'Confirmed', 'OTA', NULL, 1),
 (28, 5, '2026-06-05', 2400000, 'Confirmed', 'Direct_Web', NULL, 1);
 
 -- ── 13. Room Bookings (10 rows) ──────────────────────────────
 INSERT INTO Room_Bookings (room_booking_id, check_in_date, check_out_date, deposit_amount, cancellation_deadline, credit_limit, personal_pin_hash) VALUES
-(1, '2026-06-09', '2026-06-12', 1000000, '2026-06-05', 5000000, 'hash'),
-(2, '2026-06-09', '2026-06-12', 1000000, '2026-06-05', 5000000, 'hash'),
+(1, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 3 DAY), 1000000, DATE_SUB(CURDATE(), INTERVAL 2 DAY), 5000000, 'hash'),
+(2, DATE_SUB(CURDATE(), INTERVAL 5 DAY), DATE_SUB(CURDATE(), INTERVAL 2 DAY), 1000000, DATE_SUB(CURDATE(), INTERVAL 8 DAY), 5000000, 'hash'),
 (3, '2026-06-09', '2026-06-12', 2000000, '2026-06-05', 10000000, 'hash'),
 (4, '2026-06-09', '2026-06-11', 1000000, '2026-06-05', 5000000, 'hash'),
 (5, '2026-06-10', '2026-06-13', 1000000, '2026-06-06', 5000000, 'hash'),
 (6, '2026-06-10', '2026-06-14', 1500000, '2026-06-06', 5000000, 'hash'),
 (7, '2026-06-10', '2026-06-15', 1500000, '2026-06-06', 5000000, 'hash'),
 (8, '2026-06-10', '2026-06-16', 3000000, '2026-06-06', 15000000, 'hash'),
-(14, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 4 DAY), 1000000, DATE_SUB(CURDATE(), INTERVAL 2 DAY), 5000000, 'hash'),
-(15, '2026-07-01', '2026-07-05', 1000000, '2026-06-25', 5000000, 'hash');
+(9, DATE_ADD(CURDATE(), INTERVAL 5 DAY), DATE_ADD(CURDATE(), INTERVAL 8 DAY), 500000, DATE_ADD(CURDATE(), INTERVAL 2 DAY), 5000000, 'hash'),
+(14, DATE_SUB(CURDATE(), INTERVAL 10 DAY), DATE_SUB(CURDATE(), INTERVAL 6 DAY), 1000000, DATE_SUB(CURDATE(), INTERVAL 15 DAY), 5000000, 'hash'),
+(15, DATE_ADD(CURDATE(), INTERVAL 20 DAY), DATE_ADD(CURDATE(), INTERVAL 25 DAY), 1000000, DATE_ADD(CURDATE(), INTERVAL 10 DAY), 5000000, 'hash');
 
 -- ── 14. Room Booking Details (10 rows) ───────────────────────
 INSERT INTO Room_Booking_Details (detail_id, room_booking_id, category_id, room_id, room_charge, detail_status, bed_preference, special_requests, is_charge_to_room_allowed, sub_credit_limit, billing_routing_strategy) VALUES
 (1, 1, 1, 1, 2500000, 'Checked_In', 'KING_SIZE', NULL, TRUE, 500000, 'BILL_TO_LEADER'),
-(2, 2, 2, 3, 3500000, 'Checked_Out', 'KING_SIZE', NULL, TRUE, 1500000, 'BILL_TO_LEADER'),
-(3, 3, 3, 5, 8000000, 'Checked_Out', 'KING_SIZE', NULL, TRUE, 2000000, 'BILL_TO_LEADER'),
-(4, 4, 1, 7, 2500000, 'Pending', 'KING_SIZE', NULL, TRUE, 500000, 'BILL_TO_LEADER'),
-(5, 5, 1, 9, 2500000, 'Pending', 'KING_SIZE', NULL, TRUE, 500000, 'BILL_TO_LEADER'),
-(6, 6, 2, 12, 3500000, 'Pending', 'KING_SIZE', NULL, TRUE, 1500000, 'BILL_TO_LEADER'),
+(2, 2, 2, NULL, 3500000, 'Checked_Out', 'KING_SIZE', NULL, TRUE, 1500000, 'BILL_TO_LEADER'),
+(3, 3, 3, 5, 8000000, 'Checked_In', 'KING_SIZE', NULL, TRUE, 2000000, 'BILL_TO_LEADER'),
+(4, 4, 1, NULL, 2500000, 'Pending', 'KING_SIZE', NULL, TRUE, 500000, 'BILL_TO_LEADER'),
+(5, 5, 1, NULL, 2500000, 'Pending', 'KING_SIZE', NULL, TRUE, 500000, 'BILL_TO_LEADER'),
+(6, 6, 2, NULL, 3500000, 'Pending', 'KING_SIZE', NULL, TRUE, 1500000, 'BILL_TO_LEADER'),
 (7, 7, 2, 15, 3500000, 'Checked_In', 'KING_SIZE', NULL, TRUE, 1500000, 'BILL_TO_LEADER'),
 (8, 8, 3, 18, 8000000, 'Checked_In', 'KING_SIZE', NULL, TRUE, 3000000, 'BILL_TO_LEADER'),
-(9, 14, 1, 2, 2500000, 'Pending', 'KING_SIZE', NULL, TRUE, 500000, 'BILL_TO_LEADER'),
-(10, 15, 2, 4, 3500000, 'Pending', 'TWIN_BED', NULL, TRUE, 1500000, 'BILL_TO_LEADER');
+(9, 14, 1, NULL, 2500000, 'Checked_Out', 'KING_SIZE', NULL, TRUE, 500000, 'BILL_TO_LEADER'),
+(10, 15, 2, NULL, 3500000, 'Cancelled', 'TWIN_BED', NULL, TRUE, 1500000, 'BILL_TO_LEADER'),
+(11, 9, 1, NULL, 1200000, 'Confirmed', 'KING_SIZE', NULL, TRUE, 500000, 'BILL_TO_LEADER');
 
 -- ── 15. Room Guests (10 rows) ────────────────────────────────
 INSERT INTO Room_Guests (guest_id, detail_id, customer_id, dependent_id, guest_type, is_primary_contact) VALUES
@@ -298,7 +300,10 @@ INSERT INTO Room_Guests (guest_id, detail_id, customer_id, dependent_id, guest_t
 (7, 7, 7, NULL, 'ADULT', TRUE),
 (8, 8, 8, NULL, 'ADULT', TRUE),
 (9, 9, 12, NULL, 'ADULT', TRUE),
-(10, 10, 13, NULL, 'ADULT', TRUE);
+(10, 10, 13, NULL, 'ADULT', TRUE),
+(11, 1, 1, 1, 'CHILD', FALSE),
+(12, 1, 1, 2, 'CHILD', FALSE),
+(13, 11, 1, NULL, 'ADULT', TRUE);
 
 -- Force update tphuong to POS role in case DB already exists
 UPDATE Accounts SET role_id = 4 WHERE username = 'tphuong';
@@ -584,7 +589,7 @@ INSERT INTO Tours (tour_id, tour_name, tour_type, base_price, max_capacity, dura
 (3, 'Di Sản Thủ Công – Ninh Bình', 'CULTURAL', 6500000, 12, '10 Giờ', 10.0, FALSE, 0, 'Chạm vào hồn cốt của thời gian qua những tạo tác từ đôi bàn tay nghệ nhân.', 'Hành trình tìm về vẻ đẹp sơn thủy hữu tình của vùng đất cố đô cổ kính, nơi bạn được trò chuyện và cùng các nghệ nhân lưu giữ những làng nghề truyền thống trăm năm.', '10 Giờ (09:00 - 19:00) | Sức chứa: 12 khách.', '["An toàn đường thủy: Chặng đi thuyền nan tại đầm Vân Long bắt buộc khách phải mặc áo phao. Nhắc khách giữ thăng bằng khi lên xuống thuyền.","Bảo mật trải nghiệm: Nhắc khách không nói lớn tiếng tại Vân Long để tránh làm chim muông và thú quý giật mình bay mất"]', '[{"cat":"Địa lý","content":"Đầm Vân Long là khu bảo tồn thiên nhiên ngập nước lớn nhất vùng đồng bằng Bắc Bộ, sở hữu bức tranh địa chất \"vịnh không sóng\" vì mặt nước phẳng lặng như một tấm gương khổng lồ soi bóng núi đá vôi Karst ngàn năm."},{"cat":"Văn hóa & Nghệ thuật","content":"Làng thêu Văn Lâm có tuổi đời hơn 700 năm (từ thời nhà Trần). Điểm đắt giá của thêu Văn Lâm là kỹ thuật \"thêu trắng\" (những đường thêu uyển chuyển trên nền vải trắng bằng chỉ trắng) đòi hỏi đôi tay cực kỳ tài hoa của nghệ nhân. Chiếu Kim Sơn nổi tiếng nhờ sợi cói dai mịn, dệt đều tay, đượm hương nắng trời Bắc Bộ."}]', CURRENT_TIMESTAMP, TRUE),
 (4, 'Tĩnh Lặng Liên Hoa – Tháp Mười', 'RELAX', 8200000, 8, '10 Giờ', 10.0, FALSE, 0, 'Sự thanh lọc thuần khiết cho thân - tâm - trí giữa vùng sông nước mờ sương.', 'Một ngày trốn khỏi phố thị để về với đại đầm sen, mượn hương hoa và sóng nước miền Tây làm dịu lại tâm hồn, tìm lại sự bình an sâu lắng bên trong bạn.', '10 Giờ (08:00 - 18:00) | Sức chứa: 8 khách.', '["Không gian tĩnh lặng: Đây là tour chữa lành (Wellness/Zen), yêu cầu khách chuyển điện thoại sang chế độ rung, không bật loa ngoài.","Trang phục: Khách đi bộ thiền hành trên cầu gỗ, nhắc khách mang giày bệt hoặc đi chân trần theo hướng dẫn. Chuẩn bị sẵn kem chống muỗi/côn trùng vùng sông nước"]', '[{"cat":"Địa lý & Thiên nhiên","content":"Đồng Tháp Mười là vùng đất ngập nước đặc trưng của miền Tây Nam Bộ. Hoa sen ở đây nở quanh năm nhưng rực rỡ nhất vào mùa nước nổi. Đất phèn đặc trưng của vùng đồng bằng sông Cửu Long lại là dưỡng chất hoàn hảo giúp hoa sen Tháp Mười có hương thơm đậm và giữ được độ tươi rất lâu."},{"cat":"Văn hóa & Triết lý","content":"Sen là biểu tượng cho sự thuần khiết trong văn hóa Việt Nam (\"Gần bùn mà chẳng hôi tanh mùi bùn\"). Giới thiệu về nghệ thuật ủ trà sen: Người ta đón sương đêm, cho trà vào trong búp sen từ chiều hôm trước để trà hấp thụ trọn vẹn tinh túy và hương thơm của hoa lúc nửa đêm."}]', CURRENT_TIMESTAMP, TRUE),
 (5, 'Tiếng Vọng Sóng Xanh – Hạ Long', 'ADVENTURE', 7500000, 15, '10 Giờ', 10.0, FALSE, 0, 'Du thuyền lướt nhẹ giữa ngàn khơi, thưởng ngoạn kỳ quan thiên nhiên rực rỡ.', 'Chuyến hải trình thong dong đưa bạn lướt qua những đảo đá nhấp nhô của vịnh Bắc Bộ, khám phá thế giới thạch nhũ kỳ vĩ được tạo hóa giấu kín ngàn năm và đón hoàng hôn buông trên mặt biển.', '10 Giờ (08:00 - 18:00) | Sức chứa: 15 khách.', '["Chuẩn bị: Nhắc khách mang theo đồ bơi, quần áo dự phòng để thay sau khi chèo Kayak hoặc tắm biển.","An toàn: Kiểm tra túi chống nước cho điện thoại của khách. Chuẩn bị sẵn thuốc say sóng phòng trường hợp khách nhạy cảm với sóng biển"]', '[{"cat":"Địa lý (Kiến tạo Karst)","content":"Vịnh Hạ Long là Di sản Thiên nhiên Thế giới được UNESCO công nhận, sở hữu giá trị địa chất độc độc đáo trải qua hơn 500 triệu năm kiến tạo để tạo nên ngàn đảo đá vôi trùng điệp."},{"cat":"Lịch sử & Huyền thoại","content":"Hạ Long nghĩa là rồng đáp xuống. Truyền thuyết kể rằng Ngọc Hoàng đã sai Rồng Mẹ mang theo một đàn Rồng Con xuống hạ giới giúp người Việt đánh giặc ngoại xâm. Đàn rồng phun ra muôn ngàn châu ngọc, hóa thành các đảo đá dựng thành lũy vững chắc ngăn chặn thuyền giặc. Động Thiên Cung chính là cung điện lộng lẫy nơi diễn ra đám cưới của Vua Rồng xưa kia."}]', CURRENT_TIMESTAMP, TRUE),
-(6, 'Nẻo Đường Sương Phủ – Sapa', 'ADVENTURE', 8200000, 10, '11 Giờ', 11.0, FALSE, 0, 'Gặp gỡ những nụ cười hồn hậu giữa vùng mây trời sương phủ.', 'Hành trình dạo bước qua những nấc thang ruộng bậc thang xanh mướt tại bản Cát Cát, tìm hiểu cuộc sống mộc mạc của đồng bào người H\'Mông và lắng lại tâm hồn giữa núi rừng Tây Bắc.', '11 Giờ (08:00 - 19:00) | Sức chứa: 10 khách.', '["Thể lực: Tour này tản bộ nhiều dốc (bản Cát Cát), nhắc khách mang giày trekking hoặc giày thể thao có độ bám tốt.","Thời tiết: Thời tiết Sapa thay đổi liên tục, luôn nhắc khách mang theo một chiếc áo khoác nhẹ (phòng lạnh về chiều) và ô/áo mưa bỏ túi"]', '[{"cat":"Địa lý","content":"Sapa nằm ở độ cao trung bình 1,500m - 1,800m so với mực nước biển, thuộc dãy Hoàng Liên Sơn hùng vĩ. Thác Tiên Sa là nguồn nước mát lạnh đổ trực tiếp từ trên núi cao xuống, quanh năm tung bọt trắng xóa."},{"cat":"Văn hóa","content":"Bản Cát Cát là nơi sinh sống lâu đời của người H\'Mông đen. Hãy thuyết minh về chiếc cối xay nước tận dụng sức nước của dòng suối để giã gạo, và nghệ thuật vẽ hoa văn bằng sáp ong bướm trên vải trước khi mang đi nhuộm chàm – một nét văn hóa độc đáo giúp trang phục của họ có màu xanh đen đặc trưng bền bỉ với thời gian."}]', CURRENT_TIMESTAMP, TRUE),
+(6, 'Nẻo Đường Sương Phủ – Sapa', 'ADVENTURE', 8200000, 10, '11 Giờ', 11.0, FALSE, 0, 'Gặp gỡ những nụ cười hồn hậu giữa vùng mây trời sương phủ.', 'Hành trình dạo bước qua những nấc thang ruộng bậc thang xanh mướt tại bản Cát Cát, tìm hiểu cuộc sống mộc mạc của đồng bào người H''Mông và lắng lại tâm hồn giữa núi rừng Tây Bắc.', '11 Giờ (08:00 - 19:00) | Sức chứa: 10 khách.', '["Thể lực: Tour này tản bộ nhiều dốc (bản Cát Cát), nhắc khách mang giày trekking hoặc giày thể thao có độ bám tốt.","Thời tiết: Thời tiết Sapa thay đổi liên tục, luôn nhắc khách mang theo một chiếc áo khoác nhẹ (phòng lạnh về chiều) và ô/áo mưa bỏ túi"]', '[{"cat":"Địa lý","content":"Sapa nằm ở độ cao trung bình 1,500m - 1,800m so với mực nước biển, thuộc dãy Hoàng Liên Sơn hùng vĩ. Thác Tiên Sa là nguồn nước mát lạnh đổ trực tiếp từ trên núi cao xuống, quanh năm tung bọt trắng xóa."},{"cat":"Văn hóa","content":"Bản Cát Cát là nơi sinh sống lâu đời của người H''Mông đen. Hãy thuyết minh về chiếc cối xay nước tận dụng sức nước của dòng suối để giã gạo, và nghệ thuật vẽ hoa văn bằng sáp ong bướm trên vải trước khi mang đi nhuộm chàm – một nét văn hóa độc đáo giúp trang phục của họ có màu xanh đen đặc trưng bền bỉ với thời gian."}]', CURRENT_TIMESTAMP, TRUE),
 (7, 'Nhịp Đập Rừng Già – Cát Tiên', 'ADVENTURE', 9500000, 8, '14 Giờ', 14.0, FALSE, 0, 'Lắng nghe tiếng gọi thì thầm từ đại ngàn xanh thẳm.', 'Chuyến băng rừng rậm Nam Cát Tiên đầy cảm xúc, đưa bạn ghé thăm đầm lầy bảo tồn tự nhiên, thưởng thức bữa tối bên rừng và trải nghiệm ngắm thú đêm hoang dã.', '14 Giờ (08:00 - 22:00) | Sức chứa: 8 khách.', '["An toàn tuyệt đối: Bắt buộc khách mặc quần áo dài, mang tất cao cổ. Bạn phải chuẩn bị sẵn thuốc chống vắt và xịt côn trùng cao cấp cho cả đoàn trước khi vào rừng.","Quy định rừng: Khi đi xe mui trần xem thú đêm, tuyệt đối nhắc khách giữ im lặng, không dùng đèn pin cá nhân chiếu vào mắt thú, không bật flash chụp ảnh"]', '[{"cat":"Địa lý & Sinh thái","content":"Vườn quốc gia Cát Tiên là Khu dự trữ sinh quyển thế giới. Bàu Sấu là vùng đất ngập nước Ramsar tầm cỡ quốc tế, nơi bảo tồn loài Cá Sấu Xiêm thuần chủng của Việt Nam."},{"cat":"Hành vi động vật (Thú đêm)","content":"Giải thích cho khách biết lý do xem thú đêm: Ban ngày rừng rậm rất nóng, các loài thú móng guốc như nai, móp, mển thường ẩn nấp. Khi đêm xuống, nhiệt độ hạ, chúng mới ra các trảng cỏ trống để tìm thức ăn và muối khoáng."}]', CURRENT_TIMESTAMP, TRUE),
 (8, 'Bình Minh Cồn Cát – Mũi Né', 'ADVENTURE', 6500000, 10, '11 Giờ', 11.0, FALSE, 0, 'Đón những vệt nắng đầu ngày rực rỡ trên sa mạc cát mênh mông.', 'Trải nghiệm cảm giác phấn khích vượt đồi cát bằng xe ATV đón bình minh, khám phá dòng suối Tiên huyền thoại và thưởng thức mỹ vị biển khơi.', '11 Giờ (04:30 - 15:30) | Sức chứa: 10 khách.', '["Giờ giấc: Khởi hành rất sớm (04:30), nhắc khách ngủ sớm từ tối hôm trước.","Trang phục: Mang theo kính râm, kem chống nắng đầy đủ vì đồi cát bắt nắng rất mạnh. Khi lội Suối Tiên phải đi chân trần, nhắc khách mang dép dễ tháo rời"]', '[{"cat":"Địa lý & Địa chất","content":"Bàu Trắng (Đồi Cát Trắng) là một sa mạc thu nhỏ được bao quanh bởi hồ nước ngọt tự nhiên khổng lồ. Điểm kỳ thú ở đây là gió thổi liên tục làm thay đổi hình dáng của các đụn cát theo từng giờ (\"đồi cát di động\")."},{"cat":"Suối Tiên","content":"Bản chất không phải là một dòng suối thông thường, mà là một khe nước nhỏ chảy khuất sau những đồi cát, trải qua năm tháng bào mòn các vách đất sét, tạo nên những tháp cát màu đỏ cam rực rỡ như những lâu đài thạch nhũ lộ thiên."}]', CURRENT_TIMESTAMP, TRUE),
 (9, 'Khúc Ca San Hô – Phú Quốc', 'RELAX', 8500000, 12, '10 Giờ', 10.0, FALSE, 0, 'Hòa mình vào làn nước xanh lục bảo và vũ điệu rực rỡ dưới lòng đại dương.', 'Đồng hành cùng cano cao cấp lướt qua những hòn đảo hoang sơ, lặn ngắm rạn san hô đa sắc màu và tận hưởng bữa chiều ngắm hoàng hôn lãng mạn trên biển.', '10 Giờ (08:30 - 18:30) | Sức chứa: 12 khách.', '["Hậu cần biển: Kiểm tra kỹ áo phao, kính lặn ống thở xem có vừa vặn với kích thước của từng khách hay không.","Bảo vệ môi trường: Nhắc nhở khách tuyệt đối không dẫm đạp lên san hô, không nhặt san hô sống hoặc sao biển mang về đất liền"]', '[{"cat":"Địa lý biển","content":"Vùng biển phía Nam Phú Quốc (quần đảo An Thới) nằm trong vịnh Thái Lan, khu vực biển ấm, ít sóng lớn, tạo điều kiện hoàn hảo cho các rạn san hô phiến và san hô gạc nai phát triển mạnh mẽ."},{"cat":"Văn hóa bản địa","content":"Phú Quốc còn gọi là Đảo Ngọc vì vùng biển này có độ mặn và nhiệt độ lý tưởng cho nghề nuôi cấy ngọc trai cao cấp."}]', CURRENT_TIMESTAMP, TRUE),
@@ -827,9 +832,9 @@ INSERT IGNORE INTO Accounts (account_id, username, password_hash, is_active, rol
 
 -- ── 43. Test Customers liên kết Account ──────────────────────
 INSERT IGNORE INTO Customers (customer_id, account_id, full_name, gender, cccd_passport_encrypted, phone, email, loyalty_points, membership_tier) VALUES
-(16, 21, 'Nguyễn Minh Test', 'Nam', 'CCCD_TEST01', '0911000001', 'testguest1@test.com', 50, 'Regular'),
-(17, 22, 'Trần Thị Test', 'Nữ', 'CCCD_TEST02', '0911000002', 'testguest2@test.com', 100, 'Silver'),
-(18, 23, 'Lê Văn Test', 'Nam', 'CCCD_TEST03', '0911000003', 'testguest3@test.com', 200, 'Gold');
+(16, 21, 'Nguyễn Minh Test', 'Nam', 'YTZ6KpDQsEJPEHfwR+3vNw==', '0911000001', 'testguest1@test.com', 50, 'Regular'),
+(17, 22, 'Trần Thị Test', 'Nữ', 'L+rfuZSEQrLxAyYmz4xp9Q==', '0911000002', 'testguest2@test.com', 100, 'Silver'),
+(18, 23, 'Lê Văn Test', 'Nam', 'Rdq+O8/+wOLP5PTwDytFRQ==', '0911000003', 'testguest3@test.com', 200, 'Gold');
 
 -- ── 44. Test Bookings (Confirmed + Checked_In) ──────────────
 INSERT IGNORE INTO Bookings (booking_id, customer_id, booking_date, total_price, booking_status, booking_source, applied_promotion_id, version) VALUES
@@ -1134,8 +1139,8 @@ INSERT INTO Hotel_Operations (task_id, room_id, staff_id, supervisor_id, operati
 
 -- 2. Thêm các yêu cầu hoàn tiền (Refund Requests)
 INSERT INTO Refund_Requests (id, order_id, room_booking_id, tour_booking_id, bank_name, account_number, account_name, phone_number, amount, status, manager_note, evidence_image_url, created_at, completed_at) VALUES
-(1, NULL, 15, NULL, 'Vietcombank', '10129384829', 'NGUYEN XUAN LOC', '090101', 1000000.00, 'Pending', NULL, NULL, CURRENT_TIMESTAMP, NULL),
-(2, NULL, 14, NULL, 'Techcombank', '19033482938', 'TRAN THI BICH', '090104', 2500000.00, 'COMPLETED', 'Đã chuyển khoản hoàn tiền cọc qua ứng dụng ngân hàng', 'https://images.unsplash.com/photo-1554415707-6e8cfc93fe23?w=500', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+(1, NULL, 15, NULL, 'Vietcombank', '10129384829', 'NGUYEN XUAN LOC', '0900000101', 1000000.00, 'Pending', NULL, NULL, CURRENT_TIMESTAMP, NULL),
+(2, NULL, 14, NULL, 'Techcombank', '19033482938', 'TRAN THI BICH', '0900000104', 2500000.00, 'COMPLETED', 'Đã chuyển khoản hoàn tiền cọc qua ứng dụng ngân hàng', 'https://images.unsplash.com/photo-1554415707-6e8cfc93fe23?w=500', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 INSERT INTO Room_Booking_Details (detail_id, room_booking_id, category_id, room_id, room_charge, detail_status, bed_preference, special_requests, is_charge_to_room_allowed, sub_credit_limit, billing_routing_strategy, number_of_adults, number_of_children) VALUES
 (1031, 103, 8, NULL, 4500000, 'Pending', 'KING_SIZE', 'Gần thang máy', TRUE, 1000000, 'BILL_TO_LEADER', 2, 1),
@@ -1182,3 +1187,244 @@ UPDATE Rooms SET current_booking_detail_id = 5051, room_status = 'Occupied' WHER
 UPDATE Rooms SET current_booking_detail_id = 5052, room_status = 'Occupied' WHERE room_id = 12;
 
 
+
+
+-- ============================================================
+-- APPENDED BOOKINGS FOR 10 CUSTOMERS (601-610) FOR MORE REALISTIC DATA
+-- ============================================================
+INSERT IGNORE INTO Accounts (account_id, username, password_hash, is_active, role_id, created_at) VALUES
+(601, 'customer601', '/oLodhs4wqBO61AhyuE4dWtSJDJcOH7D2ii5Vrgq0bG', TRUE, 10, CURRENT_TIMESTAMP),
+(602, 'customer602', '/oLodhs4wqBO61AhyuE4dWtSJDJcOH7D2ii5Vrgq0bG', TRUE, 10, CURRENT_TIMESTAMP),
+(603, 'customer603', '/oLodhs4wqBO61AhyuE4dWtSJDJcOH7D2ii5Vrgq0bG', TRUE, 10, CURRENT_TIMESTAMP),
+(604, 'customer604', '/oLodhs4wqBO61AhyuE4dWtSJDJcOH7D2ii5Vrgq0bG', TRUE, 10, CURRENT_TIMESTAMP),
+(605, 'customer605', '/oLodhs4wqBO61AhyuE4dWtSJDJcOH7D2ii5Vrgq0bG', TRUE, 10, CURRENT_TIMESTAMP),
+(606, 'customer606', '/oLodhs4wqBO61AhyuE4dWtSJDJcOH7D2ii5Vrgq0bG', TRUE, 10, CURRENT_TIMESTAMP),
+(607, 'customer607', '/oLodhs4wqBO61AhyuE4dWtSJDJcOH7D2ii5Vrgq0bG', TRUE, 10, CURRENT_TIMESTAMP),
+(608, 'customer608', '/oLodhs4wqBO61AhyuE4dWtSJDJcOH7D2ii5Vrgq0bG', TRUE, 10, CURRENT_TIMESTAMP),
+(609, 'customer609', '/oLodhs4wqBO61AhyuE4dWtSJDJcOH7D2ii5Vrgq0bG', TRUE, 10, CURRENT_TIMESTAMP),
+(610, 'customer610', '/oLodhs4wqBO61AhyuE4dWtSJDJcOH7D2ii5Vrgq0bG', TRUE, 10, CURRENT_TIMESTAMP);
+
+INSERT IGNORE INTO Customers (customer_id, account_id, full_name, email, phone, gender, cccd_passport_encrypted, loyalty_points, membership_tier_id) VALUES
+(601, 601, 'Khách Hàng 601', 'customer601@example.com', '0909000601', 'Nam', 'YE+76wwcBJNg816HI3M2hA==', 100, 1),
+(602, 602, 'Khách Hàng 602', 'customer602@example.com', '0909000602', 'Nam', 't2B5hvGiyaTOn07btoMyrA==', 100, 1),
+(603, 603, 'Khách Hàng 603', 'customer603@example.com', '0909000603', 'Nam', 'rAYtDfmnZU/Fen53Ez7mLQ==', 100, 1),
+(604, 604, 'Khách Hàng 604', 'customer604@example.com', '0909000604', 'Nam', 'Yqb+bfrRgv9+LE7KWwbbng==', 100, 1),
+(605, 605, 'Khách Hàng 605', 'customer605@example.com', '0909000605', 'Nam', 'ASm7XtMcAHbOJbXHwhzKQw==', 100, 1),
+(606, 606, 'Khách Hàng 606', 'customer606@example.com', '0909000606', 'Nam', 'gsHmioJ2WTPXYI/R4I4dSw==', 100, 1),
+(607, 607, 'Khách Hàng 607', 'customer607@example.com', '0909000607', 'Nam', 'pPU4SxaRA/k+2Q+EH0mgFg==', 100, 1),
+(608, 608, 'Khách Hàng 608', 'customer608@example.com', '0909000608', 'Nam', 'WQdMV7CrIrZMKQhjKqtr6w==', 100, 1),
+(609, 609, 'Khách Hàng 609', 'customer609@example.com', '0909000609', 'Nam', 'oAuptPfLFkwE+oQuCCChFA==', 100, 1),
+(610, 610, 'Khách Hàng 610', 'customer610@example.com', '0909000610', 'Nam', 'vXCvrWxAmf8fMo6LSiqetw==', 100, 1);
+
+INSERT IGNORE INTO Dependents (dependent_id, customer_id, dependent_name, birth_date, gender) VALUES
+(601, 601, 'Người Thân 601', '2010-01-01', 'Nữ'),
+(602, 602, 'Người Thân 602', '2010-01-01', 'Nữ'),
+(603, 603, 'Người Thân 603', '2010-01-01', 'Nữ'),
+(604, 604, 'Người Thân 604', '2010-01-01', 'Nữ'),
+(605, 605, 'Người Thân 605', '2010-01-01', 'Nữ'),
+(606, 606, 'Người Thân 606', '2010-01-01', 'Nữ'),
+(607, 607, 'Người Thân 607', '2010-01-01', 'Nữ'),
+(608, 608, 'Người Thân 608', '2010-01-01', 'Nữ'),
+(609, 609, 'Người Thân 609', '2010-01-01', 'Nữ'),
+(610, 610, 'Người Thân 610', '2010-01-01', 'Nữ');
+
+INSERT IGNORE INTO Bookings (booking_id, customer_id, booking_date, total_price, booking_status, booking_source, version) VALUES
+(601, 601, '2026-07-01', 5000000, 'Checked_In', 'Direct_Web', 1),
+(602, 602, '2026-07-01', 5000000, 'Checked_In', 'Direct_Web', 1),
+(603, 603, '2026-07-01', 5000000, 'Checked_In', 'Direct_Web', 1),
+(604, 604, '2026-07-01', 5000000, 'Checked_In', 'Direct_Web', 1),
+(605, 605, '2026-07-01', 5000000, 'Checked_In', 'Direct_Web', 1),
+(606, 606, '2026-07-01', 5000000, 'Confirmed', 'Direct_Web', 1),
+(607, 607, '2026-07-01', 5000000, 'Confirmed', 'Direct_Web', 1),
+(608, 608, '2026-07-01', 5000000, 'Confirmed', 'Direct_Web', 1),
+(609, 609, '2026-07-01', 5000000, 'Confirmed', 'Direct_Web', 1),
+(610, 610, '2026-07-01', 5000000, 'Confirmed', 'Direct_Web', 1);
+
+INSERT IGNORE INTO Room_Bookings (room_booking_id, check_in_date, check_out_date, deposit_amount, cancellation_deadline, credit_limit, personal_pin_hash) VALUES
+(601, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 2 DAY), 1000000, DATE_SUB(CURDATE(), INTERVAL 1 DAY), 5000000, 'hash601'),
+(602, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 2 DAY), 1000000, DATE_SUB(CURDATE(), INTERVAL 1 DAY), 5000000, 'hash602'),
+(603, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 2 DAY), 1000000, DATE_SUB(CURDATE(), INTERVAL 1 DAY), 5000000, 'hash603'),
+(604, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 2 DAY), 1000000, DATE_SUB(CURDATE(), INTERVAL 1 DAY), 5000000, 'hash604'),
+(605, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 2 DAY), 1000000, DATE_SUB(CURDATE(), INTERVAL 1 DAY), 5000000, 'hash605'),
+(606, DATE_ADD(CURDATE(), INTERVAL 1 DAY), DATE_ADD(CURDATE(), INTERVAL 3 DAY), 1000000, CURDATE(), 5000000, 'hash606'),
+(607, DATE_ADD(CURDATE(), INTERVAL 1 DAY), DATE_ADD(CURDATE(), INTERVAL 3 DAY), 1000000, CURDATE(), 5000000, 'hash607'),
+(608, DATE_ADD(CURDATE(), INTERVAL 1 DAY), DATE_ADD(CURDATE(), INTERVAL 3 DAY), 1000000, CURDATE(), 5000000, 'hash608'),
+(609, DATE_ADD(CURDATE(), INTERVAL 1 DAY), DATE_ADD(CURDATE(), INTERVAL 3 DAY), 1000000, CURDATE(), 5000000, 'hash609'),
+(610, DATE_ADD(CURDATE(), INTERVAL 1 DAY), DATE_ADD(CURDATE(), INTERVAL 3 DAY), 1000000, CURDATE(), 5000000, 'hash610');
+
+INSERT IGNORE INTO Room_Booking_Details (detail_id, room_booking_id, category_id, room_id, room_charge, detail_status, bed_preference, is_charge_to_room_allowed, sub_credit_limit, billing_routing_strategy, customer_id) VALUES
+(6011, 601, 4, 6, 5000000, 'Checked_In', 'KING_SIZE', TRUE, 5000000, 'BILL_TO_LEADER', 601),
+(6021, 602, 4, 7, 5000000, 'Checked_In', 'KING_SIZE', TRUE, 5000000, 'BILL_TO_LEADER', 602),
+(6031, 603, 4, 8, 5000000, 'Checked_In', 'KING_SIZE', TRUE, 5000000, 'BILL_TO_LEADER', 603),
+(6041, 604, 4, 9, 5000000, 'Checked_In', 'KING_SIZE', TRUE, 5000000, 'BILL_TO_LEADER', 604),
+(6051, 605, 4, 14, 5000000, 'Checked_In', 'KING_SIZE', TRUE, 5000000, 'BILL_TO_LEADER', 605),
+(6061, 606, 4, NULL, 5000000, 'Confirmed', 'KING_SIZE', TRUE, 5000000, 'BILL_TO_LEADER', 606),
+(6071, 607, 4, NULL, 5000000, 'Confirmed', 'KING_SIZE', TRUE, 5000000, 'BILL_TO_LEADER', 607),
+(6081, 608, 4, NULL, 5000000, 'Confirmed', 'KING_SIZE', TRUE, 5000000, 'BILL_TO_LEADER', 608),
+(6091, 609, 4, NULL, 5000000, 'Confirmed', 'KING_SIZE', TRUE, 5000000, 'BILL_TO_LEADER', 609),
+(6101, 610, 4, NULL, 5000000, 'Confirmed', 'KING_SIZE', TRUE, 5000000, 'BILL_TO_LEADER', 610);
+
+INSERT IGNORE INTO Room_Guests (guest_id, detail_id, customer_id, dependent_id, guest_type, is_primary_contact) VALUES
+(60111, 6011, 601, NULL, 'ADULT', TRUE),
+(60112, 6011, NULL, 601, 'CHILD', FALSE),
+(60211, 6021, 602, NULL, 'ADULT', TRUE),
+(60212, 6021, NULL, 602, 'CHILD', FALSE),
+(60311, 6031, 603, NULL, 'ADULT', TRUE),
+(60312, 6031, NULL, 603, 'CHILD', FALSE),
+(60411, 6041, 604, NULL, 'ADULT', TRUE),
+(60412, 6041, NULL, 604, 'CHILD', FALSE),
+(60511, 6051, 605, NULL, 'ADULT', TRUE),
+(60512, 6051, NULL, 605, 'CHILD', FALSE);
+
+INSERT IGNORE INTO Payment_Transactions (id, booking_id, amount, status, transaction_type, payment_method, gateway_status, transaction_ref, created_at, paid_at) VALUES
+(6011, 601, 1000000, 'SUCCESS', 'Deposit', 'VNPAY', 'SUCCESS', 'DEP_601', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(6021, 602, 1000000, 'SUCCESS', 'Deposit', 'VNPAY', 'SUCCESS', 'DEP_602', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(6031, 603, 1000000, 'SUCCESS', 'Deposit', 'VNPAY', 'SUCCESS', 'DEP_603', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(6041, 604, 1000000, 'SUCCESS', 'Deposit', 'VNPAY', 'SUCCESS', 'DEP_604', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(6051, 605, 1000000, 'SUCCESS', 'Deposit', 'VNPAY', 'SUCCESS', 'DEP_605', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(6061, 606, 1000000, 'SUCCESS', 'Deposit', 'VNPAY', 'SUCCESS', 'DEP_606', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(6071, 607, 1000000, 'SUCCESS', 'Deposit', 'VNPAY', 'SUCCESS', 'DEP_607', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(6081, 608, 1000000, 'SUCCESS', 'Deposit', 'VNPAY', 'SUCCESS', 'DEP_608', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(6091, 609, 1000000, 'SUCCESS', 'Deposit', 'VNPAY', 'SUCCESS', 'DEP_609', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(6101, 610, 1000000, 'SUCCESS', 'Deposit', 'VNPAY', 'SUCCESS', 'DEP_610', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+UPDATE Rooms SET current_booking_detail_id = CASE room_id
+  WHEN 6 THEN 6011
+  WHEN 7 THEN 6021
+  WHEN 8 THEN 6031
+  WHEN 9 THEN 6041
+  WHEN 14 THEN 6051
+  ELSE current_booking_detail_id END,
+room_status = CASE room_id
+  WHEN 6 THEN 'Occupied'
+  WHEN 7 THEN 'Occupied'
+  WHEN 8 THEN 'Occupied'
+  WHEN 9 THEN 'Occupied'
+  WHEN 14 THEN 'Occupied'
+  ELSE room_status END
+WHERE room_id IN (6, 7, 8, 9, 14);
+
+
+
+-- FIX HOANGNAM UNREALISTIC ACTIVE BOOKINGS
+UPDATE Bookings SET booking_status = 'Checked_Out' WHERE customer_id = 1 AND booking_id IN (50, 51, 103, 201);
+UPDATE Room_Bookings SET check_in_date = '2026-06-01', check_out_date = '2026-06-05' WHERE room_booking_id IN (50, 51, 103, 201);
+
+
+-- FIX HOANGNAM BOOKING 991
+UPDATE Bookings SET booking_status = 'Checked_Out' WHERE customer_id = 1 AND booking_id = 991;
+UPDATE Room_Bookings SET check_in_date = '2025-06-10', check_out_date = '2025-06-15' WHERE room_booking_id = 991;
+
+
+-- FIX HOANGNAM BOOKING 1
+UPDATE Bookings SET booking_status = 'Checked_Out' WHERE customer_id = 1 AND booking_id = 1;
+UPDATE Room_Bookings SET check_in_date = '2026-06-01', check_out_date = '2026-06-05' WHERE room_booking_id = 1;
+
+
+-- FIX GUEST REQUEST TASK OPERATIONAL TYPE
+UPDATE Hotel_Operations SET operational_type = 'GUEST_REQUEST' WHERE operational_type = 'CHECKOUT_CLEAN' AND notes LIKE '%[Khách Yêu Cầu Dọn Phòng]%';
+
+
+-- RECALCULATE LOYALTY POINTS BASED ON MOCK DATA
+UPDATE Customers c SET loyalty_points = (
+    COALESCE((
+        SELECT SUM(b.total_price) 
+        FROM Bookings b 
+        WHERE b.customer_id = c.customer_id AND b.booking_status IN ('Checked_Out', 'Completed')
+    ), 0) + 
+    COALESCE((
+        SELECT SUM(fi.amount) 
+        FROM Folio_Items fi 
+        JOIN Bookings b ON fi.booking_id = b.booking_id
+        WHERE b.customer_id = c.customer_id AND b.booking_status = 'Checked_Out'
+    ), 0)
+) / 10000;
+
+-- AUTO UPGRADE TIERS BASED ON RECALCULATED POINTS
+UPDATE Customers c SET membership_tier_id = (
+    SELECT tier_id FROM Membership_Tiers 
+    WHERE c.loyalty_points >= points_from AND c.loyalty_points <= points_to 
+    ORDER BY points_from DESC LIMIT 1
+);
+
+
+-- RECONCILE AGGREGATED DATA TOTALS
+-- 1. Reconcile Bookings total_price for Room Bookings
+UPDATE Bookings b SET total_price = (
+    SELECT COALESCE(SUM(room_charge), 0) 
+    FROM Room_Booking_Details 
+    WHERE room_booking_id = b.booking_id
+) WHERE EXISTS (SELECT 1 FROM Room_Bookings rb WHERE rb.room_booking_id = b.booking_id);
+
+-- 2. Reconcile Bookings total_price for Tour Bookings
+UPDATE Bookings b SET total_price = (
+    SELECT COALESCE(SUM(tour_charge), 0) 
+    FROM Tour_Bookings 
+    WHERE booking_id = b.booking_id
+) WHERE EXISTS (SELECT 1 FROM Tour_Bookings tb WHERE tb.booking_id = b.booking_id);
+
+-- 3. Reconcile Room_Bookings credit_limit based on sub_credit_limit
+UPDATE Room_Bookings rb SET credit_limit = (
+    SELECT COALESCE(SUM(sub_credit_limit), 0) 
+    FROM Room_Booking_Details 
+    WHERE room_booking_id = rb.room_booking_id
+);
+
+
+-- FIX PAST CHECKED_IN BOOKINGS TO CURRENT DATE
+UPDATE Room_Bookings rb 
+JOIN Bookings b ON rb.room_booking_id = b.booking_id 
+SET rb.check_in_date = CURDATE(), 
+    rb.check_out_date = DATE_ADD(CURDATE(), INTERVAL 3 DAY), 
+    rb.cancellation_deadline = DATE_SUB(CURDATE(), INTERVAL 1 DAY) 
+WHERE b.booking_status = 'Checked_In' AND rb.check_in_date < CURDATE();
+
+UPDATE Bookings b 
+JOIN Room_Bookings rb ON b.booking_id = rb.room_booking_id 
+SET b.booking_date = DATE_SUB(rb.check_in_date, INTERVAL 7 DAY) 
+WHERE b.booking_status = 'Checked_In' AND b.booking_date < DATE_SUB(CURDATE(), INTERVAL 30 DAY);
+
+UPDATE Bookings SET booking_status = 'Checked_Out' WHERE customer_id = 1 AND booking_id = 52;
+UPDATE Room_Booking_Details SET detail_status = 'Checked_Out' WHERE room_booking_id = 52;
+
+
+-- CREATE AN ALWAYS-ACTIVE BOOKING FOR HOANG NAM (CUSTOMER_ID = 1)
+INSERT IGNORE INTO Bookings (booking_id, customer_id, booking_date, total_price, booking_status, booking_source, version) 
+VALUES (9999, 1, DATE_SUB(CURDATE(), INTERVAL 5 DAY), 5000000, 'Checked_In', 'Direct_Web', 1);
+
+INSERT IGNORE INTO Room_Bookings (room_booking_id, check_in_date, check_out_date, deposit_amount, cancellation_deadline, credit_limit, personal_pin_hash) 
+VALUES (9999, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 3 DAY), 2000000, DATE_SUB(CURDATE(), INTERVAL 1 DAY), 5000000, 'hash9999');
+
+INSERT IGNORE INTO Room_Booking_Details (detail_id, room_booking_id, category_id, room_id, room_charge, detail_status, bed_preference, is_charge_to_room_allowed, sub_credit_limit, billing_routing_strategy, customer_id) 
+VALUES (99991, 9999, 1, 5, 5000000, 'Checked_In', 'KING_SIZE', TRUE, 5000000, 'INDIVIDUAL', 1);
+
+INSERT IGNORE INTO Room_Guests (guest_id, detail_id, customer_id, guest_type, is_primary_contact) 
+VALUES (999911, 99991, 1, 'ADULT', TRUE);
+
+UPDATE Rooms SET current_booking_detail_id = 99991, room_status = 'Occupied' WHERE room_id = 5;
+
+
+-- FIX BOOKING 9 VALUES TO BE REALISTIC
+UPDATE Room_Booking_Details SET room_charge = 7500000, sub_credit_limit = 5000000 WHERE room_booking_id = 9;
+UPDATE Room_Bookings SET deposit_amount = 3000000 WHERE room_booking_id = 9;
+
+UPDATE Bookings SET total_price = 7500000 WHERE booking_id = 9;
+
+-- DYNAMICALLY ASSIGN SUB CREDIT LIMIT BASED ON MEMBERSHIP TIER FOR ALL ACTIVE/CONFIRMED BOOKINGS
+UPDATE Room_Booking_Details rbd
+JOIN Room_Bookings rb ON rbd.room_booking_id = rb.room_booking_id
+JOIN Bookings b ON rb.room_booking_id = b.booking_id
+JOIN Customers c ON b.customer_id = c.customer_id
+JOIN Membership_Tiers mt ON c.membership_tier_id = mt.tier_id
+SET rbd.sub_credit_limit = mt.credit_limit
+WHERE b.booking_status IN ('Checked_In', 'Confirmed');
+
+-- RECALCULATE TOTAL CREDIT LIMIT FOR THE BOOKING
+UPDATE Room_Bookings rb
+JOIN Bookings b ON rb.room_booking_id = b.booking_id
+SET rb.credit_limit = (
+    SELECT COALESCE(SUM(sub_credit_limit), 0) 
+    FROM Room_Booking_Details 
+    WHERE room_booking_id = rb.room_booking_id
+)
+WHERE b.booking_status IN ('Checked_In', 'Confirmed');

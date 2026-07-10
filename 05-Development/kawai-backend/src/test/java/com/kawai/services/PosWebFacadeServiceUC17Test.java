@@ -62,7 +62,7 @@ class PosWebFacadeServiceUC17Test {
         when(foodOrderRepository.findRoomServiceOrders()).thenReturn(Arrays.asList(pendingOrder, servedOldOrder));
 
         // Act
-        Map<String, Object> result = posWebFacadeService.getRoomServiceManagementData();
+        Map<String, Object> result = posWebFacadeService.getRoomServiceManagementData(null);
 
         // Assert
         List<Map<String, Object>> mappedOrders = (List<Map<String, Object>>) result.get("orders");
@@ -100,7 +100,7 @@ class PosWebFacadeServiceUC17Test {
         when(foodOrderRepository.findRoomServiceOrders()).thenReturn(Arrays.asList(order));
 
         // Act
-        Map<String, Object> result = posWebFacadeService.getRoomServiceManagementData();
+        Map<String, Object> result = posWebFacadeService.getRoomServiceManagementData(null);
 
         // Assert
         List<Map<String, Object>> mappedOrders = (List<Map<String, Object>>) result.get("orders");

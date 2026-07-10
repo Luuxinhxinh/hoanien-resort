@@ -9,7 +9,7 @@ import java.time.LocalDate;
 public class BookingResponseDTO {
 
     private Long bookingId;
-    private String bookingStatus; // "Pending" | "CONFIRMED"
+    private String bookingStatus;
     private BigDecimal depositAmount;
     private BigDecimal discountedPrice;
     private LocalDate checkInDate;

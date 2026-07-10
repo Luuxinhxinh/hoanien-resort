@@ -358,67 +358,6 @@ public class BookingApiController {
         }
     }
 
-    @PostMapping("/{bookingId}/rooms/{detailId}/credit-limit")
-    public ResponseEntity<?> updateRoomCreditLimit(Principal principal, @PathVariable Long bookingId,
-            @PathVariable Long detailId, @RequestBody Map<String, Object> payload) {
-        if (principal == null) {
-            return ResponseEntity.status(401).body(Map.of("status", "error", "message", "Quý khách cần đăng nhập!"));
-        }
-        try {
-            Customer customer = resolveCurrentCustomer(principal);
-            com.kawai.models.RoomBookingDetail detail = roomBookingDetailRepository.findById(detailId).orElse(null);
-            if (detail == null || !detail.getRoomBooking().getId().equals(bookingId)) {
-                return ResponseEntity.status(404).body(Map.of("status", "error", "message", "Không tìm thấy phòng!"));
-            }
-
-            com.kawai.models.RoomBooking booking = detail.getRoomBooking();
-            if (!booking.getCustomer().getId().equals(customer.getId())) {
-                return ResponseEntity.status(403)
-                        .body(Map.of("status", "error", "message", "Không có quyền truy cập!"));
-            }
-
-            if (payload.get("newLimit") == null || payload.get("newLimit").toString().trim().isEmpty()) {
-                return ResponseEntity.badRequest().body(Map.of("status", "error", "message", "Hạn mức không hợp lệ!"));
-            }
-            BigDecimal newLimit;
-            try {
-                newLimit = new BigDecimal(payload.get("newLimit").toString());
-            } catch (Exception ex) {
-                return ResponseEntity.badRequest()
-                        .body(Map.of("status", "error", "message", "Định dạng số không hợp lệ!"));
-            }
-
-            if (newLimit.compareTo(BigDecimal.ZERO) < 0) {
-                return ResponseEntity.badRequest().body(Map.of("status", "error", "message", "Hạn mức không hợp lệ!"));
-            }
-
-            BigDecimal maxLimit = booking.getCreditLimit() != null ? booking.getCreditLimit() : BigDecimal.ZERO;
-            BigDecimal totalOtherRoomsLimit = BigDecimal.ZERO;
-            java.util.List<com.kawai.models.RoomBookingDetail> allDetails = roomBookingDetailRepository
-                    .findByRoomBookingId(bookingId);
-            for (com.kawai.models.RoomBookingDetail d : allDetails) {
-                if (!d.getId().equals(detailId)) {
-                    totalOtherRoomsLimit = totalOtherRoomsLimit
-                            .add(d.getSubCreditLimit() != null ? d.getSubCreditLimit() : BigDecimal.ZERO);
-                }
-            }
-
-            if (totalOtherRoomsLimit.add(newLimit).compareTo(maxLimit) > 0) {
-                return ResponseEntity.badRequest()
-                        .body(Map.of("status", "error", "message",
-                                "Tổng hạn mức cấp cho các phòng không được vượt quá hạn mức tối đa của đơn đặt phòng ("
-                                        + String.format("%,.0f", maxLimit) + "đ)"));
-            }
-
-            detail.setSubCreditLimit(newLimit);
-            roomBookingDetailRepository.save(detail);
-
-            return ResponseEntity.ok(Map.of("status", "success", "message", "Cập nhật hạn mức phòng thành công!"));
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(500).body(Map.of("status", "error", "message", "Đã xảy ra lỗi hệ thống"));
-        }
-    }
 
     /**
      * Validate và tính toán giá trị mã giảm giá từ bảng Promotions.

@@ -21,6 +21,7 @@ public class AdminAccountRestController {
 
     private final UserService userService;
     private final RoleRepository roleRepository;
+    private final com.kawai.repositories.EmployeeRepository employeeRepository;
 
     @PostMapping("/employees")
     public ResponseEntity<Employee> createEmployeeAccount(@RequestBody CreateEmployeeDTO dto) {
@@ -157,6 +158,105 @@ public class AdminAccountRestController {
             return ResponseEntity.ok(Map.of("message", "Deleted successfully"));
         } catch (Exception e) {
             System.out.println("========== ERROR IN DELETE API: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @GetMapping("/accounts/{id}/permissions")
+    public ResponseEntity<?> getAccountPermissions(@PathVariable String id) {
+        try {
+            if (id.startsWith("E-")) {
+                Long empId = Long.parseLong(id.substring(2));
+                com.kawai.models.Employee emp = employeeRepository.findById(empId)
+                        .orElseThrow(() -> new RuntimeException("Employee not found"));
+                com.kawai.models.Account account = emp.getAccount();
+                if (account == null || account.getRole() == null) {
+                    return ResponseEntity.ok(java.util.Collections.emptyList());
+                }
+                String perms = account.getRole().getPermissions();
+                if (perms == null || perms.isEmpty()) {
+                    return ResponseEntity.ok(java.util.Collections.emptyList());
+                }
+                return ResponseEntity.ok(java.util.Arrays.asList(perms.split(",")));
+            }
+            return ResponseEntity.badRequest().body(Map.of("error", "Invalid ID format"));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @DeleteMapping("/accounts/{id}/permissions")
+    public ResponseEntity<?> resetAccountPermissions(@PathVariable String id) {
+        try {
+            if (id.startsWith("E-")) {
+                Long empId = Long.parseLong(id.substring(2));
+                com.kawai.models.Employee emp = employeeRepository.findById(empId)
+                        .orElseThrow(() -> new RuntimeException("Employee not found"));
+                com.kawai.models.Account account = emp.getAccount();
+                if (account == null) {
+                    return ResponseEntity.badRequest().body(Map.of("error", "Employee has no account"));
+                }
+
+                com.kawai.models.Role currentRole = account.getRole();
+                if (currentRole == null || !currentRole.getRoleName().startsWith("CUSTOM_ROLE_")) {
+                    return ResponseEntity.ok(Map.of("message", "No custom permissions to reset"));
+                }
+
+                // Lấy base role name từ description
+                String desc = currentRole.getDescription();
+                String baseRoleName = null;
+                if (desc != null && desc.contains("Base: ")) {
+                    baseRoleName = desc.substring(desc.indexOf("Base: ") + 6).replace(")", "").trim();
+                }
+
+                if (baseRoleName == null) {
+                    return ResponseEntity.badRequest().body(Map.of("error", "Cannot determine base role"));
+                }
+
+                final String finalBaseRoleName = baseRoleName;
+                com.kawai.models.Role baseRole = userService.findRoleByName(finalBaseRoleName)
+                        .orElseThrow(() -> new RuntimeException("Base role not found: " + finalBaseRoleName));
+
+                // Gán lại role gốc cho account
+                account.setRole(baseRole);
+                userService.saveAccount(account);
+
+                // Xóa CUSTOM_ROLE khỏi DB
+                userService.deleteRole(currentRole.getId());
+
+                return ResponseEntity.ok(Map.of("message", "Permissions reset to default successfully"));
+            }
+            return ResponseEntity.badRequest().body(Map.of("error", "Invalid ID format"));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PutMapping("/accounts/{id}/permissions")
+    public ResponseEntity<?> updateAccountPermissions(@PathVariable String id, @RequestBody java.util.List<String> permissions) {
+        try {
+            if (id.startsWith("E-")) {
+                Long empId = Long.parseLong(id.substring(2));
+                com.kawai.models.Employee emp = employeeRepository.findById(empId)
+                        .orElseThrow(() -> new RuntimeException("Employee not found"));
+                com.kawai.models.Account account = emp.getAccount();
+                if (account == null) {
+                    return ResponseEntity.badRequest().body(Map.of("error", "Employee has no account"));
+                }
+                
+                // Chuẩn hóa quyền, loại bỏ OP_ nếu Frontend gửi thừa
+                java.util.List<String> cleanedPerms = permissions.stream()
+                        .map(p -> p.startsWith("OP_") ? p.substring(3) : p)
+                        .collect(java.util.stream.Collectors.toList());
+
+                userService.updateCustomPermissions(account.getId(), cleanedPerms);
+                return ResponseEntity.ok(Map.of("message", "Permissions updated successfully"));
+            }
+            return ResponseEntity.badRequest().body(Map.of("error", "Invalid ID format"));
+        } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", e.getMessage()));
         }

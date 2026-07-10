@@ -3,8 +3,8 @@
    ============================================================ */
 
 .detail-wrapper {
-  max-width: 900px;
-  margin: 0 auto;
+  max-width: 1150px;
+  margin: 0 auto 0 60px;
   padding: 20px;
 }
 
@@ -282,3 +282,193 @@
   .dh-right { width: 100%; display: flex; justify-content: flex-start; }
   .order-summary { width: 100%; }
 }
+
+/* ============================================================
+   RECEIPT / HÓA ĐƠN — SCREEN (ẩn khi xem web bình thường)
+   ============================================================ */
+.receipt-wrapper {
+  display: none; /* Mặc định ẩn, chỉ hiện khi @media print */
+}
+
+/* ============================================================
+   @MEDIA PRINT — CHỈ IN HÓA ĐƠN, ẨN TẤT CẢ UI TRANG
+   ============================================================ */
+@media print {
+  /* --- Đặt kích thước trang in kiểu hóa đơn nhiệt --- */
+  @page {
+    size: A5 portrait;
+    margin: 10mm 12mm;
+  }
+
+  /* --- Ẩn TOÀN BỘ các thành phần UI của trang --- */
+  .sidebar,
+  .main-content > .topbar,
+  .detail-wrapper,
+  .addon-modal-overlay,
+  #addonModal,
+  #tableReleaseModal,
+  #refundModal,
+  script {
+    display: none !important;
+  }
+
+  /* --- Đặt lại nền/màu cho trình duyệt khi in --- */
+  body {
+    background: #fff !important;
+    color: #000 !important;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 12px;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* --- Hiển thị phần hóa đơn --- */
+  .receipt-wrapper,
+  #print-receipt-section {
+    display: block !important;
+    width: 100%;
+    max-width: 100%;
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+  }
+
+  /* --- Header khách sạn --- */
+  .receipt-header {
+    text-align: center;
+    border-bottom: 2px solid #000;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+  }
+  .receipt-header h2 {
+    font-size: 16px;
+    font-weight: bold;
+    letter-spacing: 2px;
+    margin: 0 0 4px 0;
+    text-transform: uppercase;
+  }
+  .receipt-header p {
+    margin: 2px 0;
+    font-size: 10px;
+    color: #444;
+  }
+
+  /* --- Tiêu đề hóa đơn --- */
+  .receipt-title {
+    text-align: center;
+    font-size: 14px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin: 10px 0;
+    padding: 6px 0;
+    border-top: 1px dashed #000;
+    border-bottom: 1px dashed #000;
+  }
+
+  /* --- Thông tin đơn (số order, ngày, thu ngân, bàn) --- */
+  .receipt-meta {
+    margin: 10px 0;
+    font-size: 11px;
+  }
+  .receipt-meta p {
+    display: flex;
+    justify-content: space-between;
+    margin: 3px 0;
+    border-bottom: 1px dotted #ccc;
+    padding-bottom: 2px;
+  }
+  .receipt-meta p span:first-child {
+    color: #555;
+  }
+
+  /* --- Bảng danh sách món ăn --- */
+  .receipt-table {
+    width: 100%;
+    margin: 10px 0;
+    border-top: 1px solid #000;
+    padding-top: 8px;
+  }
+  .receipt-item {
+    display: grid;
+    grid-template-columns: 1fr 30px 70px;
+    gap: 4px;
+    padding: 4px 0;
+    font-size: 11px;
+    border-bottom: 1px dotted #ccc;
+  }
+  .receipt-item-name {
+    font-weight: 600;
+    word-break: break-word;
+  }
+  .receipt-item-qty {
+    text-align: center;
+    color: #555;
+  }
+  .receipt-item-price {
+    text-align: right;
+    font-weight: 600;
+  }
+
+  /* --- Tổng cộng --- */
+  .receipt-totals {
+    border-top: 2px solid #000;
+    padding-top: 8px;
+    margin-top: 6px;
+    font-size: 12px;
+  }
+  .receipt-totals p {
+    display: flex;
+    justify-content: space-between;
+    margin: 4px 0;
+  }
+  .receipt-total-bold {
+    font-size: 14px !important;
+    font-weight: bold !important;
+    border-top: 1px dashed #000;
+    padding-top: 6px !important;
+    margin-top: 4px !important;
+  }
+
+  /* --- Con dấu ĐÃ THANH TOÁN --- */
+  .receipt-paid-stamp {
+    text-align: center;
+    font-size: 16px;
+    font-weight: bold;
+    color: #1a7a1a;
+    border: 3px solid #1a7a1a;
+    border-radius: 6px;
+    padding: 8px 16px;
+    margin: 14px auto;
+    width: fit-content;
+    letter-spacing: 2px;
+    transform: rotate(-5deg);
+  }
+
+  /* --- Ô chữ ký cho Room Service chưa thanh toán --- */
+  .receipt-signature {
+    margin-top: 20px;
+    text-align: center;
+    font-size: 11px;
+    color: #555;
+  }
+  .sign-line {
+    border-bottom: 1px solid #000;
+    margin: 30px auto 8px;
+    width: 60%;
+  }
+
+  /* --- Footer --- */
+  .receipt-footer {
+    text-align: center;
+    border-top: 1px dashed #000;
+    margin-top: 14px;
+    padding-top: 8px;
+    font-size: 10px;
+    color: #555;
+  }
+  .receipt-footer p {
+    margin: 2px 0;
+  }
+}
+

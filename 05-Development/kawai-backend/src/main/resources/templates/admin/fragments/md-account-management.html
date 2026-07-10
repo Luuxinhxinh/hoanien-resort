@@ -30,6 +30,9 @@
                         <td th:attr="data-key='role',data-value=${row['role']}">
                             <span class="cell-badge" th:classappend="${row['__roleStyle']}"
                                 th:text="${row['role']}"></span>
+                            <span th:if="${row['hasCustomPerms'] == 'true'}"
+                                style="margin-left:4px;font-size:10px;background:#B45309;color:#fff;padding:1px 5px;border-radius:4px;vertical-align:middle;font-weight:600;"
+                                title="Quyền đã được tùy chỉnh riêng">Tùy chỉnh</span>
                         </td>
                         <td th:attr="data-key='email',data-value=${row['email']}" th:text="${row['email']}"></td>
                         <td style="text-align:right">
@@ -40,6 +43,9 @@
                                         style="color:#C9A96E"></i>
                                     <i th:unless="${row['status'] == 'Hoạt động'}" data-lucide="toggle-left"
                                         style="color:#8B7355"></i>
+                                </button>
+                                <button class="btn-action btn-action-edit btn-permissions" th:if="${row['type'] == 'Nhân viên' && row['role'] != 'Admin'}" th:attr="data-id=${row['id']}, data-name=${row['name']}, data-role=${row['role']}, data-has-custom=${row['hasCustomPerms']}" title="Chỉnh sửa quyền">
+                                    <i data-lucide="shield"></i>
                                 </button>
                                 <button class="btn-action btn-action-edit btn-edit" th:attr="data-id=${row['id']}"><i
                                         data-lucide="pencil"></i></button>
@@ -103,8 +109,6 @@
                             style="color:#B45309">*</span></label><input type="number" name="salary"
                         class="adm-form-input"></div>
             </div>
-
-
         </div>
     </div>
 

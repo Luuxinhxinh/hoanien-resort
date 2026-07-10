@@ -19,6 +19,92 @@
 </head>
 
 <body>
+    <!-- Toast Notification -->
+    <div id="toastContainer"
+        style="position:fixed; top:24px; right:24px; z-index:9999; display:flex; flex-direction:column; gap:10px;">
+    </div>
+
+    <!-- Modal Đổi Phòng (Transfer Room) - 3 bước -->
+    <div id="transferRoomModal"
+        style="display:none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.65); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(5px);">
+        <div
+            style="background: white; border-radius: 16px; width: 100%; max-width: 640px; padding: 36px; box-shadow: 0 24px 40px -8px rgba(0, 0, 0, 0.2); position: relative;">
+            <div
+                style="display:flex; justify-content:space-between; align-items:center; border-bottom: 2px solid #f0e8df; padding-bottom: 18px; margin-bottom: 24px;">
+                <h3
+                    style="margin: 0; color: #1a1a1a; font-size: 22px; font-weight: 700; font-family: 'Playfair Display', serif;">
+                    Đổi Hạng Phòng</h3>
+                <i class="fa-solid fa-xmark" style="cursor: pointer; color: #8b8b8b; font-size: 22px;"
+                    onmouseover="this.style.color='#eb5757'" onmouseout="this.style.color='#8b8b8b'"
+                    onclick="closeTransferRoomModal()"></i>
+            </div>
+
+            <!-- Bước 1: Chọn phòng hiện tại -->
+            <div id="transferStep1" style="display: flex; flex-direction: column; gap: 14px;">
+                <p
+                    style="margin:0; font-size:13px; color:#946f38; font-weight:600; letter-spacing:0.5px; text-transform:uppercase;">
+                    Bước 1 / 3 — Chọn phòng muốn đổi hạng</p>
+                <select id="transferCurrentRoomSelect"
+                    style="width:100%; padding:12px 14px; border:2px solid #e5ddd5; border-radius:10px; font-size:15px; outline:none; font-family: inherit; transition: border-color 0.2s;"
+                    onfocus="this.style.borderColor='#946f38'" onblur="this.style.borderColor='#e5ddd5'">
+                    <option value="">-- Đang tải... --</option>
+                </select>
+                <div style="display:flex; justify-content:flex-end; margin-top:4px;">
+                    <button type="button" onclick="transferStep1Next()"
+                        style="background:#946f38; color:#fff; border:none; padding:10px 24px; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer; transition: background 0.2s;"
+                        onmouseover="this.style.background='#7a5c2e'" onmouseout="this.style.background='#946f38'">Tiếp
+                        theo →</button>
+                </div>
+            </div>
+
+            <!-- Bước 2: Chọn hạng phòng -->
+            <div id="transferStep2" style="display:none; flex-direction:column; gap:14px;">
+                <p
+                    style="margin:0; font-size:13px; color:#946f38; font-weight:600; letter-spacing:0.5px; text-transform:uppercase;">
+                    Bước 2 / 3 — Chọn hạng phòng muốn đổi sang</p>
+                <div id="transferCategoryList"
+                    style="display:flex; flex-direction:column; gap:10px; max-height:360px; overflow-y:auto; padding-right:4px;">
+                </div>
+                <div style="display:flex; justify-content:space-between; margin-top:4px;">
+                    <button type="button" onclick="transferGoStep(1)"
+                        style="background:white; border:2px solid #e5ddd5; color:#5a5a5a; padding:10px 20px; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer; transition: all 0.2s;"
+                        onmouseover="this.style.borderColor='#946f38'; this.style.color='#946f38'"
+                        onmouseout="this.style.borderColor='#e5ddd5'; this.style.color='#5a5a5a'">← Quay lại</button>
+                </div>
+            </div>
+
+            <!-- Bước 3: Chọn phòng cụ thể & xác nhận -->
+            <div id="transferStep3" style="display:none; flex-direction:column; gap:14px;">
+                <p
+                    style="margin:0; font-size:13px; color:#946f38; font-weight:600; letter-spacing:0.5px; text-transform:uppercase;">
+                    Bước 3 / 3 — Chọn phòng trống cụ thể</p>
+                <div id="transferPriceInfo"
+                    style="background:#fdf8f1; border:2px solid #f0e8df; border-left:4px solid #946f38; border-radius:10px; padding:14px 16px; font-size:14px; color:#5a4020;">
+                </div>
+                <form id="transferRoomForm" onsubmit="submitTransferRoom(event)"
+                    style="display:flex; flex-direction:column; gap:14px;">
+                    <input type="hidden" id="transferDetailIdInput" name="bookingDetailId" />
+                    <select id="transferNewRoomSelect" name="newRoomId" required
+                        style="width:100%; padding:12px 14px; border:2px solid #e5ddd5; border-radius:10px; font-size:15px; outline:none; font-family:inherit; transition: border-color 0.2s;"
+                        onfocus="this.style.borderColor='#946f38'" onblur="this.style.borderColor='#e5ddd5'">
+                        <option value="">-- Chọn phòng --</option>
+                    </select>
+                    <div style="display:flex; justify-content:space-between; margin-top:4px;">
+                        <button type="button" onclick="transferGoStep(2)"
+                            style="background:white; border:2px solid #e5ddd5; color:#5a5a5a; padding:10px 20px; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer; transition: all 0.2s;"
+                            onmouseover="this.style.borderColor='#946f38'; this.style.color='#946f38'"
+                            onmouseout="this.style.borderColor='#e5ddd5'; this.style.color='#5a5a5a'">← Quay
+                            lại</button>
+                        <button type="submit"
+                            style="background:#946f38; color:#fff; border:none; padding:10px 28px; border-radius:8px; font-size:14px; font-weight:700; cursor:pointer; transition: background 0.2s;"
+                            onmouseover="this.style.background='#7a5c2e'" onmouseout="this.style.background='#946f38'">✔
+                            Xác nhận Đổi phòng</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <div class="app-container">
         <!-- Sidebar -->
         <aside class="sidebar">
@@ -33,7 +119,8 @@
             <div class="sidebar-section-title">RECEPTIONIST</div>
 
             <nav class="sidebar-nav">
-                <a href="/receptionist/dashboard" class="nav-item" sec:authorize="hasAnyAuthority('OP_DASHBOARD', 'ROLE_ADMIN', 'ROLE_MANAGER')">
+                <a href="/receptionist/dashboard" class="nav-item"
+                    sec:authorize="hasAnyAuthority('OP_DASHBOARD', 'ROLE_ADMIN', 'ROLE_MANAGER')">
                     <i class="fa-solid fa-border-all"></i>
                     <div class="nav-text">
                         <span class="nav-main-text">Room Matrix</span>
@@ -42,21 +129,24 @@
                     <i class="fa-solid fa-chevron-right nav-arrow"></i>
                 </a>
 
-                <a href="/receptionist/walk-in" class="nav-item" sec:authorize="hasAnyAuthority('OP_RECEPTION_WALKIN', 'OP_BOOKING', 'ROLE_ADMIN', 'ROLE_MANAGER')">
+                <a href="/receptionist/walk-in" class="nav-item"
+                    sec:authorize="hasAnyAuthority('OP_RECEPTION_WALKIN', 'OP_BOOKING', 'ROLE_ADMIN', 'ROLE_MANAGER')">
                     <i class="fa-solid fa-person-walking-luggage"></i>
                     <div class="nav-text">
                         <span class="nav-main-text">Walk-In</span>
                         <span class="nav-sub-text">Khách vãng lai</span>
                     </div>
                 </a>
-                <a href="/receptionist/check-in" class="nav-item" sec:authorize="hasAnyAuthority('OP_RECEPTION_CHECKIN', 'OP_BOOKING', 'ROLE_ADMIN', 'ROLE_MANAGER')">
+                <a href="/receptionist/check-in" class="nav-item"
+                    sec:authorize="hasAnyAuthority('OP_RECEPTION_CHECKIN', 'OP_BOOKING', 'ROLE_ADMIN', 'ROLE_MANAGER')">
                     <i class="fa-solid fa-arrow-right-to-bracket"></i>
                     <div class="nav-text">
                         <span class="nav-main-text">Check-in</span>
                         <span class="nav-sub-text">Nhận phòng</span>
                     </div>
                 </a>
-                <a href="/receptionist/folio" class="nav-item" sec:authorize="hasAnyAuthority('OP_RECEPTION_CHECKOUT', 'OP_BOOKING', 'ROLE_ADMIN', 'ROLE_MANAGER')">
+                <a href="/receptionist/folio" class="nav-item"
+                    sec:authorize="hasAnyAuthority('OP_RECEPTION_CHECKOUT', 'OP_BOOKING', 'ROLE_ADMIN', 'ROLE_MANAGER')">
                     <i class="fa-solid fa-arrow-right-from-bracket"></i>
                     <div class="nav-text">
                         <span class="nav-main-text">Check-out / Folio</span>
@@ -116,7 +206,7 @@
                         <i class="fa-solid fa-user"></i>
                         <span>Receptionist</span>
                     </button>
-                    <button class="logout-btn">
+                    <button class="logout-btn" onclick="window.location.href=\'/logout\'">
                         <i class="fa-solid fa-arrow-right-from-bracket"></i>
                         <span>Logout</span>
                     </button>
@@ -144,9 +234,15 @@
 
 
 
-                <div class="split-layout" style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                <div class="tab-navigation" style="display: flex; gap: 12px; margin-bottom: 24px;">
+                    <button id="btnTabInHouse" class="btn btn-primary" onclick="switchTab('inhouse')"
+                        style="padding: 10px 20px; font-weight: 600;">Khách đang lưu trú</button>
+                    <button id="btnTabCancelled" class="btn btn-outline" onclick="switchTab('cancelled')"
+                        style="padding: 10px 20px; font-weight: 600; background: white; border: 1px solid #cbd5e1; color: #475569;">Đơn
+                        đã Hủy / No-Show</button>
+                </div>
 
-
+                <div class="split-layout" style="display: flex; flex-direction: column; gap: 24px;">
                     <!-- Tab 2: In-House Guests -->
                     <div id="tabContentInHouse" class="split-section" style="display: block;">
                         <div class="split-title"
@@ -176,41 +272,37 @@
                                     <td><span class="status-badge" style="background: #e0f2fe; color: #0284c7;"
                                             th:text="${arr.bookingScale}"></span></td>
                                     <td>
+
                                         <button class="btn btn-primary btn-sm"
-                                            th:attr="onclick=|openInHouseModal('${arr.guestName}', '${arr.phone}', '${arr.roomSummary}', 'deps-${arr.id}')|">Chi
-                                            tiết</button>
-                                        <form action="/receptionist/in-house/transfer-room" method="post"
-                                            style="display:flex; gap:6px; align-items:center; margin-top:8px; flex-wrap:wrap;">
-                                            <select name="bookingDetailId" required
-                                                style="min-width:120px; padding:6px; border:1px solid #d1d5db; border-radius:6px; font-size:12px;">
-                                                <option value="">Phòng hiện tại</option>
-                                                <option th:each="detail : ${arr.activeDetails}"
-                                                    th:value="${detail.id}" th:text="${detail.label}">101 - Deluxe</option>
+                                            th:attr="onclick=|window.open('/receptionist/in-house/print/' + ${arr.id}, '_blank')|">In
+                                            tờ khai</button>
+                                        <button type="button" class="btn btn-secondary btn-sm" style="margin-left: 6px;"
+                                            th:data-id="${arr.id}"
+                                            onclick="openTransferRoomModal(this.getAttribute('data-id'))">Đổi
+                                            phòng</button>
+                                        <button type="button" class="btn btn-sm"
+                                            style="margin-left: 6px; background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; border-radius: 6px; padding: 5px 12px; cursor: pointer; font-weight: 600;"
+                                            th:data-id="${arr.id}"
+                                            onclick="openCreditDepositModal(this.getAttribute('data-id'))">&#43; Hạn
+                                            mức</button>
+
+                                        <!-- Nút nâng cấp cho người đứng đầu phòng (khi có >= 2 phòng) -->
+                                        <th:block th:if="${arr.roomCount >= 2}">
+                                            <select class="btn btn-warning btn-sm"
+                                                style="margin-left: 6px; color: #854d0e; background-color: #fef08a; border-color: #fde047; font-weight: 600; outline: none; cursor: pointer; text-align: center;"
+                                                onchange="if(this.value) { upgradeDependent(this.value, this); this.selectedIndex=0; }">
+                                                <option value="">Nâng cấp TK </option>
+                                                <option th:each="dep : ${arr.dependents}"
+                                                    th:if="${dep.isPrimaryContact}" th:value="${dep.dependentId}"
+                                                    th:text="${dep.fullName}"></option>
                                             </select>
-                                            <select name="newRoomId" required
-                                                style="min-width:120px; padding:6px; border:1px solid #d1d5db; border-radius:6px; font-size:12px;">
-                                                <option value="">Phòng mới</option>
-                                                <option th:each="room : ${vacantRooms}"
-                                                    th:value="${room.id}"
-                                                    th:text="${room.roomNumber} + ' - ' + (${room.category != null ? room.category.categoryName : 'Room'})">102</option>
-                                            </select>
-                                            <button class="btn btn-secondary btn-sm" type="submit">Đổi phòng</button>
-                                        </form>
-                                        <!-- Hidden data for dependents -->
-                                        <div th:id="'deps-' + ${arr.id}" style="display:none;">
-                                            <ul style="padding-left: 20px; margin:0; color:#475569; font-size:14px;">
-                                                <li th:if="${#lists.isEmpty(arr.dependents)}">Không có người đi kèm</li>
-                                                <li th:each="dep : ${arr.dependents}">
-                                                    <span th:text="${dep.fullName} + ' (Sinh: ' + ${dep.dateOfBirth} + ')'"></span>
-                                                    <span th:if="${dep.isPrimaryContact}" style="background-color: #fef08a; color: #854d0e; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; margin-left: 8px;" th:text="'Đứng đầu ' + (${dep.assignedRoom != null ? 'phòng ' + dep.assignedRoom : ''})">Đứng đầu</span>
-                                                </li>
-                                            </ul>
-                                        </div>
+                                        </th:block>
+
+
                                     </td>
                                 </tr>
                             </tbody>
                         </table>
-
                         <!-- Pagination cho In-House -->
                         <div class="pagination"
                             style="display: flex; justify-content: flex-end; align-items: center; gap: 1rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #e5e7eb;">
@@ -227,7 +319,7 @@
                     </div> <!-- End Tab 2 -->
 
                     <!-- Tab 3: Cancelled/No-Show Guests -->
-                    <div id="tabContentCancelled" class="split-section" style="display: block;">
+                    <div id="tabContentCancelled" class="split-section" style="display: none;">
                         <div class="split-title"
                             style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
                             <span>Đơn đã Hủy / No-Show</span>
@@ -248,11 +340,10 @@
                                     <td colspan="4" style="text-align: center;">Không có đơn hủy</td>
                                 </tr>
                                 <tr th:each="arr : ${cancelledBookings}">
-                                    <td style="color: #2563eb; font-weight: 500;"
-                                        th:text="${arr.guestName}"></td>
+                                    <td style="color: #2563eb; font-weight: 500;" th:text="${arr.guestName}"></td>
                                     <td th:text="${arr.checkInDate}"></td>
                                     <td>
-                                        <span class="status-badge" th:text="${arr.status}" 
+                                        <span class="status-badge" th:text="${arr.status}"
                                             th:style="${#strings.equalsIgnoreCase(arr.status, 'NO-SHOW')} ? 'background:#fef3c7; color:#d97706;' : 'background:#fee2e2; color:#991b1b;'"></span>
                                     </td>
                                     <td th:text="${arr.roomSummary}" style="color: #4b5563;"></td>
@@ -265,45 +356,94 @@
         </main>
     </div>
 
-    <!-- In-House Details Modal -->
-    <div id="inHouseModal" class="modal-overlay"
-        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;">
-        <div class="modal-content"
-            style="background: white; width: 600px; max-width: 90%; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); padding: 24px; display: flex; flex-direction: column;">
+
+
+
+    <!-- Credit Deposit Modal -->
+    <div id="creditDepositModal"
+        style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:2000; justify-content:center; align-items:center; backdrop-filter:blur(4px);">
+        <div
+            style="background:white; width:500px; max-width:95%; border-radius:14px; box-shadow:0 20px 50px rgba(0,0,0,0.25); padding:32px; display:flex; flex-direction:column; gap:20px;">
+            <!-- Header -->
             <div
-                style="display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid #e2e8f0; padding-bottom: 16px; margin-bottom: 16px;">
-                <h3 style="margin: 0; color: #0f172a; font-size: 18px;">Chi tiết Đơn lưu trú</h3>
-                <i class="fa-solid fa-xmark" style="cursor: pointer; color: #64748b; font-size: 18px;"
-                    onclick="closeInHouseModal()"></i>
+                style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #e5e7eb; padding-bottom:16px;">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <div
+                        style="background:linear-gradient(135deg,#10b981,#059669); width:36px; height:36px; border-radius:8px; display:flex; align-items:center; justify-content:center;">
+                        <i class="fa-solid fa-plus" style="color:white; font-size:16px;"></i>
+                    </div>
+                    <h3 style="margin:0; color:#0f172a; font-size:19px; font-weight:700;">Nạp tiền nâng hạn mức</h3>
+                </div>
+                <i class="fa-solid fa-xmark" onclick="closeCreditDepositModal()"
+                    style="cursor:pointer; color:#64748b; font-size:22px;"></i>
             </div>
 
-            <div style="display:flex; flex-direction:column; gap: 16px;">
-                <div>
-                    <span
-                        style="font-weight: 500; color: #475569; font-size:13px; display:block; margin-bottom: 4px;">Chủ
-                        đơn (Main Guest)</span>
-                    <div id="modalInHouseGuestName" style="color: #0f172a; font-weight: 500; font-size:15px;"></div>
-                    <div id="modalInHousePhone" style="color: #64748b; font-size:13px;"></div>
-                </div>
-                <div>
-                    <span
-                        style="font-weight: 500; color: #475569; font-size:13px; display:block; margin-bottom: 4px;">Phòng
-                        đã gán</span>
-                    <div id="modalInHouseRooms" style="color: #0284c7; font-weight: 500; font-size:14px;"></div>
-                </div>
-                <div>
-                    <span
-                        style="font-weight: 500; color: #475569; font-size:13px; display:block; margin-bottom: 4px;">Danh
-                        sách người phụ thuộc</span>
-                    <div id="modalInHouseDependents"
-                        style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px;">
+            <!-- Chọn phòng -->
+            <div>
+                <label style="display:block; font-weight:600; color:#374151; margin-bottom:8px; font-size:14px;">Chọn
+                    phòng</label>
+                <select id="cdRoomSelect" onchange="onCdRoomChange()"
+                    style="width:100%; padding:10px 14px; border:1.5px solid #d1d5db; border-radius:8px; font-size:14px; outline:none;">
+                    <option value="">-- Đang tải danh sách phòng... --</option>
+                </select>
+            </div>
+
+            <!-- Thông tin hạn mức hiện tại -->
+            <div id="cdCreditInfo"
+                style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:10px; padding:14px 18px; display:none;">
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                    <div>
+                        <div style="font-size:11px; color:#6b7280; margin-bottom:3px;">Hạn mức gốc</div>
+                        <div id="cdLimitDisplay" style="font-size:16px; font-weight:700; color:#0f172a;">-</div>
+                    </div>
+                    <div>
+                        <div style="font-size:11px; color:#6b7280; margin-bottom:3px;">Đã nạp thêm</div>
+                        <div id="cdDepositedDisplay" style="font-size:16px; font-weight:700; color:#0284c7;">-</div>
+                    </div>
+                    <div>
+                        <div style="font-size:11px; color:#6b7280; margin-bottom:3px;">Đang chi tiêu</div>
+                        <div id="cdChargedDisplay" style="font-size:16px; font-weight:700; color:#ef4444;">-</div>
                     </div>
                 </div>
             </div>
 
-            <div style="margin-top: 24px; display:flex; justify-content:flex-end;">
-                <button type="button" class="action-btn outline" onclick="closeInHouseModal()"
-                    style="padding: 10px 24px;">Đóng</button>
+            <!-- Nhập số tiền nạp -->
+            <div id="cdInputSection" style="display:none;">
+                <label style="display:block; font-weight:600; color:#374151; margin-bottom:8px; font-size:14px;">Số tiền
+                    nạp (VND)</label>
+                <input type="number" id="cdAmount" oninput="onCdAmountChange()" placeholder="Ví dụ: 2,000,000"
+                    style="width:100%; padding:10px 14px; border:1.5px solid #d1d5db; border-radius:8px; font-size:15px; outline:none; box-sizing:border-box;">
+
+                <div style="margin-top:16px;">
+                    <label
+                        style="display:block; font-weight:600; color:#374151; margin-bottom:8px; font-size:14px;">Phương
+                        thức thanh toán</label>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                        <label id="cdMethodCashLabel"
+                            style="border:2px solid #10b981; border-radius:8px; padding:12px; cursor:pointer; display:flex; align-items:center; gap:8px; background:#f0fdf4;">
+                            <input type="radio" name="cdMethod" value="CASH" checked onchange="selectCdMethod()"
+                                style="accent-color:#10b981;">
+                            <span style="font-weight:600; color:#065f46;"><i class="fa-solid fa-money-bill-wave"></i>
+                                Tiền mặt</span>
+                        </label>
+                        <label id="cdMethodVnpayLabel"
+                            style="border:2px solid #e5e7eb; border-radius:8px; padding:12px; cursor:pointer; display:flex; align-items:center; gap:8px;">
+                            <input type="radio" name="cdMethod" value="VNPAY" onchange="selectCdMethod()"
+                                style="accent-color:#1d4ed8;">
+                            <span style="font-weight:600; color:#1e3a8a;"><i class="fa-solid fa-qrcode"></i>
+                                VNPay</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div style="display:flex; gap:12px; margin-top:4px;">
+                <button onclick="closeCreditDepositModal()"
+                    style="flex:1; padding:11px; border:1.5px solid #d1d5db; border-radius:8px; background:white; color:#374151; font-weight:600; font-size:14px; cursor:pointer;">Hủy</button>
+                <button id="cdSubmitBtn" onclick="submitCreditDeposit()" disabled
+                    style="flex:2; padding:11px; border:none; border-radius:8px; background:#d1d5db; color:#9ca3af; font-weight:700; font-size:14px; cursor:not-allowed; transition:all 0.2s;">Xác
+                    nhận nạp tiền</button>
             </div>
         </div>
     </div>

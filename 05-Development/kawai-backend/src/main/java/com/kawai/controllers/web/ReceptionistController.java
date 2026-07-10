@@ -670,6 +670,7 @@ public class ReceptionistController {
             if (guestCount == 0) {
                 guestCount = 1 + deps.size();
             }
+            map.put("dependents", deps);
             String bookingScale = roomCount + " Phòng, " + guestCount + " Khách";
             map.put("bookingScale", bookingScale);
             map.put("roomCount", roomCount);

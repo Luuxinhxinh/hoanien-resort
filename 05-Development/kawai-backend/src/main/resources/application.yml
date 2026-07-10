@@ -10,7 +10,7 @@ spring:
     url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/kawai_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&useUnicode=true}
     driverClassName: com.mysql.cj.jdbc.Driver
     username: ${SPRING_DATASOURCE_USERNAME:root}
-    password: ${SPRING_DATASOURCE_PASSWORD:123456}
+    password: ${SPRING_DATASOURCE_PASSWORD:12345678}
   sql:
     init:
       mode: always
@@ -84,4 +84,7 @@ sendgrid:
   api-key: ${SENDGRID_API_KEY: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}
   from-email: hoanien.00@gmail.com
 
-
+cloudinary:
+  cloud-name: ${CLOUDINARY_CLOUD_NAME:r2g91yqt}
+  api-key: ${CLOUDINARY_API_KEY:533237334291996}
+  api-secret: ${CLOUDINARY_API_SECRET:RqeD4nAa8GAHp-TzReWXe2fNEPI}

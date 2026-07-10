@@ -38,6 +38,29 @@ Agent KHÔNG được hỏi user "request thuộc loại nào?". Thay vào đó,
 
 ---
 
+## 🧠 FORCE SCRATCHPAD — Bắt buộc với MỌI model (bao gồm Gemini)
+
+> **Mục đích:** Mô phỏng Extended Thinking của Claude cho các model không có thinking mode tích hợp. Ngăn model "nhảy vội" vào code khi chưa hiểu đủ context.
+
+**Trước khi gọi tool ĐẦU TIÊN**, model BẮT BUỘC phải trả lời nội bộ 4 câu hỏi sau (có thể viết tắt, nhưng phải viết ra):
+
+```
+[SCRATCHPAD]
+1. TÔI HIỂU: Yêu cầu là "..." → Tôi sẽ phải [hành động cụ thể]
+2. TÔI CẦN BIẾT: Để làm điều này, tôi cần đọc/tìm: [danh sách cụ thể]
+3. RỦI RO VÀ ẢNH HƯỞNG: Nếu tôi sửa X thì [Y / Z / flow này] có bị ảnh hưởng không?
+4. PROACTIVE CHECK: Ngoài điều user yêu cầu, điều gì hiển nhiên cần phải làm thêm?
+[/SCRATCHPAD]
+```
+
+**Quy tắc:**
+- Nếu câu 2 còn "?" (chưa biết) → gọi tool tìm hiểu trước
+- Nếu câu 3 có rủi ro → liệt kê vào Impact Analysis
+- Nếu câu 4 có item → thêm vào plan ngay, không chờ user nhắc
+- **KHÔNG ĐƯỢC skip Scratchpad** dù request có vẻ đơn giản. Task "đơn giản" thường ẩn nhiều rủi ro nhất.
+
+---
+
 ## ⚡ CHIẾN LƯỢC TỐI ƯU TOKEN (BẮT BUỘC)
 
 **Không đọc toàn bộ file một cách tràn lan.** Áp dụng các kỹ thuật sau để tiết kiệm token:
@@ -192,6 +215,23 @@ Khi thêm hoặc sửa chức năng, **không dừng lại ở file đang sửa*
 - Làm từng việc, kiểm tra xong mới chuyển
 - CHỈ đọc file chi tiết khi bắt đầu sửa file đó
 - KHÔNG đọc trước tất cả file rồi mới sửa
+
+**⛩ CHECKPOINT GATE — BẮT BUỘC sau mỗi tool call:**
+
+Sau MỖI lần nhận kết quả từ một tool (view_file, grep_search, run_command...), phải tự hỏi:
+
+| Câu hỏi | Nếu trả lời "Chưa" |
+|---|---|
+| Kết quả này có đủ để tôi tiến hành bước tiếp không? | → Gọi thêm tool để lấy context |
+| Kết quả này có mâu thuẫn với assumption ban đầu không? | → Cập nhật lại plan, KHÔNG tiếp tục theo plan cũ |
+| Có thông tin mới nào cần trace thêm không? | → Mở rộng scan trước khi code |
+| Tôi đã hiểu đủ để viết code ĐÚNG ngay từ lần đầu chưa? | → Nếu chưa chắc → đọc thêm |
+
+> **Dấu hiệu đang bỏ qua Checkpoint Gate (NGHIÊM CẤM):**
+> - ❌ Đọc một file → lập tức sửa mà không trace sang file liên đới
+> - ❌ Nhận kết quả grep → chỉ đọc dòng đầu tiên, bỏ qua kết quả còn lại
+> - ❌ Build lỗi → sửa lỗi đó → báo Done mà không chạy lại build confirm
+> - ❌ Sửa Backend → không kiểm tra Frontend đang gọi API đó thế nào
 
 ### Bước 4: Kiểm tra toàn diện (BẢNG DEFINITION OF DONE TỔNG)
 Trọn vẹn các bài kiểm tra BẮT BUỘC trước khi có thể kết luận task hoàn thành. 

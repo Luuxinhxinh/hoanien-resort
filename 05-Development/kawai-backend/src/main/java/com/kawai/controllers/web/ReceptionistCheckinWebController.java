@@ -35,6 +35,7 @@ public class ReceptionistCheckinWebController {
     private final com.kawai.repositories.BookingRepository bookingRepo;
     private final com.kawai.repositories.RoomGuestRepository roomGuestRepo;
     private final com.kawai.repositories.TourBookingRepository tourBookingRepo;
+    private final com.cloudinary.Cloudinary cloudinary;
 
     public ReceptionistCheckinWebController(CheckinService checkinService,
             DependentService dependentService,
@@ -43,7 +44,8 @@ public class ReceptionistCheckinWebController {
             com.kawai.repositories.CustomerRepository customerRepo,
             com.kawai.repositories.BookingRepository bookingRepo,
             com.kawai.repositories.RoomGuestRepository roomGuestRepo,
-            com.kawai.repositories.TourBookingRepository tourBookingRepo) {
+            com.kawai.repositories.TourBookingRepository tourBookingRepo,
+            com.cloudinary.Cloudinary cloudinary) {
         this.checkinService = checkinService;
         this.dependentService = dependentService;
         this.roomBookingDetailRepo = roomBookingDetailRepo;
@@ -52,6 +54,7 @@ public class ReceptionistCheckinWebController {
         this.bookingRepo = bookingRepo;
         this.roomGuestRepo = roomGuestRepo;
         this.tourBookingRepo = tourBookingRepo;
+        this.cloudinary = cloudinary;
     }
 
     @PostMapping("/complete")
@@ -108,23 +111,16 @@ public class ReceptionistCheckinWebController {
                 }
                 if (form.getFaceImageBase64() != null && !form.getFaceImageBase64().isEmpty()) {
                     try {
-                        String[] parts = form.getFaceImageBase64().split(",");
-                        String imageString = parts.length > 1 ? parts[1] : parts[0];
-                        byte[] imageBytes = java.util.Base64.getDecoder().decode(imageString);
-
-                        String fileName = "cust_" + customer.getId() + "_" + System.currentTimeMillis() + ".jpg";
-                        java.nio.file.Path uploadPath = java.nio.file.Paths
-                                .get(com.kawai.utils.UploadPathResolver.resolvePath("uploads/faces"));
-                        if (!java.nio.file.Files.exists(uploadPath)) {
-                            java.nio.file.Files.createDirectories(uploadPath);
-                        }
-                        java.nio.file.Path filePath = uploadPath.resolve(fileName);
-                        java.nio.file.Files.write(filePath, imageBytes);
-                        String publicUrl = "/uploads/faces/" + fileName;
-
+                        // Upload trực tiếp chuỗi Data URI (Base64) lên Cloudinary
+                        java.util.Map<String, Object> uploadResult = cloudinary.uploader().upload(form.getFaceImageBase64(), 
+                                com.cloudinary.utils.ObjectUtils.asMap(
+                                        "folder", "kawai_faces",
+                                        "public_id", "cust_" + customer.getId() + "_" + System.currentTimeMillis()
+                                ));
+                        String publicUrl = uploadResult.get("secure_url").toString();
                         customer.setFaceImgUrl(publicUrl);
                     } catch (Exception e) {
-                        log.error("Failed to save FaceID image for customer {}", customer.getId(), e);
+                        log.error("Failed to save FaceID image to Cloudinary for customer {}", customer.getId(), e);
                     }
                 }
 

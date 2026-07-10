@@ -12,6 +12,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.kawai.utils.EncryptionUtils;
+import com.kawai.services.FileUploadService;
 
 import com.kawai.models.RoomBooking;
 import com.kawai.models.TourBooking;
@@ -54,6 +55,9 @@ public class ProfileController {
     private RoomBookingRepository roomBookingRepository;
 
     @Autowired
+    private com.kawai.repositories.BookingRepository bookingRepository;
+
+    @Autowired
     private TourBookingRepository tourBookingRepository;
 
     @Autowired
@@ -77,6 +81,9 @@ public class ProfileController {
     @Autowired
     private com.kawai.repositories.FolioItemRepository folioItemRepository;
 
+    @Autowired
+    private FileUploadService fileUploadService;
+
     @GetMapping
     public String viewProfile(Authentication authentication, Model model) {
         if (!com.kawai.utils.SecurityUtils.isCustomerLoggedIn(authentication)) {
@@ -91,6 +98,53 @@ public class ProfileController {
             customer.setMembershipTier(defaultTier);
         }
         model.addAttribute("customer", customer);
+        
+        // Safe calculations for Membership Tier, Loyalty Points and UI Progress to avoid Thymeleaf translation exceptions
+        String tierName = "REGULAR";
+        int pts = 0;
+        int maxPts = 1000;
+        int percent = 0;
+        String nextTierInfo = "Max Tier Reached!";
+        String avatarInitial = "G";
+
+        if (customer != null) {
+            try {
+                if (customer.getMembershipTier() != null) {
+                    tierName = customer.getMembershipTier().getTierName();
+                }
+            } catch (Exception e) {
+                tierName = "REGULAR";
+            }
+            if (customer.getLoyaltyPoints() != null) {
+                pts = customer.getLoyaltyPoints();
+            }
+            if (customer.getFullName() != null && !customer.getFullName().trim().isEmpty()) {
+                avatarInitial = customer.getFullName().trim().substring(0, 1).toUpperCase();
+            }
+        }
+
+        if (pts < 1000) {
+            maxPts = 1000;
+            nextTierInfo = (1000 - pts) + " pts to Silver";
+        } else if (pts < 5000) {
+            maxPts = 5000;
+            nextTierInfo = (5000 - pts) + " pts to Gold";
+        } else if (pts < 10000) {
+            maxPts = 10000;
+            nextTierInfo = (10000 - pts) + " pts to Platinum";
+        } else {
+            maxPts = pts;
+            nextTierInfo = "Hạng thẻ cao nhất!";
+        }
+
+        percent = maxPts > 0 ? (pts * 100 / maxPts) : 0;
+        if (percent > 100) percent = 100;
+
+        model.addAttribute("tierName", tierName != null ? tierName.toUpperCase() : "REGULAR");
+        model.addAttribute("loyaltyPoints", pts);
+        model.addAttribute("progressPercent", percent);
+        model.addAttribute("nextTierInfo", nextTierInfo);
+        model.addAttribute("avatarInitial", avatarInitial);
 
         if (customer != null) {
             // Get bookings where customer is master
@@ -113,10 +167,6 @@ public class ProfileController {
                             return false;
                         }
 
-                        if (status.startsWith("CANCEL")) {
-                            return paymentTransactionRepository.existsByBookingIdAndStatus(b.getId(),
-                                    com.kawai.models.PaymentStatus.SUCCESS);
-                        }
                         return true;
                     })
                     .sorted((b1, b2) -> b2.getId().compareTo(b1.getId()))
@@ -126,8 +176,16 @@ public class ProfileController {
 
             java.util.Map<Long, List<RoomBookingDetail>> visibleDetailsMap = new java.util.HashMap<>();
             java.util.Map<Long, java.math.BigDecimal> remainingLimits = new java.util.HashMap<>();
+            
+            java.util.Map<Long, List<com.kawai.models.FolioItem>> folioItemsMap = new java.util.HashMap<>();
+            java.util.Map<Long, List<com.kawai.models.RoomGuest>> roomGuestsMap = new java.util.HashMap<>();
+            List<RoomBooking> activeStays = new java.util.ArrayList<>();
 
             for (RoomBooking rb : roomBookings) {
+                if ("CHECKED_IN".equalsIgnoreCase(rb.getBookingStatus())) {
+                    activeStays.add(rb);
+                }
+
                 List<RoomBookingDetail> allDetails = roomBookingDetailRepository.findByRoomBookingId(rb.getId());
                 List<RoomBookingDetail> visibleDetails;
 
@@ -146,6 +204,10 @@ public class ProfileController {
                             : java.math.BigDecimal.ZERO;
                     List<com.kawai.models.FolioItem> folioItems = folioItemRepository
                             .findByRoomBookingDetailId(d.getId());
+                            
+                    folioItemsMap.put(d.getId(), folioItems);
+                    roomGuestsMap.put(d.getId(), roomGuestRepository.findByRoomBookingDetailId(d.getId()));
+
                     java.math.BigDecimal spent = folioItems.stream()
                             .filter(f -> !Boolean.TRUE.equals(f.getIsSettledSeparately()))
                             .map(com.kawai.models.FolioItem::getAmount)
@@ -155,8 +217,13 @@ public class ProfileController {
             }
             model.addAttribute("visibleDetailsMap", visibleDetailsMap);
             model.addAttribute("remainingLimits", remainingLimits);
+            model.addAttribute("folioItemsMap", folioItemsMap);
+            model.addAttribute("roomGuestsMap", roomGuestsMap);
+            model.addAttribute("activeStays", activeStays);
 
-            List<TourBooking> tourBookings = tourBookingRepository.findByCustomer(customer).stream()
+            List<TourBooking> tourBookings = bookingRepository.findByCustomerId(customer.getId()).stream()
+                    .filter(b -> b instanceof TourBooking)
+                    .map(b -> (TourBooking) b)
                     .filter(tb -> {
                         String status = tb.getBookingStatus() != null ? tb.getBookingStatus().toUpperCase() : "";
 
@@ -164,10 +231,6 @@ public class ProfileController {
                             return false;
                         }
 
-                        if (status.startsWith("CANCEL")) {
-                            return paymentTransactionRepository.existsByBookingIdAndStatus(tb.getId(),
-                                    com.kawai.models.PaymentStatus.SUCCESS);
-                        }
                         return true;
                     })
                     .collect(java.util.stream.Collectors.toList());
@@ -393,23 +456,10 @@ public class ProfileController {
 
         if (customer != null && !file.isEmpty()) {
             try {
-                String originalFilename = file.getOriginalFilename();
-                String extension = "";
-                if (originalFilename != null && originalFilename.contains(".")) {
-                    extension = originalFilename.substring(originalFilename.lastIndexOf("."));
-                }
-                String newFilename = "avatar_" + customer.getId() + "_" + System.currentTimeMillis() + extension;
+                // Upload file vào thư mục "hoanien_avatars" trên Cloudinary
+                String secureUrl = fileUploadService.uploadFile(file, "hoanien_avatars");
 
-                String resolvedPath = com.kawai.utils.UploadPathResolver.resolvePath("uploads/avatars");
-                java.nio.file.Path uploadDir = java.nio.file.Paths.get(resolvedPath);
-                if (!java.nio.file.Files.exists(uploadDir)) {
-                    java.nio.file.Files.createDirectories(uploadDir);
-                }
-
-                java.nio.file.Path filePath = uploadDir.resolve(newFilename);
-                file.transferTo(filePath.toFile());
-
-                customer.setAvatarUrl("/uploads/avatars/" + newFilename);
+                customer.setAvatarUrl(secureUrl);
                 customerRepository.save(customer);
 
                 redirectAttributes.addFlashAttribute("success", "Cập nhật ảnh đại diện thành công!");
