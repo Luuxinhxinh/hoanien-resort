@@ -39,6 +39,8 @@ public class ManagerController {
     private final PaymentTransactionRepository paymentTransactionRepository;
     private final RefundRequestRepository refundRequestRepository;
     private final HousekeepingTaskRepository housekeepingTaskRepository;
+    private final EmployeeRepository employeeRepository;
+    private final RoomCategoryRepository roomCategoryRepository;
 
     private static String todayLabel() {
         return LocalDate.now().format(DateTimeFormatter.ofPattern("EEEE, d 'tháng' M, yyyy", new Locale("vi")));
@@ -792,9 +794,6 @@ public class ManagerController {
         return "manager/analytics-room";
     }
 
-    // ── Inject roomCategoryRepo ──
-    private final RoomCategoryRepository roomCategoryRepository;
-
     // =========================================================================
     // 6. Tỷ lệ tour
     // =========================================================================
@@ -1128,5 +1127,10 @@ public class ManagerController {
         private String bookingDetails;
         private String totalPrice;
         private String operationalType;
+    }
+    @GetMapping("/schedules")
+    public String showSchedules(Model model) {
+        model.addAttribute("employees", employeeRepository.findAll());
+        return "manager/schedules";
     }
 }

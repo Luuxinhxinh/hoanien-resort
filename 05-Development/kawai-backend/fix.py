@@ -1,6 +1,18 @@
-﻿sql = "\n\n-- FIX HOANGNAM UNREALISTIC ACTIVE BOOKINGS\n"
-sql += "UPDATE Bookings SET booking_status = 'Checked_Out' WHERE customer_id = 1 AND booking_id IN (50, 51, 103, 201);\n"
-sql += "UPDATE Room_Bookings SET check_in_date = '2026-06-01', check_out_date = '2026-06-05' WHERE room_booking_id IN (50, 51, 103, 201);\n"
+import re
+with open('src/main/resources/data.sql', 'r', encoding='utf-8', errors='ignore') as f:
+    text = f.read()
 
-with open('d:\\SWP391\\su26-swp391-se2023-g2\\05-Development\\kawai-backend\\src\\main\\resources\\data.sql', 'a', encoding='utf-8') as f:
-    f.write(sql)
+# Remove any weird invisible characters
+text = text.replace('\uFEFF', '') # BOM
+text = text.replace('\u200B', '') # ZWSP
+# Find the first INSERT INTO Roles and ensure no weird chars before it
+idx = text.find('INSERT INTO Roles')
+if idx != -1:
+    before = text[:idx]
+    # Replace any non-ascii in 'before' with space
+    before_clean = ''.join([c if ord(c) < 128 else ' ' for c in before])
+    text = before_clean + text[idx:]
+
+with open('src/main/resources/data.sql', 'w', encoding='utf-8') as f:
+    f.write(text)
+print('Fixed data.sql encoding/weird characters')

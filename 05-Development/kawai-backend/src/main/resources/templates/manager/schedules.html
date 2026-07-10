@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lịch trực Nhân sự - Hoanien Retreat Manager Portal</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" th:href="@{/manager/css/dashboard.css}" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        
+        .schedule-container {
+            padding: 24px 48px;
+            max-width: 100%;
+            margin: 0 auto;
+        }
+
+        .schedule-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            background: white;
+            padding: 20px 32px;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            border: 1px solid #e2e8f0;
+        }
+
+        .date-navigator {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .date-navigator button {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+            color: #475569;
+            transition: all 0.2s;
+        }
+
+        .date-navigator button:hover {
+            background: #f1f5f9;
+            color: #0f172a;
+        }
+
+        .date-navigator input[type="date"] {
+            padding: 8px 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-family: inherit;
+            font-weight: 600;
+            color: #0f172a;
+            outline: none;
+        }
+
+
+
+        .matrix-board {
+            display: grid;
+            grid-template-columns: 220px repeat(3, 1fr);
+            gap: 24px;
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .matrix-header {
+            font-weight: 600;
+            color: #475569;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f1f5f9;
+            text-align: center;
+        }
+
+        .matrix-header.dept {
+            text-align: left;
+        }
+
+        .matrix-cell {
+            padding: 16px;
+            background: #f8fafc;
+            border-radius: 12px;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .dept-title {
+            font-weight: 600;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 0;
+        }
+
+        .staff-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            padding: 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+            border-left: 3px solid #3b82f6;
+        }
+
+        .staff-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border-left-color: #2563eb;
+        }
+
+        .staff-card .name {
+            font-weight: 600;
+            font-size: 14px;
+            color: #1e293b;
+        }
+
+        .staff-card .role {
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 4px;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(4px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 32px;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+            transform: translateY(20px);
+            transition: transform 0.3s;
+            font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 24px;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            font-size: 20px;
+            color: #0f172a;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #64748b;
+        }
+
+        .info-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+            color: #475569;
+        }
+
+        .info-row i {
+            color: #3b82f6;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 14px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- SIDEBAR -->
+    <th:block th:replace="~{manager/fragments/sidebar :: sidebar(activeItem='schedules')}"></th:block>
+
+    <!-- MAIN -->
+    <div class="mgr-main">
+        <header class="mgr-header">
+            <div class="mgr-header-left">
+                <button class="mgr-header-icon-btn mgr-sidebar-toggle"
+                    onclick="document.body.classList.toggle('sidebar-hidden')">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="3" y1="12" x2="21" y2="12" />
+                        <line x1="3" y1="6" x2="21" y2="6" />
+                        <line x1="3" y1="18" x2="21" y2="18" />
+                    </svg>
+                </button>
+                <span style="color:#4A4740;font-size:12px">MANAGER</span>
+                <span class="mgr-breadcrumb-sep">/</span>
+                <span style="color:#C9A96E;font-size:12px;font-weight:500">Lịch trực Nhân sự</span>
+            </div>
+            <div class="mgr-header-right">
+                <button class="mgr-header-icon-btn" style="position:relative"><svg width="15" height="15"
+                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+                        <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+                    </svg><span class="mgr-notif-dot"></span></button>
+                <div class="mgr-header-user-box">
+                    <div class="mgr-header-avatar">MG</div>
+                    <span class="mgr-header-username">Manager</span>
+                </div>
+                <div class="mgr-divider-v"></div>
+                <a href="/logout" class="mgr-header-logout"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                        <polyline points="16 17 21 12 16 7" />
+                        <line x1="21" y1="12" x2="9" y2="12" />
+                    </svg></a>
+            </div>
+        </header>
+
+        <div style="padding: 24px;">
+            <h2 class="mgr-page-title" style="margin-bottom: 24px;">Quản lý Lịch làm việc</h2>
+            <div class="schedule-container" style="background: white; border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+            <div class="schedule-header">
+                <div>
+                    <h3 style="margin:0; color:#0f172a">Bảng Phân Ca</h3>
+                    <p style="margin:4px 0 0 0; color:#64748b; font-size:14px">Theo dõi và điều phối nhân sự theo ngày</p>
+                </div>
+                <div style="display: flex; gap: 16px; align-items: center;">
+                    <button style="background: #fff3e0; color: #e65100; border: 1px solid #ffe0b2; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 8px; transition: all 0.2s;" onclick="openMockPrefModal()" onmouseover="this.style.background='#ffe0b2'" onmouseout="this.style.background='#fff3e0'">
+                        <i data-lucide="calendar-off"></i> Đăng ký nghỉ phép
+                    </button>
+                    <div class="date-navigator">
+                        <button onclick="changeDate(-1)">
+                            <i data-lucide="chevron-left"></i> Hôm qua
+                        </button>
+                        <input type="date" id="datePicker" onchange="fetchSchedules()">
+                        <button onclick="changeDate(1)">
+                            Ngày mai <i data-lucide="chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="matrix-board" id="matrixBoard">
+                <!-- Headers -->
+                <div class="matrix-header dept">Phòng Ban</div>
+                <div class="matrix-header">Ca Sáng (06:00 - 14:00)</div>
+                <div class="matrix-header">Ca Chiều (14:00 - 22:00)</div>
+                <div class="matrix-header">Ca Đêm (22:00 - 06:00)</div>
+
+                <!-- Content will be injected by JS -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal -->
+    <div class="modal-overlay" id="staffModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <h3 id="modalName">Nguyễn Văn A</h3>
+                    <div style="color: #64748b; font-size: 14px; margin-top: 4px;" id="modalRole">RECEPTIONIST</div>
+                </div>
+                <button class="close-btn" onclick="closeModal()">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div class="info-row">
+                <i data-lucide="phone"></i>
+                <span id="modalPhone">0912345678</span>
+            </div>
+            <div class="info-row">
+                <i data-lucide="mail"></i>
+                <span id="modalEmail">email@hoanien.vn</span>
+            </div>
+            <div class="info-row">
+                <i data-lucide="clock"></i>
+                <span id="modalShift">Ca Sáng (06:00 - 14:00)</span>
+            </div>
+        </div>
+    </div>
+
+        <!-- Manual Leave Modal -->
+    <div class="modal-overlay" id="mockPrefModal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <div>
+                    <h3 style="color: #e65100; display: flex; align-items: center; gap: 8px;">
+                        <i data-lucide="calendar-off"></i> Đăng ký nghỉ phép (Manual)
+                    </h3>
+                    <div style="color: #64748b; font-size: 14px; margin-top: 4px;">Khóa lịch làm việc của nhân viên, hệ thống sẽ tự động xếp người thay thế.</div>
+                </div>
+                <button class="close-btn" onclick="closeMockPrefModal()">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            
+            <div style="display: flex; flex-direction: column; gap: 16px; margin-top: 16px;">
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <label style="font-weight: 500; font-size: 14px;">Chọn Nhân viên</label>
+                    <select id="leaveEmployeeId" style="padding: 10px; border-radius: 6px; border: 1px solid #cbd5e1; font-family: inherit; font-size: 14px;">
+                        <option value="">-- Chọn nhân viên --</option>
+                        <option th:each="emp : ${employees}" th:value="${emp.id}" th:text="${emp.fullName} + ' (' + ${emp.account?.role?.roleName} + ')'"></option>
+                    </select>
+                </div>
+                
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <label style="font-weight: 500; font-size: 14px;">Ngày nghỉ</label>
+                    <input type="date" id="leaveDate" style="padding: 10px; border-radius: 6px; border: 1px solid #cbd5e1; font-family: inherit; font-size: 14px;">
+                </div>
+                
+                <button id="btnSubmitLeave" style="background: #e65100; color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: 600; margin-top: 8px;" onclick="submitManualLeave(this)">
+                    Đăng Ký Nghỉ & Xếp Lại Lịch
+                </button>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        const departments = [
+            { id: 'RECEPTIONIST', name: 'Lễ Tân', icon: 'concierge-bell' },
+            { id: 'HOUSEKEEPING', name: 'Buồng Phòng', icon: 'spray-can' },
+            { id: 'F&B KITCHEN', name: 'Bếp Nhà Hàng', icon: 'chef-hat' },
+            { id: 'F&B POS', name: 'Phục Vụ F&B', icon: 'coffee' },
+            { id: 'TOURGUIDE', name: 'Hướng Dẫn Viên', icon: 'map' },
+            { id: 'MAINTAINER', name: 'Bảo Trì', icon: 'wrench' },
+            { id: 'MANAGER', name: 'Quản Lý', icon: 'briefcase' }
+        ];
+
+        // Initialize date — dùng local date tránh lệch múi giờ UTC+7
+        function getLocalDateStr(d) {
+            const y = d.getFullYear();
+            const m = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${y}-${m}-${day}`;
+        }
+        let currentDate = getLocalDateStr(new Date());
+        const datePicker = document.getElementById('datePicker');
+        datePicker.value = currentDate;
+
+        function changeDate(days) {
+            const date = new Date(datePicker.value + 'T12:00:00');
+            date.setDate(date.getDate() + days);
+            datePicker.value = getLocalDateStr(date);
+            fetchSchedules();
+        }
+
+        async function fetchSchedules() {
+            const date = datePicker.value;
+            try {
+                const response = await fetch(`/api/manager/schedules?date=${date}`);
+                const data = await response.json();
+                renderMatrix(data);
+            } catch (error) {
+                console.error("Failed to fetch schedules:", error);
+            }
+        }
+
+        function renderMatrix(schedules) {
+            const board = document.getElementById('matrixBoard');
+            
+            // Clear old rows (keep first 4 headers)
+            while (board.children.length > 4) {
+                board.removeChild(board.lastChild);
+            }
+
+            departments.forEach(dept => {
+                // Dept Title Cell
+                const deptCell = document.createElement('div');
+                deptCell.className = 'dept-title';
+                deptCell.innerHTML = `<i data-lucide="${dept.icon}"></i> ${dept.name}`;
+                board.appendChild(deptCell);
+
+                // Shifts 1, 2, 3
+                for (let shiftId = 1; shiftId <= 3; shiftId++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'matrix-cell';
+                    
+                    const staffInCell = schedules.filter(s => 
+                        (s.roleName === dept.id || s.roleName.replace('&', 'N') === dept.id) && s.shiftId === shiftId
+                    );
+
+                    if (staffInCell.length === 0) {
+                        cell.innerHTML = `<div class="empty-state">Không có lịch</div>`;
+                    } else {
+                        staffInCell.forEach(staff => {
+                            const card = document.createElement('div');
+                            card.className = 'staff-card';
+                            card.innerHTML = `
+                                <div class="name">${staff.fullName}</div>
+                                <div class="role">${staff.roleName}</div>
+                            `;
+                            card.onclick = () => openModal(staff);
+                            cell.appendChild(card);
+                        });
+                    }
+                    board.appendChild(cell);
+                }
+            });
+            lucide.createIcons();
+        }
+
+        function openModal(staff) {
+            document.getElementById('modalName').innerText = staff.fullName;
+            document.getElementById('modalRole').innerText = staff.roleName;
+            document.getElementById('modalPhone').innerText = staff.phone || 'Chưa cập nhật';
+            document.getElementById('modalEmail').innerText = staff.email || 'Chưa cập nhật';
+            document.getElementById('modalShift').innerText = staff.shiftName + ' (' + staff.startTime + ' - ' + staff.endTime + ')';
+            
+            document.getElementById('staffModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('staffModal').classList.remove('active');
+        }
+
+        // Close on click outside
+        document.getElementById('staffModal').addEventListener('click', (e) => {
+            if (e.target.id === 'staffModal') {
+                closeModal();
+            }
+        });
+
+                // Manual Leave Logic
+        function openMockPrefModal() {
+            document.getElementById('mockPrefModal').classList.add('active');
+        }
+
+        function closeMockPrefModal() {
+            document.getElementById('mockPrefModal').classList.remove('active');
+        }
+
+        async function submitManualLeave(btn) {
+            const employeeId = document.getElementById('leaveEmployeeId').value;
+            const dateStr = document.getElementById('leaveDate').value;
+            
+            if (!employeeId || !dateStr) {
+                alert('Vui lòng chọn nhân viên và ngày nghỉ!');
+                return;
+            }
+            
+            btn.innerHTML = '⏳ Đang xếp lại lịch...';
+            btn.disabled = true;
+            try {
+                const response = await fetch('/api/manager/schedules/mock-preference', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ employeeId: parseInt(employeeId), date: dateStr })
+                });
+                const result = await response.json();
+                if (result.status === 'success') {
+                    btn.innerHTML = 'Đã hoàn tất!';
+                    btn.style.background = '#22c55e';
+                    fetchSchedules(); // Reload board
+                    setTimeout(() => {
+                        closeMockPrefModal();
+                        btn.innerHTML = 'Đăng Ký Nghỉ & Xếp Lại Lịch';
+                        btn.style.background = '#e65100';
+                        btn.disabled = false;
+                    }, 1500);
+                } else {
+                    alert('Lỗi: ' + result.message);
+                    btn.innerHTML = 'Thử lại';
+                    btn.disabled = false;
+                }
+            } catch (error) {
+                console.error("Error submitting leave:", error);
+                alert("Không thể kết nối đến server.");
+                btn.innerHTML = 'Thử lại';
+                btn.disabled = false;
+            }
+        }
+
+        // Initial load
+        fetchSchedules();
+    </script>
+</body>
+</html>
+

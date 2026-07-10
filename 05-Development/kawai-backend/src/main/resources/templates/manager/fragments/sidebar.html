@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<body>
+    <th:block th:fragment="sidebar(activeItem)">
+        <aside class="mgr-sidebar">
+            <div class="mgr-sidebar-logo">
+                <div class="mgr-logo-brand">
+                    <span class="mgr-logo-label">Hoa Nien </span>
+                </div>
+                <h1 class="mgr-portal-title">Manager Portal</h1>
+            </div>
+            <nav class="mgr-nav">
+                <!-- Tổng quan -->
+                <div class="mgr-nav-item">
+                    <a href="/manager/dashboard" class="mgr-nav-link" th:classappend="${activeItem == 'dashboard' ? 'active' : ''}">
+                        <i data-lucide="layout-dashboard" class="mgr-nav-icon"></i>
+                        <span style="flex:1">Tổng quan</span>
+                    </a>
+                </div>
+                <!-- Lịch trực Nhân sự -->
+                <div class="mgr-nav-item">
+                    <a href="/manager/schedules" class="mgr-nav-link" th:classappend="${activeItem == 'schedules' ? 'active' : ''}">
+                        <i data-lucide="calendar-days" class="mgr-nav-icon"></i>
+                        <span style="flex:1">Lịch trực Nhân sự</span>
+                    </a>
+                </div>
+                <!-- Hoàn tiền -->
+                <div class="mgr-nav-item">
+                    <a href="/manager/refunds" class="mgr-nav-link" th:classappend="${activeItem == 'refunds' ? 'active' : ''}">
+                        <i data-lucide="credit-card" class="mgr-nav-icon"></i>
+                        <span style="flex:1">Hoàn tiền</span>
+                    </a>
+                </div>
+                <!-- Duyệt yêu cầu -->
+                <div class="mgr-nav-item">
+                    <a href="/manager/approvals" class="mgr-nav-link" th:classappend="${activeItem == 'approvals' ? 'active' : ''}">
+                        <i data-lucide="info" class="mgr-nav-icon"></i>
+                        <span style="flex:1">Duyệt yêu cầu</span>
+                    </a>
+                </div>
+                <!-- Báo cáo Doanh thu -->
+                <div class="mgr-nav-item">
+                    <a href="/manager/revenue" class="mgr-nav-link" th:classappend="${activeItem == 'revenue' ? 'active' : ''}">
+                        <i data-lucide="calendar" class="mgr-nav-icon"></i>
+                        <span style="flex:1">Báo cáo Doanh thu</span>
+                    </a>
+                </div>
+                <!-- Biểu đồ Phân tích -->
+                <div class="mgr-nav-item">
+                    <a href="/manager/analytics/room" class="mgr-nav-link" th:classappend="${activeItem != null and activeItem.startsWith('analytics') ? 'active' : ''}">
+                        <i data-lucide="bar-chart-3" class="mgr-nav-icon"></i>
+                        <span style="flex:1">Biểu đồ Phân tích</span>
+                        <i data-lucide="chevron-right" class="mgr-nav-arrow"></i>
+                    </a>
+                </div>
+                <!-- Xuất báo cáo -->
+                <div class="mgr-nav-item">
+                    <a href="/manager/export" class="mgr-nav-link" th:classappend="${activeItem == 'export' ? 'active' : ''}">
+                        <i data-lucide="download" class="mgr-nav-icon"></i>
+                        <span style="flex:1">Xuất báo cáo</span>
+                    </a>
+                </div>
+            </nav>
+        </aside>
+        
+        <script src="https://unpkg.com/lucide@latest"></script>
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                if (typeof lucide !== 'undefined') {
+                    lucide.createIcons();
+                }
+            });
+        </script>
+    </th:block>
+</body>
+</html>
