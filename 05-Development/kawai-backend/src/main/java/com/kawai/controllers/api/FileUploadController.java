@@ -15,7 +15,7 @@ import java.util.UUID;
 @RequestMapping("/api/v1/upload")
 public class FileUploadController {
 
-    private static final String UPLOAD_DIR = "src/main/resources/static/uploads/";
+    private static final String UPLOAD_DIR = com.kawai.utils.UploadPathResolver.resolvePath("uploads/");
 
     @PostMapping
     public ResponseEntity<?> uploadFile(@RequestParam("file") MultipartFile file) {

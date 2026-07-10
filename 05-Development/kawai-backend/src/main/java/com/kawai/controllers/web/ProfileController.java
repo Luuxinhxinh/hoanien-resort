@@ -400,8 +400,8 @@ public class ProfileController {
                 }
                 String newFilename = "avatar_" + customer.getId() + "_" + System.currentTimeMillis() + extension;
 
-                String currentWorkingDir = System.getProperty("user.dir");
-                java.nio.file.Path uploadDir = java.nio.file.Paths.get(currentWorkingDir, "uploads", "avatars");
+                String resolvedPath = com.kawai.utils.UploadPathResolver.resolvePath("uploads/avatars");
+                java.nio.file.Path uploadDir = java.nio.file.Paths.get(resolvedPath);
                 if (!java.nio.file.Files.exists(uploadDir)) {
                     java.nio.file.Files.createDirectories(uploadDir);
                 }

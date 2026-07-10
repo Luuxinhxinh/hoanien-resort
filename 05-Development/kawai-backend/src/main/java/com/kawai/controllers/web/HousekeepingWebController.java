@@ -15,10 +15,16 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
+import org.springframework.web.multipart.MultipartFile;
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.UUID;
 
 @Controller
 @RequestMapping("/housekeeping")
-@PreAuthorize("hasAnyAuthority('OP_HOUSEKEEPING','ROLE_ADMIN','ROLE_HOUSEKEEPING')")
+@PreAuthorize("hasAnyAuthority('OP_HOUSEKEEPING','ROLE_ADMIN','ROLE_HOUSEKEEPING','ROLE_MANAGER','OP_RECEPTION_WALKIN','OP_RECEPTION_CHECKIN','OP_RECEPTION_CHECKOUT','OP_RECEPTION_INHOUSE')")
 public class HousekeepingWebController {
     private final HousekeepingService housekeepingService;
     private final HousekeepingTaskRepository housekeepingTaskRepo;
@@ -74,12 +80,54 @@ public class HousekeepingWebController {
 
     @PostMapping("/report-damage")
     public String reportDamage(@RequestParam Long roomId, @RequestParam String notes,
+            @RequestParam(required = false, defaultValue = "false") boolean isEmergency,
+            @RequestParam(required = false) String taskType,
+            @RequestParam(value = "image", required = false) MultipartFile image,
             Authentication auth, RedirectAttributes ra) {
-        try { Long sid = auth!=null && auth.getName()!=null ?
-            employeeRepository.findByAccountUsername(auth.getName()).map(com.kawai.models.Employee::getId).orElse(null) : null;
-            housekeepingService.createMaintenanceRequest(roomId,sid,notes);
-            ra.addFlashAttribute("successMessage","Đã gửi yêu cầu bảo trì.");
-        } catch(Exception e) { ra.addFlashAttribute("errorMessage","Lỗi: "+e.getMessage()); }
+        try {
+            Long sid = null;
+            if (auth != null && auth.getName() != null) {
+                sid = employeeRepository.findByAccountUsername(auth.getName())
+                        .map(com.kawai.models.Employee::getId)
+                        .orElse(null);
+            }
+
+            boolean emergency = false;
+            if ("GUEST_REQUEST".equalsIgnoreCase(taskType) || "URGENT_CLEAN".equalsIgnoreCase(taskType)) {
+                emergency = true;
+            } else if ("ROOM_CHECK".equalsIgnoreCase(taskType) || "CHECKOUT_CLEAN".equalsIgnoreCase(taskType)) {
+                emergency = false;
+            } else {
+                emergency = isEmergency;
+            }
+
+            HotelOperation task = housekeepingService.createMaintenanceRequest(roomId, sid, notes, emergency);
+            
+            if (image != null && !image.isEmpty()) {
+                String UPLOAD_DIR = com.kawai.utils.UploadPathResolver.resolvePath("uploads/");
+                File directory = new File(UPLOAD_DIR);
+                if (!directory.exists()) {
+                    directory.mkdirs();
+                }
+                
+                String originalFilename = image.getOriginalFilename();
+                String extension = originalFilename != null && originalFilename.contains(".") ? 
+                                   originalFilename.substring(originalFilename.lastIndexOf(".")) : ".jpg";
+                String newFilename = UUID.randomUUID().toString() + extension;
+                
+                Path filePath = Paths.get(UPLOAD_DIR + newFilename);
+                Files.write(filePath, image.getBytes());
+                
+                task.setImageUrl("/uploads/" + newFilename);
+                housekeepingTaskRepo.save(task);
+            }
+            
+            ra.addFlashAttribute("successMessage", "Đã gửi yêu cầu bảo trì.");
+        } catch (IllegalStateException e) {
+            ra.addFlashAttribute("errorMessage", e.getMessage());
+        } catch (Exception e) {
+            ra.addFlashAttribute("errorMessage", "Lỗi: " + e.getMessage());
+        }
         return "redirect:/housekeeping/dashboard";
     }
 }

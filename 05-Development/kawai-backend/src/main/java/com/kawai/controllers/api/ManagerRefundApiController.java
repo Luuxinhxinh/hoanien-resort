@@ -41,7 +41,7 @@ public class ManagerRefundApiController {
             }
 
             // Xử lý lưu file
-            String uploadDir = "uploads/refund-bills/";
+            String uploadDir = com.kawai.utils.UploadPathResolver.resolvePath("uploads/refund-bills/");
             File dir = new File(uploadDir);
             if (!dir.exists()) {
                 dir.mkdirs();

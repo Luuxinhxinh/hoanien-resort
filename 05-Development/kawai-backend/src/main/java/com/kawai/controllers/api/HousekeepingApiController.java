@@ -39,6 +39,9 @@ public class HousekeepingApiController {
     @Autowired
     private FolioItemRepository folioItemRepository;
 
+    @Autowired
+    private com.kawai.services.interfaces.HousekeepingService housekeepingService;
+
     @PostMapping("/housekeeping/save-minibar-only")
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER', 'OP_HOUSEKEEPING', 'ROLE_HOUSEKEEPING')")
     public ResponseEntity<?> saveMinibarOnly(@RequestBody Map<String, Object> request) {
@@ -198,5 +201,37 @@ public class HousekeepingApiController {
 
         return ResponseEntity
                 .ok(Map.of("success", true, "message", "Yêu cầu dọn khẩn cấp đã gửi cho bộ phận Buồng phòng."));
+    }
+
+    @PostMapping("/housekeeping/reception/create-urgent-maintenance")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_RECEPTIONIST', 'OP_RECEPTION_WALKIN', 'OP_RECEPTION_CHECKIN', 'OP_RECEPTION_CHECKOUT', 'OP_RECEPTION_INHOUSE')")
+    public ResponseEntity<?> createUrgentMaintenance(@RequestBody Map<String, String> request) {
+        String roomNumber = request.get("roomNumber");
+        if (roomNumber == null || roomNumber.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Vui lòng cung cấp số phòng."));
+        }
+
+        Room room = roomRepository.findByRoomNumber(roomNumber).orElse(null);
+        if (room == null) {
+            return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Phòng không tồn tại."));
+        }
+
+        Employee staff = employeeRepository.findAll().stream().findFirst().orElse(null);
+        if (staff == null) {
+            return ResponseEntity.internalServerError()
+                    .body(Map.of("success", false, "message", "Lỗi cấu hình hệ thống (không có nhân viên)."));
+        }
+
+        try {
+            String notes = request.get("notes");
+            if (notes == null || notes.trim().isEmpty()) {
+                notes = "Lễ tân báo hỏng hóc khẩn cấp cần sửa chữa ngay.";
+            }
+            com.kawai.models.HotelOperation maintenanceTask = housekeepingService
+                .createMaintenanceRequest(room.getId(), staff.getId(), notes, true);
+            return ResponseEntity.ok(Map.of("success", true, "message", "Đã gửi yêu cầu sửa chữa khẩn cấp cho phòng " + roomNumber + "."));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(Map.of("success", false, "message", e.getMessage()));
+        }
     }
 }

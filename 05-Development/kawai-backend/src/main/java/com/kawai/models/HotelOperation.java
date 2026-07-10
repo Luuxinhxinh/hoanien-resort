@@ -44,6 +44,12 @@ public class HotelOperation {
     @Column(columnDefinition = "TEXT")
     private String notes;
 
+    @Column(name = "image_url")
+    private String imageUrl;
+
+    @Column(name = "damage_price")
+    private Double damagePrice;
+
     // Getters and Setters
     public Long getId() {
         return id;
@@ -131,5 +137,21 @@ public class HotelOperation {
 
     public void setNotes(String v) {
         this.notes = v;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public Double getDamagePrice() {
+        return damagePrice;
+    }
+
+    public void setDamagePrice(Double damagePrice) {
+        this.damagePrice = damagePrice;
     }
 }

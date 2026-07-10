@@ -100,6 +100,7 @@ public class WalkInCheckInServiceImpl implements WalkInCheckInService {
     private final com.kawai.services.interfaces.FolioService folioService;
     private final PasswordEncoder passwordEncoder;
     private final com.kawai.services.interfaces.CheckinService checkinService;
+    private final com.kawai.repositories.MaintenanceRequestRepository maintenanceRequestRepo;
 
     public WalkInCheckInServiceImpl(
             RoomRepository roomRepository,
@@ -114,6 +115,7 @@ public class WalkInCheckInServiceImpl implements WalkInCheckInService {
             MembershipTierRepository membershipTierRepository,
             com.kawai.services.interfaces.FolioService folioService,
             PasswordEncoder passwordEncoder,
+            com.kawai.repositories.MaintenanceRequestRepository maintenanceRequestRepo,
             @Lazy com.kawai.services.interfaces.CheckinService checkinService) {
         this.roomRepository = roomRepository;
         this.roomBookingRepository = roomBookingRepository;
@@ -127,6 +129,7 @@ public class WalkInCheckInServiceImpl implements WalkInCheckInService {
         this.membershipTierRepository = membershipTierRepository;
         this.folioService = folioService;
         this.passwordEncoder = passwordEncoder;
+        this.maintenanceRequestRepo = maintenanceRequestRepo;
         this.checkinService = checkinService;
     }
 
@@ -432,6 +435,17 @@ public class WalkInCheckInServiceImpl implements WalkInCheckInService {
             throw new BusinessException("MOD2-UC14-006",
                     "Selected room is not available for check-in. Current status: " + room.getRoomStatus());
         }
+
+        boolean hasPendingMaintenance = maintenanceRequestRepo.existsByRoomIdAndStatusInAndOperationalTypeIn(
+                roomId,
+                java.util.Arrays.asList("Pending", "InProgress"),
+                java.util.Arrays.asList("MAINTENANCE", "DAMAGE_CHECK")
+        );
+        if (hasPendingMaintenance) {
+            throw new BusinessException("MOD2-UC14-017",
+                    "Selected room has a pending maintenance/damage check task. Cannot check in.");
+        }
+
         return room;
     }
 

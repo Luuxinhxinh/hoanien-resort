@@ -1,9 +1,14 @@
 package com.kawai.controllers.web;
 
 import com.kawai.models.HotelOperation;
+import com.kawai.models.Room;
+import com.kawai.models.RoomBookingDetail;
+import com.kawai.models.FolioItem;
 import com.kawai.repositories.EmployeeRepository;
 import com.kawai.repositories.MaintenanceRequestRepository;
 import com.kawai.repositories.RoomRepository;
+import com.kawai.repositories.RoomBookingDetailRepository;
+import com.kawai.repositories.FolioItemRepository;
 import com.kawai.services.interfaces.HousekeepingService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -11,6 +16,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
@@ -22,11 +29,16 @@ public class MaintenanceWebController {
     private final MaintenanceRequestRepository maintenanceRequestRepo;
     private final RoomRepository roomRepository;
     private final EmployeeRepository employeeRepository;
+    private final RoomBookingDetailRepository roomBookingDetailRepository;
+    private final FolioItemRepository folioItemRepository;
 
     public MaintenanceWebController(HousekeepingService hs,
-            MaintenanceRequestRepository mrr, RoomRepository rr, EmployeeRepository er) {
+            MaintenanceRequestRepository mrr, RoomRepository rr, EmployeeRepository er,
+            RoomBookingDetailRepository rbdr, FolioItemRepository fir) {
         this.housekeepingService = hs; this.maintenanceRequestRepo = mrr;
         this.roomRepository = rr; this.employeeRepository = er;
+        this.roomBookingDetailRepository = rbdr;
+        this.folioItemRepository = fir;
     }
 
     @ModelAttribute("todayLabel")
@@ -81,5 +93,57 @@ public class MaintenanceWebController {
             ra.addFlashAttribute("successMessage","Đã tạm dừng công việc.");
         } catch(Exception e) { ra.addFlashAttribute("errorMessage","Lỗi: "+e.getMessage()); }
         return "redirect:/maintenance/dashboard";
+    }
+
+    @GetMapping("/pricing")
+    public String pricingPage(Model model) {
+        java.util.List<HotelOperation> allTasks = maintenanceRequestRepo.findByOperationalType("DAMAGE_CHECK");
+        
+        java.util.List<HotelOperation> unpriced = allTasks.stream()
+            .filter(t -> t.getDamagePrice() == null)
+            .sorted((t1, t2) -> t2.getCreatedAt().compareTo(t1.getCreatedAt()))
+            .collect(java.util.stream.Collectors.toList());
+            
+        java.util.List<HotelOperation> priced = allTasks.stream()
+            .filter(t -> t.getDamagePrice() != null)
+            .sorted((t1, t2) -> t2.getCreatedAt().compareTo(t1.getCreatedAt()))
+            .collect(java.util.stream.Collectors.toList());
+            
+        model.addAttribute("unpricedTasks", unpriced);
+        model.addAttribute("pricedTasks", priced);
+        return "maintenance/pricing";
+    }
+
+    @PostMapping("/pricing/{taskId}/submit")
+    public String submitDamagePrice(@PathVariable Long taskId, @RequestParam Double price, RedirectAttributes ra) {
+        try {
+            HotelOperation task = maintenanceRequestRepo.findById(taskId).orElseThrow();
+            task.setDamagePrice(price);
+            task.setStatus("Priced");
+            maintenanceRequestRepo.save(task);
+
+            // Add damage fee to folio if there is an active booking detail
+            Room room = task.getRoom();
+            if (room != null && room.getCurrentBookingDetailId() != null) {
+                RoomBookingDetail detail = roomBookingDetailRepository.findById(room.getCurrentBookingDetailId()).orElse(null);
+                if (detail != null) {
+                    FolioItem item = new FolioItem();
+                    item.setBooking(detail.getRoomBooking());
+                    item.setRoomBookingDetail(detail);
+                    item.setPayerCustomer(detail.getRoomBooking().getCustomer());
+                    item.setSourceDepartment("Maintenance");
+                    item.setAmount(new BigDecimal(price));
+                    item.setDescription("[Đền bù hỏng hóc] " + (task.getNotes() != null ? task.getNotes() : "Đền bù hỏng hóc"));
+                    item.setCreatedAt(LocalDateTime.now());
+                    item.setCreatedByStaff(task.getStaff());
+                    folioItemRepository.save(item);
+                }
+            }
+
+            ra.addFlashAttribute("successMessage", "Đã định giá sự cố thành công và cộng vào hóa đơn khách hàng.");
+        } catch (Exception e) {
+            ra.addFlashAttribute("errorMessage", "Lỗi: " + e.getMessage());
+        }
+        return "redirect:/maintenance/pricing";
     }
 }

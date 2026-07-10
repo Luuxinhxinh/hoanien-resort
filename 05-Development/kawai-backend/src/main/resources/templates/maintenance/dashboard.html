@@ -139,6 +139,42 @@
         
         .form-control { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 14px; margin-top: 8px; margin-bottom: 20px; }
         .modal-title { font-size: 20px; font-family: var(--font-serif); margin-bottom: 20px; }
+
+        @keyframes flash-red {
+            0%, 100% { color: var(--danger); opacity: 1; }
+            50% { color: var(--danger); opacity: 0.4; }
+        }
+        .sla-warning {
+            color: var(--danger) !important;
+            animation: flash-red 1.2s infinite;
+        }
+        .sla-near-warning {
+            color: var(--warning) !important;
+        }
+        .task-timer {
+            margin-top: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+        .category-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-left: 8px;
+            vertical-align: middle;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        /* Navigation Tabs */
+        .section-tabs { display: flex; gap: 12px; margin-bottom: 24px; border-bottom: 2px solid var(--border-color); padding-bottom: 12px; }
+        .tab-btn { text-decoration: none; padding: 8px 20px; background: var(--surface); border: 1px solid var(--border-color); border-radius: 20px; font-size: 13px; font-weight: 600; color: var(--text-secondary); cursor: pointer; transition: all 0.2s; }
+        .tab-btn.active { background: var(--secondary); border-color: var(--secondary); color: #fff; }
+        .tab-btn:hover:not(.active) { background: var(--surface-hover); color: var(--text-primary); }
     </style>
 </head>
 <body>
@@ -189,37 +225,13 @@
             </div>
         </div>
 
-        <!-- Dashboard Stats -->
-        <div class="stats-grid">
-            <div class="stat-card stat-new">
-                <div class="stat-header">
-                    <div class="stat-title">Mới nhận (New)</div>
-                    <i class="fa-solid fa-triangle-exclamation" style="color: var(--danger)"></i>
-                </div>
-                <div class="stat-value" th:text="${pendingTasks.size()}">0</div>
-            </div>
-            <div class="stat-card stat-progress">
-                <div class="stat-header">
-                    <div class="stat-title">Đang sửa (In Progress)</div>
-                    <i class="fa-solid fa-person-digging" style="color: var(--warning)"></i>
-                </div>
-                <div class="stat-value" th:text="${inProgressTasks.size()}">0</div>
-            </div>
-            <div class="stat-card stat-resolved">
-                <div class="stat-header">
-                    <div class="stat-title">Đã xong (Resolved)</div>
-                    <i class="fa-solid fa-check-double" style="color: var(--success)"></i>
-                </div>
-                <div class="stat-value" th:text="${completedCount}">0</div>
-            </div>
-            <div class="stat-card stat-total">
-                <div class="stat-header">
-                    <div class="stat-title">Phòng đang khóa (O.O.O)</div>
-                    <i class="fa-solid fa-door-closed" style="color: var(--info)"></i>
-                </div>
-                <div class="stat-value" th:text="${maintenanceRooms}">0</div>
-            </div>
+        <!-- Navigation Tabs -->
+        <div class="section-tabs">
+            <a href="/maintenance/dashboard" class="tab-btn active">Bảng công việc</a>
+            <a href="/maintenance/pricing" class="tab-btn">Định giá hỏng hóc</a>
         </div>
+
+
 
         <!-- Task Kanban Board -->
         <div class="board-container">
@@ -231,7 +243,7 @@
                     <div class="column-badge" th:text="${pendingTasks.size()}">0</div>
                 </div>
                 
-                <div th:each="t : ${pendingTasks}" class="task-card">
+                <div th:each="t : ${pendingTasks}" class="task-card pending-task-card" th:data-created-at="${t.createdAt}" th:data-priority="${t.priority}">
                     <div class="task-priority priority-high" th:if="${t.priority == 'High'}" title="Khẩn cấp"></div>
                     <div class="task-priority priority-normal" th:if="${t.priority != 'High'}" title="Trung bình"></div>
                     
@@ -243,6 +255,10 @@
                     <div class="task-meta">
                         <div><i class="fa-solid fa-user-tag"></i> Housekeeping báo</div>
                         <div><i class="fa-regular fa-clock"></i> <span th:text="${#temporals.format(t.createdAt, 'HH:mm')}">08:00</span></div>
+                    </div>
+                    
+                    <div class="task-timer">
+                        <span class="timer-text">⏳ Đã chờ: <span class="time-elapsed">--</span></span>
                     </div>
                     
                     <div class="task-actions">
@@ -297,6 +313,7 @@
             <div class="column col-done">
                 <div class="column-header">
                     <div class="column-title"><i class="fa-solid fa-shield-check"></i> Đã hoàn thành (Gần đây)</div>
+                    <div class="column-badge" th:text="${completedCount}">0</div>
                 </div>
                 <div th:each="t : ${completedTasks}" class="task-card" style="border-left: 3px solid var(--success); opacity: 0.7;">
                     <div class="task-location" style="color: var(--text-secondary);">
@@ -365,6 +382,107 @@
         document.querySelectorAll('.modal-overlay').forEach(m => {
             m.addEventListener('click', function(e) { if (e.target === this) closeModals(); });
         });
+
+        function formatDuration(totalMins) {
+            if (totalMins < 60) {
+                return totalMins + " phút";
+            }
+            const totalHours = Math.floor(totalMins / 60);
+            const mins = totalMins % 60;
+            if (totalHours < 24) {
+                return totalHours + " giờ " + mins + " phút";
+            }
+            const days = Math.floor(totalHours / 24);
+            const hours = totalHours % 24;
+            if (hours === 0) {
+                return days + " ngày";
+            }
+            return days + " ngày " + hours + " giờ";
+        }
+
+        function updatePendingTimers() {
+            const now = new Date();
+            document.querySelectorAll('.pending-task-card').forEach(card => {
+                const createdAtStr = card.getAttribute('data-created-at');
+                if (!createdAtStr) return;
+                
+                const createdAt = new Date(createdAtStr);
+                const diffMs = now - createdAt;
+                if (isNaN(diffMs) || diffMs < 0) return;
+                
+                const diffMins = Math.floor(diffMs / 60000);
+                const elapsedSpan = card.querySelector('.time-elapsed');
+                const timerText = card.querySelector('.timer-text');
+                const priority = card.getAttribute('data-priority');
+                
+                // SLA rule: High priority SLA = 30 mins, Normal SLA = 60 mins
+                const slaLimit = (priority === 'High') ? 30 : 60;
+                
+                if (elapsedSpan) {
+                    elapsedSpan.innerText = formatDuration(diffMins);
+                }
+                
+                if (diffMins >= slaLimit) {
+                    timerText.classList.remove('sla-near-warning');
+                    timerText.classList.add('sla-warning');
+                } else if (diffMins >= slaLimit * 0.5) {
+                    timerText.classList.remove('sla-warning');
+                    timerText.classList.add('sla-near-warning');
+                } else {
+                    timerText.classList.remove('sla-warning');
+                    timerText.classList.remove('sla-near-warning');
+                }
+            });
+        }
+        
+        function categorizeTask(notes) {
+            if (!notes) return { emoji: "🛠️", label: "Khác", bg: "#e9ecef", color: "#495057" };
+            const text = notes.toLowerCase();
+            
+            // AC/Cooling
+            if (text.includes("điều hòa") || text.includes("máy lạnh") || text.includes("cục nóng") || text.includes("gas") || text.includes("bơm ga") || text.includes("không mát")) {
+                return { emoji: "❄️", label: "Điều hòa", bg: "#e7f5ff", color: "#1864ab" };
+            }
+            
+            // Water/Plumbing
+            if (text.includes("nước") || text.includes("vòi") || text.includes("bồn") || text.includes("toilet") || text.includes("wc") || text.includes("tắc") || text.includes("nghẹt") || text.includes("rò rỉ") || text.includes("sen")) {
+                return { emoji: "💧", label: "Nước", bg: "#eef9ff", color: "#0077cc" };
+            }
+            
+            // Electricity
+            if (text.includes("điện") || text.includes("đèn") || text.includes("ổ cắm") || text.includes("công tắc") || text.includes("chập") || text.includes("cháy") || text.includes("sáng") || text.includes("tivi") || text.includes("tv") || text.includes("wifi")) {
+                return { emoji: "⚡", label: "Điện", bg: "#fff9db", color: "#f59f00" };
+            }
+            
+            // Furniture/Interior
+            if (text.includes("cửa") || text.includes("giường") || text.includes("tủ") || text.includes("bàn") || text.includes("ghế") || text.includes("khóa") || text.includes("tường") || text.includes("trần") || text.includes("sơn") || text.includes("kính") || text.includes("rèm") || text.includes("nệm")) {
+                return { emoji: "🛋️", label: "Nội thất", bg: "#f3f0ff", color: "#845ef7" };
+            }
+            
+            // Default General
+            return { emoji: "🛠️", label: "Khác", bg: "#f1f3f5", color: "#495057" };
+        }
+
+        function applyCategoryTags() {
+            document.querySelectorAll('.task-card').forEach(card => {
+                const descEl = card.querySelector('.task-desc');
+                const locEl = card.querySelector('.task-location');
+                if (descEl && locEl && !locEl.querySelector('.category-tag')) {
+                    const notes = descEl.innerText;
+                    const cat = categorizeTask(notes);
+                    const tag = document.createElement('span');
+                    tag.className = 'category-tag';
+                    tag.style.backgroundColor = cat.bg;
+                    tag.style.color = cat.color;
+                    tag.innerHTML = `${cat.emoji} ${cat.label}`;
+                    locEl.appendChild(tag);
+                }
+            });
+        }
+
+        updatePendingTimers();
+        applyCategoryTags();
+        setInterval(updatePendingTimers, 30000);
     </script>
 </body>
 </html>

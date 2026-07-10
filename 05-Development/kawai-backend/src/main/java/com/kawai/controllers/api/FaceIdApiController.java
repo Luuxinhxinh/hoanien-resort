@@ -133,7 +133,7 @@ public class FaceIdApiController {
                 try {
                     String base64Data = base64Image.split(",")[1];
                     byte[] imageBytes = java.util.Base64.getDecoder().decode(base64Data);
-                    String dirPath = com.kawai.utils.UploadPathResolver.resolvePath("src/main/resources/static/uploads/faces/");
+                    String dirPath = com.kawai.utils.UploadPathResolver.resolvePath("uploads/faces/");
                     java.io.File dir = new java.io.File(dirPath);
                     if (!dir.exists()) dir.mkdirs();
                     String uniqueName = "face_" + System.currentTimeMillis() + ".jpg";
