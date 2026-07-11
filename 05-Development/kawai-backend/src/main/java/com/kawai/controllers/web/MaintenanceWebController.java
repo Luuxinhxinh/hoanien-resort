@@ -174,7 +174,7 @@ public class MaintenanceWebController {
                     item.setPayerCustomer(detail.getRoomBooking().getCustomer());
                     item.setSourceDepartment("Maintenance");
                     item.setAmount(new BigDecimal(price));
-                    item.setDescription("[Đền bù hỏng hóc] " + (task.getNotes() != null ? task.getNotes() : "Đền bù hỏng hóc"));
+                    item.setDescription("Phụ thu tài sản: " + (task.getNotes() != null ? task.getNotes() : "Đền bù hỏng hóc"));
                     item.setCreatedAt(LocalDateTime.now());
                     item.setCreatedByStaff(task.getStaff());
                     folioItemRepository.save(item);

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Night Audit - Hoanien Retreat</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/receptionist/css/dashboard.css">
+    <link rel="stylesheet" href="/receptionist/css/pages.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <div class="brand-logo">◆</div>
+                <div class="brand-text">
+                    <h1 class="brand-title">Hoanien Retreat</h1>
+                    <p class="brand-subtitle">Resort & Hub</p>
+                </div>
+            </div>
+
+            <div class="sidebar-section-title">RECEPTIONIST</div>
+
+            <nav class="sidebar-nav">
+                <a href="/receptionist/dashboard" class="nav-item" sec:authorize="hasAnyAuthority('OP_DASHBOARD', 'ROLE_ADMIN', 'ROLE_MANAGER')">
+                    <i class="fa-solid fa-border-all"></i>
+                    <div class="nav-text">
+                        <span class="nav-main-text">Room Matrix</span>
+                        <span class="nav-sub-text">Sơ đồ phòng</span>
+                    </div>
+                    <i class="fa-solid fa-chevron-right nav-arrow"></i>
+                </a>
+
+                <a href="/receptionist/walk-in" class="nav-item" sec:authorize="hasAnyAuthority('OP_RECEPTION_WALKIN', 'OP_BOOKING', 'ROLE_ADMIN', 'ROLE_MANAGER')">
+                    <i class="fa-solid fa-person-walking-luggage"></i>
+                    <div class="nav-text">
+                        <span class="nav-main-text">Walk-In</span>
+                        <span class="nav-sub-text">Khách vãng lai</span>
+                    </div>
+                </a>
+                <a href="/receptionist/check-in" class="nav-item" sec:authorize="hasAnyAuthority('OP_RECEPTION_CHECKIN', 'OP_BOOKING', 'ROLE_ADMIN', 'ROLE_MANAGER')">
+                    <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                    <div class="nav-text">
+                        <span class="nav-main-text">Check-in</span>
+                        <span class="nav-sub-text">Nhận phòng</span>
+                    </div>
+                </a>
+                <a href="/receptionist/folio" class="nav-item" sec:authorize="hasAnyAuthority('OP_RECEPTION_CHECKOUT', 'OP_BOOKING', 'ROLE_ADMIN', 'ROLE_MANAGER')">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                    <div class="nav-text">
+                        <span class="nav-main-text">Check-out / Folio</span>
+                        <span class="nav-sub-text">Trả phòng & Hóa đơn</span>
+                    </div>
+                </a>
+                <a href="/receptionist/in-house" class="nav-item" sec:authorize="hasAnyAuthority('OP_RECEPTION_INHOUSE', 'OP_BOOKING', 'ROLE_ADMIN', 'ROLE_MANAGER')">
+                    <i class="fa-solid fa-bed"></i>
+                    <div class="nav-text">
+                        <span class="nav-main-text">Khách lưu trú</span>
+                        <span class="nav-sub-text">Quản lý khách in-house</span>
+                    </div>
+                </a>
+                <!--
+                <a href="/receptionist/night-audit" class="nav-item active">
+                    <i class="fa-solid fa-moon"></i>
+                    <div class="nav-text">
+                        <span class="nav-main-text">Night Audit</span>
+                        <span class="nav-sub-text">Giao ca & Báo cáo</span>
+                    </div>
+                </a>
+                -->
+            </nav>
+
+            <div class="sidebar-user">
+                <div class="user-avatar">MH</div>
+                <div class="user-info">
+                    <div class="user-name">Minh Hoàng</div>
+                    <div class="user-role">Receptionist</div>
+                </div>
+                <div class="user-status"></div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="top-header">
+                <div class="header-datetime">
+                    <div class="date" id="currentDate" th:text="${todayLabel}">Wednesday, June 10, 2026</div>
+                </div>
+                
+                <div class="header-search">
+                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                    <input type="text" placeholder="Search guest, room no., phone">
+                </div>
+
+                <div class="header-actions">
+                    <button class="notification-btn">
+                        <i class="fa-regular fa-bell"></i>
+                        <span class="badge">3</span>
+                    </button>
+                    <button class="user-profile-btn">
+                        <i class="fa-solid fa-user"></i>
+                        <span>Receptionist</span>
+                    </button>
+                    <button class="logout-btn" onclick="window.location.href='/logout'">
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                        <span>Logout</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <div class="dashboard-scroll-area">
+                <div class="page-header">
+                    <h2 class="page-title">Night Audit (Giao ca & Báo cáo)</h2>
+                </div>
+
+                <div class="audit-container">
+                    <div class="audit-checklist">
+                        <h3 class="split-title">End of Day Checklist</h3>
+                        
+                        <div class="checklist-item">
+                            <input type="checkbox" id="chk1">
+                            <label for="chk1" class="checklist-text">Verify All Check-ins/Check-outs are Completed</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="chk2">
+                            <label for="chk2" class="checklist-text">Reconcile Pending Folio Charges</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="chk3">
+                            <label for="chk3" class="checklist-text">Post Room Rates to Active Folios</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="chk4">
+                            <label for="chk4" class="checklist-text">Generate End-of-Day Financial Reports</label>
+                        </div>
+
+                        <div class="audit-action-area">
+                            <button class="btn btn-primary" onclick="alert('Night Audit Started!')">Run Night Audit & Roll Date</button>
+                        </div>
+                    </div>
+
+                    <div class="audit-stats">
+                        <div class="stat-card">
+                            <div class="stat-card-header">
+                                <span class="stat-title">Today's Revenue</span>
+                                <div class="stat-icon-wrapper bg-green-light">
+                                    <i class="fa-solid fa-dollar-sign text-green"></i>
+                                </div>
+                            </div>
+                            <div class="stat-value">$1,245.00</div>
+                            <div class="stat-subtitle">Ready to reconcile</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-card-header">
+                                <span class="stat-title">Pending Tasks</span>
+                                <div class="stat-icon-wrapper bg-orange-light">
+                                    <i class="fa-solid fa-list-check text-orange"></i>
+                                </div>
+                            </div>
+                            <div class="stat-value">2</div>
+                            <div class="stat-subtitle">Must complete before audit</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="/receptionist/js/dashboard.js"></script>
+</body>
+</html>
+

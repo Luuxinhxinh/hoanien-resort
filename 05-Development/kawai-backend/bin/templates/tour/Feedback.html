@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html class="light" lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>HoaNien - Feedback Management</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <!-- Google Fonts: Bodoni Moda & Plus Jakarta Sans -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&amp;family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;family=EB+Garamond:ital,wght@0,400..800;1,400..800&amp;display=swap"
+        rel="stylesheet">
+    <!-- Material Symbols -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet">
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+
+        .glass-card {
+            background: rgba(255, 247, 250, 0.6);
+            backdrop-filter: blur(32px);
+            -webkit-backdrop-filter: blur(32px);
+            border: 1.5px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .glass-card-error {
+            background: rgba(186, 26, 26, 0.05);
+            backdrop-filter: blur(32px);
+            -webkit-backdrop-filter: blur(32px);
+            border: 1.5px solid rgba(186, 26, 26, 0.15);
+        }
+
+        body {
+            background-color: #fff7fa;
+            background-image:
+                radial-gradient(at 0% 0%, rgba(210, 188, 251, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(177, 156, 217, 0.1) 0px, transparent 50%);
+            background-attachment: fixed;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            margin-top: 0.5rem;
+            min-width: 200px;
+            z-index: 60;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+    </style>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-low": "#ffeffb",
+                        "outline": "#7a757f",
+                        "on-tertiary-container": "#3b3c39",
+                        "tertiary-container": "#a7a6a3",
+                        "surface-container-high": "#f3e4ef",
+                        "on-error": "#ffffff",
+                        "surface": "#fff7fa",
+                        "on-surface": "#211921",
+                        "surface-container-highest": "#eedeea",
+                        "primary-fixed": "#ebddff",
+                        "secondary-fixed-dim": "#debcd8",
+                        "tertiary-fixed": "#e4e2de",
+                        "on-tertiary-fixed-variant": "#474744",
+                        "outline-variant": "#cbc4d0",
+                        "secondary-container": "#fbd8f5",
+                        "inverse-surface": "#372e36",
+                        "tertiary-fixed-dim": "#c8c6c3",
+                        "surface-container": "#f9e9f5",
+                        "primary-container": "#b19cd9",
+                        "on-background": "#211921",
+                        "on-secondary-container": "#775c74",
+                        "on-primary-fixed-variant": "#4f3d73",
+                        "surface-bright": "#fff7fa",
+                        "on-tertiary": "#ffffff",
+                        "primary-fixed-dim": "#d2bcfb",
+                        "primary": "#67558c",
+                        "on-secondary-fixed-variant": "#583f55",
+                        "on-secondary": "#ffffff",
+                        "on-primary-fixed": "#220f44",
+                        "surface-variant": "#eedeea",
+                        "on-surface-variant": "#49454f",
+                        "secondary": "#71566e",
+                        "on-secondary-fixed": "#291428",
+                        "on-primary": "#ffffff",
+                        "on-tertiary-fixed": "#1b1c1a",
+                        "inverse-on-surface": "#fcecf8",
+                        "secondary-fixed": "#fbd8f5",
+                        "surface-dim": "#e5d6e1",
+                        "on-error-container": "#93000a",
+                        "inverse-primary": "#d2bcfb",
+                        "background": "#fff7fa",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary": "#5e5e5c",
+                        "on-primary-container": "#443267",
+                        "error": "#ba1a1a",
+                        "surface-tint": "#67558c",
+                        "error-container": "#ffdad6"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "unit": "8px",
+                        "margin-mobile": "20px",
+                        "margin-desktop": "64px",
+                        "gutter": "24px",
+                        "section-gap": "120px",
+                        "container-max": "1280px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Bodoni Moda"],
+                        "label-sm": ["Plus Jakarta Sans"],
+                        "body-md": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Bodoni Moda"],
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "display-md": ["Bodoni Moda"],
+                        "headline-lg-mobile": ["Bodoni Moda"],
+                        "display-lg": ["Bodoni Moda"],
+                        "label-md": ["Plus Jakarta Sans"],
+                        "headline": ["EB Garamond", "serif"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["28px", { "lineHeight": "36px", "fontWeight": "500" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.03em", "fontWeight": "500" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-lg": ["40px", { "lineHeight": "48px", "fontWeight": "500" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "display-md": ["56px", { "lineHeight": "64px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["32px", { "lineHeight": "40px", "fontWeight": "500" }],
+                        "display-lg": ["80px", { "lineHeight": "88px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600" }]
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+
+<body class="font-body-md text-on-surface min-h-screen">
+    <!-- TopNavBar (Horizontal) -->
+    <header
+        class="w-full h-20 fixed top-0 left-0 z-50 bg-surface/80 backdrop-blur-xl border-b border-white/20 px-margin-desktop flex items-center justify-between">
+        <div class="flex items-center gap-12">
+            <div class="flex flex-col">
+                <h1 class="font-headline text-[32px] italic tracking-tighter text-primary leading-tight cursor-pointer"
+                    onclick="window.location.href='/'">HoaNien</h1>
+                <p class="font-label-sm text-[10px] text-on-surface-variant/60 -mt-1">Retreat Resort &amp; Hub</p>
+            </div>
+            <nav class="flex items-center gap-2">
+                <a th:class="${requestUri == '/tourguide/tour'} ? 'flex items-center gap-2 py-2 px-4 rounded-full text-primary font-bold bg-primary/5 border border-primary/20 transition-all duration-300 no-underline' : 'flex items-center gap-2 py-2 px-4 rounded-full text-on-surface-variant/70 font-medium hover:bg-primary/5 transition-all duration-300 no-underline'"
+                    href="/tourguide/tour">
+                    <span class="material-symbols-outlined text-[20px]">map</span>
+                    <span class="font-label-md text-label-md">Hành trình</span>
+                </a>
+                <a th:class="${requestUri == '/tourguide/dashboard'} ? 'flex items-center gap-2 py-2 px-4 rounded-full text-primary font-bold bg-primary/5 border border-primary/20 transition-all duration-300 no-underline' : 'flex items-center gap-2 py-2 px-4 rounded-full text-on-surface-variant/70 font-medium hover:bg-primary/5 transition-all duration-300 no-underline'"
+                    href="/tourguide/dashboard">
+                    <span class="material-symbols-outlined text-[20px]">group</span>
+                    <span class="font-label-md text-label-md">Khách hàng</span>
+                </a>
+                <a th:class="${requestUri == '/tourguide/feedback'} ? 'flex items-center gap-2 py-2 px-4 rounded-full text-primary font-bold bg-primary/5 border border-primary/20 transition-all duration-300 no-underline' : 'flex items-center gap-2 py-2 px-4 rounded-full text-on-surface-variant/70 font-medium hover:bg-primary/5 transition-all duration-300 no-underline'"
+                    href="/tourguide/feedback">
+                    <span class="material-symbols-outlined text-[20px]">rate_review</span>
+                    <span class="font-label-md text-label-md">Nhận xét</span>
+                </a>
+            </nav>
+        </div>
+        <!-- 3. Profile & Icons -->
+        <div class="flex items-center gap-4">
+            <div class="relative dropdown-notification">
+                <button onclick="toggleNotificationDropdown(event)"
+                    class="w-10 h-10 flex items-center justify-center rounded-full text-on-surface-variant hover:bg-primary/5 transition-colors relative">
+                    <span class="material-symbols-outlined">notifications</span>
+                    <!-- Red badge for unread notifications -->
+                    <span class="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full"></span>
+                </button>
+                <!-- Dropdown Card -->
+                <div id="notificationDropdown"
+                    class="hidden absolute right-0 mt-2 w-80 bg-[#fdfbf7] border border-[#3a3230]/20 shadow-2xl rounded-2xl p-4 z-[100] text-[#372618]">
+                    <div class="flex justify-between items-center border-b border-[#3a3230]/10 pb-2 mb-3">
+                        <span class="font-headline text-lg font-bold">Thông báo mới</span>
+                        <button onclick="markAllNotificationsAsRead(event)"
+                            class="text-xs text-primary hover:underline font-semibold">Đọc tất cả</button>
+                    </div>
+                    <div class="space-y-3 max-h-64 overflow-y-auto text-left" id="notifications-list">
+                        <!-- Notification Item 1 -->
+                        <div class="p-3 bg-primary/5 rounded-xl border-l-4 border-primary space-y-1">
+                            <p class="text-xs font-semibold text-on-surface">Yêu cầu hỗ trợ từ Đoàn khách</p>
+                            <p class="text-[11px] text-on-surface-variant/70 leading-snug">Đoàn khách Singapore tại Cố
+                                đô Huế yêu cầu chuẩn bị thêm nước uống đóng chai.</p>
+                            <p class="text-[9px] text-on-surface-variant/50">5 phút trước</p>
+                        </div>
+                        <!-- Notification Item 2 -->
+                        <div class="p-3 bg-primary/5 rounded-xl border-l-4 border-primary space-y-1">
+                            <p class="text-xs font-semibold text-on-surface">Cảnh báo Thời tiết</p>
+                            <p class="text-[11px] text-on-surface-variant/70 leading-snug">Dự báo có mưa rào nhẹ tại khu
+                                vực Tháp Mười từ 16:30 chiều nay.</p>
+                            <p class="text-[9px] text-on-surface-variant/50">20 phút trước</p>
+                        </div>
+                        <!-- Notification Item 3 -->
+                        <div class="p-3 hover:bg-primary/5 rounded-xl transition-colors space-y-1">
+                            <p class="text-xs font-medium text-on-surface-variant">Lịch trình Ngày mai</p>
+                            <p class="text-[11px] text-on-surface-variant/70 leading-snug">Bạn có lịch dẫn đoàn tham
+                                quan Ninh Bình bắt đầu lúc 08:30 sáng mai.</p>
+                            <p class="text-[9px] text-on-surface-variant/50">2 giờ trước</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="h-8 w-px bg-primary/10"></div>
+            <button onclick="openGuideSettingsModal(event)"
+                class="flex items-center gap-3 pl-2 pr-1 py-1 rounded-full hover:bg-primary/5 transition-all outline-none cursor-pointer"
+                title="Thông tin cá nhân">
+                <div class="text-right">
+                    <p class="font-label-md text-label-md text-on-surface leading-none"
+                        th:text="${employee != null ? employee.fullName : 'NguynNgoc'}">NguynNgoc</p>
+                    <p class="text-[10px] text-on-surface-variant/60">Hướng dẫn viên cao cấp</p>
+                </div>
+                <div
+                    class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary/20 ring-4 ring-primary/5 bg-primary-container flex items-center justify-center text-on-primary-container font-bold">
+                    GD
+                </div>
+            </button>
+            <form th:action="@{/auth/logout}" method="post" class="inline">
+                <button type="submit"
+                    class="w-10 h-10 flex items-center justify-center rounded-full text-red-600 hover:bg-red-50 hover:text-red-800 transition-colors"
+                    title="Đăng xuất">
+                    <span class="material-symbols-outlined">logout</span>
+                </button>
+            </form>
+        </div>
+    </header>
+
+    <main class="pt-32 pb-section-gap px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
+        <div class="relative mb-12">
+            <h1 class="font-display-md text-display-md text-on-surface mb-2">Nhận xét của khách hàng</h1>
+            <p class="font-headline text-lg md:text-xl font-light text-on-surface-variant max-w-2xl">Theo dõi chất lượng
+                tour và mức độ hài lòng của khách hàng theo thời gian thực. Cần đặc biệt lưu ý các đánh giá tiêu cực.
+            </p>
+        </div>
+
+        <!-- Summary Widgets -->
+        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter mb-12 animate-fade-in no-print">
+            <div class="glass-card p-6 rounded-lg flex flex-col gap-2 shadow-sm border-primary/10">
+                <span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Tổng số đánh giá</span>
+                <div class="flex items-baseline gap-2">
+                    <span class="font-headline-lg text-headline-lg text-primary font-bold" th:text="${totalReviews}">0</span>
+                </div>
+            </div>
+            <div class="glass-card p-6 rounded-lg flex flex-col gap-2 shadow-sm border-primary/10">
+                <span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Điểm trung bình</span>
+                <div class="flex items-baseline gap-2">
+                    <span class="font-headline-lg text-headline-lg text-primary font-bold" th:text="${averageRating}">5.0</span>
+                    <div class="flex text-primary">
+                        <span class="material-symbols-outlined text-[20px]"
+                            style="font-variation-settings: 'FILL' 1;">star</span>
+                    </div>
+                </div>
+            </div>
+            <div class="glass-card p-6 rounded-lg flex flex-col gap-2 shadow-sm border-primary/10">
+                <span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Tỷ lệ hài lòng</span>
+                <div class="flex items-baseline gap-2">
+                    <span class="font-headline-lg text-headline-lg text-primary font-bold" th:text="${satisfactionRate}">100%</span>
+                </div>
+            </div>
+            <div class="glass-card p-6 rounded-lg flex flex-col gap-2 shadow-sm border-primary/10">
+                <span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Đánh giá tiêu cực</span>
+                <div class="flex items-baseline gap-2">
+                    <span class="font-headline-lg text-headline-lg text-primary font-bold" th:text="${negativeReviewsCount}">0</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Feedback Content -->
+        <section class="space-y-6">
+            <!-- Dynamic Review Card -->
+            <div th:each="review : ${tourReviews}"
+                class="glass-card p-8 rounded-lg flex flex-col md:flex-row gap-6 relative group hover:shadow-md transition-all duration-500 border-primary/10 shadow-sm animate-fade-in">
+                
+                <!-- Avatar placeholder with initials -->
+                <div th:with="custName=${review.customer?.fullName ?: 'Khách hàng'}"
+                    class="w-16 h-16 rounded-full overflow-hidden flex-shrink-0 border-2 border-primary/20 bg-primary-container flex items-center justify-center font-bold text-white text-lg"
+                    th:text="${#strings.length(custName) >= 2 ? #strings.substring(custName, 0, 2).toUpperCase() : custName.toUpperCase()}">
+                    NM
+                </div>
+                
+                <div class="flex-1">
+                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 mb-4">
+                        <div>
+                            <h3 class="font-headline-md text-[20px] leading-tight text-on-surface font-bold"
+                                th:text="${review.customer?.fullName ?: 'Khách hàng ẩn danh'}">Nguyễn Minh Anh</h3>
+                            <p class="font-label-sm text-[11px] text-primary uppercase font-bold tracking-wider mt-1"
+                                th:text="${review.tourBooking?.schedule?.tour?.tourName ?: 'Hành trình HoaNien'}">
+                                Hành trình Cố Đô
+                            </p>
+                        </div>
+                        
+                        <!-- Stars Rating -->
+                        <div class="flex text-[#BFAC8F]" th:with="rating=${review.ratingTour != null ? review.ratingTour : 5}">
+                            <span th:each="i : ${#numbers.sequence(1, 5)}"
+                                  class="material-symbols-outlined"
+                                  th:style="${i <= rating} ? 'font-variation-settings: \'FILL\' 1;' : ''"
+                                  th:text="'star'">star</span>
+                        </div>
+                    </div>
+                    
+                    <p class="font-headline text-lg font-light text-on-surface mb-4 leading-relaxed italic"
+                        th:text="${review.reviewText}">
+                        "Hướng dẫn viên nhiệt tình, chu đáo..."
+                    </p>
+                    
+                    <!-- Date -->
+                    <div class="flex justify-end">
+                        <span class="text-[10px] text-on-surface-variant/50 font-medium bg-primary/5 px-2.5 py-1 rounded-full border border-primary/10" 
+                              th:text="${#temporals.format(review.createdAt, 'dd/MM/yyyy HH:mm')}">01/01/2026 12:00</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div th:if="${#lists.isEmpty(tourReviews)}"
+                class="flex flex-col items-center justify-center py-20 text-center glass-card border-primary/10 shadow-sm rounded-lg">
+                <span class="material-symbols-outlined text-[64px] text-primary/30 mb-4">rate_review</span>
+                <p class="font-body-md text-lg text-on-surface-variant/80 font-medium">Chưa có nhận xét nào liên quan tới các tour du lịch.</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- BEGIN: Footer -->
+    <footer class="bg-[#2D2926] text-white py-20 px-20">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-end">
+            <div class="space-y-4">
+                <h3 class="text-3xl font-serif text-white">HoaNien</h3>
+                <p class="text-[10px] tracking-widest opacity-50 uppercase text-white">© 2026 HOANIEN RETREAT. A QUIET
+                    LUXURY TRAVEL GROUP.</p>
+            </div>
+            <div class="flex space-x-12 text-[10px] font-bold tracking-widest uppercase opacity-80">
+                <a class="hover:text-[#C5A059] no-underline text-white" href="#">Quyền riêng tư</a>
+                <a class="hover:text-[#C5A059] no-underline text-white" href="#">Sự bền vững</a>
+                <a class="hover:text-[#C5A059] no-underline text-white" href="#">Truyền thông</a>
+                <a class="hover:text-[#C5A059] no-underline text-white" href="#">Liên hệ</a>
+            </div>
+        </div>
+    </footer>
+    <!-- END: Footer -->
+
+    <!-- Guide Settings Modal -->
+    <div id="guideSettingsModal"
+        class="fixed inset-0 z-[150] hidden flex items-center justify-center bg-black/60 backdrop-blur-sm">
+        <div class="bg-[#fdfbf7] w-full max-w-lg p-8 border border-[#3a3230]/20 shadow-2xl relative text-[#372618]">
+            <button onclick="closeGuideSettingsModal()"
+                class="absolute top-4 right-4 text-[#372618]/60 hover:text-[#372618] transition-colors focus:outline-none">
+                <span class="material-symbols-outlined text-2xl">close</span>
+            </button>
+            <h3 class="font-headline-md text-2xl text-black font-bold mb-2 border-b border-[#3a3230]/10 pb-3">Thông tin
+                hướng dẫn viên</h3>
+
+            <div th:if="${employee != null}" class="space-y-4 mt-4">
+                <div class="space-y-1">
+                    <label class="font-label-caps text-[10px] text-outline uppercase block text-left font-semibold">Họ
+                        và tên</label>
+                    <input readonly th:value="${employee.fullName}"
+                        class="w-full bg-transparent border-0 border-b border-[#3a3230]/20 py-1.5 font-body-md text-black transition-all text-left outline-none cursor-default" />
+                </div>
+                <div class="space-y-1">
+                    <label class="font-label-caps text-[10px] text-outline uppercase block text-left font-semibold">Giới
+                        tính</label>
+                    <input readonly
+                        th:value="${employee.gender == 'Male' ? 'Nam' : (employee.gender == 'Female' ? 'Nữ' : 'Khác')}"
+                        class="w-full bg-transparent border-0 border-b border-[#3a3230]/20 py-1.5 font-body-md text-black transition-all text-left outline-none cursor-default" />
+                </div>
+                <div class="space-y-1">
+                    <label class="font-label-caps text-[10px] text-outline uppercase block text-left font-semibold">Số
+                        CCCD</label>
+                    <input readonly th:value="${employee.cccd}"
+                        class="w-full bg-transparent border-0 border-b border-[#3a3230]/20 py-1.5 font-body-md text-black transition-all text-left outline-none cursor-default" />
+                </div>
+                <div class="space-y-1">
+                    <label class="font-label-caps text-[10px] text-outline uppercase block text-left font-semibold">Số
+                        điện thoại</label>
+                    <input readonly th:value="${employee.phone}"
+                        class="w-full bg-transparent border-0 border-b border-[#3a3230]/20 py-1.5 font-body-md text-black transition-all text-left outline-none cursor-default" />
+                </div>
+                <div class="space-y-1">
+                    <label
+                        class="font-label-caps text-[10px] text-outline uppercase block text-left font-semibold">Email</label>
+                    <input readonly th:value="${employee.email}"
+                        class="w-full bg-transparent border-0 border-b border-[#3a3230]/20 py-1.5 font-body-md text-black transition-all text-left outline-none cursor-default" />
+                </div>
+            </div>
+            <div th:if="${employee == null}">
+                <p class="text-sm text-[#3a3230]/80 mt-4 text-left">Không tìm thấy thông tin hồ sơ hướng dẫn viên. Vui
+                    lòng liên hệ Quản lý để được hỗ trợ.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openGuideSettingsModal(e) {
+            e.stopPropagation();
+            document.getElementById('guideSettingsModal').classList.remove('hidden');
+        }
+
+        function closeGuideSettingsModal() {
+            document.getElementById('guideSettingsModal').classList.add('hidden');
+        }
+
+        function toggleNotificationDropdown(e) {
+            e.stopPropagation();
+            const dropdown = document.getElementById('notificationDropdown');
+            dropdown.classList.toggle('hidden');
+        }
+
+        function markAllNotificationsAsRead(e) {
+            if (e) e.stopPropagation();
+            const badge = document.querySelector('.dropdown-notification button .bg-red-500');
+            if (badge) {
+                badge.remove();
+            }
+            const items = document.querySelectorAll('#notifications-list > div');
+            items.forEach(item => {
+                item.className = 'p-3 hover:bg-primary/5 rounded-xl transition-colors space-y-1';
+            });
+        }
+
+        document.addEventListener('click', function (e) {
+            const dropdown = document.getElementById('notificationDropdown');
+            if (dropdown && !dropdown.classList.contains('hidden')) {
+                const isClickInside = dropdown.contains(e.target) || e.target.closest('.dropdown-notification');
+                if (!isClickInside) {
+                    dropdown.classList.add('hidden');
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+
+<html class="light" lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Lịch Trình Tổng Thể - TourGuide Pro</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;family=Bodoni+Moda:ital,wght@0,400..900;1,400..900&amp;family=EB+Garamond:ital,wght@0,400..800;1,400..800&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #fff7fa;
+            color: #211921;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4 {
+            font-family: 'Bodoni Moda', serif;
+        }
+
+        .glass-surface {
+            background: rgba(255, 239, 251, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(103, 85, 140, 0.1);
+        }
+
+        /* Custom premium scrollbar for schedule list */
+        .scrollbar-custom::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .scrollbar-custom::-webkit-scrollbar-track {
+            background: rgba(103, 85, 140, 0.05);
+            border-radius: 9999px;
+        }
+
+        .scrollbar-custom::-webkit-scrollbar-thumb {
+            background: rgba(103, 85, 140, 0.2);
+            border-radius: 9999px;
+        }
+
+        .scrollbar-custom::-webkit-scrollbar-thumb:hover {
+            background: rgba(103, 85, 140, 0.4);
+        }
+
+        .glass-interactive {
+            background: rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(20px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-interactive:hover {
+            background: rgba(177, 156, 217, 0.1);
+            border-color: rgba(103, 85, 140, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .glow-accent-primary {
+            box-shadow: 0 10px 30px -10px rgba(103, 85, 140, 0.2);
+            border: 1px solid #b19cd9 !important;
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            margin-top: 0.5rem;
+            min-width: 200px;
+            z-index: 60;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+    </style>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-low": "#ffeffb",
+                        "primary-container": "#b19cd9",
+                        "on-secondary-fixed-variant": "#583f55",
+                        "surface-dim": "#e5d6e1",
+                        "surface-tint": "#67558c",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-container": "#a7a6a3",
+                        "on-secondary-container": "#775c74",
+                        "on-background": "#211921",
+                        "surface-container-highest": "#eedeea",
+                        "on-error-container": "#93000a",
+                        "tertiary-fixed": "#e4e2de",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary-fixed": "#220f44",
+                        "inverse-primary": "#d2bcfb",
+                        "on-tertiary-container": "#3b3c39",
+                        "on-tertiary-fixed": "#1b1c1a",
+                        "secondary-fixed-dim": "#debcd8",
+                        "on-surface-variant": "#49454f",
+                        "tertiary": "#5e5e5c",
+                        "on-tertiary-fixed-variant": "#474744",
+                        "inverse-surface": "#372e36",
+                        "primary": "#67558c",
+                        "on-primary": "#ffffff",
+                        "background": "#fff7fa",
+                        "surface-bright": "#fff7fa",
+                        "outline": "#7a757f",
+                        "secondary-fixed": "#fbd8f5",
+                        "inverse-on-surface": "#fcecf8",
+                        "surface-container-high": "#f3e4ef",
+                        "secondary": "#71566e",
+                        "primary-fixed": "#ebddff",
+                        "on-surface": "#211921",
+                        "surface-variant": "#eedeea",
+                        "error-container": "#ffdad6",
+                        "error": "#ba1a1a",
+                        "primary-fixed-dim": "#d2bcfb",
+                        "on-secondary": "#ffffff",
+                        "secondary-container": "#fbd8f5",
+                        "tertiary-fixed-dim": "#c8c6c3",
+                        "outline-variant": "#cbc4d0",
+                        "on-secondary-fixed": "#291428",
+                        "surface-container": "#f9e9f5",
+                        "on-primary-fixed-variant": "#4f3d73",
+                        "surface": "#fff7fa",
+                        "on-primary-container": "#443267",
+                        "on-error": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "unit": "8px",
+                        "margin-mobile": "20px",
+                        "margin-desktop": "64px",
+                        "section-gap": "120px",
+                        "gutter": "24px",
+                        "container-max": "1280px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Bodoni Moda"],
+                        "display-md": ["Bodoni Moda"],
+                        "body-md": ["Plus Jakarta Sans"],
+                        "headline-lg-mobile": ["Bodoni Moda"],
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "display-lg": ["Bodoni Moda"],
+                        "label-sm": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Bodoni Moda"],
+                        "label-md": ["Plus Jakarta Sans"],
+                        "headline": ["EB Garamond", "serif"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["28px", { "lineHeight": "36px", "fontWeight": "500" }],
+                        "display-md": ["56px", { "lineHeight": "64px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["32px", { "lineHeight": "40px", "fontWeight": "500" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "display-lg": ["80px", { "lineHeight": "88px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.03em", "fontWeight": "500" }],
+                        "headline-lg": ["40px", { "lineHeight": "48px", "fontWeight": "500" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-surface min-h-screen">
+    <!-- TopNavBar -->
+    <header
+        class="w-full h-20 fixed top-0 left-0 z-50 bg-surface/80 backdrop-blur-xl border-b border-white/20 px-margin-desktop flex items-center justify-between">
+        <div class="flex items-center gap-12">
+            <div class="flex flex-col">
+                <h1 class="font-headline text-[32px] italic tracking-tighter text-primary leading-tight cursor-pointer"
+                    onclick="window.location.href='/'">HoaNien</h1>
+                <p class="font-label-sm text-[10px] text-on-surface-variant/60 -mt-1">Retreat Resort &amp; Hub</p>
+            </div>
+            <nav class="flex items-center gap-2">
+                <a th:class="${requestUri == '/tourguide/tour'} ? 'flex items-center gap-2 py-2 px-4 rounded-full text-primary font-bold bg-primary/5 border border-primary/20 transition-all duration-300 no-underline' : 'flex items-center gap-2 py-2 px-4 rounded-full text-on-surface-variant/70 font-medium hover:bg-primary/5 transition-all duration-300 no-underline'"
+                    href="/tourguide/tour">
+                    <span class="material-symbols-outlined text-[20px]">map</span>
+                    <span class="font-label-md text-label-md">Hành trình</span>
+                </a>
+                <a th:class="${requestUri == '/tourguide/dashboard'} ? 'flex items-center gap-2 py-2 px-4 rounded-full text-primary font-bold bg-primary/5 border border-primary/20 transition-all duration-300 no-underline' : 'flex items-center gap-2 py-2 px-4 rounded-full text-on-surface-variant/70 font-medium hover:bg-primary/5 transition-all duration-300 no-underline'"
+                    href="/tourguide/dashboard">
+                    <span class="material-symbols-outlined text-[20px]">group</span>
+                    <span class="font-label-md text-label-md">Khách hàng</span>
+                </a>
+                <a th:class="${requestUri == '/tourguide/feedback'} ? 'flex items-center gap-2 py-2 px-4 rounded-full text-primary font-bold bg-primary/5 border border-primary/20 transition-all duration-300 no-underline' : 'flex items-center gap-2 py-2 px-4 rounded-full text-on-surface-variant/70 font-medium hover:bg-primary/5 transition-all duration-300 no-underline'"
+                    href="/tourguide/feedback">
+                    <span class="material-symbols-outlined text-[20px]">rate_review</span>
+                    <span class="font-label-md text-label-md">Nhận xét</span>
+                </a>
+            </nav>
+        </div>
+        <!-- 3. Profile & Icons -->
+        <div class="flex items-center gap-4">
+            <div class="relative dropdown-notification">
+                <button onclick="toggleNotificationDropdown(event)"
+                    class="w-10 h-10 flex items-center justify-center rounded-full text-on-surface-variant hover:bg-primary/5 transition-colors relative">
+                    <span class="material-symbols-outlined">notifications</span>
+                    <!-- Red badge for unread notifications -->
+                    <span class="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full"></span>
+                </button>
+                <!-- Dropdown Card -->
+                <div id="notificationDropdown"
+                    class="hidden absolute right-0 mt-2 w-80 bg-[#fdfbf7] border border-[#3a3230]/20 shadow-2xl rounded-2xl p-4 z-[100] text-[#372618]">
+                    <div class="flex justify-between items-center border-b border-[#3a3230]/10 pb-2 mb-3">
+                        <span class="font-headline text-lg font-bold">Thông báo mới</span>
+                        <button onclick="markAllNotificationsAsRead(event)"
+                            class="text-xs text-primary hover:underline font-semibold">Đọc tất cả</button>
+                    </div>
+                    <div class="space-y-3 max-h-64 overflow-y-auto text-left" id="notifications-list">
+                        <!-- Notification Item 1 -->
+                        <div class="p-3 bg-primary/5 rounded-xl border-l-4 border-primary space-y-1">
+                            <p class="text-xs font-semibold text-on-surface">Yêu cầu hỗ trợ từ Đoàn khách</p>
+                            <p class="text-[11px] text-on-surface-variant/70 leading-snug">Đoàn khách Singapore tại Cố
+                                đô Huế yêu cầu chuẩn bị thêm nước uống đóng chai.</p>
+                            <p class="text-[9px] text-on-surface-variant/50">5 phút trước</p>
+                        </div>
+                        <!-- Notification Item 2 -->
+                        <div class="p-3 bg-primary/5 rounded-xl border-l-4 border-primary space-y-1">
+                            <p class="text-xs font-semibold text-on-surface">Cảnh báo Thời tiết</p>
+                            <p class="text-[11px] text-on-surface-variant/70 leading-snug">Dự báo có mưa rào nhẹ tại khu
+                                vực Tháp Mười từ 16:30 chiều nay.</p>
+                            <p class="text-[9px] text-on-surface-variant/50">20 phút trước</p>
+                        </div>
+                        <!-- Notification Item 3 -->
+                        <div class="p-3 hover:bg-primary/5 rounded-xl transition-colors space-y-1">
+                            <p class="text-xs font-medium text-on-surface-variant">Lịch trình Ngày mai</p>
+                            <p class="text-[11px] text-on-surface-variant/70 leading-snug">Bạn có lịch dẫn đoàn tham
+                                quan Ninh Bình bắt đầu lúc 08:30 sáng mai.</p>
+                            <p class="text-[9px] text-on-surface-variant/50">2 giờ trước</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="h-8 w-px bg-primary/10"></div>
+            <button onclick="openGuideSettingsModal(event)"
+                class="flex items-center gap-3 pl-2 pr-1 py-1 rounded-full hover:bg-primary/5 transition-all outline-none cursor-pointer"
+                title="Thông tin cá nhân">
+                <div class="text-right">
+                    <p id="logged-in-guide-name" class="font-label-md text-label-md text-on-surface leading-none"
+                        th:text="${employee?.fullName ?: 'NguynNgoc'}">NguynNgoc</p>
+                    <p class="text-[10px] text-on-surface-variant/60">Hướng dẫn viên cao cấp</p>
+                </div>
+                <div
+                    class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary/20 ring-4 ring-primary/5 bg-primary-container flex items-center justify-center text-on-primary-container font-bold">
+                    GD
+                </div>
+            </button>
+            <form th:action="@{/auth/logout}" method="post" class="inline">
+                <button type="submit"
+                    class="w-10 h-10 flex items-center justify-center rounded-full text-red-600 hover:bg-red-50 hover:text-red-800 transition-colors"
+                    title="Đăng xuất">
+                    <span class="material-symbols-outlined">logout</span>
+                </button>
+            </form>
+        </div>
+    </header>
+    <div class="flex pt-24 min-h-screen">
+        <!-- Main Content Canvas -->
+        <main class="flex-1 px-margin-mobile md:px-margin-desktop py-12">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-8 mb-12">
+                <div>
+                    <h1 class="font-display-lg text-5xl text-on-surface mb-2 tracking-tight">Lịch Trình Tổng Thể</h1>
+                    <p class="font-headline text-lg md:text-xl font-light text-on-surface-variant max-w-xl">Quản lý và
+                        theo dõi các hành trình tham quan chuyên nghiệp tại HoaNien.</p>
+                </div>
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+                    <!-- Search Input -->
+                    <div class="relative group">
+                        <span
+                            class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/40 group-focus-within:text-primary transition-colors text-[20px]">search</span>
+                        <input id="search-tour-input" oninput="performTourSearch(this.value)"
+                            class="bg-surface-container/30 border border-primary-container/20 rounded-full pl-11 pr-6 py-2 w-64 font-body-md text-on-surface placeholder-on-surface-variant/40 focus:ring-2 focus:ring-primary/20 transition-all outline-none font-medium"
+                            placeholder="Tìm kiếm tour..." type="text">
+                    </div>
+                    <!-- Filters -->
+                    <div class="flex gap-1 glass-surface p-1 rounded-full">
+                        <button onclick="filterTours('all', this)"
+                            class="px-6 py-2 rounded-full text-on-primary bg-primary font-label-md text-label-md shadow-md font-bold">Tất
+                            cả tour</button>
+                        <button onclick="filterTours('mine', this)"
+                            class="px-6 py-2 rounded-full text-on-surface-variant hover:bg-primary-container/20 font-label-md text-label-md transition-all">Của
+                            tôi</button>
+                        <button onclick="filterTours('upcoming', this)"
+                            class="px-6 py-2 rounded-full text-on-surface-variant hover:bg-primary-container/20 font-label-md text-label-md transition-all">Sắp
+                            tới</button>
+                        <button onclick="filterTours('completed', this)"
+                            class="px-6 py-2 rounded-full text-on-surface-variant hover:bg-primary-container/20 font-label-md text-label-md transition-all">Hoàn
+                            thành</button>
+                    </div>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+                <!-- Schedule List -->
+                <div id="schedule-list-container"
+                    class="lg:col-span-8 flex flex-col gap-12 max-h-[72vh] overflow-y-auto pr-4 scrollbar-custom scroll-smooth">
+                    <!-- Active Date Filter Indicator -->
+                    <div id="date-filter-indicator"
+                        class="hidden flex items-center justify-between bg-primary/5 border border-primary/20 rounded-xl p-4 mb-4">
+                        <div class="flex items-center gap-2 text-primary font-medium">
+                            <span class="material-symbols-outlined text-[20px]">filter_alt</span>
+                            <span>Đang lọc theo ngày: <span id="filtered-date-text"
+                                    class="font-bold">27/06/2026</span></span>
+                        </div>
+                        <button onclick="clearDateFilter()"
+                            class="text-sm text-red-600 hover:text-red-800 font-bold hover:underline">
+                            Xóa lọc
+                        </button>
+                    </div>
+
+                    <!-- Dynamic Tour Schedules Section -->
+                    <section class="tour-section">
+                        <div class="flex items-center gap-4 mb-6">
+                            <span
+                                class="material-symbols-outlined text-primary bg-primary-container/30 p-2 rounded-full">calendar_today</span>
+                            <div>
+                                <h2 class="font-headline-lg text-3xl text-on-surface">Danh sách Hành trình</h2>
+                                <p class="text-sm text-on-surface-variant/70 mt-1 flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-[14px]">schedule</span>
+                                    Quản lý và cập nhật tình trạng điểm danh cho các tour.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 gap-6">
+                            <!-- Loop over dbTours -->
+                            <div th:each="tour, iterStat : ${dbTours}" class="w-full">
+                                <!-- Date Heading Group -->
+                                <h3 th:if="${iterStat.first || dbTours[iterStat.index - 1].date != tour.date}"
+                                    class="text-xl font-bold text-primary mt-6 mb-4 border-b border-primary/10 pb-2 flex items-center gap-2"
+                                    th:data-section-date="${tour.date}">
+                                    <span class="material-symbols-outlined text-lg">calendar_month</span>
+                                    <span>Ngày <span
+                                            th:text="${#strings.substring(tour.date, 8, 10) + '/' + #strings.substring(tour.date, 5, 7) + '/' + #strings.substring(tour.date, 0, 4)}">27/06/2026</span></span>
+                                </h3>
+
+                                <div th:data-guide="${tour.guide}" th:data-status="${tour.status}"
+                                    th:data-date="${tour.date}" th:data-schedule-id="${tour.id}"
+                                    th:class="${tour.guide == (employee?.fullName ?: 'NguynNgoc')} ? 'tour-card glass-surface glass-interactive rounded-lg p-6 glow-accent-primary relative group cursor-pointer overflow-hidden' : 'tour-card glass-surface glass-interactive rounded-lg p-6 relative group cursor-pointer border border-outline-variant/30'"
+                                    onclick="handleViewDetails(this)">
+                                    <div class="flex gap-6 flex-col md:flex-row">
+                                        <div
+                                            class="w-full md:w-56 h-40 rounded-lg overflow-hidden flex-shrink-0 shadow-sm">
+                                            <img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                                                th:src="${tour.image}" />
+                                        </div>
+                                        <div class="flex-1 flex flex-col justify-between">
+                                            <div>
+                                                <div class="flex items-center gap-2 mb-2">
+                                                    <span class="text-primary font-bold font-label-md text-label-md"
+                                                        th:text="${tour.time}">08:00 - 13:00</span>
+                                                    <span class="text-on-surface-variant text-label-sm">• HDV: <span
+                                                            th:text="${tour.guide}">Minh Anh</span></span>
+                                                    <span class="text-on-surface-variant text-label-sm">• Ngày: <span
+                                                            th:text="${tour.date}">2026-06-27</span></span>
+                                                </div>
+                                                <h3 class="font-headline-md text-2xl text-on-surface group-hover:text-primary transition-colors mb-2"
+                                                    th:text="${tour.name}">Hành trình Đoàn Tụ - Huế</h3>
+                                            </div>
+                                            <div class="flex items-center justify-between mt-6">
+                                                <div class="flex items-center gap-2">
+                                                    <span
+                                                        class="material-symbols-outlined text-primary/70 text-lg">group</span>
+                                                    <span class="text-on-surface-variant text-label-sm font-medium"
+                                                        th:text="${tour.guests}">12 khách</span>
+                                                </div>
+                                                <button
+                                                    class="flex items-center gap-1 text-primary font-bold font-label-md text-label-md hover:translate-x-1 transition-transform">
+                                                    Chi tiết điểm danh <span
+                                                        class="material-symbols-outlined text-base">arrow_forward</span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+                <!-- Sidebar Content (Calendar) -->
+                <div class="lg:col-span-4 flex flex-col gap-6">
+                    <!-- Calendar Card -->
+                    <div class="glass-surface rounded-2xl p-8 sticky top-24 border border-primary-container/20">
+                        <div class="flex items-center justify-between mb-8">
+                            <h3 id="calendar-month-year" class="font-headline-md text-2xl text-on-surface">Tháng 6, 2026
+                            </h3>
+                            <div class="flex items-center gap-2">
+                                <button onclick="changeMonth(-1)"
+                                    class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-primary-container/20 text-on-surface transition-colors"
+                                    title="Tháng trước">
+                                    <span class="material-symbols-outlined text-[20px]">chevron_left</span>
+                                </button>
+                                <button onclick="changeMonth(1)"
+                                    class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-primary-container/20 text-on-surface transition-colors"
+                                    title="Tháng sau">
+                                    <span class="material-symbols-outlined text-[20px]">chevron_right</span>
+                                </button>
+                            </div>
+                        </div>
+                        <!-- Date Grid -->
+                        <div class="grid grid-cols-7 gap-1 text-center mb-4">
+                            <div class="text-label-sm font-bold text-on-surface-variant py-2">T2</div>
+                            <div class="text-label-sm font-bold text-on-surface-variant py-2">T3</div>
+                            <div class="text-label-sm font-bold text-on-surface-variant py-2">T4</div>
+                            <div class="text-label-sm font-bold text-on-surface-variant py-2">T5</div>
+                            <div class="text-label-sm font-bold text-on-surface-variant py-2">T6</div>
+                            <div class="text-label-sm font-bold text-on-surface-variant py-2">T7</div>
+                            <div class="text-label-sm font-bold text-primary py-2">CN</div>
+                        </div>
+                        <div id="calendar-days-grid" class="grid grid-cols-7 gap-1 text-center">
+                            <!-- Dynamic days will be rendered here by renderCalendar() -->
+                        </div>
+                        <div class="mt-10 pt-6 border-t border-outline-variant/30">
+                            <h4 class="font-headline-md text-xl text-on-surface mb-4">Ghi chú hôm nay</h4>
+                            <div class="flex flex-col gap-4">
+                                <div
+                                    class="flex items-start gap-3 p-4 rounded-xl bg-primary-container/10 border-l-4 border-primary">
+                                    <span class="material-symbols-outlined text-primary mt-0.5">info</span>
+                                    <p class="font-headline text-base font-light text-on-surface leading-relaxed">Đoàn
+                                        khách Singapore yêu cầu hướng dẫn viên nói được tiếng Trung cơ bản.</p>
+                                </div>
+                                <div
+                                    class="flex items-start gap-3 p-4 rounded-xl bg-surface-container-low border-l-4 border-outline">
+                                    <span
+                                        class="material-symbols-outlined text-on-surface-variant mt-0.5">warning</span>
+                                    <p
+                                        class="font-headline text-base font-light text-on-surface-variant leading-relaxed">
+                                        Dự báo có mưa nhẹ vào lúc 16:30, chuẩn bị phương án dự phòng cho tour sông.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <!-- BEGIN: Footer -->
+    <footer class="bg-[#2D2926] text-white py-20 px-20">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-end">
+            <div class="space-y-4">
+                <h3 class="text-3xl font-serif text-white">HoaNien</h3>
+                <p class="text-[10px] tracking-widest opacity-50 uppercase text-white">© 2026 HOANIEN RETREAT. A QUIET
+                    LUXURY TRAVEL GROUP.</p>
+            </div>
+            <div class="flex space-x-12 text-[10px] font-bold tracking-widest uppercase opacity-80">
+                <a class="hover:text-[#C5A059] no-underline text-white" href="#">Quyền riêng tư</a>
+                <a class="hover:text-[#C5A059] no-underline text-white" href="#">Sự bền vững</a>
+                <a class="hover:text-[#C5A059] no-underline text-white" href="#">Truyền thông</a>
+                <a class="hover:text-[#C5A059] no-underline text-white" href="#">Liên hệ</a>
+            </div>
+        </div>
+    </footer>
+    <!-- END: Footer -->
+    <!-- Decorative Background elements -->
+    <div
+        class="fixed top-[-5%] right-[-5%] w-[45vw] h-[45vw] bg-primary/5 rounded-full blur-[100px] pointer-events-none -z-10">
+    </div>
+    <div
+        class="fixed bottom-[-5%] left-[-5%] w-[35vw] h-[35vw] bg-secondary/5 rounded-full blur-[80px] pointer-events-none -z-10">
+    </div>
+
+    <!-- Custom Unauthorized Modal -->
+    <div id="unauthorizedModal" class="fixed inset-0 z-[200] flex items-center justify-center hidden">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeUnauthorizedModal()"></div>
+        <div
+            class="bg-[#fdfbf7] border border-primary/20 rounded-lg p-8 max-w-md w-full mx-4 relative z-10 text-center shadow-2xl">
+            <span class="material-symbols-outlined text-[64px] text-red-500 mb-4 animate-bounce">gpp_maybe</span>
+            <h3 class="font-serif text-2xl text-black font-bold mb-3">Không có quyền truy cập</h3>
+            <p id="unauthorizedMsg" class="text-sm text-gray-700 leading-relaxed mb-6">
+                Bạn không có quyền xem thông tin điểm danh của tour do hướng dẫn viên khác phụ trách. Lịch trình này
+                thuộc về hướng dẫn viên khác.
+            </p>
+            <button onclick="closeUnauthorizedModal()"
+                class="w-full py-3 px-6 rounded-full bg-primary/10 hover:bg-primary/20 text-primary font-bold border border-primary/30 hover:border-primary/50 transition-all uppercase tracking-widest text-xs">
+                Đóng
+            </button>
+        </div>
+    </div>
+
+    <!-- Guide Settings Modal -->
+    <div id="guideSettingsModal"
+        class="fixed inset-0 z-[150] hidden flex items-center justify-center bg-black/60 backdrop-blur-sm">
+        <div class="bg-[#fdfbf7] w-full max-w-lg p-8 border border-[#3a3230]/20 shadow-2xl relative text-[#372618]">
+            <button onclick="closeGuideSettingsModal()"
+                class="absolute top-4 right-4 text-[#372618]/60 hover:text-[#372618] transition-colors focus:outline-none">
+                <span class="material-symbols-outlined text-2xl">close</span>
+            </button>
+            <h3 class="font-headline-md text-2xl text-black font-bold mb-2 border-b border-[#3a3230]/10 pb-3">Thông tin
+                hướng dẫn viên</h3>
+
+            <div th:if="${employee != null}" class="space-y-4 mt-4">
+                <div class="space-y-1">
+                    <label class="font-label-caps text-[10px] text-outline uppercase block text-left font-semibold">Họ
+                        và tên</label>
+                    <input readonly th:value="${employee.fullName}"
+                        class="w-full bg-transparent border-0 border-b border-[#3a3230]/20 py-1.5 font-body-md text-black transition-all text-left outline-none cursor-default" />
+                </div>
+                <div class="space-y-1">
+                    <label class="font-label-caps text-[10px] text-outline uppercase block text-left font-semibold">Giới
+                        tính</label>
+                    <input readonly
+                        th:value="${employee.gender == 'Male' ? 'Nam' : (employee.gender == 'Female' ? 'Nữ' : 'Khác')}"
+                        class="w-full bg-transparent border-0 border-b border-[#3a3230]/20 py-1.5 font-body-md text-black transition-all text-left outline-none cursor-default" />
+                </div>
+                <div class="space-y-1">
+                    <label class="font-label-caps text-[10px] text-outline uppercase block text-left font-semibold">Số
+                        CCCD</label>
+                    <input readonly th:value="${employee.cccd}"
+                        class="w-full bg-transparent border-0 border-b border-[#3a3230]/20 py-1.5 font-body-md text-black transition-all text-left outline-none cursor-default" />
+                </div>
+                <div class="space-y-1">
+                    <label class="font-label-caps text-[10px] text-outline uppercase block text-left font-semibold">Số
+                        điện thoại</label>
+                    <input readonly th:value="${employee.phone}"
+                        class="w-full bg-transparent border-0 border-b border-[#3a3230]/20 py-1.5 font-body-md text-black transition-all text-left outline-none cursor-default" />
+                </div>
+                <div class="space-y-1">
+                    <label
+                        class="font-label-caps text-[10px] text-outline uppercase block text-left font-semibold">Email</label>
+                    <input readonly th:value="${employee.email}"
+                        class="w-full bg-transparent border-0 border-b border-[#3a3230]/20 py-1.5 font-body-md text-black transition-all text-left outline-none cursor-default" />
+                </div>
+            </div>
+            <div th:if="${employee == null}">
+                <p class="text-sm text-[#3a3230]/80 mt-4 text-left">Không tìm thấy thông tin hồ sơ hướng dẫn viên. Vui
+                    lòng liên hệ Quản lý để được hỗ trợ.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Calendar Date Detail Modal -->
+    <div id="calendarDateModal"
+        class="fixed inset-0 z-[150] hidden flex items-center justify-center bg-black/60 backdrop-blur-sm">
+        <div
+            class="bg-[#fdfbf7] w-full max-w-2xl p-8 border border-[#3a3230]/20 shadow-2xl relative text-[#372618] rounded-2xl overflow-y-auto max-h-[85vh]">
+            <button onclick="closeCalendarDateModal()"
+                class="absolute top-4 right-4 text-[#372618]/60 hover:text-[#372618] transition-colors focus:outline-none">
+                <span class="material-symbols-outlined text-2xl">close</span>
+            </button>
+            <h3 id="modal-date-title"
+                class="font-headline text-3xl italic text-primary font-bold mb-6 border-b border-[#3a3230]/10 pb-3">Lịch
+                trình ngày ...</h3>
+
+            <div class="space-y-6">
+                <!-- Tour của tôi -->
+                <div>
+                    <h4 class="font-headline text-xl italic text-on-surface font-semibold mb-3 flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-primary"></span>
+                        Tour của tôi
+                    </h4>
+                    <div id="my-tours-list" class="space-y-4">
+                        <!-- Dynamic content -->
+                    </div>
+                </div>
+
+                <!-- Tour của hướng dẫn viên khác -->
+                <div>
+                    <h4 class="font-headline text-xl italic text-on-surface font-semibold mb-3 flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-purple-500"></span>
+                        Tour của hướng dẫn viên khác
+                    </h4>
+                    <div id="other-tours-list" class="space-y-4">
+                        <!-- Dynamic content -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        const loggedInGuideName = /*[[${employee?.fullName ?: 'Nguyễn Ngọc'}]]*/ "Nguyễn Ngọc";
+        let selectedDateFilter = null;
+
+        function clearDateFilter() {
+            selectedDateFilter = null;
+            document.getElementById('date-filter-indicator').classList.add('hidden');
+            applyCombinedFilter();
+        }
+
+        // Tour datasets
+        const dbTours = /*[[${dbTours}]]*/[];
+
+        let toursData = [
+            {
+                id: 1,
+                name: "Hành trình Đoàn Tụ - Huế",
+                time: "08:00 - 13:00",
+                guide: "NguynNgoc",
+                status: "upcoming",
+                date: "2026-06-26",
+                image: "/AnhTour/z7930565879475_de7864577660b0726376ea947dbe94de.jpg",
+                guests: "12 khách"
+            },
+            {
+                id: 2,
+                name: "Tinh Túy Đồng Nội",
+                time: "09:00 - 16:00",
+                guide: "Ngọc Lan",
+                status: "upcoming",
+                date: "2026-06-26",
+                image: "/AnhTour/com.jfif",
+                guests: "8 khách"
+            },
+            {
+                id: 3,
+                name: "Tĩnh Lặng Liên Hoa",
+                time: "14:00 - 22:00",
+                guide: "Hoàng Nam",
+                status: "completed",
+                date: "2026-06-25",
+                image: "/AnhTour/ThapMuoi.jpg",
+                guests: "20 khách"
+            },
+            {
+                id: 4,
+                name: "Tinh túy đồng nội - Quảng Nam",
+                time: "08:30 - 13:30",
+                guide: "NguynNgoc",
+                status: "upcoming",
+                date: "2026-06-27",
+                image: "/AnhTour/Com.jpg",
+                guests: "15 khách"
+            },
+            {
+                id: 5,
+                name: "Di sản thủ công - Ninh Bình",
+                time: "09:00 - 15:00",
+                guide: "Ngọc Lan",
+                status: "upcoming",
+                date: "2026-06-27",
+                image: "/AnhTour/ThuCong.jpg",
+                guests: "10 khách"
+            },
+            {
+                id: 6,
+                name: "Tĩnh lặng liên hoa - Tháp Mười",
+                time: "08:00 - 12:00",
+                guide: "Hoàng Nam",
+                status: "completed",
+                date: "2026-06-24",
+                image: "/AnhTour/ThapMuoi.jpg",
+                guests: "18 khách"
+            }
+        ];
+
+        // If there are real database schedules, we use them as the primary source of truth!
+        if (dbTours && dbTours.length > 0) {
+            toursData = dbTours;
+        }
+
+        let activeTourFilter = 'all';
+
+        function removeVietnameseAccents(str) {
+            if (!str) return '';
+            return str
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .replace(/đ/g, "d")
+                .replace(/Đ/g, "D");
+        }
+
+        function matchQuery(text, query) {
+            const normText = text.toLowerCase().normalize("NFC");
+            const normQuery = query.toLowerCase().normalize("NFC");
+            if (normText.includes(normQuery)) return true;
+
+            const accentlessText = removeVietnameseAccents(normText);
+            const accentlessQuery = removeVietnameseAccents(normQuery);
+            return accentlessText.includes(accentlessQuery);
+        }
+
+        function isSameGuide(name1, name2) {
+            if (!name1 || !name2) return false;
+            const clean = str => removeVietnameseAccents(str.toLowerCase().normalize("NFC")).replace(/\s+/g, '').replace(/[uy]/g, 'u');
+            const c1 = clean(name1);
+            const c2 = clean(name2);
+            return c1 === c2 || c1.includes(c2) || c2.includes(c1);
+        }
+
+        function filterTours(filterType, btn) {
+            activeTourFilter = filterType;
+            const buttons = btn.parentElement.querySelectorAll('button');
+            buttons.forEach(b => {
+                b.className = "px-6 py-2 rounded-full text-on-surface-variant hover:bg-primary-container/20 font-label-md text-label-md transition-all";
+            });
+            btn.className = "px-6 py-2 rounded-full text-on-primary bg-primary font-label-md text-label-md shadow-md font-bold";
+
+            applyCombinedFilter();
+        }
+
+        function performTourSearch(query) {
+            applyCombinedFilter();
+        }
+
+        function applyCombinedFilter() {
+            const query = document.getElementById('search-tour-input').value.trim();
+            const cards = document.querySelectorAll('.tour-card');
+
+            cards.forEach(card => {
+                const guideName = card.getAttribute('data-guide') || '';
+                const status = card.getAttribute('data-status') || '';
+                const cardDate = card.getAttribute('data-date') || '';
+
+                // 1. Check filter status
+                let matchesFilter = false;
+                if (activeTourFilter === 'all') {
+                    matchesFilter = true;
+                } else if (activeTourFilter === 'mine') {
+                    matchesFilter = isSameGuide(guideName, loggedInGuideName);
+                } else if (activeTourFilter === 'upcoming') {
+                    matchesFilter = (status === 'upcoming');
+                } else if (activeTourFilter === 'completed') {
+                    matchesFilter = (status === 'completed');
+                }
+
+                // 2. Check date filter
+                let matchesDate = true;
+                if (selectedDateFilter) {
+                    matchesDate = (cardDate === selectedDateFilter);
+                }
+
+                // 3. Check search query
+                let matchesSearch = true;
+                if (query) {
+                    const cardText = card.textContent;
+                    const dataGuide = card.getAttribute('data-guide') || '';
+                    const dataStatus = card.getAttribute('data-status') || '';
+                    const combinedCardText = `${cardText} ${dataGuide} ${dataStatus}`;
+
+                    matchesSearch = matchQuery(combinedCardText, query);
+                }
+
+                card.style.display = (matchesFilter && matchesSearch && matchesDate) ? 'block' : 'none';
+            });
+
+            // Update date headings visibility
+            const dateHeadings = document.querySelectorAll('[data-section-date]');
+            dateHeadings.forEach(heading => {
+                const dateVal = heading.getAttribute('data-section-date');
+                const siblingCards = Array.from(document.querySelectorAll(`.tour-card[data-date="${dateVal}"]`));
+                const hasVisible = siblingCards.some(c => c.style.display !== 'none');
+                heading.style.display = hasVisible ? 'flex' : 'none';
+            });
+
+            // Update section visibility
+            const sections = document.querySelectorAll('.tour-section');
+            sections.forEach(sec => {
+                let visibleCount = 0;
+                sec.querySelectorAll('.tour-card').forEach(c => {
+                    if (c.style.display !== 'none') {
+                        visibleCount++;
+                    }
+                });
+                sec.style.display = (visibleCount === 0) ? 'none' : 'block';
+            });
+        }
+
+        // Calendar detail popup functions
+        function showDateTours(dateStr) {
+            selectedDateFilter = dateStr;
+            const parts = dateStr.split('-');
+            const formattedDate = `${parts[2]}/${parts[1]}/${parts[0]}`;
+
+            // Update indicator
+            document.getElementById('filtered-date-text').textContent = formattedDate;
+            document.getElementById('date-filter-indicator').classList.remove('hidden');
+
+            // Apply filter to left list
+            applyCombinedFilter();
+
+            document.getElementById('modal-date-title').textContent = `Lịch trình ngày ${formattedDate}`;
+
+            const filteredTours = toursData.filter(t => t.date === dateStr);
+            const myTours = filteredTours.filter(t => isSameGuide(t.guide, loggedInGuideName));
+            const otherTours = filteredTours.filter(t => !isSameGuide(t.guide, loggedInGuideName));
+
+            const myToursContainer = document.getElementById('my-tours-list');
+            const otherToursContainer = document.getElementById('other-tours-list');
+
+            if (myTours.length === 0) {
+                myToursContainer.innerHTML = `<p class="text-sm text-[#3a3230]/60 italic pl-5">Không có tour nào của bạn trong ngày này.</p>`;
+            } else {
+                myToursContainer.innerHTML = myTours.map(createModalTourCard).join('');
+            }
+
+            if (otherTours.length === 0) {
+                otherToursContainer.innerHTML = `<p class="text-sm text-[#3a3230]/60 italic pl-5">Không có tour nào của hướng dẫn viên khác trong ngày này.</p>`;
+            } else {
+                otherToursContainer.innerHTML = otherTours.map(createModalTourCard).join('');
+            }
+
+            document.getElementById('calendarDateModal').classList.remove('hidden');
+        }
+
+        function closeCalendarDateModal() {
+            document.getElementById('calendarDateModal').classList.add('hidden');
+        }
+
+        function createModalTourCard(tour) {
+            const statusBg = tour.status === 'upcoming'
+                ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20'
+                : 'bg-secondary-container/30 text-secondary border-secondary-container';
+            const statusText = tour.status === 'upcoming' ? 'Sắp diễn ra' : 'Đã hoàn thành';
+
+            return `
+                <div class="glass-panel border-primary/10 rounded-xl p-4 flex gap-4 hover:scale-[1.01] transition-transform duration-300 bg-white/40 backdrop-blur-md cursor-pointer" onclick="handleViewDetails(${tour.id}, '${tour.guide}')">
+                    <div class="w-24 h-16 rounded-lg overflow-hidden flex-shrink-0 shadow-sm">
+                        <img src="${tour.image}" class="w-full h-full object-cover" />
+                    </div>
+                    <div class="flex-1 flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-start">
+                                <h5 class="font-headline text-lg font-bold text-on-surface leading-snug">${tour.name}</h5>
+                                <span class="text-[9px] uppercase tracking-wider font-bold px-2 py-0.5 rounded border ${statusBg}">${statusText}</span>
+                            </div>
+                            <p class="text-[11px] text-on-surface-variant/70 mt-1">Thời gian: <span class="font-semibold text-primary">${tour.time}</span></p>
+                            <p class="text-[11px] text-on-surface-variant/70">Hướng dẫn viên: <span class="font-semibold text-on-surface">${tour.guide}</span></p>
+                        </div>
+                        <div class="flex justify-between items-center mt-2 text-[10px] text-on-surface-variant/60 font-medium">
+                            <span>${tour.guests}</span>
+                            <span class="flex items-center gap-1 text-primary font-semibold"><span class="material-symbols-outlined text-[12px]">arrow_forward</span> Xem điểm danh</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function handleViewDetails(arg1, arg2) {
+            let scheduleId, guideName;
+            if (arg2 !== undefined) {
+                // Called from calendar modal (passed as two arguments)
+                scheduleId = arg1;
+                guideName = arg2;
+            } else {
+                // Called from HTML click: handleViewDetails(this)
+                const element = arg1;
+                scheduleId = element.getAttribute('data-schedule-id');
+                guideName = element.getAttribute('data-guide');
+            }
+
+            if (!isSameGuide(guideName, loggedInGuideName)) {
+                showUnauthorizedModal(guideName);
+                return;
+            }
+            window.location.href = `/tourguide/dashboard?scheduleId=${scheduleId}`;
+        }
+
+        function showUnauthorizedModal(guideName) {
+            const msg = `Bạn không có quyền xem chi tiết điểm danh của tour này. Lịch trình này do hướng dẫn viên <strong>${guideName}</strong> phụ trách.`;
+            document.getElementById('unauthorizedMsg').innerHTML = msg;
+            document.getElementById('unauthorizedModal').classList.remove('hidden');
+        }
+
+        function closeUnauthorizedModal() {
+            document.getElementById('unauthorizedModal').classList.add('hidden');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('error') && urlParams.get('error') === 'unauthorized') {
+                showUnauthorizedModal("hướng dẫn viên khác");
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        });
+
+        function openGuideSettingsModal(e) {
+            e.stopPropagation();
+            document.getElementById('guideSettingsModal').classList.remove('hidden');
+        }
+
+        function closeGuideSettingsModal() {
+            document.getElementById('guideSettingsModal').classList.add('hidden');
+        }
+
+        function toggleNotificationDropdown(e) {
+            e.stopPropagation();
+            const dropdown = document.getElementById('notificationDropdown');
+            dropdown.classList.toggle('hidden');
+        }
+
+        function markAllNotificationsAsRead(e) {
+            if (e) e.stopPropagation();
+            const badge = document.querySelector('.dropdown-notification button .bg-red-500');
+            if (badge) {
+                badge.remove();
+            }
+            const items = document.querySelectorAll('#notifications-list > div');
+            items.forEach(item => {
+                item.className = 'p-3 hover:bg-primary/5 rounded-xl transition-colors space-y-1';
+            });
+        }
+
+        document.addEventListener('click', function (e) {
+            const dropdown = document.getElementById('notificationDropdown');
+            if (dropdown && !dropdown.classList.contains('hidden')) {
+                const isClickInside = dropdown.contains(e.target) || e.target.closest('.dropdown-notification');
+                if (!isClickInside) {
+                    dropdown.classList.add('hidden');
+                }
+            }
+        });
+
+        let currentYear = 2026;
+        let currentMonth = 5; // 0-indexed, so 5 = June
+        const todayReal = new Date();
+
+        function renderCalendar() {
+            const monthNames = [
+                "Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6",
+                "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"
+            ];
+
+            const monthYearEl = document.getElementById('calendar-month-year');
+            if (monthYearEl) {
+                monthYearEl.textContent = `${monthNames[currentMonth]}, ${currentYear}`;
+            }
+
+            const firstDayOfMonth = new Date(currentYear, currentMonth, 1);
+            const lastDayOfMonth = new Date(currentYear, currentMonth + 1, 0);
+
+            const totalDays = lastDayOfMonth.getDate();
+
+            let startDayOfWeek = firstDayOfMonth.getDay();
+            let offset = startDayOfWeek === 0 ? 6 : startDayOfWeek - 1;
+
+            const grid = document.getElementById('calendar-days-grid');
+            if (!grid) return;
+            grid.innerHTML = '';
+
+            const prevMonthLastDay = new Date(currentYear, currentMonth, 0).getDate();
+            for (let i = offset - 1; i >= 0; i--) {
+                const dayNum = prevMonthLastDay - i;
+                const prevMonthNum = currentMonth === 0 ? 11 : currentMonth - 1;
+                const prevYearNum = currentMonth === 0 ? currentYear - 1 : currentYear;
+                const dateString = `${prevYearNum}-${String(prevMonthNum + 1).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`;
+
+                const dayDiv = document.createElement('div');
+                dayDiv.className = "p-2 text-on-surface/20 font-label-md cursor-pointer hover:bg-primary-container/10 rounded-full transition-colors";
+                dayDiv.textContent = dayNum;
+                dayDiv.onclick = () => showDateTours(dateString);
+                grid.appendChild(dayDiv);
+            }
+
+            for (let day = 1; day <= totalDays; day++) {
+                const dateString = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const hasTours = toursData.some(t => t.date === dateString);
+
+                const isTodayReal = todayReal.getDate() === day && todayReal.getMonth() === currentMonth && todayReal.getFullYear() === currentYear;
+
+                const dayDiv = document.createElement('div');
+                dayDiv.onclick = () => showDateTours(dateString);
+
+                if (isTodayReal) {
+                    dayDiv.className = "p-2 bg-primary text-on-primary font-bold rounded-full shadow-lg relative font-label-md cursor-pointer hover:opacity-90";
+                    dayDiv.innerHTML = `${day}`;
+                    const dot = document.createElement('div');
+                    dot.className = "absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-on-primary rounded-full";
+                    dayDiv.appendChild(dot);
+                } else {
+                    dayDiv.className = "p-2 text-on-surface hover:bg-primary-container/20 rounded-full cursor-pointer transition-colors font-label-md relative";
+                    dayDiv.textContent = day;
+                    if (hasTours) {
+                        const dot = document.createElement('div');
+                        dot.className = "absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-primary/45 rounded-full";
+                        dayDiv.appendChild(dot);
+                    }
+                }
+
+                grid.appendChild(dayDiv);
+            }
+
+            const totalCellsSoFar = offset + totalDays;
+            const remainingCells = 42 - totalCellsSoFar;
+            for (let day = 1; day <= remainingCells; day++) {
+                const nextMonthNum = currentMonth === 11 ? 0 : currentMonth + 1;
+                const nextYearNum = currentMonth === 11 ? currentYear + 1 : currentYear;
+                const dateString = `${nextYearNum}-${String(nextMonthNum + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+
+                const dayDiv = document.createElement('div');
+                dayDiv.className = "p-2 text-on-surface/20 font-label-md cursor-pointer hover:bg-primary-container/10 rounded-full transition-colors";
+                dayDiv.textContent = day;
+                dayDiv.onclick = () => showDateTours(dateString);
+                grid.appendChild(dayDiv);
+            }
+        }
+
+        function changeMonth(direction) {
+            currentMonth += direction;
+            if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            } else if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            }
+            renderCalendar();
+        }
+
+        renderCalendar();
+    </script>
+</body>
+
+</html>

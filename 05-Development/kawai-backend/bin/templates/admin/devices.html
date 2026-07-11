@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý thiết bị bảo mật - Hoanien Resort Operations</title>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" th:href="@{/admin/css/theme.css}" href="../../static/admin/css/theme.css" />
+    <link rel="stylesheet" th:href="@{/admin/css/admin.css}" href="../../static/admin/css/admin.css" />
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'brand-dark': '#2c3e50',
+                        'brand-gold': '#d4af37',
+                        'brand-light': '#f9fafb',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body style="background-color: #FDFBF7;">
+
+    <!-- Sidebar -->
+    <div th:replace="~{admin/fragments/sidebar :: sidebar('devices', '')}"></div>
+
+    <div class="adm-main">
+        <!-- Header -->
+        <header class="adm-header">
+            <div class="adm-header-left">
+                <span class="adm-breadcrumb-site">Hoanien Retreat</span>
+                <span class="adm-breadcrumb-sep">/</span>
+                <span class="adm-breadcrumb-page" style="color:#6B6558">Bảo mật & Hệ thống</span>
+                <span class="adm-breadcrumb-sep">/</span>
+                <span class="adm-breadcrumb-page">Quản lý thiết bị</span>
+            </div>
+            <div class="adm-header-right">
+                <button class="adm-header-icon-btn"><i data-lucide="search"></i></button>
+                <button class="adm-header-icon-btn">
+                    <i data-lucide="bell"></i>
+                    <span class="adm-notif-dot"></span>
+                </button>
+                <div class="adm-divider-v"></div>
+                <div class="adm-header-user-box">
+                    <div class="adm-header-avatar" th:text="${#authentication != null ? #strings.substring(#authentication.name, 0, 2).toUpperCase() : 'AD'}">AD</div>
+                    <span class="adm-header-username" th:text="${#authentication != null ? #authentication.name : 'Admin'}">Admin</span>
+                </div>
+                <div class="adm-divider-v"></div>
+                <a href="/logout" class="adm-header-logout"><i data-lucide="log-out" style="width:12px;height:12px"></i>Đăng xuất</a>
+            </div>
+        </header>
+
+        <!-- TOAST CONTAINER -->
+        <div id="toast-container" class="fixed bottom-5 right-5 z-50 space-y-2 pointer-events-none"></div>
+
+        <main class="adm-page">
+            
+            <div>
+                <p class="adm-page-eyebrow">Bảo mật tài khoản hệ thống</p>
+                <h1 class="adm-page-title">Quản lý thiết bị xác thực</h1>
+            </div>
+
+            <!-- Overview Stats -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 mt-6">
+                <div class="adm-card flex items-center gap-4" style="padding: 20px;">
+                    <div class="p-3 bg-blue-50 text-blue-600 rounded-lg" style="background-color: rgba(45,107,122,0.1); color: #1D5B6A;">
+                        <i data-lucide="smartphone" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium" style="color: #6B6558;">Tổng thiết bị ghi nhận</p>
+                        <h3 class="text-2xl font-bold" style="color: #2C2A1E;" th:text="${devices != null ? devices.size() : 0}">0</h3>
+                    </div>
+                </div>
+                <div class="adm-card flex items-center gap-4" style="padding: 20px;">
+                    <div class="p-3 bg-emerald-50 text-emerald-600 rounded-lg" style="background-color: rgba(46,90,59,0.1); color: #2E5A3B;">
+                        <i data-lucide="shield-check" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium" style="color: #6B6558;">Thiết bị được tin cậy</p>
+                        <h3 class="text-2xl font-bold" style="color: #2C2A1E;" id="trusted-devices-count">0</h3>
+                    </div>
+                </div>
+                <div class="adm-card flex items-center gap-4" style="padding: 20px;">
+                    <div class="p-3 bg-rose-50 text-rose-600 rounded-lg" style="background-color: rgba(140,60,40,0.1); color: #8C3C28;">
+                        <i data-lucide="shield-alert" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium" style="color: #6B6558;">Thiết bị bị khóa</p>
+                        <h3 class="text-2xl font-bold" style="color: #2C2A1E;" id="blocked-devices-count">0</h3>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="adm-card" style="padding: 0; overflow: hidden;">
+                <div class="px-6 py-5 flex justify-between items-center" style="border-bottom: 1px solid rgba(44,42,30,0.08); background: #FDFBF7;">
+                    <h2 class="text-lg font-semibold flex items-center gap-2" style="color: #2C2A1E; font-family: var(--font-serif);">
+                        <i data-lucide="fingerprint" class="w-5 h-5" style="color: #C9A96E;"></i>
+                        Danh sách thiết bị (Fingerprints)
+                    </h2>
+                    <button onclick="window.location.reload()" class="log-btn">
+                        <i data-lucide="refresh-cw" style="width:14px; height:14px;"></i> Làm mới
+                    </button>
+                </div>
+                
+                <div class="p-0">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm whitespace-nowrap">
+                            <thead class="uppercase tracking-wider font-medium text-xs" style="background: #EDE8DF; color: #5C4A3A; letter-spacing: 0.05em; font-weight: 700;">
+                                <tr>
+                                    <th scope="col" class="px-6 py-4">ID</th>
+                                    <th scope="col" class="px-6 py-4">Mã Thiết bị (Device Code)</th>
+                                    <th scope="col" class="px-6 py-4">Trạng thái (Tin cậy)</th>
+                                    <th scope="col" class="px-6 py-4 text-right">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100" style="color: #5C4A3A;">
+                                <tr th:if="${devices == null || devices.isEmpty()}">
+                                    <td colspan="4" class="px-6 py-8 text-center" style="color: #8B7355;">
+                                        Không có dữ liệu thiết bị nào trong hệ thống.
+                                    </td>
+                                </tr>
+                                <tr th:each="device : ${devices}" class="hover:bg-[#f9f9f9] transition-colors">
+                                    <td class="px-6 py-4" th:text="${device.id}">1</td>
+                                    <td class="px-6 py-4 font-mono font-medium text-[#2C2A1E]" th:text="${device.deviceCode}">DEV-12345</td>
+                                    <td class="px-6 py-4">
+                                        <span th:if="${device.isApproved}" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold" style="background-color: rgba(46,90,59,0.1); color: #2E5A3B;">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-[#2E5A3B]"></span>
+                                            Đã xác thực
+                                        </span>
+                                        <span th:unless="${device.isApproved}" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold" style="background-color: rgba(140,60,40,0.1); color: #8C3C28;">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-[#8C3C28]"></span>
+                                            Bị khóa
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 text-right space-x-2">
+                                        <button th:onclick="'toggleDeviceStatus(' + ${device.id} + ')'" 
+                                                class="px-3 py-1.5 text-xs font-bold uppercase tracking-wider rounded border border-slate-300 text-slate-700 hover:bg-slate-50 transition-colors">
+                                            <span th:if="${device.isApproved}">Khóa</span>
+                                            <span th:unless="${device.isApproved}">Mở Khóa</span>
+                                        </button>
+                                        <button th:onclick="'deleteDevice(' + ${device.id} + ')'" 
+                                                class="px-3 py-1.5 text-xs font-bold uppercase tracking-wider rounded border border-rose-200 text-rose-600 bg-rose-50 hover:bg-rose-100 transition-colors">
+                                            Xóa
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script th:inline="javascript">
+        // Khởi tạo Lucide Icons
+        lucide.createIcons();
+
+        // Calculate stats
+        document.addEventListener('DOMContentLoaded', function() {
+            const devices = /*[[${devices}]]*/ [];
+            if(devices && devices.length > 0) {
+                const trustedCount = devices.filter(d => d.isApproved).length;
+                const blockedCount = devices.length - trustedCount;
+                document.getElementById('trusted-devices-count').textContent = trustedCount;
+                document.getElementById('blocked-devices-count').textContent = blockedCount;
+            }
+        });
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `flex items-center p-4 w-full max-w-xs text-sm rounded-lg shadow-lg transform transition-all duration-300 translate-x-0 opacity-100 ${
+                type === 'success' ? 'text-emerald-800 bg-emerald-50 border border-emerald-200' : 'text-rose-800 bg-rose-50 border border-rose-200'
+            }`;
+            
+            const icon = type === 'success' ? 'check-circle' : 'alert-circle';
+            const iconColor = type === 'success' ? 'text-emerald-500' : 'text-rose-500';
+            
+            toast.innerHTML = `
+                <div class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 rounded-lg">
+                    <i data-lucide="${icon}" class="w-5 h-5 ${iconColor}"></i>
+                </div>
+                <div class="ml-3 font-medium">${message}</div>
+            `;
+            
+            container.appendChild(toast);
+            lucide.createIcons();
+            
+            setTimeout(() => {
+                toast.classList.replace('translate-x-0', 'translate-x-full');
+                toast.classList.replace('opacity-100', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        async function toggleDeviceStatus(id) {
+            try {
+                const res = await fetch(`/admin/api/v1/devices/${id}/toggle-status`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const data = await res.json();
+                if (data.success) {
+                    showToast(data.message, 'success');
+                    setTimeout(() => window.location.reload(), 800);
+                } else {
+                    showToast(data.message || 'Lỗi xử lý', 'error');
+                }
+            } catch (err) {
+                showToast('Lỗi kết nối đến máy chủ', 'error');
+            }
+        }
+
+        async function deleteDevice(id) {
+            if(!confirm('Bạn có chắc chắn muốn xóa vĩnh viễn thiết bị này khỏi hệ thống? Thiết bị sẽ phải xác thực lại nếu muốn đăng nhập.')) return;
+            try {
+                const res = await fetch(`/admin/api/v1/devices/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const data = await res.json();
+                if (data.success) {
+                    showToast(data.message, 'success');
+                    setTimeout(() => window.location.reload(), 800);
+                } else {
+                    showToast(data.message || 'Lỗi xử lý', 'error');
+                }
+            } catch (err) {
+                showToast('Lỗi kết nối đến máy chủ', 'error');
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Daily Report — F&amp;B Staff | Hoanien Resort</title>
+  <meta name="description" content="Màn hình Daily Report cho nhân viên F&amp;B — Hoanien Retreat Resort &amp; Hub" />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Material Symbols -->
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet" />
+
+  <!-- Base POS CSS -->
+  <link rel="stylesheet" th:href="@{/f&amp;bStaff/css/pos-dashboard.css}" href="../../statics/f&bStaff/css/pos-dashboard.css" />
+  <!-- Shift Report CSS -->
+  <link rel="stylesheet" th:href="@{/f&amp;bStaff/css/shift-report.css}" href="../../statics/f&bStaff/css/shift-report.css" />
+</head>
+
+<body>
+
+  <!-- ============================================================
+       SIDEBAR
+       ============================================================ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="brand-name">HOANIEN</div>
+      <div class="brand-sub">Resort &amp; Tour Hub</div>
+      <div class="staff-badge">
+        <span class="material-symbols-outlined" style="font-size:0.7rem;font-variation-settings:'FILL' 1,'wght' 500,'GRAD' 0,'opsz' 24;">restaurant</span>
+        F&amp;B Staff
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Operations</div>
+
+      <a href="/fbStaff/dashboard" th:href="@{/fbStaff/dashboard}" class="nav-item">
+        <span class="material-symbols-outlined">dashboard</span>
+        <span>POS Dashboard</span>
+      </a>
+      <a href="/fbStaff/create-food-order" th:href="@{/fbStaff/create-food-order}" class="nav-item" sec:authorize="hasAnyAuthority('OP_FNB_ORDER', 'OP_FNB', 'ROLE_ADMIN', 'ROLE_MANAGER')">
+        <span class="material-symbols-outlined">add_circle</span>
+        <span>New Order</span>
+      </a>
+      <a href="/fbStaff/table-management" th:href="@{/fbStaff/table-management}" class="nav-item" sec:authorize="hasAnyAuthority('OP_FNB_TABLE', 'OP_FNB', 'ROLE_ADMIN', 'ROLE_MANAGER')">
+        <span class="material-symbols-outlined">table_restaurant</span>
+        <span>Table Management</span>
+      </a>
+      <a href="/fbStaff/room-service" th:href="@{/fbStaff/room-service}" class="nav-item" sec:authorize="hasAnyAuthority('OP_FNB_ROOM_SERVICE', 'OP_FNB', 'ROLE_ADMIN', 'ROLE_MANAGER')">
+        <span class="material-symbols-outlined">room_service</span>
+        <span>Room Service</span>
+      </a>
+
+
+      <div class="nav-section-label">Finance</div>
+
+      <a href="/fbStaff/shift-report" th:href="@{/fbStaff/shift-report}" class="nav-item active">
+        <span class="material-symbols-outlined">bar_chart</span>
+        <span>Shift Report</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="staff-profile">
+        <div class="staff-avatar">TP</div>
+        <div>
+          <div class="staff-name" th:text="${staffName != null ? staffName : 'Trần Phương'}">Trần Phương</div>
+          <div class="staff-role">F&amp;B POS · Ca Sáng</div>
+        </div>
+        <button class="logout-btn" title="Đăng xuất" onclick="location.href='/auth/logout'">
+          <span class="material-symbols-outlined" style="font-size:1.05rem;">logout</span>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ============================================================
+       MAIN CONTENT
+       ============================================================ -->
+  <div class="main-content">
+
+    <!-- Topbar -->
+    <header class="topbar">
+      <div>
+        <div class="topbar-title">Daily Report</div>
+        <div class="topbar-subtitle">F&amp;B Daily Report · Current Day</div>
+      </div>
+      <div class="topbar-right">
+        <div style="position:relative;">
+          <div class="topbar-clock" id="live-clock">--:--:--</div>
+          <div class="topbar-date" id="live-date" style="position:absolute;top:calc(100% + 3px);left:0;right:0;text-align:center;white-space:nowrap;"></div>
+        </div>
+
+
+        <button class="btn btn-primary" id="btn-close-day" onclick="openCloseDayModal()" style="height:34px;padding:0 14px;gap:6px; background-color: var(--status-served-text); border-color: var(--status-served-text);">
+          <span class="material-symbols-outlined">lock</span>
+          Close Day
+        </button>
+
+
+      </div>
+    </header>
+
+    <!-- Dashboard Body -->
+    <div class="dashboard-body sr-wrapper">
+
+      <!-- Date navigation bar -->
+      <div class="sr-date-nav-wrapper">
+        <div class="sr-date-nav">
+          <button class="sr-date-nav-btn" id="btn-prev-day-nav" title="Ngày hôm trước" onclick="changeReportDate(-1)">
+            <span class="material-symbols-outlined">chevron_left</span>
+          </button>
+          <span class="sr-date-label" id="sr-date-label">Hôm nay</span>
+          <button class="sr-date-nav-btn" id="btn-next-day-nav" title="Ngày hôm sau" onclick="changeReportDate(1)">
+            <span class="material-symbols-outlined">chevron_right</span>
+          </button>
+        </div>
+        <button class="sr-today-btn" id="sr-today-btn" onclick="changeReportDate('today')">Hôm nay</button>
+        <input type="date" class="sr-date-input" id="sr-date-input" onchange="changeReportDate(this.value)" />
+      </div>
+
+      <!-- ===================================================
+           SECTION 1: ORDER STATISTICS
+           =================================================== -->
+      <div class="sr-section-header">
+        <span class="material-symbols-outlined">receipt_long</span>
+        <h2>Order Statistics</h2>
+        <span class="sr-section-sub">Daily Order Statistics</span>
+      </div>
+
+      <div class="sr-stats-grid" id="order-stats-grid">
+
+        <div class="sr-stat-card accent-default" onclick="openOrdersModal('all')">
+          <div class="sr-stat-icon" style="background:rgba(44,44,44,0.07);color:#2c2c2c;">
+            <span class="material-symbols-outlined">receipt_long</span>
+          </div>
+          <div class="sr-stat-body">
+            <div class="sr-stat-label">Total Orders</div>
+            <div class="sr-stat-value" id="stat-total-orders">125</div>
+          </div>
+          <div class="sr-stat-trend up">
+            <span class="material-symbols-outlined">update</span> Real Data
+          </div>
+        </div>
+
+        <div class="sr-stat-card accent-blue" onclick="openOrdersModal('dine-in')">
+          <div class="sr-stat-icon" style="background:var(--status-served-bg);color:var(--status-served-text);">
+            <span class="material-symbols-outlined">restaurant</span>
+          </div>
+          <div class="sr-stat-body">
+            <div class="sr-stat-label">Dine-In Orders</div>
+            <div class="sr-stat-value" id="stat-dine-in">80</div>
+          </div>
+          <div class="sr-stat-sub">Dine-in Service</div>
+        </div>
+
+        <div class="sr-stat-card accent-purple" onclick="openOrdersModal('room-service')">
+          <div class="sr-stat-icon" style="background:var(--status-roomsvc-bg);color:var(--status-roomsvc-text);">
+            <span class="material-symbols-outlined">room_service</span>
+          </div>
+          <div class="sr-stat-body">
+            <div class="sr-stat-label">Room Service</div>
+            <div class="sr-stat-value" id="stat-room-svc">45</div>
+          </div>
+          <div class="sr-stat-sub">Room Service</div>
+        </div>
+
+        <div class="sr-stat-card accent-green" onclick="openOrdersModal('served')">
+          <div class="sr-stat-icon" style="background:var(--status-ready-bg);color:var(--status-ready-text);">
+            <span class="material-symbols-outlined">check_circle</span>
+          </div>
+          <div class="sr-stat-body">
+            <div class="sr-stat-label">Served Orders</div>
+            <div class="sr-stat-value" id="stat-served">110</div>
+          </div>
+          <div class="sr-stat-sub">Completed</div>
+        </div>
+
+        <div class="sr-stat-card accent-red" onclick="openOrdersModal('cancelled')">
+          <div class="sr-stat-icon" style="background:rgba(190,50,50,0.09);color:#b83232;">
+            <span class="material-symbols-outlined">cancel</span>
+          </div>
+          <div class="sr-stat-body">
+            <div class="sr-stat-label">Cancelled Orders</div>
+            <div class="sr-stat-value" id="stat-cancelled">5</div>
+          </div>
+          <div class="sr-stat-sub">Exclude Revenue</div>
+        </div>
+
+      </div>
+
+
+
+        <!-- ===================================================
+             SECTION 3: REVENUE SUMMARY
+             =================================================== -->
+        <div class="sr-revenue-panel">
+          <div class="sr-section-header" style="margin-bottom: 16px;">
+            <span class="material-symbols-outlined">payments</span>
+            <h2>Revenue Summary</h2>
+            <span class="sr-section-sub">Daily Revenue</span>
+          </div>
+
+          <div class="sr-revenue-content">
+            <div class="revenue-cards">
+            <!-- Tiền mặt -->
+            <div class="revenue-card">
+              <div class="rev-card-icon" style="background:var(--status-served-bg);color:var(--status-served-text);">
+                <span class="material-symbols-outlined">payments</span>
+              </div>
+              <div class="rev-card-body">
+                <div class="rev-label">Cash (Safe)</div>
+                <div class="rev-value" id="rev-cash">0₫</div>
+              </div>
+              <div class="rev-pct-badge" id="rev-cash-pct" style="background:var(--status-served-bg);color:var(--status-served-text);">0%</div>
+            </div>
+
+            <!-- VNPAY -->
+            <div class="revenue-card">
+              <div class="rev-card-icon" style="background:var(--status-roomsvc-bg);color:var(--status-roomsvc-text);">
+                <span class="material-symbols-outlined">qr_code_scanner</span>
+              </div>
+              <div class="rev-card-body">
+                <div class="rev-label">Bank Transfer (VNPAY)</div>
+                <div class="rev-value" id="rev-vnpay">0₫</div>
+              </div>
+              <div class="rev-pct-badge" id="rev-vnpay-pct" style="background:var(--status-roomsvc-bg);color:var(--status-roomsvc-text);">0%</div>
+            </div>
+
+            <!-- Charge to Room -->
+            <div class="revenue-card">
+              <div class="rev-card-icon" style="background:var(--status-cooking-bg);color:var(--status-cooking-text);">
+                <span class="material-symbols-outlined">meeting_room</span>
+              </div>
+              <div class="rev-card-body">
+                <div class="rev-label">Charge to Room</div>
+                <div class="rev-value" id="rev-charge">0₫</div>
+              </div>
+              <div class="rev-pct-badge" id="rev-charge-pct" style="background:var(--status-cooking-bg);color:var(--status-cooking-text);">0%</div>
+            </div>
+
+            <div class="revenue-card total-revenue">
+              <div class="rev-card-icon total" style="background:rgba(44,44,44,0.10);color:#2c2c2c;">
+                <span class="material-symbols-outlined">account_balance_wallet</span>
+              </div>
+              <div class="rev-card-body">
+                <div class="rev-label total-lbl">Total Revenue</div>
+                <div class="rev-value total-val" id="rev-total">0₫</div>
+              </div>
+              <div class="rev-trend up">
+                <span class="material-symbols-outlined">info</span>
+                Completed orders only
+              </div>
+            </div>
+          </div>
+
+          <!-- Revenue Pie Chart -->
+          <div class="revenue-chart-card">
+            <div class="chart-title">Revenue by Payment Type</div>
+            <div class="pie-chart-container" id="revenue-pie-chart-container">
+              <div class="pie-chart" id="revenue-pie-chart">
+                <div class="pie-chart-hole"></div>
+              </div>
+              <div class="pie-chart-legend" id="revenue-pie-legend">
+                <!-- Rendered by JS -->
+              </div>
+            </div>
+          </div>
+          </div>
+        </div>
+
+      <!-- ===================================================
+           SECTION 4: ORDERS LIST
+           =================================================== -->
+      <div class="sr-section-header" style="margin-top: 8px;">
+        <span class="material-symbols-outlined">list_alt</span>
+        <h2>Orders List</h2>
+        <span class="sr-section-sub">All daily orders</span>
+      </div>
+
+      <!-- Filter / Search Bar -->
+      <div class="sr-filter-bar">
+        <div class="sr-search-box">
+          <span class="material-symbols-outlined">search</span>
+          <input type="text" id="order-search" placeholder="Search Order ID, table/room..." autocomplete="off" />
+        </div>
+        <div class="sr-filter-group">
+          <select class="sr-select" id="filter-status">
+            <option value="all">All Statuses</option>
+            <option value="pending">Pending</option>
+            <option value="preparing">Processing</option>
+            <option value="ready">Complete</option>
+            <option value="served">Served</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+          <select class="sr-select" id="filter-type">
+            <option value="all">All Types</option>
+            <option value="dine-in">Dine-In</option>
+            <option value="room-service">Room Service</option>
+          </select>
+          <button class="btn btn-sm btn-outline" id="btn-sort-time" title="Sắp xếp theo thời gian">
+            <span class="material-symbols-outlined">swap_vert</span>
+            Newest
+          </button>
+        </div>
+      </div>
+
+      <!-- Orders Table -->
+      <div class="table-card">
+        <table class="sr-table" id="orders-table">
+          <thead>
+            <tr>
+              <th class="col-id">Order ID</th>
+              <th>Order Type</th>
+              <th>Table / Room</th>
+              <th>Guest</th>
+              <th>Order Time</th>
+              <th>Status</th>
+              <th class="col-amount">Total Amount</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="orders-tbody">
+            <!-- Rendered by JS -->
+          </tbody>
+        </table>
+
+        <!-- Empty State -->
+        <div class="sr-empty" id="table-empty" style="display:none;">
+          <span class="material-symbols-outlined" style="font-size:2.5rem;color:var(--text-muted);">search_off</span>
+          <p>No matching orders found.</p>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination">
+          <div class="page-info" id="page-info">Showing 1–10 of 125 orders</div>
+          <div class="page-controls">
+            <button class="btn btn-sm btn-outline" id="btn-prev" disabled>
+              <span class="material-symbols-outlined">chevron_left</span> Previous
+            </button>
+            <div class="page-numbers" id="page-numbers"></div>
+            <button class="btn btn-sm btn-outline" id="btn-next">
+              Next <span class="material-symbols-outlined">chevron_right</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- / sr-wrapper -->
+
+    <!-- ===================================================
+         MODALS
+         =================================================== -->
+    <!-- Modal Danh sách Đơn hàng -->
+    <div class="modal-backdrop" id="orders-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
+      <div class="modal-content" style="background:var(--bg-card); width:900px; max-width:95%; border-radius:var(--radius-lg); padding:20px; box-shadow:var(--shadow-lift);">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+          <div>
+            <h3 id="orders-modal-title" style="margin:0; font-family:'Playfair Display', serif; font-size: 1.2rem; color: var(--text-primary);">Orders List</h3>
+            <span id="orders-modal-subtitle" style="font-size: 0.8rem; color: var(--text-muted);"></span>
+          </div>
+          <button onclick="document.getElementById('orders-modal').style.display='none'" style="background:none; border:none; cursor:pointer;"><span class="material-symbols-outlined">close</span></button>
+        </div>
+        <div style="max-height:60vh; overflow-y:auto; border: 1px solid var(--border); border-radius: var(--radius-md);">
+          <table class="sr-table" style="width:100%;">
+            <thead>
+              <tr>
+                <th class="col-id">Order ID</th>
+                <th>Order Type</th>
+                <th>Table / Room</th>
+                <th>Order Time</th>
+                <th>Status</th>
+                <th class="col-amount">Total Amount</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="orders-modal-tbody">
+              <!-- Rendered by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Danh sách Bàn -->
+    <div class="modal-backdrop" id="tables-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
+      <div class="modal-content" style="background:var(--bg-card); width:700px; max-width:95%; border-radius:var(--radius-lg); padding:20px; box-shadow:var(--shadow-lift);">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+          <div>
+            <h3 id="tables-modal-title" style="margin:0; font-family:'Playfair Display', serif; font-size: 1.2rem; color: var(--text-primary);">Tables List</h3>
+            <span id="tables-modal-subtitle" style="font-size: 0.8rem; color: var(--text-muted);"></span>
+          </div>
+          <button onclick="document.getElementById('tables-modal').style.display='none'" style="background:none; border:none; cursor:pointer;"><span class="material-symbols-outlined">close</span></button>
+        </div>
+        <div style="max-height:60vh; overflow-y:auto; border: 1px solid var(--border); border-radius: var(--radius-md);">
+          <table class="sr-table" style="width:100%;">
+            <thead>
+              <tr>
+                <th>Table</th>
+                <th>Capacity</th>
+                <th>Area</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="tables-modal-tbody">
+              <!-- Rendered by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Close Day -->
+    <div class="modal-backdrop" id="close-day-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1100; align-items:center; justify-content:center;">
+      <div class="modal-content" style="background:var(--bg-card); width:400px; border-radius:var(--radius-lg); padding:24px; box-shadow:var(--shadow-lift);">
+        <h3 style="margin:0 0 10px 0; font-family:'Playfair Display', serif; font-size: 1.3rem; color: var(--text-primary); display:flex; align-items:center; gap:8px;">
+          <span class="material-symbols-outlined" style="color:var(--status-served-text);">lock</span> Confirm Close Day
+        </h3>
+        <p style="color:var(--text-secondary); font-size:0.9rem; line-height:1.5; margin-bottom:16px;">
+          Bạn có chắc chắn muốn chốt báo cáo cho ngày hôm nay không? Action này sẽ lưu doanh thu vào hệ thống và <strong>không thể hoàn tác</strong>.
+        </p>
+        
+        <div class="form-group" style="margin-bottom:20px;">
+          <label style="display:block; margin-bottom:6px; font-weight:500; font-size:0.85rem;">Notes (Optional)</label>
+          <textarea id="close-day-notes" placeholder="E.g., Short by 50k..." style="width:100%; padding:10px; border:1px solid var(--border); border-radius:var(--radius-sm); resize:vertical; min-height:80px; font-family:inherit;"></textarea>
+        </div>
+
+        <div style="display:flex; justify-content:flex-end; gap:10px;">
+          <button class="btn btn-outline" onclick="document.getElementById('close-day-modal').style.display='none'">Cancel</button>
+          <button class="btn btn-primary" id="btn-confirm-close" style="background-color: var(--status-served-text); border-color: var(--status-served-text);" onclick="submitCloseDay()">
+            <span class="material-symbols-outlined" style="font-size:1.1rem;">check_circle</span> Confirm Close
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- / main-content -->
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Scripts -->
+  <script th:src="@{/f&amp;bStaff/js/shift-report.js}" src="../../statics/f&bStaff/js/shift-report.js"></script>
+
+</body>
+</html>
+
+

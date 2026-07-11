@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Remote QR Scanner</title>
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #0f172a;
+            color: white;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .header {
+            padding: 16px;
+            text-align: center;
+            background: #1e293b;
+            border-bottom: 1px solid #334155;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 600;
+            color: #f8fafc;
+        }
+        .scanner-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        #qr-reader {
+            width: 100%;
+            max-width: 500px;
+            border: 2px dashed #475569;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #000;
+        }
+        .status-box {
+            margin-top: 24px;
+            padding: 16px;
+            border-radius: 8px;
+            background: #1e293b;
+            text-align: center;
+            width: 100%;
+            max-width: 500px;
+            box-sizing: border-box;
+        }
+        .status-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+        .success {
+            color: #10b981;
+        }
+        .error {
+            color: #ef4444;
+        }
+        .info {
+            color: #3b82f6;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 16px;
+            width: 100%;
+        }
+        .btn:active {
+            background: #2563eb;
+        }
+        #qr-reader__dashboard_section_csr button {
+            padding: 8px 16px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <i class="fa-solid fa-mobile-screen-button" style="color: #6366f1;"></i>
+        <h1>Remote CCCD Scanner</h1>
+    </div>
+
+    <div class="scanner-container">
+        <!-- Hidden input holding sessionId -->
+        <input type="hidden" id="sessionId" th:value="${sessionId}" />
+
+        <div id="scanner-view" style="width: 100%; max-width: 500px;">
+            <p style="text-align: center; color: #94a3b8; font-size: 14px; margin-bottom: 16px;">
+                Vui lòng hướng camera vào mã QR trên thẻ CCCD
+            </p>
+            <div id="qr-reader" style="width: 100%; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);"></div>
+        </div>
+
+        <div id="result-view" style="display: none; width: 100%; max-width: 500px;">
+            <div class="status-box">
+                <div class="status-icon success">
+                    <i class="fa-solid fa-circle-check"></i>
+                </div>
+                <h3 style="margin: 0 0 8px 0; color: #f8fafc;">Đã quét thành công!</h3>
+                <p style="margin: 0; font-size: 14px; color: #94a3b8;">Dữ liệu đã được gửi về máy tính của bạn.</p>
+                
+                <button class="btn" onclick="resumeScanner()">Quét thẻ khác</button>
+            </div>
+        </div>
+
+        <div id="error-view" style="display: none; width: 100%; max-width: 500px;">
+            <div class="status-box">
+                <div class="status-icon error">
+                    <i class="fa-solid fa-circle-xmark"></i>
+                </div>
+                <h3 style="margin: 0 0 8px 0; color: #f8fafc;">Lỗi kết nối</h3>
+                <p id="error-msg" style="margin: 0; font-size: 14px; color: #94a3b8;">Không thể gửi dữ liệu về máy tính.</p>
+                
+                <button class="btn" onclick="resumeScanner()">Thử lại</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let html5QrCode = null;
+        const sessionId = document.getElementById('sessionId').value;
+        let isProcessing = false;
+
+        function startScanner() {
+            document.getElementById('scanner-view').style.display = 'block';
+            document.getElementById('result-view').style.display = 'none';
+            document.getElementById('error-view').style.display = 'none';
+
+            if (!sessionId) {
+                showError("Session không hợp lệ. Vui lòng quét lại mã QR trên màn hình máy tính.");
+                return;
+            }
+
+            if (!html5QrCode) {
+                html5QrCode = new Html5Qrcode("qr-reader");
+            }
+
+            const config = { 
+                fps: 10, 
+                qrbox: {width: 250, height: 250}, 
+                aspectRatio: 1.0,
+                formatsToSupport: [ Html5QrcodeSupportedFormats.QR_CODE ]
+            };
+
+            // Khởi động Camera (ưu tiên camera sau)
+            html5QrCode.start(
+                { facingMode: "environment" }, 
+                config,
+                onScanSuccess,
+                onScanFailure
+            ).catch(err => {
+                console.warn("Lỗi camera sau:", err);
+                // Fallback: Nếu lỗi NotReadableError, thử mở bất kỳ camera nào có sẵn mà không ép facingMode
+                html5QrCode.start(
+                    { facingMode: "user" }, // Fallback to front camera if back fails
+                    config,
+                    onScanSuccess,
+                    onScanFailure
+                ).catch(fallbackErr => {
+                    console.error("Lỗi tất cả camera:", fallbackErr);
+                    let errStr = fallbackErr.toString().toLowerCase();
+                    if (errStr.includes("not supported") || errStr.includes("not allowed")) {
+                        showError("Trình duyệt này đã chặn Camera (Thường do mở qua Zalo/Facebook). Vui lòng nhấn dấu ... và chọn 'Mở bằng trình duyệt' (Safari/Chrome) để quét!");
+                    } else {
+                        showError("Lỗi phần cứng Camera: " + fallbackErr + ". Vui lòng đóng các app Camera khác và tải lại trang.");
+                    }
+                });
+            });
+        }
+
+        function onScanSuccess(decodedText, decodedResult) {
+            if (isProcessing) return;
+            isProcessing = true;
+
+            console.log(`Scan result: ${decodedText}`);
+            
+            // Rung nhẹ điện thoại để báo hiệu quét thành công
+            if (navigator.vibrate) {
+                navigator.vibrate(100);
+            }
+
+            // DO NOT PAUSE the camera, just hide the view logically.
+            document.getElementById('scanner-view').style.display = 'none';
+
+            fetch(`/api/v1/remote-scan/${sessionId}/submit`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ qrData: decodedText })
+            })
+            .then(response => {
+                if (response.ok) {
+                    document.getElementById('result-view').style.display = 'block';
+                } else {
+                    throw new Error("Lỗi phản hồi từ server");
+                }
+            })
+            .catch(error => {
+                console.error('Error submitting scan data:', error);
+                showError("Mất kết nối với máy tính. Vui lòng kiểm tra mạng.");
+            });
+        }
+
+        function resumeScanner() {
+            isProcessing = false;
+            document.getElementById('result-view').style.display = 'none';
+            document.getElementById('error-view').style.display = 'none';
+            document.getElementById('scanner-view').style.display = 'block';
+        }
+
+        function onScanFailure(error) {
+            // Ignore ongoing errors during scanning frames
+        }
+
+        function showError(msg) {
+            document.getElementById('scanner-view').style.display = 'none';
+            document.getElementById('result-view').style.display = 'none';
+            document.getElementById('error-view').style.display = 'block';
+            document.getElementById('error-msg').innerText = msg;
+        }
+
+        // Khởi động trình quét ngay khi load trang
+        window.addEventListener('load', () => {
+            startScanner();
+        });
+
+        // Giải phóng camera khi thoát hoặc F5 để tránh NotReadableError do kẹt phần cứng
+        window.addEventListener('beforeunload', () => {
+            if (html5QrCode && html5QrCode.isScanning) {
+                html5QrCode.stop().catch(e => console.log(e));
+            }
+        });
+        window.addEventListener('pagehide', () => {
+            if (html5QrCode && html5QrCode.isScanning) {
+                html5QrCode.stop().catch(e => console.log(e));
+            }
+        });
+    </script>
+</body>
+</html>

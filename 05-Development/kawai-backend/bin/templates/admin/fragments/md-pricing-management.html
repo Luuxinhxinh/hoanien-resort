@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<body>
+
+    <!-- TABLE FRAGMENT -->
+    <div th:fragment="table">
+        <div class="adm-table-wrap">
+            <table class="adm-table">
+                <thead>
+                    <tr>
+                        <th>Mã</th>
+                        <th>Hạng phòng</th>
+                        <th>Ngày áp dụng</th>
+                        <th>Loại ngày</th>
+                        <th>Giá / đêm</th>
+                        <th style="text-align:right">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="row, stat : ${rows}" th:attr="data-id=${row['id']},data-entity=${row['jsonString']}">
+                        <td th:attr="data-key='id',data-value=${row['id']}" th:text="${row['id']}"></td>
+                        <td th:attr="data-key='roomCategory',data-value=${row['roomCategory']}"
+                            th:text="${row['roomCategory']}"></td>
+                        <td th:attr="data-key='date',data-value=${row['date']}" th:text="${row['date']}"></td>
+                        <td th:attr="data-key='dayType',data-value=${row['dayType']}">
+                            <span class="cell-badge" th:classappend="${row['__dayStyle']}" th:text="${row['dayType']}"></span>
+                        </td>
+                        <td th:attr="data-key='price',data-value=${row['price']}" th:text="${row['price']}"></td>
+                        <td style="text-align:right">
+                            <button class="btn-action btn-action-edit btn-edit" th:attr="data-id=${row['id']}"><i
+                                    data-lucide="pencil"></i></button>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(rows)}">
+                        <td colspan="8"
+                            style="text-align:center;padding:48px;color:#8B7355;font-family:var(--font-serif);font-size:18px">
+                            Không có bản ghi nào</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- FORM FRAGMENT -->
+    <div th:fragment="form">
+        <div class="form-fields-inner" style="display:flex;flex-direction:column;gap:20px">
+            <div class="adm-form-group"><label class="adm-form-label">Hạng phòng <span
+                        style="color:#B45309">*</span></label>
+                <select name="roomCategory" class="adm-form-select">
+                    <option th:each="opt : ${formOptions['roomCategories']}" th:value="${opt}" th:text="${opt}">
+                    </option>
+                </select>
+            </div>
+            <div class="adm-form-group"><label class="adm-form-label">Ngày áp dụng <span style="color:#B45309">*</span></label><input type="date"
+                    name="date" class="adm-form-input" required></div>
+            <div style="display:flex;gap:20px;">
+                <div class="adm-form-group" style="flex:1;"><label class="adm-form-label">Là Cuối tuần</label>
+                    <select name="isWeekend" class="adm-form-select">
+                        <option value="false">Không</option>
+                        <option value="true">Có</option>
+                    </select>
+                </div>
+                <div class="adm-form-group" style="flex:1;"><label class="adm-form-label">Là Lễ/Tết</label>
+                    <select name="isHoliday" class="adm-form-select">
+                        <option value="false">Không</option>
+                        <option value="true">Có</option>
+                    </select>
+                </div>
+            </div>
+            <div class="adm-form-group"><label class="adm-form-label">Giá điều chỉnh / đêm <span
+                        style="color:#B45309">*</span></label><input type="text" name="price" class="adm-form-input"
+                    required></div>
+        </div>
+    </div>
+
+</body>
+
+</html>

@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Đặt Bàn - HOANIEN River Retreat</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Inter:wght@300;400;500;600&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+
+    <!-- Flatpickr for consistent 24h Date/Time Pickers -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" type="text/css" href="https://npmcdn.com/flatpickr/dist/themes/dark.css">
+
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'hoanien-bg': '#f1ebe3',
+                        'hoanien-text': '#3a3230',
+                        'hoanien-footer': '#3c3530',
+                        'hoanien-footer-text': '#e5dfd8'
+                    },
+                    fontFamily: {
+                        'serif': ['"Playfair Display"', 'serif'],
+                        'sans': ['"Montserrat"', 'sans-serif'],
+                        'headline': ["EB Garamond", "serif"],
+                        'body': ["Inter", "sans-serif"],
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" th:href="@{/guest/css/book-table.css}" />
+</head>
+
+<body class="antialiased flex flex-col min-h-screen relative selection:bg-white selection:text-black">
+
+    <div class="fixed inset-0 w-full h-full z-0 pointer-events-none overflow-hidden">
+        <img src="https://images.unsplash.com/photo-1514933651103-005eec06c04b?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80"
+            alt="Restaurant Background" class="w-full h-full object-cover scale-105 brightness-[0.2] static-bg-art" />
+        <div class="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-[#1e1a19]"></div>
+    </div>
+
+    <div id="header-wrapper" class="fixed top-0 left-0 w-full z-50 flex flex-col pointer-events-none">
+        <nav class="guest-nav relative w-full font-sans pointer-events-auto scrolled">
+            <div class="max-w-[1440px] mx-auto px-6 py-4 flex items-center justify-between">
+                <div class="hidden lg:flex items-center gap-8 text-[13px] uppercase tracking-[0.2em] font-semibold">
+                    <a href="/living"
+                        class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200">Living</a>
+                    <a href="/dining" class="nav-text border-b border-current pb-0.5">Dining</a>
+                    <a href="/experiences"
+                        class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200">Experiences</a>
+                    <a href="/tours"
+                        class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200">Tours</a>
+                </div>
+
+                <div class="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 font-headline text-[32px] italic tracking-tighter nav-brand text-center cursor-pointer w-max"
+                    onclick="window.location.href='/'">
+                    HoaNien
+                </div>
+
+                <div class="hidden lg:flex items-center gap-6 text-[13px] uppercase tracking-[0.2em] font-semibold">
+                    <a href="/profile" th:if="${session.user != null}"
+                        class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200">Profile</a>
+                    <form th:action="@{/auth/logout}" method="post" th:if="${session.user != null}" class="inline">
+                        <button type="submit"
+                            class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200 uppercase tracking-[0.2em] bg-transparent border-none p-0 cursor-pointer">Logout</button>
+                    </form>
+
+                    <a href="#" onclick="openLoginModal(); return false;" th:unless="${session.user != null}"
+                        class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200">Log In</a>
+                    <a href="/booking"
+                        class="nav-btn-book hover:opacity-100 active:scale-95 transition-all duration-200 inline-block text-[13px]">
+                        Book Now
+                    </a>
+                </div>
+
+                <button class="lg:hidden pointer-events-auto">
+                    <span class="material-symbols-outlined text-3xl nav-menu-icon">menu</span>
+                </button>
+            </div>
+        </nav>
+    </div>
+
+    <main class="flex-grow pt-32 pb-24 px-6 md:px-12 relative z-10">
+        <section class="max-w-[1440px] mx-auto">
+            <div class="text-center mb-10 border-b border-white/10 pb-8">
+                <span class="text-[10px] uppercase tracking-[0.3em] text-emerald-400 block mb-3 font-semibold">Reserve
+                    Your Experience</span>
+                <h1 class="font-serif text-5xl md:text-6xl tracking-tight text-white mb-4">Đặt Bàn Thưởng Tiệc</h1>
+                <p class="text-sm text-hoanien-bg/70 max-w-2xl mx-auto font-light leading-relaxed mb-8">
+                    Khám phá không gian ẩm thực sang trọng bên bờ sông Thu Bồn. Chọn bàn yêu thích của bạn và để chúng
+                    tôi chuẩn bị một bữa tiệc hoàn hảo.
+                </p>
+
+                <!-- Status Block for Table Reservation -->
+                <div
+                    class="bg-[#1e1a19] border border-white/10 p-6 rounded-2xl max-w-4xl mx-auto text-left mb-6 relative">
+
+                    <!-- Logged in, Checked_In / Confirmed -->
+                    <div id="optionInRoom" th:if="${hasValidBooking}" class="text-white/90 leading-relaxed font-medium">
+                        Xin chào <span class="font-bold text-white">Khách hàng</span>, hệ thống ghi nhận bạn đang lưu
+                        trú tại
+                        <select th:if="${roomOptions != null and !roomOptions.isEmpty()}" id="posLocationIdSelect"
+                            class="bg-black/50 text-amber-400 font-bold border border-white/20 rounded px-2 py-1 mx-1 text-sm outline-none cursor-pointer">
+                            <option th:each="r : ${roomOptions}" th:value="${r.roomNumber}"
+                                th:text="'Phòng ' + ${r.roomNumber}"></option>
+                        </select>
+                        <span th:if="${roomOptions == null or roomOptions.isEmpty()}">
+                            <span
+                                class="bg-black/50 text-amber-400 font-bold border border-white/20 rounded px-2 py-1 mx-1 text-sm outline-none"
+                                th:if="${currentRoomNumber != null}" th:text="'Phòng ' + ${currentRoomNumber}"></span>
+                            <span
+                                class="bg-black/50 text-amber-400 font-bold border border-white/20 rounded px-2 py-1 mx-1 text-sm outline-none"
+                                th:unless="${currentRoomNumber != null}">Resort</span>
+                        </span>.
+                        Bạn có thể tiếp tục thực hiện đặt bàn trực tuyến.
+                    </div>
+
+                    <!-- Logged in, NO booking -->
+                    <div id="optionWalkIn" th:if="${session.user != null and !hasValidBooking}"
+                        class="text-amber-400/90 leading-relaxed font-light italic">
+                        Tài khoản chưa liên kết thông tin lưu trú hợp lệ (Confirmed/Checked In) vào ngày hôm nay. Hệ
+                        thống chỉ nhận đơn trực tuyến cho khách có phòng/bàn. Vui lòng liên hệ Lễ tân nếu bạn muốn đặt
+                        bàn.
+                    </div>
+
+                    <!-- Not Logged in -->
+                    <div id="optionNotLoggedIn" th:if="${session.user == null}"
+                        class="text-white/80 leading-relaxed font-light">
+                        Bạn chưa đăng nhập. Vui lòng đăng nhập để hệ thống kiểm tra thông tin lưu trú của bạn.
+                        <button type="button" onclick="openLoginModal()"
+                            class="w-full md:w-auto mt-3 bg-white/10 hover:bg-white/20 text-white border border-white/20 px-6 py-2 rounded-lg text-xs font-semibold block transition-all">
+                            Đăng nhập ngay
+                        </button>
+                    </div>
+                </div>
+
+                <script th:inline="javascript">
+                    const HAS_VALID_BOOKING = /*[[${hasValidBooking}]]*/ false;
+                    const VALID_CHECK_IN = /*[[${validCheckInDate}]]*/ null;
+                    const VALID_CHECK_OUT = /*[[${validCheckOutDate}]]*/ null;
+                </script>
+
+                <!-- Filter Bar -->
+                <div th:if="${debugError != null}"
+                    class="bg-red-500/20 border border-red-500 p-4 rounded-2xl mb-4 max-w-4xl mx-auto text-white">
+                    <strong>Error occurred:</strong> <span th:text="${debugError}"></span>
+                </div>
+
+                <div th:classappend="${session.user == null or !hasValidBooking} ? 'opacity-30 pointer-events-none grayscale select-none' : ''"
+                    class="bg-white/5 border border-white/10 backdrop-blur-md p-4 rounded-2xl max-w-4xl mx-auto flex flex-col md:flex-row gap-4 items-end transition-all duration-500 relative">
+                    <div th:if="${session.user == null or !hasValidBooking}" class="absolute inset-0 z-10"></div>
+                    <div class="flex-1 w-full text-left relative">
+                        <label
+                            class="block text-[10px] uppercase tracking-wider opacity-60 font-semibold mb-1.5 text-white">Ngày
+                            sử dụng</label>
+                        <input type="text" id="filterDate" placeholder="Chọn ngày"
+                            class="w-full bg-white/5 border border-white/10 p-3 rounded-xl text-xs text-white focus:ring-1 focus:ring-emerald-400 outline-none transition-all color-scheme-dark">
+                    </div>
+                    <div class="flex-1 w-full text-left relative">
+                        <label
+                            class="block text-[10px] uppercase tracking-wider opacity-60 font-semibold mb-1.5 text-white">Giờ
+                            bắt đầu</label>
+                        <input type="text" id="filterStart" placeholder="00:00"
+                            class="w-full bg-white/5 border border-white/10 p-3 rounded-xl text-xs text-white focus:ring-1 focus:ring-emerald-400 outline-none transition-all color-scheme-dark">
+                    </div>
+                    <div class="flex-1 w-full text-left relative">
+                        <label
+                            class="block text-[10px] uppercase tracking-wider opacity-60 font-semibold mb-1.5 text-white">Giờ
+                            kết thúc</label>
+                        <input type="text" id="filterEnd" placeholder="00:00"
+                            class="w-full bg-white/5 border border-white/10 p-3 rounded-xl text-xs text-white focus:ring-1 focus:ring-emerald-400 outline-none transition-all color-scheme-dark">
+                    </div>
+                    <div class="w-full md:w-auto relative z-20">
+                        <button type="button" onclick="checkAvailability()"
+                            class="w-full md:w-auto bg-emerald-500 hover:bg-emerald-600 text-white px-8 py-3 rounded-xl text-xs font-bold uppercase tracking-widest shadow-lg transition-all whitespace-nowrap">
+                            Lọc Bàn Trống
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SVG Tables Map -->
+            <div id="svgMapContainer" class="w-full max-w-7xl mx-auto mt-8">
+                <div
+                    class="relative w-full rounded-2xl overflow-hidden border border-white/10 bg-black/40 backdrop-blur-md shadow-2xl p-4">
+                    <!-- Sơ đồ SVG tạo bằng Javascript -->
+                    <div id="restaurantMapWrapper" class="w-full relative cursor-crosshair">
+                        <svg viewBox="0 0 1200 600" class="w-full h-auto" id="restaurantMap"
+                            style="min-height: 400px; max-height: 70vh;">
+                            <defs>
+                                <filter id="glow-available" x="-20%" y="-20%" width="140%" height="140%">
+                                    <feGaussianBlur stdDeviation="6" result="blur" />
+                                    <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                                </filter>
+                            </defs>
+                            <!-- Decorative lines -->
+                            <line x1="250" y1="40" x2="250" y2="560" stroke="rgba(255,255,255,0.05)" stroke-width="2"
+                                stroke-dasharray="8 8" />
+                            <line x1="950" y1="40" x2="950" y2="560" stroke="rgba(255,255,255,0.05)" stroke-width="2"
+                                stroke-dasharray="8 8" />
+
+                            <!-- Entrance Marker -->
+                            <g transform="translate(600, 30)">
+                                <rect x="-130" y="-18" width="260" height="36" fill="rgba(16, 185, 129, 0.1)"
+                                    stroke="#10b981" stroke-width="1.5" stroke-dasharray="4 4" rx="6" />
+                                <text x="0" y="2" text-anchor="middle" dominant-baseline="central" font-weight="bold"
+                                    font-size="14" fill="#10b981" letter-spacing="3">LỐI VÀO (ENTRANCE)</text>
+                                <!-- Mũi tên chỉ hướng đi vào -->
+                                <path d="M0,18 L0,35 M-8,27 L0,35 L8,27" fill="none" stroke="#10b981"
+                                    stroke-width="2" />
+                            </g>
+
+                            <text x="50" y="300" fill="rgba(255,255,255,0.15)" font-size="18"
+                                transform="rotate(-90 50,300)" text-anchor="middle" font-family="sans-serif"
+                                font-weight="bold" letter-spacing="4">VIEW SÔNG (WINDOW SEATING)</text>
+                            <text x="600" y="580" fill="rgba(255,255,255,0.15)" font-size="18" text-anchor="middle"
+                                font-family="sans-serif" font-weight="bold" letter-spacing="4">KHU TRUNG TÂM (MAIN
+                                DINING)</text>
+                            <text x="1150" y="300" fill="rgba(255,255,255,0.15)" font-size="18"
+                                transform="rotate(90 1150,300)" text-anchor="middle" font-family="sans-serif"
+                                font-weight="bold" letter-spacing="4">VIEW THÀNH PHỐ (CITY VIEW)</text>
+
+                            <!-- Tables injected here -->
+                            <!-- Khu View Sông (5 bàn) -->
+                            <g id="map-table-1" class="map-table" data-table-num="12" transform="translate(150, 100)">
+                            </g>
+                            <g id="map-table-2" class="map-table" data-table-num="1" transform="translate(150, 200)">
+                            </g>
+                            <g id="map-table-3" class="map-table" data-table-num="18" transform="translate(150, 300)">
+                            </g>
+                            <g id="map-table-4" class="map-table" data-table-num="3" transform="translate(150, 400)">
+                            </g>
+                            <g id="map-table-5" class="map-table" data-table-num="6" transform="translate(150, 500)">
+                            </g>
+
+                            <!-- Khu Trung Tâm (7 bàn xếp đan xen) -->
+                            <g id="map-table-6" class="map-table" data-table-num="5" transform="translate(400, 200)">
+                            </g>
+                            <g id="map-table-7" class="map-table" data-table-num="15" transform="translate(600, 150)">
+                            </g>
+                            <g id="map-table-8" class="map-table" data-table-num="14" transform="translate(800, 200)">
+                            </g>
+                            <g id="map-table-9" class="map-table" data-table-num="4" transform="translate(600, 300)">
+                            </g>
+                            <g id="map-table-10" class="map-table" data-table-num="9" transform="translate(400, 400)">
+                            </g>
+                            <g id="map-table-11" class="map-table" data-table-num="17" transform="translate(600, 450)">
+                            </g>
+                            <g id="map-table-12" class="map-table" data-table-num="20" transform="translate(800, 400)">
+                            </g>
+
+                            <!-- Khu View Thành Phố (8 bàn) -->
+                            <g id="map-table-13" class="map-table" data-table-num="2" transform="translate(1010, 120)">
+                            </g>
+                            <g id="map-table-14" class="map-table" data-table-num="11" transform="translate(1090, 120)">
+                            </g>
+                            <g id="map-table-15" class="map-table" data-table-num="7" transform="translate(1010, 240)">
+                            </g>
+                            <g id="map-table-16" class="map-table" data-table-num="13" transform="translate(1090, 240)">
+                            </g>
+                            <g id="map-table-17" class="map-table" data-table-num="10" transform="translate(1010, 360)">
+                            </g>
+                            <g id="map-table-18" class="map-table" data-table-num="16" transform="translate(1090, 360)">
+                            </g>
+                            <g id="map-table-19" class="map-table" data-table-num="19" transform="translate(1010, 480)">
+                            </g>
+                            <g id="map-table-20" class="map-table" data-table-num="8" transform="translate(1090, 480)">
+                            </g>
+                        </svg>
+                    </div>
+
+                    <!-- Legend (Chú giải) -->
+                    <div class="mt-6 flex flex-wrap justify-center gap-8 border-t border-white/10 pt-4 pb-2">
+                        <div class="flex items-center gap-3">
+                            <div class="w-4 h-4 rounded bg-[#10b981] shadow-[0_0_10px_rgba(16,185,129,0.5)]"></div>
+                            <span class="text-xs text-white/70 uppercase tracking-widest font-semibold">Bàn trống
+                                (Available)</span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <div class="w-4 h-4 rounded bg-[#4b5563] opacity-60"></div>
+                            <span class="text-xs text-white/70 uppercase tracking-widest font-semibold">Đã đặt
+                                (Occupied)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hide old Tables Grid to avoid errors, keeping it for backup or remove it completely -->
+            <!-- We will completely remove the old Grid -->
+        </section>
+    </main>
+
+    <!-- Booking Form Modal -->
+    <div id="bookingModal"
+        class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
+        style="display: none;">
+        <div class="bg-[#1e1a19] border border-white/10 w-full max-w-md p-6 rounded-2xl relative shadow-2xl text-left font-sans"
+            onclick="event.stopPropagation()">
+            <button onclick="closeBookingModal()"
+                class="absolute top-4 right-4 text-white/50 hover:text-white transition-colors">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+            <div class="mb-6">
+                <span class="text-[10px] uppercase tracking-widest text-amber-400 font-semibold block mb-1">Xác nhận
+                    thông tin</span>
+                <h2 class="font-serif text-2xl text-white flex items-center gap-2">
+                    Đặt <span id="modalTableNumber" class="text-emerald-400">Bàn</span>
+                </h2>
+                <p class="text-xs text-white/50 mt-1">Sức chứa tối đa: <span id="modalTableCapacity"
+                        class="font-semibold text-white"></span> khách</p>
+            </div>
+
+            <form id="bookingForm" class="space-y-4">
+                <input type="hidden" id="tableId" name="tableId" value="">
+
+
+                <div>
+                    <label
+                        class="block text-[10px] uppercase tracking-wider opacity-60 font-semibold mb-1.5 text-white">Ngày
+                        sử dụng *</label>
+                    <input type="text" id="reserveDate" name="reserveDate" required placeholder="Chọn ngày"
+                        class="w-full bg-white/5 border border-white/10 p-3 rounded-xl text-xs text-white focus:ring-1 focus:ring-emerald-400 focus:border-emerald-400 outline-none transition-all color-scheme-dark">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label
+                            class="block text-[10px] uppercase tracking-wider opacity-60 font-semibold mb-1.5 text-white">Giờ
+                            bắt đầu *</label>
+                        <input type="text" id="startTime" name="startTime" required placeholder="00:00"
+                            class="w-full bg-white/5 border border-white/10 p-3 rounded-xl text-xs text-white focus:ring-1 focus:ring-emerald-400 focus:border-emerald-400 outline-none transition-all color-scheme-dark">
+                    </div>
+                    <div>
+                        <label
+                            class="block text-[10px] uppercase tracking-wider opacity-60 font-semibold mb-1.5 text-white">Giờ
+                            kết thúc *</label>
+                        <input type="text" id="endTime" name="endTime" required placeholder="00:00"
+                            class="w-full bg-white/5 border border-white/10 p-3 rounded-xl text-xs text-white focus:ring-1 focus:ring-emerald-400 focus:border-emerald-400 outline-none transition-all color-scheme-dark">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="col-span-2">
+                        <label
+                            class="block text-[10px] uppercase tracking-wider opacity-60 font-semibold mb-1.5 text-white">Số
+                            lượng khách *</label>
+                        <input type="number" id="partySize" name="partySize" required min="1" value="1"
+                            class="w-full bg-white/5 border border-white/10 p-3 rounded-xl text-xs text-white focus:ring-1 focus:ring-emerald-400 focus:border-emerald-400 outline-none transition-all">
+                    </div>
+                </div>
+
+                <div>
+                    <label
+                        class="block text-[10px] uppercase tracking-wider opacity-60 font-semibold mb-1.5 text-white">Ghi
+                        chú đặc biệt (Tùy chọn)</label>
+                    <textarea id="specialRequests" name="specialRequests" rows="2"
+                        placeholder="Ví dụ: Dị ứng đậu phộng, ăn chay, kỷ niệm..."
+                        class="w-full bg-white/5 border border-white/10 p-3 rounded-xl text-xs text-white focus:ring-1 focus:ring-emerald-400 focus:border-emerald-400 outline-none placeholder:text-white/20 transition-all"></textarea>
+                </div>
+
+                <div class="pt-4 border-t border-white/10 mt-6">
+                    <button type="submit"
+                        class="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-3.5 rounded-xl text-xs font-bold uppercase tracking-widest shadow-lg transition-all flex justify-center items-center gap-2">
+                        <span class="material-symbols-outlined text-sm">event_available</span>
+                        Xác Nhận Đặt Bàn
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="successModal"
+        class="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
+        style="display: none;">
+        <div
+            class="bg-[#1e1a19] border border-white/10 w-full max-w-sm p-8 rounded-2xl text-center shadow-2xl relative">
+            <div
+                class="w-16 h-16 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span class="material-symbols-outlined text-3xl">check_circle</span>
+            </div>
+            <h3 class="font-serif text-2xl text-white mb-2">Thành Công!</h3>
+            <p class="text-xs text-white/70 leading-relaxed mb-6 font-light">Yêu cầu đặt bàn của bạn đã được ghi nhận.
+                Chúng tôi sẽ sớm liên hệ để xác nhận lại.</p>
+            <button onclick="closeSuccessModal()"
+                class="w-full bg-white text-black hover:bg-white/90 py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-all">
+                Đóng
+            </button>
+        </div>
+    </div>
+
+    <!-- EndTime Confirm Modal -->
+    <div id="endTimeConfirmModal"
+        class="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
+        style="display: none;">
+        <div class="bg-[#1e1a19] border border-amber-400/30 w-full max-w-sm p-8 rounded-2xl text-center shadow-2xl relative font-sans"
+            onclick="event.stopPropagation()">
+            <!-- Icon -->
+            <div
+                class="w-14 h-14 bg-amber-400/15 text-amber-400 rounded-full flex items-center justify-center mx-auto mb-5">
+                <span class="material-symbols-outlined text-3xl">schedule</span>
+            </div>
+
+            <span class="text-[10px] uppercase tracking-widest text-amber-400 font-semibold block mb-2">Thông báo</span>
+            <h3 class="font-serif text-xl text-white mb-3 leading-snug">Chưa nhập giờ kết thúc</h3>
+            <p class="text-xs text-white/60 leading-relaxed mb-7 font-light px-2">
+                Quý khách vui lòng nhập thời gian kết thúc. Nếu không, hệ thống sẽ tự động cài đặt thời gian sử dụng là
+                <span class="text-amber-400 font-semibold">1 giờ</span> kể từ khi bắt đầu.
+            </p>
+
+            <div class="flex gap-3">
+                <!-- Từ chối — go back and fill endTime -->
+                <button onclick="cancelEndTimeAuto()"
+                    class="flex-1 border border-white/20 text-white/80 hover:border-white/50 hover:text-white py-3 rounded-xl text-xs font-semibold uppercase tracking-wider transition-all">
+                    Từ chối
+                </button>
+                <!-- OK — accept auto endTime -->
+                <button onclick="confirmEndTimeAuto()"
+                    class="flex-1 bg-amber-400 hover:bg-amber-300 text-black py-3 rounded-xl text-xs font-bold uppercase tracking-wider shadow-lg transition-all">
+                    OK
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script th:inline="javascript">
+        const IS_LOGGED_IN = /*[[${session.user != null}]]*/ false;
+
+        // Truyền mảng các bàn (từ backend) xuống Javascript để khởi tạo sơ đồ SVG tương ứng với số lượng bàn thực tế.
+        const SERVER_TABLES = /*[[${tables}]]*/[];
+    </script>
+    <script th:src="@{/guest/js/book-table.js}"></script>
+    <div th:replace="~{guest/fragments/auth :: authModal}"></div>
+</body>
+
+</html>

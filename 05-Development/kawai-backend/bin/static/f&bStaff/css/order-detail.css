@@ -1,0 +1,474 @@
+/* ============================================================
+   ORDER DETAIL SPECIFIC STYLES
+   ============================================================ */
+
+.detail-wrapper {
+  max-width: 1150px;
+  margin: 0 auto 0 60px;
+  padding: 20px;
+}
+
+.detail-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: 24px 30px;
+}
+
+/* Header */
+.detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 20px;
+  margin-bottom: 25px;
+}
+
+.dh-left h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 8px 0;
+}
+
+.dh-meta {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.type-badge {
+  background: var(--bg-base);
+  border: 1px solid var(--border-active);
+  color: var(--text-primary);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+#order-date {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+#order-date .material-symbols-outlined {
+  font-size: 1rem;
+}
+
+/* Status Tracker */
+.status-tracker {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 30px;
+  position: relative;
+  padding: 0 20px;
+}
+.status-tracker::before {
+  content: '';
+  position: absolute;
+  top: 18px;
+  left: 40px;
+  right: 40px;
+  height: 2px;
+  background: var(--border);
+  z-index: 0;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+  z-index: 1;
+  width: 80px;
+}
+
+.step-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--bg-base);
+  border: 2px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  transition: var(--transition);
+}
+.step-icon .material-symbols-outlined {
+  font-size: 1.2rem;
+}
+.step-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.step.completed .step-icon {
+  background: var(--status-ready-bg);
+  border-color: var(--status-ready-ring);
+  color: var(--status-ready-text);
+}
+.step.completed .step-label {
+  color: var(--status-ready-text);
+}
+
+.step.active .step-icon {
+  background: var(--status-cooking-bg);
+  border-color: var(--status-cooking-ring);
+  color: var(--status-cooking-text);
+  box-shadow: 0 0 0 4px rgba(190,80,20,0.1);
+}
+.step.active .step-label {
+  color: var(--status-cooking-text);
+}
+
+.step.cancelled .step-icon {
+  background: #fbecec;
+  border-color: #d32f2f;
+  color: #d32f2f;
+}
+.step.cancelled .step-label {
+  color: #d32f2f;
+}
+
+/* Info Grid */
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
+  background: var(--bg-surface);
+  padding: 18px;
+  border-radius: var(--radius-md);
+  margin-bottom: 30px;
+}
+.info-box {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.info-label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+.info-value {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* Dynamic Bodies */
+.section-heading {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.2rem;
+  margin: 0 0 15px 0;
+  color: var(--text-primary);
+  border-bottom: 1px dashed var(--border);
+  padding-bottom: 10px;
+}
+
+/* Detail Table */
+.detail-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+.detail-table th {
+  text-align: left;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding: 10px;
+  border-bottom: 2px solid var(--border);
+}
+.detail-table td {
+  padding: 12px 10px;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-active);
+}
+.detail-table .td-notes {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--status-cooking-text);
+  margin-top: 4px;
+}
+
+/* Order Summary */
+.order-summary {
+  width: 300px;
+  margin-left: auto;
+  background: var(--bg-surface);
+  padding: 15px 20px;
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+.summary-row.total {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  border-top: 1px solid var(--border);
+  padding-top: 10px;
+  margin-top: 5px;
+}
+
+/* Table Res Details */
+.table-res-details {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.trd-row {
+  display: flex;
+  align-items: center;
+}
+.trd-label {
+  width: 150px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+.trd-value {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* Notes */
+.order-notes {
+  margin-top: 25px;
+  padding: 15px;
+  background: rgba(190,80,20,0.05);
+  border-left: 3px solid var(--status-cooking-text);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  font-size: 0.85rem;
+  color: var(--text-primary);
+}
+
+/* Actions */
+.detail-actions {
+  display: flex;
+  align-items: center;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .info-grid { grid-template-columns: 1fr 1fr; }
+  .detail-header { flex-direction: column; gap: 15px; }
+  .dh-right { width: 100%; display: flex; justify-content: flex-start; }
+  .order-summary { width: 100%; }
+}
+
+/* ============================================================
+   RECEIPT / HÓA ĐƠN — SCREEN (ẩn khi xem web bình thường)
+   ============================================================ */
+.receipt-wrapper {
+  display: none; /* Mặc định ẩn, chỉ hiện khi @media print */
+}
+
+/* ============================================================
+   @MEDIA PRINT — CHỈ IN HÓA ĐƠN, ẨN TẤT CẢ UI TRANG
+   ============================================================ */
+@media print {
+  /* --- Đặt kích thước trang in kiểu hóa đơn nhiệt --- */
+  @page {
+    size: A5 portrait;
+    margin: 10mm 12mm;
+  }
+
+  /* --- Ẩn TOÀN BỘ các thành phần UI của trang --- */
+  .sidebar,
+  .main-content > .topbar,
+  .detail-wrapper,
+  .addon-modal-overlay,
+  #addonModal,
+  #tableReleaseModal,
+  #refundModal,
+  script {
+    display: none !important;
+  }
+
+  /* --- Đặt lại nền/màu cho trình duyệt khi in --- */
+  body {
+    background: #fff !important;
+    color: #000 !important;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 12px;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* --- Hiển thị phần hóa đơn --- */
+  .receipt-wrapper,
+  #print-receipt-section {
+    display: block !important;
+    width: 100%;
+    max-width: 100%;
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+  }
+
+  /* --- Header khách sạn --- */
+  .receipt-header {
+    text-align: center;
+    border-bottom: 2px solid #000;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+  }
+  .receipt-header h2 {
+    font-size: 16px;
+    font-weight: bold;
+    letter-spacing: 2px;
+    margin: 0 0 4px 0;
+    text-transform: uppercase;
+  }
+  .receipt-header p {
+    margin: 2px 0;
+    font-size: 10px;
+    color: #444;
+  }
+
+  /* --- Tiêu đề hóa đơn --- */
+  .receipt-title {
+    text-align: center;
+    font-size: 14px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin: 10px 0;
+    padding: 6px 0;
+    border-top: 1px dashed #000;
+    border-bottom: 1px dashed #000;
+  }
+
+  /* --- Thông tin đơn (số order, ngày, thu ngân, bàn) --- */
+  .receipt-meta {
+    margin: 10px 0;
+    font-size: 11px;
+  }
+  .receipt-meta p {
+    display: flex;
+    justify-content: space-between;
+    margin: 3px 0;
+    border-bottom: 1px dotted #ccc;
+    padding-bottom: 2px;
+  }
+  .receipt-meta p span:first-child {
+    color: #555;
+  }
+
+  /* --- Bảng danh sách món ăn --- */
+  .receipt-table {
+    width: 100%;
+    margin: 10px 0;
+    border-top: 1px solid #000;
+    padding-top: 8px;
+  }
+  .receipt-item {
+    display: grid;
+    grid-template-columns: 1fr 30px 70px;
+    gap: 4px;
+    padding: 4px 0;
+    font-size: 11px;
+    border-bottom: 1px dotted #ccc;
+  }
+  .receipt-item-name {
+    font-weight: 600;
+    word-break: break-word;
+  }
+  .receipt-item-qty {
+    text-align: center;
+    color: #555;
+  }
+  .receipt-item-price {
+    text-align: right;
+    font-weight: 600;
+  }
+
+  /* --- Tổng cộng --- */
+  .receipt-totals {
+    border-top: 2px solid #000;
+    padding-top: 8px;
+    margin-top: 6px;
+    font-size: 12px;
+  }
+  .receipt-totals p {
+    display: flex;
+    justify-content: space-between;
+    margin: 4px 0;
+  }
+  .receipt-total-bold {
+    font-size: 14px !important;
+    font-weight: bold !important;
+    border-top: 1px dashed #000;
+    padding-top: 6px !important;
+    margin-top: 4px !important;
+  }
+
+  /* --- Con dấu ĐÃ THANH TOÁN --- */
+  .receipt-paid-stamp {
+    text-align: center;
+    font-size: 16px;
+    font-weight: bold;
+    color: #1a7a1a;
+    border: 3px solid #1a7a1a;
+    border-radius: 6px;
+    padding: 8px 16px;
+    margin: 14px auto;
+    width: fit-content;
+    letter-spacing: 2px;
+    transform: rotate(-5deg);
+  }
+
+  /* --- Ô chữ ký cho Room Service chưa thanh toán --- */
+  .receipt-signature {
+    margin-top: 20px;
+    text-align: center;
+    font-size: 11px;
+    color: #555;
+  }
+  .sign-line {
+    border-bottom: 1px solid #000;
+    margin: 30px auto 8px;
+    width: 60%;
+  }
+
+  /* --- Footer --- */
+  .receipt-footer {
+    text-align: center;
+    border-top: 1px dashed #000;
+    margin-top: 14px;
+    padding-top: 8px;
+    font-size: 10px;
+    color: #555;
+  }
+  .receipt-footer p {
+    margin: 2px 0;
+  }
+}
+

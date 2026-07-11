@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!-- TABLE FRAGMENT -->
+<div th:fragment="table">
+    <div class="adm-table-wrap">
+        <table class="adm-table">
+            <thead>
+            <tr>
+                <th>Mã</th><th style="width: 60px;">Ảnh</th><th>Tên tour</th><th>Danh mục</th><th>Thời gian</th><th>Giá / người</th><th>Trạng thái</th><th style="text-align:center;">Kích hoạt</th><th style="text-align:right">Thao tác</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="row, stat : ${rows}" th:attr="data-id=${row['id']},data-entity=${row['jsonString']}">
+                <td th:attr="data-key='id',data-value=${row['id']}" th:text="${row['id']}"></td>
+                <td>
+                    <div class="adm-table-img-cell">
+                        <img th:if="${row['imageUrl'] != null && row['imageUrl'] != ''}" th:src="${row['imageUrl']}" alt="Tour" />
+                        <th:block th:unless="${row['imageUrl'] != null && row['imageUrl'] != ''}">
+                            <i data-lucide="image"></i>Ảnh
+                        </th:block>
+                    </div>
+                </td>
+                <td th:attr="data-key='name',data-value=${row['name']}" th:text="${row['name']}"></td>
+                <td th:attr="data-key='category',data-value=${row['category']}" th:text="${row['category']}"></td>
+                <td th:attr="data-key='duration',data-value=${row['duration']}" th:text="${row['duration']}"></td>
+                <td th:attr="data-key='price',data-value=${row['price']}" th:text="${row['price']}"></td>
+                <td th:attr="data-key='status',data-value=${row['status']}">
+                    <span class="cell-badge" th:classappend="${row['__statusStyle']}" th:text="${row['status']}"></span>
+                </td>
+                <td style="text-align:center;">
+                    <button type="button" class="btn-toggle" th:attr="data-id=${row['id']},data-value=${row['status']}">
+                        <i th:if="${row['status'] == 'Active' || row['status'] == 'Available' || row['status'] == 'true'}" data-lucide="toggle-right" style="color:#C9A96E"></i>
+                        <i th:unless="${row['status'] == 'Active' || row['status'] == 'Available' || row['status'] == 'true'}" data-lucide="toggle-left" style="color:#8B7355"></i>
+                    </button>
+                </td>
+                <td style="text-align:right">
+                    <div class="table-actions">
+                        <button class="btn-action btn-action-edit btn-edit" th:attr="data-id=${row['id']}"><i data-lucide="pencil"></i></button>
+</div>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(rows)}"><td colspan="8" class="empty-row-msg">Không có bản ghi nào</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- FORM FRAGMENT -->
+<div th:fragment="form">
+    <div class="form-fields-inner" style="display:flex;flex-direction:column;gap:20px">
+        <div class="adm-form-group">
+            <label class="adm-form-label">Ảnh đại diện Tour</label>
+            <div class="upload-wrapper-outer">
+                <label class="image-upload-wrapper">
+                    <input type="file" name="imageFile" accept="image/*" onchange="handleSingleImageUpload(this)">
+                    <img src="" class="image-preview" alt="Preview">
+                    <div class="upload-placeholder">
+                        <i data-lucide="upload-cloud"></i>
+                        <div class="upload-text">Chọn ảnh</div>
+                    </div>
+                </label>
+                <div class="upload-wrapper-info">
+                    <p class="upload-wrapper-desc">
+                        Ảnh hiển thị chính. Nên sử dụng ảnh tỷ lệ 16:9, tối thiểu 800x450px.<br>
+                        Định dạng hỗ trợ: JPG, PNG, WEBP. Tối đa 2MB.
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="adm-form-group"><label class="adm-form-label">Tên tour <span style="color:#B45309">*</span></label><input type="text" name="name" class="adm-form-input" required></div>
+        <div class="adm-form-group"><label class="adm-form-label">Danh mục</label>
+            <input type="text" name="category" list="tour-category-list" class="adm-form-input" placeholder="Chọn hoặc nhập danh mục mới..." required>
+            <datalist id="tour-category-list">
+                <option th:each="opt : ${formOptions['tourCategories']}" th:value="${opt}"></option>
+            </datalist>
+        </div>
+        <div class="adm-form-group"><label class="adm-form-label">Thời gian</label><input type="text" name="duration" class="adm-form-input"></div>
+        <div class="adm-form-group"><label class="adm-form-label">Số khách tối đa</label><input type="number" name="maxCapacity" class="adm-form-input"></div>
+        <div class="adm-form-group"><label class="adm-form-label">Giá / người <span style="color:#B45309">*</span></label><input type="text" name="price" class="adm-form-input" required></div>
+        <div class="adm-form-group"><label class="adm-form-label">Slogan ngắn (Short Quote)</label><input type="text" name="shortQuote" class="adm-form-input"></div>
+        <div class="adm-form-group"><label class="adm-form-label">Mô tả Tour</label><textarea name="description" class="adm-form-input" rows="3"></textarea></div>
+        
+        <!-- Trường imageUrl được ẩn đi, JS sẽ tự động gán Link sau khi Upload file ảnh thành công -->
+        <input type="hidden" name="imageUrl">
+    </div>
+</div>
+
+</body>
+</html>

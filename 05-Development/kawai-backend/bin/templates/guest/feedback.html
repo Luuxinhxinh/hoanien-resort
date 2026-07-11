@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>HoaNien – Đánh Giá & Phản Hồi</title>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'hoanien-bg': '#f1ebe3',
+                        'hoanien-text': '#e5dfd8',
+                        'hoanien-footer': '#1f1b16',
+                        'hoanien-footer-text': '#e5dfd8',
+                        'brand-gold': '#c5a059'
+                    },
+                    fontFamily: {
+                        'serif': ['"Playfair Display"', 'serif'],
+                        'sans': ['"Montserrat"', 'sans-serif'],
+                        'headline': ["EB Garamond", "serif"],
+                        'body': ["Inter", "sans-serif"],
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Montserrat:wght@100..900&family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Inter:wght@100..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <style>
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0,'wght' 300,'GRAD' 0,'opsz' 24; vertical-align: middle; }
+        
+        /* Background giống hệt ops-login (ảnh BrAdmin.jpg + lớp phủ mờ tối) */
+        body { 
+            font-family: 'Montserrat', sans-serif; 
+            background: linear-gradient(rgba(18, 16, 15, 0.65), rgba(18, 16, 15, 0.65)), url('/guest/BrAdmin.jpg') no-repeat center center fixed; 
+            background-size: cover;
+            color: #e5dfd8; 
+            min-height: 100vh;
+        }
+
+        /* ── Main Navbar ── */
+        #header-wrapper {
+            background: rgba(18, 16, 15, 0.65) !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+            backdrop-filter: blur(14px) !important;
+            -webkit-backdrop-filter: blur(14px) !important;
+        }
+        .guest-nav {
+            background: transparent !important;
+            border-bottom: none !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+        }
+        .guest-nav .nav-text {
+            color: #e5dfd8;
+            transition: color 0.4s ease;
+        }
+        .guest-nav .nav-text-dim {
+            color: rgba(229, 223, 216, 0.7);
+            transition: color 0.4s ease;
+        }
+        .guest-nav .nav-text-dim:hover {
+            color: #ffffff;
+        }
+        .guest-nav .nav-brand {
+            color: #c5a059;
+            font-family: "EB Garamond", serif;
+        }
+        .guest-nav .nav-btn-book {
+            color: rgba(229, 223, 216, 0.7) !important;
+            transition: color 0.4s ease, opacity 0.2s ease;
+        }
+        .guest-nav .nav-btn-book:hover {
+            color: #ffffff !important;
+        }
+
+        /* Active state underline */
+        .nav-active {
+            border-bottom: 1px solid #c5a059;
+            color: #c5a059 !important;
+            padding-bottom: 2px;
+        }
+
+        /* Tactile feedback */
+        button:active,
+        .nav-btn-book:active {
+            transform: scale(0.96) translateY(0.5px) !important;
+            transition: transform 0.1s ease !important;
+        }
+
+        /* ── Sub-navbar tabs ── */
+        .sub-tab { font-size: 11px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase;
+            padding: 12px 20px; border-bottom: 2px solid transparent; color: rgba(229, 223, 216, 0.6);
+            transition: all .2s; cursor: pointer; white-space: nowrap; background:none; border-top:none; border-left:none; border-right:none; }
+        .sub-tab:hover { color: #c5a059; }
+        .sub-tab.active { color: #c5a059; border-bottom-color: #c5a059; }
+
+        /* ── Glassmorphic Review Cards ── */
+        .review-card {
+            background: rgba(18, 16, 15, 0.45);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+            transition: all .25s ease;
+        }
+        .review-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(201, 169, 110, 0.35);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+            background: rgba(18, 16, 15, 0.6);
+        }
+        .star-gold { color: #c5a059; }
+        .star-empty { color: rgba(255, 255, 255, 0.15); }
+
+        .rating-btn { background: none; border: none; cursor: pointer; padding: 4px; color: rgba(255, 255, 255, 0.18); transition: all .2s; }
+        .rating-btn.active { color: #c5a059; transform: scale(1.1); }
+        .rating-btn.hovered { color: #c5a059; }
+
+        .gold-line { width: 40px; height: 1px; background: #c5a059; margin: 0 auto 16px; }
+        .empty-state { text-align: center; padding: 60px 20px; color: rgba(229, 223, 216, 0.5); }
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-col">
+
+<!-- ══════════ MAIN NAVBAR (Unified with other pages) ══════════ -->
+<div id="header-wrapper" class="fixed top-0 left-0 w-full z-50 flex flex-col pointer-events-auto">
+    <nav class="guest-nav relative w-full font-sans">
+        <div class="max-w-[1440px] mx-auto px-6 py-6 flex items-center justify-between">
+            <div class="hidden lg:flex items-center gap-8 text-[13px] uppercase tracking-[0.2em] font-semibold">
+                <a href="/living" class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200">Living</a>
+                <a href="/dining" class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200">Dining</a>
+                <a href="/experiences" class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200">Experiences</a>
+                <a href="/tours" class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200">Tours</a>
+                <a href="/feedback" class="nav-text nav-active pb-0.5">Feedback</a>
+            </div>
+
+            <div class="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 font-headline text-[32px] italic tracking-tighter nav-brand text-center cursor-pointer w-max"
+                 onclick="window.location.href='/'">
+                HoaNien
+            </div>
+
+            <div class="hidden lg:flex items-center gap-6 text-[13px] uppercase tracking-[0.2em] font-semibold">
+                <a href="/profile" th:if="${session.user != null}"
+                   class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200">Profile</a>
+                <form th:action="@{/auth/logout}" method="post" th:if="${session.user != null}" class="inline">
+                    <button type="submit"
+                            class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200 uppercase tracking-[0.2em] bg-transparent border-none p-0 cursor-pointer">Logout</button>
+                </form>
+
+                <a href="#" onclick="openLoginModal(); return false;" th:unless="${session.user != null}"
+                   class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200">Log In</a>
+                <a href="/booking"
+                   class="nav-btn-book hover:opacity-100 active:scale-95 transition-all duration-200 inline-block text-[13px] uppercase tracking-[0.2em]">
+                    Book Now
+                </a>
+            </div>
+
+            <button class="lg:hidden" onclick="openLoginModal(); return false;">
+                <span class="material-symbols-outlined text-3xl nav-menu-icon" style="color: #e5dfd8;">menu</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- ══════════ SUB-NAVBAR ══════════ -->
+    <div class="w-full border-t border-white/5 py-1.5 flex items-center justify-center gap-6 md:gap-10 overflow-x-auto">
+        <button class="sub-tab" id="tab-tour" onclick="switchTab('tour')">
+            <span class="material-symbols-outlined text-sm mr-1.5" style="vertical-align:-2px">hiking</span>Dịch Vụ Tour
+        </button>
+        <button class="sub-tab" id="tab-room" onclick="switchTab('room')">
+            <span class="material-symbols-outlined text-sm mr-1.5" style="vertical-align:-2px">bed</span>Dịch Vụ Phòng
+        </button>
+        <button class="sub-tab" id="tab-other" onclick="switchTab('other')">
+            <span class="material-symbols-outlined text-sm mr-1.5" style="vertical-align:-2px">spa</span>Dịch Vụ Khác
+        </button>
+        <button onclick="handleFeedbackButtonClick()"
+            class="px-5 py-2 text-[11px] font-bold tracking-widest uppercase rounded-sm transition-all flex items-center bg-[#c5a059] text-[#1a1714] hover:bg-[#c5a059]/90 flex-shrink-0">
+            <span class="material-symbols-outlined text-sm mr-1.5" style="vertical-align:-1px;font-variation-settings:'FILL' 1">edit</span>Gửi Đánh Giá
+        </button>
+    </div>
+</div>
+
+<!-- ══════════ MAIN CONTENT ══════════ -->
+<main class="flex-grow" style="padding-top:190px; padding-bottom:80px;">
+    <div class="max-w-6xl mx-auto px-6">
+
+        <!-- Toast Notifications -->
+        <div id="toast-success" class="hidden mb-8 p-4 rounded-lg flex items-center gap-3 max-w-xl mx-auto"
+             style="background:rgba(52,211,153,0.1);border:1px solid rgba(52,211,153,0.4);color:#a7f3d0;">
+            <span class="material-symbols-outlined" style="color:#34d399">check_circle</span>
+            <p class="text-sm font-semibold">Cảm ơn! Đánh giá của Quý khách đã được ghi nhận thành công.</p>
+        </div>
+
+        <div id="toast-login-required" class="hidden mb-8 p-4 rounded-lg flex items-center gap-3 max-w-xl mx-auto"
+             style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.4);color:#fca5a5;">
+            <span class="material-symbols-outlined" style="color:#ef4444">error</span>
+            <p class="text-sm font-semibold">Vui lòng đăng nhập tài khoản của Quý khách để gửi đánh giá dịch vụ!</p>
+        </div>
+
+        <div id="toast-no-service" class="hidden mb-8 p-4 rounded-lg flex items-center gap-3 max-w-xl mx-auto"
+             style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.4);color:#fde68a;">
+            <span class="material-symbols-outlined" style="color:#f59e0b">warning</span>
+            <p class="text-sm font-semibold">Đánh giá chỉ dành cho khách hàng đã từng trải nghiệm dịch vụ tại HoaNien Retreat.</p>
+        </div>
+
+        <!-- Hidden input for thymeleaf check in javascript -->
+        <input type="hidden" id="jsIsLoggedIn" th:value="${isLoggedIn}" />
+        <input type="hidden" id="jsHasUsedService" th:value="${hasUsedService}" />
+
+        <!-- ═══ MODE A: SUBMIT (from email with bookingId) ═══ -->
+        <div th:if="${mode == 'submit'}" class="max-w-2xl mx-auto">
+            <div class="text-center mb-10">
+                <div class="gold-line"></div>
+                <span class="text-xs font-bold tracking-[.2em] uppercase" style="color:#c5a059">Ý Kiến Của Quý Khách</span>
+                <h1 class="text-3xl mt-2 mb-3 font-serif italic text-white font-medium"
+                    th:text="${tourName != null ? 'Hành trình ' + tourName : 'Đánh Giá Trải Nghiệm'}">Đánh Giá Trải Nghiệm</h1>
+                <p class="text-xs text-gray-300 max-w-md mx-auto leading-relaxed">Mỗi phản hồi giúp HoaNien không ngừng hoàn thiện dịch vụ.</p>
+            </div>
+            <!-- Glassmorphic Form for submit mode -->
+            <form th:action="@{/feedback/submit}" method="post" class="space-y-6">
+                <input type="hidden" name="bookingId" th:value="${booking != null ? booking.id : ''}" />
+                <div class="space-y-3 rounded-xl p-6 bg-[#12100f]/50 backdrop-blur-md border border-white/12 shadow-lg">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined" style="color:#c5a059">hiking</span>
+                        <span class="text-sm font-bold tracking-wider text-white">Dịch Vụ Hành Trình & Tour</span>
+                    </div>
+                    <p class="text-xs text-gray-300">Hướng dẫn viên, lịch trình, sự an toàn và tiện nghi trong chuyến đi.</p>
+                    <div class="flex items-center gap-1 mt-2" id="stars-tour-a">
+                        <button type="button" class="rating-btn" data-val="1" onclick="rate('ratingTourA','stars-tour-a','lbl-tour-a',1)"><span class="material-symbols-outlined text-2xl" style="font-variation-settings:'FILL' 1">star</span></button>
+                        <button type="button" class="rating-btn" data-val="2" onclick="rate('ratingTourA','stars-tour-a','lbl-tour-a',2)"><span class="material-symbols-outlined text-2xl" style="font-variation-settings:'FILL' 1">star</span></button>
+                        <button type="button" class="rating-btn" data-val="3" onclick="rate('ratingTourA','stars-tour-a','lbl-tour-a',3)"><span class="material-symbols-outlined text-2xl" style="font-variation-settings:'FILL' 1">star</span></button>
+                        <button type="button" class="rating-btn" data-val="4" onclick="rate('ratingTourA','stars-tour-a','lbl-tour-a',4)"><span class="material-symbols-outlined text-2xl" style="font-variation-settings:'FILL' 1">star</span></button>
+                        <button type="button" class="rating-btn" data-val="5" onclick="rate('ratingTourA','stars-tour-a','lbl-tour-a',5)"><span class="material-symbols-outlined text-2xl" style="font-variation-settings:'FILL' 1">star</span></button>
+                        <span id="lbl-tour-a" class="ml-3 text-xs font-semibold" style="color:#c5a059">Xuất sắc</span>
+                    </div>
+                    <input type="hidden" name="ratingTour" id="ratingTourA" value="5" />
+                </div>
+
+                <div class="space-y-3 rounded-xl p-6 bg-[#12100f]/50 backdrop-blur-md border border-white/12 shadow-lg">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined" style="color:#c5a059">bed</span>
+                        <span class="text-sm font-bold tracking-wider text-white">Dịch Vụ Phòng & Ẩm Thực</span>
+                    </div>
+                    <p class="text-xs text-gray-300">Độ sạch sẽ, tiện nghi phòng nghỉ, chất lượng bữa ăn và thái độ phục vụ.</p>
+                    <div class="flex items-center gap-1 mt-2" id="stars-room-a">
+                        <button type="button" class="rating-btn" data-val="1" onclick="rate('ratingRoomA','stars-room-a','lbl-room-a',1)"><span class="material-symbols-outlined text-2xl" style="font-variation-settings:'FILL' 1">star</span></button>
+                        <button type="button" class="rating-btn" data-val="2" onclick="rate('ratingRoomA','stars-room-a','lbl-room-a',2)"><span class="material-symbols-outlined text-2xl" style="font-variation-settings:'FILL' 1">star</span></button>
+                        <button type="button" class="rating-btn" data-val="3" onclick="rate('ratingRoomA','stars-room-a','lbl-room-a',3)"><span class="material-symbols-outlined text-2xl" style="font-variation-settings:'FILL' 1">star</span></button>
+                        <button type="button" class="rating-btn" data-val="4" onclick="rate('ratingRoomA','stars-room-a','lbl-room-a',4)"><span class="material-symbols-outlined text-2xl" style="font-variation-settings:'FILL' 1">star</span></button>
+                        <button type="button" class="rating-btn" data-val="5" onclick="rate('ratingRoomA','stars-room-a','lbl-room-a',5)"><span class="material-symbols-outlined text-2xl" style="font-variation-settings:'FILL' 1">star</span></button>
+                        <span id="lbl-room-a" class="ml-3 text-xs font-semibold" style="color:#c5a059">Xuất sắc</span>
+                    </div>
+                    <input type="hidden" name="ratingRoomDining" id="ratingRoomA" value="5" />
+                </div>
+
+                <div class="space-y-2">
+                    <label class="text-sm font-bold tracking-wider text-white">Nhận Xét Chi Tiết</label>
+                    <textarea name="reviewText" rows="4" required
+                        class="w-full rounded-lg p-4 text-sm text-white bg-[#12100f]/40 border border-white/15 focus:outline-none focus:border-[#c5a059] transition-all resize-none shadow-md"
+                        placeholder="Hãy chia sẻ cảm nhận chân thực của Quý khách..."></textarea>
+                </div>
+
+                <div class="flex items-center justify-between pt-2">
+                    <a href="/feedback" class="text-xs tracking-widest uppercase font-semibold text-gray-400 hover:text-white transition-colors flex items-center gap-1">
+                        <span class="material-symbols-outlined text-sm">arrow_back</span>Quay lại
+                    </a>
+                    <button type="submit"
+                        class="px-10 py-3.5 font-bold text-xs uppercase tracking-widest rounded-sm transition-all text-[#1a1714]"
+                        style="background:#c5a059;">
+                        Gửi Đánh Giá
+                    </button>
+                </div>
+            </form>
+        </div><!-- /submit mode -->
+
+        <!-- ═══ MODE B: BROWSE REVIEWS ═══ -->
+        <div th:if="${mode == 'browse'}">
+            <div class="text-center mb-10">
+                <div class="gold-line"></div>
+                <span class="text-xs font-bold tracking-[.2em] uppercase" style="color:#c5a059">Nhật ký trải nghiệm</span>
+                <h1 class="text-3xl mt-2 mb-2 font-serif italic text-white font-medium">Chia Sẻ Từ Thượng Khách</h1>
+                <p class="text-xs text-gray-300 max-w-lg mx-auto leading-relaxed">Nhật ký trải nghiệm và những khoảnh khắc đáng nhớ tại Hòa Niên.</p>
+            </div>
+
+            <!-- ── Dịch Vụ Tour Panel ── -->
+            <div id="panel-tour" class="tab-panel">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                    <!-- Static 5-star review 1 -->
+                    <div class="review-card">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex gap-0.5">
+                                <span class="material-symbols-outlined text-lg star-gold" style="font-variation-settings:'FILL' 1;">star</span>
+                                <span class="material-symbols-outlined text-lg star-gold" style="font-variation-settings:'FILL' 1;">star</span>
+                                <span class="material-symbols-outlined text-lg star-gold" style="font-variation-settings:'FILL' 1;">star</span>
+                                <span class="material-symbols-outlined text-lg star-gold" style="font-variation-settings:'FILL' 1;">star</span>
+                                <span class="material-symbols-outlined text-lg star-gold" style="font-variation-settings:'FILL' 1;">star</span>
+                            </div>
+                            <span class="text-[10px] text-gray-400">15/06/2026</span>
+                        </div>
+                        <p class="text-sm text-gray-300 leading-relaxed mb-4" style="display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;">
+                            Hành trình Thiền hành Yên tử mang lại sự tĩnh lặng sâu sắc. Hướng dẫn viên chu đáo, am hiểu sâu sắc về văn hóa và thiền học.
+                        </p>
+                        <div class="flex items-center gap-3 pt-3" style="border-top:1px solid rgba(255,255,255,0.08);">
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold" style="background:rgba(201,169,110,0.2);color:#c5a059;">T</div>
+                            <div>
+                                <p class="text-xs font-semibold text-white">Trần Minh Anh</p>
+                                <p class="text-[10px] text-gray-400">Hành trình Yên Tử</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Static 5-star review 2 -->
+                    <div class="review-card">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex gap-0.5">
+                                <span class="material-symbols-outlined text-lg star-gold" style="font-variation-settings:'FILL' 1;">star</span>
+                                <span class="material-symbols-outlined text-lg star-gold" style="font-variation-settings:'FILL' 1;">star</span>
+                                <span class="material-symbols-outlined text-lg star-gold" style="font-variation-settings:'FILL' 1;">star</span>
+                                <span class="material-symbols-outlined text-lg star-gold" style="font-variation-settings:'FILL' 1;">star</span>
+                                <span class="material-symbols-outlined text-lg star-gold" style="font-variation-settings:'FILL' 1;">star</span>
+                            </div>
+                            <span class="text-[10px] text-gray-400">02/07/2026</span>
+                        </div>
+                        <p class="text-sm text-gray-300 leading-relaxed mb-4" style="display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;">
+                            Một chuyến đi trọn vẹn dọc sông Hậu. Sương sớm trên sông và bữa sáng truyền thống trên ghe máy làm tôi nhớ mãi.
+                        </p>
+                        <div class="flex items-center gap-3 pt-3" style="border-top:1px solid rgba(255,255,255,0.08);">
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold" style="background:rgba(201,169,110,0.2);color:#c5a059;">L</div>
+                            <div>
+                                <p class="text-xs font-semibold text-white">Lê Hoài Nam</p>
+                                <p class="text-[10px] text-gray-400">Hành trình Sông Hậu</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dynamic reviews -->
+                    <div class="review-card" th:each="r : ${tourReviews}">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex gap-0.5">
+                                <span th:each="i : ${#numbers.sequence(1,5)}"
+                                      class="material-symbols-outlined text-lg"
+                                      th:classappend="${i <= (r.ratingTour != null ? r.ratingTour : r.ratingService)} ? 'star-gold' : 'star-empty'"
+                                      style="font-variation-settings:'FILL' 1;">star</span>
+                            </div>
+                            <span class="text-[10px] text-gray-400"
+                                  th:text="${r.createdAt != null ? #temporals.format(r.createdAt, 'dd/MM/yyyy') : ''}"></span>
+                        </div>
+                        <p class="text-sm text-gray-300 leading-relaxed mb-4"
+                           style="display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;"
+                           th:text="${r.reviewText != null ? r.reviewText : 'Một trải nghiệm tuyệt vời không thể quên.'}"></p>
+                        <div class="flex items-center gap-3 pt-3" style="border-top:1px solid rgba(255,255,255,0.08);">
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold"
+                                 style="background:rgba(201,169,110,0.2);color:#c5a059;"
+                                 th:text="${r.customer != null ? r.customer.fullName.substring(0,1) : 'K'}">K</div>
+                            <div>
+                                <p class="text-xs font-semibold text-white"
+                                   th:text="${r.customer != null ? r.customer.fullName : 'Quý khách'}">Quý khách</p>
+                                <p class="text-[10px] text-gray-400">Hành trình HoaNien</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── Dịch Vụ Phòng Panel ── -->
+            <div id="panel-room" class="tab-panel hidden">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                    <!-- Static 5-star review 1 -->
+                    <div class="review-card">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex gap-0.5">
+                                <span class="material-symbols-outlined text-lg star-gold" style="font-variation-settings:'FILL' 1;">star</span>
+                                <span class="material-symbols-outlined text-lg star-gold" style="font-variation-settings:'FILL' 1;">star</span>
+                                <span class="material-symbols-outlined text-lg star-gold" style="font-variation-settings:'FILL' 1;">star</span>
+                                <span class="material-symbols-outlined text-lg star-gold" style="font-variation-settings:'FILL' 1;">star</span>
+                                <span class="material-symbols-outlined text-lg star-gold" style="font-variation-settings:'FILL' 1;">star</span>
+                            </div>
+                            <span class="text-[10px] text-gray-400">20/06/2026</span>
+                        </div>
+                        <p class="text-sm text-gray-300 leading-relaxed mb-4" style="display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;">
+                            Phòng Suite view sông Hậu cực kỳ yên bình. Thiết kế tối giản, tinh tế, gỗ tự nhiên thơm nhẹ rất dễ chịu.
+                        </p>
+                        <div class="flex items-center gap-3 pt-3" style="border-top:1px solid rgba(255,255,255,0.08);">
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold" style="background:rgba(201,169,110,0.2);color:#c5a059;">N</div>
+                            <div>
+                                <p class="text-xs font-semibold text-white">Nguyễn Bích Thủy</p>
+                                <p class="text-[10px] text-gray-400">Lưu trú HoaNien</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Static 5-star review 2 -->
+                    <div class="review-card">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex gap-0.5">
+                                <span class="material-symbols-outlined text-lg star-gold" style="font-variation-settings:'FILL' 1;">star</span>
+                                <span class="material-symbols-outlined text-lg star-gold" style="font-variation-settings:'FILL' 1;">star</span>
+                                <span class="material-symbols-outlined text-lg star-gold" style="font-variation-settings:'FILL' 1;">star</span>
+                                <span class="material-symbols-outlined text-lg star-gold" style="font-variation-settings:'FILL' 1;">star</span>
+                                <span class="material-symbols-outlined text-lg star-gold" style="font-variation-settings:'FILL' 1;">star</span>
+                            </div>
+                            <span class="text-[10px] text-gray-400">29/06/2026</span>
+                        </div>
+                        <p class="text-sm text-gray-300 leading-relaxed mb-4" style="display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;">
+                            Giường ngủ êm ái, dịch vụ dọn phòng hoàn hảo. Nhà hàng chay phục vụ món ăn thanh đạm nhưng hương vị xuất sắc.
+                        </p>
+                        <div class="flex items-center gap-3 pt-3" style="border-top:1px solid rgba(255,255,255,0.08);">
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold" style="background:rgba(201,169,110,0.2);color:#c5a059;">P</div>
+                            <div>
+                                <p class="text-xs font-semibold text-white">Phạm Thành Trung</p>
+                                <p class="text-[10px] text-gray-400">Ẩm thực chay HoaNien</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dynamic reviews -->
+                    <div class="review-card" th:each="r : ${roomReviews}">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex gap-0.5">
+                                <span th:each="i : ${#numbers.sequence(1,5)}"
+                                      class="material-symbols-outlined text-lg"
+                                      th:classappend="${i <= (r.ratingRoomDining != null ? r.ratingRoomDining : r.ratingService)} ? 'star-gold' : 'star-empty'"
+                                      style="font-variation-settings:'FILL' 1;">star</span>
+                            </div>
+                            <span class="text-[10px] text-gray-400"
+                                  th:text="${r.createdAt != null ? #temporals.format(r.createdAt, 'dd/MM/yyyy') : ''}"></span>
+                        </div>
+                        <p class="text-sm text-gray-300 leading-relaxed mb-4"
+                           style="display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;"
+                           th:text="${r.reviewText != null ? r.reviewText : 'Phòng nghỉ tuyệt vời, dịch vụ chu đáo.'}"></p>
+                        <div class="flex items-center gap-3 pt-3" style="border-top:1px solid rgba(255,255,255,0.08);">
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold"
+                                 style="background:rgba(201,169,110,0.2);color:#c5a059;"
+                                 th:text="${r.customer != null ? r.customer.fullName.substring(0,1) : 'K'}">K</div>
+                            <div>
+                                <p class="text-xs font-semibold text-white"
+                                   th:text="${r.customer != null ? r.customer.fullName : 'Quý khách'}">Quý khách</p>
+                                <p class="text-[10px] text-gray-400">Lưu trú tại HoaNien</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── Dịch Vụ Khác Panel ── -->
+            <div id="panel-other" class="tab-panel hidden">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                    <!-- Static 5-star review 1 -->
+                    <div class="review-card">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex gap-0.5">
+                                <span class="material-symbols-outlined text-lg star-gold" style="font-variation-settings:'FILL' 1;">star</span>
+                                <span class="material-symbols-outlined text-lg star-gold" style="font-variation-settings:'FILL' 1;">star</span>
+                                <span class="material-symbols-outlined text-lg star-gold" style="font-variation-settings:'FILL' 1;">star</span>
+                                <span class="material-symbols-outlined text-lg star-gold" style="font-variation-settings:'FILL' 1;">star</span>
+                                <span class="material-symbols-outlined text-lg star-gold" style="font-variation-settings:'FILL' 1;">star</span>
+                            </div>
+                            <span class="text-[10px] text-gray-400">18/06/2026</span>
+                        </div>
+                        <p class="text-sm text-gray-300 leading-relaxed mb-4" style="display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;">
+                            Trải nghiệm Spa trị liệu bằng thảo mộc tự nhiên tại HoaNien thực sự giúp tôi phục hồi năng lượng sau những ngày căng thẳng.
+                        </p>
+                        <div class="flex items-center gap-3 pt-3" style="border-top:1px solid rgba(255,255,255,0.08);">
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold" style="background:rgba(201,169,110,0.2);color:#c5a059;">H</div>
+                            <div>
+                                <p class="text-xs font-semibold text-white">Hoàng Thu Thảo</p>
+                                <p class="text-[10px] text-gray-400">Thảo mộc Spa</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Static 5-star review 2 -->
+                    <div class="review-card">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex gap-0.5">
+                                <span class="material-symbols-outlined text-lg star-gold" style="font-variation-settings:'FILL' 1;">star</span>
+                                <span class="material-symbols-outlined text-lg star-gold" style="font-variation-settings:'FILL' 1;">star</span>
+                                <span class="material-symbols-outlined text-lg star-gold" style="font-variation-settings:'FILL' 1;">star</span>
+                                <span class="material-symbols-outlined text-lg star-gold" style="font-variation-settings:'FILL' 1;">star</span>
+                                <span class="material-symbols-outlined text-lg star-gold" style="font-variation-settings:'FILL' 1;">star</span>
+                            </div>
+                            <span class="text-[10px] text-gray-400">05/07/2026</span>
+                        </div>
+                        <p class="text-sm text-gray-300 leading-relaxed mb-4" style="display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;">
+                            Dịch vụ đưa đón tận tình, nhân viên thân thiện. Không gian Hub kết nối tuyệt vời để thư giãn đọc sách.
+                        </p>
+                        <div class="flex items-center gap-3 pt-3" style="border-top:1px solid rgba(255,255,255,0.08);">
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold" style="background:rgba(201,169,110,0.2);color:#c5a059;">Đ</div>
+                            <div>
+                                <p class="text-xs font-semibold text-white">Đỗ Quốc Huy</p>
+                                <p class="text-[10px] text-gray-400">Dịch vụ đưa đón</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dynamic reviews -->
+                    <div class="review-card" th:each="r : ${generalReviews}">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex gap-0.5">
+                                <span th:each="i : ${#numbers.sequence(1,5)}"
+                                      class="material-symbols-outlined text-lg"
+                                      th:classappend="${i <= r.ratingService} ? 'star-gold' : 'star-empty'"
+                                      style="font-variation-settings:'FILL' 1;">star</span>
+                            </div>
+                            <span class="text-[10px] text-gray-400"
+                                  th:text="${r.createdAt != null ? #temporals.format(r.createdAt, 'dd/MM/yyyy') : ''}"></span>
+                        </div>
+                        <p class="text-sm text-gray-300 leading-relaxed mb-4"
+                           style="display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;"
+                           th:text="${r.reviewText != null ? r.reviewText : 'Trải nghiệm HoaNien thực sự đặc biệt.'}"></p>
+                        <div class="flex items-center gap-3 pt-3" style="border-top:1px solid rgba(255,255,255,0.08);">
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold"
+                                 style="background:rgba(201,169,110,0.2);color:#c5a059;"
+                                 th:text="${r.customer != null ? r.customer.fullName.substring(0,1) : 'K'}">K</div>
+                            <div>
+                                <p class="text-xs font-semibold text-white"
+                                   th:text="${r.customer != null ? r.customer.fullName : 'Quý khách'}">Quý khách</p>
+                                <p class="text-[10px] text-gray-400">Trải nghiệm HoaNien</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Inline submit form (hidden by default) -->
+            <div id="inline-submit-form" class="hidden max-w-2xl mx-auto mt-14 pt-10" style="border-top:1px solid rgba(255,255,255,0.1)">
+                <div class="text-center mb-8">
+                    <div class="gold-line"></div>
+                    <h2 class="text-2xl font-serif italic text-white font-medium">Chia Sẻ Trải Nghiệm Của Bạn</h2>
+                    <p class="text-xs text-gray-300 mt-1">Đánh giá tổng quan về trải nghiệm tại HoaNien</p>
+                </div>
+                <form th:action="@{/feedback/submit}" method="post" class="space-y-6">
+                    <input type="hidden" name="bookingId" value="" />
+                    <div class="space-y-3 rounded-xl p-6 bg-[#12100f]/50 backdrop-blur-md border border-white/12 shadow-lg">
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined" style="color:#c5a059">hiking</span>
+                            <span class="text-sm font-bold tracking-wider text-white">Dịch Vụ Hành Trình & Tour</span>
+                        </div>
+                        <p class="text-xs text-gray-300">Hướng dẫn viên, lịch trình, sự an toàn và tiện nghi trong chuyến đi.</p>
+                        <div class="flex items-center gap-1 mt-2" id="stars-tour-b">
+                            <button type="button" class="rating-btn" data-val="1" onclick="rate('ratingTourB','stars-tour-b','lbl-tour-b',1)"><span class="material-symbols-outlined text-2xl" style="font-variation-settings:'FILL' 1">star</span></button>
+                            <button type="button" class="rating-btn" data-val="2" onclick="rate('ratingTourB','stars-tour-b','lbl-tour-b',2)"><span class="material-symbols-outlined text-2xl" style="font-variation-settings:'FILL' 1">star</span></button>
+                            <button type="button" class="rating-btn" data-val="3" onclick="rate('ratingTourB','stars-tour-b','lbl-tour-b',3)"><span class="material-symbols-outlined text-2xl" style="font-variation-settings:'FILL' 1">star</span></button>
+                            <button type="button" class="rating-btn" data-val="4" onclick="rate('ratingTourB','stars-tour-b','lbl-tour-b',4)"><span class="material-symbols-outlined text-2xl" style="font-variation-settings:'FILL' 1">star</span></button>
+                            <button type="button" class="rating-btn" data-val="5" onclick="rate('ratingTourB','stars-tour-b','lbl-tour-b',5)"><span class="material-symbols-outlined text-2xl" style="font-variation-settings:'FILL' 1">star</span></button>
+                            <span id="lbl-tour-b" class="ml-3 text-xs font-semibold" style="color:#c5a059">Xuất sắc</span>
+                        </div>
+                        <input type="hidden" name="ratingTour" id="ratingTourB" value="5" />
+                    </div>
+
+                    <div class="space-y-3 rounded-xl p-6 bg-[#12100f]/50 backdrop-blur-md border border-white/12 shadow-lg">
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined" style="color:#c5a059">bed</span>
+                            <span class="text-sm font-bold tracking-wider text-white">Dịch Vụ Phòng & Ẩm Thực</span>
+                        </div>
+                        <p class="text-xs text-gray-300">Độ sạch sẽ, tiện nghi phòng nghỉ, chất lượng bữa ăn và thái độ phục vụ.</p>
+                        <div class="flex items-center gap-1 mt-2" id="stars-room-b">
+                            <button type="button" class="rating-btn" data-val="1" onclick="rate('ratingRoomB','stars-room-b','lbl-room-b',1)"><span class="material-symbols-outlined text-2xl" style="font-variation-settings:'FILL' 1">star</span></button>
+                            <button type="button" class="rating-btn" data-val="2" onclick="rate('ratingRoomB','stars-room-b','lbl-room-b',2)"><span class="material-symbols-outlined text-2xl" style="font-variation-settings:'FILL' 1">star</span></button>
+                            <button type="button" class="rating-btn" data-val="3" onclick="rate('ratingRoomB','stars-room-b','lbl-room-b',3)"><span class="material-symbols-outlined text-2xl" style="font-variation-settings:'FILL' 1">star</span></button>
+                            <button type="button" class="rating-btn" data-val="4" onclick="rate('ratingRoomB','stars-room-b','lbl-room-b',4)"><span class="material-symbols-outlined text-2xl" style="font-variation-settings:'FILL' 1">star</span></button>
+                            <button type="button" class="rating-btn" data-val="5" onclick="rate('ratingRoomB','stars-room-b','lbl-room-b',5)"><span class="material-symbols-outlined text-2xl" style="font-variation-settings:'FILL' 1">star</span></button>
+                            <span id="lbl-room-b" class="ml-3 text-xs font-semibold" style="color:#c5a059">Xuất sắc</span>
+                        </div>
+                        <input type="hidden" name="ratingRoomDining" id="ratingRoomB" value="5" />
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-sm font-bold tracking-wider text-white">Nhận Xét Chi Tiết</label>
+                        <textarea name="reviewText" rows="4" required
+                            class="w-full rounded-lg p-4 text-sm text-white bg-[#12100f]/40 border border-white/15 focus:outline-none focus:border-[#c5a059] transition-all resize-none shadow-md"
+                            placeholder="Hãy chia sẻ cảm nhận chân thực của Quý khách..."></textarea>
+                    </div>
+
+                    <div class="flex items-center justify-between pt-2">
+                        <button type="button" onclick="toggleSubmitForm()" class="text-xs tracking-widest uppercase font-semibold text-gray-400 hover:text-white transition-colors flex items-center gap-1 bg-transparent border-none cursor-pointer">
+                            <span class="material-symbols-outlined text-sm">arrow_back</span>Đóng
+                        </button>
+                        <button type="submit"
+                            class="px-10 py-3.5 font-bold text-xs uppercase tracking-widest rounded-sm transition-all text-[#1a1714]"
+                            style="background:#c5a059;">
+                            Gửi Đánh Giá
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div><!-- /browse mode -->
+
+    </div><!-- /max-w-6xl -->
+</main>
+
+<!-- ══════════ FOOTER (exact match system) ══════════ -->
+<footer style="background: #1f1b16; color: #e5dfd8;" class="py-20 px-6 font-sans relative z-20">
+    <div class="max-w-[1440px] mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-end">
+        <div class="space-y-6">
+            <div class="font-serif text-3xl font-medium tracking-wide">
+                HOANIEN
+                <span class="block text-xs font-sans tracking-[0.3em] uppercase mt-2 opacity-70">River Retreat</span>
+            </div>
+            <div class="text-sm opacity-80 leading-relaxed max-w-sm font-light">
+                232 Tran Nhan Tong Street,<br>
+                Hoi An Dong Ward,<br>
+                Danang City, Viet Nam
+            </div>
+            <div class="text-sm opacity-80 font-light">
+                <a href="mailto:contact@hoanienretreat.com" class="hover:text-white transition-colors">contact@hoanienretreat.com</a><br>
+                <a href="tel:+84123456789" class="hover:text-white transition-colors">+84 123 456 789</a>
+            </div>
+        </div>
+        <div class="h-48 md:h-64 rounded-xl overflow-hidden grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all duration-500 border border-hoanien-footer-text/20">
+            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3834.1105353597627!2d108.23847531536098!3d16.059758088886364!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3142177f2ced6d8b%3A0xeac35f2960fa74a4!2sDanang%2C%20Vietnam!5e0!3m2!1sen!2s!4v1655112345678!5m2!1sen!2s"
+                width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        </div>
+    </div>
+    <div class="max-w-[1440px] mx-auto mt-16 pt-8 border-t border-hoanien-footer-text/10 text-center text-[10px] uppercase tracking-[0.15em] opacity-50 flex flex-col md:flex-row justify-between gap-4">
+        <p>© 2026 Hoanien River Retreat. All rights reserved.</p>
+        <div class="flex gap-6 justify-center md:justify-end">
+            <a href="#" class="hover:text-white transition-colors">Privacy</a>
+            <a href="#" class="hover:text-white transition-colors">Terms</a>
+            <a href="#" class="hover:text-white transition-colors">Sitemap</a>
+        </div>
+    </div>
+</footer>
+
+<!-- ══════════ CUSTOM ALERT MODAL ══════════ -->
+<div id="custom-alert-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/65 backdrop-blur-sm hidden opacity-0 transition-all duration-300">
+    <div class="bg-[#12100f]/95 border border-white/15 rounded-xl p-8 max-w-md w-full text-center shadow-2xl scale-95 transition-all duration-300">
+        <span class="material-symbols-outlined text-4xl text-[#c5a059] mb-4" style="font-variation-settings:'FILL' 1">warning</span>
+        <h3 class="font-serif text-xl text-white mb-3 italic">Thông báo từ HoaNien</h3>
+        <p id="custom-alert-msg" class="text-sm text-gray-300 leading-relaxed mb-6 font-light"></p>
+        <button onclick="closeCustomAlert()" class="px-8 py-3 text-xs uppercase font-bold tracking-widest bg-[#c5a059] text-[#1a1714] hover:bg-[#b08d4a] rounded-sm transition-all">
+            Đồng ý
+        </button>
+    </div>
+</div>
+
+<!-- ══════════ REGISTRATION & LOGIN MODAL ══════════ -->
+<div th:replace="~{guest/fragments/auth :: authModal}"></div>
+
+<script>
+    const LABELS = {1:'Tệ', 2:'Không hài lòng', 3:'Bình thường', 4:'Tốt', 5:'Xuất sắc'};
+
+    function showCustomAlert(msg) {
+        const modal = document.getElementById('custom-alert-modal');
+        const text = document.getElementById('custom-alert-msg');
+        if (!modal || !text) return;
+        text.textContent = msg;
+        modal.classList.remove('hidden');
+        void modal.offsetWidth; // force reflow
+        modal.classList.remove('opacity-0');
+        modal.querySelector('div').classList.remove('scale-95');
+    }
+
+    function closeCustomAlert() {
+        const modal = document.getElementById('custom-alert-modal');
+        if (!modal) return;
+        modal.classList.add('opacity-0');
+        modal.querySelector('div').classList.add('scale-95');
+        setTimeout(() => {
+            modal.classList.add('hidden');
+        }, 300);
+    }
+
+    function rate(fieldId, starsId, lblId, val) {
+        document.getElementById(fieldId).value = val;
+        document.querySelectorAll('#' + starsId + ' button').forEach(b =>
+            b.classList.toggle('active', parseInt(b.dataset.val) <= val));
+        const lbl = document.getElementById(lblId);
+        if (lbl) lbl.textContent = LABELS[val] || '';
+    }
+
+    function switchTab(name) {
+        ['tour','room','other'].forEach(t => {
+            document.getElementById('tab-' + t)?.classList.toggle('active', t === name);
+            document.getElementById('panel-' + t)?.classList.toggle('hidden', t !== name);
+        });
+        history.replaceState(null, '', '/feedback?type=' + name);
+    }
+
+    function handleFeedbackButtonClick() {
+        const isLoggedInVal = document.getElementById('jsIsLoggedIn').value === 'true';
+        const hasUsedServiceVal = document.getElementById('jsHasUsedService').value === 'true';
+
+        if (!isLoggedInVal) {
+            document.getElementById('toast-login-required')?.classList.remove('hidden');
+            document.getElementById('toast-no-service')?.classList.add('hidden');
+            document.getElementById('toast-success')?.classList.add('hidden');
+            if (typeof openLoginModal === 'function') {
+                openLoginModal();
+            }
+            return;
+        }
+
+        if (!hasUsedServiceVal) {
+            document.getElementById('toast-no-service')?.classList.remove('hidden');
+            document.getElementById('toast-login-required')?.classList.add('hidden');
+            document.getElementById('toast-success')?.classList.add('hidden');
+            showCustomAlert('Quý khách cần có tối thiểu 1 Booking (Phòng nghỉ hoặc Tour du lịch) đã hoàn thành tại HoaNien Retreat để tham gia gửi đánh giá!');
+            return;
+        }
+
+        toggleSubmitForm();
+    }
+
+    function toggleSubmitForm() {
+        const el = document.getElementById('inline-submit-form');
+        if (!el) return;
+        el.classList.toggle('hidden');
+        if (!el.classList.contains('hidden'))
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const params = new URLSearchParams(window.location.search);
+        switchTab(params.get('type') || 'tour');
+        
+        const toast = params.get('toast');
+        if (toast === 'success') {
+            document.getElementById('toast-success')?.classList.remove('hidden');
+        } else if (toast === 'login_required') {
+            document.getElementById('toast-login-required')?.classList.remove('hidden');
+            if (typeof openLoginModal === 'function') openLoginModal();
+        } else if (toast === 'no_service_used') {
+            document.getElementById('toast-no-service')?.classList.remove('hidden');
+        }
+        
+        // Init stars
+        ['A','B'].forEach(s => { rate('ratingTour'+s,'stars-tour-'+s.toLowerCase(),'lbl-tour-'+s.toLowerCase(),5); rate('ratingRoom'+s,'stars-room-'+s.toLowerCase(),'lbl-room-'+s.toLowerCase(),5); });
+    });
+
+    // Hover effect
+    document.querySelectorAll('[id^="stars-"]').forEach(div => {
+        div.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('mouseenter', () => {
+                const v = parseInt(btn.dataset.val);
+                div.querySelectorAll('button').forEach(b => b.classList.toggle('hovered', parseInt(b.dataset.val) <= v));
+            });
+            btn.addEventListener('mouseleave', () => div.querySelectorAll('button').forEach(b => b.classList.remove('hovered')));
+        });
+    });
+</script>
+</body>
+</html>

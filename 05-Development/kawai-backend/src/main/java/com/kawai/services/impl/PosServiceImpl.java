@@ -85,6 +85,11 @@ public class PosServiceImpl implements PosService {
     }
 
     @Override
+    public FoodOrder getOrderById(Long id) {
+        return foodOrderRepository.findById(id).orElse(null);
+    }
+
+    @Override
     public FoodOrder createOrder(CreateFoodOrderRequest request, String userIdentifier) {
         FoodOrder order = new FoodOrder();
 
@@ -264,7 +269,7 @@ public class PosServiceImpl implements PosService {
                 detail.setPriceAtOrder(itemDto.getPrice());
                 detail.setKotStatus("Pending");
                 foodOrderDetailRepository.save(detail);
-                
+
                 savedDetails.add(detail);
 
                 if (itemDto.getPrice() != null && itemDto.getQty() != null) {
