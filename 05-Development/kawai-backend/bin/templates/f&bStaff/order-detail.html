@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Order Detail — F&amp;B Staff | Hoanien Resort</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet" />
+  
+  <link rel="stylesheet" th:href="@{/f&amp;bStaff/css/pos-dashboard.css}" href="../../statics/f&bStaff/css/pos-dashboard.css" />
+  <link rel="stylesheet" th:href="@{/f&amp;bStaff/css/order-detail.css}" href="../../statics/f&bStaff/css/order-detail.css" />
+  <link rel="stylesheet" th:href="@{/f&amp;bStaff/css/refund-modal.css}" href="../../statics/f&bStaff/css/refund-modal.css" />
+</head>
+<body>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="brand-name">HOANIEN</div>
+      <div class="brand-sub">Resort &amp; Tour Hub</div>
+      <div class="staff-badge">
+        <span class="material-symbols-outlined" style="font-size:0.7rem;">restaurant</span> Nhân viên F&amp;B
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Operations</div>
+
+      <a href="/fbStaff/dashboard" th:href="@{/fbStaff/dashboard}" class="nav-item active">
+        <span class="material-symbols-outlined">dashboard</span>
+        <span>POS Dashboard</span>
+      </a>
+      <a href="/fbStaff/create-food-order" th:href="@{/fbStaff/create-food-order}" class="nav-item" sec:authorize="hasAnyAuthority('OP_FNB_ORDER', 'OP_FNB', 'ROLE_ADMIN', 'ROLE_MANAGER')">
+        <span class="material-symbols-outlined">add_circle</span>
+        <span>New Order</span>
+      </a>
+      <a href="/fbStaff/table-management" th:href="@{/fbStaff/table-management}" class="nav-item" sec:authorize="hasAnyAuthority('OP_FNB_TABLE', 'OP_FNB', 'ROLE_ADMIN', 'ROLE_MANAGER')">
+        <span class="material-symbols-outlined">table_restaurant</span>
+        <span>Table Management</span>
+      </a>
+      <a href="/fbStaff/room-service" th:href="@{/fbStaff/room-service}" class="nav-item" sec:authorize="hasAnyAuthority('OP_FNB_ROOM_SERVICE', 'OP_FNB', 'ROLE_ADMIN', 'ROLE_MANAGER')">
+        <span class="material-symbols-outlined">room_service</span>
+        <span>Room Service</span>
+      </a>
+
+      <div class="nav-section-label">Finance</div>
+
+      <a href="/fbStaff/shift-report" th:href="@{/fbStaff/shift-report}" class="nav-item">
+        <span class="material-symbols-outlined">bar_chart</span>
+        <span>Shift Report</span>
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="staff-profile">
+        <div class="staff-avatar">TP</div>
+        <div>
+          <div class="staff-name" th:text="${staffName != null ? staffName : 'Trần Phương'}">Trần Phương</div>
+          <div class="staff-role">F&amp;B POS · Ca Sáng</div>
+        </div>
+        <button class="logout-btn" title="Đăng xuất" onclick="location.href='/auth/logout'">
+          <span class="material-symbols-outlined" style="font-size:1.05rem;">logout</span>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+    <div id="tableReleaseModal" class="addon-modal-overlay" style="display:none; z-index:9999;">
+      <div class="addon-modal-content" style="max-width:400px;">
+        <div class="addon-modal-header">
+          <h3>Giải phóng bàn</h3>
+        </div>
+        <div class="addon-modal-body" style="font-size:0.95rem; color:var(--text-primary); line-height:1.5;">
+          Khách hàng có tiếp tục sử dụng bàn này không?
+          <ul style="margin-top:10px; margin-left:20px; color:var(--text-secondary);">
+            <li>Chọn <b>OK</b> để GIỮ bàn</li>
+            <li>Chọn <b>Cancel</b> để GIẢI PHÓNG bàn</li>
+          </ul>
+        </div>
+        <div class="addon-modal-footer" style="gap:10px; justify-content:flex-end;">
+          <button class="btn btn-outline" id="btnReleaseCancel" style="border-color:#ccc; color:#555;">Cancel</button>
+          <button class="btn btn-primary" id="btnReleaseOk">OK</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAPPING JAVASCRIPT VARS -->
+  <div class="main-content">
+    <header class="topbar">
+      <div>
+        <div class="topbar-title">Chi tiết Đơn hàng</div>
+        <div class="topbar-subtitle">Thông tin, trạng thái &amp; hóa đơn</div>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-outline" onclick="location.href='/fbStaff/dashboard'">
+          <span class="material-symbols-outlined">arrow_back</span>
+          Quay lại
+        </button>
+      </div>
+    </header>
+
+    <div class="dashboard-body detail-wrapper">
+      
+
+
+      <div class="detail-card">
+        
+        <!-- HEADER -->
+        <div class="detail-header" th:if="${foodOrder != null || tableOrder != null}">
+          <div class="dh-left">
+            <h2 id="order-id" th:text="${foodOrder != null ? 'ORD-' + foodOrder.id : 'RES-' + tableOrder.id}">ORD-000</h2>
+            <div class="dh-meta">
+              <span id="order-type-badge" class="type-badge" th:text="${foodOrder != null ? foodOrder.orderType : 'Table Reservation'}">Food Order</span>
+              <span id="order-date"><span class="material-symbols-outlined">calendar_today</span> <span id="val-date" th:text="${tableOrder != null ? tableOrder.reserveDate : 'Mới tạo'}">Mới tạo</span></span>
+            </div>
+          </div>
+          <div class="dh-right">
+            <span id="order-status-chip" class="order-status-chip" 
+                  th:with="status=${foodOrder != null ? foodOrder.orderStatus : tableOrder.status}"
+                  th:classappend="${status == 'Pending' || status == 'pending' ? 'chip-pending' : (status == 'Serving' || status == 'serving' || status == 'Preparing' || status == 'preparing' ? 'chip-cooking' : 'chip-ready')}" 
+                  style="font-size:0.8rem; padding:6px 14px;">
+              <span class="dot"></span><span th:text="${status == 'Preparing' || status == 'preparing' ? 'Processing' : (status == 'Ready' || status == 'ready' ? 'Complete' : (status != null ? #strings.capitalize(status) : 'Pending'))}">Processing</span>
+            </span>
+          </div>
+        </div>
+
+        <!-- STATUS TRACKER -->
+        <div class="status-tracker" id="status-tracker" th:if="${foodOrder != null || tableOrder != null}">
+          <div class="step completed" id="step-1">
+            <div class="step-icon"><span class="material-symbols-outlined">receipt_long</span></div>
+            <div class="step-label">Created</div>
+          </div>
+          <div class="step" th:classappend="${foodOrder != null ? (foodOrder.orderStatus == 'Preparing' || foodOrder.orderStatus == 'preparing' || foodOrder.orderStatus == 'Ready' || foodOrder.orderStatus == 'ready' || foodOrder.orderStatus == 'Delivering' || foodOrder.orderStatus == 'delivering' || foodOrder.orderStatus == 'Served' || foodOrder.orderStatus == 'served' ? 'completed' : '') : 'completed'}" id="step-2">
+            <div class="step-icon"><span class="material-symbols-outlined">skillet</span></div>
+            <div class="step-label" id="lbl-step-2">Processing</div>
+          </div>
+          <div class="step" th:if="${foodOrder != null}" th:classappend="${foodOrder.orderStatus == 'Ready' || foodOrder.orderStatus == 'ready' || foodOrder.orderStatus == 'Delivering' || foodOrder.orderStatus == 'delivering' || foodOrder.orderStatus == 'Served' || foodOrder.orderStatus == 'served' ? 'completed' : ''}" id="step-3">
+            <div class="step-icon"><span class="material-symbols-outlined">check_circle</span></div>
+            <div class="step-label">Complete</div>
+          </div>
+          <div class="step" th:classappend="${(foodOrder != null && (foodOrder.orderStatus == 'Served' || foodOrder.orderStatus == 'served')) || (tableOrder != null && (tableOrder.status == 'Completed' || tableOrder.status == 'completed')) ? 'completed' : ''}" th:id="${foodOrder != null ? 'step-4' : 'step-3'}">
+            <div class="step-icon"><span class="material-symbols-outlined" id="icon-step-4" th:text="${tableOrder != null ? 'done_all' : 'room_service'}">room_service</span></div>
+            <div class="step-label" id="lbl-step-4" th:text="${tableOrder != null ? 'Completed' : 'Served'}">Served</div>
+          </div>
+        </div>
+
+        <!-- INFO GRID -->
+        <div class="info-grid" th:if="${foodOrder != null || tableOrder != null}">
+          <div class="info-box">
+            <div class="info-label">Khách hàng / NV tạo</div>
+            <div class="info-value" id="info-customer">
+              <span th:text="${foodOrder != null ? 
+                             ((foodOrder.orderType == 'Room Service' || foodOrder.orderType == 'RoomService') && foodOrder.booking != null && foodOrder.booking.customer != null ? foodOrder.booking.customer.fullName : 
+                              (extractedGuestName != null && !extractedGuestName.isEmpty() ? extractedGuestName : 'Khách lẻ')) 
+                           : (tableOrder != null && tableOrder.customer != null ? tableOrder.customer.fullName : 'Khách lẻ')}">Khách lẻ</span>
+              <span th:if="${foodOrder != null && foodOrder.createdByStaff != null}" th:text="' / NV: ' + ${foodOrder.createdByStaff.fullName}" style="color:var(--text-muted);font-size:0.85em;"> / NV: Trần Phương</span>
+            </div>
+          </div>
+          <div class="info-box" id="box-service-type">
+            <div class="info-label">Hình thức</div>
+            <div class="info-value" id="info-service" th:text="${foodOrder != null ? foodOrder.orderType : 'Dine-In'}">Dine-In</div>
+          </div>
+          <div class="info-box" id="box-location">
+            <div class="info-label" id="lbl-location">Bàn / Phòng</div>
+            <div class="info-value" id="info-location" th:text="${foodOrder != null ? (foodOrder.orderType == 'Room Service' ? 'Room Service' : 'Bàn ' + (foodOrder.table != null ? foodOrder.table.tableNumber : '?')) : 'Bàn ' + (tableOrder.table != null ? tableOrder.table.tableNumber : '?')}">Bàn 05</div>
+          </div>
+          <div class="info-box">
+            <div class="info-label" id="lbl-pax">Thanh toán / Pax</div>
+            <div class="info-value" id="info-pax" th:text="${foodOrder != null ? (foodOrder.isPaidInPos ? 'Đã thanh toán' : 'Chưa (' + foodOrder.paymentType + ')') : tableOrder.pax + ' người'}"></div>
+          </div>
+        </div>
+
+        <!-- DYNAMIC BODY: FOOD ORDER -->
+        <div id="body-food-order" th:if="${foodOrder != null}">
+          <h3 class="section-heading">Danh sách món ăn</h3>
+          <table class="detail-table">
+            <thead>
+              <tr>
+                <th style="width:60px; text-align:center;">SL</th>
+                <th>Món ăn</th>
+                <th style="text-align:right;">Đơn giá</th>
+                <th style="text-align:right;">Trạng thái</th>
+              </tr>
+            </thead>
+            <tbody id="food-items-tbody">
+              <tr th:each="detail : ${foodOrder.details}">
+                <td style="text-align:center; font-weight:600;" th:text="${detail.quantity}">1</td>
+                <td th:text="${detail.menuItem != null ? detail.menuItem.itemName : 'Món ăn'}">Món ăn</td>
+                <td style="text-align:right;" th:text="${#numbers.formatDecimal(detail.priceAtOrder, 0, 'COMMA', 0, 'POINT')} + '₫'">0₫</td>
+                <td style="text-align:right; font-weight:600;">
+                  <span th:text="${detail.kotStatus == 'Preparing' ? 'Processing' : (detail.kotStatus == 'Ready' ? 'Complete' : detail.kotStatus)}" th:style="${detail.kotStatus == 'Served' ? 'color: var(--status-ready-text);' : ''}">Chờ</span>
+                  <span th:if="${detail.kotStatus == 'Served'}" class="material-symbols-outlined" style="color: var(--status-ready-text); font-size: 1.1rem; vertical-align: bottom; margin-left: 2px;">check</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="order-summary">
+            <div class="summary-row total">
+              <span>Tổng số món:</span>
+              <span id="food-total" th:text="${foodOrder.details.size()}">0</span>
+            </div>
+            <div class="summary-row total" style="margin-top: 10px; font-size: 1.2rem; color: var(--text-dark);">
+              <span>Tổng cộng:</span>
+              <span id="food-total-amount" th:text="${#numbers.formatDecimal(foodOrder.totalAmount, 0, 'COMMA', 0, 'POINT')} + '₫'">0₫</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- DYNAMIC BODY: TABLE RESERVATION -->
+        <div id="body-table-order" th:if="${tableOrder != null}">
+          <h3 class="section-heading">Chi tiết đặt bàn</h3>
+          <div class="table-res-details">
+            <div class="trd-row">
+              <span class="trd-label">Mã đặt bàn (ID):</span>
+              <span class="trd-value" th:text="${'RES-' + tableOrder.id}">RES-1</span>
+            </div>
+            <div class="trd-row">
+              <span class="trd-label">Tên khách hàng:</span>
+              <span class="trd-value" th:text="${tableOrder.customer != null ? tableOrder.customer.fullName : 'N/A'}">Tên khách hàng</span>
+            </div>
+            <div class="trd-row">
+              <span class="trd-label">Bàn đã đặt:</span>
+              <span class="trd-value" id="tbl-numbers" th:text="${tableOrder.table != null ? 'Bàn ' + tableOrder.table.tableNumber : 'Bàn'}">Bàn 01</span>
+            </div>
+            <div class="trd-row">
+              <span class="trd-label">Số lượng người tham gia:</span>
+              <span class="trd-value" th:text="${tableOrder.pax + ' người'}">4 người</span>
+            </div>
+            <div class="trd-row">
+              <span class="trd-label">Thời gian sử dụng:</span>
+              <span class="trd-value" th:text="${tableOrder.reserveTime}">19:30</span>
+            </div>
+            <div class="trd-row">
+              <span class="trd-label">Ngày sử dụng:</span>
+              <span class="trd-value" th:text="${tableOrder.reserveDate}">Hôm nay</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- COMMON NOTES -->
+        <div class="order-notes" id="order-notes" th:style="${foodOrder != null && foodOrder.note != null && !foodOrder.note.isEmpty() ? 'display:block;' : 'display:none;'}">
+          <strong>Yêu cầu đặc biệt:</strong> <span id="note-content" th:text="${foodOrder != null ? foodOrder.note : ''}"></span>
+        </div>
+
+        <!-- ACTION BUTTONS -->
+        <div class="detail-actions" th:if="${foodOrder != null || tableOrder != null}">
+          <button class="btn btn-outline btn-danger" id="btn-cancel"
+                  th:if="${foodOrder != null && (foodOrder.orderStatus == 'Pending' || foodOrder.orderStatus == 'pending')}"
+                  th:data-id="${foodOrder.id}"
+                  th:data-payment="${foodOrder.paymentType}"
+                  th:data-type="${foodOrder.orderType}"
+                  th:data-table="${foodOrder.table != null ? foodOrder.table.id : ''}"
+                  onclick="cancelOrder(this.getAttribute('data-id'), this.getAttribute('data-payment'), this.getAttribute('data-type'), this.getAttribute('data-table'))">
+            <span class="material-symbols-outlined">close</span> Hủy đơn
+          </button>
+          <div style="margin-left:auto; display:flex; gap:10px;">
+            <button class="btn btn-primary" id="btn-addon" th:if="${foodOrder != null && foodOrder.orderStatus != 'PAID' && foodOrder.orderStatus != 'Cancelled' && foodOrder.orderStatus != 'Refunded' && !foodOrder.isPaidInPos && foodOrder.orderType != 'Room Service' && foodOrder.orderType != 'RoomService'}" onclick="openAddonModal()" style="background-color: #ff9800; border-color: #ff9800; color: white;"><span class="material-symbols-outlined">add</span> Gọi thêm món</button>
+            <button class="btn btn-primary" id="btn-pay" th:if="${foodOrder != null && !foodOrder.isPaidInPos && foodOrder.orderStatus != 'PAID' && foodOrder.orderType != 'Room Service' && foodOrder.orderType != 'RoomService'}" style="background-color: var(--status-ready-text); border-color: var(--status-ready-text);" th:onclick="|payOrder(${foodOrder.id}, ${foodOrder.table != null ? foodOrder.table.id : 'null'})|"><span class="material-symbols-outlined">payments</span> Thanh toán</button>
+            <button class="btn btn-outline" id="btn-print" onclick="window.print()"><span class="material-symbols-outlined">print</span> In hóa đơn</button>
+            <!-- NÚT CHO ĐƠN DINE-IN (ĂN TẠI BÀN) -->
+            <!-- Chuyển trạng thái từ Ready/Completed sang Served (Chỉ có 1 bước) -->
+            <button class="btn btn-primary" id="btn-action-food-dinein"
+                    th:if="${foodOrder != null && foodOrder.orderType != 'Room Service' && foodOrder.orderType != 'RoomService' && foodOrder.orderStatus != 'Served' && foodOrder.orderStatus != 'served' && foodOrder.orderStatus != 'PAID'}"
+                    th:disabled="${foodOrder.orderStatus != 'Ready' && foodOrder.orderStatus != 'ready' && foodOrder.orderStatus != 'Completed' && foodOrder.orderStatus != 'completed'}"
+                    th:style="${foodOrder.orderStatus != 'Ready' && foodOrder.orderStatus != 'ready' && foodOrder.orderStatus != 'Completed' && foodOrder.orderStatus != 'completed' ? 'opacity: 0.5; cursor: not-allowed;' : ''}"
+                    th:data-id="${foodOrder.id}"
+                    onclick="if(this.hasAttribute('disabled')) return false; updateOrderStatus(this.getAttribute('data-id'), 'Served')">
+              <span class="material-symbols-outlined">check</span> 
+              <span>Xác nhận phục vụ</span>
+            </button>
+
+            <!-- NÚT CHO ĐƠN ROOM SERVICE (GIAO TẠI PHÒNG) -->
+            <!-- Luồng 2 bước: Từ Ready -> Delivering (Bắt đầu đi giao) -> Served (Đã giao khách) -->
+            <button class="btn btn-primary" id="btn-action-food-rs-deliver"
+                    th:if="${foodOrder != null && (foodOrder.orderType == 'Room Service' || foodOrder.orderType == 'RoomService') && (foodOrder.orderStatus == 'Ready' || foodOrder.orderStatus == 'ready' || foodOrder.orderStatus == 'Completed' || foodOrder.orderStatus == 'completed')}"
+                    th:data-id="${foodOrder.id}"
+                    onclick="updateOrderStatus(this.getAttribute('data-id'), 'Delivering')">
+              <span class="material-symbols-outlined">local_shipping</span> 
+              <span>Bắt đầu đi giao</span>
+            </button>
+            <button class="btn btn-primary" id="btn-action-food-rs-served"
+                    th:if="${foodOrder != null && (foodOrder.orderType == 'Room Service' || foodOrder.orderType == 'RoomService') && (foodOrder.orderStatus == 'Delivering' || foodOrder.orderStatus == 'delivering')}"
+                    style="background-color: var(--status-ready-text); border-color: var(--status-ready-text);"
+                    th:data-id="${foodOrder.id}"
+                    onclick="updateOrderStatus(this.getAttribute('data-id'), 'Served')">
+              <span class="material-symbols-outlined">check_circle</span> 
+              <span>Xác nhận giao</span>
+            </button>
+            <button class="btn btn-primary" id="btn-action-table"
+                    th:if="${tableOrder != null && tableOrder.status != 'Completed' && tableOrder.status != 'Cancelled'}"
+                    th:onclick="|confirmTable(${tableOrder.id})|">
+              <span class="material-symbols-outlined">check</span> 
+              <span>Xác nhận khách đến</span>
+            </button>
+          </div>
+        </div>
+
+        <div th:if="${foodOrder == null && tableOrder == null}">
+           <p style="text-align:center; padding: 40px; color: var(--text-muted);">Không tìm thấy thông tin đơn hàng. Vui lòng quay lại màn hình Dashboard.</p>
+        </div>
+
+      </div><!-- / detail-card -->
+    </div><!-- / detail-wrapper -->
+  </div>
+
+  <!-- ADD-ON MODAL -->
+  <div id="addonModal" class="modal-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:999; justify-content:center; align-items:center;">
+    <div class="modal-content" style="background:#fff; width:90%; max-width:800px; height:80vh; border-radius:12px; display:flex; flex-direction:column; overflow:hidden;">
+      <div class="modal-header" style="padding:15px 20px; border-bottom:1px solid #ddd; display:flex; justify-content:space-between; align-items:center; background:#fbfbfb;">
+        <h3 style="margin:0; font-family:'Playfair Display', serif;">Gọi thêm món (Add-on)</h3>
+        <button onclick="closeAddonModal()" style="background:none; border:none; font-size:1.5rem; cursor:pointer;">&times;</button>
+      </div>
+      <div class="modal-body" style="display:flex; flex:1; overflow:hidden;">
+        <!-- Left: Menu Grid -->
+        <div style="flex:2; padding:20px; overflow-y:auto; border-right:1px solid #ddd;">
+           <div class="food-grid" id="addon-food-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(140px, 1fr)); gap:15px;"></div>
+        </div>
+        <!-- Right: Cart Summary -->
+        <div style="flex:1; padding:20px; display:flex; flex-direction:column; background:#f9f9f9;">
+           <h4 style="margin-top:0;">Giỏ hàng tạm</h4>
+           <div id="addon-cart-items" style="flex:1; overflow-y:auto; margin-bottom:15px;">
+              <!-- Items go here -->
+           </div>
+           <div style="border-top:1px solid #ddd; padding-top:10px;">
+             <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+               <span>Tổng cộng:</span>
+               <strong id="addon-total" style="color:var(--status-ready-text);">0₫</strong>
+             </div>
+             <button class="btn btn-primary" style="width:100%; justify-content:center;" onclick="submitAddonOrder()" id="btn-submit-addon">Gửi Nhà Bếp</button>
+           </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- REFUND MODAL FRAGMENT -->
+  <div th:replace="~{f&amp;bStaff/refund-modal :: #refundModal}"></div>
+
+  <script th:src="@{/f&amp;bStaff/js/order-detail.js}" src="../../statics/f&bStaff/js/order-detail.js"></script>
+  <script th:src="@{/f&amp;bStaff/js/refund-modal.js}" src="../../statics/f&bStaff/js/refund-modal.js"></script>
+  <script th:inline="javascript">
+    window.SERVER_MENU_ITEMS = /*[[${menuItems}]]*/ [];
+    window.CURRENT_ORDER_ID = /*[[${foodOrder != null ? foodOrder.id : null}]]*/ null;
+
+    function showTableReleaseModal(tableId) {
+        const modal = document.getElementById('tableReleaseModal');
+        modal.style.display = 'flex';
+        
+        document.getElementById('btnReleaseOk').onclick = function() {
+            modal.style.display = 'none';
+            window.location.reload();
+        };
+        
+        document.getElementById('btnReleaseCancel').onclick = function() {
+            modal.style.display = 'none';
+            fetch('/api/v1/tables/' + tableId + '/status?status=Available', { method: 'PUT' })
+            .then(() => window.location.href = '/fbStaff/dashboard')
+            .catch(() => window.location.reload());
+        };
+    }
+    
+    let addonCart = [];
+
+    function openAddonModal() {
+        document.getElementById('addonModal').style.display = 'flex';
+        renderAddonMenu();
+        renderAddonCart();
+    }
+
+    function closeAddonModal() {
+        document.getElementById('addonModal').style.display = 'none';
+    }
+
+    function renderAddonMenu() {
+        const grid = document.getElementById('addon-food-grid');
+        grid.innerHTML = '';
+        if (!window.SERVER_MENU_ITEMS) return;
+        window.SERVER_MENU_ITEMS.forEach(item => {
+            const isOut = item.status === 'out-of-stock';
+            const card = document.createElement('div');
+            card.className = 'food-card';
+            
+            if (isOut) {
+                card.style.cssText = `background: ${item.bgFrom}; border-radius: 8px; padding: 10px; text-align: center; border: 1px solid #eee; opacity: 0.5; cursor: not-allowed; position: relative; filter: grayscale(1);`;
+                card.onclick = () => { /* do nothing */ };
+            } else {
+                card.style.cssText = `background: ${item.bgFrom}; border-radius: 8px; padding: 10px; cursor: pointer; text-align: center; border: 1px solid #eee; position: relative;`;
+                card.onclick = () => addToAddonCart(item);
+            }
+            
+            card.innerHTML = `
+                <div style="font-size:2rem; color:${item.iconColor}; margin-bottom:10px;">
+                    <span class="material-symbols-outlined">${item.icon}</span>
+                </div>
+                <div style="font-weight:600; font-size:0.9rem; margin-bottom:5px;">${item.name}</div>
+                <div style="color:var(--text-muted); font-size:0.85rem;">${item.price.toLocaleString('vi-VN')}₫</div>
+                ${isOut ? '<div style="position:absolute; top:5px; right:5px; background:#dc3545; color:white; font-size:0.65rem; padding:2px 6px; border-radius:10px; font-weight:bold;">Hết món</div>' : ''}
+            `;
+            grid.appendChild(card);
+        });
+    }
+
+    function addToAddonCart(item) {
+        const existing = addonCart.find(x => x.id === item.id);
+        if (existing) {
+            existing.qty++;
+        } else {
+            addonCart.push({ id: item.id, name: item.name, price: item.price, qty: 1 });
+        }
+        renderAddonCart();
+    }
+
+    function updateAddonQty(id, delta) {
+        const item = addonCart.find(x => x.id === id);
+        if (item) {
+            item.qty += delta;
+            if (item.qty <= 0) {
+                addonCart = addonCart.filter(x => x.id !== id);
+            }
+            renderAddonCart();
+        }
+    }
+
+    function renderAddonCart() {
+        const container = document.getElementById('addon-cart-items');
+        container.innerHTML = '';
+        let total = 0;
+        
+        if (addonCart.length === 0) {
+            container.innerHTML = '<div style="color:#888; text-align:center; margin-top:20px;">Chưa chọn món</div>';
+        } else {
+            addonCart.forEach(item => {
+                total += item.price * item.qty;
+                const row = document.createElement('div');
+                row.style.cssText = 'display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; font-size:0.85rem; background:#fff; padding:8px; border-radius:4px; box-shadow:0 1px 2px rgba(0,0,0,0.05);';
+                row.innerHTML = `
+                    <div style="flex:1; overflow:hidden;">
+                        <div style="font-weight:600; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">${item.name}</div>
+                        <div style="color:#888;">${item.price.toLocaleString('vi-VN')}₫</div>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:5px; margin-left:10px;">
+                        <button onclick="updateAddonQty(${item.id}, -1)" style="width:24px; height:24px; border:1px solid #ddd; background:#fff; cursor:pointer;">-</button>
+                        <span style="width:20px; text-align:center;">${item.qty}</span>
+                        <button onclick="updateAddonQty(${item.id}, 1)" style="width:24px; height:24px; border:1px solid #ddd; background:#fff; cursor:pointer;">+</button>
+                    </div>
+                `;
+                container.appendChild(row);
+            });
+        }
+        document.getElementById('addon-total').innerText = total.toLocaleString('vi-VN') + '₫';
+        document.getElementById('btn-submit-addon').disabled = addonCart.length === 0;
+    }
+
+    function submitAddonOrder() {
+        if (addonCart.length === 0) return;
+        if (!confirm("Xác nhận gọi thêm các món này xuống bếp?")) return;
+        
+        const btn = document.getElementById('btn-submit-addon');
+        btn.disabled = true;
+        btn.innerText = 'Đang xử lý...';
+        
+        const payload = addonCart.map(i => ({ id: i.id, qty: i.qty, price: i.price }));
+        
+        fetch('/api/pos/orders/' + window.CURRENT_ORDER_ID + '/add-items', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        })
+        .then(res => {
+            if(!res.ok) return res.json().then(e => { throw new Error(e.message) });
+            return res.json();
+        })
+        .then(data => {
+            alert('Đã gọi thêm món thành công!');
+            window.location.reload();
+        })
+        .catch(err => {
+            alert('Lỗi: ' + err.message);
+            btn.disabled = false;
+            btn.innerText = 'Gửi Nhà Bếp';
+        });
+    }
+
+    function cancelOrder(id, paymentType, orderType, tableId) {
+        if (paymentType && (paymentType.includes('Ví') || paymentType.includes('Thẻ') || paymentType.includes('Online') || paymentType.includes('thẻ') || paymentType.includes('ví') || paymentType.includes('Thanh toán trực tuyến') || paymentType.toUpperCase().includes('VNPAY'))) {
+            openRefundModal(id);
+            return;
+        }
+
+        if (!confirm('Bạn có chắc chắn muốn hủy đơn hàng này không? Hành động này không thể hoàn tác.')) return;
+        
+        const btn = document.getElementById('btn-cancel');
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = 'Đang xử lý...';
+        }
+
+        fetch('/api/pos/orders/' + id + '/cancel', {
+            method: 'POST'
+        })
+        .then(res => {
+            if(!res.ok) return res.json().then(e => { throw new Error(e.message) });
+            return res.json();
+        })
+        .then(data => {
+            alert('Hủy đơn thành công!');
+            if (orderType && !orderType.includes('Room') && tableId) {
+                showTableReleaseModal(tableId);
+            } else {
+                window.location.reload();
+            }
+        })
+        .catch(err => {
+            alert('Lỗi khi hủy đơn: ' + err.message);
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = '<span class="material-symbols-outlined">close</span> Hủy đơn';
+            }
+        });
+    }
+
+    function updateOrderStatus(id, newStatus) {
+        if (!confirm(`Xác nhận chuyển trạng thái sang ${newStatus}?`)) return;
+        
+        fetch('/api/pos/orders/' + id + '/status?status=' + newStatus, {
+            method: 'PUT'
+        })
+        .then(res => {
+            if(!res.ok) return res.json().then(e => { throw new Error(e.message) });
+            return res.json();
+        })
+        .then(data => {
+            alert('Đã cập nhật trạng thái thành ' + newStatus + '!');
+            window.location.reload();
+        })
+        .catch(err => {
+            alert('Lỗi: ' + err.message);
+        });
+    }
+
+    function confirmTable(id) {
+        alert("Chức năng xác nhận khách đến bàn đang được phát triển.");
+    }
+
+    function payOrder(id, tableId) {
+      if(!confirm("Bạn có chắc chắn muốn thanh toán đơn hàng này?")) return;
+      const btn = document.getElementById('btn-pay');
+      if (btn) { btn.disabled = true; btn.innerHTML = 'Đang xử lý...'; }
+      fetch('/api/pos/orders/' + id + '/pay', {
+        method: 'POST'
+      }).then(res => {
+        if(!res.ok) throw new Error('API Error');
+        return res.json();
+      }).then(data => {
+        if (tableId && tableId !== 'null' && tableId !== null) {
+          alert("Thanh toán thành công! Bàn đã tự động chuyển sang trạng thái Đang Dọn Dẹp (Cleaning).");
+          window.location.reload();
+          return;
+        }
+        alert("Thanh toán thành công! Trạng thái đã chuyển sang PAID.");
+        window.location.reload();
+      }).catch(err => {
+        alert("Lỗi thanh toán: " + err.message);
+        if (btn) { btn.disabled = false; btn.innerHTML = '<span class="material-symbols-outlined">payments</span> Thanh toán'; }
+      });
+    }
+
+    // Reload ngầm (Background refresh) mỗi 15 giây
+    setInterval(function() {
+        // Tạm dừng refresh nếu đang mở popup gọi món (tránh mất dữ liệu đang chọn)
+        const modal = document.getElementById('addonModal');
+        if (modal && modal.style.display !== 'none') return;
+        
+        fetch(location.href)
+            .then(res => res.text())
+            .then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const newWrapper = doc.querySelector('.detail-wrapper');
+                if (newWrapper) {
+                    document.querySelector('.detail-wrapper').innerHTML = newWrapper.innerHTML;
+                }
+            })
+            .catch(err => console.error('Background refresh failed:', err));
+    }, 15000);
+  </script>
+
+  <!-- PRINT RECEIPT SECTION (HIDDEN BY DEFAULT) -->
+  <div id="print-receipt-section" class="receipt-wrapper" style="display:none;" th:if="${foodOrder != null}">
+    <div class="receipt-header">
+      <h2>HOANIEN RESORT</h2>
+      <p>Khu Nghỉ Dưỡng &amp; Sinh Thái</p>
+      <p>123 Đường Ven Biển, TP. XYZ</p>
+    </div>
+    
+    <div class="receipt-title">
+      HÓA ĐƠN THANH TOÁN
+    </div>
+    
+    <div class="receipt-meta">
+      <p><span>Số Order:</span> <strong th:text="${'ORD-' + foodOrder.id}">ORD-000</strong></p>
+      <p><span>Ngày/Giờ:</span> <span th:text="${#dates.format(#dates.createNow(), 'dd/MM/yyyy HH:mm')}">01/01/2026 12:00</span></p>
+      <p><span>Thu ngân:</span> <span th:text="${staffName != null ? staffName : 'NV'}">Thu ngân</span></p>
+      <p th:if="${foodOrder.orderType != 'Room Service' && foodOrder.orderType != 'RoomService'}">
+         <span>Bàn:</span> <strong th:text="${foodOrder.table != null ? foodOrder.table.tableNumber : '?'}">01</strong>
+      </p>
+      <p th:if="${foodOrder.orderType == 'Room Service' || foodOrder.orderType == 'RoomService'}">
+         <span>Phòng/Khách:</span> 
+         <strong th:text="${foodOrder.booking != null && foodOrder.booking.customer != null ? foodOrder.booking.customer.fullName : (extractedGuestName != null && !extractedGuestName.isEmpty() ? extractedGuestName : 'Khách')}">Khách</strong>
+      </p>
+    </div>
+    
+    <div class="receipt-table">
+      <div class="receipt-item" th:each="detail : ${foodOrder.details}">
+        <div class="receipt-item-name" th:text="${detail.menuItem != null ? detail.menuItem.itemName : 'Món ăn'}">Tên món</div>
+        <div class="receipt-item-qty" th:text="${detail.quantity}">1</div>
+        <div class="receipt-item-price" th:text="${#numbers.formatDecimal(detail.priceAtOrder * detail.quantity, 0, 'COMMA', 0, 'POINT')}">0</div>
+      </div>
+    </div>
+    
+    <div class="receipt-totals">
+      <p><span>Tổng số lượng:</span> <span th:text="${foodOrder.details.size()}">0</span></p>
+      <p class="receipt-total-bold"><span>TỔNG CỘNG:</span> <span th:text="${#numbers.formatDecimal(foodOrder.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">0 VNĐ</span></p>
+    </div>
+    
+    <!-- Hiển thị phương thức thanh toán -->
+    <div style="text-align: right; font-size: 0.85rem; margin-top: 5px; margin-bottom: 15px;">
+      Phương thức TT: 
+      <strong th:text="${(foodOrder.orderType == 'Room Service' || foodOrder.orderType == 'RoomService') ? foodOrder.paymentType : 'Thanh toán tại quầy'}">Thanh toán tại quầy</strong>
+    </div>
+    
+    <!-- Status: PAID -->
+    <div th:if="${foodOrder.isPaidInPos || foodOrder.orderStatus == 'PAID'}" class="receipt-paid-stamp">
+      ĐÃ THANH TOÁN
+    </div>
+    
+    <!-- Status: UNPAID (Room Service requires Signature) -->
+    <div th:if="${!foodOrder.isPaidInPos && foodOrder.orderStatus != 'PAID' && (foodOrder.orderType == 'Room Service' || foodOrder.orderType == 'RoomService')}" class="receipt-signature">
+      <p>Chữ ký khách hàng<br/>(Guest Signature)</p>
+      <div class="sign-line"></div>
+    </div>
+    
+    <div th:if="${!foodOrder.isPaidInPos && foodOrder.orderStatus != 'PAID' && foodOrder.orderType != 'Room Service' && foodOrder.orderType != 'RoomService'}" style="text-align:center; font-weight:bold; margin-top:10px;">
+      CHƯA THANH TOÁN
+    </div>
+    
+    <div class="receipt-footer">
+      <p>Cảm ơn quý khách và hẹn gặp lại!</p>
+      <p>Hotline: 1900 xxxx</p>
+    </div>
+  </div>
+
+</body>
+</html>
+
+

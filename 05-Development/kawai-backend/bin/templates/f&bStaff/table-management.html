@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Table Management — F&amp;B Staff | Hoanien Resort</title>
+  <meta name="description"
+    content="Màn hình Table Management cho nhân viên F&amp;B — Hoanien Retreat Resort &amp; Hub" />
+
+  <!-- Google Fonts: Playfair Display + Montserrat -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap"
+    rel="stylesheet" />
+
+  <!-- Flatpickr -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <link rel="stylesheet" type="text/css" href="https://npmcdn.com/flatpickr/dist/themes/dark.css">
+
+  <!-- Material Symbols -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap"
+    rel="stylesheet" />
+
+  <!-- CSS -->
+  <link rel="stylesheet" th:href="@{/f&amp;bStaff/css/pos-dashboard.css}"
+    href="../../statics/f&bStaff/css/pos-dashboard.css" />
+  <link rel="stylesheet" th:href="@{/f&amp;bStaff/css/table-management.css}"
+    href="../../statics/f&bStaff/css/table-management.css" />
+</head>
+
+<body>
+
+  <!-- ============================================================
+       SIDEBAR
+       ============================================================ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="brand-name">HOANIEN</div>
+      <div class="brand-sub">Resort &amp; Tour Hub</div>
+      <div class="staff-badge">
+        <span class="material-symbols-outlined" style="font-size:0.7rem;">restaurant</span> F&amp;B Staff
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Operations</div>
+      <a href="/fbStaff/dashboard" th:href="@{/fbStaff/dashboard}" class="nav-item">
+        <span class="material-symbols-outlined">dashboard</span>
+        <span>POS Dashboard</span>
+      </a>
+      <a href="/fbStaff/create-food-order" th:href="@{/fbStaff/create-food-order}" class="nav-item" sec:authorize="hasAnyAuthority('OP_FNB_ORDER', 'OP_FNB', 'ROLE_ADMIN', 'ROLE_MANAGER')">
+        <span class="material-symbols-outlined">add_circle</span>
+        <span>New Order</span>
+      </a>
+      <a href="/fbStaff/table-management" th:href="@{/fbStaff/table-management}" class="nav-item active">
+        <span class="material-symbols-outlined">table_restaurant</span>
+        <span>Table Management</span>
+      </a>
+      <a href="/fbStaff/room-service" th:href="@{/fbStaff/room-service}" class="nav-item" sec:authorize="hasAnyAuthority('OP_FNB_ROOM_SERVICE', 'OP_FNB', 'ROLE_ADMIN', 'ROLE_MANAGER')">
+        <span class="material-symbols-outlined">room_service</span>
+        <span>Room Service</span>
+      </a>
+
+      <div class="nav-section-label">Finance</div>
+      <a href="/fbStaff/shift-report" th:href="@{/fbStaff/shift-report}" class="nav-item">
+        <span class="material-symbols-outlined">bar_chart</span>
+        <span>Shift Report</span>
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="staff-profile">
+        <div class="staff-avatar">TP</div>
+        <div>
+          <div class="staff-name" th:text="${staffName != null ? staffName : 'Trần Phương'}">Trần Phương</div>
+          <div class="staff-role">F&amp;B POS · Ca Sáng</div>
+        </div>
+        <button class="logout-btn" title="Đăng xuất" onclick="location.href='/auth/logout'">
+          <span class="material-symbols-outlined" style="font-size:1.05rem;">logout</span>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ============================================================
+       MAIN CONTENT
+       ============================================================ -->
+  <div class="main-content">
+
+    <!-- Top Header -->
+    <header class="topbar">
+      <div>
+        <div class="topbar-title">Table Management</div>
+        <div class="topbar-subtitle">Sơ đồ bàn &amp; Lịch đặt chỗ</div>
+      </div>
+      <div class="topbar-right">
+        <div style="position:relative;">
+          <div class="topbar-clock" id="live-clock">--:--:--</div>
+          <div class="topbar-date" id="live-date"
+            style="position:absolute;top:calc(100% + 3px);left:0;right:0;text-align:center;white-space:nowrap;"></div>
+        </div>
+
+        <!-- View Toggle -->
+        <div class="view-toggle" id="view-toggle">
+          <button class="view-toggle-btn active" id="btn-view-floor">
+            <span class="material-symbols-outlined">table_restaurant</span>Sơ đồ bàn
+          </button>
+          <button class="view-toggle-btn" id="btn-view-timeline">
+            <span class="material-symbols-outlined">calendar_month</span>Lịch đặt
+          </button>
+        </div>
+
+        <div class="icon-btn" title="Làm mới trang" onclick="location.reload()">
+          <span class="material-symbols-outlined">refresh</span>
+        </div>
+
+      </div>
+    </header>
+
+    <!-- Dashboard Body -->
+    <div class="dashboard-body tm-body">
+
+      <!-- ====================================================
+           SUMMARY BAR (shared — always visible)
+           ==================================================== -->
+      <div class="tm-stats-bar">
+        <div class="tm-stat-chip vacant-chip">
+          <div class="tm-chip-dot"></div>
+          <span class="tm-chip-label">Trống</span>
+          <span class="tm-chip-count" id="count-vacant">0</span>
+        </div>
+        <div class="tm-stat-chip serving-chip">
+          <div class="tm-chip-dot"></div>
+          <span class="tm-chip-label">Có khách</span>
+          <span class="tm-chip-count" id="count-serving">0</span>
+        </div>
+        <div class="tm-stat-chip reserved-chip">
+          <div class="tm-chip-dot"></div>
+          <span class="tm-chip-label">Đặt trước</span>
+          <span class="tm-chip-count" id="count-reserved">0</span>
+        </div>
+        <div class="tm-stat-divider"></div>
+        <div class="tm-total-label">Tổng: <strong th:text="${tables != null ? #lists.size(tables) : 0}">20</strong> bàn
+        </div>
+      </div>
+
+      <!-- ====================================================
+           VIEW: FLOOR PLAN
+           ==================================================== -->
+      <div id="view-floor-plan">
+        <div class="tm-container">
+          <div class="tm-floor-plan">
+
+            <!-- Table Grid -->
+            <div class="tm-zone">
+              <div class="tm-table-grid">
+                <div class="tm-table" th:each="table : ${tables}" th:attr="data-id=${table.id},
+                              data-table=${#strings.replace(table.tableNumber, 'T', '')},
+                              data-status=${#strings.toLowerCase(table.tableStatus)},
+                              data-capacity=${table.capacity},
+                              data-orderid=${tableActiveOrderMap != null ? tableActiveOrderMap.get(table.id) : ''}">
+                  <div class="tm-table-inner">
+                    <div class="tm-table-num" th:text="${#strings.replace(table.tableNumber, 'T', '')}">01</div>
+                    <div class="tm-table-cap">
+                      <span class="material-symbols-outlined">person</span>
+                      <span th:text="${table.capacity}">4</span>
+                    </div>
+                    <div class="tm-table-status-label" th:text="${'Available'.equals(table.tableStatus) ? 'Trống' :
+                                    'Occupied'.equals(table.tableStatus)  ? 'Có khách' :
+                                    'Reserved'.equals(table.tableStatus)  ? 'Đặt trước' :
+                                    'Cleaning'.equals(table.tableStatus)  ? 'Dọn dẹp' :
+                                    table.tableStatus}">Trống</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div><!-- / tm-floor-plan -->
+        </div><!-- / tm-container -->
+      </div><!-- / view-floor-plan -->
+
+
+      <!-- ====================================================
+           VIEW: TIMELINE
+           ==================================================== -->
+      <div id="view-timeline">
+
+        <!-- Date navigation bar -->
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+          <div class="tl-date-nav">
+            <button class="tl-date-nav-btn" id="tl-prev-day" title="Ngày hôm trước">
+              <span class="material-symbols-outlined">chevron_left</span>
+            </button>
+            <span class="tl-date-label" id="tl-date-label">Hôm nay</span>
+            <button class="tl-date-nav-btn" id="tl-next-day" title="Ngày hôm sau">
+              <span class="material-symbols-outlined">chevron_right</span>
+            </button>
+          </div>
+          <button class="tl-today-btn" id="tl-today-btn">Hôm nay</button>
+          <input type="date" class="tl-date-input" id="tl-date-input" />
+
+          <!-- Legend -->
+          <div class="tl-legend">
+            <div class="tl-legend-item">
+              <div class="tl-legend-dot" style="background:rgba(180,120,40,0.5);border:1px solid rgba(180,120,40,0.5);">
+              </div>Pending
+            </div>
+            <div class="tl-legend-item">
+              <div class="tl-legend-dot" style="background:rgba(52,152,219,0.5);border:1px solid rgba(52,152,219,0.5);">
+              </div>Seated
+            </div>
+            <div class="tl-legend-item">
+              <div class="tl-legend-dot" style="background:rgba(46,204,113,0.5);border:1px solid rgba(46,204,113,0.5);">
+              </div>Completed
+            </div>
+            <div class="tl-legend-item">
+              <div class="tl-legend-dot" style="background:rgba(231,76,60,0.5);border:1px solid rgba(231,76,60,0.5);">
+              </div>Cancelled
+            </div>
+          </div>
+        </div>
+
+        <!-- Gantt Wrapper -->
+        <div class="tl-gantt-wrapper">
+
+          <!-- Loading overlay -->
+          <div id="tl-loading"
+            style="display:none;align-items:center;justify-content:center;padding:40px;gap:10px;color:var(--text-muted);font-size:0.85rem;">
+            <span class="material-symbols-outlined" style="animation:spin 1s linear infinite;">sync</span> Đang tải...
+          </div>
+
+          <!-- Scrollable area -->
+          <div class="tl-gantt-scroll" id="tl-gantt-scroll">
+
+            <!-- Sticky header: time axis -->
+            <div class="tl-header-row">
+              <div class="tl-header-label-col">Bàn</div>
+              <div class="tl-time-axis" id="tl-time-axis"></div>
+            </div>
+
+            <!-- Rows injected by JS -->
+            <div id="tl-rows-container" style="position:relative;">
+              <!-- Now-line (injected by JS, but declared here for z-index context) -->
+              <div class="tl-now-line" id="tl-now-line" style="display:none;"></div>
+            </div>
+
+          </div><!-- / tl-gantt-scroll -->
+        </div><!-- / tl-gantt-wrapper -->
+
+      </div><!-- / view-timeline -->
+
+    </div><!-- / tm-body -->
+  </div><!-- / main-content -->
+
+
+  <!-- ============================================================
+       POPUP: Floor Plan quick actions
+       ============================================================ -->
+  <div class="tl-popup" id="fp-popup" style="min-width:220px;">
+    <div class="tl-popup-header">
+      <span class="tl-popup-name" id="fp-popup-title">Bàn --</span>
+      <button class="tl-popup-close" onclick="document.getElementById('fp-popup').classList.remove('open')">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="tl-popup-actions" id="fp-popup-actions"></div>
+  </div>
+
+  <!-- ============================================================
+       POPUP: Timeline block detail
+       ============================================================ -->
+  <div class="tl-popup" id="tl-popup">
+    <div class="tl-popup-header">
+      <span class="tl-popup-name" id="tl-popup-name">Khách hàng</span>
+      <button class="tl-popup-close" id="tl-popup-close">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="tl-popup-row">
+      <span class="material-symbols-outlined">table_restaurant</span>
+      <span id="tl-popup-table">Bàn --</span>
+    </div>
+    <div class="tl-popup-row">
+      <span class="material-symbols-outlined">schedule</span>
+      <span id="tl-popup-time">--:-- – --:--</span>
+    </div>
+    <div class="tl-popup-row">
+      <span class="material-symbols-outlined">group</span>
+      <span id="tl-popup-pax">-- người</span>
+    </div>
+    <div class="tl-popup-row">
+      <span class="material-symbols-outlined">fiber_manual_record</span>
+      <span id="tl-popup-status">--</span>
+    </div>
+    <div class="tl-popup-row" id="tl-popup-reason-row" style="display:none; color: #c0392b; align-items:flex-start;">
+      <span class="material-symbols-outlined" style="font-size:1.1rem; margin-top:2px;">info</span>
+      <span id="tl-popup-reason" style="font-size:0.75rem; line-height:1.4;">--</span>
+    </div>
+    <div class="tl-popup-actions" id="tl-popup-actions"></div>
+  </div>
+
+  <!-- ============================================================
+       MODAL — Đặt bàn trước (Staff)
+       ============================================================ -->
+  <div class="modal-overlay" id="reserveModal" style="display:none;">
+    <div class="modal" style="max-width:480px;">
+      <div class="modal-header">
+        <span class="material-symbols-outlined"
+          style="color:var(--status-served-text);font-variation-settings:'FILL' 1,'wght' 500,'GRAD' 0,'opsz' 24;font-size:1.05rem;">event_available</span>
+        <span class="modal-title">Đặt bàn trước</span>
+        <span class="modal-title-sub" id="rm-table-badge"
+          style="font-size:0.70rem;font-weight:600;background:var(--status-served-bg);color:var(--status-served-text);border:1px solid var(--status-served-ring);padding:2px 10px;border-radius:20px;"></span>
+        <button class="modal-close" id="rm-close">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <input type="hidden" id="rm-table-id" />
+
+        <!-- Số phòng + Tên khách -->
+        <div style="display:grid;grid-template-columns:1fr 2fr;gap:11px;">
+          <div class="form-group">
+            <label class="form-label" for="rm-room-number">Số phòng <span style="color:#b03232;">*</span></label>
+            <input type="text" class="form-input" id="rm-room-number" placeholder="Vd: 101" required />
+            <div id="rm-room-error" style="color:#e53935;font-size:0.65rem;margin-top:4px;display:none;"></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="rm-customer-name">Khách lưu trú</label>
+            <input type="text" class="form-input" id="rm-customer-name" placeholder="Tự động điền" readonly
+              style="background:var(--bg-base);cursor:not-allowed;" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="rm-pax">Số người <span style="color:#b03232;">*</span></label>
+          <input type="number" class="form-input" id="rm-pax" value="2" min="1" max="20"
+            style="text-align:center;font-weight:700;" />
+        </div>
+
+        <!-- Ngày -->
+        <div class="form-group">
+          <label class="form-label" for="rm-date">Ngày <span style="color:#b03232;">*</span></label>
+          <input type="date" class="form-input" id="rm-date" required />
+        </div>
+
+        <!-- Giờ bắt đầu + Giờ kết thúc -->
+        <div class="reserve-time-row">
+          <div class="form-group">
+            <label class="form-label" for="rm-start-time">Giờ bắt đầu <span style="color:#b03232;">*</span></label>
+            <input type="text" class="form-input flatpickr-time" id="rm-start-time" required placeholder="Chọn giờ" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="rm-end-time">Giờ kết thúc</label>
+            <input type="text" class="form-input flatpickr-time" id="rm-end-time" placeholder="Chọn giờ" />
+            <div class="reserve-endtime-hint" id="rm-end-hint">Để trống = mặc định 2 tiếng</div>
+          </div>
+        </div>
+
+        <!-- Ghi chú -->
+        <div class="form-group">
+          <label class="form-label" for="rm-note">Ghi chú</label>
+          <textarea class="form-input" id="rm-note" rows="2"
+            placeholder="Ví dụ: Sinh nhật khách, dị ứng hải sản, yêu cầu đặc biệt..."
+            style="resize:vertical;min-height:58px;"></textarea>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-outline" id="rm-cancel">Hủy</button>
+        <button class="btn btn-primary" id="rm-submit">
+          <span class="material-symbols-outlined">event_available</span>Xác nhận đặt bàn
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       MODAL — Tạo Đơn Dine-In (giữ nguyên)
+       ============================================================ -->
+  <div class="modal-overlay" id="dineInModal" style="display:none;">
+    <div class="modal" style="max-width:500px;">
+      <div class="modal-header">
+        <span class="material-symbols-outlined"
+          style="color:var(--status-served-text);font-variation-settings:'FILL' 1,'wght' 500,'GRAD' 0,'opsz' 24;font-size:1.05rem;">chair</span>
+        <span class="modal-title">Tạo Đơn Dine-In</span>
+        <span class="modal-title-sub" id="dineIn-table-badge"
+          style="font-size:0.70rem;font-weight:600;background:var(--status-served-bg);color:var(--status-served-text);border:1px solid var(--status-served-ring);padding:2px 10px;border-radius:20px;"></span>
+        <button class="modal-close" id="dineIn-close">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <form class="modal-body" id="dineInForm" onsubmit="return false;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:11px;">
+          <div class="form-group">
+            <label class="form-label" for="dineIn-customer">Tên khách hàng <span style="color:#b03232;">*</span></label>
+            <input type="text" class="form-input" id="dineIn-customer" placeholder="Nhập tên khách hàng" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="dineIn-table-num">Số bàn</label>
+            <input type="text" class="form-input" id="dineIn-table-num" readonly
+              style="background:var(--bg-base);cursor:not-allowed;opacity:0.7;" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="dineIn-pax">Số lượng người <span style="color:#b03232;">*</span></label>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <button type="button" onclick="changePax(-1)"
+              style="width:32px;height:32px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-secondary);cursor:pointer;font-size:1rem;font-weight:700;display:flex;align-items:center;justify-content:center;transition:var(--transition);">−</button>
+            <input type="number" class="form-input" id="dineIn-pax" value="2" min="1" max="20"
+              style="text-align:center;font-weight:700;font-size:1rem;" />
+            <button type="button" onclick="changePax(1)"
+              style="width:32px;height:32px;background:var(--namia-text);border:1px solid var(--namia-text);border-radius:var(--radius-sm);color:#fff;cursor:pointer;font-size:1rem;font-weight:700;display:flex;align-items:center;justify-content:center;">+</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="dineIn-note">Ghi chú</label>
+          <textarea class="form-input" id="dineIn-note" rows="2" placeholder="Ví dụ: Sinh nhật khách, dị ứng hải sản..."
+            style="resize:vertical;min-height:58px;"></textarea>
+        </div>
+        <div id="dineIn-table-info"
+          style="background:var(--bg-base);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 14px;display:flex;gap:14px;align-items:center;">
+          <div
+            style="width:44px;height:44px;border-radius:var(--radius-md);background:var(--status-serving-bg,rgba(30,120,70,0.10));border:2px solid var(--status-ready-ring);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <span class="material-symbols-outlined"
+              style="font-size:1.3rem;color:var(--status-ready-text);font-variation-settings:'FILL' 1,'wght' 500,'GRAD' 0,'opsz' 24;">table_restaurant</span>
+          </div>
+          <div style="flex:1;">
+            <div style="font-size:0.80rem;font-weight:700;color:var(--text-primary);" id="dineIn-preview-name">Bàn —
+            </div>
+            <div style="font-size:0.68rem;color:var(--text-muted);margin-top:2px;" id="dineIn-preview-detail">Sức chứa:
+              —</div>
+          </div>
+          <span class="order-status-chip chip-ready" style="font-size:0.60rem;"><span class="dot"></span>Trống</span>
+        </div>
+      </form>
+
+      <div class="modal-footer">
+        <button class="btn btn-outline" id="dineIn-cancel-btn">Hủy</button>
+        <button class="btn btn-primary" id="dineIn-submit-btn">
+          <span class="material-symbols-outlined">chair</span>Xác nhận Dine-In
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal CCCD Check-in -->
+  <div class="modal-overlay" id="cccdCheckInModal">
+    <div class="modal" style="max-width: 400px;">
+      <div class="modal-header">
+        <div class="modal-title" style="display:flex;align-items:center;gap:8px;">
+          <span class="material-symbols-outlined" style="color:var(--namia-text);">how_to_reg</span>
+          Xác thực Check-in
+        </div>
+        <button class="modal-close" onclick="closeCccdCheckInModal()">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <input type="hidden" id="cccdCheckIn-resId" />
+        <input type="hidden" id="cccdCheckIn-tableId" />
+        <input type="hidden" id="cccdCheckIn-resRoom" />
+        <input type="hidden" id="cccdCheckIn-resName" />
+
+        <div style="display:flex; gap:16px; margin-bottom:15px;">
+          <label style="display:flex; align-items:center; gap:6px; cursor:pointer;">
+            <input type="radio" name="checkInMode" value="cccd" checked onchange="toggleCheckInMode()" />
+            Bằng CCCD
+          </label>
+          <label style="display:flex; align-items:center; gap:6px; cursor:pointer;">
+            <input type="radio" name="checkInMode" value="room" onchange="toggleCheckInMode()" />
+            Bằng Số phòng
+          </label>
+        </div>
+
+        <div class="form-group" id="group-cccd-input">
+          <label class="form-label" for="cccdCheckIn-cccd">Căn cước công dân / Hộ chiếu <span
+              style="color:#b03232;">*</span></label>
+          <input type="text" class="form-input" id="cccdCheckIn-cccd" placeholder="Nhập CCCD hoặc Hộ chiếu" required
+            onblur="searchCccdInfo()" />
+        </div>
+
+        <div class="form-group" id="group-room-input" style="display:none;">
+          <label class="form-label" for="cccdCheckIn-roomInput">Nhập Số phòng <span
+              style="color:#b03232;">*</span></label>
+          <input type="text" class="form-input" id="cccdCheckIn-roomInput" placeholder="Ví dụ: 101" required
+            onblur="searchRoomInfo()" />
+        </div>
+
+        <div id="cccdCheckIn-error" style="color:#b03232; font-size: 0.75rem; margin-top: 5px; display: none;"></div>
+
+        <div class="form-group" style="margin-top: 15px;">
+          <label class="form-label" for="cccdCheckIn-name">Tên khách hàng</label>
+          <input type="text" class="form-input" id="cccdCheckIn-name" readonly
+            style="background:var(--bg-base); cursor:not-allowed; opacity:0.8;" />
+        </div>
+
+        <div class="form-group" style="margin-top: 15px;">
+          <label class="form-label" for="cccdCheckIn-room">Số phòng (Đang lưu trú)</label>
+          <input type="text" class="form-input" id="cccdCheckIn-room" readonly
+            style="background:var(--bg-base); cursor:not-allowed; opacity:0.8;" />
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeCccdCheckInModal()">Hủy</button>
+        <button class="btn btn-primary" id="cccdCheckIn-submit" onclick="submitCccdCheckIn()" disabled>
+          <span class="material-symbols-outlined">how_to_reg</span>Xác nhận
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Giữ bàn -->
+  <div class="modal-overlay" id="holdModal" style="display:none;">
+    <div class="modal" style="max-width: 350px;">
+      <div class="modal-header">
+        <div class="modal-title" style="display:flex;align-items:center;gap:8px;">
+          <span class="material-symbols-outlined" style="color:var(--status-served-text);">timer</span>
+          Giữ Bàn
+        </div>
+        <button class="modal-close" onclick="document.getElementById('holdModal').style.display='none'">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="hold-resId" />
+        <div class="form-group">
+          <label class="form-label" for="hold-minutes">Chọn số phút đến muộn (Max 30)</label>
+          <input type="text" class="form-input" id="hold-minutes" placeholder="Chọn số phút" style="text-align: center; font-size: 1.2rem; font-weight: bold; cursor: pointer; background: var(--bg-card);" readonly />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="document.getElementById('holdModal').style.display='none'">Hủy</button>
+        <button class="btn btn-primary" id="hold-submit" onclick="submitHoldReservation()">
+          <span class="material-symbols-outlined">save</span>Xác nhận
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    /* Ẩn cột giờ đi cho riêng time picker giữ bàn */
+    .hide-hours .flatpickr-hour, .hide-hours .flatpickr-time-separator { display: none !important; }
+    .hide-hours .numInputWrapper { width: 100% !important; }
+    .hide-hours .flatpickr-minute { text-align: center !important; }
+  </style>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Shared POS JS -->
+  <script th:src="@{/f&amp;bStaff/js/pos-dashboard.js}" src="../../statics/f&bStaff/js/pos-dashboard.js"></script>
+  <!-- Flatpickr JS -->
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <!-- Table Management specific JS -->
+  <script th:src="@{/f&amp;bStaff/js/table-management.js}" src="../../statics/f&bStaff/js/table-management.js"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Room Service Management — F&amp;B Staff | Hoanien Resort</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap"
+    rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap"
+    rel="stylesheet" />
+
+  <link rel="stylesheet" th:href="@{/f&amp;bStaff/css/pos-dashboard.css}"
+    href="../../statics/f&bStaff/css/pos-dashboard.css" />
+  <link rel="stylesheet" th:href="@{/f&amp;bStaff/css/room-service-management.css}"
+    href="../../statics/f&bStaff/css/room-service-management.css" />
+</head>
+
+<body>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="brand-name">HOANIEN</div>
+      <div class="brand-sub">Resort &amp; Tour Hub</div>
+      <div class="staff-badge">
+        <span class="material-symbols-outlined" style="font-size:0.7rem;">restaurant</span> F&amp;B Staff
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Operations</div>
+
+      <a href="/fbStaff/dashboard" th:href="@{/fbStaff/dashboard}" class="nav-item">
+        <span class="material-symbols-outlined">dashboard</span>
+        <span>POS Dashboard</span>
+      </a>
+      <a href="/fbStaff/create-food-order" th:href="@{/fbStaff/create-food-order}" class="nav-item" sec:authorize="hasAnyAuthority('OP_FNB_ORDER', 'OP_FNB', 'ROLE_ADMIN', 'ROLE_MANAGER')">
+        <span class="material-symbols-outlined">add_circle</span>
+        <span>New Order</span>
+      </a>
+      <a href="/fbStaff/table-management" th:href="@{/fbStaff/table-management}" class="nav-item" sec:authorize="hasAnyAuthority('OP_FNB_TABLE', 'OP_FNB', 'ROLE_ADMIN', 'ROLE_MANAGER')">
+        <span class="material-symbols-outlined">table_restaurant</span>
+        <span>Table Management</span>
+      </a>
+      <a href="/fbStaff/room-service" th:href="@{/fbStaff/room-service}" class="nav-item active">
+        <span class="material-symbols-outlined">room_service</span>
+        <span>Room Service</span>
+      </a>
+
+
+      <div class="nav-section-label">Finance</div>
+
+      <a href="/fbStaff/shift-report" th:href="@{/fbStaff/shift-report}" class="nav-item">
+        <span class="material-symbols-outlined">bar_chart</span>
+        <span>Shift Report</span>
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="staff-profile">
+        <div class="staff-avatar">TP</div>
+        <div>
+          <div class="staff-name" th:text="${staffName != null ? staffName : 'Trần Phương'}">Trần Phương</div>
+          <div class="staff-role">F&amp;B POS · Ca Sáng</div>
+        </div>
+        <button class="logout-btn" title="Đăng xuất" onclick="location.href='/auth/logout'">
+          <span class="material-symbols-outlined" style="font-size:1.05rem;">logout</span>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <div class="main-content">
+
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <div>
+        <div class="topbar-title">Room Service Management</div>
+        <div class="topbar-subtitle">Quản lý và theo dõi các yêu cầu gọi món từ phòng khách</div>
+      </div>
+      <div class="topbar-right" style="display: flex; align-items: center; gap: 15px;">
+        <a href="/fbStaff/create-food-order?type=room-service&returnUrl=/fbStaff/room-service" class="btn btn-primary" style="text-decoration:none; display:inline-flex; align-items:center; gap:4px; height:34px; padding:0 14px; font-size:0.75rem; font-weight:600; letter-spacing:0.04em;">
+          <span class="material-symbols-outlined" style="font-size:1rem;">add</span>
+          Tạo đơn
+        </a>
+        
+        <div class="time-display topbar-clock" id="time-display">12:00</div>
+
+        <form action="/auth/manual-logout" method="post" style="display:inline-block; margin:0;">
+          <button type="submit" class="btn btn-outline" style="height:34px;padding:0 14px;border:1px solid var(--border-active);cursor:pointer;display:inline-flex;align-items:center;gap:4px;font-family:inherit;font-size:0.75rem;font-weight:600;letter-spacing:0.04em; background:var(--bg-card); color:var(--text-primary);">
+            <span class="material-symbols-outlined" style="font-size:1rem;">logout</span>
+            Đăng xuất
+          </button>
+        </form>
+      </div>
+    </header>
+
+    <div class="dashboard-body rs-wrapper">
+
+      <!-- STATS ROW -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-icon"><span class="material-symbols-outlined">receipt_long</span></div>
+          <div class="stat-title">Total Orders Today</div>
+          <div class="stat-val" th:text="${totalOrders}">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="color:var(--status-pending-text); background:var(--status-pending-bg);"><span
+              class="material-symbols-outlined">hourglass_empty</span></div>
+          <div class="stat-title">Pending Orders</div>
+          <div class="stat-val" th:text="${pendingOrders}">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="color:var(--status-cooking-text); background:var(--status-cooking-bg);"><span
+              class="material-symbols-outlined">skillet</span></div>
+          <div class="stat-title">Preparing Orders</div>
+          <div class="stat-val" th:text="${preparingOrders}">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="color:var(--status-ready-text); background:var(--status-ready-bg);"><span
+              class="material-symbols-outlined">check_circle</span></div>
+          <div class="stat-title">Served Orders</div>
+          <div class="stat-val" th:text="${servedOrders}">0</div>
+        </div>
+      </div>
+
+      <!-- FILTER SECTION -->
+      <div class="filter-section" style="display: flex; flex-wrap: wrap; gap: 15px; align-items: center;">
+        <div class="search-bar" style="flex: 1; min-width: 250px;">
+          <span class="material-symbols-outlined search-icon">search</span>
+          <input type="text" placeholder="Tìm theo Order ID, Room Number hoặc Guest Name..." class="search-input"
+            id="search-input">
+        </div>
+        <div class="date-filter">
+          <input type="date" id="date-filter-input" th:value="${currentDate}" class="search-input" style="padding: 8px 12px; border: 1px solid var(--border-active, #ccc); border-radius: 8px; font-family: inherit; color: var(--text-primary); cursor: pointer; height: 38px;" onchange="window.location.href='/fbStaff/room-service?date=' + this.value">
+        </div>
+        <div class="filter-pills" id="status-filters">
+          <button class="pill active" data-filter="all">All</button>
+          <button class="pill" data-filter="pending">Pending</button>
+          <button class="pill" data-filter="preparing">Preparing</button>
+          <button class="pill" data-filter="ready">Ready</button>
+          <button class="pill" data-filter="delivering">Delivering</button>
+          <button class="pill" data-filter="served">Served</button>
+        </div>
+      </div>
+
+      <!-- ORDERS TABLE -->
+      <div class="table-card">
+        <table class="rs-table">
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Room</th>
+              <th>Guest Name</th>
+              <th>Order Time</th>
+              <th>Items</th>
+              <th>Total Amount</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="rs-tbody" th:each="entry : ${groupedOrders}">
+            <tr class="floor-group-header" style="background:#f9f5f0; border-top: 2px solid #e2d9ce;">
+              <td colspan="7" style="font-weight:700; color:var(--primary-dark); padding: 12px 16px;">
+                <span class="material-symbols-outlined" style="vertical-align:middle; font-size:1.2rem; margin-right:5px;">floor</span>
+                <span th:text="${entry.key} + ' (' + ${#lists.size(entry.value)} + ' đơn)'">Tầng 3 (2 đơn)</span>
+              </td>
+              <td class="col-action">
+                <button class="btn btn-sm btn-primary" th:data-floor="${entry.key}" onclick="dispatchFloor(this.getAttribute('data-floor'))"><span class="material-symbols-outlined" style="font-size:1rem; margin-right:4px;">local_shipping</span> Giao Tầng</button>
+              </td>
+            </tr>
+            <tr th:each="order : ${entry.value}" class="rs-row" th:data-status="${order.rawStatus}" th:data-floor="${entry.key}" th:data-orderid="${order.displayId}">
+              <td class="col-id"><a th:href="@{/fbStaff/order-detail(id=${order.displayId})}" style="font-weight:600; color:var(--primary-color);" th:text="${order.displayId}">RS-1024</a></td>
+              <td class="col-room"><span class="room-badge" th:text="${order.room}">208</span></td>
+              <td class="col-guest" th:text="${order.guestName}">Trần Thị Lan Anh</td>
+              <td class="col-time">
+                <div th:text="${order.time}">19:41</div>
+                <div class="sla-timer" th:data-ordertime="${order.orderTimeIso}" th:data-etamins="${order.etaMins}" style="font-size: 0.8rem; font-weight: 600; margin-top: 4px;">--:--</div>
+              </td>
+              <td class="col-items" th:text="${order.itemsText}">3 items</td>
+              <td class="col-amount" th:text="${order.amount}">323.190₫</td>
+              <td class="col-status">
+                <span class="order-status-chip chip-pending" th:if="${order.rawStatus == 'pending'}"><span class="dot"></span>Pending</span>
+                <span class="order-status-chip chip-cooking" th:if="${order.rawStatus == 'preparing'}"><span class="dot"></span>Preparing</span>
+                <span class="order-status-chip chip-ready" th:if="${order.rawStatus == 'ready'}"><span class="dot"></span>Ready</span>
+                <span class="order-status-chip chip-delivering" th:if="${order.rawStatus == 'delivering'}" style="background:#e0f7fa; color:#006064; border-color:#006064;"><span class="dot" style="background:#006064;"></span>Delivering</span>
+                <span class="order-status-chip chip-served" th:if="${order.rawStatus == 'served'}"><span class="dot"></span>Served</span>
+              </td>
+              <td class="col-action">
+                <button th:if="${order.rawStatus == 'ready'}" class="btn btn-sm btn-outline" th:data-id="${order.id}" onclick="updateStatus(this.getAttribute('data-id'), 'delivering')"><span class="material-symbols-outlined" style="font-size:1rem; margin-right:4px;">local_shipping</span> Đi Giao</button>
+                <button th:if="${order.rawStatus == 'delivering'}" class="btn btn-sm btn-primary" th:data-id="${order.id}" onclick="updateStatus(this.getAttribute('data-id'), 'served')"><span class="material-symbols-outlined" style="font-size:1rem; margin-right:4px;">check_circle</span> Xác nhận giao</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Pagination -->
+        <div class="pagination">
+          <div class="page-info">Tổng cộng <span th:text="${totalOrders}">0</span> đơn hàng</div>
+          <div class="page-controls">
+            <button class="btn btn-sm btn-outline" disabled><span class="material-symbols-outlined">chevron_left</span>
+              Previous</button>
+            <button class="btn btn-sm btn-outline">Next <span
+                class="material-symbols-outlined">chevron_right</span></button>
+          </div>
+        </div>
+      </div>
+      <!-- / ORDERS TABLE -->
+
+    </div>
+  </div>
+
+  <script th:src="@{/f&amp;bStaff/js/room-service-management.js}"
+    src="../../statics/f&bStaff/js/room-service-management.js"></script>
+</body>
+
+</html>
+

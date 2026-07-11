@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HoaNien · Đăng nhập Hệ thống</title>
+    <link rel="stylesheet" href="/admin/css/theme.css">
+    <link rel="stylesheet" href="/admin/css/admin.css">
+    <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Inter:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ═══ Login Page Overrides ══════════════════════════════════════ */
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            /* THAY THẾ LINK ẢNH NỀN CỦA ANH Ở DÒNG DƯỚI NÀY (Có thể dùng link online hoặc dẫn đến thư mục chứa ảnh) */
+            background-image: linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.35)), url('/guest/BrAdmin.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            padding: 24px;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .ops-login-wrap {
+            width: 100%;
+            max-width: 420px;
+        }
+
+        .ops-login-card {
+            background: rgba(18, 16, 15, 0.45); /* Nhạt hơn và trong suốt hơn để lộ rõ ảnh nền */
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border-radius: 16px;
+            padding: 40px 36px;
+            border: 1px solid rgba(255, 255, 255, 0.15); /* Đường viền mờ sáng rõ hơn */
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+        }
+
+        .ops-login-brand {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .ops-login-brand-dot {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(201, 169, 110, 0.20);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #C9A96E;
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+
+        .ops-login-brand h1 {
+            font-family: 'EB Garamond', Georgia, serif !important;
+            font-style: italic;
+            font-size: 32px;
+            font-weight: 600;
+            letter-spacing: -0.05em;
+            color: #ffffff; /* Trắng hẳn để nổi bật */
+            margin: 0 0 6px;
+            text-transform: none !important;
+        }
+
+        .ops-login-brand p {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.7); /* Trắng mờ */
+            margin: 0;
+        }
+
+        .ops-form-group {
+            margin-bottom: 20px;
+        }
+
+        .ops-form-group label {
+            display: block;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: rgba(255, 255, 255, 0.75); /* Màu label nhạt/sáng */
+            font-weight: 600;
+            margin-bottom: 6px;
+            font-family: var(--font-sans);
+        }
+
+        /* Đổi nền input từ trắng sang màu kem/be nhạt tinh tế */
+        .ops-form-group input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid rgba(44, 42, 30, 0.12);
+            border-radius: 8px;
+            background: #FDFBF7;
+            font-size: 14px;
+            font-family: var(--font-sans);
+            color: var(--foreground);
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .ops-form-group input:focus {
+            background: #ffffff;
+            border-color: #C9A96E;
+            box-shadow: 0 0 0 3px rgba(201, 169, 110, 0.15);
+        }
+
+        .ops-form-group input::placeholder {
+            color: #9A9485;
+        }
+
+        /* Nút đăng nhập đổi sang màu nâu ấm áp của thương hiệu */
+        .ops-btn {
+            width: 100%;
+            padding: 13px;
+            background: #8C6A41;
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: var(--font-sans);
+            box-shadow: 0 2px 4px rgba(140, 106, 65, 0.15);
+        }
+
+        /* Hiệu ứng hover: nút mờ nhẹ đi và đổi opacity mượt mà */
+        .ops-btn:hover {
+            background: #8C6A41;
+            opacity: 0.88;
+        }
+
+        .ops-btn:active {
+            transform: scale(0.98);
+            opacity: 0.95;
+        }
+
+        .ops-error {
+            background: rgba(220, 53, 69, 0.15); /* Đỏ mờ */
+            color: #ff8787; /* Chữ đỏ sáng dễ nhìn */
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-bottom: 16px;
+            display: none;
+            font-family: var(--font-sans);
+            border: 1px solid rgba(220, 53, 69, 0.2);
+        }
+
+        .ops-error.show {
+            display: block;
+        }
+
+        .ops-login-footer {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6); /* Trắng mờ trên nền body tối */
+            font-family: var(--font-sans);
+        }
+
+        .ops-login-footer a {
+            color: var(--foreground);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .ops-login-footer a:hover {
+            text-decoration: underline;
+        }
+
+        .ops-login-role-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.08); /* Nền mờ sáng nhẹ */
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.85); /* Chữ sáng */
+            margin-bottom: 24px;
+            font-family: var(--font-sans);
+        }
+
+        .ops-forgot-link {
+            font-size: 11px;
+            color: #C9A96E;
+            text-decoration: none;
+            font-weight: 500;
+            font-family: var(--font-sans);
+            transition: color 0.2s ease, opacity 0.2s ease;
+        }
+
+        .ops-forgot-link:hover {
+            color: #E2C99D;
+            text-decoration: underline;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="ops-login-wrap">
+        <div class="ops-login-card">
+            <div class="ops-login-brand">
+                <div class="ops-login-brand-dot">◆</div>
+                <h1>HoaNien</h1>
+                <p>Đăng nhập</p>
+            </div>
+
+            <div class="ops-login-role-badge" style="display: flex; justify-content: center;">
+                <span>Hệ thống quản lý vận hành</span>
+            </div>
+
+            
+            
+            
+            
+            
+            
+            
+
+            <form action="/auth/login" method="post">
+                <input type="hidden" name="device_id" value="HN-DEV-LAPTOP002">
+                <div class="ops-form-group">
+                    <label for="username">Tên đăng nhập</label>
+                    <input type="text" id="username" name="username" placeholder="Nhập tên đăng nhập" required
+                        autofocus>
+                </div>
+                <div class="ops-form-group">
+                    <div style="margin-bottom: 6px;">
+                        <label for="password" style="margin-bottom: 0;">Mật khẩu</label>
+                    </div>
+                    <div style="position: relative; display: flex; align-items: center; width: 100%;">
+                        <input type="password" id="password" name="password" placeholder="Nhập mật khẩu" required
+                            style="padding-right: 40px; flex: 1;">
+                        <button type="button" onclick="togglePasswordVisibility('password', this)"
+                            style="position: absolute; right: 12px; background: none; border: none; cursor: pointer; color: #9A9485; display: flex; align-items: center; justify-content: center; outline: none; padding: 0;">
+                            <span class="material-symbols-outlined" style="font-size: 20px;">visibility</span>
+                        </button>
+                    </div>
+                </div>
+                <button type="submit" class="ops-btn">Đăng nhập</button>
+            </form>
+        </div>
+        <div class="ops-login-footer" style="margin-top: 16px;">
+            <p>© 2026 HoaNien Retreat Resort & Hub</p>
+        </div>
+    </div>
+    <script>
+        function togglePasswordVisibility(inputId, btnEl) {
+            const input = document.getElementById(inputId);
+            const icon = btnEl.querySelector('.material-symbols-outlined');
+            if (input && icon) {
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    icon.textContent = 'visibility_off';
+                } else {
+                    input.type = 'password';
+                    icon.textContent = 'visibility';
+                }
+            }
+        }
+    </script>
+</body>
+
+</html>

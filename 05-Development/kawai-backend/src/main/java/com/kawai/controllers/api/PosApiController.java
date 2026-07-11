@@ -40,7 +40,49 @@ public class PosApiController {
         }
     }
 
-@org.springframework.security.access.prepost.PreAuthorize("hasAnyAuthority('OP_FNB_ORDER', 'ROLE_ADMIN', 'ROLE_MANAGER')")
+    @GetMapping("/orders/{id}/details")
+    public ResponseEntity<?> getOrderDetails(@PathVariable Long id) {
+        try {
+            FoodOrder order = posService.getOrderById(id);
+            if (order == null) {
+                return ResponseEntity.status(404).body(Map.of("status", "error", "message", "Order not found"));
+            }
+            
+            java.util.List<Map<String, Object>> itemsList = new java.util.ArrayList<>();
+            if (order.getDetails() != null) {
+                for (com.kawai.models.FoodOrderDetail detail : order.getDetails()) {
+                    java.math.BigDecimal price = detail.getPriceAtOrder();
+                    if (price == null && detail.getMenuItem() != null) {
+                        price = detail.getMenuItem().getPrice();
+                    }
+                    if (price == null) {
+                        price = java.math.BigDecimal.ZERO;
+                    }
+                    
+                    Map<String, Object> itemMap = new java.util.HashMap<>();
+                    itemMap.put("name", detail.getMenuItem() != null ? detail.getMenuItem().getItemName() : "Món ăn");
+                    itemMap.put("quantity", detail.getQuantity());
+                    itemMap.put("price", price);
+                    itemMap.put("amount", price.multiply(new java.math.BigDecimal(detail.getQuantity() != null ? detail.getQuantity() : 1)));
+                    itemsList.add(itemMap);
+                }
+            }
+            
+            Map<String, Object> response = new java.util.HashMap<>();
+            response.put("status", "success");
+            response.put("orderId", order.getId());
+            response.put("orderType", order.getOrderType());
+            response.put("paymentType", order.getPaymentType());
+            response.put("items", itemsList);
+            
+            return ResponseEntity.ok().body(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(Map.of("status", "error", "message", e.getMessage()));
+        }
+    }
+
+    @org.springframework.security.access.prepost.PreAuthorize("hasAnyAuthority('OP_FNB_ORDER', 'ROLE_ADMIN', 'ROLE_MANAGER')")
     @PostMapping("/orders/{id}/pay")
 
     public ResponseEntity<?> payOrder(@PathVariable Long id) {
@@ -55,7 +97,7 @@ public class PosApiController {
         }
     }
 
-@org.springframework.security.access.prepost.PreAuthorize("hasAnyAuthority('OP_FNB_ORDER', 'ROLE_ADMIN', 'ROLE_MANAGER')")
+    @org.springframework.security.access.prepost.PreAuthorize("hasAnyAuthority('OP_FNB_ORDER', 'ROLE_ADMIN', 'ROLE_MANAGER')")
     @PostMapping("/orders/{id}/add-items")
 
     public ResponseEntity<?> addItemsToOrder(@PathVariable Long id,
@@ -72,7 +114,7 @@ public class PosApiController {
         }
     }
 
-@org.springframework.security.access.prepost.PreAuthorize("hasAnyAuthority('OP_FNB_ORDER', 'ROLE_ADMIN', 'ROLE_MANAGER')")
+    @org.springframework.security.access.prepost.PreAuthorize("hasAnyAuthority('OP_FNB_ORDER', 'ROLE_ADMIN', 'ROLE_MANAGER')")
     @PutMapping("/orders/{id}/status")
 
     public ResponseEntity<?> updateOrderStatus(@PathVariable Long id, @RequestParam String status) {
@@ -87,7 +129,7 @@ public class PosApiController {
         }
     }
 
-@org.springframework.security.access.prepost.PreAuthorize("hasAnyAuthority('OP_FNB_ORDER', 'ROLE_ADMIN', 'ROLE_MANAGER')")
+    @org.springframework.security.access.prepost.PreAuthorize("hasAnyAuthority('OP_FNB_ORDER', 'ROLE_ADMIN', 'ROLE_MANAGER')")
     @PostMapping("/batch-update-status")
 
     public ResponseEntity<?> batchUpdateStatus(@RequestBody Map<String, Object> payload) {
@@ -105,10 +147,12 @@ public class PosApiController {
                     "message", e.getMessage() != null ? e.getMessage() : "null message"));
         }
     }
-@org.springframework.security.access.prepost.PreAuthorize("hasAnyAuthority('OP_FNB_ORDER', 'ROLE_ADMIN', 'ROLE_MANAGER')")
+
+    @org.springframework.security.access.prepost.PreAuthorize("hasAnyAuthority('OP_FNB_ORDER', 'ROLE_ADMIN', 'ROLE_MANAGER')")
     @PostMapping("/orders/{id}/cancel")
 
-    public ResponseEntity<?> cancelOrder(@PathVariable Long id, @RequestBody(required = false) com.kawai.dtos.CancelOrderRequestDTO dto) {
+    public ResponseEntity<?> cancelOrder(@PathVariable Long id,
+            @RequestBody(required = false) com.kawai.dtos.CancelOrderRequestDTO dto) {
         try {
             posService.cancelOrder(id, dto);
             return ResponseEntity.ok().body(Map.of("status", "success", "message", "Cập nhật trạng thái thành công"));

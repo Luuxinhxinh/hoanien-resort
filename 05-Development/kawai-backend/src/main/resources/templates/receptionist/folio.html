@@ -17,65 +17,157 @@
     <link rel="stylesheet" href="/receptionist/css/dashboard.css">
     <link rel="stylesheet" href="/receptionist/css/pages.css">
     <style>
+        /* Table Container and General Redesign */
+        .table-container {
+            padding: 0 !important;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(99, 70, 54, 0.04), 0 2px 8px rgba(0, 0, 0, 0.01) !important;
+            overflow: hidden !important;
+            border: 1px solid #f2ece6;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table thead tr {
+            background-color: #ffffff !important; /* White background matching table */
+        }
+
+        .data-table th {
+            padding: 20px 16px !important;
+            border-bottom: 1px solid #f3ebe3 !important; /* Soft border separator */
+            font-weight: 500;
+            color: #8c7b70; /* Elegant soft brown-grey */
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .data-table td {
+            padding: 24px 16px !important;
+            border-bottom: 1px solid #f3ebe3 !important;
+            color: #2c2a29 !important;
+            font-size: 0.9rem !important;
+            vertical-align: middle !important;
+        }
+
+        .data-table tr:last-child td {
+            border-bottom: none !important;
+        }
+
+        /* Booker Info Layout */
+        .booker-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #f5ebe6; /* Soft warm peach background */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #c19b6c; /* Warm gold bronze */
+            font-size: 1rem;
+            flex-shrink: 0;
+            box-shadow: inset 0 2px 4px rgba(99, 70, 54, 0.04);
+        }
+
+        .booker-name {
+            font-weight: 600;
+            color: #3e3835;
+            line-height: 1.4;
+            font-size: 0.92rem;
+        }
+
+        /* Status Badge */
+        .status-badge {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            line-height: 1.3;
+            text-align: center;
+            width: fit-content;
+            text-transform: uppercase;
+        }
+
+        .status-pending {
+            background-color: #fcf1e5 !important; /* Soft beige-gold */
+            color: #c19b6c !important; /* Warm gold bronze */
+        }
+
+        .status-confirmed {
+            background-color: #e8f2e0 !important; /* Soft green */
+            color: #5d8e32 !important; /* Darker green */
+        }
+
+        /* View Details Button */
         .btn-folio-detail {
             display: inline-flex;
             align-items: center;
-            gap: 7px;
-            padding: 7px 16px;
-            background: transparent;
-            color: #634636;
-            border: 1.5px solid #634636;
+            justify-content: center;
+            padding: 10px 20px;
+            background: #fff;
+            color: #5a544f;
+            border: 1px solid #e2dcd5;
             border-radius: 8px;
-            text-decoration: none;
-            font-size: 0.78rem;
+            font-size: 13px;
             font-weight: 600;
-            letter-spacing: 0.04em;
-            font-family: 'Inter', sans-serif;
+            letter-spacing: 0.8px;
+            text-decoration: none;
             transition: all 0.22s ease;
             white-space: nowrap;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
         }
 
         .btn-folio-detail:hover {
-            background: #634636;
-            color: #fff;
-            box-shadow: 0 6px 20px rgba(99, 70, 54, 0.45), 0 2px 6px rgba(99, 70, 54, 0.25);
+            background: #faf8f5;
+            border-color: #c19b6c;
+            color: #c19b6c;
+            box-shadow: 0 4px 12px rgba(193, 155, 108, 0.12);
             transform: translateY(-1px);
         }
 
         .btn-folio-detail:active {
             transform: scale(0.97) translateY(0);
-            box-shadow: 0 2px 8px rgba(99, 70, 54, 0.3);
         }
 
+        /* Room Check Button */
         .btn-request-check {
             display: inline-flex;
             align-items: center;
-            gap: 7px;
-            padding: 7px 16px;
-            background: #2e7d32;
+            justify-content: center;
+            padding: 10px 20px;
+            background: #c19b6c;
             color: #fff;
-            border: 1.5px solid #2e7d32;
+            border: 1px solid #c19b6c;
             border-radius: 8px;
-            text-decoration: none;
-            font-size: 0.78rem;
+            font-size: 13px;
             font-weight: 600;
-            letter-spacing: 0.04em;
-            font-family: 'Inter', sans-serif;
+            letter-spacing: 0.8px;
+            text-decoration: none;
             transition: all 0.22s ease;
             white-space: nowrap;
             cursor: pointer;
+            font-family: 'Inter', sans-serif;
         }
 
         .btn-request-check:hover {
-            background: #1b5e20;
-            border-color: #1b5e20;
-            box-shadow: 0 6px 20px rgba(27, 94, 32, 0.45), 0 2px 6px rgba(27, 94, 32, 0.25);
+            background: #b08a5b;
+            border-color: #b08a5b;
+            box-shadow: 0 4px 12px rgba(193, 155, 108, 0.25);
             transform: translateY(-1px);
         }
 
         .btn-request-check:active {
             transform: scale(0.97) translateY(0);
-            box-shadow: 0 2px 8px rgba(27, 94, 32, 0.3);
         }
     </style>
 </head>
@@ -189,7 +281,7 @@
             <!-- Page Content -->
             <div class="dashboard-scroll-area">
                 <div class="page-header">
-                    <h2 class="page-title">Check-out & Folio Management (Trả phòng & Hóa đơn)</h2>
+                    <h2 class="page-title">Quản lý Trả phòng & Hóa đơn</h2>
                 </div>
 
                 <!-- Tab Navigation -->
@@ -202,14 +294,12 @@
                     <table class="data-table">
                         <thead>
                             <tr>
-                                <th style="font-weight: 700; color: #000; font-size: 0.9rem;">Representative / Booker
-                                </th>
-                                <th style="font-weight: 700; color: #000; font-size: 0.9rem;">Expected Check-out Date
-                                </th>
-                                <th style="font-weight: 700; color: #000; font-size: 0.9rem;">Total Payments</th>
-                                <th style="font-weight: 700; color: #000; font-size: 0.9rem;">Phone Number</th>
-                                <th style="font-weight: 700; color: #000; font-size: 0.9rem;">Status</th>
-                                <th style="font-weight: 700; color: #000; font-size: 0.9rem;">Action</th>
+                                <th>Representative / Booker</th>
+                                <th>Expected Check-out</th>
+                                <th style="text-align: right; padding-right: 24px !important;">Total Payments</th>
+                                <th>Phone Number</th>
+                                <th>Status</th>
+                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody id="folioTableBody">
@@ -290,29 +380,51 @@
             tbody.innerHTML = '';
 
             if (!folios || folios.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="8" style="text-align: center;">No active folios found.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 32px;">No active folios found.</td></tr>';
                 return;
             }
 
             folios.forEach(folio => {
                 const tr = document.createElement('tr');
-                 const formatCurrency = (val) => new Intl.NumberFormat('vi-VN').format(val) + ' VNĐ';
-
                 const statusClass = folio.status.toLowerCase() === 'checked_out' ? 'status-confirmed' : 'status-pending';
+                
+                // Format Booker Representative
+                const bookerHtml = `
+                    <div style="display: flex; align-items: center; gap: 16px; white-space: nowrap;">
+                        <div class="booker-avatar">
+                            <i class="fa-solid fa-user"></i>
+                        </div>
+                        <div class="booker-name" style="white-space: nowrap;">${folio.bookerName}</div>
+                    </div>
+                `;
+                
+                // Format Expected Check-out Date
+                const formattedDate = folio.checkOutDate || 'N/A';
+                
+                // Format Total Payments
+                const formattedPayments = `
+                    <span style="font-weight: 700; color: #2c2a29;">${new Intl.NumberFormat('vi-VN').format(folio.totalPayments)}</span> 
+                    <span style="font-size: 0.8rem; color: #8e857e; font-weight: 500;">VNĐ</span>
+                `;
+                
+                // Format Phone Number
+                const formattedPhone = `<span style="color: #5c5652; font-weight: 500;">${folio.phoneNumber || 'N/A'}</span>`;
+                
+                // Format Status
+                const statusText = folio.status ? folio.status.toUpperCase().replace(/_/g, ' ') : 'PENDING';
+
                 tr.innerHTML = `
-                    <td>
-                        <div style="font-weight: 500;"><i class="fa-solid fa-user-tie" style="color: #c19b6c; font-size: 0.8rem; margin-right: 4px;"></i> ${folio.bookerName}</div>
-                    </td>
-                    <td>${folio.checkOutDate}</td>
-                    <td>${formatCurrency(folio.totalPayments)}</td>
-                    <td>${folio.phoneNumber}</td>
-                    <td><span class="status-badge ${statusClass}" style="text-transform: capitalize;">${folio.status.toLowerCase()}</span></td>
-                    <td>
-                        <div style="display: flex; gap: 8px; align-items: center;">
-                            <a href="/receptionist/folio/detail?id=${folio.roomBookingDetailId}" class="btn-folio-detail">View Details</a>
+                    <td style="padding: 24px 16px 24px 24px !important; white-space: nowrap;">${bookerHtml}</td>
+                    <td style="line-height: 1.4; color: #2c2a29; font-weight: 600; white-space: nowrap;">${formattedDate}</td>
+                    <td style="line-height: 1.4; white-space: nowrap; text-align: right; padding-right: 24px !important;">${formattedPayments}</td>
+                    <td style="white-space: nowrap;">${formattedPhone}</td>
+                    <td style="white-space: nowrap;"><span class="status-badge ${statusClass}" style="white-space: nowrap;">${statusText}</span></td>
+                    <td style="padding: 24px 24px 24px 16px !important; white-space: nowrap;">
+                        <div style="display: flex; gap: 8px; align-items: center; white-space: nowrap;">
+                            <a href="/receptionist/folio/detail?id=${folio.roomBookingDetailId}" class="btn-folio-detail">VIEW DETAILS</a>
                             ${folio.status.toLowerCase() !== 'checked_out' ? `
                                 <button onclick="requestGroupCheck(${folio.bookingId})" class="btn-request-check">
-                                    <i class="fa-solid fa-clipboard-check"></i> Kiểm tra phòng
+                                    KIỂM TRA PHÒNG
                                 </button>
                             ` : ''}
                         </div>

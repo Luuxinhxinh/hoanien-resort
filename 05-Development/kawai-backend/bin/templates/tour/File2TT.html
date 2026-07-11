@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+
+<html class="light" lang="vi">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Lịch Trình Tổng Thể - TourGuide Pro</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,400..900;1,400..900&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #fff7fa;
+            color: #211921;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        .font-headline {
+            font-family: 'Bodoni Moda', serif;
+        }
+
+        .glass-surface {
+            background: rgba(255, 239, 251, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(103, 85, 140, 0.1);
+        }
+
+        .glass-interactive {
+            background: rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(20px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-interactive:hover {
+            background: rgba(177, 156, 217, 0.1);
+            border-color: rgba(103, 85, 140, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .glow-accent-primary {
+            box-shadow: 0 10px 30px -10px rgba(103, 85, 140, 0.2);
+            border: 1px solid #b19cd9 !important;
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-low": "#ffeffb",
+                        "primary-container": "#b19cd9",
+                        "on-secondary-fixed-variant": "#583f55",
+                        "surface-dim": "#e5d6e1",
+                        "surface-tint": "#67558c",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-container": "#a7a6a3",
+                        "on-secondary-container": "#775c74",
+                        "on-background": "#211921",
+                        "surface-container-highest": "#eedeea",
+                        "on-error-container": "#93000a",
+                        "tertiary-fixed": "#e4e2de",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary-fixed": "#220f44",
+                        "inverse-primary": "#d2bcfb",
+                        "on-tertiary-container": "#3b3c39",
+                        "on-tertiary-fixed": "#1b1c1a",
+                        "secondary-fixed-dim": "#debcd8",
+                        "on-surface-variant": "#49454f",
+                        "tertiary": "#5e5e5c",
+                        "on-tertiary-fixed-variant": "#474744",
+                        "inverse-surface": "#372e36",
+                        "primary": "#67558c",
+                        "on-primary": "#ffffff",
+                        "background": "#fff7fa",
+                        "surface-bright": "#fff7fa",
+                        "outline": "#7a757f",
+                        "secondary-fixed": "#fbd8f5",
+                        "inverse-on-surface": "#fcecf8",
+                        "surface-container-high": "#f3e4ef",
+                        "secondary": "#71566e",
+                        "primary-fixed": "#ebddff",
+                        "on-surface": "#211921",
+                        "surface-variant": "#eedeea",
+                        "error-container": "#ffdad6",
+                        "error": "#ba1a1a",
+                        "primary-fixed-dim": "#d2bcfb",
+                        "on-secondary": "#ffffff",
+                        "secondary-container": "#fbd8f5",
+                        "tertiary-fixed-dim": "#c8c6c3",
+                        "outline-variant": "#cbc4d0",
+                        "on-secondary-fixed": "#291428",
+                        "surface-container": "#f9e9f5",
+                        "on-primary-fixed-variant": "#4f3d73",
+                        "surface": "#fff7fa",
+                        "on-primary-container": "#443267",
+                        "on-error": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "unit": "8px",
+                        "margin-mobile": "20px",
+                        "margin-desktop": "64px",
+                        "section-gap": "120px",
+                        "gutter": "24px",
+                        "container-max": "1280px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Bodoni Moda"],
+                        "display-md": ["Bodoni Moda"],
+                        "body-md": ["Plus Jakarta Sans"],
+                        "headline-lg-mobile": ["Bodoni Moda"],
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "display-lg": ["Bodoni Moda"],
+                        "label-sm": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Bodoni Moda"],
+                        "label-md": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["28px", { "lineHeight": "36px", "fontWeight": "500" }],
+                        "display-md": ["56px", { "lineHeight": "64px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["32px", { "lineHeight": "40px", "fontWeight": "500" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "display-lg": ["80px", { "lineHeight": "88px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.03em", "fontWeight": "500" }],
+                        "headline-lg": ["40px", { "lineHeight": "48px", "fontWeight": "500" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-surface min-h-screen">
+    <!-- TopNavBar -->
+    <header class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl border-b border-outline-variant/30">
+        <div class="flex justify-between items-center h-16 px-margin-desktop w-full max-w-full mx-auto">
+            <div class="flex items-center gap-10">
+                <span class="font-display-md text-2xl font-bold text-primary italic">TourGuide Pro</span>
+                <nav class="hidden md:flex items-center gap-8">
+                    <a class="text-primary font-bold border-b-2 border-primary pb-1 font-body-md text-body-md transition-all duration-300"
+                        href="#">Tours</a>
+                    <a class="text-on-surface-variant font-label-md text-label-md hover:text-primary transition-colors"
+                        href="#">Customers</a>
+                    <a class="text-on-surface-variant font-label-md text-label-md hover:text-primary transition-colors"
+                        href="#">Feedback</a>
+                </nav>
+            </div>
+            <div class="flex items-center gap-6">
+                <div class="flex items-center gap-4">
+                    <button class="p-2 text-on-surface-variant hover:text-primary transition-colors">
+                        <span class="material-symbols-outlined">notifications</span>
+                    </button>
+                    <button class="p-2 text-on-surface-variant hover:text-primary transition-colors">
+                        <span class="material-symbols-outlined">settings</span>
+                    </button>
+                </div>
+                <div class="flex items-center gap-3 pl-6 border-l border-outline-variant">
+                    <div class="w-9 h-9 rounded-full overflow-hidden border-2 border-primary/20">
+                        <img class="w-full h-full object-cover"
+                            data-alt="A professional portrait of Minh Anh, a lead tour guide with a warm and approachable smile, wearing high-end outdoor gear. The image has soft, cinematic sunset lighting, casting a golden glow on his face, consistent with a premium lifestyle aesthetic. The background is a blurred scenic landscape, maintaining focus on the subject."
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuBykTXeymDZceZManr2QUEAO3F8u1ZScFdbWI6KoU0Uj0wOY7ufQxssr-St5aS1MpJjZ0cXtEzUJOzfux4XU1ckIotRgLGLkuQm23mnJLyx-ItVjqT0KahlfnyvS3M8wgi1MaDotKCXRzX7kZQdnk3nRDO-E1JvLXm-wLD_Jd6yR9HwS2r5wrhk_ogkaaifo1TXlIXLNIeQitQNs96yN3uYKDXQK72RyqJ7eSDJztNnLq2xzG6gAOiFvWtSYcduZZxUbG5wat8tajQ" />
+                    </div>
+                    <span class="font-label-md text-label-md text-on-surface font-semibold">Minh Anh</span>
+                </div>
+            </div>
+        </div>
+    </header>
+    <div class="flex pt-16 min-h-screen">
+        <!-- Main Content Canvas -->
+        <main class="flex-1 px-margin-mobile md:px-margin-desktop py-12">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-8 mb-12">
+                <div>
+                    <h1 class="font-display-lg text-5xl text-on-surface mb-2 tracking-tight">Lịch Trình Tổng Thể</h1>
+                    <p class="font-body-lg text-body-lg text-on-surface-variant max-w-xl">Quản lý và theo dõi các hành
+                        trình tham quan chuyên nghiệp tại Luminous Bloom.</p>
+                </div>
+                <div class="flex gap-1 glass-surface p-1 rounded-full">
+                    <button
+                        class="px-6 py-2 rounded-full text-on-primary bg-primary font-label-md text-label-md shadow-md">Tất
+                        cả tour</button>
+                    <button
+                        class="px-6 py-2 rounded-full text-on-surface-variant hover:bg-primary-container/20 font-label-md text-label-md transition-all">Của
+                        tôi</button>
+                    <button
+                        class="px-6 py-2 rounded-full text-on-surface-variant hover:bg-primary-container/20 font-label-md text-label-md transition-all">Sắp
+                        tới</button>
+                    <button
+                        class="px-6 py-2 rounded-full text-on-surface-variant hover:bg-primary-container/20 font-label-md text-label-md transition-all">Hoàn
+                        thành</button>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+                <!-- Schedule List -->
+                <div class="lg:col-span-8 flex flex-col gap-12">
+                    <!-- Morning Section -->
+                    <section>
+                        <div class="flex items-center gap-4 mb-6">
+                            <span
+                                class="material-symbols-outlined text-primary bg-primary-container/30 p-2 rounded-full">light_mode</span>
+                            <h2 class="font-headline-lg text-3xl text-on-surface">Buổi sáng <span
+                                    class="text-on-surface-variant font-normal text-body-md ml-4">(08:00 - 12:00)</span>
+                            </h2>
+                        </div>
+                        <div class="grid grid-cols-1 gap-6">
+                            <!-- Tour Card (Highlight Minh Anh) -->
+                            <div
+                                class="glass-surface glass-interactive rounded-lg p-6 glow-accent-primary relative group cursor-pointer overflow-hidden">
+                                <div class="flex gap-6 flex-col md:flex-row">
+                                    <div class="w-full md:w-56 h-40 rounded-lg overflow-hidden flex-shrink-0 shadow-sm">
+                                        <img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                                            data-alt="A panoramic view of a lush valley at sunrise with mist rolling over the hills. The scene is bathed in soft violet and amber light, matching the Luminous Bloom color palette. High-end photography style with sharp detail and a wide-angle perspective."
+                                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuBvY0qv4UTSg784QIcfpEiIp1G4AyHQTQiB6wEqOGPS_QFv-eEcfFOOqpN0A5PrayIVMyMLpqvvlFUOvF1J7GREAxjW0Od7QwXBrJ_MtIvguY9Rh3u2o3Y8eiEfFG9Fh9ZHAbN08IFcD6JxSBmlSePJSRtpYw5kWSCwfxaKAubAMVU9Ts4O_RavcGK36zhpFmiGtnGq8Jq3EgQapJ06MNGU5_vndM0nfrhMxZ1PYY_FYW-5nwfMHgt7JJYVf6jBFtQFa0VSTvdhJgk" />
+                                    </div>
+                                    <div class="flex-1 flex flex-col justify-between">
+                                        <div>
+                                            <div class="flex items-center gap-2 mb-2">
+                                                <span class="text-primary font-bold font-label-md text-label-md">08:30 -
+                                                    11:30</span>
+                                                <span class="text-on-surface-variant text-label-sm">• HDV: Minh
+                                                    Anh</span>
+                                            </div>
+                                            <h3
+                                                class="font-headline-md text-2xl text-on-surface group-hover:text-primary transition-colors mb-2">
+                                                Hành trình Khám phá Thung lũng Sương mù</h3>
+                                            <p class="text-on-surface-variant font-body-md text-body-md">Dành cho 12 khách từ Singapore.</p>
+                                        </div>
+                                        <div class="flex items-center justify-between mt-6">
+                                            <div class="flex items-center gap-2">
+                                                <div
+                                                    class="w-8 h-8 rounded-full border-2 border-primary-container bg-surface flex items-center justify-center text-xs font-bold text-primary">
+                                                    12+</div>
+                                                <span class="text-on-surface-variant text-label-sm font-medium">Khách
+                                                    đoàn</span>
+                                            </div>
+                                            <button
+                                                class="flex items-center gap-1 text-primary font-bold font-label-md text-label-md hover:translate-x-1 transition-transform">
+                                                Chi tiết <span
+                                                    class="material-symbols-outlined text-base">arrow_forward</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Regular Tour Card -->
+                            <div
+                                class="glass-surface glass-interactive rounded-lg p-6 relative group cursor-pointer border border-outline-variant/30">
+                                <div class="flex gap-6 flex-col md:flex-row">
+                                    <div class="w-full md:w-56 h-40 rounded-lg overflow-hidden flex-shrink-0 shadow-sm">
+                                        <img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                                            data-alt="A modern architectural marvel, a visitor center made of glass and wood nestled in a forest. Morning sunlight filters through the trees creating long shadows."
+                                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuAfdVUn1EcLXHvjrfw2KKQ_WFzZu3MvIYt_vkbkv8GtYbg7Vt1xe1P3HiD7cwFGSm-UIk3-KpipcRBR6pZ-sUQ-a7yH4K-fgbGbrbETHSBXydY2CNqVNYxeWILK6AFpACz0FP-_eeAJa5iglN5AaBEXcrxWWMOSMKVftbUbuUsLYrqeYCIK5gGltqMN5wU7teGI_pJ8AEeD-HPliWqS4HSxY6CwLvjgWnpqT2hyp851lT-aKnqwA_TD50mHP-ky-rXErT4UR0edfwg" />
+                                    </div>
+                                    <div class="flex-1 flex flex-col justify-between">
+                                        <div>
+                                            <div class="flex items-center gap-2 mb-2">
+                                                <span
+                                                    class="text-on-surface-variant font-bold font-label-md text-label-md">Ngày 26/06/2026 | 09:00
+                                                    - 11:00</span>
+                                                <span class="text-on-surface-variant text-label-sm">• HDV: Ngọc
+                                                    Lan</span>
+                                            </div>
+                                            <h3
+                                                class="font-headline-md text-2xl text-on-surface group-hover:text-primary transition-colors mb-2">
+                                                Tinh Túy Đồng Nội</h3>
+                                            <p class="text-on-surface-variant font-body-md text-body-md">Khám phá nét
+                                                độc đáo trong thiết kế và văn hoá.</p>
+                                        </div>
+                                        <div class="flex items-center justify-between mt-6">
+                                            <div class="flex items-center gap-2">
+                                                <span
+                                                    class="material-symbols-outlined text-primary/70 text-lg">group</span>
+                                                <span class="text-on-surface-variant text-label-sm font-medium">8
+                                                    khách</span>
+                                            </div>
+                                            <button
+                                                class="flex items-center gap-1 text-on-surface-variant group-hover:text-primary font-bold font-label-md text-label-md transition-colors">
+                                                Chi tiết <span
+                                                    class="material-symbols-outlined text-base">arrow_forward</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                    <!-- Afternoon Section -->
+                    <section>
+                        <div class="flex items-center gap-4 mb-6">
+                            <span
+                                class="material-symbols-outlined text-secondary bg-secondary-container/30 p-2 rounded-full">wb_twilight</span>
+                            <h2 class="font-headline-lg text-3xl text-on-surface">Buổi chiều <span
+                                    class="text-on-surface-variant font-normal text-body-md ml-4">(13:30 - 17:30)</span>
+                            </h2>
+                        </div>
+                        <div class="grid grid-cols-1 gap-6">
+                            <!-- Afternoon Tour Card -->
+                            <div class="glass-surface glass-interactive rounded-lg p-6 relative group cursor-pointer">
+                                <div class="flex gap-6 flex-col md:flex-row">
+                                    <div class="w-full md:w-56 h-40 rounded-lg overflow-hidden flex-shrink-0 shadow-sm">
+                                        <img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                                            data-alt="A serene river scene during the golden hour, with a traditional boat gliding through calm waters. The sky is a deep orange and magenta, casting a vibrant reflection on the water."
+                                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuC8mYDjwgRjL6jIIISUH48keZTALy0u-8P92p0Iw62s5vVHs9PRZPTb49oFX1lN-MER60RSX94hT3aE581C8HmIkQCftYW55f2cjj4i_CuvB9td943yvZwEQo-ivd7iqXzHZGV_lZST4GX9SzZB9zcCgrckhOZRolkjXAWflMm4I-dYJbZg2thhyrCYqVE9-H16eezEWIBDbxh_4sdns4FkJUUQu-P5-VxnXWZ32kHJ94tyXM5yZNBPTwU7GbOzRRVZ_3QiyceDuwU" />
+                                    </div>
+                                    <div class="flex-1 flex flex-col justify-between">
+                                        <div>
+                                            <div class="flex items-center gap-2 mb-2">
+                                                <span
+                                                    class="text-on-surface-variant font-bold font-label-md text-label-md">Ngày 25/06/2026 | 14:00
+                                                    - 17:00</span>
+                                                <span class="text-on-surface-variant text-label-sm">• HDV: Hoàng
+                                                    Nam</span>
+                                            </div>
+                                            <h3
+                                                class="font-headline-md text-2xl text-on-surface group-hover:text-primary transition-colors mb-2">
+                                                Tĩnh Lặng Liên Hoa</h3>
+                                            <p class="text-on-surface-variant font-body-md text-body-md">Trải nghiệm thư
+                                                giãn tuyệt đối giữa thiên nhiên.</p>
+                                        </div>
+                                        <div class="flex items-center justify-between mt-6">
+                                            <div class="flex items-center gap-2">
+                                                <span
+                                                    class="material-symbols-outlined text-primary/70 text-lg">group</span>
+                                                <span class="text-on-surface-variant text-label-sm font-medium">20
+                                                    khách</span>
+                                            </div>
+                                            <button
+                                                class="flex items-center gap-1 text-on-surface-variant group-hover:text-primary font-bold font-label-md text-label-md transition-colors">
+                                                Chi tiết <span
+                                                    class="material-symbols-outlined text-base">arrow_forward</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+                <!-- Sidebar Content (Calendar) -->
+                <div class="lg:col-span-4 flex flex-col gap-6">
+                    <!-- Calendar Card -->
+                    <div class="glass-surface rounded-2xl p-8 sticky top-24 border border-primary-container/20">
+                        <div class="flex items-center justify-between mb-8">
+                            <h3 class="font-headline-md text-2xl text-on-surface">Tháng 5, 2024</h3>
+                            <div class="flex gap-2">
+                                <button class="p-2 hover:bg-primary-container/30 rounded-full transition-colors">
+                                    <span class="material-symbols-outlined text-primary">chevron_left</span>
+                                </button>
+                                <button class="p-2 hover:bg-primary-container/30 rounded-full transition-colors">
+                                    <span class="material-symbols-outlined text-primary">chevron_right</span>
+                                </button>
+                            </div>
+                        </div>
+                        <!-- Date Grid -->
+                        <div class="grid grid-cols-7 gap-1 text-center mb-4">
+                            <div class="text-label-sm font-bold text-on-surface-variant py-2">T2</div>
+                            <div class="text-label-sm font-bold text-on-surface-variant py-2">T3</div>
+                            <div class="text-label-sm font-bold text-on-surface-variant py-2">T4</div>
+                            <div class="text-label-sm font-bold text-on-surface-variant py-2">T5</div>
+                            <div class="text-label-sm font-bold text-on-surface-variant py-2">T6</div>
+                            <div class="text-label-sm font-bold text-on-surface-variant py-2">T7</div>
+                            <div class="text-label-sm font-bold text-primary py-2">CN</div>
+                        </div>
+                        <div class="grid grid-cols-7 gap-1 text-center">
+                            <div class="p-2 text-on-surface/20 font-label-md">29</div>
+                            <div class="p-2 text-on-surface/20 font-label-md">30</div>
+                            <div
+                                class="p-2 text-on-surface hover:bg-primary-container/20 rounded-full cursor-pointer transition-colors font-label-md">
+                                1</div>
+                            <div
+                                class="p-2 text-on-surface hover:bg-primary-container/20 rounded-full cursor-pointer transition-colors font-label-md">
+                                2</div>
+                            <div
+                                class="p-2 text-on-surface hover:bg-primary-container/20 rounded-full cursor-pointer transition-colors font-label-md">
+                                3</div>
+                            <div
+                                class="p-2 text-on-surface hover:bg-primary-container/20 rounded-full cursor-pointer transition-colors font-label-md">
+                                4</div>
+                            <div
+                                class="p-2 text-on-surface hover:bg-primary-container/20 rounded-full cursor-pointer transition-colors font-label-md">
+                                5</div>
+                            <div
+                                class="p-2 text-on-surface hover:bg-primary-container/20 rounded-full cursor-pointer transition-colors font-label-md">
+                                6</div>
+                            <div
+                                class="p-2 text-on-surface hover:bg-primary-container/20 rounded-full cursor-pointer transition-colors font-label-md">
+                                7</div>
+                            <div
+                                class="p-2 text-on-surface hover:bg-primary-container/20 rounded-full cursor-pointer transition-colors font-label-md">
+                                8</div>
+                            <div
+                                class="p-2 text-on-surface hover:bg-primary-container/20 rounded-full cursor-pointer transition-colors font-label-md">
+                                9</div>
+                            <div
+                                class="p-2 text-on-surface hover:bg-primary-container/20 rounded-full cursor-pointer transition-colors font-label-md">
+                                10</div>
+                            <div
+                                class="p-2 text-on-surface hover:bg-primary-container/20 rounded-full cursor-pointer transition-colors font-label-md">
+                                11</div>
+                            <div
+                                class="p-2 bg-primary text-on-primary font-bold rounded-full shadow-lg relative font-label-md">
+                                12
+                                <div
+                                    class="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-on-primary rounded-full">
+                                </div>
+                            </div>
+                            <div
+                                class="p-2 text-on-surface hover:bg-primary-container/20 rounded-full cursor-pointer transition-colors font-label-md">
+                                13</div>
+                            <div
+                                class="p-2 text-on-surface hover:bg-primary-container/20 rounded-full cursor-pointer transition-colors font-label-md">
+                                14</div>
+                            <div
+                                class="p-2 text-on-surface hover:bg-primary-container/20 rounded-full cursor-pointer transition-colors font-label-md">
+                                15</div>
+                            <div
+                                class="p-2 text-on-surface hover:bg-primary-container/20 rounded-full cursor-pointer transition-colors font-label-md">
+                                16</div>
+                            <div
+                                class="p-2 text-on-surface hover:bg-primary-container/20 rounded-full cursor-pointer transition-colors font-label-md">
+                                17</div>
+                            <div
+                                class="p-2 text-on-surface hover:bg-primary-container/20 rounded-full cursor-pointer transition-colors font-label-md">
+                                18</div>
+                            <div
+                                class="p-2 text-on-surface hover:bg-primary-container/20 rounded-full cursor-pointer transition-colors font-label-md">
+                                19</div>
+                        </div>
+                        <div class="mt-10 pt-6 border-t border-outline-variant/30">
+                            <h4 class="font-headline-md text-xl text-on-surface mb-4">Ghi chú hôm nay</h4>
+                            <div class="flex flex-col gap-4">
+                                <div
+                                    class="flex items-start gap-3 p-4 rounded-xl bg-primary-container/10 border-l-4 border-primary">
+                                    <span class="material-symbols-outlined text-primary mt-0.5">info</span>
+                                    <p class="text-label-sm font-body-md text-on-surface leading-relaxed">Đoàn khách
+                                        Singapore yêu cầu hướng dẫn viên nói được tiếng Trung cơ bản.</p>
+                                </div>
+                                <div
+                                    class="flex items-start gap-3 p-4 rounded-xl bg-surface-container-low border-l-4 border-outline">
+                                    <span
+                                        class="material-symbols-outlined text-on-surface-variant mt-0.5">warning</span>
+                                    <p class="text-label-sm font-body-md text-on-surface-variant leading-relaxed">Dự báo
+                                        có mưa nhẹ vào lúc 16:30, chuẩn bị phương án dự phòng cho tour sông.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <!-- Footer -->
+    <footer class="w-full py-12 mt-12 bg-surface-container-low border-t border-outline-variant/20">
+        <div class="flex flex-col md:flex-row justify-between items-center px-margin-desktop gap-8 max-w-full mx-auto">
+            <div class="flex flex-col gap-1 items-center md:items-start">
+                <span class="text-on-surface font-headline-md text-xl italic">TourGuide Pro</span>
+                <p class="text-on-surface-variant font-label-sm text-label-sm">© 2024 TourGuide Pro. All rights
+                    reserved.</p>
+            </div>
+            <div class="flex flex-wrap justify-center gap-8">
+                <a class="text-on-surface-variant hover:text-primary transition-colors font-label-sm text-label-sm"
+                    href="#">Legal</a>
+                <a class="text-on-surface-variant hover:text-primary transition-colors font-label-sm text-label-sm"
+                    href="#">Support</a>
+                <a class="text-on-surface-variant hover:text-primary transition-colors font-label-sm text-label-sm"
+                    href="#">Privacy Policy</a>
+                <a class="text-on-surface-variant hover:text-primary transition-colors font-label-sm text-label-sm"
+                    href="#">Terms of Service</a>
+            </div>
+        </div>
+    </footer>
+    <!-- Decorative Background elements -->
+    <div
+        class="fixed top-[-5%] right-[-5%] w-[45vw] h-[45vw] bg-primary/5 rounded-full blur-[100px] pointer-events-none -z-10">
+    </div>
+    <div
+        class="fixed bottom-[-5%] left-[-5%] w-[35vw] h-[35vw] bg-secondary/5 rounded-full blur-[80px] pointer-events-none -z-10">
+    </div>
+</body>
+
+</html>

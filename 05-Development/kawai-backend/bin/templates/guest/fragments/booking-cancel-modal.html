@@ -1,0 +1,100 @@
+<!-- =====================================================================
+     Fragment: booking-cancel-modal
+     Dùng cho: guest/booking-history.html, guest/profile.html
+     Luồng: Khách yêu cầu hủy đơn đặt phòng → điền STK ngân hàng →
+            gửi POST /api/bookings/{id}/cancel với bank info
+     ===================================================================== -->
+<div id="bookingCancelModal" class="bkcm-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+            background:rgba(0,0,0,0.55); z-index:9999;
+            justify-content:center; align-items:center;">
+
+    <div class="bkcm-content">
+
+        <!-- Header -->
+        <div class="bkcm-header">
+            <div class="bkcm-header-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                    <polyline points="9 22 9 12 15 12 15 22" />
+                </svg>
+            </div>
+            <div class="bkcm-header-text">
+                <h3>Yêu cầu hủy đặt phòng</h3>
+                <p>Mã đặt phòng: <strong id="bkcm-booking-code">#HN---</strong></p>
+            </div>
+            <button type="button" onclick="closeBkCancelModal()" class="bkcm-btn-close">&times;</button>
+        </div>
+
+        <!-- Notice -->
+        <div class="bkcm-notice">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="8" x2="12" y2="12" />
+                <line x1="12" y1="16" x2="12.01" y2="16" />
+            </svg>
+            <div class="bkcm-notice-text">
+                <p class="bkcm-notice-title"><strong>Chính sách hủy phòng</strong></p>
+                <ul>
+                    <li>
+                        Hủy trước thời điểm nhận phòng từ <strong>48 giờ trở lên</strong>:
+                        hoàn <strong>100% tiền đặt cọc</strong>.
+                    </li>
+                    <li>
+                        Hủy trước thời điểm nhận phòng <strong>dưới 48 giờ</strong>:
+                        <strong>không hoàn tiền</strong>.
+                    </li>
+                </ul>
+                <p>
+                    Nếu đồng ý hủy đặt phòng, vui lòng cung cấp thông tin tài khoản ngân hàng
+                    để bộ phận Kế toán thực hiện hoàn tiền (nếu đủ điều kiện) trong vòng
+                    <strong>3–5 ngày làm việc</strong>.
+                </p>
+            </div>
+        </div>
+
+        <!-- Form -->
+        <form id="bkcm-form" onsubmit="submitBkCancelForm(event)">
+            <input type="hidden" id="bkcm-booking-id">
+
+            <div class="bkcm-form-group">
+                <label for="bkcm-bank-name">Ngân hàng / Ví điện tử <span class="bkcm-required">*</span></label>
+                <input type="text" id="bkcm-bank-name" required placeholder="VD: Vietcombank, MoMo, ZaloPay...">
+            </div>
+
+            <div class="bkcm-form-group">
+                <label for="bkcm-account-number">Số tài khoản <span class="bkcm-required">*</span></label>
+                <input type="text" id="bkcm-account-number" required placeholder="Nhập số tài khoản..."
+                    inputmode="numeric">
+            </div>
+
+            <div class="bkcm-form-group">
+                <label for="bkcm-account-name">Tên chủ tài khoản <span class="bkcm-required">*</span></label>
+                <input type="text" id="bkcm-account-name" required placeholder="NHAP TEN KHONG DAU"
+                    style="text-transform: uppercase;">
+            </div>
+
+            <div class="bkcm-form-group">
+                <label for="bkcm-phone">Số điện thoại liên hệ</label>
+                <input type="text" id="bkcm-phone" placeholder="Số điện thoại của bạn..." inputmode="tel">
+            </div>
+
+            <div class="bkcm-footer">
+                <button type="button" class="bkcm-btn bkcm-btn-outline" onclick="closeBkCancelModal()">Quay lại</button>
+                <button type="submit" class="bkcm-btn bkcm-btn-danger" id="bkcm-btn-submit">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="3 6 5 6 21 6" />
+                        <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                        <path d="M10 11v6" />
+                        <path d="M14 11v6" />
+                        <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+                    </svg>
+                    Gửi yêu cầu hủy phòng
+                </button>
+            </div>
+        </form>
+
+    </div>
+</div>

@@ -1,0 +1,2521 @@
+<!DOCTYPE html>
+<html class="light" lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>HoaNien Resort | Guide Portal - Điểm danh</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,400..900;1,400..900&amp;family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;family=EB+Garamond:ital,wght@0,400..800;1,400..800&amp;display=swap"
+        rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet">
+    <!-- face-api.js: Face Detection & Recognition Library -->
+    <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-surface-variant": "#49454f",
+                        "tertiary": "#5e5e5c",
+                        "on-tertiary-fixed-variant": "#474744",
+                        "inverse-primary": "#d2bcfb",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary-fixed": "#220f44",
+                        "secondary-fixed-dim": "#debcd8",
+                        "on-tertiary-container": "#3b3c39",
+                        "on-tertiary-fixed": "#1b1c1a",
+                        "surface-container-highest": "#eedeea",
+                        "on-error-container": "#93000a",
+                        "tertiary-fixed": "#e4e2de",
+                        "surface-tint": "#67558c",
+                        "on-tertiary": "#ffffff",
+                        "surface-container-low": "#ffeffb",
+                        "primary-container": "#b19cd9",
+                        "on-secondary-fixed-variant": "#583f55",
+                        "surface-dim": "#e5d6e1",
+                        "tertiary-container": "#a7a6a3",
+                        "on-secondary-container": "#775c74",
+                        "on-background": "#211921",
+                        "surface-container": "#f9e9f5",
+                        "on-primary-fixed-variant": "#4f3d73",
+                        "surface": "#fff7fa",
+                        "outline-variant": "#cbc4d0",
+                        "on-secondary-fixed": "#291428",
+                        "on-primary-container": "#443267",
+                        "on-error": "#ffffff",
+                        "surface-variant": "#eedeea",
+                        "error-container": "#ffdad6",
+                        "error": "#ba1a1a",
+                        "tertiary-fixed-dim": "#c8c6c3",
+                        "primary-fixed-dim": "#d2bcfb",
+                        "on-secondary": "#ffffff",
+                        "secondary-container": "#fbd8f5",
+                        "secondary-fixed": "#fbd8f5",
+                        "inverse-on-surface": "#fcecf8",
+                        "surface-container-high": "#f3e4ef",
+                        "surface-bright": "#fff7fa",
+                        "outline": "#7a757f",
+                        "on-surface": "#211921",
+                        "secondary": "#71566e",
+                        "primary-fixed": "#ebddff",
+                        "inverse-surface": "#372e36",
+                        "on-primary": "#ffffff",
+                        "background": "#fff7fa",
+                        "primary": "#67558c",
+                        "champagne": "#BFAC8F",
+                        "beige-decorative": "#D3CEBF"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "section-gap": "120px",
+                        "margin-desktop": "64px",
+                        "gutter": "24px",
+                        "container-max": "1280px",
+                        "unit": "8px",
+                        "margin-mobile": "20px"
+                    },
+                    "fontFamily": {
+                        "headline-lg-mobile": ["Bodoni Moda"],
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "display-lg": ["Bodoni Moda"],
+                        "label-sm": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Bodoni Moda"],
+                        "label-md": ["Plus Jakarta Sans"],
+                        "headline-md": ["Bodoni Moda"],
+                        "display-md": ["Bodoni Moda"],
+                        "body-md": ["Plus Jakarta Sans"],
+                        "headline": ["EB Garamond", "serif"]
+                    },
+                    "fontSize": {
+                        "headline-lg-mobile": ["32px", { "lineHeight": "40px", "fontWeight": "500" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "display-lg": ["80px", { "lineHeight": "88px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.03em", "fontWeight": "500" }],
+                        "headline-lg": ["40px", { "lineHeight": "48px", "fontWeight": "500" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "headline-md": ["28px", { "lineHeight": "36px", "fontWeight": "500" }],
+                        "display-md": ["56px", { "lineHeight": "64px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            background-color: #fff7fa;
+            background-image:
+                radial-gradient(at 0% 0%, hsla(273, 24%, 44%, 0.1) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, hsla(305, 19%, 38%, 0.1) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, hsla(273, 24%, 44%, 0.05) 0px, transparent 50%),
+                radial-gradient(at 0% 100%, hsla(305, 19%, 38%, 0.05) 0px, transparent 50%);
+            min-height: 100vh;
+        }
+
+        .glass-panel {
+            background: rgba(255, 247, 250, 0.4);
+            backdrop-filter: blur(48px);
+            -webkit-backdrop-filter: blur(48px);
+            border: 1.5px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .glass-card {
+            background: rgba(255, 247, 250, 0.6);
+            backdrop-filter: blur(32px);
+            -webkit-backdrop-filter: blur(32px);
+            border: 1.5px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 4px 24px -1px rgba(144, 115, 140, 0.05);
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(103, 85, 140, 0.2);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(103, 85, 140, 0.4);
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            margin-top: 0.5rem;
+            min-width: 200px;
+            z-index: 60;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        .camera-container {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 4/3;
+            background: #1a1510;
+            overflow: hidden;
+        }
+
+        .camera-container video,
+        .camera-container canvas {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .scan-line {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #BFAC8F, transparent);
+            position: absolute;
+            width: 100%;
+            top: 0;
+            animation: scan 2.5s ease-in-out infinite;
+            z-index: 20;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .scan-line.active {
+            opacity: 1;
+        }
+
+        @keyframes scan {
+
+            0%,
+            100% {
+                top: 5%;
+            }
+
+            50% {
+                top: 95%;
+            }
+        }
+
+        .face-frame {
+            position: absolute;
+            top: 10%;
+            left: 10%;
+            width: 80%;
+            height: 80%;
+            border: 2px dashed rgba(255, 255, 255, 0.4);
+            border-radius: 20px;
+            z-index: 20;
+            transition: all 0.3s;
+        }
+
+        .face-frame.scanning {
+            border-color: #BFAC8F;
+            box-shadow: 0 0 15px rgba(191, 172, 143, 0.3);
+        }
+
+        .face-frame.matched {
+            border-color: #10B981;
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.5);
+            background: rgba(16, 185, 129, 0.05);
+        }
+
+        .face-frame.failed {
+            border-color: #EF4444;
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.5);
+            background: rgba(239, 68, 68, 0.05);
+        }
+
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+
+            #print-area,
+            #print-area * {
+                visibility: visible;
+            }
+
+            #print-area {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                background: white !important;
+                color: black !important;
+            }
+
+            .no-print,
+            .no-print * {
+                visibility: hidden !important;
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body class="font-body-md text-on-surface">
+    <!-- Main Wrapper -->
+    <div class="flex flex-col min-h-screen">
+        <!-- 1. TopNavBar (Horizontal) -->
+        <header
+            class="w-full h-20 fixed top-0 left-0 z-50 bg-surface/80 backdrop-blur-xl border-b border-white/20 px-margin-desktop flex items-center justify-between">
+            <div class="flex items-center gap-12">
+                <div class="flex flex-col">
+                    <h1 class="font-headline text-[32px] italic tracking-tighter text-primary leading-tight cursor-pointer"
+                        onclick="window.location.href='/'">HoaNien</h1>
+                    <p class="font-label-sm text-[10px] text-on-surface-variant/60 -mt-1">Retreat Resort &amp; Hub</p>
+                </div>
+                <nav class="flex items-center gap-2">
+                    <a th:class="${requestUri == '/tourguide/tour'} ? 'flex items-center gap-2 py-2 px-4 rounded-full text-primary font-bold bg-primary/5 border border-primary/20 transition-all duration-300 no-underline' : 'flex items-center gap-2 py-2 px-4 rounded-full text-on-surface-variant/70 font-medium hover:bg-primary/5 transition-all duration-300 no-underline'"
+                        href="/tourguide/tour">
+                        <span class="material-symbols-outlined text-[20px]">map</span>
+                        <span class="font-label-md text-label-md">Hành trình</span>
+                    </a>
+                    <a th:class="${requestUri == '/tourguide/dashboard'} ? 'flex items-center gap-2 py-2 px-4 rounded-full text-primary font-bold bg-primary/5 border border-primary/20 transition-all duration-300 no-underline' : 'flex items-center gap-2 py-2 px-4 rounded-full text-on-surface-variant/70 font-medium hover:bg-primary/5 transition-all duration-300 no-underline'"
+                        href="/tourguide/dashboard">
+                        <span class="material-symbols-outlined text-[20px]">group</span>
+                        <span class="font-label-md text-label-md">Khách hàng</span>
+                    </a>
+                    <a th:class="${requestUri == '/tourguide/feedback'} ? 'flex items-center gap-2 py-2 px-4 rounded-full text-primary font-bold bg-primary/5 border border-primary/20 transition-all duration-300 no-underline' : 'flex items-center gap-2 py-2 px-4 rounded-full text-on-surface-variant/70 font-medium hover:bg-primary/5 transition-all duration-300 no-underline'"
+                        href="/tourguide/feedback">
+                        <span class="material-symbols-outlined text-[20px]">rate_review</span>
+                        <span class="font-label-md text-label-md">Nhận xét</span>
+                    </a>
+                </nav>
+            </div>
+            <!-- 3. Profile & Icons -->
+            <div class="flex items-center gap-4">
+                <div class="relative dropdown-notification">
+                    <button onclick="toggleNotificationDropdown(event)"
+                        class="w-10 h-10 flex items-center justify-center rounded-full text-on-surface-variant hover:bg-primary/5 transition-colors relative">
+                        <span class="material-symbols-outlined">notifications</span>
+                        <!-- Red badge for unread notifications -->
+                        <span class="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full"></span>
+                    </button>
+                    <!-- Dropdown Card -->
+                    <div id="notificationDropdown"
+                        class="hidden absolute right-0 mt-2 w-80 bg-[#fdfbf7] border border-[#3a3230]/20 shadow-2xl rounded-2xl p-4 z-[100] text-[#372618]">
+                        <div class="flex justify-between items-center border-b border-[#3a3230]/10 pb-2 mb-3">
+                            <span class="font-headline text-lg font-bold">Thông báo mới</span>
+                            <button onclick="markAllNotificationsAsRead(event)"
+                                class="text-xs text-primary hover:underline font-semibold">Đọc tất cả</button>
+                        </div>
+                        <div class="space-y-3 max-h-64 overflow-y-auto text-left" id="notifications-list">
+                            <!-- Notification Item 1 -->
+                            <div class="p-3 bg-primary/5 rounded-xl border-l-4 border-primary space-y-1">
+                                <p class="text-xs font-semibold text-on-surface">Yêu cầu hỗ trợ từ Đoàn khách</p>
+                                <p class="text-[11px] text-on-surface-variant/70 leading-snug">Đoàn khách Singapore tại
+                                    Cố đô Huế yêu cầu chuẩn bị thêm nước uống đóng chai.</p>
+                                <p class="text-[9px] text-on-surface-variant/50">5 phút trước</p>
+                            </div>
+                            <!-- Notification Item 2 -->
+                            <div class="p-3 bg-primary/5 rounded-xl border-l-4 border-primary space-y-1">
+                                <p class="text-xs font-semibold text-on-surface">Cảnh báo Thời tiết</p>
+                                <p class="text-[11px] text-on-surface-variant/70 leading-snug">Dự báo có mưa rào nhẹ tại
+                                    khu vực Tháp Mười từ 16:30 chiều nay.</p>
+                                <p class="text-[9px] text-on-surface-variant/50">20 phút trước</p>
+                            </div>
+                            <!-- Notification Item 3 -->
+                            <div class="p-3 hover:bg-primary/5 rounded-xl transition-colors space-y-1">
+                                <p class="text-xs font-medium text-on-surface-variant">Lịch trình Ngày mai</p>
+                                <p class="text-[11px] text-on-surface-variant/70 leading-snug">Bạn có lịch dẫn đoàn tham
+                                    quan Ninh Bình bắt đầu lúc 08:30 sáng mai.</p>
+                                <p class="text-[9px] text-on-surface-variant/50">2 giờ trước</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="h-8 w-px bg-primary/10"></div>
+                <button onclick="openGuideSettingsModal(event)"
+                    class="flex items-center gap-3 pl-2 pr-1 py-1 rounded-full hover:bg-primary/5 transition-all outline-none cursor-pointer"
+                    title="Thông tin cá nhân">
+                    <div class="text-right">
+                        <p class="font-label-md text-label-md text-on-surface leading-none"
+                            th:text="${employee != null ? employee.fullName : 'NguynNgoc'}">NguynNgoc</p>
+                        <p class="text-[10px] text-on-surface-variant/60">Hướng dẫn viên cao cấp</p>
+                    </div>
+                    <div
+                        class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary/20 ring-4 ring-primary/5 bg-primary-container flex items-center justify-center text-on-primary-container font-bold">
+                        GD
+                    </div>
+                </button>
+                <form th:action="@{/auth/logout}" method="post" class="inline">
+                    <button type="submit"
+                        class="w-10 h-10 flex items-center justify-center rounded-full text-red-600 hover:bg-red-50 hover:text-red-800 transition-colors"
+                        title="Đăng xuất">
+                        <span class="material-symbols-outlined">logout</span>
+                    </button>
+                </form>
+            </div>
+        </header>
+        <!-- 2. Sub-navbar (Search & Actions) -->
+        <div
+            class="w-full h-16 fixed top-20 left-0 z-40 bg-surface/40 backdrop-blur-md border-b border-white/10 px-margin-desktop flex items-center justify-between">
+            <div class="relative group">
+                <span
+                    class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/40 group-focus-within:text-primary transition-colors text-[20px]">search</span>
+                <input id="search-customer-input" oninput="performSearch(this.value)"
+                    class="bg-surface-container/30 border-none rounded-full pl-11 pr-6 py-2 w-80 font-body-md text-on-surface placeholder-on-surface-variant/40 focus:ring-2 focus:ring-primary/20 transition-all outline-none font-medium"
+                    placeholder="Tìm kiếm khách hàng..." type="text">
+            </div>
+            <div class="flex items-center gap-4">
+                <button onclick="window.print()"
+                    class="flex items-center gap-2 px-5 py-2 rounded-full border border-primary/30 text-primary font-label-md text-[13px] hover:bg-primary/5 transition-all">
+                    <span class="material-symbols-outlined text-[18px]">print</span>
+                    In danh sách
+                </button>
+                <button onclick="exportCustomerList()"
+                    class="flex items-center gap-2 px-6 py-2 rounded-full bg-primary text-white font-label-md text-[13px] shadow-lg shadow-primary/20 hover:scale-[1.02] transition-all">
+                    <span class="material-symbols-outlined text-[18px]">file_download</span>
+                    Xuất danh sách
+                </button>
+            </div>
+        </div>
+        <!-- 4. Adjusted Main Content Body -->
+        <main class="flex-1 mt-36 p-margin-desktop space-y-10">
+            <!-- Header -->
+            <div class="space-y-2">
+                <h3 class="font-headline-lg text-headline-lg text-on-surface">Quản lý Đoàn Khách</h3>
+                <p class="font-headline text-lg md:text-xl font-light text-on-surface-variant/70">Theo dõi trạng thái và
+                    thực hiện điểm danh tự động qua FaceID.</p>
+            </div>
+            <!-- Grid Layout -->
+            <div class="grid grid-cols-12 gap-8 items-start">
+                <!-- Left Column: Customer List -->
+                <div id="print-area" class="col-span-12 lg:col-span-8 space-y-8">
+                    <!-- Tour Info Summary -->
+                    <div class="glass-panel rounded-lg p-8 border-primary/10">
+                        <div class="flex justify-between items-start w-full">
+                            <div class="space-y-1">
+                                <h4 id="tour-name-display"
+                                    class="font-display-md text-[32px] text-primary leading-tight cursor-pointer hover:underline hover:opacity-80 transition-all"
+                                    onclick="showActivities(this.textContent.trim())"
+                                    th:text="${tourName != null ? tourName : 'Hành trình Đoàn Tụ'}">Hành trình Đoàn Tụ
+                                </h4>
+                                <span id="tour-name-data" class="hidden"
+                                    th:data-name="${tourName != null ? tourName : 'Hành trình Đoàn Tụ'}"></span>
+                                <p class="font-headline text-lg md:text-xl font-light text-on-surface-variant/60"
+                                    th:text="'Khởi hành ngày ' + ${departureDate != null ? departureDate : '--'} + ' vào lúc ' + ${departureTime != null ? departureTime : '--'}">
+                                    Quản lý và cập nhật tình trạng điểm danh cho đoàn khách cao cấp.</p>
+                                <div class="flex flex-wrap gap-4 mt-4 pt-2">
+                                    <button
+                                        onclick="showActivities(document.getElementById('tour-name-display').textContent.trim())"
+                                        class="flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-all font-semibold text-sm">
+                                        <span class="material-symbols-outlined text-base">event_note</span>
+                                        Lịch Trình Chi Tiết
+                                    </button>
+                                    <button
+                                        onclick="showHandbook(document.getElementById('tour-name-display').textContent.trim())"
+                                        class="flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary text-on-primary hover:bg-primary/90 transition-all font-semibold text-sm shadow-md">
+                                        <span class="material-symbols-outlined text-base">auto_stories</span>
+                                        Cẩm Nang Dẫn Tour
+                                    </button>
+                                    <!-- Bắt Đầu Tour: chỉ hiện khi chưa bắt đầu (Open) -->
+                                    <form th:if="${scheduleStatus == 'Open' or scheduleStatus == null}"
+                                        th:action="@{/tourguide/start-tour}" method="post" class="inline"
+                                        id="startTourForm">
+                                        <input type="hidden" name="scheduleId" th:value="${scheduleId}" />
+                                        <button type="button" onclick="checkTourSafety(event)"
+                                            class="flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary text-on-primary hover:bg-primary/90 transition-all font-semibold text-sm shadow-md">
+                                            <span class="material-symbols-outlined text-base">play_circle</span>
+                                            Bắt Đầu Tour
+                                        </button>
+                                    </form>
+
+                                    <!-- ══ TRẠNG THÁI: ONGOING ══ -->
+                                    <div th:if="${scheduleStatus == 'ongoing'}"
+                                        class="flex items-center gap-2 p-1 bg-primary/5 border border-primary/15 rounded-full">
+                                        <span
+                                            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 text-primary font-semibold text-xs">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+                                            Đang Diễn Ra
+                                        </span>
+                                        <span class="text-primary/20 select-none">|</span>
+                                        <form th:action="@{/tourguide/finish-tour}" method="post" class="inline" id="finishTourForm">
+                                            <input type="hidden" name="scheduleId" th:value="${scheduleId}" />
+                                            <button type="button"
+                                                onclick="confirmFinishTour(event)"
+                                                class="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-primary text-on-primary hover:bg-primary/90 transition-all font-semibold text-xs shadow-sm">
+                                                <span class="material-symbols-outlined text-xs">check_circle</span>
+                                                Hoàn Thành Tour
+                                            </button>
+                                        </form>
+                                        <button type="button"
+                                            onclick="openResetModal('Open', 'Hoàn tác bắt đầu tour? Trạng thái sẽ quay về Chờ Bắt Đầu và thời gian khởi hành thực tế sẽ bị xóa.')"
+                                            class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-primary/70 border border-primary/20 hover:bg-primary/10 hover:text-primary transition-all font-medium text-xs">
+                                            <span class="material-symbols-outlined text-xs">undo</span>
+                                            Hoàn Tác
+                                        </button>
+                                    </div>
+
+                                    <!-- ══ TRẠNG THÁI: COMPLETED ══ -->
+                                    <div th:if="${scheduleStatus == 'completed'}"
+                                        class="flex items-center gap-2 p-1 bg-primary/5 border border-primary/15 rounded-full">
+                                        <span
+                                            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 text-primary font-semibold text-xs">
+                                            <span class="material-symbols-outlined text-xs">task_alt</span>
+                                            Đã Hoàn Thành
+                                        </span>
+                                        <span class="text-primary/20 select-none">|</span>
+                                        <button type="button"
+                                            onclick="openResetModal('ongoing', 'Hoàn tác hoàn thành tour? Trạng thái sẽ quay về Đang Diễn Ra. Trạng thái đặt chỗ của khách sẽ được khôi phục về Confirmed.')"
+                                            class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-primary/70 border border-primary/20 hover:bg-primary/10 hover:text-primary transition-all font-medium text-xs">
+                                            <span class="material-symbols-outlined text-xs">undo</span>
+                                            Hoàn Tác
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div
+                                class="flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-full border border-primary/20 shadow-sm">
+                                <span class="material-symbols-outlined text-primary text-[20px]">groups</span>
+                                <span class="font-label-md text-label-md text-primary"
+                                    th:text="${totalAttendees} + ' Khách hàng'">128 Khách hàng</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Table Container -->
+                    <div class="glass-panel rounded-lg overflow-hidden flex flex-col p-8 border-primary/10 shadow-sm">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left">
+                                <thead>
+                                    <tr class="border-b border-primary/5">
+                                        <th
+                                            class="pb-6 font-label-md text-label-md text-primary uppercase tracking-widest px-4">
+                                            Mã KH</th>
+                                        <th
+                                            class="pb-6 font-label-md text-label-md text-primary uppercase tracking-widest px-4">
+                                            Họ và Tên</th>
+                                        <th
+                                            class="pb-6 font-label-md text-label-md text-primary uppercase tracking-widest px-4">
+                                            TRẠNG THÁI</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-primary/5">
+                                    <tr th:each="attendee, iter : ${attendees}"
+                                        class="group hover:bg-primary/5 transition-colors">
+                                        <td class="py-6 px-4 font-body-md font-medium text-on-surface"
+                                            th:text="'#EVN-00' + ${attendee.id}">#EVN-00234</td>
+                                        <td class="py-6 px-4">
+                                            <div class="flex items-center gap-3">
+                                                <div th:with="custName=${attendee.customer?.fullName ?: (attendee.dependent?.dependentName ?: 'KH')}"
+                                                    class="w-10 h-10 rounded-full glass-card flex items-center justify-center font-display-md text-primary text-sm cursor-pointer hover:scale-105 transition-all"
+                                                    th:text="${#strings.length(custName) >= 2 ? #strings.substring(custName, 0, 2).toUpperCase() : custName.toUpperCase()}"
+                                                    th:data-name="${attendee.customer?.fullName ?: (attendee.dependent?.dependentName ?: 'Khách vãng lai')}"
+                                                    th:data-id="'#EVN-00' + ${attendee.id}"
+                                                    th:data-phone="${attendee.customer?.phone ?: (attendee.dependent != null ? 'Người thân' : '--')}"
+                                                    th:data-email="${attendee.customer?.email ?: '--'}"
+                                                    th:data-membership="${attendee.customer != null && attendee.customer.membershipTier != null ? attendee.customer.membershipTier.tierName : 'Khách đi cùng'}"
+                                                    th:data-room="'Phòng ' + ${100 + (attendee.id != null ? attendee.id % 20 : 0)}"
+                                                    onclick="showCustomerContactModal(this)">
+                                                    NM
+                                                </div>
+                                                <div>
+                                                    <p class="font-body-md font-semibold text-on-surface cursor-pointer hover:underline animate-none"
+                                                        th:text="${attendee.customer?.fullName ?: (attendee.dependent?.dependentName ?: 'Khách vãng lai')}"
+                                                        th:data-name="${attendee.customer?.fullName ?: (attendee.dependent?.dependentName ?: 'Khách vãng lai')}"
+                                                        th:data-id="'#EVN-00' + ${attendee.id}"
+                                                        th:data-phone="${attendee.customer?.phone ?: (attendee.dependent != null ? 'Người thân' : '--')}"
+                                                        th:data-email="${attendee.customer?.email ?: '--'}"
+                                                        th:data-membership="${attendee.customer != null && attendee.customer.membershipTier != null ? attendee.customer.membershipTier.tierName : 'Khách đi cùng'}"
+                                                        th:data-room="'Phòng ' + ${100 + (attendee.id != null ? attendee.id % 20 : 0)}"
+                                                        onclick="showCustomerContactModal(this)">
+                                                        Nguyễn Minh Anh
+                                                    </p>
+                                                    <p class="text-[12px] text-on-surface-variant/60"
+                                                        th:text="${attendee.customer != null && attendee.customer.membershipTier != null ? attendee.customer.membershipTier.tierName : 'Khách đi cùng'}">
+                                                        Hà Nội</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="py-6 px-4 flex items-center">
+                                            <span th:if="${attendee.status == 'Checked_In'}"
+                                                class="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 font-label-sm text-label-sm border border-emerald-500/30 flex items-center">
+                                                <span class="material-symbols-outlined text-[14px] mr-1">check</span>Đã
+                                                điểm danh
+                                            </span>
+                                            <button th:if="${attendee.status == 'Checked_In'}"
+                                                class="ml-3 w-8 h-8 flex items-center justify-center rounded-lg border border-primary/30 text-primary/40 cursor-default bg-primary/5"
+                                                disabled="">
+                                                <span class="material-symbols-outlined text-[18px]">check</span>
+                                            </button>
+
+                                            <span th:if="${attendee.status == 'Not_Show'}"
+                                                class="px-3 py-1 rounded-full bg-secondary-container/30 text-secondary font-label-sm text-label-sm border border-secondary-container">
+                                                Chờ điểm danh
+                                            </span>
+                                            <button th:if="${attendee.status == 'Not_Show'}"
+                                                th:onclick="'checkinManual(' + ${attendee.id} + ')'"
+                                                class="ml-3 w-8 h-8 flex items-center justify-center rounded-lg border border-primary/30 text-primary hover:bg-primary/5 hover:scale-105 transition-all shadow-sm active:shadow-inner">
+                                                <span class="material-symbols-outlined text-[18px]">check</span>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div th:if="${#lists.isEmpty(attendees)}"
+                                class="flex flex-col items-center justify-center py-16 text-center">
+                                <span
+                                    class="material-symbols-outlined text-[48px] text-beige-decorative mb-4">groups</span>
+                                <p class="font-body-md text-on-surface-variant">Không có hành khách nào đăng ký hôm nay.
+                                </p>
+                            </div>
+                        </div>
+                        <!-- Pagination Controls -->
+                        <div id="pagination-controls" class="flex flex-col sm:flex-row justify-between items-center gap-4 mt-6 pt-6 border-t border-primary/10 select-none">
+                            <p class="text-xs text-on-surface-variant/80 font-medium" id="pagination-info">
+                                Đang hiển thị 1 đến 5 của 25 khách hàng
+                            </p>
+                            <div class="flex items-center gap-1.5" id="pagination-buttons">
+                                <!-- Dynamic page buttons -->
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Announcement / Banner -->
+                    <div class="glass-panel p-8 rounded-lg border-primary/10 space-y-6 no-print">
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-primary">report_problem</span>
+                            <h4 class="font-display-md text-[28px] text-primary">Báo cáo sự cố</h4>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="font-label-md text-on-surface-variant/70">Mô tả sự cố</label>
+                            <textarea id="incident-description"
+                                class="w-full bg-surface-container/30 border-none rounded-lg p-4 font-body-md text-on-surface placeholder-on-surface-variant/40 focus:ring-2 focus:ring-primary/20 transition-all outline-none min-h-[120px]"
+                                placeholder="Nhập chi tiết sự cố tại đây..."></textarea>
+                        </div>
+                        <div class="flex justify-end">
+                            <button onclick="submitIncidentReport()"
+                                class="px-8 py-3 rounded-full bg-primary text-white font-label-md text-label-md shadow-lg shadow-primary/20 hover:scale-[1.02] transition-all font-semibold">
+                                Gửi báo cáo
+                            </button>
+                        </div>
+                    </div>
+                    <div id="notice-banner-card"
+                        class="glass-panel p-8 rounded-lg relative overflow-hidden group no-print">
+                        <div class="relative z-10 flex flex-col h-full justify-between">
+                            <div class="max-w-md">
+                                <h4 class="font-display-md text-[28px] text-primary mb-2">Thông tin Quan trọng (Lưu ý)
+                                </h4>
+                                <p class="font-headline text-lg font-light text-on-surface-variant/70">Yêu cầu tất cả
+                                    nhân viên kiểm tra
+                                    thiết bị quét khuôn mặt trước giờ đón khách 30 phút. Báo cáo ngay nếu có sự cố xảy
+                                    ra.</p>
+                            </div>
+                            <div class="flex items-center gap-4 mt-8">
+                                <button onclick="showImportantNoteDetails()"
+                                    class="px-6 py-2 rounded-full bg-on-background text-white font-label-md text-label-md hover:opacity-90 transition-all">Xem
+                                    chi tiết</button>
+                                <button onclick="dismissImportantNote()"
+                                    class="px-6 py-2 rounded-full border border-primary/20 text-primary font-label-md text-label-md hover:bg-primary/5 transition-all">Bỏ
+                                    qua</button>
+                            </div>
+                        </div>
+                        <div
+                            class="absolute right-0 top-0 w-1/3 h-full opacity-20 group-hover:opacity-30 transition-opacity duration-700 mix-blend-overlay">
+                            <img alt="Lavender" class="w-full h-full object-cover"
+                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuDeLvciBkxzpqCj99jbhYDz-jWK36X0hiX6zOFGSREI9SK6R5-Vo7lRAKfEd6Z3Wr_hSC3C__jVEYbxzQbBA-UkwdGxwaQrHu6isYZl1ibWqp4M42CGW_uMKaNtNYsHjycv_UNAjCuOeuZY4xTpjnAdYN6JsWf65fvEvvXEIJ9vCn5SP80Tgu7X6wUXuynSbPC_s_W9jdb69eSOlgBl2aRhYQQeMe7ukL-J4tGjtg1WlG9E3UW6GzWv8GF0Xi9HHgxqHfeX3CjWgZ8">
+                        </div>
+                    </div>
+                </div>
+                <!-- Right Column: FaceID Attendance -->
+                <div class="col-span-12 lg:col-span-4 space-y-8" id="faceid-section">
+                    <!-- Scanner Interface -->
+                    <div class="glass-panel p-6 rounded-lg space-y-6">
+                        <div class="space-y-8">
+                            <!-- Header -->
+                            <div class="flex items-center gap-3">
+                                <span class="material-symbols-outlined text-primary">face_retouching_natural</span>
+                                <h5 class="font-headline-md text-[20px] text-on-surface">Điểm danh FaceID</h5>
+                            </div>
+                            <!-- Camera Scanning Frame (Squircle) -->
+                            <div class="relative aspect-[4/3] bg-[#1a151a] rounded-xl overflow-hidden shadow-xl border-[12px] border-surface-container-low camera-container"
+                                id="camera-container">
+                                <video id="camera-video" autoplay playsinline muted
+                                    class="absolute inset-0 w-full h-full object-cover z-0"></video>
+                                <canvas id="camera-canvas" class="hidden"></canvas>
+                                <img id="captured-image" class="absolute inset-0 w-full h-full object-cover hidden z-0"
+                                    alt="Captured">
+
+                                <!-- Original background/placeholder mockup -->
+                                <div id="camera-placeholder"
+                                    class="absolute inset-0 bg-[#161216] flex flex-col items-center justify-center gap-3 z-5">
+                                    <span
+                                        class="material-symbols-outlined text-[48px] text-primary/30">videocam_off</span>
+                                    <p class="text-xs text-on-surface-variant/40 font-medium px-4 text-center">Camera
+                                        đang tắt. Hãy bấm bật camera để bắt đầu.</p>
+                                </div>
+
+                                <div class="absolute inset-0 flex items-center justify-center z-10">
+                                    <div class="w-4/5 h-4/5 border border-primary/30 rounded-xl relative">
+                                        <div class="absolute top-0 left-0 w-6 h-6 border-t-2 border-l-2 border-primary">
+                                        </div>
+                                        <div
+                                            class="absolute top-0 right-0 w-6 h-6 border-t-2 border-r-2 border-primary">
+                                        </div>
+                                        <div
+                                            class="absolute bottom-0 left-0 w-6 h-6 border-b-2 border-l-2 border-primary">
+                                        </div>
+                                        <div
+                                            class="absolute bottom-0 right-0 w-6 h-6 border-b-2 border-r-2 border-primary">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="faces-container" class="absolute inset-0 z-20 pointer-events-none"></div>
+                                <div class="scan-line z-20" id="scan-line"></div>
+
+                                <div class="absolute bottom-6 left-1/2 -translate-x-1/2 bg-black/60 backdrop-blur-md px-4 py-2 rounded-full z-30 flex items-center gap-2 pointer-events-none"
+                                    id="scan-status-bar">
+                                    <span class="material-symbols-outlined text-champagne text-[16px]"
+                                        style="font-variation-settings: 'FILL' 1;" id="scan-status-icon">face</span>
+                                    <span id="scan-status-label"
+                                        class="font-label-caps text-[10px] tracking-widest text-white">SẴN SÀNG</span>
+                                </div>
+                            </div>
+                            <!-- Control Buttons -->
+                            <div class="space-y-4">
+                                <div class="grid grid-cols-2 gap-3">
+                                    <button id="btn-camera" onclick="toggleCamera()"
+                                        class="flex items-center justify-center gap-2 py-3 rounded-full bg-primary text-white font-label-md text-[13px] shadow-md hover:opacity-90 transition-all">
+                                        <span class="material-symbols-outlined text-[18px]"
+                                            id="camera-icon">videocam</span>
+                                        <span id="camera-btn-label">Bật Camera</span>
+                                    </button>
+                                    <button id="btn-scan" disabled
+                                        class="flex items-center justify-center gap-2 py-3 rounded-full border border-primary/20 text-on-surface-variant font-label-md text-[13px] hover:bg-primary/5 transition-all disabled:opacity-40 disabled:cursor-not-allowed">
+                                        <span class="material-symbols-outlined text-[18px]">center_focus_strong</span>
+                                        Quét Khuôn Mặt
+                                    </button>
+                                </div>
+                                <button id="btn-reset" onclick="resetCamera()" disabled
+                                    class="w-full flex items-center justify-center gap-2 py-3 rounded-full bg-surface-container-low text-on-surface-variant/70 font-label-md text-[13px] hover:bg-surface-container transition-all">
+                                    <span class="material-symbols-outlined text-[18px]">restart_alt</span>
+                                    Reset Camera
+                                </button>
+                                <button onclick="manualResetAttendance()"
+                                    class="w-full border border-red-800/60 py-2.5 font-label-caps text-[11px] text-red-800 hover:bg-red-800 hover:text-white transition-all duration-300 flex items-center justify-center gap-2">
+                                    <span class="material-symbols-outlined text-[14px]">lock_reset</span> RESET ĐIỂM
+                                    DANH
+                                </button>
+                            </div>
+                            <!-- Success Status Notification -->
+                            <div id="scan-result-card"
+                                class="glass-card p-4 rounded-lg border border-primary/10 flex items-center justify-between hidden">
+                                <div class="flex items-center gap-4">
+                                    <div
+                                        class="w-12 h-12 rounded-full overflow-hidden border-2 border-primary/20 flex items-center justify-center bg-white">
+                                        <span id="result-icon"
+                                            class="material-symbols-outlined text-[20px] text-green-800">check_circle</span>
+                                    </div>
+                                    <div>
+                                        <p id="result-name" class="font-body-md font-bold text-on-surface">Nguyễn Minh
+                                            Anh</p>
+                                        <div class="flex items-center gap-1 text-emerald-600 text-[12px]">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                            <span id="result-detail">Xác thực thành công</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Attendance Progress -->
+                            <div class="space-y-6 pt-4">
+                                <div class="flex justify-between items-center">
+                                    <div class="space-y-1">
+                                        <p
+                                            class="text-[10px] font-bold text-on-surface-variant/40 uppercase tracking-widest">
+                                            Tiến độ điểm danh</p>
+                                        <p class="font-headline-md text-2xl text-on-surface">
+                                            <span th:text="${checkedInCount}">0</span> / <span
+                                                th:text="${totalAttendees}">0</span> Khách
+                                        </p>
+                                    </div>
+                                    <span class="text-xs text-on-surface-variant/60 font-semibold"
+                                        th:text="${totalAttendees > 0 ? (checkedInCount * 100 / totalAttendees) + '%' : '0%'}">0%</span>
+                                </div>
+                                <div class="w-full bg-[#1b1c1a]/5 rounded-full h-1.5 overflow-hidden">
+                                    <div class="bg-primary h-full rounded-full transition-all duration-500"
+                                        th:style="'width: ' + ${totalAttendees > 0 ? (checkedInCount * 100 / totalAttendees) : 0} + '%'">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        </main>
+
+        <!-- BEGIN: Footer -->
+        <footer class="bg-[#2D2926] text-white py-20 px-20">
+            <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-end">
+                <div class="space-y-4">
+                    <h3 class="text-3xl font-serif text-white">HoaNien</h3>
+                    <p class="text-[10px] tracking-widest opacity-50 uppercase text-white">© 2026 HOANIEN RETREAT. A
+                        QUIET LUXURY TRAVEL GROUP.</p>
+                </div>
+                <div class="flex space-x-12 text-[10px] font-bold tracking-widest uppercase opacity-80">
+                    <a class="hover:text-[#C5A059] no-underline text-white" href="#">Quyền riêng tư</a>
+                    <a class="hover:text-[#C5A059] no-underline text-white" href="#">Sự bền vững</a>
+                    <a class="hover:text-[#C5A059] no-underline text-white" href="#">Truyền thông</a>
+                    <a class="hover:text-[#C5A059] no-underline text-white" href="#">Liên hệ</a>
+                </div>
+            </div>
+        </footer>
+        <!-- END: Footer -->
+    </div>
+
+    <!-- Guide Settings Modal -->
+    <div id="guideSettingsModal"
+        class="fixed inset-0 z-[150] hidden flex items-center justify-center bg-black/60 backdrop-blur-sm">
+        <div class="bg-[#fdfbf7] w-full max-w-lg p-8 border border-[#3a3230]/20 shadow-2xl relative text-[#372618]">
+            <button onclick="closeGuideSettingsModal()"
+                class="absolute top-4 right-4 text-[#372618]/60 hover:text-[#372618] transition-colors focus:outline-none">
+                <span class="material-symbols-outlined text-2xl">close</span>
+            </button>
+            <h3 class="font-headline-md text-2xl text-black font-bold mb-2 border-b border-[#3a3230]/10 pb-3">Thông tin
+                hướng dẫn viên</h3>
+
+            <div th:if="${employee != null}" class="space-y-4 mt-4">
+                <div class="space-y-1">
+                    <label class="font-label-caps text-[10px] text-outline uppercase block text-left font-semibold">Họ
+                        và tên</label>
+                    <input readonly th:value="${employee.fullName}"
+                        class="w-full bg-transparent border-0 border-b border-[#3a3230]/20 py-1.5 font-body-md text-black transition-all text-left outline-none cursor-default" />
+                </div>
+                <div class="space-y-1">
+                    <label class="font-label-caps text-[10px] text-outline uppercase block text-left font-semibold">Giới
+                        tính</label>
+                    <input readonly
+                        th:value="${employee.gender == 'Male' ? 'Nam' : (employee.gender == 'Female' ? 'Nữ' : 'Khác')}"
+                        class="w-full bg-transparent border-0 border-b border-[#3a3230]/20 py-1.5 font-body-md text-black transition-all text-left outline-none cursor-default" />
+                </div>
+                <div class="space-y-1">
+                    <label class="font-label-caps text-[10px] text-outline uppercase block text-left font-semibold">Số
+                        CCCD</label>
+                    <input readonly th:value="${employee.cccd}"
+                        class="w-full bg-transparent border-0 border-b border-[#3a3230]/20 py-1.5 font-body-md text-black transition-all text-left outline-none cursor-default" />
+                </div>
+                <div class="space-y-1">
+                    <label class="font-label-caps text-[10px] text-outline uppercase block text-left font-semibold">Số
+                        điện thoại</label>
+                    <input readonly th:value="${employee.phone}"
+                        class="w-full bg-transparent border-0 border-b border-[#3a3230]/20 py-1.5 font-body-md text-black transition-all text-left outline-none cursor-default" />
+                </div>
+                <div class="space-y-1">
+                    <label
+                        class="font-label-caps text-[10px] text-outline uppercase block text-left font-semibold">Email</label>
+                    <input readonly th:value="${employee.email}"
+                        class="w-full bg-transparent border-0 border-b border-[#3a3230]/20 py-1.5 font-body-md text-black transition-all text-left outline-none cursor-default" />
+                </div>
+            </div>
+            <div th:if="${employee == null}">
+                <p class="text-sm text-[#3a3230]/80 mt-4 text-left">Không tìm thấy thông tin hồ sơ hướng dẫn viên. Vui
+                    lòng liên hệ Quản lý để được hỗ trợ.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Customer Contact Modal -->
+    <div class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300"
+        id="customer-contact-modal">
+        <div
+            class="max-w-md w-full mx-4 p-8 rounded-xl shadow-xl relative overflow-hidden bg-[#fdfbf7] border border-[#3a3230]/20 text-[#372618]">
+            <button
+                class="absolute top-4 right-4 text-on-surface-variant hover:text-primary transition-colors focus:outline-none"
+                onclick="closeCustomerContactModal()">
+                <span class="material-symbols-outlined text-2xl text-[#372618]">close</span>
+            </button>
+            <div class="flex flex-col items-center text-center space-y-6">
+                <div
+                    class="w-32 h-32 rounded-full overflow-hidden border-4 border-primary/20 ring-8 ring-primary/5 bg-[#eedeea] flex items-center justify-center text-primary font-bold">
+                    <span class="font-display-md text-primary text-[40px]" id="modal-avatar-placeholder"></span>
+                </div>
+                <div class="space-y-2">
+                    <h2 class="font-display-md text-[32px] text-primary font-bold" id="modal-customer-name"></h2>
+                    <p class="font-label-md text-primary uppercase tracking-widest font-semibold"
+                        id="modal-customer-id"></p>
+                </div>
+                <div class="w-full space-y-4 text-left">
+                    <div class="flex items-center gap-4 p-4 rounded-lg bg-primary/5">
+                        <span class="material-symbols-outlined text-primary">call</span>
+                        <div>
+                            <p class="text-[10px] text-on-surface-variant/60 uppercase font-bold">Điện thoại</p>
+                            <p class="font-body-md text-on-surface" id="modal-customer-phone">+84 900 000 000</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4 p-4 rounded-lg bg-primary/5">
+                        <span class="material-symbols-outlined text-primary">mail</span>
+                        <div>
+                            <p class="text-[10px] text-on-surface-variant/60 uppercase font-bold">Email</p>
+                            <p class="font-body-md text-on-surface" id="modal-customer-email">customer@example.com</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4 p-4 rounded-lg bg-primary/5">
+                        <span class="material-symbols-outlined text-primary">meeting_room</span>
+                        <div>
+                            <p class="text-[10px] text-on-surface-variant/60 uppercase font-bold">Số phòng</p>
+                            <p class="font-body-md text-on-surface" id="modal-customer-room">Phòng 302</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4 p-4 rounded-lg bg-primary/5">
+                        <span class="material-symbols-outlined text-primary">location_on</span>
+                        <div>
+                            <p class="text-[10px] text-on-surface-variant/60 uppercase font-bold">Phân loại</p>
+                            <p class="font-body-md text-on-surface" id="modal-customer-detail">Regular</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4 w-full">
+                    <button onclick="showToast('Đang kết nối cuộc gọi đến khách hàng...', 'info')"
+                        class="flex items-center justify-center gap-2 py-3 rounded-full bg-primary text-white font-label-md hover:opacity-90 transition-all font-semibold text-[13px]">
+                        <span class="material-symbols-outlined text-[18px]">call</span>
+                        Gọi điện
+                    </button>
+                    <button onclick="showToast('Đang mở hộp thoại chat với khách hàng...', 'info')"
+                        class="flex items-center justify-center gap-2 py-3 rounded-full border border-primary/20 text-primary font-label-md hover:bg-primary/5 transition-all font-semibold text-[13px]">
+                        <span class="material-symbols-outlined text-[18px]">chat</span>
+                        Gửi tin nhắn
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed top-24 right-8 z-[200] flex flex-col gap-3 pointer-events-none"></div>
+
+    <!-- Script Section -->
+    <script>
+        const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.12/model/';
+        const FACE_MATCH_THRESHOLD = 0.45;
+        const MIN_CONFIDENCE = 85;
+
+        let cameraStream = null;
+        let cameraActive = false;
+        let isScanning = false;
+        let modelsLoaded = false;
+        let referenceDescriptors = [];
+        let scanInterval = null;
+        const recentlyScanned = new Set();
+        const recentlyUnknown = new Set();
+
+        async function loadModels() {
+            const statusText = document.getElementById('scan-status-label');
+            try {
+                statusText.textContent = 'ĐANG TẢI MODEL...';
+                await faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL);
+                await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
+                await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
+
+                modelsLoaded = true;
+                statusText.textContent = 'SẴN SÀNG';
+                await loadReferenceFaces();
+            } catch (err) {
+                console.error('Model loading error:', err);
+                statusText.textContent = 'CHẾ ĐỘ DỰ PHÒNG';
+            }
+        }
+
+        async function loadReferenceFaces() {
+            try {
+                const response = await fetch('/api/faceid/references');
+                const refs = await response.json();
+                for (const ref of refs) {
+                    try {
+                        const img = await loadImage(ref.imageUrl);
+                        const detection = await faceapi
+                            .detectSingleFace(img, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.5 }))
+                            .withFaceLandmarks()
+                            .withFaceDescriptor();
+                        if (detection) {
+                            referenceDescriptors.push({
+                                name: ref.name,
+                                descriptor: detection.descriptor,
+                                imageUrl: ref.imageUrl
+                            });
+                        }
+                    } catch (e) {
+                        console.warn(`Failed to load reference for ${ref.name}:`, e);
+                    }
+                }
+            } catch (err) {
+                console.error('Failed to load reference faces:', err);
+            }
+        }
+
+        function loadImage(src) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.crossOrigin = 'anonymous';
+                img.onload = () => resolve(img);
+                img.onerror = reject;
+                img.src = src;
+            });
+        }
+
+        async function toggleCamera() {
+            if (cameraActive) { stopCamera(); } else { await startCamera(); }
+        }
+
+        async function startCamera() {
+            try {
+                cameraStream = await navigator.mediaDevices.getUserMedia({
+                    video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: 'user' }
+                });
+                const video = document.getElementById('camera-video');
+                video.srcObject = cameraStream;
+                await video.play();
+                cameraActive = true;
+                document.getElementById('camera-placeholder').classList.add('hidden');
+                document.getElementById('camera-icon').textContent = 'videocam_off';
+                document.getElementById('camera-btn-label').textContent = 'Tắt Camera';
+                document.getElementById('btn-scan').disabled = true; // Auto scanning now
+                document.getElementById('btn-scan').textContent = 'Đang Auto Quét...';
+                document.getElementById('btn-reset').disabled = false;
+
+                if (scanInterval) clearInterval(scanInterval);
+                scanInterval = setInterval(() => {
+                    if (cameraActive && !isScanning && modelsLoaded && referenceDescriptors.length > 0) {
+                        performRealTimeScan();
+                    }
+                }, 800); // scan every 800ms
+            } catch (err) {
+                console.error('Camera error:', err);
+                showToast('Không thể truy cập camera. Vui lòng kiểm tra quyền thiết bị.', 'error');
+            }
+        }
+
+        function stopCamera() {
+            if (scanInterval) clearInterval(scanInterval);
+            if (cameraStream) { cameraStream.getTracks().forEach(t => t.stop()); cameraStream = null; }
+            cameraActive = false;
+            document.getElementById('camera-video').srcObject = null;
+            document.getElementById('camera-placeholder').classList.remove('hidden');
+            document.getElementById('camera-icon').textContent = 'videocam';
+            document.getElementById('camera-btn-label').textContent = 'Bật Camera';
+            document.getElementById('btn-scan').textContent = 'Quét Khuôn Mặt';
+            document.getElementById('btn-scan').disabled = true;
+        }
+
+        function resetCamera() {
+            document.getElementById('captured-image').classList.add('hidden');
+            document.getElementById('captured-image').src = '';
+            document.getElementById('camera-video').classList.remove('hidden');
+            document.getElementById('scan-result-card').classList.add('hidden');
+            document.getElementById('faces-container').innerHTML = '';
+            document.getElementById('scan-status-label').textContent = 'SẴN SÀNG';
+            document.getElementById('scan-line').classList.remove('active');
+            isScanning = false;
+            if (cameraActive) {
+                if (scanInterval) clearInterval(scanInterval);
+                scanInterval = setInterval(() => {
+                    if (cameraActive && !isScanning && modelsLoaded && referenceDescriptors.length > 0) {
+                        performRealTimeScan();
+                    }
+                }, 800);
+            }
+        }
+
+        async function performRealTimeScan() {
+            isScanning = true;
+            const video = document.getElementById('camera-video');
+            const facesContainer = document.getElementById('faces-container');
+            const statusLabel = document.getElementById('scan-status-label');
+            const statusIcon = document.getElementById('scan-status-icon');
+            const scanLine = document.getElementById('scan-line');
+
+            try {
+                // Sử dụng detectAllFaces để quét đám đông
+                const detections = await faceapi
+                    .detectAllFaces(video, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.5 }))
+                    .withFaceLandmarks()
+                    .withFaceDescriptors();
+
+                // Xóa các khung cũ trên video
+                facesContainer.innerHTML = '';
+
+                if (detections && detections.length > 0) {
+                    scanLine.classList.add('active');
+                    statusLabel.textContent = `ĐANG QUÉT (${detections.length} NGƯỜI)...`;
+
+                    const displaySize = { width: video.clientWidth, height: video.clientHeight };
+                    const resizedDetections = faceapi.resizeResults(detections, displaySize);
+
+                    for (const detection of resizedDetections) {
+                        let bestDistance = Infinity;
+                        let bestName = null;
+                        for (const ref of referenceDescriptors) {
+                            const distance = faceapi.euclideanDistance(detection.descriptor, ref.descriptor);
+                            if (distance < bestDistance) {
+                                bestDistance = distance;
+                                bestName = ref.name;
+                            }
+                        }
+
+                        let confidence;
+                        if (bestDistance <= FACE_MATCH_THRESHOLD) {
+                            confidence = 100.0 - (bestDistance / FACE_MATCH_THRESHOLD) * 15.0;
+                        } else {
+                            confidence = Math.max(0.0, 85.0 - ((bestDistance - FACE_MATCH_THRESHOLD) / (1.0 - FACE_MATCH_THRESHOLD)) * 85.0);
+                        }
+
+                        const box = detection.detection.box;
+                        const frameDiv = document.createElement('div');
+                        frameDiv.style.position = 'absolute';
+                        frameDiv.style.top = box.y + 'px';
+                        frameDiv.style.left = box.x + 'px';
+                        frameDiv.style.width = box.width + 'px';
+                        frameDiv.style.height = box.height + 'px';
+
+                        if (bestDistance < FACE_MATCH_THRESHOLD && confidence >= MIN_CONFIDENCE) {
+                            // MATCHED
+                            frameDiv.className = 'face-frame matched';
+                            frameDiv.innerHTML = `<div class="absolute -bottom-8 left-1/2 -translate-x-1/2 bg-green-600/90 text-white px-2 py-1 rounded text-[10px] whitespace-nowrap font-bold shadow-md">${bestName} (${confidence.toFixed(0)}%)</div>`;
+                            statusIcon.textContent = 'check_circle';
+
+                            // Anti-spam check
+                            if (!recentlyScanned.has(bestName)) {
+                                recentlyScanned.add(bestName);
+                                showToast(`Đã điểm danh thành công: ${bestName}`, 'success');
+
+                                // Cập nhật ngầm bằng API
+                                try {
+                                    await fetch('/api/faceid/verify', {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({ name: bestName })
+                                    });
+
+                                    // Update UI List bên tay trái ngay lập tức (không cần reload)
+                                    const rows = document.querySelectorAll('tbody tr');
+                                    rows.forEach(row => {
+                                        const nameCol = row.querySelector('td:nth-child(2)');
+                                        if (nameCol && nameCol.textContent.includes(bestName)) {
+                                            const statusCol = row.querySelector('td:nth-child(3)');
+                                            if (statusCol && !statusCol.innerHTML.includes('Đã điểm danh')) {
+                                                statusCol.innerHTML = `
+                                                    <span class="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 font-label-sm text-label-sm border border-emerald-500/30 flex items-center">
+                                                        <span class="material-symbols-outlined text-[14px] mr-1">check</span>Đã điểm danh
+                                                    </span>
+                                                    <button class="ml-3 w-8 h-8 flex items-center justify-center rounded-lg border border-primary/30 text-primary/40 cursor-default bg-primary/5" disabled>
+                                                        <span class="material-symbols-outlined text-[16px]">check</span>
+                                                    </button>
+                                                `;
+
+                                                // Cập nhật thanh tiến độ
+                                                const countSpan = document.querySelector('.font-headline-md.text-2xl span:first-child');
+                                                const totalSpan = document.querySelector('.font-headline-md.text-2xl span:last-child');
+                                                const pctSpan = document.querySelector('.text-xs.text-on-surface-variant\\/60.font-semibold');
+                                                const barDiv = document.querySelector('.bg-primary.h-full.rounded-full');
+
+                                                if (countSpan && totalSpan) {
+                                                    let c = parseInt(countSpan.textContent) + 1;
+                                                    let t = parseInt(totalSpan.textContent);
+                                                    countSpan.textContent = c;
+                                                    if (t > 0) {
+                                                        let pct = Math.round((c / t) * 100);
+                                                        if (pctSpan) pctSpan.textContent = pct + '%';
+                                                        if (barDiv) barDiv.style.width = pct + '%';
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    });
+                                } catch (e) { console.warn(e); }
+
+                                // Xóa khỏi danh sách spam sau 10s
+                                setTimeout(() => recentlyScanned.delete(bestName), 10000);
+
+                                // Tự động tải lại trang sau khi điểm danh thành công
+                                setTimeout(() => {
+                                    window.location.href = '/tourguide/dashboard?scanned=true';
+                                }, 1500);
+                            }
+                        } else {
+                            // NOT MATCHED
+                            frameDiv.className = 'face-frame failed';
+                            frameDiv.innerHTML = `<div class="absolute -bottom-8 left-1/2 -translate-x-1/2 bg-red-600/90 text-white px-2 py-1 rounded text-[10px] whitespace-nowrap font-bold shadow-md">Không tồn tại</div>`;
+
+                            // Anti-spam warning for unknown faces
+                            const unknownKey = 'unknown_face_detected';
+                            if (!recentlyUnknown.has(unknownKey)) {
+                                recentlyUnknown.add(unknownKey);
+                                showToast('Khuôn mặt chưa được đăng ký trong hệ thống!', 'error');
+                                setTimeout(() => recentlyUnknown.delete(unknownKey), 8000);
+                            }
+                        }
+                        // Thêm khung vào video
+                        facesContainer.appendChild(frameDiv);
+                    }
+                } else {
+                    scanLine.classList.remove('active');
+                    statusLabel.textContent = 'SẴN SÀNG QUÉT';
+                }
+            } catch (err) {
+                console.error("Lỗi scan realtime:", err);
+            }
+            isScanning = false;
+        }
+
+        async function captureAndScan() {
+            if (!cameraActive || isScanning) return;
+            isScanning = true;
+
+            const video = document.getElementById('camera-video');
+            const canvas = document.getElementById('camera-canvas');
+            const capturedImg = document.getElementById('captured-image');
+            const scanLine = document.getElementById('scan-line');
+            const faceFrame = document.getElementById('face-frame');
+            const statusLabel = document.getElementById('scan-status-label');
+            const statusIcon = document.getElementById('scan-status-icon');
+            const btnScan = document.getElementById('btn-scan');
+
+            canvas.width = video.videoWidth || 640;
+            canvas.height = video.videoHeight || 480;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const imageData = canvas.toDataURL('image/jpeg', 0.9);
+
+            capturedImg.src = imageData;
+            capturedImg.classList.remove('hidden');
+            video.classList.add('hidden');
+
+            statusLabel.textContent = 'ĐANG QUÉT...';
+            statusIcon.textContent = 'sync';
+            statusIcon.style.animation = 'spin 1s linear infinite';
+            scanLine.classList.add('active');
+            faceFrame.className = 'face-frame scanning';
+            btnScan.disabled = true;
+
+            let matchResult = null;
+
+            try {
+                if (modelsLoaded && referenceDescriptors.length > 0) {
+                    const img = await loadImage(imageData);
+                    const detection = await faceapi
+                        .detectSingleFace(img, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.5 }))
+                        .withFaceLandmarks()
+                        .withFaceDescriptor();
+
+                    if (detection) {
+                        let bestDistance = Infinity;
+                        let bestName = null;
+                        for (const ref of referenceDescriptors) {
+                            const distance = faceapi.euclideanDistance(detection.descriptor, ref.descriptor);
+                            if (distance < bestDistance) {
+                                bestDistance = distance;
+                                bestName = ref.name;
+                            }
+                        }
+
+                        let confidence;
+                        if (bestDistance <= FACE_MATCH_THRESHOLD) {
+                            confidence = 100.0 - (bestDistance / FACE_MATCH_THRESHOLD) * 15.0;
+                        } else {
+                            confidence = Math.max(0.0, 85.0 - ((bestDistance - FACE_MATCH_THRESHOLD) / (1.0 - FACE_MATCH_THRESHOLD)) * 85.0);
+                        }
+
+                        if (bestDistance < FACE_MATCH_THRESHOLD && confidence >= MIN_CONFIDENCE) {
+                            matchResult = { name: bestName, confidence: confidence };
+                        }
+                    }
+                } else {
+                    showToast('Hệ thống chưa tải xong mô hình nhận diện AI. Vui lòng thử lại sau.', 'error');
+                }
+            } catch (err) {
+                console.error(err);
+            }
+
+            scanLine.classList.remove('active');
+            statusIcon.style.animation = '';
+
+            if (matchResult) {
+                faceFrame.className = 'face-frame matched';
+                statusLabel.textContent = 'ĐÃ XÁC THỰC';
+                statusIcon.textContent = 'check_circle';
+                showScanResult(true, matchResult.name, `Xác thực thành công (${matchResult.confidence.toFixed(1)}%)`);
+
+                try {
+                    await fetch('/api/faceid/verify', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ name: matchResult.name })
+                    });
+                } catch (e) {
+                    console.warn(e);
+                }
+                setTimeout(() => { window.location.href = '/tourguide/dashboard?scanned=true'; }, 2000);
+            } else {
+                faceFrame.className = 'face-frame failed';
+                statusLabel.textContent = 'KHÔNG TỒN TẠI';
+                statusIcon.textContent = 'error';
+                showScanResult(false, 'Không tồn tại', 'Khuôn mặt khách hàng chưa được đăng ký trong hệ thống.');
+            }
+
+            isScanning = false;
+            btnScan.disabled = false;
+        }
+
+        function showScanResult(success, name, detail) {
+            const card = document.getElementById('scan-result-card');
+            const resultName = document.getElementById('result-name');
+            const resultDetail = document.getElementById('result-detail');
+            const icon = document.getElementById('result-icon');
+            card.classList.remove('hidden');
+
+            resultName.textContent = name;
+            resultDetail.textContent = detail;
+            icon.textContent = success ? 'check_circle' : 'cancel';
+            icon.className = success ? 'material-symbols-outlined text-[20px] text-green-800' : 'material-symbols-outlined text-[20px] text-red-800';
+        }
+
+        async function checkinManual(attendeeId) {
+            try {
+                const resp = await fetch('/api/faceid/checkin-manual', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ attendeeId: attendeeId })
+                });
+                const data = await resp.json();
+                if (data.success) {
+                    showToast(data.name + ' đã được điểm danh thành công!', 'success');
+                    window.location.href = '/tourguide/dashboard?scanned=true';
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        function manualResetAttendance() {
+            showCustomConfirm({
+                title: 'Đặt Lại Điểm Danh',
+                message: 'Bạn có chắc chắn muốn đặt lại trạng thái điểm danh cho toàn bộ khách hàng trong ngày hôm nay?',
+                icon: 'restart_alt',
+                onConfirm: async () => {
+                    try {
+                        await fetch('/api/faceid/reset');
+                        window.location.href = '/tourguide/dashboard';
+                    } catch (e) {
+                        console.error(e);
+                    }
+                }
+            });
+        }
+
+        function openGuideSettingsModal(e) {
+            e.stopPropagation();
+            document.getElementById('guideSettingsModal').classList.remove('hidden');
+        }
+
+        function closeGuideSettingsModal() {
+            document.getElementById('guideSettingsModal').classList.add('hidden');
+        }
+
+        function showCustomerContactModal(element) {
+            const name = element.getAttribute('data-name');
+            const id = element.getAttribute('data-id');
+            const phone = element.getAttribute('data-phone');
+            const email = element.getAttribute('data-email');
+            const detail = element.getAttribute('data-membership');
+            const room = element.getAttribute('data-room');
+
+            document.getElementById('modal-customer-name').textContent = name;
+            document.getElementById('modal-customer-id').textContent = id;
+            document.getElementById('modal-customer-phone').textContent = phone;
+            document.getElementById('modal-customer-email').textContent = email;
+            document.getElementById('modal-customer-room').textContent = room;
+            document.getElementById('modal-customer-detail').textContent = detail;
+
+            // Extract initials from name
+            const nameParts = name.trim().split(/\s+/);
+            let initials = 'KH';
+            if (nameParts.length >= 2) {
+                initials = (nameParts[nameParts.length - 2][0] + nameParts[nameParts.length - 1][0]).toUpperCase();
+            } else if (nameParts.length === 1 && nameParts[0].length > 0) {
+                initials = nameParts[0].substring(0, Math.min(2, nameParts[0].length)).toUpperCase();
+            }
+            document.getElementById('modal-avatar-placeholder').textContent = initials;
+
+            const modal = document.getElementById('customer-contact-modal');
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+        }
+
+        function closeCustomerContactModal() {
+            const modal = document.getElementById('customer-contact-modal');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+        }
+
+        function submitIncidentReport() {
+            const desc = document.getElementById('incident-description').value.trim();
+            if (!desc) {
+                showToast('Vui lòng nhập mô tả sự cố.', 'warning');
+                return;
+            }
+            showToast('Báo cáo sự cố đã được gửi thành công đến Ban Quản lý Resort HoaNien!', 'success');
+            document.getElementById('incident-description').value = '';
+        }
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+
+            const toast = document.createElement('div');
+            toast.className = 'flex items-center gap-3 px-6 py-4 rounded-xl shadow-xl border backdrop-blur-md transition-all duration-300 translate-x-12 opacity-0 pointer-events-auto max-w-sm';
+
+            let icon = 'check_circle';
+            let iconColor = 'text-green-500';
+            let borderColor = 'border-green-500/20';
+            let bgColor = 'bg-[#fdfbf7]/95';
+
+            if (type === 'error') {
+                icon = 'cancel';
+                iconColor = 'text-red-500';
+                borderColor = 'border-red-500/20';
+            } else if (type === 'warning') {
+                icon = 'warning';
+                iconColor = 'text-amber-500';
+                borderColor = 'border-amber-500/20';
+            } else if (type === 'info') {
+                icon = 'info';
+                iconColor = 'text-primary';
+                borderColor = 'border-primary/20';
+            }
+
+            toast.className += ` ${borderColor} ${bgColor}`;
+
+            toast.innerHTML = `
+                <span class="material-symbols-outlined ${iconColor} text-[20px]">${icon}</span>
+                <p class="font-body-md font-medium text-on-surface text-sm leading-tight">${message}</p>
+            `;
+
+            container.appendChild(toast);
+
+            // Animate in
+            setTimeout(() => {
+                toast.classList.remove('translate-x-12', 'opacity-0');
+            }, 10);
+
+            // Animate out and remove
+            setTimeout(() => {
+                toast.classList.add('translate-x-12', 'opacity-0');
+                setTimeout(() => {
+                    toast.remove();
+                }, 300);
+            }, 4000);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadModels();
+
+            // Check for toast redirects
+            const urlParams = new URLSearchParams(window.location.search);
+            const toastParam = urlParams.get('toast');
+            if (toastParam) {
+                if (toastParam === 'update_success') {
+                    showToast('Cập nhật hồ sơ hướng dẫn viên thành công!', 'success');
+                } else if (toastParam === 'create_success') {
+                    showToast('Tạo hồ sơ hướng dẫn viên thành công!', 'success');
+                } else if (toastParam === 'delete_success') {
+                    showToast('Xóa hồ sơ hướng dẫn viên thành công!', 'success');
+                } else if (toastParam === 'finish_success') {
+                    showToast('Đã hoàn thành hành trình tour và gửi email cảm ơn đến quý khách!', 'success');
+                } else if (toastParam === 'start_success') {
+                    showToast('Tour đã bắt đầu! Email thông báo khởi hành đã được gửi đến toàn bộ khách hàng.', 'success');
+                }
+                // Clean url parameters
+                const cleanUrl = window.location.pathname;
+                window.history.replaceState({}, document.title, cleanUrl);
+            }
+
+            const scannedParam = urlParams.get('scanned');
+            if (scannedParam === 'true') {
+                showToast('Điểm danh khách hàng thành công!', 'success');
+                // Clean url parameters
+                const cleanUrl = window.location.pathname;
+                window.history.replaceState({}, document.title, cleanUrl);
+            }
+        });
+
+        function exportCustomerList() {
+            // Get tour name
+            const tourNameEl = document.getElementById('tour-name-display');
+            const tourName = tourNameEl ? tourNameEl.textContent.trim() : 'Danh_sach_khach_hang';
+            const cleanTourName = tourName.replace(/[^a-zA-Z0-9_ -]/g, '').replace(/\s+/g, '_');
+
+            // Get rows
+            const rows = document.querySelectorAll('table tbody tr');
+            let csvContent = "\ufeff"; // BOM for UTF-8 in Excel
+            csvContent += "Mã Khách Hàng,Họ và Tên,Trạng thái\n";
+
+            rows.forEach(row => {
+                const cols = row.querySelectorAll('td');
+                if (cols.length >= 3) {
+                    const customerId = cols[0].textContent.trim();
+                    const nameEl = cols[1].querySelector('p') || cols[1];
+                    const name = nameEl.textContent.trim();
+                    const statusText = cols[2].textContent.trim();
+
+                    let status = 'Chờ điểm danh';
+                    if (statusText.includes('Đã điểm danh')) {
+                        status = 'Đã điểm danh';
+                    }
+
+                    csvContent += `"${customerId}","${name}","${status}"\n`;
+                }
+            });
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            link.setAttribute("download", `${cleanTourName}_Danh_sach_diem_danh.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function toggleNotificationDropdown(e) {
+            e.stopPropagation();
+            const dropdown = document.getElementById('notificationDropdown');
+            dropdown.classList.toggle('hidden');
+        }
+
+        function markAllNotificationsAsRead(e) {
+            if (e) e.stopPropagation();
+            const badge = document.querySelector('.dropdown-notification button .bg-red-500');
+            if (badge) {
+                badge.remove();
+            }
+            const items = document.querySelectorAll('#notifications-list > div');
+            items.forEach(item => {
+                item.className = 'p-3 hover:bg-primary/5 rounded-xl transition-colors space-y-1';
+            });
+        }
+
+        document.addEventListener('click', function (e) {
+            const dropdown = document.getElementById('notificationDropdown');
+            if (dropdown && !dropdown.classList.contains('hidden')) {
+                const isClickInside = dropdown.contains(e.target) || e.target.closest('.dropdown-notification');
+                if (!isClickInside) {
+                    dropdown.classList.add('hidden');
+                }
+            }
+        });
+
+        function removeVietnameseAccents(str) {
+            if (!str) return '';
+            return str
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .replace(/đ/g, "d")
+                .replace(/Đ/g, "D");
+        }
+
+        function matchQuery(text, query) {
+            const normText = text.toLowerCase().normalize("NFC");
+            const normQuery = query.toLowerCase().normalize("NFC");
+            if (normText.includes(normQuery)) return true;
+
+            const accentlessText = removeVietnameseAccents(normText);
+            const accentlessQuery = removeVietnameseAccents(normQuery);
+            return accentlessText.includes(accentlessQuery);
+        }
+
+        let currentPage = 1;
+        const pageSize = 5;
+
+        function getCandidateRows() {
+            const query = (document.getElementById('search-customer-input')?.value || '').trim();
+            const rows = Array.from(document.querySelectorAll('table tbody tr'));
+            
+            if (!query) return rows;
+
+            const tourName = document.getElementById('tour-name-display') ? document.getElementById('tour-name-display').textContent : '';
+            const tourMetaEl = document.querySelector('[th\\:text*="departureDate"]') || document.querySelector('.font-headline.text-lg.md\\:text-xl.font-light.text-on-surface-variant\\/60') || document.querySelector('#print-area p');
+            const tourMeta = tourMetaEl ? tourMetaEl.textContent : '';
+            const tourDetailsText = (tourName + " " + tourMeta);
+            const matchesTour = matchQuery(tourDetailsText, query);
+
+            if (matchesTour) return rows;
+
+            return rows.filter(row => {
+                const idText = row.querySelector('td:first-child') ? row.querySelector('td:first-child').textContent : '';
+                const dataEl = row.querySelector('[data-name]');
+                let nameText = '', phoneText = '', emailText = '', membershipText = '', roomText = '';
+                if (dataEl) {
+                    nameText = (dataEl.getAttribute('data-name') || '');
+                    phoneText = (dataEl.getAttribute('data-phone') || '');
+                    emailText = (dataEl.getAttribute('data-email') || '');
+                    membershipText = (dataEl.getAttribute('data-membership') || '');
+                    roomText = (dataEl.getAttribute('data-room') || '');
+                }
+                const statusText = row.textContent;
+                const combinedText = `${idText} ${nameText} ${phoneText} ${emailText} ${membershipText} ${roomText} ${statusText}`;
+                return matchQuery(combinedText, query);
+            });
+        }
+
+        function updatePagination() {
+            const candidates = getCandidateRows();
+            const total = candidates.length;
+            const pageCount = Math.ceil(total / pageSize) || 1;
+
+            if (currentPage > pageCount) currentPage = pageCount;
+            if (currentPage < 1) currentPage = 1;
+
+            const startIdx = (currentPage - 1) * pageSize;
+            const endIdx = Math.min(startIdx + pageSize, total);
+
+            // Hide all rows first
+            document.querySelectorAll('table tbody tr').forEach(r => r.style.display = 'none');
+
+            // Show candidates in the current page
+            candidates.slice(startIdx, endIdx).forEach(r => r.style.display = '');
+
+            // Update info text
+            const infoEl = document.getElementById('pagination-info');
+            const wrapperEl = document.getElementById('pagination-controls');
+            
+            if (total === 0) {
+                if (infoEl) infoEl.textContent = 'Không có kết quả trùng khớp';
+                if (wrapperEl) wrapperEl.classList.add('hidden');
+                return;
+            } else {
+                if (wrapperEl) wrapperEl.classList.remove('hidden');
+            }
+
+            if (infoEl) {
+                infoEl.textContent = `Đang hiển thị ${startIdx + 1} đến ${endIdx} của ${total} khách hàng`;
+            }
+
+            // Update buttons
+            const buttonsEl = document.getElementById('pagination-buttons');
+            if (buttonsEl) {
+                let html = '';
+                
+                // Prev button
+                const prevDisabled = currentPage === 1;
+                html += `
+                    <button onclick="goToPage(${currentPage - 1})" ${prevDisabled ? 'disabled' : ''}
+                            class="w-8 h-8 flex items-center justify-center rounded-full text-primary border border-primary/20 hover:bg-primary/5 transition-all disabled:opacity-40 disabled:pointer-events-none shadow-sm">
+                        <span class="material-symbols-outlined text-sm font-bold">chevron_left</span>
+                    </button>
+                `;
+
+                // Page numbers
+                let startPage = Math.max(1, currentPage - 2);
+                let endPage = Math.min(pageCount, startPage + 4);
+                if (endPage - startPage < 4) {
+                    startPage = Math.max(1, endPage - 4);
+                }
+
+                for (let p = startPage; p <= endPage; p++) {
+                    const active = p === currentPage;
+                    html += `
+                        <button onclick="goToPage(${p})" 
+                                class="w-8 h-8 flex items-center justify-center rounded-full text-xs font-semibold transition-all shadow-sm
+                                       ${active ? 'bg-primary text-on-primary font-bold' : 'text-primary border border-primary/10 hover:bg-primary/5'}"
+                                ${active ? 'disabled' : ''}>
+                            ${p}
+                        </button>
+                    `;
+                }
+
+                // Next button
+                const nextDisabled = currentPage === pageCount;
+                html += `
+                    <button onclick="goToPage(${currentPage + 1})" ${nextDisabled ? 'disabled' : ''}
+                            class="w-8 h-8 flex items-center justify-center rounded-full text-primary border border-primary/20 hover:bg-primary/5 transition-all disabled:opacity-40 disabled:pointer-events-none shadow-sm">
+                        <span class="material-symbols-outlined text-sm font-bold">chevron_right</span>
+                    </button>
+                `;
+
+                buttonsEl.innerHTML = html;
+            }
+        }
+
+        function goToPage(p) {
+            currentPage = p;
+            updatePagination();
+            document.querySelector('#print-area table').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function performSearch(query) {
+            currentPage = 1;
+            updatePagination();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            updatePagination();
+        });
+    </script>
+</body>
+
+<!-- Activities Popup Modal (hidden by default) -->
+<div id="activities-modal"
+    class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center hidden z-50 transition-all duration-300">
+    <div class="bg-surface rounded-lg shadow-2xl p-8 w-11/12 max-w-lg border border-primary/10">
+        <div class="flex justify-between items-center mb-6 border-b border-primary/10 pb-4">
+            <h3 class="text-2xl font-display-md font-bold text-primary">Lịch Trình Chi Tiết</h3>
+            <button class="text-on-surface-variant hover:text-primary transition-colors text-2xl font-bold"
+                onclick="closeActivities()">&#x2715;</button>
+        </div>
+        <div id="activities-content" class="space-y-4 max-h-[60vh] overflow-y-auto pr-2 scrollbar-custom"></div>
+        <div class="mt-6 pt-4 border-t border-primary/10 flex justify-end">
+            <button
+                class="px-6 py-2 bg-primary text-on-primary rounded-full hover:bg-primary/80 font-bold transition-all shadow-md"
+                onclick="closeActivities()">Đóng</button>
+        </div>
+    </div>
+</div>
+
+<!-- Handbook Popup Modal (hidden by default) -->
+<div id="handbook-modal"
+    class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center hidden z-50 transition-all duration-300">
+    <div class="bg-surface rounded-lg shadow-2xl p-8 w-11/12 max-w-2xl border border-primary/10">
+        <div class="flex justify-between items-center mb-6 border-b border-primary/10 pb-4">
+            <h3 class="text-2xl font-display-md font-bold text-primary flex items-center gap-2">
+                <span class="material-symbols-outlined text-2xl">auto_stories</span>
+                Cẩm Nang Dẫn Tour
+            </h3>
+            <button class="text-on-surface-variant hover:text-primary transition-colors text-2xl font-bold"
+                onclick="closeHandbook()">✕</button>
+        </div>
+        <div id="handbook-content" class="space-y-6 max-h-[65vh] overflow-y-auto pr-2 scrollbar-custom text-on-surface">
+        </div>
+        <div class="mt-6 pt-4 border-t border-primary/10 flex justify-end">
+            <button
+                class="px-6 py-2 bg-primary text-on-primary rounded-full hover:bg-primary/80 font-bold transition-all shadow-md"
+                onclick="closeHandbook()">Đóng</button>
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    const tourTypeDb = /*[[${tourType}]]*/ 'doantu';
+    const tourActivitiesJsonDb = /*[[${tourActivitiesJson}]]*/ '[]';
+    const tourHandbookJsonDb = /*[[${tourHandbookJson}]]*/ '{}';
+    /*]]>*/
+
+    const TOUR_ITINERARIES = {
+        doantu: {
+            subtitle: 'Hành trình Đoàn Tụ – Cố Đô Huế (Khởi hành: 08:00)',
+            activities: [
+                { time: '07:30 - 08:00', title: 'Đón khách & Làm thủ tục', desc: 'Đón khách tại sảnh chính Resort, làm thủ tục nhận diện khuôn mặt FaceID và kiểm tra hành lý trước khi khởi hành.' },
+                { time: '08:00 - 11:30', title: 'Dấu xưa rêu phong – Khám phá Đại Nội', desc: 'Dạo bước qua những lầu son gác tía, lắng nghe tiếng vọng của thời gian tại Điện Thái Hòa, Thế Miếu – nơi lưu giữ trọn vẹn nét uy nghi một thuở hoàng kim.' },
+                { time: '11:30 - 14:00', title: 'Vị đượm cung đình – Thưởng yến và nếm trà', desc: 'Thưởng thức bữa trưa được tái hiện theo phong cách cung đình. Sau đó, ghé thăm Duyệt Thị Đường để nhấp ngụm trà thảo mộc thanh mát, được pha chế theo công thức tiến vua ngày trước.' },
+                { time: '14:00 - 18:00', title: 'Sông Hương bảng lảng – Thuyền rồng đón hoàng hôn', desc: 'Ngồi trên mạn thuyền rồng, thong dong ngắm dòng sông Hương êm đềm, thả hồn theo điệu hò xứ Huế và đón ánh chiều tà buông chậm xuống những mái ngói cổ kính.' },
+                { time: '18:00 - 18:30', title: 'Trả khách & Kết thúc hành trình', desc: 'Đưa đoàn khách quay trở về an toàn tại Resort, hỗ trợ nhận hành lý và chào tạm biệt khách.' }
+            ]
+        },
+        dongnoi: {
+            subtitle: 'Tinh túy đồng nội – Quảng Nam (Khởi hành: 08:30)',
+            activities: [
+                { time: '08:00 - 08:30', title: 'Đón khách & Làm thủ tục', desc: 'Chào đón khách, thực hiện điểm danh FaceID và chuẩn bị các vật dụng như nón lá, nước uống giải khát.' },
+                { time: '08:30 - 11:00', title: 'Hồn của đất – Làng gốm Thanh Hà', desc: 'Bên dòng sông Thu Bồn lộng gió, bạn sẽ được ngắm nhìn các nghệ nhân thổi hồn vào đất và tự tay xoay vần, nhào nặn nên một món quà kỷ niệm của riêng mình.' },
+                { time: '11:00 - 13:00', title: 'Hương đồng cỏ nội – Làng rau Trà Quế', desc: 'Hòa mình vào không gian xanh mướt của một trong những vườn rau lâu đời nhất. Trải nghiệm một ngày làm nông nhẹ nhàng, xới đất gieo mầm và thưởng thức ngụm nước hạt sen thanh mát.' },
+                { time: '13:00 - 15:30', title: 'Vị quê đậm đà – Ẩm thực sân vườn', desc: 'Thưởng thức bữa trưa ấm cúng với những món ăn đặc sản xứ Quảng, được chế biến từ chính nguồn nông sản tươi ngon vừa thu hoạch tại vườn.' },
+                { time: '15:30 - 18:30', title: 'Hoài phố rêu phong – Tản bộ và thưởng trà chiều', desc: 'Di chuyển về trung tâm Phố cổ Hội An, thong thả dạo bước qua những nếp nhà vàng cổ kính và dừng chân thưởng thức trà thảo mộc ngắm hoàng hôn buông trên dòng sông Hoài.' },
+                { time: '18:30 - 19:00', title: 'Trả khách & Kết thúc hành trình', desc: 'Xe đưa khách trở về lại Resort, bàn giao hành lý và lắng nghe ý kiến phản hồi nhanh của khách.' }
+            ]
+        },
+        disan: {
+            subtitle: 'Di sản thủ công – Ninh Bình (Khởi hành: 09:00)',
+            activities: [
+                { time: '08:30 - 09:00', title: 'Đón khách & Làm thủ tục', desc: 'Tập trung khách tại bến đón, check-in FaceID và nhắc nhở hướng dẫn an toàn cơ bản cho khách.' },
+                { time: '09:00 - 11:30', title: 'Sợi cói dệt nắng – Làng chiếu Kim Sơn', desc: 'Ngắm nhìn quy trình dệt nên những chiếc chiếu cói tự nhiên đượm hương đồng nội. Bạn sẽ hiểu vì sao những sợi cỏ mềm mại qua tay người thợ lại trở thành những tác phẩm tinh xảo đến vậy.' },
+                { time: '11:30 - 14:00', title: 'Hương vị cố đô – Thưởng thức đặc sản', desc: 'Ghé thăm nhà hàng cao cấp ven sông để thưởng thức bữa trưa đậm đà vị núi rừng với thịt dê truyền thống, cơm cháy giòn rụm và các sản vật địa phương.' },
+                { time: '14:00 - 16:30', title: 'Đốm hoa trên gấm – Làng thêu Văn Lâm', desc: 'Thu mình vào không gian yên ắng của làng thêu cổ, lắng nghe những câu chuyện xưa và học cách đưa thoi, điểm nhụy để tự tay dệt nên những nét hoa văn truyền thống tinh tế.' },
+                { time: '16:30 - 19:00', title: 'Sơn thủy hữu tình – Thuyền nan lướt bóng hoàng hôn', desc: 'Di chuyển đến đầm bảo tồn Vân Long, ngồi trên chiếc thuyền nan mộc mạc rẽ nước qua những hốc đá, ngắm nhìn đàn voọc quý hiếm và đón chiều tà buông xuống lòng thung lũng tĩnh mịch.' },
+                { time: '19:00 - 19:30', title: 'Trả khách & Kết thúc hành trình', desc: 'Xe trung chuyển đón khách đưa về an toàn tại khu nghỉ dưỡng.' }
+            ]
+        },
+        tinhlang: {
+            subtitle: 'Tĩnh lặng liên hoa – Tháp Mười (Khởi hành: 08:00)',
+            activities: [
+                { time: '07:30 - 08:00', title: 'Đón khách & Làm thủ tục', desc: 'Thực hiện thủ tục FaceID nhanh chóng, nhắc nhở khách chuyển thiết bị di động sang chế độ rung để bắt đầu tour thiền hành.' },
+                { time: '08:00 - 11:00', title: 'Đón sương sớm – Thả thuyền ngắm sen', desc: 'Ngồi trên chiếc xuồng ba lá lướt nhẹ giữa đầm sương, ngắm nhìn những đóa sen hồng bung nở trong nắng sớm và hít hà hương thơm tinh khôi của đất trời.' },
+                { time: '11:00 - 13:30', title: 'Tâm an giữa đầm – Thiền hành và thưởng trà', desc: 'Thong thả dạo bước trên những cây cầu gỗ nhỏ giữa lòng đầm, rũ bỏ những lo toan. Sau đó, tĩnh lặng thưởng thức ngụm trà sen ủ qua đêm ngọt hậu, thơm dịu.' },
+                { time: '13:30 - 16:00', title: 'Hương sen kết tinh – Mỹ tiệc bách hoa', desc: 'Thưởng thức bữa trưa độc đáo với thực đơn sáng tạo trọn vẹn từ sen: từ cơm hấp lá sen dẻo thơm, súp hạt sen bổ dưỡng cho đến đĩa gỏi ngó sen thanh mát, giòn rụm.' },
+                { time: '16:00 - 18:00', title: 'Sông nước tịch mịch – Nghỉ ngơi tĩnh tại', desc: 'Thư giãn tự do bên hiên nhà tre lộng gió, ngắm hoàng hôn nhuộm đỏ cánh đồng sen và lắng nghe tiếng chim bay về tổ, khép lại ngày bình yên.' },
+                { time: '18:00 - 18:30', title: 'Trả khách & Kết thúc hành trình', desc: 'Đưa đoàn khách thiền hành trở về an toàn tại Resort, khép lại ngày bình yên.' }
+            ]
+        },
+        halong: {
+            subtitle: 'Tiếng Vọng Sóng Xanh – Hạ Long (Khởi hành: 08:00)',
+            activities: [
+                { time: '07:30 - 08:00', title: 'Đón khách & Làm thủ tục', desc: 'Hướng dẫn khách lên du thuyền, điểm danh AI FaceID và phát túi chống nước bảo vệ thiết bị cá nhân cho khách.' },
+                { time: '08:00 - 09:30', title: 'Hải trình sóng vỗ – Rẽ nước thưởng ngoạn', desc: 'Du thuyền hạng sang khởi hành đưa bạn hòa mình vào không gian bao la của vịnh Hạ Long, ngắm nhìn những hòn đảo đá vôi mang muôn vàn hình dáng kỳ thú.' },
+                { time: '09:30 - 12:00', title: 'Tuyệt tác giấu kín – Khám phá động Thiên Cung', desc: 'Dạo bước vào lòng động cùng hướng dẫn viên riêng, chiêm ngưỡng những khối thạch nhũ lấp lánh và lắng nghe những câu chuyện huyền thoại cổ xưa.' },
+                { time: '12:00 - 14:30', title: 'Mỹ vị giữa trùng khơi – Thưởng thức tiệc trưa', desc: 'Dùng bữa trưa hải sản cao cấp được chế biến tinh tế bởi đầu bếp trên tàu, trong khi du thuyền chầm chậm lướt qua những vùng vịnh tĩnh lặng, hoang sơ.' },
+                { time: '14:30 - 16:30', title: 'Góc nhỏ tĩnh lặng – Chèo thuyền Kayak & Tắm biển', desc: 'Tàu neo lại tại một bãi biển hoang vắng, bạn tự do chèo thuyền kayak len lỏi qua các hang luồn hoặc ngâm mình trong làn nước xanh mát.' },
+                { time: '16:30 - 18:00', title: 'Khúc ca lộng gió – Tiệc trà ngắm hoàng hôn', desc: 'Thư giãn trên boong tàu đón gió biển mát lành, thưởng thức tiệc trà chiều, bánh ngọt và ngắm ánh chiều tà vàng rực buông chậm xuống vịnh biển ngàn năm.' },
+                { time: '18:00 - 18:30', title: 'Trả khách & Kết thúc hành trình', desc: 'Du thuyền cập bến bãi, xe đưa khách quay trở về khu nghỉ dưỡng an toàn.' }
+            ]
+        },
+        sapa: {
+            subtitle: 'Nẻo Đường Sương Phủ – Sapa (Khởi hành: 08:00)',
+            activities: [
+                { time: '07:30 - 08:00', title: 'Đón khách & Làm thủ tục', desc: 'Đón đoàn, quét vân FaceID điểm danh hành trình leo núi dã ngoại.' },
+                { time: '08:00 - 11:30', title: 'Nẻo đường mây phủ – Thăm bản Cát Cát', desc: 'Thong thả đi bộ dọc theo những lối mòn dẫn vào bản, ngắm nhìn những chiếc cối xay nước khổng lồ quay đều bên suối và trải nghiệm nghệ thuật nhuộm chàm cùng nghệ nhân bản địa.' },
+                { time: '11:30 - 14:00', title: 'Bếp lửa vùng cao – Ẩm thực Tây Bắc', desc: 'Dừng chân nghỉ ngơi tại không gian nhà hàng cao cấp view toàn cảnh thung lũng, thưởng thức bữa trưa ấm cúng với những món ăn đậm đà hương vị núi rừng.' },
+                { time: '14:00 - 16:30', title: 'Tiếng hát của dòng suối – Thác Tiên Sa', desc: 'Check-in dòng thác Tiên Sa bọt tung trắng xóa, tản bộ dọc bờ suối và lắng nghe những giai điệu khèn môi mộc mạc của người bản địa.' },
+                { time: '16:30 - 19:00', title: 'Tĩnh lặng đại ngàn – Thưởng trà chiều ngắm hoàng hôn', desc: 'Di chuyển về một quán trà bản địa không gian mở trên đỉnh đồi, thưởng thức ngụm trà cổ thụ, ngắm nhìn thung lũng Mường Hoa chìm dần vào sương mờ hoàng hôn.' },
+                { time: '19:00 - 19:30', title: 'Trả khách & Kết thúc hành trình', desc: 'Đưa hành khách quay trở lại điểm tập kết của Resort, kết thúc ngày trekking.' }
+            ]
+        },
+        cattien: {
+            subtitle: 'Nhịp Đập Rừng Già – Cát Tiên (Khởi hành: 08:00)',
+            activities: [
+                { time: '07:30 - 08:00', title: 'Đón khách & Làm thủ tục', desc: 'Điểm danh FaceID hành khách, phát thuốc chống vắt và kem xịt côn trùng chuyên dụng cho khách.' },
+                { time: '08:00 - 12:00', title: 'Dưới bóng đại ngàn – Trekking Bàu Sấu', desc: 'Lội bộ dưới những tán cây cổ thụ trăm tuổi, hít hà bầu không khí trong lành của rừng nguyên sinh để đến với vùng đầm lầy Bàu Sấu hoang sơ.' },
+                { time: '12:00 - 14:30', title: ' Bên bờ đầm vắng – Trưa xanh tĩnh lặng', desc: 'Thưởng thức bữa trưa tinh tế được chuẩn bị riêng bên trạm kiểm lâm, ngắm nhìn những chú chim quý hiếm và cá sấu tự nhiên bơi lội dưới làn nước.' },
+                { time: '14:30 - 18:00', title: 'Khúc giao mùa rừng già – Tản bộ lượt về', desc: 'Quay trở lại trung tâm bằng đường rừng, đón ánh nắng chiều xuyên qua những kẽ lá và nghỉ ngơi, ngâm chân thảo mộc thư giãn tại resort bìa rừng.' },
+                { time: '18:00 - 20:00', title: 'Hương vị đại ngàn – Bữa tối lãng mạn', desc: 'Thưởng thức bữa tối ấm cúng tại nhà hàng ven sông của resort với các món ăn mang phong vị địa phương, lắng nghe tiếng côn trùng reo vang.' },
+                { time: '20:00 - 22:00', title: 'Thanh âm bóng tối – Đi xe mui trần xem thú đêm', desc: 'Lên xe chuyên dụng mui trần len lỏi vào bìa rừng, dưới ánh đèn chuyên dụng, bạn sẽ được tận mắt ngắm nhìn cuộc sống kiếm ăn ban đêm đầy thú vị của các loài thú hoang dã.' },
+                { time: '22:00 - 22:30', title: 'Trả khách & Kết thúc hành trình', desc: 'Xe trung chuyển đưa đoàn về phòng an toàn nghỉ ngơi.' }
+            ]
+        },
+        muine: {
+            subtitle: 'Bình Minh Cồn Cát – Mũ Né (Khởi hành: 04:30)',
+            activities: [
+                { time: '04:00 - 04:30', title: 'Đón khách & Làm thủ tục', desc: 'Khởi hành sớm, điểm danh FaceID khách lên xe sang trọng.' },
+                { time: '04:30 - 05:30', title: 'Đường chạy ban mai – Hành trình ra đồi cát', desc: 'Xe hạng sang đón bạn từ sớm khi trời còn đẫm sương để kịp di chuyển ra Đồi Cát Trắng xinh đẹp.' },
+                { time: '05:30 - 07:30', title: 'Nắng ấm sa mạc – Xe địa hình & Đón bình minh', desc: 'Riêng tư trải nghiệm xe địa hình ATV lao vút qua những đụn cát nhấp nhô, ngắm mặt trời nhô lên từ phía biển và chơi trượt cát bằng máng từ đỉnh đồi.' },
+                { time: '07:30 - 09:30', title: 'Bức họa của gió – Đồi Cát Đỏ & Suối Tiên', desc: 'Tiếp tục check-in Đồi Cát Đỏ lộng gió và dạo bước chân trần dưới làn nước mát rượi của dòng Suối Tiên, ngắm nhìn những bức vách đất sét màu cam rực rỡ.' },
+                { time: '09:30 - 12:30', title: 'Sóng vỗ rì rào – Thư giãn tại Beach Club', desc: 'Di chuyển về một resort sát biển cao cấp, tự do tắm hồ bơi, tắm biển hoặc nằm nghỉ ngơi dưới bóng mát, thưởng thức ly nước dừa mát lạnh.' },
+                { time: '12:30 - 15:30', title: 'Vị mặn biển khơi – Bữa trưa hải sản thượng hạng', desc: 'Thưởng thức bữa trưa với thực đơn hải sản tươi sống được đánh bắt trong ngày tại nhà hàng view biển sang trọng trước khi xe đưa bạn về lại điểm đón ban đầu.' },
+                { time: '15:30 - 16:00', title: 'Trả khách & Kết thúc hành trình', desc: 'Xe đưa khách về lại điểm Resort ban đầu an toàn.' }
+            ]
+        },
+        phuquoc: {
+            subtitle: 'Khúc Ca San Hô – Phú Quốc (Khởi hành: 08:30)',
+            activities: [
+                { time: '08:00 - 08:30', title: 'Đón khách & Làm thủ tục', desc: 'Check-in FaceID hành khách tại cầu cảng, phát áo phao an toàn cho từng khách.' },
+                { time: '08:30 - 10:30', title: 'Lướt sóng trùng khơi – Khám phá các hòn đảo hoang', desc: 'Cano tốc độ cao thế mới đưa bạn rời bến cảng, băng qua làn nước xanh ngắt để ghé thăm những hòn đảo nhỏ còn giữ nguyên nét hoang sơ.' },
+                { time: '10:30 - 13:00', title: 'Vũ điệu đại dương – Bơi lặn ngắm san hô', desc: 'Đeo ống thở và kính lặn chuyên dụng, thỏa thích hòa mình vào làn nước trong vắt để ngắm nhìn những rạn san hô đung đưa cùng từng đàn cá nhỏ rực rỡ sắc màu.' },
+                { time: '13:00 - 15:30', title: 'Vị mặn của biển – Bữa trưa trên đảo hoang', desc: 'Thưởng thức bữa trưa hải sản cao cấp tươi ngon ngay trên bãi biển cát trắng mịn, ngả lưng dưới bóng dừa mát rượi.' },
+                { time: '15:30 - 18:30', title: 'Đảo ngọc hoàng hôn – Tiệc cocktail chiều tà', desc: 'Cano đưa bạn đến một hòn đảo ngắm hoàng hôn đẹp nhất. Tại đây, bạn có thể thong thả đi dạo, thưởng thức ly cocktail mát lạnh và đón khoảnh khắc mặt trời lặn nhuộm hồng cả đường chân trời trước khi trở về bến cảng lúc 18:30.' },
+                { time: '18:30 - 19:00', title: 'Trả khách & Kết thúc hành trình', desc: 'Bàn giao và trả khách tại điểm đón của khu nghỉ dưỡng.' }
+            ]
+        },
+        cantho: {
+            subtitle: 'Hương Sắc Miệt Vườn – Cần Thơ (Khởi hành: 05:30)',
+            activities: [
+                { time: '05:00 - 05:30', title: 'Đón khách & Làm thủ tục', desc: 'Chào đón đoàn khách lúc bình minh, check-in FaceID và hỗ trợ khách bước xuống ghe máy an toàn.' },
+                { time: '05:30 - 06:00', title: 'Sương sớm trên sông – Xuống bến xuống tàu', desc: 'Đón ngày mới khi trời còn mờ sương, xuống chiếc ghe máy truyền thống được chuẩn bị riêng để bắt đầu chuyến hành trình dọc theo dòng sông Hậu.' },
+                { time: '06:00 - 08:30', title: 'Âm thanh ngày mới – Chợ nổi Cái Răng', desc: 'Len lỏi qua những chiếc ghe đơm đầy hoa trái, lắng nghe tiếng rao của người dân miền Tây và thưởng thức bữa sáng với tô hủ tiếu nóng hổi, chòng chành ngay trên mặt nước từ ghe hậu cần riêng của tour.' },
+                { time: '08:30 - 11:30', title: 'Trái ngọt trĩu cành – Thăm vườn cây ăn trái', desc: 'Ghé thăm một miệt vườn cây ăn trái sum suê, thong thả dạo bước dưới bóng mát, tự tay hái và thưởng thức quả chín mọng ngọt lịm ngay tại vườn.' },
+                { time: '11:30 - 13:30', title: 'Trải nghiệm làm bánh dân gian', desc: 'Đến với gian nhà cổ Nam Bộ, cùng các nghệ nhân miệt vườn học cách đổ bánh xèo, làm bánh tằm se tay và lắng nghe những câu chuyện đời sống mộc mạc.' },
+                { time: '13:30 - 15:30', title: 'Phong vị sông nước – Bữa trưa điền dã', desc: 'Thưởng thức bữa trưa đậm chất miền Tây với cá lóc nướng trui, lẩu mắm đậm đà tại nhà hàng lộng gió ven sông, nghỉ ngơi tĩnh tại trên những chiếc võng trước khi kết thúc hành trình.' },
+                { time: '15:30 - 16:00', title: 'Trả khách & Kết thúc hành trình', desc: 'Ghe cập bến tàu, xe đưa khách quay trở về Resort an toàn.' }
+            ]
+        }
+    };
+
+    const TOUR_HANDBOOKS = {
+        doantu: {
+            title: 'Hành Trình Đoàn Tụ – Cố Đô Huế',
+            spec: '10 Giờ (08:00 - 18:00) | Sức chứa: 15 khách.',
+            logistics: [
+                'Trang phục: Nhắc khách mặc quần áo lịch sự, che vai và qua đầu gối khi tham quan Điện Thái Hòa, Thế Miếu (Đại Nội).',
+                'Sức khỏe: Chuẩn bị sẵn nhiều dù cao cấp và quạt tay vì thời tiết Huế mùa hè rất nắng gắt.',
+                'Dịch vụ ngầm: Gọi nhà thuyền kiểm tra dàn nhạc Nhã nhạc trước 1 tiếng, đảm bảo trà Cung Đình tại Duyệt Thị Đường được phục vụ đúng lúc khách vừa ngồi xuống.'
+            ],
+            explanations: [
+                { cat: 'Lịch sử', content: 'Triều Nguyễn (1802 - 1945) là triều đại phong kiến cuối cùng của Việt Nam với 13 vị vua. Đại Nội là nơi sống và làm việc của hoàng gia, được xây dựng theo thuyết phong thủy phương Đông: Tựa lưng vào núi Ngự Bình, lấy cồn Hến và cồn Dã Viên trên sông Hương làm tả thanh long, hữu bạch hổ.' },
+                { cat: 'Văn hóa cốt lõi', content: 'Giải thích ý nghĩa châm ngôn "Đoàn tụ/Biết ơn": Thế Miếu là nơi thờ các vị vua triều Nguyễn, nhắc nhở thế hệ sau về cội nguồn. Nhã nhạc cung đình Huế là Di sản văn hóa phi vật thể đầu tiên của Việt Nam được UNESCO công nhận.' }
+            ]
+        },
+        dongnoi: {
+            title: 'Tinh Túy Đồng Nội – Quảng Nam',
+            spec: '10 Giờ (08:30 - 18:30) | Sức chứa: 12 khách.',
+            logistics: [
+                'Trang phục: Khách sẽ tham gia xới đất tại Trà Quế và xoay gốm tại Thanh Hà, nhắc khách mặc đồ thoải mái, dễ giặt, mang dép hoặc giày dễ tháo rời.',
+                'Hậu cần: Chuẩn bị sẵn khăn ướt, tạp dề cao cấp cho khách khi làm gốm và nón lá che nắng tại vườn rau.'
+            ],
+            explanations: [
+                { cat: 'Địa lý & Lịch sử', content: 'Làng gốm Thanh Hà (thế kỷ 16) và Phố cổ Hội An từng là thương cảng quốc tế sầm uất bậc nhất Đông Nam Á, nơi giao thương của các thương thuyền Nhật Bản, Trung Hoa và phương Tây. Dòng sông Thu Bồn là mạch máu bồi đắp phù sa cho các làng nghề này.' },
+                { cat: 'Văn hóa', content: 'Kỹ thuật nung gốm Thanh Hà hoàn toàn bằng củi và không tráng men, sản phẩm có màu đỏ hồng đặc trưng của đất sét lòng sông. Rau Trà Quế ngon nhờ người dân dùng một loại rong đặc biệt dưới lòng sông Cổ Cò để bón, tạo nên vị thơm cay thanh nhẹ tự nhiên.' }
+            ]
+        },
+        disan: {
+            title: 'Di Sản Thủ Công – Ninh Bình',
+            spec: '10 Giờ (09:00 - 19:00) | Sức chứa: 12 khách.',
+            logistics: [
+                'An toàn đường thủy: Chặng đi thuyền nan tại đầm Vân Long bắt buộc khách phải mặc áo phao. Nhắc khách giữ thăng bằng khi lên xuống thuyền.',
+                'Bảo mật trải nghiệm: Nhắc khách không nói lớn tiếng tại Vân Long để tránh làm chim muông và thú quý giật mình bay mất.'
+            ],
+            explanations: [
+                { cat: 'Địa lý', content: 'Đầm Vân Long là khu bảo tồn thiên nhiên ngập nước lớn nhất vùng đồng bằng Bắc Bộ, sở hữu bức tranh địa chất "vịnh không sóng" vì mặt nước phẳng lặng như một tấm gương khổng lồ soi bóng núi đá vôi Karst ngàn năm.' },
+                { cat: 'Văn hóa & Nghệ thuật', content: 'Làng thêu Văn Lâm có tuổi đời hơn 700 năm (từ thời nhà Trần). Điểm đắt giá của thêu Văn Lâm là kỹ thuật "thêu trắng" (những đường thêu uyển chuyển trên nền vải trắng bằng chỉ trắng) đòi hỏi đôi tay cực kỳ tài hoa của nghệ nhân. Chiếu Kim Sơn nổi tiếng nhờ sợi cói dai mịn, dệt đều tay, đượm hương nắng trời Bắc Bộ.' }
+            ]
+        },
+        tinhlang: {
+            title: 'Tĩnh Lặng Liên Hoa – Tháp Mười',
+            spec: '10 Giờ (08:00 - 18:00) | Sức chứa: 8 khách.',
+            logistics: [
+                'Không gian tĩnh lặng: Đây là tour chữa lành (Wellness/Zen), yêu cầu khách chuyển điện thoại sang chế độ rung, không bật loa ngoài.',
+                'Trang phục: Khách đi bộ thiền hành trên cầu gỗ, nhắc khách mang giày bệt hoặc đi chân trần theo hướng dẫn. Chuẩn bị sẵn kem chống muỗi/côn trùng vùng sông nước.'
+            ],
+            explanations: [
+                { cat: 'Địa lý & Thiên nhiên', content: 'Đồng Tháp Mười là vùng đất ngập nước đặc trưng của miền Tây Nam Bộ. Hoa sen ở đây nở quanh năm nhưng rực rỡ nhất vào mùa nước nổi. Đất phèn đặc trưng của vùng đồng bằng sông Cửu Long lại là dưỡng chất hoàn hảo giúp hoa sen Tháp Mười có hương thơm đậm và giữ được độ tươi rất lâu.' },
+                { cat: 'Văn hóa & Triết lý', content: 'Sen là biểu tượng cho sự thuần khiết trong văn hóa Việt Nam ("Gần bùn mà chẳng hôi tanh mùi bùn"). Giới thiệu về nghệ thuật ủ trà sen: Người ta đón sương đêm, cho trà vào trong búp sen từ chiều hôm trước để trà hấp thụ trọn vẹn tinh túy và hương thơm của hoa lúc nửa đêm.' }
+            ]
+        },
+        halong: {
+            title: 'Tuyệt Tác Ngàn Khơi – Hạ Long',
+            spec: '10 Giờ (08:00 - 18:00) | Sức chứa: 15 khách.',
+            logistics: [
+                'Chuẩn bị: Nhắc khách mang theo đồ bơi, quần áo dự phòng để thay sau khi chèo Kayak hoặc tắm biển.',
+                'An toàn: Kiểm tra túi chống nước cho điện thoại của khách. Chuẩn bị sẵn thuốc say sóng phòng trường hợp khách nhạy cảm với sóng biển.'
+            ],
+            explanations: [
+                { cat: 'Địa lý (Kiến tạo Karst)', content: 'Vịnh Hạ Long là Di sản Thiên nhiên Thế giới được UNESCO công nhận, sở hữu giá trị địa chất độc độc đáo trải qua hơn 500 triệu năm kiến tạo để tạo nên ngàn đảo đá vôi trùng điệp.' },
+                { cat: 'Lịch sử & Huyền thoại', content: 'Hạ Long nghĩa là rồng đáp xuống. Truyền thuyết kể rằng Ngọc Hoàng đã sai Rồng Mẹ mang theo một đàn Rồng Con xuống hạ giới giúp người Việt đánh giặc ngoại xâm. Đàn rồng phun ra muôn ngàn châu ngọc, hóa thành các đảo đá dựng thành lũy vững chắc ngăn chặn thuyền giặc. Động Thiên Cung chính là cung điện lộng lẫy nơi diễn ra đám cưới của Vua Rồng xưa kia.' }
+            ]
+        },
+        sapa: {
+            title: 'Nẻo Đường Sương Phủ – Sapa',
+            spec: '11 Giờ (08:00 - 19:00) | Sức chứa: 10 khách.',
+            logistics: [
+                'Thể lực: Tour này tản bộ nhiều đường dốc (bản Cát Cát), nhắc khách mang giày trekking hoặc giày thể thao có độ bám tốt.',
+                'Thời tiết: Thời tiết Sapa thay đổi liên tục, luôn nhắc khách mang theo một chiếc áo khoác nhẹ (phòng lạnh về chiều) và ô/áo mưa bỏ túi.'
+            ],
+            explanations: [
+                { cat: 'Địa lý', content: 'Sapa nằm ở độ cao trung bình 1,500m - 1,800m so với mực nước biển, thuộc dãy Hoàng Liên Sơn hùng vĩ. Thác Tiên Sa là nguồn nước mát lạnh đổ trực tiếp từ trên núi cao xuống, quanh năm tung bọt trắng xóa.' },
+                { cat: 'Văn hóa', content: 'Bản Cát Cát là nơi sinh sống lâu đời của người H\'Mông đen. Hãy thuyết minh về chiếc cối xay nước tận dụng sức nước của dòng suối để giã gạo, và nghệ thuật vẽ hoa văn bằng sáp ong bướm trên vải trước khi mang đi nhuộm chàm – một nét văn hóa độc đáo giúp trang phục của họ có màu xanh đen đặc trưng bền bỉ với thời gian.' }
+            ]
+        },
+        cattien: {
+            title: 'Nhịp Đập Rừng Già – Cát Tiên',
+            spec: '14 Giờ (08:00 - 22:00) | Sức chứa: 8 khách.',
+            logistics: [
+                'An toàn tuyệt đối: Bắt buộc khách mặc quần áo dài, mang tất cao cổ. Bạn phải chuẩn bị sẵn thuốc chống vắt và xịt côn trùng cao cấp cho cả đoàn trước khi vào rừng.',
+                'Quy định rừng: Khi đi xe mui trần xem thú đêm, tuyệt đối nhắc khách giữ im lặng, không dùng đèn pin cá nhân chiếu vào mắt thú, không bật flash chụp ảnh.'
+            ],
+            explanations: [
+                { cat: 'Địa lý & Sinh thái', content: 'Vườn quốc gia Cát Tiên là Khu dự trữ sinh quyển thế giới. Bàu Sấu là vùng đất ngập nước Ramsar tầm cỡ quốc tế, nơi bảo tồn loài Cá Sấu Xiêm thuần chủng của Việt Nam.' },
+                { cat: 'Hành vi động vật (Thú đêm)', content: 'Giải thích cho khách biết lý do xem thú đêm: Ban ngày rừng rậm rất nóng, các loài thú móng guốc như nai, móp, mển thường ẩn nấp. Khi đêm xuống, nhiệt độ hạ, chúng mới ra các trảng cỏ trống để tìm thức ăn và muối khoáng.' }
+            ]
+        },
+        muine: {
+            title: 'Nắng Ấm Sa Mạc – Mũ Né',
+            spec: '11 Giờ (04:30 - 15:30) | Sức chứa: 10 khách.',
+            logistics: [
+                'Giờ giấc: Khởi hành rất sớm (04:30), nhắc khách ngủ sớm từ tối hôm trước.',
+                'Trang phục: Mang theo kính râm, kem chống nắng đầy đủ vì đồi cát bắt nắng rất mạnh. Khi lội Suối Tiên phải đi chân trần, nhắc khách mang dép dễ tháo rời.'
+            ],
+            explanations: [
+                { cat: 'Địa lý & Địa chất', content: 'Bàu Trắng (Đồi Cát Trắng) là một sa mạc thu nhỏ được bao quanh bởi hồ nước ngọt tự nhiên khổng lồ. Điểm kỳ thú ở đây là gió thổi liên tục làm thay đổi hình dáng của các đụn cát theo từng giờ ("đồi cát di động").' },
+                { cat: 'Suối Tiên', content: 'Bản chất không phải là một dòng suối thông thường, mà là một khe nước nhỏ chảy khuất sau những đồi cát, trải qua năm tháng bào mòn các vách đất sét, tạo nên những tháp cát màu đỏ cam rực rỡ như những lâu đài thạch nhũ lộ thiên.' }
+            ]
+        },
+        phuquoc: {
+            title: 'Khúc Ca San Hô – Phú Quốc',
+            spec: '10 Giờ (08:30 - 18:30) | Sức chứa: 12 khách.',
+            logistics: [
+                'Hậu cần biển: Kiểm tra kỹ áo phao, kính lặn ống thở xem có vừa vặn với kích thước của từng khách hay không.',
+                'Bảo vệ môi trường: Nhắc nhở khách tuyệt đối không dẫm đạp lên san hô, không nhặt san hô sống hoặc sao biển mang về đất liền.'
+            ],
+            explanations: [
+                { cat: 'Địa lý biển', content: 'Vùng biển phía Nam Phú Quốc (quần đảo An Thới) nằm trong vịnh Thái Lan, khu vực biển ấm, ít sóng lớn, tạo điều kiện hoàn hảo cho các rạn san hô phiến và san hô gạc nai phát triển mạnh mẽ.' },
+                { cat: 'Văn hóa bản địa', content: 'Phú Quốc còn gọi là Đảo Ngọc vì vùng biển này có độ mặn và nhiệt độ lý tưởng cho nghề nuôi cấy ngọc trai cao cấp.' }
+            ]
+        },
+        cantho: {
+            title: 'Hương Sắc Miệt Vườn – Cần Thơ',
+            spec: '10 Giờ (05:30 - 15:30) | Sức chứa: 12 khách.',
+            logistics: [
+                'An toàn bến bãi: Lúc bước từ bờ xuống ghe máy tại bến tàu sương sớm rất dễ trơn trượt, Guide luôn phải đứng ở mạn thuyền để đỡ tay cho khách.',
+                'Vệ sinh an toàn thực phẩm: Khi khách ăn hủ tiếu trên sông, đảm bảo đũa muỗng sạch sẽ, chuẩn bị sẵn khăn giấy cao cấp.'
+            ],
+            explanations: [
+                { cat: 'Văn hóa sông nước', content: 'Chợ nổi Cái Răng hình thành từ thời chưa có đường bộ, người dân lấy sông ngòi làm đường đi, ghe xuồng làm nhà. Điểm nhấn là "Cây bẹo" (gồm một cây sào tre cắm trước mũi ghe, treo sản vật gì lên đó là thông báo cho người mua biết ghe mình bán món đó - "treo gì bán nấy").' },
+                { cat: 'Ẩm thực & Con người', content: 'Giới thiệu phong vị hào sảng, hiếu khách của người miền Tây qua cách họ làm bánh dân gian hay chế biến món cá lóc nướng trui (cá bắt dưới sông lên, xiên bằng thanh tre, phủ rơm đốt rụi rồi cạo lớp vảy đen ra thịt trắng thơm phức).' }
+            ]
+        }
+    };
+
+    // Override TOUR_ITINERARIES and TOUR_HANDBOOKS with DB values
+    try {
+        const dbActivities = (typeof tourActivitiesJsonDb !== 'undefined' && tourActivitiesJsonDb) ? JSON.parse(tourActivitiesJsonDb) : [];
+        const dbHandbook = (typeof tourHandbookJsonDb !== 'undefined' && tourHandbookJsonDb) ? JSON.parse(tourHandbookJsonDb) : {};
+        const activeKey = (typeof tourTypeDb !== 'undefined') ? tourTypeDb : null;
+
+        if (activeKey) {
+            if (dbActivities && dbActivities.length > 0) {
+                if (TOUR_ITINERARIES[activeKey]) {
+                    TOUR_ITINERARIES[activeKey].activities = dbActivities;
+                } else {
+                    TOUR_ITINERARIES[activeKey] = {
+                        subtitle: 'Hành trình ' + activeKey + ' (Khởi hành: 08:00)',
+                        activities: dbActivities
+                    };
+                }
+            }
+            if (dbHandbook && dbHandbook.spec) {
+                if (TOUR_HANDBOOKS[activeKey]) {
+                    TOUR_HANDBOOKS[activeKey].spec = dbHandbook.spec;
+                    if (dbHandbook.logistics) TOUR_HANDBOOKS[activeKey].logistics = dbHandbook.logistics;
+                    if (dbHandbook.explanations) TOUR_HANDBOOKS[activeKey].explanations = dbHandbook.explanations;
+                } else {
+                    TOUR_HANDBOOKS[activeKey] = {
+                        title: 'Cẩm nang dẫn tour',
+                        spec: dbHandbook.spec,
+                        logistics: dbHandbook.logistics || [],
+                        explanations: dbHandbook.explanations || []
+                    };
+                }
+            }
+        }
+    } catch (e) {
+        console.error("Error overriding itineraries or handbooks with DB values:", e);
+    }
+
+    function normalizeKey(name) {
+        return name.toLowerCase()
+            .replace(/đ/g, 'd')
+            .normalize('NFD').replace(/\p{Diacritic}/gu, '')
+            .replace(/\s+/g, ' ').trim();
+    }
+
+    function showActivities(tourName) {
+        const norm = normalizeKey(tourName || '');
+        let key = null;
+        if (norm.includes('tinh tuy') || norm.includes('dong noi')) key = 'dongnoi';
+        else if (norm.includes('doan tu')) key = 'doantu';
+        else if (norm.includes('di san')) key = 'disan';
+        else if (norm.includes('tinh lang')) key = 'tinhlang';
+        else if (norm.includes('ha long') || norm.includes('song xanh')) key = 'halong';
+        else if (norm.includes('sapa') || norm.includes('suong phu')) key = 'sapa';
+        else if (norm.includes('cat tien') || norm.includes('rung gia')) key = 'cattien';
+        else if (norm.includes('mui ne') || norm.includes('con cat')) key = 'muine';
+        else if (norm.includes('phu quoc') || norm.includes('san ho')) key = 'phuquoc';
+        else if (norm.includes('can tho') || norm.includes('miet vuon')) key = 'cantho';
+
+        if (!key || !TOUR_ITINERARIES[key]) return;
+
+        const data = TOUR_ITINERARIES[key];
+        const content = document.getElementById('activities-content');
+
+        content.innerHTML = [
+            '<p class="font-headline text-lg font-light text-on-surface-variant mb-4 italic">' + data.subtitle + '</p>',
+            ...data.activities.map(a =>
+                '<div class="flex gap-4 items-start">' +
+                '<span class="bg-primary/10 text-primary text-label-sm font-bold px-3 py-1 rounded-full shrink-0 min-w-[100px] text-center border border-primary/20">' + a.time + '</span>' +
+                '<div class="text-on-surface-variant">' +
+                '<p class="font-semibold text-on-surface">' + a.title + '</p>' +
+                '<p class="text-sm opacity-80">' + a.desc + '</p>' +
+                '</div>' +
+                '</div>'
+            )
+        ].join('');
+
+        document.getElementById('activities-modal').classList.remove('hidden');
+    }
+
+    function closeActivities() {
+        document.getElementById('activities-modal').classList.add('hidden');
+    }
+
+    function showHandbook(tourName) {
+        const norm = normalizeKey(tourName || '');
+        let key = null;
+        if (norm.includes('tinh tuy') || norm.includes('dong noi')) key = 'dongnoi';
+        else if (norm.includes('doan tu')) key = 'doantu';
+        else if (norm.includes('di san')) key = 'disan';
+        else if (norm.includes('tinh lang')) key = 'tinhlang';
+        else if (norm.includes('ha long') || norm.includes('song xanh')) key = 'halong';
+        else if (norm.includes('sapa') || norm.includes('suong phu')) key = 'sapa';
+        else if (norm.includes('cat tien') || norm.includes('rung gia')) key = 'cattien';
+        else if (norm.includes('mui ne') || norm.includes('con cat')) key = 'muine';
+        else if (norm.includes('phu quoc') || norm.includes('san ho')) key = 'phuquoc';
+        else if (norm.includes('can tho') || norm.includes('miet vuon')) key = 'cantho';
+
+        if (!key || !TOUR_HANDBOOKS[key]) return;
+
+        const data = TOUR_HANDBOOKS[key];
+        const content = document.getElementById('handbook-content');
+
+        content.innerHTML = [
+            '<div class="mb-4">',
+            '  <h4 class="text-xl font-bold text-primary mb-1">' + data.title + '</h4>',
+            '  <p class="text-sm italic opacity-75">' + data.spec + '</p>',
+            '</div>',
+            '<div class="border-t border-primary/10 pt-4">',
+            '  <h5 class="text-md font-bold text-primary mb-3 flex items-center gap-2">',
+            '    <span class="material-symbols-outlined text-base">local_shipping</span>',
+            '    Lưu ý hậu cần & Khách hàng',
+            '  </h5>',
+            '  <ul class="list-disc pl-5 space-y-2 text-sm text-on-surface-variant">',
+            data.logistics.map(item => '    <li>' + item + '</li>').join(''),
+            '  </ul>',
+            '</div>',
+            '<div class="border-t border-primary/10 pt-4">',
+            '  <h5 class="text-md font-bold text-primary mb-3 flex items-center gap-2">',
+            '    <span class="material-symbols-outlined text-base">menu_book</span>',
+            '    Kho tài liệu thuyết minh (Lịch sử - Địa lý - Văn hóa)',
+            '  </h5>',
+            '  <div class="space-y-4">',
+            data.explanations.map(item =>
+                '    <div>' +
+                '      <p class="font-bold text-sm text-primary mb-1">' + item.cat + ':</p>' +
+                '      <p class="text-sm leading-relaxed opacity-90 text-on-surface-variant">' + item.content + '</p>' +
+                '    </div>'
+            ).join(''),
+            '  </div>',
+            '</div>'
+        ].join('');
+
+        document.getElementById('handbook-modal').classList.remove('hidden');
+    }
+
+    function closeHandbook() {
+        document.getElementById('handbook-modal').classList.add('hidden');
+    }
+
+    function dismissImportantNote() {
+        const card = document.getElementById('notice-banner-card');
+        if (card) {
+            card.style.transition = 'all 0.4s ease';
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(10px)';
+            setTimeout(() => {
+                card.style.display = 'none';
+            }, 400);
+        }
+    }
+
+    function showImportantNoteDetails() {
+        document.getElementById('notice-details-modal').classList.remove('hidden');
+    }
+
+    function closeImportantNoteDetails() {
+        document.getElementById('notice-details-modal').classList.add('hidden');
+    }
+
+    /* ============================================================
+       SAFETY CHECKLIST – Kiểm tra bảo hộ trước khi bắt đầu tour
+       ============================================================ */
+    const WATER_KEYWORDS = ['sông', 'ghe', 'thuyền', 'nước', 'chèo', 'bơi', 'lặn', 'kayak', 'biển', 'đảo', 'hạ long', 'phú quốc', 'cần thơ', 'thủy'];
+    const MOUNTAIN_KEYWORDS = ['leo', 'núi', 'trek', 'sapa', 'đèo', 'rừng'];
+
+    function getTourCategory() {
+        const tourNameEl = document.getElementById('tour-name-data');
+        if (!tourNameEl) return 'DEFAULT';
+        const name = (tourNameEl.getAttribute('data-name') || '').toLowerCase();
+
+        if (WATER_KEYWORDS.some(kw => name.includes(kw))) {
+            return 'WATER';
+        } else if (MOUNTAIN_KEYWORDS.some(kw => name.includes(kw))) {
+            return 'MOUNTAIN';
+        }
+        return 'DEFAULT';
+    }
+
+    function checkTourSafety(event) {
+        if (event) event.preventDefault();
+        const category = getTourCategory();
+        if (category !== 'DEFAULT') {
+            openSafetyModal(category);
+        } else {
+            showCustomConfirm({
+                title: 'Bắt Đầu Tour',
+                message: 'Xác nhận bắt đầu tour? Email thông báo khởi hành sẽ được gửi đến toàn bộ khách hàng!',
+                icon: 'play_circle',
+                onConfirm: () => {
+                    document.getElementById('startTourForm').submit();
+                }
+            });
+        }
+    }
+
+    function openSafetyModal(category) {
+        const modal = document.getElementById('safety-checklist-modal');
+        if (!modal) return;
+
+        const headerIcon = document.getElementById('safety-header-icon');
+        const subtitle = document.getElementById('safety-header-subtitle');
+        const container = document.getElementById('safety-list-container');
+
+        let iconName = 'security';
+        let subtext = 'CAM KẾT AN TOÀN (BẮT BUỘC)';
+        let items = [];
+
+        if (category === 'WATER') {
+            iconName = 'directions_boat';
+            subtext = 'CAM KẾT AN TOÀN ĐƯỜNG THỦY (BẮT BUỘC)';
+            items = [
+                { id: 'ws1', title: 'Áo phao đầy đủ', desc: 'Đã cấp phát đủ áo phao tiêu chuẩn cho tất cả hành khách.' },
+                { id: 'ws2', title: 'Kiểm tra phương tiện', desc: 'Phương tiện đường thủy đủ điều kiện an toàn để vận hành.' },
+                { id: 'ws3', title: 'Thời tiết an toàn', desc: 'Thời tiết thuận lợi, không giông bão hay sóng lớn.' },
+                { id: 'ws4', title: 'Thông tin cứu hộ', desc: 'Đã chuẩn bị sẵn số điện thoại liên lạc cứu hộ khẩn cấp.' }
+            ];
+        } else if (category === 'MOUNTAIN') {
+            iconName = 'hiking';
+            subtext = 'CAM KẾT AN TOÀN TREKKING (BẮT BUỘC)';
+            items = [
+                { id: 'ms1', title: 'Giày & Trang phục', desc: 'Khách hàng trang bị giày trekking / thể thao phù hợp địa hình.' },
+                { id: 'ms2', title: 'Thời tiết & Tầm nhìn', desc: 'Không mưa lớn hay sương mù dày đặc cản trở lối đi.' },
+                { id: 'ms3', title: 'Nước uống & Y tế', desc: 'Đã mang đủ nước uống và túi sơ cứu y tế cá nhân.' },
+                { id: 'ms4', title: 'Quy định tách đoàn', desc: 'Đã phổ biến quy tắc di chuyển theo đoàn, không tự ý rẽ hướng.' }
+            ];
+        }
+
+        headerIcon.textContent = iconName;
+        subtitle.textContent = subtext;
+
+        // Render checklist HTML
+        container.innerHTML = items.map(item => `
+            <li class="flex items-start gap-4 p-4 rounded-2xl bg-primary/5 border border-primary/10 hover:bg-primary/10 transition-all cursor-pointer"
+                onclick="toggleSafetyCheckbox('${item.id}')">
+                <input type="checkbox" id="${item.id}" class="safety-check mt-0.5 w-5 h-5 rounded cursor-pointer shrink-0" 
+                       style="accent-color:var(--color-primary)" onchange="updateConfirmBtn()" onclick="event.stopPropagation()"/>
+                <div class="select-none pointer-events-none">
+                    <span class="font-semibold text-on-surface text-sm block">${item.title}</span>
+                    <p class="text-xs text-on-surface-variant/80 mt-1 leading-relaxed">${item.desc}</p>
+                </div>
+            </li>
+        `).join('');
+
+        // Reset confirm button
+        const confirmBtn = document.getElementById('safety-confirm-btn');
+        if (confirmBtn) {
+            confirmBtn.disabled = true;
+            confirmBtn.classList.add('opacity-50', 'cursor-not-allowed', 'pointer-events-none');
+        }
+
+        // Show Modal
+        modal.classList.remove('hidden');
+        setTimeout(() => {
+            modal.querySelector('.safety-modal-box').classList.remove('scale-95', 'opacity-0');
+            modal.querySelector('.safety-modal-box').classList.add('scale-100', 'opacity-100');
+        }, 10);
+    }
+
+    function toggleSafetyCheckbox(id) {
+        const cb = document.getElementById(id);
+        if (cb) {
+            cb.checked = !cb.checked;
+            updateConfirmBtn();
+        }
+    }
+
+    function closeSafetyModal() {
+        const modal = document.getElementById('safety-checklist-modal');
+        if (!modal) return;
+        const box = modal.querySelector('.safety-modal-box');
+        box.classList.remove('scale-100', 'opacity-100');
+        box.classList.add('scale-95', 'opacity-0');
+        setTimeout(() => {
+            modal.classList.add('hidden');
+        }, 200);
+    }
+
+    function updateConfirmBtn() {
+        const checkboxes = document.querySelectorAll('#safety-list-container .safety-check');
+        const allChecked = checkboxes.length > 0 && Array.from(checkboxes).every(cb => cb.checked);
+        const btn = document.getElementById('safety-confirm-btn');
+        if (btn) {
+            btn.disabled = !allChecked;
+            btn.classList.toggle('opacity-50', !allChecked);
+            btn.classList.toggle('cursor-not-allowed', !allChecked);
+            btn.classList.toggle('pointer-events-none', !allChecked);
+        }
+    }
+
+    function confirmAndStartTour() {
+        closeSafetyModal();
+        setTimeout(() => {
+            document.getElementById('startTourForm').submit();
+        }, 250);
+    }
+
+    /* ============================================================
+       RESET TOUR – Hoàn tác trạng thái tour
+       ============================================================ */
+    function openResetModal(targetStatus, message) {
+        const modal = document.getElementById('reset-confirm-modal');
+        if (!modal) return;
+
+        document.getElementById('reset-target-status').value = targetStatus;
+        document.getElementById('reset-confirm-msg').textContent = message;
+
+        modal.classList.remove('hidden');
+        setTimeout(() => {
+            modal.querySelector('.reset-modal-box').classList.remove('scale-95', 'opacity-0');
+            modal.querySelector('.reset-modal-box').classList.add('scale-100', 'opacity-100');
+        }, 10);
+    }
+
+    function closeResetModal() {
+        const modal = document.getElementById('reset-confirm-modal');
+        if (!modal) return;
+        const box = modal.querySelector('.reset-modal-box');
+        box.classList.remove('scale-100', 'opacity-100');
+        box.classList.add('scale-95', 'opacity-0');
+        setTimeout(() => {
+            modal.classList.add('hidden');
+        }, 200);
+    }
+
+    function confirmFinishTour(event) {
+        if (event) event.preventDefault();
+        showCustomConfirm({
+            title: 'Hoàn Thành Tour',
+            message: 'Xác nhận hoàn thành tour? Email phản hồi sẽ được gửi tới khách hàng.',
+            icon: 'check_circle',
+            onConfirm: () => {
+                document.getElementById('finishTourForm').submit();
+            }
+        });
+    }
+
+    /* ============================================================
+       CUSTOM CONFIRM DIALOG
+       ============================================================ */
+    let confirmCallback = null;
+
+    function showCustomConfirm(options) {
+        const modal = document.getElementById('custom-confirm-modal');
+        if (!modal) return;
+
+        document.getElementById('confirm-modal-title').textContent = options.title || 'Xác Nhận';
+        document.getElementById('confirm-modal-msg').textContent = options.message || '';
+        document.getElementById('confirm-modal-icon').textContent = options.icon || 'help';
+        
+        confirmCallback = options.onConfirm;
+
+        modal.classList.remove('hidden');
+        setTimeout(() => {
+            modal.querySelector('.confirm-modal-box').classList.remove('scale-95', 'opacity-0');
+            modal.querySelector('.confirm-modal-box').classList.add('scale-100', 'opacity-100');
+        }, 10);
+    }
+
+    function closeCustomConfirm(confirmed) {
+        const modal = document.getElementById('custom-confirm-modal');
+        if (!modal) return;
+        const box = modal.querySelector('.confirm-modal-box');
+        box.classList.remove('scale-100', 'opacity-100');
+        box.classList.add('scale-95', 'opacity-0');
+        setTimeout(() => {
+            modal.classList.add('hidden');
+            if (confirmed && typeof confirmCallback === 'function') {
+                confirmCallback();
+            }
+            confirmCallback = null;
+        }, 200);
+    }
+</script>
+
+<!-- Important Notes Details Modal -->
+<div id="notice-details-modal"
+    class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center hidden z-[200] transition-all duration-300">
+    <div
+        class="bg-[#fdfbf7] rounded-lg shadow-2xl p-8 w-11/12 max-w-lg border border-[#3a3230]/20 relative text-[#372618]">
+        <button
+            class="absolute top-4 right-4 text-on-surface-variant hover:text-primary transition-colors text-2xl font-bold"
+            onclick="closeImportantNoteDetails()">✕</button>
+        <div class="flex items-center gap-3 mb-6 border-b border-primary/10 pb-4">
+            <span class="material-symbols-outlined text-primary text-3xl">info</span>
+            <h3 class="text-2xl font-display-md font-bold text-primary">Quy Trình Kiểm Tra & Hướng Dẫn</h3>
+        </div>
+        <div class="space-y-6 max-h-[60vh] overflow-y-auto pr-2 scrollbar-custom text-on-surface-variant">
+            <div>
+                <p class="font-bold text-primary mb-2 flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-primary"></span> 1. Kiểm tra Thiết bị (Trước 30 phút)
+                </p>
+                <p class="text-sm pl-4 leading-relaxed">
+                    Đảm bảo kết nối internet ổn định. Kiểm tra chất lượng camera, làm sạch ống kính thiết bị quét để
+                    FaceID nhận diện chính xác nhất. Kiểm tra pin hoặc nguồn điện cấp cho thiết bị quét.
+                </p>
+            </div>
+            <div>
+                <p class="font-bold text-primary mb-2 flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-primary"></span> 2. Chuẩn bị Ánh sáng & Vị trí quét
+                </p>
+                <p class="text-sm pl-4 leading-relaxed">
+                    Đặt thiết bị ở vị trí đón khách có đầy đủ ánh sáng tự nhiên hoặc đèn bổ trợ. Tránh nguồn ánh sáng
+                    ngược mạnh chiếu thẳng vào ống kính làm giảm độ chính xác của camera.
+                </p>
+            </div>
+            <div>
+                <p class="font-bold text-primary mb-2 flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-primary"></span> 3. Báo cáo Sự cố Kịp thời
+                </p>
+                <p class="text-sm pl-4 leading-relaxed">
+                    Nếu camera không hoạt động, thư viện face-api không load thành công, hoặc sai lệch thông tin khách
+                    hàng, hãy điền mô tả sự cố và gửi báo cáo ngay lập tức để bộ phận kỹ thuật hỗ trợ.
+                </p>
+            </div>
+            <div>
+                <p class="font-bold text-primary mb-2 flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-primary"></span> 4. Điểm danh thủ công dự phòng
+                </p>
+                <p class="text-sm pl-4 leading-relaxed">
+                    Trong trường hợp khách không nhận diện được hoặc hệ thống FaceID gián đoạn, hãy bấm nút tích xanh ✔
+                    cạnh tên khách hàng trong bảng danh sách để thực hiện điểm danh thủ công.
+                </p>
+            </div>
+        </div>
+        <div class="mt-6 pt-4 border-t border-primary/10 flex justify-end">
+            <button
+                class="px-6 py-2 bg-primary text-on-primary rounded-full hover:bg-primary/80 font-bold transition-all shadow-md text-sm"
+                onclick="closeImportantNoteDetails()">Đã hiểu</button>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     RESET TOUR — Confirm Modal (Purple theme)
+══════════════════════════════════════════════════════════ -->
+<div id="reset-confirm-modal"
+    class="fixed inset-0 bg-primary/20 backdrop-blur-md flex items-center justify-center z-[500] hidden p-4">
+    <!-- Hidden form submit -->
+    <form id="reset-tour-form" action="/tourguide/reset-tour" method="post" class="hidden">
+        <input type="hidden" name="scheduleId" th:value="${scheduleId}" />
+        <input type="hidden" id="reset-target-status" name="targetStatus" value="" />
+    </form>
+
+    <!-- Modal card -->
+    <div class="reset-modal-box w-full max-w-md overflow-hidden
+                bg-white border border-primary/20 rounded-3xl shadow-2xl
+                transform scale-95 opacity-0 transition-all duration-200 ease-out">
+        <!-- Icon + Title -->
+        <div class="flex flex-col items-center text-center px-8 pt-9 pb-5">
+            <div class="w-20 h-20 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center mb-5 shadow-inner">
+                <span class="material-symbols-outlined text-primary" style="font-size:36px">undo</span>
+            </div>
+            <h3 class="font-bold text-on-background text-lg md:text-xl tracking-tight">Xác nhận Hoàn Tác</h3>
+            <div class="w-12 h-px bg-primary/30 mt-4"></div>
+        </div>
+
+        <!-- Message -->
+        <div class="px-8 pb-8">
+            <p id="reset-confirm-msg" class="text-sm md:text-base text-on-surface-variant leading-relaxed text-center"></p>
+        </div>
+
+        <!-- Separator -->
+        <div class="h-px bg-primary/10 mx-6"></div>
+
+        <!-- Action buttons -->
+        <div class="flex gap-4 px-6 py-5">
+            <button type="button" onclick="closeResetModal()"
+                class="flex-1 py-3 rounded-full text-sm font-semibold text-on-surface-variant border border-outline-variant/50 hover:bg-surface-container-low transition-all">
+                Huỷ
+            </button>
+            <button type="button" onclick="document.getElementById('reset-tour-form').submit()"
+                class="flex-1 py-3 rounded-full text-sm font-bold bg-primary text-on-primary hover:bg-primary/90 transition-all shadow-md inline-flex items-center justify-center gap-2">
+                <span class="material-symbols-outlined text-base">undo</span>
+                Hoàn Tác
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     SAFETY CHECKLIST — Confirm Modal (Purple theme)
+══════════════════════════════════════════════════════════ -->
+<div id="safety-checklist-modal"
+    class="fixed inset-0 bg-primary/20 backdrop-blur-md flex items-center justify-center z-[500] hidden p-4">
+    <div class="safety-modal-box w-full max-w-md overflow-hidden bg-white border border-primary/20 rounded-3xl shadow-2xl
+                transform scale-95 opacity-0 transition-all duration-200 ease-out flex flex-col">
+        <!-- Header -->
+        <div class="flex flex-col items-center text-center px-8 pt-9 pb-5">
+            <div id="safety-icon-wrapper"
+                class="w-20 h-20 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center mb-5 shadow-inner">
+                <span id="safety-header-icon" class="material-symbols-outlined text-primary"
+                    style="font-size:36px">security</span>
+            </div>
+            <h3 class="font-bold text-on-background text-lg md:text-xl tracking-tight">Cam Kết An Toàn</h3>
+            <p id="safety-header-subtitle"
+                class="text-[10px] text-primary font-bold uppercase tracking-wider mt-2 text-center px-4"></p>
+            <div class="w-12 h-px bg-primary/30 mt-4"></div>
+        </div>
+
+        <!-- Body -->
+        <div class="px-8 pb-8">
+            <p class="text-sm md:text-base text-on-surface-variant leading-relaxed mb-5 text-center">
+                Tour này thuộc nhóm hoạt động đặc thù. Hướng dẫn viên vui lòng cam kết các điều kiện dưới đây:
+            </p>
+            <ul id="safety-list-container" class="space-y-3 max-h-[35vh] overflow-y-auto pr-1">
+                <!-- Dynamic safety items -->
+            </ul>
+        </div>
+
+        <!-- Separator -->
+        <div class="h-px bg-primary/10 mx-6"></div>
+
+        <!-- Action buttons -->
+        <div class="flex gap-4 px-6 py-5">
+            <button type="button" onclick="closeSafetyModal()"
+                class="flex-1 py-3 rounded-full text-sm font-semibold text-on-surface-variant border border-outline-variant/50 hover:bg-surface-container-low transition-all">
+                Huỷ
+            </button>
+            <button id="safety-confirm-btn" type="button" disabled onclick="confirmAndStartTour()"
+                class="flex-1 py-3 rounded-full text-sm font-bold bg-primary text-on-primary opacity-50 cursor-not-allowed pointer-events-none transition-all shadow-md inline-flex items-center justify-center gap-2">
+                <span class="material-symbols-outlined text-base">rocket_launch</span>
+                Khởi Hành
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     CUSTOM CONFIRM MODAL (Purple theme)
+══════════════════════════════════════════════════════════ -->
+<div id="custom-confirm-modal"
+     class="fixed inset-0 bg-primary/20 backdrop-blur-md flex items-center justify-center z-[510] hidden p-4">
+    <div class="confirm-modal-box w-full max-w-md overflow-hidden bg-white border border-primary/20 rounded-3xl shadow-2xl
+                transform scale-95 opacity-0 transition-all duration-200 ease-out">
+        <!-- Icon + Title -->
+        <div class="flex flex-col items-center text-center px-8 pt-9 pb-5">
+            <div class="w-20 h-20 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center mb-5 shadow-inner">
+                <span id="confirm-modal-icon" class="material-symbols-outlined text-primary" style="font-size:36px">help</span>
+            </div>
+            <h3 id="confirm-modal-title" class="font-bold text-on-background text-lg md:text-xl tracking-tight">Xác Nhận</h3>
+            <div class="w-12 h-px bg-primary/30 mt-4"></div>
+        </div>
+
+        <!-- Message -->
+        <div class="px-8 pb-8">
+            <p id="confirm-modal-msg" class="text-sm md:text-base text-on-surface-variant leading-relaxed text-center"></p>
+        </div>
+
+        <!-- Separator -->
+        <div class="h-px bg-primary/10 mx-6"></div>
+
+        <!-- Action buttons -->
+        <div class="flex gap-4 px-6 py-5">
+            <button type="button"
+                    onclick="closeCustomConfirm(false)"
+                    class="flex-1 py-3 rounded-full text-sm font-semibold text-on-surface-variant border border-outline-variant/50 hover:bg-surface-container-low transition-all">
+                Huỷ
+            </button>
+            <button type="button"
+                    onclick="closeCustomConfirm(true)"
+                    class="flex-1 py-3 rounded-full text-sm font-bold bg-primary text-on-primary hover:bg-primary/90 transition-all shadow-md inline-flex items-center justify-center">
+                Đồng ý
+            </button>
+        </div>
+    </div>
+</div>

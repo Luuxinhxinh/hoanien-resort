@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Master Data Management — Hoanien Retreat Operations Hub</title>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" th:href="@{/admin/css/theme.css}" href="../../static/admin/css/theme.css" />
+    <link rel="stylesheet" th:href="@{/admin/css/admin.css}" href="../../static/admin/css/admin.css" />
+    <link rel="stylesheet" th:href="@{/admin/css/admin-images.css}" href="../../static/admin/css/admin-images.css" />
+</head>
+
+
+<body th:attr="data-active-tab=${activeTab}">
+    <!-- ══════════════════════ SIDEBAR ══════════════════════ -->
+    <aside th:replace="~{admin/fragments/sidebar :: sidebar('master-data', ${activeTab})}"></aside>
+
+    <!-- ══════════════════════ MAIN ══════════════════════ -->
+    <div class="adm-main">
+
+        <header class="adm-header">
+            <div class="adm-header-left">
+                <span class="adm-breadcrumb-site">Hoanien Retreat</span>
+                <span class="adm-breadcrumb-sep">/</span>
+                <span class="adm-breadcrumb-page" style="color:#6B6558">Master Data</span>
+                <span class="adm-breadcrumb-sep">/</span>
+                <span class="adm-breadcrumb-page" th:text="${activeTab}">Room Categories</span>
+            </div>
+            <div class="adm-header-right">
+                <div class="adm-divider-v"></div>
+                <div class="adm-header-user-box">
+                    <div class="adm-header-avatar"
+                        th:text="${#authentication != null ? #strings.substring(#authentication.name, 0, 2).toUpperCase() : 'AD'}">
+                        AD</div>
+                    <span class="adm-header-username"
+                        th:text="${#authentication != null ? #authentication.name : 'Admin Dũng'}">Admin Dũng</span>
+                </div>
+                <div class="adm-divider-v"></div>
+                <a href="/logout" class="adm-header-logout"><i data-lucide="log-out"
+                        style="width:12px;height:12px"></i>Đăng xuất</a>
+            </div>
+        </header>
+
+        <main class="adm-page">
+
+            <div>
+                <p class="adm-page-eyebrow">Cấu hình hệ thống</p>
+                <h1 class="adm-page-title">Master Data Management</h1>
+            </div>
+
+            <!-- Tab Navigation -->
+            <div class="md-tabs">
+                <a th:each="tab : ${tabs}" th:href="@{/admin/master-data(tab=${tab})}" class="md-tab-link"
+                    th:classappend="${tab == activeTab} ? ' active' : ''" th:text="${tab}">Tab</a>
+            </div>
+
+            <!-- Table Card -->
+            <div class="md-table-card">
+
+                <!-- Toolbar -->
+                <div class="md-toolbar">
+                    <div class="adm-search-wrap">
+                        <span class="adm-search-icon"><i data-lucide="search"></i></span>
+                        <input type="text" id="search-input" placeholder="Tìm kiếm..." class="adm-search-input"
+                            style="width:260px" />
+                    </div>
+                    <!-- Khu vực chứa các bộ lọc động -->
+                    <div id="dynamic-filters" style="display:flex; gap:8px; flex-wrap: wrap; margin-left: 10px;"></div>
+                    <div style="display:flex; gap:8px; margin-left: auto;">
+                        <button id="btn-bulk-delete" class="adm-btn adm-btn-ghost" style="color: #EF4444; border: 1px solid rgba(239, 68, 68, 0.3); display: none;">
+                            <i data-lucide="trash" style="width:15px;height:15px"></i> Khóa hàng loạt (<span id="bulk-count">0</span>)
+                        </button>
+                        <label id="btn-import-csv-label" class="adm-btn adm-btn-ghost" style="color: #2D6B4A; border: 1px solid rgba(45, 107, 74, 0.3); cursor: pointer; display: none;">
+                            <i data-lucide="upload" style="width:15px;height:15px"></i> Nhập CSV
+                            <input type="file" id="input-import-csv" accept=".csv" style="display:none;" />
+                        </label>
+                        <a id="btn-export-csv" class="adm-btn adm-btn-ghost" style="color: #1D5B6A; border: 1px solid rgba(29, 91, 106, 0.3); text-decoration: none;">
+                            <i data-lucide="download" style="width:15px;height:15px"></i> Xuất CSV
+                        </a>
+                        <button id="btn-add-new" class="adm-btn adm-btn-primary">
+                            <i data-lucide="plus" style="width:15px;height:15px"></i> Thêm mới
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Table -->
+                <div th:switch="${activeTab}">
+                    <div th:case="'Room Categories'">
+                        <div th:replace="~{admin/fragments/md-room-categories :: table}"></div>
+                    </div>
+                    <div th:case="'Rooms'">
+                        <div th:replace="~{admin/fragments/md-rooms :: table}"></div>
+                    </div>
+                    <div th:case="'Restaurant Menu'">
+                        <div th:replace="~{admin/fragments/md-restaurant-menu :: table}"></div>
+                    </div>
+                    <div th:case="'Menu Categories'">
+                        <div th:replace="~{admin/fragments/md-menu-categories :: table}"></div>
+                    </div>
+                    <div th:case="'Tour Categories'">
+                        <div th:replace="~{admin/fragments/md-tour-categories :: table}"></div>
+                    </div>
+                    <div th:case="'Tours'">
+                        <div th:replace="~{admin/fragments/md-tours :: table}"></div>
+                    </div>
+                    <div th:case="'Account Management'">
+                        <div th:replace="~{admin/fragments/md-account-management :: table}"></div>
+                    </div>
+                    <div th:case="'Role Management'">
+                        <div th:replace="~{admin/fragments/md-role-management :: table}"></div>
+                    </div>
+                    <div th:case="'Promotions'">
+                        <div th:replace="~{admin/fragments/md-promotions :: table}"></div>
+                    </div>
+                    <div th:case="'Pricing Management'">
+                        <div th:replace="~{admin/fragments/md-pricing-management :: table}"></div>
+                    </div>
+                    <div th:case="'Bookings'">
+                        <div th:replace="~{admin/fragments/md-bookings :: table}"></div>
+                    </div>
+                    <div th:case="'F&amp;B Orders'">
+                        <div th:replace="~{admin/fragments/md-fnb-orders :: table}"></div>
+                    </div>
+                    <div th:case="'Tour Schedules'">
+                        <div th:replace="~{admin/fragments/md-tour-schedules :: table}"></div>
+                    </div>
+                </div>
+
+                <!-- Pagination footer -->
+                <div class="md-pagination-footer">
+                    <span class="md-pagination-info" id="pagination-info"
+                        th:text="'Hiển thị ' + ${totalRows} + ' / ' + ${totalRows} + ' bản ghi'">Hiển thị 0 / 0 bản
+                        ghi</span>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- ════════ ADD/EDIT MODAL ════════ -->
+    <div id="entity-modal" class="adm-modal-backdrop hidden">
+        <div class="adm-modal-box adm-modal-box-lg" onclick="event.stopPropagation()">
+            <div class="adm-modal-header">
+                <h2 id="modal-title" class="adm-modal-title">Thêm mới</h2>
+                <button class="btn-close-modal adm-modal-close" data-modal="entity-modal"><i
+                        data-lucide="x"></i></button>
+            </div>
+            <form id="entity-form" class="adm-modal-body">
+                <div id="modal-form-fields" style="display:flex;flex-direction:column;gap:20px"
+                    th:switch="${activeTab}">
+                    <div th:case="'Room Categories'">
+                        <div th:replace="~{admin/fragments/md-room-categories :: form}"></div>
+                    </div>
+                    <div th:case="'Rooms'">
+                        <div th:replace="~{admin/fragments/md-rooms :: form}"></div>
+                    </div>
+                    <div th:case="'Restaurant Menu'">
+                        <div th:replace="~{admin/fragments/md-restaurant-menu :: form}"></div>
+                    </div>
+                    <div th:case="'Menu Categories'">
+                        <div th:replace="~{admin/fragments/md-menu-categories :: form}"></div>
+                    </div>
+                    <div th:case="'Tour Categories'">
+                        <div th:replace="~{admin/fragments/md-tour-categories :: form}"></div>
+                    </div>
+                    <div th:case="'Tours'">
+                        <div th:replace="~{admin/fragments/md-tours :: form}"></div>
+                    </div>
+                    <div th:case="'Account Management'">
+                        <div th:replace="~{admin/fragments/md-account-management :: form}"></div>
+                    </div>
+                    <div th:case="'Role Management'">
+                        <div th:replace="~{admin/fragments/md-role-management :: form}"></div>
+                    </div>
+                    <div th:case="'Promotions'">
+                        <div th:replace="~{admin/fragments/md-promotions :: form}"></div>
+                    </div>
+                    <div th:case="'Pricing Management'">
+                        <div th:replace="~{admin/fragments/md-pricing-management :: form}"></div>
+                    </div>
+                    <div th:case="'Bookings'">
+                        <div th:replace="~{admin/fragments/md-bookings :: form}"></div>
+                    </div>
+                    <div th:case="'F&amp;B Orders'">
+                        <div th:replace="~{admin/fragments/md-fnb-orders :: form}"></div>
+                    </div>
+                    <div th:case="'Tour Schedules'">
+                        <div th:replace="~{admin/fragments/md-tour-schedules :: form}"></div>
+                    </div>
+                </div>
+                <div class="adm-modal-footer" style="margin-top:16px">
+                    <button type="button" class="btn-close-modal adm-btn adm-btn-ghost"
+                        data-modal="entity-modal">Hủy</button>
+                    <button type="submit" class="adm-btn adm-btn-primary">Lưu</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ════════ DELETE MODAL ════════ -->
+    <div id="delete-modal" class="adm-modal-backdrop hidden">
+        <div class="adm-modal-box adm-modal-box-md" onclick="event.stopPropagation()">
+            <div class="adm-modal-header">
+                <h2 class="adm-modal-title adm-modal-title-sm">Xác nhận xóa</h2>
+                <button class="btn-close-modal adm-modal-close" data-modal="delete-modal"><i
+                        data-lucide="x"></i></button>
+            </div>
+            <div class="adm-modal-body-p">
+                <p class="adm-modal-desc">Bạn có chắc chắn muốn xóa bản ghi này không? Hành động này không thể hoàn tác.
+                </p>
+                <div class="adm-modal-footer">
+                    <button class="btn-close-modal adm-btn adm-btn-ghost" data-modal="delete-modal">Hủy</button>
+                    <button id="btn-confirm-delete" class="btn-delete-confirm">Xóa</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ════════ PERMISSIONS MODAL (Account Management) ════════ -->
+    <div th:if="${activeTab == 'Account Management'}">
+        <div id="permissions-modal" class="adm-modal-backdrop hidden" style="z-index:9999;">
+            <div class="adm-modal-box adm-modal-box-md" onclick="event.stopPropagation()">
+                <div class="adm-modal-header">
+                    <h2 class="adm-modal-title adm-modal-title-sm">Chỉnh sửa quyền nhân viên</h2>
+                    <button class="btn-close-modal adm-modal-close" data-modal="permissions-modal"><i
+                            data-lucide="x"></i></button>
+                </div>
+                <div class="adm-modal-body-p">
+                    <p class="adm-modal-desc">Chọn các quyền chi tiết cho nhân viên này. Hệ thống sẽ tự động tạo Role tùy chỉnh ngầm để lưu lại cấu hình này.</p>
+                    <!-- Warning: session cache -->
+                    <div style="background:#FEF3C7;border:1px solid #F59E0B;border-radius:6px;padding:8px 12px;margin-top:12px;font-size:12px;color:#92400E;display:flex;gap:6px;align-items:flex-start;">
+                        <span style="font-size:14px;">⚠️</span>
+                        <span>Thay đổi có hiệu lực sau khi nhân viên <strong>đăng xuất và đăng nhập lại</strong>.</span>
+                    </div>
+                    <div class="permissions-list" id="permissions-checkboxes" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px;">
+                        <!-- Checkboxes will be rendered by JS -->
+                    </div>
+                    <div class="adm-modal-footer" style="margin-top:24px;display:flex;justify-content:space-between;align-items:center;">
+                        <button id="btn-reset-permissions" class="adm-btn adm-btn-ghost" style="display:none;color:#B45309;border-color:#B45309;">↩ Đặt lại mặc định</button>
+                        <div style="display:flex;gap:8px;">
+                            <button class="btn-close-modal adm-btn adm-btn-ghost" data-modal="permissions-modal">Hủy</button>
+                            <button id="btn-save-permissions" class="adm-btn adm-btn-primary">Lưu Quyền</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Removed HISTORY / AUDIT MODAL as it is moved to Audit Log screen -->
+
+    <!-- Inject form options -->
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        window.HOANIEN_FORM_OPTIONS = /*[[${formOptions}]]*/ {};
+
+        <!-- Inline form submission override removed to prevent duplicate API calls. Logic is now handled entirely in master-data.js -->/*]]>*/
+    </script>
+
+    <script th:src="@{/admin/js/main.js}" src="../../static/admin/js/main.js"></script>
+    <script th:src="@{/admin/js/master-data.js?v=7}" src="../../static/admin/js/master-data.js"></script>
+    <script th:src="@{/admin/js/admin-images.js}" src="../../static/admin/js/admin-images.js"></script>
+</body>
+
+</html>

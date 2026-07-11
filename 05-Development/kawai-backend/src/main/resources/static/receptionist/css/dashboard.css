@@ -271,9 +271,9 @@ body {
     width: 100%;
     height: 44px;
     border-radius: 9999px;
-    border: 1px solid #4a4a4a;
-    background-color: #2a2a2a;
-    color: #e0e0e0;
+    border: 1px solid #e2dcd5;
+    background-color: #F5F3E9;
+    color: #634636;
     padding: 0 20px 0 44px;
     font-size: 14px;
     outline: none;
@@ -281,13 +281,13 @@ body {
 }
 
 .header-search input::placeholder {
-    color: #8b8b8b;
+    color: #a29890;
 }
 
 .header-search input:focus {
-    border-color: #c9a84c;
-    background-color: #333333;
-    box-shadow: 0 0 0 2px rgba(201, 168, 76, 0.15);
+    border-color: #c19b6c;
+    background-color: #ffffff;
+    box-shadow: 0 0 0 2px rgba(193, 155, 108, 0.15);
 }
 
 .search-icon {
@@ -295,7 +295,7 @@ body {
     left: 16px;
     top: 50%;
     transform: translateY(-50%);
-    color: #a0a0a0;
+    color: #8e7c72;
 }
 
 .header-actions {
@@ -328,20 +328,20 @@ body {
     width: 40px;
     height: 40px;
     justify-content: center;
-    border: 1px solid #eaeaea !important;
+    border: 1px solid #e2dcd5 !important;
     border-radius: 50% !important;
 }
 
 .notification-btn i {
     font-size: 18px;
-    color: #555;
+    color: #8e7c72;
 }
 
 .notification-btn .badge {
     position: absolute;
     top: -2px;
     right: -2px;
-    background-color: #eb5757;
+    background-color: #c19b6c;
     color: white;
     font-size: 10px;
     font-weight: bold;
@@ -356,14 +356,17 @@ body {
 
 .user-profile-btn,
 .logout-btn {
-    background-color: #38302c !important;
-    color: white !important;
+    background-color: transparent !important;
+    border: 1px solid #c19b6c !important;
+    color: #634636 !important;
     font-weight: 500;
 }
 
 .user-profile-btn:hover,
 .logout-btn:hover {
-    background-color: #4a403a !important;
+    background-color: #fdfaf7 !important;
+    border-color: #b08a5b !important;
+    color: #b08a5b !important;
 }
 
 /* DASHBOARD CONTENT */

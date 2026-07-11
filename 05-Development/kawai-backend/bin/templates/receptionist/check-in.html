@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="_csrf" th:if="${_csrf != null}" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:if="${_csrf != null}" th:content="${_csrf.headerName}" />
+    <title>Check-in / Check-out - Hoanien Retreat</title>
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
+        rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/receptionist/css/dashboard.css">
+    <link rel="stylesheet" href="/receptionist/css/pages.css">
+    <!-- face-api.js: Face Detection & Recognition Library -->
+    <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+    <!-- Toastify -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <div class="brand-logo">◆</div>
+                <div class="brand-text">
+                    <h1 class="brand-title">Hoanien Retreat</h1>
+                    <p class="brand-subtitle">Resort & Hub</p>
+                </div>
+            </div>
+
+            <div class="sidebar-section-title">RECEPTIONIST</div>
+
+            <nav class="sidebar-nav">
+                <a href="/receptionist/dashboard" class="nav-item"
+                    sec:authorize="hasAnyAuthority('OP_DASHBOARD', 'ROLE_ADMIN', 'ROLE_MANAGER')">
+                    <i class="fa-solid fa-border-all"></i>
+                    <div class="nav-text">
+                        <span class="nav-main-text">Room Matrix</span>
+                        <span class="nav-sub-text">Sơ đồ phòng</span>
+                    </div>
+                    <i class="fa-solid fa-chevron-right nav-arrow"></i>
+                </a>
+
+                <a href="/receptionist/walk-in" class="nav-item"
+                    sec:authorize="hasAnyAuthority('OP_RECEPTION_WALKIN', 'OP_BOOKING', 'ROLE_ADMIN', 'ROLE_MANAGER')">
+                    <i class="fa-solid fa-person-walking-luggage"></i>
+                    <div class="nav-text">
+                        <span class="nav-main-text">Walk-In</span>
+                        <span class="nav-sub-text">Khách vãng lai</span>
+                    </div>
+                </a>
+                <a href="/receptionist/check-in" class="nav-item active">
+                    <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                    <div class="nav-text">
+                        <span class="nav-main-text">Check-in</span>
+                        <span class="nav-sub-text">Nhận phòng</span>
+                    </div>
+                </a>
+                <a href="/receptionist/folio" class="nav-item"
+                    sec:authorize="hasAnyAuthority('OP_RECEPTION_CHECKOUT', 'OP_BOOKING', 'ROLE_ADMIN', 'ROLE_MANAGER')">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                    <div class="nav-text">
+                        <span class="nav-main-text">Check-out / Folio</span>
+                        <span class="nav-sub-text">Trả phòng & Hóa đơn</span>
+                    </div>
+                </a>
+                <a href="/receptionist/in-house" class="nav-item"
+                    sec:authorize="hasAnyAuthority('OP_RECEPTION_INHOUSE', 'OP_BOOKING', 'ROLE_ADMIN', 'ROLE_MANAGER')">
+                    <i class="fa-solid fa-bed"></i>
+                    <div class="nav-text">
+                        <span class="nav-main-text">Khách lưu trú</span>
+                        <span class="nav-sub-text">Quản lý khách in-house</span>
+                    </div>
+                </a>
+                <!--
+                <a href="/receptionist/night-audit" class="nav-item">
+                    <i class="fa-solid fa-moon"></i>
+                    <div class="nav-text">
+                        <span class="nav-main-text">Night Audit</span>
+                        <span class="nav-sub-text">Giao ca & Báo cáo</span>
+                    </div>
+                </a>
+                -->
+            </nav>
+
+            <div class="sidebar-user">
+                <div class="user-avatar">MH</div>
+                <div class="user-info">
+                    <div class="user-name">Minh Hoàng</div>
+                    <div class="user-role">Receptionist</div>
+                </div>
+                <div class="user-status"></div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="top-header">
+                <div class="header-datetime">
+                    <div class="date" id="currentDate" th:text="${todayLabel}">Wednesday, June 10, 2026</div>
+                </div>
+
+                <div class="header-search">
+                    <form action="/receptionist/check-in" method="get">
+                        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                        <input type="hidden" name="dateFilter" th:if="${dateFilter != null}" th:value="${dateFilter}" />
+                        <input type="text" name="keyword" th:value="${param.keyword}"
+                            placeholder="Search guest, room no., phone" style="border-radius: 20px;" />
+                    </form>
+                </div>
+
+                <div class="header-actions">
+                    <button class="notification-btn">
+                        <i class="fa-regular fa-bell"></i>
+                        <span class="badge">3</span>
+                    </button>
+                    <button class="user-profile-btn">
+                        <i class="fa-solid fa-user"></i>
+                        <span>Receptionist</span>
+                    </button>
+                    <button class="logout-btn" onclick="window.location.href='/logout'">
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                        <span>Logout</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <div class="dashboard-scroll-area">
+
+                <!-- Hiển thị thông báo (Thành công / Thất bại) -->
+                <div th:if="${successMessage}" class="alert alert-success"
+                    style="margin-bottom: 20px; padding: 16px; border-radius: 8px; background-color: #dcfce7; color: #166534; border: 1px solid #bbf7d0; display: flex; align-items: center; gap: 12px; font-weight: 500;">
+                    <i class="fa-solid fa-circle-check"></i>
+                    <span th:text="${successMessage}"></span>
+                </div>
+                <div th:if="${errorMessage}" class="alert alert-danger"
+                    style="margin-bottom: 20px; padding: 16px; border-radius: 8px; background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca; font-weight: 500;">
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        <strong>Lỗi khi tải trang Check-in</strong>
+                    </div>
+                    <pre th:text="${errorMessage}"
+                        style="white-space: pre-wrap; word-break: break-all; margin: 0; font-family: monospace; font-size: 12px; background: #fff5f5; padding: 12px; border-radius: 6px; border: 1px solid #fecaca; max-height: 300px; overflow-y: auto;"></pre>
+                </div>
+
+                <div class="page-header">
+                    <h2 class="page-title">Check-in (Chờ nhận phòng)</h2>
+                </div>
+
+
+
+                <div class="split-layout" style="display: block;">
+                    <!-- Tab 1: Arrivals -->
+                    <div id="tabContentArrivals" class="split-section" style="display: block;">
+                        <div class="split-title"
+                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                            <div style="display: flex; align-items: center; gap: 15px;">
+                                <span>Arrivals (Đến)</span>
+                                <form action="/receptionist/check-in" method="get"
+                                    style="display: flex; align-items: center; gap: 8px; margin: 0;">
+                                    <input type="hidden" name="keyword" th:if="${keyword != null}"
+                                        th:value="${keyword}" />
+                                    <input type="date" name="dateFilter" th:value="${dateFilter}"
+                                        onchange="this.form.submit()"
+                                        style="background: #2a2d34; border: 1px solid #4b5563; color: white; border-radius: 6px; padding: 8px 12px; font-size: 14px; min-width: 150px; outline: none; cursor: pointer; transition: border-color 0.2s;"
+                                        onfocus="this.style.borderColor='#fb923c'"
+                                        onblur="this.style.borderColor='#4b5563'" />
+                                    <a th:if="${dateFilter != null}"
+                                        th:href="@{/receptionist/check-in(keyword=${keyword})}"
+                                        style="color: #ef4444; text-decoration: none; font-size: 14px; padding: 8px; display: flex; align-items: center; justify-content: center; background: #374151; border-radius: 6px; transition: background 0.2s;"
+                                        title="Xóa bộ lọc ngày" onmouseover="this.style.background='#4b5563'"
+                                        onmouseout="this.style.background='#374151'"><i
+                                            class="fa-solid fa-xmark"></i></a>
+                                </form>
+                            </div>
+                            <span class="status-badge status-pending"
+                                th:text="${pendingArrivalsCount} + ' Expected'"></span>
+                        </div>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Guest</th>
+                                    <th>Phone</th>
+                                    <th>Check-in Date</th>
+                                    <th>Booking Date</th>
+                                    <th>Notes</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:if="${#lists.isEmpty(arrivals)}">
+                                    <td colspan="6" style="text-align: center;">No arrivals today</td>
+                                </tr>
+                                <tr th:each="arr : ${arrivals}">
+                                    <td style="cursor: pointer; color: #2563eb; font-weight: 500;"
+                                        th:data-id="${arr.id}" th:data-name="${arr.guestName}"
+                                        th:data-phone="${arr.phone}" th:data-cccd="${arr.cccd}"
+                                        th:data-dob="${arr.birthDate}" th:data-room="${arr.roomSummary}"
+                                        th:data-deps="|deps-arr-${arr.id}|" th:data-tours="|tours-arr-${arr.id}|"
+                                        th:data-credit="${arr.creditLimit}"
+                                        th:data-expected-guests="${arr.expectedGuests}"
+                                        th:data-expected-adults="${arr.expectedAdults}"
+                                        th:data-expected-children="${arr.expectedChildren}"
+                                        th:data-max-adults="${arr.maxAdults}" th:data-max-children="${arr.maxChildren}"
+                                        onclick="openCheckinModal(this.getAttribute('data-id'), this.getAttribute('data-name'), this.getAttribute('data-phone'), this.getAttribute('data-cccd'), this.getAttribute('data-dob'), this.getAttribute('data-room'), this.getAttribute('data-deps'), this.getAttribute('data-tours'), this.getAttribute('data-credit'), this.getAttribute('data-expected-guests'), this.getAttribute('data-expected-adults'), this.getAttribute('data-expected-children'), this.getAttribute('data-max-adults'), this.getAttribute('data-max-children'))"
+                                        th:text="${arr.guestName}"></td>
+                                    <td th:text="${arr.phone}"></td>
+                                    <td th:text="${arr.checkInDate}"></td>
+                                    <td th:text="${arr.bookingDate}" style="color: #4b5563;"></td>
+                                    <td th:text="${arr.notes}"
+                                        style="max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
+                                        th:title="${arr.notes}"></td>
+                                    <td>
+                                        <button class="btn btn-primary btn-sm" th:data-id="${arr.id}"
+                                            th:data-name="${arr.guestName}" th:data-phone="${arr.phone}"
+                                            th:data-cccd="${arr.cccd}" th:data-dob="${arr.birthDate}"
+                                            th:data-room="${arr.roomSummary}" th:data-deps="|deps-arr-${arr.id}|"
+                                            th:data-tours="|tours-arr-${arr.id}|" th:data-credit="${arr.creditLimit}"
+                                            th:data-expected-guests="${arr.expectedGuests}"
+                                            th:data-expected-adults="${arr.expectedAdults}"
+                                            th:data-expected-children="${arr.expectedChildren}"
+                                            th:data-max-adults="${arr.maxAdults}"
+                                            th:data-max-children="${arr.maxChildren}" th:data-gender="${arr.gender}"
+                                            onclick="openCheckinModal(this.getAttribute('data-id'), this.getAttribute('data-name'), this.getAttribute('data-phone'), this.getAttribute('data-cccd'), this.getAttribute('data-dob'), this.getAttribute('data-room'), this.getAttribute('data-deps'), this.getAttribute('data-tours'), this.getAttribute('data-credit'), this.getAttribute('data-expected-guests'), this.getAttribute('data-expected-adults'), this.getAttribute('data-expected-children'), this.getAttribute('data-max-adults'), this.getAttribute('data-max-children'), this.getAttribute('data-gender'))">Assign
+                                            & Check-in</button>
+
+                                        <!-- Hidden data for dependents -->
+                                        <div th:id="'deps-arr-' + ${arr.id}" style="display:none;">
+                                            <ul>
+                                                <li th:each="dep : ${arr.dependents}" th:data-name="${dep.fullName}"
+                                                    th:data-dob="${dep.dateOfBirth}" th:data-id="${dep.dependentId}"
+                                                    th:data-cccd="${dep.cccd}">
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        <!-- Hidden data for TourBookings -->
+                                        <div th:id="'tours-arr-' + ${arr.id}" style="display:none;">
+                                            <ul>
+                                                <li th:each="tb : ${arr.tourBookings}" th:data-id="${tb.id}"
+                                                    th:data-tour="${tb.schedule?.tour?.tourName}"
+                                                    th:data-category="${tb.roomBookingDetail?.category?.categoryName}"
+                                                    th:data-participant="${tb.participantCount}"
+                                                    th:data-charge="${tb.tourCharge}">
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <!-- Pagination -->
+                        <div class="pagination"
+                            style="display: flex; justify-content: flex-end; align-items: center; gap: 1rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #e5e7eb;">
+                            <a th:href="@{/receptionist/check-in(page=${currentPage - 1}, keyword=${param.keyword}, tab='arrivals')}"
+                                th:style="'padding: 0.5rem 1rem; border: 1px solid #e5e7eb; border-radius: 6px; text-decoration: none; color: #374151;' + (${currentPage == 1} ? ' opacity: 0.5; pointer-events: none;' : '')">Previous</a>
+
+                            <span style="color: #6b7280; font-size: 0.875rem;">Page <span
+                                    th:text="${currentPage}">1</span>
+                                of <span th:text="${totalPages}">1</span></span>
+
+                            <a th:href="@{/receptionist/check-in(page=${currentPage + 1}, keyword=${param.keyword}, tab='arrivals')}"
+                                th:style="'padding: 0.5rem 1rem; border: 1px solid #e5e7eb; border-radius: 6px; text-decoration: none; color: #374151;' + (${currentPage == totalPages} ? ' opacity: 0.5; pointer-events: none;' : '')">Next</a>
+                        </div>
+                    </div> <!-- End Tab 1 -->
+
+
+                </div>
+            </div>
+        </main>
+    </div>
+
+
+
+    <!-- Check-in Modal -->
+    <div id="checkinModal" class="modal-overlay"
+        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;">
+        <form id="checkinFormWrapper" th:action="@{/receptionist/checkin/complete}" method="POST" class="modal-content"
+            style="background: white; width: 1000px; max-width: 95%; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; flex-direction: column; max-height: 90vh;">
+            <!-- Hidden fields for Spring Boot DTO Binding -->
+            <input type="hidden" id="submitBookingId" name="bookingId" value="" />
+            <!-- Hidden inputs for assignedRoomIds will be injected by Javascript -->
+
+            <div class="modal-header"
+                style="padding: 16px 24px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="margin: 0; font-size: 18px; font-weight: 600; display: flex; align-items: center;">
+                    Check-in & Guest Details
+                    <span id="modalExpectedCapacity"
+                        style="font-size: 13px; font-weight: 500; color: #059669; background: #d1fae5; padding: 4px 10px; border-radius: 12px; margin-left: 12px; display: none;"></span>
+                </h3>
+                <button type="button" onclick="closeCheckinModal()"
+                    style="background: none; border: none; font-size: 20px; cursor: pointer; color: #64748b;">&times;</button>
+            </div>
+            <div class="modal-body"
+                style="padding: 24px; overflow-y: auto; flex: 1; background: #fcfcfc; display: flex; gap: 24px;">
+                <!-- Left Column (Form) -->
+                <div style="flex: 1; min-width: 0;">
+                    <!-- Main Guest Info -->
+                    <div style="margin-bottom: 32px;">
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; margin-bottom: 16px;">
+                            <h4 style="margin: 0; font-weight: 600; color: #1e293b; font-size: 16px;">
+                                <i class="fa-solid fa-user-tie" style="color: #64748b; margin-right: 6px;"></i>
+                                Main Guest Information
+                                <span id="masterCustomerRoomLabel"
+                                    style="font-size: 13px; font-weight: 500; color: #d97706; margin-left: 8px;">(Chưa
+                                    phân
+                                    phòng)</span>
+                            </h4>
+                            <div>
+                                <span
+                                    style="font-size: 13px; color: #64748b; font-weight: 500; margin-right: 12px;">Thông
+                                    tin người đặt</span>
+                                <button type="button" class="btn btn-primary btn-sm"
+                                    onclick="openEnrollModal('CUSTOMER', document.getElementById('submitBookingId').value)"
+                                    style="background: #6366f1; border-color: #6366f1; font-size: 12px; height: 28px; padding: 0 10px;">
+                                    <i class="fa-solid fa-camera"></i> Đăng ký FaceID
+                                </button>
+                            </div>
+                        </div>
+
+                        <div
+                            style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; background: white; padding: 16px; border-radius: 8px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+                            <div style="grid-column: span 2; margin-bottom: -10px;">
+                                <label
+                                    style="display: block; color: #475569; font-size: 12px; font-weight: 600; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">
+                                    <i class="fa-solid fa-qrcode" style="color: #6366f1; margin-right: 4px;"></i> Quét
+                                    QR CCCD
+                                </label>
+                                <div style="display: flex; gap: 8px;">
+                                    <input type="text" placeholder="Quét mã QR từ CCCD để điền nhanh..."
+                                        oninput="handleQrScan(this.value, 'main', this)"
+                                        style="flex: 1; padding: 10px 12px; border: 1px dashed #cbd5e1; border-radius: 6px; background: #f8fafc; font-weight: 500; font-family: inherit; color: #1e293b; outline: none; transition: border-color 0.2s;"
+                                        onfocus="this.style.borderColor='#94a3b8'"
+                                        onblur="this.style.borderColor='#cbd5e1'">
+                                    <button type="button" class="btn btn-outline"
+                                        style="padding: 0 16px; border-color: #cbd5e1; color: #475569;"
+                                        onclick="openQrScannerModal('main')">
+                                        <i class="fa-solid fa-camera"></i> Camera
+                                    </button>
+                                    <button type="button" class="btn btn-outline"
+                                        style="padding: 0 16px; border-color: #cbd5e1; color: #6366f1;"
+                                        onclick="openRemoteScanModal('main')">
+                                        <i class="fa-solid fa-mobile-screen"></i> Quét bằng ĐT
+                                    </button>
+                                </div>
+                            </div>
+                            <div>
+                                <label
+                                    style="display: block; color: #475569; font-size: 12px; font-weight: 600; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">Full
+                                    Name</label>
+                                <input type="text" id="modalGuestName" name="guestName"
+                                    style="width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-weight: 500; font-family: inherit; color: #1e293b; outline: none; transition: border-color 0.2s;"
+                                    onfocus="this.style.borderColor='#94a3b8'" onblur="this.style.borderColor='#cbd5e1'"
+                                    value="">
+                            </div>
+                            <div>
+                                <label
+                                    style="display: block; color: #475569; font-size: 12px; font-weight: 600; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">Phone
+                                    Number</label>
+                                <input type="text" id="modalGuestPhone" name="phone"
+                                    style="width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-weight: 500; font-family: inherit; color: #1e293b; outline: none; transition: border-color 0.2s;"
+                                    onfocus="this.style.borderColor='#94a3b8'" onblur="this.style.borderColor='#cbd5e1'"
+                                    value="">
+                            </div>
+                            <div>
+                                <label
+                                    style="display: block; color: #475569; font-size: 12px; font-weight: 600; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">Identity
+                                    (CCCD/Passport)</label>
+                                <input type="text" id="modalGuestCccd" name="cccd"
+                                    style="width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-weight: 500; font-family: inherit; color: #1e293b; outline: none; transition: border-color 0.2s;"
+                                    onfocus="this.style.borderColor='#94a3b8'" onblur="this.style.borderColor='#cbd5e1'"
+                                    value="">
+                            </div>
+                            <div>
+                                <label
+                                    style="display: block; color: #475569; font-size: 12px; font-weight: 600; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">Date
+                                    of Birth</label>
+                                <input type="date" id="modalGuestDob" name="dob"
+                                    style="width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-weight: 500; font-family: inherit; color: #1e293b; outline: none; transition: border-color 0.2s;"
+                                    onfocus="this.style.borderColor='#94a3b8'" onblur="this.style.borderColor='#cbd5e1'"
+                                    value="">
+                            </div>
+                            <div>
+                                <label
+                                    style="display: block; color: #475569; font-size: 12px; font-weight: 600; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">Gender</label>
+                                <select id="modalGuestGender" name="gender"
+                                    style="width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-weight: 500; font-family: inherit; color: #1e293b; outline: none; transition: border-color 0.2s;"
+                                    onfocus="this.style.borderColor='#94a3b8'"
+                                    onblur="this.style.borderColor='#cbd5e1'">
+                                    <option value="Nam">Nam</option>
+                                    <option value="Nữ">Nữ</option>
+                                    <option value="Khác">Khác</option>
+                                </select>
+                            </div>
+                            <div
+                                style="display: flex; flex-direction: column; justify-content: center; background: #f8fafc; padding: 10px 12px; border-radius: 6px; border: 1px solid #e2e8f0; grid-column: span 2;">
+                                <label
+                                    style="color: #475569; font-size: 12px; font-weight: 600; margin-bottom: 2px; text-transform: uppercase; letter-spacing: 0.5px;">Booked
+                                    Room Types</label>
+                                <div style="font-weight: 600; color: #0369a1; font-size: 14px;" id="modalRoom"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Physical Room Assignment Section -->
+                    <div style="margin-bottom: 32px;">
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; margin-bottom: 16px;">
+                            <h4 style="margin: 0; font-weight: 600; color: #1e293b; font-size: 16px;">
+                                <i class="fa-solid fa-door-open" style="color: #64748b; margin-right: 6px;"></i>
+                                Physical Room Assignment
+                            </h4>
+                            <span style="font-size: 14px; font-weight: 600; color: #475569;">Hạn mức tổng còn lại: <span
+                                    id="checkinRemainingCreditDisplay" style="color: #0f766e;">5,000,000
+                                    VND</span></span>
+                        </div>
+
+                        <!-- Assigned Rooms List -->
+                        <div id="assignedRoomsList"
+                            style="margin-bottom: 16px; display: flex; flex-direction: column; gap: 10px;">
+                            <!-- JS injected badges for assigned rooms -->
+                        </div>
+
+                        <!-- Assign Controls -->
+                        <div
+                            style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 16px; align-items: end; background: white; padding: 16px; border-radius: 8px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+                            <div>
+                                <label
+                                    style="display: block; font-size: 12px; font-weight: 600; color: #475569; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">Booked
+                                    Room Type</label>
+                                <select id="bookTypeSelect" class="form-control"
+                                    style="width: 100%; padding: 10px 12px; border-radius: 6px; border: 1px solid #cbd5e1; font-family: inherit; color: #1e293b; outline: none; cursor: pointer;"
+                                    onchange="updateAvailableRooms()">
+                                    <option value="">-- Select Type --</option>
+                                    <!-- Populated dynamically by JS -->
+                                </select>
+                            </div>
+                            <div>
+                                <label
+                                    style="display: block; font-size: 12px; font-weight: 600; color: #475569; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">Available
+                                    Physical Room</label>
+                                <select id="physicalRoomSelect" class="form-control"
+                                    style="width: 100%; padding: 10px 12px; border-radius: 6px; border: 1px solid #cbd5e1; font-family: inherit; color: #1e293b; outline: none; cursor: pointer;">
+                                    <option value="">-- Select Type First --</option>
+                                </select>
+                            </div>
+                            <div>
+                                <button type="button" class="btn btn-primary" onclick="assignRoom()"
+                                    style="height: 42px; padding: 0 24px; font-weight: 600; border-radius: 6px; display: flex; align-items: center; gap: 8px; background: #0f766e; border-color: #0f766e; color: white;">
+                                    <i class="fa-solid fa-plus"></i> Assign
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dependents Section -->
+                    <div style="margin-bottom: 32px;">
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; margin-bottom: 16px;">
+                            <h4 style="margin: 0; font-weight: 600; color: #1e293b; font-size: 16px;">
+                                <i class="fa-solid fa-users" style="color: #64748b; margin-right: 6px;"></i>
+                                Group Members & Room Assignment
+                            </h4>
+                            <button type="button" onclick="toggleDependentsList()" id="toggleDependentsBtn"
+                                style="color: #64748b; background: none; border: none; cursor: pointer; font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 6px; padding: 4px 8px; border-radius: 4px; transition: background 0.2s;">
+                                <i class="fa-solid fa-chevron-up"></i> Thu gọn
+                            </button>
+                        </div>
+
+                        <div id="dependentsTableWrapper" style="overflow: hidden; transition: all 0.3s ease-in-out;">
+                            <div
+                                style="background: white; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-bottom: 20px;">
+                                <table class="data-table" style="width: 100%; border-collapse: collapse;"
+                                    id="dependentsTable">
+                                    <thead>
+                                        <tr style="background: #f8fafc; border-bottom: 1px solid #e2e8f0;">
+                                            <th
+                                                style="padding: 12px 16px; text-align: left; font-size: 12px; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 0.5px;">
+                                                Full Name</th>
+                                            <th
+                                                style="padding: 12px 16px; text-align: left; font-size: 12px; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 0.5px;">
+                                                CCCD</th>
+                                            <th
+                                                style="padding: 12px 16px; text-align: left; font-size: 12px; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 0.5px;">
+                                                Phòng & Vai trò</th>
+                                            <th
+                                                style="padding: 12px 16px; text-align: left; font-size: 12px; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 0.5px;">
+                                                Date of Birth</th>
+                                            <th
+                                                style="padding: 12px 16px; text-align: left; font-size: 12px; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 0.5px;">
+                                                Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="dependentsList">
+                                        <tr>
+                                            <td colspan="5"
+                                                style="text-align:center; padding: 24px; color: #94a3b8; font-size: 14px; font-weight: 500;">
+                                                No group members added yet
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div
+                            style="background: #f8fafc; padding: 20px 16px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                            <h5
+                                style="margin-top: 0; margin-bottom: 16px; font-weight: 600; font-size: 14px; color: #1e293b; display: flex; align-items: center; gap: 8px;">
+                                <i class="fa-solid fa-user-plus" style="color: #64748b;"></i> Add Group Member
+                            </h5>
+                            <div
+                                style="display: grid; grid-template-columns: 2fr 2fr 1.5fr 1.5fr 1.5fr auto auto; gap: 12px; align-items: end;">
+                                <div style="grid-column: span 7; margin-bottom: 4px;">
+                                    <label
+                                        style="display: block; color: #475569; font-size: 12px; font-weight: 600; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">
+                                        <i class="fa-solid fa-qrcode" style="color: #6366f1; margin-right: 4px;"></i>
+                                        Quét QR CCCD
+                                    </label>
+                                    <div style="display: flex; gap: 8px;">
+                                        <input type="text" placeholder="Quét mã QR từ CCCD để điền nhanh..."
+                                            oninput="handleQrScan(this.value, 'dep', this)"
+                                            style="flex: 1; padding: 10px 12px; border: 1px dashed #cbd5e1; border-radius: 6px; background: #f8fafc; font-weight: 500; font-family: inherit; color: #1e293b; outline: none; transition: border-color 0.2s;"
+                                            onfocus="this.style.borderColor='#94a3b8'"
+                                            onblur="this.style.borderColor='#cbd5e1'">
+                                        <button type="button" class="btn btn-outline"
+                                            style="padding: 0 16px; border-color: #cbd5e1; color: #475569;"
+                                            onclick="openQrScannerModal('dep')">
+                                            <i class="fa-solid fa-camera"></i> Camera
+                                        </button>
+                                        <button type="button" class="btn btn-outline"
+                                            style="padding: 0 16px; border-color: #cbd5e1; color: #6366f1;"
+                                            onclick="openRemoteScanModal('dep')">
+                                            <i class="fa-solid fa-mobile-screen"></i> Quét bằng ĐT
+                                        </button>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label
+                                        style="display: block; font-size: 12px; font-weight: 600; color: #475569; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">Full
+                                        Name</label>
+                                    <input type="text" id="depName"
+                                        style="width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; outline: none; transition: border-color 0.2s;"
+                                        placeholder="Name" onfocus="this.style.borderColor='#94a3b8'"
+                                        onblur="this.style.borderColor='#cbd5e1'">
+                                </div>
+                                <div>
+                                    <label
+                                        style="display: block; font-size: 12px; font-weight: 600; color: #475569; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">CCCD</label>
+                                    <input type="text" id="depId"
+                                        style="width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; outline: none; transition: border-color 0.2s;"
+                                        placeholder="ID" onfocus="this.style.borderColor='#94a3b8'"
+                                        onblur="this.style.borderColor='#cbd5e1'">
+                                </div>
+                                <div>
+                                    <label
+                                        style="display: block; font-size: 12px; font-weight: 600; color: #475569; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">Assign
+                                        to Room</label>
+                                    <select id="depRoom"
+                                        style="width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; background: white; outline: none; cursor: pointer;">
+                                        <option value=""> Select Room </option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label
+                                        style="display: block; font-size: 12px; font-weight: 600; color: #475569; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">Gender</label>
+                                    <select id="depGender"
+                                        style="width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; background: white; outline: none; cursor: pointer;">
+                                        <option value="Nam">Nam</option>
+                                        <option value="Nữ">Nữ</option>
+                                        <option value="Khác">Khác</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label
+                                        style="display: block; font-size: 12px; font-weight: 600; color: #475569; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">Date
+                                        of Birth</label>
+                                    <input type="date" id="depDob"
+                                        style="width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; background: white; outline: none; cursor: pointer;">
+                                </div>
+                                <div
+                                    style="display: flex; flex-direction: column; justify-content: center; height: 42px;">
+                                    <label
+                                        style="display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; cursor: pointer; color: #334155;">
+                                        <input type="checkbox" id="depIsPrimary"
+                                            style="width: 16px; height: 16px; accent-color: #0f766e; cursor: pointer;">
+                                        Đứng
+                                        đầu
+                                    </label>
+                                </div>
+                                <div>
+                                    <button type="button" class="btn btn-outline" onclick="addDependent()"
+                                        style="height: 42px; padding: 0 20px; font-weight: 600; border-radius: 6px; border-color: #cbd5e1; color: #334155; background: white;">
+                                        <i class="fa-solid fa-plus"></i> Add
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Danh sách Tour đã đặt (Read-only) -->
+                    <div id="tourBookingsSection" style="display: none; margin-top: 32px;">
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; margin-bottom: 16px;">
+                            <h4 style="margin: 0; font-weight: 600; color: #1e293b; font-size: 16px;">
+                                <i class="fa-solid fa-map-location-dot" style="color: #64748b; margin-right: 6px;"></i>
+                                Danh sách Tour đã đặt
+                            </h4>
+                        </div>
+
+                        <div
+                            style="background: white; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-bottom: 20px;">
+                            <!-- Bảng danh sách tour đã đặt -->
+                            <table class="data-table" style="width: 100%; border-collapse: collapse;"
+                                id="tourBookingsTable">
+                                <thead>
+                                    <tr style="background: #f8fafc; border-bottom: 1px solid #e2e8f0;">
+                                        <th
+                                            style="padding: 12px 16px; text-align: left; font-size: 12px; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 0.5px;">
+                                            Tên Tour</th>
+                                        <th
+                                            style="padding: 12px 16px; text-align: left; font-size: 12px; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 0.5px;">
+                                            Hạng Phòng</th>
+                                        <th
+                                            style="padding: 12px 16px; text-align: center; font-size: 12px; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 0.5px;">
+                                            Số lượng</th>
+                                        <th
+                                            style="padding: 12px 16px; text-align: left; font-size: 12px; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 0.5px;">
+                                            Phòng Vật Lý</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tourBookingsList">
+                                    <tr>
+                                        <td colspan="4"
+                                            style="text-align:center; padding: 24px; color: #94a3b8; font-size: 14px; font-weight: 500;">
+                                            Đang tải...
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div> <!-- End Left Column -->
+
+                <!-- Right Column (Face Gallery) -->
+                <div style="width: 220px; flex-shrink: 0; display: flex; flex-direction: column;">
+                    <div
+                        style="background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; position: sticky; top: 0; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                        <h4
+                            style="margin: 0 0 16px 0; font-size: 14px; color: #1e293b; font-weight: 600; text-align: center; border-bottom: 2px solid #f1f5f9; padding-bottom: 12px;">
+                            <i class="fa-solid fa-images" style="color: #6366f1;"></i> FaceID Gallery
+                        </h4>
+                        <div id="faceGallery"
+                            style="display: flex; flex-direction: column; gap: 12px; max-height: 500px; overflow-y: auto; padding-right: 4px;">
+                            <div id="faceGalleryEmpty"
+                                style="font-size: 13px; color: #94a3b8; text-align: center; padding: 20px 0;">
+                                Chưa có ảnh nào được chụp
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer"
+                style="padding: 16px 24px; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 12px; background: #f8fafc; border-radius: 0 0 8px 8px;">
+                <button type="button" class="btn btn-outline" onclick="cancelCheckinModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary"><i class="fa-solid fa-check"></i> Complete
+                    Check-in</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- FaceID Enrollment Modal -->
+    <div id="enrollFaceModal" class="modal-overlay"
+        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 2000; justify-content: center; align-items: center;">
+        <div
+            style="background: white; width: 500px; border-radius: 12px; padding: 24px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+            <h3 style="margin-top: 0; color: #1e293b;"><i class="fa-solid fa-camera"></i> Thu thập FaceID</h3>
+            <p id="enrollTargetName" style="color: #64748b; margin-bottom: 20px;">Đang đăng ký cho...</p>
+
+            <div
+                style="position: relative; width: 320px; height: 240px; margin: 0 auto 20px; background: #f1f5f9; border-radius: 8px; overflow: hidden; border: 2px dashed #cbd5e1;">
+                <video id="enrollVideo" autoplay muted playsinline
+                    style="width: 100%; height: 100%; object-fit: cover;"></video>
+                <div id="enrollOverlay"
+                    style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.5); color: white; font-weight: 600;">
+                    Đang tải AI Model...
+                </div>
+            </div>
+
+            <div style="display: flex; justify-content: center; gap: 12px;">
+                <button type="button" class="btn btn-outline" onclick="closeEnrollModal()">Hủy</button>
+                <button type="button" id="captureBtn" class="btn btn-primary" onclick="captureFace()" disabled
+                    style="background: #6366f1; border-color: #6366f1;">
+                    <i class="fa-solid fa-expand"></i> Quét khuôn mặt
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- QR Scanner Modal -->
+    <div id="qrScannerModal" class="modal-overlay"
+        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 2000; justify-content: center; align-items: center;">
+        <div
+            style="background: white; width: 450px; border-radius: 12px; padding: 24px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+            <h3
+                style="margin-top: 0; color: #1e293b; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                <i class="fa-solid fa-qrcode" style="color: #6366f1;"></i> Quét mã QR CCCD
+            </h3>
+            <p style="color: #64748b; margin-bottom: 20px; font-size: 14px;">Vui lòng đưa phần mã QR trên thẻ CCCD vào
+                trong khung hình</p>
+
+            <div id="qr-reader"
+                style="width: 100%; margin-bottom: 16px; border-radius: 8px; overflow: hidden; border: 2px dashed #cbd5e1;">
+            </div>
+
+            <div style="margin-bottom: 20px; text-align: center;">
+                <span
+                    style="font-size: 13px; color: #64748b; font-weight: 500; display: block; margin-bottom: 8px;">Hoặc
+                    tải lên ảnh chụp thẻ:</span>
+                <input type="file" id="qrFileInput" accept="image/*" style="display: none;"
+                    onchange="scanQrFromFile(this)">
+                <button type="button" class="btn btn-outline" onclick="document.getElementById('qrFileInput').click()"
+                    style="background: #f8fafc; border-color: #cbd5e1; color: #475569; font-size: 13px; padding: 6px 12px;">
+                    <i class="fa-solid fa-upload"></i> Chọn ảnh chụp
+                </button>
+            </div>
+
+            <button type="button" class="btn btn-outline" onclick="closeQrScannerModal()"
+                style="width: 100%; font-weight: 600;">Hủy quét / Đóng</button>
+        </div>
+    </div>
+
+    <!-- Remote Scan Modal -->
+    <div id="remoteScanModal" class="modal-overlay"
+        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 2000; justify-content: center; align-items: center;">
+        <div
+            style="background: white; width: 400px; border-radius: 12px; padding: 24px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+            <h3
+                style="margin-top: 0; color: #1e293b; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                <i class="fa-solid fa-mobile-screen-button" style="color: #6366f1;"></i> Quét bằng điện thoại
+            </h3>
+            <p style="color: #64748b; margin-bottom: 20px; font-size: 14px; line-height: 1.5;">Dùng ứng dụng Camera,
+                Zalo hoặc trình quét QR trên điện thoại quét mã dưới đây để mở trang đọc CCCD.</p>
+
+            <div id="remote-qrcode-container"
+                style="display: flex; justify-content: center; margin-bottom: 24px; padding: 16px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
+                <!-- QR code goes here -->
+            </div>
+
+            <div
+                style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 20px; color: #0f766e; font-size: 13px; font-weight: 500;">
+                <i class="fa-solid fa-circle-notch fa-spin"></i> Đang chờ điện thoại gửi kết quả...
+            </div>
+
+            <button type="button" class="btn btn-outline" onclick="closeRemoteScanModal()"
+                style="width: 100%; font-weight: 600;">Hủy kết nối</button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <script src="/receptionist/js/dashboard.js"></script>
+    <script th:inline="javascript">
+        const currentUserRole = /*[[${currentUserRole}]]*/ 'RECEPTIONIST';
+
+        // Cập nhật hàm formatCurrency
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+        }
+    </script>
+    <!-- Toastify -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script src="/receptionist/js/checkin.js"></script>
+    <script th:inline="javascript">
+        const roomInventory = /*[[${roomInventory}]]*/ {};
+        const assignedRooms = [];
+
+        // Hiển thị thông báo nếu có từ redirectAttributes
+        const successMessage = /*[[${successMessage}]]*/ null;
+        const errorMessage = /*[[${errorMessage}]]*/ null;
+
+        if (successMessage) {
+            Toastify({
+                text: successMessage,
+                duration: 4000,
+                gravity: "top",
+                position: "right",
+                backgroundColor: "#16a34a",
+            }).showToast();
+        }
+        if (errorMessage) {
+            Toastify({
+                text: errorMessage,
+                duration: 6000,
+                gravity: "top",
+                position: "right",
+                backgroundColor: "#dc2626",
+            }).showToast();
+        }
+    </script>
+    <script src="/receptionist/js/room-alert.js"></script>
+
+</body>
+
+</html>
