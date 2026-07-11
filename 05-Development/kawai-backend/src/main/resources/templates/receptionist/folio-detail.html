@@ -1008,7 +1008,7 @@
                     </div>
 
                     <!-- BILL SUMMARY -->
-                    <div class="folio-right">
+                    <div class="folio-right" style="width: 380px;">
                         <!-- HÓA ĐƠN GỐC -->
                         <div class="bill-summary-card" id="originalBillCard">
                             <h3 id="billTitle" style="text-align: center;">Hóa đơn chính</h3>
@@ -1280,6 +1280,7 @@
             const isHousekeepingDamage = dep === 'housekeeping' && desc.includes('đền bù hỏng hóc');
             return isMaintenance || isHousekeepingDamage || desc.includes('đền bù hỏng hóc');
         }
+
 
         document.addEventListener('DOMContentLoaded', function () {
             const urlParams = new URLSearchParams(window.location.search);
