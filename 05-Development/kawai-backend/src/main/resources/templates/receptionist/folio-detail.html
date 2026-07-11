@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -955,7 +955,7 @@
 
             <div class="sidebar-user">
                 <div class="user-avatar"
-                    th:text="${staffName != null ? #strings.substring(staffName, 0, 2).toUpperCase() : 'NV'}">
+                    th:text="${staffName != null && staffName.length() >= 2 ? staffName.substring(0, 2).toUpperCase() : 'NV'}">
                     NV</div>
                 <div class="user-info">
                     <div class="user-name" th:text="${staffName != null ? staffName : 'Nhân viên'}">
