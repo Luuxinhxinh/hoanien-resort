@@ -8,12 +8,20 @@
         <table class="adm-table">
             <thead>
             <tr>
-                <th>Mã Lịch</th><th>Tên Tour</th><th>Ngày khởi hành</th><th>Sĩ số</th><th>Trạng thái</th><th style="text-align:right">Thao tác</th>
+                <th>Mã Lịch</th><th style="width: 60px;">Ảnh</th><th>Tên Tour</th><th>Ngày khởi hành</th><th>Sĩ số</th><th>Trạng thái</th><th style="text-align:right">Thao tác</th>
             </tr>
             </thead>
             <tbody>
             <tr th:each="row, stat : ${rows}" th:attr="data-id=${row['id']},data-entity=${row['jsonString']}">
                 <td th:attr="data-key='id',data-value=${row['id']}" th:text="${row['id']}"></td>
+                <td>
+                    <div class="adm-table-img-cell">
+                        <img th:if="${row['imageUrl'] != null && row['imageUrl'] != ''}" th:src="${row['imageUrl']}" alt="Tour" />
+                        <th:block th:unless="${row['imageUrl'] != null && row['imageUrl'] != ''}">
+                            <i data-lucide="image"></i>Ảnh
+                        </th:block>
+                    </div>
+                </td>
                 <td th:attr="data-key='tour',data-value=${row['tour']}" th:text="${row['tour']}"></td>
                 <td th:attr="data-key='date',data-value=${row['date']}" th:text="${row['date']}"></td>
                 <td th:attr="data-key='capacity',data-value=${row['capacity']}" th:text="${row['capacity']}"></td>
@@ -26,7 +34,7 @@
 </div>
                 </td>
             </tr>
-            <tr th:if="${#lists.isEmpty(rows)}"><td colspan="6" style="text-align:center;padding:48px;color:#8B7355;font-family:var(--font-serif);font-size:18px">Không có bản ghi nào</td></tr>
+            <tr th:if="${#lists.isEmpty(rows)}"><td colspan="7" style="text-align:center;padding:48px;color:#8B7355;font-family:var(--font-serif);font-size:18px">Không có bản ghi nào</td></tr>
             </tbody>
         </table>
     </div>

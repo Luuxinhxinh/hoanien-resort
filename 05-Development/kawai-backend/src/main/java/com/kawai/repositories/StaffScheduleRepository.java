@@ -13,6 +13,8 @@ public interface StaffScheduleRepository extends JpaRepository<StaffSchedule, Lo
     List<StaffSchedule> findByEmployeeIdAndWorkDate(Long employeeId, LocalDate workDate);
     List<StaffSchedule> findByWorkDateAndStatus(LocalDate workDate, String status);
     
+    long countByWorkDateAndStatusAndIsClosedFalse(LocalDate workDate, String status);
+    
     List<StaffSchedule> findByEmployeeIdAndWorkDateBetweenOrderByWorkDateAsc(Long employeeId, LocalDate startDate, LocalDate endDate);
     
     void deleteByWorkDateBetween(LocalDate startDate, LocalDate endDate);

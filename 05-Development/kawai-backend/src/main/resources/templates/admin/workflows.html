@@ -146,6 +146,8 @@
                                     </optgroup>
 
                                     <optgroup label="Vận hành & SLA Khách sạn">
+                                        <option value="ROOM_CHECKIN">Khách làm thủ tục nhận phòng (ROOM_CHECKIN)</option>
+                                        <option value="BOOKING_CREATED">Khách đặt phòng thành công (BOOKING_CREATED)</option>
                                         <option value="ROOM_REPORT_DAMAGE">Nhân viên buồng phòng báo hỏng phòng (ROOM_REPORT_DAMAGE)</option>
                                         <option value="ROOM_CHECKOUT">Tự động dọn phòng khi khách Check-out (ROOM_CHECKOUT)</option>
                                         <option value="SLA_ESCALATE">Cảnh báo SLA việc chưa nhận quá hạn (SLA_ESCALATE)</option>
@@ -158,48 +160,16 @@
                                 </select>
                             </div>
 
-                            <!-- Dynamic Conditions Section -->
-                            <div id="conditions-section" class="hidden space-y-2">
-                                <label class="block text-[11px] font-bold text-[#8A8576] uppercase tracking-wider mb-1">ĐIỀU KIỆN LỌC</label>
-                                
-                                <!-- Case: PROMOTION_EXCEEDED -->
-                                <div id="cond-promo-exceeded" class="hidden">
-                                    <div class="flex items-center gap-2 text-sm text-[#4E4A3F] bg-white p-3 rounded border border-[#eaedff] shadow-sm">
-                                        <span class="font-medium">NẾU: Mức phần trăm giảm giá vượt quá</span>
-                                        <input type="number" id="cond-threshold-pct" placeholder="25" min="1" max="100"
-                                               class="w-20 px-2 py-1 border border-[#c0c8cb] rounded text-center focus:outline-none focus:ring-1 focus:ring-brand-gold text-sm bg-white font-semibold text-brand-goldDark"/>
-                                        <span class="font-medium">%</span>
-                                    </div>
+                            <!-- Dynamic Rule Builder Section -->
+                            <div id="conditions-section" class="space-y-3">
+                                <div class="flex justify-between items-center text-[#8A8576]">
+                                    <label class="block text-[11px] font-bold uppercase tracking-wider mb-0">ĐIỀU KIỆN LỌC (TỰ ĐỊNH NGHĨA)</label>
+                                    <button type="button" onclick="addGenericConditionRow()" class="text-[10px] font-bold text-[#8A4B4B] hover:text-[#5c3232] flex items-center gap-1 transition-colors">
+                                        <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i> Thêm điều kiện
+                                    </button>
                                 </div>
-
-                                <!-- Case: SLA_ESCALATE -->
-                                <div id="cond-sla-escalate" class="hidden">
-                                    <div class="flex items-center gap-2 text-sm text-[#4E4A3F] bg-white p-3 rounded border border-[#eaedff] shadow-sm">
-                                        <span class="font-medium">NẾU: Thời gian chưa nhận việc quá</span>
-                                        <input type="number" id="cond-max-pending-minutes" placeholder="30" min="1" max="1440"
-                                               class="w-20 px-2 py-1 border border-[#c0c8cb] rounded text-center focus:outline-none focus:ring-1 focus:ring-brand-gold text-sm bg-white font-semibold text-brand-goldDark"/>
-                                        <span class="font-medium">phút thì cảnh báo</span>
-                                    </div>
-                                </div>
-
-                                <!-- Case: ACCOUNT_SECURITY -->
-                                <div id="cond-account-security" class="hidden space-y-2">
-                                    <div class="flex items-center justify-between text-sm text-[#4E4A3F] bg-white p-3 rounded border border-[#eaedff] shadow-sm">
-                                        <span class="font-medium">Số lần đăng nhập sai tối đa:</span>
-                                        <div class="flex items-center gap-1.5">
-                                            <input type="number" id="cond-failed-login-attempts" placeholder="5" min="1" max="20"
-                                                   class="w-16 px-2 py-1 border border-[#c0c8cb] rounded text-center focus:outline-none focus:ring-1 focus:ring-brand-gold text-sm bg-white font-semibold text-brand-goldDark"/>
-                                            <span>lần</span>
-                                        </div>
-                                    </div>
-                                    <div class="flex items-center justify-between text-sm text-[#4E4A3F] bg-white p-3 rounded border border-[#eaedff] shadow-sm">
-                                        <span class="font-medium">Thời gian khóa tài khoản:</span>
-                                        <div class="flex items-center gap-1.5">
-                                            <input type="number" id="cond-lockout-time-minutes" placeholder="15" min="1" max="1440"
-                                                   class="w-16 px-2 py-1 border border-[#c0c8cb] rounded text-center focus:outline-none focus:ring-1 focus:ring-brand-gold text-sm bg-white font-semibold text-brand-goldDark"/>
-                                            <span>phút</span>
-                                        </div>
-                                    </div>
+                                <div id="generic-conditions-container" class="space-y-2">
+                                    <!-- Dynamic Condition Rows go here -->
                                 </div>
                             </div>
                         </div>
@@ -350,27 +320,9 @@
     function onTriggerChange() {
         const select = document.getElementById("trigger-event");
         const val = select.value;
-        
-        const condSection = document.getElementById("conditions-section");
-        const condPromo = document.getElementById("cond-promo-exceeded");
-        const condSla = document.getElementById("cond-sla-escalate");
-        const condSecurity = document.getElementById("cond-account-security");
 
-        condSection.classList.add("hidden");
-        condPromo.classList.add("hidden");
-        condSla.classList.add("hidden");
-        condSecurity.classList.add("hidden");
-
-        if (val === "PROMOTION_EXCEEDED") {
-            condSection.classList.remove("hidden");
-            condPromo.classList.remove("hidden");
-        } else if (val === "SLA_ESCALATE") {
-            condSection.classList.remove("hidden");
-            condSla.classList.remove("hidden");
-        } else if (val === "ACCOUNT_SECURITY") {
-            condSection.classList.remove("hidden");
-            condSecurity.classList.remove("hidden");
-        } else if (val === "ROOM_REPORT_DAMAGE") {
+        // Auto-populate some default actions if empty, just like before
+        if (val === "ROOM_REPORT_DAMAGE") {
             const actionsContainer = document.getElementById("actions-container");
             if (actionsContainer.children.length === 0) {
                 addActionRow("UPDATE_ROOM_STATUS", "Maintenance");
@@ -390,8 +342,48 @@
         }
     }
 
+    // Dynamic Generic Conditions Builder
+    function addGenericConditionRow(field = "", operator = "=", value = "") {
+        const container = document.getElementById("generic-conditions-container");
+        const rowId = 'cond-row-' + Date.now() + Math.random().toString(36).substr(2, 5);
+        
+        const rowDiv = document.createElement("div");
+        rowDiv.id = rowId;
+        rowDiv.className = "flex items-center gap-2 bg-white p-2.5 rounded border border-[#eaedff] shadow-sm generic-cond-row animate-[fadeIn_150ms_ease-out]";
+        
+        rowDiv.innerHTML = `
+            <input type="text" list="field-suggestions" placeholder="Tên trường (VD: tong_tien)" value="${field}" class="w-1/3 px-2 py-1.5 border border-[#c0c8cb] rounded text-xs bg-white focus:outline-none focus:ring-1 focus:ring-brand-gold font-medium text-[#2C2A24] cond-field">
+            <datalist id="field-suggestions">
+                <option value="month">Tháng hiện tại (VD: 7)</option>
+                <option value="room_id">Mã phòng (room_id)</option>
+                <option value="booking_id">Mã đặt phòng (booking_id)</option>
+                <option value="tong_tien">Tổng tiền hóa đơn (tong_tien)</option>
+                <option value="input_discount_pct">Phần trăm giảm giá (input_discount_pct)</option>
+                <option value="max_pending_minutes">Thời gian chờ tối đa SLA (max_pending_minutes)</option>
+            </datalist>
+            <select class="w-1/4 px-2 py-1.5 border border-[#c0c8cb] rounded text-xs bg-white focus:outline-none focus:ring-1 focus:ring-brand-gold font-medium text-[#2C2A24] cond-operator">
+                <option value="=" ${operator === "=" ? "selected" : ""}>Bằng (=)</option>
+                <option value="!=" ${operator === "!=" ? "selected" : ""}>Khác (!=)</option>
+                <option value=">" ${operator === ">" ? "selected" : ""}>Lớn hơn (>)</option>
+                <option value="<" ${operator === "<" ? "selected" : ""}>Nhỏ hơn (<)</option>
+            </select>
+            <input type="text" placeholder="Giá trị" value="${value}" class="flex-1 px-2 py-1.5 border border-[#c0c8cb] rounded text-xs bg-white focus:outline-none focus:ring-1 focus:ring-brand-gold font-medium text-[#2C2A24] cond-value">
+            <button type="button" onclick="removeConditionRow('${rowId}')" class="text-red-400 hover:text-red-600 p-1 rounded transition-colors" title="Xóa">
+                <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+        `;
+        
+        container.appendChild(rowDiv);
+        lucide.createIcons();
+    }
+
+    function removeConditionRow(rowId) {
+        const row = document.getElementById(rowId);
+        if (row) row.remove();
+    }
+
     // Dynamic Action Rows builder
-    function addActionRow(actionType = "", actionValue = "", actionPriority = "High", actionSupervisorId = "") {
+    function addActionRow(actionType = "", actionValue = "", actionPriority = "High", actionSupervisorId = "", actionAssigneeId = "", actionNotes = "") {
         const container = document.getElementById("actions-container");
         const rowId = 'action-row-' + Date.now() + Math.random().toString(36).substr(2, 5);
         
@@ -420,10 +412,10 @@
         lucide.createIcons();
 
         // Trigger change to load options
-        onActionTypeChange(rowId, actionValue, actionPriority, actionSupervisorId);
+        onActionTypeChange(rowId, actionValue, actionPriority, actionSupervisorId, actionAssigneeId, actionNotes);
     }
 
-    function onActionTypeChange(rowId, defaultValue = "", defaultPriority = "High", defaultSupervisorId = "") {
+    function onActionTypeChange(rowId, defaultValue = "", defaultPriority = "High", defaultSupervisorId = "", defaultAssigneeId = "", defaultNotes = "") {
         const row = document.getElementById(rowId);
         if (!row) return;
 
@@ -435,6 +427,13 @@
 
         if (type === "UPDATE_ROOM_STATUS") {
             valContainer.innerHTML = `
+                <div class="mb-2 flex items-center justify-between text-sm text-[#4E4A3F] bg-[#f9fafb] p-2 rounded border border-[#eaedff]">
+                    <span class="font-medium text-[11px] uppercase">Độ trễ thực thi (Delay):</span>
+                    <div class="flex items-center gap-1.5">
+                        <input type="number" class="action-delay-input w-16 px-2 py-1 border border-[#c0c8cb] rounded text-center focus:outline-none focus:ring-1 focus:ring-brand-gold text-xs bg-white font-semibold" placeholder="0" min="0">
+                        <span class="text-[11px]">phút</span>
+                    </div>
+                </div>
                 <select class="w-full px-3 py-1.5 border border-[#c0c8cb] rounded text-xs bg-white focus:outline-none focus:ring-1 focus:ring-brand-gold action-val-input font-medium text-[#2C2A24]">
                     <option value="Maintenance" ${defaultValue === "Maintenance" ? "selected" : ""}>Maintenance (Bảo trì)</option>
                     <option value="Vacant_Clean" ${defaultValue === "Vacant_Clean" ? "selected" : ""}>Vacant Clean (Trống sạch)</option>
@@ -445,38 +444,72 @@
             const trigger = document.getElementById("trigger-event").value;
             
             let extraFields = "";
-            if (trigger === "ROOM_REPORT_DAMAGE") {
-                const supervisorOptions = employees.map(emp => 
+            let supervisorOptions = "";
+            let assigneeOptions = "";
+            if (employees) {
+                supervisorOptions = employees.map(emp => 
                     `<option value="${emp.id}" ${String(emp.id) === String(defaultSupervisorId) ? "selected" : ""}>${escapeHtml(emp.fullName)}</option>`
                 ).join("");
-
+                assigneeOptions = employees.map(emp => 
+                    `<option value="${emp.id}" ${String(emp.id) === String(defaultAssigneeId) ? "selected" : ""}>${escapeHtml(emp.fullName)}</option>`
+                ).join("");
+            }
+            
+            if (trigger === "ROOM_REPORT_DAMAGE") {
                 extraFields = `
-                    <div class="grid grid-cols-2 gap-3 mt-2">
-                        <div>
-                            <label class="block text-[10px] font-bold text-[#6B6558] mb-1">MỨC ĐỘ ƯU TIÊN MẶC ĐỊNH</label>
+                    <div class="mt-2">
+                        <label class="block text-[10px] font-bold text-[#6B6558] mb-1">NGƯỜI GIÁM SÁT MẶC ĐỊNH</label>
+                        <select class="w-full px-2 py-1.5 border border-[#c0c8cb] rounded text-[11px] bg-white focus:outline-none focus:ring-1 focus:ring-brand-gold action-supervisor-input font-medium text-[#2C2A24]">
+                            <option value="" disabled selected>-- Chọn giám sát --</option>
+                            ${supervisorOptions}
+                        </select>
+                    </div>
+                `;
+            }
+
+            valContainer.innerHTML = `
+                <div class="mb-2 flex items-center justify-between text-sm text-[#4E4A3F] bg-[#f9fafb] p-2 rounded border border-[#eaedff]">
+                    <span class="font-medium text-[11px] uppercase">Độ trễ thực thi (Delay):</span>
+                    <div class="flex items-center gap-1.5">
+                        <input type="number" class="action-delay-input w-16 px-2 py-1 border border-[#c0c8cb] rounded text-center focus:outline-none focus:ring-1 focus:ring-brand-gold text-xs bg-white font-semibold" placeholder="0" min="0">
+                        <span class="text-[11px]">phút</span>
+                    </div>
+                </div>
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-[10px] font-bold text-[#6B6558] mb-1">MÃ NHIỆM VỤ</label>
+                        <input type="text" list="task-options" placeholder="Nhập mã nhiệm vụ (VD: F&B_Welcome_Fruit, Maintenance)" value="${defaultValue}" class="w-full px-3 py-1.5 border border-[#c0c8cb] rounded text-xs bg-white focus:outline-none focus:ring-1 focus:ring-brand-gold action-val-input font-medium text-[#2C2A24]">
+                        <datalist id="task-options">
+                            <option value="Maintenance">Đội bảo trì (Maintenance)</option>
+                            <option value="Housekeeping">Đội buồng phòng (Housekeeping)</option>
+                            <option value="F&B_Welcome_Fruit">Phục vụ trái cây F&B</option>
+                            <option value="Manager_Approval">Duyệt yêu cầu</option>
+                            <option value="CHECKOUT_CLEAN">Dọn phòng khẩn cấp</option>
+                        </datalist>
+                    </div>
+                    ${extraFields}
+                    <div class="grid grid-cols-2 gap-3 pt-2 border-t border-[#eaedff]">
+                        <div class="col-span-1">
+                            <label class="block text-[10px] font-bold text-[#6B6558] mb-1">MỨC ƯU TIÊN</label>
                             <select class="w-full px-2 py-1.5 border border-[#c0c8cb] rounded text-[11px] bg-white focus:outline-none focus:ring-1 focus:ring-brand-gold action-priority-input font-medium text-[#2C2A24]">
                                 <option value="Low" ${defaultPriority === "Low" ? "selected" : ""}>Low (Thấp)</option>
                                 <option value="Normal" ${defaultPriority === "Normal" ? "selected" : ""}>Normal (Bình thường)</option>
                                 <option value="High" ${defaultPriority === "High" ? "selected" : ""}>High (Cao)</option>
                             </select>
                         </div>
-                        <div>
-                            <label class="block text-[10px] font-bold text-[#6B6558] mb-1">NGƯỜI GIÁM SÁT MẶC ĐỊNH</label>
-                            <select class="w-full px-2 py-1.5 border border-[#c0c8cb] rounded text-[11px] bg-white focus:outline-none focus:ring-1 focus:ring-brand-gold action-supervisor-input font-medium text-[#2C2A24]">
-                                <option value="" disabled selected>-- Chọn giám sát --</option>
-                                ${supervisorOptions}
+                        <div class="col-span-1">
+                            <label class="block text-[10px] font-bold text-[#6B6558] mb-1">NGƯỜI NHẬN VIỆC</label>
+                            <select class="w-full px-2 py-1.5 border border-[#c0c8cb] rounded text-[11px] bg-white focus:outline-none focus:ring-1 focus:ring-brand-gold action-assignee-input font-medium text-[#2C2A24]">
+                                <option value="" selected>-- Để trống: Gán cho Bộ phận --</option>
+                                ${assigneeOptions}
                             </select>
                         </div>
+                        <div class="col-span-2">
+                            <label class="block text-[10px] font-bold text-[#6B6558] mb-1">LỜI NHẮN / GHI CHÚ</label>
+                            <textarea rows="2" placeholder="Ví dụ: Khách VIP, chú ý dọn kỹ..." class="w-full px-2 py-1.5 border border-[#c0c8cb] rounded text-[11px] bg-white focus:outline-none focus:ring-1 focus:ring-brand-gold action-notes-input font-medium text-[#2C2A24]">${escapeHtml(defaultNotes)}</textarea>
+                        </div>
                     </div>
-                `;
-            }
-
-            valContainer.innerHTML = `
-                <select class="w-full px-3 py-1.5 border border-[#c0c8cb] rounded text-xs bg-white focus:outline-none focus:ring-1 focus:ring-brand-gold action-val-input font-medium text-[#2C2A24]">
-                    <option value="Maintenance" ${defaultValue === "Maintenance" ? "selected" : ""}>Đội bảo trì (Maintenance)</option>
-                    <option value="Housekeeping" ${defaultValue === "Housekeeping" ? "selected" : ""}>Đội buồng phòng (Housekeeping)</option>
-                </select>
-                ${extraFields}
+                </div>
             `;
         } else if (type === "SEND_EMAIL") {
             const trigger = document.getElementById("trigger-event").value;
@@ -510,6 +543,13 @@
             }
 
             valContainer.innerHTML = `
+                <div class="mb-2 flex items-center justify-between text-sm text-[#4E4A3F] bg-[#f9fafb] p-2 rounded border border-[#eaedff]">
+                    <span class="font-medium text-[11px] uppercase">Độ trễ thực thi (Delay):</span>
+                    <div class="flex items-center gap-1.5">
+                        <input type="number" class="action-delay-input w-16 px-2 py-1 border border-[#c0c8cb] rounded text-center focus:outline-none focus:ring-1 focus:ring-brand-gold text-xs bg-white font-semibold" placeholder="0" min="0">
+                        <span class="text-[11px]">phút</span>
+                    </div>
+                </div>
                 <div class="space-y-3 mt-2 border-t border-[#eaedff] pt-3">
                     <div class="grid grid-cols-2 gap-3">
                         <div>
@@ -549,28 +589,35 @@
         const name = document.getElementById("workflow-name").value;
         const triggerEvent = document.getElementById("trigger-event").value;
 
-        // Construct Conditions Object
+        // Construct Conditions Object (Generic Rule Builder)
         const conditions = {};
-        if (triggerEvent === "PROMOTION_EXCEEDED") {
-            const thresholdInput = document.getElementById("cond-threshold-pct").value;
-            if (thresholdInput) {
-                conditions.threshold_pct_gt = parseInt(thresholdInput, 10);
+        const condRows = document.querySelectorAll(".generic-cond-row");
+        condRows.forEach(row => {
+            const field = row.querySelector(".cond-field").value.trim();
+            const op = row.querySelector(".cond-operator").value;
+            const val = row.querySelector(".cond-value").value.trim();
+            
+            if (field && val) {
+                let parsedVal = val;
+                // Auto-parse number if it looks like one
+                if (!isNaN(val) && val !== "") {
+                    parsedVal = Number(val);
+                }
+                // Handle booleans
+                if (val.toLowerCase() === "true") parsedVal = true;
+                if (val.toLowerCase() === "false") parsedVal = false;
+
+                if (op === "=") {
+                    conditions[field] = parsedVal;
+                } else if (op === ">") {
+                    conditions[field + "_gt"] = parsedVal;
+                } else if (op === "<") {
+                    conditions[field + "_lt"] = parsedVal;
+                } else if (op === "!=") {
+                    conditions[field + "_neq"] = parsedVal;
+                }
             }
-        } else if (triggerEvent === "SLA_ESCALATE") {
-            const maxPendingInput = document.getElementById("cond-max-pending-minutes").value;
-            if (maxPendingInput) {
-                conditions.max_pending_minutes = parseInt(maxPendingInput, 10);
-            }
-        } else if (triggerEvent === "ACCOUNT_SECURITY") {
-            const attemptsInput = document.getElementById("cond-failed-login-attempts").value;
-            const lockoutInput = document.getElementById("cond-lockout-time-minutes").value;
-            if (attemptsInput) {
-                conditions.failed_login_attempts = parseInt(attemptsInput, 10);
-            }
-            if (lockoutInput) {
-                conditions.lockout_time_minutes = parseInt(lockoutInput, 10);
-            }
-        }
+        });
 
         // Construct Actions List
         const actions = [];
@@ -586,6 +633,11 @@
                     value: valInput ? valInput.value : ""
                 };
 
+                const delayInput = row.querySelector(".action-delay-input");
+                if (delayInput && delayInput.value && parseInt(delayInput.value) > 0) {
+                    actionObj.delay_minutes = parseInt(delayInput.value);
+                }
+
                 // Capture priority and supervisor_id if present
                 const prioritySelect = row.querySelector(".action-priority-input");
                 if (prioritySelect) {
@@ -594,6 +646,13 @@
                 const supervisorSelect = row.querySelector(".action-supervisor-input");
                 if (supervisorSelect && supervisorSelect.value) {
                     actionObj.supervisor_id = parseInt(supervisorSelect.value, 10);
+                }
+
+                if (type === "CREATE_OPERATION_TASK") {
+                    const assignee = row.querySelector(".action-assignee-input");
+                    const notes = row.querySelector(".action-notes-input");
+                    if (assignee && assignee.value) actionObj.assignee_id = parseInt(assignee.value, 10);
+                    if (notes && notes.value) actionObj.custom_notes = notes.value;
                 }
 
                 if (type === "SEND_EMAIL") {
@@ -673,22 +732,19 @@
         onTriggerChange();
 
         // Load conditions
+        document.getElementById("generic-conditions-container").innerHTML = "";
         if (w.conditionsJson) {
             try {
-                const cond = typeof w.conditionsJson === 'string' ? JSON.parse(w.conditionsJson) : w.conditionsJson;
-                if (cond.threshold_pct_gt) {
-                    document.getElementById("cond-threshold-pct").value = cond.threshold_pct_gt;
+                const condObj = typeof w.conditionsJson === 'string' ? JSON.parse(w.conditionsJson) : w.conditionsJson;
+                for (const [key, val] of Object.entries(condObj)) {
+                    let field = key;
+                    let op = "=";
+                    if (key.endsWith("_gt")) { field = key.replace("_gt", ""); op = ">"; }
+                    else if (key.endsWith("_lt")) { field = key.replace("_lt", ""); op = "<"; }
+                    else if (key.endsWith("_neq")) { field = key.replace("_neq", ""); op = "!="; }
+                    addGenericConditionRow(field, op, val);
                 }
-                if (cond.max_pending_minutes) {
-                    document.getElementById("cond-max-pending-minutes").value = cond.max_pending_minutes;
-                }
-                if (cond.failed_login_attempts) {
-                    document.getElementById("cond-failed-login-attempts").value = cond.failed_login_attempts;
-                }
-                if (cond.lockout_time_minutes) {
-                    document.getElementById("cond-lockout-time-minutes").value = cond.lockout_time_minutes;
-                }
-            } catch (e) {
+            } catch(e) {
                 console.error("Error parsing conditions_json", e);
             }
         }
@@ -700,21 +756,27 @@
             try {
                 const actionsList = typeof w.actionsJson === 'string' ? JSON.parse(w.actionsJson) : w.actionsJson;
                 actionsList.forEach(act => {
-                    addActionRow(act.type, act.value, act.priority || "High", act.supervisor_id || "");
+                    addActionRow(act.type, act.value, act.priority || "High", act.supervisor_id || "", act.assignee_id || "", act.custom_notes || "");
                     
                     // Delay slightly to let the DOM render the newly added action row before filling in SEND_EMAIL fields
                     setTimeout(() => {
                         const rows = document.querySelectorAll(".action-item-row");
                         const currentRow = rows[rows.length - 1]; // The last one added
-                        if (act.type === "SEND_EMAIL" && currentRow) {
-                            const sender = currentRow.querySelector(".action-sender-email");
-                            const target = currentRow.querySelector(".action-target-email");
-                            const subject = currentRow.querySelector(".action-email-subject");
-                            const html = currentRow.querySelector(".action-email-html");
-                            if (sender && act.sender_email) sender.value = act.sender_email;
-                            if (target && act.target_email) target.value = act.target_email;
-                            if (subject && act.email_subject) subject.value = act.email_subject;
-                            if (html && act.email_body_html) html.value = act.email_body_html;
+                        if (currentRow) {
+                            if (act.delay_minutes) {
+                                const delayInput = currentRow.querySelector(".action-delay-input");
+                                if (delayInput) delayInput.value = act.delay_minutes;
+                            }
+                            if (act.type === "SEND_EMAIL") {
+                                const sender = currentRow.querySelector(".action-sender-email");
+                                const target = currentRow.querySelector(".action-target-email");
+                                const subject = currentRow.querySelector(".action-email-subject");
+                                const html = currentRow.querySelector(".action-email-html");
+                                if (sender && act.sender_email) sender.value = act.sender_email;
+                                if (target && act.target_email) target.value = act.target_email;
+                                if (subject && act.email_subject) subject.value = act.email_subject;
+                                if (html && act.email_body_html) html.value = act.email_body_html;
+                            }
                         }
                     }, 50);
                 });

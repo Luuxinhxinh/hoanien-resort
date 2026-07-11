@@ -6,6 +6,7 @@ import com.kawai.models.FolioItem;
 import com.kawai.models.RoomBookingDetail;
 import com.kawai.repositories.FolioItemRepository;
 import com.kawai.repositories.RoomBookingDetailRepository;
+import com.kawai.repositories.StaffScheduleRepository;
 import com.kawai.services.interfaces.NightAuditService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,12 +30,15 @@ public class NightAuditServiceImpl implements NightAuditService {
 
     private final FolioItemRepository folioItemRepository;
     private final RoomBookingDetailRepository roomBookingDetailRepository;
+    private final StaffScheduleRepository staffScheduleRepository;
 
     @Autowired
     public NightAuditServiceImpl(FolioItemRepository folioItemRepository,
-            RoomBookingDetailRepository roomBookingDetailRepository) {
+            RoomBookingDetailRepository roomBookingDetailRepository,
+            StaffScheduleRepository staffScheduleRepository) {
         this.folioItemRepository = folioItemRepository;
         this.roomBookingDetailRepository = roomBookingDetailRepository;
+        this.staffScheduleRepository = staffScheduleRepository;
     }
 
     @Override
@@ -76,9 +80,13 @@ public class NightAuditServiceImpl implements NightAuditService {
     @Override
     @Transactional
     public void runNightAudit(LocalDate auditDate) {
-        // Room occupancy is tracked on Room.roomStatus. Booking details are checked in
-        // with the historical values Checked_In/CHECKED_IN, so audit must query detail
-        // status instead of OCCUPIED.
+        // Bước 1: Xử lý Pending Arrivals (Đổi thành No-Show)
+        processNoShows(auditDate);
+
+        // Bước 2: Kiểm tra tiền kiện (Shift Closure, Pending Departures)
+        validatePreconditions(auditDate);
+
+        // Bước 3: Tính tiền phòng (Room occupancy is tracked on Room.roomStatus. Booking details are checked in)
         List<RoomBookingDetail> checkedInRooms = roomBookingDetailRepository
                 .findByDetailStatusIn(List.of("Checked_In", "CHECKED_IN"));
 
@@ -89,6 +97,25 @@ public class NightAuditServiceImpl implements NightAuditService {
                 continue;
             }
             folioItemRepository.save(item);
+        }
+    }
+
+    private void processNoShows(LocalDate auditDate) {
+        List<RoomBookingDetail> pendingArrivals = roomBookingDetailRepository
+                .findByRoomBooking_CheckInDateAndDetailStatus(auditDate, "Pending");
+        
+        for (RoomBookingDetail detail : pendingArrivals) {
+            detail.setDetailStatus("No_Show");
+            roomBookingDetailRepository.save(detail);
+            logger.info("[NIGHT AUDIT] Tự động chuyển trạng thái No-Show cho RoomBookingDetail ID: {}", detail.getId());
+        }
+    }
+
+    private void validatePreconditions(LocalDate auditDate) {
+        // 1. Kiểm tra Khách chưa Check-out (Pending Departures)
+        long pendingDepartures = roomBookingDetailRepository.countByRoomBooking_CheckOutDateAndDetailStatus(auditDate, "Checked_In");
+        if (pendingDepartures > 0) {
+            throw new IllegalStateException("Tiền kiện thất bại: Còn " + pendingDepartures + " khách có lịch check-out hôm nay nhưng chưa trả phòng hoặc chưa gia hạn. Vui lòng xử lý trước khi đóng ngày.");
         }
     }
 

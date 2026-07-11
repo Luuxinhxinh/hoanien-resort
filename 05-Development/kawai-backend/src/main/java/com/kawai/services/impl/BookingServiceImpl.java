@@ -122,7 +122,8 @@ public class BookingServiceImpl implements BookingService {
             com.kawai.repositories.RoomCategoryRepository roomCategoryRepository,
             com.kawai.repositories.RoomSurchargeRepository roomSurchargeRepository,
             com.kawai.repositories.DependentRepository dependentRepository,
-            com.kawai.repositories.RoomGuestRepository roomGuestRepository) {
+            com.kawai.repositories.RoomGuestRepository roomGuestRepository,
+            @org.springframework.context.annotation.Lazy WorkflowEngineService workflowEngineService) {
         this.roomBookingRepository = roomBookingRepository;
         this.promotionRepository = promotionRepository;
         this.roomRepository = roomRepository;
@@ -135,6 +136,7 @@ public class BookingServiceImpl implements BookingService {
         this.roomSurchargeRepository = roomSurchargeRepository;
         this.dependentRepository = dependentRepository;
         this.roomGuestRepository = roomGuestRepository;
+        this.workflowEngineService = workflowEngineService;
     }
 
     // ══════════════════════════════════════════════════════════════════════
@@ -877,7 +879,8 @@ public class BookingServiceImpl implements BookingService {
             } else {
                 booking.setBookingStatus("Confirmed");
                 booking.setHoldExpiresAt(null);
-                log.info("Pending/CANCELLED→Confirmed: bookingId={}", bookingId);
+                log.info("Pending/CANCELLED->Confirmed: bookingId={}", bookingId);
+                triggerBookingCreatedWorkflow(booking, customer);
             }
         } else if ("Pending_Payment".equalsIgnoreCase(booking.getBookingStatus())) {
             // User thử lại VNPay (ví dụ back lại trang payment) → refresh timer
@@ -888,6 +891,7 @@ public class BookingServiceImpl implements BookingService {
             } else {
                 booking.setBookingStatus("Confirmed");
                 booking.setHoldExpiresAt(null);
+                triggerBookingCreatedWorkflow(booking, customer);
             }
         }
 
@@ -941,6 +945,20 @@ public class BookingServiceImpl implements BookingService {
         // Chỉ lưu ghi chú và giữ nguyên trạng thái HOLD để chờ thanh toán cọc
         booking.setNotes(notes);
         roomBookingRepository.save(booking);
+    }
+
+    private void triggerBookingCreatedWorkflow(RoomBooking booking, Customer customer) {
+        try {
+            long nights = java.time.temporal.ChronoUnit.DAYS.between(booking.getCheckInDate(), booking.getCheckOutDate());
+            java.util.Map<String, Object> payload = new java.util.HashMap<>();
+            payload.put("booking_id", booking.getId());
+            payload.put("stay_nights", nights);
+            payload.put("customer_email", customer.getEmail());
+            payload.put("customer_name", customer.getFullName());
+            workflowEngineService.triggerEvent("BOOKING_CREATED", payload);
+        } catch (Exception e) {
+            log.error("Failed to trigger BOOKING_CREATED workflow", e);
+        }
     }
 
     @Override

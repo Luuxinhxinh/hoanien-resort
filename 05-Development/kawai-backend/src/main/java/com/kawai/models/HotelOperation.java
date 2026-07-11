@@ -12,15 +12,15 @@ public class HotelOperation {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "room_id", nullable = false)
+    @JoinColumn(name = "room_id")
     private Room room;
 
     @ManyToOne
-    @JoinColumn(name = "staff_id", nullable = false)
+    @JoinColumn(name = "staff_id")
     private Employee staff;
 
     @ManyToOne
-    @JoinColumn(name = "supervisor_id", nullable = false)
+    @JoinColumn(name = "supervisor_id")
     private Employee supervisor;
 
     @Column(name = "operational_type", nullable = false)
@@ -50,7 +50,17 @@ public class HotelOperation {
     @Column(name = "damage_price")
     private Double damagePrice;
 
+    @Column(name = "is_escalated")
+    private Boolean isEscalated = false;
+
     // Getters and Setters
+    public Boolean getIsEscalated() {
+        return isEscalated;
+    }
+
+    public void setIsEscalated(Boolean isEscalated) {
+        this.isEscalated = isEscalated;
+    }
     public Long getId() {
         return id;
     }

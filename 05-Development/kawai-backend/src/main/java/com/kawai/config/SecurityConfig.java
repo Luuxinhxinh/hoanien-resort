@@ -79,7 +79,7 @@ public class SecurityConfig {
                                 "/api/faceid/**", "/error",
                                 "/api/v1/payments/vnpay-return", "/api/v1/payments/vnpay-ipn",
                                 "/api/v1/payments/food-order/**", "/book-table", "/receptionist/remote-scan", "/api/v1/remote-scan/**",
-                                "/feedback", "/feedback/**")
+                                "/feedback", "/feedback/**", "/ws-endpoint/**")
                         .permitAll()
                         // Cho phép truy cập Read-Only (GET) đến thực đơn, phòng, bàn trống để khách hàng sử dụng e-menu/booking
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/menu-items/**", "/api/rooms/**", "/api/v1/tables/**")

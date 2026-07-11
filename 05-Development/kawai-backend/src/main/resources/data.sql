@@ -1897,3 +1897,23 @@ INSERT INTO Employees (employee_id, account_id, full_name, gender, cccd, phone, 
 (54, 64, 'Vu Hai Hieu', 'Nam', '001289893281', '0912153324', 'housekeeping13_64@hoanien.vn', 9000000),
 (55, 65, 'Phan Ngoc Hoa', 'Nu', '001231874828', '0912680787', 'maintainer10_65@hoanien.vn', 8000000),
 (56, 66, 'Vo Huu Viet', 'Nam', '001272208878', '0912779852', 'tourguide10_66@hoanien.vn', 8000000);
+-- Workflows Seed Data
+INSERT INTO workflows (workflow_name, trigger_event, conditions_json, actions_json, is_active, updated_at) VALUES 
+('Room Checkout Automation', 'ROOM_CHECKOUT', '{}', '[{"type":"UPDATE_ROOM_STATUS","value":"Vacant_Dirty"},{"type":"CREATE_OPERATION_TASK","value":"CHECKOUT_CLEAN"}]', true, NOW()),
+('Room Report Damage Automation', 'ROOM_REPORT_DAMAGE', '{}', '[{"type":"CREATE_OPERATION_TASK","value":"Maintenance","priority":"High"}]', true, NOW()),
+('Promotion Exceeded Automation', 'PROMOTION_EXCEEDED', '{}', '[{"type":"REQUIRE_MANAGER_APPROVAL"}]', true, NOW()),
+('SLA Escalation Automation', 'SLA_ESCALATE', '{}', '[{"type":"SEND_EMAIL","target_email":"{{email}}","email_subject":"SLA Warning for {{taskName}}","email_body_html":"sla-warning"}]', true, NOW()),
+('Account Security OTP', 'ACCOUNT_SECURITY', '{}', '[{"type":"SEND_EMAIL","target_email":"{{email}}","email_subject":"Security Alert","email_body_html":"security-alert"}]', true, NOW()),
+('User Registration OTP', 'USER_REGISTRATION_OTP', '{}', '[{"type":"SEND_EMAIL","target_email":"{{email}}","email_subject":"Your OTP Code","email_body_html":"otp-email"}]', true, NOW()),
+('User Password Reset', 'USER_PASSWORD_RESET', '{}', '[{"type":"SEND_EMAIL","target_email":"{{email}}","email_subject":"Password Reset Request","email_body_html":"reset-password"}]', true, NOW());
+-- Kịch bản 1: Khách VIP PLATINUM Check-in -> Task F&B Welcome Fruit
+INSERT INTO workflows (workflow_name, trigger_event, conditions_json, actions_json, is_active, updated_at) VALUES 
+('VIP Welcome Package', 'ROOM_CHECKIN', '{"customer_tier": "PLATINUM"}', '[{"type": "CREATE_OPERATION_TASK", "value": "F&B_Welcome_Fruit", "priority": "High"}, {"type": "SEND_EMAIL", "target_email": "gm@kawai.com", "email_subject": "Khách PLATINUM đã tới!", "email_body_html": "Khách {{customer_name}} hạng PLATINUM đã check-in vào phòng {{room_number}}."}]', true, NOW());
+
+-- Kịch bản 2: Upselling sau khi đặt phòng nếu lưu trú > 3 đêm
+INSERT INTO workflows (workflow_name, trigger_event, conditions_json, actions_json, is_active, updated_at) VALUES 
+('Delayed Upsell Email', 'BOOKING_CREATED', '{"stay_nights_gt": 3}', '[{"type": "SEND_EMAIL", "delay_minutes": 60, "target_email": "{{customer_email}}", "email_subject": "Món quà đặc biệt dành riêng cho kỳ nghỉ dài của bạn!", "email_body_html": "Cảm ơn {{customer_name}} đã đặt phòng. Nhận ngay voucher Spa 20%!"}]', true, NOW());
+
+-- Kịch bản 3: Ưu tiên dọn phòng khẩn cấp vào mùa cao điểm (Tháng 7)
+INSERT INTO workflows (workflow_name, trigger_event, conditions_json, actions_json, is_active, updated_at) VALUES 
+('Peak Season Urgent Checkout', 'ROOM_CHECKOUT', '{"month": "7"}', '[{"type": "UPDATE_ROOM_STATUS", "value": "Vacant_Dirty"}, {"type": "CREATE_OPERATION_TASK", "value": "CHECKOUT_CLEAN", "priority": "Urgent"}]', true, NOW());

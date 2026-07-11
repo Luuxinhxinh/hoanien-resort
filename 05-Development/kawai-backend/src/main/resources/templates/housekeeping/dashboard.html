@@ -1542,6 +1542,31 @@
             </form>
         </div>
     </div>
+
+    <!-- WebSocket integration for real-time task notifications -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            var socket = new SockJS('/ws-endpoint');
+            var stompClient = Stomp.over(socket);
+            
+            // To get employee ID, we might need a meta tag or just subscribe to general operations channel for now
+            // Or if thymeleaf is rendering this, we can get it from session
+            stompClient.connect({}, function (frame) {
+                console.log('Connected: ' + frame);
+                
+                // For demonstration, let's subscribe to the general operations channel
+                // Ideally, we would subscribe to '/topic/operations/{staffId}' as well
+                stompClient.subscribe('/topic/operations', function (message) {
+                    var payload = JSON.parse(message.body);
+                    alert("THÔNG BÁO HỆ THỐNG: " + payload.message);
+                    // Reload page to see new tasks
+                    setTimeout(() => window.location.reload(), 1500);
+                });
+            });
+        });
+    </script>
 </body>
 
 </html>

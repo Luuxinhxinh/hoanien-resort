@@ -454,6 +454,81 @@ function openAddModal() {
         form.dataset.method = 'POST';
     }
 
+    if (activeTab === "Room Categories") {
+        const previewContainer = document.getElementById("imagePreviewContainer");
+        if (previewContainer) previewContainer.innerHTML = "";
+    } else {
+        const singlePreview = form ? form.querySelector('.image-preview') : null;
+        const singlePlaceholder = form ? form.querySelector('.upload-placeholder') : null;
+        if (singlePreview && singlePlaceholder) {
+            singlePreview.src = '';
+            singlePreview.style.display = 'none';
+            singlePlaceholder.style.display = 'flex';
+        }
+    }
+
+    if (form) {
+        switch(activeTab) {
+            case 'Room Categories':
+                if (form.elements['name']) form.elements['name'].value = 'Phòng Standard';
+                if (form.elements['rooms']) form.elements['rooms'].value = '10';
+                if (form.elements['price']) form.elements['price'].value = '1500000';
+                if (form.elements['baseAdults']) form.elements['baseAdults'].value = '2';
+                if (form.elements['baseChildren']) form.elements['baseChildren'].value = '0';
+                if (form.elements['maxAdults']) form.elements['maxAdults'].value = '2';
+                if (form.elements['maxChildren']) form.elements['maxChildren'].value = '1';
+                if (form.elements['extraAdultSurcharge']) form.elements['extraAdultSurcharge'].value = '300000';
+                if (form.elements['extraChildSurcharge']) form.elements['extraChildSurcharge'].value = '150000';
+                if (form.elements['description']) form.elements['description'].value = 'Phòng nghỉ tiêu chuẩn với đầy đủ tiện nghi cơ bản.';
+                break;
+            case 'Rooms':
+                if (form.elements['name']) form.elements['name'].value = 'P.101';
+                break;
+            case 'Pricing Management':
+                if (form.elements['price']) form.elements['price'].value = '1500000';
+                break;
+            case 'Menu Categories':
+                if (form.elements['name']) form.elements['name'].value = 'Món chính';
+                if (form.elements['items']) form.elements['items'].value = '0';
+                break;
+            case 'Restaurant Menu':
+                if (form.elements['name']) form.elements['name'].value = 'Cơm chiên hải sản';
+                if (form.elements['price']) form.elements['price'].value = '50000';
+                if (form.elements['description']) form.elements['description'].value = 'Ngon và bổ dưỡng';
+                break;
+            case 'Tour Categories':
+                if (form.elements['name']) form.elements['name'].value = 'Tour Biển';
+                if (form.elements['description']) form.elements['description'].value = 'Khám phá vẻ đẹp của biển';
+                break;
+            case 'Tours':
+                if (form.elements['name']) form.elements['name'].value = 'Tour Ngắm San Hô';
+                if (form.elements['price']) form.elements['price'].value = '500000';
+                if (form.elements['duration']) form.elements['duration'].value = '1 ngày';
+                break;
+            case 'Tour Schedules':
+                if (form.elements['guideName']) form.elements['guideName'].value = 'HDV Nguyễn Văn A';
+                if (form.elements['maxParticipants']) form.elements['maxParticipants'].value = '20';
+                break;
+            case 'Account Management':
+                if (form.elements['name']) form.elements['name'].value = 'Nhân viên mới';
+                if (form.elements['username']) form.elements['username'].value = 'staff_new';
+                if (form.elements['password']) form.elements['password'].value = '123456';
+                if (form.elements['email']) form.elements['email'].value = 'staff@kawai.com';
+                if (form.elements['phone']) form.elements['phone'].value = '0123456789';
+                if (form.elements['salary']) form.elements['salary'].value = '5000000';
+                break;
+            case 'Role Management':
+                if (form.elements['name']) form.elements['name'].value = 'Role_Moi';
+                if (form.elements['description']) form.elements['description'].value = 'Quyền hạn cơ bản';
+                break;
+            case 'Promotions':
+                if (form.elements['code']) form.elements['code'].value = 'SUMMER2026';
+                if (form.elements['rawValue']) form.elements['rawValue'].value = '10';
+                if (form.elements['maxUses']) form.elements['maxUses'].value = '100';
+                break;
+        }
+    }
+
     // Gắn sự kiện hiển thị loại tài khoản nếu ở tab Account Management
     if (activeTab === "Account Management") {
         const typeSelect = document.getElementById('account-type-select');
@@ -615,6 +690,42 @@ function openEditModal(id) {
             }
         }
 
+        if (activeTab === "Room Categories") {
+            const previewContainer = document.getElementById("imagePreviewContainer");
+            const hiddenInput = document.getElementById("hiddenCoverImgUrl");
+            if (previewContainer && hiddenInput) {
+                previewContainer.innerHTML = "";
+                if (hiddenInput.value) {
+                    const urls = hiddenInput.value.split(',');
+                    urls.forEach(url => {
+                        const img = document.createElement("img");
+                        img.src = url.trim();
+                        img.style.width = "80px";
+                        img.style.height = "80px";
+                        img.style.objectFit = "cover";
+                        img.style.borderRadius = "4px";
+                        img.style.border = "1px solid #ddd";
+                        previewContainer.appendChild(img);
+                    });
+                }
+            }
+        } else {
+            const singlePreview = form.querySelector('.image-preview');
+            const singlePlaceholder = form.querySelector('.upload-placeholder');
+            const hiddenUrl = entityData['imageUrl'] || entityData['coverImgUrl'];
+            if (singlePreview && singlePlaceholder) {
+                if (hiddenUrl) {
+                    singlePreview.src = hiddenUrl;
+                    singlePreview.style.display = 'block';
+                    singlePlaceholder.style.display = 'none';
+                } else {
+                    singlePreview.src = '';
+                    singlePreview.style.display = 'none';
+                    singlePlaceholder.style.display = 'flex';
+                }
+            }
+        }
+
         // After populating all fields, filter permission checkboxes for Role Management
         if (activeTab === 'Role Management') {
             const nameInput = form.querySelector('[name="name"]');
@@ -721,8 +832,10 @@ function handleFormSubmit(event) {
 
         // HACK: Xử lý Upload Ảnh trước khi đẩy Data lên Server
         const imageFileInput = form.querySelector('input[name="imageFile"]');
+        const roomCatImagesInput = form.querySelector('input[name="roomCatImages"]');
         let uploadPromise = Promise.resolve();
 
+        // 1. Upload ảnh đơn (Menu, Tour, ...)
         if (imageFileInput && imageFileInput.files && imageFileInput.files.length > 0) {
             submitBtn.textContent = 'Đang tải ảnh lên...';
             const fileData = new FormData();
@@ -737,14 +850,52 @@ function handleFormSubmit(event) {
                 return res.json();
             })
             .then(data => {
-                // Đè URL ảnh nội bộ vào trường imageUrl để lưu Database
                 payload.imageUrl = data.url;
             });
+        } 
+        // 2. Upload nhiều ảnh (Room Categories)
+        else if (roomCatImagesInput) {
+            const files = roomCatImagesInput.files;
+            
+            // Validate số lượng ảnh (Bắt buộc >= 3 ảnh nếu là thêm mới, hoặc nếu sửa mà có chọn file)
+            if (!isEdit && files.length < 3) {
+                alert("Vui lòng chọn tối thiểu 3 ảnh cho Hạng phòng.");
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Lưu';
+                return;
+            }
+            if (isEdit && files.length > 0 && files.length < 3) {
+                alert("Khi chọn lại ảnh mới, vui lòng chọn tối thiểu 3 ảnh.");
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Lưu';
+                return;
+            }
+
+            if (files && files.length >= 3) {
+                submitBtn.textContent = 'Đang tải ảnh lên...';
+                const uploadPromises = Array.from(files).map(file => {
+                    const fileData = new FormData();
+                    fileData.append('file', file);
+                    return fetch('/api/v1/upload', {
+                        method: 'POST',
+                        body: fileData
+                    }).then(res => {
+                        if (!res.ok) throw new Error('Lỗi khi tải ảnh lên Server');
+                        return res.json();
+                    }).then(data => data.url);
+                });
+
+                uploadPromise = Promise.all(uploadPromises)
+                    .then(urls => {
+                        payload.coverImgUrl = urls.join(',');
+                    });
+            }
         }
 
         uploadPromise.then(() => {
             // Loại bỏ các Object File ra khỏi payload để tránh lỗi khi Convert JSON
             delete payload.imageFile;
+            delete payload.roomCatImages;
             delete payload.galleryImages;
             
             submitBtn.textContent = 'Đang lưu dữ liệu...';
@@ -1515,6 +1666,28 @@ document.addEventListener('DOMContentLoaded', () => {
             const name = this.value.trim();
             if (name) {
                 filterPermissionsByRole(name);
+            }
+        });
+    }
+
+    // Hiển thị preview cho nhiều ảnh (Room Categories)
+    const roomCatImagesInput = document.getElementById('roomCatImages');
+    if (roomCatImagesInput) {
+        roomCatImagesInput.addEventListener('change', function() {
+            const previewContainer = document.getElementById("imagePreviewContainer");
+            if (previewContainer) {
+                previewContainer.innerHTML = "";
+                Array.from(this.files).forEach(file => {
+                    const url = URL.createObjectURL(file);
+                    const img = document.createElement("img");
+                    img.src = url;
+                    img.style.width = "80px";
+                    img.style.height = "80px";
+                    img.style.objectFit = "cover";
+                    img.style.borderRadius = "4px";
+                    img.style.border = "1px solid #ddd";
+                    previewContainer.appendChild(img);
+                });
             }
         });
     }

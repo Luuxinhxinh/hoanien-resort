@@ -85,11 +85,15 @@
                 -->
             </nav>
 
-            <div class="sidebar-user">
-                <div class="user-avatar">MH</div>
+                        <div class="sidebar-user">
+                <div class="user-avatar"
+                    th:text="${staffName != null ? #strings.substring(staffName, 0, 2).toUpperCase() : 'NV'}">
+                    NV</div>
                 <div class="user-info">
-                    <div class="user-name">Minh Hoàng</div>
-                    <div class="user-role">Receptionist</div>
+                    <div class="user-name" th:text="${staffName != null ? staffName : 'Nhân viên'}">
+                        Nhân viên</div>
+                    <div class="user-role" th:text="${staffRole != null ? staffRole : 'Receptionist'}">
+                        Receptionist</div>
                 </div>
                 <div class="user-status"></div>
             </div>
@@ -487,6 +491,97 @@
     <!-- Tách toàn bộ logic JS ra file riêng -->
     <script src="/receptionist/js/walkin.js"></script>
     <script src="/receptionist/js/room-alert.js"></script>
+
+                <!-- WebSocket integration for real-time task notifications -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <script th:inline="javascript">
+        (function() {
+            var staffId = /*[[${staffId}]]*/ 0;
+
+            function showPersistentToast(notif) {
+                if (typeof Toastify === 'undefined') return;
+                Toastify({
+                    text: notif.text,
+                    duration: -1,
+                    close: true,
+                    gravity: "top",
+                    position: "right",
+                    style: notif.direct ? {
+                        background: "linear-gradient(to right, #FF416C, #FF4B2B)",
+                        fontSize: "14px",
+                        fontWeight: "600",
+                        fontFamily: "'Inter', sans-serif",
+                        borderRadius: "8px",
+                        boxShadow: "0 4px 15px rgba(255,65,108,0.4)"
+                    } : {
+                        background: "linear-gradient(to right, #00b09b, #96c93d)",
+                        fontSize: "14px",
+                        fontWeight: "600",
+                        fontFamily: "'Inter', sans-serif",
+                        borderRadius: "8px"
+                    },
+                    callback: function() {
+                        var saved = JSON.parse(localStorage.getItem('kawai_notifs') || '[]');
+                        saved = saved.filter(function(n) { return n.id !== notif.id; });
+                        localStorage.setItem('kawai_notifs', JSON.stringify(saved));
+                    }
+                }).showToast();
+            }
+
+            try {
+                var pending = JSON.parse(localStorage.getItem('kawai_notifs') || '[]');
+                pending.forEach(function(n) { showPersistentToast(n); });
+            } catch(e) {}
+
+            function saveAndShow(text, direct) {
+                var notif = { id: Date.now() + '_' + Math.random(), text: text, direct: direct };
+                try {
+                    var saved = JSON.parse(localStorage.getItem('kawai_notifs') || '[]');
+                    saved.push(notif);
+                    localStorage.setItem('kawai_notifs', JSON.stringify(saved));
+                } catch(e) {}
+                showPersistentToast(notif);
+            }
+
+            document.addEventListener("DOMContentLoaded", function() {
+                if (typeof SockJS === 'undefined' || typeof Stomp === 'undefined') {
+                    console.warn('[WS] SockJS or Stomp not loaded');
+                    return;
+                }
+
+                var socket = new SockJS('/ws-endpoint');
+                var stompClient = Stomp.over(socket);
+                stompClient.debug = null; 
+
+                stompClient.connect({}, function(frame) {
+                    console.log('[WS] Đã kết nối thành công | staffId=' + staffId);
+
+                    stompClient.subscribe('/topic/operations', function(msg) {
+                        try {
+                            var payload = JSON.parse(msg.body);
+                            console.log('[WS] Nhận tin nhắn từ kênh Chung (/topic/operations):', payload);
+                            saveAndShow('📢 THÔNG BÁO HỆ THỐNG: \n ' + payload.message, false);
+                        } catch(e) { console.error('[WS] parse error', e); }
+                    });
+
+                    if (staffId && staffId !== 0) {
+                        stompClient.subscribe('/topic/operations/' + staffId, function(msg) {
+                            try {
+                                var payload = JSON.parse(msg.body);
+                                console.log('[WS] Nhận tin nhắn từ kênh Đích danh (/topic/operations/' + staffId + '):', payload);
+                                saveAndShow('🔔 NHIỆM VỤ MỚI: \n ' + payload.message, true);
+                            } catch(e) { console.error('[WS] parse error', e); }
+                        });
+                        console.log('[WS] Đã đăng ký kênh riêng: /topic/operations/' + staffId);
+                    }
+
+                }, function(error) {
+                    console.error('[WS] Lỗi kết nối WebSocket:', error);
+                });
+            });
+        })();
+    </script>
 </body>
 
 </html>
