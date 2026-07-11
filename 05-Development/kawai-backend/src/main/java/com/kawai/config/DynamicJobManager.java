@@ -56,11 +56,26 @@ public class DynamicJobManager {
 
     @PostConstruct
     public void init() {
-        jobs.put("audit_cleanup", new JobConfig("audit_cleanup", "Dọn dẹp Audit Log cũ (> 90 ngày)", "Tự động xóa các bản ghi lịch sử kiểm toán quá cũ để tối ưu Database.", "0 0 2 * * ?", auditCleanupTask::cleanupOldAuditLogs));
-        jobs.put("reservation_cleanup", new JobConfig("reservation_cleanup", "Hủy đặt bàn F&B quá giờ (No-show)", "Tự động quét và hủy các lượt đặt bàn nhà hàng đã quá hạn 30 phút mà khách không đến.", "0 0/15 * * * ?", reservationCleanupTask::cleanupNoShowReservations));
-        jobs.put("table_cleanup", new JobConfig("table_cleanup", "Dọn bàn F&B tự động", "Tự động cập nhật trạng thái bàn sang trống sau thời gian dọn dẹp.", "0 * * * * *", reservationCleanupTask::cleanupTables));
-        jobs.put("booking_cleanup", new JobConfig("booking_cleanup", "Hủy Booking Pending quá hạn", "Quét các Booking chờ thanh toán (Pending_Payment) quá hạn VNPay để giải phóng phòng.", "0 * * * * *", bookingService::cleanupStaleHolds));
-        jobs.put("workflow_processor", new JobConfig("workflow_processor", "Xử lý Workflow tự động", "Quét và thực thi tự động các sự kiện Workflow Engine (VD: Duyệt chiết khấu).", "0 */1 * * * *", workflowEngineService::scanSlaEscalations));
+        jobs.put("audit_cleanup",
+                new JobConfig("audit_cleanup", "Dọn dẹp Audit Log cũ (> 90 ngày)",
+                        "Tự động xóa các bản ghi lịch sử kiểm toán quá cũ để tối ưu Database.", "0 0 2 * * ?",
+                        auditCleanupTask::cleanupOldAuditLogs));
+        jobs.put("reservation_cleanup",
+                new JobConfig("reservation_cleanup", "Hủy đặt bàn F&B quá giờ (No-show)",
+                        "Tự động quét và hủy các lượt đặt bàn nhà hàng đã quá hạn 30 phút mà khách không đến.",
+                        "0 0/15 * * * ?", reservationCleanupTask::cleanupNoShowReservations));
+        jobs.put("table_cleanup",
+                new JobConfig("table_cleanup", "Dọn bàn F&B tự động",
+                        "Tự động cập nhật trạng thái bàn sang trống sau thời gian dọn dẹp.", "0 * * * * *",
+                        reservationCleanupTask::cleanupTables));
+        jobs.put("booking_cleanup",
+                new JobConfig("booking_cleanup", "Hủy Booking Pending quá hạn",
+                        "Quét các Booking chờ thanh toán (Pending_Payment) quá hạn VNPay để giải phóng phòng.",
+                        "0 * * * * *", bookingService::cleanupStaleHolds));
+        jobs.put("workflow_processor",
+                new JobConfig("workflow_processor", "Xử lý Workflow tự động",
+                        "Quét và thực thi tự động các sự kiện Workflow Engine (VD: Duyệt chiết khấu).", "0 */1 * * * *",
+                        workflowEngineService::scanSlaEscalations));
 
         for (JobConfig config : jobs.values()) {
             scheduleJob(config.id, config.cron);
@@ -69,13 +84,14 @@ public class DynamicJobManager {
 
     public synchronized void scheduleJob(String id, String cronExpression) {
         JobConfig config = jobs.get(id);
-        if (config == null) return;
-        
+        if (config == null)
+            return;
+
         if (config.future != null) {
             config.future.cancel(false);
         }
         config.cron = cronExpression;
-        
+
         if (!config.isPaused) {
             config.future = taskScheduler.schedule(() -> executeWithLog(id), new CronTrigger(cronExpression));
             log.info("Job {} scheduled with cron: {}", id, cronExpression);
@@ -86,12 +102,13 @@ public class DynamicJobManager {
 
     public void executeWithLog(String id) {
         JobConfig config = jobs.get(id);
-        if (config == null || config.isPaused) return;
+        if (config == null || config.isPaused)
+            return;
 
         Map<String, Object> logEntry = new HashMap<>();
         logEntry.put("startTime", LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")));
         long startMs = System.currentTimeMillis();
-        
+
         try {
             config.task.run();
             logEntry.put("status", "SUCCESS");
@@ -104,7 +121,7 @@ public class DynamicJobManager {
             long duration = System.currentTimeMillis() - startMs;
             logEntry.put("durationMs", duration);
             logEntry.put("endTime", LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")));
-            
+
             config.logs.addFirst(logEntry);
             if (config.logs.size() > 10) {
                 config.logs.removeLast();
@@ -116,7 +133,7 @@ public class DynamicJobManager {
         JobConfig config = jobs.get(id);
         if (config != null) {
             config.isPaused = !config.isPaused;
-            scheduleJob(id, config.cron); 
+            scheduleJob(id, config.cron);
         }
     }
 
@@ -134,7 +151,7 @@ public class DynamicJobManager {
         }
         return result;
     }
-    
+
     public List<Map<String, Object>> getJobLogs(String id) {
         JobConfig config = jobs.get(id);
         if (config != null) {

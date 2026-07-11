@@ -41,6 +41,136 @@
         .urgent-clean-btn.btn-dirty:hover {
             background: rgba(220, 38, 38, 0.2);
         }
+
+        /* Modal Style for Urgent Maintenance */
+        .maintenance-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            backdrop-filter: blur(4px);
+        }
+
+        .maintenance-modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .maintenance-modal-content {
+            background: #ffffff;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 450px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            padding: 24px;
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+        }
+
+        .maintenance-modal-overlay.active .maintenance-modal-content {
+            transform: translateY(0);
+        }
+
+        .maintenance-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .maintenance-modal-header h3 {
+            margin: 0;
+            color: #2c2a29;
+            font-size: 16px;
+            font-weight: 700;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .maintenance-modal-header .close-btn {
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            color: #9e9e9e;
+            transition: color 0.2s;
+        }
+
+        .maintenance-modal-header .close-btn:hover {
+            color: #2c2a29;
+        }
+
+        .maintenance-form-group {
+            margin-bottom: 20px;
+        }
+
+        .maintenance-form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #5a554f;
+        }
+
+        .maintenance-form-group input,
+        .maintenance-form-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #e6ded4;
+            border-radius: 8px;
+            font-size: 13px;
+            outline: none;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .maintenance-form-group input:focus,
+        .maintenance-form-group textarea:focus {
+            border-color: #d35400;
+        }
+
+        .maintenance-modal-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .maintenance-modal-actions button {
+            flex: 1;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 13px;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            border: none;
+            transition: opacity 0.2s;
+        }
+
+        .maintenance-modal-actions .btn-cancel {
+            background: #f8f9fa;
+            color: #5a554f;
+            border: 1px solid #e6ded4;
+        }
+
+        .maintenance-modal-actions .btn-submit {
+            background: #d35400;
+            color: white;
+        }
+
+        .maintenance-modal-actions button:hover {
+            opacity: 0.9;
+        }
     </style>
 
 </head>
@@ -164,7 +294,7 @@
                         <i class="fa-solid fa-user"></i>
                         <span>Receptionist</span>
                     </button>
-                    <button class="logout-btn" onclick="window.location.href=\'/logout\'">
+                    <button class="logout-btn" onclick="window.location.href='/logout'">
                         <i class="fa-solid fa-arrow-right-from-bracket"></i>
                         <span>Logout</span>
                     </button>
@@ -268,23 +398,39 @@
                                 th:classappend="${#strings.equalsIgnoreCase(room.status, 'Occupied')} ? 'card-occupied' : (${#strings.equalsIgnoreCase(room.status, 'Vacant_Dirty')} ? 'card-housekeeping' : (${#strings.equalsIgnoreCase(room.status, 'Maintenance')} ? 'card-ooo' : 'card-available'))">
                                 <div class="room-card-top">
                                     <span class="room-number" th:text="${room.roomNumber}"></span>
-                                    <span class="room-indicator"
-                                        th:if="${#strings.equalsIgnoreCase(room.status, 'Occupied')}"></span>
-                                    <i class="fa-solid fa-wand-magic-sparkles"
-                                        th:if="${#strings.equalsIgnoreCase(room.status, 'Vacant_Dirty')}"
-                                        style="color:#c9a96e;font-size:14px;"></i>
-                                    <i class="fa-solid fa-wrench"
-                                        th:if="${#strings.equalsIgnoreCase(room.status, 'Maintenance')}"
-                                        style="color:#7a7a9a;font-size:14px;"></i>
-                                    <span class="room-indicator"
-                                        th:if="${#strings.equalsIgnoreCase(room.status, 'Vacant_Clean')}"></span>
+                                    <div style="display: flex; align-items: center; gap: 6px;">
+                                        <span class="room-indicator"
+                                            th:if="${#strings.equalsIgnoreCase(room.status, 'Occupied') and !room.hasUrgentMaintenance and !room.hasUrgentClean}"></span>
+                                        <i class="fa-solid fa-screwdriver-wrench" th:if="${room.hasUrgentMaintenance}"
+                                            style="color:#d35400;font-size:12px;" title="Cần sửa chữa khẩn cấp"></i>
+                                        <i class="fa-solid fa-broom" th:if="${room.hasUrgentClean}"
+                                            style="color:#00bcd4;font-size:14px;" title="Yêu cầu dọn dẹp khẩn cấp"></i>
+                                        <i class="fa-solid fa-wand-magic-sparkles"
+                                            th:if="${#strings.equalsIgnoreCase(room.status, 'Vacant_Dirty') and !room.hasUrgentMaintenance and !room.hasUrgentClean}"
+                                            style="color:#c9a96e;font-size:14px;"></i>
+                                        <i class="fa-solid fa-wrench"
+                                            th:if="${#strings.equalsIgnoreCase(room.status, 'Maintenance') and !room.hasUrgentMaintenance and !room.hasUrgentClean}"
+                                            style="color:#7a7a9a;font-size:14px;"></i>
+                                        <span class="room-indicator"
+                                            th:if="${#strings.equalsIgnoreCase(room.status, 'Vacant_Clean') and !room.hasUrgentMaintenance and !room.hasUrgentClean}"></span>
+                                    </div>
                                 </div>
                                 <div class="room-type">
                                     <span class="type-badge" th:text="${room.category}"></span>
                                 </div>
                                 <div class="room-status-text"
-                                    th:text="${#strings.equalsIgnoreCase(room.status, 'Vacant_Clean') ? 'Ready' : (#strings.equalsIgnoreCase(room.status, 'Vacant_Dirty') ? 'Needs cleaning' : (#strings.equalsIgnoreCase(room.status, 'Maintenance') ? 'Maintenance' : (#strings.equalsIgnoreCase(room.status, 'Occupied') ? 'Occupied' : room.status)))}">
+                                    th:text="${room.hasUrgentMaintenance and room.hasUrgentClean ? 'Occupied (Sửa & Dọn)' : (room.hasUrgentMaintenance ? 'Occupied (Cần sửa)' : (room.hasUrgentClean ? 'Occupied (Dọn khẩn)' : (#strings.equalsIgnoreCase(room.status, 'Vacant_Clean') ? 'Ready' : (#strings.equalsIgnoreCase(room.status, 'Vacant_Dirty') ? 'Needs cleaning' : (#strings.equalsIgnoreCase(room.status, 'Maintenance') ? 'Maintenance' : (#strings.equalsIgnoreCase(room.status, 'Occupied') ? 'Occupied' : room.status))))))}">
                                 </div>
+                                <!-- Báo sửa chữa khẩn cấp -->
+                                <button title="Yêu cầu sửa chữa khẩn"
+                                    th:if="${#strings.equalsIgnoreCase(room.status, 'Occupied') or #strings.equalsIgnoreCase(room.status, 'Vacant_Dirty')}"
+                                    th:attr="onclick=|requestUrgentMaintenance('${room.roomNumber}', event)|"
+                                    class="urgent-maintenance-btn"
+                                    style="position: absolute; bottom: 8px; right: 42px; border: 1px solid #e6ded4; background: white; cursor: pointer; padding: 0; width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.05);"
+                                    onmouseover="this.style.transform='scale(1.05)'"
+                                    onmouseout="this.style.transform='scale(1)'">
+                                    <i class="fa-solid fa-wrench" style="color: #d35400; font-size: 13px;"></i>
+                                </button>
                                 <!-- Báo dọn khẩn cấp -->
                                 <button title="Yêu cầu dọn khẩn"
                                     th:if="${#strings.equalsIgnoreCase(room.status, 'Occupied') or #strings.equalsIgnoreCase(room.status, 'Vacant_Dirty')}"
@@ -331,11 +477,87 @@
                             position: "right",
                             backgroundColor: data.success ? "linear-gradient(to right, #00b09b, #96c93d)" : "linear-gradient(to right, #ff5f6d, #ffc371)",
                         }).showToast();
+                        if (data.success) {
+                            setTimeout(() => window.location.reload(), 1500);
+                        }
                     })
                     .catch(err => alert("Lỗi kết nối!"));
             }
         }
+
+        let currentMaintRoomNumber = null;
+
+        function requestUrgentMaintenance(roomNumber, event) {
+            event.stopPropagation();
+            currentMaintRoomNumber = roomNumber;
+            document.getElementById('maintRoomNumber').value = 'Phòng ' + roomNumber;
+            document.getElementById('maintNotes').value = '';
+            document.getElementById('maintenanceModal').classList.add('active');
+        }
+
+        function closeUrgentMaintenanceModal() {
+            document.getElementById('maintenanceModal').classList.remove('active');
+        }
+
+        function submitUrgentMaintenance() {
+            const notes = document.getElementById('maintNotes').value.trim();
+            if (!notes) {
+                alert('Vui lòng nhập mô tả sự cố!');
+                return;
+            }
+
+            fetch('/api/housekeeping/reception/create-urgent-maintenance', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ roomNumber: currentMaintRoomNumber, notes: notes })
+            })
+                .then(r => r.json())
+                .then(data => {
+                    closeUrgentMaintenanceModal();
+                    Toastify({
+                        text: data.message,
+                        duration: 3000,
+                        close: true,
+                        gravity: "top",
+                        position: "right",
+                        backgroundColor: data.success ? "linear-gradient(to right, #00b09b, #96c93d)" : "linear-gradient(to right, #ff5f6d, #ffc371)",
+                    }).showToast();
+                    if (data.success) {
+                        setTimeout(() => window.location.reload(), 1500);
+                    }
+                })
+                .catch(err => {
+                    closeUrgentMaintenanceModal();
+                    alert("Lỗi kết nối!");
+                });
+        }
     </script>
+
+    <!-- Urgent Maintenance Modal -->
+    <div class="maintenance-modal-overlay" id="maintenanceModal">
+        <div class="maintenance-modal-content">
+            <div class="maintenance-modal-header">
+                <h3><i class="fa-solid fa-screwdriver-wrench" style="color: #d35400;"></i> Báo sửa chữa khẩn cấp</h3>
+                <button class="close-btn" onclick="closeUrgentMaintenanceModal()"><i
+                        class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="maintenance-form-group">
+                <label>Phòng xảy ra sự cố</label>
+                <input type="text" id="maintRoomNumber" readonly
+                    style="background: #f8f9fa; color: #7f8c8d; font-weight: 600;">
+            </div>
+            <div class="maintenance-form-group">
+                <label>Mô tả sự cố chi tiết</label>
+                <textarea id="maintNotes" rows="4"
+                    placeholder="Nhập mô tả sự cố (Ví dụ: Rò rỉ nước nhà vệ sinh, Hỏng chốt cửa ra vào...)"
+                    required></textarea>
+            </div>
+            <div class="maintenance-modal-actions">
+                <button class="btn-cancel" onclick="closeUrgentMaintenanceModal()">Hủy bỏ</button>
+                <button class="btn-submit" onclick="submitUrgentMaintenance()">Gửi yêu cầu</button>
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>

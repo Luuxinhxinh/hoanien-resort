@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -36,6 +37,9 @@ public class FolioServiceImpl implements FolioService {
 
     @Autowired
     private com.kawai.services.interfaces.EmailService emailService;
+
+    @Autowired
+    private com.kawai.services.interfaces.WorkflowEngineService workflowEngineService;
 
     @Override
     @Transactional
@@ -133,10 +137,17 @@ public class FolioServiceImpl implements FolioService {
         detail.setDetailStatus("CHECKED_OUT");
         roomBookingDetailRepository.save(detail);
 
-        // 2. Update Room status -> Dirty (BR-FO-04)
+        // 2. Update Room status -> trigger workflow & unbind ID
         Room room = detail.getRoom();
         if (room != null) {
-            room.setRoomStatus("Vacant_Dirty");
+            try {
+                workflowEngineService.triggerEvent("ROOM_CHECKOUT", Map.of(
+                        "room_id", room.getId(),
+                        "booking_id", detail.getRoomBooking().getId(),
+                        "booking_detail_id", detail.getId()));
+            } catch (Exception e) {
+                System.err.println("Failed to trigger checkout workflow in service: " + e.getMessage());
+            }
             room.setCurrentBookingDetailId(null);
             roomRepository.save(room);
         }

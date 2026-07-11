@@ -45,12 +45,8 @@ public class HousekeepingServiceImpl implements HousekeepingService {
     private static final String STATUS_VACANT_CLEAN = "Vacant_Clean";
     private static final String STATUS_MAINTENANCE = "Maintenance";
 
-    @Autowired
-    private WorkflowEngineService workflowEngineService;
-
-    @Autowired
-    private WorkflowRepository workflowRepository;
-
+    private final WorkflowEngineService workflowEngineService;
+    private final WorkflowRepository workflowRepository;
     private final HousekeepingTaskRepository housekeepingTaskRepo;
     private final MaintenanceRequestRepository maintenanceRequestRepo;
     private final RoomRepository roomRepo;
@@ -60,11 +56,15 @@ public class HousekeepingServiceImpl implements HousekeepingService {
     public HousekeepingServiceImpl(HousekeepingTaskRepository housekeepingTaskRepo,
             MaintenanceRequestRepository maintenanceRequestRepo,
             RoomRepository roomRepo,
-            EmployeeRepository employeeRepo) {
+            EmployeeRepository employeeRepo,
+            WorkflowEngineService workflowEngineService,
+            WorkflowRepository workflowRepository) {
         this.housekeepingTaskRepo = housekeepingTaskRepo;
         this.maintenanceRequestRepo = maintenanceRequestRepo;
         this.roomRepo = roomRepo;
         this.employeeRepo = employeeRepo;
+        this.workflowEngineService = workflowEngineService;
+        this.workflowRepository = workflowRepository;
     }
 
     // ========================================================================
@@ -111,9 +111,12 @@ public class HousekeepingServiceImpl implements HousekeepingService {
         HotelOperation task = findTaskById(taskId);
         Room room = task.getRoom();
 
-        // BR-FO-04: Luân chuyển trạng thái phòng sang Vacant_Clean (Có thể cải tiến sau
-        // để nhận diện Occupied_Clean)
-        room.setRoomStatus(STATUS_VACANT_CLEAN);
+        // BR-FO-04: Nếu phòng đang có khách ở thì giữ trạng thái Occupied, nếu trống thì chuyển sang Vacant_Clean
+        if (room.getCurrentBookingDetailId() != null) {
+            room.setRoomStatus("Occupied");
+        } else {
+            room.setRoomStatus(STATUS_VACANT_CLEAN);
+        }
         task.setStatus(STATUS_COMPLETED);
         task.setCompletedAt(LocalDateTime.now());
         if (notes != null && !notes.isEmpty()) {
@@ -183,43 +186,50 @@ public class HousekeepingServiceImpl implements HousekeepingService {
      */
     @Override
     @Transactional
-    public HotelOperation createMaintenanceRequest(Long roomId, Long staffId, String notes) {
+    public HotelOperation createMaintenanceRequest(Long roomId, Long staffId, String notes, boolean isEmergency) {
+        Room room = findRoomById(roomId);
+        Employee staff = findEmployeeById(staffId);
+        String priority = isEmergency ? "Urgent" : "Normal";
+
         List<com.kawai.models.Workflow> activeWorkflows = workflowRepository
                 .findByTriggerEventAndIsActive("ROOM_REPORT_DAMAGE", true);
         if (!activeWorkflows.isEmpty()) {
-            Room room = findRoomById(roomId);
-            Employee staff = findEmployeeById(staffId);
-
             // Execute the automated workflows
             try {
                 workflowEngineService.triggerEvent("ROOM_REPORT_DAMAGE", java.util.Map.of(
                         "room_id", roomId,
                         "staff_id", staffId,
-                        "notes", notes != null ? notes : ""));
+                        "notes", notes != null ? notes : "",
+                        "is_emergency", isEmergency));
             } catch (Exception e) {
                 log.error("Failed executing workflow engine trigger for ROOM_REPORT_DAMAGE", e);
             }
 
             // Return the created task
             return maintenanceRequestRepo.findAll().stream()
-                    .filter(t -> t.getRoom().getId().equals(roomId) && "Maintenance".equals(t.getOperationalType()))
+                    .filter(t -> t.getRoom().getId().equals(roomId) && ("Maintenance".equals(t.getOperationalType()) || "MAINTENANCE".equals(t.getOperationalType()) || "DAMAGE_CHECK".equals(t.getOperationalType())))
                     .sorted((t1, t2) -> t2.getCreatedAt().compareTo(t1.getCreatedAt()))
                     .findFirst()
                     .orElseGet(() -> {
-                        HotelOperation task = buildHotelOperation(room, staff, OPERATION_MAINTENANCE, "Normal", notes);
+                        String type = (isEmergency || room.getCurrentBookingDetailId() == null) ? OPERATION_MAINTENANCE : "DAMAGE_CHECK";
+                        HotelOperation task = buildHotelOperation(room, staff, type, priority, notes);
                         return maintenanceRequestRepo.save(task);
                     });
         }
 
-        Room room = findRoomById(roomId);
-        Employee staff = findEmployeeById(staffId);
+        String type;
+        if (isEmergency || room.getCurrentBookingDetailId() == null) {
+            // Cập nhật trạng thái phòng → Maintenance
+            room.setRoomStatus(STATUS_MAINTENANCE);
+            roomRepo.save(room);
+            type = OPERATION_MAINTENANCE;
+        } else {
+            // Khách chưa checkout và không khẩn cấp -> Tạo phiếu DAMAGE_CHECK và giữ nguyên trạng thái phòng (không đổi sang Maintenance)
+            type = "DAMAGE_CHECK";
+        }
 
-        // Cập nhật trạng thái phòng → Maintenance (BR-HK-03)
-        room.setRoomStatus(STATUS_MAINTENANCE);
-        roomRepo.save(room);
-
-        // Tạo phiếu bảo trì (BR-HK-02)
-        HotelOperation task = buildHotelOperation(room, staff, OPERATION_MAINTENANCE, "Normal", notes);
+        // Tạo phiếu bảo trì
+        HotelOperation task = buildHotelOperation(room, staff, type, priority, notes);
         return maintenanceRequestRepo.save(task);
     }
 
@@ -239,11 +249,19 @@ public class HousekeepingServiceImpl implements HousekeepingService {
         HotelOperation task = findMaintenanceTaskById(taskId);
         Room room = task.getRoom();
 
-        // Phòng sau bảo trì → Trả về Occupied nếu đang có khách ở, ngược lại là Vacant_Clean (BR-FO-04)
+        // Phòng sau bảo trì → Trả về Occupied nếu đang có khách ở, ngược lại kiểm tra xem có task dọn dẹp nào chưa hoàn thành
         if (room.getCurrentBookingDetailId() != null) {
             room.setRoomStatus("Occupied");
         } else {
-            room.setRoomStatus(STATUS_VACANT_CLEAN);
+            boolean hasActiveCleaningTask = housekeepingTaskRepo.findAll().stream()
+                    .anyMatch(t -> t.getRoom() != null && t.getRoom().getId().equals(room.getId())
+                            && ("CHECKOUT_CLEAN".equals(t.getOperationalType()) || "URGENT_CLEAN".equals(t.getOperationalType()))
+                            && !"Completed".equalsIgnoreCase(t.getStatus()));
+            if (hasActiveCleaningTask) {
+                room.setRoomStatus(STATUS_VACANT_DIRTY);
+            } else {
+                room.setRoomStatus(STATUS_VACANT_CLEAN);
+            }
         }
         task.setStatus(STATUS_COMPLETED);
         task.setCompletedAt(LocalDateTime.now());

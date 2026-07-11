@@ -146,7 +146,7 @@ public class FaceIdApiController {
                             com.cloudinary.utils.ObjectUtils.asMap(
                                     "folder", "kawai_faces",
                                     "public_id", "face_" + System.currentTimeMillis()
-                            ));
+                             ));
                     savedImageUrl = uploadResult.get("secure_url").toString();
                 } catch (Exception ex) {
                     System.err.println("Lỗi nghiêm trọng khi upload FaceID lên Cloudinary:");
