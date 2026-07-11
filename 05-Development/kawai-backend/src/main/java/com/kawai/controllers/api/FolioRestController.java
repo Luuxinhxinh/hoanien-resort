@@ -201,10 +201,10 @@ public class FolioRestController {
                 } catch (Exception e) {
                 }
 
-                if (!hasRoomCharge && d.getRoomCharge() != null
-                        && d.getRoomCharge().compareTo(BigDecimal.ZERO) > 0) {
-                    groupTaxable = groupTaxable.add(d.getRoomCharge());
-                    groupTotalCharges = groupTotalCharges.add(d.getRoomCharge());
+                BigDecimal expectedCharge = getExpectedRoomCharge(d);
+                if (!hasRoomCharge && expectedCharge.compareTo(BigDecimal.ZERO) > 0) {
+                    groupTaxable = groupTaxable.add(expectedCharge);
+                    groupTotalCharges = groupTotalCharges.add(expectedCharge);
                 }
             }
         }
@@ -340,18 +340,19 @@ public class FolioRestController {
             }
         }
 
-        if (!hasRoomCharge && detail.getRoomCharge() != null && detail.getRoomCharge().compareTo(BigDecimal.ZERO) > 0) {
+        BigDecimal expectedCharge343 = getExpectedRoomCharge(detail);
+        if (!hasRoomCharge && expectedCharge343.compareTo(BigDecimal.ZERO) > 0) {
             Map<String, Object> roomMap = new java.util.HashMap<>();
             roomMap.put("id", -detail.getId());
             roomMap.put("sourceDepartment", "Room");
-            roomMap.put("amount", detail.getRoomCharge());
+            roomMap.put("amount", expectedCharge343);
             String catName = detail.getCategory() != null ? detail.getCategory().getCategoryName() : "Room";
             roomMap.put("description", "Room Charge (Expected) - " + catName);
             roomMap.put("isSettledSeparately", false);
             roomMap.put("createdAt", java.time.LocalDateTime.now().toString());
             itemDTOs.add(0, roomMap); // Add to top
 
-            taxable = taxable.add(detail.getRoomCharge());
+            taxable = taxable.add(expectedCharge343);
         }
 
         BigDecimal currentBalance;
@@ -383,12 +384,16 @@ public class FolioRestController {
         response.put("roomNumber", roomNumber);
         response.put("checkInDate", checkInDate);
         response.put("checkOutDate", checkOutDate);
+        response.put("categoryName", detail.getCategory() != null ? detail.getCategory().getCategoryName() : "N/A");
+        response.put("roomCharge", detail.getRoomCharge());
         response.put("subCreditLimit", detail.getSubCreditLimit());
         response.put("items", itemDTOs);
         response.put("currentBalance", currentBalance);
         response.put("prePaidDeposit", deposit);
         response.put("otherPayments", otherPayments);
         response.put("detailStatus", detail.getDetailStatus());
+        response.put("numberOfAdults", detail.getNumberOfAdults() != null ? detail.getNumberOfAdults() : 0);
+        response.put("numberOfChildren", detail.getNumberOfChildren() != null ? detail.getNumberOfChildren() : 0);
 
         return ResponseEntity.ok(response);
     }
@@ -638,14 +643,14 @@ public class FolioRestController {
                         }
                     }
                 }
-                if (!hasRoomCharge && detail.getRoomCharge() != null
-                        && detail.getRoomCharge().compareTo(BigDecimal.ZERO) > 0) {
+                BigDecimal expectedCharge641 = getExpectedRoomCharge(detail);
+                if (!hasRoomCharge && expectedCharge641.compareTo(BigDecimal.ZERO) > 0) {
                     FolioItem item = new FolioItem();
                     item.setRoomBookingDetail(detail);
                     item.setBooking(booking);
                     item.setPayerCustomer(booking != null ? booking.getCustomer() : null);
                     item.setSourceDepartment("Room");
-                    item.setAmount(detail.getRoomCharge());
+                    item.setAmount(expectedCharge641);
                     String catName = detail.getCategory() != null ? detail.getCategory().getCategoryName() : "Room";
                     item.setDescription("Room Charge (Expected) - " + catName);
                     item.setIsSettledSeparately(false);
@@ -1022,8 +1027,9 @@ public class FolioRestController {
             } catch (Exception e) {
             }
             // Room charges (unposted expected charge)
-            if (!hasRoomCharge && d.getRoomCharge() != null && d.getRoomCharge().compareTo(BigDecimal.ZERO) > 0) {
-                totalTaxable = totalTaxable.add(d.getRoomCharge());
+            BigDecimal expectedCharge1024 = getExpectedRoomCharge(d);
+            if (!hasRoomCharge && expectedCharge1024.compareTo(BigDecimal.ZERO) > 0) {
+                totalTaxable = totalTaxable.add(expectedCharge1024);
             }
         }
 
@@ -1128,9 +1134,9 @@ public class FolioRestController {
                         }
                     }
 
-                    if (!hasRoomCharge && detail.getRoomCharge() != null
-                            && detail.getRoomCharge().compareTo(BigDecimal.ZERO) > 0) {
-                        taxableSum = taxableSum.add(detail.getRoomCharge());
+                    BigDecimal expectedCharge1131 = getExpectedRoomCharge(detail);
+                    if (!hasRoomCharge && expectedCharge1131.compareTo(BigDecimal.ZERO) > 0) {
+                        taxableSum = taxableSum.add(expectedCharge1131);
                     }
                 }
 
@@ -1185,9 +1191,9 @@ public class FolioRestController {
                             }
                         }
                     }
-                    if (!hasRoomCharge && detail.getRoomCharge() != null
-                            && detail.getRoomCharge().compareTo(BigDecimal.ZERO) > 0) {
-                        totalTaxableCharges = totalTaxableCharges.add(detail.getRoomCharge());
+                    BigDecimal expectedCharge1188 = getExpectedRoomCharge(detail);
+                    if (!hasRoomCharge && expectedCharge1188.compareTo(BigDecimal.ZERO) > 0) {
+                        totalTaxableCharges = totalTaxableCharges.add(expectedCharge1188);
                     }
                 }
                 groupTotalCharges = totalTaxableCharges.multiply(new BigDecimal("1.10")).add(totalNonTaxableCharges);
@@ -1383,5 +1389,25 @@ public class FolioRestController {
             return ResponseEntity.status(500)
                     .body(Map.of("success", false, "message", "Lỗi hệ thống: " + e.getMessage()));
         }
+    }
+
+    private BigDecimal getExpectedRoomCharge(RoomBookingDetail d) {
+        BigDecimal totalCharge = BigDecimal.ZERO;
+        if (d.getRoomCharge() != null && d.getRoomCharge().compareTo(BigDecimal.ZERO) > 0) {
+            totalCharge = totalCharge.add(d.getRoomCharge());
+        }
+        if (d.getExtraSurcharge() != null && d.getExtraSurcharge().compareTo(BigDecimal.ZERO) > 0) {
+            totalCharge = totalCharge.add(d.getExtraSurcharge());
+        }
+        if (totalCharge.compareTo(BigDecimal.ZERO) <= 0) {
+            return BigDecimal.ZERO;
+        }
+
+        long nights = 1;
+        if (d.getRoomBooking() != null && d.getRoomBooking().getCheckInDate() != null && d.getRoomBooking().getCheckOutDate() != null) {
+            nights = java.time.temporal.ChronoUnit.DAYS.between(d.getRoomBooking().getCheckInDate(), d.getRoomBooking().getCheckOutDate());
+            if (nights <= 0) nights = 1;
+        }
+        return totalCharge.multiply(BigDecimal.valueOf(nights));
     }
 }

@@ -56,7 +56,7 @@
 
         .folio-container {
             display: grid;
-            grid-template-columns: 1fr 330px;
+            grid-template-columns: 1fr 380px;
             gap: 24px;
             margin-top: 24px;
             align-items: start;
@@ -64,7 +64,7 @@
 
         .folio-header-top {
             display: grid;
-            grid-template-columns: 1fr 330px;
+            grid-template-columns: 1fr 380px;
             gap: 24px;
             margin-bottom: 24px;
             align-items: start;
@@ -311,7 +311,10 @@
             color: #2a2725;
         }
 
-        #prePaidAmount, #roomPromoAmount, #promoAmount, #otherPaymentsAmount {
+        #prePaidAmount,
+        #roomPromoAmount,
+        #promoAmount,
+        #otherPaymentsAmount {
             color: #e74c3c !important;
         }
 
@@ -580,55 +583,94 @@
 
 <body>
     <!-- Printable Invoice Structure -->
+    <!-- Printable Invoice Structure -->
     <div id="printableInvoice"
-        style="display: none; background: white; color: black; font-family: 'Times New Roman', serif; padding: 40px; font-size: 14px;">
-        <div style="text-align: center; border-bottom: 2px solid #000; padding-bottom: 20px; margin-bottom: 30px;">
-            <h1 style="margin: 0; font-size: 28px; text-transform: uppercase; letter-spacing: 2px;">Hoanien Retreat</h1>
-            <p style="margin: 5px 0 0;">123 Nguyen Van Linh, Da Nang, Vietnam</p>
-            <p style="margin: 0;">Tel: +84 236 3123 456 | Email: info@hoanien.vn</p>
-            <h2 style="margin: 20px 0 0; font-size: 22px; letter-spacing: 1px;">GUEST INVOICE</h2>
+        style="display: none; background-color: #FFFFFF; padding: 40px; color: #2F1F17; font-family: 'Times New Roman', serif; max-width: 750px; margin: auto;">
+        <div style="text-align: center; margin-bottom: 30px;">
+            <h1 style="margin: 0; font-size: 24px; text-transform: uppercase;">HÒA NIÊN RETREAT RESORT & HUB</h1>
+            <p style="margin-top: 10px; margin-bottom: 5px; font-size: 13px; opacity: 0.8;">268 Minh Mạng, Phường Thủy
+                Xuân, Thành phố Huế, Tỉnh Thừa Thiên Huế.</p>
+            <p style="margin: 0; font-size: 13px; opacity: 0.8;">Mã số thuế: 3301234567</p>
+            <div
+                style="font-size: 20px; font-weight: bold; text-transform: uppercase; margin: 20px 0; border-top: 1px solid #2F1F17; border-bottom: 1px solid #2F1F17; padding: 10px 0;">
+                HÓA ĐƠN KHÁCH HÀNG</div>
         </div>
 
-        <table style="width: 100%; margin-bottom: 30px; font-size: 14px;">
-            <tr>
-                <td style="width: 60%;"><strong>Guest Name:</strong> <span id="printGuestName">Customer</span></td>
-                <td style="width: 40%;"><strong>Invoice No:</strong> <span id="printInvoiceNumber"></span></td>
-            </tr>
-            <tr>
-                <td><strong>Room No:</strong> <span id="printRoomNumber"></span></td>
-                <td><strong>Date:</strong> <span id="printInvoiceDate"></span></td>
-            </tr>
-        </table>
+        <div
+            style="display: flex; justify-content: space-between; margin-bottom: 30px; font-size: 14px; line-height: 1.6;">
+            <div style="width: 60%;">
+                <strong>Tên khách hàng:</strong> <span id="printGuestName">Customer</span><br>
+                <strong>Số phòng:</strong> <span id="printRoomNumber">...</span> &nbsp;|&nbsp;
+                <strong>Số khách:</strong> <span id="printGuestCount">2</span><br>
+                <strong>Check-in:</strong> <span id="printArrivalDate">24/06/2026</span><br>
+                <strong>Check-out:</strong> <span id="printDepartureDate">26/06/2026</span>
+            </div>
+            <div style="width: 40%; text-align: right;">
+                <strong>Mã hóa đơn:</strong> <span id="printInvoiceNumber">INV-1756</span><br>
+                <strong>Ngày xuất:</strong> <span id="printInvoiceDate">26/06/2026</span>
+            </div>
+        </div>
 
-        <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
             <thead>
-                <tr style="border-bottom: 1px solid #000;">
-                    <th style="text-align: left; padding: 10px 0;">Description</th>
-                    <th style="text-align: right; padding: 10px 0;">Amount</th>
+                <tr>
+                    <th
+                        style="border-bottom: 1px solid #2F1F17; padding: 10px 0; text-align: left; font-size: 14px; width: 15%;">
+                        Thời gian</th>
+                    <th
+                        style="border-bottom: 1px solid #2F1F17; padding: 10px 0; text-align: left; font-size: 14px; width: 45%;">
+                        Mô tả giao dịch</th>
+                    <th
+                        style="border-bottom: 1px solid #2F1F17; padding: 10px 0; text-align: center; font-size: 14px; width: 10%;">
+                        Số lượng</th>
+                    <th
+                        style="border-bottom: 1px solid #2F1F17; padding: 10px 0; text-align: right; font-size: 14px; width: 15%;">
+                        Đơn giá</th>
+                    <th
+                        style="border-bottom: 1px solid #2F1F17; padding: 10px 0; text-align: right; font-size: 14px; width: 15%;">
+                        Thành tiền (VNĐ)</th>
                 </tr>
             </thead>
             <tbody id="printInvoiceItems">
             </tbody>
-            <tfoot>
-                <tr style="border-top: 1px solid #000;">
-                    <td style="text-align: right; padding: 10px 0;"><strong>Subtotal:</strong></td>
-                    <td style="text-align: right; padding: 10px 0;" id="printSubtotal"></td>
-                </tr>
-                <tr>
-                    <td style="text-align: right; padding: 5px 0;"><strong>VAT (10%):</strong></td>
-                    <td style="text-align: right; padding: 5px 0;" id="printVat"></td>
-                </tr>
-                <tr>
-                    <td style="text-align: right; padding: 10px 0; font-size: 18px;"><strong>TOTAL:</strong></td>
-                    <td style="text-align: right; padding: 10px 0; font-size: 18px;"><strong id="printTotal"></strong>
-                    </td>
-                </tr>
-            </tfoot>
         </table>
 
-        <div style="text-align: center; margin-top: 50px; font-style: italic; color: #555;">
-            <p>Thank you for choosing Hoanien Retreat. We hope to welcome you back soon!</p>
-            <p style="font-size: 12px; margin-top: 20px;">Powered by Kawai PMS</p>
+        <div
+            style="display: flex; justify-content: space-between; margin-top: 30px; border-top: 1px solid #2F1F17; padding-top: 20px; align-items: flex-start;">
+            <div style="font-size: 14px; width: 45%; line-height: 1.5;">
+                <strong>PHƯƠNG THỨC THANH TOÁN:</strong><br>
+                <span id="printPaymentMethod">Tiền mặt (Cash)</span>
+            </div>
+            <div style="width: 45%; font-size: 14px;">
+                <div style="display: flex; justify-content: space-between; font-weight: bold; padding: 5px 0;">
+                    <span>Tạm tính:</span> <span id="printSubtotal">1.700.000</span>
+                </div>
+                <div id="printServiceChargeRow"
+                    style="display: none; justify-content: space-between; font-weight: bold; padding: 5px 0;">
+                    <span>Phí phục vụ (5%):</span> <span id="printServiceCharge">85.000</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-weight: bold; padding: 5px 0;">
+                    <span> VAT (10%):</span> <span id="printVat">178.500</span>
+                </div>
+                <div id="printDepositRow"
+                    style="display: none; justify-content: space-between; font-weight: bold; padding: 5px 0;">
+                    <span>Đã đặt cọc:</span> <span id="printDepositAmount">-170.000</span>
+                </div>
+                <div
+                    style="display: flex; justify-content: space-between; font-weight: bold; padding: 5px 0; border-top: 1px solid #2F1F17; margin-top: 5px; padding-top: 5px;">
+                    <span>TỔNG CỘNG:</span> <span id="printTotal" style="font-size: 16px;">1.793.500</span>
+                </div>
+            </div>
+        </div>
+
+        <div
+            style="text-align: center; margin-top: 40px; font-size: 13px; line-height: 1.6; border-top: 1px solid #eee; padding-top: 20px;">
+            <p style="font-style: italic;">Cảm ơn Quý khách đã lựa chọn Hòa Niên Retreat Resort & Hub. Rất mong được đón
+                tiếp Quý khách trong những lần tới!</p>
+            <p>Hệ thống bởi Hòa Niên PMS</p>
+            <div style="font-size: 12px; margin-bottom: 15px; opacity: 0.8;">
+                ĐT: +84 236 3123 456 | Email: info@hoanien.vn
+            </div>
         </div>
     </div>
 
@@ -742,19 +784,20 @@
                     </div>
 
                     <!-- BILL SUMMARY -->
-                    <div class="folio-right" style="width: 330px;">
+                    <div class="folio-right" style="width: 380px;">
                         <!-- HÓA ĐƠN GỐC -->
                         <div class="bill-summary-card" id="originalBillCard">
-                            <h3 id="billTitle">Hóa đơn tổng</h3>
+                            <h3 id="billTitle" style="text-align: center;">Hóa đơn chính</h3>
                             <div id="originalBillDetails"></div>
 
-                            <div id="promoSection" style="border-top: 1px dashed #efebe4; margin-top: 16px; padding-top: 16px;">
+                            <div id="promoSection"
+                                style="border-top: 1px dashed #efebe4; margin-top: 16px; padding-top: 16px;">
                                 <div
                                     style="font-size: 11px; font-weight: bold; color: #8e8a86; letter-spacing: 0.5px; margin: 0 0 12px 0; text-transform: uppercase;">
-                                    APPLY PROMOTION</div>
+                                    Áp dụng khuyến mãi</div>
                                 <div class="promo-input">
-                                    <input type="text" placeholder="Voucher code" id="groupPromoInput">
-                                    <button class="btn-apply" onclick="applyGroupPromo()">Apply</button>
+                                    <input type="text" placeholder="Mã voucher" id="groupPromoInput">
+                                    <button class="btn-apply" onclick="applyGroupPromo()">Áp dụng</button>
                                 </div>
                             </div>
 
@@ -766,7 +809,7 @@
                                 </div>
 
                                 <div class="summary-row" id="row-deposit" style="display: none; color: #8e8a86;">
-                                    <span>Tiền cọc (Deposit)</span>
+                                    <span>Đã đặt cọc</span>
                                     <span id="prePaidAmount">-0 VNĐ</span>
                                 </div>
 
@@ -777,11 +820,11 @@
                             </div>
 
                             <div class="summary-row outstanding-row">
-                                <span class="label">OUTSTANDING</span>
+                                <span class="label">Tổng tiền cần thanh toán</span>
                                 <span class="amount" id="originalOutstandingAmount">0 VNĐ</span>
                             </div>
                             <button class="btn-checkout" id="btnProceedOriginal"
-                                onclick="openPaymentModal(globalOriginalOutstanding, true)">Thanh toán HĐ Gốc</button>
+                                onclick="openPaymentModal(globalOriginalOutstanding, true)">Thanh toán toàn bộ</button>
                         </div>
                     </div>
 
@@ -809,10 +852,12 @@
             </div>
 
             <div id="roomPromoSection" style="border-top: 1px dashed #efebe4; margin-top: 16px; padding-top: 16px;">
-                <div style="font-size: 11px; font-weight: bold; color: #8e8a86; letter-spacing: 0.5px; margin: 0 0 12px 0; text-transform: uppercase;">Apply Promotion</div>
+                <div
+                    style="font-size: 11px; font-weight: bold; color: #8e8a86; letter-spacing: 0.5px; margin: 0 0 12px 0; text-transform: uppercase;">
+                    Áp dụng khuyến mãi</div>
                 <div class="promo-input">
-                    <input type="text" placeholder="Voucher code" id="roomPromoInput">
-                    <button class="btn-apply" onclick="applyRoomPromo()">Apply</button>
+                    <input type="text" placeholder="Mã voucher" id="roomPromoInput">
+                    <button class="btn-apply" onclick="applyRoomPromo()">Áp dụng</button>
                 </div>
             </div>
 
@@ -823,7 +868,7 @@
             </div>
 
             <div class="summary-row outstanding-row">
-                <span class="label">Outstanding</span>
+                <span class="label">Tổng tiền cần thanh toán</span>
                 <span class="amount" id="roomBillOutstandingAmount">0 VNĐ</span>
             </div>
 
@@ -908,6 +953,7 @@
         let globalOriginalTotal = 0; // Thêm biến lưu tổng tiền hóa đơn tổng trước VAT
         let globalPrePaidDeposit = 0;
         let globalOtherPayments = 0;
+        let globalFolioResults = [];
         let appliedGroupPromoCode = null;
         let appliedGroupPromoType = null;
         let appliedGroupPromoDiscount = 0;
@@ -966,6 +1012,8 @@
                         );
 
                         Promise.all(promises).then(results => {
+                            globalFolioResults = results;
+                            currentFolioData = results.find(r => r.id == currentRoomBookingDetailId) || results[0];
                             document.getElementById('folioContainer').style.display = 'grid';
                             document.getElementById('guestHeader').style.display = 'grid';
 
@@ -1011,6 +1059,8 @@
                 .then(data => {
                     if (data.success) {
                         try {
+                            globalFolioResults = [data];
+                            currentFolioData = data;
                             document.getElementById('folioContainer').style.display = 'grid';
                             document.getElementById('guestHeader').style.display = 'grid';
                             renderGuestInfo(data, 1);
@@ -1032,6 +1082,63 @@
         function formatCurrency(amount) {
             if (amount === undefined || amount === null) return "0 VNĐ";
             return new Intl.NumberFormat('vi-VN').format(amount) + " VNĐ";
+        }
+
+        function parseMinibarDescription(desc, totalAmount) {
+            if (!desc || !desc.toLowerCase().includes('minibar')) return null;
+
+            const parts = desc.split(':');
+            if (parts.length < 2) return null;
+
+            const itemsPart = parts[1].trim();
+            const itemTokens = itemsPart.split(',');
+
+            const parsedItems = [];
+            const minibarPrices = {
+                'nước suối evian': 40000,
+                'coca cola': 45000,
+                'bia heineken': 80000,
+                'nước suối': 15000,
+                'pepsi': 25000,
+                'bia tiger': 40000,
+                'bia 333': 30000,
+                'snack khoai tây': 35000,
+                'khăn lạnh': 10000
+            };
+
+            let parsedTotal = 0;
+
+            for (let token of itemTokens) {
+                token = token.trim();
+                const match = token.match(/^(.*?)\s*\(x(\d+)\)$/);
+                if (match) {
+                    const name = match[1].trim();
+                    const qty = parseInt(match[2]);
+                    const price = minibarPrices[name.toLowerCase()] || 0;
+                    const amount = price * qty;
+                    parsedTotal += amount;
+                    parsedItems.push({
+                        name: name,
+                        qty: qty,
+                        price: price,
+                        amount: amount
+                    });
+                }
+            }
+
+            const zeroPriceItems = parsedItems.filter(i => i.price === 0);
+            if (zeroPriceItems.length === 1) {
+                const sumOther = parsedItems.filter(i => i.price > 0).reduce((sum, i) => sum + i.amount, 0);
+                const remaining = totalAmount - sumOther;
+                const item = zeroPriceItems[0];
+                item.price = Math.round(remaining / item.qty);
+                item.amount = remaining;
+            }
+
+            if (parsedItems.length > 0) {
+                return parsedItems;
+            }
+            return null;
         }
 
         function renderGuestInfo(data, roomCount) {
@@ -1106,7 +1213,7 @@
                         if (typeof window.folioNegatives === 'undefined') {
                             window.folioNegatives = 0;
                         }
-                        
+
                         // CHỈ tính tiền cọc Nâng hạn mức (tránh bị double-count tiền cọc Walk-in)
                         if (item.description && item.description.toLowerCase().includes('nạp tiền nâng hạn mức')) {
                             window.folioNegatives += Math.abs(item.amount);
@@ -1118,14 +1225,33 @@
                 // Add expected room charge to Left Pane and Right Pane if not already posted
                 const hasPostedRoomCharge = items.some(item => 'room' === (item.sourceDepartment || '').toLowerCase());
                 if (!hasPostedRoomCharge && data.roomCharge && data.roomCharge > 0) {
+                    let nights = 1;
+                    if (data.checkInDate && data.checkOutDate) {
+                        const ci = new Date(data.checkInDate);
+                        const co = new Date(data.checkOutDate);
+                        const diffTime = Math.abs(co - ci);
+                        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                        if (diffDays > 0) nights = diffDays;
+                    }
+                    const expectedTotalCharge = data.roomCharge * nights;
+
                     const dep = 'Room';
                     // Right Pane
                     if (!originalGroups[dep]) originalGroups[dep] = { total: 0 };
-                    originalGroups[dep].total += data.roomCharge;
-                    originalTotal += data.roomCharge;
+                    originalGroups[dep].total += expectedTotalCharge;
+                    originalTotal += expectedTotalCharge;
 
-                    originalTaxable += data.roomCharge;
-                    // DO NOT add Room Charge to Left Pane (individual room folio)
+                    originalTaxable += expectedTotalCharge;
+                    roomTaxable += expectedTotalCharge;
+
+                    // Left Pane (All rooms separate)
+                    if (!allGroups[dep]) allGroups[dep] = { total: 0, items: [] };
+                    allGroups[dep].total += expectedTotalCharge;
+                    allGroups[dep].items.push({
+                        description: `Tiền phòng (Dự kiến)`,
+                        amount: expectedTotalCharge,
+                        isSettledSeparately: false
+                    });
                 }
 
                 let roomTotalWithVat = roomTaxable * 1.1 + roomNonTaxable;
@@ -1148,7 +1274,13 @@
                                  <div style="font-size: 13px; color: #8e8a86; font-family: 'Inter', sans-serif;">
                                      Đại diện: <span style="color: #2c2a29; font-weight: 500;">${data.guestName || 'Unknown'}</span>
                                  </div>
-                                 ${data.detailStatus === 'Checked_Out' ? '<div style="margin-top: 2px;"><span class="status-badge" style="background-color: #e6e2db; color: #5a544f; padding: 4px 8px; border-radius: 9999px; font-size: 10px; font-weight: 700; display: inline-block; letter-spacing: 0.5px; text-transform: uppercase; font-family: \'Inter\', sans-serif;">ĐÃ TRẢ PHÒNG (CHECKED-OUT)</span></div>' : ''}
+                                 <div style="font-size: 13px; color: #8e8a86; font-family: 'Inter', sans-serif;">
+                                     Loại phòng: <span style="color: #2c2a29; font-weight: 500;">${data.categoryName || 'N/A'}</span>
+                                 </div>
+                                 <div style="font-size: 13px; color: #8e8a86; font-family: 'Inter', sans-serif;">
+                                     Giá phòng: <span style="color: #2c2a29; font-weight: 500;">${formatCurrency(data.roomCharge)}</span>
+                                 </div>
+                                 ${data.detailStatus === 'Checked_Out' ? '<div style="margin-top: 2px;"><span class="status-badge" style="background-color: #e6e2db; color: #5a544f; padding: 4px 8px; border-radius: 9999px; font-size: 10px; font-weight: 700; display: inline-block; letter-spacing: 0.5px; text-transform: uppercase; font-family: \'Inter\', sans-serif;">Checked-Out</span></div>' : ''}
                              </div>
                          </div>
                          <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
@@ -1163,6 +1295,8 @@
                 for (const [dep, group] of Object.entries(allGroups)) {
                     const availableItems = group.items.filter(i => !i.isSettledSeparately);
                     const depSafe = roomId + '_' + dep.replace(/[^a-zA-Z0-9]/g, '');
+                    const isMinibar = dep.toLowerCase().includes('minibar');
+                    const thPadding = isMinibar ? 'padding-left: 16px;' : '';
 
                     leftHtml += `
                          <div class="charge-card">
@@ -1175,8 +1309,10 @@
                                  <table class="charge-table">
                                      <thead>
                                          <tr>
-                                             <th>DESCRIPTION</th>
-                                             <th style="text-align: right;">AMOUNT</th>
+                                             <th style="width: 45%; text-align: left; ${thPadding}">Mô tả</th>
+                                             <th style="width: 10%; text-align: center;">Số Lượng</th>
+                                             <th style="width: 20%; text-align: right;">Đơn giá</th>
+                                             <th style="width: 25%; text-align: right;">Thành tiền</th>
                                          </tr>
                                      </thead>
                                      <tbody>
@@ -1184,15 +1320,44 @@
                         const isSplit = i.isSettledSeparately;
                         const trClass = isSplit ? 'item-settled' : '';
                         const dateStr = i.createdAt && i.createdAt.length >= 10 ? i.createdAt.substring(0, 10) : '';
-                        return `
-                                             <tr class="${trClass}">
-                                                 <td>
-                                                     ${i.description} 
-                                                     ${dateStr ? `<div style="font-size: 0.8rem; color: #95a5a6;">${dateStr}</div>` : ''}
-                                                     ${isSplit ? '<span style="color:#e74c3c; font-size: 0.8rem; font-weight: 500;">(Đã tách)</span>' : ''}
-                                                 </td>
-                                                 <td class="amount">${formatCurrency(i.amount)}</td>
-                                             </tr>`;
+
+                        const minibarItems = parseMinibarDescription(i.description, i.amount);
+                        if (minibarItems) {
+                            let rowsHtml = '';
+                            minibarItems.forEach(item => {
+                                const formattedUnitPrice = new Intl.NumberFormat('vi-VN').format(item.price);
+                                const formattedAmount = new Intl.NumberFormat('vi-VN').format(item.amount) + ' VNĐ';
+                                rowsHtml += `
+                                    <tr class="${trClass}" style="color: #6e655f;">
+                                        <td style="padding-left: 16px; font-style: italic; text-align: left;">${item.name}</td>
+                                        <td style="text-align: center; font-style: italic;">${item.qty}</td>
+                                        <td style="text-align: right; font-style: italic;">${formattedUnitPrice}</td>
+                                        <td style="text-align: right; font-style: italic;">${formattedAmount}</td>
+                                    </tr>
+                                `;
+                            });
+                            rowsHtml += `
+                                <tr class="${trClass}" style="border-top: 1px dashed #efebe4; font-weight: 700;">
+                                    <td style="text-align: left;">TỔNG CỘNG (${dateStr})</td>
+                                    <td style="text-align: center;"></td>
+                                    <td style="text-align: right;"></td>
+                                    <td style="text-align: right;">${formatCurrency(i.amount)}</td>
+                                </tr>
+                            `;
+                            return rowsHtml;
+                        } else {
+                            return `
+                                              <tr class="${trClass}">
+                                                  <td style="text-align: left;">
+                                                      ${i.description} 
+                                                      ${dateStr ? `<div style="font-size: 0.8rem; color: #95a5a6;">${dateStr}</div>` : ''}
+                                                      ${isSplit ? '<span style="color:#e74c3c; font-size: 0.8rem; font-weight: 500;">(Đã tách)</span>' : ''}
+                                                  </td>
+                                                  <td style="text-align: center; color: #8e8a86;">-</td>
+                                                  <td style="text-align: right; color: #8e8a86;">-</td>
+                                                  <td class="amount">${formatCurrency(i.amount)}</td>
+                                              </tr>`;
+                        }
                     }).join('')}
                                      </tbody>
                                  </table>
@@ -1219,7 +1384,7 @@
                 leftHtml += `
                           <div style="display: flex; flex-direction: column; gap: 8px; width: 100%; border-top: 1px solid #e6ded4; padding-top: 16px; margin-top: 16px;">
                               <div style="display: flex; justify-content: space-between; font-size: 13px; font-family: 'Inter', sans-serif; color: #8e8a86;">
-                                  <span>Subtotal (trước thuế):</span>
+                                  <span>Tổng tạm tính:</span>
                                   <span style="font-weight: 500; color: #2c2a29;">${formatCurrency(roomSubtotalBeforeVat)}</span>
                               </div>
                               <div style="display: flex; justify-content: space-between; font-size: 13px; font-family: 'Inter', sans-serif; color: #8e8a86;">
@@ -1249,11 +1414,57 @@
 
             // 2. Render Right Pane (Original Bill - Now Total Bill)
             let rightOriginalHtml = '';
+
+            // Build room charge breakdown details for Main Bill (grouped by categoryName & roomCharge)
+            let breakdownGroups = {};
+            results.forEach((data) => {
+                if (!data.success) return;
+                let nights = 1;
+                if (data.checkInDate && data.checkOutDate) {
+                    const ci = new Date(data.checkInDate);
+                    const co = new Date(data.checkOutDate);
+                    const diffTime = Math.abs(co - ci);
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    if (diffDays > 0) nights = diffDays;
+                }
+
+                if (data.roomCharge && data.roomCharge > 0) {
+                    const key = `${data.categoryName || 'N/A'}_${data.roomCharge}`;
+                    if (!breakdownGroups[key]) {
+                        breakdownGroups[key] = {
+                            categoryName: data.categoryName || 'Room',
+                            roomCharge: data.roomCharge,
+                            nights: nights,
+                            roomCount: 0
+                        };
+                    }
+                    breakdownGroups[key].roomCount += 1;
+                    if (nights > breakdownGroups[key].nights) {
+                        breakdownGroups[key].nights = nights;
+                    }
+                }
+            });
+
+            let roomChargeBreakdown = [];
+            for (const key in breakdownGroups) {
+                const bg = breakdownGroups[key];
+                const formattedPrice = formatCurrency(bg.roomCharge);
+                roomChargeBreakdown.push(`↳ ${bg.categoryName} (${bg.roomCount} phòng &times; ${bg.nights} đêm) : ${formattedPrice}`);
+            }
+
             for (const [dep, group] of Object.entries(originalGroups)) {
+                let depLabel = dep.toLowerCase() === 'room' ? 'Tiền phòng' : dep;
+                let subLabelHtml = '';
+                if (dep.toLowerCase() === 'room' && roomChargeBreakdown.length > 0) {
+                    subLabelHtml = roomChargeBreakdown.map(line => `<div style="font-size: 11.5px; color: #8e8a86; font-weight: 500; font-style: italic; margin-top: 4px; padding-left: 12px; line-height: 1.4;">${line}</div>`).join('');
+                }
                 rightOriginalHtml += `
-                    <div class="summary-row">
-                        <span>${dep}</span>
-                        <span>${formatCurrency(group.total)}</span>
+                    <div class="summary-row" style="flex-direction: column; align-items: flex-start; gap: 2px; width: 100%;">
+                        <div style="display: flex; justify-content: space-between; width: 100%;">
+                            <span>${depLabel}</span>
+                            <span>${formatCurrency(group.total)}</span>
+                        </div>
+                        ${subLabelHtml}
                     </div>
                 `;
             }
@@ -1324,10 +1535,19 @@
             let roomSubtotal = 0;
             for (const [dep, amt] of Object.entries(roomInfo.summary)) {
                 roomSubtotal += amt;
+                let depLabel = dep.toLowerCase() === 'room' ? 'Tiền phòng' : dep;
+                let subLabelHtml = '';
+                if (dep.toLowerCase() === 'room' && roomInfo.roomCharge > 0) {
+                    const formattedPrice = formatCurrency(roomInfo.roomCharge);
+                    subLabelHtml = `<div style="font-size: 11px; color: #8e8a86; font-weight: normal; font-style: italic; margin-top: 2px;">↳ (${roomInfo.nights} đêm) : ${formattedPrice}</div>`;
+                }
                 html += `
-                    <div class="summary-row">
-                        <span>${dep}</span>
-                        <span>${formatCurrency(amt)}</span>
+                    <div class="summary-row" style="flex-direction: column; align-items: flex-start; gap: 2px;">
+                        <div style="display: flex; justify-content: space-between; width: 100%;">
+                            <span>${depLabel}</span>
+                            <span>${formatCurrency(amt)}</span>
+                        </div>
+                        ${subLabelHtml}
                     </div>
                 `;
             }
@@ -1487,7 +1707,7 @@
                     btn.disabled = false;
                     btn.style.opacity = '1';
                     btn.style.cursor = 'pointer';
-                    btn.innerHTML = '<i class="fa-solid fa-credit-card" style="margin-right: 8px;"></i> Thanh toán HĐ Gốc';
+                    btn.innerHTML = '<i class="fa-solid fa-credit-card" style="margin-right: 8px;"></i> Thanh toán toàn bộ';
                     btn.onclick = function () {
                         openPaymentModal(globalOriginalOutstanding, true);
                     };
@@ -1682,41 +1902,129 @@
             }
         }
 
+        function formatDateStr(dateStr) {
+            if (!dateStr) return 'N/A';
+            if (dateStr.includes('/')) return dateStr;
+            const parts = dateStr.split('-');
+            if (parts.length === 3) {
+                return `${parts[2]}/${parts[1]}/${parts[0]}`;
+            }
+            return dateStr;
+        }
+
         function showSuccessModal(data) {
             const invoiceNo = "INV-" + (data.invoiceId || Math.floor(Math.random() * 10000 + 1000));
             document.getElementById('successInvoiceId').innerText = "#" + invoiceNo;
 
-            // Build Printable Invoice
+            // 1. Basic invoice metadata
             document.getElementById('printInvoiceNumber').innerText = invoiceNo;
             document.getElementById('printInvoiceDate').innerText = new Date().toLocaleDateString('vi-VN');
 
-            if (currentFolioData) {
-                const isSplit = (currentPaymentAmount === globalSplitOutstanding);
-                const itemsToPrint = isSplit ?
-                    currentFolioData.items.filter(i => selectedItemIds.includes(i.id)) :
-                    currentFolioData.items.filter(i => i.status !== 'Settled');
+            // 2. Guest Info
+            const guestName = (bookingGroupData && bookingGroupData.customerName) ||
+                (currentFolioData && (currentFolioData.bookerName || currentFolioData.guestName)) ||
+                "Khách hàng";
+            document.getElementById('printGuestName').innerText = guestName;
 
-                document.getElementById('printRoomNumber').innerText = itemsToPrint.length > 0 ? itemsToPrint[0].roomName : 'N/A';
+            const roomList = (bookingGroupData && bookingGroupData.rooms) ?
+                bookingGroupData.rooms.map(r => r.roomNumber).join(', ') :
+                (currentFolioData ? currentFolioData.roomNumber : 'N/A');
+            document.getElementById('printRoomNumber').innerText = roomList;
 
-                let tbodyHtml = '';
-                itemsToPrint.forEach(item => {
-                    tbodyHtml += `
-                        <tr>
-                            <td style="padding: 8px 0; border-bottom: 1px dashed #ccc;">${item.description}</td>
-                            <td style="padding: 8px 0; border-bottom: 1px dashed #ccc; text-align: right;">${formatCurrency(item.amount)}</td>
-                        </tr>
-                    `;
+            let guestCount = 0;
+            const isSplit = (currentPaymentAmount === globalSplitOutstanding);
+            if (isSplit && currentFolioData) {
+                guestCount = (currentFolioData.numberOfAdults || 0) + (currentFolioData.numberOfChildren || 0);
+            } else if (globalFolioResults && globalFolioResults.length > 0) {
+                globalFolioResults.forEach(roomResult => {
+                    if (roomResult) {
+                        guestCount += (roomResult.numberOfAdults || 0) + (roomResult.numberOfChildren || 0);
+                    }
                 });
-                document.getElementById('printInvoiceItems').innerHTML = tbodyHtml;
-
-                const total = currentPaymentAmount;
-                const subtotal = total / 1.1;
-                const vat = total - subtotal;
-
-                document.getElementById('printSubtotal').innerText = formatCurrency(subtotal);
-                document.getElementById('printVat').innerText = formatCurrency(vat);
-                document.getElementById('printTotal').innerText = formatCurrency(total);
+            } else if (currentFolioData) {
+                guestCount = (currentFolioData.numberOfAdults || 0) + (currentFolioData.numberOfChildren || 0);
             }
+            document.getElementById('printGuestCount').innerText = guestCount;
+
+            const checkInDateStr = (currentFolioData && currentFolioData.checkInDate) || "";
+            const checkOutDateStr = (currentFolioData && currentFolioData.checkOutDate) || "";
+            document.getElementById('printArrivalDate').innerText = formatDateStr(checkInDateStr);
+            document.getElementById('printDepartureDate').innerText = formatDateStr(checkOutDateStr);
+
+            // 3. Payment Method
+            let methodText = 'Tiền mặt (Cash)';
+            if (selectedPaymentMethod === 'VNPAY') {
+                methodText = 'VNPay (Chuyển khoản)';
+            }
+            document.getElementById('printPaymentMethod').innerText = methodText;
+
+            // 4. Calculate stay nights
+            let nights = 1;
+            if (checkInDateStr && checkOutDateStr) {
+                const inDate = new Date(checkInDateStr);
+                const outDate = new Date(checkOutDateStr);
+                const diffTime = Math.abs(outDate - inDate);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                if (diffDays > 0) {
+                    nights = diffDays;
+                }
+            }
+
+            // 5. Gather items to print
+            let itemsToPrint = [];
+            if (isSplit) {
+                itemsToPrint = currentFolioData.items.filter(i => selectedItemIds.includes(i.id));
+            } else {
+                globalFolioResults.forEach(roomResult => {
+                    if (roomResult && roomResult.items) {
+                        roomResult.items.forEach(item => {
+                            if (item.status !== 'Settled') {
+                                itemsToPrint.push(item);
+                            }
+                        });
+                    }
+                });
+            }
+
+            const formatNumber = (val) => new Intl.NumberFormat('vi-VN').format(Math.round(val));
+
+            let tbodyHtml = '';
+            itemsToPrint.forEach(item => {
+                const isRoom = (item.sourceDepartment || '').toLowerCase() === 'room';
+                const qty = isRoom ? nights : 1;
+                const unitVal = isRoom ? (item.amount / nights) : item.amount;
+                const itemDate = (item.createdAt) ? formatDateStr(item.createdAt.substring(0, 10)) : new Date().toLocaleDateString('vi-VN');
+
+                tbodyHtml += `
+                    <tr>
+                        <td style="padding: 10px 0; border-bottom: 1px dashed #ddd;">${itemDate}</td>
+                        <td style="padding: 10px 0; border-bottom: 1px dashed #ddd;">${item.description}</td>
+                        <td style="padding: 10px 0; border-bottom: 1px dashed #ddd; text-align: center;">${qty}</td>
+                        <td style="padding: 10px 0; border-bottom: 1px dashed #ddd; text-align: right;">${formatNumber(unitVal)}</td>
+                        <td style="padding: 10px 0; border-bottom: 1px dashed #ddd; text-align: right;">${formatNumber(item.amount)}</td>
+                    </tr>
+                `;
+            });
+            document.getElementById('printInvoiceItems').innerHTML = tbodyHtml;
+
+            // 6. Calculate total values
+            const hasDeposit = (globalPrePaidDeposit > 0 && !isSplit);
+            const totalBillWithVat = currentPaymentAmount + (hasDeposit ? globalPrePaidDeposit : 0);
+            const subtotal = totalBillWithVat / 1.1;
+            const vat = totalBillWithVat - subtotal;
+            const totalAmount = currentPaymentAmount;
+
+            document.getElementById('printSubtotal').innerText = formatNumber(subtotal);
+            document.getElementById('printVat').innerText = formatNumber(vat);
+
+            if (hasDeposit) {
+                document.getElementById('printDepositRow').style.display = 'flex';
+                document.getElementById('printDepositAmount').innerText = "- " + formatNumber(globalPrePaidDeposit);
+            } else {
+                document.getElementById('printDepositRow').style.display = 'none';
+            }
+
+            document.getElementById('printTotal').innerText = formatNumber(totalAmount);
 
             document.getElementById('successModal').style.display = 'flex';
         }
@@ -1800,5 +2108,7 @@
         }
     </script>
 </body>
+
+</html>
 
 </html>

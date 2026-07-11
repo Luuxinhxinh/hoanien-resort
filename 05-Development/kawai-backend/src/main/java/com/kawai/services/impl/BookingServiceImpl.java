@@ -312,8 +312,8 @@ public class BookingServiceImpl implements BookingService {
                 totalBaseTotal = totalBaseTotal.add(roomTotal);
 
                 categoriesToBook.add(category);
-                roomCharges.add(baseTotal);
-                extraSurcharges.add(extraSurcharge);
+                roomCharges.add(pricePerNight);
+                extraSurcharges.add(dailySurcharge);
                 adultsList.add(reqAdults);
                 childrenList.add(reqChildren);
                 childrenAgesList.add(ages);
