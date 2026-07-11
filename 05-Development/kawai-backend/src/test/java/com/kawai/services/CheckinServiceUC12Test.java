@@ -103,6 +103,12 @@ class CheckinServiceUC12Test {
         @Mock
         private MembershipTierRepository membershipTierRepository;
 
+        @Mock
+        private com.kawai.repositories.MaintenanceRequestRepository maintenanceRequestRepo;
+
+        @Mock
+        private com.kawai.services.interfaces.EmailService emailService;
+
         @InjectMocks
         private CheckinServiceImpl checkinService;
 

@@ -10,4 +10,5 @@ import java.util.List;
 public interface MaintenanceRequestRepository extends JpaRepository<HotelOperation, Long> {
     List<HotelOperation> findByOperationalType(String operationalType);
     List<HotelOperation> findByOperationalTypeAndStatus(String operationalType, String status);
+    boolean existsByRoomIdAndStatusInAndOperationalTypeIn(Long roomId, List<String> statuses, List<String> operationalTypes);
 }

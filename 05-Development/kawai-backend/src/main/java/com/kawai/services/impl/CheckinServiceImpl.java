@@ -55,6 +55,7 @@ public class CheckinServiceImpl implements CheckinService {
         private final com.kawai.repositories.RoomGuestRepository roomGuestRepo;
         private final com.kawai.repositories.TourBookingRepository tourBookingRepo;
         private final com.kawai.services.interfaces.DependentService dependentService;
+        private final com.kawai.repositories.MaintenanceRequestRepository maintenanceRequestRepo;
         private final com.kawai.services.interfaces.EmailService emailService;
 
         @Autowired
@@ -70,6 +71,7 @@ public class CheckinServiceImpl implements CheckinService {
                         org.springframework.security.crypto.password.PasswordEncoder passwordEncoder,
                         com.kawai.repositories.RoomGuestRepository roomGuestRepo,
                         com.kawai.repositories.TourBookingRepository tourBookingRepo,
+                        com.kawai.repositories.MaintenanceRequestRepository maintenanceRequestRepo,
                         @org.springframework.context.annotation.Lazy com.kawai.services.interfaces.DependentService dependentService,
                         com.kawai.services.interfaces.EmailService emailService) {
                 this.roomBookingDetailRepo = roomBookingDetailRepo;
@@ -83,6 +85,7 @@ public class CheckinServiceImpl implements CheckinService {
                 this.passwordEncoder = passwordEncoder;
                 this.roomGuestRepo = roomGuestRepo;
                 this.tourBookingRepo = tourBookingRepo;
+                this.maintenanceRequestRepo = maintenanceRequestRepo;
                 this.dependentService = dependentService;
                 this.emailService = emailService;
         }
@@ -152,6 +155,19 @@ public class CheckinServiceImpl implements CheckinService {
                 if (STATUS_OCCUPIED.equalsIgnoreCase(status)) {
                         throw new IllegalStateException(
                                         "ROOM-001: Phòng đang Occupied, không thể check-in. (MOD2-002)");
+                }
+                if (STATUS_DIRTY.equalsIgnoreCase(status)) {
+                        throw new IllegalStateException(
+                                        "ROOM-001: Phòng đang Dirty, không thể check-in. (MOD2-002)");
+                }
+                boolean hasPendingMaintenance = maintenanceRequestRepo.existsByRoomIdAndStatusInAndOperationalTypeIn(
+                        room.getId(),
+                        java.util.Arrays.asList("Pending", "InProgress"),
+                        java.util.Arrays.asList("MAINTENANCE", "DAMAGE_CHECK")
+                );
+                if (hasPendingMaintenance) {
+                        throw new IllegalStateException(
+                                        "ROOM-001: Phòng đang có task bảo trì/kiểm tra chờ xử lý, không thể check-in.");
                 }
         }
 

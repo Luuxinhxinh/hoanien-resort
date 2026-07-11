@@ -93,7 +93,6 @@ public class FolioRestControllerUC21Test {
 
         when(roomBookingDetailRepository.findById(detailId)).thenReturn(Optional.of(mockDetail));
         when(nightAuditService.getFolioItems(detailId)).thenReturn(List.of(mockItem));
-        when(nightAuditService.calculateFolioBalance(detailId)).thenReturn(new BigDecimal("500000"));
 
         // Act
         ResponseEntity<?> response = folioRestController.getFolioByRoom(detailId);
@@ -299,7 +298,10 @@ public class FolioRestControllerUC21Test {
         // Stubbing
         when(roomBookingDetailRepository.findById(detailId)).thenReturn(Optional.of(mockDetail));
         when(roomBookingDetailRepository.findByRoomBookingId(mockBooking.getId())).thenReturn(List.of(mockDetail));
-        when(nightAuditService.calculateFolioBalance(detailId)).thenReturn(new BigDecimal("1000000"));
+        FolioItem mockItem = new FolioItem();
+        mockItem.setAmount(new BigDecimal("1000000"));
+        mockItem.setSourceDepartment("F&B");
+        when(nightAuditService.getFolioItems(detailId)).thenReturn(List.of(mockItem));
 
         // Deposit txn
         PaymentTransaction depositTxn = new PaymentTransaction();

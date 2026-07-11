@@ -7,6 +7,5 @@ if not exist "mvnw.cmd" (
     powershell -Command "Invoke-WebRequest -Uri 'https://repo.maven.apache.org/maven2/org/apache/maven/wrapper/maven-wrapper-distribution/3.2.0/maven-wrapper-distribution-3.2.0-bin.zip' -OutFile 'maven-wrapper.zip'; Expand-Archive -Path 'maven-wrapper.zip' -DestinationPath '.' -Force; Remove-Item 'maven-wrapper.zip'"
 )
 echo Starting Kawai Backend Application...
-call mvnw.cmd spring-boot:run
+call mvnw.cmd -s settings.xml spring-boot:run -Dspring-boot.run.jvmArguments="-Djava.io.tmpdir=target"
 pause
-

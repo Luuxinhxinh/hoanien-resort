@@ -1,0 +1,1 @@
+{"configurations":[{"type":"java","name":"Spring Boot - KawaiApplication","request":"launch","mainClass":"com.kawai.KawaiApplication","projectName":"kawai-backend","args":"","env":{},"cwd":"${workspaceFolder}/05-Development/kawai-backend","vmArgs":"-Djava.io.tmpdir=target","shortenCommandLine":"argfile"}]}

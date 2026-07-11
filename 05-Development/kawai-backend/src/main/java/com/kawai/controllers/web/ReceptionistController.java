@@ -32,6 +32,7 @@ public class ReceptionistController {
     private final EmployeeRepository employeeRepository;
     private final TourBookingRepository tourBookingRepository;
     private final com.kawai.services.interfaces.EncryptionService encryptionService;
+    private final MaintenanceRequestRepository maintenanceRequestRepository;
 
     @org.springframework.web.bind.annotation.ModelAttribute("todayLabel")
     public String getTodayLabel() {
@@ -67,10 +68,26 @@ public class ReceptionistController {
         // Room Matrix from DB
         Map<String, List<Map<String, Object>>> categorizedRooms = new LinkedHashMap<>();
         try {
+            java.util.Set<Long> roomsWithMaintenance = new java.util.HashSet<>();
+            java.util.Set<Long> roomsWithUrgentClean = new java.util.HashSet<>();
+            maintenanceRequestRepository.findAll().stream()
+                    .filter(t -> !"Completed".equalsIgnoreCase(t.getStatus()))
+                    .forEach(t -> {
+                        if (t.getRoom() != null) {
+                            if ("Maintenance".equalsIgnoreCase(t.getOperationalType())) {
+                                roomsWithMaintenance.add(t.getRoom().getId());
+                            } else if ("URGENT_CLEAN".equalsIgnoreCase(t.getOperationalType())) {
+                                roomsWithUrgentClean.add(t.getRoom().getId());
+                            }
+                        }
+                    });
+
             for (Room r : roomRepository.findAll()) {
                 Map<String, Object> m = new HashMap<>();
                 m.put("roomNumber", r.getRoomNumber());
                 m.put("status", r.getRoomStatus());
+                m.put("hasUrgentMaintenance", roomsWithMaintenance.contains(r.getId()));
+                m.put("hasUrgentClean", roomsWithUrgentClean.contains(r.getId()));
                 String catName = r.getCategory() != null ? r.getCategory().getCategoryName() : "Uncategorized";
                 m.put("category", catName);
 
