@@ -66,15 +66,13 @@
                         <span class="nav-sub-text">Quản lý khách in-house</span>
                     </div>
                 </a>
-                <!--
-                <a href="/receptionist/night-audit" class="nav-item active">
+                <a href="/receptionist/night-audit" class="nav-item">
                     <i class="fa-solid fa-moon"></i>
                     <div class="nav-text">
                         <span class="nav-main-text">Night Audit</span>
                         <span class="nav-sub-text">Giao ca & Báo cáo</span>
                     </div>
                 </a>
-                -->
             </nav>
 
             <div class="sidebar-user">
@@ -144,8 +142,32 @@
                         </div>
 
                         <div class="audit-action-area">
-                            <button class="btn btn-primary" onclick="alert('Night Audit Started!')">Run Night Audit & Roll Date</button>
+                            <button class="btn btn-primary" id="btnRunAudit" onclick="runNightAudit()">Run Night Audit & Roll Date</button>
                         </div>
+                        <script>
+                            function runNightAudit() {
+                                const btn = document.getElementById('btnRunAudit');
+                                btn.disabled = true;
+                                btn.innerText = 'Đang xử lý...';
+                                fetch('/api/v1/audit/night-audit', { method: 'POST' })
+                                    .then(res => res.json())
+                                    .then(data => {
+                                        if (data.status === 'SUCCESS') {
+                                            alert('Chốt sổ thành công! Đã sang ngày: ' + data.businessDate);
+                                            window.location.reload();
+                                        } else {
+                                            alert('Lỗi: ' + data.message);
+                                            btn.disabled = false;
+                                            btn.innerText = 'Run Night Audit & Roll Date';
+                                        }
+                                    })
+                                    .catch(err => {
+                                        alert('Lỗi kết nối tới server.');
+                                        btn.disabled = false;
+                                        btn.innerText = 'Run Night Audit & Roll Date';
+                                    });
+                            }
+                        </script>
                     </div>
 
                     <div class="audit-stats">
