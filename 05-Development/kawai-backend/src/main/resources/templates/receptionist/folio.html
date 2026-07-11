@@ -292,7 +292,7 @@
                             <tr>
                                 <th>Representative / Booker</th>
                                 <th>Expected Check-out</th>
-                                <th>Total Payments</th>
+                                <th style="text-align: right; padding-right: 24px !important;">Total Payments</th>
                                 <th>Phone Number</th>
                                 <th>Status</th>
                                 <th>Action</th>
@@ -412,7 +412,7 @@
                 tr.innerHTML = `
                     <td style="padding: 24px 16px 24px 24px !important; white-space: nowrap;">${bookerHtml}</td>
                     <td style="line-height: 1.4; color: #2c2a29; font-weight: 600; white-space: nowrap;">${formattedDate}</td>
-                    <td style="line-height: 1.4; white-space: nowrap;">${formattedPayments}</td>
+                    <td style="line-height: 1.4; white-space: nowrap; text-align: right; padding-right: 24px !important;">${formattedPayments}</td>
                     <td style="white-space: nowrap;">${formattedPhone}</td>
                     <td style="white-space: nowrap;"><span class="status-badge ${statusClass}" style="white-space: nowrap;">${statusText}</span></td>
                     <td style="padding: 24px 24px 24px 16px !important; white-space: nowrap;">
