@@ -302,7 +302,7 @@
                     <td>${folio.checkOutDate}</td>
                     <td>${formatCurrency(folio.totalPayments)}</td>
                     <td>${folio.phoneNumber}</td>
-                    <td><span class="status-badge ${statusClass}" style="text-transform: capitalize;">${folio.status.toLowerCase()}</span></td>
+                    <td><span class="status-badge ${statusClass}" style="text-transform: capitalize;">${folio.status.toLowerCase().replace(/_/g, ' ')}</span></td>
                     <td>
                         <div style="display: flex; gap: 8px; align-items: center;">
                             <a href="/receptionist/folio/detail?id=${folio.roomBookingDetailId}" class="btn-folio-detail">View Details</a>
