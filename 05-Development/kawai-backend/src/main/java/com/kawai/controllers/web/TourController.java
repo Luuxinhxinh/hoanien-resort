@@ -176,6 +176,7 @@ public class TourController {
                 model.addAttribute("customerName", customer.getFullName());
                 model.addAttribute("customerEmail", customer.getEmail());
                 model.addAttribute("customerPhone", customer.getPhone());
+                model.addAttribute("customerCccd", customer.getCccdPassportEncrypted() != null ? customer.getCccdPassportEncrypted() : "");
             });
         }
         return "guest/tour-detail";

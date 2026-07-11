@@ -152,8 +152,30 @@ Get-Content "<log-path>.log" | Select-String -Pattern "(SpelEvaluationException|
 # Nếu render hoàn chỉnh, output sẽ là hàng nghìn dòng HTML
 $res = Invoke-WebRequest -Uri "http://localhost:8081/profile/profile-test" -UseBasicParsing
 Write-Host "Lines: $($res.Content.Split([Environment]::NewLine).Length)"
-# Kết quả đạt: Lines=7529 (hoặc tương đương)
 ```
 
 **Bước 6 — Dọn dẹp:** Xóa endpoint test và revert SecurityConfig sau khi fix xong.
+
+## 13. Tự động liên kết dữ liệu thiếu ID (Auto-association Fallback)
+- **Bài học từ lỗi gửi feedback**: Khi khách hàng gửi đánh giá hoặc gửi dữ liệu từ một biểu mẫu chung (không đi qua đường dẫn chứa ID của bản ghi cụ thể), hãy thực hiện cơ chế tự động tìm kiếm đối tượng đã hoàn thành gần nhất của khách hàng đó từ cơ sở dữ liệu để tự động thiết lập liên kết (`tourBooking`, `roomBooking`, v.v.). Điều này đảm bảo dữ liệu luôn có liên kết hợp lệ, tránh việc các câu truy vấn lọc chặt chẽ (`IS NOT NULL`) vô tình bỏ qua bản ghi này.
+
+## 14. Quy tắc loại trừ chọn lọc khi ép font chữ hệ thống
+- **Khi sử dụng selector `*` để thay đổi font chữ toàn diện**:
+  - **Bắt buộc** loại trừ font icon hệ thống (ví dụ: `:not(.material-symbols-outlined)`) để tránh làm mất hiển thị của icon.
+  - **Bắt buộc** loại trừ các phần tử mang thương hiệu (như `.brand`, `.logo-text`, `.resort-name`, v.v. và các phần tử hiển thị tên thương hiệu) và thiết lập lại font-family, font-style đứng (`normal`), font-weight chuẩn cho chúng nhằm bảo vệ tính nhận diện thương hiệu nguyên bản của dự án.
+
+## 15. Đồng bộ và bảo toàn số lượng thành viên đi tour khi gán phòng (Post to Room)
+- **Phía Frontend:** Số người phân bổ gán cho các phòng luôn phải mặc định và bị giới hạn khớp hoàn toàn với số lượng người đăng ký đi tour tại form chính. Tuyệt đối không tự động lấy toàn bộ số người ở phòng gán để ghi đè lên đơn đặt tour.
+- **Phía Backend:** Không tự động ghi đè số người đi tour của request bằng tổng số lượng người đặt phòng gán, trừ khi có logic phân bổ cụ thể được người dùng xác nhận và validate trùng khớp từ frontend gửi lên.
+
+## 16. Quy trình Hủy đặt chỗ (Booking Cancellation Flow) từ khách hàng
+- **Xác nhận UI:** Khi khách hàng bấm hủy đơn dịch vụ (như đặt tour) tại trang cá nhân, bắt buộc hiển thị popup xác nhận rõ ràng (ví dụ qua SweetAlert2) để tránh bấm nhầm.
+- **Gửi Email đồng bộ:** Email thông báo hủy tour gửi về cho khách hàng phải sử dụng chung giao diện, CSS và các thông tin chi tiết hóa đơn (Breakdown) giống hệt email đặt tour thành công ban đầu, chỉ cập nhật trạng thái đơn thành 'Đã hủy' và hiển thị rõ số tiền được hoàn cọc.
+
+## 17. Truyền dữ liệu Thymeleaf sang JavaScript qua HTML5 Data-Attributes
+- **Vấn đề:** Khi muốn truyền các chuỗi ký tự động (có chứa nháy đơn, nháy kép, xuống dòng từ DB) vào các hàm JavaScript trực tiếp trong thuộc tính sự kiện (ví dụ: `th:onclick="'openModal(' + ${r.text} + ')'"`), việc sử dụng các hàm giả định như `#strings.escapeJavaScript` sẽ làm crash bộ render template của Spring Boot, dẫn đến hiện tượng sập trang (trắng trang).
+- **Giải pháp (BẮT BUỘC):**
+  1. Tránh truyền chuỗi thô qua biểu thức nối chuỗi của Thymeleaf trong các thẻ sự kiện JS.
+  2. Lưu trữ dữ liệu động vào các thuộc tính HTML5 custom data-attributes (`th:data-id`, `th:data-text`, `th:data-rating`).
+  3. Sử dụng JavaScript thuần để bắt sự kiện (`onclick="openModalFromButton(this)"`) và trích xuất dữ liệu: `const text = btn.getAttribute('data-text')`. Cơ chế này đảm bảo an toàn chuỗi và tương thích 100% với trình phân tích cú pháp HTML của trình duyệt.
 

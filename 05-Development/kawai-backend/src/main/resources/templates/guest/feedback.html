@@ -19,15 +19,15 @@
                     fontFamily: {
                         'serif': ['"Playfair Display"', 'serif'],
                         'sans': ['"Montserrat"', 'sans-serif'],
-                        'headline': ["EB Garamond", "serif"],
-                        'body': ["Inter", "sans-serif"],
+                        'headline': ['"Cormorant Garamond"', 'serif'],
+                        'body': ['"Inter"', 'sans-serif'],
                     }
                 }
             }
         }
     </script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Montserrat:wght@100..900&family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Inter:wght@100..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Montserrat:wght@100..900&family=Inter:wght@100..900&display=swap&subset=vietnamese" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
     <style>
         .material-symbols-outlined { font-variation-settings: 'FILL' 0,'wght' 300,'GRAD' 0,'opsz' 24; vertical-align: middle; }
@@ -186,28 +186,60 @@
     </div>
 </div>
 
+<!-- Toast Notifications Container ở góc phải -->
+        <div class="fixed top-28 right-6 z-50 flex flex-col gap-3 w-80 md:w-96 max-w-[calc(100vw-3rem)]">
+            <!-- Toast Success -->
+            <div id="toast-success" class="hidden p-4 rounded-lg flex items-start justify-between gap-3 shadow-xl transition-all duration-300"
+                 style="background:rgba(52,211,153,0.15);border:1px solid rgba(52,211,153,0.5);color:#a7f3d0;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);">
+                <div class="flex gap-2.5">
+                    <span class="material-symbols-outlined text-xl flex-shrink-0" style="color:#34d399">check_circle</span>
+                    <p class="text-xs md:text-sm font-semibold leading-relaxed">Cảm ơn! Đánh giá của Quý khách đã được ghi nhận thành công.</p>
+                </div>
+                <button onclick="this.parentElement.classList.add('hidden')" class="text-gray-400 hover:text-white transition-colors flex-shrink-0">
+                    <span class="material-symbols-outlined text-sm">close</span>
+                </button>
+            </div>
+
+            <!-- Toast Login Required -->
+            <div id="toast-login-required" class="hidden p-4 rounded-lg flex items-start justify-between gap-3 shadow-xl transition-all duration-300"
+                 style="background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.5);color:#fca5a5;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);">
+                <div class="flex gap-2.5">
+                    <span class="material-symbols-outlined text-xl flex-shrink-0" style="color:#ef4444">error</span>
+                    <p class="text-xs md:text-sm font-semibold leading-relaxed">Vui lòng đăng nhập tài khoản của Quý khách để gửi đánh giá dịch vụ!</p>
+                </div>
+                <button onclick="this.parentElement.classList.add('hidden')" class="text-gray-400 hover:text-white transition-colors flex-shrink-0">
+                    <span class="material-symbols-outlined text-sm">close</span>
+                </button>
+            </div>
+
+            <!-- Toast No Service -->
+            <div id="toast-no-service" class="hidden p-4 rounded-lg flex items-start justify-between gap-3 shadow-xl transition-all duration-300"
+                 style="background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.5);color:#fde68a;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);">
+                <div class="flex gap-2.5">
+                    <span class="material-symbols-outlined text-xl flex-shrink-0" style="color:#f59e0b">warning</span>
+                    <p class="text-xs md:text-sm font-semibold leading-relaxed">Đánh giá chỉ dành cho khách hàng đã từng trải nghiệm dịch vụ tại HoaNien Retreat.</p>
+                </div>
+                <button onclick="this.parentElement.classList.add('hidden')" class="text-gray-400 hover:text-white transition-colors flex-shrink-0">
+                    <span class="material-symbols-outlined text-sm">close</span>
+                </button>
+            </div>
+
+            <!-- Toast Already Reviewed -->
+            <div id="toast-already-reviewed" class="hidden p-4 rounded-lg flex items-start justify-between gap-3 shadow-xl transition-all duration-300"
+                 style="background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.5);color:#fde68a;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);">
+                <div class="flex gap-2.5">
+                    <span class="material-symbols-outlined text-xl flex-shrink-0" style="color:#f59e0b">warning</span>
+                    <p class="text-xs md:text-sm font-semibold leading-relaxed">Quý khách đã gửi đánh giá cho dịch vụ này rồi. Mỗi dịch vụ chỉ được đánh giá một lần.</p>
+                </div>
+                <button onclick="this.parentElement.classList.add('hidden')" class="text-gray-400 hover:text-white transition-colors flex-shrink-0">
+                    <span class="material-symbols-outlined text-sm">close</span>
+                </button>
+            </div>
+        </div>
+
 <!-- ══════════ MAIN CONTENT ══════════ -->
 <main class="flex-grow" style="padding-top:190px; padding-bottom:80px;">
     <div class="max-w-6xl mx-auto px-6">
-
-        <!-- Toast Notifications -->
-        <div id="toast-success" class="hidden mb-8 p-4 rounded-lg flex items-center gap-3 max-w-xl mx-auto"
-             style="background:rgba(52,211,153,0.1);border:1px solid rgba(52,211,153,0.4);color:#a7f3d0;">
-            <span class="material-symbols-outlined" style="color:#34d399">check_circle</span>
-            <p class="text-sm font-semibold">Cảm ơn! Đánh giá của Quý khách đã được ghi nhận thành công.</p>
-        </div>
-
-        <div id="toast-login-required" class="hidden mb-8 p-4 rounded-lg flex items-center gap-3 max-w-xl mx-auto"
-             style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.4);color:#fca5a5;">
-            <span class="material-symbols-outlined" style="color:#ef4444">error</span>
-            <p class="text-sm font-semibold">Vui lòng đăng nhập tài khoản của Quý khách để gửi đánh giá dịch vụ!</p>
-        </div>
-
-        <div id="toast-no-service" class="hidden mb-8 p-4 rounded-lg flex items-center gap-3 max-w-xl mx-auto"
-             style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.4);color:#fde68a;">
-            <span class="material-symbols-outlined" style="color:#f59e0b">warning</span>
-            <p class="text-sm font-semibold">Đánh giá chỉ dành cho khách hàng đã từng trải nghiệm dịch vụ tại HoaNien Retreat.</p>
-        </div>
 
         <!-- Hidden input for thymeleaf check in javascript -->
         <input type="hidden" id="jsIsLoggedIn" th:value="${isLoggedIn}" />
@@ -223,7 +255,7 @@
                 <p class="text-xs text-gray-300 max-w-md mx-auto leading-relaxed">Mỗi phản hồi giúp HoaNien không ngừng hoàn thiện dịch vụ.</p>
             </div>
             <!-- Glassmorphic Form for submit mode -->
-            <form th:action="@{/feedback/submit}" method="post" class="space-y-6">
+            <form th:action="@{/feedback/submit}" method="post" onsubmit="return validateFeedbackForm(this)" class="space-y-6">
                 <input type="hidden" name="bookingId" th:value="${booking != null ? booking.id : ''}" />
                 <div class="space-y-3 rounded-xl p-6 bg-[#12100f]/50 backdrop-blur-md border border-white/12 shadow-lg">
                     <div class="flex items-center gap-2">
@@ -239,29 +271,12 @@
                         <button type="button" class="rating-btn" data-val="5" onclick="rate('ratingTourA','stars-tour-a','lbl-tour-a',5)"><span class="material-symbols-outlined text-2xl" style="font-variation-settings:'FILL' 1">star</span></button>
                         <span id="lbl-tour-a" class="ml-3 text-xs font-semibold" style="color:#c5a059">Xuất sắc</span>
                     </div>
-                    <input type="hidden" name="ratingTour" id="ratingTourA" value="5" />
-                </div>
-
-                <div class="space-y-3 rounded-xl p-6 bg-[#12100f]/50 backdrop-blur-md border border-white/12 shadow-lg">
-                    <div class="flex items-center gap-2">
-                        <span class="material-symbols-outlined" style="color:#c5a059">bed</span>
-                        <span class="text-sm font-bold tracking-wider text-white">Dịch Vụ Phòng & Ẩm Thực</span>
-                    </div>
-                    <p class="text-xs text-gray-300">Độ sạch sẽ, tiện nghi phòng nghỉ, chất lượng bữa ăn và thái độ phục vụ.</p>
-                    <div class="flex items-center gap-1 mt-2" id="stars-room-a">
-                        <button type="button" class="rating-btn" data-val="1" onclick="rate('ratingRoomA','stars-room-a','lbl-room-a',1)"><span class="material-symbols-outlined text-2xl" style="font-variation-settings:'FILL' 1">star</span></button>
-                        <button type="button" class="rating-btn" data-val="2" onclick="rate('ratingRoomA','stars-room-a','lbl-room-a',2)"><span class="material-symbols-outlined text-2xl" style="font-variation-settings:'FILL' 1">star</span></button>
-                        <button type="button" class="rating-btn" data-val="3" onclick="rate('ratingRoomA','stars-room-a','lbl-room-a',3)"><span class="material-symbols-outlined text-2xl" style="font-variation-settings:'FILL' 1">star</span></button>
-                        <button type="button" class="rating-btn" data-val="4" onclick="rate('ratingRoomA','stars-room-a','lbl-room-a',4)"><span class="material-symbols-outlined text-2xl" style="font-variation-settings:'FILL' 1">star</span></button>
-                        <button type="button" class="rating-btn" data-val="5" onclick="rate('ratingRoomA','stars-room-a','lbl-room-a',5)"><span class="material-symbols-outlined text-2xl" style="font-variation-settings:'FILL' 1">star</span></button>
-                        <span id="lbl-room-a" class="ml-3 text-xs font-semibold" style="color:#c5a059">Xuất sắc</span>
-                    </div>
-                    <input type="hidden" name="ratingRoomDining" id="ratingRoomA" value="5" />
+                    <input type="hidden" name="ratingTour" id="ratingTourA" value="" />
                 </div>
 
                 <div class="space-y-2">
                     <label class="text-sm font-bold tracking-wider text-white">Nhận Xét Chi Tiết</label>
-                    <textarea name="reviewText" rows="4" required
+                    <textarea name="reviewText" rows="4"
                         class="w-full rounded-lg p-4 text-sm text-white bg-[#12100f]/40 border border-white/15 focus:outline-none focus:border-[#c5a059] transition-all resize-none shadow-md"
                         placeholder="Hãy chia sẻ cảm nhận chân thực của Quý khách..."></textarea>
                 </div>
@@ -291,54 +306,6 @@
             <!-- ── Dịch Vụ Tour Panel ── -->
             <div id="panel-tour" class="tab-panel">
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                    <!-- Static 5-star review 1 -->
-                    <div class="review-card">
-                        <div class="flex items-center justify-between mb-3">
-                            <div class="flex gap-0.5">
-                                <span class="material-symbols-outlined text-lg star-gold" style="font-variation-settings:'FILL' 1;">star</span>
-                                <span class="material-symbols-outlined text-lg star-gold" style="font-variation-settings:'FILL' 1;">star</span>
-                                <span class="material-symbols-outlined text-lg star-gold" style="font-variation-settings:'FILL' 1;">star</span>
-                                <span class="material-symbols-outlined text-lg star-gold" style="font-variation-settings:'FILL' 1;">star</span>
-                                <span class="material-symbols-outlined text-lg star-gold" style="font-variation-settings:'FILL' 1;">star</span>
-                            </div>
-                            <span class="text-[10px] text-gray-400">15/06/2026</span>
-                        </div>
-                        <p class="text-sm text-gray-300 leading-relaxed mb-4" style="display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;">
-                            Hành trình Thiền hành Yên tử mang lại sự tĩnh lặng sâu sắc. Hướng dẫn viên chu đáo, am hiểu sâu sắc về văn hóa và thiền học.
-                        </p>
-                        <div class="flex items-center gap-3 pt-3" style="border-top:1px solid rgba(255,255,255,0.08);">
-                            <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold" style="background:rgba(201,169,110,0.2);color:#c5a059;">T</div>
-                            <div>
-                                <p class="text-xs font-semibold text-white">Trần Minh Anh</p>
-                                <p class="text-[10px] text-gray-400">Hành trình Yên Tử</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Static 5-star review 2 -->
-                    <div class="review-card">
-                        <div class="flex items-center justify-between mb-3">
-                            <div class="flex gap-0.5">
-                                <span class="material-symbols-outlined text-lg star-gold" style="font-variation-settings:'FILL' 1;">star</span>
-                                <span class="material-symbols-outlined text-lg star-gold" style="font-variation-settings:'FILL' 1;">star</span>
-                                <span class="material-symbols-outlined text-lg star-gold" style="font-variation-settings:'FILL' 1;">star</span>
-                                <span class="material-symbols-outlined text-lg star-gold" style="font-variation-settings:'FILL' 1;">star</span>
-                                <span class="material-symbols-outlined text-lg star-gold" style="font-variation-settings:'FILL' 1;">star</span>
-                            </div>
-                            <span class="text-[10px] text-gray-400">02/07/2026</span>
-                        </div>
-                        <p class="text-sm text-gray-300 leading-relaxed mb-4" style="display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;">
-                            Một chuyến đi trọn vẹn dọc sông Hậu. Sương sớm trên sông và bữa sáng truyền thống trên ghe máy làm tôi nhớ mãi.
-                        </p>
-                        <div class="flex items-center gap-3 pt-3" style="border-top:1px solid rgba(255,255,255,0.08);">
-                            <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold" style="background:rgba(201,169,110,0.2);color:#c5a059;">L</div>
-                            <div>
-                                <p class="text-xs font-semibold text-white">Lê Hoài Nam</p>
-                                <p class="text-[10px] text-gray-400">Hành trình Sông Hậu</p>
-                            </div>
-                        </div>
-                    </div>
-
                     <!-- Dynamic reviews -->
                     <div class="review-card" th:each="r : ${tourReviews}">
                         <div class="flex items-center justify-between mb-3">
@@ -354,6 +321,30 @@
                         <p class="text-sm text-gray-300 leading-relaxed mb-4"
                            style="display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;"
                            th:text="${r.reviewText != null ? r.reviewText : 'Một trải nghiệm tuyệt vời không thể quên.'}"></p>
+                        
+                        <button th:data-id="${r.id}"
+                                th:data-customer="${r.customer != null ? r.customer.fullName : 'Quý khách'}"
+                                th:data-rating="${r.ratingTour != null ? r.ratingTour : r.ratingService}"
+                                th:data-review="${r.reviewText}"
+                                th:data-reply="${r.replyText}"
+                                th:data-repliedby="${r.repliedBy != null ? r.repliedBy.fullName : 'Hướng dẫn viên'}"
+                                th:data-tour="${r.tourNameResolved}"
+                                th:data-guide="${r.guideName}"
+                                onclick="openReviewDetailFromButton(this)"
+                                class="text-xs text-brand-gold font-bold hover:underline transition-all mt-2 mb-4 block text-left">
+                            Xem chi tiết đánh giá
+                        </button>
+
+                        <!-- Tour Guide Reply -->
+                        <div th:if="${r.replyText != null and !r.replyText.isEmpty()}"
+                            class="mb-4 p-3 rounded-lg bg-white/5 border-l-2 border-brand-gold text-left text-xs">
+                            <div class="flex items-center gap-1.5 text-brand-gold font-bold mb-1">
+                                <span class="material-symbols-outlined text-sm">support_agent</span>
+                                <span th:text="${r.repliedBy != null ? r.repliedBy.fullName : 'Hướng dẫn viên'} + ' phản hồi:'">Hướng dẫn viên phản hồi:</span>
+                            </div>
+                            <p class="text-gray-300 italic" th:text="${r.replyText}">Cảm ơn quý khách...</p>
+                        </div>
+
                         <div class="flex items-center gap-3 pt-3" style="border-top:1px solid rgba(255,255,255,0.08);">
                             <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold"
                                  style="background:rgba(201,169,110,0.2);color:#c5a059;"
@@ -361,7 +352,8 @@
                             <div>
                                 <p class="text-xs font-semibold text-white"
                                    th:text="${r.customer != null ? r.customer.fullName : 'Quý khách'}">Quý khách</p>
-                                <p class="text-[10px] text-gray-400">Hành trình HoaNien</p>
+                                <p class="text-[10px] text-gray-400"
+                                   th:text="${r.tourNameResolved != null ? r.tourNameResolved + (r.guideName != null ? ' | HDV: ' + r.guideName : '') : 'Hành trình HoaNien'}">Hành trình HoaNien</p>
                             </div>
                         </div>
                     </div>
@@ -371,54 +363,6 @@
             <!-- ── Dịch Vụ Phòng Panel ── -->
             <div id="panel-room" class="tab-panel hidden">
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                    <!-- Static 5-star review 1 -->
-                    <div class="review-card">
-                        <div class="flex items-center justify-between mb-3">
-                            <div class="flex gap-0.5">
-                                <span class="material-symbols-outlined text-lg star-gold" style="font-variation-settings:'FILL' 1;">star</span>
-                                <span class="material-symbols-outlined text-lg star-gold" style="font-variation-settings:'FILL' 1;">star</span>
-                                <span class="material-symbols-outlined text-lg star-gold" style="font-variation-settings:'FILL' 1;">star</span>
-                                <span class="material-symbols-outlined text-lg star-gold" style="font-variation-settings:'FILL' 1;">star</span>
-                                <span class="material-symbols-outlined text-lg star-gold" style="font-variation-settings:'FILL' 1;">star</span>
-                            </div>
-                            <span class="text-[10px] text-gray-400">20/06/2026</span>
-                        </div>
-                        <p class="text-sm text-gray-300 leading-relaxed mb-4" style="display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;">
-                            Phòng Suite view sông Hậu cực kỳ yên bình. Thiết kế tối giản, tinh tế, gỗ tự nhiên thơm nhẹ rất dễ chịu.
-                        </p>
-                        <div class="flex items-center gap-3 pt-3" style="border-top:1px solid rgba(255,255,255,0.08);">
-                            <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold" style="background:rgba(201,169,110,0.2);color:#c5a059;">N</div>
-                            <div>
-                                <p class="text-xs font-semibold text-white">Nguyễn Bích Thủy</p>
-                                <p class="text-[10px] text-gray-400">Lưu trú HoaNien</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Static 5-star review 2 -->
-                    <div class="review-card">
-                        <div class="flex items-center justify-between mb-3">
-                            <div class="flex gap-0.5">
-                                <span class="material-symbols-outlined text-lg star-gold" style="font-variation-settings:'FILL' 1;">star</span>
-                                <span class="material-symbols-outlined text-lg star-gold" style="font-variation-settings:'FILL' 1;">star</span>
-                                <span class="material-symbols-outlined text-lg star-gold" style="font-variation-settings:'FILL' 1;">star</span>
-                                <span class="material-symbols-outlined text-lg star-gold" style="font-variation-settings:'FILL' 1;">star</span>
-                                <span class="material-symbols-outlined text-lg star-gold" style="font-variation-settings:'FILL' 1;">star</span>
-                            </div>
-                            <span class="text-[10px] text-gray-400">29/06/2026</span>
-                        </div>
-                        <p class="text-sm text-gray-300 leading-relaxed mb-4" style="display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;">
-                            Giường ngủ êm ái, dịch vụ dọn phòng hoàn hảo. Nhà hàng chay phục vụ món ăn thanh đạm nhưng hương vị xuất sắc.
-                        </p>
-                        <div class="flex items-center gap-3 pt-3" style="border-top:1px solid rgba(255,255,255,0.08);">
-                            <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold" style="background:rgba(201,169,110,0.2);color:#c5a059;">P</div>
-                            <div>
-                                <p class="text-xs font-semibold text-white">Phạm Thành Trung</p>
-                                <p class="text-[10px] text-gray-400">Ẩm thực chay HoaNien</p>
-                            </div>
-                        </div>
-                    </div>
-
                     <!-- Dynamic reviews -->
                     <div class="review-card" th:each="r : ${roomReviews}">
                         <div class="flex items-center justify-between mb-3">
@@ -434,6 +378,28 @@
                         <p class="text-sm text-gray-300 leading-relaxed mb-4"
                            style="display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;"
                            th:text="${r.reviewText != null ? r.reviewText : 'Phòng nghỉ tuyệt vời, dịch vụ chu đáo.'}"></p>
+                        
+                        <button th:data-id="${r.id}"
+                                th:data-customer="${r.customer != null ? r.customer.fullName : 'Quý khách'}"
+                                th:data-rating="${r.ratingRoomDining != null ? r.ratingRoomDining : r.ratingService}"
+                                th:data-review="${r.reviewText}"
+                                th:data-reply="${r.replyText}"
+                                th:data-repliedby="${r.repliedBy != null ? r.repliedBy.fullName : 'Hướng dẫn viên'}"
+                                onclick="openReviewDetailFromButton(this)"
+                                class="text-xs text-brand-gold font-bold hover:underline transition-all mt-2 mb-4 block text-left">
+                            Xem chi tiết đánh giá
+                        </button>
+
+                        <!-- Tour Guide Reply -->
+                        <div th:if="${r.replyText != null and !r.replyText.isEmpty()}"
+                            class="mb-4 p-3 rounded-lg bg-white/5 border-l-2 border-brand-gold text-left text-xs">
+                            <div class="flex items-center gap-1.5 text-brand-gold font-bold mb-1">
+                                <span class="material-symbols-outlined text-sm">support_agent</span>
+                                <span th:text="${r.repliedBy != null ? r.repliedBy.fullName : 'Hướng dẫn viên'} + ' phản hồi:'">Hướng dẫn viên phản hồi:</span>
+                            </div>
+                            <p class="text-gray-300 italic" th:text="${r.replyText}">Cảm ơn quý khách...</p>
+                        </div>
+
                         <div class="flex items-center gap-3 pt-3" style="border-top:1px solid rgba(255,255,255,0.08);">
                             <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold"
                                  style="background:rgba(201,169,110,0.2);color:#c5a059;"
@@ -451,54 +417,6 @@
             <!-- ── Dịch Vụ Khác Panel ── -->
             <div id="panel-other" class="tab-panel hidden">
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                    <!-- Static 5-star review 1 -->
-                    <div class="review-card">
-                        <div class="flex items-center justify-between mb-3">
-                            <div class="flex gap-0.5">
-                                <span class="material-symbols-outlined text-lg star-gold" style="font-variation-settings:'FILL' 1;">star</span>
-                                <span class="material-symbols-outlined text-lg star-gold" style="font-variation-settings:'FILL' 1;">star</span>
-                                <span class="material-symbols-outlined text-lg star-gold" style="font-variation-settings:'FILL' 1;">star</span>
-                                <span class="material-symbols-outlined text-lg star-gold" style="font-variation-settings:'FILL' 1;">star</span>
-                                <span class="material-symbols-outlined text-lg star-gold" style="font-variation-settings:'FILL' 1;">star</span>
-                            </div>
-                            <span class="text-[10px] text-gray-400">18/06/2026</span>
-                        </div>
-                        <p class="text-sm text-gray-300 leading-relaxed mb-4" style="display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;">
-                            Trải nghiệm Spa trị liệu bằng thảo mộc tự nhiên tại HoaNien thực sự giúp tôi phục hồi năng lượng sau những ngày căng thẳng.
-                        </p>
-                        <div class="flex items-center gap-3 pt-3" style="border-top:1px solid rgba(255,255,255,0.08);">
-                            <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold" style="background:rgba(201,169,110,0.2);color:#c5a059;">H</div>
-                            <div>
-                                <p class="text-xs font-semibold text-white">Hoàng Thu Thảo</p>
-                                <p class="text-[10px] text-gray-400">Thảo mộc Spa</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Static 5-star review 2 -->
-                    <div class="review-card">
-                        <div class="flex items-center justify-between mb-3">
-                            <div class="flex gap-0.5">
-                                <span class="material-symbols-outlined text-lg star-gold" style="font-variation-settings:'FILL' 1;">star</span>
-                                <span class="material-symbols-outlined text-lg star-gold" style="font-variation-settings:'FILL' 1;">star</span>
-                                <span class="material-symbols-outlined text-lg star-gold" style="font-variation-settings:'FILL' 1;">star</span>
-                                <span class="material-symbols-outlined text-lg star-gold" style="font-variation-settings:'FILL' 1;">star</span>
-                                <span class="material-symbols-outlined text-lg star-gold" style="font-variation-settings:'FILL' 1;">star</span>
-                            </div>
-                            <span class="text-[10px] text-gray-400">05/07/2026</span>
-                        </div>
-                        <p class="text-sm text-gray-300 leading-relaxed mb-4" style="display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;">
-                            Dịch vụ đưa đón tận tình, nhân viên thân thiện. Không gian Hub kết nối tuyệt vời để thư giãn đọc sách.
-                        </p>
-                        <div class="flex items-center gap-3 pt-3" style="border-top:1px solid rgba(255,255,255,0.08);">
-                            <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold" style="background:rgba(201,169,110,0.2);color:#c5a059;">Đ</div>
-                            <div>
-                                <p class="text-xs font-semibold text-white">Đỗ Quốc Huy</p>
-                                <p class="text-[10px] text-gray-400">Dịch vụ đưa đón</p>
-                            </div>
-                        </div>
-                    </div>
-
                     <!-- Dynamic reviews -->
                     <div class="review-card" th:each="r : ${generalReviews}">
                         <div class="flex items-center justify-between mb-3">
@@ -514,6 +432,28 @@
                         <p class="text-sm text-gray-300 leading-relaxed mb-4"
                            style="display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;"
                            th:text="${r.reviewText != null ? r.reviewText : 'Trải nghiệm HoaNien thực sự đặc biệt.'}"></p>
+                        
+                        <button th:data-id="${r.id}"
+                                th:data-customer="${r.customer != null ? r.customer.fullName : 'Quý khách'}"
+                                th:data-rating="${r.ratingService}"
+                                th:data-review="${r.reviewText}"
+                                th:data-reply="${r.replyText}"
+                                th:data-repliedby="${r.repliedBy != null ? r.repliedBy.fullName : 'Hướng dẫn viên'}"
+                                onclick="openReviewDetailFromButton(this)"
+                                class="text-xs text-brand-gold font-bold hover:underline transition-all mt-2 mb-4 block text-left">
+                            Xem chi tiết đánh giá
+                        </button>
+
+                        <!-- Tour Guide Reply -->
+                        <div th:if="${r.replyText != null and !r.replyText.isEmpty()}"
+                            class="mb-4 p-3 rounded-lg bg-white/5 border-l-2 border-brand-gold text-left text-xs">
+                            <div class="flex items-center gap-1.5 text-brand-gold font-bold mb-1">
+                                <span class="material-symbols-outlined text-sm">support_agent</span>
+                                <span th:text="${r.repliedBy != null ? r.repliedBy.fullName : 'Hướng dẫn viên'} + ' phản hồi:'">Hướng dẫn viên phản hồi:</span>
+                            </div>
+                            <p class="text-gray-300 italic" th:text="${r.replyText}">Cảm ơn quý khách...</p>
+                        </div>
+
                         <div class="flex items-center gap-3 pt-3" style="border-top:1px solid rgba(255,255,255,0.08);">
                             <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold"
                                  style="background:rgba(201,169,110,0.2);color:#c5a059;"
@@ -535,14 +475,27 @@
                     <h2 class="text-2xl font-serif italic text-white font-medium">Chia Sẻ Trải Nghiệm Của Bạn</h2>
                     <p class="text-xs text-gray-300 mt-1">Đánh giá tổng quan về trải nghiệm tại HoaNien</p>
                 </div>
-                <form th:action="@{/feedback/submit}" method="post" class="space-y-6">
+                <form th:action="@{/feedback/submit}" method="post" onsubmit="return validateFeedbackForm(this)" class="space-y-6">
                     <input type="hidden" name="bookingId" value="" />
-                    <div class="space-y-3 rounded-xl p-6 bg-[#12100f]/50 backdrop-blur-md border border-white/12 shadow-lg">
+                    
+                    <!-- Rating Tour -->
+                    <div id="wrapper-rating-tour-b" class="space-y-3 rounded-xl p-6 bg-[#12100f]/50 backdrop-blur-md border border-white/12 shadow-lg">
                         <div class="flex items-center gap-2">
                             <span class="material-symbols-outlined" style="color:#c5a059">hiking</span>
                             <span class="text-sm font-bold tracking-wider text-white">Dịch Vụ Hành Trình & Tour</span>
                         </div>
                         <p class="text-xs text-gray-300">Hướng dẫn viên, lịch trình, sự an toàn và tiện nghi trong chuyến đi.</p>
+                        
+                        <!-- Dropdown Chọn Tour -->
+                        <div class="space-y-1.5 mt-2" th:if="${unreviewedTours != null and !unreviewedTours.isEmpty()}">
+                            <label class="text-[10px] font-bold text-gray-400 block uppercase tracking-wider">Chọn hành trình cần đánh giá:</label>
+                            <select name="selectedTourBookingId" id="selectedTourBookingId" class="w-full text-xs text-white bg-[#12100f]/60 border border-white/15 rounded-md p-2 focus:outline-none focus:border-[#c5a059]">
+                                <option th:each="tb : ${unreviewedTours}" th:value="${tb.id}" th:text="${tb.schedule.tour.tourName} + ' (Khởi hành: ' + ${#temporals.format(tb.schedule.departureDate, 'dd/MM/yyyy')} + ')'"></option>
+                            </select>
+                        </div>
+                        <div class="text-xs text-[#ff6b6b] mt-2 font-medium" th:if="${unreviewedTours == null or unreviewedTours.isEmpty()}">
+                            Quý khách không có hành trình tour nào mới cần đánh giá (hoặc đã gửi đánh giá hết các tour).
+                        </div>
                         <div class="flex items-center gap-1 mt-2" id="stars-tour-b">
                             <button type="button" class="rating-btn" data-val="1" onclick="rate('ratingTourB','stars-tour-b','lbl-tour-b',1)"><span class="material-symbols-outlined text-2xl" style="font-variation-settings:'FILL' 1">star</span></button>
                             <button type="button" class="rating-btn" data-val="2" onclick="rate('ratingTourB','stars-tour-b','lbl-tour-b',2)"><span class="material-symbols-outlined text-2xl" style="font-variation-settings:'FILL' 1">star</span></button>
@@ -551,15 +504,27 @@
                             <button type="button" class="rating-btn" data-val="5" onclick="rate('ratingTourB','stars-tour-b','lbl-tour-b',5)"><span class="material-symbols-outlined text-2xl" style="font-variation-settings:'FILL' 1">star</span></button>
                             <span id="lbl-tour-b" class="ml-3 text-xs font-semibold" style="color:#c5a059">Xuất sắc</span>
                         </div>
-                        <input type="hidden" name="ratingTour" id="ratingTourB" value="5" />
+                        <input type="hidden" name="ratingTour" id="ratingTourB" value="" />
                     </div>
 
-                    <div class="space-y-3 rounded-xl p-6 bg-[#12100f]/50 backdrop-blur-md border border-white/12 shadow-lg">
+                    <!-- Rating Room -->
+                    <div id="wrapper-rating-room-b" class="space-y-3 rounded-xl p-6 bg-[#12100f]/50 backdrop-blur-md border border-white/12 shadow-lg">
                         <div class="flex items-center gap-2">
                             <span class="material-symbols-outlined" style="color:#c5a059">bed</span>
                             <span class="text-sm font-bold tracking-wider text-white">Dịch Vụ Phòng & Ẩm Thực</span>
                         </div>
                         <p class="text-xs text-gray-300">Độ sạch sẽ, tiện nghi phòng nghỉ, chất lượng bữa ăn và thái độ phục vụ.</p>
+                        
+                        <!-- Dropdown Chọn Phòng -->
+                        <div class="space-y-1.5 mt-2" th:if="${unreviewedRooms != null and !unreviewedRooms.isEmpty()}">
+                            <label class="text-[10px] font-bold text-gray-400 block uppercase tracking-wider">Chọn phòng lưu trú cần đánh giá:</label>
+                            <select name="selectedRoomBookingDetailId" id="selectedRoomBookingDetailId" class="w-full text-xs text-white bg-[#12100f]/60 border border-white/15 rounded-md p-2 focus:outline-none focus:border-[#c5a059]">
+                                <option th:each="rd : ${unreviewedRooms}" th:value="${rd.id}" th:text="'Phòng ' + ${rd.room.roomNumber} + ' (Thời gian: ' + ${#temporals.format(rd.roomBooking.checkInDate, 'dd/MM/yyyy')} + ' - ' + ${#temporals.format(rd.roomBooking.checkOutDate, 'dd/MM/yyyy')} + ')'"></option>
+                            </select>
+                        </div>
+                        <div class="text-xs text-[#ff6b6b] mt-2 font-medium" th:if="${unreviewedRooms == null or unreviewedRooms.isEmpty()}">
+                            Quý khách không có phòng nghỉ nào mới cần đánh giá (hoặc đã gửi đánh giá hết các phòng).
+                        </div>
                         <div class="flex items-center gap-1 mt-2" id="stars-room-b">
                             <button type="button" class="rating-btn" data-val="1" onclick="rate('ratingRoomB','stars-room-b','lbl-room-b',1)"><span class="material-symbols-outlined text-2xl" style="font-variation-settings:'FILL' 1">star</span></button>
                             <button type="button" class="rating-btn" data-val="2" onclick="rate('ratingRoomB','stars-room-b','lbl-room-b',2)"><span class="material-symbols-outlined text-2xl" style="font-variation-settings:'FILL' 1">star</span></button>
@@ -568,12 +533,30 @@
                             <button type="button" class="rating-btn" data-val="5" onclick="rate('ratingRoomB','stars-room-b','lbl-room-b',5)"><span class="material-symbols-outlined text-2xl" style="font-variation-settings:'FILL' 1">star</span></button>
                             <span id="lbl-room-b" class="ml-3 text-xs font-semibold" style="color:#c5a059">Xuất sắc</span>
                         </div>
-                        <input type="hidden" name="ratingRoomDining" id="ratingRoomB" value="5" />
+                        <input type="hidden" name="ratingRoomDining" id="ratingRoomB" value="" />
+                    </div>
+
+                    <!-- Rating Other -->
+                    <div id="wrapper-rating-other-b" class="space-y-3 rounded-xl p-6 bg-[#12100f]/50 backdrop-blur-md border border-white/12 shadow-lg">
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined" style="color:#c5a059">spa</span>
+                            <span class="text-sm font-bold tracking-wider text-white">Đánh Giá Dịch Vụ Khác</span>
+                        </div>
+                        <p class="text-xs text-gray-300">Dịch vụ chăm sóc khách hàng, spa, bể bơi và các tiện ích khác tại HoaNien.</p>
+                        <div class="flex items-center gap-1 mt-2" id="stars-service-b">
+                            <button type="button" class="rating-btn" data-val="1" onclick="rate('ratingServiceB','stars-service-b','lbl-service-b',1)"><span class="material-symbols-outlined text-2xl" style="font-variation-settings:'FILL' 1">star</span></button>
+                            <button type="button" class="rating-btn" data-val="2" onclick="rate('ratingServiceB','stars-service-b','lbl-service-b',2)"><span class="material-symbols-outlined text-2xl" style="font-variation-settings:'FILL' 1">star</span></button>
+                            <button type="button" class="rating-btn" data-val="3" onclick="rate('ratingServiceB','stars-service-b','lbl-service-b',3)"><span class="material-symbols-outlined text-2xl" style="font-variation-settings:'FILL' 1">star</span></button>
+                            <button type="button" class="rating-btn" data-val="4" onclick="rate('ratingServiceB','stars-service-b','lbl-service-b',4)"><span class="material-symbols-outlined text-2xl" style="font-variation-settings:'FILL' 1">star</span></button>
+                            <button type="button" class="rating-btn" data-val="5" onclick="rate('ratingServiceB','stars-service-b','lbl-service-b',5)"><span class="material-symbols-outlined text-2xl" style="font-variation-settings:'FILL' 1">star</span></button>
+                            <span id="lbl-service-b" class="ml-3 text-xs font-semibold" style="color:#c5a059">Xuất sắc</span>
+                        </div>
+                        <input type="hidden" name="ratingService" id="ratingServiceB" value="" />
                     </div>
 
                     <div class="space-y-2">
                         <label class="text-sm font-bold tracking-wider text-white">Nhận Xét Chi Tiết</label>
-                        <textarea name="reviewText" rows="4" required
+                        <textarea name="reviewText" rows="4"
                             class="w-full rounded-lg p-4 text-sm text-white bg-[#12100f]/40 border border-white/15 focus:outline-none focus:border-[#c5a059] transition-all resize-none shadow-md"
                             placeholder="Hãy chia sẻ cảm nhận chân thực của Quý khách..."></textarea>
                     </div>
@@ -628,6 +611,49 @@
     </div>
 </footer>
 
+<!-- ══════════ REVIEW DETAIL MODAL ══════════ -->
+<div id="review-detail-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm hidden opacity-0 transition-all duration-300">
+    <div class="bg-[#12100f]/95 border border-white/15 rounded-xl p-8 max-w-lg w-full text-left shadow-2xl scale-95 transition-all duration-300 relative">
+        <button onclick="closeReviewDetailModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors focus:outline-none">
+            <span class="material-symbols-outlined text-2xl">close</span>
+        </button>
+        <span class="text-xs font-bold tracking-[.2em] uppercase text-[#c5a059] block mb-2">Chi tiết đánh giá</span>
+        
+        <div class="flex items-center justify-between mb-4 pb-3 border-b border-white/10">
+            <div>
+                <h3 id="modalReviewCustomerName" class="font-serif text-lg text-white italic">Nguyễn Minh Anh</h3>
+                <p id="modalReviewSubtext" class="text-[10px] text-gray-400">Khách hàng của HoaNien</p>
+            </div>
+            <!-- Stars -->
+            <div class="flex gap-0.5 text-[#c5a059]" id="modalReviewStars">
+                <!-- Stars will be populated by JS -->
+            </div>
+        </div>
+
+        <div class="space-y-4">
+            <div>
+                <span class="text-[10px] font-bold uppercase tracking-wider text-gray-400 block mb-1">Nội dung đánh giá:</span>
+                <p id="modalReviewContent" class="text-sm text-gray-200 leading-relaxed italic font-light"></p>
+            </div>
+
+            <!-- Tour Guide Reply -->
+            <div id="modalReviewReplyBox" class="hidden p-4 rounded-lg bg-white/5 border-l-2 border-brand-gold">
+                <p class="font-bold text-brand-gold text-xs mb-1 flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-sm">support_agent</span>
+                    <span id="modalReviewReplyHeader">Hướng dẫn viên phản hồi:</span>
+                </p>
+                <p id="modalReviewReplyContent" class="text-xs text-gray-300 leading-relaxed italic"></p>
+            </div>
+        </div>
+
+        <div class="flex justify-end gap-3 mt-6 pt-4 border-t border-white/10">
+            <button onclick="closeReviewDetailModal()" class="px-6 py-2 text-xs uppercase font-bold tracking-widest bg-white/10 text-white hover:bg-white/20 rounded-sm transition-all">
+                Đóng
+            </button>
+        </div>
+    </div>
+</div>
+
 <!-- ══════════ CUSTOM ALERT MODAL ══════════ -->
 <div id="custom-alert-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/65 backdrop-blur-sm hidden opacity-0 transition-all duration-300">
     <div class="bg-[#12100f]/95 border border-white/15 rounded-xl p-8 max-w-md w-full text-center shadow-2xl scale-95 transition-all duration-300">
@@ -645,6 +671,75 @@
 
 <script>
     const LABELS = {1:'Tệ', 2:'Không hài lòng', 3:'Bình thường', 4:'Tốt', 5:'Xuất sắc'};
+
+    function openReviewDetailFromButton(btn) {
+        const id = btn.getAttribute('data-id');
+        const customerName = btn.getAttribute('data-customer') || 'Quý khách';
+        const rating = parseInt(btn.getAttribute('data-rating') || '5');
+        const reviewText = btn.getAttribute('data-review') || '';
+        const replyText = btn.getAttribute('data-reply') || '';
+        const repliedByName = btn.getAttribute('data-repliedby') || 'Hướng dẫn viên';
+        
+        const tourName = btn.getAttribute('data-tour') || '';
+        const guideName = btn.getAttribute('data-guide') || '';
+        let subtext = 'Khách hàng của HoaNien';
+        if (tourName) {
+            subtext = tourName + (guideName ? ' | HDV: ' + guideName : '');
+        }
+        const subtextEl = document.getElementById('modalReviewSubtext');
+        if (subtextEl) subtextEl.textContent = subtext;
+
+        openReviewDetailModal(id, customerName, rating, reviewText, replyText, repliedByName);
+    }
+ 
+    function openReviewDetailModal(id, customerName, rating, reviewText, replyText, repliedByName) {
+        const modal = document.getElementById('review-detail-modal');
+        if (!modal) return;
+        
+        document.getElementById('modalReviewCustomerName').textContent = customerName;
+        document.getElementById('modalReviewContent').textContent = `"${reviewText}"`;
+        
+        // Stars
+        const starsContainer = document.getElementById('modalReviewStars');
+        starsContainer.innerHTML = '';
+        for (let i = 1; i <= 5; i++) {
+            const span = document.createElement('span');
+            span.className = 'material-symbols-outlined text-lg';
+            span.style.fontVariationSettings = "'FILL' 1";
+            span.textContent = 'star';
+            if (i <= rating) {
+                span.classList.add('star-gold');
+            } else {
+                span.classList.add('star-empty');
+            }
+            starsContainer.appendChild(span);
+        }
+        
+        // Reply box
+        const replyBox = document.getElementById('modalReviewReplyBox');
+        if (replyText && replyText.trim().length > 0) {
+            document.getElementById('modalReviewReplyHeader').textContent = repliedByName + ' phản hồi:';
+            document.getElementById('modalReviewReplyContent').textContent = replyText;
+            replyBox.classList.remove('hidden');
+        } else {
+            replyBox.classList.add('hidden');
+        }
+        
+        modal.classList.remove('hidden');
+        void modal.offsetWidth; // force reflow
+        modal.classList.remove('opacity-0');
+        modal.querySelector('div').classList.remove('scale-95');
+    }
+
+    function closeReviewDetailModal() {
+        const modal = document.getElementById('review-detail-modal');
+        if (!modal) return;
+        modal.classList.add('opacity-0');
+        modal.querySelector('div').classList.add('scale-95');
+        setTimeout(() => {
+            modal.classList.add('hidden');
+        }, 300);
+    }
 
     function showCustomAlert(msg) {
         const modal = document.getElementById('custom-alert-modal');
@@ -668,19 +763,106 @@
     }
 
     function rate(fieldId, starsId, lblId, val) {
-        document.getElementById(fieldId).value = val;
+        document.getElementById(fieldId).value = val || '';
         document.querySelectorAll('#' + starsId + ' button').forEach(b =>
-            b.classList.toggle('active', parseInt(b.dataset.val) <= val));
+            b.classList.toggle('active', val && parseInt(b.dataset.val) <= val));
         const lbl = document.getElementById(lblId);
-        if (lbl) lbl.textContent = LABELS[val] || '';
+        if (lbl) lbl.textContent = val ? (LABELS[val] || '') : 'Chưa đánh giá';
+    }
+
+    function validateFeedbackForm(form) {
+        const txt = form.querySelector('textarea[name="reviewText"]')?.value.trim();
+        
+        const activeRatingInputs = Array.from(form.querySelectorAll('input[type="hidden"]'))
+            .filter(input => !input.disabled && ['ratingTour', 'ratingRoomDining', 'ratingService'].includes(input.name));
+            
+        const hasRating = activeRatingInputs.some(input => input.value && parseInt(input.value) > 0);
+        const hasText = txt && txt.length > 0;
+        
+        if (!hasRating && !hasText) {
+            showCustomAlert('Quý khách vui lòng chọn số sao đánh giá hoặc nhập nhận xét chi tiết trước khi gửi!');
+            return false;
+        }
+        return true;
+    }
+
+    let currentTab = 'tour';
+
+    function updateInlineFormRatings() {
+        const wrapperTour = document.getElementById('wrapper-rating-tour-b');
+        const wrapperRoom = document.getElementById('wrapper-rating-room-b');
+        const wrapperOther = document.getElementById('wrapper-rating-other-b');
+        
+        const inputTour = document.getElementById('ratingTourB');
+        const inputRoom = document.getElementById('ratingRoomB');
+        const inputOther = document.getElementById('ratingServiceB');
+        
+        if (currentTab === 'tour') {
+            if (wrapperTour) wrapperTour.style.display = 'block';
+            if (wrapperRoom) wrapperRoom.style.display = 'none';
+            if (wrapperOther) wrapperOther.style.display = 'none';
+            if (inputTour) inputTour.disabled = false;
+            if (inputRoom) inputRoom.disabled = true;
+            if (inputOther) inputOther.disabled = true;
+        } else if (currentTab === 'room') {
+            if (wrapperTour) wrapperTour.style.display = 'none';
+            if (wrapperRoom) wrapperRoom.style.display = 'block';
+            if (wrapperOther) wrapperOther.style.display = 'none';
+            if (inputTour) inputTour.disabled = true;
+            if (inputRoom) inputRoom.disabled = false;
+            if (inputOther) inputOther.disabled = true;
+        } else {
+            if (wrapperTour) wrapperTour.style.display = 'none';
+            if (wrapperRoom) wrapperRoom.style.display = 'none';
+            if (wrapperOther) wrapperOther.style.display = 'block';
+            if (inputTour) inputTour.disabled = true;
+            if (inputRoom) inputRoom.disabled = true;
+            if (inputOther) inputOther.disabled = false;
+        }
     }
 
     function switchTab(name) {
+        currentTab = name;
         ['tour','room','other'].forEach(t => {
             document.getElementById('tab-' + t)?.classList.toggle('active', t === name);
             document.getElementById('panel-' + t)?.classList.toggle('hidden', t !== name);
         });
-        history.replaceState(null, '', '/feedback?type=' + name);
+        const params = new URLSearchParams(window.location.search);
+        params.set('type', name);
+        history.replaceState(null, '', '/feedback?' + params.toString());
+        updateInlineFormRatings();
+    }
+
+    let activeToastTimeouts = {};
+
+    function showToast(id) {
+        const toastEl = document.getElementById(id);
+        if (!toastEl) return;
+        
+        // Ẩn tất cả toast khác trước
+        ['toast-success', 'toast-login-required', 'toast-no-service', 'toast-already-reviewed'].forEach(tId => {
+            const el = document.getElementById(tId);
+            if (el && tId !== id) {
+                el.classList.add('hidden');
+                el.classList.remove('opacity-0');
+            }
+        });
+        
+        toastEl.classList.remove('hidden');
+        toastEl.classList.remove('opacity-0');
+        
+        // Clear previous timeout if exists
+        if (activeToastTimeouts[id]) {
+            clearTimeout(activeToastTimeouts[id]);
+        }
+        
+        activeToastTimeouts[id] = setTimeout(() => {
+            toastEl.classList.add('opacity-0');
+            setTimeout(() => {
+                toastEl.classList.add('hidden');
+                toastEl.classList.remove('opacity-0');
+            }, 400);
+        }, 6000);
     }
 
     function handleFeedbackButtonClick() {
@@ -688,9 +870,7 @@
         const hasUsedServiceVal = document.getElementById('jsHasUsedService').value === 'true';
 
         if (!isLoggedInVal) {
-            document.getElementById('toast-login-required')?.classList.remove('hidden');
-            document.getElementById('toast-no-service')?.classList.add('hidden');
-            document.getElementById('toast-success')?.classList.add('hidden');
+            showToast('toast-login-required');
             if (typeof openLoginModal === 'function') {
                 openLoginModal();
             }
@@ -698,9 +878,7 @@
         }
 
         if (!hasUsedServiceVal) {
-            document.getElementById('toast-no-service')?.classList.remove('hidden');
-            document.getElementById('toast-login-required')?.classList.add('hidden');
-            document.getElementById('toast-success')?.classList.add('hidden');
+            showToast('toast-no-service');
             showCustomAlert('Quý khách cần có tối thiểu 1 Booking (Phòng nghỉ hoặc Tour du lịch) đã hoàn thành tại HoaNien Retreat để tham gia gửi đánh giá!');
             return;
         }
@@ -718,20 +896,38 @@
 
     document.addEventListener('DOMContentLoaded', () => {
         const params = new URLSearchParams(window.location.search);
-        switchTab(params.get('type') || 'tour');
+        const bookingId = params.get('bookingId');
+        const isLoggedInVal = document.getElementById('jsIsLoggedIn').value === 'true';
+
+        const rawType = params.get('type') || 'tour';
+        const validTabs = ['tour', 'room', 'other'];
+        switchTab(validTabs.includes(rawType) ? rawType : 'tour');
+
+        if (bookingId && !isLoggedInVal) {
+            showToast('toast-login-required');
+            if (typeof openLoginModal === 'function') {
+                openLoginModal();
+            }
+        }
         
         const toast = params.get('toast');
         if (toast === 'success') {
-            document.getElementById('toast-success')?.classList.remove('hidden');
+            showToast('toast-success');
         } else if (toast === 'login_required') {
-            document.getElementById('toast-login-required')?.classList.remove('hidden');
+            showToast('toast-login-required');
             if (typeof openLoginModal === 'function') openLoginModal();
         } else if (toast === 'no_service_used') {
-            document.getElementById('toast-no-service')?.classList.remove('hidden');
+            showToast('toast-no-service');
+        } else if (toast === 'already_reviewed') {
+            showToast('toast-already-reviewed');
+            showCustomAlert('Quý khách đã gửi đánh giá cho dịch vụ này rồi. Mỗi dịch vụ chỉ được đánh giá một lần.');
         }
         
         // Init stars
-        ['A','B'].forEach(s => { rate('ratingTour'+s,'stars-tour-'+s.toLowerCase(),'lbl-tour-'+s.toLowerCase(),5); rate('ratingRoom'+s,'stars-room-'+s.toLowerCase(),'lbl-room-'+s.toLowerCase(),5); });
+        rate('ratingTourA','stars-tour-a','lbl-tour-a',0);
+        rate('ratingTourB','stars-tour-b','lbl-tour-b',0);
+        rate('ratingRoomB','stars-room-b','lbl-room-b',0);
+        rate('ratingServiceB','stars-service-b','lbl-service-b',0);
     });
 
     // Hover effect

@@ -26,6 +26,10 @@ spring:
         format_sql: true
         jdbc:
           time_zone: Asia/Ho_Chi_Minh
+        id:
+          optimizer:
+            pooled:
+              preferred: pooled-lo
 
   thymeleaf:
     cache: false
