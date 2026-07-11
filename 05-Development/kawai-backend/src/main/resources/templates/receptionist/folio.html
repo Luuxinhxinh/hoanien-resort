@@ -145,9 +145,9 @@
             align-items: center;
             justify-content: center;
             padding: 10px 20px;
-            background: #c19b6c;
+            background: #2e7d32;
             color: #fff;
-            border: 1px solid #c19b6c;
+            border: 1px solid #2e7d32;
             border-radius: 8px;
             font-size: 13px;
             font-weight: 600;
@@ -160,9 +160,9 @@
         }
 
         .btn-request-check:hover {
-            background: #b08a5b;
-            border-color: #b08a5b;
-            box-shadow: 0 4px 12px rgba(193, 155, 108, 0.25);
+            background: #1b5e20;
+            border-color: #1b5e20;
+            box-shadow: 0 4px 12px rgba(27, 94, 32, 0.25);
             transform: translateY(-1px);
         }
 
@@ -421,7 +421,7 @@
                             <a href="/receptionist/folio/detail?id=${folio.roomBookingDetailId}" class="btn-folio-detail">VIEW DETAILS</a>
                             ${folio.status.toLowerCase() !== 'checked_out' ? `
                                 <button onclick="requestGroupCheck(${folio.bookingId})" class="btn-request-check">
-                                    KIỂM TRA PHÒNG
+                                    <i class="fa-solid fa-clipboard-check" style="margin-right: 6px;"></i> KIỂM TRA PHÒNG
                                 </button>
                             ` : ''}
                         </div>
