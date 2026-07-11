@@ -294,12 +294,12 @@
                     <table class="data-table">
                         <thead>
                             <tr>
-                                <th>Representative / Booker</th>
-                                <th>Expected Check-out</th>
-                                <th style="text-align: right; padding-right: 24px !important;">Total Payments</th>
-                                <th>Phone Number</th>
-                                <th>Status</th>
-                                <th>Action</th>
+                                <th style="white-space: nowrap;">Representative / Booker</th>
+                                <th style="white-space: nowrap;">Expected Check-out</th>
+                                <th style="text-align: right; padding-right: 24px !important; white-space: nowrap;">Total Payments (VNĐ)</th>
+                                <th style="white-space: nowrap;">Phone Number</th>
+                                <th style="white-space: nowrap;">Status</th>
+                                <th style="text-align: center; white-space: nowrap;">Action</th>
                             </tr>
                         </thead>
                         <tbody id="folioTableBody">
@@ -402,10 +402,7 @@
                 const formattedDate = folio.checkOutDate || 'N/A';
                 
                 // Format Total Payments
-                const formattedPayments = `
-                    <span style="font-weight: 700; color: #2c2a29;">${new Intl.NumberFormat('vi-VN').format(folio.totalPayments)}</span> 
-                    <span style="font-size: 0.8rem; color: #8e857e; font-weight: 500;">VNĐ</span>
-                `;
+                const formattedPayments = `<span style="font-weight: 700; color: #2c2a29;">${new Intl.NumberFormat('vi-VN').format(folio.totalPayments)}</span>`;
                 
                 // Format Phone Number
                 const formattedPhone = `<span style="color: #5c5652; font-weight: 500;">${folio.phoneNumber || 'N/A'}</span>`;
@@ -419,8 +416,8 @@
                     <td style="line-height: 1.4; white-space: nowrap; text-align: right; padding-right: 24px !important;">${formattedPayments}</td>
                     <td style="white-space: nowrap;">${formattedPhone}</td>
                     <td style="white-space: nowrap;"><span class="status-badge ${statusClass}" style="white-space: nowrap;">${statusText}</span></td>
-                    <td style="padding: 24px 24px 24px 16px !important; white-space: nowrap;">
-                        <div style="display: flex; gap: 8px; align-items: center; white-space: nowrap;">
+                    <td style="padding: 24px 24px 24px 16px !important; white-space: nowrap; text-align: center;">
+                        <div style="display: flex; gap: 8px; align-items: center; justify-content: center; white-space: nowrap;">
                             <a href="/receptionist/folio/detail?id=${folio.roomBookingDetailId}" class="btn-folio-detail">VIEW DETAILS</a>
                             ${folio.status.toLowerCase() !== 'checked_out' ? `
                                 <button onclick="requestGroupCheck(${folio.bookingId})" class="btn-request-check">
