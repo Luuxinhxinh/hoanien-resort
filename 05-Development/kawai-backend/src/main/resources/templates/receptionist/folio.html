@@ -145,9 +145,9 @@
             align-items: center;
             justify-content: center;
             padding: 10px 20px;
-            background: #2e7d32;
+            background: #c19b6c;
             color: #fff;
-            border: 1px solid #2e7d32;
+            border: 1px solid #c19b6c;
             border-radius: 8px;
             font-size: 13px;
             font-weight: 600;
@@ -160,9 +160,9 @@
         }
 
         .btn-request-check:hover {
-            background: #1b5e20;
-            border-color: #1b5e20;
-            box-shadow: 0 4px 12px rgba(27, 94, 32, 0.25);
+            background: #b08a5b;
+            border-color: #b08a5b;
+            box-shadow: 0 4px 12px rgba(193, 155, 108, 0.25);
             transform: translateY(-1px);
         }
 
@@ -299,7 +299,7 @@
                                 <th style="text-align: right; padding-right: 24px !important; white-space: nowrap;">Total Payments (VNĐ)</th>
                                 <th style="white-space: nowrap;">Phone Number</th>
                                 <th style="white-space: nowrap;">Status</th>
-                                <th style="text-align: center; white-space: nowrap;">Action</th>
+                                <th style="text-align: center; padding-right: 48px !important; white-space: nowrap;">Action</th>
                             </tr>
                         </thead>
                         <tbody id="folioTableBody">
@@ -416,12 +416,12 @@
                     <td style="line-height: 1.4; white-space: nowrap; text-align: right; padding-right: 24px !important;">${formattedPayments}</td>
                     <td style="white-space: nowrap;">${formattedPhone}</td>
                     <td style="white-space: nowrap;"><span class="status-badge ${statusClass}" style="white-space: nowrap;">${statusText}</span></td>
-                    <td style="padding: 24px 24px 24px 16px !important; white-space: nowrap; text-align: center;">
+                    <td style="padding: 24px 48px 24px 16px !important; white-space: nowrap; text-align: center;">
                         <div style="display: flex; gap: 8px; align-items: center; justify-content: center; white-space: nowrap;">
                             <a href="/receptionist/folio/detail?id=${folio.roomBookingDetailId}" class="btn-folio-detail">VIEW DETAILS</a>
                             ${folio.status.toLowerCase() !== 'checked_out' ? `
                                 <button onclick="requestGroupCheck(${folio.bookingId})" class="btn-request-check">
-                                    <i class="fa-solid fa-clipboard-check" style="margin-right: 6px;"></i> KIỂM TRA PHÒNG
+                                    KIỂM TRA PHÒNG
                                 </button>
                             ` : ''}
                         </div>
