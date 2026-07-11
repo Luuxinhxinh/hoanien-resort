@@ -736,221 +736,259 @@
             <span th:text="${errorMessage}"></span>
         </div>
 
-        <!-- Page Header -->
-        <div class="page-header">
-            <div>
-                <div class="page-title">
-                    <h1>Tổng quan ca làm việc</h1>
-                    <p><i class="fa-regular fa-calendar"></i> <span th:text="${todayLabel}">Hôm nay</span></p>
+        <!-- Off-shift Block -->
+        <div th:if="${!isOnShift}" style="text-align: center; padding: 48px 24px; background: #fff5f5; border: 1px solid #feb2b2; border-radius: 12px; margin-top: 24px;">
+            <i class="fa-solid fa-user-clock" style="font-size: 48px; color: #f56565; margin-bottom: 16px;"></i>
+            <h2 style="color: #c53030; margin-bottom: 8px;">Bạn không có ca trực ngày hôm nay</h2>
+            <p style="color: #e53e3e; font-size: 15px;">Hệ thống đã khóa các chức năng nghiệp vụ. Vui lòng liên hệ Quản lý nếu có sai sót về lịch làm việc.</p>
+            
+            <!-- My Weekly Schedule -->
+            <div th:if="${myWeeklySchedules != null}" style="margin-top: 32px; max-width: 800px; margin-left: auto; margin-right: auto; background: var(--surface); border-radius: 12px; box-shadow: var(--shadow-sm); overflow: hidden; border: 1px solid var(--border-color);">
+                <div style="background: var(--info-light); padding: 16px 24px; border-bottom: 1px solid var(--border-color);">
+                    <h3 style="margin: 0; color: var(--info); font-family: var(--font-serif);"><i class="fa-regular fa-calendar-days"></i> Lịch trực tuần này của bạn</h3>
                 </div>
-            </div>
-            <div class="personal-task-badge"
-                th:with="left=${pendingTasks.size() + inProgressTasks.size()}, 
-                         total=${pendingTasks.size() + inProgressTasks.size() + completedToday.size()},
-                         percent=${total > 0 ? (total - left) * 100 / total : 0}">
-                <div class="personal-task-header">
-                    <i class="fa-solid fa-clipboard-check"></i>
-                    <span>
-                        Nhiệm vụ: Bạn còn <span th:text="${left}"></span> / <span th:text="${total}"></span> phòng chưa xong
-                    </span>
-                </div>
-                <div class="progress-container">
-                    <div class="progress-bar" th:style="'width: ' + ${percent} + '%'"></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Stats Grid -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-header">
-                    <div class="stat-title">Cần dọn (To Do)</div>
-                    <div class="stat-icon icon-todo"><i class="fa-solid fa-list-check"></i></div>
-                </div>
-                <div class="stat-value" th:text="${pendingTasks.size()}">0</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-header">
-                    <div class="stat-title">Đang dọn (In Progress)</div>
-                    <div class="stat-icon icon-inprogress"><i class="fa-solid fa-spinner fa-spin"></i></div>
-                </div>
-                <div class="stat-value" th:text="${inProgressTasks.size()}">0</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-header">
-                    <div class="stat-title">Hoàn thành (Done)</div>
-                    <div class="stat-icon icon-done"><i class="fa-solid fa-circle-check"></i></div>
-                </div>
-                <div class="stat-value" th:text="${completedToday.size()}">0</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-header">
-                    <div class="stat-title">Bảo trì (Maintenance)</div>
-                    <div class="stat-icon icon-maintenance"><i class="fa-solid fa-screwdriver-wrench"></i></div>
-                </div>
-                <div class="stat-value" th:text="${maintenanceRooms != null ? maintenanceRooms : 0}">0</div>
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="background: var(--bg-color); text-align: left; font-size: 13px; color: var(--text-secondary);">
+                            <th style="padding: 16px 24px; border-bottom: 1px solid var(--border-color);">Ngày</th>
+                            <th style="padding: 16px 24px; border-bottom: 1px solid var(--border-color);">Ca làm việc</th>
+                            <th style="padding: 16px 24px; border-bottom: 1px solid var(--border-color);">Khung giờ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="s : ${myWeeklySchedules}" style="border-bottom: 1px solid var(--border-color);">
+                            <td style="padding: 16px 24px; font-weight: 500;" th:text="${#temporals.format(s.workDate, 'EEEE, dd/MM')}">Thứ Hai, 10/07</td>
+                            <td style="padding: 16px 24px;">
+                                <span style="background: var(--success-light); color: var(--success); padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;" th:text="${s.shift.shiftName}">Ca Sáng</span>
+                            </td>
+                            <td style="padding: 16px 24px; color: var(--text-secondary); font-size: 14px;" th:text="${s.shift.startTime} + ' - ' + ${s.shift.endTime}">06:00 - 14:00</td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(myWeeklySchedules)}">
+                            <td colspan="3" style="padding: 32px; text-align: center; color: var(--text-tertiary);">Tuần này bạn chưa có lịch làm việc nào.</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
 
-        <!-- Active Tasks Section -->
-        <div class="section-header">
-            <h2>Phòng cần xử lý</h2>
-            <div class="section-tabs">
-                <button class="tab-btn active" onclick="filterHousekeepingTasks('all', this)">Tất cả nhiệm vụ</button>
-                <button class="tab-btn" onclick="filterHousekeepingTasks('active', this)">Cần hoàn thành</button>
-                <button class="tab-btn" onclick="filterHousekeepingTasks('completed', this)">Đã hoàn thành</button>
-            </div>
-        </div>
-
-        <div class="room-grid">
-
-            <!-- In Progress Rooms first -->
-            <div th:each="t : ${inProgressTasks}" class="room-card task-card-active"
-                th:classappend="${t.priority == 'Lễ tân báo dọn khẩn' or t.priority == 'Urgent' or t.operationalType == 'URGENT_CLEAN'} ? 'urgent-task' : ''">
-                <div class="room-card-header">
-                    <div class="room-identity">
-                        <span class="room-number" th:text="${t.room.roomNumber}">101</span>
-                        <span class="room-type" th:text="${t.room.category.categoryName}">Deluxe</span>
+        <div th:if="${isOnShift}">
+            <!-- Page Header -->
+            <div class="page-header">
+                <div>
+                    <div class="page-title">
+                        <h1>Tổng quan ca làm việc</h1>
+                        <p><i class="fa-regular fa-calendar"></i> <span th:text="${todayLabel}">Hôm nay</span></p>
                     </div>
- 
-                    <div style="display: flex; gap: 8px; align-items: center;">
+                </div>
+                <div class="personal-task-badge"
+                    th:with="left=${pendingTasks.size() + inProgressTasks.size()}, 
+                             total=${pendingTasks.size() + inProgressTasks.size() + completedToday.size()},
+                             percent=${total > 0 ? (total - left) * 100 / total : 0}">
+                    <div class="personal-task-header">
+                        <i class="fa-solid fa-clipboard-check"></i>
+                        <span>
+                            Nhiệm vụ: Bạn còn <span th:text="${left}"></span> / <span th:text="${total}"></span> phòng chưa xong
+                        </span>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-bar" th:style="'width: ' + ${percent} + '%'"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-title">Cần dọn (To Do)</div>
+                        <div class="stat-icon icon-todo"><i class="fa-solid fa-list-check"></i></div>
+                    </div>
+                    <div class="stat-value" th:text="${pendingTasks.size()}">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-title">Đang dọn (In Progress)</div>
+                        <div class="stat-icon icon-inprogress"><i class="fa-solid fa-spinner fa-spin"></i></div>
+                    </div>
+                    <div class="stat-value" th:text="${inProgressTasks.size()}">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-title">Hoàn thành (Done)</div>
+                        <div class="stat-icon icon-done"><i class="fa-solid fa-circle-check"></i></div>
+                    </div>
+                    <div class="stat-value" th:text="${completedToday.size()}">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-title">Bảo trì (Maintenance)</div>
+                        <div class="stat-icon icon-maintenance"><i class="fa-solid fa-screwdriver-wrench"></i></div>
+                    </div>
+                    <div class="stat-value" th:text="${maintenanceRooms != null ? maintenanceRooms : 0}">0</div>
+                </div>
+            </div>
+
+            <!-- Active Tasks Section -->
+            <div class="section-header">
+                <h2>Phòng cần xử lý</h2>
+                <div class="section-tabs">
+                    <button class="tab-btn active" onclick="filterHousekeepingTasks('all', this)">Tất cả nhiệm vụ</button>
+                    <button class="tab-btn" onclick="filterHousekeepingTasks('active', this)">Cần hoàn thành</button>
+                    <button class="tab-btn" onclick="filterHousekeepingTasks('completed', this)">Đã hoàn thành</button>
+                </div>
+            </div>
+
+            <div class="room-grid">
+
+                <!-- In Progress Rooms first -->
+                <div th:each="t : ${inProgressTasks}" class="room-card task-card-active"
+                    th:classappend="${t.priority == 'Lễ tân báo dọn khẩn' or t.priority == 'Urgent' or t.operationalType == 'URGENT_CLEAN'} ? 'urgent-task' : ''">
+                    <div class="room-card-header">
+                        <div class="room-identity">
+                            <span class="room-number" th:text="${t.room.roomNumber}">101</span>
+                            <span class="room-type" th:text="${t.room.category.categoryName}">Deluxe</span>
+                        </div>
+    
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <div class="status-badge status-urgent"
+                                th:if="${t.priority == 'Lễ tân báo dọn khẩn' or t.priority == 'Urgent' or t.operationalType == 'URGENT_CLEAN'}">
+                                <i class="fa-solid fa-bolt"></i> Khẩn cấp
+                            </div>
+                            <div class="status-badge status-progress">
+                                <i class="fa-solid fa-spinner fa-spin-pulse"></i> Đang dọn
+                            </div>
+                        </div>
+                    </div>
+                    <div class="room-card-body">
+                        <!-- Check priority first for Urgent Clean -->
+                        <div class="stay-status" style="color: var(--danger); font-weight: 700;"
+                            th:if="${t.priority == 'Lễ tân báo dọn khẩn' or t.priority == 'Urgent' or t.operationalType == 'URGENT_CLEAN'}">
+                            <i class="fa-solid fa-bolt"></i> Lễ tân báo dọn khẩn
+                        </div>
+    
+                        <th:block th:if="${t.priority != 'Lễ tân báo dọn khẩn' and t.priority != 'Urgent' and t.operationalType != 'URGENT_CLEAN'}">
+                            <div class="stay-status stay-expected" th:if="${t.operationalType == 'GUEST_REQUEST'}">
+                                <i class="fa-solid fa-bell-concierge"></i> Khách đang ở, yêu cầu dọn dẹp
+                            </div>
+                            <div class="stay-status stay-checkout" th:if="${t.operationalType == 'ROOM_CHECK'}">
+                                <i class="fa-solid fa-clipboard-check"></i> Khách đang checkout, yêu cầu kiểm tra
+                            </div>
+                            <div class="stay-status stay-over" th:if="${t.operationalType == 'CHECKOUT_CLEAN'}">
+                                <i class="fa-solid fa-broom"></i> Khách đã checkout, cần dọn dẹp sâu
+                            </div>
+                        </th:block>
+
+                        <div class="guest-note" th:if="${t.notes != null and !t.notes.isEmpty()}">
+                            <i class="fa-solid fa-note-sticky"></i>
+                            <span th:text="${t.notes}">Ghi chú từ hệ thống</span>
+                        </div>
+                    </div>
+                    <div class="room-card-footer">
+                        <div style="display: flex; gap: 8px;">
+                            <button class="btn btn-report"
+                                th:attr="onclick=|openReportModal('${t.room.id}', '${t.room.roomNumber}', '${t.operationalType}')|">
+                                <i class="fa-solid fa-triangle-exclamation"></i> Báo sự cố
+                            </button>
+                            <button type="button" class="btn"
+                                style="background: transparent; color: var(--info); border: 1px solid var(--info-light);"
+                                th:attr="onclick=|openMinibarModal('${t.room.id}', '${t.room.roomNumber}')|">
+                                <i class="fa-solid fa-martini-glass"></i> Minibar
+                            </button>
+                        </div>
+                        <button class="btn btn-success"
+                            th:attr="onclick=|openCompleteModal('${t.id}', '${t.room.roomNumber}', '${t.operationalType}')|">
+                            <i class="fa-solid fa-check"></i> Hoàn thành
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Pending Rooms -->
+                <div th:each="t : ${pendingTasks}" class="room-card task-card-active"
+                    th:classappend="${t.priority == 'Lễ tân báo dọn khẩn' or t.priority == 'Urgent' or t.operationalType == 'URGENT_CLEAN'} ? 'urgent-task' : ''">
+                    <div class="room-card-header">
+                        <div class="room-identity">
+                            <span class="room-number" th:text="${t.room.roomNumber}">102</span>
+                            <span class="room-type" th:text="${t.room.category.categoryName}">Suite</span>
+                        </div>
                         <div class="status-badge status-urgent"
                             th:if="${t.priority == 'Lễ tân báo dọn khẩn' or t.priority == 'Urgent' or t.operationalType == 'URGENT_CLEAN'}">
                             <i class="fa-solid fa-bolt"></i> Khẩn cấp
                         </div>
-                        <div class="status-badge status-progress">
-                            <i class="fa-solid fa-spinner fa-spin-pulse"></i> Đang dọn
-                        </div>
                     </div>
-                </div>
-                <div class="room-card-body">
-                    <!-- Check priority first for Urgent Clean -->
-                    <div class="stay-status" style="color: var(--danger); font-weight: 700;"
-                        th:if="${t.priority == 'Lễ tân báo dọn khẩn' or t.priority == 'Urgent' or t.operationalType == 'URGENT_CLEAN'}">
-                        <i class="fa-solid fa-bolt"></i> Lễ tân báo dọn khẩn
-                    </div>
- 
-                    <th:block th:if="${t.priority != 'Lễ tân báo dọn khẩn' and t.priority != 'Urgent' and t.operationalType != 'URGENT_CLEAN'}">
-                        <div class="stay-status stay-expected" th:if="${t.operationalType == 'GUEST_REQUEST'}">
-                            <i class="fa-solid fa-bell-concierge"></i> Khách đang ở, yêu cầu dọn dẹp
+                    <div class="room-card-body">
+                        <!-- Check priority first for Urgent Clean -->
+                        <div class="stay-status" style="color: var(--danger); font-weight: 700;"
+                            th:if="${t.priority == 'Lễ tân báo dọn khẩn' or t.priority == 'Urgent' or t.operationalType == 'URGENT_CLEAN'}">
+                            <i class="fa-solid fa-bolt"></i> Lễ tân báo dọn khẩn
                         </div>
-                        <div class="stay-status stay-checkout" th:if="${t.operationalType == 'ROOM_CHECK'}">
-                            <i class="fa-solid fa-clipboard-check"></i> Khách đang checkout, yêu cầu kiểm tra
-                        </div>
-                        <div class="stay-status stay-over" th:if="${t.operationalType == 'CHECKOUT_CLEAN'}">
-                            <i class="fa-solid fa-broom"></i> Khách đã checkout, cần dọn dẹp sâu
-                        </div>
-                    </th:block>
 
-                    <div class="guest-note" th:if="${t.notes != null and !t.notes.isEmpty()}">
-                        <i class="fa-solid fa-note-sticky"></i>
-                        <span th:text="${t.notes}">Ghi chú từ hệ thống</span>
+                        <th:block th:if="${t.priority != 'Lễ tân báo dọn khẩn' and t.priority != 'Urgent' and t.operationalType != 'URGENT_CLEAN'}">
+                            <div class="stay-status stay-expected" th:if="${t.operationalType == 'GUEST_REQUEST'}">
+                                <i class="fa-solid fa-bell-concierge"></i> Khách đang ở, yêu cầu dọn dẹp
+                            </div>
+                            <div class="stay-status stay-checkout" th:if="${t.operationalType == 'ROOM_CHECK'}">
+                                <i class="fa-solid fa-clipboard-check"></i> Khách đang checkout, yêu cầu kiểm tra
+                            </div>
+                            <div class="stay-status stay-over" th:if="${t.operationalType == 'CHECKOUT_CLEAN'}">
+                                <i class="fa-solid fa-broom"></i> Khách đã checkout, cần dọn dẹp sâu
+                            </div>
+                        </th:block>
+
+                        <div class="guest-note" th:if="${t.notes != null and !t.notes.isEmpty()}">
+                            <i class="fa-solid fa-note-sticky"></i>
+                            <span th:text="${t.notes}">Ghi chú từ hệ thống</span>
+                        </div>
+                    </div>
+                    <div class="room-card-footer">
+                        <div style="display: flex; gap: 8px;">
+                            <button class="btn btn-report"
+                                th:attr="onclick=|openReportModal('${t.room.id}', '${t.room.roomNumber}', '${t.operationalType}')|">
+                                <i class="fa-solid fa-triangle-exclamation"></i> Báo sự cố
+                            </button>
+                            <button type="button" class="btn"
+                                style="background: transparent; color: var(--info); border: 1px solid var(--info-light);"
+                                th:attr="onclick=|openMinibarModal('${t.room.id}', '${t.room.roomNumber}')|">
+                                <i class="fa-solid fa-martini-glass"></i> Minibar
+                            </button>
+                        </div>
+                        <form method="post" th:action="@{/housekeeping/tasks/{id}/start(id=${t.id})}" style="margin: 0;">
+                            <button class="btn btn-primary">
+                                <i class="fa-solid fa-play"></i> Bắt đầu
+                            </button>
+                        </form>
                     </div>
                 </div>
-                <div class="room-card-footer">
-                    <div style="display: flex; gap: 8px;">
-                        <button class="btn btn-report"
-                            th:attr="onclick=|openReportModal('${t.room.id}', '${t.room.roomNumber}', '${t.operationalType}')|">
-                            <i class="fa-solid fa-triangle-exclamation"></i> Báo sự cố
-                        </button>
-                        <button type="button" class="btn"
-                            style="background: transparent; color: var(--info); border: 1px solid var(--info-light);"
-                            th:attr="onclick=|openMinibarModal('${t.room.id}', '${t.room.roomNumber}')|">
-                            <i class="fa-solid fa-martini-glass"></i> Minibar
-                        </button>
+
+                <!-- Completed Rooms -->
+                <div th:each="t : ${completedToday}" class="room-card task-card-completed" style="opacity: 0.65; border-color: transparent;">
+                    <div class="room-card-header">
+                        <div class="room-identity">
+                            <span class="room-number" th:text="${t.room.roomNumber}">103</span>
+                            <span class="room-type" th:text="${t.room.category.categoryName}">Standard</span>
+                        </div>
+                        <div class="status-badge" style="background: var(--success); color: white;">
+                            <i class="fa-solid fa-check"></i> Đã hoàn thành
+                        </div>
                     </div>
-                    <button class="btn btn-success"
-                        th:attr="onclick=|openCompleteModal('${t.id}', '${t.room.roomNumber}', '${t.operationalType}')|">
-                        <i class="fa-solid fa-check"></i> Hoàn thành
-                    </button>
+                    <div class="room-card-body">
+                        <div class="stay-status stay-over" style="color: var(--text-secondary);">
+                            <i class="fa-solid fa-broom"></i> Phòng đã được dọn sạch sẽ
+                        </div>
+                        <div class="guest-note" th:if="${t.notes != null and !t.notes.isEmpty()}">
+                            <i class="fa-solid fa-note-sticky"></i>
+                            <span th:text="${t.notes}">Ghi chú</span>
+                        </div>
+                    </div>
                 </div>
+
             </div>
 
-            <!-- Pending Rooms -->
-            <div th:each="t : ${pendingTasks}" class="room-card task-card-active"
-                th:classappend="${t.priority == 'Lễ tân báo dọn khẩn' or t.priority == 'Urgent' or t.operationalType == 'URGENT_CLEAN'} ? 'urgent-task' : ''">
-                <div class="room-card-header">
-                    <div class="room-identity">
-                        <span class="room-number" th:text="${t.room.roomNumber}">102</span>
-                        <span class="room-type" th:text="${t.room.category.categoryName}">Suite</span>
-                    </div>
-                    <div class="status-badge status-urgent"
-                        th:if="${t.priority == 'Lễ tân báo dọn khẩn' or t.priority == 'Urgent' or t.operationalType == 'URGENT_CLEAN'}">
-                        <i class="fa-solid fa-bolt"></i> Khẩn cấp
-                    </div>
-                </div>
-                <div class="room-card-body">
-                    <!-- Check priority first for Urgent Clean -->
-                    <div class="stay-status" style="color: var(--danger); font-weight: 700;"
-                        th:if="${t.priority == 'Lễ tân báo dọn khẩn' or t.priority == 'Urgent' or t.operationalType == 'URGENT_CLEAN'}">
-                        <i class="fa-solid fa-bolt"></i> Lễ tân báo dọn khẩn
-                    </div>
-
-                    <th:block th:if="${t.priority != 'Lễ tân báo dọn khẩn' and t.priority != 'Urgent' and t.operationalType != 'URGENT_CLEAN'}">
-                        <div class="stay-status stay-expected" th:if="${t.operationalType == 'GUEST_REQUEST'}">
-                            <i class="fa-solid fa-bell-concierge"></i> Khách đang ở, yêu cầu dọn dẹp
-                        </div>
-                        <div class="stay-status stay-checkout" th:if="${t.operationalType == 'ROOM_CHECK'}">
-                            <i class="fa-solid fa-clipboard-check"></i> Khách đang checkout, yêu cầu kiểm tra
-                        </div>
-                        <div class="stay-status stay-over" th:if="${t.operationalType == 'CHECKOUT_CLEAN'}">
-                            <i class="fa-solid fa-broom"></i> Khách đã checkout, cần dọn dẹp sâu
-                        </div>
-                    </th:block>
-
-                    <div class="guest-note" th:if="${t.notes != null and !t.notes.isEmpty()}">
-                        <i class="fa-solid fa-note-sticky"></i>
-                        <span th:text="${t.notes}">Ghi chú từ hệ thống</span>
-                    </div>
-                </div>
-                <div class="room-card-footer">
-                    <div style="display: flex; gap: 8px;">
-                        <button class="btn btn-report"
-                            th:attr="onclick=|openReportModal('${t.room.id}', '${t.room.roomNumber}', '${t.operationalType}')|">
-                            <i class="fa-solid fa-triangle-exclamation"></i> Báo sự cố
-                        </button>
-                        <button type="button" class="btn"
-                            style="background: transparent; color: var(--info); border: 1px solid var(--info-light);"
-                            th:attr="onclick=|openMinibarModal('${t.room.id}', '${t.room.roomNumber}')|">
-                            <i class="fa-solid fa-martini-glass"></i> Minibar
-                        </button>
-                    </div>
-                    <form method="post" th:action="@{/housekeeping/tasks/{id}/start(id=${t.id})}" style="margin: 0;">
-                        <button class="btn btn-primary">
-                            <i class="fa-solid fa-play"></i> Bắt đầu
-                        </button>
-                    </form>
-                </div>
+            <div th:if="${#lists.isEmpty(pendingTasks) and #lists.isEmpty(inProgressTasks)}" class="empty-state">
+                <i class="fa-regular fa-face-smile"></i>
+                <h3>Tuyệt vời!</h3>
+                <p>Bạn đã hoàn thành tất cả công việc được giao trong ca hôm nay.</p>
             </div>
-
-            <!-- Completed Rooms -->
-            <div th:each="t : ${completedToday}" class="room-card task-card-completed" style="opacity: 0.65; border-color: transparent;">
-                <div class="room-card-header">
-                    <div class="room-identity">
-                        <span class="room-number" th:text="${t.room.roomNumber}">103</span>
-                        <span class="room-type" th:text="${t.room.category.categoryName}">Standard</span>
-                    </div>
-                    <div class="status-badge" style="background: var(--success); color: white;">
-                        <i class="fa-solid fa-check"></i> Đã hoàn thành
-                    </div>
-                </div>
-                <div class="room-card-body">
-                    <div class="stay-status stay-over" style="color: var(--text-secondary);">
-                        <i class="fa-solid fa-broom"></i> Phòng đã được dọn sạch sẽ
-                    </div>
-                    <div class="guest-note" th:if="${t.notes != null and !t.notes.isEmpty()}">
-                        <i class="fa-solid fa-note-sticky"></i>
-                        <span th:text="${t.notes}">Ghi chú</span>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-
-        <div class="empty-state" th:style="${#lists.isEmpty(pendingTasks) and #lists.isEmpty(inProgressTasks)} ? 'display: block;' : 'display: none;'">
-            <i class="fa-regular fa-face-smile"></i>
-            <h3>Tuyệt vời!</h3>
-            <p>Bạn đã hoàn thành tất cả công việc được giao trong ca hôm nay.</p>
+>>>>>>> 84b7b1f024dabbe54205e3ac7ffafc3727f09a60
         </div>
     </div>
 

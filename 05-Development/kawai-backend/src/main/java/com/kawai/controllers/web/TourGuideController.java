@@ -26,6 +26,9 @@ public class TourGuideController {
     private com.kawai.repositories.EmployeeRepository employeeRepository;
 
     @org.springframework.beans.factory.annotation.Autowired
+    private com.kawai.services.ShiftService shiftService;
+
+    @org.springframework.beans.factory.annotation.Autowired
     private com.kawai.repositories.AccountRepository accountRepository;
 
     @org.springframework.beans.factory.annotation.Autowired
@@ -714,77 +717,15 @@ public class TourGuideController {
     }
 
     private String getGuideForSchedule(com.kawai.models.TourSchedule sched) {
-        if (sched == null) return "Nguyễn Ngọc";
-        if (sched.getDepartureDate() == null) {
-            return getPreferredGuide(sched);
+        if (sched == null || sched.getDepartureDate() == null) {
+            return "Nguyễn Ngọc"; // Fallback failsafe
         }
         
-        // Find all schedules on the same departure date
-        java.util.List<com.kawai.models.TourSchedule> daySchedules = tourScheduleRepository.findByDepartureDate(sched.getDepartureDate());
-        if (daySchedules == null || daySchedules.size() <= 1) {
-            return getPreferredGuide(sched);
+        com.kawai.models.Employee assigned = shiftService.assignGuideToTour(sched);
+        if (assigned != null && assigned.getFullName() != null) {
+            return assigned.getFullName();
         }
-        
-        // Sort by ID to ensure deterministic assignment
-        daySchedules.sort((s1, s2) -> {
-            Long id1 = s1.getId() != null ? s1.getId() : 0L;
-            Long id2 = s2.getId() != null ? s2.getId() : 0L;
-            return id1.compareTo(id2);
-        });
-        
-        java.util.Set<String> takenGuides = new java.util.HashSet<>();
-        java.util.List<String> allGuides = java.util.Arrays.asList("Nguyễn Ngọc", "Ngọc Lan", "Hoàng Nam");
-        
-        String assignedGuide = null;
-        
-        for (com.kawai.models.TourSchedule s : daySchedules) {
-            String pref = getPreferredGuide(s);
-            String finalGuide;
-            if (!takenGuides.contains(pref)) {
-                finalGuide = pref;
-            } else {
-                // Find a free guide
-                finalGuide = null;
-                for (String g : allGuides) {
-                    if (!takenGuides.contains(g)) {
-                        finalGuide = g;
-                        break;
-                    }
-                }
-                if (finalGuide == null) {
-                    // Fallback if all guides are taken
-                    finalGuide = pref;
-                }
-            }
-            takenGuides.add(finalGuide);
-            
-            if (s.getId() != null && s.getId().equals(sched.getId())) {
-                assignedGuide = finalGuide;
-            }
-        }
-        
-        return assignedGuide != null ? assignedGuide : getPreferredGuide(sched);
-    }
-
-    private String getPreferredGuide(com.kawai.models.TourSchedule sched) {
-        if (sched == null) return "Nguyễn Ngọc";
-        if (scheduleHasSpecialCustomer(sched)) {
-            return "Nguyễn Ngọc";
-        }
-        if (sched.getId() != null && sched.getId() == 5L) {
-            return "Nguyễn Ngọc";
-        }
-        if (sched.getTour() != null) {
-            String tn = sched.getTour().getTourName();
-            if (tn.contains("Tinh Túy Đồng Nội") || tn.contains("Tinh túy đồng nội") || tn.contains("đồng nội") || tn.contains("dongnoi")) {
-                return "Ngọc Lan";
-            } else if (tn.contains("Tĩnh Lặng Liên Hoa") || tn.contains("Tĩnh lặng liên hoa") || tn.contains("tinhlang")) {
-                return "Hoàng Nam";
-            } else if (tn.contains("Di sản") || tn.contains("di sản") || tn.contains("disan")) {
-                return "Ngọc Lan";
-            }
-        }
-        return "Nguyễn Ngọc";
+        return "Nguyễn Ngọc"; // Ultimate fallback
     }
 
     private boolean scheduleHasSpecialCustomer(com.kawai.models.TourSchedule sched) {

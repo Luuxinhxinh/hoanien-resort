@@ -11,4 +11,6 @@ public interface TourStaffAssignmentRepository extends JpaRepository<TourStaffAs
     List<TourStaffAssignment> findByScheduleId(Long scheduleId);
 
     List<TourStaffAssignment> findByEmployeeId(Long employeeId);
+    List<TourStaffAssignment> findByEmployeeIdAndSchedule_DepartureDate(Long employeeId, java.time.LocalDate date);
+    java.util.Optional<TourStaffAssignment> findFirstBySchedule(com.kawai.models.TourSchedule schedule);
 }
