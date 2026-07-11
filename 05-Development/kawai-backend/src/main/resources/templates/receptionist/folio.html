@@ -295,7 +295,7 @@
                         <thead>
                             <tr>
                                 <th style="white-space: nowrap;">Representative / Booker</th>
-                                <th style="white-space: nowrap;">Expected Check-out</th>
+                                <th style="text-align: center; white-space: nowrap;">Expected Check-out</th>
                                 <th style="text-align: center; white-space: nowrap;">Total Payments (VNĐ)</th>
                                 <th style="text-align: center; white-space: nowrap;">Phone Number</th>
                                 <th style="white-space: nowrap;">Status</th>
@@ -412,7 +412,7 @@
 
                 tr.innerHTML = `
                     <td style="padding: 24px 16px 24px 24px !important; white-space: nowrap;">${bookerHtml}</td>
-                    <td style="line-height: 1.4; color: #2c2a29; font-weight: 600; white-space: nowrap;">${formattedDate}</td>
+                    <td style="line-height: 1.4; color: #2c2a29; font-weight: 600; white-space: nowrap; text-align: center;">${formattedDate}</td>
                     <td style="line-height: 1.4; white-space: nowrap; text-align: center;">${formattedPayments}</td>
                     <td style="white-space: nowrap; text-align: center;">${formattedPhone}</td>
                     <td style="white-space: nowrap;"><span class="status-badge ${statusClass}" style="white-space: nowrap;">${statusText}</span></td>
