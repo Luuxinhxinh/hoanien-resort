@@ -57,6 +57,7 @@ public class CheckinServiceImpl implements CheckinService {
         private final com.kawai.services.interfaces.DependentService dependentService;
         private final com.kawai.repositories.MaintenanceRequestRepository maintenanceRequestRepo;
         private final com.kawai.services.interfaces.EmailService emailService;
+        private final com.kawai.services.interfaces.WorkflowEngineService workflowEngineService;
 
         @Autowired
         public CheckinServiceImpl(
@@ -73,7 +74,8 @@ public class CheckinServiceImpl implements CheckinService {
                         com.kawai.repositories.TourBookingRepository tourBookingRepo,
                         com.kawai.repositories.MaintenanceRequestRepository maintenanceRequestRepo,
                         @org.springframework.context.annotation.Lazy com.kawai.services.interfaces.DependentService dependentService,
-                        com.kawai.services.interfaces.EmailService emailService) {
+                        com.kawai.services.interfaces.EmailService emailService,
+                        @org.springframework.context.annotation.Lazy com.kawai.services.interfaces.WorkflowEngineService workflowEngineService) {
                 this.roomBookingDetailRepo = roomBookingDetailRepo;
                 this.roomRepo = roomRepo;
                 this.roomBookingRepo = roomBookingRepo;
@@ -88,6 +90,7 @@ public class CheckinServiceImpl implements CheckinService {
                 this.maintenanceRequestRepo = maintenanceRequestRepo;
                 this.dependentService = dependentService;
                 this.emailService = emailService;
+                this.workflowEngineService = workflowEngineService;
         }
 
         // UC12.1: Check-in
@@ -487,6 +490,31 @@ public class CheckinServiceImpl implements CheckinService {
                                                                 "Phòng " + roomNumber
                                                                                 + " phải có đúng 1 người đứng đầu!");
                                         }
+                                }
+                        }
+                }
+
+                // Kịch bản 1: Trigger Workflow ROOM_CHECKIN để hỗ trợ Khách VIP (F&B / Zalo)
+                if (customer != null && form.getAssignedRoomNumbers() != null) {
+                        for (String roomNumber : form.getAssignedRoomNumbers()) {
+                                Long detailId = roomNumberToDetailIdMap.get(roomNumber);
+                                com.kawai.models.Room room = roomRepo.findByRoomNumber(roomNumber).orElse(null);
+                                if (detailId != null && room != null) {
+                                        java.util.Map<String, Object> payload = new java.util.HashMap<>();
+                                        payload.put("booking_id", booking.getId());
+                                        payload.put("booking_detail_id", detailId);
+                                        payload.put("room_id", room.getId());
+                                        payload.put("room_number", room.getRoomNumber());
+                                        payload.put("customer_email", customer.getEmail());
+                                        payload.put("customer_name", customer.getFullName());
+                                        
+                                        String tier = "NONE";
+                                        if (customer.getMembershipTier() != null && customer.getMembershipTier().getTierName() != null) {
+                                                tier = customer.getMembershipTier().getTierName().toUpperCase();
+                                        }
+                                        payload.put("customer_tier", tier);
+                                        
+                                        workflowEngineService.triggerEvent("ROOM_CHECKIN", payload);
                                 }
                         }
                 }

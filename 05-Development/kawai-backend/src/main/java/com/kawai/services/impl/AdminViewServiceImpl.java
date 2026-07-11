@@ -31,6 +31,7 @@ public class AdminViewServiceImpl implements AdminViewService {
     private final ReviewRepository reviewRepository;
     private final RoomBookingDetailRepository roomBookingDetailRepository;
     private final MaintenanceRequestRepository maintenanceRequestRepository;
+    private final TourScheduleRepository tourScheduleRepository;
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -283,6 +284,19 @@ public class AdminViewServiceImpl implements AdminViewService {
                 List<Map<String, String>> r = new ArrayList<>();
                 for (Tour tour : tourRepository.findAll()) {
                     String st = tour.getIsActive() != null && tour.getIsActive() ? "Active" : "Inactive";
+                    String img = tour.getImageUrl();
+                    if (img == null || img.isEmpty()) {
+                        img = "/AnhTour/" + (
+                                "doantu".equals(tour.getTourType()) ? "DoanTu.html" :
+                                "dongnoi".equals(tour.getTourType()) ? "DuAm.jpg" :
+                                "disan".equals(tour.getTourType()) ? "ThuCong.jpg" :
+                                "tinhlang".equals(tour.getTourType()) ? "ThapMuoi.jpg" :
+                                "z7930565882675_f94fe322fc3a06efe82eccf1e76b09e1.jpg"
+                        );
+                        if (img.endsWith(".html")) {
+                            img = "/AnhTour/DuAm.jpg";
+                        }
+                    }
                     r.add(r("id", "T-" + tour.getId(), "name",
                             tour.getTourName() != null ? tour.getTourName() : "Tour #" + tour.getId(), "category",
                             tour.getTourType() != null ? tour.getTourType() : "Khác", "price",
@@ -290,7 +304,7 @@ public class AdminViewServiceImpl implements AdminViewService {
                             "__statusStyle", bs(st),
                             "description", tour.getDescription() != null ? tour.getDescription() : "",
                             "duration", tour.getDuration() != null ? tour.getDuration() : "",
-                            "imageUrl", tour.getImageUrl() != null ? tour.getImageUrl() : "",
+                            "imageUrl", img,
                             "maxCapacity", tour.getMaxCapacity() != null ? String.valueOf(tour.getMaxCapacity()) : "0",
                             "shortQuote", tour.getShortQuote() != null ? tour.getShortQuote() : ""));
                 }
@@ -506,10 +520,30 @@ public class AdminViewServiceImpl implements AdminViewService {
             }
             case "Tour Schedules" -> {
                 List<Map<String, String>> r = new ArrayList<>();
-                r.add(r("id", "TS-2001", "tour", "Khám phá văn hóa Tây Bắc", "date", "25/06/2026", "capacity", "18/30",
-                        "status", "Open", "__statusStyle", bs("Open")));
-                r.add(r("id", "TS-2002", "tour", "Trekking Dã ngoại", "date", "20/06/2026", "capacity", "20/20",
-                        "status", "Closed", "__statusStyle", bs("Closed")));
+                try {
+                    for (com.kawai.models.TourSchedule ts : tourScheduleRepository.findAll()) {
+                        String st = ts.getScheduleStatus() != null ? ts.getScheduleStatus() : "Open";
+                        String tourName = ts.getTour() != null ? ts.getTour().getTourName() : "N/A";
+                        String img = "";
+                        if (ts.getTour() != null) {
+                            img = ts.getTour().getImageUrl();
+                            if (img == null || img.isEmpty()) {
+                                img = "/AnhTour/" + (
+                                        "doantu".equals(ts.getTour().getTourType()) ? "DuAm.jpg" :
+                                        "dongnoi".equals(ts.getTour().getTourType()) ? "DuAm.jpg" :
+                                        "disan".equals(ts.getTour().getTourType()) ? "ThuCong.jpg" :
+                                        "tinhlang".equals(ts.getTour().getTourType()) ? "ThapMuoi.jpg" :
+                                        "z7930565882675_f94fe322fc3a06efe82eccf1e76b09e1.jpg"
+                                );
+                            }
+                        }
+                        r.add(r("id", "TS-" + ts.getId(), "tour", tourName,
+                                "date", ts.getDepartureDate() != null ? ts.getDepartureDate().toString() : "",
+                                "capacity", (ts.getBookedSeats() != null ? ts.getBookedSeats() : 0) + "/" +
+                                        (ts.getTour() != null && ts.getTour().getMaxCapacity() != null ? ts.getTour().getMaxCapacity() : "0"),
+                                "status", st, "__statusStyle", bs(st), "imageUrl", img));
+                    }
+                } catch (Exception e) {}
                 yield r;
             }
             default -> Collections.emptyList();

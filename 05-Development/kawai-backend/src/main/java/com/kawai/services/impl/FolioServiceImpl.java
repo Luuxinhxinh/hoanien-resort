@@ -144,7 +144,9 @@ public class FolioServiceImpl implements FolioService {
                 workflowEngineService.triggerEvent("ROOM_CHECKOUT", Map.of(
                         "room_id", room.getId(),
                         "booking_id", detail.getRoomBooking().getId(),
-                        "booking_detail_id", detail.getId()));
+                        "booking_detail_id", detail.getId(),
+                        "month", String.valueOf(java.time.LocalDate.now().getMonthValue())
+                ));
             } catch (Exception e) {
                 System.err.println("Failed to trigger checkout workflow in service: " + e.getMessage());
             }

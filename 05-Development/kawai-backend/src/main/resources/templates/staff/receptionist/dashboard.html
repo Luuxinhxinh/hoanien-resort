@@ -383,10 +383,10 @@
 
     <div class="sidebar-footer">
         <div class="staff-card">
-            <div class="staff-avatar">LT</div>
+            <div class="staff-avatar" th:text="${staffName != null ? #strings.substring(staffName, 0, 2) : 'LT'}">LT</div>
             <div>
-                <div class="staff-name">Lê Minh Tú</div>
-                <div class="staff-role">Lễ tân ca sáng</div>
+                <div class="staff-name" th:text="${staffName != null ? staffName : 'Lễ tân viên'}">Lê Minh Tú</div>
+                <div class="staff-role" th:text="${staffRole != null ? staffRole : 'Lễ tân'}">Lễ tân ca sáng</div>
             </div>
         </div>
     </div>
@@ -648,6 +648,41 @@
         if (e.target === document.getElementById('checkinModal'))
             document.getElementById('checkinModal').classList.remove('open');
     }
+</script>
+
+<!-- WebSocket integration for real-time task notifications -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+<script th:inline="javascript">
+    document.addEventListener("DOMContentLoaded", function() {
+        var socket = new SockJS('/ws-endpoint');
+        var stompClient = Stomp.over(socket);
+        
+        stompClient.connect({}, function (frame) {
+            console.log('Connected WS (Receptionist): ' + frame);
+            
+            // Lắng nghe thông báo broadcast cho toàn bộ chi nhánh / hệ thống
+            stompClient.subscribe('/topic/operations', function (message) {
+                try {
+                    var payload = JSON.parse(message.body);
+                    alert("THÔNG BÁO HỆ THỐNG: " + payload.message);
+                } catch(e) {}
+            });
+            
+            // Lắng nghe thông báo đích danh cho tài khoản Lễ tân này
+            /*[# th:if="${staffId != null}"]*/
+            var staffId = /*[[${staffId}]]*/ null;
+            if (staffId) {
+                stompClient.subscribe('/topic/operations/' + staffId, function (message) {
+                    try {
+                        var payload = JSON.parse(message.body);
+                        alert("🔔 NHIỆM VỤ MỚI TỪ HỆ THỐNG:\n\n" + payload.message);
+                    } catch(e) {}
+                });
+            }
+            /*[/]*/
+        });
+    });
 </script>
 </body>
 </html>

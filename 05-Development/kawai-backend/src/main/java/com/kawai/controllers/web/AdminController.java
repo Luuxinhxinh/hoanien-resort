@@ -74,8 +74,8 @@ public class AdminController {
   @PreAuthorize("hasAnyAuthority('OP_MASTER_DATA', 'OP_ROOM', 'OP_FNB', 'OP_TOUR', 'OP_CRM', 'OP_PROMOTIONS', 'ROLE_ADMIN')")
   @GetMapping("/master-data")
   public String masterData(@RequestParam(value = "tab", defaultValue = "Room Categories") String tab, Model model) {
-    List<String> roomsGroup = Arrays.asList("Room Categories", "Rooms", "Pricing Management", "Bookings");
-    List<String> fnbGroup = Arrays.asList("Menu Categories", "Restaurant Menu", "F&B Orders");
+    List<String> roomsGroup = Arrays.asList("Room Categories", "Rooms", "Pricing Management");
+    List<String> fnbGroup = Arrays.asList("Menu Categories", "Restaurant Menu");
     List<String> tourGroup = Arrays.asList("Tour Categories", "Tours", "Tour Schedules");
     List<String> rbacGroup = Arrays.asList("Role Management");
     List<String> crmGroup = Arrays.asList("Account Management");

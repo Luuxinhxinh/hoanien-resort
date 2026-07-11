@@ -35,4 +35,7 @@ public class StaffSchedule {
 
     @Column(name = "status", nullable = false)
     private String status; // Draft, Published
+
+    @Column(name = "is_closed", nullable = false, columnDefinition = "boolean default false")
+    private Boolean isClosed = false;
 }

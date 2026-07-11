@@ -44,6 +44,11 @@ public class NightAuditRestController {
             response.put("businessDate", nextDay.toString());
             response.put("message", "Night Audit hoàn tất thành công.");
             return ResponseEntity.ok(response);
+        } catch (IllegalStateException e) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("status", "ERROR");
+            error.put("message", e.getMessage());
+            return ResponseEntity.badRequest().body(error);
         } catch (Exception e) {
             Map<String, Object> error = new HashMap<>();
             error.put("status", "ERROR");
