@@ -1,0 +1,1547 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Housekeeping Dashboard - Hoanien Retreat</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary: #8C6A41;
+            --primary-light: #C9A96E;
+            --primary-dark: #6b4d2b;
+            --secondary: #2C2A1E;
+            --bg-color: #FDFBF7;
+            --surface: #FFFFFF;
+            --surface-hover: #F8F6F0;
+            --text-primary: #1A1814;
+            --text-secondary: #6A6256;
+            --text-tertiary: #9A9485;
+            --border-color: #EAE6DF;
+
+            --success: #2D6B4A;
+            --success-light: #E8F3ED;
+            --warning: #D98C2A;
+            --warning-light: #FDF4E7;
+            --danger: #A63C3C;
+            --danger-light: #F9EBEB;
+            --info: #3A6D8C;
+            --info-light: #EBF3F8;
+
+            --font-serif: 'Playfair Display', serif;
+            --font-sans: 'Inter', sans-serif;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --shadow-sm: 0 2px 8px rgba(26, 24, 20, 0.04);
+            --shadow-md: 0 8px 24px rgba(26, 24, 20, 0.06);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: var(--font-sans);
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Top Navigation */
+        .top-nav {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border-color);
+            padding: 16px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-logo {
+            width: 32px;
+            height: 32px;
+            background: var(--primary-light);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .brand-title {
+            font-family: var(--font-serif);
+            font-size: 20px;
+            color: var(--secondary);
+            font-weight: 700;
+        }
+
+        .brand-subtitle {
+            font-size: 11px;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-top: 2px;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .module-switcher select {
+            padding: 8px 32px 8px 16px;
+            border-radius: 8px;
+            background: var(--surface-hover);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+            font-size: 13px;
+            font-weight: 500;
+            outline: none;
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236A6256' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 14px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding-left: 16px;
+            border-left: 1px solid var(--border-color);
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--secondary);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .user-details h4 {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .user-details p {
+            font-size: 11px;
+            color: var(--text-tertiary);
+        }
+
+        .logout-btn {
+            color: var(--danger);
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 500;
+            margin-left: 12px;
+            padding: 6px 12px;
+            border-radius: 6px;
+            transition: background 0.2s;
+        }
+
+        .logout-btn:hover {
+            background: var(--danger-light);
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 32px;
+        }
+
+        .page-header {
+            margin-bottom: 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .page-title h1 {
+            font-family: var(--font-serif);
+            font-size: 32px;
+            color: var(--secondary);
+            margin-bottom: 8px;
+        }
+
+        .page-title p {
+            color: var(--text-secondary);
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .personal-task-badge {
+            background: var(--primary-light);
+            color: #fff;
+            padding: 10px 16px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+            box-shadow: var(--shadow-sm);
+            min-width: 260px;
+        }
+
+        .personal-task-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .progress-container {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.25);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 2px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: #ffffff;
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stat-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .stat-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        .icon-todo {
+            background: var(--warning-light);
+            color: var(--warning);
+        }
+
+        .icon-inprogress {
+            background: var(--info-light);
+            color: var(--info);
+        }
+
+        .icon-done {
+            background: var(--success-light);
+            color: var(--success);
+        }
+
+        .icon-maintenance {
+            background: var(--danger-light);
+            color: var(--danger);
+        }
+
+        .stat-value {
+            font-family: var(--font-serif);
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--secondary);
+            line-height: 1;
+        }
+
+        /* Tasks Section */
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .section-header h2 {
+            font-family: var(--font-serif);
+            font-size: 24px;
+            color: var(--secondary);
+        }
+
+        .section-tabs {
+            display: flex;
+            gap: 12px;
+        }
+
+        .tab-btn {
+            padding: 8px 16px;
+            background: var(--surface);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            background: var(--secondary);
+            color: #fff;
+            border-color: var(--secondary);
+        }
+
+        /* Room Grid */
+        .room-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .room-card {
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .room-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .room-card.urgent-task {
+            border-left: 5px solid var(--danger) !important;
+            background: #fffcfc;
+        }
+
+        .room-card-header {
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .room-identity {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+        }
+
+        .room-number {
+            font-family: var(--font-sans);
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--secondary);
+        }
+
+        .room-type {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            font-weight: 500;
+        }
+
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .status-urgent {
+            background: var(--danger-light);
+            color: var(--danger);
+        }
+
+        .status-progress {
+            background: var(--warning-light);
+            color: var(--warning);
+        }
+
+        .status-done {
+            background: var(--success-light);
+            color: var(--success);
+        }
+
+        .room-card-body {
+            padding: 16px 20px;
+            flex-grow: 1;
+        }
+
+        .stay-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+        }
+
+        .stay-checkout {
+            color: var(--danger);
+        }
+
+        .stay-expected {
+            color: var(--primary);
+        }
+
+        .stay-over {
+            color: var(--info);
+        }
+
+        .guest-note {
+            background: var(--surface-hover);
+            padding: 10px 12px;
+            border-radius: 8px;
+            border-left: 3px solid var(--primary-light);
+            font-size: 12px;
+            color: var(--text-secondary);
+            display: flex;
+            gap: 8px;
+        }
+
+        .guest-note i {
+            color: var(--primary-light);
+            margin-top: 2px;
+        }
+
+        .room-card-footer {
+            padding: 16px 20px;
+            background: var(--surface-hover);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: none;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: #fff;
+        }
+
+        .btn-success:hover {
+            background: #23553a;
+        }
+
+        .btn-report {
+            background: transparent;
+            color: var(--danger);
+            border: 1px solid var(--danger-light);
+        }
+
+        .btn-report:hover {
+            background: var(--danger-light);
+        }
+
+        /* Modal for Maintenance Report */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(26, 24, 20, 0.6);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-content {
+            background: var(--surface);
+            width: 100%;
+            max-width: 480px;
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            box-shadow: 0 24px 48px rgba(0, 0, 0, 0.1);
+            transform: translateY(20px);
+            transition: transform 0.3s;
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .modal-title {
+            font-family: var(--font-serif);
+            font-size: 24px;
+            color: var(--danger);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 20px;
+            color: var(--text-tertiary);
+            cursor: pointer;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: var(--font-sans);
+            color: var(--text-primary);
+            resize: vertical;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--danger);
+            box-shadow: 0 0 0 3px var(--danger-light);
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 32px;
+        }
+
+        .alert {
+            padding: 16px 20px;
+            border-radius: var(--radius-md);
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-10px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .alert-success {
+            background: var(--success-light);
+            color: var(--success);
+            border-left: 4px solid var(--success);
+        }
+
+        .alert-error {
+            background: var(--danger-light);
+            color: var(--danger);
+            border-left: 4px solid var(--danger);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 64px 20px;
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            border: 1px dashed var(--border-color);
+            color: var(--text-tertiary);
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            color: var(--border-color);
+            margin-bottom: 16px;
+        }
+
+        .empty-state h3 {
+            font-family: var(--font-serif);
+            font-size: 20px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Top Navigation -->
+    <header class="top-nav">
+        <div class="brand">
+            <div class="brand-logo"><i class="fa-solid fa-leaf"></i></div>
+            <div>
+                <div class="brand-title">Hoanien Retreat</div>
+                <div class="brand-subtitle">Housekeeping Operations</div>
+            </div>
+        </div>
+
+        <div class="user-profile">
+            <div class="module-switcher" sec:authorize="hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER')">
+                <select onchange="if(this.value) window.location.href=this.value">
+                    <option value="" disabled selected>-- Chuyển phân hệ --</option>
+                    <option value="/admin/dashboard">Core Operations (Admin)</option>
+                    <option value="/receptionist/dashboard">Receptionist (Lễ tân)</option>
+                    <option value="/housekeeping/dashboard">Housekeeping (Buồng phòng)</option>
+                    <option value="/maintenance/dashboard">Maintenance (Bảo trì)</option>
+                </select>
+            </div>
+
+            <div class="user-info">
+                <div class="user-avatar"
+                    th:text="${#authentication != null ? #strings.substring(#authentication.name, 0, 2).toUpperCase() : 'HK'}">
+                    HK</div>
+                <div class="user-details">
+                    <h4 th:text="${#authentication != null ? #authentication.name : 'Nhân viên'}">Nhân viên</h4>
+                    <p>Bộ phận Buồng phòng</p>
+                </div>
+                <a href="/logout" class="logout-btn"><i class="fa-solid fa-right-from-bracket"></i></a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Alerts -->
+        <div th:if="${successMessage}" class="alert alert-success">
+            <i class="fa-solid fa-circle-check"></i>
+            <span th:text="${successMessage}"></span>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-error">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            <span th:text="${errorMessage}"></span>
+        </div>
+
+        <!-- Off-shift Block -->
+        <div th:if="${!isOnShift}" style="text-align: center; padding: 48px 24px; background: #fff5f5; border: 1px solid #feb2b2; border-radius: 12px; margin-top: 24px;">
+            <i class="fa-solid fa-user-clock" style="font-size: 48px; color: #f56565; margin-bottom: 16px;"></i>
+            <h2 style="color: #c53030; margin-bottom: 8px;">Bạn không có ca trực ngày hôm nay</h2>
+            <p style="color: #e53e3e; font-size: 15px;">Hệ thống đã khóa các chức năng nghiệp vụ. Vui lòng liên hệ Quản lý nếu có sai sót về lịch làm việc.</p>
+            
+            <!-- My Weekly Schedule -->
+            <div th:if="${myWeeklySchedules != null}" style="margin-top: 32px; max-width: 800px; margin-left: auto; margin-right: auto; background: var(--surface); border-radius: 12px; box-shadow: var(--shadow-sm); overflow: hidden; border: 1px solid var(--border-color);">
+                <div style="background: var(--info-light); padding: 16px 24px; border-bottom: 1px solid var(--border-color);">
+                    <h3 style="margin: 0; color: var(--info); font-family: var(--font-serif);"><i class="fa-regular fa-calendar-days"></i> Lịch trực tuần này của bạn</h3>
+                </div>
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="background: var(--bg-color); text-align: left; font-size: 13px; color: var(--text-secondary);">
+                            <th style="padding: 16px 24px; border-bottom: 1px solid var(--border-color);">Ngày</th>
+                            <th style="padding: 16px 24px; border-bottom: 1px solid var(--border-color);">Ca làm việc</th>
+                            <th style="padding: 16px 24px; border-bottom: 1px solid var(--border-color);">Khung giờ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="s : ${myWeeklySchedules}" style="border-bottom: 1px solid var(--border-color);">
+                            <td style="padding: 16px 24px; font-weight: 500;" th:text="${#temporals.format(s.workDate, 'EEEE, dd/MM')}">Thứ Hai, 10/07</td>
+                            <td style="padding: 16px 24px;">
+                                <span style="background: var(--success-light); color: var(--success); padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;" th:text="${s.shift.shiftName}">Ca Sáng</span>
+                            </td>
+                            <td style="padding: 16px 24px; color: var(--text-secondary); font-size: 14px;" th:text="${s.shift.startTime} + ' - ' + ${s.shift.endTime}">06:00 - 14:00</td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(myWeeklySchedules)}">
+                            <td colspan="3" style="padding: 32px; text-align: center; color: var(--text-tertiary);">Tuần này bạn chưa có lịch làm việc nào.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div th:if="${isOnShift}">
+            <!-- Page Header -->
+            <div class="page-header">
+                <div>
+                    <div class="page-title">
+                        <h1>Tổng quan ca làm việc</h1>
+                        <p><i class="fa-regular fa-calendar"></i> <span th:text="${todayLabel}">Hôm nay</span></p>
+                    </div>
+                </div>
+                <div class="personal-task-badge"
+                    th:with="left=${pendingTasks.size() + inProgressTasks.size()}, 
+                             total=${pendingTasks.size() + inProgressTasks.size() + completedToday.size()},
+                             percent=${total > 0 ? (total - left) * 100 / total : 0}">
+                    <div class="personal-task-header">
+                        <i class="fa-solid fa-clipboard-check"></i>
+                        <span>
+                            Nhiệm vụ: Bạn còn <span th:text="${left}"></span> / <span th:text="${total}"></span> phòng chưa xong
+                        </span>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-bar" th:style="'width: ' + ${percent} + '%'"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-title">Cần dọn (To Do)</div>
+                        <div class="stat-icon icon-todo"><i class="fa-solid fa-list-check"></i></div>
+                    </div>
+                    <div class="stat-value" th:text="${pendingTasks.size()}">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-title">Đang dọn (In Progress)</div>
+                        <div class="stat-icon icon-inprogress"><i class="fa-solid fa-spinner fa-spin"></i></div>
+                    </div>
+                    <div class="stat-value" th:text="${inProgressTasks.size()}">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-title">Hoàn thành (Done)</div>
+                        <div class="stat-icon icon-done"><i class="fa-solid fa-circle-check"></i></div>
+                    </div>
+                    <div class="stat-value" th:text="${completedToday.size()}">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-title">Bảo trì (Maintenance)</div>
+                        <div class="stat-icon icon-maintenance"><i class="fa-solid fa-screwdriver-wrench"></i></div>
+                    </div>
+                    <div class="stat-value" th:text="${maintenanceRooms != null ? maintenanceRooms : 0}">0</div>
+                </div>
+            </div>
+
+            <!-- Active Tasks Section -->
+            <div class="section-header">
+                <h2>Phòng cần xử lý</h2>
+                <div class="section-tabs">
+                    <button class="tab-btn active" onclick="filterHousekeepingTasks('all', this)">Tất cả nhiệm vụ</button>
+                    <button class="tab-btn" onclick="filterHousekeepingTasks('active', this)">Cần hoàn thành</button>
+                    <button class="tab-btn" onclick="filterHousekeepingTasks('completed', this)">Đã hoàn thành</button>
+                </div>
+            </div>
+
+            <div class="room-grid">
+
+                <!-- In Progress Rooms first -->
+                <div th:each="t : ${inProgressTasks}" class="room-card task-card-active"
+                    th:classappend="${t.priority == 'Lễ tân báo dọn khẩn' or t.priority == 'Urgent' or t.operationalType == 'URGENT_CLEAN'} ? 'urgent-task' : ''">
+                    <div class="room-card-header">
+                        <div class="room-identity">
+                            <span class="room-number" th:text="${t.room.roomNumber}">101</span>
+                            <span class="room-type" th:text="${t.room.category.categoryName}">Deluxe</span>
+                        </div>
+    
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <div class="status-badge status-urgent"
+                                th:if="${t.priority == 'Lễ tân báo dọn khẩn' or t.priority == 'Urgent' or t.operationalType == 'URGENT_CLEAN'}">
+                                <i class="fa-solid fa-bolt"></i> Khẩn cấp
+                            </div>
+                            <div class="status-badge status-progress">
+                                <i class="fa-solid fa-spinner fa-spin-pulse"></i> Đang dọn
+                            </div>
+                        </div>
+                    </div>
+                    <div class="room-card-body">
+                        <!-- Check priority first for Urgent Clean -->
+                        <div class="stay-status" style="color: var(--danger); font-weight: 700;"
+                            th:if="${t.priority == 'Lễ tân báo dọn khẩn' or t.priority == 'Urgent' or t.operationalType == 'URGENT_CLEAN'}">
+                            <i class="fa-solid fa-bolt"></i> Lễ tân báo dọn khẩn
+                        </div>
+    
+                        <th:block th:if="${t.priority != 'Lễ tân báo dọn khẩn' and t.priority != 'Urgent' and t.operationalType != 'URGENT_CLEAN'}">
+                            <div class="stay-status stay-expected" th:if="${t.operationalType == 'GUEST_REQUEST'}">
+                                <i class="fa-solid fa-bell-concierge"></i> Khách đang ở, yêu cầu dọn dẹp
+                            </div>
+                            <div class="stay-status stay-checkout" th:if="${t.operationalType == 'ROOM_CHECK'}">
+                                <i class="fa-solid fa-clipboard-check"></i> Khách đang checkout, yêu cầu kiểm tra
+                            </div>
+                            <div class="stay-status stay-over" th:if="${t.operationalType == 'CHECKOUT_CLEAN'}">
+                                <i class="fa-solid fa-broom"></i> Khách đã checkout, cần dọn dẹp sâu
+                            </div>
+                        </th:block>
+
+                        <div class="guest-note" th:if="${t.notes != null and !t.notes.isEmpty()}">
+                            <i class="fa-solid fa-note-sticky"></i>
+                            <span th:text="${t.notes}">Ghi chú từ hệ thống</span>
+                        </div>
+                    </div>
+                    <div class="room-card-footer">
+                        <div style="display: flex; gap: 8px;">
+                            <button class="btn btn-report"
+                                th:attr="onclick=|openReportModal('${t.room.id}', '${t.room.roomNumber}', '${t.operationalType}')|">
+                                <i class="fa-solid fa-triangle-exclamation"></i> Báo sự cố
+                            </button>
+                            <button type="button" class="btn"
+                                style="background: transparent; color: var(--info); border: 1px solid var(--info-light);"
+                                th:attr="onclick=|openMinibarModal('${t.room.id}', '${t.room.roomNumber}')|">
+                                <i class="fa-solid fa-martini-glass"></i> Minibar
+                            </button>
+                        </div>
+                        <button class="btn btn-success"
+                            th:attr="onclick=|openCompleteModal('${t.id}', '${t.room.roomNumber}', '${t.operationalType}')|">
+                            <i class="fa-solid fa-check"></i> Hoàn thành
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Pending Rooms -->
+                <div th:each="t : ${pendingTasks}" class="room-card task-card-active"
+                    th:classappend="${t.priority == 'Lễ tân báo dọn khẩn' or t.priority == 'Urgent' or t.operationalType == 'URGENT_CLEAN'} ? 'urgent-task' : ''">
+                    <div class="room-card-header">
+                        <div class="room-identity">
+                            <span class="room-number" th:text="${t.room.roomNumber}">102</span>
+                            <span class="room-type" th:text="${t.room.category.categoryName}">Suite</span>
+                        </div>
+                        <div class="status-badge status-urgent"
+                            th:if="${t.priority == 'Lễ tân báo dọn khẩn' or t.priority == 'Urgent' or t.operationalType == 'URGENT_CLEAN'}">
+                            <i class="fa-solid fa-bolt"></i> Khẩn cấp
+                        </div>
+                    </div>
+                    <div class="room-card-body">
+                        <!-- Check priority first for Urgent Clean -->
+                        <div class="stay-status" style="color: var(--danger); font-weight: 700;"
+                            th:if="${t.priority == 'Lễ tân báo dọn khẩn' or t.priority == 'Urgent' or t.operationalType == 'URGENT_CLEAN'}">
+                            <i class="fa-solid fa-bolt"></i> Lễ tân báo dọn khẩn
+                        </div>
+
+                        <th:block th:if="${t.priority != 'Lễ tân báo dọn khẩn' and t.priority != 'Urgent' and t.operationalType != 'URGENT_CLEAN'}">
+                            <div class="stay-status stay-expected" th:if="${t.operationalType == 'GUEST_REQUEST'}">
+                                <i class="fa-solid fa-bell-concierge"></i> Khách đang ở, yêu cầu dọn dẹp
+                            </div>
+                            <div class="stay-status stay-checkout" th:if="${t.operationalType == 'ROOM_CHECK'}">
+                                <i class="fa-solid fa-clipboard-check"></i> Khách đang checkout, yêu cầu kiểm tra
+                            </div>
+                            <div class="stay-status stay-over" th:if="${t.operationalType == 'CHECKOUT_CLEAN'}">
+                                <i class="fa-solid fa-broom"></i> Khách đã checkout, cần dọn dẹp sâu
+                            </div>
+                        </th:block>
+
+                        <div class="guest-note" th:if="${t.notes != null and !t.notes.isEmpty()}">
+                            <i class="fa-solid fa-note-sticky"></i>
+                            <span th:text="${t.notes}">Ghi chú từ hệ thống</span>
+                        </div>
+                    </div>
+                    <div class="room-card-footer">
+                        <div style="display: flex; gap: 8px;">
+                            <button class="btn btn-report"
+                                th:attr="onclick=|openReportModal('${t.room.id}', '${t.room.roomNumber}', '${t.operationalType}')|">
+                                <i class="fa-solid fa-triangle-exclamation"></i> Báo sự cố
+                            </button>
+                            <button type="button" class="btn"
+                                style="background: transparent; color: var(--info); border: 1px solid var(--info-light);"
+                                th:attr="onclick=|openMinibarModal('${t.room.id}', '${t.room.roomNumber}')|">
+                                <i class="fa-solid fa-martini-glass"></i> Minibar
+                            </button>
+                        </div>
+                        <form method="post" th:action="@{/housekeeping/tasks/{id}/start(id=${t.id})}" style="margin: 0;">
+                            <button class="btn btn-primary">
+                                <i class="fa-solid fa-play"></i> Bắt đầu
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Completed Rooms -->
+                <div th:each="t : ${completedToday}" class="room-card task-card-completed" style="opacity: 0.65; border-color: transparent;">
+                    <div class="room-card-header">
+                        <div class="room-identity">
+                            <span class="room-number" th:text="${t.room.roomNumber}">103</span>
+                            <span class="room-type" th:text="${t.room.category.categoryName}">Standard</span>
+                        </div>
+                        <div class="status-badge" style="background: var(--success); color: white;">
+                            <i class="fa-solid fa-check"></i> Đã hoàn thành
+                        </div>
+                    </div>
+                    <div class="room-card-body">
+                        <div class="stay-status stay-over" style="color: var(--text-secondary);">
+                            <i class="fa-solid fa-broom"></i> Phòng đã được dọn sạch sẽ
+                        </div>
+                        <div class="guest-note" th:if="${t.notes != null and !t.notes.isEmpty()}">
+                            <i class="fa-solid fa-note-sticky"></i>
+                            <span th:text="${t.notes}">Ghi chú</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div th:if="${#lists.isEmpty(pendingTasks) and #lists.isEmpty(inProgressTasks)}" class="empty-state">
+                <i class="fa-regular fa-face-smile"></i>
+                <h3>Tuyệt vời!</h3>
+                <p>Bạn đã hoàn thành tất cả công việc được giao trong ca hôm nay.</p>
+            </div>
+>>>>>>> 84b7b1f024dabbe54205e3ac7ffafc3727f09a60
+        </div>
+    </div>
+
+    <!-- Maintenance Report Modal -->
+    <div class="modal-overlay" id="reportModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <i class="fa-solid fa-triangle-exclamation"></i> Báo cáo sự cố bảo trì
+                </div>
+                <button class="close-btn" onclick="closeReportModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form action="/housekeeping/report-damage" method="post" enctype="multipart/form-data">
+                <input type="hidden" id="reportRoomId" name="roomId" value="">
+                <input type="hidden" id="reportTaskType" name="taskType" value="">
+                <input type="hidden" id="isEmergencyInput" name="isEmergency" value="false">
+
+                <div class="form-group">
+                    <label class="form-label">Phòng đang xảy ra sự cố</label>
+                    <input type="text" id="reportRoomNumber" class="form-control" value="101" readonly
+                        style="background: var(--surface-hover); color: var(--text-secondary); font-weight: 600;">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Mô tả sự cố gặp phải</label>
+                    <textarea name="notes" class="form-control" rows="4"
+                        placeholder="Ví dụ: Tivi không lên nguồn, vòi hoa sen bị rỉ nước..." required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Hình ảnh sự cố (Tùy chọn)</label>
+                    <input type="file" name="image" accept="image/*" class="form-control" id="reportImageInput" onchange="previewReportImage(this)">
+                    <div id="imagePreviewContainer" style="margin-top: 12px; display: none;">
+                        <img id="imagePreview" src="#" alt="Xem trước ảnh" style="max-width: 100%; max-height: 200px; border-radius: 8px; border: 1px solid var(--border-color); object-fit: cover;">
+                    </div>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn"
+                        style="background: var(--surface-hover); color: var(--text-secondary);"
+                        onclick="closeReportModal()">Hủy bỏ</button>
+                    <button type="submit" class="btn btn-primary" style="background: var(--danger);"><i
+                            class="fa-solid fa-paper-plane"></i> Gửi yêu cầu ngay</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Complete Task Modal -->
+    <div class="modal-overlay" id="completeModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title" style="color: var(--success);">
+                    <i class="fa-solid fa-check-circle"></i> Xác nhận hoàn thành
+                </div>
+                <button class="close-btn" onclick="closeCompleteModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="completeForm" method="post" action="">
+                <p style="margin-bottom: 16px; font-size: 14px; color: var(--text-secondary);">Bạn chuẩn bị đánh dấu
+                    hoàn thành dọn dẹp cho <strong id="completeRoomNumber">Phòng</strong>.</p>
+
+                <div class="form-group">
+                    <label>Ghi chú (Tùy chọn)</label>
+                    <textarea id="completeNotes" name="notes" rows="3" class="form-control"
+                        placeholder="Ví dụ: Khách quên sạc điện thoại, cần bổ sung khăn tắm..."></textarea>
+                </div>
+                <div style="display: flex; gap: 12px; margin-top: 24px;">
+                    <button type="button" class="btn"
+                        style="background: var(--surface-hover); color: var(--text-primary); flex: 1;"
+                        onclick="closeCompleteModal()">Hủy</button>
+                    <button type="submit" class="btn btn-success" style="flex: 1;"><i class="fa-solid fa-check"></i>
+                        Hoàn tất</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div sec:authorize="hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_RECEPTIONIST', 'OP_RECEPTION_INHOUSE', 'OP_RECEPTION_CHECKOUT', 'OP_RECEPTION_WALKIN', 'OP_RECEPTION_CHECKIN')">
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                const emergencyInput = document.getElementById('isEmergencyInput');
+                if (emergencyInput) {
+                    emergencyInput.value = 'true';
+                }
+            });
+        </script>
+    </div>
+
+    <script>
+        function openReportModal(roomId, roomNumber, taskType) {
+            document.getElementById('reportRoomId').value = roomId;
+            document.getElementById('reportTaskType').value = taskType || '';
+            document.getElementById('reportRoomNumber').value = 'Phòng ' + roomNumber;
+            document.getElementById('reportModal').classList.add('active');
+        }
+
+        function closeReportModal() {
+            document.getElementById('reportModal').classList.remove('active');
+            const imgInput = document.getElementById('reportImageInput');
+            if (imgInput) imgInput.value = '';
+            const previewContainer = document.getElementById('imagePreviewContainer');
+            if (previewContainer) previewContainer.style.display = 'none';
+        }
+
+        // Close modal on outside click
+        document.getElementById('reportModal').addEventListener('click', function (e) {
+            if (e.target === this) {
+                closeReportModal();
+            }
+        });
+
+        let currentTaskId = null;
+        let currentTaskType = null;
+
+        function openCompleteModal(taskId, roomNumber, taskType) {
+            currentTaskId = taskId;
+            currentTaskType = taskType;
+            document.getElementById('completeForm').action = '/housekeeping/tasks/' + taskId + '/complete';
+            document.getElementById('completeRoomNumber').innerText = 'Phòng ' + roomNumber;
+
+            document.getElementById('completeModal').classList.add('active');
+        }
+
+        function closeCompleteModal() {
+            document.getElementById('completeModal').classList.remove('active');
+        }
+
+        document.getElementById('completeForm').addEventListener('submit', function (e) {
+            if (currentTaskType === 'ROOM_CHECK') {
+                e.preventDefault();
+                let minibarFee = 0;
+                let damageFee = 0;
+                let notes = document.getElementById('completeNotes').value;
+
+                fetch('/api/housekeeping/complete-room-check', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        taskId: currentTaskId,
+                        minibarFee: minibarFee,
+                        damageFee: damageFee,
+                        notes: notes
+                    })
+                }).then(r => r.json()).then(data => {
+                    if (data.success) {
+                        window.location.reload();
+                    } else {
+                        alert(data.message);
+                    }
+                }).catch(err => alert("Lỗi kết nối!"));
+            }
+        });
+
+        // Close modal on outside click
+        const reportModalEl = document.getElementById('reportModal');
+        if (reportModalEl) {
+            reportModalEl.addEventListener('click', function (e) {
+                if (e.target === this) closeReportModal();
+            });
+        }
+        const completeModalEl = document.getElementById('completeModal');
+        if (completeModalEl) {
+            completeModalEl.addEventListener('click', function (e) {
+                if (e.target === this) closeCompleteModal();
+            });
+        }
+        
+        if (document.readyState === 'loading') {
+            document.addEventListener("DOMContentLoaded", () => {
+                const minibarModalEl = document.getElementById('minibarModal');
+                if (minibarModalEl) {
+                    minibarModalEl.addEventListener('click', function (e) {
+                        if (e.target === this) closeMinibarModal();
+                    });
+                }
+            });
+        } else {
+            const minibarModalEl = document.getElementById('minibarModal');
+            if (minibarModalEl) {
+                minibarModalEl.addEventListener('click', function (e) {
+                    if (e.target === this) closeMinibarModal();
+                });
+            }
+        }
+
+        // Minibar Modal JS
+        function openMinibarModal(roomId, roomNumber) {
+            document.getElementById('minibarRoomId').value = roomId;
+            document.getElementById('minibarRoomNumber').innerText = roomNumber;
+
+            // Reset dynamic table
+            document.getElementById('damageTableBody').innerHTML = '';
+
+            // Reset form
+            const inputs = document.querySelectorAll('#minibarModal input[type="number"]');
+            inputs.forEach(input => input.value = '0');
+            document.querySelector('#minibarModal textarea[name="notes"]').value = '';
+
+            document.getElementById('minibarModal').classList.add('active');
+        }
+
+        function closeMinibarModal() {
+            document.getElementById('minibarModal').classList.remove('active');
+        }
+
+        function addDamageRow() {
+            const tbody = document.getElementById('damageTableBody');
+            const tr = document.createElement('tr');
+            tr.style.borderBottom = '1px solid var(--border-color)';
+            tr.innerHTML = `
+                <td style="padding: 8px 0;">
+                    <input type="text" class="damage-name" placeholder="Ví dụ: Vỡ ly, mất khăn..." style="width: 100%; padding: 6px 8px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; background: var(--surface); color: var(--text-primary); outline: none;">
+                </td>
+                <td style="padding: 8px; text-align: center;">
+                    <input type="number" class="damage-qty" value="1" min="1" oninput="calculateRowTotal(this)" style="width: 70px; padding: 6px 8px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; background: var(--surface); color: var(--text-primary); outline: none; text-align: center;">
+                </td>
+                <td style="padding: 8px;">
+                    <input type="number" class="damage-price" value="0" min="0" oninput="calculateRowTotal(this)" style="width: 110px; padding: 6px 8px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; background: var(--surface); color: var(--text-primary); outline: none;">
+                </td>
+                <td style="padding: 8px; font-weight: 600; color: var(--secondary); font-size: 13px;">
+                    <span class="row-total">0</span> VNĐ
+                </td>
+                <td style="padding: 8px 0; text-align: center;">
+                    <button type="button" onclick="removeDamageRow(this)" style="background: transparent; border: none; color: var(--danger); cursor: pointer; font-size: 14px;">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        }
+
+        function removeDamageRow(btn) {
+            btn.closest('tr').remove();
+        }
+
+        function calculateRowTotal(input) {
+            const tr = input.closest('tr');
+            const qty = parseInt(tr.querySelector('.damage-qty').value) || 0;
+            const price = parseInt(tr.querySelector('.damage-price').value) || 0;
+            const total = qty * price;
+            tr.querySelector('.row-total').innerText = total.toLocaleString();
+        }
+
+        async function submitMinibar() {
+            const roomId = document.getElementById('minibarRoomId').value;
+            const evian = parseInt(document.querySelector('input[name="item_evian"]').value) || 0;
+            const coca = parseInt(document.querySelector('input[name="item_coca"]').value) || 0;
+            const heineken = parseInt(document.querySelector('input[name="item_heineken"]').value) || 0;
+            const snack = parseInt(document.querySelector('input[name="item_snack"]').value) || 0;
+            const notes = document.querySelector('#minibarForm textarea[name="notes"]').value;
+
+            // Mock prices for Minibar items
+            const P_EVIAN = 50000;
+            const P_COCA = 30000;
+            const P_HEINEKEN = 50000;
+            const P_SNACK = 40000;
+
+            const minibarFee = (evian * P_EVIAN) + (coca * P_COCA) + (heineken * P_HEINEKEN) + (snack * P_SNACK);
+
+            // Get dynamic damage rows
+            let damageFee = 0;
+            let damageDescList = [];
+            const damageRows = document.querySelectorAll('#damageTableBody tr');
+            damageRows.forEach(row => {
+                const name = row.querySelector('.damage-name').value.trim();
+                const qty = parseInt(row.querySelector('.damage-qty').value) || 0;
+                const price = parseInt(row.querySelector('.damage-price').value) || 0;
+                if (name && qty > 0 && price > 0) {
+                    const rowTotal = qty * price;
+                    damageFee += rowTotal;
+                    damageDescList.push(`${name} (x${qty}: ${rowTotal.toLocaleString()} VNĐ)`);
+                }
+            });
+
+            const totalFee = minibarFee + damageFee;
+
+            let desc = [];
+            if(evian > 0) desc.push(`Nước suối Evian (x${evian})`);
+            if(coca > 0) desc.push(`Coca Cola (x${coca})`);
+            if(heineken > 0) desc.push(`Bia Heineken (x${heineken})`);
+            if(snack > 0) desc.push(`Snack khoai tây (x${snack})`);
+            
+            let fullDesc = "";
+            if (desc.length > 0) {
+                fullDesc += `Phí sử dụng Minibar: ` + desc.join(", ");
+            }
+            if (damageDescList.length > 0) {
+                if (fullDesc) fullDesc += " | ";
+                fullDesc += `Phí hỏng hóc/mất mát: ` + damageDescList.join(", ");
+            }
+            
+            if(totalFee > 0) {
+                try {
+                    const response = await fetch('/api/housekeeping/save-minibar-only', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ roomId, minibarFee: totalFee, description: fullDesc, notes })
+                    });
+                    const res = await response.json();
+                    if(res.success) {
+                        alert('Đã lưu thông tin kiểm kê phòng thành công cho Phòng ' + document.getElementById('minibarRoomNumber').innerText);
+                        closeMinibarModal();
+                    } else {
+                        alert('Lỗi: ' + res.message);
+                    }
+                } catch(e) {
+                    alert('Lỗi kết nối.');
+                }
+            } else {
+                alert('Đã lưu thông tin (không phát sinh phí) cho Phòng ' + document.getElementById('minibarRoomNumber').innerText);
+                closeMinibarModal();
+            }
+        }
+
+        function filterHousekeepingTasks(filterType, btn) {
+            // Remove active class from all tabs in this container
+            const tabs = btn.parentElement.querySelectorAll('.tab-btn');
+            tabs.forEach(t => t.classList.remove('active'));
+            
+            // Add active class to clicked tab
+            btn.classList.add('active');
+            
+            // Get all cards
+            const activeCards = document.querySelectorAll('.task-card-active');
+            const completedCards = document.querySelectorAll('.task-card-completed');
+            const emptyState = document.querySelector('.empty-state');
+            
+            // Count visible active/completed tasks
+            let activeVisibleCount = 0;
+            let completedVisibleCount = 0;
+            
+            if (filterType === 'all') {
+                activeCards.forEach(c => c.style.display = 'flex');
+                completedCards.forEach(c => c.style.display = 'flex');
+                activeVisibleCount = activeCards.length;
+                completedVisibleCount = completedCards.length;
+            } else if (filterType === 'active') {
+                activeCards.forEach(c => c.style.display = 'flex');
+                completedCards.forEach(c => c.style.display = 'none');
+                activeVisibleCount = activeCards.length;
+                completedVisibleCount = 0;
+            } else if (filterType === 'completed') {
+                activeCards.forEach(c => c.style.display = 'none');
+                completedCards.forEach(c => c.style.display = 'flex');
+                activeVisibleCount = 0;
+                completedVisibleCount = completedCards.length;
+            }
+            
+            // Handle empty state visibility
+            if (emptyState) {
+                if (filterType === 'active' && activeVisibleCount === 0) {
+                    emptyState.style.display = 'block';
+                    emptyState.querySelector('h3').innerText = 'Tuyệt vời!';
+                    emptyState.querySelector('p').innerText = 'Không có phòng nào cần xử lý.';
+                } else if (filterType === 'completed' && completedVisibleCount === 0) {
+                    emptyState.style.display = 'block';
+                    emptyState.querySelector('h3').innerText = 'Trống';
+                    emptyState.querySelector('p').innerText = 'Chưa có phòng nào hoàn thành hôm nay.';
+                } else if (filterType === 'all' && activeVisibleCount === 0 && completedVisibleCount === 0) {
+                    emptyState.style.display = 'block';
+                    emptyState.querySelector('h3').innerText = 'Tuyệt vời!';
+                    emptyState.querySelector('p').innerText = 'Bạn đã hoàn thành tất cả công việc được giao trong ca hôm nay.';
+                } else {
+                    emptyState.style.display = 'none';
+                }
+            }
+        }
+
+        function applyGuestNoteBadges() {
+            document.querySelectorAll('.guest-note span').forEach(span => {
+                const text = span.textContent.trim();
+                const match = text.match(/^\[([^\]]+)\]([\s\S]*)$/);
+                if (match) {
+                    const tagText = match[1];
+                    const restText = match[2];
+                    
+                    let bg = '#f1f3f5';
+                    let color = '#495057';
+                    const lowerTag = tagText.toLowerCase();
+                    
+                    if (lowerTag.includes('arrival') || lowerTag.includes('checkin') || lowerTag.includes('check-in')) {
+                        bg = '#e7f5ff';
+                        color = '#1864ab';
+                    } else if (lowerTag.includes('checkout') || lowerTag.includes('check-out')) {
+                        bg = '#fff4e6';
+                        color = '#d9480f';
+                    } else if (lowerTag.includes('stayover') || lowerTag.includes('stay-over') || lowerTag.includes('stay')) {
+                        bg = '#f1f3f5';
+                        color = '#495057';
+                    } else if (lowerTag.includes('urgent') || lowerTag.includes('khẩn')) {
+                        bg = '#fff5f5';
+                        color = '#c92a2a';
+                    }
+                    
+                    const badgeHtml = `<span class="note-badge" style="display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 4px; background: ${bg}; color: ${color}; margin-right: 8px; text-transform: uppercase; letter-spacing: 0.3px;">${tagText}</span>`;
+                    span.innerHTML = badgeHtml + restText.trim();
+                }
+            });
+        }
+
+        function previewReportImage(input) {
+            const container = document.getElementById('imagePreviewContainer');
+            const preview = document.getElementById('imagePreview');
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    container.style.display = 'block';
+                }
+                reader.readAsDataURL(input.files[0]);
+            } else {
+                container.style.display = 'none';
+            }
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener("DOMContentLoaded", applyGuestNoteBadges);
+        } else {
+            applyGuestNoteBadges();
+        }
+        window.addEventListener('load', applyGuestNoteBadges);
+        setTimeout(applyGuestNoteBadges, 200);
+    </script>
+
+    <!-- Minibar Modal -->
+    <div class="modal-overlay" id="minibarModal">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">
+                <div class="modal-title" style="color: var(--info);">
+                    <i class="fa-solid fa-martini-glass"></i> Kiểm tra Minibar & Tiện ích
+                </div>
+                <button class="close-btn" onclick="closeMinibarModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="minibarForm" method="post" action="">
+                <input type="hidden" id="minibarRoomId" name="roomId" value="">
+                <p style="margin-bottom: 24px; font-size: 14px; color: var(--text-secondary);">
+                    Ghi nhận đồ uống/snack đã dùng và đồ dùng bổ sung cho <strong>Phòng <span
+                            id="minibarRoomNumber"></span></strong>.
+                </p>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;">
+                    <!-- Minibar Items -->
+                    <div>
+                        <h4
+                            style="font-size: 14px; margin-bottom: 12px; color: var(--secondary); border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+                            <i class="fa-solid fa-wine-bottle" style="color: var(--primary);"></i> Đồ uống / Snack
+                        </h4>
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <label style="font-size: 13px; color: var(--text-secondary);">Nước suối Evian</label>
+                            <input type="number" name="item_evian" value="0" min="0" max="10"
+                                style="width: 60px; padding: 4px 8px; border: 1px solid var(--border-color); border-radius: 6px;">
+                        </div>
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <label style="font-size: 13px; color: var(--text-secondary);">Coca Cola</label>
+                            <input type="number" name="item_coca" value="0" min="0" max="10"
+                                style="width: 60px; padding: 4px 8px; border: 1px solid var(--border-color); border-radius: 6px;">
+                        </div>
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <label style="font-size: 13px; color: var(--text-secondary);">Bia Heineken</label>
+                            <input type="number" name="item_heineken" value="0" min="0" max="10"
+                                style="width: 60px; padding: 4px 8px; border: 1px solid var(--border-color); border-radius: 6px;">
+                        </div>
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <label style="font-size: 13px; color: var(--text-secondary);">Snack khoai tây</label>
+                            <input type="number" name="item_snack" value="0" min="0" max="10"
+                                style="width: 60px; padding: 4px 8px; border: 1px solid var(--border-color); border-radius: 6px;">
+                        </div>
+                    </div>
+
+                    <!-- Amenities -->
+                    <div>
+                        <h4
+                            style="font-size: 14px; margin-bottom: 12px; color: var(--secondary); border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+                            <i class="fa-solid fa-pump-soap" style="color: var(--primary);"></i> Tiện ích bổ sung
+                        </h4>
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <label style="font-size: 13px; color: var(--text-secondary);">Bàn chải đánh răng</label>
+                            <input type="number" name="amenity_toothbrush" value="0" min="0" max="5"
+                                style="width: 60px; padding: 4px 8px; border: 1px solid var(--border-color); border-radius: 6px;">
+                        </div>
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <label style="font-size: 13px; color: var(--text-secondary);">Sữa tắm mini</label>
+                            <input type="number" name="amenity_showergel" value="0" min="0" max="5"
+                                style="width: 60px; padding: 4px 8px; border: 1px solid var(--border-color); border-radius: 6px;">
+                        </div>
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <label style="font-size: 13px; color: var(--text-secondary);">Dầu gội mini</label>
+                            <input type="number" name="amenity_shampoo" value="0" min="0" max="5"
+                                style="width: 60px; padding: 4px 8px; border: 1px solid var(--border-color); border-radius: 6px;">
+                        </div>
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <label style="font-size: 13px; color: var(--text-secondary);">Khăn tắm thay mới</label>
+                            <input type="number" name="amenity_towel" value="0" min="0" max="10"
+                                style="width: 60px; padding: 4px 8px; border: 1px solid var(--border-color); border-radius: 6px;">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Block 3: Tài sản hỏng hóc / Mất mát (Có tính phí) -->
+                <div style="margin-bottom: 24px; border-top: 1px solid var(--border-color); padding-top: 16px;">
+                    <h4 style="font-size: 14px; margin-bottom: 16px; color: var(--secondary); display: flex; justify-content: space-between; align-items: center;">
+                        <span><i class="fa-solid fa-triangle-exclamation" style="color: var(--warning);"></i> Tài sản hỏng hóc / Mất mát (Có tính phí)</span>
+                        <button type="button" class="btn btn-sm" style="padding: 4px 10px; font-size: 12px; background: var(--primary-light); color: var(--primary); border: 1px solid var(--primary-light); border-radius: 6px; cursor: pointer;" onclick="addDamageRow()">
+                            <i class="fa-solid fa-plus"></i> Thêm dòng
+                        </button>
+                    </h4>
+                    <div style="overflow-x: auto;">
+                        <table id="damageTable" style="width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 12px;">
+                            <thead>
+                                <tr style="border-bottom: 1px solid var(--border-color); text-align: left; color: var(--text-secondary);">
+                                    <th style="padding: 6px 0;">Tên tài sản</th>
+                                    <th style="padding: 6px 8px; width: 90px; text-align: center;">Số lượng</th>
+                                    <th style="padding: 6px 8px; width: 140px;">Đơn giá (VNĐ)</th>
+                                    <th style="padding: 6px 8px; width: 140px;">Thành tiền</th>
+                                    <th style="padding: 6px 0; width: 50px; text-align: center;"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="damageTableBody">
+                                <!-- Dynamic rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 24px;">
+                    <label class="form-label"
+                        style="font-size: 13px; color: var(--text-secondary); margin-bottom: 8px; display: block;">Ghi
+                        chú thêm</label>
+                    <textarea class="form-control" name="notes" rows="2"
+                        placeholder="Ví dụ: Khách làm vỡ 1 ly thủy tinh, yêu cầu thêm nước suối..."
+                        style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 13px; outline: none;"></textarea>
+                </div>
+
+                <div style="display: flex; gap: 12px;">
+                    <button type="button" class="btn"
+                        style="flex: 1; background: var(--surface-hover); color: var(--text-secondary); border: 1px solid var(--border-color);"
+                        onclick="closeMinibarModal()">Hủy</button>
+                    <button type="button" class="btn btn-success"
+                        style="flex: 1; background: var(--info); border: none;" onclick="submitMinibar()">
+                        <i class="fa-solid fa-save"></i> Lưu thông tin
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+
+</html>

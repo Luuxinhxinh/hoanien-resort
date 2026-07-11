@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hoanien Retreat | Dư âm tĩnh lặng</title>
+
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Inter:wght@300;400;500;600&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+
+    <script id="tailwind-config">
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'hoanien-bg': '#f1ebe3',
+                        'hoanien-text': '#3a3230',
+                        'hoanien-footer': '#3c3530',
+                        'hoanien-footer-text': '#e5dfd8',
+                        "primary": "#fbddc7",
+                        "surface": "#fff8f4",
+                        "on-surface": "#1f1b16",
+                    },
+                    fontFamily: {
+                        'serif': ['"Playfair Display"', 'serif'],
+                        'sans': ['"Montserrat"', 'sans-serif'],
+                        'headline': ["EB Garamond", "serif"],
+                        'body': ["Inter", "sans-serif"]
+                    },
+                    spacing: {
+                        "margin-desktop": "80px",
+                        "section-gap": "160px",
+                        "container-max": "1440px",
+                        "unit": "8px"
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+
+        /* ── ĐÃ SỬA: Khóa cứng Navbar luôn trong suốt mờ ảo, không đổi nền khi cuộn ── */
+        .guest-nav {
+            background: rgba(31, 27, 22, 0.2) !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+            backdrop-filter: blur(12px) !important;
+            -webkit-backdrop-filter: blur(12px) !important;
+            transition: border-color 0.4s ease;
+        }
+
+        .guest-nav .nav-text {
+            color: #fff !important;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+        }
+
+        .guest-nav .nav-text-dim,
+        .guest-sub-nav .sub-nav-text {
+            color: rgba(255, 255, 255, 0.8) !important;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+            transition: color 0.3s ease;
+        }
+
+        .guest-sub-nav .sub-nav-text:hover,
+        .guest-nav .nav-text-dim:hover {
+            color: #fff !important;
+        }
+
+        .guest-nav .nav-brand {
+            color: #fff !important;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Đồng bộ cấu trúc nút Book Now dạng liên kết chữ thanh mảnh */
+        .guest-nav .nav-btn-book {
+            background: transparent !important;
+            color: rgba(255, 255, 255, 0.8) !important;
+            border: none !important;
+            box-shadow: none !important;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+            transition: color 0.4s ease, opacity 0.2s ease;
+        }
+
+        .guest-nav .nav-btn-book:hover {
+            color: #fff !important;
+            opacity: 1;
+        }
+
+        .guest-nav .nav-menu-icon {
+            color: #fff !important;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+        }
+
+        body {
+            background-color: #1f1b16;
+            color: #fff8f4;
+            overflow-x: hidden;
+        }
+
+        .scroll-container {
+            scroll-snap-type: y mandatory;
+            height: 100vh;
+            overflow-y: scroll;
+            scroll-behavior: smooth;
+            scrollbar-gutter: stable;
+        }
+
+        .snap-section {
+            scroll-snap-align: start;
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .faded-entry {
+            animation: fadeIn 2.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .parallax-bg {
+            transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .content-overlay {
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.6) 50%, rgba(0, 0, 0, 0.85) 100%);
+        }
+
+        .journey-overlay {
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.6) 50%, rgba(0, 0, 0, 0.85) 100%);
+        }
+
+        .scroll-container::-webkit-scrollbar {
+            width: 14px;
+        }
+
+        .scroll-container::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .scroll-container::-webkit-scrollbar-thumb {
+            background-color: rgba(255, 255, 255, 0.15);
+            border: 4px solid #1f1b16;
+            border-radius: 8px;
+        }
+
+        .pagination-btn {
+            font-size: 11px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.4);
+            border-bottom: 2px solid transparent;
+            padding: 2px 6px;
+            transition: color 0.3s, border-color 0.3s;
+            cursor: pointer;
+        }
+        .pagination-btn.active {
+            color: #fbddc7;
+            border-bottom-color: #fbddc7;
+        }
+    </style>
+</head>
+
+<body class="font-body selection:bg-primary/30 text-surface bg-on-surface">
+
+    <div id="header-wrapper" class="fixed top-0 left-0 w-full z-50 flex flex-col pointer-events-none text-white">
+        <nav class="guest-nav relative w-full font-sans pointer-events-auto">
+            <div class="max-w-[1440px] mx-auto px-6 py-4 flex items-center justify-between">
+                <div class="hidden lg:flex items-center gap-8 text-[13px] uppercase tracking-[0.2em] font-semibold">
+                    <a href="/living"
+                        class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200">Living</a>
+                    <a href="/dining"
+                        class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200">Dining</a>
+                    <a href="/experiences"
+                        class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200">Experiences</a>
+                    <a href="/tours/search" class="nav-text border-b border-current pb-0.5">Tours</a>
+                    <a href="/feedback"
+                        class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200">Feedback</a>
+                </div>
+
+                <div class="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 font-headline text-[32px] italic tracking-tighter nav-brand text-center cursor-pointer w-max"
+                    onclick="window.location.href='/'">
+                    HoaNien
+                </div>
+
+                <div class="hidden lg:flex items-center gap-6 text-[13px] uppercase tracking-[0.2em] font-semibold">
+                    <a href="/profile" th:if="${session.user != null}"
+                        class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200">Profile</a>
+                    <form th:action="@{/auth/logout}" method="post" th:if="${session.user != null}" class="inline">
+                        <button type="submit"
+                            class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200 uppercase tracking-[0.2em] bg-transparent border-none p-0 cursor-pointer">Logout</button>
+                    </form>
+                    <a href="#" onclick="openLoginModal(); return false;" th:unless="${session.user != null}" class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200">Log In</a>
+                    <a href="/booking"
+                        class="nav-btn-book hover:opacity-100 active:scale-95 transition-all duration-200 inline-block text-[13px]">
+                        Book Now
+                    </a>
+                </div>
+
+                <button class="lg:hidden pointer-events-auto">
+                    <span class="material-symbols-outlined text-3xl nav-menu-icon">menu</span>
+                </button>
+            </div>
+        </nav>
+
+        <div class="guest-sub-nav w-full font-sans pointer-events-auto">
+            <div
+                class="max-w-[1440px] mx-auto px-6 py-3 flex justify-center gap-8 md:gap-12 text-xs uppercase tracking-[0.15em] font-medium overflow-x-auto">
+                <a href="#journey-1"
+                    class="sub-nav-text hover:opacity-100 active:scale-95 transition-all duration-200 whitespace-nowrap">Đoàn
+                    Tụ</a>
+                <a href="#journey-2"
+                    class="sub-nav-text hover:opacity-100 active:scale-95 transition-all duration-200 whitespace-nowrap">Đồng
+                    Nội</a>
+                <a href="#journey-3"
+                    class="sub-nav-text hover:opacity-100 active:scale-95 transition-all duration-200 whitespace-nowrap">Di
+                    Sản</a>
+                <a href="#journey-4"
+                    class="sub-nav-text hover:opacity-100 active:scale-95 transition-all duration-200 whitespace-nowrap">Tĩnh
+                    Lặng</a>
+                <a href="#journey-5"
+                    class="sub-nav-text hover:opacity-100 active:scale-95 transition-all duration-200 whitespace-nowrap">Hạ
+                    Long</a>
+                <a href="#journey-6"
+                    class="sub-nav-text hover:opacity-100 active:scale-95 transition-all duration-200 whitespace-nowrap">Sapa</a>
+                <a href="#journey-7"
+                    class="sub-nav-text hover:opacity-100 active:scale-95 transition-all duration-200 whitespace-nowrap">Cát
+                    Tiên</a>
+                <a href="#journey-8"
+                    class="sub-nav-text hover:opacity-100 active:scale-95 transition-all duration-200 whitespace-nowrap">Mũi
+                    Né</a>
+                <a href="#journey-9"
+                    class="sub-nav-text hover:opacity-100 active:scale-95 transition-all duration-200 whitespace-nowrap">Phú
+                    Quốc</a>
+                <a href="#journey-10"
+                    class="sub-nav-text hover:opacity-100 active:scale-95 transition-all duration-200 whitespace-nowrap">Cần
+                    Thơ</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="scroll-container">
+        <section class="snap-section flex flex-col items-center justify-center text-center px-6" id="intro">
+            <div class="absolute inset-0 z-0">
+                <img alt="HoaNien Sanctuary Hero" class="parallax-bg w-full h-full object-cover brightness-75"
+                    src="/AnhTour/DuAm.jpg">
+                <div class="absolute inset-0 content-overlay"></div>
+            </div>
+            <div class="relative z-10 faded-entry max-w-4xl px-4">
+                <span class="text-[11px] uppercase tracking-[0.5em] mb-8 block opacity-80">HOANIEN RETREAT</span>
+                <h1 class="font-headline text-5xl md:text-7xl italic mb-10 leading-tight">Dư âm tĩnh lặng</h1>
+                <p
+                    class="font-headline text-xl md:text-2xl font-light max-w-2xl mx-auto leading-relaxed opacity-90 italic">
+                    Hành trình chạm vào những mảnh ghép ký ức nguyên bản.
+                </p>
+                <div class="mt-10 flex flex-col items-center gap-6">
+                    <a href="#journey-viewer" onclick="const viewer = document.getElementById('journey-viewer'); if (viewer) { viewer.scrollIntoView({ behavior: 'smooth' }); } return false;"
+                        class="nav-btn-book border border-white/50 backdrop-blur-sm inline-block px-10 py-3 text-[11px] font-bold uppercase tracking-[0.4em] text-white rounded-full hover:bg-white/10 hover:border-primary transition-all duration-400">Khám phá hành trình</a>
+                    <div class="animate-bounce opacity-40">
+                        <span class="material-symbols-outlined text-3xl">keyboard_double_arrow_down</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="snap-section" id="journey-viewer">
+            <div class="absolute inset-0 transition-opacity duration-700" id="viewer-bg-container">
+                <img alt="Tour Background" class="w-full h-full object-cover brightness-90 transition-transform duration-1000 scale-100" id="viewer-bg-img"
+                    src="/AnhTour/z7930565882675_f94fe322fc3a06efe82eccf1e76b09e1.jpg">
+                <div class="absolute inset-0 journey-overlay"></div>
+            </div>
+            
+            <div class="relative h-full flex flex-col justify-between py-24 text-center px-margin-desktop z-10">
+                <!-- Content Area -->
+                <div class="flex-grow flex items-center justify-center">
+                    <div class="max-w-3xl space-y-8 opacity-100 transition-all duration-500" id="viewer-content">
+                        <h2 class="font-headline text-4xl md:text-6xl italic" id="viewer-title">Đoàn tụ - Huế</h2>
+                        <div class="w-12 h-[1px] bg-primary mx-auto"></div>
+                        <p class="font-headline text-lg md:text-2xl font-light leading-relaxed opacity-90" id="viewer-desc">
+                            Tìm về hơi ấm vẹn nguyên của lòng biết ơn và sự gắn kết. Nơi những điển tích cổ kính, nghi thức
+                            têm trầu cánh phượng và mâm cơm vị cội nguồn khơi mở cuộc sum vầy.
+                        </p>
+                        <a href="/tours/detail?type=doantu" id="viewer-link"
+                            class="inline-block mt-8 text-[11px] font-bold uppercase tracking-[0.4em] border-b border-white/40 pb-2 hover:border-primary hover:text-primary transition-all">Khám
+                            phá trải nghiệm</a>
+                    </div>
+                </div>
+                
+                <!-- Pagination Controls -->
+                <div class="flex justify-center items-center gap-4 md:gap-6 mt-auto">
+                    <button onclick="prevTour()" class="w-10 h-10 border border-white/20 rounded-full flex items-center justify-center hover:bg-white/10 hover:border-primary transition-all active:scale-90" type="button">
+                        <span class="material-symbols-outlined text-white text-base">arrow_back</span>
+                    </button>
+                    
+                    <div class="flex items-center gap-3 overflow-x-auto max-w-[280px] md:max-w-md px-2 py-1 select-none" id="viewer-pagination-dots">
+                        <!-- Numbers 1, 2, 3... will be rendered here dynamically -->
+                    </div>
+                    
+                    <button onclick="nextTour()" class="w-10 h-10 border border-white/20 rounded-full flex items-center justify-center hover:bg-white/10 hover:border-primary transition-all active:scale-90" type="button">
+                        <span class="material-symbols-outlined text-white text-base">arrow_forward</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <section class="snap-section bg-on-surface flex flex-col justify-between py-24">
+            <div class="max-w-2xl mx-auto text-center space-y-12 px-6 pt-12">
+                <h2 class="font-headline text-4xl md:text-5xl italic">Gửi gắm tâm tình</h2>
+                <p class="opacity-70 max-w-lg mx-auto font-light">Để lại một nhịp chạm, giữ lại một dư âm cùng Hòa Niên.
+                </p>
+                <div class="w-full flex items-center border-b border-white/20 pb-4 mt-8">
+                    <input
+                        class="bg-transparent w-full border-none focus:ring-0 text-sm italic font-headline text-white placeholder-white/30 p-0"
+                        placeholder="Địa chỉ email của bạn" type="email">
+                    <button
+                        class="text-[10px] font-bold uppercase tracking-[0.3em] ml-4 hover:text-primary transition-colors whitespace-nowrap flex-shrink-0">Đăng
+                        ký</button>
+                </div>
+            </div>
+            <footer class="mt-auto px-margin-desktop border-t border-white/10 pt-16 pb-8">
+                <div class="flex flex-col md:flex-row justify-between items-center gap-12">
+                    <div class="text-center md:text-left">
+                        <p class="font-headline text-3xl italic">HoaNien</p>
+                        <p class="text-[9px] tracking-[0.3em] text-white/40 uppercase mt-4">© 2026 HoaNien Retreat. A
+                            Quiet Luxury Travel Group.</p>
+                    </div>
+                    <div class="flex flex-wrap justify-center gap-10">
+                        <a class="text-[9px] font-semibold uppercase tracking-[0.25em] text-white/50 hover:text-white transition-colors"
+                            href="#">Quyền riêng tư</a>
+                        <a class="text-[9px] font-semibold uppercase tracking-[0.25em] text-white/50 hover:text-white transition-colors"
+                            href="#">Sự bền vững</a>
+                        <a class="text-[9px] font-semibold uppercase tracking-[0.25em] text-white/50 hover:text-white transition-colors"
+                            href="#">Liên hệ</a>
+                    </div>
+                </div>
+            </footer>
+        </section>
+    </div>
+
+    <script>
+        const tourList = [
+            {
+                key: 'doantu',
+                title: 'Đoàn tụ - Huế',
+                description: 'Tìm về hơi ấm vẹn nguyên của lòng biết ơn và sự gắn kết. Nơi những điển tích cổ kính, nghi thức têm trầu cánh phượng và mâm cơm vị cội nguồn khơi mở cuộc sum vầy.',
+                link: '/tours/detail?type=doantu',
+                buttonText: 'Khám phá trải nghiệm',
+                image: '/AnhTour/z7930565882675_f94fe322fc3a06efe82eccf1e76b09e1.jpg'
+            },
+            {
+                key: 'dongnoi',
+                title: 'Tinh túy đồng nội - Quảng Nam',
+                description: 'Lắng nghe nhịp điệu mộc mạc của đất mẹ và hồn quê xứ Quảng. Hành trình đánh thức mọi giác quan qua hương lúa non nếp cái hoa vàng, hơi ấm bếp củi.',
+                link: '/tours/detail?type=dongnoi',
+                buttonText: 'Gói trọn hương quê',
+                image: '/AnhTour/Com.jpg'
+            },
+            {
+                key: 'disan',
+                title: 'Di sản thủ công - Ninh Bình',
+                description: 'Chạm vào hồn cốt của thời gian qua những tạo tác từ đôi bàn tay nghệ nhân. Khi sợi mây tre đan cài, kén vàng ươm dệt tơ và đất sét mộc hóa thành gốm quý.',
+                link: '/tours/detail?type=disan',
+                buttonText: 'Trải nghiệm thủ công',
+                image: '/AnhTour/ThuCong.jpg'
+            },
+            {
+                key: 'tinhlang',
+                title: 'Tĩnh lặng liên hoa - Tháp Mười',
+                description: 'Sự thanh lọc thuần khiết cho thân - tâm - trí giữa vùng sông nước mờ sương. Thả trôi mọi âu lo theo hương sen bánh tẻ ngậm sương sớm và thưởng ngụm trà nhị thanh sạch.',
+                link: '/tours/detail?type=tinhlang',
+                buttonText: 'Tìm về tĩnh lặng',
+                image: '/AnhTour/ThapMuoi.jpg'
+            },
+            {
+                key: 'halong',
+                title: 'Tiếng Vọng Sóng Xanh - Hạ Long',
+                description: 'Du thuyền lướt nhẹ giữa ngàn khơi, thưởng ngoạn kỳ quan thiên nhiên rực rỡ. Hải trình khám phá thế giới thạch nhũ giấu kín ngàn năm.',
+                link: '/tours/detail?type=halong',
+                buttonText: 'Khám phá kỳ quan',
+                image: '/AnhTour/z7930578251310_cb227ca09c0f3c7a04a3ab6beb933d35.jpg'
+            },
+            {
+                key: 'sapa',
+                title: 'Nẻo Đường Sương Phủ - Sapa',
+                description: 'Gặp gỡ những nụ cười hồn hậu giữa mây trời sương phủ. Hành trình thong dong qua ruộng bậc thang và suối nguồn Sapa mộc mạc.',
+                link: '/tours/detail?type=sapa',
+                buttonText: 'Về với sương phủ',
+                image: '/AnhTour/ThapMuoi.jpg'
+            },
+            {
+                key: 'cattien',
+                title: 'Nhịp Đập Rừng Già - Cát Tiên',
+                description: 'Lắng nghe tiếng gọi thì thầm từ đại ngàn nguyên sinh xanh thẳm. Chuyến đi băng rừng, ngắm thú đêm hoang dã đầy thú vị và cảm xúc.',
+                link: '/tours/detail?type=cattien',
+                buttonText: 'Lắng nghe đại ngàn',
+                image: '/AnhTour/z7930565879475_de7864577660b0726376ea947dbe94de.jpg'
+            },
+            {
+                key: 'muine',
+                title: 'Bình Minh Cồn Cát - Mũi Né',
+                description: 'Đón những vệt nắng đầu ngày rực rỡ trên đồi cát trắng tinh khôi. Trải nghiệm xe địa hình ATV vượt đụn cát và lướt sóng biển xanh.',
+                link: '/tours/detail?type=muine',
+                buttonText: 'Đón bình minh',
+                image: '/AnhTour/z7930565879475_de7864577660b0726376ea947dbe94de.jpg'
+            },
+            {
+                key: 'phuquoc',
+                title: 'Khúc Ca San Hô - Phú Quốc',
+                description: 'Hòa mình vào làn nước xanh lục bảo và rạn san hô đa sắc màu dưới lòng đại dương. Khám phá các hòn đảo hoang sơ tuyệt đẹp.',
+                link: '/tours/detail?type=phuquoc',
+                buttonText: 'Lặn biển ngắm san hô',
+                image: '/AnhTour/z7930565879475_de7864577660b0726376ea947dbe94de.jpg'
+            },
+            {
+                key: 'cantho',
+                title: 'Hương Sắc Miệt Vườn - Cần Thơ',
+                description: 'Tròn vị ngọt ngào của vườn cây trĩu trái và cuộc sống nổi miệt vườn Cần Thơ. Đón bình minh ăn hủ tiếu chòng chành trên sông.',
+                link: '/tours/detail?type=cantho',
+                buttonText: 'Thăm miệt vườn',
+                image: '/AnhTour/com.jfif'
+            }
+        ];
+
+        let activeTourIndex = 0;
+
+        function updateViewer(index) {
+            if (index < 0 || index >= tourList.length) return;
+            activeTourIndex = index;
+            const tour = tourList[index];
+
+            const content = document.getElementById('viewer-content');
+            const bgImg = document.getElementById('viewer-bg-img');
+
+            if (content) {
+                content.style.opacity = '0';
+                content.style.transform = 'translateY(15px)';
+            }
+            if (bgImg) {
+                bgImg.style.transform = 'scale(1.05)';
+            }
+
+            setTimeout(() => {
+                if (document.getElementById('viewer-title')) document.getElementById('viewer-title').textContent = tour.title;
+                if (document.getElementById('viewer-desc')) document.getElementById('viewer-desc').textContent = tour.description;
+                
+                const link = document.getElementById('viewer-link');
+                if (link) {
+                    link.setAttribute('href', tour.link);
+                    link.textContent = tour.buttonText;
+                }
+                
+                if (bgImg) {
+                    bgImg.setAttribute('src', tour.image);
+                }
+
+                // Active status sub-nav links
+                document.querySelectorAll('.guest-sub-nav .sub-nav-text').forEach((subLink, idx) => {
+                    if (idx === index) {
+                        subLink.style.color = '#c5a059'; // Đồng vàng active
+                        subLink.style.borderBottom = '1px solid #c5a059';
+                    } else {
+                        subLink.style.color = '';
+                        subLink.style.borderBottom = 'none';
+                    }
+                });
+
+                renderPaginationDots(index);
+
+                if (content) {
+                    content.style.opacity = '1';
+                    content.style.transform = 'translateY(0)';
+                }
+                if (bgImg) {
+                    bgImg.style.transform = 'scale(1)';
+                }
+            }, 350);
+        }
+
+        function renderPaginationDots(activeIdx) {
+            const dotsContainer = document.getElementById('viewer-pagination-dots');
+            if (!dotsContainer) return;
+            dotsContainer.innerHTML = '';
+
+            tourList.forEach((tour, idx) => {
+                const btn = document.createElement('button');
+                btn.className = `pagination-btn ${idx === activeIdx ? 'active' : ''}`;
+                btn.textContent = (idx + 1).toString().padStart(2, '0');
+                btn.type = 'button';
+                btn.onclick = () => {
+                    updateViewer(idx);
+                };
+                dotsContainer.appendChild(btn);
+            });
+        }
+
+        function prevTour() {
+            let idx = activeTourIndex - 1;
+            if (idx < 0) idx = tourList.length - 1;
+            updateViewer(idx);
+        }
+
+        function nextTour() {
+            let idx = activeTourIndex + 1;
+            if (idx >= tourList.length) idx = 0;
+            updateViewer(idx);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const subNavLinks = document.querySelectorAll('.guest-sub-nav .sub-nav-text');
+            subNavLinks.forEach((link, idx) => {
+                link.removeAttribute('href');
+                link.style.cursor = 'pointer';
+                link.onclick = (e) => {
+                    e.preventDefault();
+                    updateViewer(idx);
+                    const viewerSection = document.getElementById('journey-viewer');
+                    if (viewerSection) {
+                        viewerSection.scrollIntoView({ behavior: 'smooth' });
+                    }
+                };
+            });
+
+            updateViewer(0);
+
+            // Parallax effect
+            const scrollContainer = document.querySelector('.scroll-container');
+            const sections = document.querySelectorAll('.snap-section');
+            const backgrounds = document.querySelectorAll('.parallax-bg');
+
+            if (scrollContainer) {
+                scrollContainer.addEventListener('scroll', () => {
+                    const height = window.innerHeight;
+                    backgrounds.forEach((bg, index) => {
+                        const section = sections[index];
+                        if (section) {
+                            const rect = section.getBoundingClientRect();
+                            if (rect.top < height && rect.bottom > 0) {
+                                const speed = 0.15;
+                                const yPos = -(rect.top * speed);
+                                bg.style.transform = `translateY(${yPos}px) scale(1.1)`;
+                            }
+                        }
+                    });
+                });
+            }
+        });
+    </script>
+
+    <div th:replace="~{guest/fragments/auth :: authModal}"></div>
+</body>
+
+</html>

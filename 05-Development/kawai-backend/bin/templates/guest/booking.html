@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hoanien River Retreat</title>
+
+    <!-- Thêm Common Head -->
+    <th:block th:replace="~{guest/fragments/common-head :: head}"></th:block>
+
+    <!-- Actor Specific Stylesheet -->
+    <link rel="stylesheet" th:href="@{/guest/css/booking.css}" href="/guest/css/booking.css" />
+</head>
+
+<body>
+
+    <!-- ============ NAVIGATION BAR ============ -->
+    <div id="header-wrapper"
+        class="fixed top-0 left-0 w-full z-50 flex flex-col bg-hoanien-bg/90 backdrop-blur-md border-b border-hoanien-text/10">
+        <nav class="guest-nav relative w-full font-sans">
+            <div class="max-w-[1440px] mx-auto px-6 py-4 flex items-center justify-between">
+                <!-- Left Links -->
+                <div
+                    class="hidden lg:flex items-center gap-8 text-[13px] uppercase tracking-[0.2em] font-semibold text-hoanien-text/80">
+                    <a href="/living"
+                        class="hover:text-hoanien-text active:scale-95 transition-all duration-200 transition-colors">Living</a>
+                    <a href="/dining"
+                        class="hover:text-hoanien-text active:scale-95 transition-all duration-200 transition-colors">Dining</a>
+                    <a href="/experiences"
+                        class="hover:text-hoanien-text active:scale-95 transition-all duration-200 transition-colors">Experiences</a>
+                    <a href="/tours/search"
+                        class="hover:text-hoanien-text active:scale-95 transition-all duration-200 transition-colors">Tours</a>
+                    <a href="/feedback"
+                        class="hover:text-hoanien-text active:scale-95 transition-all duration-200 transition-colors">Feedback</a>
+                </div>
+
+                <!-- Center Logo -->
+                <div class="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 font-headline text-[32px] italic tracking-tighter text-hoanien-text text-center cursor-pointer w-max"
+                    onclick="window.location.href='/'">
+                    HoaNien
+                </div>
+
+                <!-- Right Actions -->
+                <div
+                    class="hidden lg:flex items-center gap-6 text-[13px] uppercase tracking-[0.2em] font-semibold text-hoanien-text/80">
+                    <a href="/profile" th:if="${session.user != null}"
+                        class="hover:text-hoanien-text active:scale-95 transition-all duration-200 transition-colors">Profile</a>
+                    <form th:action="@{/auth/logout}" method="post" th:if="${session.user != null}" class="inline">
+                        <button type="submit"
+                            class="hover:text-hoanien-text active:scale-95 transition-all duration-200 transition-colors uppercase tracking-[0.2em] bg-transparent border-none p-0 cursor-pointer">Logout</button>
+                    </form>
+
+                    <a href="#" onclick="openLoginModal(); return false;" th:unless="${session.user != null}"
+                        class="hover:text-hoanien-text active:scale-95 transition-all duration-200 transition-colors">Log
+                        In</a>
+                    <a href="#roomsSection"
+                        class="hover:text-hoanien-text active:scale-95 transition-all duration-200 transition-colors inline-block border-b border-hoanien-text pb-0.5 text-hoanien-text">Book
+                        Now</a>
+                </div>
+
+                <!-- Mobile Menu Icon -->
+                <button class="lg:hidden">
+                    <span class="material-symbols-outlined text-3xl">menu</span>
+                </button>
+            </div>
+        </nav>
+    </div>
+
+    <!-- ============ HEADER / SEARCH BAR (Pushed down by Navbar) ============ -->
+    <header class="site-header" style="padding-top: 100px; padding-bottom: 20px;">
+        <div class="header-inner flex justify-center w-full">
+            <div class="search-bar relative w-full max-w-[1100px] mx-auto flex items-center justify-between">
+
+                <!-- Field 1: Booking Details -->
+                <div class="search-field cursor-pointer hover:bg-[#eae4d8]/40 transition-colors relative"
+                    onclick="toggleGuestsDropdown(event)">
+                    <span class="field-icon" aria-hidden="true">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.6">
+                            <circle cx="9" cy="8" r="3.2" />
+                            <path d="M3.5 19c0-3 2.6-5 5.5-5s5.5 2 5.5 5" />
+                            <circle cx="17" cy="9" r="2.4" />
+                            <path d="M16 18.5c0-2.3 1.8-3.6 3.8-3.6" />
+                        </svg>
+                    </span>
+                    <div class="field-body">
+                        <span class="field-label">Booking Details</span>
+                        <span id="guestSummaryValue" class="field-value font-medium">1 Unit</span>
+                    </div>
+                </div>
+
+                <!-- Field 2: Check-in -->
+                <div class="search-field cursor-pointer hover:bg-[#eae4d8]/40 transition-colors relative"
+                    onclick="toggleCalendarDropdown(event)">
+                    <span class="field-icon" aria-hidden="true">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.6">
+                            <rect x="3.5" y="5" width="17" height="15" rx="2" />
+                            <path d="M3.5 9h17M8 3v4M16 3v4" />
+                        </svg>
+                    </span>
+                    <div class="field-body">
+                        <span class="field-label">Check-in</span>
+                        <span id="checkInValue" class="field-value font-medium">12 Jun 2026</span>
+                    </div>
+                </div>
+
+                <div class="search-arrow" aria-hidden="true">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="1.6">
+                        <path d="M4 12h15M13 6l6 6-6 6" />
+                    </svg>
+                </div>
+
+                <!-- Field 3: Check-out -->
+                <div class="search-field cursor-pointer hover:bg-[#eae4d8]/40 transition-colors relative"
+                    onclick="toggleCalendarDropdown(event)">
+                    <div class="field-body pl-6">
+                        <span class="field-label">Check-out</span>
+                        <span id="checkOutValue" class="field-value font-medium">15 Jun 2026</span>
+                    </div>
+                </div>
+
+                <!-- Field 4: Price Filter -->
+                <div class="search-field cursor-pointer hover:bg-[#eae4d8]/40 transition-colors relative"
+                    onclick="togglePriceDropdown(event)">
+                    <span class="field-icon" aria-hidden="true">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.6">
+                            <line x1="12" y1="1" x2="12" y2="23"></line>
+                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                        </svg>
+                    </span>
+                    <div class="field-body">
+                        <span class="field-label">Khoảng giá</span>
+                        <span id="priceFilterValue" class="field-value muted">Tất cả</span>
+                    </div>
+                </div>
+
+                <!-- Field 5: Keyword Search -->
+                <div class="search-field flex-1 hover:bg-[#eae4d8]/40 transition-colors relative group">
+                    <span class="field-icon group-hover:text-[#3a322b] transition-colors" aria-hidden="true">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                    </span>
+                    <div class="field-body w-full pr-4">
+                        <span class="field-label">Tìm phòng</span>
+                        <input type="text" name="keyword" id="keywordInput" th:value="${keyword}" placeholder="Tên, phong cách..."
+                            class="w-full bg-transparent border-none p-0 text-[13px] font-medium text-[#2c2a24] focus:ring-0 focus:outline-none placeholder-gray-400"
+                            onkeydown="if(event.key === 'Enter'){ event.preventDefault(); executeSearch(event); }">
+                    </div>
+                </div>
+
+                <!-- Search Button -->
+                <button type="button" class="search-btn" onclick="executeSearch(event)">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="1.8">
+                        <circle cx="11" cy="11" r="7" />
+                        <path d="M21 21l-4-4" />
+                    </svg>
+                    Search
+                </button>
+
+                <!-- ============ POPUPS (Absolute layout inside search-bar relative container) ============ -->
+                <!-- 1. Guests Dropdown -->
+                <div id="guestsDropdown"
+                    class="absolute top-[105%] left-0 mt-1 bg-white text-[#2c2a24] p-5 rounded-xl shadow-2xl border border-[#e7e1d5] z-50 w-80 hidden font-sans"
+                    onclick="event.stopPropagation()">
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <span class="block font-semibold text-sm">Units / Rooms</span>
+                                <span class="text-[11px] text-gray-400">Number of rooms required</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <button type="button"
+                                    class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 font-bold"
+                                    onclick="updateGuestCount('units', -1)">-</button>
+                                <span id="unitsCount" class="w-4 text-center font-bold text-sm">1</span>
+                                <button type="button"
+                                    class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 font-bold"
+                                    onclick="updateGuestCount('units', 1)">+</button>
+                            </div>
+                        </div>
+
+                        <div class="pt-3 border-t border-gray-100 flex justify-end">
+                            <button type="button"
+                                class="bg-[#3a322b] text-[#f3efe6] px-5 py-2 rounded-lg text-xs font-semibold hover:bg-[#2c2620] transition-colors"
+                                onclick="applyGuests()">Apply</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Calendar Dropdown -->
+                <div id="calendarDropdown"
+                    class="absolute top-[105%] left-[20%] mt-1 bg-white text-[#2c2a24] p-5 rounded-xl shadow-2xl border border-[#e7e1d5] z-50 w-[350px] hidden font-sans"
+                    onclick="event.stopPropagation()">
+                    <div class="flex items-center justify-between mb-4">
+                        <button type="button" class="text-gray-500 hover:text-black" onclick="prevMonth()">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2.5">
+                                <path d="M15 18l-6-6 6-6" />
+                            </svg>
+                        </button>
+                        <span id="currentMonthYear" class="font-bold text-sm text-[#2c2a24]">June 2026</span>
+                        <button type="button" class="text-gray-500 hover:text-black" onclick="nextMonth()">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2.5">
+                                <path d="M9 18l6-6-6-6" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-7 gap-1 text-center text-xs font-semibold text-gray-400 mb-2">
+                        <span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span>
+                    </div>
+                    <div id="calendarDays" class="grid grid-cols-7 gap-1 text-center text-xs">
+                        <!-- JS populated days -->
+                    </div>
+                    <div class="pt-3 border-t border-gray-100 mt-3 flex justify-between items-center">
+                        <span id="dateSelectionSummary" class="text-xs text-gray-500 font-medium">Select dates</span>
+                        <button type="button"
+                            class="bg-[#3a322b] text-[#f3efe6] px-4 py-1.5 rounded-lg text-xs font-semibold hover:bg-[#2c2620] transition-colors"
+                            onclick="applyDates()">Apply</button>
+                    </div>
+                </div>
+
+                <!-- 3. Price Filter Dropdown -->
+                <div id="priceDropdown"
+                    class="absolute top-[105%] right-0 mt-1 bg-white text-[#2c2a24] p-5 rounded-xl shadow-2xl border border-[#e7e1d5] z-50 w-72 hidden font-sans"
+                    onclick="event.stopPropagation()">
+                    <div class="space-y-2">
+                        <label class="block text-[11px] font-bold text-gray-400 mb-2 uppercase tracking-wider">Mức giá mỗi đêm</label>
+                        <div class="flex flex-col gap-2">
+                            <label class="flex items-center gap-2 cursor-pointer p-2 hover:bg-gray-50 rounded-lg transition-colors">
+                                <input type="radio" name="priceFilter" value="all" class="accent-[#3a322b]" checked onchange="applyPriceFilter()">
+                                <span class="text-sm font-medium">Tất cả</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer p-2 hover:bg-gray-50 rounded-lg transition-colors">
+                                <input type="radio" name="priceFilter" value="under_5" class="accent-[#3a322b]" onchange="applyPriceFilter()">
+                                <span class="text-sm font-medium">Dưới 5.000.000đ</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer p-2 hover:bg-gray-50 rounded-lg transition-colors">
+                                <input type="radio" name="priceFilter" value="5_to_10" class="accent-[#3a322b]" onchange="applyPriceFilter()">
+                                <span class="text-sm font-medium">5.000.000đ - 10.000.000đ</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer p-2 hover:bg-gray-50 rounded-lg transition-colors">
+                                <input type="radio" name="priceFilter" value="over_10" class="accent-[#3a322b]" onchange="applyPriceFilter()">
+                                <span class="text-sm font-medium">Trên 10.000.000đ</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </header>
+
+    <!-- ============ KEYWORD SEARCH (REMOVED) ============ -->
+    <!-- The keyword search has been integrated into the top search bar. -->
+    <!-- ============ RESULTS ============ -->
+    <main id="roomsSection" class="results">
+        <div class="results-head">
+            <div>
+                <h1 class="results-title">Available Options</h1>
+            </div>
+        </div>
+        </div>
+
+        <!-- Room grid & Cart Layout -->
+        <div class="flex flex-col lg:flex-row gap-6 relative items-start">
+            <!-- Left side: Room list -->
+            <div class="flex-1 w-full min-w-0">
+                <div class="room-grid min-h-[400px]">
+                    <!-- Rooms will be dynamically loaded via JS -->
+                </div>
+                <!-- Show More Button -->
+                <div id="showMoreContainer" class="actions-center mt-6">
+                    <button id="showMoreBtn" type="button" class="show-more" onclick="toggleShowMoreRooms()">
+                        Show more
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M6 9l6 6 6-6" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <!-- end left side -->
+
+            <!-- Right side: Booking Cart Summary -->
+            <aside class="w-full lg:w-[320px] flex-shrink-0 sticky top-6 z-10 hidden" id="bookingCartWrapper">
+                <div id="bookingSummaryCart"
+                    class="bg-white rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.08)] border border-[#e7e1d5] overflow-hidden font-sans transition-all">
+                    <div class="bg-[#ece6da] p-4 border-b border-[#d7ccb6]">
+                        <h3 class="font-semibold text-[#2f2a24] text-[20px] mb-1"
+                            style="font-family: 'Cormorant Garamond', serif;">Thông tin đặt phòng</h3>
+                        <p class="text-[13px] text-[#8b8478]" id="cartDatesSummary">Vui lòng chọn ngày</p>
+                    </div>
+
+                    <div class="p-0 bg-white max-h-[50vh] overflow-y-auto" id="cartItemsContainer">
+                        <!-- Items rendered by JS -->
+                        <div class="p-6 text-center text-gray-400 text-sm italic">
+                            Chưa chọn phòng nào
+                        </div>
+                    </div>
+                    <div class="p-4 bg-[#fbf9f4] border-t border-[#e7e1d5]">
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="font-semibold text-[#2f2a24]">Tổng cộng</span>
+                            <span class="font-bold text-[#d4af37] text-lg" id="cartTotalPrice">0 VNĐ</span>
+                        </div>
+                        <button type="button"
+                            class="w-full bg-[#d4af37] text-white py-3 rounded-md text-sm font-bold tracking-widest uppercase hover:bg-[#b08d29] transition-colors shadow-md disabled:opacity-50 disabled:cursor-not-allowed mb-2"
+                            id="btnCartCheckout" onclick="confirmCartBooking()" disabled>
+                            ĐẶT NGAY
+                        </button>
+                        <!-- Nút Hủy giỏ hàng -->
+                        <button type="button"
+                            class="w-full border border-[#d7ccb6] text-[#8b8478] py-2.5 rounded-md text-xs font-semibold tracking-widest uppercase hover:bg-red-50 hover:border-red-300 hover:text-red-500 transition-colors"
+                            onclick="cancelCartHold()">
+                            HỦY GIỎ PHÒNG
+                        </button>
+                    </div>
+                </div>
+            </aside>
+
+        </div>
+    </main>
+
+    <!-- ============ FOOTER ============ -->
+    <footer
+        class="w-full max-w-[1440px] mx-auto px-6 md:px-12 border-t border-hoanien-text/10 pt-16 pb-8 mt-20 font-sans">
+        <div class="flex flex-col md:flex-row justify-between items-center gap-12">
+            <div class="text-center md:text-left">
+                <p class="font-headline text-3xl italic text-hoanien-text">HoaNien</p>
+                <p class="text-[9px] tracking-[0.3em] text-hoanien-text/40 uppercase mt-4">© 2026 HoaNien Retreat. A
+                    Quiet Luxury Travel Group.</p>
+            </div>
+            <div class="flex flex-wrap justify-center gap-10">
+                <a class="text-[9px] font-semibold uppercase tracking-[0.25em] text-hoanien-text/50 hover:text-hoanien-text transition-colors"
+                    href="#">Quyền riêng tư</a>
+                <a class="text-[9px] font-semibold uppercase tracking-[0.25em] text-hoanien-text/50 hover:text-hoanien-text transition-colors"
+                    href="#">Sự bền vững</a>
+                <a class="text-[9px] font-semibold uppercase tracking-[0.25em] text-hoanien-text/50 hover:text-hoanien-text transition-colors"
+                    href="#">Liên hệ</a>
+            </div>
+        </div>
+    </footer>
+
+    <div th:replace="~{guest/fragments/auth :: authModal}"></div>
+
+    <!-- Booking confirm modal removed — flow now redirects to /payment page -->
+
+
+    <!-- ============ ROOM DETAILS MODAL ============ -->
+    <div id="roomDetailsModal"
+        class="fixed inset-0 z-[100] items-center justify-center bg-[#1a1814]/80 backdrop-blur-md font-sans transition-all duration-500 overflow-y-auto py-10 opacity-0"
+        style="display: none;">
+        <div id="roomDetailsModalContent" class="bg-white rounded-3xl w-[95%] max-w-5xl shadow-[0_20px_50px_rgba(0,0,0,0.4)] relative mx-auto h-auto overflow-hidden transform scale-95 transition-all duration-500 opacity-0">
+            <!-- Close Button -->
+            <button type="button"
+                class="absolute top-5 right-5 bg-white/80 hover:bg-white text-gray-800 rounded-full p-2.5 z-20 transition-all duration-300 shadow-md hover:shadow-xl hover:rotate-90 backdrop-blur-md"
+                onclick="closeRoomDetailsModal()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+
+            <div class="flex flex-col md:flex-row">
+                <!-- Left: Image -->
+                <div class="md:w-[50%] relative h-[300px] md:h-auto min-h-[400px] bg-[#1a1814] group">
+                    <img id="detailRoomImg" src="" alt="Room"
+                        class="w-full h-full object-contain" />
+                    
+                    <!-- Navigation Buttons -->
+                    <button type="button" id="prevRoomImageBtn" class="absolute left-4 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/80 text-white rounded-full p-2 backdrop-blur-sm opacity-0 group-hover:opacity-100 z-10 hidden" onclick="prevRoomDetailImage(event)">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="15 18 9 12 15 6"></polyline>
+                        </svg>
+                    </button>
+                    <button type="button" id="nextRoomImageBtn" class="absolute right-4 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/80 text-white rounded-full p-2 backdrop-blur-sm opacity-0 group-hover:opacity-100 z-10 hidden" onclick="nextRoomDetailImage(event)">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="9 18 15 12 9 6"></polyline>
+                        </svg>
+                    </button>
+
+                    <!-- Gradient Overlay -->
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none"></div>
+                    <div class="absolute bottom-8 left-8 right-8 pointer-events-none">
+                        <h2 id="detailRoomName" class="text-3xl md:text-4xl font-serif text-white mb-4 drop-shadow-lg">Room Name</h2>
+                        <div class="flex items-center gap-3 text-white/90 text-sm font-medium tracking-wide">
+                            <span id="detailRoomGuests" class="bg-white/20 backdrop-blur-md px-4 py-1.5 rounded-full border border-white/30 shadow-sm">2 Guests</span>
+                            <span id="detailRoomTotal" class="text-[#d4af37] font-bold bg-[#1a1814]/60 backdrop-blur-md px-4 py-1.5 rounded-full border border-[#d4af37]/40 shadow-sm"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Content -->
+                <div class="md:w-[50%] p-8 md:p-10 flex flex-col bg-[#fcfbf9]">
+                    
+                    <div class="mb-8">
+                        <h3 class="text-[11px] font-bold text-gray-400 uppercase tracking-[0.25em] mb-3">Tổng quan</h3>
+                        <p id="detailRoomDesc" class="text-gray-600 text-[13px] leading-relaxed text-justify">
+                            Description
+                        </p>
+                    </div>
+
+                    <!-- NEW PROPERTIES GRID -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8" id="detailRoomProperties">
+                        <div class="flex flex-col items-center justify-center p-4 bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+                            <span class="text-[#d4af37] mb-2"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4v16M2 8h18a2 2 0 0 1 2 2v10M2 17h20M6 8v9M14 8v9"/></svg></span>
+                            <span class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">Giường</span>
+                            <span id="detailRoomBedType" class="text-xs font-semibold text-gray-800 text-center">Tiêu chuẩn</span>
+                        </div>
+                        <div class="flex flex-col items-center justify-center p-4 bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+                            <span class="text-[#d4af37] mb-2"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h16v16H4zM4 12h16M12 4v16"/></svg></span>
+                            <span class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">Diện tích</span>
+                            <span id="detailRoomSize" class="text-xs font-semibold text-gray-800 text-center">Tiêu chuẩn</span>
+                        </div>
+                        <div class="flex flex-col items-center justify-center p-4 bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+                            <span class="text-[#d4af37] mb-2"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></span>
+                            <span class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">Hướng nhìn</span>
+                            <span id="detailRoomView" class="text-xs font-semibold text-gray-800 text-center">Tiêu chuẩn</span>
+                        </div>
+                    </div>
+
+                    <!-- AMENITIES LIST -->
+                    <div class="mb-8">
+                        <h3 class="text-[11px] font-bold text-gray-400 uppercase tracking-[0.25em] mb-4">Tiện ích đặc biệt</h3>
+                        <ul id="detailRoomAmenitiesList" class="flex flex-wrap gap-2 text-xs">
+                            <!-- JS populated -->
+                        </ul>
+                    </div>
+
+                    <!-- CAPACITIES & SURCHARGES -->
+                    <div class="bg-white rounded-2xl border border-gray-100 p-6 mb-6 shadow-sm relative overflow-hidden">
+                        <div class="absolute top-0 left-0 w-1 h-full bg-[#d4af37]"></div>
+                        <h3 class="text-[11px] font-bold text-gray-400 uppercase tracking-[0.25em] mb-4 border-b border-gray-50 pb-3">Quy định lưu trú</h3>
+                        <div class="grid grid-cols-2 gap-y-4 gap-x-6">
+                            <div class="flex flex-col gap-1">
+                                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Sức chứa tiêu chuẩn</span>
+                                <span class="text-xs font-semibold text-gray-800">
+                                    <span id="detailRoomBaseAdults"></span> NL, <span id="detailRoomBaseChildren"></span> TE
+                                </span>
+                            </div>
+                            <div class="flex flex-col gap-1">
+                                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Sức chứa tối đa</span>
+                                <span class="text-xs font-semibold text-gray-800">
+                                    <span id="detailRoomMaxAdults"></span> NL, <span id="detailRoomMaxChildren"></span> TE
+                                </span>
+                            </div>
+                            <div class="flex flex-col gap-1">
+                                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Phụ thu (NL)</span>
+                                <span id="detailRoomSurchargeAdult" class="text-xs font-bold text-[#d4af37]"></span>
+                            </div>
+                            <div class="flex flex-col gap-1">
+                                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Phụ thu (TE)</span>
+                                <span id="detailRoomSurchargeChild" class="text-xs font-bold text-[#d4af37]"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-auto pt-4 flex justify-end" id="detailBookButtonContainer">
+                        <!-- JS populates this -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ INTERACTIVE AND AUTHENTICATION JAVASCRIPT ============ -->
+    <!-- Note: isUserLoggedIn is declared in fragments/auth.html which is included above -->
+
+    <script src="/guest/js/utils.js"></script>
+    <script src="/guest/js/booking.js"></script>
+
+</body>
+
+</html>

@@ -1,3 +1,4 @@
+
 package com.kawai.services.impl;
 
 import com.kawai.models.ConsolidatedInvoice;
@@ -525,19 +526,19 @@ public class EmailServiceImpl implements EmailService {
 
     public void sendEmail(String toEmail, String subject, String htmlContent) {
         boolean sentViaSmtp = false;
-        
+
         if (mailSender != null) {
             try {
                 jakarta.mail.internet.MimeMessage mimeMessage = mailSender.createMimeMessage();
-                org.springframework.mail.javamail.MimeMessageHelper helper = 
-                        new org.springframework.mail.javamail.MimeMessageHelper(mimeMessage, "utf-8");
+                org.springframework.mail.javamail.MimeMessageHelper helper = new org.springframework.mail.javamail.MimeMessageHelper(
+                        mimeMessage, "utf-8");
                 helper.setTo(toEmail);
                 helper.setSubject(subject);
                 helper.setText(htmlContent, true);
-                
+
                 String finalFrom = (fromEmail != null && !fromEmail.isBlank()) ? fromEmail : "hoanien.00@gmail.com";
                 helper.setFrom(finalFrom, "HOANIEN Resort");
-                
+
                 mailSender.send(mimeMessage);
                 logger.info("[SMTP] Email sent successfully to {}", toEmail);
                 sentViaSmtp = true;
@@ -583,14 +584,14 @@ public class EmailServiceImpl implements EmailService {
         if (mailSender != null) {
             try {
                 jakarta.mail.internet.MimeMessage mimeMessage = mailSender.createMimeMessage();
-                org.springframework.mail.javamail.MimeMessageHelper helper = 
-                        new org.springframework.mail.javamail.MimeMessageHelper(mimeMessage, "utf-8");
+                org.springframework.mail.javamail.MimeMessageHelper helper = new org.springframework.mail.javamail.MimeMessageHelper(
+                        mimeMessage, "utf-8");
                 helper.setTo(toEmail);
                 helper.setSubject(subject);
                 helper.setText(htmlContent, true);
-                
+
                 helper.setFrom(finalFrom, "HOANIEN Workflow Engine");
-                
+
                 mailSender.send(mimeMessage);
                 logger.info("[SMTP] Custom Workflow Email sent successfully from {} to {}", finalFrom, toEmail);
                 sentViaSmtp = true;
@@ -774,8 +775,8 @@ public class EmailServiceImpl implements EmailService {
             if (mailSender != null) {
                 try {
                     jakarta.mail.internet.MimeMessage mimeMessage = mailSender.createMimeMessage();
-                    org.springframework.mail.javamail.MimeMessageHelper helper = 
-                            new org.springframework.mail.javamail.MimeMessageHelper(mimeMessage, true, "utf-8");
+                    org.springframework.mail.javamail.MimeMessageHelper helper = new org.springframework.mail.javamail.MimeMessageHelper(
+                            mimeMessage, true, "utf-8");
                     helper.setTo(customer.getEmail());
                     helper.setSubject(subject);
                     helper.setText(html, true);
@@ -832,7 +833,8 @@ public class EmailServiceImpl implements EmailService {
                 request.setEndpoint("mail/send");
                 request.setBody(mail.build());
                 Response response = sg.api(request);
-                logger.info("[SENDGRID] Sent refund email to {}: status {}", customer.getEmail(), response.getStatusCode());
+                logger.info("[SENDGRID] Sent refund email to {}: status {}", customer.getEmail(),
+                        response.getStatusCode());
             }
         } catch (Exception e) {
             logger.error("Lỗi gửi email hoàn tiền cho RefundRequest #{}: {}", refundRequest.getId(), e.getMessage());
@@ -935,7 +937,8 @@ public class EmailServiceImpl implements EmailService {
 
             if (booking.getSchedule() != null) {
                 com.kawai.models.TourSchedule sched = booking.getSchedule();
-                if (sched.getTour() != null) tourName = sched.getTour().getTourName();
+                if (sched.getTour() != null)
+                    tourName = sched.getTour().getTourName();
                 if (sched.getDepartureDate() != null)
                     departureDate = sched.getDepartureDate().format(DATE_FMT);
                 if (sched.getDepartureTime() != null)
@@ -1039,7 +1042,8 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
-    public void sendTableCancellationDueToCheckoutEmail(com.kawai.models.TableReservation reservation, com.kawai.models.Customer customer) {
+    public void sendTableCancellationDueToCheckoutEmail(com.kawai.models.TableReservation reservation,
+            com.kawai.models.Customer customer) {
         if (customer == null || customer.getEmail() == null || customer.getEmail().isEmpty()) {
             return;
         }
@@ -1061,9 +1065,12 @@ public class EmailServiceImpl implements EmailService {
                     + "  <p>Kính chào <strong>" + model.get("customerName") + "</strong>,</p>"
                     + "  <p>Do quý khách đã hoàn tất thủ tục trả phòng (Check-out), hệ thống đã tự động hủy lịch đặt bàn tại nhà hàng của chúng tôi với chi tiết như sau:</p>"
                     + "  <ul style=\"list-style-type: none; padding: 0;\">"
-                    + "    <li style=\"margin-bottom: 10px;\"><strong>Bàn:</strong> " + model.get("tableNumber") + "</li>"
-                    + "    <li style=\"margin-bottom: 10px;\"><strong>Ngày đặt:</strong> " + model.get("reserveDate") + "</li>"
-                    + "    <li style=\"margin-bottom: 10px;\"><strong>Giờ đặt:</strong> " + model.get("reserveTime") + "</li>"
+                    + "    <li style=\"margin-bottom: 10px;\"><strong>Bàn:</strong> " + model.get("tableNumber")
+                    + "</li>"
+                    + "    <li style=\"margin-bottom: 10px;\"><strong>Ngày đặt:</strong> " + model.get("reserveDate")
+                    + "</li>"
+                    + "    <li style=\"margin-bottom: 10px;\"><strong>Giờ đặt:</strong> " + model.get("reserveTime")
+                    + "</li>"
                     + "  </ul>"
                     + "  <p style=\"color: #e74c3c; font-style: italic;\">Nếu quý khách vẫn muốn dùng bữa, xin vui lòng đặt lại bàn trực tiếp tại quầy lễ tân với tư cách khách vãng lai.</p>"
                     + "  <p>Cảm ơn quý khách đã tin tưởng và sử dụng dịch vụ của HOANIEN Resort.</p>"
@@ -1080,7 +1087,8 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     @Async
-    public void sendDependentUpgradeEmail(com.kawai.models.Customer masterCustomer, com.kawai.models.Customer newCustomer, String username, String password) {
+    public void sendDependentUpgradeEmail(com.kawai.models.Customer masterCustomer,
+            com.kawai.models.Customer newCustomer, String username, String password) {
         if (masterCustomer == null || masterCustomer.getEmail() == null || masterCustomer.getEmail().trim().isEmpty()) {
             return;
         }
@@ -1101,7 +1109,8 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     @Async
-    public void sendRoomCancellationEmail(com.kawai.models.RoomBooking booking, com.kawai.models.Customer customer, boolean isRefundable) {
+    public void sendRoomCancellationEmail(com.kawai.models.RoomBooking booking, com.kawai.models.Customer customer,
+            boolean isRefundable) {
         if (customer == null || customer.getEmail() == null || customer.getEmail().trim().isEmpty()) {
             return;
         }
@@ -1122,7 +1131,8 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     @Async
-    public void sendWalkInCheckInEmail(com.kawai.models.RoomBooking booking, com.kawai.models.RoomBookingDetail detail, com.kawai.models.Customer customer, boolean isNewAccount, String username, String password) {
+    public void sendWalkInCheckInEmail(com.kawai.models.RoomBooking booking, com.kawai.models.RoomBookingDetail detail,
+            com.kawai.models.Customer customer, boolean isNewAccount, String username, String password) {
         if (customer == null || customer.getEmail() == null || customer.getEmail().trim().isEmpty()) {
             return;
         }
@@ -1132,11 +1142,14 @@ public class EmailServiceImpl implements EmailService {
             ctx.setVariable("customerName", customer.getFullName());
             ctx.setVariable("bookingId", booking.getId());
             ctx.setVariable("roomNumber", detail.getRoom() != null ? detail.getRoom().getRoomNumber() : "N/A");
-            ctx.setVariable("roomCategory", detail.getCategory() != null ? detail.getCategory().getCategoryName() : "N/A");
-            ctx.setVariable("checkInDate", booking.getCheckInDate() != null ? booking.getCheckInDate().toString() : "N/A");
-            ctx.setVariable("checkOutDate", booking.getCheckOutDate() != null ? booking.getCheckOutDate().toString() : "N/A");
+            ctx.setVariable("roomCategory",
+                    detail.getCategory() != null ? detail.getCategory().getCategoryName() : "N/A");
+            ctx.setVariable("checkInDate",
+                    booking.getCheckInDate() != null ? booking.getCheckInDate().toString() : "N/A");
+            ctx.setVariable("checkOutDate",
+                    booking.getCheckOutDate() != null ? booking.getCheckOutDate().toString() : "N/A");
             ctx.setVariable("resortName", "HOANIEN Resort");
-            
+
             if (isNewAccount) {
                 ctx.setVariable("username", username);
                 ctx.setVariable("password", password);
@@ -1149,4 +1162,5 @@ public class EmailServiceImpl implements EmailService {
             e.printStackTrace();
         }
     }
+
 }

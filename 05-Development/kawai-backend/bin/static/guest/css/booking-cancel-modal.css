@@ -1,0 +1,223 @@
+/* ==========================================================================
+   Booking Cancel Modal — Guest UI
+   Dùng cho: booking-history.html, profile.html (luồng hủy đặt phòng khách sạn)
+   Tách biệt với refund-modal.css của F&B POS
+   ========================================================================== */
+
+/* Overlay */
+.bkcm-overlay {
+    backdrop-filter: blur(3px);
+}
+
+/* Card */
+.bkcm-content {
+    background: #fff;
+    width: 95%;
+    max-width: 550px;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+    animation: bkcm-slide-in 0.25s ease;
+}
+
+@keyframes bkcm-slide-in {
+    from { opacity: 0; transform: translateY(-20px) scale(0.97); }
+    to   { opacity: 1; transform: translateY(0)   scale(1); }
+}
+
+/* Header */
+.bkcm-header {
+    padding: 18px 22px;
+    border-bottom: 1px solid #f0ebe4;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: #faf8f5;
+}
+
+.bkcm-header-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #fff3f0;
+    color: #c0392b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.bkcm-header-text {
+    flex: 1;
+}
+
+.bkcm-header-text h3 {
+    margin: 0 0 2px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    font-family: 'Playfair Display', serif;
+}
+
+.bkcm-header-text p {
+    margin: 0;
+    font-size: 0.8rem;
+    color: #888;
+}
+
+.bkcm-btn-close {
+    background: none;
+    border: none;
+    font-size: 1.6rem;
+    cursor: pointer;
+    color: #aaa;
+    line-height: 1;
+    padding: 0 4px;
+    transition: color 0.2s;
+    flex-shrink: 0;
+}
+
+.bkcm-btn-close:hover {
+    color: #333;
+}
+
+/* Notice banner */
+.bkcm-notice {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin: 18px 22px 4px;
+    padding: 16px;
+    background: #fffbf0;
+    border: 1px solid #ffe0a0;
+    border-radius: 8px;
+    color: #7a5c00;
+    line-height: 1.6;
+}
+
+.bkcm-notice svg {
+    flex-shrink: 0;
+    margin-top: 2px;
+    color: #d4a017;
+}
+
+.bkcm-notice-text {
+    flex: 1;
+    font-size: 0.85rem;
+}
+
+.bkcm-notice-title {
+    margin: 0 0 6px 0 !important;
+    font-size: 0.9rem;
+    color: #8a6800;
+}
+
+.bkcm-notice-text ul {
+    margin: 0 0 8px 0;
+    padding-left: 20px;
+    list-style-type: disc;
+}
+
+.bkcm-notice-text li {
+    margin-bottom: 4px;
+}
+
+.bkcm-notice-text p {
+    margin: 0;
+}
+
+/* Form area */
+#bkcm-form {
+    padding: 16px 22px 22px;
+}
+
+.bkcm-form-group {
+    margin-bottom: 14px;
+}
+
+.bkcm-form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+    font-size: 0.82rem;
+    color: #444;
+    letter-spacing: 0.01em;
+}
+
+.bkcm-required {
+    color: #e53935;
+}
+
+.bkcm-form-group input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1.5px solid #e0dbd5;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-family: 'Montserrat', sans-serif;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    box-sizing: border-box;
+    color: #1a1a1a;
+}
+
+.bkcm-form-group input:focus {
+    border-color: #c0392b;
+    box-shadow: 0 0 0 3px rgba(192, 57, 43, 0.1);
+}
+
+.bkcm-form-group input::placeholder {
+    color: #bbb;
+}
+
+/* Footer buttons */
+.bkcm-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 22px;
+    padding-top: 16px;
+    border-top: 1px solid #f0ebe4;
+}
+
+.bkcm-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: background 0.2s, transform 0.1s, opacity 0.2s;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.bkcm-btn:active {
+    transform: scale(0.97);
+}
+
+.bkcm-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.bkcm-btn-outline {
+    background: transparent;
+    border: 1.5px solid #d0ccc6;
+    color: #555;
+}
+
+.bkcm-btn-outline:hover {
+    background: #f5f2ee;
+}
+
+.bkcm-btn-danger {
+    background: #c0392b;
+    color: #fff;
+}
+
+.bkcm-btn-danger:hover:not(:disabled) {
+    background: #a93226;
+}

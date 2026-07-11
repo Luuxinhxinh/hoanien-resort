@@ -9,13 +9,37 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@400;600;700&family=Playfair+Display:wght@600;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@400;600;700&family=Playfair+Display:wght@400;500;600;700&family=EB+Garamond:wght@400;500;600;700&family=Hanken+Grotesk:wght@300;400;500;600;700&display=swap"
         rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Custom CSS -->
     <link rel="stylesheet" href="/receptionist/css/dashboard.css">
     <link rel="stylesheet" href="/receptionist/css/pages.css">
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+          corePlugins: {
+            preflight: false,
+          },
+          theme: {
+            extend: {
+              colors: {
+                'linen-bg': '#fff8ef',
+                'gilded-gold': '#c5a059',
+                'deep-charcoal': '#28221B',
+                'soft-gray': '#f4f1ee',
+              },
+              fontFamily: {
+                serif: ['Playfair Display', 'serif'],
+                sans: ['Inter', 'sans-serif'],
+              },
+            }
+          }
+        }
+    </script>
     <style>
         .room-tabs-container {
             margin-top: 24px;
@@ -56,7 +80,7 @@
 
         .folio-container {
             display: grid;
-            grid-template-columns: 1fr 380px;
+            grid-template-columns: 1fr 440px;
             gap: 24px;
             margin-top: 24px;
             align-items: start;
@@ -64,7 +88,7 @@
 
         .folio-header-top {
             display: grid;
-            grid-template-columns: 1fr 380px;
+            grid-template-columns: 1fr 440px;
             gap: 24px;
             margin-bottom: 24px;
             align-items: start;
@@ -340,6 +364,31 @@
             background: #181514;
         }
 
+        .btn-secondary {
+            width: 100%;
+            background: white;
+            color: #272320;
+            border: 1px solid #272320;
+            padding: 14px 20px;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-sizing: border-box;
+        }
+
+        .btn-secondary:hover {
+            background: #fcfbf9;
+            border-color: #705829;
+            color: #705829;
+        }
+
         .btn-pay-partial {
             background: white;
             border: 1px solid #c19b6c;
@@ -458,81 +507,216 @@
         }
 
         /* Payment Modal */
-        .payment-modal-content {
-            background: white;
-            padding: 32px;
-            border-radius: 12px;
+        #paymentModal .payment-modal-content {
+            background-color: #fff8ef !important;
+            color: #1d1b16 !important;
+            font-family: 'Hanken Grotesk', sans-serif !important;
+            border: 1px solid #d0c5b6 !important;
+            border-radius: 4px !important;
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.08), 0 0 15px rgba(115, 91, 43, 0.03) !important;
             width: 450px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            padding: 32px;
+            box-sizing: border-box;
             text-align: left;
         }
 
         .payment-amount-display {
-            font-size: 2.5rem;
-            color: #c19b6c;
-            font-family: 'Playfair Display', serif;
-            text-align: center;
-            margin: 16px 0 24px;
-            font-weight: 700;
+            font-family: 'Playfair Display', serif !important;
+            font-variant-numeric: lining-nums !important;
+            font-feature-settings: "lnum" 1 !important;
+            white-space: nowrap !important;
         }
 
-        .payment-methods {
+        #paymentModal h3 {
+            font-family: 'Playfair Display', serif !important;
+            font-size: 32px !important;
+            font-weight: 500 !important;
+            color: #1d1b16 !important;
+            text-align: center;
+            margin-bottom: 8px !important;
+            margin-top: 0 !important;
+        }
+
+        #paymentModal .payment-amount-display {
+            font-family: 'Playfair Display', serif !important;
+            font-size: 48px !important;
+            font-weight: 500 !important;
+            color: #705829 !important;
+            text-align: center;
+            margin: 16px 0 32px !important;
+            font-variant-numeric: lining-nums !important;
+            font-feature-settings: "lnum" 1 !important;
+            white-space: nowrap !important;
+        }
+
+        #paymentModal label {
+            font-family: 'Hanken Grotesk', sans-serif !important;
+            font-size: 12px !important;
+            font-weight: 600 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.05em !important;
+            color: #4d463a !important;
+            margin-bottom: 12px !important;
+            display: block;
+        }
+
+        #paymentModal .payment-methods {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 12px;
             margin-bottom: 24px;
         }
 
-        .method-btn {
-            padding: 12px;
-            border: 1px solid #e8e4db;
-            border-radius: 8px;
-            background: #faf9f7;
+        #paymentModal .method-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 14px !important;
+            border: 1px solid #d0c5b6 !important;
+            border-radius: 2px !important;
+            background: transparent !important;
             cursor: pointer;
             text-align: center;
-            font-weight: 500;
-            color: #34495e;
+            font-family: 'Hanken Grotesk', sans-serif !important;
+            font-size: 12px !important;
+            font-weight: 600 !important;
+            text-transform: uppercase !important;
+            color: #4d463a !important;
             transition: all 0.2s;
+            box-shadow: none !important;
         }
 
-        .method-btn.active {
-            border-color: #c19b6c;
-            background: #fdfbf7;
-            color: #c19b6c;
-            box-shadow: 0 0 0 1px #c19b6c;
+        #paymentModal .method-btn:hover {
+            border-color: #705829 !important;
         }
 
-        .payment-input-group {
-            margin-bottom: 16px;
+        #paymentModal .method-btn.active {
+            border: 2px solid #705829 !important;
+            background: rgba(112, 88, 41, 0.05) !important;
+            color: #705829 !important;
         }
 
-        .payment-input-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-size: 0.9rem;
-            color: #7f8c8d;
+        #paymentModal .method-btn i, #paymentModal .method-btn span {
+            font-size: 16px;
         }
 
-        .payment-input-group input {
+        #paymentModal .payment-input-group {
+            margin-bottom: 24px;
+        }
+
+        #paymentModal .payment-input-group input {
             width: 100%;
-            padding: 12px 16px;
-            border: 1px solid #e8e4db;
-            border-radius: 8px;
-            font-size: 1.1rem;
+            background-color: #f9f3ea !important;
+            border: 1px solid #d0c5b6 !important;
+            border-radius: 2px !important;
+            padding: 16px !important;
+            font-family: 'Playfair Display', serif !important;
+            font-size: 32px !important;
+            font-weight: 500 !important;
+            font-variant-numeric: lining-nums !important;
+            font-feature-settings: "lnum" 1 !important;
+            color: #1d1b16 !important;
+            text-align: left !important;
             outline: none;
             box-sizing: border-box;
+            transition: border-color 0.2s;
         }
 
-        .change-due {
+        #paymentModal .payment-input-group input::placeholder {
+            font-family: 'Hanken Grotesk', sans-serif !important;
+            font-size: 16px !important;
+            font-weight: 400 !important;
+            color: #8e8a86 !important;
+        }
+
+        #paymentModal .payment-input-group input:focus {
+            border-color: #705829 !important;
+            box-shadow: none !important;
+        }
+
+        #paymentModal .change-due {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 16px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            margin-bottom: 24px;
+            padding: 16px !important;
+            background-color: #ede7de !important;
+            border-radius: 2px !important;
+            margin-bottom: 32px !important;
+            font-family: 'Hanken Grotesk', sans-serif !important;
+        }
+
+        #paymentModal .change-due span:first-child {
+            font-size: 12px !important;
+            font-weight: 600 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.05em !important;
+            color: #4d463a !important;
+        }
+
+        #paymentModal .change-due span:last-child {
+            font-size: 18px !important;
             font-weight: 600;
-            font-size: 1.1rem;
+        }
+
+        #paymentModal .modal-actions {
+            display: grid !important;
+            grid-template-columns: 1fr 1fr !important;
+            gap: 16px !important;
+            margin-top: 0 !important;
+            align-items: stretch !important;
+        }
+
+        #paymentModal .btn-apply {
+            background-color: #ede7de !important;
+            color: #1d1b16 !important;
+            border: none !important;
+            border-radius: 2px !important;
+            padding: 12px 16px !important;
+            font-family: 'Hanken Grotesk', sans-serif !important;
+            font-size: 12px !important;
+            font-weight: 600 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.1em !important;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            width: 100%;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            text-align: center !important;
+            box-sizing: border-box !important;
+            margin: 0 !important;
+        }
+
+        #paymentModal .btn-apply:hover {
+            background-color: #dfd9d0 !important;
+        }
+
+        #paymentModal .btn-checkout {
+            background-color: #705829 !important;
+            color: #ffffff !important;
+            border: none !important;
+            border-radius: 2px !important;
+            padding: 12px 16px !important;
+            font-family: 'Hanken Grotesk', sans-serif !important;
+            font-size: 12px !important;
+            font-weight: 700 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.1em !important;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            width: 100%;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            text-align: center !important;
+            box-sizing: border-box !important;
+            margin: 0 !important;
+        }
+
+        #paymentModal .btn-checkout:hover {
+            opacity: 0.9 !important;
         }
 
         /* Success Modal */
@@ -564,19 +748,55 @@
         }
 
         /* Print Styles */
+        @page {
+            margin: 0;
+        }
+
         @media print {
+            html, body {
+                margin: 0 !important;
+                padding: 0 !important;
+                height: auto !important;
+                min-height: auto !important;
+                overflow: visible !important;
+                background: white !important;
+            }
+
             body>*:not(#printableInvoice) {
                 display: none !important;
             }
 
             #printableInvoice {
                 display: block !important;
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 100%;
-                background: white;
+                position: relative !important;
+                width: 100% !important;
+                background: white !important;
+                padding: 1.5cm 2cm !important;
+                margin: 0 !important;
+                box-sizing: border-box !important;
             }
+
+            .no-print {
+                display: none !important;
+            }
+        }
+
+        .no-print {
+            /* Standard styling */
+        }
+
+        .modal-overlay {
+            background-color: rgba(45, 41, 38, 0.4);
+            backdrop-filter: blur(4px);
+        }
+        .status-card {
+            background-color: #fcfaf7;
+            border: 1px solid #efeae4;
+        }
+
+        #successModal h1, #successModal h2, #successModal h3 {
+            font-family: 'Playfair Display', serif !important;
+            font-weight: 500 !important;
         }
     </style>
 </head>
@@ -616,10 +836,10 @@
                 <tr>
                     <th
                         style="border-bottom: 1px solid #2F1F17; padding: 10px 0; text-align: left; font-size: 14px; width: 15%;">
-                        Thời gian</th>
+                        Ngày</th>
                     <th
-                        style="border-bottom: 1px solid #2F1F17; padding: 10px 0; text-align: left; font-size: 14px; width: 45%;">
-                        Mô tả giao dịch</th>
+                        style="border-bottom: 1px solid #2F1F17; padding: 10px 0; text-align: left; font-size: 14px; width: 40%;">
+                        Mô tả</th>
                     <th
                         style="border-bottom: 1px solid #2F1F17; padding: 10px 0; text-align: center; font-size: 14px; width: 10%;">
                         Số lượng</th>
@@ -627,7 +847,7 @@
                         style="border-bottom: 1px solid #2F1F17; padding: 10px 0; text-align: right; font-size: 14px; width: 15%;">
                         Đơn giá</th>
                     <th
-                        style="border-bottom: 1px solid #2F1F17; padding: 10px 0; text-align: right; font-size: 14px; width: 15%;">
+                        style="border-bottom: 1px solid #2F1F17; padding: 10px 0; text-align: right; font-size: 14px; width: 20%;">
                         Thành tiền (VNĐ)</th>
                 </tr>
             </thead>
@@ -644,6 +864,10 @@
             <div style="width: 45%; font-size: 14px;">
                 <div style="display: flex; justify-content: space-between; font-weight: bold; padding: 5px 0;">
                     <span>Tạm tính:</span> <span id="printSubtotal">1.700.000</span>
+                </div>
+                <div id="printPromoRow"
+                    style="display: none; justify-content: space-between; font-weight: bold; padding: 5px 0; color: #e67e22;">
+                    <span>Khuyến mãi (<span id="printPromoLabel">0%</span>):</span> <span id="printPromoAmount">-0</span>
                 </div>
                 <div id="printServiceChargeRow"
                     style="display: none; justify-content: space-between; font-weight: bold; padding: 5px 0;">
@@ -758,7 +982,7 @@
             </header>
 
             <div class="dashboard-scroll-area" style="padding: 32px 40px;">
-                <a href="/receptionist/folio" class="back-link">&larr; Back to Folio List</a>
+                <a href="/receptionist/folio" class="back-link no-print">&larr; Back to Folio List</a>
 
                 <div class="folio-header-top" id="guestHeader" style="display: none; margin-top: 16px;">
                     <div class="guest-profile">
@@ -803,6 +1027,13 @@
                             <h3 id="billTitle" style="text-align: center;">Hóa đơn chính</h3>
                             <div id="originalBillDetails"></div>
 
+                            <div class="summary-row" id="row-subtotal"
+                                style="border-top: 1px dashed #efebe4; margin-top: 16px; padding-top: 16px; font-weight: 600; color: #2c2a29;">
+                                <span>Tạm tính</span>
+                                <span id="invoiceSubtotalAmount">0 VNĐ</span>
+                            </div>
+
+                            <!-- Khối Áp dụng khuyến mãi dời lên đây, nằm trên dòng VAT -->
                             <div id="promoSection"
                                 style="border-top: 1px dashed #efebe4; margin-top: 16px; padding-top: 16px;">
                                 <div
@@ -814,13 +1045,34 @@
                                 </div>
                             </div>
 
+                            <!-- Thông tin khuyến mãi chi tiết sau khi áp dụng -->
+                            <div class="summary-row" id="row-promo-display" style="display: none; color: #e67e22; margin-top: 8px;">
+                                <span>Khuyến mãi (<span id="promoLabelDisplay">0%</span>)</span>
+                                <span id="promoAmountDisplay">-0 VNĐ</span>
+                            </div>
+
+                            <!-- Dòng Phí phục vụ (Service Charge) -->
+                            <div class="summary-row" id="row-service-charge" style="display: none; color: #2c2a29; margin-top: 8px;">
+                                <span>Phí phục vụ (5%)</span>
+                                <span id="invoiceServiceChargeAmount">0 VNĐ</span>
+                            </div>
+
+                            <!-- Dòng VAT -->
+                            <div class="summary-row" id="row-vat" style="color: #2c2a29; margin-top: 8px; border-top: 1px dashed #efebe4; padding-top: 8px;">
+                                <span>VAT (10%)</span>
+                                <span id="invoiceVatAmount">0 VNĐ</span>
+                            </div>
+
+                            <!-- Dòng Tổng cộng hóa đơn -->
+                            <div class="summary-row" id="row-invoice-total"
+                                style="border-top: 1px dashed #efebe4; margin-top: 16px; padding-top: 16px; font-weight: 600; color: #2c2a29;">
+                                <span>Tổng cộng hóa đơn</span>
+                                <span id="invoiceTotalAmount">0 VNĐ</span>
+                            </div>
+
+                            <!-- Các khoản trừ thanh toán trước/cọc -->
                             <div id="originalBillAdjustments"
                                 style="border-top: 1px dashed #efebe4; margin-top: 16px; padding-top: 16px; display: none;">
-                                <div class="summary-row" id="row-promo" style="display: none; color: #8e8a86;">
-                                    <span>Khuyến mãi (<span id="promoLabel">0%</span>)</span>
-                                    <span id="promoAmount">-0 VNĐ</span>
-                                </div>
-
                                 <div class="summary-row" id="row-deposit" style="display: none; color: #8e8a86;">
                                     <span>Đã đặt cọc</span>
                                     <span id="prePaidAmount">-0 VNĐ</span>
@@ -832,12 +1084,14 @@
                                 </div>
                             </div>
 
-                            <div class="summary-row outstanding-row">
+                            <div class="summary-row outstanding-row" style="border-top: 1px solid #2c2a29; margin-top: 16px; padding-top: 16px;">
                                 <span class="label">Tổng tiền cần thanh toán</span>
                                 <span class="amount" id="originalOutstandingAmount">0 VNĐ</span>
                             </div>
-                            <button class="btn-checkout" id="btnProceedOriginal"
+                            <button class="btn-checkout no-print" id="btnProceedOriginal"
                                 onclick="openPaymentModal(globalOriginalOutstanding, true)">Thanh toán toàn bộ</button>
+                            <button class="btn-secondary no-print" id="btnPrintOriginal"
+                                onclick="printInvoiceFromSummary()" disabled style="opacity: 0.5; pointer-events: none; cursor: not-allowed;">In hóa đơn</button>
                         </div>
                     </div>
 
@@ -893,66 +1147,124 @@
     <!-- Payment Modal -->
     <div id="paymentModal" class="split-modal-overlay" style="display: none;">
         <div class="payment-modal-content">
-            <h3 style="margin: 0; color: #2c3e50; text-align: center;">Xử lý Thanh toán</h3>
-            <div class="payment-amount-display" id="paymentTotalAmount">0 VNĐ</div>
+            <h3>Xử lý Thanh toán</h3>
+            <div class="payment-amount-display" id="paymentTotalAmount">0 <span style="font-size: 24px; font-family: 'Playfair Display', serif; font-weight: 500;">VNĐ</span></div>
 
-            <label style="display:block; margin-bottom: 8px; font-size: 0.9rem; color: #7f8c8d;">Phương thức thanh
-                toán</label>
+            <label>Phương thức thanh toán</label>
             <div class="payment-methods">
-                <div class="method-btn active" onclick="selectPaymentMethod('CASH')" id="btn-method-CASH"><i
-                        class="fa-solid fa-money-bill"></i> Tiền mặt</div>
-                <div class="method-btn" onclick="selectPaymentMethod('VNPAY')" id="btn-method-VNPAY"><i
-                        class="fa-solid fa-qrcode"></i> VNPay</div>
+                <div class="method-btn active" onclick="selectPaymentMethod('CASH')" id="btn-method-CASH">
+                    <span class="material-symbols-outlined">payments</span> Tiền mặt
+                </div>
+                <div class="method-btn" onclick="selectPaymentMethod('VNPAY')" id="btn-method-VNPAY">
+                    <span class="material-symbols-outlined">grid_view</span> VNPay
+                </div>
             </div>
 
             <div id="cashInputSection">
                 <div class="payment-input-group">
                     <label>Số tiền khách đưa (Tendered Amount)</label>
-                    <input type="number" id="tenderedAmount" placeholder="Nhập số tiền..." onkeyup="calculateChange()">
+                    <input type="number" id="tenderedAmount" placeholder="Nhập số tiền..." oninput="calculateChange()">
                 </div>
                 <div class="change-due">
                     <span>Tiền thừa trả khách:</span>
-                    <span id="changeDueAmount" style="color: #27ae60;">0 VNĐ</span>
+                    <span id="changeDueAmount" style="color: #ba1a1a;">Chưa đủ</span>
                 </div>
             </div>
 
-            <div class="modal-actions" style="margin-top: 0;">
-                <button class="btn-apply" style="flex:1;" onclick="closePaymentModal()">Hủy</button>
-                <button class="btn-checkout" id="btnConfirmPayment" style="margin: 0; flex:1;"
-                    onclick="processPayment()">Xác nhận Thanh toán</button>
+            <div class="modal-actions">
+                <button class="btn-apply" onclick="closePaymentModal()">Hủy</button>
+                <button class="btn-checkout" id="btnConfirmPayment" onclick="processPayment()">Xác nhận Thanh toán</button>
             </div>
         </div>
     </div>
 
     <!-- Success & Automation Modal -->
-    <div id="successModal" class="split-modal-overlay" style="display: none;">
-        <div class="split-modal-content" style="text-align: center;">
-            <div class="success-icon"><i class="fa-solid fa-circle-check"></i></div>
-            <h3 style="margin-bottom: 8px; color: #2c3e50;">Thanh toán thành công</h3>
-            <p style="color: #7f8c8d; margin: 0;">Hóa đơn <strong id="successInvoiceId">#INV-XXX</strong></p>
-
-            <div class="automation-list">
-                <div
-                    style="font-weight: 600; margin-bottom: 12px; font-size: 0.85rem; text-transform: uppercase; color: #7f8c8d;">
-                    Hệ thống đã tự động xử lý:</div>
-                <div class="automation-item"><i class="fa-solid fa-check"></i> Dư nợ Folio đã quy về 0 VNĐ</div>
-                <div class="automation-item"><i class="fa-solid fa-check"></i> Trạng thái phòng cập nhật: Vacant_Dirty
-                </div>
-                <div class="automation-item"><i class="fa-solid fa-check"></i> Đã gửi e-Invoice tới email khách hàng
+    <div id="successModal" class="modal-overlay fixed inset-0 flex items-center justify-center z-50 p-4" style="display: none;">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden flex flex-col items-center p-8 text-center" data-purpose="modal-container">
+            <!-- BEGIN: SuccessIcon -->
+            <div class="mb-6 flex items-center justify-center w-20 h-20 rounded-full bg-linen-bg border border-gilded-gold/20" data-purpose="success-icon-container">
+                <div class="w-16 h-16 rounded-full bg-gilded-gold flex items-center justify-center shadow-lg shadow-gilded-gold/30">
+                    <svg class="h-8 w-8 text-white" fill="none" stroke="currentColor" stroke-width="3" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"></path>
+                    </svg>
                 </div>
             </div>
-
-            <div class="modal-actions">
-                <button class="btn-apply" onclick="window.print()"><i class="fa-solid fa-print"></i> In biên lai
-                    giấy</button>
-                <button class="btn-checkout" style="margin: 0;" onclick="closeSuccessModal()">Đóng</button>
+            <!-- END: SuccessIcon -->
+            
+            <!-- BEGIN: HeaderSection -->
+            <div class="mb-8">
+                <h1 class="font-serif text-3xl font-medium text-deep-charcoal mb-1">
+                    Thanh toán thành công
+                </h1>
+                <p class="text-sm tracking-widest text-gilded-gold uppercase font-medium">
+                    Hóa đơn <span class="font-sans" id="successInvoiceId">#INV-6234</span>
+                </p>
             </div>
+            <!-- END: HeaderSection -->
+            
+            <!-- BEGIN: StatusDetails -->
+            <div class="status-card w-full rounded-xl p-5 mb-8 text-left space-y-4" data-purpose="automated-actions-list">
+                <p class="text-[10px] tracking-[0.15em] text-gray-400 font-bold uppercase mb-4">
+                    Hệ thống đã tự động xử lý:
+                </p>
+                <!-- Action Item 1 -->
+                <div class="flex items-start gap-3">
+                    <div class="mt-0.5">
+                        <svg class="w-4 h-4 text-gilded-gold" fill="currentColor" viewbox="0 0 20 20">
+                            <path clip-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" fill-rule="evenodd"></path>
+                        </svg>
+                    </div>
+                    <p class="text-sm text-gray-700 leading-tight">
+                        Dư nợ Folio đã quy về <span class="font-medium">0 VNĐ</span>
+                    </p>
+                </div>
+                <!-- Action Item 2 -->
+                <div class="flex items-start gap-3">
+                    <div class="mt-0.5">
+                        <svg class="w-4 h-4 text-gilded-gold" fill="currentColor" viewbox="0 0 20 20">
+                            <path clip-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" fill-rule="evenodd"></path>
+                        </svg>
+                    </div>
+                    <p class="text-sm text-gray-700 leading-tight">
+                        Trạng thái phòng cập nhật: <br/>
+                        <span class="font-medium">Vacant_Dirty</span>
+                    </p>
+                </div>
+                <!-- Action Item 3 -->
+                <div class="flex items-start gap-3">
+                    <div class="mt-0.5">
+                        <svg class="w-4 h-4 text-gilded-gold" fill="currentColor" viewbox="0 0 20 20">
+                            <path clip-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" fill-rule="evenodd"></path>
+                        </svg>
+                    </div>
+                    <p class="text-sm text-gray-700 leading-tight">
+                        Đã gửi e-Invoice tới email khách hàng
+                    </p>
+                </div>
+            </div>
+            <!-- END: StatusDetails -->
+            
+            <!-- BEGIN: ActionButtons -->
+            <div class="w-full no-print">
+                <!-- Close Button -->
+                <button onclick="closeSuccessModal()" class="w-full flex items-center justify-center py-3 px-4 rounded-xl bg-deep-charcoal text-white hover:bg-black transition-all shadow-lg active:scale-95 no-print" data-purpose="btn-close">
+                    <span class="text-sm font-medium">Đóng</span>
+                </button>
+            </div>
+            <!-- END: ActionButtons -->
         </div>
     </div>
 
     <script>
         function closeSuccessModal() {
             document.getElementById('successModal').style.display = 'none';
+        }
+
+        function printInvoiceFromSummary() {
+            const invoiceId = (bookingGroupData ? bookingGroupData.bookingGroupId || bookingGroupData.id : '') || Math.floor(Math.random() * 10000 + 1000);
+            showSuccessModal({ invoiceId: invoiceId, isSplit: false });
+            document.getElementById('successModal').style.display = 'none';
+            window.print();
         }
         let currentFolioData = null;
         let selectedItemIds = [];
@@ -970,6 +1282,8 @@
         let appliedGroupPromoCode = null;
         let appliedGroupPromoType = null;
         let appliedGroupPromoDiscount = 0;
+        let globalOriginalSubtotal = 0;
+        let globalServiceChargeTotal = 0;
 
         function isDamageOrMaintenanceItem(item) {
             if (!item) return false;
@@ -979,6 +1293,7 @@
             const isHousekeepingDamage = dep === 'housekeeping' && desc.includes('đền bù hỏng hóc');
             return isMaintenance || isHousekeepingDamage || desc.includes('đền bù hỏng hóc');
         }
+
 
         document.addEventListener('DOMContentLoaded', function () {
             const urlParams = new URLSearchParams(window.location.search);
@@ -1024,8 +1339,40 @@
                             fetch(`/api/folios/room/${room.id}`).then(res => res.json())
                         );
 
-                        Promise.all(promises).then(results => {
+                        Promise.all(promises).then(async (results) => {
                             globalFolioResults = results;
+
+                            // Pre-fetch F&B details
+                            let fnbOrderIds = [];
+                            results.forEach(data => {
+                                if (data.success && data.items) {
+                                    data.items.forEach(item => {
+                                        let orderMatch = item.description ? item.description.match(/Order\s*(?:#|số)?\s*(\d+)/i) : null;
+                                        if (orderMatch && orderMatch[1]) {
+                                            fnbOrderIds.push(orderMatch[1]);
+                                        }
+                                    });
+                                }
+                            });
+                            fnbOrderIds = [...new Set(fnbOrderIds)];
+                            window.fnbOrderDetailsMap = {};
+                            if (fnbOrderIds.length > 0) {
+                                try {
+                                    const fnbResults = await Promise.all(fnbOrderIds.map(orderId =>
+                                        fetch('/api/pos/orders/' + orderId + '/details')
+                                            .then(res => res.ok ? res.json() : null)
+                                            .catch(() => null)
+                                    ));
+                                    fnbResults.forEach((fnbData, idx) => {
+                                        if (fnbData && fnbData.status === 'success') {
+                                            window.fnbOrderDetailsMap[fnbOrderIds[idx]] = fnbData;
+                                        }
+                                    });
+                                } catch (err) {
+                                    console.error("Failed to pre-fetch F&B order details:", err);
+                                }
+                            }
+
                             currentFolioData = results.find(r => r.id == currentRoomBookingDetailId) || results[0];
                             document.getElementById('folioContainer').style.display = 'grid';
                             document.getElementById('guestHeader').style.display = 'grid';
@@ -1069,10 +1416,40 @@
 
             fetch(`/api/folios/room/${id}`)
                 .then(res => res.json())
-                .then(data => {
+                .then(async (data) => {
                     if (data.success) {
                         try {
                             globalFolioResults = [data];
+
+                            // Pre-fetch F&B details
+                            let fnbOrderIds = [];
+                            if (data.items) {
+                                data.items.forEach(item => {
+                                    let orderMatch = item.description ? item.description.match(/Order\s*(?:#|số)?\s*(\d+)/i) : null;
+                                    if (orderMatch && orderMatch[1]) {
+                                        fnbOrderIds.push(orderMatch[1]);
+                                    }
+                                });
+                            }
+                            fnbOrderIds = [...new Set(fnbOrderIds)];
+                            window.fnbOrderDetailsMap = {};
+                            if (fnbOrderIds.length > 0) {
+                                try {
+                                    const fnbResults = await Promise.all(fnbOrderIds.map(orderId =>
+                                        fetch('/api/pos/orders/' + orderId + '/details')
+                                            .then(res => res.ok ? res.json() : null)
+                                            .catch(() => null)
+                                    ));
+                                    fnbResults.forEach((fnbData, idx) => {
+                                        if (fnbData && fnbData.status === 'success') {
+                                            window.fnbOrderDetailsMap[fnbOrderIds[idx]] = fnbData;
+                                        }
+                                    });
+                                } catch (err) {
+                                    console.error("Failed to pre-fetch F&B order details:", err);
+                                }
+                            }
+
                             currentFolioData = data;
                             document.getElementById('folioContainer').style.display = 'grid';
                             document.getElementById('guestHeader').style.display = 'grid';
@@ -1181,6 +1558,7 @@
             let originalTaxable = 0;
             let originalNonTaxable = 0;
             window.folioNegatives = 0;
+            globalServiceChargeTotal = 0;
 
             results.forEach((data, index) => {
                 if (!data.success) return;
@@ -1211,14 +1589,32 @@
                     if (item.amount > 0) {
                         const isSettled = item.isSettledSeparately || (data.detailStatus === 'Checked_Out' && !isRoom);
                         if (!isSettled) {
+                            let orderMatch = item.description ? item.description.match(/Order\s*(?:#|số)?\s*(\d+)/i) : null;
+                            let fnbServiceCharge = 0;
+                            if (orderMatch && orderMatch[1]) {
+                                const fnbOrderId = orderMatch[1];
+                                const fnbDetail = window.fnbOrderDetailsMap ? window.fnbOrderDetailsMap[fnbOrderId] : null;
+                                if (fnbDetail && fnbDetail.items) {
+                                    const itemsTotal = fnbDetail.items.reduce((sum, di) => sum + di.amount, 0);
+                                    const billedAmount = item.amount;
+                                    const diff = billedAmount - itemsTotal;
+                                    if (diff > 0 && Math.abs(diff) > 1) {
+                                        fnbServiceCharge = diff;
+                                    }
+                                }
+                            }
+
                             if (!originalGroups[dep]) originalGroups[dep] = { total: 0 };
-                            originalGroups[dep].total += item.amount;
-                            originalTotal += item.amount;
+                            originalGroups[dep].total += (item.amount - fnbServiceCharge);
+                            originalTotal += (item.amount - fnbServiceCharge);
+                            if (fnbServiceCharge > 0) {
+                                globalServiceChargeTotal += fnbServiceCharge;
+                            }
 
                             if (isDamageOrMaintenanceItem(item)) {
-                                originalNonTaxable += item.amount;
+                                originalNonTaxable += (item.amount - fnbServiceCharge);
                             } else {
-                                originalTaxable += item.amount;
+                                originalTaxable += (item.amount - fnbServiceCharge);
                             }
                         }
                     } else {
@@ -1309,7 +1705,19 @@
                     const availableItems = group.items.filter(i => !i.isSettledSeparately);
                     const depSafe = roomId + '_' + dep.replace(/[^a-zA-Z0-9]/g, '');
                     const isMinibar = dep.toLowerCase().includes('minibar');
+                    const isFnb = dep.toLowerCase().includes('f&b') || dep.toLowerCase().includes('food');
+                    const isTour = dep.toLowerCase().includes('tour');
+                    const isSpecialDep = isFnb || isTour;
                     const thPadding = isMinibar ? 'padding-left: 16px;' : '';
+                    const tableHeaders = isSpecialDep ? '' : `
+                                      <thead>
+                                          <tr>
+                                              <th style="width: 45%; text-align: left; ${thPadding}">Mô tả</th>
+                                              <th style="width: 10%; text-align: center;">Số Lượng</th>
+                                              <th style="width: 20%; text-align: right;">Đơn giá</th>
+                                              <th style="width: 25%; text-align: right;">Thành tiền</th>
+                                          </tr>
+                                      </thead>`;
 
                     leftHtml += `
                          <div class="charge-card">
@@ -1320,14 +1728,7 @@
                              </div>
                              <div style="padding: 0 16px;">
                                  <table class="charge-table">
-                                     <thead>
-                                         <tr>
-                                             <th style="width: 45%; text-align: left; ${thPadding}">Mô tả</th>
-                                             <th style="width: 10%; text-align: center;">Số Lượng</th>
-                                             <th style="width: 20%; text-align: right;">Đơn giá</th>
-                                             <th style="width: 25%; text-align: right;">Thành tiền</th>
-                                         </tr>
-                                     </thead>
+                                     ${tableHeaders}
                                      <tbody>
                                          ${group.items.map(i => {
                         const isSplit = i.isSettledSeparately;
@@ -1359,17 +1760,72 @@
                             `;
                             return rowsHtml;
                         } else {
-                            return `
-                                              <tr class="${trClass}">
-                                                  <td style="text-align: left;">
-                                                      ${i.description} 
-                                                      ${dateStr ? `<div style="font-size: 0.8rem; color: #95a5a6;">${dateStr}</div>` : ''}
-                                                      ${isSplit ? '<span style="color:#e74c3c; font-size: 0.8rem; font-weight: 500;">(Đã tách)</span>' : ''}
-                                                  </td>
-                                                  <td style="text-align: center; color: #8e8a86;">-</td>
-                                                  <td style="text-align: right; color: #8e8a86;">-</td>
-                                                  <td class="amount">${formatCurrency(i.amount)}</td>
-                                              </tr>`;
+                            if (isTour && i.bookingId) {
+                                const tourBookingId = i.bookingId;
+                                return `
+                                                  <tr id="tour-booking-row-${tourBookingId}" class="tour-booking-placeholder ${trClass}" data-tour-booking="${tourBookingId}" data-amount="${i.amount}" data-date="${dateStr}" data-split="${isSplit ? 'true' : 'false'}" data-desc="${i.description}">
+                                                      <td colspan="3" style="text-align: left;">
+                                                          ${i.description} 
+                                                          ${dateStr ? `<div style="font-size: 0.8rem; color: #95a5a6;">${dateStr}</div>` : ''}
+                                                          ${isSplit ? '<span style="color:#e74c3c; font-size: 0.8rem; font-weight: 500;">(Đã tách)</span>' : ''}
+                                                          <div style="font-size: 0.8rem; font-style: italic; color: #8e8a86; margin-top: 4px;">
+                                                              <i class="fa-solid fa-spinner fa-spin"></i> Đang tải chi tiết tour...
+                                                          </div>
+                                                      </td>
+                                                      <td class="amount" style="text-align: right;">${formatCurrency(i.amount)}</td>
+                                                  </tr>`;
+                            } else if (isTour) {
+                                return `
+                                                  <tr class="${trClass}">
+                                                      <td colspan="3" style="text-align: left;">
+                                                          ${i.description} 
+                                                          ${dateStr ? `<div style="font-size: 0.8rem; color: #95a5a6;">${dateStr}</div>` : ''}
+                                                          ${isSplit ? '<span style="color:#e74c3c; font-size: 0.8rem; font-weight: 500;">(Đã tách)</span>' : ''}
+                                                      </td>
+                                                      <td class="amount" style="text-align: right;">${formatCurrency(i.amount)}</td>
+                                                  </tr>`;
+                            }
+
+                            let orderMatch = i.description ? i.description.match(/Order\s*(?:#|số)?\s*(\d+)/i) : null;
+                            if (orderMatch && orderMatch[1]) {
+                                const fnbOrderId = orderMatch[1];
+                                return `
+                                                  <tr id="fnb-order-row-${fnbOrderId}" class="fnb-order-placeholder ${trClass}" data-fnb-order="${fnbOrderId}" data-amount="${i.amount}" data-date="${dateStr}" data-split="${isSplit ? 'true' : 'false'}" data-desc="${i.description ? i.description.replace('Ký bill đồ ăn F&B', 'Dịch vụ Nhà hàng') : ''}">
+                                                      <td colspan="3" style="text-align: left;">
+                                                          ${i.description ? i.description.replace('Ký bill đồ ăn F&B', 'Dịch vụ Nhà hàng') : ''} 
+                                                          ${dateStr ? `<div style="font-size: 0.8rem; color: #95a5a6;">${dateStr}</div>` : ''}
+                                                          ${isSplit ? '<span style="color:#e74c3c; font-size: 0.8rem; font-weight: 500;">(Đã tách)</span>' : ''}
+                                                          <div style="font-size: 0.8rem; font-style: italic; color: #8e8a86; margin-top: 4px;">
+                                                              <i class="fa-solid fa-spinner fa-spin"></i> Đang tải chi tiết món ăn...
+                                                          </div>
+                                                      </td>
+                                                      <td class="amount" style="text-align: right;">${formatCurrency(i.amount)}</td>
+                                                  </tr>`;
+                            } else {
+                                if (isFnb) {
+                                    return `
+                                                      <tr class="${trClass}">
+                                                          <td colspan="3" style="text-align: left;">
+                                                              ${i.description ? i.description.replace('Ký bill đồ ăn F&B', 'Dịch vụ Nhà hàng') : ''} 
+                                                              ${dateStr ? `<div style="font-size: 0.8rem; color: #95a5a6;">${dateStr}</div>` : ''}
+                                                              ${isSplit ? '<span style="color:#e74c3c; font-size: 0.8rem; font-weight: 500;">(Đã tách)</span>' : ''}
+                                                          </td>
+                                                          <td class="amount" style="text-align: right;">${formatCurrency(i.amount)}</td>
+                                                      </tr>`;
+                                } else {
+                                    return `
+                                                      <tr class="${trClass}">
+                                                          <td style="text-align: left;">
+                                                               ${i.description ? i.description.replace('[Đền bù hỏng hóc]', 'Phụ thu tài sản:') : ''} 
+                                                              ${dateStr ? `<div style="font-size: 0.8rem; color: #95a5a6;">${dateStr}</div>` : ''}
+                                                              ${isSplit ? '<span style="color:#e74c3c; font-size: 0.8rem; font-weight: 500;">(Đã tách)</span>' : ''}
+                                                          </td>
+                                                          <td style="text-align: center; color: #2c2a29;">1</td>
+                                                          <td style="text-align: right; color: #2c2a29;">${new Intl.NumberFormat('vi-VN').format(i.amount)}</td>
+                                                          <td class="amount">${formatCurrency(i.amount)}</td>
+                                                      </tr>`;
+                                }
+                            }
                         }
                     }).join('')}
                                      </tbody>
@@ -1404,13 +1860,15 @@
                                   <span>VAT (10%):</span>
                                   <span style="font-weight: 500; color: #2c2a29;">${formatCurrency(roomVatAmount)}</span>
                               </div>
-                              <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px; padding-top: 12px; border-top: 1px dashed #e6ded4;">
-                                  <span style="font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 700; color: #8e8a86; letter-spacing: 0.5px; text-transform: uppercase;">Tổng cộng phòng ${data.roomNumber || 'N/A'}:</span>
-                                  <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 10px;">
+                              <div style="display: flex; flex-direction: column; gap: 12px; width: 100%; margin-top: 8px; padding-top: 12px; border-top: 1px dashed #e6ded4;">
+                                  <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                                      <span style="font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600; color: #6e655f;">Tổng chi phí:</span>
                                       <span style="font-family: 'Inter', sans-serif; font-size: 15px; color: #2c2a29; font-weight: 700;">${formatCurrency(roomTotalWithVat)}</span>
+                                  </div>
+                                  <div style="display: flex; justify-content: flex-end; width: 100%;">
                                       ${data.detailStatus !== 'Checked_Out' ? `
                                       <button onclick="openPaymentModalForRoom('${roomId}', ${roomTotalWithVat})" class="btn" style="padding: 8px 16px; font-size: 12px; font-weight: 600; font-family: 'Inter', sans-serif; background: #272320; color: white; border: none; border-radius: 4px; cursor: pointer; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
-                                          <i class="fa-solid fa-credit-card"></i> Thanh toán riêng phòng này
+                                          Thanh toán Phòng ${data.roomNumber || 'N/A'}
                                       </button>
                                       ` : `
                                       <span style="color: #27ae60; font-weight: 600; font-family: 'Inter', sans-serif; font-size: 13px; display: flex; align-items: center; gap: 4px;"><i class="fa-solid fa-circle-check"></i> Đã thanh toán</span>
@@ -1424,6 +1882,8 @@
             });
 
             document.getElementById('allRoomsContainer').innerHTML = leftHtml;
+            fetchFnbOrderDetails();
+            fetchTourBookingDetails();
 
             // 2. Render Right Pane (Original Bill - Now Total Bill)
             let rightOriginalHtml = '';
@@ -1466,7 +1926,14 @@
             }
 
             for (const [dep, group] of Object.entries(originalGroups)) {
-                let depLabel = dep.toLowerCase() === 'room' ? 'Tiền phòng' : dep;
+                let depLabel = dep;
+                if (dep.toLowerCase() === 'room') {
+                    depLabel = 'Tiền phòng';
+                } else if (dep.toLowerCase() === 'f&b') {
+                    depLabel = 'Dịch vụ F&B';
+                } else if (dep.toLowerCase() === 'tour') {
+                    depLabel = 'Dịch vụ Tour';
+                }
                 let subLabelHtml = '';
                 if (dep.toLowerCase() === 'room' && roomChargeBreakdown.length > 0) {
                     subLabelHtml = roomChargeBreakdown.map(line => `<div style="font-size: 11.5px; color: #8e8a86; font-weight: 500; font-style: italic; margin-top: 4px; padding-left: 12px; line-height: 1.4;">${line}</div>`).join('');
@@ -1481,15 +1948,7 @@
                     </div>
                 `;
             }
-            if (Object.keys(originalGroups).length > 0) {
-                const vatAmount = originalTaxable * 0.1;
-                rightOriginalHtml += `
-                    <div class="summary-row" style="border-top: 1px dashed #cbd5e1; padding-top: 8px; margin-top: 8px;">
-                        <span>VAT (10%)</span>
-                        <span>${formatCurrency(vatAmount)}</span>
-                    </div>
-                `;
-            } else {
+            if (Object.keys(originalGroups).length === 0) {
                 rightOriginalHtml = '<div class="summary-row" style="justify-content:center; color:#95a5a6;">Không có mục nào</div>';
             }
             document.getElementById('originalBillDetails').innerHTML = rightOriginalHtml;
@@ -1517,11 +1976,23 @@
                 document.getElementById('row-other-payments').style.display = 'none';
             }
 
-
-
-            globalOriginalTotal = originalTaxable * 1.1 + originalNonTaxable;
+            globalOriginalSubtotal = originalTaxable + originalNonTaxable;
             updateGroupOutstandingDisplay();
             globalSplitOutstanding = splitTotal;
+
+            // If redirecting from a successful VNPay payment, show the invoice success modal
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('payment') === 'success') {
+                // Clear the query parameter so refreshing doesn't keep showing it
+                const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + "?id=" + (urlParams.get('id') || '');
+                window.history.replaceState({ path: newUrl }, '', newUrl);
+
+                selectedPaymentMethod = 'VNPAY';
+                currentPaymentAmount = globalOriginalTotal; // VNPay is usually for full payment
+                showSuccessModal({
+                    invoiceId: urlParams.get('vnp_TxnRef') || Math.floor(Math.random() * 10000 + 1000)
+                });
+            }
         }
 
         function toggleRoomDetail(elementId) {
@@ -1626,7 +2097,8 @@
                 currentPaymentRoomId = null;
             }
             currentPaymentAmount = amount;
-            document.getElementById('paymentTotalAmount').innerText = formatCurrency(amount);
+            const formattedVal = new Intl.NumberFormat('vi-VN').format(Math.round(amount));
+            document.getElementById('paymentTotalAmount').innerHTML = formattedVal + ' <span style="font-size: 24px; font-family: \'Playfair Display\', serif; font-weight: 500;">VNĐ</span>';
             document.getElementById('paymentModal').style.display = 'flex';
             selectPaymentMethod('CASH'); // default
             document.getElementById('tenderedAmount').value = '';
@@ -1668,24 +2140,22 @@
                 btnConfirm.style.opacity = '1';
             } else {
                 document.getElementById('changeDueAmount').innerText = "Chưa đủ";
-                document.getElementById('changeDueAmount').style.color = '#e74c3c';
+                document.getElementById('changeDueAmount').style.color = '#ba1a1a';
                 btnConfirm.disabled = true;
                 btnConfirm.style.opacity = '0.5';
             }
         }
 
         function toggleAdjustmentsContainer() {
-            const rowPromo = document.getElementById('row-promo');
             const rowDeposit = document.getElementById('row-deposit');
             const rowOtherPayments = document.getElementById('row-other-payments');
 
-            const hasPromo = rowPromo && rowPromo.style.display !== 'none';
             const hasDeposit = rowDeposit && rowDeposit.style.display !== 'none';
             const hasOther = rowOtherPayments && rowOtherPayments.style.display !== 'none';
 
             const container = document.getElementById('originalBillAdjustments');
             if (container) {
-                if (hasPromo || hasDeposit || hasOther) {
+                if (hasDeposit || hasOther) {
                     container.style.display = 'block';
                 } else {
                     container.style.display = 'none';
@@ -1694,10 +2164,47 @@
         }
 
         function updateGroupOutstandingDisplay() {
-            let totalWithVat = globalOriginalTotal;
-            let outstanding = totalWithVat - appliedGroupPromoDiscount - globalPrePaidDeposit - globalOtherPayments;
+            const subtotal = globalOriginalSubtotal;
+            const promoDiscount = appliedGroupPromoDiscount;
+            const serviceCharge = globalServiceChargeTotal;
+
+            // VAT (10% tính trên: Tạm tính - Khuyến mãi + Phí phục vụ)
+            const vatBase = Math.max(0, subtotal - promoDiscount + serviceCharge);
+            const vat = vatBase * 0.1;
+
+            // Tổng cộng hóa đơn = Tạm tính - Khuyến mãi + Phí phục vụ + VAT
+            const totalWithVat = subtotal - promoDiscount + serviceCharge + vat;
+
+            let outstanding = totalWithVat - globalPrePaidDeposit - globalOtherPayments;
             if (outstanding < 0) outstanding = 0;
+
+            globalOriginalTotal = totalWithVat;
             globalOriginalOutstanding = outstanding;
+
+            // Cập nhật lên giao diện
+            document.getElementById('invoiceSubtotalAmount').innerText = formatCurrency(subtotal);
+
+            if (promoDiscount > 0) {
+                document.getElementById('row-promo-display').style.display = 'flex';
+                document.getElementById('promoAmountDisplay').innerText = "-" + formatCurrency(promoDiscount);
+                if (appliedGroupPromoType === 'FIXED_AMOUNT') {
+                    document.getElementById('promoLabelDisplay').innerText = 'Cố định';
+                } else {
+                    document.getElementById('promoLabelDisplay').innerText = (window.appliedGroupPromoValue || 0) + '%';
+                }
+            } else {
+                document.getElementById('row-promo-display').style.display = 'none';
+            }
+
+            if (serviceCharge > 0) {
+                document.getElementById('row-service-charge').style.display = 'flex';
+                document.getElementById('invoiceServiceChargeAmount').innerText = formatCurrency(serviceCharge);
+            } else {
+                document.getElementById('row-service-charge').style.display = 'none';
+            }
+
+            document.getElementById('invoiceVatAmount').innerText = formatCurrency(vat);
+            document.getElementById('invoiceTotalAmount').innerText = formatCurrency(totalWithVat);
             document.getElementById('originalOutstandingAmount').innerText = formatCurrency(outstanding);
 
             toggleAdjustmentsContainer();
@@ -1709,7 +2216,7 @@
                     btn.disabled = false;
                     btn.style.opacity = '1';
                     btn.style.cursor = 'pointer';
-                    btn.innerHTML = '<i class="fa-regular fa-circle-check" style="margin-right: 8px;"></i> Hoàn tất Checkout';
+                    btn.innerHTML = 'Hoàn tất Checkout';
                     btn.onclick = function () {
                         currentPaymentRoomId = null;
                         currentPaymentAmount = 0;
@@ -1720,10 +2227,25 @@
                     btn.disabled = false;
                     btn.style.opacity = '1';
                     btn.style.cursor = 'pointer';
-                    btn.innerHTML = '<i class="fa-solid fa-credit-card" style="margin-right: 8px;"></i> Thanh toán toàn bộ';
+                    btn.innerHTML = 'Thanh toán toàn bộ';
                     btn.onclick = function () {
                         openPaymentModal(globalOriginalOutstanding, true);
                     };
+                }
+            }
+
+            const btnPrint = document.getElementById('btnPrintOriginal');
+            if (btnPrint) {
+                if (outstanding < 1) {
+                    btnPrint.disabled = false;
+                    btnPrint.style.opacity = '1';
+                    btnPrint.style.pointerEvents = 'auto';
+                    btnPrint.style.cursor = 'pointer';
+                } else {
+                    btnPrint.disabled = true;
+                    btnPrint.style.opacity = '0.5';
+                    btnPrint.style.pointerEvents = 'none';
+                    btnPrint.style.cursor = 'not-allowed';
                 }
             }
         }
@@ -1734,8 +2256,8 @@
                 alert("Vui lòng nhập mã giảm giá");
                 return;
             }
-            const totalWithVat = globalOriginalTotal;
-            fetch(`/api/folios/promo/validate?code=${encodeURIComponent(code)}&amount=${totalWithVat}`)
+            const validationAmount = globalOriginalSubtotal;
+            fetch(`/api/folios/promo/validate?code=${encodeURIComponent(code)}&amount=${validationAmount}`)
                 .then(res => {
                     if (!res.ok) {
                         throw new Error("HTTP error " + res.status);
@@ -1747,14 +2269,7 @@
                         appliedGroupPromoCode = data.promoCode;
                         appliedGroupPromoType = data.discountType;
                         appliedGroupPromoDiscount = data.discountAmount;
-
-                        document.getElementById('row-promo').style.display = 'flex';
-                        if (data.discountType === 'FIXED_AMOUNT') {
-                            document.getElementById('promoLabel').innerText = 'Cố định';
-                        } else {
-                            document.getElementById('promoLabel').innerText = data.discountValue + '%';
-                        }
-                        document.getElementById('promoAmount').innerText = "-" + formatCurrency(data.discountAmount);
+                        window.appliedGroupPromoValue = data.discountValue;
 
                         updateGroupOutstandingDisplay();
                         alert("Áp dụng mã giảm giá thành công!");
@@ -1765,7 +2280,7 @@
                 })
                 .catch(err => {
                     console.error(err);
-                    alert("Lỗi khi kết nối hệ thống kiểm tra mã giảm giá (Có thể ứng dụng Spring Boot cần được khởi động lại)");
+                    alert("Lỗi khi kết nối hệ thống kiểm tra mã giảm giá");
                     resetGroupPromo();
                 });
         }
@@ -1774,7 +2289,8 @@
             appliedGroupPromoCode = null;
             appliedGroupPromoType = null;
             appliedGroupPromoDiscount = 0;
-            document.getElementById('row-promo').style.display = 'none';
+            window.appliedGroupPromoValue = 0;
+            document.getElementById('row-promo-display').style.display = 'none';
             document.getElementById('groupPromoInput').value = '';
             updateGroupOutstandingDisplay();
         }
@@ -1945,7 +2461,7 @@
             document.getElementById('printRoomNumber').innerText = roomList;
 
             let guestCount = 0;
-            const isSplit = (currentPaymentAmount === globalSplitOutstanding);
+            const isSplit = data.isSplit !== undefined ? data.isSplit : (currentPaymentRoomId !== null);
             if (isSplit && currentFolioData) {
                 guestCount = (currentFolioData.numberOfAdults || 0) + (currentFolioData.numberOfChildren || 0);
             } else if (globalFolioResults && globalFolioResults.length > 0) {
@@ -1988,10 +2504,15 @@
             if (isSplit) {
                 itemsToPrint = currentFolioData.items.filter(i => selectedItemIds.includes(i.id));
             } else {
+                // If payment was successful (or no unsettled items are left), gather ALL items for print.
+                // Otherwise, only gather unsettled items.
+                const hasUnsettled = globalFolioResults.some(roomResult => 
+                    roomResult && roomResult.items && roomResult.items.some(item => item.status !== 'Settled')
+                );
                 globalFolioResults.forEach(roomResult => {
                     if (roomResult && roomResult.items) {
                         roomResult.items.forEach(item => {
-                            if (item.status !== 'Settled') {
+                            if (!hasUnsettled || item.status !== 'Settled') {
                                 itemsToPrint.push(item);
                             }
                         });
@@ -2001,46 +2522,448 @@
 
             const formatNumber = (val) => new Intl.NumberFormat('vi-VN').format(Math.round(val));
 
-            let tbodyHtml = '';
+            let printSubtotal = 0;
+            let printServiceCharge = 0;
+
+            // Group identical items together by description and unit price
+            let groupedItems = [];
             itemsToPrint.forEach(item => {
                 const isRoom = (item.sourceDepartment || '').toLowerCase() === 'room';
-                const qty = isRoom ? nights : 1;
-                const unitVal = isRoom ? (item.amount / nights) : item.amount;
+
+                let orderMatch = item.description ? item.description.match(/Order\s*(?:#|số)?\s*(\d+)/i) : null;
+                if (orderMatch && orderMatch[1]) {
+                    const orderId = orderMatch[1];
+                    const fnbDetail = window.fnbOrderDetailsMap ? window.fnbOrderDetailsMap[orderId] : null;
+                    if (fnbDetail && fnbDetail.items && fnbDetail.items.length > 0) {
+                        const dishesTotal = fnbDetail.items.reduce((sum, di) => sum + di.amount, 0);
+                        const itemDate = (item.createdAt) ? formatDateStr(item.createdAt.substring(0, 10)) : new Date().toLocaleDateString('vi-VN');
+                        
+                        // Add parent F&B Order row
+                        groupedItems.push({
+                            description: `F&B CHARGES (Order #${orderId})`,
+                            qty: "",
+                            unitVal: "",
+                            amount: dishesTotal,
+                            itemDate: itemDate,
+                            isParentFnb: true,
+                            children: fnbDetail.items.map(dish => ({
+                                description: `- ${dish.name}`,
+                                qty: dish.quantity,
+                                unitVal: dish.price,
+                                amount: dish.amount,
+                                itemDate: "",
+                                isChildFnb: true
+                            }))
+                        });
+
+                        // Calculate F&B service charge
+                        const billedAmount = item.amount;
+                        const diff = billedAmount - dishesTotal;
+                        if (diff > 0 && Math.abs(diff) > 1) {
+                            printServiceCharge += diff;
+                        }
+                        return; // Done with F&B order
+                    }
+                }
+
+                // For normal items (Room, Tour, Minibar, etc.)
+                const qty = isRoom ? Number(nights) : 1;
+                const unitVal = isRoom ? (Number(item.amount) / Number(nights)) : Number(item.amount);
+                
+                // Clean description: remove "(Expected)" or "Expected" from description for guest presentation
+                let cleanDesc = item.description || '';
+                cleanDesc = cleanDesc.replace(/\s*\(Expected\)/gi, '').replace(/\s*Expected\s*/gi, '').trim();
+
+                const key = `${cleanDesc}_${unitVal}`;
                 const itemDate = (item.createdAt) ? formatDateStr(item.createdAt.substring(0, 10)) : new Date().toLocaleDateString('vi-VN');
 
-                tbodyHtml += `
-                    <tr>
-                        <td style="padding: 10px 0; border-bottom: 1px dashed #ddd;">${itemDate}</td>
-                        <td style="padding: 10px 0; border-bottom: 1px dashed #ddd;">${item.description}</td>
-                        <td style="padding: 10px 0; border-bottom: 1px dashed #ddd; text-align: center;">${qty}</td>
-                        <td style="padding: 10px 0; border-bottom: 1px dashed #ddd; text-align: right;">${formatNumber(unitVal)}</td>
-                        <td style="padding: 10px 0; border-bottom: 1px dashed #ddd; text-align: right;">${formatNumber(item.amount)}</td>
-                    </tr>
-                `;
+                let existing = groupedItems.find(g => g.key === key && !g.isParentFnb);
+                if (existing) {
+                    existing.qty += qty;
+                    existing.amount += Number(item.amount);
+                } else {
+                    groupedItems.push({
+                        key: key,
+                        description: cleanDesc,
+                        qty: qty,
+                        unitVal: unitVal,
+                        amount: Number(item.amount),
+                        itemDate: itemDate,
+                        isRoom: isRoom
+                    });
+                }
+            });
+
+            // Generate tbody rows with day grouping (cột thời gian rỗng nếu trùng ngày liên tiếp)
+            let tbodyHtml = '';
+            let lastDateStr = '';
+            groupedItems.forEach(g => {
+                const displayDate = (g.itemDate === lastDateStr) ? '' : g.itemDate;
+                if (g.itemDate) {
+                    lastDateStr = g.itemDate;
+                }
+
+                if (g.isParentFnb) {
+                    // Parent row: Bold description, blank qty and price, bold amount
+                    tbodyHtml += `
+                        <tr>
+                            <td style="padding: 10px 0; border-bottom: 1px dashed #ddd;">${displayDate}</td>
+                            <td style="padding: 10px 0; border-bottom: 1px dashed #ddd;">${g.description}</td>
+                            <td style="padding: 10px 0; border-bottom: 1px dashed #ddd; text-align: center;"></td>
+                            <td style="padding: 10px 0; border-bottom: 1px dashed #ddd; text-align: right;"></td>
+                            <td style="padding: 10px 0; border-bottom: 1px dashed #ddd; text-align: right;">${formatNumber(g.amount)}</td>
+                        </tr>
+                    `;
+                    printSubtotal += g.amount;
+
+                    // Children rows: Indented, normal description, standard qty, price, and amount
+                    if (g.children) {
+                        g.children.forEach(c => {
+                            tbodyHtml += `
+                                <tr style="color: #2c2a29;">
+                                    <td style="padding: 8px 0; border-bottom: 1px dashed #eee;"></td>
+                                    <td style="padding: 8px 0; border-bottom: 1px dashed #eee; padding-left: 20px;">${c.description}</td>
+                                    <td style="padding: 8px 0; border-bottom: 1px dashed #eee; text-align: center;">${c.qty}</td>
+                                    <td style="padding: 8px 0; border-bottom: 1px dashed #eee; text-align: right;">${formatNumber(c.unitVal)}</td>
+                                    <td style="padding: 8px 0; border-bottom: 1px dashed #eee; text-align: right;">${formatNumber(c.amount)}</td>
+                                </tr>
+                            `;
+                        });
+                    }
+                } else {
+                    // Normal row
+                    tbodyHtml += `
+                        <tr>
+                            <td style="padding: 10px 0; border-bottom: 1px dashed #ddd;">${displayDate}</td>
+                            <td style="padding: 10px 0; border-bottom: 1px dashed #ddd;">${g.description}</td>
+                            <td style="padding: 10px 0; border-bottom: 1px dashed #ddd; text-align: center;">${g.qty}</td>
+                            <td style="padding: 10px 0; border-bottom: 1px dashed #ddd; text-align: right;">${formatNumber(g.unitVal)}</td>
+                            <td style="padding: 10px 0; border-bottom: 1px dashed #ddd; text-align: right;">${formatNumber(g.amount)}</td>
+                        </tr>
+                    `;
+                    printSubtotal += g.amount;
+                }
             });
             document.getElementById('printInvoiceItems').innerHTML = tbodyHtml;
 
             // 6. Calculate total values
-            const hasDeposit = (globalPrePaidDeposit > 0 && !isSplit);
-            const totalBillWithVat = currentPaymentAmount + (hasDeposit ? globalPrePaidDeposit : 0);
-            const subtotal = totalBillWithVat / 1.1;
-            const vat = totalBillWithVat - subtotal;
-            const totalAmount = currentPaymentAmount;
+            const promoDiscount = currentPaymentRoomId === null ? appliedGroupPromoDiscount : (roomSummaryMap[currentPaymentRoomId] ? roomSummaryMap[currentPaymentRoomId].appliedPromoDiscount : 0);
+            const deposit = currentPaymentRoomId === null ? globalPrePaidDeposit : (roomSummaryMap[currentPaymentRoomId] ? roomSummaryMap[currentPaymentRoomId].roomDeposited || 0 : 0);
 
-            document.getElementById('printSubtotal').innerText = formatNumber(subtotal);
+            const vatBase = Math.max(0, printSubtotal - promoDiscount + printServiceCharge);
+            const vat = vatBase * 0.1;
+            const totalBill = printSubtotal - promoDiscount + printServiceCharge + vat;
+            const totalOutstanding = Math.max(0, totalBill - deposit);
+
+            // Update footer UI
+            document.getElementById('printSubtotal').innerText = formatNumber(printSubtotal);
+
+            // Promo display
+            const printPromoRow = document.getElementById('printPromoRow');
+            if (printPromoRow) {
+                if (promoDiscount > 0) {
+                    printPromoRow.style.display = 'flex';
+                    const promoLabel = currentPaymentRoomId === null ? 
+                        (appliedGroupPromoType === 'FIXED_AMOUNT' ? 'Cố định' : (window.appliedGroupPromoValue || 0) + '%') : 
+                        ((roomSummaryMap[currentPaymentRoomId] && roomSummaryMap[currentPaymentRoomId].appliedPromoType === 'FIXED_AMOUNT') ? 'Cố định' : (roomSummaryMap[currentPaymentRoomId] ? (roomSummaryMap[currentPaymentRoomId].appliedPromoValue || 0) + '%' : '0%'));
+                    document.getElementById('printPromoLabel').innerText = promoLabel;
+                    document.getElementById('printPromoAmount').innerText = "- " + formatNumber(promoDiscount);
+                } else {
+                    printPromoRow.style.display = 'none';
+                }
+            }
+
+            // Service charge display
+            if (printServiceCharge > 0) {
+                document.getElementById('printServiceChargeRow').style.display = 'flex';
+                document.getElementById('printServiceCharge').innerText = formatNumber(printServiceCharge);
+            } else {
+                document.getElementById('printServiceChargeRow').style.display = 'none';
+            }
+
             document.getElementById('printVat').innerText = formatNumber(vat);
 
-            if (hasDeposit) {
+            if (deposit > 0) {
                 document.getElementById('printDepositRow').style.display = 'flex';
-                document.getElementById('printDepositAmount').innerText = "- " + formatNumber(globalPrePaidDeposit);
+                document.getElementById('printDepositAmount').innerText = "- " + formatNumber(deposit);
             } else {
                 document.getElementById('printDepositRow').style.display = 'none';
             }
 
-            document.getElementById('printTotal').innerText = formatNumber(totalAmount);
+            document.getElementById('printTotal').innerText = formatNumber(totalOutstanding);
 
             document.getElementById('successModal').style.display = 'flex';
         }
+
+        async function fetchFnbOrderDetails() {
+            const placeholders = document.querySelectorAll('.fnb-order-placeholder');
+            for (const row of placeholders) {
+                const orderId = row.getAttribute('data-fnb-order');
+                const totalAmountStr = row.getAttribute('data-amount');
+                const dateStr = row.getAttribute('data-date') || '';
+                const isSplit = row.getAttribute('data-split') === 'true';
+                const originalDesc = row.getAttribute('data-desc');
+                const trClass = isSplit ? 'item-settled' : '';
+
+                // Helper function to restore the original single row display (Fallback)
+                const restoreOriginalRow = () => {
+                    row.innerHTML = `
+                        <td colspan="3" style="text-align: left;">
+                            ${originalDesc} 
+                            ${dateStr ? `<div style="font-size: 0.8rem; color: #95a5a6;">${dateStr}</div>` : ''}
+                            ${isSplit ? '<span style="color:#e74c3c; font-size: 0.8rem; font-weight: 500;">(Đã tách)</span>' : ''}
+                        </td>
+                        <td class="amount" style="text-align: right;">${formatCurrency(parseFloat(totalAmountStr))}</td>
+                    `;
+                    row.classList.remove('fnb-order-placeholder');
+                };
+
+                try {
+                    // Set a 5-second timeout using AbortController
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+                    const response = await fetch('/api/pos/orders/' + orderId + '/details', { signal: controller.signal });
+                    clearTimeout(timeoutId);
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.status === 'success' && data.items && data.items.length > 0) {
+                            // Tạo bảng con nằm lọt thỏm ngay bên dưới dòng cha
+                            let subTableHtml = `
+                                <tr class="fnb-child-row-${orderId} ${trClass}" style="display: none; background-color: #faf8f5;">
+                                    <td colspan="4" style="padding: 10px 16px; border-top: 1px dashed #efebe4;">
+                                        <table style="width: 100%; border-collapse: collapse; font-family: 'Inter', sans-serif; font-size: 12px; color: #6e655f;">
+                                            <thead>
+                                                <tr style="border-bottom: 1px dashed #e6ded4; color: #8e8a86; font-weight: 600;">
+                                                    <th style="text-align: left; padding: 6px 0; width: 45%;">TÊN MÓN</th>
+                                                    <th style="text-align: center; padding: 6px 0; width: 15%;">SỐ LƯỢNG</th>
+                                                    <th style="text-align: right; padding: 6px 0; width: 20%;">ĐƠN GIÁ</th>
+                                                    <th style="text-align: right; padding: 6px 0; width: 20%;">THÀNH TIỀN</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                            `;
+
+                            // 1. Render từng món ăn
+                            data.items.forEach(item => {
+                                const formattedUnitPrice = new Intl.NumberFormat('vi-VN').format(item.price);
+                                const formattedAmount = new Intl.NumberFormat('vi-VN').format(item.amount) + ' VNĐ';
+                                subTableHtml += `
+                                    <tr style="border-bottom: 1px dashed #f2eee8;">
+                                        <td style="text-align: left; padding: 6px 0; font-style: italic;">${item.name}</td>
+                                        <td style="text-align: center; padding: 6px 0; font-style: italic;">${item.quantity}</td>
+                                        <td style="text-align: right; padding: 6px 0; font-style: italic;">${formattedUnitPrice}</td>
+                                        <td style="text-align: right; padding: 6px 0; font-style: italic;">${formattedAmount}</td>
+                                    </tr>
+                                `;
+                            });
+
+                            // 2. Phí phục vụ tại phòng (nếu có chênh lệch giữa tổng bill và tổng giá trị các món ăn)
+                            const itemsTotal = data.items.reduce((sum, item) => sum + item.amount, 0);
+                            const billedAmount = parseFloat(totalAmountStr);
+                            const diff = billedAmount - itemsTotal;
+
+                            if (diff > 0 && Math.abs(diff) > 1) { // Lớn hơn 1 đồng sai số
+                                const formattedDiff = new Intl.NumberFormat('vi-VN').format(diff) + ' VNĐ';
+                                subTableHtml += `
+                                    <tr style="border-bottom: 1px dashed #f2eee8;">
+                                        <td style="text-align: left; padding: 6px 0; font-style: italic;">Phí dịch vụ (5%)</td>
+                                        <td style="text-align: center; padding: 6px 0; font-style: italic;"></td>
+                                        <td style="text-align: right; padding: 6px 0; font-style: italic;"></td>
+                                        <td style="text-align: right; padding: 6px 0; font-style: italic;">${formattedDiff}</td>
+                                    </tr>
+                                `;
+                            }
+
+                            // 3. Dòng Tổng cộng chi tiết đơn hàng
+                            subTableHtml += `
+                                                <tr style="font-weight: 700;">
+                                                    <td style="text-align: left; padding: 8px 0;">Tổng cộng chi tiết đơn hàng</td>
+                                                    <td style="text-align: center; padding: 8px 0;"></td>
+                                                    <td style="text-align: right; padding: 8px 0;"></td>
+                                                    <td style="text-align: right; padding: 8px 0; color: #2c2a29;">${formatCurrency(billedAmount)}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                </tr>
+                            `;
+
+                            row.insertAdjacentHTML('afterend', subTableHtml);
+
+                            // Phục hồi dòng cha (Parent Row) và biến nó thành nút bấm toggle (chỉ gồm Tên Bill bên trái và Tổng tiền bên phải)
+                            row.id = 'fnb-parent-row-' + orderId;
+                            row.style.cursor = 'pointer';
+                            row.onclick = () => window.toggleFnbOrder(orderId);
+                            row.innerHTML = `
+                                <td colspan="3" style="text-align: left; font-weight: 600; padding: 12px 8px;">
+                                    <i id="fnb-toggle-icon-${orderId}" class="fa-solid fa-chevron-right" style="margin-right: 8px; color: #8e8a86; width: 12px; transition: transform 0.2s;"></i>
+                                    ${originalDesc}
+                                    ${dateStr ? `<div style="font-size: 0.8rem; color: #95a5a6; margin-left: 20px; font-weight: normal; display: inline-block;">(${dateStr})</div>` : ''}
+                                    ${isSplit ? '<span style="color:#e74c3c; font-size: 0.8rem; font-weight: 500; margin-left: 20px; font-weight: normal;">(Đã tách)</span>' : ''}
+                                </td>
+                                <td class="amount" style="text-align: right; font-weight: 600; padding: 12px 8px;">${formatCurrency(billedAmount)}</td>
+                            `;
+                            row.classList.remove('fnb-order-placeholder');
+                        } else {
+                            restoreOriginalRow();
+                        }
+                    } else {
+                        restoreOriginalRow();
+                    }
+                } catch (e) {
+                    console.error("Failed to fetch F&B order details for order ID " + orderId + ". Falling back to collapsed row.", e);
+                    restoreOriginalRow();
+                }
+            }
+        }
+
+        window.toggleFnbOrder = function (orderId) {
+            const childRows = document.querySelectorAll('.fnb-child-row-' + orderId);
+            const icon = document.getElementById('fnb-toggle-icon-' + orderId);
+            if (!childRows || childRows.length === 0) return;
+
+            const isCollapsed = childRows[0].style.display === 'none';
+            childRows.forEach(row => {
+                row.style.display = isCollapsed ? 'table-row' : 'none';
+            });
+
+            if (icon) {
+                if (isCollapsed) {
+                    icon.classList.remove('fa-chevron-right');
+                    icon.classList.add('fa-chevron-down');
+                    icon.style.transform = 'rotate(0deg)'; // reset rotation if any or just standard
+                } else {
+                    icon.classList.remove('fa-chevron-down');
+                    icon.classList.add('fa-chevron-right');
+                }
+            }
+        };
+
+        async function fetchTourBookingDetails() {
+            const placeholders = document.querySelectorAll('.tour-booking-placeholder');
+            for (const row of placeholders) {
+                const bookingId = row.getAttribute('data-tour-booking');
+                const totalAmountStr = row.getAttribute('data-amount');
+                const dateStr = row.getAttribute('data-date') || '';
+                const isSplit = row.getAttribute('data-split') === 'true';
+                const originalDesc = row.getAttribute('data-desc');
+                const trClass = isSplit ? 'item-settled' : '';
+
+                const restoreOriginalRow = () => {
+                    row.innerHTML = `
+                        <td colspan="3" style="text-align: left;">
+                            ${originalDesc} 
+                            ${dateStr ? `<div style="font-size: 0.8rem; color: #95a5a6;">${dateStr}</div>` : ''}
+                            ${isSplit ? '<span style="color:#e74c3c; font-size: 0.8rem; font-weight: 500;">(Đã tách)</span>' : ''}
+                        </td>
+                        <td class="amount" style="text-align: right;">${formatCurrency(parseFloat(totalAmountStr))}</td>
+                    `;
+                    row.classList.remove('tour-booking-placeholder');
+                };
+
+                try {
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+                    const response = await fetch('/api/tour-bookings/' + bookingId, { signal: controller.signal });
+                    clearTimeout(timeoutId);
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data && data.tourName) {
+                            const participantCount = data.participantCount || 1;
+                            const tourCharge = data.tourCharge || parseFloat(totalAmountStr);
+                            const departureDate = data.departureDate || '';
+                            const departureTime = data.departureTime || '';
+
+                            const basePrice = tourCharge / participantCount;
+                            const formattedBasePrice = new Intl.NumberFormat('vi-VN').format(basePrice);
+                            const formattedAmount = new Intl.NumberFormat('vi-VN').format(tourCharge) + ' VNĐ';
+
+                            let subTableHtml = `
+                                <tr class="tour-child-row-${bookingId} ${trClass}" style="display: none; background-color: #faf8f5;">
+                                    <td colspan="4" style="padding: 10px 16px; border-top: 1px dashed #efebe4;">
+                                        <table style="width: 100%; border-collapse: collapse; font-family: 'Inter', sans-serif; font-size: 12px; color: #6e655f;">
+                                            <thead>
+                                                <tr style="border-bottom: 1px dashed #e6ded4; color: #8e8a86; font-weight: 600;">
+                                                    <th style="text-align: left; padding: 6px 0; width: 45%;">TÊN TOUR</th>
+                                                    <th style="text-align: center; padding: 6px 0; width: 15%;">SỐ LƯỢNG (PAX)</th>
+                                                    <th style="text-align: right; padding: 6px 0; width: 20%;">GIÁ VÉ</th>
+                                                    <th style="text-align: right; padding: 6px 0; width: 20%;">THÀNH TIỀN</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr style="border-bottom: 1px dashed #f2eee8;">
+                                                    <td style="text-align: left; padding: 6px 0; font-style: italic;">
+                                                        ${data.tourName}
+                                                        <div style="font-size: 0.75rem; color: #95a5a6; margin-top: 2px;">Khởi hành: ${departureTime} - ${departureDate}</div>
+                                                    </td>
+                                                    <td style="text-align: center; padding: 6px 0; font-style: italic;">${participantCount}</td>
+                                                    <td style="text-align: right; padding: 6px 0; font-style: italic;">${formattedBasePrice}</td>
+                                                    <td style="text-align: right; padding: 6px 0; font-style: italic;">${formattedAmount}</td>
+                                                </tr>
+                                                <tr style="font-weight: 700;">
+                                                    <td style="text-align: left; padding: 8px 0;">Tổng cộng chi tiết tour</td>
+                                                    <td style="text-align: center; padding: 8px 0;"></td>
+                                                    <td style="text-align: right; padding: 8px 0;"></td>
+                                                    <td style="text-align: right; padding: 8px 0; color: #2c2a29;">${formatCurrency(tourCharge)}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                </tr>
+                            `;
+
+                            row.insertAdjacentHTML('afterend', subTableHtml);
+
+                            row.id = 'tour-parent-row-' + bookingId;
+                            row.style.cursor = 'pointer';
+                            row.onclick = () => window.toggleTourBooking(bookingId);
+                            row.innerHTML = `
+                                <td colspan="3" style="text-align: left; font-weight: 600; padding: 12px 8px;">
+                                    <i id="tour-toggle-icon-${bookingId}" class="fa-solid fa-chevron-right" style="margin-right: 8px; color: #8e8a86; width: 12px; transition: transform 0.2s;"></i>
+                                    ${originalDesc}
+                                    ${dateStr ? `<div style="font-size: 0.8rem; color: #95a5a6; margin-left: 20px; font-weight: normal; display: inline-block;">(${dateStr})</div>` : ''}
+                                    ${isSplit ? '<span style="color:#e74c3c; font-size: 0.8rem; font-weight: 500; margin-left: 20px; font-weight: normal;">(Đã tách)</span>' : ''}
+                                </td>
+                                <td class="amount" style="text-align: right; font-weight: 600; padding: 12px 8px;">${formatCurrency(tourCharge)}</td>
+                            `;
+                            row.classList.remove('tour-booking-placeholder');
+                        } else {
+                            restoreOriginalRow();
+                        }
+                    } else {
+                        restoreOriginalRow();
+                    }
+                } catch (e) {
+                    console.error("Failed to fetch tour booking details for booking ID " + bookingId, e);
+                    restoreOriginalRow();
+                }
+            }
+        }
+
+        window.toggleTourBooking = function (bookingId) {
+            const childRows = document.querySelectorAll('.tour-child-row-' + bookingId);
+            const icon = document.getElementById('tour-toggle-icon-' + bookingId);
+            if (!childRows || childRows.length === 0) return;
+
+            const isCollapsed = childRows[0].style.display === 'none';
+            childRows.forEach(row => {
+                row.style.display = isCollapsed ? 'table-row' : 'none';
+            });
+
+            if (icon) {
+                if (isCollapsed) {
+                    icon.classList.remove('fa-chevron-right');
+                    icon.classList.add('fa-chevron-down');
+                } else {
+                    icon.classList.remove('fa-chevron-down');
+                    icon.classList.add('fa-chevron-right');
+                }
+            }
+        };
     </script>
     <!-- Manager Request Modal -->
     <div id="managerRequestModal" class="split-modal-overlay" style="display: none;">

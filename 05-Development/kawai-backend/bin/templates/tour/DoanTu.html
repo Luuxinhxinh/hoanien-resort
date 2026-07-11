@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html class="light" lang="vi" style="">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Thanh Toán | HoaNien Retreat </title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Inter:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet">
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-tint": "#705a49",
+                        "background": "#fff8f4",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary-container": "#f5e0c0",
+                        "surface-container-high": "#f1e6de",
+                        "tertiary": "#17160d",
+                        "surface-variant": "#ebe1d8",
+                        "inverse-primary": "#dec1ac",
+                        "on-error": "#ffffff",
+                        "on-primary-container": "#a58c79",
+                        "surface-container-low": "#fcf2e9",
+                        "on-background": "#1f1b16",
+                        "on-tertiary-container": "#959183",
+                        "on-tertiary-fixed-variant": "#49473c",
+                        "error-container": "#ffdad6",
+                        "on-tertiary-fixed": "#1d1c12",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary-fixed-variant": "#52452e",
+                        "surface-dim": "#e2d8d0",
+                        "on-secondary-fixed": "#241a07",
+                        "surface-container": "#f6ece3",
+                        "on-primary-fixed-variant": "#574333",
+                        "on-surface-variant": "#4e453e",
+                        "outline-variant": "#d2c4bb",
+                        "primary": "#201206",
+                        "primary-fixed": "#fbddc7",
+                        "on-surface": "#1f1b16",
+                        "on-primary-fixed": "#27180b",
+                        "outline": "#80756d",
+                        "on-secondary": "#ffffff",
+                        "surface-container-highest": "#ebe1d8",
+                        "inverse-on-surface": "#f9efe6",
+                        "secondary-fixed": "#f5e0c0",
+                        "surface-bright": "#fff8f4",
+                        "error": "#ba1a1a",
+                        "on-error-container": "#93000a",
+                        "tertiary-fixed": "#e8e2d3",
+                        "tertiary-container": "#2c2a20",
+                        "tertiary-fixed-dim": "#cbc6b7",
+                        "primary-container": "#866D57",
+                        "secondary": "#6b5c44",
+                        "on-primary": "#ffffff",
+                        "surface": "#fff8f4",
+                        "inverse-surface": "#35302a",
+                        "on-secondary-container": "#726249",
+                        "primary-fixed-dim": "#dec1ac",
+                        "secondary-fixed-dim": "#d8c4a6",
+                        "gold-accent": "#866D57"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-mobile": "20px",
+                        "gutter": "24px",
+                        "margin-tablet": "40px",
+                        "unit": "8px",
+                        "margin-desktop": "80px",
+                        "section-gap": "160px",
+                        "container-max": "1440px"
+                    },
+                    "fontFamily": {
+                        "caption": ["Inter"],
+                        "headline-lg": ["EB Garamond"],
+                        "label-caps": ["Inter"],
+                        "display-lg": ["EB Garamond"],
+                        "headline-md": ["EB Garamond"],
+                        "body-md": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "display-xl": ["EB Garamond"],
+                        "headline-lg-mobile": ["EB Garamond"]
+                    },
+                    "fontSize": {
+                        "caption": ["13px", { "lineHeight": "1.4", "fontWeight": "400" }],
+                        "headline-lg": ["40px", { "lineHeight": "1.2", "fontWeight": "400" }],
+                        "label-caps": ["12px", { "lineHeight": "1.5", "letterSpacing": "0.15em", "fontWeight": "600" }],
+                        "display-lg": ["70px", { "lineHeight": "1.1", "letterSpacing": "-0.01em", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "1.3", "fontWeight": "500" }],
+                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "display-xl": ["80px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["32px", { "lineHeight": "1.2", "fontWeight": "400" }]
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            background-color: #1f1b16;
+            color: #866D57;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        body {
+            background-color: #fdfbf7;
+            color: #372618;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .fade-in {
+            animation: fadeIn 1s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        input:focus {
+            outline: none !important;
+            border-color: #372618 !important;
+            box-shadow: none !important;
+        }
+
+        .payment-option input:checked+label {
+            border-color: #372618;
+            background-color: #fcf2e9;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .lang-btn {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .lang-btn:hover {
+            color: #372618;
+        }
+
+        .lang-btn.active {
+            color: #372618;
+            font-weight: 700;
+        }
+    </style>
+</head>
+
+<body class="overflow-x-hidden pt-32">
+    <header id="header-wrapper" class="fixed top-0 left-0 w-full z-50 flex flex-col"
+        style="backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);">
+        <!-- Main Nav -->
+        <nav class="w-full px-margin-desktop py-gutter flex justify-between items-center h-20"
+            style="background: transparent !important; border-bottom: 1px solid rgba(58, 50, 48, 0.15) !important;">
+            <div class="flex items-center gap-10">
+                <a href="/tourguide/dashboard"
+                    class="font-headline-md text-headline-md italic text-primary no-underline">Hòa Niên Resort</a>
+                <nav class="hidden md:flex gap-6">
+                    <a class="font-label-caps text-label-caps text-on-surface-variant hover:text-primary transition-colors duration-300 no-underline"
+                        href="/tourguide/dashboard">
+                        <span class="material-symbols-outlined text-[14px] align-middle mr-1">dashboard</span>Tổng quan
+                    </a>
+                    <a class="font-label-caps text-label-caps text-primary border-b border-primary pb-1 no-underline"
+                        href="/tourguide/tour">
+                        <span class="material-symbols-outlined text-[14px] align-middle mr-1">route</span>Lịch trình
+                    </a>
+                    <a class="font-label-caps text-label-caps text-on-surface-variant hover:text-primary transition-colors duration-300 no-underline"
+                        href="/tourguide/dashboard#manifest-section">
+                        <span class="material-symbols-outlined text-[14px] align-middle mr-1">group</span>Hành khách
+                    </a>
+                    <a class="font-label-caps text-label-caps text-on-surface-variant hover:text-primary transition-colors duration-300 no-underline"
+                        href="/tourguide/dashboard#faceid-section">
+                        <span class="material-symbols-outlined text-[14px] align-middle mr-1">face</span>Quét FaceID
+                    </a>
+                </nav>
+            </div>
+            <div class="flex items-center gap-4">
+                <!-- Settings Button for Tour Guide Info -->
+                <button onclick="openGuideSettingsModal(event)"
+                    class="hover:text-primary transition-colors duration-300 flex items-center justify-center focus:outline-none mr-2"
+                    title="Cài đặt thông tin hướng dẫn viên">
+                    <span class="material-symbols-outlined text-[24px] text-primary">settings</span>
+                </button>
+                <div class="relative inline-block text-left">
+                    <button onclick="toggleProfileDropdown(event)"
+                        class="hover:text-primary transition-colors duration-300 flex items-center justify-center focus:outline-none"
+                        title="Tài khoản">
+                        <span class="material-symbols-outlined text-[24px] text-primary">person</span>
+                    </button>
+                    <div id="profileDropdown"
+                        class="hidden absolute right-0 mt-2 w-56 bg-[#f1ebe3] border border-[#3a3230]/20 shadow-lg text-[#3a3230] font-sans z-[100] rounded">
+                        <div class="p-4 border-b border-[#3a3230]/10 text-left">
+                            <p class="text-[10px] uppercase tracking-wider text-[#3a3230]/60 font-semibold">Tài khoản
+                            </p>
+                            <p class="font-medium text-sm mt-1 text-[#3a3230] font-semibold" th:text="${username}">Guide
+                            </p>
+                            <p class="text-[11px] text-[#3a3230]/80 mt-0.5">Vai trò: Hướng dẫn viên</p>
+                        </div>
+                        <div class="p-2 text-left">
+                            <form th:action="@{/auth/logout}" method="post" class="w-full">
+                                <button type="submit"
+                                    class="w-full text-left px-3 py-2 text-xs text-red-700 hover:bg-[#3a3230]/5 transition-colors font-bold uppercase tracking-wider">Đăng
+                                    xuất</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Sub-navigation -->
+        <div class="w-full font-sans" style="border-bottom: 1px solid rgba(58, 50, 48, 0.15) !important;">
+            <div
+                class="max-w-[1440px] mx-auto px-6 py-3 flex justify-center gap-8 md:gap-12 text-xs uppercase tracking-[0.15em] font-medium overflow-x-auto">
+                <a href="/tourguide/doantu"
+                    class="sub-nav-link hover:opacity-100 active:scale-95 transition-all duration-200 whitespace-nowrap text-[#3a3230] no-underline border-b border-current"
+                    id="sub-nav-doantu">Đoàn Tụ</a>
+                <a href="/tourguide/dongnoi"
+                    class="sub-nav-link hover:opacity-100 active:scale-95 transition-all duration-200 whitespace-nowrap text-[#3a3230] no-underline opacity-70"
+                    id="sub-nav-dongnoi">Đồng Nội</a>
+                <a href="/tourguide/disan"
+                    class="sub-nav-link hover:opacity-100 active:scale-95 transition-all duration-200 whitespace-nowrap text-[#3a3230] no-underline opacity-70"
+                    id="sub-nav-disan">Di Sản</a>
+                <a href="/tourguide/tinhlang"
+                    class="sub-nav-link hover:opacity-100 active:scale-95 transition-all duration-200 whitespace-nowrap text-[#3a3230] no-underline opacity-70"
+                    id="sub-nav-tinhlang">Tĩnh Lặng</a>
+            </div>
+        </div>
+    </header>
+    <main class="min-h-screen flex flex-col md:flex-row">
+        <!-- Left Side: Visual summary & quote -->
+        <section class="w-full md:w-1/2 min-h-[50vh] md:min-h-screen relative overflow-hidden bg-primary-container">
+            <div class="absolute inset-0 z-0 scale-105 transition-transform duration-[20s] ease-linear hover:scale-100">
+                <img alt="Journey Visual" class="w-full h-full object-cover opacity-80 mix-blend-overlay"
+                    src="/AnhTour/z7930565879475_de7864577660b0726376ea947dbe94de.jpg">
+                <div class="absolute inset-0 bg-black opacity-50 z-10"></div>
+            </div>
+            <div class="relative z-20 p-margin-desktop md:p-24 flex flex-col justify-between h-full text-white">
+                <div class="space-y-12">
+                    <div class="flex items-center space-x-4 opacity-70">
+                        <span class="w-12 h-px bg-white"></span>
+                        <p class="font-label-caps text-label-caps" data-i18n="summary">Tóm tắt hành trình</p>
+                    </div>
+                    <div class="flex items-center gap-4 flex-wrap">
+                        <h1 class="font-display-lg text-display-lg leading-tight max-w-none whitespace-nowrap"
+                            th:text="${tour != null ? tour.tourName : 'Đoàn tụ'}">Đoàn tụ</h1>
+                        <span th:if="${tour != null and !tour.isActive}"
+                            class="px-3 py-1 bg-red-600 text-white text-[10px] uppercase font-bold tracking-wider">Tạm
+                            ngưng</span>
+                    </div>
+                    <div class="space-y-8 mt-12 bg-white/5 backdrop-blur-sm p-10 border border-white/10 max-w-xl">
+                        <div class="flex justify-between border-b border-white/20 pb-4">
+                            <p class="font-label-caps text-label-caps opacity-60" data-i18n="dest">Điểm đến</p>
+                            <p class="font-body-md text-body-md" th:text="${tour != null ? tour.description : 'Huế'}">
+                                Huế</p>
+                        </div>
+                        <div class="flex justify-between border-b border-white/20 pb-4">
+                            <p class="font-label-caps text-label-caps opacity-60" data-i18n="time">Thời gian</p>
+                            <p class="font-body-md text-body-md" th:text="${tour != null ? tour.duration : '7 Tiếng'}">7
+                                Tiếng</p>
+                        </div>
+                        <div class="flex justify-between border-b border-white/20 pb-4">
+                            <p class="font-label-caps text-label-caps opacity-60" data-i18n="weather_lbl">Thời tiết dự
+                                kiến</p>
+                            <p id="tourWeatherVal" class="font-body-md text-body-md">☀️ 28°C • Nắng nhẹ</p>
+                        </div>
+                        <div class="flex justify-between pt-4">
+                            <p class="font-label-caps text-label-caps opacity-60" data-i18n="total">Tổng cộng</p>
+                            <p class="font-headline-md text-headline-md text-white font-bold"
+                                th:text="${tour != null ? #numbers.formatDecimal(tour.basePrice, 0, 'COMMA', 0, 'POINT') + ' VNĐ' : '5.000.000 VNĐ'}">
+                                5.000.000 VNĐ</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-12">
+                    <p class="font-body-md text-body-md italic opacity-80"
+                        th:text="${tour != null ? tour.shortQuote : '...'}">
+                        "Vượt qua những lối mòn Đại Nội, hành trình đưa du khách trú ẩn vào khoảng lặng Cố đô — nơi nghi
+                        thức têm trầu phụ thê khơi mở cuộc sum vầy, và mâm cơm vị cội nguồn kết nối các thế hệ trong một
+                        dư âm hoàng cung trầm mặc."
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Right Side: Tour Guide CRUD panel -->
+        <section
+            class="w-full md:w-1/2 p-margin-mobile md:p-margin-desktop bg-background flex flex-col justify-center fade-in">
+            <div class="max-w-xl mx-auto w-full py-12">
+                <div class="mb-10 flex flex-col items-center justify-center space-y-3 text-center">
+                    <h2 class="font-headline-lg text-4xl md:text-5xl text-primary font-bold text-center">Quản lý hành
+                        trình</h2>
+                    <p class="font-label-caps text-[11px] text-on-surface-variant font-bold">VAI TRÒ: HƯỚNG DẪN VIÊN</p>
+                </div>
+
+                <!-- Update Form -->
+                <div th:if="${tour != null}">
+                    <form class="space-y-6" th:action="@{/tourguide/tour/update}" method="post">
+                        <input type="hidden" name="id" th:value="${tour.id}" />
+                        <input type="hidden" name="tourType" value="doantu" />
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="relative group col-span-2">
+                                <label class="font-label-caps text-[10px] text-outline uppercase block mb-1">Tên hành
+                                    trình</label>
+                                <input name="tourName" required th:value="${tour.tourName}"
+                                    class="w-full bg-transparent border-0 border-b border-outline-variant py-2 font-body-md text-primary focus:border-primary transition-all" />
+                            </div>
+                            <div class="relative group">
+                                <label class="font-label-caps text-[10px] text-outline uppercase block mb-1">Điểm
+                                    đến</label>
+                                <input name="description" required th:value="${tour.description}"
+                                    class="w-full bg-transparent border-0 border-b border-outline-variant py-2 font-body-md text-primary focus:border-primary transition-all" />
+                            </div>
+                            <div class="relative group">
+                                <label class="font-label-caps text-[10px] text-outline uppercase block mb-1">Thời
+                                    gian</label>
+                                <input name="duration" required th:value="${tour.duration}"
+                                    class="w-full bg-transparent border-0 border-b border-outline-variant py-2 font-body-md text-primary focus:border-primary transition-all" />
+                            </div>
+                            <div class="relative group col-span-2">
+                                <label class="font-label-caps text-[10px] text-outline uppercase block mb-1">Giá cơ bản
+                                    (VNĐ)</label>
+                                <input name="basePrice" type="number" step="0.01" required th:value="${tour.basePrice}"
+                                    class="w-full bg-transparent border-0 border-b border-outline-variant py-2 font-body-md text-primary focus:border-primary transition-all" />
+                            </div>
+                            <div class="relative group col-span-2">
+                                <label class="font-label-caps text-[10px] text-outline uppercase block mb-1">Trích dẫn
+                                    (Quote)</label>
+                                <textarea name="shortQuote" required rows="3"
+                                    class="w-full bg-transparent border border-outline-variant p-2 font-body-md text-primary focus:border-primary transition-all"
+                                    th:text="${tour.shortQuote}"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="pt-6">
+                            <button type="submit"
+                                class="w-full py-4 bg-primary text-background font-label-caps text-label-caps hover:bg-primary/95 transition-all duration-300 tracking-[0.2em] font-semibold">
+                                CẬP NHẬT HÀNH TRÌNH
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Delete/Reactivate forms -->
+                    <div class="mt-4 pt-4 border-t border-outline-variant/30 flex gap-4">
+                        <form th:if="${tour.isActive}" th:action="@{/tourguide/tour/delete}" method="post"
+                            class="flex-grow">
+                            <input type="hidden" name="id" th:value="${tour.id}" />
+                            <input type="hidden" name="tourType" value="doantu" />
+                            <button type="submit"
+                                class="w-full py-3 border border-red-600 text-red-600 hover:bg-red-50 font-label-caps text-[11px] font-bold tracking-wider transition-all duration-300">
+                                VÔ HIỆU HÓA (DELETE)
+                            </button>
+                        </form>
+                        <form th:unless="${tour.isActive}" th:action="@{/tourguide/tour/reactivate}" method="post"
+                            class="flex-grow">
+                            <input type="hidden" name="id" th:value="${tour.id}" />
+                            <input type="hidden" name="tourType" value="doantu" />
+                            <button type="submit"
+                                class="w-full py-3 border border-green-600 text-green-600 hover:bg-green-50 font-label-caps text-[11px] font-bold tracking-wider transition-all duration-300">
+                                KÍCH HOẠT LẠI (REACTIVATE)
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Create Form -->
+                <div class="mt-8 pt-8 border-t border-outline-variant">
+                    <h3 class="font-headline-md text-xl text-primary font-bold mb-4">Tạo mới hành trình</h3>
+                    <form class="space-y-6" th:action="@{/tourguide/tour/create}" method="post">
+                        <input type="hidden" name="tourType" value="doantu" />
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="relative group col-span-2">
+                                <label class="font-label-caps text-[10px] text-outline uppercase block mb-1">Tên hành
+                                    trình mới</label>
+                                <input name="tourName" required placeholder="Ví dụ: Đoàn tụ đặc biệt"
+                                    class="w-full bg-transparent border-0 border-b border-outline-variant py-2 font-body-md text-primary focus:border-primary transition-all" />
+                            </div>
+                            <div class="relative group">
+                                <label class="font-label-caps text-[10px] text-outline uppercase block mb-1">Điểm
+                                    đến</label>
+                                <input name="description" required placeholder="Huế"
+                                    class="w-full bg-transparent border-0 border-b border-outline-variant py-2 font-body-md text-primary focus:border-primary transition-all" />
+                            </div>
+                            <div class="relative group">
+                                <label class="font-label-caps text-[10px] text-outline uppercase block mb-1">Thời
+                                    gian</label>
+                                <input name="duration" required placeholder="7 Tiếng"
+                                    class="w-full bg-transparent border-0 border-b border-outline-variant py-2 font-body-md text-primary focus:border-primary transition-all" />
+                            </div>
+                            <div class="relative group col-span-2">
+                                <label class="font-label-caps text-[10px] text-outline uppercase block mb-1">Giá cơ bản
+                                    (VNĐ)</label>
+                                <input name="basePrice" type="number" step="0.01" required placeholder="5000000"
+                                    class="w-full bg-transparent border-0 border-b border-outline-variant py-2 font-body-md text-primary focus:border-primary transition-all" />
+                            </div>
+                            <div class="relative group col-span-2">
+                                <label class="font-label-caps text-[10px] text-outline uppercase block mb-1">Trích dẫn
+                                    (Quote)</label>
+                                <textarea name="shortQuote" required rows="3" placeholder="Ghi nhận nét đẹp di sản..."
+                                    class="w-full bg-transparent border border-outline-variant p-2 font-body-md text-primary focus:border-primary transition-all"></textarea>
+                            </div>
+                        </div>
+                        <div class="pt-6">
+                            <button type="submit"
+                                class="w-full py-4 bg-gold-accent text-white font-label-caps text-label-caps hover:bg-gold-accent/90 transition-all duration-300 tracking-[0.2em] font-semibold">
+                                TẠO MỚI HÀNH TRÌNH
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+    <footer class="w-full bg-[#1f1b16] text-[#fff8f4] border-t border-white/10 px-margin-desktop py-12 mt-auto">
+        <div class="max-w-container-max mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
+            <div class="text-center md:text-left space-y-2">
+                <p class="font-headline-md text-headline-md italic text-[#fff8f4]">HoaNien</p>
+                <p class="text-[9px] tracking-[0.3em] text-white/40 uppercase" data-i18n="copyright">© 2026 HoaNien
+                    Retreat. A Quiet Luxury Travel Group.</p>
+            </div>
+            <div class="flex flex-wrap justify-center gap-x-10 gap-y-4">
+                <a class="text-[9px] font-semibold uppercase tracking-[0.25em] text-white/50 hover:text-white transition-colors duration-300"
+                    data-i18n="footer_priv" href="#">Quyền riêng tư</a>
+                <a class="text-[9px] font-semibold uppercase tracking-[0.25em] text-white/50 hover:text-white transition-colors duration-300"
+                    data-i18n="footer_sus" href="#">Sự bền vững</a>
+                <a class="text-[9px] font-semibold uppercase tracking-[0.25em] text-white/50 hover:text-white transition-colors duration-300"
+                    data-i18n="footer_media" href="#">Truyền thông</a>
+                <a class="text-[9px] font-semibold uppercase tracking-[0.25em] text-white/50 hover:text-white transition-colors duration-300"
+                    data-i18n="footer_contact" href="#">Liên hệ</a>
+            </div>
+        </div>
+    </footer>
+    <script>
+        const translations = {
+            vi: {
+                weather_lbl: "Thời tiết dự kiến",
+                weather_val: "☀️ 28°C • Nắng nhẹ",
+                weather: "32°C • Huế",
+                nav1: "Hành trình", nav2: "Thủ công", nav3: "Nhật ký",
+                summary: "Tóm tắt hành trình",
+                title: "Đoàn tụ",
+                dest: "Điểm đến", dest_val: "Cố Đô Huế",
+                time: "Thời gian", time_val: "2 Ngày 1 Đêm",
+                members: "Thành viên", members_val: "02 Người lớn",
+                total: "Tổng cộng", total_price: "10.000.000 VNĐ",
+                payment_title: "Thông tin đặt chỗ",
+                urgency: "Chỉ còn 1 chỗ cuối cùng",
+                name_label: "Họ và tên", name_ph: "Nguyễn Văn A",
+                email_label: "Email", email_ph: "email@example.com",
+                payment_method: "Phương thức thanh toán",
+                deposit: "Thanh toán đặt cọc",
+                deposit_desc: "Giữ chỗ ngay với 30% tổng giá trị hành trình",
+                deposit_price: "3.000.000 VNĐ",
+                room: "Tính vào phòng nghỉ",
+                room_desc: "Dành riêng cho khách đang lưu trú tại Lotus Villas",
+                confirm: "XÁC NHẬN ĐẶT CHỖ",
+                secure: "Giao dịch được mã hóa 256-bit SSL",
+                copyright: "© 2026 HoaNien Retreat. A Quiet Luxury Travel Group.",
+                quote: "\"Vượt qua những lối mòn Đại Nội, hành trình đưa du khách trú ẩn vào khoảng lặng Cố đô — nơi nghi thức têm trầu phụ thê khơi mở cuộc sum vầy, và mâm cơm vị cội nguồn kết nối các thế hệ trong một dư âm hoàng cung trầm mặc.\"",
+                footer_priv: "Quyền riêng tư", footer_sus: "Sự bền vững", footer_media: "Truyền thông", footer_contact: "Liên hệ"
+            },
+            en: {
+                weather_lbl: "Expected Weather",
+                weather_val: "☀️ 28°C • Mild Sunlight",
+                weather: "32°C • Hue",
+                nav1: "Journeys", nav2: "Artisanry", nav3: "Journal",
+                summary: "Journey Summary",
+                title: "Reunion",
+                dest: "Destination", dest_val: "Hue Imperial City",
+                time: "Duration", time_val: "2 Days 1 Night",
+                members: "Members", members_val: "02 Adults",
+                total: "Total", total_price: "10,000,000 VND",
+                payment_title: "Booking Information",
+                urgency: "Only 1 spot left!",
+                name_label: "Full Name", name_ph: "John Doe",
+                email_label: "Email", email_ph: "email@example.com",
+                payment_method: "Payment Method",
+                deposit: "Deposit Payment",
+                deposit_desc: "Reserve now with 30% of total journey value",
+                deposit_price: "3,000,000 VND",
+                room: "Charge to Room",
+                room_desc: "For guests staying at Lotus Villas",
+                confirm: "CONFIRM BOOKING",
+                secure: "256-bit SSL Encrypted Transaction",
+                copyright: "© 2026 HoaNien Retreat. A Quiet Luxury Travel Group.",
+                quote: "\"Beyond the worn paths of the Imperial City, the journey shelters travelers in the quiet of the former capital — where ancient betel ceremonies open a gathering of reunion, and ancestral flavors connect generations in a regal, contemplative echo.\"",
+                footer_priv: "Privacy Policy", footer_sus: "Sustainability", footer_media: "Media", footer_contact: "Contact"
+            }
+        };
+
+        function translateWeatherDesc(desc) {
+            if (!desc) return "";
+            const dict = {
+                "Sunny": "Nắng rực rỡ",
+                "Rainy": "Có mưa",
+                "Cloudy": "Nhiều mây",
+                "Partly cloudy": "Nắng nhẹ",
+                "Partly Cloudy": "Nắng nhẹ",
+                "Clear": "Trời trong xanh",
+                "Clear Sky": "Trời trong xanh",
+                "Overcast": "U ám",
+                "Mist": "Sương mù",
+                "Light rain": "Mưa nhẹ",
+                "Heavy rain": "Mưa lớn",
+                "Thunderstorm": "Giông bão",
+                "Light drizzle": "Mưa phùn",
+                "Patchy rain possible": "Có thể mưa rải rác",
+                "Moderate rain": "Mưa vừa"
+            };
+            if (dict[desc]) return dict[desc];
+            const d = desc.toLowerCase();
+            if (d.includes("thunderstorm") || d.includes("thunder") || d.includes("lightning")) return "Có giông bão";
+            if (d.includes("heavy rain") || d.includes("torrential") || d.includes("heavy shower")) return "Mưa lớn";
+            if (d.includes("light rain") || d.includes("drizzle") || d.includes("shower") || d.includes("patchy rain")) return "Mưa nhẹ / Mưa rào";
+            if (d.includes("rain")) return "Có mưa";
+            if (d.includes("partly cloudy")) return "Nắng nhẹ";
+            if (d.includes("cloudy") || d.includes("overcast")) return "Nhiều mây";
+            if (d.includes("clear") || d.includes("sunny")) return "Trời quang / Nắng";
+            if (d.includes("mist") || d.includes("fog") || d.includes("haze")) return "Có sương mù";
+            return desc;
+        }
+
+        function getWeatherIcon(desc) {
+            const d = desc.toLowerCase();
+            if (d.includes('rain') || d.includes('drizzle')) return '🌧️';
+            if (d.includes('cloud') || d.includes('overcast')) return '⛅';
+            if (d.includes('mist') || d.includes('fog')) return '🌫️';
+            return '☀️';
+        }
+
+        let cachedWeather = null;
+
+        function fetchWeather(location) {
+            const weatherEl = document.getElementById('tourWeatherVal');
+            if (!weatherEl) return;
+            const lang = document.documentElement.lang || 'vi';
+            weatherEl.textContent = lang === 'vi' ? '⏳ Đang tải...' : '⏳ Loading...';
+
+            fetch(`/tours/api/weather?location=${encodeURIComponent(location)}`)
+                .then(response => {
+                    if (!response.ok) throw new Error('Weather fetch failed');
+                    return response.json();
+                })
+                .then(data => {
+                    if (data && data.temperature !== undefined) {
+                        const rawDesc = data.description || 'Unknown';
+                        const temp = Math.round(data.temperature);
+                        const icon = getWeatherIcon(rawDesc);
+                        cachedWeather = { temp, rawDesc, icon };
+                        displayWeather();
+                    }
+                })
+                .catch(error => {
+                    console.warn('Weather API error:', error);
+                    const fallbackVi = "☀️ 28°C • Nắng nhẹ";
+                    const fallbackEn = "☀️ 28°C • Mild Sunlight";
+                    weatherEl.textContent = lang === 'vi' ? fallbackVi : fallbackEn;
+                });
+        }
+
+        function displayWeather() {
+            const weatherEl = document.getElementById('tourWeatherVal');
+            if (!weatherEl || !cachedWeather) return;
+            const lang = document.documentElement.lang || 'vi';
+            const desc = lang === 'vi' ? translateWeatherDesc(cachedWeather.rawDesc) : cachedWeather.rawDesc;
+            weatherEl.textContent = `${cachedWeather.icon} ${cachedWeather.temp}°C • ${desc}`;
+        }
+
+        function switchLang(lang) {
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.lang === lang);
+            });
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.dataset.i18n;
+                if (translations[lang] && translations[lang][key]) {
+                    if (el.placeholder !== undefined) {
+                        el.placeholder = translations[lang][key];
+                    } else {
+                        el.textContent = translations[lang][key];
+                    }
+                }
+            });
+            document.documentElement.lang = lang;
+            displayWeather();
+        }
+
+        const inputs = document.querySelectorAll('input[type="text"], input[type="email"]');
+        inputs.forEach(input => {
+            input.addEventListener('focus', () => {
+                const label = input.parentElement.querySelector('label');
+                if (label) {
+                    label.style.letterSpacing = '0.25em';
+                    label.style.transition = 'all 0.4s ease';
+                }
+            });
+            input.addEventListener('blur', () => {
+                const label = input.parentElement.querySelector('label');
+                if (label) {
+                    label.style.letterSpacing = '0.15em';
+                }
+            });
+        });
+
+        function toggleProfileDropdown(e) {
+            e.stopPropagation();
+            const dropdown = document.getElementById('profileDropdown');
+            if (dropdown) dropdown.classList.toggle('hidden');
+        }
+
+        document.addEventListener('click', () => {
+            const dropdown = document.getElementById('profileDropdown');
+            if (dropdown) dropdown.classList.add('hidden');
+        });
+
+        function openGuideSettingsModal(e) {
+            e.stopPropagation();
+            const modal = document.getElementById('guideSettingsModal');
+            if (modal) modal.classList.remove('hidden');
+        }
+
+        function closeGuideSettingsModal() {
+            const modal = document.getElementById('guideSettingsModal');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchWeather('Hue');
+            
+            const urlParams = new URLSearchParams(window.location.search);
+            const toast = urlParams.get('toast');
+            if (toast) {
+                let msg = '';
+                if (toast === 'create_success') {
+                    msg = 'Đã tạo hồ sơ hướng dẫn viên thành công!';
+                } else if (toast === 'update_success') {
+                    msg = 'Đã cập nhật hồ sơ hướng dẫn viên thành công!';
+                } else if (toast === 'delete_success') {
+                    msg = 'Đã xóa hồ sơ hướng dẫn viên thành công!';
+                }
+                if (msg) {
+                    alert(msg);
+                    const newUrl = window.location.pathname;
+                    window.history.replaceState({}, document.title, newUrl);
+                }
+            }
+        });
+    </script>
+
+    <!-- Guide Settings Modal -->
+    <div id="guideSettingsModal"
+        class="fixed inset-0 z-[150] hidden flex items-center justify-center bg-black/60 backdrop-blur-sm">
+        <div class="bg-[#fdfbf7] w-full max-w-lg p-8 border border-[#3a3230]/20 shadow-2xl relative text-[#372618]">
+            <button onclick="closeGuideSettingsModal()"
+                class="absolute top-4 right-4 text-[#372618]/60 hover:text-[#372618] transition-colors focus:outline-none">
+                <span class="material-symbols-outlined text-2xl">close</span>
+            </button>
+            <h3 class="font-headline-md text-2xl text-black font-bold mb-2 border-b border-[#3a3230]/10 pb-3">Thông
+                tin hướng dẫn viên</h3>
+
+            <!-- Read / Update / Delete Form (If employee exists) -->
+            <div th:if="${employee != null}">
+                <form th:action="@{/tourguide/profile/update}" method="post" class="space-y-4 mt-4">
+                    <input type="hidden" name="redirectUrl" th:value="${requestUri}" />
+
+                    <div class="space-y-1">
+                        <label class="font-label-caps text-[10px] text-outline uppercase block text-left">Họ và
+                            tên</label>
+                        <input name="fullName" required th:value="${employee.fullName}"
+                            class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-black focus:border-black transition-all text-left" />
+                    </div>
+                    <div class="space-y-1">
+                        <label class="font-label-caps text-[10px] text-outline uppercase block text-left">Giới
+                            tính</label>
+                        <select name="gender"
+                            class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-black focus:border-black transition-all text-left">
+                            <option value="Male" th:selected="${employee.gender == 'Male'}">Nam</option>
+                            <option value="Female" th:selected="${employee.gender == 'Female'}">Nữ</option>
+                            <option value="Other" th:selected="${employee.gender == 'Other'}">Khác</option>
+                        </select>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="font-label-caps text-[10px] text-outline uppercase block text-left">Số
+                            CCCD</label>
+                        <input name="cccd" required th:value="${employee.cccd}"
+                            class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-black focus:border-black transition-all text-left" />
+                    </div>
+                    <div class="space-y-1">
+                        <label class="font-label-caps text-[10px] text-outline uppercase block text-left">Số điện
+                            thoại</label>
+                        <input name="phone" required th:value="${employee.phone}"
+                            class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-black focus:border-black transition-all text-left" />
+                    </div>
+                    <div class="space-y-1">
+                        <label class="font-label-caps text-[10px] text-outline uppercase block text-left">Email</label>
+                        <input name="email" type="email" required th:value="${employee.email}"
+                            class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-black focus:border-black transition-all text-left" />
+                    </div>
+
+                    <div class="pt-4 flex gap-4">
+                        <button type="submit"
+                            class="flex-grow py-3 bg-primary text-background font-label-caps text-[11px] hover:bg-primary/95 transition-all tracking-wider font-semibold">
+                            CẬP NHẬT
+                        </button>
+                    </div>
+                </form>
+                <form th:action="@{/tourguide/profile/delete}" method="post" class="mt-2 text-left">
+                    <input type="hidden" name="redirectUrl" th:value="${requestUri}" />
+                    <button type="submit" onclick="return confirm('Bạn có chắc chắn muốn xóa hồ sơ này không?')"
+                        class="w-full py-2 border border-red-600 text-red-600 hover:bg-red-50 font-label-caps text-[10px] font-bold tracking-wider transition-all">
+                        XÓA HỒ SƠ HƯỚNG DẪN VIÊN
+                    </button>
+                </form>
+            </div>
+
+            <!-- Create Form (If employee does not exist) -->
+            <div th:if="${employee == null}">
+                <p class="text-sm text-[#3a3230]/80 mb-4 text-left">Bạn chưa thiết lập hồ sơ hướng dẫn viên. Hãy nhập
+                    thông tin bên dưới để tạo mới.</p>
+                <form th:action="@{/tourguide/profile/create}" method="post" class="space-y-4">
+                    <input type="hidden" name="redirectUrl" th:value="${requestUri}" />
+
+                    <div class="space-y-1">
+                        <label class="font-label-caps text-[10px] text-outline uppercase block text-left">Họ và
+                            tên</label>
+                        <input name="fullName" required placeholder="Nguyễn Văn A"
+                            class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-black focus:border-black transition-all text-left" />
+                    </div>
+                    <div class="space-y-1">
+                        <label class="font-label-caps text-[10px] text-outline uppercase block text-left">Giới
+                            tính</label>
+                        <select name="gender"
+                            class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-black focus:border-black transition-all text-left">
+                            <option value="Male">Nam</option>
+                            <option value="Female">Nữ</option>
+                            <option value="Other">Khác</option>
+                        </select>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="font-label-caps text-[10px] text-outline uppercase block text-left">Số
+                            CCCD</label>
+                        <input name="cccd" required placeholder="012345678912"
+                            class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-black focus:border-black transition-all text-left" />
+                    </div>
+                    <div class="space-y-1">
+                        <label class="font-label-caps text-[10px] text-outline uppercase block text-left">Số điện
+                            thoại</label>
+                        <input name="phone" required placeholder="0987654321"
+                            class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-black focus:border-black transition-all text-left" />
+                    </div>
+                    <div class="space-y-1">
+                        <label class="font-label-caps text-[10px] text-outline uppercase block text-left">Email</label>
+                        <input name="email" type="email" required placeholder="guide@example.com"
+                            class="w-full bg-transparent border-0 border-b border-[#3a3230]/30 py-1.5 font-body-md text-black focus:border-black transition-all text-left" />
+                    </div>
+
+                    <div class="pt-4">
+                        <button type="submit"
+                            class="w-full py-3 bg-gold-accent text-white font-label-caps text-[11px] hover:bg-gold-accent/90 transition-all tracking-wider font-semibold">
+                            TẠO HỒ SƠ
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

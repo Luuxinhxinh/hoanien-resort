@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tổng quan — Hoanien Retreat Manager Portal</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" th:href="@{/manager/css/dashboard.css}" href="../../static/manager/css/dashboard.css" />
+</head>
+
+<body>
+
+    <!-- SIDEBAR -->
+    <aside class="mgr-sidebar">
+        <div class="mgr-sidebar-logo">
+            <div class="mgr-logo-brand">
+
+                <span class="mgr-logo-label">Hoa Nien </span>
+            </div>
+            <h1 class="mgr-portal-title">Manager Portal</h1>
+
+        </div>
+        <nav class="mgr-nav">
+            <!-- Tổng quan (ACTIVE) -->
+            <div class="mgr-nav-item">
+                <a href="/manager/dashboard" class="mgr-nav-link active">
+                    <svg class="mgr-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect width="7" height="9" x="3" y="3" rx="1" />
+                        <rect width="7" height="5" x="14" y="3" rx="1" />
+                        <rect width="7" height="9" x="14" y="12" rx="1" />
+                        <rect width="7" height="5" x="3" y="16" rx="1" />
+                    </svg>
+                    <span style="flex:1">Tổng quan</span>
+                </a>
+            </div>
+            <!-- Lịch trực Nhân sự -->
+            <div class="mgr-nav-item">
+                <a href="/manager/schedules" class="mgr-nav-link">
+                    <svg class="mgr-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect width="18" height="18" x="3" y="4" rx="2" />
+                        <line x1="16" x2="16" y1="2" y2="6" />
+                        <line x1="8" x2="8" y1="2" y2="6" />
+                        <line x1="3" x2="21" y1="10" y2="10" />
+                        <path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01" />
+                    </svg>
+                    <span style="flex:1">Lịch trực Nhân sự</span>
+                </a>
+            </div>
+            <!-- Hoàn tiền -->
+            <div class="mgr-nav-item">
+                <a href="/manager/refunds" class="mgr-nav-link">
+                    <svg class="mgr-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="2" y="5" width="20" height="14" rx="2" ry="2"></rect>
+                        <line x1="2" y1="10" x2="22" y2="10"></line>
+                    </svg>
+                    <span style="flex:1">Hoàn tiền</span>
+                </a>
+            </div>
+            <!-- Duyệt yêu cầu -->
+            <div class="mgr-nav-item">
+                <a href="/manager/approvals" class="mgr-nav-link">
+                    <svg class="mgr-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+                    </svg>
+                    <span style="flex:1">Duyệt yêu cầu</span>
+                </a>
+            </div>
+            <!-- Báo cáo Doanh thu -->
+            <div class="mgr-nav-item">
+                <a href="/manager/revenue" class="mgr-nav-link">
+                    <svg class="mgr-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect width="18" height="18" x="3" y="4" rx="2" />
+                        <line x1="16" x2="16" y1="2" y2="6" />
+                        <line x1="8" x2="8" y1="2" y2="6" />
+                        <line x1="3" x2="21" y1="10" y2="10" />
+                    </svg>
+                    <span style="flex:1">Báo cáo Doanh thu</span>
+                </a>
+            </div>
+            <!-- Biểu đồ Phân tích -->
+            <div class="mgr-nav-item">
+                <button class="mgr-nav-link" onclick="toggleSubmenu('sub-analytics','arr-analytics')">
+                    <svg class="mgr-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 3v18h18" />
+                        <path d="M18.7 8 13 13.7 8.7 9.4l-5 5" />
+                    </svg>
+                    <span style="flex:1">Biểu đồ Phân tích</span>
+                    <svg class="mgr-nav-arrow" id="arr-analytics" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <path d="m9 18 6-6-6-6" />
+                    </svg>
+                </button>
+                <div class="mgr-submenu" id="sub-analytics">
+                    <a href="/manager/analytics/room" class="mgr-submenu-link"><svg viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2">
+                            <path d="M3 9a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9Z" />
+                            <path d="M3 11h18" />
+                        </svg>Hiệu suất phòng</a>
+                    <a href="/manager/analytics/tour" class="mgr-submenu-link"><svg viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2">
+                            <path d="M3 11l19-9-9 19-2-8-8-2z" />
+                        </svg>Tỷ lệ tour</a>
+                    <a href="/manager/analytics/food" class="mgr-submenu-link"><svg viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2">
+                            <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2" />
+                            <path d="M7 2v20" />
+                            <path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7" />
+                        </svg>Tỷ lệ các món ăn</a>
+                    </div>
+            </div>
+            <!-- Xuất báo cáo -->
+            <div class="mgr-nav-item">
+                <a href="/manager/export" class="mgr-nav-link">
+                    <svg class="mgr-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        <polyline points="7 10 12 15 17 10" />
+                        <line x1="12" x2="12" y1="15" y2="3" />
+                    </svg>
+                    <span style="flex:1">Xuất báo cáo</span>
+                </a>
+            </div>
+        </nav>
+        <div class="mgr-sidebar-footer">
+            <div class="mgr-sidebar-user">
+                <div class="mgr-sidebar-avatar">MG</div>
+                <div>
+                    <div class="mgr-sidebar-name">Manager </div>
+                    <div class="mgr-sidebar-role">Quản lý</div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN -->
+    <div class="mgr-main">
+        <header class="mgr-header">
+            <div class="mgr-header-left">
+                <button class="mgr-header-icon-btn mgr-sidebar-toggle"
+                    onclick="document.body.classList.toggle('sidebar-hidden')">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="3" y1="12" x2="21" y2="12" />
+                        <line x1="3" y1="6" x2="21" y2="6" />
+                        <line x1="3" y1="18" x2="21" y2="18" />
+                    </svg>
+                </button>
+                <span style="color:#4A4740;font-size:12px">MANAGER</span>
+                <span class="mgr-breadcrumb-sep">/</span>
+                <span style="color:#C9A96E;font-size:12px;font-weight:500">Tổng quan</span>
+                <span class="mgr-breadcrumb-sep" style="margin-left:16px">·</span>
+                <span style="color:#9A9485;font-size:12px;margin-left:6px" th:text="${todayLabel}">Thứ Ba, 9 tháng 6,
+                    2026</span>
+            </div>
+            <div class="mgr-header-right">
+
+                <button class="mgr-header-icon-btn" style="position:relative"><svg width="15" height="15"
+                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+                        <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+                    </svg><span class="mgr-notif-dot"></span></button>
+                <div class="mgr-header-user-box">
+                    <div class="mgr-header-avatar">MG</div>
+                    <span class="mgr-header-username">Manager </span>
+                </div>
+                <div class="mgr-divider-v"></div>
+                <a href="/logout" class="mgr-header-logout"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                        <polyline points="16 17 21 12 16 7" />
+                        <line x1="21" x2="9" y1="12" y2="12" />
+                    </svg>Đăng xuất</a>
+            </div>
+        </header>
+
+        <main class="mgr-page">
+
+            <!-- Page Title -->
+            <div>
+                <p class="mgr-page-eyebrow" th:text="${todayLabel}">Thứ Ba, 9 tháng 6, 2026</p>
+                <h1 class="mgr-page-title">Dashboard</h1>
+            </div>
+
+            <!-- KPI Grid -->
+            <div class="mgr-kpi-grid">
+                <div class="mgr-kpi-card">
+                    <div class="mgr-kpi-top">
+                        <span class="mgr-kpi-label">Tỷ lệ lấp đầy tháng</span>
+                        <div class="mgr-kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M3 9a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9Z" />
+                                <path d="M3 11h18" />
+                            </svg></div>
+                    </div>
+                    <div class="mgr-kpi-bottom">
+                        <span class="mgr-kpi-value" th:text="${occupancyRate} + '%'">78%</span>
+                        <span class="mgr-kpi-note" th:text="${occupiedRooms} + '/' + ${totalRooms} + ' phòng'">78/100
+                            phòng</span>
+                    </div>
+                </div>
+                <div class="mgr-kpi-card">
+                    <div class="mgr-kpi-top">
+                        <span class="mgr-kpi-label">Doanh thu hôm nay</span>
+                        <div class="mgr-kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <line x1="12" x2="12" y1="2" y2="22" />
+                                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                            </svg></div>
+                    </div>
+                    <div class="mgr-kpi-bottom">
+                        <span class="mgr-kpi-value" th:text="${revenueToday}">24.8M</span>
+                        <span class="mgr-kpi-note" th:text="${revenueTodayNote}">Phòng · F&amp;B · Tour</span>
+                    </div>
+                </div>
+                <div class="mgr-kpi-card">
+                    <div class="mgr-kpi-top">
+                        <span class="mgr-kpi-label">Thời gian lưu trú TB</span>
+                        <div class="mgr-kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <circle cx="12" cy="12" r="10" />
+                                <polyline points="12 6 12 12 16 14" />
+                            </svg></div>
+                    </div>
+                    <div class="mgr-kpi-bottom">
+                        <span class="mgr-kpi-value" th:text="${avgStayDays} + ' ngày'">3.2 ngày</span>
+                        <span class="mgr-kpi-note" th:text="${totalGuests} + ' lượt khách'">320 lượt khách</span>
+                    </div>
+                </div>
+                <div class="mgr-kpi-card">
+                    <div class="mgr-kpi-top">
+                        <span class="mgr-kpi-label">Doanh thu 7 ngày qua</span>
+                        <div class="mgr-kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M3 3v18h18" />
+                                <path d="m19 9-5 5-4-4-3 3" />
+                            </svg></div>
+                    </div>
+                    <div class="mgr-kpi-bottom">
+                        <span class="mgr-kpi-value" th:text="${revenueMonth}">1.84 Tỷ</span>
+                        <span class="mgr-kpi-note" th:text="${revenueMonthNote}">Phòng + F&amp;B + Tour</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chart Row 1: Bar + Donut -->
+            <div class="mgr-chart-row mgr-chart-row-62">
+                <div class="mgr-chart-card">
+                    <div class="mgr-chart-header">
+                        <div>
+                            <div class="mgr-chart-title">Doanh thu trong ngày</div>
+                            <div class="mgr-chart-subtitle">Đơn vị: triệu VNĐ</div>
+                        </div>
+                        <div class="mgr-legend">
+                            <div class="mgr-legend-item">
+                                <div class="mgr-legend-dot" style="background:#C9A96E"></div>Phòng
+                            </div>
+                            <div class="mgr-legend-item">
+                                <div class="mgr-legend-dot" style="background:#7A9C7A"></div>F&amp;B
+                            </div>
+                            <div class="mgr-legend-item">
+                                <div class="mgr-legend-dot" style="background:#6B8C9A"></div>Tour
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mgr-chart-canvas-wrap" style="height:220px"><canvas id="chart-line-today"></canvas></div>
+                    <script th:inline="javascript">
+                        window.todayData = {
+                            labels: /*[[${todayChartLabels}]]*/ ["06:00", "09:00", "12:00", "15:00", "18:00", "21:00"],
+                            room: /*[[${todayRoomValues}]]*/ [0, 10, 5, 20, 10, 30],
+                            fnb: /*[[${todayFnbValues}]]*/ [0.5, 5, 2, 5, 3, 10],
+                            tour: /*[[${todayTourValues}]]*/ [0, 10, 3, 10, 5, 8]
+                        };
+                    </script>
+                </div>
+                <div class="mgr-chart-card">
+                    <div class="mgr-chart-header">
+                        <div>
+                            <div class="mgr-chart-title">Doanh thu 7 ngày gần nhất</div>
+                        </div>
+                    </div>
+                    <div class="mgr-donut-wrap" style="height:180px">
+                        <canvas id="chart-donut" style="max-height:180px"></canvas>
+                        <div class="mgr-donut-center">
+                            <div class="mgr-donut-center-value" th:text="${revenueMonth}">1.84 Tỷ</div>
+                            <div class="mgr-donut-center-label">Tổng</div>
+                        </div>
+                    </div>
+                    <div class="mgr-donut-legend">
+                        <div class="mgr-donut-legend-row">
+                            <div class="mgr-donut-legend-dot" style="background:#C9A96E"></div><span
+                                class="mgr-donut-legend-name">Phòng</span><span class="mgr-donut-legend-val"
+                                th:text="${revRoom}+'M'">1128M</span><span class="mgr-donut-legend-pct"
+                                th:text="${revRoomPct}+'%'">61%</span>
+                        </div>
+                        <div class="mgr-donut-legend-row">
+                            <div class="mgr-donut-legend-dot" style="background:#7A9C7A"></div><span
+                                class="mgr-donut-legend-name">F&amp;B</span><span class="mgr-donut-legend-val"
+                                th:text="${revFnb}+'M'">487M</span><span class="mgr-donut-legend-pct"
+                                th:text="${revFnbPct}+'%'">26%</span>
+                        </div>
+                        <div class="mgr-donut-legend-row">
+                            <div class="mgr-donut-legend-dot" style="background:#6B8C9A"></div><span
+                                class="mgr-donut-legend-name">Tour</span><span class="mgr-donut-legend-val"
+                                th:text="${revTour}+'M'">231M</span><span class="mgr-donut-legend-pct"
+                                th:text="${revTourPct}+'%'">13%</span>
+                        </div>
+                    </div>
+                    <script
+                        th:inline="javascript">window.donutData = { room:/*[[${revRoom}]]*/1128, fnb:/*[[${revFnb}]]*/487, tour:/*[[${revTour}]]*/231 };</script>
+                </div>
+            </div>
+
+            <!-- Chart Row 2: Line + Quick Stats -->
+            <div class="mgr-chart-row mgr-chart-row-62">
+                <div class="mgr-chart-card">
+                    <div class="mgr-chart-header">
+                        <div>
+                            <div class="mgr-chart-title">Occupancy Rate — 30 ngày</div>
+                            <div class="mgr-chart-subtitle">Tỷ lệ lấp đầy phòng theo ngày trong tháng</div>
+                        </div>
+                    </div>
+                    <div class="mgr-chart-canvas-wrap" style="height:200px"><canvas id="chart-line"></canvas></div>
+                    <script th:inline="javascript">
+                        window.occupancyData = {
+                            labels: /*[[${occLabels}]]*/ [],
+                            data: /*[[${occVals}]]*/ []
+                        };
+                    </script>
+                </div>
+                <div class="mgr-chart-card">
+                    <div class="mgr-chart-header">
+                        <div>
+                            <div class="mgr-chart-title">Chỉ số nhanh tháng này</div>
+                        </div>
+                    </div>
+                    <div class="mgr-quick-stats">
+                        <div class="mgr-stat-row">
+                            <div>
+                                <div class="mgr-stat-label">Tỷ lệ lấp đầy cao nhất</div>
+                                <div class="mgr-stat-sub" th:text="'ngày '+${peakOccupancyDate}">ngày 03/06</div>
+                            </div>
+                            <div class="mgr-stat-value" th:text="${peakOccupancy}+'%'">94%</div>
+                        </div>
+                        <div class="mgr-stat-row">
+                            <div>
+                                <div class="mgr-stat-label">Lấp đầy TB tháng</div>
+                            </div>
+                            <div class="mgr-stat-value" th:text="${avgOccupancyMonth}+'%'">78%</div>
+                        </div>
+                        <div class="mgr-stat-row">
+                            <div>
+                                <div class="mgr-stat-label">Món bán chạy nhất</div>
+                                <div class="mgr-stat-sub" th:text="${topDishOrders}+' đơn'">87 đơn</div>
+                            </div>
+                            <div class="mgr-stat-value" th:text="${topDish}">Cá sông nướng</div>
+                        </div>
+                        <div class="mgr-stat-row">
+                            <div>
+                                <div class="mgr-stat-label">Tour phổ biến nhất</div>
+                                <div class="mgr-stat-sub" th:text="${topTourBookings}+' lượt đặt'">43 lượt đặt</div>
+                            </div>
+                            <div class="mgr-stat-value" th:text="${topTour}">Du thuyền hoàng hôn</div>
+                        </div>
+                        <div class="mgr-stat-row">
+                            <div>
+                                <div class="mgr-stat-label">Thời gian lưu trú TB</div>
+                                <div class="mgr-stat-sub" th:text="${totalGuests}+' lượt khách'">320 lượt khách</div>
+                            </div>
+                            <div class="mgr-stat-value" th:text="${avgStayDays}+' ngày'">3.2 ngày</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script th:src="@{/manager/js/dashboard.js}" src="../../static/manager/js/dashboard.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Create Food Order — F&amp;B Staff | Hoanien Resort</title>
+  <meta name="description"
+    content="Màn hình Create Food Order cho nhân viên F&amp;B — Hoanien Retreat Resort &amp; Hub" />
+
+  <!-- Google Fonts: Playfair Display + Montserrat (shared with main system template) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap"
+    rel="stylesheet" />
+
+  <!-- Material Symbols -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap"
+    rel="stylesheet" />
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" th:href="@{/f&amp;bStaff/css/create-food-order.css}"
+    href="../../statics/f&bStaff/css/create-food-order.css" />
+</head>
+
+<body>
+
+  <!-- ============================================================
+       SIDEBAR  (dark tone — #3c3530, matches homepage footer)
+       ============================================================ -->
+  <aside class="sidebar" id="sidebar"
+    style="width: 236px; background: var(--bg-sidebar); border-right: 1px solid var(--border-sidebar); display: flex; flex-direction: column; height: 100vh; position: sticky; top: 0; z-index: 40;">
+    <div class="sidebar-logo" style="padding: 26px 22px 18px; border-bottom: 1px solid var(--border-sidebar);">
+      <div class="brand-name"
+        style="font-family: 'Playfair Display', serif; font-size: 1.45rem; font-weight: 700; color: #ffffff; letter-spacing: 0.08em;">
+        HOANIEN</div>
+      <div class="brand-sub"
+        style="font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.3em; color: var(--text-sidebar-muted); margin-top: 1px;">
+        Resort &amp; Tour Hub</div>
+      <div class="staff-badge"
+        style="display: inline-flex; align-items: center; gap: 5px; margin-top: 10px; background: rgba(229,223,216,0.10); border: 1px solid rgba(229,223,216,0.20); border-radius: 20px; padding: 3px 10px; font-size: 0.62rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.12em; color: var(--namia-footer-text);">
+        <span class="material-symbols-outlined"
+          style="font-size:0.7rem;font-variation-settings:'FILL' 1,'wght' 500,'GRAD' 0,'opsz' 24;">restaurant</span>
+        F&amp;B Staff
+      </div>
+    </div>
+
+    <nav class="sidebar-nav" style="padding: 14px 0; flex: 1; overflow-y: auto;">
+      <div class="nav-section-label"
+        style="font-size: 0.58rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.22em; color: var(--text-sidebar-muted); padding: 14px 22px 5px;">
+        Operations</div>
+      <a href="/fbStaff/dashboard" class="nav-item"
+        style="display: flex; align-items: center; gap: 11px; padding: 10px 22px; color: rgba(229,223,216,0.70); text-decoration: none; font-size: 0.80rem; font-weight: 500; border-left: 3px solid transparent;">
+        <span class="material-symbols-outlined" style="font-size: 1.1rem;">dashboard</span>
+        <span>POS Dashboard</span>
+      </a>
+      <a href="/fbStaff/create-food-order" class="nav-item"
+        style="display: flex; align-items: center; gap: 11px; padding: 10px 22px; color: #ffffff; text-decoration: none; font-size: 0.80rem; font-weight: 500; border-left: 3px solid #ffffff; background: rgba(255,255,255,0.09);">
+        <span class="material-symbols-outlined"
+          style="font-size: 1.1rem; font-variation-settings: 'FILL' 1;">add_circle</span>
+        <span>New Order</span>
+      </a>
+      <a href="/fbStaff/table-management" th:href="@{/fbStaff/table-management}" class="nav-item"
+        style="display: flex; align-items: center; gap: 11px; padding: 10px 22px; color: rgba(229,223,216,0.70); text-decoration: none; font-size: 0.80rem; font-weight: 500; border-left: 3px solid transparent;">
+        <span class="material-symbols-outlined" style="font-size: 1.1rem;">table_restaurant</span>
+        <span>Table Management</span>
+      </a>
+      <a href="/fbStaff/room-service" th:href="@{/fbStaff/room-service}" class="nav-item"
+        style="display: flex; align-items: center; gap: 11px; padding: 10px 22px; color: rgba(229,223,216,0.70); text-decoration: none; font-size: 0.80rem; font-weight: 500; border-left: 3px solid transparent;">
+        <span class="material-symbols-outlined" style="font-size: 1.1rem;">room_service</span>
+        <span>Room Service</span>
+      </a>
+
+
+      <div class="nav-section-label"
+        style="font-size: 0.58rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.22em; color: var(--text-sidebar-muted); padding: 20px 22px 5px;">
+        Finance</div>
+      <a href="/fbStaff/shift-report" th:href="@{/fbStaff/shift-report}" class="nav-item"
+        style="display: flex; align-items: center; gap: 11px; padding: 10px 22px; color: rgba(229,223,216,0.70); text-decoration: none; font-size: 0.80rem; font-weight: 500; border-left: 3px solid transparent;">
+        <span class="material-symbols-outlined" style="font-size: 1.1rem;">bar_chart</span>
+        <span>Shift Report</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer"
+      style="padding: 16px 22px; border-top: 1px solid var(--border-sidebar); margin-top: auto;">
+      <div class="staff-profile" style="display: flex; align-items: center; gap: 12px;">
+        <div class="staff-avatar"
+          style="width: 34px; height: 34px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; color: #fff; letter-spacing: 1px;">
+          TP</div>
+        <div style="flex: 1;">
+          <div class="staff-name" th:text="${staffName != null ? staffName : 'Trần Phương'}"
+            style="font-size: 0.8rem; font-weight: 600; color: #fff; line-height: 1.2;">Trần Phương</div>
+          <div class="staff-role" style="font-size: 0.65rem; color: var(--text-sidebar-muted); margin-top: 2px;">F&amp;B
+            POS · Ca Sáng</div>
+        </div>
+        <button class="logout-btn" title="Đăng xuất" onclick="location.href='/auth/logout'"
+          style="background: none; border: none; color: var(--text-sidebar-muted); cursor: pointer; padding: 4px; border-radius: 4px; transition: all 0.2s; display: flex; align-items: center; justify-content: center;">
+          <span class="material-symbols-outlined" style="font-size:1.05rem;">logout</span>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ============================================================
+       MAIN CONTENT
+       ============================================================ -->
+  <div class="main-content">
+
+    <!-- Top Header Bar -->
+    <header class="topbar" id="main-topbar">
+      <div>
+        <div class="topbar-title">New Order</div>
+        <div class="topbar-subtitle">POS Order Creation</div>
+      </div>
+      <div class="topbar-right">
+        <a href="/fbStaff/dashboard" class="btn btn-outline" style="height:34px;padding:0 14px;">
+          <span class="material-symbols-outlined">arrow_back</span>
+          Quay lại POS
+        </a>
+      </div>
+    </header>
+
+    <!-- Workspace -->
+    <div class="order-workspace">
+
+      <!-- ============================================================
+           LEFT/CENTER: INFO & MENU
+           ============================================================ -->
+      <div class="order-main-area">
+
+        <!-- 1. Order Info -->
+        <div class="order-info-panel">
+          <div class="info-header">
+
+
+            <div class="order-type-toggle">
+              <button class="type-btn active" data-type="dine-in">
+                <span class="material-symbols-outlined">restaurant</span> Dine In
+              </button>
+              <button class="type-btn" data-type="room-svc">
+                <span class="material-symbols-outlined">room_service</span> Room Service
+              </button>
+            </div>
+          </div>
+
+          <!-- Dine In Fields -->
+          <div class="info-forms" id="fields-dine-in">
+            <div class="form-group">
+              <label class="form-label">Tên khách hàng</label>
+              <input type="text" class="form-control" id="guestNameInput" placeholder="Nhập tên khách hàng..." />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Bàn / Khu vực</label>
+              <input type="text" class="form-control" id="tableSelectText" placeholder="Nhập số bàn (VD: 06)..." autocomplete="off" />
+              <datalist id="tableDatalist">
+                  <option th:each="table : ${vacantTables}" 
+                          th:value="${#strings.replace(table.tableNumber, 'T', '')}" 
+                          th:data-id="${table.id}"></option>
+                  <option th:each="table : ${reservedTables}" 
+                          th:value="${#strings.replace(table.tableNumber, 'T', '')}" 
+                          th:data-id="${table.id}"></option>
+                  <option th:each="table : ${occupiedTables}" 
+                          th:value="${#strings.replace(table.tableNumber, 'T', '')}" 
+                          th:data-id="${table.id}"></option>
+              </datalist>
+              <input type="hidden" id="tableSelect" />
+            </div>
+
+            <div class="form-group" style="grid-column: span 2;">
+              <label class="form-label">Ghi chú đơn hàng</label>
+              <input type="text" class="form-control" id="dineInNoteInput" placeholder="Yêu cầu đặc biệt..." />
+            </div>
+          </div>
+
+          <!-- Room Service Fields (Hidden by default) -->
+          <div class="info-forms" id="fields-room-svc" style="display: none;">
+            <div class="form-group">
+              <label class="form-label">Tìm theo số phòng</label>
+              <div style="display: flex; gap: 10px;">
+                <input type="text" class="form-control" id="roomInput" placeholder="Nhập số phòng" autocomplete="off" style="flex: 1;" />
+                <input type="text" class="form-control" id="last4DigitsInput" placeholder="4 số cuối CCCD" maxlength="4" style="flex: 1;" />
+                <button type="button" class="btn btn-outline" id="btnVerifyGuest" style="padding: 0 15px;">Xác nhận</button>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">&nbsp;</label>
+              <div id="roomInfo"
+                style="display:none; background: var(--bg-base); padding: 10px; border-radius: var(--radius-sm); border: 1px solid var(--border);">
+                <div style="display:flex; justify-content: space-between; align-items:center; margin-bottom: 5px;">
+                  <strong id="guestName" style="font-size:0.85rem; color:var(--text-primary);"></strong>
+                  <span id="roomStatusBadge" class="status-badge status-occupied">Occupied</span>
+                </div>
+                <div style="font-size: 0.75rem; color: var(--text-secondary);">
+                  Hạn mức còn lại: <strong id="roomLimit" style="color:var(--status-ready-text)">1.000.000₫</strong>
+                </div>
+              </div>
+            </div>
+            <div class="form-group" style="grid-column: span 2;">
+              <label class="form-label">Ghi chú đơn hàng</label>
+              <input type="text" class="form-control" id="roomSvcNoteInput" placeholder="Yêu cầu đặc biệt..." />
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. Menu Section -->
+        <div class="menu-section">
+          <div class="menu-toolbar">
+            <div class="search-bar">
+              <span class="material-symbols-outlined">search</span>
+              <input type="text" id="food-search" placeholder="Tìm món ăn..." />
+            </div>
+            <div class="category-pills">
+              <button class="cat-pill active" data-cat="all">Tất cả</button>
+              <button class="cat-pill" data-cat="starter">Khai vị</button>
+              <button class="cat-pill" data-cat="main">Món chính</button>
+              <button class="cat-pill" data-cat="dessert">Tráng miệng</button>
+              <button class="cat-pill" data-cat="drink">Đồ uống</button>
+            </div>
+          </div>
+          <div class="food-grid" id="food-grid">
+            <!-- Items rendered dynamically by JS -->
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ============================================================
+           RIGHT: CART SIDEBAR
+           ============================================================ -->
+      <div class="cart-sidebar">
+        <div class="cart-header">
+          <span class="material-symbols-outlined">receipt_long</span>
+          <span class="cart-title">Món Đã Chọn</span>
+          <span class="cart-count" id="cart-count">0</span>
+        </div>
+
+        <div class="cart-items" id="cart-items-list">
+          <div class="cart-empty-msg" id="cart-empty-msg">Chưa có món nào được chọn.</div>
+        </div>
+
+        <div class="cart-summary">
+          <div class="summary-row">
+            <span>Tạm tính</span>
+            <span id="summary-subtotal">0₫</span>
+          </div>
+          <div class="summary-row">
+            <span id="fee-label-text">VAT (10%)</span>
+            <span id="summary-vat">0₫</span>
+          </div>
+          <div class="summary-row total">
+            <span>Tổng cộng</span>
+            <span class="val" id="summary-total">0₫</span>
+          </div>
+
+          <div class="limit-warning" id="limitWarning">
+            <span class="material-symbols-outlined" style="font-size:0.8rem; vertical-align:middle;">error</span>
+            Vượt quá hạn mức chi tiêu của phòng!
+          </div>
+
+          <div class="payment-section" id="payment-section-wrapper">
+            <label class="form-label">Thanh toán</label>
+            <select class="form-control" style="width: 100%;">
+              <option>Thanh toán tại quầy</option>
+              <option>Xác nhận thanh toán sau</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <!-- / Workspace -->
+
+    <!-- ============================================================
+         FIXED FOOTER ACTIONS
+         ============================================================ -->
+    <div class="footer-actions">
+      <button class="btn btn-outline" onclick="window.location.reload()">
+        <span class="material-symbols-outlined">delete</span> Hủy đơn
+      </button>
+      <button class="btn btn-outline">
+        <span class="material-symbols-outlined">save</span> Lưu tạm
+      </button>
+      <button class="btn btn-primary" id="btn-send-kitchen" disabled onclick="sendToKitchen()">
+        <span class="material-symbols-outlined">send</span> Gửi xuống Bếp (KOT)
+      </button>
+    </div>
+
+  </div><!-- / main-content -->
+
+  <!-- Scripts -->
+  <script th:inline="javascript">
+    window.SERVER_MENU_ITEMS = /*[[${menuItems}]]*/ [];
+  </script>
+  <script th:src="@{/f&amp;bStaff/js/create-food-order.js}"
+    src="../../statics/f&bStaff/js/create-food-order.js"></script>
+</body>
+
+</html>
+

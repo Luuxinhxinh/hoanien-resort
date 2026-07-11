@@ -1,0 +1,90 @@
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: 538898392088-lv7in7thft76gbj9dki3u6ko1itmnrda.apps.googleusercontent.com
+            client-secret: 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
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/kawai_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=Asia/Ho_Chi_Minh&allowPublicKeyRetrieval=true&useUnicode=true}
+    driverClassName: com.mysql.cj.jdbc.Driver
+    username: ${SPRING_DATASOURCE_USERNAME:root}
+    password: ${SPRING_DATASOURCE_PASSWORD:123456}
+  sql:
+    init:
+      mode: always
+      encoding: UTF-8
+      continue-on-error: true
+  jpa:
+    defer-datasource-initialization: true
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: true
+        jdbc:
+          time_zone: Asia/Ho_Chi_Minh
+
+  thymeleaf:
+    cache: false
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+      location: ${java.io.tmpdir}
+
+  # ─── Email (SMTP Gmail) ───────────────────────────────────────────
+  # Để gửi email, anh cần:
+  # 1. Bật 2-Step Verification trên Gmail
+  # 2. Tạo App Password tại: Google Account → Security → App Passwords
+  # 3. Set env variables: MAIL_USERNAME và MAIL_PASSWORD
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME:ngocnguyenthuy999@gmail.com}
+    password: ${MAIL_PASSWORD:uywcaynxxegnbzvk}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+        debug: false
+    default-encoding: UTF-8
+
+server:
+  port: 8080
+
+# ─── App custom config ────────────────────────────────────────────────
+app:
+  mail:
+    from-name: "Hòa Niên Retreat & Resort"
+    resort-phone: "1900 xxxx"
+    resort-website: "https://hoaniensorretreat.vn"
+  base-url: ${APP_BASE_URL:http://localhost:8080}
+
+logging:
+  level:
+    org.springframework.web: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE
+
+vnpay:
+  tmn-code: 77G0NGGT
+  hash-secret: 4JVVJ2NUMIMEWODNGA3CR8DV52L5PKII
+  pay-url: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
+  return-url: http://localhost:8080/api/v1/payments/vnpay-return
+  api-version: 2.1.0
+
+sendgrid:
+  api-key: ${SENDGRID_API_KEY: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}
+  from-email: hoanien.00@gmail.com
+
+cloudinary:
+  cloud-name: ${CLOUDINARY_CLOUD_NAME:r2g91yqt}
+  api-key: ${CLOUDINARY_API_KEY:533237334291996}
+  api-secret: ${CLOUDINARY_API_SECRET:RqeD4nAa8GAHp-TzReWXe2fNEPI}

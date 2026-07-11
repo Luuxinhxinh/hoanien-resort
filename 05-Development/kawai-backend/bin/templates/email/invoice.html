@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        /* Đã chuyển màu chữ sang #2F1F17 */
+        body { font-family: 'Times New Roman', serif; background-color: #F0EBDF; padding: 40px; color: #2F1F17; }
+        
+        .invoice-container { max-width: 700px; margin: auto; background-color: #FFFFFF; padding: 40px; box-shadow: 0 0 10px rgba(0,0,0,0.05); }
+        
+        .header { text-align: center; margin-bottom: 30px; }
+        .header h1 { margin: 0; font-size: 24px; text-transform: uppercase; }
+        
+        .header .address { margin-top: 15px; margin-bottom: 5px; font-size: 13px; color: #2F1F17; opacity: 0.8; }
+        
+        .invoice-title { font-size: 20px; font-weight: bold; text-transform: uppercase; margin: 20px 0; border-top: 1px solid #2F1F17; border-bottom: 1px solid #2F1F17; padding: 10px 0; }
+        
+        .info-grid { display: flex; justify-content: space-between; margin-bottom: 30px; font-size: 14px; }
+        
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        th { border-bottom: 1px solid #2F1F17; padding: 10px 0; text-align: left; font-size: 14px; }
+        td { padding: 10px 0; vertical-align: top; font-size: 14px; }
+        .text-right { text-align: right; }
+        
+        .totals-wrapper { display: flex; justify-content: space-between; margin-top: 40px; border-top: 1px solid #2F1F17; padding-top: 20px; align-items: flex-start; }
+        .payment-info { font-size: 14px; width: 50%; }
+        .totals-section { width: 40%; }
+        .total-row { display: flex; justify-content: space-between; font-weight: bold; padding: 5px 0; }
+        
+        .footer { text-align: center; margin-top: 60px; font-size: 13px; line-height: 1.6; }
+        .footer-contact { font-size: 12px; margin-bottom: 15px; color: #2F1F17; opacity: 0.8; }
+    </style>
+</head>
+<body>
+
+    <div class="invoice-container">
+        <div class="header">
+            <h1>HÒA NIÊN RETREAT RESORT & HUB</h1>
+            <p class="address">268 Minh Mạng, Phường Thủy Xuân, Thành phố Huế, Tỉnh Thừa Thiên Huế.</p>
+            <div class="invoice-title">HÓA ĐƠN KHÁCH HÀNG</div>
+        </div>
+
+        <div class="info-grid">
+            <div><strong>Tên khách hàng:</strong> <span th:text="${customerName}">Customer</span><br><strong>Số phòng:</strong> <span th:text="${roomNumber}">...</span></div>
+            <div><strong>Mã hóa đơn:</strong> <span th:text="${invoiceNumber}">INV-1756</span><br><strong>Ngày:</strong> <span th:text="${issuedDate}">26/06/2026</span></div>
+        </div>
+
+        <table>
+            <thead>
+                <tr><th>Thời gian</th><th>Mô tả giao dịch</th><th class="text-right">Thành tiền (VNĐ)</th></tr>
+            </thead>
+            <tbody>
+                <tr th:each="item : ${items}">
+                    <td th:text="${item.date}">26/06/2026</td>
+                    <td th:text="${item.description}">Tiền phòng</td>
+                    <td class="text-right" th:text="${item.amount}">1.500.000</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <div class="totals-wrapper">
+            <div class="payment-info">
+                <strong>PHƯƠNG THỨC THANH TOÁN:</strong><br>
+                ☐ <span th:text="${paymentMethod}">Thẻ tín dụng</span>
+            </div>
+            <div class="totals-section">
+                <div class="total-row"><span>Tạm tính:</span> <span th:text="${subtotal}">1.700.000</span></div>
+                <div class="total-row"><span>Thuế (10%):</span> <span th:text="${vatAmount}">170.000</span></div>
+                <div class="total-row" th:if="${depositAmount != null and depositAmount != '0 ₫'}"><span>Đã đặt cọc:</span> <span th:text="${'- ' + depositAmount}">-170.000</span></div>
+                <div class="total-row" style="border-top: 1px solid #2F1F17; margin-top: 5px; padding-top: 5px;">
+                    <span>TỔNG CỘNG:</span> <span th:text="${totalAmount}">1.700.000</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p style="font-style: italic;">Cảm ơn Quý khách đã lựa chọn Hòa Niên Retreat Resort & Hub. Rất mong được đón tiếp Quý khách trong những lần tới!</p>
+            <p>Hệ thống bởi Hòa Niên PMS</p>
+            <div class="footer-contact">
+                ĐT: +84 236 3123 456 | Email: info@hoanien.vn
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
