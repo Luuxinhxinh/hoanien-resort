@@ -12,4 +12,5 @@ import org.springframework.stereotype.Repository;
 public interface TourAttendeeRepository extends JpaRepository<TourAttendee, Long> {
     java.util.List<TourAttendee> findByTourBooking_Schedule_DepartureDate(java.time.LocalDate date);
     java.util.List<TourAttendee> findByTourBooking_Schedule_Id(Long scheduleId);
+    java.util.List<TourAttendee> findByTourBookingId(Long bookingId);
 }
