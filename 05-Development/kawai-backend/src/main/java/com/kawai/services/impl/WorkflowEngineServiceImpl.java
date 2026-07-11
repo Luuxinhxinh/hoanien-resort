@@ -9,6 +9,8 @@ import com.kawai.services.interfaces.EmailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.scheduling.annotation.Scheduled;
 
 import java.time.LocalDateTime;
@@ -36,13 +38,18 @@ public class WorkflowEngineServiceImpl implements WorkflowEngineService {
     @Transactional
     public void triggerEvent(String eventType, Map<String, Object> payload) {
         System.out.println("========== WORKFLOW ENGINE: Trigger Event " + eventType + " ==========");
+        System.out.println("[DEBUG WF] Nhận sự kiện: " + eventType + " | Payload: " + payload);
         List<Workflow> activeWorkflows = workflowRepository.findByTriggerEventAndIsActive(eventType, true);
+        System.out.println("[DEBUG WF] Tìm thấy " + activeWorkflows.size() + " quy trình hoạt động cho sự kiện " + eventType);
 
         boolean executed = false;
         for (Workflow workflow : activeWorkflows) {
             try {
+                System.out.println("[DEBUG WF] Đang xét quy trình: \"" + workflow.getWorkflowName() + "\" (ID: " + workflow.getId() + ")");
                 boolean conditionsMatch = evaluateConditions(workflow.getConditionsJson(), payload, eventType);
+                System.out.println("[DEBUG WF] Kết quả so khớp điều kiện: " + conditionsMatch + " (Điều kiện cấu hình: " + workflow.getConditionsJson() + ")");
                 if (conditionsMatch) {
+                    System.out.println("[DEBUG WF] Thỏa mãn điều kiện! Bắt đầu thực thi các Action...");
                     executeActions(workflow, payload, eventType);
                     executed = true;
                 }
@@ -166,28 +173,57 @@ public class WorkflowEngineServiceImpl implements WorkflowEngineService {
                         }
                     }
 
-                    if (room != null || "Manager_Approval".equals(taskType)) {
-                        HotelOperation operation = new HotelOperation();
-                        operation.setRoom(room);
-                        operation.setStaff(staff);
-                        operation.setSupervisor(supervisor);
-                        operation.setOperationalType(taskType);
-                        operation.setPriority(priority);
-                        operation.setStatus("Pending");
-                        operation.setCreatedAt(LocalDateTime.now());
-                        operation.setNotes(notes);
-                        hotelOperationRepository.save(operation);
-                        System.out.println("Dynamic Action: Created Task " + taskType + " with priority " + priority);
-                        
-                        // Send WebSocket Notification
-                        if (staff != null) {
-                            String message = String.format("Bạn có nhiệm vụ mới: %s (Mức ưu tiên: %s). Ghi chú: %s", taskType, priority, notes);
-                            messagingTemplate.convertAndSend("/topic/operations/" + staff.getId(), Map.of("message", message, "type", "NEW_TASK"));
+                    HotelOperation operation = new HotelOperation();
+                    operation.setRoom(room);
+                    operation.setStaff(staff);
+                    operation.setSupervisor(supervisor);
+                    operation.setOperationalType(taskType);
+                    operation.setPriority(priority);
+                    operation.setStatus("Pending");
+                    operation.setCreatedAt(LocalDateTime.now());
+                    operation.setNotes(notes);
+                    hotelOperationRepository.save(operation);
+                    System.out.println("Dynamic Action: Created Task " + taskType + " with priority " + priority + " | staffId=" + (staff != null ? staff.getId() : "[QUEUE]"));
+
+                    // Send WebSocket Notification AFTER transaction commits
+                    // Using TransactionSynchronizationManager to avoid sending before DB is committed
+                    final String wsMessage;
+                    final String wsTopic;
+                    
+                    String friendlyTaskName = taskType;
+                    if ("CHECKOUT_CLEAN".equalsIgnoreCase(taskType)) friendlyTaskName = "Dọn phòng sau Check-out";
+                    else if ("F&B_Welcome_Fruit".equalsIgnoreCase(taskType)) friendlyTaskName = "Phục vụ trái cây (Welcome Fruit)";
+                    
+                    String noteSuffix = (notes != null && !notes.isBlank()) ? " (Ghi chú: " + notes + ")" : "";
+
+                    if (staff != null) {
+                        wsMessage = String.format("Nhiệm vụ mới: %s%s", friendlyTaskName, noteSuffix);
+                        wsTopic = "/topic/operations/" + staff.getId();
+                    } else {
+                        wsMessage = String.format("Nhiệm vụ chung: %s%s", friendlyTaskName, noteSuffix);
+                        // Phân luồng nhóm trách nhiệm để tránh rác kênh chung của Lễ tân
+                        if (taskType != null && taskType.contains("CLEAN")) {
+                            wsTopic = "/topic/operations/housekeeping";
+                        } else if (taskType != null && taskType.contains("MAINTENANCE")) {
+                            wsTopic = "/topic/operations/maintenance";
                         } else {
-                            // Broadcast to general operations channel if no specific staff is assigned
-                            String message = String.format("Có nhiệm vụ mới: %s (Mức ưu tiên: %s).", taskType, priority);
-                            messagingTemplate.convertAndSend("/topic/operations", Map.of("message", message, "type", "NEW_TASK"));
+                            wsTopic = "/topic/operations"; // Các task khác (F&B...) vẫn gửi chung
                         }
+                    }
+                    final Map<String, Object> wsPayload = Map.of("message", wsMessage, "type", "NEW_TASK");
+
+                    if (TransactionSynchronizationManager.isActualTransactionActive()) {
+                        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                            @Override
+                            public void afterCommit() {
+                                System.out.println("[WS] Sending notification to " + wsTopic + " after TX commit");
+                                messagingTemplate.convertAndSend(wsTopic, wsPayload);
+                            }
+                        });
+                    } else {
+                        // No active transaction (e.g. delayed async execution) — send directly
+                        System.out.println("[WS] Sending notification to " + wsTopic + " directly (no TX)");
+                        messagingTemplate.convertAndSend(wsTopic, wsPayload);
                     }
                 }
                 else if ("SEND_EMAIL".equals(type)) {
@@ -301,6 +337,9 @@ public class WorkflowEngineServiceImpl implements WorkflowEngineService {
             LocalDateTime limitTime = LocalDateTime.now().minusMinutes(maxPendingMinutes);
 
             for (HotelOperation op : pendingOperations) {
+                if (op.getIsEscalated() != null && op.getIsEscalated()) {
+                    continue; // Skip already escalated tasks
+                }
                 if (op.getCreatedAt() != null && op.getCreatedAt().isBefore(limitTime)) {
                     Employee supervisor = op.getSupervisor();
                     if (supervisor != null && supervisor.getEmail() != null && !supervisor.getEmail().isBlank()) {
@@ -315,6 +354,11 @@ public class WorkflowEngineServiceImpl implements WorkflowEngineService {
                             
                             // Let the WorkflowEngine trigger the action dynamically!
                             triggerEvent("SLA_ESCALATE", ctx);
+                            
+                            // Mark as escalated and save to database
+                            op.setIsEscalated(true);
+                            hotelOperationRepository.save(op);
+                            System.out.println("SLA Escalated for Task ID: " + op.getId() + " - Email alert sent to " + supervisor.getEmail());
                         } catch (Exception e) {
                             System.err.println("Failed to trigger SLA escalation event: " + e.getMessage());
                         }

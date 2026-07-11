@@ -39,9 +39,8 @@ public class ReceptionistController {
         return LocalDate.now().format(DateTimeFormatter.ofPattern("EEEE, dd/MM/yyyy", new Locale("vi")));
     }
 
-    @GetMapping("/dashboard")
-    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER', 'OP_DASHBOARD', 'OP_RECEPTION_WALKIN', 'OP_RECEPTION_CHECKIN', 'OP_RECEPTION_CHECKOUT', 'OP_RECEPTION_INHOUSE')")
-    public String dashboard(Model model, java.security.Principal principal) {
+    @org.springframework.web.bind.annotation.ModelAttribute
+    public void addStaffInfoToModel(Model model, java.security.Principal principal) {
         if (principal != null) {
             employeeRepository.findByAccountUsername(principal.getName()).ifPresent(emp -> {
                 model.addAttribute("staffId", emp.getId());
@@ -51,7 +50,11 @@ public class ReceptionistController {
                 }
             });
         }
+    }
 
+    @GetMapping("/dashboard")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER', 'OP_DASHBOARD', 'OP_RECEPTION_WALKIN', 'OP_RECEPTION_CHECKIN', 'OP_RECEPTION_CHECKOUT', 'OP_RECEPTION_INHOUSE')")
+    public String dashboard(Model model, java.security.Principal principal) {
         // KPI
         long totalRooms = 0, occupied = 0, dirty = 0;
         try {

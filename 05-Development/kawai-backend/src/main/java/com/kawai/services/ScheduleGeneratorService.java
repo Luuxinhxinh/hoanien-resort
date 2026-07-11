@@ -37,6 +37,7 @@ public class ScheduleGeneratorService {
     }
 
     @EventListener(ApplicationReadyEvent.class)
+    @Transactional
     public void onApplicationReady() {
         LocalDate today = LocalDate.now();
         generateWeeklySchedule(today, today.plusDays(14));
