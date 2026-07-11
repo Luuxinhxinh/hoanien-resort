@@ -33,6 +33,9 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     @Query("SELECT b FROM Booking b WHERE b.customer.id = :customerId AND (b.bookingStatus = 'Completed' OR b.bookingStatus = 'Confirmed' OR b.bookingStatus = 'Checked_In')")
     List<Booking> findCompletedOrConfirmedBookingsByCustomerId(@org.springframework.data.repository.query.Param("customerId") Long customerId);
 
+    @Query("SELECT COUNT(b) FROM Booking b WHERE b.customer.id = :customerId AND (b.bookingStatus = 'Completed' OR b.bookingStatus = 'Confirmed' OR b.bookingStatus = 'Checked_In')")
+    long countCompletedOrConfirmedBookingsByCustomerId(@org.springframework.data.repository.query.Param("customerId") Long customerId);
+
     @Query("SELECT b FROM Booking b WHERE LOWER(b.bookingStatus) LIKE '%cancel%' OR LOWER(b.bookingStatus) = 'no-show'")
     List<Booking> findCancelledBookings();
 }

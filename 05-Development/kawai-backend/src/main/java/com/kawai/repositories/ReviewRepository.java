@@ -9,18 +9,21 @@ import java.util.List;
 @Repository
 public interface ReviewRepository extends JpaRepository<Review, Long> {
 
-    // Tour reviews: có tourBooking và ratingTour != null
-    @Query("SELECT r FROM Review r WHERE r.moderationStatus = 'Approved' AND r.tourBooking IS NOT NULL AND r.ratingTour IS NOT NULL ORDER BY r.createdAt DESC")
+    // Tour reviews: có tourBooking hoặc ratingTour khác null
+    @Query("SELECT r FROM Review r WHERE r.moderationStatus = 'Approved' AND (r.tourBooking IS NOT NULL OR r.ratingTour IS NOT NULL) ORDER BY r.createdAt DESC")
     List<Review> findApprovedTourReviews();
 
-    // Room reviews: có roomBookingDetail hoặc ratingRoomDining != null
+    // Room reviews: có roomBookingDetail hoặc ratingRoomDining khác null
     @Query("SELECT r FROM Review r WHERE r.moderationStatus = 'Approved' AND (r.roomBookingDetail IS NOT NULL OR r.ratingRoomDining IS NOT NULL) ORDER BY r.createdAt DESC")
     List<Review> findApprovedRoomReviews();
 
-    // Other/General reviews: không có cả tour booking lẫn room booking
-    @Query("SELECT r FROM Review r WHERE r.moderationStatus = 'Approved' AND r.tourBooking IS NULL AND r.roomBookingDetail IS NULL ORDER BY r.createdAt DESC")
+    // Other/General reviews: không có tour booking, không có ratingTour, không có room booking, không có ratingRoomDining
+    @Query("SELECT r FROM Review r WHERE r.moderationStatus = 'Approved' AND r.tourBooking IS NULL AND r.ratingTour IS NULL AND r.roomBookingDetail IS NULL AND r.ratingRoomDining IS NULL ORDER BY r.createdAt DESC")
     List<Review> findApprovedGeneralReviews();
 
     // All approved reviews
     List<Review> findByModerationStatusOrderByCreatedAtDesc(String status);
+
+    boolean existsByTourBookingId(Long tourBookingId);
+    boolean existsByRoomBookingDetailId(Long roomBookingDetailId);
 }

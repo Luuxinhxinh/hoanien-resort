@@ -15,5 +15,15 @@ public class Review {
     @Column(name="created_at", nullable=false) private LocalDateTime createdAt = LocalDateTime.now();
     @Column(name="moderation_status", nullable=false) private String moderationStatus = "Pending";
     @ManyToOne @JoinColumn(name="moderated_by") private Employee moderatedBy;
+    @ManyToOne @JoinColumn(name="replied_by") private Employee repliedBy;
     @Column(name="moderation_reason", columnDefinition="TEXT") private String moderationReason;
+    @Column(name="reply_text", columnDefinition="TEXT") private String replyText;
+    @Column(name="is_reported", nullable=false) private Boolean isReported = false;
+    @Column(name="report_reason", columnDefinition="TEXT") private String reportReason;
+
+    @jakarta.persistence.Transient
+    private String guideName;
+
+    @jakarta.persistence.Transient
+    private String tourNameResolved;
 }

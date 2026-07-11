@@ -14,6 +14,21 @@
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
         rel="stylesheet" />
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@1,600&display=swap');
+        *:not(.material-symbols-outlined) {
+            font-family: 'Inter', sans-serif !important;
+            font-weight: 600 !important;
+            font-style: italic !important;
+        }
+        .brand,
+        .logo-text,
+        .resort-name,
+        header h1,
+        [onclick*="window.location.href='/'"] {
+            font-family: 'EB Garamond', Georgia, serif !important;
+            font-weight: 400 !important;
+            font-style: italic !important;
+        }
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
             background-color: #fff7fa;
@@ -236,26 +251,16 @@
                             class="text-xs text-primary hover:underline font-semibold">Đọc tất cả</button>
                     </div>
                     <div class="space-y-3 max-h-64 overflow-y-auto text-left" id="notifications-list">
-                        <!-- Notification Item 1 -->
-                        <div class="p-3 bg-primary/5 rounded-xl border-l-4 border-primary space-y-1">
-                            <p class="text-xs font-semibold text-on-surface">Yêu cầu hỗ trợ từ Đoàn khách</p>
-                            <p class="text-[11px] text-on-surface-variant/70 leading-snug">Đoàn khách Singapore tại Cố
-                                đô Huế yêu cầu chuẩn bị thêm nước uống đóng chai.</p>
-                            <p class="text-[9px] text-on-surface-variant/50">5 phút trước</p>
+                        <div th:each="n : ${dynamicNotifications}" class="p-3 bg-primary/5 rounded-xl border-l-4 border-primary space-y-1">
+                            <div class="flex items-center gap-1.5">
+                                <span class="material-symbols-outlined text-[14px] text-primary" th:text="${n.icon}">info</span>
+                                <p class="text-xs font-semibold text-on-surface" th:text="${n.title}">Tiêu đề thông báo</p>
+                            </div>
+                            <p class="text-[11px] text-on-surface-variant/70 leading-snug" th:text="${n.content}">Nội dung thông báo...</p>
+                            <p class="text-[9px] text-on-surface-variant/50" th:text="${n.timeText}">5 phút trước</p>
                         </div>
-                        <!-- Notification Item 2 -->
-                        <div class="p-3 bg-primary/5 rounded-xl border-l-4 border-primary space-y-1">
-                            <p class="text-xs font-semibold text-on-surface">Cảnh báo Thời tiết</p>
-                            <p class="text-[11px] text-on-surface-variant/70 leading-snug">Dự báo có mưa rào nhẹ tại khu
-                                vực Tháp Mười từ 16:30 chiều nay.</p>
-                            <p class="text-[9px] text-on-surface-variant/50">20 phút trước</p>
-                        </div>
-                        <!-- Notification Item 3 -->
-                        <div class="p-3 hover:bg-primary/5 rounded-xl transition-colors space-y-1">
-                            <p class="text-xs font-medium text-on-surface-variant">Lịch trình Ngày mai</p>
-                            <p class="text-[11px] text-on-surface-variant/70 leading-snug">Bạn có lịch dẫn đoàn tham
-                                quan Ninh Bình bắt đầu lúc 08:30 sáng mai.</p>
-                            <p class="text-[9px] text-on-surface-variant/50">2 giờ trước</p>
+                        <div th:if="${dynamicNotifications == null || dynamicNotifications.isEmpty()}" class="p-4 text-center text-xs text-on-surface-variant/50">
+                            Không có thông báo mới nào.
                         </div>
                     </div>
                 </div>
@@ -312,6 +317,11 @@
                         <button onclick="filterTours('upcoming', this)"
                             class="px-6 py-2 rounded-full text-on-surface-variant hover:bg-primary-container/20 font-label-md text-label-md transition-all">Sắp
                             tới</button>
+                        <button onclick="filterTours('ongoing', this)"
+                            class="px-6 py-2 rounded-full text-on-surface-variant hover:bg-primary-container/20 font-label-md text-label-md transition-all flex items-center gap-1.5 justify-center">
+                            <span>Đang diễn ra</span>
+                            <span id="ongoing-count-badge" class="hidden px-2 py-0.5 rounded-full bg-amber-500 text-white font-bold text-[10px] animate-pulse">0</span>
+                        </button>
                         <button onclick="filterTours('completed', this)"
                             class="px-6 py-2 rounded-full text-on-surface-variant hover:bg-primary-container/20 font-label-md text-label-md transition-all">Hoàn
                             thành</button>
@@ -334,6 +344,13 @@
                             class="text-sm text-red-600 hover:text-red-800 font-bold hover:underline">
                             Xóa lọc
                         </button>
+                    </div>
+
+                    <!-- Empty State Message -->
+                    <div id="empty-state-container" class="hidden flex flex-col items-center justify-center py-16 bg-surface-container/10 border border-outline-variant/30 rounded-2xl text-center shadow-inner">
+                        <span class="material-symbols-outlined text-6xl text-primary/30 mb-4 animate-bounce">info</span>
+                        <h3 class="font-headline text-xl font-bold text-on-surface mb-2">Không tìm thấy hành trình</h3>
+                        <p id="empty-state-message" class="text-sm text-on-surface-variant max-w-sm px-6">Không có tour nào trong danh sách của bạn.</p>
                     </div>
 
                     <!-- Dynamic Tour Schedules Section -->
@@ -380,6 +397,13 @@
                                                             th:text="${tour.guide}">Minh Anh</span></span>
                                                     <span class="text-on-surface-variant text-label-sm">• Ngày: <span
                                                             th:text="${tour.date}">2026-06-27</span></span>
+                                                    <span class="text-on-surface-variant text-label-sm">•</span>
+                                                    <span th:if="${tour.status == 'upcoming'}"
+                                                        class="text-[9px] uppercase tracking-wider font-bold px-2 py-0.5 rounded border bg-emerald-500/10 text-emerald-600 border-emerald-500/20">Sắp diễn ra</span>
+                                                    <span th:if="${tour.status == 'ongoing'}"
+                                                        class="text-[9px] uppercase tracking-wider font-bold px-2 py-0.5 rounded border bg-amber-500/10 text-amber-600 border-amber-500/20">Đang diễn ra</span>
+                                                    <span th:if="${tour.status == 'completed'}"
+                                                        class="text-[9px] uppercase tracking-wider font-bold px-2 py-0.5 rounded border bg-secondary-container/30 text-secondary border-secondary-container">Đã hoàn thành</span>
                                                 </div>
                                                 <h3 class="font-headline-md text-2xl text-on-surface group-hover:text-primary transition-colors mb-2"
                                                     th:text="${tour.name}">Hành trình Đoàn Tụ - Huế</h3>
@@ -440,19 +464,10 @@
                         <div class="mt-10 pt-6 border-t border-outline-variant/30">
                             <h4 class="font-headline-md text-xl text-on-surface mb-4">Ghi chú hôm nay</h4>
                             <div class="flex flex-col gap-4">
-                                <div
+                                <div th:each="note : ${dynamicNotes}"
                                     class="flex items-start gap-3 p-4 rounded-xl bg-primary-container/10 border-l-4 border-primary">
-                                    <span class="material-symbols-outlined text-primary mt-0.5">info</span>
-                                    <p class="font-headline text-base font-light text-on-surface leading-relaxed">Đoàn
-                                        khách Singapore yêu cầu hướng dẫn viên nói được tiếng Trung cơ bản.</p>
-                                </div>
-                                <div
-                                    class="flex items-start gap-3 p-4 rounded-xl bg-surface-container-low border-l-4 border-outline">
-                                    <span
-                                        class="material-symbols-outlined text-on-surface-variant mt-0.5">warning</span>
-                                    <p
-                                        class="font-headline text-base font-light text-on-surface-variant leading-relaxed">
-                                        Dự báo có mưa nhẹ vào lúc 16:30, chuẩn bị phương án dự phòng cho tour sông.</p>
+                                    <span class="material-symbols-outlined text-primary mt-0.5" th:text="${note.icon}">info</span>
+                                    <p class="font-headline text-base font-light text-on-surface leading-relaxed" th:text="${note.content}">Đoàn khách Singapore yêu cầu hướng dẫn viên nói được tiếng Trung cơ bản.</p>
                                 </div>
                             </div>
                         </div>
@@ -675,6 +690,22 @@
             toursData = dbTours;
         }
 
+        function updateOngoingBadge() {
+            const ongoingCount = toursData.filter(t => t.status === 'ongoing').length;
+            const badge = document.getElementById('ongoing-count-badge');
+            if (badge) {
+                if (ongoingCount > 0) {
+                    badge.textContent = ongoingCount;
+                    badge.classList.remove('hidden');
+                } else {
+                    badge.classList.add('hidden');
+                }
+            }
+        }
+
+        // Update ongoing badge initial state
+        updateOngoingBadge();
+
         let activeTourFilter = 'all';
 
         function removeVietnameseAccents(str) {
@@ -736,6 +767,8 @@
                     matchesFilter = isSameGuide(guideName, loggedInGuideName);
                 } else if (activeTourFilter === 'upcoming') {
                     matchesFilter = (status === 'upcoming');
+                } else if (activeTourFilter === 'ongoing') {
+                    matchesFilter = (status === 'ongoing');
                 } else if (activeTourFilter === 'completed') {
                     matchesFilter = (status === 'completed');
                 }
@@ -769,17 +802,47 @@
                 heading.style.display = hasVisible ? 'flex' : 'none';
             });
 
-            // Update section visibility
+            // Update section visibility and count total visible tours
+            let totalVisibleTours = 0;
             const sections = document.querySelectorAll('.tour-section');
             sections.forEach(sec => {
                 let visibleCount = 0;
                 sec.querySelectorAll('.tour-card').forEach(c => {
                     if (c.style.display !== 'none') {
                         visibleCount++;
+                        totalVisibleTours++;
                     }
                 });
                 sec.style.display = (visibleCount === 0) ? 'none' : 'block';
             });
+
+            // Update empty state container visibility
+            const emptyState = document.getElementById('empty-state-container');
+            const emptyStateMsg = document.getElementById('empty-state-message');
+            if (emptyState && emptyStateMsg) {
+                if (totalVisibleTours === 0) {
+                    let msg = "Không có hành trình nào khớp với bộ lọc của bạn.";
+                    if (activeTourFilter === 'all') {
+                        msg = "Không có tour nào trong danh sách hành trình của bạn.";
+                    } else if (activeTourFilter === 'mine') {
+                        msg = "Bạn không có tour nào được phân công nhiệm vụ.";
+                    } else if (activeTourFilter === 'upcoming') {
+                        msg = "Không có tour nào sắp diễn ra trong danh sách của bạn.";
+                    } else if (activeTourFilter === 'ongoing') {
+                        msg = "Không có tour nào đang diễn ra trong danh sách của bạn.";
+                    } else if (activeTourFilter === 'completed') {
+                        msg = "Không có tour nào đã hoàn thành trong danh sách của bạn.";
+                    }
+                    if (selectedDateFilter) {
+                        const parts = selectedDateFilter.split('-');
+                        msg += ` (Cho ngày ${parts[2]}/${parts[1]}/${parts[0]})`;
+                    }
+                    emptyStateMsg.textContent = msg;
+                    emptyState.classList.remove('hidden');
+                } else {
+                    emptyState.classList.add('hidden');
+                }
+            }
         }
 
         // Calendar detail popup functions
@@ -824,10 +887,15 @@
         }
 
         function createModalTourCard(tour) {
-            const statusBg = tour.status === 'upcoming'
-                ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20'
-                : 'bg-secondary-container/30 text-secondary border-secondary-container';
-            const statusText = tour.status === 'upcoming' ? 'Sắp diễn ra' : 'Đã hoàn thành';
+            let statusBg = 'bg-secondary-container/30 text-secondary border-secondary-container';
+            let statusText = 'Đã hoàn thành';
+            if (tour.status === 'upcoming') {
+                statusBg = 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20';
+                statusText = 'Sắp diễn ra';
+            } else if (tour.status === 'ongoing') {
+                statusBg = 'bg-amber-500/10 text-amber-600 border-amber-500/20';
+                statusText = 'Đang diễn ra';
+            }
 
             return `
                 <div class="glass-panel border-primary/10 rounded-xl p-4 flex gap-4 hover:scale-[1.01] transition-transform duration-300 bg-white/40 backdrop-blur-md cursor-pointer" onclick="handleViewDetails(${tour.id}, '${tour.guide}')">
@@ -927,9 +995,9 @@
             }
         });
 
-        let currentYear = 2026;
-        let currentMonth = 5; // 0-indexed, so 5 = June
         const todayReal = new Date();
+        let currentYear = todayReal.getFullYear();
+        let currentMonth = todayReal.getMonth();
 
         function renderCalendar() {
             const monthNames = [
@@ -1024,6 +1092,7 @@
         }
 
         renderCalendar();
+        applyCombinedFilter();
     </script>
 </body>
 

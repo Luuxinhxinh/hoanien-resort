@@ -25,7 +25,7 @@ public interface TourBookingRepository extends JpaRepository<TourBooking, Long> 
 
     List<TourBooking> findBySchedule(TourSchedule schedule);
 
-    @org.springframework.data.jpa.repository.Query(value = "SELECT b.*, tb.* FROM Bookings b JOIN Tour_Bookings tb ON b.booking_id = tb.booking_id WHERE b.customer_id = :customerId", nativeQuery = true)
+    @org.springframework.data.jpa.repository.Query("SELECT tb FROM TourBooking tb WHERE tb.customer.id = :customerId")
     java.util.List<TourBooking> findTourBookingsByCustomerId(@org.springframework.data.repository.query.Param("customerId") Long customerId);
 
     /**

@@ -89,7 +89,8 @@
         #payment-modal,
         .age-picker-popup,
         #activity-modal,
-        #map-detail-popup {
+        #map-detail-popup,
+        #insurance-detail-modal {
             display: none;
         }
 
@@ -102,7 +103,8 @@
         #payment-modal.active,
         .age-picker-popup.active,
         #activity-modal.active,
-        #map-detail-popup.active {
+        #map-detail-popup.active,
+        #insurance-detail-modal.active {
             display: flex;
         }
 
@@ -489,7 +491,10 @@
                             </span>
                         </div>
                         <div class="flex justify-between items-center pb-4 border-b border-brand-border/50">
-                            <span class="text-[10px] font-bold uppercase tracking-widest">Giá trọn gói</span>
+                            <div class="flex flex-col">
+                                <span class="text-[10px] font-bold uppercase tracking-widest">Giá trọn gói</span>
+                                <span class="text-[8px] text-gray-400 mt-0.5">(Đã bao gồm bảo hiểm du lịch bắt buộc)</span>
+                            </div>
                             <span class="text-sm font-bold text-brand-gold" id="displayTotalPrice">1.200.000 VNĐ</span>
                         </div>
                         <div class="flex justify-between items-center">
@@ -567,14 +572,19 @@
                     </div>
                     <div class="grid grid-cols-2 gap-10">
                         <div class="flex flex-col">
-                            <label class="text-[10px] font-bold uppercase tracking-widest mb-2 text-black">Số điện
-                                thoại</label>
+                            <label class="text-[10px] font-bold uppercase tracking-widest mb-2 text-black">Số điện thoại</label>
                             <input class="text-sm py-2" id="phone" th:value="${customerPhone}"
                                 placeholder="Nhập số điện thoại của bạn..." type="text">
                         </div>
                         <div class="flex flex-col">
-                            <label class="text-[10px] font-bold uppercase tracking-widest mb-2 text-black">Ngày
-                                đi</label>
+                            <label class="text-[10px] font-bold uppercase tracking-widest mb-2 text-black">Số CCCD / Hộ chiếu (Bắt buộc bảo hiểm)</label>
+                            <input class="text-sm py-2" id="cccdPassport" th:value="${customerCccd}"
+                                placeholder="Nhập số CCCD hoặc Passport..." type="text" required>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-10">
+                        <div class="flex flex-col">
+                            <label class="text-[10px] font-bold uppercase tracking-widest mb-2 text-black">Ngày đi</label>
                             <input class="text-sm py-2" id="departureDate" type="date" value="2026-06-26"
                                 oninput="validateDepartureDate(this)">
                             <p class="text-[9px] font-bold text-red-500 uppercase tracking-widest mt-1 hidden"
@@ -655,36 +665,10 @@
                             </div>
                         </div>
                     </div>
-                    <!-- Insurance Banner (hiện động qua JS khi tour bắt buộc bảo hiểm) -->
-                    <div id="insurance-banner"
-                        class="hidden space-y-3 p-5 border border-amber-300 bg-amber-50/60 rounded-sm">
-                        <div class="flex items-start gap-3">
-                            <span class="material-symbols-outlined text-amber-600 text-[20px] mt-0.5">shield</span>
-                            <div>
-                                <p class="text-[10px] font-bold uppercase tracking-widest text-amber-800 mb-1">Bảo hiểm
-                                    du lịch bắt buộc</p>
-                                <p class="text-[11px] text-amber-700 leading-relaxed">
-                                    Tour này yêu cầu mua bảo hiểm du lịch theo quy định an toàn.
-                                    Phí bảo hiểm: <strong id="insurance-price-display"
-                                        class="text-amber-900">0đ</strong>/người.
-                                </p>
-                            </div>
-                        </div>
-                        <div class="flex items-start gap-3 pt-1">
-                            <input type="checkbox" id="insuranceConsent"
-                                class="mt-0.5 rounded border-amber-400 text-amber-700 focus:ring-amber-500"
-                                onchange="updateTotalPrice()">
-                            <label for="insuranceConsent"
-                                class="text-[10px] leading-relaxed text-amber-800 cursor-pointer">
-                                Tôi đồng ý mua bảo hiểm du lịch với mức phí nêu trên. Phí bảo hiểm sẽ được cộng vào tổng
-                                hóa đơn.
-                            </label>
-                        </div>
-                    </div>
+
                     <!-- Payment Options -->
-                    <div class="space-y-4">
-                        <label class="text-[10px] font-bold uppercase tracking-widest mb-2 block text-black">Phương thức
-                            thanh toán</label>
+                    <div class="space-y-4 opacity-50 pointer-events-none transition-all duration-300" id="payment-options-group">
+                        <label class="text-[10px] font-bold uppercase tracking-widest mb-2 block text-black">Phương thức thanh toán</label>
                         <div class="payment-option border border-brand-border p-6 flex justify-between items-center"
                             onclick="showPaymentModal('deposit')">
                             <div>
@@ -720,16 +704,26 @@
                             </div>
                         </div>
                     </div>
-                    <div class="flex items-start space-x-3 pt-4">
-                        <input class="mt-1 rounded border-gray-300 text-brand-dark focus:ring-brand-dark"
-                            id="tourConsent" type="checkbox">
-                        <p class="text-[10px] leading-relaxed text-gray-500">
-                            Tôi đồng ý cung cấp thông tin cá nhân và hành trình để resort thực hiện dịch vụ đặt tour và
-                            mã hóa bảo mật thông tin.
-                        </p>
+                    <div class="flex flex-col space-y-4 pt-4 border-t border-brand-border/30">
+                        <!-- Insurance Consent (hiện động qua JS khi tour bắt buộc bảo hiểm) -->
+                        <div id="insurance-consent-container" class="flex items-start space-x-3 hidden">
+                            <input class="mt-1 rounded border-amber-400 text-amber-700 focus:ring-amber-500"
+                                id="insuranceConsent" type="checkbox" onchange="updateTotalPrice(); validateConsentAndEnableButtons()">
+                            <label for="insuranceConsent" class="text-[10px] leading-relaxed text-amber-800 cursor-pointer">
+                                Tôi xác nhận đã đọc, hiểu và đồng ý với <button type="button" onclick="event.preventDefault(); event.stopPropagation(); openInsuranceDetailModal()" class="underline text-amber-900 hover:text-amber-950 font-semibold bg-transparent border-none p-0 inline cursor-pointer">điều khoản bảo hiểm du lịch bắt buộc</button> dành cho hành khách đã được bao gồm trong tổng chi phí tour.
+                            </label>
+                        </div>
+                        <div class="flex items-start space-x-3">
+                            <input class="mt-1 rounded border-gray-300 text-brand-dark focus:ring-brand-dark"
+                                id="tourConsent" type="checkbox" onchange="validateConsentAndEnableButtons()">
+                            <p class="text-[10px] leading-relaxed text-gray-500">
+                                Tôi đồng ý cung cấp thông tin cá nhân và hành trình để resort thực hiện dịch vụ đặt tour và
+                                mã hóa bảo mật thông tin.
+                            </p>
+                        </div>
                     </div>
-                    <button type="submit"
-                        class="w-full bg-brand-dark text-white py-5 text-[11px] font-bold tracking-[0.2em] uppercase hover:bg-brand-gold transition-colors">
+                    <button type="submit" id="btn-submit-booking" disabled
+                        class="w-full bg-brand-dark text-white py-5 text-[11px] font-bold tracking-[0.2em] uppercase hover:bg-brand-gold transition-all duration-300 opacity-50 pointer-events-none cursor-not-allowed">
                         Xác nhận đặt chỗ
                     </button>
                     <div
@@ -836,35 +830,37 @@
             <div class="w-full md:w-1/2 p-10">
                 <h3 class="text-2xl font-serif mb-8" id="modal-payment-title">Thanh toán</h3>
                 <div class="space-y-6 pt-2">
-                    <label class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2 block">Chọn phương
-                        thức</label>
-                    <div class="grid grid-cols-1 gap-3">
-                        <div class="payment-method-toggle border border-brand-border p-4 flex flex-col cursor-pointer transition-all hover:border-brand-dark border-brand-dark"
-                            id="toggle-counter" onclick="selectPaymentMethod('counter')">
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center space-x-4">
-                                    <span class="material-symbols-outlined text-brand-dark text-lg">storefront</span>
-                                    <p class="text-[10px] font-bold uppercase tracking-wider">Thanh toán tại quầy</p>
-                                </div>
-                                <div
-                                    class="method-radio w-4 h-4 rounded-full border border-brand-border flex items-center justify-center">
-                                    <div class="radio-inner w-2 h-2 rounded-full bg-brand-dark transition-opacity">
+                    <div id="payment-methods-selector">
+                        <label class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2 block">Chọn phương
+                            thức</label>
+                        <div class="grid grid-cols-1 gap-3">
+                            <div class="payment-method-toggle border border-brand-border p-4 flex flex-col cursor-pointer transition-all hover:border-brand-dark border-brand-dark"
+                                id="toggle-counter" onclick="selectPaymentMethod('counter')">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-4">
+                                        <span class="material-symbols-outlined text-brand-dark text-lg">storefront</span>
+                                        <p class="text-[10px] font-bold uppercase tracking-wider">Thanh toán tại quầy</p>
+                                    </div>
+                                    <div
+                                        class="method-radio w-4 h-4 rounded-full border border-brand-border flex items-center justify-center">
+                                        <div class="radio-inner w-2 h-2 rounded-full bg-brand-dark transition-opacity">
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="payment-method-toggle border border-brand-border p-4 flex flex-col cursor-pointer transition-all hover:border-brand-dark"
-                            id="toggle-vnpay" onclick="selectPaymentMethod('vnpay')">
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center space-x-4">
-                                    <span
-                                        class="material-symbols-outlined text-brand-dark text-lg">account_balance_wallet</span>
-                                    <p class="text-[10px] font-bold uppercase tracking-wider">Thanh toán qua VNPay</p>
-                                </div>
-                                <div
-                                    class="method-radio w-4 h-4 rounded-full border border-brand-border flex items-center justify-center">
+                            <div class="payment-method-toggle border border-brand-border p-4 flex flex-col cursor-pointer transition-all hover:border-brand-dark"
+                                id="toggle-vnpay" onclick="selectPaymentMethod('vnpay')">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-4">
+                                        <span
+                                            class="material-symbols-outlined text-brand-dark text-lg">account_balance_wallet</span>
+                                        <p class="text-[10px] font-bold uppercase tracking-wider">Thanh toán qua VNPay</p>
+                                    </div>
                                     <div
-                                        class="radio-inner w-2 h-2 rounded-full bg-brand-dark opacity-0 transition-opacity">
+                                        class="method-radio w-4 h-4 rounded-full border border-brand-border flex items-center justify-center">
+                                        <div
+                                            class="radio-inner w-2 h-2 rounded-full bg-brand-dark opacity-0 transition-opacity">
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -927,6 +923,31 @@
                             </div>
                         </div>
                     </div>
+                    <div class="collapsible-content" id="post-room-details">
+                        <div class="mt-4 border border-emerald-100 bg-emerald-50/60 rounded-sm overflow-hidden">
+                            <!-- Room Charge header -->
+                            <div class="flex items-center gap-3 px-5 py-3 bg-white border-b border-emerald-100">
+                                <span class="material-symbols-outlined text-emerald-600 text-xl">bedroom_parent</span>
+                                <div>
+                                    <p class="text-[10px] font-bold uppercase tracking-widest text-emerald-800">Thanh toán Gán phòng</p>
+                                    <p class="text-[9px] text-gray-400">Post to Room — Charge to Stay Folio</p>
+                                </div>
+                            </div>
+                            <div class="p-5 space-y-3">
+                                <div class="flex items-start gap-3">
+                                    <span class="material-symbols-outlined text-emerald-600 text-base mt-0.5">room_service</span>
+                                    <p class="text-[10px] text-gray-600 leading-relaxed">
+                                        Sau khi xác nhận đặt tour, chi phí dịch vụ sẽ được tự động ghi nhận trực tiếp vào hóa đơn phòng (Folio) của phòng đã chọn: 
+                                        <strong id="modal-post-room-numbers" class="text-emerald-850 font-bold">---</strong>.
+                                    </p>
+                                </div>
+                                <div class="flex items-start gap-3">
+                                    <span class="material-symbols-outlined text-emerald-600 text-base mt-0.5">check_circle</span>
+                                    <p class="text-[10px] text-gray-600 leading-relaxed">Bạn sẽ thực hiện thanh toán tổng hóa đơn này khi thực hiện thủ tục Check-out tại quầy lễ tân.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <button
                         class="w-full bg-brand-dark text-white py-5 text-[11px] font-bold tracking-[0.2em] uppercase hover:bg-brand-gold transition-colors mt-6"
                         id="final-confirm-btn" onclick="submitBookingFlow()">
@@ -954,12 +975,59 @@
                     onclick="confirmRoomSelection()">Gán phòng</button>
             </div>
         </div>
+        <!-- Insurance Detail Modal -->
+        <div class="bg-white text-black border border-brand-border shadow-2xl w-full max-w-2xl relative flex flex-col animate-in zoom-in-95 duration-300 rounded-sm p-10 max-h-[85vh] overflow-y-auto"
+            id="insurance-detail-modal">
+            <button class="absolute top-6 right-6 text-2xl text-gray-400 hover:text-brand-dark transition-colors z-10"
+                onclick="closeModal()">×</button>
+            <div class="flex items-center space-x-4 mb-6">
+                <div class="w-8 h-[1px] bg-brand-gold"></div>
+                <p class="text-[10px] font-bold tracking-widest uppercase text-brand-gold">Bảo hiểm du lịch bắt buộc</p>
+            </div>
+            <h3 class="text-3xl font-serif text-brand-dark mb-6">Chính Sách Bảo Hiểm Hành Khách Lữ Hành</h3>
+            <div class="space-y-6 text-xs text-gray-700 leading-relaxed overflow-y-auto">
+                <div class="p-4 bg-amber-50/50 border border-amber-200 rounded-sm text-amber-900">
+                    <p class="font-bold mb-1">Căn cứ pháp lý: Điều 37 Luật Du lịch Việt Nam 2017</p>
+                    <p>Doanh nghiệp kinh doanh dịch vụ lữ hành có nghĩa vụ bắt buộc mua bảo hiểm cho khách du lịch trong suốt thời gian thực hiện chương trình du lịch.</p>
+                </div>
+                <div>
+                    <h4 class="font-bold text-[10px] uppercase text-brand-dark tracking-wider mb-2">1. Thông tin đơn bảo hiểm</h4>
+                    <ul class="list-disc pl-5 space-y-1">
+                        <li><strong>Nhà cung cấp đối tác:</strong> Tổng Công ty Bảo hiểm Bảo Việt.</li>
+                        <li><strong>Đối tượng được bảo hiểm:</strong> Toàn bộ hành khách có tên trong danh sách đăng ký tham gia tour và có thông tin định danh hợp lệ (CCCD/CMND/Passport).</li>
+                        <li><strong>Thời hạn bảo hiểm:</strong> Bắt đầu từ thời điểm đón khách khởi hành tour cho đến khi kết thúc hành trình và trả khách về resort an toàn.</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold text-[10px] uppercase text-brand-dark tracking-wider mb-2">2. Quyền lợi và Hạn mức bồi thường</h4>
+                    <ul class="list-disc pl-5 space-y-1">
+                        <li><strong>Hạn mức trách nhiệm tối đa:</strong> <strong class="text-brand-gold">30.000.000 VNĐ / khách / vụ</strong>.</li>
+                        <li><strong>Phạm vi bảo hiểm:</strong> Các trường hợp tai nạn, thương tật thân thể hoặc tử vong phát sinh do sự cố khách quan trong suốt quá trình tham gia các hoạt động thuộc lịch trình tour du lịch.</li>
+                        <li><strong>Chi phí y tế:</strong> Chi trả các chi phí cấp cứu, điều trị nội trú, ngoại trú hợp lý phát sinh tại các cơ sở y tế hợp pháp.</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold text-[10px] uppercase text-brand-dark tracking-wider mb-2">3. Các điều khoản loại trừ chính</h4>
+                    <ul class="list-disc pl-5 space-y-1 text-gray-500">
+                        <li>Hành vi cố ý tự gây thương tích, tự tử hoặc vi phạm pháp luật hình sự của người được bảo hiểm.</li>
+                        <li>Ảnh hưởng của rượu, bia, ma túy hoặc chất kích thích bất hợp pháp khi tham gia tour.</li>
+                        <li>Các bệnh lý nền, bệnh mãn tính có sẵn của hành khách (không do tai nạn phát sinh trong tour).</li>
+                        <li>Khách hàng tự ý rời đoàn, tham gia các hoạt động nguy hiểm ngoài chương trình tour mà không có sự đồng ý của Hướng dẫn viên trưởng phụ trách.</li>
+                    </ul>
+                </div>
+                <div class="pt-4 border-t border-brand-border">
+                    <p class="italic text-[10px] text-gray-500">Hòa Niên Retreat Resort cam kết thực hiện đầy đủ nghĩa vụ mua và khai báo danh tính của quý khách với công ty bảo hiểm đối tác. Chi phí bảo hiểm đã được tính trọn gói trong giá bán của tour, quý khách không phải đóng thêm bất kỳ phụ phí nào khác.</p>
+                </div>
+            </div>
+            <button class="mt-8 w-full bg-brand-dark text-white py-4 text-[10px] font-bold uppercase tracking-widest hover:bg-brand-gold transition"
+                onclick="closeModal()">Đã Hiểu & Đóng</button>
+        </div>
     </div>
     <!-- END: Modals -->
 
     <!-- BEGIN: Payment Toast -->
     <div id="payment-toast"
-        style="display:none; position:fixed; bottom:32px; left:50%; transform:translateX(-50%); z-index:9999; min-width:320px; max-width:480px;">
+        style="display:none; position:fixed; top:32px; right:32px; z-index:9999; min-width:320px; max-width:480px;">
         <div id="payment-toast-inner" class="flex items-center gap-4 px-6 py-4 shadow-2xl rounded-sm"
             style="background:#1a1a1a; color:#fff; font-family:'Montserrat',sans-serif;">
             <span id="payment-toast-icon" class="material-symbols-outlined text-2xl"></span>
@@ -1822,23 +1890,20 @@
         function updateTotalPrice() {
             let totalPrice = getRawTotalPrice();
 
-            // Cộng phí bảo hiểm (nếu tour bắt buộc và khách đã đồng ý)
+            // Phí bảo hiểm đã bao gồm trong giá gốc của tour
             const insuranceFee = getInsuranceFee();
-            totalPrice += insuranceFee;
+            // totalPrice += insuranceFee; // Đã bao gồm, không cộng dồn thêm
 
-            // Hiển thị / ẩn banner bảo hiểm
+            // Hiển thị / ẩn checkbox bảo hiểm ở chân trang
             const dbTour = (typeof dbTours !== 'undefined') ? dbTours[currentTour] : null;
-            const insuranceBanner = document.getElementById('insurance-banner');
-            if (insuranceBanner) {
-                if (dbTour && dbTour.insuranceRequired) {
-                    insuranceBanner.classList.remove('hidden');
-                    const priceDisplay = document.getElementById('insurance-price-display');
-                    if (priceDisplay) priceDisplay.textContent = formatVND(Number(dbTour.insurancePrice) || 0);
-                } else {
-                    insuranceBanner.classList.add('hidden');
-                    const consentChk = document.getElementById('insuranceConsent');
-                    if (consentChk) consentChk.checked = false;
-                }
+            const insuranceConsentContainer = document.getElementById('insurance-consent-container');
+            
+            if (dbTour && dbTour.insuranceRequired) {
+                if (insuranceConsentContainer) insuranceConsentContainer.classList.remove('hidden');
+            } else {
+                if (insuranceConsentContainer) insuranceConsentContainer.classList.add('hidden');
+                const consentChk = document.getElementById('insuranceConsent');
+                if (consentChk) consentChk.checked = false;
             }
 
             // Apply promo discount if one is active
@@ -2059,6 +2124,8 @@
         function generateChildRows(count) {
             const container = document.getElementById('child-rows-container');
             const num = parseInt(count) || 0;
+            const existingRows = container.querySelectorAll('.child-row');
+            if (existingRows.length === num) return;
             container.innerHTML = '';
             for (let i = 0; i < num; i++) {
                 const row = document.createElement('div');
@@ -2087,6 +2154,8 @@
             const container = document.getElementById('adult-companions-container');
             if (!container) return;
             const num = parseInt(count) || 0;
+            const existingRows = container.querySelectorAll('.adult-companion-row');
+            if (existingRows.length === num) return;
             container.innerHTML = '';
 
             if (num > 0) {
@@ -2098,22 +2167,104 @@
 
             for (let i = 0; i < num; i++) {
                 const row = document.createElement('div');
-                row.className = 'grid grid-cols-3 gap-4 adult-companion-row animate-in fade-in slide-in-from-top-1 duration-300 border-b border-brand-border/30 pb-4';
+                row.className = 'grid grid-cols-4 gap-4 adult-companion-row animate-in fade-in slide-in-from-top-1 duration-300 border-b border-brand-border/30 pb-4';
                 row.innerHTML = `
-                  <div class="flex flex-col">
+                  <div class="flex flex-col relative pb-4">
                     <label class="text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-1">Họ tên người đi cùng ${i + 1}</label>
                     <input class="text-sm py-2 adult-companion-name border-b border-brand-border/50 focus:border-brand-gold bg-transparent text-black" placeholder="Họ và tên" type="text" required>
                   </div>
-                  <div class="flex flex-col">
+                  <div class="flex flex-col relative pb-4">
                     <label class="text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-1">Tuổi</label>
-                    <input class="text-sm py-2 adult-companion-age border-b border-brand-border/50 focus:border-brand-gold bg-transparent text-black" placeholder="Từ 12 tuổi" type="number" min="12" required>
+                    <div class="relative flex items-center">
+                      <input class="text-sm py-2 pr-6 w-full adult-companion-age border-b border-brand-border/50 focus:border-brand-gold focus:ring-0 bg-transparent text-black" placeholder="Từ 12 tuổi" type="number" min="12" max="100" required oninput="validateAgeInput(this)" onblur="handleAgeBlur(this)">
+                      <button type="button" class="clear-age-btn absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 font-bold hidden text-lg" onclick="clearAgeInput(this)">×</button>
+                    </div>
+                    <span class="age-error-msg absolute bottom-0 left-0 text-[10px] text-red-500 font-medium hidden">Chỉ nhập tuổi từ 12 - 100 tuổi</span>
                   </div>
-                  <div class="flex flex-col">
+                  <div class="flex flex-col relative pb-4 adult-companion-idcard-container hidden">
+                    <label class="text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-1">Số CCCD / Hộ chiếu</label>
+                    <input class="text-sm py-2 adult-companion-idcard border-b border-brand-border/50 focus:border-brand-gold bg-transparent text-black" placeholder="CCCD hoặc Passport" type="text">
+                  </div>
+                  <div class="flex flex-col relative pb-4">
                     <label class="text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-1">Số điện thoại</label>
-                    <input class="text-sm py-2 adult-companion-phone border-b border-brand-border/50 focus:border-brand-gold bg-transparent text-black" placeholder="SĐT (nếu có)" type="text">
+                    <input autocomplete="off" class="text-sm py-2 adult-companion-phone border-b border-brand-border/50 focus:border-brand-gold bg-transparent text-black" placeholder="SĐT (nếu có)" type="text">
                   </div>
                 `;
                 container.appendChild(row);
+            }
+        }
+
+        function validateAgeInput(input) {
+            const val = parseInt(input.value);
+            const container = input.closest('.flex-col');
+            const errorSpan = container.querySelector('.age-error-msg');
+            const clearBtn = container.querySelector('.clear-age-btn');
+            
+            // Show/hide clear button
+            if (clearBtn) {
+                if (input.value.trim() !== '') {
+                    clearBtn.classList.remove('hidden');
+                } else {
+                    clearBtn.classList.add('hidden');
+                }
+            }
+
+            if (!errorSpan) return;
+            
+            if (input.value.trim() === '') {
+                errorSpan.classList.add('hidden');
+                input.classList.remove('border-red-500');
+                input.classList.add('border-brand-border/50');
+                return;
+            }
+
+            if (isNaN(val) || val < 12 || val > 100) {
+                errorSpan.classList.remove('hidden');
+                input.classList.remove('border-brand-border/50');
+                input.classList.add('border-red-500');
+            } else {
+                errorSpan.classList.add('hidden');
+                input.classList.remove('border-red-500');
+                input.classList.add('border-brand-border/50');
+            }
+
+            // Toggle CCCD/Passport container based on age >= 14
+            const row = input.closest('.adult-companion-row');
+            if (row) {
+                const idCardContainer = row.querySelector('.adult-companion-idcard-container');
+                const idCardInput = row.querySelector('.adult-companion-idcard');
+                if (idCardContainer && idCardInput) {
+                    if (!isNaN(val) && val >= 14 && val <= 100) {
+                        idCardContainer.classList.remove('hidden');
+                        idCardInput.required = true;
+                    } else {
+                        idCardContainer.classList.add('hidden');
+                        idCardInput.required = false;
+                        idCardInput.value = '';
+                    }
+                }
+            }
+        }
+
+        function clearAgeInput(button) {
+            const container = button.closest('.flex-col');
+            const input = container.querySelector('.adult-companion-age');
+            if (input) {
+                input.value = '';
+                validateAgeInput(input);
+                input.focus();
+            }
+        }
+
+        function handleAgeBlur(input) {
+            const val = parseInt(input.value);
+            if (input.value.trim() !== '' && (isNaN(val) || val < 12 || val > 100)) {
+                showWarningAlertPopup(
+                    'Tuổi không hợp lệ',
+                    'Độ tuổi của người đi cùng phải nằm trong khoảng từ 12 - 100 tuổi. Hệ thống đã tự động xóa số tuổi không hợp lệ này!'
+                );
+                input.value = '';
+                validateAgeInput(input);
             }
         }
 
@@ -2126,6 +2277,37 @@
             document.getElementById(`child-age-${index}`).value = age;
             toggleAgePicker(index);
             updateTotalPrice();
+        }
+
+        function validateConsentAndEnableButtons() {
+            const insConsent = document.getElementById('insuranceConsent');
+            const tourConsent = document.getElementById('tourConsent');
+            const payGroup = document.getElementById('payment-options-group');
+            const submitBtn = document.getElementById('btn-submit-booking');
+
+            const insuranceConsentContainer = document.getElementById('insurance-consent-container');
+            const isInsVisible = insuranceConsentContainer && !insuranceConsentContainer.classList.contains('hidden');
+
+            const isInsChecked = !isInsVisible || (insConsent && insConsent.checked);
+            const isTourChecked = tourConsent && tourConsent.checked;
+
+            if (isInsChecked && isTourChecked) {
+                if (payGroup) {
+                    payGroup.classList.remove('opacity-50', 'pointer-events-none');
+                }
+                if (submitBtn) {
+                    submitBtn.classList.remove('opacity-50', 'pointer-events-none', 'cursor-not-allowed');
+                    submitBtn.disabled = false;
+                }
+            } else {
+                if (payGroup) {
+                    payGroup.classList.add('opacity-50', 'pointer-events-none');
+                }
+                if (submitBtn) {
+                    submitBtn.classList.add('opacity-50', 'pointer-events-none', 'cursor-not-allowed');
+                    submitBtn.disabled = true;
+                }
+            }
         }
 
         function selectPaymentMethod(method) {
@@ -2248,8 +2430,38 @@
             summaryMembers.innerText = `${qty - numChildren} Người lớn, ${numChildren} Trẻ em`;
 
             // Update title and label based on payment type
-            document.getElementById('modal-payment-title').innerText = (type === 'deposit') ? 'Thanh toán Đặt cọc (30%)' : 'Thanh toán Trọn gói (100%)';
-            document.getElementById('modal-payment-label').innerText = (type === 'deposit') ? 'Số tiền thanh toán (Cọc 30%)' : 'Số tiền thanh toán (Toàn bộ)';
+            const titleEl = document.getElementById('modal-payment-title');
+            const labelEl = document.getElementById('modal-payment-label');
+            const methodsSelector = document.getElementById('payment-methods-selector');
+            const postRoomDetails = document.getElementById('post-room-details');
+            const branchDetails = document.getElementById('branch-details');
+            const vnpayDetails = document.getElementById('vnpay-details');
+            const confirmBtn = document.getElementById('final-confirm-btn');
+
+            if (type === 'post-room') {
+                if (titleEl) titleEl.innerText = 'Thanh toán Gán phòng';
+                if (labelEl) labelEl.innerText = 'Số tiền gán phòng (100%)';
+                if (methodsSelector) methodsSelector.classList.add('hidden');
+                if (postRoomDetails) postRoomDetails.classList.add('expanded');
+                if (branchDetails) branchDetails.classList.remove('expanded');
+                if (vnpayDetails) vnpayDetails.classList.remove('expanded');
+                
+                currentPaymentMethod = 'post-room';
+                if (confirmBtn) confirmBtn.innerText = 'XÁC NHẬN GÁN PHÒNG';
+                
+                const roomNumbersText = selectedRooms.map(r => `Phòng ${r.roomNumber}`).join(', ');
+                const roomNumEl = document.getElementById('modal-post-room-numbers');
+                if (roomNumEl) {
+                    roomNumEl.innerText = roomNumbersText;
+                }
+            } else {
+                if (titleEl) titleEl.innerText = (type === 'deposit') ? 'Thanh toán Đặt cọc (30%)' : 'Thanh toán Trọn gói (100%)';
+                if (labelEl) labelEl.innerText = (type === 'deposit') ? 'Số tiền thanh toán (Cọc 30%)' : 'Số tiền thanh toán (Toàn bộ)';
+                if (methodsSelector) methodsSelector.classList.remove('hidden');
+                if (postRoomDetails) postRoomDetails.classList.remove('expanded');
+                
+                selectPaymentMethod('counter');
+            }
 
             // Display final payment amount based on type
             const paymentAmount = (type === 'deposit') ? Math.round(finalPriceWithInsurance * 0.3) : finalPriceWithInsurance;
@@ -2258,7 +2470,6 @@
             overlay.classList.add('active');
             modal.classList.add('active');
             document.body.style.overflow = 'hidden';
-            selectPaymentMethod('counter');
         }
 
         function openRoomSelection() {
@@ -2297,9 +2508,9 @@
                         if (activeRooms.length === 1) {
                             console.log("Exactly 1 active room. Auto-selecting.");
                             const singleRoom = activeRooms[0];
-                            const adults = singleRoom.numberOfAdults || 1;
-                            const children = singleRoom.numberOfChildren || 0;
-                            selectedRooms = [{ id: singleRoom.id, roomNumber: singleRoom.roomNumber, type: singleRoom.roomType, adults, children }];
+                            const mainAdults = parseInt(document.getElementById('num-adults').value) || 1;
+                            const mainChildren = parseInt(document.getElementById('num-children').value) || 0;
+                            selectedRooms = [{ id: singleRoom.id, roomNumber: singleRoom.roomNumber, type: singleRoom.roomType, adults: mainAdults, children: mainChildren }];
                             confirmRoomSelection();
                         } else {
                             // Reset selection
@@ -2307,11 +2518,13 @@
                             // 2: display checkbox list with per-room participant inputs
                             const container = document.getElementById('active-rooms-list');
                             if (container) {
+                                const mainAdults = parseInt(document.getElementById('num-adults').value) || 1;
+                                const mainChildren = parseInt(document.getElementById('num-children').value) || 0;
                                 container.innerHTML = activeRooms.map((r, idx) => {
                                     const safeId = r.id.replace(/'/g, "\\'");
                                     const roomIdx = idx;
-                                    const defaultAdults = r.numberOfAdults || 1;
-                                    const defaultChildren = r.numberOfChildren || 0;
+                                    const defaultAdults = Math.min(mainAdults, r.numberOfAdults || 1);
+                                    const defaultChildren = Math.min(mainChildren, r.numberOfChildren || 0);
                                     return `
                                     <div class="room-item border border-brand-border p-4 transition-all" id="room-item-${roomIdx}">
                                         <label class="flex items-start space-x-3 cursor-pointer">
@@ -2442,6 +2655,17 @@
                     alert('Vui lòng chọn ít nhất 1 phòng để gán tour.');
                     return;
                 }
+                
+                const mainAdults = parseInt(document.getElementById('num-adults').value) || 1;
+                const mainChildren = parseInt(document.getElementById('num-children').value) || 0;
+                const totalSelectedAdults = selectedRooms.reduce((sum, r) => sum + (r.adults || 0), 0);
+                const totalSelectedChildren = selectedRooms.reduce((sum, r) => sum + (r.children || 0), 0);
+
+                if (totalSelectedAdults !== mainAdults || totalSelectedChildren !== mainChildren) {
+                    alert('Tổng số thành viên phân bổ vào các phòng (' + totalSelectedAdults + ' người lớn, ' + totalSelectedChildren + ' trẻ em) phải khớp hoàn toàn với số lượng đăng ký đi tour tại form chính (' + mainAdults + ' người lớn, ' + mainChildren + ' trẻ em)!');
+                    return;
+                }
+
                 selectedPaymentType = 'post-room';
                 const container = document.getElementById('room-charge-container');
                 if (container) {
@@ -2519,15 +2743,31 @@
                 const paymentModal = document.getElementById('payment-modal');
                 const roomModal = document.getElementById('room-selection-modal');
                 const activityModal = document.getElementById('activity-modal');
+                const insuranceModal = document.getElementById('insurance-detail-modal');
 
                 if (overlay) overlay.classList.remove('active');
                 if (paymentModal) paymentModal.classList.remove('active');
                 if (roomModal) roomModal.classList.remove('active');
                 if (activityModal) activityModal.classList.remove('active');
+                if (insuranceModal) insuranceModal.classList.remove('active');
 
                 document.body.style.overflow = 'auto';
             } catch (err) {
                 console.error("Error in closeModal:", err);
+            }
+        }
+
+        function openInsuranceDetailModal() {
+            try {
+                closeModal();
+                const overlay = document.getElementById('overlay');
+                const insuranceModal = document.getElementById('insurance-detail-modal');
+
+                if (overlay) overlay.classList.add('active');
+                if (insuranceModal) insuranceModal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            } catch (err) {
+                console.error("Error in openInsuranceDetailModal:", err);
             }
         }
 
@@ -2556,7 +2796,10 @@
             const lang = document.documentElement.lang || 'vi';
             const fullName = document.getElementById('fullName').value.trim();
             const email = document.getElementById('email').value.trim();
-            const phone = document.getElementById('phone').value.trim();
+            let phone = document.getElementById('phone').value.trim().replace(/[\s\-\(\)\+]/g, '');
+            if (phone.startsWith('84')) {
+                phone = '0' + phone.substring(2);
+            }
             const departureDate = document.getElementById('departureDate').value;
 
             if (!fullName || !email || !phone || !departureDate) {
@@ -2594,6 +2837,26 @@
                     lang === 'vi' ? 'Email không hợp lệ' : 'Invalid Email',
                     lang === 'vi' ? 'Email không đúng định dạng. Vui lòng nhập lại.' : 'Invalid email format.'
                 );
+                return false;
+            }
+
+            // Validate CCCD/Passport of main guest
+            const cccdPassport = document.getElementById('cccdPassport').value.trim();
+            if (!cccdPassport) {
+                showWarningAlertPopup(
+                    lang === 'vi' ? 'Thiếu thông tin bảo hiểm' : 'Insurance Info Required',
+                    lang === 'vi' ? 'Vui lòng nhập số CCCD hoặc Passport của bạn để làm thủ tục bảo hiểm bắt buộc.' : 'Please enter your ID card or Passport for mandatory insurance.'
+                );
+                document.getElementById('cccdPassport').focus();
+                return false;
+            }
+            const cccdRegex = /^[A-Z0-9]{6,20}$/i;
+            if (!cccdRegex.test(cccdPassport)) {
+                showWarningAlertPopup(
+                    lang === 'vi' ? 'Định dạng không hợp lệ' : 'Invalid Format',
+                    lang === 'vi' ? 'Số CCCD/Hộ chiếu không hợp lệ. Vui lòng nhập từ 6 đến 20 ký tự chữ và số.' : 'Invalid ID card or Passport number.'
+                );
+                document.getElementById('cccdPassport').focus();
                 return false;
             }
 
@@ -2650,29 +2913,79 @@
 
                     if (ageEl) {
                         const companionAge = parseInt(ageEl.value);
-                        if (isNaN(companionAge) || companionAge < 12) {
+                        if (isNaN(companionAge) || companionAge < 12 || companionAge > 100) {
                             showWarningAlertPopup(
                                 lang === 'vi' ? 'Tuổi không hợp lệ' : 'Invalid Companion Age',
-                                lang === 'vi' ? `Độ tuổi người đi cùng thứ ${i + 1} phải từ 12 tuổi trở lên.` : `Age of companion #${i + 1} must be at least 12.`
+                                lang === 'vi' ? `Độ tuổi người đi cùng thứ ${i + 1} chỉ được phép từ 12 - 100 tuổi.` : `Age of companion #${i + 1} must be between 12 and 100.`
                             );
                             ageEl.focus();
                             return false;
                         }
                     }
 
-                    if (phoneEl && phoneEl.value.trim() !== '') {
-                        const companionPhone = phoneEl.value.trim();
-                        const companionPhoneRegex = /^(0[35789])[0-9]{8}$/;
-                        if (!companionPhoneRegex.test(companionPhone)) {
+                    const idCardEl = row.querySelector('.adult-companion-idcard');
+                    if (idCardEl && idCardEl.required) {
+                        const companionIdCard = idCardEl.value.trim();
+                        if (companionIdCard === '') {
                             showWarningAlertPopup(
-                                lang === 'vi' ? 'Số điện thoại không hợp lệ' : 'Invalid Companion Phone',
-                                lang === 'vi' ? `Số điện thoại của người đi cùng thứ ${i + 1} không đúng định dạng Việt Nam (10 chữ số).` : `Phone of companion #${i + 1} is invalid.`
+                                lang === 'vi' ? 'Thiếu thông tin người đi cùng' : 'Companion Info Required',
+                                lang === 'vi' ? `Vui lòng nhập số CCCD/Passport cho người đi cùng thứ ${i + 1} để đăng ký bảo hiểm lữ hành bắt buộc.` : `Please enter ID card/Passport for companion #${i + 1}.`
                             );
-                            phoneEl.focus();
+                            idCardEl.focus();
+                            return false;
+                        }
+                        if (!cccdRegex.test(companionIdCard)) {
+                            showWarningAlertPopup(
+                                lang === 'vi' ? 'Định dạng không hợp lệ' : 'Invalid Format',
+                                lang === 'vi' ? `Số CCCD/Passport của người đi cùng thứ ${i + 1} không hợp lệ (từ 6 đến 20 ký tự chữ và số).` : `ID card/Passport of companion #${i + 1} is invalid.`
+                            );
+                            idCardEl.focus();
                             return false;
                         }
                     }
+
+                    if (phoneEl) {
+                        let companionPhone = phoneEl.value.trim().replace(/[\s\-\(\)\+]/g, '');
+                        if (companionPhone.startsWith('84')) {
+                            companionPhone = '0' + companionPhone.substring(2);
+                        }
+                        if (companionPhone !== '' && companionPhone !== 'SĐT(nếucó)') {
+                            const companionPhoneRegex = /^(0[35789])[0-9]{8}$/;
+                            if (!companionPhoneRegex.test(companionPhone)) {
+                                showWarningAlertPopup(
+                                    lang === 'vi' ? 'Số điện thoại không hợp lệ' : 'Invalid Companion Phone',
+                                    lang === 'vi' ? `Số điện thoại của người đi cùng thứ ${i + 1} không đúng định dạng Việt Nam (10 chữ số).` : `Phone of companion #${i + 1} is invalid.`
+                                );
+                                phoneEl.focus();
+                                return false;
+                            }
+                        }
+                    }
                 }
+            }
+
+            // Validate insuranceConsent
+            const insConsent = document.getElementById('insuranceConsent');
+            const insuranceConsentContainer = document.getElementById('insurance-consent-container');
+            const isInsVisible = insuranceConsentContainer && !insuranceConsentContainer.classList.contains('hidden');
+            if (isInsVisible && insConsent && !insConsent.checked) {
+                showWarningAlertPopup(
+                    lang === 'vi' ? 'Chưa xác nhận bảo hiểm' : 'Insurance Consent Required',
+                    lang === 'vi' ? 'Quý khách vui lòng tích chọn đồng ý điều khoản Bảo hiểm du lịch bắt buộc để tiếp tục.' : 'Please confirm agreement to the mandatory travel insurance terms.'
+                );
+                insConsent.focus();
+                return false;
+            }
+
+            // Validate tourConsent
+            const tourConsent = document.getElementById('tourConsent');
+            if (tourConsent && !tourConsent.checked) {
+                showWarningAlertPopup(
+                    lang === 'vi' ? 'Chưa đồng ý điều khoản' : 'Terms Agreement Required',
+                    lang === 'vi' ? 'Quý khách vui lòng tích chọn đồng ý cung cấp thông tin cá nhân và hành trình.' : 'Please confirm agreement to the terms of personal data usage.'
+                );
+                tourConsent.focus();
+                return false;
             }
 
             return true;
@@ -2807,7 +3120,10 @@
 
             const fullName = document.getElementById('fullName').value.trim();
             const email = document.getElementById('email').value.trim();
-            const phone = document.getElementById('phone').value.trim();
+            let phone = document.getElementById('phone').value.trim().replace(/[\s\-\(\)\+]/g, '');
+            if (phone.startsWith('84')) {
+                phone = '0' + phone.substring(2);
+            }
             const departureDate = document.getElementById('departureDate').value;
             const participantCount = parseInt(document.getElementById('participantCount').value) || 1;
             const roomSelections = selectedRooms.length > 0
@@ -2821,10 +3137,55 @@
 
             const childAges = [];
             const childrenQty = parseInt(document.getElementById('num-children').value) || 0;
+            const childRows = document.querySelectorAll('.child-row');
             for (let i = 0; i < childrenQty; i++) {
-                const ageEl = document.getElementById(`child-age-${i}`);
-                if (ageEl) {
-                    childAges.push(ageEl.value);
+                const row = childRows[i];
+                if (row) {
+                    const nameEl = row.querySelector('.child-name');
+                    const ageEl = row.querySelector(`#child-age-${i}`);
+                    if (ageEl) {
+                        const childName = nameEl ? nameEl.value.trim() : '';
+                        if (!childName) {
+                            showWarningAlertPopup(
+                                lang === 'vi' ? 'Thiếu thông tin trẻ em' : 'Child Info Required',
+                                lang === 'vi' ? `Vui lòng nhập họ tên cho trẻ em thứ ${i + 1}.` : `Please enter name for child #${i + 1}.`
+                            );
+                            if (nameEl) nameEl.focus();
+                            if (confirmBtn) {
+                                confirmBtn.disabled = false;
+                                confirmBtn.textContent = lang === 'vi' ? 'XÁC NHẬN ĐẶT TOUR' : 'CONFIRM BOOKING';
+                            }
+                            return;
+                        }
+                        
+                        const childNameRegex = /^[\p{L}]+(?:\s+[\p{L}]+)+$/u;
+                        if (!childNameRegex.test(childName)) {
+                            showWarningAlertPopup(
+                                lang === 'vi' ? 'Tên trẻ em không hợp lệ' : 'Invalid Child Name',
+                                lang === 'vi' ? `Tên của trẻ em thứ ${i + 1} không hợp lệ (tối thiểu 2 từ).` : `Name of child #${i + 1} is invalid.`
+                            );
+                            if (nameEl) nameEl.focus();
+                            if (confirmBtn) {
+                                confirmBtn.disabled = false;
+                                confirmBtn.textContent = lang === 'vi' ? 'XÁC NHẬN ĐẶT TOUR' : 'CONFIRM BOOKING';
+                            }
+                            return;
+                        }
+
+                        if (!ageEl.value || ageEl.value === 'Chọn độ tuổi') {
+                            showWarningAlertPopup(
+                                lang === 'vi' ? 'Thiếu độ tuổi trẻ em' : 'Child Age Required',
+                                lang === 'vi' ? `Vui lòng chọn độ tuổi cho trẻ em thứ ${i + 1}.` : `Please select age for child #${i + 1}.`
+                            );
+                            if (confirmBtn) {
+                                confirmBtn.disabled = false;
+                                confirmBtn.textContent = lang === 'vi' ? 'XÁC NHẬN ĐẶT TOUR' : 'CONFIRM BOOKING';
+                            }
+                            return;
+                        }
+
+                        childAges.push(childName + "|" + ageEl.value);
+                    }
                 }
             }
 
@@ -2836,11 +3197,17 @@
                     const nameEl = row.querySelector('.adult-companion-name');
                     const ageEl = row.querySelector('.adult-companion-age');
                     const phoneEl = row.querySelector('.adult-companion-phone');
+                    const idCardEl = row.querySelector('.adult-companion-idcard');
                     if (nameEl && nameEl.value.trim() !== '') {
+                        let compPhone = phoneEl ? phoneEl.value.trim().replace(/[\s\-\(\)\+]/g, '') : '';
+                        if (compPhone.startsWith('84')) {
+                            compPhone = '0' + compPhone.substring(2);
+                        }
                         companions.push({
                             name: nameEl.value.trim(),
                             age: parseInt(ageEl.value) || 30,
-                            phone: phoneEl ? phoneEl.value.trim() : ''
+                            phone: compPhone,
+                            idCard: idCardEl ? idCardEl.value.trim() : ''
                         });
                     }
                 });
@@ -2854,6 +3221,7 @@
                 fullName: fullName,
                 email: email,
                 phone: phone,
+                cccdPassport: document.getElementById('cccdPassport') ? document.getElementById('cccdPassport').value.trim() : '',
                 participantCount: participantCount,
                 paymentMethod: isVnpay ? 'vnpay' : selectedPaymentType,
                 roomSelections: roomSelections,
@@ -2925,11 +3293,7 @@
             if (form) {
                 form.addEventListener('submit', function (e) {
                     e.preventDefault();
-                    if (selectedPaymentType === 'post-room') {
-                        submitBookingFlow();
-                    } else {
-                        showPaymentModal(selectedPaymentType);
-                    }
+                    showPaymentModal(selectedPaymentType);
                 });
             }
 

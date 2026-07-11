@@ -73,6 +73,12 @@ public class ProfileController {
     private com.kawai.repositories.RoomGuestRepository roomGuestRepository;
 
     @Autowired
+    private com.kawai.services.interfaces.TourBookingService tourBookingService;
+
+    @Autowired
+    private com.kawai.services.interfaces.EmailService emailService;
+
+    @Autowired
     private com.kawai.repositories.PaymentTransactionRepository paymentTransactionRepository;
 
     @Autowired
@@ -468,5 +474,60 @@ public class ProfileController {
             }
         }
         return "redirect:/profile";
+    }
+
+    @PostMapping("/tours/cancel/{bookingId}")
+    @ResponseBody
+    public org.springframework.http.ResponseEntity<?> cancelTour(
+            @PathVariable Long bookingId,
+            Authentication authentication) {
+        if (!com.kawai.utils.SecurityUtils.isCustomerLoggedIn(authentication)) {
+            return org.springframework.http.ResponseEntity.status(org.springframework.http.HttpStatus.UNAUTHORIZED)
+                    .body(java.util.Map.of("status", "error", "message", "Vui lòng đăng nhập để thực hiện thao tác!"));
+        }
+
+        String username = extractUsername(authentication);
+        Customer customer = customerRepository.findByAccount_Username(username)
+                .orElseGet(() -> customerRepository.findByEmail(username).orElse(null));
+
+        if (customer == null) {
+            return org.springframework.http.ResponseEntity.badRequest()
+                    .body(java.util.Map.of("status", "error", "message", "Không tìm thấy thông tin khách hàng!"));
+        }
+
+        TourBooking booking = tourBookingRepository.findById(bookingId).orElse(null);
+        if (booking == null) {
+            return org.springframework.http.ResponseEntity.badRequest()
+                    .body(java.util.Map.of("status", "error", "message", "Không tìm thấy đơn đặt tour!"));
+        }
+
+        // Kiểm tra quyền sở hữu đơn đặt tour
+        if (!booking.getCustomer().getId().equals(customer.getId())) {
+            return org.springframework.http.ResponseEntity.status(org.springframework.http.HttpStatus.FORBIDDEN)
+                    .body(java.util.Map.of("status", "error", "message", "Bạn không có quyền hủy đơn đặt tour này!"));
+        }
+
+        // Kiểm tra trạng thái hiện tại (Chỉ cho phép hủy nếu là CONFIRMED hoặc PENDING)
+        String status = booking.getBookingStatus() != null ? booking.getBookingStatus().toUpperCase() : "";
+        if (!"CONFIRMED".equals(status) && !"PENDING".equals(status)) {
+            return org.springframework.http.ResponseEntity.badRequest()
+                    .body(java.util.Map.of("status", "error", "message", "Đơn tour này không thể hủy (Trạng thái hiện tại: " + booking.getBookingStatus() + ")!"));
+        }
+
+        try {
+            // Hủy tour (false có nghĩa là khách hàng tự hủy)
+            java.math.BigDecimal refundAmount = tourBookingService.cancelTour(bookingId, false);
+
+
+
+            return org.springframework.http.ResponseEntity.ok(java.util.Map.of(
+                    "status", "success",
+                    "message", "Đã hủy đơn đặt tour thành công!",
+                    "refundAmount", refundAmount
+            ));
+        } catch (Exception e) {
+            return org.springframework.http.ResponseEntity.status(org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(java.util.Map.of("status", "error", "message", "Lỗi hệ thống khi hủy tour: " + e.getMessage()));
+        }
     }
 }

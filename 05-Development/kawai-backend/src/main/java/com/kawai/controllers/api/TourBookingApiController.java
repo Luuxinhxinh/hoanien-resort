@@ -113,8 +113,13 @@ public class TourBookingApiController {
                     customer.setLoyaltyPoints(0);
                     customer.setMembershipTier(
                             membershipTierRepository.findByTierNameIgnoreCase("Regular").orElse(null));
-                    customer = customerRepository.save(customer);
                 }
+            }
+
+            String cccdPassport = (String) payload.get("cccdPassport");
+            if (cccdPassport != null && !cccdPassport.trim().isEmpty() && customer != null) {
+                customer.setCccdPassportEncrypted(cccdPassport.trim());
+                customer = customerRepository.save(customer);
             }
 
             // 2. Find or create TourSchedule
@@ -160,6 +165,7 @@ public class TourBookingApiController {
                     comp.setName((String) compMap.get("name"));
                     comp.setAge(compMap.get("age") != null ? Integer.parseInt(compMap.get("age").toString()) : null);
                     comp.setPhone((String) compMap.get("phone"));
+                    comp.setIdCard((String) compMap.get("idCard"));
                     companions.add(comp);
                 }
             }
@@ -179,6 +185,9 @@ public class TourBookingApiController {
             request.setPaymentMethod(paymentMethod);
             request.setVnpPaymentType(payload.get("vnpPaymentType") != null ? payload.get("vnpPaymentType").toString() : null);
             request.setNotes(payload.get("notes") != null ? payload.get("notes").toString() : null);
+
+            boolean acceptInsurance = payload.get("acceptInsurance") != null && Boolean.parseBoolean(payload.get("acceptInsurance").toString());
+            request.setAcceptInsurance(acceptInsurance);
 
             // 4. Create one TourBooking per selected room
             List<Long> createdBookingIds = new java.util.ArrayList<>();
@@ -419,6 +428,7 @@ public class TourBookingApiController {
         req.setRoomBookingDetailId(detail.getId());
         req.setRoomBookingId(detail.getRoomBooking().getId());
         req.setCompanions(template.getCompanions());
+        req.setAcceptInsurance(template.isAcceptInsurance());
         return req;
     }
 }
