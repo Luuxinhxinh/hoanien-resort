@@ -292,7 +292,7 @@
 
             folios.forEach(folio => {
                 const tr = document.createElement('tr');
-                const formatCurrency = (val) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(val);
+                 const formatCurrency = (val) => new Intl.NumberFormat('vi-VN').format(val) + ' VNĐ';
 
                 const statusClass = folio.status.toLowerCase() === 'checked_out' ? 'status-confirmed' : 'status-pending';
                 tr.innerHTML = `

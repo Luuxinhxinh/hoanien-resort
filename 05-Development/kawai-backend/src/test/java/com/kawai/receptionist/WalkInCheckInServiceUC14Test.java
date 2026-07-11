@@ -134,6 +134,10 @@ class WalkInCheckInServiceUC14Test {
         private PasswordEncoder passwordEncoder;
         @Mock
         private com.kawai.repositories.MembershipTierRepository membershipTierRepository;
+        @Mock
+        private com.kawai.repositories.MaintenanceRequestRepository maintenanceRequestRepo;
+        @Mock
+        private com.kawai.services.interfaces.EmailService emailService;
 
         // ?????? Test Data Constants (SYNTHETIC) ??????????????????????????????????????????????????????????????????????????????????????????????????????????????????
         private static final String CCCD_NEW_GUEST = "001234567890"; // TC-M2-021
@@ -488,10 +492,14 @@ class WalkInCheckInServiceUC14Test {
                                 .thenReturn(Optional.of(buildRoom(ROOM_308, "R308", "Vacant_Clean", 2)));
 
                 Customer existing = buildExistingCustomer(CUSTOMER_ID_99, "Nguyen Van Existing");
+                existing.setBirthDate(LocalDate.of(1990, 5, 15));
                 when(customerRepository.findByCccdPassportEncrypted(anyString()))
                                 .thenReturn(Optional.of(existing));
 
                 WalkInCheckInRequest request = buildRequest(CCCD_EXISTING, ROOM_308, 1);
+                request.setFullName(existing.getFullName());
+                request.setEmail(existing.getEmail());
+                request.setPhone(existing.getPhone());
 
                 WalkInCheckInResponse response = walkInCheckInService.createWalkInBookingAndCheckIn(request);
 

@@ -172,6 +172,7 @@ public class TourBookingRequest {
         private String name;
         private Integer age;
         private String phone;
+        private String idCard;
 
         public CompanionRequest() {}
 
@@ -179,6 +180,13 @@ public class TourBookingRequest {
             this.name = name;
             this.age = age;
             this.phone = phone;
+        }
+
+        public CompanionRequest(String name, Integer age, String phone, String idCard) {
+            this.name = name;
+            this.age = age;
+            this.phone = phone;
+            this.idCard = idCard;
         }
 
         public String getName() {
@@ -203,6 +211,14 @@ public class TourBookingRequest {
 
         public void setPhone(String phone) {
             this.phone = phone;
+        }
+
+        public String getIdCard() {
+            return idCard;
+        }
+
+        public void setIdCard(String idCard) {
+            this.idCard = idCard;
         }
     }
 }

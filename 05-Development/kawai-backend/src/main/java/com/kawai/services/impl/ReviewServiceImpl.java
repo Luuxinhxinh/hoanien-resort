@@ -18,7 +18,7 @@ import java.time.LocalDate;
 public class ReviewServiceImpl implements ReviewService {
 
     private static final String STATUS_COMPLETED = "Completed";
-    private static final String STATUS_PENDING_MODERATION = "Pending";
+    private static final String STATUS_PENDING_MODERATION = "Approved";
     private static final int REVIEW_EXPIRATION_DAYS = 7; // BR-TR-03
 
     private final ReviewRepository reviewRepository;

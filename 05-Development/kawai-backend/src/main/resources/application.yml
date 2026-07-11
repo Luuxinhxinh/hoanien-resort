@@ -10,7 +10,7 @@ spring:
     url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/kawai_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=Asia/Ho_Chi_Minh&allowPublicKeyRetrieval=true&useUnicode=true}
     driverClassName: com.mysql.cj.jdbc.Driver
     username: ${SPRING_DATASOURCE_USERNAME:root}
-    password: ${SPRING_DATASOURCE_PASSWORD:12345678}
+    password: ${SPRING_DATASOURCE_PASSWORD:123456}
   sql:
     init:
       mode: always
@@ -26,6 +26,10 @@ spring:
         format_sql: true
         jdbc:
           time_zone: Asia/Ho_Chi_Minh
+        id:
+          optimizer:
+            pooled:
+              preferred: pooled-lo
 
   thymeleaf:
     cache: false
@@ -34,6 +38,7 @@ spring:
     multipart:
       max-file-size: 10MB
       max-request-size: 10MB
+      location: ${java.io.tmpdir}
 
   # ─── Email (SMTP Gmail) ───────────────────────────────────────────
   # Để gửi email, anh cần:

@@ -10,7 +10,7 @@ INSERT INTO Roles (role_id, role_name, permissions) VALUES (3, 'F&B KITCHEN', 'D
 INSERT INTO Roles (role_id, role_name, permissions) VALUES (4, 'F&B POS', 'DASHBOARD,FNB,FNB_ORDER,FNB_TABLE,FNB_ROOM_SERVICE,FNB_REPORT');
 INSERT INTO Roles (role_id, role_name, permissions) VALUES (5, 'HOUSEKEEPING', 'DASHBOARD,HOUSEKEEPING');
 INSERT INTO Roles (role_id, role_name, permissions) VALUES (6, 'MAINTAINER', 'DASHBOARD,MAINTENANCE');
-INSERT INTO Roles (role_id, role_name, permissions) VALUES (7, 'MANAGER', 'DASHBOARD,ANALYTICS');
+INSERT INTO Roles (role_id, role_name, permissions) VALUES (7, 'MANAGER', 'DASHBOARD,RECEPTION_WALKIN,RECEPTION_INHOUSE,RECEPTION_CHECKIN,RECEPTION_CHECKOUT,FNB,FNB_ORDER,FNB_TABLE,FNB_ROOM_SERVICE,FNB_REPORT,TOUR,HOUSEKEEPING,MAINTENANCE,NIGHT_AUDIT,ANALYTICS,REVIEWS,PROMOTIONS,CRM,WORKFLOW');
 INSERT INTO Roles (role_id, role_name, permissions) VALUES (8, 'TOURGUIDE', 'DASHBOARD,TOUR');
 INSERT INTO Roles (role_id, role_name, permissions) VALUES (9, 'CUSTOMER VIP', '');
 INSERT INTO Roles (role_id, role_name, permissions) VALUES (10, 'CUSTOMER NORMAL', '');
@@ -25,15 +25,15 @@ INSERT INTO Accounts (account_id, username, password_hash, is_active, role_id, c
 (4, 'lelinh', '$2a$10$ikP3XeXnMx/oLodhs4wqBO61AhyuE4dWtSJDJcOH7D2ii5Vrgq0bG', TRUE, 2, CURRENT_TIMESTAMP),
 (5, 'hoangnam', '$2a$10$4bnThA4xQVw1rF2POQv78uAQll2KsUsgF32JaYiVG5d2d3Fhgk83q', TRUE, 9, CURRENT_TIMESTAMP),
 (6, 'vanan', '$2a$10$4bnThA4xQVw1rF2POQv78uAQll2KsUsgF32JaYiVG5d2d3Fhgk83q', TRUE, 9, CURRENT_TIMESTAMP),
-(7, 'phamtuan', '$2a$10$4bnThA4xQVw1rF2POQv78uAQll2KsUsgF32JaYiVG5d2d3Fhgk83q', TRUE, 9, CURRENT_TIMESTAMP),
+(7, 'phamtuan', '$2a$10$4bnThA4xQVw1rF2POQv78uAQll2KsUsgF32JaYiVG5d2d3Fhgk83q', TRUE, 8, CURRENT_TIMESTAMP),
 (8, 'thibich', '$2a$10$4bnThA4xQVw1rF2POQv78uAQll2KsUsgF32JaYiVG5d2d3Fhgk83q', TRUE, 9, CURRENT_TIMESTAMP),
 (9, 'ngocthi', '$2a$10$4bnThA4xQVw1rF2POQv78uAQll2KsUsgF32JaYiVG5d2d3Fhgk83q', TRUE, 9, CURRENT_TIMESTAMP),
 (10, 'mylinh', '$2a$10$4bnThA4xQVw1rF2POQv78uAQll2KsUsgF32JaYiVG5d2d3Fhgk83q', TRUE, 9, CURRENT_TIMESTAMP),
-(11, 'hoanganh', '$2a$10$4bnThA4xQVw1rF2POQv78uAQll2KsUsgF32JaYiVG5d2d3Fhgk83q', TRUE, 9, CURRENT_TIMESTAMP),
-(12, 'vuhung', '$2a$10$4bnThA4xQVw1rF2POQv78uAQll2KsUsgF32JaYiVG5d2d3Fhgk83q', TRUE, 9, CURRENT_TIMESTAMP),
-(13, 'nguyenngoc', '$2a$10$4bnThA4xQVw1rF2POQv78uAQll2KsUsgF32JaYiVG5d2d3Fhgk83q', TRUE, 8, CURRENT_TIMESTAMP),
-(14, 'ngoclan', '$2a$10$ikP3XeXnMx/oLodhs4wqBO61AhyuE4dWtSJDJcOH7D2ii5Vrgq0bG', TRUE, 8, CURRENT_TIMESTAMP),
-(15, 'guide3', '$2a$10$ikP3XeXnMx/oLodhs4wqBO61AhyuE4dWtSJDJcOH7D2ii5Vrgq0bG', TRUE, 8, CURRENT_TIMESTAMP),
+(11, 'hoanganh', '$2a$10$4bnThA4xQVw1rF2POQv78uAQll2KsUsgF32JaYiVG5d2d3Fhgk83q', TRUE, 8, CURRENT_TIMESTAMP),
+(12, 'vuhung', '$2a$10$4bnThA4xQVw1rF2POQv78uAQll2KsUsgF32JaYiVG5d2d3Fhgk83q', TRUE, 8, CURRENT_TIMESTAMP),
+(13, 'Nguyễn Ngọc', '$2a$10$4bnThA4xQVw1rF2POQv78uAQll2KsUsgF32JaYiVG5d2d3Fhgk83q', TRUE, 8, CURRENT_TIMESTAMP),
+(14, 'guide2', '$2a$10$ikP3XeXnMx/oLodhs4wqBO61AhyuE4dWtSJDJcOH7D2ii5Vrgq0bG', TRUE, 7, CURRENT_TIMESTAMP),
+(15, 'guide3', '$2a$10$ikP3XeXnMx/oLodhs4wqBO61AhyuE4dWtSJDJcOH7D2ii5Vrgq0bG', TRUE, 7, CURRENT_TIMESTAMP),
 (16, 'housekeep1', '$2a$10$ikP3XeXnMx/oLodhs4wqBO61AhyuE4dWtSJDJcOH7D2ii5Vrgq0bG', TRUE, 5, CURRENT_TIMESTAMP),
 (17, 'housekeep2', '$2a$10$ikP3XeXnMx/oLodhs4wqBO61AhyuE4dWtSJDJcOH7D2ii5Vrgq0bG', TRUE, 5, CURRENT_TIMESTAMP),
 (18, 'pos1', '$2a$10$ikP3XeXnMx/oLodhs4wqBO61AhyuE4dWtSJDJcOH7D2ii5Vrgq0bG', TRUE, 4, CURRENT_TIMESTAMP),
@@ -77,7 +77,7 @@ INSERT INTO Employees (employee_id, account_id, full_name, gender, cccd, phone, 
 (2, 2, 'Trần Phương', 'Nữ', '001234567891', '0912000002', 'tphuong@hoanien.vn', 10000000),
 (3, 3, 'Nguyễn Minh Quân', 'Nam', '001234567892', '0912000003', 'nmquan@hoanien.vn', 10000000),
 (4, 4, 'Lê Linh', 'Nữ', '001234567893', '0912000004', 'lelinh@hoanien.vn', 9000000),
-(5, 13, 'Nguyễn Ngọc', 'Nam', '001234567894', '0912000005', 'guide@hoanien.vn', 8000000),
+(5, 13, 'NguynNgoc', 'Nam', '001234567894', '0912000005', 'guide@hoanien.vn', 8000000),
 
 (6, 14, 'Ngọc Lan', 'Nữ', '001234567895', '0912000006', 'guide2@hoanien.vn', 8500000),
 (7, 15, 'Hoàng Nam', 'Nam', '001234567896', '0912000007', 'luu14102005@gmail.com', 8500000),
@@ -624,6 +624,8 @@ INSERT INTO Booking_Services (booking_service_id, booking_id, service_id, quanti
 
 -- ── 23. Hotel Operations (10 rows) ───────────────────────────
 INSERT INTO Hotel_Operations (task_id, room_id, staff_id, supervisor_id, operational_type, priority, status, created_at, started_at, completed_at, notes) VALUES 
+-- HOUSEKEEPING (CHECKOUT_CLEAN)
+
 (1, 2, 8, 4, 'CHECKOUT_CLEAN', 'High', 'Pending', '2026-06-28 08:00:00', NULL, NULL, '[Check-out] Khách phòng 102 vừa trả phòng, dọn gấp để đón đoàn 2h chiều.'),
 (2, 4, 9, 4, 'CHECKOUT_CLEAN', 'Normal', 'Pending', '2026-06-28 09:00:00', NULL, NULL, '[Check-out] Dọn dẹp sạch sâu, thay toàn bộ ga giường và xịt thơm phòng.'),
 (3, 3, 8, 4, 'GUEST_REQUEST', 'Normal', 'Completed', '2026-06-28 09:30:00', '2026-06-28 10:15:00', '2026-06-28 11:00:00', '[Stay-over] Khách yêu cầu thêm 2 khăn tắm và 1 chai nước suối.'),
@@ -639,20 +641,22 @@ INSERT INTO Hotel_Operations (task_id, room_id, staff_id, supervisor_id, operati
 
 -- ── 24. Folio Items (10 rows) ────────────────────────────────
 INSERT INTO Folio_Items (folio_item_id, booking_id, room_booking_detail_id, payer_customer_id, source_department, amount, description, is_settled_separately, created_by_staff_id, created_at, signature_img_url) VALUES 
-(2, 1, 1, 1, 'F&B', 180000, 'Súp Bí Đỏ Truffle Room Service', FALSE, 2, CURRENT_TIMESTAMP, NULL);
+(2, 1, 1, 1, 'F&B', 180000, 'Súp Bí Đỏ Truffle Room Service', FALSE, 2, CURRENT_TIMESTAMP, NULL),
+(3, 2, 2, 2, 'TRANSPORTATION', 800000, 'Xe đón tiễn Limousine sân bay', FALSE, 4, CURRENT_TIMESTAMP, NULL);
 
--- ── 25. Tours (10 rows) ──────────────────────────────────────
-INSERT INTO Tours (tour_id, tour_name, tour_type, base_price, max_capacity, duration, duration_hours, is_insurance_required, insurance_price, short_quote, description, handbook_spec, handbook_logistics, handbook_explanations, created_at, is_active) VALUES 
-(1, 'Hành Trình Đoàn Tụ – Cố Đô Huế', 'CULTURAL', 7500000, 15, '10 Giờ', 10.0, FALSE, 0, 'Tìm về hơi ấm vẹn nguyên của lòng biết ơn và sự gắn kết.', 'Chuyến đi đưa bạn ngược dòng thời gian về với nét đẹp trầm mặc của cố đô, khơi mở những câu chuyện di sản và thưởng thức phong vị ẩm thực cung đình xưa.', '10 Giờ (08:00 - 18:00) | Sức chứa: 15 khách.', '["Trang phục: Nhắc khách mặc quần áo lịch sự, che vai và qua đầu gối khi tham quan Điện Thái Hòa, Thế Miếu (Đại Nội).","Sức khỏe: Chuẩn bị sẵn nhiều dù cao cấp và quạt tay vì thời tiết Huế mùa hè rất nắng gắt.","Dịch vụ ngầm: Gọi nhà thuyền kiểm tra dàn nhạc Nhã nhạc trước 1 tiếng, đảm bảo trà Cung Đình tại Duyệt Thị Đường được phục vụ đúng lúc khách vừa ngồi xuống"]', '[{"cat":"Lịch sử","content":"Triều Nguyễn (1802 - 1945) là triều đại phong kiến cuối cùng của Việt Nam với 13 vị vua. Đại Nội là nơi sống và làm việc của hoàng gia, được xây dựng theo thuyết phong thủy phương Đông: Tựa lưng vào núi Ngự Bình, lấy cồn Hến và cồn Dã Viên trên sông Hương làm tả thanh long, hữu bạch hổ."},{"cat":"Văn hóa cốt lõi","content":"Giải thích ý nghĩa châm ngôn \"Đoàn tụ/Biết ơn\": Thế Miếu là nơi thờ các vị vua triều Nguyễn, nhắc nhở thế hệ sau về cội nguồn. Nhã nhạc cung đình Huế là Di sản văn hóa phi vật thể đầu tiên của Việt Nam được UNESCO công nhận."}]', CURRENT_TIMESTAMP, TRUE),
-(2, 'Tinh Túy Đồng Nội – Quảng Nam', 'CULTURAL', 5800000, 12, '10 Giờ', 10.0, FALSE, 0, 'Lắng nghe nhịp điệu mộc mạc của đất mẹ và hồn quê xứ Quảng.', 'Hành trình chạm vào những điều bình dị mà sâu lắng của đất Quảng: từ những con phố rêu phong ở Hội An, hương đất nung bên dòng sông Thu Bồn đến vị mặn mòi của một làng rau lâu đời.', '10 Giờ (08:30 - 18:30) | Sức chứa: 12 khách.', '["Trang phục: Khách sẽ tham gia xới đất tại Trà Quế và xoay gốm tại Thanh Hà, nhắc khách mặc đồ thoải mái, dễ giặt, mang dép hoặc giày dễ tháo rời.","Hậu cần: Chuẩn bị sẵn khăn ướt, tạp dề cao cấp cho khách khi làm gốm và nón lá che nắng tại vườn rau"]', '[{"cat":"Địa lý & Lịch sử","content":"Làng gốm Thanh Hà (thế kỷ 16) và Phố cổ Hội An từng là thương cảng quốc tế sầm uất bậc nhất Đông Nam Á, nơi giao thương của các thương thuyền Nhật Bản, Trung Hoa và phương Tây. Dòng sông Thu Bồn là mạch máu bồi đắp phù sa cho các làng nghề này."},{"cat":"Văn hóa","content":"Kỹ thuật nung gốm Thanh Hà hoàn toàn bằng củi và không tráng men, sản phẩm có màu đỏ hồng đặc trưng của đất sét lòng sông. Rau Trà Quế ngon nhờ người dân dùng một loại rong đặc biệt dưới lòng sông Cổ Cò để bón, tạo nên vị thơm cay thanh nhẹ tự nhiên."}]', CURRENT_TIMESTAMP, TRUE),
-(3, 'Di Sản Thủ Công – Ninh Bình', 'CULTURAL', 6500000, 12, '10 Giờ', 10.0, FALSE, 0, 'Chạm vào hồn cốt của thời gian qua những tạo tác từ đôi bàn tay nghệ nhân.', 'Hành trình tìm về vẻ đẹp sơn thủy hữu tình của vùng đất cố đô cổ kính, nơi bạn được trò chuyện và cùng các nghệ nhân lưu giữ những làng nghề truyền thống trăm năm.', '10 Giờ (09:00 - 19:00) | Sức chứa: 12 khách.', '["An toàn đường thủy: Chặng đi thuyền nan tại đầm Vân Long bắt buộc khách phải mặc áo phao. Nhắc khách giữ thăng bằng khi lên xuống thuyền.","Bảo mật trải nghiệm: Nhắc khách không nói lớn tiếng tại Vân Long để tránh làm chim muông và thú quý giật mình bay mất"]', '[{"cat":"Địa lý","content":"Đầm Vân Long là khu bảo tồn thiên nhiên ngập nước lớn nhất vùng đồng bằng Bắc Bộ, sở hữu bức tranh địa chất \"vịnh không sóng\" vì mặt nước phẳng lặng như một tấm gương khổng lồ soi bóng núi đá vôi Karst ngàn năm."},{"cat":"Văn hóa & Nghệ thuật","content":"Làng thêu Văn Lâm có tuổi đời hơn 700 năm (từ thời nhà Trần). Điểm đắt giá của thêu Văn Lâm là kỹ thuật \"thêu trắng\" (những đường thêu uyển chuyển trên nền vải trắng bằng chỉ trắng) đòi hỏi đôi tay cực kỳ tài hoa của nghệ nhân. Chiếu Kim Sơn nổi tiếng nhờ sợi cói dai mịn, dệt đều tay, đượm hương nắng trời Bắc Bộ."}]', CURRENT_TIMESTAMP, TRUE),
-(4, 'Tĩnh Lặng Liên Hoa – Tháp Mười', 'RELAX', 8200000, 8, '10 Giờ', 10.0, FALSE, 0, 'Sự thanh lọc thuần khiết cho thân - tâm - trí giữa vùng sông nước mờ sương.', 'Một ngày trốn khỏi phố thị để về với đại đầm sen, mượn hương hoa và sóng nước miền Tây làm dịu lại tâm hồn, tìm lại sự bình an sâu lắng bên trong bạn.', '10 Giờ (08:00 - 18:00) | Sức chứa: 8 khách.', '["Không gian tĩnh lặng: Đây là tour chữa lành (Wellness/Zen), yêu cầu khách chuyển điện thoại sang chế độ rung, không bật loa ngoài.","Trang phục: Khách đi bộ thiền hành trên cầu gỗ, nhắc khách mang giày bệt hoặc đi chân trần theo hướng dẫn. Chuẩn bị sẵn kem chống muỗi/côn trùng vùng sông nước"]', '[{"cat":"Địa lý & Thiên nhiên","content":"Đồng Tháp Mười là vùng đất ngập nước đặc trưng của miền Tây Nam Bộ. Hoa sen ở đây nở quanh năm nhưng rực rỡ nhất vào mùa nước nổi. Đất phèn đặc trưng của vùng đồng bằng sông Cửu Long lại là dưỡng chất hoàn hảo giúp hoa sen Tháp Mười có hương thơm đậm và giữ được độ tươi rất lâu."},{"cat":"Văn hóa & Triết lý","content":"Sen là biểu tượng cho sự thuần khiết trong văn hóa Việt Nam (\"Gần bùn mà chẳng hôi tanh mùi bùn\"). Giới thiệu về nghệ thuật ủ trà sen: Người ta đón sương đêm, cho trà vào trong búp sen từ chiều hôm trước để trà hấp thụ trọn vẹn tinh túy và hương thơm của hoa lúc nửa đêm."}]', CURRENT_TIMESTAMP, TRUE),
-(5, 'Tiếng Vọng Sóng Xanh – Hạ Long', 'ADVENTURE', 7500000, 15, '10 Giờ', 10.0, FALSE, 0, 'Du thuyền lướt nhẹ giữa ngàn khơi, thưởng ngoạn kỳ quan thiên nhiên rực rỡ.', 'Chuyến hải trình thong dong đưa bạn lướt qua những đảo đá nhấp nhô của vịnh Bắc Bộ, khám phá thế giới thạch nhũ kỳ vĩ được tạo hóa giấu kín ngàn năm và đón hoàng hôn buông trên mặt biển.', '10 Giờ (08:00 - 18:00) | Sức chứa: 15 khách.', '["Chuẩn bị: Nhắc khách mang theo đồ bơi, quần áo dự phòng để thay sau khi chèo Kayak hoặc tắm biển.","An toàn: Kiểm tra túi chống nước cho điện thoại của khách. Chuẩn bị sẵn thuốc say sóng phòng trường hợp khách nhạy cảm với sóng biển"]', '[{"cat":"Địa lý (Kiến tạo Karst)","content":"Vịnh Hạ Long là Di sản Thiên nhiên Thế giới được UNESCO công nhận, sở hữu giá trị địa chất độc độc đáo trải qua hơn 500 triệu năm kiến tạo để tạo nên ngàn đảo đá vôi trùng điệp."},{"cat":"Lịch sử & Huyền thoại","content":"Hạ Long nghĩa là rồng đáp xuống. Truyền thuyết kể rằng Ngọc Hoàng đã sai Rồng Mẹ mang theo một đàn Rồng Con xuống hạ giới giúp người Việt đánh giặc ngoại xâm. Đàn rồng phun ra muôn ngàn châu ngọc, hóa thành các đảo đá dựng thành lũy vững chắc ngăn chặn thuyền giặc. Động Thiên Cung chính là cung điện lộng lẫy nơi diễn ra đám cưới của Vua Rồng xưa kia."}]', CURRENT_TIMESTAMP, TRUE),
-(6, 'Nẻo Đường Sương Phủ – Sapa', 'ADVENTURE', 8200000, 10, '11 Giờ', 11.0, FALSE, 0, 'Gặp gỡ những nụ cười hồn hậu giữa vùng mây trời sương phủ.', 'Hành trình dạo bước qua những nấc thang ruộng bậc thang xanh mướt tại bản Cát Cát, tìm hiểu cuộc sống mộc mạc của đồng bào người H''Mông và lắng lại tâm hồn giữa núi rừng Tây Bắc.', '11 Giờ (08:00 - 19:00) | Sức chứa: 10 khách.', '["Thể lực: Tour này tản bộ nhiều dốc (bản Cát Cát), nhắc khách mang giày trekking hoặc giày thể thao có độ bám tốt.","Thời tiết: Thời tiết Sapa thay đổi liên tục, luôn nhắc khách mang theo một chiếc áo khoác nhẹ (phòng lạnh về chiều) và ô/áo mưa bỏ túi"]', '[{"cat":"Địa lý","content":"Sapa nằm ở độ cao trung bình 1,500m - 1,800m so với mực nước biển, thuộc dãy Hoàng Liên Sơn hùng vĩ. Thác Tiên Sa là nguồn nước mát lạnh đổ trực tiếp từ trên núi cao xuống, quanh năm tung bọt trắng xóa."},{"cat":"Văn hóa","content":"Bản Cát Cát là nơi sinh sống lâu đời của người H''Mông đen. Hãy thuyết minh về chiếc cối xay nước tận dụng sức nước của dòng suối để giã gạo, và nghệ thuật vẽ hoa văn bằng sáp ong bướm trên vải trước khi mang đi nhuộm chàm – một nét văn hóa độc đáo giúp trang phục của họ có màu xanh đen đặc trưng bền bỉ với thời gian."}]', CURRENT_TIMESTAMP, TRUE),
-(7, 'Nhịp Đập Rừng Già – Cát Tiên', 'ADVENTURE', 9500000, 8, '14 Giờ', 14.0, FALSE, 0, 'Lắng nghe tiếng gọi thì thầm từ đại ngàn xanh thẳm.', 'Chuyến băng rừng rậm Nam Cát Tiên đầy cảm xúc, đưa bạn ghé thăm đầm lầy bảo tồn tự nhiên, thưởng thức bữa tối bên rừng và trải nghiệm ngắm thú đêm hoang dã.', '14 Giờ (08:00 - 22:00) | Sức chứa: 8 khách.', '["An toàn tuyệt đối: Bắt buộc khách mặc quần áo dài, mang tất cao cổ. Bạn phải chuẩn bị sẵn thuốc chống vắt và xịt côn trùng cao cấp cho cả đoàn trước khi vào rừng.","Quy định rừng: Khi đi xe mui trần xem thú đêm, tuyệt đối nhắc khách giữ im lặng, không dùng đèn pin cá nhân chiếu vào mắt thú, không bật flash chụp ảnh"]', '[{"cat":"Địa lý & Sinh thái","content":"Vườn quốc gia Cát Tiên là Khu dự trữ sinh quyển thế giới. Bàu Sấu là vùng đất ngập nước Ramsar tầm cỡ quốc tế, nơi bảo tồn loài Cá Sấu Xiêm thuần chủng của Việt Nam."},{"cat":"Hành vi động vật (Thú đêm)","content":"Giải thích cho khách biết lý do xem thú đêm: Ban ngày rừng rậm rất nóng, các loài thú móng guốc như nai, móp, mển thường ẩn nấp. Khi đêm xuống, nhiệt độ hạ, chúng mới ra các trảng cỏ trống để tìm thức ăn và muối khoáng."}]', CURRENT_TIMESTAMP, TRUE),
-(8, 'Bình Minh Cồn Cát – Mũi Né', 'ADVENTURE', 6500000, 10, '11 Giờ', 11.0, FALSE, 0, 'Đón những vệt nắng đầu ngày rực rỡ trên sa mạc cát mênh mông.', 'Trải nghiệm cảm giác phấn khích vượt đồi cát bằng xe ATV đón bình minh, khám phá dòng suối Tiên huyền thoại và thưởng thức mỹ vị biển khơi.', '11 Giờ (04:30 - 15:30) | Sức chứa: 10 khách.', '["Giờ giấc: Khởi hành rất sớm (04:30), nhắc khách ngủ sớm từ tối hôm trước.","Trang phục: Mang theo kính râm, kem chống nắng đầy đủ vì đồi cát bắt nắng rất mạnh. Khi lội Suối Tiên phải đi chân trần, nhắc khách mang dép dễ tháo rời"]', '[{"cat":"Địa lý & Địa chất","content":"Bàu Trắng (Đồi Cát Trắng) là một sa mạc thu nhỏ được bao quanh bởi hồ nước ngọt tự nhiên khổng lồ. Điểm kỳ thú ở đây là gió thổi liên tục làm thay đổi hình dáng của các đụn cát theo từng giờ (\"đồi cát di động\")."},{"cat":"Suối Tiên","content":"Bản chất không phải là một dòng suối thông thường, mà là một khe nước nhỏ chảy khuất sau những đồi cát, trải qua năm tháng bào mòn các vách đất sét, tạo nên những tháp cát màu đỏ cam rực rỡ như những lâu đài thạch nhũ lộ thiên."}]', CURRENT_TIMESTAMP, TRUE),
-(9, 'Khúc Ca San Hô – Phú Quốc', 'RELAX', 8500000, 12, '10 Giờ', 10.0, FALSE, 0, 'Hòa mình vào làn nước xanh lục bảo và vũ điệu rực rỡ dưới lòng đại dương.', 'Đồng hành cùng cano cao cấp lướt qua những hòn đảo hoang sơ, lặn ngắm rạn san hô đa sắc màu và tận hưởng bữa chiều ngắm hoàng hôn lãng mạn trên biển.', '10 Giờ (08:30 - 18:30) | Sức chứa: 12 khách.', '["Hậu cần biển: Kiểm tra kỹ áo phao, kính lặn ống thở xem có vừa vặn với kích thước của từng khách hay không.","Bảo vệ môi trường: Nhắc nhở khách tuyệt đối không dẫm đạp lên san hô, không nhặt san hô sống hoặc sao biển mang về đất liền"]', '[{"cat":"Địa lý biển","content":"Vùng biển phía Nam Phú Quốc (quần đảo An Thới) nằm trong vịnh Thái Lan, khu vực biển ấm, ít sóng lớn, tạo điều kiện hoàn hảo cho các rạn san hô phiến và san hô gạc nai phát triển mạnh mẽ."},{"cat":"Văn hóa bản địa","content":"Phú Quốc còn gọi là Đảo Ngọc vì vùng biển này có độ mặn và nhiệt độ lý tưởng cho nghề nuôi cấy ngọc trai cao cấp."}]', CURRENT_TIMESTAMP, TRUE),
-(10, 'Hương Sắc Miệt Vườn – Cần Thơ', 'CULTURAL', 6800000, 12, '10 Giờ', 10.0, FALSE, 0, 'Tròn vị ngọt ngào của trái chín trĩu cành miền sông nước.', 'Đón bình minh trên chiếc ghe máy mộc mạc phục vụ riêng, hòa mình vào chợ nổi Cái Răng sầm uất, khám phá miệt vườn trĩu quả và học làm bánh dân gian Nam Bộ.', '10 Giờ (05:30 - 15:30) | Sức chứa: 12 khách.', '["An toàn bến bãi: Lúc bước từ bờ xuống ghe máy tại bến tàu sương sớm rất dễ trơn trượt, Guide luôn phải đứng ở mạn thuyền để đỡ tay cho khách.","Vệ sinh an toàn thực phẩm: Khi khách ăn hủ tiếu trên sông, đảm bảo đũa muỗng sạch sẽ, chuẩn bị sẵn khăn giấy cao cấp"]', '[{"cat":"Văn hóa sông nước","content":"Chợ nổi Cái Răng hình thành từ thời chưa có đường bộ, người dân lấy sông ngòi làm đường đi, ghe xuồng làm nhà. Điểm nhấn là \"Cây bẹo\" (gồm một cây sào tre cắm trước mũi ghe, treo sản vật gì lên đó là thông báo cho người mua biết ghe mình bán món đó - \"treo gì bán nấy\")."},{"cat":"Ẩm thực & Con người","content":"Giới thiệu phong vị hào sảng, hiếu khách của người miền Tây qua cách họ làm bánh dân gian hay chế biến món cá lóc nướng trui (cá bắt dưới sông lên, xiên bằng thanh tre, phủ rơm đốt rụi rồi cạo lớp vảy đen ra thịt trắng thơm phức)."}]', CURRENT_TIMESTAMP, TRUE);
+-- ── 27. Tours (10 rows) ──────────────────────────────────────
+INSERT INTO Tours (tour_id, tour_name, tour_type, duration, base_price, max_capacity, short_quote, description, handbook_spec, handbook_logistics, handbook_explanations, created_at, is_active, duration_hours, is_insurance_required, insurance_price) VALUES 
+(1, 'Hành Trình Đoàn Tụ – Cố Đô Huế', 'doantu', '10 Giờ', 7500000, 15, 'Tìm về hơi ấm vẹn nguyên của lòng biết ơn và sự gắn kết.', 'Chuyến đi đưa bạn ngược dòng thời gian về với nét đẹp trầm mặc của cố đô, khơi mở những câu chuyện di sản và thưởng thức phong vị ẩm thực cung đình xưa.', '10 Giờ (08:00 - 18:00) | Sức chứa: 15 khách.', '["Trang phục: Nhắc khách mặc quần áo lịch sự, che vai và qua đầu gối khi tham quan Điện Thái Hòa, Thế Miếu (Đại Nội).","Sức khỏe: Chuẩn bị sẵn nhiều dù cao cấp và quạt tay vì thời tiết Huế mùa hè rất nắng gắt.","Dịch vụ ngầm: Gọi nhà thuyền kiểm tra dàn nhạc Nhã nhạc trước 1 tiếng, đảm bảo trà Cung Đình tại Duyệt Thị Đường được phục vụ đúng lúc khách vừa ngồi xuống"]', '[{"cat":"Lịch sử","content":"Triều Nguyễn (1802 - 1945) là triều đại phong kiến cuối cùng của Việt Nam với 13 vị vua. Đại Nội là nơi sống và làm việc của hoàng gia, được xây dựng theo thuyết phong thủy phương Đông: Tựa lưng vào núi Ngự Bình, lấy cồn Hến và cồn Dã Viên trên sông Hương làm tả thanh long, hữu bạch hổ."},{"cat":"Văn hóa cốt lõi","content":"Giải thích ý nghĩa châm ngôn \"Đoàn tụ/Biết ơn\": Thế Miếu là nơi thờ các vị vua triều Nguyễn, nhắc nhở thế hệ sau về cội nguồn. Nhã nhạc cung đình Huế là Di sản văn hóa phi vật thể đầu tiên của Việt Nam được UNESCO công nhận."}]', CURRENT_TIMESTAMP, TRUE, 10.0, FALSE, 0),
+(2, 'Tinh Túy Đồng Nội – Quảng Nam', 'dongnoi', '10 Giờ', 5800000, 12, 'Lắng nghe nhịp điệu mộc mạc của đất mẹ và hồn quê xứ Quảng.', 'Hành trình chạm vào những điều bình dị mà sâu lắng của đất Quảng: từ những con phố rêu phong ở Hội An, hương đất nung bên dòng sông Thu Bồn đến vị mặn mòi của một làng rau lâu đời.', '10 Giờ (08:30 - 18:30) | Sức chứa: 12 khách.', '["Trang phục: Khách sẽ tham gia xới đất tại Trà Quế và xoay gốm tại Thanh Hà, nhắc khách mặc đồ thoải mái, dễ giặt, mang dép hoặc giày dễ tháo rời.","Hậu cần: Chuẩn bị sẵn khăn ướt, tạp dề cao cấp cho khách khi làm gốm và nón lá che nắng tại vườn rau"]', '[{"cat":"Địa lý & Lịch sử","content":"Làng gốm Thanh Hà (thế kỷ 16) và Phố cổ Hội An từng là thương cảng quốc tế sầm uất bậc nhất Đông Nam Á, nơi giao thương của các thương thuyền Nhật Bản, Trung Hoa và phương Tây. Dòng sông Thu Bồn là mạch máu bồi đắp phù sa cho các làng nghề này."},{"cat":"Văn hóa","content":"Kỹ thuật nung gốm Thanh Hà hoàn toàn bằng củi và không tráng men, sản phẩm có màu đỏ hồng đặc trưng của đất sét lòng sông. Rau Trà Quế ngon nhờ người dân dùng một loại rong đặc biệt dưới lòng sông Cổ Cò để bón, tạo nên vị thơm cay thanh nhẹ tự nhiên."}]', CURRENT_TIMESTAMP, TRUE, 10.0, FALSE, 0),
+(3, 'Di Sản Thủ Công – Ninh Bình', 'disan', '10 Giờ', 6500000, 12, 'Chạm vào hồn cốt của thời gian qua những tạo tác từ đôi bàn tay nghệ nhân.', 'Hành trình tìm về vẻ đẹp sơn thủy hữu tình của vùng đất cố đô cổ kính, nơi bạn được trò chuyện và cùng các nghệ nhân lưu giữ những làng nghề truyền thống trăm năm.', '10 Giờ (09:00 - 19:00) | Sức chứa: 12 khách.', '["An toàn đường thủy: Chặng đi thuyền nan tại đầm Vân Long bắt buộc khách phải mặc áo phao. Nhắc khách giữ thăng bằng khi lên xuống thuyền.","Bảo mật trải nghiệm: Nhắc khách không nói lớn tiếng tại Vân Long để tránh làm chim muông và thú quý giật mình bay mất"]', '[{"cat":"Địa lý","content":"Đầm Vân Long là khu bảo tồn thiên nhiên ngập nước lớn nhất vùng đồng bằng Bắc Bộ, sở hữu bức tranh địa chất \"vịnh không sóng\" vì mặt nước phẳng lặng như một tấm gương khổng lồ soi bóng núi đá vôi Karst ngàn năm."},{"cat":"Văn hóa & Nghệ thuật","content":"Làng thêu Văn Lâm có tuổi đời hơn 700 năm (từ thời nhà Trần). Điểm đắt giá của thêu Văn Lâm là kỹ thuật \"thêu trắng\" (những đường thêu uyển chuyển trên nền vải trắng bằng chỉ trắng) đòi hỏi đôi tay cực kỳ tài hoa của nghệ nhân. Chiếu Kim Sơn nổi tiếng nhờ sợi cói dai mịn, dệt đều tay, đượm hương nắng trời Bắc Bộ."}]', CURRENT_TIMESTAMP, TRUE, 10.0, FALSE, 0),
+(4, 'Tĩnh Lặng Liên Hoa – Tháp Mười', 'tinhlang', '10 Giờ', 8200000, 8, 'Sự thanh lọc thuần khiết cho thân - tâm - trí giữa vùng sông nước mờ sương.', 'Một ngày trốn khỏi phố thị để về với đại đầm sen, mượn hương hoa và sóng nước miền Tây làm dịu lại tâm hồn, tìm lại sự bình an sâu lắng bên trong bạn.', '10 Giờ (08:00 - 18:00) | Sức chứa: 8 khách.', '["Không gian tĩnh lặng: Đây là tour chữa lành (Wellness/Zen), yêu cầu khách chuyển điện thoại sang chế độ rung, không bật loa ngoài.","Trang phục: Khách đi bộ thiền hành trên cầu gỗ, nhắc khách mang giày bệt hoặc đi chân trần theo hướng dẫn. Chuẩn bị sẵn kem chống muỗi/côn trùng vùng sông nước"]', '[{"cat":"Địa lý & Thiên nhiên","content":"Đồng Tháp Mười là vùng đất ngập nước đặc trưng của miền Tây Nam Bộ. Hoa sen ở đây nở quanh năm nhưng rực rỡ nhất vào mùa nước nổi. Đất phèn đặc trưng của vùng đồng bằng sông Cửu Long lại là dưỡng chất hoàn hảo giúp hoa sen Tháp Mười có hương thơm đậm và giữ được độ tươi rất lâu."},{"cat":"Văn hóa & Triết lý","content":"Sen là biểu tượng cho sự thuần khiết trong văn hóa Việt Nam (\"Gần bùn mà chẳng hôi tanh mùi bùn\"). Giới thiệu về nghệ thuật ủ trà sen: Người ta đón sương đêm, cho trà vào trong búp sen từ chiều hôm trước để trà hấp thụ trọn vẹn tinh túy và hương thơm của hoa lúc nửa đêm."}]', CURRENT_TIMESTAMP, TRUE, 10.0, FALSE, 0),
+(5, 'Tiếng Vọng Sóng Xanh – Hạ Long', 'halong', '10 Giờ', 7500000, 15, 'Du thuyền lướt nhẹ giữa ngàn khơi, thưởng ngoạn kỳ quan thiên nhiên rực rỡ.', 'Chuyến hải trình thong dong đưa bạn lướt qua những đảo đá nhấp nhô của vịnh Bắc Bộ, khám phá thế giới thạch nhũ kỳ vĩ được tạo hóa giấu kín ngàn năm và đón hoàng hôn buông trên mặt biển.', '10 Giờ (08:00 - 18:00) | Sức chứa: 15 khách.', '["Chuẩn bị: Nhắc khách mang theo đồ bơi, quần áo dự phòng để thay sau khi chèo Kayak hoặc tắm biển.","An toàn: Kiểm tra túi chống nước cho điện thoại của khách. Chuẩn bị sẵn thuốc say sóng phòng trường hợp khách nhạy cảm với sóng biển"]', '[{"cat":"Địa lý (Kiến tạo Karst)","content":"Vịnh Hạ Long là Di sản Thiên nhiên Thế giới được UNESCO công nhận, sở hữu giá trị địa chất độc độc đáo trải qua hơn 500 triệu năm kiến tạo để tạo nên ngàn đảo đá vôi trùng điệp."},{"cat":"Lịch sử & Huyền thoại","content":"Hạ Long nghĩa là rồng đáp xuống. Truyền thuyết kể rằng Ngọc Hoàng đã sai Rồng Mẹ mang theo một đàn Rồng Con xuống hạ giới giúp người Việt đánh giặc ngoại xâm. Đàn rồng phun ra muôn ngàn châu ngọc, hóa thành các đảo đá dựng thành lũy vững chắc ngăn chặn thuyền giặc. Động Thiên Cung chính là cung điện lộng lẫy nơi diễn ra đám cưới của Vua Rồng xưa kia."}]', CURRENT_TIMESTAMP, TRUE, 10.0, FALSE, 0),
+(6, 'Nẻo Đường Sương Phủ – Sapa', 'sapa', '11 Giờ', 8200000, 10, 'Gặp gỡ những nụ cười hồn hậu giữa vùng mây trời sương phủ.', 'Hành trình dạo bước qua những nấc thang ruộng bậc thang xanh mướt tại bản Cát Cát, tìm hiểu cuộc sống mộc mạc của đồng bào người H''Mông và lắng lại tâm hồn giữa núi rừng Tây Bắc.', '11 Giờ (08:00 - 19:00) | Sức chứa: 10 khách.', '["Thể lực: Tour này tản bộ nhiều dốc (bản Cát Cát), nhắc khách mang giày trekking hoặc giày thể thao có độ bám tốt.","Thời tiết: Thời tiết Sapa thay đổi liên tục, luôn nhắc khách mang theo một chiếc áo khoác nhẹ (phòng lạnh về chiều) và ô/áo mưa bỏ túi"]', '[{"cat":"Địa lý","content":"Sapa nằm ở độ cao trung bình 1,500m - 1,800m so với mực nước biển, thuộc dãy Hoàng Liên Sơn hùng vĩ. Thác Tiên Sa là nguồn nước mát lạnh đổ trực tiếp từ trên núi cao xuống, quanh năm tung bọt trắng xóa."},{"cat":"Văn hóa","content":"Bản Cát Cát là nơi sinh sống lâu đời của người H''Mông đen. Hãy thuyết minh về chiếc cối xay nước tận dụng sức nước của dòng suối để giã gạo, và nghệ thuật vẽ hoa văn bằng sáp ong bướm trên vải trước khi mang đi nhuộm chàm – một nét văn hóa độc đáo giúp trang phục của họ có màu xanh đen đặc trưng bền bỉ với thời gian."}]', CURRENT_TIMESTAMP, TRUE, 11.0, FALSE, 0),
+(7, 'Nhịp Đập Rừng Già – Cát Tiên', 'cattien', '14 Giờ', 9500000, 8, 'Lắng nghe tiếng gọi thì thầm từ đại ngàn xanh thẳm.', 'Chuyến băng rừng rậm Nam Cát Tiên đầy cảm xúc, đưa bạn ghé thăm đầm lầy bảo tồn tự nhiên, thưởng thức bữa tối bên rừng và trải nghiệm ngắm thú đêm hoang dã.', '14 Giờ (08:00 - 22:00) | Sức chứa: 8 khách.', '["An toàn tuyệt đối: Bắt buộc khách mặc quần áo dài, mang tất cao cổ. Bạn phải chuẩn bị sẵn thuốc chống vắt và xịt côn trùng cao cấp cho cả đoàn trước khi vào rừng.","Quy định rừng: Khi đi xe mui trần xem thú đêm, tuyệt đối nhắc khách giữ im lặng, không dùng đèn pin cá nhân chiếu vào mắt thú, không bật flash chụp ảnh"]', '[{"cat":"Địa lý & Sinh thái","content":"Vườn quốc gia Cát Tiên là Khu dự trữ sinh quyển thế giới. Bàu Sấu là vùng đất ngập nước Ramsar tầm cỡ quốc tế, nơi bảo tồn loài Cá Sấu Xiêm thuần chủng của Việt Nam."},{"cat":"Hành vi động vật (Thú đêm)","content":"Giải thích cho khách biết lý do xem thú đêm: Ban ngày rừng rậm rất nóng, các loài thú móng guốc như nai, móp, mển thường ẩn nấp. Khi đêm xuống, nhiệt độ hạ, chúng mới ra các trảng cỏ trống để tìm thức ăn và muối khoáng."}]', CURRENT_TIMESTAMP, TRUE, 14.0, FALSE, 0),
+(8, 'Bình Minh Cồn Cát – Mũi Né', 'muine', '11 Giờ', 6500000, 10, 'Đón những vệt nắng đầu ngày rực rỡ trên sa mạc cát mênh mông.', 'Trải nghiệm cảm giác phẩn khích vượt đồi cát bằng xe ATV đón bình minh, khám phá dòng suối Tiên huyền thoại và thưởng thức mỹ vị biển khơi.', '11 Giờ (04:30 - 15:30) | Sức chứa: 10 khách.', '["Giờ giấc: Khởi hành rất sớm (04:30), nhắc khách ngủ sớm từ tối hôm trước.","Trang phục: Mang theo kính râm, kem chống nắng đầy đủ vì đồi cát bắt nắng rất mạnh. Khi lội Suối Tiên phải đi chân trần, nhắc khách mang dép dễ tháo rời"]', '[{"cat":"Địa lý & Địa chất","content":"Bàu Trắng (Đồi Cát Trắng) là một sa mạc thu nhỏ được bao quanh bởi hồ nước ngọt tự nhiên khổng lồ. Điểm kỳ thú ở đây là gió thổi liên tục làm thay đổi hình dáng của các đụn cát theo từng giờ (\"đồi cát di động\")."},{"cat":"Suối Tiên","content":"Bản chất không phải là một dòng suối thông thường, mà là một khe nước nhỏ chảy khuất sau những đồi cát, trải qua năm tháng bào mòn các vách đất sét, tạo nên những tháp cát màu đỏ cam rực rỡ như những lâu đài thạch nhũ lộ thiên."}]', CURRENT_TIMESTAMP, TRUE, 11.0, FALSE, 0),
+(9, 'Khúc Ca San Hô – Phú Quốc', 'phuquoc', '10 Giờ', 8500000, 12, 'Hòa mình vào làn nước xanh lục bảo và vũ điệu rực rỡ dưới lòng đại dương.', 'Đồng hành cùng cano cao cấp lướt qua những hòn đảo hoang sơ, lặn ngắm rạn san hô đa sắc màu và tận hưởng bữa chiều ngắm hoàng hôn lãng mạn trên biển.', '10 Giờ (08:30 - 18:30) | Sức chứa: 12 khách.', '["Hậu cần biển: Kiểm tra kỹ áo phao, kính lặn ống thở xem có vừa vặn với kích thước của từng khách hay không.","Bảo vệ môi trường: Nhắc nhở khách tuyệt đối không dẫm đạp lên san hô, không nhặt san hô sống hoặc sao biển mang về đất liền"]', '[{"cat":"Địa lý biển","content":"Vùng biển phía Nam Phú Quốc (quần đảo An Thới) nằm trong vịnh Thái Lan, khu vực biển ấm, ít sóng lớn, tạo điều kiện hoàn hảo cho các rạn san hô phiến và san hô gạc nai phát triển mạnh mẽ."},{"cat":"Văn hóa bản địa","content":"Phú Quốc còn gọi là Đảo Ngọc vì vùng biển này có độ mặn và nhiệt độ lý tưởng cho nghề nuôi cấy ngọc trai cao cấp."}]', CURRENT_TIMESTAMP, TRUE, 10.0, FALSE, 0),
+(10, 'Hương Sắc Miệt Vườn – Cần Thơ', 'cantho', '10 Giờ', 6800000, 12, 'Tròn vị ngọt ngào của trái chín trĩu cành miền sông nước.', 'Đón bình minh trên chiếc ghe máy mộc mạc phục vụ riêng, hòa mình vào chợ nổi Cái Răng sầm uất, khám phá miệt vườn trĩu quả và học làm bánh dân gian Nam Bộ.', '10 Giờ (05:30 - 15:30) | Sức chứa: 12 khách.', '["An toàn bến bãi: Lúc bước từ bờ xuống ghe máy tại bến tàu sương sớm rất dễ trơn trượt, Guide luôn phải đứng ở mạn thuyền để đỡ tay cho khách.","Vệ sinh an toàn thực phẩm: Khi khách ăn hủ tiếu trên sông, đảm bảo đũa muỗng sạch sẽ, chuẩn bị sẵn khăn giấy cao cấp"]', '[{"cat":"Văn hóa sông nước","content":"Chợ nổi Cái Răng hình thành từ thời chưa có đường bộ, người dân lấy sông ngòi làm đường đi, ghe xuồng làm nhà. Điểm nhấn là \"Cây bẹo\" (gồm một cây sào tre cắm trước mũi ghe, treo sản vật gì lên đó là thông báo cho người mua biết ghe mình bán món đó - \"treo gì bán nấy\")."},{"cat":"Ẩm thực & Con người","content":"Giới thiệu phong vị hào sảng, hiếu khách của người miền Tây qua cách họ làm bánh dân gian hay chế biến món cá lóc nướng trui (cá bắt dưới sông lên, xiên bằng thanh tre, phủ rơm đốt rụi rồi cạo lớp vảy đen ra thịt trắng thơm phức)."}]', CURRENT_TIMESTAMP, TRUE, 10.0, FALSE, 0);
+
 
 -- ── 28. Tour Images (10 rows) ────────────────────────────────
 INSERT INTO Tour_Images (image_id, tour_id, image_url, is_primary) VALUES 
@@ -741,7 +745,7 @@ INSERT INTO Tour_Itinerary_Details (detail_id, itinerary_id, start_time, end_tim
 (40, 10, '06:00:00', '08:30:00', NULL, 'Âm thanh ngày mới – Chợ nổi Cái Răng', 'Len lỏi qua những chiếc ghe đơm đầy hoa trái, lắng nghe tiếng rao của người dân miền Tây và thưởng thức bữa sáng với tô hủ tiếu nóng hổi, chòng chành ngay trên mặt nước từ ghe hậu cần riêng của tour.', NULL),
 (41, 10, '08:30:00', '11:30:00', NULL, 'Trái ngọt trĩu cành – Thăm vườn cây ăn trái', 'Ghé thăm một miệt vườn cây ăn trái sum suê, thong thả dạo bước dưới bóng mát, tự tay hái và thưởng thức quả chín mọng ngọt lịm ngay tại vườn.', NULL),
 (42, 10, '11:30:00', '13:30:00', NULL, 'Trải nghiệm làm bánh dân gian', 'Đến với gian nhà cổ Nam Bộ, cùng các nghệ nhân miệt vườn học cách đổ bánh xèo, làm bánh tằm se tay và lắng nghe những câu chuyện đời sống mộc mạc.', NULL),
-(43, 10, '13:30:00', '15:30:00', NULL, 'Phong vị sông nước – Bữa trưa điền dã', 'Thưởng thức bữa trưa đậm chất miền Tây với cá lóc nướng trui, lẩu mắm đậm đà tại nhà hàng lộng gió ven sông, nghỉ ngơi tĩnh tại trên những chiếc võng trước khi kết thúc hành trình.', NULL);
+(43, 10, '13:30:00', '15:30:00', NULL, 'Phong vị sông nước – Bữa trưa điền dã', 'Thưởng thức bữa trưa đậm chất miền Tây với cá lóc nướng trui, lẩu mắm đậm đà tại nhà hàng lộng gió ven sông, nghỉ ngơi tĩnh tại trên những chiếc võng trước khi kết thúc hành trình.', NULL)
 
 -- ── 32. Tour Prices (20 rows) ────────────────────────────────
 INSERT INTO Tour_Prices (tour_price_id, tour_id, age_from, age_to, ticket_price, combo_discount_price, is_active) VALUES 
@@ -767,17 +771,22 @@ INSERT INTO Tour_Prices (tour_price_id, tour_id, age_from, age_to, ticket_price,
 (20, 10, 2, 11, 3400000, 3000000, TRUE);
 
 -- ── 33. Tour Schedules (10 rows) ─────────────────────────────
-INSERT INTO Tour_Schedules (schedule_id, tour_id, departure_date, departure_time, booked_seats, schedule_status, is_insurance_processed) VALUES
-(1, 1, '2026-06-14', '08:00:00', 0, 'Open', FALSE),
-(2, 2, '2026-06-15', '14:00:00', 0, 'Open', FALSE),
-(3, 3, '2026-06-15', '17:00:00', 0, 'Open', FALSE),
-(4, 4, '2026-06-16', '09:00:00', 0, 'Open', FALSE),
-(5, 2, '2026-06-13', '08:00:00', 5, 'Open', FALSE),
-(6, 5, '2026-06-17', '08:00:00', 0, 'Open', FALSE),
-(7, 6, '2026-06-18', '09:00:00', 0, 'Open', FALSE),
-(8, 7, '2026-06-19', '07:30:00', 0, 'Open', FALSE),
-(9, 8, '2026-06-20', '05:00:00', 0, 'Open', FALSE),
-(10, 9, '2026-06-21', '09:00:00', 0, 'Open', FALSE);
+INSERT INTO Tour_Schedules (schedule_id, tour_id, departure_date, departure_time, booked_seats, schedule_status, is_insurance_processed) VALUES 
+(1, 1, '2026-06-14', '08:00:00.000000', 0, 'Open', FALSE),
+(2, 2, '2026-06-15', '14:00:00.000000', 0, 'Open', FALSE),
+(3, 3, '2026-06-15', '17:00:00.000000', 0, 'Open', FALSE),
+(4, 4, '2026-06-16', '09:00:00.000000', 0, 'Open', FALSE),
+(5, 2, '2026-06-13', '08:00:00.000000', 5, 'Open', FALSE),
+(6, 5, '2026-06-17', '08:00:00.000000', 0, 'Open', FALSE),
+(7, 6, '2026-06-18', '09:00:00.000000', 0, 'Open', FALSE),
+(8, 7, '2026-06-19', '07:30:00.000000', 0, 'Open', FALSE),
+(9, 8, '2026-06-20', '05:00:00.000000', 0, 'Open', FALSE),
+(10, 9, '2026-06-21', '09:00:00.000000', 0, 'Open', FALSE),
+(11, 2, '2026-07-10', '08:00:00.000000', 0, 'Open', FALSE),
+(12, 4, '2026-07-08', '07:30:00.000000', 0, 'Open', FALSE),
+(13, 1, '2026-07-11', '07:30:00.000000', 0, 'Open', FALSE),
+(14, 7, '2026-07-06', '19:00:00.000000', 0, 'Completed', FALSE),
+(15, 8, '2026-07-13', '04:00:00.000000', 0, 'Cancelled', FALSE);
 
 -- ── 34. Tour Staff Assignments (10 rows) ─────────────────────
 INSERT INTO Tour_Staff_Assignments (assignment_id, schedule_id, employee_id, staff_role) VALUES 
@@ -790,7 +799,12 @@ INSERT INTO Tour_Staff_Assignments (assignment_id, schedule_id, employee_id, sta
 (7, 4, 7, 'GUIDE'),
 (8, 6, 5, 'GUIDE'),
 (9, 7, 6, 'GUIDE'),
-(10, 8, 7, 'GUIDE');
+(10, 8, 7, 'GUIDE'),
+(11, 11, 6, 'GUIDE'),
+(12, 12, 6, 'GUIDE'),
+(13, 13, 7, 'GUIDE'),
+(14, 14, 7, 'GUIDE'),
+(15, 15, 6, 'GUIDE');
 
 -- ── 35. Run Itinerary Status (10 rows) ───────────────────────
 INSERT INTO Run_Itinerary_Status (run_status_id, schedule_id, detail_id, actual_start_time, actual_end_time, current_stage_status, guide_notes) VALUES 
@@ -846,17 +860,24 @@ INSERT INTO Checkpoint_Attendance (checkpoint_id, schedule_id, attendee_id, deta
 (10, 6, 10, 5, 'PENDING', 5);
 
 -- ── 39. Reviews (10 rows) ────────────────────────────────────
-INSERT INTO Reviews (review_id, customer_id, room_booking_detail_id, tour_booking_id, rating_service, review_text, moderation_status, moderated_by, moderation_reason, created_at) VALUES 
-(1, 1, 1, NULL, 5, 'Phòng Nipa Villa tuyệt hảo, mát mẻ, nhân viên buồng dọn rất sạch.', 'Approved', 4, 'Đánh giá tích cực hợp lệ', CURRENT_TIMESTAMP),
-(2, 2, 2, NULL, 4, 'Phòng River Villa đẹp, view sông thơ mộng, đồ ăn room service hơi chậm.', 'Approved', 4, 'Đánh giá xây dựng hợp lệ', CURRENT_TIMESTAMP),
-
-(3, 3, 3, NULL, 5, 'Khóa tu Wellness Retreats giúp tôi tịnh tâm, phục hồi sức khoẻ rất nhiều.', 'Approved', 4, 'Đánh giá tốt chất lượng cao', CURRENT_TIMESTAMP),
-(4, 4, 4, NULL, 4, 'Phòng 104 sạch sẽ, bồn tắm rộng rãi, decor buồng cưới rất tỉ mỉ.', 'Approved', 4, 'Đánh giá tốt', CURRENT_TIMESTAMP),
-(5, 5, 5, NULL, 5, 'Rất hài lòng với kỳ nghỉ tại resort, bãi cỏ xanh ngát, đồ ăn buffet ngon.', 'Approved', 4, 'Đánh giá tốt', CURRENT_TIMESTAMP),
-(6, 6, 6, NULL, 4, 'Cảnh quan xanh mát, phòng 207 view hồ bơi rộng rãi tuyệt vời.', 'Approved', 4, 'Đánh giá tốt', CURRENT_TIMESTAMP),
-(7, 7, 7, NULL, 5, 'Hội An Tour do HDV Hướng Dẫn thuyết minh rất sinh động, xe đi êm.', 'Approved', 4, 'Đánh giá tốt', CURRENT_TIMESTAMP),
-(8, 8, 8, NULL, 5, 'Bữa tối Wagyu tại nhà hàng cực ngon, thịt mềm mọng sốt tiêu thơm.', 'Approved', 4, 'Đánh giá tốt', CURRENT_TIMESTAMP),
-(10, 13, 10, NULL, 4, 'Lịch trình trơn tru, nhân viên thân thiện hiếu khách nhiệt tình.', 'Approved', 4, 'Đánh giá tốt', CURRENT_TIMESTAMP);
+INSERT INTO Reviews (review_id, customer_id, room_booking_detail_id, tour_booking_id, rating_service, rating_tour, review_text, moderation_status, moderated_by, moderation_reason, created_at) VALUES 
+(1, 1, 1, NULL, 5, NULL, 'Phòng Nipa Villa tuyệt hảo, mát mẻ, nhân viên buồng dọn rất sạch.', 'Approved', 4, 'Đánh giá tích cực hợp lệ', CURRENT_TIMESTAMP),
+(2, 2, 2, NULL, 4, NULL, 'Phòng River Villa đẹp, view sông thơ mộng, đồ ăn room service hơi chậm.', 'Approved', 4, 'Đánh giá xây dựng hợp lệ', CURRENT_TIMESTAMP),
+(3, 3, 3, NULL, 5, NULL, 'Khóa tu Wellness Retreats giúp tôi tịnh tâm, phục hồi sức khoẻ rất nhiều.', 'Approved', 4, 'Đánh giá tốt chất lượng cao', CURRENT_TIMESTAMP),
+(4, 4, 4, NULL, 4, NULL, 'Phòng 104 sạch sẽ, bồn tắm rộng rãi, decor buồng cưới rất tỉ mỉ.', 'Approved', 4, 'Đánh giá tốt', CURRENT_TIMESTAMP),
+(5, 5, 5, NULL, 5, NULL, 'Rất hài lòng với kỳ nghỉ tại resort, bãi cỏ xanh ngát, đồ ăn buffet ngon.', 'Approved', 4, 'Đánh giá tốt', CURRENT_TIMESTAMP),
+(6, 6, 6, NULL, 4, NULL, 'Cảnh quan xanh mát, phòng 207 view hồ bơi rộng rãi tuyệt vời.', 'Approved', 4, 'Đánh giá tốt', CURRENT_TIMESTAMP),
+(7, 7, 7, NULL, 5, NULL, 'Hội An Tour do HDV Hướng Dẫn thuyết minh rất sinh động, xe đi êm.', 'Approved', 4, 'Đánh giá tốt', CURRENT_TIMESTAMP),
+(8, 8, 8, NULL, 5, NULL, 'Bữa tối Wagyu tại nhà hàng cực ngon, thịt mềm mọng sốt tiêu thơm.', 'Approved', 4, 'Đánh giá tốt', CURRENT_TIMESTAMP),
+(10, 13, 10, NULL, 4, NULL, 'Lịch trình trơn tru, nhân viên thân thiện hiếu khách nhiệt tình.', 'Approved', 4, 'Đánh giá tốt', CURRENT_TIMESTAMP),
+-- Tour reviews (tour_booking_id thực tế để hiển thị trên tab Tour)
+(11, 1, NULL, 24, 5, 5, 'Hành trình Đoàn Tụ mang lại những khoảnh khắc vô giá cùng gia đình. Hướng dẫn viên nhiệt tình, am hiểu văn hóa Huế sâu sắc.', 'Approved', 4, 'Tour review hợp lệ', DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 3 DAY)),
+(12, 2, NULL, 25, 5, 5, 'Chuyến đi Yên Tử thật sự chữa lành tâm hồn. Không khí trong lành, cảnh sắc tuyệt đẹp. Tôi sẽ quay lại lần nữa!', 'Approved', 4, 'Tour review hợp lệ', DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 5 DAY)),
+(13, 3, NULL, 26, 5, 4, 'Tour Di Sản Miền Trung rất phong phú về mặt văn hóa. Lịch trình hơi dày nhưng được trải nghiệm nhiều điểm đến giá trị.', 'Approved', 4, 'Tour review hợp lệ', DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 7 DAY)),
+(14, 4, NULL, 27, 4, 4, 'Hành trình Tình Làng giúp tôi được kết nối lại với thiên nhiên và bình yên nội tâm. Đồ ăn truyền thống rất ngon.', 'Approved', 4, 'Tour review hợp lệ', DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 10 DAY)),
+(15, 5, NULL, 9, 5, 5, 'Chuyến tour cuối tuần đầy ắp trải nghiệm mới lạ. Hướng dẫn viên thân thiện và chuyên nghiệp. Rất đáng tiền!', 'Approved', 4, 'Tour review hợp lệ', DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 12 DAY)),
+(16, 9, NULL, 11, 5, 5, 'Lần đầu trải nghiệm tour tại HoaNien và tôi đã bị chinh phục hoàn toàn. Từng chi tiết đều được chăm chút tỉ mỉ.', 'Approved', 4, 'Tour review hợp lệ', DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 15 DAY)),
+(17, 10, NULL, 12, 4, 4, 'Tour trọn gói rất tiện lợi, không phải lo lắng gì. Phong cảnh đẹp, thời tiết thuận lợi, đội ngũ hỗ trợ chuyên nghiệp.', 'Approved', 4, 'Tour review hợp lệ', DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 20 DAY));
 
 -- ── 40. Authorized Devices (10 rows) ─────────────────────────
 INSERT INTO Authorized_Devices (device_code, is_approved) VALUES 
@@ -983,20 +1004,6 @@ ALTER TABLE Restaurant_Tables AUTO_INCREMENT = 100;
 ALTER TABLE Menu_Items AUTO_INCREMENT = 100;
 ALTER TABLE Food_Orders AUTO_INCREMENT = 100;
 ALTER TABLE Food_Order_Details AUTO_INCREMENT = 100;
-
--- ── 24. Tours (10 rows) ─────────────────────────────────────────
-INSERT IGNORE INTO Tours (tour_id, tour_name, tour_type, base_price, duration_hours, is_insurance_required, insurance_price, is_active) VALUES 
-(1, 'Hành trình Cố đô', 'CULTURAL', 7500000, 10.0, FALSE, 0, TRUE),
-(2, 'Hồn Quê Xứ Quảng', 'CULTURAL', 5800000, 10.0, FALSE, 0, TRUE),
-(3, 'Hồn Đất Văn Lâm', 'CULTURAL', 6500000, 10.0, FALSE, 0, TRUE),
-(4, 'Thiền Giữa Hương Sen', 'RELAX', 8200000, 10.0, FALSE, 0, TRUE),
-(5, 'Vịnh Xanh Kì Vĩ', 'ADVENTURE', 7500000, 10.0, FALSE, 0, TRUE),
-(6, 'Sapa Mây Mù', 'ADVENTURE', 8200000, 11.0, FALSE, 0, TRUE),
-(7, 'Khám Phá Rừng Xanh', 'ADVENTURE', 9500000, 14.0, FALSE, 0, TRUE),
-(8, 'Cát Vàng Mũi Né', 'ADVENTURE', 6500000, 11.0, FALSE, 0, TRUE),
-(9, 'Đại Dương Phú Quốc', 'RELAX', 8500000, 10.0, FALSE, 0, TRUE),
-(10, 'Sông Nước Cần Thơ', 'CULTURAL', 6800000, 10.0, FALSE, 0, TRUE);
-
 ALTER TABLE Tours AUTO_INCREMENT = 100;
 ALTER TABLE Tour_Schedules AUTO_INCREMENT = 100;
 ALTER TABLE Tour_Attendees AUTO_INCREMENT = 100;
@@ -1015,10 +1022,10 @@ INSERT IGNORE INTO Bookings (booking_id, customer_id, booking_date, total_price,
 
 -- TourBookings: liên kết với RoomBooking 14 (Phạm Hùng Anh) và 23 (test Confirmed)
 -- room_booking_detail_id = NULL vì chưa check-in / chưa phân phòng
-INSERT IGNORE INTO Tour_Bookings (booking_id, schedule_id, participant_count, tour_charge, room_booking_id, room_booking_detail_id) VALUES
-(200, 1, 2, 1200000, 14, NULL),
-(201, 2, 5, 3000000, 14, NULL),
-(202, 3, 2, 1200000, 23, NULL);
+INSERT IGNORE INTO Tour_Bookings (booking_id, schedule_id, participant_count, tour_charge, room_booking_id, room_booking_detail_id, is_walk_in_tour) VALUES
+(200, 1, 2, 1200000, 14, NULL, FALSE),
+(201, 2, 5, 3000000, 14, NULL, FALSE),
+(202, 3, 2, 1200000, 23, NULL, FALSE);
 
 ALTER TABLE Tour_Bookings AUTO_INCREMENT = 300;
 
@@ -1158,7 +1165,7 @@ INSERT INTO Room_Booking_Details (detail_id, room_booking_id, category_id, room_
 (1022, 102, 7, NULL, 8000000, 'Pending', 'KING_SIZE', NULL, TRUE, 2000000, 'BILL_TO_LEADER', 3, 1),
 (1023, 102, 7, NULL, 2500000, 'Pending', 'TWIN_BED', NULL, TRUE, 500000, 'BILL_TO_LEADER', 2, 1);
 
-UPDATE Room_Booking_Details SET number_of_adults = 2, number_of_children = 0 WHERE number_of_adults IS NULL;
+-- UPDATE Room_Booking_Details SET number_of_adults = 2, number_of_children = 0 WHERE number_of_adults IS NULL;
 
 
 -- ============================================================
@@ -1229,9 +1236,9 @@ INSERT IGNORE INTO Bookings (booking_id, customer_id, booking_date, total_price,
 INSERT IGNORE INTO Room_Bookings (room_booking_id, check_in_date, check_out_date, deposit_amount, cancellation_deadline, credit_limit, personal_pin_hash) VALUES
 (505, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 2 DAY), 1000000.00, DATE_SUB(CURDATE(), INTERVAL 1 DAY), 5000000.00, 'hash505');
 
-INSERT IGNORE INTO Room_Booking_Details (detail_id, room_booking_id, category_id, room_id, room_charge, detail_status, bed_preference, special_requests, is_charge_to_room_allowed, sub_credit_limit, billing_routing_strategy, customer_id) VALUES
-(5051, 505, 2, 11, 3500000, 'Checked_In', 'KING_SIZE', 'Ngọc Lan phòng 1', TRUE, 2500000, 'BILL_TO_LEADER', 505),
-(5052, 505, 2, 12, 3500000, 'Checked_In', 'TWIN_BED', 'Ngọc Lan phòng 2', TRUE, 2500000, 'BILL_TO_LEADER', 505);
+INSERT IGNORE INTO Room_Booking_Details (detail_id, room_booking_id, category_id, room_id, room_charge, detail_status, bed_preference, special_requests, is_charge_to_room_allowed, sub_credit_limit, billing_routing_strategy, customer_id, number_of_adults, number_of_children) VALUES
+(5051, 505, 2, 11, 3500000, 'Checked_In', 'KING_SIZE', 'Ngọc Lan phòng 1', TRUE, 2500000, 'BILL_TO_LEADER', 505, 2, 0),
+(5052, 505, 2, 12, 3500000, 'Checked_In', 'TWIN_BED', 'Ngọc Lan phòng 2', TRUE, 2500000, 'BILL_TO_LEADER', 505, 2, 0);
 
 INSERT IGNORE INTO Room_Guests (guest_id, detail_id, customer_id, dependent_id, guest_type, is_primary_contact) VALUES
 (50511, 5051, 505, NULL, 'ADULT', TRUE),
@@ -1244,124 +1251,6 @@ INSERT IGNORE INTO Payment_Transactions (id, booking_id, amount, status, transac
 
 UPDATE Rooms SET current_booking_detail_id = 5051, room_status = 'Occupied' WHERE room_id = 11;
 UPDATE Rooms SET current_booking_detail_id = 5052, room_status = 'Occupied' WHERE room_id = 12;
-
-
-
-
--- ============================================================
--- APPENDED BOOKINGS FOR 10 CUSTOMERS (601-610) FOR MORE REALISTIC DATA
--- ============================================================
-INSERT IGNORE INTO Accounts (account_id, username, password_hash, is_active, role_id, created_at) VALUES
-(601, 'customer601', '/oLodhs4wqBO61AhyuE4dWtSJDJcOH7D2ii5Vrgq0bG', TRUE, 10, CURRENT_TIMESTAMP),
-(602, 'customer602', '/oLodhs4wqBO61AhyuE4dWtSJDJcOH7D2ii5Vrgq0bG', TRUE, 10, CURRENT_TIMESTAMP),
-(603, 'customer603', '/oLodhs4wqBO61AhyuE4dWtSJDJcOH7D2ii5Vrgq0bG', TRUE, 10, CURRENT_TIMESTAMP),
-(604, 'customer604', '/oLodhs4wqBO61AhyuE4dWtSJDJcOH7D2ii5Vrgq0bG', TRUE, 10, CURRENT_TIMESTAMP),
-(605, 'customer605', '/oLodhs4wqBO61AhyuE4dWtSJDJcOH7D2ii5Vrgq0bG', TRUE, 10, CURRENT_TIMESTAMP),
-(606, 'customer606', '/oLodhs4wqBO61AhyuE4dWtSJDJcOH7D2ii5Vrgq0bG', TRUE, 10, CURRENT_TIMESTAMP),
-(607, 'customer607', '/oLodhs4wqBO61AhyuE4dWtSJDJcOH7D2ii5Vrgq0bG', TRUE, 10, CURRENT_TIMESTAMP),
-(608, 'customer608', '/oLodhs4wqBO61AhyuE4dWtSJDJcOH7D2ii5Vrgq0bG', TRUE, 10, CURRENT_TIMESTAMP),
-(609, 'customer609', '/oLodhs4wqBO61AhyuE4dWtSJDJcOH7D2ii5Vrgq0bG', TRUE, 10, CURRENT_TIMESTAMP),
-(610, 'customer610', '/oLodhs4wqBO61AhyuE4dWtSJDJcOH7D2ii5Vrgq0bG', TRUE, 10, CURRENT_TIMESTAMP);
-
-INSERT IGNORE INTO Customers (customer_id, account_id, full_name, email, phone, gender, cccd_passport_encrypted, loyalty_points, membership_tier_id) VALUES
-(601, 601, 'Khách Hàng 601', 'customer601@example.com', '0909000601', 'Nam', 'YE+76wwcBJNg816HI3M2hA==', 100, 1),
-(602, 602, 'Khách Hàng 602', 'customer602@example.com', '0909000602', 'Nam', 't2B5hvGiyaTOn07btoMyrA==', 100, 1),
-(603, 603, 'Khách Hàng 603', 'customer603@example.com', '0909000603', 'Nam', 'rAYtDfmnZU/Fen53Ez7mLQ==', 100, 1),
-(604, 604, 'Khách Hàng 604', 'customer604@example.com', '0909000604', 'Nam', 'Yqb+bfrRgv9+LE7KWwbbng==', 100, 1),
-(605, 605, 'Khách Hàng 605', 'customer605@example.com', '0909000605', 'Nam', 'ASm7XtMcAHbOJbXHwhzKQw==', 100, 1),
-(606, 606, 'Khách Hàng 606', 'customer606@example.com', '0909000606', 'Nam', 'gsHmioJ2WTPXYI/R4I4dSw==', 100, 1),
-(607, 607, 'Khách Hàng 607', 'customer607@example.com', '0909000607', 'Nam', 'pPU4SxaRA/k+2Q+EH0mgFg==', 100, 1),
-(608, 608, 'Khách Hàng 608', 'customer608@example.com', '0909000608', 'Nam', 'WQdMV7CrIrZMKQhjKqtr6w==', 100, 1),
-(609, 609, 'Khách Hàng 609', 'customer609@example.com', '0909000609', 'Nam', 'oAuptPfLFkwE+oQuCCChFA==', 100, 1),
-(610, 610, 'Khách Hàng 610', 'customer610@example.com', '0909000610', 'Nam', 'vXCvrWxAmf8fMo6LSiqetw==', 100, 1);
-
-INSERT IGNORE INTO Dependents (dependent_id, customer_id, dependent_name, birth_date, gender) VALUES
-(601, 601, 'Người Thân 601', '2010-01-01', 'Nữ'),
-(602, 602, 'Người Thân 602', '2010-01-01', 'Nữ'),
-(603, 603, 'Người Thân 603', '2010-01-01', 'Nữ'),
-(604, 604, 'Người Thân 604', '2010-01-01', 'Nữ'),
-(605, 605, 'Người Thân 605', '2010-01-01', 'Nữ'),
-(606, 606, 'Người Thân 606', '2010-01-01', 'Nữ'),
-(607, 607, 'Người Thân 607', '2010-01-01', 'Nữ'),
-(608, 608, 'Người Thân 608', '2010-01-01', 'Nữ'),
-(609, 609, 'Người Thân 609', '2010-01-01', 'Nữ'),
-(610, 610, 'Người Thân 610', '2010-01-01', 'Nữ');
-
-INSERT IGNORE INTO Bookings (booking_id, customer_id, booking_date, total_price, booking_status, booking_source, version) VALUES
-(601, 601, '2026-07-01', 5000000, 'Checked_In', 'Direct_Web', 1),
-(602, 602, '2026-07-01', 5000000, 'Checked_In', 'Direct_Web', 1),
-(603, 603, '2026-07-01', 5000000, 'Checked_In', 'Direct_Web', 1),
-(604, 604, '2026-07-01', 5000000, 'Checked_In', 'Direct_Web', 1),
-(605, 605, '2026-07-01', 5000000, 'Checked_In', 'Direct_Web', 1),
-(606, 606, '2026-07-01', 5000000, 'Confirmed', 'Direct_Web', 1),
-(607, 607, '2026-07-01', 5000000, 'Confirmed', 'Direct_Web', 1),
-(608, 608, '2026-07-01', 5000000, 'Confirmed', 'Direct_Web', 1),
-(609, 609, '2026-07-01', 5000000, 'Confirmed', 'Direct_Web', 1),
-(610, 610, '2026-07-01', 5000000, 'Confirmed', 'Direct_Web', 1);
-
-INSERT IGNORE INTO Room_Bookings (room_booking_id, check_in_date, check_out_date, deposit_amount, cancellation_deadline, credit_limit, personal_pin_hash) VALUES
-(601, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 2 DAY), 1000000, DATE_SUB(CURDATE(), INTERVAL 1 DAY), 5000000, 'hash601'),
-(602, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 2 DAY), 1000000, DATE_SUB(CURDATE(), INTERVAL 1 DAY), 5000000, 'hash602'),
-(603, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 2 DAY), 1000000, DATE_SUB(CURDATE(), INTERVAL 1 DAY), 5000000, 'hash603'),
-(604, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 2 DAY), 1000000, DATE_SUB(CURDATE(), INTERVAL 1 DAY), 5000000, 'hash604'),
-(605, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 2 DAY), 1000000, DATE_SUB(CURDATE(), INTERVAL 1 DAY), 5000000, 'hash605'),
-(606, DATE_ADD(CURDATE(), INTERVAL 1 DAY), DATE_ADD(CURDATE(), INTERVAL 3 DAY), 1000000, CURDATE(), 5000000, 'hash606'),
-(607, DATE_ADD(CURDATE(), INTERVAL 1 DAY), DATE_ADD(CURDATE(), INTERVAL 3 DAY), 1000000, CURDATE(), 5000000, 'hash607'),
-(608, DATE_ADD(CURDATE(), INTERVAL 1 DAY), DATE_ADD(CURDATE(), INTERVAL 3 DAY), 1000000, CURDATE(), 5000000, 'hash608'),
-(609, DATE_ADD(CURDATE(), INTERVAL 1 DAY), DATE_ADD(CURDATE(), INTERVAL 3 DAY), 1000000, CURDATE(), 5000000, 'hash609'),
-(610, DATE_ADD(CURDATE(), INTERVAL 1 DAY), DATE_ADD(CURDATE(), INTERVAL 3 DAY), 1000000, CURDATE(), 5000000, 'hash610');
-
-INSERT IGNORE INTO Room_Booking_Details (detail_id, room_booking_id, category_id, room_id, room_charge, detail_status, bed_preference, is_charge_to_room_allowed, sub_credit_limit, billing_routing_strategy, customer_id) VALUES
-(6011, 601, 4, 6, 5000000, 'Checked_In', 'KING_SIZE', TRUE, 5000000, 'BILL_TO_LEADER', 601),
-(6021, 602, 4, 7, 5000000, 'Checked_In', 'KING_SIZE', TRUE, 5000000, 'BILL_TO_LEADER', 602),
-(6031, 603, 4, 8, 5000000, 'Checked_In', 'KING_SIZE', TRUE, 5000000, 'BILL_TO_LEADER', 603),
-(6041, 604, 4, 9, 5000000, 'Checked_In', 'KING_SIZE', TRUE, 5000000, 'BILL_TO_LEADER', 604),
-(6051, 605, 4, 14, 5000000, 'Checked_In', 'KING_SIZE', TRUE, 5000000, 'BILL_TO_LEADER', 605),
-(6061, 606, 4, NULL, 5000000, 'Confirmed', 'KING_SIZE', TRUE, 5000000, 'BILL_TO_LEADER', 606),
-(6071, 607, 4, NULL, 5000000, 'Confirmed', 'KING_SIZE', TRUE, 5000000, 'BILL_TO_LEADER', 607),
-(6081, 608, 4, NULL, 5000000, 'Confirmed', 'KING_SIZE', TRUE, 5000000, 'BILL_TO_LEADER', 608),
-(6091, 609, 4, NULL, 5000000, 'Confirmed', 'KING_SIZE', TRUE, 5000000, 'BILL_TO_LEADER', 609),
-(6101, 610, 4, NULL, 5000000, 'Confirmed', 'KING_SIZE', TRUE, 5000000, 'BILL_TO_LEADER', 610);
-
-INSERT IGNORE INTO Room_Guests (guest_id, detail_id, customer_id, dependent_id, guest_type, is_primary_contact) VALUES
-(60111, 6011, 601, NULL, 'ADULT', TRUE),
-(60112, 6011, NULL, 601, 'CHILD', FALSE),
-(60211, 6021, 602, NULL, 'ADULT', TRUE),
-(60212, 6021, NULL, 602, 'CHILD', FALSE),
-(60311, 6031, 603, NULL, 'ADULT', TRUE),
-(60312, 6031, NULL, 603, 'CHILD', FALSE),
-(60411, 6041, 604, NULL, 'ADULT', TRUE),
-(60412, 6041, NULL, 604, 'CHILD', FALSE),
-(60511, 6051, 605, NULL, 'ADULT', TRUE),
-(60512, 6051, NULL, 605, 'CHILD', FALSE);
-
-INSERT IGNORE INTO Payment_Transactions (id, booking_id, amount, status, transaction_type, payment_method, gateway_status, transaction_ref, created_at, paid_at) VALUES
-(6011, 601, 1000000, 'SUCCESS', 'Deposit', 'VNPAY', 'SUCCESS', 'DEP_601', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(6021, 602, 1000000, 'SUCCESS', 'Deposit', 'VNPAY', 'SUCCESS', 'DEP_602', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(6031, 603, 1000000, 'SUCCESS', 'Deposit', 'VNPAY', 'SUCCESS', 'DEP_603', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(6041, 604, 1000000, 'SUCCESS', 'Deposit', 'VNPAY', 'SUCCESS', 'DEP_604', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(6051, 605, 1000000, 'SUCCESS', 'Deposit', 'VNPAY', 'SUCCESS', 'DEP_605', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(6061, 606, 1000000, 'SUCCESS', 'Deposit', 'VNPAY', 'SUCCESS', 'DEP_606', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(6071, 607, 1000000, 'SUCCESS', 'Deposit', 'VNPAY', 'SUCCESS', 'DEP_607', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(6081, 608, 1000000, 'SUCCESS', 'Deposit', 'VNPAY', 'SUCCESS', 'DEP_608', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(6091, 609, 1000000, 'SUCCESS', 'Deposit', 'VNPAY', 'SUCCESS', 'DEP_609', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(6101, 610, 1000000, 'SUCCESS', 'Deposit', 'VNPAY', 'SUCCESS', 'DEP_610', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
-
-UPDATE Rooms SET current_booking_detail_id = CASE room_id
-  WHEN 6 THEN 6011
-  WHEN 7 THEN 6021
-  WHEN 8 THEN 6031
-  WHEN 9 THEN 6041
-  WHEN 14 THEN 6051
-  ELSE current_booking_detail_id END,
-room_status = CASE room_id
-  WHEN 6 THEN 'Occupied'
-  WHEN 7 THEN 'Occupied'
-  WHEN 8 THEN 'Occupied'
-  WHEN 9 THEN 'Occupied'
-  WHEN 14 THEN 'Occupied'
-  ELSE room_status END
-WHERE room_id IN (6, 7, 8, 9, 14);
 
 
 
@@ -1454,8 +1343,8 @@ VALUES (9999, 1, DATE_SUB(CURDATE(), INTERVAL 5 DAY), 5000000, 'Checked_In', 'Di
 INSERT IGNORE INTO Room_Bookings (room_booking_id, check_in_date, check_out_date, deposit_amount, cancellation_deadline, credit_limit, personal_pin_hash) 
 VALUES (9999, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 3 DAY), 2000000, DATE_SUB(CURDATE(), INTERVAL 1 DAY), 5000000, 'hash9999');
 
-INSERT IGNORE INTO Room_Booking_Details (detail_id, room_booking_id, category_id, room_id, room_charge, detail_status, bed_preference, is_charge_to_room_allowed, sub_credit_limit, billing_routing_strategy, customer_id) 
-VALUES (99991, 9999, 1, 5, 5000000, 'Checked_In', 'KING_SIZE', TRUE, 5000000, 'INDIVIDUAL', 1);
+INSERT IGNORE INTO Room_Booking_Details (detail_id, room_booking_id, category_id, room_id, room_charge, detail_status, bed_preference, is_charge_to_room_allowed, sub_credit_limit, billing_routing_strategy, customer_id, number_of_adults, number_of_children) 
+VALUES (99991, 9999, 1, 5, 5000000, 'Checked_In', 'KING_SIZE', TRUE, 5000000, 'INDIVIDUAL', 1, 1, 0);
 
 INSERT IGNORE INTO Room_Guests (guest_id, detail_id, customer_id, guest_type, is_primary_contact) 
 VALUES (999911, 99991, 1, 'ADULT', TRUE);
@@ -1487,6 +1376,12 @@ SET rb.credit_limit = (
     WHERE room_booking_id = rb.room_booking_id
 )
 WHERE b.booking_status IN ('Checked_In', 'Confirmed');
+
+-- FALLBACK UPDATE FOR NUMBER OF GUESTS IF NULL
+UPDATE Room_Booking_Details SET number_of_adults = 2, number_of_children = 0 WHERE number_of_adults IS NULL;
+-- Reset AUTO_INCREMENT để tránh trùng khóa chính khi lưu đánh giá mới
+ALTER TABLE Reviews AUTO_INCREMENT = 100;
+
 -- -- XX. Shifts & Staff Schedules -----------------------------------
 INSERT INTO Shifts (shift_id, shift_name, start_time, end_time, description) VALUES
 (1, 'Ca Sáng', '06:00:00', '14:00:00', 'Ca làm việc buổi sáng'),

@@ -36,16 +36,24 @@ public class WorkflowEngineServiceImpl implements WorkflowEngineService {
         System.out.println("========== WORKFLOW ENGINE: Trigger Event " + eventType + " ==========");
         List<Workflow> activeWorkflows = workflowRepository.findByTriggerEventAndIsActive(eventType, true);
 
+        boolean executed = false;
         for (Workflow workflow : activeWorkflows) {
             try {
                 boolean conditionsMatch = evaluateConditions(workflow.getConditionsJson(), payload, eventType);
                 if (conditionsMatch) {
                     executeActions(workflow, payload, eventType);
+                    executed = true;
                 }
             } catch (Exception e) {
                 System.err.println("Error processing workflow ID " + workflow.getId() + ": " + e.getMessage());
                 e.printStackTrace();
             }
+        }
+
+        // Fallback logic for ROOM_CHECKOUT if no workflow executed
+        if ("ROOM_CHECKOUT".equals(eventType) && !executed) {
+            System.out.println("No active matching workflows for ROOM_CHECKOUT. Executing default system fallback.");
+            executeRoomCheckout(null, payload);
         }
     }
 
@@ -315,7 +323,6 @@ public class WorkflowEngineServiceImpl implements WorkflowEngineService {
 
         // Action 1: Update Room Status
         room.setRoomStatus(targetStatus);
-        room.setCurrentBookingDetailId(null);
         roomRepository.save(room);
         System.out.println("Checkout Workflow: Updated room status to " + targetStatus);
 

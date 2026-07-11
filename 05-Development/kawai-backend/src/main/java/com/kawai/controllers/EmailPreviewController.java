@@ -194,6 +194,21 @@ public class EmailPreviewController {
             ctx.setVariable("totalPrice", VND_FMT.format(new BigDecimal("2700000")) + " ₫");
             ctx.setVariable("resortPhone", "1900 1234");
             ctx.setVariable("resortWebsite", "https://hoanienspa.vn");
+            
+            // Mock insurance variables for email preview
+            ctx.setVariable("hasInsurance", true);
+            ctx.setVariable("insurancePolicyNumber", "INS-20260711-SCH5-A3E9");
+            java.util.List<java.util.Map<String, String>> mockAttendees = new java.util.ArrayList<>();
+            java.util.Map<String, String> att1 = new java.util.HashMap<>();
+            att1.put("name", "NGUYỄN VĂN A");
+            att1.put("cccd", "0123456789xx");
+            mockAttendees.add(att1);
+            java.util.Map<String, String> att2 = new java.util.HashMap<>();
+            att2.put("name", "TRẦN THỊ B");
+            att2.put("cccd", "0987654321xx");
+            mockAttendees.add(att2);
+            ctx.setVariable("formattedAttendees", mockAttendees);
+            
             String html = templateEngine.process("email/tour-booking-confirmation", ctx);
             emailService.sendEmail(to, "[TEST] Xác nhận đặt tour – TOUR-2026-0099", html);
             sent.add("tour-booking-confirmation");

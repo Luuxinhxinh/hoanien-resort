@@ -3,6 +3,8 @@ package com.kawai.services;
 import com.kawai.models.*;
 import com.kawai.repositories.*;
 import com.kawai.services.impl.HousekeepingServiceImpl;
+import com.kawai.services.interfaces.WorkflowEngineService;
+import com.kawai.repositories.WorkflowRepository;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -54,6 +56,10 @@ class HousekeepingServiceUC13Test {
     private RoomRepository roomRepo;
     @Mock
     private EmployeeRepository employeeRepo;
+    @Mock
+    private WorkflowEngineService workflowEngineService;
+    @Mock
+    private WorkflowRepository workflowRepository;
 
     @InjectMocks
     private HousekeepingServiceImpl housekeepingService;
@@ -193,6 +199,38 @@ class HousekeepingServiceUC13Test {
             verify(roomRepo).save(any(Room.class));
             verify(housekeepingTaskRepo).save(any(HotelOperation.class));
         }
+
+        @Test
+        @DisplayName("TC-M2-017-02: Cập nhật phòng đang có khách (Occupied) → giữ nguyên Occupied, đánh dấu task Completed")
+        void updateRoomToClean_OccupiedRoom_ShouldKeepOccupied() {
+            // ARRANGE
+            Long taskId = 100L;
+            sampleRoom.setCurrentBookingDetailId(555L); // Khách đã check-in
+
+            when(housekeepingTaskRepo.findById(taskId)).thenReturn(Optional.of(sampleTask));
+            when(roomRepo.save(any(Room.class)))
+                    .thenAnswer(inv -> inv.getArgument(0));
+            when(housekeepingTaskRepo.save(any(HotelOperation.class)))
+                    .thenAnswer(inv -> inv.getArgument(0));
+
+            // ACT
+            Room result = housekeepingService.updateRoomToClean(taskId, null);
+
+            // ASSERT
+            assertNotNull(result, "Kết quả không được null");
+            assertEquals("Occupied", result.getRoomStatus(),
+                    "Phòng phải giữ nguyên trạng thái Occupied vì khách đang ở");
+            assertEquals("Completed", sampleTask.getStatus(),
+                    "Task phải chuyển sang Completed");
+
+            // Verify tương tác
+            verify(housekeepingTaskRepo).findById(taskId);
+            verify(roomRepo).save(any(Room.class));
+            verify(housekeepingTaskRepo).save(any(HotelOperation.class));
+
+            // Reset
+            sampleRoom.setCurrentBookingDetailId(null);
+        }
     }
 
     // ================================================================
@@ -211,7 +249,7 @@ class HousekeepingServiceUC13Test {
             maintenanceTask.setStatus("Pending");
             pendingTasks.add(maintenanceTask);
 
-            when(housekeepingTaskRepo.findByStatus("Pending"))
+            when(housekeepingTaskRepo.findPendingTasksSorted("Pending"))
                     .thenReturn(pendingTasks);
 
             // ACT
@@ -224,7 +262,7 @@ class HousekeepingServiceUC13Test {
                     "Tất cả task phải có status Pending");
 
             // Verify
-            verify(housekeepingTaskRepo).findByStatus("Pending");
+            verify(housekeepingTaskRepo).findPendingTasksSorted("Pending");
         }
     }
 
@@ -251,7 +289,7 @@ class HousekeepingServiceUC13Test {
                     .thenAnswer(inv -> inv.getArgument(0));
 
             // ACT
-            HotelOperation result = housekeepingService.createMaintenanceRequest(roomId, staffId, notes);
+            HotelOperation result = housekeepingService.createMaintenanceRequest(roomId, staffId, notes, false);
 
             // ASSERT
             assertNotNull(result, "Phiếu bảo trì không được null");
@@ -270,6 +308,60 @@ class HousekeepingServiceUC13Test {
             verify(maintenanceRequestRepo).save(any(HotelOperation.class));
             verify(roomRepo).save(any(Room.class));
         }
+
+        @Test
+        @DisplayName("TC-M2-019-02: Tạo maintenance request khi khách chưa checkout -> tạo DAMAGE_CHECK và giữ nguyên trạng thái phòng")
+        void createMaintenanceRequest_WhenGuestNotCheckedOut_ShouldCreateDamageCheck() {
+            // ARRANGE
+            Long roomId = 1L;
+            Long staffId = 10L;
+            String notes = "Dieu hoa khong lanh";
+            sampleRoom.setCurrentBookingDetailId(555L); // set active booking (not checked out)
+            sampleRoom.setRoomStatus("Occupied");
+
+            when(roomRepo.findById(roomId)).thenReturn(Optional.of(sampleRoom));
+            when(employeeRepo.findById(staffId)).thenReturn(Optional.of(sampleStaff));
+            when(maintenanceRequestRepo.save(any(HotelOperation.class)))
+                    .thenAnswer(inv -> inv.getArgument(0));
+
+            // ACT
+            HotelOperation result = housekeepingService.createMaintenanceRequest(roomId, staffId, notes, false);
+
+            // ASSERT
+            assertNotNull(result, "Phiếu báo hỏng không được null");
+            assertEquals("DAMAGE_CHECK", result.getOperationalType(), "Loại tác vụ phải là DAMAGE_CHECK");
+            assertEquals("Normal", result.getPriority());
+            assertEquals("Occupied", sampleRoom.getRoomStatus(), "Phòng phải giữ nguyên trạng thái Occupied");
+
+            // Reset for other tests
+            sampleRoom.setCurrentBookingDetailId(null);
+        }
+
+        @Test
+        @DisplayName("TC-M2-019-03: Tạo maintenance request KHẨN CẤP khi khách chưa checkout -> thành công")
+        void createMaintenanceRequest_WhenEmergencyAndGuestNotCheckedOut_ShouldSucceed() {
+            // ARRANGE
+            Long roomId = 1L;
+            Long staffId = 10L;
+            String notes = "Rò rỉ nước khẩn cấp";
+            sampleRoom.setCurrentBookingDetailId(555L); // set active booking (not checked out)
+
+            when(roomRepo.findById(roomId)).thenReturn(Optional.of(sampleRoom));
+            when(employeeRepo.findById(staffId)).thenReturn(Optional.of(sampleStaff));
+            when(maintenanceRequestRepo.save(any(HotelOperation.class)))
+                    .thenAnswer(inv -> inv.getArgument(0));
+
+            // ACT
+            HotelOperation result = housekeepingService.createMaintenanceRequest(roomId, staffId, notes, true);
+
+            // ASSERT
+            assertNotNull(result, "Phiếu bảo trì khẩn cấp không được null");
+            assertEquals("MAINTENANCE", result.getOperationalType());
+            assertEquals("Urgent", result.getPriority(), "Độ ưu tiên của sự cố khẩn cấp phải là Urgent");
+
+            // Reset for other tests
+            sampleRoom.setCurrentBookingDetailId(null);
+        }
     }
 
     // ================================================================
@@ -280,12 +372,13 @@ class HousekeepingServiceUC13Test {
     class TC_M2_020 {
 
         @Test
-        @DisplayName("TC-M2-020: Hoàn thành maintenance → phòng Vacant_Clean, task Completed")
+        @DisplayName("TC-M2-020-01: Hoàn thành maintenance → phòng Vacant_Clean, task Completed")
         void completeMaintenance_ShouldMakeRoomAvailable() {
             // ARRANGE
             Long taskId = 200L;
 
             when(maintenanceRequestRepo.findById(taskId)).thenReturn(Optional.of(maintenanceTask));
+            when(housekeepingTaskRepo.findAll()).thenReturn(new ArrayList<>());
             when(roomRepo.save(any(Room.class)))
                     .thenAnswer(inv -> inv.getArgument(0));
             when(maintenanceRequestRepo.save(any(HotelOperation.class)))
@@ -298,6 +391,41 @@ class HousekeepingServiceUC13Test {
             assertNotNull(result, "Phòng sau bảo trì không được null");
             assertEquals("Vacant_Clean", result.getRoomStatus(),
                     "Phòng phải chuyển thành Vacant_Clean (BR-FO-04)");
+            assertEquals("Completed", maintenanceTask.getStatus(),
+                    "Task bảo trì phải chuyển sang Completed");
+
+            // Verify
+            verify(maintenanceRequestRepo).findById(taskId);
+            verify(roomRepo).save(any(Room.class));
+            verify(maintenanceRequestRepo).save(any(HotelOperation.class));
+        }
+
+        @Test
+        @DisplayName("TC-M2-020-02: Hoàn thành maintenance nhưng còn task dọn dẹp chưa xong -> phòng Vacant_Dirty")
+        void completeMaintenance_ShouldKeepRoomDirtyIfHousekeepingTaskIsPending() {
+            // ARRANGE
+            Long taskId = 200L;
+            List<HotelOperation> hkTasks = new ArrayList<>();
+            HotelOperation pendingHkTask = new HotelOperation();
+            pendingHkTask.setRoom(maintenanceRoom);
+            pendingHkTask.setOperationalType("CHECKOUT_CLEAN");
+            pendingHkTask.setStatus("Pending");
+            hkTasks.add(pendingHkTask);
+
+            when(maintenanceRequestRepo.findById(taskId)).thenReturn(Optional.of(maintenanceTask));
+            when(housekeepingTaskRepo.findAll()).thenReturn(hkTasks);
+            when(roomRepo.save(any(Room.class)))
+                    .thenAnswer(inv -> inv.getArgument(0));
+            when(maintenanceRequestRepo.save(any(HotelOperation.class)))
+                    .thenAnswer(inv -> inv.getArgument(0));
+
+            // ACT
+            Room result = housekeepingService.completeMaintenance(taskId);
+
+            // ASSERT
+            assertNotNull(result, "Phòng sau bảo trì không được null");
+            assertEquals("Vacant_Dirty", result.getRoomStatus(),
+                    "Phòng phải giữ trạng thái Vacant_Dirty vì còn task dọn dẹp chưa hoàn thành");
             assertEquals("Completed", maintenanceTask.getStatus(),
                     "Task bảo trì phải chuyển sang Completed");
 

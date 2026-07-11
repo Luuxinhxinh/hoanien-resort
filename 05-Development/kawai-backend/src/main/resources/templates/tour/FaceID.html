@@ -112,6 +112,21 @@
         }
     </script>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@1,600&display=swap');
+        *:not(.material-symbols-outlined) {
+            font-family: 'Inter', sans-serif !important;
+            font-weight: 600 !important;
+            font-style: italic !important;
+        }
+        .brand,
+        .logo-text,
+        .resort-name,
+        header h1,
+        [onclick*="window.location.href='/'"] {
+            font-family: 'EB Garamond', Georgia, serif !important;
+            font-weight: 400 !important;
+            font-style: italic !important;
+        }
         body {
             background-color: #fff7fa;
             background-image:
@@ -320,26 +335,16 @@
                                 class="text-xs text-primary hover:underline font-semibold">Đọc tất cả</button>
                         </div>
                         <div class="space-y-3 max-h-64 overflow-y-auto text-left" id="notifications-list">
-                            <!-- Notification Item 1 -->
-                            <div class="p-3 bg-primary/5 rounded-xl border-l-4 border-primary space-y-1">
-                                <p class="text-xs font-semibold text-on-surface">Yêu cầu hỗ trợ từ Đoàn khách</p>
-                                <p class="text-[11px] text-on-surface-variant/70 leading-snug">Đoàn khách Singapore tại
-                                    Cố đô Huế yêu cầu chuẩn bị thêm nước uống đóng chai.</p>
-                                <p class="text-[9px] text-on-surface-variant/50">5 phút trước</p>
+                            <div th:each="n : ${dynamicNotifications}" class="p-3 bg-primary/5 rounded-xl border-l-4 border-primary space-y-1">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="material-symbols-outlined text-[14px] text-primary" th:text="${n.icon}">info</span>
+                                    <p class="text-xs font-semibold text-on-surface" th:text="${n.title}">Tiêu đề thông báo</p>
+                                </div>
+                                <p class="text-[11px] text-on-surface-variant/70 leading-snug" th:text="${n.content}">Nội dung thông báo...</p>
+                                <p class="text-[9px] text-on-surface-variant/50" th:text="${n.timeText}">5 phút trước</p>
                             </div>
-                            <!-- Notification Item 2 -->
-                            <div class="p-3 bg-primary/5 rounded-xl border-l-4 border-primary space-y-1">
-                                <p class="text-xs font-semibold text-on-surface">Cảnh báo Thời tiết</p>
-                                <p class="text-[11px] text-on-surface-variant/70 leading-snug">Dự báo có mưa rào nhẹ tại
-                                    khu vực Tháp Mười từ 16:30 chiều nay.</p>
-                                <p class="text-[9px] text-on-surface-variant/50">20 phút trước</p>
-                            </div>
-                            <!-- Notification Item 3 -->
-                            <div class="p-3 hover:bg-primary/5 rounded-xl transition-colors space-y-1">
-                                <p class="text-xs font-medium text-on-surface-variant">Lịch trình Ngày mai</p>
-                                <p class="text-[11px] text-on-surface-variant/70 leading-snug">Bạn có lịch dẫn đoàn tham
-                                    quan Ninh Bình bắt đầu lúc 08:30 sáng mai.</p>
-                                <p class="text-[9px] text-on-surface-variant/50">2 giờ trước</p>
+                            <div th:if="${dynamicNotifications == null || dynamicNotifications.isEmpty()}" class="p-4 text-center text-xs text-on-surface-variant/50">
+                                Không có thông báo mới nào.
                             </div>
                         </div>
                     </div>
@@ -392,11 +397,37 @@
         </div>
         <!-- 4. Adjusted Main Content Body -->
         <main class="flex-1 mt-36 p-margin-desktop space-y-10">
-            <!-- Header -->
-            <div class="space-y-2">
-                <h3 class="font-headline-lg text-headline-lg text-on-surface">Quản lý Đoàn Khách</h3>
-                <p class="font-headline text-lg md:text-xl font-light text-on-surface-variant/70">Theo dõi trạng thái và
-                    thực hiện điểm danh tự động qua FaceID.</p>
+            <!-- Header & Notice Banner on the same row -->
+            <div class="grid grid-cols-12 gap-8 items-center no-print w-full pb-6 border-b border-primary/5">
+                <!-- Left: Title -->
+                <div class="col-span-12 lg:col-span-8 space-y-2">
+                    <h3 class="font-headline-lg text-headline-lg text-on-surface">Quản lý Đoàn Khách</h3>
+                    <p class="font-headline text-lg md:text-xl font-light text-on-surface-variant/70">Theo dõi trạng thái và
+                        thực hiện điểm danh tự động qua FaceID.</p>
+                </div>
+                <!-- Right: Important Notice (Sát bên phải, cùng hàng tiêu đề, trên FaceID) -->
+                <div class="col-span-12 lg:col-span-4">
+                    <div id="notice-banner-card"
+                        class="glass-panel p-6 md:p-7 rounded-lg group space-y-4 border-amber-500/40 bg-amber-500/5">
+                        <div class="space-y-2">
+                            <div class="flex items-center gap-2 text-amber-700">
+                                <span class="material-symbols-outlined text-[24px]" style="font-variation-settings:'FILL' 1">warning</span>
+                                <h4 class="font-display-md text-base md:text-lg font-bold">Thông tin Quan trọng (Lưu ý)</h4>
+                            </div>
+                            <p class="font-headline text-xs md:text-sm font-semibold text-on-surface-variant leading-relaxed">
+                                Yêu cầu tất cả nhân viên kiểm tra thiết bị quét khuôn mặt trước giờ đón khách 30 phút. Báo cáo ngay nếu có sự cố xảy ra.
+                            </p>
+                        </div>
+                        <div class="flex items-center gap-3 pt-1">
+                            <button onclick="showImportantNoteDetails()"
+                                class="px-5 py-2 rounded-full bg-on-background text-white font-label-md text-xs hover:opacity-90 transition-all font-bold shadow-sm">Xem
+                                chi tiết</button>
+                            <button onclick="dismissImportantNote()"
+                                class="px-5 py-2 rounded-full border border-primary/20 text-primary font-label-md text-xs hover:bg-primary/5 transition-all font-bold">Bỏ
+                                qua</button>
+                        </div>
+                    </div>
+                </div>
             </div>
             <!-- Grid Layout -->
             <div class="grid grid-cols-12 gap-8 items-start">
@@ -435,51 +466,51 @@
                                         id="startTourForm">
                                         <input type="hidden" name="scheduleId" th:value="${scheduleId}" />
                                         <button type="button" onclick="checkTourSafety(event)"
-                                            class="flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary text-on-primary hover:bg-primary/90 transition-all font-semibold text-sm shadow-md">
-                                            <span class="material-symbols-outlined text-base">play_circle</span>
+                                            class="flex items-center gap-2 px-6 py-3.5 rounded-full bg-primary text-on-primary hover:bg-primary/90 hover:scale-[1.03] transition-all font-bold text-base shadow-lg">
+                                            <span class="material-symbols-outlined text-lg">play_circle</span>
                                             Bắt Đầu Tour
                                         </button>
                                     </form>
 
                                     <!-- ══ TRẠNG THÁI: ONGOING ══ -->
                                     <div th:if="${scheduleStatus == 'ongoing'}"
-                                        class="flex items-center gap-2 p-1 bg-primary/5 border border-primary/15 rounded-full">
+                                        class="flex items-center gap-3 p-1.5 bg-primary/10 border-2 border-primary/30 rounded-full shadow-md">
                                         <span
-                                            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 text-primary font-semibold text-xs">
-                                            <span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+                                            class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/20 text-primary font-bold text-sm border border-primary/30 shadow-sm">
+                                            <span class="w-2.5 h-2.5 rounded-full bg-primary animate-pulse"></span>
                                             Đang Diễn Ra
                                         </span>
-                                        <span class="text-primary/20 select-none">|</span>
-                                        <form th:action="@{/tourguide/finish-tour}" method="post" class="inline" id="finishTourForm">
+                                        <span class="text-primary/30 select-none font-light">|</span>
+                                        <form th:action="@{/tourguide/finish-tour}" method="post" class="inline"
+                                            id="finishTourForm">
                                             <input type="hidden" name="scheduleId" th:value="${scheduleId}" />
-                                            <button type="button"
-                                                onclick="confirmFinishTour(event)"
-                                                class="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-primary text-on-primary hover:bg-primary/90 transition-all font-semibold text-xs shadow-sm">
-                                                <span class="material-symbols-outlined text-xs">check_circle</span>
+                                            <button type="button" onclick="confirmFinishTour(event)"
+                                                class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary text-on-primary hover:bg-primary/90 hover:scale-[1.03] transition-all font-bold text-sm shadow-md">
+                                                <span class="material-symbols-outlined text-base">check_circle</span>
                                                 Hoàn Thành Tour
                                             </button>
                                         </form>
                                         <button type="button"
                                             onclick="openResetModal('Open', 'Hoàn tác bắt đầu tour? Trạng thái sẽ quay về Chờ Bắt Đầu và thời gian khởi hành thực tế sẽ bị xóa.')"
-                                            class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-primary/70 border border-primary/20 hover:bg-primary/10 hover:text-primary transition-all font-medium text-xs">
-                                            <span class="material-symbols-outlined text-xs">undo</span>
+                                            class="inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-primary/80 border-2 border-primary/20 hover:bg-primary/10 hover:text-primary hover:scale-[1.03] transition-all font-bold text-sm">
+                                            <span class="material-symbols-outlined text-base">undo</span>
                                             Hoàn Tác
                                         </button>
                                     </div>
 
                                     <!-- ══ TRẠNG THÁI: COMPLETED ══ -->
                                     <div th:if="${scheduleStatus == 'completed'}"
-                                        class="flex items-center gap-2 p-1 bg-primary/5 border border-primary/15 rounded-full">
+                                        class="flex items-center gap-3 p-1.5 bg-primary/10 border-2 border-primary/30 rounded-full shadow-md">
                                         <span
-                                            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 text-primary font-semibold text-xs">
-                                            <span class="material-symbols-outlined text-xs">task_alt</span>
+                                            class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/20 text-primary font-bold text-sm border border-primary/30 shadow-sm">
+                                            <span class="material-symbols-outlined text-base">task_alt</span>
                                             Đã Hoàn Thành
                                         </span>
-                                        <span class="text-primary/20 select-none">|</span>
+                                        <span class="text-primary/30 select-none font-light">|</span>
                                         <button type="button"
                                             onclick="openResetModal('ongoing', 'Hoàn tác hoàn thành tour? Trạng thái sẽ quay về Đang Diễn Ra. Trạng thái đặt chỗ của khách sẽ được khôi phục về Confirmed.')"
-                                            class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-primary/70 border border-primary/20 hover:bg-primary/10 hover:text-primary transition-all font-medium text-xs">
-                                            <span class="material-symbols-outlined text-xs">undo</span>
+                                            class="inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-primary/80 border-2 border-primary/20 hover:bg-primary/10 hover:text-primary hover:scale-[1.03] transition-all font-bold text-sm">
+                                            <span class="material-symbols-outlined text-base">undo</span>
                                             Hoàn Tác
                                         </button>
                                     </div>
@@ -493,6 +524,19 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Tour Booking General Notes Banner -->
+                    <div th:if="${tourBookingNotes != null and !#strings.isEmpty(tourBookingNotes)}"
+                        class="glass-panel rounded-lg p-6 border-amber-500/20 bg-amber-500/5 mb-8 text-left">
+                        <div class="flex items-center gap-2 text-amber-800 mb-2">
+                            <span class="material-symbols-outlined text-[20px]" style="font-variation-settings:'FILL' 1">sticky_note_2</span>
+                            <h5 class="font-bold text-[15px]">Ghi chú hành trình của Khách hàng</h5>
+                        </div>
+                        <p class="text-sm font-semibold text-on-surface leading-relaxed" th:text="${tourBookingNotes}">
+                            Yêu cầu đặc biệt của khách hàng...
+                        </p>
+                    </div>
+
                     <!-- Table Container -->
                     <div class="glass-panel rounded-lg overflow-hidden flex flex-col p-8 border-primary/10 shadow-sm">
                         <div class="overflow-x-auto">
@@ -517,33 +561,33 @@
                                             th:text="'#EVN-00' + ${attendee.id}">#EVN-00234</td>
                                         <td class="py-6 px-4">
                                             <div class="flex items-center gap-3">
-                                                <div th:with="custName=${attendee.customer?.fullName ?: (attendee.dependent?.dependentName ?: 'KH')}"
+                                                <div th:with="custName=${attendee.customer?.fullName ?: (attendee.dependent?.dependentName ?: '--')}"
                                                     class="w-10 h-10 rounded-full glass-card flex items-center justify-center font-display-md text-primary text-sm cursor-pointer hover:scale-105 transition-all"
                                                     th:text="${#strings.length(custName) >= 2 ? #strings.substring(custName, 0, 2).toUpperCase() : custName.toUpperCase()}"
-                                                    th:data-name="${attendee.customer?.fullName ?: (attendee.dependent?.dependentName ?: 'Khách vãng lai')}"
+                                                    th:data-name="${attendee.customer?.fullName ?: attendee.dependent?.dependentName}"
                                                     th:data-id="'#EVN-00' + ${attendee.id}"
-                                                    th:data-phone="${attendee.customer?.phone ?: (attendee.dependent != null ? 'Người thân' : '--')}"
+                                                    th:data-phone="${attendee.customer?.phone ?: (attendee.dependent?.cccdPassportEncrypted != null && #strings.startsWith(attendee.dependent.cccdPassportEncrypted,'PHONE_') ? #strings.substring(attendee.dependent.cccdPassportEncrypted,6) : '--')}"
                                                     th:data-email="${attendee.customer?.email ?: '--'}"
-                                                    th:data-membership="${attendee.customer != null && attendee.customer.membershipTier != null ? attendee.customer.membershipTier.tierName : 'Khách đi cùng'}"
-                                                    th:data-room="'Phòng ' + ${100 + (attendee.id != null ? attendee.id % 20 : 0)}"
+                                                    th:data-membership="${attendee.customer != null && attendee.customer.membershipTier != null ? attendee.customer.membershipTier.tierName : (attendee.dependent != null ? (attendee.dependent.cccdPassportEncrypted != null && #strings.startsWith(attendee.dependent.cccdPassportEncrypted, 'AUTO_CHILD_') ? 'Trẻ em (' + #strings.substringAfter(attendee.dependent.cccdPassportEncrypted, 'AUTO_CHILD_').replace('_', ' ') + ')' : 'Khách đi cùng') : 'Chưa xác định')}"
+                                                    th:data-room="${attendee.tourBooking?.roomBookingDetail != null ? ('Phòng ' + attendee.tourBooking.roomBookingDetail.id) : '--'}"
                                                     onclick="showCustomerContactModal(this)">
                                                     NM
                                                 </div>
                                                 <div>
                                                     <p class="font-body-md font-semibold text-on-surface cursor-pointer hover:underline animate-none"
-                                                        th:text="${attendee.customer?.fullName ?: (attendee.dependent?.dependentName ?: 'Khách vãng lai')}"
-                                                        th:data-name="${attendee.customer?.fullName ?: (attendee.dependent?.dependentName ?: 'Khách vãng lai')}"
+                                                        th:text="${attendee.customer?.fullName ?: attendee.dependent?.dependentName}"
+                                                        th:data-name="${attendee.customer?.fullName ?: attendee.dependent?.dependentName}"
                                                         th:data-id="'#EVN-00' + ${attendee.id}"
-                                                        th:data-phone="${attendee.customer?.phone ?: (attendee.dependent != null ? 'Người thân' : '--')}"
+                                                        th:data-phone="${attendee.customer?.phone ?: (attendee.dependent?.cccdPassportEncrypted != null && #strings.startsWith(attendee.dependent.cccdPassportEncrypted,'PHONE_') ? #strings.substring(attendee.dependent.cccdPassportEncrypted,6) : '--')}"
                                                         th:data-email="${attendee.customer?.email ?: '--'}"
-                                                        th:data-membership="${attendee.customer != null && attendee.customer.membershipTier != null ? attendee.customer.membershipTier.tierName : 'Khách đi cùng'}"
-                                                        th:data-room="'Phòng ' + ${100 + (attendee.id != null ? attendee.id % 20 : 0)}"
+                                                        th:data-membership="${attendee.customer != null && attendee.customer.membershipTier != null ? attendee.customer.membershipTier.tierName : (attendee.dependent != null ? (attendee.dependent.cccdPassportEncrypted != null && #strings.startsWith(attendee.dependent.cccdPassportEncrypted, 'AUTO_CHILD_') ? 'Trẻ em (' + #strings.substringAfter(attendee.dependent.cccdPassportEncrypted, 'AUTO_CHILD_').replace('_', ' ') + ')' : 'Khách đi cùng') : 'Chưa xác định')}"
+                                                        th:data-room="${attendee.tourBooking?.roomBookingDetail != null ? ('Phòng ' + attendee.tourBooking.roomBookingDetail.id) : '--'}"
                                                         onclick="showCustomerContactModal(this)">
                                                         Nguyễn Minh Anh
                                                     </p>
                                                     <p class="text-[12px] text-on-surface-variant/60"
-                                                        th:text="${attendee.customer != null && attendee.customer.membershipTier != null ? attendee.customer.membershipTier.tierName : 'Khách đi cùng'}">
-                                                        Hà Nội</p>
+                                                        th:text="${attendee.customer != null ? (attendee.customer.membershipTier != null ? attendee.customer.membershipTier.tierName : 'Khách hàng') : (attendee.dependent != null && attendee.dependent.cccdPassportEncrypted != null && #strings.startsWith(attendee.dependent.cccdPassportEncrypted, 'AUTO_CHILD_') ? 'Trẻ em (' + #strings.substringAfter(attendee.dependent.cccdPassportEncrypted, 'AUTO_CHILD_').replace('_', ' ') + ')' : 'Khách đi cùng')}">
+                                                        Khách đi cùng</p>
                                                 </div>
                                             </div>
                                         </td>
@@ -581,7 +625,8 @@
                             </div>
                         </div>
                         <!-- Pagination Controls -->
-                        <div id="pagination-controls" class="flex flex-col sm:flex-row justify-between items-center gap-4 mt-6 pt-6 border-t border-primary/10 select-none">
+                        <div id="pagination-controls"
+                            class="flex flex-col sm:flex-row justify-between items-center gap-4 mt-6 pt-6 border-t border-primary/10 select-none">
                             <p class="text-xs text-on-surface-variant/80 font-medium" id="pagination-info">
                                 Đang hiển thị 1 đến 5 của 25 khách hàng
                             </p>
@@ -607,32 +652,6 @@
                                 class="px-8 py-3 rounded-full bg-primary text-white font-label-md text-label-md shadow-lg shadow-primary/20 hover:scale-[1.02] transition-all font-semibold">
                                 Gửi báo cáo
                             </button>
-                        </div>
-                    </div>
-                    <div id="notice-banner-card"
-                        class="glass-panel p-8 rounded-lg relative overflow-hidden group no-print">
-                        <div class="relative z-10 flex flex-col h-full justify-between">
-                            <div class="max-w-md">
-                                <h4 class="font-display-md text-[28px] text-primary mb-2">Thông tin Quan trọng (Lưu ý)
-                                </h4>
-                                <p class="font-headline text-lg font-light text-on-surface-variant/70">Yêu cầu tất cả
-                                    nhân viên kiểm tra
-                                    thiết bị quét khuôn mặt trước giờ đón khách 30 phút. Báo cáo ngay nếu có sự cố xảy
-                                    ra.</p>
-                            </div>
-                            <div class="flex items-center gap-4 mt-8">
-                                <button onclick="showImportantNoteDetails()"
-                                    class="px-6 py-2 rounded-full bg-on-background text-white font-label-md text-label-md hover:opacity-90 transition-all">Xem
-                                    chi tiết</button>
-                                <button onclick="dismissImportantNote()"
-                                    class="px-6 py-2 rounded-full border border-primary/20 text-primary font-label-md text-label-md hover:bg-primary/5 transition-all">Bỏ
-                                    qua</button>
-                            </div>
-                        </div>
-                        <div
-                            class="absolute right-0 top-0 w-1/3 h-full opacity-20 group-hover:opacity-30 transition-opacity duration-700 mix-blend-overlay">
-                            <img alt="Lavender" class="w-full h-full object-cover"
-                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuDeLvciBkxzpqCj99jbhYDz-jWK36X0hiX6zOFGSREI9SK6R5-Vo7lRAKfEd6Z3Wr_hSC3C__jVEYbxzQbBA-UkwdGxwaQrHu6isYZl1ibWqp4M42CGW_uMKaNtNYsHjycv_UNAjCuOeuZY4xTpjnAdYN6JsWf65fvEvvXEIJ9vCn5SP80Tgu7X6wUXuynSbPC_s_W9jdb69eSOlgBl2aRhYQQeMe7ukL-J4tGjtg1WlG9E3UW6GzWv8GF0Xi9HHgxqHfeX3CjWgZ8">
                         </div>
                     </div>
                 </div>
@@ -901,10 +920,11 @@
     <div id="toast-container" class="fixed top-24 right-8 z-[200] flex flex-col gap-3 pointer-events-none"></div>
 
     <!-- Script Section -->
-    <script>
+    <script th:inline="javascript">
         const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.12/model/';
         const FACE_MATCH_THRESHOLD = 0.45;
         const MIN_CONFIDENCE = 85;
+        const activeScheduleId = [[${scheduleId}]];
 
         let cameraStream = null;
         let cameraActive = false;
@@ -934,7 +954,7 @@
 
         async function loadReferenceFaces() {
             try {
-                const response = await fetch('/api/faceid/references');
+                const response = await fetch('/api/faceid/references?scheduleId=' + activeScheduleId);
                 const refs = await response.json();
                 for (const ref of refs) {
                     try {
@@ -1099,7 +1119,7 @@
                                     await fetch('/api/faceid/verify', {
                                         method: 'POST',
                                         headers: { 'Content-Type': 'application/json' },
-                                        body: JSON.stringify({ name: bestName })
+                                        body: JSON.stringify({ name: bestName, scheduleId: activeScheduleId })
                                     });
 
                                     // Update UI List bên tay trái ngay lập tức (không cần reload)
@@ -1144,7 +1164,7 @@
 
                                 // Tự động tải lại trang sau khi điểm danh thành công
                                 setTimeout(() => {
-                                    window.location.href = '/tourguide/dashboard?scanned=true';
+                                    window.location.href = '/tourguide/dashboard?scanned=true' + (activeScheduleId ? '&scheduleId=' + activeScheduleId : '');
                                 }, 1500);
                             }
                         } else {
@@ -1255,12 +1275,12 @@
                     await fetch('/api/faceid/verify', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ name: matchResult.name })
+                        body: JSON.stringify({ name: matchResult.name, scheduleId: activeScheduleId })
                     });
                 } catch (e) {
                     console.warn(e);
                 }
-                setTimeout(() => { window.location.href = '/tourguide/dashboard?scanned=true'; }, 2000);
+                setTimeout(() => { window.location.href = '/tourguide/dashboard?scanned=true' + (activeScheduleId ? '&scheduleId=' + activeScheduleId : ''); }, 2000);
             } else {
                 faceFrame.className = 'face-frame failed';
                 statusLabel.textContent = 'KHÔNG TỒN TẠI';
@@ -1285,6 +1305,34 @@
             icon.className = success ? 'material-symbols-outlined text-[20px] text-green-800' : 'material-symbols-outlined text-[20px] text-red-800';
         }
 
+        async function saveScheduleNotes() {
+            const input = document.getElementById('scheduleNotesInput');
+            if (!input) return;
+            const scheduleId = input.getAttribute('data-schedule-id');
+            const notes = input.value;
+            const statusSpan = document.getElementById('schedNotesSaveStatus');
+
+            try {
+                const resp = await fetch(`/tourguide/schedule/${scheduleId}/update-notes`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ notes: notes })
+                });
+                const data = await resp.json();
+                if (data.success) {
+                    if (statusSpan) {
+                        statusSpan.classList.remove('hidden');
+                        setTimeout(() => statusSpan.classList.add('hidden'), 3000);
+                    }
+                } else {
+                    alert('Lỗi lưu ghi chú: ' + data.message);
+                }
+            } catch (e) {
+                console.error(e);
+                alert('Có lỗi xảy ra khi lưu ghi chú');
+            }
+        }
+
         async function checkinManual(attendeeId) {
             try {
                 const resp = await fetch('/api/faceid/checkin-manual', {
@@ -1295,7 +1343,7 @@
                 const data = await resp.json();
                 if (data.success) {
                     showToast(data.name + ' đã được điểm danh thành công!', 'success');
-                    window.location.href = '/tourguide/dashboard?scanned=true';
+                    window.location.href = '/tourguide/dashboard?scanned=true' + (activeScheduleId ? '&scheduleId=' + activeScheduleId : '');
                 }
             } catch (e) {
                 console.error(e);
@@ -1310,7 +1358,7 @@
                 onConfirm: async () => {
                     try {
                         await fetch('/api/faceid/reset');
-                        window.location.href = '/tourguide/dashboard';
+                        window.location.href = '/tourguide/dashboard' + (activeScheduleId ? '?scheduleId=' + activeScheduleId : '');
                     } catch (e) {
                         console.error(e);
                     }
@@ -1437,6 +1485,8 @@
                     showToast('Đã hoàn thành hành trình tour và gửi email cảm ơn đến quý khách!', 'success');
                 } else if (toastParam === 'start_success') {
                     showToast('Tour đã bắt đầu! Email thông báo khởi hành đã được gửi đến toàn bộ khách hàng.', 'success');
+                } else if (toastParam === 'start_failed_pax') {
+                    showToast('Không thể bắt đầu tour do chưa có khách hàng hoặc chưa điểm danh đủ!', 'error');
                 }
                 // Clean url parameters
                 const cleanUrl = window.location.pathname;
@@ -1543,7 +1593,7 @@
         function getCandidateRows() {
             const query = (document.getElementById('search-customer-input')?.value || '').trim();
             const rows = Array.from(document.querySelectorAll('table tbody tr'));
-            
+
             if (!query) return rows;
 
             const tourName = document.getElementById('tour-name-display') ? document.getElementById('tour-name-display').textContent : '';
@@ -1591,7 +1641,7 @@
             // Update info text
             const infoEl = document.getElementById('pagination-info');
             const wrapperEl = document.getElementById('pagination-controls');
-            
+
             if (total === 0) {
                 if (infoEl) infoEl.textContent = 'Không có kết quả trùng khớp';
                 if (wrapperEl) wrapperEl.classList.add('hidden');
@@ -1608,7 +1658,7 @@
             const buttonsEl = document.getElementById('pagination-buttons');
             if (buttonsEl) {
                 let html = '';
-                
+
                 // Prev button
                 const prevDisabled = currentPage === 1;
                 html += `
@@ -1712,6 +1762,8 @@
     const tourTypeDb = /*[[${tourType}]]*/ 'doantu';
     const tourActivitiesJsonDb = /*[[${tourActivitiesJson}]]*/ '[]';
     const tourHandbookJsonDb = /*[[${tourHandbookJson}]]*/ '{}';
+    const checkedInCountDb = /*[[${checkedInCount}]]*/ 0;
+    const totalAttendeesDb = /*[[${totalAttendees}]]*/ 0;
     /*]]>*/
 
     const TOUR_ITINERARIES = {
@@ -1794,7 +1846,7 @@
             ]
         },
         muine: {
-            subtitle: 'Bình Minh Cồn Cát – Mũ Né (Khởi hành: 04:30)',
+            subtitle: 'Bình Minh Cồn Cát – Mũi Né (Khởi hành: 04:30)',
             activities: [
                 { time: '04:00 - 04:30', title: 'Đón khách & Làm thủ tục', desc: 'Khởi hành sớm, điểm danh FaceID khách lên xe sang trọng.' },
                 { time: '04:30 - 05:30', title: 'Đường chạy ban mai – Hành trình ra đồi cát', desc: 'Xe hạng sang đón bạn từ sớm khi trời còn đẫm sương để kịp di chuyển ra Đồi Cát Trắng xinh đẹp.' },
@@ -1917,7 +1969,7 @@
             ]
         },
         muine: {
-            title: 'Nắng Ấm Sa Mạc – Mũ Né',
+            title: 'Nắng Ấm Sa Mạc – Mũi Né',
             spec: '11 Giờ (04:30 - 15:30) | Sức chứa: 10 khách.',
             logistics: [
                 'Giờ giấc: Khởi hành rất sớm (04:30), nhắc khách ngủ sớm từ tối hôm trước.',
@@ -2133,19 +2185,21 @@
 
     function checkTourSafety(event) {
         if (event) event.preventDefault();
-        const category = getTourCategory();
-        if (category !== 'DEFAULT') {
-            openSafetyModal(category);
-        } else {
-            showCustomConfirm({
-                title: 'Bắt Đầu Tour',
-                message: 'Xác nhận bắt đầu tour? Email thông báo khởi hành sẽ được gửi đến toàn bộ khách hàng!',
-                icon: 'play_circle',
-                onConfirm: () => {
-                    document.getElementById('startTourForm').submit();
-                }
+
+        // Kiểm tra xem số lượng hành khách đã điểm danh có đủ so với số lượng đăng ký hay chưa
+        if (totalAttendeesDb === 0 || checkedInCountDb < totalAttendeesDb) {
+            showCustomWarning({
+                title: 'Không Thể Bắt Đầu Tour',
+                message: totalAttendeesDb === 0
+                    ? 'Chưa thể bắt đầu tour do chưa có hành khách nào đăng ký!'
+                    : `Chưa thể bắt đầu tour. Số hành khách điểm danh hiện tại (${checkedInCountDb}/${totalAttendeesDb}) chưa đủ so với danh sách đăng ký theo quy định của tour!`,
+                icon: 'warning'
             });
+            return;
         }
+
+        const category = getTourCategory();
+        openSafetyModal(category);
     }
 
     function openSafetyModal(category) {
@@ -2177,6 +2231,15 @@
                 { id: 'ms2', title: 'Thời tiết & Tầm nhìn', desc: 'Không mưa lớn hay sương mù dày đặc cản trở lối đi.' },
                 { id: 'ms3', title: 'Nước uống & Y tế', desc: 'Đã mang đủ nước uống và túi sơ cứu y tế cá nhân.' },
                 { id: 'ms4', title: 'Quy định tách đoàn', desc: 'Đã phổ biến quy tắc di chuyển theo đoàn, không tự ý rẽ hướng.' }
+            ];
+        } else {
+            iconName = 'security';
+            subtext = 'CAM KẾT AN TOÀN CHUNG (BẮT BUỘC)';
+            items = [
+                { id: 'ds1', title: 'Thông tin liên lạc', desc: 'Đã chuẩn bị đầy đủ danh bạ và phương tiện liên lạc khẩn cấp.' },
+                { id: 'ds2', title: 'Phổ biến lịch trình', desc: 'Đã thông báo rõ ràng về lịch trình di chuyển và các điểm dừng chân.' },
+                { id: 'ds3', title: 'Dụng cụ y tế', desc: 'Hộp y tế sơ cứu cơ bản đi kèm đã được kiểm tra và sẵn sàng.' },
+                { id: 'ds4', title: 'Phương tiện vận chuyển', desc: 'Xe đưa đón hoặc phương tiện di chuyển nội bộ đủ điều kiện an toàn.' }
             ];
         }
 
@@ -2301,8 +2364,44 @@
         document.getElementById('confirm-modal-title').textContent = options.title || 'Xác Nhận';
         document.getElementById('confirm-modal-msg').textContent = options.message || '';
         document.getElementById('confirm-modal-icon').textContent = options.icon || 'help';
-        
+
         confirmCallback = options.onConfirm;
+
+        modal.classList.remove('hidden');
+        setTimeout(() => {
+            modal.querySelector('.confirm-modal-box').classList.remove('scale-95', 'opacity-0');
+            modal.querySelector('.confirm-modal-box').classList.add('scale-100', 'opacity-100');
+        }, 10);
+    }
+
+    function showCustomWarning(options) {
+        const modal = document.getElementById('custom-confirm-modal');
+        if (!modal) return;
+
+        document.getElementById('confirm-modal-title').textContent = options.title || 'Cảnh Báo';
+        document.getElementById('confirm-modal-msg').textContent = options.message || '';
+        document.getElementById('confirm-modal-icon').textContent = options.icon || 'warning';
+
+        // Hide cancel button
+        const cancelBtn = modal.querySelector('button[onclick="closeCustomConfirm(false)"]');
+        if (cancelBtn) cancelBtn.style.display = 'none';
+
+        // Update agree button label
+        const agreeBtn = modal.querySelector('button[onclick="closeCustomConfirm(true)"]');
+        if (agreeBtn) {
+            agreeBtn.textContent = 'Đóng';
+            agreeBtn.className = 'w-full py-3 rounded-full text-sm font-bold bg-primary text-on-primary hover:bg-primary/90 transition-all shadow-md inline-flex items-center justify-center';
+        }
+
+        confirmCallback = () => {
+            // Restore buttons on close
+            if (cancelBtn) cancelBtn.style.display = 'block';
+            if (agreeBtn) {
+                agreeBtn.textContent = 'Đồng ý';
+                agreeBtn.className = 'flex-1 py-3 rounded-full text-sm font-bold bg-primary text-on-primary hover:bg-primary/90 transition-all shadow-md inline-flex items-center justify-center';
+            }
+            if (options.onConfirm) options.onConfirm();
+        };
 
         modal.classList.remove('hidden');
         setTimeout(() => {
@@ -2402,7 +2501,8 @@
                 transform scale-95 opacity-0 transition-all duration-200 ease-out">
         <!-- Icon + Title -->
         <div class="flex flex-col items-center text-center px-8 pt-9 pb-5">
-            <div class="w-20 h-20 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center mb-5 shadow-inner">
+            <div
+                class="w-20 h-20 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center mb-5 shadow-inner">
                 <span class="material-symbols-outlined text-primary" style="font-size:36px">undo</span>
             </div>
             <h3 class="font-bold text-on-background text-lg md:text-xl tracking-tight">Xác nhận Hoàn Tác</h3>
@@ -2411,7 +2511,8 @@
 
         <!-- Message -->
         <div class="px-8 pb-8">
-            <p id="reset-confirm-msg" class="text-sm md:text-base text-on-surface-variant leading-relaxed text-center"></p>
+            <p id="reset-confirm-msg" class="text-sm md:text-base text-on-surface-variant leading-relaxed text-center">
+            </p>
         </div>
 
         <!-- Separator -->
@@ -2484,21 +2585,25 @@
      CUSTOM CONFIRM MODAL (Purple theme)
 ══════════════════════════════════════════════════════════ -->
 <div id="custom-confirm-modal"
-     class="fixed inset-0 bg-primary/20 backdrop-blur-md flex items-center justify-center z-[510] hidden p-4">
+    class="fixed inset-0 bg-primary/20 backdrop-blur-md flex items-center justify-center z-[510] hidden p-4">
     <div class="confirm-modal-box w-full max-w-md overflow-hidden bg-white border border-primary/20 rounded-3xl shadow-2xl
                 transform scale-95 opacity-0 transition-all duration-200 ease-out">
         <!-- Icon + Title -->
         <div class="flex flex-col items-center text-center px-8 pt-9 pb-5">
-            <div class="w-20 h-20 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center mb-5 shadow-inner">
-                <span id="confirm-modal-icon" class="material-symbols-outlined text-primary" style="font-size:36px">help</span>
+            <div
+                class="w-20 h-20 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center mb-5 shadow-inner">
+                <span id="confirm-modal-icon" class="material-symbols-outlined text-primary"
+                    style="font-size:36px">help</span>
             </div>
-            <h3 id="confirm-modal-title" class="font-bold text-on-background text-lg md:text-xl tracking-tight">Xác Nhận</h3>
+            <h3 id="confirm-modal-title" class="font-bold text-on-background text-lg md:text-xl tracking-tight">Xác Nhận
+            </h3>
             <div class="w-12 h-px bg-primary/30 mt-4"></div>
         </div>
 
         <!-- Message -->
         <div class="px-8 pb-8">
-            <p id="confirm-modal-msg" class="text-sm md:text-base text-on-surface-variant leading-relaxed text-center"></p>
+            <p id="confirm-modal-msg" class="text-sm md:text-base text-on-surface-variant leading-relaxed text-center">
+            </p>
         </div>
 
         <!-- Separator -->
@@ -2506,14 +2611,12 @@
 
         <!-- Action buttons -->
         <div class="flex gap-4 px-6 py-5">
-            <button type="button"
-                    onclick="closeCustomConfirm(false)"
-                    class="flex-1 py-3 rounded-full text-sm font-semibold text-on-surface-variant border border-outline-variant/50 hover:bg-surface-container-low transition-all">
+            <button type="button" onclick="closeCustomConfirm(false)"
+                class="flex-1 py-3 rounded-full text-sm font-semibold text-on-surface-variant border border-outline-variant/50 hover:bg-surface-container-low transition-all">
                 Huỷ
             </button>
-            <button type="button"
-                    onclick="closeCustomConfirm(true)"
-                    class="flex-1 py-3 rounded-full text-sm font-bold bg-primary text-on-primary hover:bg-primary/90 transition-all shadow-md inline-flex items-center justify-center">
+            <button type="button" onclick="closeCustomConfirm(true)"
+                class="flex-1 py-3 rounded-full text-sm font-bold bg-primary text-on-primary hover:bg-primary/90 transition-all shadow-md inline-flex items-center justify-center">
                 Đồng ý
             </button>
         </div>

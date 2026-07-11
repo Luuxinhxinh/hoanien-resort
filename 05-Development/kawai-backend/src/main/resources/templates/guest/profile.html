@@ -87,6 +87,8 @@
                     class="hover:text-hoanien-text hover:opacity-100 active:scale-95 transition-all duration-200">Experiences</a>
                 <a href="/tours"
                     class="hover:text-hoanien-text hover:opacity-100 active:scale-95 transition-all duration-200">Tours</a>
+                <a href="/feedback"
+                    class="hover:text-hoanien-text hover:opacity-100 active:scale-95 transition-all duration-200">Feedback</a>
             </div>
 
             <div class="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 font-headline text-[32px] italic tracking-tighter text-hoanien-text text-center cursor-pointer w-max"
@@ -987,6 +989,14 @@
                                                         th:text="${tb.tourCharge != null ? #numbers.formatDecimal(tb.tourCharge, 0, 'COMMA', 0, 'POINT') : '0'}">0</span><span
                                                         class="text-[10px] font-semibold ml-1 opacity-70">VNĐ</span></p>
                                             </div>
+                                            <button type="button"
+                                                th:if="${#strings.toUpperCase(tb.bookingStatus) == 'CONFIRMED' || #strings.toUpperCase(tb.bookingStatus) == 'PENDING'}"
+                                                th:onclick="'confirmCancelTour(' + ${tb.id} + ')'"
+                                                class="px-4 h-8 rounded-full bg-red-50 hover:bg-red-100 border border-red-200 text-red-700 flex items-center justify-center gap-1.5 transition-all text-xs font-semibold shadow-sm mr-2"
+                                                title="Hủy đặt tour">
+                                                <span class="material-symbols-outlined text-[15px] text-red-600">cancel</span>
+                                                <span>Hủy tour</span>
+                                            </button>
                                             <button type="button"
                                                 th:onclick="'viewTourBookingDetails(' + ${tb.id} + ')'"
                                                 class="w-8 h-8 rounded-full bg-hoanien-text text-white hover:bg-hoanien-text/80 flex items-center justify-center transition-colors shadow-sm"
@@ -2311,6 +2321,57 @@
                     console.error(err);
                     Swal.fire('Lỗi', 'Lỗi kết nối máy chủ', 'error');
                 });
+        }
+
+        function confirmCancelTour(bookingId) {
+            Swal.fire({
+                title: 'Hủy đặt tour?',
+                text: 'Quý khách có chắc chắn muốn hủy đặt tour này không? Lịch trình sẽ bị hủy bỏ.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Đồng ý hủy',
+                cancelButtonText: 'Không, giữ lại'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Đang xử lý...',
+                        text: 'Vui lòng chờ trong giây lát',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+                    
+                    fetch('/profile/tours/cancel/' + bookingId, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            return response.json().then(err => { throw new Error(err.message || 'Hủy thất bại'); });
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Thành công',
+                            text: 'Đã hủy tour thành công và gửi email thông báo!',
+                            confirmButtonColor: '#A67C00'
+                        }).then(() => {
+                            window.location.reload();
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        Swal.fire('Lỗi', error.message || 'Đã xảy ra lỗi khi hủy tour.', 'error');
+                    });
+                }
+            });
         }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

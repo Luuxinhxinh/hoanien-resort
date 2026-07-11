@@ -100,6 +100,11 @@ public interface EmailService {
     void sendTourFeedbackEmail(com.kawai.models.TourBooking booking, com.kawai.models.Customer customer);
 
     /**
+     * Gửi email thông báo khi có phản hồi đánh giá từ tour tới khách hàng.
+     */
+    void sendFeedbackReplyEmail(com.kawai.models.Review review, com.kawai.models.Customer customer);
+
+    /**
      * Gửi email thông báo khởi hành tour kèm lịch trình hoạt động chi tiết.
      */
     void sendTourDepartureEmail(com.kawai.models.TourBooking booking, com.kawai.models.Customer customer,

@@ -39,19 +39,26 @@ public class FaceIdApiController {
      */
     @PostMapping("/verify")
     @org.springframework.transaction.annotation.Transactional
-    public ResponseEntity<?> verifyFromBrowser(@RequestBody Map<String, String> body) {
-        String matchedName = body.get("name");
+    public ResponseEntity<?> verifyFromBrowser(@RequestBody Map<String, Object> body) {
+        String matchedName = body.get("name") != null ? body.get("name").toString() : null;
         if (matchedName == null || matchedName.isBlank()) {
             return ResponseEntity.badRequest().body(Map.of(
                     "success", false,
                     "message", "Thiếu tên khách hàng"));
         }
 
+        Object schedIdObj = body.get("scheduleId");
+        Long scheduleId = schedIdObj != null ? Long.valueOf(schedIdObj.toString()) : null;
+
         String displayName = matchedName;
 
         try {
-            List<TourAttendee> attendees = tourAttendeeRepository
-                    .findByTourBooking_Schedule_DepartureDate(LocalDate.now());
+            List<TourAttendee> attendees;
+            if (scheduleId != null) {
+                attendees = tourAttendeeRepository.findByTourBooking_Schedule_Id(scheduleId);
+            } else {
+                attendees = tourAttendeeRepository.findByTourBooking_Schedule_DepartureDate(LocalDate.now());
+            }
 
             for (TourAttendee attendee : attendees) {
                 String name = null;
@@ -139,7 +146,7 @@ public class FaceIdApiController {
                             com.cloudinary.utils.ObjectUtils.asMap(
                                     "folder", "kawai_faces",
                                     "public_id", "face_" + System.currentTimeMillis()
-                            ));
+                             ));
                     savedImageUrl = uploadResult.get("secure_url").toString();
                 } catch (Exception ex) {
                     System.err.println("Lỗi nghiêm trọng khi upload FaceID lên Cloudinary:");
@@ -243,10 +250,14 @@ public class FaceIdApiController {
      * Trả về danh sách ảnh tham chiếu khuôn mặt cho hôm nay (dùng cho face-api.js).
      */
     @GetMapping("/references")
-    public ResponseEntity<?> getFaceReferences() {
+    public ResponseEntity<?> getFaceReferences(@RequestParam(required = false) Long scheduleId) {
         try {
-            List<TourAttendee> attendees = tourAttendeeRepository
-                    .findByTourBooking_Schedule_DepartureDate(LocalDate.now());
+            List<TourAttendee> attendees;
+            if (scheduleId != null) {
+                attendees = tourAttendeeRepository.findByTourBooking_Schedule_Id(scheduleId);
+            } else {
+                attendees = tourAttendeeRepository.findByTourBooking_Schedule_DepartureDate(LocalDate.now());
+            }
             List<Map<String, String>> refs = new ArrayList<>();
 
             for (TourAttendee attendee : attendees) {

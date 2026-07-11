@@ -75,7 +75,7 @@ public class SecurityConfig {
                                 "/receptionist/css/**", "/receptionist/js/**", "/receptionist/images/**",
                                 "/admin/css/**", "/admin/js/**", "/admin/img/**", "/admin/images/**",
                                 "/living", "/wellbeing", "/dining",
-                                "/experiences", "/tours", "/tours/**", "/profile", "/order-food", "/AnhTour/**",
+                                "/experiences", "/tours", "/tours/**", "/order-food", "/AnhTour/**",
                                 "/api/faceid/**", "/error",
                                 "/api/v1/payments/vnpay-return", "/api/v1/payments/vnpay-ipn",
                                 "/api/v1/payments/food-order/**", "/book-table", "/receptionist/remote-scan", "/api/v1/remote-scan/**",
@@ -119,8 +119,20 @@ public class SecurityConfig {
                                 "ROLE_FB_STAFF", "ROLE_ADMIN", "ROLE_MANAGER", "OP_FNB", "OP_FNB_ORDER", "OP_FNB_TABLE", "OP_FNB_ROOM_SERVICE", "OP_FNB_REPORT")
                         .requestMatchers("/kitchenStaff/**").hasAnyAuthority(
                                 "ROLE_FB_STAFF", "ROLE_ADMIN", "ROLE_MANAGER", "OP_FNB", "OP_FNB_ORDER")
-                        .requestMatchers("/profile/**").authenticated()
+                        // Profile requires authentication (both /profile and /profile/**)
+                        .requestMatchers("/profile", "/profile/**").authenticated()
                         .anyRequest().authenticated())
+
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            String uri = request.getRequestURI();
+                            // Customer-facing routes: redirect to /booking (where login modal lives)
+                            if (uri.startsWith("/profile")) {
+                                response.sendRedirect("/booking");
+                            } else {
+                                response.sendRedirect("/ops-login");
+                            }
+                        }))
 
                 .headers(headers -> headers.frameOptions(frame -> frame.disable()))
 
@@ -266,7 +278,7 @@ public class SecurityConfig {
                             }
                             break;
                         } else if (role.equals("ROLE_TOURGUIDE")) {
-                            redirect = "/tourguide/dashboard";
+                            redirect = "/tourguide/tour";
                             break;
                         } else if (role.equals("ROLE_HOUSEKEEPING")) {
                             redirect = "/housekeeping/dashboard";
@@ -295,7 +307,7 @@ public class SecurityConfig {
                                 redirect = "/maintenance/dashboard";
                                 break;
                             } else if (perm.startsWith("OP_TOUR")) {
-                                redirect = "/tourguide/dashboard";
+                                redirect = "/tourguide/tour";
                                 break;
                             } else if (perm.startsWith("OP_MASTER_DATA") || perm.startsWith("OP_AUDIT_LOG") ||
                                        perm.startsWith("OP_WORKFLOW")) {
