@@ -64,23 +64,26 @@ public class PosServiceImpl implements PosService {
 
     @jakarta.annotation.PostConstruct
     public void cleanupOrphanedFolios() {
-        System.out.println("--- CLEANING UP ORPHANED FOLIO ITEMS FOR CANCELLED FOOD ORDERS ---");
-        List<com.kawai.models.FolioItem> folios = folioItemRepository.findAll();
-        for (com.kawai.models.FolioItem folio : folios) {
-            if (folio.getDescription() != null && folio.getDescription().startsWith("Ký bill đồ ăn F&B (Order #")) {
-                String desc = folio.getDescription();
-                try {
-                    String idStr = desc.substring(desc.indexOf("#") + 1, desc.indexOf(")"));
-                    Long orderId = Long.parseLong(idStr);
-                    FoodOrder order = foodOrderRepository.findById(orderId).orElse(null);
-                    if (order != null && "Cancelled".equalsIgnoreCase(order.getOrderStatus())) {
-                        System.out.println(
-                                "Deleting orphaned FolioItem ID " + folio.getId() + " for cancelled order " + orderId);
-                        folioItemRepository.delete(folio);
-                    }
-                } catch (Exception e) {
+        try {
+            System.out.println("--- CLEANING UP ORPHANED FOLIO ITEMS FOR CANCELLED FOOD ORDERS ---");
+            List<com.kawai.models.FolioItem> folios = folioItemRepository.findAll();
+            for (com.kawai.models.FolioItem folio : folios) {
+                if (folio.getDescription() != null && folio.getDescription().startsWith("Ký bill đồ ăn F&B (Order #")) {
+                    String desc = folio.getDescription();
+                    try {
+                        String idStr = desc.substring(desc.indexOf("#") + 1, desc.indexOf(")"));
+                        Long orderId = Long.parseLong(idStr);
+                        FoodOrder order = foodOrderRepository.findById(orderId).orElse(null);
+                        if (order != null && "Cancelled".equalsIgnoreCase(order.getOrderStatus())) {
+                            System.out.println("Deleting orphaned FolioItem ID " + folio.getId() + " for cancelled order " + orderId);
+                            folioItemRepository.delete(folio);
+                        }
+                    } catch (Exception e) {}
                 }
             }
+        } catch (Exception e) {
+            // Bỏ qua lỗi khi DB vừa được tạo lại (ddl-auto=create) và data chưa được seed
+            System.out.println("--- cleanupOrphanedFolios: DB chưa có dữ liệu, bỏ qua cleanup lần này. ---");
         }
     }
 

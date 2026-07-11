@@ -73,7 +73,7 @@ public class ReviewServiceUC22Test {
         savedReview.setTourBooking(mockBooking);
         savedReview.setRatingService(rating);
         savedReview.setReviewText(reviewText);
-        savedReview.setModerationStatus("Pending");
+        savedReview.setModerationStatus("Approved");
 
         when(reviewRepository.save(any(Review.class))).thenReturn(savedReview);
 
@@ -84,7 +84,7 @@ public class ReviewServiceUC22Test {
         assertNotNull(result);
         assertEquals(5, result.getRatingService());
         assertEquals(reviewText, result.getReviewText());
-        assertEquals("Pending", result.getModerationStatus());
+        assertEquals("Approved", result.getModerationStatus());
 
         ArgumentCaptor<Review> reviewCaptor = ArgumentCaptor.forClass(Review.class);
         verify(reviewRepository).save(reviewCaptor.capture());
