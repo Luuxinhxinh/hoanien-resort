@@ -238,82 +238,82 @@ Mọi hành động xuất dữ liệu (Export Excel/PDF) liên quan đến thô
 
 ### Nhóm BR-RSV — Đặt phòng & Phân bổ
 
-### BR-RSV-01 — Validate check-in/out dates (cannot be...
+### BR-RSV-01 — Kiểm tra hợp lệ ngày tháng và số lượng phòng
 
 **Mức độ:** HIGH
 
 **Phát biểu:**
-Validate check-in/out dates (cannot be in the past; check-out > check-in) and ensure the number of rooms is less than or equal to the number of available rooms in the list.
+Kiểm tra tính hợp lệ của ngày nhận/trả phòng (không được nằm trong quá khứ; ngày trả > ngày nhận) và đảm bảo số lượng phòng yêu cầu nhỏ hơn hoặc bằng số lượng phòng trống trong danh sách.
 
-### BR-RSV-02 — The system displays only available...
-
-**Mức độ:** HIGH
-
-**Phát biểu:**
-The system displays only available rooms that meet the search criteria (excluding rooms that are currently soft-locked).
-
-### BR-RSV-03 — Must log in to make...
+### BR-RSV-02 — Hiển thị phòng trống theo điều kiện
 
 **Mức độ:** HIGH
 
 **Phát biểu:**
-Must log in to make a reservation. If you are not logged in, you will be redirected to the Login/Register page.
+Hệ thống chỉ hiển thị các phòng trống thỏa mãn điều kiện tìm kiếm (loại trừ các phòng đang bị khóa tạm thời - soft-locked).
 
-### BR-RSV-04 — All online bookings require a...
-
-**Mức độ:** HIGH
-
-**Phát biểu:**
-All online bookings require a deposit payment before the reservation is confirmed. The booking will remain in "Pending Payment" status for 2 minutes; if the deposit is not received within this timeframe, the booking will be automatically cancelled, and the room will be released back into the inventory.
-
-### BR-RSV-05 — The system must prevent room...
+### BR-RSV-03 — Bắt buộc đăng nhập để đặt phòng
 
 **Mức độ:** HIGH
 
 **Phát biểu:**
-The system must prevent room overbooking by ensuring that the same physical room cannot be assigned to overlapping reservations.
+Bắt buộc phải đăng nhập để đặt phòng. Nếu chưa đăng nhập, người dùng sẽ bị chuyển hướng đến trang Đăng nhập/Đăng ký.
 
-### BR-RSV-06 — The displayed price is the...
-
-**Mức độ:** HIGH
-
-**Phát biểu:**
-The displayed price is the rate applicable at the time of the search (including holidays, weekends, and promotions).
-
-### BR-RSV-07 — Booking status changes from Pending_Payment...
+### BR-RSV-04 — Yêu cầu đặt cọc và Hủy tự động
 
 **Mức độ:** HIGH
 
 **Phát biểu:**
-Booking status changes from Pending_Payment to Confirmed only upon successful deposit payment via VNPay.
+Tất cả các đặt phòng trực tuyến đều yêu cầu thanh toán tiền cọc trước khi được xác nhận. Đơn đặt phòng sẽ giữ trạng thái "Chờ thanh toán" trong 2 phút; nếu không nhận được tiền cọc trong khoảng thời gian này, hệ thống sẽ tự động hủy đơn và giải phóng phòng trả lại kho.
 
-### BR-RSV-08 — Only the customer who owns...
-
-**Mức độ:** HIGH
-
-**Phát biểu:**
-Only the customer who owns the reservation may cancel the reservation.
-
-### BR-RSV-09 — Reservations with status Checked-In or...
+### BR-RSV-05 — Ngăn chặn đặt phòng trùng lặp (Overbooking)
 
 **Mức độ:** HIGH
 
 **Phát biểu:**
-Reservations with status Checked-In or Cancelled cannot be cancelled.
+Hệ thống phải ngăn chặn tình trạng đặt quá số lượng (overbooking) bằng cách đảm bảo rằng cùng một phòng vật lý không thể được gán cho các đơn đặt phòng có thời gian lưu trú trùng lặp.
 
-### BR-RSV-10 — When a reservation is cancelled,...
-
-**Mức độ:** HIGH
-
-**Phát biểu:**
-When a reservation is cancelled, all reserved room inventory shall be released immediately for future booking.
-
-### BR-RSV-11 — Customers may add, remove, and...
+### BR-RSV-06 — Giá phòng tại thời điểm tìm kiếm
 
 **Mức độ:** HIGH
 
 **Phát biểu:**
-Customers may add, remove, and assign accompanying/dependent guests to rooms only under an existing valid reservation. A dependent guest must be registered under the reservation before room assignment, and the assigned room must comply with the maximum occupancy limit.
+Giá hiển thị là mức giá áp dụng tại thời điểm tìm kiếm (đã bao gồm phụ phí ngày lễ, cuối tuần và các chương trình khuyến mãi).
+
+### BR-RSV-07 — Xác nhận đặt phòng sau khi thanh toán
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+Trạng thái đặt phòng chuyển từ Chờ thanh toán sang Đã xác nhận khi thanh toán thành công, đồng thời kích hoạt email xác nhận gửi đến khách hàng.
+
+### BR-RSV-08 — Quyền hủy đơn đặt phòng
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+Chỉ khách hàng sở hữu đơn đặt phòng mới có quyền hủy đơn đặt phòng đó.
+
+### BR-RSV-09 — Chặn hủy phòng đối với đơn đã check-in
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+Không thể hủy các đơn đặt phòng đang ở trạng thái Đã nhận phòng (Checked-In) hoặc Đã hủy (Cancelled).
+
+### BR-RSV-10 — Giải phóng phòng khi hủy đơn
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+Khi một đơn đặt phòng bị hủy, toàn bộ số lượng phòng đã giữ sẽ được giải phóng ngay lập tức để cho phép đặt phòng trong tương lai.
+
+### BR-RSV-11 — Quản lý khách đi cùng
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+Khách hàng chỉ được phép thêm, xóa và gán khách đi cùng (accompanying/dependent guests) vào phòng thuộc một đơn đặt phòng hợp lệ hiện có. Khách đi cùng phải được đăng ký vào đơn đặt phòng trước khi gán phòng, và phòng được gán phải tuân thủ giới hạn sức chứa tối đa.
 
 ### Nhóm BR-FO — Lễ tân & Trải nghiệm lưu trú
 
@@ -685,48 +685,47 @@ Modification of base prices or soft deleting a Tour is strictly forbidden if tha
 
 ## 7. BR-FIN — Tài chính & Thanh toán
 
-### BR-FIN-01 — Reservations cancelled at least 48...
+### BR-FIN-01 — Chính sách hoàn tiền khi hủy phòng
 
 **Mức độ:** HIGH
 
 **Phát biểu:**
-Reservations cancelled at least 48 hours (≥ 48 hours) before the scheduled check-in datetime shall receive a 100% deposit refund. Reservations cancelled less than 48 hours before check-in, no-shows, or reservations that have already completed check-in shall not be eligible for any refund.
+Các đơn đặt phòng hủy trước ít nhất 48 giờ (≥ 48 giờ) so với thời gian nhận phòng dự kiến sẽ được hoàn lại 100% tiền cọc. Các đơn đặt phòng hủy trước dưới 48 giờ, khách không đến (no-show), hoặc các đơn đã hoàn tất nhận phòng sẽ không được hoàn tiền.
 
-### BR-FIN-02 — The system shall support bank...
-
-**Mức độ:** HIGH
-
-**Phát biểu:**
-The system shall support bank transfer payments for online reservations. A reservation is considered paid only after payment confirmation has been successfully verified by the payment gateway.
-
-### BR-FIN-03 — Check-in may only be completed...
+### BR-FIN-02 — Hỗ trợ thanh toán chuyển khoản trực tuyến
 
 **Mức độ:** HIGH
 
 **Phát biểu:**
-Check-in may only be completed after the required deposit or payment guarantee has been successfully verified according to hotel policy.
+Hệ thống hỗ trợ thanh toán chuyển khoản cho các đơn đặt phòng trực tuyến. Đơn đặt phòng chỉ được coi là đã thanh toán sau khi giao dịch được cổng thanh toán xác nhận thành công.
 
-### BR-FIN-04 — When a guest upgrades to...
-
-**Mức độ:** HIGH
-
-**Phát biểu:**
-When a guest upgrades to a higher room category during an active stay, the system shall calculate the additional charge based on the difference between the current room rate and the selected room rate for all remaining nights of the stay.
-
-### BR-FIN-05 — Downgrading to a lower room...
+### BR-FIN-03 — Xác minh thanh toán trước khi nhận phòng
 
 **Mức độ:** HIGH
 
 **Phát biểu:**
-Downgrading to a lower room category after check-in shall not entitle the guest to any refund, credit, or reduction of previously agreed room charges.
+Thủ tục nhận phòng chỉ được hoàn tất sau khi tiền cọc hoặc khoản đảm bảo thanh toán yêu cầu đã được xác minh thành công theo chính sách của khách sạn.
 
-### BR-FIN-06 — The system shall determine room...
+### BR-FIN-04 — Tính phí khi nâng hạng phòng
 
 **Mức độ:** HIGH
 
 **Phát biểu:**
-The system shall determine room category upgrades and downgrades based on room rates. Moving to a higher-priced room category is considered an upgrade, while moving to a lower-priced room category is considered a downgrade.
+Khi khách hàng nâng cấp lên hạng phòng cao hơn trong thời gian lưu trú, hệ thống sẽ tính toán khoản phí phát sinh dựa trên chênh lệch giữa giá phòng hiện tại và giá phòng mới cho tất cả các đêm còn lại của kỳ lưu trú.
 
+### BR-FIN-05 — Không hoàn tiền khi hạ hạng phòng
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+Việc hạ cấp xuống hạng phòng thấp hơn sau khi nhận phòng sẽ không được hoàn tiền, cấp tín dụng hoặc giảm trừ các khoản phí phòng đã thỏa thuận trước đó.
+
+### BR-FIN-06 — Quy tắc xác định nâng hạng và hạ hạng phòng
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+Hệ thống xác định việc nâng hạng và hạ hạng phòng dựa trên giá phòng. Việc chuyển sang hạng phòng có giá cao hơn được coi là nâng hạng, trong khi chuyển sang hạng phòng có giá thấp hơn được coi là hạ hạng.
 ## 8. Mod 5 — Quản lý Vận hành & Báo cáo (Operations, Housekeeping, Manager)
 
 ### 1. Folio Aggregation (Gom hóa đơn & Ký nợ phòng)
