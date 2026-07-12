@@ -151,16 +151,17 @@ public class ReceptionistCheckinWebController {
     @PostMapping("/upgrade-dependent/{dependentId}")
     @org.springframework.web.bind.annotation.ResponseBody
     public org.springframework.http.ResponseEntity<?> upgradeDependentToCustomer(
-            @org.springframework.web.bind.annotation.PathVariable Long dependentId) {
+            @org.springframework.web.bind.annotation.PathVariable Long dependentId,
+            @org.springframework.web.bind.annotation.RequestParam(required = false) Long roomBookingDetailId) {
         try {
-            java.util.Map<String, Object> result = checkinService.upgradeDependentToCustomer(dependentId);
+            java.util.Map<String, Object> result = checkinService.upgradeDependentToCustomer(dependentId, roomBookingDetailId);
             com.kawai.models.Customer customer = (com.kawai.models.Customer) result.get("customer");
             String username = (String) result.get("username");
             String password = (String) result.get("password");
 
             // Lấy thông tin phòng để trả về UI (Logic unlink RoomGuest đã được làm trong
             // Service)
-            com.kawai.models.RoomGuest rg = roomGuestRepo.findByCustomerIdAndGuestType(customer.getId(), "ADULT")
+            com.kawai.models.RoomGuest rg = roomGuestRepo.findFirstByCustomerIdAndGuestType(customer.getId(), "ADULT")
                     .orElse(null);
 
             String roomInfo = "";
@@ -172,10 +173,19 @@ public class ReceptionistCheckinWebController {
                 roomInfo = " (Hạng phòng: " + categoryName + " - Số phòng: " + roomNumber + ")";
             }
 
+            Boolean isExisting = (Boolean) result.getOrDefault("isExistingCustomer", false);
+            String successMsg;
+            if (Boolean.TRUE.equals(isExisting)) {
+                successMsg = "Liên kết thành công! Khách hàng " + customer.getFullName() + roomInfo
+                        + " đã được gán làm chủ phòng. (Khách đã có tài khoản: " + username + ")";
+            } else {
+                successMsg = "Nâng cấp thành công Khách hàng: " + customer.getFullName() + roomInfo
+                        + ". Tài khoản: " + username + " - Mật khẩu: " + password;
+            }
+
             return org.springframework.http.ResponseEntity.ok(java.util.Map.of(
                     "success", true,
-                    "message", "Nâng cấp thành công Khách hàng: " + customer.getFullName() + roomInfo + ". Tài khoản: "
-                            + username + " - Mật khẩu: " + password));
+                    "message", successMsg));
         } catch (Exception e) {
             log.error("Error upgrading dependent", e);
             return org.springframework.http.ResponseEntity.badRequest().body(java.util.Map.of(

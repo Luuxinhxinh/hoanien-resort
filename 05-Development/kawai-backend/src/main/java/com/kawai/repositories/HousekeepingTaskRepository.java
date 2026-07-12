@@ -31,4 +31,11 @@ public interface HousekeepingTaskRepository extends JpaRepository<HotelOperation
                         @org.springframework.data.repository.query.Param("roomNumber") String roomNumber,
                         @org.springframework.data.repository.query.Param("status") String status,
                         @org.springframework.data.repository.query.Param("operationalType") String operationalType);
+
+        @org.springframework.data.jpa.repository.Query("SELECT h FROM HotelOperation h " +
+                        "WHERE h.operationalType IN ('URGENT_CLEAN', 'CHECKOUT_CLEAN') " +
+                        "AND h.status = 'Completed' " +
+                        "AND h.completedAt >= :since")
+        List<HotelOperation> findRecentCompletedCleanTasks(
+                        @org.springframework.data.repository.query.Param("since") java.time.LocalDateTime since);
 }

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
@@ -171,7 +171,7 @@
                 -->
             </nav>
 
-                        <div class="sidebar-user">
+            <div class="sidebar-user">
                 <div class="user-avatar"
                     th:text="${staffName != null && staffName.length() >= 2 ? staffName.substring(0, 2).toUpperCase() : 'NV'}">
                     NV</div>
@@ -202,15 +202,12 @@
                 </div>
 
                 <div class="header-actions">
-                    <button class="notification-btn">
-                        <i class="fa-regular fa-bell"></i>
-                        <span class="badge">3</span>
-                    </button>
                     <button class="user-profile-btn">
                         <i class="fa-solid fa-user"></i>
                         <span>Receptionist</span>
                     </button>
-                    <button class="logout-btn" onclick="window.location.href='/logout'">
+                    <button class="logout-btn" onclick="window.location.href='/auth/logout'">
+
                         <i class="fa-solid fa-arrow-right-from-bracket"></i>
                         <span>Logout</span>
                     </button>
@@ -293,12 +290,15 @@
                                         <!-- Nút nâng cấp cho người đứng đầu phòng (khi có >= 2 phòng) -->
                                         <th:block th:if="${arr.roomCount >= 2}">
                                             <select class="btn btn-warning btn-sm"
-                                                style="margin-left: 6px; color: #854d0e; background-color: #fef08a; border-color: #fde047; font-weight: 600; outline: none; cursor: pointer; text-align: center;"
-                                                onchange="if(this.value) { upgradeDependent(this.value, this); this.selectedIndex=0; }">
+                                                style="margin-left: 6px; color: #854d0e; background-color: #fef08a; border-color: #fde047; font-weight: 600; outline: none; cursor: pointer; text-align: center; width: 140px; text-overflow: ellipsis; white-space: nowrap;"
+                                                onchange="if(this.value) { const opt = this.options[this.selectedIndex]; upgradeDependent(this.value, opt.getAttribute('data-detail-id'), this); this.selectedIndex=0; }">
                                                 <option value="">Nâng cấp TK </option>
                                                 <option th:each="dep : ${arr.dependents}"
-                                                    th:if="${dep.isPrimaryContact}" th:value="${dep.dependentId}"
-                                                    th:text="${dep.fullName}"></option>
+                                                    th:if="${dep.isPrimaryContact}" 
+                                                    th:value="${dep.dependentId}"
+                                                    th:attr="data-detail-id=${dep.roomBookingDetailId}"
+                                                    th:text="${dep.dependentId == null ? '(Đã có TK) ' + dep.fullName : dep.fullName}"
+                                                    th:disabled="${dep.dependentId == null}"></option>
                                             </select>
                                         </th:block>
 
@@ -456,11 +456,11 @@
     <script th:src="@{/receptionist/js/in-house.js}"></script>
     <script th:src="@{/receptionist/js/room-alert.js}"></script>
 
-                <!-- WebSocket integration for real-time task notifications -->
+    <!-- WebSocket integration for real-time task notifications -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
     <script th:inline="javascript">
-        (function() {
+        (function () {
             var staffId = /*[[${staffId}]]*/ 0;
 
             function showPersistentToast(notif) {
@@ -485,9 +485,9 @@
                         fontFamily: "'Inter', sans-serif",
                         borderRadius: "8px"
                     },
-                    callback: function() {
+                    callback: function () {
                         var saved = JSON.parse(localStorage.getItem('kawai_notifs') || '[]');
-                        saved = saved.filter(function(n) { return n.id !== notif.id; });
+                        saved = saved.filter(function (n) { return n.id !== notif.id; });
                         localStorage.setItem('kawai_notifs', JSON.stringify(saved));
                     }
                 }).showToast();
@@ -495,8 +495,8 @@
 
             try {
                 var pending = JSON.parse(localStorage.getItem('kawai_notifs') || '[]');
-                pending.forEach(function(n) { showPersistentToast(n); });
-            } catch(e) {}
+                pending.forEach(function (n) { showPersistentToast(n); });
+            } catch (e) { }
 
             function saveAndShow(text, direct) {
                 var notif = { id: Date.now() + '_' + Math.random(), text: text, direct: direct };
@@ -504,11 +504,11 @@
                     var saved = JSON.parse(localStorage.getItem('kawai_notifs') || '[]');
                     saved.push(notif);
                     localStorage.setItem('kawai_notifs', JSON.stringify(saved));
-                } catch(e) {}
+                } catch (e) { }
                 showPersistentToast(notif);
             }
 
-            document.addEventListener("DOMContentLoaded", function() {
+            document.addEventListener("DOMContentLoaded", function () {
                 if (typeof SockJS === 'undefined' || typeof Stomp === 'undefined') {
                     console.warn('[WS] SockJS or Stomp not loaded');
                     return;
@@ -516,31 +516,31 @@
 
                 var socket = new SockJS('/ws-endpoint');
                 var stompClient = Stomp.over(socket);
-                stompClient.debug = null; 
+                stompClient.debug = null;
 
-                stompClient.connect({}, function(frame) {
+                stompClient.connect({}, function (frame) {
                     console.log('[WS] Đã kết nối thành công | staffId=' + staffId);
 
-                    stompClient.subscribe('/topic/operations', function(msg) {
+                    stompClient.subscribe('/topic/operations', function (msg) {
                         try {
                             var payload = JSON.parse(msg.body);
                             console.log('[WS] Nhận tin nhắn từ kênh Chung (/topic/operations):', payload);
                             saveAndShow('📢 THÔNG BÁO HỆ THỐNG: \n' + payload.message, false);
-                        } catch(e) { console.error('[WS] parse error', e); }
+                        } catch (e) { console.error('[WS] parse error', e); }
                     });
 
                     if (staffId && staffId !== 0) {
-                        stompClient.subscribe('/topic/operations/' + staffId, function(msg) {
+                        stompClient.subscribe('/topic/operations/' + staffId, function (msg) {
                             try {
                                 var payload = JSON.parse(msg.body);
                                 console.log('[WS] Nhận tin nhắn từ kênh Đích danh (/topic/operations/' + staffId + '):', payload);
                                 saveAndShow('🔔 NHIỆM VỤ MỚI: \n ' + payload.message, true);
-                            } catch(e) { console.error('[WS] parse error', e); }
+                            } catch (e) { console.error('[WS] parse error', e); }
                         });
                         console.log('[WS] Đã đăng ký kênh riêng: /topic/operations/' + staffId);
                     }
 
-                }, function(error) {
+                }, function (error) {
                     console.error('[WS] Lỗi kết nối WebSocket:', error);
                 });
             });

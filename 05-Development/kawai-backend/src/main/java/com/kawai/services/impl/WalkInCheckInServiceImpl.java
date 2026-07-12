@@ -378,12 +378,12 @@ public class WalkInCheckInServiceImpl implements com.kawai.services.interfaces.W
         if (keyword == null || keyword.isBlank())
             return java.util.Optional.empty();
 
-        java.util.Optional<Customer> byPhone = customerRepository.findByPhone(keyword);
+        java.util.Optional<Customer> byPhone = customerRepository.findFirstByPhone(keyword);
         if (byPhone.isPresent())
             return byPhone;
 
         try {
-            return customerRepository.findByCccdPassportEncrypted(EncryptionUtils.encrypt(keyword));
+            return customerRepository.findFirstByCccdPassportEncrypted(EncryptionUtils.encrypt(keyword));
         } catch (Throwable e) {
             return java.util.Optional.empty();
         }
@@ -564,7 +564,7 @@ public class WalkInCheckInServiceImpl implements com.kawai.services.interfaces.W
         }
 
         String encryptedCccd = EncryptionUtils.encrypt(req.getCccd());
-        return customerRepository.findByCccdPassportEncrypted(encryptedCccd)
+        return customerRepository.findFirstByCccdPassportEncrypted(encryptedCccd)
                 .map(existing -> {
                     boolean updated = false;
                     if (req.getDateOfBirth() != null && !req.getDateOfBirth().equals(existing.getBirthDate())) {
@@ -607,7 +607,7 @@ public class WalkInCheckInServiceImpl implements com.kawai.services.interfaces.W
             }
         }
         if (req.getPhone() != null && !req.getPhone().isBlank()) {
-            if (customerRepository.findByPhone(req.getPhone()).isPresent()) {
+            if (customerRepository.findFirstByPhone(req.getPhone()).isPresent()) {
                 throw new BusinessException("MOD2-UC14-011",
                         "Số điện thoại '" + req.getPhone() + "' đã được đăng ký cho một tài khoản khác. "
                                 + "Vui lòng sử dụng chức năng tìm kiếm (Check Existing) hoặc dùng số khác.");

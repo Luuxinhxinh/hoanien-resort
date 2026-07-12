@@ -9,8 +9,9 @@ import java.util.List;
 @Repository
 public interface RoomGuestRepository extends JpaRepository<RoomGuest, Long> {
     List<RoomGuest> findByRoomBookingDetailId(Long detailId);
-    java.util.Optional<RoomGuest> findByDependentId(Long dependentId);
-    java.util.Optional<RoomGuest> findByCustomerIdAndGuestType(Long customerId, String guestType);
+    java.util.Optional<RoomGuest> findFirstByDependentId(Long dependentId);
+    List<RoomGuest> findAllByDependentId(Long dependentId);
+    java.util.Optional<RoomGuest> findFirstByCustomerIdAndGuestType(Long customerId, String guestType);
     List<RoomGuest> findByCustomerId(Long customerId);
     java.util.Optional<RoomGuest> findByRoomBookingDetailIdAndIsPrimaryContactTrue(Long detailId);
 }
