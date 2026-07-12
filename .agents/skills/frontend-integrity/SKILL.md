@@ -180,3 +180,10 @@ Write-Host "Lines: $($res.Content.Split([Environment]::NewLine).Length)"
   2. Lưu trữ dữ liệu động vào các thuộc tính HTML5 custom data-attributes (`th:data-id`, `th:data-text`, `th:data-rating`).
   3. Sử dụng JavaScript thuần để bắt sự kiện (`onclick="openModalFromButton(this)"`) và trích xuất dữ liệu: `const text = btn.getAttribute('data-text')`. Cơ chế này đảm bảo an toàn chuỗi và tương thích 100% với trình phân tích cú pháp HTML của trình duyệt.
 
+## 18. Hiệu ứng Domino của lỗi JavaScript & Thymeleaf (Script/Render Crash Domino)
+Lỗi "Nút bấm không phản hồi" hoặc báo lỗi `Function is not defined` trên Console (như không chuyển được tab, không mở được modal) thường bị hiểu nhầm là do code của chính hàm đó sai. Thực tế, gốc rễ thường đến từ 2 nguyên nhân "hiệu ứng Domino":
+- **Thymeleaf Render Crash (`ERR_INCOMPLETE_CHUNKED_ENCODING`):** Thiếu kiểm tra Null-safety trong SpEL (ví dụ: in ra `tb.schedule.tour.tourName` khi `tb.schedule` là null do data rác), Server sẽ văng lỗi NullPointerException và đứt gãy kết nối giữa chừng. HTML bị cắt cụt khiến trình duyệt không bao giờ tải tới đoạn `<script>` ở cuối trang.
+  - **Quy tắc:** Luôn dùng Null-safety đầy đủ (VD: `${tb.schedule != null and tb.schedule.tour != null ? tb.schedule.tour.tourName : 'N/A'}`) khi duyệt mảng hoặc render đối tượng đa tầng có rủi ro null.
+- **JavaScript Khởi tạo Crash:** Một hàm phụ (như reset form, init UI) chạy trong `DOMContentLoaded` hoặc ngay khi load trang cố gắng thao tác với một DOM element không tồn tại (do element đó bị ẩn đi bởi `th:if` ở một trạng thái khác của trang). Lỗi `Cannot set properties of null` xảy ra làm Javascript engine sập luồng thực thi ngay lập tức, bỏ qua mọi logic khai báo hàm hay gắn Event Listener ở phía sau.
+  - **Quy tắc:** Luôn kiểm tra tồn tại của Element `if (!element) return;` trước khi thao tác (như `.value`, `.classList`), đặc biệt đối với các element phụ thuộc vào điều kiện render của Thymeleaf.
+
