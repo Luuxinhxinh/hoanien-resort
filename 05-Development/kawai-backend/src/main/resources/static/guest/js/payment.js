@@ -44,6 +44,7 @@ let appliedCoupon = null;
 let paymentTimerInterval = null;
 let isPaymentSubmitted = false;
 let canAbandonCheckout = false;
+let isCouponApplying = false; // Ngăn pagehide hủy booking khi đang áp mã giảm giá
 
 
 async function loadBookingDetail(bookingId) {
@@ -60,23 +61,27 @@ async function loadBookingDetail(bookingId) {
         bookingData = await res.json();
 
         const currentStatus = (bookingData.bookingStatus || '').toUpperCase();
-        if (currentStatus === 'PENDING' || currentStatus === 'PENDING_PAYMENT') {
-            canAbandonCheckout = true;
+
+        if (currentStatus === 'PENDING' || currentStatus === 'PENDING_PAYMENT'
+                || currentStatus === 'CONFIRMED' || currentStatus === 'PENDING_APPROVAL') {
+            // CONFIRMED / PENDING_APPROVAL = booking đã tạo xong, chờ user điền thông tin / quản lý duyệt
+            // canAbandonCheckout: chỉ bật cho PENDING/PENDING_PAYMENT để pagehide có thể cancel
+            canAbandonCheckout = (currentStatus !== 'CONFIRMED' && currentStatus !== 'PENDING_APPROVAL');
+
         } else if (currentStatus === 'CANCELLED' || currentStatus === 'CANCELLED_PAYMENT') {
             canAbandonCheckout = false;
             showToast('Đơn đặt phòng này đã bị hủy. Đang chuyển về trang đặt phòng...', 'error');
             setTimeout(() => window.location.replace('/booking'), 2000);
             return;
         } else {
+            // CHECKED_IN, CHECKED_OUT hoặc status không xác định → đơn đã hoàn tất
             canAbandonCheckout = false;
-            isPaymentSubmitted = true; // prevent unload events
+            isPaymentSubmitted = true;
 
-            // Hide the container to prevent interaction
             const container = document.querySelector('.checkout-container');
             if (container) container.style.display = 'none';
 
-            // Redirect based on status
-            if (currentStatus === 'CONFIRMED' || currentStatus === 'CHECKED_IN' || currentStatus === 'CHECKED_OUT') {
+            if (currentStatus === 'CHECKED_IN' || currentStatus === 'CHECKED_OUT') {
                 window.location.replace('/profile');
             } else {
                 window.location.replace('/booking');
@@ -90,6 +95,7 @@ async function loadBookingDetail(bookingId) {
         showToast('Không thể tải thông tin đặt phòng. Vui lòng thử lại.', 'error');
     }
 }
+
 
 // ── Render Order Summary ──────────────────────────────────────────────────────
 
@@ -167,6 +173,7 @@ async function applyCoupon() {
     const btn = document.getElementById('btnApplyCoupon');
     btn.disabled = true;
     btn.textContent = '...';
+    isCouponApplying = true; // Đặt cờ: đang áp mã → pagehide KHÔNG được hủy booking
 
     try {
         const res = await fetch(`/api/bookings/${bookingId}/apply-coupon`, {
@@ -187,6 +194,7 @@ async function applyCoupon() {
     } catch (e) {
         showCouponMsg('Lỗi kết nối. Vui lòng thử lại.', false);
     } finally {
+        isCouponApplying = false; // Luôn reset cờ sau khi xong
         btn.disabled = false;
         btn.textContent = 'Áp dụng';
     }
@@ -364,7 +372,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Hủy đơn đặt phòng ngay lập tức khi khách hàng rời khỏi trang (thoát, close tab)
     window.addEventListener('pagehide', () => {
-        if (canAbandonCheckout && !isPaymentSubmitted && bookingId) {
+        if (canAbandonCheckout && !isPaymentSubmitted && !isCouponApplying && bookingId) {
             fetch(`/api/bookings/${bookingId}/cancel`, { method: 'POST', keepalive: true });
         }
     });

@@ -209,71 +209,155 @@ public class CheckinServiceImpl implements CheckinService {
         // UC12.4: Nâng cấp Dependent → Customer
         @Override
         @Transactional
-        public java.util.Map<String, Object> upgradeDependentToCustomer(Long dependentId) {
+        public java.util.Map<String, Object> upgradeDependentToCustomer(Long dependentId, Long roomBookingDetailId) {
                 Dependent dependent = findDependent(dependentId);
 
-                // Guard: Kiểm tra Dependent đã được nâng cấp thành Customer chưa
-                // (dựa trên CCCD/Passport đã mã hóa để tránh tạo duplicate)
+                // Xác định Customer sẽ gán vào (cũ hoặc mới)
+                com.kawai.models.Customer targetCustomer;
+                String username;
+                String password;
+                boolean isExistingCustomer = false;
+
+                // Guard: Nếu CCCD đã có Customer → tái sử dụng, không tạo mới
                 if (dependent.getCccdPassportEncrypted() != null
                                 && !dependent.getCccdPassportEncrypted().isBlank()) {
-                        java.util.Optional<com.kawai.models.Customer> existingCustomer = customerRepo
-                                        .findByCccdPassportEncrypted(
+                        java.util.Optional<com.kawai.models.Customer> existingCustomerOpt = customerRepo
+                                        .findFirstByCccdPassportEncrypted(
                                                         dependent.getCccdPassportEncrypted());
-                        if (existingCustomer.isPresent()) {
-                                throw new com.kawai.exceptions.BusinessException(
-                                                "UPGRADE-001",
-                                                "Người phụ thuộc này đã được nâng cấp thành Khách hàng (CCCD/Passport đã tồn tại)");
+                        if (existingCustomerOpt.isPresent()) {
+                                targetCustomer = existingCustomerOpt.get();
+                                username = targetCustomer.getAccount() != null
+                                                ? targetCustomer.getAccount().getUsername()
+                                                : "";
+                                password = null;
+                                isExistingCustomer = true;
+                        } else {
+                                // CCCD chưa có Customer → tạo mới
+                                String[] creds = new String[2];
+                                targetCustomer = createNewCustomerFromDependent(dependent, creds);
+                                username = creds[0];
+                                password = creds[1];
+                        }
+                } else {
+                        // Không có CCCD → tạo mới
+                        String[] creds = new String[2];
+                        targetCustomer = createNewCustomerFromDependent(dependent, creds);
+                        username = creds[0];
+                        password = creds[1];
+                }
+
+                // Unlink RoomGuest CỦA BOOKING HIỆN TẠI (theo roomBookingDetailId)
+                // → Chỉ gán Customer, không xóa Dependent nếu booking khác vẫn dùng
+                unlinkCurrentBookingRoomGuest(dependentId, roomBookingDetailId, targetCustomer);
+
+                // Kiểm tra còn booking nào khác dùng Dependent này không
+                // Nếu không còn → xóa Dependent để tránh rác DB
+                long remainingRefs = roomGuestRepo.findAllByDependentId(dependentId).size();
+                if (remainingRefs == 0) {
+                        dependentRepo.delete(dependent);
+                }
+
+                // Gửi email nếu vừa tạo Customer mới
+                if (!isExistingCustomer && dependent.getCustomer() != null) {
+                        try {
+                                emailService.sendDependentUpgradeEmail(dependent.getCustomer(),
+                                                targetCustomer, username, password);
+                        } catch (Exception e) {
+                                log.error("Lỗi gửi email thông báo nâng cấp Dependent: ", e);
                         }
                 }
 
-                Role customerRole = findCustomerRole();
-
-                String randomSuffix = UUID.randomUUID().toString().substring(0, 2);
-                String username = "guest" + randomSuffix;
-                String dummyEmail = username + "@kawai-resort.com";
-                String randomPwd = UUID.randomUUID().toString().substring(0, 6);
-
-                Account savedAccount = createAccountForDependent(customerRole, username, randomPwd);
-                Customer savedCustomer = createCustomerFromDependent(dependent, savedAccount, dummyEmail);
-
-                // Cập nhật tất cả các RoomGuest liên quan đến Dependent này sang Customer mới
-                // Do repository chỉ có findByDependentId trả Optional, ta dùng Optional. Tốt
-                // nhất nên là List nếu 1 Dependent tham gia nhiều booking
-                java.util.Optional<com.kawai.models.RoomGuest> rgOpt = roomGuestRepo.findByDependentId(dependentId);
-                if (rgOpt.isPresent()) {
-                        com.kawai.models.RoomGuest rg = rgOpt.get();
-                        rg.setCustomer(savedCustomer);
-                        rg.setDependent(null);
-                        rg.setIsPrimaryContact(true);
-                        roomGuestRepo.save(rg);
-
-                        if (rg.getRoomBookingDetail() != null) {
-                                com.kawai.models.RoomBookingDetail detail = rg.getRoomBookingDetail();
-                                detail.setCustomer(savedCustomer);
-                                roomBookingDetailRepo.save(detail);
-                        }
-                }
-
-                // Xóa Dependent sau khi nâng cấp thành công để tránh dữ liệu bị duplicate
-                dependentRepo.delete(dependent);
-
-                // Trả về map chứa customer và mật khẩu
                 java.util.Map<String, Object> result = new java.util.HashMap<>();
-                result.put("customer", savedCustomer);
+                result.put("customer", targetCustomer);
                 result.put("username", username);
-                result.put("password", randomPwd);
-
-                // Gửi email cho Master Customer
-                if (dependent.getCustomer() != null) {
-                    try {
-                        emailService.sendDependentUpgradeEmail(dependent.getCustomer(), savedCustomer, username, randomPwd);
-                    } catch (Exception e) {
-                        log.error("Lỗi gửi email thông báo nâng cấp Dependent: ", e);
-                    }
-                }
-
+                result.put("password", isExistingCustomer ? null : password);
+                result.put("isExistingCustomer", isExistingCustomer);
                 return result;
         }
+
+        /**
+         * Unlink chỉ RoomGuest thuộc booking hiện tại (roomBookingDetailId).
+         * Nếu roomBookingDetailId null → unlink record có dependent và có RoomBookingDetail đầu tiên tìm thấy.
+         * Không động đến các RoomGuest thuộc booking khác.
+         */
+        private void unlinkCurrentBookingRoomGuest(Long dependentId, Long roomBookingDetailId,
+                        com.kawai.models.Customer targetCustomer) {
+                java.util.List<com.kawai.models.RoomGuest> allRgs = roomGuestRepo.findAllByDependentId(dependentId);
+
+                com.kawai.models.RoomGuest targetRg = null;
+                if (roomBookingDetailId != null) {
+                        // Tìm đúng RoomGuest thuộc booking đang xử lý
+                        targetRg = allRgs.stream()
+                                        .filter(rg -> rg.getRoomBookingDetail() != null
+                                                        && rg.getRoomBookingDetail().getId()
+                                                                        .equals(roomBookingDetailId))
+                                        .findFirst().orElse(null);
+                }
+                // Fallback: nếu không tìm được → lấy cái đầu tiên có RoomBookingDetail
+                if (targetRg == null) {
+                        targetRg = allRgs.stream()
+                                        .filter(rg -> rg.getRoomBookingDetail() != null)
+                                        .findFirst().orElse(allRgs.isEmpty() ? null : allRgs.get(0));
+                }
+
+                if (targetRg != null) {
+                        targetRg.setCustomer(targetCustomer);
+                        targetRg.setDependent(null);
+                        targetRg.setIsPrimaryContact(true);
+                        roomGuestRepo.saveAndFlush(targetRg); // flush ngay để DB cập nhật trước khi delete Dependent
+
+                        if (targetRg.getRoomBookingDetail() != null) {
+                                com.kawai.models.RoomBookingDetail detail = targetRg.getRoomBookingDetail();
+                                detail.setCustomer(targetCustomer);
+                                roomBookingDetailRepo.saveAndFlush(detail);
+                        }
+                }
+        }
+
+        /**
+         * Tạo Customer + Account mới từ Dependent. Lưu ý: trả về Customer nhưng
+         * passwordHash trong Account tạm thời chứa raw password để trả về cho Lễ tân.
+         * Raw password được ghi đè bằng encoded trước khi save.
+         */
+        /**
+         * Tạo Customer + Account mới từ Dependent.
+         * Trả về String[]{rawPassword, username} để service có thể build response.
+         */
+        private com.kawai.models.Customer createNewCustomerFromDependent(Dependent dependent, String[] outCredentials) {
+                Role customerRole = findCustomerRole();
+                String randomSuffix = UUID.randomUUID().toString().replace("-", "").substring(0, 8);
+                String username = "guest_" + randomSuffix.substring(0, 4);
+                String dummyEmail = username + "@kawai-resort.com";
+                String rawPwd = randomSuffix.substring(4, 8) + UUID.randomUUID().toString().replace("-", "").substring(0, 4);
+
+                Account account = new Account();
+                account.setUsername(username);
+                account.setPasswordHash(passwordEncoder.encode(rawPwd));
+                account.setIsActive(true);
+                account.setRole(customerRole);
+                Account savedAccount = accountRepo.save(account);
+
+                Customer customer = new Customer();
+                customer.setAccount(savedAccount);
+                customer.setFullName(dependent.getDependentName());
+                customer.setGender(dependent.getGender());
+                customer.setBirthDate(dependent.getBirthDate());
+                customer.setCccdPassportEncrypted(dependent.getCccdPassportEncrypted());
+                customer.setPhone(TEMP_PHONE);
+                customer.setEmail(dummyEmail);
+                customer.setLoyaltyPoints(0);
+                customer.setMembershipTier(
+                                membershipTierRepo.findByTierNameIgnoreCase(DEFAULT_MEMBERSHIP).orElse(null));
+                Customer savedCustomer = customerRepo.save(customer);
+
+                // Trả raw credentials qua out-param array (tránh lưu plaintext vào entity)
+                if (outCredentials != null && outCredentials.length >= 2) {
+                        outCredentials[0] = username;
+                        outCredentials[1] = rawPwd;
+                }
+                return savedCustomer;
+        }
+
 
         private Account createAccountForDependent(Role customerRole, String username, String randomPwd) {
                 Account account = new Account();
