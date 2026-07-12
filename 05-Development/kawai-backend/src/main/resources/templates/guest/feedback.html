@@ -5,6 +5,7 @@
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <title>HoaNien – Đánh Giá & Phản Hồi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -26,7 +27,6 @@
             }
         }
     </script>
-    <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Montserrat:wght@100..900&family=Inter:wght@100..900&display=swap&subset=vietnamese" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
     <style>
@@ -130,8 +130,8 @@
 <body class="min-h-screen flex flex-col">
 
 <!-- ══════════ MAIN NAVBAR (Unified with other pages) ══════════ -->
-<div id="header-wrapper" class="fixed top-0 left-0 w-full z-50 flex flex-col pointer-events-auto">
-    <nav class="guest-nav relative w-full font-sans">
+<div id="header-wrapper" class="fixed top-0 left-0 w-full z-50 flex flex-col pointer-events-none">
+    <nav class="guest-nav relative w-full font-sans pointer-events-auto">
         <div class="max-w-[1440px] mx-auto px-6 py-6 flex items-center justify-between">
             <div class="hidden lg:flex items-center gap-8 text-[13px] uppercase tracking-[0.2em] font-semibold">
                 <a href="/living" class="nav-text-dim hover:opacity-100 active:scale-95 transition-all duration-200">Living</a>
@@ -169,7 +169,7 @@
     </nav>
 
     <!-- ══════════ SUB-NAVBAR ══════════ -->
-    <div class="w-full border-t border-white/5 py-1.5 flex items-center justify-center gap-6 md:gap-10 overflow-x-auto">
+    <div class="w-full border-t border-white/5 py-1.5 flex items-center justify-center gap-6 md:gap-10 overflow-x-auto pointer-events-auto">
         <button class="sub-tab" id="tab-tour" onclick="switchTab('tour')">
             <span class="material-symbols-outlined text-sm mr-1.5" style="vertical-align:-2px">hiking</span>Dịch Vụ Tour
         </button>
@@ -312,7 +312,7 @@
                             <div class="flex gap-0.5">
                                 <span th:each="i : ${#numbers.sequence(1,5)}"
                                       class="material-symbols-outlined text-lg"
-                                      th:classappend="${i <= (r.ratingTour != null ? r.ratingTour : r.ratingService)} ? 'star-gold' : 'star-empty'"
+                                      th:classappend="${(r.ratingTour != null and i <= r.ratingTour) or (r.ratingTour == null and r.ratingService != null and i <= r.ratingService)} ? 'star-gold' : 'star-empty'"
                                       style="font-variation-settings:'FILL' 1;">star</span>
                             </div>
                             <span class="text-[10px] text-gray-400"
@@ -348,7 +348,7 @@
                         <div class="flex items-center gap-3 pt-3" style="border-top:1px solid rgba(255,255,255,0.08);">
                             <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold"
                                  style="background:rgba(201,169,110,0.2);color:#c5a059;"
-                                 th:text="${r.customer != null ? r.customer.fullName.substring(0,1) : 'K'}">K</div>
+                                 th:text="${r.customer != null and r.customer.fullName != null and r.customer.fullName.length() > 0 ? r.customer.fullName.substring(0,1) : 'K'}">K</div>
                             <div>
                                 <p class="text-xs font-semibold text-white"
                                    th:text="${r.customer != null ? r.customer.fullName : 'Quý khách'}">Quý khách</p>
@@ -369,7 +369,7 @@
                             <div class="flex gap-0.5">
                                 <span th:each="i : ${#numbers.sequence(1,5)}"
                                       class="material-symbols-outlined text-lg"
-                                      th:classappend="${i <= (r.ratingRoomDining != null ? r.ratingRoomDining : r.ratingService)} ? 'star-gold' : 'star-empty'"
+                                      th:classappend="${(r.ratingRoomDining != null and i <= r.ratingRoomDining) or (r.ratingRoomDining == null and r.ratingService != null and i <= r.ratingService)} ? 'star-gold' : 'star-empty'"
                                       style="font-variation-settings:'FILL' 1;">star</span>
                             </div>
                             <span class="text-[10px] text-gray-400"
@@ -403,7 +403,7 @@
                         <div class="flex items-center gap-3 pt-3" style="border-top:1px solid rgba(255,255,255,0.08);">
                             <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold"
                                  style="background:rgba(201,169,110,0.2);color:#c5a059;"
-                                 th:text="${r.customer != null ? r.customer.fullName.substring(0,1) : 'K'}">K</div>
+                                 th:text="${r.customer != null and r.customer.fullName != null and r.customer.fullName.length() > 0 ? r.customer.fullName.substring(0,1) : 'K'}">K</div>
                             <div>
                                 <p class="text-xs font-semibold text-white"
                                    th:text="${r.customer != null ? r.customer.fullName : 'Quý khách'}">Quý khách</p>
@@ -423,7 +423,7 @@
                             <div class="flex gap-0.5">
                                 <span th:each="i : ${#numbers.sequence(1,5)}"
                                       class="material-symbols-outlined text-lg"
-                                      th:classappend="${i <= r.ratingService} ? 'star-gold' : 'star-empty'"
+                                      th:classappend="${r.ratingService != null and i <= r.ratingService} ? 'star-gold' : 'star-empty'"
                                       style="font-variation-settings:'FILL' 1;">star</span>
                             </div>
                             <span class="text-[10px] text-gray-400"
@@ -457,7 +457,7 @@
                         <div class="flex items-center gap-3 pt-3" style="border-top:1px solid rgba(255,255,255,0.08);">
                             <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold"
                                  style="background:rgba(201,169,110,0.2);color:#c5a059;"
-                                 th:text="${r.customer != null ? r.customer.fullName.substring(0,1) : 'K'}">K</div>
+                                 th:text="${r.customer != null and r.customer.fullName != null and r.customer.fullName.length() > 0 ? r.customer.fullName.substring(0,1) : 'K'}">K</div>
                             <div>
                                 <p class="text-xs font-semibold text-white"
                                    th:text="${r.customer != null ? r.customer.fullName : 'Quý khách'}">Quý khách</p>
@@ -490,7 +490,7 @@
                         <div class="space-y-1.5 mt-2" th:if="${unreviewedTours != null and !unreviewedTours.isEmpty()}">
                             <label class="text-[10px] font-bold text-gray-400 block uppercase tracking-wider">Chọn hành trình cần đánh giá:</label>
                             <select name="selectedTourBookingId" id="selectedTourBookingId" class="w-full text-xs text-white bg-[#12100f]/60 border border-white/15 rounded-md p-2 focus:outline-none focus:border-[#c5a059]">
-                                <option th:each="tb : ${unreviewedTours}" th:value="${tb.id}" th:text="${tb.schedule.tour.tourName} + ' (Khởi hành: ' + ${#temporals.format(tb.schedule.departureDate, 'dd/MM/yyyy')} + ')'"></option>
+                                <option th:each="tb : ${unreviewedTours}" th:value="${tb.id}" th:text="${tb.schedule != null and tb.schedule.tour != null ? tb.schedule.tour.tourName : 'Hành trình'} + ' (Khởi hành: ' + ${tb.schedule != null and tb.schedule.departureDate != null ? #temporals.format(tb.schedule.departureDate, 'dd/MM/yyyy') : 'N/A'} + ')'"></option>
                             </select>
                         </div>
                         <div class="text-xs text-[#ff6b6b] mt-2 font-medium" th:if="${unreviewedTours == null or unreviewedTours.isEmpty()}">
@@ -519,7 +519,7 @@
                         <div class="space-y-1.5 mt-2" th:if="${unreviewedRooms != null and !unreviewedRooms.isEmpty()}">
                             <label class="text-[10px] font-bold text-gray-400 block uppercase tracking-wider">Chọn phòng lưu trú cần đánh giá:</label>
                             <select name="selectedRoomBookingDetailId" id="selectedRoomBookingDetailId" class="w-full text-xs text-white bg-[#12100f]/60 border border-white/15 rounded-md p-2 focus:outline-none focus:border-[#c5a059]">
-                                <option th:each="rd : ${unreviewedRooms}" th:value="${rd.id}" th:text="'Phòng ' + ${rd.room.roomNumber} + ' (Thời gian: ' + ${#temporals.format(rd.roomBooking.checkInDate, 'dd/MM/yyyy')} + ' - ' + ${#temporals.format(rd.roomBooking.checkOutDate, 'dd/MM/yyyy')} + ')'"></option>
+                                <option th:each="rd : ${unreviewedRooms}" th:value="${rd.id}" th:text="'Phòng ' + ${rd.room != null ? rd.room.roomNumber : 'N/A'} + ' (Thời gian: ' + ${rd.roomBooking != null and rd.roomBooking.checkInDate != null ? #temporals.format(rd.roomBooking.checkInDate, 'dd/MM/yyyy') : 'N/A'} + ' - ' + ${rd.roomBooking != null and rd.roomBooking.checkOutDate != null ? #temporals.format(rd.roomBooking.checkOutDate, 'dd/MM/yyyy') : 'N/A'} + ')'"></option>
                             </select>
                         </div>
                         <div class="text-xs text-[#ff6b6b] mt-2 font-medium" th:if="${unreviewedRooms == null or unreviewedRooms.isEmpty()}">
@@ -669,6 +669,9 @@
 <!-- ══════════ REGISTRATION & LOGIN MODAL ══════════ -->
 <div th:replace="~{guest/fragments/auth :: authModal}"></div>
 
+<input type="hidden" id="jsIsLoggedIn" th:value="${isLoggedIn}">
+<input type="hidden" id="jsHasUsedService" th:value="${hasUsedService}">
+
 <script>
     const LABELS = {1:'Tệ', 2:'Không hài lòng', 3:'Bình thường', 4:'Tốt', 5:'Xuất sắc'};
 
@@ -763,7 +766,9 @@
     }
 
     function rate(fieldId, starsId, lblId, val) {
-        document.getElementById(fieldId).value = val || '';
+        const field = document.getElementById(fieldId);
+        if (!field) return;
+        field.value = val || '';
         document.querySelectorAll('#' + starsId + ' button').forEach(b =>
             b.classList.toggle('active', val && parseInt(b.dataset.val) <= val));
         const lbl = document.getElementById(lblId);
@@ -873,6 +878,10 @@
             showToast('toast-login-required');
             if (typeof openLoginModal === 'function') {
                 openLoginModal();
+                const redirectInputs = document.querySelectorAll('.redirect-input');
+                const newUrl = new URL(window.location.href);
+                newUrl.searchParams.set('action', 'submit');
+                redirectInputs.forEach(input => input.value = newUrl.pathname + newUrl.search);
             }
             return;
         }
@@ -908,6 +917,20 @@
             if (typeof openLoginModal === 'function') {
                 openLoginModal();
             }
+        }
+        
+        if (params.get('action') === 'submit' && isLoggedInVal) {
+            if (document.getElementById('jsHasUsedService').value === 'true') {
+                toggleSubmitForm();
+            } else {
+                showToast('toast-no-service');
+                showCustomAlert('Quý khách cần có tối thiểu 1 Booking (Phòng nghỉ hoặc Tour du lịch) đã hoàn thành tại HoaNien Retreat để tham gia gửi đánh giá!');
+            }
+            
+            // Xoá param action trên URL để ko bị lặp nếu F5
+            params.delete('action');
+            const qs = params.toString();
+            window.history.replaceState({}, document.title, window.location.pathname + (qs ? '?' + qs : ''));
         }
         
         const toast = params.get('toast');

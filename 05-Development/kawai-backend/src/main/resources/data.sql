@@ -290,7 +290,7 @@ INSERT INTO Promotions (promo_id, promo_code, discount_type, discount_value, val
 (6, 'HONEYMOON', 'FIXED_AMOUNT', 500000.00, '2026-01-01 00:00:00', '2026-12-31 23:59:59', 100, 2, TRUE, 'Gói trăng mật ngọt ngào giảm ngay 500k.'),
 (7, 'FESTIVE15', 'PERCENTAGE', 15.00, '2026-12-20 00:00:00', '2027-01-05 23:59:59', 1000, 0, TRUE, 'Chào đón giáng sinh và năm mới.'),
 (8, 'VOUCHER100K', 'FIXED_AMOUNT', 100000.00, '2026-01-01 00:00:00', '2026-12-31 23:59:59', 10000, 300, TRUE, 'Voucher 100k cho khách hàng thân thiết.'),
-(9, 'EARLYBIRD', 'PERCENTAGE', 8.00, '2026-01-01 00:00:00', '2026-12-31 23:59:59', 2000, 50, TRUE, 'Đặt trước 30 ngày hưởng ngay ưu đãi 8%.');
+(909, 'EARLYBIRD', 'PERCENTAGE', 8.00, '2026-01-01 00:00:00', '2026-12-31 23:59:59', 2000, 50, TRUE, 'Đặt trước 30 ngày hưởng ngay ưu đãi 8%.');
 -- ── 12. Bookings (20 rows) ───────────────────────────────────
 
 INSERT INTO Bookings (booking_id, customer_id, booking_date, total_price, booking_status, booking_source, applied_promotion_id, version) VALUES
@@ -346,7 +346,7 @@ INSERT INTO Room_Booking_Details (detail_id, room_booking_id, category_id, room_
 (8, 8, 3, 18, 8000000, 'Checked_In', 'KING_SIZE', NULL, TRUE, 3000000, 'BILL_TO_LEADER'),
 (9, 14, 1, NULL, 2500000, 'Checked_Out', 'KING_SIZE', NULL, TRUE, 500000, 'BILL_TO_LEADER'),
 (10, 15, 2, NULL, 3500000, 'Cancelled', 'TWIN_BED', NULL, TRUE, 1500000, 'BILL_TO_LEADER'),
-(11, 9, 1, NULL, 1200000, 'Confirmed', 'KING_SIZE', NULL, TRUE, 500000, 'BILL_TO_LEADER');
+(11, 51, 1, NULL, 1200000, 'Confirmed', 'KING_SIZE', NULL, TRUE, 500000, 'BILL_TO_LEADER');
 
 -- ── 15. Room Guests (10 rows) ────────────────────────────────
 INSERT INTO Room_Guests (guest_id, detail_id, customer_id, dependent_id, guest_type, is_primary_contact) VALUES
@@ -358,7 +358,7 @@ INSERT INTO Room_Guests (guest_id, detail_id, customer_id, dependent_id, guest_t
 (6, 6, 6, NULL, 'ADULT', TRUE),
 (7, 7, 7, NULL, 'ADULT', TRUE),
 (8, 8, 8, NULL, 'ADULT', TRUE),
-(9, 9, 12, NULL, 'ADULT', TRUE),
+(909, 909, 12, NULL, 'ADULT', TRUE),
 (10, 10, 13, NULL, 'ADULT', TRUE),
 (11, 1, 1, 1, 'CHILD', FALSE),
 (12, 1, 1, 2, 'CHILD', FALSE),
@@ -440,7 +440,7 @@ INSERT INTO Table_Reservations (reservation_id, customer_id, table_id, reserve_d
 (6, 6, 20, '2026-06-14', '20:00:00', '22:00:00', 300000, 'Confirmed'),
 (7, 7, 7, '2026-06-13', '21:00:00', '23:00:00', 100000, 'Confirmed'),
 (8, 8, 15, '2026-06-13', '20:30:00', '22:30:00', 100000, 'Confirmed'),
-(9, 12, 11, '2026-06-13', '19:00:00', '21:00:00', 100000, 'Confirmed'),
+(909, 12, 11, '2026-06-13', '19:00:00', '21:00:00', 100000, 'Confirmed'),
 (10, 13, 18, '2026-06-13', '18:00:00', '20:00:00', 150000, 'Confirmed'),
 (11, 14, 1, '2026-06-20', '18:00:00', '20:00:00', 100000, 'Confirmed'),
 (12, 15, 2, '2026-06-20', '19:00:00', '21:00:00', 150000, 'Confirmed'),
@@ -619,7 +619,7 @@ INSERT INTO Booking_Services (booking_service_id, booking_id, service_id, quanti
 (6, 6, 6, 2, 300000, '2026-06-11 15:00:00', 'COMPLETED', NULL),
 (7, 7, 7, 1, 450000, '2026-06-12 10:00:00', 'PENDING', NULL),
 (8, 8, 8, 2, 250000, '2026-06-11 11:00:00', 'COMPLETED', NULL),
-(9, 14, 1, 1, 800000, '2026-07-01 15:00:00', 'PENDING', '{"flight_number": "QH224"}'),
+(909, 14, 1, 1, 800000, '2026-07-01 15:00:00', 'PENDING', '{"flight_number": "QH224"}'),
 (10, 15, 9, 1, 600000, '2026-07-02 09:00:00', 'PENDING', '{"card_note": "Happy Birthday Leader Nam"}');
 
 -- ── 23. Hotel Operations (10 rows) ───────────────────────────
@@ -636,7 +636,7 @@ INSERT INTO Hotel_Operations (task_id, room_id, staff_id, supervisor_id, operati
 (6, 17, 10, 4, 'MAINTENANCE', 'High', 'Pending', '2026-06-28 10:30:00', NULL, NULL, 'Housekeeping báo: Điều hòa chảy nước ướt cả sàn gỗ, phòng 207.'),
 (7, 3, 10, 4, 'MAINTENANCE', 'Normal', 'Pending', '2026-06-28 12:00:00', NULL, NULL, 'Khách phàn nàn: Vòi hoa sen bị nghẹt, nước chảy rất yếu.'),
 (8, 5, 10, 4, 'MAINTENANCE', 'Normal', 'InProgress', '2026-06-28 13:00:00', '2026-06-28 13:15:00', NULL, 'Kiểm tra hệ thống đèn ban công, 1 bóng bị cháy.'),
-(9, 10, 10, 4, 'MAINTENANCE', 'High', 'Paused', '2026-06-28 09:00:00', '2026-06-28 09:10:00', NULL, 'Sửa két sắt không mở được. \n[Tạm dừng]: Chờ mua pin mới loại 9V để thay mảng mạch.'),
+(909, 10, 10, 4, 'MAINTENANCE', 'High', 'Paused', '2026-06-28 09:00:00', '2026-06-28 09:10:00', NULL, 'Sửa két sắt không mở được. \n[Tạm dừng]: Chờ mua pin mới loại 9V để thay mảng mạch.'),
 (10, 16, 10, 4, 'MAINTENANCE', 'Low', 'Completed', '2026-06-28 08:00:00', '2026-06-28 08:05:00', '2026-06-28 08:20:00', 'Thay pin tay nắm cửa phòng 309. \n[Đã sửa]: Đã thay 4 cục pin AA Panasonic.');
 
 -- ── 24. Folio Items (10 rows) ────────────────────────────────
@@ -668,7 +668,7 @@ INSERT INTO Tour_Images (image_id, tour_id, image_url, is_primary) VALUES
 (6, 6, 'https://images.unsplash.com/photo-1504609773096-104ff2c73ba4', TRUE),
 (7, 7, 'https://images.unsplash.com/photo-1540541338287-41700207dee6', TRUE),
 (8, 8, 'https://images.unsplash.com/photo-1566073771259-6a8506099945', TRUE),
-(9, 9, 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4', TRUE),
+(909, 909, 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4', TRUE),
 (10, 10, 'https://images.unsplash.com/photo-1578683010236-d716f9a3f461', TRUE);
 
 -- ── 29. Tour Locations (10 rows) ─────────────────────────────
@@ -698,7 +698,7 @@ INSERT INTO Tour_Itineraries (itinerary_id, tour_id, day_number, day_title, summ
 (7, 7, 1, 'Khám Phá Rừng Xanh', 'Đi bộ xuyên rừng ngắm bằng lăng cổ thụ kì vĩ.'),
 (8, 8, 1, 'Cát Vàng Mũi Né', 'Ngắm bình minh cồn cát trắng, tham quan Suối Tiên.'),
 
-(9, 9, 1, 'Đại Dương Phú Quốc', 'Lặn cano 4 đảo nhỏ hoang sơ hoà vào san hô rực rỡ.'),
+(909, 909, 1, 'Đại Dương Phú Quốc', 'Lặn cano 4 đảo nhỏ hoang sơ hoà vào san hô rực rỡ.'),
 (10, 10, 1, 'Sông Nước Cần Thơ', 'Ăn sáng hủ tiếu chợ nổi Cái Răng sôi động.');
 
 -- ── 31. Tour Itinerary Details (10 rows) ─────────────────────
@@ -780,7 +780,7 @@ INSERT INTO Tour_Schedules (schedule_id, tour_id, departure_date, departure_time
 (6, 5, '2026-06-17', '08:00:00.000000', 0, 'Open', FALSE),
 (7, 6, '2026-06-18', '09:00:00.000000', 0, 'Open', FALSE),
 (8, 7, '2026-06-19', '07:30:00.000000', 0, 'Open', FALSE),
-(9, 8, '2026-06-20', '05:00:00.000000', 0, 'Open', FALSE),
+(909, 8, '2026-06-20', '05:00:00.000000', 0, 'Open', FALSE),
 (10, 9, '2026-06-21', '09:00:00.000000', 0, 'Open', FALSE),
 (11, 2, '2026-07-10', '08:00:00.000000', 0, 'Open', FALSE),
 (12, 4, '2026-07-08', '07:30:00.000000', 0, 'Open', FALSE),
@@ -860,24 +860,6 @@ INSERT INTO Checkpoint_Attendance (checkpoint_id, schedule_id, attendee_id, deta
 (10, 6, 10, 5, 'PENDING', 5);
 
 -- ── 39. Reviews (10 rows) ────────────────────────────────────
-INSERT INTO Reviews (review_id, customer_id, room_booking_detail_id, tour_booking_id, rating_service, rating_tour, review_text, moderation_status, moderated_by, moderation_reason, created_at) VALUES 
-(1, 1, 1, NULL, 5, NULL, 'Phòng Nipa Villa tuyệt hảo, mát mẻ, nhân viên buồng dọn rất sạch.', 'Approved', 4, 'Đánh giá tích cực hợp lệ', CURRENT_TIMESTAMP),
-(2, 2, 2, NULL, 4, NULL, 'Phòng River Villa đẹp, view sông thơ mộng, đồ ăn room service hơi chậm.', 'Approved', 4, 'Đánh giá xây dựng hợp lệ', CURRENT_TIMESTAMP),
-(3, 3, 3, NULL, 5, NULL, 'Khóa tu Wellness Retreats giúp tôi tịnh tâm, phục hồi sức khoẻ rất nhiều.', 'Approved', 4, 'Đánh giá tốt chất lượng cao', CURRENT_TIMESTAMP),
-(4, 4, 4, NULL, 4, NULL, 'Phòng 104 sạch sẽ, bồn tắm rộng rãi, decor buồng cưới rất tỉ mỉ.', 'Approved', 4, 'Đánh giá tốt', CURRENT_TIMESTAMP),
-(5, 5, 5, NULL, 5, NULL, 'Rất hài lòng với kỳ nghỉ tại resort, bãi cỏ xanh ngát, đồ ăn buffet ngon.', 'Approved', 4, 'Đánh giá tốt', CURRENT_TIMESTAMP),
-(6, 6, 6, NULL, 4, NULL, 'Cảnh quan xanh mát, phòng 207 view hồ bơi rộng rãi tuyệt vời.', 'Approved', 4, 'Đánh giá tốt', CURRENT_TIMESTAMP),
-(7, 7, 7, NULL, 5, NULL, 'Hội An Tour do HDV Hướng Dẫn thuyết minh rất sinh động, xe đi êm.', 'Approved', 4, 'Đánh giá tốt', CURRENT_TIMESTAMP),
-(8, 8, 8, NULL, 5, NULL, 'Bữa tối Wagyu tại nhà hàng cực ngon, thịt mềm mọng sốt tiêu thơm.', 'Approved', 4, 'Đánh giá tốt', CURRENT_TIMESTAMP),
-(10, 13, 10, NULL, 4, NULL, 'Lịch trình trơn tru, nhân viên thân thiện hiếu khách nhiệt tình.', 'Approved', 4, 'Đánh giá tốt', CURRENT_TIMESTAMP),
--- Tour reviews (tour_booking_id thực tế để hiển thị trên tab Tour)
-(11, 1, NULL, 24, 5, 5, 'Hành trình Đoàn Tụ mang lại những khoảnh khắc vô giá cùng gia đình. Hướng dẫn viên nhiệt tình, am hiểu văn hóa Huế sâu sắc.', 'Approved', 4, 'Tour review hợp lệ', DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 3 DAY)),
-(12, 2, NULL, 25, 5, 5, 'Chuyến đi Yên Tử thật sự chữa lành tâm hồn. Không khí trong lành, cảnh sắc tuyệt đẹp. Tôi sẽ quay lại lần nữa!', 'Approved', 4, 'Tour review hợp lệ', DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 5 DAY)),
-(13, 3, NULL, 26, 5, 4, 'Tour Di Sản Miền Trung rất phong phú về mặt văn hóa. Lịch trình hơi dày nhưng được trải nghiệm nhiều điểm đến giá trị.', 'Approved', 4, 'Tour review hợp lệ', DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 7 DAY)),
-(14, 4, NULL, 27, 4, 4, 'Hành trình Tình Làng giúp tôi được kết nối lại với thiên nhiên và bình yên nội tâm. Đồ ăn truyền thống rất ngon.', 'Approved', 4, 'Tour review hợp lệ', DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 10 DAY)),
-(15, 5, NULL, 9, 5, 5, 'Chuyến tour cuối tuần đầy ắp trải nghiệm mới lạ. Hướng dẫn viên thân thiện và chuyên nghiệp. Rất đáng tiền!', 'Approved', 4, 'Tour review hợp lệ', DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 12 DAY)),
-(16, 9, NULL, 11, 5, 5, 'Lần đầu trải nghiệm tour tại HoaNien và tôi đã bị chinh phục hoàn toàn. Từng chi tiết đều được chăm chút tỉ mỉ.', 'Approved', 4, 'Tour review hợp lệ', DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 15 DAY)),
-(17, 10, NULL, 12, 4, 4, 'Tour trọn gói rất tiện lợi, không phải lo lắng gì. Phong cảnh đẹp, thời tiết thuận lợi, đội ngũ hỗ trợ chuyên nghiệp.', 'Approved', 4, 'Tour review hợp lệ', DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 20 DAY));
 
 -- ── 40. Authorized Devices (10 rows) ─────────────────────────
 INSERT INTO Authorized_Devices (device_code, is_approved) VALUES 
@@ -1353,8 +1335,8 @@ UPDATE Rooms SET current_booking_detail_id = 99991, room_status = 'Occupied' WHE
 
 
 -- FIX BOOKING 9 VALUES TO BE REALISTIC
-UPDATE Room_Booking_Details SET room_charge = 7500000, sub_credit_limit = 5000000 WHERE room_booking_id = 9;
-UPDATE Room_Bookings SET deposit_amount = 3000000 WHERE room_booking_id = 9;
+UPDATE Room_Booking_Details SET room_charge = 7500000, sub_credit_limit = 5000000 WHERE room_booking_id = 51;
+UPDATE Room_Bookings SET deposit_amount = 3000000 WHERE room_booking_id = 51;
 
 UPDATE Bookings SET total_price = 7500000 WHERE booking_id = 9;
 
@@ -1917,3 +1899,71 @@ INSERT INTO workflows (workflow_name, trigger_event, conditions_json, actions_js
 -- Kịch bản 3: Ưu tiên dọn phòng khẩn cấp vào mùa cao điểm (Tháng 7)
 INSERT INTO workflows (workflow_name, trigger_event, conditions_json, actions_json, is_active, updated_at) VALUES 
 ('Peak Season Urgent Checkout', 'ROOM_CHECKOUT', '{"month": "7"}', '[{"type": "UPDATE_ROOM_STATUS", "value": "Vacant_Dirty"}, {"type": "CREATE_OPERATION_TASK", "value": "CHECKOUT_CLEAN", "priority": "Urgent"}]', true, NOW());
+
+-- Thêm Mock Reviews (dữ liệu thật với Integrity Checks)
+
+-- Thêm data test Unreviewed cho Customer 1 (ID 9001, 9002)
+
+INSERT IGNORE INTO Bookings (booking_id, customer_id, booking_date, total_price, booking_status, booking_source) VALUES
+(9001, 1, '2026-07-10', 1200000.00, 'Completed', 'Direct_Web');
+INSERT IGNORE INTO Tour_Bookings (booking_id, schedule_id, participant_count, tour_charge) VALUES
+(9001, 1, 2, 1200000.00);
+
+INSERT IGNORE INTO Bookings (booking_id, customer_id, booking_date, total_price, booking_status, booking_source) VALUES
+(9002, 1, '2026-07-05', 4500000.00, 'Checked_Out', 'Direct_Web');
+INSERT IGNORE INTO Room_Bookings (room_booking_id, check_in_date, check_out_date, expected_check_in, expected_check_out) VALUES
+(9002, '2026-07-06 14:00:00', '2026-07-08 12:00:00', '2026-07-06 14:00:00', '2026-07-08 12:00:00');
+INSERT IGNORE INTO Room_Booking_Details (detail_id, room_booking_id, room_id, room_charge, detail_status, bed_preference) VALUES
+(9002, 9002, 1, 4500000.00, 'Checked_Out', 'KING_SIZE');
+
+
+-- -----------------------------------------------------------------------------
+
+-- -----------------------------------------------------------------------------
+
+-- =======================================================
+-- PATCH REVIEW DATA FOR TESTING
+-- =======================================================
+
+-- Update 10 Tours to Completed for existing bookings
+UPDATE Bookings SET booking_status = 'Completed' WHERE booking_id IN (1, 2, 3, 4, 6, 7, 8, 11, 12, 13);
+UPDATE Bookings SET booking_status = 'Checked_Out' WHERE booking_id IN (8, 909, 9201, 11, 12, 13, 14, 15);
+UPDATE Room_Booking_Details SET detail_status = 'Checked_Out' WHERE room_booking_id IN (8, 909, 9201, 11, 12, 13, 14, 15);
+
+INSERT IGNORE INTO Reviews (customer_id, tour_booking_id, room_booking_detail_id, rating_service, rating_tour, rating_room_dining, review_text, created_at, moderation_status, is_reported) VALUES
+(2, 9, NULL, 5, 5, NULL, 'Tour trải nghiệm rất tuyệt vời.', NOW(), 'Approved', false),
+(3, 10, NULL, 5, 5, NULL, 'Thiền hành giúp tôi cân bằng cuộc sống.', NOW(), 'Approved', false),
+(4, 11, NULL, 4, 5, NULL, 'Cảnh quan sông Hậu cực kỳ nên thơ.', NOW(), 'Approved', false),
+(5, 12, NULL, 5, 4, NULL, 'HDV vô cùng chu đáo.', NOW(), 'Approved', false),
+(6, 13, NULL, 5, 5, NULL, 'Gia đình tôi đã có kỷ niệm rất đáng nhớ.', NOW(), 'Approved', false),
+(7, 24, NULL, 5, 5, NULL, 'Chắc chắn sẽ giới thiệu cho bạn bè.', NOW(), 'Approved', false),
+(8, 25, NULL, 5, 5, NULL, 'Một chuyến đi chữa lành thực sự.', NOW(), 'Approved', false),
+(9, 26, NULL, 4, 4, NULL, 'Rất đáng tiền, món ăn cũng ngon.', NOW(), 'Approved', false),
+(10, 27, NULL, 5, 5, NULL, 'Con người ở đây vô cùng hiếu khách.', NOW(), 'Approved', false),
+(11, 28, NULL, 5, 5, NULL, 'Mọi thứ vượt quá mong đợi.', NOW(), 'Approved', false),
+
+(2, NULL, 8, 5, NULL, 5, 'Phòng sạch sẽ, view đẹp, ăn sáng ngon.', NOW(), 'Approved', false),
+(3, NULL, 11, 5, NULL, 4, 'Đồ ăn phục vụ rất nhanh.', NOW(), 'Approved', false),
+(4, NULL, 12, 5, NULL, 5, 'Dịch vụ phòng tuyệt hảo.', NOW(), 'Approved', false),
+(5, NULL, 13, 4, NULL, 4, 'Hơi xa trung tâm nhưng rất yên tĩnh.', NOW(), 'Approved', false),
+(6, NULL, 14, 5, NULL, 5, 'Hồ bơi đẹp tuyệt.', NOW(), 'Approved', false),
+(7, NULL, 15, 5, NULL, 5, 'Các món đặc sản miền Tây rất lạ miệng.', NOW(), 'Approved', false),
+(8, NULL, 9002, 5, NULL, 5, 'Nhân viên lễ tân rất tận tâm.', NOW(), 'Approved', false),
+
+(6, NULL, NULL, 5, NULL, NULL, 'Dịch vụ toàn diện.', NOW(), 'Approved', false),
+(7, NULL, NULL, 4, NULL, NULL, 'Không gian thiền rất sâu lắng.', NOW(), 'Approved', false),
+(8, NULL, NULL, 5, NULL, NULL, 'Chuyến đi ý nghĩa.', NOW(), 'Approved', false),
+(9, NULL, NULL, 5, NULL, NULL, 'Tuyệt vời.', NOW(), 'Approved', false),
+(10, NULL, NULL, 5, NULL, NULL, 'Rất hài lòng.', NOW(), 'Approved', false),
+(11, NULL, NULL, 4, NULL, NULL, 'Resort yên bình, không khí trong lành.', NOW(), 'Approved', false),
+(12, NULL, NULL, 5, NULL, NULL, 'Xứng đáng với giá tiền.', NOW(), 'Approved', false),
+(13, NULL, NULL, 5, NULL, NULL, 'Nhất định sẽ quay lại.', NOW(), 'Approved', false),
+(14, NULL, NULL, 5, NULL, NULL, 'Đội ngũ chuyên nghiệp.', NOW(), 'Approved', false),
+(15, NULL, NULL, 5, NULL, NULL, '10 điểm không có nhưng.', NOW(), 'Approved', false);
+
+-- Insert Test Account with completed Bookings without Review
+-- Khach hang 1: hoangnam, pass: admin123
+-- Let's make sure Khach 1 has some completed bookings but no review!
+UPDATE Bookings SET booking_status = 'Completed' WHERE booking_id = 9;
+UPDATE Bookings SET booking_status = 'Checked_Out' WHERE booking_id = 10;
+-- We know booking 9 is Tour (if not modified) and 10 is Room. We don't add reviews for them.
