@@ -246,7 +246,7 @@ Mọi hành động xuất dữ liệu (Export Excel/PDF) liên quan đến thô
 Validate check-in/out dates (cannot be in the past; check-out > check-in) and ensure the number of rooms is less than or equal to the number of available rooms in the list.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -261,7 +261,7 @@ Validate check-in/out dates (cannot be in the past; check-out > check-in) and en
 The system displays only available rooms that meet the search criteria (excluding rooms that are currently soft-locked).
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -276,7 +276,7 @@ The system displays only available rooms that meet the search criteria (excludin
 Must log in to make a reservation. If you are not logged in, you will be redirected to the Login/Register page.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -291,7 +291,7 @@ Must log in to make a reservation. If you are not logged in, you will be redirec
 All online bookings require a deposit payment before the reservation is confirmed. The booking will remain in "Pending Payment" status for 2 minutes; if the deposit is not received within this timeframe, the booking will be automatically cancelled, and the room will be released back into the inventory.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -306,7 +306,7 @@ All online bookings require a deposit payment before the reservation is confirme
 The system must prevent room overbooking by ensuring that the same physical room cannot be assigned to overlapping reservations.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -321,7 +321,7 @@ The system must prevent room overbooking by ensuring that the same physical room
 The displayed price is the rate applicable at the time of the search (including holidays, weekends, and promotions).
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -336,7 +336,7 @@ The displayed price is the rate applicable at the time of the search (including 
 Booking status changes from Pending_Payment to Confirmed only upon successful deposit payment via VNPay.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -351,7 +351,7 @@ Booking status changes from Pending_Payment to Confirmed only upon successful de
 Only the customer who owns the reservation may cancel the reservation.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -366,7 +366,7 @@ Only the customer who owns the reservation may cancel the reservation.
 Reservations with status Checked-In or Cancelled cannot be cancelled.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -381,7 +381,7 @@ Reservations with status Checked-In or Cancelled cannot be cancelled.
 When a reservation is cancelled, all reserved room inventory shall be released immediately for future booking.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -396,7 +396,7 @@ When a reservation is cancelled, all reserved room inventory shall be released i
 Customers may add, remove, and assign accompanying/dependent guests to rooms only under an existing valid reservation. A dependent guest must be registered under the reservation before room assignment, and the assigned room must comply with the maximum occupancy limit.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -414,7 +414,7 @@ Customers may add, remove, and assign accompanying/dependent guests to rooms onl
 Representative guest must be ≥ 18 years old and provide valid identification (ID/Passport).
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -429,7 +429,7 @@ Representative guest must be ≥ 18 years old and provide valid identification (
 Rush Rooms have Vacant_Dirty are prioritized and moved to the top of the housekeeping task queue.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -444,7 +444,7 @@ Rush Rooms have Vacant_Dirty are prioritized and moved to the top of the houseke
 Only the Primary Guest (Representative) of the reservation is authorized to request account upgrades, service authorizations, or administrative changes for the booking. Dependents are restricted from these actions.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -459,7 +459,7 @@ Only the Primary Guest (Representative) of the reservation is authorized to requ
 Reservations not checked in by 00:00 of the next day are marked No-Show with 100% deposit retention.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -474,7 +474,7 @@ Reservations not checked in by 00:00 of the next day are marked No-Show with 100
 Only guests with an active In-House reservation may request a room category change. Room category change requires availability and Vacant_Clean status in the new category.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -489,7 +489,7 @@ Only guests with an active In-House reservation may request a room category chan
 Walk-in guests must provide valid identification before check-in.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -504,7 +504,7 @@ Walk-in guests must provide valid identification before check-in.
 Each reservation must be assigned to a specific room at check-in and update reservation status to "Checked-In" after successful check-in.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -519,7 +519,7 @@ Each reservation must be assigned to a specific room at check-in and update rese
 Walk-in guests without an account automatic generates a customer account and a temporary password for walk-in guests, then notifies the customer to update their credentials.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -534,7 +534,7 @@ Walk-in guests without an account automatic generates a customer account and a t
 Guests must be registered for temporary residence reporting per local regulations.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -549,7 +549,7 @@ Guests must be registered for temporary residence reporting per local regulation
 The reservation shall be linked to the customer account.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -564,7 +564,7 @@ The reservation shall be linked to the customer account.
 A dependent guest shall not be registered more than once under the same reservation. The system shall prevent the registration of a dependent guest whose identification document number (CCCD/Passport) already exists in the Booking_Guests list of that reservation.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -579,7 +579,7 @@ A dependent guest shall not be registered more than once under the same reservat
 Room category changes shall only be finalized after a specific room in the requested category has been assigned to the reservation.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -597,7 +597,7 @@ Room category changes shall only be finalized after a specific room in the reque
 Room Service and Table Reservation services are strictly applicable to guests with an active and valid stay status at the hotel.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -612,7 +612,7 @@ Room Service and Table Reservation services are strictly applicable to guests wi
 For walk-in guests, the system only supports Dine-in services, which must be facilitated by on-site staff.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -627,7 +627,7 @@ For walk-in guests, the system only supports Dine-in services, which must be fac
 When a guest searches for a table by date and time, the system shall only display available tables. Tables that are already reserved or have conflicting schedules during the searched timeframe will be grayed out (disabled) on the user interface.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -642,7 +642,7 @@ When a guest searches for a table by date and time, the system shall only displa
 The system shall reject table reservation requests if the number of guests exceeds the designated maximum capacity of the selected table.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -657,7 +657,7 @@ The system shall reject table reservation requests if the number of guests excee
 Upon accessing the Room Service interface, the system defaults to displaying the menu applicable for the current day.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -672,7 +672,7 @@ Upon accessing the Room Service interface, the system defaults to displaying the
 Guests are permitted to browse the menu for all days of the week. However, order placement is restricted strictly to currently available items on the current day's menu.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -687,7 +687,7 @@ Guests are permitted to browse the menu for all days of the week. However, order
 For Room Service orders utilizing the CHARGE_TO_ROOM payment method, the system will only process the order if the room's Credit Limit is greater than the total order value.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -702,7 +702,7 @@ For Room Service orders utilizing the CHARGE_TO_ROOM payment method, the system 
 If a table reservation request lacks an end time, the system will automatically assign a default duration of 60 minutes calculated from the start time.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -717,7 +717,7 @@ If a table reservation request lacks an end time, the system will automatically 
 Upon successful payment of a Dine-in order (payOrder), the system automatically updates the reservation status to Complete. Concurrently, the physical table status shifts to Cleaning, and the system logs the start time of the cleaning process.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -732,7 +732,7 @@ Upon successful payment of a Dine-in order (payOrder), the system automatically 
 Once a Room Service order is confirmed as delivered (status changed to Served), the system automatically flags the order as paid (isPaidInPos = true), as the financial liability is transferred to the master room folio.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -747,7 +747,7 @@ Once a Room Service order is confirmed as delivered (status changed to Served), 
 Order cancellation by either the guest or staff is only permitted when the order is in the Pending status.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -762,7 +762,7 @@ Order cancellation by either the guest or staff is only permitted when the order
 In the event of an order cancellation:
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -779,7 +779,7 @@ In the event of an order cancellation:
 When creating a Room Service order via the POS interface, F&B Staff are required to verify and input the last 4 digits of the guest's ID card for security purposes. The system allows order creation only if the room's Credit Limit exceeds the total order value.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -794,7 +794,7 @@ When creating a Room Service order via the POS interface, F&B Staff are required
 When staff place a table reservation for a guest, inputting the room number is mandatory. The reservation request will be denied if the specified room does not hold a valid, active guest stay.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -809,7 +809,7 @@ When staff place a table reservation for a guest, inputting the room number is m
 For guests with an existing reservation, F&B staff must perform check-in verification using the guest's ID upon arrival at the restaurant. Only after successful verification will the table status update to Seated.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -824,7 +824,7 @@ For guests with an existing reservation, F&B staff must perform check-in verific
 Add-on orders are only applicable to Dine-in services. The system automatically consolidates add-ons into the master Food Order while generating independent Order Detail lines to assist the Kitchen in tracking preparation progress per batch.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -839,7 +839,7 @@ Add-on orders are only applicable to Dine-in services. The system automatically 
 The system automatically applies a 5% service charge to the total invoice prior to posting for CHARGE_TO_ROOM orders. Conversely, a 2% service charge discount is applied if the guest prepays via a digital payment gateway (e-wallet/card).
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -854,7 +854,7 @@ The system automatically applies a 5% service charge to the total invoice prior 
 During available table suggestions or reservation conflict checks, the system automatically appends a 15-minute buffer after the preceding reservation's end time to allow staff sufficient turnaround (cleaning) time.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -869,7 +869,7 @@ During available table suggestions or reservation conflict checks, the system au
 For Room Service orders that have reached the Complete (preparation finished) status, F&B staff must execute the "Deliver" and "Confirm Delivery" actions within the system to finalize the order workflow.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -884,7 +884,7 @@ For Room Service orders that have reached the Complete (preparation finished) st
 The Estimated Time of Arrival (etaMins) for an order is calculated using the following formula: [Preparation time of the longest item] + [2 minutes x (Total items - 2)] + [5 minutes transit time]. The base preparation time is hardcoded by category: Main = 20 mins, Beverage = 5 mins, and other items = 10 mins.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -899,7 +899,7 @@ The Estimated Time of Arrival (etaMins) for an order is calculated using the fol
 When staff enter a name for a walk-in guest, the system automatically prepends Guest: to the notes field. Similarly, when a table is placed on Hold, the system parses and inserts a [HELD: Xm] tag into the Special Requests field for optimal visibility by F&B staff.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -914,7 +914,7 @@ When staff enter a name for a walk-in guest, the system automatically prepends G
 The system enforces a strict state synchronization constraint: the status of individual Kitchen Order Tickets (KOT) automatically inherits the status of the master order. (e.g., If an order transitions to Preparing, all associated items currently in Pending will automatically shift to Preparing).
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -929,7 +929,7 @@ The system enforces a strict state synchronization constraint: the status of ind
 Role-Based Access Control (RBAC) restricts Kitchen Staff permissions to solely updating item availability (In Stock/Out of Stock). This role is denied edit access to other configuration data, such as listed prices or serving dates.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -944,7 +944,7 @@ Role-Based Access Control (RBAC) restricts Kitchen Staff permissions to solely u
 The system only allows staff to create Dine-in orders and accept Table Reservations within the designated operating hours from 08:00 to 22:59 daily.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -959,7 +959,7 @@ The system only allows staff to create Dine-in orders and accept Table Reservati
 Tables currently in "Cleaning", "Out of service", or "Occupied/Seated" statuses cannot be used to create new, independent Dine-in orders or accept Table Reservations within the next 2 hours. (Note: For "Occupied" tables, any attempt to order items will be treated as an Add-on and automatically merged into the current guest's active bill).
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -974,7 +974,7 @@ Tables currently in "Cleaning", "Out of service", or "Occupied/Seated" statuses 
 When creating a Dine-in order for walk-in guests, the system automatically cross-checks the table's reservation schedule for the day. The request to open the table will be rejected if there is a confirmed reservation with a starting time (Reserve Time) within 2 hours from the current time.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -994,7 +994,7 @@ When creating a Dine-in order for walk-in guests, the system automatically cross
 The system strictly enforces vacancy checks (availableSlots = maxCapacity - confirmedSeats). If the requested participant count exceeds remaining slots, booking is rejected with exception TOUR-001 (Out of seats).
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -1009,7 +1009,7 @@ The system strictly enforces vacancy checks (availableSlots = maxCapacity - conf
 Tour ticket prices are calculated dynamically based on passenger age groups:
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -1027,7 +1027,7 @@ Tour ticket prices are calculated dynamically based on passenger age groups:
 For active adventure tours (isInsuranceRequired = true), guests must purchase travel insurance (acceptInsurance = true). Refusal triggers exception TOUR-INS-001. The insurance fee (insurancePrice * participantCount) is appended to the total price, and the system auto-generates a policy number: INS-YYYYMMDD-SCH{id}-{UUID}.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -1042,7 +1042,7 @@ For active adventure tours (isInsuranceRequired = true), guests must purchase tr
 To charge tour expenses directly to a room folio, a valid checked-in room's detail ID (roomBookingDetailId) must be provided. Missing room detail triggers error TOUR-004; invalid IDs trigger error TOUR-005.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -1057,7 +1057,7 @@ To charge tour expenses directly to a room folio, a valid checked-in room's deta
 When selecting Post to Room payment, the system validates the room's remaining credit limit (subCreditLimit - usedAmount). If the tour's total price exceeds this limit, booking is blocked, throwing an exception TOUR-LIMIT. Guests must pay off existing debts or choose online payment.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -1072,7 +1072,7 @@ When selecting Post to Room payment, the system validates the room's remaining c
 Each promotional code can only be used by a customer exactly once (uses >= 1 throws [ERR_PROMO_USAGE_EXCEEDED]). Promotions must be active and within their expiration range (validTo >= LocalDate.now()).
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -1090,7 +1090,7 @@ Each promotional code can only be used by a customer exactly once (uses >= 1 thr
 During AI Face Scan attendance verification, the matched face score returned from JavaScript comparison must meet the minimum 85% threshold (MIN_MATCH_SCORE_FOR_ATTENDANCE = 0.85) to automatically update status to PRESENT / Checked_In.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -1105,7 +1105,7 @@ During AI Face Scan attendance verification, the matched face score returned fro
 A tour guide is blocked from starting a tour schedule (startTour) if there is any passenger with a status other than Checked_In (e.g. Not_Show). If incomplete, departure is blocked, returning a toast message start_failed_pax.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -1120,7 +1120,7 @@ A tour guide is blocked from starting a tour schedule (startTour) if there is an
 The system scans schedules 24 hours prior to departure. If booking count does not meet the minimum pax threshold, the admin is warned, though staff/vehicle assignments can still proceed.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -1135,7 +1135,7 @@ The system scans schedules 24 hours prior to departure. If booking count does no
 To account for scanner precision variations in variable lighting, the system maps "Ngọc Thị" and "Lê Quang" interchangeably within the isNameMatch name comparison logic.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -1153,7 +1153,7 @@ To account for scanner precision variations in variable lighting, the system map
 - Resort-Initiated Cancellation: 100% full refund to the customer. Booking status updates to Cancelled_Refunded.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -1169,7 +1169,7 @@ To account for scanner precision variations in variable lighting, the system map
 Modification of base prices or soft deleting a Tour is strictly forbidden if that Tour is associated with at least one active schedule in Open status. Violating actions trigger a ResourceInUseException.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -1187,7 +1187,7 @@ Modification of base prices or soft deleting a Tour is strictly forbidden if tha
 Reservations cancelled at least 48 hours (≥ 48 hours) before the scheduled check-in datetime shall receive a 100% deposit refund. Reservations cancelled less than 48 hours before check-in, no-shows, or reservations that have already completed check-in shall not be eligible for any refund.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -1202,7 +1202,7 @@ Reservations cancelled at least 48 hours (≥ 48 hours) before the scheduled che
 The system shall support bank transfer payments for online reservations. A reservation is considered paid only after payment confirmation has been successfully verified by the payment gateway.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -1217,7 +1217,7 @@ The system shall support bank transfer payments for online reservations. A reser
 Check-in may only be completed after the required deposit or payment guarantee has been successfully verified according to hotel policy.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -1232,7 +1232,7 @@ Check-in may only be completed after the required deposit or payment guarantee h
 When a guest upgrades to a higher room category during an active stay, the system shall calculate the additional charge based on the difference between the current room rate and the selected room rate for all remaining nights of the stay.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -1247,7 +1247,7 @@ When a guest upgrades to a higher room category during an active stay, the syste
 Downgrading to a lower room category after check-in shall not entitle the guest to any refund, credit, or reduction of previously agreed room charges.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -1262,7 +1262,7 @@ Downgrading to a lower room category after check-in shall not entitle the guest 
 The system shall determine room category upgrades and downgrades based on room rates. Moving to a higher-priced room category is considered an upgrade, while moving to a lower-priced room category is considered a downgrade.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -1282,7 +1282,7 @@ The system shall determine room category upgrades and downgrades based on room r
 Khách hàng chỉ được phép ký nợ hóa đơn dịch vụ (F&B, Tour) vào ví phòng (Folio) khi trạng thái lưu trú đang là Checked_In.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -1297,7 +1297,7 @@ Khách hàng chỉ được phép ký nợ hóa đơn dịch vụ (F&B, Tour) v�
 Tổng dư nợ hiện tại cộng với giao dịch Ký nợ mới không được phép vượt quá hạn mức nợ (Credit Limit) của phòng. Nếu vượt, giao dịch bị từ chối trừ khi được Lễ tân hoặc Manager can thiệp nâng hạn mức.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -1312,7 +1312,7 @@ Tổng dư nợ hiện tại cộng với giao dịch Ký nợ mới không đư
 Khách hàng bắt buộc phải nhập mã PIN (so khớp mã băm) hoặc ký tên xác nhận (lưu vào signature_img_url) khi thực hiện Post-to-Room từ các điểm dịch vụ.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -1327,7 +1327,7 @@ Khách hàng bắt buộc phải nhập mã PIN (so khớp mã băm) hoặc ký 
 Khi khách trả phòng, hệ thống tự động quét và cộng dồn toàn bộ Folio_Items chưa được thanh toán riêng. Sau khi trừ đi khoản tiền cọc, hệ thống tính ra tổng tiền dư nợ thực tế cần thanh toán.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -1342,7 +1342,7 @@ Khi khách trả phòng, hệ thống tự động quét và cộng dồn toàn 
 Không thể xuất hóa đơn cuối cùng nếu Housekeeping chưa hoàn thành việc kiểm tra phòng (Minibar/Hỏng hóc). Lệnh ROOM_CHECK phải chuyển sang trạng thái Completed.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -1360,7 +1360,7 @@ Không thể xuất hóa đơn cuối cùng nếu Housekeeping chưa hoàn thàn
 Quy trình đóng sổ phải được chạy ngầm tự động vào lúc 02:00 AM mỗi ngày. Hệ thống thực hiện quét các phòng Checked_In, tự động sinh một dòng tiền phòng mới vào hóa đơn tổng, và dịch chuyển ngày vận hành của hệ thống sang ngày tiếp theo.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -1375,7 +1375,7 @@ Quy trình đóng sổ phải được chạy ngầm tự động vào lúc 02:0
 Check-out tuyệt đối bị khóa chặn nếu hóa đơn tổng hợp chưa có số dư nợ bằng 0. Tất cả các Folio_Items có trạng thái Pending bắt buộc phải được tất toán xong xuôi.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -1390,7 +1390,7 @@ Check-out tuyệt đối bị khóa chặn nếu hóa đơn tổng hợp chưa c
 - Hủy trước 48 giờ so với ngày Check-in: Hoàn 100% cọc.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -1406,7 +1406,7 @@ Check-out tuyệt đối bị khóa chặn nếu hóa đơn tổng hợp chưa c
 Mọi yêu cầu hoàn tiền không thuộc luồng tự động (do sự cố, thiên tai) phải tạo RefundRequest và được Manager phê duyệt.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -1424,7 +1424,7 @@ Mọi yêu cầu hoàn tiền không thuộc luồng tự động (do sự cố,
 Doanh thu hệ thống bắt buộc phải được bóc tách làm 3 luồng riêng biệt: Doanh thu Phòng (Room), Ẩm thực (F&B) và Lữ hành (Tour).
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -1439,7 +1439,7 @@ Doanh thu hệ thống bắt buộc phải được bóc tách làm 3 luồng ri
 Manager Dashboard tính toán và hiển thị các chỉ số cốt lõi: Tỷ lệ lấp đầy (Occupancy Rate), tỷ lệ bán món ăn, tỷ lệ bán tour. Hệ thống phải vẽ đồ thị doanh thu lũy kế dựa theo các bộ lọc thời gian.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -1454,7 +1454,7 @@ Manager Dashboard tính toán và hiển thị các chỉ số cốt lõi: Tỷ 
 Hệ thống cung cấp báo cáo tính toán Lợi nhuận Hoạt động Gộp cho từng bộ phận để Manager theo dõi hiệu suất tài chính tổng thể.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -1472,7 +1472,7 @@ Hệ thống cung cấp báo cáo tính toán Lợi nhuận Hoạt động Gộp
 Ngay khi Lễ tân hoàn tất Check-out, tự động sinh một công việc dọn dẹp và chuyển trạng thái phòng sang Vacant_Dirty.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -1487,7 +1487,7 @@ Ngay khi Lễ tân hoàn tất Check-out, tự động sinh một công việc d
 Nhân viên buồng phòng khi kiểm tra phòng check-out phải khai báo số lượng đồ uống/snack đã sử dụng. Hệ thống lập tức đẩy khoản phí này vào Folio của khách hàng theo đơn giá niêm yết.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -1502,7 +1502,7 @@ Nhân viên buồng phòng khi kiểm tra phòng check-out phải khai báo số
 Khi Lễ tân đánh dấu một phòng là "Rush Room", độ ưu tiên của Task Housekeeping được nâng lên mức cao nhất, kích hoạt thông báo Real-time (Push Notification/Toast) đẩy về màn hình của Housekeeping.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -1517,7 +1517,7 @@ Khi Lễ tân đánh dấu một phòng là "Rush Room", độ ưu tiên của T
 Tài sản khách để quên phải được khai báo tài sản khách để quên, có ảnh chụp minh chứng và lưu kho chờ bộ phận CSKH xử lý (thường là 30 - 90 ngày).
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -1532,7 +1532,7 @@ Tài sản khách để quên phải được khai báo tài sản khách để 
 Khi phát hiện thiết bị hỏng, Housekeeping tạo báo cáo. Hệ thống tự động sinh phiếu MAINTENANCE và chuyển phòng sang trạng thái chờ bảo trì. Nếu lỗi do khách làm hỏng (Vỡ ly, cháy thảm), Housekeeping có thể đính kèm phí đền bù (Damage Fee) đẩy thẳng vào Folio.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -1547,7 +1547,7 @@ Khi phát hiện thiết bị hỏng, Housekeeping tạo báo cáo. Hệ thống
 Phòng đang ở trạng thái bảo trì Maintenance sẽ bị đóng băng. Hệ thống Booking Engine hoặc Lễ tân không thể nhìn thấy hoặc gán phòng này cho khách Check-in để ngăn chặn Overbooking.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -1562,7 +1562,7 @@ Phòng đang ở trạng thái bảo trì Maintenance sẽ bị đóng băng. H�
 Khi nhân viên báo cáo hoàn thành sửa chữa, trạng thái phòng KHÔNG được tự động chuyển thành Vacant_Clean, mà phải chuyển về Vacant_Dirty để Housekeeping vào dọn dẹp vệ sinh bụi bẩn sau sửa chữa trước khi đón khách.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -1580,7 +1580,7 @@ Khi nhân viên báo cáo hoàn thành sửa chữa, trạng thái phòng KHÔNG
 Thủ tục Check-out bị khóa hoàn toàn nếu tổng hóa đơn (Consolidated_Invoice) chưa được thanh toán sạch. Hệ thống tự động chặn và trả về mã lỗi FOLIO-001 nếu dư nợ > 0.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -1595,7 +1595,7 @@ Thủ tục Check-out bị khóa hoàn toàn nếu tổng hóa đơn (Consolidat
 Ngay sau khi Lễ tân xác nhận Check-out thành công và số dư Folio = SETTLED, hệ thống tự động sinh hóa đơn điện tử định dạng PDF và kích hoạt luồng gửi Email (qua SendGrid) tới khách hàng.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -1610,7 +1610,7 @@ Ngay sau khi Lễ tân xác nhận Check-out thành công và số dư Folio = S
 Check-out thành công sẽ tự động cập nhật trạng thái phòng thành Vacant_Dirty và sinh task dọn phòng cho Housekeeping (đã đề cập ở BR-HK-01).
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -1625,7 +1625,7 @@ Check-out thành công sẽ tự động cập nhật trạng thái phòng thàn
 Chỉ những khách hàng đã thực hiện Check-out thành công mới được quyền viết đánh giá (Review). Thời hạn cho phép gửi đánh giá là 7 ngày kể từ ngày Check-out (review_deadline = completed_date + 7 days).
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -1643,7 +1643,7 @@ Chỉ những khách hàng đã thực hiện Check-out thành công mới đư�
 Mọi khoản thu trong hệ thống bắt buộc phải được bóc tách làm 3 luồng riêng biệt: Doanh thu Phòng (Room), Doanh thu Ẩm thực (F&B) và Doanh thu Lữ hành (Tour) dựa trên trường source_department để xuất báo cáo lợi nhuận gộp chuẩn USALI.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -1658,7 +1658,7 @@ Mọi khoản thu trong hệ thống bắt buộc phải được bóc tách là
 Các tác vụ rủi ro cao liên quan đến tài chính và vận hành bắt buộc phải có sự phê duyệt của Manager mới được thực thi.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -1673,7 +1673,7 @@ Các tác vụ rủi ro cao liên quan đến tài chính và vận hành bắt 
 Quy trình Night Audit phải chạy ngầm tự động bằng Cronjob vào lúc 02:00 AM mỗi ngày. Hệ thống tính toán tiền phòng của ngày hôm đó cộng vào Folio của các phòng đang Checked_In và đóng sổ chuyển sang ngày mới.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -1688,7 +1688,7 @@ Quy trình Night Audit phải chạy ngầm tự động bằng Cronjob vào lú
 Tiến trình Night Audit sẽ báo lỗi hoặc tạm dừng nếu phát hiện nhân viên F&B/POS chưa chốt sổ bán hàng trong ngày (End of Day). Manager có quyền thực thi "Cưỡng chế đóng ca" (Force Close) để Night Audit tiếp tục chạy.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
@@ -1703,7 +1703,7 @@ Tiến trình Night Audit sẽ báo lỗi hoặc tạm dừng nếu phát hiện
 Khi một Yêu cầu Hoàn tiền (Refund Request) được khởi tạo và phê duyệt, bản ghi dịch vụ gốc (Booking, FoodOrder, TourBooking) bắt buộc phải chuyển trạng thái sang Cancelled để đảm bảo báo cáo doanh thu cuối tháng không bị ảo.
 
 <details>
-<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+<summary><b>👉 Xem Chi tiết</b></summary>
 
 - **Chi tiết:**
   - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
