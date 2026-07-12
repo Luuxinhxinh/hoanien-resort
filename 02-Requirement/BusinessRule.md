@@ -122,7 +122,8 @@ Phiên làm việc (Session) của nhân viên hệ thống phải **tự độn
 
 **Mức độ:** CRITICAL
 
-**Phát biểu:**Tất cả các hành động quan trọng sau **phải được ghi vào Audit Log** và **không thể bị xóa hoặc chỉnh sửa**:
+**Phát biểu:**
+Tất cả các hành động quan trọng sau **phải được ghi vào Audit Log** và **không thể bị xóa hoặc chỉnh sửa**:
 
 - Hủy booking
 - Sửa đổi hóa đơn
@@ -163,7 +164,8 @@ Yêu cầu xóa thông tin cá nhân của khách hàng phải được xử lý
 
 **Mức độ:** HIGH
 
-**Phát biểu:**Mật khẩu người dùng phải đáp ứng tối thiểu các tiêu chí:
+**Phát biểu:**
+Mật khẩu người dùng phải đáp ứng tối thiểu các tiêu chí:
 
 - Tối thiểu **8 ký tự**.
 - Chứa ít nhất **1 chữ hoa** (A-Z).
@@ -246,150 +248,1573 @@ Mọi hành động xuất dữ liệu (Export Excel/PDF) liên quan đến thô
 
 ### Nhóm BR-RSV — Đặt phòng & Phân bổ
 
-- **BR-RSV-01**: Validate check-in/out dates (cannot be in the past; check-out > check-in) and ensure the number of rooms is less than or equal to the number of available rooms in the list.
-- **BR-RSV-02**: The system displays only available rooms that meet the search criteria (excluding rooms that are currently soft-locked).
-- **BR-RSV-03**: Must log in to make a reservation. If you are not logged in, you will be redirected to the Login/Register page.
-- **BR-RSV-04**: All online bookings require a deposit payment before the reservation is confirmed. The booking will remain in "Pending Payment" status for 2 minutes; if the deposit is not received within this timeframe, the booking will be automatically cancelled, and the room will be released back into the inventory.
-- **BR-RSV-05**: The system must prevent room overbooking by ensuring that the same physical room cannot be assigned to overlapping reservations.
-- **BR-RSV-06**: The displayed price is the rate applicable at the time of the search (including holidays, weekends, and promotions).
-- **BR-RSV-07**: Booking status changes from Pending_Payment to Confirmed only upon successful deposit payment via VNPay.
-- **BR-RSV-08**: Only the customer who owns the reservation may cancel the reservation.
-- **BR-RSV-09**: Reservations with status Checked-In or Cancelled cannot be cancelled.
-- **BR-RSV-10**: When a reservation is cancelled, all reserved room inventory shall be released immediately for future booking.
-- **BR-RSV-11**: Customers may add, remove, and assign accompanying/dependent guests to rooms only under an existing valid reservation. A dependent guest must be registered under the reservation before room assignment, and the assigned room must comply with the maximum occupancy limit.
+### BR-RSV-01 — Validate check-in/out dates (cannot be...
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+Validate check-in/out dates (cannot be in the past; check-out > check-in) and ensure the number of rooms is less than or equal to the number of available rooms in the list.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-RSV-02 — The system displays only available...
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+The system displays only available rooms that meet the search criteria (excluding rooms that are currently soft-locked).
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-RSV-03 — Must log in to make...
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+Must log in to make a reservation. If you are not logged in, you will be redirected to the Login/Register page.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-RSV-04 — All online bookings require a...
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+All online bookings require a deposit payment before the reservation is confirmed. The booking will remain in "Pending Payment" status for 2 minutes; if the deposit is not received within this timeframe, the booking will be automatically cancelled, and the room will be released back into the inventory.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-RSV-05 — The system must prevent room...
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+The system must prevent room overbooking by ensuring that the same physical room cannot be assigned to overlapping reservations.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-RSV-06 — The displayed price is the...
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+The displayed price is the rate applicable at the time of the search (including holidays, weekends, and promotions).
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-RSV-07 — Booking status changes from Pending_Payment...
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+Booking status changes from Pending_Payment to Confirmed only upon successful deposit payment via VNPay.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-RSV-08 — Only the customer who owns...
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+Only the customer who owns the reservation may cancel the reservation.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-RSV-09 — Reservations with status Checked-In or...
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+Reservations with status Checked-In or Cancelled cannot be cancelled.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-RSV-10 — When a reservation is cancelled,...
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+When a reservation is cancelled, all reserved room inventory shall be released immediately for future booking.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-RSV-11 — Customers may add, remove, and...
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+Customers may add, remove, and assign accompanying/dependent guests to rooms only under an existing valid reservation. A dependent guest must be registered under the reservation before room assignment, and the assigned room must comply with the maximum occupancy limit.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
 
 ### Nhóm BR-FO — Lễ tân & Trải nghiệm lưu trú
 
-- **BR-FO-01**: Representative guest must be ≥ 18 years old and provide valid identification (ID/Passport).
-- **BR-FO-02**: Rush Rooms have Vacant_Dirty are prioritized and moved to the top of the housekeeping task queue.
-- **BR-FO-03**: Only the Primary Guest (Representative) of the reservation is authorized to request account upgrades, service authorizations, or administrative changes for the booking. Dependents are restricted from these actions.
-- **BR-FO-04**: Reservations not checked in by 00:00 of the next day are marked No-Show with 100% deposit retention.
-- **BR-FO-05**: Only guests with an active In-House reservation may request a room category change. Room category change requires availability and Vacant_Clean status in the new category.
-- **BR-FO-06**: Walk-in guests must provide valid identification before check-in.
-- **BR-FO-07**: Each reservation must be assigned to a specific room at check-in and update reservation status to "Checked-In" after successful check-in.
-- **BR-FO-08**: Walk-in guests without an account automatic generates a customer account and a temporary password for walk-in guests, then notifies the customer to update their credentials.
-- **BR-FO-09**: Guests must be registered for temporary residence reporting per local regulations.
-- **BR-FO-10**: The reservation shall be linked to the customer account.
-- **BR-FO-11**: A dependent guest shall not be registered more than once under the same reservation. The system shall prevent the registration of a dependent guest whose identification document number (CCCD/Passport) already exists in the Booking_Guests list of that reservation.
-- **BR-FO-12**: Room category changes shall only be finalized after a specific room in the requested category has been assigned to the reservation.
+### BR-FO-01 — Representative guest must be ≥...
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+Representative guest must be ≥ 18 years old and provide valid identification (ID/Passport).
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-FO-02 — Rush Rooms have Vacant_Dirty are...
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+Rush Rooms have Vacant_Dirty are prioritized and moved to the top of the housekeeping task queue.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-FO-03 — Only the Primary Guest (Representative)...
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+Only the Primary Guest (Representative) of the reservation is authorized to request account upgrades, service authorizations, or administrative changes for the booking. Dependents are restricted from these actions.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-FO-04 — Reservations not checked in by...
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+Reservations not checked in by 00:00 of the next day are marked No-Show with 100% deposit retention.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-FO-05 — Only guests with an active...
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+Only guests with an active In-House reservation may request a room category change. Room category change requires availability and Vacant_Clean status in the new category.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-FO-06 — Walk-in guests must provide valid...
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+Walk-in guests must provide valid identification before check-in.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-FO-07 — Each reservation must be assigned...
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+Each reservation must be assigned to a specific room at check-in and update reservation status to "Checked-In" after successful check-in.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-FO-08 — Walk-in guests without an account...
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+Walk-in guests without an account automatic generates a customer account and a temporary password for walk-in guests, then notifies the customer to update their credentials.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-FO-09 — Guests must be registered for...
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+Guests must be registered for temporary residence reporting per local regulations.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-FO-10 — The reservation shall be linked...
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+The reservation shall be linked to the customer account.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-FO-11 — A dependent guest shall not...
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+A dependent guest shall not be registered more than once under the same reservation. The system shall prevent the registration of a dependent guest whose identification document number (CCCD/Passport) already exists in the Booking_Guests list of that reservation.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-FO-12 — Room category changes shall only...
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+Room category changes shall only be finalized after a specific room in the requested category has been assigned to the reservation.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
 
 ## 5. BR-FB — Ẩm thực & Nhà hàng (F&B)
 
-- **BR-FB-01**: Room Service and Table Reservation services are strictly applicable to guests with an active and valid stay status at the hotel.
-- **BR-FB-02**: For walk-in guests, the system only supports Dine-in services, which must be facilitated by on-site staff.
-- **BR-FB-03**: When a guest searches for a table by date and time, the system shall only display available tables. Tables that are already reserved or have conflicting schedules during the searched timeframe will be grayed out (disabled) on the user interface.
-- **BR-FB-04**: The system shall reject table reservation requests if the number of guests exceeds the designated maximum capacity of the selected table.
-- **BR-FB-05**: Upon accessing the Room Service interface, the system defaults to displaying the menu applicable for the current day.
-- **BR-FB-06**: Guests are permitted to browse the menu for all days of the week. However, order placement is restricted strictly to currently available items on the current day's menu.
-- **BR-FB-07**: For Room Service orders utilizing the CHARGE_TO_ROOM payment method, the system will only process the order if the room's Credit Limit is greater than the total order value.
-- **BR-FB-08**: If a table reservation request lacks an end time, the system will automatically assign a default duration of 60 minutes calculated from the start time.
-- **BR-FB-09**: Upon successful payment of a Dine-in order (payOrder), the system automatically updates the reservation status to Complete. Concurrently, the physical table status shifts to Cleaning, and the system logs the start time of the cleaning process.
-- **BR-FB-10**: Once a Room Service order is confirmed as delivered (status changed to Served), the system automatically flags the order as paid (isPaidInPos = true), as the financial liability is transferred to the master room folio.
-- **BR-FB-11**: Order cancellation by either the guest or staff is only permitted when the order is in the Pending status.
-- **BR-FB-12**: In the event of an order cancellation:
+### BR-FB-01 — Room Service and Table Reservation...
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+Room Service and Table Reservation services are strictly applicable to guests with an active and valid stay status at the hotel.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-FB-02 — For walk-in guests, the system...
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+For walk-in guests, the system only supports Dine-in services, which must be facilitated by on-site staff.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-FB-03 — When a guest searches for...
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+When a guest searches for a table by date and time, the system shall only display available tables. Tables that are already reserved or have conflicting schedules during the searched timeframe will be grayed out (disabled) on the user interface.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-FB-04 — The system shall reject table...
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+The system shall reject table reservation requests if the number of guests exceeds the designated maximum capacity of the selected table.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-FB-05 — Upon accessing the Room Service...
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+Upon accessing the Room Service interface, the system defaults to displaying the menu applicable for the current day.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-FB-06 — Guests are permitted to browse...
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+Guests are permitted to browse the menu for all days of the week. However, order placement is restricted strictly to currently available items on the current day's menu.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-FB-07 — For Room Service orders utilizing...
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+For Room Service orders utilizing the CHARGE_TO_ROOM payment method, the system will only process the order if the room's Credit Limit is greater than the total order value.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-FB-08 — If a table reservation request...
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+If a table reservation request lacks an end time, the system will automatically assign a default duration of 60 minutes calculated from the start time.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-FB-09 — Upon successful payment of a...
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+Upon successful payment of a Dine-in order (payOrder), the system automatically updates the reservation status to Complete. Concurrently, the physical table status shifts to Cleaning, and the system logs the start time of the cleaning process.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-FB-10 — Once a Room Service order...
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+Once a Room Service order is confirmed as delivered (status changed to Served), the system automatically flags the order as paid (isPaidInPos = true), as the financial liability is transferred to the master room folio.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-FB-11 — Order cancellation by either the...
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+Order cancellation by either the guest or staff is only permitted when the order is in the Pending status.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-FB-12 — In the event of an...
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+In the event of an order cancellation:
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
   - If the CHARGE_TO_ROOM method was selected, the system automatically reverses the charge on the room folio.
   - If payment was made online or via bank transfer, the system prompts for bank details and automatically generates a RefundRequest routed to the Manager for approval.
-- **BR-FB-13**: When creating a Room Service order via the POS interface, F&B Staff are required to verify and input the last 4 digits of the guest's ID card for security purposes. The system allows order creation only if the room's Credit Limit exceeds the total order value.
-- **BR-FB-14**: When staff place a table reservation for a guest, inputting the room number is mandatory. The reservation request will be denied if the specified room does not hold a valid, active guest stay.
-- **BR-FB-15**: For guests with an existing reservation, F&B staff must perform check-in verification using the guest's ID upon arrival at the restaurant. Only after successful verification will the table status update to Seated.
-- **BR-FB-16**: Add-on orders are only applicable to Dine-in services. The system automatically consolidates add-ons into the master Food Order while generating independent Order Detail lines to assist the Kitchen in tracking preparation progress per batch.
-- **BR-FB-17**: The system automatically applies a 5% service charge to the total invoice prior to posting for CHARGE_TO_ROOM orders. Conversely, a 2% service charge discount is applied if the guest prepays via a digital payment gateway (e-wallet/card).
-- **BR-FB-18**: During available table suggestions or reservation conflict checks, the system automatically appends a 15-minute buffer after the preceding reservation's end time to allow staff sufficient turnaround (cleaning) time.
-- **BR-FB-19**: For Room Service orders that have reached the Complete (preparation finished) status, F&B staff must execute the "Deliver" and "Confirm Delivery" actions within the system to finalize the order workflow.
-- **BR-FB-20**: The Estimated Time of Arrival (etaMins) for an order is calculated using the following formula: [Preparation time of the longest item] + [2 minutes x (Total items - 2)] + [5 minutes transit time]. The base preparation time is hardcoded by category: Main = 20 mins, Beverage = 5 mins, and other items = 10 mins.
-- **BR-FB-21**: When staff enter a name for a walk-in guest, the system automatically prepends Guest: to the notes field. Similarly, when a table is placed on Hold, the system parses and inserts a [HELD: Xm] tag into the Special Requests field for optimal visibility by F&B staff.
-- **BR-FB-22**: The system enforces a strict state synchronization constraint: the status of individual Kitchen Order Tickets (KOT) automatically inherits the status of the master order. (e.g., If an order transitions to Preparing, all associated items currently in Pending will automatically shift to Preparing).
-- **BR-FB-23**: Role-Based Access Control (RBAC) restricts Kitchen Staff permissions to solely updating item availability (In Stock/Out of Stock). This role is denied edit access to other configuration data, such as listed prices or serving dates.
-- **BR-FB-24**: The system only allows staff to create Dine-in orders and accept Table Reservations within the designated operating hours from 08:00 to 22:59 daily.
-- **BR-FB-25**: Tables currently in "Cleaning", "Out of service", or "Occupied/Seated" statuses cannot be used to create new, independent Dine-in orders or accept Table Reservations within the next 2 hours. (Note: For "Occupied" tables, any attempt to order items will be treated as an Add-on and automatically merged into the current guest's active bill).
-- **BR-FB-26**: When creating a Dine-in order for walk-in guests, the system automatically cross-checks the table's reservation schedule for the day. The request to open the table will be rejected if there is a confirmed reservation with a starting time (Reserve Time) within 2 hours from the current time.
+### BR-FB-13 — When creating a Room Service...
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+When creating a Room Service order via the POS interface, F&B Staff are required to verify and input the last 4 digits of the guest's ID card for security purposes. The system allows order creation only if the room's Credit Limit exceeds the total order value.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-FB-14 — When staff place a table...
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+When staff place a table reservation for a guest, inputting the room number is mandatory. The reservation request will be denied if the specified room does not hold a valid, active guest stay.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-FB-15 — For guests with an existing...
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+For guests with an existing reservation, F&B staff must perform check-in verification using the guest's ID upon arrival at the restaurant. Only after successful verification will the table status update to Seated.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-FB-16 — Add-on orders are only applicable...
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+Add-on orders are only applicable to Dine-in services. The system automatically consolidates add-ons into the master Food Order while generating independent Order Detail lines to assist the Kitchen in tracking preparation progress per batch.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-FB-17 — The system automatically applies a...
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+The system automatically applies a 5% service charge to the total invoice prior to posting for CHARGE_TO_ROOM orders. Conversely, a 2% service charge discount is applied if the guest prepays via a digital payment gateway (e-wallet/card).
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-FB-18 — During available table suggestions or...
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+During available table suggestions or reservation conflict checks, the system automatically appends a 15-minute buffer after the preceding reservation's end time to allow staff sufficient turnaround (cleaning) time.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-FB-19 — For Room Service orders that...
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+For Room Service orders that have reached the Complete (preparation finished) status, F&B staff must execute the "Deliver" and "Confirm Delivery" actions within the system to finalize the order workflow.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-FB-20 — The Estimated Time of Arrival...
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+The Estimated Time of Arrival (etaMins) for an order is calculated using the following formula: [Preparation time of the longest item] + [2 minutes x (Total items - 2)] + [5 minutes transit time]. The base preparation time is hardcoded by category: Main = 20 mins, Beverage = 5 mins, and other items = 10 mins.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-FB-21 — When staff enter a name...
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+When staff enter a name for a walk-in guest, the system automatically prepends Guest: to the notes field. Similarly, when a table is placed on Hold, the system parses and inserts a [HELD: Xm] tag into the Special Requests field for optimal visibility by F&B staff.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-FB-22 — The system enforces a strict...
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+The system enforces a strict state synchronization constraint: the status of individual Kitchen Order Tickets (KOT) automatically inherits the status of the master order. (e.g., If an order transitions to Preparing, all associated items currently in Pending will automatically shift to Preparing).
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-FB-23 — Role-Based Access Control (RBAC) restricts...
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+Role-Based Access Control (RBAC) restricts Kitchen Staff permissions to solely updating item availability (In Stock/Out of Stock). This role is denied edit access to other configuration data, such as listed prices or serving dates.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-FB-24 — The system only allows staff...
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+The system only allows staff to create Dine-in orders and accept Table Reservations within the designated operating hours from 08:00 to 22:59 daily.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-FB-25 — Tables currently in "Cleaning", "Out...
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+Tables currently in "Cleaning", "Out of service", or "Occupied/Seated" statuses cannot be used to create new, independent Dine-in orders or accept Table Reservations within the next 2 hours. (Note: For "Occupied" tables, any attempt to order items will be treated as an Add-on and automatically merged into the current guest's active bill).
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-FB-26 — When creating a Dine-in order...
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+When creating a Dine-in order for walk-in guests, the system automatically cross-checks the table's reservation schedule for the day. The request to open the table will be rejected if there is a confirmed reservation with a starting time (Reserve Time) within 2 hours from the current time.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
 
 ## 6. BR-TR — Lữ hành & Đánh giá (Tour & Review)
 
 ### 1. Tour Booking & Payment Constraints (UC20.1)
 
-- **BR-TR-01 (Capacity Control / Double-Booking Prevention)**: The system strictly enforces vacancy checks (availableSlots = maxCapacity - confirmedSeats). If the requested participant count exceeds remaining slots, booking is rejected with exception TOUR-001 (Out of seats).
-- **BR-TR-04 (Age-Based Discount Rules)**: Tour ticket prices are calculated dynamically based on passenger age groups:
+### BR-TR-01 — Capacity Control / Double-Booking Prevention
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+The system strictly enforces vacancy checks (availableSlots = maxCapacity - confirmedSeats). If the requested participant count exceeds remaining slots, booking is rejected with exception TOUR-001 (Out of seats).
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-TR-04 — Age-Based Discount Rules
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+Tour ticket prices are calculated dynamically based on passenger age groups:
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
   - Infants (Under 2 years old): 100% Free.
   - Children (2 - 11 years old): 50% discount on the base price (basePrice * 0.5).
   - Adults (12 years old and above): 100% full price (basePrice).
-- **BR-TR-07 (Mandatory Travel Insurance)**: For active adventure tours (isInsuranceRequired = true), guests must purchase travel insurance (acceptInsurance = true). Refusal triggers exception TOUR-INS-001. The insurance fee (insurancePrice * participantCount) is appended to the total price, and the system auto-generates a policy number: INS-YYYYMMDD-SCH{id}-{UUID}.
-- **BR-TR-08 (Post to Room Stay Requirement)**: To charge tour expenses directly to a room folio, a valid checked-in room's detail ID (roomBookingDetailId) must be provided. Missing room detail triggers error TOUR-004; invalid IDs trigger error TOUR-005.
-- **BR-TR-09 (Folio Credit Limit Validation)**: When selecting Post to Room payment, the system validates the room's remaining credit limit (subCreditLimit - usedAmount). If the tour's total price exceeds this limit, booking is blocked, throwing an exception TOUR-LIMIT. Guests must pay off existing debts or choose online payment.
-- **BR-TR-11 (Promotion Usage Limitation)**: Each promotional code can only be used by a customer exactly once (uses >= 1 throws [ERR_PROMO_USAGE_EXCEEDED]). Promotions must be active and within their expiration range (validTo >= LocalDate.now()).
+### BR-TR-07 — Mandatory Travel Insurance
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+For active adventure tours (isInsuranceRequired = true), guests must purchase travel insurance (acceptInsurance = true). Refusal triggers exception TOUR-INS-001. The insurance fee (insurancePrice * participantCount) is appended to the total price, and the system auto-generates a policy number: INS-YYYYMMDD-SCH{id}-{UUID}.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-TR-08 — Post to Room Stay Requirement
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+To charge tour expenses directly to a room folio, a valid checked-in room's detail ID (roomBookingDetailId) must be provided. Missing room detail triggers error TOUR-004; invalid IDs trigger error TOUR-005.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-TR-09 — Folio Credit Limit Validation
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+When selecting Post to Room payment, the system validates the room's remaining credit limit (subCreditLimit - usedAmount). If the tour's total price exceeds this limit, booking is blocked, throwing an exception TOUR-LIMIT. Guests must pay off existing debts or choose online payment.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-TR-11 — Promotion Usage Limitation
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+Each promotional code can only be used by a customer exactly once (uses >= 1 throws [ERR_PROMO_USAGE_EXCEEDED]). Promotions must be active and within their expiration range (validTo >= LocalDate.now()).
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
 
 ### 2. Attendance & Tour Operation Constraints (UC21 & UC20.2)
 
-- **BR-TR-02 (AI Face Match Score Threshold)**: During AI Face Scan attendance verification, the matched face score returned from JavaScript comparison must meet the minimum 85% threshold (MIN_MATCH_SCORE_FOR_ATTENDANCE = 0.85) to automatically update status to PRESENT / Checked_In.
-- **BR-TR-03 (Mandatory Full Attendance Before Departure)**: A tour guide is blocked from starting a tour schedule (startTour) if there is any passenger with a status other than Checked_In (e.g. Not_Show). If incomplete, departure is blocked, returning a toast message start_failed_pax.
-- **BR-TR-06 (Minimum Passenger Warning - Minimum Pax)**: The system scans schedules 24 hours prior to departure. If booking count does not meet the minimum pax threshold, the admin is warned, though staff/vehicle assignments can still proceed.
-- **BR-TR-10 (Special Name Mapping - FaceID Fallback)**: To account for scanner precision variations in variable lighting, the system maps "Ngọc Thị" and "Lê Quang" interchangeably within the isNameMatch name comparison logic.
+### BR-TR-02 — AI Face Match Score Threshold
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+During AI Face Scan attendance verification, the matched face score returned from JavaScript comparison must meet the minimum 85% threshold (MIN_MATCH_SCORE_FOR_ATTENDANCE = 0.85) to automatically update status to PRESENT / Checked_In.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-TR-03 — Mandatory Full Attendance Before Departure
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+A tour guide is blocked from starting a tour schedule (startTour) if there is any passenger with a status other than Checked_In (e.g. Not_Show). If incomplete, departure is blocked, returning a toast message start_failed_pax.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-TR-06 — Minimum Passenger Warning - Minimum Pax
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+The system scans schedules 24 hours prior to departure. If booking count does not meet the minimum pax threshold, the admin is warned, though staff/vehicle assignments can still proceed.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-TR-10 — Special Name Mapping - FaceID Fallback
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+To account for scanner precision variations in variable lighting, the system maps "Ngọc Thị" and "Lê Quang" interchangeably within the isNameMatch name comparison logic.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
 
 ### 3. Cancellation & Tour Modification Constraints (UC20.3 & UC08)
 
-- **BR-TR-05 (Cancellation & Refund Rules)**:
-  - Resort-Initiated Cancellation: 100% full refund to the customer. Booking status updates to Cancelled_Refunded.
+### BR-TR-05 — Cancellation & Refund Rules
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+- Resort-Initiated Cancellation: 100% full refund to the customer. Booking status updates to Cancelled_Refunded.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
   - Guest-Initiated Cancellation: If cancelled within 24 hours prior to departure, a 50% deposit penalty is charged (only 50% is refunded). Booking status updates to Cancelled_Forfeited.
-- **BR-TR-13 (Active Tour Editing & Deletion Restriction)**: Modification of base prices or soft deleting a Tour is strictly forbidden if that Tour is associated with at least one active schedule in Open status. Violating actions trigger a ResourceInUseException.
+### BR-TR-13 — Active Tour Editing & Deletion Restriction
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+Modification of base prices or soft deleting a Tour is strictly forbidden if that Tour is associated with at least one active schedule in Open status. Violating actions trigger a ResourceInUseException.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
 
 ## 7. BR-FIN — Tài chính & Thanh toán
 
-- **BR-FIN-01**: Reservations cancelled at least 48 hours (≥ 48 hours) before the scheduled check-in datetime shall receive a 100% deposit refund. Reservations cancelled less than 48 hours before check-in, no-shows, or reservations that have already completed check-in shall not be eligible for any refund.
-- **BR-FIN-02**: The system shall support bank transfer payments for online reservations. A reservation is considered paid only after payment confirmation has been successfully verified by the payment gateway.
-- **BR-FIN-03**: Check-in may only be completed after the required deposit or payment guarantee has been successfully verified according to hotel policy.
-- **BR-FIN-04**: When a guest upgrades to a higher room category during an active stay, the system shall calculate the additional charge based on the difference between the current room rate and the selected room rate for all remaining nights of the stay.
-- **BR-FIN-05**: Downgrading to a lower room category after check-in shall not entitle the guest to any refund, credit, or reduction of previously agreed room charges.
-- **BR-FIN-06**: The system shall determine room category upgrades and downgrades based on room rates. Moving to a higher-priced room category is considered an upgrade, while moving to a lower-priced room category is considered a downgrade.
+### BR-FIN-01 — Reservations cancelled at least 48...
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+Reservations cancelled at least 48 hours (≥ 48 hours) before the scheduled check-in datetime shall receive a 100% deposit refund. Reservations cancelled less than 48 hours before check-in, no-shows, or reservations that have already completed check-in shall not be eligible for any refund.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-FIN-02 — The system shall support bank...
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+The system shall support bank transfer payments for online reservations. A reservation is considered paid only after payment confirmation has been successfully verified by the payment gateway.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-FIN-03 — Check-in may only be completed...
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+Check-in may only be completed after the required deposit or payment guarantee has been successfully verified according to hotel policy.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-FIN-04 — When a guest upgrades to...
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+When a guest upgrades to a higher room category during an active stay, the system shall calculate the additional charge based on the difference between the current room rate and the selected room rate for all remaining nights of the stay.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-FIN-05 — Downgrading to a lower room...
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+Downgrading to a lower room category after check-in shall not entitle the guest to any refund, credit, or reduction of previously agreed room charges.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-FIN-06 — The system shall determine room...
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+The system shall determine room category upgrades and downgrades based on room rates. Moving to a higher-priced room category is considered an upgrade, while moving to a lower-priced room category is considered a downgrade.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
 
 ## 8. Mod 5 — Quản lý Vận hành & Báo cáo (Operations, Housekeeping, Manager)
 
 ### 1. Folio Aggregation (Gom hóa đơn & Ký nợ phòng)
 
-- **BR-FO-01 | Điều kiện Ký nợ (Post-to-Room)**: Khách hàng chỉ được phép ký nợ hóa đơn dịch vụ (F&B, Tour) vào ví phòng (Folio) khi trạng thái lưu trú đang là Checked_In.
-- **BR-REC-02 | Ràng buộc Hạn mức Tín dụng**: Tổng dư nợ hiện tại cộng với giao dịch Ký nợ mới không được phép vượt quá hạn mức nợ (Credit Limit) của phòng. Nếu vượt, giao dịch bị từ chối trừ khi được Lễ tân hoặc Manager can thiệp nâng hạn mức.
-- **BR-FO-03 | Xác thực Giao dịch**: Khách hàng bắt buộc phải nhập mã PIN (so khớp mã băm) hoặc ký tên xác nhận (lưu vào signature_img_url) khi thực hiện Post-to-Room từ các điểm dịch vụ.
-- **BR-FO-04 | Gom Hóa Đơn Tự Động (Checkout)**: Khi khách trả phòng, hệ thống tự động quét và cộng dồn toàn bộ Folio_Items chưa được thanh toán riêng. Sau khi trừ đi khoản tiền cọc, hệ thống tính ra tổng tiền dư nợ thực tế cần thanh toán.
-- **BR-REC-05 | Bắt buộc Kiểm phòng (Room Check)**: Không thể xuất hóa đơn cuối cùng nếu Housekeeping chưa hoàn thành việc kiểm tra phòng (Minibar/Hỏng hóc). Lệnh ROOM_CHECK phải chuyển sang trạng thái Completed.
+### BR-FO-01 — Điều kiện Ký nợ Post-to-Room
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+Khách hàng chỉ được phép ký nợ hóa đơn dịch vụ (F&B, Tour) vào ví phòng (Folio) khi trạng thái lưu trú đang là Checked_In.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-REC-02 — Ràng buộc Hạn mức Tín dụng Tổng dư nợ hiện tại...
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+Tổng dư nợ hiện tại cộng với giao dịch Ký nợ mới không được phép vượt quá hạn mức nợ (Credit Limit) của phòng. Nếu vượt, giao dịch bị từ chối trừ khi được Lễ tân hoặc Manager can thiệp nâng hạn mức.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-FO-03 — Xác thực Giao dịch Khách hàng bắt buộc phải...
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+Khách hàng bắt buộc phải nhập mã PIN (so khớp mã băm) hoặc ký tên xác nhận (lưu vào signature_img_url) khi thực hiện Post-to-Room từ các điểm dịch vụ.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-FO-04 — Gom Hóa Đơn Tự Động Checkout
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+Khi khách trả phòng, hệ thống tự động quét và cộng dồn toàn bộ Folio_Items chưa được thanh toán riêng. Sau khi trừ đi khoản tiền cọc, hệ thống tính ra tổng tiền dư nợ thực tế cần thanh toán.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-REC-05 — Bắt buộc Kiểm phòng Room Check
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+Không thể xuất hóa đơn cuối cùng nếu Housekeeping chưa hoàn thành việc kiểm tra phòng (Minibar/Hỏng hóc). Lệnh ROOM_CHECK phải chuyển sang trạng thái Completed.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
 
 ### 2. Night Audit & Thanh toán (Kiểm toán đêm)
 
-- **BR-FIN-01b | Kiểm toán Đêm Tự Động (Night Audit)**: Quy trình đóng sổ phải được chạy ngầm tự động vào lúc 02:00 AM mỗi ngày. Hệ thống thực hiện quét các phòng Checked_In, tự động sinh một dòng tiền phòng mới vào hóa đơn tổng, và dịch chuyển ngày vận hành của hệ thống sang ngày tiếp theo.
-- **BR-FIN-02b | Chốt chặn Check-out**: Check-out tuyệt đối bị khóa chặn nếu hóa đơn tổng hợp chưa có số dư nợ bằng 0. Tất cả các Folio_Items có trạng thái Pending bắt buộc phải được tất toán xong xuôi.
-- **BR-FIN-03b | Chính sách Hoàn tiền (Refund)**:
-  - Hủy trước 48 giờ so với ngày Check-in: Hoàn 100% cọc.
+### BR-FIN-01b | Kiểm toán Đêm Tự Động — Night Audit
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+Quy trình đóng sổ phải được chạy ngầm tự động vào lúc 02:00 AM mỗi ngày. Hệ thống thực hiện quét các phòng Checked_In, tự động sinh một dòng tiền phòng mới vào hóa đơn tổng, và dịch chuyển ngày vận hành của hệ thống sang ngày tiếp theo.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-FIN-02b | Chốt chặn Check-out — Check-out tuyệt đối bị khóa...
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+Check-out tuyệt đối bị khóa chặn nếu hóa đơn tổng hợp chưa có số dư nợ bằng 0. Tất cả các Folio_Items có trạng thái Pending bắt buộc phải được tất toán xong xuôi.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-FIN-03b | Chính sách Hoàn tiền — Refund
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+- Hủy trước 48 giờ so với ngày Check-in: Hoàn 100% cọc.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
   - Hủy trong vòng 48 giờ hoặc No-show: Mất 100% cọc.
-- **BR-FIN-04b | Phê duyệt Hoàn tiền thủ công**: Mọi yêu cầu hoàn tiền không thuộc luồng tự động (do sự cố, thiên tai) phải tạo RefundRequest và được Manager phê duyệt.
+### BR-FIN-04b | Phê duyệt Hoàn tiền thủ công — Mọi yêu cầu hoàn tiền...
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+Mọi yêu cầu hoàn tiền không thuộc luồng tự động (do sự cố, thiên tai) phải tạo RefundRequest và được Manager phê duyệt.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
 
 ### 3. Manager Dashboard & Báo cáo
 
-- **BR-RPT-01 | Phân loại Doanh thu chuẩn USALI**: Doanh thu hệ thống bắt buộc phải được bóc tách làm 3 luồng riêng biệt: Doanh thu Phòng (Room), Ẩm thực (F&B) và Lữ hành (Tour).
-- **BR-RPT-02 | Thống kê Dashboard Thời Gian Thực**: Manager Dashboard tính toán và hiển thị các chỉ số cốt lõi: Tỷ lệ lấp đầy (Occupancy Rate), tỷ lệ bán món ăn, tỷ lệ bán tour. Hệ thống phải vẽ đồ thị doanh thu lũy kế dựa theo các bộ lọc thời gian.
-- **BR-RPT-03 | Báo cáo Lợi Nhuận Gộp (GOP)**: Hệ thống cung cấp báo cáo tính toán Lợi nhuận Hoạt động Gộp cho từng bộ phận để Manager theo dõi hiệu suất tài chính tổng thể.
+### BR-RPT-01 — Phân loại Doanh thu chuẩn USALI Doanh thu hệ thống bắt...
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+Doanh thu hệ thống bắt buộc phải được bóc tách làm 3 luồng riêng biệt: Doanh thu Phòng (Room), Ẩm thực (F&B) và Lữ hành (Tour).
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-RPT-02 — Thống kê Dashboard Thời Gian Thực Manager Dashboard tính toán và...
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+Manager Dashboard tính toán và hiển thị các chỉ số cốt lõi: Tỷ lệ lấp đầy (Occupancy Rate), tỷ lệ bán món ăn, tỷ lệ bán tour. Hệ thống phải vẽ đồ thị doanh thu lũy kế dựa theo các bộ lọc thời gian.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-RPT-03 — Báo cáo Lợi Nhuận Gộp GOP
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+Hệ thống cung cấp báo cáo tính toán Lợi nhuận Hoạt động Gộp cho từng bộ phận để Manager theo dõi hiệu suất tài chính tổng thể.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
 
 ### 4. Buồng phòng & Bảo trì (Housekeeping & Maintenance)
 
-- **BR-HK-01 | Khởi tạo Task Dọn phòng Tự động**: Ngay khi Lễ tân hoàn tất Check-out, tự động sinh một công việc dọn dẹp và chuyển trạng thái phòng sang Vacant_Dirty.
-- **BR-HK-02 | Ghi nhận Tiêu dùng Minibar**: Nhân viên buồng phòng khi kiểm tra phòng check-out phải khai báo số lượng đồ uống/snack đã sử dụng. Hệ thống lập tức đẩy khoản phí này vào Folio của khách hàng theo đơn giá niêm yết.
-- **BR-HK-03 | Yêu cầu Dọn khẩn cấp (Rush Room)**: Khi Lễ tân đánh dấu một phòng là "Rush Room", độ ưu tiên của Task Housekeeping được nâng lên mức cao nhất, kích hoạt thông báo Real-time (Push Notification/Toast) đẩy về màn hình của Housekeeping.
-- **BR-HK-04 | Báo cáo Đồ thất lạc (Lost & Found)**: Tài sản khách để quên phải được khai báo tài sản khách để quên, có ảnh chụp minh chứng và lưu kho chờ bộ phận CSKH xử lý (thường là 30 - 90 ngày).
-- **BR-HK-06 | Báo cáo Hỏng hóc (Create Ticket)**: Khi phát hiện thiết bị hỏng, Housekeeping tạo báo cáo. Hệ thống tự động sinh phiếu MAINTENANCE và chuyển phòng sang trạng thái chờ bảo trì. Nếu lỗi do khách làm hỏng (Vỡ ly, cháy thảm), Housekeeping có thể đính kèm phí đền bù (Damage Fee) đẩy thẳng vào Folio.
-- **BR-MT-01 | Ràng buộc Trạng thái Phòng (Out of Order)**: Phòng đang ở trạng thái bảo trì Maintenance sẽ bị đóng băng. Hệ thống Booking Engine hoặc Lễ tân không thể nhìn thấy hoặc gán phòng này cho khách Check-in để ngăn chặn Overbooking.
-- **BR-MT-03 | Khôi phục Trạng thái Sau Bảo trì**: Khi nhân viên báo cáo hoàn thành sửa chữa, trạng thái phòng KHÔNG được tự động chuyển thành Vacant_Clean, mà phải chuyển về Vacant_Dirty để Housekeeping vào dọn dẹp vệ sinh bụi bẩn sau sửa chữa trước khi đón khách.
+### BR-HK-01 — Khởi tạo Task Dọn phòng Tự động Ngay khi Lễ tân hoàn...
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+Ngay khi Lễ tân hoàn tất Check-out, tự động sinh một công việc dọn dẹp và chuyển trạng thái phòng sang Vacant_Dirty.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-HK-02 — Ghi nhận Tiêu dùng Minibar Nhân viên buồng phòng khi...
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+Nhân viên buồng phòng khi kiểm tra phòng check-out phải khai báo số lượng đồ uống/snack đã sử dụng. Hệ thống lập tức đẩy khoản phí này vào Folio của khách hàng theo đơn giá niêm yết.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-HK-03 — Yêu cầu Dọn khẩn cấp Rush Room
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+Khi Lễ tân đánh dấu một phòng là "Rush Room", độ ưu tiên của Task Housekeeping được nâng lên mức cao nhất, kích hoạt thông báo Real-time (Push Notification/Toast) đẩy về màn hình của Housekeeping.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-HK-04 — Báo cáo Đồ thất lạc Lost & Found
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+Tài sản khách để quên phải được khai báo tài sản khách để quên, có ảnh chụp minh chứng và lưu kho chờ bộ phận CSKH xử lý (thường là 30 - 90 ngày).
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-HK-06 — Báo cáo Hỏng hóc Create Ticket
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+Khi phát hiện thiết bị hỏng, Housekeeping tạo báo cáo. Hệ thống tự động sinh phiếu MAINTENANCE và chuyển phòng sang trạng thái chờ bảo trì. Nếu lỗi do khách làm hỏng (Vỡ ly, cháy thảm), Housekeeping có thể đính kèm phí đền bù (Damage Fee) đẩy thẳng vào Folio.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-MT-01 — Ràng buộc Trạng thái Phòng Out of Order
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+Phòng đang ở trạng thái bảo trì Maintenance sẽ bị đóng băng. Hệ thống Booking Engine hoặc Lễ tân không thể nhìn thấy hoặc gán phòng này cho khách Check-in để ngăn chặn Overbooking.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-MT-03 — Khôi phục Trạng thái Sau Bảo trì Khi nhân viên báo cáo...
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+Khi nhân viên báo cáo hoàn thành sửa chữa, trạng thái phòng KHÔNG được tự động chuyển thành Vacant_Clean, mà phải chuyển về Vacant_Dirty để Housekeeping vào dọn dẹp vệ sinh bụi bẩn sau sửa chữa trước khi đón khách.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
 
 ### 5. Check-out & Rời phòng (Front Office & Finance)
 
-- **BR-CO-01 | Điều kiện Tiên quyết (Zero Balance)**: Thủ tục Check-out bị khóa hoàn toàn nếu tổng hóa đơn (Consolidated_Invoice) chưa được thanh toán sạch. Hệ thống tự động chặn và trả về mã lỗi FOLIO-001 nếu dư nợ > 0.
-- **BR-CO-02 | Phát hành Hóa đơn Điện tử (e-Invoice)**: Ngay sau khi Lễ tân xác nhận Check-out thành công và số dư Folio = SETTLED, hệ thống tự động sinh hóa đơn điện tử định dạng PDF và kích hoạt luồng gửi Email (qua SendGrid) tới khách hàng.
-- **BR-CO-03 | Đóng vòng đời Lưu trú & Kích hoạt Dọn dẹp**: Check-out thành công sẽ tự động cập nhật trạng thái phòng thành Vacant_Dirty và sinh task dọn phòng cho Housekeeping (đã đề cập ở BR-HK-01).
-- **BR-CO-04 | Quyền lợi Đánh giá (Review Deadline)**: Chỉ những khách hàng đã thực hiện Check-out thành công mới được quyền viết đánh giá (Review). Thời hạn cho phép gửi đánh giá là 7 ngày kể từ ngày Check-out (review_deadline = completed_date + 7 days).
+### BR-CO-01 — Điều kiện Tiên quyết Zero Balance
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+Thủ tục Check-out bị khóa hoàn toàn nếu tổng hóa đơn (Consolidated_Invoice) chưa được thanh toán sạch. Hệ thống tự động chặn và trả về mã lỗi FOLIO-001 nếu dư nợ > 0.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-CO-02 — Phát hành Hóa đơn Điện tử e-Invoice
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+Ngay sau khi Lễ tân xác nhận Check-out thành công và số dư Folio = SETTLED, hệ thống tự động sinh hóa đơn điện tử định dạng PDF và kích hoạt luồng gửi Email (qua SendGrid) tới khách hàng.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-CO-03 — Đóng vòng đời Lưu trú & Kích hoạt Dọn dẹp Check-out thành công sẽ tự...
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+Check-out thành công sẽ tự động cập nhật trạng thái phòng thành Vacant_Dirty và sinh task dọn phòng cho Housekeeping (đã đề cập ở BR-HK-01).
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-CO-04 — Quyền lợi Đánh giá Review Deadline
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+Chỉ những khách hàng đã thực hiện Check-out thành công mới được quyền viết đánh giá (Review). Thời hạn cho phép gửi đánh giá là 7 ngày kể từ ngày Check-out (review_deadline = completed_date + 7 days).
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
 
 ### 6. Quản lý (Manager) & Vận hành Hệ thống (System)
 
-- **BR-MNG-01 | Phân loại Doanh thu USALI**: Mọi khoản thu trong hệ thống bắt buộc phải được bóc tách làm 3 luồng riêng biệt: Doanh thu Phòng (Room), Doanh thu Ẩm thực (F&B) và Doanh thu Lữ hành (Tour) dựa trên trường source_department để xuất báo cáo lợi nhuận gộp chuẩn USALI.
-- **BR-MNG-02 | Thẩm quyền Phê duyệt (Manager Approval)**: Các tác vụ rủi ro cao liên quan đến tài chính và vận hành bắt buộc phải có sự phê duyệt của Manager mới được thực thi.
-- **BR-MNG-03 | Kiểm toán Đêm (Night Audit) - Định kỳ**: Quy trình Night Audit phải chạy ngầm tự động bằng Cronjob vào lúc 02:00 AM mỗi ngày. Hệ thống tính toán tiền phòng của ngày hôm đó cộng vào Folio của các phòng đang Checked_In và đóng sổ chuyển sang ngày mới.
-- **BR-MNG-04 | Chốt chặn Đóng ca trước Night Audit**: Tiến trình Night Audit sẽ báo lỗi hoặc tạm dừng nếu phát hiện nhân viên F&B/POS chưa chốt sổ bán hàng trong ngày (End of Day). Manager có quyền thực thi "Cưỡng chế đóng ca" (Force Close) để Night Audit tiếp tục chạy.
-- **BR-MNG-05 | Tính toàn vẹn Dữ liệu Hủy (Cancellation Consistency)**: Khi một Yêu cầu Hoàn tiền (Refund Request) được khởi tạo và phê duyệt, bản ghi dịch vụ gốc (Booking, FoodOrder, TourBooking) bắt buộc phải chuyển trạng thái sang Cancelled để đảm bảo báo cáo doanh thu cuối tháng không bị ảo.
+### BR-MNG-01 — Phân loại Doanh thu USALI Mọi khoản thu trong hệ...
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+Mọi khoản thu trong hệ thống bắt buộc phải được bóc tách làm 3 luồng riêng biệt: Doanh thu Phòng (Room), Doanh thu Ẩm thực (F&B) và Doanh thu Lữ hành (Tour) dựa trên trường source_department để xuất báo cáo lợi nhuận gộp chuẩn USALI.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-MNG-02 — Thẩm quyền Phê duyệt Manager Approval
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+Các tác vụ rủi ro cao liên quan đến tài chính và vận hành bắt buộc phải có sự phê duyệt của Manager mới được thực thi.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-MNG-03 — Kiểm toán Đêm Night Audit - Định kỳ
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+Quy trình Night Audit phải chạy ngầm tự động bằng Cronjob vào lúc 02:00 AM mỗi ngày. Hệ thống tính toán tiền phòng của ngày hôm đó cộng vào Folio của các phòng đang Checked_In và đóng sổ chuyển sang ngày mới.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-MNG-04 — Chốt chặn Đóng ca trước Night Audit Tiến trình Night Audit sẽ...
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+Tiến trình Night Audit sẽ báo lỗi hoặc tạm dừng nếu phát hiện nhân viên F&B/POS chưa chốt sổ bán hàng trong ngày (End of Day). Manager có quyền thực thi "Cưỡng chế đóng ca" (Force Close) để Night Audit tiếp tục chạy.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
+### BR-MNG-05 — Tính toàn vẹn Dữ liệu Hủy Cancellation Consistency
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+Khi một Yêu cầu Hoàn tiền (Refund Request) được khởi tạo và phê duyệt, bản ghi dịch vụ gốc (Booking, FoodOrder, TourBooking) bắt buộc phải chuyển trạng thái sang Cancelled để đảm bảo báo cáo doanh thu cuối tháng không bị ảo.
+
+<details>
+<summary><b>👉 Xem Chi tiết & Nguồn</b></summary>
+
+- **Chi tiết:**
+  - Quy tắc này đóng vai trò chốt chặn kiểm soát nghiệp vụ.
+  - Hệ thống tự động validate và trả về mã lỗi nếu vi phạm.
+- **Nguồn:** Đặc tả Use Case / Codebase
+</details>
+
 
 ## 9. BR-DATA — Quản trị Dữ liệu & Tuân thủ Pháp lý
 
@@ -397,7 +1822,8 @@ Mọi hành động xuất dữ liệu (Export Excel/PDF) liên quan đến thô
 
 **Mức độ:** HIGH
 
-**Phát biểu:**Hệ thống nghiêm cấm xóa các dữ liệu nền (Master Data) khi chúng đang được sử dụng:
+**Phát biểu:**
+Hệ thống nghiêm cấm xóa các dữ liệu nền (Master Data) khi chúng đang được sử dụng:
 
 - **Không xóa phòng** đang có khách lưu trú.
 - **Không xóa bàn ăn** đang có đặt chỗ trước.
