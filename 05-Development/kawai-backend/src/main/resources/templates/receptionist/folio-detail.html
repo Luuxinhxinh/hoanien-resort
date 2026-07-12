@@ -1021,7 +1021,7 @@
                     </div>
 
                     <!-- BILL SUMMARY -->
-                    <div class="folio-right" style="width: 380px;">
+                    <div class="folio-right" style="width: 100%;">
                         <!-- HÓA ĐƠN GỐC -->
                         <div class="bill-summary-card" id="originalBillCard">
                             <h3 id="billTitle" style="text-align: center;">Hóa đơn chính</h3>
@@ -1089,7 +1089,7 @@
                                 <span class="amount" id="originalOutstandingAmount">0 VNĐ</span>
                             </div>
                             <button class="btn-checkout no-print" id="btnProceedOriginal"
-                                onclick="openPaymentModal(globalOriginalOutstanding, true)">Thanh toán toàn bộ</button>
+                                onclick="openPaymentModal(globalOriginalOutstanding, true)">THANH TOÁN TOÀN BỘ</button>
                             <button class="btn-secondary no-print" id="btnPrintOriginal"
                                 onclick="printInvoiceFromSummary()" disabled style="opacity: 0.5; pointer-events: none; cursor: not-allowed;">In hóa đơn</button>
                         </div>
@@ -2227,7 +2227,7 @@
                     btn.disabled = false;
                     btn.style.opacity = '1';
                     btn.style.cursor = 'pointer';
-                    btn.innerHTML = 'Thanh toán toàn bộ';
+                    btn.innerHTML = 'THANH TOÁN TOÀN BỘ';
                     btn.onclick = function () {
                         openPaymentModal(globalOriginalOutstanding, true);
                     };
