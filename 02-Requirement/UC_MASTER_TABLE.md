@@ -142,6 +142,25 @@
 | UC19.5          | E-Menu bếp (xem & toggle món)                             | `Kitchen Staff`             | P1          | ✅           |
 
 ---
+| **UC1** | Quản lý đơn hàng F&B | F&B Staff | P1 | ⬜ |
+| **UC1.1** | Xem chi tiết đơn hàng. | F&B Staff | P1 | ⬜ |
+| **UC1.2** | Gọi thêm món (Đối với đơn Dine-in) | F&B Staff | P1 | ⬜ |
+| **UC1.3** | Cập nhật trạng thái phục vụ | F&B Staff | P1 | ⬜ |
+| **UC1.4** | In hóa đơn | F&B Staff | P1 | ⬜ |
+| **UC2** | Xác nhận thanh toán đơn hàng | F&B Staff | P1 | ⬜ |
+| **UC3** | Quản lý bàn ăn | F&B Staff | P1 | ⬜ |
+| **UC3.1** | Giữ bàn (Gia hạn thời gian) | F&B Staff | P1 | ⬜ |
+| **UC3.2** | Đặt bàn trước cho khách đang lưu trú | F&B Staff | P1 | ⬜ |
+| **UC3.3** | Tạo đơn ăn tại nhà hàng (Dine-in) cho khách vãng lai | F&B Staff | P1 | ⬜ |
+| **UC3.4** | Checkin bàn cho khách đã đặt trước | F&B Staff | P1 | ⬜ |
+| **UC4** | Quản lý đơn Room Service | F&B Staff | P1 | ⬜ |
+| **UC4.1** | Tạo đơn Room-Service | F&B Staff | P1 | ⬜ |
+| **UC5** | Báo cáo ca làm việc | F&B Staff | P1 | ⬜ |
+| **UC6** | Cập nhật trạng thái từng món ăn (KOT) | Kitchen Staff | P1 | ⬜ |
+| **UC7** | Quản lý trạng thái món ăn (còn/ hết) | Kitchen Staff | P1 | ⬜ |
+| **UC8** | Đặt bàn trực tuyến | Customer | P1 | ⬜ |
+| **UC9** | Đặt món trực tuyến | Customer | P1 | ⬜ |
+| **UC10** | Hủy đơn hàng | F&B Staff + Customer | P1 | ⬜ |
 
 ## 🟢 MOD4: TOUR, ADD-ONS & ĐÁNH GIÁ
 
@@ -166,6 +185,7 @@
 | UC23.3          | Gói combo marketing (`MarketingService.createCombo`)       | `Admin`                     | P2          | ⚠️         |
 | **UC24**  | Gửi đánh giá sao & feedback (phòng / tour)               | `Customer`                  | P2          | ⚠️         |
 | **UC25**  | Kiểm duyệt review (admin)                                   | `Admin`                     | P2          | ✅           |
+| **UC** | ID... | `Customer` | P1 | ⬜ |
 
 ---
 
@@ -249,3 +269,7 @@
 - Đặc tả dự án: `Project_Specification.md`
 - Traceability: `TRACEABILITY_MATRIX.md`
 - Test spec: `06-Testing/MASTER_TDD_SPEC.md`
+
+
+
+

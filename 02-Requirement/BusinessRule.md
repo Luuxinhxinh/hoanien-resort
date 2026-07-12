@@ -479,165 +479,64 @@ Hệ thống KDS (Kitchen Display System) phải hiển thị ưu tiên các đ�
 ---
 
 ## 6. BR-TR — Lữ hành & Đánh giá (Tour & Review)
+BUSINESS RULES
+1. Tour Booking & Payment Constraints (UC20.1)
 
-### BR-TR-01 — Chống Overbooking Tour
-
-**Mức độ:** CRITICAL
-
-**Phát biểu:**
-Tổng số người đăng ký tham gia một chuyến xe Tour **không được vượt quá sức chứa tối đa** (`max_capacity`) của chuyến đó.
-
-**Chi tiết:**
-
-- Database Trigger `TRG_Tour_Capacity_Validator` chặn giao dịch và báo lỗi nếu số lượng ghế đặt vượt `max_capacity`.
-- Trigger `TRG_Update_Tour_Booked_Seats` tự động cập nhật số ghế đã đặt trong `Tour_Schedules`.
-- Kiểm tra nhân sự (Tài xế, Hướng dẫn viên) không trùng lịch khi lập lịch tour.
-
-**Nguồn:** SRS §5.1 · Project Specification §4 UC17.1, UC17.2
-
----
-
-### BR-TR-02 — Ngưỡng Nhận diện Khuôn mặt AI
-
+### BR-TR-01 (Capacity Control / Double-Booking Prevention)
 **Mức độ:** HIGH
+**Phát biểu:** : The system strictly enforces vacancy checks (availableSlots = maxCapacity - confirmedSeats). If the requested participant count exceeds remaining slots, booking is rejected with exception TOUR-001 (Out of seats).
 
-**Phát biểu:**
-Kết quả điểm danh bằng AI Face Scan chỉ được coi là **hợp lệ** khi độ tương đồng khuôn mặt đạt tối thiểu **85% (Cosine Similarity >= 0.85)**.
-
-**Chi tiết:**
-
-- Kết quả dưới ngưỡng 85% phải chuyển sang **điểm danh thủ công** bởi Hướng dẫn viên.
-- Ảnh chụp phải rõ nét, đủ ánh sáng, chỉ chứa duy nhất một khuôn mặt trực diện.
-- Lưu trữ vector khuôn mặt dưới dạng 128-dimensional embedding.
-
-**Nguồn:** SRS §5.1 · Project Specification §4 UC18
-
----
-
-### BR-TR-03 — Thời hạn Gửi Đánh giá
-
-**Mức độ:** MEDIUM
-
-**Phát biểu:**
-Khách hàng chỉ được phép gửi đánh giá **trong vòng 7 ngày** sau khi hoàn thành dịch vụ (Check-out phòng hoặc kết thúc tour).
-
-**Chi tiết:**
-
-- Hệ thống kiểm tra cơ sở dữ liệu để xác nhận khách hàng đã thực sự sử dụng dịch vụ.
-- Đánh giá lưu ở trạng thái `moderation_status = 'Pending'` trước khi hiển thị công khai.
-- Khách chỉ được đánh giá dịch vụ mà họ đã thực sự sử dụng.
-
-**Nguồn:** SRS §5.1 · Project Specification §4 UC19
-
----
-
-### BR-TR-04 — Kiểm duyệt Đánh giá (Content Moderation)
-
+### BR-TR-04 (Age-Based Discount Rules)
 **Mức độ:** HIGH
+**Phát biểu:** : Tour ticket prices are calculated dynamically based on passenger age groups:
+Infants (Under 2 years old): 100% Free.
+Children (2 - 11 years old): 50% discount on the base price (basePrice * 0.5).
+Adults (12 years old and above): 100% full price (basePrice).
 
-**Phát biểu:**
-Admin có thể **ẩn hoặc hiện** đánh giá trên cổng thông tin công khai, nhưng **tuyệt đối không được phép chỉnh sửa nội dung** đánh giá của khách hàng.
-
-**Chi tiết:**
-
-- Mỗi lần ẩn/hiện đánh giá, Admin phải nhập **lý do kiểm duyệt** và ghi vào Audit Log.
-- Trạng thái đánh giá: `Pending` → `Approved` hoặc `Hidden`.
-
-**Nguồn:** SRS §5.1 · Project Specification §4 UC20
-
----
-
-### BR-TR-05 — Tự động Hủy Tour Dưới Ngưỡng Số người
-
+### BR-TR-07 (Mandatory Travel Insurance)
 **Mức độ:** HIGH
+**Phát biểu:** : For active adventure tours (isInsuranceRequired = true), guests must purchase travel insurance (acceptInsurance = true). Refusal triggers exception TOUR-INS-001. The insurance fee (insurancePrice * participantCount) is appended to the total price, and the system auto-generates a policy number: INS-YYYYMMDD-SCH{id}-{UUID}.
 
-**Phát biểu:**
-Nếu tổng số người đăng ký xác nhận của một chuyến tour **chưa đạt ngưỡng tối thiểu** trong vòng **24 giờ trước giờ khởi hành**, hệ thống **tự động hủy chuyến** và phát sinh hoàn tiền **100%** cho tất cả khách đã đăng ký.
-
-**Chi tiết:**
-
-- Trạng thái chuyến chuyển sang `Cancelled`.
-- Hoàn tiền qua VNPay Refund hoặc xóa khoản nợ Folio tương ứng.
-- Gửi email thông báo hủy tour đến tất cả khách đã đặt.
-
-**Nguồn:** SRS §5.1 · Project Specification §4 UC17.3
-
----
-
-### BR-TR-06 — Định vị Toạ độ Tour (GPS Tracking)
-
+### BR-TR-08 (Post to Room Stay Requirement)
 **Mức độ:** HIGH
+**Phát biểu:** : To charge tour expenses directly to a room folio, a valid checked-in room's detail ID (roomBookingDetailId) must be provided. Missing room detail triggers error TOUR-004; invalid IDs trigger error TOUR-005.
 
-**Phát biểu:**
-Vị trí của Tour Guide trong quá trình thực hiện tour phải được ghi nhận và có thể theo dõi trực tiếp, sử dụng tọa độ GPS (`TourLocation`).
-
-**Nguồn:** Codebase `TourLocation.java`
-
----
-
-### BR-TR-07 — Lịch Trình Chi Tiết Tour (Itinerary Management)
-
-**Mức độ:** MEDIUM
-
-**Phát biểu:**
-Mỗi Tour phải có lịch trình chi tiết theo từng ngày (`TourItinerary`) và từng hoạt động cụ thể (`TourItineraryDetail`), bao gồm thời gian bắt đầu, kết thúc, và địa điểm.
-
-**Nguồn:** Codebase `TourItinerary.java`
-
----
-
-### BR-TR-08 — Theo Dõi Tiến Độ Lịch Trình (Run Itinerary Status)
-
+### BR-TR-09 (Folio Credit Limit Validation)
 **Mức độ:** HIGH
+**Phát biểu:** : When selecting Post to Room payment, the system validates the room's remaining credit limit (subCreditLimit - usedAmount). If the tour's total price exceeds this limit, booking is blocked, throwing an exception TOUR-LIMIT. Guests must pay off existing debts or choose online payment.
 
-**Phát biểu:**
-Trạng thái thực thi của từng hoạt động trong lịch trình (`RunItineraryStatus`) phải được Tour Guide cập nhật theo thời gian thực (ví dụ: đang diễn ra, đã hoàn thành), kèm theo ghi chú thực tế.
-
-**Nguồn:** Codebase `RunItineraryStatus.java`
-
----
-
-### BR-TR-09 — Điểm Danh Theo Trạm (Checkpoint Attendance)
-
+### BR-TR-11 (Promotion Usage Limitation)
 **Mức độ:** HIGH
+**Phát biểu:** : Each promotional code can only be used by a customer exactly once (uses >= 1 throws [ERR_PROMO_USAGE_EXCEEDED]). Promotions must be active and within their expiration range (validTo >= LocalDate.now()).
+2. Attendance & Tour Operation Constraints (UC21 & UC20.2)
 
-**Phát biểu:**
-Tại mỗi địa điểm trong lịch trình (Checkpoint), Tour Guide phải điểm danh sự hiện diện của từng khách hàng (`CheckpointAttendance`), đảm bảo không có khách nào bị bỏ sót.
-
-**Nguồn:** Codebase `CheckpointAttendance.java`
-
----
-
-### BR-TR-10 — Đăng ký người đi cùng (Companions) và Điểm danh bằng FaceID
-
+### BR-TR-02 (AI Face Match Score Threshold)
 **Mức độ:** HIGH
+**Phát biểu:** : During AI Face Scan attendance verification, the matched face score returned from JavaScript comparison must meet the minimum 85% threshold (MIN_MATCH_SCORE_FOR_ATTENDANCE = 0.85) to automatically update status to PRESENT / Checked_In.
 
-**Phát biểu:**
-Đăng ký đặt tour cho nhóm khách từ 2 thành viên trở lên bắt buộc phải cung cấp thông tin người đi kèm bao gồm Họ và tên (bắt buộc, từ 2 từ trở lên), Độ tuổi (tối thiểu 12 tuổi), và Số điện thoại (nếu có, 10 chữ số). Khi đặt tour thành công, hệ thống tự động lưu thông tin người đi kèm vào bảng `Dependents` và sinh bản ghi điểm danh `TourAttendee` liên kết để Tour Guide điểm danh / quét FaceID cho thành viên đó.
-
-**Chi tiết:**
-- Giao diện đặt tour tự động mở rộng và sinh ô nhập thông tin người lớn đi cùng dựa trên tổng số người lớn (nếu adults > 1, sinh adults - 1 dòng nhập).
-- Backend kiểm tra tính hợp lệ của thông tin và liên kết người đi kèm với `Customer` chính qua bảng `Dependents`.
-- Tên người đi kèm hiển thị tại màn hình điểm danh `FaceID.html` thông qua trường `dependent.dependentName`.
-
-**Nguồn:** Yêu cầu Nghiệp vụ mới (07/2026) · [tour-detail.html](file:///d:/SWP/SWP-Group02/su26-swp391-se2023-g2/05-Development/kawai-backend/src/main/resources/templates/guest/tour-detail.html) · [TourBookingServiceImpl.java](file:///d:/SWP/SWP-Group02/su26-swp391-se2023-g2/05-Development/kawai-backend/src/main/java/com/kawai/services/impl/TourBookingServiceImpl.java)
-
----
-
-### BR-TR-11 — Luồng Nghiệp vụ Bảo hiểm du lịch cho Tour
-
+### BR-TR-03 (Mandatory Full Attendance Before Departure)
 **Mức độ:** HIGH
+**Phát biểu:** : A tour guide is blocked from starting a tour schedule (startTour) if there is any passenger with a status other than Checked_In (e.g. Not_Show). If incomplete, departure is blocked, returning a toast message start_failed_pax.
 
-**Phát biểu:**
-Đối với các tour có cấu hình bắt buộc mua bảo hiểm du lịch (`isInsuranceRequired = true`), khách hàng bắt buộc phải đồng ý mua bảo hiểm du lịch thì mới được tiến hành đặt tour (mã lỗi chặn `TOUR-INS-001`). Phí bảo hiểm tính trên đầu người sẽ được cộng vào hóa đơn thực tế và tổng số tiền thanh toán hiển thị trong popup thanh toán, đồng thời hệ thống tự động sinh mã bảo hiểm chung (`Policy Number`) cho ngày đi đó theo cấu trúc `INS-<Ngày>-SCH<ID>-<4 ký tự random>`.
+### BR-TR-10 (Special Name Mapping - FaceID Fallback)
+**Mức độ:** HIGH
+**Phát biểu:** : To account for scanner precision variations in variable lighting, the system maps "Ngọc Thị" and "Lê Quang" interchangeably within the isNameMatch name comparison logic.
 
-**Chi tiết:**
-- Giá tour hiển thị tại cột thông tin của trang chi tiết tour là giá thô cố định của tour (không tự động cộng dồn phí bảo hiểm vào). Phí bảo hiểm chỉ cộng vào tổng hóa đơn cuối cùng và hiển thị chi tiết tại popup thanh toán trước khi submit.
-- Nếu không đồng ý mua bảo hiểm ở các tour bắt buộc, hệ thống ở Backend sẽ ném ra ngoại lệ và chặn giao dịch (mã lỗi `TOUR-INS-001`).
+### BR-TR-06 (Minimum Passenger Warning - Minimum Pax)
+**Mức độ:** HIGH
+**Phát biểu:** : The system scans schedules 24 hours prior to departure. If booking count does not meet the minimum pax threshold, the admin is warned, though staff/vehicle assignments can still proceed.
+3. Cancellation & Tour Modification Constraints (UC20.3 & UC08)
 
-**Nguồn:** Yêu cầu Nghiệp vụ mới (07/2026) · [TourBookingServiceImpl.java](file:///d:/SWP/SWP-Group02/su26-swp391-se2023-g2/05-Development/kawai-backend/src/main/java/com/kawai/services/impl/TourBookingServiceImpl.java)
+### BR-TR-05 (Cancellation & Refund Rules)
+**Mức độ:** HIGH
+**Phát biểu:** :
+Resort-Initiated Cancellation: 100% full refund to the customer. Booking status updates to Cancelled_Refunded.
+Guest-Initiated Cancellation: If cancelled within 24 hours prior to departure, a 50% deposit penalty is charged (only 50% is refunded). Booking status updates to Cancelled_Forfeited.
 
----
+### BR-TR-13 (Active Tour Editing & Deletion Restriction)
+**Mức độ:** HIGH
+**Phát biểu:** : Modification of base prices or soft deleting a Tour is strictly forbidden if that Tour is associated with at least one active schedule in Open status. Violating actions trigger a ResourceInUseException.
+
 
 ## 7. BR-FIN — Tài chính & Thanh toán
 
@@ -1007,4 +906,97 @@ Khi một booking vi phạm ngưỡng giảm giá do Staff áp dụng (`PROMOTIO
 | BR-STAFF-01   |  —  |    —    |      —      |    —    |   —   |      —      |     —     |     —     |  ✓  |   ✓   |
 | BR-WF-01      |  —  |    —    |      —      |    —    |   —   |      —      |     —     |     —     |  ✓  |   —   |
 | BR-WF-02      |  —  |    —    |      —      |    —    |   —   |      —      |     —     |     —     |  ✓  |   ✓   |
+
+
+
+
+
+## 14. CÁC QUY TẮC BỔ SUNG KHÁC (Từ File Mod 5)
+
+### Nhóm BR-RPT
+### BR-RPT-01 — Phân loại Doanh thu chuẩn USALI
+**Mức độ:** HIGH
+**Phát biểu:** Doanh thu hệ thống bắt buộc phải được bóc tách làm 3 luồng riêng biệt: Doanh thu Phòng (Room), Ẩm thực (F&B) và Lữ hành (Tour) 
+
+### BR-RPT-02 — Thống kê Dashboard Thời Gian Thực
+**Mức độ:** HIGH
+**Phát biểu:** Manager Dashboard tính toán và hiển thị các chỉ số cốt lõi: Tỷ lệ lấp đầy (Occupancy Rate), tỷ lệ bán món ăn, tỷ lệ bán tour. Hệ thống phải vẽ đồ thị doanh thu lũy kế dựa theo các bộ lọc thời gian.
+
+### BR-RPT-03 — Báo cáo Lợi Nhuận Gộp (GOP)
+**Mức độ:** HIGH
+**Phát biểu:** Hệ thống cung cấp báo cáo tính toán Lợi nhuận Hoạt động Gộp cho từng bộ phận để Manager theo dõi hiệu suất tài chính tổng thể.
+
+
+### Nhóm BR-CO
+### BR-CO-01 — Điều kiện Tiên quyết (Zero Balance)
+**Mức độ:** HIGH
+**Phát biểu:** Thủ tục Check-out bị khóa hoàn toàn nếu tổng hóa đơn (Consolidated_Invoice) chưa được thanh toán sạch. Hệ thống tự động chặn và trả về mã lỗi FOLIO-001 nếu dư nợ > 0.
+
+### BR-CO-02 — Phát hành Hóa đơn Điện tử (e-Invoice)
+**Mức độ:** HIGH
+**Phát biểu:** Ngay sau khi Lễ tân xác nhận Check-out thành công và số dư Folio = SETTLED, hệ thống tự động sinh hóa đơn điện tử định dạng PDF và kích hoạt luồng gửi Email (qua SendGrid) tới khách hàng.
+
+### BR-CO-03 — Đóng vòng đời Lưu trú & Kích hoạt Dọn dẹp
+**Mức độ:** HIGH
+**Phát biểu:** Check-out thành công sẽ tự động cập nhật trạng thái phòng thành Vacant_Dirty và sinh task dọn phòng cho Housekeeping (đã đề cập ở BR-HK-01).
+
+### BR-CO-04 — Quyền lợi Đánh giá (Review Deadline)
+**Mức độ:** HIGH
+**Phát biểu:** Chỉ những khách hàng đã thực hiện Check-out thành công mới được quyền viết đánh giá (Review). Thời hạn cho phép gửi đánh giá là 7 ngày kể từ ngày Check-out (review_deadline = completed_date + 7 days).
+
+
+### Nhóm BR-MT
+### BR-MT-01 — Ràng buộc Trạng thái Phòng (Out of Order)
+**Mức độ:** HIGH
+**Phát biểu:** Phòng đang ở trạng thái bảo trì Maintenance sẽ bị đóng băng. Hệ thống Booking Engine hoặc Lễ tân không thể nhìn thấy hoặc gán phòng này cho khách Check-in để ngăn chặn Overbooking.
+
+### BR-MT-03 — Khôi phục Trạng thái Sau Bảo trì
+**Mức độ:** HIGH
+**Phát biểu:** Khi nhân viên báo cáo hoàn thành sửa chữa, trạng thái phòng KHÔNG được tự động chuyển thành Vacant_Clean, mà phải chuyển về Vacant_Dirty để Housekeeping vào dọn dẹp vệ sinh bụi bẩn sau sửa chữa trước khi đón khách 
+
+
+### Nhóm BR-MNG
+### BR-MNG-01 — Phân loại Doanh thu USALI
+**Mức độ:** HIGH
+**Phát biểu:** Mọi khoản thu trong hệ thống bắt buộc phải được bóc tách làm 3 luồng riêng biệt: Doanh thu Phòng (Room), Doanh thu Ẩm thực (F&B) và Doanh thu Lữ hành (Tour) dựa trên trường source_department để xuất báo cáo lợi nhuận gộp chuẩn USALI.
+
+### BR-MNG-02 — Thẩm quyền Phê duyệt (Manager Approval)
+**Mức độ:** HIGH
+**Phát biểu:** Các tác vụ rủi ro cao liên quan đến tài chính và vận hành bắt buộc phải có sự phê duyệt của Manager mới được thực thi
+
+### BR-MNG-03 — Kiểm toán Đêm (Night Audit) - Định kỳ
+**Mức độ:** HIGH
+**Phát biểu:** Quy trình Night Audit phải chạy ngầm tự động bằng Cronjob vào lúc 02:00 AM mỗi ngày. Hệ thống tính toán tiền phòng của ngày hôm đó cộng vào Folio của các phòng đang Checked_In và đóng sổ chuyển sang ngày mới.
+
+### BR-MNG-04 — Chốt chặn Đóng ca trước Night Audit
+**Mức độ:** HIGH
+**Phát biểu:** Tiến trình Night Audit sẽ báo lỗi hoặc tạm dừng nếu phát hiện nhân viên F&B/POS chưa chốt sổ bán hàng trong ngày (End of Day). Manager có quyền thực thi "Cưỡng chế đóng ca" (Force Close) để Night Audit tiếp tục chạy.
+
+### BR-MNG-05 — Tính toàn vẹn Dữ liệu Hủy (Cancellation Consistency)
+**Mức độ:** HIGH
+**Phát biểu:** Khi một Yêu cầu Hoàn tiền (Refund Request) được khởi tạo và phê duyệt, bản ghi dịch vụ gốc (Booking, FoodOrder, TourBooking) bắt buộc phải chuyển trạng thái sang Cancelled để đảm bảo báo cáo doanh thu cuối tháng không bị ảo.
+
+
+### Nhóm BR-REC
+### BR-REC-02 — Ràng buộc Hạn mức Tín dụng
+**Mức độ:** HIGH
+**Phát biểu:** Tổng dư nợ hiện tại cộng với giao dịch Ký nợ mới không được phép vượt quá hạn mức nợ (Credit Limit) của phòng. Nếu vượt, giao dịch bị từ chối trừ khi được Lễ tân hoặc Manager can thiệp nâng hạn mức.
+
+### BR-REC-05 — Bắt buộc Kiểm phòng (Room Check)
+**Mức độ:** HIGH
+**Phát biểu:** Không thể xuất hóa đơn cuối cùng nếu Housekeeping chưa hoàn thành việc kiểm tra phòng (Minibar/Hỏng hóc). Lệnh ROOM_CHECK phải chuyển sang trạng thái Completed.
+
+
+### Nhóm BR-FO
+### BR-FO-01 — Điều kiện Ký nợ (Post-to-Room)
+**Mức độ:** HIGH
+**Phát biểu:** Khách hàng chỉ được phép ký nợ hóa đơn dịch vụ (F&B, Tour) vào ví phòng (Folio) khi trạng thái lưu trú đang là Checked_In.
+
+### BR-FO-03 — Xác thực Giao dịch
+**Mức độ:** HIGH
+**Phát biểu:** Khách hàng bắt buộc phải nhập mã PIN (so khớp mã băm) hoặc ký tên xác nhận (lưu vào signature_img_url) khi thực hiện Post-to-Room từ các điểm dịch vụ.
+
+### BR-FO-04 — Gom Hóa Đơn Tự Động (Checkout)
+**Mức độ:** HIGH
+**Phát biểu:** Khi khách trả phòng, hệ thống tự động quét và cộng dồn toàn bộ Folio_Items chưa được thanh toán riêng. Sau khi trừ đi khoản tiền cọc, hệ thống tính ra tổng tiền dư nợ thực tế cần thanh toán.
 
