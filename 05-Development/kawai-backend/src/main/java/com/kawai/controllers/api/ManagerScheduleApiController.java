@@ -85,6 +85,27 @@ public class ManagerScheduleApiController {
         return ResponseEntity.badRequest().body(Map.of("status", "error", "message", "Missing parameters."));
     }
 
+    @PostMapping("/force-generate")
+    public ResponseEntity<?> forceGenerate() {
+        try {
+            scheduleGeneratorService.generateWeeklySchedule(LocalDate.now(), LocalDate.now().plusDays(14));
+            
+            // Ép gửi mail ngay sau khi tạo xong lịch
+            com.kawai.services.jobs.ScheduleNotificationJob notificationJob = 
+                org.springframework.web.context.support.WebApplicationContextUtils
+                .getRequiredWebApplicationContext(org.springframework.web.context.request.RequestContextHolder.currentRequestAttributes() instanceof org.springframework.web.context.request.ServletRequestAttributes ? ((org.springframework.web.context.request.ServletRequestAttributes) org.springframework.web.context.request.RequestContextHolder.currentRequestAttributes()).getRequest().getServletContext() : null)
+                .getBean(com.kawai.services.jobs.ScheduleNotificationJob.class);
+            notificationJob.sendWeeklySchedules();
+
+            return ResponseEntity.ok(Map.of("status", "success", "message", "Generated schedules manually and sent emails."));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().body(Map.of("status", "error", "message", e.getMessage()));
+        }
+    }
+
+
+
     @Data
     public static class MockPreferenceRequest {
         private Long employeeId;

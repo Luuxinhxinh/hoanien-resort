@@ -19,4 +19,7 @@ public interface StaffScheduleRepository extends JpaRepository<StaffSchedule, Lo
     
     void deleteByWorkDateBetween(LocalDate startDate, LocalDate endDate);
     boolean existsByWorkDate(LocalDate date);
+    
+    List<StaffSchedule> findByWorkDateGreaterThanEqual(LocalDate date);
+    List<StaffSchedule> findByEmployeeIdAndWorkDateGreaterThanEqual(Long employeeId, LocalDate date);
 }

@@ -76,7 +76,7 @@ INSERT INTO Employees (employee_id, account_id, full_name, gender, cccd, phone, 
 (1, 1, 'Nguyễn Quản Trị', 'Nam', '001234567890', '0912000001', 'admin@hoanien.vn', 15000000),
 (2, 2, 'Trần Phương', 'Nữ', '001234567891', '0912000002', 'tphuong@hoanien.vn', 10000000),
 (3, 3, 'Nguyễn Minh Quân', 'Nam', '001234567892', '0912000003', 'nmquan@hoanien.vn', 10000000),
-(4, 4, 'Lê Linh', 'Nữ', '001234567893', '0912000004', 'lelinh@hoanien.vn', 9000000),
+(4, 4, 'Lê Linh', 'Nữ', '001234567893', '0912000004', 'liungu2005@gmail.com', 9000000),
 (5, 13, 'NguynNgoc', 'Nam', '001234567894', '0912000005', 'guide@hoanien.vn', 8000000),
 
 (6, 14, 'Ngọc Lan', 'Nữ', '001234567895', '0912000006', 'guide2@hoanien.vn', 8500000),

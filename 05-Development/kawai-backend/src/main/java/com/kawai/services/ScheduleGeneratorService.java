@@ -37,6 +37,7 @@ public class ScheduleGeneratorService {
     }
 
     @EventListener(ApplicationReadyEvent.class)
+    @org.springframework.core.annotation.Order(1)
     @Transactional
     public void onApplicationReady() {
         LocalDate today = LocalDate.now();
@@ -52,9 +53,19 @@ public class ScheduleGeneratorService {
         List<Employee> allEmployees = employeeRepository.findAll();
         List<Shift> allShifts = shiftRepository.findAll();
         
+        if (allShifts.isEmpty() || allEmployees.isEmpty()) {
+            System.out.println("[ScheduleGenerator] Database not fully populated yet. Skipping schedule generation.");
+            return;
+        }
+
         Shift morningShift = getShiftById(allShifts, 1L);
         Shift afternoonShift = getShiftById(allShifts, 2L);
         Shift nightShift = getShiftById(allShifts, 3L);
+        
+        if (morningShift == null || afternoonShift == null || nightShift == null) {
+            System.out.println("[ScheduleGenerator] Missing required shifts. Skipping.");
+            return;
+        }
 
         Map<String, List<Employee>> staffByRole = allEmployees.stream()
                 .filter(e -> e.getAccount() != null && e.getAccount().getRole() != null)
@@ -165,6 +176,7 @@ public class ScheduleGeneratorService {
             workedNightYesterday = workedNightToday;
         }
 
+        System.out.println("[ScheduleGenerator] Saving new schedules: " + newSchedules.size());
         staffScheduleRepository.saveAll(newSchedules);
     }
 
