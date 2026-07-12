@@ -79,7 +79,7 @@ Toàn bộ thông tin định danh cá nhân (Căn cước công dân, Hộ chi�
 - Khóa AES-256 phải được lưu trữ trong biến môi trường hệ thống (env variable), không hardcode trong mã nguồn.
 - Giải mã thông tin CCCD/Hộ chiếu chỉ được thực hiện khi có yêu cầu từ người dùng hợp lệ hoặc Lễ tân có thẩm quyền.
 
-**Nguồn:** SRS §5.1 · Project Specification §7
+**Nguồn:** SRS Mục 5.1 · Project Specification Mục 7
 
 ---
 
@@ -98,7 +98,7 @@ Toàn bộ thông tin định danh cá nhân (Căn cước công dân, Hộ chi�
 - Sau khi tài khoản bị khóa, người dùng phải chờ đủ 15 phút hoặc liên hệ Admin để mở khóa.
 - Token reset mật khẩu phải bị vô hiệu hóa ngay sau khi đặt lại mật khẩu thành công.
 
-**Nguồn:** SRS §5.1 · Project Specification §4 UC01.2
+**Nguồn:** SRS Mục 5.1 · Project Specification Mục 4 UC01.2
 
 ---
 
@@ -114,7 +114,7 @@ Phiên làm việc (Session) của nhân viên hệ thống phải **tự độn
 - Áp dụng cho tất cả các vai trò nhân viên: Receptionist, F&B Staff, Kitchen Staff, Housekeeping, Maintenance, Tour Guide, Admin, Manager.
 - Khi phiên hết hạn, hệ thống phải chuyển hướng người dùng về trang đăng nhập.
 
-**Nguồn:** SRS §5.1
+**Nguồn:** SRS Mục 5.1
 
 ---
 
@@ -138,7 +138,7 @@ Tất cả các hành động quan trọng sau **phải được ghi vào Audit 
 - Mỗi bản ghi log phải bao gồm: tên bảng bị tác động, giá trị cũ (JSON), giá trị mới (JSON), ID nhân viên, địa chỉ IP, và timestamp.
 - Cơ chế ghi log được triển khai bằng Spring AOP.
 
-**Nguồn:** SRS §5.1 · Project Specification §4 UC04.2
+**Nguồn:** SRS Mục 5.1 · Project Specification Mục 4 UC04.2
 
 ---
 
@@ -156,7 +156,7 @@ Yêu cầu xóa thông tin cá nhân của khách hàng phải được xử lý
 - Chỉ khách hàng đã Check-out mới có thể yêu cầu xóa dữ liệu.
 - Tuân thủ Nghị định 13/2023/NĐ-CP về Bảo vệ Dữ liệu Cá nhân.
 
-**Nguồn:** SRS §1.3.2 UC07 · Project Specification §7
+**Nguồn:** SRS Mục 1.3.2 UC07 · Project Specification Mục 7
 
 ---
 
@@ -173,7 +173,7 @@ Mật khẩu người dùng phải đáp ứng tối thiểu các tiêu chí:
 - Chứa ít nhất **1 chữ số** (0-9).
 - Số điện thoại đăng ký phải có **10-12 số**.
 
-**Nguồn:** SRS §2.1.1 · Project Specification §4 UC01.1
+**Nguồn:** SRS Mục 2.1.1 · Project Specification Mục 4 UC01.1
 
 ---
 
@@ -190,7 +190,7 @@ Mỗi nhân viên chỉ có **duy nhất một vai trò chính** tại một th�
 - Chỉ Admin mới có quyền gán/thay đổi vai trò nhân viên.
 - Vai trò được ánh xạ trực tiếp đến danh sách màn hình và API được phép truy cập.
 
-**Nguồn:** SRS §1.4.2 · Project Specification §4 UC04.1
+**Nguồn:** SRS Mục 1.4.2 · Project Specification Mục 4 UC04.1
 
 ---
 
@@ -208,7 +208,7 @@ Cổng đăng nhập nhân viên (`/ops-login`) yêu cầu xác thực hai yếu
 - Admin có quyền thu hồi (`is_approved = false`) quyền truy cập của bất kỳ thiết bị nào.
 - Khách hàng dùng cổng `/booking` với Google OAuth2 — không áp dụng quy tắc này.
 
-**Nguồn:** Codebase `AuthorizedDevice.java` · `AuthorizedDeviceApiController.java` · ADR-01 §3
+**Nguồn:** Codebase `AuthorizedDevice.java` · `AuthorizedDeviceApiController.java` · ADR-01 Mục 3
 
 ---
 
@@ -1829,7 +1829,7 @@ Hệ thống nghiêm cấm xóa các dữ liệu nền (Master Data) khi chúng 
 - **Không xóa bàn ăn** đang có đặt chỗ trước.
 - **Không xóa tour** đang ở trạng thái Active/Scheduled.
 
-**Nguồn:** Project Specification §4 UC05.1
+**Nguồn:** Project Specification Mục 4 UC05.1
 
 ---
 
@@ -1840,7 +1840,7 @@ Hệ thống nghiêm cấm xóa các dữ liệu nền (Master Data) khi chúng 
 **Phát biểu:**
 Thông tin khai báo lưu trú phải thu thập đầy đủ cho mỗi khách: Họ tên, Ngày sinh, Số CCCD, Giới tính, Quốc tịch — nhằm đáp ứng yêu cầu theo **Luật Cư trú 2020**.
 
-**Nguồn:** Project Specification §7
+**Nguồn:** Project Specification Mục 7
 
 ---
 
@@ -1851,7 +1851,7 @@ Thông tin khai báo lưu trú phải thu thập đầy đủ cho mỗi khách: 
 **Phát biểu:**
 Quá trình tạo tài khoản nhân viên (bao gồm `Accounts` và `Employees`) phải được bao trong **một giao dịch CSDL duy nhất** (`@Transactional`). Nếu bất kỳ bước nào thất bại, toàn bộ giao dịch phải được **rollback**.
 
-**Nguồn:** SRS §1.4.3 Non-UI#16
+**Nguồn:** SRS Mục 1.4.3 Non-UI#16
 
 ---
 
