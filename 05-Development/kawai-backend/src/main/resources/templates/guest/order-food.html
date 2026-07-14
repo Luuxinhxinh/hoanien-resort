@@ -892,6 +892,7 @@
                         document.getElementById('posKitchenNote').innerText = pendingOrderPayload.note || 'KHÔNG CÓ GHI CHÚ DỊ ỨNG';
                         document.getElementById('posItemsList').innerHTML = cart.map(function (i) { return '<div>• ' + i.name + ' (x' + i.qty + ')</div>'; }).join('');
                         document.getElementById('posTimelineModal').style.display = 'flex';
+                        submitBtn.innerText = 'Xác nhận đặt món';
                         
                         if (pendingOrderPayload.paymentType === 'CHARGE_TO_ROOM') {
                             const limitDisplay = document.getElementById('currentCreditLimitDisplay');
