@@ -1589,11 +1589,4 @@ document.addEventListener('DOMContentLoaded', () => {
         return response;
     };
 });
-
-
-// ==============================================
-// INIT
-// ==============================================
-
-// Khởi chạy SSE persistent connection ngay khi script load
 initPersistentSse();

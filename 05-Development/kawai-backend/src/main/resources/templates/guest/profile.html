@@ -785,7 +785,9 @@
                                                     Khai báo khách</button>
                                                 <button
                                                     th:if="${#strings.toUpperCase(booking.bookingStatus) == 'PENDING' or #strings.toUpperCase(booking.bookingStatus) == 'CONFIRMED'}"
-                                                    type="button" th:onclick="'cancelBooking(' + ${booking.id} + ')'"
+                                                    type="button" 
+                                                    th:with="isRefundable=${booking.cancellationDeadline != null and !T(java.time.LocalDate).now().isAfter(booking.cancellationDeadline)}"
+                                                    th:onclick="'cancelBooking(' + ${booking.id} + ', ' + ${isRefundable} + ')'"
                                                     class="w-8 h-8 rounded-full bg-red-50 text-red-600 hover:bg-red-500 hover:text-white flex items-center justify-center transition-colors shadow-sm"
                                                     title="Hủy đơn"><span
                                                         class="material-symbols-outlined text-[16px]">close</span></button>
@@ -1971,23 +1973,31 @@
         }
         // --- END PRE-CHECKIN LOGIC ---
 
-        function cancelBooking(bookingId) {
-            if (!confirm(`Bạn có chắc chắn muốn hủy đơn đặt phòng #HN${bookingId}? Hành động này không thể hoàn tác.`)) return;
+        function cancelBooking(bookingId, isRefundable) {
+            if (isRefundable) {
+                if (typeof openRefundModal === 'function') {
+                    openRefundModal(bookingId, 'ROOM');
+                } else {
+                    alert('Không thể mở hộp thoại hoàn tiền. Vui lòng thử lại sau.');
+                }
+            } else {
+                if (!confirm(`Bạn có chắc chắn muốn hủy đơn đặt phòng #HN${bookingId}? Hành động này không thể hoàn tác và bạn sẽ không được hoàn lại tiền cọc do hủy phòng quá sát ngày (<= 48h trước check-in).`)) return;
 
-            fetch(`/api/bookings/${bookingId}/cancel`, { method: 'POST' })
-                .then(res => res.json().then(data => ({ status: res.status, body: data })))
-                .then(resObj => {
-                    if (resObj.status !== 200) {
-                        alert(`Không thể hủy đơn: ${resObj.body.message || 'Lỗi hệ thống'}`);
-                    } else {
-                        alert(resObj.body.message || 'Hủy phòng thành công!');
-                        location.reload();
-                    }
-                })
-                .catch(e => {
-                    console.error(e);
-                    alert("Đã xảy ra lỗi hệ thống khi hủy đơn.");
-                });
+                fetch(`/api/bookings/${bookingId}/cancel`, { method: 'POST' })
+                    .then(res => res.json().then(data => ({ status: res.status, body: data })))
+                    .then(resObj => {
+                        if (resObj.status !== 200) {
+                            alert(`Không thể hủy đơn: ${resObj.body.message || 'Lỗi hệ thống'}`);
+                        } else {
+                            alert(resObj.body.message || 'Hủy phòng thành công!');
+                            location.reload();
+                        }
+                    })
+                    .catch(e => {
+                        console.error(e);
+                        alert("Đã xảy ra lỗi hệ thống khi hủy đơn.");
+                    });
+            }
         }
 
         function cancelFoodOrder(orderId, paymentType) {

@@ -151,6 +151,7 @@ public class HousekeepingServiceImpl implements HousekeepingService {
         if (!tasks.isEmpty()) {
             HotelOperation task = tasks.get(0);
             task.setPriority("Lễ tân báo dọn khẩn");
+            task.setOperationalType("URGENT_CLEAN");
             String currentNotes = task.getNotes() != null ? task.getNotes() : "";
             if (!currentNotes.contains("[Khẩn cấp]")) {
                 task.setNotes(currentNotes + " \n[Khẩn cấp] Lễ tân hối thúc dọn ưu tiên để khách Check-in!");
