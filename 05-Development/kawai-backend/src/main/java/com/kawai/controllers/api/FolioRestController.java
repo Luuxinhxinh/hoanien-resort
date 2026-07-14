@@ -430,6 +430,9 @@ public class FolioRestController {
         response.put("categoryName", detail.getCategory() != null ? detail.getCategory().getCategoryName() : "N/A");
         response.put("roomCharge", detail.getRoomCharge());
         response.put("extraSurcharge", detail.getExtraSurcharge() != null ? detail.getExtraSurcharge() : BigDecimal.ZERO);
+        response.put("baseAdults", detail.getCategory() != null ? detail.getCategory().getBaseAdults() : 2);
+        response.put("baseChildren", detail.getCategory() != null ? detail.getCategory().getBaseChildren() : 0);
+        response.put("extraAdultSurcharge", detail.getCategory() != null ? detail.getCategory().getExtraAdultSurcharge() : BigDecimal.ZERO);
         response.put("subCreditLimit", detail.getSubCreditLimit());
         response.put("items", itemDTOs);
         response.put("currentBalance", currentBalance);
