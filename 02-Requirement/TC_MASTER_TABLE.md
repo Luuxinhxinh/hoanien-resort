@@ -62,6 +62,20 @@
 | **TC-M2-019** | UC13.4                   | Functional           | Ghi nhận sự cố cơ sở vật chất ➔ Nhân viên buồng phòng phát hiện vỡ tivi, báo hỏng thiết bị lên hệ thống, căn phòng tự động khóa lại chuyển sang `Maintenance`. | MEDIUM             | ✅                     |
 | **TC-M2-020** | UC13.5                   | Functional           | Hoàn thành bảo trì kỹ thuật ➔ Thợ sửa chữa bấm báo cáo đã khắc phục xong sự cố, phòng vật lý tự động mở khóa, trả về trạng thái khả dụng `Vacant_Clean`.    | MEDIUM             | ✅                     |
 
+
+| **TC-M2-023** | `updateCreditLimit_NegativeValue_ShouldThrowException` | Credit limit = -1.000.000 (âm) | `IllegalArgumentException`, message chứa "âm"/"negative"/"limit" | MOD2-001 | MEDIUM | ✅ |
+| **TC-M2-024** | `updateCreditLimit_DetailNotFound_ShouldThrowException` | `bookingDetailId=9999` không tồn tại | `RuntimeException` (MOD2-003), KHÔNG gọi `roomBookingRepository.save()` | MOD2-003 | MEDIUM | ✅ |
+| **TC-M2-026** | `updateCreditLimit_ExceedsMasterLimit_ShouldThrowException` | Credit limit mới = 6tr > master limit 5tr | `BusinessException` với `errorCode="MOD2-UC14-016"`, KHÔNG gọi `save()` | Master Credit Limit | MEDIUM | ✅ |
+| **TC-M2-021** | `TC_M2_021_walkIn_happyPath_allStateMachinesTransitioned` | Happy path đầy đủ — CCCD "001234567890", phòng R301 Vacant_Clean, khách mới | `bookingId` not-null, `roomNumber="R301"`, `status="Checked_In"`, `isNewCustomer=true`; Room→OCCUPIED, Booking→CHECKED_IN (WALK_IN), Detail→CHECKED_IN; `accountRepository.save()` 1 lần, `passwordHash` not-null | BR-UC14-01~10 | CRITICAL | ✅ |
+| **TC-M2-025** | `TC_M2_025_runtimeException_throwsMOD2UC14005_eventNotPublished` | `accountRepository.save()` throw RuntimeException giữa chừng (phòng R305) | `BusinessException [MOD2-UC14-005]`, message "transaction rolled back"/"failed" — ACID rollback toàn bộ | ADR-UC14-003, BR-ATOMIC-01 | CRITICAL | ✅ |
+| **TC-M2-028** | `TC_M2_028_existingCustomer_reuseProfile_noDuplicate` | Khách đã có profile — CCCD "001200009999" → customer_id=99, phòng R308 | `status="Checked_In"`, `isNewCustomer=false`, `customerId=99`; `customerRepository.save()` KHÔNG được gọi; Room→OCCUPIED | BR-06 (no duplicate PII) | MEDIUM | ✅ |
+| **TC-M2-029** | `TC_M2_029_accompaniedGuest_dependentRecordCreated` | Walk-in 1 primary + 1 khách đi kèm "Nguyen Thi B", phòng R309 cap=3 | `accompaniedGuestCount=1`, `dependentRepository.save()` 1 lần, `dependentName="Nguyen Thi B"`, Dependent link primary customer | BR-UC14-07 (AF-03) | MEDIUM | ✅ |
+| **TC-M2-030** | `TC_M2_030_unavailableRoomStatus_throwsMOD2UC14006` *(Parameterized: DIRTY, MAINTENANCE)* | Phòng R310 DIRTY hoặc R311 MAINTENANCE | `BusinessException [MOD2-UC14-006]`, message "not available"/"selected room", KHÔNG tạo Booking | BR-02, ADR-UC14-002 | HIGH | ✅ |
+| **TC-M2-031** | `TC_M2_031_newGuest_accountAutoCreated_linkedToReservation` | Khách mới CCCD "001999888777", phòng R312 | `isNewCustomer=true`; `accountRepository.save()` 1 lần; `passwordHash` not-null & not-blank; Booking CHECKED_IN được lưu link customer mới | BR-08 (auto account), BR-09 (default pw), BR-10 (link reservation) | HIGH | ✅ |
+| **TC-M2-033** | `TC_M2_033_guestsExceedBaseCapacity_surchargeApplied` | 3 adults, `baseAdults=2`, `maxAdults=4`, surcharge=500k/người | `status="Checked_In"`, `RoomBookingDetail.extraSurcharge = 500.000` | Soft Capacity Rule | MEDIUM | ✅ |
+| **TC-M2-035** | `TC_M2_035_guestsExceedMaxCapacity_throwsMOD2UC14009` | 5 adults, `maxAdults=4` | `BusinessException [MOD2-UC14-009]`, KHÔNG tạo Booking | Hard Capacity Rule | MEDIUM | ✅ |
+| **TC-M2-036** | `TC_M2_036_allocatedCreditLimitExceedsMaster_throwsMOD2UC14016` | `allocatedCreditLimit=6.000.000` > master `5.000.000` (Regular tier) | `BusinessException [MOD2-UC14-016]` | Credit Limit Validation | MEDIUM | ✅ |
+
 ## 🟡 MOD3: DỊCH VỤ ẨM THỰC, NHÀ HÀNG & MÀN HÌNH BẾP KDS — Sinh viên 3
 
 | **TC ID**     | **UC tham chiếu** | **Loại Test** | **Mô tả kịch bản kiểm thử chi tiết**                                                                                                                                                          | **Severity** | **Trạng thái** |
@@ -98,25 +112,35 @@
 | **TC-M4-012** | UC24                     | Business Rule        | Giới hạn quyền gửi phản hồi đánh giá ➔ Chỉ những khách hàng đã thực hiện Check-out hoặc đã hoàn thành chuyến Tour thực tế mới được quyền chấm sao Review.                | MEDIUM             | ✅                     |
 | **TC-M4-013** | UC25                     | Functional           | Kiểm duyệt nội dung phản hồi ➔ Admin thực hiện thao tác ẩn/hiện hoặc gắn cờ cảnh báo đối với các bình luận chứa từ ngữ spam, toxic hoặc phá hoại thương hiệu.             | LOW                | ✅                     |
 
+
+| **TC-UC08-001** | Cập nhật lịch trình chi tiết | Thay đổi toàn bộ lịch trình chi tiết (Itinerary) của một Tour. | Xóa lịch trình cũ và tạo mới thành công các điểm đến trong DB. |
+| **TC-UC08-002** | Chỉnh sửa Tour có lịch mở bán | Cố tình sửa giá của Tour khi đang có lịch trình đang mở bán (`Open`). | Chặn hành động, ném lỗi `ResourceInUseException`. |
+| **TC-UC08-003** | Xóa mềm Tour có lịch mở bán | Thực hiện xóa mềm một Tour đang có lịch trình `Open`. | Chặn hành động, không cho phép xóa để bảo toàn lịch trình hiện tại. |
+
+| **TC ID** | **UC tham chiếu** | **Loại Test** | **Mô tả kịch bản kiểm thử chi tiết** | **Severity** | **Trạng thái** |
+| --------- | ----------------- | ------------- | ------------------------------------ | ------------ | -------------- |
+| **TC-M4-006** | UC20-21 | Functional | **Schedule Tour:** Assign guides, drivers, and vehicles to a schedule. ➔ Creates TourStaffAssignment records correctly. | HIGH | ⬜ |
+| **TC-M4-007** | UC20-21 | Functional | **Cancel Tour and Refund:** Execute cancelTour and verify refund percentages. ➔ - Resort cancellation: 100% refund. - Guest cancellation <24h: 50% refund. | HIGH | ⬜ |
+| **TC-M4-008** | UC20-21 | Functional | **AI match check-in successful:** Send image matching database template >= 85%. ➔ Updates TourAttendee status to Checked_In and saves matched timestamp. | HIGH | ⬜ |
+| **TC-M4-009** | UC20-21 | Functional | **AI service unavailable fallback:** AI service offline or returns connection errors. ➔ System falls back to allow Tour Guide manual override check-in. | HIGH | ⬜ |
+| **TC-UC08-001** | UC20-21 | Functional | **Update itinerary details:** Modify the full itinerary list for an existing tour. ➔ Old destinations deleted, new destinations created in DB. | HIGH | ⬜ |
+| **TC-UC08-002** | UC20-21 | Functional | **Edit tour with open schedules:** Attempt to modify tour base price when active schedules exist. ➔ Action blocked, throws ResourceInUseException. | HIGH | ⬜ |
+| **TC-UC08-003** | UC20-21 | Functional | **Soft delete tour with open schedules:** Attempt to soft delete a tour when active schedules exist. ➔ Action blocked, throws ResourceInUseException. | HIGH | ⬜ |
+
 ## 🟣 MOD5: KIỂM TOÁN ĐÊM, TÀI CHÍNH & BÁO CÁO — Sinh viên 5
 
-| **TC ID**     | **UC tham chiếu** | **Loại Test** | **Mô tả kịch bản kiểm thử chi tiết**                                                                                                                                                            | **Severity** | **Trạng thái** |
-| ------------------- | ------------------------ | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------ | ---------------------- |
-| **TC-M5-001** | UC26.1                   | Integration          | Gom hóa đơn tích lũy tự động từ nhà hàng ➔ Khách ăn uống tại sảnh F&B chọn ký nợ, hệ thống bốc số tiền bắn về hiển thị chính xác trên màn hình Folio của Lễ tân.        | CRITICAL           | ⬜                     |
-| **TC-M5-002** | UC26.2                   | Functional           | Theo dõi dư nợ phòng lẻ thời gian thực ➔ Giao diện Folio phải hiển thị bóc tách chi tiết từng dòng tiền: Tiền phòng, tiền ăn uống nhà hàng, tiền phụ thu add-on.                  | HIGH               | ⬜                     |
-| **TC-M5-003** | UC26.3                   | Data Accuracy        | Ghi vết lịch sử dòng tiền đa đợt ➔ Khách đặt cọc trước, tạm ứng thêm tiền mặt giữa kỳ lưu trú, hệ thống tính toán cộng trừ chính xác số dư nợ tuyệt đối.               | HIGH               | ⬜                     |
-| **TC-M5-004** | UC26.4                   | Functional           | Nghiệp vụ tách ví nợ Folio nâng cao ➔ Lễ tân thực hiện thao tác tách bill (Ví dụ:*Phòng công ty chịu tiền phòng, khách lẻ tự trả tiền rượu bia phát sinh tại sảnh* ).        | HIGH               | ⬜                     |
-| **TC-M5-005** | UC26.5                   | Data Accuracy        | Đóng gói tổng hợp hóa đơn quyết toán ➔ Áp dụng kiểu dữ liệu `BigDecimal`trong mã nguồn Java để tính toán tổng chi phí toàn đoàn, tuyệt đối không lệch sai số thập phân. | CRITICAL           | ⬜                     |
-| **TC-M5-006** | UC27.1                   | Cron Job             | Tự động chạy Kiểm toán đêm (Night Audit) ➔ Đúng**02:00 AM** , hệ thống tự động quét toàn bộ phòng `Occupied`, tính tiền phòng ngày hôm đó cộng vào ví Folio.           | CRITICAL           | ⬜                     |
-| **TC-M5-007** | UC27.1                   | Functional           | Cuốn chiếu ngày làm việc kế toán ➔ Sau khi Night Audit hoàn tất không có lỗi dòng tiền, Business Date của toàn hệ thống tự động nhảy tăng thêm 1 ngày.                             | HIGH               | ⬜                     |
-| **TC-M5-008** | UC27.2                   | Functional           | Tiếp nhận in hóa đơn đỏ VAT ➔ Thu ngân tổng hợp thông tin mã số thuế, tên doanh nghiệp từ form yêu cầu của khách để xuất dữ liệu phôi hóa đơn chuẩn chỉnh.                  | MEDIUM             | ⬜                     |
-| **TC-M5-009** | UC27.4                   | Validation           | Chặn thủ tục Check-out khi còn nợ phòng ➔ Số dư ví nợ Folio của phòng lớn hơn 0, hệ thống tự động khóa nút Check-out, trả về mã cảnh báo `FOLIO-001`.                           | CRITICAL           | ⬜                     |
-| **TC-M5-010** | UC27.4                   | Functional           | Tất toán tài chính Check-out thành công ➔ Khách thanh toán sạch dư nợ về bằng 0 (`Folio = SETTLED`), hệ thống mở khóa cho phép bấm hoàn thành Check-out.                             | CRITICAL           | ⬜                     |
-| **TC-M5-011** | UC27.5                   | Integration          | Tự động phát hành hóa đơn điện tử e-Invoice ➔ Ngay khi bấm nút hoàn thành Check-out, hệ thống kích hoạt API SendGrid tự động gửi hóa đơn PDF về Email khách.                    | MEDIUM             | ⬜                     |
-| **TC-M5-012** | UC28.1                   | Functional           | Giám sát biểu đồ phân tích tài chính ➔ Manager mở Dashboard quản trị, hệ thống tính toán vẽ đúng đường đồ thị doanh thu lũy kế theo bộ lọc mốc thời gian.                    | MEDIUM             | ⬜                     |
-| **TC-M5-013** | UC28.2                   | Algorithm            | Thuật toán tính toán công suất phòng (Occupancy Rate) ➔ Hệ thống tính toán chính xác tỷ lệ:`(Tổng số phòng đang ở / Tổng số phòng resort sở hữu) * 100%`.                        | MEDIUM             | ⬜                     |
-| **TC-M5-014** | UC28.3                   | Financial Rep        | Xuất báo cáo tài chính vận hành hệ thống chuẩn quốc tế USALI ➔ Phân tách rạch ròi các trung tâm doanh thu độc lập: Doanh thu phòng, Doanh thu F&B, Doanh thu Tour.                    | HIGH               | ⬜                     |
-| **TC-M5-015** | UC28.4                   | Validation           | Kết xuất báo cáo định dạng Excel / PDF ➔ File kết xuất tải xuống thành công, không bị rỗng dữ liệu, cấu trúc cột hàng ngay ngắn, dữ liệu khớp 100% với DB.                       | MEDIUM             | ⬜                     |
+| **TC ID** | **UC tham chiếu** | **Loại Test** | **Mô tả kịch bản kiểm thử chi tiết** | **Severity** | **Trạng thái** |
+| --------- | ----------------- | ------------- | ------------------------------------ | ------------ | -------------- |
+
+
+## 🟤 MOD6: HỆ THỐNG & TÍCH HỢP (Email, Workflow, Jobs) — Hệ thống tự động
+
+| **TC ID**     | **UC tham chiếu** | **Loại Test** | **Mô tả kịch bản kiểm thử chi tiết** | **Severity** | **Trạng thái** |
+| ------------- | ----------------- | ------------- | ------------------------------------ | ------------ | -------------- |
+| **TC-M6-001** | UC29.1 | Integration | Kiểm thử tích hợp SendGrid API ➔ Hệ thống kích hoạt gửi email đặt phòng thành công, cấu hình đầy đủ title, body HTML, không bị chặn bởi Spam. | HIGH | ✅ |
+| **TC-M6-002** | UC30.1 | Functional | Kích hoạt Workflow thay đổi trạng thái ➔ Trigger event `ROOM_CHECKOUT` được phát, hệ thống cập nhật trạng thái phòng sang `Vacant_Dirty` và sinh task dọn dẹp. | CRITICAL | ✅ |
+| **TC-M6-003** | UC30.2 | Cron Job | Quét SLA Escalations định kỳ ➔ Hệ thống quét công việc quá hạn 15 phút, tự động gửi email cảnh báo cho Supervisor và nâng mức độ ưu tiên công việc. | HIGH | ✅ |
+| **TC-M6-004** | UC30.3 | Security | Dynamic Security Policy qua Workflow ➔ Tài khoản nhập sai mật khẩu vượt ngưỡng quy định, tự động khóa tài khoản tạm thời mà không cần hard-code logic. | CRITICAL | ✅ |
 
 ## 🔗 CROSS-MODULE: LUỒNG TEST TÍCH HỢP TỔNG THỂ (END-TO-END INTEGRATION)
 
@@ -135,5 +159,7 @@
 | **MOD3**(F&B / POS / KDS)        | **13 TC**                       | 3                              | 6                          | 4                            | 0                         | Sinh viên 3                     |
 | **MOD4**(Tour & Review)          | **13 TC**                       | 0                              | 4                          | 7                            | 2                         | Sinh viên 4                     |
 | **MOD5**(Finance & Audit)        | **15 TC**                       | 4                              | 4                          | 7                            | 0                         | Sinh viên 5                     |
+| **MOD6**(System & Integration)| **4 TC** | 2 | 2 | 0 | 0 | Hệ thống tự động |
 | **E2E Integration (Tích hợp)** | **3 TC**                        | 2                              | 1                          | 0                            | 0                         | Cả nhóm 4 phối hợp           |
 | **TỔNG LỰC TOÀN ĐỒ ÁN**    | **88 Test Cases**               | **16**                   | **28**               | **42**                 | **2**               | **Đạt chuẩn bàn giao** |
+

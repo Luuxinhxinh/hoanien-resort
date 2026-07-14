@@ -211,22 +211,13 @@ public class HousekeepingServiceImpl implements HousekeepingService {
                     .sorted((t1, t2) -> t2.getCreatedAt().compareTo(t1.getCreatedAt()))
                     .findFirst()
                     .orElseGet(() -> {
-                        String type = (isEmergency || room.getCurrentBookingDetailId() == null) ? OPERATION_MAINTENANCE : "DAMAGE_CHECK";
+                        String type = "DAMAGE_CHECK";
                         HotelOperation task = buildHotelOperation(room, staff, type, priority, notes);
                         return maintenanceRequestRepo.save(task);
                     });
         }
 
-        String type;
-        if (isEmergency || room.getCurrentBookingDetailId() == null) {
-            // Cập nhật trạng thái phòng → Maintenance
-            room.setRoomStatus(STATUS_MAINTENANCE);
-            roomRepo.save(room);
-            type = OPERATION_MAINTENANCE;
-        } else {
-            // Khách chưa checkout và không khẩn cấp -> Tạo phiếu DAMAGE_CHECK và giữ nguyên trạng thái phòng (không đổi sang Maintenance)
-            type = "DAMAGE_CHECK";
-        }
+        String type = "DAMAGE_CHECK";
 
         // Tạo phiếu bảo trì
         HotelOperation task = buildHotelOperation(room, staff, type, priority, notes);
@@ -287,6 +278,46 @@ public class HousekeepingServiceImpl implements HousekeepingService {
         task.setCreatedAt(LocalDateTime.now());
         task.setNotes(notes);
         return task;
+    }
+
+    @Override
+    @Transactional
+    public void createMaintenanceTaskForPricedDamages(Room room) {
+        if (room == null)
+            return;
+        List<HotelOperation> damageChecks = maintenanceRequestRepo.findAll().stream()
+                .filter(t -> t.getRoom() != null && t.getRoom().getId().equals(room.getId())
+                        && "DAMAGE_CHECK".equals(t.getOperationalType())
+                        && t.getDamagePrice() != null
+                        && !"ConvertedToRepair".equals(t.getStatus()))
+                .collect(java.util.stream.Collectors.toList());
+
+        if (damageChecks.isEmpty()) {
+            room.setRoomStatus("Vacant_Dirty");
+            roomRepo.save(room);
+        } else {
+            for (HotelOperation dc : damageChecks) {
+                dc.setStatus("ConvertedToRepair");
+                maintenanceRequestRepo.save(dc);
+
+                room.setRoomStatus("Maintenance");
+                roomRepo.save(room);
+
+                HotelOperation repairTask = new HotelOperation();
+                repairTask.setRoom(room);
+                repairTask.setStaff(dc.getStaff());
+                repairTask.setSupervisor(dc.getSupervisor());
+                repairTask.setOperationalType("MAINTENANCE");
+                repairTask.setPriority(dc.getPriority());
+                repairTask.setStatus("Pending");
+                repairTask.setNotes("[Cần sửa chữa - Đền bù hỏng hóc] " + (dc.getNotes() != null ? dc.getNotes() : "") + " | Chi phí đền bù: "
+                        + dc.getDamagePrice() + " VNĐ");
+                repairTask.setImageUrl(dc.getImageUrl());
+                repairTask.setDamagePrice(dc.getDamagePrice());
+                repairTask.setCreatedAt(java.time.LocalDateTime.now());
+                maintenanceRequestRepo.save(repairTask);
+            }
+        }
     }
 
     private Room findRoomById(Long id) {

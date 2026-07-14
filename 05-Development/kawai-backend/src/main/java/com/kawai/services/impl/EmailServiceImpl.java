@@ -1162,5 +1162,17 @@ public class EmailServiceImpl implements EmailService {
             e.printStackTrace();
         }
     }
+    @Override
+    public void sendWeeklyScheduleEmail(String toEmail, String employeeName, java.util.List<com.kawai.models.StaffSchedule> schedules) {
+        try {
+            org.thymeleaf.context.Context ctx = new org.thymeleaf.context.Context();
+            ctx.setVariable("employeeName", employeeName);
+            ctx.setVariable("schedules", schedules);
+            String htmlContent = templateEngine.process("email/weekly-schedule", ctx);
+            sendEmail(toEmail, "Lịch Làm Việc Hàng Tuần - HOANIEN Resort", htmlContent);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
 }

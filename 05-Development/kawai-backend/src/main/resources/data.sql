@@ -149,18 +149,18 @@ INSERT INTO Customers (customer_id, account_id, full_name, gender, cccd_passport
 
 -- ── 5. Dependents (10 rows) ──────────────────────────────────
 INSERT INTO Dependents (dependent_id, customer_id, dependent_name, birth_date, gender, cccd_passport_encrypted) VALUES 
-(1, 1, 'Lê Hoàng Minh', '2018-05-12', 'Nam', NULL),
-(2, 1, 'Lê Thị Hồng', '2020-09-20', 'Nữ', NULL),
-(3, 2, 'Nguyễn Văn Bình', '2015-03-10', 'Nam', NULL),
+(1, 1, 'Lê Hoàng Minh', DATE_SUB(CURDATE(), INTERVAL 2969 DAY), 'Nam', NULL),
+(2, 1, 'Lê Thị Hồng', DATE_SUB(CURDATE(), INTERVAL 2107 DAY), 'Nữ', NULL),
+(3, 2, 'Nguyễn Văn Bình', DATE_SUB(CURDATE(), INTERVAL 4128 DAY), 'Nam', NULL),
 
-(4, 3, 'Phạm Tuấn Hải', '2016-07-15', 'Nam', NULL),
+(4, 3, 'Phạm Tuấn Hải', DATE_SUB(CURDATE(), INTERVAL 3635 DAY), 'Nam', NULL),
 
-(5, 4, 'Trần An Nhiên', '2019-11-01', 'Nữ', NULL),
-(6, 6, 'Nguyễn Mỹ Anh', '2017-02-14', 'Nữ', NULL),
-(7, 7, 'Hoàng Minh Khôi', '2014-06-25', 'Nam', NULL),
-(8, 8, 'Vũ Gia Bảo', '2013-08-30', 'Nam', NULL),
-(9, 12, 'Phạm Ngọc Trâm', '2021-10-05', 'Nữ', NULL),
-(10, 13, 'Nguyễn Thanh Hà', '2022-12-25', 'Nữ', NULL);
+(5, 4, 'Trần An Nhiên', DATE_SUB(CURDATE(), INTERVAL 2431 DAY), 'Nữ', NULL),
+(6, 6, 'Nguyễn Mỹ Anh', DATE_SUB(CURDATE(), INTERVAL 3421 DAY), 'Nữ', NULL),
+(7, 7, 'Hoàng Minh Khôi', DATE_SUB(CURDATE(), INTERVAL 4386 DAY), 'Nam', NULL),
+(8, 8, 'Vũ Gia Bảo', DATE_SUB(CURDATE(), INTERVAL 4685 DAY), 'Nam', NULL),
+(9, 12, 'Phạm Ngọc Trâm', DATE_SUB(CURDATE(), INTERVAL 1727 DAY), 'Nữ', NULL),
+(10, 13, 'Nguyễn Thanh Hà', DATE_SUB(CURDATE(), INTERVAL 1281 DAY), 'Nữ', NULL);
 
 -- ── 6. Room Categories (10 rows) ─────────────────────────────
 -- Columns: category_id, category_name, cover_img_url, base_price, capacity, description,
@@ -199,7 +199,7 @@ INSERT INTO Room_Surcharges (surcharge_id, category_id, surcharge_type, age_from
 -- ── 8. Rooms (50 rows) ───────────────────────────────────────
 INSERT INTO Rooms (room_id, room_number, category_id, room_status, current_booking_detail_id) VALUES 
 (1, '101', 1, 'Occupied', 1),
-(2, '102', 1, 'Vacant_Dirty', NULL),
+(2, '102', 1, 'Occupied', 9),
 (3, '103', 1, 'Maintenance', NULL),
 (4, '104', 1, 'Vacant_Dirty', NULL),
 (5, '105', 1, 'Occupied', 3),
@@ -251,85 +251,85 @@ INSERT INTO Rooms (room_id, room_number, category_id, room_status, current_booki
 
 -- ── 9. Dynamic Pricing (10 rows) ─────────────────────────────
 INSERT INTO Dynamic_Pricing (price_id, category_id, start_date, end_date, price_modifier, reason) VALUES 
-(1, 1, '2026-06-01', '2026-06-30', 200000, 'Mùa cao điểm hè'),
-(2, 2, '2026-06-01', '2026-06-30', 300000, 'Mùa cao điểm hè'),
-(3, 3, '2026-06-01', '2026-06-30', 500000, 'Mùa cao điểm hè'),
-(4, 5, '2026-06-01', '2026-06-30', 1000000, 'Mùa cao điểm hè'),
-(5, 9, '2026-06-01', '2026-06-30', 800000, 'Mùa cao điểm hè'),
-(6, 1, '2026-09-01', '2026-09-30', -200000, 'Ưu đãi mùa thu'),
-(7, 2, '2026-09-01', '2026-09-30', -300000, 'Ưu đãi mùa thu'),
-(8, 3, '2026-09-01', '2026-09-30', -500000, 'Ưu đãi mùa thu'),
-(9, 4, '2026-09-01', '2026-09-30', -150000, 'Ưu đãi mùa thu'),
-(10, 6, '2026-09-01', '2026-09-30', -250000, 'Ưu đãi mùa thu');
+(1, 1, DATE_SUB(CURDATE(), INTERVAL 27 DAY), DATE_ADD(CURDATE(), INTERVAL 2 DAY), 200000, 'Mùa cao điểm hè'),
+(2, 2, DATE_SUB(CURDATE(), INTERVAL 27 DAY), DATE_ADD(CURDATE(), INTERVAL 2 DAY), 300000, 'Mùa cao điểm hè'),
+(3, 3, DATE_SUB(CURDATE(), INTERVAL 27 DAY), DATE_ADD(CURDATE(), INTERVAL 2 DAY), 500000, 'Mùa cao điểm hè'),
+(4, 5, DATE_SUB(CURDATE(), INTERVAL 27 DAY), DATE_ADD(CURDATE(), INTERVAL 2 DAY), 1000000, 'Mùa cao điểm hè'),
+(5, 9, DATE_SUB(CURDATE(), INTERVAL 27 DAY), DATE_ADD(CURDATE(), INTERVAL 2 DAY), 800000, 'Mùa cao điểm hè'),
+(6, 1, DATE_ADD(CURDATE(), INTERVAL 65 DAY), DATE_ADD(CURDATE(), INTERVAL 94 DAY), -200000, 'Ưu đãi mùa thu'),
+(7, 2, DATE_ADD(CURDATE(), INTERVAL 65 DAY), DATE_ADD(CURDATE(), INTERVAL 94 DAY), -300000, 'Ưu đãi mùa thu'),
+(8, 3, DATE_ADD(CURDATE(), INTERVAL 65 DAY), DATE_ADD(CURDATE(), INTERVAL 94 DAY), -500000, 'Ưu đãi mùa thu'),
+(9, 4, DATE_ADD(CURDATE(), INTERVAL 65 DAY), DATE_ADD(CURDATE(), INTERVAL 94 DAY), -150000, 'Ưu đãi mùa thu'),
+(10, 6, DATE_ADD(CURDATE(), INTERVAL 65 DAY), DATE_ADD(CURDATE(), INTERVAL 94 DAY), -250000, 'Ưu đãi mùa thu');
 
 
 -- ── 10. Daily Rates (10 rows) ────────────────────────────────
 INSERT INTO Daily_Rates (daily_rate_id, category_id, rate_date, computed_price, is_weekend, is_holiday) VALUES 
 
-(1, 1, '2026-06-13', 2700000, TRUE, FALSE),
-(2, 1, '2026-06-14', 2700000, TRUE, FALSE),
-(3, 2, '2026-06-13', 3800000, TRUE, FALSE),
-(4, 2, '2026-06-14', 3800000, TRUE, FALSE),
-(5, 3, '2026-06-13', 8500000, TRUE, FALSE),
-(6, 3, '2026-06-14', 8500000, TRUE, FALSE),
-(7, 4, '2026-06-13', 2200000, TRUE, FALSE),
-(8, 5, '2026-06-13', 16000000, TRUE, FALSE),
-(9, 6, '2026-06-13', 3300000, TRUE, FALSE),
-(10, 7, '2026-06-13', 4800000, TRUE, FALSE);
+(1, 1, DATE_SUB(CURDATE(), INTERVAL 15 DAY), 2700000, TRUE, FALSE),
+(2, 1, DATE_SUB(CURDATE(), INTERVAL 14 DAY), 2700000, TRUE, FALSE),
+(3, 2, DATE_SUB(CURDATE(), INTERVAL 15 DAY), 3800000, TRUE, FALSE),
+(4, 2, DATE_SUB(CURDATE(), INTERVAL 14 DAY), 3800000, TRUE, FALSE),
+(5, 3, DATE_SUB(CURDATE(), INTERVAL 15 DAY), 8500000, TRUE, FALSE),
+(6, 3, DATE_SUB(CURDATE(), INTERVAL 14 DAY), 8500000, TRUE, FALSE),
+(7, 4, DATE_SUB(CURDATE(), INTERVAL 15 DAY), 2200000, TRUE, FALSE),
+(8, 5, DATE_SUB(CURDATE(), INTERVAL 15 DAY), 16000000, TRUE, FALSE),
+(9, 6, DATE_SUB(CURDATE(), INTERVAL 15 DAY), 3300000, TRUE, FALSE),
+(10, 7, DATE_SUB(CURDATE(), INTERVAL 15 DAY), 4800000, TRUE, FALSE);
 
 -- ── 11. Promotions (10 rows) ─────────────────────────────────
 INSERT INTO Promotions (promo_id, promo_code, discount_type, discount_value, valid_from, valid_to, max_uses, current_uses, is_active, description) VALUES 
 
-(1, 'SUMMER2026', 'PERCENTAGE', 10.00, '2026-05-01 00:00:00', '2026-08-31 23:59:59', 1000, 15, TRUE, 'Giảm giá 10% cho toàn bộ dịch vụ đặt phòng hè.'),
-(2, 'WELCOMETOHOANIEN', 'FIXED_AMOUNT', 200000.00, '2026-01-01 00:00:00', '2026-12-31 23:59:59', 5000, 120, TRUE, 'Tặng ngay 200,000 VND cho khách đặt phòng lần đầu.'),
-(3, 'VIPGOLD', 'PERCENTAGE', 15.00, '2026-01-01 00:00:00', '2026-12-31 23:59:59', 9999, 45, TRUE, 'Ưu đãi đặc biệt giảm 15% cho thành viên Gold.'),
-(4, 'MIDWEEK20', 'PERCENTAGE', 20.00, '2026-01-01 00:00:00', '2026-12-31 23:59:59', 200, 10, TRUE, 'Giảm 20% đặt phòng từ thứ 2 đến thứ 5.'),
+(1, 'SUMMER2026', 'PERCENTAGE', 10.00, CONCAT(DATE_SUB(CURDATE(), INTERVAL 58 DAY), ' 00:00:00'), CONCAT(DATE_ADD(CURDATE(), INTERVAL 64 DAY), ' 23:59:59'), 1000, 15, TRUE, 'Giảm giá 10% cho toàn bộ dịch vụ đặt phòng hè.'),
+(2, 'WELCOMETOHOANIEN', 'FIXED_AMOUNT', 200000.00, CONCAT(DATE_SUB(CURDATE(), INTERVAL 178 DAY), ' 00:00:00'), CONCAT(DATE_ADD(CURDATE(), INTERVAL 186 DAY), ' 23:59:59'), 5000, 120, TRUE, 'Tặng ngay 200,000 VND cho khách đặt phòng lần đầu.'),
+(3, 'VIPGOLD', 'PERCENTAGE', 15.00, CONCAT(DATE_SUB(CURDATE(), INTERVAL 178 DAY), ' 00:00:00'), CONCAT(DATE_ADD(CURDATE(), INTERVAL 186 DAY), ' 23:59:59'), 9999, 45, TRUE, 'Ưu đãi đặc biệt giảm 15% cho thành viên Gold.'),
+(4, 'MIDWEEK20', 'PERCENTAGE', 20.00, CONCAT(DATE_SUB(CURDATE(), INTERVAL 178 DAY), ' 00:00:00'), CONCAT(DATE_ADD(CURDATE(), INTERVAL 186 DAY), ' 23:59:59'), 200, 10, TRUE, 'Giảm 20% đặt phòng từ thứ 2 đến thứ 5.'),
 
-(5, 'AUTUMNRETREAT', 'PERCENTAGE', 12.00, '2026-09-01 00:00:00', '2026-11-30 23:59:59', 500, 0, TRUE, 'Giảm giá 12% chăm sóc sức khoẻ mùa thu.'),
+(5, 'AUTUMNRETREAT', 'PERCENTAGE', 12.00, CONCAT(DATE_ADD(CURDATE(), INTERVAL 65 DAY), ' 00:00:00'), CONCAT(DATE_ADD(CURDATE(), INTERVAL 155 DAY), ' 23:59:59'), 500, 0, TRUE, 'Giảm giá 12% chăm sóc sức khoẻ mùa thu.'),
 
-(6, 'HONEYMOON', 'FIXED_AMOUNT', 500000.00, '2026-01-01 00:00:00', '2026-12-31 23:59:59', 100, 2, TRUE, 'Gói trăng mật ngọt ngào giảm ngay 500k.'),
-(7, 'FESTIVE15', 'PERCENTAGE', 15.00, '2026-12-20 00:00:00', '2027-01-05 23:59:59', 1000, 0, TRUE, 'Chào đón giáng sinh và năm mới.'),
-(8, 'VOUCHER100K', 'FIXED_AMOUNT', 100000.00, '2026-01-01 00:00:00', '2026-12-31 23:59:59', 10000, 300, TRUE, 'Voucher 100k cho khách hàng thân thiết.'),
-(9, 'EARLYBIRD', 'PERCENTAGE', 8.00, '2026-01-01 00:00:00', '2026-12-31 23:59:59', 2000, 50, TRUE, 'Đặt trước 30 ngày hưởng ngay ưu đãi 8%.');
+(6, 'HONEYMOON', 'FIXED_AMOUNT', 500000.00, CONCAT(DATE_SUB(CURDATE(), INTERVAL 178 DAY), ' 00:00:00'), CONCAT(DATE_ADD(CURDATE(), INTERVAL 186 DAY), ' 23:59:59'), 100, 2, TRUE, 'Gói trăng mật ngọt ngào giảm ngay 500k.'),
+(7, 'FESTIVE15', 'PERCENTAGE', 15.00, CONCAT(DATE_ADD(CURDATE(), INTERVAL 175 DAY), ' 00:00:00'), CONCAT(DATE_ADD(CURDATE(), INTERVAL 191 DAY), ' 23:59:59'), 1000, 0, TRUE, 'Chào đón giáng sinh và năm mới.'),
+(8, 'VOUCHER100K', 'FIXED_AMOUNT', 100000.00, CONCAT(DATE_SUB(CURDATE(), INTERVAL 178 DAY), ' 00:00:00'), CONCAT(DATE_ADD(CURDATE(), INTERVAL 186 DAY), ' 23:59:59'), 10000, 300, TRUE, 'Voucher 100k cho khách hàng thân thiết.'),
+(9, 'EARLYBIRD', 'PERCENTAGE', 8.00, CONCAT(DATE_SUB(CURDATE(), INTERVAL 178 DAY), ' 00:00:00'), CONCAT(DATE_ADD(CURDATE(), INTERVAL 186 DAY), ' 23:59:59'), 2000, 50, TRUE, 'Đặt trước 30 ngày hưởng ngay ưu đãi 8%.');
 -- ── 12. Bookings (20 rows) ───────────────────────────────────
 
 INSERT INTO Bookings (booking_id, customer_id, booking_date, total_price, booking_status, booking_source, applied_promotion_id, version) VALUES
-(1, 1, '2026-06-01', 5000000, 'Checked_In', 'Direct_Web', 1, 1),
-(2, 2, '2026-06-02', 7000000, 'Checked_Out', 'Direct_Web', NULL, 1),
-(3, 3, '2026-06-03', 16000000, 'Confirmed', 'OTA', NULL, 1),
-(4, 4, '2026-06-04', 5000000, 'Confirmed', 'OTA', 2, 1),
-(5, 5, '2026-06-05', 5000000, 'Confirmed', 'Direct_Web', NULL, 1),
-(6, 6, '2026-06-06', 7000000, 'Confirmed', 'OTA', NULL, 1),
-(7, 7, '2026-06-07', 7000000, 'Confirmed', 'Direct_Web', 3, 1),
-(8, 8, '2026-06-08', 16000000, 'Confirmed', 'Direct_Web', NULL, 1),
-(9, 1, '2026-06-10', 1200000, 'Confirmed', 'Direct_Web', NULL, 1),
-(10, 2, '2026-06-10', 1200000, 'Confirmed', 'Direct_Web', NULL, 1),
-(11, 9, '2026-06-12', 1200000, 'Confirmed', 'Direct_Web', NULL, 1),
-(12, 10, '2026-06-12', 1200000, 'Confirmed', 'Direct_Web', NULL, 1),
-(13, 11, '2026-06-12', 1200000, 'Confirmed', 'Direct_Web', NULL, 1),
-(14, 12, '2026-06-12', 2500000, 'Checked_Out', 'Direct_Web', NULL, 1),
-(15, 13, '2026-06-12', 3500000, 'Cancelled', 'Direct_Web', NULL, 1),
-(16, 14, '2026-06-12', 8000000, 'Confirmed', 'Direct_Web', NULL, 1),
-(17, 15, '2026-06-12', 2000000, 'Confirmed', 'Direct_Web', NULL, 1),
-(18, 3, '2026-06-12', 15000000, 'Confirmed', 'Direct_Web', NULL, 1),
-(19, 4, '2026-06-12', 3000000, 'Confirmed', 'Direct_Web', NULL, 1),
-(20, 5, '2026-06-12', 4500000, 'Confirmed', 'Direct_Web', NULL, 1),
-(24, 1, '2026-06-01', 3000000, 'Confirmed', 'Direct_Web', NULL, 1),
-(25, 2, '2026-06-02', 1200000, 'Cancelled', 'Direct_Web', NULL, 1),
-(26, 3, '2026-06-03', 5400000, 'Confirmed', 'Direct_Web', NULL, 1),
-(27, 4, '2026-06-04', 2500000, 'Confirmed', 'OTA', NULL, 1),
-(28, 5, '2026-06-05', 2400000, 'Confirmed', 'Direct_Web', NULL, 1);
+(1, 1, DATE_SUB(CURDATE(), INTERVAL 27 DAY), 5000000, 'Checked_In', 'Direct_Web', 1, 1),
+(2, 2, DATE_SUB(CURDATE(), INTERVAL 26 DAY), 7000000, 'Checked_Out', 'Direct_Web', NULL, 1),
+(3, 3, DATE_SUB(CURDATE(), INTERVAL 25 DAY), 16000000, 'Confirmed', 'OTA', NULL, 1),
+(4, 4, DATE_SUB(CURDATE(), INTERVAL 24 DAY), 5000000, 'Confirmed', 'OTA', 2, 1),
+(5, 5, DATE_SUB(CURDATE(), INTERVAL 23 DAY), 5000000, 'Confirmed', 'Direct_Web', NULL, 1),
+(6, 6, DATE_SUB(CURDATE(), INTERVAL 22 DAY), 7000000, 'Confirmed', 'OTA', NULL, 1),
+(7, 7, DATE_SUB(CURDATE(), INTERVAL 21 DAY), 7000000, 'Confirmed', 'Direct_Web', 3, 1),
+(8, 8, DATE_SUB(CURDATE(), INTERVAL 20 DAY), 16000000, 'Confirmed', 'Direct_Web', NULL, 1),
+(9, 1, DATE_SUB(CURDATE(), INTERVAL 18 DAY), 1200000, 'Confirmed', 'Direct_Web', NULL, 1),
+(10, 2, DATE_SUB(CURDATE(), INTERVAL 18 DAY), 1200000, 'Confirmed', 'Direct_Web', NULL, 1),
+(11, 9, DATE_SUB(CURDATE(), INTERVAL 16 DAY), 1200000, 'Confirmed', 'Direct_Web', NULL, 1),
+(12, 10, DATE_SUB(CURDATE(), INTERVAL 16 DAY), 1200000, 'Confirmed', 'Direct_Web', NULL, 1),
+(13, 11, DATE_SUB(CURDATE(), INTERVAL 16 DAY), 1200000, 'Confirmed', 'Direct_Web', NULL, 1),
+(14, 12, DATE_SUB(CURDATE(), INTERVAL 16 DAY), 2500000, 'Checked_In', 'Direct_Web', NULL, 1),
+(15, 13, DATE_SUB(CURDATE(), INTERVAL 16 DAY), 3500000, 'Checked_Out', 'Direct_Web', NULL, 1),
+(16, 14, DATE_SUB(CURDATE(), INTERVAL 16 DAY), 8000000, 'Confirmed', 'Direct_Web', NULL, 1),
+(17, 15, DATE_SUB(CURDATE(), INTERVAL 16 DAY), 2000000, 'Confirmed', 'Direct_Web', NULL, 1),
+(18, 3, DATE_SUB(CURDATE(), INTERVAL 16 DAY), 15000000, 'Confirmed', 'Direct_Web', NULL, 1),
+(19, 4, DATE_SUB(CURDATE(), INTERVAL 16 DAY), 3000000, 'Confirmed', 'Direct_Web', NULL, 1),
+(20, 5, DATE_SUB(CURDATE(), INTERVAL 16 DAY), 4500000, 'Confirmed', 'Direct_Web', NULL, 1),
+(24, 1, DATE_SUB(CURDATE(), INTERVAL 27 DAY), 3000000, 'Confirmed', 'Direct_Web', NULL, 1),
+(25, 2, DATE_SUB(CURDATE(), INTERVAL 26 DAY), 1200000, 'Cancelled', 'Direct_Web', NULL, 1),
+(26, 3, DATE_SUB(CURDATE(), INTERVAL 25 DAY), 5400000, 'Confirmed', 'Direct_Web', NULL, 1),
+(27, 4, DATE_SUB(CURDATE(), INTERVAL 24 DAY), 2500000, 'Confirmed', 'OTA', NULL, 1),
+(28, 5, DATE_SUB(CURDATE(), INTERVAL 23 DAY), 2400000, 'Confirmed', 'Direct_Web', NULL, 1);
 
 -- ── 13. Room Bookings (10 rows) ──────────────────────────────
 INSERT INTO Room_Bookings (room_booking_id, check_in_date, check_out_date, deposit_amount, cancellation_deadline, credit_limit, personal_pin_hash) VALUES
 (1, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 3 DAY), 1000000, DATE_SUB(CURDATE(), INTERVAL 2 DAY), 5000000, 'hash'),
 (2, DATE_SUB(CURDATE(), INTERVAL 5 DAY), DATE_SUB(CURDATE(), INTERVAL 2 DAY), 1000000, DATE_SUB(CURDATE(), INTERVAL 8 DAY), 5000000, 'hash'),
-(3, '2026-06-09', '2026-06-12', 2000000, '2026-06-05', 10000000, 'hash'),
-(4, '2026-06-09', '2026-06-11', 1000000, '2026-06-05', 5000000, 'hash'),
-(5, '2026-06-10', '2026-06-13', 1000000, '2026-06-06', 5000000, 'hash'),
-(6, '2026-06-10', '2026-06-14', 1500000, '2026-06-06', 5000000, 'hash'),
-(7, '2026-06-10', '2026-06-15', 1500000, '2026-06-06', 5000000, 'hash'),
-(8, '2026-06-10', '2026-06-16', 3000000, '2026-06-06', 15000000, 'hash'),
+(3, DATE_SUB(CURDATE(), INTERVAL 19 DAY), DATE_SUB(CURDATE(), INTERVAL 16 DAY), 2000000, DATE_SUB(CURDATE(), INTERVAL 23 DAY), 10000000, 'hash'),
+(4, DATE_SUB(CURDATE(), INTERVAL 19 DAY), DATE_SUB(CURDATE(), INTERVAL 17 DAY), 1000000, DATE_SUB(CURDATE(), INTERVAL 23 DAY), 5000000, 'hash'),
+(5, DATE_SUB(CURDATE(), INTERVAL 18 DAY), DATE_SUB(CURDATE(), INTERVAL 15 DAY), 1000000, DATE_SUB(CURDATE(), INTERVAL 22 DAY), 5000000, 'hash'),
+(6, DATE_SUB(CURDATE(), INTERVAL 18 DAY), DATE_SUB(CURDATE(), INTERVAL 14 DAY), 1500000, DATE_SUB(CURDATE(), INTERVAL 22 DAY), 5000000, 'hash'),
+(7, DATE_SUB(CURDATE(), INTERVAL 18 DAY), DATE_SUB(CURDATE(), INTERVAL 13 DAY), 1500000, DATE_SUB(CURDATE(), INTERVAL 22 DAY), 5000000, 'hash'),
+(8, DATE_SUB(CURDATE(), INTERVAL 18 DAY), DATE_SUB(CURDATE(), INTERVAL 12 DAY), 3000000, DATE_SUB(CURDATE(), INTERVAL 22 DAY), 15000000, 'hash'),
 (9, DATE_ADD(CURDATE(), INTERVAL 5 DAY), DATE_ADD(CURDATE(), INTERVAL 8 DAY), 500000, DATE_ADD(CURDATE(), INTERVAL 2 DAY), 5000000, 'hash'),
 (14, DATE_SUB(CURDATE(), INTERVAL 10 DAY), DATE_SUB(CURDATE(), INTERVAL 6 DAY), 1000000, DATE_SUB(CURDATE(), INTERVAL 15 DAY), 5000000, 'hash'),
 (15, DATE_ADD(CURDATE(), INTERVAL 20 DAY), DATE_ADD(CURDATE(), INTERVAL 25 DAY), 1000000, DATE_ADD(CURDATE(), INTERVAL 10 DAY), 5000000, 'hash');
@@ -344,8 +344,8 @@ INSERT INTO Room_Booking_Details (detail_id, room_booking_id, category_id, room_
 (6, 6, 2, NULL, 3500000, 'Pending', 'KING_SIZE', NULL, TRUE, 1500000, 'BILL_TO_LEADER'),
 (7, 7, 2, 15, 3500000, 'Checked_In', 'KING_SIZE', NULL, TRUE, 1500000, 'BILL_TO_LEADER'),
 (8, 8, 3, 18, 8000000, 'Checked_In', 'KING_SIZE', NULL, TRUE, 3000000, 'BILL_TO_LEADER'),
-(9, 14, 1, NULL, 2500000, 'Checked_Out', 'KING_SIZE', NULL, TRUE, 500000, 'BILL_TO_LEADER'),
-(10, 15, 2, NULL, 3500000, 'Cancelled', 'TWIN_BED', NULL, TRUE, 1500000, 'BILL_TO_LEADER'),
+(9, 14, 1, 2, 2500000, 'Checked_In', 'KING_SIZE', NULL, TRUE, 500000, 'BILL_TO_LEADER'),
+(10, 15, 1, 4, 2500000, 'Checked_Out', 'TWIN_BED', NULL, TRUE, 1500000, 'BILL_TO_LEADER'),
 (11, 9, 1, NULL, 1200000, 'Confirmed', 'KING_SIZE', NULL, TRUE, 500000, 'BILL_TO_LEADER');
 
 -- ── 15. Room Guests (10 rows) ────────────────────────────────
@@ -395,16 +395,17 @@ VALUES (99, 'ducbeo', '$2a$10$ikP3XeXnMx/oLodhs4wqBO61AhyuE4dWtSJDJcOH7D2ii5Vrgq
 
 
 -- Update Room's current booking detail links
-UPDATE Rooms SET current_booking_detail_id = 1 WHERE room_id = 1;
-UPDATE Rooms SET current_booking_detail_id = 2 WHERE room_id = 3;
-UPDATE Rooms SET current_booking_detail_id = 3 WHERE room_id = 5;
-UPDATE Rooms SET current_booking_detail_id = 4 WHERE room_id = 7;
-UPDATE Rooms SET current_booking_detail_id = 5 WHERE room_id = 9;
-UPDATE Rooms SET current_booking_detail_id = 6 WHERE room_id = 12;
-UPDATE Rooms SET current_booking_detail_id = 7 WHERE room_id = 15;
-UPDATE Rooms SET current_booking_detail_id = 8 WHERE room_id = 18;
-UPDATE Rooms SET current_booking_detail_id = 9 WHERE room_id = 2;
-UPDATE Rooms SET current_booking_detail_id = 10 WHERE room_id = 4;
+-- Rule BR-FO-04: Only rooms with active Checked_In booking detail get a currentBookingDetailId
+-- detail_id=1 (booking 1, Checked_In) → room 101 (room_id=1)
+-- detail_id=3 (booking 3, Checked_In) → room 105 (room_id=5)
+-- detail_id=7 (booking 7, Checked_In) → room 205 (room_id=15)
+-- detail_id=8 (booking 8, Checked_In) → room 208 (room_id=18)
+-- All others (2=Checked_Out, 4-6=Pending, 9-11=Confirmed/Cancelled) → NO currentBookingDetailId
+UPDATE Rooms SET current_booking_detail_id = 1  WHERE room_id = 1;   -- 101: Checked_In OK
+UPDATE Rooms SET current_booking_detail_id = 9  WHERE room_id = 2;   -- 102: Checked_In OK (For ROOM_CHECK demo)
+UPDATE Rooms SET current_booking_detail_id = 3  WHERE room_id = 5;   -- 105: Checked_In OK
+UPDATE Rooms SET current_booking_detail_id = 7  WHERE room_id = 15;  -- 205: Checked_In OK
+UPDATE Rooms SET current_booking_detail_id = 8  WHERE room_id = 18;  -- 208: Checked_In OK
 
 -- ── 16. Restaurant Tables (20 rows) ──────────────────────────
 INSERT INTO Restaurant_Tables (table_id, table_number, capacity, table_status, is_active) VALUES 
@@ -432,44 +433,44 @@ INSERT INTO Restaurant_Tables (table_id, table_number, capacity, table_status, i
 
 -- ── 17. Table Reservations (10 rows) ─────────────────────────
 INSERT INTO Table_Reservations (reservation_id, customer_id, table_id, reserve_date, reserve_time, end_time, deposit_amount, status) VALUES 
-(1, 1, 1, '2026-06-13', '18:30:00', '20:30:00', 100000, 'Confirmed'),
-(2, 2, 3, '2026-06-13', '19:00:00', '21:00:00', 100000, 'Confirmed'),
-(3, 3, 4, '2026-06-13', '19:30:00', '21:30:00', 200000, 'Confirmed'),
-(4, 4, 8, '2026-06-14', '18:00:00', '20:00:00', 100000, 'Pending'),
-(5, 5, 14, '2026-06-14', '19:00:00', '21:00:00', 200000, 'Pending'),
-(6, 6, 20, '2026-06-14', '20:00:00', '22:00:00', 300000, 'Confirmed'),
-(7, 7, 7, '2026-06-13', '21:00:00', '23:00:00', 100000, 'Confirmed'),
-(8, 8, 15, '2026-06-13', '20:30:00', '22:30:00', 100000, 'Confirmed'),
-(9, 12, 11, '2026-06-13', '19:00:00', '21:00:00', 100000, 'Confirmed'),
-(10, 13, 18, '2026-06-13', '18:00:00', '20:00:00', 150000, 'Confirmed'),
-(11, 14, 1, '2026-06-20', '18:00:00', '20:00:00', 100000, 'Confirmed'),
-(12, 15, 2, '2026-06-20', '19:00:00', '21:00:00', 150000, 'Confirmed'),
-(13, 1, 3, '2026-06-20', '12:00:00', '14:00:00', 100000, 'Confirmed'),
-(14, 2, 4, '2026-06-20', '20:00:00', '22:30:00', 200000, 'Pending'),
-(15, 3, 5, '2026-06-21', '08:00:00', '10:00:00', 150000, 'Confirmed'),
-(16, 4, 6, '2026-06-21', '11:30:00', '13:30:00', 100000, 'Confirmed'),
-(17, 5, 7, '2026-06-21', '19:00:00', '21:00:00', 200000, 'Confirmed'),
-(18, 6, 8, '2026-06-22', '18:30:00', '20:30:00', 100000, 'Pending'),
-(19, 7, 9, '2026-06-22', '20:00:00', '22:00:00', 300000, 'Confirmed'),
-(20, 8, 10, '2026-06-23', '09:00:00', '11:00:00', 100000, 'Confirmed'),
-(21, 9, 11, '2026-06-23', '12:00:00', '14:00:00', 150000, 'Confirmed'),
-(22, 10, 12, '2026-06-24', '18:00:00', '21:00:00', 200000, 'Pending'),
-(23, 11, 13, '2026-06-24', '19:30:00', '21:30:00', 100000, 'Confirmed'),
-(24, 12, 14, '2026-06-25', '11:00:00', '13:00:00', 300000, 'Confirmed'),
-(25, 13, 15, '2026-06-25', '20:00:00', '22:00:00', 100000, 'Confirmed'),
-(26, 14, 16, '2026-06-26', '18:00:00', '20:00:00', 100000, 'Confirmed'),
-(27, 15, 17, '2026-06-26', '19:00:00', '21:00:00', 100000, 'Pending'),
-(28, 1, 18, '2026-06-27', '08:30:00', '10:30:00', 150000, 'Confirmed'),
-(29, 2, 19, '2026-06-27', '12:30:00', '14:30:00', 100000, 'Confirmed'),
-(30, 3, 20, '2026-06-28', '19:00:00', '21:00:00', 400000, 'Confirmed'),
-(31, 4, 1, '2026-06-28', '20:00:00', '22:00:00', 100000, 'Pending'),
-(32, 5, 2, '2026-06-29', '18:00:00', '20:30:00', 100000, 'Confirmed'),
-(33, 6, 3, '2026-06-29', '19:00:00', '21:00:00', 100000, 'Confirmed'),
-(34, 7, 4, '2026-06-30', '11:00:00', '13:00:00', 200000, 'Confirmed'),
-(35, 8, 5, '2026-06-30', '18:30:00', '20:30:00', 150000, 'Confirmed'),
-(36, 9, 6, '2026-07-01', '12:00:00', '14:00:00', 100000, 'Pending'),
-(37, 10, 7, '2026-07-01', '18:00:00', '20:00:00', 100000, 'Confirmed'),
-(38, 11, 8, '2026-07-01', '19:00:00', '21:00:00', 100000, 'Confirmed');
+(1, 1, 1, DATE_SUB(CURDATE(), INTERVAL 15 DAY), '18:30:00', '20:30:00', 100000, 'Confirmed'),
+(2, 2, 3, DATE_SUB(CURDATE(), INTERVAL 15 DAY), '19:00:00', '21:00:00', 100000, 'Confirmed'),
+(3, 3, 4, DATE_SUB(CURDATE(), INTERVAL 15 DAY), '19:30:00', '21:30:00', 200000, 'Confirmed'),
+(4, 4, 8, DATE_SUB(CURDATE(), INTERVAL 14 DAY), '18:00:00', '20:00:00', 100000, 'Pending'),
+(5, 5, 14, DATE_SUB(CURDATE(), INTERVAL 14 DAY), '19:00:00', '21:00:00', 200000, 'Pending'),
+(6, 6, 20, DATE_SUB(CURDATE(), INTERVAL 14 DAY), '20:00:00', '22:00:00', 300000, 'Confirmed'),
+(7, 7, 7, DATE_SUB(CURDATE(), INTERVAL 15 DAY), '21:00:00', '23:00:00', 100000, 'Confirmed'),
+(8, 8, 15, DATE_SUB(CURDATE(), INTERVAL 15 DAY), '20:30:00', '22:30:00', 100000, 'Confirmed'),
+(9, 12, 11, DATE_SUB(CURDATE(), INTERVAL 15 DAY), '19:00:00', '21:00:00', 100000, 'Confirmed'),
+(10, 13, 18, DATE_SUB(CURDATE(), INTERVAL 15 DAY), '18:00:00', '20:00:00', 150000, 'Confirmed'),
+(11, 14, 1, DATE_SUB(CURDATE(), INTERVAL 8 DAY), '18:00:00', '20:00:00', 100000, 'Confirmed'),
+(12, 15, 2, DATE_SUB(CURDATE(), INTERVAL 8 DAY), '19:00:00', '21:00:00', 150000, 'Confirmed'),
+(13, 1, 3, DATE_SUB(CURDATE(), INTERVAL 8 DAY), '12:00:00', '14:00:00', 100000, 'Confirmed'),
+(14, 2, 4, DATE_SUB(CURDATE(), INTERVAL 8 DAY), '20:00:00', '22:30:00', 200000, 'Pending'),
+(15, 3, 5, DATE_SUB(CURDATE(), INTERVAL 7 DAY), '08:00:00', '10:00:00', 150000, 'Confirmed'),
+(16, 4, 6, DATE_SUB(CURDATE(), INTERVAL 7 DAY), '11:30:00', '13:30:00', 100000, 'Confirmed'),
+(17, 5, 7, DATE_SUB(CURDATE(), INTERVAL 7 DAY), '19:00:00', '21:00:00', 200000, 'Confirmed'),
+(18, 6, 8, DATE_SUB(CURDATE(), INTERVAL 6 DAY), '18:30:00', '20:30:00', 100000, 'Pending'),
+(19, 7, 9, DATE_SUB(CURDATE(), INTERVAL 6 DAY), '20:00:00', '22:00:00', 300000, 'Confirmed'),
+(20, 8, 10, DATE_SUB(CURDATE(), INTERVAL 5 DAY), '09:00:00', '11:00:00', 100000, 'Confirmed'),
+(21, 9, 11, DATE_SUB(CURDATE(), INTERVAL 5 DAY), '12:00:00', '14:00:00', 150000, 'Confirmed'),
+(22, 10, 12, DATE_SUB(CURDATE(), INTERVAL 4 DAY), '18:00:00', '21:00:00', 200000, 'Pending'),
+(23, 11, 13, DATE_SUB(CURDATE(), INTERVAL 4 DAY), '19:30:00', '21:30:00', 100000, 'Confirmed'),
+(24, 12, 14, DATE_SUB(CURDATE(), INTERVAL 3 DAY), '11:00:00', '13:00:00', 300000, 'Confirmed'),
+(25, 13, 15, DATE_SUB(CURDATE(), INTERVAL 3 DAY), '20:00:00', '22:00:00', 100000, 'Confirmed'),
+(26, 14, 16, DATE_SUB(CURDATE(), INTERVAL 2 DAY), '18:00:00', '20:00:00', 100000, 'Confirmed'),
+(27, 15, 17, DATE_SUB(CURDATE(), INTERVAL 2 DAY), '19:00:00', '21:00:00', 100000, 'Pending'),
+(28, 1, 18, DATE_SUB(CURDATE(), INTERVAL 1 DAY), '08:30:00', '10:30:00', 150000, 'Confirmed'),
+(29, 2, 19, DATE_SUB(CURDATE(), INTERVAL 1 DAY), '12:30:00', '14:30:00', 100000, 'Confirmed'),
+(30, 3, 20, CURDATE(), '19:00:00', '21:00:00', 400000, 'Confirmed'),
+(31, 4, 1, CURDATE(), '20:00:00', '22:00:00', 100000, 'Pending'),
+(32, 5, 2, DATE_ADD(CURDATE(), INTERVAL 1 DAY), '18:00:00', '20:30:00', 100000, 'Confirmed'),
+(33, 6, 3, DATE_ADD(CURDATE(), INTERVAL 1 DAY), '19:00:00', '21:00:00', 100000, 'Confirmed'),
+(34, 7, 4, DATE_ADD(CURDATE(), INTERVAL 2 DAY), '11:00:00', '13:00:00', 200000, 'Confirmed'),
+(35, 8, 5, DATE_ADD(CURDATE(), INTERVAL 2 DAY), '18:30:00', '20:30:00', 150000, 'Confirmed'),
+(36, 9, 6, DATE_ADD(CURDATE(), INTERVAL 3 DAY), '12:00:00', '14:00:00', 100000, 'Pending'),
+(37, 10, 7, DATE_ADD(CURDATE(), INTERVAL 3 DAY), '18:00:00', '20:00:00', 100000, 'Confirmed'),
+(38, 11, 8, DATE_ADD(CURDATE(), INTERVAL 3 DAY), '19:00:00', '21:00:00', 100000, 'Confirmed');
 
 -- ── 18. Menu Items (34 rows) ─────────────────────────────────
 INSERT INTO Menu_Items (item_id, item_name, price, category, is_available, description, image_url, allergy_tags, is_always_available) VALUES 
@@ -611,33 +612,42 @@ INSERT INTO Hotel_Services (service_id, service_name, base_price, source_departm
 
 -- ── 22. Booking Services (10 rows) ───────────────────────────
 INSERT INTO Booking_Services (booking_service_id, booking_id, service_id, quantity, unit_price, execution_date, status, specific_requests_json) VALUES 
-(1, 1, 1, 1, 800000, '2026-06-09 14:00:00', 'COMPLETED', '{"flight_number": "VN117", "arrival_time": "13:30"}'),
-(2, 2, 2, 2, 1200000, '2026-06-10 16:00:00', 'PENDING', NULL),
-(3, 3, 4, 1, 500000, '2026-06-09 10:00:00', 'COMPLETED', '{"card_note": "Happy Anniversary"}'),
-(4, 4, 3, 3, 150000, '2026-06-10 09:00:00', 'COMPLETED', NULL),
-(5, 5, 5, 1, 200000, '2026-06-11 08:00:00', 'PENDING', NULL),
-(6, 6, 6, 2, 300000, '2026-06-11 15:00:00', 'COMPLETED', NULL),
-(7, 7, 7, 1, 450000, '2026-06-12 10:00:00', 'PENDING', NULL),
-(8, 8, 8, 2, 250000, '2026-06-11 11:00:00', 'COMPLETED', NULL),
-(9, 14, 1, 1, 800000, '2026-07-01 15:00:00', 'PENDING', '{"flight_number": "QH224"}'),
-(10, 15, 9, 1, 600000, '2026-07-02 09:00:00', 'PENDING', '{"card_note": "Happy Birthday Leader Nam"}');
+(1, 1, 1, 1, 800000, CONCAT(DATE_SUB(CURDATE(), INTERVAL 19 DAY), ' 14:00:00'), 'COMPLETED', '{"flight_number": "VN117", "arrival_time": "13:30"}'),
+(2, 2, 2, 2, 1200000, CONCAT(DATE_SUB(CURDATE(), INTERVAL 18 DAY), ' 16:00:00'), 'PENDING', NULL),
+(3, 3, 4, 1, 500000, CONCAT(DATE_SUB(CURDATE(), INTERVAL 19 DAY), ' 10:00:00'), 'COMPLETED', '{"card_note": "Happy Anniversary"}'),
+(4, 4, 3, 3, 150000, CONCAT(DATE_SUB(CURDATE(), INTERVAL 18 DAY), ' 09:00:00'), 'COMPLETED', NULL),
+(5, 5, 5, 1, 200000, CONCAT(DATE_SUB(CURDATE(), INTERVAL 17 DAY), ' 08:00:00'), 'PENDING', NULL),
+(6, 6, 6, 2, 300000, CONCAT(DATE_SUB(CURDATE(), INTERVAL 17 DAY), ' 15:00:00'), 'COMPLETED', NULL),
+(7, 7, 7, 1, 450000, CONCAT(DATE_SUB(CURDATE(), INTERVAL 16 DAY), ' 10:00:00'), 'PENDING', NULL),
+(8, 8, 8, 2, 250000, CONCAT(DATE_SUB(CURDATE(), INTERVAL 17 DAY), ' 11:00:00'), 'COMPLETED', NULL),
+(9, 14, 1, 1, 800000, CONCAT(DATE_ADD(CURDATE(), INTERVAL 3 DAY), ' 15:00:00'), 'PENDING', '{"flight_number": "QH224"}'),
+(10, 15, 9, 1, 600000, CONCAT(DATE_ADD(CURDATE(), INTERVAL 4 DAY), ' 09:00:00'), 'PENDING', '{"card_note": "Happy Birthday Leader Nam"}');
 
 -- ── 23. Hotel Operations (10 rows) ───────────────────────────
 INSERT INTO Hotel_Operations (task_id, room_id, staff_id, supervisor_id, operational_type, priority, status, created_at, started_at, completed_at, notes) VALUES 
--- HOUSEKEEPING (CHECKOUT_CLEAN)
+-- HOUSEKEEPING
+-- task 1: ROOM_CHECK (Phiếu kiểm tra phòng checkout do Lễ tân yêu cầu)
+(1, 2, 8, 4, 'ROOM_CHECK', 'High', 'Pending', DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 5 MINUTE), NULL, NULL, 'Lễ tân yêu cầu kiểm tra phòng để checkout (Minibar & Hỏng hóc).'),
+-- task 2: CHECKOUT_CLEAN (Phiếu dọn phòng tự động sau checkout do workflow tạo)
+(2, 4, 9, 4, 'CHECKOUT_CLEAN', 'Normal', 'Pending', DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 20 MINUTE), NULL, NULL, 'Task created by workflow.'),
+-- task 3: GUEST_REQUEST (Phiếu dọn dẹp do khách yêu cầu từ mobile app)
+(3, 11, 8, 4, 'GUEST_REQUEST', 'High', 'InProgress', DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 10 MINUTE), DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 5 MINUTE), NULL, '[Khách Yêu Cầu Dọn Phòng] - Xin 2 khăn tắm, 1 sữa tắm'),
+-- task 4: URGENT_CLEAN (Phiếu dọn dẹp khẩn cấp do lễ tân gửi/escalate)
+(4, 6, 9, 4, 'URGENT_CLEAN', 'Lễ tân báo dọn khẩn', 'InProgress', DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 30 MINUTE), DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 15 MINUTE), NULL, 'Lễ tân yêu cầu dọn phòng khẩn cấp.'),
+-- task 5: CHECKOUT_CLEAN (Đã hoàn thành dọn dẹp phòng 101 trước đó)
+(5, 1, 9, 4, 'CHECKOUT_CLEAN', 'Normal', 'Completed', DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 5 HOUR), DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 4 HOUR), DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 3 HOUR), 'Task created by workflow.'),
 
-(1, 2, 8, 4, 'CHECKOUT_CLEAN', 'High', 'Pending', '2026-06-28 08:00:00', NULL, NULL, '[Check-out] Khách phòng 102 vừa trả phòng, dọn gấp để đón đoàn 2h chiều.'),
-(2, 4, 9, 4, 'CHECKOUT_CLEAN', 'Normal', 'Pending', '2026-06-28 09:00:00', NULL, NULL, '[Check-out] Dọn dẹp sạch sâu, thay toàn bộ ga giường và xịt thơm phòng.'),
-(3, 3, 8, 4, 'GUEST_REQUEST', 'Normal', 'Completed', '2026-06-28 09:30:00', '2026-06-28 10:15:00', '2026-06-28 11:00:00', '[Stay-over] Khách yêu cầu thêm 2 khăn tắm và 1 chai nước suối.'),
-(4, 13, 9, 4, 'URGENT_CLEAN', 'High', 'InProgress', '2026-06-28 10:00:00', '2026-06-28 10:20:00', NULL, '[Arrival] Khách VIP sắp nhận phòng, chuẩn bị sẵn giỏ trái cây tươi trên bàn.'),
-(5, 1, 9, 4, 'CHECKOUT_CLEAN', 'Normal', 'Completed', '2026-06-28 07:00:00', '2026-06-28 07:15:00', '2026-06-28 08:45:00', '[Check-out] Đã dọn xong, phát hiện quên một chiếc sạc điện thoại trên bàn.'),
-
--- MAINTENANCE (MAINTENANCE)
-(6, 17, 10, 4, 'MAINTENANCE', 'High', 'Pending', '2026-06-28 10:30:00', NULL, NULL, 'Housekeeping báo: Điều hòa chảy nước ướt cả sàn gỗ, phòng 207.'),
-(7, 3, 10, 4, 'MAINTENANCE', 'Normal', 'Pending', '2026-06-28 12:00:00', NULL, NULL, 'Khách phàn nàn: Vòi hoa sen bị nghẹt, nước chảy rất yếu.'),
-(8, 5, 10, 4, 'MAINTENANCE', 'Normal', 'InProgress', '2026-06-28 13:00:00', '2026-06-28 13:15:00', NULL, 'Kiểm tra hệ thống đèn ban công, 1 bóng bị cháy.'),
-(9, 10, 10, 4, 'MAINTENANCE', 'High', 'Paused', '2026-06-28 09:00:00', '2026-06-28 09:10:00', NULL, 'Sửa két sắt không mở được. \n[Tạm dừng]: Chờ mua pin mới loại 9V để thay mảng mạch.'),
-(10, 16, 10, 4, 'MAINTENANCE', 'Low', 'Completed', '2026-06-28 08:00:00', '2026-06-28 08:05:00', '2026-06-28 08:20:00', 'Thay pin tay nắm cửa phòng 309. \n[Đã sửa]: Đã thay 4 cục pin AA Panasonic.');
+-- MAINTENANCE
+-- task 6: MAINTENANCE (Báo hỏng khẩn cấp do lễ tân báo từ API)
+(6, 17, 10, 4, 'MAINTENANCE', 'Urgent', 'Pending', DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 1 HOUR), NULL, NULL, '[Lễ tân báo khẩn] Điều hòa chảy nước'),
+-- task 7: MAINTENANCE (Yêu cầu sửa chữa do khách gửi từ mobile app)
+(7, 3, 10, 4, 'MAINTENANCE', 'High', 'Pending', DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 2 HOUR), NULL, NULL, '[Khách Yêu Cầu Sửa Chữa] - Vòi hoa sen nghẹt'),
+-- task 8: MAINTENANCE (InProgress do khách yêu cầu sửa chữa)
+(8, 5, 10, 4, 'MAINTENANCE', 'High', 'InProgress', DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 15 MINUTE), DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 5 MINUTE), NULL, '[Khách Yêu Cầu Sửa Chữa] - Hỏng đèn ban công'),
+-- task 9: MAINTENANCE (Sửa chữa do khách yêu cầu đang tạm dừng)
+(9, 10, 10, 4, 'MAINTENANCE', 'High', 'Paused', DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 4 HOUR), DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 3 HOUR), NULL, '[Khách Yêu Cầu Sửa Chữa] - Sửa két sắt hỏng. [Tạm dừng]: Chờ mua pin mới loại 9V để thay mảng mạch.'),
+-- task 10: MAINTENANCE (Đã hoàn thành sửa chữa yêu cầu của khách)
+(10, 16, 10, 4, 'MAINTENANCE', 'High', 'Completed', DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 6 HOUR), DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 5 HOUR), DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 4 HOUR), '[Khách Yêu Cầu Sửa Chữa] - Thay pin tay nắm cửa phòng 309.');
 
 -- ── 24. Folio Items (10 rows) ────────────────────────────────
 INSERT INTO Folio_Items (folio_item_id, booking_id, room_booking_detail_id, payer_customer_id, source_department, amount, description, is_settled_separately, created_by_staff_id, created_at, signature_img_url) VALUES 
@@ -772,21 +782,21 @@ INSERT INTO Tour_Prices (tour_price_id, tour_id, age_from, age_to, ticket_price,
 
 -- ── 33. Tour Schedules (10 rows) ─────────────────────────────
 INSERT INTO Tour_Schedules (schedule_id, tour_id, departure_date, departure_time, booked_seats, schedule_status, is_insurance_processed) VALUES 
-(1, 1, '2026-06-14', '08:00:00.000000', 0, 'Open', FALSE),
-(2, 2, '2026-06-15', '14:00:00.000000', 0, 'Open', FALSE),
-(3, 3, '2026-06-15', '17:00:00.000000', 0, 'Open', FALSE),
-(4, 4, '2026-06-16', '09:00:00.000000', 0, 'Open', FALSE),
-(5, 2, '2026-06-13', '08:00:00.000000', 5, 'Open', FALSE),
-(6, 5, '2026-06-17', '08:00:00.000000', 0, 'Open', FALSE),
-(7, 6, '2026-06-18', '09:00:00.000000', 0, 'Open', FALSE),
-(8, 7, '2026-06-19', '07:30:00.000000', 0, 'Open', FALSE),
-(9, 8, '2026-06-20', '05:00:00.000000', 0, 'Open', FALSE),
-(10, 9, '2026-06-21', '09:00:00.000000', 0, 'Open', FALSE),
-(11, 2, '2026-07-10', '08:00:00.000000', 0, 'Open', FALSE),
-(12, 4, '2026-07-08', '07:30:00.000000', 0, 'Open', FALSE),
-(13, 1, '2026-07-11', '07:30:00.000000', 0, 'Open', FALSE),
-(14, 7, '2026-07-06', '19:00:00.000000', 0, 'Completed', FALSE),
-(15, 8, '2026-07-13', '04:00:00.000000', 0, 'Cancelled', FALSE);
+(1, 1, DATE_SUB(CURDATE(), INTERVAL 14 DAY), '08:00:00.000000', 0, 'Open', FALSE),
+(2, 2, DATE_SUB(CURDATE(), INTERVAL 13 DAY), '14:00:00.000000', 0, 'Open', FALSE),
+(3, 3, DATE_SUB(CURDATE(), INTERVAL 13 DAY), '17:00:00.000000', 0, 'Open', FALSE),
+(4, 4, DATE_SUB(CURDATE(), INTERVAL 12 DAY), '09:00:00.000000', 0, 'Open', FALSE),
+(5, 2, DATE_SUB(CURDATE(), INTERVAL 15 DAY), '08:00:00.000000', 5, 'Open', FALSE),
+(6, 5, DATE_SUB(CURDATE(), INTERVAL 11 DAY), '08:00:00.000000', 0, 'Open', FALSE),
+(7, 6, DATE_SUB(CURDATE(), INTERVAL 10 DAY), '09:00:00.000000', 0, 'Open', FALSE),
+(8, 7, DATE_SUB(CURDATE(), INTERVAL 9 DAY), '07:30:00.000000', 0, 'Open', FALSE),
+(9, 8, DATE_SUB(CURDATE(), INTERVAL 8 DAY), '05:00:00.000000', 0, 'Open', FALSE),
+(10, 9, DATE_SUB(CURDATE(), INTERVAL 7 DAY), '09:00:00.000000', 0, 'Open', FALSE),
+(11, 2, DATE_ADD(CURDATE(), INTERVAL 12 DAY), '08:00:00.000000', 0, 'Open', FALSE),
+(12, 4, DATE_ADD(CURDATE(), INTERVAL 10 DAY), '07:30:00.000000', 0, 'Open', FALSE),
+(13, 1, DATE_ADD(CURDATE(), INTERVAL 13 DAY), '07:30:00.000000', 0, 'Open', FALSE),
+(14, 7, DATE_ADD(CURDATE(), INTERVAL 8 DAY), '19:00:00.000000', 0, 'Completed', FALSE),
+(15, 8, DATE_ADD(CURDATE(), INTERVAL 15 DAY), '04:00:00.000000', 0, 'Cancelled', FALSE);
 
 -- ── 34. Tour Staff Assignments (10 rows) ─────────────────────
 INSERT INTO Tour_Staff_Assignments (assignment_id, schedule_id, employee_id, staff_role) VALUES 
@@ -808,7 +818,7 @@ INSERT INTO Tour_Staff_Assignments (assignment_id, schedule_id, employee_id, sta
 
 -- ── 35. Run Itinerary Status (10 rows) ───────────────────────
 INSERT INTO Run_Itinerary_Status (run_status_id, schedule_id, detail_id, actual_start_time, actual_end_time, current_stage_status, guide_notes) VALUES 
-(1, 5, 2, '2026-06-13 09:05:00', '2026-06-13 12:10:00', 'COMPLETED', 'Lượng xe cộ Hội An đông, đoàn di chuyển chậm 5 phút.'),
+(1, 5, 2, CONCAT(DATE_SUB(CURDATE(), INTERVAL 15 DAY), ' 09:05:00'), CONCAT(DATE_SUB(CURDATE(), INTERVAL 15 DAY), ' 12:10:00'), 'COMPLETED', 'Lượng xe cộ Hội An đông, đoàn di chuyển chậm 5 phút.'),
 
 (2, 1, 1, NULL, NULL, 'NOT_STARTED', NULL),
 (3, 2, 2, NULL, NULL, 'NOT_STARTED', NULL),
@@ -918,21 +928,21 @@ INSERT IGNORE INTO Customers (customer_id, account_id, full_name, gender, cccd_p
 
 -- ── 44. Test Bookings (Confirmed + Checked_In) ──────────────
 INSERT IGNORE INTO Bookings (booking_id, customer_id, booking_date, total_price, booking_status, booking_source, applied_promotion_id, version) VALUES
-(21, 16, '2026-06-14', 5000000, 'Checked_In', 'Direct_Web', NULL, 1),
-(22, 17, '2026-06-15', 7000000, 'Checked_In', 'Direct_Web', NULL, 1),
-(23, 18, '2026-06-10', 16000000, 'Confirmed', 'Direct_Web', NULL, 1);
+(21, 16, DATE_SUB(CURDATE(), INTERVAL 14 DAY), 5000000, 'Checked_In', 'Direct_Web', NULL, 1),
+(22, 17, DATE_SUB(CURDATE(), INTERVAL 13 DAY), 7000000, 'Checked_In', 'Direct_Web', NULL, 1),
+(23, 18, DATE_SUB(CURDATE(), INTERVAL 18 DAY), 16000000, 'Confirmed', 'Direct_Web', NULL, 1);
 
 -- ── 45. Test Room Bookings ───────────────────────────────────
 INSERT IGNORE INTO Room_Bookings (room_booking_id, check_in_date, check_out_date, deposit_amount, cancellation_deadline, credit_limit, personal_pin_hash) VALUES
-(21, '2026-06-14', '2026-06-20', 1000000, '2026-06-12', 8000000, 'hash'),
-(22, '2026-06-15', '2026-06-18', 1500000, '2026-06-13', 10000000, 'hash'),
-(23, '2026-06-10', '2026-06-16', 3000000, '2026-06-08', 15000000, 'hash');
+(21, DATE_SUB(CURDATE(), INTERVAL 14 DAY), DATE_SUB(CURDATE(), INTERVAL 8 DAY), 1000000, DATE_SUB(CURDATE(), INTERVAL 16 DAY), 8000000, 'hash'),
+(22, DATE_SUB(CURDATE(), INTERVAL 13 DAY), DATE_SUB(CURDATE(), INTERVAL 10 DAY), 1500000, DATE_SUB(CURDATE(), INTERVAL 15 DAY), 10000000, 'hash'),
+(23, DATE_SUB(CURDATE(), INTERVAL 18 DAY), DATE_SUB(CURDATE(), INTERVAL 12 DAY), 3000000, DATE_SUB(CURDATE(), INTERVAL 20 DAY), 15000000, 'hash');
 
 -- ── 46. Test Room Booking Details ────────────────────────────
 INSERT IGNORE INTO Room_Booking_Details (detail_id, room_booking_id, category_id, room_id, room_charge, detail_status, bed_preference, special_requests, is_charge_to_room_allowed, sub_credit_limit, billing_routing_strategy) VALUES
-(11, 21, 4, 6, 2000000, 'Active', 'KING_SIZE', NULL, TRUE, 500000, 'BILL_TO_LEADER'),
-(12, 22, 2, 11, 3500000, 'Active', 'KING_SIZE', NULL, TRUE, 1500000, 'BILL_TO_LEADER'),
-(13, 23, 3, 16, 8000000, 'Active', 'TWIN_BED', NULL, TRUE, 2000000, 'BILL_TO_LEADER');
+(11, 21, 4, 6, 2000000, 'Checked_In', 'KING_SIZE', NULL, TRUE, 500000, 'BILL_TO_LEADER'),
+(12, 22, 2, 11, 3500000, 'Checked_In', 'KING_SIZE', NULL, TRUE, 1500000, 'BILL_TO_LEADER'),
+(13, 23, 3, 16, 8000000, 'Checked_In', 'TWIN_BED', NULL, TRUE, 2000000, 'BILL_TO_LEADER');
 
 -- ── 47. Test Room Guests ─────────────────────────────────────
 INSERT IGNORE INTO Room_Guests (guest_id, detail_id, customer_id, dependent_id, guest_type, is_primary_contact) VALUES
@@ -952,15 +962,15 @@ UPDATE Rooms SET current_booking_detail_id = 13, room_status = 'Occupied' WHERE 
 
 -- Bước 1: 3 bản ghi Bookings (bảng cha) — mỗi cái là 1 phòng của Nam
 INSERT IGNORE INTO Bookings (booking_id, customer_id, booking_date, total_price, booking_status, booking_source, applied_promotion_id, version) VALUES
-(50, 1, '2026-06-22', 4500000, 'Checked_In', 'Direct_Web', NULL, 1),
-(51, 1, '2026-06-22', 4500000, 'Checked_In', 'Direct_Web', NULL, 1),
-(52, 1, '2026-06-22', 4500000, 'Checked_In', 'Direct_Web', NULL, 1);
+(50, 1, DATE_SUB(CURDATE(), INTERVAL 6 DAY), 4500000, 'Checked_In', 'Direct_Web', NULL, 1),
+(51, 1, DATE_SUB(CURDATE(), INTERVAL 6 DAY), 4500000, 'Checked_In', 'Direct_Web', NULL, 1),
+(52, 1, DATE_SUB(CURDATE(), INTERVAL 6 DAY), 4500000, 'Checked_In', 'Direct_Web', NULL, 1);
 
 -- Bước 2: 3 bản ghi Room_Bookings (bảng con) với cùng ID → kế thừa từ Bookings
 INSERT IGNORE INTO Room_Bookings (room_booking_id, check_in_date, check_out_date, deposit_amount, cancellation_deadline, credit_limit, personal_pin_hash) VALUES
-(50, '2026-06-25', '2026-06-28', 1000000, '2026-06-23', 6000000, 'hash'),
-(51, '2026-06-25', '2026-06-28', 1000000, '2026-06-23', 6000000, 'hash'),
-(52, '2026-06-25', '2026-06-28', 1000000, '2026-06-23', 6000000, 'hash');
+(50, DATE_SUB(CURDATE(), INTERVAL 3 DAY), CURDATE(), 1000000, DATE_SUB(CURDATE(), INTERVAL 5 DAY), 6000000, 'hash'),
+(51, DATE_SUB(CURDATE(), INTERVAL 3 DAY), CURDATE(), 1000000, DATE_SUB(CURDATE(), INTERVAL 5 DAY), 6000000, 'hash'),
+(52, DATE_SUB(CURDATE(), INTERVAL 3 DAY), CURDATE(), 1000000, DATE_SUB(CURDATE(), INTERVAL 5 DAY), 6000000, 'hash');
 
 -- Bước 3: 3 Room_Booking_Details — phòng 301, 302, 303 (Family Connecting Room, category_id=7)
 INSERT IGNORE INTO Room_Booking_Details (detail_id, room_booking_id, category_id, room_id, room_charge, detail_status, bed_preference, special_requests, is_charge_to_room_allowed, sub_credit_limit, billing_routing_strategy, customer_id) VALUES
@@ -1033,19 +1043,19 @@ ALTER TABLE Tour_Bookings AUTO_INCREMENT = 300;
 -- ── 49. Export History (Mock Data) ───────────────────────────
 
 INSERT IGNORE INTO Export_History (id, report_name, format, exported_at, exported_by, file_size) VALUES
-(1, 'Doanh thu tháng 5/2026', 'Excel', '2026-06-01 09:15:00', 'Manager ', '2.4 MB'),
-(2, 'Tỷ lệ lấp đầy Q2', 'PDF', '2026-05-30 14:30:00', 'Manager ', '1.1 MB'),
-(3, 'Báo cáo tour tháng 4', 'CSV', '2026-05-02 10:00:00', 'Manager ', '320 KB'),
-(4, 'Doanh thu năm 2025', 'Excel', '2026-01-15 08:45:00', 'Manager ', '5.8 MB');
+(1, 'Doanh thu tháng 5/2026', 'Excel', CONCAT(DATE_SUB(CURDATE(), INTERVAL 27 DAY), ' 09:15:00'), 'Manager ', '2.4 MB'),
+(2, 'Tỷ lệ lấp đầy Q2', 'PDF', CONCAT(DATE_SUB(CURDATE(), INTERVAL 29 DAY), ' 14:30:00'), 'Manager ', '1.1 MB'),
+(3, 'Báo cáo tour tháng 4', 'CSV', CONCAT(DATE_SUB(CURDATE(), INTERVAL 57 DAY), ' 10:00:00'), 'Manager ', '320 KB'),
+(4, 'Doanh thu năm 2025', 'Excel', CONCAT(DATE_SUB(CURDATE(), INTERVAL 164 DAY), ' 08:45:00'), 'Manager ', '5.8 MB');
 
 
 -- ── 50. Mock Data for YoY Comparison (Năm 2025) ───────────────────────────
 INSERT INTO Bookings (booking_id, customer_id, booking_date, total_price, booking_status, booking_source, applied_promotion_id, version) VALUES
-(991, 1, '2025-06-01', 65000000, 'Confirmed', 'Direct_Web', NULL, 1),
-(992, 2, '2025-06-05', 45000000, 'Confirmed', 'OTA', NULL, 1);
+(991, 1, DATE_SUB(CURDATE(), INTERVAL 392 DAY), 65000000, 'Confirmed', 'Direct_Web', NULL, 1),
+(992, 2, DATE_SUB(CURDATE(), INTERVAL 388 DAY), 45000000, 'Confirmed', 'OTA', NULL, 1);
 
 INSERT INTO Room_Bookings (room_booking_id, check_in_date, check_out_date, deposit_amount, cancellation_deadline, credit_limit, personal_pin_hash) VALUES
-(991, '2025-06-10', '2025-06-15', 5000000, '2025-06-05', 10000000, 'hash');
+(991, DATE_SUB(CURDATE(), INTERVAL 383 DAY), DATE_SUB(CURDATE(), INTERVAL 378 DAY), 5000000, DATE_SUB(CURDATE(), INTERVAL 388 DAY), 10000000, 'hash');
 
 INSERT INTO Room_Booking_Details (detail_id, room_booking_id, category_id, room_id, room_charge, detail_status, bed_preference, special_requests, is_charge_to_room_allowed, sub_credit_limit, billing_routing_strategy, customer_id) VALUES
 (991, 991, 1, 1, 65000000, 'Checked_Out', 'KING_SIZE', NULL, TRUE, 500000, 'BILL_TO_LEADER', 1);
@@ -1079,15 +1089,15 @@ INSERT IGNORE INTO Customers (customer_id, account_id, full_name, email, phone, 
 
 
 INSERT IGNORE INTO Dependents (dependent_id, customer_id, dependent_name, birth_date, gender, cccd_passport_encrypted) VALUES 
-(501, 501, 'Wife Nguyễn Thị B', '1995-08-15', 'Nữ', NULL),
-(502, 501, 'Kid Nguyễn Văn C', '2015-05-20', 'Nam', NULL);
+(501, 501, 'Wife Nguyễn Thị B', DATE_SUB(CURDATE(), INTERVAL 11275 DAY), 'Nữ', NULL),
+(502, 501, 'Kid Nguyễn Văn C', DATE_SUB(CURDATE(), INTERVAL 4057 DAY), 'Nam', NULL);
 
 -- Additional Rooms (just in case) - Floor 8 rooms deleted
 
 -- Promotions
 INSERT IGNORE INTO Promotions (promotion_id, promo_code, discount_type, discount_value, max_discount_value_vnd, min_order_value_vnd, applicable_scope, max_uses, current_uses, valid_from, valid_to, is_active, manager_approval_threshold_pct) VALUES
-(501, 'TEST30', 'PERCENTAGE', 35, 2000000, 0, 'ALL', 100, 0, '2026-01-01', '2026-12-31', TRUE, 30),
-(502, 'TEST500K', 'FIXED_AMOUNT', 500000, NULL, 0, 'ROOM', 50, 50, '2026-01-01', '2026-12-31', TRUE, NULL);
+(501, 'TEST30', 'PERCENTAGE', 35, 2000000, 0, 'ALL', 100, 0, DATE_SUB(CURDATE(), INTERVAL 178 DAY), DATE_ADD(CURDATE(), INTERVAL 186 DAY), TRUE, 30),
+(502, 'TEST500K', 'FIXED_AMOUNT', 500000, NULL, 0, 'ROOM', 50, 50, DATE_SUB(CURDATE(), INTERVAL 178 DAY), DATE_ADD(CURDATE(), INTERVAL 186 DAY), TRUE, NULL);
 
 -- ============================================================
 -- PAST BOOKINGS FOR POINTS JUSTIFICATION
@@ -1095,9 +1105,9 @@ INSERT IGNORE INTO Promotions (promotion_id, promo_code, discount_type, discount
 -- VIP Customer has 52,000 pts. Let's say 1 point = 1,000 VND spent (or similar). So 52M VND spent.
 -- We add an old Booking with a very high total_price that is Checked_Out.
 INSERT IGNORE INTO Bookings (booking_id, customer_id, booking_date, total_price, booking_status, booking_source, applied_promotion_id, version) VALUES
-(499, 501, '2025-12-01', 52000000, 'Checked_Out', 'Direct_Web', NULL, 1);
+(499, 501, DATE_SUB(CURDATE(), INTERVAL 209 DAY), 52000000, 'Checked_Out', 'Direct_Web', NULL, 1);
 INSERT IGNORE INTO Room_Bookings (room_booking_id, check_in_date, check_out_date, deposit_amount, cancellation_deadline, credit_limit, personal_pin_hash) VALUES
-(499, '2025-12-20', '2025-12-25', 10000000, '2025-12-15', 20000000, 'hash');
+(499, DATE_SUB(CURDATE(), INTERVAL 190 DAY), DATE_SUB(CURDATE(), INTERVAL 185 DAY), 10000000, DATE_SUB(CURDATE(), INTERVAL 195 DAY), 20000000, 'hash');
 
 INSERT IGNORE INTO Room_Booking_Details (detail_id, room_booking_id, category_id, room_id, room_charge, detail_status, bed_preference, special_requests, is_charge_to_room_allowed, sub_credit_limit, billing_routing_strategy, customer_id) VALUES
 
@@ -1105,10 +1115,10 @@ INSERT IGNORE INTO Room_Booking_Details (detail_id, room_booking_id, category_id
 
 -- Normal Customer has 95 pts (95,000 VND).
 INSERT IGNORE INTO Bookings (booking_id, customer_id, booking_date, total_price, booking_status, booking_source, applied_promotion_id, version) VALUES
-(500, 502, '2025-10-01', 95000, 'Checked_Out', 'Direct_Web', NULL, 1);
+(500, 502, DATE_SUB(CURDATE(), INTERVAL 270 DAY), 95000, 'Checked_Out', 'Direct_Web', NULL, 1);
 -- (Maybe just a F&B walk-in or something, but we'll assign a tiny booking)
 INSERT IGNORE INTO Room_Bookings (room_booking_id, check_in_date, check_out_date, deposit_amount, cancellation_deadline, credit_limit, personal_pin_hash) VALUES
-(500, '2025-10-10', '2025-10-11', 0, '2025-10-05', 0, 'hash');
+(500, DATE_SUB(CURDATE(), INTERVAL 261 DAY), DATE_SUB(CURDATE(), INTERVAL 260 DAY), 0, DATE_SUB(CURDATE(), INTERVAL 266 DAY), 0, 'hash');
 INSERT IGNORE INTO Room_Booking_Details (detail_id, room_booking_id, category_id, room_id, room_charge, detail_status, bed_preference, special_requests, is_charge_to_room_allowed, sub_credit_limit, billing_routing_strategy, customer_id) VALUES
 (500, 500, 1, 1, 95000, 'Checked_Out', 'TWIN_BED', '', FALSE, 0, 'INDIVIDUAL', 502);
 
@@ -1120,17 +1130,17 @@ INSERT IGNORE INTO Room_Booking_Details (detail_id, room_booking_id, category_id
 
 -- 2. Confirmed for Normal Customer (Ready for Check-in)
 INSERT IGNORE INTO Bookings (booking_id, customer_id, booking_date, total_price, booking_status, booking_source, applied_promotion_id, version) VALUES
-(502, 502, '2026-06-28', 1800000, 'Confirmed', 'Direct_Web', NULL, 1);
+(502, 502, CURDATE(), 1800000, 'Confirmed', 'Direct_Web', NULL, 1);
 INSERT IGNORE INTO Room_Bookings (room_booking_id, check_in_date, check_out_date, deposit_amount, cancellation_deadline, credit_limit, personal_pin_hash) VALUES
-(502, '2026-07-15', '2026-07-17', 500000, '2026-07-10', 2000000, 'hash');
+(502, DATE_ADD(CURDATE(), INTERVAL 17 DAY), DATE_ADD(CURDATE(), INTERVAL 19 DAY), 500000, DATE_ADD(CURDATE(), INTERVAL 12 DAY), 2000000, 'hash');
 INSERT IGNORE INTO Room_Booking_Details (detail_id, room_booking_id, category_id, room_id, room_charge, detail_status, bed_preference, special_requests, is_charge_to_room_allowed, sub_credit_limit, billing_routing_strategy, customer_id) VALUES
 (502, 502, 2, NULL, 1800000, 'Confirmed', 'TWIN_BED', 'Phòng yên tĩnh', TRUE, 2000000, 'INDIVIDUAL', 502);
 
 -- 3. Pending_Approval (Triggered workflow)
 INSERT IGNORE INTO Bookings (booking_id, customer_id, booking_date, total_price, booking_status, booking_source, applied_promotion_id, version) VALUES
-(503, 502, '2026-06-29', 5000000, 'Pending_Approval', 'Direct_Web', 501, 1);
+(503, 502, DATE_ADD(CURDATE(), INTERVAL 1 DAY), 5000000, 'Pending_Approval', 'Direct_Web', 501, 1);
 INSERT IGNORE INTO Room_Bookings (room_booking_id, check_in_date, check_out_date, deposit_amount, cancellation_deadline, credit_limit, personal_pin_hash) VALUES
-(503, '2026-08-01', '2026-08-05', 0, '2026-07-25', 0, 'hash');
+(503, DATE_ADD(CURDATE(), INTERVAL 34 DAY), DATE_ADD(CURDATE(), INTERVAL 38 DAY), 0, DATE_ADD(CURDATE(), INTERVAL 27 DAY), 0, 'hash');
 INSERT IGNORE INTO Room_Booking_Details (detail_id, room_booking_id, category_id, room_id, room_charge, detail_status, bed_preference, special_requests, is_charge_to_room_allowed, sub_credit_limit, billing_routing_strategy, customer_id) VALUES
 (503, 503, 1, NULL, 5000000, 'Pending', 'KING_SIZE', 'Áp mã giảm sâu', TRUE, 0, 'INDIVIDUAL', 502);
 
@@ -1149,8 +1159,8 @@ INSERT IGNORE INTO Food_Order_Details (detail_id, order_id, item_id, quantity, u
 -- APPENDED NEW BOOKINGS FOR MULTIPLE ROOM TESTING
 -- ============================================================
 INSERT INTO Bookings (booking_id, customer_id, booking_date, total_price, booking_status, booking_source, applied_promotion_id, version) VALUES
-(101, 3, '2026-06-25', 15000000, 'Confirmed', 'Direct_Web', NULL, 1),
-(102, 4, '2026-06-26', 22000000, 'Confirmed', 'OTA', NULL, 1);
+(101, 3, DATE_SUB(CURDATE(), INTERVAL 3 DAY), 15000000, 'Confirmed', 'Direct_Web', NULL, 1),
+(102, 4, DATE_SUB(CURDATE(), INTERVAL 2 DAY), 22000000, 'Confirmed', 'OTA', NULL, 1);
 
 INSERT INTO Room_Bookings (room_booking_id, check_in_date, check_out_date, deposit_amount, cancellation_deadline, credit_limit, personal_pin_hash) VALUES
 (101, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 2 DAY), 2000000, DATE_SUB(CURDATE(), INTERVAL 1 DAY), 10000000, 'hash101'),
@@ -1172,7 +1182,7 @@ INSERT INTO Room_Booking_Details (detail_id, room_booking_id, category_id, room_
 -- APPENDED BOOKING 103: MULTIPLE ROOMS + PRE-REGISTERED GUESTS
 -- ============================================================
 INSERT INTO Bookings (booking_id, customer_id, booking_date, total_price, booking_status, booking_source, applied_promotion_id, version) VALUES
-(103, 1, '2026-06-27', 18000000, 'Confirmed', 'Direct_Web', NULL, 1);
+(103, 1, DATE_SUB(CURDATE(), INTERVAL 1 DAY), 18000000, 'Confirmed', 'Direct_Web', NULL, 1);
 
 INSERT INTO Room_Bookings (room_booking_id, check_in_date, check_out_date, deposit_amount, cancellation_deadline, credit_limit, personal_pin_hash) VALUES
 (103, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 2 DAY), 2000000, DATE_SUB(CURDATE(), INTERVAL 1 DAY), 10000000, 'hash103');
@@ -1184,10 +1194,10 @@ INSERT INTO Room_Bookings (room_booking_id, check_in_date, check_out_date, depos
 
 -- 1. Thêm Booking chờ duyệt vượt hạn mức chiết khấu (Booking ID: 201)
 INSERT INTO Bookings (booking_id, customer_id, booking_date, total_price, booking_status, booking_source, applied_promotion_id, version) VALUES
-(201, 1, '2026-06-28', 3000000, 'Pending_Approval', 'Direct_Web', 1, 1);
+(201, 1, CURDATE(), 3000000, 'Pending_Approval', 'Direct_Web', 1, 1);
 
 INSERT INTO Room_Bookings (room_booking_id, check_in_date, check_out_date, deposit_amount, cancellation_deadline, credit_limit, personal_pin_hash) VALUES
-(201, '2026-07-10', '2026-07-12', 1000000, '2026-07-08', 5000000, 'hash');
+(201, DATE_ADD(CURDATE(), INTERVAL 12 DAY), DATE_ADD(CURDATE(), INTERVAL 14 DAY), 1000000, DATE_ADD(CURDATE(), INTERVAL 10 DAY), 5000000, 'hash');
 
 INSERT INTO Room_Booking_Details (detail_id, room_booking_id, category_id, room_id, room_charge, detail_status, bed_preference, special_requests, is_charge_to_room_allowed, sub_credit_limit, billing_routing_strategy, number_of_adults, number_of_children) VALUES
 (2011, 201, 1, 4, 3000000, 'Pending', 'KING_SIZE', 'Cần duyệt chiết khấu vượt hạn mức 35%', TRUE, 5000000, 'BILL_TO_LEADER', 2, 0);
@@ -1227,11 +1237,11 @@ INSERT IGNORE INTO Customers (customer_id, account_id, full_name, email, phone, 
 (505, 505, 'Ngọc Lan', 'ngoclan@example.com', '0999888775', 'Nữ', '001099000505', 100, 1);
 
 INSERT IGNORE INTO Dependents (dependent_id, customer_id, dependent_name, birth_date, gender, cccd_passport_encrypted) VALUES 
-(505, 505, 'Nguyễn Văn Bạn', '1996-03-10', 'Nam', NULL),
-(506, 505, 'Trần Thị Bạn', '1998-11-25', 'Nữ', NULL);
+(505, 505, 'Nguyễn Văn Bạn', DATE_SUB(CURDATE(), INTERVAL 11067 DAY), 'Nam', NULL),
+(506, 505, 'Trần Thị Bạn', DATE_SUB(CURDATE(), INTERVAL 10077 DAY), 'Nữ', NULL);
 
 INSERT IGNORE INTO Bookings (booking_id, customer_id, booking_date, total_price, booking_status, booking_source, applied_promotion_id, version) VALUES
-(505, 505, '2026-07-01', 7000000, 'Checked_In', 'Direct_Web', NULL, 1);
+(505, 505, DATE_ADD(CURDATE(), INTERVAL 3 DAY), 7000000, 'Checked_In', 'Direct_Web', NULL, 1);
 
 INSERT IGNORE INTO Room_Bookings (room_booking_id, check_in_date, check_out_date, deposit_amount, cancellation_deadline, credit_limit, personal_pin_hash) VALUES
 (505, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 2 DAY), 1000000.00, DATE_SUB(CURDATE(), INTERVAL 1 DAY), 5000000.00, 'hash505');
@@ -1256,17 +1266,17 @@ UPDATE Rooms SET current_booking_detail_id = 5052, room_status = 'Occupied' WHER
 
 -- FIX HOANGNAM UNREALISTIC ACTIVE BOOKINGS
 UPDATE Bookings SET booking_status = 'Checked_Out' WHERE customer_id = 1 AND booking_id IN (50, 51, 103, 201);
-UPDATE Room_Bookings SET check_in_date = '2026-06-01', check_out_date = '2026-06-05' WHERE room_booking_id IN (50, 51, 103, 201);
+UPDATE Room_Bookings SET check_in_date = DATE_SUB(CURDATE(), INTERVAL 27 DAY), check_out_date = DATE_SUB(CURDATE(), INTERVAL 23 DAY) WHERE room_booking_id IN (50, 51, 103, 201);
 
 
 -- FIX HOANGNAM BOOKING 991
 UPDATE Bookings SET booking_status = 'Checked_Out' WHERE customer_id = 1 AND booking_id = 991;
-UPDATE Room_Bookings SET check_in_date = '2025-06-10', check_out_date = '2025-06-15' WHERE room_booking_id = 991;
+UPDATE Room_Bookings SET check_in_date = DATE_SUB(CURDATE(), INTERVAL 383 DAY), check_out_date = DATE_SUB(CURDATE(), INTERVAL 378 DAY) WHERE room_booking_id = 991;
 
 
 -- FIX HOANGNAM BOOKING 1
 UPDATE Bookings SET booking_status = 'Checked_Out' WHERE customer_id = 1 AND booking_id = 1;
-UPDATE Room_Bookings SET check_in_date = '2026-06-01', check_out_date = '2026-06-05' WHERE room_booking_id = 1;
+UPDATE Room_Bookings SET check_in_date = DATE_SUB(CURDATE(), INTERVAL 27 DAY), check_out_date = DATE_SUB(CURDATE(), INTERVAL 23 DAY) WHERE room_booking_id = 1;
 
 
 -- FIX GUEST REQUEST TASK OPERATIONAL TYPE

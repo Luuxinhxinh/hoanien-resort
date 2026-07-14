@@ -129,12 +129,16 @@ public class WorkflowEngineServiceImpl implements WorkflowEngineService {
         try {
             List<Map<String, Object>> actions = objectMapper.readValue(actionsJson, new TypeReference<List<Map<String, Object>>>() {});
             for (Map<String, Object> action : actions) {
-                
                 Runnable actionTask = () -> {
                     try {
                         String type = (String) action.get("type");
                         
                         if ("UPDATE_ROOM_STATUS".equals(type)) {
+                            // Override for ROOM_REPORT_DAMAGE: Do not change room status upon damage reporting
+                            if ("ROOM_REPORT_DAMAGE".equals(eventType)) {
+                                System.out.println("Override Workflow: Skipped room status update for ROOM_REPORT_DAMAGE");
+                                return;
+                            }
                             String statusValue = (String) action.get("value");
                             Long roomId = safeLong(payload.get("room_id"));
                             if (roomId != null && statusValue != null) {
@@ -146,8 +150,12 @@ public class WorkflowEngineServiceImpl implements WorkflowEngineService {
                             }
                         } 
                         else if ("CREATE_OPERATION_TASK".equals(type)) {
-                    String taskType = (String) action.get("value");
-                    String priority = action.containsKey("priority") ? (String) action.get("priority") : "Normal";
+                            String taskType = (String) action.get("value");
+                            // Override for ROOM_REPORT_DAMAGE: force task type to be "DAMAGE_CHECK"
+                            if ("ROOM_REPORT_DAMAGE".equals(eventType)) {
+                                taskType = "DAMAGE_CHECK";
+                            }
+                            String priority = action.containsKey("priority") ? (String) action.get("priority") : "Normal";
                     Long roomId = safeLong(payload.get("room_id"));
                     
                     // Extract assignee and notes from ACTION config (configured by Admin), fallback to payload

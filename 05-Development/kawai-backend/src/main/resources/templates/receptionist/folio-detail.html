@@ -1089,7 +1089,7 @@
                                 <span class="amount" id="originalOutstandingAmount">0 VNĐ</span>
                             </div>
                             <button class="btn-checkout no-print" id="btnProceedOriginal"
-                                onclick="openPaymentModal(globalOriginalOutstanding, true)">THANH TOÁN TOÀN BỘ</button>
+                                onclick="openPaymentModal(globalOriginalOutstanding, true)">Thanh toán toàn bộ</button>
                             <button class="btn-secondary no-print" id="btnPrintOriginal"
                                 onclick="printInvoiceFromSummary()" disabled style="opacity: 0.5; pointer-events: none; cursor: not-allowed;">In hóa đơn</button>
                         </div>
@@ -2227,7 +2227,7 @@
                     btn.disabled = false;
                     btn.style.opacity = '1';
                     btn.style.cursor = 'pointer';
-                    btn.innerHTML = 'THANH TOÁN TOÀN BỘ';
+                    btn.innerHTML = 'Thanh toán toàn bộ';
                     btn.onclick = function () {
                         openPaymentModal(globalOriginalOutstanding, true);
                     };
@@ -3085,6 +3085,11 @@
 
             try {
                 var pending = JSON.parse(localStorage.getItem('kawai_notifs') || '[]');
+                pending = pending.filter(function(n) {
+                    var t = n.text || '';
+                    return !t.includes('khẩn cấp') && !t.includes('Yêu cầu dọn') && !t.includes('Yêu cầu sửa');
+                });
+                localStorage.setItem('kawai_notifs', JSON.stringify(pending));
                 pending.forEach(function(n) { showPersistentToast(n); });
             } catch(e) {}
 
@@ -3115,6 +3120,7 @@
                         try {
                             var payload = JSON.parse(msg.body);
                             console.log('[WS] Nhận tin nhắn từ kênh Chung (/topic/operations):', payload);
+                            if (payload.type === 'NEW_TASK') return;
                             saveAndShow(`📢 THÔNG BÁO HỆ THỐNG:\n` + payload.message, false);
                         } catch(e) { console.error('[WS] parse error', e); }
                     });
