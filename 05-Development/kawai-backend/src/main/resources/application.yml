@@ -10,7 +10,7 @@ spring:
     url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/kawai_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=Asia/Ho_Chi_Minh&allowPublicKeyRetrieval=true&useUnicode=true}
     driverClassName: com.mysql.cj.jdbc.Driver
     username: ${SPRING_DATASOURCE_USERNAME:root}
-    password: ${SPRING_DATASOURCE_PASSWORD:12345678}
+    password: ${SPRING_DATASOURCE_PASSWORD:123456}
   sql:
     init:
       mode: always
@@ -48,8 +48,8 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: ${MAIL_USERNAME:hoanien.00@gmail.com}
-    password: ${MAIL_PASSWORD:scpqgxlbzpsqkxxa}
+    username: ${MAIL_USERNAME:ngocnguyenthuy999@gmail.com}
+    password: ${MAIL_PASSWORD:uywcaynxxegnbzvk}
     properties:
       mail:
         smtp:

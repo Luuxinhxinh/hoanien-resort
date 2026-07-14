@@ -140,6 +140,7 @@ public class FolioServiceImpl implements FolioService {
         // 2. Update Room status -> trigger workflow & unbind ID
         Room room = detail.getRoom();
         if (room != null) {
+            room.setCurrentBookingDetailId(null);
             try {
                 workflowEngineService.triggerEvent("ROOM_CHECKOUT", Map.of(
                         "room_id", room.getId(),
@@ -150,7 +151,6 @@ public class FolioServiceImpl implements FolioService {
             } catch (Exception e) {
                 System.err.println("Failed to trigger checkout workflow in service: " + e.getMessage());
             }
-            room.setCurrentBookingDetailId(null);
             roomRepository.save(room);
         }
 

@@ -74,7 +74,9 @@ public class GuestRequestApiController {
             op.setSupervisor(defaultStaff);
 
             String prefix = requestType.equals("GUEST_REQUEST") ? "[Khách Yêu Cầu Dọn Phòng]" : "[Khách Yêu Cầu Sửa Chữa]";
-            op.setNotes(prefix + (description != null && !description.isEmpty() ? " - " + description : ""));
+            String defaultDesc = requestType.equals("GUEST_REQUEST") ? "Yêu cầu dọn dẹp phòng" : "Yêu cầu sửa chữa thiết bị";
+            String desc = (description != null && !description.trim().isEmpty()) ? description.trim() : defaultDesc;
+            op.setNotes(prefix + " - " + desc);
 
             hotelOperationRepository.save(op);
 
