@@ -197,52 +197,73 @@ INSERT INTO Room_Surcharges (surcharge_id, category_id, surcharge_type, age_from
 (10, 6, 'EXTRA_ADULT_BED', 12, 100, 600000, TRUE);
 
 -- ── 8. Rooms (50 rows) ───────────────────────────────────────
-INSERT INTO Rooms (room_id, room_number, category_id, room_status, current_booking_detail_id) VALUES 
-(1, '101', 1, 'Occupied', 1),
-(2, '102', 1, 'Vacant_Dirty', NULL),
-(3, '103', 1, 'Maintenance', NULL),
-(4, '104', 1, 'Vacant_Dirty', NULL),
-(5, '105', 1, 'Occupied', 3),
-(6, '106', 4, 'Vacant_Clean', NULL),
-(7, '107', 4, 'Vacant_Clean', NULL),
-(8, '108', 4, 'Vacant_Clean', NULL),
-(9, '109', 4, 'Vacant_Clean', NULL),
-(10, '110', 4, 'Maintenance', NULL),
-(11, '201', 2, 'Occupied', NULL),
-(12, '202', 2, 'Occupied', NULL),
+-- Trạng thái phòng được mô hình hóa đúng:
+--   Occupied = có detail Checked_In gắn vào (current_booking_detail_id != NULL)
+--   Vacant_Clean / Vacant_Dirty = sẵn sàng giao cho booking Pending
+-- Category mapping: 1=Nipa Pool Villa, 2=River Pool Villa, 3=Wellness Retreats,
+--   4=Garden View Suite, 5=Presidential Ocean Suite, 6=Ocean View Bungalow,
+--   7=Family Connecting Room, 8=Superior Mountain View, 9=Luxury Penthouse, 10=Cozy Studio
+--
+-- Booking Checked_In (booking_id=1, room_booking=1): detail_id=1, cat=1 → phòng 101 Occupied
+-- Booking Checked_In (booking_id=1, room_booking=1): detail_id=3, cat=3 → phòng 105 dùng cat 3 nhưng detail gắn cat 3 → đổi sang phòng 406 (cat 3)
+-- Booking Checked_In (room_booking=7):  detail_id=7, cat=2 → phòng 201 Occupied
+-- Booking Checked_In (room_booking=8):  detail_id=8, cat=3 → phòng 406 Occupied
+INSERT INTO Rooms (room_id, room_number, category_id, room_status, current_booking_detail_id) VALUES
+-- Category 1 - Nipa Pool Villa (rooms 101-105): 1 Occupied (detail 1), còn lại Vacant
+(1,  '101', 1, 'Occupied',     1),
+(2,  '102', 1, 'Vacant_Clean', NULL),
+(3,  '103', 1, 'Maintenance',  NULL),
+(4,  '104', 1, 'Vacant_Clean', NULL),
+(5,  '105', 1, 'Vacant_Clean', NULL),
+-- Category 4 - Garden View Suite (rooms 106-110): tất cả Vacant
+(6,  '106', 4, 'Vacant_Clean', NULL),
+(7,  '107', 4, 'Vacant_Clean', NULL),
+(8,  '108', 4, 'Vacant_Clean', NULL),
+(9,  '109', 4, 'Vacant_Clean', NULL),
+(10, '110', 4, 'Maintenance',  NULL),
+-- Category 2 - River Pool Villa (rooms 201-205): 1 Occupied (detail 7), còn lại Vacant
+(11, '201', 2, 'Occupied',     7),
+(12, '202', 2, 'Vacant_Clean', NULL),
 (13, '203', 2, 'Vacant_Dirty', NULL),
 (14, '204', 2, 'Vacant_Clean', NULL),
-(15, '205', 2, 'Occupied', 7),
+(15, '205', 2, 'Vacant_Clean', NULL),
+-- Category 10 - Cozy Studio (rooms 206-210): tất cả Vacant
 (16, '206', 10, 'Vacant_Clean', NULL),
-(17, '207', 10, 'Maintenance', NULL),
-(18, '208', 10, 'Occupied', 8),
+(17, '207', 10, 'Maintenance',  NULL),
+(18, '208', 10, 'Vacant_Clean', NULL),
 (19, '209', 10, 'Vacant_Clean', NULL),
 (20, '210', 10, 'Vacant_Clean', NULL),
+-- Category 7 - Family Connecting Room (rooms 301-305): tất cả Vacant
 (21, '301', 7, 'Vacant_Clean', NULL),
 (22, '302', 7, 'Vacant_Clean', NULL),
 (23, '303', 7, 'Vacant_Clean', NULL),
 (24, '304', 7, 'Vacant_Clean', NULL),
 (25, '305', 7, 'Vacant_Clean', NULL),
+-- Category 8 - Superior Mountain View (rooms 306-310): tất cả Vacant
 (26, '306', 8, 'Vacant_Clean', NULL),
 (27, '307', 8, 'Vacant_Clean', NULL),
 (28, '308', 8, 'Vacant_Clean', NULL),
 (29, '309', 8, 'Vacant_Clean', NULL),
 (30, '310', 8, 'Vacant_Clean', NULL),
+-- Category 6 - Ocean View Bungalow (rooms 401-405): tất cả Vacant
 (31, '401', 6, 'Vacant_Clean', NULL),
 (32, '402', 6, 'Vacant_Clean', NULL),
 (33, '403', 6, 'Vacant_Clean', NULL),
 (34, '404', 6, 'Vacant_Clean', NULL),
 (35, '405', 6, 'Vacant_Clean', NULL),
-(36, '406', 3, 'Vacant_Clean', NULL),
+-- Category 3 - Wellness Retreats (rooms 406-410): 1 Occupied (detail 8)
+(36, '406', 3, 'Occupied',     8),
 (37, '407', 3, 'Vacant_Clean', NULL),
 (38, '408', 3, 'Vacant_Clean', NULL),
 (39, '409', 3, 'Vacant_Clean', NULL),
 (40, '410', 3, 'Vacant_Clean', NULL),
+-- Category 5 - Presidential Ocean Suite (rooms 501-505): tất cả Vacant
 (41, '501', 5, 'Vacant_Clean', NULL),
 (42, '502', 5, 'Vacant_Clean', NULL),
 (43, '503', 5, 'Vacant_Clean', NULL),
 (44, '504', 5, 'Vacant_Clean', NULL),
 (45, '505', 5, 'Vacant_Clean', NULL),
+-- Category 9 - Luxury Penthouse (rooms 506-510): tất cả Vacant
 (46, '506', 9, 'Vacant_Clean', NULL),
 (47, '507', 9, 'Vacant_Clean', NULL),
 (48, '508', 9, 'Vacant_Clean', NULL),
@@ -335,18 +356,33 @@ INSERT INTO Room_Bookings (room_booking_id, check_in_date, check_out_date, depos
 (15, DATE_ADD(CURDATE(), INTERVAL 20 DAY), DATE_ADD(CURDATE(), INTERVAL 25 DAY), 1000000, DATE_ADD(CURDATE(), INTERVAL 10 DAY), 5000000, 'hash');
 
 -- ── 14. Room Booking Details (10 rows) ───────────────────────
+-- Nguyên tắc nhất quán:
+--   detail_status='Checked_In' → room_id PHẢI != NULL và phòng đó phải Occupied
+--   detail_status='Pending'    → room_id = NULL (chưa được gán phòng vật lý)
+--   detail_status='Checked_Out'/ 'Cancelled' → room_id có thể NULL (đã giải phóng)
 INSERT INTO Room_Booking_Details (detail_id, room_booking_id, category_id, room_id, room_charge, detail_status, bed_preference, special_requests, is_charge_to_room_allowed, sub_credit_limit, billing_routing_strategy) VALUES
-(1, 1, 1, 1, 2500000, 'Checked_In', 'KING_SIZE', NULL, TRUE, 500000, 'BILL_TO_LEADER'),
-(2, 2, 2, NULL, 3500000, 'Checked_Out', 'KING_SIZE', NULL, TRUE, 1500000, 'BILL_TO_LEADER'),
-(3, 3, 3, 5, 8000000, 'Checked_In', 'KING_SIZE', NULL, TRUE, 2000000, 'BILL_TO_LEADER'),
-(4, 4, 1, NULL, 2500000, 'Pending', 'KING_SIZE', NULL, TRUE, 500000, 'BILL_TO_LEADER'),
-(5, 5, 1, NULL, 2500000, 'Pending', 'KING_SIZE', NULL, TRUE, 500000, 'BILL_TO_LEADER'),
-(6, 6, 2, NULL, 3500000, 'Pending', 'KING_SIZE', NULL, TRUE, 1500000, 'BILL_TO_LEADER'),
-(7, 7, 2, 15, 3500000, 'Checked_In', 'KING_SIZE', NULL, TRUE, 1500000, 'BILL_TO_LEADER'),
-(8, 8, 3, 18, 8000000, 'Checked_In', 'KING_SIZE', NULL, TRUE, 3000000, 'BILL_TO_LEADER'),
-(9, 14, 1, NULL, 2500000, 'Checked_Out', 'KING_SIZE', NULL, TRUE, 500000, 'BILL_TO_LEADER'),
-(10, 15, 2, NULL, 3500000, 'Cancelled', 'TWIN_BED', NULL, TRUE, 1500000, 'BILL_TO_LEADER'),
-(11, 51, 1, NULL, 1200000, 'Confirmed', 'KING_SIZE', NULL, TRUE, 500000, 'BILL_TO_LEADER');
+-- Booking 1 (Checked_In): customer 1 đang ở phòng 101 (cat 1 - Nipa Pool Villa)
+(1,  1,  1, 1,    2500000, 'Checked_In',  'KING_SIZE', NULL, TRUE,  500000,  'BILL_TO_LEADER'),
+-- Booking 2 (Checked_Out): customer 2 đã trả phòng, room_id NULL
+(2,  2,  2, NULL, 3500000, 'Checked_Out', 'KING_SIZE', NULL, TRUE,  1500000, 'BILL_TO_LEADER'),
+-- Booking 3 (Confirmed, Pending): customer 3 đặt Wellness Retreats, chưa gán phòng
+(3,  3,  3, NULL, 8000000, 'Pending',     'KING_SIZE', NULL, TRUE,  2000000, 'BILL_TO_LEADER'),
+-- Booking 4 (Confirmed, Pending): customer 4 đặt Nipa Pool Villa, chưa gán phòng
+(4,  4,  1, NULL, 2500000, 'Pending',     'KING_SIZE', NULL, TRUE,  500000,  'BILL_TO_LEADER'),
+-- Booking 5 (Confirmed, Pending): customer 5 đặt Nipa Pool Villa, chưa gán phòng
+(5,  5,  1, NULL, 2500000, 'Pending',     'KING_SIZE', NULL, TRUE,  500000,  'BILL_TO_LEADER'),
+-- Booking 6 (Confirmed, Pending): customer 6 đặt River Pool Villa, chưa gán phòng
+(6,  6,  2, NULL, 3500000, 'Pending',     'KING_SIZE', NULL, TRUE,  1500000, 'BILL_TO_LEADER'),
+-- Booking 7 (Checked_In): customer 7 đang ở phòng 201 (cat 2 - River Pool Villa)
+(7,  7,  2, 11,   3500000, 'Checked_In',  'KING_SIZE', NULL, TRUE,  1500000, 'BILL_TO_LEADER'),
+-- Booking 8 (Checked_In): customer 8 đang ở phòng 406 (cat 3 - Wellness Retreats)
+(8,  8,  3, 36,   8000000, 'Checked_In',  'KING_SIZE', NULL, TRUE,  3000000, 'BILL_TO_LEADER'),
+-- Booking 14 (Checked_Out): đã trả phòng
+(9,  14, 1, NULL, 2500000, 'Checked_Out', 'KING_SIZE', NULL, TRUE,  500000,  'BILL_TO_LEADER'),
+-- Booking 15 (Cancelled)
+(10, 15, 2, NULL, 3500000, 'Cancelled',   'TWIN_BED',  NULL, TRUE,  1500000, 'BILL_TO_LEADER'),
+-- Booking 9 (Confirmed, Pending): room_booking_id=9, cat 1
+(11, 9,  1, NULL, 1200000, 'Pending',     'KING_SIZE', NULL, TRUE,  500000,  'BILL_TO_LEADER');
 
 -- ── 15. Room Guests (10 rows) ────────────────────────────────
 INSERT INTO Room_Guests (guest_id, detail_id, customer_id, dependent_id, guest_type, is_primary_contact) VALUES
@@ -394,17 +430,8 @@ INSERT IGNORE INTO Accounts (account_id, username, password_hash, is_active, rol
 VALUES (99, 'ducbeo', '$2a$10$ikP3XeXnMx/oLodhs4wqBO61AhyuE4dWtSJDJcOH7D2ii5Vrgq0bG', TRUE, 3, CURRENT_TIMESTAMP);
 
 
--- Update Room's current booking detail links
-UPDATE Rooms SET current_booking_detail_id = 1 WHERE room_id = 1;
-UPDATE Rooms SET current_booking_detail_id = 2 WHERE room_id = 3;
-UPDATE Rooms SET current_booking_detail_id = 3 WHERE room_id = 5;
-UPDATE Rooms SET current_booking_detail_id = 4 WHERE room_id = 7;
-UPDATE Rooms SET current_booking_detail_id = 5 WHERE room_id = 9;
-UPDATE Rooms SET current_booking_detail_id = 6 WHERE room_id = 12;
-UPDATE Rooms SET current_booking_detail_id = 7 WHERE room_id = 15;
-UPDATE Rooms SET current_booking_detail_id = 8 WHERE room_id = 18;
-UPDATE Rooms SET current_booking_detail_id = 9 WHERE room_id = 2;
-UPDATE Rooms SET current_booking_detail_id = 10 WHERE room_id = 4;
+-- Không cần UPDATE thêm vì current_booking_detail_id đã được khai báo đúng trong INSERT ở trên.
+-- Chỉ verify: room 1 → detail 1 (Checked_In), room 11 → detail 7 (Checked_In), room 36 → detail 8 (Checked_In)
 
 -- ── 16. Restaurant Tables (20 rows) ──────────────────────────
 INSERT INTO Restaurant_Tables (table_id, table_number, capacity, table_status, is_active) VALUES 
