@@ -47,7 +47,7 @@ public class PosApiController {
             if (order == null) {
                 return ResponseEntity.status(404).body(Map.of("status", "error", "message", "Order not found"));
             }
-            
+
             java.util.List<Map<String, Object>> itemsList = new java.util.ArrayList<>();
             if (order.getDetails() != null) {
                 for (com.kawai.models.FoodOrderDetail detail : order.getDetails()) {
@@ -58,23 +58,24 @@ public class PosApiController {
                     if (price == null) {
                         price = java.math.BigDecimal.ZERO;
                     }
-                    
+
                     Map<String, Object> itemMap = new java.util.HashMap<>();
                     itemMap.put("name", detail.getMenuItem() != null ? detail.getMenuItem().getItemName() : "Món ăn");
                     itemMap.put("quantity", detail.getQuantity());
                     itemMap.put("price", price);
-                    itemMap.put("amount", price.multiply(new java.math.BigDecimal(detail.getQuantity() != null ? detail.getQuantity() : 1)));
+                    itemMap.put("amount", price.multiply(
+                            new java.math.BigDecimal(detail.getQuantity() != null ? detail.getQuantity() : 1)));
                     itemsList.add(itemMap);
                 }
             }
-            
+
             Map<String, Object> response = new java.util.HashMap<>();
             response.put("status", "success");
             response.put("orderId", order.getId());
             response.put("orderType", order.getOrderType());
             response.put("paymentType", order.getPaymentType());
             response.put("items", itemsList);
-            
+
             return ResponseEntity.ok().body(response);
         } catch (Exception e) {
             e.printStackTrace();
