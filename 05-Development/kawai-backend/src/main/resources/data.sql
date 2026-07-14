@@ -210,7 +210,8 @@ INSERT INTO Room_Surcharges (surcharge_id, category_id, surcharge_type, age_from
 -- Booking Checked_In (room_booking=8):  detail_id=8, cat=3 → phòng 406 Occupied
 INSERT INTO Rooms (room_id, room_number, category_id, room_status, current_booking_detail_id) VALUES
 -- Category 1 - Nipa Pool Villa (rooms 101-105): 1 Occupied (detail 1), còn lại Vacant
-(1,  '101', 1, 'Occupied',     1),
+-- Room 101: Vacant_Clean (booking 1 của Hoàng Nam đã Checked_Out)
+(1,  '101', 1, 'Vacant_Clean', NULL),
 (2,  '102', 1, 'Vacant_Clean', NULL),
 (3,  '103', 1, 'Maintenance',  NULL),
 (4,  '104', 1, 'Vacant_Clean', NULL),
@@ -315,7 +316,7 @@ INSERT INTO Promotions (promo_id, promo_code, discount_type, discount_value, val
 -- ── 12. Bookings (20 rows) ───────────────────────────────────
 
 INSERT INTO Bookings (booking_id, customer_id, booking_date, total_price, booking_status, booking_source, applied_promotion_id, version) VALUES
-(1, 1, '2026-06-01', 5000000, 'Checked_In', 'Direct_Web', 1, 1),
+(1, 1, '2026-06-01', 5000000, 'Checked_Out', 'Direct_Web', 1, 1), -- Hoàng Nam đã trả phòng
 (2, 2, '2026-06-02', 7000000, 'Checked_Out', 'Direct_Web', NULL, 1),
 (3, 3, '2026-06-03', 16000000, 'Confirmed', 'OTA', NULL, 1),
 (4, 4, '2026-06-04', 5000000, 'Confirmed', 'OTA', 2, 1),
@@ -343,7 +344,8 @@ INSERT INTO Bookings (booking_id, customer_id, booking_date, total_price, bookin
 
 -- ── 13. Room Bookings (10 rows) ──────────────────────────────
 INSERT INTO Room_Bookings (room_booking_id, check_in_date, check_out_date, deposit_amount, cancellation_deadline, credit_limit, personal_pin_hash) VALUES
-(1, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 3 DAY), 1000000, DATE_SUB(CURDATE(), INTERVAL 2 DAY), 5000000, 'hash'),
+-- Room_Booking 1: ngày quá khứ (khách đã checkout, không dùng CURDATE)
+(1, DATE_SUB(CURDATE(), INTERVAL 10 DAY), DATE_SUB(CURDATE(), INTERVAL 7 DAY), 1000000, DATE_SUB(CURDATE(), INTERVAL 15 DAY), 5000000, 'hash'),
 (2, DATE_SUB(CURDATE(), INTERVAL 5 DAY), DATE_SUB(CURDATE(), INTERVAL 2 DAY), 1000000, DATE_SUB(CURDATE(), INTERVAL 8 DAY), 5000000, 'hash'),
 (3, '2026-06-09', '2026-06-12', 2000000, '2026-06-05', 10000000, 'hash'),
 (4, '2026-06-09', '2026-06-11', 1000000, '2026-06-05', 5000000, 'hash'),
@@ -361,8 +363,8 @@ INSERT INTO Room_Bookings (room_booking_id, check_in_date, check_out_date, depos
 --   detail_status='Pending'    → room_id = NULL (chưa được gán phòng vật lý)
 --   detail_status='Checked_Out'/ 'Cancelled' → room_id có thể NULL (đã giải phóng)
 INSERT INTO Room_Booking_Details (detail_id, room_booking_id, category_id, room_id, room_charge, detail_status, bed_preference, special_requests, is_charge_to_room_allowed, sub_credit_limit, billing_routing_strategy) VALUES
--- Booking 1 (Checked_In): customer 1 đang ở phòng 101 (cat 1 - Nipa Pool Villa)
-(1,  1,  1, 1,    2500000, 'Checked_In',  'KING_SIZE', NULL, TRUE,  500000,  'BILL_TO_LEADER'),
+-- Booking 1 (Checked_Out): customer 1 - Hoàng Nam đã trả phòng 101; room_id=NULL sau checkout
+(1,  1,  1, NULL, 2500000, 'Checked_Out', 'KING_SIZE', NULL, TRUE,  500000,  'BILL_TO_LEADER'),
 -- Booking 2 (Checked_Out): customer 2 đã trả phòng, room_id NULL
 (2,  2,  2, NULL, 3500000, 'Checked_Out', 'KING_SIZE', NULL, TRUE,  1500000, 'BILL_TO_LEADER'),
 -- Booking 3 (Confirmed, Pending): customer 3 đặt Wellness Retreats, chưa gán phòng
@@ -381,8 +383,8 @@ INSERT INTO Room_Booking_Details (detail_id, room_booking_id, category_id, room_
 (9,  14, 1, NULL, 2500000, 'Checked_Out', 'KING_SIZE', NULL, TRUE,  500000,  'BILL_TO_LEADER'),
 -- Booking 15 (Cancelled)
 (10, 15, 2, NULL, 3500000, 'Cancelled',   'TWIN_BED',  NULL, TRUE,  1500000, 'BILL_TO_LEADER'),
--- Booking 9 (Confirmed, Pending): room_booking_id=9, cat 1
-(11, 9,  1, NULL, 1200000, 'Pending',     'KING_SIZE', NULL, TRUE,  500000,  'BILL_TO_LEADER');
+-- Booking 9 (Confirmed, Pending): room_booking_id=9, cat 1, 3 đêm × 2,500,000 = 7,500,000
+(11, 9,  1, NULL, 7500000, 'Pending',     'KING_SIZE', NULL, TRUE,  500000,  'BILL_TO_LEADER');
 
 -- ── 15. Room Guests (10 rows) ────────────────────────────────
 INSERT INTO Room_Guests (guest_id, detail_id, customer_id, dependent_id, guest_type, is_primary_contact) VALUES
@@ -974,10 +976,13 @@ INSERT IGNORE INTO Room_Bookings (room_booking_id, check_in_date, check_out_date
 (23, '2026-06-10', '2026-06-16', 3000000, '2026-06-08', 15000000, 'hash');
 
 -- ── 46. Test Room Booking Details ────────────────────────────
+-- Test details: 'Active' không phải enum hợp lệ, phải dùng 'Checked_In'
+-- detail 12: đổi room_id 11 → 14 (phòng 204, cat 2) – tránh double-claim với booking 505 (Ngọc Lan)
+-- detail 13: đổi room_id 16 → 37 (phòng 407, cat 3) – sửa sai category (cat 3 ≠ room cat 10)
 INSERT IGNORE INTO Room_Booking_Details (detail_id, room_booking_id, category_id, room_id, room_charge, detail_status, bed_preference, special_requests, is_charge_to_room_allowed, sub_credit_limit, billing_routing_strategy) VALUES
-(11, 21, 4, 6, 2000000, 'Active', 'KING_SIZE', NULL, TRUE, 500000, 'BILL_TO_LEADER'),
-(12, 22, 2, 11, 3500000, 'Active', 'KING_SIZE', NULL, TRUE, 1500000, 'BILL_TO_LEADER'),
-(13, 23, 3, 16, 8000000, 'Active', 'TWIN_BED', NULL, TRUE, 2000000, 'BILL_TO_LEADER');
+(11, 21, 4,  6,  2000000, 'Checked_In', 'KING_SIZE', NULL, TRUE, 500000,  'BILL_TO_LEADER'),
+(12, 22, 2,  14, 3500000, 'Checked_In', 'KING_SIZE', NULL, TRUE, 1500000, 'BILL_TO_LEADER'),
+(13, 23, 3,  37, 8000000, 'Checked_In', 'TWIN_BED',  NULL, TRUE, 2000000, 'BILL_TO_LEADER');
 
 -- ── 47. Test Room Guests ─────────────────────────────────────
 INSERT IGNORE INTO Room_Guests (guest_id, detail_id, customer_id, dependent_id, guest_type, is_primary_contact) VALUES
@@ -987,8 +992,8 @@ INSERT IGNORE INTO Room_Guests (guest_id, detail_id, customer_id, dependent_id, 
 
 -- ── 48. Cập nhật Rooms hiện tại đang được test guest ở ──────
 UPDATE Rooms SET current_booking_detail_id = 11, room_status = 'Occupied' WHERE room_id = 6;
-UPDATE Rooms SET current_booking_detail_id = 12, room_status = 'Occupied' WHERE room_id = 11;
-UPDATE Rooms SET current_booking_detail_id = 13, room_status = 'Occupied' WHERE room_id = 16;
+UPDATE Rooms SET current_booking_detail_id = 12, room_status = 'Occupied' WHERE room_id = 14;
+UPDATE Rooms SET current_booking_detail_id = 13, room_status = 'Occupied' WHERE room_id = 37;
 
 -- ── 51. Lê Hoàng Nam đặt 3 phòng 1 lượt ─────────────────────────────────────
 -- RoomBooking IS-A Booking (Table-Per-Class Inheritance):
@@ -997,9 +1002,10 @@ UPDATE Rooms SET current_booking_detail_id = 13, room_status = 'Occupied' WHERE 
 
 -- Bước 1: 3 bản ghi Bookings (bảng cha) — mỗi cái là 1 phòng của Nam
 INSERT IGNORE INTO Bookings (booking_id, customer_id, booking_date, total_price, booking_status, booking_source, applied_promotion_id, version) VALUES
-(50, 1, '2026-06-22', 4500000, 'Checked_In', 'Direct_Web', NULL, 1),
-(51, 1, '2026-06-22', 4500000, 'Checked_In', 'Direct_Web', NULL, 1),
-(52, 1, '2026-06-22', 4500000, 'Checked_In', 'Direct_Web', NULL, 1);
+-- Bookings 50,51,52: Hoàng Nam đặt 3 phòng, ngày check-in 25/06 đã qua → Checked_Out
+(50, 1, '2026-06-22', 4500000, 'Checked_Out', 'Direct_Web', NULL, 1),
+(51, 1, '2026-06-22', 4500000, 'Checked_Out', 'Direct_Web', NULL, 1),
+(52, 1, '2026-06-22', 4500000, 'Checked_Out', 'Direct_Web', NULL, 1);
 
 -- Bước 2: 3 bản ghi Room_Bookings (bảng con) với cùng ID → kế thừa từ Bookings
 INSERT IGNORE INTO Room_Bookings (room_booking_id, check_in_date, check_out_date, deposit_amount, cancellation_deadline, credit_limit, personal_pin_hash) VALUES
@@ -1007,16 +1013,13 @@ INSERT IGNORE INTO Room_Bookings (room_booking_id, check_in_date, check_out_date
 (51, '2026-06-25', '2026-06-28', 1000000, '2026-06-23', 6000000, 'hash'),
 (52, '2026-06-25', '2026-06-28', 1000000, '2026-06-23', 6000000, 'hash');
 
--- Bước 3: 3 Room_Booking_Details — phòng 301, 302, 303 (Family Connecting Room, category_id=7)
+-- Bước 3: 3 Room_Booking_Details — bookings 50,51,52 đã Checked_Out, room_id=NULL
 INSERT IGNORE INTO Room_Booking_Details (detail_id, room_booking_id, category_id, room_id, room_charge, detail_status, bed_preference, special_requests, is_charge_to_room_allowed, sub_credit_limit, billing_routing_strategy, customer_id) VALUES
-(50, 50, 7, 21, 4500000, 'Checked_In', 'KING_SIZE', 'Cần thêm giường phụ cho trẻ em', TRUE, 1000000, 'BILL_TO_LEADER', 1),
-(51, 51, 7, 22, 4500000, 'Checked_In', 'TWIN_BED', NULL,                              TRUE, 1000000, 'BILL_TO_LEADER', 2),
-(52, 52, 7, 23, 4500000, 'Checked_In', 'TWIN_BED', 'Tầng cao, view đẹp',              TRUE, 1000000, 'BILL_TO_LEADER', 3);
+(50, 50, 7, NULL, 4500000, 'Checked_Out', 'KING_SIZE', 'Cần thêm giường phụ cho trẻ em', TRUE, 1000000, 'BILL_TO_LEADER', 1),
+(51, 51, 7, NULL, 4500000, 'Checked_Out', 'TWIN_BED',  NULL,                              TRUE, 1000000, 'BILL_TO_LEADER', 2),
+(52, 52, 7, NULL, 4500000, 'Checked_Out', 'TWIN_BED',  'Tầng cao, view đẹp',              TRUE, 1000000, 'BILL_TO_LEADER', 3);
 
--- Cập nhật trạng thái và gán current_booking cho 3 phòng này
-UPDATE Rooms SET current_booking_detail_id = 50, room_status = 'Occupied' WHERE room_id = 21;
-UPDATE Rooms SET current_booking_detail_id = 51, room_status = 'Occupied' WHERE room_id = 22;
-UPDATE Rooms SET current_booking_detail_id = 52, room_status = 'Occupied' WHERE room_id = 23;
+-- Không cập nhật Rooms 21,22,23 vì bookings 50,51,52 đã Checked_Out → phòng vẫn Vacant_Clean
 
 -- Bước 4: Room Guests — Mỗi phòng 1 người đại diện (Lê Hoàng Nam, Nguyễn Văn An, Phạm Tuấn)
 INSERT IGNORE INTO Room_Guests (guest_id, detail_id, customer_id, dependent_id, guest_type, is_primary_contact) VALUES
@@ -1065,11 +1068,10 @@ INSERT IGNORE INTO Bookings (booking_id, customer_id, booking_date, total_price,
 (201, 12, CURDATE(), 3000000, 'Confirmed', 'Direct_Web', NULL, 1),
 (202, 18, CURDATE(), 1200000, 'Confirmed', 'Direct_Web', NULL, 1);
 
--- TourBookings: liên kết với RoomBooking 14 (Phạm Hùng Anh) và 23 (test Confirmed)
--- room_booking_detail_id = NULL vì chưa check-in / chưa phân phòng
+-- Tour bookings 200,201: đổi từ room_booking_id=14 (Checked_Out) sang 23 (Confirmed — hợp lý cho phân bổ khi check-in)
 INSERT IGNORE INTO Tour_Bookings (booking_id, schedule_id, participant_count, tour_charge, room_booking_id, room_booking_detail_id, is_walk_in_tour) VALUES
-(200, 1, 2, 1200000, 14, NULL, FALSE),
-(201, 2, 5, 3000000, 14, NULL, FALSE),
+(200, 1, 2, 1200000, 23, NULL, FALSE),
+(201, 2, 5, 3000000, 23, NULL, FALSE),
 (202, 3, 2, 1200000, 23, NULL, FALSE);
 
 ALTER TABLE Tour_Bookings AUTO_INCREMENT = 300;
@@ -1086,8 +1088,9 @@ INSERT IGNORE INTO Export_History (id, report_name, format, exported_at, exporte
 
 -- ── 50. Mock Data for YoY Comparison (Năm 2025) ───────────────────────────
 INSERT INTO Bookings (booking_id, customer_id, booking_date, total_price, booking_status, booking_source, applied_promotion_id, version) VALUES
-(991, 1, '2025-06-01', 65000000, 'Confirmed', 'Direct_Web', NULL, 1),
-(992, 2, '2025-06-05', 45000000, 'Confirmed', 'OTA', NULL, 1);
+-- YoY booking 991: Hoàng Nam (customer 1), đã lưu trú năm 2025 → Checked_Out
+(991, 1, '2025-06-01', 65000000, 'Checked_Out', 'Direct_Web', NULL, 1),
+(992, 2, '2025-06-05', 45000000, 'Confirmed',   'OTA',        NULL, 1);
 
 INSERT INTO Room_Bookings (room_booking_id, check_in_date, check_out_date, deposit_amount, cancellation_deadline, credit_limit, personal_pin_hash) VALUES
 (991, '2025-06-10', '2025-06-15', 5000000, '2025-06-05', 10000000, 'hash');
@@ -1145,8 +1148,8 @@ INSERT IGNORE INTO Room_Bookings (room_booking_id, check_in_date, check_out_date
 (499, '2025-12-20', '2025-12-25', 10000000, '2025-12-15', 20000000, 'hash');
 
 INSERT IGNORE INTO Room_Booking_Details (detail_id, room_booking_id, category_id, room_id, room_charge, detail_status, bed_preference, special_requests, is_charge_to_room_allowed, sub_credit_limit, billing_routing_strategy, customer_id) VALUES
-
-(499, 499, 5, 15, 52000000, 'Checked_Out', 'KING_SIZE', 'Tuần trăng mật', TRUE, 5000000, 'BILL_TO_LEADER', 501);
+-- detail 499: cat 5 (Presidential) đã Checked_Out → room_id=NULL (không giữ số phòng sau checkout, vả lại room 15 thuộc cat 2 ≠ cat 5)
+(499, 499, 5, NULL, 52000000, 'Checked_Out', 'KING_SIZE', 'Tuần trăng mật', TRUE, 5000000, 'BILL_TO_LEADER', 501);
 
 -- Normal Customer has 95 pts (95,000 VND).
 INSERT IGNORE INTO Bookings (booking_id, customer_id, booking_date, total_price, booking_status, booking_source, applied_promotion_id, version) VALUES
@@ -1169,7 +1172,8 @@ INSERT IGNORE INTO Bookings (booking_id, customer_id, booking_date, total_price,
 INSERT IGNORE INTO Room_Bookings (room_booking_id, check_in_date, check_out_date, deposit_amount, cancellation_deadline, credit_limit, personal_pin_hash) VALUES
 (502, '2026-07-15', '2026-07-17', 500000, '2026-07-10', 2000000, 'hash');
 INSERT IGNORE INTO Room_Booking_Details (detail_id, room_booking_id, category_id, room_id, room_charge, detail_status, bed_preference, special_requests, is_charge_to_room_allowed, sub_credit_limit, billing_routing_strategy, customer_id) VALUES
-(502, 502, 2, NULL, 1800000, 'Confirmed', 'TWIN_BED', 'Phòng yên tĩnh', TRUE, 2000000, 'INDIVIDUAL', 502);
+-- detail 502: booking đang Confirmed chưa check-in → detail_status phải là 'Pending' (không phải 'Confirmed')
+(502, 502, 2, NULL, 1800000, 'Pending', 'TWIN_BED', 'Phòng yên tĩnh', TRUE, 2000000, 'INDIVIDUAL', 502);
 
 -- 3. Pending_Approval (Triggered workflow)
 INSERT IGNORE INTO Bookings (booking_id, customer_id, booking_date, total_price, booking_status, booking_source, applied_promotion_id, version) VALUES
@@ -1251,7 +1255,8 @@ INSERT INTO Hotel_Operations (task_id, room_id, staff_id, supervisor_id, operati
 -- 2. Thêm các yêu cầu hoàn tiền (Refund Requests)
 INSERT INTO Refund_Requests (id, order_id, room_booking_id, tour_booking_id, bank_name, account_number, account_name, phone_number, amount, status, manager_note, evidence_image_url, created_at, completed_at) VALUES
 (1, NULL, 15, NULL, 'Vietcombank', '10129384829', 'NGUYEN XUAN LOC', '0900000101', 1000000.00, 'Pending', NULL, NULL, CURRENT_TIMESTAMP, NULL),
-(2, NULL, 14, NULL, 'Techcombank', '19033482938', 'TRAN THI BICH', '0900000104', 2500000.00, 'COMPLETED', 'Đã chuyển khoản hoàn tiền cọc qua ứng dụng ngân hàng', 'https://images.unsplash.com/photo-1554415707-6e8cfc93fe23?w=500', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+-- Refund id=2: sửa amount 2,500,000 → 1,000,000 (không hoàn vượt số tiền cọc đã thu của booking 14 = 1,000,000)
+(2, NULL, 14, NULL, 'Techcombank', '19033482938', 'TRAN THI BICH', '0900000104', 1000000.00, 'COMPLETED', 'Đã chuyển khoản hoàn tiền cọc qua ứng dụng ngân hàng', 'https://images.unsplash.com/photo-1554415707-6e8cfc93fe23?w=500', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 INSERT INTO Room_Booking_Details (detail_id, room_booking_id, category_id, room_id, room_charge, detail_status, bed_preference, special_requests, is_charge_to_room_allowed, sub_credit_limit, billing_routing_strategy, number_of_adults, number_of_children) VALUES
 (1031, 103, 8, NULL, 4500000, 'Pending', 'KING_SIZE', 'Gần thang máy', TRUE, 1000000, 'BILL_TO_LEADER', 2, 1),
@@ -1299,19 +1304,8 @@ UPDATE Rooms SET current_booking_detail_id = 5052, room_status = 'Occupied' WHER
 
 
 
--- FIX HOANGNAM UNREALISTIC ACTIVE BOOKINGS
-UPDATE Bookings SET booking_status = 'Checked_Out' WHERE customer_id = 1 AND booking_id IN (50, 51, 103, 201);
-UPDATE Room_Bookings SET check_in_date = '2026-06-01', check_out_date = '2026-06-05' WHERE room_booking_id IN (50, 51, 103, 201);
-
-
--- FIX HOANGNAM BOOKING 991
-UPDATE Bookings SET booking_status = 'Checked_Out' WHERE customer_id = 1 AND booking_id = 991;
-UPDATE Room_Bookings SET check_in_date = '2025-06-10', check_out_date = '2025-06-15' WHERE room_booking_id = 991;
-
-
--- FIX HOANGNAM BOOKING 1
-UPDATE Bookings SET booking_status = 'Checked_Out' WHERE customer_id = 1 AND booking_id = 1;
-UPDATE Room_Bookings SET check_in_date = '2026-06-01', check_out_date = '2026-06-05' WHERE room_booking_id = 1;
+-- FIX HOANGNAM blocks đã được loại bỏ: booking 1, 50, 51, 52, 991 đã được fix trực tiếp tại các INSERT bên trên.
+-- Không dùng UPDATE patches để vá dữ liệu (nguyên tắc nhất quán seed data).
 
 
 -- FIX GUEST REQUEST TASK OPERATIONAL TYPE
@@ -1377,8 +1371,7 @@ JOIN Room_Bookings rb ON b.booking_id = rb.room_booking_id
 SET b.booking_date = DATE_SUB(rb.check_in_date, INTERVAL 7 DAY) 
 WHERE b.booking_status = 'Checked_In' AND b.booking_date < DATE_SUB(CURDATE(), INTERVAL 30 DAY);
 
-UPDATE Bookings SET booking_status = 'Checked_Out' WHERE customer_id = 1 AND booking_id = 52;
-UPDATE Room_Booking_Details SET detail_status = 'Checked_Out' WHERE room_booking_id = 52;
+-- Booking 52 đã được fix tại INSERT (Checked_Out, room_id=NULL) – không cần UPDATE patches nữa.
 
 
 -- CREATE AN ALWAYS-ACTIVE BOOKING FOR HOANG NAM (CUSTOMER_ID = 1)
@@ -1397,11 +1390,9 @@ VALUES (999911, 99991, 1, 'ADULT', TRUE);
 UPDATE Rooms SET current_booking_detail_id = 99991, room_status = 'Occupied' WHERE room_id = 5;
 
 
--- FIX BOOKING 9 VALUES TO BE REALISTIC
-UPDATE Room_Booking_Details SET room_charge = 7500000, sub_credit_limit = 5000000 WHERE room_booking_id = 51;
-UPDATE Room_Bookings SET deposit_amount = 3000000 WHERE room_booking_id = 51;
-
-UPDATE Bookings SET total_price = 7500000 WHERE booking_id = 9;
+-- FIX BOOKING 9: đã sửa room_charge trong INSERT (detail 11, room_booking_id=9).
+-- Reconcile tự động cập nhật total_price. UPDATE dưới dùng để đảm bảo deposit khớp.
+UPDATE Room_Bookings SET deposit_amount = 3000000 WHERE room_booking_id = 9;
 
 -- DYNAMICALLY ASSIGN SUB CREDIT LIMIT BASED ON MEMBERSHIP TIER FOR ALL ACTIVE/CONFIRMED BOOKINGS
 UPDATE Room_Booking_Details rbd
