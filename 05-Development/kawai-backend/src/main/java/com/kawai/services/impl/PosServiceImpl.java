@@ -584,4 +584,40 @@ public class PosServiceImpl implements PosService {
 
         foodOrderRepository.save(order);
     }
+
+    @Override
+    public void cancelOrderByGuest(Long orderId, com.kawai.dtos.CancelOrderRequestDTO dto, String username) {
+        // [AUTHORIZATION CHECK] Bước 1: Lấy thông tin Khách hàng (Customer) từ username hiện tại
+        Customer customer = customerRepository.findByAccount_Username(username)
+                .orElseGet(() -> customerRepository.findByEmail(username).orElse(null));
+        if (customer == null) {
+            throw new BusinessException("CUSTOMER_NOT_FOUND", "Không tìm thấy thông tin khách hàng");
+        }
+        
+        FoodOrder order = foodOrderRepository.findById(orderId)
+                .orElseThrow(() -> new BusinessException("POS-006", "Đơn hàng không tồn tại"));
+
+        // [AUTHORIZATION CHECK] Bước 2: Xác thực quyền sở hữu (IDOR Protection)
+        // Chỉ cho phép hủy nếu đơn hàng này được đặt bởi đúng tài khoản Customer đang gửi request
+        boolean isOwner = false;
+        if (order.getBooking() != null && order.getBooking().getCustomer() != null
+                && order.getBooking().getCustomer().getId().equals(customer.getId())) {
+            // Đơn hàng gắn với Booking của chính khách này
+            isOwner = true;
+        } else if (order.getRoomBookingDetail() != null && order.getRoomBookingDetail().getRoomBooking() != null
+                && order.getRoomBookingDetail().getRoomBooking().getCustomer() != null
+                && order.getRoomBookingDetail().getRoomBooking().getCustomer().getId().equals(customer.getId())) {
+            // Đơn hàng gắn với 1 RoomBookingDetail của phòng thuộc Booking của chính khách này
+            isOwner = true;
+        }
+
+        if (!isOwner) {
+            // Chặn đứng nỗ lực gọi API hủy đơn của người khác
+            throw new BusinessException("ACCESS_DENIED", "Bạn không có quyền hủy đơn hàng này");
+        }
+
+        // [DELEGATION] Bước 3: Đã an toàn -> Chuyển tiếp (delegate) cho Core Logic xử lý.
+        // Tuyệt đối không lặp lại code hủy đơn (xử lý KOT, refund, v.v...) ở đây để đảm bảo DRY.
+        cancelOrder(orderId, dto);
+    }
 }
