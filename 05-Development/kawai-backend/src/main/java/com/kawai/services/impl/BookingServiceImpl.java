@@ -30,7 +30,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.kawai.services.interfaces.PaymentRefundService;
 import com.kawai.services.interfaces.NotificationService;
 import com.kawai.services.interfaces.EmailService;
 
@@ -100,13 +99,15 @@ public class BookingServiceImpl implements BookingService {
     private final RoomRepository roomRepository;
     private final CustomerRepository customerRepository;
     private final RoomBookingDetailRepository roomBookingDetailRepository;
-    private final PaymentRefundService paymentRefundService;
     private final NotificationService notificationService;
     private final com.kawai.repositories.RoomCategoryRepository roomCategoryRepository;
     private final com.kawai.repositories.RoomSurchargeRepository roomSurchargeRepository;
     private final com.kawai.repositories.DependentRepository dependentRepository;
     private final com.kawai.repositories.RoomGuestRepository roomGuestRepository;
     private final EmailService emailService;
+
+    @Autowired
+    private com.kawai.repositories.RefundRequestRepository refundRequestRepository;
 
     @Autowired
     private com.kawai.repositories.FolioItemRepository folioItemRepository;
@@ -116,7 +117,6 @@ public class BookingServiceImpl implements BookingService {
             RoomRepository roomRepository,
             CustomerRepository customerRepository,
             RoomBookingDetailRepository roomBookingDetailRepository,
-            PaymentRefundService paymentRefundService,
             NotificationService notificationService,
             EmailService emailService,
             com.kawai.repositories.RoomCategoryRepository roomCategoryRepository,
@@ -129,7 +129,6 @@ public class BookingServiceImpl implements BookingService {
         this.roomRepository = roomRepository;
         this.customerRepository = customerRepository;
         this.roomBookingDetailRepository = roomBookingDetailRepository;
-        this.paymentRefundService = paymentRefundService;
         this.notificationService = notificationService;
         this.emailService = emailService;
         this.roomCategoryRepository = roomCategoryRepository;
@@ -611,8 +610,8 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    @Transactional
-    public BookingResponseDTO cancelBooking(Long bookingId, Long customerId) {
+    @Transactional(rollbackFor = Exception.class)
+    public BookingResponseDTO cancelBooking(Long bookingId, Long customerId, com.kawai.dto.CancelBookingRequestDTO dto) {
         RoomBooking booking = roomBookingRepository.findByIdAndCustomerId(bookingId, customerId)
                 .orElseThrow(() -> new BusinessException("FORBIDDEN",
                         "Đơn đặt phòng không thuộc về tài khoản này hoặc không tồn tại!"));
@@ -652,12 +651,21 @@ public class BookingServiceImpl implements BookingService {
 
         try {
             if (isEligibleForRefund) {
-                if (paymentRefundService != null) {
-                    paymentRefundService.processRefund("TXN_" + bookingId, booking.getDepositAmount());
+                if (dto != null) {
+                    com.kawai.models.RefundRequest refund = new com.kawai.models.RefundRequest();
+                    refund.setRoomBooking(booking);
+                    refund.setBankName(dto.getBankName());
+                    refund.setAccountNumber(dto.getAccountNumber());
+                    refund.setAccountName(dto.getAccountName());
+                    refund.setPhoneNumber(dto.getPhoneNumber());
+                    refund.setAmount(booking.getDepositAmount());
+                    refund.setStatus("Pending");
+                    refundRequestRepository.save(refund);
                 }
+                
                 if (notificationService != null) {
                     notificationService.sendNotification(customerId, "Cancel Success",
-                            "Your booking has been cancelled and refunded.");
+                            "Your booking has been cancelled. A refund request has been created and will be processed shortly.");
                 }
             } else {
                 if (notificationService != null) {

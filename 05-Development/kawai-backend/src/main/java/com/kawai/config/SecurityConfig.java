@@ -74,6 +74,8 @@ public class SecurityConfig {
                                 "/h2-console/**", "/css/**", "/js/**", "/guest/**", "/uploads/**", "/api/v1/upload",
                                 "/receptionist/css/**", "/receptionist/js/**", "/receptionist/images/**",
                                 "/admin/css/**", "/admin/js/**", "/admin/img/**", "/admin/images/**",
+                                "/f&bStaff/css/**", "/f&bStaff/js/**", "/f&bStaff/images/**",
+                                "/fbStaff/css/**", "/fbStaff/js/**", "/fbStaff/images/**",
                                 "/living", "/wellbeing", "/dining",
                                 "/experiences", "/tours", "/tours/**", "/order-food", "/AnhTour/**",
                                 "/api/faceid/**", "/error",
