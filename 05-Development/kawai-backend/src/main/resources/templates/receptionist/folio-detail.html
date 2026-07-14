@@ -1702,7 +1702,14 @@
                                            if (childSurchargeTotal > 0) {
                                                html += `
                                                <div style="font-size: 11.5px; color: #8e8a86; font-style: italic; font-weight: 500; padding-left: 8px;">
-                                                   ↳ Phụ thu trẻ em đi kèm: ${formatCurrency(childSurchargeTotal)}/đêm
+                                                   ${(() => {
+                                                        const extraChildrenCount = Math.max(0, data.numberOfChildren - (data.baseChildren || 0));
+                                                        if (extraChildrenCount > 0) {
+                                                            const childUnitPrice = childSurchargeTotal / extraChildrenCount;
+                                                            return `↳ Phụ thu trẻ em (${extraChildrenCount} x ${formatCurrency(childUnitPrice)}): ${formatCurrency(childSurchargeTotal)}/đêm`;
+                                                        }
+                                                        return `↳ Phụ thu trẻ em đi kèm: ${formatCurrency(childSurchargeTotal)}/đêm`;
+                                                    })()}
                                                </div>`;
                                            }
                                            return html;
