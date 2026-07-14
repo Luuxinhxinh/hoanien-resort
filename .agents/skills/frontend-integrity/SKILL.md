@@ -20,6 +20,7 @@ description: Đảm bảo tính toàn vẹn của Frontend (Giao diện và Tư�
 
 ## 3. Data & API Payload Integrity
 - Khi Fetch API, kiểm tra phương thức (GET, POST, PUT, DELETE) có đúng với Backend không.
+- Phân tách Endpoint theo Role (Guest vs Admin/Staff): Khi gọi API từ giao diện Guest/Customer, BẮT BUỘC kiểm tra xem URL endpoint có đúng là dành cho Guest không (thường có tiền tố `/guest/` hoặc được cấu hình `permitAll`/`hasRole('GUEST')`). Nếu gọi nhầm endpoint của Staff (ví dụ `/api/pos/orders/` thay vì `/api/pos/guest/orders/`), Spring Security sẽ chặn bằng HTTP 403 Forbidden, khiến frontend không parse được JSON lỗi chuẩn và rơi vào fallback hiển thị sai lệch "Lỗi hệ thống".
 - Đối chiếu các Key trong JSON payload gửi đi có khớp 100% với DTO hoặc `Map<String, Object>` mà Backend Controller kỳ vọng hay không.
 - Đối chiếu các giá trị (Enum values, Type strings) được định nghĩa ở thẻ `<select>` hoặc `<input>` của Frontend xem Backend có thực sự hỗ trợ xử lý và truy vấn giá trị đó hay không (ví dụ: `Manager_Approval` thay vì `Discount_Approval` để tránh trường hợp lưu thành công nhưng không hiển thị trên Dashboard).
 - Xử lý các trạng thái Promise (then/catch) và hiển thị UI thông báo tương ứng (Loading, Success, Error).

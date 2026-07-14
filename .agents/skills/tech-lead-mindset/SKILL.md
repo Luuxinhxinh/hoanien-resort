@@ -69,7 +69,6 @@ Khi nhận bất kỳ yêu cầu nào (Sửa bug hoặc làm tính năng mới),
 - **Thiết lập cơ chế Fallback tự động khi dữ liệu Database không khớp (Fallback Database State Sync):** Khi có thay đổi trong logic nghiệp vụ liên quan đến cách tính toán tài chính (ví dụ: chuyển từ cộng dồn `booking.depositAmount` sang lưu trữ lịch sử giao dịch `PaymentTransaction`), luôn có kịch bản phòng thủ (fallback) tự động kiểm tra sự tồn tại của các bản ghi lịch sử tương ứng. Nếu DB thực tế bị thiếu bản ghi (ví dụ dữ liệu seed cũ không có giao dịch đặt cọc), hệ thống phải tự động sinh giao dịch thay thế tương ứng thay vì bỏ qua, tránh gây lệch balance hiển thị (ví dụ dư nợ không về 0 sau checkout).
 - **Chống tính trùng lặp cọc (Double-Counting Prevention):** Khi tính toán dư nợ, luôn kiểm tra xem cọc đã tồn tại dưới dạng giao dịch trong DB chưa trước khi cộng dồn thêm cọc từ thực thể gốc (booking), tránh làm sai lệch số tiền cần thanh toán hiển thị trên UI.
 
-
 ## 4. QUY TRÌNH GIT AN TOÀN TRƯỚC KHI MERGE REQUEST (MR)
 Khi làm việc trên một nhánh phụ (feature branch) và chuẩn bị tạo Merge Request xin gộp vào nhánh chính (vd: `dev`), **BẮT BUỘC** phải lấy code mới nhất từ nhánh chính gộp vào nhánh phụ để giải quyết mọi conflict ở môi trường local trước.
 - **Cách Nhanh (Ưu tiên dùng hàng ngày):** Đứng trực tiếp tại nhánh phụ và chạy `git pull origin dev`. Việc này vừa kéo code mới từ remote `dev` vừa merge thẳng vào nhánh phụ, tiết kiệm thời gian gõ lệnh.
