@@ -1850,10 +1850,18 @@
                     roomSummaryMap[roomId].summary[dep] = group.items.reduce((sum, i) => sum + i.amount, 0);
                 }
 
-                leftHtml += `
+                let calculationSectionHtml = '';
+                if (roomSubtotalBeforeVat === 0) {
+                    calculationSectionHtml = `
+                        <div style="display: flex; justify-content: center; width: 100%; border-top: 1px solid #e6ded4; padding-top: 16px; margin-top: 16px;">
+                            <span style="font-size: 13px; font-family: 'Inter', sans-serif; color: #8e8a86; font-style: italic;">Không có dịch vụ phát sinh</span>
+                        </div>
+                    `;
+                } else {
+                    calculationSectionHtml = `
                           <div style="display: flex; flex-direction: column; gap: 8px; width: 100%; border-top: 1px solid #e6ded4; padding-top: 16px; margin-top: 16px;">
                               <div style="display: flex; justify-content: space-between; font-size: 13px; font-family: 'Inter', sans-serif; color: #8e8a86;">
-                                  <span>Tổng tạm tính:</span>
+                                  <span>Dịch vụ phát sinh:</span>
                                   <span style="font-weight: 500; color: #2c2a29;">${formatCurrency(roomSubtotalBeforeVat)}</span>
                               </div>
                               <div style="display: flex; justify-content: space-between; font-size: 13px; font-family: 'Inter', sans-serif; color: #8e8a86;">
@@ -1862,7 +1870,7 @@
                               </div>
                               <div style="display: flex; flex-direction: column; gap: 12px; width: 100%; margin-top: 8px; padding-top: 12px; border-top: 1px dashed #e6ded4;">
                                   <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-                                      <span style="font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600; color: #6e655f;">Tổng chi phí:</span>
+                                      <span style="font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600; color: #6e655f;">Tổng chi phí dịch vụ:</span>
                                       <span style="font-family: 'Inter', sans-serif; font-size: 15px; color: #2c2a29; font-weight: 700;">${formatCurrency(roomTotalWithVat)}</span>
                                   </div>
                                   <div style="display: flex; justify-content: flex-end; width: 100%;">
@@ -1876,6 +1884,11 @@
                                   </div>
                               </div>
                           </div>
+                    `;
+                }
+
+                leftHtml += `
+                          ${calculationSectionHtml}
                       </div>
                   </div>
                   `;
