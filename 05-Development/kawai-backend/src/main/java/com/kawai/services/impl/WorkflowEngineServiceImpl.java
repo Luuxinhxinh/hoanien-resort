@@ -151,11 +151,27 @@ public class WorkflowEngineServiceImpl implements WorkflowEngineService {
                         } 
                         else if ("CREATE_OPERATION_TASK".equals(type)) {
                             String taskType = (String) action.get("value");
-                            // Override for ROOM_REPORT_DAMAGE: force task type to be "DAMAGE_CHECK"
+                            Boolean isEmergency = null;
+                            if (payload.containsKey("is_emergency")) {
+                                Object val = payload.get("is_emergency");
+                                if (val instanceof Boolean) {
+                                    isEmergency = (Boolean) val;
+                                } else if (val instanceof String) {
+                                    isEmergency = Boolean.parseBoolean((String) val);
+                                }
+                            }
+                            // Override for ROOM_REPORT_DAMAGE: force task type to be "DAMAGE_CHECK" unless it's an emergency
                             if ("ROOM_REPORT_DAMAGE".equals(eventType)) {
-                                taskType = "DAMAGE_CHECK";
+                                if (isEmergency == null || !isEmergency) {
+                                    taskType = "DAMAGE_CHECK";
+                                } else {
+                                    taskType = "MAINTENANCE";
+                                }
                             }
                             String priority = action.containsKey("priority") ? (String) action.get("priority") : "Normal";
+                            if (isEmergency != null && isEmergency) {
+                                priority = "Urgent";
+                            }
                     Long roomId = safeLong(payload.get("room_id"));
                     
                     // Extract assignee and notes from ACTION config (configured by Admin), fallback to payload
