@@ -39,7 +39,7 @@ public interface BookingService {
      * @param bookingId ID của booking cần hủy
      * @return Số tiền hoàn lại (0 nếu hủy trong 48h — BR-FIN-02)
      */
-    BookingResponseDTO cancelBooking(Long bookingId, Long customerId);
+    BookingResponseDTO cancelBooking(Long bookingId, Long customerId, com.kawai.dto.CancelBookingRequestDTO dto);
 
     /**
      * Lấy chi tiết booking (UC10.1).

@@ -16,6 +16,7 @@ public class DependentResponseDTO {
     private String assignedRoom;
     private String cccd;
     private String gender;
+    private Long roomBookingDetailId;
 
     public DependentResponseDTO() {
     }
@@ -82,5 +83,13 @@ public class DependentResponseDTO {
 
     public void setGender(String gender) {
         this.gender = gender;
+    }
+
+    public Long getRoomBookingDetailId() {
+        return roomBookingDetailId;
+    }
+
+    public void setRoomBookingDetailId(Long roomBookingDetailId) {
+        this.roomBookingDetailId = roomBookingDetailId;
     }
 }

@@ -1,5 +1,8 @@
-function openRefundModal(orderId) {
+let currentRefundType = 'FOOD';
+
+function openRefundModal(orderId, type = 'FOOD') {
     document.getElementById('refundOrderId').value = orderId;
+    currentRefundType = type;
     document.getElementById('refundModal').style.display = 'flex';
 }
 
@@ -27,7 +30,12 @@ function submitRefundForm(event) {
     btn.disabled = true;
     btn.innerText = 'Đang xử lý...';
     
-    fetch('/api/pos/orders/' + orderId + '/cancel', {
+    let apiUrl = '/api/pos/orders/' + orderId + '/cancel';
+    if (currentRefundType === 'ROOM') {
+        apiUrl = '/api/bookings/' + orderId + '/cancel';
+    }
+    
+    fetch(apiUrl, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'

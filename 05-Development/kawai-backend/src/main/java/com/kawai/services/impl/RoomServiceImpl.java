@@ -121,12 +121,12 @@ public class RoomServiceImpl implements RoomService {
                         .filter(r -> !"Occupied".equalsIgnoreCase(r.getRoomStatus())
                                 && !"Maintenance".equalsIgnoreCase(r.getRoomStatus()))
                         .count();
-                
+
                 // For today, if a booking is Checked_In, it's already "Occupied" physically.
                 // We only need to subtract overlapping bookings that have NOT checked in yet.
                 long overlappingNotCheckedIn = roomBookingRepository.countOverlappingNotCheckedIn(
                         cat.getCategoryName(), checkIn, checkOut);
-                        
+
                 calculatedAvailable = physicallyAvailableToday - overlappingNotCheckedIn;
             } else {
                 // If future, Maintenance rooms might still be excluded
@@ -265,6 +265,7 @@ public class RoomServiceImpl implements RoomService {
             dto.setHasBalcony(cat.getHasBalcony());
             dto.setComplimentaryServices(cat.getComplimentaryServices());
             dto.setHasFreeBreakfast(cat.getHasFreeBreakfast());
+            dto.setCoverImgUrl(cat.getCoverImgUrl());
         }
         return dto;
     }

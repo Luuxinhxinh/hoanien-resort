@@ -110,10 +110,9 @@ public class HousekeepingServiceImpl implements HousekeepingService {
     public Room updateRoomToClean(Long taskId, String notes) {
         HotelOperation task = findTaskById(taskId);
         Room room = task.getRoom();
-
-        // BR-FO-04: Nếu phòng đang có khách ở thì giữ trạng thái Occupied, nếu trống thì chuyển sang Vacant_Clean
-        if (room.getCurrentBookingDetailId() != null) {
-            room.setRoomStatus("Occupied");
+        String currentStatus = room.getRoomStatus();
+        if ("Occupied_Dirty".equalsIgnoreCase(currentStatus)) {
+            room.setRoomStatus("Occupied_Clean");
         } else {
             room.setRoomStatus(STATUS_VACANT_CLEAN);
         }
@@ -147,24 +146,28 @@ public class HousekeepingServiceImpl implements HousekeepingService {
     @Override
     @Transactional
     public void escalateTaskByRoomNumber(String roomNumber) {
-        List<HotelOperation> tasks = housekeepingTaskRepo.findByRoomNumberAndStatusAndType(roomNumber, STATUS_PENDING, OPERATION_CLEAN);
+        List<HotelOperation> tasks = housekeepingTaskRepo.findByRoomNumberAndStatusAndType(roomNumber, STATUS_PENDING,
+                OPERATION_CLEAN);
         if (!tasks.isEmpty()) {
             HotelOperation task = tasks.get(0);
             task.setPriority("Lễ tân báo dọn khẩn");
+            task.setOperationalType("URGENT_CLEAN");
             String currentNotes = task.getNotes() != null ? task.getNotes() : "";
             if (!currentNotes.contains("[Khẩn cấp]")) {
                 task.setNotes(currentNotes + " \n[Khẩn cấp] Lễ tân hối thúc dọn ưu tiên để khách Check-in!");
             }
             housekeepingTaskRepo.save(task);
         } else {
-            // Nếu chưa có phiếu dọn phòng (có thể do lỗi dữ liệu test chưa tự động sinh ra),
+            // Nếu chưa có phiếu dọn phòng (có thể do lỗi dữ liệu test chưa tự động sinh
+            // ra),
             // ta sẽ tự động tạo một phiếu mới tinh với mức độ Lễ tân báo dọn khẩn.
             Room room = roomRepo.findByRoomNumber(roomNumber).orElse(null);
             if (room != null) {
                 List<Employee> allStaff = employeeRepo.findAll();
                 if (!allStaff.isEmpty()) {
                     Employee staff = allStaff.get(0);
-                    HotelOperation newTask = buildHotelOperation(room, staff, OPERATION_CLEAN, "Lễ tân báo dọn khẩn", "Lễ tân yêu cầu dọn phòng khẩn cấp.");
+                    HotelOperation newTask = buildHotelOperation(room, staff, OPERATION_CLEAN, "Lễ tân báo dọn khẩn",
+                            "Lễ tân yêu cầu dọn phòng khẩn cấp.");
                     housekeepingTaskRepo.save(newTask);
                 }
             }
@@ -207,17 +210,32 @@ public class HousekeepingServiceImpl implements HousekeepingService {
 
             // Return the created task
             return maintenanceRequestRepo.findAll().stream()
-                    .filter(t -> t.getRoom().getId().equals(roomId) && ("Maintenance".equals(t.getOperationalType()) || "MAINTENANCE".equals(t.getOperationalType()) || "DAMAGE_CHECK".equals(t.getOperationalType())))
+                    .filter(t -> t.getRoom().getId().equals(roomId) && ("Maintenance".equals(t.getOperationalType())
+                            || "MAINTENANCE".equals(t.getOperationalType())
+                            || "DAMAGE_CHECK".equals(t.getOperationalType())))
                     .sorted((t1, t2) -> t2.getCreatedAt().compareTo(t1.getCreatedAt()))
                     .findFirst()
                     .orElseGet(() -> {
-                        String type = "DAMAGE_CHECK";
+                        String type = (isEmergency || room.getCurrentBookingDetailId() == null) ? OPERATION_MAINTENANCE
+                                : "DAMAGE_CHECK";
                         HotelOperation task = buildHotelOperation(room, staff, type, priority, notes);
                         return maintenanceRequestRepo.save(task);
                     });
         }
 
-        String type = "DAMAGE_CHECK";
+        String type;
+        if (isEmergency || room.getCurrentBookingDetailId() == null) {
+            if (room.getCurrentBookingDetailId() == null) {
+                // Cập nhật trạng thái phòng → Maintenance (chỉ khi không có khách đang thuê)
+                room.setRoomStatus(STATUS_MAINTENANCE);
+                roomRepo.save(room);
+            }
+            type = OPERATION_MAINTENANCE;
+        } else {
+            // Khách chưa checkout và không khẩn cấp -> Tạo phiếu DAMAGE_CHECK và giữ nguyên
+            // trạng thái phòng (không đổi sang Maintenance)
+            type = "DAMAGE_CHECK";
+        }
 
         // Tạo phiếu bảo trì
         HotelOperation task = buildHotelOperation(room, staff, type, priority, notes);
@@ -240,13 +258,15 @@ public class HousekeepingServiceImpl implements HousekeepingService {
         HotelOperation task = findMaintenanceTaskById(taskId);
         Room room = task.getRoom();
 
-        // Phòng sau bảo trì → Trả về Occupied nếu đang có khách ở, ngược lại kiểm tra xem có task dọn dẹp nào chưa hoàn thành
+        // Phòng sau bảo trì → Trả về Occupied nếu đang có khách ở, ngược lại kiểm tra
+        // xem có task dọn dẹp nào chưa hoàn thành
         if (room.getCurrentBookingDetailId() != null) {
             room.setRoomStatus("Occupied");
         } else {
             boolean hasActiveCleaningTask = housekeepingTaskRepo.findAll().stream()
                     .anyMatch(t -> t.getRoom() != null && t.getRoom().getId().equals(room.getId())
-                            && ("CHECKOUT_CLEAN".equals(t.getOperationalType()) || "URGENT_CLEAN".equals(t.getOperationalType()))
+                            && ("CHECKOUT_CLEAN".equals(t.getOperationalType())
+                                    || "URGENT_CLEAN".equals(t.getOperationalType()))
                             && !"Completed".equalsIgnoreCase(t.getStatus()));
             if (hasActiveCleaningTask) {
                 room.setRoomStatus(STATUS_VACANT_DIRTY);

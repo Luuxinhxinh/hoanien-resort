@@ -1,3 +1,4 @@
+
 # BUSINESS RULES CATALOG
 
 ## Kawai Retreat Resort & Hub — Hệ thống Quản lý Nghỉ dưỡng Tích hợp
@@ -79,7 +80,6 @@ Toàn bộ thông tin định danh cá nhân (Căn cước công dân, Hộ chi�
 - Khóa AES-256 phải được lưu trữ trong biến môi trường hệ thống (env variable), không hardcode trong mã nguồn.
 - Giải mã thông tin CCCD/Hộ chiếu chỉ được thực hiện khi có yêu cầu từ người dùng hợp lệ hoặc Lễ tân có thẩm quyền.
 
-
 ---
 
 ### BR-SYS-02 — Khóa Tài khoản & Hết hạn OTP
@@ -97,7 +97,6 @@ Toàn bộ thông tin định danh cá nhân (Căn cước công dân, Hộ chi�
 - Sau khi tài khoản bị khóa, người dùng phải chờ đủ 15 phút hoặc liên hệ Admin để mở khóa.
 - Token reset mật khẩu phải bị vô hiệu hóa ngay sau khi đặt lại mật khẩu thành công.
 
-
 ---
 
 ### BR-SYS-03 — Phiên Đăng nhập Nhân viên
@@ -111,7 +110,6 @@ Phiên làm việc (Session) của nhân viên hệ thống phải **tự độn
 
 - Áp dụng cho tất cả các vai trò nhân viên: Receptionist, F&B Staff, Kitchen Staff, Housekeeping, Maintenance, Tour Guide, Admin, Manager.
 - Khi phiên hết hạn, hệ thống phải chuyển hướng người dùng về trang đăng nhập.
-
 
 ---
 
@@ -135,7 +133,6 @@ Tất cả các hành động quan trọng sau **phải được ghi vào Audit 
 - Mỗi bản ghi log phải bao gồm: tên bảng bị tác động, giá trị cũ (JSON), giá trị mới (JSON), ID nhân viên, địa chỉ IP, và timestamp.
 - Cơ chế ghi log được triển khai bằng Spring AOP.
 
-
 ---
 
 ### BR-SYS-05 — Xóa Dữ liệu Cá nhân (Right to be Forgotten)
@@ -152,7 +149,6 @@ Yêu cầu xóa thông tin cá nhân của khách hàng phải được xử lý
 - Chỉ khách hàng đã Check-out mới có thể yêu cầu xóa dữ liệu.
 - Tuân thủ Nghị định 13/2023/NĐ-CP về Bảo vệ Dữ liệu Cá nhân.
 
-
 ---
 
 ### BR-SYS-06 — Yêu cầu Mật khẩu Mạnh
@@ -168,7 +164,6 @@ Mật khẩu người dùng phải đáp ứng tối thiểu các tiêu chí:
 - Chứa ít nhất **1 chữ số** (0-9).
 - Số điện thoại đăng ký phải có **10-12 số**.
 
-
 ---
 
 ### BR-SYS-07 — Phân quyền Vai trò (RBAC)
@@ -183,7 +178,6 @@ Mỗi nhân viên chỉ có **duy nhất một vai trò chính** tại một th�
 - Nhân viên không thể tự thay đổi vai trò của mình.
 - Chỉ Admin mới có quyền gán/thay đổi vai trò nhân viên.
 - Vai trò được ánh xạ trực tiếp đến danh sách màn hình và API được phép truy cập.
-
 
 ---
 
@@ -201,7 +195,6 @@ Cổng đăng nhập nhân viên (`/ops-login`) yêu cầu xác thực hai yếu
 - Admin có quyền thu hồi (`is_approved = false`) quyền truy cập của bất kỳ thiết bị nào.
 - Khách hàng dùng cổng `/booking` với Google OAuth2 — không áp dụng quy tắc này.
 
-
 ---
 
 ### BR-SYS-09 — Quản trị Workflow Động
@@ -216,7 +209,6 @@ Chỉ Admin mới có quyền cấu hình, sửa đổi các quy trình workflow
 - `Workflows` entity lưu trữ điều kiện (`conditions_json`) và hành động (`actions_json`).
 - Workflow chỉ được kích hoạt nếu `is_active = true`.
 
-
 ---
 
 ### BR-SYS-10 — Nhật ký Xuất Dữ liệu (Export History Audit)
@@ -230,7 +222,6 @@ Mọi hành động xuất dữ liệu (Export Excel/PDF) liên quan đến thô
 
 - Nhật ký ghi nhận: ID tài khoản thực hiện, thời gian, loại dữ liệu xuất, số lượng dòng dữ liệu, địa chỉ IP.
 - Dữ liệu nhật ký này không được phép sửa đổi hoặc xóa bởi bất kỳ người dùng nào ngoại trừ System Admin.
-
 
 ---
 
@@ -487,8 +478,9 @@ Order cancellation by either the guest or staff is only permitted when the order
 **Phát biểu:**
 In the event of an order cancellation:
 
-  - If the CHARGE_TO_ROOM method was selected, the system automatically reverses the charge on the room folio.
-  - If payment was made online or via bank transfer, the system prompts for bank details and automatically generates a RefundRequest routed to the Manager for approval.
+- If the CHARGE_TO_ROOM method was selected, the system automatically reverses the charge on the room folio.
+- If payment was made online or via bank transfer, the system prompts for bank details and automatically generates a RefundRequest routed to the Manager for approval.
+
 ### BR-FB-13 — When creating a Room Service...
 
 **Mức độ:** HIGH
@@ -605,9 +597,10 @@ The system strictly enforces vacancy checks (availableSlots = maxCapacity - conf
 **Phát biểu:**
 Tour ticket prices are calculated dynamically based on passenger age groups:
 
-  - Infants (Under 2 years old): 100% Free.
-  - Children (2 - 11 years old): 50% discount on the base price (basePrice * 0.5).
-  - Adults (12 years old and above): 100% full price (basePrice).
+- Infants (Under 2 years old): 100% Free.
+- Children (2 - 11 years old): 50% discount on the base price (basePrice * 0.5).
+- Adults (12 years old and above): 100% full price (basePrice).
+
 ### BR-TR-07 — Mandatory Travel Insurance
 
 **Mức độ:** HIGH
@@ -673,9 +666,11 @@ To account for scanner precision variations in variable lighting, the system map
 **Mức độ:** HIGH
 
 **Phát biểu:**
+
 - Resort-Initiated Cancellation: 100% full refund to the customer. Booking status updates to Cancelled_Refunded.
 
   - Guest-Initiated Cancellation: If cancelled within 24 hours prior to departure, a 50% deposit penalty is charged (only 50% is refunded). Booking status updates to Cancelled_Forfeited.
+
 ### BR-TR-13 — Active Tour Editing & Deletion Restriction
 
 **Mức độ:** HIGH
@@ -726,6 +721,7 @@ Việc hạ cấp xuống hạng phòng thấp hơn sau khi nhận phòng sẽ k
 
 **Phát biểu:**
 Hệ thống xác định việc nâng hạng và hạ hạng phòng dựa trên giá phòng. Việc chuyển sang hạng phòng có giá cao hơn được coi là nâng hạng, trong khi chuyển sang hạng phòng có giá thấp hơn được coi là hạ hạng.
+
 ## 8. Mod 5 — Quản lý Vận hành & Báo cáo (Operations, Housekeeping, Manager)
 
 ### 1. Folio Aggregation (Gom hóa đơn & Ký nợ phòng)
@@ -786,9 +782,11 @@ Check-out tuyệt đối bị khóa chặn nếu hóa đơn tổng hợp chưa c
 **Mức độ:** HIGH
 
 **Phát biểu:**
+
 - Hủy trước 48 giờ so với ngày Check-in: Hoàn 100% cọc.
 
   - Hủy trong vòng 48 giờ hoặc No-show: Mất 100% cọc.
+
 ### BR-FIN-04b | Phê duyệt Hoàn tiền thủ công — Mọi yêu cầu hoàn tiền...
 
 **Mức độ:** HIGH
@@ -950,7 +948,6 @@ Hệ thống nghiêm cấm xóa các dữ liệu nền (Master Data) khi chúng 
 - **Không xóa bàn ăn** đang có đặt chỗ trước.
 - **Không xóa tour** đang ở trạng thái Active/Scheduled.
 
-
 ---
 
 ### BR-DATA-02 — Khai báo Tạm trú
@@ -960,7 +957,6 @@ Hệ thống nghiêm cấm xóa các dữ liệu nền (Master Data) khi chúng 
 **Phát biểu:**
 Thông tin khai báo lưu trú phải thu thập đầy đủ cho mỗi khách: Họ tên, Ngày sinh, Số CCCD, Giới tính, Quốc tịch — nhằm đáp ứng yêu cầu theo **Luật Cư trú 2020**.
 
-
 ---
 
 ### BR-DATA-03 — Tính Nhất quán Giao dịch
@@ -969,7 +965,6 @@ Thông tin khai báo lưu trú phải thu thập đầy đủ cho mỗi khách: 
 
 **Phát biểu:**
 Quá trình tạo tài khoản nhân viên (bao gồm `Accounts` và `Employees`) phải được bao trong **một giao dịch CSDL duy nhất** (`@Transactional`). Nếu bất kỳ bước nào thất bại, toàn bộ giao dịch phải được **rollback**.
-
 
 ---
 
@@ -986,7 +981,6 @@ Mỗi phòng vật lý được check-in **phải có ít nhất một người 
 - `guest_type` phân loại: `ADULT`, `CHILD`, `INFANT`.
 - Thông tin này phục vụ báo cáo khai báo tạm trú theo Luật Cư trú 2020.
 
-
 ---
 
 ### BR-DATA-05 — Phí Phụ trội Theo Độ tuổi (Room Surcharge)
@@ -1002,7 +996,6 @@ Hệ thống áp dụng hệ số giá phụ trội (`price_modifier`) theo đ�
 - Hệ số `price_modifier` nhân với giá cơ sở hoặc giá theo ngày.
 - Chỉ áp dụng khi `is_active = true`.
 - Chỉ Admin và Manager có quyền cấu hình Room Surcharge.
-
 
 ---
 
@@ -1022,7 +1015,6 @@ Khách hàng tích lũy điểm qua các giao dịch dịch vụ. Điểm tích 
 - Tên hạng: `STANDARD`, `SILVER`, `GOLD`, `PLATINUM` (tùy cấu hình Admin).
 - Không được xóa `MembershipTier` đang được tham chiếu bởi khách hàng.
 
-
 ---
 
 ## 11. BR-STAFF — Lịch làm việc Nhân viên
@@ -1039,7 +1031,6 @@ Lịch làm việc (`StaffSchedule`) và ca trực (`Shift`) của nhân viên p
 - Một nhân viên không thể được gán hai ca trực trùng thời gian.
 - Chỉ Admin và Manager có quyền tạo/sửa lịch ca trực.
 - Lịch ca trực được kiểm tra trước khi phân công nhân viên vào `TourStaffAssignment`.
-
 
 ---
 
@@ -1060,7 +1051,6 @@ Hệ thống Workflow Engine động (`WorkflowEngineService`) xử lý các lu�
 - Chỉ Admin mới được phép tạo/sửa/xóa Workflow.
 - Workflow bị vô hiệu hóa (`is_active = false`) không được kích hoạt.
 
-
 ---
 
 ### BR-WF-02 — Ủy quyền Phê duyệt Đặt phòng (Pending Approval)
@@ -1075,7 +1065,6 @@ Khi một booking vi phạm ngưỡng giảm giá do Staff áp dụng (`PROMOTIO
 - Workflow `PROMOTION_EXCEEDED` được cấu hình trong bảng `Workflows`.
 - Manager nhận thông báo và có thể phê duyệt (→ `Confirmed`) hoặc từ chối (→ `Cancelled`).
 - Ghi Audit Log khi có quyết định phê duyệt.
-
 
 ---
 

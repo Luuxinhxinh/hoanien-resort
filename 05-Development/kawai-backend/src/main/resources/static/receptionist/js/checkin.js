@@ -1,3 +1,41 @@
+// ==============================================
+// SECTION 1: GLOBAL STATE & CONSTANTS
+// ==============================================
+
+let checkinMasterCreditLimit = 5000000;
+let expectedTotalGuests = 0;
+let expectedTotalAdults = 0;
+let expectedTotalChildren = 0;
+let maxTotalAdults = 0;
+let maxTotalChildren = 0;
+
+let assignedRooms = [];
+let depIndexCounter = 0;
+let currentEditingDependentRow = null;
+let currentTours = [];
+
+// Face ID state
+let faceApiLoaded = false;
+let videoStream = null;
+let currentEnrollType = null;
+let currentEnrollId = null;
+let pendingFaceEnrollments = {};
+const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.12/model/';
+
+// QR / Remote Scan state
+let html5QrcodeScanner = null;
+let currentQrTarget = null;
+let remoteScanEventSource = null;
+let remoteScanQrCode = null;
+const persistentSessionId = (window.crypto && crypto.randomUUID)
+    ? crypto.randomUUID()
+    : ('session-' + Date.now() + '-' + Math.random().toString(36).substring(2, 10));
+
+
+// ==============================================
+// SECTION 2: UTILITIES & HELPERS
+// ==============================================
+
 function showToast(msg, type = 'error') {
     let container = document.getElementById('custom-toast-container');
     if (!container) {
@@ -90,7 +128,6 @@ function showToast(msg, type = 'error') {
 
     container.appendChild(toast);
 
-    // trigger animation
     requestAnimationFrame(() => {
         setTimeout(() => toast.classList.add('show'), 10);
     });
@@ -101,6 +138,29 @@ function showToast(msg, type = 'error') {
     }, 4000);
 }
 
+function calculateAge(dobStr) {
+    if (!dobStr) return 0;
+    const dob = new Date(dobStr);
+    const diff = Date.now() - dob.getTime();
+    return Math.floor(diff / (1000 * 60 * 60 * 24 * 365.25));
+}
+
+/**
+ * Fetch helper: tự động đính kèm CSRF token cho các request POST/DELETE/PUT.
+ * Dùng cho các endpoint nội bộ cần bảo vệ CSRF.
+ */
+function csrfFetch(url, method) {
+    const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content') || '';
+    return fetch(url, {
+        method,
+        headers: { 'X-CSRF-TOKEN': csrfToken }
+    }).then(res => res.json());
+}
+
+
+// ==============================================
+// SECTION 3: ROOM ASSIGNMENT MODULE
+// ==============================================
 
 function updateAvailableRooms() {
     const typeSelect = document.getElementById('bookTypeSelect');
@@ -113,9 +173,7 @@ function updateAvailableRooms() {
     const inventoryForType = roomInventory[selectedType] || [];
     const available = inventoryForType.filter(r => !assignedRooms.some(a => a.room === r.number));
 
-    if (available.length === 0) {
-        return;
-    }
+    if (available.length === 0) return;
 
     available.forEach(r => {
         const opt = document.createElement('option');
@@ -126,6 +184,7 @@ function updateAvailableRooms() {
     });
 }
 
+// Dirty-room inline warning listener
 document.addEventListener('DOMContentLoaded', () => {
     const roomSelect = document.getElementById('physicalRoomSelect');
     if (roomSelect) {
@@ -185,12 +244,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 window.escalateDirtyRoom = function (roomNumber, assignAfter) {
-    fetch(`/receptionist/rooms/escalate-dirty?roomNumber=${roomNumber}`, {
-        method: 'POST',
-        headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]') ? document.querySelector('meta[name="_csrf"]').getAttribute('content') : ''
-        }
-    }).then(res => res.json())
+    csrfFetch(`/receptionist/rooms/escalate-dirty?roomNumber=${roomNumber}`, 'POST')
         .then(data => {
             if (data.status === 'success') {
                 showToast('Đã gửi yêu cầu dọn khẩn cấp cho buồng phòng.', 'success');
@@ -198,11 +252,9 @@ window.escalateDirtyRoom = function (roomNumber, assignAfter) {
                 const typeSelect = document.getElementById('bookTypeSelect');
                 const roomSelect = document.getElementById('physicalRoomSelect');
 
-                // Always remove the warning banner when a choice is made
                 const existingWarning = document.getElementById('dirtyRoomWarningInline');
                 if (existingWarning) existingWarning.remove();
 
-                // Always re-enable the assign button
                 const gridContainer = roomSelect.closest('div[style*="display: grid"]');
                 if (gridContainer) {
                     const assignBtn = gridContainer.querySelector('button[onclick="assignRoom()"]');
@@ -216,17 +268,14 @@ window.escalateDirtyRoom = function (roomNumber, assignAfter) {
                 if (assignAfter) {
                     const selectedType = typeSelect.value;
                     const selectedRoomOpt = roomSelect.options[roomSelect.selectedIndex];
-                    // khi housekeeping dọn xong — giống hệt cơ chế của WalkIn
                     try {
                         const pendingRaw = sessionStorage.getItem('walkInPendingCleanRooms');
                         const pendingRooms = pendingRaw ? JSON.parse(pendingRaw) : {};
                         pendingRooms[roomNumber] = true;
                         sessionStorage.setItem('walkInPendingCleanRooms', JSON.stringify(pendingRooms));
                     } catch (e) { }
-
                     proceedAssignRoom(typeSelect, selectedType, roomNumber, selectedRoomOpt);
                 } else {
-                    // Chỉ yêu cầu dọn, không treo — reset dropdown cho lễ tân chọn lại
                     roomSelect.value = "";
                 }
             } else {
@@ -251,7 +300,6 @@ function assignRoom() {
 }
 
 function proceedAssignRoom(typeSelect, selectedType, selectedRoom, selectedRoomOpt) {
-
     const selectedOption = typeSelect.options[typeSelect.selectedIndex];
     let pending = parseInt(selectedOption.getAttribute('data-pending'));
 
@@ -269,48 +317,6 @@ function proceedAssignRoom(typeSelect, selectedType, selectedRoom, selectedRoomO
 
         updateAvailableRooms();
         renderAssignedRooms();
-
-    }
-}
-
-let checkinMasterCreditLimit = 5000000;
-let expectedTotalGuests = 0;
-let expectedTotalAdults = 0;
-let expectedTotalChildren = 0;
-let maxTotalAdults = 0;
-let maxTotalChildren = 0;
-
-function handleCheckinCreditInput(input, index) {
-    let val = parseFloat(input.value);
-    if (isNaN(val) || val < 0) {
-        val = 0;
-        if (input.value !== '') {
-            input.value = ''; // keep it empty if user clears it or enters negative
-        }
-    }
-    assignedRooms[index].allocatedCreditLimit = val;
-    let hiddens = document.querySelectorAll('input[name="allocatedCreditLimits"]');
-    if (hiddens && hiddens[index]) {
-        hiddens[index].value = val;
-    }
-    updateCheckinCreditLimitDisplay();
-    // Cảnh báo real-time nếu tổng hạn mức vượt quá
-    const totalAllocated = assignedRooms.reduce((s, r) => s + (r.allocatedCreditLimit || 0), 0);
-    input.style.borderColor = totalAllocated > checkinMasterCreditLimit ? '#ef4444' : '#cbd5e1';
-}
-
-function updateCheckinCreditLimitDisplay() {
-    let totalAllocated = 0;
-    assignedRooms.forEach(r => totalAllocated += (r.allocatedCreditLimit || 0));
-    let remaining = checkinMasterCreditLimit - totalAllocated;
-    let displayEl = document.getElementById('checkinRemainingCreditDisplay');
-    if (displayEl) {
-        displayEl.innerText = remaining.toLocaleString() + ' VND';
-        if (remaining < 0) {
-            displayEl.style.color = 'red';
-        } else {
-            displayEl.style.color = '#16a34a';
-        }
     }
 }
 
@@ -320,7 +326,6 @@ function removeAssignedRoom(roomNumber) {
         const type = assignedRooms[index].type;
         assignedRooms.splice(index, 1);
 
-        // restore pending count
         const typeSelect = document.getElementById('bookTypeSelect');
         for (let i = 0; i < typeSelect.options.length; i++) {
             if (typeSelect.options[i].value === type) {
@@ -336,6 +341,7 @@ function removeAssignedRoom(roomNumber) {
         renderAssignedRooms();
     }
 }
+
 function renderAssignedRooms() {
     const container = document.getElementById('assignedRoomsList');
     container.innerHTML = '';
@@ -381,7 +387,6 @@ function renderAssignedRooms() {
 
         rightDiv.appendChild(limitInput);
         rightDiv.appendChild(delBtn);
-
         row.appendChild(infoSpan);
         row.appendChild(rightDiv);
         container.appendChild(row);
@@ -410,7 +415,6 @@ function renderAssignedRooms() {
         });
     }
 
-    // Cập nhật dropdown phòng cho các slot chưa confirm
     document.querySelectorAll('select[id^="slot_room_"]').forEach(selectEl => {
         const currentValue = selectEl.value;
         selectEl.innerHTML = '<option value="">-- Chọn phòng --</option>';
@@ -425,10 +429,38 @@ function renderAssignedRooms() {
         }
     });
 
-    // Cập nhật tự động phân phòng cho danh sách tour
     updateTourPhysicalRooms();
-
     updateCheckinCreditLimitDisplay();
+}
+
+
+// ==============================================
+// SECTION 4: CHECKIN MODAL & CREDIT LIMIT
+// ==============================================
+
+function handleCheckinCreditInput(input, index) {
+    let val = parseFloat(input.value);
+    if (isNaN(val) || val < 0) {
+        val = 0;
+        if (input.value !== '') input.value = '';
+    }
+    assignedRooms[index].allocatedCreditLimit = val;
+    let hiddens = document.querySelectorAll('input[name="allocatedCreditLimits"]');
+    if (hiddens && hiddens[index]) hiddens[index].value = val;
+    updateCheckinCreditLimitDisplay();
+    const totalAllocated = assignedRooms.reduce((s, r) => s + (r.allocatedCreditLimit || 0), 0);
+    input.style.borderColor = totalAllocated > checkinMasterCreditLimit ? '#ef4444' : '#cbd5e1';
+}
+
+function updateCheckinCreditLimitDisplay() {
+    let totalAllocated = 0;
+    assignedRooms.forEach(r => totalAllocated += (r.allocatedCreditLimit || 0));
+    let remaining = checkinMasterCreditLimit - totalAllocated;
+    let displayEl = document.getElementById('checkinRemainingCreditDisplay');
+    if (displayEl) {
+        displayEl.innerText = remaining.toLocaleString() + ' VND';
+        displayEl.style.color = remaining < 0 ? 'red' : '#16a34a';
+    }
 }
 
 function openCheckinModal(bookingId, guestName, phone, cccd, dob, roomSummary, depsDivId, toursDivId, creditLimit, expectedGuests, expectedAdults, expectedChildren, maxAdults, maxChildren, gender) {
@@ -439,9 +471,9 @@ function openCheckinModal(bookingId, guestName, phone, cccd, dob, roomSummary, d
         console.error('[openCheckinModal] CRITICAL: #checkinModal không tìm thấy trong DOM!');
         return;
     }
+
     const currentBookingId = document.getElementById('submitBookingId').value;
     if (currentBookingId === bookingId.toString()) {
-        // Resume from previous state if clicking the same check-in button
         modalEl.style.display = 'flex';
         return;
     }
@@ -460,12 +492,12 @@ function openCheckinModal(bookingId, guestName, phone, cccd, dob, roomSummary, d
     }
 
     updateCheckinCreditLimitDisplay();
-    // Gán bookingId vào form submit hidden input
     document.getElementById('submitBookingId').value = bookingId;
+
     const dependentsListContainer = document.getElementById('dependentsList');
     dependentsListContainer.innerHTML = '';
-    depIndexCounter = 0; // Reset index khách kèm
-    // Lấy danh sách khách kèm hiện có
+    depIndexCounter = 0;
+
     if (depsDivId) {
         const depsDiv = document.getElementById(depsDivId);
         if (depsDiv) {
@@ -475,15 +507,12 @@ function openCheckinModal(bookingId, guestName, phone, cccd, dob, roomSummary, d
                 const dob = li.getAttribute('data-dob');
                 const dependentId = li.getAttribute('data-id');
                 const cccd = li.getAttribute('data-cccd');
-
                 const displayName = name ? name : '(Chưa cập nhật)';
                 addDependentRow(displayName, cccd || '', dob || '', 'Khác', dependentId, null, false);
             });
         }
     }
 
-    // Tự động sinh các slot trống cho khách chưa đăng ký
-    // Tổng cần: (adults - 1 vì chủ đơn) + children
     const alreadyRegistered = dependentsListContainer.querySelectorAll('tr[data-dob]').length;
     const totalSlotsNeeded = (expectedTotalAdults - 1) + expectedTotalChildren;
     const slotsToGenerate = Math.max(0, totalSlotsNeeded - alreadyRegistered);
@@ -508,7 +537,6 @@ function openCheckinModal(bookingId, guestName, phone, cccd, dob, roomSummary, d
     }
     if (document.getElementById('modalRoom')) document.getElementById('modalRoom').innerText = (roomSummary && roomSummary !== 'null') ? roomSummary : '';
 
-    // reset assignment state
     assignedRooms.length = 0;
     renderAssignedRooms();
 
@@ -531,7 +559,6 @@ function openCheckinModal(bookingId, guestName, phone, cccd, dob, roomSummary, d
             }
         });
     } else {
-        // Fallback if no specific booked types are found
         for (const category in roomInventory) {
             const opt = document.createElement('option');
             opt.value = category;
@@ -540,11 +567,9 @@ function openCheckinModal(bookingId, guestName, phone, cccd, dob, roomSummary, d
             typeSelect.appendChild(opt);
         }
     }
+
     updateAvailableRooms();
-
-    // Render danh sách tour đã đặt
     renderTourBookingsTable(toursDivId);
-
     document.getElementById('checkinModal').style.display = 'flex';
 }
 
@@ -562,14 +587,10 @@ function cancelCheckinModal() {
     }
 }
 
-function calculateAge(dobStr) {
-    if (!dobStr) return 0;
-    const dob = new Date(dobStr);
-    const diff = Date.now() - dob.getTime();
-    return Math.floor(diff / (1000 * 60 * 60 * 24 * 365.25));
-}
 
-let depIndexCounter = 0;
+// ==============================================
+// SECTION 5: DEPENDENTS (GUESTS) MANAGEMENT
+// ==============================================
 
 function addDependent() {
     const name = document.getElementById('depName').value.trim();
@@ -588,7 +609,6 @@ function addDependent() {
         return;
     }
 
-    // Kiểm tra ngày sinh không được ở tương lai
     const todayStr = new Date().toISOString().split('T')[0];
     if (dob > todayStr) {
         showToast('Ngày sinh không được vượt quá ngày hiện tại!', 'error');
@@ -599,7 +619,6 @@ function addDependent() {
         return;
     }
 
-    // Kiểm tra CCCD/Passport nếu có nhập
     const age = calculateAge(dob);
     if (age >= 14 && !id) {
         showToast('Người từ 14 tuổi trở lên bắt buộc có CCCD/Passport!', 'error');
@@ -622,7 +641,6 @@ function addDependent() {
         }
     }
 
-    // Đếm số người hiện tại
     let actualAdultCount = 1;
     let actualChildCount = 0;
     document.querySelectorAll('#dependentsList tr').forEach(row => {
@@ -653,7 +671,6 @@ function addDependent() {
         }
     }
 
-    // CHECK MỖI PHÒNG CHỈ 1 PRIMARY CONTACT
     if (isPrimary) {
         if (assignedRooms.length > 0 && roomId === assignedRooms[0].room) {
             showToast(`Phòng đầu tiên (${roomId}) mặc định do Chủ đoàn đứng đầu. Bạn không thể gán chức danh này cho khách phụ thuộc!`, 'error');
@@ -697,7 +714,6 @@ function addDependent() {
 
 function addDependentRow(name, cccd, dob, gender, dependentId, assignedPhysicalRoomNumber, isPrimary = false) {
     const tbody = document.getElementById('dependentsList');
-    // remove empty message if present
     if (tbody.children.length === 1 && tbody.children[0].innerText.includes('No group members')) {
         tbody.innerHTML = '';
     }
@@ -715,12 +731,15 @@ function addDependentRow(name, cccd, dob, gender, dependentId, assignedPhysicalR
 
     let effectiveDepId = dependentId || ('NEW_' + depIndexCounter);
     let depIdArg = `'${effectiveDepId}'`;
-
     let hiddenMapping = `<input type="hidden" class="faceid-mapping-id" data-target-id="${effectiveDepId}" data-index="${depIndexCounter}" />`;
 
     let roomIdArg = assignedPhysicalRoomNumber ? `'${assignedPhysicalRoomNumber}'` : 'null';
-    let roleBadge = isPrimary ? `<span style="display:inline-block; margin-top: 4px; padding: 2px 8px; background: #fef3c7; color: #d97706; border-radius: 12px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;"><i class="fa-solid fa-star"></i> Đứng đầu</span>` : `<span style="font-size: 13px; color: #64748b; font-weight: 500;">Thành viên</span>`;
-    let roomDisplay = assignedPhysicalRoomNumber ? `<span style="font-weight: 600; color: #0f766e; font-size: 13px;">Phòng ${assignedPhysicalRoomNumber}</span><br>` : '';
+    let roleBadge = isPrimary
+        ? `<span style="display:inline-block; margin-top: 4px; padding: 2px 8px; background: #fef3c7; color: #d97706; border-radius: 12px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;"><i class="fa-solid fa-star"></i> Đứng đầu</span>`
+        : `<span style="font-size: 13px; color: #64748b; font-weight: 500;">Thành viên</span>`;
+    let roomDisplay = assignedPhysicalRoomNumber
+        ? `<span style="font-weight: 600; color: #0f766e; font-size: 13px;">Phòng ${assignedPhysicalRoomNumber}</span><br>`
+        : '';
     let finalRoleDisplay = `${roomDisplay}${roleBadge}`;
 
     tr.innerHTML = `
@@ -747,15 +766,12 @@ function addDependentRow(name, cccd, dob, gender, dependentId, assignedPhysicalR
         <td style="padding: 12px 16px;">
             <button type="button" class="btn btn-outline btn-sm" style="color: #6366f1; border-color: #c7d2fe; background: #eef2ff; padding: 6px 10px; margin-right: 6px; border-radius: 6px; transition: all 0.2s;" onmouseover="this.style.background='#e0e7ff'" onmouseout="this.style.background='#eef2ff'" title="FaceID" onclick="openEnrollModal('DEPENDENT', ${depIdArg}, '${name}')"><i class="fa-solid fa-camera"></i></button>
             <button type="button" class="btn btn-outline btn-sm" style="color: #3b82f6; border-color: #bfdbfe; background: #eff6ff; padding: 6px 10px; margin-right: 6px; border-radius: 6px; transition: all 0.2s;" onmouseover="this.style.background='#dbeafe'" onmouseout="this.style.background='#eff6ff'" title="Edit" onclick="editDependentRow(this, '${name}', '${cccd}', '${dob}', '${gender}', ${depIdArg}, ${roomIdArg}, ${isPrimary})"><i class="fa-solid fa-pen"></i></button>
-            <button type="button" class="btn btn-outline btn-sm" style="color: #ef4444; border-color: #fecaca; background: #fef2f2; padding: 6px 10px; border-radius: 6px; transition: all 0.2s;" onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='#fef2f2'" title="Delete" onclick="this.closest('tr').remove()"><i class="fa-solid fa-trash"></i></button>
+            <button type="button" class="btn btn-outline btn-sm" style="color: #ef4444; border-color: #fecaca; background: #fef2f2; padding: 6px 10px; border-radius: 6px; transition: all 0.2s;" onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='#fef2f2'" title="Delete" onclick="removeDependentRow(this, ${depIdArg})"><i class="fa-solid fa-trash"></i></button>
         </td>
     `;
     tbody.appendChild(tr);
-
     depIndexCounter++;
 }
-
-let currentEditingDependentRow = null;
 
 function editDependentRow(btn, name, cccd, dob, gender, depId, roomId, isPrimary) {
     if (currentEditingDependentRow) {
@@ -795,6 +811,29 @@ function editDependentRow(btn, name, cccd, dob, gender, depId, roomId, isPrimary
     if (addBtn) addBtn.innerHTML = '<i class="fa-solid fa-check"></i> Cập nhật';
 }
 
+function removeDependentRow(btn, depId) {
+    if (!depId || String(depId).startsWith('NEW_')) {
+        btn.closest('tr').remove();
+        return;
+    }
+
+    if (confirm('Bạn có chắc chắn muốn xóa khách đi kèm này? Hành động này không thể hoàn tác và sẽ xóa trực tiếp trên hệ thống.')) {
+        csrfFetch('/receptionist/api/room-guests/by-dependent/' + depId, 'DELETE')
+            .then(data => {
+                if (data.status === 'success') {
+                    showToast(data.message, 'success');
+                    btn.closest('tr').remove();
+                } else {
+                    showToast(data.message, 'error');
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                showToast('Lỗi kết nối khi xóa khách đi kèm.', 'error');
+            });
+    }
+}
+
 function toggleDependentsList() {
     const wrapper = document.getElementById('dependentsTableWrapper');
     const btn = document.getElementById('toggleDependentsBtn');
@@ -808,191 +847,9 @@ function toggleDependentsList() {
 }
 
 
-const _checkinForm = document.getElementById('checkinFormWrapper');
-if (_checkinForm) {
-    _checkinForm.addEventListener('submit', async function (e) {
-
-        let actualAdultCount = 1; // Main Guest
-        let actualChildCount = 0;
-
-        document.querySelectorAll('#dependentsList tr').forEach(tr => {
-            if (tr.querySelector('input')) {
-                const trDob = tr.getAttribute('data-dob');
-                const trAge = calculateAge(trDob);
-                if (trAge >= 12) actualAdultCount++;
-                else actualChildCount++;
-            }
-        });
-
-        if (actualAdultCount > maxTotalAdults) {
-            e.preventDefault();
-            showToast(`Không thể hoàn tất! Tổng số Người Lớn (${actualAdultCount}) vượt quá sức chứa tối đa (${maxTotalAdults}). Vui lòng xóa bớt hoặc điều chỉnh hạng phòng.`, 'error');
-            return;
-        }
-        if (actualChildCount > maxTotalChildren) {
-            e.preventDefault();
-            showToast(`Không thể hoàn tất! Tổng số Trẻ Em (${actualChildCount}) vượt quá sức chứa tối đa (${maxTotalChildren}). Vui lòng xóa bớt hoặc điều chỉnh hạng phòng.`, 'error');
-            return;
-        }
-
-        if (assignedRooms.length === 0) {
-            e.preventDefault();
-            showToast('Vui long phan it nhat 1 phong truoc khi hoan tat Check-in!');
-            return;
-        }
-
-        const mainPhone = document.getElementById('modalGuestPhone').value;
-        const mainCccd = document.getElementById('modalGuestCccd').value;
-        if (!mainPhone || !mainCccd) {
-            e.preventDefault();
-            showToast('Khách đứng đầu (chủ đoàn) phải điền đầy đủ số điện thoại và CCCD!');
-            return;
-        }
-
-        // Ràng buộc FaceID cho chủ đoàn
-        // Lấy targetId của CUSTOMER
-        const submitBookingId = document.getElementById('submitBookingId').value;
-        if (!pendingFaceEnrollments['CUSTOMER']) {
-            e.preventDefault();
-            showToast('Người chủ đoàn bắt buộc phải cập nhật khuôn mặt (FaceID) để hoàn tất đơn!');
-            return;
-        }
-
-        let missingFaceName = null;
-        document.querySelectorAll('.faceid-mapping-id').forEach(input => {
-            const row = input.closest('tr');
-            if (row && row.style.display !== 'none') {
-                const targetId = input.getAttribute('data-target-id');
-                const dobInput = row.querySelector('input[name$=".dateOfBirth"]');
-                const nameInput = row.querySelector('input[name$=".fullName"]');
-                if (dobInput) {
-                    const age = calculateAge(dobInput.value);
-                    // Bắt buộc FaceID nếu đủ 14 tuổi, VÀ khách hàng mới hoặc phụ thuộc mới (có thể check targetId bắt đầu bằng NEW_)
-                    if (age >= 14) {
-                        // Nếu backend có check FaceID rồi thì không nói, ở đây force capture tại UI
-                        // Chỉ force nếu là NEW_ hoặc chưa có vector. 
-                        // Tạm thời nếu user muốn thì force hết. Hoặc nếu nó không nằm trong targetId (tức là targetId bắt đầu bằng NEW_)
-                        if (targetId && targetId.startsWith('NEW_') && !pendingFaceEnrollments[targetId]) {
-                            missingFaceName = nameInput ? nameInput.value : 'Người đi kèm';
-                        }
-                    }
-                }
-            }
-        });
-
-        if (missingFaceName) {
-            e.preventDefault();
-            showToast(`Thành viên ${missingFaceName} từ 14 tuổi trở lên bắt buộc phải cập nhật khuôn mặt (FaceID mới) để hoàn tất đơn!`);
-            return;
-        }
-
-        const assignedRoomNumbers = assignedRooms.map(r => r.room);
-
-        const primaryInputs = document.querySelectorAll('input[name$=".isPrimaryContact"][value="true"]');
-        const primaryRooms = [];
-        primaryInputs.forEach(input => {
-            const row = input.closest('tr');
-            if (row && !row.classList.contains('editing-row')) {
-                const roomInput = row.querySelector('input[name$=".assignedPhysicalRoomNumber"]');
-                if (roomInput && roomInput.value) {
-                    primaryRooms.push(roomInput.value);
-                }
-            }
-        });
-
-        const missingRooms = [];
-        for (let i = 1; i < assignedRoomNumbers.length; i++) {
-            const room = assignedRoomNumbers[i];
-            if (!primaryRooms.includes(room)) {
-                missingRooms.push(room);
-            }
-        }
-
-        if (missingRooms.length > 0) {
-            e.preventDefault();
-            showToast('Thieu nguoi dung dau cho phong: ' + missingRooms.join(', '));
-            return;
-        }
-
-        // Validate that all dependents have been assigned a physical room
-        const dependentRows = document.querySelectorAll('#dependentsList tr:not(.editing-row)');
-        let unassignedDependentCount = 0;
-        let missingDependentName = null;
-        dependentRows.forEach(row => {
-            if (row.style.display !== 'none') {
-                const roomInput = row.querySelector('input[name$=".assignedPhysicalRoomNumber"]');
-                // N?u l thnh vin dnh sch bnh thu?ng c th? roomInput (hidden field)
-                if (roomInput !== null && (!roomInput.value || roomInput.value.trim() === '')) {
-                    unassignedDependentCount++;
-                    if (!missingDependentName) {
-                        const nameTd = row.querySelector('td:first-child');
-                        if (nameTd) missingDependentName = nameTd.innerText.trim().split('\n')[0];
-                    }
-                }
-            }
-        });
-
-        if (unassignedDependentCount > 0) {
-            e.preventDefault();
-            showToast(`Vui lòng chọn phòng cho khách "${missingDependentName || 'ẩn danh'}" và các khách chưa được phân phòng khác!`, 'error');
-            return;
-        }
-
-
-
-        // Prevent default submission to process FaceIDs first
-        e.preventDefault();
-
-        // Show loading state
-        const submitBtn = _checkinForm.querySelector('button[type="submit"]');
-        if (submitBtn) {
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang xử lý FaceID...';
-        }
-
-        // Inject pending FaceIDs into the form
-        for (const key in pendingFaceEnrollments) {
-            const data = pendingFaceEnrollments[key];
-            if (data.type === 'CUSTOMER') {
-                const input1 = document.createElement('input');
-                input1.type = 'hidden';
-                input1.name = 'faceVectorData';
-                input1.value = data.vector;
-                _checkinForm.appendChild(input1);
-
-                const input2 = document.createElement('input');
-                input2.type = 'hidden';
-                input2.name = 'faceImageBase64';
-                input2.value = data.image;
-                _checkinForm.appendChild(input2);
-            } else {
-                // Dependent
-                const mapping = _checkinForm.querySelector(`.faceid-mapping-id[data-target-id="${data.id}"]`);
-                if (mapping) {
-                    const idx = mapping.getAttribute('data-index');
-                    const input1 = document.createElement('input');
-                    input1.type = 'hidden';
-                    input1.name = `dependents[${idx}].faceVectorData`;
-                    input1.value = data.vector;
-                    _checkinForm.appendChild(input1);
-
-                    const input2 = document.createElement('input');
-                    input2.type = 'hidden';
-                    input2.name = `dependents[${idx}].faceImageBase64`;
-                    input2.value = data.image;
-                    _checkinForm.appendChild(input2);
-                }
-            }
-        }
-
-        // Sau khi upload xong, submit form gốc
-        _checkinForm.submit();
-    });
-} else {
-    console.error('[checkin.js] CRITICAL: #checkinFormWrapper khong tim thay trong DOM!');
-}
-
-let currentTours = [];
+// ==============================================
+// SECTION 6: TOUR MANAGEMENT
+// ==============================================
 
 function renderTourBookingsTable(toursDivId) {
     const section = document.getElementById('tourBookingsSection');
@@ -1055,16 +912,10 @@ function updateTourPhysicalRooms() {
     });
 }
 
-// ==========================================
-// THU THẬP KHUÔN MẶT (FACE ID ENROLLMENT)
-// ==========================================
-let faceApiLoaded = false;
-let videoStream = null;
-let currentEnrollType = null; // 'CUSTOMER' or 'DEPENDENT'
-let currentEnrollId = null;
-let pendingFaceEnrollments = {}; // Temporary storage for face vectors and images
 
-const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.12/model/';
+// ==============================================
+// SECTION 7: BIOMETRICS — FACE ID ENROLLMENT
+// ==============================================
 
 async function loadFaceApiModels() {
     if (faceApiLoaded) return true;
@@ -1090,24 +941,15 @@ async function openEnrollModal(type, targetId, targetName) {
     }
 
     currentEnrollType = type;
-
-    // Convert bookingId to customerId via UI element if it's CUSTOMER type
-    // Since check-in uses bookingId, we will use bookingId and the backend can resolve customer or we just pass customerId from the backend.
-    // In our case, the button passes bookingId, but backend needs customerId. We should have passed customer_id.
-    // Let's modify the UI directly in JS: we can just ask user to scan, and we send it to backend API.
-    // Wait, let's fetch customer id from the global variable or DOM.
-    // Check-in modal has dataset.id which is bookingId.
-    // To keep it simple, we assume targetId is customerId for CUSTOMER, and dependentId for DEPENDENT.
-    // Actually in check-in.html `openEnrollModal('CUSTOMER', document.getElementById('submitBookingId').value)`
-    // This is wrong, it sends bookingId. Let's fix that. I'll send it as `bookingId` for CUSTOMER and backend will find customer from booking.
-
     currentEnrollId = targetId;
 
     const modal = document.getElementById('enrollFaceModal');
     const overlay = document.getElementById('enrollOverlay');
     const captureBtn = document.getElementById('captureBtn');
 
-    document.getElementById('enrollTargetName').innerText = type === 'CUSTOMER' ? "Đang đăng ký cho Người Đặt Phòng..." : "Đang đăng ký cho " + (targetName || "Người Đi Kèm...");
+    document.getElementById('enrollTargetName').innerText = type === 'CUSTOMER'
+        ? "Đang đăng ký cho Người Đặt Phòng..."
+        : "Đang đăng ký cho " + (targetName || "Người Đi Kèm...");
 
     modal.style.display = 'flex';
     overlay.style.display = 'flex';
@@ -1152,7 +994,6 @@ async function captureFace() {
     captureBtn.disabled = true;
     overlay.style.display = 'flex';
 
-    // Countdown 3 seconds
     for (let i = 3; i > 0; i--) {
         overlay.innerHTML = `<span style="font-size: 24px; font-weight: bold;">Chụp trong: ${i}s<br><span style="font-size: 14px; font-weight: normal; color: #cbd5e1;">(Vui lòng mở mắt to và nhìn thẳng)</span></span>`;
         await new Promise(r => setTimeout(r, 1000));
@@ -1175,7 +1016,7 @@ async function captureFace() {
         // Kiểm tra trùng lặp với các khuôn mặt đã chụp trong cùng session
         const currentKey = currentEnrollType === 'CUSTOMER' ? 'CUSTOMER' : currentEnrollId;
         for (const existingKey in pendingFaceEnrollments) {
-            if (existingKey === currentKey.toString()) continue; // Bỏ qua nếu chụp lại cho chính người này
+            if (existingKey === currentKey.toString()) continue;
 
             const existingVector = JSON.parse(pendingFaceEnrollments[existingKey].vector);
             const distance = faceapi.euclideanDistance(descriptor, existingVector);
@@ -1202,7 +1043,6 @@ async function captureFace() {
         const box = detection.detection.box;
         const faceCanvas = document.createElement('canvas');
 
-        // Add padding around the face for better visibility
         const padX = box.width * 0.2;
         const padY = box.height * 0.2;
         const startX = Math.max(0, box.x - padX);
@@ -1212,15 +1052,10 @@ async function captureFace() {
 
         faceCanvas.width = drawWidth;
         faceCanvas.height = drawHeight;
-        faceCanvas.getContext('2d').drawImage(
-            canvas,
-            startX, startY, drawWidth, drawHeight,
-            0, 0, drawWidth, drawHeight
-        );
+        faceCanvas.getContext('2d').drawImage(canvas, startX, startY, drawWidth, drawHeight, 0, 0, drawWidth, drawHeight);
 
         const base64Image = faceCanvas.toDataURL('image/jpeg', 0.85);
 
-        // Lưu tạm vào bộ nhớ JS
         const key = currentEnrollType === 'CUSTOMER' ? 'CUSTOMER' : currentEnrollId;
         pendingFaceEnrollments[key] = {
             type: currentEnrollType,
@@ -1229,9 +1064,7 @@ async function captureFace() {
             image: base64Image
         };
 
-        // Hiển thị ảnh xem trước trên giao diện checkin
         updateFacePreviewUI(currentEnrollType, currentEnrollId, base64Image);
-
         closeEnrollModal();
 
     } catch (e) {
@@ -1278,7 +1111,421 @@ function updateFacePreviewUI(type, targetId, base64Image) {
     `;
 }
 
-// --- AUTO SAVE FORM DATA TO PREVENT DATA LOSS ON TAB SWITCH / RELOAD ---
+
+// ==============================================
+// SECTION 8: BIOMETRICS — QR CODE & REMOTE SCAN
+// ==============================================
+
+function handleQrScan(val, target, inputEl) {
+    if (!val) return;
+
+    // Format: 001205015836||Nguyễn Xuân Lưu|14102005|Nam|Địa chỉ|31052021
+    const parts = val.split('|');
+    if (parts.length >= 7) {
+        const id = parts[0];
+        const name = parts[2];
+        const dobStr = parts[3]; // DDMMYYYY
+
+        let dob = '';
+        if (dobStr && dobStr.length === 8) {
+            dob = `${dobStr.substring(4, 8)}-${dobStr.substring(2, 4)}-${dobStr.substring(0, 2)}`;
+        }
+
+        const mainCccd = document.getElementById('modalGuestCccd').value.trim();
+        let isDuplicateDep = false;
+        document.querySelectorAll('input[name$=".cccd"]').forEach(inp => {
+            if (inp.value === id) isDuplicateDep = true;
+        });
+
+        if (mainCccd === id && target !== 'main') {
+            showToast(`Thẻ CCCD của ${name} đã được quét cho trưởng đoàn!`, 'warning');
+            if (inputEl) inputEl.value = '';
+            return;
+        }
+
+        if (isDuplicateDep) {
+            showToast(`Thành viên ${name} đã có trong danh sách!`, 'warning');
+            if (inputEl) inputEl.value = '';
+            return;
+        }
+
+        if (target === 'main') {
+            document.getElementById('modalGuestName').value = name;
+            document.getElementById('modalGuestCccd').value = id;
+            showToast('Đã tự động điền thông tin chủ đoàn từ QR!', 'success');
+        } else if (target === 'dep') {
+            document.getElementById('depName').value = name;
+            document.getElementById('depId').value = id;
+            if (dob) document.getElementById('depDob').value = dob;
+            showToast('Đã tự động điền thông tin thành viên từ QR!', 'success');
+        } else if (target === 'auto-dep') {
+            let actualAdultCount = 1;
+            let actualChildCount = 0;
+
+            document.querySelectorAll('#dependentsList tr').forEach(tr => {
+                if (tr.querySelector('input')) {
+                    const trDob = tr.getAttribute('data-dob');
+                    const trAge = calculateAge(trDob);
+                    if (trAge >= 12) actualAdultCount++;
+                    else actualChildCount++;
+                }
+            });
+
+            const newAge = calculateAge(dob);
+            if (newAge >= 12) {
+                if (actualAdultCount >= maxTotalAdults) {
+                    showToast(`Số lượng Người Lớn đã đạt sức chứa tối đa (${maxTotalAdults}) của các phòng!`, 'error');
+                    if (inputEl) inputEl.value = '';
+                    return;
+                }
+                if (actualAdultCount >= expectedTotalAdults) {
+                    showToast(`Khách thêm vượt tiêu chuẩn đơn (${expectedTotalAdults}), hệ thống sẽ tự động tính phụ thu.`, 'warning');
+                }
+            } else {
+                if (actualChildCount >= maxTotalChildren) {
+                    showToast(`Số lượng Trẻ Em đã đạt sức chứa tối đa (${maxTotalChildren}) của các phòng!`, 'error');
+                    if (inputEl) inputEl.value = '';
+                    return;
+                }
+                if (actualChildCount >= expectedTotalChildren) {
+                    showToast(`Trẻ em thêm vượt tiêu chuẩn đơn (${expectedTotalChildren}), hệ thống sẽ tự động tính phụ thu.`, 'warning');
+                }
+            }
+
+            addDependentRow(name, id, dob, 'Nam', null, '');
+            showToast(`Đã tự động thêm thành viên: ${name}`, 'success');
+        }
+
+        if (inputEl) inputEl.value = '';
+    }
+}
+
+function openQrScannerModal(target) {
+    currentQrTarget = target;
+    document.getElementById('qrScannerModal').style.display = 'flex';
+
+    if (!html5QrcodeScanner) {
+        html5QrcodeScanner = new Html5QrcodeScanner(
+            "qr-reader",
+            {
+                fps: 20,
+                qrbox: { width: 300, height: 300 },
+                formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE],
+                useBarCodeDetectorIfSupported: true,
+                videoConstraints: {
+                    width: { ideal: 1920 },
+                    height: { ideal: 1080 }
+                }
+            },
+            /* verbose= */ false
+        );
+    }
+
+    html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+}
+
+function closeQrScannerModal() {
+    document.getElementById('qrScannerModal').style.display = 'none';
+    if (html5QrcodeScanner) {
+        html5QrcodeScanner.clear().catch(error => {
+            console.error('Failed to clear html5QrcodeScanner. ', error);
+        });
+    }
+    currentQrTarget = null;
+}
+
+function onScanSuccess(decodedText, decodedResult) {
+    console.log("Scan result: " + decodedText);
+    closeQrScannerModal();
+    let mockInput = { value: decodedText, tagName: 'MOCK' };
+    handleQrScan(decodedText, currentQrTarget, mockInput);
+}
+
+function onScanFailure(error) {
+    // Intentionally left empty — scan failures are expected and not errors
+}
+
+async function scanQrFromFile(input) {
+    if (!input.files || input.files.length === 0) return;
+    const file = input.files[0];
+
+    if (html5QrcodeScanner) {
+        try { await html5QrcodeScanner.clear(); } catch (e) { }
+    }
+
+    const html5QrCode = new Html5Qrcode("qr-reader");
+    try {
+        const decodedText = await html5QrCode.scanFile(file, true);
+        console.log("Scan result from file: " + decodedText);
+
+        html5QrCode.clear().catch(e => { });
+        closeQrScannerModal();
+
+        let mockInput = { value: decodedText, tagName: 'MOCK' };
+        handleQrScan(decodedText, currentQrTarget, mockInput);
+    } catch (err) {
+        console.error(err);
+        showToast('Không tìm thấy mã QR hợp lệ trong ảnh!', 'error');
+        html5QrCode.clear().catch(e => { });
+    }
+    input.value = '';
+}
+
+// Tự động kết nối SSE ngay từ đầu và duy trì mãi mãi
+function initPersistentSse() {
+    remoteScanEventSource = new EventSource('/api/v1/remote-scan/' + persistentSessionId + '/subscribe');
+
+    remoteScanEventSource.addEventListener('SCAN_RESULT', function (event) {
+        console.log('Received from remote: ' + event.data);
+
+        let target = currentQrTarget;
+
+        if (!target) {
+            const mainNameInput = document.getElementById('modalGuestName');
+            const mainCccdInput = document.getElementById('modalGuestCccd');
+            if (!mainNameInput.value.trim() && !mainCccdInput.value.trim()) {
+                target = 'main';
+            } else {
+                target = 'auto-dep';
+            }
+        }
+
+        let mockInput = { value: event.data, tagName: 'MOCK' };
+        handleQrScan(event.data, target, mockInput);
+
+        if (currentQrTarget) {
+            closeRemoteScanModal();
+        }
+    });
+
+    remoteScanEventSource.onerror = function () {
+        console.log('SSE Connection lost, reconnecting...');
+        remoteScanEventSource.close();
+        setTimeout(initPersistentSse, 2000);
+    };
+}
+
+function openRemoteScanModal(target) {
+    currentQrTarget = target;
+    document.getElementById('remoteScanModal').style.display = 'flex';
+
+    fetch('/api/v1/remote-scan/host-ip')
+        .then(res => res.json())
+        .then(data => {
+            let host = window.location.host;
+            let protocol = window.location.protocol;
+
+            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                host = data.ip + (window.location.port ? ':' + window.location.port : '');
+                protocol = 'http:';
+            }
+
+            const scanUrl = protocol + '//' + host + '/receptionist/remote-scan?session=' + persistentSessionId;
+
+            const qrContainer = document.getElementById('remote-qrcode-container');
+            if (!remoteScanQrCode) {
+                qrContainer.innerHTML = '';
+                remoteScanQrCode = new QRCode(qrContainer, {
+                    text: scanUrl,
+                    width: 200,
+                    height: 200,
+                    colorDark: '#0f172a',
+                    colorLight: '#ffffff',
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+            } else {
+                remoteScanQrCode.clear();
+                remoteScanQrCode.makeCode(scanUrl);
+            }
+        })
+        .catch(err => console.error("Could not fetch host IP", err));
+}
+
+function closeRemoteScanModal() {
+    document.getElementById('remoteScanModal').style.display = 'none';
+    currentQrTarget = null;
+}
+
+
+// ==============================================
+// SECTION 9: FORM VALIDATION & SUBMIT
+// ==============================================
+
+const _checkinForm = document.getElementById('checkinFormWrapper');
+if (_checkinForm) {
+    _checkinForm.addEventListener('submit', async function (e) {
+
+        let actualAdultCount = 1;
+        let actualChildCount = 0;
+
+        document.querySelectorAll('#dependentsList tr').forEach(tr => {
+            if (tr.querySelector('input')) {
+                const trDob = tr.getAttribute('data-dob');
+                const trAge = calculateAge(trDob);
+                if (trAge >= 12) actualAdultCount++;
+                else actualChildCount++;
+            }
+        });
+
+        if (actualAdultCount > maxTotalAdults) {
+            e.preventDefault();
+            showToast(`Không thể hoàn tất! Tổng số Người Lớn (${actualAdultCount}) vượt quá sức chứa tối đa (${maxTotalAdults}). Vui lòng xóa bớt hoặc điều chỉnh hạng phòng.`, 'error');
+            return;
+        }
+        if (actualChildCount > maxTotalChildren) {
+            e.preventDefault();
+            showToast(`Không thể hoàn tất! Tổng số Trẻ Em (${actualChildCount}) vượt quá sức chứa tối đa (${maxTotalChildren}). Vui lòng xóa bớt hoặc điều chỉnh hạng phòng.`, 'error');
+            return;
+        }
+
+        if (assignedRooms.length === 0) {
+            e.preventDefault();
+            showToast('Vui long phan it nhat 1 phong truoc khi hoan tat Check-in!');
+            return;
+        }
+
+        const mainPhone = document.getElementById('modalGuestPhone').value;
+        const mainCccd = document.getElementById('modalGuestCccd').value;
+        if (!mainPhone || !mainCccd) {
+            e.preventDefault();
+            showToast('Khách đứng đầu (chủ đoàn) phải điền đầy đủ số điện thoại và CCCD!');
+            return;
+        }
+
+        if (!pendingFaceEnrollments['CUSTOMER']) {
+            e.preventDefault();
+            showToast('Người chủ đoàn bắt buộc phải cập nhật khuôn mặt (FaceID) để hoàn tất đơn!');
+            return;
+        }
+
+        let missingFaceName = null;
+        document.querySelectorAll('.faceid-mapping-id').forEach(input => {
+            const row = input.closest('tr');
+            if (row && row.style.display !== 'none') {
+                const targetId = input.getAttribute('data-target-id');
+                const dobInput = row.querySelector('input[name$=".dateOfBirth"]');
+                const nameInput = row.querySelector('input[name$=".fullName"]');
+                if (dobInput) {
+                    const age = calculateAge(dobInput.value);
+                    if (age >= 14) {
+                        if (targetId && targetId.startsWith('NEW_') && !pendingFaceEnrollments[targetId]) {
+                            missingFaceName = nameInput ? nameInput.value : 'Người đi kèm';
+                        }
+                    }
+                }
+            }
+        });
+
+        if (missingFaceName) {
+            e.preventDefault();
+            showToast(`Thành viên ${missingFaceName} từ 14 tuổi trở lên bắt buộc phải cập nhật khuôn mặt (FaceID mới) để hoàn tất đơn!`);
+            return;
+        }
+
+        const assignedRoomNumbers = assignedRooms.map(r => r.room);
+
+        const primaryInputs = document.querySelectorAll('input[name$=".isPrimaryContact"][value="true"]');
+        const primaryRooms = [];
+        primaryInputs.forEach(input => {
+            const row = input.closest('tr');
+            if (row && !row.classList.contains('editing-row')) {
+                const roomInput = row.querySelector('input[name$=".assignedPhysicalRoomNumber"]');
+                if (roomInput && roomInput.value) {
+                    primaryRooms.push(roomInput.value);
+                }
+            }
+        });
+
+        const missingRooms = [];
+        for (let i = 1; i < assignedRoomNumbers.length; i++) {
+            const room = assignedRoomNumbers[i];
+            if (!primaryRooms.includes(room)) {
+                missingRooms.push(room);
+            }
+        }
+
+        if (missingRooms.length > 0) {
+            e.preventDefault();
+            showToast('Thieu nguoi dung dau cho phong: ' + missingRooms.join(', '));
+            return;
+        }
+
+        const dependentRows = document.querySelectorAll('#dependentsList tr:not(.editing-row)');
+        let unassignedDependentCount = 0;
+        let missingDependentName = null;
+        dependentRows.forEach(row => {
+            if (row.style.display !== 'none') {
+                const roomInput = row.querySelector('input[name$=".assignedPhysicalRoomNumber"]');
+                if (roomInput !== null && (!roomInput.value || roomInput.value.trim() === '')) {
+                    unassignedDependentCount++;
+                    if (!missingDependentName) {
+                        const nameTd = row.querySelector('td:first-child');
+                        if (nameTd) missingDependentName = nameTd.innerText.trim().split('\n')[0];
+                    }
+                }
+            }
+        });
+
+        if (unassignedDependentCount > 0) {
+            e.preventDefault();
+            showToast(`Vui lòng chọn phòng cho khách "${missingDependentName || 'ẩn danh'}" và các khách chưa được phân phòng khác!`, 'error');
+            return;
+        }
+
+        // Prevent default submission to process FaceIDs first
+        e.preventDefault();
+
+        const submitBtn = _checkinForm.querySelector('button[type="submit"]');
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang xử lý FaceID...';
+        }
+
+        // Inject pending FaceIDs into the form
+        for (const key in pendingFaceEnrollments) {
+            const data = pendingFaceEnrollments[key];
+            if (data.type === 'CUSTOMER') {
+                const input1 = document.createElement('input');
+                input1.type = 'hidden';
+                input1.name = 'faceVectorData';
+                input1.value = data.vector;
+                _checkinForm.appendChild(input1);
+
+                const input2 = document.createElement('input');
+                input2.type = 'hidden';
+                input2.name = 'faceImageBase64';
+                input2.value = data.image;
+                _checkinForm.appendChild(input2);
+            } else {
+                const mapping = _checkinForm.querySelector(`.faceid-mapping-id[data-target-id="${data.id}"]`);
+                if (mapping) {
+                    const idx = mapping.getAttribute('data-index');
+                    const input1 = document.createElement('input');
+                    input1.type = 'hidden';
+                    input1.name = `dependents[${idx}].faceVectorData`;
+                    input1.value = data.vector;
+                    _checkinForm.appendChild(input1);
+
+                    const input2 = document.createElement('input');
+                    input2.type = 'hidden';
+                    input2.name = `dependents[${idx}].faceImageBase64`;
+                    input2.value = data.image;
+                    _checkinForm.appendChild(input2);
+                }
+            }
+        }
+
+        _checkinForm.submit();
+    });
+} else {
+    console.error('[checkin.js] CRITICAL: #checkinFormWrapper khong tim thay trong DOM!');
+}
+
+
+// ==============================================
+// SECTION 10: AUTO-SAVE MODULE
+// ==============================================
+
 document.addEventListener('DOMContentLoaded', () => {
     const pageKey = 'kawai_autosave_' + window.location.pathname.replace(/[^a-zA-Z0-9]/g, '_');
 
@@ -1289,9 +1536,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const savedData = JSON.parse(savedDataStr);
             document.querySelectorAll('input, select, textarea').forEach(el => {
                 const key = el.id || el.name;
-                // Bỏ qua các trường nhạy cảm hoặc không cần lưu
                 if (!key || el.type === 'password' || el.type === 'file' || el.type === 'hidden') return;
-                // Bỏ qua trường tìm kiếm nếu có
                 if (key.toLowerCase().includes('search') || key.toLowerCase().includes('keyword')) return;
 
                 if (savedData[key] !== undefined) {
@@ -1344,259 +1589,4 @@ document.addEventListener('DOMContentLoaded', () => {
         return response;
     };
 });
-function handleQrScan(val, target, inputEl) {
-    if (!val) return;
-
-    // Format expected: 001205015836||Nguyễn Xuân Lưu|14102005|Nam|TDP Ninh Sơn, Chúc Sơn, Chương Mỹ, Hà Nội|31052021
-    const parts = val.split('|');
-    if (parts.length >= 7) {
-        const id = parts[0];
-        const name = parts[2];
-        const dobStr = parts[3]; // DDMMYYYY
-
-        let dob = '';
-        if (dobStr && dobStr.length === 8) {
-            dob = `${dobStr.substring(4, 8)}-${dobStr.substring(2, 4)}-${dobStr.substring(0, 2)}`;
-        }
-
-        // GLOBAL DUPLICATE CHECK
-        const mainCccd = document.getElementById('modalGuestCccd').value.trim();
-        let isDuplicateDep = false;
-        document.querySelectorAll('input[name$=".cccd"]').forEach(inp => {
-            if (inp.value === id) isDuplicateDep = true;
-        });
-
-        // 1. If scanned ID belongs to Main Guest, block if target is not 'main' (prevent auto-assigning or dep-assigning the main guest)
-        if (mainCccd === id && target !== 'main') {
-            showToast(`Thẻ CCCD của ${name} đã được quét cho trưởng đoàn!`, 'warning');
-            if (inputEl) inputEl.value = '';
-            return;
-        }
-
-        // 2. If scanned ID belongs to a Dependent, block unconditionally
-        if (isDuplicateDep) {
-            showToast(`Thành viên ${name} đã có trong danh sách!`, 'warning');
-            if (inputEl) inputEl.value = '';
-            return;
-        }
-
-        if (target === 'main') {
-            document.getElementById('modalGuestName').value = name;
-            document.getElementById('modalGuestCccd').value = id;
-            showToast('Đã tự động điền thông tin chủ đoàn từ QR!', 'success');
-        } else if (target === 'dep') {
-            document.getElementById('depName').value = name;
-            document.getElementById('depId').value = id;
-            if (dob) {
-                document.getElementById('depDob').value = dob;
-            }
-            showToast('Đã tự động điền thông tin thành viên từ QR!', 'success');
-        } else if (target === 'auto-dep') {
-            let actualAdultCount = 1; // Main Guest
-            let actualChildCount = 0;
-
-            document.querySelectorAll('#dependentsList tr').forEach(tr => {
-                if (tr.querySelector('input')) {
-                    const trDob = tr.getAttribute('data-dob');
-                    const trAge = calculateAge(trDob);
-                    if (trAge >= 12) actualAdultCount++;
-                    else actualChildCount++;
-                }
-            });
-
-            const newAge = calculateAge(dob);
-            if (newAge >= 12) {
-                if (actualAdultCount >= maxTotalAdults) {
-                    showToast(`Số lượng Người Lớn đã đạt sức chứa tối đa (${maxTotalAdults}) của các phòng!`, 'error');
-                    if (inputEl) inputEl.value = '';
-                    return;
-                }
-                if (actualAdultCount >= expectedTotalAdults) {
-                    showToast(`Khách thêm vượt tiêu chuẩn đơn (${expectedTotalAdults}), hệ thống sẽ tự động tính phụ thu.`, 'warning');
-                }
-            } else {
-                if (actualChildCount >= maxTotalChildren) {
-                    showToast(`Số lượng Trẻ Em đã đạt sức chứa tối đa (${maxTotalChildren}) của các phòng!`, 'error');
-                    if (inputEl) inputEl.value = '';
-                    return;
-                }
-                if (actualChildCount >= expectedTotalChildren) {
-                    showToast(`Trẻ em thêm vượt tiêu chuẩn đơn (${expectedTotalChildren}), hệ thống sẽ tự động tính phụ thu.`, 'warning');
-                }
-            }
-
-
-            addDependentRow(name, id, dob, 'Nam', null, '');
-            showToast(`Đã tự động thêm thành viên: ${name}`, 'success');
-        }
-
-        if (inputEl) {
-            inputEl.value = '';
-        }
-    }
-}
-
-let html5QrcodeScanner = null;
-let currentQrTarget = null;
-
-function openQrScannerModal(target) {
-    currentQrTarget = target;
-    document.getElementById('qrScannerModal').style.display = 'flex';
-
-    // CCCD barcode is a square QR Code, use square box and limit format for speed
-    if (!html5QrcodeScanner) {
-        html5QrcodeScanner = new Html5QrcodeScanner(
-            "qr-reader",
-            {
-                fps: 20,
-                qrbox: { width: 300, height: 300 },
-                formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE],
-                useBarCodeDetectorIfSupported: true,
-                videoConstraints: {
-                    width: { ideal: 1920 },
-                    height: { ideal: 1080 }
-                }
-            },
-            /* verbose= */ false
-        );
-    }
-
-    html5QrcodeScanner.render(onScanSuccess, onScanFailure);
-}
-
-function closeQrScannerModal() {
-    document.getElementById('qrScannerModal').style.display = 'none';
-    if (html5QrcodeScanner) {
-        html5QrcodeScanner.clear().catch(error => {
-            console.error('Failed to clear html5QrcodeScanner. ', error);
-        });
-    }
-    currentQrTarget = null;
-}
-
-function onScanSuccess(decodedText, decodedResult) {
-    console.log("Scan result: " + decodedText);
-    closeQrScannerModal();
-    let mockInput = { value: decodedText, tagName: 'MOCK' };
-    handleQrScan(decodedText, currentQrTarget, mockInput);
-}
-
-function onScanFailure(error) {
-}
-
-async function scanQrFromFile(input) {
-    if (!input.files || input.files.length === 0) return;
-    const file = input.files[0];
-
-    // Stop the camera scanner if it's currently running
-    if (html5QrcodeScanner) {
-        try {
-            await html5QrcodeScanner.clear();
-        } catch (e) { }
-    }
-
-    const html5QrCode = new Html5Qrcode("qr-reader");
-    try {
-        const decodedText = await html5QrCode.scanFile(file, true);
-        console.log("Scan result from file: " + decodedText);
-
-        html5QrCode.clear().catch(e => { });
-        closeQrScannerModal();
-
-        let mockInput = { value: decodedText, tagName: 'MOCK' };
-        handleQrScan(decodedText, currentQrTarget, mockInput);
-    } catch (err) {
-        console.error(err);
-        showToast('Không tìm thấy mã QR hợp lệ trong ảnh!', 'error');
-        html5QrCode.clear().catch(e => { });
-    }
-    input.value = '';
-}
-
-let remoteScanEventSource = null;
-let remoteScanQrCode = null;
-
-// Khởi tạo một Session duy nhất cho máy tính này khi tải trang
-const persistentSessionId = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : ('session-' + Date.now() + '-' + Math.random().toString(36).substring(2, 10));
-
-// Tự động kết nối SSE ngay từ đầu và duy trì mãi mãi
-function initPersistentSse() {
-    remoteScanEventSource = new EventSource('/api/v1/remote-scan/' + persistentSessionId + '/subscribe');
-
-    remoteScanEventSource.addEventListener('SCAN_RESULT', function (event) {
-        console.log('Received from remote: ' + event.data);
-
-        let target = currentQrTarget;
-
-        // Auto-assign logic for smooth continuous scanning
-        if (!target) {
-            const mainNameInput = document.getElementById('modalGuestName');
-            const mainCccdInput = document.getElementById('modalGuestCccd');
-            if (!mainNameInput.value.trim() && !mainCccdInput.value.trim()) {
-                // If main guest is empty, assign to main
-                target = 'main';
-            } else {
-                // If main guest is filled, assign as auto-dependent
-                target = 'auto-dep';
-            }
-        }
-
-        let mockInput = { value: event.data, tagName: 'MOCK' };
-        handleQrScan(event.data, target, mockInput);
-
-        if (currentQrTarget) {
-            closeRemoteScanModal();
-        }
-    });
-
-    remoteScanEventSource.onerror = function () {
-        console.log('SSE Connection lost, reconnecting...');
-        remoteScanEventSource.close();
-        setTimeout(initPersistentSse, 2000); // Auto reconnect
-    };
-}
-// Khởi chạy
 initPersistentSse();
-
-function openRemoteScanModal(target) {
-    currentQrTarget = target;
-    document.getElementById('remoteScanModal').style.display = 'flex';
-
-    fetch('/api/v1/remote-scan/host-ip')
-        .then(res => res.json())
-        .then(data => {
-            let host = window.location.host;
-            let protocol = window.location.protocol;
-
-            // If accessing via localhost, replace localhost with the actual IP
-            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-                host = data.ip + (window.location.port ? ':' + window.location.port : '');
-                protocol = 'http:'; // Fallback to http for IP
-            }
-
-            const scanUrl = protocol + '//' + host + '/receptionist/remote-scan?session=' + persistentSessionId;
-
-            const qrContainer = document.getElementById('remote-qrcode-container');
-            if (!remoteScanQrCode) {
-                qrContainer.innerHTML = '';
-                remoteScanQrCode = new QRCode(qrContainer, {
-                    text: scanUrl,
-                    width: 200,
-                    height: 200,
-                    colorDark: '#0f172a',
-                    colorLight: '#ffffff',
-                    correctLevel: QRCode.CorrectLevel.H
-                });
-            } else {
-                remoteScanQrCode.clear();
-                remoteScanQrCode.makeCode(scanUrl);
-            }
-        })
-        .catch(err => console.error("Could not fetch host IP", err));
-}
-
-function closeRemoteScanModal() {
-    document.getElementById('remoteScanModal').style.display = 'none';
-    currentQrTarget = null;
-}
-

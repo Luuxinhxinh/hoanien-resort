@@ -44,4 +44,5 @@ public class RoomSearchResponseDTO {
     private Boolean hasBalcony;
     private String complimentaryServices;
     private Boolean hasFreeBreakfast;
+    private String coverImgUrl;
 }

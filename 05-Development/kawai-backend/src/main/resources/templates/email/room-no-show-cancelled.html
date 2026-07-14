@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[HOANIEN] Thông báo hủy đặt phòng (Không nhận phòng)</title>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;600&family=Inter:wght@300;400;500;600&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; background-color: #1a120b; color: rgba(255, 255, 255, 0.9); }
+    .email-outer { background-color: #1a120b; background-size: cover; background-position: center; padding: 40px 16px; min-height: 100vh; }
+    .wrapper { max-width: 600px; margin: 0 auto; border-radius: 4px; overflow: hidden; box-shadow: 0 8px 48px rgba(0, 0, 0, 0.6); border: 1px solid rgba(229, 196, 148, 0.2); background: rgba(55, 40, 28, 0.88); }
+    
+    .header { background: rgba(60, 45, 30, 0.92); padding: 36px 40px 28px; text-align: center; border-bottom: 1px solid rgba(229, 196, 148, 0.3); }
+    .header .brand, .header h1 { font-family: 'EB Garamond', Georgia, serif; font-size: 42px; font-weight: 400; color: #e5c494; margin-bottom: 4px; }
+    .header .logo-text, .header .tagline, .header .address, .invoice-title { font-family: 'EB Garamond', Georgia, serif; font-size: 16px; font-weight: 400; color: rgba(229, 196, 148, 0.8); letter-spacing: 2px; }
+    
+    .body { background: transparent; padding: 40px; }
+    .greeting, p { font-size: 14px; font-weight: 400; color: rgba(255, 255, 255, 0.95); margin-bottom: 20px; line-height: 1.9; }
+    .greeting strong, p strong { font-weight: 600; color: #f0ca56; }
+    
+    .divider { height: 1px; background: rgba(229, 196, 148, 0.15); margin: 28px 0; border: none; }
+    
+    .info-box { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(229, 196, 148, 0.2); border-radius: 3px; overflow: hidden; margin-bottom: 28px; }
+    .info-box-title { font-size: 10px; font-weight: 600; letter-spacing: 2.5px; text-transform: uppercase; color: #e5c494; margin-bottom:0; display: block; padding: 14px 20px; border-bottom: 1px solid rgba(229, 196, 148, 0.2); background: rgba(229, 196, 148, 0.1); }
+    .info-reason { padding: 16px 20px; font-size: 13px; line-height: 1.8; color: rgba(255, 255, 255, 0.9); }
+    
+    .badge-wrap { text-align: center; margin-bottom: 20px; }
+    .badge { display: inline-block; padding: 6px 12px; background: rgba(229, 196, 148, 0.1); border: 1px solid rgba(229, 196, 148, 0.3); color: #e5c494; font-size: 10px; letter-spacing: 2px; border-radius: 20px; }
+    
+    .closing-text, .closing, .intro { font-size: 13px; font-weight: 400; color: rgba(255, 255, 255, 0.85); line-height: 1.9; margin-bottom: 20px; }
+    .closing strong, .signoff strong { font-weight: 600; color: #f0ca56; }
+    .intro em { font-family: 'EB Garamond', Georgia, serif; font-style: normal; color: #f0ca56; }
+    .signoff { font-size: 13px; color: rgba(255, 255, 255, 0.85); line-height: 1.9; }
+    
+    .footer { background: rgba(50, 36, 24, 0.92); padding: 28px 40px; text-align: center; border-top: 1px solid rgba(229, 196, 148, 0.12); }
+    .footer p { font-family: 'Inter', sans-serif; font-size: 11px; line-height: 1.9; font-weight: 300; color: rgba(229, 196, 148, 0.35); margin-bottom: 0; }
+    
+    @media (max-width: 480px) { .body, .header, .footer { padding: 28px 24px; } }
+</style>
+</head>
+<body>
+
+  <div class="wrapper">
+
+    <!-- HEADER -->
+    <div class="header">
+      <div class="brand">H O A N I E N</div>
+      <div class="tagline">Retreat &amp; Resort</div>
+    </div>
+
+    <!-- BODY -->
+    <div class="body">
+
+      <div class="badge-wrap">
+        <span class="badge">THÔNG BÁO HỦY ĐẶT PHÒNG</span>
+      </div>
+
+      <p class="greeting">Kính gửi Quý khách <strong th:text="${customerName}">[Tên Khách]</strong>,</p>
+
+      <p class="intro">
+        <em>HOANIEN Retreat &amp; Resort</em> xin thông báo về tình trạng đặt phòng của Quý khách.
+      </p>
+
+      <div class="info-box">
+        <p class="info-box-title">Thông tin nhận phòng</p>
+        <div class="info-reason">
+          Theo thông tin đặt phòng, Quý khách có lịch nhận phòng (Check-in) vào ngày <strong th:text="${checkInDate}">[Ngày nhận phòng]</strong> lúc <strong>14:00</strong>. Tuy nhiên, đến hết ngày nhận phòng, khách sạn vẫn chưa ghi nhận việc Quý khách đến thực hiện thủ tục nhận phòng.
+        </div>
+      </div>
+
+      <div class="info-box" style="border-left: 3px solid #ff6b6b; background: rgba(239, 68, 68, 0.05);">
+        <p class="info-box-title" style="color: #ff6b6b; border-bottom: none; background: transparent; padding-bottom: 0;">Chính sách hủy phòng</p>
+        <div class="info-reason" style="padding-top: 8px;">
+          Theo chính sách của khách sạn, do Quý khách không đến nhận phòng trong ngày đã đặt, hệ thống đã tiến hành tự động hủy đặt phòng của Quý khách vào lúc <strong>00:01</strong> ngày <strong th:text="${cancelDate}">[Ngày hủy phòng]</strong>.
+        </div>
+      </div>
+
+      <p class="closing">
+        Chúng tôi rất tiếc vì sự bất tiện có thể xảy ra. Trong trường hợp Quý khách cần hỗ trợ hoặc muốn đặt phòng cho thời gian lưu trú khác, vui lòng liên hệ với khách sạn để được hỗ trợ tốt nhất.
+      </p>
+
+      <p class="closing">
+        Khách sạn mong rằng sẽ có cơ hội được chào đón và phục vụ Quý khách trong những lần lưu trú tiếp theo.
+      </p>
+
+      <hr class="divider" />
+
+      <div class="signoff">
+        Trân trọng,<br/>
+        <strong>Bộ phận Lễ tân</strong><br/>
+        <em>HOANIEN Retreat &amp; Resort</em>
+      </div>
+
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+      <p>&copy; 2026 HOANIEN Retreat &amp; Resort. All rights reserved.</p>
+    </div>
+
+  </div>
+
+</body>
+</html>

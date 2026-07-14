@@ -171,17 +171,17 @@ INSERT INTO Room_Categories (
     base_adults, base_children, max_adults, max_children, extra_adult_surcharge, extra_child_surcharge, is_active,
     bed_type, room_size, view_type, has_bathtub, has_balcony, complimentary_services, has_free_breakfast
 ) VALUES 
-(1,  'Nipa Pool Villa',          'https://images.unsplash.com/photo-1540541338287-41700207dee6', 2500000,  2, 'Villa thanh tịnh bên hồ sen thơm mát.',             2, 0, 3, 1, 500000,  250000, TRUE, '1 Giường King 2m2', 65, 'Hướng hồ bơi', TRUE, TRUE, '2 chai nước suối, Trái cây tươi, Vang đỏ', TRUE),
-(2,  'River Pool Villa',         'https://images.unsplash.com/photo-1566073771259-6a8506099945', 3500000,  3, 'Villa cao cấp ven sông Thu Bồn lộng gió.',          2, 0, 3, 2, 600000,  300000, TRUE, '1 Giường King 2m2', 80, 'Hướng sông Thu Bồn', TRUE, TRUE, '4 chai nước suối, Trái cây, Trà chiều', TRUE),
-(3,  'Wellness Retreats',        'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4', 8000000,  4, 'Hành trình tĩnh lặng, chăm sóc sức khoẻ toàn diện.', 2, 0, 4, 2, 1000000, 500000, TRUE, '2 Giường King', 120, 'Hướng vườn thiền', TRUE, TRUE, 'Nước detox, Trái cây Organic, Trà thảo mộc', TRUE),
-(4,  'Garden View Suite',        'https://images.unsplash.com/photo-1578683010236-d716f9a3f461', 2000000,  2, 'Suite hướng vườn nhiệt đới xanh mướt.',             2, 0, 3, 1, 400000,  200000, TRUE, '1 Giường Queen 1m8', 45, 'Hướng vườn nhiệt đới', FALSE, TRUE, '2 chai nước suối, Trà & Cà phê', TRUE),
-(5,  'Presidential Ocean Suite', 'https://images.unsplash.com/photo-1590490360182-c33d57733427', 15000000, 6, 'Hạng phòng cao cấp bậc nhất hướng biển.',           4, 0, 6, 3, 2000000, 1000000, TRUE, '3 Giường King 2m2', 250, 'Hướng biển toàn cảnh', TRUE, TRUE, 'Minibar miễn phí, Rượu Champagne, Bánh ngọt', TRUE),
-(6,  'Ocean View Bungalow',      'https://images.unsplash.com/photo-1582719508461-905c673771fd', 3000000,  2, 'Bungalow bãi cát đón gió biển tươi mát.',           2, 0, 3, 1, 600000,  300000, TRUE, '1 Giường King 2m2', 50, 'Hướng biển', TRUE, TRUE, '2 chai nước suối, Trái cây tươi', TRUE),
-(7,  'Family Connecting Room',   'https://images.unsplash.com/photo-1568495248636-6432b97bd949', 4500000,  5, 'Phòng thông nhau phù hợp cho cả gia đình.',         2, 2, 4, 4, 500000,  250000, TRUE, '1 Giường King & 2 Giường Đơn', 90, 'Hướng vườn', FALSE, TRUE, '4 chai nước suối, Bánh quy, Trà', TRUE),
-(8,  'Superior Mountain View',   'https://images.unsplash.com/photo-1596394516093-501ba68a0ba6', 1800000,  2, 'Phòng hướng núi thanh tịnh bình yên.',              2, 0, 2, 1, 350000,  150000, TRUE, '2 Giường Đơn 1m2', 40, 'Hướng núi đồi', FALSE, FALSE, '2 chai nước suối, Trà & Cà phê', TRUE),
+(1,  'Nipa Pool Villa',          '/guest/images/rooms/nipa-view.png,/guest/images/rooms/nipa-bed.png,/guest/images/rooms/nipa-bathroom.png', 2500000,  2, 'Villa thanh tịnh bên hồ sen thơm mát.',             2, 0, 3, 1, 500000,  250000, TRUE, '1 Giường King 2m2', 65, 'Hướng hồ bơi', TRUE, TRUE, '2 chai nước suối, Trái cây tươi, Vang đỏ', TRUE),
+(2,  'River Pool Villa',         'https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=800&q=80,https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=800&q=80,https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800&q=80', 3500000,  3, 'Villa cao cấp ven sông Thu Bồn lộng gió.',          2, 0, 3, 2, 600000,  300000, TRUE, '1 Giường King 2m2', 80, 'Hướng sông Thu Bồn', TRUE, TRUE, '4 chai nước suối, Trái cây, Trà chiều', TRUE),
+(3,  'Wellness Retreats',        'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=800&q=80,https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=800&q=80,https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=800&q=80', 8000000,  4, 'Hành trình tĩnh lặng, chăm sóc sức khoẻ toàn diện.', 2, 0, 4, 2, 1000000, 500000, TRUE, '2 Giường King', 120, 'Hướng vườn thiền', TRUE, TRUE, 'Nước detox, Trái cây Organic, Trà thảo mộc', TRUE),
+(4,  'Garden View Suite',        'https://images.unsplash.com/photo-1578683010236-d716f9a3f461,https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=800&q=80,https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?w=800&q=80', 2000000,  2, 'Suite hướng vườn nhiệt đới xanh mướt.',             2, 0, 3, 1, 400000,  200000, TRUE, '1 Giường Queen 1m8', 45, 'Hướng vườn nhiệt đới', FALSE, TRUE, '2 chai nước suối, Trà & Cà phê', TRUE),
+(5,  'Presidential Ocean Suite', 'https://images.unsplash.com/photo-1590490360182-c33d57733427,https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=800&q=80,https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?w=800&q=80', 15000000, 6, 'Hạng phòng cao cấp bậc nhất hướng biển.',           4, 0, 6, 3, 2000000, 1000000, TRUE, '3 Giường King 2m2', 250, 'Hướng biển toàn cảnh', TRUE, TRUE, 'Minibar miễn phí, Rượu Champagne, Bánh ngọt', TRUE),
+(6,  'Ocean View Bungalow',      'https://images.unsplash.com/photo-1582719508461-905c673771fd,https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=800&q=80,https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?w=800&q=80', 3000000,  2, 'Bungalow bãi cát đón gió biển tươi mát.',           2, 0, 3, 1, 600000,  300000, TRUE, '1 Giường King 2m2', 50, 'Hướng biển', TRUE, TRUE, '2 chai nước suối, Trái cây tươi', TRUE),
+(7,  'Family Connecting Room',   'https://images.unsplash.com/photo-1568495248636-6432b97bd949,https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=800&q=80,https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?w=800&q=80', 4500000,  5, 'Phòng thông nhau phù hợp cho cả gia đình.',         2, 2, 4, 4, 500000,  250000, TRUE, '1 Giường King & 2 Giường Đơn', 90, 'Hướng vườn', FALSE, TRUE, '4 chai nước suối, Bánh quy, Trà', TRUE),
+(8,  'Superior Mountain View',   'https://images.unsplash.com/photo-1596394516093-501ba68a0ba6,https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=800&q=80,https://images.unsplash.com/photo-1571501443899-2a9c3722a8a8?w=800&q=80', 1800000,  2, 'Phòng hướng núi thanh tịnh bình yên.',              2, 0, 2, 1, 350000,  150000, TRUE, '2 Giường Đơn 1m2', 40, 'Hướng núi đồi', FALSE, FALSE, '2 chai nước suối, Trà & Cà phê', TRUE),
 
-(9,  'Luxury Penthouse',         'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688', 12000000, 4, 'Căn hộ tầng mái đẳng cấp ngắm toàn cảnh resort.',  2, 0, 4, 2, 1500000, 750000, TRUE, '2 Giường King siêu lớn', 180, 'Toàn cảnh Resort', TRUE, TRUE, 'Rượu vang cao cấp, Trái cây nhập khẩu, Minibar', TRUE),
-(10, 'Cozy Studio Room',         'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af', 1500000,  2, 'Phòng Studio nhỏ gọn, đầy đủ tiện nghi.',          2, 0, 2, 1, 300000,  150000, TRUE, '1 Giường Queen 1m8', 35, 'Hướng đường phố', FALSE, FALSE, '2 chai nước suối, Cà phê hòa tan', FALSE);
+(9,  'Luxury Penthouse',         'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688,https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=800&q=80,https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?w=800&q=80', 12000000, 4, 'Căn hộ tầng mái đẳng cấp ngắm toàn cảnh resort.',  2, 0, 4, 2, 1500000, 750000, TRUE, '2 Giường King siêu lớn', 180, 'Toàn cảnh Resort', TRUE, TRUE, 'Rượu vang cao cấp, Trái cây nhập khẩu, Minibar', TRUE),
+(10, 'Cozy Studio Room',         'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af,https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=800&q=80,https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?w=800&q=80', 1500000,  2, 'Phòng Studio nhỏ gọn, đầy đủ tiện nghi.',          2, 0, 2, 1, 300000,  150000, TRUE, '1 Giường Queen 1m8', 35, 'Hướng đường phố', FALSE, FALSE, '2 chai nước suối, Cà phê hòa tan', FALSE);
 
 -- ── 7. Room Surcharges (10 rows) ─────────────────────────────
 INSERT INTO Room_Surcharges (surcharge_id, category_id, surcharge_type, age_from, age_to, price_modifier, is_active) VALUES 
@@ -475,72 +475,108 @@ INSERT INTO Table_Reservations (reservation_id, customer_id, table_id, reserve_d
 -- ── 18. Menu Items (34 rows) ─────────────────────────────────
 INSERT INTO Menu_Items (item_id, item_name, price, category, is_available, description, image_url, allergy_tags, is_always_available) VALUES 
 
-(1, 'Súp Bí Đỏ Kem Tươi Truffle', 180000, 'Khai vị', TRUE, 'Súp bí đỏ béo ngậy kết hợp kem tươi và dầu truffle nguyên chất.', 'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=500&q=80', 'Sữa', FALSE),
 
-(2, 'Gỏi Cuốn Tôm Thịt', 95000, 'Khai vị', TRUE, 'Gỏi cuốn tôm thịt tươi ngon kèm rau sống và tương đậu phộng.', 'https://www.cet.edu.vn/wp-content/uploads/2018/11/goi-cuon-tom-thit.jpg', 'Đậu phộng, Hải sản', FALSE),
-(3, 'Chả Giò Hải Sản', 110000, 'Khai vị', TRUE, 'Chả giò chiên giòn nhân hải sản tươi sống.', 'https://cdn.tgdd.vn/2022/01/CookDish/2-cach-lam-cha-gio-hai-san-don-gian-gion-thom-beo-ngay-ai-avt-1200x676.jpg', 'Hải sản', FALSE),
-(4, 'Salad Cá Hồi Xông Khói', 150000, 'Khai vị', TRUE, 'Salad rau xanh tươi mát kết hợp cá hồi xông khói nhập khẩu.', 'https://file.hstatic.net/200000356095/file/salad_ca_hoi__xong_khoi__3__59eaf296ddc644849699579b210c7855.jpg', 'Hải sản', FALSE),
-(5, 'Súp Hải Sản Măng Tây', 130000, 'Khai vị', TRUE, 'Súp hải sản nấu cùng măng tây tươi ngon ngọt.', 'https://cdn.tgdd.vn/Files/2020/10/09/1297483/tro-tai-voi-mon-sup-tom-mang-tay-vi-lau-thai-vua-la-vua-quen-ai-an-cung-tam-tac-khen-202010091742198445.jpg', 'Hải sản', FALSE),
+(1, 'Gỏi cá mai', 185000, 'Khai vị', TRUE, 'Đặc sản Mũi Né với cá mai tươi, rau thơm và nước chấm chua ngọt hài hòa.', 'https://cdn.zsoft.solutions/poseidon-web/app/media/Kham-pha-am-thuc/03.2024/18324-goi-ca-mai-1.jpg', 'Fish, Peanut', FALSE),
+(2, 'Bánh căn hải sản', 95000, 'Khai vị', TRUE, 'Bánh căn nóng giòn kết hợp tôm, mực tươi và nước chấm đậm đà.', 'https://media.thuonghieucongluan.vn/uploads/2026/03/01/banh-can-thumb-1772322285.jpg', 'Shellfish, Egg', FALSE),
+(3, 'Bánh xèo Mũi Né', 110000, 'Khai vị', TRUE, 'Bánh xèo vàng giòn với nhân tôm thịt và rau sống tươi ngon.', 'https://i-giadinh.vnecdn.net/2023/09/19/Bc10Thnhphm11-1695107510-2493-1695107555.jpg', 'Shellfish, Gluten', FALSE),
+(4, 'Súp cua', 120000, 'Khai vị', TRUE, 'Súp cua thơm ngọt với thịt cua, trứng và bắp non.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT8zh8s2hEoOtqeCKJD9AUdyuYcpMXLIbUMlzdFDIw1FQ&s=10', 'Shellfish, Egg', FALSE),
+(5, 'Súp hải sản', 145000, 'Khai vị', TRUE, 'Súp hải sản thanh ngọt từ tôm, mực và rau củ tươi.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRMVM6DWLLebjQTPWe7VkBltCuqH4bgqGxF1tL5UolVlw&s=10', 'Shellfish', FALSE),
+(6, 'Súp gà nấm hương', 95000, 'Khai vị', TRUE, 'Súp gà mềm ngọt hòa quyện cùng nấm hương thơm tự nhiên.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSWn21CZqwUZCo8466Eqh4pbrRcTb-Vk4oFNL9fZqYXMg&s=10', NULL, FALSE),
+(7, 'Súp bí đỏ kem tươi', 85000, 'Khai vị', TRUE, 'Bí đỏ xay mịn kết hợp kem tươi, béo nhẹ và thanh vị.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQUKVE6Brt_re0D5tnTCoqbBsJttHZpqZzOV-vXeu4vlA&s=10', 'Milk', FALSE),
+(8, 'Gỏi ngó sen tôm thịt', 165000, 'Khai vị', TRUE, 'Ngó sen giòn tươi hòa quyện cùng tôm thịt và nước sốt chua ngọt.', 'https://cooponline.vn/tin-tuc/wp-content/uploads/2025/10/Avatar-2.png', 'Shellfish', FALSE),
+(9, 'Gỏi gà xé phay', 135000, 'Khai vị', TRUE, 'Gà xé mềm trộn rau thơm và hành tây, thanh mát và hấp dẫn.', 'https://www.huongnghiepaau.com/wp-content/uploads/2025/05/cach-lam-goi-ga-xe-phay.jpg', NULL, FALSE),
+(10, 'Gỏi bò bóp thấu', 175000, 'Khai vị', TRUE, 'Thịt bò mềm kết hợp rau củ tươi và nước sốt đậm vị.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTzllA_ZP9TSD2nQoyOFZcO_tSm6pjC330U4ZrDEEtC5g&s=10', NULL, FALSE),
+(11, 'Gỏi xoài tôm khô', 145000, 'Khai vị', TRUE, 'Xoài xanh giòn chua nhẹ kết hợp tôm khô đậm đà.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcStIHf9pX74-zFf2s1VD39X4noHVXdIMVy1lwIJafLINQ&s=10', 'Shellfish', FALSE),
+(12, 'Gỏi hải sản', 195000, 'Khai vị', TRUE, 'Hải sản tươi trộn rau củ cùng nước sốt chua cay đặc trưng.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSJqlK-m2m3xYxNQIkzS8YY-py6aaS0zjoUkf2MmTum8w&s=10', 'Shellfish', FALSE),
+(13, 'Salad rau củ dầu giấm', 95000, 'Khai vị', TRUE, 'Rau củ tươi theo mùa trộn cùng sốt dầu giấm thanh nhẹ.', 'https://winefood.com.vn/wp-content/uploads/2024/06/z5512961476611_be635db082cdac788fca5636858378e3.jpg', NULL, FALSE),
+(14, 'Salad cá ngừ', 185000, 'Khai vị', TRUE, 'Cá ngừ áp chảo kết hợp rau xanh tươi, cà chua bi và sốt mè rang thanh nhẹ.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTl8cQq2uQtbwh_kgPSN8NVX9E21FAjvQMbNIIrsap37Q&s=10', 'Fish, Sesame', FALSE),
+(15, 'Mực một nắng nướng muối ớt', 395000, 'Món chính', TRUE, 'Mực một nắng nướng thơm, giữ trọn vị ngọt tự nhiên của biển.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTMosFGfsoMVWXSgYpus4wExPxCmHG6AHRsxT86UnQsRg&s=10', 'Shellfish', FALSE),
+(16, 'Lẩu cá bớp', 520000, 'Món chính', TRUE, 'Cá bớp tươi trong nước lẩu chua thanh, dùng kèm rau và bún.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRK6eKKuhAudZfD5u7gclDml2jb4iJQU3ZjOyRzzYA0Lw&s=10', 'Fish', FALSE),
+(17, 'Bánh canh chả cá', 125000, 'Món chính', TRUE, 'Bánh canh dai mềm cùng chả cá và nước dùng đậm đà.', 'https://lalago.vn/wp-content/uploads/2025/05/banh-canh-cha-ca-phan-thiet-6.jpg', 'Fish, Gluten', FALSE),
+(18, 'Cá bóp kho tộ', 245000, 'Món chính', TRUE, 'Cá bóp kho theo phong cách truyền thống với hương vị đậm đà.', 'https://i-giadinh.vnecdn.net/2023/09/16/Bc4Thnhphm11-1694856717-6271-1694856861.jpg', 'Fish, Soy', FALSE),
+(19, 'Tôm nướng mọi', 385000, 'Món chính', TRUE, 'Tôm tươi nướng nguyên con, giữ vị ngọt tự nhiên.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS1NeG6yA1EQWEt_55ym0xMlWGcxItK_LWpiJyangoyFA&s=10', 'Shellfish', FALSE),
+(20, 'Ghẹ hấp sả', 595000, 'Món chính', TRUE, 'Ghẹ tươi hấp cùng sả, thơm dịu và ngọt thịt.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQdqcrP2iDZvCfLVdvinGmUR-rayFu9lJtr0ELRyfSu3g&s=10', 'Shellfish', FALSE),
+(21, 'Sò điệp nướng mỡ hành', 285000, 'Món chính', TRUE, 'Sò điệp nướng béo thơm cùng mỡ hành và đậu phộng.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS668yHo5tseb6H2oxdx3x3NIvMn7UKgwSN-ayuIsEoRQ&s=10', 'Shellfish, Peanut', FALSE),
+(22, 'Mực lá nướng sa tế', 355000, 'Món chính', TRUE, 'Mực lá nướng cùng sốt sa tế cay nhẹ, đậm hương vị.', 'https://cdn.tgdd.vn/Files/2019/03/23/1156454/3-cach-lam-muc-nuong-sa-te-han-quoc-va-chao-thom-ngon-kho-cuong-202110301600389672.jpg', 'Shellfish', FALSE),
+(23, 'Ốc hương rang muối', 325000, 'Món chính', TRUE, 'Ốc hương rang muối giòn thơm, hấp dẫn trong từng miếng.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSUG-QP5tovwnkSjC4RPxvvW64vT5usWe5zRKiKd9qzcQ&s=10', 'Shellfish', FALSE),
+(24, 'Cá thu sốt cà chua', 225000, 'Món chính', TRUE, 'Cá thu áp chảo kết hợp sốt cà chua chua ngọt ăn cùng với cơm trắng.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQIOU1DQo7Y23Epa8Mz24iU5FLrcYb1Y4Ui7ZUQTax2_Q&s=10', 'Fish', FALSE),
+(25, 'Cá hồi áp chảo sốt chanh dây', 395000, 'Món chính', TRUE, 'Cá hồi áp chảo vàng đều, kết hợp sốt chanh dây chua ngọt, mang đến hương vị tinh tế và hấp dẫn.', 'https://chefstudio.vn/uploads/r/cach-lam-ca-hoi-sot-chanh-leo-thom-ngon.jpg', 'Fish, Milk', FALSE),
+(26, 'Cháo hải sản', 195000, 'Món chính', TRUE, 'Cháo nóng hổi với hải sản tươi và hương vị thanh ngọt.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTtnzVLq_O4-f6Q7M5h5IkuoVxIDPI4UezW6HwYFQULPw&s=10', 'Shellfish', FALSE),
+(27, 'Cơm chiên hải sản', 165000, 'Món chính', TRUE, 'Cơm chiên vàng đều cùng tôm, mực và trứng thơm ngon.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ4D2lMJP1Y0Aleu0jslS_vP0GfFdw1mmkYg3Spjk-1eA&s=10', 'Shellfish, Egg', FALSE),
+(28, 'Tôm sú hấp nước dừa', 425000, 'Món chính', TRUE, 'Tôm sú hấp nước dừa giữ trọn vị ngọt và hương thơm tự nhiên.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRRMYT-f7lrpfv2Zj5uYcHIGwKOzr81XkNcid9NB_8YlA&s=10', 'Shellfish', FALSE),
+(29, 'Tôm chiên bơ tỏi', 315000, 'Món chính', TRUE, 'Tôm chiên vàng giòn hòa quyện cùng bơ tỏi thơm béo.', 'https://cdn-i.vtcnews.vn/resize/th/upload/2024/10/03/tomchienbotois-11580919.png', 'Shellfish, Milk', FALSE),
+(30, 'Mực xào chua ngọt', 265000, 'Món chính', TRUE, 'Mực tươi xào rau củ với sốt chua ngọt hài hòa.', 'https://i-giadinh.vnecdn.net/2021/03/31/muc1-1617182767-1435-1617182779.jpg', 'Shellfish', FALSE),
+(31, 'Cá mú hấp Hồng Kông', 565000, 'Món chính', TRUE, 'Cá mú hấp xì dầu và gừng theo phong cách Hồng Kông.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR76WAMp8bA3-YSzofjutAfHTiTTvwuES0NEnLlfiz23A&s=10', 'Fish, Soy', FALSE),
+(32, 'Ngao sốt thái', 215000, 'Món chính', TRUE, 'Ngao tươi sốt thái, thơm dịu và giữ nguyên vị ngọt, nước sốt thái chua ngọt đậm đà.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQvs0dElDV9HpnEs0tYYitzSpaVXMA15kPW2g4N4cLnGg&s=10', 'Shellfish', FALSE),
+(33, 'Sò huyết nướng mỡ hành', 265000, 'Món chính', TRUE, 'Sò huyết nướng thơm béo cùng mỡ hành hấp dẫn.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT1f0N22gTd5krNaOWL9boDwUnK1Sqj4UHYRd86sfOhEg&s=10', 'Shellfish, Peanut', FALSE),
+(34, 'Hàu nướng phô mai', 245000, 'Món chính', TRUE, 'Hàu tươi phủ phô mai béo ngậy, nướng vàng hấp dẫn.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQMnWtYtmDJ_752ljmrFLSDcySv0FONNUYZEGiohb_XYw&s=10', 'Shellfish, Milk', FALSE),
+(35, 'Cua rang me', 625000, 'Món chính', TRUE, 'Cua rang cùng sốt me chua ngọt đậm đà.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSqVibdAbutiMSSGvl-MOuqw5jLGCPimM3rZsP2xEBBmQ&s=10', 'Shellfish', FALSE),
+(36, 'Lẩu hải sản chua cay', 595000, 'Món chính', TRUE, 'Lẩu hải sản với nước dùng chua cay và nguyên liệu tươi ngon.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR_3wUpu2uCMtzIqaFfIYPR_vnzxRhE3GHscuAAepFTfA&s=10', 'Shellfish', FALSE),
+(37, 'Bạch tuộc nướng', 335000, 'Món chính', TRUE, 'Bạch tuộc nướng than hoa với độ giòn ngọt tự nhiên.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSlA-ERuGgo7gmv4KheNoQ3niCPD50eUYEzemipIhI5Yg&s=10', 'Shellfish', FALSE),
+(38, 'Phở bò', 135000, 'Món chính', TRUE, 'Phở bò truyền thống với nước dùng hầm xương đậm vị.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRp63hqqANZeXyRQKFP_zSNKqvaT4iSdS0Lya21HtzS0A&s=10', 'Gluten', FALSE),
+(39, 'Phở gà', 125000, 'Món chính', TRUE, 'Phở gà thanh ngọt cùng thịt gà mềm và rau thơm.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRyHPQAc0yF7zypjDfPfcEahLm5FjSoCcDoXhZh_OaCJA&s=10', 'Gluten', FALSE),
+(40, 'Bún bò Huế', 125000, 'Món chính', TRUE, 'Bún bò Huế cay nhẹ với hương vị đặc trưng miền Trung.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS0ZAe9xT_Kc5K0OMyRMqY5BswDwQYI9Wc0lNu9-H2rpw&s=10', NULL, FALSE),
+(41, 'Bún chả Hà Nội', 145000, 'Món chính', TRUE, 'Thịt nướng thơm lừng ăn cùng bún và nước chấm truyền thống.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSMo3e19Uddx_I9WVoMfn6sRNQRb139oI2wrIxmQ_SlAg&s=10', 'Soy', FALSE),
+(42, 'Bún thịt nướng', 135000, 'Món chính', TRUE, 'Thịt nướng đậm vị kết hợp bún tươi và rau sống.', 'https://cooponline.vn/tin-tuc/wp-content/uploads/2025/10/cach-lam-bun-thit-nuong-chuan-vi-sai-gon-thom-ngon-dam-da-kho-cuong.png', 'Peanut', FALSE),
+(43, 'Cơm tấm sườn bì chả', 155000, 'Món chính', TRUE, 'Cơm tấm truyền thống với sườn nướng, bì và chả.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRbEqgR3k6WTSMqqYT0oBvseNzbV_dlNjnleBNoAGzJKQ&s=10', 'Egg', FALSE),
+(44, 'Cơm gà xối mỡ', 145000, 'Món chính', TRUE, 'Gà chiên giòn rụm dùng cùng cơm trắng nóng.', 'https://static.vinwonders.com/production/2025/02/com-ga-xoi-mo-sai-gon-ut-minh.jpg', NULL, FALSE),
+(45, 'Cơm chiên Dương Châu', 155000, 'Món chính', TRUE, 'Cơm chiên cùng hải sản, trứng và rau củ đầy màu sắc.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSaEx810OnvI1ucAZhMW5JlgMa8LRSc0RvQ4ViskrCAvQ&s=10', 'Shellfish, Egg', FALSE),
+(46, 'Bò lúc lắc', 285000, 'Món chính', TRUE, 'Thịt bò mềm áp chảo cùng rau củ và tiêu đen.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQFtHwjMKEffc64iIpjsrUMsR1ITNs9qk4dVApiDQV4bw&s=10', 'Soy', FALSE),
+(47, 'Bò né', 245000, 'Món chính', TRUE, 'Bò áp chảo nóng hổi dùng cùng trứng và bánh mì.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTcFFUwfBdCahr8pewDJpRaNkQTpm-S_tlKWX9KDX2CqQ&s=10', 'Gluten, Egg', FALSE),
+(48, 'Gà nướng mật ong', 255000, 'Món chính', TRUE, 'Gà nướng vàng óng với lớp sốt mật ong thơm ngọt.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQxGMNUJ1xcNkE7iN_eHpbEflgW8lTbZ0Lrilfea6fPCw&s=10', NULL, FALSE),
+(49, 'Gà chiên nước mắm', 235000, 'Món chính', TRUE, 'Gà chiên giòn phủ nước mắm tỏi đậm đà.', 'https://tiki.vn/blog/wp-content/uploads/2023/07/thumb-1.jpeg', NULL, FALSE),
+(50, 'Canh chua cá', 215000, 'Món chính', TRUE, 'Canh chua miền Nam với cá tươi và rau đặc trưng ăn cùng với cơm trắng.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQTxbS393egPaZuOA-lQ0GVTYWNCpsSi5s8LYHGDkF9eQ&s=10', 'Fish', FALSE),
+(51, 'Pizza Hải sản', 325000, 'Món chính', TRUE, 'Pizza giòn thơm phủ hải sản tươi và phô mai mozzarella.', 'https://img.dominos.vn/Pizzaminsea-Hai-San-Nhiet-Doi-Xot-Tieu.jpg', 'Gluten, Milk, Shellfish', FALSE),
+(52, 'Pizza Margherita', 255000, 'Món chính', TRUE, 'Pizza cổ điển với sốt cà chua và phô mai mozzarella.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRdKA-zTX8iiBW-l_rjHpWArsTBf22VRLM_DqA4wPzKmw&s=10', 'Gluten, Milk', FALSE),
+(53, 'Spaghetti Seafood', 295000, 'Món chính', TRUE, 'Mì Ý sốt hải sản với hương vị đậm đà và tươi ngon.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSu2y44Agc3YwXdClTx6HMLU9-azbDJJOdNDXteLv-x5g&s=10', 'Gluten, Shellfish', FALSE),
+(54, 'Chè ba màu', 55000, 'Tráng miệng', TRUE, 'Món chè truyền thống với nhiều loại đậu và nước cốt dừa.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTu6LrFBziAPnqKrnP4cbenKZc2K75Ep-GBYgo-ls4_bg&s=10', NULL, FALSE),
+(55, 'Chè khúc bạch', 65000, 'Tráng miệng', TRUE, 'Chè khúc bạch thanh mát dùng cùng nhãn và hạnh nhân.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTSPecn767GitLnV9QGuMVOcbSR0PGcQIw-d5PYeaIPyw&s=10', 'Milk', FALSE),
+(56, 'Kem dừa', 75000, 'Tráng miệng', TRUE, 'Kem dừa mịn màng với vị béo nhẹ tự nhiên.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSYbXMHINuADHtuYZQxJ20Iw-Lxt0jyBwvnTN11fD7fXw&s=10', 'Milk', FALSE),
+(57, 'Bánh flan', 55000, 'Tráng miệng', TRUE, 'Bánh flan mềm mịn với vị caramel ngọt dịu.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRSnF8AD_3JTqWnqbUx4VZYpKY3SRKremr3FM1t2dB5gg&s=10', 'Egg, Milk', FALSE),
+(58, 'Trái cây theo mùa', 95000, 'Tráng miệng', TRUE, 'Tuyển chọn trái cây tươi ngon theo mùa.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSRjevrsK_VXNK_uASyCcCJxwmQUiTsh7JUjfS800aZ4A&s=10', NULL, FALSE),
+(59, 'Kem vani', 75000, 'Tráng miệng', TRUE, 'Kem vani mịn béo với hương thơm dịu nhẹ.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQd3fhIwXSVsshPxkGb9gkC441QnIMjfILTSi-8lZl8PA&s=10', 'Milk', FALSE),
+(60, 'Sữa chua', 45000, 'Tráng miệng', TRUE, 'Sữa chua việt quất chua ngọt tự nhiên, thanh mát và dễ thưởng thức.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSkXL1FGqhj4YVCK6uaMQe_7oIdDZwLEnQSG1dt8qWcAQ&s=10', 'Milk', FALSE),
+(61, 'Bánh Mousse Chocolate', 90000, 'Tráng miệng', TRUE, 'Bánh mousse chocolate Bỉ mịn màng, đắng nhẹ.', 'https://i.ytimg.com/vi/pESVrDm6yIM/maxresdefault.jpg', 'Milk, egg', FALSE),
+(62, 'Bánh Tiramisu', 95000, 'Tráng miệng', TRUE, 'Bánh Tiramisu mềm mịn với hương cà phê nhẹ, lớp kem mascarpone béo ngậy và bột cacao thơm, mang đến dư vị ngọt ngào sau bữa ăn.', 'https://thermomixvietnam.vn/wp-content/uploads/2021/08/tiramisu-truyen-thong.jpg', 'Milk, Egg, Gluten', FALSE),
+(63, 'Nước dừa tươi', 55000, 'Đồ uống', TRUE, 'Nước dừa tươi mát được phục vụ nguyên trái.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRh0FZGaA6xavPbCzXxS7QyFohDVnGsLZk2zosFje_3eA&s=10', NULL, TRUE),
+(64, 'Cam ép', 65000, 'Đồ uống', TRUE, 'Nước cam ép nguyên chất, giàu vitamin C.', 'https://www.sieuthidonglanh.com/wp-content/uploads/2023/03/Nuoc-ep-cam-giup-chong-lao-hoa-da-hieu-qua.png', NULL, TRUE),
+(65, 'Nước chanh dây', 60000, 'Đồ uống', TRUE, 'Nước chanh dây chua ngọt, tươi mát.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT_VJrLPs5FB0AHsHZmJk8Bwy6Kb7dyTztazL_8SPSHkQ&s=10', NULL, TRUE),
+(66, 'Nước ép dưa hấu', 65000, 'Đồ uống', TRUE, 'Nước ép dưa hấu nguyên chất, giải nhiệt hiệu quả.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTvHhFBXMrB3U9D5o-XWF9B0pY-bm444AO3WBbSwD6pXQ&s=10', NULL, TRUE),
+(67, 'Sinh tố xoài', 75000, 'Đồ uống', TRUE, 'Sinh tố xoài sánh mịn với vị ngọt tự nhiên.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTJc0QXQ4IqYKElXcUr1GTWVxnWPhB2TK_OpOpQMMDhRw&s=10', 'Milk', TRUE),
+(68, 'Sinh tố bơ', 80000, 'Đồ uống', TRUE, 'Sinh tố bơ ngọt nhẹ với vị béo ngậy cuốn hút.', 'https://img.freepik.com/premium-photo/avocado-smoothie-with-avocado-wooden-board-dark-background_490636-2675.jpg', 'Milk', TRUE),
+(69, 'Sinh tố mãng cầu', 80000, 'Đồ uống', TRUE, 'Sinh tố mãng cầu chua ngọt hài hòa, mát lạnh', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQliOZ99dtOiJEG_cP78-xLuhfShPa1PSpmQXAsZaamKA&s=10', 'Milk', TRUE),
+(70, 'Cà phê đen', 45000, 'Đồ uống', TRUE, 'Cà phê pha phin đậm đà theo phong cách Việt Nam.', 'https://vinbarista.com/uploads/news/10-loi-ich-bat-ngo-khi-uong-ca-phe-den-nguyen-chat-202504021427.jpg', NULL, TRUE),
+(71, 'Cà phê sữa', 50000, 'Đồ uống', TRUE, 'Cà phê pha cùng sữa đặc, cân bằng vị đắng và ngọt.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRnSg_F7K27YeJ5JcEOsW2QIdzpYQur2npcsOUgIxOQFw&s=10', 'Milk', TRUE),
+(72, 'Cappuccino', 75000, 'Đồ uống', TRUE, 'Espresso kết hợp bọt sữa mịn theo phong cách Ý.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQB2t7LYP_hjvl-vBCTTS4NebRJGnX-OBlKcDnONH7X8Q&s=10', 'Milk', TRUE),
+(73, 'Matcha Latte', 80000, 'Đồ uống', TRUE, 'Matcha Nhật Bản hòa quyện cùng sữa tươi và lớp foam mịn, mang đến hương vị thanh nhẹ, béo ngậy và cân bằng.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS2_gzK--VFUUdnjc-htZ4Kv2JUuX3MkY0X3rC6C4u9eA&s=10', 'Milk', TRUE),
+(74, 'Trà đào', 55000, 'Đồ uống', TRUE, 'Trà đào thơm nhẹ với vị ngọt thanh dễ uống.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR4CCqp_lnl-X0wM_hqWJm2ZVdgXD8agHWfxzRnsWuHpQ&s=10', NULL, TRUE),
+(75, 'Trà chanh', 45000, 'Đồ uống', TRUE, 'Trà chanh tươi mát với vị chua nhẹ sảng khoái.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSqW5vUkX8PBxW9d5FL8_IQhmmOT8Km_VG4-Pi9RgNz4w&s=10', NULL, TRUE),
+(76, 'Coca-Cola', 35000, 'Đồ uống', TRUE, 'Nước ngọt có ga phục vụ lạnh.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSecAEC3Qp39IHdyjLvoy2NTFBAfUjPQs4Ky2WY76V7Mg&s=10', NULL, TRUE),
+(77, 'Pepsi', 35000, 'Đồ uống', TRUE, 'Nước ngọt có ga với hương vị quen thuộc.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSsbc5nPVtoJLUe7lTKlv5cpym3yvsQDrfe906ys17Psg&s=10', NULL, TRUE),
+(78, 'Sprite', 35000, 'Đồ uống', TRUE, 'Nước ngọt vị chanh tươi mát.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSf33j4JK4YbOEIf0XD6cH9PfgyfqvFictJ-JyqfoAywA&s=10', NULL, TRUE),
+(79, 'Soda chanh', 50000, 'Đồ uống', TRUE, 'Soda kết hợp nước cốt chanh tươi, sảng khoái.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS0Qcpx_WfKUzQZVhpr26ocdX_3ol7Ibl9TmgpbSOFCHg&s=10', NULL, TRUE),
+(80, 'Tiger Beer', 55000, 'Đồ uống', TRUE, 'Bia Tiger phục vụ lạnh, thích hợp cùng hải sản.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT9YsRq1ocwyGXOUIFAUym39raCZxQ7GDixULXAo4vD7A&s=10', 'Gluten', TRUE),
+(81, 'Heineken', 65000, 'Đồ uống', TRUE, 'Bia Heineken nhập khẩu với hương vị cân bằng.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRSIa9ayaH4xjGBGJk5vJVAqQF8o-sN3sOYOO1MaX5YNw&s=10', 'Gluten', TRUE),
+(82, 'Bia thủ công', 95000, 'Đồ uống', TRUE, 'Bia thủ công với hương vị đặc trưng theo mùa.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSIlCLAN6vfvnzSB-PjslKfnpGOvOfbIv8mtG45I3y2gA&s=10', 'Gluten', TRUE),
+(83, 'Nước khoáng Evian', 25000, 'Đồ uống', TRUE, 'Nước khoáng Evian Pháp tinh khiết và mát lạnh.', 'https://gangnamkong.co.kr/web/upload/NNEditor/20230424/33378a1a3af8ff1869c4b1faf8da8863.jpg', NULL, TRUE);
 
-(6, 'Bánh Mì Bơ Tỏi', 65000, 'Khai vị', TRUE, 'Bánh mì Pháp nướng giòn phết bơ tỏi thơm lừng.', 'https://www.lorca.vn/wp-content/uploads/2021/10/Cach-lam-mong-banh-mi-bo-toi-phomai-bang-lo-nuong.jpg', 'Gluten, Sữa', FALSE),
-
-(7, 'Nem Chua Rán', 75000, 'Khai vị', TRUE, 'Nem chua rán giòn rụm chấm tương ớt.', 'https://trumfood.vn/wp-content/uploads/2022/09/trumfood_decor00865.jpg', NULL, FALSE),
-(8, 'Hoành Thánh Chiên Giòn', 85000, 'Khai vị', TRUE, 'Hoành thánh chiên giòn nhân tôm thịt.', 'https://cdn.tgdd.vn/2020/09/CookProduct/Untitled-2-1200x676-1.jpg', 'Gluten, Hải sản', FALSE),
-(9, 'Bò Bít Tết Wagyu Kèm Sốt Tiêu Xanh', 850000, 'Món chính', TRUE, 'Bò Wagyu Nhật Bản áp chảo sốt tiêu xanh, kèm rau củ nướng.', 'https://live.staticflickr.com/65535/50489573886_fa160b7292_b.jpg', NULL, FALSE),
-(10, 'Cá Hồi Nướng Sốt Miso Nhật Bản', 520000, 'Món chính', TRUE, 'Cá hồi tươi nướng sốt miso thanh nhẹ, ăn kèm cơm trắng.', 'https://www.theforkbite.com/wp-content/uploads/2024/02/Teriyaki-Salmon-featured-2.9.24-500x500.jpg', 'Hải sản', FALSE),
-(11, 'Phở Bò Truyền Thống', 120000, 'Món chính', TRUE, 'Phở bò nước dùng đậm đà, thịt bò tái chín mềm.', 'https://daotaobeptruong.vn/wp-content/uploads/2020/03/cach-nau-pho-bo.jpg', NULL, FALSE),
-(12, 'Cơm Chiên Dương Châu', 85000, 'Món chính', TRUE, 'Cơm chiên dương châu thập cẩm tôm, lạp xưởng, trứng.', 'https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=500&q=80', 'Hải sản, Trứng', FALSE),
-(13, 'Sườn Heo Nướng BBQ', 250000, 'Món chính', TRUE, 'Sườn heo non nướng sốt BBQ đậm vị, ăn kèm khoai tây chiên.', 'https://images.unsplash.com/photo-1544025162-d76694265947?w=500&q=80', NULL, FALSE),
-(14, 'Mì Ý Sốt Bò Băm', 140000, 'Món chính', TRUE, 'Mì Ý spaghetti sốt bolognese thịt bò băm.', 'https://meoeva.com/wp-content/uploads/2019/05/Spaghetti.jpg', 'Gluten', FALSE),
-(15, 'Gà Nướng Mật Ong', 180000, 'Món chính', TRUE, 'Đùi gà nướng mật ong thơm ngọt, ăn kèm salad.', 'https://lh3.googleusercontent.com/p/AF1QipOYKsd6yLm0iH-NJGsbyVcSl6woaZT1DpHGG1LM=s680-w680-h510', NULL, FALSE),
-(16, 'Lẩu Thái Hải Sản', 350000, 'Món chính', TRUE, 'Lẩu Thái chua cay hải sản tươi sống, kèm bún tươi.', 'https://i.ytimg.com/vi/p1ejp7z4mc4/sddefault.jpg', 'Hải sản', FALSE),
-(17, 'Bún Chả Hà Nội', 95000, 'Món chính', TRUE, 'Bún chả Hà Nội thịt nướng than hồng, nước mắm chua ngọt.', 'https://www.seriouseats.com/thmb/J0g7JWjk9r6CHESo1CIrD1BfGd0=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/20231204-SEA-VyTran-BunChaHanoi-19-f623913c6ef34a9185bcd6e5680c545f.jpg', NULL, FALSE),
-(18, 'Pizza Hải Sản', 210000, 'Món chính', TRUE, 'Pizza đế mỏng nhân hải sản phô mai mozzarella.', 'https://doiduavang.vn/wp-content/uploads/2021/01/pizza-nhan-hai-san-doi-dua-vang-scaled.jpg', 'Gluten, Hải sản, Sữa', FALSE),
-(19, 'Cơm Gà Hải Nam', 110000, 'Món chính', TRUE, 'Cơm gà Hải Nam nước dùng gà thanh ngọt.', 'https://cdn.tgdd.vn/Files/2021/08/16/1375575/cach-nau-com-ga-hai-nam-don-gian-ga-chin-vang-uom-da-gion-dung-chuan-202112281045139511.jpg', NULL, FALSE),
-(20, 'Mực Ống Nhồi Thịt', 170000, 'Món chính', TRUE, 'Mực ống nhồi thịt chiên giòn, chấm sốt tương xoài.', 'https://cdn.tgdd.vn/2021/03/CookProduct/1200-1200x676-31.jpg', 'Hải sản', FALSE),
-(21, 'Bánh Tiramisu Truyền Thống Ý', 120000, 'Tráng miệng', FALSE, 'Bánh Tiramisu Ý nguyên bản vị cà phê, kem mascarpone.', 'https://thermomixvietnam.vn/wp-content/uploads/2021/08/tiramisu-truyen-thong.jpg', 'Sữa, Gluten', FALSE),
-(22, 'Chè Xoài Dừa Tươi', 65000, 'Tráng miệng', TRUE, 'Chè xoài chín ngọt kết hợp nước cốt dừa béo ngậy.', 'https://img.freepik.com/premium-photo/mango-cheese-milka-dessert-made-from-jelly-nata-de-coco-basil-seed-mango-cream-cheese-milk_583400-4287.jpg', NULL, FALSE),
-(23, 'Kem Xôi Dừa', 55000, 'Tráng miệng', TRUE, 'Kem xôi dừa mát lạnh, topping dừa nạo sấy.', 'https://beptruong.edu.vn/wp-content/uploads/2016/02/kem-xoi-dua.jpg', 'Sữa', FALSE),
-(24, 'Bánh Flan Caramel', 45000, 'Tráng miệng', TRUE, 'Bánh flan caramel mềm mịn, thơm ngon.', 'https://img.freepik.com/premium-photo/cream-caramel-pudding_599862-23796.jpg', 'Trứng, Sữa', FALSE),
-(25, 'Panna Cotta Dâu Tây', 75000, 'Tráng miệng', TRUE, 'Panna cotta Ý sốt dâu tây tươi mát.', 'https://bloganchoi.com/wp-content/uploads/2022/06/cach-lam-panna-cotta.jpg', 'Sữa', FALSE),
-(26, 'Trái Cây Thập Cẩm', 110000, 'Tráng miệng', TRUE, 'Đĩa trái cây tươi thập cẩm theo mùa.', 'https://bolcereales.com.ar/wp-content/uploads/2021/01/alimentos-con-cobre-frutas.jpeg', NULL, FALSE),
-
-(27, 'Bánh Mousse Chocolate', 90000, 'Tráng miệng', TRUE, 'Bánh mousse chocolate Bỉ mịn màng, đắng nhẹ.', 'https://i.ytimg.com/vi/pESVrDm6yIM/maxresdefault.jpg', 'Sữa, Trứng', FALSE),
-
-(28, 'Nước Cam Tươi Ép Lạnh', 95000, 'Đồ uống', TRUE, 'Nước cam tươi nguyên chất ép lạnh.', 'https://www.sieuthidonglanh.com/wp-content/uploads/2023/03/Nuoc-ep-cam-giup-chong-lao-hoa-da-hieu-qua.png', NULL, TRUE),
-(29, 'Cà Phê Phin Việt Nam', 55000, 'Đồ uống', TRUE, 'Cà phê phin Việt Nam đậm đà truyền thống.', 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=500&q=80', NULL, TRUE),
-(30, 'Trà Đào Cam Sả', 65000, 'Đồ uống', TRUE, 'Trà đào cam sả tươi mát giải nhiệt.', 'https://img.meta.com.vn/Data/image/2021/05/20/tra-dao-cam-sa-2.jpg', NULL, TRUE),
-(31, 'Sinh Tố Bơ', 75000, 'Đồ uống', TRUE, 'Sinh tố bơ tươi xay nhuyễn béo ngậy.', 'https://img.freepik.com/premium-photo/avocado-smoothie-with-avocado-wooden-board-dark-background_490636-2675.jpg', 'Sữa', TRUE),
-(32, 'Mojito Chanh Bạc Hà', 85000, 'Đồ uống', TRUE, 'Mojito không cồn chanh bạc hà tươi mát.', 'https://img.freepik.com/premium-photo/refreshing-glass-coconut-water-garnished-with-mint-leaves-slice-lime_198067-290311.jpg', NULL, TRUE),
-(33, 'Bia Heineken', 45000, 'Đồ uống', TRUE, 'Bia Heineken nhập khẩu lạnh.', 'https://tse2.mm.bing.net/th/id/OIP.h3ptwUpaWsyCB7MAVaLGhwHaEK?w=680&h=382&rs=1&pid=ImgDetMain&o=7&rm=3', 'Gluten', TRUE),
-(34, 'Nước Khoáng Evian', 40000, 'Đồ uống', TRUE, 'Nước khoáng Evian Pháp.', 'https://gangnamkong.co.kr/web/upload/NNEditor/20230424/33378a1a3af8ff1869c4b1faf8da8863.jpg', NULL, TRUE);
 
 -- ── 18.5 Menu Item Days (Phân bổ thực đơn theo ngày) ───────────
 INSERT INTO Menu_Item_Days (item_id, day_of_week) VALUES
--- MONDAY (Thứ 2)
-(1, 'MONDAY'), (2, 'MONDAY'), (5, 'MONDAY'), (8, 'MONDAY'),
-(9, 'MONDAY'), (10, 'MONDAY'), (13, 'MONDAY'), (16, 'MONDAY'),
-(21, 'MONDAY'), (22, 'MONDAY'), (25, 'MONDAY'), (27, 'MONDAY'),
+-- MONDAY
+(1, 'MONDAY'), (2, 'MONDAY'), (3, 'MONDAY'), (4, 'MONDAY'), (15, 'MONDAY'), (16, 'MONDAY'), (17, 'MONDAY'), (18, 'MONDAY'), (19, 'MONDAY'), (20, 'MONDAY'), (21, 'MONDAY'), (22, 'MONDAY'), (23, 'MONDAY'), (24, 'MONDAY'), (54, 'MONDAY'), (55, 'MONDAY'), (56, 'MONDAY'),
 
--- TUESDAY (Thứ 3)
-(3, 'TUESDAY'), (4, 'TUESDAY'), (6, 'TUESDAY'), (7, 'TUESDAY'),
-(11, 'TUESDAY'), (12, 'TUESDAY'), (14, 'TUESDAY'), (17, 'TUESDAY'),
-(23, 'TUESDAY'), (24, 'TUESDAY'), (26, 'TUESDAY'), (22, 'TUESDAY'),
+-- TUESDAY
+(5, 'TUESDAY'), (6, 'TUESDAY'), (7, 'TUESDAY'), (8, 'TUESDAY'), (25, 'TUESDAY'), (26, 'TUESDAY'), (27, 'TUESDAY'), (28, 'TUESDAY'), (29, 'TUESDAY'), (30, 'TUESDAY'), (31, 'TUESDAY'), (32, 'TUESDAY'), (33, 'TUESDAY'), (34, 'TUESDAY'), (57, 'TUESDAY'), (58, 'TUESDAY'), (59, 'TUESDAY'),
 
--- WEDNESDAY (Thứ 4)
-(1, 'WEDNESDAY'), (3, 'WEDNESDAY'), (5, 'WEDNESDAY'), (8, 'WEDNESDAY'),
-(15, 'WEDNESDAY'), (18, 'WEDNESDAY'), (19, 'WEDNESDAY'), (20, 'WEDNESDAY'),
-(21, 'WEDNESDAY'), (23, 'WEDNESDAY'), (25, 'WEDNESDAY'), (27, 'WEDNESDAY'),
+-- WEDNESDAY
+(9, 'WEDNESDAY'), (10, 'WEDNESDAY'), (11, 'WEDNESDAY'), (12, 'WEDNESDAY'), (35, 'WEDNESDAY'), (36, 'WEDNESDAY'), (37, 'WEDNESDAY'), (38, 'WEDNESDAY'), (39, 'WEDNESDAY'), (40, 'WEDNESDAY'), (41, 'WEDNESDAY'), (42, 'WEDNESDAY'), (43, 'WEDNESDAY'), (44, 'WEDNESDAY'), (60, 'WEDNESDAY'), (61, 'WEDNESDAY'), (62, 'WEDNESDAY'),
 
--- THURSDAY (Thứ 5)
-(2, 'THURSDAY'), (4, 'THURSDAY'), (6, 'THURSDAY'), (7, 'THURSDAY'),
-(9, 'THURSDAY'), (12, 'THURSDAY'), (16, 'THURSDAY'), (18, 'THURSDAY'),
-(22, 'THURSDAY'), (24, 'THURSDAY'), (26, 'THURSDAY'), (21, 'THURSDAY'),
+-- THURSDAY
+(13, 'THURSDAY'), (14, 'THURSDAY'), (1, 'THURSDAY'), (2, 'THURSDAY'), (45, 'THURSDAY'), (46, 'THURSDAY'), (47, 'THURSDAY'), (48, 'THURSDAY'), (49, 'THURSDAY'), (50, 'THURSDAY'), (51, 'THURSDAY'), (52, 'THURSDAY'), (53, 'THURSDAY'), (15, 'THURSDAY'), (54, 'THURSDAY'), (55, 'THURSDAY'), (56, 'THURSDAY'),
 
--- FRIDAY (Thứ 6)
-(1, 'FRIDAY'), (2, 'FRIDAY'), (3, 'FRIDAY'), (4, 'FRIDAY'),
-(10, 'FRIDAY'), (11, 'FRIDAY'), (14, 'FRIDAY'), (20, 'FRIDAY'),
-(21, 'FRIDAY'), (23, 'FRIDAY'), (25, 'FRIDAY'), (27, 'FRIDAY'),
+-- FRIDAY
+(3, 'FRIDAY'), (4, 'FRIDAY'), (5, 'FRIDAY'), (6, 'FRIDAY'), (16, 'FRIDAY'), (17, 'FRIDAY'), (18, 'FRIDAY'), (19, 'FRIDAY'), (20, 'FRIDAY'), (21, 'FRIDAY'), (22, 'FRIDAY'), (23, 'FRIDAY'), (24, 'FRIDAY'), (25, 'FRIDAY'), (57, 'FRIDAY'), (58, 'FRIDAY'), (59, 'FRIDAY'),
 
 -- SATURDAY (Thứ 7)
 (5, 'SATURDAY'), (6, 'SATURDAY'), (7, 'SATURDAY'), (8, 'SATURDAY'),
