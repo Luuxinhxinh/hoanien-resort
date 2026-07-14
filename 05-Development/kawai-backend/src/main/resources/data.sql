@@ -324,6 +324,7 @@ INSERT INTO Bookings (booking_id, customer_id, booking_date, total_price, bookin
 (6, 6, '2026-06-06', 7000000, 'Confirmed', 'OTA', NULL, 1),
 (7, 7, '2026-06-07', 7000000, 'Confirmed', 'Direct_Web', 3, 1),
 (8, 8, '2026-06-08', 16000000, 'Checked_Out', 'Direct_Web', NULL, 1),
+(90, 1, '2026-06-10', 7500000, 'Confirmed', 'Direct_Web', NULL, 1),
 (9, 1, '2026-06-10', 1200000, 'Confirmed', 'Direct_Web', NULL, 1),
 (10, 2, '2026-06-10', 1200000, 'Confirmed', 'Direct_Web', NULL, 1),
 (11, 9, '2026-06-12', 1200000, 'Confirmed', 'Direct_Web', NULL, 1),
@@ -353,7 +354,7 @@ INSERT INTO Room_Bookings (room_booking_id, check_in_date, check_out_date, depos
 (6, '2026-06-10', '2026-06-14', 1500000, '2026-06-06', 5000000, 'hash'),
 (7, '2026-06-10', '2026-06-15', 1500000, '2026-06-06', 5000000, 'hash'),
 (8, '2026-06-10', '2026-06-16', 3000000, '2026-06-06', 15000000, 'hash'),
-(9, DATE_ADD(CURDATE(), INTERVAL 5 DAY), DATE_ADD(CURDATE(), INTERVAL 8 DAY), 500000, DATE_ADD(CURDATE(), INTERVAL 2 DAY), 5000000, 'hash'),
+(90, DATE_ADD(CURDATE(), INTERVAL 5 DAY), DATE_ADD(CURDATE(), INTERVAL 8 DAY), 500000, DATE_ADD(CURDATE(), INTERVAL 2 DAY), 5000000, 'hash'),
 (14, DATE_SUB(CURDATE(), INTERVAL 10 DAY), DATE_SUB(CURDATE(), INTERVAL 6 DAY), 1000000, DATE_SUB(CURDATE(), INTERVAL 15 DAY), 5000000, 'hash'),
 (15, DATE_ADD(CURDATE(), INTERVAL 20 DAY), DATE_ADD(CURDATE(), INTERVAL 25 DAY), 1000000, DATE_ADD(CURDATE(), INTERVAL 10 DAY), 5000000, 'hash');
 
@@ -383,8 +384,8 @@ INSERT INTO Room_Booking_Details (detail_id, room_booking_id, category_id, room_
 (9,  14, 1, NULL, 2500000, 'Checked_Out', 'KING_SIZE', NULL, TRUE,  500000,  'BILL_TO_LEADER'),
 -- Booking 15 (Cancelled)
 (10, 15, 2, NULL, 3500000, 'Cancelled',   'TWIN_BED',  NULL, TRUE,  1500000, 'BILL_TO_LEADER'),
--- Booking 9 (Confirmed, Pending): room_booking_id=9, cat 1, 3 đêm × 2,500,000 = 7,500,000
-(11, 9,  1, NULL, 7500000, 'Pending',     'KING_SIZE', NULL, TRUE,  500000,  'BILL_TO_LEADER');
+-- Booking 90 (Confirmed, Pending): room_booking_id=90, cat 1, 3 đêm × 2,500,000 = 7,500,000
+(11, 90,  1, NULL, 7500000, 'Pending',     'KING_SIZE', NULL, TRUE,  500000,  'BILL_TO_LEADER');
 
 -- ── 15. Room Guests (10 rows) ────────────────────────────────
 INSERT INTO Room_Guests (guest_id, detail_id, customer_id, dependent_id, guest_type, is_primary_contact) VALUES
