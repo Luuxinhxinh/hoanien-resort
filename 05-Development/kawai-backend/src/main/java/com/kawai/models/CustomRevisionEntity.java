@@ -17,7 +17,6 @@ public class CustomRevisionEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @RevisionNumber
-    @Column(name = "REV")
     private int id;
 
     @RevisionTimestamp
