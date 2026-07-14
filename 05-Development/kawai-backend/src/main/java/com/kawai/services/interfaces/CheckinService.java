@@ -32,7 +32,7 @@ public interface CheckinService {
      */
     void updateCreditLimit(Long bookingDetailId, BigDecimal newCreditLimit);
 
-    java.util.Map<String, Object> upgradeDependentToCustomer(Long dependentId);
+    java.util.Map<String, Object> upgradeDependentToCustomer(Long dependentId, Long roomBookingDetailId);
 
     /**
      * Đổi phòng cho khách đang lưu trú (UC12.3).

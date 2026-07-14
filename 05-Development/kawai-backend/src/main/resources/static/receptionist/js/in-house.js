@@ -2,12 +2,17 @@
 // ============================================================
 // NÂNG CẤP DEPENDENT → CUSTOMER
 // ============================================================
-function upgradeDependent(dependentId, btnElement) {
+function upgradeDependent(dependentId, roomBookingDetailId, btnElement) {
     if (!confirm('Bạn có chắc chắn muốn nâng cấp người này thành Khách hàng chính không? (Sẽ được cấp tài khoản)')) return;
 
     btnElement.disabled = true;
 
-    fetch(`/receptionist/checkin/upgrade-dependent/${dependentId}`, {
+    let url = `/receptionist/checkin/upgrade-dependent/${dependentId}`;
+    if (roomBookingDetailId) {
+        url += `?roomBookingDetailId=${roomBookingDetailId}`;
+    }
+
+    fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' }
     })

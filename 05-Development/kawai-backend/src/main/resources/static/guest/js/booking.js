@@ -1,13 +1,32 @@
-// Global Booking
-let selectedRoomsCart = {};
-let cartHoldConfirmedBookingId = null;
-let isRedirectingToPayment = false;
+// ============================================================================
+// 1. CONSTANTS & CONFIG
+// ============================================================================
+const CONFIG = {
+    monthsShort: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+    monthsFull: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+    icons: {
+        check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>',
+        star: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>',
+        capacity: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="9" cy="8" r="3"/><path d="M3.5 19c0-3 2.6-5 5.5-5"/><circle cx="17" cy="9" r="2.2"/><path d="M15.5 18c0-2.2 1.7-3.5 3.5-3.5"/></svg>',
+        arrowDown: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>',
+        arrowUp: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="transform: rotate(180deg)"><path d="M6 9l6 6 6-6"/></svg>',
+        mediaIcon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 11l8-6 8 6v8a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z"/></svg>',
+        deleteIcon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>'
+    },
+    defaultImages: [
+        "https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=800&q=80",
+        "https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?w=800&q=80",
+        "https://images.unsplash.com/photo-1571501443899-2a9c3722a8a8?w=800&q=80"
+    ]
+};
 
+// ============================================================================
+// 2. STATE MANAGEMENT
+// ============================================================================
 const today = new Date();
 const defaultCheckOut = new Date(today);
 defaultCheckOut.setDate(defaultCheckOut.getDate() + 1);
 
-// Global Booking State
 let bookingState = {
     units: 1,
     checkIn: today,
@@ -16,6 +35,15 @@ let bookingState = {
     currentCalendarMonth: today.getMonth(),
     currentCalendarYear: today.getFullYear()
 };
+
+let selectedRoomsCart = {};
+let cartHoldConfirmedBookingId = null;
+let isRedirectingToPayment = false;
+let showAllRooms = false;
+
+// Modal Room Gallery State
+let currentRoomImages = [];
+let currentRoomImageIndex = 0;
 
 function saveCartToStorage() {
     sessionStorage.setItem('kawai_cart', JSON.stringify(selectedRoomsCart));
@@ -36,19 +64,57 @@ function restoreCartFromStorage() {
     }
 }
 
-const monthNamesShort = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-const monthNamesFull = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-
+// ============================================================================
+// 3. UTILITY HELPER FUNCTIONS
+// ============================================================================
 function formatDateString(date) {
     if (!date) return '';
-    return `${date.getDate()} ${monthNamesShort[date.getMonth()]} ${date.getFullYear()}`;
+    return `${date.getDate()} ${CONFIG.monthsShort[date.getMonth()]} ${date.getFullYear()}`;
 }
 
-// ---------------- GUEST DROPDOWN LOGIC ----------------
-function toggleGuestsDropdown(e) {
+function formatLocalDate(date) {
+    if (!date) return '';
+    const yyyy = date.getFullYear();
+    const mm = String(date.getMonth() + 1).padStart(2, '0');
+    const dd = String(date.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+}
+
+
+
+function validateBookingDates(checkIn, checkOut) {
+    if (!checkIn || !checkOut) return 'Vui lòng chọn ngày check-in và check-out trước khi đặt phòng.';
+    if (checkOut <= checkIn) return 'Ngày check-out phải sau ngày check-in.';
+    return null;
+}
+
+// ============================================================================
+// 4. UI RENDERERS
+// ============================================================================
+// --- 4.1 Dropdowns & Filters ---
+function closeAllDropdowns() {
+    const ids = ['guestsDropdown', 'calendarDropdown', 'priceDropdown'];
+    ids.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.add('hidden');
+    });
+}
+
+function toggleDropdown(e, id) {
     e.stopPropagation();
+    const isHidden = document.getElementById(id).classList.contains('hidden');
     closeAllDropdowns();
-    document.getElementById('guestsDropdown').classList.toggle('hidden');
+    if (isHidden) {
+        document.getElementById(id).classList.remove('hidden');
+    }
+}
+
+// Exposed UI functions
+function toggleGuestsDropdown(e) { toggleDropdown(e, 'guestsDropdown'); }
+function togglePriceDropdown(e) { toggleDropdown(e, 'priceDropdown'); }
+function toggleCalendarDropdown(e) { 
+    toggleDropdown(e, 'calendarDropdown'); 
+    renderCalendar(); 
 }
 
 function updateGuestCount(type, val) {
@@ -59,59 +125,52 @@ function updateGuestCount(type, val) {
 }
 
 function applyGuests() {
-    let summary = `${bookingState.units} Unit${bookingState.units > 1 ? 's' : ''}`;
-    document.getElementById('guestSummaryValue').innerText = summary;
+    document.getElementById('guestSummaryValue').innerText = `${bookingState.units} Unit${bookingState.units > 1 ? 's' : ''}`;
     closeAllDropdowns();
-}
-
-// ---------------- PRICE FILTER LOGIC ----------------
-function togglePriceDropdown(e) {
-    e.stopPropagation();
-    closeAllDropdowns();
-    document.getElementById('priceDropdown').classList.toggle('hidden');
 }
 
 function applyPriceFilter() {
     const selectedRadio = document.querySelector('input[name="priceFilter"]:checked');
-    if (selectedRadio) {
-        bookingState.priceFilter = selectedRadio.value;
-        const label = document.getElementById('priceFilterValue');
-        label.classList.remove('muted');
-        label.classList.add('text-[#2c2a24]', 'font-semibold');
+    if (!selectedRadio) return;
+    
+    bookingState.priceFilter = selectedRadio.value;
+    const label = document.getElementById('priceFilterValue');
+    label.classList.remove('muted', 'text-[#2c2a24]', 'font-semibold');
 
-        switch (selectedRadio.value) {
-            case 'under_5': label.innerText = 'Dưới 5tr'; break;
-            case '5_to_10': label.innerText = '5tr - 10tr'; break;
-            case 'over_10': label.innerText = 'Trên 10tr'; break;
-            default:
-                label.innerText = 'Tất cả';
-                label.classList.add('muted');
-                label.classList.remove('text-[#2c2a24]', 'font-semibold');
-                break;
-        }
+    const labelsMap = {
+        'under_5': 'Dưới 5tr',
+        '5_to_10': '5tr - 10tr',
+        'over_10': 'Trên 10tr'
+    };
+
+    if (labelsMap[selectedRadio.value]) {
+        label.innerText = labelsMap[selectedRadio.value];
+        label.classList.add('text-[#2c2a24]', 'font-semibold');
+    } else {
+        label.innerText = 'Tất cả';
+        label.classList.add('muted');
     }
 }
 
-// ---------------- CALENDAR DROPDOWN LOGIC ----------------
-function toggleCalendarDropdown(e) {
-    e.stopPropagation();
-    closeAllDropdowns();
-    document.getElementById('calendarDropdown').classList.toggle('hidden');
-    renderCalendar();
+function applyDates() {
+    if (bookingState.checkIn && bookingState.checkOut) {
+        document.getElementById('checkInValue').innerText = formatDateString(bookingState.checkIn);
+        document.getElementById('checkOutValue').innerText = formatDateString(bookingState.checkOut);
+        closeAllDropdowns();
+    }
 }
 
+// --- 4.2 Calendar Render ---
 function renderCalendar() {
     const month = bookingState.currentCalendarMonth;
     const year = bookingState.currentCalendarYear;
-
-    document.getElementById('currentMonthYear').innerText = `${monthNamesFull[month]} ${year}`;
+    document.getElementById('currentMonthYear').innerText = `${CONFIG.monthsFull[month]} ${year}`;
 
     const firstDayIndex = new Date(year, month, 1).getDay();
     const lastDay = new Date(year, month + 1, 0).getDate();
     const prevLastDay = new Date(year, month, 0).getDate();
 
     let daysHtml = '';
-
     // Previous month empty days
     for (let i = firstDayIndex; i > 0; i--) {
         daysHtml += `<span class="py-2 text-gray-300 font-medium">${prevLastDay - i + 1}</span>`;
@@ -143,7 +202,6 @@ function renderCalendar() {
 
 function selectCalendarDate(day) {
     const date = new Date(bookingState.currentCalendarYear, bookingState.currentCalendarMonth, day);
-
     if (!bookingState.checkIn || (bookingState.checkIn && bookingState.checkOut)) {
         bookingState.checkIn = date;
         bookingState.checkOut = null;
@@ -179,7 +237,6 @@ function prevMonth() {
     renderCalendar();
 }
 
-// ---------------- EXPORT CALENDAR HELPER FUNCTIONS ----------------
 function nextMonth() {
     bookingState.currentCalendarMonth++;
     if (bookingState.currentCalendarMonth > 11) {
@@ -189,69 +246,129 @@ function nextMonth() {
     renderCalendar();
 }
 
-function applyDates() {
-    if (bookingState.checkIn && bookingState.checkOut) {
-        document.getElementById('checkInValue').innerText = formatDateString(bookingState.checkIn);
-        document.getElementById('checkOutValue').innerText = formatDateString(bookingState.checkOut);
-        closeAllDropdowns();
+// --- 4.3 Search Results Render ---
+function renderChildAgesHTML(count, existingValues = []) {
+    let html = '';
+    for (let c = 0; c < count; c++) {
+        let prevVal = existingValues[c] !== undefined ? existingValues[c] : 0;
+        const optionsHtml = Array.from({ length: 18 }, (_, i) => `<option value="${i}" ${i == prevVal ? 'selected' : ''}>${i} tuổi</option>`).join('');
+        
+        html += `
+            <div class="flex flex-col flex-1 min-w-[60px]">
+                <span class="text-[9px] text-gray-400 mb-1 uppercase tracking-widest text-center">Tuổi TE ${c + 1}</span>
+                <select class="child-age-select w-full border border-gray-200 rounded-md p-1.5 text-xs bg-gray-50 text-[#3a322b] font-medium text-center focus:outline-none focus:border-[#3a322b]">
+                    ${optionsHtml}
+                </select>
+            </div>
+        `;
     }
+    return html;
 }
 
-function closeAllDropdowns() {
-    document.getElementById('guestsDropdown').classList.add('hidden');
-    document.getElementById('calendarDropdown').classList.add('hidden');
-    const priceDropdown = document.getElementById('priceDropdown');
-    if (priceDropdown) priceDropdown.classList.add('hidden');
+function renderChildAges(inputElem) {
+    const container = inputElem.closest('.booking-action-block').querySelector('.children-ages-container');
+    let count = parseInt(inputElem.value, 10);
+    if (isNaN(count) || count < 0) count = 0;
+
+    const existingSelects = Array.from(container.querySelectorAll('.child-age-select')).map(s => s.value);
+    container.innerHTML = renderChildAgesHTML(count, existingSelects);
 }
 
-// Close dropdowns on outside click
-document.addEventListener('click', function (e) {
-    if (!e.target.closest('.search-field') && !e.target.closest('.search-btn') && !e.target.closest('#guestsDropdown') && !e.target.closest('#calendarDropdown') && !e.target.closest('#priceDropdown')) {
-        closeAllDropdowns();
+function createRoomCardHTML(room, availableCount) {
+    const formattedPrice = formatCurrency(room.pricePerNight);
+    const roomImages = room.coverImgUrl ? room.coverImgUrl.split(',') : CONFIG.defaultImages;
+    const roomImage = roomImages[0] || CONFIG.defaultImages[0];
+    
+    let quantityOptions = '';
+    for (let i = 1; i <= availableCount; i++) {
+        quantityOptions += `<option value="${i}">${i} Phòng</option>`;
     }
-});
+    
+    const initialChildren = room.baseChildren || 0;
+    const childrenAgesHtml = initialChildren > 0 ? renderChildAgesHTML(initialChildren) : '';
+    const roomJson = encodeURIComponent(JSON.stringify(room));
 
-// Helper for formatting Date to local YYYY-MM-DD
-function formatLocalDate(date) {
-    if (!date) return '';
-    const yyyy = date.getFullYear();
-    const mm = String(date.getMonth() + 1).padStart(2, '0');
-    const dd = String(date.getDate()).padStart(2, '0');
-    return `${yyyy}-${mm}-${dd}`;
+    return `
+        <article class="room-card flex flex-col h-full">
+            <div class="room-media relative cursor-pointer hover:opacity-90 transition-opacity" onclick="openRoomInfoModal('${roomJson}')">
+                <img class="room-img" src="${roomImage}" alt="${room.categoryName}"/>
+                <div class="absolute top-3 left-3 bg-black/60 text-white px-3 py-1.5 rounded-md text-[11px] font-bold tracking-wider backdrop-blur-sm z-10 pointer-events-none">
+                    CÒN ${availableCount} PHÒNG
+                </div>
+                <div class="media-foot">
+                    <span class="media-ic" aria-hidden="true">${CONFIG.icons.mediaIcon}</span>
+                    <span class="media-bar"></span>
+                </div>
+            </div>
+            <div class="room-body flex flex-col flex-grow">
+                <div class="room-title-row">
+                    <h2 class="room-name">${room.categoryName}</h2>
+                </div>
+                <ul class="room-specs">
+                    <li>
+                        ${CONFIG.icons.capacity}
+                        <span>${room.capacity} Người / phòng</span>
+                    </li>
+                </ul>
+                <div class="room-foot mt-auto pt-4 flex flex-col gap-4 border-t border-gray-100">
+                    <div class="price-block w-full">
+                        <p class="price-from">From</p>
+                        <p class="price-main">
+                            <span class="price-amount">${formattedPrice}</span>
+                            <span class="price-unit">/đêm</span>
+                        </p>
+                    </div>
+                    <div class="booking-action-block w-full bg-white p-4 rounded-xl border border-gray-100 shadow-[0_2px_10px_rgba(0,0,0,0.03)] flex flex-col gap-4">
+                        <div class="grid grid-cols-[1fr_1.5fr] gap-4">
+                            <div class="flex flex-col justify-end">
+                                <span class="text-[10px] text-gray-500 mb-1.5 font-bold uppercase tracking-widest">Phòng</span>
+                                <select class="room-quantity-select w-full border border-gray-200 rounded-lg p-2 text-sm bg-gray-50 text-[#3a322b] font-bold focus:outline-none focus:border-[#3a322b] focus:ring-1 focus:ring-[#3a322b] transition-all cursor-pointer" data-category="${room.categoryName}">
+                                    ${quantityOptions}
+                                </select>
+                            </div>
+                            <div class="flex gap-2">
+                                <div class="flex flex-col flex-1 justify-end">
+                                    <span class="text-[10px] text-gray-500 mb-1.5 font-bold uppercase tracking-widest text-center">Người lớn</span>
+                                    <input type="number" min="1" max="${(room.maxAdults || 4) + 2}" value="${room.baseAdults || 2}" class="adults-input w-full border border-gray-200 rounded-lg p-2 text-sm bg-gray-50 text-[#3a322b] font-bold text-center focus:outline-none focus:border-[#3a322b] transition-all" />
+                                </div>
+                                <div class="flex flex-col flex-1 justify-end">
+                                    <span class="text-[10px] text-gray-500 mb-1.5 font-bold uppercase tracking-widest text-center">Trẻ em</span>
+                                    <input type="number" min="0" max="${(room.maxChildren || 2) + 2}" value="${room.baseChildren || 0}" class="children-input w-full border border-gray-200 rounded-lg p-2 text-sm bg-gray-50 text-[#3a322b] font-bold text-center focus:outline-none focus:border-[#3a322b] transition-all" oninput="renderChildAges(this)" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="children-ages-container flex gap-2 flex-wrap mt-1">
+                            ${childrenAgesHtml}
+                        </div>
+                        <div class="w-full mt-1">
+                            <button type="button" class="w-full bg-[#3a322b] text-[#f3efe6] px-4 py-2.5 rounded-md text-sm font-bold tracking-wider uppercase hover:bg-[#2c2620] transition-colors shadow-sm"
+                                    data-room-numbers='${JSON.stringify(room.roomNumbers)}'
+                                    data-category="${room.categoryName}"
+                                    data-price="${room.pricePerNight}"
+                                    data-base-adults="${room.baseAdults || 0}"
+                                    data-base-children="${room.baseChildren || 0}"
+                                    data-extra-adult="${room.extraAdultSurcharge || 0}"
+                                    data-extra-child="${room.extraChildSurcharge || 0}"
+                                    onclick="handleSelectRoomClick(this)">
+                                Select Room
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </article>
+    `;
 }
 
-function getRoomImages(categoryName) {
-    if (!categoryName) return ["https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=800&q=80"];
-    const nameLower = categoryName.toLowerCase();
-    if (nameLower.includes("nipa pool villa") || nameLower.includes("nipa")) {
-        return [
-            "https://images.unsplash.com/photo-1590490360182-c33d57733427?w=800&q=80",
-            "https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?w=800&q=80",
-            "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&q=80"
-        ];
-    } else if (nameLower.includes("river pool villa") || nameLower.includes("river")) {
-        return [
-            "https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=800&q=80",
-            "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=800&q=80",
-            "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800&q=80"
-        ];
-    } else if (nameLower.includes("wellness retreats") || nameLower.includes("wellness retreat") || nameLower.includes("wellness")) {
-        return [
-            "https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=800&q=80",
-            "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=800&q=80",
-            "https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=800&q=80"
-        ];
-    } else {
-        return [
-            "https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=800&q=80",
-            "https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?w=800&q=80",
-            "https://images.unsplash.com/photo-1571501443899-2a9c3722a8a8?w=800&q=80"
-        ];
-    }
-}
-
-function getRoomImage(categoryName) {
-    return getRoomImages(categoryName)[0];
+function groupRoomsByCategory(roomsData) {
+    const grouped = {};
+    roomsData.forEach(room => {
+        if (!grouped[room.categoryName]) {
+            grouped[room.categoryName] = { ...room, roomNumbers: [] };
+        }
+        grouped[room.categoryName].roomNumbers.push(room.roomNumber);
+    });
+    return Object.values(grouped);
 }
 
 function renderRoomResults(roomsData) {
@@ -262,264 +379,67 @@ function renderRoomResults(roomsData) {
         grid.innerHTML = `
             <div class="col-span-full py-12 text-center text-gray-500 font-medium font-sans">
                 Không tìm thấy phòng trống phù hợp với tiêu chí của quý khách.
-            </div>
-        `;
+            </div>`;
         return;
     }
 
-    // Group rooms by category
-    const groupedRooms = {};
-    roomsData.forEach(room => {
-        if (!groupedRooms[room.categoryName]) {
-            groupedRooms[room.categoryName] = {
-                ...room,
-                roomNumbers: []
-            };
-        }
-        groupedRooms[room.categoryName].roomNumbers.push(room.roomNumber);
-    });
-
-    const categoryList = Object.values(groupedRooms);
-
-    // Calculate nights
-    const diffTime = Math.abs(bookingState.checkOut - bookingState.checkIn);
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) || 1;
-
+    const categoryList = groupRoomsByCategory(roomsData);
     let html = '';
     categoryList.forEach(room => {
-        const priceVal = room.pricePerNight;
-        const formattedPrice = formatCurrency(priceVal);
-        const roomImage = getRoomImage(room.categoryName);
-        const availableCount = room.roomNumbers.length;
-
-        // Generate quantity options
-        let quantityOptions = '';
-        for (let i = 1; i <= availableCount; i++) {
-            quantityOptions += `<option value="${i}">${i} Phòng</option>`;
-        }
-
-        // Generate initial child age selects if baseChildren > 0
-        let childrenAgesHtml = '';
-        const initialChildren = room.baseChildren || 0;
-        if (initialChildren > 0) {
-            for (let c = 0; c < initialChildren; c++) {
-                childrenAgesHtml += `
-                    <div class="flex flex-col flex-1 min-w-[60px]">
-                        <span class="text-[9px] text-gray-400 mb-1 uppercase tracking-widest text-center">Tuổi TE ${c + 1}</span>
-                        <select class="child-age-select w-full border border-gray-200 rounded-md p-1.5 text-xs bg-gray-50 text-[#3a322b] font-medium text-center focus:outline-none focus:border-[#3a322b]">
-                            ${Array.from({ length: 18 }, (_, i) => '<option value="' + i + '">' + i + ' tuổi</option>').join('')}
-                        </select>
-                    </div>
-                `;
-            }
-        }
-
-        const roomJson = encodeURIComponent(JSON.stringify(room));
-        html += `
-            <article class="room-card flex flex-col h-full">
-                <!-- Image / carousel -->
-                <div class="room-media relative cursor-pointer hover:opacity-90 transition-opacity" onclick="openRoomInfoModal('${roomJson}')">
-                    <img class="room-img" src="${roomImage}" alt="${room.categoryName}"/>
-
-                    <!-- CÒN X TRỐNG - Góc trên bên trái -->
-                    <div class="absolute top-3 left-3 bg-black/60 text-white px-3 py-1.5 rounded-md text-[11px] font-bold tracking-wider backdrop-blur-sm z-10 pointer-events-none">
-                        CÒN ${availableCount} PHÒNG
-                    </div>
-
-                    <div class="media-foot">
-                        <span class="media-ic" aria-hidden="true">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 11l8-6 8 6v8a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z"/></svg>
-                        </span>
-                        <span class="media-bar"></span>
-                    </div>
-                </div>
-
-                <!-- Body -->
-                <div class="room-body flex flex-col flex-grow">
-                    <div class="room-title-row">
-                        <h2 class="room-name">${room.categoryName}</h2>
-                    </div>
-
-                    <ul class="room-specs">
-                        <li>
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="9" cy="8" r="3"/><path d="M3.5 19c0-3 2.6-5 5.5-5"/><circle cx="17" cy="9" r="2.2"/><path d="M15.5 18c0-2.2 1.7-3.5 3.5-3.5"/></svg>
-                            <span>${room.capacity} Người / phòng</span>
-                        </li>
-                    </ul>
-
-                    <div class="room-foot mt-auto pt-4 flex flex-col gap-4 border-t border-gray-100">
-                        <div class="price-block w-full">
-                            <p class="price-from">From</p>
-                            <p class="price-main">
-                                <span class="price-amount">${formattedPrice}</span>
-                                <span class="price-unit">/đêm</span>
-                            </p>
-                        </div>
-                        
-                        <div class="booking-action-block w-full bg-white p-4 rounded-xl border border-gray-100 shadow-[0_2px_10px_rgba(0,0,0,0.03)] flex flex-col gap-4">
-                            <div class="grid grid-cols-[1fr_1.5fr] gap-4">
-                                <!-- Cột 1: Số lượng phòng -->
-                                <div class="flex flex-col justify-end">
-                                    <span class="text-[10px] text-gray-500 mb-1.5 font-bold uppercase tracking-widest">Phòng</span>
-                                    <select class="room-quantity-select w-full border border-gray-200 rounded-lg p-2 text-sm bg-gray-50 text-[#3a322b] font-bold focus:outline-none focus:border-[#3a322b] focus:ring-1 focus:ring-[#3a322b] transition-all cursor-pointer" data-category="${room.categoryName}">
-                                        ${quantityOptions}
-                                    </select>
-                                </div>
-                                
-                                <!-- Cột 2: Số khách / phòng -->
-                                <div class="flex gap-2">
-                                    <div class="flex flex-col flex-1 justify-end">
-                                        <span class="text-[10px] text-gray-500 mb-1.5 font-bold uppercase tracking-widest text-center">Người lớn</span>
-                                        <input type="number" min="1" max="${(room.maxAdults || 4) + 2}" value="${room.baseAdults || 2}" class="adults-input w-full border border-gray-200 rounded-lg p-2 text-sm bg-gray-50 text-[#3a322b] font-bold text-center focus:outline-none focus:border-[#3a322b] transition-all" />
-                                    </div>
-                                    <div class="flex flex-col flex-1 justify-end">
-                                        <span class="text-[10px] text-gray-500 mb-1.5 font-bold uppercase tracking-widest text-center">Trẻ em</span>
-                                        <input type="number" min="0" max="${(room.maxChildren || 2) + 2}" value="${room.baseChildren || 0}" class="children-input w-full border border-gray-200 rounded-lg p-2 text-sm bg-gray-50 text-[#3a322b] font-bold text-center focus:outline-none focus:border-[#3a322b] transition-all" oninput="renderChildAges(this)" />
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- Khu vực chọn tuổi trẻ em -->
-                            <div class="children-ages-container flex gap-2 flex-wrap mt-1">
-                                ${childrenAgesHtml}
-                            </div>
-                            
-                            <!-- Dưới cùng: Nút Select Room -->
-                            <div class="w-full mt-1">
-                                <button type="button" class="w-full bg-[#3a322b] text-[#f3efe6] px-4 py-2.5 rounded-md text-sm font-bold tracking-wider uppercase hover:bg-[#2c2620] transition-colors shadow-sm"
-                                        data-room-numbers='${JSON.stringify(room.roomNumbers)}'
-                                        data-category="${room.categoryName}"
-                                        data-price="${room.pricePerNight}"
-                                        data-base-adults="${room.baseAdults || 0}"
-                                        data-base-children="${room.baseChildren || 0}"
-                                        data-extra-adult="${room.extraAdultSurcharge || 0}"
-                                        data-extra-child="${room.extraChildSurcharge || 0}"
-                                        onclick="handleSelectRoomClick(this)">
-                                    Select Room
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </article>
-        `;
+        html += createRoomCardHTML(room, room.roomNumbers.length);
     });
+
     grid.innerHTML = html;
     initRoomsPagination();
+    
     if (typeof scrollObserver !== 'undefined') {
-        const sections = grid.querySelectorAll('.room-card');
-        sections.forEach(section => {
+        grid.querySelectorAll('.room-card').forEach(section => {
             section.classList.add('transition-all', 'duration-[800ms]', 'ease-out', 'opacity-0', 'translate-y-8', 'will-change-transform');
             scrollObserver.observe(section);
         });
     }
 }
 
-function renderChildAges(inputElem) {
-    const container = inputElem.closest('.booking-action-block').querySelector('.children-ages-container');
-    let count = parseInt(inputElem.value, 10);
-    if (isNaN(count) || count < 0) count = 0;
+// --- 4.4 Pagination Render ---
+function initRoomsPagination() {
+    const cards = document.querySelectorAll('.room-grid .room-card');
+    const showMoreContainer = document.getElementById('showMoreContainer');
+    const showMoreBtn = document.getElementById('showMoreBtn');
 
-    // Retain previous selections if possible
-    const existingSelects = Array.from(container.querySelectorAll('.child-age-select')).map(s => s.value);
+    if (!showMoreContainer || !showMoreBtn) return;
 
-    let html = '';
-    for (let c = 0; c < count; c++) {
-        let prevVal = existingSelects[c] !== undefined ? existingSelects[c] : 0;
-        html += `
-            <div class="flex flex-col flex-1 min-w-[60px]">
-                <span class="text-[9px] text-gray-400 mb-1 uppercase tracking-widest text-center">Tuổi TE ${c + 1}</span>
-                <select class="child-age-select w-full border border-gray-200 rounded-md p-1.5 text-xs bg-gray-50 text-[#3a322b] font-medium text-center focus:outline-none focus:border-[#3a322b]">
-                    ${Array.from({ length: 18 }, (_, i) => '<option value="' + i + '" ' + (i == prevVal ? 'selected' : '') + '>' + i + ' tuổi</option>').join('')}
-                </select>
-            </div>
-        `;
-    }
-    container.innerHTML = html;
-}
-
-// ---------------- SEARCH SIMULATION ----------------
-function executeSearch(e) {
-    if (e) e.stopPropagation();
-    closeAllDropdowns();
-
-    const grid = document.querySelector('.room-grid');
-    if (!grid) return;
-
-    grid.style.opacity = '0.3';
-    grid.style.pointerEvents = 'none';
-
-    const spinner = document.createElement('div');
-    spinner.id = 'searchSpinner';
-    spinner.className = 'fixed inset-0 z-50 flex items-center justify-center bg-black/10 backdrop-blur-[1px]';
-    spinner.innerHTML = `
-        <div class="bg-white p-6 rounded-xl shadow-xl flex items-center gap-3 font-sans">
-            <svg class="animate-spin h-5 w-5 text-[#3a322b]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            <span class="text-sm font-semibold text-[#2c2a24]">Searching for available options...</span>
-        </div>
-    `;
-    document.body.appendChild(spinner);
-
-    const checkInStr = formatLocalDate(bookingState.checkIn);
-    const checkOutStr = formatLocalDate(bookingState.checkOut);
-    const units = bookingState.units || 1;
-
-    const keywordInput = document.querySelector('input[name="keyword"]');
-    const keyword = keywordInput ? keywordInput.value.trim() : '';
-
-    let url = `/api/rooms/search?checkIn=${checkInStr}&checkOut=${checkOutStr}&minRooms=${units}`;
-    if (keyword) {
-        url += `&categoryName=${encodeURIComponent(keyword)}`;
-    }
-
-    fetch(url)
-        .then(async response => {
-            if (!response.ok) {
-                let errorMsg = 'Có lỗi xảy ra khi tìm kiếm phòng trống!';
-                try {
-                    const errData = await response.json();
-                    if (errData && errData.message) errorMsg = errData.message;
-                } catch (e) { }
-                throw new Error(errorMsg);
-            }
-            return response.json();
-        })
-        .then(data => {
-            spinner.remove();
-            grid.style.opacity = '1';
-            grid.style.pointerEvents = 'auto';
-
-            // Lọc kết quả theo bộ lọc giá (nếu có)
-            if (bookingState.priceFilter && bookingState.priceFilter !== 'all') {
-                data = data.filter(room => {
-                    const price = room.pricePerNight;
-                    if (bookingState.priceFilter === 'under_5') return price < 5000000;
-                    if (bookingState.priceFilter === '5_to_10') return price >= 5000000 && price <= 10000000;
-                    if (bookingState.priceFilter === 'over_10') return price > 10000000;
-                    return true;
-                });
-            }
-
-            renderRoomResults(data);
-        })
-        .catch(err => {
-            spinner.remove();
-            grid.style.opacity = '1';
-            grid.style.pointerEvents = 'auto';
-            showToast(err.message, 'error');
-            console.error(err);
+    if (cards.length <= 9) {
+        showMoreContainer.style.display = 'none';
+        cards.forEach(card => card.classList.remove('hidden'));
+    } else {
+        showMoreContainer.style.display = 'flex';
+        showAllRooms = false;
+        cards.forEach((card, index) => {
+            if (index >= 9) card.classList.add('hidden');
+            else card.classList.remove('hidden');
         });
+        showMoreBtn.innerHTML = `Show more ${CONFIG.icons.arrowDown}`;
+    }
 }
 
-// ---------------- ROOM DETAIL MODAL LOGIC ----------------
-let currentRoomImages = [];
-let currentRoomImageIndex = 0;
+function toggleShowMoreRooms() {
+    const cards = document.querySelectorAll('.room-grid .room-card');
+    const showMoreBtn = document.getElementById('showMoreBtn');
+    if (!showMoreBtn) return;
 
-const checkIconSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
-const starIconSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>';
+    showAllRooms = !showAllRooms;
+    cards.forEach((card, index) => {
+        if (index >= 9) {
+            showAllRooms ? card.classList.remove('hidden') : card.classList.add('hidden');
+        }
+    });
 
+    showMoreBtn.innerHTML = showAllRooms 
+        ? `Show less ${CONFIG.icons.arrowUp}`
+        : `Show more ${CONFIG.icons.arrowDown}`;
+}
+
+// --- 4.5 Room Detail Modal ---
 function prevRoomDetailImage(e) {
     if (e) e.stopPropagation();
     if (currentRoomImages.length <= 1) return;
@@ -536,41 +456,29 @@ function nextRoomDetailImage(e) {
 
 function openRoomInfoModal(roomJsonStr) {
     const room = JSON.parse(decodeURIComponent(roomJsonStr));
+    currentRoomImages = room.coverImgUrl ? room.coverImgUrl.split(',') : CONFIG.defaultImages;
 
-    // TODO: SAU NÀY LẤY ẢNH TỪ DATABASE / LOCAL
-    // Nếu API trả về mảng link ảnh trong thuộc tính `room.images` (hoặc tên khác tuỳ bạn đặt trong Backend),
-    // bạn chỉ cần thay đổi dòng bên dưới thành:
-    // currentRoomImages = (room.images && room.images.length > 0) ? room.images : getRoomImages(room.categoryName);
-    currentRoomImages = getRoomImages(room.categoryName);
-
-    // Preload ảnh để chuyển slide mượt mà không bị delay do tải mạng
-    if (currentRoomImages && currentRoomImages.length > 1) {
-        currentRoomImages.forEach(src => {
-            const img = new Image();
-            img.src = src;
-        });
+    if (currentRoomImages.length > 1) {
+        currentRoomImages.forEach(src => { (new Image()).src = src; });
     }
 
     currentRoomImageIndex = 0;
-
     document.getElementById('detailRoomName').innerText = room.categoryName;
     document.getElementById('detailRoomImg').src = currentRoomImages[currentRoomImageIndex];
 
     const prevBtn = document.getElementById('prevRoomImageBtn');
     const nextBtn = document.getElementById('nextRoomImageBtn');
     if (currentRoomImages.length > 1) {
-        if (prevBtn) prevBtn.classList.remove('hidden');
-        if (nextBtn) nextBtn.classList.remove('hidden');
+        prevBtn?.classList.remove('hidden');
+        nextBtn?.classList.remove('hidden');
     } else {
-        if (prevBtn) prevBtn.classList.add('hidden');
-        if (nextBtn) nextBtn.classList.add('hidden');
+        prevBtn?.classList.add('hidden');
+        nextBtn?.classList.add('hidden');
     }
 
     document.getElementById('detailRoomGuests').innerText = room.capacity + ' Người';
     document.getElementById('detailRoomTotal').innerText = 'Trống ' + room.availableCount + ' phòng';
-
     document.getElementById('detailRoomDesc').innerText = room.description || 'Không có mô tả chi tiết cho phòng này.';
-
     document.getElementById('detailRoomBaseAdults').innerText = room.baseAdults || 0;
     document.getElementById('detailRoomBaseChildren').innerText = room.baseChildren || 0;
     document.getElementById('detailRoomMaxAdults').innerText = room.maxAdults || 0;
@@ -578,61 +486,41 @@ function openRoomInfoModal(roomJsonStr) {
     document.getElementById('detailRoomSurchargeAdult').innerText = formatCurrency(room.extraAdultSurcharge || 0) + ' VNĐ';
     document.getElementById('detailRoomSurchargeChild').innerText = formatCurrency(room.extraChildSurcharge || 0) + ' VNĐ';
 
-    // Populate new fields
-    const bedTypeEl = document.getElementById('detailRoomBedType');
-    if (bedTypeEl) bedTypeEl.innerText = room.bedType || 'Tiêu chuẩn';
-
-    const roomSizeEl = document.getElementById('detailRoomSize');
-    if (roomSizeEl) roomSizeEl.innerText = room.roomSize ? room.roomSize + ' m²' : 'Tiêu chuẩn';
-
-    const viewTypeEl = document.getElementById('detailRoomView');
-    if (viewTypeEl) viewTypeEl.innerText = room.viewType || 'Không rõ';
+    const safeSetText = (id, text) => { const el = document.getElementById(id); if (el) el.innerText = text; };
+    safeSetText('detailRoomBedType', room.bedType || 'Tiêu chuẩn');
+    safeSetText('detailRoomSize', room.roomSize ? room.roomSize + ' m²' : 'Tiêu chuẩn');
+    safeSetText('detailRoomView', room.viewType || 'Không rõ');
 
     const amenitiesListEl = document.getElementById('detailRoomAmenitiesList');
     if (amenitiesListEl) {
         let amenitiesHtml = '';
-
         const addAmenity = (text, iconSvg) => {
             amenitiesHtml += `
                 <li class="flex items-center gap-1.5 bg-[#d4af37]/10 text-[#a38015] px-3 py-1.5 rounded-full font-medium border border-[#d4af37]/20">
                     <span class="w-3.5 h-3.5 flex items-center justify-center">${iconSvg}</span>
                     <span>${text}</span>
-                </li>
-            `;
+                </li>`;
         };
-
-        if (room.hasBathtub) addAmenity('Bồn tắm', checkIconSvg);
-        if (room.hasBalcony) addAmenity('Ban công', checkIconSvg);
-        if (room.hasFreeBreakfast) addAmenity('Bao gồm bữa sáng', starIconSvg);
-
+        if (room.hasBathtub) addAmenity('Bồn tắm', CONFIG.icons.check);
+        if (room.hasBalcony) addAmenity('Ban công', CONFIG.icons.check);
+        if (room.hasFreeBreakfast) addAmenity('Bao gồm bữa sáng', CONFIG.icons.star);
         if (room.complimentaryServices) {
-            const services = room.complimentaryServices.split(',');
-            services.forEach(s => {
-                if (s.trim()) addAmenity(s.trim(), starIconSvg);
+            room.complimentaryServices.split(',').forEach(s => {
+                if (s.trim()) addAmenity(s.trim(), CONFIG.icons.star);
             });
         }
-
         amenitiesListEl.innerHTML = amenitiesHtml;
     }
 
     const container = document.getElementById('detailBookButtonContainer');
     if (container) {
-        container.innerHTML = `
-            <button onclick="closeRoomDetailsModal()" type="button" class="bg-[#2c2a24] text-white px-8 py-3 rounded-full text-xs font-bold tracking-widest uppercase hover:bg-black transition-all hover:shadow-lg hover:-translate-y-0.5 shadow-md">
-                Đóng
-            </button>
-        `;
+        container.innerHTML = `<button onclick="closeRoomDetailsModal()" type="button" class="bg-[#2c2a24] text-white px-8 py-3 rounded-full text-xs font-bold tracking-widest uppercase hover:bg-black transition-all hover:shadow-lg hover:-translate-y-0.5 shadow-md">Đóng</button>`;
     }
 
     const modal = document.getElementById('roomDetailsModal');
     const modalContent = document.getElementById('roomDetailsModalContent');
-
-    // Show modal container
     modal.style.display = 'flex';
-    // Force reflow
     void modal.offsetWidth;
-
-    // Animate in
     modal.classList.remove('opacity-0');
     modalContent.classList.remove('scale-95', 'opacity-0');
     modalContent.classList.add('scale-100', 'opacity-100');
@@ -641,35 +529,13 @@ function openRoomInfoModal(roomJsonStr) {
 function closeRoomDetailsModal() {
     const modal = document.getElementById('roomDetailsModal');
     const modalContent = document.getElementById('roomDetailsModalContent');
-
-    // Animate out
     modal.classList.add('opacity-0');
     modalContent.classList.remove('scale-100', 'opacity-100');
     modalContent.classList.add('scale-95', 'opacity-0');
-
-    // Wait for animation to finish before hiding
-    setTimeout(() => {
-        modal.style.display = 'none';
-    }, 500);
+    setTimeout(() => { modal.style.display = 'none'; }, 500);
 }
 
-
-
-/**
- * Validates check-in and check-out dates.
- * Returns null if valid, or an error message string if invalid.
- */
-function validateBookingDates(checkIn, checkOut) {
-    if (!checkIn || !checkOut) {
-        return 'Vui lòng chọn ngày check-in và check-out trước khi đặt phòng.';
-    }
-    if (checkOut <= checkIn) {
-        return 'Ngày check-out phải sau ngày check-in.';
-    }
-    return null;
-}
-
-// ---------------- CART LOGIC ----------------
+// --- 4.6 Cart UI ---
 function updateCartUI() {
     const cartWrapper = document.getElementById('bookingCartWrapper');
     const container = document.getElementById('cartItemsContainer');
@@ -679,11 +545,9 @@ function updateCartUI() {
 
     if (!cartWrapper) return;
 
-    if (!bookingState.checkIn || !bookingState.checkOut) {
-        cartDatesSummary.innerText = "Vui lòng chọn ngày";
-    } else {
-        cartDatesSummary.innerText = formatDateString(bookingState.checkIn) + " - " + formatDateString(bookingState.checkOut);
-    }
+    cartDatesSummary.innerText = (!bookingState.checkIn || !bookingState.checkOut) 
+        ? "Vui lòng chọn ngày" 
+        : `${formatDateString(bookingState.checkIn)} - ${formatDateString(bookingState.checkOut)}`;
 
     container.innerHTML = '';
     let totalCartPrice = 0;
@@ -693,9 +557,8 @@ function updateCartUI() {
         const data = selectedRoomsCart[catName];
         if (data.quantity > 0) {
             totalItems++;
-            totalCartPrice += data.estimatedTotal; // ước tính phía client
-
-            const itemHTML = `
+            totalCartPrice += data.estimatedTotal;
+            container.insertAdjacentHTML('beforeend', `
                 <div class="p-4 border-b border-[#e7e1d5] relative">
                     <div class="flex justify-between items-start mb-2">
                         <div class="pr-6">
@@ -704,30 +567,24 @@ function updateCartUI() {
                             <p class="text-[10px] text-[#a59f93] mt-0.5">Khách: ${data.adultsPerRoom} NL, ${data.childrenPerRoom} TE / phòng</p>
                         </div>
                         <button type="button" class="text-gray-400 hover:text-red-500 absolute top-4 right-4" onclick="removeCartItem('${catName}')">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                            ${CONFIG.icons.deleteIcon}
                         </button>
                     </div>
                     <div class="flex justify-between items-center mt-2">
                         <span class="text-[10px] text-gray-400 italic">Ước tính</span>
                         <span class="text-xs font-medium text-[#2f2a24]">${formatCurrency(data.estimatedTotal)} VNĐ</span>
                     </div>
-                </div>`
-                ;
-            container.insertAdjacentHTML('beforeend', itemHTML);
+                </div>`);
         }
     }
 
     if (totalItems === 0) {
-        container.innerHTML = `
-            <div class="p-6 text-center text-gray-400 text-sm italic">
-                Chưa chọn phòng nào
-            </div>
-        `;
+        container.innerHTML = `<div class="p-6 text-center text-gray-400 text-sm italic">Chưa chọn phòng nào</div>`;
         cartTotalPrice.innerText = '0 VNĐ';
         btnCheckout.disabled = true;
         cartWrapper.classList.add('hidden');
     } else {
-        cartTotalPrice.innerHTML = formatCurrency(totalCartPrice) + " VNĐ <span class='text-[10px] text-gray-400 font-normal normal-case'>(ước tính)</span>";
+        cartTotalPrice.innerHTML = `${formatCurrency(totalCartPrice)} VNĐ <span class='text-[10px] text-gray-400 font-normal normal-case'>(ước tính)</span>`;
         btnCheckout.disabled = false;
         cartWrapper.classList.remove('hidden');
     }
@@ -739,33 +596,12 @@ function removeCartItem(catName) {
     saveCartToStorage();
 }
 
-/**
- * Xóa giỏ hàng và redirect về trang booking (home).
- */
 function clearCartAndGoHome() {
     selectedRoomsCart = {};
     cartHoldConfirmedBookingId = null;
     sessionStorage.removeItem('kawai_cart');
     sessionStorage.removeItem('kawai_bookingState');
-
     window.location.href = '/booking';
-}
-
-/**
- * Hủy giỏ hàng khi user nhấn nút Hủy trong Cart panel.
- * Nếu đã có booking CONFIRMED → gọi API hủy trước rồi mới về home.
- */
-async function cancelCartHold() {
-    if (!confirm('Bạn có chắc muốn hủy và xóa giỏ phòng không?')) return;
-
-    if (cartHoldConfirmedBookingId) {
-        // Gọi API hủy booking đã CONFIRMED
-        try {
-            await fetch(`/api/bookings/${cartHoldConfirmedBookingId}/cancel`, { method: 'POST' });
-        } catch (e) { /* ignore */ }
-    }
-
-    clearCartAndGoHome();
 }
 
 function handleSelectRoomClick(button) {
@@ -776,55 +612,103 @@ function handleSelectRoomClick(button) {
     const baseChildren = parseInt(button.getAttribute('data-base-children') || '0', 10);
 
     const bookingActionBlock = button.closest('.booking-action-block');
-    const selectEl = bookingActionBlock.querySelector('.room-quantity-select');
+    const quantity = parseInt(bookingActionBlock.querySelector('.room-quantity-select').value, 10);
     const adultsInput = bookingActionBlock.querySelector('.adults-input');
     const childrenInput = bookingActionBlock.querySelector('.children-input');
-
-    const quantity = parseInt(selectEl.value, 10);
     const adultsPerRoom = adultsInput ? parseInt(adultsInput.value, 10) : baseAdults;
     const childrenPerRoom = childrenInput ? parseInt(childrenInput.value, 10) : baseChildren;
-
-    // Thu thập danh sách tuổi của trẻ em
-    const ageSelects = bookingActionBlock.querySelectorAll('.child-age-select');
-    const childrenAges = Array.from(ageSelects).map(s => parseInt(s.value, 10));
+    const childrenAges = Array.from(bookingActionBlock.querySelectorAll('.child-age-select')).map(s => parseInt(s.value, 10));
 
     if (quantity === 0) return;
 
-    const checkIn = bookingState.checkIn;
-    const checkOut = bookingState.checkOut;
-
-    const validationError = validateBookingDates(checkIn, checkOut);
+    const validationError = validateBookingDates(bookingState.checkIn, bookingState.checkOut);
     if (validationError) {
         showToast(validationError, 'error');
         return;
     }
 
-    const roomNumbers = allRoomNumbers.slice(0, quantity);
-    const diffTime = Math.abs(checkOut - checkIn);
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) || 1;
-
-    const estimatedBaseTotal = pricePerNight * quantity * diffDays;
-
+    const diffDays = Math.ceil(Math.abs(bookingState.checkOut - bookingState.checkIn) / (1000 * 60 * 60 * 24)) || 1;
     selectedRoomsCart[categoryName] = {
-        quantity,
-        pricePerNight,
-        adultsPerRoom,
-        childrenPerRoom,
-        childrenAges,
-        roomNumbers,
-        // Chỉ lưu ước tính để hiển thị trước khi backend xác nhận
-        estimatedTotal: estimatedBaseTotal,
+        quantity, pricePerNight, adultsPerRoom, childrenPerRoom, childrenAges,
+        roomNumbers: allRoomNumbers.slice(0, quantity),
+        estimatedTotal: pricePerNight * quantity * diffDays,
         diffDays
     };
+
     updateCartUI();
     saveCartToStorage();
+    
     const cartWrapper = document.getElementById('bookingCartWrapper');
     if (cartWrapper) {
         cartWrapper.classList.remove('hidden');
         cartWrapper.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
-
     showToast(`Đã thêm ${quantity} phòng ${categoryName} vào giỏ.`, 'success');
+}
+
+// ============================================================================
+// 5. API SERVICES
+// ============================================================================
+function showSearchSpinner() {
+    const grid = document.querySelector('.room-grid');
+    if (grid) { grid.style.opacity = '0.3'; grid.style.pointerEvents = 'none'; }
+    const spinner = document.createElement('div');
+    spinner.id = 'searchSpinner';
+    spinner.className = 'fixed inset-0 z-50 flex items-center justify-center bg-black/10 backdrop-blur-[1px]';
+    spinner.innerHTML = `
+        <div class="bg-white p-6 rounded-xl shadow-xl flex items-center gap-3 font-sans">
+            <svg class="animate-spin h-5 w-5 text-[#3a322b]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span class="text-sm font-semibold text-[#2c2a24]">Searching for available options...</span>
+        </div>`;
+    document.body.appendChild(spinner);
+    return spinner;
+}
+
+function hideSearchSpinner(spinner) {
+    if (spinner) spinner.remove();
+    const grid = document.querySelector('.room-grid');
+    if (grid) { grid.style.opacity = '1'; grid.style.pointerEvents = 'auto'; }
+}
+
+function executeSearch(e) {
+    if (e) e.stopPropagation();
+    closeAllDropdowns();
+
+    const spinner = showSearchSpinner();
+    const checkInStr = formatLocalDate(bookingState.checkIn);
+    const checkOutStr = formatLocalDate(bookingState.checkOut);
+    const keywordInput = document.querySelector('input[name="keyword"]');
+    const keyword = keywordInput ? keywordInput.value.trim() : '';
+
+    let url = `/api/rooms/search?checkIn=${checkInStr}&checkOut=${checkOutStr}&minRooms=${bookingState.units || 1}`;
+    if (keyword) url += `&categoryName=${encodeURIComponent(keyword)}`;
+
+    fetch(url)
+        .then(async res => {
+            if (!res.ok) throw new Error((await res.json().catch(() => {})).message || 'Có lỗi xảy ra khi tìm kiếm phòng trống!');
+            return res.json();
+        })
+        .then(data => {
+            hideSearchSpinner(spinner);
+            if (bookingState.priceFilter && bookingState.priceFilter !== 'all') {
+                data = data.filter(room => {
+                    const p = room.pricePerNight;
+                    if (bookingState.priceFilter === 'under_5') return p < 5000000;
+                    if (bookingState.priceFilter === '5_to_10') return p >= 5000000 && p <= 10000000;
+                    if (bookingState.priceFilter === 'over_10') return p > 10000000;
+                    return true;
+                });
+            }
+            renderRoomResults(data);
+        })
+        .catch(err => {
+            hideSearchSpinner(spinner);
+            showToast(err.message, 'error');
+            console.error(err);
+        });
 }
 
 function confirmCartBooking() {
@@ -861,13 +745,10 @@ function confirmCartBooking() {
         return;
     }
 
-    const checkIn = bookingState.checkIn;
-    const checkOut = bookingState.checkOut;
-
     const payload = {
         roomSelections: roomSelections,
-        checkInDate: formatLocalDate(checkIn),
-        checkOutDate: formatLocalDate(checkOut),
+        checkInDate: formatLocalDate(bookingState.checkIn),
+        checkOutDate: formatLocalDate(bookingState.checkOut),
         promotionCode: null
     };
 
@@ -876,116 +757,54 @@ function confirmCartBooking() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
     })
-        .then(async response => {
-            if (!response.ok) {
-                let errorMsg = 'Có lỗi xảy ra trong quá trình đặt phòng.';
-                try {
-                    const errData = await response.json();
-                    if (errData && errData.message) errorMsg = errData.message;
-                } catch (e) { }
-                throw new Error(errorMsg);
-            }
-            return response.json();
-        })
-        .then(data => {
-            btnCheckout.innerText = originalText;
-            btnCheckout.disabled = false;
+    .then(async res => {
+        if (!res.ok) throw new Error((await res.json().catch(() => {})).message || 'Có lỗi xảy ra trong quá trình đặt phòng.');
+        return res.json();
+    })
+    .then(data => {
+        btnCheckout.innerText = originalText;
+        btnCheckout.disabled = false;
 
-            const bookingStatus = data.bookingStatus ? data.bookingStatus.toUpperCase() : (data.status ? data.status.toUpperCase() : '');
-            if (bookingStatus === 'CONFIRMED' || bookingStatus === 'PENDING' || bookingStatus === 'PENDING_PAYMENT') {
-                // Lưu bookingId để dùng nếu user huỷ giỏ
-                if (data && data.bookingId) {
-                    cartHoldConfirmedBookingId = data.bookingId;
-                    sessionStorage.removeItem('kawai_cart');
-                    sessionStorage.removeItem('kawai_bookingState');
-                    selectedRoomsCart = {};
+        const status = data.bookingStatus ? data.bookingStatus.toUpperCase() : (data.status ? data.status.toUpperCase() : '');
+        if (['CONFIRMED', 'PENDING', 'PENDING_PAYMENT'].includes(status) && data.bookingId) {
+            cartHoldConfirmedBookingId = data.bookingId;
+            sessionStorage.removeItem('kawai_cart');
+            sessionStorage.removeItem('kawai_bookingState');
+            selectedRoomsCart = {};
 
-                    showToast('Đặt phòng thành công! Đang chuyển đến trang thanh toán...', 'success');
-
-                    // Redirect sang trang thanh toán với bookingId
-                    setTimeout(() => {
-                        isRedirectingToPayment = true;
-                        window.location.href = `/payment?bookingId=${data.bookingId}`;
-                    }, 1200);
-                }
-            } else {
-                showToast('Lỗi đặt phòng: ' + (data.message || 'Phòng đã được đặt hoặc không khả dụng!'), 'error');
-            }
-        })
-        .catch(err => {
-            btnCheckout.innerText = originalText;
-            btnCheckout.disabled = false;
-            console.error(err);
-            showToast(err.message || 'Lỗi kết nối Server! Vui lòng thử lại.', 'error');
-        });
-}
-// ---------------- AUTH MODAL LOGIC (Handled by guest/fragments/auth.html) ----------------
-
-
-let showAllRooms = false;
-function initRoomsPagination() {
-    const cards = document.querySelectorAll('.room-grid .room-card');
-    const showMoreContainer = document.getElementById('showMoreContainer');
-    const showMoreBtn = document.getElementById('showMoreBtn');
-
-    if (!showMoreContainer || !showMoreBtn) return;
-
-    if (cards.length <= 9) {
-        showMoreContainer.style.display = 'none';
-        cards.forEach(card => card.classList.remove('hidden'));
-    } else {
-        showMoreContainer.style.display = 'flex';
-        showAllRooms = false;
-        cards.forEach((card, index) => {
-            if (index >= 9) {
-                card.classList.add('hidden');
-            } else {
-                card.classList.remove('hidden');
-            }
-        });
-        showMoreBtn.innerHTML = `
-            Show more
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
-        `;
-    }
-}
-
-function toggleShowMoreRooms() {
-    const cards = document.querySelectorAll('.room-grid .room-card');
-    const showMoreBtn = document.getElementById('showMoreBtn');
-    if (!showMoreBtn) return;
-
-    showAllRooms = !showAllRooms;
-
-    cards.forEach((card, index) => {
-        if (index >= 9) {
-            if (showAllRooms) {
-                card.classList.remove('hidden');
-            } else {
-                card.classList.add('hidden');
-            }
+            showToast('Đặt phòng thành công! Đang chuyển đến trang thanh toán...', 'success');
+            setTimeout(() => {
+                isRedirectingToPayment = true;
+                window.location.href = `/payment?bookingId=${data.bookingId}`;
+            }, 1200);
+        } else {
+            showToast('Lỗi đặt phòng: ' + (data.message || 'Phòng đã được đặt hoặc không khả dụng!'), 'error');
         }
+    })
+    .catch(err => {
+        btnCheckout.innerText = originalText;
+        btnCheckout.disabled = false;
+        console.error(err);
+        showToast(err.message || 'Lỗi kết nối Server! Vui lòng thử lại.', 'error');
     });
-
-    if (showAllRooms) {
-        showMoreBtn.innerHTML = `
-            Show less
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="transform: rotate(180deg)"><path d="M6 9l6 6 6-6"/></svg>
-        `;
-    } else {
-        showMoreBtn.innerHTML = `
-            Show more
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
-        `;
-    }
 }
 
-// ── Intersection Observer reveal animations ───────────────────────────────
-const observerOptions = {
-    root: null,
-    rootMargin: '0px',
-    threshold: 0.15
-};
+async function cancelCartHold() {
+    if (!confirm('Bạn có chắc muốn hủy và xóa giỏ phòng không?')) return;
+    if (cartHoldConfirmedBookingId) {
+        try { await fetch(`/api/bookings/${cartHoldConfirmedBookingId}/cancel`, { method: 'POST' }); } catch (e) { }
+    }
+    clearCartAndGoHome();
+}
+
+// ============================================================================
+// 6. INITIALIZATION & GLOBAL OBSERVERS
+// ============================================================================
+document.addEventListener('click', function (e) {
+    if (!e.target.closest('.search-field') && !e.target.closest('.search-btn') && !e.target.closest('#guestsDropdown') && !e.target.closest('#calendarDropdown') && !e.target.closest('#priceDropdown')) {
+        closeAllDropdowns();
+    }
+});
 
 const scrollObserver = new IntersectionObserver((entries, observer) => {
     entries.forEach(entry => {
@@ -995,9 +814,8 @@ const scrollObserver = new IntersectionObserver((entries, observer) => {
             observer.unobserve(entry.target);
         }
     });
-}, observerOptions);
+}, { root: null, rootMargin: '0px', threshold: 0.15 });
 
-// -- DOM Initializations --
 document.addEventListener("DOMContentLoaded", function () {
     restoreCartFromStorage();
     updateCartUI();
@@ -1006,10 +824,9 @@ document.addEventListener("DOMContentLoaded", function () {
     const hasSuccess = document.querySelector('.bg-green-100');
     const urlParams = new URLSearchParams(window.location.search);
     if (hasError || hasSuccess || urlParams.get('login') === 'true') {
-        openLoginModal();
+        if (typeof openLoginModal === 'function') openLoginModal();
     }
 
-    // Check if user just logged in to show welcome toast
     if (typeof isUserLoggedIn !== 'undefined' && isUserLoggedIn) {
         if (!sessionStorage.getItem('loginToastShown')) {
             showToast("Chào mừng quay trở lại! Bạn đã đăng nhập thành công.", "success");
@@ -1019,21 +836,16 @@ document.addEventListener("DOMContentLoaded", function () {
         sessionStorage.removeItem('loginToastShown');
     }
 
-    // Xóa giỏ hàng khi có hành động logout
     document.addEventListener('submit', (e) => {
-        if (e.target && e.target.action && e.target.action.includes('/auth/logout')) {
-            sessionStorage.clear();
-        }
+        if (e.target && e.target.action && e.target.action.includes('/auth/logout')) sessionStorage.clear();
     });
 
-    // Initialize rooms pagination
     initRoomsPagination();
-
-    // Automatically load dynamic grouped rooms on page load
     setTimeout(() => {
         applyDates();
         executeSearch({ preventDefault: () => { }, stopPropagation: () => { } });
     }, 100);
+
     const sections = document.querySelectorAll('main section, .feature-row, .room-grid, .results, .site-footer');
     sections.forEach(section => {
         section.classList.add('transition-all', 'duration-[800ms]', 'ease-out', 'opacity-0', 'translate-y-8', 'will-change-transform');

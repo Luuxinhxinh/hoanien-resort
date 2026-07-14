@@ -110,7 +110,8 @@ public class BookingApiController {
     }
 
     @PostMapping("/{bookingId}/cancel")
-    public ResponseEntity<?> cancelBooking(Principal principal, @PathVariable Long bookingId) {
+    public ResponseEntity<?> cancelBooking(Principal principal, @PathVariable Long bookingId,
+            @RequestBody(required = false) com.kawai.dto.CancelBookingRequestDTO dto) {
         if (principal == null) {
             return ResponseEntity.status(401).body(new BookingApiResponse(
                     "error", null, null, null, null, "Quý khách cần đăng nhập để thực hiện thao tác này!"));
@@ -119,7 +120,7 @@ public class BookingApiController {
         try {
             Customer customer = resolveCurrentCustomer(principal);
 
-            BookingResponseDTO response = bookingService.cancelBooking(bookingId, customer.getId());
+            BookingResponseDTO response = bookingService.cancelBooking(bookingId, customer.getId(), dto);
 
             String msg = (response.getDepositAmount() != null
                     && response.getDepositAmount().compareTo(BigDecimal.ZERO) > 0)

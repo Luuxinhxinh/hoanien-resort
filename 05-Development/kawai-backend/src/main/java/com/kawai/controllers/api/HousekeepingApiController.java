@@ -57,12 +57,14 @@ public class HousekeepingApiController {
 
             Long detailId = room.getCurrentBookingDetailId();
             if (detailId == null) {
-                return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Phòng không có booking active."));
+                return ResponseEntity.badRequest()
+                        .body(Map.of("success", false, "message", "Phòng không có booking active."));
             }
 
             RoomBookingDetail detail = roomBookingDetailRepository.findById(detailId).orElse(null);
             if (detail == null) {
-                return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Không tìm thấy booking detail."));
+                return ResponseEntity.badRequest()
+                        .body(Map.of("success", false, "message", "Không tìm thấy booking detail."));
             }
 
             if (minibarFee.compareTo(BigDecimal.ZERO) > 0) {
@@ -179,6 +181,7 @@ public class HousekeepingApiController {
         if (!existingTasks.isEmpty()) {
             for (HotelOperation t : existingTasks) {
                 t.setPriority("Lễ tân báo dọn khẩn");
+                t.setOperationalType("URGENT_CLEAN");
                 String currentNotes = t.getNotes() != null ? t.getNotes() : "";
                 t.setNotes(currentNotes + " \n[Khẩn cấp] Lễ tân hối thúc dọn ưu tiên để khách Check-in!");
                 housekeepingTaskRepo.save(t);
@@ -228,8 +231,9 @@ public class HousekeepingApiController {
                 notes = "Lễ tân báo hỏng hóc khẩn cấp cần sửa chữa ngay.";
             }
             com.kawai.models.HotelOperation maintenanceTask = housekeepingService
-                .createMaintenanceRequest(room.getId(), staff.getId(), notes, true);
-            return ResponseEntity.ok(Map.of("success", true, "message", "Đã gửi yêu cầu sửa chữa khẩn cấp cho phòng " + roomNumber + "."));
+                    .createMaintenanceRequest(room.getId(), staff.getId(), notes, true);
+            return ResponseEntity.ok(Map.of("success", true, "message",
+                    "Đã gửi yêu cầu sửa chữa khẩn cấp cho phòng " + roomNumber + "."));
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body(Map.of("success", false, "message", e.getMessage()));
         }

@@ -57,6 +57,7 @@ public interface RoomBookingDetailRepository extends JpaRepository<RoomBookingDe
                 "SELECT rbd.room.roomNumber, rbd.roomBooking.customer.fullName " +
                 "FROM RoomBookingDetail rbd " +
                 "WHERE rbd.room IS NOT NULL AND rbd.room.roomStatus = 'Vacant_Clean' " +
+                "AND rbd.roomBooking.checkOutDate >= CURRENT_DATE " +
                 "AND (" +
                 "  (UPPER(rbd.detailStatus) = 'CONFIRMED' AND rbd.roomBooking.checkInDate <= CURRENT_DATE) " +
                 "  OR " +
