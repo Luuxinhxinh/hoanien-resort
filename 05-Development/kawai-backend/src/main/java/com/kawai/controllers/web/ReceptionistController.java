@@ -89,10 +89,12 @@ public class ReceptionistController {
                     .filter(t -> !"Completed".equalsIgnoreCase(t.getStatus()))
                     .forEach(t -> {
                         if (t.getRoom() != null) {
-                            if ("Maintenance".equalsIgnoreCase(t.getOperationalType())) {
+                            if ("Maintenance".equalsIgnoreCase(t.getOperationalType()) && !"Pending".equalsIgnoreCase(t.getStatus())) {
                                 roomsWithMaintenance.add(t.getRoom().getId());
-                            } else if ("URGENT_CLEAN".equalsIgnoreCase(t.getOperationalType()) ||
-                                      ("CHECKOUT_CLEAN".equalsIgnoreCase(t.getOperationalType()) && "Lễ tân báo dọn khẩn".equalsIgnoreCase(t.getPriority()))) {
+                            } else if (("URGENT_CLEAN".equalsIgnoreCase(t.getOperationalType()) || 
+                                        "GUEST_REQUEST".equalsIgnoreCase(t.getOperationalType()) ||
+                                        ("CHECKOUT_CLEAN".equalsIgnoreCase(t.getOperationalType()) && "Lễ tân báo dọn khẩn".equalsIgnoreCase(t.getPriority())))
+                                       && !"Pending".equalsIgnoreCase(t.getStatus())) {
                                 roomsWithUrgentClean.add(t.getRoom().getId());
                             }
                         }

@@ -52,6 +52,7 @@ public class FolioRestController {
     private final com.kawai.repositories.HousekeepingTaskRepository housekeepingTaskRepo;
     private final com.kawai.repositories.EmployeeRepository employeeRepository;
     private final com.kawai.repositories.PaymentTransactionRepository paymentTransactionRepository;
+    private final com.kawai.services.interfaces.HousekeepingService housekeepingService;
 
     @Autowired
     public FolioRestController(NightAuditService nightAuditService,
@@ -71,7 +72,8 @@ public class FolioRestController {
             com.kawai.services.interfaces.WorkflowEngineService workflowEngineService,
             com.kawai.repositories.HousekeepingTaskRepository housekeepingTaskRepo,
             com.kawai.repositories.EmployeeRepository employeeRepository,
-            com.kawai.repositories.PaymentTransactionRepository paymentTransactionRepository) {
+            com.kawai.repositories.PaymentTransactionRepository paymentTransactionRepository,
+            com.kawai.services.interfaces.HousekeepingService housekeepingService) {
         this.nightAuditService = nightAuditService;
         this.folioItemRepository = folioItemRepository;
         this.roomBookingDetailRepository = roomBookingDetailRepository;
@@ -90,6 +92,7 @@ public class FolioRestController {
         this.workflowEngineService = workflowEngineService;
         this.housekeepingTaskRepo = housekeepingTaskRepo;
         this.employeeRepository = employeeRepository;
+        this.housekeepingService = housekeepingService;
     }
 
     /**
@@ -788,6 +791,7 @@ public class FolioRestController {
 
                             Room room = d.getRoom();
                             if (room != null) {
+                                room.setCurrentBookingDetailId(null);
                                 try {
                                     workflowEngineService.triggerEvent("ROOM_CHECKOUT", Map.of(
                                             "room_id", room.getId(),
@@ -796,8 +800,7 @@ public class FolioRestController {
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }
-                                room.setCurrentBookingDetailId(null);
-                                createMaintenanceTaskForPricedDamages(room);
+                                housekeepingService.createMaintenanceTaskForPricedDamages(room);
                             }
                         }
                     }
@@ -813,6 +816,7 @@ public class FolioRestController {
                     // 2. Thay đổi trạng thái phòng vật lý qua Dirty (hoặc theo cấu hình workflow)
                     Room room = detail.getRoom();
                     if (room != null) {
+                        room.setCurrentBookingDetailId(null);
                         try {
                             workflowEngineService.triggerEvent("ROOM_CHECKOUT", Map.of(
                                     "room_id", room.getId(),
@@ -821,8 +825,7 @@ public class FolioRestController {
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
-                        room.setCurrentBookingDetailId(null);
-                        createMaintenanceTaskForPricedDamages(room);
+                        housekeepingService.createMaintenanceTaskForPricedDamages(room);
                     }
                 }
 
@@ -1294,43 +1297,7 @@ public class FolioRestController {
         }
     }
 
-    private void createMaintenanceTaskForPricedDamages(Room room) {
-        if (room == null)
-            return;
-        List<HotelOperation> damageChecks = housekeepingTaskRepo.findAll().stream()
-                .filter(t -> t.getRoom() != null && t.getRoom().getId().equals(room.getId())
-                        && "DAMAGE_CHECK".equals(t.getOperationalType())
-                        && t.getDamagePrice() != null
-                        && !"ConvertedToRepair".equals(t.getStatus()))
-                .collect(java.util.stream.Collectors.toList());
 
-        if (damageChecks.isEmpty()) {
-            room.setRoomStatus("Vacant_Dirty");
-            roomRepository.save(room);
-        } else {
-            for (HotelOperation dc : damageChecks) {
-                dc.setStatus("ConvertedToRepair");
-                housekeepingTaskRepo.save(dc);
-
-                room.setRoomStatus("Maintenance");
-                roomRepository.save(room);
-
-                HotelOperation repairTask = new HotelOperation();
-                repairTask.setRoom(room);
-                repairTask.setStaff(dc.getStaff());
-                repairTask.setSupervisor(dc.getSupervisor());
-                repairTask.setOperationalType("MAINTENANCE");
-                repairTask.setPriority(dc.getPriority());
-                repairTask.setStatus("Pending");
-                repairTask.setNotes("[Cần sửa chữa - Đền bù hỏng hóc] " + dc.getNotes() + " | Chi phí đền bù: "
-                        + dc.getDamagePrice() + " VNĐ");
-                repairTask.setImageUrl(dc.getImageUrl());
-                repairTask.setDamagePrice(dc.getDamagePrice());
-                repairTask.setCreatedAt(java.time.LocalDateTime.now());
-                housekeepingTaskRepo.save(repairTask);
-            }
-        }
-    }
 
     private boolean isDamageOrMaintenanceItem(com.kawai.models.FolioItem item) {
         if (item == null)

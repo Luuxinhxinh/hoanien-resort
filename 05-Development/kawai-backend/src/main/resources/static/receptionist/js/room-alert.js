@@ -32,6 +32,7 @@ function getOrCreateToastContainer() {
         container.style.flexDirection = 'column';
         container.style.gap = '16px';
         document.body.appendChild(container);
+>>>>>>> aed533a3a682114c661c169914fc113b8f0e289b
     }
     return container;
 }
@@ -128,7 +129,7 @@ async function pollPendingWalkInRooms() {
         roomNums.forEach(roomNum => {
             const status = statusMap[roomNum];
             if (status === 'Vacant_Clean') {
-                showToastAlert(`✅ Phòng ${roomNum} đã dọn xong! Bạn có thể tiếp tục hoàn tất đơn.`, roomNum);
+                showToastAlert(`✅ Phòng ${roomNum} đã dọn xong!`, roomNum);
                 playAlertSound();
                 delete pendingRooms[roomNum];
                 changed = true;

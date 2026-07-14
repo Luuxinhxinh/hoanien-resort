@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
         rel="stylesheet">
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -187,7 +187,8 @@
             <div class="sidebar-section-title">RECEPTIONIST</div>
 
             <nav class="sidebar-nav">
-                <a href="/receptionist/dashboard" class="nav-item" sec:authorize="hasAnyAuthority('OP_DASHBOARD', 'ROLE_ADMIN', 'ROLE_MANAGER')">
+                <a href="/receptionist/dashboard" class="nav-item"
+                    sec:authorize="hasAnyAuthority('OP_DASHBOARD', 'ROLE_ADMIN', 'ROLE_MANAGER')">
                     <i class="fa-solid fa-border-all"></i>
                     <div class="nav-text">
                         <span class="nav-main-text">Room Matrix</span>
@@ -196,14 +197,16 @@
                     <i class="fa-solid fa-chevron-right nav-arrow"></i>
                 </a>
 
-                <a href="/receptionist/walk-in" class="nav-item" sec:authorize="hasAnyAuthority('OP_RECEPTION_WALKIN', 'OP_BOOKING', 'ROLE_ADMIN', 'ROLE_MANAGER')">
+                <a href="/receptionist/walk-in" class="nav-item"
+                    sec:authorize="hasAnyAuthority('OP_RECEPTION_WALKIN', 'OP_BOOKING', 'ROLE_ADMIN', 'ROLE_MANAGER')">
                     <i class="fa-solid fa-person-walking-luggage"></i>
                     <div class="nav-text">
                         <span class="nav-main-text">Walk-In</span>
                         <span class="nav-sub-text">Khách vãng lai</span>
                     </div>
                 </a>
-                <a href="/receptionist/check-in" class="nav-item" sec:authorize="hasAnyAuthority('OP_RECEPTION_CHECKIN', 'OP_BOOKING', 'ROLE_ADMIN', 'ROLE_MANAGER')">
+                <a href="/receptionist/check-in" class="nav-item"
+                    sec:authorize="hasAnyAuthority('OP_RECEPTION_CHECKIN', 'OP_BOOKING', 'ROLE_ADMIN', 'ROLE_MANAGER')">
                     <i class="fa-solid fa-arrow-right-to-bracket"></i>
                     <div class="nav-text">
                         <span class="nav-main-text">Check-in</span>
@@ -217,7 +220,8 @@
                         <span class="nav-sub-text">Trả phòng & Hóa đơn</span>
                     </div>
                 </a>
-                <a href="/receptionist/in-house" class="nav-item" sec:authorize="hasAnyAuthority('OP_RECEPTION_INHOUSE', 'OP_BOOKING', 'ROLE_ADMIN', 'ROLE_MANAGER')">
+                <a href="/receptionist/in-house" class="nav-item"
+                    sec:authorize="hasAnyAuthority('OP_RECEPTION_INHOUSE', 'OP_BOOKING', 'ROLE_ADMIN', 'ROLE_MANAGER')">
                     <i class="fa-solid fa-bed"></i>
                     <div class="nav-text">
                         <span class="nav-main-text">Khách lưu trú</span>
@@ -235,7 +239,7 @@
                 -->
             </nav>
 
-                        <div class="sidebar-user">
+            <div class="sidebar-user">
                 <div class="user-avatar"
                     th:text="${staffName != null && staffName.length() >= 2 ? staffName.substring(0, 2).toUpperCase() : 'NV'}">
                     NV</div>
@@ -281,9 +285,14 @@
                 </div>
 
                 <!-- Tab Navigation -->
-                <div class="tabs-container" style="display: flex; gap: 16px; margin-bottom: 20px; border-bottom: 1px solid #ddd;">
-                    <button class="tab-btn active" onclick="filterByTab(this, 'CHECKED_IN')" style="padding: 10px 16px; border: none; background: none; font-size: 1rem; font-weight: 600; color: #634636; border-bottom: 2px solid #634636; cursor: pointer; transition: all 0.2s;">Checked In</button>
-                    <button class="tab-btn" onclick="filterByTab(this, 'CHECKED_OUT')" style="padding: 10px 16px; border: none; background: none; font-size: 1rem; font-weight: 500; color: #777; border-bottom: 2px solid transparent; cursor: pointer; transition: all 0.2s;">Checked Out</button>
+                <div class="tabs-container"
+                    style="display: flex; gap: 16px; margin-bottom: 20px; border-bottom: 1px solid #ddd;">
+                    <button class="tab-btn active" onclick="filterByTab(this, 'CHECKED_IN')"
+                        style="padding: 10px 16px; border: none; background: none; font-size: 1rem; font-weight: 600; color: #634636; border-bottom: 2px solid #634636; cursor: pointer; transition: all 0.2s;">CHECKED
+                        IN</button>
+                    <button class="tab-btn" onclick="filterByTab(this, 'CHECKED_OUT')"
+                        style="padding: 10px 16px; border: none; background: none; font-size: 1rem; font-weight: 500; color: #777; border-bottom: 2px solid transparent; cursor: pointer; transition: all 0.2s;">CHECKED
+                        OUT</button>
                 </div>
 
                 <div class="table-container">
@@ -342,12 +351,12 @@
 
         function applyFilters() {
             const term = (document.getElementById('folioSearchInput')?.value || '').toLowerCase().trim();
-            
+
             const filtered = allFolios.filter(folio => {
                 if (!folio.status || folio.status.toUpperCase() !== currentTabStatus) {
                     return false;
                 }
-                
+
                 if (!term) return true;
                 const name = (folio.bookerName || '').toLowerCase();
                 const phone = (folio.phoneNumber || '').toLowerCase();
@@ -405,7 +414,6 @@
                 
                 // Format Phone Number
                 const formattedPhone = `<span style="color: #5c5652; font-weight: 500;">${folio.phoneNumber || 'N/A'}</span>`;
-                
                 // Format Status
                 const statusText = folio.status ? folio.status.toUpperCase().replace(/_/g, ' ') : 'PENDING';
 
@@ -417,7 +425,7 @@
                     <td style="white-space: nowrap;"><span class="status-badge ${statusClass}" style="white-space: nowrap;">${statusText}</span></td>
                     <td style="padding: 24px 24px 24px 16px !important; white-space: nowrap;">
                         <div style="display: flex; gap: 8px; align-items: center; white-space: nowrap;">
-                            <a href="/receptionist/folio/detail?id=${folio.roomBookingDetailId}" class="btn-folio-detail">VIEW DETAILS</a>
+                            <a href="/receptionist/folio/detail?id=${folio.roomBookingDetailId}" class="btn-folio-detail">XEM CHI TIẾT</a>
                             ${folio.status.toLowerCase() !== 'checked_out' ? `
                                 <button onclick="requestGroupCheck(${folio.bookingId})" class="btn-request-check">
                                     KIỂM TRA PHÒNG
@@ -440,27 +448,27 @@
                     'Content-Type': 'application/json'
                 }
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert(data.message);
-                    fetchActiveFolios(); // refresh table
-                } else {
-                    alert(data.message || "Lỗi khi gửi yêu cầu.");
-                }
-            })
-            .catch(error => {
-                console.error("Error sending check request:", error);
-                alert("Lỗi kết nối máy chủ.");
-            });
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(data.message);
+                        fetchActiveFolios(); // refresh table
+                    } else {
+                        alert(data.message || "Lỗi khi gửi yêu cầu.");
+                    }
+                })
+                .catch(error => {
+                    console.error("Error sending check request:", error);
+                    alert("Lỗi kết nối máy chủ.");
+                });
         }
     </script>
 
-                <!-- WebSocket integration for real-time task notifications -->
+    <!-- WebSocket integration for real-time task notifications -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
     <script th:inline="javascript">
-        (function() {
+        (function () {
             var staffId = /*[[${staffId}]]*/ 0;
 
             function showPersistentToast(notif) {
@@ -485,9 +493,9 @@
                         fontFamily: "'Inter', sans-serif",
                         borderRadius: "8px"
                     },
-                    callback: function() {
+                    callback: function () {
                         var saved = JSON.parse(localStorage.getItem('kawai_notifs') || '[]');
-                        saved = saved.filter(function(n) { return n.id !== notif.id; });
+                        saved = saved.filter(function (n) { return n.id !== notif.id; });
                         localStorage.setItem('kawai_notifs', JSON.stringify(saved));
                     }
                 }).showToast();
@@ -495,8 +503,13 @@
 
             try {
                 var pending = JSON.parse(localStorage.getItem('kawai_notifs') || '[]');
-                pending.forEach(function(n) { showPersistentToast(n); });
-            } catch(e) {}
+                pending = pending.filter(function (n) {
+                    var t = n.text || '';
+                    return !t.includes('khẩn cấp') && !t.includes('Yêu cầu dọn') && !t.includes('Yêu cầu sửa');
+                });
+                localStorage.setItem('kawai_notifs', JSON.stringify(pending));
+                pending.forEach(function (n) { showPersistentToast(n); });
+            } catch (e) { }
 
             function saveAndShow(text, direct) {
                 var notif = { id: Date.now() + '_' + Math.random(), text: text, direct: direct };
@@ -504,11 +517,11 @@
                     var saved = JSON.parse(localStorage.getItem('kawai_notifs') || '[]');
                     saved.push(notif);
                     localStorage.setItem('kawai_notifs', JSON.stringify(saved));
-                } catch(e) {}
+                } catch (e) { }
                 showPersistentToast(notif);
             }
 
-            document.addEventListener("DOMContentLoaded", function() {
+            document.addEventListener("DOMContentLoaded", function () {
                 if (typeof SockJS === 'undefined' || typeof Stomp === 'undefined') {
                     console.warn('[WS] SockJS or Stomp not loaded');
                     return;
@@ -516,31 +529,32 @@
 
                 var socket = new SockJS('/ws-endpoint');
                 var stompClient = Stomp.over(socket);
-                stompClient.debug = null; 
+                stompClient.debug = null;
 
-                stompClient.connect({}, function(frame) {
+                stompClient.connect({}, function (frame) {
                     console.log('[WS] Đã kết nối thành công | staffId=' + staffId);
 
-                    stompClient.subscribe('/topic/operations', function(msg) {
+                    stompClient.subscribe('/topic/operations', function (msg) {
                         try {
                             var payload = JSON.parse(msg.body);
                             console.log('[WS] Nhận tin nhắn từ kênh Chung (/topic/operations):', payload);
+                            if (payload.type === 'NEW_TASK') return;
                             saveAndShow('📢 THÔNG BÁO HỆ THỐNG: \n' + payload.message, false);
-                        } catch(e) { console.error('[WS] parse error', e); }
+                        } catch (e) { console.error('[WS] parse error', e); }
                     });
 
                     if (staffId && staffId !== 0) {
-                        stompClient.subscribe('/topic/operations/' + staffId, function(msg) {
+                        stompClient.subscribe('/topic/operations/' + staffId, function (msg) {
                             try {
                                 var payload = JSON.parse(msg.body);
                                 console.log('[WS] Nhận tin nhắn từ kênh Đích danh (/topic/operations/' + staffId + '):', payload);
                                 saveAndShow('🔔 NHIỆM VỤ MỚI: \n ' + payload.message, true);
-                            } catch(e) { console.error('[WS] parse error', e); }
+                            } catch (e) { console.error('[WS] parse error', e); }
                         });
                         console.log('[WS] Đã đăng ký kênh riêng: /topic/operations/' + staffId);
                     }
 
-                }, function(error) {
+                }, function (error) {
                     console.error('[WS] Lỗi kết nối WebSocket:', error);
                 });
             });

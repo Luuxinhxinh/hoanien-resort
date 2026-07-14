@@ -165,23 +165,28 @@ public class MaintenanceWebController {
 
             // Add damage fee to folio if there is an active booking detail
             Room room = task.getRoom();
-            if (room != null && room.getCurrentBookingDetailId() != null) {
-                RoomBookingDetail detail = roomBookingDetailRepository.findById(room.getCurrentBookingDetailId()).orElse(null);
-                if (detail != null) {
-                    FolioItem item = new FolioItem();
-                    item.setBooking(detail.getRoomBooking());
-                    item.setRoomBookingDetail(detail);
-                    item.setPayerCustomer(detail.getRoomBooking().getCustomer());
-                    item.setSourceDepartment("Maintenance");
-                    item.setAmount(new BigDecimal(price));
-                    item.setDescription("[Đền bù hỏng hóc] " + (task.getNotes() != null ? task.getNotes() : "Đền bù hỏng hóc"));
-                    item.setCreatedAt(LocalDateTime.now());
-                    item.setCreatedByStaff(task.getStaff());
-                    folioItemRepository.save(item);
+            if (room != null) {
+                if (room.getCurrentBookingDetailId() != null) {
+                    RoomBookingDetail detail = roomBookingDetailRepository.findById(room.getCurrentBookingDetailId()).orElse(null);
+                    if (detail != null) {
+                        FolioItem item = new FolioItem();
+                        item.setBooking(detail.getRoomBooking());
+                        item.setRoomBookingDetail(detail);
+                        item.setPayerCustomer(detail.getRoomBooking().getCustomer());
+                        item.setSourceDepartment("Maintenance");
+                        item.setAmount(new BigDecimal(price));
+                        item.setDescription("[Đền bù hỏng hóc] " + (task.getNotes() != null ? task.getNotes() : "Đền bù hỏng hóc"));
+                        item.setCreatedAt(LocalDateTime.now());
+                        item.setCreatedByStaff(task.getStaff());
+                        folioItemRepository.save(item);
+                    }
+                } else {
+                    // Phòng trống (không có khách thuê) -> Chuyển thành phiếu sửa chữa MAINTENANCE luôn!
+                    housekeepingService.createMaintenanceTaskForPricedDamages(room);
                 }
             }
 
-            ra.addFlashAttribute("successMessage", "Đã định giá sự cố thành công và cộng vào hóa đơn khách hàng.");
+            ra.addFlashAttribute("successMessage", "Đã định giá sự cố thành công.");
         } catch (Exception e) {
             ra.addFlashAttribute("errorMessage", "Lỗi: " + e.getMessage());
         }

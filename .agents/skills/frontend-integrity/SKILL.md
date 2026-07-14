@@ -186,4 +186,12 @@ Lỗi "Nút bấm không phản hồi" hoặc báo lỗi `Function is not define
   - **Quy tắc:** Luôn dùng Null-safety đầy đủ (VD: `${tb.schedule != null and tb.schedule.tour != null ? tb.schedule.tour.tourName : 'N/A'}`) khi duyệt mảng hoặc render đối tượng đa tầng có rủi ro null.
 - **JavaScript Khởi tạo Crash:** Một hàm phụ (như reset form, init UI) chạy trong `DOMContentLoaded` hoặc ngay khi load trang cố gắng thao tác với một DOM element không tồn tại (do element đó bị ẩn đi bởi `th:if` ở một trạng thái khác của trang). Lỗi `Cannot set properties of null` xảy ra làm Javascript engine sập luồng thực thi ngay lập tức, bỏ qua mọi logic khai báo hàm hay gắn Event Listener ở phía sau.
   - **Quy tắc:** Luôn kiểm tra tồn tại của Element `if (!element) return;` trước khi thao tác (như `.value`, `.classList`), đặc biệt đối với các element phụ thuộc vào điều kiện render của Thymeleaf.
+ 
+ 
+## 19. Giải quyết xung đột giao diện và nhất quán ngôn ngữ (UI/CSS & Language Conflict Resolution)
+- **Ưu tiên thiết kế có tính thẩm mỹ cao hơn:** Khi giải quyết merge conflict giữa các phiên bản style (CSS/HTML) cũ và mới, luôn ưu tiên lựa chọn các style mềm mại hơn (ví dụ: `border-radius` lớn 8px/16px, shadow mờ) đúng theo định hướng thiết kế Premium của dự án thay vì giữ phong cách thô cứng cũ (ví dụ: border 1px thô, border-radius 2px/4px).
+- **Căn chỉnh dữ liệu tài chính chuyên nghiệp:** Khi hiển thị số tiền thanh toán (Total Payments), luôn cấu hình căn lề phải (`text-align: right`) để thẳng cột và dễ so sánh giá trị theo hàng dọc, thay vì căn giữa hay căn trái tự do.
+- **Nhất quán ngôn ngữ chính (Tiếng Việt) cho nút hành động:** Để tránh giao diện bị lai căng Anh-Việt lộn xộn, đối với các nút hành động tương tác chính (như `XEM CHI TIẾT`, `KIỂM TRA PHÒNG`), nếu trang web nội bộ đang dùng tiếng Việt thì bắt buộc phải dịch các text tiếng Anh từ incoming branch (như `VIEW DETAILS`) sang tiếng Việt tương ứng.
+- **Bảo toàn cấu trúc thẻ đóng HTML và ngoặc Javascript:** Khi xóa các Git conflict markers (`<<<<<<< HEAD`, `=======`, `>>>>>>>`), phải kiểm tra thật kỹ các cặp thẻ đóng (`</td>`, `</tr>`, `</div>`) hoặc các dấu ngoặc đóng nhọn `})` của block JavaScript ở xung quanh để tránh làm crash DOM render hoặc sập JS Engine.
+
 
