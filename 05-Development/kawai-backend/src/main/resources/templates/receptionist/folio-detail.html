@@ -1687,7 +1687,7 @@
                                      Loại phòng: <span style="color: #2c2a29; font-weight: 500;">${data.categoryName || 'N/A'}</span>
                                  </div>
                                  <div style="font-size: 13px; color: #8e8a86; font-family: 'Inter', sans-serif;">
-                                     Giá phòng: <span style="color: #2c2a29; font-weight: 500;">${formatCurrency(data.roomCharge)}</span>
+                                     Giá phòng: <span style="color: #2c2a29; font-weight: 500;">${formatCurrency(data.roomCharge)}</span>${data.extraSurcharge && data.extraSurcharge > 0 ? ' <span style="font-size: 11.5px; color: #c0392b; font-weight: 600;">(+ Phụ thu: ' + formatCurrency(data.extraSurcharge) + '/đêm)</span>' : ''}
                                  </div>
                                  ${data.detailStatus === 'Checked_Out' ? '<div style="margin-top: 2px;"><span class="status-badge" style="background-color: #e6e2db; color: #5a544f; padding: 4px 8px; border-radius: 9999px; font-size: 10px; font-weight: 700; display: inline-block; letter-spacing: 0.5px; text-transform: uppercase; font-family: \'Inter\', sans-serif;">Checked-Out</span></div>' : ''}
                              </div>
@@ -1907,9 +1907,12 @@
                         breakdownGroups[key] = {
                             categoryName: data.categoryName || 'Room',
                             roomCharge: data.roomCharge,
+                            extraSurcharge: data.extraSurcharge || 0,
                             nights: nights,
                             roomCount: 0
                         };
+                    } else {
+                        breakdownGroups[key].extraSurcharge += (data.extraSurcharge || 0);
                     }
                     breakdownGroups[key].roomCount += 1;
                     if (nights > breakdownGroups[key].nights) {
@@ -1922,7 +1925,11 @@
             for (const key in breakdownGroups) {
                 const bg = breakdownGroups[key];
                 const formattedPrice = formatCurrency(bg.roomCharge * bg.nights * bg.roomCount);
-                roomChargeBreakdown.push(`↳ ${bg.categoryName} (${bg.roomCount} phòng &times; ${bg.nights} đêm)`);
+                if (bg.extraSurcharge > 0) {
+                    roomChargeBreakdown.push(`↳ ${bg.categoryName} (${bg.roomCount} phòng &times; ${bg.nights} đêm) + Phụ thu: ${formatCurrency(bg.extraSurcharge * bg.nights * bg.roomCount)}`);
+                } else {
+                    roomChargeBreakdown.push(`↳ ${bg.categoryName} (${bg.roomCount} phòng &times; ${bg.nights} đêm)`);
+                }
             }
 
             for (const [dep, group] of Object.entries(originalGroups)) {

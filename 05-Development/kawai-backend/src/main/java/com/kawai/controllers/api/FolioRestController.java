@@ -429,6 +429,7 @@ public class FolioRestController {
         response.put("checkOutDate", checkOutDate);
         response.put("categoryName", detail.getCategory() != null ? detail.getCategory().getCategoryName() : "N/A");
         response.put("roomCharge", detail.getRoomCharge());
+        response.put("extraSurcharge", detail.getExtraSurcharge() != null ? detail.getExtraSurcharge() : BigDecimal.ZERO);
         response.put("subCreditLimit", detail.getSubCreditLimit());
         response.put("items", itemDTOs);
         response.put("currentBalance", currentBalance);
