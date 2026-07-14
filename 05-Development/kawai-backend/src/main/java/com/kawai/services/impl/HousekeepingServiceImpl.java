@@ -110,9 +110,8 @@ public class HousekeepingServiceImpl implements HousekeepingService {
     public Room updateRoomToClean(Long taskId, String notes) {
         HotelOperation task = findTaskById(taskId);
         Room room = task.getRoom();
-        String currentStatus = room.getRoomStatus();
-        if ("Occupied_Dirty".equalsIgnoreCase(currentStatus)) {
-            room.setRoomStatus("Occupied_Clean");
+        if (room.getCurrentBookingDetailId() != null) {
+            room.setRoomStatus("Occupied");
         } else {
             room.setRoomStatus(STATUS_VACANT_CLEAN);
         }
