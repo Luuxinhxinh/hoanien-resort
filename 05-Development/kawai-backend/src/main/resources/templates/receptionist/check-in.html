@@ -784,15 +784,19 @@
     <!-- Toastify -->
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
     <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
-    <script src="/receptionist/js/checkin.js"></script>
+    <!-- roomInventory phải được khai báo TRƯỚC checkin.js để các function trong checkin.js có thể dùng -->
     <script th:inline="javascript">
+        // Inject dữ liệu phòng từ server-side vào biến global
+        // QUAN TRỌNG: script này phải nằm TRƯỚC <script src="checkin.js">
         const roomInventory = /*[[${roomInventory}]]*/ {};
-        const assignedRooms = [];
 
         // Hiển thị thông báo nếu có từ redirectAttributes
         const successMessage = /*[[${successMessage}]]*/ null;
         const errorMessage = /*[[${errorMessage}]]*/ null;
-
+    </script>
+    <script src="/receptionist/js/checkin.js"></script>
+    <script>
+        // Hiển thị toast sau khi checkin.js load xong
         if (successMessage) {
             Toastify({
                 text: successMessage,

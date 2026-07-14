@@ -691,7 +691,7 @@
                                     th:data-status="${#strings.toUpperCase(booking.bookingStatus)}">
                                     <div class="flex gap-5 mb-4">
                                         <div class="w-32 h-24 shrink-0 rounded-xl overflow-hidden shadow-sm relative">
-                                            <img th:src="${visibleDetailsMap[booking.id] != null and !visibleDetailsMap[booking.id].empty and visibleDetailsMap[booking.id][0].category != null and visibleDetailsMap[booking.id][0].category.coverImgUrl != null ? visibleDetailsMap[booking.id][0].category.coverImgUrl : 'https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'}"
+                                            <img th:src="${visibleDetailsMap[booking.id] != null and !visibleDetailsMap[booking.id].empty and visibleDetailsMap[booking.id][0].category != null and visibleDetailsMap[booking.id][0].category.coverImgUrl != null ? #strings.arraySplit(visibleDetailsMap[booking.id][0].category.coverImgUrl, ',')[0] : 'https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'}"
                                                 alt="Room"
                                                 class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                                             <div
@@ -851,7 +851,7 @@
                                             <div class="flex gap-5 mb-4">
                                                 <div
                                                     class="w-32 h-24 shrink-0 rounded-xl overflow-hidden shadow-sm relative">
-                                                    <img th:src="${visibleDetailsMap[booking.id] != null and !visibleDetailsMap[booking.id].empty and visibleDetailsMap[booking.id][0].category != null and visibleDetailsMap[booking.id][0].category.coverImgUrl != null ? visibleDetailsMap[booking.id][0].category.coverImgUrl : 'https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'}"
+                                                    <img th:src="${visibleDetailsMap[booking.id] != null and !visibleDetailsMap[booking.id].empty and visibleDetailsMap[booking.id][0].category != null and visibleDetailsMap[booking.id][0].category.coverImgUrl != null ? #strings.arraySplit(visibleDetailsMap[booking.id][0].category.coverImgUrl, ',')[0] : 'https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'}"
                                                         alt="Room"
                                                         class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                                                     <div
@@ -1201,6 +1201,13 @@
                                             <span th:if="${tr.status == 'Completed'}" class="text-[10px] bg-gray-100 text-gray-700 px-3 py-1 rounded-full font-semibold whitespace-nowrap shadow-sm border border-gray-200">Đã hoàn thành</span>
                                             <span th:if="${tr.status == 'Cancelled'}" class="text-[10px] bg-red-100 text-red-700 px-3 py-1 rounded-full font-semibold whitespace-nowrap shadow-sm border border-red-200">Đã hủy</span>
                                         </div>
+                                        <button th:if="${tr.status == 'Pending' or tr.status == 'Confirmed'}" type="button"
+                                                th:data-id="${tr.id}"
+                                                onclick="cancelTableBooking(this.getAttribute('data-id'))"
+                                                class="bg-red-50 text-red-600 hover:bg-red-500 hover:text-white px-4 py-2 rounded-lg font-semibold shadow-sm transition-all text-[11px] uppercase tracking-wider flex items-center gap-2 border border-red-200 hover:border-red-500">
+                                            <span class="material-symbols-outlined text-[16px]">cancel</span>
+                                            Hủy bàn
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -2165,6 +2172,29 @@
                             Swal.fire('Lỗi', error.message || 'Đã xảy ra lỗi khi hủy tour.', 'error');
                         });
                 }
+            });
+        }
+
+        // Cancel Table Booking function
+        function cancelTableBooking(reservationId) {
+            if (!confirm(`Bạn có chắc chắn muốn hủy đặt bàn #${reservationId}? Hành động này không thể hoàn tác.`)) return;
+
+            fetch(`/api/v1/tables/reservations/${reservationId}/cancel`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+            })
+            .then(res => res.json().then(data => ({ status: res.status, body: data })))
+            .then(resObj => {
+                if (resObj.status === 200 || resObj.status === 201) {
+                    alert('Đã hủy bàn thành công.');
+                    window.location.reload();
+                } else {
+                    alert(`Có lỗi xảy ra: ${resObj.body.message || 'Vui lòng thử lại.'}`);
+                }
+            })
+            .catch(err => {
+                console.error('Error cancelling table booking:', err);
+                alert('Lỗi kết nối. Vui lòng thử lại.');
             });
         }
     </script>
