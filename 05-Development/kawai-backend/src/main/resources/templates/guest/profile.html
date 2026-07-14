@@ -1201,6 +1201,13 @@
                                             <span th:if="${tr.status == 'Completed'}" class="text-[10px] bg-gray-100 text-gray-700 px-3 py-1 rounded-full font-semibold whitespace-nowrap shadow-sm border border-gray-200">Đã hoàn thành</span>
                                             <span th:if="${tr.status == 'Cancelled'}" class="text-[10px] bg-red-100 text-red-700 px-3 py-1 rounded-full font-semibold whitespace-nowrap shadow-sm border border-red-200">Đã hủy</span>
                                         </div>
+                                        <button th:if="${tr.status == 'Pending' or tr.status == 'Confirmed'}" type="button"
+                                                th:data-id="${tr.id}"
+                                                onclick="cancelTableBooking(this.getAttribute('data-id'))"
+                                                class="bg-red-50 text-red-600 hover:bg-red-500 hover:text-white px-4 py-2 rounded-lg font-semibold shadow-sm transition-all text-[11px] uppercase tracking-wider flex items-center gap-2 border border-red-200 hover:border-red-500">
+                                            <span class="material-symbols-outlined text-[16px]">cancel</span>
+                                            Hủy bàn
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -2164,6 +2171,29 @@
                             Swal.fire('Lỗi', error.message || 'Đã xảy ra lỗi khi hủy tour.', 'error');
                         });
                 }
+            });
+        }
+
+        // Cancel Table Booking function
+        function cancelTableBooking(reservationId) {
+            if (!confirm(`Bạn có chắc chắn muốn hủy đặt bàn #${reservationId}? Hành động này không thể hoàn tác.`)) return;
+
+            fetch(`/api/v1/tables/reservations/${reservationId}/cancel`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+            })
+            .then(res => res.json().then(data => ({ status: res.status, body: data })))
+            .then(resObj => {
+                if (resObj.status === 200 || resObj.status === 201) {
+                    alert('Đã hủy bàn thành công.');
+                    window.location.reload();
+                } else {
+                    alert(`Có lỗi xảy ra: ${resObj.body.message || 'Vui lòng thử lại.'}`);
+                }
+            })
+            .catch(err => {
+                console.error('Error cancelling table booking:', err);
+                alert('Lỗi kết nối. Vui lòng thử lại.');
             });
         }
     </script>

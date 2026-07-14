@@ -27,15 +27,27 @@ function submitGuestRefundForm(event) {
     btn.disabled = true;
     btn.innerText = 'Đang xử lý...';
     
-    fetch('/api/pos/orders/' + orderId + '/cancel', {
+    // Sử dụng endpoint dành riêng cho Khách hàng
+    fetch('/api/pos/guest/orders/' + orderId + '/cancel', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify(payload)
     })
-    .then(res => {
-        if(!res.ok) return res.json().then(e => { throw new Error(e.message) });
+    .then(async res => {
+        if(!res.ok) {
+            // [SAFE FETCH] Lấy chuỗi raw text trước để tránh lỗi SyntaxError 
+            // khi server sập / chặn quyền và trả về HTML (Ví dụ: Whitelabel Error Page)
+            const text = await res.text();
+            try {
+                const e = JSON.parse(text);
+                throw new Error(e.message || 'Lỗi hệ thống');
+            } catch (err) {
+                // Nếu parse JSON thất bại -> đây là HTML page -> báo lỗi HTTP code
+                throw new Error(`Mã lỗi HTTP ${res.status}: Không thể hủy đơn`);
+            }
+        }
         return res.json();
     })
     .then(data => {
@@ -43,7 +55,7 @@ function submitGuestRefundForm(event) {
         window.location.reload();
     })
     .catch(err => {
-        alert('Lỗi: ' + err.message);
+        alert('Lỗi: ' + (err.message || 'Không xác định'));
         btn.disabled = false;
         btn.innerText = 'Gửi Yêu cầu Hủy đơn';
     });

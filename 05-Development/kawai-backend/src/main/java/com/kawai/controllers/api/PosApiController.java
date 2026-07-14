@@ -164,4 +164,34 @@ public class PosApiController {
                     "message", e.getMessage() != null ? e.getMessage() : "null message"));
         }
     }
+
+    /**
+     * Endpoint hủy đơn dành riêng cho Khách hàng (Tách biệt ngữ cảnh với Nhân viên).
+     * Yêu cầu ROLE_GUEST hoặc ROLE_CUSTOMER. 
+     * Logic xác thực quyền sở hữu đơn hàng (ngăn IDOR) được ủy nhiệm (delegate) cho Service xử lý.
+     */
+    @org.springframework.security.access.prepost.PreAuthorize("hasAnyAuthority('ROLE_GUEST', 'ROLE_CUSTOMER')")
+    @PostMapping("/guest/orders/{id}/cancel")
+    public ResponseEntity<?> guestCancelOrder(@PathVariable Long id,
+            @RequestBody(required = false) com.kawai.dtos.CancelOrderRequestDTO dto,
+            java.security.Principal principal) {
+        try {
+            if (principal == null) {
+                return ResponseEntity.status(401).body(Map.of("message", "Quý khách cần đăng nhập để thao tác"));
+            }
+            String identifier = principal.getName();
+            if (principal instanceof org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken) {
+                org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken oauthToken = (org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken) principal;
+                identifier = oauthToken.getPrincipal().getAttribute("email");
+            }
+
+            posService.cancelOrderByGuest(id, dto, identifier);
+            return ResponseEntity.ok().body(Map.of("status", "success", "message", "Gửi yêu cầu hủy đơn thành công"));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(400).body(Map.of(
+                    "error", e.getClass().getName(),
+                    "message", e.getMessage() != null ? e.getMessage() : "null message"));
+        }
+    }
 }
