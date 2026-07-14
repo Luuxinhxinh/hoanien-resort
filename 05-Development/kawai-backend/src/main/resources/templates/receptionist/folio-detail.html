@@ -1686,31 +1686,39 @@
                                  <div style="font-size: 13px; color: #8e8a86; font-family: 'Inter', sans-serif;">
                                      Loại phòng: <span style="color: #2c2a29; font-weight: 500;">${data.categoryName || 'N/A'}</span>
                                  </div>
-                                 <div style="font-size: 13px; color: #8e8a86; font-family: 'Inter', sans-serif; display: flex; flex-direction: column; gap: 2px;">
-                                       <div>Giá phòng: <span style="color: #2c2a29; font-weight: 500;">${formatCurrency(data.roomCharge)}/đêm</span></div>
+                                                                   <div style="font-size: 13px; color: #8e8a86; font-family: 'Inter', sans-serif; display: flex; flex-direction: column; gap: 2px;">
                                        ${(() => {
+                                           const checkIn = new Date(data.checkInDate);
+                                           const checkOut = new Date(data.checkOutDate);
+                                           const nights = Math.max(1, Math.round((checkOut - checkIn) / (1000 * 60 * 60 * 24)));
+                                           const dailyRoomCharge = (data.roomCharge || 0) / nights;
+                                           const dailyExtraSurcharge = (data.extraSurcharge || 0) / nights;
                                            const extraAdultsCount = Math.max(0, data.numberOfAdults - (data.baseAdults || 2));
-                                           const extraAdultsSurchargeTotal = extraAdultsCount * (data.extraAdultSurcharge || 0);
-                                           const childSurchargeTotal = Math.max(0, (data.extraSurcharge || 0) - extraAdultsSurchargeTotal);
-                                           let html = '';
+                                           const dailyAdultSurcharge = extraAdultsCount * (data.extraAdultSurcharge || 0);
+                                           const dailyChildSurcharge = Math.max(0, dailyExtraSurcharge - dailyAdultSurcharge);
+                                           
+                                           let html = `<div>Giá phòng: <span style="color: #2c2a29; font-weight: 500;">${formatCurrency(dailyRoomCharge)}/đêm</span></div>`;
+                                           
                                            if (extraAdultsCount > 0) {
                                                html += `
                                                <div style="font-size: 11.5px; color: #8e8a86; font-style: italic; font-weight: 500; padding-left: 8px;">
-                                                   ↳ Phụ thu người lớn (${extraAdultsCount} x ${formatCurrency(data.extraAdultSurcharge)}): ${formatCurrency(extraAdultsSurchargeTotal)}/đêm
+                                                   ↳ Phụ thu người lớn (${extraAdultsCount} x ${formatCurrency(data.extraAdultSurcharge)}): ${formatCurrency(dailyAdultSurcharge)}/đêm
                                                </div>`;
                                            }
-                                           if (childSurchargeTotal > 0) {
-                                               html += `
-                                               <div style="font-size: 11.5px; color: #8e8a86; font-style: italic; font-weight: 500; padding-left: 8px;">
-                                                   ${(() => {
-                                                        const extraChildrenCount = Math.max(0, data.numberOfChildren - (data.baseChildren || 0));
-                                                        if (extraChildrenCount > 0) {
-                                                            const childUnitPrice = childSurchargeTotal / extraChildrenCount;
-                                                            return `↳ Phụ thu trẻ em (${extraChildrenCount} x ${formatCurrency(childUnitPrice)}): ${formatCurrency(childSurchargeTotal)}/đêm`;
-                                                        }
-                                                        return `↳ Phụ thu trẻ em đi kèm: ${formatCurrency(childSurchargeTotal)}/đêm`;
-                                                    })()}
-                                               </div>`;
+                                           if (dailyChildSurcharge > 0) {
+                                               const extraChildrenCount = Math.max(0, data.numberOfChildren - (data.baseChildren || 0));
+                                               if (extraChildrenCount > 0) {
+                                                   const childUnitPrice = dailyChildSurcharge / extraChildrenCount;
+                                                   html += `
+                                                   <div style="font-size: 11.5px; color: #8e8a86; font-style: italic; font-weight: 500; padding-left: 8px;">
+                                                       ↳ Phụ thu trẻ em (${extraChildrenCount} x ${formatCurrency(childUnitPrice)}): ${formatCurrency(dailyChildSurcharge)}/đêm
+                                                   </div>`;
+                                               } else {
+                                                   html += `
+                                                   <div style="font-size: 11.5px; color: #8e8a86; font-style: italic; font-weight: 500; padding-left: 8px;">
+                                                       ↳ Phụ thu trẻ em đi kèm: ${formatCurrency(dailyChildSurcharge)}/đêm
+                                                   </div>`;
+                                               }
                                            }
                                            return html;
                                        })()}
