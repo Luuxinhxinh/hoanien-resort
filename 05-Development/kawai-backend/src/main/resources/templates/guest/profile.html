@@ -1878,7 +1878,7 @@
                 // Gọi API hủy trực tiếp
                 if (!confirm(`Bạn có chắc chắn muốn hủy đơn món ăn #${orderId}? Hành động này không thể hoàn tác.`)) return;
 
-                fetch(`/api/pos/orders/${orderId}/cancel`, {
+                fetch(`/api/pos/guest/orders/${orderId}/cancel`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ reason: 'Khách hàng tự hủy trên Profile' })
