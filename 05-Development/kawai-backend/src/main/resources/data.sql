@@ -1298,7 +1298,8 @@ INSERT IGNORE INTO Room_Guests (guest_id, detail_id, customer_id, dependent_id, 
 (50522, 5052, NULL, 506, 'ADULT', FALSE);
 
 INSERT IGNORE INTO Payment_Transactions (id, booking_id, amount, status, transaction_type, payment_method, gateway_status, transaction_ref, created_at, paid_at) VALUES
-(5051, 505, 1000000.00, 'SUCCESS', 'Deposit', 'VNPAY', 'SUCCESS', 'DEP505_1783478433300', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+(5051, 505, 1000000.00, 'SUCCESS', 'Deposit', 'VNPAY', 'SUCCESS', 'DEP505_1783478433300', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(9999, 9999, 2000000.00, 'SUCCESS', 'Deposit', 'VNPAY', 'SUCCESS', 'DEP9999_1783478433300', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 UPDATE Rooms SET current_booking_detail_id = 5051, room_status = 'Occupied' WHERE room_id = 12;
 UPDATE Rooms SET current_booking_detail_id = 5052, room_status = 'Occupied' WHERE room_id = 13;

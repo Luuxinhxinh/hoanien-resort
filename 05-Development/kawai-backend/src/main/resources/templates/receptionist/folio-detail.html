@@ -1921,8 +1921,8 @@
             let roomChargeBreakdown = [];
             for (const key in breakdownGroups) {
                 const bg = breakdownGroups[key];
-                const formattedPrice = formatCurrency(bg.roomCharge);
-                roomChargeBreakdown.push(`↳ ${bg.categoryName} (${bg.roomCount} phòng &times; ${bg.nights} đêm) : ${formattedPrice}`);
+                const formattedPrice = formatCurrency(bg.roomCharge * bg.nights * bg.roomCount);
+                roomChargeBreakdown.push(`↳ ${bg.categoryName} (${bg.roomCount} phòng &times; ${bg.nights} đêm)`);
             }
 
             for (const [dep, group] of Object.entries(originalGroups)) {
@@ -2023,7 +2023,7 @@
                 let subLabelHtml = '';
                 if (dep.toLowerCase() === 'room' && roomInfo.roomCharge > 0) {
                     const formattedPrice = formatCurrency(roomInfo.roomCharge);
-                    subLabelHtml = `<div style="font-size: 11px; color: #8e8a86; font-weight: normal; font-style: italic; margin-top: 2px;">↳ (${roomInfo.nights} đêm) : ${formattedPrice}</div>`;
+                    subLabelHtml = `<div style="font-size: 11px; color: #8e8a86; font-weight: normal; font-style: italic; margin-top: 2px;">↳ (${roomInfo.nights} đêm)</div>`;
                 }
                 html += `
                     <div class="summary-row" style="flex-direction: column; align-items: flex-start; gap: 2px;">
