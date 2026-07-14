@@ -691,7 +691,7 @@
                                     th:data-status="${#strings.toUpperCase(booking.bookingStatus)}">
                                     <div class="flex gap-5 mb-4">
                                         <div class="w-32 h-24 shrink-0 rounded-xl overflow-hidden shadow-sm relative">
-                                            <img th:src="${visibleDetailsMap[booking.id] != null and !visibleDetailsMap[booking.id].empty and visibleDetailsMap[booking.id][0].category != null and visibleDetailsMap[booking.id][0].category.coverImgUrl != null ? visibleDetailsMap[booking.id][0].category.coverImgUrl : 'https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'}"
+                                            <img th:src="${visibleDetailsMap[booking.id] != null and !visibleDetailsMap[booking.id].empty and visibleDetailsMap[booking.id][0].category != null and visibleDetailsMap[booking.id][0].category.coverImgUrl != null ? #strings.arraySplit(visibleDetailsMap[booking.id][0].category.coverImgUrl, ',')[0] : 'https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'}"
                                                 alt="Room"
                                                 class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                                             <div
@@ -851,7 +851,7 @@
                                             <div class="flex gap-5 mb-4">
                                                 <div
                                                     class="w-32 h-24 shrink-0 rounded-xl overflow-hidden shadow-sm relative">
-                                                    <img th:src="${visibleDetailsMap[booking.id] != null and !visibleDetailsMap[booking.id].empty and visibleDetailsMap[booking.id][0].category != null and visibleDetailsMap[booking.id][0].category.coverImgUrl != null ? visibleDetailsMap[booking.id][0].category.coverImgUrl : 'https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'}"
+                                                    <img th:src="${visibleDetailsMap[booking.id] != null and !visibleDetailsMap[booking.id].empty and visibleDetailsMap[booking.id][0].category != null and visibleDetailsMap[booking.id][0].category.coverImgUrl != null ? #strings.arraySplit(visibleDetailsMap[booking.id][0].category.coverImgUrl, ',')[0] : 'https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'}"
                                                         alt="Room"
                                                         class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                                                     <div
