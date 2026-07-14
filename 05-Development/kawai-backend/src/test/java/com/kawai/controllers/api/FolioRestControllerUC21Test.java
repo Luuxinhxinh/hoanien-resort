@@ -63,6 +63,10 @@ public class FolioRestControllerUC21Test {
     private com.kawai.repositories.HousekeepingTaskRepository housekeepingTaskRepo;
     @Mock
     private com.kawai.repositories.EmployeeRepository employeeRepository;
+    @Mock
+    private com.kawai.repositories.PaymentTransactionRepository paymentTransactionRepository;
+    @Mock
+    private HousekeepingService housekeepingService;
 
     @InjectMocks
     private FolioRestController folioRestController;
@@ -163,6 +167,15 @@ public class FolioRestControllerUC21Test {
         item.setAmount(new BigDecimal("1000000"));
         when(nightAuditService.getFolioItems(detailId)).thenReturn(List.of(item));
         when(invoicePdfService.generateInvoicePdf(any())).thenReturn("path/to/invoice.pdf");
+
+        doAnswer(invocation -> {
+            Room r = invocation.getArgument(0);
+            if (r != null) {
+                r.setRoomStatus("Vacant_Dirty");
+                roomRepository.save(r);
+            }
+            return null;
+        }).when(housekeepingService).createMaintenanceTaskForPricedDamages(any(Room.class));
 
         Map<String, Object> payload = new HashMap<>();
         payload.put("paymentAmount", 1100000);
