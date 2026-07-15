@@ -39,16 +39,19 @@ public class ReportServiceCustomTest {
         roomItem.setSourceDepartment("Rooms");
         roomItem.setAmount(new BigDecimal("1000000"));
         roomItem.setCreatedAt(LocalDateTime.now());
+        roomItem.setRevenueCode("ROOM_TRANSIENT");
 
         FolioItem fbItem = new FolioItem();
         fbItem.setSourceDepartment("RoomService");
         fbItem.setAmount(new BigDecimal("350000"));
         fbItem.setCreatedAt(LocalDateTime.now());
+        fbItem.setRevenueCode("FB_ROOMSERVICE");
 
         FolioItem tourItem = new FolioItem();
         tourItem.setSourceDepartment("Tour");
         tourItem.setAmount(new BigDecimal("1200000"));
         tourItem.setCreatedAt(LocalDateTime.now());
+        tourItem.setRevenueCode("OTH_TOUR");
 
         FolioItem payment = new FolioItem();
         payment.setSourceDepartment("PAYMENT");
@@ -87,14 +90,71 @@ public class ReportServiceCustomTest {
         roomItem.setSourceDepartment("Rooms");
         roomItem.setAmount(new BigDecimal("1000000"));
         roomItem.setCreatedAt(LocalDateTime.now());
+        roomItem.setRevenueCode("ROOM_TRANSIENT");
 
         when(folioItemRepository.findAll()).thenReturn(Collections.singletonList(roomItem));
 
-        byte[] reportBytes = reportService.exportUsaliReport(LocalDate.now().minusDays(1), LocalDate.now().plusDays(1), "PDF");
+        byte[] reportBytes = reportService.exportUsaliReport(LocalDate.now().minusDays(1), LocalDate.now().plusDays(1), "xlsx");
 
         assertNotNull(reportBytes);
-        String reportStr = new String(reportBytes);
-        assertTrue(reportStr.contains("USALI OPERATIONAL REVENUE REPORT"));
-        assertTrue(reportStr.contains("REV-ROOM"));
+        assertTrue(reportBytes.length > 2);
+        assertEquals('P', (char) reportBytes[0]);
+        assertEquals('K', (char) reportBytes[1]);
+    }
+
+    @Test
+    void testExportUsaliReportPdf() {
+        assertThrows(com.kawai.exceptions.BusinessException.class, () -> {
+            reportService.exportUsaliReport(LocalDate.now().minusDays(1), LocalDate.now().plusDays(1), "pdf");
+        });
+    }
+
+    @Test
+    void testExportUsaliReportXlsx() {
+        FolioItem roomItem = new FolioItem();
+        roomItem.setSourceDepartment("Rooms");
+        roomItem.setAmount(new BigDecimal("1000000"));
+        roomItem.setCreatedAt(LocalDateTime.now());
+        roomItem.setRevenueCode("ROOM_TRANSIENT");
+
+        when(folioItemRepository.findAll()).thenReturn(Collections.singletonList(roomItem));
+
+        byte[] reportBytes = reportService.exportUsaliReport(LocalDate.now().minusDays(1), LocalDate.now().plusDays(1), "XLSX");
+
+        assertNotNull(reportBytes);
+        assertTrue(reportBytes.length > 2);
+        // XLSX/ZIP starts with PK
+        assertEquals('P', (char) reportBytes[0]);
+        assertEquals('K', (char) reportBytes[1]);
+    }
+
+    @Test
+    void testExportReportRoomAndFnb() {
+        FolioItem roomItem = new FolioItem();
+        roomItem.setSourceDepartment("Rooms");
+        roomItem.setAmount(new BigDecimal("1000000"));
+        roomItem.setCreatedAt(LocalDateTime.now());
+        roomItem.setRevenueCode("ROOM_TRANSIENT");
+
+        when(folioItemRepository.findAll()).thenReturn(Collections.singletonList(roomItem));
+
+        // Test room report XLSX
+        byte[] roomXlsx = reportService.exportReport("room", LocalDate.now().minusDays(1), LocalDate.now().plusDays(1), "xlsx");
+        assertNotNull(roomXlsx);
+        assertTrue(roomXlsx.length > 2);
+        assertEquals('P', (char) roomXlsx[0]);
+        assertEquals('K', (char) roomXlsx[1]);
+
+        // Test fnb report XLSX
+        byte[] fnbXlsx = reportService.exportReport("fnb", LocalDate.now().minusDays(1), LocalDate.now().plusDays(1), "xlsx");
+        assertNotNull(fnbXlsx);
+        assertTrue(fnbXlsx.length > 2);
+        assertEquals('P', (char) fnbXlsx[0]);
+        assertEquals('K', (char) fnbXlsx[1]);
+
+        // Test invalid format throws exception
+        assertThrows(com.kawai.exceptions.BusinessException.class, () -> {
+            reportService.exportReport("tour", LocalDate.now().minusDays(1), LocalDate.now().plusDays(1), "pdf");
+        });
     }
 }

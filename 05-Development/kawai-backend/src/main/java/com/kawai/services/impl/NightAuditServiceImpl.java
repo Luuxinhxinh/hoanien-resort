@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 /**
@@ -91,12 +92,25 @@ public class NightAuditServiceImpl implements NightAuditService {
                 .findByDetailStatusIn(List.of("Checked_In", "CHECKED_IN"));
 
         for (RoomBookingDetail detail : checkedInRooms) {
-            FolioItem item = createRoomChargeItem(detail, auditDate);
-            if (item == null) {
-                // Dữ liệu thiếu Booking hợp lệ -> bỏ qua, không tạo charge sai lệch
-                continue;
+            List<FolioItem> existingItems = getFolioItems(detail.getId());
+            boolean alreadyHasRoomCharge = false;
+            if (existingItems != null) {
+                String targetDesc = "Room Charge - Night " + auditDate.toString();
+                alreadyHasRoomCharge = existingItems.stream()
+                        .anyMatch(item -> item.getDescription() != null && item.getDescription().equals(targetDesc));
             }
-            folioItemRepository.save(item);
+
+            if (!alreadyHasRoomCharge) {
+                FolioItem item = createRoomChargeItem(detail, auditDate);
+                if (item != null) {
+                    folioItemRepository.save(item);
+                }
+            } else {
+                logger.info("[NIGHT AUDIT] Đã tồn tại Room Charge cho RoomBookingDetail ID: {} ngày {}, bỏ qua tạo trùng.", detail.getId(), auditDate);
+            }
+
+            // TỰ ĐỘNG TÍNH CHÊNH LỆCH ĐỔI HẠNG PHÒNG ĐÊM NAY
+            handleNightAuditRoomUpgradeSurcharge(detail, auditDate);
         }
     }
 
@@ -150,8 +164,60 @@ public class NightAuditServiceImpl implements NightAuditService {
         item.setAmount(roomCharge.setScale(0, RoundingMode.HALF_UP));
         item.setDescription("Room Charge - Night " + auditDate.toString());
         item.setIsSettledSeparately(false);
-
+        long roomCount = roomBookingDetailRepository.findByRoomBookingId(booking.getId()).size();
+        item.setRevenueCode(roomCount > 1 ? "ROOM_GROUP" : "ROOM_TRANSIENT");
         return item;
+    }
+
+    private void handleNightAuditRoomUpgradeSurcharge(RoomBookingDetail detail, LocalDate auditDate) {
+        BigDecimal baseRate = detail.getRoomCharge() != null ? detail.getRoomCharge() : BigDecimal.ZERO;
+        RoomBooking booking = detail.getRoomBooking();
+        if (booking != null) {
+            long nights = ChronoUnit.DAYS.between(booking.getCheckInDate(), booking.getCheckOutDate());
+            if (nights > 0 && "DIRECT_WEB".equalsIgnoreCase(booking.getBookingSource())) {
+                baseRate = baseRate.divide(BigDecimal.valueOf(nights), 2, RoundingMode.HALF_UP);
+            }
+        }
+
+        BigDecimal currentRate = detail.getCategory() != null && detail.getCategory().getBasePrice() != null 
+                ? detail.getCategory().getBasePrice() 
+                : baseRate;
+        
+        BigDecimal dailyDifference = currentRate.subtract(baseRate);
+        if (dailyDifference.compareTo(BigDecimal.ZERO) == 0) {
+            return; // Đêm nay không có chênh lệch so với giá gốc
+        }
+
+        // Kiểm tra xem đã có phụ phí nâng/hạ hạng phòng cho đêm này chưa
+        List<FolioItem> existingItems = getFolioItems(detail.getId());
+        if (existingItems != null) {
+            String suffix = " (Đêm " + auditDate.toString() + ")";
+            boolean alreadyHasSurcharge = existingItems.stream()
+                    .anyMatch(item -> item.getDescription() != null && item.getDescription().endsWith(suffix));
+            if (alreadyHasSurcharge) {
+                logger.info("[NIGHT AUDIT] Đã tồn tại phụ phí đổi hạng phòng cho RoomBookingDetail ID: {} ngày {}, bỏ qua tạo trùng.", detail.getId(), auditDate);
+                return;
+            }
+        }
+
+        FolioItem folioItem = new FolioItem();
+        folioItem.setBooking(booking);
+        folioItem.setRoomBookingDetail(detail);
+        folioItem.setPayerCustomer(booking != null ? booking.getCustomer() : null);
+        folioItem.setSourceDepartment("FRONT_DESK");
+        folioItem.setAmount(dailyDifference.setScale(0, RoundingMode.HALF_UP)); 
+        folioItem.setIsSettledSeparately(false);
+        long roomCount = booking != null ? roomBookingDetailRepository.findByRoomBookingId(booking.getId()).size() : 1;
+        folioItem.setRevenueCode(roomCount > 1 ? "ROOM_GROUP" : "ROOM_TRANSIENT");
+
+        String categoryName = detail.getCategory() != null ? detail.getCategory().getCategoryName() : "";
+        if (dailyDifference.compareTo(BigDecimal.ZERO) > 0) {
+            folioItem.setDescription("Phụ phí nâng hạng phòng lên " + categoryName + " (Đêm " + auditDate.toString() + ")");
+        } else {
+            folioItem.setDescription("Hoàn tiền chênh lệch hạ hạng phòng xuống " + categoryName + " (Đêm " + auditDate.toString() + ")");
+        }
+
+        folioItemRepository.save(folioItem);
     }
 
     @Override
