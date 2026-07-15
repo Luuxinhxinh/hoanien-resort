@@ -1575,10 +1575,11 @@
                     const isRoom = dep.toLowerCase() === 'room';
 
                     // For Left Pane (grouped by room) - include incidental charges only, exclude room cost
-                    if (item.amount > 0 && !isRoom) {
+                    const isDeposit = item.description && item.description.toLowerCase().includes('nạp tiền nâng hạn mức');
+                    if (!isRoom && (item.amount > 0 || (item.amount < 0 && !isDeposit))) {
                         if (!allGroups[dep]) allGroups[dep] = { items: [] };
                         allGroups[dep].items.push(item);
-                        if (isDamageOrMaintenanceItem(item)) {
+                        if (isDamageOrMaintenanceItem(item) || item.amount < 0) {
                             roomNonTaxable += item.amount;
                         } else {
                             roomTaxable += item.amount;
@@ -1586,8 +1587,8 @@
                     }
 
                     // For Right Pane (aggregated) - Separate positive charges from negative deposits/payments
-                    if (item.amount > 0) {
-                        const isSettled = item.isSettledSeparately || (data.detailStatus === 'Checked_Out' && !isRoom);
+                    if (item.amount > 0 || (item.amount < 0 && !isDeposit)) {
+                        const isSettled = item.isSettledSeparately || data.detailStatus === 'Checked_Out';
                         if (!isSettled) {
                             let orderMatch = item.description ? item.description.match(/Order\s*(?:#|số)?\s*(\d+)/i) : null;
                             let fnbServiceCharge = 0;
@@ -1611,7 +1612,7 @@
                                 globalServiceChargeTotal += fnbServiceCharge;
                             }
 
-                            if (isDamageOrMaintenanceItem(item)) {
+                            if (isDamageOrMaintenanceItem(item) || item.amount < 0) {
                                 originalNonTaxable += (item.amount - fnbServiceCharge);
                             } else {
                                 originalTaxable += (item.amount - fnbServiceCharge);
@@ -1642,7 +1643,8 @@
                         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
                         if (diffDays > 0) nights = diffDays;
                     }
-                    const expectedTotalCharge = data.roomCharge * nights;
+                    const isWalkIn = data.bookingSource === 'WALK_IN';
+                    const expectedTotalCharge = isWalkIn ? (data.roomCharge * nights) : data.roomCharge;
 
                     const dep = 'Room';
                     // Right Pane
@@ -1686,12 +1688,12 @@
                                  <div style="font-size: 13px; color: #8e8a86; font-family: 'Inter', sans-serif;">
                                      Loại phòng: <span style="color: #2c2a29; font-weight: 500;">${data.categoryName || 'N/A'}</span>
                                  </div>
-                                                                   <div style="font-size: 13px; color: #8e8a86; font-family: 'Inter', sans-serif; display: flex; flex-direction: column; gap: 2px;">
+                                 <div style="display: flex; flex-direction: column; gap: 2px;">
                                        ${(() => {
                                            const checkIn = new Date(data.checkInDate);
                                            const checkOut = new Date(data.checkOutDate);
                                            const nights = Math.max(1, Math.round((checkOut - checkIn) / (1000 * 60 * 60 * 24)));
-                                           const dailyRoomCharge = (data.roomCharge || 0) / nights;
+                                           const dailyRoomCharge = data.dailyRate || ((data.roomCharge || 0) / nights);
                                            const dailyExtraSurcharge = (data.extraSurcharge || 0) / nights;
                                            const extraAdultsCount = Math.max(0, data.numberOfAdults - (data.baseAdults || 2));
                                            const dailyAdultSurcharge = extraAdultsCount * (data.extraAdultSurcharge || 0);
@@ -1702,7 +1704,7 @@
                                            if (extraAdultsCount > 0) {
                                                html += `
                                                <div style="font-size: 11.5px; color: #8e8a86; font-style: italic; font-weight: 500; padding-left: 8px;">
-                                                   ↳ Phụ thu người lớn (${extraAdultsCount} x ${formatCurrency(data.extraAdultSurcharge)}): ${formatCurrency(dailyAdultSurcharge)}/đêm
+                                                   ↳ Phụ thu người lớn (x${extraAdultsCount} người): ${formatCurrency(dailyAdultSurcharge)}/đêm
                                                </div>`;
                                            }
                                            if (dailyChildSurcharge > 0) {
@@ -1711,7 +1713,7 @@
                                                    const childUnitPrice = dailyChildSurcharge / extraChildrenCount;
                                                    html += `
                                                    <div style="font-size: 11.5px; color: #8e8a86; font-style: italic; font-weight: 500; padding-left: 8px;">
-                                                       ↳ Phụ thu trẻ em (${extraChildrenCount} x ${formatCurrency(childUnitPrice)}): ${formatCurrency(dailyChildSurcharge)}/đêm
+                                                       ↳ Phụ thu trẻ em (x${extraChildrenCount} người): ${formatCurrency(dailyChildSurcharge)}/đêm
                                                    </div>`;
                                                } else {
                                                    html += `
@@ -1949,17 +1951,18 @@
                 }
 
                 if (data.roomCharge && data.roomCharge > 0) {
+                    const isWalkIn = data.bookingSource === 'WALK_IN';
                     const key = `${data.categoryName || 'N/A'}_${data.roomCharge}`;
                     if (!breakdownGroups[key]) {
                         breakdownGroups[key] = {
                             categoryName: data.categoryName || 'Room',
-                            roomCharge: data.roomCharge,
-                            extraSurcharge: data.extraSurcharge || 0,
+                            roomCharge: isWalkIn ? data.roomCharge : (data.roomCharge / nights),
+                            extraSurcharge: isWalkIn ? (data.extraSurcharge || 0) : ((data.extraSurcharge || 0) / nights),
                             nights: nights,
                             roomCount: 0
                         };
                     } else {
-                        breakdownGroups[key].extraSurcharge += (data.extraSurcharge || 0);
+                        breakdownGroups[key].extraSurcharge += isWalkIn ? (data.extraSurcharge || 0) : ((data.extraSurcharge || 0) / nights);
                     }
                     breakdownGroups[key].roomCount += 1;
                     if (nights > breakdownGroups[key].nights) {

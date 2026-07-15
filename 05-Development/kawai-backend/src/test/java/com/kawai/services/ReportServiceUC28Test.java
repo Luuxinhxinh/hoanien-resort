@@ -80,14 +80,14 @@ public class ReportServiceUC28Test {
     }
 
     @Test
-    @DisplayName("TC-M5-015: Kết xuất báo cáo định dạng Excel / PDF")
-    void testKetXuatBaoCaoExcelPdf() {
+    @DisplayName("TC-M5-015: Kết xuất báo cáo định dạng Excel")
+    void testKetXuatBaoCaoExcel() {
         LocalDate startDate = LocalDate.of(2026, 6, 1);
         LocalDate endDate = LocalDate.of(2026, 6, 30);
-        String format = "PDF";
-        byte[] mockPdf = new byte[]{1, 2, 3};
+        String format = "XLSX";
+        byte[] mockXlsx = new byte[]{1, 2, 3};
         
-        when(reportService.exportUsaliReport(startDate, endDate, format)).thenReturn(mockPdf);
+        when(reportService.exportUsaliReport(startDate, endDate, format)).thenReturn(mockXlsx);
         
         byte[] result = reportService.exportUsaliReport(startDate, endDate, format);
         

@@ -56,6 +56,27 @@ class PosServiceUC14Test {
     @Mock
     private TableReservationRepository tableReservationRepository;
 
+    @Mock
+    private CustomerRepository customerRepository;
+
+    @Mock
+    private RoomRepository roomRepository;
+
+    @Mock
+    private RoomBookingDetailRepository roomBookingDetailRepository;
+
+    @Mock
+    private FolioItemRepository folioItemRepository;
+
+    @Mock
+    private RoomBookingRepository roomBookingRepository;
+
+    @Mock
+    private com.kawai.services.interfaces.EmailService emailService;
+
+    @Mock
+    private RefundRequestRepository refundRequestRepository;
+
     @Test
     @DisplayName("TC-UC14-01 | Tạo mới đơn hàng hợp lệ (F&B Dine-In)")
     void testCreateOrder_DineIn_Success() {
@@ -71,6 +92,7 @@ class PosServiceUC14Test {
         CartItemDto itemDto = new CartItemDto();
         itemDto.setId(1L);
         itemDto.setQty(2);
+        itemDto.setPrice(new BigDecimal("100000"));
         request.setItems(Arrays.asList(itemDto));
 
         RestaurantTable mockTable = new RestaurantTable();

@@ -58,7 +58,7 @@ async function handleExport() {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `${label}-${from}-${to}.${selectedFormat === 'xlsx' ? 'csv' : selectedFormat}`;
+        a.download = `${label}-${from}-${to}.${selectedFormat}`;
         document.body.appendChild(a);
         a.click();
         a.remove();

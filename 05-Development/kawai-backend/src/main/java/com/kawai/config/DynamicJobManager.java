@@ -4,6 +4,7 @@ import com.kawai.services.AuditCleanupTask;
 import com.kawai.services.impl.BookingServiceImpl;
 import com.kawai.services.impl.WorkflowEngineServiceImpl;
 import com.kawai.services.jobs.ReservationCleanupTask;
+import com.kawai.services.interfaces.NightAuditService;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +33,7 @@ public class DynamicJobManager {
     private final ReservationCleanupTask reservationCleanupTask;
     private final BookingServiceImpl bookingService;
     private final WorkflowEngineServiceImpl workflowEngineService;
+    private final NightAuditService nightAuditService;
 
     public static class JobConfig {
         public String id;
@@ -76,6 +78,10 @@ public class DynamicJobManager {
                 new JobConfig("workflow_processor", "Xử lý Workflow tự động",
                         "Quét và thực thi tự động các sự kiện Workflow Engine (VD: Duyệt chiết khấu).", "0 */1 * * * *",
                         workflowEngineService::scanSlaEscalations));
+        jobs.put("night_audit",
+                new JobConfig("night_audit", "Tính tiền phòng & Chốt ngày (Night Audit)",
+                        "Tự động chạy tiến trình kiểm toán đêm lúc 2:00 AM hằng ngày để chốt doanh thu phòng, cập nhật trạng thái no-show và cộng dồn phụ phí.",
+                        "0 0 2 * * ?", () -> nightAuditService.runNightAudit(java.time.LocalDate.now())));
 
         for (JobConfig config : jobs.values()) {
             scheduleJob(config.id, config.cron);

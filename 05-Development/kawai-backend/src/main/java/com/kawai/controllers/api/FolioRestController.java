@@ -419,6 +419,36 @@ public class FolioRestController {
             }
         }
 
+        BigDecimal dailyRate = BigDecimal.ZERO;
+        long nights = 1;
+        if (detail.getRoomBooking() != null && detail.getRoomBooking().getCheckInDate() != null
+                && detail.getRoomBooking().getCheckOutDate() != null) {
+            nights = java.time.temporal.ChronoUnit.DAYS.between(detail.getRoomBooking().getCheckInDate(),
+                    detail.getRoomBooking().getCheckOutDate());
+            if (nights <= 0) nights = 1;
+        }
+
+        boolean hasChangedCategory = false;
+        if (items != null) {
+            hasChangedCategory = items.stream()
+                    .anyMatch(f -> f.getDescription() != null && f.getDescription().contains("hạng phòng"));
+        }
+
+        if (hasChangedCategory) {
+            dailyRate = detail.getCategory() != null && detail.getCategory().getBasePrice() != null 
+                    ? detail.getCategory().getBasePrice() 
+                    : BigDecimal.ZERO;
+        } else {
+            boolean isWalkIn = detail.getRoomBooking() != null && "WALK_IN".equalsIgnoreCase(detail.getRoomBooking().getBookingSource());
+            if (isWalkIn) {
+                dailyRate = detail.getRoomCharge() != null ? detail.getRoomCharge() : BigDecimal.ZERO;
+            } else {
+                dailyRate = detail.getRoomCharge() != null && nights > 0
+                        ? detail.getRoomCharge().divide(BigDecimal.valueOf(nights), 2, java.math.RoundingMode.HALF_UP) 
+                        : BigDecimal.ZERO;
+            }
+        }
+
         Map<String, Object> response = new java.util.HashMap<>();
         response.put("success", true);
         response.put("roomBookingDetailId", roomBookingDetailId);
@@ -429,6 +459,7 @@ public class FolioRestController {
         response.put("checkOutDate", checkOutDate);
         response.put("categoryName", detail.getCategory() != null ? detail.getCategory().getCategoryName() : "N/A");
         response.put("roomCharge", detail.getRoomCharge());
+        response.put("dailyRate", dailyRate);
         response.put("extraSurcharge", detail.getExtraSurcharge() != null ? detail.getExtraSurcharge() : BigDecimal.ZERO);
         response.put("baseAdults", detail.getCategory() != null ? detail.getCategory().getBaseAdults() : 2);
         response.put("baseChildren", detail.getCategory() != null ? detail.getCategory().getBaseChildren() : 0);
@@ -441,6 +472,7 @@ public class FolioRestController {
         response.put("detailStatus", detail.getDetailStatus());
         response.put("numberOfAdults", detail.getNumberOfAdults() != null ? detail.getNumberOfAdults() : 0);
         response.put("numberOfChildren", detail.getNumberOfChildren() != null ? detail.getNumberOfChildren() : 0);
+        response.put("bookingSource", detail.getRoomBooking() != null ? detail.getRoomBooking().getBookingSource() : "Direct_Web");
 
         return ResponseEntity.ok(response);
     }
@@ -470,6 +502,8 @@ public class FolioRestController {
             item.setDescription("Room Charge (Expected) - " + catName);
             item.setIsSettledSeparately(isSettledSeparately);
             item.setCreatedAt(java.time.LocalDateTime.now());
+            long roomCount = roomBookingDetailRepository.findByRoomBookingId(detail.getRoomBooking().getId()).size();
+            item.setRevenueCode(roomCount > 1 ? "ROOM_GROUP" : "ROOM_TRANSIENT");
             folioItemRepository.save(item);
         } else {
             Optional<FolioItem> optItem = folioItemRepository.findById(folioItemId);
@@ -659,6 +693,8 @@ public class FolioRestController {
                                 item.setDescription("Room Charge (Expected) - " + catName);
                                 item.setIsSettledSeparately(false);
                                 item.setCreatedAt(java.time.LocalDateTime.now());
+                                long roomCount = roomBookingDetailRepository.findByRoomBookingId(booking.getId()).size();
+                                item.setRevenueCode(roomCount > 1 ? "ROOM_GROUP" : "ROOM_TRANSIENT");
                                 folioItemRepository.save(item);
                             }
 
@@ -705,6 +741,8 @@ public class FolioRestController {
                     item.setDescription("Room Charge (Expected) - " + catName);
                     item.setIsSettledSeparately(false);
                     item.setCreatedAt(java.time.LocalDateTime.now());
+                    long roomCount = roomBookingDetailRepository.findByRoomBookingId(booking.getId()).size();
+                    item.setRevenueCode(roomCount > 1 ? "ROOM_GROUP" : "ROOM_TRANSIENT");
                     folioItemRepository.save(item);
                 }
 
@@ -840,6 +878,13 @@ public class FolioRestController {
                 if (isGroup) {
                     List<RoomBookingDetail> details = roomBookingDetailRepository.findByRoomBookingId(booking.getId());
                     for (RoomBookingDetail d : details) {
+                        if ("Checked_In".equalsIgnoreCase(d.getDetailStatus()) && d.getRoom() == null) {
+                            return ResponseEntity.badRequest().body(Map.of(
+                                    "success", false,
+                                    "message", "Không thể checkout cho phòng chưa được gán số phòng vật lý cụ thể."));
+                        }
+                    }
+                    for (RoomBookingDetail d : details) {
                         if ("Checked_In".equalsIgnoreCase(d.getDetailStatus())) {
                             d.setDetailStatus("Checked_Out");
                             roomBookingDetailRepository.save(d);
@@ -865,6 +910,11 @@ public class FolioRestController {
                         }
                     }
                 } else {
+                    if (detail.getRoom() == null) {
+                        return ResponseEntity.badRequest().body(Map.of(
+                                "success", false,
+                                "message", "Không thể checkout cho phòng chưa được gán số phòng vật lý cụ thể."));
+                    }
                     detail.setDetailStatus("Checked_Out");
                     roomBookingDetailRepository.save(detail);
 
@@ -1463,6 +1513,11 @@ public class FolioRestController {
         }
         if (totalCharge.compareTo(BigDecimal.ZERO) <= 0) {
             return BigDecimal.ZERO;
+        }
+
+        boolean isWalkIn = d.getRoomBooking() != null && "WALK_IN".equalsIgnoreCase(d.getRoomBooking().getBookingSource());
+        if (!isWalkIn) {
+            return totalCharge;
         }
 
         long nights = 1;

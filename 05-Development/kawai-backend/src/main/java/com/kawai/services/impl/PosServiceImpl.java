@@ -320,20 +320,64 @@ public class PosServiceImpl implements PosService {
                         .reduce(BigDecimal.ZERO, BigDecimal::add);
 
                 if (limit.subtract(used).compareTo(totalAmount) >= 0) {
-                    FolioItem folioItem = new FolioItem();
-                    folioItem.setRoomBookingDetail(detailToCharge);
-                    folioItem.setBooking(activeBooking);
-                    folioItem.setSourceDepartment("F&B");
-                    folioItem.setAmount(totalAmount);
-                    folioItem.setDescription("Ký bill đồ ăn F&B (Order #" + savedOrder.getId() + ")");
                     Customer payer = null;
                     if (detailToCharge.getCustomer() != null) {
                         payer = detailToCharge.getCustomer();
                     } else if (activeBooking.getCustomer() != null) {
                         payer = activeBooking.getCustomer();
                     }
-                    folioItem.setPayerCustomer(payer);
-                    folioItemRepository.save(folioItem);
+
+                    if ("Room Service".equalsIgnoreCase(savedOrder.getOrderType())) {
+                        FolioItem folioItem = new FolioItem();
+                        folioItem.setRoomBookingDetail(detailToCharge);
+                        folioItem.setBooking(activeBooking);
+                        folioItem.setSourceDepartment("F&B");
+                        folioItem.setAmount(totalAmount);
+                        folioItem.setDescription("Ký bill Room Service F&B (Order #" + savedOrder.getId() + ")");
+                        folioItem.setPayerCustomer(payer);
+                        folioItem.setRevenueCode("FB_ROOMSERVICE");
+                        folioItemRepository.save(folioItem);
+                    } else {
+                        BigDecimal beverageAmount = BigDecimal.ZERO;
+                        if (savedOrder.getDetails() != null) {
+                            for (FoodOrderDetail detail : savedOrder.getDetails()) {
+                                if (detail.getMenuItem() != null && "Đồ uống".equalsIgnoreCase(detail.getMenuItem().getCategory())) {
+                                    BigDecimal price = detail.getPriceAtOrder() != null ? detail.getPriceAtOrder() : detail.getMenuItem().getPrice();
+                                    if (price != null) {
+                                        BigDecimal qty = BigDecimal.valueOf(detail.getQuantity() != null ? detail.getQuantity() : 0);
+                                        beverageAmount = beverageAmount.add(price.multiply(qty));
+                                    }
+                                }
+                            }
+                        }
+                        BigDecimal foodAmount = totalAmount.subtract(beverageAmount);
+                        if (foodAmount.compareTo(BigDecimal.ZERO) < 0) {
+                            foodAmount = BigDecimal.ZERO;
+                        }
+
+                        if (foodAmount.compareTo(BigDecimal.ZERO) > 0) {
+                            FolioItem fItem = new FolioItem();
+                            fItem.setRoomBookingDetail(detailToCharge);
+                            fItem.setBooking(activeBooking);
+                            fItem.setSourceDepartment("F&B");
+                            fItem.setAmount(foodAmount);
+                            fItem.setDescription("Ký bill đồ ăn F&B (Order #" + savedOrder.getId() + ")");
+                            fItem.setPayerCustomer(payer);
+                            fItem.setRevenueCode("FB_FOOD");
+                            folioItemRepository.save(fItem);
+                        }
+                        if (beverageAmount.compareTo(BigDecimal.ZERO) > 0) {
+                            FolioItem bItem = new FolioItem();
+                            bItem.setRoomBookingDetail(detailToCharge);
+                            bItem.setBooking(activeBooking);
+                            bItem.setSourceDepartment("F&B");
+                            bItem.setAmount(beverageAmount);
+                            bItem.setDescription("Ký bill đồ uống F&B (Order #" + savedOrder.getId() + ")");
+                            bItem.setPayerCustomer(payer);
+                            bItem.setRevenueCode("FB_BEV");
+                            folioItemRepository.save(bItem);
+                        }
+                    }
                 } else {
                     throw new BusinessException("POS-005", "Hạn mức tín dụng của phòng không đủ để thanh toán!");
                 }
@@ -430,7 +474,7 @@ public class PosServiceImpl implements PosService {
         folioItem.setSourceDepartment("POS");
         folioItem.setAmount(amount);
         folioItem.setDescription("Ký gửi hóa đơn từ nhà hàng");
-
+        folioItem.setRevenueCode("FB_FOOD");
         folioItemRepository.save(folioItem);
     }
 
