@@ -21,18 +21,10 @@ public class NightAuditJob {
         this.nightAuditService = nightAuditService;
     }
 
-    /**
-     * Chạy tự động Night Audit vào 2:00 AM mỗi ngày.
-     */
-    @Scheduled(cron = "0 0 2 * * ?")
     public void runAutomaticNightAudit() {
         logger.info("Bắt đầu tiến trình Night Audit tự động chạy ngầm...");
-        try {
-            LocalDate today = LocalDate.now();
-            nightAuditService.runNightAudit(today);
-            logger.info("Tiến trình Night Audit tự động hoàn tất thành công cho ngày {}", today);
-        } catch (Exception e) {
-            logger.error("Lỗi trong quá trình chạy Night Audit tự động: ", e);
-        }
+        LocalDate today = LocalDate.now();
+        nightAuditService.runNightAudit(today);
+        logger.info("Tiến trình Night Audit tự động hoàn tất thành công cho ngày {}", today);
     }
 }

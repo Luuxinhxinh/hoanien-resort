@@ -294,8 +294,7 @@
                                                 onchange="if(this.value) { const opt = this.options[this.selectedIndex]; upgradeDependent(this.value, opt.getAttribute('data-detail-id'), this); this.selectedIndex=0; }">
                                                 <option value="">Nâng cấp TK </option>
                                                 <option th:each="dep : ${arr.dependents}"
-                                                    th:if="${dep.isPrimaryContact}" 
-                                                    th:value="${dep.dependentId}"
+                                                    th:if="${dep.isPrimaryContact}" th:value="${dep.dependentId}"
                                                     th:attr="data-detail-id=${dep.roomBookingDetailId}"
                                                     th:text="${dep.dependentId == null ? '(Đã có TK) ' + dep.fullName : dep.fullName}"
                                                     th:disabled="${dep.dependentId == null}"></option>

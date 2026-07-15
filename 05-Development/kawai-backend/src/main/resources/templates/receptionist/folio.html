@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -33,14 +33,17 @@
         }
 
         .data-table thead tr {
-            background-color: #ffffff !important; /* White background matching table */
+            background-color: #ffffff !important;
+            /* White background matching table */
         }
 
         .data-table th {
             padding: 20px 16px !important;
-            border-bottom: 1px solid #f3ebe3 !important; /* Soft border separator */
+            border-bottom: 1px solid #f3ebe3 !important;
+            /* Soft border separator */
             font-weight: 500;
-            color: #8c7b70; /* Elegant soft brown-grey */
+            color: #8c7b70;
+            /* Elegant soft brown-grey */
             font-size: 0.8rem;
             text-transform: uppercase;
             letter-spacing: 1px;
@@ -63,11 +66,13 @@
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background-color: #f5ebe6; /* Soft warm peach background */
+            background-color: #f5ebe6;
+            /* Soft warm peach background */
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #c19b6c; /* Warm gold bronze */
+            color: #c19b6c;
+            /* Warm gold bronze */
             font-size: 1rem;
             flex-shrink: 0;
             box-shadow: inset 0 2px 4px rgba(99, 70, 54, 0.04);
@@ -98,13 +103,17 @@
         }
 
         .status-pending {
-            background-color: #fcf1e5 !important; /* Soft beige-gold */
-            color: #c19b6c !important; /* Warm gold bronze */
+            background-color: #fcf1e5 !important;
+            /* Soft beige-gold */
+            color: #c19b6c !important;
+            /* Warm gold bronze */
         }
 
         .status-confirmed {
-            background-color: #e8f2e0 !important; /* Soft green */
-            color: #5d8e32 !important; /* Darker green */
+            background-color: #e8f2e0 !important;
+            /* Soft green */
+            color: #5d8e32 !important;
+            /* Darker green */
         }
 
         /* View Details Button */
@@ -187,7 +196,8 @@
             <div class="sidebar-section-title">RECEPTIONIST</div>
 
             <nav class="sidebar-nav">
-                <a href="/receptionist/dashboard" class="nav-item" sec:authorize="hasAnyAuthority('OP_DASHBOARD', 'ROLE_ADMIN', 'ROLE_MANAGER')">
+                <a href="/receptionist/dashboard" class="nav-item"
+                    sec:authorize="hasAnyAuthority('OP_DASHBOARD', 'ROLE_ADMIN', 'ROLE_MANAGER')">
                     <i class="fa-solid fa-border-all"></i>
                     <div class="nav-text">
                         <span class="nav-main-text">Room Matrix</span>
@@ -196,14 +206,16 @@
                     <i class="fa-solid fa-chevron-right nav-arrow"></i>
                 </a>
 
-                <a href="/receptionist/walk-in" class="nav-item" sec:authorize="hasAnyAuthority('OP_RECEPTION_WALKIN', 'OP_BOOKING', 'ROLE_ADMIN', 'ROLE_MANAGER')">
+                <a href="/receptionist/walk-in" class="nav-item"
+                    sec:authorize="hasAnyAuthority('OP_RECEPTION_WALKIN', 'OP_BOOKING', 'ROLE_ADMIN', 'ROLE_MANAGER')">
                     <i class="fa-solid fa-person-walking-luggage"></i>
                     <div class="nav-text">
                         <span class="nav-main-text">Walk-In</span>
                         <span class="nav-sub-text">Khách vãng lai</span>
                     </div>
                 </a>
-                <a href="/receptionist/check-in" class="nav-item" sec:authorize="hasAnyAuthority('OP_RECEPTION_CHECKIN', 'OP_BOOKING', 'ROLE_ADMIN', 'ROLE_MANAGER')">
+                <a href="/receptionist/check-in" class="nav-item"
+                    sec:authorize="hasAnyAuthority('OP_RECEPTION_CHECKIN', 'OP_BOOKING', 'ROLE_ADMIN', 'ROLE_MANAGER')">
                     <i class="fa-solid fa-arrow-right-to-bracket"></i>
                     <div class="nav-text">
                         <span class="nav-main-text">Check-in</span>
@@ -217,7 +229,8 @@
                         <span class="nav-sub-text">Trả phòng & Hóa đơn</span>
                     </div>
                 </a>
-                <a href="/receptionist/in-house" class="nav-item" sec:authorize="hasAnyAuthority('OP_RECEPTION_INHOUSE', 'OP_BOOKING', 'ROLE_ADMIN', 'ROLE_MANAGER')">
+                <a href="/receptionist/in-house" class="nav-item"
+                    sec:authorize="hasAnyAuthority('OP_RECEPTION_INHOUSE', 'OP_BOOKING', 'ROLE_ADMIN', 'ROLE_MANAGER')">
                     <i class="fa-solid fa-bed"></i>
                     <div class="nav-text">
                         <span class="nav-main-text">Khách lưu trú</span>
@@ -235,7 +248,7 @@
                 -->
             </nav>
 
-                        <div class="sidebar-user">
+            <div class="sidebar-user">
                 <div class="user-avatar"
                     th:text="${staffName != null && staffName.length() >= 2 ? staffName.substring(0, 2).toUpperCase() : 'NV'}">
                     NV</div>
@@ -281,9 +294,14 @@
                 </div>
 
                 <!-- Tab Navigation -->
-                <div class="tabs-container" style="display: flex; gap: 16px; margin-bottom: 20px; border-bottom: 1px solid #ddd;">
-                    <button class="tab-btn active" onclick="filterByTab(this, 'CHECKED_IN')" style="padding: 10px 16px; border: none; background: none; font-size: 1rem; font-weight: 600; color: #634636; border-bottom: 2px solid #634636; cursor: pointer; transition: all 0.2s;">Checked In</button>
-                    <button class="tab-btn" onclick="filterByTab(this, 'CHECKED_OUT')" style="padding: 10px 16px; border: none; background: none; font-size: 1rem; font-weight: 500; color: #777; border-bottom: 2px solid transparent; cursor: pointer; transition: all 0.2s;">Checked Out</button>
+                <div class="tabs-container"
+                    style="display: flex; gap: 16px; margin-bottom: 20px; border-bottom: 1px solid #ddd;">
+                    <button class="tab-btn active" onclick="filterByTab(this, 'CHECKED_IN')"
+                        style="padding: 10px 16px; border: none; background: none; font-size: 1rem; font-weight: 600; color: #634636; border-bottom: 2px solid #634636; cursor: pointer; transition: all 0.2s;">Checked
+                        In</button>
+                    <button class="tab-btn" onclick="filterByTab(this, 'CHECKED_OUT')"
+                        style="padding: 10px 16px; border: none; background: none; font-size: 1rem; font-weight: 500; color: #777; border-bottom: 2px solid transparent; cursor: pointer; transition: all 0.2s;">Checked
+                        Out</button>
                 </div>
 
                 <div class="table-container">
@@ -342,12 +360,12 @@
 
         function applyFilters() {
             const term = (document.getElementById('folioSearchInput')?.value || '').toLowerCase().trim();
-            
+
             const filtered = allFolios.filter(folio => {
                 if (!folio.status || folio.status.toUpperCase() !== currentTabStatus) {
                     return false;
                 }
-                
+
                 if (!term) return true;
                 const name = (folio.bookerName || '').toLowerCase();
                 const phone = (folio.phoneNumber || '').toLowerCase();
@@ -383,7 +401,7 @@
             folios.forEach(folio => {
                 const tr = document.createElement('tr');
                 const statusClass = folio.status.toLowerCase() === 'checked_out' ? 'status-confirmed' : 'status-pending';
-                
+
                 // Format Booker Representative
                 const bookerHtml = `
                     <div style="display: flex; align-items: center; gap: 16px; white-space: nowrap;">
@@ -393,19 +411,19 @@
                         <div class="booker-name" style="white-space: nowrap;">${folio.bookerName}</div>
                     </div>
                 `;
-                
+
                 // Format Expected Check-out Date
                 const formattedDate = folio.checkOutDate || 'N/A';
-                
+
                 // Format Total Payments
                 const formattedPayments = `
                     <span style="font-weight: 700; color: #2c2a29;">${new Intl.NumberFormat('vi-VN').format(folio.totalPayments)}</span> 
                     <span style="font-size: 0.8rem; color: #8e857e; font-weight: 500;">VNĐ</span>
                 `;
-                
+
                 // Format Phone Number
                 const formattedPhone = `<span style="color: #5c5652; font-weight: 500;">${folio.phoneNumber || 'N/A'}</span>`;
-                
+
                 // Format Status
                 const statusText = folio.status ? folio.status.toUpperCase().replace(/_/g, ' ') : 'PENDING';
 
@@ -440,27 +458,27 @@
                     'Content-Type': 'application/json'
                 }
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert(data.message);
-                    fetchActiveFolios(); // refresh table
-                } else {
-                    alert(data.message || "Lỗi khi gửi yêu cầu.");
-                }
-            })
-            .catch(error => {
-                console.error("Error sending check request:", error);
-                alert("Lỗi kết nối máy chủ.");
-            });
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(data.message);
+                        fetchActiveFolios(); // refresh table
+                    } else {
+                        alert(data.message || "Lỗi khi gửi yêu cầu.");
+                    }
+                })
+                .catch(error => {
+                    console.error("Error sending check request:", error);
+                    alert("Lỗi kết nối máy chủ.");
+                });
         }
     </script>
 
-                <!-- WebSocket integration for real-time task notifications -->
+    <!-- WebSocket integration for real-time task notifications -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
     <script th:inline="javascript">
-        (function() {
+        (function () {
             var staffId = /*[[${staffId}]]*/ 0;
 
             function showPersistentToast(notif) {
@@ -485,9 +503,9 @@
                         fontFamily: "'Inter', sans-serif",
                         borderRadius: "8px"
                     },
-                    callback: function() {
+                    callback: function () {
                         var saved = JSON.parse(localStorage.getItem('kawai_notifs') || '[]');
-                        saved = saved.filter(function(n) { return n.id !== notif.id; });
+                        saved = saved.filter(function (n) { return n.id !== notif.id; });
                         localStorage.setItem('kawai_notifs', JSON.stringify(saved));
                     }
                 }).showToast();
@@ -495,8 +513,8 @@
 
             try {
                 var pending = JSON.parse(localStorage.getItem('kawai_notifs') || '[]');
-                pending.forEach(function(n) { showPersistentToast(n); });
-            } catch(e) {}
+                pending.forEach(function (n) { showPersistentToast(n); });
+            } catch (e) { }
 
             function saveAndShow(text, direct) {
                 var notif = { id: Date.now() + '_' + Math.random(), text: text, direct: direct };
@@ -504,11 +522,11 @@
                     var saved = JSON.parse(localStorage.getItem('kawai_notifs') || '[]');
                     saved.push(notif);
                     localStorage.setItem('kawai_notifs', JSON.stringify(saved));
-                } catch(e) {}
+                } catch (e) { }
                 showPersistentToast(notif);
             }
 
-            document.addEventListener("DOMContentLoaded", function() {
+            document.addEventListener("DOMContentLoaded", function () {
                 if (typeof SockJS === 'undefined' || typeof Stomp === 'undefined') {
                     console.warn('[WS] SockJS or Stomp not loaded');
                     return;
@@ -516,31 +534,31 @@
 
                 var socket = new SockJS('/ws-endpoint');
                 var stompClient = Stomp.over(socket);
-                stompClient.debug = null; 
+                stompClient.debug = null;
 
-                stompClient.connect({}, function(frame) {
+                stompClient.connect({}, function (frame) {
                     console.log('[WS] Đã kết nối thành công | staffId=' + staffId);
 
-                    stompClient.subscribe('/topic/operations', function(msg) {
+                    stompClient.subscribe('/topic/operations', function (msg) {
                         try {
                             var payload = JSON.parse(msg.body);
                             console.log('[WS] Nhận tin nhắn từ kênh Chung (/topic/operations):', payload);
                             saveAndShow('📢 THÔNG BÁO HỆ THỐNG: \n' + payload.message, false);
-                        } catch(e) { console.error('[WS] parse error', e); }
+                        } catch (e) { console.error('[WS] parse error', e); }
                     });
 
                     if (staffId && staffId !== 0) {
-                        stompClient.subscribe('/topic/operations/' + staffId, function(msg) {
+                        stompClient.subscribe('/topic/operations/' + staffId, function (msg) {
                             try {
                                 var payload = JSON.parse(msg.body);
                                 console.log('[WS] Nhận tin nhắn từ kênh Đích danh (/topic/operations/' + staffId + '):', payload);
                                 saveAndShow('🔔 NHIỆM VỤ MỚI: \n ' + payload.message, true);
-                            } catch(e) { console.error('[WS] parse error', e); }
+                            } catch (e) { console.error('[WS] parse error', e); }
                         });
                         console.log('[WS] Đã đăng ký kênh riêng: /topic/operations/' + staffId);
                     }
 
-                }, function(error) {
+                }, function (error) {
                     console.error('[WS] Lỗi kết nối WebSocket:', error);
                 });
             });
