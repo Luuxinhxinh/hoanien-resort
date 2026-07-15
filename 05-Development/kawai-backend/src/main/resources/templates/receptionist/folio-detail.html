@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -1021,7 +1021,7 @@
                     </div>
 
                     <!-- BILL SUMMARY -->
-                    <div class="folio-right" style="width: 100%;">
+                    <div class="folio-right" style="width: 380px;">
                         <!-- HÓA ĐƠN GỐC -->
                         <div class="bill-summary-card" id="originalBillCard">
                             <h3 id="billTitle" style="text-align: center;">Hóa đơn chính</h3>
@@ -3142,11 +3142,6 @@
 
             try {
                 var pending = JSON.parse(localStorage.getItem('kawai_notifs') || '[]');
-                pending = pending.filter(function(n) {
-                    var t = n.text || '';
-                    return !t.includes('khẩn cấp') && !t.includes('Yêu cầu dọn') && !t.includes('Yêu cầu sửa');
-                });
-                localStorage.setItem('kawai_notifs', JSON.stringify(pending));
                 pending.forEach(function(n) { showPersistentToast(n); });
             } catch(e) {}
 
@@ -3177,7 +3172,6 @@
                         try {
                             var payload = JSON.parse(msg.body);
                             console.log('[WS] Nhận tin nhắn từ kênh Chung (/topic/operations):', payload);
-                            if (payload.type === 'NEW_TASK') return;
                             saveAndShow(`📢 THÔNG BÁO HỆ THỐNG:\n` + payload.message, false);
                         } catch(e) { console.error('[WS] parse error', e); }
                     });

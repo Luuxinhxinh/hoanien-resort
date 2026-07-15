@@ -163,6 +163,7 @@ public class SecurityConfig {
     @Bean
     public org.springframework.security.web.authentication.AuthenticationFailureHandler authenticationFailureHandler() {
         return (request, response, exception) -> {
+            exception.printStackTrace();
             String referer = request.getHeader("Referer");
             String errorType = "invalid";
             if (exception instanceof org.springframework.security.authentication.DisabledException) {

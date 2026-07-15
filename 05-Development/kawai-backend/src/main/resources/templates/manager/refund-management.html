@@ -28,18 +28,6 @@
             font-size: 0.9rem;
         }
 
-        .mgr-table th {
-            font-size: 13px !important;
-            padding: 14px 16px !important;
-            text-align: center !important;
-        }
-
-        .mgr-table td {
-            font-size: 15px !important;
-            padding: 16px !important;
-            text-align: center !important;
-        }
-
         .refund-table th {
             font-weight: 600;
             color: var(--text-muted);
@@ -251,8 +239,7 @@
             <div class="mgr-nav-item">
                 <a href="/manager/approvals" class="mgr-nav-link">
                     <svg class="mgr-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path
-                            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
                     </svg>
                     <span style="flex:1">Duyệt yêu cầu</span>
                 </a>
@@ -374,9 +361,11 @@
                         <thead>
                             <tr>
                                 <th>Mã Đơn</th>
-                                <th>Thông tin Tài khoản</th>
+                                <th>Thông tin Bank</th>
+                                <th>Chủ TK</th>
+                                <th>SĐT Liên hệ</th>
                                 <th>Số tiền</th>
-                                <th>Yêu cầu lúc</th>
+                                <th>Thời gian yêu cầu</th>
                                 <th>Thao tác</th>
                             </tr>
                         </thead>
@@ -384,47 +373,29 @@
                             <tr th:each="r : ${pendingRefunds}">
                                 <td th:text="${r.getReferenceCode()}">ORD-123</td>
                                 <td>
-                                    <div style="display: flex; align-items: center; justify-content: center; gap: 6px;">
-                                        <strong style="font-family: var(--font-sans);"
-                                            th:text="${r.bankName != null ? r.bankName : 'N/A'}">VCB</strong>
-                                        <span>-</span>
-                                        <span th:text="${r.accountNumber != null ? r.accountNumber : 'N/A'}">123456789</span>
-                                        <button th:data-accnum="${r.accountNumber != null ? r.accountNumber : ''}"
-                                                onclick="copyAccNumber(this)"
-                                                style="background: none; border: none; padding: 0; cursor: pointer; display: inline-flex; align-items: center; color: var(--primary); outline: none;"
-                                                title="Sao chép số tài khoản">
-                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                                            </svg>
-                                        </button>
-                                    </div>
-                                    <div style="color: #888888; font-size: 13.5px; margin-top: 4px;">
-                                        <span th:text="${r.accountName != null ? r.accountName : 'N/A'}">NGUYEN VAN A</span>
-                                        <span>-</span>
-                                        <span th:text="${r.phoneNumber != null ? r.phoneNumber : 'N/A'}">090xxxx</span>
-                                    </div>
+                                    <strong style="font-family: var(--font-sans);"
+                                        th:text="${r.bankName != null ? r.bankName : 'N/A'}">VCB</strong><br>
+                                    <span style="color:var(--text-muted); font-size:12px;"
+                                        th:text="${r.accountNumber != null ? r.accountNumber : 'N/A'}">123456789</span>
                                 </td>
+                                <td th:text="${r.accountName != null ? r.accountName : 'N/A'}">NGUYEN VAN A</td>
+                                <td th:text="${r.phoneNumber != null ? r.phoneNumber : 'N/A'}">090xxxx</td>
                                 <td style="color:#C9A96E; font-weight:600;"
-                                    th:text="${#numbers.formatDecimal(r.amount, 0, 'COMMA', 0, 'POINT')} + ' VND'">100,000
-                                    VND</td>
-                                <td>
-                                    <span th:text="${#temporals.format(r.createdAt, 'dd/MM/yyyy')}">13/07/2026</span><br>
-                                    <span style="color:var(--text-muted); font-size:13px;"
-                                        th:text="${#temporals.format(r.createdAt, 'HH:mm')}">15:51</span>
-                                </td>
+                                    th:text="${#numbers.formatDecimal(r.amount, 0, 'COMMA', 0, 'POINT')} + ' ₫'">100,000
+                                    ₫</td>
+                                <td th:text="${#temporals.format(r.createdAt, 'dd/MM/yyyy HH:mm')}">01/01/2026</td>
                                 <td>
                                     <!-- Nút Xem chi tiết / Xử lý -->
-                                    <button
-                                        style="background: #5c5346; color: #fff; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-family: var(--font-sans); font-weight: 500;"
+                                    <button class="mgr-header-btn-outline"
+                                        style="color: var(--primary); border-color: var(--primary); background: transparent; padding: 6px 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;"
                                         th:data-id="${r.id}" th:data-orderid="${r.getReferenceCode()}"
                                         th:data-bank="${r.bankName != null ? r.bankName : ''}"
                                         th:data-accnum="${r.accountNumber != null ? r.accountNumber : ''}"
                                         th:data-accname="${r.accountName != null ? r.accountName : ''}"
-                                        th:data-amount="${#numbers.formatDecimal(r.amount, 0, 'COMMA', 0, 'POINT')} + ' VND'"
+                                        th:data-amount="${#numbers.formatDecimal(r.amount, 0, 'COMMA', 0, 'POINT')} + ' ₫'"
                                         onclick="openUploadModalFromBtn(this)">
-                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
-                                            stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2">
                                             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
                                             <polyline points="17 8 12 3 7 8" />
                                             <line x1="12" y1="3" x2="12" y2="15" />
@@ -442,7 +413,7 @@
                                                 <span
                                                     th:text="${detail.menuItem.itemName} + ' x ' + ${detail.quantity}"></span>
                                                 <span
-                                                    th:text="${#numbers.formatDecimal(detail.priceAtOrder, 0, 'COMMA', 0, 'POINT')} + ' VND'"
+                                                    th:text="${#numbers.formatDecimal(detail.priceAtOrder, 0, 'COMMA', 0, 'POINT')} + ' ₫'"
                                                     style="font-family: var(--font-mono); font-weight: 500;"></span>
                                             </li>
                                         </ul>
@@ -455,7 +426,7 @@
                                                 style="padding:6px 0; border-bottom:1px dashed var(--border-subtle); display:flex; justify-content:space-between;">
                                                 <span>Đặt phòng nghỉ dưỡng</span>
                                                 <span
-                                                    th:text="${#numbers.formatDecimal(r.amount, 0, 'COMMA', 0, 'POINT')} + ' VND'"
+                                                    th:text="${#numbers.formatDecimal(r.amount, 0, 'COMMA', 0, 'POINT')} + ' ₫'"
                                                     style="font-family: var(--font-mono); font-weight: 500;"></span>
                                             </li>
                                         </ul>
@@ -468,7 +439,7 @@
                                                 style="padding:6px 0; border-bottom:1px dashed var(--border-subtle); display:flex; justify-content:space-between;">
                                                 <span>Đặt Tour trải nghiệm</span>
                                                 <span
-                                                    th:text="${#numbers.formatDecimal(r.amount, 0, 'COMMA', 0, 'POINT')} + ' VND'"
+                                                    th:text="${#numbers.formatDecimal(r.amount, 0, 'COMMA', 0, 'POINT')} + ' ₫'"
                                                     style="font-family: var(--font-mono); font-weight: 500;"></span>
                                             </li>
                                         </ul>
@@ -476,7 +447,7 @@
                                 </td>
                             </tr>
                             <tr th:if="${#lists.isEmpty(pendingRefunds)}">
-                                <td colspan="5"
+                                <td colspan="7"
                                     style="text-align:center; padding:40px; color:var(--text-muted); font-family: var(--font-sans);">
                                     Không có yêu cầu hoàn tiền nào đang chờ.</td>
                             </tr>
@@ -493,7 +464,7 @@
                         <thead>
                             <tr>
                                 <th>Mã Đơn</th>
-                                <th>Thông tin Tài khoản</th>
+                                <th>Thông tin Bank</th>
                                 <th>Số tiền</th>
                                 <th>Trạng thái</th>
                                 <th>Bill (Ủy nhiệm chi)</th>
@@ -503,37 +474,23 @@
                             <tr th:each="r : ${completedRefunds}">
                                 <td th:text="${r.getReferenceCode()}">ORD-123</td>
                                 <td>
-                                    <div style="display: flex; align-items: center; justify-content: center; gap: 6px;">
-                                        <strong style="font-family: var(--font-sans);"
-                                            th:text="${r.bankName != null ? r.bankName : 'N/A'}">VCB</strong>
-                                        <span>-</span>
-                                        <span th:text="${r.accountNumber != null ? r.accountNumber : 'N/A'}">123456789</span>
-                                        <button th:data-accnum="${r.accountNumber != null ? r.accountNumber : ''}"
-                                                onclick="copyAccNumber(this)"
-                                                style="background: none; border: none; padding: 0; cursor: pointer; display: inline-flex; align-items: center; color: var(--primary); outline: none;"
-                                                title="Sao chép số tài khoản">
-                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                                            </svg>
-                                        </button>
-                                    </div>
-                                    <div style="color: #888888; font-size: 13.5px; margin-top: 4px;">
-                                        <span th:text="${r.accountName != null ? r.accountName : 'N/A'}">NGUYEN VAN A</span>
-                                        <span>-</span>
-                                        <span th:text="${r.phoneNumber != null ? r.phoneNumber : 'N/A'}">090xxxx</span>
-                                    </div>
+                                    <strong style="font-family: var(--font-sans);"
+                                        th:text="${r.bankName != null ? r.bankName : 'N/A'}">VCB</strong><br>
+                                    <span style="color:var(--text-muted); font-size:12px;"
+                                        th:text="${r.accountNumber != null ? r.accountNumber : 'N/A'}">123456789</span>
                                 </td>
-                                <td th:text="${#numbers.formatDecimal(r.amount, 0, 'COMMA', 0, 'POINT')} + ' VND'"
-                                    style="font-weight:600; color:var(--foreground);">100,000 VND</td>
+                                <td th:text="${#numbers.formatDecimal(r.amount, 0, 'COMMA', 0, 'POINT')} + ' ₫'"
+                                    style="font-weight:600; color:var(--foreground);">100,000 ₫</td>
                                 <td><span
-                                        style="background: rgba(122,156,122,0.1); color: #7A9C7A; padding: 5px 10px; border-radius: 4px; font-weight: 500; font-size: 12.5px; font-family: var(--font-sans);">Đã
+                                        style="background: rgba(122,156,122,0.1); color: #7A9C7A; padding: 4px 8px; border-radius: 4px; font-weight: 500; font-size: 11px; font-family: var(--font-sans);">Đã
                                         hoàn trả</span></td>
                                 <td>
-                                    <a th:href="${r.evidenceImageUrl}" target="_blank"
-                                        style="background: #5c5346; color: #fff; text-decoration: none; padding: 6px 12px; border-radius: 6px; display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-family: var(--font-sans); font-weight: 500;">
-                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                            <polyline points="20 6 9 17 4 12"></polyline>
+                                    <a th:href="${r.evidenceImageUrl}" target="_blank" class="mgr-header-btn-outline"
+                                        style="text-decoration:none; padding: 6px 12px; display: inline-flex; align-items: center; gap: 6px;">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2">
+                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                            <circle cx="12" cy="12" r="3"></circle>
                                         </svg>
                                         Xem Bill
                                     </a>
@@ -569,7 +526,7 @@
                 <span class="info-label">Chủ TK:</span>
                 <span class="info-value" id="mAccName">NGUYEN VAN A</span>
                 <span class="info-label">Số tiền:</span>
-                <span class="info-value" id="mAmount" style="color:#d32f2f;">0 VND</span>
+                <span class="info-value" id="mAmount" style="color:#d32f2f;">0 ₫</span>
             </div>
 
             <!-- Chi tiết món ăn -->
@@ -612,38 +569,6 @@
     </div>
 
     <script>
-        function copyAccNumber(btn) {
-            const accNum = btn.getAttribute('data-accnum');
-            if (!accNum) return;
-            navigator.clipboard.writeText(accNum).then(function() {
-                // Tạo toast thông báo nhỏ, sang trọng và biến mất sau 1.5 giây
-                const toast = document.createElement('div');
-                toast.style.position = 'fixed';
-                toast.style.bottom = '24px';
-                toast.style.right = '24px';
-                toast.style.background = '#4A4740';
-                toast.style.color = '#fff';
-                toast.style.padding = '10px 18px';
-                toast.style.borderRadius = '6px';
-                toast.style.fontSize = '13px';
-                toast.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
-                toast.style.borderLeft = '4px solid #C9A96E';
-                toast.style.zIndex = '9999';
-                toast.style.transition = 'opacity 0.2s ease';
-                toast.innerText = 'Đã sao chép: ' + accNum;
-                document.body.appendChild(toast);
-                
-                setTimeout(function() {
-                    toast.style.opacity = '0';
-                    setTimeout(function() {
-                        toast.remove();
-                    }, 200);
-                }, 1500);
-            }).catch(function(err) {
-                console.error('Lỗi khi sao chép: ', err);
-            });
-        }
-
         function toggleSubmenu(subId, arrId) {
             document.getElementById(subId).classList.toggle('open');
             document.getElementById(arrId).classList.toggle('open');

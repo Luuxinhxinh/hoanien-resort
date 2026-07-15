@@ -7,8 +7,7 @@
     <title>Duyệt yêu cầu Khuyến mãi — Kawai Retreat Manager Portal</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="stylesheet" th:href="@{/manager/css/dashboard.css}" href="../../static/manager/css/dashboard.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
     <style>
         .badge-pending {
             background: #fff3e0;
@@ -60,25 +59,23 @@
         }
 
         .btn-approve {
-            background: #333333;
+            background: #2e7d32;
             color: #fff;
             border: none;
         }
 
         .btn-approve:hover {
-            background: #222222;
+            background: #1b5e20;
         }
 
         .btn-reject {
-            background: transparent;
-            color: #7a7a7a;
-            border: 1px solid #d1d1d1;
+            background: #c62828;
+            color: #fff;
+            border: none;
         }
 
         .btn-reject:hover {
-            background: #f9f9f9;
-            color: #555555;
-            border-color: #b3b3b3;
+            background: #b71c1c;
         }
 
         .tab-content {
@@ -110,58 +107,24 @@
             padding: 12px 16px;
             font-size: 0.8rem;
         }
-
+        
         .mgr-table td {
             vertical-align: middle;
             padding: 12px 16px;
         }
 
         .badge-type {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 4px 0;
-            font-size: 0.75rem;
-            font-weight: 700;
-            white-space: nowrap;
-            background: transparent !important;
-        }
-
-        .badge-type::before {
-            content: "";
             display: inline-block;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            white-space: nowrap;
         }
-
-        .type-discount {
-            color: var(--primary);
-        }
-        .type-discount::before {
-            background: var(--primary);
-        }
-
-        .type-late {
-            color: #1976d2;
-        }
-        .type-late::before {
-            background: #1976d2;
-        }
-
-        .type-cancel {
-            color: #d32f2f;
-        }
-        .type-cancel::before {
-            background: #d32f2f;
-        }
-
-        .type-downgrade {
-            color: #388e3c;
-        }
-        .type-downgrade::before {
-            background: #388e3c;
-        }
+        .type-discount { background: rgba(201,169,110,0.15); color: var(--primary); }
+        .type-late { background: rgba(25, 118, 210, 0.15); color: #1976d2; }
+        .type-cancel { background: rgba(211, 47, 47, 0.15); color: #d32f2f; }
+        .type-downgrade { background: rgba(56, 142, 60, 0.15); color: #388e3c; }
 
         .td-notes {
             max-width: 200px;
@@ -197,29 +160,24 @@
         .note-modal-overlay {
             display: none;
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.4);
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.4);
             z-index: 9999;
             align-items: center;
             justify-content: center;
             backdrop-filter: blur(2px);
         }
-
         .note-modal {
             background: #fff;
             padding: 24px;
             border-radius: 12px;
             max-width: 400px;
             width: 90%;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
             position: relative;
             font-family: var(--font-sans);
             line-height: 1.5;
         }
-
         .note-modal-close {
             position: absolute;
             top: 12px;
@@ -236,11 +194,9 @@
             color: #333;
             transition: 0.2s;
         }
-
         .note-modal-close:hover {
             background: #e0e0e0;
         }
-
         .note-modal-title {
             font-weight: 600;
             margin-bottom: 12px;
@@ -272,7 +228,7 @@
                     <span style="flex:1">Tổng quan</span>
                 </a>
             </div>
-            <!-- Lịch trực Nhân sự -->
+                        <!-- Lịch trực Nhân sự -->
             <div class="mgr-nav-item">
                 <a href="/manager/schedules" class="mgr-nav-link">
                     <svg class="mgr-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -285,7 +241,7 @@
                     <span style="flex:1">Lịch trực Nhân sự</span>
                 </a>
             </div>
-            <!-- Hoàn tiền -->
+<!-- Hoàn tiền -->
             <div class="mgr-nav-item">
                 <a href="/manager/refunds" class="mgr-nav-link">
                     <svg class="mgr-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -299,8 +255,7 @@
             <div class="mgr-nav-item">
                 <a href="/manager/approvals" class="mgr-nav-link active">
                     <svg class="mgr-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path
-                            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
                     </svg>
                     <span style="flex:1">Duyệt yêu cầu</span>
                 </a>
@@ -325,23 +280,19 @@
                         <path d="M18.7 8 13 13.7 8.7 9.4l-5 5" />
                     </svg>
                     <span style="flex:1">Biểu đồ Phân tích</span>
-                    <svg class="mgr-nav-arrow" id="arr-analytics" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                        stroke-width="2">
+                    <svg class="mgr-nav-arrow" id="arr-analytics" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="m9 18 6-6-6-6" />
                     </svg>
                 </button>
                 <div class="mgr-submenu" id="sub-analytics">
-                    <a href="/manager/analytics/room" class="mgr-submenu-link"><svg viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2">
+                    <a href="/manager/analytics/room" class="mgr-submenu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M3 9a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9Z" />
                             <path d="M3 11h18" />
                         </svg>Hiệu suất phòng</a>
-                    <a href="/manager/analytics/tour" class="mgr-submenu-link"><svg viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2">
+                    <a href="/manager/analytics/tour" class="mgr-submenu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M3 11l19-9-9 19-2-8-8-2z" />
                         </svg>Tỷ lệ tour</a>
-                    <a href="/manager/analytics/food" class="mgr-submenu-link"><svg viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2">
+                    <a href="/manager/analytics/food" class="mgr-submenu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2" />
                             <path d="M7 2v20" />
                             <path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7" />
@@ -375,8 +326,7 @@
     <div class="mgr-main">
         <header class="mgr-header">
             <div class="mgr-header-left">
-                <button class="mgr-header-icon-btn mgr-sidebar-toggle"
-                    onclick="document.body.classList.toggle('sidebar-hidden')">
+                <button class="mgr-header-icon-btn mgr-sidebar-toggle" onclick="document.body.classList.toggle('sidebar-hidden')">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <line x1="3" y1="12" x2="21" y2="12" />
                         <line x1="3" y1="6" x2="21" y2="6" />
@@ -419,26 +369,26 @@
 
             <!-- TABS -->
             <div class="mgr-tabs">
-                <button class="mgr-tab active" onclick="switchTab('pending-tab', this)">Chờ duyệt (<span
-                        th:text="${pendingApprovals.size()}">0</span>)</button>
-                <button class="mgr-tab" onclick="switchTab('completed-tab', this)">Đã duyệt (<span
-                        th:text="${completedApprovals.size()}">0</span>)</button>
-                <button class="mgr-tab" onclick="switchTab('rejected-tab', this)">Đã từ chối (<span
-                        th:text="${rejectedApprovals.size()}">0</span>)</button>
+                <button class="mgr-tab active" onclick="switchTab('pending-tab', this)">Chờ duyệt (<span th:text="${pendingApprovals.size()}">0</span>)</button>
+                <button class="mgr-tab" onclick="switchTab('completed-tab', this)">Đã duyệt (<span th:text="${completedApprovals.size()}">0</span>)</button>
+                <button class="mgr-tab" onclick="switchTab('rejected-tab', this)">Đã từ chối (<span th:text="${rejectedApprovals.size()}">0</span>)</button>
             </div>
 
             <!-- TAB 1: PENDING -->
             <div id="pending-tab" class="tab-content active">
                 <div class="mgr-section-card" style="margin-top: 0;">
                     <div class="mgr-section-title" style="margin-bottom:4px">Yêu cầu chờ xử lý</div>
-                    <div class="mgr-section-subtitle" style="margin-bottom:16px">Các yêu cầu điều chỉnh tài chính và
-                        chính sách cần cấp quản lý phê duyệt.</div>
+                    <div class="mgr-section-subtitle" style="margin-bottom:16px">Các yêu cầu chiết khấu/khuyến mãi vượt hạn mức đang chờ cấp quản lý phê duyệt</div>
                     <div style="overflow-x: auto;">
                         <table class="mgr-table">
                             <thead>
                                 <tr>
-                                    <th>Thông tin Booking</th>
+                                    <th>ID</th>
                                     <th>Loại yêu cầu</th>
+                                    <th>Booking</th>
+                                    <th>Khách hàng</th>
+                                    <th>Mã giảm giá</th>
+                                    <th>Chi tiết</th>
                                     <th>Lý do</th>
                                     <th>Tổng tiền</th>
                                     <th>Ngày gửi</th>
@@ -447,76 +397,40 @@
                             </thead>
                             <tbody>
                                 <tr th:each="item : ${pendingApprovals}" th:id="'row-' + ${item.taskId}">
+                                    <td th:text="'#' + ${item.taskId}" style="font-weight: 600; color: var(--text-muted);">#1</td>
                                     <td>
-                                        <div style="font-weight: 600; color: #2c2a29; font-size: 14px;">
-                                            <a th:if="${item.bookingId != null}"
-                                                th:href="@{/admin/bookings(bookingId=${item.bookingId})}"
-                                                th:text="'BK-' + ${item.bookingId}"
-                                                style="color: var(--primary); font-weight: 600; text-decoration: none;">BK-1</a>
-                                            <span th:if="${item.bookingId == null}">N/A</span>
-                                            <span style="color: #ccc; margin: 0 4px;">|</span>
-                                            <span th:text="${item.customerName}">Nguyễn Văn A</span>
-                                        </div>
-                                        <div style="font-size: 12px; color: #8b8b8b; margin-top: 4px;">
-                                            <span th:text="${item.bookingDetails}">Đặt phòng (Deluxe)</span>
-                                            <span style="margin-left: 4px;"
-                                                th:text="'(Yêu cầu: #' + ${item.taskId} + ')'"></span>
-                                        </div>
+                                        <span th:if="${item.operationalType == 'Manager_Approval'}" class="badge-type type-discount">Duyệt chiết khấu</span>
+                                        <span th:if="${item.operationalType == 'Late_Checkout_Waiver'}" class="badge-type type-late">Miễn phụ thu</span>
+                                        <span th:if="${item.operationalType == 'Cancellation_Fee_Waiver'}" class="badge-type type-cancel">Miễn phạt hủy</span>
+                                        <span th:if="${item.operationalType == 'Room_Downgrade_Refund'}" class="badge-type type-downgrade">Hoàn chênh lệch</span>
                                     </td>
                                     <td>
-                                        <div>
-                                            <span th:if="${item.operationalType == 'Manager_Approval'}"
-                                                class="badge-type type-discount">Duyệt chiết khấu</span>
-                                            <span th:if="${item.operationalType == 'Late_Checkout_Waiver'}"
-                                                class="badge-type type-late">Miễn phụ thu</span>
-                                            <span th:if="${item.operationalType == 'Cancellation_Fee_Waiver'}"
-                                                class="badge-type type-cancel">Miễn phạt hủy</span>
-                                            <span th:if="${item.operationalType == 'Room_Downgrade_Refund'}"
-                                                class="badge-type type-downgrade">Hoàn chênh lệch</span>
-                                        </div>
-                                        <div th:if="${item.promoCode != null and item.promoCode != 'N/A'}"
-                                            style="font-size: 11px; color: #8b8b8b; margin-top: 6px; font-family: var(--font-mono);">
-                                            Mã: <span th:text="${item.promoCode}"
-                                                style="font-weight: bold; background: rgba(201,169,110,0.1); color: var(--primary); padding: 2px 6px; border-radius: 4px;">GOLDEN</span>
-                                        </div>
+                                        <a th:if="${item.bookingId != null}" th:href="@{/admin/bookings(bookingId=${item.bookingId})}" th:text="'BK-' + ${item.bookingId}" style="color: var(--primary); font-weight: 600; text-decoration: none;">BK-1</a>
+                                        <span th:if="${item.bookingId == null}">N/A</span>
                                     </td>
+                                    <td th:text="${item.customerName}" style="white-space: nowrap;">Nguyễn Văn A</td>
+                                    <td><span style="font-family: var(--font-mono); font-weight: bold; background: rgba(201,169,110,0.15); color: var(--primary); padding: 4px 8px; border-radius: 4px;" th:text="${item.promoCode}">GOLDEN</span></td>
+                                    <td th:text="${item.bookingDetails}" style="white-space: nowrap;">Đặt phòng (Deluxe)</td>
                                     <td class="td-notes">
                                         <div class="note-text" th:text="${item.notes}">Mô tả...</div>
-                                        <button type="button" class="btn-readmore"
-                                            th:if="${item.notes != null and #strings.length(item.notes) > 50}"
-                                            onclick="openNoteModal(this)">Xem chi tiết...</button>
-                                        <div class="full-note-content" style="display:none;" th:text="${item.notes}">
-                                        </div>
+                                        <button type="button" class="btn-readmore" th:if="${item.notes != null and #strings.length(item.notes) > 50}" onclick="openNoteModal(this)">Xem chi tiết...</button>
+                                        <div class="full-note-content" style="display:none;" th:text="${item.notes}"></div>
                                     </td>
-                                    <td th:text="${item.totalPrice}"
-                                        style="font-weight: 600; color: #333333; white-space: nowrap;">1,500,000đ</td>
-                                    <td style="white-space: nowrap;">
-                                        <div th:text="${item.createdAt != null and #strings.length(item.createdAt) >= 10 ? #strings.substring(item.createdAt, 0, 10) : item.createdAt}"
-                                            style="font-weight: 500; color: #2c2a29; font-size: 13px;">13/07/2026</div>
-                                        <div th:if="${item.createdAt != null and #strings.length(item.createdAt) > 11}"
-                                            th:text="${#strings.substring(item.createdAt, 11)}"
-                                            style="font-size: 11px; color: #8b8b8b; margin-top: 2px;">08:10</div>
-                                    </td>
+                                    <td th:text="${item.totalPrice}" style="font-weight: 600; color: #c62828; white-space: nowrap;">1,500,000đ</td>
+                                    <td th:text="${item.createdAt}" style="white-space: nowrap;">02/07/2026 10:00</td>
                                     <td>
-                                        <div
-                                            style="display: flex; gap: 8px; justify-content: center; white-space: nowrap;">
-                                            <button class="btn-action btn-approve"
-                                                th:onclick="'handleApproval(' + ${item.taskId} + ', \'approve\')'">
-                                                <span class="material-symbols-outlined"
-                                                    style="font-size: 16px;">check</span> Duyệt
+                                        <div style="display: flex; gap: 8px; justify-content: center; white-space: nowrap;">
+                                            <button class="btn-action btn-approve" th:onclick="'handleApproval(' + ${item.taskId} + ', \'approve\')'">
+                                                <span class="material-symbols-outlined" style="font-size: 16px;">check</span> Duyệt
                                             </button>
-                                            <button class="btn-action btn-reject"
-                                                th:onclick="'handleApproval(' + ${item.taskId} + ', \'reject\')'">
-                                                <span class="material-symbols-outlined"
-                                                    style="font-size: 16px;">close</span> Từ chối
+                                            <button class="btn-action btn-reject" th:onclick="'handleApproval(' + ${item.taskId} + ', \'reject\')'">
+                                                <span class="material-symbols-outlined" style="font-size: 16px;">close</span> Từ chối
                                             </button>
                                         </div>
                                     </td>
                                 </tr>
                                 <tr th:if="${pendingApprovals.isEmpty()}">
-                                    <td colspan="6"
-                                        style="text-align: center; color: var(--text-muted); padding: 40px; font-family: var(--font-sans);">
-                                        Không có yêu cầu nào chờ phê duyệt.</td>
+                                    <td colspan="10" style="text-align: center; color: var(--text-muted); padding: 40px; font-family: var(--font-sans);">Không có yêu cầu nào chờ phê duyệt.</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -528,14 +442,17 @@
             <div id="completed-tab" class="tab-content">
                 <div class="mgr-section-card" style="margin-top: 0;">
                     <div class="mgr-section-title" style="margin-bottom:4px">Yêu cầu đã phê duyệt</div>
-                    <div class="mgr-section-subtitle" style="margin-bottom:16px">Lịch sử các yêu cầu đã được đồng ý
-                        thông qua</div>
+                    <div class="mgr-section-subtitle" style="margin-bottom:16px">Lịch sử các yêu cầu đã được đồng ý thông qua</div>
                     <div style="overflow-x: auto;">
                         <table class="mgr-table">
                             <thead>
                                 <tr>
-                                    <th>Thông tin Booking</th>
+                                    <th>ID</th>
                                     <th>Loại yêu cầu</th>
+                                    <th>Booking</th>
+                                    <th>Khách hàng</th>
+                                    <th>Mã giảm giá</th>
+                                    <th>Chi tiết</th>
                                     <th>Lý do</th>
                                     <th>Tổng tiền</th>
                                     <th>Ngày gửi</th>
@@ -544,62 +461,31 @@
                             </thead>
                             <tbody>
                                 <tr th:each="item : ${completedApprovals}">
+                                    <td th:text="'#' + ${item.taskId}" style="font-weight: 600; color: var(--text-muted);">#1</td>
                                     <td>
-                                        <div style="font-weight: 600; color: #2c2a29; font-size: 14px;">
-                                            <a th:if="${item.bookingId != null}"
-                                                th:href="@{/admin/bookings(bookingId=${item.bookingId})}"
-                                                th:text="'BK-' + ${item.bookingId}"
-                                                style="color: var(--primary); font-weight: 600; text-decoration: none;">BK-1</a>
-                                            <span th:if="${item.bookingId == null}">N/A</span>
-                                            <span style="color: #ccc; margin: 0 4px;">|</span>
-                                            <span th:text="${item.customerName}">Nguyễn Văn A</span>
-                                        </div>
-                                        <div style="font-size: 12px; color: #8b8b8b; margin-top: 4px;">
-                                            <span th:text="${item.bookingDetails}">Đặt phòng (Deluxe)</span>
-                                            <span style="margin-left: 4px;"
-                                                th:text="'(Yêu cầu: #' + ${item.taskId} + ')'"></span>
-                                        </div>
+                                        <span th:if="${item.operationalType == 'Manager_Approval'}" class="badge-type type-discount">Duyệt chiết khấu</span>
+                                        <span th:if="${item.operationalType == 'Late_Checkout_Waiver'}" class="badge-type type-late">Miễn phụ thu</span>
+                                        <span th:if="${item.operationalType == 'Cancellation_Fee_Waiver'}" class="badge-type type-cancel">Miễn phạt hủy</span>
+                                        <span th:if="${item.operationalType == 'Room_Downgrade_Refund'}" class="badge-type type-downgrade">Hoàn chênh lệch</span>
                                     </td>
                                     <td>
-                                        <div>
-                                            <span th:if="${item.operationalType == 'Manager_Approval'}"
-                                                class="badge-type type-discount">Duyệt chiết khấu</span>
-                                            <span th:if="${item.operationalType == 'Late_Checkout_Waiver'}"
-                                                class="badge-type type-late">Miễn phụ thu</span>
-                                            <span th:if="${item.operationalType == 'Cancellation_Fee_Waiver'}"
-                                                class="badge-type type-cancel">Miễn phạt hủy</span>
-                                            <span th:if="${item.operationalType == 'Room_Downgrade_Refund'}"
-                                                class="badge-type type-downgrade">Hoàn chênh lệch</span>
-                                        </div>
-                                        <div th:if="${item.promoCode != null and item.promoCode != 'N/A'}"
-                                            style="font-size: 11px; color: #8b8b8b; margin-top: 6px; font-family: var(--font-mono);">
-                                            Mã: <span th:text="${item.promoCode}"
-                                                style="font-weight: bold; background: rgba(201,169,110,0.1); color: var(--primary); padding: 2px 6px; border-radius: 4px;">GOLDEN</span>
-                                        </div>
+                                        <a th:if="${item.bookingId != null}" th:href="@{/admin/bookings(bookingId=${item.bookingId})}" th:text="'BK-' + ${item.bookingId}" style="color: var(--primary); font-weight: 600; text-decoration: none;">BK-1</a>
+                                        <span th:if="${item.bookingId == null}">N/A</span>
                                     </td>
+                                    <td th:text="${item.customerName}" style="white-space: nowrap;">Nguyễn Văn A</td>
+                                    <td><span style="font-family: var(--font-mono); font-weight: bold; background: rgba(201,169,110,0.15); color: var(--primary); padding: 4px 8px; border-radius: 4px;" th:text="${item.promoCode}">GOLDEN</span></td>
+                                    <td th:text="${item.bookingDetails}" style="white-space: nowrap;">Đặt phòng (Deluxe)</td>
                                     <td class="td-notes">
                                         <div class="note-text" th:text="${item.notes}">Mô tả...</div>
-                                        <button type="button" class="btn-readmore"
-                                            th:if="${item.notes != null and #strings.length(item.notes) > 50}"
-                                            onclick="openNoteModal(this)">Xem chi tiết...</button>
-                                        <div class="full-note-content" style="display:none;" th:text="${item.notes}">
-                                        </div>
+                                        <button type="button" class="btn-readmore" th:if="${item.notes != null and #strings.length(item.notes) > 50}" onclick="openNoteModal(this)">Xem chi tiết...</button>
+                                        <div class="full-note-content" style="display:none;" th:text="${item.notes}"></div>
                                     </td>
-                                    <td th:text="${item.totalPrice}"
-                                        style="font-weight: 600; color: #333333; white-space: nowrap;">1,500,000đ</td>
-                                    <td style="white-space: nowrap;">
-                                        <div th:text="${item.createdAt != null and #strings.length(item.createdAt) >= 10 ? #strings.substring(item.createdAt, 0, 10) : item.createdAt}"
-                                            style="font-weight: 500; color: #2c2a29; font-size: 13px;">13/07/2026</div>
-                                        <div th:if="${item.createdAt != null and #strings.length(item.createdAt) > 11}"
-                                            th:text="${#strings.substring(item.createdAt, 11)}"
-                                            style="font-size: 11px; color: #8b8b8b; margin-top: 2px;">08:10</div>
-                                    </td>
+                                    <td th:text="${item.totalPrice}" style="font-weight: 600; color: #c62828; white-space: nowrap;">1,500,000đ</td>
+                                    <td th:text="${item.createdAt}" style="white-space: nowrap;">02/07/2026 10:00</td>
                                     <td><span class="badge-completed">ĐÃ DUYỆT</span></td>
                                 </tr>
                                 <tr th:if="${completedApprovals.isEmpty()}">
-                                    <td colspan="6"
-                                        style="text-align: center; color: var(--text-muted); padding: 40px; font-family: var(--font-sans);">
-                                        Chưa có yêu cầu nào được phê duyệt.</td>
+                                    <td colspan="10" style="text-align: center; color: var(--text-muted); padding: 40px; font-family: var(--font-sans);">Chưa có yêu cầu nào được phê duyệt.</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -611,14 +497,17 @@
             <div id="rejected-tab" class="tab-content">
                 <div class="mgr-section-card" style="margin-top: 0;">
                     <div class="mgr-section-title" style="margin-bottom:4px">Yêu cầu đã từ chối</div>
-                    <div class="mgr-section-subtitle" style="margin-bottom:16px">Danh sách các yêu cầu không được phê
-                        duyệt</div>
+                    <div class="mgr-section-subtitle" style="margin-bottom:16px">Danh sách các yêu cầu không được phê duyệt</div>
                     <div style="overflow-x: auto;">
                         <table class="mgr-table">
                             <thead>
                                 <tr>
-                                    <th>Thông tin Booking</th>
+                                    <th>ID</th>
                                     <th>Loại yêu cầu</th>
+                                    <th>Booking</th>
+                                    <th>Khách hàng</th>
+                                    <th>Mã giảm giá</th>
+                                    <th>Chi tiết</th>
                                     <th>Lý do</th>
                                     <th>Tổng tiền</th>
                                     <th>Ngày gửi</th>
@@ -627,62 +516,31 @@
                             </thead>
                             <tbody>
                                 <tr th:each="item : ${rejectedApprovals}">
+                                    <td th:text="'#' + ${item.taskId}" style="font-weight: 600; color: var(--text-muted);">#1</td>
                                     <td>
-                                        <div style="font-weight: 600; color: #2c2a29; font-size: 14px;">
-                                            <a th:if="${item.bookingId != null}"
-                                                th:href="@{/admin/bookings(bookingId=${item.bookingId})}"
-                                                th:text="'BK-' + ${item.bookingId}"
-                                                style="color: var(--primary); font-weight: 600; text-decoration: none;">BK-1</a>
-                                            <span th:if="${item.bookingId == null}">N/A</span>
-                                            <span style="color: #ccc; margin: 0 4px;">|</span>
-                                            <span th:text="${item.customerName}">Nguyễn Văn A</span>
-                                        </div>
-                                        <div style="font-size: 12px; color: #8b8b8b; margin-top: 4px;">
-                                            <span th:text="${item.bookingDetails}">Đặt phòng (Deluxe)</span>
-                                            <span style="margin-left: 4px;"
-                                                th:text="'(Yêu cầu: #' + ${item.taskId} + ')'"></span>
-                                        </div>
+                                        <span th:if="${item.operationalType == 'Manager_Approval'}" class="badge-type type-discount">Duyệt chiết khấu</span>
+                                        <span th:if="${item.operationalType == 'Late_Checkout_Waiver'}" class="badge-type type-late">Miễn phụ thu</span>
+                                        <span th:if="${item.operationalType == 'Cancellation_Fee_Waiver'}" class="badge-type type-cancel">Miễn phạt hủy</span>
+                                        <span th:if="${item.operationalType == 'Room_Downgrade_Refund'}" class="badge-type type-downgrade">Hoàn chênh lệch</span>
                                     </td>
                                     <td>
-                                        <div>
-                                            <span th:if="${item.operationalType == 'Manager_Approval'}"
-                                                class="badge-type type-discount">Duyệt chiết khấu</span>
-                                            <span th:if="${item.operationalType == 'Late_Checkout_Waiver'}"
-                                                class="badge-type type-late">Miễn phụ thu</span>
-                                            <span th:if="${item.operationalType == 'Cancellation_Fee_Waiver'}"
-                                                class="badge-type type-cancel">Miễn phạt hủy</span>
-                                            <span th:if="${item.operationalType == 'Room_Downgrade_Refund'}"
-                                                class="badge-type type-downgrade">Hoàn chênh lệch</span>
-                                        </div>
-                                        <div th:if="${item.promoCode != null and item.promoCode != 'N/A'}"
-                                            style="font-size: 11px; color: #8b8b8b; margin-top: 6px; font-family: var(--font-mono);">
-                                            Mã: <span th:text="${item.promoCode}"
-                                                style="font-weight: bold; background: rgba(201,169,110,0.1); color: var(--primary); padding: 2px 6px; border-radius: 4px;">GOLDEN</span>
-                                        </div>
+                                        <a th:if="${item.bookingId != null}" th:href="@{/admin/bookings(bookingId=${item.bookingId})}" th:text="'BK-' + ${item.bookingId}" style="color: var(--primary); font-weight: 600; text-decoration: none;">BK-1</a>
+                                        <span th:if="${item.bookingId == null}">N/A</span>
                                     </td>
+                                    <td th:text="${item.customerName}" style="white-space: nowrap;">Nguyễn Văn A</td>
+                                    <td><span style="font-family: var(--font-mono); font-weight: bold; background: rgba(201,169,110,0.15); color: var(--primary); padding: 4px 8px; border-radius: 4px;" th:text="${item.promoCode}">GOLDEN</span></td>
+                                    <td th:text="${item.bookingDetails}" style="white-space: nowrap;">Đặt phòng (Deluxe)</td>
                                     <td class="td-notes">
                                         <div class="note-text" th:text="${item.notes}">Mô tả...</div>
-                                        <button type="button" class="btn-readmore"
-                                            th:if="${item.notes != null and #strings.length(item.notes) > 50}"
-                                            onclick="openNoteModal(this)">Xem chi tiết...</button>
-                                        <div class="full-note-content" style="display:none;" th:text="${item.notes}">
-                                        </div>
+                                        <button type="button" class="btn-readmore" th:if="${item.notes != null and #strings.length(item.notes) > 50}" onclick="openNoteModal(this)">Xem chi tiết...</button>
+                                        <div class="full-note-content" style="display:none;" th:text="${item.notes}"></div>
                                     </td>
-                                    <td th:text="${item.totalPrice}"
-                                        style="font-weight: 600; color: #333333; white-space: nowrap;">1,500,000đ</td>
-                                    <td style="white-space: nowrap;">
-                                        <div th:text="${item.createdAt != null and #strings.length(item.createdAt) >= 10 ? #strings.substring(item.createdAt, 0, 10) : item.createdAt}"
-                                            style="font-weight: 500; color: #2c2a29; font-size: 13px;">13/07/2026</div>
-                                        <div th:if="${item.createdAt != null and #strings.length(item.createdAt) > 11}"
-                                            th:text="${#strings.substring(item.createdAt, 11)}"
-                                            style="font-size: 11px; color: #8b8b8b; margin-top: 2px;">08:10</div>
-                                    </td>
+                                    <td th:text="${item.totalPrice}" style="font-weight: 600; color: #c62828; white-space: nowrap;">1,500,000đ</td>
+                                    <td th:text="${item.createdAt}" style="white-space: nowrap;">02/07/2026 10:00</td>
                                     <td><span class="badge-rejected">ĐÃ TỪ CHỐI</span></td>
                                 </tr>
                                 <tr th:if="${rejectedApprovals.isEmpty()}">
-                                    <td colspan="6"
-                                        style="text-align: center; color: var(--text-muted); padding: 40px; font-family: var(--font-sans);">
-                                        Chưa có yêu cầu nào bị từ chối.</td>
+                                    <td colspan="10" style="text-align: center; color: var(--text-muted); padding: 40px; font-family: var(--font-sans);">Chưa có yêu cầu nào bị từ chối.</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -699,10 +557,7 @@
     <div id="noteModalOverlay" class="note-modal-overlay" onclick="if(event.target===this) closeNoteModal()">
         <div class="note-modal">
             <button class="note-modal-close" onclick="closeNoteModal()">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
             </button>
             <div class="note-modal-title">Chi tiết Lý do</div>
             <div id="noteModalContent" style="color: #555; white-space: pre-wrap; word-break: break-word;"></div>
@@ -753,29 +608,29 @@
             }
 
             const url = '/manager/api/approvals/' + taskId + '/' + action;
-
+            
             fetch(url, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 }
             })
-                .then(response => {
-                    if (!response.ok) {
-                        return response.json().then(err => { throw new Error(err.message || 'Lỗi hệ thống') });
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    showToast(action === 'approve' ? 'Đã phê duyệt yêu cầu thành công!' : 'Đã từ chối yêu cầu thành công!');
-                    // Reload page after 1.5s to update tables
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1500);
-                })
-                .catch(error => {
-                    showToast('Lỗi: ' + error.message, true);
-                });
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => { throw new Error(err.message || 'Lỗi hệ thống') });
+                }
+                return response.json();
+            })
+            .then(data => {
+                showToast(action === 'approve' ? 'Đã phê duyệt yêu cầu thành công!' : 'Đã từ chối yêu cầu thành công!');
+                // Reload page after 1.5s to update tables
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+            })
+            .catch(error => {
+                showToast('Lỗi: ' + error.message, true);
+            });
         }
 
         // Toast helper

@@ -3,6 +3,7 @@ package com.kawai.config;
 import com.kawai.services.AuditCleanupTask;
 import com.kawai.services.impl.BookingServiceImpl;
 import com.kawai.services.impl.WorkflowEngineServiceImpl;
+import com.kawai.schedulers.NightAuditJob;
 import com.kawai.services.jobs.ReservationCleanupTask;
 import com.kawai.services.interfaces.NightAuditService;
 import jakarta.annotation.PostConstruct;
