@@ -60,4 +60,6 @@ public interface HousekeepingService {
      * @return Room phòng đã sẵn sàng
      */
     Room completeMaintenance(Long taskId);
+
+    void createMaintenanceTaskForPricedDamages(Room room);
 }
