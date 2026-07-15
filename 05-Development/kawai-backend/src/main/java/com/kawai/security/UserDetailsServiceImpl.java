@@ -76,7 +76,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 .username(account.getUsername())
                 .password(account.getPasswordHash())
                 .authorities(authorities)
-                .disabled(!account.getIsActive())
+                .disabled(account.getIsActive() == null || !account.getIsActive())
                 .build();
     }
 }

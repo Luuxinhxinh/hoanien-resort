@@ -653,7 +653,7 @@
     </script>
     <!-- Schedule Notification Script -->
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             fetch('/api/v1/employees/me/schedules')
                 .then(res => {
                     if (res.ok) return res.json();
@@ -663,7 +663,7 @@
                     if (schedules && schedules.length > 0) {
                         const today = new Date().toISOString().split('T')[0];
                         const todaySchedule = schedules.find(s => s.workDate === today);
-                        
+
                         if (!todaySchedule) {
                             // Cảnh báo nếu không có ca hôm nay
                             Swal.fire({
@@ -678,7 +678,7 @@
                         } else {
                             // Check giờ
                             const now = new Date();
-                            const currentTime = now.getHours() + ':' + (now.getMinutes()<10?'0':'') + now.getMinutes();
+                            const currentTime = now.getHours() + ':' + (now.getMinutes() < 10 ? '0' : '') + now.getMinutes();
                             if (currentTime < todaySchedule.startTime || currentTime > todaySchedule.endTime) {
                                 Swal.fire({
                                     title: 'Lưu ý Giờ Làm Việc',
@@ -708,4 +708,5 @@
         });
     </script>
 </body>
+
 </html>

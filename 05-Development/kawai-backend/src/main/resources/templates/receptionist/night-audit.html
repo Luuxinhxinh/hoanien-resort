@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,13 +8,16 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
+        rel="stylesheet">
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Custom CSS -->
     <link rel="stylesheet" href="/receptionist/css/dashboard.css">
     <link rel="stylesheet" href="/receptionist/css/pages.css">
 </head>
+
 <body>
     <div class="app-container">
         <!-- Sidebar -->
@@ -29,7 +33,8 @@
             <div class="sidebar-section-title">RECEPTIONIST</div>
 
             <nav class="sidebar-nav">
-                <a href="/receptionist/dashboard" class="nav-item" sec:authorize="hasAnyAuthority('OP_DASHBOARD', 'ROLE_ADMIN', 'ROLE_MANAGER')">
+                <a href="/receptionist/dashboard" class="nav-item"
+                    sec:authorize="hasAnyAuthority('OP_DASHBOARD', 'ROLE_ADMIN', 'ROLE_MANAGER')">
                     <i class="fa-solid fa-border-all"></i>
                     <div class="nav-text">
                         <span class="nav-main-text">Room Matrix</span>
@@ -38,28 +43,32 @@
                     <i class="fa-solid fa-chevron-right nav-arrow"></i>
                 </a>
 
-                <a href="/receptionist/walk-in" class="nav-item" sec:authorize="hasAnyAuthority('OP_RECEPTION_WALKIN', 'OP_BOOKING', 'ROLE_ADMIN', 'ROLE_MANAGER')">
+                <a href="/receptionist/walk-in" class="nav-item"
+                    sec:authorize="hasAnyAuthority('OP_RECEPTION_WALKIN', 'OP_BOOKING', 'ROLE_ADMIN', 'ROLE_MANAGER')">
                     <i class="fa-solid fa-person-walking-luggage"></i>
                     <div class="nav-text">
                         <span class="nav-main-text">Walk-In</span>
                         <span class="nav-sub-text">Khách vãng lai</span>
                     </div>
                 </a>
-                <a href="/receptionist/check-in" class="nav-item" sec:authorize="hasAnyAuthority('OP_RECEPTION_CHECKIN', 'OP_BOOKING', 'ROLE_ADMIN', 'ROLE_MANAGER')">
+                <a href="/receptionist/check-in" class="nav-item"
+                    sec:authorize="hasAnyAuthority('OP_RECEPTION_CHECKIN', 'OP_BOOKING', 'ROLE_ADMIN', 'ROLE_MANAGER')">
                     <i class="fa-solid fa-arrow-right-to-bracket"></i>
                     <div class="nav-text">
                         <span class="nav-main-text">Check-in</span>
                         <span class="nav-sub-text">Nhận phòng</span>
                     </div>
                 </a>
-                <a href="/receptionist/folio" class="nav-item" sec:authorize="hasAnyAuthority('OP_RECEPTION_CHECKOUT', 'OP_BOOKING', 'ROLE_ADMIN', 'ROLE_MANAGER')">
+                <a href="/receptionist/folio" class="nav-item"
+                    sec:authorize="hasAnyAuthority('OP_RECEPTION_CHECKOUT', 'OP_BOOKING', 'ROLE_ADMIN', 'ROLE_MANAGER')">
                     <i class="fa-solid fa-arrow-right-from-bracket"></i>
                     <div class="nav-text">
                         <span class="nav-main-text">Check-out / Folio</span>
                         <span class="nav-sub-text">Trả phòng & Hóa đơn</span>
                     </div>
                 </a>
-                <a href="/receptionist/in-house" class="nav-item" sec:authorize="hasAnyAuthority('OP_RECEPTION_INHOUSE', 'OP_BOOKING', 'ROLE_ADMIN', 'ROLE_MANAGER')">
+                <a href="/receptionist/in-house" class="nav-item"
+                    sec:authorize="hasAnyAuthority('OP_RECEPTION_INHOUSE', 'OP_BOOKING', 'ROLE_ADMIN', 'ROLE_MANAGER')">
                     <i class="fa-solid fa-bed"></i>
                     <div class="nav-text">
                         <span class="nav-main-text">Khách lưu trú</span>
@@ -75,7 +84,7 @@
                 </a>
             </nav>
 
-                        <div class="sidebar-user">
+            <div class="sidebar-user">
                 <div class="user-avatar"
                     th:text="${staffName != null && staffName.length() >= 2 ? staffName.substring(0, 2).toUpperCase() : 'NV'}">
                     NV</div>
@@ -96,7 +105,7 @@
                 <div class="header-datetime">
                     <div class="date" id="currentDate" th:text="${todayLabel}">Wednesday, June 10, 2026</div>
                 </div>
-                
+
                 <div class="header-search">
                     <i class="fa-solid fa-magnifying-glass search-icon"></i>
                     <input type="text" placeholder="Search guest, room no., phone">
@@ -106,10 +115,14 @@
                     <button class="user-profile-btn">
                         <i class="fa-solid fa-user"></i>
                         <span>Receptionist</span>
-                    <button class="logout-btn" onclick="window.location.href='/auth/logout'">
-                        <i class="fa-solid fa-arrow-right-from-bracket"></i>
-                        <span>Logout</span>
                     </button>
+                    <<<<<<< HEAD <button class="logout-btn" onclick="window.location.href='/auth/logout'">
+                        =======
+                        <button class="logout-btn" onclick="window.location.href='/logout'">
+                            >>>>>>> c7279fc1a141924a2db1d1ced8f7ae1baf01668d
+                            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                            <span>Logout</span>
+                        </button>
                 </div>
             </header>
 
@@ -122,10 +135,11 @@
                 <div class="audit-container">
                     <div class="audit-checklist">
                         <h3 class="split-title">End of Day Checklist</h3>
-                        
+
                         <div class="checklist-item">
                             <input type="checkbox" id="chk1">
-                            <label for="chk1" class="checklist-text">Verify All Check-ins/Check-outs are Completed</label>
+                            <label for="chk1" class="checklist-text">Verify All Check-ins/Check-outs are
+                                Completed</label>
                         </div>
                         <div class="checklist-item">
                             <input type="checkbox" id="chk2">
@@ -141,7 +155,8 @@
                         </div>
 
                         <div class="audit-action-area">
-                            <button class="btn btn-primary" id="btnRunAudit" onclick="runNightAudit()">Run Night Audit & Roll Date</button>
+                            <button class="btn btn-primary" id="btnRunAudit" onclick="runNightAudit()">Run Night Audit &
+                                Roll Date</button>
                         </div>
                         <script>
                             function runNightAudit() {
@@ -197,11 +212,11 @@
     </div>
     <script src="/receptionist/js/dashboard.js"></script>
 
-                <!-- WebSocket integration for real-time task notifications -->
+    <!-- WebSocket integration for real-time task notifications -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
     <script th:inline="javascript">
-        (function() {
+        (function () {
             var staffId = /*[[${staffId}]]*/ 0;
 
             function showPersistentToast(notif) {
@@ -226,9 +241,9 @@
                         fontFamily: "'Inter', sans-serif",
                         borderRadius: "8px"
                     },
-                    callback: function() {
+                    callback: function () {
                         var saved = JSON.parse(localStorage.getItem('kawai_notifs') || '[]');
-                        saved = saved.filter(function(n) { return n.id !== notif.id; });
+                        saved = saved.filter(function (n) { return n.id !== notif.id; });
                         localStorage.setItem('kawai_notifs', JSON.stringify(saved));
                     }
                 }).showToast();
@@ -236,13 +251,8 @@
 
             try {
                 var pending = JSON.parse(localStorage.getItem('kawai_notifs') || '[]');
-                pending = pending.filter(function(n) {
-                    var t = n.text || '';
-                    return !t.includes('khẩn cấp') && !t.includes('Yêu cầu dọn') && !t.includes('Yêu cầu sửa');
-                });
-                localStorage.setItem('kawai_notifs', JSON.stringify(pending));
-                pending.forEach(function(n) { showPersistentToast(n); });
-            } catch(e) {}
+                pending.forEach(function (n) { showPersistentToast(n); });
+            } catch (e) { }
 
             function saveAndShow(text, direct) {
                 var notif = { id: Date.now() + '_' + Math.random(), text: text, direct: direct };
@@ -250,11 +260,11 @@
                     var saved = JSON.parse(localStorage.getItem('kawai_notifs') || '[]');
                     saved.push(notif);
                     localStorage.setItem('kawai_notifs', JSON.stringify(saved));
-                } catch(e) {}
+                } catch (e) { }
                 showPersistentToast(notif);
             }
 
-            document.addEventListener("DOMContentLoaded", function() {
+            document.addEventListener("DOMContentLoaded", function () {
                 if (typeof SockJS === 'undefined' || typeof Stomp === 'undefined') {
                     console.warn('[WS] SockJS or Stomp not loaded');
                     return;
@@ -262,37 +272,36 @@
 
                 var socket = new SockJS('/ws-endpoint');
                 var stompClient = Stomp.over(socket);
-                stompClient.debug = null; 
+                stompClient.debug = null;
 
-                stompClient.connect({}, function(frame) {
+                stompClient.connect({}, function (frame) {
                     console.log('[WS] Đã kết nối thành công | staffId=' + staffId);
 
-                    stompClient.subscribe('/topic/operations', function(msg) {
+                    stompClient.subscribe('/topic/operations', function (msg) {
                         try {
                             var payload = JSON.parse(msg.body);
                             console.log('[WS] Nhận tin nhắn từ kênh Chung (/topic/operations):', payload);
-                            if (payload.type === 'NEW_TASK') return;
                             saveAndShow('📢 THÔNG BÁO HỆ THỐNG: \n ' + payload.message, false);
-                        } catch(e) { console.error('[WS] parse error', e); }
+                        } catch (e) { console.error('[WS] parse error', e); }
                     });
 
                     if (staffId && staffId !== 0) {
-                        stompClient.subscribe('/topic/operations/' + staffId, function(msg) {
+                        stompClient.subscribe('/topic/operations/' + staffId, function (msg) {
                             try {
                                 var payload = JSON.parse(msg.body);
                                 console.log('[WS] Nhận tin nhắn từ kênh Đích danh (/topic/operations/' + staffId + '):', payload);
                                 saveAndShow('🔔 NHIỆM VỤ MỚI: \n ' + payload.message, true);
-                            } catch(e) { console.error('[WS] parse error', e); }
+                            } catch (e) { console.error('[WS] parse error', e); }
                         });
                         console.log('[WS] Đã đăng ký kênh riêng: /topic/operations/' + staffId);
                     }
 
-                }, function(error) {
+                }, function (error) {
                     console.error('[WS] Lỗi kết nối WebSocket:', error);
                 });
             });
         })();
     </script>
 </body>
-</html>
 
+</html>

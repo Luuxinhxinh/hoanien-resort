@@ -12,14 +12,18 @@ Mỗi khi bạn thực hiện thêm mới, chỉnh sửa hoặc tối ưu hóa c
 - **Luồng hoàn tiền (Refund Workflows):** Nếu thêm một yêu cầu hoàn tiền (`RefundRequest`), thực thể giao dịch hoặc đơn hàng gốc liên kết (ví dụ: `Booking`, `FoodOrder`, `TourBooking`) **phải được đặt ở trạng thái đã hủy (`Cancelled`)** để phản ánh đúng thực tế tài chính và nghiệp vụ.
 - **Mã giảm giá (Promotions):** Số lần sử dụng thực tế phải khớp hoặc được kiểm soát hợp lý so với số lượng đơn hàng liên kết đã áp dụng mã đó.
 - **Toàn vẹn Dữ liệu Cấp dưới (Parent-Child Completeness):** Khi thiết lập một thực thể cha ở các trạng thái đã xử lý / quá khứ (ví dụ: `Checked_Out`, `Cancelled`, `Completed`), **BẮT BUỘC** phải đảm bảo thực thể đó đã được khai báo đầy đủ các bản ghi ở bảng con liên đới (ví dụ: `Room_Bookings`, `Room_Booking_Details`). Việc thiếu dữ liệu chi tiết sẽ gây ra lỗi `NullPointerException` nghiêm trọng trên UI hoặc Business Logic.
+<<<<<<< HEAD
 - **Đồng bộ trạng thái Booking, Phòng và Task Vận hành:** Khi nạp dữ liệu task dọn dẹp hoặc kiểm tra phòng (`ROOM_CHECK`, `CHECKOUT_CLEAN`, `URGENT_CLEAN`), các thực thể phòng (`Rooms`) và chi tiết booking (`Room_Booking_Details`) phải khớp đúng trạng thái nghiệp vụ. 
   - *Ví dụ:* Phiếu kiểm phòng (`ROOM_CHECK`) đang `Pending` thì phòng phải ở trạng thái `Occupied` và liên kết với một booking `Checked_In`. Vì khi buồng phòng bấm hoàn thành sẽ gửi tiền minibar/hỏng hóc lên hóa đơn của booking đó. Nếu phòng không có booking active (hoặc booking đã check-out/huỷ từ trước), API hoàn tất task sẽ trả về lỗi `Phòng không có booking active`.
+=======
 - **Toàn vẹn Dữ liệu Tham chiếu ngược (Reverse Referential Integrity):** Khi xóa hoặc ẩn một bản ghi cha trong dữ liệu mồi (ví dụ: xóa một `Booking` cũ), **BẮT BUỘC** phải reset các giá trị tham chiếu tại các bảng liên đới bị ảnh hưởng (ví dụ: trả `room_status` về `Vacant_Clean` và `current_booking_detail_id` về `NULL` trong bảng `Rooms`). Việc để sót "rác dữ liệu" (orphaned foreign keys) sẽ gây ra lỗi thiếu hụt tài nguyên ảo (VD: hết phòng dù thực tế không có booking).
+>>>>>>> origin/dev
 ## 2. NGUYÊN TẮC TOÀN VẸN DỮ LIỆU VẬT LÝ (REFERENTIAL INTEGRITY):
 - Đảm bảo tất cả các khóa ngoại (Foreign Keys) như `customer_id`, `room_id`, `employee_id`, `promotion_id`... trỏ đến các thực thể đã được khai báo và tồn tại trước đó trong tập dữ liệu.
 - Tránh trùng lặp khóa chính (`PRIMARY KEY`) hoặc vi phạm các ràng buộc duy nhất (`UNIQUE CONSTRAINTS`).
 - Đối với các phòng vật lý được chỉ định trong trạng thái chờ nhận phòng, hãy chắc chắn phòng đó ở trạng thái trống (`Vacant_Clean` hoặc tương tự) để tránh tranh chấp phòng với các khách đang ở thực tế.
 - **Ràng buộc thuộc tính thực thể (Entity Attributes Alignment):** Khi chèn bản ghi khởi tạo SQL, bắt buộc các cột và tên trường phải khớp chính xác với Java Entity Class tương ứng. Ví dụ: Đối với thực thể `Dependent` (bảng `Dependents`), sử dụng đúng các trường `dependent_name`, `birth_date`, `gender`, `cccd_passport_encrypted` thay vì nhầm lẫn với các trường không tồn tại trong class như `full_name`, `date_of_birth`, `relationship`.
+- **Định dạng file SQL (UTF-8 No BOM):** Các file chứa script khởi tạo (như `data.sql`, `schema.sql`) **BẮT BUỘC** phải được lưu với định dạng **UTF-8 không có BOM (Byte Order Mark)**. Nếu có BOM (`\uFEFF`), Spring Boot `ScriptUtils` sẽ báo lỗi cú pháp ở câu lệnh đầu tiên, hoặc âm thầm bỏ qua câu lệnh đó (nếu cấu hình `continue-on-error: true`), gây ra sự cố sụp đổ dữ liệu dây chuyền do thiếu khóa ngoại.
 
 ## 3. QUY TRÌNH KIỂM TRA BẮT BUỘC:
 - **Bước 1:** Đối chiếu chéo tất cả các bảng liên quan đến luồng nghiệp vụ chuẩn bị thêm dữ liệu.
