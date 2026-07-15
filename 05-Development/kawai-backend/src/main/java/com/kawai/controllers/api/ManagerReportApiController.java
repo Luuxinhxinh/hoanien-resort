@@ -39,14 +39,16 @@ public class ManagerReportApiController {
     public ResponseEntity<byte[]> export(@RequestParam(defaultValue = "usali") String type,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
-            @RequestParam(defaultValue = "csv") String format) {
+            @RequestParam(defaultValue = "xlsx") String format) {
         if (from.isAfter(to)) {
             return ResponseEntity.badRequest().body("Invalid date range".getBytes());
         }
 
-        byte[] content = "usali".equalsIgnoreCase(type) || "revenue".equalsIgnoreCase(type)
-                ? reportService.exportUsaliReport(from, to, format)
-                : reportService.exportUsaliReport(from, to, format);
+        if (!"xlsx".equalsIgnoreCase(format)) {
+            return ResponseEntity.badRequest().body("Hệ thống chỉ hỗ trợ xuất báo cáo định dạng Excel (.xlsx)".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        }
+
+        byte[] content = reportService.exportReport(type, from, to, format);
 
         ExportHistory history = new ExportHistory();
         history.setReportName(("usali".equalsIgnoreCase(type) ? "USALI" : type.toUpperCase()) + " " + from + " - " + to);
@@ -56,12 +58,13 @@ public class ManagerReportApiController {
         history.setFileSize(content.length + " bytes");
         exportHistoryRepository.save(history);
 
-        String extension = "xlsx".equalsIgnoreCase(format) ? "csv" : format.toLowerCase();
-        String filename = "usali-report-" + from + "-" + to + "." + extension;
+        String filename = "usali-report-" + from + "-" + to + ".xlsx";
+        MediaType contentType = MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION,
                         ContentDisposition.attachment().filename(filename).build().toString())
-                .contentType(MediaType.TEXT_PLAIN)
+                .contentType(contentType)
                 .body(content);
     }
 }

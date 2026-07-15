@@ -16,4 +16,5 @@ public class FolioItem {
     @ManyToOne @JoinColumn(name="created_by_staff_id") private Employee createdByStaff;
     @Column(name="created_at", nullable=false) private LocalDateTime createdAt = LocalDateTime.now();
     @Column(name="signature_img_url", length=500) private String signatureImgUrl;
+    @Column(name="revenue_code") private String revenueCode;
 }

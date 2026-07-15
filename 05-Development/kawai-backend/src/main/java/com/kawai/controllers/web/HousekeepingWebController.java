@@ -87,8 +87,8 @@ public class HousekeepingWebController {
             model.addAttribute("inProgressTasks", housekeepingTaskRepo.findByOperationalTypesAndStatusSorted(validTypes, "InProgress"));
             model.addAttribute("completedToday", housekeepingTaskRepo.findByOperationalTypesAndStatusSorted(validTypes, "Completed"));
             long dirtyRooms = roomRepository.countByRoomStatus("Vacant_Dirty") + roomRepository.countByRoomStatus("Occupied_Dirty");
-            long cleanRooms = roomRepository.countByRoomStatus("Vacant_Clean") + roomRepository.countByRoomStatus("Occupied_Clean");
-            long occupiedRooms = roomRepository.countByRoomStatus("Occupied_Clean") + roomRepository.countByRoomStatus("Occupied_Dirty");
+            long cleanRooms = roomRepository.countByRoomStatus("Vacant_Clean") + roomRepository.countByRoomStatus("Occupied_Clean") + roomRepository.countByRoomStatus("Occupied");
+            long occupiedRooms = roomRepository.countByRoomStatus("Occupied_Clean") + roomRepository.countByRoomStatus("Occupied_Dirty") + roomRepository.countByRoomStatus("Occupied");
             long vacantRooms = roomRepository.countByRoomStatus("Vacant_Clean") + roomRepository.countByRoomStatus("Vacant_Dirty");
             model.addAttribute("dirtyRooms", dirtyRooms);
             model.addAttribute("cleanRooms", cleanRooms);

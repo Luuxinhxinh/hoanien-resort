@@ -103,6 +103,8 @@ public class FolioServiceImpl implements FolioService {
             item.setAmount(detail.getRoomCharge());
             item.setDescription("Tiền phòng đêm " + businessDate);
             item.setCreatedAt(LocalDateTime.now());
+            long roomCount = roomBookingDetailRepository.findByRoomBookingId(detail.getRoomBooking().getId()).size();
+            item.setRevenueCode(roomCount > 1 ? "ROOM_GROUP" : "ROOM_TRANSIENT");
             folioItemRepository.save(item);
         }
 

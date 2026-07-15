@@ -423,7 +423,7 @@ public class TourBookingServiceImpl implements TourBookingService {
                         folioItem.setDescription("Tour: " + schedule.getTour().getTourName()
                                         + " (" + request.getParticipantCount() + " pax)");
                         folioItem.setIsSettledSeparately(false);
-
+                        folioItem.setRevenueCode("OTH_TOUR");
                         folioItemRepository.save(folioItem);
                         LOG.info("Post to Room: FolioItem tạo thành công cho tour booking {} — {} VND, RoomBookingDetail {}",
                                         savedBooking.getId(), totalPrice, detail.getId());
