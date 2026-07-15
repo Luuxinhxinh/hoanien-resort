@@ -34,8 +34,8 @@ public class ChangeRoomCategoryServiceImpl implements ChangeRoomCategoryService 
         validatePricing(newCategory);
 
         BigDecimal newRate = newCategory.getBasePrice() != null ? newCategory.getBasePrice() : BigDecimal.ZERO;
-        BigDecimal oldRate = detail.getCategory() != null && detail.getCategory().getBasePrice() != null 
-                ? detail.getCategory().getBasePrice() 
+        BigDecimal oldRate = detail.getCategory() != null && detail.getCategory().getBasePrice() != null
+                ? detail.getCategory().getBasePrice()
                 : (detail.getRoomCharge() != null ? detail.getRoomCharge() : BigDecimal.ZERO);
 
         Room oldRoom = detail.getRoom();
@@ -72,7 +72,8 @@ public class ChangeRoomCategoryServiceImpl implements ChangeRoomCategoryService 
 
     private Room getAndValidateNewRoom(Long roomId) throws BusinessException {
         Room newRoom = roomRepository.findByIdWithPessimisticLock(roomId)
-                .orElseThrow(() -> new BusinessException("ERR_NO_ROOM", "No available rooms in the selected category."));
+                .orElseThrow(
+                        () -> new BusinessException("ERR_NO_ROOM", "No available rooms in the selected category."));
         if (!"Vacant_Clean".equalsIgnoreCase(newRoom.getRoomStatus())) {
             throw new BusinessException("ERR_NO_ROOM", "No available rooms in the selected category.");
         }
@@ -81,7 +82,8 @@ public class ChangeRoomCategoryServiceImpl implements ChangeRoomCategoryService 
 
     private void validatePricing(RoomCategory newCategory) throws BusinessException {
         if (newCategory.getBasePrice() == null) {
-            throw new BusinessException("ERR_PRICING", "Không thể tính chênh lệch giá phòng do phòng không có giá cơ bản.");
+            throw new BusinessException("ERR_PRICING",
+                    "Không thể tính chênh lệch giá phòng do phòng không có giá cơ bản.");
         }
     }
 
@@ -107,29 +109,7 @@ public class ChangeRoomCategoryServiceImpl implements ChangeRoomCategoryService 
     }
 
     private Long handleSurchargeFolioItem(RoomBookingDetail detail, BigDecimal newRate, BigDecimal oldRate, Room oldRoom, RoomCategory newCategory) {
-        if (newRate.compareTo(oldRate) <= 0) {
-            return null;
-        }
-
-        RoomBooking booking = detail.getRoomBooking();
-        long remainingNights = ChronoUnit.DAYS.between(LocalDate.now(), booking.getCheckOutDate());
-        if (remainingNights <= 0) {
-            return null;
-        }
-
-        BigDecimal surcharge = newRate.subtract(oldRate).multiply(BigDecimal.valueOf(remainingNights));
-        String oldCatName = oldRoom != null ? oldRoom.getCategory().getCategoryName() : "None";
-
-        FolioItem folioItem = new FolioItem();
-        folioItem.setBooking(booking);
-        folioItem.setRoomBookingDetail(detail);
-        folioItem.setPayerCustomer(booking.getCustomer());
-        folioItem.setSourceDepartment("FRONT_DESK");
-        folioItem.setAmount(surcharge);
-        folioItem.setDescription("Phụ phí nâng hạng phòng từ " + oldCatName + " sang " + newCategory.getCategoryName());
-        folioItem.setIsSettledSeparately(false);
-
-        return folioItemRepository.save(folioItem).getId();
+        return null; // Không sinh folio chênh lệch lúc đổi phòng, để Night Audit tự tính hằng đêm
     }
 
     private void createAuditLog(Long accountId, Long detailId, Room oldRoom, Room newRoom, RoomCategory newCategory) {
@@ -141,7 +121,9 @@ public class ChangeRoomCategoryServiceImpl implements ChangeRoomCategoryService 
         log.setTableName("Room_Booking_Details");
         log.setRecordId(detailId);
 
-        String oldVal = oldRoom != null ? "Room: " + oldRoom.getRoomNumber() + ", Category: " + oldRoom.getCategory().getCategoryName() : "None";
+        String oldVal = oldRoom != null
+                ? "Room: " + oldRoom.getRoomNumber() + ", Category: " + oldRoom.getCategory().getCategoryName()
+                : "None";
         String newVal = "Room: " + newRoom.getRoomNumber() + ", Category: " + newCategory.getCategoryName();
 
         log.setOldValue(oldVal);

@@ -380,6 +380,72 @@ public class FolioRestController {
         BigDecimal deposit = BigDecimal.ZERO;
         BigDecimal otherPayments = BigDecimal.ZERO;
 
+        if (detail.getRoomBooking() != null) {
+            Long bookingId = detail.getRoomBooking().getId();
+            BigDecimal totalPayments = BigDecimal.ZERO;
+            try {
+                List<PaymentTransaction> payments = paymentService.getPaymentsByBookingId(bookingId);
+                if (payments != null) {
+                    for (PaymentTransaction pt : payments) {
+                        if (pt.getStatus() == PaymentStatus.SUCCESS && pt.getAmount() != null) {
+                            totalPayments = totalPayments.add(pt.getAmount());
+                            if ("ROOM_BOOKING".equalsIgnoreCase(pt.getTransactionType())
+                                    || "DEPOSIT".equalsIgnoreCase(pt.getTransactionType())) {
+                                deposit = deposit.add(pt.getAmount());
+                            }
+                        }
+                    }
+                }
+            } catch (Exception e) {
+            }
+
+            boolean depositFromBooking = false;
+            if (deposit.compareTo(BigDecimal.ZERO) == 0 && detail.getRoomBooking().getDepositAmount() != null) {
+                deposit = detail.getRoomBooking().getDepositAmount();
+                depositFromBooking = true;
+            }
+
+            if (depositFromBooking) {
+                otherPayments = totalPayments;
+            } else {
+                otherPayments = totalPayments.subtract(deposit);
+            }
+
+            if (otherPayments.compareTo(BigDecimal.ZERO) < 0) {
+                otherPayments = BigDecimal.ZERO;
+            }
+        }
+
+        BigDecimal dailyRate = BigDecimal.ZERO;
+        long nights = 1;
+        if (detail.getRoomBooking() != null && detail.getRoomBooking().getCheckInDate() != null
+                && detail.getRoomBooking().getCheckOutDate() != null) {
+            nights = java.time.temporal.ChronoUnit.DAYS.between(detail.getRoomBooking().getCheckInDate(),
+                    detail.getRoomBooking().getCheckOutDate());
+            if (nights <= 0) nights = 1;
+        }
+
+        boolean hasChangedCategory = false;
+        if (items != null) {
+            hasChangedCategory = items.stream()
+                    .anyMatch(f -> f.getDescription() != null && f.getDescription().contains("hạng phòng"));
+        }
+
+        if (hasChangedCategory) {
+            dailyRate = detail.getCategory() != null && detail.getCategory().getBasePrice() != null 
+                    ? detail.getCategory().getBasePrice() 
+                    : BigDecimal.ZERO;
+        } else {
+            boolean isWalkIn = detail.getRoomBooking() != null && "WALK_IN".equalsIgnoreCase(detail.getRoomBooking().getBookingSource());
+            if (isWalkIn) {
+                dailyRate = detail.getRoomCharge() != null ? detail.getRoomCharge() : BigDecimal.ZERO;
+            } else {
+                dailyRate = detail.getRoomCharge() != null && nights > 0
+                        ? detail.getRoomCharge().divide(BigDecimal.valueOf(nights), 2, java.math.RoundingMode.HALF_UP) 
+                        : BigDecimal.ZERO;
+            }
+        }
+
         Map<String, Object> response = new java.util.HashMap<>();
         response.put("success", true);
         response.put("roomBookingDetailId", roomBookingDetailId);
@@ -390,6 +456,11 @@ public class FolioRestController {
         response.put("checkOutDate", checkOutDate);
         response.put("categoryName", detail.getCategory() != null ? detail.getCategory().getCategoryName() : "N/A");
         response.put("roomCharge", detail.getRoomCharge());
+        response.put("dailyRate", dailyRate);
+        response.put("extraSurcharge", detail.getExtraSurcharge() != null ? detail.getExtraSurcharge() : BigDecimal.ZERO);
+        response.put("baseAdults", detail.getCategory() != null ? detail.getCategory().getBaseAdults() : 2);
+        response.put("baseChildren", detail.getCategory() != null ? detail.getCategory().getBaseChildren() : 0);
+        response.put("extraAdultSurcharge", detail.getCategory() != null ? detail.getCategory().getExtraAdultSurcharge() : BigDecimal.ZERO);
         response.put("subCreditLimit", detail.getSubCreditLimit());
         response.put("items", itemDTOs);
         response.put("currentBalance", currentBalance);
@@ -398,6 +469,7 @@ public class FolioRestController {
         response.put("detailStatus", detail.getDetailStatus());
         response.put("numberOfAdults", detail.getNumberOfAdults() != null ? detail.getNumberOfAdults() : 0);
         response.put("numberOfChildren", detail.getNumberOfChildren() != null ? detail.getNumberOfChildren() : 0);
+        response.put("bookingSource", detail.getRoomBooking() != null ? detail.getRoomBooking().getBookingSource() : "Direct_Web");
 
         return ResponseEntity.ok(response);
     }
@@ -427,6 +499,8 @@ public class FolioRestController {
             item.setDescription("Room Charge (Expected) - " + catName);
             item.setIsSettledSeparately(isSettledSeparately);
             item.setCreatedAt(java.time.LocalDateTime.now());
+            long roomCount = roomBookingDetailRepository.findByRoomBookingId(detail.getRoomBooking().getId()).size();
+            item.setRevenueCode(roomCount > 1 ? "ROOM_GROUP" : "ROOM_TRANSIENT");
             folioItemRepository.save(item);
         } else {
             Optional<FolioItem> optItem = folioItemRepository.findById(folioItemId);
@@ -611,11 +685,13 @@ public class FolioRestController {
                                 item.setBooking(booking);
                                 item.setPayerCustomer(booking != null ? booking.getCustomer() : null);
                                 item.setSourceDepartment("Room");
-                                item.setAmount(d.getRoomCharge());
+                                item.setAmount(getExpectedRoomCharge(d));
                                 String catName = d.getCategory() != null ? d.getCategory().getCategoryName() : "Room";
                                 item.setDescription("Room Charge (Expected) - " + catName);
                                 item.setIsSettledSeparately(false);
                                 item.setCreatedAt(java.time.LocalDateTime.now());
+                                long roomCount = roomBookingDetailRepository.findByRoomBookingId(booking.getId()).size();
+                                item.setRevenueCode(roomCount > 1 ? "ROOM_GROUP" : "ROOM_TRANSIENT");
                                 folioItemRepository.save(item);
                             }
 
@@ -662,6 +738,8 @@ public class FolioRestController {
                     item.setDescription("Room Charge (Expected) - " + catName);
                     item.setIsSettledSeparately(false);
                     item.setCreatedAt(java.time.LocalDateTime.now());
+                    long roomCount = roomBookingDetailRepository.findByRoomBookingId(booking.getId()).size();
+                    item.setRevenueCode(roomCount > 1 ? "ROOM_GROUP" : "ROOM_TRANSIENT");
                     folioItemRepository.save(item);
                 }
 
@@ -719,12 +797,32 @@ public class FolioRestController {
                         if (pts != null) {
                             for (PaymentTransaction pt : pts) {
                                 if (pt.getStatus() == PaymentStatus.SUCCESS
-                                        && "Deposit".equalsIgnoreCase(pt.getTransactionType())) {
+                                        && ("Deposit".equalsIgnoreCase(pt.getTransactionType())
+                                            || "ROOM_BOOKING".equalsIgnoreCase(pt.getTransactionType()))) {
                                     recDep = recDep.add(pt.getAmount());
                                 }
                             }
                         }
                     } catch (Exception e) {
+                    }
+
+                    // Fallback: If deposit amount is recorded on Booking but no deposit transaction exists in DB,
+                    // dynamically create the missing transaction so that payment history and subsequent balance checks are consistent.
+                    if (recDep.compareTo(BigDecimal.ZERO) == 0) {
+                        try {
+                            PaymentTransaction dummyDep = new PaymentTransaction();
+                            dummyDep.setBooking(booking);
+                            dummyDep.setAmount(deposit);
+                            dummyDep.setTransactionType("Deposit");
+                            dummyDep.setPaymentMethod("VNPAY");
+                            dummyDep.setStatus(PaymentStatus.SUCCESS);
+                            dummyDep.setGatewayStatus("SUCCESS");
+                            dummyDep.setTransactionRef("DEP_FALLBACK_" + booking.getId() + "_" + System.currentTimeMillis());
+                            dummyDep.setCreatedAt(java.time.LocalDateTime.now().minusDays(1));
+                            paymentTransactionRepository.save(dummyDep);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     }
 
                     if (finalBalance.compareTo(deposit) <= 0) {
@@ -777,6 +875,13 @@ public class FolioRestController {
                 if (isGroup) {
                     List<RoomBookingDetail> details = roomBookingDetailRepository.findByRoomBookingId(booking.getId());
                     for (RoomBookingDetail d : details) {
+                        if ("Checked_In".equalsIgnoreCase(d.getDetailStatus()) && d.getRoom() == null) {
+                            return ResponseEntity.badRequest().body(Map.of(
+                                    "success", false,
+                                    "message", "Không thể checkout cho phòng chưa được gán số phòng vật lý cụ thể."));
+                        }
+                    }
+                    for (RoomBookingDetail d : details) {
                         if ("Checked_In".equalsIgnoreCase(d.getDetailStatus())) {
                             d.setDetailStatus("Checked_Out");
                             roomBookingDetailRepository.save(d);
@@ -802,6 +907,11 @@ public class FolioRestController {
                         }
                     }
                 } else {
+                    if (detail.getRoom() == null) {
+                        return ResponseEntity.badRequest().body(Map.of(
+                                "success", false,
+                                "message", "Không thể checkout cho phòng chưa được gán số phòng vật lý cụ thể."));
+                    }
                     detail.setDetailStatus("Checked_Out");
                     roomBookingDetailRepository.save(detail);
 
@@ -1055,6 +1165,7 @@ public class FolioRestController {
 
         // Subtract all successful payments
         BigDecimal totalPayments = BigDecimal.ZERO;
+        BigDecimal depositFromTxn = BigDecimal.ZERO;
         try {
             List<PaymentTransaction> payments = paymentService.getPaymentsByBookingId(booking.getId());
             if (payments != null) {
@@ -1062,13 +1173,19 @@ public class FolioRestController {
                     if (pt.getStatus() == PaymentStatus.SUCCESS) {
                         if (pt.getAmount() != null) {
                             totalPayments = totalPayments.add(pt.getAmount());
+                            if ("ROOM_BOOKING".equalsIgnoreCase(pt.getTransactionType())
+                                    || "DEPOSIT".equalsIgnoreCase(pt.getTransactionType())) {
+                                depositFromTxn = depositFromTxn.add(pt.getAmount());
+                            }
                         }
                     }
                 }
             }
         } catch (Exception e) {
         }
-        if (booking.getDepositAmount() != null && booking.getDepositAmount().compareTo(BigDecimal.ZERO) > 0) {
+        if (depositFromTxn.compareTo(BigDecimal.ZERO) == 0 
+                && booking.getDepositAmount() != null 
+                && booking.getDepositAmount().compareTo(BigDecimal.ZERO) > 0) {
             totalPayments = totalPayments.add(booking.getDepositAmount());
         }
 
@@ -1429,6 +1546,11 @@ public class FolioRestController {
         }
         if (totalCharge.compareTo(BigDecimal.ZERO) <= 0) {
             return BigDecimal.ZERO;
+        }
+
+        boolean isWalkIn = d.getRoomBooking() != null && "WALK_IN".equalsIgnoreCase(d.getRoomBooking().getBookingSource());
+        if (!isWalkIn) {
+            return totalCharge;
         }
 
         long nights = 1;

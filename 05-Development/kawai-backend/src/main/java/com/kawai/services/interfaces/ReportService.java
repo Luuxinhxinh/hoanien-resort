@@ -9,4 +9,5 @@ public interface ReportService {
     double getOccupancyRate(LocalDate date);
     long getGuestCount(LocalDate date);
     byte[] exportUsaliReport(LocalDate startDate, LocalDate endDate, String format);
+    byte[] exportReport(String type, LocalDate startDate, LocalDate endDate, String format);
 }

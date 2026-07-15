@@ -828,11 +828,6 @@ public class ReceptionistController {
         return "receptionist/folio-detail";
     }
 
-    @GetMapping("/night-audit")
-    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER', 'OP_NIGHT_AUDIT')")
-    public String nightAudit(Model model) {
-        return "receptionist/night-audit";
-    }
 
     /**
      * Gửi yêu cầu dọn khẩn cấp cho phòng Vacant_Dirty.

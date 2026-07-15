@@ -78,6 +78,7 @@ public class HousekeepingApiController {
                 item.setCreatedAt(LocalDateTime.now());
                 Employee staff = employeeRepository.findAll().stream().findFirst().orElse(null);
                 item.setCreatedByStaff(staff);
+                item.setRevenueCode("FB_MINIBAR");
                 folioItemRepository.save(item);
             }
 
@@ -125,6 +126,7 @@ public class HousekeepingApiController {
                 item.setDescription("Phí sử dụng Minibar (Phòng " + room.getRoomNumber() + ")");
                 item.setCreatedAt(LocalDateTime.now());
                 item.setCreatedByStaff(task.getStaff());
+                item.setRevenueCode("FB_MINIBAR");
                 folioItemRepository.save(item);
             }
 
@@ -139,6 +141,7 @@ public class HousekeepingApiController {
                 item.setDescription("Phí đền bù hỏng hóc (Phòng " + room.getRoomNumber() + ")");
                 item.setCreatedAt(LocalDateTime.now());
                 item.setCreatedByStaff(task.getStaff());
+                item.setRevenueCode("OTH_MISC");
                 folioItemRepository.save(item);
             }
 

@@ -189,6 +189,11 @@ public class KdsServiceImpl implements KdsService {
             folioItem.setDescription("Ăn uống Room Service - Order #" + order.getId());
             folioItem.setPayerCustomer(roomDetail.getRoomBooking().getCustomer());
             folioItem.setBooking(roomDetail.getRoomBooking());
+            if ("RoomService".equalsIgnoreCase(orderType)) {
+                folioItem.setRevenueCode("FB_ROOMSERVICE");
+            } else {
+                folioItem.setRevenueCode("FB_FOOD");
+            }
             folioItemRepository.save(folioItem);
         }
 
