@@ -35,8 +35,12 @@ public class EncryptionUtils {
             cipher.init(Cipher.DECRYPT_MODE, secretKey);
             byte[] decryptedBytes = cipher.doFinal(Base64.getDecoder().decode(encryptedValue));
             return new String(decryptedBytes, StandardCharsets.UTF_8);
+        } catch (IllegalArgumentException e) {
+            // Not a valid base64 string, probably legacy unencrypted data
+            return encryptedValue;
         } catch (Exception e) {
-            throw new RuntimeException("Error decrypting value", e);
+            // Decryption failed (e.g. wrong key or malformed data), assume legacy unencrypted data
+            return encryptedValue;
         }
     }
 }

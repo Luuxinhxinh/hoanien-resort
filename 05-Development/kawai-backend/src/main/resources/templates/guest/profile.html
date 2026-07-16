@@ -686,7 +686,7 @@
                         <!-- ACTIVE BOOKINGS -->
                         <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start mb-8">
                             <th:block th:each="booking : ${bookings}"
-                                th:if="${#lists.contains({'PENDING', 'CONFIRMED', 'CHECKED_IN'}, #strings.toUpperCase(booking.bookingStatus))}">
+                                th:if="${#lists.contains({'PENDING', 'CONFIRMED', 'CHECKED_IN', 'PENDING_APPROVAL'}, #strings.toUpperCase(booking.bookingStatus))}">
                                 <div class="booking-item h-full flex flex-col p-6 border border-hoanien-text/10 rounded-2xl bg-white hover:shadow-xl transition-all duration-300 group"
                                     th:data-status="${#strings.toUpperCase(booking.bookingStatus)}">
                                     <div class="flex gap-5 mb-4">
@@ -723,7 +723,7 @@
                                     <hr class="border-hoanien-text/10 my-2" />
 
                                     <!-- Folio Details -->
-                                    <div class="mt-2 mb-4 space-y-2">
+                                    <div class="mt-2 mb-4 space-y-2" th:if="${!#lists.contains({'PENDING', 'PENDING_APPROVAL'}, #strings.toUpperCase(booking.bookingStatus))}">
                                         <p class="text-[10px] uppercase tracking-widest opacity-60 font-semibold mb-1">
                                             Hạn mức chi tiêu phòng (Folio)</p>
                                         <div th:each="detail : ${visibleDetailsMap[booking.id]}"
@@ -787,8 +787,11 @@
                                             <span th:if="${#strings.toUpperCase(booking.bookingStatus) == 'PENDING'}"
                                                 class="text-[10px] bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full font-semibold whitespace-nowrap shadow-sm border border-yellow-200">Chờ
                                                 xử lý</span>
+                                            <span th:if="${#strings.toUpperCase(booking.bookingStatus) == 'PENDING_APPROVAL'}"
+                                                class="text-[10px] bg-orange-100 text-orange-700 px-3 py-1 rounded-full font-semibold whitespace-nowrap shadow-sm border border-orange-200">Chờ
+                                                duyệt</span>
                                             <span
-                                                th:unless="${#lists.contains({'CONFIRMED', 'PENDING', 'CHECKED_IN'}, #strings.toUpperCase(booking.bookingStatus))}"
+                                                th:unless="${#lists.contains({'CONFIRMED', 'PENDING', 'CHECKED_IN', 'PENDING_APPROVAL'}, #strings.toUpperCase(booking.bookingStatus))}"
                                                 class="text-[10px] bg-gray-200 text-gray-600 px-3 py-1 rounded-full font-semibold whitespace-nowrap shadow-sm"
                                                 th:text="${booking.bookingStatus}">Trạng thái</span>
                                         </div>
@@ -811,7 +814,7 @@
                                                         class="material-symbols-outlined text-[16px]">group_add</span>
                                                     Khai báo khách</button>
                                                 <button
-                                                    th:if="${#strings.toUpperCase(booking.bookingStatus) == 'PENDING' or #strings.toUpperCase(booking.bookingStatus) == 'CONFIRMED'}"
+                                                    th:if="${#strings.toUpperCase(booking.bookingStatus) == 'PENDING' or #strings.toUpperCase(booking.bookingStatus) == 'CONFIRMED' or #strings.toUpperCase(booking.bookingStatus) == 'PENDING_APPROVAL'}"
                                                     type="button"
                                                     th:with="isRefundable=${booking.cancellationDeadline != null and !T(java.time.LocalDate).now().isAfter(booking.cancellationDeadline)}"
                                                     th:onclick="'cancelBooking(' + ${booking.id} + ', ' + ${isRefundable} + ')'"
@@ -845,7 +848,7 @@
                             <div class="px-6 pb-6 pt-2 border-t border-hoanien-text/5">
                                 <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start mt-4">
                                     <th:block th:each="booking : ${bookings}"
-                                        th:if="${!#lists.contains({'PENDING', 'CONFIRMED', 'CHECKED_IN'}, #strings.toUpperCase(booking.bookingStatus))}">
+                                        th:if="${!#lists.contains({'PENDING', 'CONFIRMED', 'CHECKED_IN', 'PENDING_APPROVAL'}, #strings.toUpperCase(booking.bookingStatus))}">
                                         <div class="booking-item h-full flex flex-col p-6 border border-hoanien-text/10 rounded-2xl bg-white hover:shadow-xl transition-all duration-300 group opacity-60 grayscale"
                                             th:data-status="${#strings.toUpperCase(booking.bookingStatus)}">
                                             <div class="flex gap-5 mb-4">
@@ -1011,11 +1014,21 @@
                                                         th:text="${tb.tourCharge != null ? #numbers.formatDecimal(tb.tourCharge, 0, 'COMMA', 0, 'POINT') : '0'}">0</span><span
                                                         class="text-[10px] font-semibold ml-1 opacity-70">VNĐ</span></p>
                                             </div>
-                                            <button type="button"
-                                                th:onclick="'viewTourBookingDetails(' + ${tb.id} + ')'"
-                                                class="w-8 h-8 rounded-full bg-hoanien-text text-white hover:bg-hoanien-text/80 flex items-center justify-center transition-colors shadow-sm"
-                                                title="Chi tiết lịch trình"><span
-                                                    class="material-symbols-outlined text-[16px]">arrow_forward</span></button>
+                                            <div class="flex flex-col md:flex-row gap-2">
+                                                <button
+                                                    th:if="${#strings.toUpperCase(tb.bookingStatus) == 'PENDING' or #strings.toUpperCase(tb.bookingStatus) == 'CONFIRMED'}"
+                                                    type="button"
+                                                    th:with="isRefundable=${tb.schedule != null and tb.schedule.departureDate != null and T(java.time.temporal.ChronoUnit).HOURS.between(T(java.time.LocalDateTime).now(), tb.schedule.departureDate.atTime(tb.schedule.departureTime != null ? tb.schedule.departureTime : T(java.time.LocalTime).of(7,0))) > 24}"
+                                                    th:onclick="'confirmCancelTour(' + ${tb.id} + ', ' + ${isRefundable} + ', ' + ${tb.tourCharge != null ? tb.tourCharge : 0} + ')'"
+                                                    class="w-8 h-8 rounded-full bg-red-50 text-red-600 hover:bg-red-500 hover:text-white flex items-center justify-center transition-colors shadow-sm"
+                                                    title="Hủy đơn"><span
+                                                        class="material-symbols-outlined text-[16px]">close</span></button>
+                                                <button type="button"
+                                                    th:onclick="'viewTourBookingDetails(' + ${tb.id} + ')'"
+                                                    class="w-8 h-8 rounded-full bg-hoanien-text text-white hover:bg-hoanien-text/80 flex items-center justify-center transition-colors shadow-sm"
+                                                    title="Chi tiết lịch trình"><span
+                                                        class="material-symbols-outlined text-[16px]">arrow_forward</span></button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -2276,55 +2289,80 @@
                 });
         }
 
-        function confirmCancelTour(bookingId) {
-            Swal.fire({
-                title: 'Hủy đặt tour?',
-                text: 'Quý khách có chắc chắn muốn hủy đặt tour này không? Lịch trình sẽ bị hủy bỏ.',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Đồng ý hủy',
-                cancelButtonText: 'Không, giữ lại'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    Swal.fire({
-                        title: 'Đang xử lý...',
-                        text: 'Vui lòng chờ trong giây lát',
-                        allowOutsideClick: false,
-                        didOpen: () => {
-                            Swal.showLoading();
-                        }
-                    });
-
-                    fetch('/profile/tours/cancel/' + bookingId, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        }
-                    })
-                        .then(response => {
-                            if (!response.ok) {
-                                return response.json().then(err => { throw new Error(err.message || 'Hủy thất bại'); });
+        function confirmCancelTour(bookingId, isRefundable, totalPrice) {
+            const refundAmount50 = Math.round((totalPrice || 0) * 0.5);
+            const fmt = new Intl.NumberFormat('vi-VN').format(refundAmount50);
+            if (isRefundable) {
+                // Hủy có hoàn tiền 50% → hỏi trước, rồi mở modal nhập ngân hàng
+                Swal.fire({
+                    title: 'Hủy đặt tour?',
+                    html: `<p style="color:#555;font-size:0.95rem;">Quý khách còn hơn 24h trước giờ khởi hành nên sẽ được hoàn lại <strong style="color:#d33;font-size:1.1rem;">${fmt} ₫</strong> (50% giá trị tour).</p>
+                           <p style="color:#888;font-size:0.85rem;margin-top:8px;">Vui lòng cung cấp thông tin ngân hàng ở bước tiếp theo để nhận hoàn tiền.</p>`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Tiếp tục hủy tour',
+                    cancelButtonText: 'Không, giữ lại'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Mở modal nhập thông tin ngân hàng
+                        document.getElementById('guestRefundModalTitle').innerText = 'Thông tin hoàn tiền tour (50%)';
+                        document.getElementById('guestRefundModalDesc').innerText = 'Vui lòng cung cấp tài khoản ngân hàng để nhận hoàn tiền. Thời gian xử lý 3–7 ngày làm việc.';
+                        document.getElementById('btn-submit-guest-refund').innerText = 'Xác nhận hủy & Gửi yêu cầu hoàn tiền';
+                        openTourRefundModal(bookingId, refundAmount50);
+                    }
+                });
+            } else {
+                Swal.fire({
+                    title: 'Hủy đặt tour?',
+                    text: 'Quý khách có chắc chắn muốn hủy đặt tour này không? Do hủy quá sát giờ khởi hành (≤ 24h), quý khách sẽ không được hoàn lại tiền cọc.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Đồng ý hủy (Mất cọc)',
+                    cancelButtonText: 'Không, giữ lại'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        Swal.fire({
+                            title: 'Đang xử lý...',
+                            text: 'Vui lòng chờ trong giây lát',
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
                             }
-                            return response.json();
-                        })
-                        .then(data => {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Thành công',
-                                text: 'Đã hủy tour thành công và gửi email thông báo!',
-                                confirmButtonColor: '#A67C00'
-                            }).then(() => {
-                                window.location.reload();
-                            });
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            Swal.fire('Lỗi', error.message || 'Đã xảy ra lỗi khi hủy tour.', 'error');
                         });
-                }
-            });
+
+                        fetch('/profile/tours/cancel/' + bookingId, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        })
+                            .then(response => {
+                                if (!response.ok) {
+                                    return response.json().then(err => { throw new Error(err.message || 'Hủy thất bại'); });
+                                }
+                                return response.json();
+                            })
+                            .then(data => {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Thành công',
+                                    text: 'Đã hủy tour thành công và gửi email thông báo!',
+                                    confirmButtonColor: '#A67C00'
+                                }).then(() => {
+                                    window.location.reload();
+                                });
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                Swal.fire('Lỗi', error.message || 'Đã xảy ra lỗi khi hủy tour.', 'error');
+                            });
+                    }
+                });
+            }
         }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

@@ -48,4 +48,14 @@ public interface TourBookingService {
      * (UC20.3)
      */
     BigDecimal cancelTour(Long bookingId, boolean cancelledByResort);
+
+    /**
+     * Hủy tour bởi khách hàng có kèm form hoàn tiền.
+     * 
+     * @param bookingId  ID của booking tour
+     * @param customerId ID của khách hàng
+     * @param dto        DTO chứa thông tin ngân hàng hoàn tiền
+     * @return Số tiền hoàn lại
+     */
+    BigDecimal cancelTourByCustomer(Long bookingId, Long customerId, com.kawai.dto.CancelBookingRequestDTO dto);
 }
