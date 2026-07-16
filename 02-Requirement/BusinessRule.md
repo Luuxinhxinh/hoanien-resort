@@ -1,4 +1,3 @@
-
 # BUSINESS RULES CATALOG
 
 ## Kawai Retreat Resort & Hub — Hệ thống Quản lý Nghỉ dưỡng Tích hợp
@@ -676,7 +675,7 @@ To account for scanner precision variations in variable lighting, the system map
 **Mức độ:** HIGH
 
 **Phát biểu:**
-Modification of base prices or soft deleting a Tour is strictly forbidden if that Tour is associated with at least one active schedule in Open status. Violating actions trigger a ResourceInUseException.
+BR-TR-13Modification of base prices or soft deleting a Tour is strictly forbidden if that Tour is associated with at least one active schedule in Open status. Violating actions trigger a ResourceInUseException.
 
 ## 7. BR-FIN — Tài chính & Thanh toán
 
