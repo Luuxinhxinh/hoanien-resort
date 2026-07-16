@@ -290,18 +290,6 @@ public class HousekeepingServiceImpl implements HousekeepingService {
         return room;
     }
 
-    @Override
-    @Transactional
-    public void createMaintenanceTaskForPricedDamages(Room room) {
-        if (room == null || room.getId() == null) return;
-        List<Employee> allStaff = employeeRepo.findAll();
-        if (!allStaff.isEmpty()) {
-            Employee staff = allStaff.get(0);
-            createMaintenanceRequest(room.getId(), staff.getId(), "Hệ thống tự động báo bảo trì do hư hỏng tài sản đã tính phí", false);
-        } else {
-            log.warn("Không thể tạo phiếu bảo trì cho phòng {} do chưa có dữ liệu nhân viên", room.getRoomNumber());
-        }
-    }
 
     // ========================================================================
     // Private helpers
