@@ -15,6 +15,7 @@ import com.kawai.repositories.WorkflowRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -51,9 +52,7 @@ public class HousekeepingServiceImpl implements HousekeepingService {
     private final MaintenanceRequestRepository maintenanceRequestRepo;
     private final RoomRepository roomRepo;
     private final EmployeeRepository employeeRepo;
-
-    @Autowired
-    private org.springframework.messaging.simp.SimpMessagingTemplate messagingTemplate;
+    private final SimpMessagingTemplate messagingTemplate;
 
     @Autowired
     public HousekeepingServiceImpl(HousekeepingTaskRepository housekeepingTaskRepo,
@@ -61,13 +60,15 @@ public class HousekeepingServiceImpl implements HousekeepingService {
             RoomRepository roomRepo,
             EmployeeRepository employeeRepo,
             WorkflowEngineService workflowEngineService,
-            WorkflowRepository workflowRepository) {
+            WorkflowRepository workflowRepository,
+            SimpMessagingTemplate messagingTemplate) {
         this.housekeepingTaskRepo = housekeepingTaskRepo;
         this.maintenanceRequestRepo = maintenanceRequestRepo;
         this.roomRepo = roomRepo;
         this.employeeRepo = employeeRepo;
         this.workflowEngineService = workflowEngineService;
         this.workflowRepository = workflowRepository;
+        this.messagingTemplate = messagingTemplate;
     }
 
     // ========================================================================
@@ -121,6 +122,17 @@ public class HousekeepingServiceImpl implements HousekeepingService {
 
         roomRepo.save(room);
         housekeepingTaskRepo.save(task);
+        try {
+            String wsMessage = isOccupied
+                    ? "Phòng " + room.getRoomNumber() + " (đang có khách) đã được dọn dẹp sạch sẽ!"
+                    : "Phòng " + room.getRoomNumber() + " đã được dọn dẹp sạch sẽ và sẵn sàng đón khách!";
+
+            messagingTemplate.convertAndSend("/topic/operations", java.util.Map.of(
+                    "message", wsMessage,
+                    "type", "ROOM_CLEANED"));
+        } catch (Exception e) {
+            log.error("Failed to send WebSocket message", e);
+        }
 
         // Gửi thông báo WebSocket cho RoomMatrix (Receptionist) để auto-reload
         try {
@@ -141,12 +153,6 @@ public class HousekeepingServiceImpl implements HousekeepingService {
     // ========================================================================
     // UC13.3: Lễ tân xem danh sách yêu cầu dọn/sửa phòng
     // ========================================================================
-
-    /**
-     * Lấy danh sách các yêu cầu dọn phòng/bảo trì đang chờ xử lý (Pending).
-     *
-     * @return Danh sách HotelOperation
-     */
     @Override
     public List<HotelOperation> getPendingOperations() {
         return housekeepingTaskRepo.findPendingTasksSorted(STATUS_PENDING);
@@ -347,6 +353,7 @@ public class HousekeepingServiceImpl implements HousekeepingService {
             }
         }
     }
+
     private Room findRoomById(Long id) {
         return roomRepo.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Phòng không tìm thấy với ID: " + id));

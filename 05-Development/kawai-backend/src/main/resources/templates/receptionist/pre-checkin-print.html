@@ -307,8 +307,8 @@
                     <td th:text="${stat.count}">1</td>
                     <td class="align-left" th:text="${#strings.toUpperCase(guest.name)}"></td>
                     <td th:text="${guest.dob}"></td>
-                    <td th:text="${#strings.equalsIgnoreCase(guest.gender, 'Nam') or #strings.equalsIgnoreCase(guest.gender, 'Male') ? 'X' : ''}"></td>
-                    <td th:text="${#strings.equalsIgnoreCase(guest.gender, 'Nữ') or #strings.equalsIgnoreCase(guest.gender, 'Female') ? 'X' : ''}"></td>
+                    <td th:text="${#strings.equalsIgnoreCase(#strings.trim(guest.gender), 'Nam') or #strings.equalsIgnoreCase(#strings.trim(guest.gender), 'Male') or #strings.equalsIgnoreCase(#strings.trim(guest.gender), 'MALE') ? 'X' : ''}"></td>
+                    <td th:text="${#strings.equalsIgnoreCase(#strings.trim(guest.gender), 'Nữ') or #strings.equalsIgnoreCase(#strings.trim(guest.gender), 'Female') or #strings.equalsIgnoreCase(#strings.trim(guest.gender), 'FEMALE') ? 'X' : ''}"></td>
                     <td th:text="${guest.cccd}"></td>
                     <td th:text="${guest.nationality}">Việt Nam</td>
                     <td><strong th:text="${guest.roomNumber}"></strong></td>
