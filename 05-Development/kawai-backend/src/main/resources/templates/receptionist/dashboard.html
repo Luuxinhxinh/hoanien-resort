@@ -415,7 +415,8 @@
                                     <span class="type-badge" th:text="${room.category}"></span>
                                 </div>
                                 <div class="room-status-text"
-                                    th:text="${room.hasUrgentMaintenance and room.hasUrgentClean ? 'Occupied (Sửa & Dọn)' : (room.hasUrgentMaintenance ? 'Occupied (Cần sửa)' : (room.hasUrgentClean ? 'Occupied (Dọn khẩn)' : (#strings.equalsIgnoreCase(room.status, 'Vacant_Clean') ? 'Ready' : (#strings.equalsIgnoreCase(room.status, 'Vacant_Dirty') ? 'Needs cleaning' : (#strings.equalsIgnoreCase(room.status, 'Maintenance') ? 'Maintenance' : (#strings.equalsIgnoreCase(room.status, 'Occupied') ? 'Occupied' : room.status))))))}">
+                                    th:with="baseText=${#strings.equalsIgnoreCase(room.status, 'Vacant_Clean') ? 'Ready' : (#strings.equalsIgnoreCase(room.status, 'Vacant_Dirty') ? 'Needs cleaning' : (#strings.equalsIgnoreCase(room.status, 'Maintenance') ? 'Maintenance' : (#strings.equalsIgnoreCase(room.status, 'Occupied') ? 'Occupied' : room.status)))}"
+                                    th:text="${baseText}">
                                 </div>
                                 <!-- Báo sửa chữa khẩn cấp -->
                                 <button title="Yêu cầu sửa chữa khẩn"
@@ -594,6 +595,12 @@
 
             try {
                 var pending = JSON.parse(localStorage.getItem('kawai_notifs') || '[]');
+                pending = pending.filter(function (n) {
+                    var t = n.text || '';
+                    return !t.includes('khẩn cấp') && !t.includes('Yêu cầu dọn') && !t.includes('Yêu cầu sửa');
+                });
+                localStorage.setItem('kawai_notifs', JSON.stringify(pending));
+
                 pending.forEach(function (n) { showPersistentToast(n); });
             } catch (e) { }
 
@@ -624,7 +631,15 @@
                         try {
                             var payload = JSON.parse(msg.body);
                             console.log('[WS] Nhận tin nhắn từ kênh Chung (/topic/operations):', payload);
-                            saveAndShow('📢 THÔNG BÁO HỆ THỐNG: \n' + payload.message, false);
+                            if (payload.type === 'NEW_TASK') return;
+                            if (payload.type === 'ROOM_CLEANED') {
+                                if (typeof pollCleanTasksDone === 'function') {
+                                    pollCleanTasksDone();
+                                }
+                                setTimeout(function () { window.location.reload(); }, 3500);
+                                return;
+                            }
+                            saveAndShow('THÔNG BÁO HỆ THỐNG: \n' + payload.message, false);
                         } catch (e) { console.error('[WS] parse error', e); }
                     });
 
@@ -633,18 +648,26 @@
                             try {
                                 var payload = JSON.parse(msg.body);
                                 console.log('[WS] Nhận tin nhắn từ kênh Đích danh (/topic/operations/' + staffId + '):', payload);
-                                saveAndShow('🔔 NHIỆM VỤ MỚI: \n ' + payload.message, true);
+                                Toastify({
+                                    text: 'NHIỆM VỤ MỚI: \n ' + payload.message,
+                                    duration: 5000,
+                                    close: true,
+                                    gravity: "top",
+                                    position: "right",
+                                    backgroundColor: "linear-gradient(to right, #f39c12, #f1c40f)"
+                                }).showToast();
                             } catch (e) { console.error('[WS] parse error', e); }
                         });
-                        console.log('[WS] Đã đăng ký kênh riêng: /topic/operations/' + staffId);
+                        console.log(' Đã đăng ký kênh riêng: /topic/operations/' + staffId);
                     }
 
                 }, function (error) {
-                    console.error('[WS] Lỗi kết nối WebSocket:', error);
+                    console.error(' Lỗi kết nối WebSocket:', error);
                 });
             });
         })();
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- Schedule Notification Script -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {

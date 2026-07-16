@@ -51,7 +51,7 @@
 
 | **UC ID** | **Tên Use Case**                                            | **Actor**             | **P** | **TT** |
 | --------------- | ------------------------------------------------------------------ | --------------------------- | ----------- | ------------ |
-| **UC01**  | **Quản lý Tài khoản & Xác thực**                       |                             |             |              |
+| **UC01**  | **Quản lý Tài khoản & Xác thực**                       | Admin                       |             |              |
 | UC01.1          | Đăng ký khách hàng trực tuyến + xác thực OTP email        | `Customer`                | P0          | ✅           |
 | UC01.2          | Admin khởi tạo tài khoản nhân viên / khách CRM              | `Admin`                   | P0          | ✅           |
 | UC01.3          | Đăng nhập Guest (modal) + OAuth2 Google                         | `Customer`,`Guest`      | P0          | ✅           |
@@ -96,93 +96,93 @@
 
 ## 🔵 MOD2: QUẢN LÝ PHÒNG, LỄ TÂN & BUỒNG PHÒNG
 
-| **UC ID** | **Tên Use Case**                                             | **Actor**               | **P** | **TT** |
-| --------------- | ------------------------------------------------------------------- | ----------------------------- | ----------- | ------------ |
-| **UC10**  | **Room Booking (Customer)**                                |                               |             |              |
-| UC10.1    | Search Available Rooms                                     | `Customer`                  | P0          | ✅           |
-| UC10.2    | Book Room & Pay Online Deposit                             | `Customer`                  | P0          | ✅           |
-| UC10.3    | Cancel Booking                                             | `Customer`                  | P1          | ⚠️         |
-| UC10.4    | Manage Accompanying/Dependent Guests                       | `Customer`                  | P1          | ✅           |
-| UC10.5    | View Profile & Booking History                             | `Customer`                  | P1          | ✅           |
-| **UC11**  | **Front Desk Operations (Receptionist)**                   |                               |             |              |
-| UC11.1    | Check-In & Allocate Physical Rooms                         | `Receptionist`              | P0          | ⚠️         |
-| UC11.2    | Walk-in Guest Check-in                                     | `Receptionist`              | P0          | ✅           |
-| UC11.3    | Register Accompanying Guests                               | `Receptionist`              | P0          | ✅           |
-| UC11.4    | Authorize Dependent Service Access                         | `Receptionist`              | P1          | ✅           |
-| UC11.5    | Change Room Category/Room Type                             | `Receptionist`              | P1          | ⚠️         |
-| UC11.6    | Room Matrix / Dashboard Monitoring                         | `Receptionist`              | P0          | ✅           |
-| UC11.7    | Request Emergency Cleaning (Rush Room Preparation)         | `Receptionist`              | P1          | ⚠️         |
+| **UC ID** | **Tên Use Case**                            | **Actor**  | **P** | **TT** |
+| --------------- | -------------------------------------------------- | ---------------- | ----------- | ------------ |
+| **UC10**  | **Room Booking (Customer)**                  |                  |             |              |
+| UC10.1          | Search Available Rooms                             | `Customer`     | P0          | ✅           |
+| UC10.2          | Book Room & Pay Online Deposit                     | `Customer`     | P0          | ✅           |
+| UC10.3          | Cancel Booking                                     | `Customer`     | P1          | ⚠️         |
+| UC10.4          | Manage Accompanying/Dependent Guests               | `Customer`     | P1          | ✅           |
+| UC10.5          | View Profile & Booking History                     | `Customer`     | P1          | ✅           |
+| **UC11**  | **Front Desk Operations (Receptionist)**     |                  |             |              |
+| UC11.1          | Check-In & Allocate Physical Rooms                 | `Receptionist` | P0          | ⚠️         |
+| UC11.2          | Walk-in Guest Check-in                             | `Receptionist` | P0          | ✅           |
+| UC11.3          | Register Accompanying Guests                       | `Receptionist` | P0          | ✅           |
+| UC11.4          | Authorize Dependent Service Access                 | `Receptionist` | P1          | ✅           |
+| UC11.5          | Change Room Category/Room Type                     | `Receptionist` | P1          | ⚠️         |
+| UC11.6          | Room Matrix / Dashboard Monitoring                 | `Receptionist` | P0          | ✅           |
+| UC11.7          | Request Emergency Cleaning (Rush Room Preparation) | `Receptionist` | P1          | ⚠️         |
 
 ## 🟡 MOD3: F&B, POS & KDS
 
-| **UC ID** | **Tên Use Case**                                       | **Actor**               | **P** | **TT** |
-| --------------- | ------------------------------------------------------------- | ----------------------------- | ----------- | ------------ |
-| **UC1**   | F&B Order Management                                      | `F&B Staff`             | P1 | ⚠️ |
-| UC1.1     | View order details                                        | `F&B Staff`             | P1 | ✅ |
-| UC1.2     | Add items to order (For Dine-in orders)                   | `F&B Staff`             | P1 | ⚠️ |
-| UC1.3     | Update service status                                     | `F&B Staff`             | P1 | ✅ |
-| UC1.4     | Print receipt / bill                                      | `F&B Staff`             | P2 | ⚠️ |
-| **UC2**   | Confirm Order Payment                                     | `F&B Staff`             | P1 | ✅ |
-| **UC3**   | **Table Management**                                      |                         |    |    |
-| UC3.1     | Hold table (Time extension)                               | `F&B Staff`             | P1 | ✅ |
-| UC3.2     | Pre-book table for in-house guests                        | `F&B Staff`             | P1 | ✅ |
-| UC3.3     | Create Dine-in order for walk-in guests                   | `F&B Staff`             | P1 | ✅ |
-| UC3.4     | Table check-in for pre-booked guests                      | `F&B Staff`             | P1 | ✅ |
-| **UC4**   | **Room Service Order Management**                         |                         |    |    |
-| UC4.1     | Create Room Service order                                 | `F&B Staff`             | P1 | ✅ |
-| **UC5**   | Shift Reporting                                           | `F&B Staff`             | P1 | ⚠️ |
-| **UC6**   | Update Individual Dish Status (KOT)                       | `Kitchen Staff`         | P1 | ✅ |
-| **UC7**   | Manage Dish Availability (Available/Out of Stock)         | `Kitchen Staff`         | P1 | ✅ |
-| **UC8**   | Online Table Reservation                                  | `Customer`              | P1 | ✅ |
-| **UC9**   | Online Ordering                                           | `Customer`              | P1 | ✅ |
-| **UC10**  | Cancel Order                                              | `F&B Staff`, `Customer` | P1 | ✅ |
+| **UC ID** | **Tên Use Case**                           | **Actor**             | **P** | **TT** |
+| --------------- | ------------------------------------------------- | --------------------------- | ----------- | ------------ |
+| **UC1**   | F&B Order Management                              | `F&B Staff`               | P1          | ⚠️         |
+| UC1.1           | View order details                                | `F&B Staff`               | P1          | ✅           |
+| UC1.2           | Add items to order (For Dine-in orders)           | `F&B Staff`               | P1          | ⚠️         |
+| UC1.3           | Update service status                             | `F&B Staff`               | P1          | ✅           |
+| UC1.4           | Print receipt / bill                              | `F&B Staff`               | P2          | ⚠️         |
+| **UC2**   | Confirm Order Payment                             | `F&B Staff`               | P1          | ✅           |
+| **UC3**   | **Table Management**                        |                             |             |              |
+| UC3.1           | Hold table (Time extension)                       | `F&B Staff`               | P1          | ✅           |
+| UC3.2           | Pre-book table for in-house guests                | `F&B Staff`               | P1          | ✅           |
+| UC3.3           | Create Dine-in order for walk-in guests           | `F&B Staff`               | P1          | ✅           |
+| UC3.4           | Table check-in for pre-booked guests              | `F&B Staff`               | P1          | ✅           |
+| **UC4**   | **Room Service Order Management**           |                             |             |              |
+| UC4.1           | Create Room Service order                         | `F&B Staff`               | P1          | ✅           |
+| **UC5**   | Shift Reporting                                   | `F&B Staff`               | P1          | ⚠️         |
+| **UC6**   | Update Individual Dish Status (KOT)               | `Kitchen Staff`           | P1          | ✅           |
+| **UC7**   | Manage Dish Availability (Available/Out of Stock) | `Kitchen Staff`           | P1          | ✅           |
+| **UC8**   | Online Table Reservation                          | `Customer`                | P1          | ✅           |
+| **UC9**   | Online Ordering                                   | `Customer`                | P1          | ✅           |
+| **UC10**  | Cancel Order                                      | `F&B Staff`, `Customer` | P1          | ✅           |
 
 ## 🟢 MOD4: TOUR MANAGEMENT & ATTENDANCE
 
-| **UC ID** | **Tên Use Case**                                       | **Actor**               | **P** | **TT** |
-| --------------- | ------------------------------------------------------------- | ----------------------------- | ----------- | ------------ |
-| **UC08**  | Manage Tour Core Data                                   | `Admin`                 | P1 | ⚠️ |
-| **UC19**  | Search Available Tours                                   | `Customer`              | P1 | ✅ |
-| **UC20**  | **Tour Booking & Operations**                            |                         |    |    |
-| UC20.1    | Book Tour & Pay Online                                   | `Customer`,`Receptionist`| P0 | ✅ |
-| UC20.2    | Assign Staff and Vehicle to Tour Schedule                | `Admin`,`Coordinator`     | P1 | ⚠️ |
-| UC20.3    | Cancel Tour Booking                                      | `Customer`,`Resort`       | P1 | ⚠️ |
-| UC20.4    | Post Tour Charge to Room                                 | `Customer`,`Receptionist`| P0 | ✅ |
-| **UC21**  | **Tour Attendance & Checking**                           |                         |    |    |
-| UC21.1    | AI Face Scan Attendance Check-In                         | `Customer`,`Tour Guide`   | P0 | ⚠️ |
-| UC21.2    | Manual Tour Check-In                                     | `Tour Guide`              | P1 | ✅ |
-| UC21.3    | Start & Conclude Tour Schedule                           | `Tour Guide`              | P1 | ⚠️ |
-| UC21.4    | Reset Tour Status                                        | `Tour Guide`              | P2 | ✅ |
+| **UC ID** | **Tên Use Case**                   | **Actor**               | **P** | **TT** |
+| --------------- | ----------------------------------------- | ----------------------------- | ----------- | ------------ |
+| **UC08**  | Manage Tour Core Data                     | `Admin`                     | P1          | ⚠️         |
+| **UC19**  | Search Available Tours                    | `Customer`                  | P1          | ✅           |
+| **UC20**  | **Tour Booking & Operations**       |                               |             |              |
+| UC20.1          | Book Tour & Pay Online                    | `Customer`,`Receptionist` | P0          | ✅           |
+| UC20.2          | Assign Staff and Vehicle to Tour Schedule | `Admin`,`Coordinator`     | P1          | ⚠️         |
+| UC20.3          | Cancel Tour Booking                       | `Customer`,`Resort`       | P1          | ⚠️         |
+| UC20.4          | Post Tour Charge to Room                  | `Customer`,`Receptionist` | P0          | ✅           |
+| **UC21**  | **Tour Attendance & Checking**      |                               |             |              |
+| UC21.1          | AI Face Scan Attendance Check-In          | `Customer`,`Tour Guide`   | P0          | ⚠️         |
+| UC21.2          | Manual Tour Check-In                      | `Tour Guide`                | P1          | ✅           |
+| UC21.3          | Start & Conclude Tour Schedule            | `Tour Guide`                | P1          | ⚠️         |
+| UC21.4          | Reset Tour Status                         | `Tour Guide`                | P2          | ✅           |
 
 ## 🟣 MOD5: FOLIO, VẬN HÀNH & BÁO CÁO
 
-| **UC ID** | **Tên Use Case**                                             | **Actor**               | **P** | **TT** |
-| --------------- | ------------------------------------------------------------------- | ----------------------------- | ----------- | ------------ |
-| **UC_REC**| **Lễ tân (Folio & Check-out)**                             |                               |             |              |
-| UC_REC.1  | Theo dõi dư nợ Folio (Real-time)                           | `Receptionist`                | P0          | ✅           |
-| UC_REC.2  | Ghi nhận Charge-to-Room                                    | `Receptionist`                | P0          | ✅           |
-| UC_REC.3  | Tách / Gộp hóa đơn (Split/Merge Folio)                     | `Receptionist`                | P1          | ✅           |
-| UC_REC.4  | Thêm Phụ thu (Surcharge) & Giảm giá                        | `Receptionist`                | P1          | ✅           |
-| UC_REC.5  | Khởi tạo quy trình Check-out                               | `Receptionist`                | P0          | ✅           |
-| UC_REC.7  | Thanh toán Consolidated Invoice                            | `Receptionist`                | P0          | ✅           |
-| UC_REC.9  | Hoàn tất Check-out                                         | `Receptionist`                | P0          | ✅           |
-| **UC_HK** | **Buồng phòng (Housekeeping)**                             |                               |             |              |
-| UC_HK.1   | Xem danh sách Task dọn phòng                               | `Housekeeper`                 | P1          | ⚠️         |
-| UC_HK.2   | Cập nhật tiến độ dọn dẹp                                   | `Housekeeper`                 | P1          | ⚠️         |
-| UC_HK.3   | Nhận thông báo dọn khẩn (Rush Room)                        | `Housekeeper`                 | P1          | ⚠️         |
-| UC_HK.4   | Kiểm phòng Check-out (Room Check)                          | `Housekeeper`                 | P0          | ⚠️         |
-| UC_HK.5   | Kiểm tra Minibar & Bổ sung tiện ích                        | `Housekeeper`                 | P1          | ❌           |
-| UC_HK.6   | Báo cáo hỏng hóc (Create Ticket)                           | `Housekeeper`                 | P1          | ⚠️         |
-| UC_HK.7   | Ghi nhận đồ thất lạc (Lost & Found)                        | `Housekeeper`                 | P2          | ❌           |
-| **UC_MT** | **Bảo trì (Maintenance)**                                  |                               |             |              |
-| UC_MT.1   | Tiếp nhận Ticket bảo trì                                   | `Maintenance Staff`           | P1          | ⚠️         |
-| UC_MT.2   | Cập nhật trạng thái sửa chữa                               | `Maintenance Staff`           | P1          | ⚠️         |
-| UC_MT.5   | Hoàn tất & Mở khóa phòng                                   | `Maintenance Staff`           | P1          | ⚠️         |
-| **UC_MNG**| **Quản lý (Manager)**                                      |                               |             |              |
-| UC_MNG.1  | Phân tích Doanh thu & Công suất                            | `Manager`                     | P1          | ⚠️         |
-| UC_MNG.2  | Phân tích Chéo (Cross-selling)                             | `Manager`                     | P2          | ❌           |
-| UC_MNG.3  | Phê duyệt Ngoại lệ (Manager Approval)                      | `Manager`                     | P1          | ⚠️         |
-| UC_MNG.6  | Trích xuất Báo cáo Kế toán (USALI)                         | `Manager`                     | P1          | ⚠️         |
+| **UC ID**  | **Tên Use Case**                     | **Actor**       | **P** | **TT** |
+| ---------------- | ------------------------------------------- | --------------------- | ----------- | ------------ |
+| **UC_REC** | **Lễ tân (Folio & Check-out)**      |                       |             |              |
+| UC_REC.1         | Theo dõi dư nợ Folio (Real-time)         | `Receptionist`      | P0          | ✅           |
+| UC_REC.2         | Ghi nhận Charge-to-Room                    | `Receptionist`      | P0          | ✅           |
+| UC_REC.3         | Tách / Gộp hóa đơn (Split/Merge Folio) | `Receptionist`      | P1          | ✅           |
+| UC_REC.4         | Thêm Phụ thu (Surcharge) & Giảm giá     | `Receptionist`      | P1          | ✅           |
+| UC_REC.5         | Khởi tạo quy trình Check-out             | `Receptionist`      | P0          | ✅           |
+| UC_REC.7         | Thanh toán Consolidated Invoice            | `Receptionist`      | P0          | ✅           |
+| UC_REC.9         | Hoàn tất Check-out                        | `Receptionist`      | P0          | ✅           |
+| **UC_HK**  | **Buồng phòng (Housekeeping)**      |                       |             |              |
+| UC_HK.1          | Xem danh sách Task dọn phòng             | `Housekeeper`       | P1          | ⚠️         |
+| UC_HK.2          | Cập nhật tiến độ dọn dẹp             | `Housekeeper`       | P1          | ⚠️         |
+| UC_HK.3          | Nhận thông báo dọn khẩn (Rush Room)    | `Housekeeper`       | P1          | ⚠️         |
+| UC_HK.4          | Kiểm phòng Check-out (Room Check)         | `Housekeeper`       | P0          | ⚠️         |
+| UC_HK.5          | Kiểm tra Minibar & Bổ sung tiện ích     | `Housekeeper`       | P1          | ❌           |
+| UC_HK.6          | Báo cáo hỏng hóc (Create Ticket)        | `Housekeeper`       | P1          | ⚠️         |
+| UC_HK.7          | Ghi nhận đồ thất lạc (Lost & Found)    | `Housekeeper`       | P2          | ❌           |
+| **UC_MT**  | **Bảo trì (Maintenance)**           |                       |             |              |
+| UC_MT.1          | Tiếp nhận Ticket bảo trì                | `Maintenance Staff` | P1          | ⚠️         |
+| UC_MT.2          | Cập nhật trạng thái sửa chữa          | `Maintenance Staff` | P1          | ⚠️         |
+| UC_MT.5          | Hoàn tất & Mở khóa phòng               | `Maintenance Staff` | P1          | ⚠️         |
+| **UC_MNG** | **Quản lý (Manager)**               |                       |             |              |
+| UC_MNG.1         | Phân tích Doanh thu & Công suất         | `Manager`           | P1          | ⚠️         |
+| UC_MNG.2         | Phân tích Chéo (Cross-selling)           | `Manager`           | P2          | ❌           |
+| UC_MNG.3         | Phê duyệt Ngoại lệ (Manager Approval)   | `Manager`           | P1          | ⚠️         |
+| UC_MNG.6         | Trích xuất Báo cáo Kế toán (USALI)    | `Manager`           | P1          | ⚠️         |
 
 ## 🆕 MOD6: HỆ THỐNG & TÍCH HỢP (Phát sinh sau SRS gốc)
 
@@ -238,7 +238,3 @@
 - Đặc tả dự án: `Project_Specification.md`
 - Traceability: `TRACEABILITY_MATRIX.md`
 - Test spec: `06-Testing/MASTER_TDD_SPEC.md`
-
-
-
-

@@ -1,4 +1,3 @@
-
 # BUSINESS RULES CATALOG
 
 ## Kawai Retreat Resort & Hub — Hệ thống Quản lý Nghỉ dưỡng Tích hợp
@@ -1036,7 +1035,7 @@ Lịch làm việc (`StaffSchedule`) và ca trực (`Shift`) của nhân viên p
 
 ## 12. BR-WF — Workflow Engine Động
 
-### BR-WF-01 — Quy tắc Kích hoạt Workflow Engine
+### BR-WF-01 — **Tour Management**	**Tour Management****Tour Management****Tour Management****Tour Management**e
 
 **Mức độ:** HIGH
 
