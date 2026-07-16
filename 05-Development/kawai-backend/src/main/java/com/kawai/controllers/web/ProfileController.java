@@ -341,6 +341,12 @@ public class ProfileController {
                 customer.setCccdPassportEncrypted(EncryptionUtils.encrypt(cccd.trim()));
             }
             customerRepository.save(customer);
+
+            // Gửi email thông báo cập nhật thành công
+            if (emailService != null) {
+                emailService.sendProfileUpdateEmail(customer);
+            }
+
             redirectAttributes.addFlashAttribute("success", "Cập nhật thông tin thành công!");
         }
         return "redirect:/profile";
@@ -480,6 +486,7 @@ public class ProfileController {
     @ResponseBody
     public org.springframework.http.ResponseEntity<?> cancelTour(
             @PathVariable Long bookingId,
+            @org.springframework.web.bind.annotation.RequestBody(required = false) com.kawai.dto.CancelBookingRequestDTO dto,
             Authentication authentication) {
         if (!com.kawai.utils.SecurityUtils.isCustomerLoggedIn(authentication)) {
             return org.springframework.http.ResponseEntity.status(org.springframework.http.HttpStatus.UNAUTHORIZED)
@@ -515,8 +522,8 @@ public class ProfileController {
         }
 
         try {
-            // Hủy tour (false có nghĩa là khách hàng tự hủy)
-            java.math.BigDecimal refundAmount = tourBookingService.cancelTour(bookingId, false);
+            // Hủy tour bởi khách hàng (có kèm DTO nếu hoàn tiền)
+            java.math.BigDecimal refundAmount = tourBookingService.cancelTourByCustomer(bookingId, customer.getId(), dto);
 
 
 

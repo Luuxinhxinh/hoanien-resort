@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="Electron" modified="2026-07-13T02:00:00.000Z" agent="Antigravity Agent" version="21.6.8" type="device">
+  <diagram id="KawaiArchitecture" name="Kawai Software Architecture">
+    <mxGraphModel dx="1200" dy="1200" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1500" math="0" shadow="0">
+      <root>
+        <!-- Canvas Root -->
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Title Block (Professional Slate Theme) -->
+        <mxCell id="title_block" value="KAWAI RETREAT RESORT &amp; HUB - SOFTWARE ARCHITECTURE DIAGRAM (SPRING BOOT MVC)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#1e293b;strokeColor=#0f172a;fontColor=#ffffff;fontSize=16;fontStyle=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="50" y="20" width="1390" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- CLIENT LAYER (ACTORS) -->
+        <mxCell id="actor_group" value="CLIENT LAYER" style="swimlane;html=1;rounded=0;fillColor=#f8fafc;strokeColor=#cbd5e1;fontColor=#334155;fontStyle=1;startSize=30;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="100" y="90" width="850" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="actor_customer" value="Customer Web Browser&lt;br&gt;&lt;span style=&quot;font-weight: normal; font-size: 11px; font-style: italic;&quot;&gt;Booking / Portal Interface&lt;/span&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#64748b;fontColor=#1e293b;fontStyle=1;" vertex="1" parent="actor_group">
+          <mxGeometry x="50" y="45" width="180" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="actor_staff" value="Staff Web Portals&lt;br&gt;&lt;span style=&quot;font-weight: normal; font-size: 11px; font-style: italic;&quot;&gt;Receptionist / F&amp;B / Operations&lt;/span&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#64748b;fontColor=#1e293b;fontStyle=1;" vertex="1" parent="actor_group">
+          <mxGeometry x="330" y="45" width="180" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="actor_admin" value="Admin &amp; Manager Portal&lt;br&gt;&lt;span style=&quot;font-weight: normal; font-size: 11px; font-style: italic;&quot;&gt;Analytics / Reports Dashboard&lt;/span&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#64748b;fontColor=#1e293b;fontStyle=1;" vertex="1" parent="actor_group">
+          <mxGeometry x="610" y="45" width="180" height="45" as="geometry" />
+        </mxCell>
+
+        <!-- SECURITY & CROSS-CUTTING GATEWAY -->
+        <mxCell id="security_group" value="SECURITY GATEWAY &amp; INTERCEPTORS" style="swimlane;html=1;rounded=0;fillColor=#f8fafc;strokeColor=#cbd5e1;fontColor=#334155;fontStyle=1;startSize=30;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="100" y="220" width="850" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="sec_auth" value="Authentication Manager&lt;br&gt;&lt;span style=&quot;font-weight: normal; font-size: 11px;&quot;&gt;BCrypt / 2FA Verification&lt;/span&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#64748b;fontColor=#1e293b;fontStyle=1;" vertex="1" parent="security_group">
+          <mxGeometry x="30" y="45" width="170" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="sec_oauth2" value="OAuth2 Client Service&lt;br&gt;&lt;span style=&quot;font-weight: normal; font-size: 11px;&quot;&gt;Google Account Integration&lt;/span&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#64748b;fontColor=#1e293b;fontStyle=1;" vertex="1" parent="security_group">
+          <mxGeometry x="235" y="45" width="170" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="sec_rbac" value="URL Authorization Handler&lt;br&gt;&lt;span style=&quot;font-weight: normal; font-size: 11px;&quot;&gt;Role-Based Access Control&lt;/span&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#64748b;fontColor=#1e293b;fontStyle=1;" vertex="1" parent="security_group">
+          <mxGeometry x="440" y="45" width="170" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="sec_aop" value="AOP Audit Interceptor&lt;br&gt;&lt;span style=&quot;font-weight: normal; font-size: 11px;&quot;&gt;@LogActivity Event Logger&lt;/span&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#64748b;fontColor=#1e293b;fontStyle=1;" vertex="1" parent="security_group">
+          <mxGeometry x="645" y="45" width="170" height="45" as="geometry" />
+        </mxCell>
+
+        <!-- PRESENTATION LAYER (DUAL CONTROLLERS) -->
+        <mxCell id="presentation_group" value="PRESENTATION LAYER" style="swimlane;html=1;rounded=0;fillColor=#f8fafc;strokeColor=#cbd5e1;fontColor=#334155;fontStyle=1;startSize=30;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="100" y="350" width="850" height="250" as="geometry" />
+        </mxCell>
+        <mxCell id="web_subgroup" value="Web View Controllers" style="swimlane;html=1;rounded=0;fillColor=#ffffff;strokeColor=#94a3b8;fontColor=#475569;fontStyle=1;startSize=25;" vertex="1" parent="presentation_group">
+          <mxGeometry x="30" y="45" width="370" height="185" as="geometry" />
+        </mxCell>
+        <mxCell id="web_ctrl_list" value="â€¢ ManagerController&lt;br&gt;â€¢ ReceptionistController&lt;br&gt;â€¢ TourGuideController&lt;br&gt;â€¢ BookingController&lt;br&gt;â€¢ PosController" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[];portConstraint=eastwest;fontColor=#334155;fontSize=12;" vertex="1" parent="web_subgroup">
+          <mxGeometry x="15" y="35" width="170" height="135" as="geometry" />
+        </mxCell>
+        <mxCell id="thymeleaf_engine" value="Thymeleaf Engine&lt;br&gt;&lt;span style=&quot;font-weight: normal; font-size: 11px;&quot;&gt;Server-Side HTML&lt;br&gt;Template Rendering&lt;/span&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#64748b;fontColor=#1e293b;fontStyle=1;" vertex="1" parent="web_subgroup">
+          <mxGeometry x="210" y="55" width="140" height="80" as="geometry" />
+        </mxCell>
+
+        <mxCell id="api_subgroup" value="REST API Controllers" style="swimlane;html=1;rounded=0;fillColor=#ffffff;strokeColor=#94a3b8;fontColor=#475569;fontStyle=1;startSize=25;" vertex="1" parent="presentation_group">
+          <mxGeometry x="450" y="45" width="370" height="185" as="geometry" />
+        </mxCell>
+        <mxCell id="api_ctrl_list" value="â€¢ FolioRestController&lt;br&gt;â€¢ BookingApiController&lt;br&gt;â€¢ TourBookingApiController&lt;br&gt;â€¢ NightAuditRestController&lt;br&gt;â€¢ FaceIdApiController" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[];portConstraint=eastwest;fontColor=#334155;fontSize=12;" vertex="1" parent="api_subgroup">
+          <mxGeometry x="15" y="35" width="180" height="135" as="geometry" />
+        </mxCell>
+        <mxCell id="dto_obj" value="Data Transfer Objects&lt;br&gt;&lt;span style=&quot;font-weight: normal; font-size: 11px;&quot;&gt;Jackson JSON&lt;br&gt;Serialization Layer&lt;/span&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#64748b;fontColor=#1e293b;fontStyle=1;" vertex="1" parent="api_subgroup">
+          <mxGeometry x="210" y="55" width="145" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- BUSINESS SERVICE LAYER -->
+        <mxCell id="service_group" value="BUSINESS LOGIC / SERVICE LAYER" style="swimlane;html=1;rounded=0;fillColor=#f8fafc;strokeColor=#cbd5e1;fontColor=#334155;fontStyle=1;startSize=30;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="100" y="620" width="850" height="300" as="geometry" />
+        </mxCell>
+        <mxCell id="service_contracts" value="Service Interfaces" style="swimlane;html=1;rounded=0;fillColor=#ffffff;strokeColor=#94a3b8;fontColor=#475569;fontStyle=1;startSize=25;" vertex="1" parent="service_group">
+          <mxGeometry x="30" y="45" width="370" height="235" as="geometry" />
+        </mxCell>
+        <mxCell id="service_list" value="â€¢ BookingService&lt;br&gt;â€¢ WalkInCheckInService&lt;br&gt;â€¢ VnPayService&lt;br&gt;â€¢ PosService&lt;br&gt;â€¢ TourBookingService&lt;br&gt;â€¢ WorkflowEngineService&lt;br&gt;â€¢ EmailService" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[];portConstraint=eastwest;fontColor=#334155;fontSize=12;" vertex="1" parent="service_contracts">
+          <mxGeometry x="15" y="35" width="340" height="185" as="geometry" />
+        </mxCell>
+
+        <mxCell id="service_impl" value="Service Implementations (impl/)&lt;br&gt;&lt;span style=&quot;font-weight: normal; font-size: 11px;&quot;&gt;Contains domain-specific transactional logic, rules validation, and connects presentation with data layers.&lt;/span&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#64748b;fontColor=#1e293b;fontStyle=1;align=left;spacingLeft=10;spacingRight=10;" vertex="1" parent="service_group">
+          <mxGeometry x="430" y="45" width="390" height="90" as="geometry" />
+        </mxCell>
+
+        <mxCell id="service_scheduler" value="Dynamic Job Manager&lt;br&gt;&lt;span style=&quot;font-weight: normal; font-size: 11px;&quot;&gt;TaskScheduler Engine for&lt;br&gt;automated night audits &amp; cleanup&lt;/span&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#64748b;fontColor=#1e293b;fontStyle=1;" vertex="1" parent="service_group">
+          <mxGeometry x="430" y="165" width="180" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="service_events" value="Event Publisher / Listener&lt;br&gt;&lt;span style=&quot;font-weight: normal; font-size: 11px;&quot;&gt;Application events for&lt;br&gt;asynchronous processes&lt;/span&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#64748b;fontColor=#1e293b;fontStyle=1;" vertex="1" parent="service_group">
+          <mxGeometry x="640" y="165" width="180" height="110" as="geometry" />
+        </mxCell>
+
+        <!-- DATA ACCESS LAYER (REPOSITORIES) -->
+        <mxCell id="repo_group" value="DATA ACCESS LAYER" style="swimlane;html=1;rounded=0;fillColor=#f8fafc;strokeColor=#cbd5e1;fontColor=#334155;fontStyle=1;startSize=30;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="100" y="940" width="850" height="210" as="geometry" />
+        </mxCell>
+        <mxCell id="repo_impl" value="Spring Data JPA Repositories (44 Repositories)&lt;br&gt;&lt;span style=&quot;font-weight: normal; font-size: 11px;&quot;&gt;BookingRepository, CustomerRepository, RoomBookingRepository, TourBookingRepository, FoodOrderRepository...&lt;/span&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#64748b;fontColor=#1e293b;fontStyle=1;" vertex="1" parent="repo_group">
+          <mxGeometry x="30" y="45" width="790" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="repo_envers" value="Hibernate Envers&lt;br&gt;&lt;span style=&quot;font-weight: normal; font-size: 11px;&quot;&gt;Automatic entity data auditing&lt;br&gt;and revision logging in _AUD tables&lt;/span&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#64748b;fontColor=#1e293b;fontStyle=1;" vertex="1" parent="repo_group">
+          <mxGeometry x="30" y="110" width="370" height="75" as="geometry" />
+        </mxCell>
+        <mxCell id="repo_locking" value="JPA Optimistic Locking&lt;br&gt;&lt;span style=&quot;font-weight: normal; font-size: 11px;&quot;&gt;Overbooking protection via @Version&lt;br&gt;concurrency controls on Booking entity&lt;/span&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#64748b;fontColor=#1e293b;fontStyle=1;" vertex="1" parent="repo_group">
+          <mxGeometry x="450" y="110" width="370" height="75" as="geometry" />
+        </mxCell>
+
+        <!-- PERSISTENCE LAYER (ENTITIES & DATABASE) -->
+        <mxCell id="db_group" value="PERSISTENCE &amp; DATABASE LAYER" style="swimlane;html=1;rounded=0;fillColor=#f8fafc;strokeColor=#cbd5e1;fontColor=#334155;fontStyle=1;startSize=30;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="100" y="1170" width="850" height="230" as="geometry" />
+        </mxCell>
+        <mxCell id="jpa_entities" value="JPA Entities / Models (49 Database Entities)&lt;br&gt;&lt;span style=&quot;font-weight: normal; font-size: 11px;&quot;&gt;Account, Booking, Customer, Room, FolioItem, ConsolidatedInvoice, StaffSchedule, AuditLog, Workflow...&lt;/span&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#64748b;fontColor=#1e293b;fontStyle=1;" vertex="1" parent="db_group">
+          <mxGeometry x="30" y="45" width="790" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="db_mysql" value="MySQL 8.x Database&lt;br&gt;&lt;span style=&quot;font-weight: normal; font-size: 11px;&quot;&gt;Production persistent relational database&lt;/span&gt;" style="shape=datastore;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#64748b;fontColor=#1e293b;fontStyle=1;" vertex="1" parent="db_group">
+          <mxGeometry x="130" y="115" width="220" height="85" as="geometry" />
+        </mxCell>
+        <mxCell id="db_h2" value="H2 In-Memory Database&lt;br&gt;&lt;span style=&quot;font-weight: normal; font-size: 11px;&quot;&gt;Local development and testing DB&lt;/span&gt;" style="shape=datastore;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#64748b;fontColor=#1e293b;fontStyle=1;" vertex="1" parent="db_group">
+          <mxGeometry x="500" y="115" width="220" height="85" as="geometry" />
+        </mxCell>
+
+        <!-- EXTERNAL SERVICES INTEGRATION -->
+        <mxCell id="external_group" value="EXTERNAL INTEGRATIONS" style="swimlane;html=1;rounded=0;fillColor=#f8fafc;strokeColor=#cbd5e1;fontColor=#334155;fontStyle=1;startSize=30;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="1020" y="620" width="370" height="530" as="geometry" />
+        </mxCell>
+        <mxCell id="ext_vnpay" value="VNPay Payment Gateway&lt;br&gt;&lt;span style=&quot;font-weight: normal; font-size: 11px;&quot;&gt;Secure transactions &amp; Webhook verification&lt;/span&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#64748b;fontColor=#1e293b;fontStyle=1;" vertex="1" parent="external_group">
+          <mxGeometry x="40" y="45" width="290" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ext_sendgrid" value="SendGrid / SMTP Gmail Service&lt;br&gt;&lt;span style=&quot;font-weight: normal; font-size: 11px;&quot;&gt;System email alerts &amp; confirmation letters&lt;/span&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#64748b;fontColor=#1e293b;fontStyle=1;" vertex="1" parent="external_group">
+          <mxGeometry x="40" y="135" width="290" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ext_faceid" value="FastAPI FaceID Service (Python)&lt;br&gt;&lt;span style=&quot;font-weight: normal; font-size: 11px;&quot;&gt;HTTP-based facial recognition comparison&lt;/span&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#64748b;fontColor=#1e293b;fontStyle=1;" vertex="1" parent="external_group">
+          <mxGeometry x="40" y="225" width="290" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ext_cloudinary" value="Cloudinary Storage API&lt;br&gt;&lt;span style=&quot;font-weight: normal; font-size: 11px;&quot;&gt;Cloud media hosting for operational assets&lt;/span&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#64748b;fontColor=#1e293b;fontStyle=1;" vertex="1" parent="external_group">
+          <mxGeometry x="40" y="315" width="290" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ext_weather" value="OpenWeatherMap API&lt;br&gt;&lt;span style=&quot;font-weight: normal; font-size: 11px;&quot;&gt;Real-time weather info for tour schedules&lt;/span&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#64748b;fontColor=#1e293b;fontStyle=1;" vertex="1" parent="external_group">
+          <mxGeometry x="40" y="405" width="290" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- FLOW CONNECTOR LINES (EDGES) -->
+        
+        <!-- Clients to Security Gateway -->
+        <mxCell id="flow_clients_to_sec" value="HTTPS Request" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=1.5;fontColor=#475569;fontStyle=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor_group" target="security_group">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Security Gateway to Controller Layer -->
+        <mxCell id="flow_sec_to_ctrl" value="Authorized Requests" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=1.5;fontColor=#475569;fontStyle=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="security_group" target="presentation_group">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- AOP Logging relationship -->
+        <mxCell id="flow_aop_logging" value="Audit Log Interceptor" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=1.2;dashed=1;fontColor=#475569;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.8;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="sec_aop" target="service_group">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="790" y="340" />
+              <mxPoint x="780" y="340" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Controllers to Services -->
+        <mxCell id="flow_ctrl_to_service" value="Call Business Layer" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=1.5;fontColor=#475569;fontStyle=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="presentation_group" target="service_group">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Services to Repositories -->
+        <mxCell id="flow_service_to_repo" value="Data Operations" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=1.5;fontColor=#475569;fontStyle=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="service_group" target="repo_group">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Repositories to JPA Entities -->
+        <mxCell id="flow_repo_to_entities" value="ORM Mapping" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=1.5;fontColor=#475569;fontStyle=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="repo_group" target="db_group">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Entities to MySQL Database -->
+        <mxCell id="flow_entities_to_mysql" value="Persists to Prod" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=1.5;fontColor=#475569;fontStyle=1;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="jpa_entities" target="db_mysql">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="313" y="1260" />
+              <mxPoint x="240" y="1260" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Entities to H2 Database -->
+        <mxCell id="flow_entities_to_h2" value="Persists to Dev (RAM)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=1.5;fontColor=#475569;fontStyle=1;exitX=0.75;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="jpa_entities" target="db_h2">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="693" y="1260" />
+              <mxPoint x="610" y="1260" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Services implementation to External integrations -->
+        <mxCell id="flow_service_to_ext" value="Integrations API Calls" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=1.5;fontColor=#475569;fontStyle=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="service_group" target="external_group">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- UI Response Flows -->
+        
+        <!-- Thymeleaf output to Customer Browser -->
+        <mxCell id="flow_thymeleaf_to_browser" value="Return rendered HTML View" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=1.2;dashed=1;fontColor=#475569;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.15;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="thymeleaf_engine" target="actor_group">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="400" y="330" />
+              <mxPoint x="228" y="330" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- REST JSON Output to Client -->
+        <mxCell id="flow_rest_json_to_client" value="Return REST DTO JSON Data" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=1.2;dashed=1;fontColor=#475569;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.85;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="dto_obj" target="actor_group">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="833" y="330" />
+              <mxPoint x="823" y="330" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

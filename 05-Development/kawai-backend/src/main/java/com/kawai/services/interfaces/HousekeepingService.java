@@ -41,6 +41,12 @@ public interface HousekeepingService {
      */
     List<HotelOperation> getPendingOperations();
 
+    /**
+     * Tự động tạo task Maintenance cho các hư hỏng đã được ghi nhận giá.
+     * @param room Phòng cần kiểm tra và tạo task bảo trì
+     */
+    void createMaintenanceTaskForPricedDamages(Room room);
+
     void escalateTaskByRoomNumber(String roomNumber);
 
     /**
