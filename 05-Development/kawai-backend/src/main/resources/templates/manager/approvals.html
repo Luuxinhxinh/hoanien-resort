@@ -69,6 +69,10 @@
             background: #222222;
         }
 
+        .btn-approve .material-symbols-outlined {
+            color: #ffffff !important;
+        }
+
         .btn-reject {
             background: transparent;
             color: #7a7a7a;
@@ -136,31 +140,35 @@
         }
 
         .type-discount {
-            color: var(--primary);
+            color: #726245;
         }
+
         .type-discount::before {
-            background: var(--primary);
+            background: #726245;
         }
 
         .type-late {
-            color: #1976d2;
+            color: #303d4b;
         }
+
         .type-late::before {
-            background: #1976d2;
+            background: #293745;
         }
 
         .type-cancel {
-            color: #d32f2f;
+            color: #681212;
         }
+
         .type-cancel::before {
-            background: #d32f2f;
+            background: #681212;
         }
 
         .type-downgrade {
-            color: #388e3c;
+            color: #3f5140;
         }
+
         .type-downgrade::before {
-            background: #388e3c;
+            background: #3f5140;
         }
 
         .td-notes {
@@ -191,6 +199,37 @@
 
         .btn-readmore:hover {
             text-decoration: underline;
+        }
+
+        /* Request type dynamic styling */
+        tr:has(.type-discount) .promo-code-badge {
+            color: #726245 !important;
+            background: rgba(114, 98, 69, 0.1) !important;
+        }
+        tr:has(.type-late) .promo-code-badge {
+            color: #303d4b !important;
+            background: rgba(48, 61, 75, 0.1) !important;
+        }
+        tr:has(.type-cancel) .promo-code-badge {
+            color: #681212 !important;
+            background: rgba(104, 18, 18, 0.1) !important;
+        }
+        tr:has(.type-downgrade) .promo-code-badge {
+            color: #3f5140 !important;
+            background: rgba(63, 81, 64, 0.1) !important;
+        }
+
+        tr:has(.type-discount) .btn-readmore {
+            color: #726245 !important;
+        }
+        tr:has(.type-late) .btn-readmore {
+            color: #303d4b !important;
+        }
+        tr:has(.type-cancel) .btn-readmore {
+            color: #681212 !important;
+        }
+        tr:has(.type-downgrade) .btn-readmore {
+            color: #3f5140 !important;
         }
 
         /* Note Modal */
@@ -476,7 +515,7 @@
                                         </div>
                                         <div th:if="${item.promoCode != null and item.promoCode != 'N/A'}"
                                             style="font-size: 11px; color: #8b8b8b; margin-top: 6px; font-family: var(--font-mono);">
-                                            Mã: <span th:text="${item.promoCode}"
+                                            Mã: <span th:text="${item.promoCode}" class="promo-code-badge"
                                                 style="font-weight: bold; background: rgba(201,169,110,0.1); color: var(--primary); padding: 2px 6px; border-radius: 4px;">GOLDEN</span>
                                         </div>
                                     </td>
@@ -503,7 +542,7 @@
                                             <button class="btn-action btn-approve"
                                                 th:onclick="'handleApproval(' + ${item.taskId} + ', \'approve\')'">
                                                 <span class="material-symbols-outlined"
-                                                    style="font-size: 16px;">check</span> Duyệt
+                                                    style="font-size: 16px; color: #ffffff !important;">check</span> Duyệt
                                             </button>
                                             <button class="btn-action btn-reject"
                                                 th:onclick="'handleApproval(' + ${item.taskId} + ', \'reject\')'">
@@ -573,7 +612,7 @@
                                         </div>
                                         <div th:if="${item.promoCode != null and item.promoCode != 'N/A'}"
                                             style="font-size: 11px; color: #8b8b8b; margin-top: 6px; font-family: var(--font-mono);">
-                                            Mã: <span th:text="${item.promoCode}"
+                                            Mã: <span th:text="${item.promoCode}" class="promo-code-badge"
                                                 style="font-weight: bold; background: rgba(201,169,110,0.1); color: var(--primary); padding: 2px 6px; border-radius: 4px;">GOLDEN</span>
                                         </div>
                                     </td>
@@ -656,7 +695,7 @@
                                         </div>
                                         <div th:if="${item.promoCode != null and item.promoCode != 'N/A'}"
                                             style="font-size: 11px; color: #8b8b8b; margin-top: 6px; font-family: var(--font-mono);">
-                                            Mã: <span th:text="${item.promoCode}"
+                                            Mã: <span th:text="${item.promoCode}" class="promo-code-badge"
                                                 style="font-weight: bold; background: rgba(201,169,110,0.1); color: var(--primary); padding: 2px 6px; border-radius: 4px;">GOLDEN</span>
                                         </div>
                                     </td>

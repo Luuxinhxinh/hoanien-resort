@@ -410,8 +410,12 @@ public class TourBookingServiceImpl implements TourBookingService {
                         BigDecimal available = limit.add(creditTopUp).subtract(charged);
 
                         if (available.compareTo(totalPrice) < 0) {
-                                LOG.warn("TOUR-LIMIT WARNING: Han muc chi tieu cua phong {} khong du de thanh toan tour (Available: {}, Price: {}). Van cho phep ghi no folio theo yeu cau demo/post-room.",
+                                LOG.warn("TOUR-LIMIT BLOCKED: Han muc chi tieu cua phong {} khong du de thanh toan tour (Available: {}, Price: {})",
                                                 detail.getId(), available, totalPrice);
+                                throw new IllegalStateException(
+                                                "TOUR-006: Hạn mức chi tiêu còn lại của phòng không đủ để ký gửi tour này (Hạn mức khả dụng: "
+                                                                + String.format("%,.0f", available.doubleValue()) + " VNĐ, Giá tour: "
+                                                                + String.format("%,.0f", totalPrice.doubleValue()) + " VNĐ). Vui lòng nạp thêm tiền nâng hạn mức.");
                         }
 
                         FolioItem folioItem = new FolioItem();

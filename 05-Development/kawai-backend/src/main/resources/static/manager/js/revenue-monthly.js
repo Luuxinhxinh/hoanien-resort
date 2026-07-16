@@ -2,7 +2,7 @@
 
 (() => {
 const C_ROOM='#C9A96E',C_FNB='#7A9C7A',C_TOUR='#6B8C9A';
-const C_GRID='rgba(44,42,30,0.07)',C_TICK='#8B7355';
+const C_GRID='rgba(44,42,30,0.07)',C_TICK='#6a505bcf';
 
 Chart.defaults.font.family="'DM Sans',sans-serif";
 Chart.defaults.font.size=12; Chart.defaults.color=C_TICK;

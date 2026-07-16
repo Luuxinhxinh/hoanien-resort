@@ -415,7 +415,7 @@
                                     <span class="type-badge" th:text="${room.category}"></span>
                                 </div>
                                 <div class="room-status-text"
-                                    th:text="${room.hasUrgentMaintenance and room.hasUrgentClean ? 'Occupied (Sửa & Dọn)' : (room.hasUrgentMaintenance ? 'Occupied (Cần sửa)' : (room.hasUrgentClean ? 'Occupied (Dọn khẩn)' : (#strings.equalsIgnoreCase(room.status, 'Vacant_Clean') ? 'Ready' : (#strings.equalsIgnoreCase(room.status, 'Vacant_Dirty') ? 'Needs cleaning' : (#strings.equalsIgnoreCase(room.status, 'Maintenance') ? 'Maintenance' : (#strings.equalsIgnoreCase(room.status, 'Occupied') ? 'Occupied' : room.status))))))}">
+                                    th:text="${(#strings.equalsIgnoreCase(room.status, 'Occupied') ? 'Occupied' : (#strings.equalsIgnoreCase(room.status, 'Vacant_Clean') ? 'Ready' : (#strings.equalsIgnoreCase(room.status, 'Vacant_Dirty') ? 'Needs cleaning' : (#strings.equalsIgnoreCase(room.status, 'Maintenance') ? 'Maintenance' : room.status)))) + (room.hasUrgentMaintenance and room.hasUrgentClean ? ' (Sửa & Dọn)' : (room.hasUrgentMaintenance ? ' (Cần sửa)' : (room.hasUrgentClean ? ' (Dọn khẩn)' : '')))}">
                                 </div>
                                 <!-- Báo sửa chữa khẩn cấp -->
                                 <button title="Yêu cầu sửa chữa khẩn"
@@ -631,6 +631,11 @@
                             console.log('[WS] Nhận tin nhắn từ kênh Chung (/topic/operations):', payload);
                             if (payload.type === 'NEW_TASK') return;
                             saveAndShow('📢 THÔNG BÁO HỆ THỐNG: \n' + payload.message, false);
+                            
+                            // Tự động tải lại trang sau 1.5 giây để cập nhật sơ đồ phòng
+                            setTimeout(function() {
+                                window.location.reload();
+                            }, 1500);
                         } catch (e) { console.error('[WS] parse error', e); }
                     });
 

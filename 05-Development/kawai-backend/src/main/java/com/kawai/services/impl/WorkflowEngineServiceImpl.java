@@ -143,9 +143,21 @@ public class WorkflowEngineServiceImpl implements WorkflowEngineService {
                             Long roomId = safeLong(payload.get("room_id"));
                             if (roomId != null && statusValue != null) {
                                 roomRepository.findById(roomId).ifPresent(room -> {
-                                    room.setRoomStatus(statusValue);
+                                    String finalStatus = statusValue;
+                                    if ("Vacant_Clean".equalsIgnoreCase(statusValue) || "Vacant_Dirty".equalsIgnoreCase(statusValue)) {
+                                        boolean hasActiveMaintenance = hotelOperationRepository.findAll().stream()
+                                                .anyMatch(t -> t.getRoom() != null && t.getRoom().getId().equals(room.getId())
+                                                        && ("Maintenance".equalsIgnoreCase(t.getOperationalType())
+                                                                || "MAINTENANCE".equalsIgnoreCase(t.getOperationalType())
+                                                                || "DAMAGE_CHECK".equalsIgnoreCase(t.getOperationalType()))
+                                                        && !"Completed".equalsIgnoreCase(t.getStatus()));
+                                        if (hasActiveMaintenance) {
+                                            finalStatus = "Maintenance";
+                                        }
+                                    }
+                                    room.setRoomStatus(finalStatus);
                                     roomRepository.save(room);
-                                    System.out.println("Dynamic Action: Updated Room " + room.getRoomNumber() + " status to " + statusValue);
+                                    System.out.println("Dynamic Action: Updated Room " + room.getRoomNumber() + " status to " + finalStatus);
                                 });
                             }
                         } 

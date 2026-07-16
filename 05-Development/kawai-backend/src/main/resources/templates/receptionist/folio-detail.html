@@ -11,7 +11,8 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@400;600;700&family=Playfair+Display:wght@400;500;600;700&family=EB+Garamond:wght@400;500;600;700&family=Hanken+Grotesk:wght@300;400;500;600;700&display=swap"
         rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet">
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Custom CSS -->
@@ -21,23 +22,23 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
-          corePlugins: {
-            preflight: false,
-          },
-          theme: {
-            extend: {
-              colors: {
-                'linen-bg': '#fff8ef',
-                'gilded-gold': '#c5a059',
-                'deep-charcoal': '#28221B',
-                'soft-gray': '#f4f1ee',
-              },
-              fontFamily: {
-                serif: ['Playfair Display', 'serif'],
-                sans: ['Inter', 'sans-serif'],
-              },
+            corePlugins: {
+                preflight: false,
+            },
+            theme: {
+                extend: {
+                    colors: {
+                        'linen-bg': '#fff8ef',
+                        'gilded-gold': '#c5a059',
+                        'deep-charcoal': '#28221B',
+                        'soft-gray': '#f4f1ee',
+                    },
+                    fontFamily: {
+                        serif: ['Playfair Display', 'serif'],
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
             }
-          }
         }
     </script>
     <style>
@@ -597,7 +598,8 @@
             color: #705829 !important;
         }
 
-        #paymentModal .method-btn i, #paymentModal .method-btn span {
+        #paymentModal .method-btn i,
+        #paymentModal .method-btn span {
             font-size: 16px;
         }
 
@@ -753,7 +755,9 @@
         }
 
         @media print {
-            html, body {
+
+            html,
+            body {
                 margin: 0 !important;
                 padding: 0 !important;
                 height: auto !important;
@@ -789,12 +793,15 @@
             background-color: rgba(45, 41, 38, 0.4);
             backdrop-filter: blur(4px);
         }
+
         .status-card {
             background-color: #fcfaf7;
             border: 1px solid #efeae4;
         }
 
-        #successModal h1, #successModal h2, #successModal h3 {
+        #successModal h1,
+        #successModal h2,
+        #successModal h3 {
             font-family: 'Playfair Display', serif !important;
             font-weight: 500 !important;
         }
@@ -867,7 +874,8 @@
                 </div>
                 <div id="printPromoRow"
                     style="display: none; justify-content: space-between; font-weight: bold; padding: 5px 0; color: #e67e22;">
-                    <span>Khuyến mãi (<span id="printPromoLabel">0%</span>):</span> <span id="printPromoAmount">-0</span>
+                    <span>Khuyến mãi (<span id="printPromoLabel">0%</span>):</span> <span
+                        id="printPromoAmount">-0</span>
                 </div>
                 <div id="printServiceChargeRow"
                     style="display: none; justify-content: space-between; font-weight: bold; padding: 5px 0;">
@@ -1046,19 +1054,22 @@
                             </div>
 
                             <!-- Thông tin khuyến mãi chi tiết sau khi áp dụng -->
-                            <div class="summary-row" id="row-promo-display" style="display: none; color: #e67e22; margin-top: 8px;">
+                            <div class="summary-row" id="row-promo-display"
+                                style="display: none; color: #e67e22; margin-top: 8px;">
                                 <span>Khuyến mãi (<span id="promoLabelDisplay">0%</span>)</span>
                                 <span id="promoAmountDisplay">-0 VNĐ</span>
                             </div>
 
                             <!-- Dòng Phí phục vụ (Service Charge) -->
-                            <div class="summary-row" id="row-service-charge" style="display: none; color: #2c2a29; margin-top: 8px;">
+                            <div class="summary-row" id="row-service-charge"
+                                style="display: none; color: #2c2a29; margin-top: 8px;">
                                 <span>Phí phục vụ (5%)</span>
                                 <span id="invoiceServiceChargeAmount">0 VNĐ</span>
                             </div>
 
                             <!-- Dòng VAT -->
-                            <div class="summary-row" id="row-vat" style="color: #2c2a29; margin-top: 8px; border-top: 1px dashed #efebe4; padding-top: 8px;">
+                            <div class="summary-row" id="row-vat"
+                                style="color: #2c2a29; margin-top: 8px; border-top: 1px dashed #efebe4; padding-top: 8px;">
                                 <span>VAT (10%)</span>
                                 <span id="invoiceVatAmount">0 VNĐ</span>
                             </div>
@@ -1084,14 +1095,16 @@
                                 </div>
                             </div>
 
-                            <div class="summary-row outstanding-row" style="border-top: 1px solid #2c2a29; margin-top: 16px; padding-top: 16px;">
+                            <div class="summary-row outstanding-row"
+                                style="border-top: 1px solid #2c2a29; margin-top: 16px; padding-top: 16px;">
                                 <span class="label">Tổng tiền cần thanh toán</span>
                                 <span class="amount" id="originalOutstandingAmount">0 VNĐ</span>
                             </div>
                             <button class="btn-checkout no-print" id="btnProceedOriginal"
                                 onclick="openPaymentModal(globalOriginalOutstanding, true)">Thanh toán toàn bộ</button>
                             <button class="btn-secondary no-print" id="btnPrintOriginal"
-                                onclick="printInvoiceFromSummary()" disabled style="opacity: 0.5; pointer-events: none; cursor: not-allowed;">In hóa đơn</button>
+                                onclick="printInvoiceFromSummary()" disabled
+                                style="opacity: 0.5; pointer-events: none; cursor: not-allowed;">In hóa đơn</button>
                         </div>
                     </div>
 
@@ -1148,7 +1161,8 @@
     <div id="paymentModal" class="split-modal-overlay" style="display: none;">
         <div class="payment-modal-content">
             <h3>Xử lý Thanh toán</h3>
-            <div class="payment-amount-display" id="paymentTotalAmount">0 <span style="font-size: 24px; font-family: 'Playfair Display', serif; font-weight: 500;">VNĐ</span></div>
+            <div class="payment-amount-display" id="paymentTotalAmount">0 <span
+                    style="font-size: 24px; font-family: 'Playfair Display', serif; font-weight: 500;">VNĐ</span></div>
 
             <label>Phương thức thanh toán</label>
             <div class="payment-methods">
@@ -1173,24 +1187,30 @@
 
             <div class="modal-actions">
                 <button class="btn-apply" onclick="closePaymentModal()">Hủy</button>
-                <button class="btn-checkout" id="btnConfirmPayment" onclick="processPayment()">Xác nhận Thanh toán</button>
+                <button class="btn-checkout" id="btnConfirmPayment" onclick="processPayment()">Xác nhận Thanh
+                    toán</button>
             </div>
         </div>
     </div>
 
     <!-- Success & Automation Modal -->
-    <div id="successModal" class="modal-overlay fixed inset-0 flex items-center justify-center z-50 p-4" style="display: none;">
-        <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden flex flex-col items-center p-8 text-center" data-purpose="modal-container">
+    <div id="successModal" class="modal-overlay fixed inset-0 flex items-center justify-center z-50 p-4"
+        style="display: none;">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden flex flex-col items-center p-8 text-center"
+            data-purpose="modal-container">
             <!-- BEGIN: SuccessIcon -->
-            <div class="mb-6 flex items-center justify-center w-20 h-20 rounded-full bg-linen-bg border border-gilded-gold/20" data-purpose="success-icon-container">
-                <div class="w-16 h-16 rounded-full bg-gilded-gold flex items-center justify-center shadow-lg shadow-gilded-gold/30">
-                    <svg class="h-8 w-8 text-white" fill="none" stroke="currentColor" stroke-width="3" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <div class="mb-6 flex items-center justify-center w-20 h-20 rounded-full bg-linen-bg border border-gilded-gold/20"
+                data-purpose="success-icon-container">
+                <div
+                    class="w-16 h-16 rounded-full bg-gilded-gold flex items-center justify-center shadow-lg shadow-gilded-gold/30">
+                    <svg class="h-8 w-8 text-white" fill="none" stroke="currentColor" stroke-width="3"
+                        viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"></path>
                     </svg>
                 </div>
             </div>
             <!-- END: SuccessIcon -->
-            
+
             <!-- BEGIN: HeaderSection -->
             <div class="mb-8">
                 <h1 class="font-serif text-3xl font-medium text-deep-charcoal mb-1">
@@ -1201,9 +1221,10 @@
                 </p>
             </div>
             <!-- END: HeaderSection -->
-            
+
             <!-- BEGIN: StatusDetails -->
-            <div class="status-card w-full rounded-xl p-5 mb-8 text-left space-y-4" data-purpose="automated-actions-list">
+            <div class="status-card w-full rounded-xl p-5 mb-8 text-left space-y-4"
+                data-purpose="automated-actions-list">
                 <p class="text-[10px] tracking-[0.15em] text-gray-400 font-bold uppercase mb-4">
                     Hệ thống đã tự động xử lý:
                 </p>
@@ -1211,7 +1232,9 @@
                 <div class="flex items-start gap-3">
                     <div class="mt-0.5">
                         <svg class="w-4 h-4 text-gilded-gold" fill="currentColor" viewbox="0 0 20 20">
-                            <path clip-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" fill-rule="evenodd"></path>
+                            <path clip-rule="evenodd"
+                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                fill-rule="evenodd"></path>
                         </svg>
                     </div>
                     <p class="text-sm text-gray-700 leading-tight">
@@ -1222,11 +1245,13 @@
                 <div class="flex items-start gap-3">
                     <div class="mt-0.5">
                         <svg class="w-4 h-4 text-gilded-gold" fill="currentColor" viewbox="0 0 20 20">
-                            <path clip-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" fill-rule="evenodd"></path>
+                            <path clip-rule="evenodd"
+                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                fill-rule="evenodd"></path>
                         </svg>
                     </div>
                     <p class="text-sm text-gray-700 leading-tight">
-                        Trạng thái phòng cập nhật: <br/>
+                        Trạng thái phòng cập nhật: <br />
                         <span class="font-medium">Vacant_Dirty</span>
                     </p>
                 </div>
@@ -1234,7 +1259,9 @@
                 <div class="flex items-start gap-3">
                     <div class="mt-0.5">
                         <svg class="w-4 h-4 text-gilded-gold" fill="currentColor" viewbox="0 0 20 20">
-                            <path clip-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" fill-rule="evenodd"></path>
+                            <path clip-rule="evenodd"
+                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                fill-rule="evenodd"></path>
                         </svg>
                     </div>
                     <p class="text-sm text-gray-700 leading-tight">
@@ -1243,11 +1270,13 @@
                 </div>
             </div>
             <!-- END: StatusDetails -->
-            
+
             <!-- BEGIN: ActionButtons -->
             <div class="w-full no-print">
                 <!-- Close Button -->
-                <button onclick="closeSuccessModal()" class="w-full flex items-center justify-center py-3 px-4 rounded-xl bg-deep-charcoal text-white hover:bg-black transition-all shadow-lg active:scale-95 no-print" data-purpose="btn-close">
+                <button onclick="closeSuccessModal()"
+                    class="w-full flex items-center justify-center py-3 px-4 rounded-xl bg-deep-charcoal text-white hover:bg-black transition-all shadow-lg active:scale-95 no-print"
+                    data-purpose="btn-close">
                     <span class="text-sm font-medium">Đóng</span>
                 </button>
             </div>
@@ -1284,6 +1313,7 @@
         let appliedGroupPromoDiscount = 0;
         let globalOriginalSubtotal = 0;
         let globalServiceChargeTotal = 0;
+        window.tourBookingDetailsMap = {};
 
         function isDamageOrMaintenanceItem(item) {
             if (!item) return false;
@@ -1690,40 +1720,40 @@
                                  </div>
                                  <div style="display: flex; flex-direction: column; gap: 2px;">
                                        ${(() => {
-                                           const checkIn = new Date(data.checkInDate);
-                                           const checkOut = new Date(data.checkOutDate);
-                                           const nights = Math.max(1, Math.round((checkOut - checkIn) / (1000 * 60 * 60 * 24)));
-                                           const dailyRoomCharge = data.dailyRate || ((data.roomCharge || 0) / nights);
-                                           const dailyExtraSurcharge = (data.extraSurcharge || 0) / nights;
-                                           const extraAdultsCount = Math.max(0, data.numberOfAdults - (data.baseAdults || 2));
-                                           const dailyAdultSurcharge = extraAdultsCount * (data.extraAdultSurcharge || 0);
-                                           const dailyChildSurcharge = Math.max(0, dailyExtraSurcharge - dailyAdultSurcharge);
-                                           
-                                           let html = `<div>Giá phòng: <span style="color: #2c2a29; font-weight: 500;">${formatCurrency(dailyRoomCharge)}/đêm</span></div>`;
-                                           
-                                           if (extraAdultsCount > 0) {
-                                               html += `
+                        const checkIn = new Date(data.checkInDate);
+                        const checkOut = new Date(data.checkOutDate);
+                        const nights = Math.max(1, Math.round((checkOut - checkIn) / (1000 * 60 * 60 * 24)));
+                        const dailyRoomCharge = data.dailyRate || ((data.roomCharge || 0) / nights);
+                        const dailyExtraSurcharge = (data.extraSurcharge || 0) / nights;
+                        const extraAdultsCount = Math.max(0, data.numberOfAdults - (data.baseAdults || 2));
+                        const dailyAdultSurcharge = extraAdultsCount * (data.extraAdultSurcharge || 0);
+                        const dailyChildSurcharge = Math.max(0, dailyExtraSurcharge - dailyAdultSurcharge);
+
+                        let html = `<div style="font-size: 13px; color: #8e8a86; font-family: 'Inter', sans-serif;">Giá phòng: <span style="color: #2c2a29; font-weight: 500;">${formatCurrency(dailyRoomCharge)}/đêm</span></div>`;
+
+                        if (extraAdultsCount > 0) {
+                            html += `
                                                <div style="font-size: 11.5px; color: #8e8a86; font-style: italic; font-weight: 500; padding-left: 8px;">
                                                    ↳ Phụ thu người lớn (x${extraAdultsCount} người): ${formatCurrency(dailyAdultSurcharge)}/đêm
                                                </div>`;
-                                           }
-                                           if (dailyChildSurcharge > 0) {
-                                               const extraChildrenCount = Math.max(0, data.numberOfChildren - (data.baseChildren || 0));
-                                               if (extraChildrenCount > 0) {
-                                                   const childUnitPrice = dailyChildSurcharge / extraChildrenCount;
-                                                   html += `
+                        }
+                        if (dailyChildSurcharge > 0) {
+                            const extraChildrenCount = Math.max(0, data.numberOfChildren - (data.baseChildren || 0));
+                            if (extraChildrenCount > 0) {
+                                const childUnitPrice = dailyChildSurcharge / extraChildrenCount;
+                                html += `
                                                    <div style="font-size: 11.5px; color: #8e8a86; font-style: italic; font-weight: 500; padding-left: 8px;">
                                                        ↳ Phụ thu trẻ em (x${extraChildrenCount} người): ${formatCurrency(dailyChildSurcharge)}/đêm
                                                    </div>`;
-                                               } else {
-                                                   html += `
+                            } else {
+                                html += `
                                                    <div style="font-size: 11.5px; color: #8e8a86; font-style: italic; font-weight: 500; padding-left: 8px;">
                                                        ↳ Phụ thu trẻ em đi kèm: ${formatCurrency(dailyChildSurcharge)}/đêm
                                                    </div>`;
-                                               }
-                                           }
-                                           return html;
-                                       })()}
+                            }
+                        }
+                        return html;
+                    })()}
                                   </div>
                                  ${data.detailStatus === 'Checked_Out' ? '<div style="margin-top: 2px;"><span class="status-badge" style="background-color: #e6e2db; color: #5a544f; padding: 4px 8px; border-radius: 9999px; font-size: 10px; font-weight: 700; display: inline-block; letter-spacing: 0.5px; text-transform: uppercase; font-family: \'Inter\', sans-serif;">Checked-Out</span></div>' : ''}
                              </div>
@@ -2563,7 +2593,7 @@
             } else {
                 // If payment was successful (or no unsettled items are left), gather ALL items for print.
                 // Otherwise, only gather unsettled items.
-                const hasUnsettled = globalFolioResults.some(roomResult => 
+                const hasUnsettled = globalFolioResults.some(roomResult =>
                     roomResult && roomResult.items && roomResult.items.some(item => item.status !== 'Settled')
                 );
                 globalFolioResults.forEach(roomResult => {
@@ -2586,6 +2616,70 @@
             let groupedItems = [];
             itemsToPrint.forEach(item => {
                 const isRoom = (item.sourceDepartment || '').toLowerCase() === 'room';
+                const isTour = (item.sourceDepartment || '').toLowerCase() === 'tour';
+
+                if (isTour && item.bookingId) {
+                    const tourBookingId = item.bookingId;
+                    const tourDetail = window.tourBookingDetailsMap ? window.tourBookingDetailsMap[tourBookingId] : null;
+                    if (tourDetail && tourDetail.tourName) {
+                        const itemDate = (item.createdAt) ? formatDateStr(item.createdAt.substring(0, 10)) : new Date().toLocaleDateString('vi-VN');
+                        const departureDate = tourDetail.departureDate || '';
+                        const departureTime = tourDetail.departureTime || '';
+
+                        let children = [];
+                        if (tourDetail.adultCount > 0) {
+                            children.push({
+                                description: `- Người lớn`,
+                                qty: tourDetail.adultCount,
+                                unitVal: tourDetail.adultPrice,
+                                amount: tourDetail.adultCount * tourDetail.adultPrice,
+                                itemDate: ""
+                            });
+                        }
+                        if (tourDetail.childCount > 0) {
+                            children.push({
+                                description: `- Trẻ em (2-11 tuổi)`,
+                                qty: tourDetail.childCount,
+                                unitVal: tourDetail.childPrice,
+                                amount: tourDetail.childCount * tourDetail.childPrice,
+                                itemDate: ""
+                            });
+                        }
+                        if (tourDetail.infantCount > 0) {
+                            children.push({
+                                description: `- Em bé (dưới 2 tuổi)`,
+                                qty: tourDetail.infantCount,
+                                unitVal: 0,
+                                amount: 0,
+                                itemDate: "",
+                                isInfant: true
+                            });
+                        }
+                        if (tourDetail.isInsuranceRequired || (tourDetail.insuranceFee && parseFloat(tourDetail.insuranceFee) > 0)) {
+                            const insurancePolicy = tourDetail.insurancePolicyNumber ? ` (${tourDetail.insurancePolicyNumber})` : '';
+                            const insuredCount = tourDetail.participantCount || (tourDetail.adultCount + tourDetail.childCount + tourDetail.infantCount);
+                            children.push({
+                                description: `- Bảo hiểm du lịch bắt buộc${insurancePolicy}`,
+                                qty: insuredCount,
+                                unitVal: tourDetail.insurancePrice,
+                                amount: 0,
+                                itemDate: "",
+                                isInsurance: true
+                            });
+                        }
+
+                        groupedItems.push({
+                            description: `${tourDetail.tourName} (Khởi hành: ${departureTime} - ${departureDate})`,
+                            qty: "",
+                            unitVal: "",
+                            amount: tourDetail.tourCharge,
+                            itemDate: itemDate,
+                            isParentTour: true,
+                            children: children
+                        });
+                        return; // Done with Tour
+                    }
+                }
 
                 let orderMatch = item.description ? item.description.match(/Order\s*(?:#|số)?\s*(\d+)/i) : null;
                 if (orderMatch && orderMatch[1]) {
@@ -2594,7 +2688,7 @@
                     if (fnbDetail && fnbDetail.items && fnbDetail.items.length > 0) {
                         const dishesTotal = fnbDetail.items.reduce((sum, di) => sum + di.amount, 0);
                         const itemDate = (item.createdAt) ? formatDateStr(item.createdAt.substring(0, 10)) : new Date().toLocaleDateString('vi-VN');
-                        
+
                         // Add parent F&B Order row
                         groupedItems.push({
                             description: `F&B CHARGES (Order #${orderId})`,
@@ -2626,7 +2720,7 @@
                 // For normal items (Room, Tour, Minibar, etc.)
                 const qty = isRoom ? Number(nights) : 1;
                 const unitVal = isRoom ? (Number(item.amount) / Number(nights)) : Number(item.amount);
-                
+
                 // Clean description: remove "(Expected)" or "Expected" from description for guest presentation
                 let cleanDesc = item.description || '';
                 cleanDesc = cleanDesc.replace(/\s*\(Expected\)/gi, '').replace(/\s*Expected\s*/gi, '').trim();
@@ -2660,8 +2754,8 @@
                     lastDateStr = g.itemDate;
                 }
 
-                if (g.isParentFnb) {
-                    // Parent row: Bold description, blank qty and price, bold amount
+                if (g.isParentFnb || g.isParentTour) {
+                    // Parent row: Normal description, blank qty and price, normal amount
                     tbodyHtml += `
                         <tr>
                             <td style="padding: 10px 0; border-bottom: 1px dashed #ddd;">${displayDate}</td>
@@ -2676,13 +2770,19 @@
                     // Children rows: Indented, normal description, standard qty, price, and amount
                     if (g.children) {
                         g.children.forEach(c => {
+                            let formattedVal = c.isInfant ? 'Miễn phí' : formatNumber(c.unitVal);
+                            let formattedAmt = formatNumber(c.amount) + ' VNĐ';
+                            if (c.isInsurance) {
+                                formattedVal = formatNumber(c.unitVal);
+                                formattedAmt = 'Đã bao gồm';
+                            }
                             tbodyHtml += `
                                 <tr style="color: #2c2a29;">
                                     <td style="padding: 8px 0; border-bottom: 1px dashed #eee;"></td>
-                                    <td style="padding: 8px 0; border-bottom: 1px dashed #eee; padding-left: 20px;">${c.description}</td>
-                                    <td style="padding: 8px 0; border-bottom: 1px dashed #eee; text-align: center;">${c.qty}</td>
-                                    <td style="padding: 8px 0; border-bottom: 1px dashed #eee; text-align: right;">${formatNumber(c.unitVal)}</td>
-                                    <td style="padding: 8px 0; border-bottom: 1px dashed #eee; text-align: right;">${formatNumber(c.amount)}</td>
+                                    <td style="padding: 8px 0; border-bottom: 1px dashed #eee; padding-left: 20px; font-style: italic;">${c.description}</td>
+                                    <td style="padding: 8px 0; border-bottom: 1px dashed #eee; text-align: center; font-style: italic;">${c.qty}</td>
+                                    <td style="padding: 8px 0; border-bottom: 1px dashed #eee; text-align: right; font-style: italic;">${formattedVal}</td>
+                                    <td style="padding: 8px 0; border-bottom: 1px dashed #eee; text-align: right; font-style: italic;">${formattedAmt}</td>
                                 </tr>
                             `;
                         });
@@ -2720,8 +2820,8 @@
             if (printPromoRow) {
                 if (promoDiscount > 0) {
                     printPromoRow.style.display = 'flex';
-                    const promoLabel = currentPaymentRoomId === null ? 
-                        (appliedGroupPromoType === 'FIXED_AMOUNT' ? 'Cố định' : (window.appliedGroupPromoValue || 0) + '%') : 
+                    const promoLabel = currentPaymentRoomId === null ?
+                        (appliedGroupPromoType === 'FIXED_AMOUNT' ? 'Cố định' : (window.appliedGroupPromoValue || 0) + '%') :
                         ((roomSummaryMap[currentPaymentRoomId] && roomSummaryMap[currentPaymentRoomId].appliedPromoType === 'FIXED_AMOUNT') ? 'Cố định' : (roomSummaryMap[currentPaymentRoomId] ? (roomSummaryMap[currentPaymentRoomId].appliedPromoValue || 0) + '%' : '0%'));
                     document.getElementById('printPromoLabel').innerText = promoLabel;
                     document.getElementById('printPromoAmount').innerText = "- " + formatNumber(promoDiscount);
@@ -2930,14 +3030,90 @@
                     if (response.ok) {
                         const data = await response.json();
                         if (data && data.tourName) {
-                            const participantCount = data.participantCount || 1;
+                            window.tourBookingDetailsMap[bookingId] = data; // Save to global cache!
+
                             const tourCharge = data.tourCharge || parseFloat(totalAmountStr);
                             const departureDate = data.departureDate || '';
                             const departureTime = data.departureTime || '';
 
-                            const basePrice = tourCharge / participantCount;
-                            const formattedBasePrice = new Intl.NumberFormat('vi-VN').format(basePrice);
-                            const formattedAmount = new Intl.NumberFormat('vi-VN').format(tourCharge) + ' VNĐ';
+                            let subTableRowsHtml = `
+                                <tr style="border-bottom: 1px dashed #f2eee8;">
+                                    <td style="text-align: left; padding: 6px 0; font-weight: 600;">
+                                        ${data.tourName}
+                                        <div style="font-size: 0.75rem; color: #95a5a6; margin-top: 2px; font-weight: normal;">Khởi hành: ${departureTime} - ${departureDate}</div>
+                                    </td>
+                                    <td style="text-align: center; padding: 6px 0;"></td>
+                                    <td style="text-align: right; padding: 6px 0;"></td>
+                                    <td style="text-align: right; padding: 6px 0;"></td>
+                                </tr>
+                            `;
+
+                            if (data.adultCount > 0) {
+                                const adultSubtotal = data.adultCount * data.adultPrice;
+                                subTableRowsHtml += `
+                                    <tr style="border-bottom: 1px dashed #f2eee8;">
+                                        <td style="text-align: left; padding: 6px 0; padding-left: 12px; color: #6e655f;">- Người lớn</td>
+                                        <td style="text-align: center; padding: 6px 0;">${data.adultCount}</td>
+                                        <td style="text-align: right; padding: 6px 0;">${new Intl.NumberFormat('vi-VN').format(data.adultPrice)}</td>
+                                        <td style="text-align: right; padding: 6px 0;">${new Intl.NumberFormat('vi-VN').format(adultSubtotal)} VNĐ</td>
+                                    </tr>
+                                `;
+                            }
+
+                            if (data.childCount > 0) {
+                                const childSubtotal = data.childCount * data.childPrice;
+                                subTableRowsHtml += `
+                                    <tr style="border-bottom: 1px dashed #f2eee8;">
+                                        <td style="text-align: left; padding: 6px 0; padding-left: 12px; color: #6e655f;">- Trẻ em (2-11 tuổi)</td>
+                                        <td style="text-align: center; padding: 6px 0;">${data.childCount}</td>
+                                        <td style="text-align: right; padding: 6px 0;">${new Intl.NumberFormat('vi-VN').format(data.childPrice)}</td>
+                                        <td style="text-align: right; padding: 6px 0;">${new Intl.NumberFormat('vi-VN').format(childSubtotal)} VNĐ</td>
+                                    </tr>
+                                `;
+                            }
+
+                            if (data.infantCount > 0) {
+                                subTableRowsHtml += `
+                                    <tr style="border-bottom: 1px dashed #f2eee8;">
+                                        <td style="text-align: left; padding: 6px 0; padding-left: 12px; color: #6e655f;">- Em bé (dưới 2 tuổi)</td>
+                                        <td style="text-align: center; padding: 6px 0;">${data.infantCount}</td>
+                                        <td style="text-align: right; padding: 6px 0; color: #7f8c8d; font-style: italic;">Miễn phí</td>
+                                        <td style="text-align: right; padding: 6px 0;">0 VNĐ</td>
+                                    </tr>
+                                `;
+                            }
+
+                            if (data.isInsuranceRequired || (data.insuranceFee && parseFloat(data.insuranceFee) > 0)) {
+                                const insurancePolicy = data.insurancePolicyNumber ? ` (${data.insurancePolicyNumber})` : '';
+                                const insuredCount = data.participantCount || (data.adultCount + data.childCount + data.infantCount);
+                                subTableRowsHtml += `
+                                    <tr style="border-bottom: 1px dashed #f2eee8;">
+                                        <td style="text-align: left; padding: 6px 0; padding-left: 12px; color: #6e655f;">- Bảo hiểm du lịch bắt buộc${insurancePolicy}</td>
+                                        <td style="text-align: center; padding: 6px 0;">${insuredCount}</td>
+                                        <td style="text-align: right; padding: 6px 0;">${new Intl.NumberFormat('vi-VN').format(data.insurancePrice)}</td>
+                                        <td style="text-align: right; padding: 6px 0; color: #7f8c8d; font-style: italic;">Đã bao gồm</td>
+                                    </tr>
+                                `;
+                            }
+
+                            if (!data.adultCount && !data.childCount && !data.infantCount) {
+                                // Fallback to old behavior
+                                const participantCount = data.participantCount || 1;
+                                const basePrice = tourCharge / participantCount;
+                                const formattedBasePrice = new Intl.NumberFormat('vi-VN').format(basePrice);
+                                const formattedAmount = new Intl.NumberFormat('vi-VN').format(tourCharge) + ' VNĐ';
+                                subTableRowsHtml += `
+                                    <tr style="border-bottom: 1px dashed #f2eee8;">
+                                        <td style="text-align: left; padding: 6px 0; font-style: italic;">
+                                            ${data.tourName}
+                                            <div style="font-size: 0.75rem; color: #95a5a6; margin-top: 2px;">Khởi hành: ${departureTime} - ${departureDate}</div>
+                                        </td>
+                                        <td style="text-align: center; padding: 6px 0; font-style: italic;">${participantCount}</td>
+                                        <td style="text-align: right; padding: 6px 0; font-style: italic;">${formattedBasePrice}</td>
+                                        <td style="text-align: right; padding: 6px 0; font-style: italic;">${formattedAmount}</td>
+                                    </tr>
+                                `;
+                            }
 
                             let subTableHtml = `
                                 <tr class="tour-child-row-${bookingId} ${trClass}" style="display: none; background-color: #faf8f5;">
@@ -2946,21 +3122,13 @@
                                             <thead>
                                                 <tr style="border-bottom: 1px dashed #e6ded4; color: #8e8a86; font-weight: 600;">
                                                     <th style="text-align: left; padding: 6px 0; width: 45%;">TÊN TOUR</th>
-                                                    <th style="text-align: center; padding: 6px 0; width: 15%;">SỐ LƯỢNG (PAX)</th>
+                                                    <th style="text-align: center; padding: 6px 0; width: 15%;">SỐ LƯỢNG</th>
                                                     <th style="text-align: right; padding: 6px 0; width: 20%;">GIÁ VÉ</th>
                                                     <th style="text-align: right; padding: 6px 0; width: 20%;">THÀNH TIỀN</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <tr style="border-bottom: 1px dashed #f2eee8;">
-                                                    <td style="text-align: left; padding: 6px 0; font-style: italic;">
-                                                        ${data.tourName}
-                                                        <div style="font-size: 0.75rem; color: #95a5a6; margin-top: 2px;">Khởi hành: ${departureTime} - ${departureDate}</div>
-                                                    </td>
-                                                    <td style="text-align: center; padding: 6px 0; font-style: italic;">${participantCount}</td>
-                                                    <td style="text-align: right; padding: 6px 0; font-style: italic;">${formattedBasePrice}</td>
-                                                    <td style="text-align: right; padding: 6px 0; font-style: italic;">${formattedAmount}</td>
-                                                </tr>
+                                                ${subTableRowsHtml}
                                                 <tr style="font-weight: 700;">
                                                     <td style="text-align: left; padding: 8px 0;">Tổng cộng chi tiết tour</td>
                                                     <td style="text-align: center; padding: 8px 0;"></td>
@@ -3101,13 +3269,13 @@
         }
     </script>
 
-                <!-- WebSocket integration for real-time task notifications -->
+    <!-- WebSocket integration for real-time task notifications -->
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
     <script th:inline="javascript">
-        (function() {
+        (function () {
             var staffId = /*[[${staffId}]]*/ 0;
 
             function showPersistentToast(notif) {
@@ -3132,9 +3300,9 @@
                         fontFamily: "'Inter', sans-serif",
                         borderRadius: "8px"
                     },
-                    callback: function() {
+                    callback: function () {
                         var saved = JSON.parse(localStorage.getItem('kawai_notifs') || '[]');
-                        saved = saved.filter(function(n) { return n.id !== notif.id; });
+                        saved = saved.filter(function (n) { return n.id !== notif.id; });
                         localStorage.setItem('kawai_notifs', JSON.stringify(saved));
                     }
                 }).showToast();
@@ -3142,13 +3310,13 @@
 
             try {
                 var pending = JSON.parse(localStorage.getItem('kawai_notifs') || '[]');
-                pending = pending.filter(function(n) {
+                pending = pending.filter(function (n) {
                     var t = n.text || '';
                     return !t.includes('khẩn cấp') && !t.includes('Yêu cầu dọn') && !t.includes('Yêu cầu sửa');
                 });
                 localStorage.setItem('kawai_notifs', JSON.stringify(pending));
-                pending.forEach(function(n) { showPersistentToast(n); });
-            } catch(e) {}
+                pending.forEach(function (n) { showPersistentToast(n); });
+            } catch (e) { }
 
             function saveAndShow(text, direct) {
                 var notif = { id: Date.now() + '_' + Math.random(), text: text, direct: direct };
@@ -3156,11 +3324,11 @@
                     var saved = JSON.parse(localStorage.getItem('kawai_notifs') || '[]');
                     saved.push(notif);
                     localStorage.setItem('kawai_notifs', JSON.stringify(saved));
-                } catch(e) {}
+                } catch (e) { }
                 showPersistentToast(notif);
             }
 
-            document.addEventListener("DOMContentLoaded", function() {
+            document.addEventListener("DOMContentLoaded", function () {
                 if (typeof SockJS === 'undefined' || typeof Stomp === 'undefined') {
                     console.warn('[WS] SockJS or Stomp not loaded');
                     return;
@@ -3168,32 +3336,32 @@
 
                 var socket = new SockJS('/ws-endpoint');
                 var stompClient = Stomp.over(socket);
-                stompClient.debug = null; 
+                stompClient.debug = null;
 
-                stompClient.connect({}, function(frame) {
+                stompClient.connect({}, function (frame) {
                     console.log('[WS] Đã kết nối thành công | staffId=' + staffId);
 
-                    stompClient.subscribe('/topic/operations', function(msg) {
+                    stompClient.subscribe('/topic/operations', function (msg) {
                         try {
                             var payload = JSON.parse(msg.body);
                             console.log('[WS] Nhận tin nhắn từ kênh Chung (/topic/operations):', payload);
                             if (payload.type === 'NEW_TASK') return;
                             saveAndShow(`📢 THÔNG BÁO HỆ THỐNG:\n` + payload.message, false);
-                        } catch(e) { console.error('[WS] parse error', e); }
+                        } catch (e) { console.error('[WS] parse error', e); }
                     });
 
                     if (staffId && staffId !== 0) {
-                        stompClient.subscribe('/topic/operations/' + staffId, function(msg) {
+                        stompClient.subscribe('/topic/operations/' + staffId, function (msg) {
                             try {
                                 var payload = JSON.parse(msg.body);
                                 console.log('[WS] Nhận tin nhắn từ kênh Đích danh (/topic/operations/' + staffId + '):', payload);
                                 saveAndShow(`🔔 NHIỆM VỤ MỚI:\n` + payload.message, true);
-                            } catch(e) { console.error('[WS] parse error', e); }
+                            } catch (e) { console.error('[WS] parse error', e); }
                         });
                         console.log('[WS] Đã đăng ký kênh riêng: /topic/operations/' + staffId);
                     }
 
-                }, function(error) {
+                }, function (error) {
                     console.error('[WS] Lỗi kết nối WebSocket:', error);
                 });
             });

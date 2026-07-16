@@ -110,7 +110,16 @@ public class HousekeepingServiceImpl implements HousekeepingService {
         if (isOccupied) {
             room.setRoomStatus("Occupied");
         } else {
-            room.setRoomStatus(STATUS_VACANT_CLEAN);
+            boolean hasActiveMaintenance = maintenanceRequestRepo.existsByRoomIdAndStatusInAndOperationalTypeIn(
+                    room.getId(),
+                    List.of("Pending", "InProgress"),
+                    List.of("MAINTENANCE", "Maintenance", "DAMAGE_CHECK")
+            );
+            if (hasActiveMaintenance) {
+                room.setRoomStatus(STATUS_MAINTENANCE);
+            } else {
+                room.setRoomStatus(STATUS_VACANT_CLEAN);
+            }
         }
         task.setStatus(STATUS_COMPLETED);
         task.setCompletedAt(LocalDateTime.now());
@@ -124,9 +133,14 @@ public class HousekeepingServiceImpl implements HousekeepingService {
 
         // Gửi thông báo WebSocket cho RoomMatrix (Receptionist) để auto-reload
         try {
-            String wsMessage = isOccupied
-                    ? "Phòng " + room.getRoomNumber() + " (đang có khách) đã được dọn dẹp sạch sẽ!"
-                    : "Phòng " + room.getRoomNumber() + " đã được dọn dẹp sạch sẽ và sẵn sàng đón khách!";
+            String wsMessage;
+            if (isOccupied) {
+                wsMessage = "Phòng " + room.getRoomNumber() + " (đang có khách) đã được dọn dẹp sạch sẽ!";
+            } else if ("Maintenance".equalsIgnoreCase(room.getRoomStatus())) {
+                wsMessage = "Phòng " + room.getRoomNumber() + " đã được dọn dẹp sạch sẽ nhưng đang trong trạng thái bảo trì/sửa chữa!";
+            } else {
+                wsMessage = "Phòng " + room.getRoomNumber() + " đã được dọn dẹp sạch sẽ và sẵn sàng đón khách!";
+            }
 
             messagingTemplate.convertAndSend("/topic/operations", java.util.Map.of(
                     "message", wsMessage,

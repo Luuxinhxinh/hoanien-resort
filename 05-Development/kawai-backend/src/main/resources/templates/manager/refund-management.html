@@ -29,15 +29,32 @@
         }
 
         .mgr-table th {
-            font-size: 13px !important;
+            font-size: 14px !important;
             padding: 14px 16px !important;
             text-align: center !important;
+            color: #412431cf !important;
         }
 
         .mgr-table td {
-            font-size: 15px !important;
+            font-size: 16px !important;
             padding: 16px !important;
             text-align: center !important;
+            color: #6a505bcf !important;
+        }
+
+        .mgr-table td strong,
+        .mgr-table td div,
+        .mgr-table td span:not([style*="background"]),
+        .mgr-table td button[onclick*="copyAccNumber"] {
+            color: #6a505bcf !important;
+        }
+
+        .mgr-table td div {
+            font-size: 14.5px !important;
+        }
+
+        .mgr-table td span:not([style*="background"]) {
+            font-size: 14px !important;
         }
 
         .refund-table th {
@@ -388,28 +405,35 @@
                                         <strong style="font-family: var(--font-sans);"
                                             th:text="${r.bankName != null ? r.bankName : 'N/A'}">VCB</strong>
                                         <span>-</span>
-                                        <span th:text="${r.accountNumber != null ? r.accountNumber : 'N/A'}">123456789</span>
+                                        <span
+                                            th:text="${r.accountNumber != null ? r.accountNumber : 'N/A'}">123456789</span>
                                         <button th:data-accnum="${r.accountNumber != null ? r.accountNumber : ''}"
-                                                onclick="copyAccNumber(this)"
-                                                style="background: none; border: none; padding: 0; cursor: pointer; display: inline-flex; align-items: center; color: var(--primary); outline: none;"
-                                                title="Sao chép số tài khoản">
-                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            onclick="copyAccNumber(this)"
+                                            style="background: none; border: none; padding: 0; cursor: pointer; display: inline-flex; align-items: center; color: var(--primary); outline: none;"
+                                            title="Sao chép số tài khoản">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+                                                stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                                stroke-linejoin="round">
                                                 <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1">
+                                                </path>
                                             </svg>
                                         </button>
                                     </div>
                                     <div style="color: #888888; font-size: 13.5px; margin-top: 4px;">
-                                        <span th:text="${r.accountName != null ? r.accountName : 'N/A'}">NGUYEN VAN A</span>
+                                        <span th:text="${r.accountName != null ? r.accountName : 'N/A'}">NGUYEN VAN
+                                            A</span>
                                         <span>-</span>
                                         <span th:text="${r.phoneNumber != null ? r.phoneNumber : 'N/A'}">090xxxx</span>
                                     </div>
                                 </td>
                                 <td style="color:#C9A96E; font-weight:600;"
-                                    th:text="${#numbers.formatDecimal(r.amount, 0, 'COMMA', 0, 'POINT')} + ' VND'">100,000
+                                    th:text="${#numbers.formatDecimal(r.amount, 0, 'COMMA', 0, 'POINT')} + ' VND'">
+                                    100,000
                                     VND</td>
                                 <td>
-                                    <span th:text="${#temporals.format(r.createdAt, 'dd/MM/yyyy')}">13/07/2026</span><br>
+                                    <span
+                                        th:text="${#temporals.format(r.createdAt, 'dd/MM/yyyy')}">13/07/2026</span><br>
                                     <span style="color:var(--text-muted); font-size:13px;"
                                         th:text="${#temporals.format(r.createdAt, 'HH:mm')}">15:51</span>
                                 </td>
@@ -424,7 +448,8 @@
                                         th:data-amount="${#numbers.formatDecimal(r.amount, 0, 'COMMA', 0, 'POINT')} + ' VND'"
                                         onclick="openUploadModalFromBtn(this)">
                                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
-                                            stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                            stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                                            stroke-linejoin="round">
                                             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
                                             <polyline points="17 8 12 3 7 8" />
                                             <line x1="12" y1="3" x2="12" y2="15" />
@@ -507,19 +532,24 @@
                                         <strong style="font-family: var(--font-sans);"
                                             th:text="${r.bankName != null ? r.bankName : 'N/A'}">VCB</strong>
                                         <span>-</span>
-                                        <span th:text="${r.accountNumber != null ? r.accountNumber : 'N/A'}">123456789</span>
+                                        <span
+                                            th:text="${r.accountNumber != null ? r.accountNumber : 'N/A'}">123456789</span>
                                         <button th:data-accnum="${r.accountNumber != null ? r.accountNumber : ''}"
-                                                onclick="copyAccNumber(this)"
-                                                style="background: none; border: none; padding: 0; cursor: pointer; display: inline-flex; align-items: center; color: var(--primary); outline: none;"
-                                                title="Sao chép số tài khoản">
-                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            onclick="copyAccNumber(this)"
+                                            style="background: none; border: none; padding: 0; cursor: pointer; display: inline-flex; align-items: center; color: var(--primary); outline: none;"
+                                            title="Sao chép số tài khoản">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+                                                stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                                stroke-linejoin="round">
                                                 <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1">
+                                                </path>
                                             </svg>
                                         </button>
                                     </div>
                                     <div style="color: #888888; font-size: 13.5px; margin-top: 4px;">
-                                        <span th:text="${r.accountName != null ? r.accountName : 'N/A'}">NGUYEN VAN A</span>
+                                        <span th:text="${r.accountName != null ? r.accountName : 'N/A'}">NGUYEN VAN
+                                            A</span>
                                         <span>-</span>
                                         <span th:text="${r.phoneNumber != null ? r.phoneNumber : 'N/A'}">090xxxx</span>
                                     </div>
@@ -532,7 +562,9 @@
                                 <td>
                                     <a th:href="${r.evidenceImageUrl}" target="_blank"
                                         style="background: #5c5346; color: #fff; text-decoration: none; padding: 6px 12px; border-radius: 6px; display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-family: var(--font-sans); font-weight: 500;">
-                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                                            stroke-linejoin="round">
                                             <polyline points="20 6 9 17 4 12"></polyline>
                                         </svg>
                                         Xem Bill
@@ -615,7 +647,7 @@
         function copyAccNumber(btn) {
             const accNum = btn.getAttribute('data-accnum');
             if (!accNum) return;
-            navigator.clipboard.writeText(accNum).then(function() {
+            navigator.clipboard.writeText(accNum).then(function () {
                 // Tạo toast thông báo nhỏ, sang trọng và biến mất sau 1.5 giây
                 const toast = document.createElement('div');
                 toast.style.position = 'fixed';
@@ -632,14 +664,14 @@
                 toast.style.transition = 'opacity 0.2s ease';
                 toast.innerText = 'Đã sao chép: ' + accNum;
                 document.body.appendChild(toast);
-                
-                setTimeout(function() {
+
+                setTimeout(function () {
                     toast.style.opacity = '0';
-                    setTimeout(function() {
+                    setTimeout(function () {
                         toast.remove();
                     }, 200);
                 }, 1500);
-            }).catch(function(err) {
+            }).catch(function (err) {
                 console.error('Lỗi khi sao chép: ', err);
             });
         }
