@@ -307,7 +307,6 @@ public class HousekeepingServiceImpl implements HousekeepingService {
         return task;
     }
 
-    @Override
     @Transactional
     public void createMaintenanceTaskForPricedDamages(Room room) {
         if (room == null)

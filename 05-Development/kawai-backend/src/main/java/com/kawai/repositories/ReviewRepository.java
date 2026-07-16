@@ -26,4 +26,8 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     boolean existsByTourBookingId(Long tourBookingId);
     boolean existsByRoomBookingDetailId(Long roomBookingDetailId);
+
+    // Tour reviews by specific guide (via tourBooking -> schedule -> tourGuide)
+    @Query("SELECT r FROM Review r WHERE r.moderationStatus = 'Approved' AND r.tourBooking IS NOT NULL AND r.tourBooking.schedule IS NOT NULL AND r.tourBooking.schedule.tourGuide.id = :employeeId ORDER BY r.createdAt DESC")
+    List<Review> findApprovedTourReviewsByGuideId(@org.springframework.data.repository.query.Param("employeeId") Long employeeId);
 }

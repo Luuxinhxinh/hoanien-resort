@@ -24,6 +24,7 @@ public interface TourBookingRepository extends JpaRepository<TourBooking, Long> 
     int countByScheduleAndBookingStatus(TourSchedule schedule, String bookingStatus);
 
     List<TourBooking> findBySchedule(TourSchedule schedule);
+    List<TourBooking> findByScheduleId(Long scheduleId);
 
     @org.springframework.data.jpa.repository.Query("SELECT tb FROM TourBooking tb WHERE tb.customer.id = :customerId")
     java.util.List<TourBooking> findTourBookingsByCustomerId(@org.springframework.data.repository.query.Param("customerId") Long customerId);

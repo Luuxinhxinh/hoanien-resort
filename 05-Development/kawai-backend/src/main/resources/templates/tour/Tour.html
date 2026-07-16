@@ -203,6 +203,11 @@
             }
         }
     </script>
+    <meta name="username" th:if="${#authentication != null}" th:content="${#authentication.name}" />
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/employee/js/notifications.js" defer></script>
 </head>
 
 <body class="bg-surface min-h-screen">
@@ -325,6 +330,8 @@
                         <button onclick="filterTours('completed', this)"
                             class="px-6 py-2 rounded-full text-on-surface-variant hover:bg-primary-container/20 font-label-md text-label-md transition-all">Hoàn
                             thành</button>
+                        <button onclick="filterTours('cancelled', this)"
+                            class="px-6 py-2 rounded-full text-on-surface-variant hover:bg-primary-container/20 font-label-md text-label-md transition-all">Đã hủy</button>
                     </div>
                 </div>
             </div>
@@ -404,6 +411,8 @@
                                                         class="text-[9px] uppercase tracking-wider font-bold px-2 py-0.5 rounded border bg-amber-500/10 text-amber-600 border-amber-500/20">Đang diễn ra</span>
                                                     <span th:if="${tour.status == 'completed'}"
                                                         class="text-[9px] uppercase tracking-wider font-bold px-2 py-0.5 rounded border bg-secondary-container/30 text-secondary border-secondary-container">Đã hoàn thành</span>
+                                                    <span th:if="${tour.status == 'cancelled'}"
+                                                        class="text-[9px] uppercase tracking-wider font-bold px-2 py-0.5 rounded border bg-red-500/10 text-red-600 border-red-500/20">Đã hủy</span>
                                                 </div>
                                                 <h3 class="font-headline-md text-2xl text-on-surface group-hover:text-primary transition-colors mb-2"
                                                     th:text="${tour.name}">Hành trình Đoàn Tụ - Huế</h3>
@@ -771,6 +780,8 @@
                     matchesFilter = (status === 'ongoing');
                 } else if (activeTourFilter === 'completed') {
                     matchesFilter = (status === 'completed');
+                } else if (activeTourFilter === 'cancelled') {
+                    matchesFilter = (status === 'cancelled');
                 }
 
                 // 2. Check date filter
@@ -832,6 +843,8 @@
                         msg = "Không có tour nào đang diễn ra trong danh sách của bạn.";
                     } else if (activeTourFilter === 'completed') {
                         msg = "Không có tour nào đã hoàn thành trong danh sách của bạn.";
+                    } else if (activeTourFilter === 'cancelled') {
+                        msg = "Không có tour nào đã hủy trong danh sách của bạn.";
                     }
                     if (selectedDateFilter) {
                         const parts = selectedDateFilter.split('-');
@@ -895,6 +908,9 @@
             } else if (tour.status === 'ongoing') {
                 statusBg = 'bg-amber-500/10 text-amber-600 border-amber-500/20';
                 statusText = 'Đang diễn ra';
+            } else if (tour.status === 'cancelled') {
+                statusBg = 'bg-red-500/10 text-red-600 border-red-500/20';
+                statusText = 'Đã hủy';
             }
 
             return `
@@ -975,14 +991,24 @@
 
         function markAllNotificationsAsRead(e) {
             if (e) e.stopPropagation();
-            const badge = document.querySelector('.dropdown-notification button .bg-red-500');
-            if (badge) {
-                badge.remove();
-            }
-            const items = document.querySelectorAll('#notifications-list > div');
-            items.forEach(item => {
-                item.className = 'p-3 hover:bg-primary/5 rounded-xl transition-colors space-y-1';
-            });
+            
+            fetch('/api/notifications/read-all', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }).then(res => {
+                if(res.ok) {
+                    const badge = document.querySelector('.dropdown-notification button .bg-red-500');
+                    if (badge) {
+                        badge.remove();
+                    }
+                    const items = document.querySelectorAll('#notifications-list > div');
+                    items.forEach(item => {
+                        item.className = 'p-3 hover:bg-primary/5 rounded-xl transition-colors space-y-1';
+                    });
+                }
+            }).catch(err => console.error("Error marking all read:", err));
         }
 
         document.addEventListener('click', function (e) {
