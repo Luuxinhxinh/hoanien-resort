@@ -1415,8 +1415,23 @@
                 showToast('Vui lòng nhập mô tả sự cố.', 'warning');
                 return;
             }
-            showToast('Báo cáo sự cố đã được gửi thành công đến Ban Quản lý Resort HoaNien!', 'success');
-            document.getElementById('incident-description').value = '';
+            fetch('/api/tour-incidents', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ description: desc })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    showToast('Báo cáo sự cố đã được gửi thành công đến Ban Quản lý Resort HoaNien!', 'success');
+                    document.getElementById('incident-description').value = '';
+                } else {
+                    showToast(data.message || 'Có lỗi xảy ra', 'error');
+                }
+            })
+            .catch(err => {
+                showToast('Lỗi kết nối máy chủ.', 'error');
+            });
         }
 
         function showToast(message, type = 'success') {
