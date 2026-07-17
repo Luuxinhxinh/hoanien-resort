@@ -52,6 +52,17 @@
             <div class="adm-form-group"><label class="adm-form-label">Phụ thu NL (VNĐ)</label><input type="text" name="extraAdultSurcharge" class="adm-form-input"></div>
             <div class="adm-form-group"><label class="adm-form-label">Phụ thu TE (Có giường) (VNĐ)</label><input type="text" name="extraChildSurcharge" class="adm-form-input"></div>
         </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+            <div class="adm-form-group"><label class="adm-form-label">Loại giường</label><input type="text" name="bedType" class="adm-form-input" placeholder="VD: 1 Giường King 2m2"></div>
+            <div class="adm-form-group"><label class="adm-form-label">Diện tích (m2)</label><input type="number" name="roomSize" class="adm-form-input"></div>
+            <div class="adm-form-group"><label class="adm-form-label">Hướng nhìn</label><input type="text" name="viewType" class="adm-form-input" placeholder="VD: Hướng Biển"></div>
+            <div class="adm-form-group"><label class="adm-form-label">Dịch vụ miễn phí</label><input type="text" name="complimentaryServices" class="adm-form-input" placeholder="VD: 2 chai nước suối, Trà & Cà phê"></div>
+        </div>
+        <div style="display:flex; gap:20px; align-items:center;">
+            <label style="display:flex; align-items:center; gap:8px; font-family:var(--font-sans); font-size:14px;"><input type="checkbox" name="hasBathtub"> Có bồn tắm</label>
+            <label style="display:flex; align-items:center; gap:8px; font-family:var(--font-sans); font-size:14px;"><input type="checkbox" name="hasBalcony"> Có ban công</label>
+            <label style="display:flex; align-items:center; gap:8px; font-family:var(--font-sans); font-size:14px;"><input type="checkbox" name="hasFreeBreakfast"> Bữa sáng miễn phí</label>
+        </div>
         <div class="adm-form-group"><label class="adm-form-label">Mô tả hạng phòng</label><textarea name="description" class="adm-form-input" rows="3"></textarea></div>
         <div class="adm-form-group">
             <label class="adm-form-label">Link ảnh đại diện <span style="font-size: 12px; color: #666; font-weight: 400;">(Chọn nhiều ảnh, tối thiểu 3 ảnh)</span></label>

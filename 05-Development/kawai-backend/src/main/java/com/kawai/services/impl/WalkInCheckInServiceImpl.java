@@ -9,7 +9,6 @@ import com.kawai.dto.walkin.WalkInSurchargeResponse;
 import com.kawai.exceptions.BusinessException;
 import com.kawai.models.*;
 import com.kawai.repositories.*;
-import com.kawai.services.interfaces.WalkInCheckInService;
 import com.kawai.utils.EncryptionUtils;
 
 import org.springframework.context.annotation.Lazy;
@@ -29,29 +28,6 @@ import java.util.UUID;
  * WalkInCheckInServiceImpl — UC-14: Walk-in Guest Check-in
  * MODULE 2: Đặt phòng & Tiền sảnh vận hành
  * ═══════════════════════════════════════════════════════════════════════════════
- *
- * CHANGELOG:
- * 2026-06-30 | Antigravity AI | REFACTOR (Clean Code): đặt tên constants
- * | | (ROOM_STATUS_*, BOOKING_STATUS_*, GUEST_TYPE_*,
- * | | DEFAULT_CREDIT_LIMIT), loại bỏ double-loop
- * | | pre-validation, tách private methods
- * | | (buildMasterRoomGuest, buildAndSaveDependentGuest,
- * | | validatePrimaryContactCount, applyDepositToFolio,
- * | | buildWalkInResponse), thay array trick bằng
- * | | CustomerLookupResult record-like class.
- * 2026-06-22 | Chu Xuân Dũng | GREEN: implement WalkInCheckInServiceImpl, pass
- * 12 TC.
- * 2026-06-19 | Chu Xuân Dũng | Khởi tạo skeleton theo TDD_UC14_SPEC.md.
- *
- * Business Rules:
- * BR-UC14-01 : CCCD bắt buộc đúng format 12 chữ số (nếu được cung cấp)
- * BR-UC14-02 : Phòng phải Vacant_Clean
- * BR-UC14-03 : Booking được tạo trong 1 @Transactional
- * BR-UC14-05 : Booking status → CHECKED_IN
- * BR-UC14-08 : Tự động tạo Account cho khách mới
- * BR-UC14-09 : Default password được gán
- * BR-UC14-10 : Account phải link với Reservation
- *
  * Capacity Rules (Soft/Hard Limit):
  * Người lớn : >= 18 tuổi
  * Trẻ em : < 18 tuổi
@@ -258,10 +234,12 @@ public class WalkInCheckInServiceImpl implements com.kawai.services.interfaces.W
             // Step 9: Gửi email xác nhận
             if (BOOKING_STATUS_CHECKED_IN.equals(booking.getBookingStatus())) {
                 try {
-                    RoomBookingDetail firstDetail = roomBookingDetailRepository.findByRoomBookingId(booking.getId()).stream().findFirst().orElse(null);
+                    RoomBookingDetail firstDetail = roomBookingDetailRepository.findByRoomBookingId(booking.getId())
+                            .stream().findFirst().orElse(null);
                     if (firstDetail != null) {
                         String userParam = newAccount != null ? newAccount.getUsername() : null;
-                        emailService.sendWalkInCheckInEmail(booking, firstDetail, customer, customerResult.isNew, userParam, rawPassword);
+                        emailService.sendWalkInCheckInEmail(booking, firstDetail, customer, customerResult.isNew,
+                                userParam, rawPassword);
                     }
                 } catch (Exception e) {
                     log.error("Lỗi gửi email Walk-in Check-in: ", e);
@@ -459,8 +437,7 @@ public class WalkInCheckInServiceImpl implements com.kawai.services.interfaces.W
         boolean hasPendingMaintenance = maintenanceRequestRepo.existsByRoomIdAndStatusInAndOperationalTypeIn(
                 roomId,
                 java.util.Arrays.asList("Pending", "InProgress"),
-                java.util.Arrays.asList("MAINTENANCE", "DAMAGE_CHECK")
-        );
+                java.util.Arrays.asList("MAINTENANCE", "DAMAGE_CHECK"));
         if (hasPendingMaintenance) {
             throw new BusinessException("MOD2-UC14-017",
                     "Selected room has a pending maintenance/damage check task. Cannot check in.");
@@ -524,8 +501,8 @@ public class WalkInCheckInServiceImpl implements com.kawai.services.interfaces.W
         // Hard Limit — reject nếu vượt max
         if (count.adults > maxAdults || count.children > maxChildren) {
             throw new BusinessException("MOD2-UC14-009",
-                    "Number of guests exceeds maximum room capacity. " +
-                            "Max adults: " + maxAdults + ", max children: " + maxChildren);
+                    "Số lượng khách vượt quá sức chứa tối đa của phòng. " +
+                            "Tối đa: " + maxAdults + " người lớn, " + maxChildren + " trẻ em.");
         }
 
         // Soft Limit — tính phụ thu người lớn vượt base
@@ -667,7 +644,7 @@ public class WalkInCheckInServiceImpl implements com.kawai.services.interfaces.W
         booking.setCheckOutDate(req.getCheckOutDate() != null ? req.getCheckOutDate() : LocalDate.now().plusDays(1));
         booking.setTotalPrice(BigDecimal.ZERO);
         booking.setDepositAmount(BigDecimal.ZERO);
-        booking.setCancellationDeadline(LocalDate.now());
+        booking.setCancellationDeadline(java.time.LocalDateTime.now());
         booking.setCreditLimit(resolveMembershipCreditLimit(customer));
         booking.setPersonalPinHash(UUID.randomUUID().toString().substring(0, 8));
         return booking;

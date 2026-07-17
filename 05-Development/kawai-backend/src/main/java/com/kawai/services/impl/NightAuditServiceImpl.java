@@ -81,13 +81,11 @@ public class NightAuditServiceImpl implements NightAuditService {
     @Override
     @Transactional
     public void runNightAudit(LocalDate auditDate) {
-        // Bước 1: Xử lý Pending Arrivals (Đổi thành No-Show)
-        processNoShows(auditDate);
-
         // Bước 2: Kiểm tra tiền kiện (Shift Closure, Pending Departures)
         validatePreconditions(auditDate);
 
-        // Bước 3: Tính tiền phòng (Room occupancy is tracked on Room.roomStatus. Booking details are checked in)
+        // Bước 3: Tính tiền phòng (Room occupancy is tracked on Room.roomStatus.
+        // Booking details are checked in)
         List<RoomBookingDetail> checkedInRooms = roomBookingDetailRepository
                 .findByDetailStatusIn(List.of("Checked_In", "CHECKED_IN"));
 
@@ -106,7 +104,9 @@ public class NightAuditServiceImpl implements NightAuditService {
                     folioItemRepository.save(item);
                 }
             } else {
-                logger.info("[NIGHT AUDIT] Đã tồn tại Room Charge cho RoomBookingDetail ID: {} ngày {}, bỏ qua tạo trùng.", detail.getId(), auditDate);
+                logger.info(
+                        "[NIGHT AUDIT] Đã tồn tại Room Charge cho RoomBookingDetail ID: {} ngày {}, bỏ qua tạo trùng.",
+                        detail.getId(), auditDate);
             }
 
             // TỰ ĐỘNG TÍNH CHÊNH LỆCH ĐỔI HẠNG PHÒNG ĐÊM NAY
@@ -114,22 +114,13 @@ public class NightAuditServiceImpl implements NightAuditService {
         }
     }
 
-    private void processNoShows(LocalDate auditDate) {
-        List<RoomBookingDetail> pendingArrivals = roomBookingDetailRepository
-                .findByRoomBooking_CheckInDateAndDetailStatus(auditDate, "Pending");
-        
-        for (RoomBookingDetail detail : pendingArrivals) {
-            detail.setDetailStatus("No_Show");
-            roomBookingDetailRepository.save(detail);
-            logger.info("[NIGHT AUDIT] Tự động chuyển trạng thái No-Show cho RoomBookingDetail ID: {}", detail.getId());
-        }
-    }
-
     private void validatePreconditions(LocalDate auditDate) {
         // 1. Kiểm tra Khách chưa Check-out (Pending Departures)
-        long pendingDepartures = roomBookingDetailRepository.countByRoomBooking_CheckOutDateAndDetailStatus(auditDate, "Checked_In");
+        long pendingDepartures = roomBookingDetailRepository.countByRoomBooking_CheckOutDateAndDetailStatus(auditDate,
+                "Checked_In");
         if (pendingDepartures > 0) {
-            throw new IllegalStateException("Tiền kiện thất bại: Còn " + pendingDepartures + " khách có lịch check-out hôm nay nhưng chưa trả phòng hoặc chưa gia hạn. Vui lòng xử lý trước khi đóng ngày.");
+            throw new IllegalStateException("Tiền kiện thất bại: Còn " + pendingDepartures
+                    + " khách có lịch check-out hôm nay nhưng chưa trả phòng hoặc chưa gia hạn. Vui lòng xử lý trước khi đóng ngày.");
         }
     }
 
@@ -179,10 +170,10 @@ public class NightAuditServiceImpl implements NightAuditService {
             }
         }
 
-        BigDecimal currentRate = detail.getCategory() != null && detail.getCategory().getBasePrice() != null 
-                ? detail.getCategory().getBasePrice() 
+        BigDecimal currentRate = detail.getCategory() != null && detail.getCategory().getBasePrice() != null
+                ? detail.getCategory().getBasePrice()
                 : baseRate;
-        
+
         BigDecimal dailyDifference = currentRate.subtract(baseRate);
         if (dailyDifference.compareTo(BigDecimal.ZERO) == 0) {
             return; // Đêm nay không có chênh lệch so với giá gốc
@@ -195,7 +186,9 @@ public class NightAuditServiceImpl implements NightAuditService {
             boolean alreadyHasSurcharge = existingItems.stream()
                     .anyMatch(item -> item.getDescription() != null && item.getDescription().endsWith(suffix));
             if (alreadyHasSurcharge) {
-                logger.info("[NIGHT AUDIT] Đã tồn tại phụ phí đổi hạng phòng cho RoomBookingDetail ID: {} ngày {}, bỏ qua tạo trùng.", detail.getId(), auditDate);
+                logger.info(
+                        "[NIGHT AUDIT] Đã tồn tại phụ phí đổi hạng phòng cho RoomBookingDetail ID: {} ngày {}, bỏ qua tạo trùng.",
+                        detail.getId(), auditDate);
                 return;
             }
         }
@@ -205,16 +198,18 @@ public class NightAuditServiceImpl implements NightAuditService {
         folioItem.setRoomBookingDetail(detail);
         folioItem.setPayerCustomer(booking != null ? booking.getCustomer() : null);
         folioItem.setSourceDepartment("FRONT_DESK");
-        folioItem.setAmount(dailyDifference.setScale(0, RoundingMode.HALF_UP)); 
+        folioItem.setAmount(dailyDifference.setScale(0, RoundingMode.HALF_UP));
         folioItem.setIsSettledSeparately(false);
         long roomCount = booking != null ? roomBookingDetailRepository.findByRoomBookingId(booking.getId()).size() : 1;
         folioItem.setRevenueCode(roomCount > 1 ? "ROOM_GROUP" : "ROOM_TRANSIENT");
 
         String categoryName = detail.getCategory() != null ? detail.getCategory().getCategoryName() : "";
         if (dailyDifference.compareTo(BigDecimal.ZERO) > 0) {
-            folioItem.setDescription("Phụ phí nâng hạng phòng lên " + categoryName + " (Đêm " + auditDate.toString() + ")");
+            folioItem.setDescription(
+                    "Phụ phí nâng hạng phòng lên " + categoryName + " (Đêm " + auditDate.toString() + ")");
         } else {
-            folioItem.setDescription("Hoàn tiền chênh lệch hạ hạng phòng xuống " + categoryName + " (Đêm " + auditDate.toString() + ")");
+            folioItem.setDescription(
+                    "Hoàn tiền chênh lệch hạ hạng phòng xuống " + categoryName + " (Đêm " + auditDate.toString() + ")");
         }
 
         folioItemRepository.save(folioItem);

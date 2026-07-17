@@ -558,7 +558,15 @@
                         try {
                             var payload = JSON.parse(msg.body);
                             console.log('[WS] Nhận tin nhắn từ kênh Chung (/topic/operations):', payload);
-                            saveAndShow('📢 THÔNG BÁO HỆ THỐNG: \n ' + payload.message, false);
+                            if (payload.type === 'NEW_TASK') return;
+                            if (payload.type === 'ROOM_CLEANED') {
+                                if (typeof pollCleanTasksDone === 'function') pollCleanTasksDone();
+                                if (typeof pollPendingWalkInRooms === 'function') pollPendingWalkInRooms();
+                                if (typeof pollCleanedRooms === 'function') pollCleanedRooms();
+                                return;
+                            }
+                            saveAndShow('THÔNG BÁO HỆ THỐNG: \n' + payload.message, false);
+
                         } catch (e) { console.error('[WS] parse error', e); }
                     });
 
@@ -567,7 +575,7 @@
                             try {
                                 var payload = JSON.parse(msg.body);
                                 console.log('[WS] Nhận tin nhắn từ kênh Đích danh (/topic/operations/' + staffId + '):', payload);
-                                saveAndShow('🔔 NHIỆM VỤ MỚI: \n ' + payload.message, true);
+                                saveAndShow('NHIỆM VỤ MỚI: \n ' + payload.message, true);
                             } catch (e) { console.error('[WS] parse error', e); }
                         });
                         console.log('[WS] Đã đăng ký kênh riêng: /topic/operations/' + staffId);
