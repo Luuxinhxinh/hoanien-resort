@@ -542,6 +542,35 @@
     </div>
   </div>
 
+  <!-- Modal Hủy Bàn -->
+  <div class="modal-overlay" id="cancelTableModal" style="display:none;">
+    <div class="modal" style="max-width: 400px;">
+      <div class="modal-header">
+        <div class="modal-title" style="display:flex;align-items:center;gap:8px;">
+          <span class="material-symbols-outlined" style="color:#e74c3c;">cancel</span>
+          Hủy Bàn
+        </div>
+        <button class="modal-close" onclick="document.getElementById('cancelTableModal').style.display='none'">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="cancel-resId" />
+        <div class="form-group">
+          <label class="form-label" for="cancel-reason">Lý do hủy bàn (bắt buộc)</label>
+          <textarea class="form-input" id="cancel-reason" placeholder="Nhập lý do..." style="min-height: 80px; resize: vertical; width: 100%; border: 1px solid #ccc; border-radius: 4px; padding: 10px;"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" 
+onclick="document.getElementById('cancelTableModal').style.display='none'">Đóng</button>
+        <button class="btn btn-primary" id="cancel-submit" onclick="submitCancelTable()" style="background-color:#e74c3c;border:none;">
+          <span class="material-symbols-outlined">check_circle</span>Xác nhận
+        </button>
+      </div>
+    </div>
+  </div>
+
   <style>
     /* Ẩn cột giờ đi cho riêng time picker giữ bàn */
     .hide-hours .flatpickr-hour, .hide-hours .flatpickr-time-separator { display: none !important; }

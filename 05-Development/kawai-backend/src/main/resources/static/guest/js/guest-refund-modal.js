@@ -16,7 +16,7 @@ function openRefundModal(orderId, type, isRoomRefundable, hasAttachedTours) {
     const title = document.getElementById('guestRefundModalTitle');
     const desc = document.getElementById('guestRefundModalDesc');
     const btn = document.getElementById('btn-submit-guest-refund');
-    
+
     if (type === 'ROOM' && isRoomRefundable === false && hasAttachedTours === true) {
         if (title) title.innerText = 'Hoàn tiền Tour đi kèm (50%)';
         if (desc) desc.innerText = 'Lưu ý: Phòng của bạn đã quá hạn hoàn tiền, nhưng Tour đi kèm vẫn đủ điều kiện hoàn 50%. Vui lòng cung cấp tài khoản ngân hàng.';
@@ -27,7 +27,7 @@ function openRefundModal(orderId, type, isRoomRefundable, hasAttachedTours) {
         if (title) title.innerText = 'Yêu cầu thông tin hoàn tiền';
         if (desc) desc.innerText = 'Đơn hàng này đã được thanh toán trực tuyến. Vui lòng cung cấp thông tin tài khoản ngân hàng để Kế toán tiến hành hoàn tiền.';
     }
-    
+
     if (btn) btn.innerText = 'Gửi Yêu cầu Hủy đơn';
     document.getElementById('guestRefundModal').style.display = 'flex';
 }
@@ -87,9 +87,7 @@ function submitGuestRefundForm(event) {
 
     btn.disabled = true;
     btn.innerText = 'Đang xử lý...';
-
-
-    let apiUrl = '/api/pos/orders/' + orderId + '/cancel';
+    let apiUrl = '/api/pos/guest/orders/' + orderId + '/cancel';
     if (currentGuestRefundType === 'ROOM') {
         apiUrl = '/api/bookings/' + orderId + '/cancel';
     } else if (currentGuestRefundType === 'TOUR') {
@@ -103,18 +101,28 @@ function submitGuestRefundForm(event) {
         },
         body: JSON.stringify(payload)
     })
-
-        .then(res => {
-            if (!res.ok) return res.json().then(e => { throw new Error(e.message || 'Lỗi xử lý hoàn tiền') });
-            return res.json();
-        })
-        .then(data => {
-            alert(data.message || 'Đã tạo yêu cầu hoàn tiền và hủy đơn thành công!');
-            window.location.reload();
-        })
-        .catch(err => {
-            alert('Lỗi: ' + err.message);
-            btn.disabled = false;
-            btn.innerText = 'Gửi Yêu cầu Hủy đơn';
-        });
+    .then(async res => {
+        if(!res.ok) {
+            // [SAFE FETCH] Lấy chuỗi raw text trước để tránh lỗi SyntaxError 
+            // khi server sập / chặn quyền và trả về HTML (Ví dụ: Whitelabel Error Page)
+            const text = await res.text();
+            try {
+                const e = JSON.parse(text);
+                throw new Error(e.message || 'Lỗi hệ thống');
+            } catch (err) {
+                // Nếu parse JSON thất bại -> đây là HTML page -> báo lỗi HTTP code
+                throw new Error(`Mã lỗi HTTP ${res.status}: Không thể hủy đơn`);
+            }
+        }
+        return res.json();
+    })
+    .then(data => {
+        alert(data.message || 'Đã tạo yêu cầu hoàn tiền và hủy đơn thành công!');
+        window.location.reload();
+    })
+    .catch(err => {
+        alert('Lỗi: ' + (err.message || 'Không xác định'));
+        btn.disabled = false;
+        btn.innerText = 'Gửi Yêu cầu Hủy đơn';
+    });
 }
