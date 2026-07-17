@@ -1,25 +1,26 @@
-# ĐẶC TẢ CHI TIẾT USE CASE (USE CASE DETAIL SPECIFICATIONS)
+﻿# ĐẶC TẢ CHI TIẾT USE CASE (USE CASE DETAIL SPECIFICATIONS)
 
 ## HỆ THỐNG QUẢN LÝ NGHỈ DƯỠNG KAWAI RETREAT RESORT & HUB
 
-| Field                 | Value                                                         |
-| --------------------- | ------------------------------------------------------------- |
-| **Document ID** | `KAWAI-SRS-UC-DET-004`                                      |
-| **Version**     | 4.0 (Đồng bộ`UC_MASTER_TABLE` v4.0 + codebase thực tế) |
-| **Date**        | 2026-06-28                                                    |
-| **Status**      | Approved — Reflects implementation audit                     |
-| **Author**      | Nhóm Phát Triển SWP391 - G2                                |
-| **Codebase**    | `05-Development/kawai-backend`                              |
+| Field                 | Value                                                                |
+| --------------------- | -------------------------------------------------------------------- |
+| **Document ID** | `KAWAI-SRS-UC-DET-005`                                             |
+| **Version**     | 5.0 (Đồng bộ`UC_MASTER_TABLE` v5.0 + `danhmay.md` + codebase) |
+| **Date**        | 2026-07-16                                                           |
+| **Status**      | Approved — Reflects implementation audit                            |
+| **Author**      | Nhóm Phát Triển SWP391 - G2                                       |
+| **Codebase**    | `05-Development/kawai-backend`                                     |
 
 ---
 
 ## CHANGELOG
 
-| Ngày      | Người thực hiện | Nội dung thay đổi                                                                                                                                                         |
-| ---------- | ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 2026-06-28 | Nhóm G2            | Rà soát toàn bộ controller/service/template; đồng bộ số UC với Master v4.0; bổ sung UC29–UC31; ghi endpoint thực tế, trạng thái ✅/⚠️/❌, và gap còn lại |
-| 2026-06-16 | Antigravity         | Cập nhật UC11 auth modal order-food; đồng bộ 25 UC                                                                                                                      |
-| 2026-06-13 | Nhóm G2            | Khởi tạo tài liệu UC Detail                                                                                                                                              |
+| Ngày      | Người thực hiện | Nội dung thay đổi                                                                                                        |
+| ---------- | ------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| 2026-07-16 | Antigravity         | Đồng bộ hóa UC ID (UC01-UC52) theo`danhmay.md`; phân module lại (MOD1-MOD5+MOD_SYS); cập nhật tên & description. |
+| 2026-06-28 | Nhóm G2            | Rà soát toàn bộ controller/service/template; đồng bộ số UC với Master v4.0; bổ sung UC29-UC31.                    |
+| 2026-06-16 | Antigravity         | Cập nhật UC11 auth modal order-food; đồng bộ 25 UC                                                                     |
+| 2026-06-13 | Nhóm G2            | Khởi tạo tài liệu UC Detail                                                                                             |
 
 ---
 
@@ -31,7 +32,7 @@
 | ⚠️      | Triển khai một phần / mock / bug / thiếu UI |
 | ❌        | Chưa triển khai                               |
 
-**Số UC trong tài liệu này khớp 1:1 với `UC_MASTER_TABLE.md` v4.0.**
+**Số UC trong tài liệu này khớp 1:1 với `UC_MASTER_TABLE.md` v5.0 và `danhmay.md`.**
 
 ---
 
@@ -51,183 +52,165 @@
 ## MỤC LỤC
 
 1. [MOD1 — Auth, Admin, Master Data](#mod1)
-2. [MOD2 — Booking &amp; Lễ tân](#mod2)
+2. [MOD2 — Room Booking &amp; Lễ tân](#mod2)
 3. [MOD3 — F&amp;B, POS, KDS](#mod3)
-4. [MOD4 — Tour &amp; Review](#mod4)
-5. [MOD5 — Folio, Tài chính, Báo cáo](#mod5)
-6. [MOD6 — Hệ thống &amp; Tích hợp](#mod6)
+4. [MOD4 — Tour Management](#mod4)
+5. [MOD5 — Folio, Vận hành &amp; Báo cáo](#mod5)
+6. [MOD_SYS — Hệ thống &amp; Tích hợp](#mod-sys)
 7. [Phụ lục — Endpoint tổng hợp](#phu-luc)
 
 ---
 
-<a id="mod1"></a>
+<a id=mod1></a>
 
-## 🔴 MOD1: HỆ THỐNG CỐT LÕI, XÁC THỰC & ADMIN CONFIG
+## 🔴 MOD1: HỆ THỐNG CỐT LÕI, XÁC THỰC & ADMIN CONFIG (UC01 – UC09)
 
-### **UC01 — Quản lý Tài khoản & Xác thực** ✅
+### **UC01 — Manage Identity and Access** ✅
+
+**Description:** Manages account registration, staff provisioning, secure multi-platform login, and automated security policies like account lockout.
 
 #### UC01.1 — Đăng ký khách hàng + OTP email ✅
 
 * **Actor:** Customer, Guest
-* **Mô tả:** Khách đăng ký qua modal trên trang booking; hệ thống gửi OTP qua email trước khi kích hoạt tài khoản.
 * **Endpoint:** `POST /api/v1/auth/register`, `POST /api/v1/auth/verify-otp`
 * **Service:** `AuthServiceImpl`
 * **Template:** `guest/fragments/auth.html`, `email/registration-otp.html`
 * **DB:** `Accounts` (INSERT), `Customers` (INSERT), role CUSTOMER
-* **Postconditions:** Tài khoản active sau verify OTP; email chào mừng.
 
 #### UC01.2 — Admin tạo tài khoản nhân viên / khách CRM ✅
 
 * **Actor:** Admin
-* **Endpoint:** `POST /admin/api/v1/employees`, `/customers`, `/accounts`; `PUT/DELETE /admin/api/v1/accounts/{id}`
+* **Endpoint:** `POST /admin/api/v1/employees`, `/customers`, `/accounts`
 * **Controller:** `AdminAccountRestController`
 * **Template:** `admin/fragments/md-account-management.html`
 
 #### UC01.3 — Đăng nhập Guest + Google OAuth ✅
 
-* **Actor:** Customer, Guest
 * **Guest login:** Modal → `POST /auth/login` (Spring Security form)
 * **Google OAuth:** `GET /auth/google-login` → OAuth2 flow tại `/booking`
-* **Service:** `CustomOAuth2UserService`, `OAuthAccountService`, `OAuth2SuccessHandler`
-* **Session check:** `GET /auth/check-session`
+* **Service:** `CustomOAuth2UserService`, `OAuth2SuccessHandler`
 
 #### UC01.4 — Đăng nhập nhân viên Ops ✅
 
-* **Actor:** Admin, Manager, Receptionist, F&B Staff, Kitchen Staff, Tour Guide
 * **Endpoint:** `GET /ops-login`, `POST /auth/login`
 * **Redirect:** `SecurityConfig.roleBasedSuccessHandler()` → dashboard theo role
-* **Template:** `ops-login.html`
 
 #### UC01.5 — Khóa tài khoản tự động ✅
 
-* **Actor:** System
 * **Service:** `AuthServiceImpl`, `AuthenticationEvents`
 * **Model:** `Account.lockoutTime`, failed attempt counter
-* **Exception:** `LockedException` → redirect `error_type=locked`
 
 ---
 
-### **UC02 — Đặt lại mật khẩu** ✅
+### **UC02 — Reset Password** ✅
 
-* **Actor:** Customer, User
+**Description:** Allows users to securely recover their accounts by requesting a time-limited reset token via email to establish a new password.
+
 * **Flow:**
   1. `POST /api/v1/auth/forgot-password` — sinh token, gửi email
   2. `GET /auth/reset-password?token=...` — form (`guest/reset-password-form.html`)
   3. `POST /api/v1/auth/reset-password` — BCrypt hash mật khẩu mới
-* **Service:** `AuthServiceImpl.requestPasswordReset`, `sendPasswordResetEmail`
 * **Exceptions:** Token hết hạn → `guest/reset-password-error.html`
 
 ---
 
-### **UC03 — Quản lý hồ sơ cá nhân** ✅
+### **UC03 — Manage Personal Profile** ✅
+
+**Description:** Allows customers to manage personal information, update passwords, upload identity documents/avatars, and manage accompanying dependents for reservations.
 
 #### UC03.1 — Cập nhật profile & đổi mật khẩu ✅
 
-* **Actor:** Customer
 * **Controller:** `ProfileController`
 * **Template:** `guest/profile.html`
-* **Ghi chú:** Mã hóa AES-256 CCCD theo spec gốc — **cần xác minh** field `cccd_passport_encrypted` trong runtime.
 
 #### UC03.2 — Upload avatar ✅
 
 * **Endpoint:** `POST /api/v1/upload`
 * **Controller:** `FileUploadController`
-* **Lưu trữ:** `uploads/` (static serve `/uploads/**`)
 
 #### UC03.3 — Quản lý Dependents ✅
 
-* **Actor:** Customer
 * **Web:** `ProfileController` `/dependents/add`, `/dependents/delete`
-* **API booking:** `GET/POST /api/bookings/{bookingId}/guests`
+* **API:** `GET/POST /api/bookings/{bookingId}/guests`
 * **Service:** `DependentServiceImpl`
-* **DB:** `Dependents`, `RoomGuest`
 
 ---
 
-### **UC04 — FaceID** ⚠️
+### **UC04 — Scan FaceID** ⚠️
+
+**Description:** Enables customers to register their facial data and allows Tour Guides to perform AI-based FaceID scans at checkpoints for quick and secure attendance verification.
 
 #### UC04.1 — Upload ảnh chân dung / vector ⚠️
 
-* **Spec gốc:** POST `/api/customer/face-upload` → Python FastAPI `/extract-features`
-* **Thực tế:** Vector lưu qua luồng tour attendance; **không có endpoint profile upload riêng** như spec cũ.
-* **Gap:** Cần bổ sung upload FaceID tại profile nếu yêu cầu nghiệp vụ bắt buộc trước tour.
+* **Gap:** Không có endpoint profile upload riêng; vector lưu qua luồng tour attendance.
 
 #### UC04.2 — Quét FaceID checkpoint tour ⚠️
 
-* **Actor:** Tour Guide
-* **API chính:**
-  * `FaceIdApiController` — `/api/faceid/scan`, `/verify`, `/references`, `/checkin-manual`, `/reset`
-  * `TourAttendanceRestController` — `POST /api/v1/tour-attendance/{id}/verify|manual`
-* **AI:** Spawn `python main.py` từ `kawai-ai-service`; fallback `face-api.js` trên browser
+* **API:** `FaceIdApiController` — `/api/faceid/scan`, `/verify`, `/references`
+* **AI:** Spawn `python main.py` từ `kawai-ai-service`; fallback `face-api.js`
 * **Template:** `tour/FaceID.html`
-* **Gap:** Một số ảnh reference hardcode demo khi DB trống; ngưỡng confidence 85% (BR-TR-02).
+* **Gap:** Reference hardcode demo; ngưỡng confidence 85% (BR-TR-02).
 
 ---
 
-### **UC05 — Phân quyền & An ninh**
+### **UC05 — Manage Access Control and Security**
+
+**Description:** Provides comprehensive security controls including RBAC, activity audit logging, data history tracking with rollback, and authorized device management.
 
 #### UC05.1 — RBAC ✅
 
-* **Constants:** `RolePermissionConstants` — map role → permissions (MASTER_DATA, FNB, BOOKING, TOUR…)
-* **Seeder:** `RolePermissionSeeder`
+* **Constants:** `RolePermissionConstants`; **Seeder:** `RolePermissionSeeder`
 * **Admin UI:** `admin/fragments/md-role-management.html`
-* **API:** Master data entity `roles` qua `MasterDataApiController`
 
 #### UC05.2 — Activity Audit Log ✅
 
-* **Controller:** `AdminController` `/admin/audit-log`
 * **Aspect:** `@LogActivity` trên master data mutations
-* **Repository:** `AuditLogRepository`
 * **Template:** `admin/audit-log.html`, `static/admin/js/audit-log.js`
 
 #### UC05.3 — Envers history & rollback ✅
 
-* **Entities @Audited:** Account, Room, RoomCategory, MenuItem, Tour, Promotion…
-* **API:** `AuditApiController`
-  * `GET /admin/api/v1/audit/{entityType}/{id}/history`
-  * `POST .../rollback/{revisionId}`
-  * `POST /admin/api/v1/audit/backup`
+* **API:** `AuditApiController` — `GET/POST /admin/api/v1/audit/{entityType}/{id}/history|rollback`
 
 #### UC05.4 — Thiết bị ủy quyền Ops ⚠️
 
-* **Model:** `AuthorizedDevice`
-* **API:** `AuthorizedDeviceApiController` — toggle/delete device
-* **UI:** `admin/devices.html`
-* **Gap:** Thiết bị mới auto-approve trong môi trường dev; kiểm tra `device_id` cookie tại `SecurityConfig`.
+* **Model:** `AuthorizedDevice`; **UI:** `admin/devices.html`
+* **Gap:** Thiết bị mới auto-approve trong môi trường dev.
 
 ---
 
-### **UC06 — Master Data: Hạng phòng & Phòng** ✅
+### **UC06 — Manage Room Categories and Rooms** ✅
+
+**Description:** Administrators perform CRUD operations on room categories and physical rooms, including strict business validations to prevent deletion of rooms with active bookings.
 
 #### UC06.1 — CRUD Room Categories ✅
 
 * **API:** `POST/PUT/DELETE /admin/api/v1/room-categories[/{id}]`
-* **Service:** `MasterDataServiceImpl`
 * **UI:** `md-room-categories.html`
 
 #### UC06.2 — CRUD Rooms ✅
 
-* **API:** entity `rooms`
-* **UI:** `md-rooms.html`
-* **Ràng buộc delete:** Kiểm tra booking active trước khi xóa
+* **API:** entity `rooms`; **UI:** `md-rooms.html`
+* **Ràng buộc delete:** Kiểm tra booking active trước khi xóa.
 
 ---
 
-### **UC07 — Master Data: Bàn ăn** ✅
+### **UC07 — Manage Dining Tables** ✅ (Master Data)
+
+**Description:** Administrators and managers perform CRUD operations on restaurant tables and dynamically update their real-time availability statuses to support F&B and POS operations.
 
 #### UC07.1 — CRUD Restaurant Tables ✅
 
-* **Master data:** entity `restaurant-tables` (read qua admin view)
 * **POS UI:** `f&bStaff/table-management.html`
 
 #### UC07.2 — Trạng thái bàn ✅
 
-* **API:** `PUT /api/v1/tables/{id}/status`
-* **Controller:** `TableApiController`
+* **API:** `PUT /api/v1/tables/{id}/status`; **Controller:** `TableApiController`
 
 ---
 
-### **UC08 — Master Data: Tour** ⚠️
+### **UC08 — Manage Tours** ⚠️ (Master Data)
+
+**Description:** Administrators and managers perform CRUD operations to manage the core tour catalog, including tour details, operational schedules, and specific routing itineraries.
 
 #### UC08.1 — CRUD Tours ✅
 
@@ -236,380 +219,619 @@
 
 #### UC08.2 — Tour Schedules ⚠️
 
-* **View:** `AdminController` `/admin/tour-schedules`, fragment `md-tour-schedules.html`
-* **Gap:** Tab master-data hiển thị read-only; **chưa có CRUD API đầy đủ** trong `MasterDataServiceImpl`
+* **Gap:** Tab master-data hiển thị read-only; chưa có CRUD API đầy đủ.
 
 #### UC08.3 — Tour Itineraries ⚠️
 
 * **Model:** `TourItinerary`, `TourItineraryDetail`, `TourLocation`
-* **Gap:** Quản lý itinerary chủ yếu qua seed `data.sql`; UI admin hạn chế
+* **Gap:** UI admin hạn chế; quản lý chủ yếu qua seed `data.sql`.
 
 ---
 
-### **UC09 — Giá, Marketing & Vận hành Admin**
+### **UC09 — Manage Pricing, Marketing, and Operations**
+
+**Description:** Provides comprehensive tools to manage dynamic pricing, daily rates, and marketing promotions. Includes F&B menu config, CSV import/export, automated workflows, cronjob scheduling, and KPI dashboard.
 
 #### UC09.1 — Dynamic Pricing ⚠️
 
-* **Service:** `PricingServiceImpl`, model `DynamicPricing`
-* **Gap:** Chỉ có unit test `PricingMarketingServiceUC09Test`; **không có API/UI** runtime
-* **Booking thực tế:** Dùng `DailyRate` + base price từ `RoomCategory`
+* **Gap:** Chỉ có unit test; không có API/UI runtime. Booking thực tế dùng `DailyRate`.
 
-#### UC09.2 — Daily Rates / Pricing tab ✅
+#### UC09.2 — Daily Rates ✅
 
-* **API:** entity `pricing`
-* **UI:** `md-pricing-management.html`
+* **API:** entity `pricing`; **UI:** `md-pricing-management.html`
 
 #### UC09.3 — Phụ thu trẻ em ❌
 
-* **Model:** `RoomSurcharge` tồn tại trong schema
-* **Gap:** Chưa có service/controller expose
+* **Gap:** `RoomSurcharge` tồn tại trong schema nhưng chưa có service/controller expose.
 
 #### UC09.4 — Promotions ✅
 
-* **API:** entity `promotions`
-* **UI:** `md-promotions.html`
-* **Áp dụng:** `BookingApiController` `/{id}/apply-coupon`, `FolioRestController` `/promo/validate`
+* **API:** entity `promotions`; **UI:** `md-promotions.html`
+* **Áp dụng:** `BookingApiController /{id}/apply-coupon`, `FolioRestController /promo/validate`
 
 #### UC09.5 — Menu Items ✅
 
 * **API:** entity `menu-items`, toggle `menu-categories`
-* **UI:** `md-restaurant-menu.html`
 * **Kitchen toggle:** `POST /api/menu-items/{id}/toggle`
 
 #### UC09.6 — Export CSV ✅
 
 * **API:** `GET /admin/api/v1/export/csv?entityType=...`
-* **Controller:** `ExportApiController`
 
 #### UC09.7 — Import CSV ⚠️
 
 * **API:** `POST /admin/api/v1/import` (multipart)
-* **Controller:** `ImportApiController`
 * **Hỗ trợ:** Promotions, Restaurant Menu only
 
 #### UC09.8 — Workflow Engine ⚠️
 
-* **API:** `WorkflowApiController` — CRUD workflow, list employees
-* **Service:** `WorkflowEngineServiceImpl` — trigger events, SLA scan
+* **API:** `WorkflowApiController`; **Service:** `WorkflowEngineServiceImpl`
 * **UI:** `admin/workflows.html`
-* **Gap:** Một số trigger chỉ cover promo approval threshold
 
 #### UC09.9 — Cronjob Management ✅
 
-* **UI:** `AdminController` `/admin/cronjobs`
-* **API:** `CronjobApiController` — run, toggle, config, logs
-* **Manager:** `DynamicJobManager`
+* **UI:** `/admin/cronjobs`; **API:** `CronjobApiController`; **Manager:** `DynamicJobManager`
 
 #### UC09.10 — Admin Dashboard ⚠️
 
-* **Route:** `/admin/dashboard`
-* **Service:** `AdminViewServiceImpl` — KPI từ DB
-* **Gap:** Chart doanh thu 7 ngày dùng dữ liệu mock (`Math.random`) trong một số build
+* **Route:** `/admin/dashboard`; **Service:** `AdminViewServiceImpl`
+* **Gap:** Chart doanh thu 7 ngày dùng dữ liệu mock trong một số build.
 
 ---
 
-<a id="mod2"></a>
+<a id=mod2></a>
 
-## 🔵 MOD2: QUẢN LÝ PHÒNG & LỄ TÂN VẬN HÀNH
+## 🔵 MOD2: QUẢN LÝ PHÒNG & LỄ TÂN VẬN HÀNH (UC10 – UC21)
 
-### **UC10 — Room Booking (Customer)**
+### **UC10 — Search Available Rooms** ✅
 
-#### UC10.1 — Search Available Rooms
-
-* **Actor:** Customer
-* **Mô tả:** Customers filter and search for vacant rooms based on selected date range, guest count, and room type.
-
-#### UC10.2 — Book Room & Pay Online Deposit
+**Description:** Customers filter and search for vacant rooms based on selected date range, guest count, and room type.
 
 * **Actor:** Customer
-* **Mô tả:** Customers book multiple rooms in one order and securely process a deposit payment via VNPay Sandbox.
+* **Endpoint:** `GET /api/rooms/search`
+* **Controller:** `RoomApiController`
+* **Template:** `guest/booking.html`
 
-#### UC10.3 — Cancel Booking
+---
 
-* **Actor:** Customer
-* **Mô tả:** Allows customers to cancel a confirmed room booking before the check-in date. The system automatically calculates refund eligibility based on the 48-hour policy and initiates a refund transaction if applicable.
+### **UC11 — Book Room & Pay Online Deposit** ✅
 
-#### UC10.4 — Manage Accompanying/Dependent Guests
-
-* **Actor:** Customer
-* **Mô tả:** Allows the customer to manage accompanying/dependent guests under an existing reservation. The customer can add, update, remove, and assign dependent guests to available rooms within the reservation.
-
-#### UC10.5 — View Profile & Booking History
+**Description:** Customers book multiple rooms in one order and securely process a deposit payment via VNPay Sandbox.
 
 * **Actor:** Customer
-* **Mô tả:** Allows customers to view their profile information, review booking history (Confirmed, Checked-in, Checked-out, Cancelled), track payment status, and check their remaining available credit limit for future reservations and services.
+* **Endpoint:** `POST /api/bookings`, `POST /api/v1/payments/vnpay-return`
+* **Controller:** `BookingApiController`, `PaymentApiController`
+* **Service:** `BookingServiceImpl`, `VNPayService`
 
-### **UC11 — Front Desk Operations (Receptionist)**
+---
 
-#### UC11.1 — Check-In & Allocate Physical Rooms
+### **UC12 — Cancel Booking** ✅
+
+**Description:** Allows customers to cancel a confirmed room booking before the check-in date. The system automatically calculates refund eligibility based on the 48-hour policy and initiates a refund transaction if applicable.
+
+* **Actor:** Customer
+* **Endpoint:** `POST /api/bookings/{id}/cancel`
+* **Business Rule:** Hoàn tiền 100% nếu hủy trước 48 giờ; không hoàn nếu hủy muộn hơn.
+
+---
+
+### **UC13 — Manage Accompanying/Dependent Guests** ✅
+
+**Description:** Allows the customer to manage accompanying/dependent guests under an existing reservation.
+
+* **Actor:** Customer
+* **Endpoint:** `GET/POST /api/bookings/{bookingId}/guests`
+* **Service:** `DependentServiceImpl`
+* **DB:** `Dependents`, `RoomGuest`
+
+---
+
+### **UC14 — View Profile & Booking History** ✅
+
+**Description:** Allows customers to view their profile information, review booking history (Confirmed, Checked-in, Checked-out, Cancelled), track payment status, and check their remaining available credit limit.
+
+* **Actor:** Customer
+* **Route:** `ProfileController` → `/bookings`
+* **Template:** `guest/booking-history.html`, `guest/profile.html`
+* **API hủy:** `POST /api/bookings/{id}/cancel`
+
+---
+
+### **UC15 — Check-In & Allocate Physical Rooms**
+
+**Description:** Includes handling Check-in/Late Check-out surcharges based on hotel policies, processing room change requests during the stay, and automatically updating the Room Matrix state to Occupied/Clean.
+
+#### UC15.1 — Check-In thường & gán phòng vật lý
 
 * **Actor:** Receptionist
-* **Mô tả:** Includes handling Early Check-in/Late Check-out surcharges based on hotel policies, processing room change requests during the stay, and automatically updating the Room Matrix state to 'Occupied/Clean'.
+* **Controller:** `ReceptionistCheckinWebController`, `ReceptionistController`
 
-#### UC11.2 — Walk-in Guest Check-in
+#### UC15.2 — Phụ thu Early Check-in / Late Check-out ✅
 
-* **Actor:** Receptionist
-* **Mô tả:** Handles the process of accommodating a guest who arrives at the hotel without a prior reservation. The system supports real-time room availability checking, creation of a new reservation, assignment of a physical room, and immediate check-in.
+* **Endpoint:** `POST /api/walk-in/calculate-surcharge`
+* **Service:** `SurchargeService`
 
-#### UC11.3 — Register Accompanying Guests
+### **UC16 — Walk-in Guest Check-in** ✅
 
-* **Actor:** Receptionist
-* **Mô tả:** Receptionists register accompanying/dependent guests under an existing reservation for temporary residence compliance and guest management purposes.
-
-#### UC11.4 — Authorize Dependent Service Access
+**Description:** Handles the process of accommodating a guest who arrives at the hotel without a prior reservation. Supports real-time room availability checking, creation of a new reservation, assignment of a physical room, and immediate check-in.
 
 * **Actor:** Receptionist
-* **Mô tả:** Allows the Receptionist to grant independent service booking permissions to a registered dependent guest while ensuring all expenses remain linked to the Master Folio.
+* **Controller:** `WalkInCheckInApiController`
+* **Endpoint:** `POST /api/walk-in/checkin`
+* **Template:** `receptionist/walk-in-checkin.html`
 
-#### UC11.5 — Change Room Category/Room Type
+---
 
-* **Actor:** Receptionist
-* **Mô tả:** Allows a guest to request an upgrade or change to a different room category during an active stay. The receptionist verifies room availability and updates the room assignment accordingly.
+### **UC17 — Register Accompanying Guests** ✅
 
-#### UC11.6 — Room Matrix / Dashboard Monitoring
-
-* **Actor:** Receptionist
-* **Mô tả:** Allows receptionists to monitor the hotel's room status in real time through the Room Matrix dashboard. The system displays the current status of each room, including Vacant Clean, Vacant Dirty, Occupied, and Maintenance, enabling efficient room allocation, guest check-in coordination, and operational oversight.
-
-#### UC11.7 — Request Emergency Cleaning (Rush Room Preparation)
+**Description:** Receptionists register accompanying/dependent guests under an existing reservation for temporary residence compliance and guest management purposes.
 
 * **Actor:** Receptionist
-* **Mô tả:** Allows receptionists to submit an emergency room cleaning request to Housekeeping when a walk-in guest arrives or a guest requests early check-in. The system notifies Housekeeping to prioritize the room and provides real-time alerts (e.g., bell notification or toast message) to the receptionist once the room has been cleaned and is ready for occupancy.
+* **Controller:** `ReceptionistController`
+* **API:** `POST /api/bookings/{bookingId}/guests`
 
-<a id="mod3"></a>
+---
 
-## 🟡 MOD3: F&B, POS & KDS
+### **UC18 — Authorize Dependent Service Access** ✅
 
-### **UC1 — F&B Order Management**
+**Description:** Allows the Receptionist to grant independent service booking permissions to a registered dependent guest while ensuring all expenses remain linked to the Master Folio.
+
+* **Actor:** Receptionist
+* **Service:** `DependentServiceImpl`
+* **Template:** `receptionist/in-house.html`
+
+---
+
+### **UC19 — Change Room Category/Room Type** ⚠️
+
+**Description:** Allows a guest to request an upgrade or change to a different room category during an active stay.
+
+* **Actor:** Receptionist
+* **Controller:** `ChangeRoomController`
+* **Template:** `receptionist/change-room.html`
+* **Gap:** Luồng chưa hoàn chỉnh; cần expose `transferRoom` API.
+
+---
+
+### **UC20 — Room Matrix / Dashboard Monitoring** ✅
+
+**Description:** Allows receptionists to monitor the hotel's room status in real time through the Room Matrix dashboard. Displays Vacant Clean, Occupied, Maintenance status.
+
+* **Actor:** Receptionist
+* **Route:** `/receptionist/room-matrix`
+* **Controller:** `ReceptionistController`
+* **Template:** `receptionist/room-matrix.html`
+
+---
+
+### **UC21 — Request Emergency Cleaning (Rush Room Preparation)**
+
+**Description:** Sends emergency cleaning requests to Housekeeping for early arrivals, providing real-time alerts to the receptionist when the room is ready.
+
+* **Actor:** Receptionist
+* **Controller:** `HousekeepingApiController` — Rush Room endpoint
+* **Gap:** Real-time notification (toast/bell) chưa hoàn chỉnh; đang dùng polling.
+
+---
+
+<a id=mod3></a>
+
+## 🟡 MOD3: F&B, POS & KDS (UC22 – UC32)
+
+### **UC22 — Manage F&B Orders** ⚠️
+
+**Description:** Manages F&B orders, including viewing details, adding dine-in items, updating service statuses, and printing receipts.
+
+#### UC22.1 — View order details ✅
 
 * **Actor:** F&B Staff
-* **Mô tả:** General management of F&B orders including viewing order details (UC1.1), adding items to Dine-in orders (UC1.2), updating service status (UC1.3), and printing receipts/bills (UC1.4).
+* **Controller:** `PosController`, `PosApiController`
+* **Template:** `f&bStaff/pos-orders.html`
 
-### **UC2 — Confirm Order Payment**
+#### UC22.2 — Add items to order (Dine-in) ⚠️
+
+* **Endpoint:** `POST /api/pos/orders/{id}/add-items`
+
+#### UC22.3 — Update service status ✅
+
+* **Endpoint:** `PUT /api/pos/orders/{id}/status`; `POST /api/pos/batch-update-status`
+
+#### UC22.4 — Print receipt / bill ⚠️
+
+* **Gap:** Tính năng in bill qua browser print dialog; chưa tích hợp máy in vật lý.
+
+---
+
+### **UC23 — Confirm Payment** ✅
+
+**Description:** Confirms payments for F&B orders and automatically updates the order statuses to paid.
 
 * **Actor:** F&B Staff
-* **Mô tả:** Confirms payment for an order and updates the order status to paid.
+* **Endpoint:** `POST /api/pos/orders/{id}/pay`
+* **Controller:** `PosApiController`
 
-### **UC3 — Table Management**
+---
+
+### **UC24 — Manage Dining Tables** ✅ (F&B POS)
+
+**Description:** Manages restaurant tables, including holding time, pre-booking for in-house guests, and assigning tables to walk-ins.
+
+#### UC24.1 — Hold table (Time extension) ✅
+
+* **Controller:** `TableApiController`; **Template:** `f&bStaff/table-management.html`
+
+#### UC24.2 — Pre-book table for in-house guests ✅
+
+* **Endpoint:** `POST /api/v1/tables/reservations`
+
+#### UC24.3 — Create Dine-in order for walk-in guests ✅
+
+* **Endpoint:** `POST /api/pos/orders` (dine-in type)
+
+#### UC24.4 — Table check-in for pre-booked guests ✅
+
+* **Endpoint:** `PUT /api/v1/tables/{id}/status`
+
+---
+
+### **UC25 — Manage Room Service Orders** ✅
+
+**Description:** Allows F&B staff to create and manage room service orders for in-house guests.
+
+#### UC25.1 — Create Room Service order ✅
 
 * **Actor:** F&B Staff
-* **Mô tả:** Management of restaurant tables. Includes holding tables/time extension (UC3.1), pre-booking tables for in-house guests (UC3.2), creating Dine-in orders for walk-in guests (UC3.3), and checking in guests who pre-booked (UC3.4).
+* **Controller:** `OrderFoodController`
+* **Template:** `f&bStaff/room-service.html`
 
-### **UC4 — Room Service Order Management**
+---
+
+### **UC26 — Generate Shift Report** ⚠️
+
+**Description:** Generates end-of-shift reports summarizing POS sales revenue and staff activities.
 
 * **Actor:** F&B Staff
-* **Mô tả:** Manage room service orders, including creating new room service orders (UC4.1).
+* **Controller:** `FnBDailyReportController`
+* **Gap:** Một số số liệu chưa chính xác 100%.
 
-### **UC5 — Shift Reporting**
+---
 
-* **Actor:** F&B Staff
-* **Mô tả:** Generation of shift reports summarizing sales and activities during a staff's shift.
+### **UC27 — Update Dish Status (KOT)** ✅
 
-### **UC6 — Update Individual Dish Status (KOT)**
+**Description:** Updates the real-time preparation status of individual dishes (Kitchen Order Tickets) for kitchen tracking.
 
 * **Actor:** Kitchen Staff
-* **Mô tả:** Updates the preparation status of individual dishes (Kitchen Order Tickets) for tracking in the kitchen.
+* **Controller:** `KitchenController`, `PosApiController`
+* **Template:** `kitchenStaff/kitchen-display.html`
 
-### **UC7 — Manage Dish Availability (Available/Out of Stock)**
+---
+
+### **UC28 — Manage Dish Availability** ✅
+
+**Description:** Allows kitchen staff to mark dishes as out-of-stock, automatically syncing availability with the POS and customer menus.
 
 * **Actor:** Kitchen Staff
-* **Mô tả:** Allows kitchen staff to mark dishes as available or out of stock, automatically reflecting on the POS and customer menus.
+* **Endpoint:** `POST /api/menu-items/{id}/toggle`
+* **Controller:** `MenuItemApiController`
 
-### **UC8 — Online Table Reservation**
+---
+
+### **UC29 — Reserve Table Online** ✅
+
+**Description:** Enables customers to conveniently reserve restaurant tables online via the website.
 
 * **Actor:** Customer
-* **Mô tả:** Allows customers to book a table at the restaurant online.
+* **Endpoint:** `POST /api/v1/tables/reservations`
+* **Template:** `guest/dining.html`
 
-### **UC9 — Online Ordering**
+---
+
+### **UC30 — Place Order Online** ✅
+
+**Description:** Allows customers to place F&B or room service orders online without contacting the front desk.
 
 * **Actor:** Customer
-* **Mô tả:** Allows customers to place an F&B order online.
+* **Controller:** `OrderFoodController`
+* **Template:** `guest/order-food.html`
 
-### **UC10 — Cancel Order**
+---
 
-* **Actor:** F&B Staff + Customer
-* **Mô tả:** Allows cancelling an order if it is still in the pending state.
+### **UC31 — Cancel Order** ✅
 
-<a id="mod4"></a>
+**Description:** Allows customers or F&B staff to safely cancel an order as long as it remains in the pending state.
 
-## 🟢 MOD4: TOUR MANAGEMENT & ATTENDANCE
+* **Actor:** F&B Staff, Customer
+* **Endpoint:** `PUT /api/pos/orders/{id}/status` (CANCELLED)
+* **Business Rule:** Chỉ hủy được khi order còn ở trạng thái Pending.
 
-### **UC08 — Manage Tour Core Data**
+---
+
+### **UC32 — Cancel Table Reservation** ✅
+
+**Description:** Allows customers or F&B staff to cancel an existing table reservation, automatically releasing the table and updating its real-time availability status.
+
+* **Actor:** Customer, F&B Staff
+* **Endpoint:** `DELETE /api/v1/tables/reservations/{id}`
+* **Controller:** `TableApiController`
+
+---
+
+<a id=mod4></a>
+
+## 🟢 MOD4: TOUR MANAGEMENT & ATTENDANCE (UC33 – UC42)
+
+### **UC33 — Manage Tour Core Data** ⚠️
+
+**Description:** Allows administrators to create new tours, update base prices, modify itinerary activities, and perform soft delete on tours that have no active schedules.
 
 * **Actor:** Admin
-* **Mô tả:** Allows administrators to create new tours, update base prices, modify itinerary activities, and perform soft delete on tours that have no active schedules.
+* **API:** entity `tours`, toggle `tour-categories`
+* **UI:** `md-tours.html`, `md-tour-categories.html`
+* **Gap:** Quản lý itinerary và schedule CRUD còn hạn chế.
 
-### **UC19 — Search Available Tours**
+---
+
+### **UC34 — Search Available Tours** ✅
+
+**Description:** Customers filter and search for active tour schedules based on selected date range, integrating third-party OpenWeather API forecasts for the departure date with graceful degradation.
 
 * **Actor:** Customer
-* **Mô tả:** Customers filter and search for active tour schedules based on selected date range, integrating third-party OpenWeather API forecasts for the departure date with graceful degradation.
+* **Endpoint:** `GET /api/weather`, `GET /api/tour-schedules/search`
+* **Controller:** `TourController`
+* **Template:** `guest/experiences.html`
 
-### **UC20 — Tour Booking & Operations**
+---
 
-#### UC20.1 — Book Tour & Pay Online
+### **UC35 — Book Tour and Process Payment** ✅
+
+**Description:** Customers book tour schedules, automatically calculate pricing based on age policies (free for infants under 2, 50% off for children 2-11), apply promo codes, and process payments either via online payment, cash counter, or room billing (Post to Room).
+
+#### UC35.1 — Book Tour & Pay Online ✅
 
 * **Actor:** Customer, Receptionist
-* **Mô tả:** Customers book tour schedules, automatically calculate pricing based on age policies (free for infants under 2, 50% off for children 2-11), apply promo codes, and process payments either via online payment, cash counter, or room billing (Post to Room).
+* **Endpoint:** `POST /api/tour-bookings`
+* **Controller:** `TourBookingApiController`
+* **Payment:** VNPay Sandbox
 
-#### UC20.2 — Assign Staff and Vehicle to Tour Schedule
+#### UC35.2 — Tính giá theo chính sách tuổi ✅
+
+* **Business Rule:** Infant (<2 tuổi) free; Child (2-11 tuổi) 50% off; Adult full price.
+* **Service:** `TourBookingServiceImpl`
+
+#### UC35.3 — Áp mã khuyến mãi ✅
+
+* **Endpoint:** `POST /api/tour-bookings/{id}/apply-coupon`
+
+#### UC35.4 — Thanh toán tiền mặt / Post to Room ✅
+
+* **Endpoint:** `POST /api/tour-bookings/{id}/pay-cash` hoặc `/post-to-room`
+
+---
+
+### **UC36 — Assign Staff and Vehicles to Tour Schedule** ⚠️
+
+**Description:** Admin assigns tour guides, drivers, and vehicles to confirmed tour schedules, independent of the minimum pax capacity checks.
 
 * **Actor:** Admin, Coordinator
-* **Mô tả:** Admin assigns tour guides, drivers, and vehicles to confirmed tour schedules, independent of the minimum pax capacity checks.
+* **Controller:** `ManagerScheduleApiController`, `EmployeeScheduleApiController`
+* **UI:** `manager/tour-assignment.html`
+* **Gap:** Phân công xe chưa kết nối với inventory xe thực tế.
 
-#### UC20.3 — Cancel Tour Booking
+---
+
+### **UC37 — Cancel Tour Booking** ⚠️
+
+**Description:** Allows customers or the resort to cancel a tour booking. The system automatically computes refund eligibility based on the cancellation origin (100% refund for resort cancellations, 50% penalty for guest cancellations within 24 hours of departure) and sends email notifications.
 
 * **Actor:** Customer, Resort
-* **Mô tả:** Allows customers or the resort to cancel a tour booking. The system automatically computes refund eligibility based on the cancellation origin (100% refund for resort cancellations, 50% penalty for guest cancellations within 24 hours of departure) and sends email notifications.
+* **Endpoint:** `POST /api/tour-bookings/{id}/cancel`
+* **Controller:** `TourBookingApiController`
+* **Gap:** Một số trường hợp refund cần manual approval từ Manager.
 
-#### UC20.4 — Post Tour Charge to Room
+---
+
+### **UC38 — Post Tour Charges to Room** ✅
+
+**Description:** Allows charging tour booking expenses directly to an active, checked-in room's folio, verifying room status and validating remaining spending credit limits (Credit Limit) to prevent overspending.
 
 * **Actor:** Customer, Receptionist
-* **Mô tả:** Allows charging tour booking expenses directly to an active, checked-in room's folio, verifying room status and validating remaining spending credit limits (Credit Limit) to prevent overspending.
+* **Endpoint:** `POST /api/tour-bookings/{id}/post-to-room`
+* **Controller:** `TourBookingApiController`
+* **Validation:** Kiểm tra room status CHECKED_IN + Credit Limit còn đủ.
 
-### **UC21 — Tour Attendance & Checking**
+---
 
-#### UC21.1 — AI Face Scan Attendance Check-In
+### **UC39 — Check In Tour Participants Using Face Recognition** ⚠️
+
+**Description:** Passengers verify their attendance before tour departure by scanning their faces via the browser camera (using face-api.js). The backend updates status to Checked_In if face vector match score meets the minimum 85% threshold.
+
+#### UC39.1 — AI Face Scan Attendance Check-In ⚠️
 
 * **Actor:** Customer, Tour Guide
-* **Mô tả:** Passengers verify their attendance before tour departure by scanning their faces via the browser camera (using face-api.js). The backend updates status to Checked_In if face vector match score meets the minimum 85% threshold.
+* **API:** `FaceIdApiController` — `/api/faceid/scan`, `/verify`, `/references`
+* **Endpoint:** `POST /api/v1/tour-attendance/{id}/verify`
+* **Template:** `tour/FaceID.html`
+* **Gap:** Ngưỡng confidence 85%; reference hardcode demo khi DB trống.
 
-#### UC21.2 — Manual Tour Check-In
+---
 
-* **Actor:** Tour Guide
-* **Mô tả:** Allows tour guides to manually check-in passengers on the interface in case of AI recognition failure, hardware issues, or quick demo purposes.
+### **UC40 — Check In Tour Participants Manually** ✅
 
-#### UC21.3 — Start & Conclude Tour Schedule
-
-* **Actor:** Tour Guide
-* **Mô tả:** Allows tour guides to start a tour (requires 100% passenger check-in) and finish a tour, automatically updating booking statuses to Completed and triggering asynchronous departure/feedback emails.
-
-#### UC21.4 — Reset Tour Status
+**Description:** Allows tour guides to manually check-in passengers on the interface in case of AI recognition failure, hardware issues, or quick demo purposes.
 
 * **Actor:** Tour Guide
-* **Mô tả:** Allows tour guides to roll back a tour status in case of misclicks (e.g., reverting ongoing to Open, or completed to ongoing), restoring related bookings to Confirmed.
+* **Endpoint:** `POST /api/v1/tour-attendance/{id}/manual`
+* **Controller:** `TourAttendanceRestController`
+* **Template:** `tour/FaceID.html` (manual tab)
 
-<a id="mod5"></a>
+---
 
-## 🟣 MOD5: FOLIO, VẬN HÀNH & BÁO CÁO
+### **UC41 — Start and Complete Tour Schedule** ⚠️
 
-### **UC_REC — Lễ tân (Folio & Check-out)**
+**Description:** Allows tour guides to start a tour (requires 100% passenger check-in) and finish a tour, automatically updating booking statuses to Completed and triggering asynchronous departure/feedback emails.
 
-#### UC_REC.1 — Theo dõi dư nợ Folio (Real-time)
+* **Actor:** Tour Guide
+* **Controller:** `TourGuideController`
+* **Template:** `tour/tour-guide-dashboard.html`
+* **Gap:** 100% check-in requirement có thể block nếu FaceID fails; fallback manual cần confirm.
 
-* **Actor:** Receptionist
-* **Mô tả:** Xem tổng dư nợ hiện tại của phòng, liệt kê chi tiết từng khoản chi tiêu từ tiền phòng, F&B, Tour, Giặt là đến Minibar.
+---
 
-#### UC_REC.2 — Ghi nhận Charge-to-Room
+### **UC42 — Reset Tour Status** ✅
 
-* **Actor:** Receptionist
-* **Mô tả:** Tiếp nhận tự động các khoản nợ từ POS Nhà hàng hoặc Quầy Tour khi khách yêu cầu "Ký nợ về phòng". Hệ thống tự động kiểm tra hạn mức tín dụng (Credit Limit).
+**Description:** Allows tour guides to roll back a tour status in case of misclicks (e.g., reverting ongoing to Open, or completed to ongoing), restoring related bookings to Confirmed.
 
-#### UC_REC.3 — Tách / Gộp hóa đơn (Split/Merge Folio)
+* **Actor:** Tour Guide
+* **Controller:** `TourGuideController`
+* **Template:** `tour/tour-guide-dashboard.html`
 
-* **Actor:** Receptionist
-* **Mô tả:** Tách một số dòng chi phí (VD: tiền ăn) ra thành một bill riêng theo phòng, hoặc gộp chi phí của nhiều phòng gia đình vào chung một Folio chính.
+---
 
-#### UC_REC.4 — Thêm Phụ thu (Surcharge) & Giảm giá
+<a id=mod5></a>
 
-* **Actor:** Receptionist
-* **Mô tả:** Áp dụng các khoản phụ thu (Check-out muộn, thêm người) hoặc mã giảm giá trực tiếp vào Folio.
+## 🟣 MOD5: BILLING, VẬN HÀNH & BÁO CÁO (UC43 – UC49)
 
-#### UC_REC.5 — Khởi tạo quy trình Check-out
+### **UC43 — Manage Guest Folio & Charges** ✅
 
-* **Actor:** Receptionist
-* **Mô tả:** Bấm nút Check-out, hệ thống tự động bắn tín hiệu ROOM_CHECK (Yêu cầu kiểm phòng) sang màn hình của Housekeeping.
+**Description:** Allows receptionists to monitor real-time room expenses, process charge-to-room requests from other outlets (F&B, Tours), apply surcharges or discounts, and split/merge invoices as needed.
 
-#### UC_REC.7 — Thanh toán Consolidated Invoice
+#### UC43.1 — Theo dõi dư nợ Folio (Real-time) ✅
 
-* **Actor:** Receptionist
-* **Mô tả:** Sau khi có kết quả kiểm phòng (bao gồm phí Minibar/Hỏng hóc), chốt tổng hóa đơn cuối cùng, yêu cầu khách thanh toán (Tiền mặt/Thẻ/VNPay).
+* **Endpoint:** `GET /api/folios/room/{id}`, `/api/folios/active`
+* **Controller:** `FolioRestController`
 
-#### UC_REC.9 — Hoàn tất Check-out
+#### UC43.2 — Ghi nhận Charge-to-Room ✅
 
-* **Actor:** Receptionist
-* **Mô tả:** Ghi nhận thanh toán thành công, chuyển trạng thái phòng thành Vacant_Dirty hoặc Checkout_Clean để buồng phòng dọn dẹp sâu.
+* **Mô tả:** Tiếp nhận tự động các khoản nợ từ POS/Tour khi khách ký nợ về phòng. Kiểm tra Credit Limit.
 
-### **UC_HK — Buồng phòng (Housekeeping)**
+#### UC43.3 — Tách / Gộp hóa đơn (Split/Merge Folio) ✅
 
-#### UC_HK.1 — Xem danh sách Task dọn phòng
+* **Endpoint:** `PUT /api/folios/items/{id}/split`
+* **Controller:** `FolioRestController`
 
-* **Actor:** Housekeeper
-* **Mô tả:** Theo dõi các phòng cần dọn được phân loại: Đang ở (Stay-over), Khách vừa đi (Checkout_Clean), hoặc Khẩn cấp (Rush Clean).
+#### UC43.4 — Thêm Phụ thu (Surcharge) & Giảm giá ✅
 
-#### UC_HK.2 — Cập nhật tiến độ dọn dẹp
+* **Endpoint:** `POST /api/folios/room/{id}/surcharge`; `POST /api/folios/room/{id}/promo/validate`
 
-* **Actor:** Housekeeper
-* **Mô tả:** Bấm "Bắt đầu dọn" và "Hoàn thành" trên app/dashboard. Trạng thái phòng tự động đổi từ Dirty sang Clean.
+---
 
-#### UC_HK.3 — Nhận thông báo dọn khẩn (Rush Room)
+### **UC44 — Process Check-out & Payments** ✅
 
-* **Actor:** Housekeeper
-* **Mô tả:** Màn hình hiển thị Pop-up/Toast cảnh báo thời gian thực khi Lễ tân đánh dấu một phòng cần dọn gấp cho khách đang muốn checkIn.
+**Description:** Handles the complete check-out workflow, including triggering Housekeeping room checks, generating the final consolidated invoice, processing payments, and updating the room status to dirty.
 
-#### UC_HK.4 — Kiểm phòng Check-out (Room Check)
+#### UC44.1 — Khởi tạo quy trình Check-out ✅
 
-* **Actor:** Housekeeper
-* **Mô tả:** Nhận lệnh kiểm tra phòng tức thời khi khách làm thủ tục. Phải hoàn thành task này trước khi Lễ tân chốt bill.
+* **Mô tả:** Bấm nút Check-out → hệ thống bắn tín hiệu ROOM_CHECK sang Housekeeping.
+* **Endpoint:** `POST /api/folios/room/{id}/checkout`
 
-#### UC_HK.5 — Kiểm tra Minibar & Bổ sung tiện ích
+#### UC44.2 — Thanh toán Consolidated Invoice ✅
 
-* **Actor:** Housekeeper
-* **Mô tả:** Ghi nhận đồ uống/snack khách đã dùng và số lượng đồ dùng (bàn chải, khăn) cấp mới qua Modal. Phí Minibar tự động cộng vào Folio của khách.
+* **Mô tả:** Sau kiểm phòng, chốt tổng hóa đơn, yêu cầu khách thanh toán (Tiền mặt/Thẻ/VNPay).
 
-#### UC_HK.6 — Báo cáo hỏng hóc (Create Ticket)
+#### UC44.3 — Hoàn tất Check-out ✅
 
-* **Actor:** Housekeeper
-* **Mô tả:** Ghi nhận thiết bị hỏng (VD: vỡ ly, cháy bóng đèn). Nếu là do khách, có thể đính kèm phí đền bù (Damage Fee) đẩy vào Folio. Hệ thống tự động đẩy Ticket sang Maintenance.
+* **Mô tả:** Ghi nhận thanh toán, chuyển trạng thái phòng thành Vacant_Dirty hoặc Checkout_Clean.
 
-#### UC_HK.7 — Ghi nhận đồ thất lạc (Lost & Found)
+---
 
-* **Actor:** Housekeeper
-* **Mô tả:** Khai báo tài sản khách để quên, đính kèm hình ảnh và bàn giao cho bộ phận liên quan xử lý.
+### **UC45 — Manage Cleaning Tasks & Status** ⚠️
 
-### **UC_MT — Bảo trì (Maintenance)**
+**Description:** Allows housekeepers to monitor daily cleaning tasks, receive real-time alerts for emergency (rush) rooms, and update room statuses from dirty to clean upon completion.
 
-#### UC_MT.1 — Tiếp nhận Ticket bảo trì
+#### UC45.1 — Xem danh sách Task dọn phòng ⚠️
 
-* **Actor:** Maintenance Staff
-* **Mô tả:** Nhận danh sách sự cố được chuyển từ Housekeeping.
+* **Controller:** `HousekeepingWebController`
+* **Template:** `housekeeping/dashboard.html`
 
-#### UC_MT.2 — Cập nhật trạng thái sửa chữa
+#### UC45.2 — Cập nhật tiến độ dọn dẹp ⚠️
 
-* **Actor:** Maintenance Staff
-* **Mô tả:** Chuyển trạng thái Ticket: Pending -> In Progress -> Paused (Chờ vật tư) -> Completed.
+* **Endpoint:** `PUT /api/housekeeping/tasks/{id}/status`
+* **Controller:** `HousekeepingApiController`
 
-#### UC_MT.5 — Hoàn tất & Mở khóa phòng
+#### UC45.3 — Nhận thông báo dọn khẩn (Rush Room) ⚠️
 
-* **Actor:** Maintenance Staff
-* **Mô tả:** Báo cáo sửa chữa thành công. Phòng tự động chuyển sang trạng thái khả dụng (Vacant_Clean hoặc Vacant_Dirty chờ dọn lại).
+* **Gap:** Real-time pop-up/toast chưa hoàn chỉnh; đang dùng polling.
 
-### **UC_MNG — Quản lý (Manager)**
+---
 
-#### UC_MNG.1 — Phân tích Doanh thu & Công suất
+### **UC46 — Room Inspection & Incident Reporting** ⚠️
 
-* **Actor:** Manager
+**Description:** Equips housekeepers to perform check-out room inspections, record minibar consumption, create maintenance tickets for damages, and log lost-and-found items.
+
+#### UC46.1 — Kiểm phòng Check-out (Room Check) ⚠️
+
+* **Mô tả:** Nhận lệnh kiểm tra phòng tức thời khi khách làm thủ tục. Phải hoàn thành trước khi Lễ tân chốt bill.
+
+#### UC46.2 — Kiểm tra Minibar & Bổ sung tiện ích ❌
+
+* **Gap:** Model `MinibarItem` tồn tại nhưng chưa có UI/API expose.
+
+#### UC46.3 — Báo cáo hỏng hóc (Create Ticket) ⚠️
+
+* **Controller:** `HousekeepingApiController`
+* **Gap:** Đính kèm phí đền bù vào Folio chưa hoàn chỉnh.
+
+#### UC46.4 — Ghi nhận đồ thất lạc (Lost & Found) ❌
+
+* **Gap:** Chưa có model/service/controller cho Lost & Found.
+
+---
+
+### **UC47 — Manage Maintenance Workflow** ⚠️
+
+**Description:** Allows maintenance staff to receive incident tickets from housekeeping, track and update repair statuses (Pending, In Progress, Paused, Completed), and finalize repairs to automatically unlock and update room availability.
+
+#### UC47.1 — Tiếp nhận Ticket bảo trì ⚠️
+
+* **Controller:** `MaintenanceWebController`
+* **Template:** `maintenance/dashboard.html`
+
+#### UC47.2 — Cập nhật trạng thái sửa chữa ⚠️
+
+* **Flow:** Pending → In Progress → Paused (Chờ vật tư) → Completed
+
+#### UC47.3 — Hoàn tất & Mở khóa phòng ⚠️
+
+* **Mô tả:** Báo cáo sửa chữa thành công. Phòng tự động chuyển sang trạng thái khả dụng.
+
+---
+
+### **UC48 — Manage Hotel Analytics** ⚠️
+
+**Description:** Provides managers with real-time dashboards for occupancy, revenue, and cross-selling performance, along with capabilities to export USALI-standardized financial reports.
+
+#### UC48.1 — Phân tích Doanh thu & Công suất ⚠️
+
+* **Controller:** `ManagerController`, `ManagerReportApiController`
+* **Template:** `manager/dashboard.html`
 * **Mô tả:** Xem Dashboard biểu đồ Occupancy, RevPAR, ADR và doanh thu lũy kế theo thời gian thực.
 
-#### UC_MNG.2 — Phân tích Chéo (Cross-selling)
+#### UC48.2 — Trích xuất Báo cáo Kế toán (USALI) ⚠️
 
-* **Actor:** Manager
-* **Mô tả:** Đánh giá hiệu suất bán dịch vụ (Khách ở phòng mua thêm bao nhiêu Tour, ăn Nhà hàng bao nhiêu tiền).
+* **Controller:** `ManagerReportApiController`
+* **Gap:** Export PDF/Excel chưa chuẩn hóa hoàn toàn theo USALI.
 
-#### UC_MNG.3 — Phê duyệt Ngoại lệ (Manager Approval)
+---
 
-* **Actor:** Manager
-* **Mô tả:** Nhận thông báo và phê duyệt (Approve/Reject) các yêu cầu vượt thẩm quyền: Miễn phí hủy phòng, Hoàn tiền, Tặng kèm dịch vụ, Giảm giá Folio trên 15%.
+### **UC49 — Manage Hotel Operations** ⚠️ (Exception Approvals)
 
-#### UC_MNG.6 — Trích xuất Báo cáo Kế toán (USALI)
+**Description:** Enables managers to receive notifications and approve or reject out-of-policy operational requests such as free cancellations, refunds, complimentary services, and folio discounts over 15%.
 
-* **Actor:** Manager
-* **Mô tả:** Xuất báo cáo Excel/PDF về lợi nhuận gộp (GOP) chuẩn hóa theo chuẩn quản trị khách sạn quốc tế USALI phục vụ kiểm toán ngoại bộ.
+#### UC49.1 — Phê duyệt Ngoại lệ ⚠️
 
-<a id="mod6"></a>
+* **Controller:** `ManagerApprovalApiController`, `ManagerRefundApiController`, `ManagerRequestApiController`
+* **UI:** `manager/approvals.html`
+* **Gap:** Một số trigger event từ Workflow Engine chưa đầy đủ.
 
-## 🆕 MOD6: HỆ THỐNG & TÍCH HỢP
+---
 
-### **UC29 — Email Notifications** ✅
+<a id=mod-sys></a>
+
+## 🆕 MOD_SYS: HỆ THỐNG & TÍCH HỢP (UC50 – UC52)
+
+### **UC50 — Send Email Notifications** ✅
+
+**Description:** Manages the generation, preview, and delivery of automated transactional emails across the platform, including user authentication (OTPs, password resets), guest reservations (rooms, tours, dining), billing invoices, and internal workflow SLA alerts.
 
 | Sự kiện                  | Template / Method                          |
 | -------------------------- | ------------------------------------------ |
@@ -624,7 +846,9 @@
 
 ---
 
-### **UC30 — Scheduled Jobs** ✅
+### **UC51 — Manage Scheduled Jobs** ✅
+
+**Description:** Allows system administrators to monitor, schedule, and dynamically manage automated background tasks (cron jobs) through a dedicated admin UI, without requiring application restarts.
 
 | Job ID                  | Mô tả                                    |
 | ----------------------- | ------------------------------------------ |
@@ -638,14 +862,16 @@
 
 ---
 
-### **UC31 — Landing & Booking History** ✅
+### **UC52 — View Landing and Booking History** ✅
 
-#### UC31.1 — Landing pages ✅
+**Description:** Provides public landing pages for discovering hotel services (living, dining, wellbeing), and an authenticated profile dashboard for guests to view their reservation history and cancel active bookings.
+
+#### UC52.1 — Landing pages ✅
 
 * **Routes:** `/`, `/booking`, `/living`, `/wellbeing`, `/dining`, `/experiences`
 * **Controller:** `BookingController`
 
-#### UC31.2 — Booking history ✅
+#### UC52.2 — Booking history ✅
 
 * **Route:** `ProfileController` → `/bookings`
 * **Template:** `guest/booking-history.html`
@@ -653,84 +879,51 @@
 
 ---
 
-<a id="phu-luc"></a>
+<a id=phu-luc></a>
 
 ## PHỤ LỤC — ENDPOINT TỔNG HỢP THEO MODULE
 
 ### Auth
 
-```
-POST /api/v1/auth/register|verify-otp|forgot-password|reset-password
-POST /auth/login
-GET  /auth/google-login|reset-password|check-session|logout
-GET  /ops-login
-```
+`POST /api/v1/auth/register|verify-otp|forgot-password|reset-password POST /auth/login GET  /auth/google-login|reset-password|check-session|logout GET  /ops-login`
 
 ### Booking & Rooms
 
-```
-GET  /api/rooms/search|/{roomNumber}/info|by-cccd
-POST /api/bookings|/{id}/cancel|confirm|apply-coupon|guests
-GET  /api/bookings/{id}|/{id}/folios|/{id}/guests
-POST /api/walk-in/checkin|calculate-surcharge
-```
+`GET  /api/rooms/search|/{roomNumber}/info|by-cccd POST /api/bookings|/{id}/cancel|confirm|apply-coupon|guests GET  /api/bookings/{id}|/{id}/folios|/{id}/guests POST /api/walk-in/checkin|calculate-surcharge`
 
 ### Folio & Payment
 
-```
-GET  /api/folios/room/{id}|/active|/promo/validate
-PUT  /api/folios/items/{id}/split
-POST /api/folios/room/{id}/checkout
-GET  /api/v1/payments/vnpay-return
-POST /api/v1/payments/vnpay-ipn
-```
+`GET  /api/folios/room/{id}|/active|/promo/validate PUT  /api/folios/items/{id}/split POST /api/folios/room/{id}/checkout GET  /api/v1/payments/vnpay-return POST /api/v1/payments/vnpay-ipn`
 
 ### POS & F&B
 
-```
-POST /api/pos/orders|/{id}/pay|/{id}/add-items
-PUT  /api/pos/orders/{id}/status
-POST /api/pos/batch-update-status
-GET  /api/v1/tables/availability
-POST /api/v1/tables/reservations
-```
+`POST /api/pos/orders|/{id}/pay|/{id}/add-items PUT  /api/pos/orders/{id}/status POST /api/pos/batch-update-status GET  /api/v1/tables/availability POST /api/v1/tables/reservations`
 
 ### Admin
 
-```
-POST/PUT/DELETE /admin/api/v1/{entityType}[/{id}]
-GET  /admin/api/v1/export/csv
-POST /admin/api/v1/import
-GET  /admin/api/v1/audit/{entity}/{id}/history
-POST /admin/api/v1/cronjobs/{id}/run
-```
+`POST/PUT/DELETE /admin/api/v1/{entityType}[/{id}] GET  /admin/api/v1/export/csv POST /admin/api/v1/import GET  /admin/api/v1/audit/{entity}/{id}/history POST /admin/api/v1/cronjobs/{id}/run`
 
 ### Tour & FaceID
 
-```
-POST /api/tour-bookings
-POST /api/faceid/scan|verify|checkin-manual
-POST /api/v1/tour-attendance/{id}/verify|manual
-GET  /api/weather
-```
+`POST /api/tour-bookings POST /api/faceid/scan|verify|checkin-manual POST /api/v1/tour-attendance/{id}/verify|manual GET  /api/weather`
 
 ---
 
-## GHI CHÚ TRIỂN KHAI & TECH DEBT (2026-06-28)
+## GHI CHÚ TRIỂN KHAI & TECH DEBT (2026-07-16)
 
-| #  | Vấn đề                                              | UC liên quan  | Mức          |
-| -- | ------------------------------------------------------ | -------------- | ------------- |
-| 1  | Night audit query status`OCCUPIED` vs `Checked_In` | UC27.1         | 🔴 Bug        |
-| 2  | Admin reviews UI không gọi API moderate              | UC25           | 🟠 Gap        |
-| 3  | `transferRoom` chưa expose cho lễ tân             | UC12.5         | 🟠 Gap        |
-| 4  | Housekeeping/Maintenance không có UI riêng          | UC13           | 🟠 Gap        |
-| 5  | Dynamic pricing & combo marketing chưa runtime        | UC09.1, UC23   | 🟠 Gap        |
-| 6  | Shift report & một số manager chart mock             | UC18.3, UC28.3 | 🟡 Mock       |
-| 7  | FaceID demo hardcode references                        | UC04.2         | 🟡 Demo       |
-| 8  | OCR CCCD check-in chưa làm                           | UC12.3         | 🟡 Spec drift |
-| 9  | WebSocket KDS — dùng polling thay thế               | UC19           | 🟡 Spec drift |
-| 10 | Backdoor`/admin-backdoor`, Debug controllers         | —             | ⚠️ Dev only |
+| #  | Vấn đề                                                | UC liên quan  | Mức          |
+| -- | -------------------------------------------------------- | -------------- | ------------- |
+| 1  | Night audit query status OCCUPIED vs Checked_In          | UC44           | 🔴 Bug        |
+| 2  | Admin reviews UI không gọi API moderate                | UC48           | 🟠 Gap        |
+| 3  | transferRoom chưa expose cho lễ tân                   | UC19           | 🟠 Gap        |
+| 4  | Housekeeping/Maintenance không có UI riêng đầy đủ | UC45, UC47     | 🟠 Gap        |
+| 5  | Dynamic pricing chưa runtime                            | UC09.1         | 🟠 Gap        |
+| 6  | Shift report & một số manager chart mock               | UC26, UC48     | 🟡 Mock       |
+| 7  | FaceID demo hardcode references                          | UC39.1, UC04.2 | 🟡 Demo       |
+| 8  | OCR CCCD check-in chưa làm                             | UC15.1         | 🟡 Spec drift |
+| 9  | WebSocket KDS — dùng polling thay thế                 | UC27           | 🟡 Spec drift |
+| 10 | Backdoor /admin-backdoor, Debug controllers              | —             | ⚠️ Dev only |
 
 ---
 
-*Tài liệu này phản ánh trạng thái codebase tại ngày 2026-06-28. Khi merge tính năng mới, cập nhật đồng thời `UC_MASTER_TABLE.md` và mục tương ứng trong file này.*
+*Tài liệu này phản ánh trạng thái codebase tại ngày 2026-07-16. Khi merge tính năng mới, cập nhật đồng thời `UC_MASTER_TABLE.md` và mục tương ứng trong file này.*
