@@ -79,7 +79,7 @@ public class DynamicJobManager {
         jobs.put("booking_no_show_cleanup",
                 new JobConfig("booking_no_show_cleanup", "Giải phóng phòng khách không đến (No-Show)",
                         "Tự động quét các phòng khách không check-in quá ngày và chuyển trạng thái sang No-Show hoặc Cancelled.",
-                        "0 0 0 * * ?", roomBookingCleanupTask::cleanupNoShowRoomBookings));
+                        "0 1 0 * * ?", roomBookingCleanupTask::cleanupNoShowRoomBookings));
         jobs.put("workflow_processor",
                 new JobConfig("workflow_processor", "Xử lý Workflow tự động",
                         "Quét và thực thi tự động các sự kiện Workflow Engine (VD: Duyệt chiết khấu).", "0 */1 * * * *",
@@ -87,7 +87,7 @@ public class DynamicJobManager {
         jobs.put("night_audit",
                 new JobConfig("night_audit", "Tính tiền phòng & Chốt ngày (Night Audit)",
                         "Tự động chạy tiến trình kiểm toán đêm lúc 2:00 AM hằng ngày để chốt doanh thu phòng, cập nhật trạng thái no-show và cộng dồn phụ phí.",
-                        "0 0 2 * * ?", () -> nightAuditService.runNightAudit(java.time.LocalDate.now())));
+                        "0 0 2 * * ?", () -> nightAuditService.runNightAudit(java.time.LocalDate.now().minusDays(1))));
 
         for (JobConfig config : jobs.values()) {
             scheduleJob(config.id, config.cron);

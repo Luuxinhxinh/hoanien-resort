@@ -723,7 +723,8 @@
                                     <hr class="border-hoanien-text/10 my-2" />
 
                                     <!-- Folio Details -->
-                                    <div class="mt-2 mb-4 space-y-2" th:if="${!#lists.contains({'PENDING', 'PENDING_APPROVAL'}, #strings.toUpperCase(booking.bookingStatus))}">
+                                    <div class="mt-2 mb-4 space-y-2"
+                                        th:if="${!#lists.contains({'PENDING', 'PENDING_APPROVAL'}, #strings.toUpperCase(booking.bookingStatus))}">
                                         <p class="text-[10px] uppercase tracking-widest opacity-60 font-semibold mb-1">
                                             Hạn mức chi tiêu phòng (Folio)</p>
                                         <div th:each="detail : ${visibleDetailsMap[booking.id]}"
@@ -787,7 +788,8 @@
                                             <span th:if="${#strings.toUpperCase(booking.bookingStatus) == 'PENDING'}"
                                                 class="text-[10px] bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full font-semibold whitespace-nowrap shadow-sm border border-yellow-200">Chờ
                                                 xử lý</span>
-                                            <span th:if="${#strings.toUpperCase(booking.bookingStatus) == 'PENDING_APPROVAL'}"
+                                            <span
+                                                th:if="${#strings.toUpperCase(booking.bookingStatus) == 'PENDING_APPROVAL'}"
                                                 class="text-[10px] bg-orange-100 text-orange-700 px-3 py-1 rounded-full font-semibold whitespace-nowrap shadow-sm border border-orange-200">Chờ
                                                 duyệt</span>
                                             <span
@@ -816,8 +818,8 @@
                                                 <button
                                                     th:if="${#strings.toUpperCase(booking.bookingStatus) == 'PENDING' or #strings.toUpperCase(booking.bookingStatus) == 'CONFIRMED' or #strings.toUpperCase(booking.bookingStatus) == 'PENDING_APPROVAL'}"
                                                     type="button"
-                                                    th:with="isRefundable=${booking.cancellationDeadline != null and !T(java.time.LocalDate).now().isAfter(booking.cancellationDeadline)}"
-                                                    th:onclick="'cancelBooking(' + ${booking.id} + ', ' + ${isRefundable} + ')'"
+                                                    th:with="isRefundable=${hasRefundableItemsMap != null and hasRefundableItemsMap.get(booking.id)}, isRoomRefundable=${booking.cancellationDeadline != null and !T(java.time.LocalDateTime).now().isAfter(booking.cancellationDeadline)}, hasAttachedTours=${hasAttachedToursMap != null and hasAttachedToursMap.get(booking.id)}"
+                                                    th:onclick="'cancelBooking(' + ${booking.id} + ', ' + ${isRefundable} + ', ' + ${isRoomRefundable} + ', ' + ${hasAttachedTours} + ')'"
                                                     class="w-8 h-8 rounded-full bg-red-50 text-red-600 hover:bg-red-500 hover:text-white flex items-center justify-center transition-colors shadow-sm"
                                                     title="Hủy đơn"><span
                                                         class="material-symbols-outlined text-[16px]">close</span></button>
@@ -895,11 +897,11 @@
                                                         class="text-[10px] bg-gray-100 text-gray-700 px-3 py-1 rounded-full font-semibold whitespace-nowrap shadow-sm border border-gray-200">Đã
                                                         trả phòng</span>
                                                     <span
-                                                        th:if="${#strings.toUpperCase(booking.bookingStatus) == 'CANCELLED'}"
+                                                        th:if="${#strings.toUpperCase(booking.bookingStatus) == 'CANCELLED' or #strings.toUpperCase(booking.bookingStatus) == 'NO_SHOW' }"
                                                         class="text-[10px] bg-red-100 text-red-700 px-3 py-1 rounded-full font-semibold whitespace-nowrap shadow-sm border border-red-200">Đã
                                                         hủy</span>
                                                     <span
-                                                        th:unless="${#lists.contains({'CANCELLED', 'CHECKED_OUT'}, #strings.toUpperCase(booking.bookingStatus))}"
+                                                        th:unless="${#lists.contains({'CANCELLED', 'CHECKED_OUT', 'NO_SHOW'}, #strings.toUpperCase(booking.bookingStatus))}"
                                                         class="text-[10px] bg-gray-200 text-gray-600 px-3 py-1 rounded-full font-semibold whitespace-nowrap shadow-sm"
                                                         th:text="${booking.bookingStatus}">Trạng thái</span>
                                                 </div>
@@ -1108,11 +1110,11 @@
                                                         class="text-[10px] bg-gray-100 text-gray-700 px-3 py-1 rounded-full font-semibold whitespace-nowrap shadow-sm border border-gray-200">Đã
                                                         hoàn thành</span>
                                                     <span
-                                                        th:if="${#strings.toUpperCase(tb.bookingStatus) == 'CANCELLED'}"
+                                                        th:if="${#strings.toUpperCase(tb.bookingStatus) == 'CANCELLED' or #strings.toUpperCase(tb.bookingStatus) == 'NO_SHOW' }"
                                                         class="text-[10px] bg-red-100 text-red-700 px-3 py-1 rounded-full font-semibold whitespace-nowrap shadow-sm border border-red-200">Đã
                                                         hủy</span>
                                                     <span
-                                                        th:unless="${#lists.contains({'COMPLETED', 'CANCELLED'}, #strings.toUpperCase(tb.bookingStatus))}"
+                                                        th:unless="${#lists.contains({'COMPLETED', 'CANCELLED', 'NO_SHOW'}, #strings.toUpperCase(tb.bookingStatus))}"
                                                         class="text-[10px] bg-gray-200 text-gray-600 px-3 py-1 rounded-full font-semibold whitespace-nowrap shadow-sm"
                                                         th:text="${tb.bookingStatus}">Trạng thái</span>
                                                 </div>
@@ -2003,10 +2005,10 @@
         }
         // --- END PRE-CHECKIN LOGIC ---
 
-        function cancelBooking(bookingId, isRefundable) {
+        function cancelBooking(bookingId, isRefundable, isRoomRefundable, hasAttachedTours) {
             if (isRefundable) {
                 if (typeof openRefundModal === 'function') {
-                    openRefundModal(bookingId, 'ROOM');
+                    openRefundModal(bookingId, 'ROOM', isRoomRefundable, hasAttachedTours);
                 } else {
                     alert('Không thể mở hộp thoại hoàn tiền. Vui lòng thử lại sau.');
                 }

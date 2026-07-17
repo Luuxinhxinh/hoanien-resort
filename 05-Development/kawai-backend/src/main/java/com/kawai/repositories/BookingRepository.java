@@ -25,17 +25,21 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     List<Booking> findCheckedIn();
 
     @Query("SELECT COUNT(b) FROM Booking b WHERE b.customer.id = :customerId AND UPPER(b.appliedPromotion.promoCode) = UPPER(:promoCode) AND LOWER(b.bookingStatus) NOT LIKE '%cancel%' AND LOWER(b.bookingStatus) != 'no-show'")
-    long countByCustomerIdAndPromoCode(@org.springframework.data.repository.query.Param("customerId") Long customerId, @org.springframework.data.repository.query.Param("promoCode") String promoCode);
+    long countByCustomerIdAndPromoCode(@org.springframework.data.repository.query.Param("customerId") Long customerId,
+            @org.springframework.data.repository.query.Param("promoCode") String promoCode);
 
-    @Query("SELECT b FROM Booking b WHERE b.customer.id = :customerId AND UPPER(b.appliedPromotion.promoCode) = UPPER(:promoCode) AND LOWER(b.bookingStatus) NOT LIKE '%cancel%' AND LOWER(b.bookingStatus) != 'no-show'")
-    List<Booking> findUsedPromoBookings(@org.springframework.data.repository.query.Param("customerId") Long customerId, @org.springframework.data.repository.query.Param("promoCode") String promoCode);
+    @Query("SELECT b FROM Booking b WHERE b.customer.id = :customerId AND UPPER(b.appliedPromotion.promoCode) = UPPER(:promoCode) AND LOWER(b.bookingStatus) NOT LIKE '%cancel%' AND LOWER(b.bookingStatus) != 'no_show'")
+    List<Booking> findUsedPromoBookings(@org.springframework.data.repository.query.Param("customerId") Long customerId,
+            @org.springframework.data.repository.query.Param("promoCode") String promoCode);
 
     @Query("SELECT b FROM Booking b WHERE b.customer.id = :customerId AND (b.bookingStatus = 'Completed' OR b.bookingStatus = 'Confirmed' OR b.bookingStatus = 'Checked_In')")
-    List<Booking> findCompletedOrConfirmedBookingsByCustomerId(@org.springframework.data.repository.query.Param("customerId") Long customerId);
+    List<Booking> findCompletedOrConfirmedBookingsByCustomerId(
+            @org.springframework.data.repository.query.Param("customerId") Long customerId);
 
     @Query("SELECT COUNT(b) FROM Booking b WHERE b.customer.id = :customerId AND (b.bookingStatus = 'Completed' OR b.bookingStatus = 'Confirmed' OR b.bookingStatus = 'Checked_In')")
-    long countCompletedOrConfirmedBookingsByCustomerId(@org.springframework.data.repository.query.Param("customerId") Long customerId);
+    long countCompletedOrConfirmedBookingsByCustomerId(
+            @org.springframework.data.repository.query.Param("customerId") Long customerId);
 
-    @Query("SELECT b FROM Booking b WHERE LOWER(b.bookingStatus) LIKE '%cancel%' OR LOWER(b.bookingStatus) = 'no-show'")
+    @Query("SELECT b FROM Booking b WHERE (LOWER(b.bookingStatus) LIKE '%cancel%' OR LOWER(b.bookingStatus) = 'no_show') AND LOWER(b.bookingStatus) != 'cancelled_payment'")
     List<Booking> findCancelledBookings();
 }

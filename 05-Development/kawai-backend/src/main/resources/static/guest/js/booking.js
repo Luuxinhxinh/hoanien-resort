@@ -484,7 +484,7 @@ function openRoomInfoModal(roomJsonStr) {
     document.getElementById('detailRoomMaxAdults').innerText = room.maxAdults || 0;
     document.getElementById('detailRoomMaxChildren').innerText = room.maxChildren || 0;
     document.getElementById('detailRoomSurchargeAdult').innerText = formatCurrency(room.extraAdultSurcharge || 0) + ' VNĐ';
-    document.getElementById('detailRoomSurchargeChild').innerText = formatCurrency(room.extraChildSurcharge || 0) + ' VNĐ';
+    document.getElementById('detailRoomSurchargeChild').innerText = 'Theo độ tuổi';
 
     const safeSetText = (id, text) => { const el = document.getElementById(id); if (el) el.innerText = text; };
     safeSetText('detailRoomBedType', room.bedType || 'Tiêu chuẩn');

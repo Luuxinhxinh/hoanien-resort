@@ -226,7 +226,15 @@ public class AdminViewServiceImpl implements AdminViewService {
                             "extraAdultSurcharge",
                             cat.getExtraAdultSurcharge() != null ? cat.getExtraAdultSurcharge().toString() : "0",
                             "extraChildSurcharge",
-                            cat.getExtraChildSurcharge() != null ? cat.getExtraChildSurcharge().toString() : "0"));
+                            cat.getExtraChildSurcharge() != null ? cat.getExtraChildSurcharge().toString() : "0",
+                            "bedType", cat.getBedType() != null ? cat.getBedType() : "",
+                            "roomSize", cat.getRoomSize() != null ? String.valueOf(cat.getRoomSize()) : "",
+                            "viewType", cat.getViewType() != null ? cat.getViewType() : "",
+                            "hasBathtub", String.valueOf(cat.getHasBathtub() != null && cat.getHasBathtub()),
+                            "hasBalcony", String.valueOf(cat.getHasBalcony() != null && cat.getHasBalcony()),
+                            "complimentaryServices", cat.getComplimentaryServices() != null ? cat.getComplimentaryServices() : "",
+                            "hasFreeBreakfast", String.valueOf(cat.getHasFreeBreakfast() != null && cat.getHasFreeBreakfast())
+                    ));
                 }
                 yield r;
             }

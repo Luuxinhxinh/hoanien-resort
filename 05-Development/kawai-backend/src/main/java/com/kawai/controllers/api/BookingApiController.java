@@ -83,9 +83,7 @@ public class BookingApiController {
 
             BookingResponseDTO response = bookingService.createBooking(request);
 
-            java.time.LocalDateTime cancellationDeadlineLDT = response.getCancellationDeadline() != null
-                    ? response.getCancellationDeadline().atStartOfDay()
-                    : null;
+            java.time.LocalDateTime cancellationDeadlineLDT = response.getCancellationDeadline();
 
             BookingApiResponse apiResponse = new BookingApiResponse(
                     "success",
