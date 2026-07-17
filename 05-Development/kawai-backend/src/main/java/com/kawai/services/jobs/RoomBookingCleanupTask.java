@@ -13,6 +13,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 
+import org.springframework.context.event.EventListener;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+
 @Component
 public class RoomBookingCleanupTask {
 
@@ -27,23 +30,24 @@ public class RoomBookingCleanupTask {
         this.roomBookingDetailRepository = roomBookingDetailRepository;
     }
 
-    // Quản lý qua DynamicJobManager
+    // Quản lý qua DynamicJobManager và tự động chạy khi khởi động app
+    @EventListener(ApplicationReadyEvent.class)
     @Transactional
     public void cleanupNoShowRoomBookings() {
         LocalDate today = LocalDate.now();
 
-        // 1. Confirmed bookings past check-in -> No-Show
+        // 1. Confirmed bookings past check-in -> No_Show
         List<RoomBooking> confirmedExpired = roomBookingRepository.findByBookingStatusAndCheckInDateBefore("Confirmed",
                 today);
         if (!confirmedExpired.isEmpty()) {
-            log.info("Bắt đầu giải phóng {} đơn phòng Confirmed quá hạn sang No-Show.", confirmedExpired.size());
+            log.info("Bắt đầu giải phóng {} đơn phòng Confirmed quá hạn sang No_Show.", confirmedExpired.size());
             for (RoomBooking rb : confirmedExpired) {
-                rb.setBookingStatus("No-Show");
+                rb.setBookingStatus("No_Show");
                 roomBookingRepository.save(rb);
 
                 List<RoomBookingDetail> details = roomBookingDetailRepository.findByRoomBookingId(rb.getId());
                 for (RoomBookingDetail d : details) {
-                    d.setDetailStatus("No-Show");
+                    d.setDetailStatus("No_Show");
                     roomBookingDetailRepository.save(d);
                 }
             }

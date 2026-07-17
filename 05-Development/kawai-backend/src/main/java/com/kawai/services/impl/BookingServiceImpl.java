@@ -19,15 +19,11 @@ import com.kawai.repositories.RoomBookingDetailRepository;
 import com.kawai.repositories.RoomRepository;
 import com.kawai.repositories.CustomerRepository;
 import com.kawai.repositories.WorkflowRepository;
-import com.kawai.repositories.PaymentTransactionRepository;
 import com.kawai.services.interfaces.BookingService;
-import com.kawai.models.PaymentTransaction;
-import com.kawai.models.PaymentStatus;
 import com.kawai.services.interfaces.WorkflowEngineService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.kawai.services.interfaces.NotificationService;
@@ -40,7 +36,6 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
 
 /**
  * ═══════════════════════════════════════════════════════════════════════════
@@ -55,9 +50,6 @@ import java.util.HashMap;
  * AND rbd.roomBooking.bookingStatus != 'CANCELLED'
  *
  * Nghĩa là status "HOLD" sẽ ĐƯỢC TÍNH là đang chiếm phòng.
- * → Khi User A tạo HOLD cho phòng R101 ngày 1-5/7,
- * User B check → countOverlapping = 1 → bị block ngay lập tức.
- *
  * Flow:
  * 1. INSERT RoomBooking(status="HOLD") → soft lock tức thì
  * 2. Tính tiền, xử lý promo, lưu RoomBookingDetail
@@ -138,10 +130,6 @@ public class BookingServiceImpl implements BookingService {
         this.workflowEngineService = workflowEngineService;
     }
 
-    // ══════════════════════════════════════════════════════════════════════
-    // 🟢 GREEN — createBooking()
-    // ══════════════════════════════════════════════════════════════════════
-
     @Override
     @Transactional
     public BookingResponseDTO createBooking(BookingRequestDTO request)
@@ -207,7 +195,7 @@ public class BookingServiceImpl implements BookingService {
         holdBooking.setCheckInDate(checkIn);
         holdBooking.setCheckOutDate(checkOut);
         holdBooking.setDepositAmount(BigDecimal.ZERO);
-        holdBooking.setCancellationDeadline(checkIn.minusDays(2));
+        holdBooking.setCancellationDeadline(checkIn.atTime(14, 0).minusHours(48));
         holdBooking.setPersonalPinHash("HOLD_PENDING");
 
         BigDecimal maxTierLimit = new BigDecimal("5000000.00"); // Mặc định 5 triệu
@@ -444,7 +432,7 @@ public class BookingServiceImpl implements BookingService {
         response.setDiscountedPrice(discountedPrice.setScale(0, RoundingMode.HALF_UP));
         response.setCheckInDate(checkIn);
         response.setCheckOutDate(checkOut);
-        response.setCancellationDeadline(checkIn.minusDays(2));
+        response.setCancellationDeadline(checkIn.atTime(14, 0).minusHours(48));
 
         return response;
     }
@@ -654,11 +642,14 @@ public class BookingServiceImpl implements BookingService {
         }
 
         // Đã đóng cọc -> Cần check deadline hoàn tiền sử dụng cancellationDeadline
-        LocalDate today = LocalDate.now();
+        java.time.LocalDateTime now = java.time.LocalDateTime.now();
         boolean isEligibleForRefund = booking.getCancellationDeadline() != null
-                && !today.isAfter(booking.getCancellationDeadline());
+                && !now.isAfter(booking.getCancellationDeadline());
 
         try {
+            java.math.BigDecimal totalRefundAmount = isEligibleForRefund ? booking.getDepositAmount()
+                    : java.math.BigDecimal.ZERO;
+
             if (isEligibleForRefund) {
                 if (dto != null) {
                     com.kawai.models.RefundRequest refund = new com.kawai.models.RefundRequest();
@@ -687,6 +678,10 @@ public class BookingServiceImpl implements BookingService {
             booking.setBookingStatus(newStatus);
             roomBookingRepository.save(booking);
 
+            // Xử lý hủy các Tour đi kèm
+            java.math.BigDecimal totalTourRefund = processAttachedToursCancellation(bookingId, dto);
+            totalRefundAmount = totalRefundAmount.add(totalTourRefund);
+
             try {
                 emailService.sendRoomCancellationEmail(booking, booking.getCustomer(), isEligibleForRefund);
             } catch (Exception e) {
@@ -696,7 +691,7 @@ public class BookingServiceImpl implements BookingService {
             BookingResponseDTO response = new BookingResponseDTO();
             response.setBookingId(bookingId);
             response.setBookingStatus(newStatus);
-            response.setDepositAmount(isEligibleForRefund ? booking.getDepositAmount() : BigDecimal.ZERO);
+            response.setDepositAmount(totalRefundAmount);
             return response;
         } catch (Exception e) {
             if (notificationService != null) {
@@ -705,6 +700,52 @@ public class BookingServiceImpl implements BookingService {
             }
             throw e;
         }
+    }
+
+    private java.math.BigDecimal processAttachedToursCancellation(Long bookingId,
+            com.kawai.dto.CancelBookingRequestDTO dto) {
+        java.math.BigDecimal totalTourRefund = java.math.BigDecimal.ZERO;
+        java.util.List<com.kawai.models.TourBooking> attachedTours = tourBookingRepository
+                .findByRoomBookingId(bookingId);
+
+        for (com.kawai.models.TourBooking tb : attachedTours) {
+            String tbStatus = tb.getBookingStatus() != null ? tb.getBookingStatus().toUpperCase() : "";
+            if ("PENDING".equals(tbStatus) || "PENDING_PAYMENT".equals(tbStatus) || "CONFIRMED".equals(tbStatus)) {
+                boolean isTourRefundable = false;
+                if (tb.getSchedule() != null && tb.getSchedule().getDepartureDate() != null) {
+                    java.time.LocalDateTime depTime = tb.getSchedule().getDepartureDate().atTime(
+                            tb.getSchedule().getDepartureTime() != null ? tb.getSchedule().getDepartureTime()
+                                    : java.time.LocalTime.of(7, 0));
+                    if (java.time.temporal.ChronoUnit.HOURS.between(java.time.LocalDateTime.now(), depTime) > 24) {
+                        isTourRefundable = true;
+                    }
+                }
+
+                String newTourStatus = isTourRefundable ? "Cancelled_Refunded" : "Cancelled_Forfeited";
+                tb.setBookingStatus(newTourStatus);
+                tourBookingRepository.save(tb);
+
+                if (isTourRefundable) {
+                    java.math.BigDecimal tourRefund = tb.getTourCharge() != null
+                            ? tb.getTourCharge().multiply(new java.math.BigDecimal("0.5"))
+                            : java.math.BigDecimal.ZERO;
+                    totalTourRefund = totalTourRefund.add(tourRefund);
+
+                    if (dto != null && tourRefund.compareTo(java.math.BigDecimal.ZERO) > 0) {
+                        com.kawai.models.RefundRequest tourRefundReq = new com.kawai.models.RefundRequest();
+                        tourRefundReq.setTourBooking(tb);
+                        tourRefundReq.setBankName(dto.getBankName());
+                        tourRefundReq.setAccountNumber(dto.getAccountNumber());
+                        tourRefundReq.setAccountName(dto.getAccountName());
+                        tourRefundReq.setPhoneNumber(dto.getPhoneNumber());
+                        tourRefundReq.setAmount(tourRefund);
+                        tourRefundReq.setStatus("Pending");
+                        refundRequestRepository.save(tourRefundReq);
+                    }
+                }
+            }
+        }
+        return totalTourRefund;
     }
 
     @Override

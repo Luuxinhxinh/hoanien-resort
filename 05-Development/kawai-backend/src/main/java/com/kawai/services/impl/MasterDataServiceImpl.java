@@ -42,6 +42,38 @@ public class MasterDataServiceImpl implements MasterDataService {
                 } else {
                     rc.setCapacity(2);
                 }
+                if (payload.get("baseAdults") != null && !payload.get("baseAdults").toString().isEmpty())
+                    rc.setBaseAdults(Integer.parseInt(payload.get("baseAdults").toString()));
+                if (payload.get("baseChildren") != null && !payload.get("baseChildren").toString().isEmpty())
+                    rc.setBaseChildren(Integer.parseInt(payload.get("baseChildren").toString()));
+                if (payload.get("maxAdults") != null && !payload.get("maxAdults").toString().isEmpty())
+                    rc.setMaxAdults(Integer.parseInt(payload.get("maxAdults").toString()));
+                if (payload.get("maxChildren") != null && !payload.get("maxChildren").toString().isEmpty())
+                    rc.setMaxChildren(Integer.parseInt(payload.get("maxChildren").toString()));
+                if (payload.get("extraAdultSurcharge") != null && !payload.get("extraAdultSurcharge").toString().isEmpty())
+                    rc.setExtraAdultSurcharge(new java.math.BigDecimal(payload.get("extraAdultSurcharge").toString().replaceAll("[^\\d.]", "")));
+                if (payload.get("extraChildSurcharge") != null && !payload.get("extraChildSurcharge").toString().isEmpty())
+                    rc.setExtraChildSurcharge(new java.math.BigDecimal(payload.get("extraChildSurcharge").toString().replaceAll("[^\\d.]", "")));
+                if (payload.get("description") != null)
+                    rc.setDescription((String) payload.get("description"));
+                if (payload.get("coverImgUrl") != null)
+                    rc.setCoverImgUrl((String) payload.get("coverImgUrl"));
+                
+                if (payload.get("bedType") != null)
+                    rc.setBedType(payload.get("bedType").toString());
+                if (payload.get("roomSize") != null && !payload.get("roomSize").toString().isEmpty())
+                    rc.setRoomSize(Integer.parseInt(payload.get("roomSize").toString()));
+                if (payload.get("viewType") != null)
+                    rc.setViewType(payload.get("viewType").toString());
+                if (payload.get("hasBathtub") != null)
+                    rc.setHasBathtub(Boolean.parseBoolean(payload.get("hasBathtub").toString()));
+                if (payload.get("hasBalcony") != null)
+                    rc.setHasBalcony(Boolean.parseBoolean(payload.get("hasBalcony").toString()));
+                if (payload.get("complimentaryServices") != null)
+                    rc.setComplimentaryServices(payload.get("complimentaryServices").toString());
+                if (payload.get("hasFreeBreakfast") != null)
+                    rc.setHasFreeBreakfast(Boolean.parseBoolean(payload.get("hasFreeBreakfast").toString()));
+
                 rc.setIsActive(payload.get("status") == null || "Active".equals(payload.get("status")));
                 roomCategoryRepository.save(rc);
                 break;
@@ -246,6 +278,21 @@ public class MasterDataServiceImpl implements MasterDataService {
                         rc.setDescription((String) payload.get("description"));
                     if (payload.get("coverImgUrl") != null)
                         rc.setCoverImgUrl((String) payload.get("coverImgUrl"));
+
+                    if (payload.get("bedType") != null)
+                        rc.setBedType(payload.get("bedType").toString());
+                    if (payload.get("roomSize") != null && !payload.get("roomSize").toString().isEmpty())
+                        rc.setRoomSize(Integer.parseInt(payload.get("roomSize").toString()));
+                    if (payload.get("viewType") != null)
+                        rc.setViewType(payload.get("viewType").toString());
+                    if (payload.get("hasBathtub") != null)
+                        rc.setHasBathtub(Boolean.parseBoolean(payload.get("hasBathtub").toString()));
+                    if (payload.get("hasBalcony") != null)
+                        rc.setHasBalcony(Boolean.parseBoolean(payload.get("hasBalcony").toString()));
+                    if (payload.get("complimentaryServices") != null)
+                        rc.setComplimentaryServices(payload.get("complimentaryServices").toString());
+                    if (payload.get("hasFreeBreakfast") != null)
+                        rc.setHasFreeBreakfast(Boolean.parseBoolean(payload.get("hasFreeBreakfast").toString()));
 
                     if (rc.getBaseAdults() > rc.getMaxAdults()) {
                         throw new IllegalArgumentException("Số người lớn tiêu chuẩn (" + rc.getBaseAdults()

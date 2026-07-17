@@ -11,8 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -108,7 +106,8 @@ public class ChangeRoomCategoryServiceImpl implements ChangeRoomCategoryService 
         }
     }
 
-    private Long handleSurchargeFolioItem(RoomBookingDetail detail, BigDecimal newRate, BigDecimal oldRate, Room oldRoom, RoomCategory newCategory) {
+    private Long handleSurchargeFolioItem(RoomBookingDetail detail, BigDecimal newRate, BigDecimal oldRate,
+            Room oldRoom, RoomCategory newCategory) {
         return null; // Không sinh folio chênh lệch lúc đổi phòng, để Night Audit tự tính hằng đêm
     }
 
