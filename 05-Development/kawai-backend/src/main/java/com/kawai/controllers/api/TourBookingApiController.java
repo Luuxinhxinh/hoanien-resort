@@ -49,6 +49,9 @@ public class TourBookingApiController {
     @Autowired
     private VnPayService vnPayService;
 
+    @Autowired
+    private TourAttendeeRepository tourAttendeeRepository;
+
     @PostMapping
     public ResponseEntity<?> createTourBooking(@RequestBody Map<String, Object> payload, Principal principal,
             HttpServletRequest httpRequest) {
@@ -335,9 +338,89 @@ public class TourBookingApiController {
                 data.put("tourName", tour.getTourName());
                 data.put("duration", tour.getDuration());
                 data.put("description", tour.getDescription());
-                // Get itineraries if needed, but for now we just return the basics
             }
         }
+
+        int adultCount = 0;
+        int childCount = 0;
+        int infantCount = 0;
+
+        List<TourAttendee> attendees = tourAttendeeRepository.findByTourBookingId(tb.getId());
+        if (attendees != null && !attendees.isEmpty()) {
+            for (TourAttendee attendee : attendees) {
+                if (attendee.getCustomer() != null) {
+                    adultCount++;
+                } else if (attendee.getDependent() != null) {
+                    Dependent dep = attendee.getDependent();
+                    String cccd = dep.getCccdPassportEncrypted();
+                    if (cccd != null && cccd.startsWith("AUTO_CHILD_")) {
+                        if (cccd.contains("Dưới_2_tuổi")) {
+                            infantCount++;
+                        } else {
+                            childCount++;
+                        }
+                    } else if (dep.getBirthDate() != null) {
+                        int age = java.time.Period.between(dep.getBirthDate(), java.time.LocalDate.now()).getYears();
+                        if (age < 2) {
+                            infantCount++;
+                        } else if (age < 12) {
+                            childCount++;
+                        } else {
+                            adultCount++;
+                        }
+                    } else {
+                        childCount++;
+                    }
+                } else {
+                    adultCount++;
+                }
+            }
+        } else {
+            adultCount = tb.getParticipantCount() != null ? tb.getParticipantCount() : 0;
+        }
+
+        java.math.BigDecimal totalCharge = tb.getTourCharge() != null ? tb.getTourCharge() : java.math.BigDecimal.ZERO;
+        double weight = adultCount + 0.5 * childCount;
+        java.math.BigDecimal adultPrice = java.math.BigDecimal.ZERO;
+        java.math.BigDecimal childPrice = java.math.BigDecimal.ZERO;
+
+        if (weight > 0) {
+            adultPrice = totalCharge.divide(java.math.BigDecimal.valueOf(weight), 2, java.math.RoundingMode.HALF_UP);
+            childPrice = adultPrice.multiply(new java.math.BigDecimal("0.5")).setScale(2, java.math.RoundingMode.HALF_UP);
+        } else if (tour != null && tour.getBasePrice() != null) {
+            adultPrice = tour.getBasePrice();
+            childPrice = adultPrice.multiply(new java.math.BigDecimal("0.5")).setScale(2, java.math.RoundingMode.HALF_UP);
+        }
+
+        java.math.BigDecimal insuranceFee = java.math.BigDecimal.ZERO;
+        String notes = tb.getNotes();
+        if (notes != null) {
+            String[] parts = notes.split(";");
+            for (String part : parts) {
+                if (part.startsWith("insuranceFee=")) {
+                    try {
+                        insuranceFee = new java.math.BigDecimal(part.substring("insuranceFee=".length()).trim());
+                    } catch (Exception e) {}
+                }
+            }
+        }
+
+        String insurancePolicyNumber = null;
+        if (schedule != null && Boolean.TRUE.equals(schedule.getIsInsuranceProcessed())) {
+            insurancePolicyNumber = schedule.getInsurancePolicyNumber();
+        }
+
+        data.put("adultCount", adultCount);
+        data.put("childCount", childCount);
+        data.put("infantCount", infantCount);
+        data.put("adultPrice", adultPrice);
+        data.put("childPrice", childPrice);
+        data.put("infantPrice", java.math.BigDecimal.ZERO);
+        data.put("insurancePrice", tour != null && tour.getInsurancePrice() != null ? tour.getInsurancePrice() : new java.math.BigDecimal("50000"));
+        data.put("insuranceFee", insuranceFee);
+        data.put("isInsuranceRequired", tour != null && Boolean.TRUE.equals(tour.getIsInsuranceRequired()));
+        data.put("insurancePolicyNumber", insurancePolicyNumber);
+
         return ResponseEntity.ok(data);
     }
 

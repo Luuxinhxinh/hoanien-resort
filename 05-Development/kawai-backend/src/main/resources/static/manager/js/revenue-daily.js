@@ -1,7 +1,7 @@
 /* revenue-daily.js — Doanh thu theo ngày: stacked bar chart */
 
 const C_ROOM='rgba(201,169,110,0.85)',C_FNB='rgba(122,156,122,0.85)',C_TOUR='rgba(107,140,154,0.85)';
-const C_GRID='rgba(44,42,30,0.07)',C_TICK='#8B7355';
+const C_GRID='rgba(44,42,30,0.07)',C_TICK='#6a505bcf';
 
 Chart.defaults.font.family="'DM Sans',sans-serif";
 Chart.defaults.font.size=12;
