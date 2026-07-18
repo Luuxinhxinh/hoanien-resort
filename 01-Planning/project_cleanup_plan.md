@@ -84,12 +84,10 @@ Các thư mục cũ vẫn đang bị Git track dưới dạng Deleted nhưng ch�
 File [MASTER_EDS_SPEC.md](file:///d:/SWP391/su26-swp391-se2023-g2/06-Testing/MASTER_EDS_SPEC.md#L424-L542) có conflict markers cần xóa ngay:
 
 ```diff
--<<<<<<< Updated upstream
  ## 6.7. API Specification — UC21: Điểm danh AI Face Scan
  ...
 -=======
 -## 8. Phương pháp Xác minh (API Verification Samples)
-->>>>>>> Stashed changes
 ```
 
 ### 1.4. Cập nhật .gitignore
