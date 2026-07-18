@@ -58,10 +58,6 @@ public class ManagerController {
         return String.format("%,d", v);
     }
 
-    private static BigDecimal nz(BigDecimal val) {
-        return val == null ? BigDecimal.ZERO : val;
-    }
-
     // =========================================================================
     // 1. Dashboard
     // =========================================================================
@@ -76,24 +72,20 @@ public class ManagerController {
     @GetMapping("/approvals")
     public String approvals(Model model) {
         model.addAttribute("todayLabel", todayLabel());
-
-        List<String> types = java.util.Arrays.asList("Manager_Approval", "Late_Checkout_Waiver",
-                "Cancellation_Fee_Waiver", "Room_Downgrade_Refund");
-        List<HotelOperation> pendingOps = housekeepingTaskRepository.findByOperationalTypesAndStatusSorted(types,
-                "Pending");
-        List<HotelOperation> completedOps = housekeepingTaskRepository.findByOperationalTypesAndStatusSorted(types,
-                "Completed");
-        List<HotelOperation> rejectedOps = housekeepingTaskRepository.findByOperationalTypesAndStatusSorted(types,
-                "Rejected");
-
+        
+        List<String> types = java.util.Arrays.asList("Manager_Approval", "Late_Checkout_Waiver", "Cancellation_Fee_Waiver", "Room_Downgrade_Refund");
+        List<HotelOperation> pendingOps = housekeepingTaskRepository.findByOperationalTypesAndStatusSorted(types, "Pending");
+        List<HotelOperation> completedOps = housekeepingTaskRepository.findByOperationalTypesAndStatusSorted(types, "Completed");
+        List<HotelOperation> rejectedOps = housekeepingTaskRepository.findByOperationalTypesAndStatusSorted(types, "Rejected");
+        
         List<ApprovalDTO> pending = convertToApprovalDTOs(pendingOps);
         List<ApprovalDTO> completed = convertToApprovalDTOs(completedOps);
         List<ApprovalDTO> rejected = convertToApprovalDTOs(rejectedOps);
-
+        
         model.addAttribute("pendingApprovals", pending);
         model.addAttribute("completedApprovals", completed);
         model.addAttribute("rejectedApprovals", rejected);
-
+        
         return "manager/approvals";
     }
 
@@ -105,54 +97,46 @@ public class ManagerController {
             String totalPriceStr = "N/A";
             String bookingDetails = "N/A";
             String promoCode = "N/A";
-
+            
             if (bookingId != null) {
                 Booking booking = bookingRepository.findById(bookingId).orElse(null);
                 if (booking != null) {
                     customerName = booking.getCustomer() != null ? booking.getCustomer().getFullName() : "N/A";
-                    totalPriceStr = booking.getTotalPrice() != null
-                            ? String.format(java.util.Locale.US, "%,.0f", booking.getTotalPrice().doubleValue()) + " VND"
-                            : "0 VND";
-                    promoCode = booking.getAppliedPromotion() != null ? booking.getAppliedPromotion().getPromoCode()
-                            : "N/A";
+                    totalPriceStr = fmt(booking.getTotalPrice()) + " VNĐ";
+                    promoCode = booking.getAppliedPromotion() != null ? booking.getAppliedPromotion().getPromoCode() : "N/A";
                     if ("N/A".equals(promoCode) && op.getNotes() != null) {
-                        java.util.regex.Matcher m = java.util.regex.Pattern.compile("Mã giảm giá (\\S+) áp dụng")
-                                .matcher(op.getNotes());
+                        java.util.regex.Matcher m = java.util.regex.Pattern.compile("Mã giảm giá (\\S+) áp dụng").matcher(op.getNotes());
                         if (m.find()) {
                             promoCode = m.group(1);
                         }
                     }
-
+                    
                     if (booking instanceof RoomBooking rb) {
                         bookingDetails = "Đặt phòng (" + rb.getCheckInDate() + " -> " + rb.getCheckOutDate() + ")";
                     } else if (booking instanceof TourBooking tb) {
-                        bookingDetails = "Đặt Tour: " + (tb.getSchedule() != null && tb.getSchedule().getTour() != null
-                                ? tb.getSchedule().getTour().getTourName()
-                                : "N/A");
+                        bookingDetails = "Đặt Tour: " + (tb.getSchedule() != null && tb.getSchedule().getTour() != null ? tb.getSchedule().getTour().getTourName() : "N/A");
                     }
                 }
             }
-
+            
             dtos.add(new ApprovalDTO(
-                    op.getId(),
-                    bookingId,
-                    customerName,
-                    promoCode,
-                    op.getNotes(),
-                    op.getStatus(),
-                    op.getCreatedAt() != null
-                            ? op.getCreatedAt().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))
-                            : "N/A",
-                    bookingDetails,
-                    totalPriceStr,
-                    op.getOperationalType()));
+                op.getId(),
+                bookingId,
+                customerName,
+                promoCode,
+                op.getNotes(),
+                op.getStatus(),
+                op.getCreatedAt() != null ? op.getCreatedAt().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")) : "N/A",
+                bookingDetails,
+                totalPriceStr,
+                op.getOperationalType()
+            ));
         }
         return dtos;
     }
 
     private Long parseBookingIdFromNotes(String notes) {
-        if (notes == null)
-            return null;
+        if (notes == null) return null;
         int idx = notes.lastIndexOf("booking ID: ");
         if (idx == -1) {
             idx = notes.lastIndexOf("ID: ");
@@ -335,8 +319,7 @@ public class ManagerController {
             model.addAttribute("topTour", "Chưa có");
         }
 
-        java.util.List<String> todayChartLabels = java.util.List.of("00:00", "04:00", "08:00", "12:00", "16:00",
-                "20:00", "24:00");
+        java.util.List<String> todayChartLabels = java.util.List.of("00:00", "04:00", "08:00", "12:00", "16:00", "20:00", "24:00");
         java.util.List<Double> todayRoomValues = new java.util.ArrayList<>();
         java.util.List<Double> todayFnbValues = new java.util.ArrayList<>();
         java.util.List<Double> todayTourValues = new java.util.ArrayList<>();
@@ -350,10 +333,9 @@ public class ManagerController {
             }
             java.time.LocalDateTime start = today.atTime(h - 4, 0);
             java.time.LocalDateTime end = h == 24 ? today.plusDays(1).atStartOfDay() : today.atTime(h, 0);
-
-            java.util.List<PaymentTransaction> txs = paymentTransactionRepository.findBetween(start, end,
-                    PaymentStatus.SUCCESS);
-
+            
+            java.util.List<PaymentTransaction> txs = paymentTransactionRepository.findBetween(start, end, PaymentStatus.SUCCESS);
+            
             BigDecimal room = BigDecimal.ZERO;
             BigDecimal fnb = BigDecimal.ZERO;
             BigDecimal tour = BigDecimal.ZERO;
@@ -368,8 +350,7 @@ public class ManagerController {
                         room = room.add(t.getAmount());
                     }
                 } else if (t.getInvoice() != null) {
-                    // For simplicity, we assign consolidated invoice revenue to room since it
-                    // primarily contains room charges
+                    // For simplicity, we assign consolidated invoice revenue to room since it primarily contains room charges
                     room = room.add(t.getAmount());
                 } else {
                     room = room.add(t.getAmount());
@@ -399,24 +380,21 @@ public class ManagerController {
         LocalDate today = LocalDate.now();
 
         // --- DAILY ---
-        BigDecimal roomToday = nz(roomBookingRepository.revenueBetween(today, today));
-        BigDecimal fnbToday = nz(foodOrderRepository.revenueBetween(today.atStartOfDay(),
-                today.plusDays(1).atStartOfDay()));
-        BigDecimal tourToday = nz(tourBookingRepository.revenueBetween(today, today));
+        BigDecimal roomToday = roomBookingRepository.revenueBetween(today, today);
+        BigDecimal fnbToday = foodOrderRepository.revenueBetween(today.atStartOfDay(), today.plusDays(1).atStartOfDay());
+        BigDecimal tourToday = tourBookingRepository.revenueBetween(today, today);
         BigDecimal totalToday = roomToday.add(fnbToday).add(tourToday);
 
         LocalDate weekStart = today.minusDays(6);
-        BigDecimal roomWeek = nz(roomBookingRepository.revenueBetween(weekStart, today));
-        BigDecimal fnbWeek = nz(foodOrderRepository.revenueBetween(weekStart.atStartOfDay(),
-                today.plusDays(1).atStartOfDay()));
-        BigDecimal tourWeek = nz(tourBookingRepository.revenueBetween(weekStart, today));
+        BigDecimal roomWeek = roomBookingRepository.revenueBetween(weekStart, today);
+        BigDecimal fnbWeek = foodOrderRepository.revenueBetween(weekStart.atStartOfDay(), today.plusDays(1).atStartOfDay());
+        BigDecimal tourWeek = tourBookingRepository.revenueBetween(weekStart, today);
         BigDecimal totalWeek = roomWeek.add(fnbWeek).add(tourWeek);
 
         LocalDate yesterday = today.minusDays(1);
-        BigDecimal roomYesterday = nz(roomBookingRepository.revenueBetween(yesterday, yesterday));
-        BigDecimal fnbYesterday = nz(foodOrderRepository.revenueBetween(yesterday.atStartOfDay(),
-                yesterday.plusDays(1).atStartOfDay()));
-        BigDecimal tourYesterday = nz(tourBookingRepository.revenueBetween(yesterday, yesterday));
+        BigDecimal roomYesterday = roomBookingRepository.revenueBetween(yesterday, yesterday);
+        BigDecimal fnbYesterday = foodOrderRepository.revenueBetween(yesterday.atStartOfDay(), yesterday.plusDays(1).atStartOfDay());
+        BigDecimal tourYesterday = tourBookingRepository.revenueBetween(yesterday, yesterday);
         BigDecimal totalYesterday = roomYesterday.add(fnbYesterday).add(tourYesterday);
 
         model.addAttribute("totalToday", fmt(totalToday));
@@ -462,14 +440,11 @@ public class ManagerController {
                 LocalDate d = today.minusDays(i);
                 String lbl = d.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
                 BigDecimal rDate = roomBookingRepository.revenueOnDate(d);
-                if (rDate == null)
-                    rDate = BigDecimal.ZERO;
+                if (rDate == null) rDate = BigDecimal.ZERO;
                 BigDecimal fDate = foodOrderRepository.revenueOnDate(d.atStartOfDay(), d.plusDays(1).atStartOfDay());
-                if (fDate == null)
-                    fDate = BigDecimal.ZERO;
+                if (fDate == null) fDate = BigDecimal.ZERO;
                 BigDecimal tDate = tourBookingRepository.revenueOnDate(d);
-                if (tDate == null)
-                    tDate = BigDecimal.ZERO;
+                if (tDate == null) tDate = BigDecimal.ZERO;
 
                 BigDecimal totalDate = rDate.add(fDate).add(tDate);
                 dailyRows.add(0, new RevenueRowDTO(lbl, fmt(rDate), fmt(fDate), fmt(tDate), fmt(totalDate)));
@@ -479,8 +454,7 @@ public class ManagerController {
                 dailyChartFnb.add(fDate.doubleValue() / 1_000_000.0);
                 dailyChartTour.add(tDate.doubleValue() / 1_000_000.0);
             }
-        } catch (Exception e) {
-        }
+        } catch (Exception e) {}
 
         model.addAttribute("dailyRows", dailyRows);
         model.addAttribute("dailyChartLabels", dailyChartLabels);
@@ -490,61 +464,49 @@ public class ManagerController {
 
         // --- MONTHLY ---
         LocalDate now = LocalDate.now();
-
+        
         LocalDate currentMonthStart = LocalDate.of(now.getYear(), now.getMonthValue(), 1);
-        BigDecimal currentMonthRoom = nz(roomBookingRepository.revenueBetween(currentMonthStart, now));
-        BigDecimal currentMonthFnb = nz(foodOrderRepository.revenueBetween(currentMonthStart.atStartOfDay(),
-                now.plusDays(1).atStartOfDay()));
-        BigDecimal currentMonthTour = nz(tourBookingRepository.revenueBetween(currentMonthStart, now));
+        BigDecimal currentMonthRoom = roomBookingRepository.revenueBetween(currentMonthStart, now);
+        BigDecimal currentMonthFnb = foodOrderRepository.revenueBetween(currentMonthStart.atStartOfDay(), now.plusDays(1).atStartOfDay());
+        BigDecimal currentMonthTour = tourBookingRepository.revenueBetween(currentMonthStart, now);
         BigDecimal currentMonthTotal = currentMonthRoom.add(currentMonthFnb).add(currentMonthTour);
         model.addAttribute("currentMonthTotal", fmt(currentMonthTotal));
         model.addAttribute("currentMonthLabel", "Tháng " + now.getMonthValue() + "/" + now.getYear());
 
         LocalDate previousMonthStart = currentMonthStart.minusMonths(1);
         LocalDate previousMonthEnd = currentMonthStart.minusDays(1);
-        BigDecimal previousMonthRoom = nz(roomBookingRepository.revenueBetween(previousMonthStart, previousMonthEnd));
-        BigDecimal previousMonthFnb = nz(foodOrderRepository.revenueBetween(previousMonthStart.atStartOfDay(),
-                previousMonthEnd.atTime(23, 59, 59)));
-        BigDecimal previousMonthTour = nz(tourBookingRepository.revenueBetween(previousMonthStart, previousMonthEnd));
+        BigDecimal previousMonthRoom = roomBookingRepository.revenueBetween(previousMonthStart, previousMonthEnd);
+        BigDecimal previousMonthFnb = foodOrderRepository.revenueBetween(previousMonthStart.atStartOfDay(), previousMonthEnd.atTime(23, 59, 59));
+        BigDecimal previousMonthTour = tourBookingRepository.revenueBetween(previousMonthStart, previousMonthEnd);
         BigDecimal previousMonthTotal = previousMonthRoom.add(previousMonthFnb).add(previousMonthTour);
         model.addAttribute("previousMonthTotal", fmt(previousMonthTotal));
-        model.addAttribute("previousMonthLabel",
-                "Tháng " + previousMonthStart.getMonthValue() + "/" + previousMonthStart.getYear());
+        model.addAttribute("previousMonthLabel", "Tháng " + previousMonthStart.getMonthValue() + "/" + previousMonthStart.getYear());
 
-        BigDecimal ytdRoom = nz(roomBookingRepository.revenueBetween(LocalDate.of(now.getYear(), 1, 1),
-                LocalDate.of(now.getYear(), now.getMonthValue(), now.lengthOfMonth())));
-        BigDecimal ytdFnb = nz(foodOrderRepository.revenueBetween(java.time.LocalDateTime.of(now.getYear(), 1, 1, 0, 0),
-                LocalDate.of(now.getYear(), now.getMonthValue(), now.lengthOfMonth()).atTime(23, 59, 59)));
-        BigDecimal ytdTour = nz(tourBookingRepository.revenueBetween(LocalDate.of(now.getYear(), 1, 1),
-                LocalDate.of(now.getYear(), now.getMonthValue(), now.lengthOfMonth())));
+        BigDecimal ytdRoom = roomBookingRepository.revenueBetween(LocalDate.of(now.getYear(), 1, 1), LocalDate.of(now.getYear(), now.getMonthValue(), now.lengthOfMonth()));
+        BigDecimal ytdFnb = foodOrderRepository.revenueBetween(java.time.LocalDateTime.of(now.getYear(), 1, 1, 0, 0), LocalDate.of(now.getYear(), now.getMonthValue(), now.lengthOfMonth()).atTime(23, 59, 59));
+        BigDecimal ytdTour = tourBookingRepository.revenueBetween(LocalDate.of(now.getYear(), 1, 1), LocalDate.of(now.getYear(), now.getMonthValue(), now.lengthOfMonth()));
         BigDecimal totalYear = ytdRoom.add(ytdFnb).add(ytdTour);
         model.addAttribute("totalYear", fmt(totalYear));
 
-        BigDecimal ytdRoomLastYear = nz(roomBookingRepository.revenueBetween(LocalDate.of(now.getYear() - 1, 1, 1),
-                LocalDate.of(now.getYear() - 1, now.getMonthValue(), now.lengthOfMonth())));
-        BigDecimal ytdFnbLastYear = nz(foodOrderRepository.revenueBetween(
-                java.time.LocalDateTime.of(now.getYear() - 1, 1, 1, 0, 0),
-                LocalDate.of(now.getYear() - 1, now.getMonthValue(), now.lengthOfMonth()).atTime(23, 59, 59)));
-        BigDecimal ytdTourLastYear = nz(tourBookingRepository.revenueBetween(LocalDate.of(now.getYear() - 1, 1, 1),
-                LocalDate.of(now.getYear() - 1, now.getMonthValue(), now.lengthOfMonth())));
+        BigDecimal ytdRoomLastYear = roomBookingRepository.revenueBetween(LocalDate.of(now.getYear() - 1, 1, 1), LocalDate.of(now.getYear() - 1, now.getMonthValue(), now.lengthOfMonth()));
+        BigDecimal ytdFnbLastYear = foodOrderRepository.revenueBetween(java.time.LocalDateTime.of(now.getYear() - 1, 1, 1, 0, 0), LocalDate.of(now.getYear() - 1, now.getMonthValue(), now.lengthOfMonth()).atTime(23, 59, 59));
+        BigDecimal ytdTourLastYear = tourBookingRepository.revenueBetween(LocalDate.of(now.getYear() - 1, 1, 1), LocalDate.of(now.getYear() - 1, now.getMonthValue(), now.lengthOfMonth()));
         BigDecimal totalLastYear = ytdRoomLastYear.add(ytdFnbLastYear).add(ytdTourLastYear);
-
+        
         LocalDate yesterdayForMtd = now.minusDays(1);
         BigDecimal currentMtdTotal = BigDecimal.ZERO;
         BigDecimal prevMtdTotal = BigDecimal.ZERO;
 
         if (!yesterdayForMtd.isBefore(currentMonthStart)) {
-            BigDecimal cRoom = nz(roomBookingRepository.revenueBetween(currentMonthStart, yesterdayForMtd));
-            BigDecimal cFnb = nz(foodOrderRepository.revenueBetween(currentMonthStart.atStartOfDay(),
-                    yesterdayForMtd.plusDays(1).atStartOfDay()));
-            BigDecimal cTour = nz(tourBookingRepository.revenueBetween(currentMonthStart, yesterdayForMtd));
+            BigDecimal cRoom = roomBookingRepository.revenueBetween(currentMonthStart, yesterdayForMtd);
+            BigDecimal cFnb = foodOrderRepository.revenueBetween(currentMonthStart.atStartOfDay(), yesterdayForMtd.plusDays(1).atStartOfDay());
+            BigDecimal cTour = tourBookingRepository.revenueBetween(currentMonthStart, yesterdayForMtd);
             currentMtdTotal = cRoom.add(cFnb).add(cTour);
 
             LocalDate previousMonthYesterday = yesterdayForMtd.minusMonths(1);
-            BigDecimal pRoom = nz(roomBookingRepository.revenueBetween(previousMonthStart, previousMonthYesterday));
-            BigDecimal pFnb = nz(foodOrderRepository.revenueBetween(previousMonthStart.atStartOfDay(),
-                    previousMonthYesterday.plusDays(1).atStartOfDay()));
-            BigDecimal pTour = nz(tourBookingRepository.revenueBetween(previousMonthStart, previousMonthYesterday));
+            BigDecimal pRoom = roomBookingRepository.revenueBetween(previousMonthStart, previousMonthYesterday);
+            BigDecimal pFnb = foodOrderRepository.revenueBetween(previousMonthStart.atStartOfDay(), previousMonthYesterday.plusDays(1).atStartOfDay());
+            BigDecimal pTour = tourBookingRepository.revenueBetween(previousMonthStart, previousMonthYesterday);
             prevMtdTotal = pRoom.add(pFnb).add(pTour);
         }
 
@@ -558,8 +520,7 @@ public class ManagerController {
         } else if (currentMtdTotal.compareTo(BigDecimal.ZERO) == 0) {
             momStr = "Chưa phát sinh";
         } else {
-            double mom = (currentMtdTotal.doubleValue() - prevMtdTotal.doubleValue()) / prevMtdTotal.doubleValue()
-                    * 100;
+            double mom = (currentMtdTotal.doubleValue() - prevMtdTotal.doubleValue()) / prevMtdTotal.doubleValue() * 100;
             momStr = (mom >= 0 ? "+" : "") + String.format(java.util.Locale.US, "%.1f%%", mom);
         }
         model.addAttribute("growthMoM", momStr);
@@ -576,9 +537,9 @@ public class ManagerController {
             LocalDate mDate = now.minusMonths(i);
             LocalDate start = LocalDate.of(mDate.getYear(), mDate.getMonthValue(), 1);
             LocalDate end = LocalDate.of(mDate.getYear(), mDate.getMonthValue(), mDate.lengthOfMonth());
-            BigDecimal rMonth = nz(roomBookingRepository.revenueBetween(start, end));
-            BigDecimal fMonth = nz(foodOrderRepository.revenueBetween(start.atStartOfDay(), end.atTime(23, 59, 59)));
-            BigDecimal tMonth = nz(tourBookingRepository.revenueBetween(start, end));
+            BigDecimal rMonth = roomBookingRepository.revenueBetween(start, end);
+            BigDecimal fMonth = foodOrderRepository.revenueBetween(start.atStartOfDay(), end.atTime(23, 59, 59));
+            BigDecimal tMonth = tourBookingRepository.revenueBetween(start, end);
             BigDecimal totalM = rMonth.add(fMonth).add(tMonth);
 
             if (totalM.compareTo(maxMonthRev) > 0) {
@@ -586,8 +547,7 @@ public class ManagerController {
                 bestMonthLabel = "Tháng " + mDate.getMonthValue();
             }
 
-            monthlyRows.add(0, new RevenueRowDTO("Tháng " + mDate.getMonthValue() + "/" + mDate.getYear(), fmt(rMonth),
-                    fmt(fMonth), fmt(tMonth), fmt(totalM)));
+            monthlyRows.add(0, new RevenueRowDTO("Tháng " + mDate.getMonthValue() + "/" + mDate.getYear(), fmt(rMonth), fmt(fMonth), fmt(tMonth), fmt(totalM)));
             monthlyChartLabels.add("T" + mDate.getMonthValue());
             monthlyChartRoom.add(rMonth.doubleValue() / 1_000_000.0);
             monthlyChartFnb.add(fMonth.doubleValue() / 1_000_000.0);
@@ -623,9 +583,9 @@ public class ManagerController {
             int y = currentYear - i;
             LocalDate start = LocalDate.of(y, 1, 1);
             LocalDate end = LocalDate.of(y, 12, 31);
-            BigDecimal rYear = nz(roomBookingRepository.revenueBetween(start, end));
-            BigDecimal fYear = nz(foodOrderRepository.revenueBetween(start.atStartOfDay(), end.atTime(23, 59, 59)));
-            BigDecimal tYear = nz(tourBookingRepository.revenueBetween(start, end));
+            BigDecimal rYear = roomBookingRepository.revenueBetween(start, end);
+            BigDecimal fYear = foodOrderRepository.revenueBetween(start.atStartOfDay(), end.atTime(23, 59, 59));
+            BigDecimal tYear = tourBookingRepository.revenueBetween(start, end);
             BigDecimal totalY = rYear.add(fYear).add(tYear);
 
             if (totalY.compareTo(maxYearRev) > 0) {
@@ -639,17 +599,14 @@ public class ManagerController {
                 d = 28;
             }
             LocalDate ytdEnd = LocalDate.of(y, m, d);
-            BigDecimal rYtd = nz(roomBookingRepository.revenueBetween(start, ytdEnd));
-            BigDecimal fYtd = nz(foodOrderRepository.revenueBetween(start.atStartOfDay(), ytdEnd.atTime(23, 59, 59)));
-            BigDecimal tYtd = nz(tourBookingRepository.revenueBetween(start, ytdEnd));
+            BigDecimal rYtd = roomBookingRepository.revenueBetween(start, ytdEnd);
+            BigDecimal fYtd = foodOrderRepository.revenueBetween(start.atStartOfDay(), ytdEnd.atTime(23, 59, 59));
+            BigDecimal tYtd = tourBookingRepository.revenueBetween(start, ytdEnd);
             BigDecimal totalYtd = rYtd.add(fYtd).add(tYtd);
 
-            if (i == 2)
-                revStartYtd = totalYtd;
-            if (i == 1)
-                revPrevYtd = totalYtd;
-            if (i == 0)
-                revCurrentYtd = totalYtd;
+            if (i == 2) revStartYtd = totalYtd;
+            if (i == 1) revPrevYtd = totalYtd;
+            if (i == 0) revCurrentYtd = totalYtd;
 
             String lbl = String.valueOf(y) + (i == 0 ? " (YTD)" : "");
             yearlyRows.add(0, new RevenueRowDTO(lbl, fmt(rYear), fmt(fYear), fmt(tYear), fmt(totalY)));
@@ -704,7 +661,7 @@ public class ManagerController {
     @GetMapping("/analytics/room")
     public String analyticsRoom(Model model) {
         model.addAttribute("todayLabel", todayLabel());
-
+        
         // --- OCCUPANCY LOGIC ---
         long total = 0;
         long occupied = 0;
@@ -811,18 +768,18 @@ public class ManagerController {
             List<Object[]> guestCaps = roomBookingRepository.getGuestCapacityByCategory();
             List<Object[]> avgStays = roomBookingRepository.getAverageStayDurationByCategory();
             List<Object[]> roomCounts = roomRepository.countByCategory();
-
+            
             for (com.kawai.models.RoomCategory cat : roomCategoryRepository.findAll()) {
                 String catName = cat.getCategoryName();
                 long catTotal = roomCounts.stream().filter(r -> catName.equals(r[0]))
                         .mapToLong(r -> (Long) r[1]).findFirst().orElse(0);
-
+                
                 long catGuests = guestCaps.stream().filter(r -> catName.equals(r[0]))
                         .mapToLong(r -> r[1] != null ? ((Number) r[1]).longValue() : 0).findFirst().orElse(0);
-
+                        
                 double catAvgStay = avgStays.stream().filter(r -> catName.equals(r[0]))
                         .mapToDouble(r -> r[1] != null ? ((Number) r[1]).doubleValue() : 0.0).findFirst().orElse(0.0);
-
+                        
                 stayRows.add(new StayRowDTO(catName, String.format(java.util.Locale.US, "%.1f ngày", catAvgStay),
                         (int) catGuests, (int) catTotal));
             }
@@ -831,10 +788,9 @@ public class ManagerController {
         }
 
         model.addAttribute("stayRows", stayRows);
-        model.addAttribute("distLabels",
-                java.util.List.of("1 ngày", "2 ngày", "3 ngày", "4 ngày", "5 ngày", "6+ ngày"));
+        model.addAttribute("distLabels", java.util.List.of("1 ngày", "2 ngày", "3 ngày", "4 ngày", "5 ngày", "6+ ngày"));
         model.addAttribute("distValues", java.util.List.of(58, 72, 85, 61, 28, 16));
-
+        
         return "manager/analytics-room";
     }
 
@@ -939,6 +895,10 @@ public class ManagerController {
         return "manager/analytics-food";
     }
 
+    
+
+    
+
     // =========================================================================
     // 9. Xuất báo cáo
     // =========================================================================
@@ -961,10 +921,9 @@ public class ManagerController {
         model.addAttribute("todayLabel", todayLabel());
         LocalDate today = LocalDate.now();
 
-        BigDecimal roomToday = nz(roomBookingRepository.revenueBetween(today, today));
-        BigDecimal fnbToday = nz(foodOrderRepository.revenueBetween(today.atStartOfDay(),
-                today.plusDays(1).atStartOfDay()));
-        BigDecimal tourToday = nz(tourBookingRepository.revenueBetween(today, today));
+        BigDecimal roomToday = roomBookingRepository.revenueBetween(today, today);
+        BigDecimal fnbToday = foodOrderRepository.revenueBetween(today.atStartOfDay(), today.plusDays(1).atStartOfDay());
+        BigDecimal tourToday = tourBookingRepository.revenueBetween(today, today);
         BigDecimal totalToday = roomToday.add(fnbToday).add(tourToday);
         model.addAttribute("totalToday", fmt(totalToday));
 
@@ -973,14 +932,11 @@ public class ManagerController {
             LocalDate d = today.minusDays(i);
             String lbl = d.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
             BigDecimal rDate = roomBookingRepository.revenueOnDate(d);
-            if (rDate == null)
-                rDate = BigDecimal.ZERO;
+            if (rDate == null) rDate = BigDecimal.ZERO;
             BigDecimal fDate = foodOrderRepository.revenueOnDate(d.atStartOfDay(), d.plusDays(1).atStartOfDay());
-            if (fDate == null)
-                fDate = BigDecimal.ZERO;
+            if (fDate == null) fDate = BigDecimal.ZERO;
             BigDecimal tDate = tourBookingRepository.revenueOnDate(d);
-            if (tDate == null)
-                tDate = BigDecimal.ZERO;
+            if (tDate == null) tDate = BigDecimal.ZERO;
             BigDecimal totalDate = rDate.add(fDate).add(tDate);
             rows.add(0, new RevenueRowDTO(lbl, fmt(rDate), fmt(fDate), fmt(tDate), fmt(totalDate)));
         }
@@ -998,29 +954,21 @@ public class ManagerController {
         LocalDate now = LocalDate.now();
 
         LocalDate currentMonthStart = LocalDate.of(now.getYear(), now.getMonthValue(), 1);
-        BigDecimal currentMonthRoom = nz(roomBookingRepository.revenueBetween(currentMonthStart, now));
-        BigDecimal currentMonthFnb = nz(foodOrderRepository.revenueBetween(currentMonthStart.atStartOfDay(),
-                now.plusDays(1).atStartOfDay()));
-        BigDecimal currentMonthTour = nz(tourBookingRepository.revenueBetween(currentMonthStart, now));
+        BigDecimal currentMonthRoom = roomBookingRepository.revenueBetween(currentMonthStart, now);
+        BigDecimal currentMonthFnb = foodOrderRepository.revenueBetween(currentMonthStart.atStartOfDay(), now.plusDays(1).atStartOfDay());
+        BigDecimal currentMonthTour = tourBookingRepository.revenueBetween(currentMonthStart, now);
         BigDecimal currentMonthTotal = currentMonthRoom.add(currentMonthFnb).add(currentMonthTour);
         model.addAttribute("currentMonthTotal", fmt(currentMonthTotal));
 
-        BigDecimal ytdRoom = nz(roomBookingRepository.revenueBetween(LocalDate.of(now.getYear(), 1, 1),
-                LocalDate.of(now.getYear(), now.getMonthValue(), now.lengthOfMonth())));
-        BigDecimal ytdFnb = nz(foodOrderRepository.revenueBetween(java.time.LocalDateTime.of(now.getYear(), 1, 1, 0, 0),
-                LocalDate.of(now.getYear(), now.getMonthValue(), now.lengthOfMonth()).atTime(23, 59, 59)));
-        BigDecimal ytdTour = nz(tourBookingRepository.revenueBetween(LocalDate.of(now.getYear(), 1, 1),
-                LocalDate.of(now.getYear(), now.getMonthValue(), now.lengthOfMonth())));
+        BigDecimal ytdRoom = roomBookingRepository.revenueBetween(LocalDate.of(now.getYear(), 1, 1), LocalDate.of(now.getYear(), now.getMonthValue(), now.lengthOfMonth()));
+        BigDecimal ytdFnb = foodOrderRepository.revenueBetween(java.time.LocalDateTime.of(now.getYear(), 1, 1, 0, 0), LocalDate.of(now.getYear(), now.getMonthValue(), now.lengthOfMonth()).atTime(23, 59, 59));
+        BigDecimal ytdTour = tourBookingRepository.revenueBetween(LocalDate.of(now.getYear(), 1, 1), LocalDate.of(now.getYear(), now.getMonthValue(), now.lengthOfMonth()));
         BigDecimal totalYear = ytdRoom.add(ytdFnb).add(ytdTour);
         model.addAttribute("totalYear", fmt(totalYear));
 
-        BigDecimal ytdRoomLastYear = nz(roomBookingRepository.revenueBetween(LocalDate.of(now.getYear() - 1, 1, 1),
-                LocalDate.of(now.getYear() - 1, now.getMonthValue(), now.lengthOfMonth())));
-        BigDecimal ytdFnbLastYear = nz(foodOrderRepository.revenueBetween(
-                java.time.LocalDateTime.of(now.getYear() - 1, 1, 1, 0, 0),
-                LocalDate.of(now.getYear() - 1, now.getMonthValue(), now.lengthOfMonth()).atTime(23, 59, 59)));
-        BigDecimal ytdTourLastYear = nz(tourBookingRepository.revenueBetween(LocalDate.of(now.getYear() - 1, 1, 1),
-                LocalDate.of(now.getYear() - 1, now.getMonthValue(), now.lengthOfMonth())));
+        BigDecimal ytdRoomLastYear = roomBookingRepository.revenueBetween(LocalDate.of(now.getYear() - 1, 1, 1), LocalDate.of(now.getYear() - 1, now.getMonthValue(), now.lengthOfMonth()));
+        BigDecimal ytdFnbLastYear = foodOrderRepository.revenueBetween(java.time.LocalDateTime.of(now.getYear() - 1, 1, 1, 0, 0), LocalDate.of(now.getYear() - 1, now.getMonthValue(), now.lengthOfMonth()).atTime(23, 59, 59));
+        BigDecimal ytdTourLastYear = tourBookingRepository.revenueBetween(LocalDate.of(now.getYear() - 1, 1, 1), LocalDate.of(now.getYear() - 1, now.getMonthValue(), now.lengthOfMonth()));
         BigDecimal totalLastYear = ytdRoomLastYear.add(ytdFnbLastYear).add(ytdTourLastYear);
 
         String growthYoY = "-";
@@ -1071,13 +1019,11 @@ public class ManagerController {
             int occOnDay = 0;
             try {
                 Integer c = roomBookingRepository.countOccupiedRoomsOnDate(d);
-                if (c != null)
-                    occOnDay = c;
+                if (c != null) occOnDay = c;
             } catch (Exception e) {
             }
             int pct = total > 0 ? (int) Math.round((double) occOnDay * 100 / total) : 0;
-            if (i == 0)
-                pct = (int) currentOccupancy;
+            if (i == 0) pct = (int) currentOccupancy;
             chartOccVals.add(pct);
             chartOccLabels.add(d.format(java.time.format.DateTimeFormatter.ofPattern("d/MM")));
             if (pct >= peakOcc) {
@@ -1182,7 +1128,6 @@ public class ManagerController {
         private String totalPrice;
         private String operationalType;
     }
-
     @GetMapping("/schedules")
     public String showSchedules(Model model) {
         model.addAttribute("employees", employeeRepository.findAll());

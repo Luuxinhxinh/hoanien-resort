@@ -24,7 +24,12 @@ document.addEventListener("DOMContentLoaded", () => {
     flatpickrFilterDate = flatpickr("#filterDate", {
         dateFormat: "Y-m-d",
         minDate: "today",
-        maxDate: new Date().fp_incr(7)
+        maxDate: new Date().fp_incr(7),
+        onChange: function (selectedDates, dateStr, instance) {
+            if (document.getElementById('filterStart').value && document.getElementById('filterEnd').value) {
+                checkAvailability();
+            }
+        }
     });
 
     flatpickrReserveDate = flatpickr("#reserveDate", {
@@ -38,7 +43,14 @@ document.addEventListener("DOMContentLoaded", () => {
         enableTime: true,
         noCalendar: true,
         dateFormat: "H:i",
-        time_24hr: true
+        time_24hr: true,
+        onChange: function (selectedDates, dateStr, instance) {
+            if (document.getElementById('filterDate').value &&
+                document.getElementById('filterStart').value &&
+                document.getElementById('filterEnd').value) {
+                checkAvailability();
+            }
+        }
     };
 
     flatpickrFilterStart = flatpickr("#filterStart", timeConfig);

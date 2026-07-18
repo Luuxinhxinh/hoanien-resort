@@ -24,7 +24,7 @@ public interface RoomBookingRepository extends JpaRepository<RoomBooking, Long> 
 
        java.util.Optional<RoomBooking> findByIdAndCustomerId(Long id, Long customerId);
 
-       @Query("SELECT SUM(rb.depositAmount) FROM RoomBooking rb WHERE rb.checkInDate >= :since")
+       @Query("SELECT COALESCE(SUM(rb.depositAmount), 0) FROM RoomBooking rb WHERE rb.checkInDate >= :since")
        BigDecimal totalDepositsSince(LocalDate since);
 
        @Query("SELECT COUNT(rb) FROM RoomBooking rb WHERE rb.checkInDate >= :since")
@@ -59,7 +59,7 @@ public interface RoomBookingRepository extends JpaRepository<RoomBooking, Long> 
        @Query("SELECT SUM(b.totalPrice) FROM RoomBooking b WHERE b.bookingDate = :date AND b.bookingStatus IN ('Confirmed', 'Checked_In', 'Checked_Out')")
        BigDecimal revenueOnDate(@Param("date") LocalDate date);
 
-       @Query("SELECT SUM(b.totalPrice) FROM RoomBooking b WHERE b.bookingDate >= :start AND b.bookingDate <= :end AND b.bookingStatus IN ('Confirmed', 'Checked_In', 'Checked_Out')")
+       @Query("SELECT COALESCE(SUM(b.totalPrice), 0) FROM RoomBooking b WHERE b.bookingDate >= :start AND b.bookingDate <= :end AND b.bookingStatus IN ('Confirmed', 'Checked_In', 'Checked_Out')")
        BigDecimal revenueBetween(@Param("start") LocalDate start, @Param("end") LocalDate end);
 
        @Query(value = "SELECT COALESCE(AVG(DATEDIFF(check_out_date, check_in_date)), 0) FROM Room_Bookings", nativeQuery = true)

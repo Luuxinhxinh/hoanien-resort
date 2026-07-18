@@ -44,7 +44,6 @@ public class ManagerControllerUC23Test {
     @Mock private DailyRateRepository dailyRateRepository;
     @Mock private ExportHistoryRepository exportHistoryRepository;
     @Mock private RoomCategoryRepository roomCategoryRepository;
-    @Mock private PaymentTransactionRepository paymentTransactionRepository;
 
     @InjectMocks
     private ManagerController managerController;
@@ -221,33 +220,6 @@ public class ManagerControllerUC23Test {
                 lastYtdStart.atStartOfDay(), lastYtdEnd.atTime(23, 59, 59)))
                 .thenReturn(new BigDecimal("30000000"));
         when(tourBookingRepository.revenueBetween(lastYtdStart, lastYtdEnd))
-                .thenReturn(new BigDecimal("20000000"));
-
-        // Mock cho YTD tính đến hôm nay (sử dụng trong vòng lặp năm để tính YoY)
-        int m = now.getMonthValue();
-        int d = now.getDayOfMonth();
-        
-        LocalDate ytdEndToday = LocalDate.of(now.getYear(), m, d);
-        when(roomBookingRepository.revenueBetween(ytdStart, ytdEndToday))
-                .thenReturn(new BigDecimal("60000000"));
-        when(foodOrderRepository.revenueBetween(
-                ytdStart.atStartOfDay(), ytdEndToday.atTime(23, 59, 59)))
-                .thenReturn(new BigDecimal("40000000"));
-        when(tourBookingRepository.revenueBetween(ytdStart, ytdEndToday))
-                .thenReturn(new BigDecimal("20000000"));
-
-        int lastYear = now.getYear() - 1;
-        int dLast = d;
-        if (m == 2 && d == 29 && !java.time.Year.isLeap(lastYear)) {
-            dLast = 28;
-        }
-        LocalDate lastYtdEndToday = LocalDate.of(lastYear, m, dLast);
-        when(roomBookingRepository.revenueBetween(lastYtdStart, lastYtdEndToday))
-                .thenReturn(new BigDecimal("50000000"));
-        when(foodOrderRepository.revenueBetween(
-                lastYtdStart.atStartOfDay(), lastYtdEndToday.atTime(23, 59, 59)))
-                .thenReturn(new BigDecimal("30000000"));
-        when(tourBookingRepository.revenueBetween(lastYtdStart, lastYtdEndToday))
                 .thenReturn(new BigDecimal("20000000"));
 
         // Act

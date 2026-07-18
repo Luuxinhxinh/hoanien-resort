@@ -248,11 +248,9 @@ public class HousekeepingServiceImpl implements HousekeepingService {
 
         String type;
         if (isEmergency || room.getCurrentBookingDetailId() == null) {
-            if (room.getCurrentBookingDetailId() == null) {
-                // Cập nhật trạng thái phòng → Maintenance (chỉ khi không có khách đang thuê)
-                room.setRoomStatus(STATUS_MAINTENANCE);
-                roomRepo.save(room);
-            }
+            // Cập nhật trạng thái phòng → Maintenance
+            room.setRoomStatus(STATUS_MAINTENANCE);
+            roomRepo.save(room);
             type = OPERATION_MAINTENANCE;
         } else {
             // Khách chưa checkout và không khẩn cấp -> Tạo phiếu DAMAGE_CHECK và giữ nguyên
@@ -363,7 +361,6 @@ public class HousekeepingServiceImpl implements HousekeepingService {
             }
         }
     }
-
     private Room findRoomById(Long id) {
         return roomRepo.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Phòng không tìm thấy với ID: " + id));

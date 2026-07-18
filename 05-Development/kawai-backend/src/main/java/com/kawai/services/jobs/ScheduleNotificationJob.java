@@ -69,13 +69,13 @@ public class ScheduleNotificationJob {
         System.out.println("--- Hoàn tất gửi email Lịch làm việc ---");
     }
 
-    // Lắng nghe sự kiện chạy ứng dụng lần đầu để demo/test
-    @EventListener(ApplicationReadyEvent.class)
-    @org.springframework.core.annotation.Order(2)
-    @org.springframework.transaction.annotation.Transactional(readOnly = true)
-    public void onApplicationReady() {
-        System.out.println("Application Ready: Triggering Schedule Notification (Demo)...");
-        // Giả lập gửi lịch làm việc ngay khi khởi động server
-        sendWeeklySchedules();
-    }
+//    // Lắng nghe sự kiện chạy ứng dụng lần đầu để demo/test
+//    @EventListener(ApplicationReadyEvent.class)
+//    @org.springframework.core.annotation.Order(2)
+//    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+//    public void onApplicationReady() {
+//        System.out.println("Application Ready: Triggering Schedule Notification (Demo)...");
+//        // Giả lập gửi lịch làm việc ngay khi khởi động server
+//        sendWeeklySchedules();
+//    }
 }

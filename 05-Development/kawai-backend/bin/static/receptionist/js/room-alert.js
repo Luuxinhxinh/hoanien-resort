@@ -24,7 +24,8 @@ async function pollPendingWalkInRooms() {
         roomNums.forEach(roomNum => {
             const status = statusMap[roomNum];
             if (status === 'Vacant_Clean') {
-                showToastAlert(`✅ Phòng ${roomNum} đã dọn xong!`, roomNum);
+                // Phòng đã dọn xong → hiện toast
+                showToastAlert(`✅ Phòng ${roomNum} đã dọn xong! Bạn có thể tiếp tục hoàn tất đơn Walk-in.`, roomNum);
                 playAlertSound();
                 delete pendingRooms[roomNum];
                 changed = true;
