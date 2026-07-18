@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -1313,6 +1313,7 @@
         let appliedGroupPromoDiscount = 0;
         let globalOriginalSubtotal = 0;
         let globalServiceChargeTotal = 0;
+        window.tourBookingDetailsMap = {};
 
         function isDamageOrMaintenanceItem(item) {
             if (!item) return false;
@@ -1728,7 +1729,7 @@
                         const dailyAdultSurcharge = extraAdultsCount * (data.extraAdultSurcharge || 0);
                         const dailyChildSurcharge = Math.max(0, dailyExtraSurcharge - dailyAdultSurcharge);
 
-                        let html = `<div>Giá phòng: <span style="color: #2c2a29; font-weight: 500;">${formatCurrency(dailyRoomCharge)}/đêm</span></div>`;
+                        let html = `<div style="font-size: 13px; color: #8e8a86; font-family: 'Inter', sans-serif;">Giá phòng: <span style="color: #2c2a29; font-weight: 500;">${formatCurrency(dailyRoomCharge)}/đêm</span></div>`;
 
                         if (extraAdultsCount > 0) {
                             html += `
@@ -2615,6 +2616,70 @@
             let groupedItems = [];
             itemsToPrint.forEach(item => {
                 const isRoom = (item.sourceDepartment || '').toLowerCase() === 'room';
+                const isTour = (item.sourceDepartment || '').toLowerCase() === 'tour';
+
+                if (isTour && item.bookingId) {
+                    const tourBookingId = item.bookingId;
+                    const tourDetail = window.tourBookingDetailsMap ? window.tourBookingDetailsMap[tourBookingId] : null;
+                    if (tourDetail && tourDetail.tourName) {
+                        const itemDate = (item.createdAt) ? formatDateStr(item.createdAt.substring(0, 10)) : new Date().toLocaleDateString('vi-VN');
+                        const departureDate = tourDetail.departureDate || '';
+                        const departureTime = tourDetail.departureTime || '';
+
+                        let children = [];
+                        if (tourDetail.adultCount > 0) {
+                            children.push({
+                                description: `- Người lớn`,
+                                qty: tourDetail.adultCount,
+                                unitVal: tourDetail.adultPrice,
+                                amount: tourDetail.adultCount * tourDetail.adultPrice,
+                                itemDate: ""
+                            });
+                        }
+                        if (tourDetail.childCount > 0) {
+                            children.push({
+                                description: `- Trẻ em (2-11 tuổi)`,
+                                qty: tourDetail.childCount,
+                                unitVal: tourDetail.childPrice,
+                                amount: tourDetail.childCount * tourDetail.childPrice,
+                                itemDate: ""
+                            });
+                        }
+                        if (tourDetail.infantCount > 0) {
+                            children.push({
+                                description: `- Em bé (dưới 2 tuổi)`,
+                                qty: tourDetail.infantCount,
+                                unitVal: 0,
+                                amount: 0,
+                                itemDate: "",
+                                isInfant: true
+                            });
+                        }
+                        if (tourDetail.isInsuranceRequired || (tourDetail.insuranceFee && parseFloat(tourDetail.insuranceFee) > 0)) {
+                            const insurancePolicy = tourDetail.insurancePolicyNumber ? ` (${tourDetail.insurancePolicyNumber})` : '';
+                            const insuredCount = tourDetail.participantCount || (tourDetail.adultCount + tourDetail.childCount + tourDetail.infantCount);
+                            children.push({
+                                description: `- Bảo hiểm du lịch bắt buộc${insurancePolicy}`,
+                                qty: insuredCount,
+                                unitVal: tourDetail.insurancePrice,
+                                amount: 0,
+                                itemDate: "",
+                                isInsurance: true
+                            });
+                        }
+
+                        groupedItems.push({
+                            description: `${tourDetail.tourName} (Khởi hành: ${departureTime} - ${departureDate})`,
+                            qty: "",
+                            unitVal: "",
+                            amount: tourDetail.tourCharge,
+                            itemDate: itemDate,
+                            isParentTour: true,
+                            children: children
+                        });
+                        return; // Done with Tour
+                    }
+                }
 
                 let orderMatch = item.description ? item.description.match(/Order\s*(?:#|số)?\s*(\d+)/i) : null;
                 if (orderMatch && orderMatch[1]) {
@@ -2689,8 +2754,8 @@
                     lastDateStr = g.itemDate;
                 }
 
-                if (g.isParentFnb) {
-                    // Parent row: Bold description, blank qty and price, bold amount
+                if (g.isParentFnb || g.isParentTour) {
+                    // Parent row: Normal description, blank qty and price, normal amount
                     tbodyHtml += `
                         <tr>
                             <td style="padding: 10px 0; border-bottom: 1px dashed #ddd;">${displayDate}</td>
@@ -2705,13 +2770,19 @@
                     // Children rows: Indented, normal description, standard qty, price, and amount
                     if (g.children) {
                         g.children.forEach(c => {
+                            let formattedVal = c.isInfant ? 'Miễn phí' : formatNumber(c.unitVal);
+                            let formattedAmt = formatNumber(c.amount) + ' VNĐ';
+                            if (c.isInsurance) {
+                                formattedVal = formatNumber(c.unitVal);
+                                formattedAmt = 'Đã bao gồm';
+                            }
                             tbodyHtml += `
                                 <tr style="color: #2c2a29;">
                                     <td style="padding: 8px 0; border-bottom: 1px dashed #eee;"></td>
-                                    <td style="padding: 8px 0; border-bottom: 1px dashed #eee; padding-left: 20px;">${c.description}</td>
-                                    <td style="padding: 8px 0; border-bottom: 1px dashed #eee; text-align: center;">${c.qty}</td>
-                                    <td style="padding: 8px 0; border-bottom: 1px dashed #eee; text-align: right;">${formatNumber(c.unitVal)}</td>
-                                    <td style="padding: 8px 0; border-bottom: 1px dashed #eee; text-align: right;">${formatNumber(c.amount)}</td>
+                                    <td style="padding: 8px 0; border-bottom: 1px dashed #eee; padding-left: 20px; font-style: italic;">${c.description}</td>
+                                    <td style="padding: 8px 0; border-bottom: 1px dashed #eee; text-align: center; font-style: italic;">${c.qty}</td>
+                                    <td style="padding: 8px 0; border-bottom: 1px dashed #eee; text-align: right; font-style: italic;">${formattedVal}</td>
+                                    <td style="padding: 8px 0; border-bottom: 1px dashed #eee; text-align: right; font-style: italic;">${formattedAmt}</td>
                                 </tr>
                             `;
                         });
@@ -2959,14 +3030,90 @@
                     if (response.ok) {
                         const data = await response.json();
                         if (data && data.tourName) {
-                            const participantCount = data.participantCount || 1;
+                            window.tourBookingDetailsMap[bookingId] = data; // Save to global cache!
+
                             const tourCharge = data.tourCharge || parseFloat(totalAmountStr);
                             const departureDate = data.departureDate || '';
                             const departureTime = data.departureTime || '';
 
-                            const basePrice = tourCharge / participantCount;
-                            const formattedBasePrice = new Intl.NumberFormat('vi-VN').format(basePrice);
-                            const formattedAmount = new Intl.NumberFormat('vi-VN').format(tourCharge) + ' VNĐ';
+                            let subTableRowsHtml = `
+                                <tr style="border-bottom: 1px dashed #f2eee8;">
+                                    <td style="text-align: left; padding: 6px 0; font-weight: 600;">
+                                        ${data.tourName}
+                                        <div style="font-size: 0.75rem; color: #95a5a6; margin-top: 2px; font-weight: normal;">Khởi hành: ${departureTime} - ${departureDate}</div>
+                                    </td>
+                                    <td style="text-align: center; padding: 6px 0;"></td>
+                                    <td style="text-align: right; padding: 6px 0;"></td>
+                                    <td style="text-align: right; padding: 6px 0;"></td>
+                                </tr>
+                            `;
+
+                            if (data.adultCount > 0) {
+                                const adultSubtotal = data.adultCount * data.adultPrice;
+                                subTableRowsHtml += `
+                                    <tr style="border-bottom: 1px dashed #f2eee8;">
+                                        <td style="text-align: left; padding: 6px 0; padding-left: 12px; color: #6e655f;">- Người lớn</td>
+                                        <td style="text-align: center; padding: 6px 0;">${data.adultCount}</td>
+                                        <td style="text-align: right; padding: 6px 0;">${new Intl.NumberFormat('vi-VN').format(data.adultPrice)}</td>
+                                        <td style="text-align: right; padding: 6px 0;">${new Intl.NumberFormat('vi-VN').format(adultSubtotal)} VNĐ</td>
+                                    </tr>
+                                `;
+                            }
+
+                            if (data.childCount > 0) {
+                                const childSubtotal = data.childCount * data.childPrice;
+                                subTableRowsHtml += `
+                                    <tr style="border-bottom: 1px dashed #f2eee8;">
+                                        <td style="text-align: left; padding: 6px 0; padding-left: 12px; color: #6e655f;">- Trẻ em (2-11 tuổi)</td>
+                                        <td style="text-align: center; padding: 6px 0;">${data.childCount}</td>
+                                        <td style="text-align: right; padding: 6px 0;">${new Intl.NumberFormat('vi-VN').format(data.childPrice)}</td>
+                                        <td style="text-align: right; padding: 6px 0;">${new Intl.NumberFormat('vi-VN').format(childSubtotal)} VNĐ</td>
+                                    </tr>
+                                `;
+                            }
+
+                            if (data.infantCount > 0) {
+                                subTableRowsHtml += `
+                                    <tr style="border-bottom: 1px dashed #f2eee8;">
+                                        <td style="text-align: left; padding: 6px 0; padding-left: 12px; color: #6e655f;">- Em bé (dưới 2 tuổi)</td>
+                                        <td style="text-align: center; padding: 6px 0;">${data.infantCount}</td>
+                                        <td style="text-align: right; padding: 6px 0; color: #7f8c8d; font-style: italic;">Miễn phí</td>
+                                        <td style="text-align: right; padding: 6px 0;">0 VNĐ</td>
+                                    </tr>
+                                `;
+                            }
+
+                            if (data.isInsuranceRequired || (data.insuranceFee && parseFloat(data.insuranceFee) > 0)) {
+                                const insurancePolicy = data.insurancePolicyNumber ? ` (${data.insurancePolicyNumber})` : '';
+                                const insuredCount = data.participantCount || (data.adultCount + data.childCount + data.infantCount);
+                                subTableRowsHtml += `
+                                    <tr style="border-bottom: 1px dashed #f2eee8;">
+                                        <td style="text-align: left; padding: 6px 0; padding-left: 12px; color: #6e655f;">- Bảo hiểm du lịch bắt buộc${insurancePolicy}</td>
+                                        <td style="text-align: center; padding: 6px 0;">${insuredCount}</td>
+                                        <td style="text-align: right; padding: 6px 0;">${new Intl.NumberFormat('vi-VN').format(data.insurancePrice)}</td>
+                                        <td style="text-align: right; padding: 6px 0; color: #7f8c8d; font-style: italic;">Đã bao gồm</td>
+                                    </tr>
+                                `;
+                            }
+
+                            if (!data.adultCount && !data.childCount && !data.infantCount) {
+                                // Fallback to old behavior
+                                const participantCount = data.participantCount || 1;
+                                const basePrice = tourCharge / participantCount;
+                                const formattedBasePrice = new Intl.NumberFormat('vi-VN').format(basePrice);
+                                const formattedAmount = new Intl.NumberFormat('vi-VN').format(tourCharge) + ' VNĐ';
+                                subTableRowsHtml += `
+                                    <tr style="border-bottom: 1px dashed #f2eee8;">
+                                        <td style="text-align: left; padding: 6px 0; font-style: italic;">
+                                            ${data.tourName}
+                                            <div style="font-size: 0.75rem; color: #95a5a6; margin-top: 2px;">Khởi hành: ${departureTime} - ${departureDate}</div>
+                                        </td>
+                                        <td style="text-align: center; padding: 6px 0; font-style: italic;">${participantCount}</td>
+                                        <td style="text-align: right; padding: 6px 0; font-style: italic;">${formattedBasePrice}</td>
+                                        <td style="text-align: right; padding: 6px 0; font-style: italic;">${formattedAmount}</td>
+                                    </tr>
+                                `;
+                            }
 
                             let subTableHtml = `
                                 <tr class="tour-child-row-${bookingId} ${trClass}" style="display: none; background-color: #faf8f5;">
@@ -2975,21 +3122,13 @@
                                             <thead>
                                                 <tr style="border-bottom: 1px dashed #e6ded4; color: #8e8a86; font-weight: 600;">
                                                     <th style="text-align: left; padding: 6px 0; width: 45%;">TÊN TOUR</th>
-                                                    <th style="text-align: center; padding: 6px 0; width: 15%;">SỐ LƯỢNG (PAX)</th>
+                                                    <th style="text-align: center; padding: 6px 0; width: 15%;">SỐ LƯỢNG</th>
                                                     <th style="text-align: right; padding: 6px 0; width: 20%;">GIÁ VÉ</th>
                                                     <th style="text-align: right; padding: 6px 0; width: 20%;">THÀNH TIỀN</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <tr style="border-bottom: 1px dashed #f2eee8;">
-                                                    <td style="text-align: left; padding: 6px 0; font-style: italic;">
-                                                        ${data.tourName}
-                                                        <div style="font-size: 0.75rem; color: #95a5a6; margin-top: 2px;">Khởi hành: ${departureTime} - ${departureDate}</div>
-                                                    </td>
-                                                    <td style="text-align: center; padding: 6px 0; font-style: italic;">${participantCount}</td>
-                                                    <td style="text-align: right; padding: 6px 0; font-style: italic;">${formattedBasePrice}</td>
-                                                    <td style="text-align: right; padding: 6px 0; font-style: italic;">${formattedAmount}</td>
-                                                </tr>
+                                                ${subTableRowsHtml}
                                                 <tr style="font-weight: 700;">
                                                     <td style="text-align: left; padding: 8px 0;">Tổng cộng chi tiết tour</td>
                                                     <td style="text-align: center; padding: 8px 0;"></td>
@@ -3171,6 +3310,11 @@
 
             try {
                 var pending = JSON.parse(localStorage.getItem('kawai_notifs') || '[]');
+                pending = pending.filter(function (n) {
+                    var t = n.text || '';
+                    return !t.includes('khẩn cấp') && !t.includes('Yêu cầu dọn') && !t.includes('Yêu cầu sửa');
+                });
+                localStorage.setItem('kawai_notifs', JSON.stringify(pending));
                 pending.forEach(function (n) { showPersistentToast(n); });
             } catch (e) { }
 
@@ -3201,14 +3345,7 @@
                         try {
                             var payload = JSON.parse(msg.body);
                             console.log('[WS] Nhận tin nhắn từ kênh Chung (/topic/operations):', payload);
-                            if (payload.type === 'NEW_TASK') return;
-                            if (payload.type === 'ROOM_CLEANED') {
-                                if (typeof pollCleanTasksDone === 'function') pollCleanTasksDone();
-                                if (typeof pollPendingWalkInRooms === 'function') pollPendingWalkInRooms();
-                                if (typeof pollCleanedRooms === 'function') pollCleanedRooms();
-                                return;
-                            }
-                            saveAndShow(`THÔNG BÁO HỆ THỐNG:\n` + payload.message, false);
+                            saveAndShow(`📢 THÔNG BÁO HỆ THỐNG:\n` + payload.message, false);
                         } catch (e) { console.error('[WS] parse error', e); }
                     });
 
@@ -3217,7 +3354,7 @@
                             try {
                                 var payload = JSON.parse(msg.body);
                                 console.log('[WS] Nhận tin nhắn từ kênh Đích danh (/topic/operations/' + staffId + '):', payload);
-                                saveAndShow(` NHIỆM VỤ MỚI:\n` + payload.message, true);
+                                saveAndShow(`🔔 NHIỆM VỤ MỚI:\n` + payload.message, true);
                             } catch (e) { console.error('[WS] parse error', e); }
                         });
                         console.log('[WS] Đã đăng ký kênh riêng: /topic/operations/' + staffId);

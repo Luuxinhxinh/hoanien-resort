@@ -1082,8 +1082,8 @@ ALTER TABLE Tour_Bookings AUTO_INCREMENT = 300;
 
 INSERT IGNORE INTO Export_History (id, report_name, format, exported_at, exported_by, file_size) VALUES
 (1, 'Doanh thu tháng 5/2026', 'Excel', '2026-06-01 09:15:00', 'Manager ', '2.4 MB'),
-(2, 'Tỷ lệ lấp đầy Q2', 'PDF', '2026-05-30 14:30:00', 'Manager ', '1.1 MB'),
-(3, 'Báo cáo tour tháng 4', 'CSV', '2026-05-02 10:00:00', 'Manager ', '320 KB'),
+(2, 'Tỷ lệ lấp đầy Q2', 'Excel', '2026-05-30 14:30:00', 'Manager ', '1.1 MB'),
+(3, 'Báo cáo tour tháng 4', 'Excel', '2026-05-02 10:00:00', 'Manager ', '320 KB'),
 (4, 'Doanh thu năm 2025', 'Excel', '2026-01-15 08:45:00', 'Manager ', '5.8 MB');
 
 

@@ -68,6 +68,10 @@
             background: #1b5e20;
         }
 
+        .btn-approve .material-symbols-outlined {
+            color: #ffffff !important;
+        }
+
         .btn-reject {
             background: #c62828;
             color: #fff;
@@ -154,6 +158,37 @@
 
         .btn-readmore:hover {
             text-decoration: underline;
+        }
+
+        /* Request type dynamic styling */
+        tr:has(.type-discount) .promo-code-badge {
+            color: #726245 !important;
+            background: rgba(114, 98, 69, 0.1) !important;
+        }
+        tr:has(.type-late) .promo-code-badge {
+            color: #303d4b !important;
+            background: rgba(48, 61, 75, 0.1) !important;
+        }
+        tr:has(.type-cancel) .promo-code-badge {
+            color: #681212 !important;
+            background: rgba(104, 18, 18, 0.1) !important;
+        }
+        tr:has(.type-downgrade) .promo-code-badge {
+            color: #3f5140 !important;
+            background: rgba(63, 81, 64, 0.1) !important;
+        }
+
+        tr:has(.type-discount) .btn-readmore {
+            color: #726245 !important;
+        }
+        tr:has(.type-late) .btn-readmore {
+            color: #303d4b !important;
+        }
+        tr:has(.type-cancel) .btn-readmore {
+            color: #681212 !important;
+        }
+        tr:has(.type-downgrade) .btn-readmore {
+            color: #3f5140 !important;
         }
 
         /* Note Modal */
@@ -421,7 +456,7 @@
                                     <td>
                                         <div style="display: flex; gap: 8px; justify-content: center; white-space: nowrap;">
                                             <button class="btn-action btn-approve" th:onclick="'handleApproval(' + ${item.taskId} + ', \'approve\')'">
-                                                <span class="material-symbols-outlined" style="font-size: 16px;">check</span> Duyệt
+                                                <span class="material-symbols-outlined" style="font-size: 16px; color: #ffffff !important;">check</span> Duyệt
                                             </button>
                                             <button class="btn-action btn-reject" th:onclick="'handleApproval(' + ${item.taskId} + ', \'reject\')'">
                                                 <span class="material-symbols-outlined" style="font-size: 16px;">close</span> Từ chối
