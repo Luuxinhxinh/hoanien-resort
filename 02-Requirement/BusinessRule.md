@@ -307,89 +307,96 @@ Khách hàng chỉ được phép thêm, xóa và gán khách đi cùng (accompa
 
 ### Nhóm BR-FO — Lễ tân & Trải nghiệm lưu trú
 
-### BR-FO-01 — Representative guest must be ≥...
+### BR-RC-01 — Representative guest must be ≥...
 
 **Mức độ:** HIGH
 
 **Phát biểu:**
 Representative guest must be ≥ 18 years old and provide valid identification (ID/Passport).
 
-### BR-FO-02 — Rush Rooms have Vacant_Dirty are...
+### BR-RC-02 — Rush Rooms have Vacant_Dirty are...
 
 **Mức độ:** HIGH
 
 **Phát biểu:**
 Rush Rooms have Vacant_Dirty are prioritized and moved to the top of the housekeeping task queue.
 
-### BR-FO-03 — Only the Primary Guest (Representative)...
+### BR-RC-03 — Only the Primary Guest (Representative)...
 
 **Mức độ:** HIGH
 
 **Phát biểu:**
 Only the Primary Guest (Representative) of the reservation is authorized to request account upgrades, service authorizations, or administrative changes for the booking. Dependents are restricted from these actions.
 
-### BR-FO-04 — Reservations not checked in by...
+### BR-RC-04 — Reservations not checked in by...
 
 **Mức độ:** HIGH
 
 **Phát biểu:**
 Reservations not checked in by 00:00 of the next day are marked No-Show with 100% deposit retention.
 
-### BR-FO-05 — Only guests with an active...
+### BR-RC-05 — Only guests with an active...
 
 **Mức độ:** HIGH
 
 **Phát biểu:**
 Only guests with an active In-House reservation may request a room category change. Room category change requires availability and Vacant_Clean status in the new category.
 
-### BR-FO-06 — Walk-in guests must provide valid...
+### BR-RC-06 — Walk-in guests must provide valid...
 
 **Mức độ:** HIGH
 
 **Phát biểu:**
 Walk-in guests must provide valid identification before check-in.
 
-### BR-FO-07 — Each reservation must be assigned...
+### BR-RC-07 — Each reservation must be assigned...
 
 **Mức độ:** HIGH
 
 **Phát biểu:**
 Each reservation must be assigned to a specific room at check-in and update reservation status to "Checked-In" after successful check-in.
 
-### BR-FO-08 — Walk-in guests without an account...
+### BR-RC-08 — Walk-in guests without an account...
 
 **Mức độ:** HIGH
 
 **Phát biểu:**
 Walk-in guests without an account automatic generates a customer account and a temporary password for walk-in guests, then notifies the customer to update their credentials.
 
-### BR-FO-09 — Guests must be registered for...
+### BR-RC-09 — Guests must be registered for...
 
 **Mức độ:** HIGH
 
 **Phát biểu:**
 Guests must be registered for temporary residence reporting per local regulations.
 
-### BR-FO-10 — The reservation shall be linked...
+### BR-RC-10 — The reservation shall be linked...
 
 **Mức độ:** HIGH
 
 **Phát biểu:**
 The reservation shall be linked to the customer account.
 
-### BR-FO-11 — A dependent guest shall not...
+### BR-RC-11 — A dependent guest shall not...
 
 **Mức độ:** HIGH
 
 **Phát biểu:**
 A dependent guest shall not be registered more than once under the same reservation. The system shall prevent the registration of a dependent guest whose identification document number (CCCD/Passport) already exists in the Booking_Guests list of that reservation.
 
-### BR-FO-12 — Room category changes shall only...
+### BR-RC-12 — Room category changes shall only...
 
 **Mức độ:** HIGH
 
 **Phát biểu:**
 Room category changes shall only be finalized after a specific room in the requested category has been assigned to the reservation.
+
+### BR-RC-13 — Upgrade Dependent to Customer
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+Chỉ khách đứng đầu phòng (người được đánh dấu `isPrimaryContact = true` trong `RoomGuest`) mới có thể được nâng cấp thành tài khoản Khách hàng (`Customer`) chính thức. Sau khi được nâng cấp, tài khoản mới tạo ra trở thành người đại diện chính (`isPrimaryContact = true`) cho phòng tương ứng và có quyền sử dụng tài khoản đó để độc lập đặt và thanh toán dịch vụ (F&B, Tour) cho phòng của mình.
 
 ## 5. BR-FB — Ẩm thực & Nhà hàng (F&B)
 
@@ -707,12 +714,14 @@ Thủ tục nhận phòng chỉ được hoàn tất sau khi tiền cọc hoặc
 **Phát biểu:**
 Khi khách hàng nâng cấp lên hạng phòng cao hơn trong thời gian lưu trú, hệ thống sẽ tính toán khoản phí phát sinh dựa trên chênh lệch giữa giá phòng hiện tại và giá phòng mới cho tất cả các đêm còn lại của kỳ lưu trú.
 
-### BR-FIN-05 — Không hoàn tiền khi hạ hạng phòng
+### BR-FIN-05 — Hoàn tiền khi hạ hạng phòng
 
 **Mức độ:** HIGH
 
 **Phát biểu:**
-Việc hạ cấp xuống hạng phòng thấp hơn sau khi nhận phòng sẽ không được hoàn tiền, cấp tín dụng hoặc giảm trừ các khoản phí phòng đã thỏa thuận trước đó.
+
+When a guest downgrades to a lower room category during their stay, the system will calculate a refund based on the difference between the original and new room rates for all remaining nights. This amount will be automatically deducted from the total bill upon check-out.
+
 
 ### BR-FIN-06 — Quy tắc xác định nâng hạng và hạ hạng phòng
 

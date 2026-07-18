@@ -25,7 +25,8 @@ public interface CheckinService {
     /**
      * Bulk Check-in từ form (gán nhiều phòng và tạo dependent)
      */
-    void processBulkCheckin(com.kawai.dto.CheckinSubmitFormDTO form, Customer customer, com.kawai.models.Booking booking);
+    void processBulkCheckin(com.kawai.dto.CheckinSubmitFormDTO form, Customer customer,
+            com.kawai.models.Booking booking);
 
     /**
      * Ủy quyền hạn mức chi tiêu cho phòng (UC12.2).
@@ -37,8 +38,9 @@ public interface CheckinService {
     /**
      * Đổi phòng cho khách đang lưu trú (UC12.3).
      * Phòng cũ → Vacant_Dirty, phòng mới → Occupied.
+     * 
      * @param bookingDetailId ID của booking detail cần đổi phòng
-     * @param newRoomId ID của phòng mới
+     * @param newRoomId       ID của phòng mới
      * @return RoomBookingDetail đã được cập nhật
      * @throws IllegalStateException nếu phòng mới không khả dụng
      */

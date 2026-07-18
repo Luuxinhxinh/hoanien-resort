@@ -384,9 +384,13 @@ public class TourBookingServiceImpl implements TourBookingService {
                                                                                 + request.getRoomBookingDetailId());
                                         });
 
-                        // Check Folio Credit Limit
-                        BigDecimal limit = detail.getSubCreditLimit() != null ? detail.getSubCreditLimit()
-                                        : BigDecimal.ZERO;
+                        // Check Folio Credit Limit (Fallback to RoomBooking credit limit if subCreditLimit is 0)
+                        BigDecimal subLimit = detail.getSubCreditLimit();
+                        BigDecimal limit = (subLimit != null && subLimit.compareTo(BigDecimal.ZERO) > 0)
+                                        ? subLimit
+                                        : (detail.getRoomBooking() != null && detail.getRoomBooking().getCreditLimit() != null
+                                                        ? detail.getRoomBooking().getCreditLimit()
+                                                        : BigDecimal.ZERO);
                         java.util.List<FolioItem> folioItems = folioItemRepository
                                         .findByRoomBookingDetailId(detail.getId());
                         // Chi tiÃªu thá»±c (FolioItem DÆ¯Æ NG)
@@ -395,11 +399,10 @@ public class TourBookingServiceImpl implements TourBookingService {
                                         .map(FolioItem::getAmount)
                                         .filter(a -> a != null && a.compareTo(BigDecimal.ZERO) > 0)
                                         .reduce(BigDecimal.ZERO, BigDecimal::add);
-                        // ÄÃ£ náº¡p thÃªm háº¡n má»©c (khÃ´ng tÃ­nh tiá»n cá»c walk-in)
+                        // Ä Ã£ náº¡p thÃªm háº¡n má»©c (khÃ´ng tÃ­nh tiá» n cá» c walk-in)
                         BigDecimal creditTopUp = folioItems.stream()
                                         .filter(fi -> !Boolean.TRUE.equals(fi.getIsSettledSeparately()))
-                                        .filter(fi -> fi.getDescription() != null && fi.getDescription()
-                                                        .startsWith("Náº¡p tiá»n nÃ¢ng háº¡n má»©c"))
+                                        .filter(fi -> fi.getDescription() != null && (fi.getDescription().startsWith("Nạp tiền nâng hạn mức") || fi.getDescription().startsWith("Náº¡p tiá» n nÃ¢ng háº¡n má»©c")))
                                         .map(FolioItem::getAmount)
                                         .filter(a -> a != null && a.compareTo(BigDecimal.ZERO) < 0)
                                         .map(BigDecimal::abs)
