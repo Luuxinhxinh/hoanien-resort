@@ -240,22 +240,13 @@ public class EmailServiceImpl implements EmailService {
                     String cccd = "";
                     if (att.getCustomer() != null) {
                         name = att.getCustomer().getFullName();
-                        cccd = att.getCustomer().getCccdPassportEncrypted();
+                        cccd = com.kawai.utils.EncryptionUtils.decrypt(att.getCustomer().getCccdPassportEncrypted());
                     } else if (att.getDependent() != null) {
                         name = att.getDependent().getDependentName();
-                        cccd = att.getDependent().getCccdPassportEncrypted();
-                    }
-                    if (cccd != null && !cccd.isEmpty() && !cccd.startsWith("PHONE_") && !cccd.startsWith("AUTO_CHILD_")) {
-                        if (cccd.length() > 4) {
-                            cccd = cccd.substring(0, cccd.length() - 2) + "xx";
-                        } else {
-                            cccd = cccd + "xx";
-                        }
-                    } else {
-                        cccd = "";
+                        cccd = com.kawai.utils.EncryptionUtils.decrypt(att.getDependent().getCccdPassportEncrypted());
                     }
                     map.put("name", name != null ? name.toUpperCase() : "");
-                    map.put("cccd", cccd);
+                    map.put("cccd", cccd != null ? cccd : "");
                     formattedAttendees.add(map);
                 }
             }
@@ -1162,6 +1153,28 @@ public class EmailServiceImpl implements EmailService {
             e.printStackTrace();
         }
     }
+    @org.springframework.scheduling.annotation.Async
+    @Override
+    public void sendProfileUpdateEmail(com.kawai.models.Customer customer) {
+        if (customer == null || customer.getEmail() == null || customer.getEmail().isBlank()) {
+            logger.warn("Bỏ qua gửi email cập nhật hồ sơ: customer {} không có email", customer != null ? customer.getId() : "null");
+            return;
+        }
+        try {
+            org.thymeleaf.context.Context ctx = new org.thymeleaf.context.Context(new java.util.Locale("vi", "VN"));
+            String rawCustName = customer.getFullName() != null ? customer.getFullName() : "Quý khách";
+            ctx.setVariable("customerName", java.text.Normalizer.normalize(rawCustName, java.text.Normalizer.Form.NFC));
+            ctx.setVariable("resortPhone", resortPhone);
+            ctx.setVariable("resortWebsite", resortWebsite);
+
+            String htmlContent = templateEngine.process("email/profile-update", ctx);
+            sendEmail(customer.getEmail(), "Cập nhật hồ sơ thành công | Hoa Niên Retreat & Resort", htmlContent);
+        } catch (Exception e) {
+            logger.error("Lỗi khi gửi email cập nhật hồ sơ cho KH {}: {}", customer.getId(), e.getMessage());
+        }
+    }
+
+    @org.springframework.scheduling.annotation.Async
     @Override
     public void sendWeeklyScheduleEmail(String toEmail, String employeeName, java.util.List<com.kawai.models.StaffSchedule> schedules) {
         try {

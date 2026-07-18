@@ -24,6 +24,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -411,7 +412,7 @@ class BookingServiceUC10Test {
                 booking.setId(201L);
                 booking.setBookingStatus("CONFIRMED");
                 booking.setDepositAmount(depositDB);
-                booking.setCancellationDeadline(LocalDate.now().plusDays(3)); // còn 3 ngày → trước deadline
+                booking.setCancellationDeadline(LocalDateTime.now().plusDays(3)); // còn 3 ngày → trước deadline
                 booking.setCheckInDate(LocalDate.now().plusDays(5));
 
                 when(roomBookingRepository.findByIdAndCustomerId(201L, 1L)).thenReturn(Optional.of(booking));
@@ -460,7 +461,7 @@ class BookingServiceUC10Test {
                 booking.setId(202L);
                 booking.setBookingStatus("CONFIRMED");
                 booking.setDepositAmount(new BigDecimal("2000000"));
-                booking.setCancellationDeadline(LocalDate.now().minusDays(1)); // qua deadline rồi
+                booking.setCancellationDeadline(LocalDateTime.now().minusDays(1)); // qua deadline rồi
                 booking.setCheckInDate(LocalDate.now().plusDays(1));
 
                 when(roomBookingRepository.findByIdAndCustomerId(202L, 1L)).thenReturn(Optional.of(booking));

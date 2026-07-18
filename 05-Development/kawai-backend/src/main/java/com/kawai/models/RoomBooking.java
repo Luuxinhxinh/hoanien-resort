@@ -2,6 +2,7 @@ package com.kawai.models;
 
 import jakarta.persistence.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.math.BigDecimal;
 
 @Entity
@@ -15,7 +16,7 @@ public class RoomBooking extends Booking {
     @Column(name = "deposit_amount", nullable = false)
     private BigDecimal depositAmount;
     @Column(name = "cancellation_deadline", nullable = false)
-    private LocalDate cancellationDeadline;
+    private LocalDateTime cancellationDeadline;
     @Column(name = "credit_limit", nullable = false)
     private BigDecimal creditLimit = new BigDecimal("5000000.00");
     @Column(name = "personal_pin_hash", nullable = false)
@@ -45,11 +46,11 @@ public class RoomBooking extends Booking {
         this.depositAmount = v;
     }
 
-    public LocalDate getCancellationDeadline() {
+    public LocalDateTime getCancellationDeadline() {
         return cancellationDeadline;
     }
 
-    public void setCancellationDeadline(LocalDate v) {
+    public void setCancellationDeadline(LocalDateTime v) {
         this.cancellationDeadline = v;
     }
 

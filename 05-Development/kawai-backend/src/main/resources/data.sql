@@ -2025,3 +2025,182 @@ INSERT IGNORE INTO Reviews (customer_id, tour_booking_id, room_booking_detail_id
 UPDATE Bookings SET booking_status = 'Completed' WHERE booking_id = 9;
 UPDATE Bookings SET booking_status = 'Checked_Out' WHERE booking_id = 10;
 -- We know booking 9 is Tour (if not modified) and 10 is Room. We don't add reviews for them.
+
+-- ============================================================
+-- 53. ONE-WEEK SIMULATION DATA (PAST, PRESENT, FUTURE)
+-- ============================================================
+
+-- KHỐI 1: PAST (2 ngày trước)
+INSERT IGNORE INTO Bookings (booking_id, customer_id, booking_date, total_price, booking_status, booking_source, applied_promotion_id, version) VALUES
+(8001, 10, DATE_SUB(CURDATE(), INTERVAL 5 DAY), 8500000, 'Checked_Out', 'Direct_Web', NULL, 1);
+
+INSERT IGNORE INTO Room_Bookings (room_booking_id, check_in_date, check_out_date, deposit_amount, cancellation_deadline, credit_limit, personal_pin_hash) VALUES
+(8001, DATE_SUB(CURDATE(), INTERVAL 3 DAY), DATE_SUB(CURDATE(), INTERVAL 1 DAY), 2000000, DATE_SUB(CURDATE(), INTERVAL 5 DAY), 10000000, 'hash8001');
+
+INSERT IGNORE INTO Room_Booking_Details (detail_id, room_booking_id, category_id, room_id, room_charge, detail_status, bed_preference, is_charge_to_room_allowed, sub_credit_limit, billing_routing_strategy, number_of_adults, number_of_children) VALUES
+(8001, 8001, 1, NULL, 6000000, 'Checked_Out', 'KING_SIZE', TRUE, 5000000, 'BILL_TO_LEADER', 2, 0);
+
+INSERT IGNORE INTO Room_Guests (guest_id, detail_id, customer_id, guest_type, is_primary_contact) VALUES
+(8001, 8001, 10, 'ADULT', TRUE);
+
+-- Thanh toán thành công cho booking 8001
+INSERT IGNORE INTO Payment_Transactions (id, booking_id, amount, status, transaction_type, payment_method, gateway_status, transaction_ref, created_at, paid_at) VALUES
+(8001, 8001, 8500000, 'SUCCESS', 'Payment', 'VNPAY', 'SUCCESS', 'PAY8001_PAST', DATE_SUB(CURDATE(), INTERVAL 1 DAY), DATE_SUB(CURDATE(), INTERVAL 1 DAY));
+
+-- Doanh thu phát sinh trong thời gian lưu trú (Folio_Items)
+INSERT IGNORE INTO Folio_Items (folio_item_id, booking_id, room_booking_detail_id, payer_customer_id, source_department, amount, description, is_settled_separately, created_by_staff_id, created_at) VALUES 
+(8001, 8001, 8001, 10, 'F&B', 2500000, 'Bữa tối tại nhà hàng', FALSE, 2, DATE_SUB(CURDATE(), INTERVAL 2 DAY));
+
+-- Housekeeping Task (Completed)
+INSERT IGNORE INTO Hotel_Operations (task_id, room_id, staff_id, supervisor_id, operational_type, priority, status, created_at, started_at, completed_at, notes) VALUES 
+(8001, 1, 37, 36, 'CHECKOUT_CLEAN', 'High', 'Completed', DATE_SUB(CURDATE(), INTERVAL 1 DAY), DATE_SUB(CURDATE(), INTERVAL 1 DAY), DATE_SUB(CURDATE(), INTERVAL 1 DAY), 'Dọn phòng sau khi khách trả phòng');
+
+-- Tour đã hoàn thành
+INSERT IGNORE INTO Tour_Schedules (schedule_id, tour_id, departure_date, departure_time, booked_seats, schedule_status, is_insurance_processed) VALUES 
+(8001, 1, DATE_SUB(CURDATE(), INTERVAL 2 DAY), '08:00:00', 2, 'Completed', TRUE);
+
+INSERT IGNORE INTO Bookings (booking_id, customer_id, booking_date, total_price, booking_status, booking_source) VALUES
+(8002, 10, DATE_SUB(CURDATE(), INTERVAL 5 DAY), 2500000, 'Completed', 'Direct_Web');
+
+INSERT IGNORE INTO Tour_Bookings (booking_id, schedule_id, participant_count, tour_charge, room_booking_id, is_walk_in_tour) VALUES
+(8002, 8001, 2, 2500000, 8001, FALSE);
+
+-- F&B Order (Past)
+INSERT IGNORE INTO Food_Orders (order_id, booking_id, guest_id, staff_id, order_type, table_number, total_amount, order_status, payment_status, notes) VALUES
+(8001, 8001, NULL, 3, 'ROOM_SERVICE', '101', 500000, 'SERVED', 'PAID', 'Phục vụ tận phòng');
+INSERT IGNORE INTO Food_Order_Details (detail_id, order_id, item_id, quantity, unit_price, subtotal) VALUES
+(8001, 8001, 2, 2, 250000, 500000);
+
+-- KHỐI 2: HIỆN TẠI (Hôm nay)
+INSERT IGNORE INTO Bookings (booking_id, customer_id, booking_date, total_price, booking_status, booking_source, applied_promotion_id, version) VALUES
+(8003, 11, DATE_SUB(CURDATE(), INTERVAL 2 DAY), 12000000, 'Checked_In', 'Direct_Web', NULL, 1);
+
+INSERT IGNORE INTO Room_Bookings (room_booking_id, check_in_date, check_out_date, deposit_amount, cancellation_deadline, credit_limit, personal_pin_hash) VALUES
+(8003, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 3 DAY), 3000000, DATE_SUB(CURDATE(), INTERVAL 1 DAY), 10000000, 'hash8003');
+
+INSERT IGNORE INTO Room_Booking_Details (detail_id, room_booking_id, category_id, room_id, room_charge, detail_status, bed_preference, is_charge_to_room_allowed, sub_credit_limit, billing_routing_strategy, number_of_adults, number_of_children) VALUES
+(8003, 8003, 2, 13, 12000000, 'Checked_In', 'KING_SIZE', TRUE, 5000000, 'BILL_TO_LEADER', 2, 1);
+
+INSERT IGNORE INTO Room_Guests (guest_id, detail_id, customer_id, guest_type, is_primary_contact) VALUES
+(8003, 8003, 11, 'ADULT', TRUE);
+
+-- Cập nhật phòng 13 (203) thành Occupied
+UPDATE Rooms SET room_status = 'Occupied', current_booking_detail_id = 8003 WHERE room_id = 13;
+
+-- Thanh toán cọc
+INSERT IGNORE INTO Payment_Transactions (id, booking_id, amount, status, transaction_type, payment_method, gateway_status, transaction_ref, created_at, paid_at) VALUES
+(8003, 8003, 3000000, 'SUCCESS', 'Deposit', 'VNPAY', 'SUCCESS', 'DEP8003_PRESENT', CURDATE(), CURDATE());
+
+-- Housekeeping In_Progress (Dọn phòng hàng ngày)
+INSERT IGNORE INTO Hotel_Operations (task_id, room_id, staff_id, supervisor_id, operational_type, priority, status, created_at, started_at, completed_at, notes) VALUES 
+(8002, 13, 38, 36, 'MAKEUP_ROOM', 'Normal', 'In_Progress', CURDATE(), CURDATE(), NULL, 'Dọn phòng hàng ngày');
+
+-- Tour Đang diễn ra
+INSERT IGNORE INTO Tour_Schedules (schedule_id, tour_id, departure_date, departure_time, booked_seats, schedule_status, is_insurance_processed) VALUES 
+(8002, 2, CURDATE(), '08:00:00', 3, 'In_Progress', TRUE);
+
+INSERT IGNORE INTO Bookings (booking_id, customer_id, booking_date, total_price, booking_status, booking_source) VALUES
+(8004, 11, DATE_SUB(CURDATE(), INTERVAL 2 DAY), 4500000, 'Confirmed', 'Direct_Web');
+
+INSERT IGNORE INTO Tour_Bookings (booking_id, schedule_id, participant_count, tour_charge, room_booking_id, is_walk_in_tour) VALUES
+(8004, 8002, 3, 4500000, 8003, FALSE);
+
+-- Run_Itinerary_Status cho Tour
+INSERT IGNORE INTO Run_Itinerary_Status (run_status_id, schedule_id, detail_id, actual_start_time, actual_end_time, current_stage_status, guide_notes) VALUES 
+(8001, 8002, 2, CURDATE(), NULL, 'IN_PROGRESS', 'Đoàn đang tham quan');
+
+-- F&B Order (Preparing)
+INSERT IGNORE INTO Food_Orders (order_id, booking_id, guest_id, staff_id, order_type, table_number, total_amount, order_status, payment_status, notes) VALUES
+(8002, 8003, NULL, 4, 'DINE_IN', 'T02', 1500000, 'PREPARING', 'UNPAID', 'Khách đang đợi');
+INSERT IGNORE INTO Food_Order_Details (detail_id, order_id, item_id, quantity, unit_price, subtotal) VALUES
+(8002, 8002, 15, 2, 750000, 1500000);
+
+-- Bàn số 2 (table_id 2) cập nhật thành Occupied
+UPDATE Restaurant_Tables SET table_status = 'Occupied' WHERE table_id = 2;
+
+
+-- KHỐI 3: TƯƠNG LAI (2 ngày tới)
+INSERT IGNORE INTO Bookings (booking_id, customer_id, booking_date, total_price, booking_status, booking_source, applied_promotion_id, version) VALUES
+(8005, 12, CURDATE(), 9000000, 'Confirmed', 'OTA', NULL, 1);
+
+INSERT IGNORE INTO Room_Bookings (room_booking_id, check_in_date, check_out_date, deposit_amount, cancellation_deadline, credit_limit, personal_pin_hash) VALUES
+(8005, DATE_ADD(CURDATE(), INTERVAL 2 DAY), DATE_ADD(CURDATE(), INTERVAL 5 DAY), 2000000, CURDATE(), 10000000, 'hash8005');
+
+INSERT IGNORE INTO Room_Booking_Details (detail_id, room_booking_id, category_id, room_id, room_charge, detail_status, bed_preference, is_charge_to_room_allowed, sub_credit_limit, billing_routing_strategy, number_of_adults, number_of_children) VALUES
+(8005, 8005, 3, NULL, 9000000, 'Pending', 'TWIN_BED', TRUE, 5000000, 'BILL_TO_LEADER', 2, 0);
+
+INSERT IGNORE INTO Room_Guests (guest_id, detail_id, customer_id, guest_type, is_primary_contact) VALUES
+(8005, 8005, 12, 'ADULT', TRUE);
+
+-- Table Reservation tương lai
+INSERT IGNORE INTO Table_Reservations (reservation_id, customer_id, table_id, reserve_date, reserve_time, end_time, deposit_amount, status) VALUES 
+(8001, 12, 5, DATE_ADD(CURDATE(), INTERVAL 2 DAY), '19:00:00', '21:00:00', 500000, 'Confirmed');
+
+-- Tour Tương lai
+INSERT IGNORE INTO Tour_Schedules (schedule_id, tour_id, departure_date, departure_time, booked_seats, schedule_status, is_insurance_processed) VALUES 
+(8003, 3, DATE_ADD(CURDATE(), INTERVAL 2 DAY), '09:00:00', 2, 'Open', FALSE);
+
+INSERT IGNORE INTO Bookings (booking_id, customer_id, booking_date, total_price, booking_status, booking_source) VALUES
+(8006, 12, CURDATE(), 3000000, 'Confirmed', 'OTA');
+
+INSERT IGNORE INTO Tour_Bookings (booking_id, schedule_id, participant_count, tour_charge, room_booking_id, is_walk_in_tour) VALUES
+(8006, 8003, 2, 3000000, 8005, FALSE);
+
+-- Reconcile Bookings total_price
+UPDATE Bookings b SET total_price = (
+    SELECT COALESCE(SUM(room_charge), 0) 
+    FROM Room_Booking_Details 
+    WHERE room_booking_id = b.booking_id
+) WHERE b.booking_id IN (8001, 8003, 8005);
+
+-- ============================================================
+-- 54. DỮ LIỆU RẢI RÁC TRONG NGÀY (Để biểu đồ đẹp hơn)
+-- ============================================================
+
+-- 1. F&B Order lúc 10:30 (Khách đang lưu trú - Booking 8003)
+INSERT IGNORE INTO Food_Orders (order_id, booking_id, guest_id, staff_id, order_type, table_number, total_amount, order_status, payment_status, notes) VALUES
+(8004, 8003, NULL, 4, 'ROOM_SERVICE', '203', 850000, 'SERVED', 'PAID', 'Ăn sáng tại phòng');
+INSERT IGNORE INTO Food_Order_Details (detail_id, order_id, item_id, quantity, unit_price, subtotal) VALUES
+(8004, 8004, 5, 2, 425000, 850000);
+INSERT IGNORE INTO Payment_Transactions (id, booking_id, food_order_id, amount, status, transaction_type, payment_method, gateway_status, transaction_ref, created_at, paid_at) VALUES
+(8004, NULL, 8004, 850000, 'SUCCESS', 'Payment', 'CASH', 'SUCCESS', 'PAY8004_FNB', CONCAT(CURDATE(), ' 10:30:00'), CONCAT(CURDATE(), ' 10:30:00'));
+
+-- 2. Tour Booking lúc 14:15 (Khách đang lưu trú - Booking 8003 mua thêm Tour)
+INSERT IGNORE INTO Tour_Schedules (schedule_id, tour_id, departure_date, departure_time, booked_seats, schedule_status, is_insurance_processed) VALUES 
+(8004, 4, CURDATE(), '15:00:00', 2, 'In_Progress', TRUE);
+INSERT IGNORE INTO Bookings (booking_id, customer_id, booking_date, total_price, booking_status, booking_source) VALUES
+(8007, 11, CURDATE(), 2000000, 'Confirmed', 'Direct_Web');
+INSERT IGNORE INTO Tour_Bookings (booking_id, schedule_id, participant_count, tour_charge, room_booking_id, is_walk_in_tour) VALUES
+(8007, 8004, 2, 2000000, 8003, FALSE);
+INSERT IGNORE INTO Payment_Transactions (id, booking_id, amount, status, transaction_type, payment_method, gateway_status, transaction_ref, created_at, paid_at) VALUES
+(8005, 8007, 2000000, 'SUCCESS', 'Payment', 'VNPAY', 'SUCCESS', 'PAY8005_TOUR', CONCAT(CURDATE(), ' 14:15:00'), CONCAT(CURDATE(), ' 14:15:00'));
+
+-- 3. Room Booking (Khách vãng lai Check-in) lúc 18:45
+INSERT IGNORE INTO Bookings (booking_id, customer_id, booking_date, total_price, booking_status, booking_source, applied_promotion_id, version) VALUES
+(8008, 14, CURDATE(), 4500000, 'Checked_In', 'Walk_In', NULL, 1);
+INSERT IGNORE INTO Room_Bookings (room_booking_id, check_in_date, check_out_date, deposit_amount, cancellation_deadline, credit_limit, personal_pin_hash) VALUES
+(8008, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 1 DAY), 4500000, DATE_SUB(CURDATE(), INTERVAL 1 DAY), 5000000, 'hash8008');
+INSERT IGNORE INTO Room_Booking_Details (detail_id, room_booking_id, category_id, room_id, room_charge, detail_status, bed_preference, is_charge_to_room_allowed, sub_credit_limit, billing_routing_strategy, number_of_adults, number_of_children) VALUES
+(8008, 8008, 4, 15, 4500000, 'Checked_In', 'KING_SIZE', TRUE, 5000000, 'BILL_TO_LEADER', 2, 0);
+INSERT IGNORE INTO Room_Guests (guest_id, detail_id, customer_id, guest_type, is_primary_contact) VALUES
+(8008, 8008, 14, 'ADULT', TRUE);
+UPDATE Rooms SET room_status = 'Occupied', current_booking_detail_id = 8008 WHERE room_id = 15;
+
+INSERT IGNORE INTO Payment_Transactions (id, booking_id, amount, status, transaction_type, payment_method, gateway_status, transaction_ref, created_at, paid_at) VALUES
+(8006, 8008, 4500000, 'SUCCESS', 'Deposit', 'CASH', 'SUCCESS', 'PAY8006_ROOM', CONCAT(CURDATE(), ' 18:45:00'), CONCAT(CURDATE(), ' 18:45:00'));
+
+-- Reconcile Bookings total_price
+UPDATE Bookings b SET total_price = (
+    SELECT COALESCE(SUM(room_charge), 0) 
+    FROM Room_Booking_Details 
+    WHERE room_booking_id = b.booking_id
+) WHERE b.booking_id IN (8008);
+-- 1. Từ 0-5 tuổi: Miễn phí (0 VNĐ)
+INSERT INTO Room_Surcharges (category_id, surcharge_type, age_from, age_to, price_modifier, is_active)
+SELECT category_id, 'CHILD_0_5', 0, 5, 0, 1 FROM Room_Categories;
+-- 2. Từ 6-11 tuổi: Phụ thu 200.000 VNĐ
+INSERT INTO Room_Surcharges (category_id, surcharge_type, age_from, age_to, price_modifier, is_active)
+SELECT category_id, 'CHILD_6_11', 6, 11, 200000, 1 FROM Room_Categories;
+-- 3. Từ 12-17 tuổi: Phụ thu 350.000 VNĐ
+INSERT INTO Room_Surcharges (category_id, surcharge_type, age_from, age_to, price_modifier, is_active)
+SELECT category_id, 'CHILD_12_17', 12, 17, 350000, 1 FROM Room_Categories;

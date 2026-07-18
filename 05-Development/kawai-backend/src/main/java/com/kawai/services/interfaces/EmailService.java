@@ -125,6 +125,8 @@ public interface EmailService {
      */
     void sendWalkInCheckInEmail(com.kawai.models.RoomBooking booking, com.kawai.models.RoomBookingDetail detail, com.kawai.models.Customer customer, boolean isNewAccount, String username, String password);
 
+    void sendProfileUpdateEmail(com.kawai.models.Customer customer);
+
     /**
      * Gửi email thông báo lịch làm việc hàng tuần cho nhân viên.
      */

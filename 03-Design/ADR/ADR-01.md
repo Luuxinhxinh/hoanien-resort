@@ -1,10 +1,10 @@
 # ADR-01 — Kiến trúc Spring Boot MVC Layered & Technical Stack
 
-**Status:** `Accepted`  
-**Date:** 2026-06-29  
-**Deciders:** Team Lead, Backend Developers, Group 2 — SWP391 SE2023  
-**Context tags:** #architecture #mvc #spring-boot #layered #security #aop #scheduling  
-**US References:** UC-01, UC-02, UC-11, UC-13, UC-15, UC-22, UC-30 (SRS_Document_SWP391_G2)  
+**Status:** `Accepted`
+**Date:** 2026-06-29
+**Deciders:** Team Lead, Backend Developers, Group 2 — SWP391 SE2023
+**Context tags:** #architecture #mvc #spring-boot #layered #security #aop #scheduling
+**US References:** UC-01, UC-02, UC-11, UC-13, UC-15, UC-22, UC-30 (SRS_Document_SWP391_G2)
 **BR References:** `BR-SYS-01`, `BR-SYS-02`, `BR-SYS-04`, `BR-SYS-07`, `BR-FO-01`, `BR-FO-02`, `BR-FIN-03`
 
 ---
@@ -18,6 +18,7 @@ Dự án **Kawai Retreat Resort & Hub** cần xây dựng một hệ thống qu�
 - **Quản lý (Admin/Manager):** Dashboard USALI, cấu hình hệ thống, báo cáo
 
 **Ràng buộc kỹ thuật và nghiệp vụ tồn tại:**
+
 1. Đội nhỏ (4–6 người), cần framework quen thuộc và có cộng đồng tốt
 2. Giao diện web server-rendered (Thymeleaf) và REST API riêng biệt cho mobile/AJAX calls
 3. Xác thực phức tạp: Form login + Google OAuth2 + 2FA OTP + Device authorization
@@ -31,12 +32,12 @@ Dự án **Kawai Retreat Resort & Hub** cần xây dựng một hệ thống qu�
 
 ## Options Considered — Các lựa chọn đã xem xét
 
-| Option | Mô tả | Pros | Cons |
-|:-------|:------|:-----|:-----|
-| **A — Spring Boot MVC Layered (được chọn)** | Spring Boot 3.2 + Thymeleaf (View) + REST API tách biệt + Spring Security + Spring AOP + Spring Scheduling | Quen thuộc, tài liệu phong phú; dễ onboard thành viên mới; Thymeleaf SSR tốt cho SEO; Spring Security mạnh cho RBAC; tích hợp JPA seamless | Tightly coupled hơn microservices; Thymeleaf templates khó maintain khi quy mô lớn |
-| **B — Spring Boot + React SPA** | Backend REST-only, Frontend React riêng | Tách biệt rõ frontend/backend; Modern UX | Cần team frontend riêng; thêm phức tạp CORS, token management; vượt scope SWP391 |
-| **C — Microservices** | Mỗi module là service riêng (Booking Service, F&B Service, Tour Service…) | Scalable; mỗi team tự chủ | Quá phức tạp cho team 4-6 người; cần Kubernetes/Docker orchestration; overkill cho scope SWP391 |
-| **D — Jakarta EE (WildFly/Payara)** | Jakarta EE CDI + JSF + EJB | Tiêu chuẩn Java EE; enterprise-grade | Cấu hình nặng; ít phổ biến trong trường học; bootcamp dài hơn |
+| Option                                                 | Mô tả                                                                                                      | Pros                                                                                                                                                   | Cons                                                                                                  |
+| :----------------------------------------------------- | :----------------------------------------------------------------------------------------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------- |
+| **A — Spring Boot MVC Layered (được chọn)** | Spring Boot 3.2 + Thymeleaf (View) + REST API tách biệt + Spring Security + Spring AOP + Spring Scheduling | Quen thuộc, tài liệu phong phú; dễ onboard thành viên mới; Thymeleaf SSR tốt cho SEO; Spring Security mạnh cho RBAC; tích hợp JPA seamless | Tightly coupled hơn microservices; Thymeleaf templates khó maintain khi quy mô lớn                |
+| **B — Spring Boot + React SPA**                 | Backend REST-only, Frontend React riêng                                                                     | Tách biệt rõ frontend/backend; Modern UX                                                                                                            | Cần team frontend riêng; thêm phức tạp CORS, token management; vượt scope SWP391               |
+| **C — Microservices**                           | Mỗi module là service riêng (Booking Service, F&B Service, Tour Service…)                                | Scalable; mỗi team tự chủ                                                                                                                           | Quá phức tạp cho team 4-6 người; cần Kubernetes/Docker orchestration; overkill cho scope SWP391 |
+| **D — Jakarta EE (WildFly/Payara)**             | Jakarta EE CDI + JSF + EJB                                                                                   | Tiêu chuẩn Java EE; enterprise-grade                                                                                                                 | Cấu hình nặng; ít phổ biến trong trường học; bootcamp dài hơn                              |
 
 ---
 
@@ -76,6 +77,7 @@ com.kawai/
 ### 1. Dual Controller Layer (Web + API)
 
 Codebase phân tách rõ:
+
 - **`controllers/web/`** — 20 web controllers dùng `@Controller`, return Thymeleaf view names để render HTML server-side. Đây là nơi các role-specific portals được serve: `AdminController`, `ManagerController`, `ReceptionistController`, `TourGuideController`, `HousekeepingWebController`, `MaintenanceWebController`...
 - **`controllers/api/`** — 30 REST controllers dùng `@RestController`, return JSON cho AJAX, mobile, hoặc integrations: `BookingApiController`, `FolioRestController`, `TourBookingApiController`, `NightAuditRestController`...
 
@@ -84,12 +86,14 @@ Codebase phân tách rõ:
 ### 2. Service Interface + Implementation Pattern
 
 Mỗi domain có:
+
 - Interface trong `services/interfaces/` (e.g., `BookingService`, `AuthService`, `FolioService`)
 - Implementation trong `services/impl/` (e.g., `BookingServiceImpl`, `AuthServiceImpl`)
 
 Lợi ích: dễ mock trong unit test; dễ swap implementation sau này.
 
 Ví dụ thực tế từ codebase:
+
 - `BookingServiceImpl.java` — 57KB, xử lý toàn bộ booking lifecycle
 - `VnPayServiceImpl.java` — 30KB, toàn bộ VNPay payment flow
 - `WalkInCheckInServiceImpl.java` — 33KB, walk-in check-in complex flow
@@ -100,27 +104,30 @@ Ví dụ thực tế từ codebase:
 Từ `SecurityConfig.java` và `RolePermissionConstants.java`, hệ thống có:
 
 **Roles chính:**
-| Role | Portal | Permissions |
-|:-----|:-------|:------------|
-| `ROLE_ADMIN` | `/admin/**` | Toàn bộ |
-| `ROLE_MANAGER` | `/manager/**` | Dashboard, Analytics, Reports, Night Audit |
-| `ROLE_RECEPTIONIST` | `/receptionist/**` | Booking, Check-in, Check-out, Folio |
-| `ROLE_FB_STAFF` | `/fbStaff/**` | F&B Orders, POS, Tables |
-| `ROLE_HOUSEKEEPING` | `/housekeeping/**` | Room cleaning tasks |
-| `ROLE_MAINTENANCE` / `ROLE_MAINTAINER` | `/maintenance/**` | Repair tickets |
-| `ROLE_TOURGUIDE` | `/tourguide/**` | Tour attendance, GPS tracking |
-| Customer (default) | `/profile/**`, `/booking`, `/tours/**` | Self-service |
+
+| Role                                       | Portal                                       | Permissions                                |
+| :----------------------------------------- | :------------------------------------------- | :----------------------------------------- |
+| `ROLE_ADMIN`                             | `/admin/**`                                | Toàn bộ                                  |
+| `ROLE_MANAGER`                           | `/manager/**`                              | Dashboard, Analytics, Reports, Night Audit |
+| `ROLE_RECEPTIONIST`                      | `/receptionist/**`                         | Booking, Check-in, Check-out, Folio        |
+| `ROLE_FB_STAFF`                          | `/fbStaff/**`                              | F&B Orders, POS, Tables                    |
+| `ROLE_HOUSEKEEPING`                      | `/housekeeping/**`                         | Room cleaning tasks                        |
+| `ROLE_MAINTENANCE` / `ROLE_MAINTAINER` | `/maintenance/**`                          | Repair tickets                             |
+| `ROLE_TOURGUIDE`                         | `/tourguide/**`                            | Tour attendance, GPS tracking              |
+| Customer (default)                         | `/profile/**`, `/booking`, `/tours/**` | Self-service                               |
 
 **Sub-permissions (fine-grained):**
 `RECEPTION_CHECKIN`, `RECEPTION_CHECKOUT`, `RECEPTION_WALKIN`, `FNB_ORDER`, `FNB_TABLE`, `FNB_ROOM_SERVICE`, `NIGHT_AUDIT`, `ANALYTICS`, `WORKFLOW`...
 
 Hai login portal:
+
 - `/booking` → Customer login (Google OAuth2 supported)
 - `/ops-login` → Staff/Admin login (Device-based 2FA)
 
 ### 4. Spring AOP — Audit Logging
 
 `AuditLogAspect.java` sử dụng `@Around` advice trên annotation `@LogActivity`:
+
 - Tự động lấy username từ `SecurityContextHolder`
 - Lấy IP từ `HttpServletRequest`
 - INSERT vào `AuditLog` entity sau khi method thực thi thành công
@@ -129,6 +136,7 @@ Hai login portal:
 ### 5. Spring Scheduling — DynamicJobManager
 
 `DynamicJobManager.java` với `@EnableScheduling` + `TaskScheduler`:
+
 - `audit_cleanup` — Dọn Audit Log > 90 ngày: `"0 0 2 * * ?"`
 - `reservation_cleanup` — Hủy đặt bàn No-show mỗi 15 phút: `"0 0/15 * * * ?"`
 - Jobs có thể start/stop/reschedule runtime qua Admin UI (không cần restart server)
@@ -146,6 +154,7 @@ Night Audit thực thi tự động lúc 02:00 AM, post room charges cho tất c
 ### 8. OAuth2 + Google Login
 
 `CustomOAuth2UserService` + `OAuthAccountService` xử lý Google OAuth2 flow:
+
 - Nhận Google user info sau callback
 - Tìm hoặc tạo `Account` tương ứng
 - `OAuth2SuccessHandler` routing sau auth thành công
@@ -155,6 +164,7 @@ Night Audit thực thi tự động lúc 02:00 AM, post room charges cho tất c
 ## Consequences — Hệ quả
 
 **Positive:**
+
 - Codebase có cấu trúc rõ ràng, dễ navigate cho team mới
 - Spring Security xử lý RBAC mà không cần viết filter thủ công
 - AOP Audit Log không xâm phạm business logic
@@ -163,24 +173,28 @@ Night Audit thực thi tự động lúc 02:00 AM, post room charges cho tất c
 - `DynamicJobManager` cho phép quản lý scheduled jobs runtime — linh hoạt hơn `@Scheduled` cứng
 
 **Negative (trade-offs accepted):**
+
 - Thymeleaf templates có thể khó maintain khi số lượng views tăng (hiện ~20 web controllers, mỗi controller nhiều views)
 - Server-side rendering không optimal cho real-time features (WebSocket cần xử lý riêng)
 - Hai loại controller (web + api) có thể gây nhầm lẫn nếu không có naming convention rõ
 - `@Autowired` field injection (thay vì constructor injection) ở nhiều chỗ — khó unit test hơn
 
 **Risks:**
+
 - `BookingServiceImpl.java` 57KB và `WalkInCheckInServiceImpl.java` 33KB — có nguy cơ trở thành God Class, cần refactor theo Single Responsibility Principle
 - CSRF disabled (`csrf.disable()`) — cần đảm bảo toàn bộ state-changing endpoints có authentication
 - Nhiều `@Autowired` direct repositories trong Controllers (e.g., `BookingApiController` inject `CustomerRepository` trực tiếp) — vi phạm separation of concerns, nên chuyển qua Service layer
 - Các debug controller như `BackdoorController.java`, `DebugSqlController.java`, `TestDebugController.java` tuyệt đối không được đưa vào production build do rủi ro bảo mật nghiêm trọng (đã xóa trong bản cập nhật 2026-07-02).
 
 **Compliance Impact:**
+
 - Audit Log qua AOP (`BR-SYS-04`) đảm bảo mọi thao tác nhạy cảm được ghi lại
 - BCrypt password encoding (`BR-SYS-01`) được enforce bởi Spring Security `PasswordEncoder` bean
 - Device-based 2FA cho Staff portal giảm thiểu rủi ro credential theft
 - `@Version` Optimistic Lock (`BR-FO-01`) tuân thủ yêu cầu chống overbooking
 
 **Decisions unlocked (ADR tiếp theo có thể viết):**
+
 - ADR-02: Database Schema & Trigger Strategy (TRG_Auto_Housekeeping_Task, TRG_Prevent_Overbooking…)
 - ADR-03: VNPay Payment Gateway Integration Pattern
 - ADR-04: AI Face Recognition Service Integration (Python microservice via HTTP)
@@ -194,27 +208,27 @@ Night Audit thực thi tự động lúc 02:00 AM, post room charges cho tất c
 
 ### Tech Stack Chi tiết
 
-| Thành phần | Technology | Version | Ghi chú |
-|:-----------|:-----------|:--------|:--------|
-| **Language** | Java | 17 (LTS) | `java.version=17` trong pom.xml |
-| **Framework** | Spring Boot | 3.2.4 | `spring-boot-starter-parent` |
-| **Web MVC** | Spring Web MVC + Thymeleaf | Boot-managed | SSR + REST |
-| **Security** | Spring Security + OAuth2 Client | Boot-managed | RBAC + Google Login |
-| **ORM** | Spring Data JPA + Hibernate | Boot-managed | MySQL dialect |
-| **Auditing** | Hibernate Envers | `spring-data-envers` | Entity revision tracking |
-| **AOP** | Spring AOP | `spring-boot-starter-aop` | Audit Log interceptor |
-| **Validation** | Spring Validation | `spring-boot-starter-validation` | Bean Validation |
-| **Database (Prod)** | MySQL 8.x | `mysql-connector-j` runtime | Primary database |
-| **Database (Dev/Test)** | H2 In-Memory | `h2` runtime | Test / dev sandbox |
-| **Email** | Spring Mail + SendGrid | `sendgrid-java 4.9.3` | Transactional emails |
-| **Excel Export** | Apache POI | `poi-ooxml 5.2.5` | USALI report export |
-| **Boilerplate** | Lombok | 1.18.36 | @Getter, @Setter, @RequiredArgsConstructor |
-| **Payment** | VNPay | Custom integration | HMAC-SHA512 signature |
-| **AI Service** | Python FastAPI (external) | N/A | FaceID via HTTP client |
-| **Weather API** | OpenWeatherMap | N/A | Tour scheduling context |
-| **Build** | Maven | 3.x | `mvnw` wrapper |
-| **Scheduling** | Spring Scheduling | `@EnableScheduling` | `DynamicJobManager` |
-| **Async** | Spring Async | `@EnableAsync` | Email sending async |
+| Thành phần                  | Technology                      | Version                            | Ghi chú                                   |
+| :---------------------------- | :------------------------------ | :--------------------------------- | :----------------------------------------- |
+| **Language**            | Java                            | 17 (LTS)                           | `java.version=17` trong pom.xml          |
+| **Framework**           | Spring Boot                     | 3.2.4                              | `spring-boot-starter-parent`             |
+| **Web MVC**             | Spring Web MVC + Thymeleaf      | Boot-managed                       | SSR + REST                                 |
+| **Security**            | Spring Security + OAuth2 Client | Boot-managed                       | RBAC + Google Login                        |
+| **ORM**                 | Spring Data JPA + Hibernate     | Boot-managed                       | MySQL dialect                              |
+| **Auditing**            | Hibernate Envers                | `spring-data-envers`             | Entity revision tracking                   |
+| **AOP**                 | Spring AOP                      | `spring-boot-starter-aop`        | Audit Log interceptor                      |
+| **Validation**          | Spring Validation               | `spring-boot-starter-validation` | Bean Validation                            |
+| **Database (Prod)**     | MySQL 8.x                       | `mysql-connector-j` runtime      | Primary database                           |
+| **Database (Dev/Test)** | H2 In-Memory                    | `h2` runtime                     | Test / dev sandbox                         |
+| **Email**               | Spring Mail + SendGrid          | `sendgrid-java 4.9.3`            | Transactional emails                       |
+| **Excel Export**        | Apache POI                      | `poi-ooxml 5.2.5`                | USALI report export                        |
+| **Boilerplate**         | Lombok                          | 1.18.36                            | @Getter, @Setter, @RequiredArgsConstructor |
+| **Payment**             | VNPay                           | Custom integration                 | HMAC-SHA512 signature                      |
+| **AI Service**          | Python FastAPI (external)       | N/A                                | FaceID via HTTP client                     |
+| **Weather API**         | OpenWeatherMap                  | N/A                                | Tour scheduling context                    |
+| **Build**               | Maven                           | 3.x                                | `mvnw` wrapper                           |
+| **Scheduling**          | Spring Scheduling               | `@EnableScheduling`              | `DynamicJobManager`                      |
+| **Async**               | Spring Async                    | `@EnableAsync`                   | Email sending async                        |
 
 ### Package Structure — Chi tiết từng Layer
 
@@ -222,33 +236,33 @@ Night Audit thực thi tự động lúc 02:00 AM, post room charges cho tất c
 
 **49 JPA Entities** được map 1-1 với database tables:
 
-| Entity | Table | Ghi chú |
-|:-------|:------|:--------|
-| `Account` | `Accounts` | `@Audited` Envers; `@Version`-less |
-| `Booking` | `Bookings` | `@Version` Optimistic Lock; `@Inheritance JOINED` |
-| `RoomBooking` | `Room_Bookings` | Extends Booking |
-| `RoomBookingDetail` | `Room_Booking_Details` | PIN hash, Credit Limit |
-| `Customer` | `Customers` | CCCD encrypted, Face vector |
-| `Employee` | `Employees` | Salary, Department |
-| `Role` | `Roles` | RBAC role |
-| `Room` | `Rooms` | Room status state |
-| `RoomCategory` | `Room_Categories` | Base price, max capacity |
-| `DailyRate` | `Daily_Rates` | Per-day price for Night Audit |
-| `FoodOrder` | `Food_Orders` | KOT status, payment type |
-| `FoodOrderDetail` | `Food_Order_Details` | KOT per item |
-| `MenuItem` | `Menu_Items` | is_available flag |
-| `Tour` | `Tours` | Tour catalog |
-| `TourSchedule` | `Tour_Schedules` | Departure date, booked seats |
-| `TourBooking` | `Tour_Bookings` | Participant count |
-| `TourAttendee` | `Tour_Attendees` | Face vector, cosine similarity |
-| `ConsolidatedInvoice` | `Consolidated_Invoices` | Final checkout invoice |
-| `FolioItem` | `Folio_Items` | Line items per department |
-| `PaymentTransaction` | `Payment_Transactions` | VNPay transaction log |
-| `HotelOperation` | `Hotel_Operations` | Housekeeping + Maintenance tasks |
-| `AuditLog` | `Audit_Logs` | INSERT-only audit trail |
-| `Promotion` | `Promotions` | Voucher/discount |
-| `Workflow` | `Workflows` | Dynamic workflow engine |
-| ... | | 49 entities tổng cộng |
+| Entity                  | Table                     | Ghi chú                                              |
+| :---------------------- | :------------------------ | :---------------------------------------------------- |
+| `Account`             | `Accounts`              | `@Audited` Envers; `@Version`-less                |
+| `Booking`             | `Bookings`              | `@Version` Optimistic Lock; `@Inheritance JOINED` |
+| `RoomBooking`         | `Room_Bookings`         | Extends Booking                                       |
+| `RoomBookingDetail`   | `Room_Booking_Details`  | PIN hash, Credit Limit                                |
+| `Customer`            | `Customers`             | CCCD encrypted, Face vector                           |
+| `Employee`            | `Employees`             | Salary, Department                                    |
+| `Role`                | `Roles`                 | RBAC role                                             |
+| `Room`                | `Rooms`                 | Room status state                                     |
+| `RoomCategory`        | `Room_Categories`       | Base price, max capacity                              |
+| `DailyRate`           | `Daily_Rates`           | Per-day price for Night Audit                         |
+| `FoodOrder`           | `Food_Orders`           | KOT status, payment type                              |
+| `FoodOrderDetail`     | `Food_Order_Details`    | KOT per item                                          |
+| `MenuItem`            | `Menu_Items`            | is_available flag                                     |
+| `Tour`                | `Tours`                 | Tour catalog                                          |
+| `TourSchedule`        | `Tour_Schedules`        | Departure date, booked seats                          |
+| `TourBooking`         | `Tour_Bookings`         | Participant count                                     |
+| `TourAttendee`        | `Tour_Attendees`        | Face vector, cosine similarity                        |
+| `ConsolidatedInvoice` | `Consolidated_Invoices` | Final checkout invoice                                |
+| `FolioItem`           | `Folio_Items`           | Line items per department                             |
+| `PaymentTransaction`  | `Payment_Transactions`  | VNPay transaction log                                 |
+| `HotelOperation`      | `Hotel_Operations`      | Housekeeping + Maintenance tasks                      |
+| `AuditLog`            | `Audit_Logs`            | INSERT-only audit trail                               |
+| `Promotion`           | `Promotions`            | Voucher/discount                                      |
+| `Workflow`            | `Workflows`             | Dynamic workflow engine                               |
+| ...                     |                           | 49 entities tổng cộng                               |
 
 #### Layer 2: Repositories (Data Access Layer)
 
@@ -263,6 +277,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 ```
 
 Key repositories phức tạp:
+
 - `RoomBookingRepository` — 5.9KB: queries cho availability, conflict detection
 - `TourBookingRepository` — 3.5KB: capacity checks, cancellation flows
 - `FoodOrderRepository` — 2.8KB: KOT queries, POS aggregations
@@ -274,60 +289,60 @@ Key repositories phức tạp:
 
 Các service lớn và phức tạp nhất:
 
-| Service | Size | Responsibility |
-|:--------|:-----|:--------------|
-| `BookingServiceImpl` | 57KB | Đặt phòng end-to-end: availability check, cart lock, VNPay, cancellation |
-| `WalkInCheckInServiceImpl` | 33KB | Walk-in check-in với OCR CCCD, room assignment, credit setup |
-| `VnPayServiceImpl` | 30KB | Payment URL tạo, webhook verify, refund processing |
-| `PosServiceImpl` | 23KB | F&B POS: order creation, KOT routing, post-to-room |
-| `TourBookingServiceImpl` | 23KB | Tour booking: capacity validation, attendance, AI face scan |
-| `WorkflowEngineServiceImpl` | 21KB | Dynamic BPMN-like workflow execution |
-| `MasterDataServiceImpl` | 31KB | CRUD cho tất cả master data: rooms, categories, tours, staff |
-| `AdminViewServiceImpl` | 36KB | Data aggregation cho Admin dashboard views |
-| `AuthServiceImpl` | 15KB | Login, OTP, 2FA, device auth, password reset |
-| `EmailServiceImpl` | 28KB | Tất cả email templates: booking confirm, OTP, invoice, tour ticket |
+| Service                       | Size | Responsibility                                                              |
+| :---------------------------- | :--- | :-------------------------------------------------------------------------- |
+| `BookingServiceImpl`        | 57KB | Đặt phòng end-to-end: availability check, cart lock, VNPay, cancellation |
+| `WalkInCheckInServiceImpl`  | 33KB | Walk-in check-in với OCR CCCD, room assignment, credit setup               |
+| `VnPayServiceImpl`          | 30KB | Payment URL tạo, webhook verify, refund processing                         |
+| `PosServiceImpl`            | 23KB | F&B POS: order creation, KOT routing, post-to-room                          |
+| `TourBookingServiceImpl`    | 23KB | Tour booking: capacity validation, attendance, AI face scan                 |
+| `WorkflowEngineServiceImpl` | 21KB | Dynamic BPMN-like workflow execution                                        |
+| `MasterDataServiceImpl`     | 31KB | CRUD cho tất cả master data: rooms, categories, tours, staff              |
+| `AdminViewServiceImpl`      | 36KB | Data aggregation cho Admin dashboard views                                  |
+| `AuthServiceImpl`           | 15KB | Login, OTP, 2FA, device auth, password reset                                |
+| `EmailServiceImpl`          | 28KB | Tất cả email templates: booking confirm, OTP, invoice, tour ticket        |
 
 #### Layer 4: Controllers (Presentation Layer)
 
 **Web Controllers (19)** — `@Controller`, return Thymeleaf view names:
 
-| Controller | URL Prefix | Role | Responsibility |
-|:-----------|:-----------|:-----|:--------------|
-| `AdminController` | `/admin/**` | ADMIN, MANAGER | User management, audit log, workflow config |
-| `ManagerController` | `/manager/**` | MANAGER | Dashboard, reports, night audit, analytics (34KB) |
-| `ReceptionistController` | `/receptionist/**` | RECEPTIONIST | Room matrix, in-house operations, folio (26KB) |
-| `ReceptionistCheckinWebController` | `/receptionist/checkin/**` | RECEPTIONIST | Check-in wizard với CCCD OCR (20KB) |
-| `ProfileController` | `/profile/**` | Customer | Self-service profile, booking history (19KB) |
-| `TourGuideController` | `/tourguide/**` | TOUR GUIDE | Tour attendance, AI face scan, GPS (28KB) |
-| `OrderFoodController` | `/order-food/**` | Customer | Room service ordering |
-| `HousekeepingWebController` | `/housekeeping/**` | HOUSEKEEPING | Task list, room status update |
-| `MaintenanceWebController` | `/maintenance/**` | MAINTENANCE | Repair tickets management |
-| `TourController` | `/tours/**` | Customer | Tour browsing với weather integration |
-| `BookingController` | `/booking/**` | Customer | Booking wizard |
-| `PosController` | `/fbStaff/**` | FB_STAFF | POS terminal |
-| `KitchenController` | `/kitchenStaff/**` | FB_STAFF | KDS display |
-| `AuthController` | `/auth/**` | All | Login, register, logout pages |
-| `PaymentController` | `/payment/**` | Customer | VNPay redirect handling |
+| Controller                           | URL Prefix                   | Role           | Responsibility                                    |
+| :----------------------------------- | :--------------------------- | :------------- | :------------------------------------------------ |
+| `AdminController`                  | `/admin/**`                | ADMIN, MANAGER | User management, audit log, workflow config       |
+| `ManagerController`                | `/manager/**`              | MANAGER        | Dashboard, reports, night audit, analytics (34KB) |
+| `ReceptionistController`           | `/receptionist/**`         | RECEPTIONIST   | Room matrix, in-house operations, folio (26KB)    |
+| `ReceptionistCheckinWebController` | `/receptionist/checkin/**` | RECEPTIONIST   | Check-in wizard với CCCD OCR (20KB)              |
+| `ProfileController`                | `/profile/**`              | Customer       | Self-service profile, booking history (19KB)      |
+| `TourGuideController`              | `/tourguide/**`            | TOUR GUIDE     | Tour attendance, AI face scan, GPS (28KB)         |
+| `OrderFoodController`              | `/order-food/**`           | Customer       | Room service ordering                             |
+| `HousekeepingWebController`        | `/housekeeping/**`         | HOUSEKEEPING   | Task list, room status update                     |
+| `MaintenanceWebController`         | `/maintenance/**`          | MAINTENANCE    | Repair tickets management                         |
+| `TourController`                   | `/tours/**`                | Customer       | Tour browsing với weather integration            |
+| `BookingController`                | `/booking/**`              | Customer       | Booking wizard                                    |
+| `PosController`                    | `/fbStaff/**`              | FB_STAFF       | POS terminal                                      |
+| `KitchenController`                | `/kitchenStaff/**`         | FB_STAFF       | KDS display                                       |
+| `AuthController`                   | `/auth/**`                 | All            | Login, register, logout pages                     |
+| `PaymentController`                | `/payment/**`              | Customer       | VNPay redirect handling                           |
 
 **API Controllers (30)** — `@RestController`, return JSON:
 
-| Controller | URL Prefix | Responsibility |
-|:-----------|:-----------|:--------------|
-| `BookingApiController` | `/api/bookings` | Booking CRUD + availability |
-| `FolioRestController` | `/api/folio/**` | Folio management — 49KB (lớn nhất) |
-| `TourBookingApiController` | `/api/tour-bookings` | Tour booking operations — 19KB |
-| `RoomApiController` | `/api/rooms/**` | Room status, assignment |
-| `AuthApiController` | `/api/v1/auth/**` | Login/register REST |
-| `FaceIdApiController` | `/api/faceid/**` | AI face scan operations — 14KB |
-| `AuditApiController` | `/api/v1/audit/**` | Audit log queries — 12KB |
-| `PaymentApiController` | `/api/v1/payments/**` | VNPay webhook, refund |
-| `NightAuditRestController` | `/api/night-audit/**` | Night audit trigger + status |
-| `WalkInCheckInApiController` | `/api/walk-in/**` | Walk-in check-in REST |
-| `ManagerReportApiController` | `/api/manager/**` | Report data APIs |
-| `WorkflowApiController` | `/api/workflow/**` | Workflow engine REST |
-| `ImportApiController` | `/api/import/**` | Bulk data import |
-| `ExportApiController` | `/api/export/**` | Excel/PDF export |
-| ... | | 30 APIs tổng cộng |
+| Controller                     | URL Prefix              | Responsibility                        |
+| :----------------------------- | :---------------------- | :------------------------------------ |
+| `BookingApiController`       | `/api/bookings`       | Booking CRUD + availability           |
+| `FolioRestController`        | `/api/folio/**`       | Folio management — 49KB (lớn nhất) |
+| `TourBookingApiController`   | `/api/tour-bookings`  | Tour booking operations — 19KB       |
+| `RoomApiController`          | `/api/rooms/**`       | Room status, assignment               |
+| `AuthApiController`          | `/api/v1/auth/**`     | Login/register REST                   |
+| `FaceIdApiController`        | `/api/faceid/**`      | AI face scan operations — 14KB       |
+| `AuditApiController`         | `/api/v1/audit/**`    | Audit log queries — 12KB             |
+| `PaymentApiController`       | `/api/v1/payments/**` | VNPay webhook, refund                 |
+| `NightAuditRestController`   | `/api/night-audit/**` | Night audit trigger + status          |
+| `WalkInCheckInApiController` | `/api/walk-in/**`     | Walk-in check-in REST                 |
+| `ManagerReportApiController` | `/api/manager/**`     | Report data APIs                      |
+| `WorkflowApiController`      | `/api/workflow/**`    | Workflow engine REST                  |
+| `ImportApiController`        | `/api/import/**`      | Bulk data import                      |
+| `ExportApiController`        | `/api/export/**`      | Excel/PDF export                      |
+| ...                            |                         | 30 APIs tổng cộng                   |
 
 #### Layer 5: DTOs (Data Transfer Objects)
 
@@ -348,6 +363,7 @@ WeatherInfo          ← OpenWeatherMap response
 #### Cross-Cutting Concerns
 
 **Spring AOP (`AuditLogAspect`):**
+
 ```java
 @Around("@annotation(com.kawai.utils.LogActivity)")
 public Object logActivity(ProceedingJoinPoint joinPoint) {
@@ -360,23 +376,25 @@ public Object logActivity(ProceedingJoinPoint joinPoint) {
 ```
 
 **Spring Events (`events/` + `listeners/`):**
+
 - Application events cho async processing (email sending, notification)
 
 **Exception Handling (`exceptions/`):**
+
 - `BusinessException` — custom exception với error code + message
 
 ### Configuration Files
 
-| File | Mục đích |
-|:-----|:--------|
-| `SecurityConfig.java` | Spring Security: URL authorization, login/logout handlers, OAuth2 |
-| `AuditLogAspect.java` | AOP: `@LogActivity` annotation processor |
-| `DynamicJobManager.java` | Scheduling: Dynamic cron job management |
-| `WebMvcConfig.java` | MVC: Resource handlers, static files |
-| `VnPayConfig.java` | VNPay: Payment gateway credentials |
-| `OAuth2SuccessHandler.java` | OAuth2: Post-login routing by role |
-| `RolePermissionSeeder.java` | DB seed: Default role permissions |
-| `CustomRevisionListener.java` | Envers: Custom revision entity populator |
+| File                            | Mục đích                                                       |
+| :------------------------------ | :---------------------------------------------------------------- |
+| `SecurityConfig.java`         | Spring Security: URL authorization, login/logout handlers, OAuth2 |
+| `AuditLogAspect.java`         | AOP:`@LogActivity` annotation processor                         |
+| `DynamicJobManager.java`      | Scheduling: Dynamic cron job management                           |
+| `WebMvcConfig.java`           | MVC: Resource handlers, static files                              |
+| `VnPayConfig.java`            | VNPay: Payment gateway credentials                                |
+| `OAuth2SuccessHandler.java`   | OAuth2: Post-login routing by role                                |
+| `RolePermissionSeeder.java`   | DB seed: Default role permissions                                 |
+| `CustomRevisionListener.java` | Envers: Custom revision entity populator                          |
 
 ---
 
@@ -516,7 +534,7 @@ Theo ADR-01 (Spring Boot MVC Layered Architecture):
 
 ---
 
-*Template version 2.0 — PrivacyOps Architecture Team — Tích hợp CASE 2.0*  
+*Template version 2.0 — PrivacyOps Architecture Team — Tích hợp CASE 2.0*
 *Section đánh dấu ⭐ là bổ sung mới từ CASE 2.0 methodology.*
 
 ---

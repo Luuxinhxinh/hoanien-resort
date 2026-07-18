@@ -772,7 +772,7 @@ body {
 .tc-modal-body ul {
     margin-left: 20px;
     margin-bottom: 16px;
-    color: var(--text-muted);
+    color: var(--text);
     list-style-type: disc;
 }
 

@@ -532,7 +532,7 @@ function openCheckinModal(bookingId, guestName, phone, cccd, dob, roomSummary, d
     if (document.getElementById('modalGuestCccd')) document.getElementById('modalGuestCccd').value = (cccd && cccd !== 'null') ? cccd : '';
     if (document.getElementById('modalGuestDob')) document.getElementById('modalGuestDob').value = (dob && dob !== 'null') ? dob : '';
     if (document.getElementById('modalGuestGender')) {
-        const validGender = (gender === 'Nam' || gender === 'Nữ') ? gender : 'Khác';
+        const validGender = (gender === 'MALE' || gender === 'FEMALE' || gender === 'Nam' || gender === 'Nữ' || gender === 'Male' || gender === 'Female') ? gender.toUpperCase() : 'OTHER';
         document.getElementById('modalGuestGender').value = validGender;
     }
     if (document.getElementById('modalRoom')) document.getElementById('modalRoom').innerText = (roomSummary && roomSummary !== 'null') ? roomSummary : '';

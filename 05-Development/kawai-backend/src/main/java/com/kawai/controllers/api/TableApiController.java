@@ -99,4 +99,18 @@ public class TableApiController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", e.getMessage()));
         }
     }
+
+    @PostMapping("/reservations/{id}/cancel")
+    public ResponseEntity<?> cancelReservation(@PathVariable("id") Long reservationId, @RequestBody(required = false) Map<String, String> payload, java.security.Principal principal) {
+        try {
+            String reason = null;
+            if (payload != null && payload.containsKey("reason")) {
+                reason = payload.get("reason");
+            }
+            tableReservationService.cancelReservation(reservationId, principal, reason);
+            return ResponseEntity.ok(Map.of("message", "Hủy bàn thành công."));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", e.getMessage()));
+        }
+    }
 }

@@ -215,11 +215,9 @@
                                     <td th:text="${arr.phone}"></td>
                                     <td th:text="${arr.checkInDate}"></td>
                                     <td th:text="${arr.bookingDate}" style="color: #4b5563;"></td>
-                                    <td th:text="${arr.notes}"
-                                        class="notes-cell"
+                                    <td th:text="${arr.notes}" class="notes-cell"
                                         th:classappend="${arr.notes != null and #strings.length(arr.notes) > 0} ? 'has-note' : ''"
-                                        th:attr="data-full-note=${arr.notes}"
-                                        onclick="openNoteModal(this)"></td>
+                                        th:attr="data-full-note=${arr.notes}" onclick="openNoteModal(this)"></td>
                                     <td>
                                         <button class="btn btn-primary btn-sm" th:data-id="${arr.id}"
                                             th:data-name="${arr.guestName}" th:data-phone="${arr.phone}"
@@ -887,7 +885,15 @@
                         try {
                             var payload = JSON.parse(msg.body);
                             console.log('[WS] Nhận tin nhắn từ kênh Chung (/topic/operations):', payload);
-                            saveAndShow('📢 THÔNG BÁO HỆ THỐNG: \n ' + payload.message, false);
+                            if (payload.type === 'NEW_TASK') return;
+                            if (payload.type === 'ROOM_CLEANED') {
+                                if (typeof pollCleanTasksDone === 'function') pollCleanTasksDone();
+                                if (typeof pollPendingWalkInRooms === 'function') pollPendingWalkInRooms();
+                                if (typeof pollCleanedRooms === 'function') pollCleanedRooms();
+                                // KHÔNG auto-reload ở màn này để tránh mất dữ liệu khách đang nhập dở
+                                return;
+                            }
+                            saveAndShow('THÔNG BÁO HỆ THỐNG: \n' + payload.message, false);
                         } catch (e) { console.error('[WS] parse error', e); }
                     });
 
@@ -896,7 +902,7 @@
                             try {
                                 var payload = JSON.parse(msg.body);
                                 console.log('[WS] Nhận tin nhắn từ kênh Đích danh (/topic/operations/' + staffId + '):', payload);
-                                saveAndShow('🔔 NHIỆM VỤ MỚI: \n ' + payload.message, true);
+                                saveAndShow('NHIỆM VỤ MỚI: \n ' + payload.message, true);
                             } catch (e) { console.error('[WS] parse error', e); }
                         });
                         console.log('[WS] Đã đăng ký kênh riêng: /topic/operations/' + staffId);
@@ -910,8 +916,7 @@
     </script>
 
     <!-- ===== Notes Full-View Modal ===== -->
-    <div id="noteViewModal" onclick="if(event.target===this)closeNoteModal()"
-         style="display:none; position:fixed; inset:0; z-index:9999;
+    <div id="noteViewModal" onclick="if(event.target===this)closeNoteModal()" style="display:none; position:fixed; inset:0; z-index:9999;
                 background:rgba(0,0,0,.55); backdrop-filter:blur(3px);
                 align-items:center; justify-content:center;">
         <div style="background:#1e1e2e; border:1px solid #3f3f5a; border-radius:14px;
@@ -920,15 +925,12 @@
             <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
                 <span style="font-size:13px; font-weight:700; letter-spacing:.8px;
                              text-transform:uppercase; color:#a0a0c0;">Ghi chú đặt phòng</span>
-                <button onclick="closeNoteModal()"
-                        style="background:none; border:none; cursor:pointer;
+                <button onclick="closeNoteModal()" style="background:none; border:none; cursor:pointer;
                                color:#a0a0c0; font-size:20px; line-height:1;
-                               padding:0; transition:color .15s;"
-                        onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#a0a0c0'"
-                        aria-label="Đóng">&times;</button>
+                               padding:0; transition:color .15s;" onmouseover="this.style.color='#fff'"
+                    onmouseout="this.style.color='#a0a0c0'" aria-label="Đóng">&times;</button>
             </div>
-            <div id="noteViewContent"
-                 style="color:#e2e2f0; font-size:14.5px; line-height:1.7;
+            <div id="noteViewContent" style="color:#e2e2f0; font-size:14.5px; line-height:1.7;
                         white-space:pre-wrap; word-break:break-word;
                         max-height:340px; overflow-y:auto;
                         padding-right:4px;"></div>
@@ -944,12 +946,14 @@
             color: #9ca3af;
             font-style: italic;
         }
+
         .notes-cell.has-note {
             cursor: pointer;
             color: #c4b5fd;
             font-style: normal;
             transition: color .15s;
         }
+
         .notes-cell.has-note:hover {
             color: #a78bfa;
             text-decoration: underline dotted;

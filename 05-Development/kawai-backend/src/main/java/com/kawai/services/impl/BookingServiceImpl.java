@@ -19,15 +19,11 @@ import com.kawai.repositories.RoomBookingDetailRepository;
 import com.kawai.repositories.RoomRepository;
 import com.kawai.repositories.CustomerRepository;
 import com.kawai.repositories.WorkflowRepository;
-import com.kawai.repositories.PaymentTransactionRepository;
 import com.kawai.services.interfaces.BookingService;
-import com.kawai.models.PaymentTransaction;
-import com.kawai.models.PaymentStatus;
 import com.kawai.services.interfaces.WorkflowEngineService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.kawai.services.interfaces.NotificationService;
@@ -40,7 +36,6 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
 
 /**
  * ═══════════════════════════════════════════════════════════════════════════
@@ -55,9 +50,6 @@ import java.util.HashMap;
  * AND rbd.roomBooking.bookingStatus != 'CANCELLED'
  *
  * Nghĩa là status "HOLD" sẽ ĐƯỢC TÍNH là đang chiếm phòng.
- * → Khi User A tạo HOLD cho phòng R101 ngày 1-5/7,
- * User B check → countOverlapping = 1 → bị block ngay lập tức.
- *
  * Flow:
  * 1. INSERT RoomBooking(status="HOLD") → soft lock tức thì
  * 2. Tính tiền, xử lý promo, lưu RoomBookingDetail
@@ -80,7 +72,7 @@ public class BookingServiceImpl implements BookingService {
 
     private static final Logger log = LoggerFactory.getLogger(BookingServiceImpl.class);
 
-    private static final BigDecimal BASE_ROOM_PRICE = new BigDecimal("2000000"); // 2tr/đêm
+    private static final BigDecimal BASE_ROOM_PRICE = new BigDecimal("2000000");
 
     @Autowired
     private WorkflowEngineService workflowEngineService;
@@ -137,10 +129,6 @@ public class BookingServiceImpl implements BookingService {
         this.roomGuestRepository = roomGuestRepository;
         this.workflowEngineService = workflowEngineService;
     }
-
-    // ══════════════════════════════════════════════════════════════════════
-    // 🟢 GREEN — createBooking()
-    // ══════════════════════════════════════════════════════════════════════
 
     @Override
     @Transactional
@@ -207,7 +195,7 @@ public class BookingServiceImpl implements BookingService {
         holdBooking.setCheckInDate(checkIn);
         holdBooking.setCheckOutDate(checkOut);
         holdBooking.setDepositAmount(BigDecimal.ZERO);
-        holdBooking.setCancellationDeadline(checkIn.minusDays(2));
+        holdBooking.setCancellationDeadline(checkIn.atTime(14, 0).minusHours(48));
         holdBooking.setPersonalPinHash("HOLD_PENDING");
 
         BigDecimal maxTierLimit = new BigDecimal("5000000.00"); // Mặc định 5 triệu
@@ -246,7 +234,7 @@ public class BookingServiceImpl implements BookingService {
         RoomBooking savedHold = roomBookingRepository.save(holdBooking);
         roomBookingRepository.flush();
 
-        log.info("[SOFT_LOCK] HOLD created: bookingId={}, customer={}, {} → {}",
+        log.info(" HOLD created: bookingId={}, customer={}, {} → {}",
                 savedHold.getId(), customer.getId(), checkIn, checkOut);
 
         // Nhóm các phòng được chọn theo Hạng Phòng
@@ -277,6 +265,15 @@ public class BookingServiceImpl implements BookingService {
                 BigDecimal extraSurcharge = BigDecimal.ZERO;
                 int reqAdults = selection.getNumberOfAdults() != null ? selection.getNumberOfAdults() : 0;
                 int reqChildren = selection.getNumberOfChildren() != null ? selection.getNumberOfChildren() : 0;
+
+                int maxAdults = category.getMaxAdults() != null ? category.getMaxAdults() : category.getCapacity();
+                int maxChildren = category.getMaxChildren() != null ? category.getMaxChildren() : 2;
+
+                if (reqAdults > maxAdults || reqChildren > maxChildren) {
+                    throw new IllegalArgumentException(
+                            "Số lượng khách vượt quá sức chứa tối đa của hạng phòng " + catName
+                                    + ". Tối đa: " + maxAdults + " người lớn, " + maxChildren + " trẻ em.");
+                }
 
                 int baseAdults = category.getBaseAdults() != null ? category.getBaseAdults() : 0;
                 int baseChildren = category.getBaseChildren() != null ? category.getBaseChildren() : 0;
@@ -331,7 +328,6 @@ public class BookingServiceImpl implements BookingService {
         BigDecimal depositVal = discountedPrice.multiply(new BigDecimal("0.3")).setScale(0, RoundingMode.HALF_UP);
         // Cập nhật giá thực, giữ nguyên status "Pending"
         // Phòng chưa bị trừ — chỉ trừ khi confirmBooking() chuyển sang HOLD
-        // ══════════════════════════════════════════════════════════════════
         savedHold.setTotalPrice(discountedPrice.setScale(0, RoundingMode.HALF_UP));
         savedHold.setDepositAmount(depositVal);
         savedHold.setBookingStatus("Pending");
@@ -359,7 +355,7 @@ public class BookingServiceImpl implements BookingService {
             }
         }
 
-        log.info("[SOFT_LOCK] HOLD updated with details: bookingId={}", savedBooking.getId());
+        log.info("HOLD updated with details: bookingId={}", savedBooking.getId());
 
         for (int i = 0; i < categoriesToBook.size(); i++) {
             com.kawai.models.RoomCategory category = categoriesToBook.get(i);
@@ -436,7 +432,7 @@ public class BookingServiceImpl implements BookingService {
         response.setDiscountedPrice(discountedPrice.setScale(0, RoundingMode.HALF_UP));
         response.setCheckInDate(checkIn);
         response.setCheckOutDate(checkOut);
-        response.setCancellationDeadline(checkIn.minusDays(2));
+        response.setCancellationDeadline(checkIn.atTime(14, 0).minusHours(48));
 
         return response;
     }
@@ -479,7 +475,7 @@ public class BookingServiceImpl implements BookingService {
                     log.error("Failed to delete stale booking {}", h.getId(), e);
                 }
             });
-            log.warn("[SOFT_LOCK] Auto-deleted {} expired HOLD booking(s) at {}",
+            log.warn("Auto-deleted {} expired HOLD booking(s) at {}",
                     staleHolds.size(), now);
         }
     }
@@ -494,16 +490,16 @@ public class BookingServiceImpl implements BookingService {
     private BigDecimal applyPromotion(String promoCode, BigDecimal baseTotal, Long customerId) {
         Promotion promo = promotionRepository.findByPromoCode(promoCode)
                 .orElseThrow(() -> new IllegalArgumentException(
-                        "Promotion code '" + promoCode + "' does not exist [ERR_PROMO_NOT_FOUND]"));
+                        "Promotion code '" + promoCode + "' does not exist "));
 
         if (!Boolean.TRUE.equals(promo.getIsActive())) {
             throw new IllegalArgumentException(
-                    "Promotion code '" + promoCode + "' is invalid or expired [ERR_PROMO_INACTIVE]");
+                    "Promotion code '" + promoCode + "' is invalid or expired ");
         }
 
         if (promo.getValidTo().isBefore(LocalDate.now())) {
             throw new IllegalArgumentException(
-                    "Promotion code '" + promoCode + "' has expired [ERR_PROMO_EXPIRED]");
+                    "Promotion code '" + promoCode + "' has expired ");
         }
 
         BigDecimal discountValue = promo.getDiscountValue();
@@ -531,7 +527,7 @@ public class BookingServiceImpl implements BookingService {
                         BigDecimal maxVal = new BigDecimal(conds.get("max_discount_value_vnd").toString());
                         if (discountAmount.compareTo(maxVal) > 0) {
                             throw new IllegalArgumentException("Mã giảm giá vượt quá hạn mức tối đa cho phép (" + maxVal
-                                    + " VND) [ERR_PROMO_LIMIT_EXCEEDED]");
+                                    + " VND) ");
                         }
                     }
 
@@ -544,7 +540,7 @@ public class BookingServiceImpl implements BookingService {
                         long uses = bookingRepository.countByCustomerIdAndPromoCode(customerId, promoCode);
                         if (uses >= maxUses) {
                             throw new IllegalArgumentException("Khách hàng đã vượt quá số lần sử dụng mã giảm giá này ("
-                                    + maxUses + " lần) [ERR_PROMO_USAGE_EXCEEDED]");
+                                    + maxUses + " lần)");
                         }
                     }
                     // 3. threshold_pct_gt (Chặn cứng đối với Khách hàng tự thao tác)
@@ -570,7 +566,7 @@ public class BookingServiceImpl implements BookingService {
                                 throw new IllegalArgumentException(
                                         "Mã giảm giá vượt quá mức cho phép đối với khách tự đặt ("
                                                 + thresholdVal
-                                                + "%). Vui lòng liên hệ Lễ tân để được hỗ trợ đền bù. [ERR_PROMO_THRESHOLD_EXCEEDED]");
+                                                + "%). Vui lòng liên hệ Lễ tân để được hỗ trợ đền bù.");
                             }
                             // Nếu là Staff -> Cho qua để hệ thống bắt vào luồng Workflow Treo chờ duyệt.
                         }
@@ -611,7 +607,8 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public BookingResponseDTO cancelBooking(Long bookingId, Long customerId, com.kawai.dto.CancelBookingRequestDTO dto) {
+    public BookingResponseDTO cancelBooking(Long bookingId, Long customerId,
+            com.kawai.dto.CancelBookingRequestDTO dto) {
         RoomBooking booking = roomBookingRepository.findByIdAndCustomerId(bookingId, customerId)
                 .orElseThrow(() -> new BusinessException("FORBIDDEN",
                         "Đơn đặt phòng không thuộc về tài khoản này hoặc không tồn tại!"));
@@ -645,11 +642,14 @@ public class BookingServiceImpl implements BookingService {
         }
 
         // Đã đóng cọc -> Cần check deadline hoàn tiền sử dụng cancellationDeadline
-        LocalDate today = LocalDate.now();
+        java.time.LocalDateTime now = java.time.LocalDateTime.now();
         boolean isEligibleForRefund = booking.getCancellationDeadline() != null
-                && !today.isAfter(booking.getCancellationDeadline());
+                && !now.isAfter(booking.getCancellationDeadline());
 
         try {
+            java.math.BigDecimal totalRefundAmount = isEligibleForRefund ? booking.getDepositAmount()
+                    : java.math.BigDecimal.ZERO;
+
             if (isEligibleForRefund) {
                 if (dto != null) {
                     com.kawai.models.RefundRequest refund = new com.kawai.models.RefundRequest();
@@ -662,7 +662,7 @@ public class BookingServiceImpl implements BookingService {
                     refund.setStatus("Pending");
                     refundRequestRepository.save(refund);
                 }
-                
+
                 if (notificationService != null) {
                     notificationService.sendNotification(customerId, "Cancel Success",
                             "Your booking has been cancelled. A refund request has been created and will be processed shortly.");
@@ -678,6 +678,10 @@ public class BookingServiceImpl implements BookingService {
             booking.setBookingStatus(newStatus);
             roomBookingRepository.save(booking);
 
+            // Xử lý hủy các Tour đi kèm
+            java.math.BigDecimal totalTourRefund = processAttachedToursCancellation(bookingId, dto);
+            totalRefundAmount = totalRefundAmount.add(totalTourRefund);
+
             try {
                 emailService.sendRoomCancellationEmail(booking, booking.getCustomer(), isEligibleForRefund);
             } catch (Exception e) {
@@ -687,7 +691,7 @@ public class BookingServiceImpl implements BookingService {
             BookingResponseDTO response = new BookingResponseDTO();
             response.setBookingId(bookingId);
             response.setBookingStatus(newStatus);
-            response.setDepositAmount(isEligibleForRefund ? booking.getDepositAmount() : BigDecimal.ZERO);
+            response.setDepositAmount(totalRefundAmount);
             return response;
         } catch (Exception e) {
             if (notificationService != null) {
@@ -696,6 +700,52 @@ public class BookingServiceImpl implements BookingService {
             }
             throw e;
         }
+    }
+
+    private java.math.BigDecimal processAttachedToursCancellation(Long bookingId,
+            com.kawai.dto.CancelBookingRequestDTO dto) {
+        java.math.BigDecimal totalTourRefund = java.math.BigDecimal.ZERO;
+        java.util.List<com.kawai.models.TourBooking> attachedTours = tourBookingRepository
+                .findByRoomBookingId(bookingId);
+
+        for (com.kawai.models.TourBooking tb : attachedTours) {
+            String tbStatus = tb.getBookingStatus() != null ? tb.getBookingStatus().toUpperCase() : "";
+            if ("PENDING".equals(tbStatus) || "PENDING_PAYMENT".equals(tbStatus) || "CONFIRMED".equals(tbStatus)) {
+                boolean isTourRefundable = false;
+                if (tb.getSchedule() != null && tb.getSchedule().getDepartureDate() != null) {
+                    java.time.LocalDateTime depTime = tb.getSchedule().getDepartureDate().atTime(
+                            tb.getSchedule().getDepartureTime() != null ? tb.getSchedule().getDepartureTime()
+                                    : java.time.LocalTime.of(7, 0));
+                    if (java.time.temporal.ChronoUnit.HOURS.between(java.time.LocalDateTime.now(), depTime) > 24) {
+                        isTourRefundable = true;
+                    }
+                }
+
+                String newTourStatus = isTourRefundable ? "Cancelled_Refunded" : "Cancelled_Forfeited";
+                tb.setBookingStatus(newTourStatus);
+                tourBookingRepository.save(tb);
+
+                if (isTourRefundable) {
+                    java.math.BigDecimal tourRefund = tb.getTourCharge() != null
+                            ? tb.getTourCharge().multiply(new java.math.BigDecimal("0.5"))
+                            : java.math.BigDecimal.ZERO;
+                    totalTourRefund = totalTourRefund.add(tourRefund);
+
+                    if (dto != null && tourRefund.compareTo(java.math.BigDecimal.ZERO) > 0) {
+                        com.kawai.models.RefundRequest tourRefundReq = new com.kawai.models.RefundRequest();
+                        tourRefundReq.setTourBooking(tb);
+                        tourRefundReq.setBankName(dto.getBankName());
+                        tourRefundReq.setAccountNumber(dto.getAccountNumber());
+                        tourRefundReq.setAccountName(dto.getAccountName());
+                        tourRefundReq.setPhoneNumber(dto.getPhoneNumber());
+                        tourRefundReq.setAmount(tourRefund);
+                        tourRefundReq.setStatus("Pending");
+                        refundRequestRepository.save(tourRefundReq);
+                    }
+                }
+            }
+        }
+        return totalTourRefund;
     }
 
     @Override
@@ -882,7 +932,7 @@ public class BookingServiceImpl implements BookingService {
             if ("VNPAY".equalsIgnoreCase(paymentMethod)) {
                 booking.setBookingStatus("Pending_Payment");
                 booking.setHoldExpiresAt(LocalDateTime.now().plusMinutes(2));
-                log.info("[SOFT_LOCK] Pending/CANCELLED→Pending_Payment: bookingId={}, holdExpiresAt={}",
+                log.info(" Pending/CANCELLED→Pending_Payment: bookingId={}, holdExpiresAt={}",
                         bookingId, booking.getHoldExpiresAt());
             } else {
                 booking.setBookingStatus("Confirmed");
@@ -894,7 +944,7 @@ public class BookingServiceImpl implements BookingService {
             // User thử lại VNPay (ví dụ back lại trang payment) → refresh timer
             if ("VNPAY".equalsIgnoreCase(paymentMethod)) {
                 booking.setHoldExpiresAt(LocalDateTime.now().plusMinutes(2));
-                log.info("[SOFT_LOCK] Pending_Payment refreshed: bookingId={}, holdExpiresAt={}",
+                log.info(" Pending_Payment refreshed: bookingId={}, holdExpiresAt={}",
                         bookingId, booking.getHoldExpiresAt());
             } else {
                 booking.setBookingStatus("Confirmed");
@@ -957,7 +1007,8 @@ public class BookingServiceImpl implements BookingService {
 
     private void triggerBookingCreatedWorkflow(RoomBooking booking, Customer customer) {
         try {
-            long nights = java.time.temporal.ChronoUnit.DAYS.between(booking.getCheckInDate(), booking.getCheckOutDate());
+            long nights = java.time.temporal.ChronoUnit.DAYS.between(booking.getCheckInDate(),
+                    booking.getCheckOutDate());
             java.util.Map<String, Object> payload = new java.util.HashMap<>();
             payload.put("booking_id", booking.getId());
             payload.put("stay_nights", nights);

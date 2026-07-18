@@ -394,12 +394,12 @@
                         </div>
                         <div class="space-y-2">
                             <label class="font-label-md text-on-surface-variant/70">Mô tả sự cố</label>
-                            <textarea
+                            <textarea id="incident-description"
                                 class="w-full bg-surface-container/30 border-none rounded-lg p-4 font-body-md text-on-surface placeholder-on-surface-variant/40 focus:ring-2 focus:ring-primary/20 transition-all outline-none min-h-[120px]"
                                 placeholder="Nhập chi tiết sự cố tại đây..."></textarea>
                         </div>
                         <div class="flex justify-end">
-                            <button
+                            <button onclick="submitIncidentReport()"
                                 class="px-8 py-3 rounded-full bg-primary text-white font-label-md text-label-md shadow-lg shadow-primary/20 hover:scale-[1.02] transition-all">
                                 Gửi báo cáo
                             </button>
@@ -648,11 +648,31 @@
 
 
 
-
-
-
-
-
+    <script>
+        function submitIncidentReport() {
+            const desc = document.getElementById('incident-description').value.trim();
+            if (!desc) {
+                alert('Vui lòng nhập mô tả sự cố.');
+                return;
+            }
+            fetch('/api/tour-incidents', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ description: desc })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Báo cáo sự cố đã được gửi thành công đến Ban Quản lý Resort HoaNien!');
+                    document.getElementById('incident-description').value = '';
+                } else {
+                    alert(data.message || 'Có lỗi xảy ra');
+                }
+            })
+            .catch(err => {
+                alert('Lỗi kết nối máy chủ.');
+            });
+        }
+    </script>
 </body>
-
 </html>
