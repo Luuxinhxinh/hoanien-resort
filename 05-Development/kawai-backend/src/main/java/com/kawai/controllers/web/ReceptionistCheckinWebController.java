@@ -58,13 +58,15 @@ public class ReceptionistCheckinWebController {
     }
 
     @PostMapping("/complete")
-    public String completeCheckin(@ModelAttribute CheckinSubmitFormDTO form, org.springframework.validation.BindingResult bindingResult, RedirectAttributes redirectAttributes) {
+    public String completeCheckin(@ModelAttribute CheckinSubmitFormDTO form,
+            org.springframework.validation.BindingResult bindingResult, RedirectAttributes redirectAttributes) {
         if (bindingResult.hasErrors()) {
             log.error("Lỗi binding dữ liệu form: {}", bindingResult.getAllErrors());
-            redirectAttributes.addFlashAttribute("errorMessage", "Dữ liệu nhập vào không hợp lệ. Vui lòng kiểm tra lại (đặc biệt là ngày tháng).");
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    "Dữ liệu nhập vào không hợp lệ. Vui lòng kiểm tra lại (đặc biệt là ngày tháng).");
             return "redirect:/receptionist/check-in";
         }
-        
+
         log.info("Bắt đầu xử lý Form Check-in bulk. BookingId: {}, Số phòng gán: {}, Số người đi kèm: {}",
                 form.getBookingId(),
                 form.getAssignedRoomNumbers() != null ? form.getAssignedRoomNumbers().size() : 0,
@@ -112,11 +114,11 @@ public class ReceptionistCheckinWebController {
                 if (form.getFaceImageBase64() != null && !form.getFaceImageBase64().isEmpty()) {
                     try {
                         // Upload trực tiếp chuỗi Data URI (Base64) lên Cloudinary
-                        java.util.Map<String, Object> uploadResult = cloudinary.uploader().upload(form.getFaceImageBase64(), 
+                        java.util.Map<String, Object> uploadResult = cloudinary.uploader().upload(
+                                form.getFaceImageBase64(),
                                 com.cloudinary.utils.ObjectUtils.asMap(
                                         "folder", "kawai_faces",
-                                        "public_id", "cust_" + customer.getId() + "_" + System.currentTimeMillis()
-                                ));
+                                        "public_id", "cust_" + customer.getId() + "_" + System.currentTimeMillis()));
                         String publicUrl = uploadResult.get("secure_url").toString();
                         customer.setFaceImgUrl(publicUrl);
                     } catch (Exception e) {
@@ -154,7 +156,8 @@ public class ReceptionistCheckinWebController {
             @org.springframework.web.bind.annotation.PathVariable Long dependentId,
             @org.springframework.web.bind.annotation.RequestParam(required = false) Long roomBookingDetailId) {
         try {
-            java.util.Map<String, Object> result = checkinService.upgradeDependentToCustomer(dependentId, roomBookingDetailId);
+            java.util.Map<String, Object> result = checkinService.upgradeDependentToCustomer(dependentId,
+                    roomBookingDetailId);
             com.kawai.models.Customer customer = (com.kawai.models.Customer) result.get("customer");
             String username = (String) result.get("username");
             String password = (String) result.get("password");

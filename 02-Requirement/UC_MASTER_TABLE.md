@@ -110,7 +110,7 @@
 | UC15.3          | Xử lý yêu cầu đổi phòng trong thời gian lưu trú    | `Receptionist` | P1          | ⚠️         |
 | **UC16**  | **Walk-in Guest Check-in**                             | `Receptionist` | P0          | ✅           |
 | **UC17**  | **Register Accompanying Guests**                       | `Receptionist` | P0          | ✅           |
-| **UC18**  | **Authorize Dependent Service Access**                 | `Receptionist` | P1          | ✅           |
+| **UC18**  | **Upgrade Dependent to Customer**                      | `Receptionist` | P1          | ✅           |
 | **UC19**  | **Change Room Category/Room Type**                     | `Receptionist` | P1          | ⚠️         |
 | **UC20**  | **Room Matrix / Dashboard Monitoring**                 | `Receptionist` | P0          | ✅           |
 | **UC21**  | **Request Emergency Cleaning (Rush Room Preparation)** | `Receptionist` | P1          | ⚠️         |

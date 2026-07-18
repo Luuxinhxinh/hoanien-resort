@@ -18,7 +18,7 @@ public class RoomCategory {
     @Column(name = "category_id")
     private Long id;
 
-    @Column(name = "category_name", nullable = false)
+    @Column(name = "category_name", unique = true, nullable = false)
     private String categoryName;
 
     @Column(name = "base_price", nullable = false)

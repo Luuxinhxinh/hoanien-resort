@@ -92,7 +92,8 @@ public class ReceptionistController {
                             if ("Maintenance".equalsIgnoreCase(t.getOperationalType())) {
                                 roomsWithMaintenance.add(t.getRoom().getId());
                             } else if ("URGENT_CLEAN".equalsIgnoreCase(t.getOperationalType()) ||
-                                      ("CHECKOUT_CLEAN".equalsIgnoreCase(t.getOperationalType()) && "Lễ tân báo dọn khẩn".equalsIgnoreCase(t.getPriority()))) {
+                                    ("CHECKOUT_CLEAN".equalsIgnoreCase(t.getOperationalType())
+                                            && "Lễ tân báo dọn khẩn".equalsIgnoreCase(t.getPriority()))) {
                                 roomsWithUrgentClean.add(t.getRoom().getId());
                             }
                         }
@@ -106,6 +107,52 @@ public class ReceptionistController {
                 m.put("hasUrgentClean", roomsWithUrgentClean.contains(r.getId()));
                 String catName = r.getCategory() != null ? r.getCategory().getCategoryName() : "Uncategorized";
                 m.put("category", catName);
+
+                m.put("bookingDetailId", "");
+                m.put("checkInDate", "");
+                m.put("checkOutDate", "");
+                m.put("guestName", "");
+                m.put("pax", "");
+
+                if ("Occupied".equalsIgnoreCase(r.getRoomStatus()) && r.getCurrentBookingDetailId() != null) {
+                    try {
+                        roomBookingDetailRepository.findById(r.getCurrentBookingDetailId()).ifPresent(detail -> {
+                            m.put("bookingDetailId", detail.getId());
+                            if (detail.getRoomBooking() != null) {
+                                m.put("checkInDate",
+                                        detail.getRoomBooking().getCheckInDate() != null
+                                                ? detail.getRoomBooking().getCheckInDate().toString()
+                                                : "N/A");
+                                m.put("checkOutDate",
+                                        detail.getRoomBooking().getCheckOutDate() != null
+                                                ? detail.getRoomBooking().getCheckOutDate().toString()
+                                                : "N/A");
+                            }
+                            // Lấy tên người đứng đầu phòng (isPrimaryContact = true)
+                            String name = null;
+                            com.kawai.models.RoomGuest head = roomGuestRepository
+                                    .findByRoomBookingDetailIdAndIsPrimaryContactTrue(detail.getId())
+                                    .orElse(null);
+                            if (head != null) {
+                                if (head.getCustomer() != null) {
+                                    name = head.getCustomer().getFullName(); // đã upgrade thành Customer
+                                } else if (head.getDependent() != null) {
+                                    name = head.getDependent().getDependentName(); // vẫn còn là Dependent
+                                }
+                            }
+                            if (name != null)
+                                m.put("guestName", name);
+                            m.put("pax",
+                                    (detail.getNumberOfAdults() != null ? detail.getNumberOfAdults() : 0) + " NL, "
+                                            + (detail.getNumberOfChildren() != null ? detail.getNumberOfChildren() : 0)
+                                            + " TE");
+                        });
+                    } catch (Exception ex) {
+                        System.err.println(
+                                "Error fetching details for room " + r.getRoomNumber() + ": " + ex.getMessage());
+                        ex.printStackTrace();
+                    }
+                }
 
                 categorizedRooms.computeIfAbsent(catName, k -> new ArrayList<>()).add(m);
             }
@@ -663,9 +710,10 @@ public class ReceptionistController {
                 allInHouseBookings.add(b);
             }
         }
-        
+
         // Sắp xếp đơn In-house mới nhất lên đầu (Id giảm dần)
-        allInHouseBookings.sort(java.util.Comparator.comparing(Booking::getId, java.util.Comparator.nullsLast(java.util.Comparator.reverseOrder())));
+        allInHouseBookings.sort(java.util.Comparator.comparing(Booking::getId,
+                java.util.Comparator.nullsLast(java.util.Comparator.reverseOrder())));
 
         int totalInHouseItems = allInHouseBookings.size();
         int totalInHousePages = (int) Math.ceil((double) totalInHouseItems / pageSize);
@@ -828,7 +876,6 @@ public class ReceptionistController {
         return "receptionist/folio-detail";
     }
 
-
     /**
      * Gửi yêu cầu dọn khẩn cấp cho phòng Vacant_Dirty.
      * Dùng chung cho cả WalkIn (walkin.js) và Check-in (checkin.js).
@@ -966,12 +1013,13 @@ public class ReceptionistController {
         }
         return org.springframework.http.ResponseEntity.ok(response);
     }
+
     /**
      * API xóa một slot RoomGuest (khách đi kèm) trước khi hoàn tất check-in.
      * Điều kiện:
-     *   - Slot không phải isPrimaryContact (không được xóa người đứng đầu).
-     *   - detailStatus của booking detail CHƯA phải "Checked_In" / "CHECKED_IN"
-     *     (tức là vẫn đang trong quá trình khai báo, chưa chốt).
+     * - Slot không phải isPrimaryContact (không được xóa người đứng đầu).
+     * - detailStatus của booking detail CHƯA phải "Checked_In" / "CHECKED_IN"
+     * (tức là vẫn đang trong quá trình khai báo, chưa chốt).
      */
     @DeleteMapping("/api/room-guests/by-dependent/{dependentId}")
     @ResponseBody
@@ -981,7 +1029,8 @@ public class ReceptionistController {
         com.kawai.models.RoomGuest guest = roomGuestRepository.findFirstByDependentId(dependentId).orElse(null);
         if (guest == null) {
             return org.springframework.http.ResponseEntity.status(404)
-                    .body(Map.of("status", "error", "message", "Không tìm thấy khách đi kèm với dependentId=" + dependentId));
+                    .body(Map.of("status", "error", "message",
+                            "Không tìm thấy khách đi kèm với dependentId=" + dependentId));
         }
         // Bảo vệ: không được xóa primary contact
         if (Boolean.TRUE.equals(guest.getIsPrimaryContact())) {
@@ -990,10 +1039,11 @@ public class ReceptionistController {
         }
         // Bảo vệ: không được xóa sau khi đã check-in xong
         String detailStatus = guest.getRoomBookingDetail() != null
-                ? guest.getRoomBookingDetail().getDetailStatus() : null;
+                ? guest.getRoomBookingDetail().getDetailStatus()
+                : null;
         if (detailStatus != null &&
                 (detailStatus.equalsIgnoreCase("Checked_In") ||
-                 detailStatus.equalsIgnoreCase("CHECKED_IN"))) {
+                        detailStatus.equalsIgnoreCase("CHECKED_IN"))) {
             return org.springframework.http.ResponseEntity.status(400)
                     .body(Map.of("status", "error", "message",
                             "Phòng đã check-in xong, không thể xóa khách."));

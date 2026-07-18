@@ -372,9 +372,9 @@
 
 ---
 
-### **UC18 — Authorize Dependent Service Access** ✅
+### **UC18 — **Upgrade Dependent to Customer**** ✅
 
-**Description:** Allows the Receptionist to grant independent service booking permissions to a registered dependent guest while ensuring all expenses remain linked to the Master Folio.
+**Description:** To manage payments and expenses independently, an accompanying guest must be registered as a Customer, assigned as the primary occupant of a room, and have a valid phone number or email address for OTP verification. They are then responsible for their own Food & Beverage and Tour charges.
 
 * **Actor:** Receptionist
 * **Service:** `DependentServiceImpl`

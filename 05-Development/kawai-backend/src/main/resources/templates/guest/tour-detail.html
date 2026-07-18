@@ -493,7 +493,8 @@
                         <div class="flex justify-between items-center pb-4 border-b border-brand-border/50">
                             <div class="flex flex-col">
                                 <span class="text-[10px] font-bold uppercase tracking-widest">Giá trọn gói</span>
-                                <span class="text-[8px] text-gray-400 mt-0.5">(Đã bao gồm bảo hiểm du lịch bắt buộc)</span>
+                                <span class="text-[8px] text-gray-400 mt-0.5">(Đã bao gồm bảo hiểm du lịch bắt
+                                    buộc)</span>
                             </div>
                             <span class="text-sm font-bold text-brand-gold" id="displayTotalPrice">1.200.000 VNĐ</span>
                         </div>
@@ -572,19 +573,22 @@
                     </div>
                     <div class="grid grid-cols-2 gap-10">
                         <div class="flex flex-col">
-                            <label class="text-[10px] font-bold uppercase tracking-widest mb-2 text-black">Số điện thoại</label>
+                            <label class="text-[10px] font-bold uppercase tracking-widest mb-2 text-black">Số điện
+                                thoại</label>
                             <input class="text-sm py-2" id="phone" th:value="${customerPhone}"
                                 placeholder="Nhập số điện thoại của bạn..." type="text">
                         </div>
                         <div class="flex flex-col">
-                            <label class="text-[10px] font-bold uppercase tracking-widest mb-2 text-black">Số CCCD / Hộ chiếu (Bắt buộc bảo hiểm)</label>
+                            <label class="text-[10px] font-bold uppercase tracking-widest mb-2 text-black">Số CCCD / Hộ
+                                chiếu (Bắt buộc bảo hiểm)</label>
                             <input class="text-sm py-2" id="cccdPassport" th:value="${customerCccd}"
                                 placeholder="Nhập số CCCD hoặc Passport..." type="text" required>
                         </div>
                     </div>
                     <div class="grid grid-cols-2 gap-10">
                         <div class="flex flex-col">
-                            <label class="text-[10px] font-bold uppercase tracking-widest mb-2 text-black">Ngày đi</label>
+                            <label class="text-[10px] font-bold uppercase tracking-widest mb-2 text-black">Ngày
+                                đi</label>
                             <input class="text-sm py-2" id="departureDate" type="date" value="2026-06-26"
                                 oninput="validateDepartureDate(this)">
                             <p class="text-[9px] font-bold text-red-500 uppercase tracking-widest mt-1 hidden"
@@ -667,8 +671,10 @@
                     </div>
 
                     <!-- Payment Options -->
-                    <div class="space-y-4 opacity-50 pointer-events-none transition-all duration-300" id="payment-options-group">
-                        <label class="text-[10px] font-bold uppercase tracking-widest mb-2 block text-black">Phương thức thanh toán</label>
+                    <div class="space-y-4 opacity-50 pointer-events-none transition-all duration-300"
+                        id="payment-options-group">
+                        <label class="text-[10px] font-bold uppercase tracking-widest mb-2 block text-black">Phương thức
+                            thanh toán</label>
                         <div class="payment-option border border-brand-border p-6 flex justify-between items-center"
                             onclick="showPaymentModal('deposit')">
                             <div>
@@ -708,16 +714,23 @@
                         <!-- Insurance Consent (hiện động qua JS khi tour bắt buộc bảo hiểm) -->
                         <div id="insurance-consent-container" class="flex items-start space-x-3 hidden">
                             <input class="mt-1 rounded border-amber-400 text-amber-700 focus:ring-amber-500"
-                                id="insuranceConsent" type="checkbox" onchange="updateTotalPrice(); validateConsentAndEnableButtons()">
-                            <label for="insuranceConsent" class="text-[10px] leading-relaxed text-amber-800 cursor-pointer">
-                                Tôi xác nhận đã đọc, hiểu và đồng ý với <button type="button" onclick="event.preventDefault(); event.stopPropagation(); openInsuranceDetailModal()" class="underline text-amber-900 hover:text-amber-950 font-semibold bg-transparent border-none p-0 inline cursor-pointer">điều khoản bảo hiểm du lịch bắt buộc</button> dành cho hành khách đã được bao gồm trong tổng chi phí tour.
+                                id="insuranceConsent" type="checkbox"
+                                onchange="updateTotalPrice(); validateConsentAndEnableButtons()">
+                            <label for="insuranceConsent"
+                                class="text-[10px] leading-relaxed text-amber-800 cursor-pointer">
+                                Tôi xác nhận đã đọc, hiểu và đồng ý với <button type="button"
+                                    onclick="event.preventDefault(); event.stopPropagation(); openInsuranceDetailModal()"
+                                    class="underline text-amber-900 hover:text-amber-950 font-semibold bg-transparent border-none p-0 inline cursor-pointer">điều
+                                    khoản bảo hiểm du lịch bắt buộc</button> dành cho hành khách đã được bao gồm trong
+                                tổng chi phí tour.
                             </label>
                         </div>
                         <div class="flex items-start space-x-3">
                             <input class="mt-1 rounded border-gray-300 text-brand-dark focus:ring-brand-dark"
                                 id="tourConsent" type="checkbox" onchange="validateConsentAndEnableButtons()">
                             <p class="text-[10px] leading-relaxed text-gray-500">
-                                Tôi đồng ý cung cấp thông tin cá nhân và hành trình để resort thực hiện dịch vụ đặt tour và
+                                Tôi đồng ý cung cấp thông tin cá nhân và hành trình để resort thực hiện dịch vụ đặt tour
+                                và
                                 mã hóa bảo mật thông tin.
                             </p>
                         </div>
@@ -831,15 +844,18 @@
                 <h3 class="text-2xl font-serif mb-8" id="modal-payment-title">Thanh toán</h3>
                 <div class="space-y-6 pt-2">
                     <div id="payment-methods-selector">
-                        <label class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2 block">Chọn phương
+                        <label class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2 block">Chọn
+                            phương
                             thức</label>
                         <div class="grid grid-cols-1 gap-3">
                             <div class="payment-method-toggle border border-brand-border p-4 flex flex-col cursor-pointer transition-all hover:border-brand-dark border-brand-dark"
                                 id="toggle-counter" onclick="selectPaymentMethod('counter')">
                                 <div class="flex items-center justify-between">
                                     <div class="flex items-center space-x-4">
-                                        <span class="material-symbols-outlined text-brand-dark text-lg">storefront</span>
-                                        <p class="text-[10px] font-bold uppercase tracking-wider">Thanh toán tại quầy</p>
+                                        <span
+                                            class="material-symbols-outlined text-brand-dark text-lg">storefront</span>
+                                        <p class="text-[10px] font-bold uppercase tracking-wider">Thanh toán tại quầy
+                                        </p>
                                     </div>
                                     <div
                                         class="method-radio w-4 h-4 rounded-full border border-brand-border flex items-center justify-center">
@@ -854,7 +870,8 @@
                                     <div class="flex items-center space-x-4">
                                         <span
                                             class="material-symbols-outlined text-brand-dark text-lg">account_balance_wallet</span>
-                                        <p class="text-[10px] font-bold uppercase tracking-wider">Thanh toán qua VNPay</p>
+                                        <p class="text-[10px] font-bold uppercase tracking-wider">Thanh toán qua VNPay
+                                        </p>
                                     </div>
                                     <div
                                         class="method-radio w-4 h-4 rounded-full border border-brand-border flex items-center justify-center">
@@ -929,21 +946,27 @@
                             <div class="flex items-center gap-3 px-5 py-3 bg-white border-b border-emerald-100">
                                 <span class="material-symbols-outlined text-emerald-600 text-xl">bedroom_parent</span>
                                 <div>
-                                    <p class="text-[10px] font-bold uppercase tracking-widest text-emerald-800">Thanh toán Gán phòng</p>
+                                    <p class="text-[10px] font-bold uppercase tracking-widest text-emerald-800">Thanh
+                                        toán Gán phòng</p>
                                     <p class="text-[9px] text-gray-400">Post to Room — Charge to Stay Folio</p>
                                 </div>
                             </div>
                             <div class="p-5 space-y-3">
                                 <div class="flex items-start gap-3">
-                                    <span class="material-symbols-outlined text-emerald-600 text-base mt-0.5">room_service</span>
+                                    <span
+                                        class="material-symbols-outlined text-emerald-600 text-base mt-0.5">room_service</span>
                                     <p class="text-[10px] text-gray-600 leading-relaxed">
-                                        Sau khi xác nhận đặt tour, chi phí dịch vụ sẽ được tự động ghi nhận trực tiếp vào hóa đơn phòng (Folio) của phòng đã chọn: 
-                                        <strong id="modal-post-room-numbers" class="text-emerald-850 font-bold">---</strong>.
+                                        Sau khi xác nhận đặt tour, chi phí dịch vụ sẽ được tự động ghi nhận trực tiếp
+                                        vào hóa đơn phòng (Folio) của phòng đã chọn:
+                                        <strong id="modal-post-room-numbers"
+                                            class="text-emerald-850 font-bold">---</strong>.
                                     </p>
                                 </div>
                                 <div class="flex items-start gap-3">
-                                    <span class="material-symbols-outlined text-emerald-600 text-base mt-0.5">check_circle</span>
-                                    <p class="text-[10px] text-gray-600 leading-relaxed">Bạn sẽ thực hiện thanh toán tổng hóa đơn này khi thực hiện thủ tục Check-out tại quầy lễ tân.</p>
+                                    <span
+                                        class="material-symbols-outlined text-emerald-600 text-base mt-0.5">check_circle</span>
+                                    <p class="text-[10px] text-gray-600 leading-relaxed">Bạn sẽ thực hiện thanh toán
+                                        tổng hóa đơn này khi thực hiện thủ tục Check-out tại quầy lễ tân.</p>
                                 </div>
                             </div>
                         </div>
@@ -988,38 +1011,55 @@
             <div class="space-y-6 text-xs text-gray-700 leading-relaxed overflow-y-auto">
                 <div class="p-4 bg-amber-50/50 border border-amber-200 rounded-sm text-amber-900">
                     <p class="font-bold mb-1">Căn cứ pháp lý: Điều 37 Luật Du lịch Việt Nam 2017</p>
-                    <p>Doanh nghiệp kinh doanh dịch vụ lữ hành có nghĩa vụ bắt buộc mua bảo hiểm cho khách du lịch trong suốt thời gian thực hiện chương trình du lịch.</p>
+                    <p>Doanh nghiệp kinh doanh dịch vụ lữ hành có nghĩa vụ bắt buộc mua bảo hiểm cho khách du lịch trong
+                        suốt thời gian thực hiện chương trình du lịch.</p>
                 </div>
                 <div>
-                    <h4 class="font-bold text-[10px] uppercase text-brand-dark tracking-wider mb-2">1. Thông tin đơn bảo hiểm</h4>
+                    <h4 class="font-bold text-[10px] uppercase text-brand-dark tracking-wider mb-2">1. Thông tin đơn bảo
+                        hiểm</h4>
                     <ul class="list-disc pl-5 space-y-1">
                         <li><strong>Nhà cung cấp đối tác:</strong> Tổng Công ty Bảo hiểm Bảo Việt.</li>
-                        <li><strong>Đối tượng được bảo hiểm:</strong> Toàn bộ hành khách có tên trong danh sách đăng ký tham gia tour và có thông tin định danh hợp lệ (CCCD/CMND/Passport).</li>
-                        <li><strong>Thời hạn bảo hiểm:</strong> Bắt đầu từ thời điểm đón khách khởi hành tour cho đến khi kết thúc hành trình và trả khách về resort an toàn.</li>
+                        <li><strong>Đối tượng được bảo hiểm:</strong> Toàn bộ hành khách có tên trong danh sách đăng ký
+                            tham gia tour và có thông tin định danh hợp lệ (CCCD/CMND/Passport).</li>
+                        <li><strong>Thời hạn bảo hiểm:</strong> Bắt đầu từ thời điểm đón khách khởi hành tour cho đến
+                            khi kết thúc hành trình và trả khách về resort an toàn.</li>
                     </ul>
                 </div>
                 <div>
-                    <h4 class="font-bold text-[10px] uppercase text-brand-dark tracking-wider mb-2">2. Quyền lợi và Hạn mức bồi thường</h4>
+                    <h4 class="font-bold text-[10px] uppercase text-brand-dark tracking-wider mb-2">2. Quyền lợi và Hạn
+                        mức bồi thường</h4>
                     <ul class="list-disc pl-5 space-y-1">
-                        <li><strong>Hạn mức trách nhiệm tối đa:</strong> <strong class="text-brand-gold">30.000.000 VNĐ / khách / vụ</strong>.</li>
-                        <li><strong>Phạm vi bảo hiểm:</strong> Các trường hợp tai nạn, thương tật thân thể hoặc tử vong phát sinh do sự cố khách quan trong suốt quá trình tham gia các hoạt động thuộc lịch trình tour du lịch.</li>
-                        <li><strong>Chi phí y tế:</strong> Chi trả các chi phí cấp cứu, điều trị nội trú, ngoại trú hợp lý phát sinh tại các cơ sở y tế hợp pháp.</li>
+                        <li><strong>Hạn mức trách nhiệm tối đa:</strong> <strong class="text-brand-gold">30.000.000 VNĐ
+                                / khách / vụ</strong>.</li>
+                        <li><strong>Phạm vi bảo hiểm:</strong> Các trường hợp tai nạn, thương tật thân thể hoặc tử vong
+                            phát sinh do sự cố khách quan trong suốt quá trình tham gia các hoạt động thuộc lịch trình
+                            tour du lịch.</li>
+                        <li><strong>Chi phí y tế:</strong> Chi trả các chi phí cấp cứu, điều trị nội trú, ngoại trú hợp
+                            lý phát sinh tại các cơ sở y tế hợp pháp.</li>
                     </ul>
                 </div>
                 <div>
-                    <h4 class="font-bold text-[10px] uppercase text-brand-dark tracking-wider mb-2">3. Các điều khoản loại trừ chính</h4>
+                    <h4 class="font-bold text-[10px] uppercase text-brand-dark tracking-wider mb-2">3. Các điều khoản
+                        loại trừ chính</h4>
                     <ul class="list-disc pl-5 space-y-1 text-gray-500">
-                        <li>Hành vi cố ý tự gây thương tích, tự tử hoặc vi phạm pháp luật hình sự của người được bảo hiểm.</li>
+                        <li>Hành vi cố ý tự gây thương tích, tự tử hoặc vi phạm pháp luật hình sự của người được bảo
+                            hiểm.</li>
                         <li>Ảnh hưởng của rượu, bia, ma túy hoặc chất kích thích bất hợp pháp khi tham gia tour.</li>
-                        <li>Các bệnh lý nền, bệnh mãn tính có sẵn của hành khách (không do tai nạn phát sinh trong tour).</li>
-                        <li>Khách hàng tự ý rời đoàn, tham gia các hoạt động nguy hiểm ngoài chương trình tour mà không có sự đồng ý của Hướng dẫn viên trưởng phụ trách.</li>
+                        <li>Các bệnh lý nền, bệnh mãn tính có sẵn của hành khách (không do tai nạn phát sinh trong
+                            tour).</li>
+                        <li>Khách hàng tự ý rời đoàn, tham gia các hoạt động nguy hiểm ngoài chương trình tour mà không
+                            có sự đồng ý của Hướng dẫn viên trưởng phụ trách.</li>
                     </ul>
                 </div>
                 <div class="pt-4 border-t border-brand-border">
-                    <p class="italic text-[10px] text-gray-500">Hòa Niên Retreat Resort cam kết thực hiện đầy đủ nghĩa vụ mua và khai báo danh tính của quý khách với công ty bảo hiểm đối tác. Chi phí bảo hiểm đã được tính trọn gói trong giá bán của tour, quý khách không phải đóng thêm bất kỳ phụ phí nào khác.</p>
+                    <p class="italic text-[10px] text-gray-500">Hòa Niên Retreat Resort cam kết thực hiện đầy đủ nghĩa
+                        vụ mua và khai báo danh tính của quý khách với công ty bảo hiểm đối tác. Chi phí bảo hiểm đã
+                        được tính trọn gói trong giá bán của tour, quý khách không phải đóng thêm bất kỳ phụ phí nào
+                        khác.</p>
                 </div>
             </div>
-            <button class="mt-8 w-full bg-brand-dark text-white py-4 text-[10px] font-bold uppercase tracking-widest hover:bg-brand-gold transition"
+            <button
+                class="mt-8 w-full bg-brand-dark text-white py-4 text-[10px] font-bold uppercase tracking-widest hover:bg-brand-gold transition"
                 onclick="closeModal()">Đã Hiểu & Đóng</button>
         </div>
     </div>
@@ -1897,7 +1937,7 @@
             // Hiển thị / ẩn checkbox bảo hiểm ở chân trang
             const dbTour = (typeof dbTours !== 'undefined') ? dbTours[currentTour] : null;
             const insuranceConsentContainer = document.getElementById('insurance-consent-container');
-            
+
             if (dbTour && dbTour.insuranceRequired) {
                 if (insuranceConsentContainer) insuranceConsentContainer.classList.remove('hidden');
             } else {
@@ -2199,7 +2239,7 @@
             const container = input.closest('.flex-col');
             const errorSpan = container.querySelector('.age-error-msg');
             const clearBtn = container.querySelector('.clear-age-btn');
-            
+
             // Show/hide clear button
             if (clearBtn) {
                 if (input.value.trim() !== '') {
@@ -2210,7 +2250,7 @@
             }
 
             if (!errorSpan) return;
-            
+
             if (input.value.trim() === '') {
                 errorSpan.classList.add('hidden');
                 input.classList.remove('border-red-500');
@@ -2445,10 +2485,10 @@
                 if (postRoomDetails) postRoomDetails.classList.add('expanded');
                 if (branchDetails) branchDetails.classList.remove('expanded');
                 if (vnpayDetails) vnpayDetails.classList.remove('expanded');
-                
+
                 currentPaymentMethod = 'post-room';
                 if (confirmBtn) confirmBtn.innerText = 'XÁC NHẬN GÁN PHÒNG';
-                
+
                 const roomNumbersText = selectedRooms.map(r => `Phòng ${r.roomNumber}`).join(', ');
                 const roomNumEl = document.getElementById('modal-post-room-numbers');
                 if (roomNumEl) {
@@ -2459,7 +2499,7 @@
                 if (labelEl) labelEl.innerText = (type === 'deposit') ? 'Số tiền thanh toán (Cọc 30%)' : 'Số tiền thanh toán (Toàn bộ)';
                 if (methodsSelector) methodsSelector.classList.remove('hidden');
                 if (postRoomDetails) postRoomDetails.classList.remove('expanded');
-                
+
                 selectPaymentMethod('counter');
             }
 
@@ -2655,7 +2695,7 @@
                     alert('Vui lòng chọn ít nhất 1 phòng để gán tour.');
                     return;
                 }
-                
+
                 const mainAdults = parseInt(document.getElementById('num-adults').value) || 1;
                 const mainChildren = parseInt(document.getElementById('num-children').value) || 0;
                 const totalSelectedAdults = selectedRooms.reduce((sum, r) => sum + (r.adults || 0), 0);
@@ -2821,7 +2861,7 @@
             }
 
             // Validate Phone Number
-            const phoneRegex = /^(0[35789])[0-9]{8}$/;
+            const phoneRegex = /^((0|\+84)[35789])[0-9]{8}$/;
             if (!phoneRegex.test(phone)) {
                 showWarningAlertPopup(
                     lang === 'vi' ? 'Số điện thoại không hợp lệ' : 'Invalid Phone',
@@ -2950,7 +2990,7 @@
                             companionPhone = '0' + companionPhone.substring(2);
                         }
                         if (companionPhone !== '' && companionPhone !== 'SĐT(nếucó)') {
-                            const companionPhoneRegex = /^(0[35789])[0-9]{8}$/;
+                            const companionPhoneRegex = /^((0|\+84)[35789])[0-9]{8}$/;
                             if (!companionPhoneRegex.test(companionPhone)) {
                                 showWarningAlertPopup(
                                     lang === 'vi' ? 'Số điện thoại không hợp lệ' : 'Invalid Companion Phone',
@@ -3157,7 +3197,7 @@
                             }
                             return;
                         }
-                        
+
                         const childNameRegex = /^[\p{L}]+(?:\s+[\p{L}]+)+$/u;
                         if (!childNameRegex.test(childName)) {
                             showWarningAlertPopup(

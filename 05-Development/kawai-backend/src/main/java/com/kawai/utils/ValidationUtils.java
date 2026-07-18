@@ -3,14 +3,15 @@ package com.kawai.utils;
 public class ValidationUtils {
 
     /**
-     * Validate Phone Number: Must be exactly 10 digits and start with '0'.
+     * Validate Phone Number: Must start with '0' or '+84' and followed by valid VN
+     * mobile prefix (3,5,7,8,9).
      */
     public static boolean isValidPhone(String phone) {
         if (phone == null || phone.trim().isEmpty()) {
             return false;
         }
         String cleanPhone = phone.trim();
-        return cleanPhone.matches("^0\\d{9}$");
+        return cleanPhone.matches("^(0|\\+84)[35789]\\d{8}$");
     }
 
     /**

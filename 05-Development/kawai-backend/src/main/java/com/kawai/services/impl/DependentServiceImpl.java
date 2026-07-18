@@ -46,10 +46,10 @@ import java.util.Set;
  * ADR-002 : Kiểm tra trùng lặp theo booking_id + cccd_encrypted
  *
  * Error Codes:
- * MOD2-003 : Booking not found (404)
- * MOD2-015 : Reservation is not active (400)
- * MOD2-016 : Duplicate guest registration (409)
- * MOD2-017 : Invalid identification document (422)
+ * RC-DEP-003 : Booking not found (404)
+ * RC-DEP-015 : Reservation is not active (400)
+ * RC-DEP-016 : Duplicate guest registration (409)
+ * RC-DEP-017 : Invalid identification document (422)
  */
 @Service
 public class DependentServiceImpl implements DependentService {
@@ -57,7 +57,6 @@ public class DependentServiceImpl implements DependentService {
     private static final Logger log = LoggerFactory.getLogger(DependentServiceImpl.class);
 
     // ── Business Constants ──────────────────────────────────────────────────
-    /** Trạng thái booking được phép thêm dependent (Invariant §6.5 EDS). */
     private static final Set<String> ACTIVE_BOOKING_STATUSES = Set.of("Confirmed", "Checked_In");
     private static final int ADULT_AGE_THRESHOLD = 18;
     private static final String STATUS_REGISTERED = "REGISTERED";
@@ -184,27 +183,27 @@ public class DependentServiceImpl implements DependentService {
             return; // CCCD is optional for dependents (e.g. children)
         }
         if (!com.kawai.utils.ValidationUtils.isValidDocument(cccd)) {
-            throw new BusinessException("MOD2-017",
-                    "Invalid identification document: Must be a 12-digit CCCD or a valid Passport [MOD2-017]");
+            throw new BusinessException("RC-DEP-017",
+                    "Giấy tờ tùy thân không hợp lệ: CCCD phải gồm 12 chữ số hoặc Hộ chiếu hợp lệ.");
         }
     }
 
     /** Validate ngày sinh không được ở tương lai. */
     private void validateDateOfBirthNotFuture(LocalDate dateOfBirth) {
         if (dateOfBirth != null && dateOfBirth.isAfter(LocalDate.now())) {
-            throw new BusinessException("MOD2-001",
-                    "Invalid Date of Birth: Cannot be in the future [MOD2-001]");
+            throw new BusinessException("RC-DEP-001",
+                    "Ngày sinh không hợp lệ: không được là ngày trong tương lai.");
         }
     }
 
     /** Lấy RoomBooking theo ID hoặc ném MOD2-003. */
     private RoomBooking findBookingOrThrow(Long bookingId) {
         com.kawai.models.Booking booking = bookingRepository.findById(bookingId)
-                .orElseThrow(() -> new BusinessException("MOD2-003",
-                        "Booking not found with ID: " + bookingId + " [MOD2-003]"));
+                .orElseThrow(() -> new BusinessException("RC-DEP-003",
+                        "Không tìm thấy đặt phòng với ID: " + bookingId));
         if (!(booking instanceof RoomBooking)) {
-            throw new BusinessException("MOD2-003",
-                    "Booking ID " + bookingId + " is not a Room Booking [MOD2-003]");
+            throw new BusinessException("RC-DEP-003",
+                    "Đặt phòng ID " + bookingId + " không phải là đặt phòng lưu trú (Room Booking).");
         }
         return (RoomBooking) booking;
     }
@@ -215,9 +214,9 @@ public class DependentServiceImpl implements DependentService {
      */
     private void assertBookingIsActive(RoomBooking booking) {
         if (!ACTIVE_BOOKING_STATUSES.contains(booking.getBookingStatus())) {
-            throw new BusinessException("MOD2-015",
-                    "Reservation is not active (must be Confirmed or Checked_In). " +
-                            "Current status: " + booking.getBookingStatus() + " [MOD2-015]");
+            throw new BusinessException("RC-DEP-015",
+                    "Đặt phòng không ở trạng thái hoạt động (phải là Confirmed hoặc Checked_In). " +
+                            "Trạng thái hiện tại: " + booking.getBookingStatus());
         }
     }
 
@@ -233,7 +232,7 @@ public class DependentServiceImpl implements DependentService {
             return com.kawai.utils.EncryptionUtils.encrypt(cccd);
         } catch (Exception e) {
             log.error("[UC16] AES-256 encryption failed for dependent registration: {}", e.getMessage());
-            throw new BusinessException("MOD2-005", "Internal error during CCCD encryption [MOD2-005]");
+            throw new BusinessException("RC-DEP-005", "Lỗi hệ thống nội bộ trong quá trình mã hóa CCCD.");
         }
     }
 
@@ -255,8 +254,8 @@ public class DependentServiceImpl implements DependentService {
 
         // Check 1: trùng với dependent khác trong cùng booking
         if (dependentRepository.countDuplicateInBooking(bookingId, cccdEncrypted) > 0) {
-            throw new BusinessException("MOD2-016",
-                    "Căn cước bị trùng với người khác trong cùng một đơn đặt phòng [MOD2-016]");
+            throw new BusinessException("RC-DEP-016",
+                    "Căn cước bị trùng với người khác trong cùng một đơn đặt phòng.");
         }
 
         // Check 2: trùng với CCCD của customer đứng đầu booking
@@ -264,8 +263,8 @@ public class DependentServiceImpl implements DependentService {
                 ? booking.getCustomer().getCccdPassportEncrypted()
                 : null;
         if (customerCccd != null && customerCccd.equals(cccdEncrypted)) {
-            throw new BusinessException("MOD2-016",
-                    "Căn cước bị trùng với người đặt phòng chính trong cùng một đơn đặt phòng [MOD2-016]");
+            throw new BusinessException("RC-DEP-016",
+                    "Căn cước bị trùng với người đặt phòng chính trong cùng một đơn đặt phòng.");
         }
     }
 
@@ -292,8 +291,8 @@ public class DependentServiceImpl implements DependentService {
     /** Load Dependent đã tồn tại để cập nhật. */
     private Dependent loadExistingDependent(Long dependentId) {
         return dependentRepository.findById(dependentId)
-                .orElseThrow(() -> new BusinessException("MOD2-018",
-                        "Dependent not found with ID: " + dependentId));
+                .orElseThrow(() -> new BusinessException("RC-DEP-018",
+                        "Không tìm thấy khách đi kèm với ID: " + dependentId));
     }
 
     private void populateDependentFields(Dependent dependent, DependentRegistrationDTO dto, String cccdEncrypted) {
@@ -348,7 +347,8 @@ public class DependentServiceImpl implements DependentService {
     private void linkGuestToRoomDetail(Dependent saved, DependentRegistrationDTO dto,
             RoomBooking booking, LocalDate oldBirthDate) {
         RoomBookingDetail detail = roomBookingDetailRepository.findById(dto.getRoomBookingDetailId())
-                .orElseThrow(() -> new BusinessException("MOD2-019", "RoomBookingDetail not found"));
+                .orElseThrow(
+                        () -> new BusinessException("RC-DEP-019", "Không tìm thấy chi tiết đặt phòng theo ID phòng."));
 
         int age = calculateAge(saved.getBirthDate());
         boolean isAdultNow = age >= ADULT_AGE_THRESHOLD;
@@ -432,7 +432,7 @@ public class DependentServiceImpl implements DependentService {
         if (isAdult) {
             long newAdultsCount = checkedInAdults + 1;
             if (newAdultsCount > maxAdults) {
-                throw new BusinessException("MOD2-020",
+                throw new BusinessException("RC-DEP-020",
                         "Số lượng khách vượt quá sức chứa tối đa của phòng. Tối đa: " + maxAdults + " người lớn.");
             }
             if (newAdultsCount > paidAdults) {
@@ -444,7 +444,7 @@ public class DependentServiceImpl implements DependentService {
         } else {
             long newChildrenCount = checkedInChildren + 1;
             if (newChildrenCount > maxChildren) {
-                throw new BusinessException("MOD2-021",
+                throw new BusinessException("RC-DEP-021",
                         "Số lượng khách vượt quá sức chứa tối đa của phòng. Tối đa: " + maxChildren + " trẻ em.");
             }
             if (newChildrenCount > paidChildren) {
