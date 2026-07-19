@@ -107,14 +107,6 @@
                     <div class="date" id="currentDate" th:text="${todayLabel}">Wednesday, June 10, 2026</div>
                 </div>
 
-                <div class="header-search">
-                    <form action="/receptionist/check-in" method="get">
-                        <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                        <input type="text" name="keyword" th:value="${param.keyword}"
-                            placeholder="Search guest, room no., phone" style="border-radius: 20px;" />
-                    </form>
-                </div>
-
                 <div class="header-actions">
                     <button class="user-profile-btn">
                         <i class="fa-solid fa-user"></i>

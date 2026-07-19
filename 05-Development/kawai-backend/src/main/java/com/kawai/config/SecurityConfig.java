@@ -77,7 +77,7 @@ public class SecurityConfig {
                                 "/f&bStaff/css/**", "/f&bStaff/js/**", "/f&bStaff/images/**",
                                 "/fbStaff/css/**", "/fbStaff/js/**", "/fbStaff/images/**",
                                 "/living", "/wellbeing", "/dining",
-                                "/experiences", "/tours", "/tours/**", "/order-food", "/AnhTour/**",
+                                "/tours", "/tours/**", "/order-food", "/AnhTour/**",
                                 "/api/faceid/**", "/error",
                                 "/api/v1/payments/vnpay-return", "/api/v1/payments/vnpay-ipn",
                                 "/api/v1/payments/food-order/**", "/book-table", "/receptionist/remote-scan", "/api/v1/remote-scan/**",
