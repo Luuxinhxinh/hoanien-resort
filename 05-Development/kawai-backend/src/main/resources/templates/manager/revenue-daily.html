@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 
 <head>
@@ -192,7 +192,7 @@
                             </svg></div>
                     </div>
                     <div class="mgr-kpi-bottom"><span class="mgr-kpi-value" th:text="${totalMonth}">1.84 Tỷ</span><span
-                            class="mgr-kpi-note">Tháng 6/2026</span></div>
+                            class="mgr-kpi-note" th:text="${currentMonthLabel}">Tháng 6/2026</span></div>
                 </div>
                 <div class="mgr-kpi-card">
                     <div class="mgr-kpi-top"><span class="mgr-kpi-label">Ngày cao nhất</span>
@@ -202,7 +202,7 @@
                                 <path d="M16 7h6v6" />
                             </svg></div>
                     </div>
-                    <div class="mgr-kpi-bottom"><span class="mgr-kpi-value">508M</span><span class="mgr-kpi-note">Ngày
+                    <div class="mgr-kpi-bottom"><span class="mgr-kpi-value" th:text="${peakRevenue}">508M</span><span class="mgr-kpi-note" th:text="${peakRevenueDate}">Ngày
                             08/06/2026</span></div>
                 </div>
             </div>
@@ -212,7 +212,7 @@
                 <div class="mgr-chart-header">
                     <div>
                         <div class="mgr-chart-title">Biểu đồ doanh thu theo ngày</div>
-                        <div class="mgr-chart-subtitle">9 ngày gần nhất · Đơn vị: triệu VNĐ</div>
+                        <div class="mgr-chart-subtitle">7 ngày gần nhất · Đơn vị: triệu VNĐ</div>
                     </div>
                     <div class="mgr-legend">
                         <div class="mgr-legend-item">

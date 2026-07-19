@@ -27,12 +27,11 @@ public class RoomBookingCleanupTask {
         this.roomBookingDetailRepository = roomBookingDetailRepository;
     }
 
-    // Chạy vào 00:01 mỗi ngày
-    @Scheduled(cron = "0 1 0 * * ?")
+    // Quản lý qua DynamicJobManager
     @Transactional
     public void cleanupNoShowRoomBookings() {
         LocalDate today = LocalDate.now();
-        
+
         // 1. Confirmed bookings past check-in -> No-Show
         List<RoomBooking> confirmedExpired = roomBookingRepository.findByBookingStatusAndCheckInDateBefore("Confirmed", today);
         if (!confirmedExpired.isEmpty()) {
@@ -40,7 +39,7 @@ public class RoomBookingCleanupTask {
             for (RoomBooking rb : confirmedExpired) {
                 rb.setBookingStatus("No-Show");
                 roomBookingRepository.save(rb);
-                
+
                 List<RoomBookingDetail> details = roomBookingDetailRepository.findByRoomBookingId(rb.getId());
                 for (RoomBookingDetail d : details) {
                     d.setDetailStatus("No-Show");
@@ -56,7 +55,7 @@ public class RoomBookingCleanupTask {
             for (RoomBooking rb : pendingExpired) {
                 rb.setBookingStatus("Cancelled");
                 roomBookingRepository.save(rb);
-                
+
                 List<RoomBookingDetail> details = roomBookingDetailRepository.findByRoomBookingId(rb.getId());
                 for (RoomBookingDetail d : details) {
                     d.setDetailStatus("Cancelled");
@@ -72,7 +71,7 @@ public class RoomBookingCleanupTask {
             for (RoomBooking rb : pendingAppExpired) {
                 rb.setBookingStatus("Cancelled");
                 roomBookingRepository.save(rb);
-                
+
                 List<RoomBookingDetail> details = roomBookingDetailRepository.findByRoomBookingId(rb.getId());
                 for (RoomBookingDetail d : details) {
                     d.setDetailStatus("Cancelled");

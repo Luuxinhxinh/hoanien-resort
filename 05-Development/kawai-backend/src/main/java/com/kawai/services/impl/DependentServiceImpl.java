@@ -59,7 +59,7 @@ public class DependentServiceImpl implements DependentService {
     // ── Business Constants ──────────────────────────────────────────────────
     /** Trạng thái booking được phép thêm dependent (Invariant §6.5 EDS). */
     private static final Set<String> ACTIVE_BOOKING_STATUSES = Set.of("Confirmed", "Checked_In");
-    private static final int ADULT_AGE_THRESHOLD = 18;
+    private static final int ADULT_AGE_THRESHOLD = 12;
     private static final String STATUS_REGISTERED = "REGISTERED";
     private static final String DEFAULT_DEPENDENT_NAME = "Khách đi kèm";
     private static final String DEFAULT_GENDER = "Khác";
@@ -126,10 +126,11 @@ public class DependentServiceImpl implements DependentService {
 
         // Step 6: Duplicate check (ADR-002)
         if (isNewRegistration(dto)) {
-            assertNoDuplicateCccd(bookingId, cccdEncrypted);
+            assertNoDuplicateCccd(bookingId, booking, cccdEncrypted);
         }
 
-        // Lưu lại ngày sinh CŨ TRƯỚC KHI ghi đè — dùng để hoàn phụ thu trẻ em nếu bị nâng cấp lên ADULT
+        // Lưu lại ngày sinh CŨ TRƯỚC KHI ghi đè — dùng để hoàn phụ thu trẻ em nếu bị
+        // nâng cấp lên ADULT
         LocalDate oldBirthDate = null;
         if (!isNewRegistration(dto)) {
             oldBirthDate = dependentRepository.findById(dto.getDependentId())
@@ -163,7 +164,8 @@ public class DependentServiceImpl implements DependentService {
             List<RoomGuest> guests = roomGuestRepository.findByRoomBookingDetailId(detail.getId());
             for (RoomGuest guest : guests) {
                 // Bỏ qua Chủ đơn (Customer) vì đã hiển thị ở phần thông tin chung.
-                // Các Customer khác (ví dụ: người đi cùng đã được nâng cấp lên Customer) vẫn được lấy để hiển thị.
+                // Các Customer khác (ví dụ: người đi cùng đã được nâng cấp lên Customer) vẫn
+                // được lấy để hiển thị.
                 if (guest.getCustomer() != null && guest.getCustomer().getId().equals(booking.getCustomer().getId())) {
                     continue;
                 }
@@ -240,11 +242,30 @@ public class DependentServiceImpl implements DependentService {
         return dto.getDependentId() == null;
     }
 
-    /** Kiểm tra không có CCCD trùng trong cùng booking. (ADR-002, MOD2-016) */
-    private void assertNoDuplicateCccd(Long bookingId, String cccdEncrypted) {
-        if (cccdEncrypted != null && dependentRepository.countDuplicateInBooking(bookingId, cccdEncrypted) > 0) {
+    /**
+     * Kiểm tra không có CCCD trùng trong cùng booking. (ADR-002, MOD2-016)
+     *
+     * Phạm vi check (trong 1 đơn booking):
+     * 1. Dependent khác đã được link vào booking này (qua RoomGuest)
+     * 2. Customer đứng đầu booking
+     */
+    private void assertNoDuplicateCccd(Long bookingId, RoomBooking booking, String cccdEncrypted) {
+        if (cccdEncrypted == null)
+            return;
+
+        // Check 1: trùng với dependent khác trong cùng booking
+        if (dependentRepository.countDuplicateInBooking(bookingId, cccdEncrypted) > 0) {
             throw new BusinessException("MOD2-016",
                     "Căn cước bị trùng với người khác trong cùng một đơn đặt phòng [MOD2-016]");
+        }
+
+        // Check 2: trùng với CCCD của customer đứng đầu booking
+        String customerCccd = booking.getCustomer() != null
+                ? booking.getCustomer().getCccdPassportEncrypted()
+                : null;
+        if (customerCccd != null && customerCccd.equals(cccdEncrypted)) {
+            throw new BusinessException("MOD2-016",
+                    "Căn cước bị trùng với người đặt phòng chính trong cùng một đơn đặt phòng [MOD2-016]");
         }
     }
 
@@ -299,11 +320,10 @@ public class DependentServiceImpl implements DependentService {
             return;
         try {
             // Upload trực tiếp chuỗi Data URI (Base64) lên Cloudinary
-            java.util.Map<String, Object> uploadResult = cloudinary.uploader().upload(faceImageBase64, 
+            java.util.Map<String, Object> uploadResult = cloudinary.uploader().upload(faceImageBase64,
                     com.cloudinary.utils.ObjectUtils.asMap(
                             "folder", "kawai_faces",
-                            "public_id", "dep_" + saved.getId() + "_" + System.currentTimeMillis()
-                    ));
+                            "public_id", "dep_" + saved.getId() + "_" + System.currentTimeMillis()));
             String publicUrl = uploadResult.get("secure_url").toString();
             saved.setFaceImgUrl(publicUrl);
             dependentRepository.save(saved);
@@ -317,10 +337,13 @@ public class DependentServiceImpl implements DependentService {
     // ══════════════════════════════════════════════════════════════════════
 
     /**
-     * Liên kết Dependent vào RoomBookingDetail và tính phụ thu theo độ tuổi nếu cần.
+     * Liên kết Dependent vào RoomBookingDetail và tính phụ thu theo độ tuổi nếu
+     * cần.
      *
-     * @param oldBirthDate Ngày sinh CŨ của Dependent (trước khi bị ghi đè), dùng để hoàn phụ thu
-     *                     trẻ em khi nâng cấp CHILD → ADULT. Null nếu đây là đăng ký mới.
+     * @param oldBirthDate Ngày sinh CŨ của Dependent (trước khi bị ghi đè), dùng để
+     *                     hoàn phụ thu
+     *                     trẻ em khi nâng cấp CHILD → ADULT. Null nếu đây là đăng
+     *                     ký mới.
      */
     private void linkGuestToRoomDetail(Dependent saved, DependentRegistrationDTO dto,
             RoomBooking booking, LocalDate oldBirthDate) {
@@ -356,11 +379,13 @@ public class DependentServiceImpl implements DependentService {
                         booking.setTotalPrice(booking.getTotalPrice().subtract(oldChildFee));
                         bookingRepository.save(booking);
                         roomBookingDetailRepository.save(detail);
-                        log.info("[UC16-UPGRADE] Reversed CHILD surcharge {} VND for dep={}", oldChildFee, saved.getId());
+                        log.info("[UC16-UPGRADE] Reversed CHILD surcharge {} VND for dep={}", oldChildFee,
+                                saved.getId());
                     }
 
                     // Bước 2: Tính phụ thu người lớn mới (chỉ tính phần vượt quá quota paidAdults)
-                    BigDecimal newAdultFee = applyGuestCountAndCalculateSurcharge(detail, booking, age, detail.getCategory());
+                    BigDecimal newAdultFee = applyGuestCountAndCalculateSurcharge(detail, booking, age,
+                            detail.getCategory());
                     persistDetailAndBookingIfSurcharge(detail, booking, newAdultFee, saved.getId());
 
                     log.info("[UC16-UPGRADE] CHILD→ADULT upgrade: dep={}, netFee={}",
@@ -408,10 +433,11 @@ public class DependentServiceImpl implements DependentService {
             long newAdultsCount = checkedInAdults + 1;
             if (newAdultsCount > maxAdults) {
                 throw new BusinessException("MOD2-020",
-                        "Number of guests exceeds maximum room capacity. Max adults: " + maxAdults);
+                        "Số lượng khách vượt quá sức chứa tối đa của phòng. Tối đa: " + maxAdults + " người lớn.");
             }
+            int baseAdults = category.getBaseAdults() != null ? category.getBaseAdults() : 2;
             if (newAdultsCount > paidAdults) {
-                if (category.getExtraAdultSurcharge() != null) {
+                if (newAdultsCount > baseAdults && category.getExtraAdultSurcharge() != null) {
                     extraFee = category.getExtraAdultSurcharge();
                 }
                 detail.setNumberOfAdults((int) newAdultsCount);
@@ -420,11 +446,14 @@ public class DependentServiceImpl implements DependentService {
             long newChildrenCount = checkedInChildren + 1;
             if (newChildrenCount > maxChildren) {
                 throw new BusinessException("MOD2-021",
-                        "Number of guests exceeds maximum room capacity. Max children: " + maxChildren);
+                        "Số lượng khách vượt quá sức chứa tối đa của phòng. Tối đa: " + maxChildren + " trẻ em.");
             }
+            int baseChildren = category.getBaseChildren() != null ? category.getBaseChildren() : 0;
             if (newChildrenCount > paidChildren) {
-                Optional<RoomSurcharge> surchargeOpt = roomSurchargeRepository.findSurchargeForAge(category, age);
-                extraFee = surchargeOpt.map(RoomSurcharge::getPriceModifier).orElse(BigDecimal.ZERO);
+                if (newChildrenCount > baseChildren) {
+                    Optional<RoomSurcharge> surchargeOpt = roomSurchargeRepository.findSurchargeForAge(category, age);
+                    extraFee = surchargeOpt.map(RoomSurcharge::getPriceModifier).orElse(BigDecimal.ZERO);
+                }
                 detail.setNumberOfChildren((int) newChildrenCount);
             }
         }
@@ -455,7 +484,7 @@ public class DependentServiceImpl implements DependentService {
             booking.setTotalPrice(booking.getTotalPrice().add(extraFee));
             bookingRepository.save(booking);
 
-            log.info("[UC16] Extra surcharge applied: {} VND for dependent {} in detail {}",
+            log.info("Extra surcharge applied: {} VND for dependent {} in detail {}",
                     extraFee, dependentId, detail.getId());
         }
         roomBookingDetailRepository.save(detail);
@@ -495,7 +524,7 @@ public class DependentServiceImpl implements DependentService {
     private DependentResponseDTO mapGuestToResponseDTO(RoomGuest guest, RoomBookingDetail detail) {
         DependentResponseDTO dto = new DependentResponseDTO();
         dto.setRoomBookingDetailId(detail.getId());
-        
+
         if (guest.getDependent() != null) {
             dto.setDependentId(guest.getDependent().getId());
             dto.setFullName(guest.getDependent().getDependentName());

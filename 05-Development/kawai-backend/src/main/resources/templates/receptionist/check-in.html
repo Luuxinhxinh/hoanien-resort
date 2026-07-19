@@ -44,6 +44,7 @@
                         <span class="nav-main-text">Room Matrix</span>
                         <span class="nav-sub-text">Sơ đồ phòng</span>
                     </div>
+                    <i class="fa-solid fa-chevron-right nav-arrow"></i>
                 </a>
 
                 <a href="/receptionist/walk-in" class="nav-item"
@@ -857,8 +858,13 @@
 
             try {
                 var pending = JSON.parse(localStorage.getItem('kawai_notifs') || '[]');
-                pending.forEach(function (n) { showPersistentToast(n); });
-            } catch (e) { }
+                pending = pending.filter(function(n) {
+                    var t = n.text || '';
+                    return !t.includes('khẩn cấp') && !t.includes('Yêu cầu dọn') && !t.includes('Yêu cầu sửa');
+                });
+                localStorage.setItem('kawai_notifs', JSON.stringify(pending));
+                pending.forEach(function(n) { showPersistentToast(n); });
+            } catch(e) {}
 
             function saveAndShow(text, direct) {
                 var notif = { id: Date.now() + '_' + Math.random(), text: text, direct: direct };
@@ -887,6 +893,7 @@
                         try {
                             var payload = JSON.parse(msg.body);
                             console.log('[WS] Nhận tin nhắn từ kênh Chung (/topic/operations):', payload);
+                            if (payload.type === 'NEW_TASK') return;
                             saveAndShow('📢 THÔNG BÁO HỆ THỐNG: \n ' + payload.message, false);
                         } catch (e) { console.error('[WS] parse error', e); }
                     });

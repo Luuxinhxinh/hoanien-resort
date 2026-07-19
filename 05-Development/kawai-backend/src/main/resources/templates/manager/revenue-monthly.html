@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 
 <head>
@@ -189,8 +189,7 @@
                                 <line x1="3" x2="21" y1="10" y2="10" />
                             </svg></div>
                     </div>
-                    <div class="mgr-kpi-bottom"><span class="mgr-kpi-value">6</span><span class="mgr-kpi-note">T1 – T6
-                            năm 2026</span></div>
+                    <div class="mgr-kpi-bottom"><span class="mgr-kpi-value" th:text="${rows.size()}">12</span><span class="mgr-kpi-note" th:text="'T1 – T' + ${rows.size()} + ' năm ' + ${nowYear}">T1 – T12 năm 2026</span></div>
                 </div>
             </div>
 

@@ -1029,7 +1029,7 @@
                     </div>
 
                     <!-- BILL SUMMARY -->
-                    <div class="folio-right" style="width: 380px;">
+                    <div class="folio-right" style="width: 100%;">
                         <!-- HÓA ĐƠN GỐC -->
                         <div class="bill-summary-card" id="originalBillCard">
                             <h3 id="billTitle" style="text-align: center;">Hóa đơn chính</h3>
@@ -1515,14 +1515,15 @@
 
             const parsedItems = [];
             const minibarPrices = {
-                'nước suối evian': 40000,
-                'coca cola': 45000,
-                'bia heineken': 80000,
+                'nước suối evian': 50000,
+                'nước khoáng evian': 50000,
+                'coca cola': 30000,
+                'bia heineken': 50000,
                 'nước suối': 15000,
                 'pepsi': 25000,
                 'bia tiger': 40000,
                 'bia 333': 30000,
-                'snack khoai tây': 35000,
+                'snack khoai tây': 40000,
                 'khăn lạnh': 10000
             };
 
@@ -2717,6 +2718,27 @@
                     }
                 }
 
+                // Check if minibar and parse for print layout
+                const minibarItems = parseMinibarDescription(item.description, item.amount);
+                if (minibarItems) {
+                    const itemDate = (item.createdAt) ? formatDateStr(item.createdAt.substring(0, 10)) : new Date().toLocaleDateString('vi-VN');
+                    groupedItems.push({
+                        description: `MINIBAR CHARGES`,
+                        qty: "",
+                        unitVal: "",
+                        amount: Number(item.amount),
+                        itemDate: itemDate,
+                        isParentMinibar: true,
+                        children: minibarItems.map(mi => ({
+                            description: `- ${mi.name}`,
+                            qty: mi.qty,
+                            unitVal: mi.price,
+                            amount: mi.amount
+                        }))
+                    });
+                    return; // Done with Minibar
+                }
+
                 // For normal items (Room, Tour, Minibar, etc.)
                 const qty = isRoom ? Number(nights) : 1;
                 const unitVal = isRoom ? (Number(item.amount) / Number(nights)) : Number(item.amount);
@@ -2754,7 +2776,7 @@
                     lastDateStr = g.itemDate;
                 }
 
-                if (g.isParentFnb || g.isParentTour) {
+                if (g.isParentFnb || g.isParentTour || g.isParentMinibar) {
                     // Parent row: Normal description, blank qty and price, normal amount
                     tbodyHtml += `
                         <tr>
@@ -2771,18 +2793,18 @@
                     if (g.children) {
                         g.children.forEach(c => {
                             let formattedVal = c.isInfant ? 'Miễn phí' : formatNumber(c.unitVal);
-                            let formattedAmt = formatNumber(c.amount) + ' VNĐ';
+                            let formattedAmt = formatNumber(c.amount);
                             if (c.isInsurance) {
                                 formattedVal = formatNumber(c.unitVal);
                                 formattedAmt = 'Đã bao gồm';
                             }
                             tbodyHtml += `
-                                <tr style="color: #2c2a29;">
+                                <tr style="color: #2F1F17; font-family: 'Times New Roman', serif; font-size: 14px;">
                                     <td style="padding: 8px 0; border-bottom: 1px dashed #eee;"></td>
-                                    <td style="padding: 8px 0; border-bottom: 1px dashed #eee; padding-left: 20px; font-style: italic;">${c.description}</td>
-                                    <td style="padding: 8px 0; border-bottom: 1px dashed #eee; text-align: center; font-style: italic;">${c.qty}</td>
-                                    <td style="padding: 8px 0; border-bottom: 1px dashed #eee; text-align: right; font-style: italic;">${formattedVal}</td>
-                                    <td style="padding: 8px 0; border-bottom: 1px dashed #eee; text-align: right; font-style: italic;">${formattedAmt}</td>
+                                    <td style="padding: 8px 0; border-bottom: 1px dashed #eee; padding-left: 20px;">${c.description}</td>
+                                    <td style="padding: 8px 0; border-bottom: 1px dashed #eee; text-align: center;">${c.qty}</td>
+                                    <td style="padding: 8px 0; border-bottom: 1px dashed #eee; text-align: right;">${formattedVal}</td>
+                                    <td style="padding: 8px 0; border-bottom: 1px dashed #eee; text-align: right;">${formattedAmt}</td>
                                 </tr>
                             `;
                         });
@@ -3345,6 +3367,7 @@
                         try {
                             var payload = JSON.parse(msg.body);
                             console.log('[WS] Nhận tin nhắn từ kênh Chung (/topic/operations):', payload);
+                            if (payload.type === 'NEW_TASK') return;
                             saveAndShow(`📢 THÔNG BÁO HỆ THỐNG:\n` + payload.message, false);
                         } catch (e) { console.error('[WS] parse error', e); }
                     });

@@ -49,6 +49,9 @@ public class TourGuideController {
     @org.springframework.beans.factory.annotation.Autowired
     private com.kawai.services.interfaces.EmailService emailService;
 
+    @org.springframework.beans.factory.annotation.Autowired
+    private com.kawai.services.interfaces.SystemNotificationService systemNotificationService;
+
     @org.springframework.web.bind.annotation.ModelAttribute
     public void addEmployeeToModel(Principal principal, Model model, jakarta.servlet.http.HttpServletRequest request) {
         if (principal != null) {
@@ -484,13 +487,20 @@ public class TourGuideController {
             map.put("guide", getGuideForSchedule(sched));
             
             String dbStatus = sched.getScheduleStatus();
-            String mappedStatus = "upcoming";
-            if (dbStatus != null) {
-                if ("completed".equalsIgnoreCase(dbStatus) || "finish".equalsIgnoreCase(dbStatus) || "done".equalsIgnoreCase(dbStatus)) {
-                    mappedStatus = "completed";
-                } else if ("ongoing".equalsIgnoreCase(dbStatus)) {
-                    mappedStatus = "ongoing";
-                }
+            String mappedStatus;
+            java.time.LocalDate today2 = java.time.LocalDate.now();
+            java.time.LocalDate depDate2 = sched.getDepartureDate();
+
+            if (dbStatus != null && ("completed".equalsIgnoreCase(dbStatus) || "finish".equalsIgnoreCase(dbStatus)
+                    || "done".equalsIgnoreCase(dbStatus))) {
+                mappedStatus = "completed";
+            } else if (dbStatus != null && "cancelled".equalsIgnoreCase(dbStatus)) {
+                mappedStatus = "cancelled";
+            } else if (dbStatus != null && "ongoing".equalsIgnoreCase(dbStatus)) {
+                mappedStatus = "ongoing";
+            } else {
+                // Tương lai/chưa bắt đầu → Sắp diễn ra
+                mappedStatus = "upcoming";
             }
             map.put("status", mappedStatus);
             map.put("date", sched.getDepartureDate() != null ? sched.getDepartureDate().toString() : "2026-06-27");
@@ -609,77 +619,19 @@ public class TourGuideController {
 
         java.util.List<com.kawai.models.Review> tourReviews = new java.util.ArrayList<>();
 
-        // Demo Review 1: Elena Rodriguez
-        com.kawai.models.Review rev1 = new com.kawai.models.Review();
-        rev1.setId(-1L);
-        com.kawai.models.Customer cust1 = new com.kawai.models.Customer();
-        cust1.setFullName("Elena Rodriguez");
-        rev1.setCustomer(cust1);
-        rev1.setRatingTour(5);
-        rev1.setReviewText("Hướng dẫn viên cực kỳ thân thiện và chuyên nghiệp. Phong cảnh tuyệt đẹp và chúng tôi đã có một khoảng thời gian tuyệt vời. Rất đáng trải nghiệm!");
-        rev1.setCreatedAt(java.time.LocalDateTime.of(2026, 7, 6, 14, 32));
-        com.kawai.models.TourBooking tb1 = new com.kawai.models.TourBooking();
-        com.kawai.models.TourSchedule ts1 = new com.kawai.models.TourSchedule();
-        com.kawai.models.Tour t1 = new com.kawai.models.Tour();
-        t1.setTourName("Hành trình Đoàn Tụ");
-        ts1.setTour(t1);
-        tb1.setSchedule(ts1);
-        rev1.setTourBooking(tb1);
-        tourReviews.add(rev1);
-
-        // Demo Review 2: Nguyễn Lan Chi
-        com.kawai.models.Review rev2 = new com.kawai.models.Review();
-        rev2.setId(-2L);
-        com.kawai.models.Customer cust2 = new com.kawai.models.Customer();
-        cust2.setFullName("Nguyễn Lan Chi");
-        rev2.setCustomer(cust2);
-        rev2.setRatingTour(5);
-        rev2.setReviewText("Một hành trình tuyệt vời đưa tôi trở về với nét bình yên mộc mạc của làng quê. Dịch vụ chăm sóc chu đáo, nước uống thảo mộc rất ngon và hướng dẫn viên vô cùng am hiểu văn hóa địa phương.");
-        rev2.setCreatedAt(java.time.LocalDateTime.of(2026, 7, 5, 9, 15));
-        com.kawai.models.TourBooking tb2 = new com.kawai.models.TourBooking();
-        com.kawai.models.TourSchedule ts2 = new com.kawai.models.TourSchedule();
-        com.kawai.models.Tour t2 = new com.kawai.models.Tour();
-        t2.setTourName("Hành trình Đồng Nội");
-        ts2.setTour(t2);
-        tb2.setSchedule(ts2);
-        rev2.setTourBooking(tb2);
-        tourReviews.add(rev2);
-
-        // Demo Review 3: Marcus Aurelius
-        com.kawai.models.Review rev3 = new com.kawai.models.Review();
-        rev3.setId(-3L);
-        com.kawai.models.Customer cust3 = new com.kawai.models.Customer();
-        cust3.setFullName("Marcus Aurelius");
-        rev3.setCustomer(cust3);
-        rev3.setRatingTour(5);
-        rev3.setReviewText("Fantastic historical tour of Trang An and Hoa Lu. The guide spoke fluent English and shared fascinating stories about the ancient dynasty. The architecture and landscape were breathtaking.");
-        rev3.setCreatedAt(java.time.LocalDateTime.of(2026, 7, 4, 16, 45));
-        com.kawai.models.TourBooking tb3 = new com.kawai.models.TourBooking();
-        com.kawai.models.TourSchedule ts3 = new com.kawai.models.TourSchedule();
-        com.kawai.models.Tour t3 = new com.kawai.models.Tour();
-        t3.setTourName("Hành trình Di Sản");
-        ts3.setTour(t3);
-        tb3.setSchedule(ts3);
-        rev3.setTourBooking(tb3);
-        tourReviews.add(rev3);
-
-        // Fetch DB reviews and append them
-        java.util.List<com.kawai.models.Review> dbReviews = reviewRepository.findApprovedTourReviews();
-        System.out.println("DEBUG TOURGUIDE: Load reviews tu DB - count=" + (dbReviews != null ? dbReviews.size() : 0));
-        if (dbReviews != null) {
-            for (com.kawai.models.Review r : dbReviews) {
-                System.out.println("DEBUG TOURGUIDE: reviewId=" + r.getId() + ", customer=" + (r.getCustomer() != null ? r.getCustomer().getFullName() : "null") + ", tourName=" + (r.getTourBooking() != null && r.getTourBooking().getSchedule() != null && r.getTourBooking().getSchedule().getTour() != null ? r.getTourBooking().getSchedule().getTour().getTourName() : "null"));
+        // Query real reviews from DB for the logged-in tour guide
+        if (principal != null) {
+            com.kawai.models.Employee guide = employeeRepository.findByAccountUsername(principal.getName()).orElse(null);
+            if (guide != null) {
+                try {
+                    tourReviews = reviewRepository.findApprovedTourReviewsByGuideId(guide.getId());
+                } catch (Exception e) {
+                    // Fallback: lay tat ca approved tour reviews neu query fail
+                    tourReviews = reviewRepository.findApprovedTourReviews();
+                }
             }
-            tourReviews.addAll(dbReviews);
         }
 
-        // Sắp xếp toàn bộ review theo ngày tạo giảm dần (mới nhất lên đầu)
-        tourReviews.sort((r1, r2) -> {
-            java.time.LocalDateTime time1 = r1.getCreatedAt() != null ? r1.getCreatedAt() : java.time.LocalDateTime.MIN;
-            java.time.LocalDateTime time2 = r2.getCreatedAt() != null ? r2.getCreatedAt() : java.time.LocalDateTime.MIN;
-            return time2.compareTo(time1);
-        });
-        
         int total = tourReviews.size();
         double avg = 0.0;
         int satisfactionCount = 0;
@@ -1182,99 +1134,38 @@ public class TourGuideController {
 
     private java.util.List<java.util.Map<String, Object>> getDynamicNotifications() {
         java.util.List<java.util.Map<String, Object>> dynamicNotifications = new java.util.ArrayList<>();
+        
+        org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getPrincipal())) {
+            return dynamicNotifications;
+        }
+        
+        String username = auth.getName();
+        if (auth instanceof org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken) {
+            org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken oauthToken =
+                    (org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken) auth;
+            username = oauthToken.getPrincipal().getAttribute("email");
+        }
+
         try {
-            java.util.List<com.kawai.models.TourSchedule> dbSchedules = tourScheduleRepository.findAll();
-            if (dbSchedules != null) {
-                dbSchedules.sort((s1, s2) -> {
-                    Long id1 = s1.getId() != null ? s1.getId() : 0L;
-                    Long id2 = s2.getId() != null ? s2.getId() : 0L;
-                    return id2.compareTo(id1);
-                });
-                
-                java.util.List<com.kawai.models.TourSchedule> filteredSchedules = new java.util.ArrayList<>();
-                int demoCount = 0;
-                for (com.kawai.models.TourSchedule s : dbSchedules) {
-                    if (s.getId() != null && s.getId() < 100L) {
-                        if (demoCount < 3) {
-                            filteredSchedules.add(s);
-                            demoCount++;
-                        }
-                    } else {
-                        filteredSchedules.add(s);
-                    }
-                }
-                
-                java.time.format.DateTimeFormatter dateFormatter = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy");
-                java.time.LocalDate today = java.time.LocalDate.now();
-                
-                for (com.kawai.models.TourSchedule s : filteredSchedules) {
-                    if (s.getTour() == null) continue;
-                    String tourName = s.getTour().getTourName();
-                    java.time.LocalDate depDate = s.getDepartureDate();
-                    String formattedDepDate = depDate != null ? depDate.format(dateFormatter) : today.format(dateFormatter);
-                    String formattedDepTime = s.getDepartureTime() != null ? s.getDepartureTime().toString().substring(0, 5) : "08:00";
+            if (systemNotificationService != null) {
+                java.util.List<com.kawai.models.SystemNotification> notifs = systemNotificationService.getUnreadNotifications(username);
+                for (com.kawai.models.SystemNotification n : notifs) {
+                    java.util.Map<String, Object> map = new java.util.HashMap<>();
+                    map.put("title", n.getTitle());
+                    map.put("content", n.getMessage());
+                    map.put("targetUrl", n.getTargetUrl());
                     
-                    java.util.List<com.kawai.models.TourBooking> bookings = tourBookingRepository.findBySchedule(s);
-                    if (bookings != null) {
-                        for (com.kawai.models.TourBooking b : bookings) {
-                            if ("Confirmed".equalsIgnoreCase(b.getBookingStatus()) || 
-                                "Checked_In".equalsIgnoreCase(b.getBookingStatus()) || 
-                                "Completed".equalsIgnoreCase(b.getBookingStatus())) {
-                                
-                                String custName = b.getCustomer() != null ? b.getCustomer().getFullName() : "Khách hàng";
-                                
-                                java.util.Map<String, Object> notif = new java.util.HashMap<>();
-                                notif.put("title", "Đăng ký Tour thành công");
-                                notif.put("content", "Có tour mới: \"" + tourName + "\" được đăng ký thành công vào ngày " + formattedDepDate + " lúc " + formattedDepTime + ".");
-                                notif.put("icon", "map");
-                                notif.put("timeText", "Vừa xong");
-                                dynamicNotifications.add(notif);
-                                
-                                if (b.getNotes() != null) {
-                                    String parsedNote = parseCustomerNotes(b.getNotes());
-                                    if (!parsedNote.isEmpty()) {
-                                        java.util.Map<String, Object> notifNote = new java.util.HashMap<>();
-                                        notifNote.put("title", "Ghi chú khách hàng");
-                                        notifNote.put("content", "Khách hàng " + custName + " (Tour \"" + tourName + "\") ghi chú: \"" + parsedNote + "\"");
-                                        notifNote.put("icon", "info");
-                                        notifNote.put("timeText", "10 phút trước");
-                                        dynamicNotifications.add(notifNote);
-                                    }
-                                }
-                                
-                                java.util.List<com.kawai.models.TourAttendee> attendees = tourAttendeeRepository.findByTourBookingId(b.getId());
-                                if (attendees != null) {
-                                    java.util.List<String> childNames = new java.util.ArrayList<>();
-                                    for (com.kawai.models.TourAttendee att : attendees) {
-                                        if (att.getDependent() != null) {
-                                            com.kawai.models.Dependent dep = att.getDependent();
-                                            boolean isChild = false;
-                                            if (dep.getBirthDate() != null) {
-                                                int age = java.time.Period.between(dep.getBirthDate(), java.time.LocalDate.now()).getYears();
-                                                if (age < 12) {
-                                                    isChild = true;
-                                                }
-                                            }
-                                            if (dep.getCccdPassportEncrypted() != null && dep.getCccdPassportEncrypted().contains("AUTO_CHILD")) {
-                                                isChild = true;
-                                            }
-                                            if (isChild) {
-                                                childNames.add(dep.getDependentName());
-                                            }
-                                        }
-                                    }
-                                    if (!childNames.isEmpty()) {
-                                        java.util.Map<String, Object> notifChild = new java.util.HashMap<>();
-                                        notifChild.put("title", "Tour có trẻ em");
-                                        notifChild.put("content", "Tour \"" + tourName + "\" ngày " + formattedDepDate + " có trẻ em tham gia (" + String.join(", ", childNames) + ").");
-                                        notifChild.put("icon", "child_care");
-                                        notifChild.put("timeText", "20 phút trước");
-                                        dynamicNotifications.add(notifChild);
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    String icon = "info";
+                    if ("TOUR_CANCELLED".equals(n.getType())) icon = "cancel";
+                    if ("TOUR_ASSIGNED".equals(n.getType())) icon = "assignment";
+                    map.put("icon", icon);
+                    
+                    long diffMins = java.time.Duration.between(n.getCreatedAt(), java.time.LocalDateTime.now()).toMinutes();
+                    if (diffMins < 60) map.put("timeText", diffMins + " phút trước");
+                    else map.put("timeText", (diffMins / 60) + " giờ trước");
+                    
+                    dynamicNotifications.add(map);
                 }
             }
         } catch (Exception e) {

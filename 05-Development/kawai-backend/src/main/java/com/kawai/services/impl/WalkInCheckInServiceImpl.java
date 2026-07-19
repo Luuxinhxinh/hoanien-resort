@@ -524,8 +524,8 @@ public class WalkInCheckInServiceImpl implements com.kawai.services.interfaces.W
         // Hard Limit — reject nếu vượt max
         if (count.adults > maxAdults || count.children > maxChildren) {
             throw new BusinessException("MOD2-UC14-009",
-                    "Number of guests exceeds maximum room capacity. " +
-                            "Max adults: " + maxAdults + ", max children: " + maxChildren);
+                    "Số lượng khách vượt quá sức chứa tối đa của phòng. " +
+                            "Tối đa: " + maxAdults + " người lớn, " + maxChildren + " trẻ em.");
         }
 
         // Soft Limit — tính phụ thu người lớn vượt base

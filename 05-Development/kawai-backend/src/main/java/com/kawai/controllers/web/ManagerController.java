@@ -434,9 +434,11 @@ public class ManagerController {
         List<Double> dailyChartRoom = new ArrayList<>();
         List<Double> dailyChartFnb = new ArrayList<>();
         List<Double> dailyChartTour = new ArrayList<>();
+        BigDecimal peakRevenue = BigDecimal.ZERO;
+        String peakRevenueDate = "-";
 
         try {
-            for (int i = 8; i >= 0; i--) {
+            for (int i = 6; i >= 0; i--) {
                 LocalDate d = today.minusDays(i);
                 String lbl = d.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
                 BigDecimal rDate = roomBookingRepository.revenueOnDate(d);
@@ -448,6 +450,11 @@ public class ManagerController {
 
                 BigDecimal totalDate = rDate.add(fDate).add(tDate);
                 dailyRows.add(0, new RevenueRowDTO(lbl, fmt(rDate), fmt(fDate), fmt(tDate), fmt(totalDate)));
+
+                if (totalDate.compareTo(peakRevenue) >= 0) {
+                    peakRevenue = totalDate;
+                    peakRevenueDate = "Ngày " + d.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+                }
 
                 dailyChartLabels.add(d.format(DateTimeFormatter.ofPattern("dd/MM")));
                 dailyChartRoom.add(rDate.doubleValue() / 1_000_000.0);
@@ -461,6 +468,8 @@ public class ManagerController {
         model.addAttribute("dailyChartRoom", dailyChartRoom);
         model.addAttribute("dailyChartFnb", dailyChartFnb);
         model.addAttribute("dailyChartTour", dailyChartTour);
+        model.addAttribute("peakRevenue", fmt(peakRevenue));
+        model.addAttribute("peakRevenueDate", peakRevenueDate);
 
         // --- MONTHLY ---
         LocalDate now = LocalDate.now();
@@ -533,10 +542,9 @@ public class ManagerController {
         BigDecimal maxMonthRev = BigDecimal.ZERO;
         String bestMonthLabel = "-";
 
-        for (int i = 5; i >= 0; i--) {
-            LocalDate mDate = now.minusMonths(i);
-            LocalDate start = LocalDate.of(mDate.getYear(), mDate.getMonthValue(), 1);
-            LocalDate end = LocalDate.of(mDate.getYear(), mDate.getMonthValue(), mDate.lengthOfMonth());
+        for (int m = 1; m <= 12; m++) {
+            LocalDate start = LocalDate.of(now.getYear(), m, 1);
+            LocalDate end = LocalDate.of(now.getYear(), m, start.lengthOfMonth());
             BigDecimal rMonth = roomBookingRepository.revenueBetween(start, end);
             BigDecimal fMonth = foodOrderRepository.revenueBetween(start.atStartOfDay(), end.atTime(23, 59, 59));
             BigDecimal tMonth = tourBookingRepository.revenueBetween(start, end);
@@ -544,11 +552,11 @@ public class ManagerController {
 
             if (totalM.compareTo(maxMonthRev) > 0) {
                 maxMonthRev = totalM;
-                bestMonthLabel = "Tháng " + mDate.getMonthValue();
+                bestMonthLabel = "Tháng " + m;
             }
 
-            monthlyRows.add(0, new RevenueRowDTO("Tháng " + mDate.getMonthValue() + "/" + mDate.getYear(), fmt(rMonth), fmt(fMonth), fmt(tMonth), fmt(totalM)));
-            monthlyChartLabels.add("T" + mDate.getMonthValue());
+            monthlyRows.add(new RevenueRowDTO("Tháng " + m + "/" + now.getYear(), fmt(rMonth), fmt(fMonth), fmt(tMonth), fmt(totalM)));
+            monthlyChartLabels.add("T" + m);
             monthlyChartRoom.add(rMonth.doubleValue() / 1_000_000.0);
             monthlyChartFnb.add(fMonth.doubleValue() / 1_000_000.0);
             monthlyChartTour.add(tMonth.doubleValue() / 1_000_000.0);
@@ -882,8 +890,10 @@ public class ManagerController {
 
         List<String> catLabels = new ArrayList<>(catCounts.keySet());
         List<Integer> catValues = catLabels.stream().map(catCounts::get).collect(Collectors.toList());
+        int totalItemsSold = catValues.stream().mapToInt(Integer::intValue).sum();
 
         model.addAttribute("totalOrders", String.valueOf(totalOrders));
+        model.addAttribute("totalItemsSold", totalItemsSold);
         model.addAttribute("totalRevenue", fmt(totalRevenue));
         model.addAttribute("avgOrder",
                 totalOrders > 0
@@ -927,8 +937,29 @@ public class ManagerController {
         BigDecimal totalToday = roomToday.add(fnbToday).add(tourToday);
         model.addAttribute("totalToday", fmt(totalToday));
 
+        // Week total (7 days)
+        LocalDate weekStart = today.minusDays(6);
+        BigDecimal roomWeek = roomBookingRepository.revenueBetween(weekStart, today);
+        BigDecimal fnbWeek = foodOrderRepository.revenueBetween(weekStart.atStartOfDay(), today.plusDays(1).atStartOfDay());
+        BigDecimal tourWeek = tourBookingRepository.revenueBetween(weekStart, today);
+        BigDecimal totalWeek = roomWeek.add(fnbWeek).add(tourWeek);
+        model.addAttribute("totalWeek", fmt(totalWeek));
+
+        // Month total (current month)
+        LocalDate currentMonthStart = LocalDate.of(today.getYear(), today.getMonthValue(), 1);
+        BigDecimal roomMonth = roomBookingRepository.revenueBetween(currentMonthStart, today);
+        BigDecimal fnbMonth = foodOrderRepository.revenueBetween(currentMonthStart.atStartOfDay(), today.plusDays(1).atStartOfDay());
+        BigDecimal tourMonth = tourBookingRepository.revenueBetween(currentMonthStart, today);
+        BigDecimal totalMonth = roomMonth.add(fnbMonth).add(tourMonth);
+        model.addAttribute("totalMonth", fmt(totalMonth));
+        model.addAttribute("currentMonthLabel", "Tháng " + today.getMonthValue() + "/" + today.getYear());
+
         List<RevenueRowDTO> rows = new ArrayList<>();
-        for (int i = 8; i >= 0; i--) {
+        List<java.util.Map<String, Object>> chartData = new ArrayList<>();
+        BigDecimal peakRevenue = BigDecimal.ZERO;
+        String peakRevenueDate = "-";
+
+        for (int i = 6; i >= 0; i--) {
             LocalDate d = today.minusDays(i);
             String lbl = d.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
             BigDecimal rDate = roomBookingRepository.revenueOnDate(d);
@@ -939,8 +970,23 @@ public class ManagerController {
             if (tDate == null) tDate = BigDecimal.ZERO;
             BigDecimal totalDate = rDate.add(fDate).add(tDate);
             rows.add(0, new RevenueRowDTO(lbl, fmt(rDate), fmt(fDate), fmt(tDate), fmt(totalDate)));
+
+            if (totalDate.compareTo(peakRevenue) >= 0) {
+                peakRevenue = totalDate;
+                peakRevenueDate = "Ngày " + d.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+            }
+
+            java.util.Map<String, Object> point = new java.util.HashMap<>();
+            point.put("label", d.format(DateTimeFormatter.ofPattern("dd/MM")));
+            point.put("room", rDate.doubleValue() / 1_000_000.0);
+            point.put("fnb", fDate.doubleValue() / 1_000_000.0);
+            point.put("tour", tDate.doubleValue() / 1_000_000.0);
+            chartData.add(point);
         }
         model.addAttribute("rows", rows);
+        model.addAttribute("chartData", chartData);
+        model.addAttribute("peakRevenue", fmt(peakRevenue));
+        model.addAttribute("peakRevenueDate", peakRevenueDate);
         return "manager/revenue-daily";
     }
 
@@ -952,6 +998,7 @@ public class ManagerController {
     public String revenueMonthly(Model model) {
         model.addAttribute("todayLabel", todayLabel());
         LocalDate now = LocalDate.now();
+        model.addAttribute("nowYear", now.getYear());
 
         LocalDate currentMonthStart = LocalDate.of(now.getYear(), now.getMonthValue(), 1);
         BigDecimal currentMonthRoom = roomBookingRepository.revenueBetween(currentMonthStart, now);
@@ -984,7 +1031,136 @@ public class ManagerController {
         }
         model.addAttribute("growthYoY", growthYoY);
 
+        List<RevenueRowDTO> rows = new ArrayList<>();
+        List<String> chartLabels = new ArrayList<>();
+        List<Double> chartRoom = new ArrayList<>();
+        List<Double> chartFnb = new ArrayList<>();
+        List<Double> chartTour = new ArrayList<>();
+
+        for (int m = 1; m <= 12; m++) {
+            LocalDate start = LocalDate.of(now.getYear(), m, 1);
+            LocalDate end = LocalDate.of(now.getYear(), m, start.lengthOfMonth());
+            BigDecimal rMonth = roomBookingRepository.revenueBetween(start, end);
+            BigDecimal fMonth = foodOrderRepository.revenueBetween(start.atStartOfDay(), end.atTime(23, 59, 59));
+            BigDecimal tMonth = tourBookingRepository.revenueBetween(start, end);
+            BigDecimal totalM = rMonth.add(fMonth).add(tMonth);
+
+            rows.add(new RevenueRowDTO("Tháng " + m + "/" + now.getYear(), fmt(rMonth), fmt(fMonth), fmt(tMonth), fmt(totalM)));
+            chartLabels.add("T" + m);
+            chartRoom.add(rMonth.doubleValue() / 1_000_000.0);
+            chartFnb.add(fMonth.doubleValue() / 1_000_000.0);
+            chartTour.add(tMonth.doubleValue() / 1_000_000.0);
+        }
+
+        model.addAttribute("rows", rows);
+        model.addAttribute("chartLabels", chartLabels);
+        model.addAttribute("chartRoom", chartRoom);
+        model.addAttribute("chartFnb", chartFnb);
+        model.addAttribute("chartTour", chartTour);
+
         return "manager/revenue-monthly";
+    }
+
+    @GetMapping("/revenue/yearly")
+    public String revenueYearly(Model model) {
+        model.addAttribute("todayLabel", todayLabel());
+        LocalDate now = LocalDate.now();
+
+        model.addAttribute("currentYear", String.valueOf(now.getYear()));
+        model.addAttribute("previousYear", String.valueOf(now.getYear() - 1));
+        model.addAttribute("startYear", String.valueOf(now.getYear() - 2));
+        List<RevenueRowDTO> yearlyRows = new ArrayList<>();
+        List<String> yearlyChartLabels = new ArrayList<>();
+        List<Double> yearlyChartRoom = new ArrayList<>();
+        List<Double> yearlyChartFnb = new ArrayList<>();
+        List<Double> yearlyChartTour = new ArrayList<>();
+        int currentYear = now.getYear();
+
+        BigDecimal maxYearRev = BigDecimal.ZERO;
+        String bestYearLabel = "-";
+        BigDecimal revStartYtd = BigDecimal.ZERO;
+        BigDecimal revPrevYtd = BigDecimal.ZERO;
+        BigDecimal revCurrentYtd = BigDecimal.ZERO;
+
+        for (int i = 2; i >= 0; i--) {
+            int y = currentYear - i;
+            LocalDate start = LocalDate.of(y, 1, 1);
+            LocalDate end = LocalDate.of(y, 12, 31);
+            BigDecimal rYear = roomBookingRepository.revenueBetween(start, end);
+            if (rYear == null) rYear = BigDecimal.ZERO;
+            BigDecimal fYear = foodOrderRepository.revenueBetween(start.atStartOfDay(), end.atTime(23, 59, 59));
+            if (fYear == null) fYear = BigDecimal.ZERO;
+            BigDecimal tYear = tourBookingRepository.revenueBetween(start, end);
+            if (tYear == null) tYear = BigDecimal.ZERO;
+            BigDecimal totalY = rYear.add(fYear).add(tYear);
+
+            if (totalY.compareTo(maxYearRev) > 0) {
+                maxYearRev = totalY;
+                bestYearLabel = "Năm " + y;
+            }
+
+            int m = now.getMonthValue();
+            int d = now.getDayOfMonth();
+            if (m == 2 && d == 29 && !java.time.Year.isLeap(y)) {
+                d = 28;
+            }
+            LocalDate ytdEnd = LocalDate.of(y, m, d);
+            BigDecimal rYtd = roomBookingRepository.revenueBetween(start, ytdEnd);
+            if (rYtd == null) rYtd = BigDecimal.ZERO;
+            BigDecimal fYtd = foodOrderRepository.revenueBetween(start.atStartOfDay(), ytdEnd.atTime(23, 59, 59));
+            if (fYtd == null) fYtd = BigDecimal.ZERO;
+            BigDecimal tYtd = tourBookingRepository.revenueBetween(start, ytdEnd);
+            if (tYtd == null) tYtd = BigDecimal.ZERO;
+            BigDecimal totalYtd = rYtd.add(fYtd).add(tYtd);
+
+            if (i == 2) revStartYtd = totalYtd;
+            if (i == 1) revPrevYtd = totalYtd;
+            if (i == 0) revCurrentYtd = totalYtd;
+
+            String lbl = String.valueOf(y) + (i == 0 ? " (YTD)" : "");
+            yearlyRows.add(0, new RevenueRowDTO(lbl, fmt(rYear), fmt(fYear), fmt(tYear), fmt(totalY)));
+            yearlyChartLabels.add(lbl);
+            yearlyChartRoom.add(rYear.doubleValue() / 1_000_000.0);
+            yearlyChartFnb.add(fYear.doubleValue() / 1_000_000.0);
+            yearlyChartTour.add(tYear.doubleValue() / 1_000_000.0);
+
+            if (i == 0) {
+                model.addAttribute("ytdRevenue", fmt(totalYtd));
+            }
+        }
+
+        model.addAttribute("bestYear", bestYearLabel);
+        model.addAttribute("bestYearVal", fmt(maxYearRev));
+
+        String yoyStr = "-";
+        if (revPrevYtd.compareTo(BigDecimal.ZERO) == 0) {
+            if (revCurrentYtd.compareTo(BigDecimal.ZERO) > 0) {
+                yoyStr = "+100.0%";
+            } else if (revCurrentYtd.compareTo(BigDecimal.ZERO) == 0) {
+                yoyStr = "Chưa phát sinh";
+            }
+        } else {
+            double yoy = (revCurrentYtd.doubleValue() - revPrevYtd.doubleValue()) / revPrevYtd.doubleValue() * 100;
+            yoyStr = (yoy >= 0 ? "+" : "") + String.format(java.util.Locale.US, "%.1f%%", yoy);
+        }
+
+        String cagrStr = "-";
+        if (revStartYtd.compareTo(BigDecimal.ZERO) > 0) {
+            double cagr = Math.pow(revCurrentYtd.doubleValue() / revStartYtd.doubleValue(), 1.0 / 2.0) - 1.0;
+            cagrStr = (cagr >= 0 ? "+" : "") + String.format(java.util.Locale.US, "%.1f%%", cagr * 100);
+        } else {
+            cagrStr = "N/A";
+        }
+
+        model.addAttribute("growthVsLast", yoyStr);
+        model.addAttribute("cagr3y", cagrStr);
+        model.addAttribute("yearlyRows", yearlyRows);
+        model.addAttribute("yearlyChartLabels", yearlyChartLabels);
+        model.addAttribute("yearlyChartRoom", yearlyChartRoom);
+        model.addAttribute("yearlyChartFnb", yearlyChartFnb);
+        model.addAttribute("yearlyChartTour", yearlyChartTour);
+
+        return "manager/revenue-yearly";
     }
 
     // =========================================================================

@@ -611,13 +611,17 @@ function showBlockPopup(e, res, table) {
 
   if (res.status === 'Confirmed' || res.status === 'Pending') {
     actions.innerHTML = `
+      <button class="btn btn-primary" style="font-size:0.75rem;height:30px;padding:0 10px;margin-right:5px;"
+        onclick="openCccdCheckInModal(${res.id}, ${table.tableId})">
+        <span class="material-symbols-outlined">how_to_reg</span>Check-in
+      </button>
       <button class="btn btn-outline" style="font-size:0.75rem;height:30px;padding:0 10px;margin-right:5px;"
         onclick="openHoldModal(${res.id})">
         <span class="material-symbols-outlined">timer</span>Giữ bàn
       </button>
-      <button class="btn btn-primary" style="font-size:0.75rem;height:30px;padding:0 10px;"
-        onclick="openCccdCheckInModal(${res.id}, ${table.tableId})">
-        <span class="material-symbols-outlined">how_to_reg</span>Check-in
+      <button class="btn btn-danger" style="font-size:0.75rem;height:30px;padding:0 10px;background-color:#e74c3c;color:white;border:none;border-radius:6px;cursor:pointer;display:inline-flex;align-items:center;gap:4px;"
+        onclick="promptCancelTable(${res.id})">
+        <span class="material-symbols-outlined" style="font-size:16px;">cancel</span>Hủy bàn
       </button>`;
   } else if (res.status === 'Seated') {
     actions.innerHTML = `
@@ -730,6 +734,41 @@ async function handleCheckIn(reservationId, tableId) {
     } else {
       const err = await res.json();
       tmShowToast('error', 'Lỗi', err.message || 'Check-in thất bại');
+    }
+  } catch (e) {
+    tmShowToast('error', 'Lỗi', 'Không thể kết nối máy chủ');
+  }
+}
+
+function promptCancelTable(reservationId) {
+  document.getElementById('cancel-resId').value = reservationId;
+  document.getElementById('cancel-reason').value = '';
+  document.getElementById('cancelTableModal').style.display = 'flex';
+}
+
+async function submitCancelTable() {
+  const reservationId = document.getElementById('cancel-resId').value;
+  const reason = document.getElementById('cancel-reason').value;
+  
+  if (reason.trim() === '') {
+    alert('Lý do hủy bàn không được để trống!');
+    return;
+  }
+  
+  try {
+    const res = await fetch(`/api/v1/tables/reservations/${reservationId}/cancel`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ reason: reason.trim() })
+    });
+    if (res.ok) {
+      tmShowToast('success', 'Thành công', 'Đã hủy bàn thành công!');
+      document.getElementById('cancelTableModal').style.display = 'none';
+      tlPopup && tlPopup.classList.remove('open');
+      if (tlInitialized) renderTimeline(tlCurrentDate);
+    } else {
+      const err = await res.json();
+      tmShowToast('error', 'Lỗi', err.message || 'Hủy bàn thất bại');
     }
   } catch (e) {
     tmShowToast('error', 'Lỗi', 'Không thể kết nối máy chủ');

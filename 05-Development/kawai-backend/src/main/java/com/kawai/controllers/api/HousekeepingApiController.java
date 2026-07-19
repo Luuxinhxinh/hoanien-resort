@@ -13,6 +13,7 @@ import com.kawai.repositories.FolioItemRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -42,6 +43,8 @@ public class HousekeepingApiController {
     @Autowired
     private com.kawai.services.interfaces.HousekeepingService housekeepingService;
 
+    @Autowired
+    private SimpMessagingTemplate messagingTemplate;
     @PostMapping("/housekeeping/save-minibar-only")
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER', 'OP_HOUSEKEEPING', 'ROLE_HOUSEKEEPING')")
     public ResponseEntity<?> saveMinibarOnly(@RequestBody Map<String, Object> request) {
@@ -189,6 +192,13 @@ public class HousekeepingApiController {
                 t.setNotes(currentNotes + " \n[Khẩn cấp] Lễ tân hối thúc dọn ưu tiên để khách Check-in!");
                 housekeepingTaskRepo.save(t);
             }
+            try {
+                messagingTemplate.convertAndSend("/topic/operations", Map.of(
+                        "message", "Yêu cầu dọn khẩn cấp phòng " + room.getRoomNumber() + "!",
+                        "type", "NEW_TASK"));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             return ResponseEntity
                     .ok(Map.of("success", true, "message", "Đã nâng độ ưu tiên dọn khẩn cấp cho phòng này."));
         }
@@ -204,6 +214,13 @@ public class HousekeepingApiController {
         task.setNotes("Lễ tân yêu cầu dọn phòng khẩn cấp.");
 
         housekeepingTaskRepo.save(task);
+        try {
+            messagingTemplate.convertAndSend("/topic/operations", Map.of(
+                    "message", "Yêu cầu dọn khẩn cấp phòng " + room.getRoomNumber() + "!",
+                    "type", "NEW_TASK"));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         return ResponseEntity
                 .ok(Map.of("success", true, "message", "Yêu cầu dọn khẩn cấp đã gửi cho bộ phận Buồng phòng."));
@@ -227,7 +244,6 @@ public class HousekeepingApiController {
             return ResponseEntity.internalServerError()
                     .body(Map.of("success", false, "message", "Lỗi cấu hình hệ thống (không có nhân viên)."));
         }
-
         try {
             String notes = request.get("notes");
             if (notes == null || notes.trim().isEmpty()) {
@@ -235,6 +251,14 @@ public class HousekeepingApiController {
             }
             com.kawai.models.HotelOperation maintenanceTask = housekeepingService
                     .createMaintenanceRequest(room.getId(), staff.getId(), notes, true);
+            // Gửi WebSocket tin nhắn kênh chung để các màn hình auto-reload
+            try {
+                messagingTemplate.convertAndSend("/topic/operations", Map.of(
+                        "message", "Yêu cầu sửa chữa khẩn cấp phòng " + room.getRoomNumber() + "!",
+                        "type", "NEW_TASK"));
+            } catch (Exception wsEx) {
+                wsEx.printStackTrace();
+            }
             return ResponseEntity.ok(Map.of("success", true, "message",
                     "Đã gửi yêu cầu sửa chữa khẩn cấp cho phòng " + roomNumber + "."));
         } catch (Exception e) {

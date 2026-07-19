@@ -121,8 +121,11 @@ public class TourBookingApiController {
 
             String cccdPassport = (String) payload.get("cccdPassport");
             if (cccdPassport != null && !cccdPassport.trim().isEmpty() && customer != null) {
-                customer.setCccdPassportEncrypted(cccdPassport.trim());
-                customer = customerRepository.save(customer);
+                String encryptedCccd = com.kawai.utils.EncryptionUtils.encrypt(cccdPassport.trim());
+                if (customer.getCccdPassportEncrypted() == null || !customer.getCccdPassportEncrypted().equals(encryptedCccd)) {
+                    customer.setCccdPassportEncrypted(encryptedCccd);
+                    customer = customerRepository.save(customer);
+                }
             }
 
             // 2. Find or create TourSchedule

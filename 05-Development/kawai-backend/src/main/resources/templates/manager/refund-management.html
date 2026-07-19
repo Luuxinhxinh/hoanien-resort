@@ -56,6 +56,7 @@
         .mgr-table td span:not([style*="background"]) {
             font-size: 14px !important;
         }
+
         .refund-table th {
             font-weight: 600;
             color: var(--text-muted);
@@ -267,7 +268,8 @@
             <div class="mgr-nav-item">
                 <a href="/manager/approvals" class="mgr-nav-link">
                     <svg class="mgr-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+                        <path
+                            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
                     </svg>
                     <span style="flex:1">Duyệt yêu cầu</span>
                 </a>
@@ -362,16 +364,17 @@
                     </svg><span class="mgr-notif-dot"></span></button>
                 <div class="mgr-header-user-box">
                     <div class="mgr-header-avatar">MG</div>
-                    <span class="mgr-header-username">Manager </span>
+                    <span class="mgr-header-username">Manager</span>
                 </div>
                 <div class="mgr-divider-v"></div>
-                <button class="mgr-header-btn-outline" onclick="location.href='/auth/logout'">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <a href="/logout" class="mgr-header-logout">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
                         <polyline points="16 17 21 12 16 7" />
-                        <line x1="21" y1="12" x2="9" y2="12" />
-                    </svg> Đăng xuất
-                </button>
+                        <line x1="21" x2="9" y1="12" y2="12" />
+                    </svg>
+                    Đăng xuất
+                </a>
             </div>
         </header>
 
@@ -389,11 +392,9 @@
                         <thead>
                             <tr>
                                 <th>Mã Đơn</th>
-                                <th>Thông tin Bank</th>
-                                <th>Chủ TK</th>
-                                <th>SĐT Liên hệ</th>
+                                <th>Thông tin Tài khoản</th>
                                 <th>Số tiền</th>
-                                <th>Thời gian yêu cầu</th>
+                                <th>Yêu cầu lúc</th>
                                 <th>Thao tác</th>
                             </tr>
                         </thead>
@@ -427,8 +428,6 @@
                                         <span th:text="${r.phoneNumber != null ? r.phoneNumber : 'N/A'}">090xxxx</span>
                                     </div>
                                 </td>
-                                <td th:text="${r.accountName != null ? r.accountName : 'N/A'}">NGUYEN VAN A</td>
-                                <td th:text="${r.phoneNumber != null ? r.phoneNumber : 'N/A'}">090xxxx</td>
                                 <td style="color:#C9A96E; font-weight:600;"
                                     th:text="${#numbers.formatDecimal(r.amount, 0, 'COMMA', 0, 'POINT')} + ' VND'">
                                     100,000
@@ -441,13 +440,13 @@
                                 </td>
                                 <td>
                                     <!-- Nút Xem chi tiết / Xử lý -->
-                                    <button class="mgr-header-btn-outline"
-                                        style="color: var(--primary); border-color: var(--primary); background: transparent; padding: 6px 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;"
+                                    <button
+                                        style="background: #5c5346; color: #fff; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-family: var(--font-sans); font-weight: 500;"
                                         th:data-id="${r.id}" th:data-orderid="${r.getReferenceCode()}"
                                         th:data-bank="${r.bankName != null ? r.bankName : ''}"
                                         th:data-accnum="${r.accountNumber != null ? r.accountNumber : ''}"
                                         th:data-accname="${r.accountName != null ? r.accountName : ''}"
-                                        th:data-amount="${#numbers.formatDecimal(r.amount, 0, 'COMMA', 0, 'POINT')} + ' ₫'"
+                                        th:data-amount="${#numbers.formatDecimal(r.amount, 0, 'COMMA', 0, 'POINT')} + ' VND'"
                                         onclick="openUploadModalFromBtn(this)">
                                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
                                             stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
@@ -469,7 +468,7 @@
                                                 <span
                                                     th:text="${detail.menuItem.itemName} + ' x ' + ${detail.quantity}"></span>
                                                 <span
-                                                    th:text="${#numbers.formatDecimal(detail.priceAtOrder, 0, 'COMMA', 0, 'POINT')} + ' ₫'"
+                                                    th:text="${#numbers.formatDecimal(detail.priceAtOrder, 0, 'COMMA', 0, 'POINT')} + ' VND'"
                                                     style="font-family: var(--font-mono); font-weight: 500;"></span>
                                             </li>
                                         </ul>
@@ -482,7 +481,7 @@
                                                 style="padding:6px 0; border-bottom:1px dashed var(--border-subtle); display:flex; justify-content:space-between;">
                                                 <span>Đặt phòng nghỉ dưỡng</span>
                                                 <span
-                                                    th:text="${#numbers.formatDecimal(r.amount, 0, 'COMMA', 0, 'POINT')} + ' ₫'"
+                                                    th:text="${#numbers.formatDecimal(r.amount, 0, 'COMMA', 0, 'POINT')} + ' VND'"
                                                     style="font-family: var(--font-mono); font-weight: 500;"></span>
                                             </li>
                                         </ul>
@@ -495,7 +494,7 @@
                                                 style="padding:6px 0; border-bottom:1px dashed var(--border-subtle); display:flex; justify-content:space-between;">
                                                 <span>Đặt Tour trải nghiệm</span>
                                                 <span
-                                                    th:text="${#numbers.formatDecimal(r.amount, 0, 'COMMA', 0, 'POINT')} + ' ₫'"
+                                                    th:text="${#numbers.formatDecimal(r.amount, 0, 'COMMA', 0, 'POINT')} + ' VND'"
                                                     style="font-family: var(--font-mono); font-weight: 500;"></span>
                                             </li>
                                         </ul>
@@ -503,7 +502,7 @@
                                 </td>
                             </tr>
                             <tr th:if="${#lists.isEmpty(pendingRefunds)}">
-                                <td colspan="7"
+                                <td colspan="5"
                                     style="text-align:center; padding:40px; color:var(--text-muted); font-family: var(--font-sans);">
                                     Không có yêu cầu hoàn tiền nào đang chờ.</td>
                             </tr>
@@ -520,7 +519,7 @@
                         <thead>
                             <tr>
                                 <th>Mã Đơn</th>
-                                <th>Thông tin Bank</th>
+                                <th>Thông tin Tài khoản</th>
                                 <th>Số tiền</th>
                                 <th>Trạng thái</th>
                                 <th>Bill (Ủy nhiệm chi)</th>
@@ -556,10 +555,10 @@
                                         <span th:text="${r.phoneNumber != null ? r.phoneNumber : 'N/A'}">090xxxx</span>
                                     </div>
                                 </td>
-                                <td th:text="${#numbers.formatDecimal(r.amount, 0, 'COMMA', 0, 'POINT')} + ' ₫'"
-                                    style="font-weight:600; color:var(--foreground);">100,000 ₫</td>
+                                <td th:text="${#numbers.formatDecimal(r.amount, 0, 'COMMA', 0, 'POINT')} + ' VND'"
+                                    style="font-weight:600; color:var(--foreground);">100,000 VND</td>
                                 <td><span
-                                        style="background: rgba(122,156,122,0.1); color: #7A9C7A; padding: 4px 8px; border-radius: 4px; font-weight: 500; font-size: 11px; font-family: var(--font-sans);">Đã
+                                        style="background: rgba(122,156,122,0.1); color: #7A9C7A; padding: 5px 10px; border-radius: 4px; font-weight: 500; font-size: 12.5px; font-family: var(--font-sans);">Đã
                                         hoàn trả</span></td>
                                 <td>
                                     <a th:href="${r.evidenceImageUrl}" target="_blank"
@@ -603,7 +602,7 @@
                 <span class="info-label">Chủ TK:</span>
                 <span class="info-value" id="mAccName">NGUYEN VAN A</span>
                 <span class="info-label">Số tiền:</span>
-                <span class="info-value" id="mAmount" style="color:#d32f2f;">0 ₫</span>
+                <span class="info-value" id="mAmount" style="color:#d32f2f;">0 VND</span>
             </div>
 
             <!-- Chi tiết món ăn -->
@@ -677,6 +676,7 @@
                 console.error('Lỗi khi sao chép: ', err);
             });
         }
+
         function toggleSubmenu(subId, arrId) {
             document.getElementById(subId).classList.toggle('open');
             document.getElementById(arrId).classList.toggle('open');

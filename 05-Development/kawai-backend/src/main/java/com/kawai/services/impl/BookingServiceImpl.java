@@ -80,7 +80,7 @@ public class BookingServiceImpl implements BookingService {
 
     private static final Logger log = LoggerFactory.getLogger(BookingServiceImpl.class);
 
-    private static final BigDecimal BASE_ROOM_PRICE = new BigDecimal("2000000"); // 2tr/đêm
+    private static final BigDecimal BASE_ROOM_PRICE = new BigDecimal("2000000");
 
     @Autowired
     private WorkflowEngineService workflowEngineService;
@@ -246,7 +246,7 @@ public class BookingServiceImpl implements BookingService {
         RoomBooking savedHold = roomBookingRepository.save(holdBooking);
         roomBookingRepository.flush();
 
-        log.info("[SOFT_LOCK] HOLD created: bookingId={}, customer={}, {} → {}",
+        log.info(" HOLD created: bookingId={}, customer={}, {} → {}",
                 savedHold.getId(), customer.getId(), checkIn, checkOut);
 
         // Nhóm các phòng được chọn theo Hạng Phòng
@@ -277,6 +277,15 @@ public class BookingServiceImpl implements BookingService {
                 BigDecimal extraSurcharge = BigDecimal.ZERO;
                 int reqAdults = selection.getNumberOfAdults() != null ? selection.getNumberOfAdults() : 0;
                 int reqChildren = selection.getNumberOfChildren() != null ? selection.getNumberOfChildren() : 0;
+
+                int maxAdults = category.getMaxAdults() != null ? category.getMaxAdults() : category.getCapacity();
+                int maxChildren = category.getMaxChildren() != null ? category.getMaxChildren() : 2;
+
+                if (reqAdults > maxAdults || reqChildren > maxChildren) {
+                    throw new IllegalArgumentException(
+                            "Số lượng khách vượt quá sức chứa tối đa của hạng phòng " + catName
+                                    + ". Tối đa: " + maxAdults + " người lớn, " + maxChildren + " trẻ em.");
+                }
 
                 int baseAdults = category.getBaseAdults() != null ? category.getBaseAdults() : 0;
                 int baseChildren = category.getBaseChildren() != null ? category.getBaseChildren() : 0;
@@ -331,7 +340,6 @@ public class BookingServiceImpl implements BookingService {
         BigDecimal depositVal = discountedPrice.multiply(new BigDecimal("0.3")).setScale(0, RoundingMode.HALF_UP);
         // Cập nhật giá thực, giữ nguyên status "Pending"
         // Phòng chưa bị trừ — chỉ trừ khi confirmBooking() chuyển sang HOLD
-        // ══════════════════════════════════════════════════════════════════
         savedHold.setTotalPrice(discountedPrice.setScale(0, RoundingMode.HALF_UP));
         savedHold.setDepositAmount(depositVal);
         savedHold.setBookingStatus("Pending");
@@ -359,7 +367,7 @@ public class BookingServiceImpl implements BookingService {
             }
         }
 
-        log.info("[SOFT_LOCK] HOLD updated with details: bookingId={}", savedBooking.getId());
+        log.info("HOLD updated with details: bookingId={}", savedBooking.getId());
 
         for (int i = 0; i < categoriesToBook.size(); i++) {
             com.kawai.models.RoomCategory category = categoriesToBook.get(i);
@@ -479,7 +487,7 @@ public class BookingServiceImpl implements BookingService {
                     log.error("Failed to delete stale booking {}", h.getId(), e);
                 }
             });
-            log.warn("[SOFT_LOCK] Auto-deleted {} expired HOLD booking(s) at {}",
+            log.warn("Auto-deleted {} expired HOLD booking(s) at {}",
                     staleHolds.size(), now);
         }
     }
@@ -494,16 +502,16 @@ public class BookingServiceImpl implements BookingService {
     private BigDecimal applyPromotion(String promoCode, BigDecimal baseTotal, Long customerId) {
         Promotion promo = promotionRepository.findByPromoCode(promoCode)
                 .orElseThrow(() -> new IllegalArgumentException(
-                        "Promotion code '" + promoCode + "' does not exist [ERR_PROMO_NOT_FOUND]"));
+                        "Promotion code '" + promoCode + "' does not exist "));
 
         if (!Boolean.TRUE.equals(promo.getIsActive())) {
             throw new IllegalArgumentException(
-                    "Promotion code '" + promoCode + "' is invalid or expired [ERR_PROMO_INACTIVE]");
+                    "Promotion code '" + promoCode + "' is invalid or expired ");
         }
 
         if (promo.getValidTo().isBefore(LocalDate.now())) {
             throw new IllegalArgumentException(
-                    "Promotion code '" + promoCode + "' has expired [ERR_PROMO_EXPIRED]");
+                    "Promotion code '" + promoCode + "' has expired ");
         }
 
         BigDecimal discountValue = promo.getDiscountValue();
@@ -531,7 +539,7 @@ public class BookingServiceImpl implements BookingService {
                         BigDecimal maxVal = new BigDecimal(conds.get("max_discount_value_vnd").toString());
                         if (discountAmount.compareTo(maxVal) > 0) {
                             throw new IllegalArgumentException("Mã giảm giá vượt quá hạn mức tối đa cho phép (" + maxVal
-                                    + " VND) [ERR_PROMO_LIMIT_EXCEEDED]");
+                                    + " VND) ");
                         }
                     }
 
@@ -544,7 +552,7 @@ public class BookingServiceImpl implements BookingService {
                         long uses = bookingRepository.countByCustomerIdAndPromoCode(customerId, promoCode);
                         if (uses >= maxUses) {
                             throw new IllegalArgumentException("Khách hàng đã vượt quá số lần sử dụng mã giảm giá này ("
-                                    + maxUses + " lần) [ERR_PROMO_USAGE_EXCEEDED]");
+                                    + maxUses + " lần)");
                         }
                     }
                     // 3. threshold_pct_gt (Chặn cứng đối với Khách hàng tự thao tác)
@@ -570,7 +578,7 @@ public class BookingServiceImpl implements BookingService {
                                 throw new IllegalArgumentException(
                                         "Mã giảm giá vượt quá mức cho phép đối với khách tự đặt ("
                                                 + thresholdVal
-                                                + "%). Vui lòng liên hệ Lễ tân để được hỗ trợ đền bù. [ERR_PROMO_THRESHOLD_EXCEEDED]");
+                                                + "%). Vui lòng liên hệ Lễ tân để được hỗ trợ đền bù.");
                             }
                             // Nếu là Staff -> Cho qua để hệ thống bắt vào luồng Workflow Treo chờ duyệt.
                         }
@@ -611,7 +619,8 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public BookingResponseDTO cancelBooking(Long bookingId, Long customerId, com.kawai.dto.CancelBookingRequestDTO dto) {
+    public BookingResponseDTO cancelBooking(Long bookingId, Long customerId,
+            com.kawai.dto.CancelBookingRequestDTO dto) {
         RoomBooking booking = roomBookingRepository.findByIdAndCustomerId(bookingId, customerId)
                 .orElseThrow(() -> new BusinessException("FORBIDDEN",
                         "Đơn đặt phòng không thuộc về tài khoản này hoặc không tồn tại!"));
@@ -662,7 +671,7 @@ public class BookingServiceImpl implements BookingService {
                     refund.setStatus("Pending");
                     refundRequestRepository.save(refund);
                 }
-                
+
                 if (notificationService != null) {
                     notificationService.sendNotification(customerId, "Cancel Success",
                             "Your booking has been cancelled. A refund request has been created and will be processed shortly.");
@@ -882,7 +891,7 @@ public class BookingServiceImpl implements BookingService {
             if ("VNPAY".equalsIgnoreCase(paymentMethod)) {
                 booking.setBookingStatus("Pending_Payment");
                 booking.setHoldExpiresAt(LocalDateTime.now().plusMinutes(2));
-                log.info("[SOFT_LOCK] Pending/CANCELLED→Pending_Payment: bookingId={}, holdExpiresAt={}",
+                log.info(" Pending/CANCELLED→Pending_Payment: bookingId={}, holdExpiresAt={}",
                         bookingId, booking.getHoldExpiresAt());
             } else {
                 booking.setBookingStatus("Confirmed");
@@ -894,7 +903,7 @@ public class BookingServiceImpl implements BookingService {
             // User thử lại VNPay (ví dụ back lại trang payment) → refresh timer
             if ("VNPAY".equalsIgnoreCase(paymentMethod)) {
                 booking.setHoldExpiresAt(LocalDateTime.now().plusMinutes(2));
-                log.info("[SOFT_LOCK] Pending_Payment refreshed: bookingId={}, holdExpiresAt={}",
+                log.info(" Pending_Payment refreshed: bookingId={}, holdExpiresAt={}",
                         bookingId, booking.getHoldExpiresAt());
             } else {
                 booking.setBookingStatus("Confirmed");
@@ -957,7 +966,8 @@ public class BookingServiceImpl implements BookingService {
 
     private void triggerBookingCreatedWorkflow(RoomBooking booking, Customer customer) {
         try {
-            long nights = java.time.temporal.ChronoUnit.DAYS.between(booking.getCheckInDate(), booking.getCheckOutDate());
+            long nights = java.time.temporal.ChronoUnit.DAYS.between(booking.getCheckInDate(),
+                    booking.getCheckOutDate());
             java.util.Map<String, Object> payload = new java.util.HashMap<>();
             payload.put("booking_id", booking.getId());
             payload.put("stay_nights", nights);

@@ -18,19 +18,19 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Implementation của {@link TourBookingService} cho UC20.1: Đặt tour du lịch.
+ * Implementation cá»§a {@link TourBookingService} cho UC20.1: Äáº·t tour du lá»‹ch.
  *
  * <p>
- * Triển khai đầy đủ nghiệp vụ:
+ * Triá»ƒn khai Ä‘áº§y Ä‘á»§ nghiá»‡p vá»¥:
  * <ul>
- * <li>Validate schedule & customer tồn tại</li>
- * <li>Chống Double-booking: kiểm tra available slots trước khi tạo booking</li>
- * <li>Tạo TourBooking + N TourAttendee records</li>
- * <li>Hỗ trợ Post to Room: ghi nợ vào Folio phòng</li>
+ * <li>Validate schedule & customer tá»“n táº¡i</li>
+ * <li>Chá»‘ng Double-booking: kiá»ƒm tra available slots trÆ°á»›c khi táº¡o booking</li>
+ * <li>Táº¡o TourBooking + N TourAttendee records</li>
+ * <li>Há»— trá»£ Post to Room: ghi ná»£ vÃ o Folio phÃ²ng</li>
  * </ul>
  *
  * <p>
- * TDD Phase: 🟢 GREEN — Triển khai production code để pass tất cả test cases
+ * TDD Phase: ðŸŸ¢ GREEN â€” Triá»ƒn khai production code Ä‘á»ƒ pass táº¥t cáº£ test cases
  * (TC-M4-003, TC-M4-004, TC-M4-005).
  */
 @Service
@@ -51,6 +51,12 @@ public class TourBookingServiceImpl implements TourBookingService {
 
         @Autowired(required = false)
         private EmailService emailService;
+
+        @Autowired(required = false)
+        private com.kawai.services.interfaces.SystemNotificationService systemNotificationService;
+
+        @Autowired
+        private com.kawai.repositories.RefundRequestRepository refundRequestRepository;
 
         @Autowired
         private DependentRepository dependentRepository;
@@ -85,28 +91,28 @@ public class TourBookingServiceImpl implements TourBookingService {
                 Customer customer = customerRepository.findById(request.getCustomerId())
                                 .orElseThrow(() -> new IllegalStateException("TOUR-003: Customer not found"));
 
-                // 2. Chống Double-booking: kiểm tra available slots
+                // 2. Chá»‘ng Double-booking: kiá»ƒm tra available slots
                 int alreadyBooked = tourBookingRepository.countByScheduleAndBookingStatus(schedule, "Confirmed");
                 int remainingCapacity = schedule.getTour().getMaxCapacity() - alreadyBooked;
 
                 if (request.getParticipantCount() > remainingCapacity) {
-                        LOG.warn("TOUR-001: Tour schedule {} hết chỗ. Already={}, Request={}, Max={}",
+                        LOG.warn("TOUR-001: Tour schedule {} háº¿t chá»—. Already={}, Request={}, Max={}",
                                         schedule.getId(), alreadyBooked, request.getParticipantCount(),
                                         schedule.getTour().getMaxCapacity());
                         throw new IllegalStateException(
-                                        "TOUR-001: Hết chỗ. Chỉ còn " + remainingCapacity + " chỗ trống");
+                                        "TOUR-001: Háº¿t chá»—. Chá»‰ cÃ²n " + remainingCapacity + " chá»— trá»‘ng");
                 }
 
-                // 2b. Kiểm tra bảo hiểm bắt buộc — TOUR-INS-001
+                // 2b. Kiá»ƒm tra báº£o hiá»ƒm báº¯t buá»™c â€” TOUR-INS-001
                 Tour tour = schedule.getTour();
                 if (Boolean.TRUE.equals(tour.getIsInsuranceRequired()) && !request.isAcceptInsurance()) {
-                        LOG.warn("TOUR-INS-001: Khách {} từ chối bảo hiểm bắt buộc cho tour {}",
+                        LOG.warn("TOUR-INS-001: KhÃ¡ch {} tá»« chá»‘i báº£o hiá»ƒm báº¯t buá»™c cho tour {}",
                                         request.getCustomerId(), tour.getId());
                         throw new IllegalStateException(
-                                        "TOUR-INS-001: Tour này bắt buộc mua bảo hiểm du lịch. Vui lòng đồng ý mua bảo hiểm để tiếp tục đặt chỗ.");
+                                        "TOUR-INS-001: Tour nÃ y báº¯t buá»™c mua báº£o hiá»ƒm du lá»‹ch. Vui lÃ²ng Ä‘á»“ng Ã½ mua báº£o hiá»ƒm Ä‘á»ƒ tiáº¿p tá»¥c Ä‘áº·t chá»—.");
                 }
 
-                // 3. Tính tổng giá (Dưới 2 tuổi miễn phí, 2 - 11 tuổi giảm 50%)
+                // 3. TÃ­nh tá»•ng giÃ¡ (DÆ°á»›i 2 tuá»•i miá»…n phÃ­, 2 - 11 tuá»•i giáº£m 50%)
                 BigDecimal totalPrice = BigDecimal.ZERO;
                 BigDecimal basePrice = tour.getBasePrice();
                 int childCount = request.getChildAges() != null ? request.getChildAges().size() : 0;
@@ -115,37 +121,37 @@ public class TourBookingServiceImpl implements TourBookingService {
                         adultCount = 0;
 
                 BigDecimal childDiscount = BigDecimal.ZERO;
-                // Người lớn tính 100% giá
+                // NgÆ°á»i lá»›n tÃ­nh 100% giÃ¡
                 totalPrice = totalPrice.add(basePrice.multiply(BigDecimal.valueOf(adultCount)));
 
-                // Trẻ em tính theo độ tuổi
+                // Tráº» em tÃ­nh theo Ä‘á»™ tuá»•i
                 if (request.getChildAges() != null) {
                         for (String age : request.getChildAges()) {
-                                if ("Dưới 2 tuổi".equalsIgnoreCase(age)) {
-                                        // Miễn phí
+                                if ("DÆ°á»›i 2 tuá»•i".equalsIgnoreCase(age)) {
+                                        // Miá»…n phÃ­
                                         childDiscount = childDiscount.add(basePrice);
-                                } else if ("2 - 11 tuổi".equalsIgnoreCase(age)) {
-                                        // Giảm 50%
+                                } else if ("2 - 11 tuá»•i".equalsIgnoreCase(age)) {
+                                        // Giáº£m 50%
                                         totalPrice = totalPrice.add(basePrice.multiply(new BigDecimal("0.5")));
                                         childDiscount = childDiscount.add(basePrice.multiply(new BigDecimal("0.5")));
                                 } else {
-                                        // Mặc định giảm 50%
+                                        // Máº·c Ä‘á»‹nh giáº£m 50%
                                         totalPrice = totalPrice.add(basePrice.multiply(new BigDecimal("0.5")));
                                         childDiscount = childDiscount.add(basePrice.multiply(new BigDecimal("0.5")));
                                 }
                         }
                 }
 
-                // 3b. Tính phí bảo hiểm để hạch toán (đã bao gồm trong giá tour gốc)
+                // 3b. TÃ­nh phÃ­ báº£o hiá»ƒm Ä‘á»ƒ háº¡ch toÃ¡n (Ä‘Ã£ bao gá»“m trong giÃ¡ tour gá»‘c)
                 BigDecimal insuranceFee = BigDecimal.ZERO;
                 if (Boolean.TRUE.equals(tour.getIsInsuranceRequired()) && request.isAcceptInsurance()) {
                         insuranceFee = tour.getInsurancePrice()
                                         .multiply(BigDecimal.valueOf(request.getParticipantCount()));
-                        LOG.info("Phí bảo hiểm hạch toán (đã bao gồm trong giá): {} x {} người = {} VND",
+                        LOG.info("PhÃ­ báº£o hiá»ƒm háº¡ch toÃ¡n (Ä‘Ã£ bao gá»“m trong giÃ¡): {} x {} ngÆ°á»i = {} VND",
                                         tour.getInsurancePrice(), request.getParticipantCount(), insuranceFee);
                 }
 
-                // 4. Áp dụng mã giảm giá (nếu có)
+                // 4. Ãp dá»¥ng mÃ£ giáº£m giÃ¡ (náº¿u cÃ³)
                 BigDecimal promoDiscount = BigDecimal.ZERO;
                 Promotion appliedPromotion = null;
                 if (request.getPromoCode() != null && !request.getPromoCode().trim().isEmpty()) {
@@ -161,7 +167,7 @@ public class TourBookingServiceImpl implements TourBookingService {
                                                         promoCode);
                                         if (uses >= 1) {
                                                 throw new IllegalArgumentException(
-                                                                "Khách hàng đã vượt quá số lần sử dụng mã giảm giá này (1 lần) [ERR_PROMO_USAGE_EXCEEDED]");
+                                                                "KhÃ¡ch hÃ ng Ä‘Ã£ vÆ°á»£t quÃ¡ sá»‘ láº§n sá»­ dá»¥ng mÃ£ giáº£m giÃ¡ nÃ y (1 láº§n) [ERR_PROMO_USAGE_EXCEEDED]");
                                         }
                                         BigDecimal discountValue = promo.getDiscountValue();
                                         boolean isFixed = "FIXED_AMOUNT".equalsIgnoreCase(promo.getDiscountType())
@@ -179,17 +185,17 @@ public class TourBookingServiceImpl implements TourBookingService {
                                         totalPrice = totalPrice.subtract(discountAmount);
                                         promoDiscount = discountAmount;
                                         appliedPromotion = promo;
-                                        LOG.info("Áp dụng mã giảm giá '{}' cho tour booking: giảm {} VND",
+                                        LOG.info("Ãp dá»¥ng mÃ£ giáº£m giÃ¡ '{}' cho tour booking: giáº£m {} VND",
                                                         promoCode, discountAmount);
                                 } else {
-                                        LOG.warn("Mã giảm giá '{}' không hợp lệ hoặc đã hết hạn", promoCode);
+                                        LOG.warn("MÃ£ giáº£m giÃ¡ '{}' khÃ´ng há»£p lá»‡ hoáº·c Ä‘Ã£ háº¿t háº¡n", promoCode);
                                 }
                         } else {
-                                LOG.warn("Mã giảm giá '{}' không tồn tại trong hệ thống", promoCode);
+                                LOG.warn("MÃ£ giáº£m giÃ¡ '{}' khÃ´ng tá»“n táº¡i trong há»‡ thá»‘ng", promoCode);
                         }
                 }
 
-                // 5. Tạo TourBooking
+                // 5. Táº¡o TourBooking
                 TourBooking booking = new TourBooking();
                 booking.setSchedule(schedule);
                 booking.setCustomer(customer);
@@ -214,7 +220,7 @@ public class TourBookingServiceImpl implements TourBookingService {
                                         .findById(request.getRoomBookingDetailId()).orElse(null));
                 }
 
-                // Lưu thông tin chi tiết vào notes để email hiển thị
+                // LÆ°u thÃ´ng tin chi tiáº¿t vÃ o notes Ä‘á»ƒ email hiá»ƒn thá»‹
                 BigDecimal originalPrice = basePrice.multiply(new BigDecimal(request.getParticipantCount()));
                 String pm = request.getPaymentMethod();
                 String paymentMethodStr = pm;
@@ -251,10 +257,10 @@ public class TourBookingServiceImpl implements TourBookingService {
                 LOG.info("Created tour booking {} for schedule {} ({} pax)",
                                 savedBooking.getId(), schedule.getId(), request.getParticipantCount());
 
-                // 5a. Sinh mã bảo hiểm và đánh dấu schedule (chỉ khi tour bắt buộc bảo hiểm)
+                // 5a. Sinh mÃ£ báº£o hiá»ƒm vÃ  Ä‘Ã¡nh dáº¥u schedule (chá»‰ khi tour báº¯t buá»™c báº£o hiá»ƒm)
                 if (Boolean.TRUE.equals(tour.getIsInsuranceRequired()) && request.isAcceptInsurance()) {
                         if (!Boolean.TRUE.equals(schedule.getIsInsuranceProcessed())) {
-                                // Chưa có mã → sinh mới
+                                // ChÆ°a cÃ³ mÃ£ â†’ sinh má»›i
                                 String suffix = UUID.randomUUID().toString().substring(0, 4).toUpperCase();
                                 String policyNumber = "INS-" + LocalDate.now()
                                                 + "-SCH" + schedule.getId()
@@ -262,18 +268,18 @@ public class TourBookingServiceImpl implements TourBookingService {
                                 schedule.setInsurancePolicyNumber(policyNumber);
                                 schedule.setIsInsuranceProcessed(true);
                                 tourScheduleRepository.save(schedule);
-                                LOG.info("Sinh mã bảo hiểm cho schedule {}: {}", schedule.getId(), policyNumber);
+                                LOG.info("Sinh mÃ£ báº£o hiá»ƒm cho schedule {}: {}", schedule.getId(), policyNumber);
                         } else {
-                                LOG.info("Schedule {} đã có mã bảo hiểm: {}", schedule.getId(),
+                                LOG.info("Schedule {} Ä‘Ã£ cÃ³ mÃ£ báº£o hiá»ƒm: {}", schedule.getId(),
                                                 schedule.getInsurancePolicyNumber());
                         }
                 }
 
-                // 5. Tạo TourAttendee records
+                // 5. Táº¡o TourAttendee records
                 List<TourAttendee> attendees = new ArrayList<>();
                 int currentAttendeeCount = 0;
 
-                // Khách hàng đặt chính là attendee số 1
+                // KhÃ¡ch hÃ ng Ä‘áº·t chÃ­nh lÃ  attendee sá»‘ 1
                 if (currentAttendeeCount < request.getParticipantCount()) {
                         TourAttendee mainAttendee = new TourAttendee();
                         mainAttendee.setTourBooking(savedBooking);
@@ -283,25 +289,25 @@ public class TourBookingServiceImpl implements TourBookingService {
                         currentAttendeeCount++;
                 }
 
-                // Tạo các attendee đi kèm dựa trên danh sách companions (người lớn đi cùng)
+                // Táº¡o cÃ¡c attendee Ä‘i kÃ¨m dá»±a trÃªn danh sÃ¡ch companions (ngÆ°á»i lá»›n Ä‘i cÃ¹ng)
                 if (request.getCompanions() != null && !request.getCompanions().isEmpty()) {
                         for (TourBookingRequest.CompanionRequest comp : request.getCompanions()) {
                                 if (currentAttendeeCount >= request.getParticipantCount()) {
                                         break;
                                 }
-                                // Lưu thông tin người đi kèm vào bảng Dependents
+                                // LÆ°u thÃ´ng tin ngÆ°á»i Ä‘i kÃ¨m vÃ o báº£ng Dependents
                                 Dependent dep = new Dependent();
                                 dep.setCustomer(customer);
                                 dep.setDependentName(comp.getName());
-                                // Tính ngày sinh từ độ tuổi (ví dụ mặc định lấy năm hiện tại - số tuổi)
+                                // TÃ­nh ngÃ y sinh tá»« Ä‘á»™ tuá»•i (vÃ­ dá»¥ máº·c Ä‘á»‹nh láº¥y nÄƒm hiá»‡n táº¡i - sá»‘ tuá»•i)
                                 int age = comp.getAge() != null ? comp.getAge() : 12;
                                 dep.setBirthDate(LocalDate.now().minusYears(age));
                                 dep.setGender("Nam");
                                 dep.setIsDeleted(false);
                                 
-                                // Lưu số CCCD/Passport của người đi cùng để làm thủ tục bảo hiểm lữ hành bắt buộc
+                                // LÆ°u sá»‘ CCCD/Passport cá»§a ngÆ°á»i Ä‘i cÃ¹ng Ä‘á»ƒ lÃ m thá»§ tá»¥c báº£o hiá»ƒm lá»¯ hÃ nh báº¯t buá»™c
                                 if (comp.getIdCard() != null && !comp.getIdCard().trim().isEmpty()) {
-                                        dep.setCccdPassportEncrypted(comp.getIdCard().trim());
+                                        dep.setCccdPassportEncrypted(com.kawai.utils.EncryptionUtils.encrypt(comp.getIdCard().trim()));
                                 } else if (comp.getPhone() != null && !comp.getPhone().trim().isEmpty()) {
                                         dep.setCccdPassportEncrypted("PHONE_" + comp.getPhone().trim());
                                 }
@@ -317,8 +323,8 @@ public class TourBookingServiceImpl implements TourBookingService {
                         }
                 }
 
-                // Nếu còn thừa slot (trẻ em chưa nhập chi tiết companion),
-                // Tạo các attendee trẻ em từ danh sách childAges thực tế được gửi lên
+                // Náº¿u cÃ²n thá»«a slot (tráº» em chÆ°a nháº­p chi tiáº¿t companion),
+                // Táº¡o cÃ¡c attendee tráº» em tá»« danh sÃ¡ch childAges thá»±c táº¿ Ä‘Æ°á»£c gá»­i lÃªn
                 java.util.List<String> childAges = request.getChildAges() != null
                         ? new java.util.ArrayList<>(request.getChildAges())
                         : new java.util.ArrayList<>();
@@ -334,15 +340,15 @@ public class TourBookingServiceImpl implements TourBookingService {
                                 name = parts[0].trim();
                                 ageLabel = parts[1].trim();
                         } else {
-                                name = "Trẻ em (" + rawAge + ")";
+                                name = "Tráº» em (" + rawAge + ")";
                                 ageLabel = rawAge;
                         }
 
-                        // Tính năm sinh ước lượng từ nhãn tuổi
+                        // TÃ­nh nÄƒm sinh Æ°á»›c lÆ°á»£ng tá»« nhÃ£n tuá»•i
                         int estimatedAge = 12; // default: adult
-                        if ("Dưới 2 tuổi".equalsIgnoreCase(ageLabel)) {
+                        if ("DÆ°á»›i 2 tuá»•i".equalsIgnoreCase(ageLabel)) {
                                 estimatedAge = 1;
-                        } else if ("2 - 11 tuổi".equalsIgnoreCase(ageLabel)) {
+                        } else if ("2 - 11 tuá»•i".equalsIgnoreCase(ageLabel)) {
                                 estimatedAge = 6;
                         }
 
@@ -350,9 +356,9 @@ public class TourBookingServiceImpl implements TourBookingService {
                         childDep.setCustomer(customer);
                         childDep.setDependentName(name);
                         childDep.setBirthDate(LocalDate.now().minusYears(estimatedAge));
-                        childDep.setGender("Không xác định");
+                        childDep.setGender("KhÃ´ng xÃ¡c Ä‘á»‹nh");
                         childDep.setIsDeleted(false);
-                        // Ghi chú nguồn gốc và nhãn tuổi để hiển thị trong popup
+                        // Ghi chÃº nguá»“n gá»‘c vÃ  nhÃ£n tuá»•i Ä‘á»ƒ hiá»ƒn thá»‹ trong popup
                         childDep.setCccdPassportEncrypted("AUTO_CHILD_" + ageLabel.replace(" ", "_"));
 
                         Dependent savedChildDep = dependentRepository.save(childDep);
@@ -367,25 +373,25 @@ public class TourBookingServiceImpl implements TourBookingService {
 
                 tourAttendeeRepository.saveAll(attendees);
 
-                // 6. Post to Room: ghi nợ vào Folio phòng
+                // 6. Post to Room: ghi ná»£ vÃ o Folio phÃ²ng
                 if (request.isPostToRoom()) {
-                        // BR-TR-08: Khi chọn Post to Room, bắt buộc phải cung cấp roomBookingDetailId
-                        // hợp lệ (phòng đã check-in). Nếu không → TOUR-004.
+                        // BR-TR-08: Khi chá»n Post to Room, báº¯t buá»™c pháº£i cung cáº¥p roomBookingDetailId
+                        // há»£p lá»‡ (phÃ²ng Ä‘Ã£ check-in). Náº¿u khÃ´ng â†’ TOUR-004.
                         if (request.getRoomBookingDetailId() == null) {
-                                LOG.warn("TOUR-004: Booking {} yêu cầu Post to Room nhưng không cung cấp roomBookingDetailId",
+                                LOG.warn("TOUR-004: Booking {} yÃªu cáº§u Post to Room nhÆ°ng khÃ´ng cung cáº¥p roomBookingDetailId",
                                                 savedBooking.getId());
                                 throw new IllegalStateException(
-                                                "TOUR-004: Vui lòng chọn phòng để ghi nợ. Phòng phải đã được check-in.");
+                                                "TOUR-004: Vui lÃ²ng chá»n phÃ²ng Ä‘á»ƒ ghi ná»£. PhÃ²ng pháº£i Ä‘Ã£ Ä‘Æ°á»£c check-in.");
                         }
 
-                        // BR-TR-09: roomBookingDetailId phải tồn tại trong hệ thống → TOUR-005
+                        // BR-TR-09: roomBookingDetailId pháº£i tá»“n táº¡i trong há»‡ thá»‘ng â†’ TOUR-005
                         RoomBookingDetail detail = roomBookingDetailRepository
                                         .findById(request.getRoomBookingDetailId())
                                         .orElseThrow(() -> {
-                                                LOG.warn("TOUR-005: RoomBookingDetail {} không tồn tại trong hệ thống",
+                                                LOG.warn("TOUR-005: RoomBookingDetail {} khÃ´ng tá»“n táº¡i trong há»‡ thá»‘ng",
                                                                 request.getRoomBookingDetailId());
                                                 return new IllegalStateException(
-                                                                "TOUR-005: Chi tiết đặt phòng không tồn tại hoặc đã bị xóa. ID: "
+                                                                "TOUR-005: Chi tiáº¿t Ä‘áº·t phÃ²ng khÃ´ng tá»“n táº¡i hoáº·c Ä‘Ã£ bá»‹ xÃ³a. ID: "
                                                                                 + request.getRoomBookingDetailId());
                                         });
 
@@ -393,16 +399,16 @@ public class TourBookingServiceImpl implements TourBookingService {
                         BigDecimal limit = detail.getSubCreditLimit() != null ? detail.getSubCreditLimit()
                                         : BigDecimal.ZERO;
                         java.util.List<FolioItem> folioItems = folioItemRepository.findByRoomBookingDetailId(detail.getId());
-                        // Chi tiêu thực (FolioItem DƯƠNG)
+                        // Chi tiÃªu thá»±c (FolioItem DÆ¯Æ NG)
                         BigDecimal charged = folioItems.stream()
                                         .filter(fi -> !Boolean.TRUE.equals(fi.getIsSettledSeparately()))
                                         .map(FolioItem::getAmount)
                                         .filter(a -> a != null && a.compareTo(BigDecimal.ZERO) > 0)
                                         .reduce(BigDecimal.ZERO, BigDecimal::add);
-                        // Đã nạp thêm hạn mức (không tính tiền cọc walk-in)
+                        // ÄÃ£ náº¡p thÃªm háº¡n má»©c (khÃ´ng tÃ­nh tiá»n cá»c walk-in)
                         BigDecimal creditTopUp = folioItems.stream()
                                         .filter(fi -> !Boolean.TRUE.equals(fi.getIsSettledSeparately()))
-                                        .filter(fi -> fi.getDescription() != null && fi.getDescription().startsWith("Nạp tiền nâng hạn mức"))
+                                        .filter(fi -> fi.getDescription() != null && fi.getDescription().startsWith("Náº¡p tiá»n nÃ¢ng háº¡n má»©c"))
                                         .map(FolioItem::getAmount)
                                         .filter(a -> a != null && a.compareTo(BigDecimal.ZERO) < 0)
                                         .map(BigDecimal::abs)
@@ -429,15 +435,15 @@ public class TourBookingServiceImpl implements TourBookingService {
                         folioItem.setIsSettledSeparately(false);
                         folioItem.setRevenueCode("OTH_TOUR");
                         folioItemRepository.save(folioItem);
-                        LOG.info("Post to Room: FolioItem tạo thành công cho tour booking {} — {} VND, RoomBookingDetail {}",
+                        LOG.info("Post to Room: FolioItem táº¡o thÃ nh cÃ´ng cho tour booking {} â€” {} VND, RoomBookingDetail {}",
                                         savedBooking.getId(), totalPrice, detail.getId());
                 } else {
-                        // Không Post to Room — bỏ qua bước ghi Folio hoàn toàn
-                        LOG.debug("Booking {}: postToRoom=false, bỏ qua ghi Folio", savedBooking.getId());
+                        // KhÃ´ng Post to Room â€” bá» qua bÆ°á»›c ghi Folio hoÃ n toÃ n
+                        LOG.debug("Booking {}: postToRoom=false, bá» qua ghi Folio", savedBooking.getId());
                 }
 
-                // 7. Gửi email xác nhận đặt tour (bất đồng bộ, không block)
-                // Nếu thanh toán qua VNPay, email sẽ được gửi sau khi VNPay xác nhận thành công
+                // 7. Gá»­i email xÃ¡c nháº­n Ä‘áº·t tour (báº¥t Ä‘á»“ng bá»™, khÃ´ng block)
+                // Náº¿u thanh toÃ¡n qua VNPay, email sáº½ Ä‘Æ°á»£c gá»­i sau khi VNPay xÃ¡c nháº­n thÃ nh cÃ´ng
                 // (trong VnPayServiceImpl.verifyIpn)
                 if (emailService != null && !"vnpay".equalsIgnoreCase(request.getPaymentMethod())) {
                         String roomNumber = null;
@@ -452,16 +458,16 @@ public class TourBookingServiceImpl implements TourBookingService {
                                         roomNumber);
                 }
 
-                // Tự động gán Tour Guide cho schedule của booking này theo luật
+                // Tá»± Ä‘á»™ng gÃ¡n Tour Guide cho schedule cá»§a booking nÃ y theo luáº­t
                 try {
                         java.time.LocalDate depDate = schedule.getDepartureDate();
                         java.time.LocalTime depTime = schedule.getDepartureTime();
                         
-                        // ID của các Tour Guides: 5 = NguynNgoc, 6 = Ngọc Lan, 7 = Hoàng Nam
-                        Long selectedGuideId = 5L; // Ưu tiên NguynNgoc
+                        // ID cá»§a cÃ¡c Tour Guides: 5 = NguynNgoc, 6 = Ngá»c Lan, 7 = HoÃ ng Nam
+                        Long selectedGuideId = 5L; // Æ¯u tiÃªn NguynNgoc
                         
                         if (depDate != null && depTime != null) {
-                                // 1. Kiểm tra xem NguynNgoc (5L) có bị trùng lịch vào ngày & giờ này không
+                                // 1. Kiá»ƒm tra xem NguynNgoc (5L) cÃ³ bá»‹ trÃ¹ng lá»‹ch vÃ o ngÃ y & giá» nÃ y khÃ´ng
                                 boolean ngocConflict = false;
                                 List<TourStaffAssignment> ngocAssigns = tourStaffAssignmentRepository.findByEmployeeId(5L);
                                 if (ngocAssigns != null) {
@@ -478,7 +484,7 @@ public class TourBookingServiceImpl implements TourBookingService {
                                 }
                                 
                                 if (ngocConflict) {
-                                        // 2. Nếu NguynNgoc bị trùng, kiểm tra xem Ngọc Lan (6L) có bị trùng không
+                                        // 2. Náº¿u NguynNgoc bá»‹ trÃ¹ng, kiá»ƒm tra xem Ngá»c Lan (6L) cÃ³ bá»‹ trÃ¹ng khÃ´ng
                                         boolean lanConflict = false;
                                         List<TourStaffAssignment> lanAssigns = tourStaffAssignmentRepository.findByEmployeeId(6L);
                                         if (lanAssigns != null) {
@@ -495,9 +501,9 @@ public class TourBookingServiceImpl implements TourBookingService {
                                         }
                                         
                                         if (!lanConflict) {
-                                                selectedGuideId = 6L; // Gán cho Ngọc Lan
+                                                selectedGuideId = 6L; // GÃ¡n cho Ngá»c Lan
                                         } else {
-                                                selectedGuideId = 7L; // Fallback gán cho Hoàng Nam
+                                                selectedGuideId = 7L; // Fallback gÃ¡n cho HoÃ ng Nam
                                         }
                                 }
                         }
@@ -522,10 +528,10 @@ public class TourBookingServiceImpl implements TourBookingService {
                                 }
                                 guideAssignment.setEmployee(guide);
                                 tourStaffAssignmentRepository.save(guideAssignment);
-                                LOG.info("Đã gán Tour Guide {} (ID {}) cho schedule ID: {}", guide.getFullName(), selectedGuideId, schedule.getId());
+                                LOG.info("ÄÃ£ gÃ¡n Tour Guide {} (ID {}) cho schedule ID: {}", guide.getFullName(), selectedGuideId, schedule.getId());
                         }
                 } catch (Exception e) {
-                        LOG.error("Lỗi khi tự động gán Tour Guide theo luật thời gian: {}", e.getMessage());
+                        LOG.error("Lá»—i khi tá»± Ä‘á»™ng gÃ¡n Tour Guide theo luáº­t thá»i gian: {}", e.getMessage());
                 }
 
                 return savedBooking.getId();
@@ -533,10 +539,10 @@ public class TourBookingServiceImpl implements TourBookingService {
 
         @Override
         public void scheduleTour(Long scheduleId, Long employeeId, String staffRole) {
-                // UC20.2: Lập lịch chuyến tour — gán nhân viên (Tour Guide / Tài xế) vào lịch
-                // trình
-                // Business Rule: BR-TR-06 — Cảnh báo Admin nếu chưa đủ Minimum Pax trước 24h,
-                // nhưng logic gán nhân viên vẫn được thực hiện độc lập ở đây.
+                // UC20.2: Láº­p lá»‹ch chuyáº¿n tour â€” gÃ¡n nhÃ¢n viÃªn (Tour Guide / TÃ i xáº¿) vÃ o lá»‹ch
+                // trÃ¬nh
+                // Business Rule: BR-TR-06 â€” Cáº£nh bÃ¡o Admin náº¿u chÆ°a Ä‘á»§ Minimum Pax trÆ°á»›c 24h,
+                // nhÆ°ng logic gÃ¡n nhÃ¢n viÃªn váº«n Ä‘Æ°á»£c thá»±c hiá»‡n Ä‘á»™c láº­p á»Ÿ Ä‘Ã¢y.
                 TourSchedule schedule = tourScheduleRepository.findById(scheduleId)
                                 .orElseThrow(() -> new IllegalStateException("TOUR-002: Schedule not found"));
                 Employee employee = employeeRepository.findById(employeeId)
@@ -553,8 +559,8 @@ public class TourBookingServiceImpl implements TourBookingService {
 
         @Override
         public BigDecimal cancelTour(Long bookingId, boolean cancelledByResort) {
-                // UC20.3: Hủy tour lữ hành và tính toán tiền hoàn cọc
-                // BR-TR-05: Hủy do Resort → hoàn 100%; Khách tự hủy trong 24h → mất 50%
+                // UC20.3: Há»§y tour lá»¯ hÃ nh vÃ  tÃ­nh toÃ¡n tiá»n hoÃ n cá»c
+                // BR-TR-05: Há»§y do Resort â†’ hoÃ n 100%; KhÃ¡ch tá»± há»§y trong 24h â†’ máº¥t 50%
                 TourBooking booking = tourBookingRepository.findById(bookingId)
                                 .orElseThrow(() -> new IllegalStateException("TOUR-002: Booking not found"));
 
@@ -562,22 +568,114 @@ public class TourBookingServiceImpl implements TourBookingService {
                 String newStatus;
 
                 if (cancelledByResort) {
-                        // Hủy do phía Resort: hoàn tiền 100%
+                        // Há»§y do phÃ­a Resort: hoÃ n tiá»n 100%
                         refundAmount = booking.getTotalPrice();
                         newStatus = "Cancelled_Refunded";
                 } else {
-                        // Khách tự hủy (trong vòng 24h trước giờ tour): mất 50% cọc
+                        // KhÃ¡ch tá»± há»§y (trong vÃ²ng 24h trÆ°á»›c giá» tour): máº¥t 50% cá»c
                         refundAmount = booking.getTotalPrice().multiply(new BigDecimal("0.5"));
                         newStatus = "Cancelled_Forfeited";
                 }
 
-                booking.setBookingStatus(newStatus);
-                tourBookingRepository.save(booking);
+        booking.setBookingStatus(newStatus);
+        tourBookingRepository.save(booking);
+        
+        // Cáº­p nháº­t sá»‘ gháº¿ cá»§a TourSchedule
+        TourSchedule schedule = booking.getSchedule();
+        if (schedule != null && booking.getParticipantCount() != null) {
+                int newSeats = schedule.getBookedSeats() - booking.getParticipantCount();
+                if (newSeats < 0) newSeats = 0;
+                schedule.setBookedSeats(newSeats);
+                
+                if (newSeats == 0) {
+                        schedule.setScheduleStatus("Cancelled");
+                        LOG.info("TourSchedule {} bá»‹ há»§y vÃ¬ toÃ n bá»™ khÃ¡ch Ä‘Ã£ há»§y (sá»‘ gháº¿ = 0)", schedule.getId());
+                        
+                        // XÃ³a cÃ¡c phÃ¢n cÃ´ng nhÃ¢n viÃªn vÃ  thÃ´ng bÃ¡o
+                        List<TourStaffAssignment> assignments = tourStaffAssignmentRepository.findByScheduleId(schedule.getId());
+                        if (assignments != null && !assignments.isEmpty()) {
+                                for (TourStaffAssignment a : assignments) {
+                                        Employee emp = a.getEmployee();
+                                        if ("GUIDE".equalsIgnoreCase(a.getStaffRole()) && emp != null) {
+                                                LOG.info("Giáº£i phÃ³ng Tour Guide {} khá»i TourSchedule {}", emp.getFullName(), schedule.getId());
+                                                tourStaffAssignmentRepository.delete(a);
+                                                
+                                                // ThÃ´ng bÃ¡o cho nhÃ¢n viÃªn qua Email (sá»­ dá»¥ng HTML log hoáº·c email service)
+                                                if (emailService != null && emp.getEmail() != null) {
+                                                        String content = "<h2>ThÃ´ng bÃ¡o Há»§y Lá»‹ch TrÃ¬nh</h2>"
+                                                                        + "<p>Xin chÃ o " + emp.getFullName() + ",</p>"
+                                                                        + "<p>Lá»‹ch trÃ¬nh tour <b>" + (schedule.getTour() != null ? schedule.getTour().getTourName() : "") + "</b> "
+                                                                        + "vÃ o ngÃ y " + schedule.getDepartureDate() + " lÃºc " + schedule.getDepartureTime() 
+                                                                        + " mÃ  báº¡n phá»¥ trÃ¡ch Ä‘Ã£ bá»‹ há»§y do toÃ n bá»™ khÃ¡ch hÃ ng Ä‘Ã£ há»§y Ä‘Æ¡n.</p>";
+                                                        emailService.sendEmail(emp.getEmail(), "ThÃ´ng bÃ¡o há»§y lá»‹ch trÃ¬nh", content);
+                                                }
+                                                if (systemNotificationService != null && emp.getAccount() != null) {
+                                                        systemNotificationService.createNotification(
+                                                                emp.getAccount(),
+                                                                "Tour bá»‹ há»§y",
+                                                                "Lá»‹ch trÃ¬nh tour " + (schedule.getTour() != null ? schedule.getTour().getTourName() : "") + " vÃ o ngÃ y " + schedule.getDepartureDate() + " Ä‘Ã£ bá»‹ há»§y do khÃ´ng cÃ²n khÃ¡ch.",
+                                                                "TOUR_CANCELLED",
+                                                                "/employee/tours"
+                                                        );
+                                                }
+                                                
+                                                // TÃ¬m má»™t lá»‹ch trÃ¬nh khÃ¡c trong cÃ¹ng ngÃ y Ä‘ang thiáº¿u GUIDE Ä‘á»ƒ phÃ¢n cÃ´ng
+                                                List<TourSchedule> otherSchedules = tourScheduleRepository.findAll().stream() // Ideally should use a custom query, but this is simple enough for demo
+                                                        .filter(s -> s.getDepartureDate() != null && s.getDepartureDate().equals(schedule.getDepartureDate()))
+                                                        .filter(s -> !s.getId().equals(schedule.getId()))
+                                                        .filter(s -> "Open".equalsIgnoreCase(s.getScheduleStatus()) || "Confirmed".equalsIgnoreCase(s.getScheduleStatus()))
+                                                        .collect(java.util.stream.Collectors.toList());
+                                                
+                                                for (TourSchedule other : otherSchedules) {
+                                                        List<TourStaffAssignment> otherAssigns = tourStaffAssignmentRepository.findByScheduleId(other.getId());
+                                                        boolean hasGuide = false;
+                                                        if (otherAssigns != null) {
+                                                                for (TourStaffAssignment oa : otherAssigns) {
+                                                                        if ("GUIDE".equalsIgnoreCase(oa.getStaffRole())) {
+                                                                                hasGuide = true; break;
+                                                                        }
+                                                                }
+                                                        }
+                                                        if (!hasGuide) {
+                                                                TourStaffAssignment newAssignment = new TourStaffAssignment();
+                                                                newAssignment.setSchedule(other);
+                                                                newAssignment.setEmployee(emp);
+                                                                newAssignment.setStaffRole("GUIDE");
+                                                                tourStaffAssignmentRepository.save(newAssignment);
+                                                                LOG.info("ÄÃ£ phÃ¢n cÃ´ng láº¡i Tour Guide {} cho TourSchedule {} thay tháº¿", emp.getFullName(), other.getId());
+                                                                
+                                                                if (emailService != null && emp.getEmail() != null) {
+                                                                        String content = "<h2>ThÃ´ng bÃ¡o PhÃ¢n CÃ´ng Má»›i</h2>"
+                                                                                        + "<p>Xin chÃ o " + emp.getFullName() + ",</p>"
+                                                                                        + "<p>Báº¡n Ä‘Ã£ Ä‘Æ°á»£c phÃ¢n cÃ´ng phá»¥ trÃ¡ch lá»‹ch trÃ¬nh tour <b>" + (other.getTour() != null ? other.getTour().getTourName() : "") + "</b> "
+                                                                                        + "vÃ o ngÃ y " + other.getDepartureDate() + " lÃºc " + other.getDepartureTime() + " thay tháº¿ cho lá»‹ch trÃ¬nh Ä‘Ã£ há»§y.</p>";
+                                                                        emailService.sendEmail(emp.getEmail(), "PhÃ¢n cÃ´ng Tour Guide má»›i", content);
+                                                                }
+                                                                if (systemNotificationService != null && emp.getAccount() != null) {
+                                                                        systemNotificationService.createNotification(
+                                                                                emp.getAccount(),
+                                                                                "PhÃ¢n cÃ´ng Tour má»›i",
+                                                                                "Báº¡n Ä‘Æ°á»£c phÃ¢n cÃ´ng thay tháº¿ lá»‹ch trÃ¬nh tour " + (other.getTour() != null ? other.getTour().getTourName() : "") + " vÃ o ngÃ y " + other.getDepartureDate(),
+                                                                                "TOUR_ASSIGNED",
+                                                                                "/employee/tours"
+                                                                        );
+                                                                }
+                                                                break; // ÄÃ£ tÃ¬m Ä‘Æ°á»£c vÃ  gÃ¡n xong
+                                                        }
+                                                }
+                                        } else {
+                                                tourStaffAssignmentRepository.delete(a);
+                                        }
+                                }
+                        }
+                }
+                tourScheduleRepository.save(schedule);
+        }
 
-                LOG.info("Cancelled booking {} (resort={}), refund={}, status={}",
+        LOG.info("Cancelled booking {} (resort={}), refund={}, status={}",
                                 bookingId, cancelledByResort, refundAmount, newStatus);
 
-                // Gửi email thông báo hủy tour (bất đồng bộ)
+                // Gá»­i email thÃ´ng bÃ¡o há»§y tour (báº¥t Ä‘á»“ng bá»™)
                 if (emailService != null && booking.getCustomer() != null) {
                         emailService.sendCancellationNotice(
                                         booking, booking.getCustomer(), refundAmount, cancelledByResort);
@@ -585,10 +683,149 @@ public class TourBookingServiceImpl implements TourBookingService {
 
                 return refundAmount;
         }
+
+        @Override
+        public BigDecimal cancelTourByCustomer(Long bookingId, Long customerId, com.kawai.dto.CancelBookingRequestDTO dto) {
+                TourBooking booking = tourBookingRepository.findById(bookingId)
+                                .orElseThrow(() -> new IllegalStateException("TOUR-002: Booking not found"));
+
+                if (!booking.getCustomer().getId().equals(customerId)) {
+                        throw new IllegalStateException("TOUR-003: KhÃ´ng cÃ³ quyá»n há»§y booking nÃ y");
+                }
+
+                BigDecimal refundAmount = BigDecimal.ZERO;
+                String newStatus = "Cancelled_Forfeited";
+
+                // Quy táº¯c theo yÃªu cáº§u: > 24h => hoÃ n 50%, <= 24h => hoÃ n 0%
+                if (booking.getSchedule() != null && booking.getSchedule().getDepartureDate() != null) {
+                        java.time.LocalDateTime now = java.time.LocalDateTime.now();
+                        // Assume departure time is 07:00 if not specified
+                        java.time.LocalTime depTime = booking.getSchedule().getDepartureTime() != null 
+                                        ? booking.getSchedule().getDepartureTime() 
+                                        : java.time.LocalTime.of(7, 0);
+                        java.time.LocalDateTime departureDateTime = booking.getSchedule().getDepartureDate().atTime(depTime);
+                        long hoursUntilDeparture = java.time.temporal.ChronoUnit.HOURS.between(now, departureDateTime);
+
+                        if (hoursUntilDeparture > 24) {
+                                // HoÃ n 50%
+                                refundAmount = booking.getTotalPrice().multiply(new BigDecimal("0.5"));
+                                newStatus = "Cancelled_Refunded";
+                                
+                                // Táº¡o RefundRequest
+                                if (dto != null && dto.getBankName() != null && !dto.getBankName().isEmpty()) {
+                                        String refundInfo = String.format("[YÃŠU Cáº¦U HOÃ€N TIá»€N] NgÃ¢n hÃ ng: %s, STK: %s, Chá»§ tháº»: %s", 
+                                                dto.getBankName(), dto.getAccountNumber(), dto.getAccountName());
+                                        String currentNotes = booking.getNotes() != null ? booking.getNotes() : "";
+                                        booking.setNotes(currentNotes + "\n" + refundInfo);
+
+                                        com.kawai.models.RefundRequest refund = new com.kawai.models.RefundRequest();
+                                        refund.setTourBooking(booking);
+                                        refund.setBankName(dto.getBankName());
+                                        refund.setAccountNumber(dto.getAccountNumber());
+                                        refund.setAccountName(dto.getAccountName());
+                                        refund.setAmount(refundAmount);
+                                        refund.setStatus("Pending");
+                                        refundRequestRepository.save(refund);
+                                }
+                        }
+                }
+
+        booking.setBookingStatus(newStatus);
+        tourBookingRepository.save(booking);
+
+        if (emailService != null && booking.getCustomer() != null && booking.getCustomer().getEmail() != null) {
+                emailService.sendCancellationNotice(booking, booking.getCustomer(), refundAmount, false);
+        }
+
+        // Cáº­p nháº­t sá»‘ gháº¿ cá»§a TourSchedule
+        TourSchedule schedule = booking.getSchedule();
+        if (schedule != null && booking.getParticipantCount() != null) {
+                int newSeats = schedule.getBookedSeats() - booking.getParticipantCount();
+                if (newSeats < 0) newSeats = 0;
+                schedule.setBookedSeats(newSeats);
+                
+                if (newSeats == 0) {
+                        schedule.setScheduleStatus("Cancelled");
+                        LOG.info("TourSchedule {} bá»‹ há»§y vÃ¬ toÃ n bá»™ khÃ¡ch Ä‘Ã£ há»§y (sá»‘ gháº¿ = 0)", schedule.getId());
+                        
+                        // XÃ³a cÃ¡c phÃ¢n cÃ´ng nhÃ¢n viÃªn vÃ  thÃ´ng bÃ¡o
+                        List<TourStaffAssignment> assignments = tourStaffAssignmentRepository.findByScheduleId(schedule.getId());
+                        if (assignments != null && !assignments.isEmpty()) {
+                                for (TourStaffAssignment a : assignments) {
+                                        Employee emp = a.getEmployee();
+                                        if ("GUIDE".equalsIgnoreCase(a.getStaffRole()) && emp != null) {
+                                                LOG.info("Giáº£i phÃ³ng Tour Guide {} khá»i TourSchedule {}", emp.getFullName(), schedule.getId());
+                                                tourStaffAssignmentRepository.delete(a);
+                                                
+                                                // ThÃ´ng bÃ¡o cho nhÃ¢n viÃªn qua Email
+                                                if (emailService != null && emp.getEmail() != null) {
+                                                        String content = "<h2>ThÃ´ng bÃ¡o Há»§y Lá»‹ch TrÃ¬nh</h2>"
+                                                                        + "<p>Xin chÃ o " + emp.getFullName() + ",</p>"
+                                                                        + "<p>Lá»‹ch trÃ¬nh tour <b>" + (schedule.getTour() != null ? schedule.getTour().getTourName() : "") + "</b> "
+                                                                        + "vÃ o ngÃ y " + schedule.getDepartureDate() + " lÃºc " + schedule.getDepartureTime() 
+                                                                        + " mÃ  báº¡n phá»¥ trÃ¡ch Ä‘Ã£ bá»‹ há»§y do toÃ n bá»™ khÃ¡ch hÃ ng Ä‘Ã£ há»§y Ä‘Æ¡n.</p>";
+                                                        emailService.sendEmail(emp.getEmail(), "ThÃ´ng bÃ¡o há»§y lá»‹ch trÃ¬nh", content);
+                                                }
+                                                
+                                                // TÃ¬m má»™t lá»‹ch trÃ¬nh khÃ¡c trong cÃ¹ng ngÃ y Ä‘ang thiáº¿u GUIDE Ä‘á»ƒ phÃ¢n cÃ´ng
+                                                List<TourSchedule> otherSchedules = tourScheduleRepository.findAll().stream()
+                                                        .filter(s -> s.getDepartureDate() != null && s.getDepartureDate().equals(schedule.getDepartureDate()))
+                                                        .filter(s -> !s.getId().equals(schedule.getId()))
+                                                        .filter(s -> "Open".equalsIgnoreCase(s.getScheduleStatus()) || "Confirmed".equalsIgnoreCase(s.getScheduleStatus()))
+                                                        .collect(java.util.stream.Collectors.toList());
+                                                
+                                                for (TourSchedule other : otherSchedules) {
+                                                        List<TourStaffAssignment> otherAssigns = tourStaffAssignmentRepository.findByScheduleId(other.getId());
+                                                        boolean hasGuide = false;
+                                                        if (otherAssigns != null) {
+                                                                for (TourStaffAssignment oa : otherAssigns) {
+                                                                        if ("GUIDE".equalsIgnoreCase(oa.getStaffRole())) {
+                                                                                hasGuide = true; break;
+                                                                        }
+                                                                }
+                                                        }
+                                                        if (!hasGuide) {
+                                                                TourStaffAssignment newAssignment = new TourStaffAssignment();
+                                                                newAssignment.setSchedule(other);
+                                                                newAssignment.setEmployee(emp);
+                                                                newAssignment.setStaffRole("GUIDE");
+                                                                tourStaffAssignmentRepository.save(newAssignment);
+                                                                LOG.info("ÄÃ£ phÃ¢n cÃ´ng láº¡i Tour Guide {} cho TourSchedule {} thay tháº¿", emp.getFullName(), other.getId());
+                                                                
+                                                                if (emailService != null && emp.getEmail() != null) {
+                                                                        String content = "<h2>ThÃ´ng bÃ¡o PhÃ¢n CÃ´ng Má»›i</h2>"
+                                                                                        + "<p>Xin chÃ o " + emp.getFullName() + ",</p>"
+                                                                                        + "<p>Báº¡n Ä‘Ã£ Ä‘Æ°á»£c phÃ¢n cÃ´ng phá»¥ trÃ¡ch lá»‹ch trÃ¬nh tour <b>" + (other.getTour() != null ? other.getTour().getTourName() : "") + "</b> "
+                                                                                        + "vÃ o ngÃ y " + other.getDepartureDate() + " lÃºc " + other.getDepartureTime() + " thay tháº¿ cho lá»‹ch trÃ¬nh Ä‘Ã£ há»§y.</p>";
+                                                                        emailService.sendEmail(emp.getEmail(), "PhÃ¢n cÃ´ng Tour Guide má»›i", content);
+                                                                }
+                                                                break;
+                                                        }
+                                                }
+                                        } else {
+                                                tourStaffAssignmentRepository.delete(a);
+                                        }
+                                }
+                        }
+                }
+                tourScheduleRepository.save(schedule);
+        }
+
+        LOG.info("Customer {} cancelled booking {}, hours left, refund={}, status={}",
+                                customerId, bookingId, refundAmount, newStatus);
+
+                if (emailService != null && booking.getCustomer() != null) {
+                        emailService.sendCancellationNotice(booking, booking.getCustomer(), refundAmount, false);
+                }
+
+                return refundAmount;
+        }
+
         @jakarta.annotation.PostConstruct
         public void clearTourBookingsData() {
-                // ⚠️ Đã vô hiệu hóa: method này trước đây xóa toàn bộ Tour_Bookings và Tour_Attendees
-                // mỗi lần khởi động, gây mất toàn bộ seed data. Đã comment lại để bảo toàn dữ liệu demo.
+                // âš ï¸ ÄÃ£ vÃ´ hiá»‡u hÃ³a: method nÃ y trÆ°á»›c Ä‘Ã¢y xÃ³a toÃ n bá»™ Tour_Bookings vÃ  Tour_Attendees
+                // má»—i láº§n khá»Ÿi Ä‘á»™ng, gÃ¢y máº¥t toÃ n bá»™ seed data. ÄÃ£ comment láº¡i Ä‘á»ƒ báº£o toÃ n dá»¯ liá»‡u demo.
                 LOG.info("TOUR BOOKINGS DATA CLEANUP COMPLETED SUCCESSFULLY.");
         }
 }
+
