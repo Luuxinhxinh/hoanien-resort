@@ -59,7 +59,7 @@ public class DependentServiceImpl implements DependentService {
     // ── Business Constants ──────────────────────────────────────────────────
     /** Trạng thái booking được phép thêm dependent (Invariant §6.5 EDS). */
     private static final Set<String> ACTIVE_BOOKING_STATUSES = Set.of("Confirmed", "Checked_In");
-    private static final int ADULT_AGE_THRESHOLD = 12;
+    private static final int ADULT_AGE_THRESHOLD = 18;
     private static final String STATUS_REGISTERED = "REGISTERED";
     private static final String DEFAULT_DEPENDENT_NAME = "Khách đi kèm";
     private static final String DEFAULT_GENDER = "Khác";
@@ -435,9 +435,8 @@ public class DependentServiceImpl implements DependentService {
                 throw new BusinessException("MOD2-020",
                         "Số lượng khách vượt quá sức chứa tối đa của phòng. Tối đa: " + maxAdults + " người lớn.");
             }
-            int baseAdults = category.getBaseAdults() != null ? category.getBaseAdults() : 2;
             if (newAdultsCount > paidAdults) {
-                if (newAdultsCount > baseAdults && category.getExtraAdultSurcharge() != null) {
+                if (category.getExtraAdultSurcharge() != null) {
                     extraFee = category.getExtraAdultSurcharge();
                 }
                 detail.setNumberOfAdults((int) newAdultsCount);
@@ -448,12 +447,9 @@ public class DependentServiceImpl implements DependentService {
                 throw new BusinessException("MOD2-021",
                         "Số lượng khách vượt quá sức chứa tối đa của phòng. Tối đa: " + maxChildren + " trẻ em.");
             }
-            int baseChildren = category.getBaseChildren() != null ? category.getBaseChildren() : 0;
             if (newChildrenCount > paidChildren) {
-                if (newChildrenCount > baseChildren) {
-                    Optional<RoomSurcharge> surchargeOpt = roomSurchargeRepository.findSurchargeForAge(category, age);
-                    extraFee = surchargeOpt.map(RoomSurcharge::getPriceModifier).orElse(BigDecimal.ZERO);
-                }
+                Optional<RoomSurcharge> surchargeOpt = roomSurchargeRepository.findSurchargeForAge(category, age);
+                extraFee = surchargeOpt.map(RoomSurcharge::getPriceModifier).orElse(BigDecimal.ZERO);
                 detail.setNumberOfChildren((int) newChildrenCount);
             }
         }
