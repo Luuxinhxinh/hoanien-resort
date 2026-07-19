@@ -42,6 +42,9 @@ public class TourBookingServiceImpl implements TourBookingService {
         @Autowired
         private com.kawai.repositories.RefundRequestRepository refundRequestRepository;
 
+        @Autowired(required = false)
+        private com.kawai.services.interfaces.FolioService folioService;
+
         @Autowired
         private DependentRepository dependentRepository;
 
@@ -72,6 +75,15 @@ public class TourBookingServiceImpl implements TourBookingService {
                 // 1. Validate schedule & customer
                 TourSchedule schedule = tourScheduleRepository.findById(request.getScheduleId())
                                 .orElseThrow(() -> new IllegalStateException("TOUR-002: Schedule not found"));
+                
+                // Kiểm tra ngày khởi hành: chỉ cho phép đặt tour khởi hành từ ngày mai trở đi
+                if (schedule.getDepartureDate() != null) {
+                        LocalDate departureDate = schedule.getDepartureDate();
+                        if (!departureDate.isAfter(LocalDate.now())) {
+                                throw new IllegalStateException("TOUR-DATE-001: Chỉ được đặt các chuyến tour khởi hành từ ngày mai trở đi (phải đặt trước ít nhất 1 ngày).");
+                        }
+                }
+
                 Customer customer = customerRepository.findById(request.getCustomerId())
                                 .orElseThrow(() -> new IllegalStateException("TOUR-003: Customer not found"));
 
@@ -261,12 +273,17 @@ public class TourBookingServiceImpl implements TourBookingService {
                 List<TourAttendee> attendees = new ArrayList<>();
                 int currentAttendeeCount = 0;
 
-                // KhÃ¡ch hÃ ng Ä‘áº·t chÃ­nh lÃ  attendee sá»‘ 1
-                if (currentAttendeeCount < request.getParticipantCount()) {
+                // Kiểm tra xem khách hàng đặt chính đã đăng ký tham gia chuyến đi này trước đó chưa
+                boolean isCustomerAlreadyRegistered = tourAttendeeRepository.existsByCustomerIdAndTourBookingScheduleIdAndTourBookingBookingStatusNot(
+                                customer.getId(), schedule.getId(), "Cancelled");
+
+                // Khách hàng đặt chính là attendee số 1 (Chỉ gán nếu khách hàng chưa đăng ký tham gia chuyến đi này)
+                if (!isCustomerAlreadyRegistered && currentAttendeeCount < request.getParticipantCount()) {
                         TourAttendee mainAttendee = new TourAttendee();
                         mainAttendee.setTourBooking(savedBooking);
                         mainAttendee.setCustomer(customer);
                         mainAttendee.setAttendanceStatus("Not_Show");
+                        mainAttendee.setFaceVectorData(customer.getFaceVectorData());
                         attendees.add(mainAttendee);
                         currentAttendeeCount++;
                 }
@@ -304,6 +321,9 @@ public class TourBookingServiceImpl implements TourBookingService {
                                 attendee.setTourBooking(savedBooking);
                                 attendee.setDependent(savedDep);
                                 attendee.setAttendanceStatus("Not_Show");
+                                if (savedDep != null) {
+                                        attendee.setFaceVectorData(savedDep.getFaceVectorData());
+                                }
                                 attendees.add(attendee);
                                 currentAttendeeCount++;
                         }
@@ -354,6 +374,9 @@ public class TourBookingServiceImpl implements TourBookingService {
                         attendee.setTourBooking(savedBooking);
                         attendee.setDependent(savedChildDep);
                         attendee.setAttendanceStatus("Not_Show");
+                        if (savedChildDep != null) {
+                                attendee.setFaceVectorData(savedChildDep.getFaceVectorData());
+                        }
                         attendees.add(attendee);
                         currentAttendeeCount++;
                 }
@@ -569,7 +592,7 @@ public class TourBookingServiceImpl implements TourBookingService {
         }
 
         @Override
-        public BigDecimal cancelTour(Long bookingId, boolean cancelledByResort) {
+        public BigDecimal cancelTour(Long bookingId, boolean cancelledByResort, String reason) {
                 // UC20.3: Há»§y tour lá»¯ hÃ nh vÃ  tÃ­nh toÃ¡n tiá»n hoÃ n cá»c
                 // BR-TR-05: Há»§y do Resort â†’ hoÃ n 100%; KhÃ¡ch tá»± há»§y trong 24h â†’
                 // máº¥t 50%
@@ -580,17 +603,51 @@ public class TourBookingServiceImpl implements TourBookingService {
                 String newStatus;
 
                 if (cancelledByResort) {
-                        // Há»§y do phÃ­a Resort: hoÃ n tiá»n 100%
+                        // Hủy do phía Resort: hoàn tiền 100%
                         refundAmount = booking.getTotalPrice();
                         newStatus = "Cancelled_Refunded";
+                        booking.setBookingStatus(newStatus);
+                        tourBookingRepository.save(booking);
+
+                        // A. Nếu là khách lưu trú (có phòng nghỉ): Hoàn tiền vào Folio phòng
+                        if (booking.getRoomBookingDetail() != null) {
+                                Long detailId = booking.getRoomBookingDetail().getId();
+                                String desc = String.format("Hoàn 100%% tiền Tour '%s' do Resort hủy tour. Sự cố: %s", 
+                                                booking.getSchedule() != null && booking.getSchedule().getTour() != null ? booking.getSchedule().getTour().getTourName() : "Lữ hành", 
+                                                reason != null ? reason : "");
+                                
+                                if (folioService != null) {
+                                        folioService.addFolioItem(detailId, "TOUR", refundAmount.negate(), desc);
+                                }
+
+                                String currentNotes = booking.getNotes() != null ? booking.getNotes() : "";
+                                booking.setNotes(currentNotes + "\n[ĐÃ HOÀN TIỀN] Hoàn 100% tiền Tour (" + refundAmount + " VNĐ) vào Folio phòng " 
+                                                + (booking.getRoomBookingDetail().getRoom() != null ? booking.getRoomBookingDetail().getRoom().getRoomNumber() : "") 
+                                                + " lúc " + java.time.LocalDateTime.now() + ". Lý do: " + reason);
+                                tourBookingRepository.save(booking);
+                        } 
+                        // B. Nếu là khách vãng lai (không có phòng): Tạo RefundRequest chờ chuyển khoản
+                        else {
+                                com.kawai.models.RefundRequest refund = new com.kawai.models.RefundRequest();
+                                refund.setTourBooking(booking);
+                                refund.setAmount(refundAmount);
+                                refund.setStatus("Pending");
+                                refund.setManagerNote("Hoàn 100% tiền Tour do Resort hủy tour. Sự cố: " + reason);
+                                refund.setCreatedAt(java.time.LocalDateTime.now());
+                                refundRequestRepository.save(refund);
+
+                                String currentNotes = booking.getNotes() != null ? booking.getNotes() : "";
+                                booking.setNotes(currentNotes + "\n[ĐÃ TẠO YÊU CẦU HOÀN] Hoàn 100% tiền Tour (" + refundAmount + " VNĐ) - Chờ chuyển khoản lúc " 
+                                                + java.time.LocalDateTime.now() + ". Lý do: " + reason);
+                                tourBookingRepository.save(booking);
+                        }
                 } else {
-                        // KhÃ¡ch tá»± há»§y (trong vÃ²ng 24h trÆ°á»›c giá» tour): máº¥t 50% cá»c
+                        // Khách tự hủy (trong vòng 24h trước giờ tour): mất 50% cọc
                         refundAmount = booking.getTotalPrice().multiply(new BigDecimal("0.5"));
                         newStatus = "Cancelled_Forfeited";
+                        booking.setBookingStatus(newStatus);
+                        tourBookingRepository.save(booking);
                 }
-
-                booking.setBookingStatus(newStatus);
-                tourBookingRepository.save(booking);
 
                 // Cáº­p nháº­t sá»‘ gháº¿ cá»§a TourSchedule
                 TourSchedule schedule = booking.getSchedule();
@@ -748,7 +805,7 @@ public class TourBookingServiceImpl implements TourBookingService {
                 // Gá»­i email thÃ´ng bÃ¡o há»§y tour (báº¥t Ä‘á»“ng bá»™)
                 if (emailService != null && booking.getCustomer() != null) {
                         emailService.sendCancellationNotice(
-                                        booking, booking.getCustomer(), refundAmount, cancelledByResort);
+                                        booking, booking.getCustomer(), refundAmount, cancelledByResort, reason);
                 }
 
                 return refundAmount;
@@ -808,7 +865,7 @@ public class TourBookingServiceImpl implements TourBookingService {
                 tourBookingRepository.save(booking);
 
                 if (emailService != null && booking.getCustomer() != null && booking.getCustomer().getEmail() != null) {
-                        emailService.sendCancellationNotice(booking, booking.getCustomer(), refundAmount, false);
+                        emailService.sendCancellationNotice(booking, booking.getCustomer(), refundAmount, false, null);
                 }
 
                 // Cáº­p nháº­t sá»‘ gháº¿ cá»§a TourSchedule
@@ -930,7 +987,7 @@ public class TourBookingServiceImpl implements TourBookingService {
                                 customerId, bookingId, refundAmount, newStatus);
 
                 if (emailService != null && booking.getCustomer() != null) {
-                        emailService.sendCancellationNotice(booking, booking.getCustomer(), refundAmount, false);
+                        emailService.sendCancellationNotice(booking, booking.getCustomer(), refundAmount, false, null);
                 }
 
                 return refundAmount;

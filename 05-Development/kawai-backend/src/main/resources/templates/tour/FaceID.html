@@ -415,7 +415,9 @@
                 <div class="space-y-2 text-center md:text-left flex-1">
                     <h3 class="text-xl font-bold text-red-900">Lịch Trình Tour Đã Bị Hủy</h3>
                     <p class="text-sm text-red-700 leading-relaxed">
-                        Lịch trình tour này đã được xác nhận hủy do sự cố bất khả kháng. Hệ thống đã tự động thực hiện hoàn tiền 100% vào Folio phòng nghỉ của các khách lưu trú, tạo yêu cầu hoàn tiền cho khách vãng lai, và gửi email thông báo chi tiết đến toàn bộ hành khách trong đoàn.
+                        Lịch trình tour này đã được xác nhận hủy do sự cố bất khả kháng. Hệ thống đã tự động thực hiện
+                        hoàn tiền 100% vào Folio phòng nghỉ của các khách lưu trú, tạo yêu cầu hoàn tiền cho khách vãng
+                        lai, và gửi email thông báo chi tiết đến toàn bộ hành khách trong đoàn.
                     </p>
                 </div>
             </div>
@@ -631,16 +633,19 @@
                                                 disabled="">
                                                 <span class="material-symbols-outlined text-[18px]">check</span>
                                             </button>
- 
+
                                             <!-- Trạng thái vắng mặt -->
                                             <span th:if="${attendee.status == 'Absent'}"
                                                 class="px-3 py-1 rounded-full bg-red-500/10 text-red-600 font-label-sm text-label-sm border border-red-500/30 flex flex-col items-start gap-0.5">
                                                 <span class="flex items-center font-bold">
-                                                    <span class="material-symbols-outlined text-[14px] mr-1">close</span>Vắng mặt
+                                                    <span
+                                                        class="material-symbols-outlined text-[14px] mr-1">close</span>Vắng
+                                                    mặt
                                                 </span>
-                                                <span class="text-[9px] text-red-600/70 font-normal normal-case max-w-[150px] truncate" 
-                                                      th:title="${attendee.absentReason}" 
-                                                      th:text="'Lý do: ' + ${attendee.absentReason}">
+                                                <span
+                                                    class="text-[9px] text-red-600/70 font-normal normal-case max-w-[150px] truncate"
+                                                    th:title="${attendee.absentReason}"
+                                                    th:text="'Lý do: ' + ${attendee.absentReason}">
                                                 </span>
                                             </span>
                                             <button th:if="${attendee.status == 'Absent'}"
@@ -648,7 +653,7 @@
                                                 disabled="">
                                                 <span class="material-symbols-outlined text-[18px]">person_off</span>
                                             </button>
- 
+
                                             <span th:if="${attendee.status == 'Not_Show'}"
                                                 class="px-3 py-1 rounded-full bg-secondary-container/30 text-secondary font-label-sm text-label-sm border border-secondary-container">
                                                 Chờ điểm danh
@@ -715,7 +720,8 @@
                     </div>
                 </div>
                 <!-- Right Column: FaceID Attendance -->
-                <div th:if="${scheduleStatus != 'Cancelled'}" class="col-span-12 lg:col-span-4 space-y-8" id="faceid-section">
+                <div th:if="${scheduleStatus != 'Cancelled'}" class="col-span-12 lg:col-span-4 space-y-8"
+                    id="faceid-section">
                     <!-- Scanner Interface -->
                     <div class="glass-panel p-6 rounded-lg space-y-6">
                         <div class="space-y-8">
@@ -822,7 +828,9 @@
                                             Tiến độ điểm danh</p>
                                         <p class="font-headline-md text-2xl text-on-surface">
                                             <span th:text="${checkedInCount}">0</span>
-                                            <span th:if="${absentCount > 0}" th:text="' (+ ' + ${absentCount} + ' vắng)'" class="text-red-500 text-sm font-bold"></span>
+                                            <span th:if="${absentCount > 0}"
+                                                th:text="' (+ ' + ${absentCount} + ' vắng)'"
+                                                class="text-red-500 text-sm font-bold"></span>
                                             / <span th:text="${totalAttendees}">0</span> Khách
                                         </p>
                                     </div>
@@ -1431,7 +1439,7 @@
             if (!modal) return;
             document.getElementById('absent-attendee-id').value = attendeeId;
             document.getElementById('absent-reason-textarea').value = '';
-            
+
             modal.classList.remove('hidden');
             setTimeout(() => {
                 modal.querySelector('.absent-modal-box').classList.remove('scale-95', 'opacity-0');
@@ -1571,11 +1579,27 @@
             }
         }
 
+        let isCancellingSchedule = false;
+
         function executeCancelSchedule(description) {
             if (!activeScheduleId) {
                 showToast('Không xác định được mã lịch trình tour.', 'error');
                 return;
             }
+            if (isCancellingSchedule) return;
+
+            isCancellingSchedule = true;
+
+            const cancelBtn = document.getElementById('btn-report-cancel');
+            let originalText = '';
+            if (cancelBtn) {
+                cancelBtn.disabled = true;
+                originalText = cancelBtn.innerHTML;
+                cancelBtn.innerHTML = '<span class="inline-block animate-spin mr-2">⏳</span> Đang hủy...';
+                cancelBtn.style.opacity = '0.7';
+            }
+
+            showToast('Đang thực hiện hủy tour và hoàn tiền, vui lòng đợi...', 'warning');
 
             fetch('/api/faceid/cancel-schedule', {
                 method: 'POST',
@@ -1584,6 +1608,12 @@
             })
                 .then(res => res.json())
                 .then(data => {
+                    isCancellingSchedule = false;
+                    if (cancelBtn) {
+                        cancelBtn.disabled = false;
+                        cancelBtn.innerHTML = originalText;
+                        cancelBtn.style.opacity = '1';
+                    }
                     if (data.success) {
                         showCustomWarning({
                             title: 'Hủy Tour Thành Công',
@@ -1603,6 +1633,12 @@
                     }
                 })
                 .catch(err => {
+                    isCancellingSchedule = false;
+                    if (cancelBtn) {
+                        cancelBtn.disabled = false;
+                        cancelBtn.innerHTML = originalText;
+                        cancelBtn.style.opacity = '1';
+                    }
                     console.error(err);
                     showCustomWarning({
                         title: 'Lỗi Kết Nối',
@@ -2826,7 +2862,8 @@
                 transform scale-95 opacity-0 transition-all duration-200 ease-out">
         <!-- Icon + Title -->
         <div class="flex flex-col items-center text-center px-8 pt-9 pb-5">
-            <div class="w-20 h-20 rounded-full bg-red-50 border border-red-100 flex items-center justify-center mb-5 shadow-inner">
+            <div
+                class="w-20 h-20 rounded-full bg-red-50 border border-red-100 flex items-center justify-center mb-5 shadow-inner">
                 <span class="material-symbols-outlined text-red-600" style="font-size:36px">person_off</span>
             </div>
             <h3 class="font-bold text-on-background text-lg md:text-xl tracking-tight">Báo Vắng Mặt</h3>
@@ -2837,7 +2874,7 @@
         <!-- Body -->
         <div class="px-8 pb-4">
             <input type="hidden" id="absent-attendee-id" value="" />
-            <textarea id="absent-reason-textarea" rows="3" 
+            <textarea id="absent-reason-textarea" rows="3"
                 class="w-full p-4 border border-outline-variant/60 rounded-2xl focus:ring-2 focus:ring-primary/20 outline-none text-sm leading-relaxed placeholder-on-surface-variant/40"
                 placeholder="Ví dụ: Khách bị ốm đột xuất, không liên lạc được, khách chủ động hủy..."></textarea>
         </div>

@@ -47,7 +47,7 @@ public interface TourBookingService {
      * Hủy tour lữ hành và tính toán tiền hoàn cọc.
      * (UC20.3)
      */
-    BigDecimal cancelTour(Long bookingId, boolean cancelledByResort);
+    BigDecimal cancelTour(Long bookingId, boolean cancelledByResort, String reason);
 
     /**
      * Hủy tour bởi khách hàng có kèm form hoàn tiền.

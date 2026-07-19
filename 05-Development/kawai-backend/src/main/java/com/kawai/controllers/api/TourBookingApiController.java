@@ -52,6 +52,42 @@ public class TourBookingApiController {
     @Autowired
     private TourAttendeeRepository tourAttendeeRepository;
 
+    @Autowired
+    private AccountRepository accountRepository;
+
+    @GetMapping("/check-registered")
+    public ResponseEntity<?> checkRegistered(
+            @RequestParam Long tourId,
+            @RequestParam String departureDate,
+            Principal principal) {
+        if (principal == null) {
+            return ResponseEntity.ok(Map.of("registered", false));
+        }
+
+        Optional<Customer> customerOpt = customerRepository.findByAccount_Username(principal.getName());
+        if (customerOpt.isEmpty()) {
+            return ResponseEntity.ok(Map.of("registered", false));
+        }
+
+        LocalDate depDate = LocalDate.parse(departureDate, DateTimeFormatter.ISO_LOCAL_DATE);
+        List<TourSchedule> schedules = tourScheduleRepository.findByTourIdAndDepartureDate(tourId, depDate);
+        if (schedules.isEmpty()) {
+            return ResponseEntity.ok(Map.of("registered", false));
+        }
+
+        Long customerId = customerOpt.get().getId();
+        boolean registered = false;
+        for (TourSchedule schedule : schedules) {
+            if (tourAttendeeRepository.existsByCustomerIdAndTourBookingScheduleIdAndTourBookingBookingStatusNot(
+                    customerId, schedule.getId(), "Cancelled")) {
+                registered = true;
+                break;
+            }
+        }
+
+        return ResponseEntity.ok(Map.of("registered", registered));
+    }
+
     @PostMapping
     public ResponseEntity<?> createTourBooking(@RequestBody Map<String, Object> payload, Principal principal,
             HttpServletRequest httpRequest) {
@@ -65,8 +101,10 @@ public class TourBookingApiController {
             int participantCount = Integer.parseInt(payload.get("participantCount").toString());
             String paymentMethod = (String) payload.get("paymentMethod");
 
-            // Parse roomSelections: [{roomId, adults, children}] — per-room participant counts
-            // Also support legacy roomNumbers[] (array of strings) and roomNumber (single string)
+            // Parse roomSelections: [{roomId, adults, children}] — per-room participant
+            // counts
+            // Also support legacy roomNumbers[] (array of strings) and roomNumber (single
+            // string)
             List<java.util.Map<String, Object>> roomSelections = null;
             Object roomSelectionsRaw = payload.get("roomSelections");
             if (roomSelectionsRaw instanceof List) {
@@ -81,7 +119,8 @@ public class TourBookingApiController {
                     legacyRoomNumbers = (List<String>) roomNumbersRaw;
                 } else {
                     String singleRoom = payload.get("roomNumber") != null ? payload.get("roomNumber").toString() : null;
-                    if (singleRoom != null) legacyRoomNumbers = java.util.Collections.singletonList(singleRoom);
+                    if (singleRoom != null)
+                        legacyRoomNumbers = java.util.Collections.singletonList(singleRoom);
                 }
             }
 
@@ -122,7 +161,8 @@ public class TourBookingApiController {
             String cccdPassport = (String) payload.get("cccdPassport");
             if (cccdPassport != null && !cccdPassport.trim().isEmpty() && customer != null) {
                 String encryptedCccd = com.kawai.utils.EncryptionUtils.encrypt(cccdPassport.trim());
-                if (customer.getCccdPassportEncrypted() == null || !customer.getCccdPassportEncrypted().equals(encryptedCccd)) {
+                if (customer.getCccdPassportEncrypted() == null
+                        || !customer.getCccdPassportEncrypted().equals(encryptedCccd)) {
                     customer.setCccdPassportEncrypted(encryptedCccd);
                     customer = customerRepository.save(customer);
                 }
@@ -142,8 +182,6 @@ public class TourBookingApiController {
                 guideForNewTour = "NguynNgoc";
             }
 
-
-
             if (schedule == null) {
                 schedule = new TourSchedule();
                 schedule.setTour(tour);
@@ -154,7 +192,8 @@ public class TourBookingApiController {
                 schedule = tourScheduleRepository.save(schedule);
             }
 
-            // 3. Prepare shared TourBookingRequest template (room detail set per-iteration below)
+            // 3. Prepare shared TourBookingRequest template (room detail set per-iteration
+            // below)
             TourBookingRequest request = new TourBookingRequest();
             request.setScheduleId(schedule.getId());
             request.setCustomerId(customer.getId());
@@ -189,10 +228,12 @@ public class TourBookingApiController {
                 request.setPostToRoom(false);
             }
             request.setPaymentMethod(paymentMethod);
-            request.setVnpPaymentType(payload.get("vnpPaymentType") != null ? payload.get("vnpPaymentType").toString() : null);
+            request.setVnpPaymentType(
+                    payload.get("vnpPaymentType") != null ? payload.get("vnpPaymentType").toString() : null);
             request.setNotes(payload.get("notes") != null ? payload.get("notes").toString() : null);
 
-            boolean acceptInsurance = payload.get("acceptInsurance") != null && Boolean.parseBoolean(payload.get("acceptInsurance").toString());
+            boolean acceptInsurance = payload.get("acceptInsurance") != null
+                    && Boolean.parseBoolean(payload.get("acceptInsurance").toString());
             request.setAcceptInsurance(acceptInsurance);
 
             // 4. Create one TourBooking per selected room
@@ -204,7 +245,8 @@ public class TourBookingApiController {
                 for (java.util.Map<String, Object> sel : roomSelections) {
                     String roomId = sel.get("roomId") != null ? sel.get("roomId").toString() : null;
                     int roomAdults = sel.get("adults") != null ? Integer.parseInt(sel.get("adults").toString()) : 1;
-                    int roomChildren = sel.get("children") != null ? Integer.parseInt(sel.get("children").toString()) : 0;
+                    int roomChildren = sel.get("children") != null ? Integer.parseInt(sel.get("children").toString())
+                            : 0;
                     int roomParticipantCount = roomAdults + roomChildren;
 
                     RoomBookingDetail detail = resolveRoomDetail(roomId, customer, departureDate);
@@ -241,7 +283,8 @@ public class TourBookingApiController {
                 }
                 TourBookingRequest req = buildRequest(request, autoDetail);
                 createdBookingIds.add(tourBookingService.createTourBooking(req));
-                resolvedRooms.add(autoDetail.getCategory() != null ? autoDetail.getCategory().getCategoryName() : "Phòng");
+                resolvedRooms
+                        .add(autoDetail.getCategory() != null ? autoDetail.getCategory().getCategoryName() : "Phòng");
             }
 
             Long bookingId = createdBookingIds.get(0); // primary booking for VNPay / response
@@ -386,10 +429,12 @@ public class TourBookingApiController {
 
         if (weight > 0) {
             adultPrice = totalCharge.divide(java.math.BigDecimal.valueOf(weight), 2, java.math.RoundingMode.HALF_UP);
-            childPrice = adultPrice.multiply(new java.math.BigDecimal("0.5")).setScale(2, java.math.RoundingMode.HALF_UP);
+            childPrice = adultPrice.multiply(new java.math.BigDecimal("0.5")).setScale(2,
+                    java.math.RoundingMode.HALF_UP);
         } else if (tour != null && tour.getBasePrice() != null) {
             adultPrice = tour.getBasePrice();
-            childPrice = adultPrice.multiply(new java.math.BigDecimal("0.5")).setScale(2, java.math.RoundingMode.HALF_UP);
+            childPrice = adultPrice.multiply(new java.math.BigDecimal("0.5")).setScale(2,
+                    java.math.RoundingMode.HALF_UP);
         }
 
         java.math.BigDecimal insuranceFee = java.math.BigDecimal.ZERO;
@@ -400,7 +445,8 @@ public class TourBookingApiController {
                 if (part.startsWith("insuranceFee=")) {
                     try {
                         insuranceFee = new java.math.BigDecimal(part.substring("insuranceFee=".length()).trim());
-                    } catch (Exception e) {}
+                    } catch (Exception e) {
+                    }
                 }
             }
         }
@@ -416,7 +462,8 @@ public class TourBookingApiController {
         data.put("adultPrice", adultPrice);
         data.put("childPrice", childPrice);
         data.put("infantPrice", java.math.BigDecimal.ZERO);
-        data.put("insurancePrice", tour != null && tour.getInsurancePrice() != null ? tour.getInsurancePrice() : new java.math.BigDecimal("50000"));
+        data.put("insurancePrice", tour != null && tour.getInsurancePrice() != null ? tour.getInsurancePrice()
+                : new java.math.BigDecimal("50000"));
         data.put("insuranceFee", insuranceFee);
         data.put("isInsuranceRequired", tour != null && Boolean.TRUE.equals(tour.getIsInsuranceRequired()));
         data.put("insurancePolicyNumber", insurancePolicyNumber);
@@ -425,9 +472,11 @@ public class TourBookingApiController {
     }
 
     private String getGuideNameForTour(String tourName) {
-        if (tourName == null) return "NguynNgoc";
+        if (tourName == null)
+            return "NguynNgoc";
         String tn = tourName.toLowerCase();
-        if (tn.contains("tinh túy đồng nội") || tn.contains("tinh túy đồng nội") || tn.contains("đồng nội") || tn.contains("dongnoi")) {
+        if (tn.contains("tinh túy đồng nội") || tn.contains("tinh túy đồng nội") || tn.contains("đồng nội")
+                || tn.contains("dongnoi")) {
             return "Ngọc Lan";
         } else if (tn.contains("tĩnh lặng liên hoa") || tn.contains("tĩnh lặng liên hoa") || tn.contains("tinhlang")) {
             return "Hoàng Nam";
@@ -438,12 +487,14 @@ public class TourBookingApiController {
     }
 
     private boolean scheduleHasSpecialCustomer(TourSchedule sched) {
-        if (sched == null || sched.getId() == null) return false;
+        if (sched == null || sched.getId() == null)
+            return false;
         try {
             java.util.List<TourBooking> bookings = tourBookingRepository.findBySchedule(sched);
             if (bookings != null) {
                 for (TourBooking b : bookings) {
-                    if (b.getCustomer() != null && "ngocnguyenthuy999@gmail.com".equalsIgnoreCase(b.getCustomer().getEmail())) {
+                    if (b.getCustomer() != null
+                            && "ngocnguyenthuy999@gmail.com".equalsIgnoreCase(b.getCustomer().getEmail())) {
                         return true;
                     }
                 }
@@ -455,7 +506,8 @@ public class TourBookingApiController {
     }
 
     /**
-     * Resolve a roomNumber string (Virtual_ID or physical room number) to a RoomBookingDetail.
+     * Resolve a roomNumber string (Virtual_ID or physical room number) to a
+     * RoomBookingDetail.
      */
     private RoomBookingDetail resolveRoomDetail(String roomNum, Customer customer, LocalDate departureDate) {
         if (roomNum == null || roomNum.trim().isEmpty()) {
@@ -483,7 +535,7 @@ public class TourBookingApiController {
                 for (RoomBookingDetail rbd : customerDetails) {
                     if (rbd.getRoom() != null && rbd.getRoom().getRoomNumber().equals(roomNum)
                             && ("Confirmed".equalsIgnoreCase(rbd.getRoomBooking().getBookingStatus())
-                                || "Checked_In".equalsIgnoreCase(rbd.getRoomBooking().getBookingStatus()))) {
+                                    || "Checked_In".equalsIgnoreCase(rbd.getRoomBooking().getBookingStatus()))) {
                         detail = rbd;
                         break;
                     }
@@ -497,7 +549,8 @@ public class TourBookingApiController {
     }
 
     /**
-     * Clone the shared template request and bind it to a specific RoomBookingDetail.
+     * Clone the shared template request and bind it to a specific
+     * RoomBookingDetail.
      */
     private TourBookingRequest buildRequest(TourBookingRequest template, RoomBookingDetail detail) {
         TourBookingRequest req = new TourBookingRequest();
