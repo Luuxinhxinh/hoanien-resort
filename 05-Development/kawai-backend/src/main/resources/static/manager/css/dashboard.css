@@ -274,6 +274,23 @@ body {
     padding: 16px 32px 32px;
     display: block;
     overflow: auto;
+    max-width: 92%;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.mgr-page>*,
+.tab-content>*,
+.mgr-tab-panel>*,
+.mgr-tab-content>* {
+    margin-bottom: 28px;
+}
+
+.mgr-page>*:last-child,
+.tab-content>*:last-child,
+.mgr-tab-panel>*:last-child,
+.mgr-tab-content>*:last-child {
+    margin-bottom: 0;
 }
 
 .mgr-page>*,

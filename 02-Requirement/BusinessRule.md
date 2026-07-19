@@ -869,6 +869,13 @@ Khi phát hiện thiết bị hỏng, Housekeeping tạo báo cáo. Hệ thống
 **Phát biểu:**
 Phòng đang ở trạng thái bảo trì Maintenance sẽ bị đóng băng. Hệ thống Booking Engine hoặc Lễ tân không thể nhìn thấy hoặc gán phòng này cho khách Check-in để ngăn chặn Overbooking.
 
+### BR-MT-02 — Tạo Yêu cầu Sửa chữa khi Định giá Hỏng hóc
+
+**Mức độ:** HIGH
+
+**Phát biểu:**
+Khi nhận được phiếu định giá hỏng hóc tài sản, hệ thống sẽ ghi nhận chi phí vào Folio của phòng (nếu phòng đang có khách lưu trú) và tự động tạo tác vụ bảo trì (MAINTENANCE) chuyển trạng thái phòng sang Maintenance (nếu phòng trống hoặc sau khi khách check-out).
+
 ### BR-MT-03 — Khôi phục Trạng thái Sau Bảo trì Khi nhân viên báo cáo...
 
 **Mức độ:** HIGH
@@ -929,12 +936,12 @@ Các tác vụ rủi ro cao liên quan đến tài chính và vận hành bắt 
 **Phát biểu:**
 Quy trình Night Audit phải chạy ngầm tự động bằng Cronjob vào lúc 02:00 AM mỗi ngày. Hệ thống tính toán tiền phòng của ngày hôm đó cộng vào Folio của các phòng đang Checked_In và đóng sổ chuyển sang ngày mới.
 
-### BR-MNG-04 — Chốt chặn Đóng ca trước Night Audit Tiến trình Night Audit sẽ...
+### BR-MNG-04 — Chốt chặn Khách chưa Check-out trước Night Audit
 
 **Mức độ:** HIGH
 
 **Phát biểu:**
-Tiến trình Night Audit sẽ báo lỗi hoặc tạm dừng nếu phát hiện nhân viên F&B/POS chưa chốt sổ bán hàng trong ngày (End of Day). Manager có quyền thực thi "Cưỡng chế đóng ca" (Force Close) để Night Audit tiếp tục chạy.
+Tiến trình Night Audit sẽ báo lỗi hoặc tạm dừng nếu phát hiện còn khách lưu trú có lịch check-out trong ngày hôm nay nhưng chưa thực hiện trả phòng hoặc chưa làm thủ tục gia hạn lưu trú (Pending Departures), để tránh việc ghi nhận sai lệch ngày đóng sổ.
 
 ### BR-MNG-05 — Tính toàn vẹn Dữ liệu Hủy Cancellation Consistency
 
@@ -1166,6 +1173,11 @@ Khi một booking vi phạm ngưỡng giảm giá do Staff áp dụng (`PROMOTIO
 **Mức độ:** HIGH
 **Phát biểu:** Phòng đang ở trạng thái bảo trì Maintenance sẽ bị đóng băng. Hệ thống Booking Engine hoặc Lễ tân không thể nhìn thấy hoặc gán phòng này cho khách Check-in để ngăn chặn Overbooking.
 
+### BR-MT-02 — Tạo Yêu cầu Sửa chữa khi Định giá Hỏng hóc
+
+**Mức độ:** HIGH
+**Phát biểu:** Khi nhận được phiếu định giá hỏng hóc tài sản, hệ thống sẽ ghi nhận chi phí vào Folio của phòng (nếu phòng đang có khách lưu trú) và tự động tạo tác vụ bảo trì (MAINTENANCE) chuyển trạng thái phòng sang Maintenance (nếu phòng trống hoặc sau khi khách check-out).
+
 ### BR-MT-03 — Khôi phục Trạng thái Sau Bảo trì
 
 **Mức độ:** HIGH
@@ -1188,10 +1200,10 @@ Khi một booking vi phạm ngưỡng giảm giá do Staff áp dụng (`PROMOTIO
 **Mức độ:** HIGH
 **Phát biểu:** Quy trình Night Audit phải chạy ngầm tự động bằng Cronjob vào lúc 02:00 AM mỗi ngày. Hệ thống tính toán tiền phòng của ngày hôm đó cộng vào Folio của các phòng đang Checked_In và đóng sổ chuyển sang ngày mới.
 
-### BR-MNG-04 — Chốt chặn Đóng ca trước Night Audit
+### BR-MNG-04 — Chốt chặn Khách chưa Check-out trước Night Audit
 
 **Mức độ:** HIGH
-**Phát biểu:** Tiến trình Night Audit sẽ báo lỗi hoặc tạm dừng nếu phát hiện nhân viên F&B/POS chưa chốt sổ bán hàng trong ngày (End of Day). Manager có quyền thực thi "Cưỡng chế đóng ca" (Force Close) để Night Audit tiếp tục chạy.
+**Phát biểu:** Tiến trình Night Audit sẽ báo lỗi hoặc tạm dừng nếu phát hiện còn khách lưu trú có lịch check-out trong ngày hôm nay nhưng chưa thực hiện trả phòng hoặc chưa làm thủ tục gia hạn lưu trú (Pending Departures), để tránh việc ghi nhận sai lệch ngày đóng sổ.
 
 ### BR-MNG-05 — Tính toàn vẹn Dữ liệu Hủy (Cancellation Consistency)
 

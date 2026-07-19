@@ -597,8 +597,13 @@
 
             try {
                 var pending = JSON.parse(localStorage.getItem('kawai_notifs') || '[]');
-                pending.forEach(function (n) { showPersistentToast(n); });
-            } catch (e) { }
+                pending = pending.filter(function(n) {
+                    var t = n.text || '';
+                    return !t.includes('khẩn cấp') && !t.includes('Yêu cầu dọn') && !t.includes('Yêu cầu sửa');
+                });
+                localStorage.setItem('kawai_notifs', JSON.stringify(pending));
+                pending.forEach(function(n) { showPersistentToast(n); });
+            } catch(e) {}
 
             function saveAndShow(text, direct) {
                 var notif = { id: Date.now() + '_' + Math.random(), text: text, direct: direct };
@@ -627,6 +632,7 @@
                         try {
                             var payload = JSON.parse(msg.body);
                             console.log('[WS] Nhận tin nhắn từ kênh Chung (/topic/operations):', payload);
+                            if (payload.type === 'NEW_TASK') return;
                             saveAndShow('📢 THÔNG BÁO HỆ THỐNG: \n' + payload.message, false);
                             
                             // Tự động tải lại trang sau 1.5 giây để cập nhật sơ đồ phòng
@@ -655,7 +661,7 @@
     </script>
     <!-- Schedule Notification Script -->
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             fetch('/api/v1/employees/me/schedules')
                 .then(res => {
                     if (res.ok) return res.json();
@@ -665,7 +671,7 @@
                     if (schedules && schedules.length > 0) {
                         const today = new Date().toISOString().split('T')[0];
                         const todaySchedule = schedules.find(s => s.workDate === today);
-
+                        
                         if (!todaySchedule) {
                             // Cảnh báo nếu không có ca hôm nay
                             Swal.fire({
@@ -680,7 +686,7 @@
                         } else {
                             // Check giờ
                             const now = new Date();
-                            const currentTime = now.getHours() + ':' + (now.getMinutes() < 10 ? '0' : '') + now.getMinutes();
+                            const currentTime = now.getHours() + ':' + (now.getMinutes()<10?'0':'') + now.getMinutes();
                             if (currentTime < todaySchedule.startTime || currentTime > todaySchedule.endTime) {
                                 Swal.fire({
                                     title: 'Lưu ý Giờ Làm Việc',

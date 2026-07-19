@@ -2232,17 +2232,18 @@
 
         function requestCleaning(roomId) {
             Swal.fire({
-                title: 'Yêu cầu dọn phòng?',
-                text: "Bạn muốn gọi nhân viên Housekeeping đến dọn phòng ngay bây giờ?",
-                icon: 'question',
+                title: 'Yêu cầu dọn phòng',
+                input: 'textarea',
+                inputLabel: 'Ghi chú thêm cho nhân viên (nếu có)',
+                inputPlaceholder: 'Ví dụ: Cần dọn gấp trước 2h chiều, xin thêm nước suối...',
                 showCancelButton: true,
                 confirmButtonColor: '#A67C00',
                 cancelButtonColor: '#737373',
-                confirmButtonText: 'Đồng ý',
+                confirmButtonText: 'Gửi yêu cầu',
                 cancelButtonText: 'Hủy'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    sendGuestRequest(roomId, 'GUEST_REQUEST', null);
+                    sendGuestRequest(roomId, 'GUEST_REQUEST', result.value);
                 }
             });
         }

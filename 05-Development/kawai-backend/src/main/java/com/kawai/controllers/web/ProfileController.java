@@ -531,7 +531,6 @@ public class ProfileController {
         }
 
         try {
-            // Hủy tour bởi khách hàng (có kèm DTO nếu hoàn tiền)
             java.math.BigDecimal refundAmount = tourBookingService.cancelTourByCustomer(bookingId, customer.getId(),
                     dto);
 

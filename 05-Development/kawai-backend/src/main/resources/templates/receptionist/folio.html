@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
         rel="stylesheet">
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -33,17 +33,14 @@
         }
 
         .data-table thead tr {
-            background-color: #ffffff !important;
-            /* White background matching table */
+            background-color: #ffffff !important; /* White background matching table */
         }
 
         .data-table th {
             padding: 20px 16px !important;
-            border-bottom: 1px solid #f3ebe3 !important;
-            /* Soft border separator */
+            border-bottom: 1px solid #f3ebe3 !important; /* Soft border separator */
             font-weight: 500;
-            color: #8c7b70;
-            /* Elegant soft brown-grey */
+            color: #8c7b70; /* Elegant soft brown-grey */
             font-size: 0.8rem;
             text-transform: uppercase;
             letter-spacing: 1px;
@@ -66,13 +63,11 @@
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background-color: #f5ebe6;
-            /* Soft warm peach background */
+            background-color: #f5ebe6; /* Soft warm peach background */
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #c19b6c;
-            /* Warm gold bronze */
+            color: #c19b6c; /* Warm gold bronze */
             font-size: 1rem;
             flex-shrink: 0;
             box-shadow: inset 0 2px 4px rgba(99, 70, 54, 0.04);
@@ -103,17 +98,13 @@
         }
 
         .status-pending {
-            background-color: #fcf1e5 !important;
-            /* Soft beige-gold */
-            color: #c19b6c !important;
-            /* Warm gold bronze */
+            background-color: #fcf1e5 !important; /* Soft beige-gold */
+            color: #c19b6c !important; /* Warm gold bronze */
         }
 
         .status-confirmed {
-            background-color: #e8f2e0 !important;
-            /* Soft green */
-            color: #5d8e32 !important;
-            /* Darker green */
+            background-color: #e8f2e0 !important; /* Soft green */
+            color: #5d8e32 !important; /* Darker green */
         }
 
         /* View Details Button */
@@ -297,11 +288,11 @@
                 <div class="tabs-container"
                     style="display: flex; gap: 16px; margin-bottom: 20px; border-bottom: 1px solid #ddd;">
                     <button class="tab-btn active" onclick="filterByTab(this, 'CHECKED_IN')"
-                        style="padding: 10px 16px; border: none; background: none; font-size: 1rem; font-weight: 600; color: #634636; border-bottom: 2px solid #634636; cursor: pointer; transition: all 0.2s;">Checked
-                        In</button>
+                        style="padding: 10px 16px; border: none; background: none; font-size: 1rem; font-weight: 600; color: #634636; border-bottom: 2px solid #634636; cursor: pointer; transition: all 0.2s;">CHECKED
+                        IN</button>
                     <button class="tab-btn" onclick="filterByTab(this, 'CHECKED_OUT')"
-                        style="padding: 10px 16px; border: none; background: none; font-size: 1rem; font-weight: 500; color: #777; border-bottom: 2px solid transparent; cursor: pointer; transition: all 0.2s;">Checked
-                        Out</button>
+                        style="padding: 10px 16px; border: none; background: none; font-size: 1rem; font-weight: 500; color: #777; border-bottom: 2px solid transparent; cursor: pointer; transition: all 0.2s;">CHECKED
+                        OUT</button>
                 </div>
 
                 <div class="table-container">
@@ -401,7 +392,7 @@
             folios.forEach(folio => {
                 const tr = document.createElement('tr');
                 const statusClass = folio.status.toLowerCase() === 'checked_out' ? 'status-confirmed' : 'status-pending';
-
+                
                 // Format Booker Representative
                 const bookerHtml = `
                     <div style="display: flex; align-items: center; gap: 16px; white-space: nowrap;">
@@ -411,19 +402,18 @@
                         <div class="booker-name" style="white-space: nowrap;">${folio.bookerName}</div>
                     </div>
                 `;
-
+                
                 // Format Expected Check-out Date
                 const formattedDate = folio.checkOutDate || 'N/A';
-
+                
                 // Format Total Payments
                 const formattedPayments = `
                     <span style="font-weight: 700; color: #2c2a29;">${new Intl.NumberFormat('vi-VN').format(folio.totalPayments)}</span> 
                     <span style="font-size: 0.8rem; color: #8e857e; font-weight: 500;">VNĐ</span>
                 `;
-
+                
                 // Format Phone Number
                 const formattedPhone = `<span style="color: #5c5652; font-weight: 500;">${folio.phoneNumber || 'N/A'}</span>`;
-
                 // Format Status
                 const statusText = folio.status ? folio.status.toUpperCase().replace(/_/g, ' ') : 'PENDING';
 
@@ -435,7 +425,7 @@
                     <td style="white-space: nowrap;"><span class="status-badge ${statusClass}" style="white-space: nowrap;">${statusText}</span></td>
                     <td style="padding: 24px 24px 24px 16px !important; white-space: nowrap;">
                         <div style="display: flex; gap: 8px; align-items: center; white-space: nowrap;">
-                            <a href="/receptionist/folio/detail?id=${folio.roomBookingDetailId}" class="btn-folio-detail">VIEW DETAILS</a>
+                            <a href="/receptionist/folio/detail?id=${folio.roomBookingDetailId}" class="btn-folio-detail">XEM CHI TIẾT</a>
                             ${folio.status.toLowerCase() !== 'checked_out' ? `
                                 <button onclick="requestGroupCheck(${folio.bookingId})" class="btn-request-check">
                                     KIỂM TRA PHÒNG
@@ -513,6 +503,11 @@
 
             try {
                 var pending = JSON.parse(localStorage.getItem('kawai_notifs') || '[]');
+                pending = pending.filter(function (n) {
+                    var t = n.text || '';
+                    return !t.includes('khẩn cấp') && !t.includes('Yêu cầu dọn') && !t.includes('Yêu cầu sửa');
+                });
+                localStorage.setItem('kawai_notifs', JSON.stringify(pending));
                 pending.forEach(function (n) { showPersistentToast(n); });
             } catch (e) { }
 

@@ -300,6 +300,26 @@ public class FolioRestController {
             guestName = bookerName;
         }
 
+        List<com.kawai.models.RoomGuest> roomGuests = roomGuestRepository.findByRoomBookingDetailId(roomBookingDetailId);
+        List<String> companionNames = new java.util.ArrayList<>();
+        if (roomGuests != null) {
+            for (com.kawai.models.RoomGuest rg : roomGuests) {
+                if (Boolean.TRUE.equals(rg.getIsPrimaryContact())) {
+                    continue;
+                }
+                String name = null;
+                if (rg.getCustomer() != null) {
+                    name = rg.getCustomer().getFullName();
+                } else if (rg.getDependent() != null) {
+                    name = rg.getDependent().getDependentName();
+                }
+                if (name != null && !name.isEmpty()) {
+                    companionNames.add(name);
+                }
+            }
+        }
+        String companions = companionNames.isEmpty() ? "" : String.join(", ", companionNames);
+
         String roomNumber = "N/A";
         if (detail.getRoom() != null && detail.getRoom().getRoomNumber() != null) {
             roomNumber = detail.getRoom().getRoomNumber();
@@ -450,6 +470,7 @@ public class FolioRestController {
         response.put("success", true);
         response.put("roomBookingDetailId", roomBookingDetailId);
         response.put("guestName", guestName);
+        response.put("companions", companions);
         response.put("bookerName", bookerName);
         response.put("roomNumber", roomNumber);
         response.put("checkInDate", checkInDate);

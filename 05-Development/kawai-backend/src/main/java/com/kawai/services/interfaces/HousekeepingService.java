@@ -46,7 +46,6 @@ public interface HousekeepingService {
      * 
      * @param room Phòng cần kiểm tra và tạo task bảo trì
      */
-
     void createMaintenanceTaskForPricedDamages(Room room);
 
     void escalateTaskByRoomNumber(String roomNumber);

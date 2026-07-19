@@ -20,6 +20,8 @@ public class ChangeRoomCategoryServiceImpl implements ChangeRoomCategoryService 
     private final RoomRepository roomRepository;
     private final FolioItemRepository folioItemRepository;
     private final AuditLogRepository auditLogRepository;
+    private final RoomGuestRepository roomGuestRepository;
+    private final RoomSurchargeRepository roomSurchargeRepository;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -54,6 +56,61 @@ public class ChangeRoomCategoryServiceImpl implements ChangeRoomCategoryService 
     }
 
     // --- Private Helper Methods ---
+
+    private int calculateAge(java.time.LocalDate birthDate) {
+        if (birthDate == null) {
+            return 18; // default to adult
+        }
+        return java.time.Period.between(birthDate, java.time.LocalDate.now()).getYears();
+    }
+
+    private BigDecimal calculateNewExtraSurcharge(RoomBookingDetail detail, RoomCategory category) {
+        java.util.List<RoomGuest> guests = roomGuestRepository.findByRoomBookingDetailId(detail.getId());
+        if (guests == null || guests.isEmpty()) {
+            return detail.getExtraSurcharge() != null ? detail.getExtraSurcharge() : BigDecimal.ZERO;
+        }
+
+        int adults = 0;
+        java.util.List<Integer> childAges = new java.util.ArrayList<>();
+        for (RoomGuest rg : guests) {
+            java.time.LocalDate birthDate = null;
+            if (rg.getCustomer() != null) {
+                birthDate = rg.getCustomer().getBirthDate();
+            } else if (rg.getDependent() != null) {
+                birthDate = rg.getDependent().getBirthDate();
+            }
+            int age = calculateAge(birthDate);
+            if (age >= 18) {
+                adults++;
+            } else {
+                childAges.add(age);
+            }
+        }
+
+        int maxAdults = category.getMaxAdults() != null ? category.getMaxAdults() : (category.getCapacity() != null ? category.getCapacity() : 2);
+        int maxChildren = category.getMaxChildren() != null ? category.getMaxChildren() : 2;
+        int baseAdults = category.getBaseAdults() != null ? category.getBaseAdults() : (category.getCapacity() != null ? category.getCapacity() : 2);
+        int baseChildren = category.getBaseChildren() != null ? category.getBaseChildren() : 0;
+
+        BigDecimal surcharge = BigDecimal.ZERO;
+        int extraAdults = Math.max(0, adults - baseAdults);
+        if (extraAdults > 0 && category.getExtraAdultSurcharge() != null) {
+            surcharge = surcharge.add(category.getExtraAdultSurcharge().multiply(BigDecimal.valueOf(extraAdults)));
+        }
+
+        int chargeableChildren = Math.max(0, childAges.size() - baseChildren);
+        if (chargeableChildren > 0) {
+            java.util.Collections.sort(childAges);
+            int skipCount = childAges.size() - chargeableChildren;
+            for (int i = skipCount; i < childAges.size(); i++) {
+                surcharge = surcharge.add(
+                        roomSurchargeRepository.findSurchargeForAge(category, childAges.get(i))
+                                .map(RoomSurcharge::getPriceModifier)
+                                .orElse(BigDecimal.ZERO));
+            }
+        }
+        return surcharge;
+    }
 
     private RoomBookingDetail getRoomBookingDetail(Long detailId) throws BusinessException {
         return roomBookingDetailRepository.findById(detailId)
@@ -99,6 +156,10 @@ public class ChangeRoomCategoryServiceImpl implements ChangeRoomCategoryService 
     private void updateAndSaveBookingDetail(RoomBookingDetail detail, Room newRoom, RoomCategory newCategory) {
         detail.setRoom(newRoom);
         detail.setCategory(newCategory);
+        
+        BigDecimal newExtraSurcharge = calculateNewExtraSurcharge(detail, newCategory);
+        detail.setExtraSurcharge(newExtraSurcharge.compareTo(BigDecimal.ZERO) > 0 ? newExtraSurcharge : null);
+
         try {
             roomBookingDetailRepository.save(detail);
         } catch (org.springframework.dao.DataAccessException e) {
