@@ -36,6 +36,9 @@ public class TourAttendee {
     @Column(name = "face_vector_data", columnDefinition = "TEXT")
     private String faceVectorData;
 
+    @Column(name = "absent_reason", length = 500)
+    private String absentReason;
+
     public String getStatus() {
         return this.attendanceStatus;
     }

@@ -185,6 +185,7 @@ INSERT INTO Room_Categories (
 
 -- ── 7. Room Surcharges (Dữ liệu đã được chuyển xuống cuối file dùng INSERT SELECT) ──
 
+
 -- ── 8. Rooms (50 rows) ───────────────────────────────────────
 -- Trạng thái phòng được mô hình hóa đúng:
 --   Occupied = có detail Checked_In gắn vào (current_booking_detail_id != NULL)
@@ -1928,7 +1929,7 @@ INSERT INTO Employees (employee_id, account_id, full_name, gender, cccd, phone, 
 INSERT INTO workflows (workflow_name, trigger_event, conditions_json, actions_json, is_active, updated_at) VALUES 
 ('Room Checkout Automation', 'ROOM_CHECKOUT', '{}', '[{"type":"UPDATE_ROOM_STATUS","value":"Vacant_Dirty"},{"type":"CREATE_OPERATION_TASK","value":"CHECKOUT_CLEAN"}]', true, NOW()),
 ('Room Report Damage Automation', 'ROOM_REPORT_DAMAGE', '{}', '[{"type":"CREATE_OPERATION_TASK","value":"Maintenance","priority":"High"}]', true, NOW()),
-('Promotion Exceeded Automation', 'PROMOTION_EXCEEDED', '{}', '[{"type":"REQUIRE_MANAGER_APPROVAL"}]', true, NOW()),
+('Promotion Exceeded Automation', 'PROMOTION_EXCEEDED', '{"threshold_pct_gt":20}', '[{"type":"REQUIRE_MANAGER_APPROVAL"}]', true, NOW()),
 ('SLA Escalation Automation', 'SLA_ESCALATE', '{}', '[{"type":"SEND_EMAIL","target_email":"{{email}}","email_subject":"SLA Warning for {{taskName}}","email_body_html":"sla-warning"}]', true, NOW()),
 ('Account Security OTP', 'ACCOUNT_SECURITY', '{}', '[{"type":"SEND_EMAIL","target_email":"{{email}}","email_subject":"Security Alert","email_body_html":"security-alert"}]', true, NOW()),
 ('User Registration OTP', 'USER_REGISTRATION_OTP', '{}', '[{"type":"SEND_EMAIL","target_email":"{{email}}","email_subject":"Your OTP Code","email_body_html":"otp-email"}]', true, NOW()),
