@@ -97,11 +97,12 @@ document.addEventListener('DOMContentLoaded', () => {
         // Show normal payment options
         paymentSection.innerHTML = `
           <label class="form-label">Thanh toán</label>
-          <select class="form-control">
-            <option>Thanh toán tại quầy</option>
-            <option>Xác nhận thanh toán sau</option>
-          </select>
+          <div class="room-charge-info">
+            <div class="rc-row"><span class="rc-label">Hình thức</span><span class="rc-val">Thanh toán tại quầy</span></div>
+          </div>
         `;
+        const btnSaveDraft = document.getElementById('btn-save-draft');
+        if (btnSaveDraft) btnSaveDraft.style.display = 'none';
       } else {
         state.vatRate = 0.05;
         const feeLabel = document.getElementById('fee-label-text');
@@ -114,7 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <label class="form-label">Thanh toán</label>
           <div class="room-charge-info">
             <div class="rc-row"><span class="rc-label">Hình thức</span><span class="rc-val">Charge to Room</span></div>
-            <div class="rc-row"><span class="rc-label">Hạn mức còn lại</span><span class="rc-val" id="sidebar-room-limit">${formatMoney(state.roomLimit)}</span></div>
+            <div class="rc-row" id="sidebar-limit-row" style="display: none;"><span class="rc-label">Hạn mức còn lại</span><span class="rc-val" id="sidebar-room-limit">${formatMoney(state.roomLimit)}</span></div>
           </div>
         `;
       }
@@ -136,9 +137,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // Clear previous timeout
     if (roomSearchTimeout) clearTimeout(roomSearchTimeout);
 
-    if (!val) {
-      roomInfo.style.display = 'none';
-      state.roomOccupied = false;
+      if (!val) {
+        roomInfo.style.display = 'none';
+        const limitRow = document.getElementById('sidebar-limit-row');
+        if (limitRow) limitRow.style.display = 'none';
+        state.roomOccupied = false;
       state.guestVerified = false;
       validateCheckout();
       return;
@@ -169,7 +172,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (state.orderType === 'room-svc') {
               const limitDisplay = document.getElementById('sidebar-room-limit');
+              const limitRow = document.getElementById('sidebar-limit-row');
               if (limitDisplay) limitDisplay.textContent = formatMoney(state.roomLimit);
+              if (limitRow) limitRow.style.display = 'flex';
             }
           } else {
             showVacant();
@@ -187,6 +192,8 @@ document.addEventListener('DOMContentLoaded', () => {
     roomInfo.style.display = 'none';
     state.roomOccupied = false;
     state.guestVerified = false;
+    const limitRow = document.getElementById('sidebar-limit-row');
+    if (limitRow) limitRow.style.display = 'none';
     document.getElementById('roomStatusBadge').className = 'status-badge status-vacant';
     document.getElementById('roomStatusBadge').textContent = 'Trống';
   }

@@ -174,9 +174,6 @@
             <div class="section-header" style="margin-bottom:0;">
               <span class="section-title">Danh sách Đơn hàng</span>
               <div class="section-actions">
-                <button class="btn btn-sm btn-outline">
-                  <span class="material-symbols-outlined">sort</span>Sắp xếp
-                </button>
                 <a href="/fbStaff/create-food-order" class="btn btn-sm btn-primary" style="text-decoration:none;">
                   <span class="material-symbols-outlined">add</span>Tạo đơn
                 </a>
@@ -222,7 +219,6 @@
                 </div>
                 <div class="order-meta">
                   <div class="order-table" th:text="${order.orderType == 'Room Service' ? 'Room Service' : 'Bàn ' + (order.table != null ? order.table.tableNumber : '?')}">Room Service • P101</div>
-                  <div class="order-guest" th:text="${order.createdByStaff != null ? 'NV: ' + order.createdByStaff.fullName : ''}">NV: Trần Phương</div>
                 </div>
                 <span class="order-status-chip" 
                       th:classappend="${#strings.equalsIgnoreCase(order.orderStatus, 'Pending') ? 'chip-pending' : (#strings.equalsIgnoreCase(order.orderStatus, 'Preparing') ? 'chip-cooking' : (#strings.equalsIgnoreCase(order.orderStatus, 'Served') ? 'chip-served' : (#strings.equalsIgnoreCase(order.orderStatus, 'Ready') ? 'chip-ready' : (#strings.equalsIgnoreCase(order.orderStatus, 'Delivering') ? 'chip-delivering' : 'chip-pending'))))}" >
@@ -237,7 +233,6 @@
                 </div>
               </div>
               <div class="order-card-bottom">
-                <span class="order-time"><span class="material-symbols-outlined">schedule</span>Mới</span>
                 <span class="order-amount" th:text="${order.details != null ? order.details.size() + ' món' : '0 món'}">2 món</span>
               </div>
             </div>
@@ -257,7 +252,6 @@
                 <div class="order-type-icon dine-in"><span class="material-symbols-outlined">table_restaurant</span></div>
                 <div class="order-meta">
                   <div class="order-table" th:text="${'Bàn ' + (order.table != null ? order.table.tableNumber : '?')}">Bàn 01</div>
-                  <div class="order-guest" th:text="${order.createdByStaff != null ? 'NV: ' + order.createdByStaff.fullName : '--'}">NV: Trần Phương</div>
                 </div>
                 <span class="order-status-chip" 
                       th:classappend="${#strings.equalsIgnoreCase(order.orderStatus, 'Pending') ? 'chip-pending' : (#strings.equalsIgnoreCase(order.orderStatus, 'Preparing') ? 'chip-cooking' : (#strings.equalsIgnoreCase(order.orderStatus, 'Served') ? 'chip-served' : (#strings.equalsIgnoreCase(order.orderStatus, 'Ready') ? 'chip-ready' : (#strings.equalsIgnoreCase(order.orderStatus, 'Delivering') ? 'chip-delivering' : 'chip-pending'))))}" >
@@ -265,7 +259,6 @@
                 </span>
               </div>
               <div class="order-card-bottom">
-                <span class="order-time"><span class="material-symbols-outlined">schedule</span>Mới</span>
                 <span class="order-amount" th:text="${order.details != null ? order.details.size() + ' món' : '0 món'}">2 món</span>
               </div>
             </div>

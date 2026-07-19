@@ -309,12 +309,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 svgTable.innerHTML = shapeHtml + textHtml;
 
-                // Mặc định lúc mới vào trang (chưa lọc) thì bàn màu xám mờ
-                svgTable.classList.add('occupied');
+                // Mặc định lúc mới vào trang (chưa lọc) thì các bàn đều khả dụng
+                svgTable.classList.add('available');
 
                 // Gắn sự kiện click mở form đặt bàn
                 svgTable.addEventListener('click', function () {
-                    // Chỉ cho click nếu bàn trống (có class available sau khi bấm Lọc)
+                    // Chỉ cho click nếu bàn có class available
                     if (this.classList.contains('available')) {
                         openBookingModal(tableData.id, tableData.tableNumber, tableData.capacity);
                     }

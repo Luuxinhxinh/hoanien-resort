@@ -262,10 +262,9 @@
 
           <div class="payment-section" id="payment-section-wrapper">
             <label class="form-label">Thanh toán</label>
-            <select class="form-control" style="width: 100%;">
-              <option>Thanh toán tại quầy</option>
-              <option>Xác nhận thanh toán sau</option>
-            </select>
+            <div class="room-charge-info">
+              <div class="rc-row"><span class="rc-label">Hình thức</span><span class="rc-val">Thanh toán tại quầy</span></div>
+            </div>
           </div>
         </div>
       </div>
@@ -280,7 +279,7 @@
       <button class="btn btn-outline" onclick="window.location.reload()">
         <span class="material-symbols-outlined">delete</span> Hủy đơn
       </button>
-      <button class="btn btn-outline">
+      <button class="btn btn-outline" id="btn-save-draft" style="display: none;">
         <span class="material-symbols-outlined">save</span> Lưu tạm
       </button>
       <button class="btn btn-primary" id="btn-send-kitchen" disabled onclick="sendToKitchen()">
