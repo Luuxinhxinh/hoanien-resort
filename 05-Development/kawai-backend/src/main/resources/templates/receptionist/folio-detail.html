@@ -2627,6 +2627,48 @@
                         const departureDate = tourDetail.departureDate || '';
                         const departureTime = tourDetail.departureTime || '';
 
+                        let children = [];
+                        if (tourDetail.adultCount > 0) {
+                            children.push({
+                                description: `- Người lớn`,
+                                qty: tourDetail.adultCount,
+                                unitVal: tourDetail.adultPrice,
+                                amount: tourDetail.adultCount * tourDetail.adultPrice,
+                                itemDate: ""
+                            });
+                        }
+                        if (tourDetail.childCount > 0) {
+                            children.push({
+                                description: `- Trẻ em (2-11 tuổi)`,
+                                qty: tourDetail.childCount,
+                                unitVal: tourDetail.childPrice,
+                                amount: tourDetail.childCount * tourDetail.childPrice,
+                                itemDate: ""
+                            });
+                        }
+                        if (tourDetail.infantCount > 0) {
+                            children.push({
+                                description: `- Em bé (dưới 2 tuổi)`,
+                                qty: tourDetail.infantCount,
+                                unitVal: 0,
+                                amount: 0,
+                                itemDate: "",
+                                isInfant: true
+                            });
+                        }
+                        if (tourDetail.isInsuranceRequired || (tourDetail.insuranceFee && parseFloat(tourDetail.insuranceFee) > 0)) {
+                            const insurancePolicy = tourDetail.insurancePolicyNumber ? ` (${tourDetail.insurancePolicyNumber})` : '';
+                            const insuredCount = tourDetail.participantCount || (tourDetail.adultCount + tourDetail.childCount + tourDetail.infantCount);
+                            children.push({
+                                description: `- Bảo hiểm du lịch bắt buộc${insurancePolicy}`,
+                                qty: insuredCount,
+                                unitVal: tourDetail.insurancePrice,
+                                amount: 0,
+                                itemDate: "",
+                                isInsurance: true
+                            });
+                        }
+
                         const qty = tourDetail.participantCount || (tourDetail.adultCount + tourDetail.childCount + tourDetail.infantCount) || 1;
                         const unitVal = Number(item.amount) / qty;
 
@@ -2645,7 +2687,8 @@
                                 unitVal: unitVal,
                                 amount: Number(item.amount),
                                 itemDate: itemDate,
-                                isRoom: false
+                                isParentTour: true,
+                                children: children
                             });
                         }
                         return; // Done with Tour
@@ -2746,7 +2789,7 @@
                     lastDateStr = g.itemDate;
                 }
 
-                if (g.isParentFnb || g.isParentTour || g.isParentMinibar) {
+                if (g.isParentFnb || g.isParentMinibar) {
                     // Parent row: Normal description, blank qty and price, normal amount
                     tbodyHtml += `
                         <tr>
@@ -2754,6 +2797,39 @@
                             <td style="padding: 10px 0; border-bottom: 1px dashed #ddd;">${g.description}</td>
                             <td style="padding: 10px 0; border-bottom: 1px dashed #ddd; text-align: center;"></td>
                             <td style="padding: 10px 0; border-bottom: 1px dashed #ddd; text-align: right;"></td>
+                            <td style="padding: 10px 0; border-bottom: 1px dashed #ddd; text-align: right;">${formatNumber(g.amount)}</td>
+                        </tr>
+                    `;
+                    printSubtotal += g.amount;
+
+                    // Children rows: Indented, normal description, standard qty, price, and amount
+                    if (g.children) {
+                        g.children.forEach(c => {
+                            let formattedVal = c.isInfant ? 'Miễn phí' : formatNumber(c.unitVal);
+                            let formattedAmt = formatNumber(c.amount) + ' VNĐ';
+                            if (c.isInsurance) {
+                                formattedVal = formatNumber(c.unitVal);
+                                formattedAmt = 'Đã bao gồm';
+                            }
+                            tbodyHtml += `
+                                <tr style="color: #2F1F17; font-family: 'Times New Roman', serif; font-size: 14px;">
+                                    <td style="padding: 8px 0; border-bottom: 1px dashed #eee;"></td>
+                                    <td style="padding: 8px 0; border-bottom: 1px dashed #eee; padding-left: 20px; font-style: italic;">${c.description}</td>
+                                    <td style="padding: 8px 0; border-bottom: 1px dashed #eee; text-align: center; font-style: italic;">${c.qty}</td>
+                                    <td style="padding: 8px 0; border-bottom: 1px dashed #eee; text-align: right; font-style: italic;">${formattedVal}</td>
+                                    <td style="padding: 8px 0; border-bottom: 1px dashed #eee; text-align: right; font-style: italic;">${formattedAmt}</td>
+                                </tr>
+                            `;
+                        });
+                    }
+                } else if (g.isParentTour) {
+                    // Parent row for Tour: Normal description, with Qty and Unit Price, normal amount
+                    tbodyHtml += `
+                        <tr>
+                            <td style="padding: 10px 0; border-bottom: 1px dashed #ddd;">${displayDate}</td>
+                            <td style="padding: 10px 0; border-bottom: 1px dashed #ddd;">${g.description}</td>
+                            <td style="padding: 10px 0; border-bottom: 1px dashed #ddd; text-align: center;">${g.qty}</td>
+                            <td style="padding: 10px 0; border-bottom: 1px dashed #ddd; text-align: right;">${formatNumber(g.unitVal)}</td>
                             <td style="padding: 10px 0; border-bottom: 1px dashed #ddd; text-align: right;">${formatNumber(g.amount)}</td>
                         </tr>
                     `;
