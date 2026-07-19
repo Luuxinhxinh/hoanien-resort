@@ -25,8 +25,13 @@ public interface RoomBookingDetailRepository extends JpaRepository<RoomBookingDe
     long countByRoomBooking_CheckOutDateAndDetailStatus(java.time.LocalDate date, String status);
 
         @org.springframework.data.jpa.repository.Query("SELECT rbd FROM RoomBookingDetail rbd " +
-                        "WHERE rbd.roomBooking.customer.account.id = :userId " +
-                        "AND rbd.roomBooking.bookingStatus IN ('Confirmed', 'Checked_In')")
+                        "LEFT JOIN rbd.roomBooking rb " +
+                        "LEFT JOIN rb.customer masterCust " +
+                        "LEFT JOIN masterCust.account masterAcc " +
+                        "LEFT JOIN rbd.customer rbdCust " +
+                        "LEFT JOIN rbdCust.account rbdAcc " +
+                        "WHERE (masterAcc.id = :userId OR rbdAcc.id = :userId) " +
+                        "AND rb.bookingStatus IN ('Confirmed', 'Checked_In')")
         List<RoomBookingDetail> findActiveDetailsByUserId(
                         @org.springframework.data.repository.query.Param("userId") Long userId);
 

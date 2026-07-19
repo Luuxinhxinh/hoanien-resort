@@ -406,6 +406,20 @@
         </div>
         <!-- 4. Adjusted Main Content Body -->
         <main class="flex-1 mt-36 p-margin-desktop space-y-10">
+            <!-- Banner báo tour đã bị hủy do sự cố -->
+            <div th:if="${schedule != null && schedule.scheduleStatus == 'Cancelled'}"
+                class="bg-red-50 border border-red-200 rounded-3xl p-6 md:p-8 flex flex-col md:flex-row items-center gap-6 shadow-md no-print mb-8">
+                <div class="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center text-red-600 shrink-0">
+                    <span class="material-symbols-outlined text-[36px]">block</span>
+                </div>
+                <div class="space-y-2 text-center md:text-left flex-1">
+                    <h3 class="text-xl font-bold text-red-900">Lịch Trình Tour Đã Bị Hủy</h3>
+                    <p class="text-sm text-red-700 leading-relaxed">
+                        Lịch trình tour này đã được xác nhận hủy do sự cố bất khả kháng. Hệ thống đã tự động thực hiện hoàn tiền 100% vào Folio phòng nghỉ của các khách lưu trú, tạo yêu cầu hoàn tiền cho khách vãng lai, và gửi email thông báo chi tiết đến toàn bộ hành khách trong đoàn.
+                    </p>
+                </div>
+            </div>
+
             <!-- Header & Notice Banner on the same row -->
             <div class="grid grid-cols-12 gap-8 items-center no-print w-full pb-6 border-b border-primary/5">
                 <!-- Left: Title -->
@@ -617,15 +631,39 @@
                                                 disabled="">
                                                 <span class="material-symbols-outlined text-[18px]">check</span>
                                             </button>
-
+ 
+                                            <!-- Trạng thái vắng mặt -->
+                                            <span th:if="${attendee.status == 'Absent'}"
+                                                class="px-3 py-1 rounded-full bg-red-500/10 text-red-600 font-label-sm text-label-sm border border-red-500/30 flex flex-col items-start gap-0.5">
+                                                <span class="flex items-center font-bold">
+                                                    <span class="material-symbols-outlined text-[14px] mr-1">close</span>Vắng mặt
+                                                </span>
+                                                <span class="text-[9px] text-red-600/70 font-normal normal-case max-w-[150px] truncate" 
+                                                      th:title="${attendee.absentReason}" 
+                                                      th:text="'Lý do: ' + ${attendee.absentReason}">
+                                                </span>
+                                            </span>
+                                            <button th:if="${attendee.status == 'Absent'}"
+                                                class="ml-3 w-8 h-8 flex items-center justify-center rounded-lg border border-red-200 text-red-300 cursor-default bg-red-50/50"
+                                                disabled="">
+                                                <span class="material-symbols-outlined text-[18px]">person_off</span>
+                                            </button>
+ 
                                             <span th:if="${attendee.status == 'Not_Show'}"
                                                 class="px-3 py-1 rounded-full bg-secondary-container/30 text-secondary font-label-sm text-label-sm border border-secondary-container">
                                                 Chờ điểm danh
                                             </span>
                                             <button th:if="${attendee.status == 'Not_Show'}"
                                                 th:onclick="'checkinManual(' + ${attendee.id} + ')'"
-                                                class="ml-3 w-8 h-8 flex items-center justify-center rounded-lg border border-primary/30 text-primary hover:bg-primary/5 hover:scale-105 transition-all shadow-sm active:shadow-inner">
+                                                class="ml-3 w-8 h-8 flex items-center justify-center rounded-lg border border-primary/30 text-primary hover:bg-primary/5 hover:scale-105 transition-all shadow-sm active:shadow-inner"
+                                                title="Điểm danh thủ công">
                                                 <span class="material-symbols-outlined text-[18px]">check</span>
+                                            </button>
+                                            <button th:if="${attendee.status == 'Not_Show'}"
+                                                th:onclick="'openAbsentModal(' + ${attendee.id} + ')'"
+                                                class="ml-2 w-8 h-8 flex items-center justify-center rounded-lg border border-red-300 text-red-600 hover:bg-red-50 hover:scale-105 transition-all shadow-sm active:shadow-inner"
+                                                title="Báo vắng mặt">
+                                                <span class="material-symbols-outlined text-[18px]">person_off</span>
                                             </button>
                                         </td>
                                     </tr>
@@ -662,16 +700,22 @@
                                 class="w-full bg-surface-container/30 border-none rounded-lg p-4 font-body-md text-on-surface placeholder-on-surface-variant/40 focus:ring-2 focus:ring-primary/20 transition-all outline-none min-h-[120px]"
                                 placeholder="Nhập chi tiết sự cố tại đây..."></textarea>
                         </div>
-                        <div class="flex justify-end">
-                            <button onclick="submitIncidentReport()"
-                                class="px-8 py-3 rounded-full bg-primary text-white font-label-md text-label-md shadow-lg shadow-primary/20 hover:scale-[1.02] transition-all font-semibold">
-                                Gửi báo cáo
+                        <div class="flex justify-end gap-4 flex-wrap">
+                            <button onclick="submitIncidentReport(false)"
+                                class="px-6 py-3 rounded-full bg-[#1b1c1a]/5 text-on-surface hover:bg-[#1b1c1a]/10 font-label-md text-label-md transition-all font-semibold"
+                                id="btn-only-report">
+                                Chỉ gửi báo cáo
+                            </button>
+                            <button th:if="${scheduleStatus != 'Cancelled'}" onclick="submitIncidentReport(true)"
+                                class="px-6 py-3 rounded-full bg-red-600 text-white font-label-md text-label-md shadow-lg shadow-red-600/20 hover:scale-[1.02] hover:bg-red-700 transition-all font-semibold"
+                                id="btn-report-cancel">
+                                Gửi báo cáo & Hủy Tour
                             </button>
                         </div>
                     </div>
                 </div>
                 <!-- Right Column: FaceID Attendance -->
-                <div class="col-span-12 lg:col-span-4 space-y-8" id="faceid-section">
+                <div th:if="${scheduleStatus != 'Cancelled'}" class="col-span-12 lg:col-span-4 space-y-8" id="faceid-section">
                     <!-- Scanner Interface -->
                     <div class="glass-panel p-6 rounded-lg space-y-6">
                         <div class="space-y-8">
@@ -777,16 +821,17 @@
                                             class="text-[10px] font-bold text-on-surface-variant/40 uppercase tracking-widest">
                                             Tiến độ điểm danh</p>
                                         <p class="font-headline-md text-2xl text-on-surface">
-                                            <span th:text="${checkedInCount}">0</span> / <span
-                                                th:text="${totalAttendees}">0</span> Khách
+                                            <span th:text="${checkedInCount}">0</span>
+                                            <span th:if="${absentCount > 0}" th:text="' (+ ' + ${absentCount} + ' vắng)'" class="text-red-500 text-sm font-bold"></span>
+                                            / <span th:text="${totalAttendees}">0</span> Khách
                                         </p>
                                     </div>
                                     <span class="text-xs text-on-surface-variant/60 font-semibold"
-                                        th:text="${totalAttendees > 0 ? (checkedInCount * 100 / totalAttendees) + '%' : '0%'}">0%</span>
+                                        th:text="${totalAttendees > 0 ? ((checkedInCount + absentCount) * 100 / totalAttendees) + '%' : '0%'}">0%</span>
                                 </div>
                                 <div class="w-full bg-[#1b1c1a]/5 rounded-full h-1.5 overflow-hidden">
                                     <div class="bg-primary h-full rounded-full transition-all duration-500"
-                                        th:style="'width: ' + ${totalAttendees > 0 ? (checkedInCount * 100 / totalAttendees) : 0} + '%'">
+                                        th:style="'width: ' + ${totalAttendees > 0 ? ((checkedInCount + absentCount) * 100 / totalAttendees) : 0} + '%'">
                                     </div>
                                 </div>
                             </div>
@@ -1381,6 +1426,59 @@
             });
         }
 
+        function openAbsentModal(attendeeId) {
+            const modal = document.getElementById('absent-reason-modal');
+            if (!modal) return;
+            document.getElementById('absent-attendee-id').value = attendeeId;
+            document.getElementById('absent-reason-textarea').value = '';
+            
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.querySelector('.absent-modal-box').classList.remove('scale-95', 'opacity-0');
+                modal.querySelector('.absent-modal-box').classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+
+        function closeAbsentModal() {
+            const modal = document.getElementById('absent-reason-modal');
+            if (!modal) return;
+            const box = modal.querySelector('.absent-modal-box');
+            box.classList.remove('scale-100', 'opacity-100');
+            box.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 200);
+        }
+
+        async function submitAbsentManual() {
+            const attendeeId = document.getElementById('absent-attendee-id').value;
+            const reason = document.getElementById('absent-reason-textarea').value.trim();
+
+            if (!reason) {
+                showToast('Vui lòng điền lý do vắng mặt của khách!', 'warning');
+                return;
+            }
+
+            try {
+                const resp = await fetch('/api/faceid/absent-manual', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ attendeeId: attendeeId, reason: reason })
+                });
+                const data = await resp.json();
+                if (data.success) {
+                    showToast('Đã ghi nhận vắng mặt khách hàng: ' + data.name, 'success');
+                    closeAbsentModal();
+                    window.location.href = '/tourguide/dashboard?scanned=true' + (activeScheduleId ? '&scheduleId=' + activeScheduleId : '');
+                } else {
+                    showToast(data.message || 'Có lỗi xảy ra', 'error');
+                }
+            } catch (e) {
+                console.error(e);
+                showToast('Lỗi kết nối máy chủ.', 'error');
+            }
+        }
+
         function openGuideSettingsModal(e) {
             e.stopPropagation();
             document.getElementById('guideSettingsModal').classList.remove('hidden');
@@ -1424,28 +1522,93 @@
             modal.classList.add('opacity-0', 'pointer-events-none');
         }
 
-        function submitIncidentReport() {
+        function submitIncidentReport(cancelTour = false) {
             const desc = document.getElementById('incident-description').value.trim();
             if (!desc) {
                 showToast('Vui lòng nhập mô tả sự cố.', 'warning');
                 return;
             }
-            fetch('/api/tour-incidents', {
+
+            if (cancelTour) {
+                showCustomConfirm({
+                    title: 'Xác Nhận Hủy Tour',
+                    message: 'Bạn có chắc chắn muốn hủy toàn bộ lịch trình tour này và tự động hoàn tiền 100% cho tất cả khách hàng không?',
+                    icon: 'report_problem',
+                    onConfirm: () => {
+                        executeCancelSchedule(desc);
+                    }
+                });
+            } else {
+                fetch('/api/tour-incidents', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ description: desc })
+                })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            showCustomWarning({
+                                title: 'Báo Cáo Thành Công',
+                                message: 'Báo cáo sự cố đã được gửi thành công đến Ban Quản lý Resort HoaNien!',
+                                icon: 'check_circle'
+                            });
+                            document.getElementById('incident-description').value = '';
+                        } else {
+                            showCustomWarning({
+                                title: 'Gửi Thất Bại',
+                                message: data.message || 'Có lỗi xảy ra khi gửi báo cáo.',
+                                icon: 'error'
+                            });
+                        }
+                    })
+                    .catch(err => {
+                        showCustomWarning({
+                            title: 'Lỗi Kết Nối',
+                            message: 'Không thể kết nối tới máy chủ.',
+                            icon: 'error'
+                        });
+                    });
+            }
+        }
+
+        function executeCancelSchedule(description) {
+            if (!activeScheduleId) {
+                showToast('Không xác định được mã lịch trình tour.', 'error');
+                return;
+            }
+
+            fetch('/api/faceid/cancel-schedule', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ description: desc })
+                body: JSON.stringify({ scheduleId: activeScheduleId, description: description })
             })
                 .then(res => res.json())
                 .then(data => {
                     if (data.success) {
-                        showToast('Báo cáo sự cố đã được gửi thành công đến Ban Quản lý Resort HoaNien!', 'success');
+                        showCustomWarning({
+                            title: 'Hủy Tour Thành Công',
+                            message: data.message,
+                            icon: 'check_circle',
+                            onConfirm: () => {
+                                window.location.reload();
+                            }
+                        });
                         document.getElementById('incident-description').value = '';
                     } else {
-                        showToast(data.message || 'Có lỗi xảy ra', 'error');
+                        showCustomWarning({
+                            title: 'Hủy Tour Thất Bại',
+                            message: data.message || 'Có lỗi xảy ra khi hủy lịch trình tour.',
+                            icon: 'error'
+                        });
                     }
                 })
                 .catch(err => {
-                    showToast('Lỗi kết nối máy chủ.', 'error');
+                    console.error(err);
+                    showCustomWarning({
+                        title: 'Lỗi Kết Nối',
+                        message: 'Không thể kết nối tới máy chủ khi hủy tour.',
+                        icon: 'error'
+                    });
                 });
         }
 
@@ -1793,6 +1956,7 @@
     const tourActivitiesJsonDb = /*[[${tourActivitiesJson}]]*/ '[]';
     const tourHandbookJsonDb = /*[[${tourHandbookJson}]]*/ '{}';
     const checkedInCountDb = /*[[${checkedInCount}]]*/ 0;
+    const absentCountDb = /*[[${absentCount}]]*/ 0;
     const totalAttendeesDb = /*[[${totalAttendees}]]*/ 0;
     /*]]>*/
 
@@ -2216,13 +2380,13 @@
     function checkTourSafety(event) {
         if (event) event.preventDefault();
 
-        // Kiểm tra xem số lượng hành khách đã điểm danh có đủ so với số lượng đăng ký hay chưa
-        if (totalAttendeesDb === 0 || checkedInCountDb < totalAttendeesDb) {
+        // Kiểm tra xem số lượng hành khách đã xử lý (điểm danh hoặc báo vắng mặt) có đủ hay chưa
+        if (totalAttendeesDb === 0 || (checkedInCountDb + absentCountDb) < totalAttendeesDb) {
             showCustomWarning({
                 title: 'Không Thể Bắt Đầu Tour',
                 message: totalAttendeesDb === 0
                     ? 'Chưa thể bắt đầu tour do chưa có hành khách nào đăng ký!'
-                    : `Chưa thể bắt đầu tour. Số hành khách điểm danh hiện tại (${checkedInCountDb}/${totalAttendeesDb}) chưa đủ so với danh sách đăng ký theo quy định của tour!`,
+                    : `Chưa thể bắt đầu tour. Vui lòng hoàn thành điểm danh (Điểm danh có mặt hoặc Báo vắng mặt) cho toàn bộ hành khách trước khi khởi hành!`,
                 icon: 'warning'
             });
             return;
@@ -2647,6 +2811,48 @@
             </button>
             <button type="button" onclick="closeCustomConfirm(true)"
                 class="flex-1 py-3 rounded-full text-sm font-bold bg-primary text-on-primary hover:bg-primary/90 transition-all shadow-md inline-flex items-center justify-center">
+                Đồng ý
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     ABSENT REASON MODAL — Confirm Modal (Red theme)
+     ══════════════════════════════════════════════════════════ -->
+<div id="absent-reason-modal"
+    class="fixed inset-0 bg-primary/20 backdrop-blur-md flex items-center justify-center z-[500] hidden p-4">
+    <div class="absent-modal-box w-full max-w-md overflow-hidden bg-white border border-primary/20 rounded-3xl shadow-2xl
+                transform scale-95 opacity-0 transition-all duration-200 ease-out">
+        <!-- Icon + Title -->
+        <div class="flex flex-col items-center text-center px-8 pt-9 pb-5">
+            <div class="w-20 h-20 rounded-full bg-red-50 border border-red-100 flex items-center justify-center mb-5 shadow-inner">
+                <span class="material-symbols-outlined text-red-600" style="font-size:36px">person_off</span>
+            </div>
+            <h3 class="font-bold text-on-background text-lg md:text-xl tracking-tight">Báo Vắng Mặt</h3>
+            <p class="text-xs text-on-surface-variant/70 mt-1">Nhập lý do vắng mặt của khách hàng để tiếp tục</p>
+            <div class="w-12 h-px bg-primary/30 mt-4"></div>
+        </div>
+
+        <!-- Body -->
+        <div class="px-8 pb-4">
+            <input type="hidden" id="absent-attendee-id" value="" />
+            <textarea id="absent-reason-textarea" rows="3" 
+                class="w-full p-4 border border-outline-variant/60 rounded-2xl focus:ring-2 focus:ring-primary/20 outline-none text-sm leading-relaxed placeholder-on-surface-variant/40"
+                placeholder="Ví dụ: Khách bị ốm đột xuất, không liên lạc được, khách chủ động hủy..."></textarea>
+        </div>
+
+        <!-- Separator -->
+        <div class="h-px bg-primary/10 mx-6"></div>
+
+        <!-- Action buttons -->
+        <div class="flex gap-4 px-6 py-5">
+            <button type="button" onclick="closeAbsentModal()"
+                class="flex-1 py-3 rounded-full text-sm font-semibold text-on-surface-variant border border-outline-variant/50 hover:bg-surface-container-low transition-all">
+                Huỷ
+            </button>
+            <button type="button" onclick="submitAbsentManual()"
+                class="flex-1 py-3 rounded-full text-sm font-bold bg-primary text-on-primary hover:bg-primary/90 transition-all shadow-md inline-flex items-center justify-center gap-2">
                 Đồng ý
             </button>
         </div>

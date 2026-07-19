@@ -334,7 +334,13 @@
                                 <label class="text-xs uppercase tracking-wider opacity-70 font-semibold">Email</label>
                                 <input type="email" name="email"
                                     class="w-full bg-transparent border-b border-hoanien-text/20 pb-2 focus:border-hoanien-text focus:outline-none transition-colors text-sm"
-                                    th:value="${customer != null ? customer.email : ''}" readonly>
+                                    th:value="${customer != null ? customer.email : ''}"
+                                    placeholder="Nhập email của bạn...">
+                                <p class="text-[10px] opacity-50 mt-1 italic"
+                                    th:if="${customer != null and customer.email != null and #strings.contains(customer.email, '@kawai-resort.com')}">
+                                    * Tài khoản của bạn đang dùng email tạm. Hãy cập nhật email thật để nhận thông báo
+                                    từ hệ thống.
+                                </p>
                             </div>
                             <div class="space-y-1.5">
                                 <label class="text-xs uppercase tracking-wider opacity-70 font-semibold">Số điện

@@ -44,7 +44,7 @@ public class TableReservationCleanupTask {
         
         List<TableReservation> pendingReservations = tableReservationRepository.findAll().stream()
                 .filter(r -> !r.getReserveDate().isBefore(today))
-                .filter(r -> "Pending".equalsIgnoreCase(r.getStatus()) || "Confirmed".equalsIgnoreCase(r.getStatus()))
+                .filter(r -> "Pending".equalsIgnoreCase(r.getStatus()))
                 .toList();
 
         int canceledCount = 0;

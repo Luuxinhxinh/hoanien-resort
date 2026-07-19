@@ -2793,7 +2793,7 @@
                     if (g.children) {
                         g.children.forEach(c => {
                             let formattedVal = c.isInfant ? 'Miễn phí' : formatNumber(c.unitVal);
-                            let formattedAmt = formatNumber(c.amount);
+                            let formattedAmt = formatNumber(c.amount) + ' VNĐ';
                             if (c.isInsurance) {
                                 formattedVal = formatNumber(c.unitVal);
                                 formattedAmt = 'Đã bao gồm';
@@ -2801,10 +2801,10 @@
                             tbodyHtml += `
                                 <tr style="color: #2F1F17; font-family: 'Times New Roman', serif; font-size: 14px;">
                                     <td style="padding: 8px 0; border-bottom: 1px dashed #eee;"></td>
-                                    <td style="padding: 8px 0; border-bottom: 1px dashed #eee; padding-left: 20px;">${c.description}</td>
-                                    <td style="padding: 8px 0; border-bottom: 1px dashed #eee; text-align: center;">${c.qty}</td>
-                                    <td style="padding: 8px 0; border-bottom: 1px dashed #eee; text-align: right;">${formattedVal}</td>
-                                    <td style="padding: 8px 0; border-bottom: 1px dashed #eee; text-align: right;">${formattedAmt}</td>
+                                    <td style="padding: 8px 0; border-bottom: 1px dashed #eee; padding-left: 20px; font-style: italic;">${c.description}</td>
+                                    <td style="padding: 8px 0; border-bottom: 1px dashed #eee; text-align: center; font-style: italic;">${c.qty}</td>
+                                    <td style="padding: 8px 0; border-bottom: 1px dashed #eee; text-align: right; font-style: italic;">${formattedVal}</td>
+                                    <td style="padding: 8px 0; border-bottom: 1px dashed #eee; text-align: right; font-style: italic;">${formattedAmt}</td>
                                 </tr>
                             `;
                         });

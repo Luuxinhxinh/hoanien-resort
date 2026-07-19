@@ -163,15 +163,26 @@ public class OrderFoodController {
                                 if (rbd != null) {
                                     java.util.Map<String, Object> rMap = new java.util.HashMap<>();
                                     rMap.put("roomNumber", r.getRoomNumber());
-                                    BigDecimal limit = rbd.getSubCreditLimit() != null ? rbd.getSubCreditLimit()
-                                            : (rbd.getRoomBooking() != null ? rbd.getRoomBooking().getCreditLimit()
+                                    BigDecimal subLimit = rbd.getSubCreditLimit();
+                                    BigDecimal limit = (subLimit != null && subLimit.compareTo(BigDecimal.ZERO) > 0)
+                                            ? subLimit
+                                            : (rbd.getRoomBooking() != null && rbd.getRoomBooking().getCreditLimit() != null
+                                                    ? rbd.getRoomBooking().getCreditLimit()
                                                     : BigDecimal.ZERO);
-                                    BigDecimal used = folioItemRepository.findByRoomBookingDetailId(rbd.getId())
-                                            .stream()
+                                    java.util.List<com.kawai.models.FolioItem> folioItems = folioItemRepository.findByRoomBookingDetailId(rbd.getId());
+                                    BigDecimal charged = folioItems.stream()
                                             .filter(f -> !Boolean.TRUE.equals(f.getIsSettledSeparately()))
-                                            .map(FolioItem::getAmount)
+                                            .map(com.kawai.models.FolioItem::getAmount)
+                                            .filter(a -> a != null && a.compareTo(BigDecimal.ZERO) > 0)
                                             .reduce(BigDecimal.ZERO, BigDecimal::add);
-                                    limit = limit.subtract(used);
+                                    BigDecimal creditTopUp = folioItems.stream()
+                                            .filter(f -> !Boolean.TRUE.equals(f.getIsSettledSeparately()))
+                                            .filter(f -> f.getDescription() != null && f.getDescription().startsWith("Nạp tiền nâng hạn mức"))
+                                            .map(com.kawai.models.FolioItem::getAmount)
+                                            .filter(a -> a != null && a.compareTo(BigDecimal.ZERO) < 0)
+                                            .map(BigDecimal::abs)
+                                            .reduce(BigDecimal.ZERO, BigDecimal::add);
+                                    limit = limit.add(creditTopUp).subtract(charged);
                                     rMap.put("limit", limit);
                                     roomOptions.add(rMap);
                                 }

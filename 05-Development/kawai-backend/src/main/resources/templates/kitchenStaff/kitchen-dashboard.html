@@ -75,7 +75,7 @@
 
     <!-- PENDING COLUMN -->
     <div class="kanban-col">
-      <h2>Món Mới (Chờ nấu)</h2>
+      <h2>New Orders</h2>
 
       <div class="order-card pending" th:each="order : ${orders}" th:if="${order.orderStatus == 'Pending'}">
         <div class="order-header">
@@ -85,19 +85,37 @@
         <div class="order-meta">
           <span th:text="${order.table != null ? 'Bàn ' + order.table.tableNumber : 'Room Service'}"></span>
         </div>
+        
+        <div class="order-general-note" th:if="${order.note != null and !order.note.isEmpty()}">
+          <span class="material-symbols-outlined" style="font-size: 0.9rem; vertical-align: middle;">warning</span>
+          <th:block th:if="${#strings.startsWith(order.note, 'GUEST:')}">
+            <th:block th:with="pipeIndex=${#strings.indexOf(order.note, '|')}">
+              <strong style="color: #b45309;" th:text="'Khách: ' + ${#strings.substring(order.note, 6, pipeIndex)}"></strong>
+              <span th:if="${#strings.length(order.note) > pipeIndex + 1}" 
+                    th:text="' - Note: ' + ${#strings.substring(order.note, pipeIndex + 1)}"></span>
+            </th:block>
+          </th:block>
+          <th:block th:unless="${#strings.startsWith(order.note, 'GUEST:')}">
+            <span th:text="'Note chung: ' + ${order.note}"></span>
+          </th:block>
+        </div>
+
         <ul class="order-items" th:id="'list-' + ${order.id}">
           <li th:each="detail : ${order.details}" th:if="${detail.kotStatus == 'Pending' || detail.kotStatus == 'Preparing'}" th:data-id="${detail.id}" onclick="toggleItem(this)">
-            <span th:text="${detail.quantity + 'x ' + (detail.menuItem != null ? detail.menuItem.itemName : 'Món')}"></span>
+            <div style="width: 100%; text-align: left;">
+              <span th:text="${detail.quantity + 'x ' + (detail.menuItem != null ? detail.menuItem.itemName : 'Món')}"></span>
+              <div class="item-note" th:if="${detail.note != null and !detail.note.isEmpty()}" th:text="'↳ ' + ${detail.note}"></div>
+            </div>
           </li>
         </ul>
-        <button class="btn-action btn-start" th:onclick="|updateStatus(${order.id}, 'Preparing')|" sec:authorize="hasAnyAuthority('OP_FNB_ORDER', 'ROLE_ADMIN', 'ROLE_MANAGER')">Bắt đầu nấu</button>
+        <button class="btn-action btn-start" th:onclick="|updateStatus(${order.id}, 'Preparing')|" sec:authorize="hasAnyAuthority('OP_FNB_ORDER', 'ROLE_ADMIN', 'ROLE_MANAGER')">Start Cooking</button>
       </div>
 
     </div>
 
     <!-- PREPARING COLUMN -->
     <div class="kanban-col">
-      <h2>Đang Nấu</h2>
+      <h2>Cooking</h2>
 
       <div class="order-card preparing" th:each="order : ${orders}" th:if="${order.orderStatus == 'Preparing'}">
         <div class="order-header">
@@ -107,13 +125,31 @@
         <div class="order-meta">
           <span th:text="${order.table != null ? 'Bàn ' + order.table.tableNumber : 'Room Service'}"></span>
         </div>
+        
+        <div class="order-general-note" th:if="${order.note != null and !order.note.isEmpty()}">
+          <span class="material-symbols-outlined" style="font-size: 0.9rem; vertical-align: middle;">warning</span>
+          <th:block th:if="${#strings.startsWith(order.note, 'GUEST:')}">
+            <th:block th:with="pipeIndex=${#strings.indexOf(order.note, '|')}">
+              <strong style="color: #b45309;" th:text="'Khách: ' + ${#strings.substring(order.note, 6, pipeIndex)}"></strong>
+              <span th:if="${#strings.length(order.note) > pipeIndex + 1}" 
+                    th:text="' - Note: ' + ${#strings.substring(order.note, pipeIndex + 1)}"></span>
+            </th:block>
+          </th:block>
+          <th:block th:unless="${#strings.startsWith(order.note, 'GUEST:')}">
+            <span th:text="'Note chung: ' + ${order.note}"></span>
+          </th:block>
+        </div>
+
         <ul class="order-items" th:id="'list-' + ${order.id}">
           <li th:each="detail : ${order.details}" th:if="${detail.kotStatus == 'Pending' || detail.kotStatus == 'Preparing'}" th:data-id="${detail.id}" onclick="toggleItem(this)">
-            <span th:text="${detail.quantity + 'x ' + (detail.menuItem != null ? detail.menuItem.itemName : 'Món')}"></span>
+            <div style="width: 100%; text-align: left;">
+              <span th:text="${detail.quantity + 'x ' + (detail.menuItem != null ? detail.menuItem.itemName : 'Món')}"></span>
+              <div class="item-note" th:if="${detail.note != null and !detail.note.isEmpty()}" th:text="'↳ ' + ${detail.note}"></div>
+            </div>
           </li>
         </ul>
         <button th:id="'btn-ready-' + ${order.id}" class="btn-action btn-ready"
-          th:onclick="|updateStatus(${order.id}, 'Ready')|" disabled sec:authorize="hasAnyAuthority('OP_FNB_ORDER', 'ROLE_ADMIN', 'ROLE_MANAGER')">Đã xong (Báo chuông)</button>
+          th:onclick="|updateStatus(${order.id}, 'Ready')|" disabled sec:authorize="hasAnyAuthority('OP_FNB_ORDER', 'ROLE_ADMIN', 'ROLE_MANAGER')">Done</button>
       </div>
 
     </div>

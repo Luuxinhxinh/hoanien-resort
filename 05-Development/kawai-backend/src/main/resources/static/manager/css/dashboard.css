@@ -293,6 +293,20 @@ body {
     margin-bottom: 0;
 }
 
+.mgr-page>*,
+.tab-content>*,
+.mgr-tab-panel>*,
+.mgr-tab-content>* {
+    margin-bottom: 28px;
+}
+
+.mgr-page>*:last-child,
+.tab-content>*:last-child,
+.mgr-tab-panel>*:last-child,
+.mgr-tab-content>*:last-child {
+    margin-bottom: 0;
+}
+
 /* ============================================================
    SIDEBAR
    ============================================================ */

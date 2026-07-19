@@ -62,6 +62,9 @@ public class WorkflowEngineServiceImpl implements WorkflowEngineService {
 
     private boolean evaluateConditions(String conditionsJson, Map<String, Object> payload, String eventType) {
         if (conditionsJson == null || conditionsJson.trim().isEmpty() || "{}".equals(conditionsJson.trim())) {
+            if ("PROMOTION_EXCEEDED".equals(eventType)) {
+                return false;
+            }
             return true;
         }
 

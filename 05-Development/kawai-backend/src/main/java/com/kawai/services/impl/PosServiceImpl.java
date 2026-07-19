@@ -271,6 +271,9 @@ public class PosServiceImpl implements PosService {
                 detail.setQuantity(itemDto.getQty());
                 detail.setPriceAtOrder(itemDto.getPrice());
                 detail.setKotStatus("Pending");
+                if (itemDto.getNote() != null && !itemDto.getNote().isBlank()) {
+                    detail.setNote(itemDto.getNote().trim());
+                }
                 foodOrderDetailRepository.save(detail);
 
                 savedDetails.add(detail);
@@ -310,16 +313,27 @@ public class PosServiceImpl implements PosService {
             }
 
             if (detailToCharge != null) {
-                BigDecimal limit = detailToCharge.getSubCreditLimit() != null ? detailToCharge.getSubCreditLimit()
+                BigDecimal subLimit = detailToCharge.getSubCreditLimit();
+                BigDecimal limit = (subLimit != null && subLimit.compareTo(BigDecimal.ZERO) > 0)
+                        ? subLimit
                         : (((RoomBooking) activeBooking).getCreditLimit() != null
                                 ? ((RoomBooking) activeBooking).getCreditLimit()
                                 : BigDecimal.ZERO);
-                BigDecimal used = folioItemRepository.findByRoomBookingDetailId(detailToCharge.getId()).stream()
+                java.util.List<com.kawai.models.FolioItem> folioItems = folioItemRepository.findByRoomBookingDetailId(detailToCharge.getId());
+                BigDecimal charged = folioItems.stream()
                         .filter(f -> !Boolean.TRUE.equals(f.getIsSettledSeparately()))
                         .map(FolioItem::getAmount)
+                        .filter(a -> a != null && a.compareTo(BigDecimal.ZERO) > 0)
+                        .reduce(BigDecimal.ZERO, BigDecimal::add);
+                BigDecimal creditTopUp = folioItems.stream()
+                        .filter(f -> !Boolean.TRUE.equals(f.getIsSettledSeparately()))
+                        .filter(f -> f.getDescription() != null && f.getDescription().startsWith("Nạp tiền nâng hạn mức"))
+                        .map(FolioItem::getAmount)
+                        .filter(a -> a != null && a.compareTo(BigDecimal.ZERO) < 0)
+                        .map(BigDecimal::abs)
                         .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-                if (limit.subtract(used).compareTo(totalAmount) >= 0) {
+                if (limit.add(creditTopUp).subtract(charged).compareTo(totalAmount) >= 0) {
                     Customer payer = null;
                     if (detailToCharge.getCustomer() != null) {
                         payer = detailToCharge.getCustomer();

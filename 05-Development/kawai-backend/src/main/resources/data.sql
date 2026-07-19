@@ -183,18 +183,8 @@ INSERT INTO Room_Categories (
 (9,  'Luxury Penthouse',         'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688,https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=800&q=80,https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?w=800&q=80', 12000000, 4, 'Căn hộ tầng mái đẳng cấp ngắm toàn cảnh resort.',  2, 0, 4, 2, 1500000, 750000, TRUE, '2 Giường King siêu lớn', 180, 'Toàn cảnh Resort', TRUE, TRUE, 'Rượu vang cao cấp, Trái cây nhập khẩu, Minibar', TRUE),
 (10, 'Cozy Studio Room',         'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af,https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=800&q=80,https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?w=800&q=80', 1500000,  2, 'Phòng Studio nhỏ gọn, đầy đủ tiện nghi.',          2, 0, 2, 1, 300000,  150000, TRUE, '1 Giường Queen 1m8', 35, 'Hướng đường phố', FALSE, FALSE, '2 chai nước suối, Cà phê hòa tan', FALSE);
 
--- ── 7. Room Surcharges (10 rows) ─────────────────────────────
-INSERT INTO Room_Surcharges (surcharge_id, category_id, surcharge_type, age_from, age_to, price_modifier, is_active) VALUES 
-(1, 1, 'EXTRA_ADULT_BED', 12, 100, 500000, TRUE),
-(2, 1, 'CHILD_WITH_BED', 6, 11, 250000, TRUE),
-(3, 1, 'CHILD_WITHOUT_BED', 0, 5, 0, TRUE),
-(4, 2, 'EXTRA_ADULT_BED', 12, 100, 600000, TRUE),
-(5, 2, 'CHILD_WITH_BED', 6, 11, 300000, TRUE),
-(6, 3, 'EXTRA_ADULT_BED', 12, 100, 1000000, TRUE),
-(7, 3, 'CHILD_WITH_BED', 6, 11, 500000, TRUE),
-(8, 4, 'EXTRA_ADULT_BED', 12, 100, 400000, TRUE),
-(9, 5, 'EXTRA_ADULT_BED', 12, 100, 2000000, TRUE),
-(10, 6, 'EXTRA_ADULT_BED', 12, 100, 600000, TRUE);
+-- ── 7. Room Surcharges (Dữ liệu đã được chuyển xuống cuối file dùng INSERT SELECT) ──
+
 
 -- ── 8. Rooms (50 rows) ───────────────────────────────────────
 -- Trạng thái phòng được mô hình hóa đúng:
@@ -1939,7 +1929,7 @@ INSERT INTO Employees (employee_id, account_id, full_name, gender, cccd, phone, 
 INSERT INTO workflows (workflow_name, trigger_event, conditions_json, actions_json, is_active, updated_at) VALUES 
 ('Room Checkout Automation', 'ROOM_CHECKOUT', '{}', '[{"type":"UPDATE_ROOM_STATUS","value":"Vacant_Dirty"},{"type":"CREATE_OPERATION_TASK","value":"CHECKOUT_CLEAN"}]', true, NOW()),
 ('Room Report Damage Automation', 'ROOM_REPORT_DAMAGE', '{}', '[{"type":"CREATE_OPERATION_TASK","value":"Maintenance","priority":"High"}]', true, NOW()),
-('Promotion Exceeded Automation', 'PROMOTION_EXCEEDED', '{}', '[{"type":"REQUIRE_MANAGER_APPROVAL"}]', true, NOW()),
+('Promotion Exceeded Automation', 'PROMOTION_EXCEEDED', '{"threshold_pct_gt":20}', '[{"type":"REQUIRE_MANAGER_APPROVAL"}]', true, NOW()),
 ('SLA Escalation Automation', 'SLA_ESCALATE', '{}', '[{"type":"SEND_EMAIL","target_email":"{{email}}","email_subject":"SLA Warning for {{taskName}}","email_body_html":"sla-warning"}]', true, NOW()),
 ('Account Security OTP', 'ACCOUNT_SECURITY', '{}', '[{"type":"SEND_EMAIL","target_email":"{{email}}","email_subject":"Security Alert","email_body_html":"security-alert"}]', true, NOW()),
 ('User Registration OTP', 'USER_REGISTRATION_OTP', '{}', '[{"type":"SEND_EMAIL","target_email":"{{email}}","email_subject":"Your OTP Code","email_body_html":"otp-email"}]', true, NOW()),

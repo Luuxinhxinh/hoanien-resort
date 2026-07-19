@@ -73,6 +73,10 @@
             color: #ffffff !important;
         }
 
+        .btn-approve .material-symbols-outlined {
+            color: #ffffff !important;
+        }
+
         .btn-reject {
             background: transparent;
             color: #7a7a7a;
@@ -537,12 +541,9 @@
                                             style="font-size: 11px; color: #8b8b8b; margin-top: 2px;">08:10</div>
                                     </td>
                                     <td>
-                                        <div
-                                            style="display: flex; gap: 8px; justify-content: center; white-space: nowrap;">
-                                            <button class="btn-action btn-approve"
-                                                th:onclick="'handleApproval(' + ${item.taskId} + ', \'approve\')'">
-                                                <span class="material-symbols-outlined"
-                                                    style="font-size: 16px; color: #ffffff !important;">check</span> Duyệt
+                                        <div style="display: flex; gap: 8px; justify-content: center; white-space: nowrap;">
+                                            <button class="btn-action btn-approve" th:onclick="'handleApproval(' + ${item.taskId} + ', \'approve\')'">
+                                                <span class="material-symbols-outlined" style="font-size: 16px; color: #ffffff !important;">check</span> Duyệt
                                             </button>
                                             <button class="btn-action btn-reject"
                                                 th:onclick="'handleApproval(' + ${item.taskId} + ', \'reject\')'">
