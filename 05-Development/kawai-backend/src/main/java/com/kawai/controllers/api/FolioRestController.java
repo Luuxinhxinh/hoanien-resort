@@ -19,6 +19,8 @@ import com.kawai.models.Room;
 import com.kawai.models.RoomBookingDetail;
 import com.kawai.repositories.ConsolidatedInvoiceRepository;
 import com.kawai.repositories.RoomRepository;
+import com.kawai.repositories.RoomCategoryRepository;
+import com.kawai.models.RoomCategory;
 import com.kawai.services.interfaces.EmailService;
 import com.kawai.services.interfaces.InvoicePdfService;
 import com.kawai.services.interfaces.PaymentService;
@@ -52,6 +54,7 @@ public class FolioRestController {
     private final com.kawai.repositories.HousekeepingTaskRepository housekeepingTaskRepo;
     private final com.kawai.repositories.EmployeeRepository employeeRepository;
     private final com.kawai.repositories.PaymentTransactionRepository paymentTransactionRepository;
+    private final RoomCategoryRepository roomCategoryRepository;
 
     @Autowired
     public FolioRestController(NightAuditService nightAuditService,
@@ -71,7 +74,8 @@ public class FolioRestController {
             com.kawai.services.interfaces.WorkflowEngineService workflowEngineService,
             com.kawai.repositories.HousekeepingTaskRepository housekeepingTaskRepo,
             com.kawai.repositories.EmployeeRepository employeeRepository,
-            com.kawai.repositories.PaymentTransactionRepository paymentTransactionRepository) {
+            com.kawai.repositories.PaymentTransactionRepository paymentTransactionRepository,
+            RoomCategoryRepository roomCategoryRepository) {
         this.nightAuditService = nightAuditService;
         this.folioItemRepository = folioItemRepository;
         this.roomBookingDetailRepository = roomBookingDetailRepository;
@@ -90,6 +94,7 @@ public class FolioRestController {
         this.workflowEngineService = workflowEngineService;
         this.housekeepingTaskRepo = housekeepingTaskRepo;
         this.employeeRepository = employeeRepository;
+        this.roomCategoryRepository = roomCategoryRepository;
     }
 
     /**
@@ -475,7 +480,27 @@ public class FolioRestController {
         response.put("roomNumber", roomNumber);
         response.put("checkInDate", checkInDate);
         response.put("checkOutDate", checkOutDate);
-        response.put("categoryName", detail.getCategory() != null ? detail.getCategory().getCategoryName() : "N/A");
+        String originalCategoryName = "N/A";
+        if (detail.getCategory() != null) {
+            originalCategoryName = detail.getCategory().getCategoryName();
+            if (detail.getRoomBooking() != null && detail.getRoomCharge() != null) {
+                long detailNights = java.time.temporal.ChronoUnit.DAYS.between(
+                        detail.getRoomBooking().getCheckInDate(),
+                        detail.getRoomBooking().getCheckOutDate()
+                );
+                if (detailNights <= 0) detailNights = 1;
+                BigDecimal pricePerNight = detail.getRoomCharge().divide(BigDecimal.valueOf(detailNights), 2, java.math.RoundingMode.HALF_UP);
+                
+                if (detail.getCategory().getBasePrice() != null && detail.getCategory().getBasePrice().compareTo(pricePerNight) != 0) {
+                    originalCategoryName = roomCategoryRepository.findAll().stream()
+                            .filter(cat -> cat.getBasePrice() != null && cat.getBasePrice().compareTo(pricePerNight) == 0)
+                            .map(RoomCategory::getCategoryName)
+                            .findFirst()
+                            .orElse(detail.getCategory().getCategoryName());
+                }
+            }
+        }
+        response.put("categoryName", originalCategoryName);
         response.put("roomCharge", detail.getRoomCharge());
         response.put("dailyRate", dailyRate);
         response.put("extraSurcharge", detail.getExtraSurcharge() != null ? detail.getExtraSurcharge() : BigDecimal.ZERO);
