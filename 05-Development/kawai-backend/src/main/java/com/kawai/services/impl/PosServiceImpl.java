@@ -271,6 +271,9 @@ public class PosServiceImpl implements PosService {
                 detail.setQuantity(itemDto.getQty());
                 detail.setPriceAtOrder(itemDto.getPrice());
                 detail.setKotStatus("Pending");
+                if (itemDto.getNote() != null && !itemDto.getNote().isBlank()) {
+                    detail.setNote(itemDto.getNote().trim());
+                }
                 foodOrderDetailRepository.save(detail);
 
                 savedDetails.add(detail);
