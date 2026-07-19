@@ -38,8 +38,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             // Trả về DefaultOAuth2User với authorities mới và nameAttributeKey = "email"
             // để principal.getName() trả về email thay vì Google ID
             return new org.springframework.security.oauth2.core.user.DefaultOAuth2User(
-                    java.util.Collections.singleton(
-                            new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_USER")),
+                    org.springframework.security.core.authority.AuthorityUtils.createAuthorityList("ROLE_USER", "ROLE_GUEST"),
                     attrs,
                     "email");
         } else {
