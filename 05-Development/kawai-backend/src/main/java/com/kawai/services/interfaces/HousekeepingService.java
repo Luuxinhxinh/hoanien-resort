@@ -48,8 +48,6 @@ public interface HousekeepingService {
      */
     void createMaintenanceTaskForPricedDamages(Room room);
 
-    void createMaintenanceTaskForPricedDamages(Room room);
-
     void escalateTaskByRoomNumber(String roomNumber);
 
     /**
