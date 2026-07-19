@@ -240,7 +240,7 @@ async function pollCleanTasksDone() {
             playSound = true;
             markUrgentTaskAlerted(task.taskId, task.roomNumber); // truyền roomNumber để suppress handover toast
             showToastAlert(
-                `🧹 Phòng <strong>${task.roomNumber}</strong> đã dọn xong! Sẵn sàng nhận khách.`,
+                `🧹 Phòng <strong>${task.roomNumber}</strong> đã dọn xong!`,
                 task.roomNumber,
                 {
                     icon: '<i class="fa-solid fa-broom fa-bounce" style="font-size:22px;color:#fde047;"></i>',
@@ -256,10 +256,7 @@ async function pollCleanTasksDone() {
     }
 }
 
-// ── Start polling (10s interval) ────────────────────────────────────────────
+// ── Khởi chạy lần đầu khi load trang ──────────────────────────────────────
 pollCleanedRooms();
 pollPendingWalkInRooms();
 pollCleanTasksDone();
-setInterval(pollCleanedRooms, 10000);
-setInterval(pollPendingWalkInRooms, 10000);
-setInterval(pollCleanTasksDone, 10000);

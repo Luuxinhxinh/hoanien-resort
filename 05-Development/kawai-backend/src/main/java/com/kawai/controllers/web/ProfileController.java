@@ -104,8 +104,9 @@ public class ProfileController {
             customer.setMembershipTier(defaultTier);
         }
         model.addAttribute("customer", customer);
-        
-        // Safe calculations for Membership Tier, Loyalty Points and UI Progress to avoid Thymeleaf translation exceptions
+
+        // Safe calculations for Membership Tier, Loyalty Points and UI Progress to
+        // avoid Thymeleaf translation exceptions
         String tierName = "REGULAR";
         int pts = 0;
         int maxPts = 1000;
@@ -144,7 +145,8 @@ public class ProfileController {
         }
 
         percent = maxPts > 0 ? (pts * 100 / maxPts) : 0;
-        if (percent > 100) percent = 100;
+        if (percent > 100)
+            percent = 100;
 
         model.addAttribute("tierName", tierName != null ? tierName.toUpperCase() : "REGULAR");
         model.addAttribute("loyaltyPoints", pts);
@@ -182,15 +184,19 @@ public class ProfileController {
 
             java.util.Map<Long, List<RoomBookingDetail>> visibleDetailsMap = new java.util.HashMap<>();
             java.util.Map<Long, java.math.BigDecimal> remainingLimits = new java.util.HashMap<>();
-            
+
             java.util.Map<Long, List<com.kawai.models.FolioItem>> folioItemsMap = new java.util.HashMap<>();
             java.util.Map<Long, List<com.kawai.models.RoomGuest>> roomGuestsMap = new java.util.HashMap<>();
+            java.util.Map<Long, Boolean> hasAttachedToursMap = new java.util.HashMap<>();
+            java.util.Map<Long, Boolean> hasRefundableItemsMap = new java.util.HashMap<>();
             List<RoomBooking> activeStays = new java.util.ArrayList<>();
 
             for (RoomBooking rb : roomBookings) {
                 if ("CHECKED_IN".equalsIgnoreCase(rb.getBookingStatus())) {
                     activeStays.add(rb);
                 }
+
+                populateRefundInfo(rb, hasAttachedToursMap, hasRefundableItemsMap);
 
                 List<RoomBookingDetail> allDetails = roomBookingDetailRepository.findByRoomBookingId(rb.getId());
                 List<RoomBookingDetail> visibleDetails;
@@ -210,7 +216,7 @@ public class ProfileController {
                             : java.math.BigDecimal.ZERO;
                     List<com.kawai.models.FolioItem> folioItems = folioItemRepository
                             .findByRoomBookingDetailId(d.getId());
-                            
+
                     folioItemsMap.put(d.getId(), folioItems);
                     roomGuestsMap.put(d.getId(), roomGuestRepository.findByRoomBookingDetailId(d.getId()));
 
@@ -226,6 +232,8 @@ public class ProfileController {
             model.addAttribute("folioItemsMap", folioItemsMap);
             model.addAttribute("roomGuestsMap", roomGuestsMap);
             model.addAttribute("activeStays", activeStays);
+            model.addAttribute("hasAttachedToursMap", hasAttachedToursMap);
+            model.addAttribute("hasRefundableItemsMap", hasRefundableItemsMap);
 
             List<TourBooking> tourBookings = bookingRepository.findByCustomerId(customer.getId()).stream()
                     .filter(b -> b instanceof TourBooking)
@@ -518,23 +526,46 @@ public class ProfileController {
         String status = booking.getBookingStatus() != null ? booking.getBookingStatus().toUpperCase() : "";
         if (!"CONFIRMED".equals(status) && !"PENDING".equals(status)) {
             return org.springframework.http.ResponseEntity.badRequest()
-                    .body(java.util.Map.of("status", "error", "message", "Đơn tour này không thể hủy (Trạng thái hiện tại: " + booking.getBookingStatus() + ")!"));
+                    .body(java.util.Map.of("status", "error", "message",
+                            "Đơn tour này không thể hủy (Trạng thái hiện tại: " + booking.getBookingStatus() + ")!"));
         }
 
         try {
-            // Hủy tour bởi khách hàng (có kèm DTO nếu hoàn tiền)
-            java.math.BigDecimal refundAmount = tourBookingService.cancelTourByCustomer(bookingId, customer.getId(), dto);
-
-
+            java.math.BigDecimal refundAmount = tourBookingService.cancelTourByCustomer(bookingId, customer.getId(),
+                    dto);
 
             return org.springframework.http.ResponseEntity.ok(java.util.Map.of(
                     "status", "success",
                     "message", "Đã hủy đơn đặt tour thành công!",
-                    "refundAmount", refundAmount
-            ));
+                    "refundAmount", refundAmount));
         } catch (Exception e) {
-            return org.springframework.http.ResponseEntity.status(org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(java.util.Map.of("status", "error", "message", "Lỗi hệ thống khi hủy tour: " + e.getMessage()));
+            return org.springframework.http.ResponseEntity
+                    .status(org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(java.util.Map.of("status", "error", "message",
+                            "Lỗi hệ thống khi hủy tour: " + e.getMessage()));
         }
+    }
+
+    private void populateRefundInfo(RoomBooking rb, java.util.Map<Long, Boolean> hasAttachedToursMap,
+            java.util.Map<Long, Boolean> hasRefundableItemsMap) {
+        boolean roomRefundable = rb.getCancellationDeadline() != null
+                && !java.time.LocalDateTime.now().isAfter(rb.getCancellationDeadline());
+        List<TourBooking> attachedTours = tourBookingRepository.findByRoomBookingId(rb.getId());
+        boolean hasTours = !attachedTours.isEmpty();
+        boolean anyTourRefundable = false;
+
+        for (TourBooking tb : attachedTours) {
+            if (tb.getSchedule() != null && tb.getSchedule().getDepartureDate() != null) {
+                java.time.LocalDateTime depTime = tb.getSchedule().getDepartureDate().atTime(
+                        tb.getSchedule().getDepartureTime() != null ? tb.getSchedule().getDepartureTime()
+                                : java.time.LocalTime.of(7, 0));
+                if (java.time.temporal.ChronoUnit.HOURS.between(java.time.LocalDateTime.now(), depTime) > 24) {
+                    anyTourRefundable = true;
+                    break;
+                }
+            }
+        }
+        hasAttachedToursMap.put(rb.getId(), hasTours);
+        hasRefundableItemsMap.put(rb.getId(), roomRefundable || anyTourRefundable);
     }
 }

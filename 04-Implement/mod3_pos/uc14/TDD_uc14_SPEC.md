@@ -137,6 +137,23 @@ Feature: F&B Order Management (UC-14)
 * `foodOrder.getTotalAmount()` bằng `200,000` VND.
 * `foodOrder.getFoodOrderDetails().size()` bằng 2, và mỗi chi tiết đều có `kotStatus` = `PENDING`.
 * Bàn chuyển trạng thái thành `OCCUPIED`.
+* Bàn "T01" (capacity 4) đang có trạng thái "AVAILABLE".
+* Món "Phở bò" (giá 100,000 VND) đang có sẵn (`isAvailable = true`).
+* Request: partySize = 2.
+* Thời gian hiện tại: 10:00 AM (trong giờ hoạt động).
+
+**Test Steps:**
+1. Mock `RestaurantTableRepository.findById(1)` trả về bàn T01 (AVAILABLE).
+2. Mock `MenuItemRepository` để lấy giá món ăn.
+3. Gọi `createOrder` tạo đơn với bàn T01, partySize 2, 2 phần Phở bò.
+4. Assert Order được tạo có `orderStatus = PENDING`, `isPaidInPos = false`.
+5. Assert `FoodOrderDetail` được tạo đủ 2 bản ghi, mỗi bản ghi có `kotStatus = PENDING`.
+6. Assert Bàn T01 chuyển trạng thái sang `OCCUPIED`.
+
+**Expected Result (PASS):**
+* Tạo đơn thành công, tổng tiền được tính đúng (200,000 VND).
+* Bàn chuyển trạng thái sang `OCCUPIED`.
+* Các `FoodOrderDetail` có `kotStatus = PENDING`.
 
 **Expected Result (FAIL):**
 * Đơn được tạo nhưng bàn không đổi trạng thái.

@@ -113,11 +113,13 @@
     </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@1,600&display=swap');
+
         *:not(.material-symbols-outlined) {
             font-family: 'Inter', sans-serif !important;
             font-weight: 600 !important;
             font-style: italic !important;
         }
+
         .brand,
         .logo-text,
         .resort-name,
@@ -127,6 +129,7 @@
             font-weight: 400 !important;
             font-style: italic !important;
         }
+
         body {
             background-color: #fff7fa;
             background-image:
@@ -335,15 +338,21 @@
                                 class="text-xs text-primary hover:underline font-semibold">Đọc tất cả</button>
                         </div>
                         <div class="space-y-3 max-h-64 overflow-y-auto text-left" id="notifications-list">
-                            <div th:each="n : ${dynamicNotifications}" class="p-3 bg-primary/5 rounded-xl border-l-4 border-primary space-y-1">
+                            <div th:each="n : ${dynamicNotifications}"
+                                class="p-3 bg-primary/5 rounded-xl border-l-4 border-primary space-y-1">
                                 <div class="flex items-center gap-1.5">
-                                    <span class="material-symbols-outlined text-[14px] text-primary" th:text="${n.icon}">info</span>
-                                    <p class="text-xs font-semibold text-on-surface" th:text="${n.title}">Tiêu đề thông báo</p>
+                                    <span class="material-symbols-outlined text-[14px] text-primary"
+                                        th:text="${n.icon}">info</span>
+                                    <p class="text-xs font-semibold text-on-surface" th:text="${n.title}">Tiêu đề thông
+                                        báo</p>
                                 </div>
-                                <p class="text-[11px] text-on-surface-variant/70 leading-snug" th:text="${n.content}">Nội dung thông báo...</p>
-                                <p class="text-[9px] text-on-surface-variant/50" th:text="${n.timeText}">5 phút trước</p>
+                                <p class="text-[11px] text-on-surface-variant/70 leading-snug" th:text="${n.content}">
+                                    Nội dung thông báo...</p>
+                                <p class="text-[9px] text-on-surface-variant/50" th:text="${n.timeText}">5 phút trước
+                                </p>
                             </div>
-                            <div th:if="${dynamicNotifications == null || dynamicNotifications.isEmpty()}" class="p-4 text-center text-xs text-on-surface-variant/50">
+                            <div th:if="${dynamicNotifications == null || dynamicNotifications.isEmpty()}"
+                                class="p-4 text-center text-xs text-on-surface-variant/50">
                                 Không có thông báo mới nào.
                             </div>
                         </div>
@@ -402,7 +411,8 @@
                 <!-- Left: Title -->
                 <div class="col-span-12 lg:col-span-8 space-y-2">
                     <h3 class="font-headline-lg text-headline-lg text-on-surface">Quản lý Đoàn Khách</h3>
-                    <p class="font-headline text-lg md:text-xl font-light text-on-surface-variant/70">Theo dõi trạng thái và
+                    <p class="font-headline text-lg md:text-xl font-light text-on-surface-variant/70">Theo dõi trạng
+                        thái và
                         thực hiện điểm danh tự động qua FaceID.</p>
                 </div>
                 <!-- Right: Important Notice (Sát bên phải, cùng hàng tiêu đề, trên FaceID) -->
@@ -411,11 +421,15 @@
                         class="glass-panel p-6 md:p-7 rounded-lg group space-y-4 border-amber-500/40 bg-amber-500/5">
                         <div class="space-y-2">
                             <div class="flex items-center gap-2 text-amber-700">
-                                <span class="material-symbols-outlined text-[24px]" style="font-variation-settings:'FILL' 1">warning</span>
-                                <h4 class="font-display-md text-base md:text-lg font-bold">Thông tin Quan trọng (Lưu ý)</h4>
+                                <span class="material-symbols-outlined text-[24px]"
+                                    style="font-variation-settings:'FILL' 1">warning</span>
+                                <h4 class="font-display-md text-base md:text-lg font-bold">Thông tin Quan trọng (Lưu ý)
+                                </h4>
                             </div>
-                            <p class="font-headline text-xs md:text-sm font-semibold text-on-surface-variant leading-relaxed">
-                                Yêu cầu tất cả nhân viên kiểm tra thiết bị quét khuôn mặt trước giờ đón khách 30 phút. Báo cáo ngay nếu có sự cố xảy ra.
+                            <p
+                                class="font-headline text-xs md:text-sm font-semibold text-on-surface-variant leading-relaxed">
+                                Yêu cầu tất cả nhân viên kiểm tra thiết bị quét khuôn mặt trước giờ đón khách 30 phút.
+                                Báo cáo ngay nếu có sự cố xảy ra.
                             </p>
                         </div>
                         <div class="flex items-center gap-3 pt-1">
@@ -529,7 +543,8 @@
                     <div th:if="${tourBookingNotes != null and !#strings.isEmpty(tourBookingNotes)}"
                         class="glass-panel rounded-lg p-6 border-amber-500/20 bg-amber-500/5 mb-8 text-left">
                         <div class="flex items-center gap-2 text-amber-800 mb-2">
-                            <span class="material-symbols-outlined text-[20px]" style="font-variation-settings:'FILL' 1">sticky_note_2</span>
+                            <span class="material-symbols-outlined text-[20px]"
+                                style="font-variation-settings:'FILL' 1">sticky_note_2</span>
                             <h5 class="font-bold text-[15px]">Ghi chú hành trình của Khách hàng</h5>
                         </div>
                         <p class="text-sm font-semibold text-on-surface leading-relaxed" th:text="${tourBookingNotes}">
@@ -924,7 +939,7 @@
         const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.12/model/';
         const FACE_MATCH_THRESHOLD = 0.45;
         const MIN_CONFIDENCE = 85;
-        const activeScheduleId = [[${scheduleId}]];
+        const activeScheduleId = /*[[${scheduleId}]]*/ null;
 
         let cameraStream = null;
         let cameraActive = false;
@@ -1415,8 +1430,23 @@
                 showToast('Vui lòng nhập mô tả sự cố.', 'warning');
                 return;
             }
-            showToast('Báo cáo sự cố đã được gửi thành công đến Ban Quản lý Resort HoaNien!', 'success');
-            document.getElementById('incident-description').value = '';
+            fetch('/api/tour-incidents', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ description: desc })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        showToast('Báo cáo sự cố đã được gửi thành công đến Ban Quản lý Resort HoaNien!', 'success');
+                        document.getElementById('incident-description').value = '';
+                    } else {
+                        showToast(data.message || 'Có lỗi xảy ra', 'error');
+                    }
+                })
+                .catch(err => {
+                    showToast('Lỗi kết nối máy chủ.', 'error');
+                });
         }
 
         function showToast(message, type = 'success') {

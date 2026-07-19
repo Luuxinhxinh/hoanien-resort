@@ -21,4 +21,5 @@ public interface TableReservationService {
 
     TableReservation holdReservation(Long reservationId, int holdMinutes);
 
+    void cancelReservation(Long reservationId, java.security.Principal principal, String reason);
 }

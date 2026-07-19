@@ -2195,3 +2195,12 @@ UPDATE Bookings b SET total_price = (
     FROM Room_Booking_Details 
     WHERE room_booking_id = b.booking_id
 ) WHERE b.booking_id IN (8008);
+-- 1. Từ 0-5 tuổi: Miễn phí (0 VNĐ)
+INSERT INTO Room_Surcharges (category_id, surcharge_type, age_from, age_to, price_modifier, is_active)
+SELECT category_id, 'CHILD_0_5', 0, 5, 0, 1 FROM Room_Categories;
+-- 2. Từ 6-11 tuổi: Phụ thu 200.000 VNĐ
+INSERT INTO Room_Surcharges (category_id, surcharge_type, age_from, age_to, price_modifier, is_active)
+SELECT category_id, 'CHILD_6_11', 6, 11, 200000, 1 FROM Room_Categories;
+-- 3. Từ 12-17 tuổi: Phụ thu 350.000 VNĐ
+INSERT INTO Room_Surcharges (category_id, surcharge_type, age_from, age_to, price_modifier, is_active)
+SELECT category_id, 'CHILD_12_17', 12, 17, 350000, 1 FROM Room_Categories;

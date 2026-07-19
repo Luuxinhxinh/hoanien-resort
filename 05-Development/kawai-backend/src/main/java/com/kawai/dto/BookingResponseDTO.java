@@ -2,6 +2,7 @@ package com.kawai.dto;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 /**
  * Kết quả trả về sau khi tạo booking thành công (UC10).
@@ -14,8 +15,9 @@ public class BookingResponseDTO {
     private BigDecimal discountedPrice;
     private LocalDate checkInDate;
     private LocalDate checkOutDate;
-    private LocalDate cancellationDeadline;
-
+    private LocalDateTime cancellationDeadline;
+    private Boolean hasRefundableItems = false;
+    private Boolean hasAttachedTours = false;
     // ------- Constructors -------
     public BookingResponseDTO() {
     }
@@ -69,11 +71,27 @@ public class BookingResponseDTO {
         checkOutDate = v;
     }
 
-    public LocalDate getCancellationDeadline() {
+    public LocalDateTime getCancellationDeadline() {
         return cancellationDeadline;
     }
 
-    public void setCancellationDeadline(LocalDate v) {
+    public void setCancellationDeadline(LocalDateTime v) {
         cancellationDeadline = v;
+    }
+
+    public Boolean getHasRefundableItems() {
+        return hasRefundableItems;
+    }
+
+    public void setHasRefundableItems(Boolean hasRefundableItems) {
+        this.hasRefundableItems = hasRefundableItems;
+    }
+
+    public Boolean getHasAttachedTours() {
+        return hasAttachedTours;
+    }
+
+    public void setHasAttachedTours(Boolean hasAttachedTours) {
+        this.hasAttachedTours = hasAttachedTours;
     }
 }

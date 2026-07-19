@@ -82,20 +82,40 @@
 6. Sử dụng Mockito `verify()` để đảm bảo thông điệp hủy được bắn qua WebSocket vào topic `/topic/kds/orders`.
 
 **Expected Result (PASS):**
-* Hàm không quẳng ngoại lệ.
+* Hàm không quăng ngoại lệ.
 * `order.getOrderStatus()` bằng `CANCELLED`.
 * `folioItem` bị xóa (trả lại hạn mức).
+
+---
+
+### TC-UC19-002 — Hủy đơn VNPAY thành công (Yêu cầu Refund)
+**Severity:** HIGH
+**CWE:** N/A
+**Feature Under Test:** `PosServiceImpl.cancelOrder()` và `VnpayService` Integration
+* Đơn hàng `ORD-001` đang ở trạng thái `PENDING`.
+* Loại thanh toán là `CHARGE_TO_ROOM`.
+* `FolioItem` liên kết với đơn này đã được ghi vào hệ thống.
+
+**Test Steps:**
+1. Mock Repository trả về đơn `ORD-001`.
+2. Gọi API hủy đơn hàng với ID tương ứng.
+3. Assert `orderStatus` đổi thành `CANCELLED`.
+4. Assert tất cả KOT bên trong chuyển thành `CANCELLED`.
+5. Assert hàm xóa `FolioItem` được gọi để trả lại hạn mức cho phòng.
+
+**Expected Result (PASS):**
+* Hủy thành công, KOT bị hủy, FolioItem bị xóa. Hạn mức phòng được trả lại chính xác.
 
 **Expected Result (FAIL):**
 * Đơn hàng hủy nhưng FolioItem vẫn còn, gây tính tiền oan cho khách.
 
 ---
 
-### TC-UC19-002 — Hủy đơn VNPAY thành công (Yêu cầu Refund)
+### TC-UC19-002 — Hủy đơn VNPAY thành công (Refund)
 
 **Severity:** HIGH
 **CWE:** N/A
-**Feature Under Test:** `PosServiceImpl.cancelOrder()` và `VnpayService` Integration
+**Feature Under Test:** `Refund Integration`
 **Test File:** `src/test/java/com/kawai/services/PosServiceUC19Test.java`
 **TDD Phase:** 🟢 GREEN
 
@@ -114,16 +134,34 @@
 * `order.getOrderStatus()` bằng `CANCELLED`.
 * Refund Request ghi nhận thành công, khách hàng nhận lại tiền qua gateway.
 
+---
+
+### TC-UC19-003 — Chặn hủy đơn khi bếp đang nấu (POS-004)
+**Severity:** HIGH
+**CWE:** CWE-841 (Improper Enforcement of Behavioral Workflow)
+**Feature Under Test:** Kiểm soát vòng đời đơn hàng (Order Lifecycle)
+* Đơn `ORD-002` đã được thanh toán bằng VNPAY (`isPaidInPos = true`).
+* Trạng thái đơn đang là `PENDING`.
+
+**Test Steps:**
+1. Mock `VnpayService` để không gọi API VNPAY thực tế.
+2. Gọi hàm hủy đơn `ORD-002`.
+3. Assert hàm `createRefundRequest` của VNPAY được gọi với số tiền tương ứng.
+4. Assert đơn đổi trạng thái sang `CANCELLED`.
+
+**Expected Result (PASS):**
+* Tạo thành công RefundRequest tới VNPAY và đơn chuyển sang CANCELLED.
+
 **Expected Result (FAIL):**
 * Hủy đơn nhưng quên gọi API Refund, khiến kế toán phải dò lại thủ công.
 
 ---
 
-### TC-UC19-003 — Chặn hủy đơn khi bếp đang nấu (POS-004)
+### TC-UC19-003 — Hủy đơn đang Preparing (POS-004)
 
 **Severity:** HIGH
-**CWE:** CWE-841 (Improper Enforcement of Behavioral Workflow)
-**Feature Under Test:** `PosServiceImpl.cancelOrder()` — Kiểm soát vòng đời đơn hàng
+**CWE:** CWE-841
+**Feature Under Test:** `Order Status Validation`
 **Test File:** `src/test/java/com/kawai/services/PosServiceUC19Test.java`
 **TDD Phase:** 🟢 GREEN
 
@@ -140,11 +178,35 @@
 * Message lỗi chứa mã: `POS-004: Không thể hủy đơn đang được chế biến`.
 * Không có thao tác ghi Database nào (như đổi status hay xoá Folio) xảy ra.
 
+---
+
+### TC-UC19-004 — Chặn hủy đơn đã thanh toán nhưng chưa có Refund Gateway (Fall-back)
+**Severity:** MEDIUM
+**CWE:** N/A
+**Feature Under Test:** Validations
+**Test File:** `src/test/java/com/kawai/services/PosServiceUC19Test.java`
+**TDD Phase:** 🟢 GREEN
+
+**Test Steps:**
+1. Gọi hủy đơn `ORD-004` (paymentType = CASH) nhưng status là `COMPLETED`.
+2. Hệ thống phải ném lỗi cấm hủy đơn đã hoàn thành.
+
+**Expected Result (PASS):**
+* Ném lỗi `BusinessLogicException: "Không thể hủy đơn đã hoàn thành và xuất hóa đơn."`
+* Đơn `ORD-003` đang ở trạng thái `PREPARING` (bếp đang nấu).
+
+**Test Steps:**
+1. Mock Repository trả về đơn ở trạng thái PREPARING.
+2. Gọi hàm hủy đơn.
+3. Assert Exception.
+
+**Expected Result (PASS):**
+* Ném lỗi `BusinessLogicException`: "POS-004: Không thể hủy đơn đang được chế biến".
+
 **Expected Result (FAIL):**
 * Đơn hàng vẫn bị hủy trong khi bếp đã làm xong món ăn (gây lãng phí nguyên liệu).
 
 ---
-
 
 ## 4. Red-Green-Refactor Tracker
 

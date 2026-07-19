@@ -17,7 +17,8 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     @Query("SELECT r FROM Review r WHERE r.moderationStatus = 'Approved' AND (r.roomBookingDetail IS NOT NULL OR r.ratingRoomDining IS NOT NULL) ORDER BY r.createdAt DESC")
     List<Review> findApprovedRoomReviews();
 
-    // Other/General reviews: không có tour booking, không có ratingTour, không có room booking, không có ratingRoomDining
+    // Other/General reviews: không có tour booking, không có ratingTour, không có
+    // room booking, không có ratingRoomDining
     @Query("SELECT r FROM Review r WHERE r.moderationStatus = 'Approved' AND r.tourBooking IS NULL AND r.ratingTour IS NULL AND r.roomBookingDetail IS NULL AND r.ratingRoomDining IS NULL ORDER BY r.createdAt DESC")
     List<Review> findApprovedGeneralReviews();
 
@@ -25,9 +26,12 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     List<Review> findByModerationStatusOrderByCreatedAtDesc(String status);
 
     boolean existsByTourBookingId(Long tourBookingId);
+
     boolean existsByRoomBookingDetailId(Long roomBookingDetailId);
 
-    // Tour reviews by specific guide (via tourBooking -> schedule -> TourStaffAssignment -> employee)
-    @Query("SELECT r FROM Review r JOIN TourStaffAssignment tsa ON tsa.schedule = r.tourBooking.schedule WHERE r.moderationStatus = 'Approved' AND r.tourBooking IS NOT NULL AND tsa.employee.id = :employeeId ORDER BY r.createdAt DESC")
-    List<Review> findApprovedTourReviewsByGuideId(@org.springframework.data.repository.query.Param("employeeId") Long employeeId);
+    // Tour reviews by specific guide (via tourBooking -> schedule ->
+    // TourStaffAssignment -> employee)
+    @Query("SELECT r FROM Review r JOIN r.tourBooking tb JOIN tb.schedule s JOIN TourStaffAssignment tsa ON tsa.schedule = s WHERE r.moderationStatus = 'Approved' AND tsa.employee.id = :employeeId ORDER BY r.createdAt DESC")
+    List<Review> findApprovedTourReviewsByGuideId(
+            @org.springframework.data.repository.query.Param("employeeId") Long employeeId);
 }

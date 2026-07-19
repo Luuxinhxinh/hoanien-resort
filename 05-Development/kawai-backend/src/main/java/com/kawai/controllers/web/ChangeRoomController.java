@@ -14,15 +14,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
 import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Controller xử lý toàn bộ chức năng Đổi hạng phòng (UC44 - Change Room Category)
+ * Controller xử lý toàn bộ chức năng Đổi hạng phòng (UC44 - Change Room
+ * Category)
  * cho lễ tân khi khách đang lưu trú (In-House).
  *
  * URL Prefix: /receptionist/in-house
@@ -75,7 +74,7 @@ public class ChangeRoomController {
                 catMap.put("categoryName", cat.getCategoryName() != null ? cat.getCategoryName() : "Unknown");
                 catMap.put("basePrice", cat.getBasePrice());
                 catMap.put("vacantCount", vacantCount);
-                
+
                 boolean isCurrent = false;
                 if (cat.getCategoryName() != null && finalCurrentCategoryName != null) {
                     isCurrent = cat.getCategoryName().equals(finalCurrentCategoryName);
@@ -93,7 +92,7 @@ public class ChangeRoomController {
 
             return ResponseEntity.ok(result);
         } catch (Exception e) {
-            e.printStackTrace(); 
+            e.printStackTrace();
             Map<String, Object> errorMap = new HashMap<>();
             errorMap.put("error", e.getMessage());
             errorMap.put("trace", java.util.Arrays.toString(e.getStackTrace()));

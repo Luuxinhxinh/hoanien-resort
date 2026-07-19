@@ -686,7 +686,7 @@
                         <!-- ACTIVE BOOKINGS -->
                         <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start mb-8">
                             <th:block th:each="booking : ${bookings}"
-                                th:if="${#lists.contains({'PENDING', 'CONFIRMED', 'CHECKED_IN'}, #strings.toUpperCase(booking.bookingStatus))}">
+                                th:if="${#lists.contains({'PENDING', 'CONFIRMED', 'CHECKED_IN', 'PENDING_APPROVAL'}, #strings.toUpperCase(booking.bookingStatus))}">
                                 <div class="booking-item h-full flex flex-col p-6 border border-hoanien-text/10 rounded-2xl bg-white hover:shadow-xl transition-all duration-300 group"
                                     th:data-status="${#strings.toUpperCase(booking.bookingStatus)}">
                                     <div class="flex gap-5 mb-4">
@@ -723,7 +723,8 @@
                                     <hr class="border-hoanien-text/10 my-2" />
 
                                     <!-- Folio Details -->
-                                    <div class="mt-2 mb-4 space-y-2">
+                                    <div class="mt-2 mb-4 space-y-2"
+                                        th:if="${!#lists.contains({'PENDING', 'PENDING_APPROVAL'}, #strings.toUpperCase(booking.bookingStatus))}">
                                         <p class="text-[10px] uppercase tracking-widest opacity-60 font-semibold mb-1">
                                             Hạn mức chi tiêu phòng (Folio)</p>
                                         <div th:each="detail : ${visibleDetailsMap[booking.id]}"
@@ -788,7 +789,11 @@
                                                 class="text-[10px] bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full font-semibold whitespace-nowrap shadow-sm border border-yellow-200">Chờ
                                                 xử lý</span>
                                             <span
-                                                th:unless="${#lists.contains({'CONFIRMED', 'PENDING', 'CHECKED_IN'}, #strings.toUpperCase(booking.bookingStatus))}"
+                                                th:if="${#strings.toUpperCase(booking.bookingStatus) == 'PENDING_APPROVAL'}"
+                                                class="text-[10px] bg-orange-100 text-orange-700 px-3 py-1 rounded-full font-semibold whitespace-nowrap shadow-sm border border-orange-200">Chờ
+                                                duyệt</span>
+                                            <span
+                                                th:unless="${#lists.contains({'CONFIRMED', 'PENDING', 'CHECKED_IN', 'PENDING_APPROVAL'}, #strings.toUpperCase(booking.bookingStatus))}"
                                                 class="text-[10px] bg-gray-200 text-gray-600 px-3 py-1 rounded-full font-semibold whitespace-nowrap shadow-sm"
                                                 th:text="${booking.bookingStatus}">Trạng thái</span>
                                         </div>
@@ -811,10 +816,10 @@
                                                         class="material-symbols-outlined text-[16px]">group_add</span>
                                                     Khai báo khách</button>
                                                 <button
-                                                    th:if="${#strings.toUpperCase(booking.bookingStatus) == 'PENDING' or #strings.toUpperCase(booking.bookingStatus) == 'CONFIRMED'}"
-                                                    type="button" 
-                                                    th:with="isRefundable=${booking.cancellationDeadline != null and !T(java.time.LocalDate).now().isAfter(booking.cancellationDeadline)}"
-                                                    th:onclick="'cancelBooking(' + ${booking.id} + ', ' + ${isRefundable} + ')'"
+                                                    th:if="${#strings.toUpperCase(booking.bookingStatus) == 'PENDING' or #strings.toUpperCase(booking.bookingStatus) == 'CONFIRMED' or #strings.toUpperCase(booking.bookingStatus) == 'PENDING_APPROVAL'}"
+                                                    type="button"
+                                                    th:with="isRefundable=${hasRefundableItemsMap != null and hasRefundableItemsMap.get(booking.id)}, isRoomRefundable=${booking.cancellationDeadline != null and !T(java.time.LocalDateTime).now().isAfter(booking.cancellationDeadline)}, hasAttachedTours=${hasAttachedToursMap != null and hasAttachedToursMap.get(booking.id)}"
+                                                    th:onclick="'cancelBooking(' + ${booking.id} + ', ' + ${isRefundable} + ', ' + ${isRoomRefundable} + ', ' + ${hasAttachedTours} + ')'"
                                                     class="w-8 h-8 rounded-full bg-red-50 text-red-600 hover:bg-red-500 hover:text-white flex items-center justify-center transition-colors shadow-sm"
                                                     title="Hủy đơn"><span
                                                         class="material-symbols-outlined text-[16px]">close</span></button>
@@ -845,7 +850,7 @@
                             <div class="px-6 pb-6 pt-2 border-t border-hoanien-text/5">
                                 <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start mt-4">
                                     <th:block th:each="booking : ${bookings}"
-                                        th:if="${!#lists.contains({'PENDING', 'CONFIRMED', 'CHECKED_IN'}, #strings.toUpperCase(booking.bookingStatus))}">
+                                        th:if="${!#lists.contains({'PENDING', 'CONFIRMED', 'CHECKED_IN', 'PENDING_APPROVAL'}, #strings.toUpperCase(booking.bookingStatus))}">
                                         <div class="booking-item h-full flex flex-col p-6 border border-hoanien-text/10 rounded-2xl bg-white hover:shadow-xl transition-all duration-300 group opacity-60 grayscale"
                                             th:data-status="${#strings.toUpperCase(booking.bookingStatus)}">
                                             <div class="flex gap-5 mb-4">
@@ -892,11 +897,11 @@
                                                         class="text-[10px] bg-gray-100 text-gray-700 px-3 py-1 rounded-full font-semibold whitespace-nowrap shadow-sm border border-gray-200">Đã
                                                         trả phòng</span>
                                                     <span
-                                                        th:if="${#strings.toUpperCase(booking.bookingStatus) == 'CANCELLED'}"
+                                                        th:if="${#strings.toUpperCase(booking.bookingStatus) == 'CANCELLED' or #strings.toUpperCase(booking.bookingStatus) == 'NO_SHOW' }"
                                                         class="text-[10px] bg-red-100 text-red-700 px-3 py-1 rounded-full font-semibold whitespace-nowrap shadow-sm border border-red-200">Đã
                                                         hủy</span>
                                                     <span
-                                                        th:unless="${#lists.contains({'CANCELLED', 'CHECKED_OUT'}, #strings.toUpperCase(booking.bookingStatus))}"
+                                                        th:unless="${#lists.contains({'CANCELLED', 'CHECKED_OUT', 'NO_SHOW'}, #strings.toUpperCase(booking.bookingStatus))}"
                                                         class="text-[10px] bg-gray-200 text-gray-600 px-3 py-1 rounded-full font-semibold whitespace-nowrap shadow-sm"
                                                         th:text="${booking.bookingStatus}">Trạng thái</span>
                                                 </div>
@@ -927,294 +932,464 @@
                     </div>
 
                     <!-- 2. TOUR BOOKINGS SECTION -->
-                        <div id="section-tours" class="hidden space-y-4">
-                            <h3 class="font-serif text-2xl font-medium mb-6 text-hoanien-text/90">Lịch sử đặt tour</h3>
-                            <div th:if="${tourBookings == null or tourBookings.empty}" class="text-center py-6 opacity-50 border border-dashed border-hoanien-text/30 rounded-lg">
-                                <span class="material-symbols-outlined text-3xl mb-1">explore_off</span>
-                                <p class="text-xs">Bạn chưa có đơn đặt tour nào.</p>
-                            </div>
-                            
-                            <!-- ACTIVE TOUR BOOKINGS -->
-                            <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start mb-8">
-                                <th:block th:each="tb : ${tourBookings}" th:if="${#lists.contains({'PENDING', 'CONFIRMED', 'IN_PROGRESS'}, #strings.toUpperCase(tb.bookingStatus))}">
-                                    <div class="flex flex-col p-6 border border-hoanien-text/10 rounded-2xl bg-white/40 hover:bg-white/80 hover:shadow-xl transition-all duration-300 group">
-                                        <div class="flex gap-5 mb-4">
-                                            <div class="w-32 h-24 shrink-0 rounded-xl bg-hoanien-text text-hoanien-bg flex flex-col items-center justify-center shadow-inner relative overflow-hidden" th:if="${tb.schedule != null}">
-                                                <span class="text-[10px] uppercase tracking-widest font-semibold opacity-70" th:text="${#temporals.format(tb.schedule.departureDate, 'MM/yyyy')}">MM/YYYY</span>
-                                                <span class="text-3xl font-bold leading-none mt-1" th:text="${#temporals.format(tb.schedule.departureDate, 'dd')}">01</span>
-                                                <div class="absolute bottom-0 w-full h-1 bg-white/20"></div>
-                                            </div>
-                                            <div class="w-32 h-24 shrink-0 rounded-xl bg-hoanien-text/5 border border-hoanien-text/10 flex items-center justify-center" th:unless="${tb.schedule != null}">
-                                                <span class="material-symbols-outlined text-3xl opacity-40">event</span>
-                                            </div>
-                                            
-                                            <div class="flex-1 min-w-0">
-                                                <div class="flex justify-between items-start mb-1">
-                                                    <span class="text-[10px] uppercase tracking-widest font-semibold opacity-60">Lịch trình</span>
-                                                    <span class="text-[10px] bg-hoanien-text/10 text-hoanien-text px-2 py-0.5 rounded font-semibold shrink-0" th:text="'#HN-TOUR-' + ${tb.id}"></span>
-                                                </div>
-                                                <h4 class="text-lg font-bold truncate mb-2 text-hoanien-text/90" th:text="${tb.schedule != null and tb.schedule.tour != null ? tb.schedule.tour.tourName : 'Tour Du Lịch'}">Tên Tour</h4>
-                                                <p class="text-[11px] opacity-80 uppercase tracking-widest flex items-center gap-4 font-medium">
-                                                    <span class="flex items-center gap-1.5"><span class="material-symbols-outlined text-[14px]">group</span> <span th:text="${tb.participantCount + ' khách'}">Khách</span></span>
-                                                    <span th:if="${tb.schedule != null}" class="flex items-center gap-1.5"><span class="material-symbols-outlined text-[14px]">schedule</span> <span th:text="${tb.schedule.departureTime != null ? #temporals.format(tb.schedule.departureTime, 'HH:mm') : '08:00'}">08:00</span></span>
-                                                </p>
-                                            </div>
-                                        </div>
-                                        
-                                        <hr class="border-hoanien-text/10 my-2" />
-                                        
-                                        <div class="flex justify-between items-end mt-2">
-                                            <div>
-                                                <p class="text-[10px] uppercase tracking-widest opacity-50 font-semibold mb-2">Trạng thái</p>
-                                                <span th:if="${#strings.toUpperCase(tb.bookingStatus) == 'CONFIRMED'}" class="text-[10px] bg-green-100 text-green-700 px-3 py-1 rounded-full font-semibold whitespace-nowrap shadow-sm border border-green-200">Chờ khởi hành</span>
-                                                <span th:if="${#strings.toUpperCase(tb.bookingStatus) == 'IN_PROGRESS'}" class="text-[10px] bg-blue-100 text-blue-700 px-3 py-1 rounded-full font-semibold whitespace-nowrap shadow-sm border border-blue-200">Đang diễn ra</span>
-                                                <span th:if="${#strings.toUpperCase(tb.bookingStatus) == 'PENDING'}" class="text-[10px] bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full font-semibold whitespace-nowrap shadow-sm border border-yellow-200">Chờ thanh toán</span>
-                                                <span th:unless="${#lists.contains({'CONFIRMED', 'IN_PROGRESS', 'PENDING'}, #strings.toUpperCase(tb.bookingStatus))}" class="text-[10px] bg-gray-200 text-gray-600 px-3 py-1 rounded-full font-semibold whitespace-nowrap shadow-sm" th:text="${tb.bookingStatus}">Trạng thái</span>
-                                            </div>
-                                            <div class="text-right flex items-end gap-4">
-                                                <div>
-                                                    <p class="text-[10px] uppercase tracking-widest opacity-50 font-semibold mb-1">Tổng cộng</p>
-                                                    <p class="text-xl font-bold text-hoanien-text"><span th:text="${tb.tourCharge != null ? #numbers.formatDecimal(tb.tourCharge, 0, 'COMMA', 0, 'POINT') : '0'}">0</span><span class="text-[10px] font-semibold ml-1 opacity-70">VNĐ</span></p>
-                                                </div>
-                                                <button type="button" th:onclick="'viewTourBookingDetails(' + ${tb.id} + ')'" class="w-8 h-8 rounded-full bg-hoanien-text text-white hover:bg-hoanien-text/80 flex items-center justify-center transition-colors shadow-sm" title="Chi tiết lịch trình"><span class="material-symbols-outlined text-[16px]">arrow_forward</span></button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </th:block>
-                            </div>
-                            
-                            <!-- PAST TOUR BOOKINGS ACCORDION -->
-                            <details class="group bg-white/40 border border-hoanien-text/10 rounded-2xl transition-all duration-300 open:bg-white/80 open:shadow-lg">
-                                <summary class="flex justify-between items-center cursor-pointer p-6 font-serif text-xl font-medium text-hoanien-text/80 outline-none select-none hover:text-hoanien-text transition-colors">
-                                    <div class="flex items-center gap-3">
-                                        <span class="material-symbols-outlined">history</span>
-                                        Đơn tour trong quá khứ & Đã hủy
-                                    </div>
-                                    <span class="material-symbols-outlined transform transition-transform duration-300 group-open:rotate-180">expand_more</span>
-                                </summary>
-                                <div class="px-6 pb-6 pt-2 border-t border-hoanien-text/5">
-                                    <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start mt-4">
-                                        <th:block th:each="tb : ${tourBookings}" th:if="${!#lists.contains({'PENDING', 'CONFIRMED', 'IN_PROGRESS'}, #strings.toUpperCase(tb.bookingStatus))}">
-                                            <div class="flex flex-col p-6 border border-hoanien-text/10 rounded-2xl bg-white/40 hover:bg-white/80 hover:shadow-xl transition-all duration-300 group opacity-60 grayscale">
-                                                <div class="flex gap-5 mb-4">
-                                                    <div class="w-32 h-24 shrink-0 rounded-xl bg-hoanien-text text-hoanien-bg flex flex-col items-center justify-center shadow-inner relative overflow-hidden" th:if="${tb.schedule != null}">
-                                                        <span class="text-[10px] uppercase tracking-widest font-semibold opacity-70" th:text="${#temporals.format(tb.schedule.departureDate, 'MM/yyyy')}">MM/YYYY</span>
-                                                        <span class="text-3xl font-bold leading-none mt-1" th:text="${#temporals.format(tb.schedule.departureDate, 'dd')}">01</span>
-                                                        <div class="absolute bottom-0 w-full h-1 bg-white/20"></div>
-                                                    </div>
-                                                    <div class="w-32 h-24 shrink-0 rounded-xl bg-hoanien-text/5 border border-hoanien-text/10 flex items-center justify-center" th:unless="${tb.schedule != null}">
-                                                        <span class="material-symbols-outlined text-3xl opacity-40">event</span>
-                                                    </div>
-                                                    
-                                                    <div class="flex-1 min-w-0">
-                                                        <div class="flex justify-between items-start mb-1">
-                                                            <span class="text-[10px] uppercase tracking-widest font-semibold opacity-60">Lịch trình</span>
-                                                            <span class="text-[10px] bg-hoanien-text/10 text-hoanien-text px-2 py-0.5 rounded font-semibold shrink-0" th:text="'#HN-TOUR-' + ${tb.id}"></span>
-                                                        </div>
-                                                        <h4 class="text-lg font-bold truncate mb-2 text-hoanien-text/90" th:text="${tb.schedule != null and tb.schedule.tour != null ? tb.schedule.tour.tourName : 'Tour Du Lịch'}">Tên Tour</h4>
-                                                        <p class="text-[11px] opacity-80 uppercase tracking-widest flex items-center gap-4 font-medium">
-                                                            <span class="flex items-center gap-1.5"><span class="material-symbols-outlined text-[14px]">group</span> <span th:text="${tb.participantCount + ' khách'}">Khách</span></span>
-                                                            <span th:if="${tb.schedule != null}" class="flex items-center gap-1.5"><span class="material-symbols-outlined text-[14px]">schedule</span> <span th:text="${tb.schedule.departureTime != null ? #temporals.format(tb.schedule.departureTime, 'HH:mm') : '08:00'}">08:00</span></span>
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                                
-                                                <hr class="border-hoanien-text/10 my-2" />
-                                                
-                                                <div class="flex justify-between items-end mt-2">
-                                                    <div>
-                                                        <p class="text-[10px] uppercase tracking-widest opacity-50 font-semibold mb-2">Trạng thái</p>
-                                                        <span th:if="${#strings.toUpperCase(tb.bookingStatus) == 'COMPLETED'}" class="text-[10px] bg-gray-100 text-gray-700 px-3 py-1 rounded-full font-semibold whitespace-nowrap shadow-sm border border-gray-200">Đã hoàn thành</span>
-                                                        <span th:if="${#strings.toUpperCase(tb.bookingStatus) == 'CANCELLED'}" class="text-[10px] bg-red-100 text-red-700 px-3 py-1 rounded-full font-semibold whitespace-nowrap shadow-sm border border-red-200">Đã hủy</span>
-                                                        <span th:unless="${#lists.contains({'COMPLETED', 'CANCELLED'}, #strings.toUpperCase(tb.bookingStatus))}" class="text-[10px] bg-gray-200 text-gray-600 px-3 py-1 rounded-full font-semibold whitespace-nowrap shadow-sm" th:text="${tb.bookingStatus}">Trạng thái</span>
-                                                    </div>
-                                                    <div class="text-right flex items-end gap-4">
-                                                        <div>
-                                                            <p class="text-[10px] uppercase tracking-widest opacity-50 font-semibold mb-1">Tổng cộng</p>
-                                                            <p class="text-xl font-bold text-hoanien-text"><span th:text="${tb.tourCharge != null ? #numbers.formatDecimal(tb.tourCharge, 0, 'COMMA', 0, 'POINT') : '0'}">0</span><span class="text-[10px] font-semibold ml-1 opacity-70">VNĐ</span></p>
-                                                        </div>
-                                                        <button type="button" th:onclick="'viewTourBookingDetails(' + ${tb.id} + ')'" class="w-8 h-8 rounded-full bg-hoanien-text text-white hover:bg-hoanien-text/80 flex items-center justify-center transition-colors shadow-sm" title="Chi tiết lịch trình"><span class="material-symbols-outlined text-[16px]">arrow_forward</span></button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </th:block>
-                                    </div>
-                                </div>
-                            </details>
-                        </div>
-                            </div>
+                    <div id="section-tours" class="hidden space-y-4">
+                        <h3 class="font-serif text-2xl font-medium mb-6 text-hoanien-text/90">Lịch sử đặt tour</h3>
+                        <div th:if="${tourBookings == null or tourBookings.empty}"
+                            class="text-center py-6 opacity-50 border border-dashed border-hoanien-text/30 rounded-lg">
+                            <span class="material-symbols-outlined text-3xl mb-1">explore_off</span>
+                            <p class="text-xs">Bạn chưa có đơn đặt tour nào.</p>
                         </div>
 
-                        <!-- 3. FOOD ORDERS SECTION -->
-                        <!-- 3. FOOD ORDERS SECTION -->
-                        <div id="section-food" class="hidden space-y-3">
-                            <h3 class="font-serif text-lg font-medium mb-4">Lịch sử gọi món</h3>
-                            <div th:if="${foodOrders == null or foodOrders.empty}" class="text-center py-6 opacity-50 border border-dashed border-hoanien-text/30 rounded-lg">
-                                <span class="material-symbols-outlined text-3xl mb-1">no_food</span>
-                                <p class="text-xs">Bạn chưa có đơn gọi món nào.</p>
-                            </div>
-                            
-                            <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start">
-                                <div th:each="fo : ${foodOrders}" class="flex flex-col border border-hoanien-text/10 rounded-2xl bg-white hover:shadow-xl transition-all duration-300 overflow-hidden group" th:classappend="${fo.orderStatus == 'Cancelled' ? 'opacity-60 grayscale' : ''}">
-                                    <div class="flex flex-col p-6 cursor-pointer relative" th:onclick="'toggleFoodDetails(\'food-detail-' + ${fo.id} + '\')'">
-                                        <div class="flex items-start gap-5 min-w-0">
-                                            <div class="w-20 h-20 shrink-0 rounded-xl bg-hoanien-text/5 border border-hoanien-text/10 flex flex-col items-center justify-center relative overflow-hidden">
-                                                <span class="material-symbols-outlined text-3xl opacity-40">restaurant_menu</span>
-                                            </div>
-
-                                            <div class="flex flex-col min-w-0 flex-1">
-                                                <div class="flex justify-between items-start mb-1">
-                                                    <span class="text-[10px] uppercase tracking-widest font-semibold opacity-60" th:text="'Đặt lúc: ' + ${#temporals.format(fo.orderTime, 'dd/MM/yyyy HH:mm')}">Time</span>
-                                                    <span class="text-[10px] bg-hoanien-text/10 text-hoanien-text px-2 py-0.5 rounded font-semibold shrink-0" th:text="'#HN-FOOD-' + ${fo.id}">#HN...</span>
-                                                </div>
-                                                <h4 class="text-lg font-bold truncate mb-1 text-hoanien-text/90" th:text="${fo.orderType == 'ROOM_SERVICE' ? 'Phục vụ tận phòng' : 'Tại Nhà Hàng'}">Loại đơn</h4>
-                                                <div class="text-[11px] opacity-70 truncate font-medium pr-6">
-                                                    <span th:each="detail, stat : ${fo.details}">
-                                                        <span th:text="${detail.menuItem != null ? detail.menuItem.itemName : 'Món ăn'}">Món</span> 
-                                                        <span class="opacity-60" th:text="${'(x' + detail.quantity + ')'}">(x1)</span><span th:if="${!stat.last}">, </span>
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        
-                                        <hr class="border-hoanien-text/10 my-3" />
-                                        
-                                        <div class="flex justify-between items-end mt-1 relative pr-6">
-                                            <div>
-                                                <p class="text-[10px] uppercase tracking-widest opacity-50 font-semibold mb-2">Trạng thái</p>
-                                                <span th:if="${fo.orderStatus == 'AWAITING_PAYMENT'}" class="text-[10px] bg-purple-100 text-purple-700 px-3 py-1 rounded-full font-semibold whitespace-nowrap shadow-sm border border-purple-200">Chờ thanh toán</span>
-                                                <span th:if="${fo.orderStatus == 'Pending'}" class="text-[10px] bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full font-semibold whitespace-nowrap shadow-sm border border-yellow-200">Chờ xử lý</span>
-                                                <span th:if="${fo.orderStatus == 'Preparing'}" class="text-[10px] bg-blue-100 text-blue-700 px-3 py-1 rounded-full font-semibold whitespace-nowrap shadow-sm border border-blue-200">Đang nấu</span>
-                                                <span th:if="${fo.orderStatus == 'Ready'}" class="text-[10px] bg-orange-100 text-orange-700 px-3 py-1 rounded-full font-semibold whitespace-nowrap shadow-sm border border-orange-200">Đang giao</span>
-                                                <span th:if="${fo.orderStatus == 'Completed'}" class="text-[10px] bg-green-100 text-green-700 px-3 py-1 rounded-full font-semibold whitespace-nowrap shadow-sm border border-green-200">Hoàn thành</span>
-                                                <span th:if="${fo.orderStatus == 'Cancelled'}" class="text-[10px] bg-red-100 text-red-700 px-3 py-1 rounded-full font-semibold whitespace-nowrap shadow-sm border border-red-200">Đã hủy</span>
-                                            </div>
-                                            <div class="text-right">
-                                                <p class="text-[10px] uppercase tracking-widest opacity-50 font-semibold mb-1">Tổng cộng</p>
-                                                <p class="text-xl font-bold text-hoanien-text"><span th:text="${fo.totalAmount != null ? #numbers.formatDecimal(fo.totalAmount, 0, 'COMMA', 0, 'POINT') : '0'}">0</span><span class="text-[10px] font-semibold ml-1 opacity-70">VNĐ</span></p>
-                                            </div>
-                                            
-                                            <span class="material-symbols-outlined absolute right-0 bottom-2 opacity-40 group-hover:opacity-100 transition-opacity">expand_more</span>
-                                        </div>
-                                    </div>
-                                
-                                <!-- Expandable Tracker -->
-                                <div th:id="'food-detail-' + ${fo.id}" class="hidden border-t border-hoanien-text/10 bg-white p-6"
-                                     th:with="st=${fo.orderStatus != null ? fo.orderStatus.toUpperCase() : ''}, isCompleted=${#lists.contains({'COMPLETED','PAID','SERVED'}, st)}">
-                                    <h5 class="text-xs uppercase tracking-widest font-semibold mb-6 opacity-70 text-center">Trạng thái đơn hàng</h5>
-                                    <div th:if="${st != 'CANCELLED'}" class="flex items-center justify-between relative max-w-sm mx-auto px-4">
-                                        <div class="absolute top-3 left-4 right-4 h-1 bg-gray-200 -z-10 rounded-full"></div>
-                                        <div class="absolute top-3 left-4 h-1 -z-10 rounded-full transition-all duration-700"
-                                             th:classappend="${isCompleted} ? 'bg-blue-500' : 'bg-green-500'"
-                                             th:style="'width: ' + (${isCompleted} ? '100%' : (${st == 'AWAITING_PAYMENT' or st == 'PENDING'} ? '0%' : (${st == 'PREPARING'} ? '33%' : (${st == 'READY' or st == 'DELIVERING'} ? '66%' : '100%'))))"></div>
-                                        
-                                        <!-- Step 1 -->
-                                        <div class="flex flex-col items-center">
-                                            <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold border-[3px] border-white shadow-sm"
-                                                 th:classappend="${isCompleted} ? 'bg-blue-500 text-white' : (${#lists.contains({'PENDING','AWAITING_PAYMENT','PREPARING','READY','DELIVERING'}, st)} ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-500')">1</div>
-                                            <span class="text-[10px] uppercase tracking-wider mt-2 font-semibold" th:classappend="${isCompleted} ? 'text-blue-600' : (${#lists.contains({'PENDING','AWAITING_PAYMENT','PREPARING','READY','DELIVERING'}, st)} ? 'text-green-700' : 'text-gray-500')">Tiếp nhận</span>
-                                        </div>
-                                        <!-- Step 2 -->
-                                        <div class="flex flex-col items-center">
-                                            <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold border-[3px] border-white shadow-sm"
-                                                 th:classappend="${isCompleted} ? 'bg-blue-500 text-white' : (${#lists.contains({'PREPARING','READY','DELIVERING'}, st)} ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-500')">2</div>
-                                            <span class="text-[10px] uppercase tracking-wider mt-2 font-semibold" th:classappend="${isCompleted} ? 'text-blue-600' : (${#lists.contains({'PREPARING','READY','DELIVERING'}, st)} ? 'text-green-700' : 'text-gray-500')">Đang nấu</span>
-                                        </div>
-                                        <!-- Step 3 -->
-                                        <div class="flex flex-col items-center">
-                                            <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold border-[3px] border-white shadow-sm"
-                                                 th:classappend="${isCompleted} ? 'bg-blue-500 text-white' : (${#lists.contains({'READY','DELIVERING'}, st)} ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-500')">3</div>
-                                            <span class="text-[10px] uppercase tracking-wider mt-2 font-semibold" th:classappend="${isCompleted} ? 'text-blue-600' : (${#lists.contains({'READY','DELIVERING'}, st)} ? 'text-green-700' : 'text-gray-500')">Đang giao</span>
-                                        </div>
-                                        <!-- Step 4 -->
-                                        <div class="flex flex-col items-center">
-                                            <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold border-[3px] border-white shadow-sm"
-                                                 th:classappend="${isCompleted} ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-500'">4</div>
-                                            <span class="text-[10px] uppercase tracking-wider mt-2 font-semibold" th:classappend="${isCompleted} ? 'text-blue-600' : 'text-gray-500'">Hoàn thành</span>
-                                        </div>
-                                    </div>
-                                    <div th:if="${st == 'CANCELLED'}" class="text-center text-red-600 text-sm font-semibold">
-                                        <span class="material-symbols-outlined align-middle mr-1">cancel</span> Đơn hàng đã bị hủy
-                                    </div>
-                                    
-                                    <div class="mt-6 flex justify-between items-center text-xs pt-4 border-t border-hoanien-text/10">
-                                        <div>
-                                            <p class="opacity-60 text-[10px] uppercase tracking-widest mb-1">Hình thức thanh toán</p>
-                                            <p class="font-semibold" th:text="${#strings.equalsIgnoreCase(fo.paymentType, 'CHARGE_TO_ROOM') or #strings.equalsIgnoreCase(fo.paymentType, 'Post to Room') or #strings.equalsIgnoreCase(fo.paymentType, 'Post_To_Room') ? 'Ghi nợ phòng (Charge to Room)' : (#strings.equalsIgnoreCase(fo.paymentType, 'ONLINE') or #strings.equalsIgnoreCase(fo.paymentType, 'VNPAY') ? 'Đã TT Trực tuyến (VNPay)' : 'Thanh toán trực tiếp/Sau')}">Payment Type</p>
-                                        </div>
-                                        <button th:if="${fo.orderStatus == 'AWAITING_PAYMENT'}" type="button"
-                                                th:onclick="'payFoodOrder(' + ${fo.id} + ')'"
-                                                class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-semibold shadow-sm transition-all text-[11px] uppercase tracking-wider flex items-center gap-2">
-                                            <span class="material-symbols-outlined text-[16px]">credit_card</span>
-                                            Thanh toán ngay
-                                        </button>
-                                        <button th:if="${fo.orderStatus == 'Pending' or fo.orderStatus == 'AWAITING_PAYMENT'}" type="button"
-                                                th:data-id="${fo.id}" th:data-payment="${fo.paymentType}"
-                                                onclick="cancelFoodOrder(this.getAttribute('data-id'), this.getAttribute('data-payment'))"
-                                                class="bg-red-50 text-red-600 hover:bg-red-500 hover:text-white px-4 py-2 rounded-lg font-semibold shadow-sm transition-all text-[11px] uppercase tracking-wider flex items-center gap-2 ml-2 border border-red-200 hover:border-red-500">
-                                            <span class="material-symbols-outlined text-[16px]">cancel</span>
-                                            Hủy đơn
-                                        </button>
-                                    </div>
-                                </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- 4. TABLE RESERVATIONS SECTION -->
-                        <div id="section-tables" class="hidden space-y-3">
-                            <h3 class="font-serif text-lg font-medium mb-4">Lịch sử đặt bàn</h3>
-                            <div th:if="${tableReservations == null or tableReservations.empty}" class="text-center py-6 opacity-50 border border-dashed border-hoanien-text/30 rounded-lg">
-                                <span class="material-symbols-outlined text-3xl mb-1">table_bar</span>
-                                <p class="text-xs">Bạn chưa có đơn đặt bàn nào.</p>
-                            </div>
-                            
-                            <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start">
-                                <div th:each="tr : ${tableReservations}" class="flex flex-col p-6 border border-hoanien-text/10 rounded-2xl bg-white hover:shadow-xl transition-all duration-300 group" th:classappend="${tr.status == 'Cancelled' ? 'opacity-60 grayscale' : ''}">
+                        <!-- ACTIVE TOUR BOOKINGS -->
+                        <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start mb-8">
+                            <th:block th:each="tb : ${tourBookings}"
+                                th:if="${#lists.contains({'PENDING', 'CONFIRMED', 'IN_PROGRESS'}, #strings.toUpperCase(tb.bookingStatus))}">
+                                <div
+                                    class="flex flex-col p-6 border border-hoanien-text/10 rounded-2xl bg-white/40 hover:bg-white/80 hover:shadow-xl transition-all duration-300 group">
                                     <div class="flex gap-5 mb-4">
-                                        <div class="w-32 h-24 shrink-0 rounded-xl bg-hoanien-text text-hoanien-bg flex flex-col items-center justify-center shadow-inner relative overflow-hidden">
-                                            <span class="text-[10px] uppercase tracking-widest font-semibold opacity-70" th:text="${#temporals.format(tr.reserveDate, 'MM/yyyy')}">MM/YYYY</span>
-                                            <span class="text-3xl font-bold leading-none mt-1" th:text="${#temporals.format(tr.reserveDate, 'dd')}">01</span>
+                                        <div class="w-32 h-24 shrink-0 rounded-xl bg-hoanien-text text-hoanien-bg flex flex-col items-center justify-center shadow-inner relative overflow-hidden"
+                                            th:if="${tb.schedule != null}">
+                                            <span class="text-[10px] uppercase tracking-widest font-semibold opacity-70"
+                                                th:text="${#temporals.format(tb.schedule.departureDate, 'MM/yyyy')}">MM/YYYY</span>
+                                            <span class="text-3xl font-bold leading-none mt-1"
+                                                th:text="${#temporals.format(tb.schedule.departureDate, 'dd')}">01</span>
                                             <div class="absolute bottom-0 w-full h-1 bg-white/20"></div>
+                                        </div>
+                                        <div class="w-32 h-24 shrink-0 rounded-xl bg-hoanien-text/5 border border-hoanien-text/10 flex items-center justify-center"
+                                            th:unless="${tb.schedule != null}">
+                                            <span class="material-symbols-outlined text-3xl opacity-40">event</span>
                                         </div>
 
                                         <div class="flex-1 min-w-0">
                                             <div class="flex justify-between items-start mb-1">
-                                                <span class="text-[10px] uppercase tracking-widest font-semibold opacity-60">Đặt bàn</span>
-                                                <span class="text-[10px] bg-hoanien-text/10 text-hoanien-text px-2 py-0.5 rounded font-semibold shrink-0" th:text="'#HN-TABLE-' + ${tr.id}"></span>
+                                                <span
+                                                    class="text-[10px] uppercase tracking-widest font-semibold opacity-60">Lịch
+                                                    trình</span>
+                                                <span
+                                                    class="text-[10px] bg-hoanien-text/10 text-hoanien-text px-2 py-0.5 rounded font-semibold shrink-0"
+                                                    th:text="'#HN-TOUR-' + ${tb.id}"></span>
                                             </div>
-                                            <h4 class="text-lg font-bold truncate mb-2 text-hoanien-text/90" th:text="${tr.table != null ? 'Bàn ' + tr.table.tableNumber : 'Chưa xếp bàn'}">Bàn 1</h4>
-                                            <p class="text-[11px] opacity-80 uppercase tracking-widest flex items-center gap-4 font-medium">
-                                                <span class="flex items-center gap-1.5"><span class="material-symbols-outlined text-[14px]">schedule</span> <span th:text="${#temporals.format(tr.reserveTime, 'HH:mm')} + ' — ' + ${#temporals.format(tr.endTime, 'HH:mm')}">Time</span></span>
-                                                <span class="flex items-center gap-1.5"><span class="material-symbols-outlined text-[14px]">group</span> <span th:text="${tr.partySize + ' khách'}">Khách</span></span>
+                                            <h4 class="text-lg font-bold truncate mb-2 text-hoanien-text/90"
+                                                th:text="${tb.schedule != null and tb.schedule.tour != null ? tb.schedule.tour.tourName : 'Tour Du Lịch'}">
+                                                Tên Tour</h4>
+                                            <p
+                                                class="text-[11px] opacity-80 uppercase tracking-widest flex items-center gap-4 font-medium">
+                                                <span class="flex items-center gap-1.5"><span
+                                                        class="material-symbols-outlined text-[14px]">group</span> <span
+                                                        th:text="${tb.participantCount + ' khách'}">Khách</span></span>
+                                                <span th:if="${tb.schedule != null}"
+                                                    class="flex items-center gap-1.5"><span
+                                                        class="material-symbols-outlined text-[14px]">schedule</span>
+                                                    <span
+                                                        th:text="${tb.schedule.departureTime != null ? #temporals.format(tb.schedule.departureTime, 'HH:mm') : '08:00'}">08:00</span></span>
                                             </p>
                                         </div>
                                     </div>
-                                    
+
                                     <hr class="border-hoanien-text/10 my-2" />
-                                    
+
                                     <div class="flex justify-between items-end mt-2">
                                         <div>
-                                            <p class="text-[10px] uppercase tracking-widest opacity-50 font-semibold mb-2">Trạng thái</p>
-                                            <span th:if="${tr.status == 'Pending'}" class="text-[10px] bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full font-semibold whitespace-nowrap shadow-sm border border-yellow-200">Chờ xác nhận</span>
-                                            <span th:if="${tr.status == 'Confirmed'}" class="text-[10px] bg-green-100 text-green-700 px-3 py-1 rounded-full font-semibold whitespace-nowrap shadow-sm border border-green-200">Chờ sử dụng</span>
-                                            <span th:if="${tr.status == 'Completed'}" class="text-[10px] bg-gray-100 text-gray-700 px-3 py-1 rounded-full font-semibold whitespace-nowrap shadow-sm border border-gray-200">Đã hoàn thành</span>
-                                            <span th:if="${tr.status == 'Cancelled'}" class="text-[10px] bg-red-100 text-red-700 px-3 py-1 rounded-full font-semibold whitespace-nowrap shadow-sm border border-red-200">Đã hủy</span>
+                                            <p
+                                                class="text-[10px] uppercase tracking-widest opacity-50 font-semibold mb-2">
+                                                Trạng thái</p>
+                                            <span th:if="${#strings.toUpperCase(tb.bookingStatus) == 'CONFIRMED'}"
+                                                class="text-[10px] bg-green-100 text-green-700 px-3 py-1 rounded-full font-semibold whitespace-nowrap shadow-sm border border-green-200">Chờ
+                                                khởi hành</span>
+                                            <span th:if="${#strings.toUpperCase(tb.bookingStatus) == 'IN_PROGRESS'}"
+                                                class="text-[10px] bg-blue-100 text-blue-700 px-3 py-1 rounded-full font-semibold whitespace-nowrap shadow-sm border border-blue-200">Đang
+                                                diễn ra</span>
+                                            <span th:if="${#strings.toUpperCase(tb.bookingStatus) == 'PENDING'}"
+                                                class="text-[10px] bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full font-semibold whitespace-nowrap shadow-sm border border-yellow-200">Chờ
+                                                thanh toán</span>
+                                            <span
+                                                th:unless="${#lists.contains({'CONFIRMED', 'IN_PROGRESS', 'PENDING'}, #strings.toUpperCase(tb.bookingStatus))}"
+                                                class="text-[10px] bg-gray-200 text-gray-600 px-3 py-1 rounded-full font-semibold whitespace-nowrap shadow-sm"
+                                                th:text="${tb.bookingStatus}">Trạng thái</span>
                                         </div>
-                                        <button th:if="${tr.status == 'Pending' or tr.status == 'Confirmed'}" type="button"
-                                                th:data-id="${tr.id}"
-                                                onclick="cancelTableBooking(this.getAttribute('data-id'))"
-                                                class="bg-red-50 text-red-600 hover:bg-red-500 hover:text-white px-4 py-2 rounded-lg font-semibold shadow-sm transition-all text-[11px] uppercase tracking-wider flex items-center gap-2 border border-red-200 hover:border-red-500">
-                                            <span class="material-symbols-outlined text-[16px]">cancel</span>
-                                            Hủy bàn
-                                        </button>
+                                        <div class="text-right flex items-end gap-4">
+                                            <div>
+                                                <p
+                                                    class="text-[10px] uppercase tracking-widest opacity-50 font-semibold mb-1">
+                                                    Tổng cộng</p>
+                                                <p class="text-xl font-bold text-hoanien-text"><span
+                                                        th:text="${tb.tourCharge != null ? #numbers.formatDecimal(tb.tourCharge, 0, 'COMMA', 0, 'POINT') : '0'}">0</span><span
+                                                        class="text-[10px] font-semibold ml-1 opacity-70">VNĐ</span></p>
+                                            </div>
+                                            <div class="flex flex-col md:flex-row gap-2">
+                                                <button
+                                                    th:if="${#strings.toUpperCase(tb.bookingStatus) == 'PENDING' or #strings.toUpperCase(tb.bookingStatus) == 'CONFIRMED'}"
+                                                    type="button"
+                                                    th:with="isRefundable=${tb.schedule != null and tb.schedule.departureDate != null and T(java.time.temporal.ChronoUnit).HOURS.between(T(java.time.LocalDateTime).now(), tb.schedule.departureDate.atTime(tb.schedule.departureTime != null ? tb.schedule.departureTime : T(java.time.LocalTime).of(7,0))) > 24}"
+                                                    th:onclick="'confirmCancelTour(' + ${tb.id} + ', ' + ${isRefundable} + ', ' + ${tb.tourCharge != null ? tb.tourCharge : 0} + ')'"
+                                                    class="w-8 h-8 rounded-full bg-red-50 text-red-600 hover:bg-red-500 hover:text-white flex items-center justify-center transition-colors shadow-sm"
+                                                    title="Hủy đơn"><span
+                                                        class="material-symbols-outlined text-[16px]">close</span></button>
+                                                <button type="button"
+                                                    th:onclick="'viewTourBookingDetails(' + ${tb.id} + ')'"
+                                                    class="w-8 h-8 rounded-full bg-hoanien-text text-white hover:bg-hoanien-text/80 flex items-center justify-center transition-colors shadow-sm"
+                                                    title="Chi tiết lịch trình"><span
+                                                        class="material-symbols-outlined text-[16px]">arrow_forward</span></button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </th:block>
+                        </div>
+
+                        <!-- PAST TOUR BOOKINGS ACCORDION -->
+                        <details
+                            class="group bg-white/40 border border-hoanien-text/10 rounded-2xl transition-all duration-300 open:bg-white/80 open:shadow-lg">
+                            <summary
+                                class="flex justify-between items-center cursor-pointer p-6 font-serif text-xl font-medium text-hoanien-text/80 outline-none select-none hover:text-hoanien-text transition-colors">
+                                <div class="flex items-center gap-3">
+                                    <span class="material-symbols-outlined">history</span>
+                                    Đơn tour trong quá khứ & Đã hủy
+                                </div>
+                                <span
+                                    class="material-symbols-outlined transform transition-transform duration-300 group-open:rotate-180">expand_more</span>
+                            </summary>
+                            <div class="px-6 pb-6 pt-2 border-t border-hoanien-text/5">
+                                <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start mt-4">
+                                    <th:block th:each="tb : ${tourBookings}"
+                                        th:if="${!#lists.contains({'PENDING', 'CONFIRMED', 'IN_PROGRESS'}, #strings.toUpperCase(tb.bookingStatus))}">
+                                        <div
+                                            class="flex flex-col p-6 border border-hoanien-text/10 rounded-2xl bg-white/40 hover:bg-white/80 hover:shadow-xl transition-all duration-300 group opacity-60 grayscale">
+                                            <div class="flex gap-5 mb-4">
+                                                <div class="w-32 h-24 shrink-0 rounded-xl bg-hoanien-text text-hoanien-bg flex flex-col items-center justify-center shadow-inner relative overflow-hidden"
+                                                    th:if="${tb.schedule != null}">
+                                                    <span
+                                                        class="text-[10px] uppercase tracking-widest font-semibold opacity-70"
+                                                        th:text="${#temporals.format(tb.schedule.departureDate, 'MM/yyyy')}">MM/YYYY</span>
+                                                    <span class="text-3xl font-bold leading-none mt-1"
+                                                        th:text="${#temporals.format(tb.schedule.departureDate, 'dd')}">01</span>
+                                                    <div class="absolute bottom-0 w-full h-1 bg-white/20"></div>
+                                                </div>
+                                                <div class="w-32 h-24 shrink-0 rounded-xl bg-hoanien-text/5 border border-hoanien-text/10 flex items-center justify-center"
+                                                    th:unless="${tb.schedule != null}">
+                                                    <span
+                                                        class="material-symbols-outlined text-3xl opacity-40">event</span>
+                                                </div>
+
+                                                <div class="flex-1 min-w-0">
+                                                    <div class="flex justify-between items-start mb-1">
+                                                        <span
+                                                            class="text-[10px] uppercase tracking-widest font-semibold opacity-60">Lịch
+                                                            trình</span>
+                                                        <span
+                                                            class="text-[10px] bg-hoanien-text/10 text-hoanien-text px-2 py-0.5 rounded font-semibold shrink-0"
+                                                            th:text="'#HN-TOUR-' + ${tb.id}"></span>
+                                                    </div>
+                                                    <h4 class="text-lg font-bold truncate mb-2 text-hoanien-text/90"
+                                                        th:text="${tb.schedule != null and tb.schedule.tour != null ? tb.schedule.tour.tourName : 'Tour Du Lịch'}">
+                                                        Tên Tour</h4>
+                                                    <p
+                                                        class="text-[11px] opacity-80 uppercase tracking-widest flex items-center gap-4 font-medium">
+                                                        <span class="flex items-center gap-1.5"><span
+                                                                class="material-symbols-outlined text-[14px]">group</span>
+                                                            <span
+                                                                th:text="${tb.participantCount + ' khách'}">Khách</span></span>
+                                                        <span th:if="${tb.schedule != null}"
+                                                            class="flex items-center gap-1.5"><span
+                                                                class="material-symbols-outlined text-[14px]">schedule</span>
+                                                            <span
+                                                                th:text="${tb.schedule.departureTime != null ? #temporals.format(tb.schedule.departureTime, 'HH:mm') : '08:00'}">08:00</span></span>
+                                                    </p>
+                                                </div>
+                                            </div>
+
+                                            <hr class="border-hoanien-text/10 my-2" />
+
+                                            <div class="flex justify-between items-end mt-2">
+                                                <div>
+                                                    <p
+                                                        class="text-[10px] uppercase tracking-widest opacity-50 font-semibold mb-2">
+                                                        Trạng thái</p>
+                                                    <span
+                                                        th:if="${#strings.toUpperCase(tb.bookingStatus) == 'COMPLETED'}"
+                                                        class="text-[10px] bg-gray-100 text-gray-700 px-3 py-1 rounded-full font-semibold whitespace-nowrap shadow-sm border border-gray-200">Đã
+                                                        hoàn thành</span>
+                                                    <span
+                                                        th:if="${#strings.toUpperCase(tb.bookingStatus) == 'CANCELLED' or #strings.toUpperCase(tb.bookingStatus) == 'NO_SHOW' }"
+                                                        class="text-[10px] bg-red-100 text-red-700 px-3 py-1 rounded-full font-semibold whitespace-nowrap shadow-sm border border-red-200">Đã
+                                                        hủy</span>
+                                                    <span
+                                                        th:unless="${#lists.contains({'COMPLETED', 'CANCELLED', 'NO_SHOW'}, #strings.toUpperCase(tb.bookingStatus))}"
+                                                        class="text-[10px] bg-gray-200 text-gray-600 px-3 py-1 rounded-full font-semibold whitespace-nowrap shadow-sm"
+                                                        th:text="${tb.bookingStatus}">Trạng thái</span>
+                                                </div>
+                                                <div class="text-right flex items-end gap-4">
+                                                    <div>
+                                                        <p
+                                                            class="text-[10px] uppercase tracking-widest opacity-50 font-semibold mb-1">
+                                                            Tổng cộng</p>
+                                                        <p class="text-xl font-bold text-hoanien-text"><span
+                                                                th:text="${tb.tourCharge != null ? #numbers.formatDecimal(tb.tourCharge, 0, 'COMMA', 0, 'POINT') : '0'}">0</span><span
+                                                                class="text-[10px] font-semibold ml-1 opacity-70">VNĐ</span>
+                                                        </p>
+                                                    </div>
+                                                    <button type="button"
+                                                        th:onclick="'viewTourBookingDetails(' + ${tb.id} + ')'"
+                                                        class="w-8 h-8 rounded-full bg-hoanien-text text-white hover:bg-hoanien-text/80 flex items-center justify-center transition-colors shadow-sm"
+                                                        title="Chi tiết lịch trình"><span
+                                                            class="material-symbols-outlined text-[16px]">arrow_forward</span></button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </th:block>
+                                </div>
+                            </div>
+                        </details>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. FOOD ORDERS SECTION -->
+            <!-- 3. FOOD ORDERS SECTION -->
+            <div id="section-food" class="hidden space-y-3">
+                <h3 class="font-serif text-lg font-medium mb-4">Lịch sử gọi món</h3>
+                <div th:if="${foodOrders == null or foodOrders.empty}"
+                    class="text-center py-6 opacity-50 border border-dashed border-hoanien-text/30 rounded-lg">
+                    <span class="material-symbols-outlined text-3xl mb-1">no_food</span>
+                    <p class="text-xs">Bạn chưa có đơn gọi món nào.</p>
+                </div>
+
+                <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start">
+                    <div th:each="fo : ${foodOrders}"
+                        class="flex flex-col border border-hoanien-text/10 rounded-2xl bg-white hover:shadow-xl transition-all duration-300 overflow-hidden group"
+                        th:classappend="${fo.orderStatus == 'Cancelled' ? 'opacity-60 grayscale' : ''}">
+                        <div class="flex flex-col p-6 cursor-pointer relative"
+                            th:onclick="'toggleFoodDetails(\'food-detail-' + ${fo.id} + '\')'">
+                            <div class="flex items-start gap-5 min-w-0">
+                                <div
+                                    class="w-20 h-20 shrink-0 rounded-xl bg-hoanien-text/5 border border-hoanien-text/10 flex flex-col items-center justify-center relative overflow-hidden">
+                                    <span class="material-symbols-outlined text-3xl opacity-40">restaurant_menu</span>
+                                </div>
+
+                                <div class="flex flex-col min-w-0 flex-1">
+                                    <div class="flex justify-between items-start mb-1">
+                                        <span class="text-[10px] uppercase tracking-widest font-semibold opacity-60"
+                                            th:text="'Đặt lúc: ' + ${#temporals.format(fo.orderTime, 'dd/MM/yyyy HH:mm')}">Time</span>
+                                        <span
+                                            class="text-[10px] bg-hoanien-text/10 text-hoanien-text px-2 py-0.5 rounded font-semibold shrink-0"
+                                            th:text="'#HN-FOOD-' + ${fo.id}">#HN...</span>
+                                    </div>
+                                    <h4 class="text-lg font-bold truncate mb-1 text-hoanien-text/90"
+                                        th:text="${fo.orderType == 'ROOM_SERVICE' ? 'Phục vụ tận phòng' : 'Tại Nhà Hàng'}">
+                                        Loại đơn</h4>
+                                    <div class="text-[11px] opacity-70 truncate font-medium pr-6">
+                                        <span th:each="detail, stat : ${fo.details}">
+                                            <span
+                                                th:text="${detail.menuItem != null ? detail.menuItem.itemName : 'Món ăn'}">Món</span>
+                                            <span class="opacity-60"
+                                                th:text="${'(x' + detail.quantity + ')'}">(x1)</span><span
+                                                th:if="${!stat.last}">, </span>
+                                        </span>
                                     </div>
                                 </div>
                             </div>
-                        </div> <!-- closes section-tables -->
 
-                    </div> <!-- closes tab-bookings -->
-                </div> <!-- closes Main Content Area wrapper -->
+                            <hr class="border-hoanien-text/10 my-3" />
+
+                            <div class="flex justify-between items-end mt-1 relative pr-6">
+                                <div>
+                                    <p class="text-[10px] uppercase tracking-widest opacity-50 font-semibold mb-2">Trạng
+                                        thái</p>
+                                    <span th:if="${fo.orderStatus == 'AWAITING_PAYMENT'}"
+                                        class="text-[10px] bg-purple-100 text-purple-700 px-3 py-1 rounded-full font-semibold whitespace-nowrap shadow-sm border border-purple-200">Chờ
+                                        thanh toán</span>
+                                    <span th:if="${fo.orderStatus == 'Pending'}"
+                                        class="text-[10px] bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full font-semibold whitespace-nowrap shadow-sm border border-yellow-200">Chờ
+                                        xử lý</span>
+                                    <span th:if="${fo.orderStatus == 'Preparing'}"
+                                        class="text-[10px] bg-blue-100 text-blue-700 px-3 py-1 rounded-full font-semibold whitespace-nowrap shadow-sm border border-blue-200">Đang
+                                        nấu</span>
+                                    <span th:if="${fo.orderStatus == 'Ready'}"
+                                        class="text-[10px] bg-orange-100 text-orange-700 px-3 py-1 rounded-full font-semibold whitespace-nowrap shadow-sm border border-orange-200">Đang
+                                        giao</span>
+                                    <span th:if="${fo.orderStatus == 'Completed'}"
+                                        class="text-[10px] bg-green-100 text-green-700 px-3 py-1 rounded-full font-semibold whitespace-nowrap shadow-sm border border-green-200">Hoàn
+                                        thành</span>
+                                    <span th:if="${fo.orderStatus == 'Cancelled'}"
+                                        class="text-[10px] bg-red-100 text-red-700 px-3 py-1 rounded-full font-semibold whitespace-nowrap shadow-sm border border-red-200">Đã
+                                        hủy</span>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-[10px] uppercase tracking-widest opacity-50 font-semibold mb-1">Tổng
+                                        cộng</p>
+                                    <p class="text-xl font-bold text-hoanien-text"><span
+                                            th:text="${fo.totalAmount != null ? #numbers.formatDecimal(fo.totalAmount, 0, 'COMMA', 0, 'POINT') : '0'}">0</span><span
+                                            class="text-[10px] font-semibold ml-1 opacity-70">VNĐ</span></p>
+                                </div>
+
+                                <span
+                                    class="material-symbols-outlined absolute right-0 bottom-2 opacity-40 group-hover:opacity-100 transition-opacity">expand_more</span>
+                            </div>
+                        </div>
+
+                        <!-- Expandable Tracker -->
+                        <div th:id="'food-detail-' + ${fo.id}"
+                            class="hidden border-t border-hoanien-text/10 bg-white p-6"
+                            th:with="st=${fo.orderStatus != null ? fo.orderStatus.toUpperCase() : ''}, isCompleted=${#lists.contains({'COMPLETED','PAID','SERVED'}, st)}">
+                            <h5 class="text-xs uppercase tracking-widest font-semibold mb-6 opacity-70 text-center">
+                                Trạng thái đơn hàng</h5>
+                            <div th:if="${st != 'CANCELLED'}"
+                                class="flex items-center justify-between relative max-w-sm mx-auto px-4">
+                                <div class="absolute top-3 left-4 right-4 h-1 bg-gray-200 -z-10 rounded-full"></div>
+                                <div class="absolute top-3 left-4 h-1 -z-10 rounded-full transition-all duration-700"
+                                    th:classappend="${isCompleted} ? 'bg-blue-500' : 'bg-green-500'"
+                                    th:style="'width: ' + (${isCompleted} ? '100%' : (${st == 'AWAITING_PAYMENT' or st == 'PENDING'} ? '0%' : (${st == 'PREPARING'} ? '33%' : (${st == 'READY' or st == 'DELIVERING'} ? '66%' : '100%'))))">
+                                </div>
+
+                                <!-- Step 1 -->
+                                <div class="flex flex-col items-center">
+                                    <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold border-[3px] border-white shadow-sm"
+                                        th:classappend="${isCompleted} ? 'bg-blue-500 text-white' : (${#lists.contains({'PENDING','AWAITING_PAYMENT','PREPARING','READY','DELIVERING'}, st)} ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-500')">
+                                        1</div>
+                                    <span class="text-[10px] uppercase tracking-wider mt-2 font-semibold"
+                                        th:classappend="${isCompleted} ? 'text-blue-600' : (${#lists.contains({'PENDING','AWAITING_PAYMENT','PREPARING','READY','DELIVERING'}, st)} ? 'text-green-700' : 'text-gray-500')">Tiếp
+                                        nhận</span>
+                                </div>
+                                <!-- Step 2 -->
+                                <div class="flex flex-col items-center">
+                                    <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold border-[3px] border-white shadow-sm"
+                                        th:classappend="${isCompleted} ? 'bg-blue-500 text-white' : (${#lists.contains({'PREPARING','READY','DELIVERING'}, st)} ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-500')">
+                                        2</div>
+                                    <span class="text-[10px] uppercase tracking-wider mt-2 font-semibold"
+                                        th:classappend="${isCompleted} ? 'text-blue-600' : (${#lists.contains({'PREPARING','READY','DELIVERING'}, st)} ? 'text-green-700' : 'text-gray-500')">Đang
+                                        nấu</span>
+                                </div>
+                                <!-- Step 3 -->
+                                <div class="flex flex-col items-center">
+                                    <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold border-[3px] border-white shadow-sm"
+                                        th:classappend="${isCompleted} ? 'bg-blue-500 text-white' : (${#lists.contains({'READY','DELIVERING'}, st)} ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-500')">
+                                        3</div>
+                                    <span class="text-[10px] uppercase tracking-wider mt-2 font-semibold"
+                                        th:classappend="${isCompleted} ? 'text-blue-600' : (${#lists.contains({'READY','DELIVERING'}, st)} ? 'text-green-700' : 'text-gray-500')">Đang
+                                        giao</span>
+                                </div>
+                                <!-- Step 4 -->
+                                <div class="flex flex-col items-center">
+                                    <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold border-[3px] border-white shadow-sm"
+                                        th:classappend="${isCompleted} ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-500'">
+                                        4</div>
+                                    <span class="text-[10px] uppercase tracking-wider mt-2 font-semibold"
+                                        th:classappend="${isCompleted} ? 'text-blue-600' : 'text-gray-500'">Hoàn
+                                        thành</span>
+                                </div>
+                            </div>
+                            <div th:if="${st == 'CANCELLED'}" class="text-center text-red-600 text-sm font-semibold">
+                                <span class="material-symbols-outlined align-middle mr-1">cancel</span> Đơn hàng đã bị
+                                hủy
+                            </div>
+
+                            <div
+                                class="mt-6 flex justify-between items-center text-xs pt-4 border-t border-hoanien-text/10">
+                                <div>
+                                    <p class="opacity-60 text-[10px] uppercase tracking-widest mb-1">Hình thức thanh
+                                        toán</p>
+                                    <p class="font-semibold"
+                                        th:text="${#strings.equalsIgnoreCase(fo.paymentType, 'CHARGE_TO_ROOM') or #strings.equalsIgnoreCase(fo.paymentType, 'Post to Room') or #strings.equalsIgnoreCase(fo.paymentType, 'Post_To_Room') ? 'Ghi nợ phòng (Charge to Room)' : (#strings.equalsIgnoreCase(fo.paymentType, 'ONLINE') or #strings.equalsIgnoreCase(fo.paymentType, 'VNPAY') ? 'Đã TT Trực tuyến (VNPay)' : 'Thanh toán trực tiếp/Sau')}">
+                                        Payment Type</p>
+                                </div>
+                                <button th:if="${fo.orderStatus == 'AWAITING_PAYMENT'}" type="button"
+                                    th:onclick="'payFoodOrder(' + ${fo.id} + ')'"
+                                    class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-semibold shadow-sm transition-all text-[11px] uppercase tracking-wider flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-[16px]">credit_card</span>
+                                    Thanh toán ngay
+                                </button>
+                                <button th:if="${fo.orderStatus == 'Pending' or fo.orderStatus == 'AWAITING_PAYMENT'}"
+                                    type="button" th:data-id="${fo.id}" th:data-payment="${fo.paymentType}"
+                                    onclick="cancelFoodOrder(this.getAttribute('data-id'), this.getAttribute('data-payment'))"
+                                    class="bg-red-50 text-red-600 hover:bg-red-500 hover:text-white px-4 py-2 rounded-lg font-semibold shadow-sm transition-all text-[11px] uppercase tracking-wider flex items-center gap-2 ml-2 border border-red-200 hover:border-red-500">
+                                    <span class="material-symbols-outlined text-[16px]">cancel</span>
+                                    Hủy đơn
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. TABLE RESERVATIONS SECTION -->
+            <div id="section-tables" class="hidden space-y-3">
+                <h3 class="font-serif text-lg font-medium mb-4">Lịch sử đặt bàn</h3>
+                <div th:if="${tableReservations == null or tableReservations.empty}"
+                    class="text-center py-6 opacity-50 border border-dashed border-hoanien-text/30 rounded-lg">
+                    <span class="material-symbols-outlined text-3xl mb-1">table_bar</span>
+                    <p class="text-xs">Bạn chưa có đơn đặt bàn nào.</p>
+                </div>
+
+                <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start">
+                    <div th:each="tr : ${tableReservations}"
+                        class="flex flex-col p-6 border border-hoanien-text/10 rounded-2xl bg-white hover:shadow-xl transition-all duration-300 group"
+                        th:classappend="${tr.status == 'Cancelled' ? 'opacity-60 grayscale' : ''}">
+                        <div class="flex gap-5 mb-4">
+                            <div
+                                class="w-32 h-24 shrink-0 rounded-xl bg-hoanien-text text-hoanien-bg flex flex-col items-center justify-center shadow-inner relative overflow-hidden">
+                                <span class="text-[10px] uppercase tracking-widest font-semibold opacity-70"
+                                    th:text="${#temporals.format(tr.reserveDate, 'MM/yyyy')}">MM/YYYY</span>
+                                <span class="text-3xl font-bold leading-none mt-1"
+                                    th:text="${#temporals.format(tr.reserveDate, 'dd')}">01</span>
+                                <div class="absolute bottom-0 w-full h-1 bg-white/20"></div>
+                            </div>
+
+                            <div class="flex-1 min-w-0">
+                                <div class="flex justify-between items-start mb-1">
+                                    <span class="text-[10px] uppercase tracking-widest font-semibold opacity-60">Đặt
+                                        bàn</span>
+                                    <span
+                                        class="text-[10px] bg-hoanien-text/10 text-hoanien-text px-2 py-0.5 rounded font-semibold shrink-0"
+                                        th:text="'#HN-TABLE-' + ${tr.id}"></span>
+                                </div>
+                                <h4 class="text-lg font-bold truncate mb-2 text-hoanien-text/90"
+                                    th:text="${tr.table != null ? 'Bàn ' + tr.table.tableNumber : 'Chưa xếp bàn'}">Bàn 1
+                                </h4>
+                                <p
+                                    class="text-[11px] opacity-80 uppercase tracking-widest flex items-center gap-4 font-medium">
+                                    <span class="flex items-center gap-1.5"><span
+                                            class="material-symbols-outlined text-[14px]">schedule</span> <span
+                                            th:text="${#temporals.format(tr.reserveTime, 'HH:mm')} + ' — ' + ${#temporals.format(tr.endTime, 'HH:mm')}">Time</span></span>
+                                    <span class="flex items-center gap-1.5"><span
+                                            class="material-symbols-outlined text-[14px]">group</span> <span
+                                            th:text="${tr.partySize + ' khách'}">Khách</span></span>
+                                </p>
+                            </div>
+                        </div>
+
+                        <hr class="border-hoanien-text/10 my-2" />
+
+                        <div class="flex justify-between items-end mt-2">
+                            <div>
+                                <p class="text-[10px] uppercase tracking-widest opacity-50 font-semibold mb-2">Trạng
+                                    thái</p>
+                                <span th:if="${tr.status == 'Pending'}"
+                                    class="text-[10px] bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full font-semibold whitespace-nowrap shadow-sm border border-yellow-200">Chờ
+                                    xác nhận</span>
+                                <span th:if="${tr.status == 'Confirmed'}"
+                                    class="text-[10px] bg-green-100 text-green-700 px-3 py-1 rounded-full font-semibold whitespace-nowrap shadow-sm border border-green-200">Chờ
+                                    sử dụng</span>
+                                <span th:if="${tr.status == 'Completed'}"
+                                    class="text-[10px] bg-gray-100 text-gray-700 px-3 py-1 rounded-full font-semibold whitespace-nowrap shadow-sm border border-gray-200">Đã
+                                    hoàn thành</span>
+                                <span th:if="${tr.status == 'Cancelled'}"
+                                    class="text-[10px] bg-red-100 text-red-700 px-3 py-1 rounded-full font-semibold whitespace-nowrap shadow-sm border border-red-200">Đã
+                                    hủy</span>
+                            </div>
+                            <button th:if="${tr.status == 'Pending' or tr.status == 'Confirmed'}" type="button"
+                                    th:data-id="${tr.id}"
+                                    onclick="cancelTableBooking(this.getAttribute('data-id'))"
+                                    class="bg-red-50 text-red-600 hover:bg-red-500 hover:text-white px-4 py-2 rounded-lg font-semibold shadow-sm transition-all text-[11px] uppercase tracking-wider flex items-center gap-2 border border-red-200 hover:border-red-500">
+                                <span class="material-symbols-outlined text-[16px]">cancel</span>
+                                Hủy bàn
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div> <!-- closes section-tables -->
+
+            </div> <!-- closes tab-bookings -->
+            </div> <!-- closes Main Content Area wrapper -->
 
             </div>
         </section>
@@ -1837,10 +2012,10 @@
         }
         // --- END PRE-CHECKIN LOGIC ---
 
-        function cancelBooking(bookingId, isRefundable) {
+        function cancelBooking(bookingId, isRefundable, isRoomRefundable, hasAttachedTours) {
             if (isRefundable) {
                 if (typeof openRefundModal === 'function') {
-                    openRefundModal(bookingId, 'ROOM');
+                    openRefundModal(bookingId, 'ROOM', isRoomRefundable, hasAttachedTours);
                 } else {
                     alert('Không thể mở hộp thoại hoàn tiền. Vui lòng thử lại sau.');
                 }
@@ -2124,55 +2299,80 @@
                 });
         }
 
-        function confirmCancelTour(bookingId) {
-            Swal.fire({
-                title: 'Hủy đặt tour?',
-                text: 'Quý khách có chắc chắn muốn hủy đặt tour này không? Lịch trình sẽ bị hủy bỏ.',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Đồng ý hủy',
-                cancelButtonText: 'Không, giữ lại'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    Swal.fire({
-                        title: 'Đang xử lý...',
-                        text: 'Vui lòng chờ trong giây lát',
-                        allowOutsideClick: false,
-                        didOpen: () => {
-                            Swal.showLoading();
-                        }
-                    });
-
-                    fetch('/profile/tours/cancel/' + bookingId, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        }
-                    })
-                        .then(response => {
-                            if (!response.ok) {
-                                return response.json().then(err => { throw new Error(err.message || 'Hủy thất bại'); });
+        function confirmCancelTour(bookingId, isRefundable, totalPrice) {
+            const refundAmount50 = Math.round((totalPrice || 0) * 0.5);
+            const fmt = new Intl.NumberFormat('vi-VN').format(refundAmount50);
+            if (isRefundable) {
+                // Hủy có hoàn tiền 50% → hỏi trước, rồi mở modal nhập ngân hàng
+                Swal.fire({
+                    title: 'Hủy đặt tour?',
+                    html: `<p style="color:#555;font-size:0.95rem;">Quý khách còn hơn 24h trước giờ khởi hành nên sẽ được hoàn lại <strong style="color:#d33;font-size:1.1rem;">${fmt} ₫</strong> (50% giá trị tour).</p>
+                           <p style="color:#888;font-size:0.85rem;margin-top:8px;">Vui lòng cung cấp thông tin ngân hàng ở bước tiếp theo để nhận hoàn tiền.</p>`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Tiếp tục hủy tour',
+                    cancelButtonText: 'Không, giữ lại'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Mở modal nhập thông tin ngân hàng
+                        document.getElementById('guestRefundModalTitle').innerText = 'Thông tin hoàn tiền tour (50%)';
+                        document.getElementById('guestRefundModalDesc').innerText = 'Vui lòng cung cấp tài khoản ngân hàng để nhận hoàn tiền. Thời gian xử lý 3–7 ngày làm việc.';
+                        document.getElementById('btn-submit-guest-refund').innerText = 'Xác nhận hủy & Gửi yêu cầu hoàn tiền';
+                        openTourRefundModal(bookingId, refundAmount50);
+                    }
+                });
+            } else {
+                Swal.fire({
+                    title: 'Hủy đặt tour?',
+                    text: 'Quý khách có chắc chắn muốn hủy đặt tour này không? Do hủy quá sát giờ khởi hành (≤ 24h), quý khách sẽ không được hoàn lại tiền cọc.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Đồng ý hủy (Mất cọc)',
+                    cancelButtonText: 'Không, giữ lại'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        Swal.fire({
+                            title: 'Đang xử lý...',
+                            text: 'Vui lòng chờ trong giây lát',
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
                             }
-                            return response.json();
-                        })
-                        .then(data => {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Thành công',
-                                text: 'Đã hủy tour thành công và gửi email thông báo!',
-                                confirmButtonColor: '#A67C00'
-                            }).then(() => {
-                                window.location.reload();
-                            });
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            Swal.fire('Lỗi', error.message || 'Đã xảy ra lỗi khi hủy tour.', 'error');
                         });
-                }
-            });
+
+                        fetch('/profile/tours/cancel/' + bookingId, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        })
+                            .then(response => {
+                                if (!response.ok) {
+                                    return response.json().then(err => { throw new Error(err.message || 'Hủy thất bại'); });
+                                }
+                                return response.json();
+                            })
+                            .then(data => {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Thành công',
+                                    text: 'Đã hủy tour thành công và gửi email thông báo!',
+                                    confirmButtonColor: '#A67C00'
+                                }).then(() => {
+                                    window.location.reload();
+                                });
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                Swal.fire('Lỗi', error.message || 'Đã xảy ra lỗi khi hủy tour.', 'error');
+                            });
+                    }
+                });
+            }
         }
 
         // Cancel Table Booking function

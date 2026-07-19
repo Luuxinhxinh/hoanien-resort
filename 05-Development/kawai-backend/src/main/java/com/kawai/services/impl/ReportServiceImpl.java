@@ -65,32 +65,32 @@ public class ReportServiceImpl implements ReportService {
 
     private List<ReportRow> getReportRowsDefinition() {
         return List.of(
-            new ReportRow("I. DOANH THU PHÒNG", null, 0),
-            new ReportRow("  - Khách lẻ (Transient)", "REV-ROOM-TRANSIENT", 1),
-            new ReportRow("  - Khách đoàn (Group)", "REV-ROOM-GROUP", 1),
-            new ReportRow("Tổng doanh thu phòng", "REV-ROOM", 2),
+            new ReportRow("I. ROOMS REVENUE", null, 0),
+            new ReportRow("  - Transient", "REV-ROOM-TRANSIENT", 1),
+            new ReportRow("  - Group", "REV-ROOM-GROUP", 1),
+            new ReportRow("Total Rooms Revenue", "REV-ROOM", 2),
             
-            new ReportRow("II. DOANH THU ẨM THỰC (F&B)", null, 0),
-            new ReportRow("  - Đồ ăn (Food)", "REV-FB-FOOD", 1),
-            new ReportRow("  - Đồ uống (Beverage)", "REV-FB-BEVERAGE", 1),
+            new ReportRow("II. FOOD & BEVERAGE REVENUE", null, 0),
+            new ReportRow("  - Food", "REV-FB-FOOD", 1),
+            new ReportRow("  - Beverage", "REV-FB-BEVERAGE", 1),
             new ReportRow("  - Minibar", "REV-FB-MINIBAR", 1),
-            new ReportRow("  - Ăn uống tại phòng (Room Service)", "REV-FB-ROOMSERVICE", 1),
-            new ReportRow("Tổng doanh thu ẩm thực (F&B)", "REV-FB", 2),
+            new ReportRow("  - In-Room Dining (Room Service)", "REV-FB-ROOMSERVICE", 1),
+            new ReportRow("Total Food & Beverage Revenue", "REV-FB", 2),
             
-            new ReportRow("III. DOANH THU CÁC BỘ PHẬN KHÁC", null, 0),
-            new ReportRow("  - Dịch vụ Spa", "REV-OTHER-SPA", 1),
-            new ReportRow("  - Dịch vụ Giặt là", "REV-OTHER-LAUNDRY", 1),
-            new ReportRow("  - Dịch vụ Tour du lịch", "REV-TOUR", 1),
-            new ReportRow("  - Doanh thu khác", "REV-OTHER-MISC", 1),
-            new ReportRow("Tổng doanh thu bộ phận khác", "REV-OTHER-TOTAL", 2),
+            new ReportRow("III. OTHER OPERATED DEPARTMENTS", null, 0),
+            new ReportRow("  - Spa", "REV-OTHER-SPA", 1),
+            new ReportRow("  - Laundry", "REV-OTHER-LAUNDRY", 1),
+            new ReportRow("  - Tours", "REV-TOUR", 1),
+            new ReportRow("  - Miscellaneous", "REV-OTHER-MISC", 1),
+            new ReportRow("Total Other Operated Departments", "REV-OTHER-TOTAL", 2),
             
-            new ReportRow("TỔNG DOANH THU HOẠT ĐỘNG", "TOTAL", 3),
+            new ReportRow("TOTAL OPERATIONAL REVENUE", "TOTAL", 3),
             
-            new ReportRow("IV. CHỈ SỐ HOẠT ĐỘNG CHỦ CHỐT (KPIs)", null, 4),
-            new ReportRow("  - Tỷ lệ lấp đầy (%)", "KPI-OCCUPANCY", 5),
-            new ReportRow("  - ADR (Giá phòng trung bình)", "KPI-ADR", 5),
-            new ReportRow("  - RevPAR (Doanh thu trên phòng trống)", "KPI-REVPAR", 5),
-            new ReportRow("  - TrevPAR (Tổng doanh thu trên phòng trống)", "KPI-TREVPAR", 5)
+            new ReportRow("IV. OPERATIONAL KEY PERFORMANCE INDICATORS (KPIs)", null, 4),
+            new ReportRow("  - Occupancy Rate (%)", "KPI-OCCUPANCY", 5),
+            new ReportRow("  - ADR (Average Daily Rate)", "KPI-ADR", 5),
+            new ReportRow("  - RevPAR", "KPI-REVPAR", 5),
+            new ReportRow("  - TrevPAR", "KPI-TREVPAR", 5)
         );
     }
 

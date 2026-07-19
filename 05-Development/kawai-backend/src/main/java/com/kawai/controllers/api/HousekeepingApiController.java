@@ -45,6 +45,7 @@ public class HousekeepingApiController {
 
     @Autowired
     private SimpMessagingTemplate messagingTemplate;
+
     @PostMapping("/housekeeping/save-minibar-only")
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER', 'OP_HOUSEKEEPING', 'ROLE_HOUSEKEEPING')")
     public ResponseEntity<?> saveMinibarOnly(@RequestBody Map<String, Object> request) {
@@ -199,6 +200,7 @@ public class HousekeepingApiController {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+
             return ResponseEntity
                     .ok(Map.of("success", true, "message", "Đã nâng độ ưu tiên dọn khẩn cấp cho phòng này."));
         }
@@ -251,6 +253,7 @@ public class HousekeepingApiController {
             }
             com.kawai.models.HotelOperation maintenanceTask = housekeepingService
                     .createMaintenanceRequest(room.getId(), staff.getId(), notes, true);
+
             // Gửi WebSocket tin nhắn kênh chung để các màn hình auto-reload
             try {
                 messagingTemplate.convertAndSend("/topic/operations", Map.of(
