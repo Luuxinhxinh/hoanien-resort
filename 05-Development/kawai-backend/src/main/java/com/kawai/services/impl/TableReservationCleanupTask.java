@@ -1,4 +1,4 @@
-package com.kawai.services.jobs;
+package com.kawai.services.impl;
 
 import com.kawai.models.TableReservation;
 import com.kawai.models.Customer;
@@ -44,7 +44,7 @@ public class TableReservationCleanupTask {
         
         List<TableReservation> pendingReservations = tableReservationRepository.findAll().stream()
                 .filter(r -> !r.getReserveDate().isBefore(today))
-                .filter(r -> "Pending".equalsIgnoreCase(r.getStatus()))
+                .filter(r -> "Pending".equalsIgnoreCase(r.getStatus()) || "Confirmed".equalsIgnoreCase(r.getStatus()))
                 .toList();
 
         int canceledCount = 0;

@@ -78,6 +78,9 @@ public class BookingServiceImpl implements BookingService {
     private WorkflowEngineService workflowEngineService;
 
     @Autowired
+    private com.kawai.services.interfaces.PricingService pricingService;
+
+    @Autowired
     private com.kawai.repositories.BookingRepository bookingRepository;
 
     @Autowired
@@ -257,8 +260,8 @@ public class BookingServiceImpl implements BookingService {
                 throw new RoomNotAvailableException(
                         "Hạng phòng " + catName + " chỉ còn trống " + available + " phòng.");
             }
-            BigDecimal pricePerNight = category.getBasePrice() != null ? category.getBasePrice() : BASE_ROOM_PRICE;
-            BigDecimal baseTotal = pricePerNight.multiply(BigDecimal.valueOf(nights));
+            BigDecimal baseTotal = pricingService.calculateTotalRoomCharge(category, checkIn, checkOut);
+            BigDecimal pricePerNight = nights > 0 ? baseTotal.divide(BigDecimal.valueOf(nights), 2, RoundingMode.HALF_UP) : BigDecimal.ZERO;
 
             for (com.kawai.dto.RoomSelectionDTO selection : selections) {
                 // Tính phụ thu
@@ -490,16 +493,16 @@ public class BookingServiceImpl implements BookingService {
     private BigDecimal applyPromotion(String promoCode, BigDecimal baseTotal, Long customerId) {
         Promotion promo = promotionRepository.findByPromoCode(promoCode)
                 .orElseThrow(() -> new IllegalArgumentException(
-                        "Promotion code '" + promoCode + "' does not exist "));
+                        "[ERR_PROMO_NOT_FOUND] Promotion code '" + promoCode + "' does not exist "));
 
         if (!Boolean.TRUE.equals(promo.getIsActive())) {
             throw new IllegalArgumentException(
-                    "Promotion code '" + promoCode + "' is invalid or expired ");
+                    "[ERR_PROMO_INACTIVE] Promotion code '" + promoCode + "' is invalid or expired ");
         }
 
         if (promo.getValidTo().isBefore(LocalDate.now())) {
             throw new IllegalArgumentException(
-                    "Promotion code '" + promoCode + "' has expired ");
+                    "[ERR_PROMO_EXPIRED] Promotion code '" + promoCode + "' has expired ");
         }
 
         BigDecimal discountValue = promo.getDiscountValue();
@@ -531,12 +534,9 @@ public class BookingServiceImpl implements BookingService {
                         }
                     }
 
-                    // 2. max_uses_per_customer (Default to 1 use if not defined)
-                    if (customerId != null) {
-                        int maxUses = 1;
-                        if (conds.containsKey("max_uses_per_customer")) {
-                            maxUses = Integer.parseInt(conds.get("max_uses_per_customer").toString());
-                        }
+                    // 2. max_uses_per_customer
+                    if (customerId != null && conds.containsKey("max_uses_per_customer")) {
+                        int maxUses = Integer.parseInt(conds.get("max_uses_per_customer").toString());
                         long uses = bookingRepository.countByCustomerIdAndPromoCode(customerId, promoCode);
                         if (uses >= maxUses) {
                             throw new IllegalArgumentException("Khách hàng đã vượt quá số lần sử dụng mã giảm giá này ("

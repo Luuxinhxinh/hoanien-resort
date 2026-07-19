@@ -245,7 +245,7 @@
 
             <!-- Module Switcher for RBAC cross-navigation -->
             <div class="module-switcher"
-                sec:authorize="hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_RECEPTIONIST', 'ROLE_FB_STAFF', 'BOOKING', 'FNB', 'MASTER_DATA')"
+                sec:authorize="hasAuthority('ROLE_ADMIN')"
                 style="padding: 0 24px 20px 24px;">
                 <select onchange="if(this.value) window.location.href=this.value"
                     style="width: 100%; padding: 8px; border-radius: 6px; background: rgba(255,255,255,0.05); color: #c9a96e; border: 1px solid rgba(255,255,255,0.1); font-size: 13px; font-weight: 500; outline: none; cursor: pointer; font-family: 'Inter', sans-serif;">
@@ -350,106 +350,8 @@
                 </div>
 
 
-                <!-- Room Grid Matrix Section -->
-                <div class="room-matrix-section">
-                    <div class="room-matrix-header">
-                        <div class="matrix-title-area">
-                            <h2>Room Grid Matrix</h2>
-                            <p>Sơ đồ phòng — Live status</p>
-                        </div>
-                    </div>
-
-                    <div class="matrix-legend-area">
-                        <div class="legend-items">
-                            <div class="legend-item" onclick="toggleFilter('card-available', this)"
-                                style="cursor: pointer; transition: opacity 0.3s;"><span
-                                    class="legend-dot dot-available"></span>Available</div>
-                            <div class="legend-item" onclick="toggleFilter('card-occupied', this)"
-                                style="cursor: pointer; transition: opacity 0.3s;"><span
-                                    class="legend-dot dot-occupied"></span>Occupied</div>
-                            <div class="legend-item" onclick="toggleFilter('card-housekeeping', this)"
-                                style="cursor: pointer; transition: opacity 0.3s;"><span
-                                    class="legend-dot dot-housekeeping"></span>Housekeeping</div>
-                            <div class="legend-item" onclick="toggleFilter('card-ooo', this)"
-                                style="cursor: pointer; transition: opacity 0.3s;"><span
-                                    class="legend-dot dot-ooo"></span>Maintenance</div>
-                        </div>
-                        <div class="matrix-count" th:text="${#maps.size(categorizedRooms)} + ' categories'">Showing
-                            rooms</div>
-                    </div>
-
-                    <!-- Room Grid - grouped by category -->
-                    <div th:each="entry : ${categorizedRooms}" class="floor-section">
-                        <div class="floor-header" onclick="toggleCategory(this)"
-                            style="cursor: pointer; display: flex; align-items: center;">
-                            <span class="floor-badge" th:text="${entry.key}">Category Name</span>
-                            <div class="floor-line" style="flex-grow: 1;"></div>
-                            <span class="floor-count" th:text="${#lists.size(entry.value)} + ' rooms'"></span>
-                            <i class="fa-solid fa-chevron-down toggle-icon"
-                                style="transition: transform 0.3s; margin-left: 12px; color: #8b8b8b;"></i>
-                        </div>
-
-                        <div class="room-grid">
-                            <div th:each="room : ${entry.value}" class="room-card" style="position: relative; cursor: pointer;"
-                                th:classappend="${#strings.equalsIgnoreCase(room.status, 'Occupied')} ? 'card-occupied' : (${#strings.equalsIgnoreCase(room.status, 'Vacant_Dirty')} ? 'card-housekeeping' : (${#strings.equalsIgnoreCase(room.status, 'Maintenance')} ? 'card-ooo' : 'card-available'))"
-                                th:attr="data-room=${room.roomNumber}, data-status=${room.status}, data-guest=${room.guestName}, data-pax=${room.pax}, data-in=${room.checkInDate}, data-out=${room.checkOutDate}"
-                                th:onclick="|showRoomDetail(this)|" >
-                                <div class="room-card-top">
-                                    <span class="room-number" th:text="${room.roomNumber}"></span>
-                                    <div style="display: flex; align-items: center; gap: 6px;">
-                                        <span class="room-indicator"
-                                            th:if="${#strings.equalsIgnoreCase(room.status, 'Occupied') and !room.hasUrgentMaintenance and !room.hasUrgentClean}"></span>
-                                        <i class="fa-solid fa-screwdriver-wrench" th:if="${room.hasUrgentMaintenance}"
-                                            style="color:#d35400;font-size:12px;" title="Cần sửa chữa khẩn cấp"></i>
-                                        <i class="fa-solid fa-broom" th:if="${room.hasUrgentClean}"
-                                            style="color:#00bcd4;font-size:14px;" title="Yêu cầu dọn dẹp khẩn cấp"></i>
-                                        <i class="fa-solid fa-wand-magic-sparkles"
-                                            th:if="${#strings.equalsIgnoreCase(room.status, 'Vacant_Dirty') and !room.hasUrgentMaintenance and !room.hasUrgentClean}"
-                                            style="color:#c9a96e;font-size:14px;"></i>
-                                        <i class="fa-solid fa-wrench"
-                                            th:if="${#strings.equalsIgnoreCase(room.status, 'Maintenance') and !room.hasUrgentMaintenance and !room.hasUrgentClean}"
-                                            style="color:#7a7a9a;font-size:14px;"></i>
-                                        <span class="room-indicator"
-                                            th:if="${#strings.equalsIgnoreCase(room.status, 'Vacant_Clean') and !room.hasUrgentMaintenance and !room.hasUrgentClean}"></span>
-                                    </div>
-                                </div>
-                                <div class="room-type">
-                                    <span class="type-badge" th:text="${room.category}"></span>
-                                </div>
-                                <div class="room-status-text"
-                                    th:text="${(#strings.equalsIgnoreCase(room.status, 'Occupied') ? 'Occupied' : (#strings.equalsIgnoreCase(room.status, 'Vacant_Clean') ? 'Ready' : (#strings.equalsIgnoreCase(room.status, 'Vacant_Dirty') ? 'Needs cleaning' : (#strings.equalsIgnoreCase(room.status, 'Maintenance') ? 'Maintenance' : room.status)))) + (room.hasUrgentMaintenance and room.hasUrgentClean ? ' (Sửa & Dọn)' : (room.hasUrgentMaintenance ? ' (Cần sửa)' : (room.hasUrgentClean ? ' (Dọn khẩn)' : '')))}">
-                                </div>
-                                <!-- Báo sửa chữa khẩn cấp -->
-                                <button title="Yêu cầu sửa chữa khẩn"
-                                    th:if="${#strings.equalsIgnoreCase(room.status, 'Occupied') or #strings.equalsIgnoreCase(room.status, 'Vacant_Dirty')}"
-                                    th:attr="onclick=|requestUrgentMaintenance('${room.roomNumber}', event)|"
-                                    class="urgent-maintenance-btn"
-                                    style="position: absolute; bottom: 8px; right: 42px; border: 1px solid #e6ded4; background: white; cursor: pointer; padding: 0; width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.05);"
-                                    onmouseover="this.style.transform='scale(1.05)'"
-                                    onmouseout="this.style.transform='scale(1)'">
-                                    <i class="fa-solid fa-wrench" style="color: #d35400; font-size: 13px;"></i>
-                                </button>
-                                <!-- Báo dọn khẩn cấp -->
-                                <button title="Yêu cầu dọn khẩn"
-                                    th:if="${#strings.equalsIgnoreCase(room.status, 'Occupied') or #strings.equalsIgnoreCase(room.status, 'Vacant_Dirty')}"
-                                    th:attr="onclick=|requestUrgentClean('${room.roomNumber}', event)|"
-                                    class="urgent-clean-btn"
-                                    th:classappend="${#strings.equalsIgnoreCase(room.status, 'Occupied')} ? 'btn-occupied' : 'btn-dirty'"
-                                    style="position: absolute; bottom: 8px; right: 8px; border: none; cursor: pointer; padding: 0; border-radius: 6px; overflow: hidden; display: flex; align-items: center; justify-content: center; transition: all 0.2s;">
-                                    <img src="https://i.pinimg.com/1200x/e9/4e/5e/e94e5e7e4ee77e075bf4e2abdd17af37.jpg"
-                                        alt="Dọn khẩn"
-                                        style="width: 28px; height: 28px; object-fit: cover; mix-blend-mode: multiply;">
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Fallback when no data -->
-                    <div th:if="${categorizedRooms.size() == 0}" style="padding:40px;text-align:center;color:#999;">
-                        <i class="fa-solid fa-bed" style="font-size:48px;margin-bottom:16px;display:block;"></i>
-                        <p>Chưa có dữ liệu phòng từ database.</p>
-                    </div>
-                </div>
+                <!-- Shared Room Matrix Section -->
+                <div th:replace="fragments/shared-room-matrix :: roomMatrix"></div>
             </div>
         </main>
     </div>
@@ -457,106 +359,6 @@
     <script src="/receptionist/js/dashboard.js"></script>
     <script src="/receptionist/js/room-alert.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
-    <script>
-        function requestUrgentClean(roomNumber, event) {
-            event.stopPropagation();
-            if (confirm('Yêu cầu dọn khẩn cấp phòng ' + roomNumber + '?')) {
-                fetch('/api/housekeeping/reception/escalate-task', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ roomNumber: roomNumber })
-                })
-                    .then(r => r.json())
-                    .then(data => {
-                        Toastify({
-                            text: data.message,
-                            duration: 3000,
-                            close: true,
-                            gravity: "top",
-                            position: "right",
-                            backgroundColor: data.success ? "linear-gradient(to right, #00b09b, #96c93d)" : "linear-gradient(to right, #ff5f6d, #ffc371)",
-                        }).showToast();
-                        if (data.success) {
-                            setTimeout(() => window.location.reload(), 1500);
-                        }
-                    })
-                    .catch(err => alert("Lỗi kết nối!"));
-            }
-        }
-
-        let currentMaintRoomNumber = null;
-
-        function requestUrgentMaintenance(roomNumber, event) {
-            event.stopPropagation();
-            currentMaintRoomNumber = roomNumber;
-            document.getElementById('maintRoomNumber').value = 'Phòng ' + roomNumber;
-            document.getElementById('maintNotes').value = '';
-            document.getElementById('maintenanceModal').classList.add('active');
-        }
-
-        function closeUrgentMaintenanceModal() {
-            document.getElementById('maintenanceModal').classList.remove('active');
-        }
-
-        function submitUrgentMaintenance() {
-            const notes = document.getElementById('maintNotes').value.trim();
-            if (!notes) {
-                alert('Vui lòng nhập mô tả sự cố!');
-                return;
-            }
-
-            fetch('/api/housekeeping/reception/create-urgent-maintenance', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ roomNumber: currentMaintRoomNumber, notes: notes })
-            })
-                .then(r => r.json())
-                .then(data => {
-                    closeUrgentMaintenanceModal();
-                    Toastify({
-                        text: data.message,
-                        duration: 3000,
-                        close: true,
-                        gravity: "top",
-                        position: "right",
-                        backgroundColor: data.success ? "linear-gradient(to right, #00b09b, #96c93d)" : "linear-gradient(to right, #ff5f6d, #ffc371)",
-                    }).showToast();
-                    if (data.success) {
-                        setTimeout(() => window.location.reload(), 1500);
-                    }
-                })
-                .catch(err => {
-                    closeUrgentMaintenanceModal();
-                    alert("Lỗi kết nối!");
-                });
-        }
-    </script>
-
-    <!-- Urgent Maintenance Modal -->
-    <div class="maintenance-modal-overlay" id="maintenanceModal">
-        <div class="maintenance-modal-content">
-            <div class="maintenance-modal-header">
-                <h3><i class="fa-solid fa-screwdriver-wrench" style="color: #d35400;"></i> Báo sửa chữa khẩn cấp</h3>
-                <button class="close-btn" onclick="closeUrgentMaintenanceModal()"><i
-                        class="fa-solid fa-xmark"></i></button>
-            </div>
-            <div class="maintenance-form-group">
-                <label>Phòng xảy ra sự cố</label>
-                <input type="text" id="maintRoomNumber" readonly
-                    style="background: #f8f9fa; color: #7f8c8d; font-weight: 600;">
-            </div>
-            <div class="maintenance-form-group">
-                <label>Mô tả sự cố chi tiết</label>
-                <textarea id="maintNotes" rows="4"
-                    placeholder="Nhập mô tả sự cố (Ví dụ: Rò rỉ nước nhà vệ sinh, Hỏng chốt cửa ra vào...)"
-                    required></textarea>
-            </div>
-            <div class="maintenance-modal-actions">
-                <button class="btn-cancel" onclick="closeUrgentMaintenanceModal()">Hủy bỏ</button>
-                <button class="btn-submit" onclick="submitUrgentMaintenance()">Gửi yêu cầu</button>
-            </div>
-        </div>
-    </div>
 
     <!-- WebSocket integration for real-time task notifications -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
@@ -569,7 +371,7 @@
                 if (typeof Toastify === 'undefined') return;
                 Toastify({
                     text: notif.text,
-                    duration: -1,
+                    duration: notif.direct ? -1 : 4000,
                     close: true,
                     gravity: "top",
                     position: "right",
@@ -607,11 +409,13 @@
 
             function saveAndShow(text, direct) {
                 var notif = { id: Date.now() + '_' + Math.random(), text: text, direct: direct };
-                try {
-                    var saved = JSON.parse(localStorage.getItem('kawai_notifs') || '[]');
-                    saved.push(notif);
-                    localStorage.setItem('kawai_notifs', JSON.stringify(saved));
-                } catch (e) { }
+                if (direct) {
+                    try {
+                        var saved = JSON.parse(localStorage.getItem('kawai_notifs') || '[]');
+                        saved.push(notif);
+                        localStorage.setItem('kawai_notifs', JSON.stringify(saved));
+                    } catch (e) { }
+                }
                 showPersistentToast(notif);
             }
 
@@ -631,6 +435,10 @@
                     stompClient.subscribe('/topic/operations', function (msg) {
                         try {
                             var payload = JSON.parse(msg.body);
+                            // Lọc bỏ thông báo nội bộ của housekeeping/maintenance để Lễ tân không bị làm phiền
+                            if (payload.type === 'NEW_TASK' && (payload.message.includes('dọn khẩn') || payload.message.includes('sửa chữa'))) {
+                                return;
+                            }
                             console.log('[WS] Nhận tin nhắn từ kênh Chung (/topic/operations):', payload);
                             if (payload.type === 'NEW_TASK') return;
                             saveAndShow('📢 THÔNG BÁO HỆ THỐNG: \n' + payload.message, false);
@@ -715,37 +523,6 @@
                 .catch(err => console.log('Không thể lấy lịch làm việc:', err));
         });
     </script>
-    <script>
-        function showRoomDetail(element) {
-            const status = element.getAttribute('data-status') || '';
-            if (!status.toLowerCase().includes('occupied')) return;
 
-            const roomNumber = element.getAttribute('data-room') || 'N/A';
-            const guestName  = element.getAttribute('data-guest') || 'Chưa cập nhật';
-            const pax        = element.getAttribute('data-pax') || 'N/A';
-            const checkIn    = element.getAttribute('data-in') || 'N/A';
-            const checkOut   = element.getAttribute('data-out') || 'N/A';
-
-            Swal.fire({
-                title: `<div style="font-family:'Playfair Display',serif;font-size:20px;color:#1a1a1a;letter-spacing:0.5px;">Phòng ${roomNumber}</div>`,
-                html: `
-                    <div style="text-align:left;padding:4px 8px;font-size:14px;color:#4a4a4a;">
-                        <table style="width:100%;border-collapse:collapse;">
-                            <tr style="border-bottom:1px solid #f0e8de;"><td style="padding:10px 0;color:#c9a96e;font-weight:600;width:120px;">Khách hàng</td><td style="padding:10px 0;font-weight:600;color:#1a1a1a;">${guestName}</td></tr>
-                            <tr style="border-bottom:1px solid #f0e8de;"><td style="padding:10px 0;color:#c9a96e;font-weight:600;">Số khách</td><td style="padding:10px 0;">${pax}</td></tr>
-                            <tr style="border-bottom:1px solid #f0e8de;"><td style="padding:10px 0;color:#c9a96e;font-weight:600;">Check-in</td><td style="padding:10px 0;">${checkIn}</td></tr>
-                            <tr><td style="padding:10px 0;color:#c9a96e;font-weight:600;">Check-out</td><td style="padding:10px 0;color:#d35400;font-weight:700;">${checkOut}</td></tr>
-                        </table>
-                    </div>`,
-                showConfirmButton: true,
-                confirmButtonText: 'Đóng',
-                confirmButtonColor: '#1a1a1a',
-                icon: undefined,
-                customClass: {
-                    popup: 'swal-room-popup'
-                }
-            });
-        }
-    </script>
 </body>
 </html>

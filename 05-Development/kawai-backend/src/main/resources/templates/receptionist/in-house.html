@@ -467,7 +467,7 @@
                 if (typeof Toastify === 'undefined') return;
                 Toastify({
                     text: notif.text,
-                    duration: -1,
+                    duration: notif.direct ? -1 : 4000,
                     close: true,
                     gravity: "top",
                     position: "right",
@@ -486,9 +486,11 @@
                         borderRadius: "8px"
                     },
                     callback: function () {
-                        var saved = JSON.parse(localStorage.getItem('kawai_notifs') || '[]');
-                        saved = saved.filter(function (n) { return n.id !== notif.id; });
-                        localStorage.setItem('kawai_notifs', JSON.stringify(saved));
+                        if (notif.direct) {
+                            var saved = JSON.parse(localStorage.getItem('kawai_notifs') || '[]');
+                            saved = saved.filter(function (n) { return n.id !== notif.id; });
+                            localStorage.setItem('kawai_notifs', JSON.stringify(saved));
+                        }
                     }
                 }).showToast();
             }
@@ -505,11 +507,13 @@
 
             function saveAndShow(text, direct) {
                 var notif = { id: Date.now() + '_' + Math.random(), text: text, direct: direct };
-                try {
-                    var saved = JSON.parse(localStorage.getItem('kawai_notifs') || '[]');
-                    saved.push(notif);
-                    localStorage.setItem('kawai_notifs', JSON.stringify(saved));
-                } catch (e) { }
+                if (direct) {
+                    try {
+                        var saved = JSON.parse(localStorage.getItem('kawai_notifs') || '[]');
+                        saved.push(notif);
+                        localStorage.setItem('kawai_notifs', JSON.stringify(saved));
+                    } catch (e) { }
+                }
                 showPersistentToast(notif);
             }
 

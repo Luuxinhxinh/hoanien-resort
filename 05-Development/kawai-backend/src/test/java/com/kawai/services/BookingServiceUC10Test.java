@@ -125,10 +125,32 @@ class BookingServiceUC10Test {
         @Mock
         private com.kawai.repositories.WorkflowRepository workflowRepository;
 
+        @Mock
+        private com.kawai.services.interfaces.PricingService pricingService;
+
+        @Mock
+        private com.kawai.repositories.TourBookingRepository tourBookingRepository;
+
         @org.junit.jupiter.api.BeforeEach
         void setUp() {
                 org.springframework.test.util.ReflectionTestUtils.setField(bookingService, "workflowRepository",
                                 workflowRepository);
+                org.springframework.test.util.ReflectionTestUtils.setField(bookingService, "pricingService",
+                                pricingService);
+                org.springframework.test.util.ReflectionTestUtils.setField(bookingService, "refundRequestRepository",
+                                refundRequestRepository);
+                org.springframework.test.util.ReflectionTestUtils.setField(bookingService, "tourBookingRepository",
+                                tourBookingRepository);
+
+                lenient().when(pricingService.calculateTotalRoomCharge(any(), any(), any()))
+                                .thenAnswer(invocation -> {
+                                        com.kawai.models.RoomCategory cat = invocation.getArgument(0);
+                                        LocalDate checkIn = invocation.getArgument(1);
+                                        LocalDate checkOut = invocation.getArgument(2);
+                                        long nights = java.time.temporal.ChronoUnit.DAYS.between(checkIn, checkOut);
+                                        BigDecimal basePrice = cat.getBasePrice() != null ? cat.getBasePrice() : new BigDecimal("2000000");
+                                        return basePrice.multiply(BigDecimal.valueOf(nights));
+                                });
 
                 com.kawai.models.Customer customer = new com.kawai.models.Customer();
                 customer.setId(1L);
@@ -196,8 +218,8 @@ class BookingServiceUC10Test {
         }
 
         // ── Test Fixtures ─────────────────────────────────────────────────────────
-        private static final LocalDate CHECK_IN = LocalDate.of(2026, 7, 15);
-        private static final LocalDate CHECK_OUT = LocalDate.of(2026, 7, 20); // 5 đêm
+        private static final LocalDate CHECK_IN = LocalDate.now().plusDays(5);
+        private static final LocalDate CHECK_OUT = LocalDate.now().plusDays(10); // 5 đêm
         private static final BigDecimal DEPOSIT = new BigDecimal("3000000");
         private static final String ROOM_NO = "R101";
 
@@ -252,7 +274,7 @@ class BookingServiceUC10Test {
 
                 // 🔴 RED — COMPILE ERROR: method này chưa tồn tại trong BookingResponseDTO
                 LocalDate expectedDeadline = CHECK_IN.minusDays(2); // 2026-07-13
-                assertEquals(expectedDeadline, result.getCancellationDeadline(),
+                assertEquals(expectedDeadline, result.getCancellationDeadline() != null ? result.getCancellationDeadline().toLocalDate() : null,
                                 "cancellationDeadline phải = checkIn - 2 ngày (BR-FIN-02)");
         }
 
@@ -521,7 +543,7 @@ class BookingServiceUC10Test {
                                 "10% off × 5 đêm × 2,000,000 = 9,000,000");
 
                 // 🔴 RED — COMPILE ERROR: getCancellationDeadline() chưa tồn tại
-                assertEquals(CHECK_IN.minusDays(2), result.getCancellationDeadline(),
+                assertEquals(CHECK_IN.minusDays(2), result.getCancellationDeadline() != null ? result.getCancellationDeadline().toLocalDate() : null,
                                 "cancellationDeadline phải được set ngay cả khi có promo code (BR-FIN-02)");
         }
 
@@ -564,7 +586,7 @@ class BookingServiceUC10Test {
                                 "20% off × 3 đêm × 2,000,000 = 4,800,000");
 
                 // 🔴 RED — COMPILE ERROR: getCancellationDeadline() chưa tồn tại
-                assertEquals(in.minusDays(2), result.getCancellationDeadline(),
+                assertEquals(in.minusDays(2), result.getCancellationDeadline() != null ? result.getCancellationDeadline().toLocalDate() : null,
                                 "cancellationDeadline = checkIn - 2 ngày (BR-FIN-02)");
         }
 

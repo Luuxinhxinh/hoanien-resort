@@ -52,13 +52,22 @@
                     </option>
                 </select>
             </div>
-            <div class="adm-form-group"><label class="adm-form-label">Ngày áp dụng <span style="color:#B45309">*</span></label><input type="date"
-                    name="date" class="adm-form-input" required></div>
             <div style="display:flex;gap:20px;">
-                <div class="adm-form-group" style="flex:1;"><label class="adm-form-label">Là Cuối tuần</label>
-                    <select name="isWeekend" class="adm-form-select">
-                        <option value="false">Không</option>
-                        <option value="true">Có</option>
+                <div class="adm-form-group" style="flex:1;">
+                    <label class="adm-form-label">Từ ngày (Ngày áp dụng) <span style="color:#B45309">*</span></label>
+                    <input type="date" name="date" class="adm-form-input" required>
+                </div>
+                <div class="adm-form-group" style="flex:1;" id="endDateGroup">
+                    <label class="adm-form-label">Đến ngày (Bỏ trống nếu 1 ngày)</label>
+                    <input type="date" name="endDate" class="adm-form-input">
+                </div>
+            </div>
+            <div style="display:flex;gap:20px;">
+                <div class="adm-form-group" style="flex:1;"><label class="adm-form-label">Áp dụng cho thứ</label>
+                    <select name="applyDays" class="adm-form-select">
+                        <option value="ALL">Tất cả các ngày</option>
+                        <option value="WEEKEND">Chỉ cuối tuần (T7, CN)</option>
+                        <option value="WEEKDAY">Chỉ ngày thường (T2 - T6)</option>
                     </select>
                 </div>
                 <div class="adm-form-group" style="flex:1;"><label class="adm-form-label">Là Lễ/Tết</label>

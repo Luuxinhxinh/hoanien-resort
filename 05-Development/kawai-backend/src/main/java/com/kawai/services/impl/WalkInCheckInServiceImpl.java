@@ -15,6 +15,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -81,6 +82,9 @@ public class WalkInCheckInServiceImpl implements com.kawai.services.interfaces.W
     private final com.kawai.services.interfaces.CheckinService checkinService;
     private final com.kawai.repositories.MaintenanceRequestRepository maintenanceRequestRepo;
     private final com.kawai.services.interfaces.EmailService emailService;
+
+    @Autowired
+    private com.kawai.services.interfaces.PricingService pricingService;
 
     public WalkInCheckInServiceImpl(
             RoomRepository roomRepository,
@@ -198,8 +202,12 @@ public class WalkInCheckInServiceImpl implements com.kawai.services.interfaces.W
                 GuestCount guestCount = classifyGuests(primaryDob, companions, childAges);
                 BigDecimal extraSurcharge = validateAndCalculateSurcharge(guestCount, room.getCategory(), childAges);
 
+                long nights = resolveNights(request.getCheckInDate(), request.getCheckOutDate());
+                BigDecimal roomTotalCharge = pricingService.calculateTotalRoomCharge(room.getCategory(), request.getCheckInDate(), request.getCheckOutDate());
+                BigDecimal avgRoomCharge = nights > 0 ? roomTotalCharge.divide(BigDecimal.valueOf(nights), 2, java.math.RoundingMode.HALF_UP) : BigDecimal.ZERO;
+
                 RoomBookingDetail detail = buildRoomBookingDetail(request, booking, room, room.getCategory(),
-                        guestCount, extraSurcharge);
+                        guestCount, extraSurcharge, avgRoomCharge);
                 detail.setSubCreditLimit(
                         selection.getAllocatedCreditLimit() != null ? selection.getAllocatedCreditLimit()
                                 : BigDecimal.ZERO);
@@ -300,18 +308,19 @@ public class WalkInCheckInServiceImpl implements com.kawai.services.interfaces.W
         }
 
         BigDecimal totalExtraSurcharge = BigDecimal.ZERO;
-        BigDecimal totalBasePricePerNight = BigDecimal.ZERO;
+        BigDecimal totalBaseRoomPrice = BigDecimal.ZERO;
         int totalAdults = 0;
         int totalChildren = 0;
         boolean isFirstRoom = true;
+        long nights = resolveNights(request.getCheckInDate(), request.getCheckOutDate());
 
         for (WalkInRoomSelectionDTO selection : request.getRoomSelections()) {
             Room room = roomRepository.findById(selection.getRoomId())
                     .orElseThrow(() -> new BusinessException("MOD2-UC14-004",
                             "Room not found for ID: " + selection.getRoomId()));
             RoomCategory category = room.getCategory();
-            totalBasePricePerNight = totalBasePricePerNight
-                    .add(category.getBasePrice() != null ? category.getBasePrice() : BigDecimal.ZERO);
+            BigDecimal roomTotalCharge = pricingService.calculateTotalRoomCharge(category, request.getCheckInDate(), request.getCheckOutDate());
+            totalBaseRoomPrice = totalBaseRoomPrice.add(roomTotalCharge);
 
             List<DependentRegistrationDTO> companions = resolveCompanions(selection);
             List<Integer> childAges = new java.util.ArrayList<>();
@@ -331,8 +340,6 @@ public class WalkInCheckInServiceImpl implements com.kawai.services.interfaces.W
             }
         }
 
-        long nights = resolveNights(request.getCheckInDate(), request.getCheckOutDate());
-        BigDecimal totalBaseRoomPrice = totalBasePricePerNight.multiply(BigDecimal.valueOf(nights));
         BigDecimal totalSurchargeAllNights = totalExtraSurcharge.multiply(BigDecimal.valueOf(nights));
         BigDecimal totalCharge = totalBaseRoomPrice.add(totalSurchargeAllNights);
 
@@ -654,13 +661,13 @@ public class WalkInCheckInServiceImpl implements com.kawai.services.interfaces.W
      * Tạo RoomBookingDetail với trạng thái CHECKED_IN và extra surcharge đã tính.
      */
     private RoomBookingDetail buildRoomBookingDetail(WalkInCheckInRequest req, RoomBooking booking,
-            Room room, RoomCategory category, GuestCount guestCount, BigDecimal extraSurcharge) {
+            Room room, RoomCategory category, GuestCount guestCount, BigDecimal extraSurcharge, BigDecimal avgRoomCharge) {
         RoomBookingDetail detail = new RoomBookingDetail();
         detail.setRoomBooking(booking);
         detail.setRoom(room);
         detail.setCategory(category);
         detail.setDetailStatus(resolveBookingStatus(req.getPaymentMethod()));
-        detail.setRoomCharge(category.getBasePrice() != null ? category.getBasePrice() : BigDecimal.ZERO);
+        detail.setRoomCharge(avgRoomCharge);
         detail.setNumberOfAdults(guestCount.adults);
         detail.setNumberOfChildren(guestCount.children);
         detail.setExtraSurcharge(extraSurcharge.compareTo(BigDecimal.ZERO) > 0 ? extraSurcharge : null);

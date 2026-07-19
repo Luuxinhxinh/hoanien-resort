@@ -38,7 +38,8 @@ public class PricingServiceImpl implements PricingService {
             List<DynamicPricing> rules = dynamicPricingRepository.findByCategoryId(cat.getId());
             
             for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
-                BigDecimal finalPrice = cat.getBasePrice();
+                final LocalDate targetDate = date;
+                BigDecimal finalPrice = cat.getBasePrice() != null ? cat.getBasePrice() : BigDecimal.ZERO;
                 
                 // Apply rules
                 for (DynamicPricing rule : rules) {
@@ -47,12 +48,18 @@ public class PricingServiceImpl implements PricingService {
                     }
                 }
 
-                DailyRate rate = new DailyRate();
-                rate.setCategory(cat);
-                rate.setRateDate(date);
+                DailyRate rate = dailyRateRepository.findByCategoryIdAndRateDate(cat.getId(), targetDate)
+                        .orElseGet(() -> {
+                            DailyRate r = new DailyRate();
+                            r.setCategory(cat);
+                            r.setRateDate(targetDate);
+                            return r;
+                        });
                 rate.setComputedPrice(finalPrice);
+                java.time.DayOfWeek dw = date.getDayOfWeek();
+                rate.setIsWeekend(dw == java.time.DayOfWeek.SATURDAY || dw == java.time.DayOfWeek.SUNDAY);
+                rate.setIsHoliday(false);
                 
-                // Simplified Upsert Logic
                 dailyRateRepository.save(rate);
             }
         }
@@ -79,6 +86,62 @@ public class PricingServiceImpl implements PricingService {
         pricing.setStartDate(startDate);
         pricing.setEndDate(endDate);
         pricing.setPriceModifier(modifier);
-        return dynamicPricingRepository.save(pricing);
+        
+        DynamicPricing saved = dynamicPricingRepository.save(pricing);
+        
+        // Auto trigger generation for the date range of the new rule
+        triggerGenerate(startDate, endDate);
+        
+        return saved;
+    }
+
+    @Override
+    public BigDecimal getPriceForDate(RoomCategory category, LocalDate date) {
+        if (category == null) return BigDecimal.ZERO;
+        return dailyRateRepository.findByCategoryIdAndRateDate(category.getId(), date)
+                .map(DailyRate::getComputedPrice)
+                .orElseGet(() -> {
+                    BigDecimal finalPrice = category.getBasePrice() != null ? category.getBasePrice() : BigDecimal.ZERO;
+                    List<DynamicPricing> rules = dynamicPricingRepository.findByCategoryId(category.getId());
+                    for (DynamicPricing rule : rules) {
+                        if (!date.isBefore(rule.getStartDate()) && !date.isAfter(rule.getEndDate())) {
+                            finalPrice = finalPrice.add(rule.getPriceModifier());
+                        }
+                    }
+                    return finalPrice;
+                });
+    }
+
+    @Override
+    public BigDecimal calculateTotalRoomCharge(RoomCategory category, LocalDate checkIn, LocalDate checkOut) {
+        if (category == null || checkIn == null || checkOut == null || !checkOut.isAfter(checkIn)) {
+            return BigDecimal.ZERO;
+        }
+        
+        List<DailyRate> rates = dailyRateRepository.findByCategoryIdAndRateDateBetween(category.getId(), checkIn, checkOut.minusDays(1));
+        java.util.Map<LocalDate, BigDecimal> rateMap = new java.util.HashMap<>();
+        for (DailyRate r : rates) {
+            rateMap.put(r.getRateDate(), r.getComputedPrice());
+        }
+
+        BigDecimal total = BigDecimal.ZERO;
+        List<DynamicPricing> rules = null;
+
+        for (LocalDate date = checkIn; date.isBefore(checkOut); date = date.plusDays(1)) {
+            BigDecimal price = rateMap.get(date);
+            if (price == null) {
+                price = category.getBasePrice() != null ? category.getBasePrice() : BigDecimal.ZERO;
+                if (rules == null) {
+                    rules = dynamicPricingRepository.findByCategoryId(category.getId());
+                }
+                for (DynamicPricing rule : rules) {
+                    if (!date.isBefore(rule.getStartDate()) && !date.isAfter(rule.getEndDate())) {
+                        price = price.add(rule.getPriceModifier());
+                    }
+                }
+            }
+            total = total.add(price);
+        }
+        return total;
     }
 }

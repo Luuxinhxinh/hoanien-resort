@@ -733,8 +733,12 @@ public class AdminViewServiceImpl implements AdminViewService {
         if (amount == null)
             return "-";
         long val = amount.longValue();
-        if (val >= 1_000_000)
-            return String.format("%,.0f", (val / 1_000_000.0)).replace(",", ".") + "M VNĐ";
+        if (val >= 1_000_000) {
+            if (val % 1_000_000 == 0) {
+                return String.format("%,d", val / 1_000_000).replace(",", ".") + "M VNĐ";
+            }
+            return (val / 1_000_000.0) + "M VNĐ";
+        }
         return String.format("%,d", val).replace(",", ".") + " VNĐ";
     }
 

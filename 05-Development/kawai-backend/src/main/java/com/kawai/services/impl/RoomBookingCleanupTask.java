@@ -1,4 +1,4 @@
-package com.kawai.services.jobs;
+package com.kawai.services.impl;
 
 import com.kawai.models.RoomBooking;
 import com.kawai.models.RoomBookingDetail;

@@ -49,7 +49,7 @@ public class ReportServiceImpl implements ReportService {
     private RoomBookingDetailRepository roomBookingDetailRepository;
 
     @Autowired
-    private com.kawai.services.jobs.RoomBookingCleanupTask roomBookingCleanupTask;
+    private com.kawai.services.impl.RoomBookingCleanupTask roomBookingCleanupTask;
 
     private static class ReportRow {
         String label;

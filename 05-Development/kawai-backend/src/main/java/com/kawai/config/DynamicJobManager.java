@@ -1,10 +1,10 @@
 package com.kawai.config;
 
-import com.kawai.services.AuditCleanupTask;
+import com.kawai.services.impl.AuditCleanupTask;
 import com.kawai.services.impl.BookingServiceImpl;
 import com.kawai.services.impl.WorkflowEngineServiceImpl;
 import com.kawai.schedulers.NightAuditJob;
-import com.kawai.services.jobs.ReservationCleanupTask;
+import com.kawai.services.impl.ReservationCleanupTask;
 import com.kawai.services.interfaces.NightAuditService;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +35,7 @@ public class DynamicJobManager {
     private final BookingServiceImpl bookingService;
     private final WorkflowEngineServiceImpl workflowEngineService;
     private final NightAuditService nightAuditService;
-    private final com.kawai.services.jobs.RoomBookingCleanupTask roomBookingCleanupTask;
+    private final com.kawai.services.impl.RoomBookingCleanupTask roomBookingCleanupTask;
 
     public static class JobConfig {
         public String id;

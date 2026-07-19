@@ -26,7 +26,7 @@ public class TourGuideController {
     private com.kawai.repositories.EmployeeRepository employeeRepository;
 
     @org.springframework.beans.factory.annotation.Autowired
-    private com.kawai.services.ShiftService shiftService;
+    private com.kawai.services.interfaces.ShiftService shiftService;
 
     @org.springframework.beans.factory.annotation.Autowired
     private com.kawai.repositories.AccountRepository accountRepository;

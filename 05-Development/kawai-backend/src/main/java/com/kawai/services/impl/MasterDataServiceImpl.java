@@ -203,38 +203,70 @@ public class MasterDataServiceImpl implements MasterDataService {
                 roleRepository.save(newRole);
                 break;
             case "pricing":
-                DailyRate newRate = new DailyRate();
+                RoomCategory cat = null;
                 if (payload.get("roomCategory") != null) {
                     String categoryName = payload.get("roomCategory").toString();
-                    roomCategoryRepository.findAll().stream()
+                    cat = roomCategoryRepository.findAll().stream()
                         .filter(c -> c.getCategoryName().equals(categoryName))
-                        .findFirst().ifPresent(newRate::setCategory);
+                        .findFirst().orElse(null);
                 }
+                if (cat == null) {
+                    throw new IllegalArgumentException("Hạng phòng không hợp lệ!");
+                }
+
+                java.math.BigDecimal computedPrice = java.math.BigDecimal.ZERO;
                 if (payload.get("price") != null) {
                     String p = payload.get("price").toString().replaceAll("[^\\d]", "");
                     if (!p.isEmpty()) {
-                        newRate.setComputedPrice(new java.math.BigDecimal(p));
+                        computedPrice = new java.math.BigDecimal(p);
                     }
                 }
-                if (payload.get("isWeekend") != null) {
-                    newRate.setIsWeekend(Boolean.parseBoolean(payload.get("isWeekend").toString()));
-                } else {
-                    newRate.setIsWeekend(false);
-                }
-                if (payload.get("isHoliday") != null) {
-                    newRate.setIsHoliday(Boolean.parseBoolean(payload.get("isHoliday").toString()));
-                } else {
-                    newRate.setIsHoliday(false);
-                }
+
+                boolean isHoliday = payload.get("isHoliday") != null && Boolean.parseBoolean(payload.get("isHoliday").toString());
+                String applyDays = payload.get("applyDays") != null ? payload.get("applyDays").toString() : "ALL";
+
+                java.time.LocalDate startDate = java.time.LocalDate.now();
                 if (payload.get("date") != null && !payload.get("date").toString().isEmpty()) {
-                    newRate.setRateDate(java.time.LocalDate.parse(payload.get("date").toString()));
-                } else {
-                    newRate.setRateDate(java.time.LocalDate.now());
+                    startDate = java.time.LocalDate.parse(payload.get("date").toString());
                 }
-                if (newRate.getCategory() != null) {
-                    dailyRateRepository.save(newRate);
+                
+                java.time.LocalDate endDate = startDate;
+                if (payload.get("endDate") != null && !payload.get("endDate").toString().trim().isEmpty()) {
+                    endDate = java.time.LocalDate.parse(payload.get("endDate").toString());
+                }
+
+                if (startDate.isAfter(endDate)) {
+                    throw new IllegalArgumentException("Ngày bắt đầu không được sau ngày kết thúc!");
+                }
+
+                for (java.time.LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
+                    java.time.DayOfWeek dw = date.getDayOfWeek();
+                    boolean isWeekend = (dw == java.time.DayOfWeek.SATURDAY || dw == java.time.DayOfWeek.SUNDAY);
+
+                    if ("WEEKEND".equals(applyDays) && !isWeekend) {
+                        continue;
+                    }
+                    if ("WEEKDAY".equals(applyDays) && isWeekend) {
+                        continue;
+                    }
+
+                    final java.time.LocalDate targetDate = date;
+                    final RoomCategory finalCat = cat;
+                    DailyRate rate = dailyRateRepository.findByCategoryIdAndRateDate(cat.getId(), targetDate)
+                            .orElseGet(() -> {
+                                DailyRate dr = new DailyRate();
+                                dr.setCategory(finalCat);
+                                dr.setRateDate(targetDate);
+                                return dr;
+                            });
+
+                    rate.setComputedPrice(computedPrice);
+                    rate.setIsWeekend(isWeekend);
+                    rate.setIsHoliday(isHoliday);
+                    dailyRateRepository.save(rate);
                 }
                 break;
+
         }
         return payload;
     }
@@ -464,20 +496,26 @@ public class MasterDataServiceImpl implements MasterDataService {
             case "pricing":
                 DailyRate rate = dailyRateRepository.findById(entityId).orElse(null);
                 if (rate != null) {
+                    if (payload.get("roomCategory") != null) {
+                        String categoryName = payload.get("roomCategory").toString();
+                        roomCategoryRepository.findAll().stream()
+                            .filter(c -> c.getCategoryName().equals(categoryName))
+                            .findFirst().ifPresent(rate::setCategory);
+                    }
                     if (payload.get("price") != null) {
                         String p = payload.get("price").toString().replaceAll("[^\\d]", "");
                         if (!p.isEmpty()) {
                             rate.setComputedPrice(new java.math.BigDecimal(p));
                         }
                     }
-                    if (payload.get("isWeekend") != null) {
-                        rate.setIsWeekend(Boolean.parseBoolean(payload.get("isWeekend").toString()));
-                    }
                     if (payload.get("isHoliday") != null) {
                         rate.setIsHoliday(Boolean.parseBoolean(payload.get("isHoliday").toString()));
                     }
                     if (payload.get("date") != null && !payload.get("date").toString().isEmpty()) {
-                        rate.setRateDate(java.time.LocalDate.parse(payload.get("date").toString()));
+                        java.time.LocalDate d = java.time.LocalDate.parse(payload.get("date").toString());
+                        rate.setRateDate(d);
+                        java.time.DayOfWeek dw = d.getDayOfWeek();
+                        rate.setIsWeekend(dw == java.time.DayOfWeek.SATURDAY || dw == java.time.DayOfWeek.SUNDAY);
                     }
                     dailyRateRepository.save(rate);
                 }

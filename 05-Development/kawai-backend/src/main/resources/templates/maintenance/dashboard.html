@@ -618,15 +618,20 @@
                 </select>
             </div>
 
-            <div class="user-info">
+            <div class="user-info" style="cursor: pointer;" 
+                 th:data-name="${currentStaff != null ? currentStaff.fullName : (#authentication != null ? #authentication.name : 'Nhân viên')}"
+                 th:data-email="${currentStaff != null ? currentStaff.email : 'Chưa cập nhật'}"
+                 th:data-phone="${currentStaff != null ? currentStaff.phone : 'Chưa cập nhật'}"
+                 th:data-role="'Bảo trì'"
+                 onclick="showUserInfo(this.getAttribute('data-name'), this.getAttribute('data-email'), this.getAttribute('data-phone'), this.getAttribute('data-role'))">
                 <div class="user-avatar"
                     th:text="${#authentication != null ? #strings.substring(#authentication.name, 0, 2).toUpperCase() : 'MT'}">
                     MT</div>
                 <div class="user-details">
-                    <h4 th:text="${#authentication != null ? #authentication.name : 'Kỹ thuật viên'}">Kỹ thuật viên</h4>
+                    <h4 th:text="${currentStaff != null ? currentStaff.fullName : (#authentication != null ? #authentication.name : 'Kỹ thuật viên')}">Kỹ thuật viên</h4>
                     <p>Bộ phận Bảo trì</p>
                 </div>
-                <a href="/logout" class="logout-btn">Đăng xuất</a>
+                <a href="/logout" class="logout-btn" onclick="event.stopPropagation();">Đăng xuất</a>
             </div>
         </div>
     </header>
@@ -865,6 +870,7 @@
             </div>
         </div>
 
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script>
             function openPauseModal(taskId) {
                 document.getElementById('pauseForm').action = '/maintenance/tasks/' + taskId + '/pause';
@@ -1003,6 +1009,12 @@
                         var payload = JSON.parse(message.body);
                         alert("THÔNG BÁO HỆ THỐNG: " + payload.message);
                         // Reload page to see new tasks
+                        setTimeout(() => window.location.reload(), 1500);
+                    });
+
+                    stompClient.subscribe('/topic/operations/maintenance', function (message) {
+                        var payload = JSON.parse(message.body);
+                        alert("THÔNG BÁO BẢO TRÌ: " + payload.message);
                         setTimeout(() => window.location.reload(), 1500);
                     });
                 });

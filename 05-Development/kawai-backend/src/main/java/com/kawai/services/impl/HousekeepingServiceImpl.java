@@ -280,6 +280,13 @@ public class HousekeepingServiceImpl implements HousekeepingService {
         roomRepo.save(room);
         maintenanceRequestRepo.save(task);
 
+        try {
+            String msg = "Phòng " + room.getRoomNumber() + " đã hoàn thành bảo trì và sẵn sàng sử dụng!";
+            messagingTemplate.convertAndSend("/topic/operations", java.util.Map.of("message", msg, "type", "TASK_COMPLETED"));
+        } catch (Exception e) {
+            log.error("Failed to send WebSocket notification", e);
+        }
+
         return room;
     }
 

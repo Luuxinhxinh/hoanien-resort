@@ -179,10 +179,12 @@ public class HousekeepingApiController {
                     .body(Map.of("success", false, "message", "Lỗi cấu hình hệ thống (không có nhân viên)."));
         }
 
-        // Fetch existing pending/inprogress tasks for this room
+        // Fetch existing pending/inprogress cleaning tasks for this room (exclude maintenance)
         List<HotelOperation> existingTasks = housekeepingTaskRepo.findAll().stream()
                 .filter(t -> t.getRoom() != null && t.getRoom().getId().equals(room.getId())
-                        && ("Pending".equals(t.getStatus()) || "InProgress".equals(t.getStatus())))
+                        && ("Pending".equals(t.getStatus()) || "InProgress".equals(t.getStatus()))
+                        && !"MAINTENANCE".equalsIgnoreCase(t.getOperationalType())
+                        && !"URGENT_MAINTENANCE".equalsIgnoreCase(t.getOperationalType()))
                 .toList();
 
         if (!existingTasks.isEmpty()) {
@@ -194,7 +196,7 @@ public class HousekeepingApiController {
                 housekeepingTaskRepo.save(t);
             }
             try {
-                messagingTemplate.convertAndSend("/topic/operations", Map.of(
+                messagingTemplate.convertAndSend("/topic/operations/housekeeping", Map.of(
                         "message", "Yêu cầu dọn khẩn cấp phòng " + room.getRoomNumber() + "!",
                         "type", "NEW_TASK"));
             } catch (Exception e) {
@@ -217,7 +219,7 @@ public class HousekeepingApiController {
 
         housekeepingTaskRepo.save(task);
         try {
-            messagingTemplate.convertAndSend("/topic/operations", Map.of(
+            messagingTemplate.convertAndSend("/topic/operations/housekeeping", Map.of(
                     "message", "Yêu cầu dọn khẩn cấp phòng " + room.getRoomNumber() + "!",
                     "type", "NEW_TASK"));
         } catch (Exception e) {
@@ -254,9 +256,9 @@ public class HousekeepingApiController {
             com.kawai.models.HotelOperation maintenanceTask = housekeepingService
                     .createMaintenanceRequest(room.getId(), staff.getId(), notes, true);
 
-            // Gửi WebSocket tin nhắn kênh chung để các màn hình auto-reload
+            // Gửi WebSocket tin nhắn kênh riêng bảo trì để màn hình bảo trì nhận và auto-reload
             try {
-                messagingTemplate.convertAndSend("/topic/operations", Map.of(
+                messagingTemplate.convertAndSend("/topic/operations/maintenance", Map.of(
                         "message", "Yêu cầu sửa chữa khẩn cấp phòng " + room.getRoomNumber() + "!",
                         "type", "NEW_TASK"));
             } catch (Exception wsEx) {
