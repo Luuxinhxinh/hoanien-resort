@@ -198,6 +198,11 @@ body {
     background: rgba(255, 255, 255, 0.08);
 }
 
+/* Hide notification bell icon in manager header */
+.mgr-header-right > button:not([style*="color"]) {
+    display: none !important;
+}
+
 .mgr-divider-v {
     width: 1px;
     height: 20px;
