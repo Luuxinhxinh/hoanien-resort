@@ -1272,14 +1272,14 @@ INSERT IGNORE INTO Dependents (dependent_id, customer_id, dependent_name, birth_
 (506, 505, 'Trần Thị Bạn', '1998-11-25', 'Nữ', NULL);
 
 INSERT IGNORE INTO Bookings (booking_id, customer_id, booking_date, total_price, booking_status, booking_source, applied_promotion_id, version) VALUES
-(505, 505, '2026-07-01', 7000000, 'Checked_In', 'Direct_Web', NULL, 1);
+(505, 505, '2026-07-01', 14000000, 'Checked_In', 'Direct_Web', NULL, 1);
 
 INSERT IGNORE INTO Room_Bookings (room_booking_id, check_in_date, check_out_date, deposit_amount, cancellation_deadline, credit_limit, personal_pin_hash) VALUES
 (505, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 2 DAY), 1000000.00, DATE_SUB(CURDATE(), INTERVAL 1 DAY), 5000000.00, 'hash505');
 
 INSERT IGNORE INTO Room_Booking_Details (detail_id, room_booking_id, category_id, room_id, room_charge, detail_status, bed_preference, special_requests, is_charge_to_room_allowed, sub_credit_limit, billing_routing_strategy, customer_id, number_of_adults, number_of_children) VALUES
-(5051, 505, 2, 11, 3500000, 'Checked_In', 'KING_SIZE', 'Ngọc Lan phòng 1', TRUE, 2500000, 'BILL_TO_LEADER', 505, 2, 0),
-(5052, 505, 2, 12, 3500000, 'Checked_In', 'TWIN_BED', 'Ngọc Lan phòng 2', TRUE, 2500000, 'BILL_TO_LEADER', 505, 2, 0);
+(5051, 505, 2, 11, 7000000, 'Checked_In', 'KING_SIZE', 'Ngọc Lan phòng 1', TRUE, 2500000, 'BILL_TO_LEADER', 505, 2, 0),
+(5052, 505, 2, 12, 7000000, 'Checked_In', 'TWIN_BED', 'Ngọc Lan phòng 2', TRUE, 2500000, 'BILL_TO_LEADER', 505, 2, 0);
 
 INSERT IGNORE INTO Room_Guests (guest_id, detail_id, customer_id, dependent_id, guest_type, is_primary_contact) VALUES
 (50511, 5051, 505, NULL, 'ADULT', TRUE),
