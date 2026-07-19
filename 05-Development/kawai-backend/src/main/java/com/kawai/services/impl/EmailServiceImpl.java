@@ -878,6 +878,15 @@ public class EmailServiceImpl implements EmailService {
     }
 
     public void sendEmail(String toEmail, String subject, String htmlContent) {
+        // Write a debug copy to a local file in the project directory for immediate verification
+        try {
+            java.nio.file.Path debugPath = java.nio.file.Paths.get("debug_email_invoice.html");
+            java.nio.file.Files.writeString(debugPath, htmlContent, java.nio.charset.StandardCharsets.UTF_8);
+            logger.info("[DEBUG] Đã ghi nội dung email ra file cục bộ để kiểm tra: {}", debugPath.toAbsolutePath());
+        } catch (Exception e) {
+            logger.error("[DEBUG] Không thể ghi file email debug: {}", e.getMessage());
+        }
+
         boolean sentViaSmtp = false;
 
         if (mailSender != null) {
