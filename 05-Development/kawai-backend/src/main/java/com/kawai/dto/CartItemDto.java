@@ -8,4 +8,5 @@ public class CartItemDto {
     private Long id;
     private Integer qty;
     private BigDecimal price;
+    private String note;
 }
