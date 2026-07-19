@@ -439,7 +439,7 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public void sendInvoiceEmail(String toEmail, ConsolidatedInvoice invoice, String pdfAttachmentPath) {
-        if (!"Paid".equalsIgnoreCase(invoice.getInvoiceStatus())) {
+        if (!"Paid".equalsIgnoreCase(invoice.getInvoiceStatus()) && !"Partial_Paid".equalsIgnoreCase(invoice.getInvoiceStatus())) {
             throw new IllegalStateException(
                     "Không thể gửi Email cho hóa đơn chưa được thanh toán (Trạng thái hiện tại: "
                             + invoice.getInvoiceStatus() + ")");

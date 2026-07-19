@@ -1095,7 +1095,7 @@ public class FolioRestController {
             }
 
             // 5. Sinh file PDF hóa đơn và gửi email (Sử dụng Service) nếu đã thanh toán
-            if ("Paid".equalsIgnoreCase(invoice.getInvoiceStatus())) {
+            if ("Paid".equalsIgnoreCase(invoice.getInvoiceStatus()) || "Partial_Paid".equalsIgnoreCase(invoice.getInvoiceStatus())) {
                 String pdfPath = invoicePdfService.generateInvoicePdf(invoice);
                 String customerEmail = detail.getRoomBooking().getCustomer().getEmail();
 

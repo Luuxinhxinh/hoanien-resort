@@ -13,7 +13,7 @@ public class InvoicePdfServiceImpl implements InvoicePdfService {
 
     @Override
     public String generateInvoicePdf(ConsolidatedInvoice invoice) {
-        if (!"Paid".equalsIgnoreCase(invoice.getInvoiceStatus())) {
+        if (!"Paid".equalsIgnoreCase(invoice.getInvoiceStatus()) && !"Partial_Paid".equalsIgnoreCase(invoice.getInvoiceStatus())) {
             throw new IllegalStateException("Không thể xuất PDF cho hóa đơn chưa được thanh toán (Trạng thái hiện tại: " + invoice.getInvoiceStatus() + ")");
         }
         
