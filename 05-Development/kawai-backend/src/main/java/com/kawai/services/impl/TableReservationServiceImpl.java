@@ -60,7 +60,7 @@ public class TableReservationServiceImpl implements TableReservationService {
             List<TableReservation> reservations = tableReservationRepository.findByTable_IdAndReserveDateOrderByReserveTimeAsc(table.getId(), date);
             boolean isAvailable = true;
             for (TableReservation res : reservations) {
-                if ("Confirmed".equalsIgnoreCase(res.getStatus()) || "Pending".equalsIgnoreCase(res.getStatus()) || "Seated".equalsIgnoreCase(res.getStatus()) || "Completed".equalsIgnoreCase(res.getStatus())) {
+                if ("Pending".equalsIgnoreCase(res.getStatus()) || "Seated".equalsIgnoreCase(res.getStatus()) || "Completed".equalsIgnoreCase(res.getStatus())) {
                     java.time.LocalDateTime rStartDT = java.time.LocalDateTime.of(date, res.getReserveTime());
                     java.time.LocalDateTime rEndDT;
                     if (res.getEndTime() != null) {
@@ -145,7 +145,7 @@ public class TableReservationServiceImpl implements TableReservationService {
         List<TableReservation> existingReservations = tableReservationRepository.findByTable_IdAndReserveDateOrderByReserveTimeAsc(table.getId(), request.getReserveDate());
 
         for (TableReservation res : existingReservations) {
-            if ("Confirmed".equalsIgnoreCase(res.getStatus()) || "Pending".equalsIgnoreCase(res.getStatus()) || "Seated".equalsIgnoreCase(res.getStatus()) || "Completed".equalsIgnoreCase(res.getStatus())) {
+            if ("Pending".equalsIgnoreCase(res.getStatus()) || "Seated".equalsIgnoreCase(res.getStatus()) || "Completed".equalsIgnoreCase(res.getStatus())) {
                 java.time.LocalDateTime existingStartDT = java.time.LocalDateTime.of(request.getReserveDate(), res.getReserveTime());
                 java.time.LocalDateTime existingEndDT;
                 if (res.getEndTime() != null) {
@@ -362,7 +362,7 @@ public class TableReservationServiceImpl implements TableReservationService {
         TableReservation res = tableReservationRepository.findById(reservationId)
                 .orElseThrow(() -> new BusinessException("RES-001", "Không tìm thấy thông tin đặt bàn"));
         
-        if (!"Confirmed".equalsIgnoreCase(res.getStatus()) && !"Pending".equalsIgnoreCase(res.getStatus())) {
+        if (!"Pending".equalsIgnoreCase(res.getStatus())) {
             throw new BusinessException("RES-002", "Trạng thái đặt bàn không hợp lệ để check-in");
         }
         
@@ -384,7 +384,7 @@ public class TableReservationServiceImpl implements TableReservationService {
         TableReservation res = tableReservationRepository.findById(reservationId)
                 .orElseThrow(() -> new BusinessException("RES-001", "Không tìm thấy thông tin đặt bàn"));
         
-        if (!"Confirmed".equalsIgnoreCase(res.getStatus()) && !"Pending".equalsIgnoreCase(res.getStatus())) {
+        if (!"Pending".equalsIgnoreCase(res.getStatus())) {
             throw new BusinessException("RES-004", "Trạng thái đặt bàn không hợp lệ để giữ bàn");
         }
         
@@ -415,8 +415,8 @@ public class TableReservationServiceImpl implements TableReservationService {
         TableReservation res = tableReservationRepository.findById(reservationId)
                 .orElseThrow(() -> new BusinessException("RES-001", "Không tìm thấy thông tin đặt bàn"));
 
-        if (!"Pending".equalsIgnoreCase(res.getStatus()) && !"Confirmed".equalsIgnoreCase(res.getStatus())) {
-            throw new BusinessException("RES-005", "Chỉ có thể hủy đơn đặt bàn khi ở trạng thái Chờ xác nhận hoặc Chờ sử dụng.");
+        if (!"Pending".equalsIgnoreCase(res.getStatus())) {
+            throw new BusinessException("RES-005", "Chỉ có thể hủy đơn đặt bàn khi ở trạng thái Chờ xác nhận.");
         }
 
         // Validate that the current user is the one who created the reservation
