@@ -134,19 +134,6 @@ public class HousekeepingServiceImpl implements HousekeepingService {
             log.error("Failed to send WebSocket message", e);
         }
 
-        // Gửi thông báo WebSocket cho RoomMatrix (Receptionist) để auto-reload
-        try {
-            String wsMessage = isOccupied
-                    ? "Phòng " + room.getRoomNumber() + " (đang có khách) đã được dọn dẹp sạch sẽ!"
-                    : "Phòng " + room.getRoomNumber() + " đã được dọn dẹp sạch sẽ và sẵn sàng đón khách!";
-
-            messagingTemplate.convertAndSend("/topic/operations", java.util.Map.of(
-                    "message", wsMessage,
-                    "type", "ROOM_CLEANED"));
-        } catch (Exception e) {
-            log.error("Failed to send WebSocket message", e);
-        }
-
         return room;
     }
 

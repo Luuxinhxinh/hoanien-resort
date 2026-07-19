@@ -239,12 +239,12 @@
                     <div class="mgr-donut-wrap" style="height:240px; margin-top: 16px;">
                         <canvas id="chart-food-donut" style="width: 240px !important; height: 240px !important;"></canvas>
                         <div class="mgr-donut-center">
-                            <div class="mgr-donut-center-value" th:text="${totalOrders}">127</div>
-                            <div class="mgr-donut-center-label">Tổng lượt</div>
+                            <div class="mgr-donut-center-value" th:text="${totalItemsSold}">127</div>
+                            <div class="mgr-donut-center-label">Tổng món</div>
                         </div>
                     </div>
                     
-                    <div class="mgr-donut-legend" style="margin-top: 30px; display: flex; flex-direction: column; gap: 12px; height: 180px; overflow-y: auto; padding-right: 8px;" th:with="tot=${T(java.lang.Integer).parseInt(totalOrders.toString().replace(',',''))}">
+                    <div class="mgr-donut-legend" style="margin-top: 30px; display: flex; flex-direction: column; gap: 12px; height: 180px; overflow-y: auto; padding-right: 8px;" th:with="tot=${totalItemsSold}">
                         <div class="mgr-donut-legend-row" th:each="catVal, iterStat : ${catValues}">
                             <div class="mgr-donut-legend-dot" th:with="colors=${ {'#C9A96E','#7A9C7A','#6B8C9A','#A89060','#D17C6B','#9B8B6B','#5A7D7C','#B59B7D','#6A8F70','#8D7E61','#4A6B80','#D49E7C'} }" th:style="'background:' + ${colors[iterStat.index % 12]}"></div>
                             <span class="mgr-donut-legend-name" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" th:title="${catLabels[iterStat.index]}" th:text="${catLabels[iterStat.index]}">Category</span>
