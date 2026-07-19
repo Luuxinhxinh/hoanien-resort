@@ -2530,7 +2530,7 @@
         }
 
         function showSuccessModal(data) {
-            const invoiceNo = "INV-" + (data.invoiceId || Math.floor(Math.random() * 10000 + 1000));
+            const invoiceNo = data.invoiceNumber || ("INV-" + (data.invoiceId || Math.floor(Math.random() * 10000 + 1000)));
             document.getElementById('successInvoiceId').innerText = "#" + invoiceNo;
 
             // 1. Basic invoice metadata

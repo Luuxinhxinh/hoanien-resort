@@ -434,6 +434,9 @@ public class EmailServiceImpl implements EmailService {
     @org.springframework.beans.factory.annotation.Autowired
     private com.kawai.repositories.FoodOrderRepository foodOrderRepository;
 
+    @org.springframework.beans.factory.annotation.Autowired
+    private com.kawai.services.interfaces.PaymentService paymentService;
+
     @Override
     public void sendInvoiceEmail(String toEmail, ConsolidatedInvoice invoice, String pdfAttachmentPath) {
         if (!"Paid".equalsIgnoreCase(invoice.getInvoiceStatus())) {
@@ -456,24 +459,52 @@ public class EmailServiceImpl implements EmailService {
             String roomNumber = "";
             java.math.BigDecimal depositAmount = java.math.BigDecimal.ZERO;
             String paymentMethod = "Chuyển khoản / Tiền mặt";
+            int guestCount = 0;
+            String checkInDateStr = "N/A";
+            String checkOutDateStr = "N/A";
 
             if (invoice.getBooking() instanceof com.kawai.models.RoomBooking rb) {
-                if (rb.getDepositAmount() != null) {
+                checkInDateStr = rb.getCheckInDate() != null ? rb.getCheckInDate().format(DATE_FMT) : "N/A";
+                checkOutDateStr = rb.getCheckOutDate() != null ? rb.getCheckOutDate().format(DATE_FMT) : "N/A";
+
+                // Retrieve all payment transactions to get deposit amount
+                try {
+                    java.util.List<com.kawai.models.PaymentTransaction> payments = paymentService.getPaymentsByBookingId(rb.getId());
+                    if (payments != null) {
+                        for (com.kawai.models.PaymentTransaction pt : payments) {
+                            if (pt.getStatus() == com.kawai.models.PaymentStatus.SUCCESS && pt.getAmount() != null) {
+                                if ("ROOM_BOOKING".equalsIgnoreCase(pt.getTransactionType())
+                                        || "DEPOSIT".equalsIgnoreCase(pt.getTransactionType())) {
+                                    depositAmount = depositAmount.add(pt.getAmount());
+                                }
+                                if (pt.getPaymentMethod() != null) {
+                                    paymentMethod = pt.getPaymentMethod();
+                                }
+                            }
+                        }
+                    }
+                } catch (Exception e) {}
+                if (depositAmount.compareTo(java.math.BigDecimal.ZERO) == 0 && rb.getDepositAmount() != null) {
                     depositAmount = rb.getDepositAmount();
                 }
 
+                // Filter details by Checked_Out status (and map guest counts)
                 java.util.List<com.kawai.models.RoomBookingDetail> details = roomBookingDetailRepository.findAll()
                         .stream()
                         .filter(d -> d.getRoomBooking() != null && d.getRoomBooking().getId().equals(rb.getId()))
+                        .filter(d -> "Checked_Out".equalsIgnoreCase(d.getDetailStatus()))
                         .toList();
 
                 if (!details.isEmpty()) {
+                    java.util.List<TempItem> groupedItems = new java.util.ArrayList<>();
+
                     for (com.kawai.models.RoomBookingDetail detail : details) {
                         if (detail.getRoom() != null) {
                             roomNumber += detail.getRoom().getRoomNumber() + " ";
                         }
+                        if (detail.getNumberOfAdults() != null) guestCount += detail.getNumberOfAdults();
+                        if (detail.getNumberOfChildren() != null) guestCount += detail.getNumberOfChildren();
 
-                        // Let's add the Room Charge item
                         long nights = java.time.temporal.ChronoUnit.DAYS.between(
                                 rb.getCheckInDate(),
                                 rb.getCheckOutDate()
@@ -492,237 +523,323 @@ public class EmailServiceImpl implements EmailService {
                                     .orElse(originalCategoryName);
                         }
 
-                        java.util.Map<String, Object> roomItem = new java.util.HashMap<>();
-                        roomItem.put("date", rb.getCheckInDate() != null ? rb.getCheckInDate().format(DATE_FMT) : "");
-                        roomItem.put("description", "Room Charge - " + originalCategoryName);
-                        roomItem.put("qty", String.valueOf(nights));
-                        roomItem.put("unitPrice", formatVnd(pricePerNight));
-                        roomItem.put("amount", formatVnd(detail.getRoomCharge()));
-                        roomItem.put("isChild", false);
-                        items.add(roomItem);
-
                         // Fetch FolioItems for this roomBookingDetailId
                         java.util.List<com.kawai.models.FolioItem> folioItems = folioItemRepository.findByRoomBookingDetailId(detail.getId());
-                        if (folioItems != null) {
-                            for (com.kawai.models.FolioItem fi : folioItems) {
-                                if (Boolean.TRUE.equals(fi.getIsSettledSeparately())) {
-                                    continue;
-                                }
+                        if (folioItems == null) {
+                            folioItems = new java.util.ArrayList<>();
+                        }
 
-                                String dateStr = fi.getCreatedAt() != null ? fi.getCreatedAt().format(DATE_FMT) : "";
+                        // Check if a main Room Charge was already posted to FolioItem
+                        boolean hasRoomCharge = folioItems.stream()
+                                .anyMatch(fi -> "Room".equalsIgnoreCase(fi.getSourceDepartment()) 
+                                        && fi.getDescription() != null 
+                                        && fi.getDescription().contains("Room Charge"));
 
-                                if ("Tour".equalsIgnoreCase(fi.getSourceDepartment()) && fi.getBooking() instanceof com.kawai.models.TourBooking tb) {
-                                    // Let's resolve participant details
-                                    int adultCount = 0;
-                                    int childCount = 0;
-                                    int infantCount = 0;
+                        // If not, virtually add the expected base room charge
+                        java.util.List<com.kawai.models.FolioItem> allItemsToProcess = new java.util.ArrayList<>(folioItems);
+                        if (!hasRoomCharge) {
+                            com.kawai.models.FolioItem virtualRoomCharge = new com.kawai.models.FolioItem();
+                            virtualRoomCharge.setSourceDepartment("Room");
+                            virtualRoomCharge.setAmount(detail.getRoomCharge());
+                            virtualRoomCharge.setDescription("Room Charge - " + originalCategoryName);
+                            virtualRoomCharge.setIsSettledSeparately(false);
+                            virtualRoomCharge.setCreatedAt(rb.getCheckInDate().atStartOfDay());
+                            allItemsToProcess.add(0, virtualRoomCharge); // add to top
+                        }
 
-                                    java.util.List<com.kawai.models.TourAttendee> attendees = tourAttendeeRepository.findByTourBookingId(tb.getId());
-                                    if (attendees != null && !attendees.isEmpty()) {
-                                        for (com.kawai.models.TourAttendee attendee : attendees) {
-                                            if (attendee.getCustomer() != null) {
-                                                adultCount++;
-                                            } else if (attendee.getDependent() != null) {
-                                                com.kawai.models.Dependent dep = attendee.getDependent();
-                                                String cccd = dep.getCccdPassportEncrypted();
-                                                if (cccd != null && cccd.startsWith("AUTO_CHILD_")) {
-                                                    if (cccd.contains("Dưới_2_tuổi") || cccd.contains("Dưới 2 tuổi")) {
-                                                        infantCount++;
-                                                    } else {
-                                                        childCount++;
-                                                    }
-                                                } else if (dep.getBirthDate() != null) {
-                                                    int age = java.time.Period.between(dep.getBirthDate(), java.time.LocalDate.now()).getYears();
-                                                    if (age < 2) {
-                                                        infantCount++;
-                                                    } else if (age < 12) {
-                                                        childCount++;
-                                                    } else {
-                                                        adultCount++;
-                                                    }
+                        // Group all items
+                        for (com.kawai.models.FolioItem fi : allItemsToProcess) {
+                            if (Boolean.TRUE.equals(fi.getIsSettledSeparately())) {
+                                continue;
+                            }
+
+                            String dateStr = fi.getCreatedAt() != null ? fi.getCreatedAt().format(DATE_FMT) : "";
+
+                            if ("Tour".equalsIgnoreCase(fi.getSourceDepartment()) && fi.getBooking() instanceof com.kawai.models.TourBooking tb) {
+                                // Let's resolve participant details
+                                int adultCount = 0;
+                                int childCount = 0;
+                                int infantCount = 0;
+
+                                java.util.List<com.kawai.models.TourAttendee> attendees = tourAttendeeRepository.findByTourBookingId(tb.getId());
+                                if (attendees != null && !attendees.isEmpty()) {
+                                    for (com.kawai.models.TourAttendee attendee : attendees) {
+                                        if (attendee.getCustomer() != null) {
+                                            adultCount++;
+                                        } else if (attendee.getDependent() != null) {
+                                            com.kawai.models.Dependent dep = attendee.getDependent();
+                                            String cccd = dep.getCccdPassportEncrypted();
+                                            if (cccd != null && cccd.startsWith("AUTO_CHILD_")) {
+                                                if (cccd.contains("Dưới_2_tuổi") || cccd.contains("Dưới 2 tuổi")) {
+                                                    infantCount++;
                                                 } else {
                                                     childCount++;
                                                 }
+                                            } else if (dep.getBirthDate() != null) {
+                                                int age = java.time.Period.between(dep.getBirthDate(), java.time.LocalDate.now()).getYears();
+                                                if (age < 2) {
+                                                    infantCount++;
+                                                } else if (age < 12) {
+                                                    childCount++;
+                                                } else {
+                                                    adultCount++;
+                                                }
                                             } else {
-                                                adultCount++;
+                                                childCount++;
                                             }
+                                        } else {
+                                            adultCount++;
                                         }
-                                    } else {
-                                        adultCount = tb.getParticipantCount() != null ? tb.getParticipantCount() : 0;
-                                    }
-
-                                    java.math.BigDecimal totalCharge = tb.getTourCharge() != null ? tb.getTourCharge() : java.math.BigDecimal.ZERO;
-                                    double weight = adultCount + 0.5 * childCount;
-                                    java.math.BigDecimal adultPrice = java.math.BigDecimal.ZERO;
-                                    java.math.BigDecimal childPrice = java.math.BigDecimal.ZERO;
-
-                                    com.kawai.models.TourSchedule sched = tb.getSchedule();
-                                    com.kawai.models.Tour tourObj = sched != null ? sched.getTour() : null;
-
-                                    if (weight > 0) {
-                                        adultPrice = totalCharge.divide(java.math.BigDecimal.valueOf(weight), 2, java.math.RoundingMode.HALF_UP);
-                                        childPrice = adultPrice.multiply(new java.math.BigDecimal("0.5")).setScale(2, java.math.RoundingMode.HALF_UP);
-                                    } else if (tourObj != null && tourObj.getBasePrice() != null) {
-                                        adultPrice = tourObj.getBasePrice();
-                                        childPrice = adultPrice.multiply(new java.math.BigDecimal("0.5")).setScale(2, java.math.RoundingMode.HALF_UP);
-                                    }
-
-                                    java.math.BigDecimal insuranceFee = java.math.BigDecimal.ZERO;
-                                    String notes = tb.getNotes();
-                                    if (notes != null) {
-                                        String[] parts = notes.split(";");
-                                        for (String part : parts) {
-                                            if (part.startsWith("insuranceFee=")) {
-                                                try {
-                                                    insuranceFee = new java.math.BigDecimal(part.substring("insuranceFee=".length()).trim());
-                                                } catch (Exception e) {}
-                                            }
-                                        }
-                                    }
-
-                                    String insurancePolicyNumber = null;
-                                    if (sched != null && Boolean.TRUE.equals(sched.getIsInsuranceProcessed())) {
-                                        insurancePolicyNumber = sched.getInsurancePolicyNumber();
-                                    }
-
-                                    int qty = tb.getParticipantCount() != null ? tb.getParticipantCount() : (adultCount + childCount + infantCount);
-                                    if (qty <= 0) qty = 1;
-                                    java.math.BigDecimal unitPrice = totalCharge.divide(java.math.BigDecimal.valueOf(qty), 2, java.math.RoundingMode.HALF_UP);
-
-                                    // Add parent tour row
-                                    String departureTimeStr = sched != null && sched.getDepartureTime() != null ? sched.getDepartureTime().toString() : "";
-                                    String departureDateStr = sched != null && sched.getDepartureDate() != null ? sched.getDepartureDate().toString() : "";
-                                    String tourName = tourObj != null ? tourObj.getTourName() : "Tour";
-
-                                    java.util.Map<String, Object> tourItem = new java.util.HashMap<>();
-                                    tourItem.put("date", dateStr);
-                                    tourItem.put("description", "Tour Charge - " + tourName + " (Khởi hành: " + departureTimeStr + " - " + departureDateStr + ")");
-                                    tourItem.put("qty", String.valueOf(qty));
-                                    tourItem.put("unitPrice", formatVnd(unitPrice));
-                                    tourItem.put("amount", formatVnd(totalCharge));
-                                    tourItem.put("isChild", false);
-                                    items.add(tourItem);
-
-                                    // Add child rows
-                                    if (adultCount > 0) {
-                                        java.util.Map<String, Object> adultRow = new java.util.HashMap<>();
-                                        adultRow.put("date", "");
-                                        adultRow.put("description", "- người lớn");
-                                        adultRow.put("qty", String.valueOf(adultCount));
-                                        adultRow.put("unitPrice", formatVnd(adultPrice));
-                                        adultRow.put("amount", formatVnd(adultPrice.multiply(java.math.BigDecimal.valueOf(adultCount))));
-                                        adultRow.put("isChild", true);
-                                        items.add(adultRow);
-                                    }
-                                    if (childCount > 0) {
-                                        java.util.Map<String, Object> childRow = new java.util.HashMap<>();
-                                        childRow.put("date", "");
-                                        childRow.put("description", "- trẻ em (2-11 tuổi)");
-                                        childRow.put("qty", String.valueOf(childCount));
-                                        childRow.put("unitPrice", formatVnd(childPrice));
-                                        childRow.put("amount", formatVnd(childPrice.multiply(java.math.BigDecimal.valueOf(childCount))));
-                                        childRow.put("isChild", true);
-                                        items.add(childRow);
-                                    }
-                                    if (infantCount > 0) {
-                                        java.util.Map<String, Object> infantRow = new java.util.HashMap<>();
-                                        infantRow.put("date", "");
-                                        infantRow.put("description", "- em bé (dưới 2 tuổi)");
-                                        infantRow.put("qty", String.valueOf(infantCount));
-                                        infantRow.put("unitPrice", "Miễn phí");
-                                        infantRow.put("amount", "0 ₫");
-                                        infantRow.put("isChild", true);
-                                        items.add(infantRow);
-                                    }
-                                    if (tourObj != null && (Boolean.TRUE.equals(tourObj.getIsInsuranceRequired()) || insuranceFee.compareTo(java.math.BigDecimal.ZERO) > 0)) {
-                                        String policySuffix = insurancePolicyNumber != null ? " (" + insurancePolicyNumber + ")" : "";
-                                        java.util.Map<String, Object> insRow = new java.util.HashMap<>();
-                                        insRow.put("date", "");
-                                        insRow.put("description", "- bảo hiểm du lịch bắt buộc" + policySuffix);
-                                        insRow.put("qty", String.valueOf(qty));
-                                        insRow.put("unitPrice", formatVnd(tourObj.getInsurancePrice() != null ? tourObj.getInsurancePrice() : new java.math.BigDecimal("50000")));
-                                        insRow.put("amount", "Đã bao gồm");
-                                        insRow.put("isChild", true);
-                                        items.add(insRow);
-                                    }
-                                } else if ("F&B".equalsIgnoreCase(fi.getSourceDepartment()) || (fi.getDescription() != null && fi.getDescription().toUpperCase().contains("ORDER #"))) {
-                                    // Let's parse Order number
-                                    String desc = fi.getDescription();
-                                    Long orderId = null;
-                                    java.util.regex.Matcher m = java.util.regex.Pattern.compile("Order\\s*(?:#|số)?\\s*(\\d+)", java.util.regex.Pattern.CASE_INSENSITIVE).matcher(desc);
-                                    if (m.find()) {
-                                        try {
-                                            orderId = Long.parseLong(m.group(1));
-                                        } catch (Exception e) {}
-                                    }
-
-                                    com.kawai.models.FoodOrder foodOrder = null;
-                                    if (orderId != null) {
-                                        foodOrder = foodOrderRepository.findById(orderId).orElse(null);
-                                    }
-
-                                    if (foodOrder != null && foodOrder.getDetails() != null && !foodOrder.getDetails().isEmpty()) {
-                                        java.math.BigDecimal dishesTotal = java.math.BigDecimal.ZERO;
-                                        for (com.kawai.models.FoodOrderDetail od : foodOrder.getDetails()) {
-                                            dishesTotal = dishesTotal.add(od.getTotalPrice());
-                                        }
-
-                                        // Parent F&B row
-                                        java.util.Map<String, Object> fnbItem = new java.util.HashMap<>();
-                                        fnbItem.put("date", dateStr);
-                                        fnbItem.put("description", "F&B CHARGES (Order #" + orderId + ")");
-                                        fnbItem.put("qty", "");
-                                        fnbItem.put("unitPrice", "");
-                                        fnbItem.put("amount", formatVnd(dishesTotal));
-                                        fnbItem.put("isChild", false);
-                                        items.add(fnbItem);
-
-                                        // Child dish rows
-                                        for (com.kawai.models.FoodOrderDetail od : foodOrder.getDetails()) {
-                                            java.util.Map<String, Object> dishRow = new java.util.HashMap<>();
-                                            dishRow.put("date", "");
-                                            dishRow.put("description", "- " + (od.getMenuItem() != null ? od.getMenuItem().getItemName() : "Món ăn"));
-                                            dishRow.put("qty", String.valueOf(od.getQuantity()));
-                                            dishRow.put("unitPrice", formatVnd(od.getPriceAtOrder()));
-                                            dishRow.put("amount", formatVnd(od.getTotalPrice()));
-                                            dishRow.put("isChild", true);
-                                            items.add(dishRow);
-                                        }
-                                    } else {
-                                        // Fallback as normal row
-                                        java.util.Map<String, Object> normalRow = new java.util.HashMap<>();
-                                        normalRow.put("date", dateStr);
-                                        normalRow.put("description", desc);
-                                        normalRow.put("qty", "1");
-                                        normalRow.put("unitPrice", formatVnd(fi.getAmount()));
-                                        normalRow.put("amount", formatVnd(fi.getAmount()));
-                                        normalRow.put("isChild", false);
-                                        items.add(normalRow);
                                     }
                                 } else {
-                                    // Normal row (e.g. Minibar, Damage, Maintenance, Laundry, etc.)
-                                    String desc = fi.getDescription() != null ? fi.getDescription() : "";
-                                    desc = desc.replaceAll("(?i)\\s*\\(Expected\\)", "").replaceAll("(?i)\\s*Expected\\s*", "").trim();
+                                    adultCount = tb.getParticipantCount() != null ? tb.getParticipantCount() : 0;
+                                }
 
-                                    java.util.Map<String, Object> normalRow = new java.util.HashMap<>();
-                                    normalRow.put("date", dateStr);
-                                    normalRow.put("description", desc);
-                                    normalRow.put("qty", "1");
-                                    normalRow.put("unitPrice", formatVnd(fi.getAmount()));
-                                    normalRow.put("amount", formatVnd(fi.getAmount()));
-                                    normalRow.put("isChild", false);
-                                    items.add(normalRow);
+                                java.math.BigDecimal totalCharge = tb.getTourCharge() != null ? tb.getTourCharge() : java.math.BigDecimal.ZERO;
+                                double weight = adultCount + 0.5 * childCount;
+                                java.math.BigDecimal adultPrice = java.math.BigDecimal.ZERO;
+                                java.math.BigDecimal childPrice = java.math.BigDecimal.ZERO;
+
+                                com.kawai.models.TourSchedule sched = tb.getSchedule();
+                                com.kawai.models.Tour tourObj = sched != null ? sched.getTour() : null;
+
+                                if (weight > 0) {
+                                    adultPrice = totalCharge.divide(java.math.BigDecimal.valueOf(weight), 2, java.math.RoundingMode.HALF_UP);
+                                    childPrice = adultPrice.multiply(new java.math.BigDecimal("0.5")).setScale(2, java.math.RoundingMode.HALF_UP);
+                                } else if (tourObj != null && tourObj.getBasePrice() != null) {
+                                    adultPrice = tourObj.getBasePrice();
+                                    childPrice = adultPrice.multiply(new java.math.BigDecimal("0.5")).setScale(2, java.math.RoundingMode.HALF_UP);
+                                }
+
+                                java.math.BigDecimal insuranceFee = java.math.BigDecimal.ZERO;
+                                String notes = tb.getNotes();
+                                if (notes != null) {
+                                    String[] parts = notes.split(";");
+                                    for (String part : parts) {
+                                        if (part.startsWith("insuranceFee=")) {
+                                            try {
+                                                insuranceFee = new java.math.BigDecimal(part.substring("insuranceFee=".length()).trim());
+                                            } catch (Exception e) {}
+                                        }
+                                    }
+                                }
+
+                                String insurancePolicyNumber = null;
+                                if (sched != null && Boolean.TRUE.equals(sched.getIsInsuranceProcessed())) {
+                                    insurancePolicyNumber = sched.getInsurancePolicyNumber();
+                                }
+
+                                int qty = tb.getParticipantCount() != null ? tb.getParticipantCount() : (adultCount + childCount + infantCount);
+                                if (qty <= 0) qty = 1;
+                                java.math.BigDecimal unitPrice = totalCharge.divide(java.math.BigDecimal.valueOf(qty), 2, java.math.RoundingMode.HALF_UP);
+
+                                String departureTimeStr = sched != null && sched.getDepartureTime() != null ? sched.getDepartureTime().toString().substring(0, 5) : "";
+                                String departureDateStr = sched != null && sched.getDepartureDate() != null ? sched.getDepartureDate().toString() : "";
+                                String tourName = tourObj != null ? tourObj.getTourName() : "Tour";
+
+                                TempItem tourParent = new TempItem();
+                                tourParent.date = dateStr;
+                                tourParent.description = "Tour Charge - " + tourName + " (Khởi hành: " + departureTimeStr + " - " + departureDateStr + ")";
+                                tourParent.qty = qty;
+                                tourParent.unitVal = unitPrice;
+                                tourParent.amount = totalCharge;
+                                tourParent.isParentTour = true;
+
+                                if (adultCount > 0) {
+                                    TempItem adultRow = new TempItem();
+                                    adultRow.description = "- người lớn";
+                                    adultRow.qty = adultCount;
+                                    adultRow.unitVal = adultPrice;
+                                    adultRow.amount = adultPrice.multiply(java.math.BigDecimal.valueOf(adultCount));
+                                    adultRow.isChild = true;
+                                    tourParent.children.add(adultRow);
+                                }
+                                if (childCount > 0) {
+                                    TempItem childRow = new TempItem();
+                                    childRow.description = "- trẻ em (2-11 tuổi)";
+                                    childRow.qty = childCount;
+                                    childRow.unitVal = childPrice;
+                                    childRow.amount = childPrice.multiply(java.math.BigDecimal.valueOf(childCount));
+                                    childRow.isChild = true;
+                                    tourParent.children.add(childRow);
+                                }
+                                if (infantCount > 0) {
+                                    TempItem infantRow = new TempItem();
+                                    infantRow.description = "- em bé (dưới 2 tuổi)";
+                                    infantRow.qty = infantCount;
+                                    infantRow.unitVal = java.math.BigDecimal.ZERO;
+                                    infantRow.amount = java.math.BigDecimal.ZERO;
+                                    infantRow.isChild = true;
+                                    tourParent.children.add(infantRow);
+                                }
+                                if (tourObj != null && (Boolean.TRUE.equals(tourObj.getIsInsuranceRequired()) || insuranceFee.compareTo(java.math.BigDecimal.ZERO) > 0)) {
+                                    String policySuffix = insurancePolicyNumber != null ? " (" + insurancePolicyNumber + ")" : "";
+                                    TempItem insRow = new TempItem();
+                                    insRow.description = "- bảo hiểm du lịch bắt buộc" + policySuffix;
+                                    insRow.qty = qty;
+                                    insRow.unitVal = tourObj.getInsurancePrice() != null ? tourObj.getInsurancePrice() : new java.math.BigDecimal("50000");
+                                    insRow.amount = java.math.BigDecimal.ZERO; // "Đã bao gồm"
+                                    insRow.isChild = true;
+                                    tourParent.children.add(insRow);
+                                }
+                                groupedItems.add(tourParent);
+
+                            } else if ("F&B".equalsIgnoreCase(fi.getSourceDepartment()) || (fi.getDescription() != null && fi.getDescription().toUpperCase().contains("ORDER #"))) {
+                                String desc = fi.getDescription();
+                                Long orderId = null;
+                                java.util.regex.Matcher m = java.util.regex.Pattern.compile("Order\\s*(?:#|số)?\\s*(\\d+)", java.util.regex.Pattern.CASE_INSENSITIVE).matcher(desc);
+                                if (m.find()) {
+                                    try {
+                                        orderId = Long.parseLong(m.group(1));
+                                    } catch (Exception e) {}
+                                }
+
+                                com.kawai.models.FoodOrder foodOrder = null;
+                                if (orderId != null) {
+                                    foodOrder = foodOrderRepository.findById(orderId).orElse(null);
+                                }
+
+                                if (foodOrder != null && foodOrder.getDetails() != null && !foodOrder.getDetails().isEmpty()) {
+                                    java.math.BigDecimal dishesTotal = java.math.BigDecimal.ZERO;
+                                    for (com.kawai.models.FoodOrderDetail od : foodOrder.getDetails()) {
+                                        dishesTotal = dishesTotal.add(od.getTotalPrice());
+                                    }
+
+                                    TempItem fnbParent = new TempItem();
+                                    fnbParent.date = dateStr;
+                                    fnbParent.description = "F&B CHARGES (Order #" + orderId + ")";
+                                    fnbParent.qty = 1;
+                                    fnbParent.unitVal = dishesTotal;
+                                    fnbParent.amount = dishesTotal;
+                                    fnbParent.isParentFnb = true;
+
+                                    for (com.kawai.models.FoodOrderDetail od : foodOrder.getDetails()) {
+                                        TempItem dishRow = new TempItem();
+                                        dishRow.description = "- " + (od.getMenuItem() != null ? od.getMenuItem().getItemName() : "Món ăn");
+                                        dishRow.qty = od.getQuantity();
+                                        dishRow.unitVal = od.getPriceAtOrder();
+                                        dishRow.amount = od.getTotalPrice();
+                                        dishRow.isChild = true;
+                                        fnbParent.children.add(dishRow);
+                                    }
+                                    groupedItems.add(fnbParent);
+                                } else {
+                                    TempItem normalRow = new TempItem();
+                                    normalRow.key = desc + "_" + fi.getAmount();
+                                    normalRow.date = dateStr;
+                                    normalRow.description = desc;
+                                    normalRow.qty = 1;
+                                    normalRow.unitVal = fi.getAmount();
+                                    normalRow.amount = fi.getAmount();
+                                    groupedItems.add(normalRow);
+                                }
+                            } else {
+                                // Room or Others
+                                String desc = fi.getDescription() != null ? fi.getDescription() : "";
+                                desc = desc.replaceAll("(?i)\\s*\\(Expected\\)", "").replaceAll("(?i)\\s*Expected\\s*", "").trim();
+
+                                boolean isMainRoomCharge = "Room".equalsIgnoreCase(fi.getSourceDepartment()) 
+                                        && !desc.contains("surcharge") 
+                                        && !desc.contains("phụ phí") 
+                                        && !desc.contains("nâng hạng");
+
+                                int itemQty = isMainRoomCharge ? (int) nights : 1;
+                                java.math.BigDecimal itemUnitVal = isMainRoomCharge 
+                                        ? fi.getAmount().divide(java.math.BigDecimal.valueOf(nights), 2, java.math.RoundingMode.HALF_UP)
+                                        : fi.getAmount();
+
+                                String key = desc + "_" + itemUnitVal;
+
+                                TempItem existing = null;
+                                for (TempItem g : groupedItems) {
+                                    if (key.equals(g.key) && !g.isChild && !g.isParentTour && !g.isParentFnb && !g.isParentMinibar) {
+                                        existing = g;
+                                        break;
+                                    }
+                                }
+
+                                if (existing != null) {
+                                    existing.qty += itemQty;
+                                    existing.amount = existing.amount.add(fi.getAmount());
+                                } else {
+                                    TempItem normalRow = new TempItem();
+                                    normalRow.key = key;
+                                    normalRow.date = dateStr;
+                                    normalRow.description = desc;
+                                    normalRow.qty = itemQty;
+                                    normalRow.unitVal = itemUnitVal;
+                                    normalRow.amount = fi.getAmount();
+                                    groupedItems.add(normalRow);
                                 }
                             }
                         }
                     }
+
+                    // Sum up computed subtotal from non-child grouped items
+                    java.math.BigDecimal computedSubtotal = java.math.BigDecimal.ZERO;
+                    String lastDateStr = "";
+                    for (TempItem g : groupedItems) {
+                        computedSubtotal = computedSubtotal.add(g.amount);
+                        
+                        // Map grouped items into final variables list for template
+                        String displayDate = g.date.equals(lastDateStr) ? "" : g.date;
+                        if (!g.date.isEmpty()) {
+                            lastDateStr = g.date;
+                        }
+
+                        java.util.Map<String, Object> map = new java.util.HashMap<>();
+                        map.put("date", displayDate);
+                        map.put("description", g.description);
+                        map.put("qty", String.valueOf(g.qty));
+                        map.put("unitPrice", formatVnd(g.unitVal));
+                        map.put("amount", formatVnd(g.amount));
+                        map.put("isChild", false);
+                        items.add(map);
+
+                        if (g.children != null) {
+                            for (TempItem c : g.children) {
+                                java.util.Map<String, Object> childMap = new java.util.HashMap<>();
+                                childMap.put("date", "");
+                                childMap.put("description", c.description);
+                                childMap.put("qty", String.valueOf(c.qty));
+                                
+                                String formattedVal = c.unitVal.compareTo(java.math.BigDecimal.ZERO) == 0 ? "Miễn phí" : formatVnd(c.unitVal);
+                                String formattedAmt = formatVnd(c.amount);
+                                if (c.description.contains("bảo hiểm du lịch")) {
+                                    formattedVal = formatVnd(c.unitVal);
+                                    formattedAmt = "Đã bao gồm";
+                                }
+
+                                childMap.put("unitPrice", formattedVal);
+                                childMap.put("amount", formattedAmt);
+                                childMap.put("isChild", true);
+                                items.add(childMap);
+                            }
+                        }
+                    }
+
+                    java.math.BigDecimal computedVat = computedSubtotal.multiply(new java.math.BigDecimal("0.10")).setScale(0, java.math.RoundingMode.HALF_UP);
+                    java.math.BigDecimal computedTotal = computedSubtotal.add(computedVat).subtract(depositAmount);
+
+                    ctx.setVariable("subtotal", formatVnd(computedSubtotal));
+                    ctx.setVariable("vatAmount", formatVnd(computedVat));
+                    ctx.setVariable("depositAmount", formatVnd(depositAmount));
+                    ctx.setVariable("totalAmount", formatVnd(computedTotal));
+                } else {
+                    // Fallback to defaults
+                    ctx.setVariable("subtotal", formatVnd(invoice.getSubtotalBeforeVat()));
+                    ctx.setVariable("vatAmount", formatVnd(invoice.getVatAmount()));
+                    ctx.setVariable("depositAmount", formatVnd(depositAmount));
+                    ctx.setVariable("totalAmount", formatVnd(invoice.getTotalAmount().subtract(depositAmount)));
                 }
             }
 
             ctx.setVariable("roomNumber", roomNumber.trim());
+            ctx.setVariable("guestCount", guestCount);
+            ctx.setVariable("checkInDate", checkInDateStr);
+            ctx.setVariable("checkOutDate", checkOutDateStr);
             ctx.setVariable("items", items);
             ctx.setVariable("paymentMethod", paymentMethod);
-            ctx.setVariable("subtotal", formatVnd(invoice.getSubtotalBeforeVat()));
             ctx.setVariable("vatAmount", formatVnd(invoice.getVatAmount()));
             ctx.setVariable("depositAmount", formatVnd(depositAmount));
             ctx.setVariable("totalAmount", formatVnd(invoice.getTotalAmount().subtract(depositAmount)));
@@ -1433,4 +1550,16 @@ public class EmailServiceImpl implements EmailService {
         }
     }
 
+    private static class TempItem {
+        String date = "";
+        String description = "";
+        int qty = 1;
+        java.math.BigDecimal unitVal = java.math.BigDecimal.ZERO;
+        java.math.BigDecimal amount = java.math.BigDecimal.ZERO;
+        boolean isChild = false;
+        boolean isParentTour = false;
+        boolean isParentFnb = false;
+        boolean isParentMinibar = false;
+        java.util.List<TempItem> children = new java.util.ArrayList<>();
+    }
 }

@@ -133,7 +133,9 @@
             <tr>
                 <td style="width: 60%; padding: 0; border: none; text-align: left; color: #2F1F17; vertical-align: top;">
                     <strong>Tên khách hàng:</strong> <span th:text="${customerName}">Customer</span><br>
-                    <strong>Số phòng:</strong> <span th:text="${roomNumber}">...</span><br>
+                    <strong>Số phòng:</strong> <span th:text="${roomNumber}">...</span> &nbsp;|&nbsp; <strong>Số khách:</strong> <span th:text="${guestCount}">2</span><br>
+                    <strong>Check-in:</strong> <span th:text="${checkInDate}">20/07/2026</span><br>
+                    <strong>Check-out:</strong> <span th:text="${checkOutDate}">23/07/2026</span>
                 </td>
                 <td style="width: 40%; padding: 0; border: none; text-align: right; color: #2F1F17; vertical-align: top;">
                     <strong>Mã hóa đơn:</strong> <span th:text="${invoiceNumber}">INV-1756</span><br>
