@@ -1983,10 +1983,10 @@
 
                 if (data.roomCharge && data.roomCharge > 0) {
                     const isWalkIn = data.bookingSource === 'WALK_IN';
-                    const key = `${data.categoryName || 'N/A'}_${data.roomCharge}`;
+                    const key = `${data.originalCategoryName || data.categoryName || 'N/A'}_${data.roomCharge}`;
                     if (!breakdownGroups[key]) {
                         breakdownGroups[key] = {
-                            categoryName: data.categoryName || 'Room',
+                            categoryName: data.originalCategoryName || data.categoryName || 'Room',
                             roomCharge: isWalkIn ? data.roomCharge : (data.roomCharge / nights),
                             extraSurcharge: isWalkIn ? (data.extraSurcharge || 0) : ((data.extraSurcharge || 0) / nights),
                             nights: nights,

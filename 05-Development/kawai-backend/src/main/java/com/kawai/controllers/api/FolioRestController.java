@@ -480,9 +480,9 @@ public class FolioRestController {
         response.put("roomNumber", roomNumber);
         response.put("checkInDate", checkInDate);
         response.put("checkOutDate", checkOutDate);
-        String originalCategoryName = "N/A";
+        String currentCategoryName = detail.getCategory() != null ? detail.getCategory().getCategoryName() : "N/A";
+        String originalCategoryName = currentCategoryName;
         if (detail.getCategory() != null) {
-            originalCategoryName = detail.getCategory().getCategoryName();
             if (detail.getRoomBooking() != null && detail.getRoomCharge() != null) {
                 long detailNights = java.time.temporal.ChronoUnit.DAYS.between(
                         detail.getRoomBooking().getCheckInDate(),
@@ -496,11 +496,12 @@ public class FolioRestController {
                             .filter(cat -> cat.getBasePrice() != null && cat.getBasePrice().compareTo(pricePerNight) == 0)
                             .map(RoomCategory::getCategoryName)
                             .findFirst()
-                            .orElse(detail.getCategory().getCategoryName());
+                            .orElse(currentCategoryName);
                 }
             }
         }
-        response.put("categoryName", originalCategoryName);
+        response.put("categoryName", currentCategoryName);
+        response.put("originalCategoryName", originalCategoryName);
         response.put("roomCharge", detail.getRoomCharge());
         response.put("dailyRate", dailyRate);
         response.put("extraSurcharge", detail.getExtraSurcharge() != null ? detail.getExtraSurcharge() : BigDecimal.ZERO);
