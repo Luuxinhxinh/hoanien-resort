@@ -2020,6 +2020,35 @@ UPDATE Bookings SET booking_status = 'Checked_Out' WHERE booking_id = 10;
 -- 53. ONE-WEEK SIMULATION DATA (PAST, PRESENT, FUTURE)
 -- ============================================================
 
+-- Seed data cho khách hàng Lê Văn Định (tài khoản khach_hang_910) chưa có đơn trước đó, yêu cầu Late Checkout
+INSERT INTO Accounts (account_id, username, password_hash, is_active, role_id, created_at) VALUES 
+(910, 'khach_hang_910', '$2a$10$4bnThA4xQVw1rF2POQv78uAQll2KsUsgF32JaYiVG5d2d3Fhgk83q', TRUE, 10, CURRENT_TIMESTAMP);
+
+INSERT INTO Customers (customer_id, account_id, full_name, email, phone, gender, cccd_passport_encrypted, loyalty_points, membership_tier_id) VALUES 
+(910, 910, 'Lê Văn Định', 'vandinh910@example.com', '0999888910', 'Nam', '001099000910', 100, 1);
+
+INSERT INTO Bookings (booking_id, customer_id, booking_date, total_price, booking_status, booking_source, applied_promotion_id, version) VALUES
+(910, 910, DATE_SUB(CURDATE(), INTERVAL 4 DAY), 2500000.00, 'Checked_Out', 'Direct_Web', NULL, 1);
+
+INSERT INTO Room_Bookings (room_booking_id, check_in_date, check_out_date, deposit_amount, cancellation_deadline, credit_limit, personal_pin_hash) VALUES
+(910, DATE_SUB(CURDATE(), INTERVAL 4 DAY), DATE_SUB(CURDATE(), INTERVAL 1 DAY), 1000000.00, DATE_SUB(CURDATE(), INTERVAL 4 DAY), 5000000.00, 'hash910');
+
+INSERT INTO Room_Booking_Details (detail_id, room_booking_id, category_id, room_id, room_charge, detail_status, bed_preference, is_charge_to_room_allowed, sub_credit_limit, billing_routing_strategy, number_of_adults, number_of_children) VALUES
+(9101, 910, 1, 1, 2500000.00, 'Checked_Out', 'KING_SIZE', TRUE, 5000000.00, 'BILL_TO_LEADER', 2, 0);
+
+INSERT INTO Room_Guests (guest_id, detail_id, customer_id, guest_type, is_primary_contact) VALUES
+(91011, 9101, 910, 'ADULT', TRUE);
+
+INSERT INTO Hotel_Operations (task_id, room_id, staff_id, supervisor_id, operational_type, priority, status, created_at, started_at, completed_at, notes) VALUES
+(905, 1, 1, 1, 'Late_Checkout_Waiver', 'Normal', 'Pending', CURRENT_TIMESTAMP, NULL, NULL, 'Yêu cầu Late Checkout - Xin miễn phí phụ thu trả phòng trễ cho booking ID: 910');
+
+-- Reconcile Bookings total_price
+UPDATE Bookings b SET total_price = (
+    SELECT COALESCE(SUM(room_charge), 0) 
+    FROM Room_Booking_Details 
+    WHERE room_booking_id = b.booking_id
+) WHERE b.booking_id IN (8008, 910);
+
 -- KHỐI 1: PAST (2 ngày trước)
 INSERT IGNORE INTO Bookings (booking_id, customer_id, booking_date, total_price, booking_status, booking_source, applied_promotion_id, version) VALUES
 (8001, 10, DATE_SUB(CURDATE(), INTERVAL 5 DAY), 8500000, 'Checked_Out', 'Direct_Web', NULL, 1);
@@ -2179,12 +2208,34 @@ UPDATE Rooms SET room_status = 'Occupied', current_booking_detail_id = 8008 WHER
 INSERT IGNORE INTO Payment_Transactions (id, booking_id, amount, status, transaction_type, payment_method, gateway_status, transaction_ref, created_at, paid_at) VALUES
 (8006, 8008, 4500000, 'SUCCESS', 'Deposit', 'CASH', 'SUCCESS', 'PAY8006_ROOM', CONCAT(CURDATE(), ' 18:45:00'), CONCAT(CURDATE(), ' 18:45:00'));
 
+-- Seed data cho khách hàng Lê Văn Định (tài khoản khach_hang_910) chưa có đơn trước đó, yêu cầu Late Checkout
+INSERT INTO Accounts (account_id, username, password_hash, is_active, role_id, created_at) VALUES 
+(910, 'khach_hang_910', '$2a$10$4bnThA4xQVw1rF2POQv78uAQll2KsUsgF32JaYiVG5d2d3Fhgk83q', TRUE, 10, CURRENT_TIMESTAMP);
+
+INSERT INTO Customers (customer_id, account_id, full_name, email, phone, gender, cccd_passport_encrypted, loyalty_points, membership_tier_id) VALUES 
+(910, 910, 'Lê Văn Định', 'vandinh910@example.com', '0999888910', 'Nam', '001099000910', 100, 1);
+
+INSERT INTO Bookings (booking_id, customer_id, booking_date, total_price, booking_status, booking_source, applied_promotion_id, version) VALUES
+(910, 910, DATE_SUB(CURDATE(), INTERVAL 4 DAY), 2500000.00, 'Checked_Out', 'Direct_Web', NULL, 1);
+
+INSERT INTO Room_Bookings (room_booking_id, check_in_date, check_out_date, deposit_amount, cancellation_deadline, credit_limit, personal_pin_hash) VALUES
+(910, DATE_SUB(CURDATE(), INTERVAL 4 DAY), DATE_SUB(CURDATE(), INTERVAL 1 DAY), 1000000.00, DATE_SUB(CURDATE(), INTERVAL 4 DAY), 5000000.00, 'hash910');
+
+INSERT INTO Room_Booking_Details (detail_id, room_booking_id, category_id, room_id, room_charge, detail_status, bed_preference, is_charge_to_room_allowed, sub_credit_limit, billing_routing_strategy, number_of_adults, number_of_children) VALUES
+(9101, 910, 1, 1, 2500000.00, 'Checked_Out', 'KING_SIZE', TRUE, 5000000.00, 'BILL_TO_LEADER', 2, 0);
+
+INSERT INTO Room_Guests (guest_id, detail_id, customer_id, guest_type, is_primary_contact) VALUES
+(91011, 9101, 910, 'ADULT', TRUE);
+
+INSERT INTO Hotel_Operations (task_id, room_id, staff_id, supervisor_id, operational_type, priority, status, created_at, started_at, completed_at, notes) VALUES
+(905, 1, 1, 1, 'Late_Checkout_Waiver', 'Normal', 'Pending', CURRENT_TIMESTAMP, NULL, NULL, 'Yêu cầu Late Checkout - Xin miễn phí phụ thu trả phòng trễ cho booking ID: 910');
+
 -- Reconcile Bookings total_price
 UPDATE Bookings b SET total_price = (
     SELECT COALESCE(SUM(room_charge), 0) 
     FROM Room_Booking_Details 
     WHERE room_booking_id = b.booking_id
-) WHERE b.booking_id IN (8008);
+) WHERE b.booking_id IN (8008, 910);
 -- 1. Từ 0-5 tuổi: Miễn phí (0 VNĐ)
 INSERT INTO Room_Surcharges (category_id, surcharge_type, age_from, age_to, price_modifier, is_active)
 SELECT category_id, 'CHILD_0_5', 0, 5, 0, 1 FROM Room_Categories;
