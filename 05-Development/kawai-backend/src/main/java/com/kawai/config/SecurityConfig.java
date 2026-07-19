@@ -148,7 +148,8 @@ public class SecurityConfig {
                 .oauth2Login(oauth2 -> oauth2
                         .loginPage("/booking")
                         .userInfoEndpoint(userInfo -> userInfo
-                                .userService(customOAuth2UserService))
+                                .userService(customOAuth2UserService)
+                                .userAuthoritiesMapper(userAuthoritiesMapper()))
                         .successHandler(oAuth2SuccessHandler))
 
                 .logout(logout -> logout
@@ -158,6 +159,16 @@ public class SecurityConfig {
 
         http.authenticationProvider(authenticationProvider());
         return http.build();
+    }
+
+    @Bean
+    public org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper userAuthoritiesMapper() {
+        return (authorities) -> {
+            java.util.Set<org.springframework.security.core.GrantedAuthority> mappedAuthorities = new java.util.HashSet<>(authorities);
+            // Bổ sung thêm ROLE_GUEST cho tất cả người dùng đăng nhập bằng OAuth2/OIDC
+            mappedAuthorities.add(new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_GUEST"));
+            return mappedAuthorities;
+        };
     }
 
     @Bean
