@@ -592,7 +592,7 @@
                             <input class="text-sm py-2" id="departureDate" type="date" value="2026-06-26"
                                 oninput="validateDepartureDate(this)">
                             <p class="text-[9px] font-bold text-red-500 uppercase tracking-widest mt-1 hidden"
-                                id="date-error">Không thể chọn ngày trong quá khứ</p>
+                                id="date-error">Chỉ cho phép đặt tour khởi hành từ ngày mai trở đi</p>
                         </div>
                     </div>
                     <div class="flex flex-col">
@@ -676,7 +676,7 @@
                         <label class="text-[10px] font-bold uppercase tracking-widest mb-2 block text-black">Phương thức
                             thanh toán</label>
                         <div class="payment-option border border-brand-border p-6 flex justify-between items-center"
-                            onclick="showPaymentModal('deposit')">
+                            onclick="startPaymentFlow('deposit')">
                             <div>
                                 <h4 class="font-bold text-sm mb-1">Thanh toán đặt cọc</h4>
                                 <p class="text-xs text-gray-500">Giữ chỗ ngay với 30% tổng giá trị hành trình</p>
@@ -686,7 +686,7 @@
                             </div>
                         </div>
                         <div class="payment-option border border-brand-border p-6 flex justify-between items-center"
-                            onclick="showPaymentModal('full')">
+                            onclick="startPaymentFlow('full')">
                             <div>
                                 <h4 class="font-bold text-sm mb-1">Thanh toán tổng đơn booking tour</h4>
                                 <p class="text-xs text-gray-500">Thanh toán toàn bộ 100% để hoàn tất thủ tục</p>
@@ -697,7 +697,7 @@
                         </div>
                         <div id="room-charge-container">
                             <div class="payment-option border border-brand-border p-6 flex justify-between items-center group"
-                                onclick="openRoomSelection()">
+                                onclick="startPaymentFlow('post-room')">
                                 <div>
                                     <h4 class="font-bold text-sm mb-1">Tính vào phòng nghỉ</h4>
                                     <p class="text-xs text-gray-500">Dành riêng cho khách đang lưu trú tại HoaNien
@@ -829,6 +829,11 @@
                         <tr class="border-b border-brand-border hidden" id="modal-row-insurance">
                             <td class="py-4 font-bold text-amber-600 uppercase tracking-wider">Phí bảo hiểm</td>
                             <td class="py-4 text-right text-amber-700 font-medium" id="modal-insurance-amount">+0 VNĐ
+                            </td>
+                        </tr>
+                        <tr class="border-b border-brand-border hidden" id="modal-row-linked-rooms">
+                            <td class="py-4 font-bold text-gray-400 uppercase tracking-wider">Phòng liên kết</td>
+                            <td class="py-4 text-right font-medium text-brand-dark" id="modal-linked-rooms-text">---
                             </td>
                         </tr>
                         <tr>
@@ -1189,8 +1194,11 @@
     <script data-purpose="ui-interactions">
         let currentTour = initialTourType || 'doantu';
         let selectedRooms = []; // Array of {id, roomNumber, type} — supports multi-room
+        let targetPaymentFlow = 'deposit'; // 'deposit' or 'full' or 'post-room'
         let selectedPaymentType = 'deposit'; // 'deposit' or 'full' or 'post-room'
         let currentPaymentMethod = 'counter'; // 'counter' or 'vnpay'
+        let myActiveRoomsData = []; // Store full rooms payload from backend including guests
+        let isCustomerAlreadyRegisteredInTour = false; // Check if customer has already booked this tour schedule
 
         const tourData = {
             doantu: {
@@ -2018,6 +2026,7 @@
             renderActivities();
             displayCachedWeather();
             updateTotalPrice();
+            checkDuplicateTourRegistration();
         }
 
         // Handle Smooth Scroll to Map with Header Offset and Activity Focus
@@ -2317,6 +2326,7 @@
             document.getElementById(`child-age-${index}`).value = age;
             toggleAgePicker(index);
             updateTotalPrice();
+            validateParticipantsWithRoomOnInput();
         }
 
         function validateConsentAndEnableButtons() {
@@ -2464,6 +2474,18 @@
                 }
             }
 
+            // Display Linked Rooms Info
+            const linkedRoomsRow = document.getElementById('modal-row-linked-rooms');
+            const linkedRoomsText = document.getElementById('modal-linked-rooms-text');
+            if (linkedRoomsRow && linkedRoomsText) {
+                if (selectedRooms && selectedRooms.length > 0) {
+                    linkedRoomsText.innerText = selectedRooms.map(r => `Phòng ${r.roomNumber}`).join(', ');
+                    linkedRoomsRow.classList.remove('hidden');
+                } else {
+                    linkedRoomsRow.classList.add('hidden');
+                }
+            }
+
             // Final calculated price (after child discount, promo, + insurance)
             const finalPriceWithInsurance = finalPrice + insuranceFee;
 
@@ -2512,6 +2534,11 @@
             document.body.style.overflow = 'hidden';
         }
 
+        function startPaymentFlow(flow) {
+            targetPaymentFlow = flow;
+            openRoomSelection();
+        }
+
         function openRoomSelection() {
             console.log("openRoomSelection started");
             try {
@@ -2533,6 +2560,7 @@
                         return response.json();
                     })
                     .then(activeRooms => {
+                        myActiveRoomsData = activeRooms;
                         console.log("activeRooms fetched:", activeRooms);
                         if (!activeRooms || activeRooms.length === 0) {
                             console.log("No active rooms. Showing warning alert popup.");
@@ -2563,43 +2591,62 @@
                                 container.innerHTML = activeRooms.map((r, idx) => {
                                     const safeId = r.id.replace(/'/g, "\\'");
                                     const roomIdx = idx;
-                                    const defaultAdults = Math.min(mainAdults, r.numberOfAdults || 1);
-                                    const defaultChildren = Math.min(mainChildren, r.numberOfChildren || 0);
+
+                                    // Tính sức chứa còn lại thực tế (đăng ký gốc trừ đi lượng đã sử dụng ở các tour khác)
+                                    let rawAdults = parseInt(r.numberOfAdults) || 1;
+                                    let rawChildren = parseInt(r.numberOfChildren) || 0;
+                                    const usedAdults = parseInt(r.usedAdultTourSeats) || 0;
+                                    const usedChildren = parseInt(r.usedChildTourSeats) || 0;
+
+                                    const remainAdults = Math.max(0, rawAdults - usedAdults);
+                                    const remainChildren = Math.max(0, rawChildren - usedChildren);
+                                    const totalRemain = remainAdults + remainChildren;
+                                    const isOutOfQuota = (totalRemain <= 0);
+
+                                    const disabledAttr = isOutOfQuota ? 'disabled' : '';
+                                    const opacityClass = isOutOfQuota ? 'opacity-50 cursor-not-allowed' : '';
+
+                                    let statusLabel = '';
+                                    if (isOutOfQuota) {
+                                        statusLabel = '<span class="text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 border text-red-700 bg-red-50 border-red-200">Đã gán hết</span>';
+                                    } else {
+                                        statusLabel = `<span class="text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 border ${r.roomStatus === 'Confirmed' ? 'text-amber-700 bg-amber-50 border-amber-200' : 'text-green-700 bg-green-50 border-green-200'}">${r.roomStatus === 'Confirmed' ? 'Chưa nhận phòng' : 'Đang hoạt động'}</span>`;
+                                    }
+
                                     return `
-                                    <div class="room-item border border-brand-border p-4 transition-all" id="room-item-${roomIdx}">
-                                        <label class="flex items-start space-x-3 cursor-pointer">
+                                    <div class="room-item border border-brand-border p-4 transition-all ${opacityClass}" id="room-item-${roomIdx}">
+                                        <label class="flex items-start space-x-3 ${isOutOfQuota ? 'cursor-not-allowed' : 'cursor-pointer'}">
                                             <input type="checkbox" class="room-checkbox mt-0.5 w-4 h-4 accent-[#2D2926] shrink-0"
                                                 value="${safeId}"
+                                                ${disabledAttr}
                                                 data-number="${r.roomNumber.replace(/"/g, '&quot;')}"
                                                 data-type="${(r.roomType || '').replace(/"/g, '&quot;')}"
-                                                data-default-adults="${defaultAdults}"
-                                                data-default-children="${defaultChildren}"
                                                 data-idx="${roomIdx}"
                                                 onchange="toggleRoomSelection(this)">
                                             <div class="flex-1">
                                                 <div class="flex items-center justify-between">
                                                     <div>
                                                         <p class="text-xs font-bold uppercase tracking-widest">${r.roomNumber}</p>
-                                                        <p class="text-[10px] text-gray-400 uppercase">${r.roomType || ''}</p>
+                                                        <p class="text-[10px] text-gray-400 uppercase">${r.roomType || ''} &mdash; Còn lại: ${remainAdults}L, ${remainChildren}T</p>
                                                     </div>
-                                                    <span class="text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 border ${r.roomStatus === 'Confirmed' ? 'text-amber-700 bg-amber-50 border-amber-200' : 'text-green-700 bg-green-50 border-green-200'}">${r.roomStatus === 'Confirmed' ? 'Chưa nhận phòng' : 'Đang hoạt động'}</span>
+                                                    ${statusLabel}
                                                 </div>
                                                 <!-- Per-room participant inputs (hidden until checked) -->
                                                 <div class="room-participant-inputs mt-3 hidden" id="participants-${roomIdx}">
                                                     <div class="grid grid-cols-2 gap-3 pt-3 border-t border-brand-border">
                                                         <div>
-                                                            <label class="text-[9px] font-bold uppercase tracking-widest text-gray-400 block mb-1">Người lớn</label>
-                                                            <input type="number" min="0" max="10"
+                                                            <label class="text-[9px] font-bold uppercase tracking-widest text-gray-400 block mb-1">Người lớn (Tối đa ${remainAdults})</label>
+                                                            <input type="number" min="0" max="${remainAdults}"
                                                                 class="room-adults-input w-full border-b border-brand-border text-xs py-1 bg-transparent text-center"
-                                                                value="${defaultAdults}"
+                                                                value="0"
                                                                 data-idx="${roomIdx}"
                                                                 onchange="updateRoomParticipants(${roomIdx})">
                                                         </div>
                                                         <div>
-                                                            <label class="text-[9px] font-bold uppercase tracking-widest text-gray-400 block mb-1">Trẻ em</label>
-                                                            <input type="number" min="0" max="10"
+                                                            <label class="text-[9px] font-bold uppercase tracking-widest text-gray-400 block mb-1">Trẻ em (Tối đa ${remainChildren})</label>
+                                                            <input type="number" min="0" max="${remainChildren}"
                                                                 class="room-children-input w-full border-b border-brand-border text-xs py-1 bg-transparent text-center"
-                                                                value="${defaultChildren}"
+                                                                value="0"
                                                                 data-idx="${roomIdx}"
                                                                 onchange="updateRoomParticipants(${roomIdx})">
                                                         </div>
@@ -2644,6 +2691,9 @@
                 const participantDiv = document.getElementById('participants-' + idx);
                 const roomItem = document.getElementById('room-item-' + idx);
 
+                const adultsInput = document.querySelector(`.room-adults-input[data-idx="${idx}"]`);
+                const childrenInput = document.querySelector(`.room-children-input[data-idx="${idx}"]`);
+
                 if (checkbox.checked) {
                     // Show per-room participant inputs
                     if (participantDiv) participantDiv.classList.remove('hidden');
@@ -2651,10 +2701,29 @@
                         roomItem.classList.add('border-brand-dark', 'bg-[#FBF9F6]');
                         roomItem.classList.remove('border-brand-border');
                     }
-                    const adults = parseInt(checkbox.dataset.defaultAdults) || 1;
-                    const children = parseInt(checkbox.dataset.defaultChildren) || 0;
+
+                    // Tính toán số lượng còn thiếu của form chính để tự động điền thông minh
+                    const mainAdults = parseInt(document.getElementById('num-adults').value) || 1;
+                    const mainChildren = parseInt(document.getElementById('num-children').value) || 0;
+
+                    const alreadyAllocatedAdults = selectedRooms.reduce((sum, r) => sum + (r.adults || 0), 0);
+                    const alreadyAllocatedChildren = selectedRooms.reduce((sum, r) => sum + (r.children || 0), 0);
+
+                    const remainingNeedAdults = Math.max(0, mainAdults - alreadyAllocatedAdults);
+                    const remainingNeedChildren = Math.max(0, mainChildren - alreadyAllocatedChildren);
+
+                    const maxAdultsForThisRoom = parseInt(adultsInput?.max) || 0;
+                    const maxChildrenForThisRoom = parseInt(childrenInput?.max) || 0;
+
+                    // Autofill thông minh số lượng còn thiếu, tối đa là sức chứa còn lại của phòng này
+                    const adultsToAssign = Math.min(remainingNeedAdults, maxAdultsForThisRoom);
+                    const childrenToAssign = Math.min(remainingNeedChildren, maxChildrenForThisRoom);
+
+                    if (adultsInput) adultsInput.value = adultsToAssign;
+                    if (childrenInput) childrenInput.value = childrenToAssign;
+
                     if (!selectedRooms.find(r => r.id === id)) {
-                        selectedRooms.push({ id, roomNumber, type, adults, children, idx });
+                        selectedRooms.push({ id, roomNumber, type, adults: adultsToAssign, children: childrenToAssign, idx });
                     }
                 } else {
                     // Hide per-room participant inputs
@@ -2663,9 +2732,13 @@
                         roomItem.classList.remove('border-brand-dark', 'bg-[#FBF9F6]');
                         roomItem.classList.add('border-brand-border');
                     }
+
+                    if (adultsInput) adultsInput.value = 0;
+                    if (childrenInput) childrenInput.value = 0;
+
                     selectedRooms = selectedRooms.filter(r => r.id !== id);
                 }
-                console.log('selectedRooms:', selectedRooms);
+                console.log('selectedRooms updated:', selectedRooms);
             } catch (err) {
                 console.error('Error in toggleRoomSelection:', err);
             }
@@ -2692,7 +2765,7 @@
             console.log('confirmRoomSelection called, selectedRooms:', selectedRooms);
             try {
                 if (!selectedRooms || selectedRooms.length === 0) {
-                    alert('Vui lòng chọn ít nhất 1 phòng để gán tour.');
+                    showWarningAlertPopup('Lỗi chọn phòng', 'Vui lòng chọn ít nhất 1 phòng để gán tour.');
                     return;
                 }
 
@@ -2702,51 +2775,144 @@
                 const totalSelectedChildren = selectedRooms.reduce((sum, r) => sum + (r.children || 0), 0);
 
                 if (totalSelectedAdults !== mainAdults || totalSelectedChildren !== mainChildren) {
-                    alert('Tổng số thành viên phân bổ vào các phòng (' + totalSelectedAdults + ' người lớn, ' + totalSelectedChildren + ' trẻ em) phải khớp hoàn toàn với số lượng đăng ký đi tour tại form chính (' + mainAdults + ' người lớn, ' + mainChildren + ' trẻ em)!');
+                    showWarningAlertPopup('Không khớp số lượng', 'Tổng số thành viên phân bổ vào các phòng (' + totalSelectedAdults + ' người lớn, ' + totalSelectedChildren + ' trẻ em) phải khớp hoàn toàn với số lượng đăng ký đi tour tại form chính (' + mainAdults + ' người lớn, ' + mainChildren + ' trẻ em)!');
                     return;
                 }
 
-                selectedPaymentType = 'post-room';
-                const container = document.getElementById('room-charge-container');
-                if (container) {
-                    const roomsHtml = selectedRooms.map(room => {
-                        const isVirtual = room.id.startsWith('Virtual_');
-                        const statusText = isVirtual ? 'Đã đặt' : 'Đang ở';
-                        const statusClass = isVirtual ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-green-50 text-green-700 border-green-200';
-                        const paxText = `${room.adults || 0} người lớn${(room.children || 0) > 0 ? ', ' + room.children + ' trẻ em' : ''}`;
-                        return `
-                          <div class="flex items-center justify-between py-2 border-b border-brand-border last:border-0">
-                            <div class="flex items-center space-x-3">
-                              <span class="material-symbols-outlined text-brand-dark text-base">door_front</span>
-                              <div>
-                                <p class="font-bold text-xs">${room.roomNumber}</p>
-                                <p class="text-[10px] text-gray-400">${room.type} &mdash; ${paxText}</p>
-                              </div>
-                            </div>
-                            <span class="px-2 py-0.5 text-[8px] font-bold uppercase tracking-widest border ${statusClass}">${statusText}</span>
-                          </div>`;
-                    }).join('');
-                    container.innerHTML = `
-                        <div class="border border-brand-dark p-5 bg-white animate-in fade-in duration-500">
-                          <div class="flex items-center justify-between mb-3">
-                            <div class="flex items-center space-x-3">
-                              <div class="w-9 h-9 bg-brand-bg flex items-center justify-center border border-brand-border">
-                                <span class="material-symbols-outlined text-brand-dark text-sm">key</span>
-                              </div>
-                              <div>
-                                <p class="text-[9px] font-bold uppercase tracking-widest text-gray-400">Tính vào phòng</p>
-                                <p class="text-xs font-bold">${selectedRooms.length} phòng &mdash; ${selectedRooms.reduce((s, r) => s + (r.adults || 0) + (r.children || 0), 0)} người</p>
-                              </div>
-                            </div>
-                            <button class="text-[9px] font-bold uppercase tracking-widest text-gray-400 hover:text-brand-dark underline underline-offset-4" onclick="resetToScreen1()">Thay đổi</button>
-                          </div>
-                          <div class="pl-12">${roomsHtml}</div>
-                        </div>
-                    `;
-                } else {
-                    console.error('room-charge-container element not found in DOM');
+                // Thực hiện so khớp chi tiết từng phòng được chọn với Room Guests từ server
+                if (targetPaymentFlow === 'post-room') {
+                    for (const sRoom of selectedRooms) {
+                        const originalRoom = myActiveRoomsData.find(r => r.roomNumber === sRoom.roomNumber || r.id === sRoom.id);
+                        if (!originalRoom) continue;
+
+                        const rGuests = originalRoom.guests || [];
+
+                        // Lấy đăng ký gốc của phòng và trừ đi lượng đã gán ở các đơn đặt tour khác
+                        let roomAdultsCount = parseInt(originalRoom.numberOfAdults) || 1;
+                        let roomChildrenCount = parseInt(originalRoom.numberOfChildren) || 0;
+                        const usedAdults = parseInt(originalRoom.usedAdultTourSeats) || 0;
+                        const usedChildren = parseInt(originalRoom.usedChildTourSeats) || 0;
+
+                        roomAdultsCount = Math.max(0, roomAdultsCount - usedAdults);
+                        roomChildrenCount = Math.max(0, roomChildrenCount - usedChildren);
+
+                        const tourAdultsForRoom = sRoom.adults || 0;
+                        const tourChildrenForRoom = sRoom.children || 0;
+                        const totalTourForRoom = tourAdultsForRoom + tourChildrenForRoom;
+                        const totalRoomOccupants = roomAdultsCount + roomChildrenCount;
+
+                        // Tình huống 2: Tổng khách đi tour phân bổ cho phòng này lớn hơn số khách đăng ký lưu trú thực tế
+                        if (totalTourForRoom > totalRoomOccupants) {
+                            const msg = `Số khách đi tour phân bổ cho phòng ${sRoom.roomNumber} (${totalTourForRoom} người) vượt quá số khách đăng ký (${totalRoomOccupants} người).\n\nBạn đang thừa ${totalTourForRoom - totalRoomOccupants} khách.\nVui lòng đặt thêm phòng để tiếp tục.`;
+                            showWarningAlertPopup('Yêu cầu đặt thêm phòng', msg, true);
+                            closeModal();
+                            scrollToParticipants();
+                            return;
+                        }
+
+                        // Tình huống 1: Tổng khách đi tour <= Tổng khách lưu trú nhưng lệch thành phần
+                        if (tourAdultsForRoom > roomAdultsCount) {
+                            const msg = `Số người lớn đi tour phân bổ cho phòng ${sRoom.roomNumber} (${tourAdultsForRoom} người) vượt quá đăng ký (${roomAdultsCount} người).\n\nVui lòng điều chỉnh lại phân bổ.`;
+                            showWarningAlertPopup('Không khớp người lớn', msg, false);
+                            closeModal();
+                            scrollToParticipants();
+                            return;
+                        }
+
+                        if (tourChildrenForRoom > roomChildrenCount) {
+                            const msg = `Số trẻ em đi tour phân bổ cho phòng ${sRoom.roomNumber} (${tourChildrenForRoom} trẻ) vượt quá đăng ký (${roomChildrenCount} trẻ).\n\nVui lòng điều chỉnh lại phân bổ.`;
+                            showWarningAlertPopup('Không khớp trẻ em', msg, false);
+                            closeModal();
+                            scrollToParticipants();
+                            return;
+                        }
+
+                        // Kiểm tra độ tuổi trẻ em (Chỉ validate độ tuổi trẻ em nếu trong database đã khai báo chi tiết tuổi trẻ em lưu trú)
+                        const roomChildAges = rGuests
+                            .filter(g => g.guestType === 'Child' && g.ageLabel !== 'Người lớn')
+                            .map(g => g.ageLabel);
+
+                        if (tourChildrenForRoom > 0 && roomChildAges.length > 0) {
+                            const tourChildAges = [];
+                            const childAgeInputs = document.querySelectorAll('.child-age-input');
+                            childAgeInputs.forEach(input => {
+                                if (input && input.value) {
+                                    tourChildAges.push(input.value.trim());
+                                }
+                            });
+
+                            const countLabels = (arr) => {
+                                const counts = { 'Dưới 2 tuổi': 0, '2 - 11 tuổi': 0 };
+                                arr.forEach(val => {
+                                    if (counts[val] !== undefined) counts[val]++;
+                                });
+                                return counts;
+                            };
+
+                            const tourAgeCounts = countLabels(tourChildAges);
+                            const roomAgeCounts = countLabels(roomChildAges);
+
+                            if (tourAgeCounts['Dưới 2 tuổi'] > roomAgeCounts['Dưới 2 tuổi'] ||
+                                tourAgeCounts['2 - 11 tuổi'] > roomAgeCounts['2 - 11 tuổi']) {
+
+                                const roomDesc = roomChildAges.join(', ');
+                                const msg = `Độ tuổi trẻ em đi tour không khớp với khai báo của phòng ${sRoom.roomNumber}.\n\nThông tin phòng: ${roomDesc}.\nVui lòng chọn lại cho khớp.`;
+                                showWarningAlertPopup('Độ tuổi không khớp', msg, false);
+                                closeModal();
+                                scrollToParticipants();
+                                return;
+                            }
+                        }
+                    }
                 }
-                closeModal();
+
+                selectedPaymentType = targetPaymentFlow;
+
+                if (targetPaymentFlow === 'post-room') {
+                    const container = document.getElementById('room-charge-container');
+                    if (container) {
+                        const roomsHtml = selectedRooms.map(room => {
+                            const isVirtual = room.id.startsWith('Virtual_');
+                            const statusText = isVirtual ? 'Đã đặt' : 'Đang ở';
+                            const statusClass = isVirtual ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-green-50 text-green-700 border-green-200';
+                            const paxText = `${room.adults || 0} người lớn${(room.children || 0) > 0 ? ', ' + room.children + ' trẻ em' : ''}`;
+                            return `
+                              <div class="flex items-center justify-between py-2 border-b border-brand-border last:border-0">
+                                <div class="flex items-center space-x-3">
+                                  <span class="material-symbols-outlined text-brand-dark text-base">door_front</span>
+                                  <div>
+                                    <p class="font-bold text-xs">${room.roomNumber}</p>
+                                    <p class="text-[10px] text-gray-400">${room.type} &mdash; ${paxText}</p>
+                                  </div>
+                                </div>
+                                <span class="px-2 py-0.5 text-[8px] font-bold uppercase tracking-widest border ${statusClass}">${statusText}</span>
+                              </div>`;
+                        }).join('');
+                        container.innerHTML = `
+                            <div class="border border-brand-dark p-5 bg-white animate-in fade-in duration-500">
+                              <div class="flex items-center justify-between mb-3">
+                                <div class="flex items-center space-x-3">
+                                  <div class="w-9 h-9 bg-brand-bg flex items-center justify-center border border-brand-border">
+                                    <span class="material-symbols-outlined text-brand-dark text-sm">key</span>
+                                  </div>
+                                  <div>
+                                    <p class="text-[9px] font-bold uppercase tracking-widest text-gray-400">Tính vào phòng</p>
+                                    <p class="text-xs font-bold">${selectedRooms.length} phòng &mdash; ${selectedRooms.reduce((s, r) => s + (r.adults || 0) + (r.children || 0), 0)} người</p>
+                                  </div>
+                                </div>
+                                <button class="text-[9px] font-bold uppercase tracking-widest text-gray-400 hover:text-brand-dark underline underline-offset-4" onclick="resetToScreen1()">Thay đổi</button>
+                              </div>
+                              <div class="pl-12">${roomsHtml}</div>
+                            </div>
+                        `;
+                    } else {
+                        console.error('room-charge-container element not found in DOM');
+                    }
+                    closeModal();
+                } else {
+                    closeModal();
+                    showPaymentModal(targetPaymentFlow);
+                }
             } catch (err) {
                 console.error('Error in confirmRoomSelection:', err);
             }
@@ -2811,17 +2977,22 @@
             }
         }
 
-        // Real-time validation: prevent past date selection
+        // Real-time validation: prevent past and today date selection
         function validateDepartureDate(input) {
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            tomorrow.setHours(0, 0, 0, 0);
+
             const selected = new Date(input.value);
             const errorEl = document.getElementById('date-error');
-            if (selected < today) {
+            if (selected < tomorrow) {
                 input.style.borderColor = '#ef4444';
                 if (errorEl) errorEl.classList.remove('hidden');
-                // Reset to today
-                input.value = today.toISOString().split('T')[0];
+                // Reset to tomorrow
+                const yyyy = tomorrow.getFullYear();
+                const mm = String(tomorrow.getMonth() + 1).padStart(2, '0');
+                const dd = String(tomorrow.getDate()).padStart(2, '0');
+                input.value = `${yyyy}-${mm}-${dd}`;
                 setTimeout(() => {
                     input.style.borderColor = '';
                     if (errorEl) errorEl.classList.add('hidden');
@@ -2900,14 +3071,15 @@
                 return false;
             }
 
-            // Validate departure date is not in the past
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
+            // Validate departure date is tomorrow onwards
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            tomorrow.setHours(0, 0, 0, 0);
             const selectedDate = new Date(departureDate);
-            if (selectedDate < today) {
+            if (selectedDate < tomorrow) {
                 showWarningAlertPopup(
                     lang === 'vi' ? 'Ngày khởi hành không hợp lệ' : 'Invalid Departure Date',
-                    lang === 'vi' ? 'Ngày khởi hành không thể là ngày trong quá khứ. Vui lòng chọn lại.' : 'Departure date cannot be in the past. Please select a valid date.'
+                    lang === 'vi' ? 'Chỉ cho phép đặt tour khởi hành từ ngày mai trở đi (phải đặt trước ít nhất 1 ngày). Vui lòng chọn lại.' : 'Departure date must be tomorrow onwards. Please select a valid date.'
                 );
                 document.getElementById('departureDate').focus();
                 return false;
@@ -3031,6 +3203,119 @@
             return true;
         }
 
+        function validateParticipantsWithRoomOnInput() {
+            // Nếu không có thông tin phòng lưu trú, bỏ qua validation này
+            if (!myActiveRoomsData || myActiveRoomsData.length === 0) {
+                return true;
+            }
+
+            const mainAdults = parseInt(document.getElementById('num-adults').value) || 1;
+            const mainChildren = parseInt(document.getElementById('num-children').value) || 0;
+            const totalTour = mainAdults + mainChildren;
+
+            let rGuests = [];
+            let totalRoom = 0;
+            let roomAdultsCount = 0;
+            let roomChildrenCount = 0;
+            let roomChildAges = [];
+            let refRoomLabel = "";
+
+            if (myActiveRoomsData.length === 1) {
+                const refRoom = myActiveRoomsData[0];
+                rGuests = refRoom.guests || [];
+                // Sử dụng numberOfAdults và numberOfChildren của phòng đặt làm tiêu chuẩn quy mô lưu trú thực tế, trừ lượng đã sử dụng ở các đơn khác
+                let rawAdults = parseInt(refRoom.numberOfAdults) || 1;
+                let rawChildren = parseInt(refRoom.numberOfChildren) || 0;
+                const usedAdults = parseInt(refRoom.usedAdultTourSeats) || 0;
+                const usedChildren = parseInt(refRoom.usedChildTourSeats) || 0;
+
+                roomAdultsCount = Math.max(0, rawAdults - usedAdults);
+                roomChildrenCount = Math.max(0, rawChildren - usedChildren);
+                totalRoom = roomAdultsCount + roomChildrenCount;
+                refRoomLabel = `phòng ${refRoom.roomNumber}`;
+                roomChildAges = rGuests
+                    .filter(g => g.guestType === 'Child' && g.ageLabel !== 'Người lớn')
+                    .map(g => g.ageLabel);
+            } else {
+                // Trường hợp có từ 2 phòng trở lên: Gộp tất cả các khách của tất cả các phòng để tính tổng sức chứa còn lại
+                myActiveRoomsData.forEach(room => {
+                    const guests = room.guests || [];
+                    rGuests = rGuests.concat(guests);
+
+                    let rawAdults = parseInt(room.numberOfAdults) || 1;
+                    let rawChildren = parseInt(room.numberOfChildren) || 0;
+                    const usedAdults = parseInt(room.usedAdultTourSeats) || 0;
+                    const usedChildren = parseInt(room.usedChildTourSeats) || 0;
+
+                    roomAdultsCount += Math.max(0, rawAdults - usedAdults);
+                    roomChildrenCount += Math.max(0, rawChildren - usedChildren);
+                });
+                totalRoom = roomAdultsCount + roomChildrenCount;
+                refRoomLabel = `các phòng đăng ký (${myActiveRoomsData.map(r => r.roomNumber).join(', ')})`;
+                roomChildAges = rGuests
+                    .filter(g => g.guestType === 'Child' && g.ageLabel !== 'Người lớn')
+                    .map(g => g.ageLabel);
+            }
+
+            // 1. Kiểm tra vượt số lượng tối đa trong phòng
+            if (totalTour > totalRoom) {
+                const msg = `Số khách đi tour (${totalTour} người) vượt quá số khách đăng ký của ${refRoomLabel} (${totalRoom} người).\n\nBạn đang thừa ${totalTour - totalRoom} khách.\nVui lòng đặt thêm phòng để tiếp tục đăng ký đi tour cho đoàn.`;
+                showWarningAlertPopup('Yêu cầu đặt thêm phòng', msg, true);
+                scrollToParticipants();
+                return false;
+            }
+
+            // 2. Kiểm tra lệch số người lớn
+            if (mainAdults > roomAdultsCount) {
+                const msg = `Số người lớn đi tour (${mainAdults} người) vượt quá số người lớn đăng ký của ${refRoomLabel} (${roomAdultsCount} người).\n\nVui lòng kiểm tra lại thông tin.`;
+                showWarningAlertPopup('Không khớp người lớn', msg, false);
+                scrollToParticipants();
+                return false;
+            }
+
+            // 3. Kiểm tra lệch số trẻ em
+            if (mainChildren > roomChildrenCount) {
+                const msg = `Số trẻ em đi tour (${mainChildren} trẻ) vượt quá số trẻ em đăng ký của ${refRoomLabel} (${roomChildrenCount} trẻ).\n\nVui lòng kiểm tra lại thông tin.`;
+                showWarningAlertPopup('Không khớp trẻ em', msg, false);
+                scrollToParticipants();
+                return false;
+            }
+
+            // 4. Kiểm tra độ tuổi trẻ em (Chỉ so khớp tuổi chi tiết nếu trong database đã khai báo chi tiết tuổi trẻ em lưu trú)
+            if (mainChildren > 0 && roomChildAges.length > 0) {
+                const tourChildAges = [];
+                const childAgeInputs = document.querySelectorAll('.child-age-input');
+                childAgeInputs.forEach(input => {
+                    if (input && input.value) {
+                        tourChildAges.push(input.value.trim());
+                    }
+                });
+
+                const countLabels = (arr) => {
+                    const counts = { 'Dưới 2 tuổi': 0, '2 - 11 tuổi': 0 };
+                    arr.forEach(val => {
+                        if (counts[val] !== undefined) counts[val]++;
+                    });
+                    return counts;
+                };
+
+                const tourAgeCounts = countLabels(tourChildAges);
+                const roomAgeCounts = countLabels(roomChildAges);
+
+                if (tourAgeCounts['Dưới 2 tuổi'] > roomAgeCounts['Dưới 2 tuổi'] ||
+                    tourAgeCounts['2 - 11 tuổi'] > roomAgeCounts['2 - 11 tuổi']) {
+
+                    const roomDesc = roomChildAges.join(', ');
+                    const msg = `Độ tuổi của trẻ em đi tour không khớp với đăng ký của ${refRoomLabel}.\n\nThông tin phòng: ${roomDesc}.\nVui lòng chọn đúng độ tuổi trẻ em.`;
+                    showWarningAlertPopup('Độ tuổi không khớp', msg, false);
+                    scrollToParticipants();
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         function validateCompanions(isBlur = false, triggerInsufficientPopup = false) {
             const participantInput = document.getElementById('participantCount');
             const adultsInput = document.getElementById('num-adults');
@@ -3091,22 +3376,58 @@
                 // Generate child name and age rows because sum matches exactly!
                 generateChildRows(children);
 
-                // Generate adult companions if adults > 1
-                const adultCompanionsCount = adults > 1 ? adults - 1 : 0;
+                // Generate adult companions
+                // Nếu khách đã đăng ký trước đó (chế độ đặt hộ), sinh đủ 'adults' dòng nhập thông tin.
+                // Nếu chưa đăng ký, sinh 'adults - 1' dòng nhập thông tin (trừ suất của khách chính).
+                const adultCompanionsCount = isCustomerAlreadyRegisteredInTour ? adults : (adults > 1 ? adults - 1 : 0);
                 generateAdultCompanionRows(adultCompanionsCount);
+                validateParticipantsWithRoomOnInput();
                 return true;
             }
         }
 
-        function showWarningAlertPopup(title, message) {
+        function showWarningAlertPopup(title, message, isBookingPrompt = false) {
             const popup = document.getElementById('warning-alert-popup');
             const titleEl = document.getElementById('warning-alert-title');
             const msgEl = document.getElementById('warning-alert-msg');
+            const btnPrimary = document.getElementById('warning-alert-btn-primary');
+            const btnSecondary = document.getElementById('warning-alert-btn-secondary');
+
             if (popup) {
                 if (titleEl) titleEl.textContent = title;
                 if (msgEl) msgEl.textContent = message;
+
+                if (btnPrimary) {
+                    btnPrimary.textContent = isBookingPrompt ? 'Kiểm tra lại' : 'Xác nhận';
+                }
+
+                if (btnSecondary) {
+                    if (isBookingPrompt) {
+                        btnSecondary.style.display = 'block';
+                    } else {
+                        btnSecondary.style.display = 'none';
+                    }
+                }
+
                 popup.style.display = 'flex';
                 document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function redirectToBooking() {
+            closeWarningAlertPopup();
+            window.location.href = '/living';
+        }
+
+        function scrollToParticipants() {
+            const el = document.getElementById('participantCount') || document.getElementById('num-adults');
+            if (el) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                el.style.transition = 'all 0.3s ease';
+                el.style.outline = '2px solid #C5A059';
+                setTimeout(() => {
+                    el.style.outline = '';
+                }, 2000);
             }
         }
 
@@ -3144,18 +3465,24 @@
         }
 
         function submitBookingFlow() {
+            const lang = document.documentElement.lang || 'vi';
+
+            // Kiểm tra số lượng khách với sức chứa phòng còn lại trước khi đặt
+            if (!validateParticipantsWithRoomOnInput()) {
+                return;
+            }
+
             const consentChk = document.getElementById('tourConsent');
             if (!consentChk || !consentChk.checked) {
                 closeModal();
                 window.pendingConsentFocus = true;
                 showWarningAlertPopup(
-                    document.documentElement.lang === 'vi' ? 'Yêu cầu chấp thuận' : 'Consent Required',
-                    document.documentElement.lang === 'vi' ? 'Vui lòng tích chọn đồng ý cung cấp thông tin để tiếp tục.' : 'Please consent to data processing to continue.'
+                    lang === 'vi' ? 'Yêu cầu chấp thuận' : 'Consent Required',
+                    lang === 'vi' ? 'Vui lòng tích chọn đồng ý cung cấp thông tin để tiếp tục.' : 'Please consent to data processing to continue.'
                 );
                 return;
             }
 
-            const lang = document.documentElement.lang || 'vi';
             const tourInfo = tourData[currentTour];
 
             const fullName = document.getElementById('fullName').value.trim();
@@ -3565,6 +3892,7 @@
 
         document.getElementById('departureDate').addEventListener('change', function () {
             fetchWeather(this.value);
+            checkDuplicateTourRegistration();
         });
 
         document.addEventListener('click', (e) => {
@@ -3577,15 +3905,60 @@
             }
         });
 
+        function checkDuplicateTourRegistration() {
+            const tourInfo = tourData[currentTour];
+            const dateInput = document.getElementById('departureDate');
+            if (!tourInfo || !dateInput || !dateInput.value) return;
+            const lang = document.documentElement.lang || 'vi';
+
+            fetch(`/api/tour-bookings/check-registered?tourId=${tourInfo.id}&departureDate=${dateInput.value}`)
+                .then(res => res.ok ? res.json() : { registered: false })
+                .then(data => {
+                    isCustomerAlreadyRegisteredInTour = data.registered;
+                    console.log("isCustomerAlreadyRegisteredInTour updated:", isCustomerAlreadyRegisteredInTour);
+                    
+                    if (isCustomerAlreadyRegisteredInTour) {
+                        showWarningAlertPopup(
+                            lang === 'vi' ? 'Thông báo đặt trùng' : 'Duplicate Booking Notice',
+                            lang === 'vi' ? 'Bạn đã đăng ký tour này trước đó. Bạn đang đặt hộ cho người khác?' : 'You have already booked this tour. Are you booking on behalf of others?'
+                        );
+                    }
+                    
+                    // Cập nhật lại form gõ companion để đồng bộ số lượng ô nhập
+                    validateCompanions(false, false);
+                })
+                .catch(err => {
+                    console.warn("Lỗi kiểm tra đăng ký trùng lặp:", err);
+                    isCustomerAlreadyRegisteredInTour = false;
+                });
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             renderTour();
-            const todayStr = new Date().toISOString().split('T')[0];
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            const yyyy = tomorrow.getFullYear();
+            const mm = String(tomorrow.getMonth() + 1).padStart(2, '0');
+            const dd = String(tomorrow.getDate()).padStart(2, '0');
+            const tomorrowStr = `${yyyy}-${mm}-${dd}`;
+
             const dateInput = document.getElementById('departureDate');
             if (dateInput) {
-                dateInput.min = todayStr;  // Block past dates in native picker
-                dateInput.value = todayStr;
+                dateInput.min = tomorrowStr;  // Block past and today dates in native picker
+                dateInput.value = tomorrowStr;
             }
-            fetchWeather(todayStr);
+            fetchWeather(tomorrowStr);
+
+            // Tự động tải thông tin phòng đang hoạt động khi tải trang để so khớp thời gian thực
+            fetch('/api/rooms/my-active')
+                .then(res => res.ok ? res.json() : [])
+                .then(rooms => {
+                    myActiveRoomsData = rooms;
+                    console.log("myActiveRoomsData preloaded:", myActiveRoomsData);
+                    validateParticipantsWithRoomOnInput();
+                    checkDuplicateTourRegistration();
+                })
+                .catch(err => console.warn("Lỗi tải thông tin phòng khi khởi tạo:", err));
         });
     </script>
     <div th:replace="~{guest/fragments/auth :: authModal}"></div>
@@ -3688,15 +4061,47 @@
                 style="font-weight: 300;">warning</span>
             <h4 class="font-serif text-xl text-brand-dark mb-2" id="warning-alert-title">Thông báo</h4>
             <p id="warning-alert-msg"
-                style="font-family:'Montserrat',sans-serif; font-size:12px; color:#6b7280; line-height:1.7; margin-bottom:24px;">
+                style="font-family:'Montserrat',sans-serif; font-size:12px; color:#6b7280; line-height:1.7; margin-bottom:24px; text-align: left; white-space: pre-line;">
             </p>
-            <button onclick="closeWarningAlertPopup()"
-                style="width:100%; background:#2D2926; color:#fff; padding:16px 24px; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.15em; border:none; cursor:pointer; font-family:'Montserrat',sans-serif;"
-                onmouseover="this.style.background='#C5A059'" onmouseout="this.style.background='#2D2926'">
-                Xác nhận
-            </button>
+            <div style="display:flex; flex-direction:column; gap:10px;">
+                <button id="warning-alert-btn-secondary" onclick="redirectToBooking()"
+                    style="display:none; width:100%; background:#2D2926; color:#fff; padding:16px 24px; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.15em; border:none; cursor:pointer; font-family:'Montserrat',sans-serif;"
+                    onmouseover="this.style.background='#C5A059'" onmouseout="this.style.background='#2D2926'">
+                    Đồng ý book thêm phòng
+                </button>
+                <button id="warning-alert-btn-primary" onclick="closeWarningAlertPopup()"
+                    style="width:100%; background:transparent; color:#2D2926; border:1px solid #E5E1DA; padding:16px 24px; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.15em; cursor:pointer; font-family:'Montserrat',sans-serif;"
+                    onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='transparent'">
+                    Kiểm tra lại
+                </button>
+            </div>
         </div>
     </div>
+
+</body>
+
+</html>
+<div style="background:#fff; width:100%; max-width:400px; padding:40px 32px; position:relative; box-shadow:0 25px 60px rgba(0,0,0,0.2); border:1px solid #E5E1DA; animation:scaleUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;"
+    class="text-center">
+    <span class="material-symbols-outlined text-amber-500 text-5xl mb-4" style="font-weight: 300;">warning</span>
+    <h4 class="font-serif text-xl text-brand-dark mb-2" id="warning-alert-title">Thông báo</h4>
+    <p id="warning-alert-msg"
+        style="font-family:'Montserrat',sans-serif; font-size:12px; color:#6b7280; line-height:1.7; margin-bottom:24px; text-align: left; white-space: pre-line;">
+    </p>
+    <div style="display:flex; flex-direction:column; gap:10px;">
+        <button id="warning-alert-btn-secondary" onclick="redirectToBooking()"
+            style="display:none; width:100%; background:#2D2926; color:#fff; padding:16px 24px; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.15em; border:none; cursor:pointer; font-family:'Montserrat',sans-serif;"
+            onmouseover="this.style.background='#C5A059'" onmouseout="this.style.background='#2D2926'">
+            Đồng ý book thêm phòng
+        </button>
+        <button id="warning-alert-btn-primary" onclick="closeWarningAlertPopup()"
+            style="width:100%; background:transparent; color:#2D2926; border:1px solid #E5E1DA; padding:16px 24px; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.15em; cursor:pointer; font-family:'Montserrat',sans-serif;"
+            onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='transparent'">
+            Kiểm tra lại
+        </button>
+    </div>
+</div>
+</div>
 
 </body>
 

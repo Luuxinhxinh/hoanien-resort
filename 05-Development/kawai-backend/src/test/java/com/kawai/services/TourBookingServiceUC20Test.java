@@ -101,7 +101,7 @@ public class TourBookingServiceUC20Test {
         sampleSchedule = new TourSchedule();
         sampleSchedule.setId(100L);
         sampleSchedule.setTour(sampleTour);
-        sampleSchedule.setDepartureDate(LocalDate.of(2026, 7, 10));
+        sampleSchedule.setDepartureDate(LocalDate.now().plusDays(1));
         sampleSchedule.setDepartureTime(LocalTime.of(8, 0));
         sampleSchedule.setBookedSeats(10); // capacity 30 - 10 = 20 available slots
         sampleSchedule.setScheduleStatus("Open");
@@ -131,7 +131,7 @@ public class TourBookingServiceUC20Test {
         @DisplayName("TC-M4-003.1: Đặt tour thành công — tạo TourBooking và Tour_Attendees")
         void createTourBooking_ValidRequest_ShouldCreateBookingAndAttendees() {
             // ARRANGE
-            validRequest.setParticipantCount(3);
+            validRequest.setParticipantCount(1);
             org.mockito.Mockito.lenient().when(tourScheduleRepository.findById(100L)).thenReturn(Optional.of(sampleSchedule));
             org.mockito.Mockito.lenient().when(customerRepository.findById(10L)).thenReturn(Optional.of(sampleCustomer));
             org.mockito.Mockito.lenient().when(tourBookingRepository.countByScheduleAndBookingStatus(sampleSchedule, "Confirmed"))
@@ -140,7 +140,7 @@ public class TourBookingServiceUC20Test {
             TourBooking savedBooking = new TourBooking();
             savedBooking.setId(200L);
             savedBooking.setSchedule(sampleSchedule);
-            savedBooking.setParticipantCount(3);
+            savedBooking.setParticipantCount(1);
             savedBooking.setBookingStatus("Confirmed");
             org.mockito.Mockito.lenient().when(tourBookingRepository.save(any(TourBooking.class))).thenReturn(savedBooking);
             org.mockito.Mockito.lenient().when(tourAttendeeRepository.saveAll(anyList())).thenReturn(null);
@@ -157,8 +157,8 @@ public class TourBookingServiceUC20Test {
             verify(customerRepository).findById(10L);
             verify(tourBookingRepository).save(any(TourBooking.class));
             verify(tourAttendeeRepository).saveAll(argThat(list -> {
-                // participantCount = 3, nên phải tạo đúng 3 TourAttendee records
-                return ((java.util.List<?>) list).size() == 3;
+                // participantCount = 1, nên phải tạo đúng 1 TourAttendee record
+                return ((java.util.List<?>) list).size() == 1;
             }));
         }
 
@@ -398,6 +398,51 @@ public class TourBookingServiceUC20Test {
 
             // Verify: FolioItem KHÔNG được tạo
             verify(folioItemRepository, never()).save(any(FolioItem.class));
+        }
+
+        @Test
+        @DisplayName("TC-M4-005.5: Đặt tour có ngày khởi hành là ngày hôm nay — chặn lỗi TOUR-DATE-001")
+        void createTourBooking_DepartureDateToday_ShouldThrowException() {
+            // ARRANGE: Cấu hình ngày đi của tour là ngày hôm nay
+            sampleSchedule.setDepartureDate(LocalDate.now());
+
+            org.mockito.Mockito.lenient().when(tourScheduleRepository.findById(100L)).thenReturn(Optional.of(sampleSchedule));
+            org.mockito.Mockito.lenient().when(customerRepository.findById(10L)).thenReturn(Optional.of(sampleCustomer));
+
+            // ACT & ASSERT
+            IllegalStateException exception = assertThrows(
+                    IllegalStateException.class,
+                    () -> tourBookingService.createTourBooking(validRequest),
+                    "Phải throw IllegalStateException khi ngày khởi hành là ngày hôm nay");
+
+            assertTrue(exception.getMessage().contains("TOUR-DATE-001"),
+                    "Exception message phải chứa mã lỗi TOUR-DATE-001. Actual: " + exception.getMessage());
+        }
+
+        @Test
+        @DisplayName("TC-M4-005.6: Đặt tour có ngày khởi hành là ngày mai — thành công")
+        void createTourBooking_DepartureDateTomorrow_ShouldSucceed() {
+            // ARRANGE: Cấu hình ngày đi của tour là ngày mai
+            sampleSchedule.setDepartureDate(LocalDate.now().plusDays(1));
+
+            org.mockito.Mockito.lenient().when(tourScheduleRepository.findById(100L)).thenReturn(Optional.of(sampleSchedule));
+            org.mockito.Mockito.lenient().when(customerRepository.findById(10L)).thenReturn(Optional.of(sampleCustomer));
+            org.mockito.Mockito.lenient().when(tourBookingRepository.countByScheduleAndBookingStatus(sampleSchedule, "Confirmed"))
+                    .thenReturn(0);
+
+            TourBooking savedBooking = new TourBooking();
+            savedBooking.setId(700L);
+            savedBooking.setSchedule(sampleSchedule);
+            savedBooking.setParticipantCount(1);
+            savedBooking.setBookingStatus("Confirmed");
+            org.mockito.Mockito.lenient().when(tourBookingRepository.save(any(TourBooking.class))).thenReturn(savedBooking);
+
+            // ACT
+            Long bookingId = tourBookingService.createTourBooking(validRequest);
+
+            // ASSERT
+            assertNotNull(bookingId);
+            assertEquals(700L, bookingId);
         }
     }
 }

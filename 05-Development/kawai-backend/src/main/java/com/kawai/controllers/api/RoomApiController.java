@@ -38,6 +38,12 @@ public class RoomApiController {
     private com.kawai.repositories.AccountRepository accountRepository;
 
     @Autowired
+    private com.kawai.repositories.RoomGuestRepository roomGuestRepository;
+
+    @Autowired
+    private com.kawai.repositories.TourAttendeeRepository tourAttendeeRepository;
+
+    @Autowired
     public RoomApiController(RoomRepository roomRepository,
             RoomBookingDetailRepository roomBookingDetailRepository,
             RoomService roomService,
@@ -197,6 +203,67 @@ public class RoomApiController {
                 rMap.put("roomStatus", "Confirmed");
                 rMap.put("roomType", rbd.getCategory().getCategoryName());
             }
+            
+            // Lấy chi tiết khách lưu trú trong phòng để so khớp tour
+            List<com.kawai.models.RoomGuest> roomGuests = roomGuestRepository.findByRoomBookingDetailId(rbd.getId());
+            List<java.util.Map<String, Object>> guestsList = new java.util.ArrayList<>();
+            for (com.kawai.models.RoomGuest rg : roomGuests) {
+                if (rg == null) continue;
+                java.util.Map<String, Object> gMap = new java.util.HashMap<>();
+                gMap.put("guestType", rg.getGuestType()); // "Adult" or "Child"
+                
+                if (rg.getCustomer() != null) {
+                    gMap.put("name", rg.getCustomer().getFullName());
+                    gMap.put("age", 18); // Mặc định người lớn 18 tuổi
+                    gMap.put("ageLabel", "Người lớn");
+                } else if (rg.getDependent() != null) {
+                    com.kawai.models.Dependent dep = rg.getDependent();
+                    gMap.put("name", dep.getDependentName());
+                    int age = 12; // default
+                    if (dep.getBirthDate() != null) {
+                        age = java.time.Period.between(dep.getBirthDate(), java.time.LocalDate.now()).getYears();
+                    }
+                    gMap.put("age", age);
+                    if (age < 2) {
+                        gMap.put("ageLabel", "Dưới 2 tuổi");
+                    } else if (age < 12) {
+                        gMap.put("ageLabel", "2 - 11 tuổi");
+                    } else {
+                        gMap.put("ageLabel", "Người lớn");
+                    }
+                }
+                guestsList.add(gMap);
+            }
+            rMap.put("guests", guestsList);
+            
+            // Tính quota đã sử dụng để đặt tour bằng Post to Room của phòng này
+            int usedAdults = 0;
+            int usedChildren = 0;
+            try {
+                List<com.kawai.models.TourAttendee> activeTourAttendees = tourAttendeeRepository.findActiveAttendeesByRoomBookingDetailId(rbd.getId());
+                for (com.kawai.models.TourAttendee ta : activeTourAttendees) {
+                    if (ta.getCustomer() != null) {
+                        usedAdults++;
+                    } else if (ta.getDependent() != null) {
+                        java.time.LocalDate birthDate = ta.getDependent().getBirthDate();
+                        if (birthDate != null) {
+                            int age = java.time.Period.between(birthDate, java.time.LocalDate.now()).getYears();
+                            if (age < 12) {
+                                usedChildren++;
+                            } else {
+                                usedAdults++;
+                            }
+                        } else {
+                            usedAdults++;
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                // Ignore
+            }
+            rMap.put("usedAdultTourSeats", usedAdults);
+            rMap.put("usedChildTourSeats", usedChildren);
+
             responseList.add(rMap);
         }
 

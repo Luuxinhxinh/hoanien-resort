@@ -388,93 +388,57 @@ public class FaceIdApiController {
 
         Long scheduleId = Long.valueOf(schedIdObj.toString());
 
-        try {
-            com.kawai.models.TourSchedule schedule = tourScheduleRepository.findById(scheduleId).orElse(null);
-            if (schedule == null) {
-                return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Không tìm thấy lịch trình tour."));
-            }
-
-            // 1. Cập nhật trạng thái TourSchedule sang Cancelled
-            schedule.setScheduleStatus("Cancelled");
-            tourScheduleRepository.save(schedule);
-
-            // 2. Ghi nhận sự cố vào bảng Hotel_Operations (loại TOUR_INCIDENT, trạng thái Pending)
-            String username = SecurityContextHolder.getContext().getAuthentication().getName();
-            com.kawai.models.Employee staff = employeeRepository.findByAccountUsername(username).orElse(null);
-
-            com.kawai.models.HotelOperation incident = new com.kawai.models.HotelOperation();
-            incident.setOperationalType("TOUR_INCIDENT");
-            incident.setPriority("Urgent");
-            incident.setStatus("Pending");
-            incident.setNotes("[HỦY TOUR] Sự cố lịch trình #" + scheduleId + " - " + (schedule.getTour() != null ? schedule.getTour().getTourName() : "") + ": " + reason);
-            incident.setStaff(staff);
-            incident.setCreatedAt(LocalDateTime.now());
-            hotelOperationRepository.save(incident);
-
-            // 3. Tìm tất cả các đơn đặt tour của lịch trình này để hủy và hoàn tiền
-            List<com.kawai.models.TourBooking> bookings = tourBookingRepository.findByScheduleId(scheduleId);
-            int cancelCount = 0;
-
-            for (com.kawai.models.TourBooking booking : bookings) {
-                String currentStatus = booking.getBookingStatus() != null ? booking.getBookingStatus() : "";
-                if ("Cancelled_Refunded".equalsIgnoreCase(currentStatus) || "Cancelled_Forfeited".equalsIgnoreCase(currentStatus)) {
-                    continue; // Bỏ qua đơn đã hủy
+        // Đồng bộ hóa theo scheduleId để tránh race condition (người dùng click đúp hoặc gửi nhiều request đồng thời)
+        synchronized (scheduleId.toString().intern()) {
+            try {
+                com.kawai.models.TourSchedule schedule = tourScheduleRepository.findById(scheduleId).orElse(null);
+                if (schedule == null) {
+                    return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Không tìm thấy lịch trình tour."));
                 }
 
-                // Gọi cancelTour với cancelledByResort = true (hoàn tiền 100%)
-                java.math.BigDecimal refundAmount = tourBookingService.cancelTour(booking.getId(), true);
-                if (refundAmount == null) {
-                    refundAmount = booking.getTotalPrice() != null ? booking.getTotalPrice() : java.math.BigDecimal.ZERO;
-                }
-                cancelCount++;
-
-                // A. Nếu là khách lưu trú (có phòng nghỉ): Hoàn tiền vào Folio phòng
-                if (booking.getRoomBookingDetail() != null) {
-                    Long detailId = booking.getRoomBookingDetail().getId();
-                    String desc = String.format("Hoàn 100%% tiền Tour '%s' do Resort hủy tour. Sự cố: %s", 
-                            schedule.getTour() != null ? schedule.getTour().getTourName() : "Lữ hành", reason);
-                    
-                    folioService.addFolioItem(detailId, "TOUR", refundAmount.negate(), desc);
-
-                    String currentNotes = booking.getNotes() != null ? booking.getNotes() : "";
-                    booking.setNotes(currentNotes + "\n[ĐÃ HOÀN TIỀN] Hoàn 100% tiền Tour (" + refundAmount + " VNĐ) vào Folio phòng " 
-                            + (booking.getRoomBookingDetail().getRoom() != null ? booking.getRoomBookingDetail().getRoom().getRoomNumber() : "") 
-                            + " lúc " + LocalDateTime.now() + ". Lý do: " + reason);
-                    tourBookingRepository.save(booking);
-                } 
-                // B. Nếu là khách vãng lai (không có phòng): Tạo RefundRequest chờ chuyển khoản
-                else {
-                    com.kawai.models.RefundRequest refund = new com.kawai.models.RefundRequest();
-                    refund.setTourBooking(booking);
-                    refund.setAmount(refundAmount);
-                    refund.setStatus("Pending");
-                    refund.setManagerNote("Hoàn 100% tiền Tour do Resort hủy tour. Sự cố: " + reason);
-                    refund.setCreatedAt(LocalDateTime.now());
-                    refundRequestRepository.save(refund);
-
-                    String currentNotes = booking.getNotes() != null ? booking.getNotes() : "";
-                    booking.setNotes(currentNotes + "\n[ĐÃ TẠO YÊU CẦU HOÀN] Hoàn 100% tiền Tour (" + refundAmount + " VNĐ) - Chờ chuyển khoản lúc " 
-                            + LocalDateTime.now() + ". Lý do: " + reason);
-                    tourBookingRepository.save(booking);
+                if ("Cancelled".equalsIgnoreCase(schedule.getScheduleStatus())) {
+                    return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Lịch trình tour này đã được hủy trước đó rồi."));
                 }
 
-                // 4. Gửi email thông báo hủy tour đến khách hàng
-                if (booking.getCustomer() != null && emailService != null) {
-                    try {
-                        emailService.sendCancellationNotice(booking, booking.getCustomer(), refundAmount, true);
-                    } catch (Exception e) {
-                        System.err.println("Lỗi gửi mail hủy tour cho khách " + booking.getCustomer().getEmail() + ": " + e.getMessage());
+                // 1. Cập nhật trạng thái TourSchedule sang Cancelled
+                schedule.setScheduleStatus("Cancelled");
+                tourScheduleRepository.save(schedule);
+
+                // 2. Ghi nhận sự cố vào bảng Hotel_Operations (loại TOUR_INCIDENT, trạng thái Pending)
+                String username = SecurityContextHolder.getContext().getAuthentication().getName();
+                com.kawai.models.Employee staff = employeeRepository.findByAccountUsername(username).orElse(null);
+
+                com.kawai.models.HotelOperation incident = new com.kawai.models.HotelOperation();
+                incident.setOperationalType("TOUR_INCIDENT");
+                incident.setPriority("Urgent");
+                incident.setStatus("Pending");
+                incident.setNotes("[HỦY TOUR] Sự cố lịch trình #" + scheduleId + " - " + (schedule.getTour() != null ? schedule.getTour().getTourName() : "") + ": " + reason);
+                incident.setStaff(staff);
+                incident.setCreatedAt(LocalDateTime.now());
+                hotelOperationRepository.save(incident);
+
+                // 3. Tìm tất cả các đơn đặt tour của lịch trình này để hủy và hoàn tiền
+                List<com.kawai.models.TourBooking> bookings = tourBookingRepository.findByScheduleId(scheduleId);
+                int cancelCount = 0;
+
+                for (com.kawai.models.TourBooking booking : bookings) {
+                    String currentStatus = booking.getBookingStatus() != null ? booking.getBookingStatus() : "";
+                    if ("Cancelled_Refunded".equalsIgnoreCase(currentStatus) || "Cancelled_Forfeited".equalsIgnoreCase(currentStatus)) {
+                        continue; // Bỏ qua đơn đã hủy
                     }
-                }
-            }
 
-            return ResponseEntity.ok(Map.of(
-                "success", true, 
-                "message", "Đã hủy lịch trình tour thành công! Đã hoàn tiền cho " + cancelCount + " đơn đặt tour."
-            ));
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(500).body(Map.of("success", false, "message", "Lỗi khi hủy lịch trình tour: " + e.getMessage()));
+                    // Gọi cancelTour tập trung ở Service với cancelledByResort = true (hoàn tiền 100%) và truyền lý do hủy
+                    tourBookingService.cancelTour(booking.getId(), true, reason);
+                    cancelCount++;
+                }
+                return ResponseEntity.ok(Map.of(
+                    "success", true, 
+                    "message", "Đã hủy lịch trình tour thành công! Đã hoàn tiền cho " + cancelCount + " đơn đặt tour."
+                ));
+            } catch (Exception e) {
+                e.printStackTrace();
+                return ResponseEntity.status(500).body(Map.of("success", false, "message", "Lỗi khi hủy lịch trình tour: " + e.getMessage()));
+            }
         }
     }
 

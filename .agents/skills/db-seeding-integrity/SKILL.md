@@ -8,6 +8,7 @@ description: Đảm bảo tính toàn vẹn nghiệp vụ và nhất quán dữ 
 Mỗi khi bạn thực hiện thêm mới, chỉnh sửa hoặc tối ưu hóa các tệp dữ liệu khởi tạo của dự án (như dữ liệu SQL nạp ban đầu khi khởi động), bạn **bắt buộc** phải tuân thủ các quy tắc nghiệp vụ sau để tránh tình trạng dữ liệu "lệch pha" hoặc xung đột logic:
 
 ## 1. NGUYÊN TẮC TOÀN VẸN NGHIỆP VỤ (BUSINESS LOGIC INTEGRITY):
+- **Nhất quán giá trị Enum/Key định danh:** Mọi mã định danh (ví dụ `tour_type`: `doantu`, `dongnoi`...) hoặc giá trị cờ nghiệp vụ (`is_insurance_required = TRUE`) sử dụng ở Backend (Controller/Service) và Frontend (JS/Thymeleaf) bắt buộc phải nhất quán 100% với dữ liệu được khai báo trong `data.sql` và các file Java Seeder. Tuyệt đối không dùng dữ liệu giả/legacy (như `CULTURAL`, `RELAX`...) trong seeder, tránh việc hệ thống không truy vấn được bản ghi phù hợp dẫn đến ẩn giao diện hoặc crash nghiệp vụ.
 - **Luồng phê duyệt (Approval Workflows):** Nếu thêm một thực thể ở trạng thái chờ duyệt (ví dụ: `Pending_Approval`), bắt buộc phải có bản ghi tương ứng trong bảng theo dõi vận hành/phê duyệt của người quản lý (ví dụ: `Hotel_Operations` với loại `Manager_Approval`) ở trạng thái chờ xử lý (`Pending`).
 - **Luồng hoàn tiền (Refund Workflows):** Nếu thêm một yêu cầu hoàn tiền (`RefundRequest`), thực thể giao dịch hoặc đơn hàng gốc liên kết (ví dụ: `Booking`, `FoodOrder`, `TourBooking`) **phải được đặt ở trạng thái đã hủy (`Cancelled`)** để phản ánh đúng thực tế tài chính và nghiệp vụ.
 - **Mã giảm giá (Promotions):** Số lần sử dụng thực tế phải khớp hoặc được kiểm soát hợp lý so với số lượng đơn hàng liên kết đã áp dụng mã đó.
@@ -25,4 +26,4 @@ Mỗi khi bạn thực hiện thêm mới, chỉnh sửa hoặc tối ưu hóa c
 - **Bước 3:** Chạy biên dịch và khởi động thử dự án để kiểm tra lỗi cú pháp SQL hoặc xung đột khóa ngoại lúc nạp dữ liệu.
 
 ## 4. BÀI HỌC KINH NGHIỆM (Lessons Learned):
-- **Đồng bộ logic code với dữ liệu nạp (Seed Data Alignment):** *Xem chi tiết tại [tech-lead-mindset/SKILL.md](file:///d:/SWP/su26-swp391-se2023-g2/.agents/skills/tech-lead-mindset/SKILL.md) §4 (Lệch pha giữa Logic Code và Database Seeds).*
+- **Đồng bộ logic code với dữ liệu nạp (Seed Data Alignment):** *Xem chi tiết tại [tech-lead-mindset/SKILL.md](file:///d:/SWP/SWP-Group02/su26-swp391-se2023-g2/.agents/skills/tech-lead-mindset/SKILL.md) §59 (Lệch pha giữa Logic Code và Database Seeds).*

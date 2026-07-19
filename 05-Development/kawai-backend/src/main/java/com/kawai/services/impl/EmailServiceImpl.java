@@ -266,7 +266,7 @@ public class EmailServiceImpl implements EmailService {
     @org.springframework.scheduling.annotation.Async
     @Override
     public void sendCancellationNotice(com.kawai.models.TourBooking booking, com.kawai.models.Customer customer,
-            java.math.BigDecimal refundAmount, boolean cancelledByResort) {
+            java.math.BigDecimal refundAmount, boolean cancelledByResort, String reason) {
         if (customer == null || customer.getEmail() == null || customer.getEmail().isBlank()) {
             logger.warn("Bỏ qua gửi email hủy tour: customer {} không có email",
                     customer != null ? customer.getId() : "null");
@@ -323,7 +323,7 @@ public class EmailServiceImpl implements EmailService {
                         roomDetail = noteMap.get("roomDetail");
                 } catch (Exception parseEx) {
                     logger.warn("Lỗi phân tích notes metadata cho booking {}: {}", booking.getId(),
-                            parseEx.getMessage());
+                             parseEx.getMessage());
                 }
             }
 
@@ -400,6 +400,17 @@ public class EmailServiceImpl implements EmailService {
             ctx.setVariable("refundAmount", formatVnd(refundAmount));
             ctx.setVariable("forfeitAmount", formatVnd(forfeitAmount));
             ctx.setVariable("cancelledByResort", cancelledByResort);
+            ctx.setVariable("reason", reason);
+
+            String refundMethodDetail = "Số tiền hoàn trả sẽ được chuyển trả vào phương thức thanh toán gốc của Quý khách. Vui lòng chờ 3-7 ngày làm việc để ngân hàng xử lý giao dịch.";
+            if ("post-room".equalsIgnoreCase(paymentMethod)) {
+                refundMethodDetail = "Số tiền hoàn đã được cộng (ghi âm) trực tiếp vào Folio phòng nghỉ số " + roomDetail + " của Quý khách. Số tiền này sẽ được trừ trực tiếp khi Quý khách làm thủ tục thanh toán checkout phòng nghỉ.";
+            } else if ("vnpay".equalsIgnoreCase(paymentMethod)) {
+                refundMethodDetail = "Số tiền hoàn trả sẽ được chuyển trả trực tiếp vào tài khoản ngân hàng / ví điện tử gốc Quý khách đã sử dụng thanh toán qua VNPay. Vui lòng chờ từ 3-7 ngày làm việc để ngân hàng xử lý.";
+            } else if ("counter".equalsIgnoreCase(paymentMethod)) {
+                refundMethodDetail = "Quý khách vui lòng mang theo hóa đơn hoặc thông tin đặt tour này liên hệ quầy Lễ tân của resort để nhận lại tiền mặt hoàn trả, hoặc phản hồi email này cung cấp thông tin số tài khoản để resort thực hiện chuyển khoản.";
+            }
+            ctx.setVariable("refundMethodDetail", refundMethodDetail);
 
             String html = templateEngine.process("email/tour-booking-cancelled", ctx);
             String subject = cancelledByResort ? "❌ Thông báo hủy tour — " + tourName + " | Hòa Niên Retreat & Resort"
