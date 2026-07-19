@@ -58,7 +58,7 @@ public interface EmailService {
     /**
      * Gửi email thông báo hủy tour kèm số tiền hoàn.
      */
-    void sendCancellationNotice(com.kawai.models.TourBooking booking, com.kawai.models.Customer customer, java.math.BigDecimal refundAmount, boolean cancelledByResort);
+    void sendCancellationNotice(com.kawai.models.TourBooking booking, com.kawai.models.Customer customer, java.math.BigDecimal refundAmount, boolean cancelledByResort, String reason);
 
     /**
      * Gửi email xác nhận đặt món tại phòng (Room Service).

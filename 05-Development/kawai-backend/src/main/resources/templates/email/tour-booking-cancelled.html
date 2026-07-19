@@ -192,11 +192,17 @@
           <div class="total-amount" th:text="${refundAmount}">115.000 VNĐ</div>
           
           <div class="total-note" th:if="${refundAmount != null and refundAmount != '0 ₫' and refundAmount != '0'}">
-            Số tiền hoàn lại sẽ được chuyển trả vào phương thức thanh toán gốc của Quý khách. Vui lòng chờ <strong>3-7 ngày làm việc</strong> để ngân hàng xử lý giao dịch.
+            <span th:text="${refundMethodDetail}">Số tiền hoàn lại sẽ được chuyển trả vào phương thức thanh toán gốc của Quý khách. Vui lòng chờ 3-7 ngày làm việc để ngân hàng xử lý giao dịch.</span>
           </div>
           <div class="total-note" th:if="${refundAmount == null or refundAmount == '0 ₫' or refundAmount == '0'}">
             Hành trình bị hủy sát giờ khởi hành (trong vòng 24 giờ trước giờ tour), do đó không đủ điều kiện hoàn cọc theo đúng quy chế chính sách dịch vụ của resort.
           </div>
+        </div>
+
+        <!-- Cancel Reason -->
+        <div class="note-box" th:if="${cancelledByResort and reason != null and !reason.isEmpty()}" style="border-left-color: #d32f2f; margin-bottom: 28px;">
+          <span class="note-title">Lý do hủy tour từ Resort</span>
+          <p style="margin-bottom: 0; font-style: italic;" th:text="${reason}">Lý do bất khả kháng</p>
         </div>
 
         <div class="divider-line"></div>
