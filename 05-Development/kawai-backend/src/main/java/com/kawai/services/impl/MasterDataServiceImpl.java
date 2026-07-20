@@ -15,6 +15,7 @@ public class MasterDataServiceImpl implements MasterDataService {
 
     private final RoomRepository roomRepository;
     private final RoomCategoryRepository roomCategoryRepository;
+    private final com.kawai.repositories.RoomSurchargeRepository roomSurchargeRepository;
     private final FoodItemRepository foodItemRepository;
     private final TourRepository tourRepository;
     private final PromotionRepository promotionRepository;
@@ -76,6 +77,9 @@ public class MasterDataServiceImpl implements MasterDataService {
 
                 rc.setIsActive(payload.get("status") == null || "Active".equals(payload.get("status")));
                 roomCategoryRepository.save(rc);
+                upsertRoomSurcharge(rc, "CHILD_0_5", 0, 5, payload.get("surcharge_child_0_5"));
+                upsertRoomSurcharge(rc, "CHILD_6_11", 6, 11, payload.get("surcharge_child_6_11"));
+                upsertRoomSurcharge(rc, "CHILD_12_17", 12, 17, payload.get("surcharge_child_12_17"));
                 break;
 
             case "rooms":
@@ -337,6 +341,9 @@ public class MasterDataServiceImpl implements MasterDataService {
 
                     rc.setIsActive("Active".equals(payload.get("status")));
                     roomCategoryRepository.save(rc);
+                    upsertRoomSurcharge(rc, "CHILD_0_5", 0, 5, payload.get("surcharge_child_0_5"));
+                    upsertRoomSurcharge(rc, "CHILD_6_11", 6, 11, payload.get("surcharge_child_6_11"));
+                    upsertRoomSurcharge(rc, "CHILD_12_17", 12, 17, payload.get("surcharge_child_12_17"));
                 }
                 break;
 
@@ -666,6 +673,25 @@ public class MasterDataServiceImpl implements MasterDataService {
             case "roles":
                 // Roles don't have isActive flag currently, so just ignore or throw error
                 break;
+        }
+    }
+
+    private void upsertRoomSurcharge(RoomCategory category, String type, int ageFrom, int ageTo, Object priceObj) {
+        if (priceObj == null || priceObj.toString().trim().isEmpty()) {
+            return;
+        }
+        try {
+            java.math.BigDecimal price = new java.math.BigDecimal(priceObj.toString().replaceAll("[^\\d.]", ""));
+            com.kawai.models.RoomSurcharge surcharge = roomSurchargeRepository.findSurchargeForAge(category, ageFrom).orElse(new com.kawai.models.RoomSurcharge());
+            surcharge.setCategory(category);
+            surcharge.setSurchargeType(type);
+            surcharge.setAgeFrom(ageFrom);
+            surcharge.setAgeTo(ageTo);
+            surcharge.setPriceModifier(price);
+            surcharge.setIsActive(true);
+            roomSurchargeRepository.save(surcharge);
+        } catch (Exception e) {
+            // Ignore parse errors
         }
     }
 }

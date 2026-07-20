@@ -107,14 +107,6 @@
                     <div class="date" id="currentDate" th:text="${todayLabel}">Wednesday, June 10, 2026</div>
                 </div>
 
-                <div class="header-search">
-                    <form action="/receptionist/check-in" method="get">
-                        <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                        <input type="text" name="keyword" th:value="${param.keyword}"
-                            placeholder="Search guest, room no., phone" style="border-radius: 20px;" />
-                    </form>
-                </div>
-
                 <div class="header-actions">
                     <button class="user-profile-btn">
                         <i class="fa-solid fa-user"></i>
@@ -568,13 +560,13 @@
                             var payload = JSON.parse(msg.body);
                             console.log('[WS] Nhận tin nhắn từ kênh Chung (/topic/operations):', payload);
                             if (payload.type === 'NEW_TASK') return;
+                            saveAndShow('THÔNG BÁO HỆ THỐNG: \n' + payload.message, false);
                             if (payload.type === 'ROOM_CLEANED') {
                                 if (typeof pollCleanTasksDone === 'function') pollCleanTasksDone();
                                 if (typeof pollPendingWalkInRooms === 'function') pollPendingWalkInRooms();
                                 if (typeof pollCleanedRooms === 'function') pollCleanedRooms();
                                 return;
                             }
-                            saveAndShow('THÔNG BÁO HỆ THỐNG: \n' + payload.message, false);
                         } catch (e) { console.error('[WS] parse error', e); }
                     });
 
