@@ -164,11 +164,7 @@ public class OrderFoodController {
                                     java.util.Map<String, Object> rMap = new java.util.HashMap<>();
                                     rMap.put("roomNumber", r.getRoomNumber());
                                     BigDecimal subLimit = rbd.getSubCreditLimit();
-                                    BigDecimal limit = (subLimit != null && subLimit.compareTo(BigDecimal.ZERO) > 0)
-                                            ? subLimit
-                                            : (rbd.getRoomBooking() != null && rbd.getRoomBooking().getCreditLimit() != null
-                                                    ? rbd.getRoomBooking().getCreditLimit()
-                                                    : BigDecimal.ZERO);
+                                    BigDecimal limit = subLimit != null ? subLimit : BigDecimal.ZERO;
                                     java.util.List<com.kawai.models.FolioItem> folioItems = folioItemRepository.findByRoomBookingDetailId(rbd.getId());
                                     BigDecimal charged = folioItems.stream()
                                             .filter(f -> !Boolean.TRUE.equals(f.getIsSettledSeparately()))

@@ -776,9 +776,13 @@ public class WalkInCheckInServiceImpl implements com.kawai.services.interfaces.W
     private BigDecimal sumAllocatedCreditLimit(WalkInCheckInRequest request) {
         BigDecimal total = BigDecimal.ZERO;
         for (WalkInRoomSelectionDTO selection : request.getRoomSelections()) {
-            if (selection.getAllocatedCreditLimit() != null) {
-                total = total.add(selection.getAllocatedCreditLimit());
+            if (selection.getAllocatedCreditLimit() == null) {
+                throw new com.kawai.exceptions.BusinessException("WALKIN-009", "Vui lòng nhập hạn mức cho phòng nhé");
             }
+            if (selection.getAllocatedCreditLimit().compareTo(BigDecimal.ZERO) < 0) {
+                throw new com.kawai.exceptions.BusinessException("WALKIN-010", "Hạn mức không được là số âm!");
+            }
+            total = total.add(selection.getAllocatedCreditLimit());
         }
         return total;
     }
