@@ -32,7 +32,6 @@ function getOrCreateToastContainer() {
         container.style.flexDirection = 'column';
         container.style.gap = '16px';
         document.body.appendChild(container);
->>>>>>> aed533a3a682114c661c169914fc113b8f0e289b
     }
     return container;
 }
@@ -111,6 +110,59 @@ window.dismissRoomAlert = function (roomNum, element) {
     } catch (e) { /* ignore */ }
 };
 
+// ── Urgent Clean Notification ─────────────────────────────────────────────────
+const URGENT_CLEAN_SS_KEY = 'urgentCleanAlertedTasks';
+const RECENTLY_URGENT_CLEANED_ROOMS_KEY = 'recentlyUrgentCleanedRooms';
+
+function getUrgentCleanAlerted() {
+    try { return JSON.parse(sessionStorage.getItem(URGENT_CLEAN_SS_KEY) || '[]'); } catch { return []; }
+}
+function setUrgentCleanAlerted(arr) {
+    try { sessionStorage.setItem(URGENT_CLEAN_SS_KEY, JSON.stringify(arr)); } catch { /* ignore */ }
+}
+function getRecentlyUrgentCleanedRooms() {
+    try { return JSON.parse(sessionStorage.getItem(RECENTLY_URGENT_CLEANED_ROOMS_KEY) || '[]'); } catch { return []; }
+}
+function setRecentlyUrgentCleanedRooms(arr) {
+    try { sessionStorage.setItem(RECENTLY_URGENT_CLEANED_ROOMS_KEY, JSON.stringify(arr)); } catch { /* ignore */ }
+}
+
+window.isRecentlyUrgentCleaned = function(roomNum) {
+    return getRecentlyUrgentCleanedRooms().includes(roomNum);
+};
+
+window.pollCleanTasksDone = async function() {
+    try {
+        const res = await fetch('/receptionist/api/notifications/clean-tasks-done');
+        if (!res.ok) return;
+        const tasks = await res.json();
+        
+        let playSound = false;
+        tasks.forEach(task => {
+            const alertedTasks = getUrgentCleanAlerted();
+            if (alertedTasks.includes(task.taskId)) return;
+            
+            playSound = true;
+            alertedTasks.push(task.taskId);
+            setUrgentCleanAlerted(alertedTasks);
+            
+            const recentRooms = getRecentlyUrgentCleanedRooms();
+            if (!recentRooms.includes(task.roomNumber)) {
+                recentRooms.push(task.roomNumber);
+                setRecentlyUrgentCleanedRooms(recentRooms);
+            }
+            
+            showToastAlert(`🚨 Housekeeping đã hoàn tất dọn khẩn cấp phòng ${task.roomNumber}!`, task.roomNumber, {
+                icon: '<i class="fa-solid fa-check-circle fa-beat" style="font-size:24px;color:#4ade80;"></i>',
+                bg: '#b91c1c'
+            });
+        });
+        if (playSound) playAlertSound();
+    } catch (err) {
+        console.error('Failed to poll urgent clean tasks:', err);
+    }
+};
+
 // ── WalkIn Pending Clean Rooms ──────────────────────────────────────────────
 async function pollPendingWalkInRooms() {
     try {
@@ -180,5 +232,6 @@ async function pollCleanedRooms() {
 }
 
 // ── Khởi chạy lần đầu khi load trang ──────────────────────────────────────
+window.pollCleanTasksDone();
 pollCleanedRooms();
 pollPendingWalkInRooms();

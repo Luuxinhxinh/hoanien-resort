@@ -121,6 +121,11 @@ public interface EmailService {
     void sendRoomCancellationEmail(com.kawai.models.RoomBooking booking, com.kawai.models.Customer customer, boolean isRefundable);
 
     /**
+     * Gửi email thông báo đơn đặt phòng bị hủy tự động do khách không tới (No_Show).
+     */
+    void sendRoomNoShowEmail(com.kawai.models.RoomBooking booking, com.kawai.models.Customer customer);
+
+    /**
      * Gửi email xác nhận Walk-in check-in.
      */
     void sendWalkInCheckInEmail(com.kawai.models.RoomBooking booking, com.kawai.models.RoomBookingDetail detail, com.kawai.models.Customer customer, boolean isNewAccount, String username, String password);
@@ -131,4 +136,9 @@ public interface EmailService {
      * Gửi email thông báo lịch làm việc hàng tuần cho nhân viên.
      */
     void sendWeeklyScheduleEmail(String toEmail, String employeeName, java.util.List<com.kawai.models.StaffSchedule> schedules);
+
+    /**
+     * Gửi email xác nhận đặt phòng thành công (sau khi thanh toán thành công).
+     */
+    void sendRoomBookingConfirmation(com.kawai.models.RoomBooking booking, com.kawai.models.Customer customer);
 }
