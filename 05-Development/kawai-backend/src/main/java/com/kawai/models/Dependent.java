@@ -105,6 +105,12 @@ public class Dependent {
         return cccdPassportEncrypted;
     }
 
+    public String getCccdPassportDecrypted() {
+        if (cccdPassportEncrypted == null || cccdPassportEncrypted.isBlank()) return "--";
+        if (cccdPassportEncrypted.startsWith("PHONE_") || cccdPassportEncrypted.startsWith("AUTO_CHILD_")) return "--";
+        return com.kawai.utils.EncryptionUtils.decrypt(cccdPassportEncrypted);
+    }
+
     public void setCccdPassportEncrypted(String v) {
         this.cccdPassportEncrypted = v;
     }

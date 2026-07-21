@@ -153,7 +153,7 @@ public class PosApiController {
     @PostMapping("/orders/{id}/cancel")
 
     public ResponseEntity<?> cancelOrder(@PathVariable Long id,
-            @RequestBody(required = false) com.kawai.dtos.CancelOrderRequestDTO dto) {
+            @RequestBody(required = false) com.kawai.dto.CancelOrderRequestDTO dto) {
         try {
             posService.cancelOrder(id, dto, "Nhân viên F&B", null);
             return ResponseEntity.ok().body(Map.of("status", "success", "message", "Cập nhật trạng thái thành công"));
@@ -173,7 +173,7 @@ public class PosApiController {
     @org.springframework.security.access.prepost.PreAuthorize("hasAnyAuthority('ROLE_GUEST', 'ROLE_CUSTOMER')")
     @PostMapping("/guest/orders/{id}/cancel")
     public ResponseEntity<?> guestCancelOrder(@PathVariable Long id,
-            @RequestBody(required = false) com.kawai.dtos.CancelOrderRequestDTO dto,
+            @RequestBody(required = false) com.kawai.dto.CancelOrderRequestDTO dto,
             java.security.Principal principal) {
         try {
             if (principal == null) {

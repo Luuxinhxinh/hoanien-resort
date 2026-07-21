@@ -94,6 +94,11 @@ public class Customer {
         return cccdPassportEncrypted;
     }
 
+    public String getCccdPassportDecrypted() {
+        if (cccdPassportEncrypted == null || cccdPassportEncrypted.isBlank()) return "--";
+        return com.kawai.utils.EncryptionUtils.decrypt(cccdPassportEncrypted);
+    }
+
     public void setCccdPassportEncrypted(String v) {
         this.cccdPassportEncrypted = v;
     }
