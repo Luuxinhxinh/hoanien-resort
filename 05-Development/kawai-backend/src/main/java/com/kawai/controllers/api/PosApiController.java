@@ -155,7 +155,7 @@ public class PosApiController {
     public ResponseEntity<?> cancelOrder(@PathVariable Long id,
             @RequestBody(required = false) com.kawai.dtos.CancelOrderRequestDTO dto) {
         try {
-            posService.cancelOrder(id, dto);
+            posService.cancelOrder(id, dto, "Nhân viên F&B", null);
             return ResponseEntity.ok().body(Map.of("status", "success", "message", "Cập nhật trạng thái thành công"));
         } catch (Exception e) {
             e.printStackTrace();

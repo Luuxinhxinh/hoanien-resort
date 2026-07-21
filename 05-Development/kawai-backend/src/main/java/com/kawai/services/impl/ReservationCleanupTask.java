@@ -76,7 +76,7 @@ public class ReservationCleanupTask {
             TableReservation savedRes = tableReservationRepository.save(res);
             
             if (savedRes.getCustomer() != null) {
-                emailService.sendCancelTableBooking(savedRes, savedRes.getCustomer());
+                emailService.sendCancelTableBooking(savedRes, savedRes.getCustomer(), "Hệ thống", "Hủy tự động do quá hạn check-in");
             }
         }
     }

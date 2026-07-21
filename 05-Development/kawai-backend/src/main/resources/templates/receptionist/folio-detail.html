@@ -1105,6 +1105,9 @@
                             <button class="btn-secondary no-print" id="btnPrintOriginal"
                                 onclick="printInvoiceFromSummary()" disabled
                                 style="opacity: 0.5; pointer-events: none; cursor: not-allowed;">In hóa đơn</button>
+                            <button class="btn-secondary no-print" id="btnGDPRAnonymize"
+                                onclick="anonymizeCustomerGDPR()" sec:authorize="hasAnyAuthority('OP_RECEPTION_CHECKOUT', 'ROLE_ADMIN', 'ROLE_MANAGER')"
+                                style="margin-top: 10px; background-color: #e74c3c; color: white; border: none; padding: 12px 24px; font-weight: 600; cursor: pointer; border-radius: 4px; display: none;">Xóa dữ liệu (GDPR)</button>
                         </div>
                     </div>
 
@@ -2336,6 +2339,17 @@
                     btnPrint.style.cursor = 'not-allowed';
                 }
             }
+            
+            const btnGDPR = document.getElementById('btnGDPRAnonymize');
+            if (btnGDPR) {
+                const status = (bookingGroupData && bookingGroupData.status) || (currentFolioData && currentFolioData.status);
+                const custId = (bookingGroupData && bookingGroupData.customerId) || (currentFolioData && currentFolioData.customerId);
+                if (outstanding < 1 && status === 'Checked_Out' && custId) {
+                    btnGDPR.style.display = 'block';
+                } else {
+                    btnGDPR.style.display = 'none';
+                }
+            }
         }
 
         function applyGroupPromo() {
@@ -3297,6 +3311,41 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
     <script th:inline="javascript">
+        async function anonymizeCustomerGDPR() {
+            const custId = (bookingGroupData && bookingGroupData.customerId) || (currentFolioData && currentFolioData.customerId);
+            if (!custId) {
+                alert('Không tìm thấy thông tin khách hàng để xóa dữ liệu.');
+                return;
+            }
+            
+            if (!confirm('BẠN CÓ CHẮC CHẮN MUỐN XÓA DỮ LIỆU CÁ NHÂN?\n\nHành động này không thể hoàn tác, nhưng sẽ không ảnh hưởng đến số liệu kế toán. Tên khách sẽ đổi thành "Anonymous Customer".')) {
+                return;
+            }
+            
+            try {
+                const btnGDPR = document.getElementById('btnGDPRAnonymize');
+                btnGDPR.disabled = true;
+                btnGDPR.innerText = 'Đang xử lý...';
+                
+                const res = await fetch(`/admin/api/v1/customers/${custId}/anonymize`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                if (res.ok) {
+                    alert('Dữ liệu khách hàng đã được xóa (ẩn danh) thành công.');
+                    window.location.reload();
+                } else {
+                    const data = await res.json();
+                    alert('Lỗi: ' + (data.error || 'Không thể xóa dữ liệu'));
+                    btnGDPR.disabled = false;
+                    btnGDPR.innerText = 'Xóa dữ liệu (GDPR)';
+                }
+            } catch (err) {
+                alert('Lỗi kết nối: ' + err);
+            }
+        }
+
         (function () {
             var staffId = /*[[${staffId}]]*/ 0;
 
