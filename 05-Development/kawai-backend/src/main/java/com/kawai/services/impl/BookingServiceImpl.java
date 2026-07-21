@@ -558,7 +558,7 @@ public class BookingServiceImpl implements BookingService {
                                 throw new IllegalArgumentException(
                                         "Mã giảm giá vượt quá mức cho phép đối với khách tự đặt ("
                                                 + thresholdVal
-                                                + "%). Vui lòng liên hệ Lễ tân để được hỗ trợ đền bù.");
+                                                + "%). Vui lòng liên hệ Quản lý (Manager) để được phê duyệt.");
                             }
                             // Nếu là Staff -> Cho qua để hệ thống bắt vào luồng Workflow Treo chờ duyệt.
                         }
