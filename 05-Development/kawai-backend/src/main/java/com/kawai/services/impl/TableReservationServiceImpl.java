@@ -415,8 +415,8 @@ public class TableReservationServiceImpl implements TableReservationService {
         TableReservation res = tableReservationRepository.findById(reservationId)
                 .orElseThrow(() -> new BusinessException("RES-001", "Không tìm thấy thông tin đặt bàn"));
 
-        if (!"Pending".equalsIgnoreCase(res.getStatus())) {
-            throw new BusinessException("RES-005", "Chỉ có thể hủy đơn đặt bàn khi ở trạng thái Chờ xác nhận.");
+        if (!"Pending".equalsIgnoreCase(res.getStatus()) && !"Confirmed".equalsIgnoreCase(res.getStatus())) {
+            throw new BusinessException("RES-005", "Chỉ có thể hủy đơn đặt bàn khi ở trạng thái Chờ xác nhận hoặc Đã xác nhận.");
         }
 
         // Validate that the current user is the one who created the reservation
@@ -463,5 +463,10 @@ public class TableReservationServiceImpl implements TableReservationService {
         res.setSpecialRequests(currentNotes);
 
         tableReservationRepository.save(res);
+
+        if (res.getCustomer() != null) {
+            String mailCancelledBy = isStaff ? "Nhân viên F&B" : "Khách hàng";
+            emailService.sendCancelTableBooking(res, res.getCustomer(), mailCancelledBy, reason);
+        }
     }
 }

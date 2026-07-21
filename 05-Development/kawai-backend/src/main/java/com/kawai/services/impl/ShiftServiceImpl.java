@@ -109,8 +109,6 @@ public class ShiftServiceImpl implements ShiftService {
 
     @Override
     public boolean checkIsOnShift(org.springframework.security.core.Authentication auth, jakarta.servlet.http.HttpSession session) {
-        return true; // TODO: Tạm thời vô hiệu hóa tính năng chặn ca
-        /*
         if (session != null && session.getAttribute("demoBypassShift") != null) {
             return true;
         }
@@ -119,6 +117,9 @@ public class ShiftServiceImpl implements ShiftService {
         }
         if (auth != null) {
             Employee currentStaff = employeeRepository.findByAccountUsername(auth.getName()).orElse(null);
+            if (currentStaff == null) {
+                return true; // Không phải nhân viên (khách) thì không bị chặn ca
+            }
             if (currentStaff != null) {
                 var shifts = staffScheduleRepository.findByEmployeeIdAndWorkDate(currentStaff.getId(), LocalDate.now());
                 if (shifts != null && !shifts.isEmpty()) {
@@ -140,7 +141,6 @@ public class ShiftServiceImpl implements ShiftService {
             }
         }
         return false;
-        */
     }
 
     private boolean isGuideFree(Long employeeId, LocalDate date, java.time.LocalTime newStart, java.time.LocalTime newEnd) {

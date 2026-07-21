@@ -319,6 +319,10 @@ public class BookingServiceImpl implements BookingService {
         String promoCode = request.getPromotionCode();
         if (promoCode != null && !promoCode.isBlank()) {
             discountedPrice = applyPromotion(promoCode, totalBaseTotal, request.getCustomerId());
+            Promotion promo = promotionRepository.findByPromoCode(promoCode.trim().toUpperCase()).orElse(null);
+            if (promo != null) {
+                savedHold.setAppliedPromotion(promo);
+            }
         }
 
         // Tính toán tiền đặt cọc ở backend (30% cọc mặc định)
@@ -526,13 +530,12 @@ public class BookingServiceImpl implements BookingService {
                         }
                     }
 
-                    // 2. max_uses_per_customer
-                    if (customerId != null && conds.containsKey("max_uses_per_customer")) {
-                        int maxUses = Integer.parseInt(conds.get("max_uses_per_customer").toString());
-                        long uses = bookingRepository.countByCustomerIdAndPromoCode(customerId, promoCode);
+                    // 2. max_uses_per_customer (Mặc định 1 lần duy nhất cho mỗi khách hàng)
+                    if (customerId != null) {
+                        int maxUses = conds.containsKey("max_uses_per_customer") ? Integer.parseInt(conds.get("max_uses_per_customer").toString()) : 1;
+                        long uses = bookingRepository.countByCustomerIdAndPromoCode(customerId, promoCode.trim().toUpperCase());
                         if (uses >= maxUses) {
-                            throw new IllegalArgumentException("Khách hàng đã vượt quá số lần sử dụng mã giảm giá này ("
-                                    + maxUses + " lần)");
+                            throw new IllegalArgumentException("Mã giảm giá \"" + promoCode.trim().toUpperCase() + "\" đã được sử dụng trước đó. Mỗi tài khoản chỉ được sử dụng 1 lần duy nhất.");
                         }
                     }
                     // 3. threshold_pct_gt (Chặn cứng đối với Khách hàng tự thao tác)

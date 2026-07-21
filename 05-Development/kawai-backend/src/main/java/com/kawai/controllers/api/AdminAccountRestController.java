@@ -52,6 +52,21 @@ public class AdminAccountRestController {
             throw e;
         }
     }
+
+    @PostMapping("/customers/{id}/anonymize")
+    public ResponseEntity<?> anonymizeCustomer(@PathVariable Long id) {
+        System.out.println("========== ANONYMIZE CUSTOMER API HIT! ID: " + id + " ==========");
+        try {
+            userService.anonymizeCustomer(id);
+            return ResponseEntity.ok(Map.of("message", "Dữ liệu khách hàng đã được ẩn danh thành công. Lịch sử hóa đơn vẫn được lưu trữ."));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            System.err.println("========== ERROR IN ANONYMIZE API: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Internal server error"));
+        }
+    }
     @PostMapping("/accounts")
     public ResponseEntity<?> createAccount(@RequestBody Map<String, String> payload) {
         System.out.println("========== CREATE ACCOUNT API HIT! ==========");

@@ -14,6 +14,8 @@ public interface UserService {
     Employee updateEmployeeAccount(Long id, java.util.Map<String, String> payload);
     Customer updateCustomerAccount(Long id, java.util.Map<String, String> payload);
     
+    void anonymizeCustomer(Long customerId);
+    
     void updateCustomPermissions(Long accountId, java.util.List<String> permissions);
 
     // For permission reset

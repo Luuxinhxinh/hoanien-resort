@@ -740,7 +740,7 @@ public class EmailServiceImpl implements EmailService {
     @Override
     @org.springframework.scheduling.annotation.Async
     public void sendCancelTableBooking(com.kawai.models.TableReservation reservation,
-            com.kawai.models.Customer customer) {
+            com.kawai.models.Customer customer, String cancelledBy, String reason) {
         if (customer == null || customer.getEmail() == null || customer.getEmail().isBlank())
             return;
         try {
@@ -751,11 +751,45 @@ public class EmailServiceImpl implements EmailService {
                     reservation.getReserveTime() != null ? reservation.getReserveTime().toString() : "");
             ctx.setVariable("reservationDate",
                     reservation.getReserveDate() != null ? reservation.getReserveDate().format(DATE_FMT) : "");
+            ctx.setVariable("tableNumber", reservation.getTable() != null ? reservation.getTable().getTableNumber() : "N/A");
+            ctx.setVariable("guestCount", reservation.getPartySize() != null ? reservation.getPartySize() : 0);
+            ctx.setVariable("cancelledBy", cancelledBy != null && !cancelledBy.isBlank() ? cancelledBy : "Khách hàng");
+            ctx.setVariable("reason", reason != null && !reason.isBlank() ? reason : "Không có");
 
-            String html = templateEngine.process("email/cancel-booking", ctx);
-            sendEmail(customer.getEmail(), "Thông báo hủy đặt bàn #" + reservation.getId(), html);
+            String html = templateEngine.process("email/cancel-table-booking", ctx);
+            sendEmail(customer.getEmail(), "Xác nhận Hủy Đặt Bàn #" + reservation.getId(), html);
         } catch (Exception e) {
             logger.error("Lỗi gửi email hủy đặt bàn #{}: {}", reservation.getId(), e.getMessage());
+        }
+    }
+
+    @Override
+    @org.springframework.scheduling.annotation.Async
+    public void sendCancelFoodOrderEmail(com.kawai.models.FoodOrder order, com.kawai.models.Customer customer, String cancelledBy, String reason, java.math.BigDecimal refundAmount, String bankName, String accountName, String accountLast3) {
+        if (customer == null || customer.getEmail() == null || customer.getEmail().isBlank())
+            return;
+        try {
+            org.thymeleaf.context.Context ctx = new org.thymeleaf.context.Context(new java.util.Locale("vi", "VN"));
+            java.time.format.DateTimeFormatter fmt = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+            ctx.setVariable("customerName", customer.getFullName());
+            ctx.setVariable("orderId", order.getId());
+            ctx.setVariable("cancelTime", java.time.LocalDateTime.now().format(fmt));
+            ctx.setVariable("orderTime", order.getOrderTime() != null ? order.getOrderTime().format(fmt) : "");
+            ctx.setVariable("totalAmount", order.getTotalAmount());
+            ctx.setVariable("cancelledBy", cancelledBy != null && !cancelledBy.isBlank() ? cancelledBy : "Khách hàng");
+            ctx.setVariable("reason", reason != null && !reason.isBlank() ? reason : "Không có");
+            
+            ctx.setVariable("refundAmount", refundAmount);
+            if (refundAmount != null && refundAmount.compareTo(java.math.BigDecimal.ZERO) > 0) {
+                ctx.setVariable("bankName", bankName != null ? bankName : "N/A");
+                ctx.setVariable("accountName", accountName != null ? accountName : "N/A");
+                ctx.setVariable("accountLast3", accountLast3 != null ? accountLast3 : "N/A");
+            }
+
+            String html = templateEngine.process("email/cancel-food-order", ctx);
+            sendEmail(customer.getEmail(), "[HoaNien Resort] Xác nhận hủy đơn hàng Dịch vụ Ẩm thực #ORD-" + order.getId(), html);
+        } catch (Exception e) {
+            logger.error("Lỗi gửi email hủy đơn hàng #{}: {}", order.getId(), e.getMessage());
         }
     }
 

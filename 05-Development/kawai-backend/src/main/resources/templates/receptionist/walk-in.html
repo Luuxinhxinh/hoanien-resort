@@ -586,6 +586,79 @@
                 });
             });
         })();
+
+        // ===== Cảnh Báo Ngoài Ca & Lịch Trực =====
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('/api/v1/employees/me/schedules')
+                .then(res => {
+                    if (res.ok) return res.json();
+                    throw new Error('Not authorized or error');
+                })
+                .then(schedules => {
+                    let isBlocked = true;
+                    let warningTitle = 'Cảnh báo Ngoài Ca!';
+                    let warningText = 'Bạn không có ca làm việc trong ngày hôm nay.';
+
+                    if (schedules && schedules.length > 0) {
+                        const today = new Date().toISOString().split('T')[0];
+                        const todaySchedule = schedules.find(s => s.workDate === today);
+                        
+                        if (todaySchedule) {
+                            const now = new Date();
+                            const currentTime = now.getHours() + ':' + (now.getMinutes()<10?'0':'') + now.getMinutes();
+                            if (currentTime >= todaySchedule.startTime && currentTime <= todaySchedule.endTime) {
+                                isBlocked = false; // Đang trong ca
+                            } else {
+                                warningText = `Ca của bạn hôm nay là ${todaySchedule.shiftName} (${todaySchedule.startTime} - ${todaySchedule.endTime}). Bạn đang thao tác ngoài khung giờ này.`;
+                            }
+                        }
+                    } else {
+                        warningText = 'Bạn không có ca làm việc nào được phân công trong thời gian tới.';
+                    }
+
+                    if (isBlocked) {
+                        let scheduleTable = '<table style="width:100%; text-align:left; color:#e2e2f0; font-size:14px; margin-top:15px; border-collapse:collapse;">';
+                        scheduleTable += '<tr style="border-bottom:1px solid #3f3f5a;"><th style="padding:5px;">Ngày</th><th style="padding:5px;">Ca</th><th style="padding:5px;">Giờ</th></tr>';
+                        if (schedules && schedules.length > 0) {
+                            schedules.slice(0,3).forEach(s => {
+                                scheduleTable += `<tr style="border-bottom:1px solid #3f3f5a;"><td style="padding:5px;">${s.workDate}</td><td style="padding:5px;">${s.shiftName}</td><td style="padding:5px;">${s.startTime}-${s.endTime}</td></tr>`;
+                            });
+                        } else {
+                            scheduleTable += '<tr><td colspan="3" style="padding:5px; text-align:center;">Không có lịch trực sắp tới</td></tr>';
+                        }
+                        scheduleTable += '</table>';
+
+                        Swal.fire({
+                            title: warningTitle,
+                            html: '<div style="color:#e2e2f0; margin-bottom:15px;">' + warningText + '</div>' + 
+                                  '<div style="font-weight:bold; color:#ff6b6b; margin-top:10px;">LỊCH TRỰC CỦA BẠN:</div>' + scheduleTable,
+                            icon: 'error',
+                            background: '#1e1e2e',
+                            color: '#e2e2f0',
+                            confirmButtonColor: '#6366f1',
+                            confirmButtonText: 'Đã hiểu',
+                            allowOutsideClick: false,
+                            allowEscapeKey: false
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                // Block UI interaction by showing a persistent overlay
+                                const blockOverlay = document.createElement('div');
+                                blockOverlay.style.position = 'fixed';
+                                blockOverlay.style.inset = '0';
+                                blockOverlay.style.backgroundColor = 'rgba(0,0,0,0.85)';
+                                blockOverlay.style.zIndex = '999999';
+                                blockOverlay.style.display = 'flex';
+                                blockOverlay.style.flexDirection = 'column';
+                                blockOverlay.style.justifyContent = 'center';
+                                blockOverlay.style.alignItems = 'center';
+                                blockOverlay.innerHTML = '<h2 style="color:#ff6b6b; margin-bottom:15px;"><i class="fa-solid fa-lock"></i> HỆ THỐNG ĐÃ KHOÁ</h2><p style="color:#e2e2f0; font-size:16px;">Vui lòng quay lại trong ca làm việc của bạn.</p><a href="/logout" style="margin-top:20px; padding:10px 20px; background:#6366f1; color:white; text-decoration:none; border-radius:5px;">Đăng xuất</a>';
+                                document.body.appendChild(blockOverlay);
+                            }
+                        });
+                    }
+                })
+                .catch(err => console.error("Could not fetch schedules for shift validation", err));
+        });
     </script>
 </body>
 

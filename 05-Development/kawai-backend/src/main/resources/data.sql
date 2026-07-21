@@ -677,11 +677,11 @@ INSERT INTO Booking_Services (booking_service_id, booking_id, service_id, quanti
 INSERT INTO Hotel_Operations (task_id, room_id, staff_id, supervisor_id, operational_type, priority, status, created_at, started_at, completed_at, notes) VALUES 
 -- HOUSEKEEPING (CHECKOUT_CLEAN)
 
-(1, 2, 8, 4, 'CHECKOUT_CLEAN', 'High', 'Pending', '2026-06-28 08:00:00', NULL, NULL, '[Check-out] Dọn phòng sau khi khách trả phòng.'),
-(2, 4, 9, 4, 'CHECKOUT_CLEAN', 'Normal', 'Pending', '2026-06-28 09:00:00', NULL, NULL, '[Check-out] Dọn phòng sau khi khách trả phòng.'),
+(1, 2, 8, 4, 'CHECKOUT_CLEAN', 'High', 'Pending', '2026-06-28 08:00:00', NULL, NULL, 'Task created by workflow.'),
+(2, 4, 9, 4, 'CHECKOUT_CLEAN', 'Normal', 'Pending', '2026-06-28 09:00:00', NULL, NULL, 'Task created by workflow.'),
 (3, 3, 8, 4, 'GUEST_REQUEST', 'Normal', 'Completed', '2026-06-28 09:30:00', '2026-06-28 10:15:00', '2026-06-28 11:00:00', '[Khách Yêu Cầu Dọn Phòng] - Bổ sung khăn tắm và nước uống.\n[Ghi chú hoàn thành]: Đã thực hiện.'),
 (4, 13, 9, 4, 'URGENT_CLEAN', 'Lễ tân báo dọn khẩn', 'InProgress', '2026-06-28 10:00:00', '2026-06-28 10:20:00', NULL, '[Arrival] Dọn phòng khẩn để đón khách nhận phòng. \n[Khẩn cấp] Lễ tân hối thúc dọn ưu tiên để khách Check-in!'),
-(5, 1, 9, 4, 'CHECKOUT_CLEAN', 'Normal', 'Completed', '2026-06-28 07:00:00', '2026-06-28 07:15:00', '2026-06-28 08:45:00', '[Check-out] Dọn phòng sau khi khách trả phòng.\n[Ghi chú hoàn thành]: Phòng đã dọn sạch và sẵn sàng.'),
+(5, 1, 9, 4, 'CHECKOUT_CLEAN', 'Normal', 'Completed', '2026-06-28 07:00:00', '2026-06-28 07:15:00', '2026-06-28 08:45:00', 'Task created by workflow.\n[Ghi chú hoàn thành]: Phòng đã dọn sạch và sẵn sàng.'),
 
 -- MAINTENANCE (MAINTENANCE)
 (6, 17, 10, 4, 'MAINTENANCE', 'High', 'Pending', '2026-06-28 10:30:00', NULL, NULL, 'Housekeeping báo: Điều hòa chảy nước ướt cả sàn gỗ, phòng 207.'),

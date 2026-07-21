@@ -598,7 +598,7 @@ public class PosServiceImpl implements PosService {
         foodOrderRepository.save(order);
     }
 
-    public void cancelOrder(Long orderId, com.kawai.dtos.CancelOrderRequestDTO dto) {
+    public void cancelOrder(Long orderId, com.kawai.dto.CancelOrderRequestDTO dto, String cancelledBy, Customer explicitCustomer) {
         FoodOrder order = foodOrderRepository.findById(orderId)
                 .orElseThrow(() -> new BusinessException("POS-006", "Đơn hàng không tồn tại"));
 
@@ -645,10 +645,37 @@ public class PosServiceImpl implements PosService {
         }
 
         foodOrderRepository.save(order);
+
+        // Fetch customer for email
+        com.kawai.models.Customer customer = explicitCustomer;
+        if (customer == null) {
+            if (order.getRoomBookingDetail() != null && order.getRoomBookingDetail().getRoomBooking() != null) {
+                customer = order.getRoomBookingDetail().getRoomBooking().getCustomer();
+            } else if (order.getBooking() != null) {
+                customer = order.getBooking().getCustomer();
+            }
+        }
+        
+        if (customer != null) {
+            java.math.BigDecimal refundAmount = java.math.BigDecimal.ZERO;
+            if (pType != null && (pType.toUpperCase().contains("VNPAY") || pType.toUpperCase().contains("ONLINE"))) {
+                refundAmount = order.getTotalAmount();
+            }
+            
+            String bankName = dto != null ? dto.getBankName() : null;
+            String accountName = dto != null ? dto.getAccountName() : null;
+            String accountNumber = dto != null ? dto.getAccountNumber() : null;
+            String accountLast3 = (accountNumber != null && accountNumber.length() >= 3) 
+                                  ? accountNumber.substring(accountNumber.length() - 3) : null;
+
+            emailService.sendCancelFoodOrderEmail(order, customer, cancelledBy, 
+                dto != null ? dto.getReason() : "", 
+                refundAmount, bankName, accountName, accountLast3);
+        }
     }
 
     @Override
-    public void cancelOrderByGuest(Long orderId, com.kawai.dtos.CancelOrderRequestDTO dto, String username) {
+    public void cancelOrderByGuest(Long orderId, com.kawai.dto.CancelOrderRequestDTO dto, String username) {
         // [AUTHORIZATION CHECK] Bước 1: Lấy thông tin Khách hàng (Customer) từ username
         // hiện tại
         Customer customer = customerRepository.findByAccount_Username(username)
@@ -681,10 +708,8 @@ public class PosServiceImpl implements PosService {
             throw new BusinessException("ACCESS_DENIED", "Bạn không có quyền hủy đơn hàng này");
         }
 
-        // [DELEGATION] Bước 3: Đã an toàn -> Chuyển tiếp (delegate) cho Core Logic xử
-        // lý.
-        // Tuyệt đối không lặp lại code hủy đơn (xử lý KOT, refund, v.v...) ở đây để đảm
-        // bảo DRY.
-        cancelOrder(orderId, dto);
+        // [DELEGATION] Bước 3: Đã an toàn -> Chuyển tiếp (delegate) cho Core Logic xử lý.
+        // Tuyệt đối không lặp lại code hủy đơn (xử lý KOT, refund, v.v...) ở đây để đảm bảo DRY.
+        cancelOrder(orderId, dto, "Khách hàng", customer);
     }
 }

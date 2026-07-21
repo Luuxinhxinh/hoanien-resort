@@ -88,24 +88,29 @@ public class FeedbackController {
                 long completedCount = bookingRepository.countCompletedOrConfirmedBookingsByCustomerId(customer.getId());
                 hasUsedService = completedCount > 0;
                 
-                // Lấy các TourBookings chưa đánh giá
+                // Lấy các TourBookings chưa đánh giá (chỉ lấy tour đã hoàn thành)
                 List<com.kawai.models.TourBooking> allTours = tourBookingRepository.findTourBookingsByCustomerId(customer.getId());
                 List<com.kawai.models.TourBooking> unreviewedTours = new java.util.ArrayList<>();
                 if (allTours != null) {
                     for (com.kawai.models.TourBooking tb : allTours) {
-                        if (!reviewRepository.existsByTourBookingId(tb.getId())) {
+                        String st = tb.getBookingStatus();
+                        boolean isDone = st != null && (st.equalsIgnoreCase("Completed") || st.equalsIgnoreCase("Checked_Out"));
+                        if (isDone && !reviewRepository.existsByTourBookingId(tb.getId())) {
                             unreviewedTours.add(tb);
                         }
                     }
                 }
                 model.addAttribute("unreviewedTours", unreviewedTours);
 
-                // Lấy các RoomBookingDetails chưa đánh giá
+                // Lấy các RoomBookingDetails chưa đánh giá (chỉ lấy phòng đã Check-out / Hoàn thành)
                 List<com.kawai.models.RoomBookingDetail> allRooms = roomBookingDetailRepository.findByAnyCustomerId(customer.getId());
                 List<com.kawai.models.RoomBookingDetail> unreviewedRooms = new java.util.ArrayList<>();
                 if (allRooms != null) {
                     for (com.kawai.models.RoomBookingDetail rd : allRooms) {
-                        if (!reviewRepository.existsByRoomBookingDetailId(rd.getId())) {
+                        com.kawai.models.RoomBooking parent = rd.getRoomBooking();
+                        String st = parent != null ? parent.getBookingStatus() : null;
+                        boolean isDone = st != null && (st.equalsIgnoreCase("Completed") || st.equalsIgnoreCase("Checked_Out"));
+                        if (isDone && !reviewRepository.existsByRoomBookingDetailId(rd.getId())) {
                             unreviewedRooms.add(rd);
                         }
                     }
@@ -232,14 +237,29 @@ public class FeedbackController {
         if (targetTourBookingId != null) {
             booking = tourBookingRepository.findById(targetTourBookingId).orElse(null);
             if (booking != null) {
+                String st = booking.getBookingStatus();
+                boolean isDone = st != null && (st.equalsIgnoreCase("Completed") || st.equalsIgnoreCase("Checked_Out"));
+                if (!isDone) {
+                    System.out.println("DEBUG FEEDBACK: Chan submit - TourBooking ID " + targetTourBookingId + " chua hoan thanh (" + st + ")");
+                    return "redirect:/feedback?toast=not_completed";
+                }
                 customer = booking.getCustomer();
             }
         }
 
         if (selectedRoomBookingDetailId != null) {
             roomDetail = roomBookingDetailRepository.findById(selectedRoomBookingDetailId).orElse(null);
-            if (roomDetail != null && roomDetail.getRoomBooking() != null && customer == null) {
-                customer = roomDetail.getRoomBooking().getCustomer();
+            if (roomDetail != null) {
+                com.kawai.models.RoomBooking parent = roomDetail.getRoomBooking();
+                String st = parent != null ? parent.getBookingStatus() : null;
+                boolean isDone = st != null && (st.equalsIgnoreCase("Completed") || st.equalsIgnoreCase("Checked_Out"));
+                if (!isDone) {
+                    System.out.println("DEBUG FEEDBACK: Chan submit - RoomBookingDetail ID " + selectedRoomBookingDetailId + " chua Check-out (" + st + ")");
+                    return "redirect:/feedback?toast=not_completed";
+                }
+                if (parent != null && customer == null) {
+                    customer = parent.getCustomer();
+                }
             }
         }
 
@@ -283,7 +303,7 @@ public class FeedbackController {
         }
 
         if (targetTourBookingId == null && ratingTour != null) {
-            // Khách hàng gửi đánh giá tour chung -> tự động liên kết với TourBooking gần đây nhất của họ chưa đánh giá
+            // Khách hàng gửi đánh giá tour chung -> tự động liên kết với TourBooking gần đây nhất của họ chưa đánh giá (chỉ lấy tour hoàn thành)
             java.util.List<com.kawai.models.TourBooking> tourBookings = tourBookingRepository.findTourBookingsByCustomerId(customer.getId());
             if (tourBookings != null && !tourBookings.isEmpty()) {
                 tourBookings.sort((b1, b2) -> {
@@ -292,20 +312,22 @@ public class FeedbackController {
                     return id2.compareTo(id1);
                 });
                 for (com.kawai.models.TourBooking tb : tourBookings) {
-                    if (!reviewRepository.existsByTourBookingId(tb.getId())) {
+                    String st = tb.getBookingStatus();
+                    boolean isDone = st != null && (st.equalsIgnoreCase("Completed") || st.equalsIgnoreCase("Checked_Out"));
+                    if (isDone && !reviewRepository.existsByTourBookingId(tb.getId())) {
                         booking = tb;
                         break;
                     }
                 }
                 if (booking == null) {
-                    System.out.println("DEBUG FEEDBACK: Chan submit - Toan bo TourBookings cua khach hang da duoc review.");
-                    return "redirect:/feedback?toast=already_reviewed";
+                    System.out.println("DEBUG FEEDBACK: Chan submit - Toan bo TourBookings hoàn thành cua khach hang da duoc review hoac chua co tour hoan thanh.");
+                    return "redirect:/feedback?toast=no_service_used";
                 }
             }
         }
 
         if (selectedRoomBookingDetailId == null && ratingRoomDining != null) {
-            // Khách hàng gửi đánh giá phòng chung -> tự động liên kết với RoomBookingDetail gần đây nhất của họ chưa đánh giá
+            // Khách hàng gửi đánh giá phòng chung -> tự động liên kết với RoomBookingDetail gần đây nhất của họ chưa đánh giá (chỉ lấy phòng Check-out)
             java.util.List<com.kawai.models.RoomBookingDetail> roomDetails = roomBookingDetailRepository.findByAnyCustomerId(customer.getId());
             if (roomDetails != null && !roomDetails.isEmpty()) {
                 roomDetails.sort((r1, r2) -> {
@@ -314,14 +336,17 @@ public class FeedbackController {
                     return id2.compareTo(id1);
                 });
                 for (com.kawai.models.RoomBookingDetail rd : roomDetails) {
-                    if (!reviewRepository.existsByRoomBookingDetailId(rd.getId())) {
+                    com.kawai.models.RoomBooking parent = rd.getRoomBooking();
+                    String st = parent != null ? parent.getBookingStatus() : null;
+                    boolean isDone = st != null && (st.equalsIgnoreCase("Completed") || st.equalsIgnoreCase("Checked_Out"));
+                    if (isDone && !reviewRepository.existsByRoomBookingDetailId(rd.getId())) {
                         roomDetail = rd;
                         break;
                     }
                 }
                 if (roomDetail == null) {
-                    System.out.println("DEBUG FEEDBACK: Chan submit - Toan bo RoomBookingDetails cua khach hang da duoc review.");
-                    return "redirect:/feedback?toast=already_reviewed";
+                    System.out.println("DEBUG FEEDBACK: Chan submit - Toan bo RoomBookingDetails Check-out cua khach hang da duoc review hoac chua Check-out.");
+                    return "redirect:/feedback?toast=no_service_used";
                 }
             }
         }
