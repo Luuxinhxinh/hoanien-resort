@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Xác nhận đặt phòng thành công</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@1,600&family=Inter:ital,wght@1,600&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; background-color: #ffffff; color: #2d2926; }
+    .email-outer { background-color: #ffffff; padding: 40px 16px; min-height: 100vh; }
+    .wrapper { max-width: 600px; margin: 0 auto; border-radius: 4px; overflow: hidden; box-shadow: 0 4px 24px rgba(0, 0, 0, 0.05); border: 1px solid #d4c5b9; background: #ffffff; }
+    
+    .header { background: #fdfbf7; padding: 36px 40px 28px; text-align: center; border-bottom: 1px solid #d4c5b9; }
+    .header .brand, .header h1 { font-family: 'EB Garamond', Georgia, serif; font-size: 42px; font-weight: 400; color: #c5a059; margin-bottom: 4px; }
+    .header .logo-text { font-family: 'EB Garamond', Georgia, serif; font-size: 16px; font-weight: 400; color: #70635c; letter-spacing: 2px; }
+    
+    .hero { background: #fdfbf7; padding: 40px 40px 36px; text-align: center; border-bottom: 1px solid #d4c5b9; }
+    .hero h1 { font-family: 'EB Garamond', Georgia, serif; font-size: 26px; font-weight: 400; color: #2d2926; margin-bottom: 10px; letter-spacing: 0.5px; }
+    .hero p { font-size: 13px; font-weight: 300; color: #70635c; letter-spacing: 0.3px; line-height: 1.7; }
+    
+    .body { background: transparent; padding: 40px; }
+    .greeting, p { font-size: 14px; font-weight: 400; color: #2d2926; margin-bottom: 20px; line-height: 1.9; }
+    .greeting strong, p strong { font-weight: 600; color: #c5a059; }
+    
+    .divider-line { height: 1px; background: #f2eee9; margin: 28px 0; border: none; }
+    
+    .section-label { font-size: 10px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: #70635c; margin-bottom: 20px; display: block; }
+    
+    .booking-card { background: #fdfbf7; border: 1px solid #d4c5b9; border-radius: 3px; overflow: hidden; margin-bottom: 28px; }
+    .booking-card-header { background: #f7f5f0; border-bottom: 1px solid #d4c5b9; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; }
+    .booking-card-header .card-title { font-size: 10px; font-weight: 600; letter-spacing: 2.5px; text-transform: uppercase; color: #2d2926; margin-bottom:0; display: block; }
+    .booking-card-header .booking-id { font-family: 'EB Garamond', Georgia, serif; font-size: 15px; color: #c5a059; }
+    .booking-card-body { padding: 6px 0; width: 100%; border-collapse: collapse; }
+    
+    .info-row { padding: 11px 20px; border-bottom: 1px solid #f2eee9; font-size: 13px; }
+    .info-row:last-child { border-bottom: none; }
+    .info-label { font-weight: 500; color: #70635c; display: inline-block; vertical-align: top; width: 180px; font-size: 13px; letter-spacing: 0.3px; }
+    .info-value { font-weight: 400; color: #2d2926; font-size: 13px; display: inline-block; vertical-align: top; width: 330px; }
+    .info-value.highlight { font-weight: 600; color: #c5a059; }
+    .info-value.success { color: #2e7d32; font-weight: 500; }
+    
+    .note-box { border-left: 3px solid #c5a059; padding: 16px 20px; margin-bottom: 28px; font-size: 13px; color: #2d2926; line-height: 1.85; background: #fdfbf7; text-align: left; }
+    .note-box .note-title { display: block; margin-bottom: 10px; font-size: 10px; font-weight: 600; letter-spacing: 2.5px; text-transform: uppercase; color: #70635c; }
+    .note-box strong { color: #c5a059; font-weight: 600; }
+    
+    .closing-text { font-size: 13px; font-weight: 400; color: #2d2926; line-height: 1.9; margin-bottom: 20px; }
+    .closing-text strong { font-weight: 600; color: #c5a059; }
+    .closing-text em { font-family: 'EB Garamond', Georgia, serif; font-style: normal; color: #c5a059; }
+    
+    .footer { background: #fdfbf7; padding: 28px 40px; text-align: center; border-top: 1px solid #d4c5b9; }
+    .footer .resort-name { font-family: 'EB Garamond', Georgia, serif; font-size: 18px; color: #c5a059; margin-bottom: 10px; font-style: normal; }
+    .footer p { color: #70635c; font-size: 11px; line-height: 1.9; font-weight: 300; font-family: 'Inter'; }
+    .footer a { color: #c5a059; text-decoration: none; }
+    .footer .footer-divider { height: 1px; background: #e5dfd8; margin: 14px 0; }
+    
+    @media (max-width: 480px) { .body, .header, .hero, .footer { padding: 28px 24px; } .info-label { width: auto; min-width: 100px; } .info-row { flex-direction: column; gap: 3px; } }
+  </style>
+</head>
+
+<body>
+  <div class="email-outer">
+    <div class="wrapper">
+
+      <!-- Header -->
+      <div class="header">
+        <div class="brand">Hòa Niên</div>
+        <div class="logo-text">Retreat Resort & Hub</div>
+      </div>
+
+      <!-- Hero -->
+      <div class="hero">
+        <h1>🎉 Đặt phòng thành công!</h1>
+        <p>Cảm ơn Quý khách đã tin tưởng và lựa chọn điểm đến nghỉ dưỡng tại Hòa Niên</p>
+      </div>
+
+      <!-- Body -->
+      <div class="body">
+
+        <p class="greeting">
+          Xin chào <strong th:text="${customerName}">Quý khách</strong>,<br /><br />
+          Cảm ơn bạn đã lựa chọn <strong>Hòa Niên Retreat Resort & Hub</strong>. Đặt phòng của bạn đã được xác nhận thành công!
+        </p>
+
+        <div class="divider-line"></div>
+
+        <!-- Booking Info Card -->
+        <div class="section-label">Thông tin đặt phòng</div>
+        <div class="booking-card">
+          <div class="booking-card-header">
+            <span class="card-title">Chi tiết</span>
+            <span class="booking-id" th:text="'#' + ${bookingId}">#12345</span>
+          </div>
+          <div class="booking-card-body">
+            <div class="info-row">
+              <span class="info-label">Khách hàng:</span>
+              <span class="info-value highlight" th:text="${customerName}">Nguyễn Văn A</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Ngày nhận phòng:</span>
+              <span class="info-value" th:text="${checkInDate}">10/07/2026</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Ngày trả phòng:</span>
+              <span class="info-value" th:text="${checkOutDate}">12/07/2026</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Số đêm lưu trú:</span>
+              <span class="info-value" th:text="${numberOfNights} + ' đêm'">2 đêm</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Số lượng khách:</span>
+              <span class="info-value" th:text="${numberOfGuests} + ' người'">2 người</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Tiền đã thanh toán (Đặt cọc):</span>
+              <span class="info-value highlight" th:text="${depositAmount}">1.500.000 VNĐ</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Trạng thái:</span>
+              <span class="info-value success">Đã xác nhận</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="divider-line"></div>
+
+        <!-- Note -->
+        <div class="note-box">
+          <span class="note-title">Lưu ý khi nhận phòng</span>
+          • Vui lòng mang theo <strong>CCCD/CMND/Hộ chiếu</strong> để làm thủ tục nhận phòng.<br />
+          • <strong>Thời gian nhận phòng (Check-in):</strong> từ <strong>14:00</strong>.<br />
+          • <strong>Thời gian trả phòng (Check-out):</strong> trước <strong>12:00</strong>.<br />
+          • Nếu bạn cần thay đổi hoặc hủy đặt phòng, vui lòng liên hệ với chúng tôi để được hỗ trợ theo chính sách hiện hành.
+        </div>
+
+        <p class="closing-text">
+          Nếu có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi:<br/>
+          📧 <strong>Email:</strong> hoanien.00@gmail.com<br /><br />
+          Trân trọng,<br />
+          <strong>Hòa Niên Retreat Resort & Hub</strong>
+        </p>
+
+      </div>
+
+      <!-- Footer -->
+      <div class="footer">
+        <div class="resort-name">Hòa Niên</div>
+        <p>
+          Hotline: <span th:text="${resortPhone}">1900 xxxx</span> &nbsp;|&nbsp;
+          Website: <a th:href="${resortWebsite}" th:text="${resortWebsite}">hoaniensorretreat.vn</a>
+        </p>
+        <div class="footer-divider"></div>
+        <p>
+          Email này được gửi tự động — vui lòng không phản hồi.<br />
+          © 2026 Hòa Niên Retreat Resort & Hub. Bảo lưu mọi quyền.
+        </p>
+      </div>
+
+    </div>
+  </div>
+</body>
+
+</html>

@@ -568,6 +568,13 @@ public class VnPayServiceImpl implements VnPayService {
                 } else if ("Pending".equals(booking.getBookingStatus())
                         || "Pending_Payment".equals(booking.getBookingStatus())) {
                     booking.setBookingStatus("Confirmed");
+                    if (emailService != null && booking instanceof com.kawai.models.RoomBooking && booking.getCustomer() != null) {
+                        try {
+                            emailService.sendRoomBookingConfirmation((com.kawai.models.RoomBooking) booking, booking.getCustomer());
+                        } catch (Exception ex) {
+                            System.err.println("[VNPay IPN] Loi gui email RoomBooking: " + ex.getMessage());
+                        }
+                    }
                 }
             } else if ("CREDIT_LIMIT_DEPOSIT".equals(txn.getTransactionType())) {
                 try {
