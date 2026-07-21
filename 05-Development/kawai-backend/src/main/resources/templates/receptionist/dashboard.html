@@ -259,6 +259,9 @@
                     <option
                         sec:authorize="hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_FB_STAFF', 'FNB', 'FNB_ORDER')"
                         value="/fbStaff/dashboard">F&B POS (Nhà hàng)</option>
+                    <option
+                        sec:authorize="hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_TOURGUIDE', 'OP_TOUR')"
+                        value="/tourguide/tour">Tour Guide (Điểm danh Tour)</option>
                 </select>
             </div>
 

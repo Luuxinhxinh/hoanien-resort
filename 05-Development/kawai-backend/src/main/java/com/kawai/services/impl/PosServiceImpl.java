@@ -598,7 +598,7 @@ public class PosServiceImpl implements PosService {
         foodOrderRepository.save(order);
     }
 
-    public void cancelOrder(Long orderId, com.kawai.dtos.CancelOrderRequestDTO dto, String cancelledBy, Customer explicitCustomer) {
+    public void cancelOrder(Long orderId, com.kawai.dto.CancelOrderRequestDTO dto, String cancelledBy, Customer explicitCustomer) {
         FoodOrder order = foodOrderRepository.findById(orderId)
                 .orElseThrow(() -> new BusinessException("POS-006", "Đơn hàng không tồn tại"));
 
@@ -675,7 +675,7 @@ public class PosServiceImpl implements PosService {
     }
 
     @Override
-    public void cancelOrderByGuest(Long orderId, com.kawai.dtos.CancelOrderRequestDTO dto, String username) {
+    public void cancelOrderByGuest(Long orderId, com.kawai.dto.CancelOrderRequestDTO dto, String username) {
         // [AUTHORIZATION CHECK] Bước 1: Lấy thông tin Khách hàng (Customer) từ username
         // hiện tại
         Customer customer = customerRepository.findByAccount_Username(username)

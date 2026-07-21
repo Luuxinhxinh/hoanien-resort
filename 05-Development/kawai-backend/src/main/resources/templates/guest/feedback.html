@@ -940,6 +940,10 @@
             if (typeof openLoginModal === 'function') openLoginModal();
         } else if (toast === 'no_service_used') {
             showToast('toast-no-service');
+            showCustomAlert('Quý khách chỉ có thể gửi đánh giá sau khi chuyến đi/dịch vụ đã kết thúc (Check-out phòng hoặc Kết thúc Tour).');
+        } else if (toast === 'not_completed') {
+            showToast('toast-no-service');
+            showCustomAlert('Chuyến đi/dịch vụ này chưa kết thúc. Quý khách chỉ có thể gửi đánh giá sau khi đã Check-out phòng hoặc Kết thúc Tour.');
         } else if (toast === 'already_reviewed') {
             showToast('toast-already-reviewed');
             showCustomAlert('Quý khách đã gửi đánh giá cho dịch vụ này rồi. Mỗi dịch vụ chỉ được đánh giá một lần.');
