@@ -20,6 +20,7 @@ public class AdminViewServiceImpl implements AdminViewService {
     private final CustomerRepository customerRepository;
     private final RoleRepository roleRepository;
     private final RoomCategoryRepository roomCategoryRepository;
+    private final com.kawai.repositories.RoomSurchargeRepository roomSurchargeRepository;
     private final RoomRepository roomRepository;
     private final FoodItemRepository foodItemRepository;
     private final TourRepository tourRepository;
@@ -225,8 +226,9 @@ public class AdminViewServiceImpl implements AdminViewService {
                             String.valueOf(cat.getMaxChildren()),
                             "extraAdultSurcharge",
                             cat.getExtraAdultSurcharge() != null ? cat.getExtraAdultSurcharge().toString() : "0",
-                            "extraChildSurcharge",
-                            cat.getExtraChildSurcharge() != null ? cat.getExtraChildSurcharge().toString() : "0",
+                            "surcharge_child_0_5", roomSurchargeRepository.findSurchargeForAge(cat, 0).map(s -> s.getPriceModifier().toString()).orElse("0"),
+                            "surcharge_child_6_11", roomSurchargeRepository.findSurchargeForAge(cat, 6).map(s -> s.getPriceModifier().toString()).orElse("200000"),
+                            "surcharge_child_12_17", roomSurchargeRepository.findSurchargeForAge(cat, 12).map(s -> s.getPriceModifier().toString()).orElse("350000"),
                             "bedType", cat.getBedType() != null ? cat.getBedType() : "",
                             "roomSize", cat.getRoomSize() != null ? String.valueOf(cat.getRoomSize()) : "",
                             "viewType", cat.getViewType() != null ? cat.getViewType() : "",

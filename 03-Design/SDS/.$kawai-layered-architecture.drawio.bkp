@@ -1,6 +1,6 @@
 <mxfile host="Electron" agent="draw.io">
   <diagram id="kawai-layered-arch-v4" name="Kawai Architecture v4">
-    <mxGraphModel dx="824" dy="501" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1900" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="1873" dy="1138" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1900" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -463,6 +463,15 @@
         <mxCell id="extCloud2" parent="extCloud" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8FAFC;strokeColor=#CBD5E1;fontColor=#94A3B8;fontSize=8;arcSize=8;fontFamily=Helvetica;" value="Room photos / Avatar upload" vertex="1">
           <mxGeometry height="18" width="168" x="8" y="50" as="geometry" />
         </mxCell>
+        <mxCell id="extGemini" parent="pExt" style="swimlane;startSize=20;fillColor=#EFF6FF;strokeColor=#93C5FD;fontColor=#1E3A5F;fontSize=9;fontStyle=1;rounded=1;arcSize=3;fontFamily=Helvetica;" value="Google Gemini AI" vertex="1">
+          <mxGeometry height="72" width="185" x="10" y="638" as="geometry" />
+        </mxCell>
+        <mxCell id="extGemini1" parent="extGemini" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="LLM Chat API" vertex="1">
+          <mxGeometry height="22" width="168" x="8" y="24" as="geometry" />
+        </mxCell>
+        <mxCell id="extGemini2" parent="extGemini" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8FAFC;strokeColor=#CBD5E1;fontColor=#94A3B8;fontSize=8;arcSize=8;fontFamily=Helvetica;" value="ManagerAIChatService" vertex="1">
+          <mxGeometry height="18" width="168" x="8" y="50" as="geometry" />
+        </mxCell>
         <mxCell id="arr_vnpay" edge="1" parent="1" source="spay" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=open;endFill=0;strokeWidth=1;strokeColor=#94A3B8;fontSize=8;dashed=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="extVnpay" value="HTTPS POST">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
@@ -476,6 +485,9 @@
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="arr_cloud" edge="1" parent="1" source="scld" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=open;endFill=0;strokeWidth=1;strokeColor=#94A3B8;fontSize=8;dashed=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="extCloud" value="HTTP POST">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arr_gemini" edge="1" parent="1" source="sgem" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=open;endFill=0;strokeWidth=1;strokeColor=#94A3B8;fontSize=8;dashed=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="extGemini" value="REST GET">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
       </root>

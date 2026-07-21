@@ -69,11 +69,6 @@ public class BookingController {
         return "guest/dining";
     }
 
-    @GetMapping("/experiences")
-    public String showExperiencesPage(Principal principal, Model model) {
-        model.addAttribute("isLoggedIn", com.kawai.utils.SecurityUtils.isCustomerLoggedIn(principal));
-        return "guest/experiences";
-    }
 
     @Autowired
     private com.kawai.repositories.RestaurantTableRepository restaurantTableRepository;
