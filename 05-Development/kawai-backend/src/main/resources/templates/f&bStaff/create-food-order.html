@@ -93,8 +93,7 @@
         <div style="flex: 1;">
           <div class="staff-name" th:text="${staffName != null ? staffName : 'Trần Phương'}"
             style="font-size: 0.8rem; font-weight: 600; color: #fff; line-height: 1.2;">Trần Phương</div>
-          <div class="staff-role" style="font-size: 0.65rem; color: var(--text-sidebar-muted); margin-top: 2px;">F&amp;B
-            POS · Ca Sáng</div>
+          <div class="staff-role" style="font-size: 0.65rem; color: var(--text-sidebar-muted); margin-top: 2px;">F&amp;B POS</div>
         </div>
         <button class="logout-btn" title="Đăng xuất" onclick="location.href='/auth/logout'"
           style="background: none; border: none; color: var(--text-sidebar-muted); cursor: pointer; padding: 4px; border-radius: 4px; transition: all 0.2s; display: flex; align-items: center; justify-content: center;">
@@ -262,10 +261,9 @@
 
           <div class="payment-section" id="payment-section-wrapper">
             <label class="form-label">Thanh toán</label>
-            <select class="form-control" style="width: 100%;">
-              <option>Thanh toán tại quầy</option>
-              <option>Xác nhận thanh toán sau</option>
-            </select>
+            <div class="room-charge-info">
+              <div class="rc-row"><span class="rc-label">Hình thức</span><span class="rc-val">Thanh toán tại quầy</span></div>
+            </div>
           </div>
         </div>
       </div>
@@ -280,7 +278,7 @@
       <button class="btn btn-outline" onclick="window.location.reload()">
         <span class="material-symbols-outlined">delete</span> Hủy đơn
       </button>
-      <button class="btn btn-outline">
+      <button class="btn btn-outline" id="btn-save-draft" style="display: none;">
         <span class="material-symbols-outlined">save</span> Lưu tạm
       </button>
       <button class="btn btn-primary" id="btn-send-kitchen" disabled onclick="sendToKitchen()">

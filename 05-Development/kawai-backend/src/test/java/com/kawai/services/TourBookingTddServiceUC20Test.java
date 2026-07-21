@@ -5,8 +5,10 @@ import com.kawai.models.*;
 import com.kawai.repositories.*;
 import com.kawai.services.impl.TourBookingServiceImpl;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -67,8 +69,20 @@ public class TourBookingTddServiceUC20Test {
     @Mock
     private BookingRepository bookingRepository;
 
+    @Mock
+    private RefundRequestRepository refundRequestRepository;
+
+    @Mock
+    private com.kawai.services.interfaces.FolioService folioService;
+
     @InjectMocks
     private TourBookingServiceImpl tourBookingService;
+
+    @BeforeEach
+    void setUp() {
+        ReflectionTestUtils.setField(tourBookingService, "refundRequestRepository", refundRequestRepository);
+        ReflectionTestUtils.setField(tourBookingService, "folioService", folioService);
+    }
 
     // ================================================================
     // TC_M4_005_datTourPostToRoom
@@ -162,7 +176,7 @@ public class TourBookingTddServiceUC20Test {
         when(tourBookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
 
         // Act: Hủy tour do sự cố resort (hoàn tiền 100%)
-        BigDecimal refundAmountResort = tourBookingService.cancelTour(bookingId, true);
+        BigDecimal refundAmountResort = tourBookingService.cancelTour(bookingId, true, "Resort Incident");
 
         // Assert
         assertEquals(0, new BigDecimal("1000000").compareTo(refundAmountResort),
@@ -171,7 +185,7 @@ public class TourBookingTddServiceUC20Test {
 
         // Reset booking status for next condition: Khách tự hủy (hoàn 50% cọc)
         booking.setBookingStatus("Confirmed");
-        BigDecimal refundAmountCustomer = tourBookingService.cancelTour(bookingId, false);
+        BigDecimal refundAmountCustomer = tourBookingService.cancelTour(bookingId, false, null);
 
         // Assert
         assertEquals(0, new BigDecimal("500000").compareTo(refundAmountCustomer),

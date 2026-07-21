@@ -14,32 +14,32 @@
 
     <style>
         :root {
-            --primary: #2C2A1E;
-            --primary-light: #C9A96E;
-            --secondary: #8C6A41;
-            --bg-color: #F8F9FA;
+            --primary: #B9AA97;
+            --primary-light: #C6B5A2;
+            --secondary: #4A3E3D;
+            --bg-color: #FDFBF7;
             --surface: #FFFFFF;
-            --surface-hover: #F1F3F5;
-            --text-primary: #1A1D20;
-            --text-secondary: #495057;
-            --text-tertiary: #868E96;
-            --border-color: #DEE2E6;
+            --surface-hover: #FDFBF7;
+            --text-primary: #2D2524;
+            --text-secondary: #5E504F;
+            --text-tertiary: #8A7E7D;
+            --border-color: #EFECE8;
 
-            --success: #2B8A3E;
+            --success: #4c7955d7;
             --success-light: #EBFBEE;
-            --warning: #E67700;
+            --warning: #c7935c;
             --warning-light: #FFF4E6;
-            --danger: #C92A2A;
+            --danger: #894c4ce6;
             --danger-light: #FFF0F0;
             --info: #1864AB;
             --info-light: #E7F5FF;
 
             --font-serif: 'Playfair Display', serif;
             --font-sans: 'Inter', sans-serif;
-            --radius-md: 10px;
-            --radius-lg: 14px;
-            --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.04);
-            --shadow-md: 0 6px 16px rgba(0, 0, 0, 0.08);
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --shadow-sm: 0 2px 8px rgba(74, 62, 61, 0.05);
+            --shadow-md: 0 4px 16px rgba(74, 62, 61, 0.08);
         }
 
         * {
@@ -58,8 +58,8 @@
 
         /* Top Navigation */
         .top-nav {
-            background: var(--primary);
-            color: #fff;
+            background: var(--surface);
+            color: var(--text-primary);
             padding: 16px 32px;
             display: flex;
             justify-content: space-between;
@@ -67,7 +67,7 @@
             position: sticky;
             top: 0;
             z-index: 100;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-bottom: 1px solid var(--border-color);
         }
 
         .brand {
@@ -77,27 +77,27 @@
         }
 
         .brand-logo {
-            width: 36px;
-            height: 36px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
+            width: 32px;
+            height: 32px;
+            background: var(--primary-light);
+            border-radius: 4px;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: var(--primary-light);
-            font-size: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            font-size: 14px;
         }
 
         .brand-title {
             font-family: var(--font-serif);
             font-size: 20px;
             font-weight: 700;
+            color: var(--secondary);
         }
 
         .brand-subtitle {
             font-size: 11px;
-            color: rgba(255, 255, 255, 0.7);
+            color: var(--text-tertiary);
             text-transform: uppercase;
             letter-spacing: 0.1em;
             margin-top: 2px;
@@ -111,15 +111,15 @@
 
         .module-switcher select {
             padding: 8px 32px 8px 16px;
-            border-radius: 6px;
-            background: rgba(255, 255, 255, 0.1);
-            color: #fff;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            background: var(--surface-hover);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
             font-size: 13px;
             outline: none;
             cursor: pointer;
             appearance: none;
-            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235E504F' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
             background-repeat: no-repeat;
             background-position: right 12px center;
             background-size: 14px;
@@ -130,15 +130,15 @@
             align-items: center;
             gap: 12px;
             padding-left: 16px;
-            border-left: 1px solid rgba(255, 255, 255, 0.2);
+            border-left: 1px solid var(--border-color);
         }
 
         .user-avatar {
-            width: 36px;
-            height: 36px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
             background: var(--primary-light);
-            color: var(--primary);
+            color: #fff;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -149,28 +149,36 @@
         .user-details h4 {
             font-size: 13px;
             font-weight: 600;
+            color: var(--text-primary);
         }
 
         .user-details p {
             font-size: 11px;
-            color: rgba(255, 255, 255, 0.7);
+            color: var(--text-tertiary);
         }
 
         .logout-btn {
-            color: #ff8787;
+            color: var(--danger);
             text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            margin-left: 16px;
             padding: 6px 12px;
             border-radius: 6px;
             transition: background 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--border-color);
         }
 
         .logout-btn:hover {
-            background: rgba(255, 135, 135, 0.1);
+            background: var(--surface-hover);
         }
 
         /* Main Container */
         .container {
-            max-width: 1200px;
+            max-width: 1600px;
             margin: 0 auto;
             padding: 32px;
         }
@@ -213,8 +221,8 @@
         }
 
         .tab-btn.active {
-            background: var(--secondary);
-            border-color: var(--secondary);
+            background: #B9AA97;
+            border-color: #B9AA97;
             color: #fff;
         }
 
@@ -328,12 +336,12 @@
         }
 
         .btn-primary {
-            background: var(--secondary);
+            background: #3B2D24;
             color: #fff;
         }
 
         .btn-primary:hover {
-            background: #715533;
+            background: #635547;
         }
 
         /* Alerts */
@@ -450,7 +458,7 @@
             <div class="brand-logo"><i class="fa-solid fa-wrench"></i></div>
             <div>
                 <div class="brand-title">Hoanien Retreat</div>
-                <div class="brand-subtitle">Maintenance Facility</div>
+                <div class="brand-subtitle">Maintenance</div>
             </div>
         </div>
 
@@ -465,15 +473,20 @@
                 </select>
             </div>
 
-            <div class="user-info">
+            <div class="user-info" style="cursor: pointer;" 
+                 th:data-name="${currentStaff != null ? currentStaff.fullName : (#authentication != null ? #authentication.name : 'Nhân viên')}"
+                 th:data-email="${currentStaff != null ? currentStaff.email : 'Chưa cập nhật'}"
+                 th:data-phone="${currentStaff != null ? currentStaff.phone : 'Chưa cập nhật'}"
+                 th:data-role="'Bảo trì'"
+                 onclick="showUserInfo(this.getAttribute('data-name'), this.getAttribute('data-email'), this.getAttribute('data-phone'), this.getAttribute('data-role'))">
                 <div class="user-avatar"
                     th:text="${#authentication != null ? #strings.substring(#authentication.name, 0, 2).toUpperCase() : 'MT'}">
                     MT</div>
                 <div class="user-details">
-                    <h4 th:text="${#authentication != null ? #authentication.name : 'Kỹ thuật viên'}">Kỹ thuật viên</h4>
+                    <h4 th:text="${currentStaff != null ? currentStaff.fullName : (#authentication != null ? #authentication.name : 'Kỹ thuật viên')}">Kỹ thuật viên</h4>
                     <p>Bộ phận Bảo trì</p>
                 </div>
-                <a href="/logout" class="logout-btn"><i class="fa-solid fa-right-from-bracket"></i></a>
+                <a href="/logout" class="logout-btn" onclick="event.stopPropagation();">Đăng xuất</a>
             </div>
         </div>
     </header>
@@ -876,6 +889,25 @@
             setTimeout(() => lightbox.style.display = 'none', 300);
         }
         /*]]>*/
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function showUserInfo(name, email, phone, role) {
+            Swal.fire({
+                title: 'Thông tin nhân viên',
+                html: `
+                    <div style="text-align: left; margin-top: 15px; font-size: 14px;">
+                        <p style="margin-bottom: 8px;"><strong><i class="fa-solid fa-user"></i> Họ và tên:</strong> ${name}</p>
+                        <p style="margin-bottom: 8px;"><strong><i class="fa-solid fa-id-badge"></i> Bộ phận:</strong> ${role}</p>
+                        <p style="margin-bottom: 8px;"><strong><i class="fa-solid fa-envelope"></i> Email:</strong> ${email}</p>
+                        <p style="margin-bottom: 8px;"><strong><i class="fa-solid fa-phone"></i> Số điện thoại:</strong> ${phone}</p>
+                    </div>
+                `,
+                icon: 'info',
+                confirmButtonText: 'Đóng',
+                confirmButtonColor: '#B9AA97'
+            });
+        }
     </script>
 </body>
 

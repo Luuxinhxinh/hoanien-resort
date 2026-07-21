@@ -41,6 +41,9 @@ public class TourBookingApiControllerTest {
     private TourRepository tourRepository;
 
     @MockBean
+    private TourAttendeeRepository tourAttendeeRepository;
+
+    @MockBean
     private TourScheduleRepository tourScheduleRepository;
 
     @MockBean

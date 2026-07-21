@@ -8,7 +8,7 @@ import com.kawai.models.FoodOrder;
 import com.kawai.repositories.EmployeeRepository;
 import com.kawai.repositories.FnBDailyReportRepository;
 import com.kawai.repositories.FoodOrderRepository;
-import com.kawai.services.FnBDailyReportService;
+import com.kawai.services.interfaces.FnBDailyReportService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

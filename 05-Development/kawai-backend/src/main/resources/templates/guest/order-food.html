@@ -823,9 +823,8 @@
             }
 
             let combinedNotes = [];
-            cart.forEach(item => { if (item.chefNote) combinedNotes.push(item.name + ': ' + item.chefNote.toUpperCase()); });
             const generalNote = document.getElementById('orderNote').value.trim();
-            if (generalNote) combinedNotes.push('GHI CHÚ CHUNG: ' + generalNote.toUpperCase());
+            if (generalNote) combinedNotes.push(generalNote.toUpperCase());
 
             const payload = {
                 orderType: apiOrderType,
@@ -833,7 +832,7 @@
                 tableId: tableId,
                 paymentType: paymentType,
                 note: combinedNotes.join(' | '),
-                items: cart.map(function (i) { return { id: i.id, qty: i.qty, price: i.price }; })
+                items: cart.map(function (i) { return { id: i.id, qty: i.qty, price: i.price, note: i.chefNote || null }; })
             };
 
             pendingOrderPayload = payload;

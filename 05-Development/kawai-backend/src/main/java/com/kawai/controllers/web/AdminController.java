@@ -12,6 +12,11 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+import com.kawai.models.*;
+import com.kawai.repositories.*;
+import java.util.stream.Collectors;
+
+
 import com.kawai.services.interfaces.AdminViewService;
 
 @Controller
@@ -21,6 +26,12 @@ public class AdminController {
 
   private final AdminViewService adminViewService;
   private final com.kawai.repositories.AuthorizedDeviceRepository authorizedDeviceRepository;
+
+  private final RoomRepository roomRepository;
+  private final com.kawai.repositories.HousekeepingTaskRepository housekeepingTaskRepository;
+  private final RoomBookingDetailRepository roomBookingDetailRepository;
+  private final RoomGuestRepository roomGuestRepository;
+
 
   @org.springframework.beans.factory.annotation.Value("${sendgrid.from-email:noreply@kawai-resort.com}")
   private String defaultFromEmail;
@@ -39,7 +50,83 @@ public class AdminController {
         .format(DateTimeFormatter.ofPattern("EEEE, dd 'tháng' M, yyyy", new Locale("vi")));
     model.addAttribute("todayLabel", "Overview — " + dateLabel);
 
-    model.addAttribute("roomsByFloor", adminViewService.getRoomsByFloor());
+    
+    // Fetch categorizedRooms for shared room matrix
+    Map<String, List<Map<String, Object>>> categorizedRooms = new LinkedHashMap<>();
+    try {
+        java.util.Set<Long> roomsWithMaintenance = new java.util.HashSet<>();
+        java.util.Set<Long> roomsWithUrgentClean = new java.util.HashSet<>();
+        housekeepingTaskRepository.findAll().stream()
+                .filter(t -> !"Completed".equalsIgnoreCase(t.getStatus()))
+                .forEach(t -> {
+                    if (t.getRoom() != null) {
+                        if ("Maintenance".equalsIgnoreCase(t.getOperationalType())) {
+                            roomsWithMaintenance.add(t.getRoom().getId());
+                        } else if ("URGENT_CLEAN".equalsIgnoreCase(t.getOperationalType()) ||
+                                ("CHECKOUT_CLEAN".equalsIgnoreCase(t.getOperationalType())
+                                        && "Lễ tân báo dọn khẩn".equalsIgnoreCase(t.getPriority()))) {
+                            roomsWithUrgentClean.add(t.getRoom().getId());
+                        }
+                    }
+                });
+
+        for (Room r : roomRepository.findAll()) {
+            Map<String, Object> m = new HashMap<>();
+            m.put("roomNumber", r.getRoomNumber());
+            m.put("status", r.getRoomStatus());
+            m.put("hasUrgentMaintenance", roomsWithMaintenance.contains(r.getId()));
+            m.put("hasUrgentClean", roomsWithUrgentClean.contains(r.getId()));
+            String catName = r.getCategory() != null ? r.getCategory().getCategoryName() : "Uncategorized";
+            m.put("category", catName);
+
+            m.put("bookingDetailId", "");
+            m.put("checkInDate", "");
+            m.put("checkOutDate", "");
+            m.put("guestName", "");
+            m.put("pax", "");
+
+            if ("Occupied".equalsIgnoreCase(r.getRoomStatus()) && r.getCurrentBookingDetailId() != null) {
+                try {
+                    roomBookingDetailRepository.findById(r.getCurrentBookingDetailId()).ifPresent(detail -> {
+                        m.put("bookingDetailId", detail.getId());
+                        if (detail.getRoomBooking() != null) {
+                            m.put("checkInDate",
+                                    detail.getRoomBooking().getCheckInDate() != null
+                                            ? detail.getRoomBooking().getCheckInDate().toString()
+                                            : "N/A");
+                            m.put("checkOutDate",
+                                    detail.getRoomBooking().getCheckOutDate() != null
+                                            ? detail.getRoomBooking().getCheckOutDate().toString()
+                                            : "N/A");
+                        }
+                        String name = null;
+                        com.kawai.models.RoomGuest head = roomGuestRepository
+                                .findByRoomBookingDetailIdAndIsPrimaryContactTrue(detail.getId())
+                                .orElse(null);
+                        if (head != null) {
+                            if (head.getCustomer() != null) {
+                                name = head.getCustomer().getFullName();
+                            } else if (head.getDependent() != null) {
+                                name = head.getDependent().getDependentName();
+                            }
+                        }
+                        if (name != null)
+                            m.put("guestName", name);
+                        m.put("pax",
+                                (detail.getNumberOfAdults() != null ? detail.getNumberOfAdults() : 0) + " NL, "
+                                        + (detail.getNumberOfChildren() != null ? detail.getNumberOfChildren() : 0)
+                                        + " TE");
+                    });
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+            categorizedRooms.computeIfAbsent(catName, k -> new ArrayList<>()).add(m);
+        }
+    } catch (Exception e) {
+    }
+    model.addAttribute("categorizedRooms", categorizedRooms);
+
     model.addAttribute("activities", adminViewService.getRecentActivities());
 
     List<AdminViewService.CheckoutMock> checkouts = adminViewService.getCheckouts();

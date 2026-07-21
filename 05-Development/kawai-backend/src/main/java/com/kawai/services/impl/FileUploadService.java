@@ -1,4 +1,4 @@
-package com.kawai.services;
+package com.kawai.services.impl;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;

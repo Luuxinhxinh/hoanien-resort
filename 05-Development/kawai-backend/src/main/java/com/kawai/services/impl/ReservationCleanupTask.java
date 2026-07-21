@@ -1,4 +1,4 @@
-package com.kawai.services.jobs;
+package com.kawai.services.impl;
 
 import com.kawai.models.TableReservation;
 import com.kawai.repositories.TableReservationRepository;

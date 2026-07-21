@@ -138,6 +138,8 @@ class WalkInCheckInServiceUC14Test {
         private com.kawai.repositories.MaintenanceRequestRepository maintenanceRequestRepo;
         @Mock
         private com.kawai.services.interfaces.EmailService emailService;
+        @Mock
+        private com.kawai.services.interfaces.PricingService pricingService;
 
         // ?????? Test Data Constants (SYNTHETIC) ??????????????????????????????????????????????????????????????????????????????????????????????????????????????????
         private static final String CCCD_NEW_GUEST = "001234567890"; // TC-M2-021
@@ -208,6 +210,19 @@ class WalkInCheckInServiceUC14Test {
 
         @BeforeEach
         void setUp() {
+                org.springframework.test.util.ReflectionTestUtils.setField(walkInCheckInService, "pricingService",
+                                pricingService);
+
+                lenient().when(pricingService.calculateTotalRoomCharge(any(), any(), any()))
+                                .thenAnswer(invocation -> {
+                                        com.kawai.models.RoomCategory cat = invocation.getArgument(0);
+                                        LocalDate checkIn = invocation.getArgument(1);
+                                        LocalDate checkOut = invocation.getArgument(2);
+                                        long nights = java.time.temporal.ChronoUnit.DAYS.between(checkIn, checkOut);
+                                        BigDecimal basePrice = cat.getBasePrice() != null ? cat.getBasePrice() : new BigDecimal("1500000");
+                                        return basePrice.multiply(BigDecimal.valueOf(nights));
+                                });
+
                 lenient().when(roomBookingRepository.save(any(RoomBooking.class))).thenAnswer(inv -> {
                         RoomBooking rb = inv.getArgument(0);
                         if (rb.getId() == null)

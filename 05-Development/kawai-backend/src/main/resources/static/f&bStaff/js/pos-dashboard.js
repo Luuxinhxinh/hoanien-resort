@@ -267,7 +267,7 @@ window.changeQty = function (btn, delta) {
 };
 
 /* ============================================================
-   DASHBOARD TABS (Food Orders vs Table Orders)
+   DASHBOARD TABS (All / Room-Service Orders / Table Orders)
    ============================================================ */
 document.querySelectorAll('.dash-tab').forEach(tab => {
   tab.addEventListener('click', function() {
@@ -276,17 +276,34 @@ document.querySelectorAll('.dash-tab').forEach(tab => {
     this.classList.add('active');
 
     const target = this.dataset.target;
-    
+
     // Switch lists
-    const listFood = document.getElementById('list-food');
+    const listFood  = document.getElementById('list-food');
+    const listRoom  = document.getElementById('list-room');
     const listTable = document.getElementById('list-table');
-    listFood.style.display = (target === 'list-food') ? 'flex' : 'none';
-    listFood.style.flexDirection = 'column';
-    listTable.style.display = (target === 'list-table') ? 'flex' : 'none';
-    listTable.style.flexDirection = 'column';
+
+    [listFood, listRoom, listTable].forEach(el => {
+      if (!el) return;
+      el.style.display = 'none';
+    });
+
+    const activeList = document.getElementById(target);
+    if (activeList) {
+      activeList.style.display = 'flex';
+      activeList.style.flexDirection = 'column';
+    }
 
     // Switch filters
-    document.getElementById('filters-food').style.display = (target === 'list-food') ? 'flex' : 'none';
-    document.getElementById('filters-table').style.display = (target === 'list-table') ? 'flex' : 'none';
+    const filterMap = {
+      'list-food':  'filters-food',
+      'list-room':  'filters-room',
+      'list-table': 'filters-table',
+    };
+    ['filters-food', 'filters-room', 'filters-table'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    });
+    const activeFilter = document.getElementById(filterMap[target]);
+    if (activeFilter) activeFilter.style.display = 'flex';
   });
 });

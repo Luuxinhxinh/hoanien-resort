@@ -1,8 +1,8 @@
 package com.kawai.controllers.api;
 
 import com.kawai.config.DynamicJobManager;
-import com.kawai.services.AuditCleanupTask;
-import com.kawai.services.jobs.ReservationCleanupTask;
+import com.kawai.services.impl.AuditCleanupTask;
+import com.kawai.services.impl.ReservationCleanupTask;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;

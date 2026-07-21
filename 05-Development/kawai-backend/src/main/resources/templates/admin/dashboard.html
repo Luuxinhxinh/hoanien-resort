@@ -8,6 +8,12 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="stylesheet" th:href="@{/admin/css/theme.css}"  href="../../static/admin/css/theme.css"/>
     <link rel="stylesheet" th:href="@{/admin/css/admin.css}"  href="../../static/admin/css/admin.css"/>
+    
+    <!-- FontAwesome, Toastify & SweetAlert for Room Matrix -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
 
@@ -111,142 +117,9 @@
         </div>
 
         <!-- Room Status Matrix -->
-        <div class="adm-card">
-            <div class="adm-card-header">
-                <div>
-                    <h2 class="adm-section-title">Sơ đồ phòng & Điều phối liên bộ phận</h2>
-                    <p class="adm-section-subtitle" th:text="${totalRooms} + ' phòng hoạt động · Sắp xếp theo tầng'">100 phòng · 10 tầng</p>
-                </div>
-                <div class="adm-legend">
-                    <div class="adm-legend-item">
-                        <div class="adm-legend-dot" style="background:#9CA3AF"></div>
-                        <span class="adm-legend-label">Trống (Xám)</span>
-                    </div>
-                    <div class="adm-legend-item">
-                        <div class="adm-legend-dot" style="background:#3B82F6"></div>
-                        <span class="adm-legend-label">Có khách (Xanh Dương)</span>
-                    </div>
-                    <div class="adm-legend-item">
-                        <div class="adm-legend-dot" style="background:#F59E0B"></div>
-                        <span class="adm-legend-label">Bẩn/Cần dọn (Vàng)</span>
-                    </div>
-                    <div class="adm-legend-item">
-                        <div class="adm-legend-dot" style="background:#EF4444"></div>
-                        <span class="adm-legend-label">HỎNG (Đỏ)</span>
-                    </div>
-                </div>
-            </div>
-            <div class="adm-room-matrix-wrap" style="display:flex; flex-direction:column; gap:24px;">
-                <div th:each="floorEntry : ${roomsByFloor}" class="adm-floor-group">
-                    <h3 class="adm-floor-title" th:text="${floorEntry.key}" style="margin-bottom:12px; font-size:14px; font-weight:600; color:#5c5a4d; border-bottom:1px solid #e2ddce; padding-bottom:4px;">Tầng</h3>
-                    <div class="adm-room-matrix" style="grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));">
-                        <div th:each="room : ${floorEntry.value}"
-                                                          class="adm-room-cell"
-                             th:style="'background-color:' + ${room.bgColor} + '; color:' + ${room.textColor} + '; border: 1px solid ' + ${room.dotColor} + '; position: relative; min-height: 68px; padding: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer;'"
-                             th:attr="onclick='openRoomDetailModal(this)', data-room-no=${room.roomNumber}, data-status=${room.statusLabel}, data-issue=${room.issueDescription}, data-category=${room.roomCategory}, data-guest-name=${room.guestName}, data-guest-requests=${room.guestRequests}, data-guests=${room.currentGuests}">>
-                            <span class="adm-room-number" th:text="${room.roomNumber}" th:style="'color:' + ${room.textColor} + '; font-weight:700; font-size:14px;'">101</span>
-                            <span class="adm-room-status-lbl" th:text="${room.statusLabel}" th:style="'color:' + ${room.textColor} + '; font-size:9.5px; opacity:0.85; font-weight:600;'">Trống</span>
-                            
-                            <!-- Maintenance Action details -->
-                            <span th:if="${room.status == 'broken'}" th:text="${room.issueDescription}" style="font-size: 8.5px; color: #B91C1C; font-weight: 700; text-align: center; margin-top: 4px; line-height: 1.1;">Hỏng điều hòa</span>
-                            
-                            <!-- Housekeeping Action link indicator -->
-                            <span th:if="${room.status == 'dirty'}" style="font-size: 8px; color: #92400E; font-weight: 700; text-align: center; margin-top: 4px; line-height: 1.1; text-transform: uppercase;">-> Housekeeping</span>
-                            
-                            <div class="adm-room-dot" th:style="'background-color:' + ${room.dotColor} + '; position: absolute; top: 6px; right: 6px; width: 6px; height: 6px; border-radius: 50%;'"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <div th:replace="~{fragments/shared-room-matrix :: roomMatrix}"></div>
 
-        <!-- Bottom Grid: Recent Activity + Tonight's Checkouts -->
-        <div class="adm-bottom-grid">
-
-            <!-- Recent Activity (3/5) -->
-            <div class="adm-card">
-                <h2 class="adm-section-title" style="margin-bottom:20px">Hoạt động gần đây</h2>
-                <div class="adm-activity-list">
-                    <div th:each="activity : ${activities}" class="adm-activity-item">
-                        <span class="adm-activity-time" th:text="${activity.time}">08:42</span>
-                        <div class="adm-activity-avatar"
-                             th:style="'background-color:' + ${activity.avatarBg}"
-                             th:text="${activity.initials}">LN</div>
-                        <div class="adm-activity-body">
-                            <div class="adm-activity-name-row">
-                                <span class="adm-activity-name" th:text="${activity.name}">Linh Nguyễn</span>
-                                <span class="adm-role-pill"
-                                      th:style="'background-color:' + ${activity.roleBadgeBg} + '; color:' + ${activity.roleBadgeColor}"
-                                      th:text="${activity.role}">Receptionist</span>
-                            </div>
-                            <p class="adm-activity-action" th:text="${activity.action}">Check-in khách #1204</p>
-                        </div>
-                        <span class="adm-activity-badge" th:text="${activity.badgeLabel}">Booking</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Tonight's Checkouts (2/5) -->
-            <div class="adm-card">
-                <h2 class="adm-section-title">Trả phòng tối nay</h2>
-                <p class="adm-section-subtitle" style="margin-bottom:20px"
-                   th:text="${checkoutCount} + ' khách trả phòng'">4 khách trả phòng</p>
-                <div class="adm-checkout-list">
-                    <div th:each="checkout, iterStat : ${checkouts}"
-                         class="adm-checkout-row"
-                         th:classappend="${iterStat.odd} ? ' odd' : ''">
-                        <div class="adm-checkout-left">
-                            <span class="adm-room-tag" th:text="${checkout.roomNumber}">102</span>
-                            <span class="adm-checkout-guest" th:text="${checkout.guestName}">Mr. Haruto Yamamoto</span>
-                        </div>
-                        <span th:if="${checkout.paid}"   class="adm-badge-paid">Đã thanh toán</span>
-                        <span th:unless="${checkout.paid}" class="adm-badge-pending">Chờ thanh toán</span>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-
-        <!-- Automation Engine Timeline -->
-
-        <div class="adm-card" style="margin-top: 24px;">
-            <div class="adm-card-header" style="border-bottom: 1px solid rgba(44,42,30,0.08); padding-bottom: 12px; margin-bottom: 16px;">
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <i data-lucide="activity" style="color: #C9A96E; width: 20px; height: 20px;"></i>
-                    <h2 class="adm-section-title" style="font-size: 18px;">Nhật ký lệnh tự động (Automation Engine Timeline)</h2>
-                </div>
-                <span class="badge-green" style="padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; display: flex; align-items: center; gap: 6px; background-color: rgba(45,107,122,0.1); color: #1D5B6A;">
-                    <span class="status-indicator-dot" style="width: 6px; height: 6px; border-radius: 50%; background-color: #1D5B6A; display: inline-block; animation: pulse 1.5s infinite;"></span>
-                    Active (Real-time)
-                </span>
-            </div>
-                        <div class="automation-timeline-list" style="display: flex; flex-direction: column; gap: 12px; max-height: 220px; overflow-y: auto; padding-right: 6px;">
-                <div th:each="auto : ${automations}" class="automation-item" 
-                     th:style="'display: flex; align-items: flex-start; gap: 12px; padding: 10px 14px; border-radius: 4px; background: ' + 
-                     (${auto.colorTheme} == 'red' ? 'rgba(239,68,68,0.04)' : (${auto.colorTheme} == 'yellow' ? 'rgba(201,169,110,0.05)' : (${auto.colorTheme} == 'green' ? 'rgba(90,140,107,0.05)' : 'rgba(45,107,122,0.05)'))) + 
-                     '; border-left: 3px solid ' + 
-                     (${auto.colorTheme} == 'red' ? '#EF4444' : (${auto.colorTheme} == 'yellow' ? '#C9A96E' : (${auto.colorTheme} == 'green' ? '#2D6B4A' : '#1D5B6A'))) + ';'">
-                    <span class="auto-time" th:text="${auto.time}" th:style="'font-family: var(--font-mono); font-size: 11px; font-weight: 600; margin-top: 2px; color: ' + (${auto.colorTheme} == 'red' ? '#EF4444' : (${auto.colorTheme} == 'yellow' ? '#8B7355' : (${auto.colorTheme} == 'green' ? '#2D6B4A' : '#1D5B6A')))">15:40</span>
-                    <div style="flex: 1;">
-                        <p style="margin: 0; font-size: 13px; font-weight: 600; color: #2C2A1E;" th:text="${auto.title}">[15:40] Title</p>
-                        <p style="margin: 2px 0 0 0; font-size: 11px; color: #8B7355; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 600px;" th:text="${auto.description}">Desc</p>
-                    </div>
-                    <span th:class="'badge-' + ${auto.colorTheme}" 
-                          th:style="'font-size: 9px; padding: 2px 6px; border-radius: 3px; font-weight:600; ' + 
-                          (${auto.colorTheme} == 'red' ? 'background-color: rgba(239,68,68,0.15); color: #EF4444;' : (${auto.colorTheme} == 'yellow' ? 'background-color: rgba(201,169,110,0.15); color: #8B6010;' : (${auto.colorTheme} == 'green' ? 'background-color: rgba(90,140,107,0.15); color: #2D6B4A;' : 'background-color: rgba(45,107,122,0.15); color: #1D5B6A;')))" 
-                          th:text="${auto.type}">MAINTENANCE</span>
-                </div>
-            </div>
-            <style>
-                @keyframes pulse {
-                    0% { transform: scale(0.9); opacity: 0.5; }
-                    50% { transform: scale(1.1); opacity: 1; }
-                    100% { transform: scale(0.9); opacity: 0.5; }
-                }
-            </style>
-        </div>
-
-    </main>
+        </main>
 </div>
 
 <script th:src="@{/admin/js/main.js}"      src="../../static/admin/js/main.js"></script>

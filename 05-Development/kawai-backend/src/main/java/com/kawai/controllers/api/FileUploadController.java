@@ -16,7 +16,7 @@ import java.util.UUID;
 @RequestMapping("/api/v1/upload")
 public class FileUploadController {
     @Autowired
-    private com.kawai.services.FileUploadService fileUploadService;
+    private com.kawai.services.impl.FileUploadService fileUploadService;
 
     @PostMapping
     public ResponseEntity<?> uploadFile(@RequestParam("file") MultipartFile file) {

@@ -28,7 +28,7 @@ public class ManagerRefundApiController {
     private EmailService emailService;
 
     @Autowired
-    private com.kawai.services.FileUploadService fileUploadService;
+    private com.kawai.services.impl.FileUploadService fileUploadService;
 
     @PostMapping("/{id}/complete")
     public ResponseEntity<?> completeRefund(@PathVariable Long id, @RequestParam("billImage") MultipartFile file) {

@@ -1,4 +1,4 @@
-package com.kawai.services;
+package com.kawai.services.impl;
 
 import com.kawai.repositories.AuditLogRepository;
 import lombok.RequiredArgsConstructor;

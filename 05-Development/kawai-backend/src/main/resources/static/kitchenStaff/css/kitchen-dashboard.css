@@ -114,3 +114,23 @@
 .btn-ready {
   background: #28a745;
 }
+
+.order-general-note {
+  background-color: #fff3cd;
+  color: #856404;
+  padding: 6px 8px;
+  border-radius: 4px;
+  margin-bottom: 8px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.item-note {
+  font-size: 0.75rem;
+  color: #856404;
+  font-style: italic;
+  margin-top: 2px;
+}

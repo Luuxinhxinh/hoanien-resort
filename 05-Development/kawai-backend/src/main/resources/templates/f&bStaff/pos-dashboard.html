@@ -81,7 +81,7 @@
         <div class="staff-avatar">TP</div>
         <div>
           <div class="staff-name" th:text="${staffName != null ? staffName : 'Trần Phương'}">Trần Phương</div>
-          <div class="staff-role" th:text="${#authentication != null and #authentication.authorities != null and !#authentication.authorities.isEmpty() ? #strings.replace(#authentication.authorities[0].authority, 'ROLE_', '') : 'F&B POS'}">F&B POS · Ca Sáng</div>
+          <div class="staff-role" th:text="${#authentication != null and #authentication.authorities != null and !#authentication.authorities.isEmpty() ? #strings.replace(#authentication.authorities[0].authority, 'ROLE_', '') : 'F&B POS'}">F&B POS</div>
         </div>
         <form action="/auth/manual-logout" method="post" style="display:inline-block; margin:0;">
           <button type="submit" class="logout-btn" title="Đăng xuất">
@@ -174,9 +174,6 @@
             <div class="section-header" style="margin-bottom:0;">
               <span class="section-title">Danh sách Đơn hàng</span>
               <div class="section-actions">
-                <button class="btn btn-sm btn-outline">
-                  <span class="material-symbols-outlined">sort</span>Sắp xếp
-                </button>
                 <a href="/fbStaff/create-food-order" class="btn btn-sm btn-primary" style="text-decoration:none;">
                   <span class="material-symbols-outlined">add</span>Tạo đơn
                 </a>
@@ -185,12 +182,22 @@
             
             <!-- Tabs -->
             <div class="dashboard-tabs">
-              <button class="dash-tab active" data-target="list-food">Food Orders</button>
+              <button class="dash-tab active" data-target="list-food">All</button>
+              <button class="dash-tab" data-target="list-room">Room-Service Orders</button>
               <button class="dash-tab" data-target="list-table">Table Orders</button>
             </div>
 
-            <!-- Filters for Food Orders (default) -->
+            <!-- Filters for All Orders (default) -->
             <div class="filter-pills" id="filters-food">
+              <button class="pill active" data-filter="all">Tất cả</button>
+              <button class="pill" data-filter="pending">Pending</button>
+              <button class="pill" data-filter="preparing">Processing</button>
+              <button class="pill" data-filter="ready">Ready / Served</button>
+              <button class="pill" data-filter="cancelled">Cancelled</button>
+            </div>
+
+            <!-- Filters for Room-Service Orders (hidden by default) -->
+            <div class="filter-pills" id="filters-room" style="display:none;">
               <button class="pill active" data-filter="all">Tất cả</button>
               <button class="pill" data-filter="pending">Pending</button>
               <button class="pill" data-filter="preparing">Processing</button>
@@ -222,7 +229,6 @@
                 </div>
                 <div class="order-meta">
                   <div class="order-table" th:text="${order.orderType == 'Room Service' ? 'Room Service' : 'Bàn ' + (order.table != null ? order.table.tableNumber : '?')}">Room Service • P101</div>
-                  <div class="order-guest" th:text="${order.createdByStaff != null ? 'NV: ' + order.createdByStaff.fullName : ''}">NV: Trần Phương</div>
                 </div>
                 <span class="order-status-chip" 
                       th:classappend="${#strings.equalsIgnoreCase(order.orderStatus, 'Pending') ? 'chip-pending' : (#strings.equalsIgnoreCase(order.orderStatus, 'Preparing') ? 'chip-cooking' : (#strings.equalsIgnoreCase(order.orderStatus, 'Served') ? 'chip-served' : (#strings.equalsIgnoreCase(order.orderStatus, 'Ready') ? 'chip-ready' : (#strings.equalsIgnoreCase(order.orderStatus, 'Delivering') ? 'chip-delivering' : 'chip-pending'))))}" >
@@ -237,12 +243,39 @@
                 </div>
               </div>
               <div class="order-card-bottom">
-                <span class="order-time"><span class="material-symbols-outlined">schedule</span>Mới</span>
                 <span class="order-amount" th:text="${order.details != null ? order.details.size() + ' món' : '0 món'}">2 món</span>
               </div>
             </div>
 
           </div><!-- / list-food -->
+
+          <!-- LIST: ROOM-SERVICE ORDERS -->
+          <div class="orders-list" id="list-room" style="display:none;">
+
+            <div class="order-card"
+                 th:each="order : ${foodOrders}"
+                 th:if="${order.orderType == 'Room Service'}"
+                 th:data-status="${#strings.toLowerCase(order.orderStatus)}"
+                 th:data-order="${'ORD-' + order.id}"
+                 th:onclick="|location.href='/fbStaff/order-detail?id=' + ${order.id} + '&type=food'|">
+              <div class="order-card-top">
+                <div class="order-type-icon room-svc">
+                  <span class="material-symbols-outlined">room_service</span>
+                </div>
+                <div class="order-meta">
+                  <div class="order-table">Room Service</div>
+                </div>
+                <span class="order-status-chip"
+                      th:classappend="${#strings.equalsIgnoreCase(order.orderStatus, 'Pending') ? 'chip-pending' : (#strings.equalsIgnoreCase(order.orderStatus, 'Preparing') ? 'chip-cooking' : (#strings.equalsIgnoreCase(order.orderStatus, 'Served') ? 'chip-served' : (#strings.equalsIgnoreCase(order.orderStatus, 'Ready') ? 'chip-ready' : (#strings.equalsIgnoreCase(order.orderStatus, 'Delivering') ? 'chip-delivering' : 'chip-pending'))))}">
+                  <span class="dot"></span><span th:text="${#strings.equalsIgnoreCase(order.orderStatus, 'Preparing') ? 'Processing' : (#strings.equalsIgnoreCase(order.orderStatus, 'Ready') ? 'Complete' : (order.orderStatus != null ? #strings.capitalize(order.orderStatus) : 'Pending'))}">Pending</span>
+                </span>
+              </div>
+              <div class="order-card-bottom">
+                <span class="order-amount" th:text="${order.details != null ? order.details.size() + ' món' : '0 món'}">0 món</span>
+              </div>
+            </div>
+
+          </div><!-- / list-room -->
 
           <!-- LIST: TABLE ORDERS -->
           <div class="orders-list" id="list-table" style="display:none;">
@@ -257,7 +290,6 @@
                 <div class="order-type-icon dine-in"><span class="material-symbols-outlined">table_restaurant</span></div>
                 <div class="order-meta">
                   <div class="order-table" th:text="${'Bàn ' + (order.table != null ? order.table.tableNumber : '?')}">Bàn 01</div>
-                  <div class="order-guest" th:text="${order.createdByStaff != null ? 'NV: ' + order.createdByStaff.fullName : '--'}">NV: Trần Phương</div>
                 </div>
                 <span class="order-status-chip" 
                       th:classappend="${#strings.equalsIgnoreCase(order.orderStatus, 'Pending') ? 'chip-pending' : (#strings.equalsIgnoreCase(order.orderStatus, 'Preparing') ? 'chip-cooking' : (#strings.equalsIgnoreCase(order.orderStatus, 'Served') ? 'chip-served' : (#strings.equalsIgnoreCase(order.orderStatus, 'Ready') ? 'chip-ready' : (#strings.equalsIgnoreCase(order.orderStatus, 'Delivering') ? 'chip-delivering' : 'chip-pending'))))}" >
@@ -265,7 +297,6 @@
                 </span>
               </div>
               <div class="order-card-bottom">
-                <span class="order-time"><span class="material-symbols-outlined">schedule</span>Mới</span>
                 <span class="order-amount" th:text="${order.details != null ? order.details.size() + ' món' : '0 món'}">2 món</span>
               </div>
             </div>
@@ -363,14 +394,21 @@
                   }
 
                   syncList('#list-food');
+                  syncList('#list-room');
                   syncList('#list-table');
 
                   // Re-apply filters silently without triggering animations
+                  const filterMap = {
+                      'filters-food': '#list-food',
+                      'filters-room': '#list-room',
+                      'filters-table': '#list-table'
+                  };
                   document.querySelectorAll('.filter-pills').forEach(pillContainer => {
                       const activePill = pillContainer.querySelector('.pill.active');
                       if (!activePill) return;
                       const filter = activePill.dataset.filter;
-                      const listId = pillContainer.id === 'filters-food' ? '#list-food' : '#list-table';
+                      const listId = filterMap[pillContainer.id];
+                      if (!listId) return;
                       document.querySelectorAll(`${listId} .order-card`).forEach(card => {
                           const show = filter === 'all' || card.dataset.status === filter;
                           card.style.display = show ? '' : 'none';

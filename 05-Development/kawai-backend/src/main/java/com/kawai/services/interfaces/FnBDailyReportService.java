@@ -1,4 +1,4 @@
-package com.kawai.services;
+package com.kawai.services.interfaces;
 
 import com.kawai.dto.fnb.FnBDailyReportPreviewResponse;
 import com.kawai.models.FnBDailyReport;

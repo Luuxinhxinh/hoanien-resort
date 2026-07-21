@@ -17,6 +17,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import jakarta.servlet.http.HttpSession;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.List;
@@ -37,12 +38,15 @@ public class HousekeepingWebController {
     private final RoomRepository roomRepository;
     private final EmployeeRepository employeeRepository;
     private final StaffScheduleRepository staffScheduleRepository;
+    private final com.kawai.services.interfaces.ShiftService shiftService;
 
     public HousekeepingWebController(HousekeepingService hs,
-            HousekeepingTaskRepository htr, RoomRepository rr, EmployeeRepository er, StaffScheduleRepository ssr) {
+            HousekeepingTaskRepository htr, RoomRepository rr, EmployeeRepository er, StaffScheduleRepository ssr,
+            com.kawai.services.interfaces.ShiftService shiftService) {
         this.housekeepingService = hs; this.housekeepingTaskRepo = htr;
         this.roomRepository = rr; this.employeeRepository = er;
         this.staffScheduleRepository = ssr;
+        this.shiftService = shiftService;
     }
 
     @ModelAttribute("todayLabel")
@@ -50,8 +54,22 @@ public class HousekeepingWebController {
         return LocalDate.now().format(DateTimeFormatter.ofPattern("EEEE, dd/MM/yyyy", new Locale("vi")));
     }
 
+    private void populateCommonData(Model model, Authentication auth) {
+        Employee currentStaff = employeeRepository.findByAccountUsername(auth.getName()).orElse(null);
+        if (currentStaff != null) {
+            model.addAttribute("currentStaff", currentStaff);
+            LocalDate startOfWeek = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+            LocalDate endOfWeek = startOfWeek.plusDays(6);
+            var weeklySchedules = staffScheduleRepository.findByEmployeeIdAndWorkDateBetweenOrderByWorkDateAsc(currentStaff.getId(), startOfWeek, endOfWeek);
+            model.addAttribute("myWeeklySchedules", weeklySchedules);
+        }
+    }
+
     @GetMapping("/dashboard")
-    public String dashboard(Model model, HttpSession session, @RequestParam(required = false) String bypass) {
+    public String dashboard(Model model, HttpSession session, 
+            @RequestParam(required = false) String bypass,
+            @RequestParam(required = false) String forceOutOfShift) {
+        
         if ("true".equals(bypass)) {
             session.setAttribute("demoBypassShift", true);
         }
@@ -59,25 +77,13 @@ public class HousekeepingWebController {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         boolean isOnShift = false;
         
-        if (session.getAttribute("demoBypassShift") != null) {
-            isOnShift = true;
-        } else if (auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_MANAGER") || a.getAuthority().equals("ROLE_ADMIN"))) {
-            isOnShift = true;
+        if ("true".equals(forceOutOfShift)) {
+            isOnShift = false;
         } else {
-            Employee currentStaff = employeeRepository.findByAccountUsername(auth.getName()).orElse(null);
-            if (currentStaff != null) {
-                var shifts = staffScheduleRepository.findByEmployeeIdAndWorkDate(currentStaff.getId(), LocalDate.now());
-                if (shifts != null && !shifts.isEmpty()) {
-                    isOnShift = true;
-                }
-                
-                // Get weekly schedules for the employee
-                LocalDate startOfWeek = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
-                LocalDate endOfWeek = startOfWeek.plusDays(6);
-                var weeklySchedules = staffScheduleRepository.findByEmployeeIdAndWorkDateBetweenOrderByWorkDateAsc(currentStaff.getId(), startOfWeek, endOfWeek);
-                model.addAttribute("myWeeklySchedules", weeklySchedules);
-            }
+            isOnShift = shiftService.checkIsOnShift(auth, session);
         }
+        
+        populateCommonData(model, auth);
         
         model.addAttribute("isOnShift", isOnShift);
         
@@ -101,7 +107,12 @@ public class HousekeepingWebController {
     }
 
     @PostMapping("/tasks/{taskId}/complete")
-    public String completeTask(@PathVariable Long taskId, @RequestParam(required=false) String notes, RedirectAttributes ra) {
+    public String completeTask(@PathVariable Long taskId, @RequestParam(required=false) String notes, RedirectAttributes ra, HttpSession session) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (!shiftService.checkIsOnShift(auth, session)) {
+            ra.addFlashAttribute("errorMessage", "Lỗi: Bạn chưa vào ca làm việc.");
+            return "redirect:/housekeeping/dashboard";
+        }
         try { housekeepingService.updateRoomToClean(taskId, notes);
             ra.addFlashAttribute("successMessage","Đã đánh dấu phòng sạch thành công.");
         } catch(Exception e) { ra.addFlashAttribute("errorMessage","Lỗi: "+e.getMessage()); }
@@ -109,7 +120,12 @@ public class HousekeepingWebController {
     }
 
     @PostMapping("/tasks/{taskId}/start")
-    public String startTask(@PathVariable Long taskId, RedirectAttributes ra) {
+    public String startTask(@PathVariable Long taskId, RedirectAttributes ra, HttpSession session) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (!shiftService.checkIsOnShift(auth, session)) {
+            ra.addFlashAttribute("errorMessage", "Lỗi: Bạn chưa vào ca làm việc.");
+            return "redirect:/housekeeping/dashboard";
+        }
         try { var t = housekeepingTaskRepo.findById(taskId).orElseThrow();
             t.setStatus("InProgress"); t.setStartedAt(java.time.LocalDateTime.now());
             housekeepingTaskRepo.save(t);
@@ -123,7 +139,11 @@ public class HousekeepingWebController {
             @RequestParam(required = false, defaultValue = "false") boolean isEmergency,
             @RequestParam(required = false) String taskType,
             @RequestParam(value = "image", required = false) MultipartFile image,
-            Authentication auth, RedirectAttributes ra) {
+            Authentication auth, RedirectAttributes ra, HttpSession session) {
+        if (!shiftService.checkIsOnShift(auth, session)) {
+            ra.addFlashAttribute("errorMessage", "Lỗi: Bạn chưa vào ca làm việc.");
+            return "redirect:/housekeeping/dashboard";
+        }
         try {
             Long sid = null;
             if (auth != null && auth.getName() != null) {

@@ -5,6 +5,7 @@ import com.kawai.repositories.TourAttendeeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -29,6 +30,30 @@ public class FaceIdApiController {
 
     @Autowired
     private com.kawai.repositories.BookingRepository bookingRepository;
+
+    @Autowired
+    private com.kawai.repositories.TourScheduleRepository tourScheduleRepository;
+
+    @Autowired
+    private com.kawai.repositories.TourBookingRepository tourBookingRepository;
+
+    @Autowired
+    private com.kawai.repositories.EmployeeRepository employeeRepository;
+
+    @Autowired
+    private com.kawai.repositories.HotelOperationRepository hotelOperationRepository;
+
+    @Autowired
+    private com.kawai.repositories.RefundRequestRepository refundRequestRepository;
+
+    @Autowired
+    private com.kawai.services.interfaces.TourBookingService tourBookingService;
+
+    @Autowired
+    private com.kawai.services.interfaces.FolioService folioService;
+
+    @Autowired
+    private com.kawai.services.interfaces.EmailService emailService;
 
 
     /**
@@ -110,6 +135,7 @@ public class FaceIdApiController {
                 if (!"Not_Show".equals(attendee.getStatus())) {
                     attendee.setStatus("Not_Show");
                     attendee.setFaceMatchedAt(null);
+                    attendee.setAbsentReason(null);
                     tourAttendeeRepository.saveAndFlush(attendee);
                     resetCount++;
                 }
@@ -246,6 +272,54 @@ public class FaceIdApiController {
     }
 
     /**
+     * POST /api/faceid/absent-manual
+     * Báo vắng mặt khách hàng thủ công kèm lý do.
+     */
+    @PostMapping("/absent-manual")
+    @org.springframework.transaction.annotation.Transactional
+    public ResponseEntity<?> absentManual(@RequestBody Map<String, Object> body) {
+        Object idObj = body.get("attendeeId");
+        Object reasonObj = body.get("reason");
+        if (idObj == null || reasonObj == null || reasonObj.toString().trim().isBlank()) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "success", false,
+                    "message", "Thiếu ID hành khách hoặc lý do vắng mặt"));
+        }
+
+        try {
+            Long attendeeId = Long.valueOf(idObj.toString());
+            String reason = reasonObj.toString().trim();
+            Optional<TourAttendee> attendeeOpt = tourAttendeeRepository.findById(attendeeId);
+            if (attendeeOpt.isPresent()) {
+                TourAttendee attendee = attendeeOpt.get();
+                attendee.setStatus("Absent");
+                attendee.setAbsentReason(reason);
+                tourAttendeeRepository.saveAndFlush(attendee);
+                
+                String name = "Ẩn danh";
+                if (attendee.getCustomer() != null) {
+                    name = attendee.getCustomer().getFullName();
+                } else if (attendee.getDependent() != null) {
+                    name = attendee.getDependent().getDependentName();
+                }
+                return ResponseEntity.ok(Map.of(
+                        "success", true,
+                        "name", name,
+                        "attendeeId", String.valueOf(attendee.getId())));
+            } else {
+                return ResponseEntity.status(404).body(Map.of(
+                        "success", false,
+                        "message", "Không tìm thấy hành khách với ID: " + attendeeId));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(Map.of(
+                    "success", false,
+                    "message", "Lỗi máy chủ: " + e.getMessage()));
+        }
+    }
+
+    /**
      * GET /api/faceid/references
      * Trả về danh sách ảnh tham chiếu khuôn mặt cho hôm nay (dùng cho face-api.js).
      */
@@ -296,6 +370,75 @@ public class FaceIdApiController {
             return ResponseEntity.ok(refs);
         } catch (Exception e) {
             return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/cancel-schedule")
+    @org.springframework.transaction.annotation.Transactional
+    public ResponseEntity<?> cancelScheduleByGuide(@RequestBody Map<String, Object> body) {
+        Object schedIdObj = body.get("scheduleId");
+        String reason = body.get("description") != null ? body.get("description").toString().trim() : null;
+
+        if (schedIdObj == null) {
+            return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Thiếu thông tin lịch trình tour (scheduleId)."));
+        }
+        if (reason == null || reason.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Vui lòng nhập lý do sự cố hủy tour."));
+        }
+
+        Long scheduleId = Long.valueOf(schedIdObj.toString());
+
+        // Đồng bộ hóa theo scheduleId để tránh race condition (người dùng click đúp hoặc gửi nhiều request đồng thời)
+        synchronized (scheduleId.toString().intern()) {
+            try {
+                com.kawai.models.TourSchedule schedule = tourScheduleRepository.findById(scheduleId).orElse(null);
+                if (schedule == null) {
+                    return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Không tìm thấy lịch trình tour."));
+                }
+
+                if ("Cancelled".equalsIgnoreCase(schedule.getScheduleStatus())) {
+                    return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Lịch trình tour này đã được hủy trước đó rồi."));
+                }
+
+                // 1. Cập nhật trạng thái TourSchedule sang Cancelled
+                schedule.setScheduleStatus("Cancelled");
+                tourScheduleRepository.save(schedule);
+
+                // 2. Ghi nhận sự cố vào bảng Hotel_Operations (loại TOUR_INCIDENT, trạng thái Pending)
+                String username = SecurityContextHolder.getContext().getAuthentication().getName();
+                com.kawai.models.Employee staff = employeeRepository.findByAccountUsername(username).orElse(null);
+
+                com.kawai.models.HotelOperation incident = new com.kawai.models.HotelOperation();
+                incident.setOperationalType("TOUR_INCIDENT");
+                incident.setPriority("Urgent");
+                incident.setStatus("Pending");
+                incident.setNotes("[HỦY TOUR] Sự cố lịch trình #" + scheduleId + " - " + (schedule.getTour() != null ? schedule.getTour().getTourName() : "") + ": " + reason);
+                incident.setStaff(staff);
+                incident.setCreatedAt(LocalDateTime.now());
+                hotelOperationRepository.save(incident);
+
+                // 3. Tìm tất cả các đơn đặt tour của lịch trình này để hủy và hoàn tiền
+                List<com.kawai.models.TourBooking> bookings = tourBookingRepository.findByScheduleId(scheduleId);
+                int cancelCount = 0;
+
+                for (com.kawai.models.TourBooking booking : bookings) {
+                    String currentStatus = booking.getBookingStatus() != null ? booking.getBookingStatus() : "";
+                    if ("Cancelled_Refunded".equalsIgnoreCase(currentStatus) || "Cancelled_Forfeited".equalsIgnoreCase(currentStatus)) {
+                        continue; // Bỏ qua đơn đã hủy
+                    }
+
+                    // Gọi cancelTour tập trung ở Service với cancelledByResort = true (hoàn tiền 100%) và truyền lý do hủy
+                    tourBookingService.cancelTour(booking.getId(), true, reason);
+                    cancelCount++;
+                }
+                return ResponseEntity.ok(Map.of(
+                    "success", true, 
+                    "message", "Đã hủy lịch trình tour thành công! Đã hoàn tiền cho " + cancelCount + " đơn đặt tour."
+                ));
+            } catch (Exception e) {
+                e.printStackTrace();
+                return ResponseEntity.status(500).body(Map.of("success", false, "message", "Lỗi khi hủy lịch trình tour: " + e.getMessage()));
+            }
         }
     }
 

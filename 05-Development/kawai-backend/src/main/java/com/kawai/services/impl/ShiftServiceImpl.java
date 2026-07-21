@@ -4,7 +4,7 @@ import com.kawai.models.Employee;
 import com.kawai.models.StaffSchedule;
 import com.kawai.repositories.EmployeeRepository;
 import com.kawai.repositories.StaffScheduleRepository;
-import com.kawai.services.ShiftService;
+import com.kawai.services.interfaces.ShiftService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -105,6 +105,42 @@ public class ShiftServiceImpl implements ShiftService {
         }
 
         return selectedGuide;
+    }
+
+    @Override
+    public boolean checkIsOnShift(org.springframework.security.core.Authentication auth, jakarta.servlet.http.HttpSession session) {
+        return true; // TODO: Tạm thời vô hiệu hóa tính năng chặn ca
+        /*
+        if (session != null && session.getAttribute("demoBypassShift") != null) {
+            return true;
+        }
+        if (auth != null && auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_MANAGER") || a.getAuthority().equals("ROLE_ADMIN"))) {
+            return true;
+        }
+        if (auth != null) {
+            Employee currentStaff = employeeRepository.findByAccountUsername(auth.getName()).orElse(null);
+            if (currentStaff != null) {
+                var shifts = staffScheduleRepository.findByEmployeeIdAndWorkDate(currentStaff.getId(), LocalDate.now());
+                if (shifts != null && !shifts.isEmpty()) {
+                    java.time.LocalTime now = java.time.LocalTime.now();
+                    for (var schedule : shifts) {
+                        java.time.LocalTime startTime = schedule.getShift().getStartTime();
+                        java.time.LocalTime endTime = schedule.getShift().getEndTime();
+                        if (startTime.isBefore(endTime)) {
+                            if (!now.isBefore(startTime) && !now.isAfter(endTime)) {
+                                return true;
+                            }
+                        } else {
+                            if (!now.isBefore(startTime) || !now.isAfter(endTime)) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+        */
     }
 
     private boolean isGuideFree(Long employeeId, LocalDate date, java.time.LocalTime newStart, java.time.LocalTime newEnd) {

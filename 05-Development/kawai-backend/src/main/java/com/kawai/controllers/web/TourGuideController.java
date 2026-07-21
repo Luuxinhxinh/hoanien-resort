@@ -26,7 +26,7 @@ public class TourGuideController {
     private com.kawai.repositories.EmployeeRepository employeeRepository;
 
     @org.springframework.beans.factory.annotation.Autowired
-    private com.kawai.services.ShiftService shiftService;
+    private com.kawai.services.interfaces.ShiftService shiftService;
 
     @org.springframework.beans.factory.annotation.Autowired
     private com.kawai.repositories.AccountRepository accountRepository;
@@ -333,7 +333,11 @@ public class TourGuideController {
         long checkedIn = attendees.stream()
                 .filter(a -> "Checked_In".equals(a.getStatus()))
                 .count();
+        long absentCount = attendees.stream()
+                .filter(a -> "Absent".equals(a.getStatus()))
+                .count();
         model.addAttribute("checkedInCount", checkedIn);
+        model.addAttribute("absentCount", absentCount);
         model.addAttribute("totalAttendees", attendees.size());
 
         // Tổng hợp và parse ghi chú của các đặt tour cho hành trình này
@@ -499,8 +503,11 @@ public class TourGuideController {
             } else if (dbStatus != null && "ongoing".equalsIgnoreCase(dbStatus)) {
                 mappedStatus = "ongoing";
             } else {
-                // Tương lai/chưa bắt đầu → Sắp diễn ra
-                mappedStatus = "upcoming";
+                if (depDate2 != null && depDate2.isBefore(today2)) {
+                    mappedStatus = "completed";
+                } else {
+                    mappedStatus = "upcoming";
+                }
             }
             map.put("status", mappedStatus);
             map.put("date", sched.getDepartureDate() != null ? sched.getDepartureDate().toString() : "2026-06-27");
