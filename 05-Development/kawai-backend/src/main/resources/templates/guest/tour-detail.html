@@ -45,6 +45,22 @@
             scroll-behavior: smooth;
         }
 
+        /* Custom scrollbar for active-rooms-list and other scrollable panels */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 2px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #C5A059;
+            border-radius: 2px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #2D2926;
+        }
+
         h1,
         h2,
         h3,
@@ -601,6 +617,13 @@
                             oninput="updateTotalPrice(); validateCompanions(false, false)"
                             onchange="validateCompanions(true, false)">
                     </div>
+                    <!-- Checkbox: Tôi là người tham gia chuyến đi -->
+                    <div class="flex items-center gap-3 py-2 border-b border-brand-border/30">
+                        <input type="checkbox" id="isPayerParticipating" checked class="w-4 h-4 text-brand-gold border-brand-border focus:ring-brand-gold focus:ring-2 rounded cursor-pointer" onchange="onPayerParticipatingChange()">
+                        <label for="isPayerParticipating" class="text-xs font-bold uppercase tracking-widest text-black cursor-pointer select-none">
+                            Tôi là người tham gia chuyến đi (Chủ tài khoản đi tour)
+                        </label>
+                    </div>
                     <!-- Companion Section -->
                     <div data-purpose="accompanying-section">
                         <label class="text-[10px] font-bold uppercase tracking-widest mb-4 block text-black">Người cùng
@@ -1014,7 +1037,7 @@
             <h3 class="text-2xl font-serif mb-2 text-center">Chọn phòng để gán tour</h3>
             <p class="text-xs text-gray-400 text-center mb-8">Tour sẽ được liên kết với đơn đặt phòng bạn chọn bên dưới
             </p>
-            <div id="active-rooms-list" class="space-y-3 mb-8">
+            <div id="active-rooms-list" class="space-y-3 mb-8 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
                 <!-- Will be dynamically populated -->
             </div>
             <div class="flex space-x-4">
@@ -3180,18 +3203,28 @@
                 return false;
             }
 
-            // Validate adult companions info from dropdown
-            const adultCompanionRows = document.querySelectorAll('.adult-companion-row');
-            for (let i = 0; i < adultCompanionRows.length; i++) {
-                const row = adultCompanionRows[i];
-                const selectEl = row.querySelector('.adult-companion-select');
-                if (!selectEl || selectEl.value === '') {
-                    showWarningAlertPopup(
-                        lang === 'vi' ? 'Thiếu thông tin người đi cùng' : 'Companion Required',
-                        lang === 'vi' ? `Vui lòng chọn người lớn đi cùng thứ ${i + 1} từ danh sách!` : `Please select companion #${i + 1} from the list.`
-                    );
-                    if (selectEl) selectEl.focus();
-                    return false;
+            // Validate adult companions info
+            const adultsInput = document.getElementById('num-adults');
+            const adults = parseInt(adultsInput ? adultsInput.value : '1') || 1;
+            const chkParticipate = document.getElementById('isPayerParticipating');
+            const isPayerParticipatingVal = chkParticipate ? chkParticipate.checked : true;
+            if (!isPayerParticipatingVal || adults > 1) {
+                const adultCompanionRows = document.querySelectorAll('.adult-companion-row');
+                for (let i = 0; i < adultCompanionRows.length; i++) {
+                    const row = adultCompanionRows[i];
+                    const nameEl = row.querySelector('.adult-companion-name');
+                    const selectEl = row.querySelector('.adult-companion-select');
+                    const nameVal = nameEl ? nameEl.value.trim() : '';
+                    const selectVal = selectEl ? selectEl.value : '';
+                    if (!nameVal && selectVal === '') {
+                        showWarningAlertPopup(
+                            lang === 'vi' ? 'Thiếu thông tin người đi cùng' : 'Companion Required',
+                            lang === 'vi' ? `Vui lòng chọn hoặc nhập thông tin người lớn đi cùng thứ ${i + 1}!` : `Please enter or select companion #${i + 1}.`
+                        );
+                        if (nameEl) nameEl.focus();
+                        else if (selectEl) selectEl.focus();
+                        return false;
+                    }
                 }
             }
 
@@ -3411,8 +3444,11 @@
                 generateChildRows(children);
 
                 // Generate adult companions
-                // Hiển thị dropdown cho TẤT CẢ người lớn, bao gồm cả khách đặt (để hỗ trợ đặt hộ hoàn toàn)
-                const adultCompanionsCount = adults;
+                // Nếu khách CHỌN làm người tham gia, sinh 'adults - 1' dòng nhập thông tin (trừ suất của khách chính).
+                // Nếu khách KHÔNG tham gia (đặt hộ), sinh đủ 'adults' dòng nhập thông tin.
+                const chkParticipate = document.getElementById('isPayerParticipating');
+                const isPayerParticipatingVal = chkParticipate ? chkParticipate.checked : true;
+                const adultCompanionsCount = isPayerParticipatingVal ? (adults > 1 ? adults - 1 : 0) : adults;
                 generateAdultCompanionRows(adultCompanionsCount);
                 validateParticipantsWithRoomOnInput();
                 return true;
@@ -3592,7 +3628,9 @@
             const companions = [];
             let isCustomerGoing = false;
             const adultsVal = parseInt(document.getElementById('num-adults').value) || 1;
-            if (adultsVal > 0) {
+            const chkParticipateSubmit = document.getElementById('isPayerParticipating');
+            const isPayerParticipatingValSubmit = chkParticipateSubmit ? chkParticipateSubmit.checked : true;
+            if (!isPayerParticipatingValSubmit || adultsVal > 1) {
                 const adultCompanionRows = document.querySelectorAll('.adult-companion-row');
                 adultCompanionRows.forEach(row => {
                     const selectEl = row.querySelector('.adult-companion-select');
@@ -3648,6 +3686,7 @@
                 isCustomerGoing: isCustomerGoing,
                 promoCode: appliedPromoState ? appliedPromoState.code : null,
                 notes: customerNotes,
+                isPayerParticipating: isPayerParticipatingValSubmit,
                 acceptInsurance: (function () {
                     const chk = document.getElementById('insuranceConsent');
                     return chk ? chk.checked : false;
@@ -3956,6 +3995,10 @@
             }
         });
 
+        function onPayerParticipatingChange() {
+            validateCompanions(false, false);
+        }
+
         function checkDuplicateTourRegistration() {
             const tourInfo = tourData[currentTour];
             const dateInput = document.getElementById('departureDate');
@@ -3979,6 +4022,16 @@
                             lang === 'vi' ? 'Thông báo đặt trùng' : 'Duplicate Booking Notice',
                             lang === 'vi' ? 'Bạn đã đăng ký tour này trước đó. Bạn đang đặt hộ cho người khác?' : 'You have already booked this tour. Are you booking on behalf of others?'
                         );
+                        const chk = document.getElementById('isPayerParticipating');
+                        if (chk) {
+                            chk.checked = false;
+                            chk.disabled = true;
+                        }
+                    } else {
+                        const chk = document.getElementById('isPayerParticipating');
+                        if (chk) {
+                            chk.disabled = false;
+                        }
                     }
                     
                     // Cập nhật lại form gõ companion để đồng bộ số lượng ô nhập

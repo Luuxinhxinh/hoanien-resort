@@ -242,6 +242,10 @@ public class TourBookingApiController {
                     && Boolean.parseBoolean(payload.get("acceptInsurance").toString());
             request.setAcceptInsurance(acceptInsurance);
 
+            boolean isPayerParticipating = payload.get("isPayerParticipating") == null
+                    || Boolean.parseBoolean(payload.get("isPayerParticipating").toString());
+            request.setPayerParticipating(isPayerParticipating);
+
             // 4. Create one TourBooking per selected room
             List<Long> createdBookingIds = new java.util.ArrayList<>();
             List<String> resolvedRooms = new java.util.ArrayList<>();
