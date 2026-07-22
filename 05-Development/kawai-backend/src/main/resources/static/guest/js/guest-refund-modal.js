@@ -122,7 +122,11 @@ function submitGuestRefundForm(event) {
     })
     .catch(err => {
         alert('Lỗi: ' + (err.message || 'Không xác định'));
-        btn.disabled = false;
-        btn.innerText = 'Gửi Yêu cầu Hủy đơn';
+        if (err.message && err.message.includes('Cancelled')) {
+            window.location.reload();
+        } else {
+            btn.disabled = false;
+            btn.innerText = 'Gửi Yêu cầu Hủy đơn';
+        }
     });
 }

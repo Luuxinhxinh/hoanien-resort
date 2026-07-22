@@ -203,16 +203,17 @@ public class BookingServiceImpl implements BookingService {
         java.util.List<RoomBooking> existingBookings = roomBookingRepository.findByCustomerOrderByIdDesc(customer);
         BigDecimal utilizedLimit = BigDecimal.ZERO;
         for (RoomBooking b : existingBookings) {
+            if (b.getId() != null && holdBooking.getId() != null && b.getId().equals(holdBooking.getId())) {
+                continue;
+            }
             String st = b.getBookingStatus() != null ? b.getBookingStatus().toUpperCase() : "";
             if (st.startsWith("CANCEL") || st.equals("CHECKED_OUT")) {
                 continue;
             }
             // Ktra giao nhau: b.checkIn < new.checkOut AND b.checkOut > new.checkIn
-            // (Đảm bảo trả phòng cùng ngày nhận phòng đơn mới sẽ không bị tính là giao
-            // nhau)
             if (b.getCheckInDate() != null && b.getCheckOutDate() != null) {
                 if (b.getCheckInDate().isBefore(checkOut) && b.getCheckOutDate().isAfter(checkIn)) {
-                    if (b.getCreditLimit() != null) {
+                    if (b.getCreditLimit() != null && b.getCreditLimit().compareTo(BigDecimal.ZERO) > 0) {
                         utilizedLimit = utilizedLimit.add(b.getCreditLimit());
                     }
                 }
@@ -220,8 +221,8 @@ public class BookingServiceImpl implements BookingService {
         }
 
         BigDecimal creditLimit = maxTierLimit.subtract(utilizedLimit);
-        if (creditLimit.compareTo(BigDecimal.ZERO) < 0) {
-            creditLimit = BigDecimal.ZERO;
+        if (creditLimit.compareTo(BigDecimal.ZERO) <= 0) {
+            creditLimit = (maxTierLimit != null && maxTierLimit.compareTo(BigDecimal.ZERO) > 0) ? maxTierLimit : new BigDecimal("5000000.00");
         }
 
         holdBooking.setCreditLimit(creditLimit);
@@ -376,8 +377,11 @@ public class BookingServiceImpl implements BookingService {
             detail.setDetailStatus("Pending");
             detail.setCustomer(customer);
 
-            // Bỏ tự động phân bổ hạn mức, set về 0 để lễ tân tự nhập lúc Check-in
-            detail.setSubCreditLimit(BigDecimal.ZERO);
+            // Mỗi phòng hưởng trọn hạn mức của hạng khách hàng đặt phòng (hoặc mặc định 5.000.000đ)
+            BigDecimal initialCreditLimit = (savedBooking.getCreditLimit() != null && savedBooking.getCreditLimit().compareTo(BigDecimal.ZERO) > 0)
+                    ? savedBooking.getCreditLimit()
+                    : new BigDecimal("5000000.00");
+            detail.setSubCreditLimit(initialCreditLimit);
 
             roomBookingDetailRepository.save(detail);
 

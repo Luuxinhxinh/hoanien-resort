@@ -101,6 +101,7 @@ public class ProfileController {
         if (customer != null && customer.getMembershipTier() == null) {
             com.kawai.models.MembershipTier defaultTier = new com.kawai.models.MembershipTier();
             defaultTier.setTierName("REGULAR");
+            defaultTier.setCreditLimit(new java.math.BigDecimal("5000000.00"));
             customer.setMembershipTier(defaultTier);
         }
         model.addAttribute("customer", customer);
@@ -212,8 +213,11 @@ public class ProfileController {
                 visibleDetailsMap.put(rb.getId(), visibleDetails);
 
                 for (RoomBookingDetail d : visibleDetails) {
-                    java.math.BigDecimal subLimit = d.getSubCreditLimit() != null ? d.getSubCreditLimit()
-                            : java.math.BigDecimal.ZERO;
+                    java.math.BigDecimal subLimit = (d.getSubCreditLimit() != null && d.getSubCreditLimit().compareTo(java.math.BigDecimal.ZERO) > 0)
+                            ? d.getSubCreditLimit()
+                            : (rb.getCreditLimit() != null && rb.getCreditLimit().compareTo(java.math.BigDecimal.ZERO) > 0
+                                    ? rb.getCreditLimit()
+                                    : new java.math.BigDecimal("5000000.00"));
                     List<com.kawai.models.FolioItem> folioItems = folioItemRepository
                             .findByRoomBookingDetailId(d.getId());
 

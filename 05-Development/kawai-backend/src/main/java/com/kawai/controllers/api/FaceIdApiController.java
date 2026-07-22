@@ -354,34 +354,25 @@ public class FaceIdApiController {
             for (TourAttendee attendee : attendees) {
                 String name = null;
                 String dbFaceUrl = null;
+                String dbFaceVector = null;
 
                 if (attendee.getCustomer() != null) {
                     name = attendee.getCustomer().getFullName();
                     dbFaceUrl = attendee.getCustomer().getFaceImgUrl();
+                    dbFaceVector = attendee.getCustomer().getFaceVectorData();
                 } else if (attendee.getDependent() != null) {
                     name = attendee.getDependent().getDependentName();
                     dbFaceUrl = attendee.getDependent().getFaceImgUrl();
+                    dbFaceVector = attendee.getDependent().getFaceVectorData();
                 }
 
-                if (name != null) {
-                    // Ưu tiên 1: Ảnh fix cứng cho dữ liệu demo (Nguyễn Xuân Lưu, Ngọc Thị)
-                    String imageUrl = mapNameToImageUrl(name);
-
-                    // Ưu tiên 2: Ảnh thật chụp từ quầy Lễ tân (nếu không có ảnh fix cứng)
-                    if (imageUrl == null && dbFaceUrl != null && !dbFaceUrl.isBlank()) {
-                        imageUrl = dbFaceUrl;
-                    }
-
-                    if (imageUrl != null) {
-                        refs.add(Map.of("name", name, "imageUrl", imageUrl));
-                    }
+                if (name != null && (dbFaceUrl != null || dbFaceVector != null)) {
+                    Map<String, String> refMap = new java.util.HashMap<>();
+                    refMap.put("name", name);
+                    if (dbFaceUrl != null) refMap.put("imageUrl", dbFaceUrl);
+                    if (dbFaceVector != null) refMap.put("vector", dbFaceVector);
+                    refs.add(refMap);
                 }
-            }
-
-            // Fallback nếu danh sách trống - đẩy thủ công 2 ảnh demo vào
-            if (refs.isEmpty()) {
-                refs.add(Map.of("name", "Nguyễn Xuân Lưu", "imageUrl", "/AnhTour/luuham.jpg"));
-                refs.add(Map.of("name", "Ngọc Thị", "imageUrl", "/AnhTour/lgok.jpg"));
             }
 
             return ResponseEntity.ok(refs);
@@ -469,14 +460,7 @@ public class FaceIdApiController {
         }
     }
 
-    private String mapNameToImageUrl(String name) {
-        if (name.equalsIgnoreCase("Nguyễn Xuân Lưu")) {
-            return "/AnhTour/luuham.jpg";
-        } else if (name.equalsIgnoreCase("Ngọc Thị")) {
-            return "/AnhTour/lgok.jpg";
-        }
-        return null;
-    }
+
 
     private boolean isNameMatch(String name, String displayName) {
         if (name == null || displayName == null)

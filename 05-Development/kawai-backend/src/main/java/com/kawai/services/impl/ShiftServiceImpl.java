@@ -7,6 +7,7 @@ import com.kawai.repositories.StaffScheduleRepository;
 import com.kawai.services.interfaces.ShiftService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -108,6 +109,7 @@ public class ShiftServiceImpl implements ShiftService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public boolean checkIsOnShift(org.springframework.security.core.Authentication auth, jakarta.servlet.http.HttpSession session) {
         if (session != null && session.getAttribute("demoBypassShift") != null) {
             return true;

@@ -277,12 +277,11 @@ public class TourBookingServiceImpl implements TourBookingService {
                 // Kiểm tra xem khách hàng đặt chính đã đăng ký tham gia chuyến đi này trước đó
                 // chưa
                 boolean isCustomerAlreadyRegistered = tourAttendeeRepository
-                                .existsByCustomerIdAndTourBookingScheduleIdAndTourBookingBookingStatusNot(
-                                                customer.getId(), schedule.getId(), "Cancelled");
+                                .existsActiveAttendeeByCustomerAndSchedule(customer.getId(), schedule.getId());
 
                 // Khách hàng đặt chính là attendee số 1 (Chỉ gán nếu khách hàng chưa đăng ký
-                // tham gia chuyến đi này)
-                if (!isCustomerAlreadyRegistered && currentAttendeeCount < request.getParticipantCount()) {
+                // tham gia chuyến đi này và customer có chọn đi trong frontend)
+                if (!isCustomerAlreadyRegistered && currentAttendeeCount < request.getParticipantCount() && request.isCustomerGoing()) {
                         TourAttendee mainAttendee = new TourAttendee();
                         mainAttendee.setTourBooking(savedBooking);
                         mainAttendee.setCustomer(customer);
@@ -299,27 +298,29 @@ public class TourBookingServiceImpl implements TourBookingService {
                                 if (currentAttendeeCount >= request.getParticipantCount()) {
                                         break;
                                 }
-                                // LÆ°u thÃ´ng tin ngÆ°á»i Ä‘i kÃ¨m vÃ o báº£ng Dependents
-                                Dependent dep = new Dependent();
-                                dep.setCustomer(customer);
-                                dep.setDependentName(comp.getName());
-                                // Tính ngày sinh từ độ tuổi (ví dụ mặc định lấy năm hiện
-                                // tại - số tuổi)
-                                int age = comp.getAge() != null ? comp.getAge() : 12;
-                                dep.setBirthDate(LocalDate.now().minusYears(age));
-                                dep.setGender("Nam");
-                                dep.setIsDeleted(false);
 
-                                // LÆ°u sá»‘ CCCD/Passport cá»§a ngÆ°á»i Ä‘i cÃ¹ng Ä‘á»ƒ lÃ m thá»§ tá»¥c báº£o
-                                // hiểm lữ hành bắt buộc
-                                if (comp.getIdCard() != null && !comp.getIdCard().trim().isEmpty()) {
-                                        dep.setCccdPassportEncrypted(com.kawai.utils.EncryptionUtils
-                                                        .encrypt(comp.getIdCard().trim()));
-                                } else if (comp.getPhone() != null && !comp.getPhone().trim().isEmpty()) {
-                                        dep.setCccdPassportEncrypted("PHONE_" + comp.getPhone().trim());
+                                Dependent savedDep = null;
+                                if (comp.getDependentId() != null && comp.getDependentId() > 0) {
+                                    savedDep = dependentRepository.findById(comp.getDependentId()).orElse(null);
                                 }
+                                
+                                if (savedDep == null) {
+                                    Dependent dep = new Dependent();
+                                    dep.setCustomer(customer);
+                                    dep.setDependentName(comp.getName());
+                                    int age = comp.getAge() != null ? comp.getAge() : 12;
+                                    dep.setBirthDate(LocalDate.now().minusYears(age));
+                                    dep.setGender("Nam");
+                                    dep.setIsDeleted(false);
 
-                                Dependent savedDep = dependentRepository.save(dep);
+                                    if (comp.getIdCard() != null && !comp.getIdCard().trim().isEmpty()) {
+                                            dep.setCccdPassportEncrypted(com.kawai.utils.EncryptionUtils
+                                                            .encrypt(comp.getIdCard().trim()));
+                                    } else if (comp.getPhone() != null && !comp.getPhone().trim().isEmpty()) {
+                                            dep.setCccdPassportEncrypted("PHONE_" + comp.getPhone().trim());
+                                    }
+                                    savedDep = dependentRepository.save(dep);
+                                }
 
                                 TourAttendee attendee = new TourAttendee();
                                 attendee.setTourBooking(savedBooking);
