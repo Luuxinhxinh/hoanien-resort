@@ -12,7 +12,6 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.ChronoField;
 import java.util.*;
@@ -52,7 +51,7 @@ public class ScheduleGeneratorService {
 
         List<Employee> allEmployees = employeeRepository.findAll();
         List<Shift> allShifts = shiftRepository.findAll();
-        
+
         if (allShifts.isEmpty() || allEmployees.isEmpty()) {
             System.out.println("[ScheduleGenerator] Database not fully populated yet. Skipping schedule generation.");
             return;
@@ -61,7 +60,7 @@ public class ScheduleGeneratorService {
         Shift morningShift = getShiftById(allShifts, 1L);
         Shift afternoonShift = getShiftById(allShifts, 2L);
         Shift nightShift = getShiftById(allShifts, 3L);
-        
+
         if (morningShift == null || afternoonShift == null || nightShift == null) {
             System.out.println("[ScheduleGenerator] Missing required shifts. Skipping.");
             return;
@@ -75,25 +74,25 @@ public class ScheduleGeneratorService {
 
         // Definition of quotas: Map<RoleName, Map<Shift, Integer>>
         Map<String, Map<Shift, Integer>> quotas = new HashMap<>();
-        
+
         // RECEPTIONIST: Sáng 3, Chiều 3, Đêm 2
         quotas.put("RECEPTIONIST", Map.of(morningShift, 3, afternoonShift, 3, nightShift, 2));
-        
+
         // HOUSEKEEPING: Sáng 6, Chiều 6, Đêm 3
         quotas.put("HOUSEKEEPING", Map.of(morningShift, 6, afternoonShift, 6, nightShift, 3));
-        
+
         // F&B POS: Sáng 4, Chiều 4, Đêm 2
         quotas.put("F&B POS", Map.of(morningShift, 4, afternoonShift, 4, nightShift, 2));
-        
+
         // F&B KITCHEN: Sáng 3, Chiều 3, Đêm 1
         quotas.put("F&B KITCHEN", Map.of(morningShift, 3, afternoonShift, 3, nightShift, 1));
-        
+
         // MAINTAINER: Sáng 2, Chiều 1, Đêm 1
         quotas.put("MAINTAINER", Map.of(morningShift, 2, afternoonShift, 1, nightShift, 1));
-        
+
         // TOURGUIDE: Sáng 2, Chiều 2, Đêm 1
         quotas.put("TOURGUIDE", Map.of(morningShift, 2, afternoonShift, 2, nightShift, 1));
-        
+
         // MANAGER / ADMIN: Sáng 1, Chiều 1, Đêm 1
         quotas.put("MANAGER", Map.of(morningShift, 1, afternoonShift, 1, nightShift, 1));
         quotas.put("ADMIN", Map.of(morningShift, 1, afternoonShift, 1, nightShift, 1));
@@ -106,7 +105,7 @@ public class ScheduleGeneratorService {
         int currentWeekNum = -1;
 
         for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
-            
+
             // Reset weekly counts on Monday
             int weekNum = date.get(ChronoField.ALIGNED_WEEK_OF_YEAR);
             if (weekNum != currentWeekNum) {
@@ -120,55 +119,61 @@ public class ScheduleGeneratorService {
             for (Map.Entry<String, List<Employee>> entry : staffByRole.entrySet()) {
                 String roleName = entry.getKey();
                 List<Employee> allRoleStaff = new ArrayList<>(entry.getValue());
-                
+
                 Map<Shift, Integer> roleQuota = quotas.getOrDefault(roleName, new HashMap<>());
-                
-                // Sort shifts: Night first to allocate them fairly, then Morning, then Afternoon
+
+                // Sort shifts: Night first to allocate them fairly, then Morning, then
+                // Afternoon
                 List<Shift> shiftOrder = Arrays.asList(nightShift, morningShift, afternoonShift);
-                
+
                 Map<Employee, Boolean> assignedToday = new HashMap<>();
 
                 for (Shift shift : shiftOrder) {
-                    if (shift == null) continue;
+                    if (shift == null)
+                        continue;
                     int required = roleQuota.getOrDefault(shift, 0);
-                    if (required == 0) continue;
+                    if (required == 0)
+                        continue;
 
                     // Apply constraints and sort (Greedy/CSP logic)
                     LocalDate finalDate = date;
                     List<Employee> candidates = allRoleStaff.stream()
-                        .filter(e -> !assignedToday.getOrDefault(e, false)) // Không trùng lịch 1 ngày
-                        .filter(e -> weeklyShiftCount.getOrDefault(e, 0) < 6) // Max 48h (6 ca)
-                        .filter(e -> !(shift.equals(morningShift) && finalWorkedNightYesterday.getOrDefault(e, false))) // Nghỉ >= 12h
-                        .filter(e -> !isMockPersonalPreferenceRestricted(e, finalDate, shift)) // Nguyện vọng cá nhân
-                        .sorted(Comparator.comparingInt((Employee e) -> {
-                            // Tính công bằng: chia đều ca đêm
-                            if (shift.equals(nightShift)) {
-                                return nightShiftCount.getOrDefault(e, 0);
-                            }
-                            // Các ca khác: deterministic sort
-                            return (int)((e.getId() + finalDate.toEpochDay()) % allRoleStaff.size());
-                        }))
-                        .collect(Collectors.toList());
+                            .filter(e -> !assignedToday.getOrDefault(e, false)) // Không trùng lịch 1 ngày
+                            .filter(e -> weeklyShiftCount.getOrDefault(e, 0) < 6) // Max 48h (6 ca)
+                            .filter(e -> !(shift.equals(morningShift)
+                                    && finalWorkedNightYesterday.getOrDefault(e, false))) // Nghỉ >= 12h
+                            .filter(e -> !isMockPersonalPreferenceRestricted(e, finalDate, shift)) // Nguyện vọng cá
+                                                                                                   // nhân
+                            .sorted(Comparator.comparingInt((Employee e) -> {
+                                // Tính công bằng: chia đều ca đêm
+                                if (shift.equals(nightShift)) {
+                                    return nightShiftCount.getOrDefault(e, 0);
+                                }
+                                // Các ca khác: deterministic sort
+                                return (int) ((e.getId() + finalDate.toEpochDay()) % allRoleStaff.size());
+                            }))
+                            .collect(Collectors.toList());
 
                     int assigned = 0;
                     for (Employee selected : candidates) {
-                        if (assigned >= required) break;
-                        
+                        if (assigned >= required)
+                            break;
+
                         StaffSchedule schedule = new StaffSchedule();
                         schedule.setEmployee(selected);
                         schedule.setShift(shift);
                         schedule.setWorkDate(date);
                         schedule.setStatus("Published");
                         newSchedules.add(schedule);
-                        
+
                         assignedToday.put(selected, true);
                         weeklyShiftCount.put(selected, weeklyShiftCount.getOrDefault(selected, 0) + 1);
-                        
+
                         if (shift.equals(nightShift)) {
                             nightShiftCount.put(selected, nightShiftCount.getOrDefault(selected, 0) + 1);
                             workedNightToday.put(selected, true);
                         }
-                        
+
                         assigned++;
                     }
                 }
@@ -183,7 +188,7 @@ public class ScheduleGeneratorService {
     private Shift getShiftById(List<Shift> shifts, Long id) {
         return shifts.stream().filter(s -> s.getId().equals(id)).findFirst().orElse(null);
     }
-    
+
     private boolean isMockPersonalPreferenceRestricted(Employee e, LocalDate date, Shift shift) {
         Set<LocalDate> dates = mockPreferences.get(e.getId());
         if (dates != null && dates.contains(date)) {

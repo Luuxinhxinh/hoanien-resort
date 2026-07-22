@@ -5,8 +5,6 @@ import com.kawai.models.StaffSchedule;
 import com.kawai.repositories.StaffScheduleRepository;
 import com.kawai.services.interfaces.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -32,7 +30,7 @@ public class ScheduleNotificationJob {
     @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public void sendWeeklySchedules() {
         System.out.println("--- Bắt đầu gửi email Lịch làm việc hàng tuần cho toàn bộ nhân viên ---");
-        
+
         LocalDate today = LocalDate.now();
         // Lấy lịch làm việc từ hôm nay trở đi (ví dụ cho 7 ngày tới)
         List<StaffSchedule> upcomingSchedules = staffScheduleRepository.findByWorkDateGreaterThanEqual(today);
@@ -55,10 +53,10 @@ public class ScheduleNotificationJob {
             List<StaffSchedule> employeeSchedules = upcomingSchedules.stream()
                     .filter(s -> s.getEmployee() != null && s.getEmployee().getId().equals(emp.getId()))
                     .collect(Collectors.toList());
-            
+
             // Sắp xếp lịch theo ngày
             employeeSchedules.sort((s1, s2) -> s1.getWorkDate().compareTo(s2.getWorkDate()));
-            
+
             try {
                 emailService.sendWeeklyScheduleEmail(emp.getEmail(), emp.getFullName(), employeeSchedules);
                 System.out.println("Đã gửi email thông báo lịch làm việc cho: " + emp.getEmail());
@@ -69,13 +67,14 @@ public class ScheduleNotificationJob {
         System.out.println("--- Hoàn tất gửi email Lịch làm việc ---");
     }
 
-//    // Lắng nghe sự kiện chạy ứng dụng lần đầu để demo/test
-//    @EventListener(ApplicationReadyEvent.class)
-//    @org.springframework.core.annotation.Order(2)
-//    @org.springframework.transaction.annotation.Transactional(readOnly = true)
-//    public void onApplicationReady() {
-//        System.out.println("Application Ready: Triggering Schedule Notification (Demo)...");
-//        // Giả lập gửi lịch làm việc ngay khi khởi động server
-//        sendWeeklySchedules();
-//    }
+    // // Lắng nghe sự kiện chạy ứng dụng lần đầu để demo/test
+    // @EventListener(ApplicationReadyEvent.class)
+    // @org.springframework.core.annotation.Order(2)
+    // @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    // public void onApplicationReady() {
+    // System.out.println("Application Ready: Triggering Schedule Notification
+    // (Demo)...");
+    // // Giả lập gửi lịch làm việc ngay khi khởi động server
+    // sendWeeklySchedules();
+    // }
 }
