@@ -75,7 +75,6 @@ public class VnPayServiceImpl implements VnPayService {
     @Autowired(required = false)
     private EmailService emailService;
 
-
     @Override
     @Transactional
     public String createPaymentUrl(Long bookingId, String ipAddress) {
@@ -339,7 +338,8 @@ public class VnPayServiceImpl implements VnPayService {
         // 3. Build params VNPay
         long amountVal = amount.multiply(new BigDecimal("100")).setScale(0, RoundingMode.HALF_UP).longValue();
         String createDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
-        String orderInfo = "Thanh toan tour " + tourBookingId + ("deposit".equalsIgnoreCase(paymentType) ? " dat coc" : " toan bo");
+        String orderInfo = "Thanh toan tour " + tourBookingId
+                + ("deposit".equalsIgnoreCase(paymentType) ? " dat coc" : " toan bo");
 
         Map<String, String> vnp_Params = new HashMap<>();
         vnp_Params.put("vnp_Version", vnPayConfig.getApiVersion());
@@ -512,10 +512,12 @@ public class VnPayServiceImpl implements VnPayService {
                     if ("Room Service".equalsIgnoreCase(foodOrder.getOrderType())) {
                         if (foodOrder.getBooking() != null && foodOrder.getBooking().getCustomer() != null) {
                             String roomNum = "";
-                            if (foodOrder.getRoomBookingDetail() != null && foodOrder.getRoomBookingDetail().getRoom() != null) {
+                            if (foodOrder.getRoomBookingDetail() != null
+                                    && foodOrder.getRoomBookingDetail().getRoom() != null) {
                                 roomNum = foodOrder.getRoomBookingDetail().getRoom().getRoomNumber();
                             }
-                            emailService.sendRoomServiceConfirmation(foodOrder, foodOrder.getBooking().getCustomer(), roomNum);
+                            emailService.sendRoomServiceConfirmation(foodOrder, foodOrder.getBooking().getCustomer(),
+                                    roomNum);
                         }
                     }
                 }
@@ -568,9 +570,11 @@ public class VnPayServiceImpl implements VnPayService {
                 } else if ("Pending".equals(booking.getBookingStatus())
                         || "Pending_Payment".equals(booking.getBookingStatus())) {
                     booking.setBookingStatus("Confirmed");
-                    if (emailService != null && booking instanceof com.kawai.models.RoomBooking && booking.getCustomer() != null) {
+                    if (emailService != null && booking instanceof com.kawai.models.RoomBooking
+                            && booking.getCustomer() != null) {
                         try {
-                            emailService.sendRoomBookingConfirmation((com.kawai.models.RoomBooking) booking, booking.getCustomer());
+                            emailService.sendRoomBookingConfirmation((com.kawai.models.RoomBooking) booking,
+                                    booking.getCustomer());
                         } catch (Exception ex) {
                             System.err.println("[VNPay IPN] Loi gui email RoomBooking: " + ex.getMessage());
                         }
@@ -590,10 +594,6 @@ public class VnPayServiceImpl implements VnPayService {
                     System.err.println("[VNPay IPN] Lỗi xử lý CREDIT_LIMIT_DEPOSIT: " + e.getMessage());
                 }
             }
-            // Bỏ tự động chuyển trạng thái phòng khi thanh toán VNPay thành công.
-            // Việc thay đổi trạng thái sang Checked_Out / Vacant_Dirty chỉ diễn ra
-            // khi nhân viên nhấn nút "Hoàn tất Checkout" (gọi lại API checkout với amount = 0).
-
 
             // Tự động chuyển trạng thái Hóa Đơn sang PAID
             if (txn.getInvoice() != null) {
@@ -627,12 +627,5 @@ public class VnPayServiceImpl implements VnPayService {
         response.put("RspCode", "00");
         response.put("Message", "Confirm Success");
         return response;
-    }
-
-    private String removeAccents(String src) {
-        if (src == null) return "";
-        String normalized = java.text.Normalizer.normalize(src, java.text.Normalizer.Form.NFD);
-        java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
-        return pattern.matcher(normalized).replaceAll("").replace('Đ', 'D').replace('đ', 'd');
     }
 }

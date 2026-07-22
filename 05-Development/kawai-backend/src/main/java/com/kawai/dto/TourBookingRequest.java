@@ -30,6 +30,9 @@ public class TourBookingRequest {
     private boolean postToRoom = false;
     private Long roomBookingDetailId;
     
+    // Checkbox: "Tôi là người tham gia chuyến đi" (defaults to true)
+    private boolean isPayerParticipating = true;
+    
     @NotNull(message = "roomBookingId is required")
     private Long roomBookingId;
 
@@ -137,7 +140,16 @@ public class TourBookingRequest {
     }
 
     private String notes;
+    private boolean isCustomerGoing = true;
     private java.util.List<CompanionRequest> companions = new java.util.ArrayList<>();
+
+    public boolean isCustomerGoing() {
+        return isCustomerGoing;
+    }
+
+    public void setCustomerGoing(boolean customerGoing) {
+        isCustomerGoing = customerGoing;
+    }
 
     public java.util.List<CompanionRequest> getCompanions() {
         return companions;
@@ -167,12 +179,29 @@ public class TourBookingRequest {
         this.acceptInsurance = acceptInsurance;
     }
 
+    public boolean isPayerParticipating() {
+        return isPayerParticipating;
+    }
+
+    public void setPayerParticipating(boolean isPayerParticipating) {
+        this.isPayerParticipating = isPayerParticipating;
+    }
+
     // Companion DTO representation
     public static class CompanionRequest {
         private String name;
         private Integer age;
         private String phone;
         private String idCard;
+        private Long dependentId;
+
+        public Long getDependentId() {
+            return dependentId;
+        }
+
+        public void setDependentId(Long dependentId) {
+            this.dependentId = dependentId;
+        }
 
         public CompanionRequest() {}
 

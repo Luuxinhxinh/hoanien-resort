@@ -43,6 +43,22 @@
             scroll-behavior: smooth;
         }
 
+        /* Custom scrollbar for active-rooms-list and other scrollable panels */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 2px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #C5A059;
+            border-radius: 2px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #2D2926;
+        }
+
         h1,
         h2,
         h3,
@@ -735,7 +751,7 @@
         <!-- Room Selection Modal -->
         <div class="bg-white w-full max-w-lg p-10 shadow-2xl relative flex flex-col" id="room-selection-modal">
             <h3 class="text-2xl font-serif mb-8 text-center">Chọn phòng để gán</h3>
-            <div class="space-y-3 mb-10">
+            <div class="space-y-3 mb-10 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
                 <div class="room-item selectable border border-brand-border p-4 flex justify-between items-center cursor-pointer"
                     onclick="selectRoomUI(this, 'HN-101', 'Deluxe Sea View')">
                     <div class="flex items-center space-x-4">

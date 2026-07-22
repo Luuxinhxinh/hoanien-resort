@@ -1049,21 +1049,36 @@
                 const response = await fetch('/api/faceid/references?scheduleId=' + activeScheduleId);
                 const refs = await response.json();
                 for (const ref of refs) {
-                    try {
-                        const img = await loadImage(ref.imageUrl);
-                        const detection = await faceapi
-                            .detectSingleFace(img, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.5 }))
-                            .withFaceLandmarks()
-                            .withFaceDescriptor();
-                        if (detection) {
+                    if (ref.vector) {
+                        try {
+                            const descArray = JSON.parse(ref.vector);
                             referenceDescriptors.push({
                                 name: ref.name,
-                                descriptor: detection.descriptor,
-                                imageUrl: ref.imageUrl
+                                descriptor: new Float32Array(descArray),
+                                imageUrl: ref.imageUrl || '/images/default-avatar.png'
                             });
+                            console.log(`[DATA DB] Đã tải thành công Vector từ DB cho người dùng: ${ref.name}`);
+                            console.log(`[DATA DB] Vector mẫu (5 phần tử đầu): ${descArray.slice(0, 5).join(', ')} ...`);
+                        } catch (e) {
+                            console.error(`[ERROR] Lỗi khi parse vector từ DB cho ${ref.name}`, e);
                         }
-                    } catch (e) {
-                        console.warn(`Failed to load reference for ${ref.name}:`, e);
+                    } else if (ref.imageUrl) {
+                        try {
+                            const img = await loadImage(ref.imageUrl);
+                            const detection = await faceapi
+                                .detectSingleFace(img, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.5 }))
+                                .withFaceLandmarks()
+                                .withFaceDescriptor();
+                            if (detection) {
+                                referenceDescriptors.push({
+                                    name: ref.name,
+                                    descriptor: detection.descriptor,
+                                    imageUrl: ref.imageUrl
+                                });
+                            }
+                        } catch (e) {
+                            console.warn(`Failed to load reference image for ${ref.name}:`, e);
+                        }
                     }
                 }
             } catch (err) {
@@ -1174,6 +1189,10 @@
                         let bestName = null;
                         for (const ref of referenceDescriptors) {
                             const distance = faceapi.euclideanDistance(detection.descriptor, ref.descriptor);
+                            const descArray = Array.from(detection.descriptor);
+                            console.log(`[QUÉT MẶT] Đang so khớp với: ${ref.name}`);
+                            console.log(`[QUÉT MẶT] Vector vừa trích xuất (5 phần tử đầu): ${descArray.slice(0, 5).join(', ')} ...`);
+                            console.log(`[SO KHỚP] Khoảng cách Euclidean (distance): ${distance}`);
                             if (distance < bestDistance) {
                                 bestDistance = distance;
                                 bestName = ref.name;

@@ -238,21 +238,21 @@ public class WorkflowEngineServiceImpl implements WorkflowEngineService {
                     
                     String noteSuffix = (notes != null && !notes.isBlank()) ? " (Ghi chú: " + notes + ")" : "";
 
-                    if (staff != null) {
+                    // Phân luồng nhóm trách nhiệm để tránh rác kênh cá nhân của Lễ tân
+                    if (taskType != null && taskType.toUpperCase().contains("CLEAN")) {
+                        wsMessage = String.format("Nhiệm vụ dọn dẹp mới: %s%s", friendlyTaskName, noteSuffix);
+                        wsTopic = "/topic/operations/housekeeping";
+                    } else if (taskType != null && (taskType.toUpperCase().contains("MAINTENANCE") || taskType.toUpperCase().contains("DAMAGE") || taskType.toUpperCase().contains("REPAIR"))) {
+                        wsMessage = String.format("Nhiệm vụ bảo trì mới: %s%s", friendlyTaskName, noteSuffix);
+                        wsTopic = "/topic/operations/maintenance";
+                    } else if (staff != null) {
                         wsMessage = String.format("Nhiệm vụ mới: %s%s", friendlyTaskName, noteSuffix);
                         wsTopic = "/topic/operations/" + staff.getId();
                     } else {
                         wsMessage = String.format("Nhiệm vụ chung: %s%s", friendlyTaskName, noteSuffix);
-                        // Phân luồng nhóm trách nhiệm để tránh rác kênh chung của Lễ tân
-                        if (taskType != null && taskType.toUpperCase().contains("CLEAN")) {
-                            wsTopic = "/topic/operations/housekeeping";
-                        } else if (taskType != null && taskType.toUpperCase().contains("MAINTENANCE")) {
-                            wsTopic = "/topic/operations/maintenance";
-                        } else {
-                            wsTopic = "/topic/operations"; // Các task khác (F&B...) vẫn gửi chung
-                        }
+                        wsTopic = "/topic/operations";
                     }
-                    final Map<String, Object> wsPayload = Map.of("message", wsMessage, "type", "NEW_TASK");
+                    final Map<String, Object> wsPayload = Map.of("message", wsMessage, "type", "NEW_TASK", "taskType", taskType != null ? taskType : "");
 
                     if (TransactionSynchronizationManager.isActualTransactionActive()) {
                         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {

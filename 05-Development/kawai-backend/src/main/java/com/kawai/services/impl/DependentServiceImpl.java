@@ -321,7 +321,7 @@ public class DependentServiceImpl implements DependentService {
             // Upload trực tiếp chuỗi Data URI (Base64) lên Cloudinary
             java.util.Map<String, Object> uploadResult = cloudinary.uploader().upload(faceImageBase64,
                     com.cloudinary.utils.ObjectUtils.asMap(
-                            "folder", "kawai_faces",
+                            "folder", "hoanien_faces",
                             "public_id", "dep_" + saved.getId() + "_" + System.currentTimeMillis()));
             String publicUrl = uploadResult.get("secure_url").toString();
             saved.setFaceImgUrl(publicUrl);
@@ -418,12 +418,14 @@ public class DependentServiceImpl implements DependentService {
         int paidAdults = detail.getNumberOfAdults() != null ? detail.getNumberOfAdults() : 0;
         int paidChildren = detail.getNumberOfChildren() != null ? detail.getNumberOfChildren() : 0;
 
-        // Đếm số lượng khách thực tế đã được xếp vào phòng này
+        // Đếm số lượng khách thực tế đã được xếp vào phòng này (bỏ qua stub placeholders "Khách đi kèm")
         long checkedInAdults = roomGuestRepository.findByRoomBookingDetailId(detail.getId()).stream()
                 .filter(rg -> GUEST_TYPE_ADULT.equals(rg.getGuestType()))
+                .filter(rg -> rg.getDependent() == null || !"Khách đi kèm".equalsIgnoreCase(rg.getDependent().getDependentName()))
                 .count();
         long checkedInChildren = roomGuestRepository.findByRoomBookingDetailId(detail.getId()).stream()
                 .filter(rg -> GUEST_TYPE_CHILD.equals(rg.getGuestType()))
+                .filter(rg -> rg.getDependent() == null || !"Khách đi kèm".equalsIgnoreCase(rg.getDependent().getDependentName()))
                 .count();
 
         boolean isAdult = age >= ADULT_AGE_THRESHOLD;
@@ -490,8 +492,31 @@ public class DependentServiceImpl implements DependentService {
     private void saveOrUpdateRoomGuest(Dependent saved, DependentRegistrationDTO dto, RoomBookingDetail detail,
             int age) {
         RoomGuest rg = (dto.getDependentId() != null)
-                ? roomGuestRepository.findFirstByDependentId(saved.getId()).orElse(new RoomGuest())
-                : new RoomGuest();
+                ? roomGuestRepository.findFirstByDependentId(saved.getId()).orElse(null)
+                : null;
+
+        // Nếu chưa gắn RoomGuest, kiểm tra xem có stub placeholder ("Khách đi kèm") nào trong phòng để thay thế không
+        if (rg == null && detail != null) {
+            String targetType = age < ADULT_AGE_THRESHOLD ? GUEST_TYPE_CHILD : GUEST_TYPE_ADULT;
+            List<RoomGuest> detailGuests = roomGuestRepository.findByRoomBookingDetailId(detail.getId());
+            for (RoomGuest existing : detailGuests) {
+                if (targetType.equals(existing.getGuestType()) && existing.getDependent() != null) {
+                    if ("Khách đi kèm".equalsIgnoreCase(existing.getDependent().getDependentName())) {
+                        rg = existing;
+                        Dependent oldStub = existing.getDependent();
+                        rg.setDependent(saved);
+                        if (oldStub != null && !oldStub.getId().equals(saved.getId())) {
+                            try { dependentRepository.delete(oldStub); } catch (Exception e) {}
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (rg == null) {
+            rg = new RoomGuest();
+        }
 
         rg.setRoomBookingDetail(detail);
         rg.setDependent(saved);

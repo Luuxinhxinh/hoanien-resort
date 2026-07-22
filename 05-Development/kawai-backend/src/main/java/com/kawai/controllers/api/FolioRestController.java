@@ -128,8 +128,9 @@ public class FolioRestController {
                         .map(java.math.BigDecimal::abs)
                         .reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add);
 
-                java.math.BigDecimal limit = d.getSubCreditLimit() != null ? d.getSubCreditLimit()
-                        : java.math.BigDecimal.ZERO;
+                java.math.BigDecimal limit = (d.getSubCreditLimit() != null && d.getSubCreditLimit().compareTo(java.math.BigDecimal.ZERO) > 0)
+                        ? d.getSubCreditLimit()
+                        : new java.math.BigDecimal("5000000.00");
                 // Khả dụng = Hạn mức gốc + Đã nạp - Đang chi
                 java.math.BigDecimal available = limit.add(deposited).subtract(charged);
 

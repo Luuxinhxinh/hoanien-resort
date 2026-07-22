@@ -170,7 +170,7 @@ public class RoomApiController {
 
         java.util.Optional<com.kawai.models.Account> accountOpt = accountRepository.findByUsername(username);
         if (accountOpt.isEmpty()) {
-            return ResponseEntity.status(404).body(java.util.Map.of("message", "Không tìm thấy tài khoản"));
+            return ResponseEntity.ok(java.util.Collections.emptyList());
         }
 
         List<RoomBookingDetail> activeDetails = roomBookingDetailRepository

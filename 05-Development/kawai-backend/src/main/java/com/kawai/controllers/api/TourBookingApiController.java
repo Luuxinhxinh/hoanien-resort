@@ -78,8 +78,7 @@ public class TourBookingApiController {
         Long customerId = customerOpt.get().getId();
         boolean registered = false;
         for (TourSchedule schedule : schedules) {
-            if (tourAttendeeRepository.existsByCustomerIdAndTourBookingScheduleIdAndTourBookingBookingStatusNot(
-                    customerId, schedule.getId(), "Cancelled")) {
+            if (tourAttendeeRepository.existsActiveAttendeeByCustomerAndSchedule(customerId, schedule.getId())) {
                 registered = true;
                 break;
             }
@@ -211,6 +210,9 @@ public class TourBookingApiController {
                     comp.setAge(compMap.get("age") != null ? Integer.parseInt(compMap.get("age").toString()) : null);
                     comp.setPhone((String) compMap.get("phone"));
                     comp.setIdCard((String) compMap.get("idCard"));
+                    if (compMap.get("dependentId") != null) {
+                        comp.setDependentId(Long.parseLong(compMap.get("dependentId").toString()));
+                    }
                     companions.add(comp);
                 }
             }
@@ -232,9 +234,17 @@ public class TourBookingApiController {
                     payload.get("vnpPaymentType") != null ? payload.get("vnpPaymentType").toString() : null);
             request.setNotes(payload.get("notes") != null ? payload.get("notes").toString() : null);
 
+            if (payload.containsKey("isCustomerGoing")) {
+                request.setCustomerGoing(Boolean.parseBoolean(payload.get("isCustomerGoing").toString()));
+            }
+
             boolean acceptInsurance = payload.get("acceptInsurance") != null
                     && Boolean.parseBoolean(payload.get("acceptInsurance").toString());
             request.setAcceptInsurance(acceptInsurance);
+
+            boolean isPayerParticipating = payload.get("isPayerParticipating") == null
+                    || Boolean.parseBoolean(payload.get("isPayerParticipating").toString());
+            request.setPayerParticipating(isPayerParticipating);
 
             // 4. Create one TourBooking per selected room
             List<Long> createdBookingIds = new java.util.ArrayList<>();

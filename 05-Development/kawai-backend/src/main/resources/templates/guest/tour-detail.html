@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html class="light" lang="vi" xmlns:th="http://www.thymeleaf.org" style="scroll-behavior: smooth;">
 
 <head>
@@ -29,6 +29,24 @@
                 }
             }
         }
+        function updateAdultSelectOptions() {
+            const selects = document.querySelectorAll('.adult-companion-select');
+            const selectedValues = Array.from(selects).map(s => s.value).filter(v => v !== '');
+            
+            selects.forEach(select => {
+                const options = select.querySelectorAll('option');
+                options.forEach(opt => {
+                    if (opt.value === '') return;
+                    if (selectedValues.includes(opt.value) && opt.value !== select.value) {
+                        opt.style.display = 'none';
+                        opt.disabled = true;
+                    } else {
+                        opt.style.display = '';
+                        opt.disabled = false;
+                    }
+                });
+            });
+        }
     </script>
     <!-- Google Fonts for Serif Typography -->
     <link
@@ -43,6 +61,22 @@
             background-color: #FBF9F6;
             color: #2D2926;
             scroll-behavior: smooth;
+        }
+
+        /* Custom scrollbar for active-rooms-list and other scrollable panels */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 2px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #C5A059;
+            border-radius: 2px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #2D2926;
         }
 
         h1,
@@ -531,7 +565,6 @@
                 <!-- Interactive Map Section -->
                 <div class="glass-map flex flex-col relative overflow-hidden h-[450px]" id="map-section"
                     style="border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 2px;">
-                    <!-- Google Maps Iframe -->
                     <iframe id="google-map-iframe" class="w-full h-full border-0"
                         src="https://maps.google.com/maps?q=Dai+Noi+Hue&t=&z=14&ie=UTF8&iwloc=&output=embed"
                         allowfullscreen="" loading="lazy"></iframe>
@@ -602,6 +635,7 @@
                             oninput="updateTotalPrice(); validateCompanions(false, false)"
                             onchange="validateCompanions(true, false)">
                     </div>
+                    
                     <!-- Companion Section -->
                     <div data-purpose="accompanying-section">
                         <label class="text-[10px] font-bold uppercase tracking-widest mb-4 block text-black">Người cùng
@@ -925,7 +959,7 @@
                             <div class="flex items-center gap-3 px-5 py-3 bg-white border-b border-blue-100">
                                 <img alt="VNPay" class="h-7"
                                     src="https://vnpay.vn/s1/statics.vnpay.vn/2023/6/0ttn4n4s0o6y1685957358991.png"
-                                    onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/VNPAY_logo.svg/1200px-VNPAY_logo.svg.png'">
+                                    onerror="this.onerror=null; this.alt='VNPay';">
                                 <div>
                                     <p class="text-[10px] font-bold uppercase tracking-widest text-brand-dark">Cổng
                                         thanh toán VNPay</p>
@@ -1015,7 +1049,7 @@
             <h3 class="text-2xl font-serif mb-2 text-center">Chọn phòng để gán tour</h3>
             <p class="text-xs text-gray-400 text-center mb-8">Tour sẽ được liên kết với đơn đặt phòng bạn chọn bên dưới
             </p>
-            <div id="active-rooms-list" class="space-y-3 mb-8">
+            <div id="active-rooms-list" class="space-y-3 mb-8 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
                 <!-- Will be dynamically populated -->
             </div>
             <div class="flex space-x-4">
@@ -1112,6 +1146,7 @@
 
     <script th:inline="javascript">
         /*<![CDATA[*/
+        const isLoggedIn = /*[[${isLoggedIn}]]*/ false;
         const customerName = /*[[${customerName}]]*/ null;
         const customerEmail = /*[[${customerEmail}]]*/ null;
         const customerPhone = /*[[${customerPhone}]]*/ null;
@@ -1212,7 +1247,26 @@
         };
         const dbTourActivitiesRaw = /*[[${dbTourActivitiesJson}]]*/ '{}';
         const dbTourActivities = dbTourActivitiesRaw ? JSON.parse(dbTourActivitiesRaw) : null;
+        const rawDependentsJson = /*[[${userDependentsJson}]]*/ '[]';
         /*]]>*/
+        function updateAdultSelectOptions() {
+            const selects = document.querySelectorAll('.adult-companion-select');
+            const selectedValues = Array.from(selects).map(s => s.value).filter(v => v !== '');
+            
+            selects.forEach(select => {
+                const options = select.querySelectorAll('option');
+                options.forEach(opt => {
+                    if (opt.value === '') return;
+                    if (selectedValues.includes(opt.value) && opt.value !== select.value) {
+                        opt.style.display = 'none';
+                        opt.disabled = true;
+                    } else {
+                        opt.style.display = '';
+                        opt.disabled = false;
+                    }
+                });
+            });
+        }
     </script>
 
     <script data-purpose="ui-interactions">
@@ -2194,33 +2248,67 @@
             document.body.style.overflow = 'hidden';
         }
 
+        let userDependentsList = [];
+        try {
+            userDependentsList = (typeof rawDependentsJson === 'string') ? JSON.parse(rawDependentsJson) : (rawDependentsJson || []);
+        } catch (e) {
+            userDependentsList = [];
+        }
+
         function generateChildRows(count) {
             const container = document.getElementById('child-rows-container');
             const num = parseInt(count) || 0;
             const existingRows = container.querySelectorAll('.child-row');
             if (existingRows.length === num) return;
             container.innerHTML = '';
+
             for (let i = 0; i < num; i++) {
+                let childOptionsHtml = '<option value="">-- Chọn trẻ em từ danh sách --</option>';
+                if (Array.isArray(userDependentsList) && userDependentsList.length > 0) {
+                    userDependentsList.forEach((dep, idx) => {
+                        if ((dep.age || 0) < 12) {
+                            const rel = dep.relationship ? ` (${dep.relationship})` : '';
+                            childOptionsHtml += `<option value="${idx}">${dep.name}${rel} - ${dep.age || '?'} tuổi</option>`;
+                        }
+                    });
+                }
+
                 const row = document.createElement('div');
-                row.className = 'grid grid-cols-2 gap-10 child-row animate-in fade-in slide-in-from-top-1 duration-300';
+                row.className = 'grid grid-cols-1 gap-2 child-row animate-in fade-in slide-in-from-top-1 duration-300 border-b border-brand-border/30 pb-4 mb-3';
+                
                 row.innerHTML = `
-          <div class="flex flex-col">
-            <label class="text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-1">Tên trẻ em ${i + 1}</label>
-            <input class="text-sm py-2 child-name" placeholder="Họ và tên" type="text">
-          </div>
-          <div class="flex flex-col relative">
-            <label class="text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-1">Độ tuổi</label>
-            <input class="text-sm py-2 cursor-pointer child-age-input" id="child-age-${i}" onclick="toggleAgePicker(${i})" placeholder="Chọn độ tuổi" readonly type="text">
-            <div class="absolute top-full left-0 w-full mt-1 p-4 bg-white shadow-xl border border-brand-border z-20 flex-col space-y-3 age-picker-popup" id="age-picker-${i}">
-              <div class="grid grid-cols-2 gap-2">
-                <button class="px-2 py-2 text-[10px] border border-brand-border hover:bg-brand-dark hover:text-white" onclick="selectAge(${i}, 'Dưới 2 tuổi')" type="button">Dưới 2 tuổi</button>
-                <button class="px-2 py-2 text-[10px] border border-brand-border hover:bg-brand-dark hover:text-white" onclick="selectAge(${i}, '2 - 11 tuổi')" type="button">2 - 11 tuổi</button>
-              </div>
-            </div>
-          </div>
-        `;
+                  <div class="mb-1">
+                    <label class="text-[9px] font-bold uppercase tracking-widest text-brand-gold mb-1 block">Chọn trẻ em đi cùng ${i + 1}</label>
+                    <select class="w-full text-xs p-3 border border-brand-border rounded bg-white text-black font-medium focus:border-brand-gold focus:outline-none shadow-sm child-companion-select" onchange="autoFillChildCompanion(${i}, this.value)">
+                      ${childOptionsHtml}
+                    </select>
+                  </div>
+                  <input type="hidden" class="child-name">
+                  <input type="hidden" class="child-age-input" id="child-age-${i}">
+                `;
                 container.appendChild(row);
             }
+        }
+
+        function autoFillChildCompanion(rowIdx, val) {
+            const container = document.getElementById('child-rows-container');
+            if (!container) return;
+            const rows = container.querySelectorAll('.child-row');
+            if (!rows || !rows[rowIdx]) return;
+            const row = rows[rowIdx];
+            const nameInput = row.querySelector('.child-name');
+            const ageInput = row.querySelector('.child-age-input');
+
+            if (val === '' || !userDependentsList[val]) {
+                if (nameInput) nameInput.value = '';
+                if (ageInput) ageInput.value = '';
+                return;
+            }
+
+            const dep = userDependentsList[val];
+            if (nameInput) nameInput.value = dep.name || '';
+            const ageStr = (dep.age < 2) ? 'Dưới 2 tuổi' : '2 - 11 tuổi';
+            if (ageInput) ageInput.value = ageStr;
         }
 
         function generateAdultCompanionRows(count) {
@@ -2239,33 +2327,63 @@
             }
 
             for (let i = 0; i < num; i++) {
+                let adultOptionsHtml = '<option value="">-- Chọn người lớn từ danh sách --</option>';
+                if (Array.isArray(userDependentsList) && userDependentsList.length > 0) {
+                    userDependentsList.forEach((dep, idx) => {
+                        if ((dep.age || 18) >= 12) {
+                            const rel = dep.relationship ? ` (${dep.relationship})` : '';
+                            adultOptionsHtml += `<option value="${idx}">${dep.name}${rel} - ${dep.age || 18} tuổi</option>`;
+                        }
+                    });
+                }
+
                 const row = document.createElement('div');
-                row.className = 'grid grid-cols-4 gap-4 adult-companion-row animate-in fade-in slide-in-from-top-1 duration-300 border-b border-brand-border/30 pb-4';
+                row.className = 'grid grid-cols-1 gap-2 adult-companion-row animate-in fade-in slide-in-from-top-1 duration-300 border-b border-brand-border/30 pb-4 mb-3';
+                
                 row.innerHTML = `
-                  <div class="flex flex-col relative pb-4">
-                    <label class="text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-1">Họ tên người đi cùng ${i + 1}</label>
-                    <input class="text-sm py-2 adult-companion-name border-b border-brand-border/50 focus:border-brand-gold bg-transparent text-black" placeholder="Họ và tên" type="text" required>
+                  <div class="mb-1">
+                    <label class="text-[9px] font-bold uppercase tracking-widest text-brand-gold mb-1 block">Chọn người lớn đi cùng ${i + 1}</label>
+                    <select class="w-full text-xs p-3 border border-brand-border rounded bg-white text-black font-medium focus:border-brand-gold focus:outline-none shadow-sm adult-companion-select" onchange="autoFillAdultCompanion(${i}, this.value)">
+                      ${adultOptionsHtml}
+                    </select>
                   </div>
-                  <div class="flex flex-col relative pb-4">
-                    <label class="text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-1">Tuổi</label>
-                    <div class="relative flex items-center">
-                      <input class="text-sm py-2 pr-6 w-full adult-companion-age border-b border-brand-border/50 focus:border-brand-gold focus:ring-0 bg-transparent text-black" placeholder="Từ 12 tuổi" type="number" min="12" max="100" required oninput="validateAgeInput(this)" onblur="handleAgeBlur(this)">
-                      <button type="button" class="clear-age-btn absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 font-bold hidden text-lg" onclick="clearAgeInput(this)">×</button>
-                    </div>
-                    <span class="age-error-msg absolute bottom-0 left-0 text-[10px] text-red-500 font-medium hidden">Chỉ nhập tuổi từ 12 - 100 tuổi</span>
-                  </div>
-                  <div class="flex flex-col relative pb-4 adult-companion-idcard-container hidden">
-                    <label class="text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-1">Số CCCD / Hộ chiếu</label>
-                    <input class="text-sm py-2 adult-companion-idcard border-b border-brand-border/50 focus:border-brand-gold bg-transparent text-black" placeholder="CCCD hoặc Passport" type="text">
-                  </div>
-                  <div class="flex flex-col relative pb-4">
-                    <label class="text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-1">Số điện thoại</label>
-                    <input autocomplete="off" class="text-sm py-2 adult-companion-phone border-b border-brand-border/50 focus:border-brand-gold bg-transparent text-black" placeholder="SĐT (nếu có)" type="text">
-                  </div>
+                  <input type="hidden" class="adult-companion-name">
+                  <input type="hidden" class="adult-companion-age">
+                  <input type="hidden" class="adult-companion-idcard">
+                  <input type="hidden" class="adult-companion-phone">
                 `;
                 container.appendChild(row);
             }
         }
+
+        function autoFillAdultCompanion(rowIdx, val) {
+            const container = document.getElementById('adult-companions-container');
+            if (!container) return;
+            const rows = container.querySelectorAll('.adult-companion-row');
+            if (!rows || !rows[rowIdx]) return;
+            const row = rows[rowIdx];
+            const nameInput = row.querySelector('.adult-companion-name');
+            const ageInput = row.querySelector('.adult-companion-age');
+            const idInput = row.querySelector('.adult-companion-idcard');
+            const phoneInput = row.querySelector('.adult-companion-phone');
+
+            if (val === '' || !userDependentsList[val]) {
+                if (nameInput) nameInput.value = '';
+                if (ageInput) ageInput.value = '';
+                if (idInput) idInput.value = '';
+                if (phoneInput) phoneInput.value = '';
+
+             updateAdultSelectOptions();
+            return;
+            }
+
+            const dep = userDependentsList[val];
+            if (nameInput) nameInput.value = dep.name || '';
+            if (ageInput) ageInput.value = dep.age || 18;
+            if (idInput) idInput.value = dep.cccd || '';
+            if (phoneInput) phoneInput.value = dep.phone || '';
+        }
+            updateAdultSelectOptions();
 
         function validateAgeInput(input) {
             const val = parseInt(input.value);
@@ -2566,6 +2684,10 @@
         function openRoomSelection() {
             console.log("openRoomSelection started");
             try {
+                if (!isLoggedIn) {
+                    if (typeof openRequireLoginModal === 'function') openRequireLoginModal();
+                    return;
+                }
                 if (!validateInputs()) {
                     console.log("validateInputs failed");
                     return;
@@ -3117,86 +3239,40 @@
             // Validate adult companions info
             const adultsInput = document.getElementById('num-adults');
             const adults = parseInt(adultsInput ? adultsInput.value : '1') || 1;
-            if (adults > 1) {
+            const chkParticipate = document.getElementById('isPayerParticipating');
+            const isPayerParticipatingVal = chkParticipate ? chkParticipate.checked : true;
+            if (!isPayerParticipatingVal || adults > 1) {
                 const adultCompanionRows = document.querySelectorAll('.adult-companion-row');
                 for (let i = 0; i < adultCompanionRows.length; i++) {
                     const row = adultCompanionRows[i];
                     const nameEl = row.querySelector('.adult-companion-name');
-                    const ageEl = row.querySelector('.adult-companion-age');
-                    const phoneEl = row.querySelector('.adult-companion-phone');
-
-                    if (nameEl) {
-                        const companionName = nameEl.value.trim();
-                        if (companionName === '') {
-                            showWarningAlertPopup(
-                                lang === 'vi' ? 'Thiếu thông tin người đi cùng' : 'Companion Info Required',
-                                lang === 'vi' ? `Vui lòng nhập đầy đủ họ tên cho người đi cùng thứ ${i + 1}.` : `Please enter full name for companion #${i + 1}.`
-                            );
-                            nameEl.focus();
-                            return false;
-                        }
-
-                        const companionNameRegex = /^[\p{L}]+(?:\s+[\p{L}]+)+$/u;
-                        if (!companionNameRegex.test(companionName)) {
-                            showWarningAlertPopup(
-                                lang === 'vi' ? 'Tên người đi cùng không hợp lệ' : 'Invalid Companion Name',
-                                lang === 'vi' ? `Tên của người đi cùng thứ ${i + 1} không hợp lệ (tối thiểu 2 từ).` : `Name of companion #${i + 1} is invalid.`
-                            );
-                            nameEl.focus();
-                            return false;
-                        }
+                    const selectEl = row.querySelector('.adult-companion-select');
+                    const nameVal = nameEl ? nameEl.value.trim() : '';
+                    const selectVal = selectEl ? selectEl.value : '';
+                    if (!nameVal && selectVal === '') {
+                        showWarningAlertPopup(
+                            lang === 'vi' ? 'Thiếu thông tin người đi cùng' : 'Companion Required',
+                            lang === 'vi' ? `Vui lòng chọn hoặc nhập thông tin người lớn đi cùng thứ ${i + 1}!` : `Please enter or select companion #${i + 1}.`
+                        );
+                        if (nameEl) nameEl.focus();
+                        else if (selectEl) selectEl.focus();
+                        return false;
                     }
+                }
+            }
 
-                    if (ageEl) {
-                        const companionAge = parseInt(ageEl.value);
-                        if (isNaN(companionAge) || companionAge < 12 || companionAge > 100) {
-                            showWarningAlertPopup(
-                                lang === 'vi' ? 'Tuổi không hợp lệ' : 'Invalid Companion Age',
-                                lang === 'vi' ? `Độ tuổi người đi cùng thứ ${i + 1} chỉ được phép từ 12 - 100 tuổi.` : `Age of companion #${i + 1} must be between 12 and 100.`
-                            );
-                            ageEl.focus();
-                            return false;
-                        }
-                    }
-
-                    const idCardEl = row.querySelector('.adult-companion-idcard');
-                    if (idCardEl && idCardEl.required) {
-                        const companionIdCard = idCardEl.value.trim();
-                        if (companionIdCard === '') {
-                            showWarningAlertPopup(
-                                lang === 'vi' ? 'Thiếu thông tin người đi cùng' : 'Companion Info Required',
-                                lang === 'vi' ? `Vui lòng nhập số CCCD/Passport cho người đi cùng thứ ${i + 1} để đăng ký bảo hiểm lữ hành bắt buộc.` : `Please enter ID card/Passport for companion #${i + 1}.`
-                            );
-                            idCardEl.focus();
-                            return false;
-                        }
-                        if (!cccdRegex.test(companionIdCard)) {
-                            showWarningAlertPopup(
-                                lang === 'vi' ? 'Định dạng không hợp lệ' : 'Invalid Format',
-                                lang === 'vi' ? `Số CCCD/Passport của người đi cùng thứ ${i + 1} không hợp lệ (từ 6 đến 20 ký tự chữ và số).` : `ID card/Passport of companion #${i + 1} is invalid.`
-                            );
-                            idCardEl.focus();
-                            return false;
-                        }
-                    }
-
-                    if (phoneEl) {
-                        let companionPhone = phoneEl.value.trim().replace(/[\s\-\(\)\+]/g, '');
-                        if (companionPhone.startsWith('84')) {
-                            companionPhone = '0' + companionPhone.substring(2);
-                        }
-                        if (companionPhone !== '' && companionPhone !== 'SĐT(nếucó)') {
-                            const companionPhoneRegex = /^((0|\+84)[35789])[0-9]{8}$/;
-                            if (!companionPhoneRegex.test(companionPhone)) {
-                                showWarningAlertPopup(
-                                    lang === 'vi' ? 'Số điện thoại không hợp lệ' : 'Invalid Companion Phone',
-                                    lang === 'vi' ? `Số điện thoại của người đi cùng thứ ${i + 1} không đúng định dạng Việt Nam (10 chữ số).` : `Phone of companion #${i + 1} is invalid.`
-                                );
-                                phoneEl.focus();
-                                return false;
-                            }
-                        }
-                    }
+            // Validate child companions info from dropdown
+            const childCompanionRows = document.querySelectorAll('.child-row');
+            for (let i = 0; i < childCompanionRows.length; i++) {
+                const row = childCompanionRows[i];
+                const selectEl = row.querySelector('.child-companion-select');
+                if (!selectEl || selectEl.value === '') {
+                    showWarningAlertPopup(
+                        lang === 'vi' ? 'Thiếu thông tin trẻ em' : 'Child Companion Required',
+                        lang === 'vi' ? `Vui lòng chọn trẻ em đi cùng thứ ${i + 1} từ danh sách!` : `Please select child companion #${i + 1} from the list.`
+                    );
+                    if (selectEl) selectEl.focus();
+                    return false;
                 }
             }
 
@@ -3401,10 +3477,7 @@
                 generateChildRows(children);
 
                 // Generate adult companions
-                // Nếu khách đã đăng ký trước đó (chế độ đặt hộ), sinh đủ 'adults' dòng nhập thông tin.
-                // Nếu chưa đăng ký, sinh 'adults - 1' dòng nhập thông tin (trừ suất của khách chính).
-                const adultCompanionsCount = isCustomerAlreadyRegisteredInTour ? adults : (adults > 1 ? adults - 1 : 0);
-                generateAdultCompanionRows(adultCompanionsCount);
+                generateAdultCompanionRows(adults);
                 validateParticipantsWithRoomOnInput();
                 return true;
             }
@@ -3581,10 +3654,17 @@
             }
 
             const companions = [];
+            let isCustomerGoing = false;
             const adultsVal = parseInt(document.getElementById('num-adults').value) || 1;
-            if (adultsVal > 1) {
+            if (adultsVal > 0) {
                 const adultCompanionRows = document.querySelectorAll('.adult-companion-row');
                 adultCompanionRows.forEach(row => {
+                    const selectEl = row.querySelector('.adult-companion-select');
+                    if (selectEl && selectEl.value === '0') {
+                        isCustomerGoing = true;
+                        return; // Bỏ qua không đẩy customer vào list companions
+                    }
+
                     const nameEl = row.querySelector('.adult-companion-name');
                     const ageEl = row.querySelector('.adult-companion-age');
                     const phoneEl = row.querySelector('.adult-companion-phone');
@@ -3594,11 +3674,21 @@
                         if (compPhone.startsWith('84')) {
                             compPhone = '0' + compPhone.substring(2);
                         }
+                        
+                        let depId = null;
+                        if (selectEl && selectEl.value !== '') {
+                            const idx = parseInt(selectEl.value, 10);
+                            if (!isNaN(idx) && userDependentsList[idx] && userDependentsList[idx].id) {
+                                depId = userDependentsList[idx].id;
+                            }
+                        }
+
                         companions.push({
                             name: nameEl.value.trim(),
                             age: parseInt(ageEl.value) || 30,
                             phone: compPhone,
-                            idCard: idCardEl ? idCardEl.value.trim() : ''
+                            idCard: idCardEl ? idCardEl.value.trim() : '',
+                            dependentId: depId
                         });
                     }
                 });
@@ -3619,8 +3709,10 @@
                 vnpPaymentType: vnpPaymentType,
                 childAges: childAges,
                 companions: companions,
+                isCustomerGoing: isCustomerGoing,
                 promoCode: appliedPromoState ? appliedPromoState.code : null,
                 notes: customerNotes,
+                isPayerParticipating: isCustomerGoing,
                 acceptInsurance: (function () {
                     const chk = document.getElementById('insuranceConsent');
                     return chk ? chk.checked : false;
@@ -3929,11 +4021,19 @@
             }
         });
 
+        
+
         function checkDuplicateTourRegistration() {
             const tourInfo = tourData[currentTour];
             const dateInput = document.getElementById('departureDate');
             if (!tourInfo || !dateInput || !dateInput.value) return;
             const lang = document.documentElement.lang || 'vi';
+
+            if (!isLoggedIn) {
+                isCustomerAlreadyRegisteredInTour = false;
+                validateCompanions(false, false);
+                return;
+            }
 
             fetch(`/api/tour-bookings/check-registered?tourId=${tourInfo.id}&departureDate=${dateInput.value}`)
                 .then(res => res.ok ? res.json() : { registered: false })
@@ -3946,6 +4046,16 @@
                             lang === 'vi' ? 'Thông báo đặt trùng' : 'Duplicate Booking Notice',
                             lang === 'vi' ? 'Bạn đã đăng ký tour này trước đó. Bạn đang đặt hộ cho người khác?' : 'You have already booked this tour. Are you booking on behalf of others?'
                         );
+                        const chk = document.getElementById('isPayerParticipating');
+                        if (chk) {
+                            chk.checked = false;
+                            chk.disabled = true;
+                        }
+                    } else {
+                        const chk = document.getElementById('isPayerParticipating');
+                        if (chk) {
+                            chk.disabled = false;
+                        }
                     }
                     
                     // Cập nhật lại form gõ companion để đồng bộ số lượng ô nhập
@@ -3959,6 +4069,7 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             renderTour();
+            validateCompanions(false, false);
             const tomorrow = new Date();
             tomorrow.setDate(tomorrow.getDate() + 1);
             const yyyy = tomorrow.getFullYear();
@@ -3974,16 +4085,38 @@
             fetchWeather(tomorrowStr);
 
             // Tự động tải thông tin phòng đang hoạt động khi tải trang để so khớp thời gian thực
-            fetch('/api/rooms/my-active')
-                .then(res => res.ok ? res.json() : [])
-                .then(rooms => {
-                    myActiveRoomsData = rooms;
-                    console.log("myActiveRoomsData preloaded:", myActiveRoomsData);
-                    validateParticipantsWithRoomOnInput();
-                    checkDuplicateTourRegistration();
-                })
-                .catch(err => console.warn("Lỗi tải thông tin phòng khi khởi tạo:", err));
+            if (isLoggedIn) {
+                fetch('/api/rooms/my-active')
+                    .then(res => res.ok ? res.json() : [])
+                    .then(rooms => {
+                        myActiveRoomsData = rooms;
+                        console.log("myActiveRoomsData preloaded:", myActiveRoomsData);
+                        validateParticipantsWithRoomOnInput();
+                        checkDuplicateTourRegistration();
+                    })
+                    .catch(err => console.warn("Lỗi tải thông tin phòng khi khởi tạo:", err));
+            } else {
+                validateParticipantsWithRoomOnInput();
+            }
         });
+        function updateAdultSelectOptions() {
+            const selects = document.querySelectorAll('.adult-companion-select');
+            const selectedValues = Array.from(selects).map(s => s.value).filter(v => v !== '');
+            
+            selects.forEach(select => {
+                const options = select.querySelectorAll('option');
+                options.forEach(opt => {
+                    if (opt.value === '') return;
+                    if (selectedValues.includes(opt.value) && opt.value !== select.value) {
+                        opt.style.display = 'none';
+                        opt.disabled = true;
+                    } else {
+                        opt.style.display = '';
+                        opt.disabled = false;
+                    }
+                });
+            });
+        }
     </script>
     <div th:replace="~{guest/fragments/auth :: authModal}"></div>
 
@@ -4105,3 +4238,8 @@
 </body>
 
 </html>
+
+
+
+
+
