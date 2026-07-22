@@ -140,7 +140,7 @@ public class TourBookingServiceImpl implements TourBookingService {
                 if (Boolean.TRUE.equals(tour.getIsInsuranceRequired()) && request.isAcceptInsurance()) {
                         insuranceFee = tour.getInsurancePrice()
                                         .multiply(BigDecimal.valueOf(request.getParticipantCount()));
-                        LOG.info("PhÃ­ báº£o hiá»ƒm háº¡ch toÃ¡n (Ä‘Ã£ bao gá»“m trong giÃ¡): {} x {} ngÆ°á»i = {} VND",
+                        LOG.info("Phí bảo hiểm hạch toán (đã bao gồm trong giá): {} x {} người = {} VND",
                                         tour.getInsurancePrice(), request.getParticipantCount(), insuranceFee);
                 }
 
@@ -279,9 +279,9 @@ public class TourBookingServiceImpl implements TourBookingService {
                 boolean isCustomerAlreadyRegistered = tourAttendeeRepository
                                 .existsActiveAttendeeByCustomerAndSchedule(customer.getId(), schedule.getId());
 
-                // Khách hàng đặt chính là attendee số 1 (Chỉ gán nếu khách hàng chưa đăng ký
-                // tham gia chuyến đi này và customer có chọn đi trong frontend)
-                if (!isCustomerAlreadyRegistered && currentAttendeeCount < request.getParticipantCount() && request.isCustomerGoing()) {
+                // Khách hàng đặt chính là attendee số 1 (Chỉ gán nếu khách hàng chọn tham gia chuyến đi và chưa đăng ký tham gia chuyến đi này)
+                boolean shouldAddMainCustomer = request.isPayerParticipating() && !isCustomerAlreadyRegistered;
+                if (shouldAddMainCustomer && currentAttendeeCount < request.getParticipantCount()) {
                         TourAttendee mainAttendee = new TourAttendee();
                         mainAttendee.setTourBooking(savedBooking);
                         mainAttendee.setCustomer(customer);

@@ -30,6 +30,9 @@ public class TourBookingRequest {
     private boolean postToRoom = false;
     private Long roomBookingDetailId;
     
+    // Checkbox: "Tôi là người tham gia chuyến đi" (defaults to true)
+    private boolean isPayerParticipating = true;
+    
     @NotNull(message = "roomBookingId is required")
     private Long roomBookingId;
 
@@ -174,6 +177,14 @@ public class TourBookingRequest {
 
     public void setAcceptInsurance(boolean acceptInsurance) {
         this.acceptInsurance = acceptInsurance;
+    }
+
+    public boolean isPayerParticipating() {
+        return isPayerParticipating;
+    }
+
+    public void setPayerParticipating(boolean isPayerParticipating) {
+        this.isPayerParticipating = isPayerParticipating;
     }
 
     // Companion DTO representation

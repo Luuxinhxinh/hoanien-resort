@@ -379,7 +379,7 @@ public class ProfileController {
             if (passwordEncoder.matches(oldPassword, account.getPasswordHash())) {
                 account.setPasswordHash(passwordEncoder.encode(newPassword));
                 accountRepository.save(account);
-                redirectAttributes.addFlashAttribute("success", "Äá»•i máº­t kháº©u thÃ nh cÃ´ng!");
+                redirectAttributes.addFlashAttribute("success", "Đổi mật khẩu thành công!");
             } else {
                 redirectAttributes.addFlashAttribute("error", "Mật khẩu cũ không chính xác!");
             }
